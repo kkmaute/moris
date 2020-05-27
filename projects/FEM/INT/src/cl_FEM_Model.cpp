@@ -313,15 +313,15 @@ namespace moris
                     get_pdv_type_map();
 
             // create properties
-            moris::map< std::string, uint > tPropertyMap;
+            std::map< std::string, uint > tPropertyMap;
             this->create_properties( tPropertyMap, tMSIDofTypeMap, tMSIDvTypeMap, aLibrary );
 
             // create constitutive models
-            moris::map< std::string, uint > tCMMap;
+            std::map< std::string, uint > tCMMap;
             this->create_constitutive_models( tCMMap, tPropertyMap, tMSIDofTypeMap, tMSIDvTypeMap );
 
             // create stabilization parameters
-            moris::map< std::string, uint > tSPMap;
+            std::map< std::string, uint > tSPMap;
             this->create_stabilization_parameters( tSPMap, tPropertyMap, tCMMap, tMSIDofTypeMap, tMSIDvTypeMap );
 
             // create IWGs
@@ -368,7 +368,7 @@ namespace moris
 
         //------------------------------------------------------------------------------
         void FEM_Model::create_properties(
-                moris::map< std::string, uint >          & aPropertyMap,
+                std::map< std::string, uint >            & aPropertyMap,
                 moris::map< std::string, MSI::Dof_Type > & aMSIDofTypeMap,
                 moris::map< std::string, PDV_Type >      & aDvTypeMap,
                 std::shared_ptr< Library_IO >              aLibrary )
@@ -466,8 +466,8 @@ namespace moris
 
         //------------------------------------------------------------------------------
         void FEM_Model::create_constitutive_models(
-                moris::map< std::string, uint >          & aCMMap,
-                moris::map< std::string, uint >          & aPropertyMap,
+                std::map< std::string, uint >            & aCMMap,
+                std::map< std::string, uint >            & aPropertyMap,
                 moris::map< std::string, MSI::Dof_Type > & aMSIDofTypeMap,
                 moris::map< std::string, PDV_Type >      & aDvTypeMap )
         {
@@ -541,11 +541,27 @@ namespace moris
                         tPropertyNamesPair );
                 for( uint iProp = 0; iProp < tPropertyNamesPair.size(); iProp++ )
                 {
-                    // get property index
-                    uint tPropertyIndex = aPropertyMap[ tPropertyNamesPair( iProp )( 0 ) ];
+                    // if property name is in the property map
+                    if ( aPropertyMap.find( tPropertyNamesPair( iProp )( 0 ) ) != aPropertyMap.end() )
+                    {
+                        // get property index
+                        uint tPropertyIndex = aPropertyMap[ tPropertyNamesPair( iProp )( 0 ) ];
 
-                    // set property for CM
-                    mCMs( iCM )->set_property( mProperties( tPropertyIndex ), tPropertyNamesPair( iProp )( 1 ) );
+                        // set property for CM
+                        mCMs( iCM )->set_property(
+                                mProperties( tPropertyIndex ),
+                                tPropertyNamesPair( iProp )( 1 ) );
+                    }
+                    else
+                    {
+                        // create error message
+                        std::string tErrMsg =
+                                "FEM_Model::create_CMs - Unknown aPropertyString: " +
+                                tPropertyNamesPair( iProp )( 0 );
+
+                        // error
+                        MORIS_ERROR( false , tErrMsg.c_str() );
+                    }
                 }
 
                 //                // debug
@@ -555,9 +571,9 @@ namespace moris
 
         //------------------------------------------------------------------------------
         void FEM_Model::create_stabilization_parameters(
-                moris::map< std::string, uint >          & aSPMap,
-                moris::map< std::string, uint >          & aPropertyMap,
-                moris::map< std::string, uint >          & aCMMap,
+                std::map< std::string, uint >            & aSPMap,
+                std::map< std::string, uint >            & aPropertyMap,
+                std::map< std::string, uint >            & aCMMap,
                 moris::map< std::string, MSI::Dof_Type > & aMSIDofTypeMap,
                 moris::map< std::string, PDV_Type >      & aDvTypeMap )
         {
@@ -652,16 +668,29 @@ namespace moris
                 string_to_cell_of_cell(
                         tSPParameterList( iSP ).get< std::string >( "master_properties" ),
                         tMasterPropertyNamesPair );
-
                 for( uint iProp = 0; iProp < tMasterPropertyNamesPair.size(); iProp++ )
                 {
-                    // get property index
-                    uint tPropertyIndex = aPropertyMap[ tMasterPropertyNamesPair( iProp )( 0 ) ];
+                    // if property name is in the property map
+                    if ( aPropertyMap.find( tMasterPropertyNamesPair( iProp )( 0 ) ) != aPropertyMap.end() )
+                    {
+                        // get property index
+                        uint tPropertyIndex = aPropertyMap[ tMasterPropertyNamesPair( iProp )( 0 ) ];
 
-                    // set property for CM
-                    mSPs( iSP )->set_property(
-                            mProperties( tPropertyIndex ),
-                            tMasterPropertyNamesPair( iProp )( 1 ) );
+                        // set property for CM
+                        mSPs( iSP )->set_property(
+                                mProperties( tPropertyIndex ),
+                                tMasterPropertyNamesPair( iProp )( 1 ) );
+                    }
+                    else
+                    {
+                        // create error message
+                        std::string tErrMsg =
+                                "FEM_Model::create_SPs - Unknown master aPropertyString: " +
+                                tMasterPropertyNamesPair( iProp )( 0 );
+
+                        // error
+                        MORIS_ERROR( false , tErrMsg.c_str() );
+                    }
                 }
 
                 // set slave properties
@@ -672,14 +701,28 @@ namespace moris
 
                 for( uint iProp = 0; iProp < tSlavePropertyNamesPair.size(); iProp++ )
                 {
-                    // get property index
-                    uint tPropertyIndex = aPropertyMap[ tSlavePropertyNamesPair( iProp )( 0 ) ];
+                    // if property name is in the property map
+                    if ( aPropertyMap.find( tSlavePropertyNamesPair( iProp )( 0 ) ) != aPropertyMap.end() )
+                    {
+                        // get property index
+                        uint tPropertyIndex = aPropertyMap[ tSlavePropertyNamesPair( iProp )( 0 ) ];
 
-                    // set property for CM
-                    mSPs( iSP )->set_property(
-                            mProperties( tPropertyIndex ),
-                            tSlavePropertyNamesPair( iProp )( 1 ),
-                            mtk::Master_Slave::SLAVE );
+                        // set property for CM
+                        mSPs( iSP )->set_property(
+                                mProperties( tPropertyIndex ),
+                                tSlavePropertyNamesPair( iProp )( 1 ),
+                                mtk::Master_Slave::SLAVE );
+                    }
+                    else
+                    {
+                        // create error message
+                        std::string tErrMsg =
+                                "FEM_Model::create_SPs - Unknown slave aPropertyString: " +
+                                tSlavePropertyNamesPair( iProp )( 0 );
+
+                        // error
+                        MORIS_ERROR( false , tErrMsg.c_str() );
+                    }
                 }
 
                 // set master constitutive models
@@ -690,11 +733,27 @@ namespace moris
 
                 for( uint iCM = 0; iCM < tMasterCMNamesPair.size(); iCM++ )
                 {
-                    // get CM index
-                    uint tCMIndex = aCMMap[ tMasterCMNamesPair( iCM )( 0 ) ];
+                    // if CM name is in the CM map
+                    if ( aCMMap.find( tMasterCMNamesPair( iCM )( 0 ) ) != aCMMap.end() )
+                    {
+                        // get CM index
+                        uint tCMIndex = aCMMap[ tMasterCMNamesPair( iCM )( 0 ) ];
 
-                    // set CM for SP
-                    mSPs( iSP )->set_constitutive_model( mCMs( tCMIndex ), tMasterCMNamesPair( iCM )( 1 ) );
+                        // set CM for SP
+                        mSPs( iSP )->set_constitutive_model(
+                                mCMs( tCMIndex ),
+                                tMasterCMNamesPair( iCM )( 1 ) );
+                    }
+                    else
+                    {
+                        // create error message
+                        std::string tErrMsg =
+                                "FEM_Model::create_SPs - Unknown master aCMString: " +
+                                tMasterCMNamesPair( iCM )( 0 );
+
+                        // error
+                        MORIS_ERROR( false , tErrMsg.c_str() );
+                    }
                 }
 
                 // set slave constitutive models
@@ -705,14 +764,28 @@ namespace moris
 
                 for( uint iCM = 0; iCM < tSlaveCMNamesPair.size(); iCM++ )
                 {
-                    // get CM index
-                    uint tCMIndex = aCMMap[ tSlaveCMNamesPair( iCM )( 0 ) ];
+                    // if CM name is in the CM map
+                    if ( aCMMap.find( tSlaveCMNamesPair( iCM )( 0 ) ) != aCMMap.end() )
+                    {
+                        // get CM index
+                        uint tCMIndex = aCMMap[ tSlaveCMNamesPair( iCM )( 0 ) ];
 
-                    // set CM for SP
-                    mSPs( iSP )->set_constitutive_model(
-                            mCMs( tCMIndex ),
-                            tSlaveCMNamesPair( iCM )( 1 ),
-                            mtk::Master_Slave::SLAVE );
+                        // set CM for SP
+                        mSPs( iSP )->set_constitutive_model(
+                                mCMs( tCMIndex ),
+                                tSlaveCMNamesPair( iCM )( 1 ),
+                                mtk::Master_Slave::SLAVE );
+                    }
+                    else
+                    {
+                        // create error message
+                        std::string tErrMsg =
+                                "FEM_Model::create_SPs - Unknown slave aCMString: " +
+                                tSlaveCMNamesPair( iCM )( 0 );
+
+                        // error
+                        MORIS_ERROR( false , tErrMsg.c_str() );
+                    }
                 }
 
                 //                 // debug
@@ -722,9 +795,9 @@ namespace moris
 
         //------------------------------------------------------------------------------
         void FEM_Model::create_IWGs(
-                moris::map< std::string, uint >          & aPropertyMap,
-                moris::map< std::string, uint >          & aCMMap,
-                moris::map< std::string, uint >          & aSPMap,
+                std::map< std::string, uint >            & aPropertyMap,
+                std::map< std::string, uint >            & aCMMap,
+                std::map< std::string, uint >            & aSPMap,
                 moris::map< std::string, MSI::Dof_Type > & aMSIDofTypeMap,
                 moris::map< std::string, PDV_Type >      & aDvTypeMap )
         {
@@ -801,11 +874,27 @@ namespace moris
 
                 for( uint iProp = 0; iProp < tMasterPropertyNamesPair.size(); iProp++ )
                 {
-                    // get property index
-                    uint tPropertyIndex = aPropertyMap[ tMasterPropertyNamesPair( iProp )( 0 ) ];
+                    // if property name is in the property map
+                    if ( aPropertyMap.find( tMasterPropertyNamesPair( iProp )( 0 ) ) != aPropertyMap.end() )
+                    {
+                        // get property index
+                        uint tPropertyIndex = aPropertyMap[ tMasterPropertyNamesPair( iProp )( 0 ) ];
 
-                    // set property for IWG
-                    mIWGs( iIWG )->set_property( mProperties( tPropertyIndex ), tMasterPropertyNamesPair( iProp )( 1 ) );
+                        // set property for IWG
+                        mIWGs( iIWG )->set_property(
+                                mProperties( tPropertyIndex ),
+                                tMasterPropertyNamesPair( iProp )( 1 ) );
+                    }
+                    else
+                    {
+                        // create error message
+                        std::string tErrMsg =
+                                "FEM_Model::create_IWGs - Unknown master aPropertyString: " +
+                                tMasterPropertyNamesPair( iProp )( 0 );
+
+                        // error
+                        MORIS_ERROR( false , tErrMsg.c_str() );
+                    }
                 }
 
                 // set slave properties
@@ -816,14 +905,28 @@ namespace moris
 
                 for( uint iProp = 0; iProp < tSlavePropertyNamesPair.size(); iProp++ )
                 {
-                    // get property index
-                    uint tPropertyIndex = aPropertyMap[ tMasterPropertyNamesPair( iProp )( 0 ) ];
+                    // if property name is in the property map
+                    if ( aPropertyMap.find( tSlavePropertyNamesPair( iProp )( 0 ) ) != aPropertyMap.end() )
+                    {
+                        // get property index
+                        uint tPropertyIndex = aPropertyMap[ tSlavePropertyNamesPair( iProp )( 0 ) ];
 
-                    // set property for IWG
-                    mIWGs( iIWG )->set_property(
-                            mProperties( tPropertyIndex ),
-                            tSlavePropertyNamesPair( iProp )( 1 ),
-                            mtk::Master_Slave::SLAVE );
+                        // set property for IWG
+                        mIWGs( iIWG )->set_property(
+                                mProperties( tPropertyIndex ),
+                                tSlavePropertyNamesPair( iProp )( 1 ),
+                                mtk::Master_Slave::SLAVE );
+                    }
+                    else
+                    {
+                        // create error message
+                        std::string tErrMsg =
+                                "FEM_Model::create_IWGs - Unknown slave aPropertyString: " +
+                                tSlavePropertyNamesPair( iProp )( 0 );
+
+                        // error
+                        MORIS_ERROR( false , tErrMsg.c_str() );
+                    }
                 }
 
                 // set master constitutive models
@@ -834,13 +937,27 @@ namespace moris
 
                 for( uint iCM = 0; iCM < tMasterCMNamesPair.size(); iCM++ )
                 {
-                    // get CM index
-                    uint tCMIndex = aCMMap[ tMasterCMNamesPair( iCM )( 0 ) ];
+                    // if CM name is in the CM map
+                    if ( aCMMap.find( tMasterCMNamesPair( iCM )( 0 ) ) != aCMMap.end() )
+                    {
+                        // get CM index
+                        uint tCMIndex = aCMMap[ tMasterCMNamesPair( iCM )( 0 ) ];
 
-                    // set CM for IWG
-                    mIWGs( iIWG )->set_constitutive_model(
-                            mCMs( tCMIndex ),
-                            tMasterCMNamesPair( iCM )( 1 ) );
+                        // set CM for IWG
+                        mIWGs( iIWG )->set_constitutive_model(
+                                mCMs( tCMIndex ),
+                                tMasterCMNamesPair( iCM )( 1 ) );
+                    }
+                    else
+                    {
+                        // create error message
+                        std::string tErrMsg =
+                                "FEM_Model::create_IWGs - Unknown master aCMString: " +
+                                tMasterCMNamesPair( iCM )( 0 );
+
+                        // error
+                        MORIS_ERROR( false , tErrMsg.c_str() );
+                    }
                 }
 
                 // set slave constitutive models
@@ -851,14 +968,28 @@ namespace moris
 
                 for( uint iCM = 0; iCM < tSlaveCMNamesPair.size(); iCM++ )
                 {
-                    // get CM index
-                    uint tCMIndex = aCMMap[ tSlaveCMNamesPair( iCM )( 0 ) ];
+                    // if CM name is in the CM map
+                    if ( aCMMap.find( tSlaveCMNamesPair( iCM )( 0 ) ) != aCMMap.end() )
+                    {
+                        // get CM index
+                        uint tCMIndex = aCMMap[ tSlaveCMNamesPair( iCM )( 0 ) ];
 
-                    // set CM for IWG
-                    mIWGs( iIWG )->set_constitutive_model(
-                            mCMs( tCMIndex ),
-                            tSlaveCMNamesPair( iCM )( 1 ),
-                            mtk::Master_Slave::SLAVE );
+                        // set CM for IWG
+                        mIWGs( iIWG )->set_constitutive_model(
+                                mCMs( tCMIndex ),
+                                tSlaveCMNamesPair( iCM )( 1 ),
+                                mtk::Master_Slave::SLAVE );
+                    }
+                    else
+                    {
+                        // create error message
+                        std::string tErrMsg =
+                                "FEM_Model::create_IWGs - Unknown slave aCMString: " +
+                                tSlaveCMNamesPair( iCM )( 0 );
+
+                        // error
+                        MORIS_ERROR( false , tErrMsg.c_str() );
+                    }
                 }
 
                 // set stabilization parameters
@@ -869,13 +1000,27 @@ namespace moris
 
                 for( uint iSP = 0; iSP < tSPNamesPair.size(); iSP++ )
                 {
-                    // get SP index
-                    uint tSPIndex = aSPMap[ tSPNamesPair( iSP )( 0 ) ];
+                    // if CM name is in the CM map
+                    if ( aSPMap.find( tSPNamesPair( iSP )( 0 ) ) != aSPMap.end() )
+                    {
+                        // get SP index
+                        uint tSPIndex = aSPMap[ tSPNamesPair( iSP )( 0 ) ];
 
-                    // set SP for IWG
-                    mIWGs( iIWG )->set_stabilization_parameter(
-                            mSPs( tSPIndex ),
-                            tSPNamesPair( iSP )( 1 ) );
+                        // set SP for IWG
+                        mIWGs( iIWG )->set_stabilization_parameter(
+                                mSPs( tSPIndex ),
+                                tSPNamesPair( iSP )( 1 ) );
+                    }
+                    else
+                    {
+                        // create error message
+                        std::string tErrMsg =
+                                "FEM_Model::create_IWGs - Unknown aSPString: " +
+                                tSPNamesPair( iSP )( 0 );
+
+                        // error
+                        MORIS_ERROR( false , tErrMsg.c_str() );
+                    }
                 }
 
                 //                // debug
@@ -885,9 +1030,9 @@ namespace moris
 
         //------------------------------------------------------------------------------
         void FEM_Model::create_IQIs(
-                moris::map< std::string, uint >          & aPropertyMap,
-                moris::map< std::string, uint >          & aCMMap,
-                moris::map< std::string, uint >          & aSPMap,
+                std::map< std::string, uint >            & aPropertyMap,
+                std::map< std::string, uint >            & aCMMap,
+                std::map< std::string, uint >            & aSPMap,
                 moris::map< std::string, MSI::Dof_Type > & aMSIDofTypeMap,
                 moris::map< std::string, PDV_Type >      & aDvTypeMap )
         {
@@ -948,13 +1093,27 @@ namespace moris
 
                 for( uint iProp = 0; iProp < tMasterPropertyNamesPair.size(); iProp++ )
                 {
-                    // get property index
-                    uint tPropertyIndex = aPropertyMap[ tMasterPropertyNamesPair( iProp )( 0 ) ];
+                    // if property name is in the property map
+                    if ( aPropertyMap.find( tMasterPropertyNamesPair( iProp )( 0 ) ) != aPropertyMap.end() )
+                    {
+                        // get property index
+                        uint tPropertyIndex = aPropertyMap[ tMasterPropertyNamesPair( iProp )( 0 ) ];
 
-                    // set property for IWG
-                    mIQIs( iIQI )->set_property(
-                            mProperties( tPropertyIndex ),
-                            tMasterPropertyNamesPair( iProp )( 1 ) );
+                        // set property for IWG
+                        mIQIs( iIQI )->set_property(
+                                mProperties( tPropertyIndex ),
+                                tMasterPropertyNamesPair( iProp )( 1 ) );
+                    }
+                    else
+                    {
+                        // create error message
+                        std::string tErrMsg =
+                                "FEM_Model::create_IQIs - Unknown master aPropertyString: " +
+                                tMasterPropertyNamesPair( iProp )( 0 );
+
+                        // error
+                        MORIS_ERROR( false , tErrMsg.c_str() );
+                    }
                 }
 
                 // set master constitutive models
@@ -965,13 +1124,27 @@ namespace moris
 
                 for( uint iCM = 0; iCM < tMasterCMNamesPair.size(); iCM++ )
                 {
-                    // get CM index
-                    uint tCMIndex = aCMMap[ tMasterCMNamesPair( iCM )( 0 ) ];
+                    // if CM name is in the CM map
+                    if ( aCMMap.find( tMasterCMNamesPair( iCM )( 0 ) ) != aCMMap.end() )
+                    {
+                        // get CM index
+                        uint tCMIndex = aCMMap[ tMasterCMNamesPair( iCM )( 0 ) ];
 
-                    // set CM for IWG
-                    mIQIs( iIQI )->set_constitutive_model(
-                            mCMs( tCMIndex ),
-                            tMasterCMNamesPair( iCM )( 1 ) );
+                        // set CM for IWG
+                        mIQIs( iIQI )->set_constitutive_model(
+                                mCMs( tCMIndex ),
+                                tMasterCMNamesPair( iCM )( 1 ) );
+                    }
+                    else
+                    {
+                        // create error message
+                        std::string tErrMsg =
+                                "FEM_Model::create_IQIs - Unknown master aCMString: " +
+                                tMasterCMNamesPair( iCM )( 0 );
+
+                        // error
+                        MORIS_ERROR( false , tErrMsg.c_str() );
+                    }
                 }
 
                 // set stabilization parameters
@@ -982,15 +1155,30 @@ namespace moris
 
                 for( uint iSP = 0; iSP < tSPNamesPair.size(); iSP++ )
                 {
-                    // get SP index
-                    uint tSPIndex = aSPMap[ tSPNamesPair( iSP )( 0 ) ];
+                    // if SP name is in the SP map
+                    if ( aSPMap.find( tSPNamesPair( iSP )( 0 ) ) != aSPMap.end() )
+                    {
+                        // get SP index
+                        uint tSPIndex = aSPMap[ tSPNamesPair( iSP )( 0 ) ];
 
-                    // set SP for IWG
-                    mIQIs( iIQI )->set_stabilization_parameter(
-                            mSPs( tSPIndex ),
-                            tSPNamesPair( iSP )( 1 ) );
+                        // set SP for IWG
+                        mIQIs( iIQI )->set_stabilization_parameter(
+                                mSPs( tSPIndex ),
+                                tSPNamesPair( iSP )( 1 ) );
+                    }
+                    else
+                    {
+                        // create error message
+                        std::string tErrMsg =
+                                "FEM_Model::create_IQIs - Unknown aSPString: " +
+                                tSPNamesPair( iSP )( 0 );
+
+                        // error
+                        MORIS_ERROR( false , tErrMsg.c_str() );
+                    }
+
                 }
-                // debug
+                //                // debug
                 //                mIQIs( iIQI )->print_names();
 
             }

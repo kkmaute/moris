@@ -14,7 +14,7 @@ namespace moris
 {
     namespace fem
     {
-//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
         SP_Dirichlet_Nitsche::SP_Dirichlet_Nitsche()
         {
             // set size for the property pointer cell
@@ -24,22 +24,41 @@ namespace moris
             mPropertyMap[ "Material" ] = SP_Property_Type::MATERIAL;
         }
 
-//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
         void SP_Dirichlet_Nitsche::reset_cluster_measures()
         {
             // evaluate element size from the cluster
-            mElementSize = mCluster->compute_cluster_cell_length_measure( mtk::Primary_Void::PRIMARY,
-                                                                          mtk::Master_Slave::MASTER );
+            mElementSize = mCluster->compute_cluster_cell_length_measure(
+                    mtk::Primary_Void::PRIMARY,
+                    mtk::Master_Slave::MASTER );
         }
 
-//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
+        void SP_Dirichlet_Nitsche::set_property(
+                std::shared_ptr< Property > aProperty,
+                std::string                 aPropertyString,
+                mtk::Master_Slave           aIsMaster )
+        {
+            // check that aPropertyString makes sense
+            MORIS_ERROR( mPropertyMap.find( aPropertyString ) != mPropertyMap.end(),
+                    "SP_Dirichlet_Nitsche::set_property - Unknown aPropertyString." );
+
+            // set the property in the property cell
+            this->get_properties( aIsMaster )( static_cast< uint >( mPropertyMap[ aPropertyString ] ) ) = aProperty;
+        }
+
+        //------------------------------------------------------------------------------
         void SP_Dirichlet_Nitsche::eval_SP()
         {
+            // get the material property
+            std::shared_ptr< Property > tPropMaterial =
+                    mMasterProp( static_cast< uint >( SP_Property_Type::MATERIAL ) );
+
             // compute stabilization parameter value
-            mPPVal = mParameters( 0 ) * mMasterProp( 0 )->val() / mElementSize;
+            mPPVal = mParameters( 0 ) * tPropMaterial->val() / mElementSize;
         }
 
-//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
         void SP_Dirichlet_Nitsche::eval_dSPdMasterDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes )
         {
             // get the dof type as a uint
@@ -48,24 +67,29 @@ namespace moris
             // get the dof type index
             uint tDofIndex = mMasterGlobalDofTypeMap( tDofType );
 
-//            // reset the matrix
-//            mdPPdMasterDof( tDofIndex ).set_size( 1, mMasterDofFI( tDofIndex )->get_number_of_space_time_coefficients(), 0.0 );
+            // get FI for derivative dof type
+            Field_Interpolator * tFIDer =
+                    mMasterFIManager->get_field_interpolators_for_type( aDofTypes( 0 ) );
 
             // reset the matrix
-            mdPPdMasterDof( tDofIndex ).set_size( 1, mMasterFIManager->get_field_interpolators_for_type( aDofTypes( 0 ) )->get_number_of_space_time_coefficients(), 0.0 );
+            mdPPdMasterDof( tDofIndex ).set_size(
+                    1,
+                    tFIDer->get_number_of_space_time_coefficients(),
+                    0.0 );
 
-            // if indirect dependency on the dof type
-            for( uint iProp = 0; iProp < mMasterProp.size(); iProp++ )
+            // get the material property
+            std::shared_ptr< Property > tPropMaterial =
+                    mMasterProp( static_cast< uint >( SP_Property_Type::MATERIAL ) );
+
+            // if material property depends on the dof type
+            if ( tPropMaterial->check_dof_dependency( aDofTypes ) )
             {
-                if ( mMasterProp( iProp )->check_dof_dependency( aDofTypes ) )
-                {
-                    // compute derivative with indirect dependency through properties
-                    mdPPdMasterDof( tDofIndex ).matrix_data()
-                    += this->val()( 0 ) / mMasterProp( iProp )->val()( 0 ) * mMasterProp( iProp )->dPropdDOF( aDofTypes ) ;
-                }
+                // compute derivative with indirect dependency through properties
+                mdPPdMasterDof( tDofIndex ).matrix_data() +=
+                        this->val()( 0 ) / tPropMaterial->val()( 0 ) * tPropMaterial->dPropdDOF( aDofTypes );
             }
         }
 
-//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
     } /* namespace fem */
 } /* namespace moris */

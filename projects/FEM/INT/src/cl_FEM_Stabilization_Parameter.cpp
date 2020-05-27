@@ -14,7 +14,7 @@ namespace moris
     namespace fem
     {
 
-//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
         void Stabilization_Parameter::print_names()
         {
             std::cout<<"----------"<<std::endl;
@@ -54,21 +54,21 @@ namespace moris
             std::cout<<"----------"<<std::endl;
         }
 
-//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
         moris::Cell< std::shared_ptr< Property > > & Stabilization_Parameter::get_properties( mtk::Master_Slave aIsMaster )
         {
             // switch on master/slave
             switch( aIsMaster )
             {
                 // if master
-                case( mtk::Master_Slave::MASTER ):
+                case mtk::Master_Slave::MASTER :
                 {
                     // return master property pointers
                     return mMasterProp;
                 }
 
                 // if slave
-                case( mtk::Master_Slave::SLAVE ):
+                case mtk::Master_Slave::SLAVE :
                 {
                     // return slave property pointers
                     return mSlaveProp;
@@ -83,21 +83,21 @@ namespace moris
             }
         }
 
-//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
         moris::Cell< std::shared_ptr< Constitutive_Model > > & Stabilization_Parameter::get_constitutive_models( mtk::Master_Slave aIsMaster )
         {
             // switch on master/slave
             switch( aIsMaster )
             {
                 // if master
-                case( mtk::Master_Slave::MASTER ):
+                case mtk::Master_Slave::MASTER :
                 {
                     // return master CM pointers
                     return mMasterCM;
                 }
 
                 // if slave
-                case( mtk::Master_Slave::SLAVE ):
+                case mtk::Master_Slave::SLAVE :
                 {
                     // return slave CM pointers
                     return mSlaveCM;
@@ -112,18 +112,19 @@ namespace moris
             }
         }
 
-//------------------------------------------------------------------------------
-        void Stabilization_Parameter::set_dof_type_list( const moris::Cell< moris::Cell< MSI::Dof_Type > > & aDofTypes,
-                                                               mtk::Master_Slave                             aIsMaster )
+        //------------------------------------------------------------------------------
+        void Stabilization_Parameter::set_dof_type_list(
+                const moris::Cell< moris::Cell< MSI::Dof_Type > > & aDofTypes,
+                mtk::Master_Slave                                   aIsMaster )
         {
             switch ( aIsMaster )
             {
-                case( mtk::Master_Slave::MASTER ) :
+                case mtk::Master_Slave::MASTER  :
                 {
                     mMasterDofTypes = aDofTypes;
                     break;
                 }
-                case( mtk::Master_Slave::SLAVE ) :
+                case mtk::Master_Slave::SLAVE :
                 {
                     mSlaveDofTypes = aDofTypes;
                     break;
@@ -136,59 +137,21 @@ namespace moris
             }
         }
 
-//------------------------------------------------------------------------------
-        void Stabilization_Parameter::set_dof_type_list( moris::Cell< moris::Cell< MSI::Dof_Type > > & aDofTypes,
-                                                         moris::Cell< std::string >                  & aDofStrings,
-                                                         mtk::Master_Slave                           aIsMaster )
-        {
-            switch ( aIsMaster )
-            {
-                case( mtk::Master_Slave::MASTER ) :
-                {
-                    mMasterDofTypes = aDofTypes;
-
-                    // set the dof map
-                    for( uint iDof = 0; iDof < aDofStrings.size(); iDof++ )
-                    {
-                        mMasterDofMap[ aDofStrings( iDof ) ] = aDofTypes( iDof )( 0 );
-                    }
-
-                    break;
-                }
-                case( mtk::Master_Slave::SLAVE ) :
-                {
-                    mSlaveDofTypes = aDofTypes;
-
-                    // set the dof map
-                    for( uint iDof = 0; iDof < aDofStrings.size(); iDof++ )
-                    {
-                        mSlaveDofMap[ aDofStrings( iDof ) ] = aDofTypes( iDof )( 0 );
-                    }
-                    break;
-                }
-                default :
-                {
-                    MORIS_ERROR( false, "Stabilization_Parameter::set_dof_type_list - can only be MASTER or SLAVE.");
-                    break;
-                }
-            }
-        }
-
-//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
         const moris::Cell< moris::Cell< MSI::Dof_Type > > & Stabilization_Parameter::get_dof_type_list( mtk::Master_Slave aIsMaster ) const
         {
             // switch on master/slave
             switch( aIsMaster )
             {
                 // if master
-                case( mtk::Master_Slave::MASTER ):
+                case mtk::Master_Slave::MASTER :
                 {
                     // return master global dof type list
                     return mMasterDofTypes;
                     break;
                 }
                 // if slave
-                case( mtk::Master_Slave::SLAVE ):
+                case mtk::Master_Slave::SLAVE :
                 {
                     // return slave global dof type list
                     return mSlaveDofTypes;
@@ -204,18 +167,19 @@ namespace moris
             }
         }
 
-//------------------------------------------------------------------------------
-        void Stabilization_Parameter::set_dv_type_list( const moris::Cell< moris::Cell< PDV_Type > > & aDvTypes,
-                                                              mtk::Master_Slave                      aIsMaster )
+        //------------------------------------------------------------------------------
+        void Stabilization_Parameter::set_dv_type_list(
+                moris::Cell< moris::Cell< PDV_Type > > & aDvTypes,
+                mtk::Master_Slave                        aIsMaster )
         {
             switch ( aIsMaster )
             {
-                case( mtk::Master_Slave::MASTER ) :
+                case mtk::Master_Slave::MASTER :
                 {
                     mMasterDvTypes = aDvTypes;
                     break;
                 }
-                case( mtk::Master_Slave::SLAVE ) :
+                case mtk::Master_Slave::SLAVE :
                 {
                     mSlaveDvTypes = aDvTypes;
                     break;
@@ -228,59 +192,21 @@ namespace moris
             }
         }
 
-//------------------------------------------------------------------------------
-        void Stabilization_Parameter::set_dv_type_list( const moris::Cell< moris::Cell< PDV_Type > > & aDvTypes,
-                                                              moris::Cell< std::string >           & aDvStrings,
-                                                              mtk::Master_Slave                      aIsMaster )
-        {
-            switch ( aIsMaster )
-            {
-                case( mtk::Master_Slave::MASTER ) :
-                {
-                    mMasterDvTypes = aDvTypes;
-
-                    // set the dv map
-                    for( uint iDv = 0; iDv < aDvStrings.size(); iDv++ )
-                    {
-                        mMasterDvMap[ aDvStrings( iDv ) ] = aDvTypes( iDv )( 0 );
-                    }
-
-                    break;
-                }
-                case( mtk::Master_Slave::SLAVE ) :
-                {
-                    mSlaveDvTypes = aDvTypes;
-
-                    // set the dv map
-                    for( uint iDv = 0; iDv < aDvStrings.size(); iDv++ )
-                    {
-                        mSlaveDvMap[ aDvStrings( iDv ) ] = aDvTypes( iDv )( 0 );
-                    }
-                    break;
-                }
-                default :
-                {
-                    MORIS_ERROR( false, "Stabilization_Parameter::set_dv_type_list - can only be MASTER or SLAVE.");
-                    break;
-                }
-            }
-        }
-
-//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
         const moris::Cell< moris::Cell< PDV_Type > > & Stabilization_Parameter::get_dv_type_list( mtk::Master_Slave aIsMaster ) const
         {
             // switch on master/slave
             switch( aIsMaster )
             {
                 // if master
-                case( mtk::Master_Slave::MASTER ):
+                case mtk::Master_Slave::MASTER :
                 {
                     // return master global dof type list
                     return mMasterDvTypes;
                     break;
                 }
                 // if slave
-                case( mtk::Master_Slave::SLAVE ):
+                case mtk::Master_Slave::SLAVE :
                 {
                     // return slave global dof type list
                     return mSlaveDvTypes;
@@ -296,20 +222,21 @@ namespace moris
             }
         }
 
-//------------------------------------------------------------------------------
-        void Stabilization_Parameter::set_field_interpolator_manager( Field_Interpolator_Manager * aFieldInterpolatorManager,
-                                                                      mtk::Master_Slave            aIsMaster )
+        //------------------------------------------------------------------------------
+        void Stabilization_Parameter::set_field_interpolator_manager(
+                Field_Interpolator_Manager * aFieldInterpolatorManager,
+                mtk::Master_Slave            aIsMaster )
         {
             // switch on master or slave
             switch ( aIsMaster )
             {
-                case ( mtk::Master_Slave::MASTER ) :
+                case mtk::Master_Slave::MASTER :
                 {
                     mMasterFIManager = aFieldInterpolatorManager;
                     break;
                 }
 
-                case ( mtk::Master_Slave::SLAVE ) :
+                case mtk::Master_Slave::SLAVE :
                 {
                     mSlaveFIManager = aFieldInterpolatorManager;
                     break;
@@ -343,17 +270,17 @@ namespace moris
             }
         }
 
-//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
         Field_Interpolator_Manager * Stabilization_Parameter::get_field_interpolator_manager( mtk::Master_Slave aIsMaster )
         {
             switch ( aIsMaster )
             {
-                case ( mtk::Master_Slave::MASTER ) :
+                case mtk::Master_Slave::MASTER :
                 {
                     return mMasterFIManager;
                 }
 
-                case ( mtk::Master_Slave::SLAVE ) :
+                case mtk::Master_Slave::SLAVE :
                 {
                     return mSlaveFIManager;
                 }
@@ -366,7 +293,7 @@ namespace moris
             }
         }
 
-//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
         const moris::Cell< moris::Cell< MSI::Dof_Type > > & Stabilization_Parameter::get_global_dof_type_list( mtk::Master_Slave aIsMaster )
         {
             if( mGlobalDofBuild )
@@ -385,14 +312,14 @@ namespace moris
             switch( aIsMaster )
             {
                 // if master
-                case( mtk::Master_Slave::MASTER ):
+                case mtk::Master_Slave::MASTER :
                 {
                     // return master global dof type list
                     return mMasterGlobalDofTypes;
                     break;
                 }
                 // if slave
-                case( mtk::Master_Slave::SLAVE ):
+                case mtk::Master_Slave::SLAVE :
                 {
                     // return slave global dof type list
                     return mSlaveGlobalDofTypes;
@@ -408,9 +335,8 @@ namespace moris
             }
         }
 
-//------------------------------------------------------------------------------
-        void Stabilization_Parameter::get_non_unique_dof_types
-        ( moris::Cell< MSI::Dof_Type > & aDofTypes )
+        //------------------------------------------------------------------------------
+        void Stabilization_Parameter::get_non_unique_dof_types( moris::Cell< MSI::Dof_Type > & aDofTypes )
         {
             // set the size of the dof type list for the set
             uint tCounter = 0;
@@ -559,10 +485,10 @@ namespace moris
             }
         }
 
-//------------------------------------------------------------------------------
-        void Stabilization_Parameter::get_non_unique_dof_and_dv_types
-        ( moris::Cell< MSI::Dof_Type > & aDofTypes,
-          moris::Cell< PDV_Type >        & aDvTypes )
+        //------------------------------------------------------------------------------
+        void Stabilization_Parameter::get_non_unique_dof_and_dv_types(
+                moris::Cell< MSI::Dof_Type > & aDofTypes,
+                moris::Cell< PDV_Type >        & aDvTypes )
         {
             // init dof and dv counters
             uint tDofCounter = 0;
@@ -605,7 +531,7 @@ namespace moris
                     moris::Cell< MSI::Dof_Type > tActiveDofTypes;
                     moris::Cell< PDV_Type >        tActiveDvTypes;
                     tProperty->get_non_unique_dof_and_dv_types( tActiveDofTypes,
-                                                                tActiveDvTypes );
+                            tActiveDvTypes );
 
                     //update counters
                     tDofCounter += tActiveDofTypes.size();
@@ -623,7 +549,7 @@ namespace moris
                     moris::Cell< MSI::Dof_Type > tActiveDofTypes;
                     moris::Cell< PDV_Type >        tActiveDvTypes;
                     tProperty->get_non_unique_dof_and_dv_types( tActiveDofTypes,
-                                                                tActiveDvTypes );
+                            tActiveDvTypes );
 
                     //update counters
                     tDofCounter += tActiveDofTypes.size();
@@ -640,7 +566,7 @@ namespace moris
                     moris::Cell< MSI::Dof_Type > tActiveDofTypes;
                     moris::Cell< PDV_Type >        tActiveDvTypes;
                     tCM->get_non_unique_dof_and_dv_types( tActiveDofTypes,
-                                                          tActiveDvTypes );
+                            tActiveDvTypes );
 
                     //update counters
                     tDofCounter += tActiveDofTypes.size();
@@ -657,7 +583,7 @@ namespace moris
                     moris::Cell< MSI::Dof_Type > tActiveDofTypes;
                     moris::Cell< PDV_Type >        tActiveDvTypes;
                     tCM->get_non_unique_dof_and_dv_types( tActiveDofTypes,
-                                                          tActiveDvTypes );
+                            tActiveDvTypes );
 
                     //update counters
                     tDofCounter += tActiveDofTypes.size();
@@ -706,7 +632,7 @@ namespace moris
                     moris::Cell< MSI::Dof_Type > tActiveDofTypes;
                     moris::Cell< PDV_Type >  tActiveDvTypes;
                     tProperty->get_non_unique_dof_and_dv_types( tActiveDofTypes,
-                                                                tActiveDvTypes );
+                            tActiveDvTypes );
 
                     // populate the dof list
                     aDofTypes.append( tActiveDofTypes );
@@ -723,7 +649,7 @@ namespace moris
                     moris::Cell< MSI::Dof_Type > tActiveDofTypes;
                     moris::Cell< PDV_Type >  tActiveDvTypes;
                     tProperty->get_non_unique_dof_and_dv_types( tActiveDofTypes,
-                                                                tActiveDvTypes );
+                            tActiveDvTypes );
 
                     // populate the dof list
                     aDofTypes.append( tActiveDofTypes );
@@ -740,7 +666,7 @@ namespace moris
                     moris::Cell< MSI::Dof_Type > tActiveDofTypes;
                     moris::Cell< PDV_Type >        tActiveDvTypes;
                     tCM->get_non_unique_dof_and_dv_types( tActiveDofTypes,
-                                                          tActiveDvTypes );
+                            tActiveDvTypes );
 
                     // populate the dof list
                     aDofTypes.append( tActiveDofTypes );
@@ -757,7 +683,7 @@ namespace moris
                     moris::Cell< MSI::Dof_Type > tActiveDofTypes;
                     moris::Cell< PDV_Type >        tActiveDvTypes;
                     tCM->get_non_unique_dof_and_dv_types( tActiveDofTypes,
-                                                          tActiveDvTypes );
+                            tActiveDvTypes );
 
                     // populate the dof list
                     aDofTypes.append( tActiveDofTypes );
@@ -767,7 +693,7 @@ namespace moris
         }
 
 
-//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
         void Stabilization_Parameter::build_global_dof_type_list()
         {
             // MASTER-------------------------------------------------------
@@ -1019,7 +945,7 @@ namespace moris
             mdPPdSlaveDof.resize( tNumSlaveGlobalDofTypes );
         }
 
-//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
         void Stabilization_Parameter::build_global_dof_type_map()
         {
             // MASTER-------------------------------------------------------
@@ -1067,21 +993,21 @@ namespace moris
             }
         }
 
-//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
         const Matrix< DDSMat > & Stabilization_Parameter::get_global_dof_type_map( mtk::Master_Slave aIsMaster )
         {
             // switch on master/slave
             switch( aIsMaster )
             {
                 // if master
-                case( mtk::Master_Slave::MASTER ):
+                case mtk::Master_Slave::MASTER :
                 {
                     // return master global dof type map
                     return mMasterGlobalDofTypeMap;
                     break;
                 }
                 // if slave
-                case( mtk::Master_Slave::SLAVE ):
+                case mtk::Master_Slave::SLAVE :
                 {
                     // return slave global dof type map
                     return mSlaveGlobalDofTypeMap;
@@ -1097,9 +1023,10 @@ namespace moris
             }
         }
 
-//------------------------------------------------------------------------------
-        bool Stabilization_Parameter::check_dof_dependency( const moris::Cell< MSI::Dof_Type > & aDofType,
-                                                                  mtk::Master_Slave              aIsMaster )
+        //------------------------------------------------------------------------------
+        bool Stabilization_Parameter::check_dof_dependency(
+                const moris::Cell< MSI::Dof_Type > & aDofType,
+                mtk::Master_Slave                    aIsMaster )
         {
             // set bool for dependency
             bool tDofDependency = false;
@@ -1109,7 +1036,7 @@ namespace moris
 
             // if aDofType is an active dof type for the stabilization parameter
             if( tDofIndex < this->get_global_dof_type_map( aIsMaster ).numel()
-                && this->get_global_dof_type_map( aIsMaster )( tDofIndex ) != -1 )
+                    && this->get_global_dof_type_map( aIsMaster )( tDofIndex ) != -1 )
             {
                 // bool is set to true
                 tDofDependency = true;
@@ -1118,21 +1045,21 @@ namespace moris
             return tDofDependency;
         }
 
-//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
         const moris::Cell< moris::Cell< PDV_Type > > & Stabilization_Parameter::get_global_dv_type_list( mtk::Master_Slave aIsMaster )
         {
             // switch on master/slave
             switch( aIsMaster )
             {
                 // if master
-                case( mtk::Master_Slave::MASTER ):
+                case mtk::Master_Slave::MASTER :
                 {
                     // return master global dv type list
                     return mMasterGlobalDvTypes;
                     break;
                 }
                 // if slave
-                case( mtk::Master_Slave::SLAVE ):
+                case mtk::Master_Slave::SLAVE :
                 {
                     // return slave global dv type list
                     return mSlaveGlobalDvTypes;
@@ -1148,7 +1075,7 @@ namespace moris
             }
         }
 
-//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
         void Stabilization_Parameter::build_global_dv_type_list()
         {
             // MASTER-------------------------------------------------------
@@ -1403,7 +1330,7 @@ namespace moris
             mdPPdSlaveDv.resize( tNumSlaveGlobalDvTypes );
         }
 
-//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
         void Stabilization_Parameter::build_global_dv_type_map()
         {
             // MASTER-------------------------------------------------------
@@ -1451,7 +1378,7 @@ namespace moris
             }
         }
 
-//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
         bool Stabilization_Parameter::check_master_dv_dependency( const moris::Cell< PDV_Type > & aDvType )
         {
             // set bool for dependency
@@ -1470,7 +1397,7 @@ namespace moris
             return tDvDependency;
         }
 
-//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
         bool Stabilization_Parameter::check_slave_dv_dependency( const moris::Cell< PDV_Type > & aDvType )
         {
             // set bool for dependency
@@ -1489,7 +1416,7 @@ namespace moris
             return tDvDependency;
         }
 
-//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
         void Stabilization_Parameter::reset_eval_flags()
         {
             // reset the value flag
@@ -1548,7 +1475,7 @@ namespace moris
             }
         }
 
-//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
         const Matrix< DDRMat > & Stabilization_Parameter::val()
         {
             // if the penalty parameter was not evaluated
@@ -1564,12 +1491,13 @@ namespace moris
             return mPPVal;
         }
 
-//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
         const Matrix< DDRMat > & Stabilization_Parameter::dSPdMasterDOF( const moris::Cell< MSI::Dof_Type > & aDofType )
         {
             // if aDofType is not an active dof type for the property
-            MORIS_ERROR( this->check_dof_dependency( aDofType, mtk::Master_Slave::MASTER ),
-                         "Stabilization_Parameter::dPPdMasterDOF - no dependency in this dof type." );
+            MORIS_ERROR(
+                    this->check_dof_dependency( aDofType, mtk::Master_Slave::MASTER ),
+                    "Stabilization_Parameter::dPPdMasterDOF - no dependency in this dof type." );
 
             // get the dof index
             uint tDofIndex = mMasterGlobalDofTypeMap( static_cast< uint >( aDofType( 0 ) ) );
@@ -1588,12 +1516,13 @@ namespace moris
             return mdPPdMasterDof( tDofIndex );
         }
 
-//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
         const Matrix< DDRMat > & Stabilization_Parameter::dSPdSlaveDOF( const moris::Cell< MSI::Dof_Type > & aDofType )
         {
             // if aDofType is not an active dof type for the property
-            MORIS_ERROR( this->check_dof_dependency( aDofType, mtk::Master_Slave::SLAVE ),
-                         "Stabilization_Parameter::dSPdSlaveDOF - no dependency in this dof type." );
+            MORIS_ERROR(
+                    this->check_dof_dependency( aDofType, mtk::Master_Slave::SLAVE ),
+                    "Stabilization_Parameter::dSPdSlaveDOF - no dependency in this dof type." );
 
             // get the dof index
             uint tDofIndex = mSlaveGlobalDofTypeMap( static_cast< uint >( aDofType( 0 ) ) );
@@ -1612,11 +1541,13 @@ namespace moris
             return mdPPdSlaveDof( tDofIndex );
         }
 
-//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
         const Matrix< DDRMat > & Stabilization_Parameter::dSPdMasterDV( const moris::Cell< PDV_Type > & aDvTypes )
         {
             // if aDofType is not an active dv type for the property
-            MORIS_ERROR( this->check_master_dv_dependency( aDvTypes ), "Penalty_Parameter::dPPdMasterDV - no dependency in this dv type." );
+            MORIS_ERROR(
+                    this->check_master_dv_dependency( aDvTypes ),
+                    "Penalty_Parameter::dPPdMasterDV - no dependency in this dv type." );
 
             // get the dv index
             uint tDvIndex = mMasterGlobalDvTypeMap( static_cast< uint >( aDvTypes( 0 ) ) );
@@ -1635,12 +1566,13 @@ namespace moris
             return mdPPdMasterDof( tDvIndex );
         }
 
-//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
         const Matrix< DDRMat > & Stabilization_Parameter::dSPdSlaveDV( const moris::Cell< PDV_Type > & aDvTypes )
         {
             // if aDofType is not an active dv type for the property
-            MORIS_ERROR( this->check_slave_dv_dependency( aDvTypes ),
-                         "Stabilization_Parameter::dSPdSlaveDV - no dependency in this dv type." );
+            MORIS_ERROR(
+                    this->check_slave_dv_dependency( aDvTypes ),
+                    "Stabilization_Parameter::dSPdSlaveDV - no dependency in this dv type." );
 
             // get the dv index
             uint tDvIndex = mSlaveGlobalDvTypeMap( static_cast< uint >( aDvTypes( 0 ) ) );
@@ -1659,7 +1591,7 @@ namespace moris
             return mdPPdSlaveDv( tDvIndex );
         }
 
-//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
     }/*end_fem_namespace */
 }/*end_moris_namespace */
 

@@ -14,7 +14,6 @@ namespace moris
     {
 
         //------------------------------------------------------------------------------
-
         CM_Diffusion_Linear_Isotropic::CM_Diffusion_Linear_Isotropic()
         {
             // set the property pointer cell size
@@ -43,23 +42,25 @@ namespace moris
                 // get dof type
                 MSI::Dof_Type tDofType = aDofTypes( iDof )( 0 );
 
-                // switch on dof type string
+                // if temperature dof type string
                 if( tDofString == "Temp" )
                 {
                     mTempDof = tDofType;
                 }
                 else
                 {
+                    // create error string
                     std::string tErrMsg =
-                            std::string("CM_Diffusion_Linear_Isotropic::set_dof_type_list - Unknown aDofString : ") +
+                            std::string( "CM_Diffusion_Linear_Isotropic::set_dof_type_list - Unknown aDofString : " ) +
                             tDofString;
+
+                    // error
                     MORIS_ERROR( false , tErrMsg.c_str() );
                 }
             }
         }
 
         //------------------------------------------------------------------------------
-
         void CM_Diffusion_Linear_Isotropic::set_property(
                 std::shared_ptr< fem::Property > aProperty,
                 std::string                      aPropertyString )
@@ -79,7 +80,6 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
-
         void CM_Diffusion_Linear_Isotropic::eval_flux()
         {
             // get the conductivity property

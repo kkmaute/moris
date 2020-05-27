@@ -39,8 +39,8 @@ namespace moris
                 // element size
                 real mElementSize = 1.0;
 
-                // default dof type for GGLS for Diffusion problems
-                MSI::Dof_Type mTempDof = MSI::Dof_Type::TEMP;
+                // default dof type
+                MSI::Dof_Type mMasterDofTemp = MSI::Dof_Type::TEMP;
 
             public:
 
@@ -80,12 +80,34 @@ namespace moris
                 /**
                  * reset the cluster measures required for this SP
                  */
-                void reset_cluster_measures()
+                void reset_cluster_measures();
+
+                //------------------------------------------------------------------------------
+                /**
+                 * set dof types
+                 * @param[ in ] aDofTypes a cell of cell of dof types
+                 * @param[ in ] aDofStrings list of strings describing the dof types
+                 * @param[ in ] aIsMaster enum for master or slave
+                 */
+                void set_dof_type_list(
+                        moris::Cell< moris::Cell< MSI::Dof_Type > > & aDofTypes,
+                        moris::Cell< std::string >                  & aDofStrings,
+                        mtk::Master_Slave                             aIsMaster = mtk::Master_Slave::MASTER );
+
+                //------------------------------------------------------------------------------
+                /**
+                 * set dv types
+                 * @param[ in ] aDvTypes   a cell of group of dv types
+                 * @param[ in ] aDvStrings list of strings describing the dv types
+                 * @param[ in ] aIsMaster enum for master or slave
+                 */
+                void set_dv_type_list(
+                        moris::Cell< moris::Cell< PDV_Type > > & aDvTypes,
+                        moris::Cell< std::string >             & aDvStrings,
+                        mtk::Master_Slave                        aIsMaster = mtk::Master_Slave::MASTER )
                 {
-                    // evaluate element size from the cluster
-                    mElementSize = mCluster->compute_cluster_cell_length_measure( mtk::Primary_Void::PRIMARY,
-                            mtk::Master_Slave::MASTER );
-                };
+                    Stabilization_Parameter::set_dv_type_list( aDvTypes, aIsMaster );
+                }
 
                 //------------------------------------------------------------------------------
                 /**
@@ -112,7 +134,6 @@ namespace moris
                  */
                 void eval_dSPdMasterDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes );
 
-
                 //------------------------------------------------------------------------------
                 /**
                  * evaluate the penalty parameter derivative wrt to a master dv type
@@ -122,8 +143,6 @@ namespace moris
                 {
                     MORIS_ERROR( false, "SP_SUPG_Advection::eval_dSPdMasterDV - not implemented." );
                 }
-
-                //------------------------------------------------------------------------------
         };
         //------------------------------------------------------------------------------
     } /* namespace fem */
