@@ -1,9 +1,8 @@
-#ifndef CL_GEN_PDV_Type_HOST_MANAGER_HPP_
-#define CL_GEN_PDV_Type_HOST_MANAGER_HPP_
+#ifndef MORIS_CL_GEN_PDV_HOST_MANAGER_HPP_
+#define MORIS_CL_GEN_PDV_HOST_MANAGER_HPP_
 
 #include "cl_MSI_Design_Variable_Interface.hpp"
 #include "cl_GEN_Pdv_Host.hpp"
-#include "cl_GEN_Field.hpp"
 #include "cl_GEN_Pdv_Enums.hpp"
 #include "cl_Matrix.hpp"
 
@@ -175,28 +174,6 @@ namespace moris
             void get_ig_requested_dv_types( Cell< PDV_Type > & aPdvTypes );
             
             /**
-             * Assign a GEN property to pdv type by node index
-             * 
-             * @param aPropertyPointer a GEN property pointer
-             * @param aPdvType         a list of dv types
-             * @param aNodeIndex     a node index
-             */
-            void assign_property_to_pdv_type_by_vertex_index(std::shared_ptr<Property>  aPropertyPointer,
-                                                              PDV_Type                        aPdvType,
-                                                              moris_index                   aNodeIndex);
-            
-            /**
-             * Assign a GEN Field to pdv type by node index
-             * 
-             * @param aFieldPointer a GEN Field pointer
-             * @param aPdvType      a list of dv types
-             * @param aNodeIndex  a node index
-             */
-            void assign_field_to_pdv_type_by_vertex_index(std::shared_ptr<GEN_Field>   aFieldPointer,
-                                                          PDV_Type                       aPdvType,
-                                                          moris_index                  aNodeIndex);
-            
-            /**
              * Get pdv by type and node index
              *
              * @param aNodeIndex     a node index
@@ -286,6 +263,22 @@ namespace moris
              * @param aPdvVal PDV_Type value
              */
             void create_ig_pdv(uint aNodeIndex, PDV_Type aPdvType, moris::real aPdvVal);
+
+            /**
+             * Does the necessary chain rule on the IQI derivatives with respect to PDVs which each of the PDV
+             * derivatives with respect to the ADVs, to obtain the complete sensitivities.
+             *
+             * @return Matrix of optimization sensitivities
+             */
+            Matrix<DDRMat> compute_diqi_dadv();
+
+        private:
+            /**
+             * Computes the derivatives of the PDVs with respect to the ADVs
+             *
+             * @return Matrix of pdv/adv sensitivities
+             */
+            Matrix<DDRMat> compute_dpdv_dadv();
 
 //            /**
 //             * communicate dv types
@@ -445,4 +438,4 @@ namespace moris
     }   // end ge namespace
 }  // end moris namepspace
 
-#endif /* PROJECTS_GEN_SRC_GEOMENG_CL_GEN_PDV_HOST_MANAGER_HPP_ */
+#endif /* MORIS_CL_GEN_PDV_HOST_MANAGER_HPP_ */

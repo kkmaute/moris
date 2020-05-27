@@ -278,7 +278,7 @@ TEST_CASE("XTK HMR 4 Material Bar Intersected By Plane and Hole","[XTK_HMR_PLANE
 
          hmr::Interpolation_Mesh_HMR * tInterpMesh = tHMR.create_interpolation_mesh( tLagrangeMeshIndex  );
 
-        moris::Cell< std::shared_ptr<moris::ge::Geometry_Discrete> > tGeometryVector(2);
+        moris::Cell< std::shared_ptr<moris::ge::Geometry> > tGeometryVector(2);
         tGeometryVector(0) = std::make_shared<moris::ge::Geometry_Field_HMR>(tHMRFields(0));
         tGeometryVector(1) = std::make_shared<moris::ge::Geometry_Field_HMR>(tHMRFields(1));
 
@@ -746,7 +746,7 @@ TEST_CASE("XTK HMR 4 Material Bar Intersected By Plane and Hole 3D","[XTK_HMR_PL
 
          hmr::Interpolation_Mesh_HMR * tInterpMesh = tHMR.create_interpolation_mesh( tLagrangeMeshIndex  );
 
-        moris::Cell< std::shared_ptr<moris::ge::Geometry_Discrete> > tGeometryVector(2);
+        moris::Cell< std::shared_ptr<moris::ge::Geometry> > tGeometryVector(2);
         tGeometryVector(0) = std::make_shared<moris::ge::Geometry_Field_HMR>(tHMRFields(0));
         tGeometryVector(1) = std::make_shared<moris::ge::Geometry_Field_HMR>(tHMRFields(1));
 

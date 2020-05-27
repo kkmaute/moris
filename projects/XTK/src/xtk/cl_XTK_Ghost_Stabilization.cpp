@@ -16,6 +16,14 @@
 
 namespace xtk
 {
+    Ghost_Stabilization::Ghost_Stabilization()
+    :mXTKModel(nullptr)
+    {}
+    // ----------------------------------------------------------------------------------
+    Ghost_Stabilization::Ghost_Stabilization( Model* aXTKModel )
+    :mXTKModel(aXTKModel)
+    {}
+    // ----------------------------------------------------------------------------------
     void
     Ghost_Stabilization::setup_ghost_stabilization()
     {
@@ -24,13 +32,16 @@ namespace xtk
         // construct trivial subphase interpolation cells
         this->construct_ip_ig_cells_for_ghost_side_clusters(tGhostSetupData);
 
+        // identify and communicate vertices in aura that interpolate into ghost facets
+        this->identify_and_setup_aura_vertices_in_ghost();
+
         // setup the side sets
         this->declare_ghost_double_side_sets_in_mesh(tGhostSetupData);
 
         // Construct Ghost Double Side Clusters and Sets
         this->construct_ghost_double_side_sets_in_mesh(tGhostSetupData);
     }
-
+    // ----------------------------------------------------------------------------------
     void
     Ghost_Stabilization::visualize_ghost_on_mesh(moris_index aBulkPhase)
     {
@@ -56,14 +67,14 @@ namespace xtk
         tEnrIgMesh.setup_color_to_set();
         tEnrIgMesh.collect_all_sets();
     }
-
+    // ----------------------------------------------------------------------------------
     std::string
     Ghost_Stabilization::get_ghost_dbl_side_set_name(moris_index aBulkPhase)
     {
         MORIS_ASSERT(aBulkPhase < (moris_index)mXTKModel->get_geom_engine()->get_num_bulk_phase(),"Bulk Phase index out of bounds.");
         return "ghost_p" + std::to_string(aBulkPhase);
     }
-
+    // ----------------------------------------------------------------------------------
     void
     Ghost_Stabilization::construct_ip_ig_cells_for_ghost_side_clusters(Ghost_Setup_Data & aGhostSetupData)
     {
@@ -129,6 +140,7 @@ namespace xtk
         {
             for(moris::size_t iC = 0; iC<tNotOwnedInterpCells(iP).size(); iC++)
             {
+
                 xtk::Cell_Cluster const & tCluster = tEnrIgMesh.get_xtk_cell_cluster(*tNotOwnedInterpCells(iP)(iC));
                 moris_index tSubphase = tNotOwnedInterpCells(iP)(iC)->get_subphase_index();
 
@@ -161,7 +173,13 @@ namespace xtk
 
         // send requests
         moris::uint tMPITag = 301;
-        mXTKModel->send_outward_requests(tMPITag, tProcRanks,tBaseEnrInterpCellId);
+        for(moris::size_t iP = 0; iP<tProcRanks.size(); iP++)
+        {
+            if(tBaseEnrInterpCellId(iP).numel() > 0)
+            {
+                mXTKModel->send_outward_requests(tMPITag, tProcRanks,tBaseEnrInterpCellId);
+            }
+        }
 
         barrier();
 
@@ -192,13 +210,15 @@ namespace xtk
         // create owned ghost ip cells
         this->create_owned_ghost_ip_cells(aGhostSetupData,tEnrIpMesh,tNonTrivialOwnedInterpCells,tNewNonTrivialOwnedInterpCellsIds);
 
-    }
+        barrier();
 
+    }
+    // ----------------------------------------------------------------------------------
     void
     Ghost_Stabilization::prepare_ip_cell_id_answers( Cell<Matrix<IndexMat>> & aReceivedEnrCellIds,
-                                                     Cell<moris_id>         & aNewInterpCellIds,
-                                                     Cell<Matrix<IndexMat>> & aEnrCellIds,
-                                                     std::unordered_map<moris_id, moris_id> & aBaseEnrIdToIndexInNonTrivialOwned)
+            Cell<moris_id>         & aNewInterpCellIds,
+            Cell<Matrix<IndexMat>> & aEnrCellIds,
+            std::unordered_map<moris_id, moris_id> & aBaseEnrIdToIndexInNonTrivialOwned)
     {
         aEnrCellIds.resize(aReceivedEnrCellIds.size());
 
@@ -216,12 +236,12 @@ namespace xtk
             }
         }
     }
-
+    // ----------------------------------------------------------------------------------
     void
     Ghost_Stabilization::create_not_owned_ghost_ip_cells( Ghost_Setup_Data &                                      aGhostSetupData,
-                                                          Enriched_Interpolation_Mesh &                           aEnrInterpMesh,
-                                                          Cell<Cell<Interpolation_Cell_Unzipped *>> const & aNonTrivialNotOwnedInterpCells,
-                                                          Cell<Matrix<IndexMat>>                          const & aReceivedEnrCellIds)
+            Enriched_Interpolation_Mesh &                           aEnrInterpMesh,
+            Cell<Cell<Interpolation_Cell_Unzipped *>> const & aNonTrivialNotOwnedInterpCells,
+            Cell<Matrix<IndexMat>>                          const & aReceivedEnrCellIds)
     {
         // iterate through received data
         for(moris::uint i = 0; i < aNonTrivialNotOwnedInterpCells.size(); i++)
@@ -238,44 +258,438 @@ namespace xtk
                 MORIS_ASSERT(tGhostCellIpIndex != MORIS_INDEX_MAX,"Max index on not owned ghost ip cell. This could be a communication error.");
 
                 aEnrInterpMesh.mEnrichedInterpCells(tGhostCellIpIndex) = new Interpolation_Cell_Unzipped(aNonTrivialNotOwnedInterpCells(i)(j)->get_base_cell(),
-                                                                                                         aNonTrivialNotOwnedInterpCells(i)(j)->get_subphase_index(),
-                                                                                                         aNonTrivialNotOwnedInterpCells(i)(j)->get_bulkphase_index(),
-                                                                                                         aNonTrivialNotOwnedInterpCells(i)(j)->get_id(),
-                                                                                                         tGhostCellIpIndex,
-                                                                                                         tReceivedEnrCellId,
-                                                                                                         aNonTrivialNotOwnedInterpCells(i)(j)->get_connectivity());
+                        aNonTrivialNotOwnedInterpCells(i)(j)->get_subphase_index(),
+                        aNonTrivialNotOwnedInterpCells(i)(j)->get_bulkphase_index(),
+                        aNonTrivialNotOwnedInterpCells(i)(j)->get_id(),
+                        tGhostCellIpIndex,
+                        tReceivedEnrCellId,
+                        aNonTrivialNotOwnedInterpCells(i)(j)->get_connectivity());
 
                 aEnrInterpMesh.mEnrichedInterpCells(tGhostCellIpIndex)->set_vertices(aNonTrivialNotOwnedInterpCells(i)(j)->get_xtk_interpolation_vertices());
 
             }
         }
     }
-
+    // ----------------------------------------------------------------------------------
     void
     Ghost_Stabilization::create_owned_ghost_ip_cells( Ghost_Setup_Data &                          aGhostSetupData,
-                                                      Enriched_Interpolation_Mesh &               aEnrInterpMesh,
-                                                      Cell<Interpolation_Cell_Unzipped *> & aNonTrivialOwnedInterpCells,
-                                                      Cell<moris_id>                      & aEnrCellIds)
+            Enriched_Interpolation_Mesh &               aEnrInterpMesh,
+            Cell<Interpolation_Cell_Unzipped *> & aNonTrivialOwnedInterpCells,
+            Cell<moris_id>                      & aEnrCellIds)
     {
         // iterate through received data
         for(moris::uint i = 0; i < aNonTrivialOwnedInterpCells.size(); i++)
         {
-                moris_index tEnrCellId = aEnrCellIds(i);
-                moris_index tSubphase          = aNonTrivialOwnedInterpCells(i)->get_subphase_index();
-                moris_index tGhostCellIpIndex  = aGhostSetupData.mSubphaseIndexToInterpolationCellIndex(tSubphase);
+            moris_index tEnrCellId = aEnrCellIds(i);
+            moris_index tSubphase          = aNonTrivialOwnedInterpCells(i)->get_subphase_index();
+            moris_index tGhostCellIpIndex  = aGhostSetupData.mSubphaseIndexToInterpolationCellIndex(tSubphase);
 
-                aEnrInterpMesh.mEnrichedInterpCells(tGhostCellIpIndex) = new Interpolation_Cell_Unzipped(aNonTrivialOwnedInterpCells(i)->get_base_cell(),
-                                                                                                         aNonTrivialOwnedInterpCells(i)->get_subphase_index(),
-                                                                                                         aNonTrivialOwnedInterpCells(i)->get_bulkphase_index(),
-                                                                                                         tEnrCellId,
-                                                                                                         tGhostCellIpIndex,
-                                                                                                         aNonTrivialOwnedInterpCells(i)->get_owner(),
-                                                                                                         aNonTrivialOwnedInterpCells(i)->get_connectivity());
+            aEnrInterpMesh.mEnrichedInterpCells(tGhostCellIpIndex) = new Interpolation_Cell_Unzipped(aNonTrivialOwnedInterpCells(i)->get_base_cell(),
+                    aNonTrivialOwnedInterpCells(i)->get_subphase_index(),
+                    aNonTrivialOwnedInterpCells(i)->get_bulkphase_index(),
+                    tEnrCellId,
+                    tGhostCellIpIndex,
+                    aNonTrivialOwnedInterpCells(i)->get_owner(),
+                    aNonTrivialOwnedInterpCells(i)->get_connectivity());
 
-                aEnrInterpMesh.mEnrichedInterpCells(tGhostCellIpIndex)->set_vertices(aNonTrivialOwnedInterpCells(i)->get_xtk_interpolation_vertices());
+            aEnrInterpMesh.mEnrichedInterpCells(tGhostCellIpIndex)->set_vertices(aNonTrivialOwnedInterpCells(i)->get_xtk_interpolation_vertices());
         }
     }
+    // ----------------------------------------------------------------------------------
+    void
+    Ghost_Stabilization::identify_and_setup_aura_vertices_in_ghost()
+    {
+        // access the enriched interpolation mesh
+        Enriched_Interpolation_Mesh & tEnrInterpMesh = mXTKModel->get_enriched_interp_mesh();
 
+        // access the enriched interpolation cells
+        Cell<Interpolation_Cell_Unzipped*> & tEnrIpCells = tEnrInterpMesh.get_enriched_interpolation_cells();
+
+        // access subphase neighborhood information
+        moris::Cell<moris::Cell<moris_index>>  const & tSubphaseToSubphase = mXTKModel->get_subphase_to_subphase();
+
+        // number of subphases in mesh
+        moris::uint tNumSubphases = tSubphaseToSubphase.size();
+
+        // par rank
+        moris_index tParRank = moris::par_rank();
+
+        // list of enriched interp
+        std::unordered_map<moris_index,bool> tIpCellsWithVerticesToComm;
+
+        // iterate through subwn`phases and collect all not owned subphases and neighbors that may have ghost
+        for(moris::uint i = 0; i < tNumSubphases; i++)
+        {
+            // get my enriched Ip cell (ghost one)
+            Interpolation_Cell_Unzipped* tMyEnrichedIpCell = tEnrIpCells((moris_index)i);
+
+            // only continue into the neighbors if I do not own this cell/subphase
+            if(tParRank != tMyEnrichedIpCell->get_owner())
+            {
+                // iterate through subphase neighbors
+                for(moris::uint j = 0; j < tSubphaseToSubphase(i).size(); j++)
+                {
+                    // neighbor index
+                    moris_index tNeighborSubphaseIndex = tSubphaseToSubphase(i)(j);
+
+                    // add it to ip cells to consider if i am supposed to construct ghost at this neighbor relationship
+                    if(tParRank != tMyEnrichedIpCell->get_owner())
+                    {
+                        if(tIpCellsWithVerticesToComm.find(tNeighborSubphaseIndex) == tIpCellsWithVerticesToComm.end() )
+                        {
+                            tIpCellsWithVerticesToComm[tNeighborSubphaseIndex] = true;
+                        }
+                    }
+                }
+            }
+        }
+
+        // iterate through interpolation cells that are in the aura and collect vertex interpolation that are not owned
+        // start setting up data for communication
+        // prepare outward requests
+        Cell<Matrix<IndexMat>> tNotOwnedIPVertIndsToProcs;
+        Cell<Matrix<IndexMat>> tNotOwnedBGIPVertsIdsToProcs;
+        Cell<Matrix<IndexMat>> tNotOwnedEnrichedCellIdToProcs;
+        Cell<uint>           tProcRanks;
+        std::unordered_map<moris_id,moris_id>  tProcRankToDataIndex;
+        this->prepare_interpolation_vertex_t_matrix_requests(tIpCellsWithVerticesToComm, tNotOwnedIPVertIndsToProcs,tNotOwnedBGIPVertsIdsToProcs, tNotOwnedEnrichedCellIdToProcs, tProcRanks,tProcRankToDataIndex);
+
+        // send requests
+        moris::uint tMPITag = 3001;
+        // send the background vertex id
+        mXTKModel->send_outward_requests(tMPITag, tProcRanks,tNotOwnedBGIPVertsIdsToProcs);
+
+        // send the enriched interpolation cell id
+        mXTKModel->send_outward_requests(tMPITag+1, tProcRanks,tNotOwnedEnrichedCellIdToProcs);
+
+        barrier();
+
+        // receive requests for the t-matrices
+        Cell<Matrix<IndexMat>> tReceivedVertexIds;
+        Cell<Matrix<IndexMat>> tReceivedEnrichedCellId;
+        Cell<uint> tProcsReceivedFrom1;
+        Cell<uint> tProcsReceivedFrom2;
+        mXTKModel->inward_receive_requests(tMPITag, 1, tReceivedVertexIds, tProcsReceivedFrom1); // receive the requests ofr BG VertexIds
+        mXTKModel->inward_receive_requests(tMPITag+1, 1, tReceivedEnrichedCellId, tProcsReceivedFrom2);// receve the requests for Enriched IP Cell Id
+
+        // prepare the t-matrices for sending
+        Cell<Matrix<DDRMat>>   tTMatrixWeights;
+        Cell<Matrix<IndexMat>> tTMatrixIndices;
+        Cell<Matrix<IndexMat>> tTMatrixOffsets;
+        this->prepare_t_matrix_request_answers(tReceivedVertexIds,tReceivedEnrichedCellId,tTMatrixWeights,tTMatrixIndices,tTMatrixOffsets);
+
+        // send information
+        mXTKModel->return_request_answers_reals(tMPITag+2, tTMatrixWeights, tProcsReceivedFrom1);
+        mXTKModel->return_request_answers(tMPITag+3, tTMatrixIndices, tProcsReceivedFrom1);
+        mXTKModel->return_request_answers(tMPITag+4, tTMatrixOffsets, tProcsReceivedFrom1);
+
+        // wait
+        barrier();
+
+        // receive
+        Cell<Matrix<DDRMat>>   tRequestedTMatrixWeights;
+        Cell<Matrix<IndexMat>> tRequestedTMatrixIndices;
+        Cell<Matrix<IndexMat>> tRequestedTMatrixOffsets;
+
+        // receive the answers
+        mXTKModel->inward_receive_request_answers_reals(tMPITag+2,1,tProcRanks,tRequestedTMatrixWeights);
+        mXTKModel->inward_receive_request_answers(tMPITag+3,1,tProcRanks,tRequestedTMatrixIndices);
+        mXTKModel->inward_receive_request_answers(tMPITag+4,1,tProcRanks,tRequestedTMatrixOffsets);
+
+
+        // commit it to my data
+        this->handle_received_interpolation_data(tNotOwnedIPVertIndsToProcs,tRequestedTMatrixWeights,tRequestedTMatrixIndices,tRequestedTMatrixOffsets);
+
+        //wait
+        barrier();
+
+}
+// ----------------------------------------------------------------------------------
+    void
+    Ghost_Stabilization::prepare_interpolation_vertex_t_matrix_requests(
+            std::unordered_map<moris_index,bool> const & aNotOwnedIpCellsInGhost,
+                                Cell<Matrix<IndexMat>>                     & aNotOwnedIPVertIndsToProcs,
+                                Cell<Matrix<IndexMat>>                     & aNotOwnedBGIPVertsIdsToProcs,
+                                Cell<Matrix<IndexMat>>                     & aNotOwnedIpCellIdToProcs,
+                                Cell<uint>                                 & aProcRanks,
+                                std::unordered_map<moris_id,moris_id>      & aProcRankToDataIndex)
+    {
+        // access the enriched interpolation mesh
+        Enriched_Interpolation_Mesh & tEnrInterpMesh = mXTKModel->get_enriched_interp_mesh();
+
+        Cell<Interpolation_Cell_Unzipped*> & tEnrIpCells = tEnrInterpMesh.get_enriched_interpolation_cells();
+
+        // par rank
+        moris_index tParRank = moris::par_rank();
+
+        // Counter and current proc index
+        Cell<moris_id> tCounts(0);
+        moris_index    tCurrentIndex = 0;
+
+        // temporary cell of cells which will be converted to matrices later
+        Cell<Cell<moris_id>> tNotOwnedIPVertIndsToProcs;
+        Cell<Cell<moris_id>> tNotOwnedBGIPVertsIdsToProcs;
+        Cell<Cell<moris_id>> tNotOwnedIpCellIdToProcs;
+
+        for (auto tIpCell : aNotOwnedIpCellsInGhost)
+        {
+            // access the ip cell index
+            moris_index tIpCellIndex = tIpCell.first;
+
+            // get the ip cell
+            Interpolation_Cell_Unzipped* tEnrIpCell = tEnrIpCells(tIpCellIndex);
+
+            // get the vertices
+            moris::Cell< xtk::Interpolation_Vertex_Unzipped* > const & tVertexPointers = tEnrIpCell->get_xtk_interpolation_vertices();
+
+            // iterate through vertices check if the owner is there
+            for(moris::uint iV = 0; iV<tVertexPointers.size(); iV++)
+            {
+                // vertex owner
+                moris_index tOwnerProc = tVertexPointers(iV)->get_owner();
+
+                // If I don't own this vertex, and its on a cell that has a vertex
+                if(tOwnerProc != tParRank)
+                {
+                    // get the index of this proc
+                    auto tProcIndexInData = aProcRankToDataIndex.find(tOwnerProc);
+
+                    // setup the data if this processor hasnt been used before
+                    if( tProcIndexInData == aProcRankToDataIndex.end())
+                    {
+                        // add to the proc rank to data,
+                        aProcRankToDataIndex[tOwnerProc] = tCurrentIndex;
+
+                        // add the proc to cell
+                        aProcRanks.push_back(tOwnerProc);
+
+                        // add cell for verts
+                        tNotOwnedIPVertIndsToProcs.push_back(Cell<moris_id>(0));
+                        tNotOwnedBGIPVertsIdsToProcs.push_back(Cell<moris_id>(0));
+                        tNotOwnedIpCellIdToProcs.push_back(Cell<moris_id>(0));
+
+                        // update count and first index
+                        tCounts.push_back(0);
+                        tCurrentIndex++;
+
+                        // update the iterator
+                        tProcIndexInData = aProcRankToDataIndex.find(tOwnerProc);
+                    }
+
+                    tNotOwnedIPVertIndsToProcs(tProcIndexInData->second).push_back(tVertexPointers(iV)->get_index());
+                    tNotOwnedBGIPVertsIdsToProcs(tProcIndexInData->second).push_back(tVertexPointers(iV)->get_base_vertex()->get_id());
+                    tNotOwnedIpCellIdToProcs(tProcIndexInData->second).push_back(tEnrIpCell->get_id());
+                }
+            }
+        }
+
+        // populate matrix in input data
+        aNotOwnedIPVertIndsToProcs.clear();
+        aNotOwnedIPVertIndsToProcs.resize(tNotOwnedIPVertIndsToProcs.size());
+        aNotOwnedBGIPVertsIdsToProcs.resize(tNotOwnedBGIPVertsIdsToProcs.size());
+        aNotOwnedIpCellIdToProcs.resize(tNotOwnedIpCellIdToProcs.size());
+        for(moris::uint iD = 0; iD< tNotOwnedIPVertIndsToProcs.size(); iD++)
+        {
+            aNotOwnedIPVertIndsToProcs(iD).resize(1,tNotOwnedIPVertIndsToProcs(iD).size());
+            aNotOwnedBGIPVertsIdsToProcs(iD).resize(1,tNotOwnedBGIPVertsIdsToProcs(iD).size());
+            aNotOwnedIpCellIdToProcs(iD).resize(1,tNotOwnedIpCellIdToProcs(iD).size());
+            for(moris::uint jD = 0; jD< tNotOwnedIPVertIndsToProcs(iD).size(); jD++)
+            {
+                aNotOwnedIPVertIndsToProcs(iD)(jD) = tNotOwnedIPVertIndsToProcs(iD)(jD);
+                aNotOwnedBGIPVertsIdsToProcs(iD)(jD) = tNotOwnedBGIPVertsIdsToProcs(iD)(jD);
+                aNotOwnedIpCellIdToProcs(iD)(jD) = tNotOwnedIpCellIdToProcs(iD)(jD);
+            }
+        }
+
+    }
+    // ----------------------------------------------------------------------------------
+    void
+    Ghost_Stabilization::prepare_t_matrix_request_answers(
+            Cell<Matrix<IndexMat>> const & aRequestedBgVertexIds,
+            Cell<Matrix<IndexMat>> const & aRequestedIpCellIds,
+            Cell<Matrix<DDRMat>>   &       aTMatrixWeights,
+            Cell<Matrix<IndexMat>> &       aTMatrixIndices,
+            Cell<Matrix<IndexMat>> &       aTMatrixOffsets)
+    {
+        // access enriched ip mesh
+        Enriched_Interpolation_Mesh & tEnrInterpMesh = mXTKModel->get_enriched_interp_mesh();
+
+        MORIS_ASSERT(aRequestedBgVertexIds.size() == aRequestedIpCellIds.size(),"Mismatch in received communication information.");
+
+        // information about size of interplation mats
+        Cell<uint> tSizes(aRequestedBgVertexIds.size(),0);
+
+        //resize the input data
+        aTMatrixWeights.resize(aRequestedBgVertexIds.size());
+        aTMatrixIndices.resize(aRequestedBgVertexIds.size());
+        aTMatrixOffsets.resize(aRequestedBgVertexIds.size());
+
+        // collect the vertex interpolations
+        Cell<Cell<Vertex_Enrichment* >> tVertexInterpolations(aRequestedBgVertexIds.size());
+
+        // collect size information throughout loop
+        Cell<moris_index> tDataSizes(aRequestedBgVertexIds.size(),0);
+
+        // iterate through and figure out how big to make the weights and indices mats
+        // also collect vertex interpolations
+        for(moris::uint iP = 0; iP < aRequestedBgVertexIds.size(); iP++)
+        {
+            // size the tmatrix offset for each vertex requested (num verts +1)
+            aTMatrixOffsets(iP).resize(1,aRequestedBgVertexIds(iP).numel()+1 );
+
+            // set the first one to 0
+            aTMatrixOffsets(iP)(0) = 0;
+
+            // iterate through the vertices and get their interpolations and figure out
+            // how big it is
+            for(moris::uint iV = 0; iV < aRequestedBgVertexIds(iP).numel(); iV++)
+            {
+                //
+                // get the vertex
+                moris_index tVertexIndex = this->get_enriched_interpolation_vertex(aRequestedBgVertexIds(iP)(iV), aRequestedIpCellIds(iP)(iV));
+
+                // get the vertex interpolation
+                Vertex_Enrichment* tVertexInterp = tEnrInterpMesh.get_vertex_enrichment(0,tVertexIndex);
+
+                MORIS_ASSERT(tVertexInterp->get_base_vertex_interpolation() != nullptr,"Owning proc has a nullptr for the vertex interpolation.");
+
+                tVertexInterpolations(iP).push_back(tVertexInterp);
+
+                // number of basis functions interpolating into this vertex
+                moris_index tNumBasis = tVertexInterp->get_basis_indices().numel();
+
+                // offsets
+                aTMatrixOffsets(iP)(iV+1) = aTMatrixOffsets(iP)(iV) + tNumBasis;
+
+                // add to size
+                tDataSizes(iP) = tDataSizes(iP) + tNumBasis;
+            }
+        }
+
+
+        //  iterate through and size data
+        for(moris::uint iP = 0; iP < aRequestedBgVertexIds.size(); iP++)
+        {
+            aTMatrixWeights(iP).resize(1,tDataSizes(iP));
+            aTMatrixIndices(iP).resize(1,tDataSizes(iP));
+        }
+
+        // populate the data
+        for(moris::uint iP = 0; iP < aRequestedBgVertexIds.size(); iP++)
+        {
+            moris::uint tCount = 0;
+
+            for(moris::uint iV = 0; iV < tVertexInterpolations(iP).size(); iV++)
+            {
+                this->add_vertex_interpolation_to_communication_data(tCount,tVertexInterpolations(iP)(iV),aTMatrixWeights(iP),aTMatrixIndices(iP),aTMatrixOffsets(iP));
+            }
+        }
+
+    }
+   // ----------------------------------------------------------------------------------
+    void
+    Ghost_Stabilization::handle_received_interpolation_data(
+            Cell<Matrix<IndexMat>> const & aNotOwnedIPVertIndsToProcs,
+            Cell<Matrix<DDRMat>>   const & aRequestedTMatrixWeights,
+            Cell<Matrix<IndexMat>> const & aRequestedTMatrixIndices,
+            Cell<Matrix<IndexMat>> const & aRequestedTMatrixOffsets)
+    {
+        Enriched_Interpolation_Mesh & tEnrInterpMesh = mXTKModel->get_enriched_interp_mesh();
+
+        // iterate through returned information
+        for(moris::uint iP = 0; iP < aNotOwnedIPVertIndsToProcs.size(); iP++)
+        {
+
+            Cell<Matrix<DDRMat>>   tExtractedTMatrixWeights;
+            Cell<Matrix<IndexMat>> tExtractedTMatrixIds;
+            this->extract_vertex_interpolation_from_communication_data(
+                    aNotOwnedIPVertIndsToProcs(iP).numel(),
+                    aRequestedTMatrixWeights(iP),
+                    aRequestedTMatrixIndices(iP),
+                    aRequestedTMatrixOffsets(iP),
+                    tExtractedTMatrixWeights,
+                    tExtractedTMatrixIds);
+
+            // iterate through vertices and set their interpolation weights and basis ids
+            for(moris::uint iV = 0; iV < aNotOwnedIPVertIndsToProcs(iP).numel(); iV++)
+            {
+                // get the vertex
+                moris_index tVertexIndex = aNotOwnedIPVertIndsToProcs(iP)(iV);
+
+                Interpolation_Vertex_Unzipped & tVertex = tEnrInterpMesh.get_xtk_interp_vertex(tVertexIndex);
+
+                // get the enriched vertex interpolation
+                Vertex_Enrichment * tVertexInterp = tVertex.get_xtk_interpolation( tEnrInterpMesh.mMeshIndices(0) );
+
+                // iterate through basis functions and find local indices
+                moris::Matrix<IndexMat> tBasisIndices(tExtractedTMatrixIds(iV).n_rows(),tExtractedTMatrixIds(iV).n_cols());
+                for(moris::uint iBs = 0; iBs < tExtractedTMatrixIds(iV).numel(); iBs++)
+                {
+                    // basis id
+                    moris_id tId = tExtractedTMatrixIds(iV)(iBs);
+
+                    // add this basis to the mesh if it doesnt exists on the current partition
+                    if(!tEnrInterpMesh.basis_exists_on_partition(tEnrInterpMesh.mMeshIndices(0),tId))
+                    {
+                        tEnrInterpMesh.add_basis_function(tEnrInterpMesh.mMeshIndices(0),tId);
+                    }
+                    tBasisIndices(iBs) = tEnrInterpMesh.get_enr_basis_index_from_enr_basis_id(tEnrInterpMesh.mMeshIndices(0),tId);
+                }
+
+                // iterate through basis in the base vertex interpolation
+                moris::uint tNumCoeffs = tExtractedTMatrixIds(iV).numel();
+
+                // Setup the map in the basis function
+                std::unordered_map<moris::moris_index,moris::moris_index> & tVertEnrichMap = tVertexInterp->get_basis_map();
+
+                for(moris::uint iB = 0; iB<tNumCoeffs; iB++)
+                {
+                    moris::moris_index tBasisIndex = tBasisIndices(iB);
+
+                    tVertEnrichMap[tBasisIndex] = iB;
+                }
+
+                // get the basis indices from the basis ids
+                tVertexInterp->add_basis_information(tBasisIndices,tExtractedTMatrixIds(iV));
+                tVertexInterp->add_basis_weights(tBasisIndices,tExtractedTMatrixWeights(iV));
+                tVertexInterp->add_base_vertex_interpolation(nullptr); // base vertex interpolation does not exists (other  proc)
+
+            }
+
+        }
+
+    }
+    // ----------------------------------------------------------------------------------
+    moris_index
+    Ghost_Stabilization::get_enriched_interpolation_vertex(
+            moris_index const & aBGVertId,
+            moris_index const & aEnrichedIpCellId)
+    {
+        Enriched_Interpolation_Mesh & tEnrInterpMesh = mXTKModel->get_enriched_interp_mesh();
+
+        // get the interpolation cell index using the id
+        moris_index tCellIndex = tEnrInterpMesh.get_loc_entity_ind_from_entity_glb_id(aEnrichedIpCellId,EntityRank::ELEMENT,0);
+
+        // get the cell
+        Interpolation_Cell_Unzipped* tEnrIpCell = tEnrInterpMesh.get_enriched_interpolation_cells()(tCellIndex);
+
+        // get the vertices
+        moris::Cell< xtk::Interpolation_Vertex_Unzipped* > const & tVertexPointers = tEnrIpCell->get_xtk_interpolation_vertices();
+
+        for(moris::uint i  = 0; i < tVertexPointers.size(); i ++ )
+        {
+            if(tVertexPointers(i)->get_base_vertex()->get_id() == aBGVertId)
+            {
+                return tVertexPointers(i)->get_index();
+            }
+        }
+
+
+        MORIS_ERROR(0,"Enriched interpolation vertex not found");
+        return MORIS_INDEX_MAX;
+
+    }
+    // ----------------------------------------------------------------------------------
     void
     Ghost_Stabilization::declare_ghost_double_side_sets_in_mesh(Ghost_Setup_Data & aGhostSetupData)
     {
@@ -293,7 +707,65 @@ namespace xtk
         }
         aGhostSetupData.mDblSideSetIndexInMesh = mXTKModel->get_enriched_integ_mesh(0).register_double_side_set_names(tGhostDoubleSideNames);
     }
+    // ----------------------------------------------------------------------------------
+    void
+    Ghost_Stabilization::add_vertex_interpolation_to_communication_data(
+            moris::uint      & aCount,
+            Vertex_Enrichment* aInterpolation,
+            Matrix<DDRMat>   & aTMatrixWeights,
+            Matrix<IndexMat> & aTMatrixIndices,
+            Matrix<IndexMat> & aTMatrixOffsets)
+    {
+        // access the basis indices and weights
+        moris::Matrix< moris::IndexMat > const & tBasisIndices = aInterpolation->get_basis_ids();
+        moris::Matrix< moris::DDRMat >   const & tBasisWeights = aInterpolation->get_basis_weights();
 
+        for(moris::uint i = 0 ; i < tBasisIndices.numel(); i ++ )
+        {
+            aTMatrixIndices(aCount) = tBasisIndices(i);
+            aTMatrixWeights(aCount) = tBasisWeights(i);
+            aCount++;
+        }
+
+    }
+    // ----------------------------------------------------------------------------------
+    void
+    Ghost_Stabilization::extract_vertex_interpolation_from_communication_data(
+            moris::uint      const & aNumVerts,
+            Matrix<DDRMat>   const & aTMatrixWeights,
+            Matrix<IndexMat> const & aTMatrixIndices,
+            Matrix<IndexMat> const & aTMatrixOffsets,
+            Cell<Matrix<DDRMat>>   & aExtractedTMatrixWeights,
+            Cell<Matrix<IndexMat>> & aExtractedTMatrixIndices)
+    {
+
+        // size output data
+        aExtractedTMatrixWeights.resize(aNumVerts);
+        aExtractedTMatrixIndices.resize(aNumVerts);
+
+        // current starting index
+        moris_index tStart = 0;
+
+        // extract the data into the cells
+        for(moris::uint iV =0; iV < aNumVerts; iV++)
+        {
+            // number of basis interpolating into the vertex
+            moris::moris_index tNumBasis = aTMatrixOffsets(iV+1) - tStart;
+
+            aExtractedTMatrixWeights(iV).resize(tNumBasis,1);
+            aExtractedTMatrixIndices(iV).resize(tNumBasis,1);
+
+            // itere and grab  data
+            for(moris::moris_index iIp = 0; iIp < tNumBasis; iIp++ )
+            {
+                aExtractedTMatrixWeights(iV)(iIp) = aTMatrixWeights(tStart+iIp);
+                aExtractedTMatrixIndices(iV)(iIp) = aTMatrixIndices(tStart+iIp);
+            }
+
+            tStart = aTMatrixOffsets(iV+1);
+        }
+    }
+    // ----------------------------------------------------------------------------------
     void
     Ghost_Stabilization::construct_ghost_double_side_sets_in_mesh(Ghost_Setup_Data & aGhostSetupData)
     {
@@ -331,7 +803,7 @@ namespace xtk
         aGhostSetupData.mTrivialFlag.resize(tNumBulkPhases);
         aGhostSetupData.mTransitionLocation.resize(tNumBulkPhases);
 
-//        mXTKModel->print_subphase_neighborhood();
+        //        mXTKModel->print_subphase_neighborhood();
 
         // flag indicating whether its trivial or not
         moris_index tTrivial = 0;
@@ -346,7 +818,7 @@ namespace xtk
                 // if I am the one constructing this subphase then add it to ghost setup data
                 if(this->create_ghost(aGhostSetupData,(moris_index)i,tSubphaseToSubphase(i)(j),tTrivial))
                 {
-//                    std::cout<<"Create ghost between" << " SP "<<std::setw(6)<<i<<" and SP " <<std::setw(6)<< tSubphaseToSubphase(i)(j)<<" Trivial? "<< tTrivial <<std::endl;
+                    //                    std::cout<<"Create ghost between" << " SP "<<std::setw(6)<<i<<" and SP " <<std::setw(6)<< tSubphaseToSubphase(i)(j)<<" Trivial? "<< tTrivial <<std::endl;
                     moris_index tFirstInterpCellIndex  = aGhostSetupData.mSubphaseIndexToInterpolationCellIndex(i);
                     moris_index tSecondInterpCellIndex = aGhostSetupData.mSubphaseIndexToInterpolationCellIndex(tSubphaseToSubphase(i)(j));
 
@@ -411,7 +883,7 @@ namespace xtk
                 tEnrIntegMesh.mDoubleSideSetsSlaveIndex(aGhostSetupData.mDblSideSetIndexInMesh(i)).push_back(tEnrIntegMesh.mDoubleSideSingleSideClusters.size());
                 tEnrIntegMesh.mDoubleSideSingleSideClusters.push_back(tSlaveSideCluster);
 
-                 // create double side cluster
+                // create double side cluster
                 mtk::Double_Side_Cluster* tDblSideCluster  = new mtk::Double_Side_Cluster(tMasterSideCluster.get(),tSlaveSideCluster.get(),tMasterSideCluster->mVerticesInCluster);
 
                 // add to integration mesh
@@ -429,12 +901,12 @@ namespace xtk
         tEnrIntegMesh.collect_all_sets();
 
     }
-
+    // ----------------------------------------------------------------------------------
     bool
     Ghost_Stabilization::create_ghost(Ghost_Setup_Data &  aGhostSetupData,
-                                      moris_index const & aFirstSubphase,
-                                      moris_index const & aSecondSubphase,
-                                      moris_index &       aTrivialFlag)
+            moris_index const & aFirstSubphase,
+            moris_index const & aSecondSubphase,
+            moris_index &       aTrivialFlag)
     {
         // make sure flag is set to true
         aTrivialFlag = 0;
@@ -489,19 +961,26 @@ namespace xtk
             return false;
         }
 
+/*
         if(tFirstOwnerIndex > tSecondOwnerIndex)
         {
             return false;
         }
+*/
+
+        if(tFirstOwnerIndex == tProcRank && tSecondOwnerIndex == tProcRank)
+        {
+            return true;
+        }
 
         return true;
     }
-
+    // ----------------------------------------------------------------------------------
     std::shared_ptr<Side_Cluster>
     Ghost_Stabilization::create_slave_side_cluster(Ghost_Setup_Data &  aGhostSetupData,
-                                                   Cell<Interpolation_Cell_Unzipped*> & aEnrIpCells,
-                                                   uint const & aBulkIndex,
-                                                   uint const & aCellIndex)
+            Cell<Interpolation_Cell_Unzipped*> & aEnrIpCells,
+            uint const & aBulkIndex,
+            uint const & aCellIndex)
     {
         // create a new side cluster for the slave
         std::shared_ptr<Side_Cluster> tSlaveSideCluster  = std::make_shared< Side_Cluster >();
@@ -525,15 +1004,15 @@ namespace xtk
 
         return tSlaveSideCluster;
     }
-
+    // ----------------------------------------------------------------------------------
     std::shared_ptr<Side_Cluster>
     Ghost_Stabilization::create_master_side_cluster(Ghost_Setup_Data &  aGhostSetupData,
-                                                    Cell<Interpolation_Cell_Unzipped*> & aEnrIpCells,
-                                                    uint const & aBulkIndex,
-                                                    uint const & aCellIndex,
-                                                    Side_Cluster* aSlaveSideCluster,
-                                                    moris_index & aCurrentIndex,
-                                                    moris_index & aCurrentId)
+            Cell<Interpolation_Cell_Unzipped*> & aEnrIpCells,
+            uint const & aBulkIndex,
+            uint const & aCellIndex,
+            Side_Cluster* aSlaveSideCluster,
+            moris_index & aCurrentIndex,
+            moris_index & aCurrentId)
     {
         // create the master side cluster
         std::shared_ptr<Side_Cluster> tMasterSideCluster  = std::make_shared< Side_Cluster >();
@@ -552,8 +1031,8 @@ namespace xtk
             // get the local coordinates from a table
             Cell<Matrix<DDRMat>> tLocCoords;
             this->get_local_coords_on_transition_side(aGhostSetupData.mMasterSideIgCellSideOrds(aBulkIndex)(aCellIndex),
-                                                      aGhostSetupData.mTransitionLocation(aBulkIndex)(aCellIndex),
-                                                      tLocCoords);
+                    aGhostSetupData.mTransitionLocation(aBulkIndex)(aCellIndex),
+                    tLocCoords);
 
             // add integration cell
             tMasterSideCluster->mIntegrationCells.push_back( tNewIgCell );
@@ -602,15 +1081,15 @@ namespace xtk
 
         return tMasterSideCluster;
     }
-
+    // ----------------------------------------------------------------------------------
     moris::mtk::Cell*
     Ghost_Stabilization::create_non_trivial_master_ig_cell(Ghost_Setup_Data &  aGhostSetupData,
-                                                           uint const & aBulkIndex,
-                                                           uint const & aCellIndex,
-                                                           Side_Cluster* aMasterSideCluster,
-                                                           Side_Cluster* aSlaveSideCluster,
-                                                           moris_index & aCurrentIndex,
-                                                           moris_index & aCurrentId)
+            uint const & aBulkIndex,
+            uint const & aCellIndex,
+            Side_Cluster* aMasterSideCluster,
+            Side_Cluster* aSlaveSideCluster,
+            moris_index & aCurrentIndex,
+            moris_index & aCurrentId)
     {
         // get the vertices on the side for the slave side cluster
         moris::Cell<moris::mtk::Vertex const *> const & tSlaveVertices = aSlaveSideCluster->get_vertices_in_cluster();
@@ -658,141 +1137,138 @@ namespace xtk
 
         return tIgCell;
     }
-
-
-
+    // ----------------------------------------------------------------------------------
     void
     Ghost_Stabilization::permute_slave_vertices(moris::Cell<moris::mtk::Vertex const *> const & aSlaveVertices,
-                                                moris::Cell<moris::mtk::Vertex const *> const & aMasterVertices,
-                                                moris::Cell<moris::mtk::Vertex const *>  & aPermutedSlaveVertices,
-                                                moris::Cell<moris::mtk::Vertex const *>  & aPermutedAdjMastVertices)
+            moris::Cell<moris::mtk::Vertex const *> const & aMasterVertices,
+            moris::Cell<moris::mtk::Vertex const *>  & aPermutedSlaveVertices,
+            moris::Cell<moris::mtk::Vertex const *>  & aPermutedAdjMastVertices)
     {
         moris::uint tSpatialDim = mXTKModel->get_spatial_dim();
 
         switch(tSpatialDim)
         {
             case(2):
-                aPermutedSlaveVertices   = {aSlaveVertices(1),aSlaveVertices(0)};
-                aPermutedAdjMastVertices = {aMasterVertices(0),aMasterVertices(1)};
-                break;
+                        aPermutedSlaveVertices   = {aSlaveVertices(1),aSlaveVertices(0)};
+            aPermutedAdjMastVertices = {aMasterVertices(0),aMasterVertices(1)};
+            break;
             default:
                 aPermutedSlaveVertices   = {aSlaveVertices(0),aSlaveVertices(3), aSlaveVertices(2), aSlaveVertices(1)};
                 aPermutedAdjMastVertices = {aMasterVertices(0),aMasterVertices(3), aMasterVertices(2), aMasterVertices(1)};
                 break;
         }
     }
-
-
+    // ----------------------------------------------------------------------------------
     void
     Ghost_Stabilization::get_local_coords_on_transition_side(moris_index const & aMySideOrdinal,
-                                                             moris_index const &  aTransitionLoc,
-                                                             Cell<Matrix<DDRMat>>    & aLocCoord)
+            moris_index const &  aTransitionLoc,
+            Cell<Matrix<DDRMat>>    & aLocCoord)
     {
         moris::uint tTag = 100*mXTKModel->get_spatial_dim() + 10*aMySideOrdinal + aTransitionLoc;
         switch(tTag)
         {
             case(200):
-                    aLocCoord = {{{0,-1}},{{-1,-1}}};
-                    break;
+                            aLocCoord = {{{0,-1}},{{-1,-1}}};
+            break;
             case(201):
-                    aLocCoord = {{{1,-1}},{{0,-1}}};
-                    break;
+                            aLocCoord = {{{1,-1}},{{0,-1}}};
+            break;
             case(211):
-                    aLocCoord = {{{1,0}},{{1,-1}}};
-                    break;
+                            aLocCoord = {{{1,0}},{{1,-1}}};
+            break;
             case(213):
-                    aLocCoord = {{{1,1}},{{1,0}}};
-                    break;
+                            aLocCoord = {{{1,1}},{{1,0}}};
+            break;
             case(223):
-                    aLocCoord = {{{-1,1}},{{0,1}}};
-                    break;
+                            aLocCoord = {{{-1,1}},{{0,1}}};
+            break;
             case(222):
-                    aLocCoord = {{{0,1}},{{1,1}}};
-                    break;
+                            aLocCoord = {{{0,1}},{{1,1}}};
+            break;
             case(230):
-                    aLocCoord = {{{-1,0}},{{-1,1}}};
-                    break;
+                            aLocCoord = {{{-1,0}},{{-1,1}}};
+            break;
             case(232):
-                    aLocCoord = {{{-1,-1}},{{-1,0}}};
-                    break;
+                            aLocCoord = {{{-1,-1}},{{-1,0}}};
+            break;
             case(300):
-                    aLocCoord = {{{-1,-1,-1}},{{-1,-1,0}},{{0,-1,0}},{{0,-1,-1}}};
-                    break;
+                            aLocCoord = {{{-1,-1,-1}},{{-1,-1,0}},{{0,-1,0}},{{0,-1,-1}}};
+            break;
             case(301):
-                    aLocCoord = {{{0,-1,-1}},{{0,-1,0}},{{1,-1,0}},{{1,-1,-1}}};
-                    break;
+                            aLocCoord = {{{0,-1,-1}},{{0,-1,0}},{{1,-1,0}},{{1,-1,-1}}};
+            break;
             case(304):
-                    aLocCoord = {{{0,-1,0}},{{0,-1,1}},{{1,-1,1}},{{1,-1,0}}};
-                    break;
+                            aLocCoord = {{{0,-1,0}},{{0,-1,1}},{{1,-1,1}},{{1,-1,0}}};
+            break;
             case(305):
-                    aLocCoord = {{{-1,-1,0}},{{-1,-1,1}},{{0,-1,1}},{{0,-1,0}}};
-                    break;
+                            aLocCoord = {{{-1,-1,0}},{{-1,-1,1}},{{0,-1,1}},{{0,-1,0}}};
+            break;
             case(311):
-                    aLocCoord = {{{1,-1,-1}},{{1,-1,0}},{{1,0,0}},{{1,0,-1}}};
-                    break;
+                            aLocCoord = {{{1,-1,-1}},{{1,-1,0}},{{1,0,0}},{{1,0,-1}}};
+            break;
             case(313):
-                    aLocCoord = {{{1,0,-1}},{{1,0,0}},{{1,1,0}},{{1,1,-1}}};
-                    break;
+                            aLocCoord = {{{1,0,-1}},{{1,0,0}},{{1,1,0}},{{1,1,-1}}};
+            break;
             case(315):
-                    aLocCoord = {{{1,0,0}},{{1,0,1}},{{1,1,1}},{{1,1,0}}};
-                    break;
+                            aLocCoord = {{{1,0,0}},{{1,0,1}},{{1,1,1}},{{1,1,0}}};
+            break;
             case(317):
-                    aLocCoord = {{{1,-1,0}},{{1,-1,1}},{{1,0,1}},{{1,0,0}}};
-                    break;
+                            aLocCoord = {{{1,-1,0}},{{1,-1,1}},{{1,0,1}},{{1,0,0}}};
+            break;
             case(322):
-                    aLocCoord = {{{1,1,-1}},{{1,1,0}},{{0,1,0}},{{0,1,-1}}};
-                    break;
+                            aLocCoord = {{{1,1,-1}},{{1,1,0}},{{0,1,0}},{{0,1,-1}}};
+            break;
             case(323):
-                    aLocCoord = {{{0,1,-1}},{{0,1,0}},{{-1,1,0}},{{-1,1,-1}}};
-                    break;
+                            aLocCoord = {{{0,1,-1}},{{0,1,0}},{{-1,1,0}},{{-1,1,-1}}};
+            break;
             case(326):
-                    aLocCoord = {{{0,1,0}},{{0,1,1}},{{-1,1,1}},{{-1,1,0}}};
-                    break;
+                            aLocCoord = {{{0,1,0}},{{0,1,1}},{{-1,1,1}},{{-1,1,0}}};
+            break;
             case(327):
-                    aLocCoord = {{{1,1,0}},{{1,1,1}},{{0,1,1}},{{0,1,0}}};
-                    break;
+                            aLocCoord = {{{1,1,0}},{{1,1,1}},{{0,1,1}},{{0,1,0}}};
+            break;
             case(330):
-                    aLocCoord = {{{-1,0,-1}},{{-1,1,-1}},{{-1,1,0}},{{-1,0,0}}};
-                    break;
+                            aLocCoord = {{{-1,0,-1}},{{-1,1,-1}},{{-1,1,0}},{{-1,0,0}}};
+            break;
             case(332):
-                    aLocCoord = {{{-1,-1,-1}},{{-1,0,-1}},{{-1,0,0}},{{-1,-1,0}}};
-                    break;
+                            aLocCoord = {{{-1,-1,-1}},{{-1,0,-1}},{{-1,0,0}},{{-1,-1,0}}};
+            break;
             case(334):
-                    aLocCoord = {{{-1,-1,0}},{{-1,0,0}},{{-1,0,1}},{{-1,-1,1}}};
-                    break;
+                            aLocCoord = {{{-1,-1,0}},{{-1,0,0}},{{-1,0,1}},{{-1,-1,1}}};
+            break;
             case(336):
-                    aLocCoord = {{{-1,0,0}},{{-1,1,0}},{{-1,1,1}},{{-1,0,1}}};
-                    break;
+                            aLocCoord = {{{-1,0,0}},{{-1,1,0}},{{-1,1,1}},{{-1,0,1}}};
+            break;
             case(340):
-                    aLocCoord = {{{0,0,-1}},{{1,0,-1}},{{1,1,-1}},{{0,1,-1}}};
-                    break;
+                            aLocCoord = {{{0,0,-1}},{{1,0,-1}},{{1,1,-1}},{{0,1,-1}}};
+            break;
             case(341):
-                    aLocCoord = {{{-1,0,-1}},{{0,0,-1}},{{0,1,-1}},{{-1,1,-1}}};
-                    break;
+                            aLocCoord = {{{-1,0,-1}},{{0,0,-1}},{{0,1,-1}},{{-1,1,-1}}};
+            break;
             case(342):
-                    aLocCoord = {{{-1,-1,-1}},{{0,-1,-1}},{{0,0,-1}},{{-1,0,-1}}};
-                    break;
+                            aLocCoord = {{{-1,-1,-1}},{{0,-1,-1}},{{0,0,-1}},{{-1,0,-1}}};
+            break;
             case(343):
-                    aLocCoord = {{{0,-1,-1}},{{1,-1,-1}},{{1,0,-1}},{{0,0,-1}}};
-                    break;
+                            aLocCoord = {{{0,-1,-1}},{{1,-1,-1}},{{1,0,-1}},{{0,0,-1}}};
+            break;
             case(354):
-                    aLocCoord = {{{-1,-1, 1}},{{-1,0,1}},{{0,0,1}},{{0,-1,1}}};
-                    break;
+                            aLocCoord = {{{-1,-1, 1}},{{-1,0,1}},{{0,0,1}},{{0,-1,1}}};
+            break;
             case(355):
-                    aLocCoord = {{{0,-1,1}},{{0,0,1}},{{1,0,1}},{{1,-1, 1}}};
-                    break;
+                            aLocCoord = {{{0,-1,1}},{{0,0,1}},{{1,0,1}},{{1,-1, 1}}};
+            break;
             case(356):
-                    aLocCoord = {{{0,0,1}},{{0,1,1}},{{1,1,1}},{{1,0,1}}};
-                    break;
+                            aLocCoord = {{{0,0,1}},{{0,1,1}},{{1,1,1}},{{1,0,1}}};
+            break;
             case(357):
-                    aLocCoord = {{{-1,0,1}},{{-1,1,1}},{{0,1,1}},{{0,0,1}}};
-                    break;
+                            aLocCoord = {{{-1,0,1}},{{-1,1,1}},{{0,1,1}},{{0,0,1}}};
+            break;
             default:
                 MORIS_ERROR(0,"Invalid tag (100*spatial dim + 10 * side ord + transition location)");
                 break;
         }
     }
-
+    // ----------------------------------------------------------------------------------
 
     moris_index
     Ghost_Stabilization::get_side_ordinals_for_non_trivial_master()

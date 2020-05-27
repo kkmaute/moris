@@ -1,7 +1,3 @@
-//
-// Created by christopherson on 5/19/20.
-//
-
 #include "cl_GEN_Pdv_Property.hpp"
 
 namespace moris
@@ -12,8 +8,7 @@ namespace moris
         //--------------------------------------------------------------------------------------------------------------
 
         Pdv_Property::Pdv_Property(std::shared_ptr<Property> aPropertyPointer)
-        : Pdv(0.0),
-          mProperty(aPropertyPointer)
+        : mProperty(aPropertyPointer)
         {
         }
 

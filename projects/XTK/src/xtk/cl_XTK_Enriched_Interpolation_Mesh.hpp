@@ -68,8 +68,6 @@ public:
     moris::Matrix< DDSMat > get_fine_basis_inds_of_basis( const moris_index aInterpolationIndex, const moris_index aBasisIndex );
     moris::Matrix< DDRMat > get_fine_basis_weights_of_basis( const moris_index aInterpolationIndex, const moris_index aBasisIndex );
 
-
-
     //------------------------------------------------------------------------------
     // MTK Interpolation Mesh Impl
     // see base class mtk::Interpolation_Mesh for function descriptions
@@ -151,6 +149,10 @@ protected:
     get_owned_and_not_owned_enriched_interpolation_cells(Cell<Interpolation_Cell_Unzipped *>      & aOwnedInterpCells,
                                                         Cell<Cell<Interpolation_Cell_Unzipped *>> & aNotOwnedInterpCells,
                                                         Cell<uint>                                & aProcRanks);
+
+    Interpolation_Vertex_Unzipped &
+    get_xtk_interp_vertex(moris::uint aVertexIndex);
+
 public:
     //------------------------------------------------------------------------------
     /*
@@ -168,6 +170,11 @@ public:
     //------------------------------------------------------------------------------
     Interpolation_Vertex_Unzipped const &
     get_xtk_interp_vertex(moris::uint aVertexIndex) const;
+    //------------------------------------------------------------------------------
+    moris_index
+    get_enr_basis_index_from_enr_basis_id(
+            moris_index const & aMeshIndex,
+            moris_index const & aBasisId) const;
     //------------------------------------------------------------------------------
     /*
      * Convert a entity indices to entity ids
@@ -202,6 +209,7 @@ public:
     void print_enriched_cell_maps() const;
     void print_basis_to_enriched_basis() const;
     void print_vertex_interpolation() const;
+    void print_basis_information() const;
 
 
     // friend class
@@ -243,6 +251,9 @@ protected:
 
     // local to global enriched basis vector
     Cell<moris::Matrix<moris::IdMat>> mEnrichCoeffLocToGlob;
+    Cell<std::unordered_map<moris_id,moris_index>> mGlobaltoLocalBasisMaps;
+
+    //
 
     // Entity maps
     Cell<Matrix< IdMat >>                          mLocalToGlobalMaps;
@@ -253,6 +264,9 @@ protected:
 
     // a connecitivty pointer that all the enriched interpolation cells use
     moris::mtk::Cell_Info* mCellInfo;
+
+    // Not owned vertex list
+    Cell<moris_index> mNotOwnedVerts;
 
     // functions used by enrichment for construction of the mesh
     /*
@@ -280,11 +294,34 @@ protected:
 
     //------------------------------------------------------------------------------
     /*
-     *
+     * Converts a mesh index from an external mesh into the local mesh index
      */
     moris_index
     get_local_mesh_index(moris_index const & aMeshIndex) const;
+    //------------------------------------------------------------------------------
+    /*
+     *Returns a cell of not owned vertex indices. These vertices do not have vertex interpolations and
+     * need to be handled differently for ghost stabilization
+     */
+    Cell<moris_index> const &
+    get_not_owned_vertex_indices() const;
 
+    //------------------------------------------------------------------------------
+    /*
+     * Checks whether a basis exists on a partition of the mesh
+     */
+    bool
+    basis_exists_on_partition(moris_index const & aMeshIndex,
+                              moris_index const & aBasisId);
+    //------------------------------------------------------------------------------
+
+    /*
+     * Add a basis function to the mesh. this is used by ghost to add basis functions in the aura
+     * returns the index
+     */
+    moris_index
+    add_basis_function(moris_index const & aMeshIndex,
+                       moris_index const & aBasisIdToAdd);
 
     void
     finalize_setup();
@@ -293,7 +330,11 @@ protected:
     void setup_local_to_global_maps();
     void setup_vertex_maps();
     void setup_cell_maps();
+    void setup_basis_maps();
     void setup_mesh_index_map();
+
+    // not owned vertex functions
+    void setup_not_owned_vertices();
 
     //------------------------------------------------------------------------------
     // Parallel functions

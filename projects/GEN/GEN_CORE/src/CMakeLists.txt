@@ -14,8 +14,7 @@ set(HEADERS
 
 # List library source files
 set(LIB_SOURCES
-	
-	cl_GEN_CORE_Dummy.cpp
+		cl_GEN_Pdv_Enums.cpp
  )
 
 # List library dependencies

@@ -8,41 +8,38 @@
 #ifndef PROJECTS_GEN_SRC_NEW_GEOMETRY_CL_GEN_GEOM_FIELD_HMR_HPP_
 #define PROJECTS_GEN_SRC_NEW_GEOMETRY_CL_GEN_GEOM_FIELD_HMR_HPP_
 
+#include "cl_GEN_Geometry.hpp"
+#include "cl_GEN_Field_Discrete.hpp"
 #include "cl_Matrix.hpp"
 #include "cl_HMR_Field.hpp"
-
-#include "cl_GEN_Geometry_Discrete.hpp"
 
 namespace moris
 {
     namespace ge
     {
-        class Geometry_Field_HMR : public Geometry_Discrete
+        class Geometry_Field_HMR : public Geometry, public Field_Discrete
         {
         public:
             Geometry_Field_HMR(std::shared_ptr<moris::hmr::Field> aFieldPtr )
-                    : Geometry_Discrete(Matrix<DDRMat>(1, 1, 0.0))
+                    : Field(Matrix<DDRMat>(1, 1, 0.0))
             {
                 mField = aFieldPtr;
             }
 
-            //--------------------------------------------------------------------------------------------------------------
+            //----------------------------------------------------------------------------------------------------------
 
-            real evaluate_field_value(moris_index aEntityIndex)
+            real evaluate_field_value(uint aEntityIndex)
             {
                 const moris::Matrix< moris::DDRMat > & tNodeVals = mField->get_node_values();
 
                 return tNodeVals(aEntityIndex);
             }
 
-            //--------------------------------------------------------------------------------------------------------------
+            //----------------------------------------------------------------------------------------------------------
 
-            Matrix<DDRMat> evaluate_sensitivity(moris_index aEntityIndex)
+            void evaluate_all_sensitivities(uint aEntityIndex, Matrix<DDRMat>& aSensitivities)
             {
                 MORIS_ERROR(false, "evaluate_sensitivity function is not implemented in HMR geometry field"); //TODO: Implement this function
-
-                moris::Matrix< moris::DDRMat > tSensitivityDxDp(1,1,0);
-                return tSensitivityDxDp;
             }
 
 

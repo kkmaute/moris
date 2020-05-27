@@ -148,6 +148,12 @@ Enriched_Interpolation_Mesh::get_loc_entity_ind_from_entity_glb_id(moris_id     
     auto tIter = mGlobaltoLobalMaps(tMapIndex).find(aEntityId);
 
     MORIS_ASSERT(aEntityRank == EntityRank::NODE || aEntityRank == EntityRank::ELEMENT,"XTK ENRICHED MESH ERROR: Only support glb to loc conversion for vertices and cells");
+
+    if(tIter ==  mGlobaltoLobalMaps(tMapIndex).end())
+    {
+        std::cout<<"Not Found  Entity Id = "<<aEntityId<<" | par_rank = "<<par_rank()<<std::endl;
+    }
+
     MORIS_ASSERT(tIter!=  mGlobaltoLobalMaps(tMapIndex).end(),"Id does not appear in map");
     return tIter->second;
 }
@@ -382,6 +388,46 @@ Enriched_Interpolation_Mesh::get_local_mesh_index(moris_index const & aMeshIndex
     return tIter->second;
 }
 //------------------------------------------------------------------------------
+Cell<moris_index> const &
+Enriched_Interpolation_Mesh::get_not_owned_vertex_indices() const
+{
+    return mNotOwnedVerts;
+}
+bool
+Enriched_Interpolation_Mesh::basis_exists_on_partition(
+        moris_index const & aMeshIndex,
+        moris_index const & aBasisId)
+{
+    moris_index tMeshIndex = this->get_local_mesh_index(aMeshIndex);
+    if(mGlobaltoLocalBasisMaps(tMeshIndex).find(aBasisId) == mGlobaltoLocalBasisMaps(tMeshIndex).end())
+    {
+        return false;
+    }
+
+    return true;
+}
+//------------------------------------------------------------------------------
+moris_index
+Enriched_Interpolation_Mesh::add_basis_function(moris_index const & aMeshIndex,
+                                                moris_index const & aBasisIdToAdd)
+{
+    MORIS_ASSERT(!this->basis_exists_on_partition(aMeshIndex,aBasisIdToAdd),"Basis that you are trying to add already exists in this mesh");
+
+    moris_index tLocMesh = this->get_local_mesh_index(aMeshIndex);
+    moris_index tNewIndex = mEnrichCoeffLocToGlob(tLocMesh).numel();
+
+    // add a size of 1
+    mEnrichCoeffLocToGlob(tLocMesh).resize(1,tNewIndex+1);
+
+    // add the local to glb map
+    mEnrichCoeffLocToGlob(tLocMesh)(tNewIndex) = aBasisIdToAdd;
+
+    // add to glb to local map
+    mGlobaltoLocalBasisMaps(tLocMesh)[aBasisIdToAdd] = tNewIndex;
+
+    return tNewIndex;
+}
+//------------------------------------------------------------------------------
 
 moris::Cell<Interpolation_Cell_Unzipped const*>
 Enriched_Interpolation_Mesh::get_enriched_cells_from_base_cells(moris::Cell<moris::mtk::Cell const*> const & aBaseCells) const
@@ -471,6 +517,23 @@ Enriched_Interpolation_Mesh::get_owned_and_not_owned_enriched_interpolation_cell
             aNotOwnedInterpCells(tProcDataIndex).push_back( tEnrInterpCells(i) );
         }
     }
+}
+//------------------------------------------------------------------------------
+Interpolation_Vertex_Unzipped &
+Enriched_Interpolation_Mesh::get_xtk_interp_vertex(moris::uint aVertexIndex)
+{
+    return mEnrichedInterpVerts(aVertexIndex);
+}
+//------------------------------------------------------------------------------
+moris_index
+Enriched_Interpolation_Mesh::get_enr_basis_index_from_enr_basis_id(
+        moris_index const & aMeshIndex,
+        moris_index const & aBasisId) const
+{
+    moris_index tLocalMeshIndex = this->get_local_mesh_index(aMeshIndex);
+    auto tIter = mGlobaltoLocalBasisMaps(tLocalMeshIndex).find(aBasisId);
+    MORIS_ASSERT(tIter != mGlobaltoLocalBasisMaps(tLocalMeshIndex).end(),"Basis id not in map");
+    return tIter->second;
 }
 //------------------------------------------------------------------------------
 moris::Cell<Interpolation_Cell_Unzipped const*>
@@ -639,13 +702,30 @@ void Enriched_Interpolation_Mesh::print_vertex_interpolation() const
         std::cout<<*tVertex.get_xtk_interpolation(0)<<std::endl;
     }
 }
+void
+Enriched_Interpolation_Mesh::print_basis_information() const
+{
+    std::cout<<"\nBasis Information on proc "<<par_rank()<<":"<<std::endl;
+    for(moris::moris_index iM = 0 ; iM < (moris_index)mMeshIndices.numel(); iM++)
+    {
+        std::cout<<" Mesh Index: "<<mMeshIndices(iM)<<std::endl;
+        for(moris::moris_index i =0; i <(moris_index)mEnrichCoeffLocToGlob(iM).numel(); i++)
+        {
+            moris_id tId = mEnrichCoeffLocToGlob(iM)(i);
+            moris_index tIndex = this->get_enr_basis_index_from_enr_basis_id(mMeshIndices(iM),tId);
+            std::cout<<"    Basis Id: "<<std::setw(9)<<tId<< " | Basis Index: "<<std::setw(9)<<tIndex<<std::endl;
+        }
+    }
+}
+
 //------------------------------------------------------------------------------
 void
 Enriched_Interpolation_Mesh::finalize_setup()
 {
     this->setup_local_to_global_maps();
+    this->setup_not_owned_vertices();
 }
-
+//------------------------------------------------------------------------------
 void
 Enriched_Interpolation_Mesh::setup_local_to_global_maps()
 {
@@ -653,8 +733,26 @@ Enriched_Interpolation_Mesh::setup_local_to_global_maps()
     mLocalToGlobalMaps = Cell<Matrix< IdMat >>( 4 );
     mGlobaltoLobalMaps = Cell<std::unordered_map<moris_id,moris_index>>(4);
 
-    setup_vertex_maps();
-    setup_cell_maps();
+    this->setup_vertex_maps();
+    this->setup_cell_maps();
+    this->setup_basis_maps();
+}
+//------------------------------------------------------------------------------
+void
+Enriched_Interpolation_Mesh::setup_not_owned_vertices()
+{
+    // my proc rank
+    moris_index tMyProc = par_rank();
+
+    for(moris::uint iV = 0; iV < this->get_num_entities(EntityRank::NODE); iV++)
+    {
+        moris::mtk::Vertex & tVert = this->get_mtk_vertex((moris_index)iV);
+
+        if(tVert.get_owner() == tMyProc)
+        {
+            mNotOwnedVerts.push_back(tVert.get_index());
+        }
+    }
 }
 //------------------------------------------------------------------------------
 void
@@ -675,6 +773,26 @@ Enriched_Interpolation_Mesh::setup_vertex_maps()
 }
 //------------------------------------------------------------------------------
 void
+Enriched_Interpolation_Mesh::setup_basis_maps()
+{
+
+    mGlobaltoLocalBasisMaps.resize(mMeshIndices.numel());
+
+    // iterate through meshes
+    for(moris::uint iM = 0; iM < mEnrichCoeffLocToGlob.size(); iM++)
+    {
+        for(moris::uint iB =0; iB <mEnrichCoeffLocToGlob(iM).numel(); iB++)
+        {
+            MORIS_ASSERT(mGlobaltoLocalBasisMaps(iM).find(mEnrichCoeffLocToGlob(iM)(iB)) == mGlobaltoLocalBasisMaps(iM).end(),"Duplicate id in the basis map detected");
+
+            mGlobaltoLocalBasisMaps(iM)[mEnrichCoeffLocToGlob(iM)(iB)] = (moris_index) iB;
+
+            MORIS_ASSERT(this->get_enr_basis_index_from_enr_basis_id(mMeshIndices(iM),mEnrichCoeffLocToGlob(iM)(iB)) == (moris_index)iB, "Issue setting up the basis map");
+        }
+    }
+}
+//------------------------------------------------------------------------------
+void
 Enriched_Interpolation_Mesh::setup_cell_maps()
 {
     moris::uint tNumCells = this->get_num_entities(EntityRank::ELEMENT);
@@ -686,7 +804,7 @@ Enriched_Interpolation_Mesh::setup_cell_maps()
         mLocalToGlobalMaps(3)(mEnrichedInterpCells(i)->get_index()) = mEnrichedInterpCells(i)->get_id();
 
         MORIS_ASSERT(mEnrichedInterpCells(i)->get_index() == (moris_index)i,"Index alignment issue in cells");
-        MORIS_ASSERT(mGlobaltoLobalMaps(3).find(mEnrichedInterpCells(i)->get_id()) == mGlobaltoLobalMaps(3).end(),"Duplicate id in the vertex map detected");
+        MORIS_ASSERT(mGlobaltoLobalMaps(3).find(mEnrichedInterpCells(i)->get_id()) == mGlobaltoLobalMaps(3).end(),"Duplicate id in the cell map detected");
 
         mGlobaltoLobalMaps(3)[mEnrichedInterpCells(i)->get_id()] = mEnrichedInterpCells(i)->get_index();
     }

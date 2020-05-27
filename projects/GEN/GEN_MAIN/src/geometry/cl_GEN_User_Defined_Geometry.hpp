@@ -5,7 +5,7 @@
 #ifndef MORIS_CL_GEN_USER_DEFINED_GEOMETRY_HPP
 #define MORIS_CL_GEN_USER_DEFINED_GEOMETRY_HPP
 
-#include "cl_GEN_Geometry_Analytic.hpp"
+#include "cl_GEN_Geometry.hpp"
 #include "cl_GEN_Field_Analytic.hpp"
 #include "fn_Exec_load_user_library.hpp"
 
@@ -13,7 +13,7 @@ namespace moris
 {
     namespace ge
     {
-        class User_Defined_Geometry : public Geometry_Analytic, public Field_Analytic
+        class User_Defined_Geometry : public Geometry, public Field_Analytic
         {
 
         private:

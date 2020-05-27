@@ -81,7 +81,7 @@
 #include "fn_norm.hpp"
 
 #include "cl_GEN_Circle.hpp"
-#include "cl_GEN_Geometry_Analytic.hpp"
+#include "cl_GEN_Geometry.hpp"
 #include "cl_GEN_Geometry_Field_HMR.hpp"
 
 #include "cl_PRM_HMR_Parameters.hpp"
@@ -224,7 +224,7 @@ TEST_CASE("2D XTK WITH HMR Struc Interface 2D","[XTK_HMR_Struc_Interface_2D]")
 
         moris::hmr::Interpolation_Mesh_HMR * tInterpolationMesh = tHMR.create_interpolation_mesh(tLagrangeMeshIndex);
 
-        Cell<std::shared_ptr<moris::ge::Geometry_Analytic>> tGeometry(1);
+        Cell<std::shared_ptr<moris::ge::Geometry>> tGeometry(1);
         tGeometry(0) = std::make_shared<moris::ge::Circle>(0.0, 0.0, 0.2501);
 
         moris::ge::Phase_Table tPhaseTable (1, moris::ge::Phase_Table_Structure::EXP_BASE_2);
@@ -515,7 +515,7 @@ TEST_CASE("2D XTK WITH HMR Struc Interface 3D","[XTK_HMR_Struc_Interface_3D]") /
 //
 //        moris::hmr::Interpolation_Mesh_HMR * tInterpolationMesh = tHMR.create_interpolation_mesh(tLagrangeMeshIndex);
 //
-//        Cell<std::shared_ptr<moris::ge::Geometry_Analytic>> tGeometry(1);
+//        Cell<std::shared_ptr<moris::ge::Geometry>> tGeometry(1);
 //        tGeometry(0) = std::make_shared<moris::ge::Circle>(100.0, 0.0, 0.2501);
 //
 //        moris::ge::Phase_Table tPhaseTable (1, moris::ge::Phase_Table_Structure::EXP_BASE_2);
@@ -812,7 +812,7 @@ TEST_CASE("2D XTK WITH HMR Struc 2D first","[XTK_HMR_Struc_2D_01]")
 
         moris::hmr::Interpolation_Mesh_HMR * tInterpolationMesh = tHMR.create_interpolation_mesh(tLagrangeMeshIndex);
 
-        Cell<std::shared_ptr<moris::ge::Geometry_Analytic>> tGeometry(1);
+        Cell<std::shared_ptr<moris::ge::Geometry>> tGeometry(1);
         tGeometry(0) = std::make_shared<moris::ge::Circle>(0.0, 0.0, 0.4501);
 
         moris::ge::Phase_Table tPhaseTable (1, moris::ge::Phase_Table_Structure::EXP_BASE_2);
@@ -1125,7 +1125,7 @@ TEST_CASE("2D XTK WITH HMR Struc 2D second","[XTK_HMR_Struc_2D_02]")
 
         moris::hmr::Interpolation_Mesh_HMR * tInterpolationMesh = tHMR.create_interpolation_mesh(tLagrangeMeshIndex);
 
-        Cell<std::shared_ptr<moris::ge::Geometry_Analytic>> tGeometry(1);
+        Cell<std::shared_ptr<moris::ge::Geometry>> tGeometry(1);
         tGeometry(0) = std::make_shared<moris::ge::Circle>(0.0, 0.0, 0.4501);
 
         moris::ge::Phase_Table tPhaseTable (1, moris::ge::Phase_Table_Structure::EXP_BASE_2);

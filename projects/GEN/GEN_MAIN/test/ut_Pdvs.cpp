@@ -1,12 +1,21 @@
 #include "catch.hpp"
 #include "cl_Matrix.hpp"
 #include "cl_GEN_Pdv_Host_Manager.hpp"
+#include "fn_PRM_GEN_Parameters.hpp"
+#include "fn_GEN_create_property.hpp"
 
 namespace moris
 {
     namespace ge
     {
-        TEST_CASE("PDV_Type creation through host manager", "[GE], [PDV_Type]")
+        // Dummy values so I don't need to create a model for the sensitivity test
+        Matrix<DDRMat> tDiqiDpdv = {{0, 1, 2, 3}, {3, 2, 1, 0}};
+        Matrix<DDRMat> Pdv_Host_Manager::compute_diqi_dadv()
+        {
+            return tDiqiDpdv * this->compute_dpdv_dadv();
+        }
+
+        TEST_CASE("PDV creation through host manager", "[GE], [PDV]")
         {
             // Create PDV_Type host manager
             Pdv_Host_Manager tPdvHostManager;
@@ -123,6 +132,45 @@ namespace moris
             {
                 CHECK(tLocalGlobalMap(tGlobalPdvIndex) == tGlobalPdvIndex);
             }
+        }
+
+        TEST_CASE("PDV sensitivities test", "[GE], [sensitivity]")
+        {
+            // Create PDV_Type host manager
+            Pdv_Host_Manager tPdvHostManager;
+
+            // Create discrete property
+            ParameterList tParameterList = moris::prm::create_gen_property_parameter_list();;
+            tParameterList.set("type", "discrete");
+            tParameterList.set("property_variable_indices", "all");
+            tParameterList.set("adv_indices", "all");
+            tParameterList.set("pdv_type", "DENSITY");
+
+            // Create property
+            Matrix<DDRMat> tADVs = {{3, 2, 1, 0}};
+            std::shared_ptr<Property> tProperty = create_property(tParameterList, tADVs, Cell<std::shared_ptr<moris::ge::Property>>(0));
+
+            // Node indices per set
+            Cell<Matrix<DDSMat>> tIpNodeIndicesPerSet(1);
+            tIpNodeIndicesPerSet(0) = {{0, 1, 2, 3}};
+
+            // PDV_Type types per set
+            Cell<Cell<Cell<PDV_Type>>> tIpPdvTypes(1);
+            tIpPdvTypes(0).resize(1);
+            tIpPdvTypes(0)(0).resize(1);
+            tIpPdvTypes(0)(0)(0) = PDV_Type::DENSITY;
+
+            // Create PDV_Type hosts
+            tPdvHostManager.create_ip_pdv_hosts(4, tIpNodeIndicesPerSet, tIpPdvTypes);
+
+            // Set PDVs
+            for (uint tNodeIndex = 0; tNodeIndex < 4; tNodeIndex++)
+            {
+                tPdvHostManager.create_ip_pdv(uint(tIpNodeIndicesPerSet(0)(tNodeIndex)), tIpPdvTypes(0)(0)(0), tProperty);
+            }
+
+            // Check sensitivities
+            CHECK(norm(tPdvHostManager.compute_diqi_dadv() - tDiqiDpdv) <= 1E-12);
         }
     }
 }

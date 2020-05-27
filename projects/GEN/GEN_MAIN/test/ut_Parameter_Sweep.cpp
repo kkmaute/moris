@@ -11,7 +11,6 @@
 #include "op_equal_equal.hpp"
 
 // GE include -----------------------------------
-#include "cl_GEN_Enums.hpp"
 #include "cl_GEN_Phase_Table.hpp"
 
 #include "cl_GEN_Geometry_Engine.hpp"
@@ -145,7 +144,7 @@ TEST_CASE("param_test_01","[GE],[param_sweep_01]")
         {
             real tRadius  = tAllRadii(iIter);
 
-            Cell<std::shared_ptr<moris::ge::Geometry_Analytic>> tGeometry(1);
+            Cell<std::shared_ptr<moris::ge::Geometry>> tGeometry(1);
             tGeometry(0) = std::make_shared<moris::ge::Sphere>(tXCenter, tYCenter, tZCenter, tRadius);
 
             moris::ge::Phase_Table      tPhaseTable( 1,  moris::ge::Phase_Table_Structure::EXP_BASE_2 );
@@ -223,7 +222,7 @@ TEST_CASE("param_test_02","[GE],[param_sweep_02]")
 //        for(uint iIter=0; iIter<tNumIters; iIter++)    // loop over radii values
 //        {
 //            real tRadius  = tAllRadii(iIter);
-//            Cell<std::shared_ptr<moris::ge::Geometry_Analytic>> tGeometry(1);
+//            Cell<std::shared_ptr<moris::ge::Geometry>> tGeometry(1);
 //            tGeometry(0) = std::make_shared<moris::ge::Sphere>(tXCenter, tYCenter, tZCenter, tRadius);
 //
 //            moris::ge::Phase_Table      tPhaseTable( 1, moris::ge::Phase_Table_Structure::EXP_BASE_2 );

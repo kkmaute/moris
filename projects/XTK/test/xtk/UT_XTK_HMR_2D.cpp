@@ -63,7 +63,7 @@ CircleFuncXTKHMR2D(const moris::Matrix< moris::DDRMat > & aPoint )
 
 TEST_CASE("2D XTK WITH HMR","[XTK_HMR_2D]")
 {
-    if(par_size()<=4)
+    if(par_size()<=2)
     {
         for( moris::uint iOrder = 1; iOrder < 4; iOrder ++)
         {
@@ -127,7 +127,7 @@ TEST_CASE("2D XTK WITH HMR","[XTK_HMR_2D]")
 
             moris::ge::Geometry_Field_HMR tFieldAsGeom(tField);
 
-        moris::Cell< std::shared_ptr<moris::ge::Geometry_Discrete> > tGeometryVector(1);
+        moris::Cell< std::shared_ptr<moris::ge::Geometry> > tGeometryVector(1);
         tGeometryVector(0) = std::make_shared<moris::ge::Geometry_Field_HMR>(tField);
 
          size_t tModelDimension = 2;
@@ -145,7 +145,7 @@ TEST_CASE("2D XTK WITH HMR","[XTK_HMR_2D]")
 
             xtk::Enriched_Integration_Mesh & tEnrIgMesh = tXTKModel.get_enriched_integ_mesh(0);
 
-//            tXTKModel.construct_face_oriented_ghost_penalization_cells();
+            tXTKModel.construct_face_oriented_ghost_penalization_cells();
 
 
             // output to exodus file ----------------------------------------------------------
@@ -233,7 +233,7 @@ TEST_CASE("2D XTK WITH HMR WEIRD INTERSECTION","[XTK_HMR_2D_WI]")
          // create a plane which intentionally intersects from fine to coarse
          moris::Matrix<moris::DDRMat> tCenters = {{ 0.1,0.1 }};
          moris::Matrix<moris::DDRMat> tNormals = {{ 1.0,0.0 }};
-        Cell<std::shared_ptr<moris::ge::Geometry_Analytic>> tGeometry(1);
+        Cell<std::shared_ptr<moris::ge::Geometry>> tGeometry(1);
         tGeometry(0) = std::make_shared<moris::ge::Plane>(tCenters(0), tCenters(1), tNormals(0), tNormals(1));
 
          size_t tModelDimension = 2;

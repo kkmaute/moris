@@ -49,16 +49,14 @@ namespace moris
                 Interpolation_Rule aGeomInterpRule,
                 Interpolation_Rule aIPRule,
                 Matrix< DDRMat > aUHat0,
-                Matrix< DDRMat > aParametricPoint)
+                Matrix< DDRMat > aParametricPoint,
+                uint aSpatialDim = 2)
         {
             // real for check
-            real tEpsilon = 1E-6;
+            real tEpsilonRel = 5E-5;
 
             // initialize cell of checks
             moris::Cell<bool> tChecks( 5, false );
-
-            // real for check
-            real tEpsilonRel = 1E-6;
 
             // create the properties --------------------------------------------------------------------- //
             std::shared_ptr< fem::Property > tPropMasterConductivity = std::make_shared< fem::Property >();
@@ -70,17 +68,17 @@ namespace moris
 
             std::shared_ptr< fem::Property > tPropMasterDensity = std::make_shared< fem::Property >();
             tPropMasterDensity->set_parameters( {{{ 1.2 }}} );
-//            tPropMasterDensity->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
-//            tPropMasterDensity->set_val_function( tValFunctionCM_Diff_Lin_Iso );
-//            tPropMasterDensity->set_dof_derivative_functions( { tDerFunctionCM_Diff_Lin_Iso } );
-            tPropMasterDensity->set_val_function( tConstValFunctionCM_Diff_Lin_Iso );
+            tPropMasterDensity->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
+            tPropMasterDensity->set_val_function( tValFunctionCM_Diff_Lin_Iso );
+            tPropMasterDensity->set_dof_derivative_functions( { tDerFunctionCM_Diff_Lin_Iso } );
+//            tPropMasterDensity->set_val_function( tConstValFunctionCM_Diff_Lin_Iso );
 
             std::shared_ptr< fem::Property > tPropMasterHeatCapacity = std::make_shared< fem::Property >();
             tPropMasterHeatCapacity->set_parameters( {{{ 1.3 }}} );
-//            tPropMasterHeatCapacity->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
-//            tPropMasterHeatCapacity->set_val_function( tValFunctionCM_Diff_Lin_Iso );
-//            tPropMasterHeatCapacity->set_dof_derivative_functions( { tDerFunctionCM_Diff_Lin_Iso } );
-            tPropMasterHeatCapacity->set_val_function( tConstValFunctionCM_Diff_Lin_Iso );
+            tPropMasterHeatCapacity->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
+            tPropMasterHeatCapacity->set_val_function( tValFunctionCM_Diff_Lin_Iso );
+            tPropMasterHeatCapacity->set_dof_derivative_functions( { tDerFunctionCM_Diff_Lin_Iso } );
+//            tPropMasterHeatCapacity->set_val_function( tConstValFunctionCM_Diff_Lin_Iso );
 
             // define constitutive models ---------------------------------------------------------------- //
             fem::CM_Factory tCMFactory;
@@ -90,7 +88,7 @@ namespace moris
             tCMMasterDiffLinIso->set_property( tPropMasterConductivity, "Conductivity" );
             tCMMasterDiffLinIso->set_property( tPropMasterDensity, "Density" );
             tCMMasterDiffLinIso->set_property( tPropMasterHeatCapacity, "Heat_Capacity" );
-            tCMMasterDiffLinIso->set_space_dim( 2 );
+            tCMMasterDiffLinIso->set_space_dim( aSpatialDim );
 
             //create a space and a time geometry interpolator
             Geometry_Interpolator tGI( aGeomInterpRule );
@@ -149,19 +147,20 @@ namespace moris
 
             //check stress derivative
             bool tCheckdStress = true;
+            real tEpsilon = std::abs( tEpsilonRel * tdFluxdDOF( 0, 0 ) );
             for ( uint iStress = 0; iStress < tdFluxdDOF.n_rows(); iStress++ )
             {
                 for( uint jStress = 0; jStress < tdFluxdDOF.n_cols(); jStress++ )
                 {
-                    tCheckdStress = tCheckdStress && ( tdFluxdDOF( iStress, jStress ) - tdFluxdDOF_FD( iStress, jStress ) < tEpsilon );
+                    tCheckdStress = tCheckdStress && ( std::abs( tdFluxdDOF( iStress, jStress ) - tdFluxdDOF_FD( iStress, jStress ) ) < tEpsilon );
                 }
             }
             //REQUIRE( tCheckdStress );
             tChecks(0) = tCheckdStress;
 
-// debug
-//moris::print(tdFluxdDOF, "tdFluxdDOF");
-//moris::print(tdFluxdDOF_FD, "tdFluxdDOF_FD");
+            // debug
+            //moris::print(tdFluxdDOF, "tdFluxdDOF");
+            //moris::print(tdFluxdDOF_FD, "tdFluxdDOF_FD");
 
 
             // check strain-----------------------------------------------------------------
@@ -180,19 +179,20 @@ namespace moris
 
             //check strain derivative
             bool tCheckdStrain = true;
+            tEpsilon = std::abs( tEpsilonRel * tdStraindDOF( 0, 0 ) );
             for ( uint iStress = 0; iStress < tdStraindDOF.n_rows(); iStress++ )
             {
                 for( uint jStress = 0; jStress < tdStraindDOF.n_cols(); jStress++ )
                 {
-                    tCheckdStrain = tCheckdStrain && ( tdStraindDOF( iStress, jStress ) - tdStraindDOF_FD( iStress, jStress ) < tEpsilon );
+                    tCheckdStrain = tCheckdStrain && ( std::abs( tdStraindDOF( iStress, jStress ) - tdStraindDOF_FD( iStress, jStress ) ) < tEpsilon );
                 }
             }
             //REQUIRE( tCheckdStrain );
             tChecks(1) = tCheckdStrain;
 
-// debug
-//moris::print(tdStraindDOF, "tdStraindDOF");
-//moris::print(tdStraindDOF_FD, "tdStraindDOF_FD");
+            // debug
+            //moris::print(tdStraindDOF, "tdStraindDOF");
+            //moris::print(tdStraindDOF_FD, "tdStraindDOF_FD");
 
 
             // check constitutive matrix----------------------------------------------------
@@ -204,7 +204,11 @@ namespace moris
             // check traction---------------------------------------------------------------
             //------------------------------------------------------------------------------
             // define a normal
-            Matrix< DDRMat > tNormal = {{1.0},{0.0}};
+            Matrix< DDRMat > tNormal;
+            if (aSpatialDim == 2)
+                tNormal = {{1.0},{0.0}};
+            else
+                tNormal = {{0.0},{1.0},{0.0}};
 
             // evaluate the constitutive model traction
             Matrix< DDRMat > tTraction = tCMMasterDiffLinIso->traction( tNormal );
@@ -254,9 +258,9 @@ namespace moris
             //REQUIRE( tCheckHdot );
             tChecks(2) = tCheckHdot;
 
-// debug
-//moris::print(tdHdotdDOF, "tdHdotdDOF");
-//moris::print(tdHdotdDOF_FD, "tdHdotdDOF_FD");
+            // debug
+            //moris::print(tdHdotdDOF, "tdHdotdDOF");
+            //moris::print(tdHdotdDOF_FD, "tdHdotdDOF_FD");
 
 
             // check gradHdot --------------------------------------------------------------
@@ -283,9 +287,9 @@ namespace moris
             //REQUIRE( tCheckGradHdot );
             tChecks(3) = tCheckGradHdot;
 
-// debug
-//moris::print(tdGradHdotdDOF, "tdGradHdotdDOF");
-//moris::print(tdGradHdotdDOF_FD, "tdGradHdotdDOF_FD");
+            // debug
+            //moris::print(tdGradHdotdDOF, "tdGradHdotdDOF");
+            //moris::print(tdGradHdotdDOF_FD, "tdGradHdotdDOF_FD");
 
 
             // check graddivflux -----------------------------------------------------------
@@ -311,10 +315,10 @@ namespace moris
             }
             //REQUIRE( tCheckGradDivFlux );
             tChecks(4) = tCheckGradDivFlux;
-// debug
-//moris::print(tdGradDivFluxdDOF, "tdGradDivFluxdDOF");
-//moris::print(tdGradDivFluxdDOF_FD, "tdGradDivFluxdDOF_FD");
 
+            // debug
+            //moris::print(tdGradDivFluxdDOF, "tdGradDivFluxdDOF");
+            //moris::print(tdGradDivFluxdDOF_FD, "tdGradDivFluxdDOF_FD");
 
             // clean up
             //------------------------------------------------------------------------------
@@ -329,7 +333,7 @@ namespace moris
 
         // ------------------------------------------------------------------------------------- //
         // ------------------------------------------------------------------------------------- //
-        TEST_CASE( "CM_Diff_Lin_Iso_Linear", "[moris],[fem],[CM_Diff_Lin_Iso_Linear]" )
+        TEST_CASE( "CM_Diff_Lin_Iso_QUAD4", "[moris],[fem],[CM_Diff_Lin_Iso_QUAD4]" )
         {
             //create a quad4 space element
             Matrix< DDRMat > tXHat = {
@@ -388,19 +392,20 @@ namespace moris
 
         // ------------------------------------------------------------------------------------- //
         // ------------------------------------------------------------------------------------- //
-        TEST_CASE( "CM_Diff_Lin_Iso_Quadratic", "[moris],[fem],[CM_Diff_Lin_Iso_Quadratic]" )
+        TEST_CASE( "CM_Diff_Lin_Iso_HEX27", "[moris],[fem],[CM_Diff_Lin_Iso_HEX27]" )
         {
+            // set number of spatial dimensions
+            uint tSpatialDims = 3;
+
             //create a quad4 space element
             Matrix< DDRMat > tXHat = {
-                    { 0.0, 0.0},
-                    { 1.0, 0.0},
-                    { 1.0, 1.0},
-                    { 0.0, 1.0},
-                    { 0.5, 0.0},
-                    { 1.0, 0.5},
-                    { 0.5, 1.0},
-                    { 0.0, 0.5},
-                    { 0.5, 0.5}};
+                    { 0.0, 0.0, 0.0}, { 1.0, 0.0, 0.0}, { 1.0, 1.0, 0.0}, { 0.0, 1.0, 0.0},
+                    { 0.0, 0.0, 1.0}, { 1.0, 0.0, 1.0}, { 1.0, 1.0, 1.0}, { 0.0, 1.0, 1.0},
+                    { 0.5, 0.0, 0.0}, { 1.0, 0.5, 0.0}, { 0.5, 1.0, 0.0}, { 0.0, 0.5, 0.0},
+                    { 0.0, 0.0, 0.5}, { 1.0, 0.0, 0.5}, { 1.0, 1.0, 0.5}, { 0.0, 1.0, 0.5},
+                    { 0.5, 0.0, 1.0}, { 1.0, 0.5, 1.0}, { 0.5, 1.0, 1.0}, { 0.0, 0.5, 1.0},
+                    { 0.5, 0.5, 0.5}, { 0.5, 0.5, 0.0}, { 0.5, 0.5, 1.0},
+                    { 0.5, 0.0, 0.5}, { 1.0, 0.5, 0.5}, { 0.5, 1.0, 0.5}, { 0.0, 0.5, 0.5}};
 
             //create a line time element
             Matrix< DDRMat > tTHat( 3, 1 );
@@ -409,7 +414,8 @@ namespace moris
             tTHat( 1 ) = 1.10e-3;
 
             //create a space geometry interpolation rule
-            Interpolation_Rule tGeomInterpRule( mtk::Geometry_Type::QUAD,
+            Interpolation_Rule tGeomInterpRule(
+                    mtk::Geometry_Type::HEX,
                     Interpolation_Type::LAGRANGE,
                     mtk::Interpolation_Order::QUADRATIC,
                     Interpolation_Type::LAGRANGE,
@@ -417,7 +423,7 @@ namespace moris
 
             // create an interpolation rule
             Interpolation_Rule tIPRule (
-                    mtk::Geometry_Type::QUAD,
+                    mtk::Geometry_Type::HEX,
                     Interpolation_Type::LAGRANGE,
                     mtk::Interpolation_Order::QUADRATIC,
                     Interpolation_Type::LAGRANGE,
@@ -426,10 +432,10 @@ namespace moris
 
             // set coefficients for field interpolators
             Matrix< DDRMat > tUHat0 = {
-                    {4.1},{4.2},{4.3},{4.4},{4.5},{4.6},{4.7},{4.8},{4.9},
-                    {5.1},{5.2},{5.3},{5.4},{5.5},{5.6},{5.7},{5.8},{5.9},
-                    {6.1},{6.2},{6.3},{6.4},{6.5},{6.6},{6.7},{6.8},{6.9},};
-            Matrix< DDRMat > tParametricPoint = {{-0.4}, { 0.1}, {-0.6}};
+                    {4.1},{4.2},{4.3},{4.4},{4.5},{4.6},{4.7},{4.4},{4.9},{4.1},{4.2},{4.3},{4.4},{4.5},{4.6},{4.7},{4.8},{4.1},{4.3},{4.2},{4.3},{4.4},{4.5},{4.6},{4.7},{4.8},{4.9},
+                    {5.1},{5.2},{5.3},{5.3},{5.5},{5.6},{5.7},{5.8},{5.9},{5.3},{5.2},{5.3},{5.4},{5.5},{5.2},{5.7},{5.8},{5.9},{5.1},{5.4},{5.3},{5.6},{5.5},{5.9},{5.7},{5.8},{5.9},
+                    {6.4},{6.2},{6.3},{6.4},{6.2},{6.6},{6.7},{6.1},{6.9},{6.1},{6.1},{6.3},{6.4},{6.9},{6.8},{6.7},{6.6},{6.5},{6.6},{6.2},{6.3},{6.4},{6.5},{6.6},{6.7},{6.8},{6.9}};
+            Matrix< DDRMat > tParametricPoint = {{-0.4}, { 0.1}, {-0.6}, {0.3}};
 
             // run test
             moris::Cell<bool> tChecks = test_diffusion_constitutive_model(
@@ -438,7 +444,8 @@ namespace moris
                             tGeomInterpRule,
                             tIPRule,
                             tUHat0,
-                            tParametricPoint);
+                            tParametricPoint,
+                            tSpatialDims);
 
             // checks
             bool tCheckdStress     = tChecks(0);
@@ -457,7 +464,7 @@ namespace moris
 
         // ------------------------------------------------------------------------------------- //
         // ------------------------------------------------------------------------------------- //
-        TEST_CASE( "CM_Diff_Lin_Iso_Cubic", "[moris],[fem],[CM_Diff_Lin_Iso_Cubic]" )
+        TEST_CASE( "CM_Diff_Lin_Iso_QUAD16", "[moris],[fem],[CM_Diff_Lin_Iso_QUAD16]" )
         {
 
             //create a quad4 space element

@@ -102,7 +102,7 @@ namespace moris
             {
                 if ( par_rank() == 0 )
                 {
-                    MORIS_LOG( "         %-5i  |  %-15.15e  |  %-11.5e  |  %-10.15e  ||  %9.4e  |  %9.4e ", aIt, aResNorm, (aResNorm/aRefNorm), solNorm, aAssemblyTime, aSolvTime  );
+                    MORIS_LOG( "         %-5i  |  %-15.15e  |  %-11.5e  |  %-10.15e  ||  %9.4e  |  %9.4e ", aIt, aResNorm, (aResNorm/aRefNorm), solNorm(0), aAssemblyTime, aSolvTime  );
                 }
             }
 

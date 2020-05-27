@@ -14,10 +14,8 @@
 #include "cl_Matrix.hpp"
 
 // GE includes
-#include "../additional/cl_GEN_Enums.hpp"
-
-#include "../property/cl_GEN_Property.hpp"
-#include "../projects/GEN/GEN_CORE/src/cl_GEN_Pdv_Enums.hpp"
+#include "cl_GEN_Property.hpp"
+#include "cl_GEN_Pdv_Enums.hpp"
 
 // XTK includes
 #include "cl_XTK_Topology.hpp"

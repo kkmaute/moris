@@ -258,32 +258,6 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        void Pdv_Host_Manager::assign_property_to_pdv_type_by_vertex_index(std::shared_ptr<Property> aPropertyPointer,
-                                                                           PDV_Type                        aPdvType,
-                                                                           moris_index                   aNodeIndex)
-        {
-            // Check if PDV_Type host exists
-            MORIS_ASSERT(mIpPdvHosts(aNodeIndex) != nullptr, "PDV_Type attempted to be created via property when PDV_Type host doesn't exist yet.");
-
-            // get the pdv host and create the pdv for dv type
-            mIpPdvHosts(aNodeIndex)->create_pdv(aPdvType, aPropertyPointer);
-        }
-
-        //--------------------------------------------------------------------------------------------------------------
-
-        void Pdv_Host_Manager::assign_field_to_pdv_type_by_vertex_index(std::shared_ptr<GEN_Field>   aFieldPointer,
-                                                                        PDV_Type                       aPdvType,
-                                                                        moris_index                  aNodeIndex)
-        {
-            // Check if PDV_Type host exists
-            MORIS_ASSERT(mIpPdvHosts(aNodeIndex) != nullptr, "PDV_Type attempted to be created via field when PDV_Type host doesn't exist yet.");
-        
-            // get the pdv host and create the pdv for dv type
-            mIpPdvHosts(aNodeIndex)->create_pdv(aPdvType, aFieldPointer, aNodeIndex);
-        }
-
-        //--------------------------------------------------------------------------------------------------------------
-
         void Pdv_Host_Manager::create_ip_pdv_hosts(uint aTotalNodes, Cell<Matrix<DDSMat>> aNodeIndicesPerSet, Cell<Cell<Cell<PDV_Type>>> aPdvTypes)
         {
             // Check that number of sets is consistent
@@ -463,6 +437,45 @@ namespace moris
         void Pdv_Host_Manager::create_ig_pdv(uint aNodeIndex, PDV_Type aPdvType, moris::real aPdvVal)
         {
             mIgPdvHosts(aNodeIndex)->create_pdv(aPdvType, aPdvVal);
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
+        Matrix<DDRMat> Pdv_Host_Manager::compute_diqi_dadv()
+        {
+            return this->get_dQidu() * this->compute_dpdv_dadv();
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
+        Matrix<DDRMat> Pdv_Host_Manager::compute_dpdv_dadv()
+        {
+            // Information from each host
+            Matrix<DDRMat> tTotalAdvSensitivities(0, 0);
+            Matrix<DDRMat> tHostAdvSensitivities(0, 0);
+
+            // Need to know the size of the sensitivities
+            if (mIpPdvHosts.size() > 0)
+            {
+                mIpPdvHosts(0)->get_all_sensitivities(tHostAdvSensitivities);
+                tTotalAdvSensitivities.resize(mGlobalPdvIndex, tHostAdvSensitivities.n_cols());
+            }
+
+            // Loop over PDV hosts
+            for (uint tPdvHostIndex = 0; tPdvHostIndex < mIpPdvHosts.size(); tPdvHostIndex++)
+            {
+                // Get sensitivities
+                mIpPdvHosts(tPdvHostIndex)->get_all_sensitivities(tHostAdvSensitivities);
+                const Matrix<DDUMat>& tHostPdvIndices = mIpPdvHosts(tPdvHostIndex)->get_all_global_indices();
+
+                // Add to total matrix
+                for (uint tRowIndex = 0; tRowIndex < tHostAdvSensitivities.n_rows(); tRowIndex++)
+                {
+                    tTotalAdvSensitivities.set_row(tHostPdvIndices(tRowIndex), tHostAdvSensitivities.get_row(tRowIndex));
+                }
+            }
+
+            return tTotalAdvSensitivities;
         }
 
         //--------------------------------------------------------------------------------------------------------------

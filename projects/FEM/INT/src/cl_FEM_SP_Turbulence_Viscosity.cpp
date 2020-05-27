@@ -19,9 +19,59 @@ namespace moris
 
             // populate the map
             mPropertyMap[ "Viscosity" ]    = Property_Type::VISCOSITY;
+        }
 
-            // populate the dof map (default)
-            mMasterDofMap[ "Viscosity" ] = MSI::Dof_Type::VISCOSITY;
+        //------------------------------------------------------------------------------
+        void SP_Turbulence_Viscosity::set_dof_type_list(
+                moris::Cell< moris::Cell< MSI::Dof_Type > > & aDofTypes,
+                moris::Cell< std::string >                  & aDofStrings,
+                mtk::Master_Slave                             aIsMaster )
+        {
+            // switch on master slave
+            switch ( aIsMaster )
+            {
+                case mtk::Master_Slave::MASTER :
+                {
+                    // set dof type list
+                    mMasterDofTypes = aDofTypes;
+
+                    // loop on dof type
+                    for( uint iDof = 0; iDof < aDofTypes.size(); iDof++ )
+                    {
+                        // get dof string
+                        std::string tDofString = aDofStrings( iDof );
+
+                        // get dof type
+                        MSI::Dof_Type tDofType = aDofTypes( iDof )( 0 );
+
+                        // if viscosity
+                        if( tDofString == "Viscosity" )
+                        {
+                            mMasterDofViscosity = tDofType;
+                        }
+                        else
+                        {
+                            // create error message
+                            std::string tErrMsg =
+                                    std::string( "SP_Turbulence_Viscosity::set_dof_type_list - Unknown aDofString : ") +
+                                    tDofString;
+                            MORIS_ERROR( false , tErrMsg.c_str() );
+                        }
+                    }
+                    break;
+                }
+
+                case mtk::Master_Slave::SLAVE :
+                {
+                    // set dof type list
+                    mSlaveDofTypes = aDofTypes;
+                    break;
+                }
+
+                default:
+                    MORIS_ERROR( false, "SP_Turbulence_Viscosity::set_dof_type_list - unknown or incorrect master slave type." );
+                    break;
+            }
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -53,7 +103,7 @@ namespace moris
         {
             // get the viscosity dof type FI
             Field_Interpolator * tFIViscosity =
-                    mMasterFIManager->get_field_interpolators_for_type( mMasterDofMap[ "Viscosity" ] );
+                    mMasterFIManager->get_field_interpolators_for_type( mMasterDofViscosity );
 
             // compute fv1
             real tFv1 = this->compute_fv1();
@@ -77,10 +127,10 @@ namespace moris
 
             // get the viscosity dof type FI
             Field_Interpolator * tFIViscosity =
-                    mMasterFIManager->get_field_interpolators_for_type( mMasterDofMap[ "Viscosity" ] );
+                    mMasterFIManager->get_field_interpolators_for_type( mMasterDofViscosity );
 
             // if dof type is viscosity
-            if( aDofTypes( 0 ) == mMasterDofMap[ "Viscosity" ] )
+            if( aDofTypes( 0 ) == mMasterDofViscosity )
             {
                 // compute fv1
                 real tFv1 = this->compute_fv1();
@@ -102,7 +152,7 @@ namespace moris
         {
             // get the residual dof FI (here viscosity)
             Field_Interpolator * tFIViscosity =
-                    mMasterFIManager->get_field_interpolators_for_type( mMasterDofMap[ "Viscosity" ] );
+                    mMasterFIManager->get_field_interpolators_for_type( mMasterDofViscosity );
 
             // get the density and gravity properties
             std::shared_ptr< Property > tPropViscosity =
@@ -128,7 +178,7 @@ namespace moris
 
             // get the residual dof FI (here viscosity)
             Field_Interpolator * tFIViscosity =
-                    mMasterFIManager->get_field_interpolators_for_type( mMasterDofMap[ "Viscosity" ] );
+                    mMasterFIManager->get_field_interpolators_for_type( mMasterDofViscosity );
 
             // get the density and gravity properties
             std::shared_ptr< Property > tPropViscosity =
@@ -138,7 +188,7 @@ namespace moris
             real tChi = tFIViscosity->val()( 0 ) / tPropViscosity->val()( 0 );
 
             // if dof type is viscosity
-            if( aDofTypes( 0 ) == mMasterDofMap[ "Viscosity" ] )
+            if( aDofTypes( 0 ) == mMasterDofViscosity )
             {
                 adchidu.matrix_data() += tDerFI->N() / tPropViscosity->val()( 0 );
             }
@@ -175,7 +225,9 @@ namespace moris
             this->compute_dchidu( aDofTypes, tdchidu );
 
             // compute adfv1du
-            adfv1du = 3.0 * std::pow( mCv1, 3.0 ) * std::pow( tChi, 2.0 ) * tdchidu / std::pow( std::pow( tChi, 3.0 ) + std::pow( mCv1, 3.0 ), 2.0 );
+            adfv1du =
+                    3.0 * std::pow( mCv1, 3.0 ) * std::pow( tChi, 2.0 ) * tdchidu /
+                    std::pow( std::pow( tChi, 3.0 ) + std::pow( mCv1, 3.0 ), 2.0 );
         }
 
         //------------------------------------------------------------------------------

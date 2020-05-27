@@ -203,7 +203,7 @@ namespace moris
 
         for( uint k = 0; k < tNumRef; k++ )
         {
-            Cell<std::shared_ptr<moris::ge::Geometry_Analytic>> tGeometry(4);
+            Cell<std::shared_ptr<moris::ge::Geometry>> tGeometry(4);
             tGeometry(0) = std::make_shared<moris::ge::Plane>(0.0, tPlaneBottom, 0.0, 1.0);
             tGeometry(1) = std::make_shared<moris::ge::Plane>(0.0, tPlaneTop, 0.0, 1.0);
             tGeometry(2) = std::make_shared<moris::ge::Plane>(tPlaneLeft, 0.0, 1.0, 0.0);
@@ -251,7 +251,7 @@ namespace moris
 
         //-----------------------------------------------------------------------------------------------
 
-        Cell<std::shared_ptr<moris::ge::Geometry_Analytic>> tGeometry(4);
+        Cell<std::shared_ptr<moris::ge::Geometry>> tGeometry(4);
         tGeometry(0) = std::make_shared<moris::ge::Plane>(0.0, tPlaneBottom, 0.0, 1.0);
         tGeometry(1) = std::make_shared<moris::ge::Plane>(0.0, tPlaneTop, 0.0, 1.0);
         tGeometry(2) = std::make_shared<moris::ge::Plane>(tPlaneLeft, 0.0, 1.0, 0.0);
@@ -613,7 +613,7 @@ TEST_CASE("MDL_Fluid_Benchmark_Immersed_Inlet_Pressure","[MDL_Fluid_Benchmark_Im
 
         for( uint k = 0; k < tNumRef; k++ )
         {
-            Cell<std::shared_ptr<moris::ge::Geometry_Analytic>> tGeometry(4);
+            Cell<std::shared_ptr<moris::ge::Geometry>> tGeometry(4);
             tGeometry(0) = std::make_shared<moris::ge::Plane>(0.0, tPlaneBottom, 0.0, 1.0);
             tGeometry(1) = std::make_shared<moris::ge::Plane>(0.0, tPlaneTop, 0.0, 1.0);
             tGeometry(2) = std::make_shared<moris::ge::Plane>(tPlaneLeft, 0.0, 1.0, 0.0);
@@ -662,7 +662,7 @@ TEST_CASE("MDL_Fluid_Benchmark_Immersed_Inlet_Pressure","[MDL_Fluid_Benchmark_Im
 
         //-----------------------------------------------------------------------------------------------
 
-        Cell<std::shared_ptr<moris::ge::Geometry_Analytic>> tGeometry(4);
+        Cell<std::shared_ptr<moris::ge::Geometry>> tGeometry(4);
         tGeometry(0) = std::make_shared<moris::ge::Plane>(0.0, tPlaneBottom, 0.0, 1.0);
         tGeometry(1) = std::make_shared<moris::ge::Plane>(0.0, tPlaneTop, 0.0, 1.0);
         tGeometry(2) = std::make_shared<moris::ge::Plane>(tPlaneLeft, 0.0, 1.0, 0.0);
@@ -2357,7 +2357,7 @@ TEST_CASE("MDL_Fluid_Benchmark_Radial_Couette_Flow","[MDL_Fluid_Benchmark_Radial
         // loop over refinement
         for( uint k=0; k<tNumRef; ++k )
         {
-            Cell<std::shared_ptr<moris::ge::Geometry_Analytic>> tGeometry(2);
+            Cell<std::shared_ptr<moris::ge::Geometry>> tGeometry(2);
             tGeometry(0) = std::make_shared<moris::ge::Circle>(tCenterPoint(0), tCenterPoint(1), tROut);
             tGeometry(1) = std::make_shared<moris::ge::Circle>(tCenterPoint(0), tCenterPoint(1), tRIn);
 
@@ -2398,7 +2398,7 @@ TEST_CASE("MDL_Fluid_Benchmark_Radial_Couette_Flow","[MDL_Fluid_Benchmark_Radial
 
         //-----------------------------------------------------------------------------------------------
 
-        Cell<std::shared_ptr<moris::ge::Geometry_Analytic>> tGeometry0(2);
+        Cell<std::shared_ptr<moris::ge::Geometry>> tGeometry0(2);
         tGeometry0(0) = std::make_shared<moris::ge::Circle>(tCenterPoint(0), tCenterPoint(1), tROut);
         tGeometry0(1) = std::make_shared<moris::ge::Circle>(tCenterPoint(0), tCenterPoint(1), tRIn);
 

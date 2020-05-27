@@ -113,6 +113,9 @@ Enrichment::perform_basis_cluster_enrichment()
     // construct cell in xtk conformal model neighborhood connectivity
     this->construct_neighborhoods();
 
+    // make sure we have access to all the vertex interpolation
+    this->setup_background_vertex_interpolations();
+
     // iterate through basis types (i.e. linear and quadratic)
     for(moris::size_t iBasisType = 0; iBasisType < mMeshIndices.numel(); iBasisType++)
     {
@@ -180,6 +183,42 @@ Enrichment::construct_neighborhoods()
     mXTKModelPtr->construct_subphase_neighborhood();
 }
 
+void
+Enrichment::setup_background_vertex_interpolations()
+{
+
+    // access the background interpolation mesh
+    mtk::Interpolation_Mesh & tBGIPMesh = mXTKModelPtr->get_background_mesh().get_mesh_data();
+
+    // size the data in the enrichment data
+    moris::uint tNumVertices = tBGIPMesh.get_num_nodes();
+
+    // my proc rank
+    moris_index tMyProc = par_rank();
+
+    // iterate through meshes
+    for(moris::uint iM = 0; iM < mMeshIndices.numel(); iM++)
+    {
+        // size the vertex interpolations (allocating everything as null)
+        mEnrichmentData(iM).mBGVertexInterpolations.resize(tNumVertices,nullptr);
+
+        // iterate through vertices
+        for(moris::uint iV = 0; iV < tNumVertices; iV++)
+        {
+            // access the vertex
+            moris::mtk::Vertex & tVert = tBGIPMesh.get_mtk_vertex((moris_index)iV);
+
+            // if I own the vertex we know the vertex interpolation
+            // exists on this server
+            if(tVert.get_owner() == tMyProc)
+            {
+                mEnrichmentData(iM).mBGVertexInterpolations(iV) =tVert.get_interpolation(mMeshIndices(iM));
+            }
+
+            //else we don't own it and we leave it as the nullptr it was initilized as
+        }
+    }
+}
 
 Matrix<IndexMat>
 Enrichment::get_subphase_clusters_in_support(moris::Matrix< moris::IndexMat > const & aElementsInSupport)
@@ -299,7 +338,7 @@ Enrichment::assign_subphase_bin_enrichment_levels_in_basis_support(moris::Matrix
                                             tActiveBins,
                                             tIncludedBins,
                                             mNumBulkPhases,
-                                            INDEX_MAX,
+                                            MORIS_INDEX_MAX,
                                             aMaxEnrichmentLevel,
                                             true);
 
@@ -915,9 +954,6 @@ Enrichment::construct_enriched_interpolation_vertices_and_cells()
     moris_index tVertId      = 1;
     uint        tVertexCount = 0;
 
-    // my proc rank
-    moris_index tMyProcRank = par_rank();
-
     // iterate through children meshes and create the unzipped interpolation cells
     uint tNumChildMeshes = mCutMeshPtr->get_num_child_meshes();
 
@@ -950,84 +986,82 @@ Enrichment::construct_enriched_interpolation_vertices_and_cells()
             // owner
             moris_id tOwner = tParentCell.get_owner();
 
-            if(tMyProcRank == tOwner)
+            // vertexes of cell
+            moris::Cell<mtk::Vertex*> tVertices = tParentCell.get_vertex_pointers();
+
+            // number of vertices on cell
+            uint tNumVertices = tParentCell.get_number_of_vertices();
+
+            // bulk phase
+            moris_index tBulkPhase = mXTKModelPtr->mBackgroundMesh.get_element_phase_index(tParentCell.get_index());
+
+
+            for(moris::uint iMT = 0; iMT < mMeshIndices.numel(); iMT++)
             {
-                // vertexes of cell
-                moris::Cell<mtk::Vertex*> tVertices = tParentCell.get_vertex_pointers();
+                // vertex interpolations of the parent cell
+                moris::Cell<mtk::Vertex_Interpolation*> tVertexInterpolations = this->get_vertex_interpolations(tParentCell, mMeshIndices(iMT) );
 
-                // number of vertices on cell
-                uint tNumVertices = tParentCell.get_number_of_vertices();
+                // basis interpolating into the cell
+                Cell<moris_index> const & tBasisInCell = mEnrichmentData(iMT).mSubphaseBGBasisIndices((moris_index)iEl);
 
-                // bulk phase
-                moris_index tBulkPhase = mXTKModelPtr->mBackgroundMesh.get_element_phase_index(tParentCell.get_index());
+                // construct a map between basis index and index relative to the subphase cluster
+                std::unordered_map<moris_id,moris_id> tCellBasisMap = construct_subphase_basis_to_basis_map(tBasisInCell);
 
+                // Subphase basis enrichment level of the current subphase in child mesh
+                Cell<moris_index> const & tEnrLevOfBasis = mEnrichmentData(iMT).mSubphaseBGBasisEnrLev((moris_index)iEl);
 
-                for(moris::uint iMT = 0; iMT < mMeshIndices.numel(); iMT++)
+                // construct unzipped enriched vertices
+                for(uint iEV = 0; iEV < tNumVertices; iEV++)
                 {
-                    // vertex interpolations of the parent cell
-                    moris::Cell<mtk::Vertex_Interpolation*> tVertexInterpolations = tParentCell.get_vertex_interpolations( mMeshIndices(iMT) );
+                    // construct vertex enrichment
+                    Vertex_Enrichment tVertEnrichment;
+                    this->construct_enriched_vertex_interpolation((moris_index)iMT,tVertexInterpolations(iEV),tEnrLevOfBasis,tCellBasisMap,tVertEnrichment);
 
-                    // basis interpolating into the cell
-                    Cell<moris_index> const & tBasisInCell = mEnrichmentData(iMT).mSubphaseBGBasisIndices((moris_index)iEl);
+                    // add vertex enrichment to enriched interpolation mesh
+                    bool tNewVertFlag = false;
+                    moris_index tVertEnrichIndex = tEnrInterpMesh->add_vertex_enrichment(mMeshIndices(iMT),tVertices(iEV),tVertEnrichment, tNewVertFlag);
 
-                    // construct a map between basis index and index relative to the subphase cluster
-                    std::unordered_map<moris_id,moris_id> tCellBasisMap = construct_subphase_basis_to_basis_map(tBasisInCell);
-
-                    // Subphase basis enrichment level of the current subphase in child mesh
-                    Cell<moris_index> const & tEnrLevOfBasis = mEnrichmentData(iMT).mSubphaseBGBasisEnrLev((moris_index)iEl);
-
-                    // construct unzipped enriched vertices
-                    for(uint iEV = 0; iEV < tNumVertices; iEV++)
-                    {
-                        // construct vertex enrichment
-                        Vertex_Enrichment tVertEnrichment;
-                        this->construct_enriched_vertex_interpolation((moris_index)iMT,tVertexInterpolations(iEV),tEnrLevOfBasis,tCellBasisMap,tVertEnrichment);
-
-                        // add vertex enrichment to enriched interpolation mesh
-                        bool tNewVertFlag = false;
-                        moris_index tVertEnrichIndex = tEnrInterpMesh->add_vertex_enrichment(mMeshIndices(iMT),tVertices(iEV),tVertEnrichment, tNewVertFlag);
-
-                        // if this vertex interpolation is new, create a vertex
-                        if(iMT == 0)
-                        {
-                            if(tNewVertFlag)
-                            {
-                                // Create interpolation vertex
-                                tEnrInterpMesh->mEnrichedInterpVerts(tVertEnrichIndex)
-                                                    = Interpolation_Vertex_Unzipped(tVertices(iEV), tVertId, tVertEnrichIndex,
-                                                                                    tVertices(iEV)->get_owner(), mMeshIndices(0),
-                                                                                    tEnrInterpMesh->get_vertex_enrichment(mMeshIndices(iMT),tVertEnrichIndex));
-
-                                tVertId++;
-                                tVertexCount++;
-                            }
-                            tEnrInterpCellToVertex(tCellIndex,iEV) = tVertEnrichIndex;
-                        }
-
-                        else
-                        {
-                            // first time around what was the vertex index
-                            moris_index tVertexIndexInIp = tEnrInterpCellToVertex(tCellIndex-1,iEV);
-                            if(tNewVertFlag)
-                            {
-                                tEnrInterpMesh->mEnrichedInterpVerts(tVertexIndexInIp).add_vertex_interpolation(mMeshIndices(iMT),tEnrInterpMesh->get_vertex_enrichment(mMeshIndices(iMT),tVertEnrichIndex));
-                            }
-                        }
-                    }
-
+                    // if this vertex interpolation is new, create a vertex
                     if(iMT == 0)
                     {
-                        // create new enriched interpolation cell
-                        tEnrInterpMesh->mEnrichedInterpCells(tCellIndex) = new Interpolation_Cell_Unzipped(&tParentCell, tParentCell.get_index(),
-                                                                                                           tBulkPhase, tParentCell.get_id(), tCellIndex, tOwner, tEnrInterpMesh->mCellInfo);
+                        if(tNewVertFlag)
+                        {
+                            // Create interpolation vertex
+                            tEnrInterpMesh->mEnrichedInterpVerts(tVertEnrichIndex)
+                                                            = Interpolation_Vertex_Unzipped(tVertices(iEV), tVertId, tVertEnrichIndex,
+                                                                    tVertices(iEV)->get_owner(), mMeshIndices(0),
+                                                                    tEnrInterpMesh->get_vertex_enrichment(mMeshIndices(iMT),tVertEnrichIndex));
 
-                        // add enriched interpolation cell to base cell to enriched cell data
-                        tEnrInterpMesh->mBaseCelltoEnrichedCell(tParentCell.get_index()).push_back(tEnrInterpMesh->mEnrichedInterpCells(tCellIndex));
+                            tVertId++;
+                            tVertexCount++;
+                        }
+                        tEnrInterpCellToVertex(tCellIndex,iEV) = tVertEnrichIndex;
+                    }
 
-                        // increment the cell index/id
-                        tCellIndex++;
+                    else
+                    {
+                        // first time around what was the vertex index
+                        moris_index tVertexIndexInIp = tEnrInterpCellToVertex(tCellIndex-1,iEV);
+                        if(tNewVertFlag)
+                        {
+                            tEnrInterpMesh->mEnrichedInterpVerts(tVertexIndexInIp).add_vertex_interpolation(mMeshIndices(iMT),tEnrInterpMesh->get_vertex_enrichment(mMeshIndices(iMT),tVertEnrichIndex));
+                        }
                     }
                 }
+
+                if(iMT == 0)
+                {
+                    // create new enriched interpolation cell
+                    tEnrInterpMesh->mEnrichedInterpCells(tCellIndex) = new Interpolation_Cell_Unzipped(&tParentCell, tParentCell.get_index(),
+                            tBulkPhase, tParentCell.get_id(), tCellIndex, tOwner, tEnrInterpMesh->mCellInfo);
+
+                    // add enriched interpolation cell to base cell to enriched cell data
+                    tEnrInterpMesh->mBaseCelltoEnrichedCell(tParentCell.get_index()).push_back(tEnrInterpMesh->mEnrichedInterpCells(tCellIndex));
+
+                    // increment the cell index/id
+                    tCellIndex++;
+                }
+
             }
         }
     }
@@ -1045,101 +1079,99 @@ Enrichment::construct_enriched_interpolation_vertices_and_cells()
         // owner
         moris_id tOwner = tParentCell.get_owner();
 
-        if(tMyProcRank == tOwner)
+
+        // vertexes of cell
+        moris::Cell<mtk::Vertex*> tVertices = tParentCell.get_vertex_pointers();
+
+        // number of vertices
+        uint tNumVertices = tParentCell.get_number_of_vertices();
+
+        for(moris::uint iMT = 0; iMT < mMeshIndices.numel(); iMT++)
         {
 
-            // vertexes of cell
-            moris::Cell<mtk::Vertex*> tVertices = tParentCell.get_vertex_pointers();
+            // vertex interpolations of the parent cell
+            moris::Cell<mtk::Vertex_Interpolation*> tVertexInterpolations = this->get_vertex_interpolations(tParentCell, mMeshIndices(iMT) );
 
-            // number of vertices
-            uint tNumVertices = tParentCell.get_number_of_vertices();
 
-            for(moris::uint iMT = 0; iMT < mMeshIndices.numel(); iMT++)
+            // get bulkphase of subphases
+            Cell<moris::moris_index> const & tSubPhaseBulkPhase =tCM.get_subphase_bin_bulk_phase();
+
+            // subphase indices
+            Cell<moris_index> const & tSubphaseIndices = tCM.get_subphase_indices();
+
+            // subphase ids
+            moris::Matrix<moris::IndexMat> const & tSubphaseIds = tCM.get_subphase_ids();
+
+            // create a interpolation cell per subphase
+            for(moris::uint iSP = 0; iSP<tCM.get_num_subphase_bins(); iSP++)
             {
+                // Subphase basis of the current subphase in child mesh
+                //            Cell<moris_index> const & tSubPhaseBasis = tCM.get_subphase_basis_indices((moris_index)iSP);
+                Cell<moris_index> const & tSubPhaseBasis = mEnrichmentData(iMT).mSubphaseBGBasisIndices(tSubphaseIndices(iSP));
 
-                // vertex interpolations of the parent cell
-                moris::Cell<mtk::Vertex_Interpolation*> tVertexInterpolations = tParentCell.get_vertex_interpolations( mMeshIndices(iMT) );
+
+                // construct a map between basis index and index relative to the subphase cluster
+                std::unordered_map<moris_id,moris_id> tSubPhaseBasisMap = construct_subphase_basis_to_basis_map(tSubPhaseBasis);
+
+                // Subphase basis enrichment level of the current subphase in child mesh
+                //            Cell<moris_index> const & tSubPhaseBasisEnrLev = tCM.get_subphase_basis_enrichment_levels((moris_index)iSP);
+                Cell<moris_index> const & tSubPhaseBasisEnrLev = mEnrichmentData(iMT).mSubphaseBGBasisEnrLev(tSubphaseIndices(iSP));
 
 
-                // get bulkphase of subphases
-                Cell<moris::moris_index> const & tSubPhaseBulkPhase =tCM.get_subphase_bin_bulk_phase();
-
-                // subphase indices
-                Cell<moris_index> const & tSubphaseIndices = tCM.get_subphase_indices();
-
-                // subphase ids
-                moris::Matrix<moris::IndexMat> const & tSubphaseIds = tCM.get_subphase_ids();
-
-                // create a interpolation cell per subphase
-                for(moris::uint iSP = 0; iSP<tCM.get_num_subphase_bins(); iSP++)
+                // construct unzipped enriched vertices
+                for(uint iEV = 0; iEV < tNumVertices; iEV++)
                 {
-                    // Subphase basis of the current subphase in child mesh
-                    //            Cell<moris_index> const & tSubPhaseBasis = tCM.get_subphase_basis_indices((moris_index)iSP);
-                    Cell<moris_index> const & tSubPhaseBasis = mEnrichmentData(iMT).mSubphaseBGBasisIndices(tSubphaseIndices(iSP));
+                    // construct vertex enrichment
+                    Vertex_Enrichment tVertEnrichment;
+                    this->construct_enriched_vertex_interpolation((moris_index)iMT,tVertexInterpolations(iEV),tSubPhaseBasisEnrLev,tSubPhaseBasisMap,tVertEnrichment);
 
+                    // add vertex enrichment to enriched interpolation mesh
+                    bool tNewVertFlag = false;
+                    moris_index tVertEnrichIndex = tEnrInterpMesh->add_vertex_enrichment(mMeshIndices(iMT),tVertices(iEV),tVertEnrichment, tNewVertFlag);
 
-                    // construct a map between basis index and index relative to the subphase cluster
-                    std::unordered_map<moris_id,moris_id> tSubPhaseBasisMap = construct_subphase_basis_to_basis_map(tSubPhaseBasis);
-
-                    // Subphase basis enrichment level of the current subphase in child mesh
-                    //            Cell<moris_index> const & tSubPhaseBasisEnrLev = tCM.get_subphase_basis_enrichment_levels((moris_index)iSP);
-                    Cell<moris_index> const & tSubPhaseBasisEnrLev = mEnrichmentData(iMT).mSubphaseBGBasisEnrLev(tSubphaseIndices(iSP));
-
-
-                    // construct unzipped enriched vertices
-                    for(uint iEV = 0; iEV < tNumVertices; iEV++)
-                    {
-                        // construct vertex enrichment
-                        Vertex_Enrichment tVertEnrichment;
-                        this->construct_enriched_vertex_interpolation((moris_index)iMT,tVertexInterpolations(iEV),tSubPhaseBasisEnrLev,tSubPhaseBasisMap,tVertEnrichment);
-
-                        // add vertex enrichment to enriched interpolation mesh
-                        bool tNewVertFlag = false;
-                        moris_index tVertEnrichIndex = tEnrInterpMesh->add_vertex_enrichment(mMeshIndices(iMT),tVertices(iEV),tVertEnrichment, tNewVertFlag);
-
-                        // if this vertex interpolation is new, create a vertex
-                        if(iMT == 0)
-                        {
-                            if(tNewVertFlag)
-                            {
-                                // Create interpolation vertex
-                                tEnrInterpMesh->mEnrichedInterpVerts(tVertEnrichIndex)
-                                                        = Interpolation_Vertex_Unzipped(tVertices(iEV), tVertId, tVertEnrichIndex,
-                                                                                        tVertices(iEV)->get_owner(), mMeshIndices(iMT),
-                                                                                        tEnrInterpMesh->get_vertex_enrichment(mMeshIndices(iMT),tVertEnrichIndex));
-
-                                tVertId++;
-                                tVertexCount++;
-                            }
-
-                            tEnrInterpCellToVertex(tCellIndex,iEV) = tVertEnrichIndex;
-                        }
-
-                        else
-                        {
-                            // first time around what was the vertex index
-                            moris_index tVertexIndexInIp = tEnrInterpCellToVertex(tCellIndex-tCM.get_num_subphase_bins()+iSP,iEV);
-                            if(tNewVertFlag)
-                            {
-                                tEnrInterpMesh->mEnrichedInterpVerts(tVertexIndexInIp).add_vertex_interpolation(mMeshIndices(iMT),tEnrInterpMesh->get_vertex_enrichment(mMeshIndices(iMT),tVertEnrichIndex));
-                            }
-                        }
-
-                    }
-
+                    // if this vertex interpolation is new, create a vertex
                     if(iMT == 0)
                     {
-                        // create new enriched interpolation cell
-                        tEnrInterpMesh->mEnrichedInterpCells(tCellIndex) = new Interpolation_Cell_Unzipped(&tParentCell, tSubphaseIndices(iSP), tSubPhaseBulkPhase(iSP), tSubphaseIds(iSP), tCellIndex, tOwner, tEnrInterpMesh->mCellInfo );
+                        if(tNewVertFlag)
+                        {
+                            // Create interpolation vertex
+                            tEnrInterpMesh->mEnrichedInterpVerts(tVertEnrichIndex)
+                                                                = Interpolation_Vertex_Unzipped(tVertices(iEV), tVertId, tVertEnrichIndex,
+                                                                        tVertices(iEV)->get_owner(), mMeshIndices(iMT),
+                                                                        tEnrInterpMesh->get_vertex_enrichment(mMeshIndices(iMT),tVertEnrichIndex));
 
-                        // add enriched interpolation cell to base cell to enriched cell data
-                        tEnrInterpMesh->mBaseCelltoEnrichedCell(tParentCell.get_index()).push_back(tEnrInterpMesh->mEnrichedInterpCells(tCellIndex));
+                            tVertId++;
+                            tVertexCount++;
+                        }
 
-                        // increment the cell index/id
-                        tCellIndex++;
+                        tEnrInterpCellToVertex(tCellIndex,iEV) = tVertEnrichIndex;
                     }
+
+                    else
+                    {
+                        // first time around what was the vertex index
+                        moris_index tVertexIndexInIp = tEnrInterpCellToVertex(tCellIndex-tCM.get_num_subphase_bins()+iSP,iEV);
+                        if(tNewVertFlag)
+                        {
+                            tEnrInterpMesh->mEnrichedInterpVerts(tVertexIndexInIp).add_vertex_interpolation(mMeshIndices(iMT),tEnrInterpMesh->get_vertex_enrichment(mMeshIndices(iMT),tVertEnrichIndex));
+                        }
+                    }
+
+                }
+
+                if(iMT == 0)
+                {
+                    // create new enriched interpolation cell
+                    tEnrInterpMesh->mEnrichedInterpCells(tCellIndex) = new Interpolation_Cell_Unzipped(&tParentCell, tSubphaseIndices(iSP), tSubPhaseBulkPhase(iSP), tSubphaseIds(iSP), tCellIndex, tOwner, tEnrInterpMesh->mCellInfo );
+
+                    // add enriched interpolation cell to base cell to enriched cell data
+                    tEnrInterpMesh->mBaseCelltoEnrichedCell(tParentCell.get_index()).push_back(tEnrInterpMesh->mEnrichedInterpCells(tCellIndex));
+
+                    // increment the cell index/id
+                    tCellIndex++;
                 }
             }
+
         }
     }
 
@@ -1178,6 +1210,10 @@ Enrichment::construct_enriched_vertex_interpolation(moris_index const & aEnrichm
 {
     // allocate a new vertex enrichment
     aVertexEnrichment = Vertex_Enrichment();
+
+    // a nullptr here would indicate an aura node without a t-matrix
+    if(aBaseVertexInterp!= nullptr)
+    {
 
     // iterate through basis in the base vertex interpolation
     moris::uint tNumCoeffs = aBaseVertexInterp->get_number_of_coefficients();
@@ -1227,7 +1263,7 @@ Enrichment::construct_enriched_vertex_interpolation(moris_index const & aEnrichm
     aVertexEnrichment.add_basis_information(tEnrichCoeffInds,tEnrichCoeffIds);
     aVertexEnrichment.add_basis_weights(tEnrichCoeffInds,*tBaseVertWeights);
     aVertexEnrichment.add_base_vertex_interpolation(aBaseVertexInterp);
-
+    }
 }
 
 std::unordered_map<moris_id,moris_id>
@@ -1242,8 +1278,26 @@ Enrichment::construct_subphase_basis_to_basis_map(Cell<moris_id> const & aSubPha
 
     return tSubphaseBasisMap;
 }
+// ----------------------------------------------------------------------------------
 
+moris::Cell<mtk::Vertex_Interpolation*>
+Enrichment::get_vertex_interpolations( moris::mtk::Cell & aParentCell,
+                                       const uint aMeshIndex ) const
+{
+    uint tNumVerts = aParentCell.get_number_of_vertices();
+    moris::Cell< mtk::Vertex* > tVertexPointers = aParentCell.get_vertex_pointers();
+    moris::Cell<mtk::Vertex_Interpolation*> tVertexInterp(tNumVerts);
 
+    for(moris::uint i = 0; i < tNumVerts; i++)
+    {
+        moris_index tVertexIndex = tVertexPointers(i)->get_index();
+        tVertexInterp(i) =mEnrichmentData(aMeshIndex).mBGVertexInterpolations(tVertexIndex);
+    }
+
+    return tVertexInterp;
+}
+
+// ----------------------------------------------------------------------------------
 
 Cell<std::string>
 Enrichment::get_cell_enrichment_field_names() const

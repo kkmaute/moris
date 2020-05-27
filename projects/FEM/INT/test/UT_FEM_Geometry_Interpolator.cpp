@@ -56,7 +56,7 @@ namespace moris
                     tPhysCoordinates,
                     tParamCoordinates );
 
-            print( tParamCoordinates, "tParamCoordinates" );
+            //print( tParamCoordinates, "tParamCoordinates" );
 
         }/* END_TEST_CASE */
     }
