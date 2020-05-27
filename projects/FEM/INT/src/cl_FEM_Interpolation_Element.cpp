@@ -470,6 +470,17 @@ namespace moris
 
             //----------------------------------------------------------------------------------------
 
+            Cell< enum PDV_Type > tRequestedIPDvTypes;
+            Cell< enum PDV_Type > tRequestedIGDvTypes;
+
+            mEquationSet->get_equation_model()->
+                    get_design_variable_interface()->
+                    get_ip_requested_dv_types( tRequestedIPDvTypes );
+
+            mEquationSet->get_equation_model()->
+                    get_design_variable_interface()->
+                    get_ig_requested_dv_types( tRequestedIGDvTypes );
+
             for( uint Ik = 0; Ik < mSet->mdQIdp( 0 ).size(); Ik++ )
             {
                 // FIXME super big hack
@@ -478,17 +489,12 @@ namespace moris
 
                 if( tRequestedIPDvTypesFromFEM.size()!= 0 )
                 {
-                    Cell< enum PDV_Type > tRequestedIPDvTypes;
-
-                    mEquationSet->get_equation_model()->
-                            get_design_variable_interface()->
-                            get_ip_requested_dv_types( tRequestedIPDvTypes );
-
                     // get vertices from cell
                     Matrix< IndexMat > tVerticesInds = mMasterInterpolationCell->get_vertex_inds();
 
                     //FIXME add Slave
 
+                    // get dv ids for this type and node indices
                     moris::Cell< moris::Matrix< IdMat > > tTypeListOfLocalToGlobalIds;
 
                     mEquationSet->get_equation_model()->
@@ -496,8 +502,9 @@ namespace moris
                             get_ip_dv_ids_for_type_and_ind(
                                     tVerticesInds,
                                     tRequestedIPDvTypes,
-                                    tTypeListOfLocalToGlobalIds );   //FIXME add type and nodei inds
+                                    tTypeListOfLocalToGlobalIds );
 
+                    // FIXME reorder the dv ids. this could be done in GEN directly
                     moris::uint tCounter = 0;
 
                     for( uint Ii = 0; Ii < tTypeListOfLocalToGlobalIds.size(); Ii++ )
@@ -529,25 +536,21 @@ namespace moris
             {
                 if( !mFemCluster( 0 )->get_mesh_cluster()->is_trivial() )
                 {
-                    Cell< enum PDV_Type > tRequestedIGDvTypes;
-
-                    mEquationSet->get_equation_model()->
-                            get_design_variable_interface()->
-                            get_ig_requested_dv_types( tRequestedIGDvTypes );
-
-                    moris::Cell< moris::Matrix< IdMat > > tTypeListOfLocalToGlobalIds;
-
                     // get vertices from cell
                     Matrix< IndexMat > tVerticesInds = mFemCluster( 0 )->get_mesh_cluster()->
                             get_vertex_indices_in_cluster();
+
+                    // get dv ids for this type and node indices
+                    moris::Cell< moris::Matrix< IdMat > > tTypeListOfLocalToGlobalIds;
 
                     mEquationSet->get_equation_model()->
                             get_design_variable_interface()->
                             get_ig_dv_ids_for_type_and_ind(
                                     tVerticesInds,
                                     tRequestedIGDvTypes,
-                                    tTypeListOfLocalToGlobalIds );   //FIXME add type and nodei inds
+                                    tTypeListOfLocalToGlobalIds );
 
+                    // FIXME reorder the dv ids. this could be done in GEN directly
                     moris::uint tCounter = 0;
 
                     for( uint Ii = 0; Ii < tTypeListOfLocalToGlobalIds.size(); Ii++ )
@@ -567,6 +570,7 @@ namespace moris
                         tCounter += tTypeListOfLocalToGlobalIds( Ii ).numel();
                     }
 
+                    // assemble explicit dQidp into multivector
                     mEquationSet->get_equation_model()->
                             get_explicit_dQidu()->
                             sum_into_global_values(
@@ -581,10 +585,13 @@ namespace moris
 
         void Interpolation_Element::compute_dQIdp_implicit()
         {
+            // comupte dRdp
             this->compute_dRdp();
 
+            // get reference to computed dRdp
             moris::Cell< Matrix< DDRMat > > & tdRdp = mEquationSet->get_drdp();
 
+            // extract adjoint values for this equation object
             this->compute_my_adjoint_values();
 
             //        moris::Matrix< DDRMat > tMyAdjointValues( mAdjointPdofValues.numel(), 1, 0.0 );
@@ -608,34 +615,44 @@ namespace moris
             ////            this->reshape_pdof_values( tCoeff_Original( 0 ), tCoeff );
             //        }
 
+            // get requested dv types from GE
+            Cell< enum PDV_Type > tRequestedIPDvTypes;
+            Cell< enum PDV_Type > tRequestedIGDvTypes;
+
+            mEquationSet->get_equation_model()->
+                    get_design_variable_interface()->
+                    get_ip_requested_dv_types( tRequestedIPDvTypes );
+
+            mEquationSet->get_equation_model()->
+                    get_design_variable_interface()->
+                    get_ig_requested_dv_types( tRequestedIGDvTypes );
+
+            // loop over the number of adjont vectors for this equation object
             for( uint Ik = 0; Ik < mAdjointPdofValues.size(); Ik++ )
             {
-                // FIXME super big hack
+                // FIXME super big hack. this if statement should be handled differently
                 Cell< Cell< enum PDV_Type > > tRequestedIPDvTypesFromFEM;
                 reinterpret_cast<fem::Set*>(mEquationSet)->get_ip_dv_types_for_set( tRequestedIPDvTypesFromFEM );
                 if( tRequestedIPDvTypesFromFEM.size()!= 0 )
                 {
-                    moris::Matrix< DDRMat > tLocalIPdQiDp = trans( mAdjointPdofValues( Ik ) ) * tdRdp( 0 );
-
-                    Cell< enum PDV_Type > tRequestedIPDvTypes;
-
-                    mEquationSet->get_equation_model()->
-                            get_design_variable_interface()->
-                            get_ip_requested_dv_types( tRequestedIPDvTypes );
+                    // post multiplication of adjoint values time dRdp
+                    moris::Matrix< DDRMat > tLocalIPdQiDp = -1.0 * trans( mAdjointPdofValues( Ik ) ) * tdRdp( 0 );
 
                     // get vertices from cell
                     Matrix< IndexMat > tVerticesInds = mMasterInterpolationCell->get_vertex_inds();
 
-                    //FIXME add Slave
+                    //FIXME add Slave for double side set and ghost
 
+                    // get dv ids for this type and node indices
                     moris::Cell< moris::Matrix< IdMat > > tTypeListOfLocalToGlobalIds;
 
                     mEquationSet->get_equation_model()->
                             get_design_variable_interface()->
                             get_ip_dv_ids_for_type_and_ind( tVerticesInds,
                                     tRequestedIPDvTypes,
-                                    tTypeListOfLocalToGlobalIds );   //FIXME add type and nodei inds
+                                    tTypeListOfLocalToGlobalIds );
 
+                    // FIXME reorder the dv ids. this could be done in GEN directly
                     moris::uint tCounter = 0;
 
                     for( uint Ii = 0; Ii < tTypeListOfLocalToGlobalIds.size(); Ii++ )
@@ -655,6 +672,7 @@ namespace moris
                         tCounter += tTypeListOfLocalToGlobalIds( Ii ).numel();
                     }
 
+                    // assemble imlicid dQidp into multivector
                     mEquationSet->get_equation_model()->get_implicit_dQidu()->sum_into_global_values(
                             tLocalToGlobalIds,
                             tLocalIPdQiDp,
@@ -664,13 +682,8 @@ namespace moris
 
             for( uint Ik = 0; Ik < mAdjointPdofValues.size(); Ik++ )
             {
-                moris::Matrix< DDRMat > tLocalIGdQiDp = trans( mAdjointPdofValues( Ik ) ) * tdRdp( 1 );
-
-                Cell< enum PDV_Type > tRequestedIGDvTypes;
-
-                mEquationSet->get_equation_model()->
-                        get_design_variable_interface()->
-                        get_ig_requested_dv_types( tRequestedIGDvTypes );
+                // post multiplication of adjoint values time dRdp
+                moris::Matrix< DDRMat > tLocalIGdQiDp = -1.0 * trans( mAdjointPdofValues( Ik ) ) * tdRdp( 1 );
 
                 moris::Cell< moris::Matrix< IdMat > > tTypeListOfLocalToGlobalIds;
 
@@ -684,6 +697,7 @@ namespace moris
                                 tRequestedIGDvTypes,
                                 tTypeListOfLocalToGlobalIds );   //FIXME add type and nodei inds
 
+                // FIXME reorder the dv ids. this could be done in GEN directly
                 moris::uint tCounter = 0;
 
                 for( uint Ii = 0; Ii < tTypeListOfLocalToGlobalIds.size(); Ii++ )
@@ -703,6 +717,7 @@ namespace moris
                     tCounter += tTypeListOfLocalToGlobalIds( Ii ).numel();
                 }
 
+                // assemble imlicid dQidp into multivector
                 mEquationSet->get_equation_model()->get_implicit_dQidu()->sum_into_global_values(
                         tLocalToGlobalIds,
                         tLocalIGdQiDp,

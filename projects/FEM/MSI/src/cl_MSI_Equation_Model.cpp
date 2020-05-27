@@ -104,8 +104,6 @@ namespace moris
             mImplicitdQidu->vector_global_asembly();
 
             //mImplicitdQidu->print();
-
-            sleep( 5 );
         }
 
 //------------------------------------------------------------------------------
@@ -168,7 +166,7 @@ namespace moris
             mQidu->vec_plus_vec( 1.0, *mExplicitdQidu, 1.0 );
             mQidu->vec_plus_vec( 1.0, *mImplicitdQidu, 1.0 );
 
-//            mQidu->print();
+            //mQidu->print();
 
             return mQidu;
         }

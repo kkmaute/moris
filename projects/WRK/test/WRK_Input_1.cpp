@@ -15,6 +15,7 @@
 #include "cl_PRM_HMR_Parameters.hpp"
 #include "fn_PRM_GEN_Parameters.hpp"
 #include "cl_PRM_XTK_Parameters.hpp"
+#include "cl_PRM_OPT_Parameters.hpp"
 
 
 #include "cl_DLA_Linear_Solver_Aztec.hpp"
@@ -374,6 +375,17 @@ void GENParameterList( moris::Cell< moris::Cell< ParameterList > > & tParameterl
     tParameterlist( 1 )( 0 ).set( "field_function_name", "Lvl_set_1");
     tParameterlist( 1 )( 0 ).set( "sensitivity_function_name", "Func_Dummy");
     tParameterlist( 1 )( 0 ).set( "constant_parameters", "");
+}
+
+void OPTParameterList( moris::Cell< moris::Cell< ParameterList > > & tParameterlist )
+{
+    tParameterlist.resize( 3 );
+    tParameterlist( 0 ).resize( 1 );
+    tParameterlist( 1 ).resize( 0 );
+    tParameterlist( 2 ).resize( 0 );
+
+    tParameterlist(0)(0) = moris::prm::create_opt_problem_parameter_list();
+    tParameterlist(0)(0).set("is_optimization_problem", false);
 }
 
 
