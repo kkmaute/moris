@@ -25,131 +25,160 @@ namespace moris
 {
     namespace fem
     {
-//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
 
         class SP_Incompressible_Flow : public Stabilization_Parameter
         {
 
-//------------------------------------------------------------------------------
-        public:
+            private:
 
-            // property type for the SP
-            enum class Property_Type
-            {
-                DENSITY, // fluid density
-                VISCOSITY,  // fluid viscosity
-                MAX_ENUM
-            };
+                // default dof type
+                MSI::Dof_Type mMasterDofVelocity = MSI::Dof_Type::VX;
+                MSI::Dof_Type mMasterDofPressure = MSI::Dof_Type::P;
 
-            // local string to property enum map
-            std::map< std::string, Property_Type > mPropertyMap;
+                //------------------------------------------------------------------------------
+            public:
 
-            // pointer to function for G evaluation
-            void ( * mEvalGFunc )( Matrix< DDRMat >   & aG,
-                                   Matrix< DDRMat >   & aInvSpaceJacobian );
+                // property type for the SP
+                enum class Property_Type
+                {
+                    DENSITY, // fluid density
+                    VISCOSITY,  // fluid viscosity
+                    MAX_ENUM
+                };
 
-            /*
-            * Rem: mParameters( 0 ) - CI = 36
-            */
+                // local string to property enum map
+                std::map< std::string, Property_Type > mPropertyMap;
 
-//------------------------------------------------------------------------------
-            /*
-             * constructor
-             */
-            SP_Incompressible_Flow();
+                // pointer to function for G evaluation
+                void ( * mEvalGFunc )(
+                        Matrix< DDRMat >   & aG,
+                        Matrix< DDRMat >   & aInvSpaceJacobian );
 
-//------------------------------------------------------------------------------
-            /**
-             * trivial destructor
-             */
-            ~SP_Incompressible_Flow(){};
+                /*
+                 * Rem: mParameters( 0 ) - CI = 36
+                 */
 
-//------------------------------------------------------------------------------
-            /**
-             * reset the cluster measures required for this SP
-             */
-            void reset_cluster_measures()
-            {
-                // No cluster measure
-            }
+                //------------------------------------------------------------------------------
+                /*
+                 * constructor
+                 */
+                SP_Incompressible_Flow();
 
-//------------------------------------------------------------------------------
-            /**
-             * set function pointers for evaluation
-             */
-            void set_function_pointers();
+                //------------------------------------------------------------------------------
+                /**
+                 * trivial destructor
+                 */
+                ~SP_Incompressible_Flow(){};
 
-//------------------------------------------------------------------------------
-            /**
-             * set property
-             * @param[ in ] aProperty       a property pointer
-             * @param[ in ] aPropertyString a string defining the property
-             * @param[ in ] aIsMaster       an enum for master or slave
-             */
-            void set_property( std::shared_ptr< Property > aProperty,
-                               std::string                 aPropertyString,
-                               mtk::Master_Slave           aIsMaster = mtk::Master_Slave::MASTER )
-            {
-                // check that aPropertyString makes sense
-                MORIS_ERROR( mPropertyMap.find( aPropertyString ) != mPropertyMap.end(),
-                             "SP_Incompressible_Flow::set_property - Unknown aPropertyString." );
+                //------------------------------------------------------------------------------
+                /**
+                 * reset the cluster measures required for this SP
+                 */
+                void reset_cluster_measures()
+                {
+                    // No cluster measure
+                }
 
-                // set the property in the property cell
-                this->get_properties( aIsMaster )( static_cast< uint >( mPropertyMap[ aPropertyString ] ) ) = aProperty;
-            }
+                //------------------------------------------------------------------------------
+                /**
+                 * set function pointers for evaluation
+                 */
+                void set_function_pointers();
 
-//------------------------------------------------------------------------------
-            /**
-             * evaluate the penalty parameter value
-             */
-            void eval_SP();
+                //------------------------------------------------------------------------------
+                /**
+                 * set dof types
+                 * @param[ in ] aDofTypes a cell of cell of dof types
+                 * @param[ in ] aDofStrings list of strings describing the dof types
+                 * @param[ in ] aIsMaster enum for master or slave
+                 */
+                void set_dof_type_list(
+                        moris::Cell< moris::Cell< MSI::Dof_Type > > & aDofTypes,
+                        moris::Cell< std::string >                  & aDofStrings,
+                        mtk::Master_Slave                             aIsMaster = mtk::Master_Slave::MASTER );
 
-//------------------------------------------------------------------------------
-            /**
-             * evaluate the penalty parameter derivative wrt to a master dof type
-             * @param[ in ] aDofTypes a dof type wrt which the derivative is evaluated
-             */
-            void eval_dSPdMasterDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes );
+                //------------------------------------------------------------------------------
+                /**
+                 * set dv types
+                 * @param[ in ] aDvTypes   a cell of group of dv types
+                 * @param[ in ] aDvStrings list of strings describing the dv types
+                 * @param[ in ] aIsMaster enum for master or slave
+                 */
+                void set_dv_type_list(
+                        moris::Cell< moris::Cell< PDV_Type > > & aDvTypes,
+                        moris::Cell< std::string >             & aDvStrings,
+                        mtk::Master_Slave                        aIsMaster = mtk::Master_Slave::MASTER )
+                {
+                    Stabilization_Parameter::set_dv_type_list( aDvTypes, aIsMaster );
+                }
 
-//------------------------------------------------------------------------------
-            /**
-             * evaluate the penalty parameter derivative wrt to a master dv type
-             * @param[ in ] aDvTypes a dv type wrt which the derivative is evaluated
-             */
-            void eval_dSPdMasterDV( const moris::Cell< PDV_Type > & aDvTypes )
-            {
-                MORIS_ERROR( false, "SP_Incompressible_Flow::eval_dSPdMasterDV - not implemented." );
-            }
+                //------------------------------------------------------------------------------
+                /**
+                 * set property
+                 * @param[ in ] aProperty       a property pointer
+                 * @param[ in ] aPropertyString a string defining the property
+                 * @param[ in ] aIsMaster       an enum for master or slave
+                 */
+                void set_property(
+                        std::shared_ptr< Property > aProperty,
+                        std::string                 aPropertyString,
+                        mtk::Master_Slave           aIsMaster = mtk::Master_Slave::MASTER );
 
-//------------------------------------------------------------------------------
-        private:
-//------------------------------------------------------------------------------
-            /**
-             * evaluate G
-             * where Gij = sum_d dxi_d/dx_i dxi_d/dx_j, d = 1, ..., nSpaceDim
-             * @param[ in ] aG a matrix to fill with G
-             */
-            void eval_G( Matrix< DDRMat > & aG );
+                //------------------------------------------------------------------------------
+                /**
+                 * evaluate the penalty parameter value
+                 */
+                void eval_SP();
 
-            /**
-             * evaluate G in 2d
-             * @param[ in ] aG                a matrix to fill with G
-             * @param[ in ] aInvSpaceJacobian inverse jacobian matrix
-             */
-            static void eval_G_2d( Matrix< DDRMat > & aG,
-                                   Matrix< DDRMat > & aInvSpaceJacobian );
+                //------------------------------------------------------------------------------
+                /**
+                 * evaluate the penalty parameter derivative wrt to a master dof type
+                 * @param[ in ] aDofTypes a dof type wrt which the derivative is evaluated
+                 */
+                void eval_dSPdMasterDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes );
 
-            /**
-             * evaluate G in 3d
-             * @param[ in ] aG                a matrix to fill with G
-             * @param[ in ] aInvSpaceJacobian inverse jacobian matrix
-             */
-            static void eval_G_3d( Matrix< DDRMat > & aG,
-                                   Matrix< DDRMat > & aSpaceJacobian );
+                //------------------------------------------------------------------------------
+                /**
+                 * evaluate the penalty parameter derivative wrt to a master dv type
+                 * @param[ in ] aDvTypes a dv type wrt which the derivative is evaluated
+                 */
+                void eval_dSPdMasterDV( const moris::Cell< PDV_Type > & aDvTypes )
+                {
+                    MORIS_ERROR( false, "SP_Incompressible_Flow::eval_dSPdMasterDV - not implemented." );
+                }
 
-//------------------------------------------------------------------------------
+                //------------------------------------------------------------------------------
+            private:
+                //------------------------------------------------------------------------------
+                /**
+                 * evaluate G
+                 * where Gij = sum_d dxi_d/dx_i dxi_d/dx_j, d = 1, ..., nSpaceDim
+                 * @param[ in ] aG a matrix to fill with G
+                 */
+                void eval_G( Matrix< DDRMat > & aG );
+
+                /**
+                 * evaluate G in 2d
+                 * @param[ in ] aG                a matrix to fill with G
+                 * @param[ in ] aInvSpaceJacobian inverse jacobian matrix
+                 */
+                static void eval_G_2d(
+                        Matrix< DDRMat > & aG,
+                        Matrix< DDRMat > & aInvSpaceJacobian );
+
+                /**
+                 * evaluate G in 3d
+                 * @param[ in ] aG                a matrix to fill with G
+                 * @param[ in ] aInvSpaceJacobian inverse jacobian matrix
+                 */
+                static void eval_G_3d(
+                        Matrix< DDRMat > & aG,
+                        Matrix< DDRMat > & aSpaceJacobian );
+
+                //------------------------------------------------------------------------------
         };
-//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
     } /* namespace fem */
 } /* namespace moris */
 

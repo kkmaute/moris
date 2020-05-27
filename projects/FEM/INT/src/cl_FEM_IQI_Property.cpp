@@ -12,7 +12,7 @@ namespace moris
 {
     namespace fem
     {
-//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
         IQI_Property::IQI_Property()
         {
             // set IQI type
@@ -25,7 +25,7 @@ namespace moris
             mPropertyMap[ "Property" ] = IQI_Property_Type::PROPERTY;
         }
 
-//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
         void IQI_Property::compute_QI( Matrix< DDRMat > & aQI )
         {
             // get property index
@@ -35,13 +35,13 @@ namespace moris
             aQI = mMasterProp( tPropertyIndex )->val();
         }
 
-//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
         void IQI_Property::compute_dQIdu( Matrix< DDRMat > & adQIdDof )
         {
             MORIS_ERROR( false, "IQI_Property::compute_dQIdu - Not implemented." );
         }
 
-//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
     }/* end_namespace_fem */
 }/* end_namespace_moris */
 

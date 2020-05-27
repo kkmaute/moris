@@ -1,3 +1,4 @@
+
 /*
  * cl_XTK_Enrichment.hpp
  *
@@ -41,6 +42,7 @@
 #include "fn_unique.hpp"
 
 #include "cl_XTK_Vertex_Enrichment.hpp"
+#include "cl_MTK_Vertex_Interpolation.hpp"
 
 /*
  * This class provides all the functions to perform the enrichment strategy on a child mesh
@@ -92,6 +94,12 @@ class Enrichment_Data
 
     // total number of basis enrichment levels (all basis functions)
     moris::uint mNumEnrichmentLevels;
+
+    // Vertex interpolations for this enrichment ordered by background vertex index
+    Cell<mtk::Vertex_Interpolation*> mBGVertexInterpolations;
+
+    // Vertices with null vertex interpolation
+    Cell<moris_index> mNullVertexInterpVerts;
 };
 
 
@@ -113,10 +121,7 @@ public:
 
     bool mVerbose = false;
     bool mBasisEnrToBulkPhase = false;
-    moris::moris_index INDEX_MAX = std::numeric_limits<moris::moris_index>::max();
-
     typedef std::unordered_map<moris::moris_index,moris::moris_index> IndexMap;
-
     friend class Multigrid;
 
 
@@ -206,26 +211,7 @@ private:
     // enrichment strategy data (outer cell - mesh index, inner cell - necessary data for enrichment of mesh index)
     Cell<Enrichment_Data> mEnrichmentData;
 
-//    // Enrichment Data ordered by basis function indices
-//    // For each basis function, the element indices and elemental subphases
-//    Cell<moris::Matrix< moris::IndexMat >> mElementEnrichmentLevel;
-//    Cell<moris::Matrix< moris::IndexMat >> mElementIndsInBasis;
-//
-//    // For each enriched basis function, the subphase indices in support
-//    Cell<moris::Matrix< moris::IndexMat >> mSubphaseIndsInEnrichedBasis;
-//
-//    // Basis enrichment level indics
-//    moris::Cell<moris::Matrix<moris::IndexMat>> mBasisEnrichmentIndices;
-//    moris::Matrix<moris::IndexMat> mEnrichedBasisIndexToId;
-//
-//    // Unintersected Parent Cell, BackBasis interpolating in them and corresponding enrichment level
-//    // outer cell corresponds to interp cell index
-//    // inncer cell corrsponds to basis/enrlev in intepr cell
-//    moris::Cell<moris::Cell< moris_index >> mSubphaseBGBasisIndices;
-//    moris::Cell<moris::Cell< moris_index >> mSubphaseBGBasisEnrLev;
-//
-//    // total number of basis enrichment levels (all basis functions)
-//    moris::uint mNumEnrichmentLevels;
+    // ----------------------------------------------------------------------------------
 
     /*
      * Performs enrichment on elements in support of full basis cluster. This enrichment includes all children elements of parents in
@@ -234,22 +220,43 @@ private:
     void
     perform_basis_cluster_enrichment();
 
+    // ----------------------------------------------------------------------------------
+
+    /*
+     * Constructs the subphase neighborhood in the XTK model
+     */
     void
     construct_neighborhoods();
 
+    // ----------------------------------------------------------------------------------
+
+    /*
+     * Verifies vertex interpolation is present and communicates non-existing vertex interpolation.
+     * The vertex interpolation on the aura needs to be communicated if we are using HMR
+     */
+    void
+    setup_background_vertex_interpolations();
+
+    // ----------------------------------------------------------------------------------
+
     Matrix<IndexMat>
     get_subphase_clusters_in_support(moris::Matrix< moris::IndexMat > const & aElementsInSupport);
+
+    // ----------------------------------------------------------------------------------
 
     void
     construct_subphase_in_support_map(moris::Matrix< moris::IndexMat > const & aSubphaseClusterIndicesInSupport,
                                       IndexMap & aSubPhaseIndexToSupportIndex);
 
+    // ----------------------------------------------------------------------------------
 
     void
     generate_pruned_subphase_graph_in_basis_support(moris::Matrix< moris::IndexMat > const & aSubphasesInSupport,
                                                     IndexMap &                               aSubPhaseIndexToSupportIndex,
                                                     moris::Matrix< moris::IndexMat >       & aPrunedSubPhaseToSubphase);
 
+
+    // ----------------------------------------------------------------------------------
 
     void
     assign_subphase_bin_enrichment_levels_in_basis_support(moris::Matrix< moris::IndexMat > const & aSubphasesInSupport,
@@ -258,6 +265,8 @@ private:
                                                            moris::Matrix< moris::IndexMat >       & aSubPhaseBinEnrichmentVals,
                                                            moris_index                            & aMaxEnrichmentLevel);
 
+
+    // ----------------------------------------------------------------------------------
 
     void
     unzip_subphase_bin_enrichment_into_element_enrichment(moris_index const & aEnrichmentDataIndex,
@@ -268,11 +277,15 @@ private:
                                                           moris::Matrix< moris::IndexMat > const & aPrunedSubPhaseToSubphase,
                                                           moris::Matrix< moris::IndexMat >       & aSubPhaseBinEnrichmentVals);
 
+    // ----------------------------------------------------------------------------------
+
     void
     construct_enriched_basis_to_subphase_connectivity(moris_index const & aEnrichmentDataIndex,
                                                       moris::Cell<moris::Matrix< moris::IndexMat >> const & aSubPhaseBinEnrichment,
                                                       moris::Cell<moris::Matrix< moris::IndexMat >> const & aSubphaseClusterIndicesInSupport,
                                                       moris::Cell<moris_index>                      const & aMaxEnrichmentLevel);
+
+    // ----------------------------------------------------------------------------------
 
     /*!
      * Assign the enrichment level local identifiers
@@ -281,6 +294,7 @@ private:
     assign_enriched_coefficients_identifiers(moris_index const & aEnrichmentDataIndex,
                                              moris::Cell<moris_index> const & aMaxEnrichmentLevel);
 
+    // ----------------------------------------------------------------------------------
 
     void
     communicate_basis_information_with_owner(moris_index const & aEnrichmentDataIndex,
@@ -288,24 +302,31 @@ private:
                                              Cell<Cell<moris_index>> const        & aMaxSubphaseIdToBasisOwner,
                                              Cell<moris::Matrix<moris::IndexMat>> & aEnrichedBasisId);
 
+    // ----------------------------------------------------------------------------------
+
     void
     set_received_enriched_basis_ids(moris_index const & aEnrichmentDataIndex,
                                     Cell<moris::Matrix<moris::IndexMat>> const & aReceivedEnrichedIds,
                                     Cell<Cell<moris_index>> const & aBasisIndexToBasisOwner);
 
+    // ----------------------------------------------------------------------------------
 
     moris::size_t
     count_elements_in_support(moris::Matrix< moris::IndexMat > const & aParentElementsInSupport);
+
+    // ----------------------------------------------------------------------------------
 
     void
     construct_element_to_basis_connectivity(moris::Cell<moris::Cell<moris::moris_index>> & aElementToBasis,
                                             moris::Cell<moris::Cell<moris::moris_index>> & aElementToBasisEnrichmentLevel);
 
+    // ----------------------------------------------------------------------------------
+
     bool
     subphase_is_in_support(moris_index const & aEnrichmentDataIndex,
                            moris_index aSubphaseIndex,
                            moris_index aEnrichedBasisIndex);
-
+    // ----------------------------------------------------------------------------------
     void
     print_basis_support_debug(moris_index aBasisIndex,
                               moris::Matrix< moris::IndexMat > const & aParentElementsInSupport,
@@ -320,33 +341,34 @@ private:
     // ----------------------------------------------------------------------------------
     void
     construct_enriched_interpolation_mesh();
+    // ----------------------------------------------------------------------------------
 
     void
     construct_enriched_integration_mesh();
+    // ----------------------------------------------------------------------------------
 
     void
     allocate_interpolation_cells();
+    // ----------------------------------------------------------------------------------
 
     void
     construct_enriched_interpolation_vertices_and_cells();
-
+    // ----------------------------------------------------------------------------------
     void
     construct_enriched_vertex_interpolation(moris_index const & aEnrichmentDataIndex,
                                             mtk::Vertex_Interpolation* aBaseVertexInterp,
                                             Cell<moris_index> const &  aSubPhaseBasisEnrLev,
                                             std::unordered_map<moris_id,moris_id> & aMapBasisIndexToLocInSubPhase,
                                             Vertex_Enrichment &        aVertexEnrichment);
-
-
+    // ----------------------------------------------------------------------------------
     std::unordered_map<moris_id,moris_id>
     construct_subphase_basis_to_basis_map(Cell<moris_id> const & aSubPhaseBasisIndex);
 
-
-//    void
-//    create_multilevel_children_to_parent_relations();
-//
-//    void
-//    create_multilevel_parent_to_children_relations();
+    // ----------------------------------------------------------------------------------
+    // functions that collects the appropriate vertex interpolation for the enrichment strategy only
+    moris::Cell<mtk::Vertex_Interpolation*>
+    get_vertex_interpolations( moris::mtk::Cell & aParentCell,
+                               const uint aMeshIndex ) const;
 
 };
 }

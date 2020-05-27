@@ -12,7 +12,7 @@ namespace moris
 {
     namespace fem
     {
-//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
         IQI_Strain_Energy::IQI_Strain_Energy()
         {
             // set IQI type
@@ -27,17 +27,18 @@ namespace moris
             // populate the constitutive map
             mConstitutiveMap[ "Elast" ] = IQI_Constitutive_Type::ELAST;
         }
-//------------------------------------------------------------------------------
+
+        //------------------------------------------------------------------------------
         void IQI_Strain_Energy::compute_QI( Matrix< DDRMat > & aQI )
         {
             // get indices for properties, CM and SP
             uint tElastIndex = static_cast< uint >( IQI_Constitutive_Type::ELAST );
 
             // evaluate the QI
-            aQI = 0.5 * trans( mMasterCM( tElastIndex )->flux() ) * mMasterCM( tElastIndex )->strain();
+            aQI = trans( mMasterCM( tElastIndex )->flux() ) * mMasterCM( tElastIndex )->strain();
         }
 
-//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
         void IQI_Strain_Energy::compute_QI( moris::real aWStar )
         {
             // get indices for properties, CM and SP
@@ -46,20 +47,20 @@ namespace moris
             // get index for QI
             sint tQIIndex = mSet->get_QI_assembly_index( mName );
 
-            //print( mSet->get_QI(), "mSet->get_QI()");
             // evaluate the QI
-            mSet->get_QI()( tQIIndex ).matrix_data() += 0.5 * aWStar * trans( mMasterCM( tElastIndex )->flux() ) * mMasterCM( tElastIndex )->strain();
+            mSet->get_QI()( tQIIndex ).matrix_data() +=
+                    aWStar * trans( mMasterCM( tElastIndex )->flux() ) * mMasterCM( tElastIndex )->strain();
         }
 
-//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
         void IQI_Strain_Energy::compute_dQIdu( real aWStar )
         {
             // get the column index to assemble in residual
             sint tQIIndex = mSet->get_QI_assembly_index( mName );
 
             // get the requested dof types
-            moris::Cell < enum MSI::Dof_Type > tRequestedDofTypes
-            = this->get_requested_dof_types();
+            moris::Cell < enum MSI::Dof_Type > tRequestedDofTypes =
+                    this->get_requested_dof_types();
 
             // get indices for properties, CM and SP
             uint tElastIndex = static_cast< uint >( IQI_Constitutive_Type::ELAST );
@@ -81,14 +82,15 @@ namespace moris
                 if ( mMasterCM( tElastIndex )->check_dof_dependency( { tDofType } ) )
                 {
                     // compute dQIdDof
-                   mSet->get_residual()( tQIIndex )( { tStartRow, tEndRow }, { 0, 0 } )
-                    += aWStar * 0.5 * ( trans( mMasterCM( tElastIndex )->dFluxdDOF( { tDofType } ) ) * mMasterCM( tElastIndex )->strain( )
-                    +  trans( trans( mMasterCM( tElastIndex )->flux() )             * mMasterCM( tElastIndex )->dStraindDOF( { tDofType } ) ) );
+                    mSet->get_residual()( tQIIndex )( { tStartRow, tEndRow }, { 0, 0 } )
+                            += aWStar * (
+                                    trans( mMasterCM( tElastIndex )->dFluxdDOF( { tDofType } ) ) * mMasterCM( tElastIndex )->strain() +
+                                    trans( trans( mMasterCM( tElastIndex )->flux() ) * mMasterCM( tElastIndex )->dStraindDOF( { tDofType } ) ) );
                 }
             }
         }
 
-//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
     }/* end_namespace_fem */
 }/* end_namespace_moris */
 

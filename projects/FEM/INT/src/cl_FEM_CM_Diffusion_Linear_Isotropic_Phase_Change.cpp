@@ -1,4 +1,5 @@
 #include "cl_FEM_CM_Diffusion_Linear_Isotropic_Phase_Change.hpp"
+#include "cl_FEM_CM_Diffusion_Linear_Isotropic.hpp"
 #include "cl_FEM_Field_Interpolator_Manager.hpp"
 
 #include <iostream>
@@ -8,6 +9,7 @@
 #include "fn_eye.hpp"
 #include "fn_dot.hpp"
 #include "fn_sum.hpp"
+#include "fn_FEM_CM_Phase_State_Functions.hpp"
 
 namespace moris
 {
@@ -24,545 +26,64 @@ namespace moris
             mPropertyMap[ "Density" ]               = Property_Type::DENSITY;
             mPropertyMap[ "Heat_Capacity" ]         = Property_Type::HEAT_CAPACITY;
             mPropertyMap[ "Latent_Heat" ]           = Property_Type::LATENT_HEAT;
-            mPropertyMap[ "Lower_PC_Temp" ]         = Property_Type::LOWER_PC_TEMP;
-            mPropertyMap[ "Upper_PC_Temp" ]         = Property_Type::UPPER_PC_TEMP;
+            mPropertyMap[ "PC_Temp" ]               = Property_Type::PC_TEMP;
             mPropertyMap[ "Phase_State_Function" ]  = Property_Type::PHASE_STATE_FUNCTION;
             mPropertyMap[ "Phase_Change_Const" ]    = Property_Type::PHASE_CHANGE_CONST;
-
-            // populate dof map
-            mDofMap[ "Temp" ] = MSI::Dof_Type::TEMP;
         }
 
         //------------------------------------------------------------------------------
-        void CM_Diffusion_Linear_Isotropic_Phase_Change::eval_gradHdot()
+        void CM_Diffusion_Linear_Isotropic_Phase_Change::set_dof_type_list(
+                moris::Cell< moris::Cell< MSI::Dof_Type > > aDofTypes,
+                moris::Cell< std::string >                  aDofStrings )
         {
-            moris::real tDensity = mProperties( static_cast< uint >( Property_Type::DENSITY ) )->val()( 0 );
-            moris::real tHeatCap = mProperties( static_cast< uint >( Property_Type::HEAT_CAPACITY ) )->val()( 0 );
-            moris::real tLatHeat = mProperties( static_cast< uint >( Property_Type::LATENT_HEAT ) )->val()( 0 );
+            // set dof type list
+            Constitutive_Model::set_dof_type_list( aDofTypes );
 
-            // compute derivative of Phase State Function
-            real tdfdT = this->eval_dFdTemp();
-
-            // compute gradient of
-            mGradHdot = tDensity * ( tHeatCap + tLatHeat * tdfdT ) *
-                    mFIManager->get_field_interpolators_for_type( mDofMap[ "Temp" ] )->gradxt();
-        }
-
-        //------------------------------------------------------------------------------
-        void CM_Diffusion_Linear_Isotropic_Phase_Change::eval_graddivflux()
-        {
-            moris::real tK = mProperties( static_cast< uint >( Property_Type::CONDUCTIVITY ) )->val()( 0 );
-
-            // matrix for purely isotropic case
-            Matrix< DDRMat > tKijIsotropic;
-            switch( mSpaceDim )
+            // loop over the provided dof types
+            for( uint iDof = 0; iDof < aDofTypes.size(); iDof++ )
             {
-                case 2:
+                // get dof type string
+                std::string tDofString = aDofStrings( iDof );
+
+                // get dof type
+                MSI::Dof_Type tDofType = aDofTypes( iDof )( 0 );
+
+                // switch on dof type string
+                if( tDofString == "Temp" )
                 {
-                    tKijIsotropic = {{tK,  0,  0, tK},
-                            { 0, tK, tK,  0}};
-                    break;
+                    mTempDof = tDofType;
                 }
-                case 3:
+                else
                 {
-                    tKijIsotropic = {{tK, 0, 0, 0, 0,tK, 0,tK, 0, 0},
-                            { 0,tK, 0,tK, 0, 0, 0, 0,tK, 0},
-                            { 0, 0,tK, 0,tK, 0,tK, 0, 0, 0}};
-                    break;
-                }
-                default:
-                    MORIS_ASSERT(false, "CM_Diffusion_Linear_Isotropic_Phase_Change::eval_graddivflux: Number of spatial dimensions must be 2 or 3");
-                    break;
-            }
-
-            mGradDivFlux = tKijIsotropic * mFIManager->get_field_interpolators_for_type( mDofMap[ "Temp" ] )->gradx(3);
-        }
-
-        //------------------------------------------------------------------------------
-        void CM_Diffusion_Linear_Isotropic_Phase_Change::eval_flux()
-        {
-            // get the conductivity property
-            std::shared_ptr< Property > tPropConductivity =
-                    mProperties( static_cast< uint >( Property_Type::CONDUCTIVITY ) );
-
-            // compute flux
-            mFlux = tPropConductivity->val()( 0 ) *
-                    mFIManager->get_field_interpolators_for_type( mDofMap[ "Temp" ] )->gradx( 1 );
-        }
-
-        //------------------------------------------------------------------------------
-        void CM_Diffusion_Linear_Isotropic_Phase_Change::eval_divflux()
-        {
-            // get the conductivity property
-            std::shared_ptr< Property > tPropConductivity
-            = mProperties( static_cast< uint >( Property_Type::CONDUCTIVITY ) );
-
-            // compute the divergence of the flux
-            mDivFlux = tPropConductivity->val() * this->divstrain();
-        }
-
-        //------------------------------------------------------------------------------
-        void CM_Diffusion_Linear_Isotropic_Phase_Change::eval_traction( const Matrix< DDRMat > & aNormal )
-        {
-            // compute traction
-            mTraction = trans( this->flux() ) * aNormal;
-        }
-
-        //------------------------------------------------------------------------------
-        void CM_Diffusion_Linear_Isotropic_Phase_Change::eval_testTraction( const Matrix< DDRMat > & aNormal,
-                const moris::Cell< MSI::Dof_Type > & aTestDofTypes )
-        {
-            // get test dof type index
-            uint tTestDofIndex = mDofTypeMap( static_cast< uint >( aTestDofTypes( 0 ) ) );
-
-            // get the conductivity property
-            std::shared_ptr< Property > tPropConductivity =
-                    mProperties( static_cast< uint >( Property_Type::CONDUCTIVITY ) );
-
-            // compute test traction
-            mTestTraction( tTestDofIndex ) =
-                    trans( mFIManager->get_field_interpolators_for_type( mDofMap[ "Temp" ] )->dnNdxn( 1 ) ) *
-                    tPropConductivity->val()( 0 ) * aNormal;
-        }
-
-        //------------------------------------------------------------------------------
-        void CM_Diffusion_Linear_Isotropic_Phase_Change::eval_strain()
-        {
-            // compute strain
-            mStrain = mFIManager->get_field_interpolators_for_type( mDofMap[ "Temp" ] )->gradx( 1 );
-        }
-
-        //------------------------------------------------------------------------------
-        void CM_Diffusion_Linear_Isotropic_Phase_Change::eval_divstrain()
-        {
-            // get the temperature gradient
-            Matrix< DDRMat > tTempGrad
-            = mFIManager->get_field_interpolators_for_type( mDofMap[ "Temp" ] )->gradx( 2 );
-
-            // evaluate the divergence of the strain
-            mDivStrain = sum( tTempGrad( { 0, mSpaceDim - 1 }, { 0, 0 } ) );
-        }
-
-        //------------------------------------------------------------------------------
-        void CM_Diffusion_Linear_Isotropic_Phase_Change::eval_testStrain()
-        {
-            // compute test strain
-            mTestStrain = mFIManager->get_field_interpolators_for_type( mDofMap[ "Temp" ] )->dnNdxn( 1 );
-        }
-
-        //------------------------------------------------------------------------------
-        void CM_Diffusion_Linear_Isotropic_Phase_Change::eval_const()
-        {
-            // build an identity matrix
-            Matrix< DDRMat > I;
-            eye( mSpaceDim, mSpaceDim, I );
-
-            // compute conductivity matrix
-            mConst = mProperties( static_cast< uint >( Property_Type::CONDUCTIVITY ) )->val()( 0 ) * I;
-        }
-
-        //------------------------------------------------------------------------------
-        void CM_Diffusion_Linear_Isotropic_Phase_Change::eval_dFluxdDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes )
-        {
-            // get the dof type as a uint
-            uint tDofType = static_cast< uint >( aDofTypes( 0 ) );
-
-            // get the dof type index
-            uint tDofIndex = mGlobalDofTypeMap( tDofType );
-
-            // get the corresponding FI
-            Field_Interpolator * tFI = mFIManager->get_field_interpolators_for_type( aDofTypes( 0 ) );
-
-            //init the matrix
-            mdFluxdDof( tDofIndex ).set_size( mSpaceDim, tFI->get_number_of_space_time_coefficients(), 0.0 );
-
-            // get the conductivity property
-            std::shared_ptr< Property > tPropConductivity
-            = mProperties( static_cast< uint >( Property_Type::CONDUCTIVITY ) );
-
-            // if direct dependency on the dof type
-            if( aDofTypes( 0 ) == mDofMap[ "Temp" ] )
-            {
-                // compute derivative with direct dependency
-                mdFluxdDof( tDofIndex ).matrix_data() +=
-                        tPropConductivity->val()( 0 ) * mFIManager->get_field_interpolators_for_type( mDofMap[ "Temp" ] )->dnNdxn( 1 );
-            }
-
-            //            // if indirect dependency on the dof type
-            //            if ( mProperties( static_cast< uint >( Property_Type::CONDUCTIVITY ) )->check_dof_dependency( aDofTypes ) )
-            //            {
-            //                // compute derivative with indirect dependency through properties
-            //                mdFluxdDof( tDofIndex ).matrix_data()
-            //                += mFIManager->get_field_interpolators_for_type( mDofMap[ "Temp" ] )->gradx( 1 )
-            //                 * tPropConductivity->dPropdDOF( aDofTypes );
-            //            }
-        }
-
-        //------------------------------------------------------------------------------
-        void CM_Diffusion_Linear_Isotropic_Phase_Change::eval_dHdotdDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes )
-        {
-            // get properties
-            moris::real tDensity = mProperties( static_cast< uint >( Property_Type::DENSITY ) )->val()( 0 );
-            moris::real tHeatCap = mProperties( static_cast< uint >( Property_Type::HEAT_CAPACITY ) )->val()( 0 );
-            moris::real tLatHeat = mProperties( static_cast< uint >( Property_Type::LATENT_HEAT ) )->val()( 0 );
-
-            // get the dof type as a uint
-            uint tDofType = static_cast< uint >( aDofTypes( 0 ) );
-
-            // get the dof type index
-            uint tDofIndex = mGlobalDofTypeMap( tDofType );
-
-            // get the corresponding FI
-            Field_Interpolator * tFI = mFIManager->get_field_interpolators_for_type( aDofTypes( 0 ) );
-
-            // init the matrix
-            mHdotDof( tDofIndex ).set_size( 1, tFI->get_number_of_space_time_coefficients(), 0.0 );
-
-            // compute derivative of Phase State Function
-            real tdfdT = this->eval_dFdTemp();
-
-            // if direct dependency on the dof type
-            if( aDofTypes( 0 ) == mDofMap[ "Temp" ] )
-            {
-                // compute derivative with direct dependency
-                mHdotDof( tDofIndex ).matrix_data() +=
-                        tDensity * ( tHeatCap + tLatHeat * tdfdT ) *
-                        mFIManager->get_field_interpolators_for_type( mDofMap[ "Temp" ] )->dnNdtn(1);
-            }
-        }
-
-        //--------------------------------------------------------------------------------------------------------------
-        void CM_Diffusion_Linear_Isotropic_Phase_Change::eval_dGradHdotdDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes )
-        {
-            // get properties
-            moris::real tDensity = mProperties( static_cast< uint >( Property_Type::DENSITY ) )->val()( 0 );
-            moris::real tHeatCap = mProperties( static_cast< uint >( Property_Type::HEAT_CAPACITY ) )->val()( 0 );
-            moris::real tLatHeat = mProperties( static_cast< uint >( Property_Type::LATENT_HEAT ) )->val()( 0 );
-
-            // get the dof type as a uint
-            uint tDofType = static_cast< uint >( aDofTypes( 0 ) );
-
-            // get the dof type index
-            uint tDofIndex = mGlobalDofTypeMap( tDofType );
-
-            // get the corresponding FI
-            Field_Interpolator * tFI = mFIManager->get_field_interpolators_for_type( aDofTypes( 0 ) );
-
-            // init the matrix
-            mGradHdotDof( tDofIndex ).set_size( mSpaceDim, tFI->get_number_of_space_time_coefficients(), 0.0 );
-
-            // compute derivative of Phase State Function
-            real tdfdT = this->eval_dFdTemp();
-
-            // if direct dependency on the dof type
-            if( aDofTypes( 0 ) == mDofMap[ "Temp" ] )
-            {
-                // compute derivative with direct dependency
-                mGradHdotDof( tDofIndex ).matrix_data() +=
-                        tDensity * ( tHeatCap + tLatHeat * tdfdT ) *
-                        mFIManager->get_field_interpolators_for_type( mDofMap[ "Temp" ] )->d2Ndxt();
-            }
-        }
-
-        //--------------------------------------------------------------------------------------------------------------
-        void CM_Diffusion_Linear_Isotropic_Phase_Change::eval_dGradDivFluxdDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes )
-        {
-            // gets added later
-            mGradDivFlux = {{0}};
-
-            moris::real tK = mProperties( static_cast< uint >( Property_Type::CONDUCTIVITY ) )->val()( 0 );
-
-            // get the dof type as a uint
-            uint tDofType = static_cast< uint >( aDofTypes( 0 ) );
-
-            // get the dof type index
-            uint tDofIndex = mGlobalDofTypeMap( tDofType );
-
-            // get the corresponding FI
-            Field_Interpolator * tFI = mFIManager->get_field_interpolators_for_type( aDofTypes( 0 ) );
-
-            // init the matrix
-            mGradDivFluxDof( tDofIndex ).set_size( mSpaceDim, tFI->get_number_of_space_time_coefficients(), 0.0 );
-
-            // matrix for purely isotropic case
-            Matrix< DDRMat > tKijIsotropic;
-            switch( mSpaceDim )
-            {
-                case 2:
-                {
-                    tKijIsotropic = {{tK,  0,  0, tK},
-                            { 0, tK, tK,  0}};
-                    break;
-                }
-                case 3:
-                {
-                    tKijIsotropic = {{tK, 0, 0, 0, 0,tK, 0,tK, 0, 0},
-                            { 0,tK, 0,tK, 0, 0, 0, 0,tK, 0},
-                            { 0, 0,tK, 0,tK, 0,tK, 0, 0, 0}};
-                    break;
-                }
-                default:
-                    MORIS_ASSERT(false, "CM_Diffusion_Linear_Isotropic_Phase_Change::eval_dGradDivFluxdDOF: Number of spatial dimensions must be 2 or 3");
-                    break;
-            }
-
-            // if direct dependency on the dof type
-            if( aDofTypes( 0 ) == mDofMap[ "Temp" ] )
-            {
-                // compute derivative with direct dependency
-                mGradDivFluxDof( tDofIndex ).matrix_data() +=
-                        tKijIsotropic * mFIManager->get_field_interpolators_for_type( mDofMap[ "Temp" ] )->dnNdxn( 3 ).matrix_data();
-            }
-        }
-
-
-        //--------------------------------------------------------------------------------------------------------------
-        void CM_Diffusion_Linear_Isotropic_Phase_Change::eval_ddivfluxdu( const moris::Cell< MSI::Dof_Type > & aDofTypes )
-        {
-            // get the dof type index
-            uint tDofIndex = mGlobalDofTypeMap( static_cast< uint >( aDofTypes( 0 ) ) );
-
-            // get the corresponding FI
-            Field_Interpolator * tFI = mFIManager->get_field_interpolators_for_type( aDofTypes( 0 ) );
-
-            // set size for ddivflux/du
-            mddivfluxdu( tDofIndex ).set_size( 1, tFI->get_number_of_space_time_coefficients(), 0.0 );
-
-            // get the conductivity property
-            std::shared_ptr< Property > tPropConductivity
-            = mProperties( static_cast< uint >( Property_Type::CONDUCTIVITY ) );
-
-            // if temperature dof
-            if( aDofTypes( 0 ) == mDofMap[ "Temp" ] )
-            {
-                // fill ddivstrain/dv
-                mddivfluxdu( tDofIndex ).matrix_data() += tPropConductivity->val()( 0 ) * this->ddivstraindu( aDofTypes );
-            }
-
-            if( tPropConductivity->check_dof_dependency( aDofTypes ) )
-            {
-                // fill ddivstrain/du
-                mddivfluxdu( tDofIndex ).matrix_data() += this->divstrain() * tPropConductivity->dPropdDOF( aDofTypes );
-            }
-        }
-
-        //--------------------------------------------------------------------------------------------------------------
-        void CM_Diffusion_Linear_Isotropic_Phase_Change::eval_ddivstraindu( const moris::Cell< MSI::Dof_Type > & aDofTypes )
-        {
-            // get the dof type index
-            uint tDofIndex = mGlobalDofTypeMap( static_cast< uint >( aDofTypes( 0 ) ) );
-
-            // get the dof type FI
-            Field_Interpolator * tFI = mFIManager->get_field_interpolators_for_type( aDofTypes( 0 ) );
-
-            // set size for ddivstrain/du
-            mddivstraindu( tDofIndex ).set_size( 1, tFI->get_number_of_space_time_coefficients(), 0.0 );
-
-            if( aDofTypes( 0 ) == mDofMap[ "Temp" ] )
-            {
-                // get the 2nd order derivative of the shape functions d2Ndx2
-                Matrix< DDRMat > tTempd2Ndx2 = tFI->dnNdxn( 2 );
-
-                // fill ddivstrain/du
-                mddivstraindu( tDofIndex ) = tTempd2Ndx2.get_row( 0 ) + tTempd2Ndx2.get_row( 1 );
-
-                if( tTempd2Ndx2.n_rows() == 6 )
-                {
-                    mddivstraindu( tDofIndex ).matrix_data() += tTempd2Ndx2.get_row( 2 );
+                    std::string tErrMsg =
+                            std::string("CM_Diffusion_Linear_Isotropic::set_dof_type_list - Unknown aDofString : ") +
+                            tDofString;
+                    MORIS_ERROR( false , tErrMsg.c_str() );
                 }
             }
         }
 
         //------------------------------------------------------------------------------
-        void CM_Diffusion_Linear_Isotropic_Phase_Change::eval_dTractiondDOF(
-                const moris::Cell< MSI::Dof_Type > & aDofTypes,
-                const Matrix< DDRMat >             & aNormal )
+        void CM_Diffusion_Linear_Isotropic_Phase_Change::set_property(
+                std::shared_ptr< fem::Property > aProperty,
+                std::string                      aPropertyString )
         {
-            // get the dof type as a uint
-            uint tDofType = static_cast< uint >( aDofTypes( 0 ) );
-
-            // get the dof type index
-            uint tDofIndex = mGlobalDofTypeMap( tDofType );
-
-            // compute derivative
-            mdTractiondDof( tDofIndex ) = trans( aNormal ) * this->dFluxdDOF( aDofTypes );
-        }
-
-        //------------------------------------------------------------------------------
-        void CM_Diffusion_Linear_Isotropic_Phase_Change::eval_dTestTractiondDOF(
-                const moris::Cell< MSI::Dof_Type > & aDofTypes,
-                const Matrix< DDRMat >             & aNormal,
-                const moris::Cell< MSI::Dof_Type > & aTestDofTypes )
-        {
-            // get test dof type index
-            uint tTestDofIndex = mDofTypeMap( static_cast< uint >( aTestDofTypes( 0 ) ) );
-
-            // get the dof type as a uint
-            uint tDofType = static_cast< uint >( aDofTypes( 0 ) );
-
-            // get the dof type index
-            uint tDofIndex = mGlobalDofTypeMap( tDofType );
-
-            // init the dTestTractiondDof
-            mdTestTractiondDof( tTestDofIndex )( tDofIndex ).set_size( mFIManager->get_field_interpolators_for_type( aTestDofTypes( 0 ) )->get_number_of_space_time_coefficients(),
-                    mFIManager->get_field_interpolators_for_type( aDofTypes( 0 ) )->get_number_of_space_time_coefficients(), 0.0 );
-
-            // get the conductivity property
-            std::shared_ptr< Property > tPropConductivity
-            = mProperties( static_cast< uint >( Property_Type::CONDUCTIVITY ) );
-
-            // if conductivity depends on dof type
-            if( tPropConductivity->check_dof_dependency( aDofTypes ) )
+            // check that aPropertyString makes sense
+            if ( mPropertyMap.find( aPropertyString ) == mPropertyMap.end() )
             {
-                // add contribution
-                mdTestTractiondDof( tTestDofIndex )( tDofIndex ).matrix_data()
-                                                                += trans( mFIManager->get_field_interpolators_for_type( mDofMap[ "Temp" ] )->dnNdxn( 1 ) )
-                                                                * aNormal * tPropConductivity->dPropdDOF( aDofTypes );
-            }
-        }
+                std::string tErrMsg =
+                        std::string("CM_Diffusion_Linear_Isotropic_Phase_Change::set_property - Unknown aPropertyString : ") +
+                        aPropertyString;
 
-        //------------------------------------------------------------------------------
-        void CM_Diffusion_Linear_Isotropic_Phase_Change::eval_dTestTractiondDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes,
-                const Matrix< DDRMat >             & aNormal,
-                const Matrix< DDRMat >             & aJump,
-                const moris::Cell< MSI::Dof_Type > & aTestDofTypes )
-        {
-            // get test dof type index
-            uint tTestDofIndex = mDofTypeMap( static_cast< uint >( aTestDofTypes( 0 ) ) );
-
-            // get the dof type as a uint
-            uint tDofType = static_cast< uint >( aDofTypes( 0 ) );
-
-            // get the dof type index
-            uint tDofIndex = mGlobalDofTypeMap( tDofType );
-
-            // init the dTestTractiondDof
-            mdTestTractiondDof( tTestDofIndex )( tDofIndex ).set_size( mFIManager->get_field_interpolators_for_type( aTestDofTypes( 0 ) )->get_number_of_space_time_coefficients(),
-                    mFIManager->get_field_interpolators_for_type( aDofTypes( 0 ) )->get_number_of_space_time_coefficients(), 0.0 );
-
-            // get the conductivity property
-            std::shared_ptr< Property > tPropConductivity
-            = mProperties( static_cast< uint >( Property_Type::CONDUCTIVITY ) );
-
-            // if conductivity depends on dof type
-            if( tPropConductivity->check_dof_dependency( aDofTypes ) )
-            {
-                // add contribution
-                mdTestTractiondDof( tTestDofIndex )( tDofIndex ).matrix_data() +=
-                        trans( mFIManager->get_field_interpolators_for_type( mDofMap[ "Temp" ] )->dnNdxn( 1 ) ) *
-                        aNormal * tPropConductivity->dPropdDOF( aDofTypes );
-            }
-        }
-
-        //------------------------------------------------------------------------------
-        void CM_Diffusion_Linear_Isotropic_Phase_Change::eval_dStraindDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes )
-        {
-            // get the dof type as a uint
-            uint tDofType = static_cast< uint >( aDofTypes( 0 ) );
-
-            // get the dof type index
-            uint tDofIndex = mGlobalDofTypeMap( tDofType );
-
-            // if direct dependency on the dof type
-            if( aDofTypes( 0 ) == mDofMap[ "Temp" ] )
-            {
-                // compute derivative with direct dependency
-                mdStraindDof( tDofIndex ) = mFIManager->get_field_interpolators_for_type( mDofMap[ "Temp" ] )->dnNdxn( 1 );
-            }
-            else
-            {
-                // reset the matrix
-                mdStraindDof( tDofIndex ).set_size( mSpaceDim, mFIManager->get_field_interpolators_for_type( aDofTypes( 0 ) )->get_number_of_space_time_coefficients(), 0.0 );
-            }
-        }
-
-        //------------------------------------------------------------------------------
-        void CM_Diffusion_Linear_Isotropic_Phase_Change::eval_dConstdDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes )
-        {
-            // get the dof type as a uint
-            uint tDofType = static_cast< uint >( aDofTypes( 0 ) );
-
-            // get the dof type index
-            uint tDofIndex = mGlobalDofTypeMap( tDofType );
-
-            // reset the matrix
-            mdConstdDof( tDofIndex ).set_size( 1, mFIManager->get_field_interpolators_for_type( aDofTypes( 0 ) )->get_number_of_space_time_coefficients(), 0.0 );
-
-            // if indirect dependency on the dof type
-            if ( mProperties( static_cast< uint >( Property_Type::CONDUCTIVITY ) )->check_dof_dependency( aDofTypes ) )
-            {
-                // compute derivative with indirect dependency through properties
-                mdConstdDof( tDofIndex ) = mProperties( static_cast< uint >( Property_Type::CONDUCTIVITY ) )->dPropdDOF( aDofTypes );
-            }
-        }
-
-        //------------------------------------------------------------------------------
-        void CM_Diffusion_Linear_Isotropic_Phase_Change::eval_dFluxdDV( const moris::Cell< PDV_Type > & aDvTypes )
-        {
-            MORIS_ASSERT( false, " CM_Diffusion_Linear_Isotropic::eval_dFluxdDV - This function is not implemented.");
-        }
-
-        //------------------------------------------------------------------------------
-        void CM_Diffusion_Linear_Isotropic_Phase_Change::eval_dStraindDV( const moris::Cell< PDV_Type > & aDvTypes )
-        {
-            MORIS_ASSERT( false, " CM_Diffusion_Linear_Isotropic::eval_dStraindDV - This function is not implemented.");
-        }
-
-        //------------------------------------------------------------------------------
-        moris::real CM_Diffusion_Linear_Isotropic_Phase_Change::eval_dFdTemp()
-        {
-            moris::real tTlower  = mProperties( static_cast< uint >( Property_Type::LOWER_PC_TEMP ) )->val()( 0 );
-            moris::real tTupper  = mProperties( static_cast< uint >( Property_Type::UPPER_PC_TEMP ) )->val()( 0 );
-            moris::uint tPCfunc  = mProperties( static_cast< uint >( Property_Type::PHASE_STATE_FUNCTION ) )->val()( 0 );
-
-            // get temperature
-            real tTemp = mFIManager->get_field_interpolators_for_type( mDofMap[ "Temp" ] )->val()( 0 );
-
-            moris::real tdfdT;
-
-            switch ( tPCfunc )
-            {
-                // linear phase change model
-                case 1:
-                {
-                    if ( (tTemp > tTupper) || (tTemp < tTlower) )
-                        tdfdT = 0;
-                    else
-                        tdfdT = 1 / (tTupper - tTlower);
-                    break;
-                }
-
-                // cubic phase change model
-                case 2:
-                {
-                    // cubic function: f(T)=( (tTemp - tTlower)^2 * (2*tTemp + tTlower - 3*tTupper))/(tTlower - tTupper)^3
-                    if ( (tTemp > tTupper) || (tTemp < tTlower) )
-                        tdfdT = 0;
-                    else
-                        tdfdT = 6.0*(tTemp - tTlower)*(tTemp - tTupper)/std::pow(tTlower - tTupper,3.0);
-                    break;
-                }
-
-                // logistic function
-                case 3:
-                {
-                    moris::real tPCconst = mProperties( static_cast< uint >( Property_Type::PHASE_CHANGE_CONST ) )->val()( 0 );
-
-                    // logistic function parameter k
-                    real tLogisticParam = ( 2 * std::log(1/tPCconst - 1) ) / ( tTupper - 3 * tTlower );
-
-                    real tExp = tLogisticParam * ( tTemp - (tTupper + tTlower)/2 );
-                    tdfdT = tLogisticParam  / ( std::exp(-tExp) + 2 + std::exp(tExp) );
-                    break;
-                }
-                default:
-                    MORIS_ERROR(false,"wrong option for phase change function.");
+                MORIS_ERROR( false , tErrMsg.c_str() );
             }
 
-            return tdfdT;
+            // set the property in the property cell
+            mProperties( static_cast< uint >( mPropertyMap[ aPropertyString ] ) ) = aProperty;
         }
 
         //------------------------------------------------------------------------------
+
         void CM_Diffusion_Linear_Isotropic_Phase_Change::eval_Hdot()
         {
             // get properties
@@ -570,12 +91,189 @@ namespace moris
             moris::real tHeatCap = mProperties( static_cast< uint >( Property_Type::HEAT_CAPACITY ) )->val()( 0 );
             moris::real tLatHeat = mProperties( static_cast< uint >( Property_Type::LATENT_HEAT ) )->val()( 0 );
 
+            // get the temperature FI
+            Field_Interpolator * tFITemp =
+                    mFIManager->get_field_interpolators_for_type( mTempDof );
+
             // compute derivative of Phase State Function
-            real tdfdT = this->eval_dFdTemp();
+            // real tdfdT = this->eval_dFdTemp();
+            real tdfdT = eval_dFdTemp(
+                    mProperties( static_cast< uint >( Property_Type::PC_TEMP ) )->val()( 0 ),
+                    mProperties( static_cast< uint >( Property_Type::PHASE_CHANGE_CONST ) )->val()( 0 ),
+                    mProperties( static_cast< uint >( Property_Type::PHASE_STATE_FUNCTION ) )->val()( 0 ),
+                    tFITemp );
 
             // compute derivative of enthalpy
-            mHdot = tDensity * ( tHeatCap + tLatHeat * tdfdT )
-                             * mFIManager->get_field_interpolators_for_type( mDofMap[ "Temp" ] )->gradt( 1 );
+            mHdot = tDensity * ( tHeatCap + tLatHeat * tdfdT ) * tFITemp->gradt( 1 );
+        }
+
+        //------------------------------------------------------------------------------
+
+        void CM_Diffusion_Linear_Isotropic_Phase_Change::eval_gradHdot()
+        {
+            moris::real tDensity = mProperties( static_cast< uint >( Property_Type::DENSITY ) )->val()( 0 );
+            moris::real tHeatCap = mProperties( static_cast< uint >( Property_Type::HEAT_CAPACITY ) )->val()( 0 );
+            moris::real tLatHeat = mProperties( static_cast< uint >( Property_Type::LATENT_HEAT ) )->val()( 0 );
+
+            // get the temperature FI
+            Field_Interpolator * tFITemp =
+                    mFIManager->get_field_interpolators_for_type( mTempDof );
+
+            // compute derivative of Phase State Function
+            // real tdfdT = this->eval_dFdTemp();
+            real tdfdT = eval_dFdTemp(
+                    mProperties( static_cast< uint >( Property_Type::PC_TEMP ) )->val()( 0 ),
+                    mProperties( static_cast< uint >( Property_Type::PHASE_CHANGE_CONST ) )->val()( 0 ),
+                    mProperties( static_cast< uint >( Property_Type::PHASE_STATE_FUNCTION ) )->val()( 0 ),
+                    tFITemp );
+
+            // compute gradient of
+            mGradHdot = tDensity * ( tHeatCap + tLatHeat * tdfdT ) * tFITemp->gradxt();
+        }
+
+
+        //------------------------------------------------------------------------------
+        void CM_Diffusion_Linear_Isotropic_Phase_Change::eval_dHdotdDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes )
+        {
+            // get properties
+            std::shared_ptr< Property > tPropDensity = mProperties( static_cast< uint >( Property_Type::DENSITY ) );
+            std::shared_ptr< Property > tPropHeatCap = mProperties( static_cast< uint >( Property_Type::HEAT_CAPACITY ) );
+            std::shared_ptr< Property > tPropLatHeat = mProperties( static_cast< uint >( Property_Type::LATENT_HEAT ) );
+            std::shared_ptr< Property > tPropPCtemp  = mProperties( static_cast< uint >( Property_Type::PC_TEMP ) );
+            std::shared_ptr< Property > tPropPCconst = mProperties( static_cast< uint >( Property_Type::PHASE_CHANGE_CONST ) );
+            std::shared_ptr< Property > tPropPSfunct = mProperties( static_cast< uint >( Property_Type::PHASE_STATE_FUNCTION ) );
+
+            // get the dof type as a uint
+            uint tDofType = static_cast< uint >( aDofTypes( 0 ) );
+
+            // get the dof type index
+            uint tDofIndex = mGlobalDofTypeMap( tDofType );
+
+            // get the corresponding FI
+            Field_Interpolator * tFI = mFIManager->get_field_interpolators_for_type( aDofTypes( 0 ) );
+
+            // initialize the matrix
+            mHdotDof( tDofIndex ).set_size( 1, tFI->get_number_of_space_time_coefficients(), 0.0 );
+
+            // get the temperature FI
+            Field_Interpolator * tFITemp =
+                    mFIManager->get_field_interpolators_for_type( mTempDof );
+
+            // compute derivative of Phase State Function
+            // real tdfdT = this->eval_dFdTemp();
+            real tdfdT = eval_dFdTemp(
+                    tPropPCtemp->val()( 0 ),
+                    tPropPCconst->val()( 0 ),
+                    tPropPSfunct->val()( 0 ),
+                    tFITemp );
+
+            // if direct dependency on the dof type
+            if( aDofTypes( 0 ) == mTempDof )
+            {
+                const moris::Matrix<DDRMat> dfdDof = eval_dFdTempdDOF(
+                        tPropPCtemp->val()(0),
+                        tPropPCconst->val()(0),
+                        tPropPSfunct->val()(0),
+                        tFITemp);
+
+                // compute derivative with direct dependency
+                mHdotDof( tDofIndex ).matrix_data() +=
+                        tPropDensity->val()(0) * ( tPropHeatCap->val()(0) + tPropLatHeat->val()(0) * tdfdT ) *
+                        tFITemp->dnNdtn(1)
+                        + tPropDensity->val()(0) * tPropLatHeat->val()(0) * tFITemp->gradt(1) * dfdDof;
+            }
+
+            // if indirect dependency of density on the dof type
+            if ( tPropDensity->check_dof_dependency( aDofTypes ) )
+            {
+                // compute derivative with indirect dependency through properties
+                mHdotDof( tDofIndex ).matrix_data() +=
+                        ( tPropHeatCap->val()(0) + tPropLatHeat->val()(0) * tdfdT ) *
+                        tFITemp->gradt(1) *
+                        tPropDensity->dPropdDOF( aDofTypes );
+            }
+
+            // if indirect dependency of heat capacity on the dof type
+            if ( tPropHeatCap->check_dof_dependency( aDofTypes ) )
+            {
+                // compute derivative with indirect dependency through properties
+                mHdotDof( tDofIndex ).matrix_data() +=
+                        tPropDensity->val()( 0 ) *
+                        tFITemp->gradt(1) *
+                        tPropHeatCap->dPropdDOF( aDofTypes );
+            }
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+        void CM_Diffusion_Linear_Isotropic_Phase_Change::eval_dGradHdotdDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes )
+        {
+            // get properties
+            std::shared_ptr< Property > tPropDensity = mProperties( static_cast< uint >( Property_Type::DENSITY ) );
+            std::shared_ptr< Property > tPropHeatCap = mProperties( static_cast< uint >( Property_Type::HEAT_CAPACITY ) );
+            std::shared_ptr< Property > tPropLatHeat = mProperties( static_cast< uint >( Property_Type::LATENT_HEAT ) );
+            std::shared_ptr< Property > tPropPCtemp  = mProperties( static_cast< uint >( Property_Type::PC_TEMP ) );
+            std::shared_ptr< Property > tPropPCconst = mProperties( static_cast< uint >( Property_Type::PHASE_CHANGE_CONST ) );
+            std::shared_ptr< Property > tPropPSfunct = mProperties( static_cast< uint >( Property_Type::PHASE_STATE_FUNCTION ) );
+
+            // get the dof type as a uint
+            uint tDofType = static_cast< uint >( aDofTypes( 0 ) );
+
+            // get the dof type index
+            uint tDofIndex = mGlobalDofTypeMap( tDofType );
+
+            // get the corresponding FI
+            Field_Interpolator * tFI = mFIManager->get_field_interpolators_for_type( aDofTypes( 0 ) );
+
+            // initialize the matrix
+            mGradHdotDof( tDofIndex ).set_size( mSpaceDim, tFI->get_number_of_space_time_coefficients(), 0.0 );
+
+            // get the temperature FI
+            Field_Interpolator * tFITemp =
+                    mFIManager->get_field_interpolators_for_type( mTempDof );
+
+            // compute derivative of Phase State Function
+            // real tdfdT = this->eval_dFdTemp();
+            real tdfdT = eval_dFdTemp(
+                    tPropPCtemp->val()( 0 ),
+                    tPropPCconst->val()( 0 ),
+                    tPropPSfunct->val()( 0 ),
+                    tFITemp );
+
+            // if direct dependency on the dof type
+            if( aDofTypes( 0 ) == mTempDof )
+            {
+                const moris::Matrix<DDRMat> dfdDof = eval_dFdTempdDOF(
+                        tPropPCtemp->val()(0),
+                        tPropPCconst->val()(0),
+                        tPropPSfunct->val()(0),
+                        tFITemp);
+
+                // compute derivative with direct dependency
+                mGradHdotDof( tDofIndex ).matrix_data() +=
+                        tPropDensity->val()(0) * ( tPropHeatCap->val()(0) + tPropLatHeat->val()(0) * tdfdT ) *
+                        tFITemp->d2Ndxt()
+                        + tPropDensity->val()(0) * tPropLatHeat->val()(0) * tFITemp->gradxt() * dfdDof;
+            }
+
+            // if indirect dependency of density on the dof type
+            if ( tPropDensity->check_dof_dependency( aDofTypes ) )
+            {
+                // compute derivative with indirect dependency through properties
+                mGradHdotDof( tDofIndex ).matrix_data() +=
+                        ( tPropHeatCap->val()(0) + tPropLatHeat->val()(0) * tdfdT ) *
+                        tFITemp->gradxt() *
+                        tPropDensity->dPropdDOF( aDofTypes );
+            }
+
+            // if indirect dependency of heat capacity on the dof type
+            if ( tPropHeatCap->check_dof_dependency( aDofTypes ) )
+            {
+                // compute derivative with indirect dependency through properties
+                mGradHdotDof( tDofIndex ).matrix_data() +=
+                        tPropDensity->val()( 0 ) *
+                        tFITemp->gradxt() *
+                        tPropHeatCap->dPropdDOF( aDofTypes );
+            }
         }
 
         //------------------------------------------------------------------------------

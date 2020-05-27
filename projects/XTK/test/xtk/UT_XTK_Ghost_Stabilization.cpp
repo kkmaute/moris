@@ -23,8 +23,8 @@ namespace xtk
 
 TEST_CASE("Face oriented ghost stabilization","[GHOST]")
 {
-    if(par_size() == 1)
-    {
+//    if(par_size() == 1)
+//    {
     moris::Matrix<moris::DDRMat> tCenters = {{ 2.0,2.0,2.1 }};
     moris::Matrix<moris::DDRMat> tNormals = {{ 1.0,1.0,1.0 }};
 
@@ -35,14 +35,13 @@ TEST_CASE("Face oriented ghost stabilization","[GHOST]")
     moris::ge::Geometry_Engine tGeometryEngine(tGeometry, tPhaseTable);
 
     // Create Mesh ---------------------------------
-    std::string tMeshFileName = "generated:1x1x8|sideset:z";
+    std::string tMeshFileName = "generated:1x1x16|sideset:z";
     moris::mtk::Interpolation_Mesh* tMeshData = moris::mtk::create_interpolation_mesh( MeshType::STK, tMeshFileName );
-
 
     // create model
     size_t tModelDimension = 3;
     Model tXTKModel(tModelDimension,tMeshData,&tGeometryEngine);
-    tXTKModel.mVerbose  =  false;
+    tXTKModel.mVerbose  =  true;
 
     // decompose
     Cell<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8, Subdivision_Method::C_HIERARCHY_TET4};
@@ -64,7 +63,7 @@ TEST_CASE("Face oriented ghost stabilization","[GHOST]")
 
 
     delete tMeshData;
-    }
+//    }
 
 
 }

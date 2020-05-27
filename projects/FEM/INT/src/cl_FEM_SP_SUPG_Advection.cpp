@@ -11,7 +11,7 @@ namespace moris
     namespace fem
     {
 
-//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
         SP_SUPG_Advection::SP_SUPG_Advection()
         {
             // set the property pointer cell size
@@ -19,21 +19,86 @@ namespace moris
 
             // populate the map
             mPropertyMap[ "Conductivity" ] = Property_Type::CONDUCTIVITY;
-
-            // populate the dof map (default)
-            mMasterDofMap[ "Velocity" ] = MSI::Dof_Type::VX;
         }
 
-//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
+        void SP_SUPG_Advection::set_dof_type_list(
+                moris::Cell< moris::Cell< MSI::Dof_Type > > & aDofTypes,
+                moris::Cell< std::string >                  & aDofStrings,
+                mtk::Master_Slave                             aIsMaster )
+        {
+            // switch on master slave
+            switch ( aIsMaster )
+            {
+                case mtk::Master_Slave::MASTER :
+                {
+                    // set dof type list
+                    mMasterDofTypes = aDofTypes;
+
+                    // loop on dof type
+                    for( uint iDof = 0; iDof < aDofTypes.size(); iDof++ )
+                    {
+                        // get dof string
+                        std::string tDofString = aDofStrings( iDof );
+
+                        // get dof type
+                        MSI::Dof_Type tDofType = aDofTypes( iDof )( 0 );
+
+                        // if velocity
+                        if( tDofString == "Velocity" )
+                        {
+                            mMasterDofVelocity = tDofType;
+                        }
+                        else
+                        {
+                            // create error message
+                            std::string tErrMsg =
+                                    std::string( "SP_SUPG_Advection::set_dof_type_list - Unknown aDofString : ") +
+                                    tDofString;
+                            MORIS_ERROR( false , tErrMsg.c_str() );
+                        }
+                    }
+                    break;
+                }
+
+                case mtk::Master_Slave::SLAVE :
+                {
+                    // set dof type list
+                    mSlaveDofTypes = aDofTypes;
+                    break;
+                }
+
+                default:
+                    MORIS_ERROR( false, "SP_SUPG_Advection::set_dof_type_list - unknown master slave type." );
+                    break;
+            }
+        }
+
+
+        //------------------------------------------------------------------------------
+        void SP_SUPG_Advection::set_property(
+                std::shared_ptr< Property > aProperty,
+                std::string                 aPropertyString,
+                mtk::Master_Slave           aIsMaster )
+        {
+            // check that aPropertyString makes sense
+            MORIS_ERROR( mPropertyMap.find( aPropertyString ) != mPropertyMap.end(),
+                    "SP_SUPG_Advection::set_property - Unknown aPropertyString." );
+
+            // set the property in the property cell
+            this->get_properties( aIsMaster )( static_cast< uint >( mPropertyMap[ aPropertyString ] ) ) = aProperty;
+        }
+
+        //------------------------------------------------------------------------------
         void SP_SUPG_Advection::eval_SP()
         {
             // get the velocity FI
-            Field_Interpolator * tVelocityFI
-            = mMasterFIManager->get_field_interpolators_for_type( mMasterDofMap[ "Velocity" ] );
+            Field_Interpolator * tVelocityFI =
+                    mMasterFIManager->get_field_interpolators_for_type( mMasterDofVelocity );
 
             // get the conductivity property
-            std::shared_ptr< Property > tPropConductivity
-            = mMasterProp( static_cast< uint >( Property_Type::CONDUCTIVITY ) );
+            std::shared_ptr< Property > tPropConductivity =
+                    mMasterProp( static_cast< uint >( Property_Type::CONDUCTIVITY ) );
 
             // get the norm of velocity
             real tNorm = norm( tVelocityFI->val() );
@@ -43,7 +108,8 @@ namespace moris
             uint tNumNodes = tVelocityFI->dnNdxn( 1 ).n_cols();
             for ( uint iNode = 0; iNode < tNumNodes; iNode++ )
             {
-                Matrix< DDRMat > tAdd = trans( tVelocityFI->val() ) * tVelocityFI->dnNdxn( 1 ).get_column( iNode );
+                Matrix< DDRMat > tAdd =
+                        trans( tVelocityFI->val() ) * tVelocityFI->dnNdxn( 1 ).get_column( iNode );
                 tAbs += std::abs( tAdd( 0, 0 ) );
             }
 
@@ -54,7 +120,8 @@ namespace moris
             real tTau1 = 0.5 * tHugn / tNorm;
 
             // compute time increment deltat
-            Matrix< DDRMat > tTimeCoeff = mMasterFIManager->get_IP_geometry_interpolator()->get_time_coeff();
+            Matrix< DDRMat > tTimeCoeff =
+                    mMasterFIManager->get_IP_geometry_interpolator()->get_time_coeff();
             real tDeltaT = tTimeCoeff.max() - tTimeCoeff.min();
 
             // get tau2
@@ -67,7 +134,7 @@ namespace moris
             mPPVal = {{ std::pow( 1 / std::pow( tTau1, 2.0 ) + 1 / std::pow( tTau2, 2.0 ) + 1 / std::pow( tTau3, 2.0 ), -0.5 ) }};
         }
 
-//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
         void SP_SUPG_Advection::eval_dSPdMasterDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes )
         {
             // get the dof type index
@@ -83,7 +150,7 @@ namespace moris
 
             // get the velocity FI
             Field_Interpolator * tVelocityFI
-            = mMasterFIManager->get_field_interpolators_for_type( mMasterDofMap[ "Velocity" ] );
+            = mMasterFIManager->get_field_interpolators_for_type( mMasterDofVelocity );
 
             // get the conductivity property
             std::shared_ptr< Property > tPropConductivity
@@ -111,7 +178,7 @@ namespace moris
             real tTau3 = 0.25 * std::pow( tHugn, 2.0 ) / tPropConductivity->val()( 0 );
 
             // if dof type is velocity
-            if( aDofTypes( 0 ) == mMasterDofMap[ "Velocity" ] )
+            if( aDofTypes( 0 ) == mMasterDofVelocity )
             {
                 // compute derivative of the velocity norm
                 Matrix< DDRMat > tdNormdu = trans( tVelocityFI->val() ) * tVelocityFI->N() / tNorm;
@@ -123,7 +190,7 @@ namespace moris
                 {
                     Matrix< DDRMat > tAdd = trans( tVelocityFI->val() ) * tVelocityFI->dnNdxn( 1 ).get_column( iNode );
                     tdAbsdu.matrix_data()
-                    += tAdd * trans( tVelocityFI->dnNdxn( 1 ).get_column( iNode ) ) * tVelocityFI->N() / std::abs( tAdd( 0, 0 ) );
+                                    += tAdd * trans( tVelocityFI->dnNdxn( 1 ).get_column( iNode ) ) * tVelocityFI->N() / std::abs( tAdd( 0, 0 ) );
                 }
 
                 // compute derivative of hugn
@@ -141,17 +208,17 @@ namespace moris
             if( tPropConductivity->check_dof_dependency( aDofTypes ) )
             {
                 // compute dtau3du
-                tdTau3dDof.matrix_data()
-                -= 0.25 * std::pow( tHugn, 2.0 ) * tPropConductivity->dPropdDOF( aDofTypes ) / std::pow( tPropConductivity->val()( 0 ), 2.0 );
+                tdTau3dDof.matrix_data() -=
+                        0.25 * std::pow( tHugn, 2.0 ) * tPropConductivity->dPropdDOF( aDofTypes ) / std::pow( tPropConductivity->val()( 0 ), 2.0 );
             }
 
             // add contribution
-            mdPPdMasterDof( tDofIndex ).matrix_data()
-            += std::pow( this->val()( 0 ), 3.0 )
-            * ( std::pow( tTau1, -3.0 ) * tdTau1dDof.matrix_data() + std::pow( tTau3, -3.0 ) * tdTau3dDof.matrix_data() );
+            mdPPdMasterDof( tDofIndex ).matrix_data() +=
+                    std::pow( this->val()( 0 ), 3.0 ) *
+                    ( std::pow( tTau1, -3.0 ) * tdTau1dDof.matrix_data() + std::pow( tTau3, -3.0 ) * tdTau3dDof.matrix_data() );
         }
 
-//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
     } /* namespace fem */
 } /* namespace moris */
 
