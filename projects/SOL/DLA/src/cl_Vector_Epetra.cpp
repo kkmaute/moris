@@ -6,6 +6,7 @@
  */
 #include "cl_Vector_Epetra.hpp"
 #include <string>
+#include "fn_print.hpp"
 
 using namespace moris;
 
@@ -189,7 +190,6 @@ void Vector_Epetra::extract_copy( moris::Matrix< DDRMat > & LHSValues )
 
     // Get solution and output it in moris::Mat LHSValues
     mEpetraVector->ExtractCopy( LHSValues.data(), tMyLDA );
-
 }
 
 //----------------------------------------------------------------------------------------------
