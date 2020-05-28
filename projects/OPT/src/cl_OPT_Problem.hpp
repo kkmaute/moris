@@ -82,10 +82,10 @@ namespace moris
              */
             uint get_num_equality_constraints();
 
-	    /**
+	        /**
              * Get reference to the adv vector
              */
-            Matrix<DDRMat> & get_advs()
+            Matrix<DDRMat>& get_advs()
             {
                 return mADVs;
             }
@@ -134,28 +134,28 @@ namespace moris
              *
              * @return vector of objectives
              */
-            Matrix<DDRMat> get_objectives();
+            const Matrix<DDRMat>& get_objectives();
 
             /**
              * Gets the constraint values
              *
              * @return vector of constraints
              */
-            Matrix<DDRMat> get_constraints();
+            const Matrix<DDRMat>& get_constraints();
 
             /**
              * Returns the objective gradient, and computes it if not already available.
              *
              * @return full derivative matrix d(objective)_i/d(adv)_j
              */
-            Matrix<DDRMat> get_objective_gradients();
+            const Matrix<DDRMat>& get_objective_gradients();
 
             /**
              * Returns the constraint gradient, and computes it if not already available.
              *
              * @return full derivative matrix d(constraint)_i/d(adv)_j
              */
-            Matrix<DDRMat> get_constraint_gradients();
+            const Matrix<DDRMat>& get_constraint_gradients();
 
             /**
              * Sets the type of finite differencing used for the objectives and an epsilon

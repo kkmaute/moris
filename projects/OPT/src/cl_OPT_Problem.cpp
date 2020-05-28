@@ -71,7 +71,7 @@ namespace moris
 
         // -------------------------------------------------------------------------------------------------------------
 
-        Matrix<DDRMat> Problem::get_objectives()
+        const Matrix<DDRMat>& Problem::get_objectives()
         {
             if (mUpdateObjectives)
             {
@@ -82,7 +82,7 @@ namespace moris
 
         // -------------------------------------------------------------------------------------------------------------
 
-        Matrix<DDRMat> Problem::get_constraints()
+        const Matrix<DDRMat>& Problem::get_constraints()
         {
             if (mUpdateConstraints)
             {
@@ -123,7 +123,7 @@ namespace moris
 
         // -------------------------------------------------------------------------------------------------------------
 
-        Matrix<DDRMat> Problem::get_objective_gradients()
+        const Matrix<DDRMat>& Problem::get_objective_gradients()
         {
             if (mUpdateObjectiveGradients)
             {
@@ -136,7 +136,7 @@ namespace moris
 
         // -------------------------------------------------------------------------------------------------------------
 
-        Matrix<DDRMat> Problem::get_constraint_gradients()
+        const Matrix<DDRMat>& Problem::get_constraint_gradients()
         {
             if (mUpdateConstraintGradients)
             {
