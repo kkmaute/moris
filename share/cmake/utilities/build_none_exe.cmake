@@ -55,6 +55,9 @@ set(BUILD_VIS OFF CACHE BOOL "Build the visualization executable." FORCE)
 
 set(BUILD_XTK OFF CACHE BOOL "Build the XTK executable." FORCE)
 
+set(BUILD_WRK OFF CACHE BOOL "Build the workflow executable." FORCE)
+
+set(BUILD_MAIN OFF CACHE BOOL "Build main executable." FORCE)
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Turn off BUILD_NONE

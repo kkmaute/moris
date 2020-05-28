@@ -532,7 +532,7 @@ TEST_CASE("Regular Subdivision Method Parallel","[REG_SUB_PARALLEL]")
     real tXCenter = 1.0;
     real tYCenter = 1.0;
     real tZCenter = 2.0;
-    Cell<std::shared_ptr<moris::ge::Geometry_Analytic>> tGeometry(1);
+    Cell<std::shared_ptr<moris::ge::Geometry>> tGeometry(1);
     tGeometry(0) = std::make_shared<moris::ge::Sphere>(tXCenter, tYCenter, tZCenter, tRadius);
 
     moris::ge::Phase_Table tPhaseTable (1, moris::ge::Phase_Table_Structure::EXP_BASE_2);
@@ -569,7 +569,7 @@ TEST_CASE("Regular Subdivision and Node Hierarchy Method Parallel","[CONF_PARALL
     real tXCenter = 1.0;
     real tYCenter = 1.0;
     real tZCenter = 2.0;
-    Cell<std::shared_ptr<moris::ge::Geometry_Analytic>> tGeometry(1);
+    Cell<std::shared_ptr<moris::ge::Geometry>> tGeometry(1);
     tGeometry(0) = std::make_shared<moris::ge::Sphere>(tXCenter, tYCenter, tZCenter, tRadius);
 
     moris::ge::Phase_Table tPhaseTable (1, moris::ge::Phase_Table_Structure::EXP_BASE_2);

@@ -1,17 +1,10 @@
-/*
- * cl_XTK_Matrix_Tools.hpp
- *
- *  Created on: Jun 20, 2017
- *      Author: ktdoble
- */
-
 #ifndef PROJECTS_GEN_SRC_RIPPED_ADDITIONAL_CL_GEN_MATRIXBASE_UTILITIES_HPP_
 #define PROJECTS_GEN_SRC_RIPPED_ADDITIONAL_CL_GEN_MATRIXBASE_UTILITIES_HPP_
 
 #include <iostream>
 
-#include "../additional/fn_GEN_approximate.hpp"
-#include "../additional/fn_GEN_bubble_sort.hpp"
+#include "fn_GEN_approximate.hpp"
+#include "fn_GEN_bubble_sort.hpp"
 #include "cl_Matrix.hpp"
 
 

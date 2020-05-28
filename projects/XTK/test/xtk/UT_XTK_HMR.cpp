@@ -40,7 +40,7 @@
 #include "cl_HMR_Lagrange_Mesh_Base.hpp" //HMR/src
 #include "cl_HMR_Parameters.hpp" //HMR/src
 
-#include "cl_GEN_Geometry_Discrete.hpp"
+#include "cl_GEN_Geometry.hpp"
 #include "cl_GEN_Geometry_Field_HMR.hpp"
 
 #include "fn_norm.hpp"
@@ -179,7 +179,7 @@ TEST_CASE("XTK HMR Test","[XTK_HMR]")
 
             moris::ge::Geometry_Field_HMR tFieldAsGeom(tField);
 
-            Cell< std::shared_ptr<ge::Geometry_Discrete> > tGeometryVector(1);
+            Cell< std::shared_ptr<ge::Geometry> > tGeometryVector(1);
             tGeometryVector(0) = std::make_shared<moris::ge::Geometry_Field_HMR>(tField);
 
 

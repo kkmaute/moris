@@ -71,6 +71,7 @@ namespace moris
             //                               Stage 1: HMR refinement
             //---------------------------------------------------------------------------------------
 
+            //print( aNewADVs, "aNewADVs");
             // Set new advs in GE
             mPerformerManager->mGENPerformer( 0 )->set_advs(aNewADVs);
 //
@@ -119,7 +120,7 @@ namespace moris
                 tMat( Ik ) = tVal( Ik )( 0 );
             }
 
-            //print( tMat,"tMat");
+            print( tMat,"tMat");
             return tMat;
         }
 

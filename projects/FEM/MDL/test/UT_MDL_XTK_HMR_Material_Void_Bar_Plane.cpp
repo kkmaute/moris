@@ -153,7 +153,7 @@ TEST_CASE("XTK HMR Material Void Bar Intersected By Plane","[XTK_HMR_PLANE_BAR_M
 
         hmr::Interpolation_Mesh_HMR * tInterpMesh = tHMR.create_interpolation_mesh( tLagrangeMeshIndex  );
 
-        moris::Cell< std::shared_ptr<moris::ge::Geometry_Discrete> > tGeometryVector(1);
+        moris::Cell< std::shared_ptr<moris::ge::Geometry> > tGeometryVector(1);
         tGeometryVector(0) = std::make_shared<moris::ge::Geometry_Field_HMR>(tPlaneField);
 
         size_t tModelDimension = 2;

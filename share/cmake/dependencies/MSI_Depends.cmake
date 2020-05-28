@@ -19,10 +19,7 @@ set(MSI_TPL_DEPENDENCIES
 # Make sure needed moris libraries are built
 include(${MORIS_DEPENDS_DIR}/LINALG_Depends.cmake)
 include(${MORIS_DEPENDS_DIR}/COM_Depends.cmake)
-include(${MORIS_DEPENDS_DIR}/INT_Depends.cmake)
 include(${MORIS_DEPENDS_DIR}/DLA_Depends.cmake)
-include(${MORIS_DEPENDS_DIR}/HMR_Depends.cmake)
-#include(${MORIS_DEPENDS_DIR}/MDL_Depends.cmake)
 
 # needed includes for test
 include(${MORIS_DEPENDS_DIR}/ALG_Depends.cmake)

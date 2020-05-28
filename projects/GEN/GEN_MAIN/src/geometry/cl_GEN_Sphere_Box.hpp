@@ -1,14 +1,14 @@
 #ifndef MORIS_CL_GEN_SPHERE_BOX_HPP
 #define MORIS_CL_GEN_SPHERE_BOX_HPP
 
-#include "cl_GEN_Geometry_Analytic.hpp"
+#include "cl_GEN_Geometry.hpp"
 #include "cl_GEN_Field_Analytic.hpp"
 
 namespace moris
 {
 namespace ge
 {
-class Sphere_Box : public Geometry_Analytic, public Field_Analytic
+class Sphere_Box : public Geometry, public Field_Analytic
 {
 public:
     Sphere_Box( moris::real aSX,

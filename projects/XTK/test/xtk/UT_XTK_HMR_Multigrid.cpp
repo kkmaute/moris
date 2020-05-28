@@ -42,7 +42,7 @@
 #include "cl_HMR_Parameters.hpp" //HMR/src
 
 #include "cl_GEN_Geometry_Field_HMR.hpp"
-#include "cl_GEN_Geometry_Discrete.hpp"
+#include "cl_GEN_Geometry.hpp"
 #include "cl_GEN_Plane.hpp"
 
 #include "fn_norm.hpp"
@@ -135,7 +135,7 @@ TEST_CASE("2D XTK WITH HMR MULLTIGRID 11","[XTK_HMR_Multigrid]")
 
          hmr::Interpolation_Mesh_HMR * tInterpMesh = tHMR.create_interpolation_mesh( tLagrangeMeshIndex  );
 
-        moris::Cell< std::shared_ptr<moris::ge::Geometry_Discrete> > tGeometryVector(1);
+        moris::Cell< std::shared_ptr<moris::ge::Geometry> > tGeometryVector(1);
         tGeometryVector(0) = std::make_shared<moris::ge::Geometry_Field_HMR>(tField);
 
          size_t tModelDimension = 2;

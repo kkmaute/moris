@@ -1,21 +1,18 @@
 #ifndef PROJECTS_GEN_GEN_MAIN_SRC_GEOMENG_CL_Geometry_Engine_HPP_
 #define PROJECTS_GEN_GEN_MAIN_SRC_GEOMENG_CL_Geometry_Engine_HPP_
 
-// GE
+// GEN
 #include "cl_GEN_Basis_Function.hpp"
-#include "cl_GEN_Field.hpp"
 #include "cl_GEN_Interpolaton.hpp"
 #include "cl_GEN_Pending_Node.hpp"
 #include "cl_GEN_Phase_Table.hpp"
-#include "fn_GEN_approximate.hpp"
 
 #include "cl_GEN_Geometry_Object.hpp"
 #include "cl_GEN_Geometry_Object_Manager.hpp"
 
-#include "cl_GEN_Pdv_Host.hpp"
-#include "cl_GEN_Pdv_Host_Manager.hpp"
-#include "cl_GEN_Geometry_Analytic.hpp"
-#include "cl_GEN_Geometry_Discrete.hpp"
+#include "pdv/cl_GEN_Pdv_Host.hpp"
+#include "pdv/cl_GEN_Pdv_Host_Manager.hpp"
+#include "cl_GEN_Geometry.hpp"
 #include "cl_GEN_Property.hpp"
 #include "cl_GEN_Pdv_Enums.hpp"
 
@@ -108,8 +105,7 @@ namespace moris
 
             // Geometry
             moris::size_t mActiveGeometryIndex = 0;
-            Cell<std::shared_ptr<Geometry_Analytic>> mGeometryAnalytic;
-            Cell<std::shared_ptr<Geometry_Discrete>> mGeometryDiscrete;
+            Cell<std::shared_ptr<Geometry>> mGeometry;
 
             // Property
             Cell<std::shared_ptr<Property>> mProperties;
@@ -141,34 +137,23 @@ namespace moris
              * Constructor using cell of cell of parameter lists
              *
              * @param aParameterLists GEN parameter lists (see fn_PRM_GEN_Parameters.hpp)
+             * @param aLibrary Library used for pulling user-defined functions
              */
-            Geometry_Engine(moris::Cell<moris::Cell<ParameterList>> aParameterLists, std::shared_ptr<moris::Library_IO> aLibrary = nullptr);
+            Geometry_Engine(moris::Cell<moris::Cell<ParameterList>> aParameterLists,
+                            std::shared_ptr<moris::Library_IO> aLibrary = nullptr);
 
             /**
-             * Constructor using explicitly created analytic geometries and phase table
+             * Constructor using externally created geometries and phase table
              *
              * @param[ in ] aGeometry cell of shared Geometry pointers
              * @param[ in ] aPhaseTable phase table
              * @param[ in ] aSpatialDim spatial dimensions
              */
-            Geometry_Engine(Cell< std::shared_ptr<Geometry_Analytic> >   aGeometry,
-                                Phase_Table                         aPhaseTable,
-                                uint                                aSpatialDim = 3,
-                                real                                aThresholdValue = 0.0,
-                                real                                aPerturbationValue = 1E-6);
-
-            /**
-             * Constructor using explicitly created discrete geometries and phase table
-             *
-             * @param[ in ] aGeometry cell of shared Geometry pointers
-             * @param[ in ] aPhaseTable phase table
-             * @param[ in ] aSpatialDim spatial dimensions
-             */
-            Geometry_Engine(Cell< std::shared_ptr<Geometry_Discrete> >   aGeometry,
-                                Phase_Table                         aPhaseTable,
-                                uint                                aSpatialDim = 3,
-                                real                                aThresholdValue = 0.0,
-                                real                                aPerturbationValue = 1E-6);
+            Geometry_Engine(Cell< std::shared_ptr<Geometry> >   aGeometry,
+                                Phase_Table                     aPhaseTable,
+                                uint                            aSpatialDim = 3,
+                                real                            aThresholdValue = 0.0,
+                                real                            aPerturbationValue = 1E-6);
 
             /**
              * Destructor
@@ -397,11 +382,6 @@ namespace moris
                                                 moris::size_t aGeometryIndex);
 
             /**
-             * @brief Returns whether the active geometry is analytic
-             */
-            bool is_geometry_analytic();
-
-            /**
              * @brief Returns the number of geometries
              */
             moris::size_t get_num_geometries();
@@ -492,28 +472,12 @@ namespace moris
                                                       const moris_index                 aWhichMesh = 0 );
 
             /**
-             * @brief assign the pdv type and property for each pdv host in a given set via a GEN_Field class
-             */
-            void assign_ip_hosts_by_set_name( std::string                  aSetName,
-                                              std::shared_ptr< GEN_Field > aFieldPointer,
-                                              PDV_Type                  aPdvType,
-                                              moris_index                  aWhichMesh = 0 );
-
-            /**
              * @brief assign the pdv type and property for each pdv host in a given set
              */
             void assign_ip_hosts_by_set_name( std::string                     aSetName,
                                               std::shared_ptr< Property > aPropertyPointer,
                                               PDV_Type                     aPdvType,
                                               moris_index                     aWhichMesh = 0 );
-
-            /**
-             * @brief assign the pdv type and property for each pdv host in a given set via a GEN Field
-             */
-            void assign_ip_hosts_by_set_index( moris_index                  aSetIndex,
-                                               std::shared_ptr< GEN_Field > aFieldPointer,
-                                               PDV_Type                  aPdvType,
-                                               moris_index                  aWhichMesh = 0 );
 
             /**
              * @brief assign the pdv type and property for each pdv host in a given set

@@ -47,7 +47,7 @@
 #include "cl_XTK_Enriched_Integration_Mesh.hpp"
 #include "cl_XTK_Enriched_Interpolation_Mesh.hpp"
 #include "cl_GEN_Geometry_Field_HMR.hpp"
-#include "cl_GEN_Geometry_Discrete.hpp"
+#include "cl_GEN_Geometry.hpp"
 
 #include "cl_VIS_Factory.hpp"
 
@@ -166,7 +166,7 @@ namespace moris
 
             hmr::Interpolation_Mesh_HMR * tInterpMesh = tHMR.create_interpolation_mesh( tLagrangeMeshIndex  );
 
-            moris::Cell< std::shared_ptr<moris::ge::Geometry_Discrete> > tGeometryVector(1);
+            moris::Cell< std::shared_ptr<moris::ge::Geometry> > tGeometryVector(1);
             tGeometryVector(0) = std::make_shared<moris::ge::Geometry_Field_HMR>(tPlaneField);
 
             size_t tModelDimension = 2;
@@ -464,7 +464,7 @@ namespace moris
 
             hmr::Interpolation_Mesh_HMR * tInterpMesh = tHMR.create_interpolation_mesh( tLagrangeMeshIndex  );
 
-            moris::Cell< std::shared_ptr<moris::ge::Geometry_Discrete> > tGeometryVector(1);
+            moris::Cell< std::shared_ptr<moris::ge::Geometry> > tGeometryVector(1);
             tGeometryVector(0) = std::make_shared<moris::ge::Geometry_Field_HMR>(tPlaneField);
 
             size_t tModelDimension = 2;
