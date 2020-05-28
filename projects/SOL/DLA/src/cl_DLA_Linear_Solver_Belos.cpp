@@ -171,9 +171,9 @@ moris::sint Linear_Solver_Belos::solve_linear_system(       Linear_Problem * aLi
 //	Belos::ReturnType result = solver->solve();
 	solver->solve();
 	// Ask the solver how many iterations the last solve() took.
-	const int numIters = solver->getNumIters();
-
-	std::cout<<"iter : "<<numIters<<std::endl;
+//	const int numIters = solver->getNumIters();
+//
+//	std::cout<<"iter : "<<numIters<<std::endl;
 
     return 0;
 }
