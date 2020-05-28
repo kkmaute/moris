@@ -190,17 +190,6 @@ namespace moris
                                                 ( tCMDiffusion->dGradHdotdDOF( tDofType ) - tCMDiffusion->dGradDivFluxdDOF( tDofType ) ) );
                     }
 
-// debug
-//std::cout << "Start evaluation in IWG ... \n" << std::flush;
-//moris::Matrix<DDRMat> test1 = tCMDiffusion->gradHdot();
-//moris::print(test1, "gradHdot");
-//moris::Matrix<DDRMat> test2 = tCMDiffusion->graddivflux();
-//moris::print(test2, "graddivflux as called from IWG");
-//moris::Matrix<DDRMat> test3 = tCMDiffusion->testStrain();
-//moris::print(test3, "testStrain");
-//moris::Matrix<DDRMat> test4 = tGGLSParam->dSPdMasterDOF( tDofType );
-//moris::print(test4, "dSPdMasterDOF");
-
                     // add contribution from stabilization parameter
                     mSet->get_jacobian()(
                             { tMasterResStartIndex, tMasterResStopIndex },

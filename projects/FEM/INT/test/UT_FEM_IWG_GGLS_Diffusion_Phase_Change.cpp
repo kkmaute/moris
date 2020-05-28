@@ -90,16 +90,16 @@ namespace moris
 
             std::shared_ptr< fem::Property > tPropMasterDensity = std::make_shared< fem::Property > ();
             tPropMasterDensity->set_parameters( { {{ 1.2 }} } );
-            //    tPropMasterDensity->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
-            //    tPropMasterDensity->set_val_function( tFIValFunction_UTIWGGGLSDIFFBULK );
-            //    tPropMasterDensity->set_dof_derivative_functions( { tFIDerFunction_UTIWGGGLSDIFFBULK } );
+//            tPropMasterDensity->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
+//            tPropMasterDensity->set_val_function( tFIValFunction_UTIWGGGLSDIFFBULK );
+//            tPropMasterDensity->set_dof_derivative_functions( { tFIDerFunction_UTIWGGGLSDIFFBULK } );
             tPropMasterDensity->set_val_function( tConstValFunction_UTIWGGGLSDIFFBULK );
 
             std::shared_ptr< fem::Property > tPropMasterHeatCapacity = std::make_shared< fem::Property > ();
             tPropMasterHeatCapacity->set_parameters( { {{ 1.3 }} } );
-            //    tPropMasterHeatCapacity->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
-            //    tPropMasterHeatCapacity->set_val_function( tFIValFunction_UTIWGGGLSDIFFBULK );
-            //    tPropMasterHeatCapacity->set_dof_derivative_functions( { tFIDerFunction_UTIWGGGLSDIFFBULK } );
+//            tPropMasterHeatCapacity->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
+//            tPropMasterHeatCapacity->set_val_function( tFIValFunction_UTIWGGGLSDIFFBULK );
+//            tPropMasterHeatCapacity->set_dof_derivative_functions( { tFIDerFunction_UTIWGGGLSDIFFBULK } );
             tPropMasterHeatCapacity->set_val_function( tConstValFunction_UTIWGGGLSDIFFBULK );
 
             // latent heat
@@ -264,12 +264,12 @@ namespace moris
             tChecks(0) = tCheckJacobian;
 
             // debug
-                moris::Matrix<DDRMat> test1 = tJacobianFD-tJacobian;
-                real tMax = test1.max();
-            //    print( tJacobian,   "tJacobian" );
-            //    print( tJacobianFD, "tJacobianFD" );
-            //    print( test1, "JacobianDifference" );
-                std::cout << "Maximum difference = " << tMax << " \n" << std::flush;
+            // moris::Matrix<DDRMat> test1 = tJacobianFD-tJacobian;
+            // real tMax = test1.max();
+            // print( tJacobian,   "tJacobian" );
+            // print( tJacobianFD, "tJacobianFD" );
+            // print( test1, "JacobianDifference" );
+            // std::cout << "Maximum difference = " << tMax << " \n" << std::flush;
 
             return tChecks;
 

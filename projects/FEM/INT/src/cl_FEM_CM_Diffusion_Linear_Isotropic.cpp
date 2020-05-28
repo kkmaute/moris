@@ -175,12 +175,6 @@ namespace moris
             // compute grad div flux
             mGradDivFlux = tKijIsotropic * mFIManager->get_field_interpolators_for_type( mTempDof )->gradx(3);
 
-// debug
-//moris::Matrix<DDRMat> test1 = mFIManager->get_field_interpolators_for_type( mTempDof )->gradx(3);
-//moris::print(test1, "gradx(3)");
-//moris::print(tKijIsotropic, "tKijIsotropic");
-//moris::print(mGradDivFlux, "mGradDivFlux in eval_GDF");
-
         }
 
         //------------------------------------------------------------------------------
