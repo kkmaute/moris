@@ -161,7 +161,6 @@ namespace moris
 
 
         //------------------------------------------------------------------------------
-        // FIXME: this function needs separate testing
         void SP_GGLS_Diffusion::eval_dSPdMasterDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes )
         {
             // get the properties
@@ -224,7 +223,7 @@ namespace moris
                             3.0 * std::sqrt(6 * std::pow(tAlpha,3) ) * std::sinh(std::sqrt(6*tAlpha)) - 2.0 ) /
                             ( 2.0 * std::pow(tAlpha,2) * std::pow((std::cosh(std::sqrt(6*tAlpha)) - 1), 2) );
 
-            // if dof type is termperature
+            // if dof type is temperature
             if( aDofTypes( 0 ) == mMasterDofTemp )
             {
                 // if there is a phase change
@@ -262,13 +261,6 @@ namespace moris
                             ( 6.0 * tConductivity * tDeltat );
                 }
 
-                // if indirect dependency of latent heat
-                if ( tPropLatentHeat->check_dof_dependency( aDofTypes ) )
-                {
-                    mdPPdMasterDof( tDofIndex ).matrix_data() +=
-                            dGammadAlpha * tDensity * tPropLatentHeat->dPropdDOF( aDofTypes ) * tdfdT *
-                            std::pow( mElementSize, 2 ) / ( 6.0 * tConductivity * tDeltat );
-                }
             }
 
             // else if there is no phase change
