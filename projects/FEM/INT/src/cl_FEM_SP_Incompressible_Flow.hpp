@@ -44,6 +44,7 @@ namespace moris
                 {
                     DENSITY, // fluid density
                     VISCOSITY,  // fluid viscosity
+                    INV_PERMEABILITY, // inverse of the permeability for flow through porous media
                     MAX_ENUM
                 };
 

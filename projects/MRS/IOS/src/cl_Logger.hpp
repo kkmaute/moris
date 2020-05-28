@@ -379,7 +379,10 @@ extern moris::Logger gLogger;
 #define MORIS_LOG( ... ) \
     do \
     { \
-        gLogger.log( __VA_ARGS__ ); \
+        if ( gLogger.get_severity_level() < 3 )\
+        {\
+           gLogger.log_info( __VA_ARGS__ ); \
+        }\
     } while (false)
 
 /**

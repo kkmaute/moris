@@ -77,7 +77,13 @@ namespace moris
                 // storage for evaluation
                 Matrix< DDRMat > mFlux;
                 Matrix< DDRMat > mDivFlux;
+                Matrix< DDRMat > mHdot;
+                Matrix< DDRMat > mGradHdot;
+                Matrix< DDRMat > mGradDivFlux;
+                moris::Cell< Matrix< DDRMat > > mGradDivFluxDof;
+                moris::Cell< Matrix< DDRMat > > mGradHdotDof;
                 moris::Cell< Matrix< DDRMat > > mdFluxdDof;
+                moris::Cell< Matrix< DDRMat > > mHdotDof;
                 moris::Cell< Matrix< DDRMat > > mdFluxdDv;
                 moris::Cell< Matrix< DDRMat > > mdFluxdx;
                 moris::Cell< Matrix< DDRMat > > mddivfluxdu;
@@ -106,21 +112,6 @@ namespace moris
                 // constitutive model name for input and debug
                 std::string mName;
 
-                // ------------------------------------ //
-                // FIXME: Remove once unified.
-                // enthalpy change rate
-
-                Matrix< DDRMat > mHdot;
-                moris::Cell< Matrix< DDRMat > > mHdotDof;
-
-                // enthalpy gradient change rate
-                Matrix< DDRMat > mGradHdot;
-                moris::Cell< Matrix< DDRMat > > mGradHdotDof;
-
-                // gradient of Divergence of Flux
-                Matrix< DDRMat > mGradDivFlux;
-                moris::Cell< Matrix< DDRMat > > mGradDivFluxDof;
-                // ------------------------------------ //
 
             private:
 
@@ -133,6 +124,12 @@ namespace moris
                 // flag for evaluation
                 bool mFluxEval = true;
                 bool mDivFluxEval = true;
+                bool mHdotEval = true;
+                bool mGradHdotEval = true;
+                bool mGradDivFluxEval = true;
+                moris::Cell< bool > mHdotDofEval;
+                moris::Cell< bool > mGradHdotDofEval;
+                moris::Cell< bool > mGradDivFluxDofEval;
                 moris::Cell< bool > mdFluxdDofEval;
                 moris::Cell< bool > mdFluxdDvEval;
                 moris::Cell< bool > mdFluxdxEval;
@@ -159,17 +156,6 @@ namespace moris
                 moris::Cell< bool > mdConstdDofEval;
                 moris::Cell< bool > mdConstdDvEval;
 
-                // ------------------------------------ //
-                // FIXME: Remove once unified.
-                // eval flags specific to this CM
-                bool mHdotEval = true;
-                bool mGradHdotEval = true;
-                bool mGradDivFluxEval = true;
-
-                moris::Cell<bool> mHdotDofEval;
-                moris::Cell<bool> mGradHdotDofEval;
-                moris::Cell<bool> mGradDivFluxDofEval;
-                // ------------------------------------ //
 
                 //------------------------------------------------------------------------------
             public :

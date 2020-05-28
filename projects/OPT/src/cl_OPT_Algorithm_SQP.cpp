@@ -221,8 +221,6 @@ namespace moris
             auto xlow = mProblem->get_lower_bounds().data();
             auto xupp = mProblem->get_upper_bounds().data();
 
-            mProblem->get_advs().fill(MAXDOUBLE); // The overall logic needs this
-
             char*   Fnames = 0;
             char*   xnames = 0;
 

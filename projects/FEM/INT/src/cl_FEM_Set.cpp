@@ -1965,8 +1965,6 @@ namespace moris
         //----------------------------------------------------------------------
         void Set::initialize_mdRdpGeo( std::shared_ptr< fem::Cluster > aFemCluster )
         {
-            std::cout<<"Set::initialize_mdRdpGeo - can only be called if geo pdv assembly map is ready"<<std::endl;
-
             // get the dof types requested by the solver
             moris::Cell < enum MSI::Dof_Type >tRequestedDofTypes
             = this->get_requested_dof_types();

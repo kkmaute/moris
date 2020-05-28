@@ -45,8 +45,8 @@ namespace moris
                 tManager.perform();
 
                 // Check Solution
-                REQUIRE(std::abs(tManager.get_objectives()(0)) < 2.0e-01); // check value of objective
-                REQUIRE(norm(tManager.get_advs() - 1.0) < 1.0e-01); // check value of design variables
+                REQUIRE(std::abs(tManager.get_objectives()(0)) < 2E-9); // check value of objective
+                REQUIRE(norm(tManager.get_advs() - 1.0) < 2E-6); // check value of design variables
             }
 
             // ---------------------------------------------------------------------------------------------------------
@@ -76,9 +76,8 @@ namespace moris
                 tManager.perform();
 
                 // Check Solution
-                // FIXME: value needs to be updated
-                REQUIRE(std::abs(tManager.get_objectives()(0)) < 400.0);  // check value of objective
-                REQUIRE(norm(tManager.get_advs() - 1.0) < 2.0);           // check value of design variables
+                REQUIRE(std::abs(tManager.get_objectives()(0)) < 5E-4);  // check value of objective
+                REQUIRE(norm(tManager.get_advs() - 1.0) < 1E-3);           // check value of design variables
             }
 
             // ---------------------------------------------------------------------------------------------------------
