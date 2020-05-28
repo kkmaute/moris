@@ -168,12 +168,19 @@ namespace moris
                     break;
                 }
                 default:
-                    MORIS_ASSERT(false, "CM_Diffusion_Linear_Isotropic_Phase_Change::eval_graddivflux: Number of spatial dimensions must be 2 or 3");
+                    MORIS_ASSERT(false, "CM_Diffusion_Linear_Isotropic::eval_graddivflux: Number of spatial dimensions must be 2 or 3");
                     break;
             }
 
             // compute grad div flux
             mGradDivFlux = tKijIsotropic * mFIManager->get_field_interpolators_for_type( mTempDof )->gradx(3);
+
+// debug
+//moris::Matrix<DDRMat> test1 = mFIManager->get_field_interpolators_for_type( mTempDof )->gradx(3);
+//moris::print(test1, "gradx(3)");
+//moris::print(tKijIsotropic, "tKijIsotropic");
+//moris::print(mGradDivFlux, "mGradDivFlux in eval_GDF");
+
         }
 
         //------------------------------------------------------------------------------
@@ -398,8 +405,6 @@ namespace moris
         //--------------------------------------------------------------------------------------------------------------
         void CM_Diffusion_Linear_Isotropic::eval_dGradDivFluxdDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes )
         {
-            // gets added later
-            mGradDivFlux = {{0}};
 
             moris::real tK = mProperties( static_cast< uint >( Property_Type::CONDUCTIVITY ) )->val()( 0 );
 
@@ -436,7 +441,7 @@ namespace moris
                     break;
                 }
                 default:
-                    MORIS_ASSERT(false, "CM_Diffusion_Linear_Isotropic_Phase_Change::eval_dGradDivFluxdDOF: Number of spatial dimensions must be 2 or 3");
+                    MORIS_ASSERT(false, "CM_Diffusion_Linear_Isotropic::eval_dGradDivFluxdDOF: Number of spatial dimensions must be 2 or 3");
                     break;
             }
 
