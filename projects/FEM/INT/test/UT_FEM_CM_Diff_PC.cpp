@@ -60,7 +60,7 @@ namespace moris
                 uint aSpatialDim = 2)
         {
             // initialize cell of checks
-            moris::Cell<bool> tChecks( 3, false );
+            moris::Cell<bool> tChecks( 4, false );
 
             // real for check
             real tEpsilonRel = 5E-5;
@@ -199,6 +199,36 @@ namespace moris
             //moris::print(tdHdotdDOF, "tdHdotdDOF");
             //moris::print(tdHdotdDOF_FD, "tdHdotdDOF_FD");
 
+            // check gradH -----------------------------------------------------------------
+            //------------------------------------------------------------------------------
+
+            // evaluate the constitutive model flux derivative
+            Matrix< DDRMat > tdGradHdDOF = tCMMasterDiffLinIsoPC->dGradHdotdDOF( { MSI::Dof_Type::TEMP } );
+            //print( tdFluxdDOF, "tdFluxdDOF");
+
+            // evaluate the constitutive model stress derivative by FD
+            Matrix< DDRMat > tdGradHdDOF_FD;
+            tCMMasterDiffLinIsoPC->eval_dGradHdotdDOF_FD( { MSI::Dof_Type::TEMP }, tdGradHdotdDOF_FD, 1E-6 );
+
+            //check stress derivative
+            bool tCheckGradH = true;
+            for ( uint iStress = 0; iStress < tdGradHdotdDOF.n_rows(); iStress++ )
+            {
+                for( uint jStress = 0; jStress < tdGradHdotdDOF.n_cols(); jStress++ )
+                {
+                    tCheckGradHdot = tCheckGradHdot &&
+                            ( std::abs( tdGradHdDOF( iStress, jStress ) - tdGradHdDOF_FD( iStress, jStress ) ) <
+                                    tEpsilonRel * std::abs(tdGradHdDOF( iStress, jStress )) );
+
+                }
+            }
+            //REQUIRE( tCheckGradH );
+            tChecks(1) = tCheckGradH;
+
+            // debug
+            //moris::print(tdGradHdDOF, "tdGradHdDOF");
+            //moris::print(tdGradHdDOF_FD, "tdGradHdDOF_FD");
+
 
             // check gradHdot --------------------------------------------------------------
             //------------------------------------------------------------------------------
@@ -224,7 +254,7 @@ namespace moris
                 }
             }
             //REQUIRE( tCheckGradHdot );
-            tChecks(1) = tCheckGradHdot;
+            tChecks(2) = tCheckGradHdot;
 
             // debug
             //moris::print(tdGradHdotdDOF, "tdGradHdotdDOF");
@@ -253,7 +283,7 @@ namespace moris
                 }
             }
             //REQUIRE( tCheckGradDivFlux );
-            tChecks(2) = tCheckGradDivFlux;
+            tChecks(3) = tCheckGradDivFlux;
 
             // debug
             //moris::print(tdGradDivFluxdDOF, "tdGradDivFluxdDOF");
@@ -317,9 +347,11 @@ namespace moris
 
             // checks
             bool tCheckHdot = tChecks(0);
-            bool tCheckGradHdot = tChecks(1);
-            bool tCheckGradDivFlux = tChecks(2);
+            bool tCheckGradH = tChecks(1);
+            bool tCheckGradHdot = tChecks(2);
+            bool tCheckGradDivFlux = tChecks(3);
             REQUIRE( tCheckHdot );
+            REQUIRE( tCheckGradH );
             REQUIRE( tCheckGradHdot );
             REQUIRE( tCheckGradDivFlux );
 
@@ -381,11 +413,14 @@ namespace moris
 
             // checks
             bool tCheckHdot = tChecks(0);
-            bool tCheckGradHdot = tChecks(1);
-            bool tCheckGradDivFlux = tChecks(2);
+            bool tCheckGradH = tChecks(1);
+            bool tCheckGradHdot = tChecks(2);
+            bool tCheckGradDivFlux = tChecks(3);
             REQUIRE( tCheckHdot );
+            REQUIRE( tCheckGradH );
             REQUIRE( tCheckGradHdot );
             REQUIRE( tCheckGradDivFlux );
+
 
         }
 
@@ -449,11 +484,14 @@ namespace moris
 
             // checks
             bool tCheckHdot = tChecks(0);
-            bool tCheckGradHdot = tChecks(1);
-            bool tCheckGradDivFlux = tChecks(2);
+            bool tCheckGradH = tChecks(1);
+            bool tCheckGradHdot = tChecks(2);
+            bool tCheckGradDivFlux = tChecks(3);
             REQUIRE( tCheckHdot );
+            REQUIRE( tCheckGradH );
             REQUIRE( tCheckGradHdot );
             REQUIRE( tCheckGradDivFlux );
+
 
         }
 
@@ -523,11 +561,14 @@ namespace moris
 
             // checks
             bool tCheckHdot = tChecks(0);
-            bool tCheckGradHdot = tChecks(1);
-            bool tCheckGradDivFlux = tChecks(2);
+            bool tCheckGradH = tChecks(1);
+            bool tCheckGradHdot = tChecks(2);
+            bool tCheckGradDivFlux = tChecks(3);
             REQUIRE( tCheckHdot );
+            REQUIRE( tCheckGradH );
             REQUIRE( tCheckGradHdot );
             REQUIRE( tCheckGradDivFlux );
+
 
         }
 
