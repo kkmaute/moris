@@ -1020,10 +1020,22 @@ namespace moris
 
                 //------------------------------------------------------------------------------
                 /**
-                 * evaluate the gradient of enthalpy change rate wrt dof using finite differences
+                 * evaluate the gradient of enthalpy wrt dof using finite differences
                  * @param[ in ] aDofTypes       a dof type wrt which the derivative is evaluated
-                 * @param[ in ] adFluxdDOF_FD a matrix to fill with derivative evaluation
+                 * @param[ in ] adGradHdDOF_FD  a matrix to fill with derivative evaluation
                  * @param[ in ] aPerturbation   real to perturb for FD
+                 */
+                void eval_dGradHdDOF_FD(
+                        const moris::Cell< MSI::Dof_Type > & aDofTypes,
+                        Matrix< DDRMat >                   & adGradHdDOF_FD,
+                        real                                 aPerturbation );
+
+                //------------------------------------------------------------------------------
+                /**
+                 * evaluate the gradient of enthalpy change rate wrt dof using finite differences
+                 * @param[ in ] aDofTypes          a dof type wrt which the derivative is evaluated
+                 * @param[ in ] adGradHdotdDOF_FD  a matrix to fill with derivative evaluation
+                 * @param[ in ] aPerturbation      real to perturb for FD
                  */
                 void eval_dGradHdotdDOF_FD(
                         const moris::Cell< MSI::Dof_Type > & aDofTypes,
