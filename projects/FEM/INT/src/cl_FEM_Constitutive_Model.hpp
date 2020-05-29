@@ -77,11 +77,13 @@ namespace moris
                 // storage for evaluation
                 Matrix< DDRMat > mFlux;
                 Matrix< DDRMat > mDivFlux;
+                Matrix< DDRMat > mGradH;
                 Matrix< DDRMat > mHdot;
                 Matrix< DDRMat > mGradHdot;
                 Matrix< DDRMat > mGradDivFlux;
                 moris::Cell< Matrix< DDRMat > > mGradDivFluxDof;
                 moris::Cell< Matrix< DDRMat > > mGradHdotDof;
+                moris::Cell< Matrix< DDRMat > > mGradHDof;
                 moris::Cell< Matrix< DDRMat > > mdFluxdDof;
                 moris::Cell< Matrix< DDRMat > > mHdotDof;
                 moris::Cell< Matrix< DDRMat > > mdFluxdDv;
@@ -126,9 +128,11 @@ namespace moris
                 bool mDivFluxEval = true;
                 bool mHdotEval = true;
                 bool mGradHdotEval = true;
+                bool mGradHEval = true;
                 bool mGradDivFluxEval = true;
                 moris::Cell< bool > mHdotDofEval;
                 moris::Cell< bool > mGradHdotDofEval;
+                moris::Cell< bool > mGradHDofEval;
                 moris::Cell< bool > mGradDivFluxDofEval;
                 moris::Cell< bool > mdFluxdDofEval;
                 moris::Cell< bool > mdFluxdDvEval;
@@ -685,6 +689,21 @@ namespace moris
                  * @param[ out ] mHdot change rate of enthalpy
                  */
                 const Matrix< DDRMat > & Hdot();
+
+                //------------------------------------------------------------------------------
+                /**
+                 * evaluates the constitutive model spatial gradient of enthalpy
+                 */
+                virtual void eval_gradH()
+                {
+                    MORIS_ASSERT(false, "eval_gradH: not implemented in base class.");
+                };
+
+                /**
+                 * get the constitutive model spatial gradient of enthalpy
+                 * @param[ out ] mGradH gradient of enthalpy
+                 */
+                const Matrix< DDRMat > & gradH();
 
                 //------------------------------------------------------------------------------
                 /**

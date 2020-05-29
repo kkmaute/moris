@@ -41,6 +41,7 @@ namespace moris
             mTestStrainEval   = true;
             mConstEval        = true;
             mHdotEval         = true;
+            mGradHEval        = true;
             mGradHdotEval     = true;
             mGradDivFluxEval  = true;
 
@@ -48,6 +49,7 @@ namespace moris
             uint tNumDofTypes = mGlobalDofTypes.size();
             mdFluxdDofEval.assign( tNumDofTypes, true );
             mHdotDofEval.assign( tNumDofTypes, true );
+            mGradHDofEval.assign( tNumDofTypes, true );
             mGradHdotDofEval.assign( tNumDofTypes, true );
             mGradDivFluxDofEval.assign( tNumDofTypes, true );
             mddivfluxduEval.assign( tNumDofTypes, true );
