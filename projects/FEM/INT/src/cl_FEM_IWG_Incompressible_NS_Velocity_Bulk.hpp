@@ -46,6 +46,7 @@ namespace moris
                 enum class IWG_Constitutive_Type
                 {
                     INCOMPRESSIBLE_FLUID,
+                    TURBULENCE_FLUID,
                     MAX_ENUM
                 };
 
@@ -56,7 +57,6 @@ namespace moris
                 enum class IWG_Stabilization_Type
                 {
                     INCOMPRESSIBLE_FLOW,
-                    TURBULENCE_VISCOSITY,
                     MAX_ENUM
                 };
 
@@ -85,19 +85,7 @@ namespace moris
                 void set_property(
                         std::shared_ptr< Property > aProperty,
                         std::string                 aPropertyString,
-                        mtk::Master_Slave           aIsMaster = mtk::Master_Slave::MASTER )
-                {
-                    // check that aPropertyString makes sense
-                    MORIS_ERROR( mPropertyMap.find( aPropertyString ) != mPropertyMap.end(),
-                            "IWG_Incompressible_NS_Velocity_Bulk::set_property - Unknown aPropertyString." );
-
-                    // check no slave allowed
-                    MORIS_ERROR( aIsMaster == mtk::Master_Slave::MASTER,
-                            "IWG_Incompressible_NS_Velocity_Bulk::set_property - No slave allowed." );
-
-                    // set the property in the property cell
-                    this->get_properties( aIsMaster )( static_cast< uint >( mPropertyMap[ aPropertyString ] ) ) = aProperty;
-                }
+                        mtk::Master_Slave           aIsMaster = mtk::Master_Slave::MASTER );
 
                 //------------------------------------------------------------------------------
                 /**
@@ -109,19 +97,7 @@ namespace moris
                 void set_constitutive_model(
                         std::shared_ptr< Constitutive_Model > aConstitutiveModel,
                         std::string                           aConstitutiveString,
-                        mtk::Master_Slave                     aIsMaster = mtk::Master_Slave::MASTER )
-                {
-                    // check that aConstitutiveString makes sense
-                    MORIS_ERROR( mConstitutiveMap.find( aConstitutiveString ) != mConstitutiveMap.end(),
-                            "IWG_Incompressible_NS_Velocity_Bulk::set_constitutive_model - Unknown aConstitutiveString." );
-
-                    // check no slave allowed
-                    MORIS_ERROR( aIsMaster == mtk::Master_Slave::MASTER,
-                            "IWG_Incompressible_NS_Velocity_Bulk::set_constitutive_model - No slave allowed." );
-
-                    // set the constitutive model in the constitutive model cell
-                    this->get_constitutive_models( aIsMaster )( static_cast< uint >( mConstitutiveMap[ aConstitutiveString ] ) ) = aConstitutiveModel;
-                }
+                        mtk::Master_Slave                     aIsMaster = mtk::Master_Slave::MASTER );
 
                 //------------------------------------------------------------------------------
                 /**
@@ -131,15 +107,7 @@ namespace moris
                  */
                 void set_stabilization_parameter(
                         std::shared_ptr< Stabilization_Parameter > aStabilizationParameter,
-                        std::string                                aStabilizationString )
-                {
-                    // check that aConstitutiveString makes sense
-                    MORIS_ERROR( mStabilizationMap.find( aStabilizationString ) != mStabilizationMap.end(),
-                            "IWG_Incompressible_NS_Velocity_Bulk::set_stabilization_parameter - Unknown aStabilizationString." );
-
-                    // set the stabilization parameter in the stabilization parameter cell
-                    this->get_stabilization_parameters()( static_cast< uint >( mStabilizationMap[ aStabilizationString ] ) ) = aStabilizationParameter;
-                }
+                        std::string                                aStabilizationString );
 
                 //------------------------------------------------------------------------------
                 /**

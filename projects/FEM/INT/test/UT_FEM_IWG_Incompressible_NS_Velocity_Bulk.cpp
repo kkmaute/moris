@@ -1,27 +1,27 @@
 #include <string>
 #include <catch.hpp>
 #include <memory>
-
 #include "assert.hpp"
-
-#include "cl_MTK_Enums.hpp" //MTK/src
-#include "cl_FEM_Enums.hpp"                                //FEM//INT/src
-
-#include "op_equal_equal.hpp"
 
 #define protected public
 #define private   public
-#include "cl_FEM_Field_Interpolator_Manager.hpp"                   //FEM//INT//src
-#include "cl_FEM_IWG.hpp"         //FEM/INT/src
-#include "cl_FEM_Set.hpp"         //FEM/INT/src
+//FEM//INT//src
+#include "cl_FEM_Field_Interpolator_Manager.hpp"
+#include "cl_FEM_IWG.hpp"
+#include "cl_FEM_Set.hpp"
 #undef protected
 #undef private
-
-#include "cl_FEM_Field_Interpolator.hpp"                   //FEM//INT//src
-#include "cl_FEM_Property.hpp"                   //FEM//INT//src
-#include "cl_FEM_CM_Factory.hpp"                   //FEM//INT//src
-#include "cl_FEM_SP_Factory.hpp"                   //FEM//INT//src
-#include "cl_FEM_IWG_Factory.hpp"                   //FEM//INT//src
+//LINALG/src
+#include "op_equal_equal.hpp"
+//MTK/src
+#include "cl_MTK_Enums.hpp"
+//FEM//INT//src
+#include "cl_FEM_Enums.hpp"
+#include "cl_FEM_Field_Interpolator.hpp"
+#include "cl_FEM_Property.hpp"
+#include "cl_FEM_CM_Factory.hpp"
+#include "cl_FEM_SP_Factory.hpp"
+#include "cl_FEM_IWG_Factory.hpp"
 
 void tConstValFunction_NSVBULK
 ( moris::Matrix< moris::DDRMat >                 & aPropMatrix,
@@ -344,6 +344,13 @@ TEST_CASE( "IWG_Incompressible_NS_Velocity_Bulk", "[IWG_Incompressible_NS_Veloci
             tCMMasterIncFluid->set_property( tPropDensity, "Density" );
             tCMMasterIncFluid->set_space_dim( iSpaceDim );
 
+            std::shared_ptr< fem::Constitutive_Model > tCMMasterTurbulence =
+                              tCMFactory.create_CM( fem::Constitutive_Type::FLUID_TURBULENCE );
+            tCMMasterTurbulence->set_dof_type_list( { tVelDofTypes, tVisDofTypes } );
+            tCMMasterTurbulence->set_property( tPropViscosity, "Viscosity" );
+            tCMMasterTurbulence->set_property( tPropDensity, "Density" );
+            tCMMasterTurbulence->set_space_dim( iSpaceDim );
+
             // define stabilization parameters
             fem::SP_Factory tSPFactory;
 
@@ -355,24 +362,19 @@ TEST_CASE( "IWG_Incompressible_NS_Velocity_Bulk", "[IWG_Incompressible_NS_Veloci
             tSPIncFlow->set_parameters( { {{ 36.0 }} } );
             tSPIncFlow->set_space_dim( iSpaceDim );
 
-            std::shared_ptr< fem::Stabilization_Parameter > tSTurbulenceViscosity =
-                    tSPFactory.create_SP( fem::Stabilization_Type::TURBULENCE_VISCOSITY );
-            tSTurbulenceViscosity->set_dof_type_list( { tVisDofTypes }, mtk::Master_Slave::MASTER );
-            tSTurbulenceViscosity->set_property( tPropViscosity, "Viscosity", mtk::Master_Slave::MASTER );
-
             // define the IWGs
             fem::IWG_Factory tIWGFactory;
 
             std::shared_ptr< fem::IWG > tIWG = tIWGFactory.create_IWG( fem::IWG_Type::INCOMPRESSIBLE_NS_VELOCITY_BULK );
             tIWG->set_residual_dof_type( tVelDofTypes );
             tIWG->set_dof_type_list( { tVelDofTypes, tPDofTypes, tTEMPDofTypes, tVisDofTypes }, mtk::Master_Slave::MASTER );
-            tIWG->set_constitutive_model( tCMMasterIncFluid, "IncompressibleFluid" );
             tIWG->set_property( tPropDensity, "Density" );
             tIWG->set_property( tPropGravity, "Gravity" );
             tIWG->set_property( tPropThermalExp, "ThermalExpansion" );
             tIWG->set_property( tPropRefTemp, "ReferenceTemp" );
+            tIWG->set_constitutive_model( tCMMasterIncFluid, "IncompressibleFluid" );
+            tIWG->set_constitutive_model( tCMMasterTurbulence, "TurbulenceFluid" );
             tIWG->set_stabilization_parameter( tSPIncFlow, "IncompressibleFlow" );
-            tIWG->set_stabilization_parameter( tSTurbulenceViscosity, "TurbulenceViscosity" );
 
             // set a fem set pointer
             MSI::Equation_Set * tSet = new fem::Set();
