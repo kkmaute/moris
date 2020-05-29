@@ -154,9 +154,11 @@ namespace moris
                 tAlpha = ( tDensity * tHeatCapacity * std::pow(mElementSize, 2.0) ) / ( 6.0 * tConductivity * tDeltat );
             }
 
+            // xi-bar value
+            moris::real tXibar = ( std::cosh( std::sqrt(6.0*tAlpha) ) + 2.0 ) / ( std::cosh( std::sqrt(6.0*tAlpha) ) - 1.0 )  -  (1.0/tAlpha);
+
             // compute stabilization parameter value
-            mPPVal = {{ ( std::pow(mElementSize, 2.0) / 6.0 )
-                    * ( ( std::cosh( std::sqrt(6.0*tAlpha) ) + 2 ) / ( std::cosh( std::sqrt(6.0*tAlpha) ) - 1 )  -  (1/tAlpha) )}};
+            mPPVal = {{  std::pow(mElementSize, 2.0) / 6.0  * tXibar }};
         }
 
 
@@ -217,11 +219,11 @@ namespace moris
             }
 
             // get derivative of SP wrt to alpha d(k*tau)/d(alpha)
-            real dGammadAlpha =
-                    -1.0 * (4.0 * std::cosh(std::sqrt(6*tAlpha)) -
-                            2.0 * std::pow(std::cosh(std::sqrt(6*tAlpha)), 2.0) +
-                            3.0 * std::sqrt(6 * std::pow(tAlpha,3) ) * std::sinh(std::sqrt(6*tAlpha)) - 2.0 ) /
-                            ( 2.0 * std::pow(tAlpha,2) * std::pow((std::cosh(std::sqrt(6*tAlpha)) - 1), 2) );
+            real dXibardAlpha =
+                    -1.0 * (4.0 * std::cosh(std::sqrt(6.0*tAlpha)) -
+                            2.0 * std::pow(std::cosh(std::sqrt(6.0*tAlpha)), 2.0) +
+                            3.0 * std::sqrt(6.0 * std::pow(tAlpha,3.0) ) * std::sinh(std::sqrt(6.0*tAlpha)) - 2.0 ) /
+                            ( 2.0 * std::pow(tAlpha,2.0) * std::pow((std::cosh(std::sqrt(6.0*tAlpha)) - 1.0), 2.0) );
 
             // if dof type is temperature
             if( aDofTypes( 0 ) == mMasterDofTemp )
@@ -233,9 +235,14 @@ namespace moris
                     moris::Matrix<DDRMat> td2fdTdDOF =
                             eval_dFdTempdDOF( tMeltTemp, tPCconst, tPSfunc, tFIDer);
 
-                    mdPPdMasterDof( tDofIndex ).matrix_data() +=
-                            dGammadAlpha * td2fdTdDOF * tDensity * tLatentHeat * std::pow(mElementSize, 2.0) /
-                            ( 6.0 * tConductivity * tDeltat );
+                    // derivative of tau wrt alpha
+                    moris::real tdtau = std::pow(mElementSize, 2.0) / 6.0 * dXibardAlpha;
+
+                    // derivative of alpha wrt temperature, except for dT/dDOF
+                    moris::real tdAlpha = tDensity * tLatentHeat * std::pow(mElementSize, 2.0) / ( 6.0 * tConductivity * tDeltat );
+
+                    // derivative of tau wrt temperature DOFs
+                    mdPPdMasterDof( tDofIndex ).matrix_data() += tdtau * tdAlpha * td2fdTdDOF;
                 }
                 // if no phase change defined, do nothing
             }
@@ -247,18 +254,18 @@ namespace moris
                 if ( tPropConductivity->check_dof_dependency( aDofTypes ) )
                 {
                     mdPPdMasterDof( tDofIndex ).matrix_data() -=
-                            dGammadAlpha * tPropConductivity->dPropdDOF( aDofTypes ) *
+                            dXibardAlpha * tPropConductivity->dPropdDOF( aDofTypes ) *
                             ( tHeatCapacity + tLatentHeat * tdfdT ) * std::pow( mElementSize, 2 ) /
-                            ( 6.0 * std::pow( tConductivity, 2 ) * tDeltat );
+                            ( 36.0 * std::pow( tConductivity, 2 ) * tDeltat );
                 }
 
                 // if indirect dependency on density
                 if ( tPropDensity->check_dof_dependency( aDofTypes ) )
                 {
                     mdPPdMasterDof( tDofIndex ).matrix_data() +=
-                            dGammadAlpha * tPropDensity->dPropdDOF( aDofTypes ) *
+                            dXibardAlpha * tPropDensity->dPropdDOF( aDofTypes ) *
                             ( tHeatCapacity + tLatentHeat * tdfdT ) * std::pow( mElementSize, 2 ) /
-                            ( 6.0 * tConductivity * tDeltat );
+                            ( 36.0 * tConductivity * tDeltat );
                 }
 
             }
@@ -270,18 +277,18 @@ namespace moris
                 if ( tPropConductivity->check_dof_dependency( aDofTypes ) )
                 {
                     mdPPdMasterDof( tDofIndex ).matrix_data() -=
-                            dGammadAlpha * tPropConductivity->dPropdDOF( aDofTypes ) *
+                            dXibardAlpha * tPropConductivity->dPropdDOF( aDofTypes ) *
                             tHeatCapacity * std::pow(mElementSize, 2.0) /
-                            ( 6.0 * std::pow(tConductivity,2) * tDeltat );
+                            ( 36.0 * std::pow(tConductivity,2) * tDeltat );
                 }
 
                 // if indirect dependency on density
                 if ( tPropDensity->check_dof_dependency( aDofTypes ) )
                 {
                     mdPPdMasterDof( tDofIndex ).matrix_data() +=
-                            dGammadAlpha * tPropDensity->dPropdDOF( aDofTypes ) *
+                            dXibardAlpha * tPropDensity->dPropdDOF( aDofTypes ) *
                             tHeatCapacity * std::pow( mElementSize, 2 ) /
-                            ( 6.0 * tConductivity * tDeltat );
+                            ( 36.0 * tConductivity * tDeltat );
                 }
             }
 
@@ -289,8 +296,8 @@ namespace moris
             if ( tPropHeatCapacity->check_dof_dependency( aDofTypes ) )
             {
                 mdPPdMasterDof( tDofIndex ).matrix_data() +=
-                        dGammadAlpha * tDensity * tPropHeatCapacity->dPropdDOF( aDofTypes ) *
-                        std::pow( mElementSize, 2 )  / ( 6.0 * tConductivity * tDeltat );
+                        dXibardAlpha * tDensity * tPropHeatCapacity->dPropdDOF( aDofTypes ) *
+                        std::pow( mElementSize, 2 )  / ( 36.0 * tConductivity * tDeltat );
             }
         }
 
