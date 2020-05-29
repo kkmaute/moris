@@ -755,6 +755,24 @@ namespace moris
 
                 //------------------------------------------------------------------------------
                 /**
+                 * evaluate the constitutive model gradient of enthalpy wrt to a dof type
+                 * @param[ in ] aDofTypes a dof type wrt which the derivative is evaluated
+                 * dgradHdDOF ( mSpaceDim x numDerDof )
+                 */
+                virtual void eval_dGradHdDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes )
+                {
+                    MORIS_ASSERT(false, "eval_dGradHdDOF: not implemented in base class.");
+                };
+
+                /**
+                 * get the gradient of enthalpy wrt dof
+                 * @param[ in ]  aDofType        group of dof type
+                 * @param[ out ] mGradHDer derivative of the gradient of enthalpy wrt dof
+                 */
+                const Matrix< DDRMat > & dGradHdDOF( const moris::Cell< MSI::Dof_Type > & aDofType);
+
+                //------------------------------------------------------------------------------
+                /**
                  * evaluate the constitutive model gradient of enthalpy change rate wrt to a dof type
                  * @param[ in ] aDofTypes a dof type wrt which the derivative is evaluated
                  * dgradHdotdDOF ( mSpaceDim x numDerDof )

@@ -1281,6 +1281,23 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+        const Matrix< DDRMat > & Constitutive_Model::gradH()
+        {
+            // if the flux was not evaluated
+            if( mGradHEval)
+            {
+                // evaluate the flux
+                this->eval_gradH();
+
+                // set bool for evaluation
+                mGradHEval = false;
+            }
+            // return the flux value
+            return mGradH;
+        }
+
+
+        //------------------------------------------------------------------------------
         const Matrix< DDRMat > & Constitutive_Model::graddivflux()
         {
             // if the flux was not evaluated
@@ -1517,12 +1534,37 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+        const Matrix< DDRMat > & Constitutive_Model::dGradHdDOF( const moris::Cell< MSI::Dof_Type > & aDofType)
+        {
+            // if aDofType is not an active dof type for the CM
+            MORIS_ERROR(
+                    this->check_dof_dependency( aDofType ),
+                    "Constitutive_Model::dGradHdDOF - no dependency on this dof type." );
+
+            // get the dof index
+            uint tDofIndex = mGlobalDofTypeMap( static_cast< uint >( aDofType( 0 ) ) );
+
+            // if the derivative has not been evaluated yet
+            if( mGradHDofEval( tDofIndex ) )
+            {
+                // evaluate the derivative
+                this->eval_dGradHdDOF( aDofType );
+
+                // set bool for evaluation
+                mGradHDofEval( tDofIndex ) = false;
+            }
+
+            // return the derivative
+            return mGradHDof( tDofIndex );
+        }
+
+        //------------------------------------------------------------------------------
         const Matrix< DDRMat > & Constitutive_Model::dGradHdotdDOF( const moris::Cell< MSI::Dof_Type > & aDofType)
         {
             // if aDofType is not an active dof type for the CM
             MORIS_ERROR(
                     this->check_dof_dependency( aDofType ),
-                    "Constitutive_Model::dHdotdDOF - no dependency in this dof type." );
+                    "Constitutive_Model::dGradHdDOF - no dependency on this dof type." );
 
             // get the dof index
             uint tDofIndex = mGlobalDofTypeMap( static_cast< uint >( aDofType( 0 ) ) );
