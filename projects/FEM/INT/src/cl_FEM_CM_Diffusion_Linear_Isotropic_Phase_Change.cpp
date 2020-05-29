@@ -152,7 +152,7 @@ namespace moris
                     tFITemp );
 
             // compute gradient of
-            mGradHdot = tDensity * ( tHeatCap + tLatHeat * tdfdT ) * tFITemp->gradx( 1 );
+            mGradH = tDensity * ( tHeatCap + tLatHeat * tdfdT ) * tFITemp->gradx( 1 );
         }
 
 

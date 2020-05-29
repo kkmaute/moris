@@ -266,20 +266,20 @@ namespace moris
             //------------------------------------------------------------------------------
 
             // evaluate the constitutive model flux derivative
-            Matrix< DDRMat > tdGradHdDOF = tCMMasterDiffLinIso->dGradHdotdDOF( { MSI::Dof_Type::TEMP } );
+            Matrix< DDRMat > tdGradHdDOF = tCMMasterDiffLinIso->dGradHdDOF( { MSI::Dof_Type::TEMP } );
             //print( tdFluxdDOF, "tdFluxdDOF");
 
             // evaluate the constitutive model stress derivative by FD
             Matrix< DDRMat > tdGradHdDOF_FD;
-            tCMMasterDiffLinIso->eval_dGradHdotdDOF_FD( { MSI::Dof_Type::TEMP }, tdGradHdotdDOF_FD, 1E-6 );
+            tCMMasterDiffLinIso->eval_dGradHdDOF_FD( { MSI::Dof_Type::TEMP }, tdGradHdDOF_FD, 1E-6 );
 
             //check stress derivative
             bool tCheckGradH = true;
-            for ( uint iStress = 0; iStress < tdGradHdotdDOF.n_rows(); iStress++ )
+            for ( uint iStress = 0; iStress < tdGradHdDOF.n_rows(); iStress++ )
             {
-                for( uint jStress = 0; jStress < tdGradHdotdDOF.n_cols(); jStress++ )
+                for( uint jStress = 0; jStress < tdGradHdDOF.n_cols(); jStress++ )
                 {
-                    tCheckGradHdot = tCheckGradHdot &&
+                    tCheckGradH = tCheckGradH &&
                             ( std::abs( tdGradHdDOF( iStress, jStress ) - tdGradHdDOF_FD( iStress, jStress ) ) <
                                     tEpsilonRel * std::abs(tdGradHdDOF( iStress, jStress )) );
 

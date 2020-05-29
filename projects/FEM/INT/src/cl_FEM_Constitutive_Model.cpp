@@ -184,6 +184,10 @@ namespace moris
             uint tNumDirectDofTypes = mDofTypes.size();
 
             // set flag for evaluation
+            mHdotDofEval.resize( tNumGlobalDofTypes, true );
+            mGradHdotDofEval.resize( tNumGlobalDofTypes, true );
+            mGradHDofEval.resize( tNumGlobalDofTypes, true );
+            mGradDivFluxDofEval.resize( tNumGlobalDofTypes, true );
             mTestTractionEval.resize( tNumDirectDofTypes, true );
             mdFluxdDofEval.resize( tNumGlobalDofTypes, true );
             mddivfluxduEval.resize( tNumGlobalDofTypes, true );
@@ -198,6 +202,10 @@ namespace moris
             mdConstdDofEval.resize( tNumGlobalDofTypes, true );
 
             // set storage for evaluation
+            mHdotDof.resize( tNumGlobalDofTypes );
+            mGradHdotDof.resize( tNumGlobalDofTypes );
+            mGradHDof.resize( tNumGlobalDofTypes );
+            mGradDivFluxDof.resize( tNumGlobalDofTypes );
             mTestTraction.resize( tNumDirectDofTypes );
             mdFluxdDof.resize( tNumGlobalDofTypes );
             mddivfluxdu.resize( tNumGlobalDofTypes );
@@ -210,14 +218,6 @@ namespace moris
             mdStraindDof.resize( tNumGlobalDofTypes );
             mddivstraindu.resize( tNumGlobalDofTypes );
             mdConstdDof.resize( tNumGlobalDofTypes );
-
-            // FIXME: Remove once unified.
-            mHdotDofEval.resize( tNumGlobalDofTypes, true );
-            mGradHdotDofEval.resize( tNumGlobalDofTypes, true );
-            mGradDivFluxDofEval.resize( tNumGlobalDofTypes, true );
-            mHdotDof.resize( tNumGlobalDofTypes );
-            mGradHdotDof.resize( tNumGlobalDofTypes );
-            mGradDivFluxDof.resize( tNumGlobalDofTypes );
         }
 
         //------------------------------------------------------------------------------

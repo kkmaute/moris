@@ -122,12 +122,12 @@ namespace moris
             {
                 // compute rate of gradient of enthalpy
                 mGradH = tPropDensity->val()( 0 ) *  tPropHeatCap->val()( 0 ) *
-                        mFIManager->get_field_interpolators_for_type( mTempDof )->gradx();
+                        mFIManager->get_field_interpolators_for_type( mTempDof )->gradx( 1 );
             }
             else
             {
                 // if no capacity or density is given, set gradH to zero
-                mGradH = 0.0 * mFIManager->get_field_interpolators_for_type( mTempDof )->gradxt();;
+                mGradH = 0.0 * mFIManager->get_field_interpolators_for_type( mTempDof )->gradx( 1 );
             }
         }
 
@@ -401,7 +401,7 @@ namespace moris
                 // compute derivative with indirect dependency through properties
                 mGradHDof( tDofIndex ).matrix_data() +=
                         tPropHeatCap->val()( 0 ) *
-                        tFITemp->gradx() *
+                        tFITemp->gradx(1) *
                         tPropDensity->dPropdDOF( aDofTypes );
             }
 
@@ -411,7 +411,7 @@ namespace moris
                 // compute derivative with indirect dependency through properties
                 mGradHDof( tDofIndex ).matrix_data() +=
                         tPropDensity->val()( 0 ) *
-                        tFITemp->gradx() *
+                        tFITemp->gradx(1) *
                         tPropHeatCap->dPropdDOF( aDofTypes );
             }
         }
