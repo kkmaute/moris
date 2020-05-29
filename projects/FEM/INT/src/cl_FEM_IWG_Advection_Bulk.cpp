@@ -193,7 +193,6 @@ namespace moris
           Matrix< DDRMat >             & aJT )
         {
             // get the res dof and the derivative dof FIs
-            Field_Interpolator * tFITemp = mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );
             Field_Interpolator * tFIDer  = mMasterFIManager->get_field_interpolators_for_type( aDofTypes( 0 ) );
 
             // get the velocity dof field interpolator
@@ -221,8 +220,9 @@ namespace moris
             if( aDofTypes( 0 ) == MSI::Dof_Type::VX )
             {
                 aJT.matrix_data() +=
-                        trans( tFITemp->gradx( 1 ) ) * tCMDiffusion->gradH();
+                        trans( tCMDiffusion->gradH() ) * tFIVelocity->N() ;
             }
+
 
         }
 
