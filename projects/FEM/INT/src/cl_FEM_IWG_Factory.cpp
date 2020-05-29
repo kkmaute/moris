@@ -46,6 +46,7 @@
 #include "cl_FEM_IWG_Time_Continuity_Dof.hpp"
 // Turbulence
 #include "cl_FEM_IWG_Spalart_Allmaras_Turbulence_Bulk.hpp"
+#include "cl_FEM_IWG_Spalart_Allmaras_Turbulence_Dirichlet.hpp"
 
 namespace moris
 {
@@ -164,6 +165,9 @@ namespace moris
 
                 case IWG_Type::SPALART_ALLMARAS_TURBULENCE_BULK :
                     return std::make_shared< IWG_Spalart_Allmaras_Turbulence_Bulk >();
+
+                case IWG_Type::SPALART_ALLMARAS_TURBULENCE_DIRICHLET :
+                    return std::make_shared< IWG_Spalart_Allmaras_Turbulence_Dirichlet >();
 
                 default:
                     MORIS_ERROR( false, " IWG_Factory::create_IWGs - IWG type specified is not defined. " );
