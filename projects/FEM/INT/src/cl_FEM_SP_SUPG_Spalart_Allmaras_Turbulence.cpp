@@ -55,7 +55,7 @@ namespace moris
                         {
                             mMasterDofVelocity = tDofType;
                         }
-                        if( tDofString == "Viscosity" )
+                        else if( tDofString == "Viscosity" )
                         {
                             mMasterDofViscosity = tDofType;
                         }
@@ -158,7 +158,7 @@ namespace moris
                     - ( mCw1 * tFw - mCb1 * tFt2 / std::pow( mKappa, 2.0 ) ) * tViscosityFI->val()( 0 ) / std::pow( tPropWallDistance->val()( 0 ), 2.0 );
 
             // evaluate tau
-            real tTau = 2.0 * tNormA / mElementSize + tK / std::pow( mElementSize, 2.0 ) - tS;
+            real tTau = 2.0 * tNormA / mElementSize + tK / std::pow( mElementSize, 2.0 ) + tS;
 
             // set tau
             mPPVal = {{ std::pow( tTau, -0.5 ) }};
@@ -253,7 +253,7 @@ namespace moris
 
                 // add contribution to dSPdu
                 mdPPdMasterDof( tDofIndex ).matrix_data() +=
-                        2.0 * trans( tA ) * tdadu / ( mElementSize * tNormA ) + tdkdu - tdsdu;
+                        2.0 * trans( tA ) * tdadu / ( mElementSize * tNormA ) + tdkdu + tdsdu;
             }
 
             if( tPropViscosity->check_dof_dependency( aDofTypes ) )
@@ -264,7 +264,7 @@ namespace moris
             }
 
             // add contribution from s
-            mdPPdMasterDof( tDofIndex ).matrix_data() -=
+            mdPPdMasterDof( tDofIndex ).matrix_data() +=
                      mCb1 * ( - tSTilde * tdft2du + ( 1 - tFt2 ) * tdstildedu )
                     - mCw1 * tViscosityFI->val()( 0 ) * tdfwdu / std::pow( tPropWallDistance->val()( 0 ), 2.0 )
                     + mCb1 * tViscosityFI->val()( 0 ) * tdft2du / std::pow( mKappa * tPropWallDistance->val()( 0 ), 2.0 );
@@ -523,7 +523,7 @@ namespace moris
             real tFv1 = this->compute_fv1();
 
             // compute fv2
-            real tFv2 = 1.0 - tChi / ( 1 + tChi * tFv1 );
+            real tFv2 = 1.0 - tChi / ( 1.0 + tChi * tFv1 );
 
             return tFv2;
         }
@@ -665,7 +665,8 @@ namespace moris
             real tR = tFIViscosity->val()( 0 ) / ( tSTilde * std::pow( mKappa * tPropWallDistance->val()( 0 ), 2.0 ) );
 
             // compute r
-            if ( tR > 10.0 )
+            Matrix< DDRMat > tRMatrix = {{ tR }};
+            if ( ( tR > 10.0 ) || !( isfinite( tRMatrix ) ) )
             {
                 tR = 10.0;
             }
