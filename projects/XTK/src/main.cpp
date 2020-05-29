@@ -35,7 +35,7 @@
 #include "fn_compute_interface_surface_area.hpp"
 
 //------------------------------------------------------------------------------
-#include "cl_GEN_Geometry_Analytic.hpp"
+#include "cl_GEN_Geometry.hpp"
 #include "cl_GEN_Plane.hpp"
 #include "cl_GEN_Sphere.hpp"
 #include "cl_GEN_Sphere_Box.hpp"
@@ -60,10 +60,10 @@ get_index_in_cell(Cell<std::string> & aLabels,
 }
 
 
-moris::ge::Geometry_Analytic*
+moris::ge::Geometry*
 geometry_parse_factory(XTK_Problem_Params & aXTKProblemParams)
 {
-  moris::ge::Geometry_Analytic* tGeometry = nullptr;
+  moris::ge::Geometry* tGeometry = nullptr;
   if (aXTKProblemParams.mGeometryName == "sphere")
     {
       MORIS_ERROR( aXTKProblemParams.mRealGeomParams.size() == 4,"For a parsed sphere geometry there needs to be 4 parameters, r, xc, yc, zc");
@@ -219,9 +219,9 @@ void run_xtk_problem(XTK_Problem_Params & aXTKProblemParams)
          // setup the geometry
          //TODO: support multiple geometries
          tOpTimer = std::clock();
-         Cell<std::shared_ptr<moris::ge::Geometry_Analytic>> tGeometry;
+         Cell<std::shared_ptr<moris::ge::Geometry>> tGeometry;
          tGeometry.resize(1);
-         tGeometry(0) = std::shared_ptr<moris::ge::Geometry_Analytic>(geometry_parse_factory(aXTKProblemParams));
+         tGeometry(0) = std::shared_ptr<moris::ge::Geometry>(geometry_parse_factory(aXTKProblemParams));
          tGeometryTime = (std::clock() - tOpTimer)/(CLOCKS_PER_SEC/1000);
 
           // setup the geometry engine

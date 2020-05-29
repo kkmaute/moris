@@ -47,7 +47,7 @@
 #include "cl_XTK_Cell_Cluster.hpp"
 
 #include "cl_GEN_Discrete_Level_Set.hpp"
-#include "cl_GEN_Geometry_Analytic.hpp"
+#include "cl_GEN_Geometry.hpp"
 #include "cl_GEN_Plane.hpp"
 
 namespace xtk
@@ -110,7 +110,7 @@ TEST_CASE("2 Element Enrichment 2D","[ENRICH_1E_2D]")
 
         tMeshData->add_mesh_field_real_scalar_data_loc_inds(tLSFName, moris::EntityRank::NODE, tLevelsetVal);
 
-        Cell<std::shared_ptr<ge::Geometry_Discrete>> tGeometry(1);
+        Cell<std::shared_ptr<ge::Geometry>> tGeometry(1);
         tGeometry(0) = std::make_shared<moris::ge::Discrete_Level_Set>(tMeshData, Cell<std::string>(1, tLSFName));
 
         moris::ge::Phase_Table tPhaseTable (1, moris::ge::Phase_Table_Structure::EXP_BASE_2);

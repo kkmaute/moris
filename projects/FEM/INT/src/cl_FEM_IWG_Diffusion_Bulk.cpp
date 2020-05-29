@@ -149,39 +149,6 @@ namespace moris
                     }
                 }
 
-                //                if( tPropDensity != nullptr && tPropHeatCapacity != nullptr )
-                //                {
-                //                    // if residual dof type (here temperature)
-                //                    if( tDofType( 0 ) == mResidualDofType( 0 ) )
-                //                    {
-                //                        // add contribution to jacobian
-                //                        mSet->get_jacobian()(
-                //                                { tMasterResStartIndex, tMasterResStopIndex },
-                //                                { tMasterDepStartIndex, tMasterDepStopIndex } )
-                //                                += aWStar * ( tPropDensity->val()( 0 ) * tPropHeatCapacity->val()( 0 ) * trans( tFITemp->N() ) * tFITemp->dnNdtn( 1 ) );
-                //                    }
-                //
-                //                    // if density property has dependency on the dof type
-                //                    if ( tPropDensity->check_dof_dependency( tDofType ) )
-                //                    {
-                //                        // add contribution to jacobian
-                //                        mSet->get_jacobian()(
-                //                                { tMasterResStartIndex, tMasterResStopIndex },
-                //                                { tMasterDepStartIndex, tMasterDepStopIndex } )
-                //                                += aWStar * ( tPropHeatCapacity->val()( 0 ) * trans( tFITemp->N() ) * tFITemp->gradt( 1 ) * tPropDensity->dPropdDOF( tDofType ) );
-                //                    }
-                //
-                //                    // if heat capacity property has dependency on the dof type
-                //                    if ( tPropHeatCapacity->check_dof_dependency( tDofType ) )
-                //                    {
-                //                        // add contribution to jacobian
-                //                        mSet->get_jacobian()(
-                //                                { tMasterResStartIndex, tMasterResStopIndex },
-                //                                { tMasterDepStartIndex, tMasterDepStopIndex } )
-                //                                += aWStar * ( tPropDensity->val()( 0 ) * trans( tFITemp->N() ) * tFITemp->gradt( 1 ) * tPropHeatCapacity->dPropdDOF( tDofType ) );
-                //                    }
-                //                }
-
                 // if constitutive model has dependency on the dof type
                 if ( tCMDiffusion->check_dof_dependency( tDofType ) )
                 {
@@ -199,23 +166,22 @@ namespace moris
                 if ( tGGLSParam != nullptr )
                 {
                     // FIXME: spatial derivative of body load property needed
-                    // if body load
-                    //                     if ( tPropLoad != nullptr )
-                    //                     {
-                    //                         // if body load property has dependency on the dof type
-                    //                         if ( tPropLoad->check_dof_dependency( tDofType ) )
-                    //                         {
-                    //                             // compute contribution of body load to jacobian
-                    //                             mSet->get_jacobian()( { tMasterResStartIndex, tMasterResStopIndex },
-                    //                                                   { tMasterDepStartIndex, tMasterDepStopIndex } )
-                    //                             -= aWStar * ( trans( tFITemp->N() ) * tGGLSParam->val()( 0 ) * tPropLoad->dPropdDOF( tDofType ) );
-                    //                         }
-                    //                     }
+                    // // if body load
+                    // if ( tPropLoad != nullptr )
+                    // {
+                    //     // if body load property has dependency on the dof type
+                    //     if ( tPropLoad->check_dof_dependency( tDofType ) )
+                    //     {
+                    //         // compute contribution of body load to jacobian
+                    //         mSet->get_jacobian()( { tMasterResStartIndex, tMasterResStopIndex },
+                    //                 { tMasterDepStartIndex, tMasterDepStopIndex } )
+                    //                 -= aWStar * ( trans( tFITemp->N() ) * tGGLSParam->val()( 0 ) * tPropLoad->dPropdDOF( tDofType ) );
+                    //     }
+                    // }
 
                     // if constitutive model has dependency on the dof type
                     if ( tCMDiffusion->check_dof_dependency( tDofType ) )
                     {
-                        // FIXME: remove cast
                         // compute the jacobian
                         mSet->get_jacobian()(
                                 { tMasterResStartIndex, tMasterResStopIndex },
@@ -223,6 +189,15 @@ namespace moris
                                         aWStar * ( trans( tCMDiffusion->testStrain() ) * tGGLSParam->val()(0) *
                                                 ( tCMDiffusion->dGradHdotdDOF( tDofType ) - tCMDiffusion->dGradDivFluxdDOF( tDofType ) ) );
                     }
+
+                    // add contribution from stabilization parameter
+                    mSet->get_jacobian()(
+                            { tMasterResStartIndex, tMasterResStopIndex },
+                            { tMasterDepStartIndex, tMasterDepStopIndex } ) +=
+                                    aWStar * trans( tCMDiffusion->testStrain() ) *
+                                    (  ( tCMDiffusion->gradHdot() - tCMDiffusion->graddivflux() ) *
+                                            tGGLSParam->dSPdMasterDOF( tDofType ) );
+
                 }
 
             }

@@ -2,7 +2,6 @@
 #define PROJECTS_GEN_SRC_NEW_ADDITIONAL_CL_GEN_PHASE_TABLE_HPP_
 
 #include "cl_Matrix.hpp"
-#include "../additional/cl_GEN_Matrix_Base_Utilities.hpp"
 
 namespace moris
 {

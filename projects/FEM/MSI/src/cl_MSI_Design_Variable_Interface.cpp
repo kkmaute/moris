@@ -29,6 +29,8 @@ namespace moris
         {
             Matrix<DDRMat> tSensitivities;
             mModel->get_dQidu()->extract_copy(tSensitivities);
+
+            //print( tSensitivities, "tSensitivities");
             return trans(tSensitivities);
         }
 

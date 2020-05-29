@@ -1,30 +1,25 @@
-//
-// Created by christopherson on 5/19/20.
-//
-
-#ifndef MORIS_CL_GEN_PDV_PROPERTY_HPP
-#define MORIS_CL_GEN_PDV_PROPERTY_HPP
+#ifndef MORIS_CL_GEN_PDV_VALUE_HPP
+#define MORIS_CL_GEN_PDV_VALUE_HPP
 
 #include "cl_GEN_Pdv.hpp"
-#include "cl_GEN_Property.hpp"
 
 namespace moris
 {
     namespace ge
     {
-        class Pdv_Property : public Pdv
+        class Pdv_Value : public Pdv
         {
 
         private:
-            std::shared_ptr<Property> mProperty;
+            real mValue;
 
         public:
             /**
              * Constructor
              *
-             * @param aPropertyPointer a GEN property pointer
+             * @param aValue Constant value for this PDV
              */
-            Pdv_Property(std::shared_ptr<Property> aPropertyPointer);
+            Pdv_Value(real aValue);
 
             /**
              * Get the PDV value
@@ -42,10 +37,10 @@ namespace moris
              * @param aCoordinates Coordinate values
              * @param aSensitivities Matrix of sensitivities to be returned
              */
-            virtual void get_sensitivity(uint aNodeIndex, const Matrix<DDRMat>& aCoordinates, Matrix<DDRMat>& aSensitivities);
+            void get_sensitivity(uint aNodeIndex, const Matrix<DDRMat>& aCoordinates, Matrix<DDRMat>& aSensitivities);
 
         };
     }
 }
 
-#endif //MORIS_CL_GEN_PDV_PROPERTY_HPP
+#endif //MORIS_CL_GEN_PDV_VALUE_HPP

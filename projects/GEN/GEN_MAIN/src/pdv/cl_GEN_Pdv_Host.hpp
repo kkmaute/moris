@@ -2,7 +2,6 @@
 #define MORIS_CL_GEN_PDV_Type_HOST_HPP_
 
 // GEN_MAIN
-#include "cl_GEN_Field.hpp"
 #include "cl_GEN_Pdv.hpp"
 #include "cl_GEN_Pdv_Property.hpp"
 
@@ -51,15 +50,6 @@ namespace moris
             uint add_pdv_types(const Cell<PDV_Type>& aPdvTypes, uint aStartingGlobalIndex);
             
             /**
-             * Create PDV_Type with GEN field
-             *
-             * @param aPdvType PDV_Type type
-             * @param aFieldPointer Pointer to a GEN field
-             * @param aNodeIndex Node index for pulling a value from the field
-             */
-            void create_pdv(PDV_Type aPdvType, std::shared_ptr<GEN_Field> aFieldPointer, uint aNodeIndex);
-            
-            /**
              * Create PDV_Type with GEN property
              *
              * @param aPdvType PDV_Type type
@@ -100,12 +90,26 @@ namespace moris
             uint get_global_index_for_pdv_type(PDV_Type aPdvType);
 
             /**
+             * Get all of the global PDV indices on this host
+             *
+             * @param aGlobalPdvIndices matrix of indices to be returned
+             */
+            const Matrix<DDUMat>& get_all_global_indices();
+
+            /**
              * Get the value of a PDV_Type by type
              *
              * @param aPdvType PDV_Type type
-             * @return PDV_Type value
+             * @return Value on this PDV
              */
             real get_pdv_value(PDV_Type aPdvType);
+
+            /**
+             * Gets all of the sensitivity vectors on each PDV
+             *
+             * @param aSensitivities
+             */
+            void get_all_sensitivities(Matrix<DDRMat>& aSensitivities);
             
         };
     }  // end ge namepsace

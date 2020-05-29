@@ -36,6 +36,7 @@ namespace moris
                     GRAVITY,
                     THERMAL_EXPANSION,
                     REF_TEMP,
+                    INV_PERMEABILITY,
                     MAX_ENUM
                 };
 

@@ -10,14 +10,14 @@
 
 #include <cmath>
 
-#include "cl_GEN_Geometry_Analytic.hpp"
+#include "cl_GEN_Geometry.hpp"
 #include "cl_GEN_Field_Analytic.hpp"
 
 namespace moris
 {
 namespace ge
 {
-class Sphere : public Geometry_Analytic, public Field_Analytic
+class Sphere : public Geometry, public Field_Analytic
 {
 public:
 

@@ -25,6 +25,7 @@ namespace moris
             // populate the map
             mPropertyMap[ "Density" ]   = Property_Type::DENSITY;
             mPropertyMap[ "Viscosity" ] = Property_Type::VISCOSITY;
+            mPropertyMap[ "InvPermeability" ]  = Property_Type::INV_PERMEABILITY;
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -136,12 +137,16 @@ namespace moris
                     mMasterFIManager->get_field_interpolators_for_type( mMasterDofVelocity );
 
             // get the density and viscosity properties
-            std::shared_ptr< Property > tDensityProp   = mMasterProp( static_cast< uint >( Property_Type::DENSITY ) );
-            std::shared_ptr< Property > tViscosityProp = mMasterProp( static_cast< uint >( Property_Type::VISCOSITY ) );
+            std::shared_ptr< Property > tDensityProp    = mMasterProp( static_cast< uint >( Property_Type::DENSITY ) );
+            std::shared_ptr< Property > tViscosityProp  = mMasterProp( static_cast< uint >( Property_Type::VISCOSITY ) );
+            std::shared_ptr< Property > tInvPermeabProp = mMasterProp( static_cast< uint >( Property_Type::INV_PERMEABILITY ) );
 
             // get the density and viscosity value
             real tDensity   = tDensityProp->val()( 0 );
             real tViscosity = tViscosityProp->val()( 0 );
+            real tInvPermeab = 0.0;
+            if (tInvPermeabProp != nullptr)
+                tInvPermeab = tInvPermeabProp->val()( 0 );
 
             // get the parameter
             real tCI = mParameters( 0 )( 0 );
@@ -164,7 +169,8 @@ namespace moris
             Matrix< DDRMat > tGijGij  = tFlatG * trans( tFlatG );
             real tPPVal = std::pow( 2.0 * tDensity / tDeltaT, 2.0 )
             + std::pow( tDensity, 2.0 ) * tvivjGij( 0 )
-            + tCI * std::pow( tViscosity, 2.0 ) * tGijGij( 0 );
+            + tCI * std::pow( tViscosity, 2.0 ) * tGijGij( 0 )
+            + std::pow( tInvPermeab, 2.0 );
             mPPVal( 0 ) = std::pow( tPPVal, -0.5 );
 
             // evaluate tauC = mPPVal( 1 )
@@ -187,8 +193,9 @@ namespace moris
             Field_Interpolator * tVelocityFI = mMasterFIManager->get_field_interpolators_for_type( mMasterDofVelocity );
 
             // get the density and viscosity properties
-            std::shared_ptr< Property > tDensityProp   = mMasterProp( static_cast< uint >( Property_Type::DENSITY ) );
-            std::shared_ptr< Property > tViscosityProp = mMasterProp( static_cast< uint >( Property_Type::VISCOSITY ) );
+            std::shared_ptr< Property > tDensityProp    = mMasterProp( static_cast< uint >( Property_Type::DENSITY ) );
+            std::shared_ptr< Property > tViscosityProp  = mMasterProp( static_cast< uint >( Property_Type::VISCOSITY ) );
+            std::shared_ptr< Property > tInvPermeabProp = mMasterProp( static_cast< uint >( Property_Type::INV_PERMEABILITY ) );
 
             // get the density and viscosity value
             real tDensity   = tDensityProp->val()( 0 );
@@ -238,6 +245,16 @@ namespace moris
                 mdPPdMasterDof( tDofIndex ).get_row( 0 ) +=
                         -0.5 * std::pow( this->val()( 0 ), 3 ) *
                         ( tCI * 2.0 * tViscosity * tGijGij * tViscosityProp->dPropdDOF( aDofTypes ) );
+            }
+
+            // if permeability
+            if (tInvPermeabProp != nullptr)
+            {
+                if( tInvPermeabProp->check_dof_dependency( aDofTypes ) )
+                {
+                    mdPPdMasterDof( tDofIndex ).get_row( 0 ) -=
+                            tInvPermeabProp->val()(0) * std::pow( this->val()( 0 ), 3.0 ) * tInvPermeabProp->dPropdDOF( aDofTypes );
+                }
             }
 
             // dtauCdDOF

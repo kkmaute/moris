@@ -72,7 +72,7 @@
 #include "cl_SOL_Warehouse.hpp"
 #include "fn_norm.hpp"
 
-#include "cl_GEN_Geometry_Analytic.hpp"
+#include "cl_GEN_Geometry.hpp"
 #include "cl_GEN_Plane.hpp"
 
 
@@ -94,7 +94,7 @@ TEST_CASE("XTK Cut Diffusion Model","[XTK_DIFF]")
     {
         moris::Matrix<moris::DDRMat> tCenters = {{ 1.0,1.0,3.1 }};
         moris::Matrix<moris::DDRMat> tNormals = {{ 0.0,0.0,1.0 }};
-        Cell<std::shared_ptr<moris::ge::Geometry_Analytic>> tGeometry(1);
+        Cell<std::shared_ptr<moris::ge::Geometry>> tGeometry(1);
         tGeometry(0) = std::make_shared<moris::ge::Plane>(tCenters(0), tCenters(1), tCenters(2), tNormals(0), tNormals(1), tNormals(2));
 
         moris::ge::Phase_Table tPhaseTable (1,  "exp_base_2");
@@ -370,7 +370,7 @@ TEST_CASE("XTK STK Cut Diffusion Model","[XTK_STK_DIFF]")
         Matrix<DDRMat> tCenter = {{1.0,1.0,3.51}};
         Matrix<DDRMat> tNorms  = {{0.0,0.0,1.0}};
 
-        moris::Cell<std::shared_ptr<moris::ge::Geometry_Analytic>> tGeometryVector(1);
+        moris::Cell<std::shared_ptr<moris::ge::Geometry>> tGeometryVector(1);
         tGeometryVector(0) = std::make_shared<moris::ge::Plane>(tCenter(0), tCenter(1), tCenter(2), tNorms(0), tNorms(1), tNorms(2));
 
         ge::Phase_Table tPhaseTable (1,  ge::Phase_Table_Structure::EXP_BASE_2);

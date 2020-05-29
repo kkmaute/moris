@@ -1,4 +1,6 @@
 #include "cl_GEN_Pdv_Host.hpp"
+#include "cl_GEN_Pdv_Value.hpp"
+#include "cl_GEN_Pdv_Property.hpp"
 
 namespace moris
 {
@@ -59,18 +61,6 @@ namespace moris
         }
 
         //--------------------------------------------------------------------------------------------------------------
-        
-        void Pdv_Host::create_pdv(PDV_Type aPdvType, std::shared_ptr<GEN_Field> aFieldPointer, uint aNodeIndex)
-        {
-            // Check PDV_Type type
-            MORIS_ASSERT(mPdvTypeMap.key_exists(aPdvType),
-                    "Tried to call Pdv_Host.create_pdv() using GEN field with PDV_Type type that doesn't exist on this host.");
-
-            // create a pdv with field pointer
-            mPdvList(mPdvTypeMap[aPdvType]) = std::make_shared<Pdv>(aFieldPointer, aNodeIndex);
-        }
-
-        //--------------------------------------------------------------------------------------------------------------
 
         void Pdv_Host::create_pdv(PDV_Type aPdvType, std::shared_ptr<Property> aPropertyPointer)
         {
@@ -84,14 +74,14 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        void Pdv_Host::create_pdv(PDV_Type aPdvType, moris::real aPdvVal)
+        void Pdv_Host::create_pdv(PDV_Type aPdvType, real aPdvVal)
         {
             // Check PDV_Type type
             MORIS_ASSERT(mPdvTypeMap.key_exists(aPdvType),
                     "Tried to call Pdv_Host.create_pdv() using pdv value with PDV_Type type that doesn't exist on this host.");
 
             // create a pdv with pdv value
-            mPdvList(mPdvTypeMap[aPdvType]) = std::make_shared< Pdv >(aPdvVal );
+            mPdvList(mPdvTypeMap[aPdvType]) = std::make_shared< Pdv_Value >(aPdvVal);
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -132,6 +122,13 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
+        const Matrix<DDUMat>& Pdv_Host::get_all_global_indices()
+        {
+            return mGlobalPdvIndices;
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
         real Pdv_Host::get_pdv_value(PDV_Type aPdvType)
         {
             // Check PDV_Type type
@@ -140,6 +137,23 @@ namespace moris
 
             // Return value
             return mPdvList(mPdvTypeMap[aPdvType])->get_value(mNodeIndex, mCoordinates);
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
+        void Pdv_Host::get_all_sensitivities(Matrix<DDRMat>& aSensitivities)
+        {
+            if (mPdvList.size() > 0)
+            {
+                mPdvList(0)->get_sensitivity(mNodeIndex, mCoordinates, aSensitivities);
+                aSensitivities.resize(mPdvList.size(), aSensitivities.n_cols());
+                Matrix<DDRMat> tSensitivities(0, 0);
+                for (uint tPdvIndex = 0; tPdvIndex < mPdvList.size(); tPdvIndex++)
+                {
+                    mPdvList(tPdvIndex)->get_sensitivity(mNodeIndex, mCoordinates, tSensitivities);
+                    aSensitivities.set_row(tPdvIndex, tSensitivities);
+                }
+            }
         }
 
         //--------------------------------------------------------------------------------------------------------------

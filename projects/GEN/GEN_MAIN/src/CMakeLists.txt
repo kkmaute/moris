@@ -7,44 +7,42 @@ set(${GEN_MAIN}_VERSION ${MORIS_VERSION})
 # List header files
 set(HEADERS
 
+	cl_GEN_Geometry_Engine.hpp
+	cl_GEN_Geometry_Object_Manager.hpp
+	cl_GEN_Geometry_Object.hpp
+	cl_GEN_Phase_Table.hpp
 	cl_GEN_Field_Base.hpp
 	cl_GEN_Field_Analytic.hpp
 	cl_GEN_Field_Discrete.hpp
+	fn_GEN_Matrix_Base_Utilities.hpp
+	fn_GEN_bubble_sort.hpp
+	fn_GEN_approximate.hpp
+	fn_GEN_Triangle_Geometry.hpp
 
-	additional/cl_GEN_Basis_Function.hpp
-	additional/cl_GEN_Edge_Topology.hpp
-	additional/cl_GEN_Enums.hpp
-	additional/cl_GEN_Hexahedron_8_Topology.hpp
-	additional/cl_GEN_Hexahedron_8_Basis_Function.hpp	
-	additional/cl_GEN_Interpolation.hpp
-	additional/cl_GEN_Linear_Basis_Functions.hpp
-	additional/cl_GEN_Matrix_Base_Utilities.hpp
-	additional/cl_GEN_Pending_Node.hpp
-	additional/cl_GEN_Phase_Table.hpp
-	additional/cl_GEN_Quad_4_Basis_Function.hpp
-	additional/cl_GEN_Quad_4_Topology.hpp
-	additional/cl_GEN_Topology.hpp
-	additional/fn_GEN_approximatate.hpp
-	additional/fn_GEN_bubble_sort.hpp
+	topology/cl_GEN_Basis_Function.hpp
+	topology/cl_GEN_Edge_Topology.hpp
+	topology/cl_GEN_Hexahedron_8_Topology.hpp
+	topology/cl_GEN_Hexahedron_8_Basis_Function.hpp
+	topology/cl_GEN_Interpolation.hpp
+	topology/cl_GEN_Linear_Basis_Functions.hpp
 
-	gemoeng/cl_GEN_Field.hpp
-	geomeng/cl_GEN_Geometry_Engine.hpp
-	geomeng/cl_GEN_Geometry_Onject_Manager.hpp
-	geomeng/cl_GEN_Geometry_Object.hpp
-	geomeng/cl_GEN_Pdv.hpp
-	geomeng/cl_GEN_Pdv_Property.hpp
-	geomeng/cl_GEN_Pdv_Host.hpp
-	geomeng/cl_GEN_Pdv_Host_Manager.hpp
-	geomeng/fn_GEN_Triangle_Geometry.hpp
+	topology/cl_GEN_Pending_Node.hpp
+	topology/cl_GEN_Quad_4_Basis_Function.hpp
+	topology/cl_GEN_Quad_4_Topology.hpp
+	topology/cl_GEN_Topology.hpp
 
-    geometry/cl_GEN_Geometry_Analytic.hpp
-	geometry/cl_GEN_Geometry_Discrete.hpp
+	pdv/cl_GEN_Pdv_Host_Manager.hpp
+	pdv/cl_GEN_Pdv_Host.hpp
+	pdv/cl_GEN_Pdv.hpp
+	pdv/cl_GEN_Pdv_Value.hpp
+	pdv/cl_GEN_Pdv_Property.hpp
+
+	geometry/cl_GEN_Geometry.hpp
 	geometry/cl_GEN_Circle.hpp
 #	geometry/cl_GEN_Cylinder_With_End_Caps.hpp
 	geometry/cl_GEN_Discrete_Level_Set.hpp
 #	geometry/cl_GEN_Geom_Data.hpp
 	geometry/cl_GEN_Geometry_Field_HMR.hpp
-	geometry/cl_GEN_Geometry_Field.hpp
 #	geometry/cl_GEN_Sphere.hpp
 	geometry/cl_GEN_User_Defined_Geometry.hpp
 #	geometry/fn_bounding_box.hpp
@@ -60,10 +58,11 @@ set(HEADERS
     
 # List header dependencies                                                                                                                                                                                                                                                     
 set(GEN_INCLUDES                                                                                                                                                                                                                                                               
-    "additional"
-    "geomeng"
+    "topology"
+    "pdv"
     "geometry"
     "property"
+	"topology"
     )
 
 # Include depedency directories
@@ -80,7 +79,7 @@ set(XTK_INCLUDES
     "assert"
     "containers"
     "core"
-    "geomeng"
+    "pdv"
     "geometry"
     "ios"
     "linalg"
@@ -100,21 +99,20 @@ endforeach()
 # List library source files
 set(LIB_SOURCES
 
+	cl_GEN_Geometry_Engine.cpp
+	cl_GEN_Geometry_Object.cpp
+	cl_GEN_Phase_Table.cpp
 	cl_GEN_Field_Base.cpp
 	cl_GEN_Field_Analytic.cpp
 	cl_GEN_Field_Discrete.cpp
 
-	additional/cl_GEN_Phase_Table.cpp
+	pdv/cl_GEN_Pdv_Host_Manager.cpp
+	pdv/cl_GEN_Pdv_Host.cpp
+	pdv/cl_GEN_Pdv.cpp
+	pdv/cl_GEN_Pdv_Value.cpp
+	pdv/cl_GEN_Pdv_Property.cpp
 
-	geomeng/cl_GEN_Geometry_Engine.cpp
-	geomeng/cl_GEN_Geometry_Object.cpp
-	geomeng/cl_GEN_Pdv_Host_Manager.cpp
-	geomeng/cl_GEN_Pdv_Host.cpp
-	geomeng/cl_GEN_Pdv.cpp
-	geomeng/cl_GEN_Pdv_Property.cpp
-
-    geometry/cl_GEN_Geometry_Analytic.cpp
-	geometry/cl_GEN_Geometry_Discrete.cpp
+	geometry/cl_GEN_Geometry.cpp
 	geometry/fn_GEN_create_geometry.cpp
 	geometry/cl_GEN_Circle.cpp
 	geometry/cl_GEN_Plane.cpp
