@@ -18,10 +18,6 @@ namespace moris
             // set size for the property pointer cell
             mMasterProp.resize( static_cast< uint >( IWG_Property_Type::MAX_ENUM ), nullptr );
 
-            // populate the property map
-            mPropertyMap[ "Density" ] = IWG_Property_Type::DENSITY;
-            mPropertyMap[ "HeatCapacity" ] = IWG_Property_Type::HEAT_CAPACITY;
-
             // set size for the constitutive model pointer cell
             mMasterCM.resize( static_cast< uint >( IWG_Constitutive_Type::MAX_ENUM ), nullptr );
 
@@ -55,15 +51,9 @@ namespace moris
             // FIXME protect dof type
             Field_Interpolator* tFIVelocity = mMasterFIManager->get_field_interpolators_for_type( MSI::Dof_Type::VX );
 
-            // get density property
-            std::shared_ptr< Property > tPropDensity
-            = mMasterProp( static_cast< uint >( IWG_Property_Type::DENSITY ) );
-            real tDensity = tPropDensity->val()( 0 );
-
-            // get the heat capacity property
-            std::shared_ptr< Property > tPropHeatCapacity
-            = mMasterProp( static_cast< uint >( IWG_Property_Type::HEAT_CAPACITY ) );
-            real tHeatCapacity = tPropHeatCapacity->val()( 0 );
+            // get the diffusion CM
+            std::shared_ptr< Constitutive_Model > tCMDiffusion =
+                    mMasterCM( static_cast< uint >( IWG_Constitutive_Type::DIFFUSION ) );
 
             // get the SUPG stabilization parameter
             std::shared_ptr< Stabilization_Parameter > tSPSUPG
@@ -76,8 +66,8 @@ namespace moris
             // compute the residual
             mSet->get_residual()( 0 )( { tMasterResStartIndex, tMasterResStopIndex }, { 0, 0 } )
             += aWStar
-             * (   tDensity * tHeatCapacity * trans( tFITemp->N() ) * trans( tFIVelocity->val() ) * tFITemp->gradx( 1 )
-                 + tSPSUPG->val()( 0 ) * trans( tFITemp->dnNdxn( 1 ) ) * tFIVelocity->val() * tRT( 0, 0 ) / ( tDensity * tHeatCapacity ) );
+             * (   trans( tFITemp->N() ) * trans( tFIVelocity->val() ) * tCMDiffusion->gradH()
+                     + tSPSUPG->val()( 0 ) * trans( tFITemp->dnNdxn( 1 ) ) * tFIVelocity->val() * tRT( 0, 0 ) );
         }
 
 //------------------------------------------------------------------------------
@@ -100,15 +90,9 @@ namespace moris
             // FIXME protect dof type
             Field_Interpolator* tFIVelocity = mMasterFIManager->get_field_interpolators_for_type( MSI::Dof_Type::VX );
 
-            // get density property
-            std::shared_ptr< Property > tPropDensity
-            = mMasterProp( static_cast< uint >( IWG_Property_Type::DENSITY ) );
-            real tDensity = tPropDensity->val()( 0 );
-
-            // get the heat capacity property
-            std::shared_ptr< Property > tPropHeatCapacity
-            = mMasterProp( static_cast< uint >( IWG_Property_Type::HEAT_CAPACITY ) );
-            real tHeatCapacity = tPropHeatCapacity->val()( 0 );
+            // get the diffusion CM
+            std::shared_ptr< Constitutive_Model > tCMDiffusion =
+                    mMasterCM( static_cast< uint >( IWG_Constitutive_Type::DIFFUSION ) );
 
             // get the SUPG stabilization parameter
             std::shared_ptr< Stabilization_Parameter > tSPSUPG
@@ -139,7 +123,7 @@ namespace moris
                     mSet->get_jacobian()( { tMasterResStartIndex, tMasterResStopIndex },
                                           { tMasterDepStartIndex, tMasterDepStopIndex } )
                     += aWStar
-                     * ( tDensity * tHeatCapacity * trans( tFITemp->N() ) * trans( tFIVelocity->val() ) * tFITemp->dnNdxn( 1 ) );
+                     * ( trans( tFITemp->N() ) * trans( tFIVelocity->val() ) * tCMDiffusion->dGradHdDOF( tDofType ) );
                 }
 
                 // if velocity dof type
@@ -150,8 +134,8 @@ namespace moris
                     mSet->get_jacobian()( { tMasterResStartIndex, tMasterResStopIndex },
                                           { tMasterDepStartIndex, tMasterDepStopIndex } )
                     += aWStar
-                     * (   tDensity * tHeatCapacity * trans( tFITemp->N() ) * trans( tFITemp->gradx( 1 ) ) * tFIVelocity->N()
-                         + tSPSUPG->val()( 0 ) * trans( tFITemp->dnNdxn( 1 ) ) * tFIVelocity->N() * tRT( 0, 0 ) / ( tDensity * tHeatCapacity ) );
+                     * (   trans( tFITemp->N() ) * trans( tCMDiffusion->gradH() ) * tFIVelocity->N()
+                         + tSPSUPG->val()( 0 ) * trans( tFITemp->dnNdxn( 1 ) ) * tFIVelocity->N() * tRT( 0, 0 )  );
                 }
 
                 // compute the jacobian strong form
@@ -161,29 +145,7 @@ namespace moris
                 // compute the jacobian contribution from strong form
                 mSet->get_jacobian()( { tMasterResStartIndex, tMasterResStopIndex },
                                       { tMasterDepStartIndex, tMasterDepStopIndex } )
-                += aWStar * ( tSPSUPG->val()( 0 ) * trans( tFITemp->dnNdxn( 1 ) ) * tFIVelocity->val() * tJT / ( tDensity * tHeatCapacity ) );
-
-                // if density depends on dof type
-                if ( tPropDensity->check_dof_dependency( tDofType ) )
-                {
-                    // add contribution to jacobian
-                    mSet->get_jacobian()( { tMasterResStartIndex, tMasterResStopIndex },
-                                          { tMasterDepStartIndex, tMasterDepStopIndex } )
-                    += aWStar
-                     * (   tHeatCapacity * trans( tFITemp->N() ) * trans( tFIVelocity->val() ) * tFITemp->gradx( 1 ) * tPropDensity->dPropdDOF( tDofType )
-                         - tSPSUPG->val()( 0 ) * trans( tFITemp->dnNdxn( 1 ) ) * tFIVelocity->val() * tRT( 0, 0 ) * tPropDensity->dPropdDOF( tDofType ) / ( std::pow( tDensity, 2.0 ) * tHeatCapacity ) );
-                }
-
-                // if heat capacity depends on dof type
-                if ( tPropHeatCapacity->check_dof_dependency( tDofType ) )
-                {
-                    // add contribution to jacobian
-                    mSet->get_jacobian()( { tMasterResStartIndex, tMasterResStopIndex },
-                                          { tMasterDepStartIndex, tMasterDepStopIndex } )
-                    += aWStar
-                     * (   tDensity * trans( tFITemp->N() ) * trans( tFIVelocity->val() ) * tFITemp->gradx( 1 ) * tPropHeatCapacity->dPropdDOF( tDofType )
-                         - tSPSUPG->val()( 0 ) * trans( tFITemp->dnNdxn( 1 ) ) * tFIVelocity->val() * tRT( 0, 0 ) * tPropHeatCapacity->dPropdDOF( tDofType ) / ( tDensity * std::pow( tHeatCapacity, 2.0 ) ) );
-                }
+                += aWStar * ( tSPSUPG->val()( 0 ) * trans( tFITemp->dnNdxn( 1 ) ) * tFIVelocity->val() * tJT );
 
                 // if SUPG stabilization parameter depends on dof type
                 if( tSPSUPG->check_dof_dependency( tDofType ) )
@@ -192,7 +154,7 @@ namespace moris
                     mSet->get_jacobian()( { tMasterResStartIndex, tMasterResStopIndex },
                                           { tMasterDepStartIndex, tMasterDepStopIndex } )
                     += aWStar
-                     * ( trans( tFITemp->dnNdxn( 1 ) ) * tFIVelocity->val() * tRT( 0, 0 ) * tSPSUPG->dSPdMasterDOF( tDofType ) / ( tDensity * tHeatCapacity ) );
+                     * ( trans( tFITemp->dnNdxn( 1 ) ) * tFIVelocity->val() * tRT( 0, 0 ) * tSPSUPG->dSPdMasterDOF( tDofType ) );
                 }
             }
         }
@@ -212,29 +174,16 @@ namespace moris
 //------------------------------------------------------------------------------
         void IWG_Advection_Bulk::compute_residual_strong_form( Matrix< DDRMat > & aRT )
         {
-            // get the residual dof (here temperature) field interpolator
-            Field_Interpolator* tFITemp = mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );
-
             // get the velocity dof field interpolator
             // FIXME protect dof type
             Field_Interpolator* tFIVelocity = mMasterFIManager->get_field_interpolators_for_type( MSI::Dof_Type::VX );
 
-            // get density property
-            std::shared_ptr< Property > tPropDensity
-            = mMasterProp( static_cast< uint >( IWG_Property_Type::DENSITY ) );
-            real tDensity = tPropDensity->val()( 0 );
+            // get the diffusion CM
+            std::shared_ptr< Constitutive_Model > tCMDiffusion =
+                    mMasterCM( static_cast< uint >( IWG_Constitutive_Type::DIFFUSION ) );
 
-            // get the heat capacity property
-            std::shared_ptr< Property > tPropHeatCapacity
-            = mMasterProp( static_cast< uint >( IWG_Property_Type::HEAT_CAPACITY ) );
-            real tHeatCapacity = tPropHeatCapacity->val()( 0 );
-
-            // get the heat capacity property
-            std::shared_ptr< Constitutive_Model > tCMDiffusion
-            = mMasterCM( static_cast< uint >( IWG_Constitutive_Type::DIFFUSION ) );
-
-            aRT = tDensity * tHeatCapacity * tFITemp->gradt( 1 )
-                + tDensity * tHeatCapacity * trans( tFIVelocity->val() ) * tFITemp->gradx( 1 )
+            aRT = tCMDiffusion->Hdot()
+                + trans( tFIVelocity->val() ) * tCMDiffusion->gradH()
                 - tCMDiffusion->divflux();
         }
 
@@ -254,58 +203,25 @@ namespace moris
             // init aJT
             aJT.set_size( 1, tFIDer->get_number_of_space_time_coefficients(), 0.0 );
 
-            // get density property
-            std::shared_ptr< Property > tPropDensity
-            = mMasterProp( static_cast< uint >( IWG_Property_Type::DENSITY ) );
-            real tDensity = tPropDensity->val()( 0 );
-
-            // get the heat capacity property
-            std::shared_ptr< Property > tPropHeatCapacity
-            = mMasterProp( static_cast< uint >( IWG_Property_Type::HEAT_CAPACITY ) );
-            real tHeatCapacity = tPropHeatCapacity->val()( 0 );
-
-            // get the heat capacity property
+            // get the diffusion CM
             std::shared_ptr< Constitutive_Model > tCMDiffusion
             = mMasterCM( static_cast< uint >( IWG_Constitutive_Type::DIFFUSION ) );
-
-            // if derivative wrt to residual dof type (here temperature)
-            if( aDofTypes( 0 ) == mResidualDofType( 0 ) )
-            {
-                aJT.matrix_data()
-                +=   tDensity * tHeatCapacity * tFITemp->dnNdtn( 1 )
-                   + tDensity * tHeatCapacity * trans( tFIVelocity->val() ) * tFITemp->dnNdxn( 1 );
-            }
-
-            // if derivative wrt to velocity dof type
-            if( aDofTypes( 0 ) == MSI::Dof_Type::VX )
-            {
-                aJT.matrix_data()
-                += tDensity * tHeatCapacity * trans( tFITemp->gradx( 1 ) ) * tFIVelocity->N();
-            }
-
-            // if density depends on dof type
-            if( tPropDensity->check_dof_dependency( aDofTypes ) )
-            {
-                // compute contribution to jacobian strong form
-                aJT.matrix_data()
-                += tHeatCapacity * tFITemp->gradt( 1 ) * tPropDensity->dPropdDOF( aDofTypes )
-                 + tHeatCapacity * trans( tFIVelocity->val() ) * tFITemp->gradx( 1 ) * tPropDensity->dPropdDOF( aDofTypes );
-            }
-
-            // if density depends on dof type
-            if( tPropHeatCapacity->check_dof_dependency( aDofTypes ) )
-            {
-                // compute contribution to jacobian strong form
-                aJT.matrix_data()
-                += tDensity * tFITemp->gradt( 1 ) * tPropHeatCapacity->dPropdDOF( aDofTypes )
-                 + tDensity * trans( tFIVelocity->val() ) * tFITemp->gradx( 1 ) * tPropHeatCapacity->dPropdDOF( aDofTypes );
-            }
 
             // if CM diffusion depends on dof type
             if( tCMDiffusion->check_dof_dependency( aDofTypes ) )
             {
                 // compute contribution to jacobian strong form
-                aJT.matrix_data() -= tCMDiffusion->ddivfluxdu( aDofTypes ).matrix_data();
+                aJT.matrix_data() =
+                         tCMDiffusion->dHdotdDOF( aDofTypes ).matrix_data() +
+                         trans( tFIVelocity->val() ) * tCMDiffusion->dGradHdDOF(aDofTypes) -
+                         tCMDiffusion->ddivfluxdu( aDofTypes ).matrix_data();
+            }
+
+            // if derivative wrt to velocity dof type
+            if( aDofTypes( 0 ) == MSI::Dof_Type::VX )
+            {
+                aJT.matrix_data() +=
+                        trans( tFITemp->gradx( 1 ) ) * tCMDiffusion->gradH();
             }
 
         }
