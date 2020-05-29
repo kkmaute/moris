@@ -53,6 +53,7 @@ set(TEST_SOURCES
     UT_FEM_IWG_Incompressible_NS_Pressure_Ghost.cpp
     UT_FEM_IWG_Incompressible_NS_Dirichlet_Nitsche.cpp
     UT_FEM_IWG_Spalart_Allmaras_Turbulence_Bulk.cpp
+    UT_FEM_IWG_Spalart_Allmaras_Turbulence_Dirichlet.cpp
     UT_FEM_IQI_Strain_Energy.cpp
     UT_FEM_Input.cpp
     UT_FEM_Geometry_Interpolator.cpp
