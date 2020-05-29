@@ -120,6 +120,7 @@ namespace moris
             INCOMPRESSIBLE_NS_IMPOSED_PRESSURE,
             TIME_CONTINUITY_DOF,
             SPALART_ALLMARAS_TURBULENCE_BULK,
+            SPALART_ALLMARAS_TURBULENCE_DIRICHLET,
             END_IWG_TYPE
         };
 
@@ -153,6 +154,7 @@ namespace moris
             STRUC_LIN_ISO,
             STRUC_LIN_ISO_PRESSURE,
             FLUID_INCOMPRESSIBLE,
+            FLUID_TURBULENCE,
             END_CONSTITUTIVE_TYPE
         };
 
@@ -188,7 +190,6 @@ namespace moris
             VELOCITY_DIRICHLET_NITSCHE,
             SUPG_ADVECTION,
             SUPG_SPALART_ALLMARAS_TURBULENCE,
-            TURBULENCE_VISCOSITY,
             END_STABILIZATION_TYPE
         };
 
