@@ -156,7 +156,8 @@ namespace moris
                     mSet->get_jacobian()(
                             { tMasterResStartIndex, tMasterResStopIndex },
                             { tMasterDepStartIndex, tMasterDepStopIndex } ) +=
-                                    aWStar * (  trans( tCMDiffusion->testStrain() ) * tCMDiffusion->dFluxdDOF( tDofType ) +
+                                    aWStar * (
+                                            trans( tCMDiffusion->testStrain() ) * tCMDiffusion->dFluxdDOF( tDofType ) +
                                             trans( tFITemp->N() ) * tCMDiffusion->dHdotdDOF( tDofType )  );
                     // FIXME add derivative of the test strain
                 }
@@ -186,20 +187,18 @@ namespace moris
                         mSet->get_jacobian()(
                                 { tMasterResStartIndex, tMasterResStopIndex },
                                 { tMasterDepStartIndex, tMasterDepStopIndex } ) +=
-                                        aWStar * ( trans( tCMDiffusion->testStrain() ) * tGGLSParam->val()(0) *
-                                                ( tCMDiffusion->dGradHdotdDOF( tDofType ) - tCMDiffusion->dGradDivFluxdDOF( tDofType ) ) );
+                                        aWStar * tGGLSParam->val()(0) *  trans( tCMDiffusion->testStrain() ) *
+                                                ( tCMDiffusion->dGradHdotdDOF( tDofType ) - tCMDiffusion->dGradDivFluxdDOF( tDofType ) );
                     }
 
                     // add contribution from stabilization parameter
                     mSet->get_jacobian()(
                             { tMasterResStartIndex, tMasterResStopIndex },
                             { tMasterDepStartIndex, tMasterDepStopIndex } ) +=
-                                    aWStar * trans( tCMDiffusion->testStrain() ) *
-                                    (  ( tCMDiffusion->gradHdot() - tCMDiffusion->graddivflux() ) *
-                                            tGGLSParam->dSPdMasterDOF( tDofType ) );
+                                    aWStar *  trans( tCMDiffusion->testStrain() ) * ( tCMDiffusion->gradHdot() - tCMDiffusion->graddivflux() ) *
+                                       tGGLSParam->dSPdMasterDOF( tDofType );
 
                 }
-
             }
         }
 
