@@ -922,7 +922,7 @@ TEST_CASE("2D XTK WITH HMR ThermoElastic 2D Staggered","[XTK_HMR_thermoelastic_2
         tParameterlist( 3 )( 1 )("NLA_DofTypes") = std::string("TEMP");
         tParameterlist( 3 )( 2 ) = moris::prm::create_nonlinear_solver_parameter_list();
         tParameterlist( 3 )( 2 )("NLA_Solver_Implementation") = static_cast< uint >( moris::NLA::NonlinearSolverType::NLBGS_SOLVER );
-        tParameterlist( 3 )( 2 )("NLA_Sub_Nonlinear_Solver") = std::string("0,1");
+        tParameterlist( 3 )( 2 )("NLA_Sub_Nonlinear_Solver") = std::string("1,0");
         tParameterlist( 3 )( 2 )("NLA_DofTypes") = std::string("UX,UY;TEMP");
         tParameterlist( 3 )( 2 )("NLA_Nonlinear_solver_algorithms") = std::string("1");
 

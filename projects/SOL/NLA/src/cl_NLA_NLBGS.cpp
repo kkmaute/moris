@@ -131,7 +131,7 @@ using namespace dla;
             mMyNonLinSolverManager->get_ref_norm() = std::sqrt( tSqrtRefNorm );
         }
 
-        moris::real tSqrtFirstResNorm = 0.0;
+        moris::real tSqrtResNorm = 0.0;
 
         // Loop over all non-linear systems
         for (uint Ik = tNonLinSysStartIt ; Ik < tNumNonLinSystems; Ik++)
@@ -143,12 +143,12 @@ using namespace dla;
 //                                                                  ->get_nonliner_solver_manager_list()( tNonlinSolverManagerIndex )
 //                                                                  ->get_ref_norm();
 
-            moris::real tSubSolverFirstResNorm = mMyNonLinSolverManager->get_sub_nonlinear_solver( Ik )->get_ref_norm();
+            moris::real tSubSolverResNorm = mMyNonLinSolverManager->get_sub_nonlinear_solver( Ik )->get_residual_norm();
 
-            tSqrtFirstResNorm = tSqrtFirstResNorm + std::pow( tSubSolverFirstResNorm, 2 );
+            tSqrtResNorm = tSqrtResNorm + std::pow( tSubSolverResNorm, 2 );
         }
 
-        mMyNonLinSolverManager->get_residual_norm() = std::sqrt( tSqrtFirstResNorm );
+        mMyNonLinSolverManager->get_residual_norm() = std::sqrt( tSqrtResNorm );
     }
 
 

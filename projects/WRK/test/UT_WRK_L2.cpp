@@ -164,7 +164,7 @@ TEST_CASE("WRK L2 test","[WRK_L2_test]")
          tXTKPerformer->set_input_performer( tMTKPerformer_HMR );
          tXTKPerformer->set_output_performer( tMTKPerformer_XTK );
 
-         tXTKPerformer->perform();
+         //tXTKPerformer->perform();
 
          //---------------------------------------------------------------------------------------
          //                               Stage 3: build field
