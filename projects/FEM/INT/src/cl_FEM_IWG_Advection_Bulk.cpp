@@ -11,8 +11,7 @@ namespace moris
 {
     namespace fem
     {
-
-//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
         IWG_Advection_Bulk::IWG_Advection_Bulk()
         {
             // set size for the property pointer cell
@@ -31,7 +30,7 @@ namespace moris
             mStabilizationMap[ "SUPG" ] = IWG_Stabilization_Type::SUPG;
         }
 
-//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
         void IWG_Advection_Bulk::compute_residual( real aWStar )
         {
             // check master field interpolators
@@ -56,21 +55,23 @@ namespace moris
                     mMasterCM( static_cast< uint >( IWG_Constitutive_Type::DIFFUSION ) );
 
             // get the SUPG stabilization parameter
-            std::shared_ptr< Stabilization_Parameter > tSPSUPG
-            = mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::SUPG ) );
+            std::shared_ptr< Stabilization_Parameter > tSPSUPG =
+                    mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::SUPG ) );
 
             // compute the residual strong form
             Matrix< DDRMat > tRT;
             this->compute_residual_strong_form( tRT );
 
             // compute the residual
-            mSet->get_residual()( 0 )( { tMasterResStartIndex, tMasterResStopIndex }, { 0, 0 } )
-            += aWStar
-             * (   trans( tFITemp->N() ) * trans( tFIVelocity->val() ) * tCMDiffusion->gradH()
-                     + tSPSUPG->val()( 0 ) * trans( tFITemp->dnNdxn( 1 ) ) * tFIVelocity->val() * tRT( 0, 0 ) );
+            mSet->get_residual()( 0 )(
+                    { tMasterResStartIndex, tMasterResStopIndex },
+                    { 0, 0 } ) +=
+                            aWStar * (
+                                    trans( tFITemp->N() ) * trans( tFIVelocity->val() ) * tCMDiffusion->gradH() +
+                                    tSPSUPG->val()( 0 ) * trans( tFITemp->dnNdxn( 1 ) ) * tFIVelocity->val() * tRT( 0, 0 ) );
         }
 
-//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
         void IWG_Advection_Bulk::compute_jacobian( real aWStar )
         {
 #ifdef DEBUG
@@ -95,8 +96,8 @@ namespace moris
                     mMasterCM( static_cast< uint >( IWG_Constitutive_Type::DIFFUSION ) );
 
             // get the SUPG stabilization parameter
-            std::shared_ptr< Stabilization_Parameter > tSPSUPG
-            = mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::SUPG ) );
+            std::shared_ptr< Stabilization_Parameter > tSPSUPG =
+                    mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::SUPG ) );
 
             // compute the residual strong form
             Matrix< DDRMat > tRT;
@@ -120,10 +121,10 @@ namespace moris
                 if( tDofType( 0 ) == mResidualDofType( 0 ) )
                 {
                     // add contribution to jacobian
-                    mSet->get_jacobian()( { tMasterResStartIndex, tMasterResStopIndex },
-                                          { tMasterDepStartIndex, tMasterDepStopIndex } )
-                    += aWStar
-                     * ( trans( tFITemp->N() ) * trans( tFIVelocity->val() ) * tCMDiffusion->dGradHdDOF( tDofType ) );
+                    mSet->get_jacobian()(
+                            { tMasterResStartIndex, tMasterResStopIndex },
+                            { tMasterDepStartIndex, tMasterDepStopIndex } ) +=
+                                    aWStar * trans( tFITemp->N() ) * trans( tFIVelocity->val() ) * tCMDiffusion->dGradHdDOF( tDofType );
                 }
 
                 // if velocity dof type
@@ -131,11 +132,12 @@ namespace moris
                 if( tDofType( 0 ) == MSI::Dof_Type::VX )
                 {
                     // add contribution to jacobian
-                    mSet->get_jacobian()( { tMasterResStartIndex, tMasterResStopIndex },
-                                          { tMasterDepStartIndex, tMasterDepStopIndex } )
-                    += aWStar
-                     * (   trans( tFITemp->N() ) * trans( tCMDiffusion->gradH() ) * tFIVelocity->N()
-                         + tSPSUPG->val()( 0 ) * trans( tFITemp->dnNdxn( 1 ) ) * tFIVelocity->N() * tRT( 0, 0 )  );
+                    mSet->get_jacobian()(
+                            { tMasterResStartIndex, tMasterResStopIndex },
+                            { tMasterDepStartIndex, tMasterDepStopIndex } ) +=
+                                    aWStar * (
+                                            trans( tFITemp->N() ) * trans( tCMDiffusion->gradH() ) * tFIVelocity->N() +
+                                            tSPSUPG->val()( 0 ) * trans( tFITemp->dnNdxn( 1 ) ) * tFIVelocity->N() * tRT( 0, 0 )  );
                 }
 
                 // compute the jacobian strong form
@@ -143,35 +145,37 @@ namespace moris
                 this->compute_jacobian_strong_form( tDofType, tJT );
 
                 // compute the jacobian contribution from strong form
-                mSet->get_jacobian()( { tMasterResStartIndex, tMasterResStopIndex },
-                                      { tMasterDepStartIndex, tMasterDepStopIndex } )
-                += aWStar * ( tSPSUPG->val()( 0 ) * trans( tFITemp->dnNdxn( 1 ) ) * tFIVelocity->val() * tJT );
+                mSet->get_jacobian()(
+                        { tMasterResStartIndex, tMasterResStopIndex },
+                        { tMasterDepStartIndex, tMasterDepStopIndex } ) +=
+                                aWStar * tSPSUPG->val()( 0 ) * trans( tFITemp->dnNdxn( 1 ) ) * tFIVelocity->val() * tJT;
 
                 // if SUPG stabilization parameter depends on dof type
                 if( tSPSUPG->check_dof_dependency( tDofType ) )
                 {
                     // add contribution to jacobian
-                    mSet->get_jacobian()( { tMasterResStartIndex, tMasterResStopIndex },
-                                          { tMasterDepStartIndex, tMasterDepStopIndex } )
-                    += aWStar
-                     * ( trans( tFITemp->dnNdxn( 1 ) ) * tFIVelocity->val() * tRT( 0, 0 ) * tSPSUPG->dSPdMasterDOF( tDofType ) );
+                    mSet->get_jacobian()(
+                            { tMasterResStartIndex, tMasterResStopIndex },
+                            { tMasterDepStartIndex, tMasterDepStopIndex } ) +=
+                                    aWStar *  trans( tFITemp->dnNdxn( 1 ) ) * tFIVelocity->val() *
+                                    tRT( 0, 0 ) * tSPSUPG->dSPdMasterDOF( tDofType );
                 }
             }
         }
 
-//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
         void IWG_Advection_Bulk::compute_jacobian_and_residual( real aWStar )
         {
             MORIS_ERROR( false, "IWG_Advection_Bulk::compute_jacobian_and_residual - Not implemented." );
         }
 
-//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
         void IWG_Advection_Bulk::compute_dRdp( real aWStar )
         {
             MORIS_ERROR( false, "IWG_Advection_Bulk::compute_dRdp - Not implemented." );
         }
 
-//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
         void IWG_Advection_Bulk::compute_residual_strong_form( Matrix< DDRMat > & aRT )
         {
             // get the velocity dof field interpolator
@@ -182,15 +186,13 @@ namespace moris
             std::shared_ptr< Constitutive_Model > tCMDiffusion =
                     mMasterCM( static_cast< uint >( IWG_Constitutive_Type::DIFFUSION ) );
 
-            aRT = tCMDiffusion->Hdot()
-                + trans( tFIVelocity->val() ) * tCMDiffusion->gradH()
-                - tCMDiffusion->divflux();
+            aRT = tCMDiffusion->Hdot() + trans( tFIVelocity->val() ) * tCMDiffusion->gradH() - tCMDiffusion->divflux();
         }
 
-//------------------------------------------------------------------------------
-        void IWG_Advection_Bulk::compute_jacobian_strong_form
-        ( moris::Cell< MSI::Dof_Type >   aDofTypes,
-          Matrix< DDRMat >             & aJT )
+        //------------------------------------------------------------------------------
+        void IWG_Advection_Bulk::compute_jacobian_strong_form (
+                moris::Cell< MSI::Dof_Type >   aDofTypes,
+                Matrix< DDRMat >             & aJT )
         {
             // get the res dof and the derivative dof FIs
             Field_Interpolator * tFIDer  = mMasterFIManager->get_field_interpolators_for_type( aDofTypes( 0 ) );
@@ -199,21 +201,21 @@ namespace moris
             // FIXME protect dof type
             Field_Interpolator* tFIVelocity = mMasterFIManager->get_field_interpolators_for_type( MSI::Dof_Type::VX );
 
-            // init aJT
+            // initialize aJT
             aJT.set_size( 1, tFIDer->get_number_of_space_time_coefficients(), 0.0 );
 
             // get the diffusion CM
-            std::shared_ptr< Constitutive_Model > tCMDiffusion
-            = mMasterCM( static_cast< uint >( IWG_Constitutive_Type::DIFFUSION ) );
+            std::shared_ptr< Constitutive_Model > tCMDiffusion =
+                    mMasterCM( static_cast< uint >( IWG_Constitutive_Type::DIFFUSION ) );
 
             // if CM diffusion depends on dof type
             if( tCMDiffusion->check_dof_dependency( aDofTypes ) )
             {
                 // compute contribution to jacobian strong form
                 aJT.matrix_data() =
-                         tCMDiffusion->dHdotdDOF( aDofTypes ).matrix_data() +
-                         trans( tFIVelocity->val() ) * tCMDiffusion->dGradHdDOF(aDofTypes) -
-                         tCMDiffusion->ddivfluxdu( aDofTypes ).matrix_data();
+                        tCMDiffusion->dHdotdDOF( aDofTypes ).matrix_data() +
+                        trans( tFIVelocity->val() ) * tCMDiffusion->dGradHdDOF(aDofTypes) -
+                        tCMDiffusion->ddivfluxdu( aDofTypes ).matrix_data();
             }
 
             // if derivative wrt to velocity dof type
@@ -222,10 +224,8 @@ namespace moris
                 aJT.matrix_data() +=
                         trans( tCMDiffusion->gradH() ) * tFIVelocity->N() ;
             }
-
-
         }
 
-//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
     } /* namespace fem */
 } /* namespace moris */
