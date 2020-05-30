@@ -1497,7 +1497,7 @@ namespace moris
             // if aDofType is not an active dof type for the property
             MORIS_ERROR(
                     this->check_dof_dependency( aDofType, mtk::Master_Slave::MASTER ),
-                    "Stabilization_Parameter::dPPdMasterDOF - no dependency in this dof type." );
+                    "Stabilization_Parameter::dSPdMasterDOF - no dependency on this dof type." );
 
             // get the dof index
             uint tDofIndex = mMasterGlobalDofTypeMap( static_cast< uint >( aDofType( 0 ) ) );
@@ -1522,7 +1522,7 @@ namespace moris
             // if aDofType is not an active dof type for the property
             MORIS_ERROR(
                     this->check_dof_dependency( aDofType, mtk::Master_Slave::SLAVE ),
-                    "Stabilization_Parameter::dSPdSlaveDOF - no dependency in this dof type." );
+                    "Stabilization_Parameter::dSPdSlaveDOF - no dependency on this dof type." );
 
             // get the dof index
             uint tDofIndex = mSlaveGlobalDofTypeMap( static_cast< uint >( aDofType( 0 ) ) );
@@ -1547,7 +1547,7 @@ namespace moris
             // if aDofType is not an active dv type for the property
             MORIS_ERROR(
                     this->check_master_dv_dependency( aDvTypes ),
-                    "Penalty_Parameter::dPPdMasterDV - no dependency in this dv type." );
+                    "Penalty_Parameter::dSPdMasterDV - no dependency on this dv type." );
 
             // get the dv index
             uint tDvIndex = mMasterGlobalDvTypeMap( static_cast< uint >( aDvTypes( 0 ) ) );
@@ -1572,7 +1572,7 @@ namespace moris
             // if aDofType is not an active dv type for the property
             MORIS_ERROR(
                     this->check_slave_dv_dependency( aDvTypes ),
-                    "Stabilization_Parameter::dSPdSlaveDV - no dependency in this dv type." );
+                    "Stabilization_Parameter::dSPdSlaveDV - no dependency on this dv type." );
 
             // get the dv index
             uint tDvIndex = mSlaveGlobalDvTypeMap( static_cast< uint >( aDvTypes( 0 ) ) );
