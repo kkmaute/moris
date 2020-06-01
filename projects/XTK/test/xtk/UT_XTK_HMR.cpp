@@ -40,8 +40,7 @@
 #include "cl_HMR_Lagrange_Mesh_Base.hpp" //HMR/src
 #include "cl_HMR_Parameters.hpp" //HMR/src
 
-#include "cl_GEN_Geometry.hpp"
-#include "cl_GEN_Geometry_Field_HMR.hpp"
+#include "cl_GEN_User_Defined_Geometry.hpp"
 
 #include "fn_norm.hpp"
 
@@ -71,6 +70,11 @@ LevelSetSphereCylinder(const moris::Matrix< moris::DDRMat > & aPoint )
     moris::real lsFromRad = radDist - aRad;
 
     return -std::max(std::max(lsFromLeft, lsFromRight), lsFromRad);
+}
+
+real LevelSetSphereCylinderGeometry(const Matrix<DDRMat>& aCoordinates, const Cell<real*>& aParameters)
+{
+    return LevelSetSphereCylinder(aCoordinates);
 }
 
 moris::real
@@ -177,11 +181,8 @@ TEST_CASE("XTK HMR Test","[XTK_HMR]")
                 }
             }
 
-            moris::ge::Geometry_Field_HMR tFieldAsGeom(tField);
-
             Cell< std::shared_ptr<ge::Geometry> > tGeometryVector(1);
-            tGeometryVector(0) = std::make_shared<moris::ge::Geometry_Field_HMR>(tField);
-
+            tGeometryVector(0) = std::make_shared<moris::ge::User_Defined_Geometry>(Matrix<DDRMat>(0, 0), &(LevelSetSphereCylinderGeometry));
 
             size_t tModelDimension = 3;
             moris::ge::Phase_Table tPhaseTable (1, moris::ge::Phase_Table_Structure::EXP_BASE_2);

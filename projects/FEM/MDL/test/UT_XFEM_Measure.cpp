@@ -78,7 +78,7 @@
 #include "cl_TSA_Monolithic_Time_Solver.hpp"
 #include "cl_TSA_Time_Solver.hpp"
 #include "cl_SOL_Warehouse.hpp"
-#include "cl_GEN_Geometry_Field_HMR.hpp"
+#include "cl_GEN_Plane.hpp"
 
 #include "fn_norm.hpp"
 
@@ -103,8 +103,7 @@ void tPropValFuncL2_MDLFEMBench
 moris::real tPlane_MDLFEMBench( const moris::Matrix< moris::DDRMat > & aPoint )
 {
     moris::real tOffset = 2.6;
-    return    aPoint(0) - 0.0 * aPoint(1) - tOffset;
-//    return    aPoint(0) - 0.317 * aPoint(1) - tOffset;
+    return    aPoint(0) - tOffset;
 }
 
 bool tSolverOutputCriteria_MDLFEMBench( moris::tsa::Time_Solver * )
@@ -187,7 +186,7 @@ TEST_CASE("MDL XFEM Measure","[MDL_XFEM_MEASURE]")
         hmr::Interpolation_Mesh_HMR * tInterpMesh = tHMR.create_interpolation_mesh( tLagrangeMeshIndex  );
 
         moris::Cell< std::shared_ptr<moris::ge::Geometry> > tGeometryVector(1);
-        tGeometryVector(0) = std::make_shared<moris::ge::Geometry_Field_HMR>(tField);
+        tGeometryVector(0) = std::make_shared<moris::ge::Plane>(2.6, 0.0, 1.0, 0.0);
 
         size_t tModelDimension = 3;
         moris::ge::Phase_Table  tPhaseTable( tGeometryVector.size(), moris::ge::Phase_Table_Structure::EXP_BASE_2 );

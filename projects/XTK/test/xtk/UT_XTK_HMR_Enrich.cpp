@@ -37,7 +37,9 @@
 #include "cl_HMR_Lagrange_Mesh_Base.hpp" //HMR/src
 #include "cl_PRM_HMR_Parameters.hpp"
 
-#include "cl_GEN_Geometry_Field_HMR.hpp"
+#include "cl_GEN_Circle.hpp"
+#include "cl_GEN_Plane.hpp"
+#include "cl_GEN_User_Defined_Geometry.hpp"
 #include "fn_norm.hpp"
 
 namespace xtk
@@ -77,6 +79,11 @@ MultiCircle(const moris::Matrix< moris::DDRMat > & aPoint )
 
     return std::min(val1,std::min(val2,std::min(val3,val4)));
 
+}
+
+moris::real MultiCircleGeometry(const moris::Matrix< moris::DDRMat > & aPoint, const moris::Cell<moris::real*>& aParameters)
+{
+    return MultiCircle(aPoint);
 }
 
 TEST_CASE("2D XTK WITH HMR No truncation enrichment","[XTK_HMR_ENR_2D]")
@@ -139,7 +146,7 @@ TEST_CASE("2D XTK WITH HMR No truncation enrichment","[XTK_HMR_ENR_2D]")
          hmr::Interpolation_Mesh_HMR * tInterpMesh = tHMR.create_interpolation_mesh( tLagrangeMeshIndex  );
 
         moris::Cell< std::shared_ptr<moris::ge::Geometry> > tGeometryVector(1);
-        tGeometryVector(0) = std::make_shared<moris::ge::Geometry_Field_HMR>(tField);
+        tGeometryVector(0) = std::make_shared<moris::ge::User_Defined_Geometry>(Matrix<DDRMat>(0, 0), &(MultiCircleGeometry));
 
          size_t tModelDimension = 2;
          moris::ge::Phase_Table tPhaseTable (1, moris::ge::Phase_Table_Structure::EXP_BASE_2);
@@ -276,8 +283,8 @@ TEST_CASE("2D XTK WITH HMR Multi-Mat","[XTK_HMR_MULTI_2D]")
          hmr::Interpolation_Mesh_HMR * tInterpMesh = tHMR.create_interpolation_mesh( tLagrangeMeshIndex  );
 
         moris::Cell< std::shared_ptr<moris::ge::Geometry> > tGeometryVector(2);
-        tGeometryVector(0) = std::make_shared<moris::ge::Geometry_Field_HMR>(tCircleField);
-        tGeometryVector(1) = std::make_shared<moris::ge::Geometry_Field_HMR>(tPlaneField);
+        tGeometryVector(0) = std::make_shared<moris::ge::Circle>(0.01, 0.01, 0.61);
+        tGeometryVector(1) = std::make_shared<moris::ge::Plane>(0.01, 0.01, 1.0, 0.0);
 
          size_t tModelDimension = 2;
          moris::ge::Phase_Table tPhaseTable (2, moris::ge::Phase_Table_Structure::EXP_BASE_2);
@@ -387,8 +394,8 @@ TEST_CASE("2D XTK WITH HMR Multiple Order Enrichment","[XTK_HMR_ENR_2D_MO]")
          hmr::Interpolation_Mesh_HMR * tInterpMesh = tHMR.create_interpolation_mesh( tLagrangeMeshIndex  );
 
         moris::Cell< std::shared_ptr<moris::ge::Geometry> > tGeometryVector(2);
-        tGeometryVector(0) = std::make_shared<moris::ge::Geometry_Field_HMR>(tCircleField);
-        tGeometryVector(1) = std::make_shared<moris::ge::Geometry_Field_HMR>(tPlaneField);
+        tGeometryVector(0) = std::make_shared<moris::ge::Circle>(0.01, 0.01, 0.61);
+        tGeometryVector(1) = std::make_shared<moris::ge::Plane>(0.01, 0.01, 1.0, 0.0);
 
          size_t tModelDimension = 2;
          moris::ge::Phase_Table tPhaseTable (2, moris::ge::Phase_Table_Structure::EXP_BASE_2);

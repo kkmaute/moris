@@ -34,9 +34,7 @@
 #include "fn_compute_xtk_model_volumes.hpp"
 #include "Child_Mesh_Verification_Utilities.hpp"
 
-#include "cl_GEN_Geometry.hpp"
 #include "cl_GEN_Sphere.hpp"
-#include "cl_GEN_Geometry_Field_HMR.hpp"
 
 namespace xtk
 {
