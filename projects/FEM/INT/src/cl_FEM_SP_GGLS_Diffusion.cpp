@@ -159,6 +159,12 @@ namespace moris
 
             // compute stabilization parameter value
             mPPVal = {{  std::pow(mElementSize, 2.0) / 6.0  * tXibar }};
+
+            /* Note:
+             * the artificial GGLS conductivity is returned as the stabilization parameter,
+             * which is equal to k*tau_GGLS as defined in Alberto Pizzolato's Thesis,
+             * or equal to just tau as defined in Franca's 1988 paper on GGLS
+             */
         }
 
 
@@ -220,89 +226,98 @@ namespace moris
 
             // get derivative of SP wrt to alpha d(k*tau)/d(alpha)
             real dXibardAlpha =
-                    -1.0 * (4.0 * std::cosh(std::sqrt(6.0*tAlpha)) -
-                            2.0 * std::pow(std::cosh(std::sqrt(6.0*tAlpha)), 2.0) +
-                            3.0 * std::sqrt(6.0 * std::pow(tAlpha,3.0) ) * std::sinh(std::sqrt(6.0*tAlpha)) - 2.0 ) /
-                            ( 2.0 * std::pow(tAlpha,2.0) * std::pow((std::cosh(std::sqrt(6.0*tAlpha)) - 1.0), 2.0) );
+                    (4.0 -
+                    8.0 * std::cosh( std::sqrt(6.0*tAlpha) ) +
+                    4.0 * std::pow( std::cosh( std::sqrt(6.0*tAlpha) ) , 2.0 ) -
+                    std::pow( 6.0*tAlpha , 1.5 ) * std::sinh( std::sqrt(6.0*tAlpha) ) )
+                                    / ( 4.0 * std::pow( tAlpha , 2.0 ) * std::pow( ( std::cosh( std::sqrt(6.0*tAlpha) ) - 1.0 ) , 2.0 ) );
 
-            // if dof type is temperature
-            if( aDofTypes( 0 ) == mMasterDofTemp )
+            moris::real tdSPdAlpha = std::pow(mElementSize, 2.0) / 6.0 * dXibardAlpha;
+
+
+            // indirect contributions for both with and without phase change ---------------------------
+
+            // if indirect dependency on conductivity
+            if ( tPropConductivity->check_dof_dependency( aDofTypes ) )
             {
-                // if there is a phase change
-                if (tPropLatentHeat != nullptr)
-                {
-                    // get Dof-deriv of phase state function
-                    moris::Matrix<DDRMat> td2fdTdDOF =
-                            eval_dFdTempdDOF( tMeltTemp, tPCconst, tPSfunc, tFIDer);
-
-                    // derivative of tau wrt alpha
-                    moris::real tdtau = std::pow(mElementSize, 2.0) / 6.0 * dXibardAlpha;
-
-                    // derivative of alpha wrt temperature, except for dT/dDOF
-                    moris::real tdAlpha = tDensity * tLatentHeat * std::pow(mElementSize, 2.0) / ( 6.0 * tConductivity * tDeltat );
-
-                    // derivative of tau wrt temperature DOFs
-                    mdPPdMasterDof( tDofIndex ).matrix_data() += tdtau * tdAlpha * td2fdTdDOF;
-                }
-                // if no phase change defined, do nothing
+                mdPPdMasterDof( tDofIndex ).matrix_data() -=
+                        tdSPdAlpha *
+                        ( tDensity * tHeatCapacity * std::pow(mElementSize, 2.0) /
+                                ( 6.0 * std::pow(tConductivity, 2.0) * tDeltat ) ) *
+                                tPropConductivity->dPropdDOF( aDofTypes );
             }
 
-            // if there is a phase change
-            if (tPropLatentHeat != nullptr)
+            // if indirect dependency on density
+            if ( tPropDensity->check_dof_dependency( aDofTypes ) )
             {
-                // if indirect dependency on conductivity
-                if ( tPropConductivity->check_dof_dependency( aDofTypes ) )
-                {
-                    mdPPdMasterDof( tDofIndex ).matrix_data() -=
-                            dXibardAlpha * tPropConductivity->dPropdDOF( aDofTypes ) *
-                            ( tHeatCapacity + tLatentHeat * tdfdT ) * std::pow( mElementSize, 2 ) /
-                            ( 36.0 * std::pow( tConductivity, 2 ) * tDeltat );
-                }
-
-                // if indirect dependency on density
-                if ( tPropDensity->check_dof_dependency( aDofTypes ) )
-                {
-                    mdPPdMasterDof( tDofIndex ).matrix_data() +=
-                            dXibardAlpha * tPropDensity->dPropdDOF( aDofTypes ) *
-                            ( tHeatCapacity + tLatentHeat * tdfdT ) * std::pow( mElementSize, 2 ) /
-                            ( 36.0 * tConductivity * tDeltat );
-                }
-
-            }
-
-            // else if there is no phase change
-            else
-            {
-                // if indirect dependency on conductivity
-                if ( tPropConductivity->check_dof_dependency( aDofTypes ) )
-                {
-                    mdPPdMasterDof( tDofIndex ).matrix_data() -=
-                            dXibardAlpha * tPropConductivity->dPropdDOF( aDofTypes ) *
-                            tHeatCapacity * std::pow(mElementSize, 2.0) /
-                            ( 36.0 * std::pow(tConductivity,2) * tDeltat );
-                }
-
-                // if indirect dependency on density
-                if ( tPropDensity->check_dof_dependency( aDofTypes ) )
-                {
-                    mdPPdMasterDof( tDofIndex ).matrix_data() +=
-                            dXibardAlpha * tPropDensity->dPropdDOF( aDofTypes ) *
-                            tHeatCapacity * std::pow( mElementSize, 2 ) /
-                            ( 36.0 * tConductivity * tDeltat );
-                }
+                mdPPdMasterDof( tDofIndex ).matrix_data() +=
+                        tdSPdAlpha *
+                        ( tHeatCapacity * std::pow(mElementSize, 2.0) /
+                                ( 6.0 * tConductivity * tDeltat ) ) *
+                                tPropDensity->dPropdDOF( aDofTypes );
             }
 
             // if indirect dependency on heat capacity
             if ( tPropHeatCapacity->check_dof_dependency( aDofTypes ) )
             {
                 mdPPdMasterDof( tDofIndex ).matrix_data() +=
-                        dXibardAlpha * tDensity * tPropHeatCapacity->dPropdDOF( aDofTypes ) *
-                        std::pow( mElementSize, 2 )  / ( 36.0 * tConductivity * tDeltat );
+                        tdSPdAlpha *
+                        ( tDensity * std::pow(mElementSize, 2.0) /
+                                ( 6.0 * tConductivity * tDeltat ) ) *
+                                tPropHeatCapacity->dPropdDOF( aDofTypes );
             }
+
+            // if there is a phase change --------------------------------------------------------------
+            if (tPropLatentHeat != nullptr)
+            {
+
+                // if dof type is temperature
+                if( aDofTypes( 0 ) == mMasterDofTemp )
+                {
+                    // get Dof-deriv of phase state function
+                    moris::Matrix<DDRMat> td2fdTdDOF =
+                            eval_dFdTempdDOF( tMeltTemp, tPCconst, tPSfunc, tFIDer);
+
+                    // derivative of tau wrt temperature DOFs
+                    mdPPdMasterDof( tDofIndex ).matrix_data() +=
+                            tdSPdAlpha *
+                            ( tDensity * tLatentHeat * std::pow(mElementSize, 2.0) /
+                                    ( 6.0 * tConductivity * tDeltat ) ) *
+                                    td2fdTdDOF;
+                }
+
+                // if indirect dependency on conductivity
+                if ( tPropConductivity->check_dof_dependency( aDofTypes ) )
+                {
+                    mdPPdMasterDof( tDofIndex ).matrix_data() -=
+                            tdSPdAlpha *
+                            ( tDensity * tLatentHeat * tdfdT * std::pow(mElementSize, 2.0) /
+                                    ( 6.0 * std::pow(tConductivity, 2.0) * tDeltat ) ) *
+                                    tPropConductivity->dPropdDOF( aDofTypes );
+                }
+
+                // if indirect dependency on density
+                if ( tPropDensity->check_dof_dependency( aDofTypes ) )
+                {
+                    mdPPdMasterDof( tDofIndex ).matrix_data() +=
+                            tdSPdAlpha *
+                            ( tLatentHeat * tdfdT * std::pow(mElementSize, 2.0) /
+                                    ( 6.0 * tConductivity * tDeltat ) ) *
+                                    tPropDensity->dPropdDOF( aDofTypes );
+                }
+
+            }
+
         }
 
         //------------------------------------------------------------------------------
     } /* namespace fem */
 } /* namespace moris */
 
+
+// BACKUP -----------------------------------------------
+// -1.0 * (4.0 * std::cosh(std::sqrt(6.0*tAlpha)) -
+//         2.0 * std::pow(std::cosh(std::sqrt(6.0*tAlpha)), 2.0) +
+//         3.0 * std::sqrt(6.0 * std::pow(tAlpha,3.0) ) * std::sinh(std::sqrt(6.0*tAlpha)) - 2.0 ) /
+//         ( 2.0 * std::pow(tAlpha,2.0) * std::pow((std::cosh(std::sqrt(6.0*tAlpha)) - 1.0), 2.0) );
 
