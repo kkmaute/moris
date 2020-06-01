@@ -1,6 +1,7 @@
 #include "cl_GEN_Pdv_Host.hpp"
 #include "cl_GEN_Pdv_Value.hpp"
 #include "cl_GEN_Pdv_Property.hpp"
+#include "cl_GEN_Pdv_Intersection.hpp"
 
 namespace moris
 {
@@ -17,7 +18,7 @@ namespace moris
         {
             for (uint tPdvIndex = 0; tPdvIndex < aPdvTypes.size(); tPdvIndex++)
             {
-                // Map from PDV_Type type to local index
+                // Map from PDV type to local index
                 mPdvTypeMap[aPdvTypes(tPdvIndex)] = tPdvIndex;
 
                 // local index to global index
@@ -47,7 +48,7 @@ namespace moris
                 }
             }
 
-            // Extend PDV_Type list and indices
+            // Extend PDV list and indices
             mPdvList.resize(tPdvIndex);
             mGlobalPdvIndices.resize(tPdvIndex, 1);
             mActivePdvs.resize(tPdvIndex, true);
@@ -56,43 +57,55 @@ namespace moris
                 mGlobalPdvIndices(tOriginalPdvs + tNewPdvIndex) = aGlobalIndex++;
             }
 
-            // Return number of added PDV_Type types
+            // Return number of added PDV types
             return tPdvIndex - tOriginalPdvs;
-        }
-
-        //--------------------------------------------------------------------------------------------------------------
-
-        void Pdv_Host::create_pdv(PDV_Type aPdvType, std::shared_ptr<Property> aPropertyPointer)
-        {
-            // Check PDV_Type type
-            MORIS_ASSERT(mPdvTypeMap.key_exists(aPdvType),
-                    "Tried to call Pdv_Host.create_pdv() using GEN property with PDV_Type type that doesn't exist on this host.");
-
-            // create a pdv with property pointer
-            mPdvList(mPdvTypeMap[aPdvType]) = std::make_shared< Pdv_Property >(aPropertyPointer);
         }
 
         //--------------------------------------------------------------------------------------------------------------
 
         void Pdv_Host::create_pdv(PDV_Type aPdvType, real aPdvVal)
         {
-            // Check PDV_Type type
+            // Check PDV type
             MORIS_ASSERT(mPdvTypeMap.key_exists(aPdvType),
-                    "Tried to call Pdv_Host.create_pdv() using pdv value with PDV_Type type that doesn't exist on this host.");
+                         "Tried to call Pdv_Host.create_pdv() using pdv value with a PDV type that doesn't exist on this host.");
 
-            // create a pdv with pdv value
+            // Create a pdv with pdv value
             mPdvList(mPdvTypeMap[aPdvType]) = std::make_shared< Pdv_Value >(aPdvVal);
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
+        void Pdv_Host::create_pdv(PDV_Type aPdvType, std::shared_ptr<Property> aPropertyPointer)
+        {
+            // Check PDV type
+            MORIS_ASSERT(mPdvTypeMap.key_exists(aPdvType),
+                    "Tried to call Pdv_Host.create_pdv() using GEN property with a PDV type that doesn't exist on this host.");
+
+            // Create a pdv with property pointer
+            mPdvList(mPdvTypeMap[aPdvType]) = std::make_shared< Pdv_Property >(aPropertyPointer);
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
+        void Pdv_Host::create_pdv(PDV_Type aPdvType, GEN_Geometry_Object* aIntersection, uint aDimension)
+        {
+            // Check PDV type
+            MORIS_ASSERT(mPdvTypeMap.key_exists(aPdvType),
+                         "Tried to call Pdv_Host.create_pdv() using an intersection with a PDV type that doesn't exist on this host.");
+
+            // Create a pdv with an intersection pointer
+            mPdvList(mPdvTypeMap[aPdvType]) = std::make_shared<Pdv_Intersection>(aIntersection, aDimension);
         }
 
         //--------------------------------------------------------------------------------------------------------------
 
         bool Pdv_Host::is_active_type(PDV_Type aPdvType)
         {
-            // Check PDV_Type type
+            // Check PDV type
             MORIS_ASSERT(mPdvTypeMap.key_exists(aPdvType),
-                    "Tried to call Pdv_Host.is_active_type() with type that doesn't exist on this host.");
+                    "Tried to call Pdv_Host.is_active_type() with PDV type that doesn't exist on this host.");
 
-            // return if active PDV_Type
+            // return if active PDV
             return mActivePdvs(mPdvTypeMap[aPdvType]);
         }
 
@@ -100,11 +113,11 @@ namespace moris
 
         void Pdv_Host::mark_pdv_as_inactive(PDV_Type aPdvType)
         {
-            // Check PDV_Type type
+            // Check PDV type
             MORIS_ASSERT(mPdvTypeMap.key_exists(aPdvType),
-                    "Tried to call Pdv_Host.mark_pdv_as_inactive() with type that doesn't exist on this host.");
+                    "Tried to call Pdv_Host.mark_pdv_as_inactive() with a PDV type that doesn't exist on this host.");
 
-            // Set PDV_Type to be inactive
+            // Set PDV to be inactive
             mActivePdvs(mPdvTypeMap[aPdvType]) = false;
         }
 
@@ -112,9 +125,9 @@ namespace moris
 
         uint Pdv_Host::get_global_index_for_pdv_type(PDV_Type aPdvType)
         {
-            // Check PDV_Type type
+            // Check PDV type
             MORIS_ASSERT(mPdvTypeMap.key_exists(aPdvType),
-                         "Tried to call Pdv_Host.get_global_index_for_pdv_type() with type that doesn't exist on this host.");
+                         "Tried to call Pdv_Host.get_global_index_for_pdv_type() with a PDV type that doesn't exist on this host.");
 
             // Return id from map
             return mGlobalPdvIndices(mPdvTypeMap[aPdvType]);
@@ -131,9 +144,9 @@ namespace moris
 
         real Pdv_Host::get_pdv_value(PDV_Type aPdvType)
         {
-            // Check PDV_Type type
+            // Check PDV type
             MORIS_ASSERT(mPdvTypeMap.key_exists(aPdvType),
-                         "Tried to call Pdv_Host.get_pdv_value() with type that doesn't exist on this host.");
+                         "Tried to call Pdv_Host.get_pdv_value() with a PDV type that doesn't exist on this host.");
 
             // Return value
             return mPdvList(mPdvTypeMap[aPdvType])->get_value(mNodeIndex, mCoordinates);

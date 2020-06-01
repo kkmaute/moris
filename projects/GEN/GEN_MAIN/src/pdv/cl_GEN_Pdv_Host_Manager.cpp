@@ -420,6 +420,13 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
+        void Pdv_Host_Manager::create_ip_pdv(uint aNodeIndex, PDV_Type aPdvType, real aPdvVal)
+        {
+            mIpPdvHosts(aNodeIndex)->create_pdv(aPdvType, aPdvVal);
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
         void Pdv_Host_Manager::create_ip_pdv(uint aNodeIndex, PDV_Type aPdvType, std::shared_ptr<Property> aPropertyPointer)
         {
             mIpPdvHosts(aNodeIndex)->create_pdv(aPdvType, aPropertyPointer);
@@ -427,16 +434,16 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        void Pdv_Host_Manager::create_ip_pdv(uint aNodeIndex, PDV_Type aPdvType, moris::real aPdvVal)
+        void Pdv_Host_Manager::create_ig_pdv(uint aNodeIndex, PDV_Type aPdvType, moris::real aPdvVal)
         {
-            mIpPdvHosts(aNodeIndex)->create_pdv(aPdvType, aPdvVal);
+            mIgPdvHosts(aNodeIndex)->create_pdv(aPdvType, aPdvVal);
         }
 
         //--------------------------------------------------------------------------------------------------------------
 
-        void Pdv_Host_Manager::create_ig_pdv(uint aNodeIndex, PDV_Type aPdvType, moris::real aPdvVal)
+        void Pdv_Host_Manager::create_ig_pdv(uint aNodeIndex, PDV_Type aPdvType, GEN_Geometry_Object* aIntersection, uint aDimension)
         {
-            mIgPdvHosts(aNodeIndex)->create_pdv(aPdvType, aPdvVal);
+            mIgPdvHosts(aNodeIndex)->create_pdv(aPdvType, aIntersection, aDimension);
         }
 
         //--------------------------------------------------------------------------------------------------------------
