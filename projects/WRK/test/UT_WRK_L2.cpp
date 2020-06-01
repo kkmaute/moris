@@ -45,8 +45,6 @@
 #include "cl_PRM_XTK_Parameters.hpp"
 #include "fn_PRM_GEN_Parameters.hpp"
 
-#include "cl_GEN_Geometry_Field_HMR.hpp"
-
 using namespace moris;
 
 Matrix< DDRMat > tSimpleFunc( moris::Cell< Matrix< DDRMat > >         & aCoeff )
