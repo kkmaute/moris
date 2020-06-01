@@ -85,6 +85,10 @@ namespace moris
                     MORIS_ERROR(false,"wrong option for phase change function.");
             }
 
+            // debug
+            //std::cout << "dfdT = " << tdfdT << "\n" << std::flush;
+            //std::cout << "Temp = " << tTemp << "\n" << std::flush;
+
             return tdfdT;
         }
 
