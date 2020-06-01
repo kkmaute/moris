@@ -72,10 +72,10 @@ moris::Cell<bool> test_IWG_Diffusion_Phase_Change_Bulk(
     moris::Cell<bool> tChecks( 1, false );
 
     // define an epsilon environment
-    real tEpsilon = 1E-6;
+    real tEpsilon = 1.0e-6;
 
     // define a perturbation relative size
-    real tPerturbation = 1E-6;
+    real tPerturbation = 1.0e-6;
 
     // create the properties ------------------------------------------------------------------- //
 
@@ -105,13 +105,13 @@ moris::Cell<bool> test_IWG_Diffusion_Phase_Change_Bulk(
 
     // phase change temp
     std::shared_ptr< fem::Property > tPropMasterTmelt = std::make_shared< fem::Property >();
-    tPropMasterTmelt->set_parameters( {{{ 5.0 }}} );
+    tPropMasterTmelt->set_parameters( {{{ 5.2 }}} );
     //tPropMasterTupper->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
     tPropMasterTmelt->set_val_function( tConstValFunction_UTIWGDIFFPCBULK );
 
     // phase change constant
     std::shared_ptr< fem::Property > tPropMasterPCconst = std::make_shared< fem::Property >();
-    tPropMasterPCconst->set_parameters( {{{ 3.8 }}} );
+    tPropMasterPCconst->set_parameters( {{{ 2.8 }}} );
     //tPropMasterPCconst->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
     tPropMasterPCconst->set_val_function( tConstValFunction_UTIWGDIFFPCBULK );
 
@@ -246,8 +246,12 @@ moris::Cell<bool> test_IWG_Diffusion_Phase_Change_Bulk(
     tChecks(0) = tCheckJacobian;
 
     // debug
-    //print( tJacobian,   "tJacobian" );
-    //print( tJacobianFD, "tJacobianFD" );
+    moris::Matrix<DDRMat> test1 = tJacobianFD-tJacobian;
+    real tMax = test1.max();
+    // print( tJacobian,   "tJacobian" );
+    // print( tJacobianFD, "tJacobianFD" );
+    // print( test1, "JacobianDifference" );
+    std::cout << "Maximum difference = " << tMax << " \n" << std::flush;
 
     return tChecks;
 
@@ -318,13 +322,14 @@ TEST_CASE( "IWG_Diffusion_Phase_Change_Bulk_HEX27", "[moris],[fem],[IWG_Diffusio
 {
     //create a quad4 space element
     Matrix< DDRMat > tXHat = {
-            { 0.0, 0.0, 0.0}, { 1.0, 0.0, 0.0}, { 1.0, 1.0, 0.0}, { 0.0, 1.0, 0.0},
-            { 0.0, 0.0, 1.0}, { 1.0, 0.0, 1.0}, { 1.0, 1.0, 1.0}, { 0.0, 1.0, 1.0},
-            { 0.5, 0.0, 0.0}, { 1.0, 0.5, 0.0}, { 0.5, 1.0, 0.0}, { 0.0, 0.5, 0.0},
-            { 0.0, 0.0, 0.5}, { 1.0, 0.0, 0.5}, { 1.0, 1.0, 0.5}, { 0.0, 1.0, 0.5},
-            { 0.5, 0.0, 1.0}, { 1.0, 0.5, 1.0}, { 0.5, 1.0, 1.0}, { 0.0, 0.5, 1.0},
-            { 0.5, 0.5, 0.5}, { 0.5, 0.5, 0.0}, { 0.5, 0.5, 1.0},
-            { 0.5, 0.0, 0.5}, { 1.0, 0.5, 0.5}, { 0.5, 1.0, 0.5}, { 0.0, 0.5, 0.5}};
+            { 0.0, 0.0, 0.0}, { 4.0, 0.0, 0.0}, { 4.0, 1.0, 0.0}, { 0.0, 1.0, 0.0},
+            { 0.0, 0.0, 3.0}, { 4.0, 0.0, 3.0}, { 4.0, 1.0, 3.0}, { 0.0, 1.0, 3.0},
+            { 2.0, 0.0, 0.0}, { 4.0, 0.5, 0.0}, { 2.0, 1.0, 0.0}, { 0.0, 0.5, 0.0},
+            { 0.0, 0.0, 1.5}, { 4.0, 0.0, 1.5}, { 4.0, 1.0, 1.5}, { 0.0, 1.0, 1.5},
+            { 2.0, 0.0, 3.0}, { 4.0, 0.5, 3.0}, { 2.0, 1.0, 3.0}, { 0.0, 0.5, 3.0},
+            { 2.0, 0.5, 1.5}, { 2.0, 0.5, 0.0}, { 2.0, 0.5, 3.0},
+            { 2.0, 0.0, 1.5}, { 4.0, 0.5, 1.5}, { 2.0, 1.0, 1.5}, { 0.0, 0.5, 1.5}};
+
 
     //create a line time element
     Matrix< DDRMat > tTHat( 3, 1 );
@@ -349,9 +354,9 @@ TEST_CASE( "IWG_Diffusion_Phase_Change_Bulk_HEX27", "[moris],[fem],[IWG_Diffusio
 
     // set coefficients for field interpolators
     Matrix< DDRMat > tDOFHat = {
-            {4.1},{4.2},{4.3},{4.4},{4.5},{4.6},{4.7},{4.4},{4.9},{4.1},{4.2},{4.3},{4.4},{4.5},{4.6},{4.7},{4.8},{4.1},{4.3},{4.2},{4.3},{4.4},{4.5},{4.6},{4.7},{4.8},{4.9},
-            {5.1},{5.2},{5.3},{5.3},{5.5},{5.6},{5.7},{5.8},{5.9},{5.3},{5.2},{5.3},{5.4},{5.5},{5.2},{5.7},{5.8},{5.9},{5.1},{5.4},{5.3},{5.6},{5.5},{5.9},{5.7},{5.8},{5.9},
-            {6.4},{6.2},{6.3},{6.4},{6.2},{6.6},{6.7},{6.1},{6.9},{6.1},{6.1},{6.3},{6.4},{6.9},{6.8},{6.7},{6.6},{6.5},{6.6},{6.2},{6.3},{6.4},{6.5},{6.6},{6.7},{6.8},{6.9}};
+            {5.1},{5.2},{5.3},{5.4},{5.5},{4.6},{4.7},{5.4},{4.9},{5.1},{5.2},{5.3},{5.4},{5.5},{4.6},{4.7},{4.8},{5.1},{5.3},{5.2},{5.3},{5.4},{4.5},{4.6},{4.7},{4.8},{4.9},
+            {5.1},{5.2},{5.3},{5.3},{5.5},{4.8},{4.7},{4.8},{4.9},{5.3},{5.2},{5.3},{5.4},{4.5},{5.2},{4.7},{4.8},{4.9},{5.1},{5.4},{5.3},{4.6},{5.5},{4.9},{4.7},{4.8},{4.9},
+            {5.4},{5.2},{5.3},{5.4},{5.2},{5.2},{4.7},{5.1},{5.3},{5.1},{5.1},{5.1},{5.2},{5.3},{5.2},{4.7},{4.6},{4.5},{5.6},{5.2},{5.3},{5.4},{5.3},{4.5},{5.3},{5.2},{5.4}};
 
     uint tNumDOFs = 27 * 3;
     Matrix< DDRMat > tParametricPoint = {{ 0.35}, {-0.25}, { 0.75}, { 0.4 }};

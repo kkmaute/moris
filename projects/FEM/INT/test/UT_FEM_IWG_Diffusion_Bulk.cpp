@@ -87,10 +87,10 @@ moris::Cell<bool> test_IWG_Diffusion_Bulk(
     moris::Cell<bool> tChecks( 1, false );
 
     // define an epsilon environment
-    real tEpsilon = 1E-6;
+    real tEpsilon = 1.0E-6;
 
     // define a perturbation relative size
-    real tPerturbation = 1E-6;
+    real tPerturbation = 1.0E-6;
 
     // create the properties
     std::shared_ptr< fem::Property > tPropMasterConductivity = std::make_shared< fem::Property > ();
@@ -244,8 +244,12 @@ moris::Cell<bool> test_IWG_Diffusion_Bulk(
     tChecks(0) = tCheckJacobian;
 
     // debug
-    //print( tJacobian,   "tJacobian" );
-    //print( tJacobianFD, "tJacobianFD" );
+    moris::Matrix<DDRMat> test1 = tJacobianFD-tJacobian;
+    real tMax = test1.max();
+    // print( tJacobian,   "tJacobian" );
+    // print( tJacobianFD, "tJacobianFD" );
+    // print( test1, "JacobianDifference" );
+    std::cout << "Maximum difference = " << tMax << " \n" << std::flush;
 
     return tChecks;
 
