@@ -96,6 +96,14 @@ namespace moris
              */
             Matrix< IdMat > get_communication_table() const ;
 
+ // -----------------------------------------------------------------------------
+
+             /**
+              * returns the proc neighbors for this proc. This function return 9 entries for 2D and 27 for 3D.
+              * Some of them can be gNoId if this proc does not exist.
+              */
+             Matrix< IdMat > get_proc_neighbors() const;
+
 //-------------------------------------------------------------------------------
 
             /**
