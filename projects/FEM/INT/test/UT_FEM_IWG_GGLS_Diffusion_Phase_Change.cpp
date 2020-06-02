@@ -44,7 +44,7 @@ void tFIValFunction_UTIWGGGLSDIFFBULK
         moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
         moris::fem::Field_Interpolator_Manager         * aFIManager )
 {
-    aPropMatrix = aParameters( 0 ) * aFIManager->get_field_interpolators_for_type( moris::MSI::Dof_Type::TEMP )->val();
+    aPropMatrix = aParameters( 0 ) + 0.1 * aParameters( 0 ) * aFIManager->get_field_interpolators_for_type( moris::MSI::Dof_Type::TEMP )->val();
 }
 
 void tFIDerFunction_UTIWGGGLSDIFFBULK
@@ -52,7 +52,15 @@ void tFIDerFunction_UTIWGGGLSDIFFBULK
         moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
         moris::fem::Field_Interpolator_Manager         * aFIManager )
 {
-    aPropMatrix = aParameters( 0 ) * aFIManager->get_field_interpolators_for_type( moris::MSI::Dof_Type::TEMP )->N();
+    aPropMatrix = 0.1 * aParameters( 0 ) * aFIManager->get_field_interpolators_for_type( moris::MSI::Dof_Type::TEMP )->N();
+}
+
+void tFIDer0Function_UTIWGGGLSDIFFBULK
+( moris::Matrix< moris::DDRMat >                 & aPropMatrix,
+        moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
+        moris::fem::Field_Interpolator_Manager         * aFIManager )
+{
+    aPropMatrix = 0.0 * aFIManager->get_field_interpolators_for_type( moris::MSI::Dof_Type::TEMP )->N();
 }
 
 namespace moris
@@ -90,17 +98,19 @@ namespace moris
 
             std::shared_ptr< fem::Property > tPropMasterDensity = std::make_shared< fem::Property > ();
             tPropMasterDensity->set_parameters( { {{ 1.2 }} } );
-//            tPropMasterDensity->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
-//            tPropMasterDensity->set_val_function( tFIValFunction_UTIWGGGLSDIFFBULK );
-//            tPropMasterDensity->set_dof_derivative_functions( { tFIDerFunction_UTIWGGGLSDIFFBULK } );
-            tPropMasterDensity->set_val_function( tConstValFunction_UTIWGGGLSDIFFBULK );
+            tPropMasterDensity->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
+            tPropMasterDensity->set_val_function( tFIValFunction_UTIWGGGLSDIFFBULK );
+            tPropMasterDensity->set_dof_derivative_functions( { tFIDerFunction_UTIWGGGLSDIFFBULK } );
+//            tPropMasterDensity->set_val_function( tConstValFunction_UTIWGGGLSDIFFBULK );
+//            tPropMasterDensity->set_dof_derivative_functions( { tFIDer0Function_UTIWGGGLSDIFFBULK } );
 
             std::shared_ptr< fem::Property > tPropMasterHeatCapacity = std::make_shared< fem::Property > ();
-            tPropMasterHeatCapacity->set_parameters( { {{ 1.3 }} } );
-//            tPropMasterHeatCapacity->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
-//            tPropMasterHeatCapacity->set_val_function( tFIValFunction_UTIWGGGLSDIFFBULK );
-//            tPropMasterHeatCapacity->set_dof_derivative_functions( { tFIDerFunction_UTIWGGGLSDIFFBULK } );
-            tPropMasterHeatCapacity->set_val_function( tConstValFunction_UTIWGGGLSDIFFBULK );
+            tPropMasterHeatCapacity->set_parameters( { {{ 0.3 }} } );
+            tPropMasterHeatCapacity->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
+            tPropMasterHeatCapacity->set_val_function( tFIValFunction_UTIWGGGLSDIFFBULK );
+            tPropMasterHeatCapacity->set_dof_derivative_functions( { tFIDerFunction_UTIWGGGLSDIFFBULK } );
+//            tPropMasterHeatCapacity->set_val_function( tConstValFunction_UTIWGGGLSDIFFBULK );
+//            tPropMasterHeatCapacity->set_dof_derivative_functions( { tFIDer0Function_UTIWGGGLSDIFFBULK } );
 
             // latent heat
             std::shared_ptr< fem::Property > tPropMasterLatentHeat = std::make_shared< fem::Property >();
