@@ -22,205 +22,215 @@ namespace moris
     {
         class Writer_Exodus
         {
-        public:
-            std::string                     mPermFileName;
+            public:
+                std::string                     mPermFileName;
 
-            int                             mExoid = -1;
-        private:
+                int                             mExoid = -1;
 
-            moris::mtk::Mesh*               mMesh;
-            std::string                     mTempFileName;
-            moris::uint                     mTimeStep = 0;
-            moris::Matrix<moris::IndexMat>  mMtkExodusElementIndexMap;
-            moris::map<std::string, int>    mBlockNamesMap;
-            moris::map<std::string, int>    mNodalFieldNamesMap;
-            moris::map<std::string, int>    mElementalFieldNamesMap;
-            moris::map<std::string, int>    mGlobalVariableNamesMap;
+            private:
 
-        public:
-            /**
-            * Constructor
-             *
-            * @param  aMeshPointer Pointer to an MTK mesh
-            */
-            explicit Writer_Exodus(moris::mtk::Mesh* aMeshPointer);
+                moris::mtk::Mesh*               mMesh;
 
-            /**
-             * Constructor
-             */
-            Writer_Exodus();
+                std::string                     mTempFileName;
 
-            /** Destructor */
-            ~Writer_Exodus();
+                moris::uint                     mTimeStep = 0;
 
-            /**
-             * Changes how Exodus handles errors
-             *
-             * @param abort Causes fatal errors to force program exit.
-             * @param debug Causes certain messages to print for debugging use.
-             * @param verbose Causes all error messages to print when true, otherwise no error messages will print.
-             */
-            void set_error_options(bool abort, bool debug, bool verbose);
+                moris::Matrix<moris::IndexMat>  mMtkExodusElementIndexMap;
 
-            /**
-             *  Opens an Exodus file and stores the ID for future operations
-             *
-             *  @param aExodusFileName Name of the Exodus file.
-             *  @param aVersion Version of the database. Current version is 4.72 as of programming.
-             */
-            void open_file(std::string aExodusFileName, bool aReadOnly = true, float aVersion = 4.72);
+                moris::map<std::string, int>    mBlockNamesMap;
+                moris::map<std::string, int>    mNodalFieldNamesMap;
+                moris::map<std::string, int>    mElementalFieldNamesMap;
+                moris::map<std::string, int>    mGlobalVariableNamesMap;
 
-            /**
-             * Closes the open Exodus database *and* renames it to the permanent file name stored under mPermFileName. This
-             * must be called in order for the Exodus file to be able to be read properly.
-             */
-            void close_file(bool aRename = true);
+            public:
+                /**
+                 * Constructor
+                 *
+                 * @param  aMeshPointer Pointer to an MTK mesh
+                 */
+                explicit Writer_Exodus(moris::mtk::Mesh* aMeshPointer);
 
-            /**
-             * Creates an Exodus file and writes everything MTK provides about the given mesh.
-             *
-             * @param aFileName The name of the final file
-             * @param aFilePath The path the temporary and final file
-             */
-            void write_mesh(std::string aFilePath, const std::string& aFileName);
+                /**
+                 * Constructor
+                 */
+                Writer_Exodus();
 
-            /**
-             * Creates an Exodus file and writes everything MTK provides about the mesh.
-             *
-             * @param aFileName The name of the final file
-             * @param aFilePath The path the temporary and final file
-             * @param aCoordinates The coordinates of the points to be written
-             */
-            void write_points(std::string aFilePath, const std::string& aFileName, Matrix<DDRMat> aCoordinates);
+                /** Destructor */
+                ~Writer_Exodus();
 
-            /**
-             * Sets the number of variables to be written for point data (no mesh)
-             *
-             * @param aFieldNames The names of the fields that can be written
-             */
-            void set_point_fields(moris::Cell<std::string> aFieldNames);
+                /**
+                 * Changes how Exodus handles errors
+                 *
+                 * @param abort Causes fatal errors to force program exit.
+                 * @param debug Causes certain messages to print for debugging use.
+                 * @param verbose Causes all error messages to print when true, otherwise no error messages will print.
+                 */
+                void set_error_options(bool abort, bool debug, bool verbose);
 
-            /**
-             * Sets the number of variables to be written for nodal data
-             *
-             * @param aFieldNames The names of the fields that can be written
-             */
-            void set_nodal_fields(moris::Cell<std::string> aFieldNames);
+                /**
+                 *  Opens an Exodus file and stores the ID for future operations
+                 *
+                 *  @param aExodusFileName Name of the Exodus file.
+                 *  @param aVersion Version of the database. Current version is 4.72 as of programming.
+                 */
+                void open_file(std::string & aExodusFileName, bool aReadOnly = true, float aVersion = 4.72);
 
-            /**
-             * Sets the number of variables to be written for elemental data
-             *
-             * @param aFieldNames The names of the fields that can be written
-             */
-            void set_elemental_fields(moris::Cell<std::string> aFieldNames);
+                /**
+                 * Closes the open Exodus database *and* renames it to the permanent file name stored under mPermFileName. This
+                 * must be called in order for the Exodus file to be able to be read properly.
+                 */
+                void close_file(bool aRename = true);
 
-            /**
-             * Sets the number of variables to be written globally
-             *
-             * @param aFieldNames The names of the fields that can be written
-             */
-            void set_global_variables(moris::Cell<std::string> aFieldNames);
+                /**
+                 * Creates an Exodus file and writes everything MTK provides about the given mesh.
+                 *
+                 * @param aFileName The name of the final file
+                 * @param aFilePath The path the temporary and final file
+                 */
+                void write_mesh(std::string aFilePath, const std::string& aFileName);
 
-            /**
-             *  Writes a time to be used for subsequent fields
-             *
-             *  @param aTimeValue the time for the next time index
-             */
-            void set_time(moris::real aTimeValue);
+                /**
+                 * Save temporary to permanent Exodus file.
+                 */
+                void save_mesh();
 
-            /**
-             *  Writes a point field at the current time step.
-             *
-             *  @param aFieldName The name of the field being written
-             *  @param aFieldValues Matrix of values to write for this field.
-             */
-            void write_point_field(       std::string                    aFieldName,
-                                          const moris::Matrix<moris::DDRMat> & aFieldValues);
+                /**
+                 * Creates an Exodus file and writes everything MTK provides about the mesh.
+                 *
+                 * @param aFileName The name of the final file
+                 * @param aFilePath The path the temporary and final file
+                 * @param aCoordinates The coordinates of the points to be written
+                 */
+                void write_points(std::string aFilePath, const std::string& aFileName, Matrix<DDRMat> aCoordinates);
 
-            /**
-             *  Writes a field to the mesh nodes at the current time step.
-             *
-             *  @param aFieldName The name of the field being written
-             *  @param aFieldValues Matrix of values to write for this field.
-             */
-            void write_nodal_field(       std::string                    aFieldName,
-                                          const moris::Matrix<moris::DDRMat> & aFieldValues);
+                /**
+                 * Sets the number of variables to be written for point data (no mesh)
+                 *
+                 * @param aFieldNames The names of the fields that can be written
+                 */
+                void set_point_fields(moris::Cell<std::string> aFieldNames);
 
-            /**
-             *  Writes a field to the mesh elements at the current time step.
-             *
-             *  @param aBlockName The name of the block that will receive the field
-             *  @param aFieldName The name of the field being written
-             *  @param aFieldValues Matrix of values to write
-             */
-            void write_elemental_field(       std::string                    aBlockName,
-                                              std::string                    aFieldName,
-                                              const moris::Matrix<moris::DDRMat> & aFieldValues);
+                /**
+                 * Sets the number of variables to be written for nodal data
+                 *
+                 * @param aFieldNames The names of the fields that can be written
+                 */
+                void set_nodal_fields(moris::Cell<std::string> aFieldNames);
 
-            /**
-             *  Writes a global variable at the current time step.
-             *
-             *  @param aVariableName The name of the variable being written
-             *  @param aVariableValue The value of the global variable
-             */
-            void write_global_variable(       std::string   aVariableName,
-                                              const moris::real & aVariableValue);
+                /**
+                 * Sets the number of variables to be written for elemental data
+                 *
+                 * @param aFieldNames The names of the fields that can be written
+                 */
+                void set_elemental_fields(moris::Cell<std::string> aFieldNames);
 
-        private:
+                /**
+                 * Sets the number of variables to be written globally
+                 *
+                 * @param aFieldNames The names of the fields that can be written
+                 */
+                void set_global_variables(moris::Cell<std::string> aFieldNames);
 
-            /**
-             * Creates an Exodus database at the given file path and string
-             *
-             * @param aFileName The name of the final file
-             * @param aFilePath The path the temporary and final file
-             */
-            void create_file(std::string aFilePath, const std::string& aFileName);
+                /**
+                 *  Writes a time to be used for subsequent fields
+                 *
+                 *  @param aTimeValue the time for the next time index
+                 */
+                void set_time(moris::real aTimeValue);
 
-            /**
-             * Creates an Exodus database and initializes it at the given file path and string using an MTK mesh
-             *
-             * @param aFileName The name of the final file
-             * @param aFilePath The path the temporary and final file
-             */
-            void create_init_mesh_file(std::string aFilePath, const std::string& aFileName);
+                /**
+                 *  Writes a point field at the current time step.
+                 *
+                 *  @param aFieldName The name of the field being written
+                 *  @param aFieldValues Matrix of values to write for this field.
+                 */
+                void write_point_field(       std::string                    aFieldName,
+                        const moris::Matrix<moris::DDRMat> & aFieldValues);
 
-            /**
-             * Writes the coordinates of the nodes in the MTK mesh to Exodus.
-             */
-            void write_nodes();
+                /**
+                 *  Writes a field to the mesh nodes at the current time step.
+                 *
+                 *  @param aFieldName The name of the field being written
+                 *  @param aFieldValues Matrix of values to write for this field.
+                 */
+                void write_nodal_field(       std::string                    aFieldName,
+                        const moris::Matrix<moris::DDRMat> & aFieldValues);
 
-            /**
-             * Writes the node sets in the MTK mesh.
-             *
-             * @warning This will probably not work, it hasn't been tested yet (I need a mesh with node sets)
-             */
-            void write_node_sets();
+                /**
+                 *  Writes a field to the mesh elements at the current time step.
+                 *
+                 *  @param aBlockName The name of the block that will receive the field
+                 *  @param aFieldName The name of the field being written
+                 *  @param aFieldValues Matrix of values to write
+                 */
+                void write_elemental_field(       std::string                    aBlockName,
+                        std::string                    aFieldName,
+                        const moris::Matrix<moris::DDRMat> & aFieldValues);
 
-            /**
-             * Writes the element blocks in the MTK mesh. Currently supports element and face blocks.
-             */
-            void write_blocks();
+                /**
+                 *  Writes a global variable at the current time step.
+                 *
+                 *  @param aVariableName The name of the variable being written
+                 *  @param aVariableValue The value of the global variable
+                 */
+                void write_global_variable(       std::string   aVariableName,
+                        const moris::real & aVariableValue);
 
-            /**
-             * Writes the side sets in the MTK mesh.
-             */
-            void write_side_sets();
+            private:
 
-            /**
-             * Gets a more detailed description of the elements in the block for exodus from the MTK CellTopology.
-             *
-             * @param aCellTopology The type of element in MTK.
-             * @return Character string describing the Exodus element block.
-             */
-            const char* get_exodus_block_topology(CellTopology aCellTopology);
+                /**
+                 * Creates an Exodus database at the given file path and string
+                 *
+                 * @param aFileName The name of the final file
+                 * @param aFilePath The path the temporary and final file
+                 */
+                void create_file(std::string aFilePath, const std::string& aFileName);
 
-            /**
-             * Gets the number of nodes in a given element type.
-             *
-             * @param aCellTopology The type of element in MTK.
-             * @return The number of nodes per element of this topology.
-             */
-            int get_nodes_per_element(CellTopology aCellTopology);
+                /**
+                 * Creates an Exodus database and initializes it at the given file path and string using an MTK mesh
+                 *
+                 * @param aFileName The name of the final file
+                 * @param aFilePath The path the temporary and final file
+                 */
+                void create_init_mesh_file(std::string aFilePath, const std::string& aFileName);
+
+                /**
+                 * Writes the coordinates of the nodes in the MTK mesh to Exodus.
+                 */
+                void write_nodes();
+
+                /**
+                 * Writes the node sets in the MTK mesh.
+                 *
+                 * @warning This will probably not work, it hasn't been tested yet (I need a mesh with node sets)
+                 */
+                void write_node_sets();
+
+                /**
+                 * Writes the element blocks in the MTK mesh. Currently supports element and face blocks.
+                 */
+                void write_blocks();
+
+                /**
+                 * Writes the side sets in the MTK mesh.
+                 */
+                void write_side_sets();
+
+                /**
+                 * Gets a more detailed description of the elements in the block for exodus from the MTK CellTopology.
+                 *
+                 * @param aCellTopology The type of element in MTK.
+                 * @return Character string describing the Exodus element block.
+                 */
+                const char* get_exodus_block_topology(CellTopology aCellTopology);
+
+                /**
+                 * Gets the number of nodes in a given element type.
+                 *
+                 * @param aCellTopology The type of element in MTK.
+                 * @return The number of nodes per element of this topology.
+                 */
+                int get_nodes_per_element(CellTopology aCellTopology);
 
         };
     }
