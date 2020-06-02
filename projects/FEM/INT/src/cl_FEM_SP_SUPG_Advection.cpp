@@ -19,7 +19,6 @@ namespace moris
 
             // populate the map
             mPropertyMap[ "Conductivity" ]     = Property_Type::CONDUCTIVITY;
-//            mPropertyMap[ "InvPermeability" ]  = Property_Type::INV_PERMEABILITY;
         }
 
         //------------------------------------------------------------------------------
@@ -101,10 +100,6 @@ namespace moris
             std::shared_ptr< Property > tPropConductivity =
                     mMasterProp( static_cast< uint >( Property_Type::CONDUCTIVITY ) );
 
-//            // get the permeability property
-//            std::shared_ptr< Property > tPropInvPermeab =
-//                    mMasterProp( static_cast< uint >( Property_Type::INV_PERMEABILITY ) );
-
             // get the norm of velocity
             real tNorm = norm( tVelocityFI->val() );
 
@@ -135,18 +130,6 @@ namespace moris
             // get tau3
             real tTau3 = 0.25 * std::pow( tHugn, 2.0 ) / tPropConductivity->val()( 0 );
 
-//            // get inverse of permeability
-//            real tAlpha = 0.0;
-//            if (tPropInvPermeab != nullptr)
-//                tAlpha = tPropInvPermeab->val()(0);
-
-//            // compute stabilization parameter value
-//            mPPVal = {{ std::pow(
-//                    1 / std::pow( tTau1, 2.0 ) +
-//                    1 / std::pow( tTau2, 2.0 ) +
-//                    1 / std::pow( tTau3, 2.0 ) +
-//                    std::pow( tAlpha, 2.0 ) , -0.5 ) }};
-
             // compute stabilization parameter value
             mPPVal = {{ std::pow(
                     1 / std::pow( tTau1, 2.0 ) +
@@ -176,10 +159,6 @@ namespace moris
             // get the conductivity property
             std::shared_ptr< Property > tPropConductivity
             = mMasterProp( static_cast< uint >( Property_Type::CONDUCTIVITY ) );
-
-//            // get the permeability property
-//            std::shared_ptr< Property > tPropInvPermeab =
-//                    mMasterProp( static_cast< uint >( Property_Type::INV_PERMEABILITY ) );
 
             // compute the norm of velocity
             real tNorm = norm( tVelocityFI->val() );
@@ -242,22 +221,6 @@ namespace moris
                     std::pow( this->val()( 0 ), 3.0 ) *
                     ( std::pow( tTau1, -3.0 ) * tdTau1dDof.matrix_data() + std::pow( tTau3, -3.0 ) * tdTau3dDof.matrix_data() );
 
-//            // if permeability property depends on dof type
-//            if (tPropInvPermeab != nullptr)
-//            {
-//                if( tPropInvPermeab->check_dof_dependency( aDofTypes ) )
-//                {
-//                    // get tau2
-//                    Matrix< DDRMat > tTimeCoeff =
-//                            mMasterFIManager->get_IP_geometry_interpolator()->get_time_coeff();
-//                    real tDeltaT = tTimeCoeff.max() - tTimeCoeff.min();
-//                    real tTau2 = tDeltaT / 2;
-//
-//                    // add contribution
-//                    mdPPdMasterDof( tDofIndex ).matrix_data() -=
-//                            tPropInvPermeab->val()(0) * std::pow( this->val()( 0 ), 3.0 ) * tPropInvPermeab->dPropdDOF( aDofTypes );
-//                }
-//            }
         }
 
         //------------------------------------------------------------------------------

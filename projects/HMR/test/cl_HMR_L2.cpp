@@ -326,6 +326,63 @@ TEST_CASE("HMR_Comm_Table", "[moris],[mesh],[hmr],[hmr_Comm_Table]")
     }
 }
 
+TEST_CASE("HMR_CommTable2", "[moris],[mesh],[hmr],[HMR_CommTable2]")
+{
+//    gLogger.set_severity_level( 0 );
+    // can only perform test for 1, 2 or 4 procs
+    if( moris::par_size() == 4  )
+    {
+        moris::uint tDimension=3;
+
+//------------------------------------------------------------------------------
+//  HMR Parameters setup
+//------------------------------------------------------------------------------
+
+        // The parameter object controls the behavior of HMR.
+        moris::ParameterList tParameters = prm::create_hmr_parameter_list();
+
+        tParameters.set( "number_of_elements_per_dimension", std::string("6, 6, 6") );
+        tParameters.set( "domain_dimensions", std::string("6, 6, 6") );
+        tParameters.set( "domain_offset", std::string("-3.0, -3.0, -3.0") );
+
+
+        tParameters.set( "truncate_bsplines", 1 );
+        tParameters.set( "lagrange_orders", std::string("1") );
+        tParameters.set( "lagrange_pattern", std::string("0") );
+        tParameters.set( "bspline_orders", std::string("1") );
+        tParameters.set( "bspline_pattern", std::string("0") );
+
+        tParameters.set( "union_pattern", 2 );
+
+        tParameters.set( "lagrange_to_bspline", std::string("0") );
+
+        tParameters.set( "use_multigrid", 0 );
+
+        tParameters.set( "refinement_buffer", 1 );
+        tParameters.set( "staircase_buffer", 1 );
+
+//------------------------------------------------------------------------------
+//  HMR Initialization
+//------------------------------------------------------------------------------
+
+        // create the HMR object by passing the settings to the constructor
+        moris::hmr::HMR tHMR( tParameters );
+
+        // std::shared_ptr< Database >
+        auto tDatabase = tHMR.get_database();
+
+        //tDatabase->get_background_mesh()->save_to_vtk("Background555.vtk");
+
+        tDatabase->update_bspline_meshes();
+        tDatabase->update_lagrange_meshes();
+        // calculate T-Matrices etc
+        tDatabase->finalize();
+
+        //print(tDatabase->get_proc_neighbors(), "ProcNeighbors");
+
+    }
+}
+
 TEST_CASE("HMR_L2_Test_Pattern", "[moris],[mesh],[hmr],[hmr_L2_pattern]")
 {
 //    gLogger.set_severity_level( 0 );

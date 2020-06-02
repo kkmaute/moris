@@ -145,6 +145,13 @@ namespace moris
 
 //-----------------------------------------------------------------------------
 
+        Matrix< IdMat > Mesh::get_proc_neighbors() const
+        {
+            return mDatabase->get_proc_neighbors();
+        }
+
+//-----------------------------------------------------------------------------
+
         std::shared_ptr< Field > Mesh::create_field( const std::string & aLabel, const uint & aBSplineIndex )
         {
             // fixme: this is not the best solution. See also

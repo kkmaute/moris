@@ -1422,15 +1422,16 @@ namespace moris
                     // update check value
                     tCheckJacobian = tCheckJacobian && ( ( tAbsolute < aEpsilon ) || ( tRelative < aEpsilon ) );
 
-                    // for debug
-                    if( ( ( tAbsolute < aEpsilon ) || ( tRelative < aEpsilon ) ) == false )
-                    {
-                        std::cout<<"iiJac "<<iiJac<<" - jjJac "<<jjJac<<"\n"<<std::flush;
-                        std::cout<<"aJacobians( iiJac, jjJac ) "<<aJacobians( iiJac, jjJac )<<"\n"<<std::flush;
-                        std::cout<<"aJacobiansFD( iiJac, jjJac ) "<<aJacobiansFD( iiJac, jjJac )<<"\n"<<std::flush;
-                        std::cout<<"Absolute difference "<<tAbsolute<<"\n"<<std::flush;
-                        std::cout<<"Relative difference "<<tRelative<<"\n"<<std::flush;
-                    }
+//                    // for debug
+//                    //std::cout<<"Relative difference "<<tRelative<<"\n"<<std::flush;
+//                    if( ( ( tAbsolute < aEpsilon ) || ( tRelative < aEpsilon ) ) == false )
+//                    {
+//                        std::cout<<"iiJac "<<iiJac<<" - jjJac "<<jjJac<<"\n"<<std::flush;
+//                        std::cout<<"aJacobians( iiJac, jjJac ) "<<aJacobians( iiJac, jjJac )<<"\n"<<std::flush;
+//                        std::cout<<"aJacobiansFD( iiJac, jjJac ) "<<aJacobiansFD( iiJac, jjJac )<<"\n"<<std::flush;
+//                        std::cout<<"Absolute difference "<<tAbsolute<<"\n"<<std::flush;
+//                        std::cout<<"Relative difference "<<tRelative<<"\n"<<std::flush;
+//                    }
                 }
             }
 
@@ -1499,11 +1500,11 @@ namespace moris
                     //                    // for debug
                     //                    if( ( ( tAbsolute < aEpsilon ) || ( tRelative < aEpsilon ) ) == false )
                     //                    {
-                    //                        std::cout<<"iiJac "<<iiJac<<" - jjJac "<<jjJac<<std::endl;
-                    //                        std::cout<<"aJacobians( iiJac, jjJac ) "<<aJacobians( iiJac, jjJac )<<std::endl;
-                    //                        std::cout<<"aJacobiansFD( iiJac, jjJac ) "<<aJacobiansFD( iiJac, jjJac )<<std::endl;
-                    //                        std::cout<<"Absolute difference "<<tAbsolute<<std::endl;
-                    //                        std::cout<<"Relative difference "<<tRelative<<std::endl;
+                    //                        std::cout<<"iiJac "<<iiJac<<" - jjJac "<<jjJac<<"\n"<<std::flush;
+                    //                        std::cout<<"aJacobians( iiJac, jjJac ) "<<aJacobians( iiJac, jjJac )<<"\n"<<std::flush;
+                    //                        std::cout<<"aJacobiansFD( iiJac, jjJac ) "<<aJacobiansFD( iiJac, jjJac )<<"\n"<<std::flush;
+                    //                        std::cout<<"Absolute difference "<<tAbsolute<<"\n"<<std::flush;
+                    //                        std::cout<<"Relative difference "<<tRelative<<"\n"<<std::flush;
                     //                    }
                 }
             }
