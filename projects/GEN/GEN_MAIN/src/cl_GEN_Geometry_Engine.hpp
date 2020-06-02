@@ -58,9 +58,6 @@ namespace moris
                                               moris::Matrix< moris::DDRMat >  & aEdgeNodePhi,
                                               moris::Matrix< moris::DDRMat >  & aDxDp )
         {
-
-             MORIS_ASSERT(aDPhiADp.n_rows() != 0,"dPhi/dp not implemented in geometry would cause a seg fault here");
-             MORIS_ASSERT(aDPhiBDp.n_rows() != 0,"dPhi/dp not implemented in geometry would cause a seg fault here");
              moris::real const & tPhiA = aEdgeNodePhi(0,0);
              moris::real const & tPhiB = aEdgeNodePhi(1,0);
 
@@ -75,7 +72,7 @@ namespace moris
              moris::Matrix< moris::DDRMat > tDxgDphiBMat(tDxgammaDphiB);
 
               // Compute dx/dp
-             moris::DDRMat tDxDp = aDPhiADp * moris::trans(tDxgDphiAMat) +  aDPhiBDp * moris::trans(tDxgDphiBMat);
+             moris::DDRMat tDxDp = aDPhiADp * tDxgDphiAMat +  aDPhiBDp * tDxgDphiBMat;
              aDxDp = moris::Matrix< moris::DDRMat >(tDxDp);
 
         }
