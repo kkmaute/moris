@@ -206,22 +206,6 @@ namespace moris
              * @param aPdvTypes The PDV types per set, grouped
              */
             void create_ig_pdv_hosts(uint aTotalNodes, Cell<Matrix<DDSMat>> aNodeIndicesPerSet, Cell<Cell<Cell<PDV_Type>>> aPdvTypes);
-
-            /**
-             * Mark a PDV on an interpolation node as being inactive
-             *
-             * @param aNodeIndex IP node index
-             * @param aPdvType PDV on the node to be marked
-             */
-            void mark_ip_pdv_as_inactive(moris_index aNodeIndex, PDV_Type aPdvType);
-
-            /**
-             * Mark a PDV on an integration node as being inactive
-             *
-             * @param aNodeIndex IG node index
-             * @param aPdvType PDV on the node to be marked
-             */
-            void mark_ig_pdv_as_inactive(moris_index aNodeIndex, PDV_Type aPdvType);
             
             /**
              * Set the requested interpolation node PDV types for sensitivities

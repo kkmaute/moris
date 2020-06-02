@@ -392,20 +392,6 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        void Pdv_Host_Manager::mark_ip_pdv_as_inactive(moris_index aNodeIndex, PDV_Type aPdvType)
-        {
-            mIpPdvHosts(aNodeIndex)->mark_pdv_as_inactive(aPdvType);
-        }
-
-        //--------------------------------------------------------------------------------------------------------------
-
-        void Pdv_Host_Manager::mark_ig_pdv_as_inactive(moris_index aNodeIndex, PDV_Type aPdvType)
-        {
-            mIgPdvHosts(aNodeIndex)->mark_pdv_as_inactive(aPdvType);
-        }
-
-        //--------------------------------------------------------------------------------------------------------------
-
         void Pdv_Host_Manager::set_ip_requested_dv_types(Cell<PDV_Type>& aPdvTypes)
         {
             mRequestedIpPdvTypes = aPdvTypes;

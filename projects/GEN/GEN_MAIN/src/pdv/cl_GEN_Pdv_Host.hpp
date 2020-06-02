@@ -19,10 +19,9 @@ namespace moris
             Matrix<DDRMat> mCoordinates;
 
             // Information about the contained PDVs
-            Cell<std::shared_ptr<Pdv>> mPdvList;
+            Cell<std::shared_ptr<Pdv>> mPdvs;
             moris::map<PDV_Type, uint> mPdvTypeMap;
             Matrix<DDUMat> mGlobalPdvIndices;
-            Cell<bool> mActivePdvs;
             
         public:
             
@@ -80,14 +79,6 @@ namespace moris
              * @return if PDV type is active
              */
             bool is_active_type(PDV_Type aPdvType);
-
-            /**
-             * Mark a pdv as being inactive
-             *
-             * @param aPdvType PDV type
-             * @param aGlobalPdvTypeMap
-             */
-            void mark_pdv_as_inactive(PDV_Type aPdvType);
             
             /**
              * Get global index for pdv by type
