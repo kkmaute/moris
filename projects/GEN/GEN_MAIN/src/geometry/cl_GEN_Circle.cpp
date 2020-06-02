@@ -1,7 +1,5 @@
 #include "cl_GEN_Circle.hpp"
 
-#include "fn_norm.hpp"
-
 namespace moris
 {
     namespace ge
@@ -9,15 +7,23 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        Circle::Circle(Matrix<DDRMat>& aADVs, Matrix<DDUMat> aGeometryVariableIndices, Matrix<DDUMat> aADVIndices, Matrix<DDRMat> aConstantParameters)
-        : Field(aADVs, aGeometryVariableIndices, aADVIndices, aConstantParameters)
+        Circle::Circle(Matrix<DDRMat>& aADVs,
+                       Matrix<DDUMat> aGeometryVariableIndices,
+                       Matrix<DDUMat> aADVIndices,
+                       Matrix<DDRMat> aConstantParameters)
+                : Field(aADVs,
+                        aGeometryVariableIndices,
+                        aADVIndices,
+                        aConstantParameters)
         {
+            MORIS_ERROR(aGeometryVariableIndices.length() + aConstantParameters.length() == 3,
+                        "A circle geometry must be created with a total of exactly 3 adv and constant parameters");
         }
 
         //--------------------------------------------------------------------------------------------------------------
 
         Circle::Circle(real aXCenter, real aYCenter, real aRadius)
-        : Field(Matrix<DDRMat>({{aXCenter, aYCenter, aRadius}}))
+                : Field(Matrix<DDRMat>({{aXCenter, aYCenter, aRadius}}))
         {
         }
 
@@ -26,68 +32,35 @@ namespace moris
         real Circle::evaluate_field_value(const Matrix<DDRMat>& aCoordinates)
         {
             // Get variables
-            Matrix<DDRMat> tCenter(1, 2);
-            tCenter(0) = *(mFieldVariables(0));
-            tCenter(1) = *(mFieldVariables(1));
+            real tXCenter = *(mFieldVariables(0));
+            real tYCenter = *(mFieldVariables(1));
+            real tRadius = *(mFieldVariables(2));
+
+            Matrix<DDRMat> tCenter(2, 1);
+            tCenter(0) = tXCenter;
+            tCenter(1) = tYCenter;
 
             // Evaluate field
-            moris::real tFunctionValue = norm(aCoordinates - tCenter) - *(mFieldVariables(2));
-            
-            return tFunctionValue;
+            return sqrt(pow(aCoordinates(0) - tXCenter, 2) + pow(aCoordinates(1) - tYCenter, 2)) - tRadius;
         }
 
         //--------------------------------------------------------------------------------------------------------------
 
         void Circle::evaluate_all_sensitivities(const Matrix<DDRMat>& aCoordinates, Matrix<DDRMat>& aSensitivities)
         {
-            // Initialize sensitivity matrix
-            aSensitivities.resize(3, 2);
-
             // Get variables
-            moris::real tXCenter = *(mFieldVariables(0));
-            moris::real tYCenter = *(mFieldVariables(1));
-            moris::real tRadius = *(mFieldVariables(2));
+            real tXCenter = *(mFieldVariables(0));
+            real tYCenter = *(mFieldVariables(1));
 
-            // dx/dr
-            // Set sign based on value under square root
-            moris::real sign = 0.0;
-            moris::real tSqrt = tRadius * tRadius - std::pow((aCoordinates(1) - tYCenter), 2);
-            if(tSqrt < 0.0)
-            {
-                sign = -1.0;
-            }
-            else if(tSqrt > 0.0)
-            {
-                sign = 1.0;
-            }
-
-            // Calculate
-            aSensitivities(0, 0) = sign * tRadius / std::sqrt(std::abs(tSqrt));
-
-            // dy/dr
-            // Set sign based on value under square root
-            tSqrt = tRadius * tRadius - std::pow((aCoordinates(0) - tXCenter),2);
-            if(tSqrt < 0.0)
-            {
-                sign = -1.0;
-            }
-            else if(tSqrt > 0.0)
-            {
-                sign = 1.0;
-            }
-
-            // Calculate
-            aSensitivities(0, 1) = sign * tRadius / std::sqrt(std::abs(tSqrt));
-
-            // Fill remaining values in tSensitivity
-            aSensitivities(1,0) = 1.0; // dx/dxc
-            aSensitivities(1,1) = 0.0; // dy/dxc
-            aSensitivities(2,0) = 0.0; // dx/dyc
-            aSensitivities(2,1) = 1.0; // dy/dyc
+            // Calculate sensitivities
+            aSensitivities.resize(3, 1);
+            real tDenominator = sqrt(pow(aCoordinates(0) - tXCenter, 2) + pow(aCoordinates(1) - tYCenter, 2));
+            aSensitivities(0) = (tXCenter - aCoordinates(0)) / tDenominator;
+            aSensitivities(1) = (tYCenter - aCoordinates(1)) / tDenominator;
+            aSensitivities(2) = -1;
         }
 
         //--------------------------------------------------------------------------------------------------------------
 
     }
 }
-
