@@ -53,10 +53,10 @@ namespace moris
                 uint aSpatialDim = 2)
         {
             // real for check
-            real tEpsilonRel = 5E-5;
+            real tEpsilonRel = 1.0E-6;
 
             // initialize cell of checks
-            moris::Cell<bool> tChecks( 5, false );
+            moris::Cell<bool> tChecks( 6, false );
 
             // create the properties --------------------------------------------------------------------- //
             std::shared_ptr< fem::Property > tPropMasterConductivity = std::make_shared< fem::Property >();
@@ -147,14 +147,17 @@ namespace moris
 
             //check stress derivative
             bool tCheckdStress = true;
-            real tEpsilon = std::abs( tEpsilonRel * tdFluxdDOF( 0, 0 ) );
             for ( uint iStress = 0; iStress < tdFluxdDOF.n_rows(); iStress++ )
             {
                 for( uint jStress = 0; jStress < tdFluxdDOF.n_cols(); jStress++ )
                 {
-                    tCheckdStress = tCheckdStress && ( std::abs( tdFluxdDOF( iStress, jStress ) - tdFluxdDOF_FD( iStress, jStress ) ) < tEpsilon );
+                    tCheckdStress = tCheckdStress &&
+                            ( std::abs( ( tdFluxdDOF( iStress, jStress ) - tdFluxdDOF_FD( iStress, jStress ) ) /
+                                    tdFluxdDOF( iStress, jStress )) < tEpsilonRel  );
+
                 }
             }
+
             //REQUIRE( tCheckdStress );
             tChecks(0) = tCheckdStress;
 
@@ -179,12 +182,13 @@ namespace moris
 
             //check strain derivative
             bool tCheckdStrain = true;
-            tEpsilon = std::abs( tEpsilonRel * tdStraindDOF( 0, 0 ) );
             for ( uint iStress = 0; iStress < tdStraindDOF.n_rows(); iStress++ )
             {
                 for( uint jStress = 0; jStress < tdStraindDOF.n_cols(); jStress++ )
                 {
-                    tCheckdStrain = tCheckdStrain && ( std::abs( tdStraindDOF( iStress, jStress ) - tdStraindDOF_FD( iStress, jStress ) ) < tEpsilon );
+                    tCheckdStrain = tCheckdStrain &&
+                            ( ( std::abs( ( tdStraindDOF( iStress, jStress ) - tdStraindDOF_FD( iStress, jStress ) ) /
+                                    tdStraindDOF( iStress, jStress ) ) ) < tEpsilonRel );
                 }
             }
             //REQUIRE( tCheckdStrain );
@@ -247,12 +251,13 @@ namespace moris
 
             //check stress derivative
             bool tCheckHdot = true;
-            tEpsilon = std::abs( tEpsilonRel * tdHdotdDOF( 0, 0 ) );
             for ( uint iStress = 0; iStress < tdHdotdDOF.n_rows(); iStress++ )
             {
                 for( uint jStress = 0; jStress < tdHdotdDOF.n_cols(); jStress++ )
                 {
-                    tCheckHdot = tCheckHdot && ( std::abs( tdHdotdDOF( iStress, jStress ) - tdHdotdDOF_FD( iStress, jStress ) ) < tEpsilon );
+                    tCheckHdot = tCheckHdot &&
+                            ( std::abs( ( tdHdotdDOF( iStress, jStress ) - tdHdotdDOF_FD( iStress, jStress ) ) /
+                                    tdHdotdDOF( iStress, jStress ) ) < tEpsilonRel );
                 }
             }
             //REQUIRE( tCheckHdot );
@@ -261,6 +266,35 @@ namespace moris
             // debug
             //moris::print(tdHdotdDOF, "tdHdotdDOF");
             //moris::print(tdHdotdDOF_FD, "tdHdotdDOF_FD");
+
+            // check gradH -----------------------------------------------------------------
+            //------------------------------------------------------------------------------
+
+            // evaluate the constitutive model flux derivative
+            Matrix< DDRMat > tdGradHdDOF = tCMMasterDiffLinIso->dGradHdDOF( { MSI::Dof_Type::TEMP } );
+            //print( tdFluxdDOF, "tdFluxdDOF");
+
+            // evaluate the constitutive model stress derivative by FD
+            Matrix< DDRMat > tdGradHdDOF_FD;
+            tCMMasterDiffLinIso->eval_dGradHdDOF_FD( { MSI::Dof_Type::TEMP }, tdGradHdDOF_FD, 1E-6 );
+
+            //check stress derivative
+            bool tCheckGradH = true;
+            for ( uint iStress = 0; iStress < tdGradHdDOF.n_rows(); iStress++ )
+            {
+                for( uint jStress = 0; jStress < tdGradHdDOF.n_cols(); jStress++ )
+                {
+                    tCheckGradH = tCheckGradH &&
+                            ( std::abs( tdGradHdDOF( iStress, jStress ) - tdGradHdDOF_FD( iStress, jStress ) ) <
+                                    tEpsilonRel * std::abs( tdGradHdDOF( iStress, jStress )) );
+                }
+            }
+            //REQUIRE( tCheckGradH );
+            tChecks(3) = tCheckGradH;
+
+            // debug
+            //moris::print(tdGradHdDOF, "tdGradHdDOF");
+            //moris::print(tdGradHdDOF_FD, "tdGradHdDOF_FD");
 
 
             // check gradHdot --------------------------------------------------------------
@@ -276,16 +310,17 @@ namespace moris
 
             //check stress derivative
             bool tCheckGradHdot = true;
-            tEpsilon = std::abs( tEpsilonRel * tdGradHdotdDOF( 0, 0 ) );
             for ( uint iStress = 0; iStress < tdGradHdotdDOF.n_rows(); iStress++ )
             {
                 for( uint jStress = 0; jStress < tdGradHdotdDOF.n_cols(); jStress++ )
                 {
-                    tCheckGradHdot = tCheckGradHdot && ( std::abs( tdGradHdotdDOF( iStress, jStress ) - tdGradHdotdDOF_FD( iStress, jStress ) ) < tEpsilon );
+                    tCheckGradHdot = tCheckGradHdot &&
+                            ( std::abs( ( tdGradHdotdDOF( iStress, jStress ) - tdGradHdotdDOF_FD( iStress, jStress ) ) /
+                                    tdGradHdotdDOF( iStress, jStress ) ) < tEpsilonRel );
                 }
             }
             //REQUIRE( tCheckGradHdot );
-            tChecks(3) = tCheckGradHdot;
+            tChecks(4) = tCheckGradHdot;
 
             // debug
             //moris::print(tdGradHdotdDOF, "tdGradHdotdDOF");
@@ -305,16 +340,17 @@ namespace moris
 
             //check strain derivative
             bool tCheckGradDivFlux = true;
-            tEpsilon = std::abs( tEpsilonRel );
             for ( uint iStress = 0; iStress < tdGradDivFluxdDOF.n_rows(); iStress++ )
             {
                 for( uint jStress = 0; jStress < tdGradDivFluxdDOF.n_cols(); jStress++ )
                 {
-                    tCheckGradDivFlux = tCheckGradDivFlux && ( std::abs( tdGradDivFluxdDOF( iStress, jStress ) - tdGradDivFluxdDOF_FD( iStress, jStress ) ) < tEpsilon );
+                    tCheckGradDivFlux = tCheckGradDivFlux &&
+                            ( std::abs( ( tdGradDivFluxdDOF( iStress, jStress ) - tdGradDivFluxdDOF_FD( iStress, jStress ) ) /
+                                    tdGradDivFluxdDOF( iStress, jStress ) ) < tEpsilonRel || tdGradDivFluxdDOF( iStress, jStress ) < 1.0e-13 );
                 }
             }
             //REQUIRE( tCheckGradDivFlux );
-            tChecks(4) = tCheckGradDivFlux;
+            tChecks(5) = tCheckGradDivFlux;
 
             // debug
             //moris::print(tdGradDivFluxdDOF, "tdGradDivFluxdDOF");
@@ -380,11 +416,13 @@ namespace moris
             bool tCheckdStress     = tChecks(0);
             bool tCheckdStrain     = tChecks(1);
             bool tCheckHdot        = tChecks(2);
-            bool tCheckGradHdot    = tChecks(3);
-            bool tCheckGradDivFlux = tChecks(4);
+            bool tCheckGradH       = tChecks(3);
+            bool tCheckGradHdot    = tChecks(4);
+            bool tCheckGradDivFlux = tChecks(5);
             REQUIRE( tCheckdStress );
             REQUIRE( tCheckdStrain );
             REQUIRE( tCheckHdot );
+            REQUIRE( tCheckGradH );
             REQUIRE( tCheckGradHdot );
             REQUIRE( tCheckGradDivFlux );
 
@@ -451,11 +489,13 @@ namespace moris
             bool tCheckdStress     = tChecks(0);
             bool tCheckdStrain     = tChecks(1);
             bool tCheckHdot        = tChecks(2);
-            bool tCheckGradHdot    = tChecks(3);
-            bool tCheckGradDivFlux = tChecks(4);
+            bool tCheckGradH       = tChecks(3);
+            bool tCheckGradHdot    = tChecks(4);
+            bool tCheckGradDivFlux = tChecks(5);
             REQUIRE( tCheckdStress );
             REQUIRE( tCheckdStrain );
             REQUIRE( tCheckHdot );
+            REQUIRE( tCheckGradH );
             REQUIRE( tCheckGradHdot );
             REQUIRE( tCheckGradDivFlux );
 
@@ -515,7 +555,8 @@ namespace moris
                     {5.1},{5.2},{5.3},{5.4},{5.5},{5.6},{5.7},{5.8},{5.9},{5.1},{5.2},{5.3},{5.4},{5.5},{5.6},{5.7},
                     {6.1},{6.2},{6.3},{6.4},{6.5},{6.6},{6.7},{6.8},{6.9},{6.1},{6.2},{6.3},{6.4},{6.5},{6.6},{6.7},
                     {7.1},{7.2},{7.3},{7.4},{7.5},{7.6},{7.7},{7.8},{7.9},{7.1},{7.2},{7.3},{7.4},{7.5},{7.6},{7.7},};
-            Matrix< DDRMat > tParametricPoint = {{-0.4}, { 0.1}, {-0.6}};
+
+            Matrix< DDRMat > tParametricPoint = {{ 0.8}, {-0.9}, { 0.2}};
 
             // run test
             moris::Cell<bool> tChecks = test_diffusion_constitutive_model(
@@ -530,11 +571,13 @@ namespace moris
             bool tCheckdStress     = tChecks(0);
             bool tCheckdStrain     = tChecks(1);
             bool tCheckHdot        = tChecks(2);
-            bool tCheckGradHdot    = tChecks(3);
-            bool tCheckGradDivFlux = tChecks(4);
+            bool tCheckGradH       = tChecks(3);
+            bool tCheckGradHdot    = tChecks(4);
+            bool tCheckGradDivFlux = tChecks(5);
             REQUIRE( tCheckdStress );
             REQUIRE( tCheckdStrain );
             REQUIRE( tCheckHdot );
+            REQUIRE( tCheckGradH );
             REQUIRE( tCheckGradHdot );
             REQUIRE( tCheckGradDivFlux );
         }

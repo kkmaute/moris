@@ -130,7 +130,7 @@ TEST_CASE("DLA_Multigrid","[DLA],[DLA_multigrid]")
         // grab pointer to output field
         //std::shared_ptr< moris::hmr::Mesh > tMesh = tHMR.create_mesh( tOrder );
         hmr::Interpolation_Mesh_HMR * tInterpolationMesh =  tHMR.create_interpolation_mesh( tLagrangeMeshIndex);
-        hmr::Integration_Mesh_HMR * tIntegrationMesh =  tHMR.create_integration_mesh( 1, 0, *tInterpolationMesh );
+        hmr::Integration_Mesh_HMR * tIntegrationMesh =  tHMR.create_integration_mesh( 1, 0, tInterpolationMesh );
 
         // create field
         std::shared_ptr< moris::hmr::Field > tField = tInterpolationMesh->create_field( "Circle", tLagrangeMeshIndex );

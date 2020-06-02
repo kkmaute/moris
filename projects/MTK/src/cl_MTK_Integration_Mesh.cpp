@@ -13,6 +13,8 @@ namespace moris
 {
     namespace mtk
     {
+        // ----------------------------------------------------------------------------
+
         Integration_Mesh::~Integration_Mesh()
         {
             for( auto tListofBlocks : mListofBlocks )
@@ -55,7 +57,13 @@ namespace moris
 
         moris_index Integration_Mesh::get_set_index_by_name( std::string aSetLabel )
         {
-            MORIS_ASSERT( mSetNameToIndexMap.key_exists( aSetLabel), aSetLabel.data() );
+            if ( ! mSetNameToIndexMap.key_exists( aSetLabel ) )
+            {
+                std::string tErrMsg = "Integration_Mesh::get_set_index_by_name - Set with name does not exists: " + aSetLabel;
+
+                MORIS_ERROR( false, tErrMsg.c_str() );
+            }
+
             return mSetNameToIndexMap.find( aSetLabel );
         }
 
@@ -114,7 +122,6 @@ namespace moris
             // reset
             mListOfAllSets.clear();
             mSetNameToIndexMap.clear();
-
 
             uint tCounter = 0;
 

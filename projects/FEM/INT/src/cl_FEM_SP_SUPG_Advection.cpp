@@ -18,7 +18,7 @@ namespace moris
             mMasterProp.resize( static_cast< uint >( Property_Type::MAX_ENUM ), nullptr );
 
             // populate the map
-            mPropertyMap[ "Conductivity" ] = Property_Type::CONDUCTIVITY;
+            mPropertyMap[ "Conductivity" ]     = Property_Type::CONDUCTIVITY;
         }
 
         //------------------------------------------------------------------------------
@@ -131,7 +131,10 @@ namespace moris
             real tTau3 = 0.25 * std::pow( tHugn, 2.0 ) / tPropConductivity->val()( 0 );
 
             // compute stabilization parameter value
-            mPPVal = {{ std::pow( 1 / std::pow( tTau1, 2.0 ) + 1 / std::pow( tTau2, 2.0 ) + 1 / std::pow( tTau3, 2.0 ), -0.5 ) }};
+            mPPVal = {{ std::pow(
+                    1 / std::pow( tTau1, 2.0 ) +
+                    1 / std::pow( tTau2, 2.0 ) +
+                    1 / std::pow( tTau3, 2.0 ) , -0.5 ) }};
         }
 
         //------------------------------------------------------------------------------
@@ -147,6 +150,7 @@ namespace moris
             mdPPdMasterDof( tDofIndex ).set_size( 1, tFIDer->get_number_of_space_time_coefficients(), 0.0 );
             Matrix< DDRMat > tdTau1dDof( 1, tFIDer->get_number_of_space_time_coefficients(), 0.0 );
             Matrix< DDRMat > tdTau3dDof( 1, tFIDer->get_number_of_space_time_coefficients(), 0.0 );
+            Matrix< DDRMat > tdAlphadDof( 1, tFIDer->get_number_of_space_time_coefficients(), 0.0 );
 
             // get the velocity FI
             Field_Interpolator * tVelocityFI
@@ -216,6 +220,7 @@ namespace moris
             mdPPdMasterDof( tDofIndex ).matrix_data() +=
                     std::pow( this->val()( 0 ), 3.0 ) *
                     ( std::pow( tTau1, -3.0 ) * tdTau1dDof.matrix_data() + std::pow( tTau3, -3.0 ) * tdTau3dDof.matrix_data() );
+
         }
 
         //------------------------------------------------------------------------------

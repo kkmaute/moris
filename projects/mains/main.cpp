@@ -66,7 +66,7 @@ int main( int argc, char * argv[] )
     gMorisComm = moris::Comm_Manager( &argc, &argv );
 
     // Severity level 0 - all outputs
-    gLogger.initialize( 3 );
+    gLogger.initialize( 2 );
     moris::print_banner( argc, argv );
 
     //------------------------------------------------------------------------------

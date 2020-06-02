@@ -160,7 +160,7 @@ TEST_CASE("MDL FEM Benchmark Diff Block","[MDL_FEM_Benchmark_Diff_Block]")
 
         // construct a mesh manager for the fem
         moris::hmr::Interpolation_Mesh_HMR * tIPMesh = tHMR.create_interpolation_mesh( tLagrangeMeshIndex );
-        moris::hmr::Integration_Mesh_HMR *   tIGMesh = tHMR.create_integration_mesh(1, 0, *tIPMesh );
+        moris::hmr::Integration_Mesh_HMR *   tIGMesh = tHMR.create_integration_mesh(1, 0, tIPMesh );
 
        // place the pair in mesh manager
        mtk::Mesh_Manager tMeshManager;
@@ -1045,7 +1045,7 @@ TEST_CASE("MDL FEM Benchmark Elast Block","[MDL_FEM_Benchmark_Elast_Block]")
 
         // construct a mesh manager for the fem
         moris::hmr::Interpolation_Mesh_HMR * tIPMesh = tHMR.create_interpolation_mesh( tLagrangeMeshIndex );
-        moris::hmr::Integration_Mesh_HMR *   tIGMesh = tHMR.create_integration_mesh(1, 0, *tIPMesh );
+        moris::hmr::Integration_Mesh_HMR *   tIGMesh = tHMR.create_integration_mesh(1, 0, tIPMesh );
 
        // place the pair in mesh manager
        mtk::Mesh_Manager tMeshManager;
