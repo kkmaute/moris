@@ -191,17 +191,6 @@ namespace moris
                     tCheckHdot = tCheckHdot &&
                             ( std::abs( ( tdHdotdDOF( iStress, jStress ) - tdHdotdDOF_FD( iStress, jStress ) ) /
                                     tdHdotdDOF( iStress, jStress ) ) < tEpsilonRel );
-
-// debug
-if ( std::abs( ( tdHdotdDOF( iStress, jStress ) - tdHdotdDOF_FD( iStress, jStress ) ) / tdHdotdDOF( iStress, jStress ) ) > tEpsilonRel )
-{
-    std::cout << "Hdot failed at: " << iStress << "x" << jStress
-              << " with an absolute difference of " << std::abs( tdHdotdDOF( iStress, jStress ) - tdHdotdDOF_FD( iStress, jStress ) )
-              << " and a relative one of " <<
-              std::abs( ( tdHdotdDOF( iStress, jStress ) - tdHdotdDOF_FD( iStress, jStress ) ) / tdHdotdDOF( iStress, jStress ) )
-              << "\n" << std::flush;
-}
-
                 }
             }
             //REQUIRE( tCheckHdot );
@@ -261,16 +250,6 @@ if ( std::abs( ( tdHdotdDOF( iStress, jStress ) - tdHdotdDOF_FD( iStress, jStres
                     tCheckGradHdot = tCheckGradHdot &&
                             ( std::abs( tdGradHdotdDOF( iStress, jStress ) - tdGradHdotdDOF_FD( iStress, jStress ) ) <
                                     tEpsilonRel * std::abs(tdGradHdotdDOF( iStress, jStress )) );
-
-// debug
-if ( std::abs( tdGradHdotdDOF( iStress, jStress ) - tdGradHdotdDOF_FD( iStress, jStress ) ) > tEpsilonRel * std::abs(tdGradHdotdDOF( iStress, jStress )) )
-{
-    std::cout << "gradHdot failed at: " << iStress << "x" << jStress
-              << " with an absolute difference of " << std::abs( tdGradHdotdDOF( iStress, jStress ) - tdGradHdotdDOF_FD( iStress, jStress ) )
-              << " and a relative one of " << std::abs( ( tdGradHdotdDOF( iStress, jStress ) - tdGradHdotdDOF_FD( iStress, jStress ) ) / tdGradHdotdDOF( iStress, jStress ) )
-              << "\n" << std::flush;
-}
-
                 }
             }
             //REQUIRE( tCheckGradHdot );
@@ -302,17 +281,6 @@ if ( std::abs( tdGradHdotdDOF( iStress, jStress ) - tdGradHdotdDOF_FD( iStress, 
                             ( std::abs( ( tdGradDivFluxdDOF( iStress, jStress ) - tdGradDivFluxdDOF_FD( iStress, jStress ) ) /
                                     tdGradDivFluxdDOF( iStress, jStress ) ) < tEpsilonRel
                                     || tdGradDivFluxdDOF( iStress, jStress ) < 1.0e-13 );
-
-// debug
-if ( std::abs( ( tdGradDivFluxdDOF( iStress, jStress ) - tdGradDivFluxdDOF_FD( iStress, jStress ) ) / tdGradDivFluxdDOF( iStress, jStress ) ) > tEpsilonRel )
-{
-    std::cout << "gradDivFlux failed at: " << iStress << "x" << jStress
-              << " with an absolute difference of " << std::abs( tdGradDivFluxdDOF( iStress, jStress ) - tdGradDivFluxdDOF_FD( iStress, jStress ) )
-              << " and a relative one of "
-              << std::abs( ( tdGradDivFluxdDOF( iStress, jStress ) - tdGradDivFluxdDOF_FD( iStress, jStress ) ) / tdGradDivFluxdDOF( iStress, jStress ) )
-              << "\n" << std::flush;
-}
-
                 }
             }
             //REQUIRE( tCheckGradDivFlux );

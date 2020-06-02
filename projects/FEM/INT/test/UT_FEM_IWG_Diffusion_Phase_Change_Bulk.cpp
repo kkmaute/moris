@@ -246,12 +246,12 @@ moris::Cell<bool> test_IWG_Diffusion_Phase_Change_Bulk(
     tChecks(0) = tCheckJacobian;
 
     // debug
-    moris::Matrix<DDRMat> test1 = tJacobianFD-tJacobian;
-    real tMax = test1.max();
+    // moris::Matrix<DDRMat> test1 = tJacobianFD-tJacobian;
+    // real tMax = test1.max();
     // print( tJacobian,   "tJacobian" );
     // print( tJacobianFD, "tJacobianFD" );
     // print( test1, "JacobianDifference" );
-    std::cout << "Maximum difference = " << tMax << " \n" << std::flush;
+    // std::cout << "Maximum difference = " << tMax << " \n" << std::flush;
 
     return tChecks;
 

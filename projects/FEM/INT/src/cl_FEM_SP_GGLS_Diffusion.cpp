@@ -234,13 +234,6 @@ namespace moris
 
             moris::real tdSPdAlpha = std::pow(mElementSize, 2.0) / 6.0 * dXibardAlpha;
 
-// debug
-std::cout << "Heat Capacity = " << tHeatCapacity << " \n" << std::flush;
-std::cout << "Alpha = " << tAlpha << " \n" << std::flush;
-std::cout << "dSPdAlpha = " << tdSPdAlpha << " \n" << std::flush;
-std::cout << "Denominator = " << ( 4.0 * std::pow( tAlpha , 2.0 ) * std::pow( ( std::cosh( std::sqrt(6.0*tAlpha) ) - 1.0 ) , 2.0 ) ) << " \n" << std::flush;
-MORIS_ASSERT( dXibardAlpha < 1.0e+50, "Infinite GGLS parameter." );
-
             // indirect contributions for both with and without phase change ---------------------------
 
             // if indirect dependency on conductivity
