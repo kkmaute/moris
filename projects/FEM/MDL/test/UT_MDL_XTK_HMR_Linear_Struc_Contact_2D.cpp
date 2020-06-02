@@ -62,7 +62,7 @@
 
 #include "cl_GEN_Circle.hpp"
 #include "cl_GEN_Plane.hpp"
-#include "cl_GEN_Geometry_Analytic.hpp"
+#include "cl_GEN_Geometry.hpp"
 
 
 #include "cl_PRM_HMR_Parameters.hpp"
@@ -278,7 +278,7 @@ TEST_CASE("2D Linear Stuct Contract","[XTK_HMR_LS_Contact_2D]")
         //-----------------------------------------------------------------------------------------------
 
         // NOTE the order of this geometry vector is important. If it changes the resulting bulk phase of the output mesh change.
-        moris::Cell<std::shared_ptr<moris::ge::Geometry_Discrete>> tGeometryVector(4);
+        moris::Cell<std::shared_ptr<moris::ge::Geometry>> tGeometryVector(4);
         tGeometryVector(0) = std::make_shared<moris::ge::Geometry_Field_HMR>(tLeftField);
         tGeometryVector(1) = std::make_shared<moris::ge::Geometry_Field_HMR>(tRightField);
         tGeometryVector(2) = std::make_shared<moris::ge::Geometry_Field_HMR>(tTopField);

@@ -123,7 +123,6 @@ namespace moris
 
             if ( aIt <= 1)
             {
-                aRefNorm = aResNorm;
                 MORIS_LOG( "--------------------------------------------------------------------------------");
                 MORIS_LOG( " NLBGS ... refNorm for pseudo-time step is %+1.15e", aRefNorm );
                 MORIS_LOG( "--------------------------------------------------------------------------------" );
@@ -131,7 +130,7 @@ namespace moris
                 if ( par_rank() == 0 )
                 {
                     MORIS_LOG( "        NlinIt  |  NlinResNorm            |  NlinResDrop  ||  NewItrTime" );
-                    MORIS_LOG( "         %-5i  |  %-15.15e  |  %-11.5e  ||  %9.4e ", 1, aResNorm, 0.0,  0.0  );
+                    MORIS_LOG( "         %-5i  |  %-15.15e  |  %-11.5e  ||  %9.4e ", 0, aRefNorm, 0.0,  0.0  );
                 }
             }
 
@@ -140,7 +139,7 @@ namespace moris
             MORIS_ERROR( !( aResNorm > 1e20 ), "Convergence::check_for_convergence(): Residual Norm has exceeded 1e20");
 
             // Check for convergence
-            if ( ( aIt > 1 ) && ( aResNorm < aRefNorm * tNonLinSolver->mParameterListNonlinearSolver.get< moris::real >( "NLA_rel_res_norm_drop" ) ) )
+            if ( ( aIt >= 1 ) && ( aResNorm < aRefNorm * tNonLinSolver->mParameterListNonlinearSolver.get< moris::real >( "NLA_rel_res_norm_drop" ) ) )
             {
                 if ( par_rank() == 0 )
                 {
@@ -150,7 +149,7 @@ namespace moris
 
                 tIsConverged = true;
             }
-            else if ( ( aIt > 1 ) && ( aResNorm < tNonLinSolver->mParameterListNonlinearSolver.get< moris::real >( "NLA_tot_res_norm" ) ) )
+            else if ( ( aIt >= 1 ) && ( aResNorm < tNonLinSolver->mParameterListNonlinearSolver.get< moris::real >( "NLA_tot_res_norm" ) ) )
             {
                 if ( par_rank() == 0 )
                 {
@@ -160,7 +159,7 @@ namespace moris
 
                 tIsConverged = true;
             }
-            else if ( ( aIt > 1 ) && ( aResNorm > aRefNorm * tNonLinSolver->mParameterListNonlinearSolver.get< moris::real >( "NLA_max_rel_res_norm" ) ) )
+            else if ( ( aIt >= 1 ) && ( aResNorm > aRefNorm * tNonLinSolver->mParameterListNonlinearSolver.get< moris::real >( "NLA_max_rel_res_norm" ) ) )
             {
                 // case for residual drop getting too big, not converged, need to retry
                 if ( par_rank() == 0 )
@@ -177,7 +176,7 @@ namespace moris
                     aHartBreak = true;
                 }
             }
-            else if( ( aIt > 1 ) )
+            else if( ( aIt >= 1 ) )
             {
                 if ( par_rank() == 0 )
                 {

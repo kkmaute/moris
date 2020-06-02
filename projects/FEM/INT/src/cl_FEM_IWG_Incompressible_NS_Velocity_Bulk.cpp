@@ -23,6 +23,7 @@ namespace moris
             mPropertyMap[ "Gravity" ]          = IWG_Property_Type::GRAVITY;
             mPropertyMap[ "ThermalExpansion" ] = IWG_Property_Type::THERMAL_EXPANSION;
             mPropertyMap[ "ReferenceTemp" ]    = IWG_Property_Type::REF_TEMP;
+            mPropertyMap[ "InvPermeability" ]  = IWG_Property_Type::INV_PERMEABILITY;
 
             // set size for the constitutive model pointer cell
             mMasterCM.resize( static_cast< uint >( IWG_Constitutive_Type::MAX_ENUM ), nullptr );
@@ -70,6 +71,10 @@ namespace moris
             // get the reference temperature property
             std::shared_ptr< Property > tRefTempProp    =
                     mMasterProp( static_cast< uint >( IWG_Property_Type::REF_TEMP ) );
+
+            // get the inverted permeability (porosity) property
+            std::shared_ptr< Property > tInvPermeabProp   =
+                    mMasterProp( static_cast< uint >( IWG_Property_Type::INV_PERMEABILITY ) );
 
             // get the incompressible fluid constitutive model
             std::shared_ptr< Constitutive_Model > tIncFluidCM =
@@ -147,6 +152,14 @@ namespace moris
                                 tThermalExpProp->val() * ( tTempFI->val() - tRefTempProp->val() ) );
             }
 
+            // if permeability
+            if ( tInvPermeabProp != nullptr )
+            {
+                // add brinkman term to residual weak form
+                mSet->get_residual()( 0 )( { tMasterResStartIndex, tMasterResStopIndex }, { 0, 0 } )
+                        += aWStar * ( trans( tVelocityFI->N() ) * tInvPermeabProp->val()( 0 ) * tVelocityFI->gradx( 1 ) );
+            }
+
             // if turbulence
             if( tSPTurbulenceViscosity != nullptr )
             {
@@ -188,6 +201,10 @@ namespace moris
             // get the reference temperature property
             std::shared_ptr< Property > tRefTempProp    =
                     mMasterProp( static_cast< uint >( IWG_Property_Type::REF_TEMP ) );
+
+            // get the inverted permeability (porosity) property
+            std::shared_ptr< Property > tInvPermeabProp   =
+                    mMasterProp( static_cast< uint >( IWG_Property_Type::INV_PERMEABILITY ) );
 
             // evaluate the density
             real tDensity = tDensityProp->val()( 0 );
@@ -265,6 +282,17 @@ namespace moris
                                     trans( tVelocityFI->N() ) * tDensity * trans( tVelocityFI->gradx( 1 ) ) * tVelocityFI->N() +
                                     trans( tVelocityFI->N() ) * tDensity * tujvij +
                                     tujvijrM * tDensity * tSPSUPSPSPG->val()( 0 ) );
+
+                    // if permeability
+                    if ( tInvPermeabProp != nullptr )
+                    {
+                        // add brinkman term to jacobian of weak form
+                        mSet->get_jacobian()(
+                                { tMasterResStartIndex, tMasterResStopIndex },
+                                { tMasterDepStartIndex, tMasterDepStopIndex } )
+                                += aWStar * ( trans( tVelocityFI->N() ) * tInvPermeabProp->val()( 0 ) * tVelocityFI->dnNdxn( 1 ) );
+                    }
+
                 }
 
                 // compute the jacobian strong form
@@ -314,6 +342,20 @@ namespace moris
                             += aWStar * (
                                     trans( tujvij ) * tDensity * tRM * tSPSUPSPSPG->dSPdMasterDOF( tDofType ).get_row( 0 ) +
                                     trans( tVelocityFI->div_operator() ) * tRC * tSPSUPSPSPG->dSPdMasterDOF( tDofType ).get_row( 1 ) );
+                }
+
+                // if permeability depends on DoF type
+                if ( tInvPermeabProp != nullptr )
+                {
+                    if( tGravityProp->check_dof_dependency( tDofType ) )
+                    {
+                        mSet->get_jacobian()(
+                                { tMasterResStartIndex, tMasterResStopIndex },
+                                { tMasterDepStartIndex, tMasterDepStopIndex } )
+                                += aWStar * (
+                                        trans( tVelocityFI->N() ) *
+                                        tInvPermeabProp->dPropdDOF( tDofType ) * tVelocityFI->gradx( 1 ) );
+                    }
                 }
 
                 // if gravity
@@ -500,6 +542,8 @@ namespace moris
                     mMasterProp( static_cast< uint >( IWG_Property_Type::THERMAL_EXPANSION ) );
             std::shared_ptr< Property > tRefTempProp    =
                     mMasterProp( static_cast< uint >( IWG_Property_Type::REF_TEMP ) );
+            std::shared_ptr< Property > tInvPermeabProp   =
+                    mMasterProp( static_cast< uint >( IWG_Property_Type::INV_PERMEABILITY ) );
 
             // get the incompressible fluid constitutive model
             std::shared_ptr< Constitutive_Model > tIncFluidCM =
@@ -518,6 +562,15 @@ namespace moris
                     tIncFluidCM->divflux();
 
             aRC = tVelocityFI->div();
+
+
+            // if permeability
+            if ( tInvPermeabProp != nullptr )
+            {
+                // add brinkman term to residual strong form
+                aRM.matrix_data() +=  tInvPermeabProp->val()( 0 ) * tVelocityFI->gradx( 1 ) ;
+            }
+
 
             // if gravity
             if ( tGravityProp != nullptr )
@@ -567,6 +620,8 @@ namespace moris
                     mMasterProp( static_cast< uint >( IWG_Property_Type::THERMAL_EXPANSION ) );
             std::shared_ptr< Property > tRefTempProp    =
                     mMasterProp( static_cast< uint >( IWG_Property_Type::REF_TEMP ) );
+            std::shared_ptr< Property > tInvPermeabProp   =
+                    mMasterProp( static_cast< uint >( IWG_Property_Type::INV_PERMEABILITY ) );
 
             // get the incompressible fluid constitutive model
             std::shared_ptr< Constitutive_Model > tIncFluidCM =
@@ -597,6 +652,15 @@ namespace moris
                         tDensity * tujvij ;
 
                 aJC.matrix_data() += tVelocityFI->div_operator().matrix_data();
+
+                // if permeability
+                if ( tInvPermeabProp != nullptr )
+                {
+                    // add brinkman term to jacobian strong form
+                    aJM.matrix_data() +=
+                            tInvPermeabProp->val()( 0 ) * tVelocityFI->dnNdxn( 1 ) ;
+                }
+
             }
 
             // if density depends on dof type
@@ -613,6 +677,15 @@ namespace moris
             {
                 // compute contribution to jacobian strong form
                 aJM.matrix_data() -= tIncFluidCM->ddivfluxdu( aDofTypes ).matrix_data();
+            }
+
+            // if permeability depends on DoF type
+            if ( tInvPermeabProp != nullptr )
+            {
+                if( tGravityProp->check_dof_dependency( aDofTypes ) )
+                {
+                    aJM.matrix_data() += tInvPermeabProp->dPropdDOF( aDofTypes ).matrix_data() * tVelocityFI->gradx( 1 ) ;
+                }
             }
 
             // if gravity

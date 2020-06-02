@@ -159,7 +159,7 @@ TEST_CASE("MDL Transient","[MDL_Transient]")
 
         // construct a mesh manager for the fem
         moris::hmr::Interpolation_Mesh_HMR * tIPMesh = tHMR.create_interpolation_mesh( tLagrangeMeshIndex );
-        moris::hmr::Integration_Mesh_HMR *   tIGMesh = tHMR.create_integration_mesh(1, 0, *tIPMesh );
+        moris::hmr::Integration_Mesh_HMR *   tIGMesh = tHMR.create_integration_mesh(1, 0, tIPMesh );
 
        // place the pair in mesh manager
        mtk::Mesh_Manager tMeshManager;
@@ -374,7 +374,7 @@ TEST_CASE("MDL Transient XFEM","[MDL_Transient_XFEM]")
 
 //    for( uint k=0; k<tNumRef; ++k )
 //    {
-//        Cell< std::shared_ptr< moris::ge::Geometry_Analytic > > tGeometry( 2 );
+//        Cell< std::shared_ptr< moris::ge::Geometry > > tGeometry( 2 );
 //        tGeometry( 0 ) = std::make_shared< moris::ge::Plane >( tPlaneLeft, 0.0, 1.0, 0.0 );
 //        tGeometry( 1 ) = std::make_shared< moris::ge::Plane >( tPlaneRight, 0.0, 1.0, 0.0 );
 //
@@ -413,7 +413,7 @@ TEST_CASE("MDL Transient XFEM","[MDL_Transient_XFEM]")
 
     //-----------------------------------------------------------------------------------------------
 
-    Cell< std::shared_ptr< moris::ge::Geometry_Analytic > > tGeometry0( 2 );
+    Cell< std::shared_ptr< moris::ge::Geometry > > tGeometry0( 2 );
     tGeometry0( 0 ) = std::make_shared< moris::ge::Plane >( tPlaneLeft, 0.0, 1.0, 0.0 );
     tGeometry0( 1 ) = std::make_shared< moris::ge::Plane >( tPlaneRight, 0.0, 1.0, 0.0 );
 

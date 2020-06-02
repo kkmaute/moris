@@ -25,7 +25,7 @@ namespace moris
 {
     namespace fem
     {
-//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
         /*
          * Stabilization parameter for face-oriented viscous ghost-penalty
          * gamma_mu = alpha_mu * viscosity * h^(2*(i-1)+1)
@@ -35,96 +35,114 @@ namespace moris
         class SP_Viscous_Ghost : public Stabilization_Parameter
         {
 
-//------------------------------------------------------------------------------
-        private:
+                //------------------------------------------------------------------------------
+            private:
 
-            // element size
-            real mElementSize = 1.0;
+                // element size
+                real mElementSize = 1.0;
 
-        public:
+            public:
 
-            // property type for the SP
-            enum class Property_Type
-            {
-                VISCOSITY,  // fluid viscosity
-                MAX_ENUM
-            };
+                // property type for the SP
+                enum class Property_Type
+                {
+                    VISCOSITY,  // fluid viscosity
+                    MAX_ENUM
+                };
 
-            // local string to property enum map
-            std::map< std::string, Property_Type > mPropertyMap;
+                // local string to property enum map
+                std::map< std::string, Property_Type > mPropertyMap;
 
-            /*
-             * Rem: mParameters( 0 ) - alpha_mu
-             */
+                /*
+                 * Rem: mParameters( 0 ) - alpha_mu
+                 */
 
-//------------------------------------------------------------------------------
-            /*
-             * constructor
-             */
-            SP_Viscous_Ghost();
+                //------------------------------------------------------------------------------
+                /*
+                 * constructor
+                 */
+                SP_Viscous_Ghost();
 
-//------------------------------------------------------------------------------
-            /**
-             * trivial destructor
-             */
-            ~SP_Viscous_Ghost(){};
+                //------------------------------------------------------------------------------
+                /**
+                 * trivial destructor
+                 */
+                ~SP_Viscous_Ghost(){};
 
-//------------------------------------------------------------------------------
-            /**
-             * reset the cluster measures required for this SP
-             */
-            void reset_cluster_measures()
-            {
-                // evaluate element size from the cluster
-                mElementSize = mCluster->compute_cluster_cell_length_measure( mtk::Primary_Void::PRIMARY,
-                                                                              mtk::Master_Slave::MASTER );
-            }
+                //------------------------------------------------------------------------------
+                /**
+                 * reset the cluster measures required for this SP
+                 */
+                void reset_cluster_measures();
 
-//------------------------------------------------------------------------------
-            /**
-             * set property
-             * @param[ in ] aProperty       a property pointer
-             * @param[ in ] aPropertyString a string defining the property
-             * @param[ in ] aIsMaster       an enum for master or slave
-             */
-            void set_property( std::shared_ptr< Property > aProperty,
-                               std::string                 aPropertyString,
-                               mtk::Master_Slave           aIsMaster = mtk::Master_Slave::MASTER )
-            {
-                // check that aPropertyString makes sense
-                MORIS_ERROR( mPropertyMap.find( aPropertyString ) != mPropertyMap.end(),
-                             "SP_Viscous_Ghost::set_property - Unknown aPropertyString." );
+                //------------------------------------------------------------------------------
+                /**
+                 * set dof types
+                 * @param[ in ] aDofTypes a cell of cell of dof types
+                 * @param[ in ] aDofStrings list of strings describing the dof types
+                 * @param[ in ] aIsMaster enum for master or slave
+                 */
+                void set_dof_type_list(
+                        moris::Cell< moris::Cell< MSI::Dof_Type > > & aDofTypes,
+                        moris::Cell< std::string >                  & aDofStrings,
+                        mtk::Master_Slave                             aIsMaster = mtk::Master_Slave::MASTER )
+                {
+                    Stabilization_Parameter::set_dof_type_list( aDofTypes, aIsMaster );
+                }
 
-                // set the property in the property cell
-                this->get_properties( aIsMaster )( static_cast< uint >( mPropertyMap[ aPropertyString ] ) ) = aProperty;
-            }
+                //------------------------------------------------------------------------------
+                /**
+                 * set dv types
+                 * @param[ in ] aDvTypes   a cell of group of dv types
+                 * @param[ in ] aDvStrings list of strings describing the dv types
+                 * @param[ in ] aIsMaster enum for master or slave
+                 */
+                void set_dv_type_list(
+                        moris::Cell< moris::Cell< PDV_Type > > & aDvTypes,
+                        moris::Cell< std::string >             & aDvStrings,
+                        mtk::Master_Slave                        aIsMaster = mtk::Master_Slave::MASTER )
+                {
+                    Stabilization_Parameter::set_dv_type_list( aDvTypes, aIsMaster );
+                }
 
-//------------------------------------------------------------------------------
-            /**
-             * evaluate the stabilization parameter value
-             */
-            void eval_SP();
+                //------------------------------------------------------------------------------
+                /**
+                 * set property
+                 * @param[ in ] aProperty       a property pointer
+                 * @param[ in ] aPropertyString a string defining the property
+                 * @param[ in ] aIsMaster       an enum for master or slave
+                 */
+                void set_property(
+                        std::shared_ptr< Property > aProperty,
+                        std::string                 aPropertyString,
+                        mtk::Master_Slave           aIsMaster = mtk::Master_Slave::MASTER );
 
-//------------------------------------------------------------------------------
-            /**
-             * evaluate the stabilization parameter derivative wrt to a master dof type
-             * @param[ in ] aDofTypes a dof type wrt which the derivative is evaluated
-             */
-            void eval_dSPdMasterDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes );
+                //------------------------------------------------------------------------------
+                /**
+                 * evaluate the stabilization parameter value
+                 */
+                void eval_SP();
 
-//------------------------------------------------------------------------------
-            /**
-             * evaluate the penalty parameter derivative wrt to a master dv type
-             * @param[ in ] aDvTypes a dv type wrt which the derivative is evaluated
-             */
-            void eval_dSPdMasterDV( const moris::Cell< PDV_Type > & aDvTypes )
-            {
-                MORIS_ERROR( false, "SP_Viscous_Ghost::eval_dSPdMasterDV - not implemented." );
-            }
+                //------------------------------------------------------------------------------
+                /**
+                 * evaluate the stabilization parameter derivative wrt to a master dof type
+                 * @param[ in ] aDofTypes a dof type wrt which the derivative is evaluated
+                 */
+                void eval_dSPdMasterDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes );
 
-//------------------------------------------------------------------------------
+                //------------------------------------------------------------------------------
+                /**
+                 * evaluate the penalty parameter derivative wrt to a master dv type
+                 * @param[ in ] aDvTypes a dv type wrt which the derivative is evaluated
+                 */
+                void eval_dSPdMasterDV( const moris::Cell< PDV_Type > & aDvTypes )
+                {
+                    MORIS_ERROR( false, "SP_Viscous_Ghost::eval_dSPdMasterDV - not implemented." );
+                }
+
+                //------------------------------------------------------------------------------
         };
-//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
     } /* namespace fem */
 } /* namespace moris */
 

@@ -36,8 +36,8 @@ namespace moris
          {
              if( tIsOwned )
              {
-                 delete mInterpolationMesh(tCounter);
                  delete mIntegrationMesh(tCounter);
+                 delete mInterpolationMesh(tCounter);
              }
              tCounter++;
          }

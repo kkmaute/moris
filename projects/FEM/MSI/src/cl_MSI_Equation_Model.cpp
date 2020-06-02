@@ -66,6 +66,9 @@ namespace moris
 //------------------------------------------------------------------------------
         void Equation_Model::compute_implicit_dQIdp()
         {
+//            mSolutionVector->print();
+//             mSensitivitySolutionVector->print();
+
             // create map object
             moris::Matrix_Vector_Factory tMatFactory( sol::MapType::Epetra );
             mdQiduMap = tMatFactory.create_map( mDesignVariableInterface->get_my_local_global_map() );
@@ -83,8 +86,6 @@ namespace moris
             // Loop over all local elements to build matrix graph
             for ( moris::uint Ii=0; Ii < tNumSets; Ii++ )
             {
-                std::cout<<"Set "<<Ii<<std::endl;
-
                 moris::uint tNumEquationObjectOnSet = mFemSets( Ii )->get_num_equation_objects();
 
                 mFemSets( Ii )->initialize_set( true );   //FIXME
@@ -106,6 +107,8 @@ namespace moris
 //------------------------------------------------------------------------------
         void Equation_Model::compute_explicit_dQIdp()
         {
+
+
             // create map object
             moris::Matrix_Vector_Factory tMatFactory( sol::MapType::Epetra );
             // FIXME create map only once. eiteher implicit or explicit
@@ -125,8 +128,6 @@ namespace moris
             for ( moris::uint Ii=0; Ii < tNumSets; Ii++ )
             {
                 moris::uint tNumEquationObjectOnSet = mFemSets( Ii )->get_num_equation_objects();
-
-                std::cout<<"Set "<<Ii<<std::endl;
 
                 mFemSets( Ii )->initialize_set( true );
 
@@ -155,8 +156,8 @@ namespace moris
 
             mQidu->vec_put_scalar( 0.0 );
 
-            //mExplicitdQidu->print();
-            //mImplicitdQidu->print();
+//            mExplicitdQidu->print();
+//            mImplicitdQidu->print();
 
             mQidu->vec_plus_vec( 1.0, *mExplicitdQidu, 1.0 );
             mQidu->vec_plus_vec( 1.0, *mImplicitdQidu, 1.0 );

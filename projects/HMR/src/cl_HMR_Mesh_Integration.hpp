@@ -44,7 +44,7 @@ public:
     Integration_Mesh_HMR(std::shared_ptr< Database > aDatabase,
                          const uint & aLagrangeOrder,
                          const uint & aLagrangePattern,
-                         Interpolation_Mesh_HMR & aInterpolationMesh  ) : Mesh( aDatabase,
+                         Interpolation_Mesh_HMR * aInterpolationMesh  ) : Mesh( aDatabase,
                                                                                 aLagrangeOrder,
                                                                                 aLagrangePattern )
     {
@@ -59,7 +59,7 @@ public:
 
     Integration_Mesh_HMR(std::shared_ptr< Database > aDatabase,
                          const uint & aLagrangeMeshIndex,
-                         Interpolation_Mesh_HMR & aInterpolationMesh  ) : Mesh( aDatabase,
+                         Interpolation_Mesh_HMR * aInterpolationMesh  ) : Mesh( aDatabase,
                                                                                 aLagrangeMeshIndex )
     {
             this->setup_cell_clusters( aInterpolationMesh );
@@ -196,18 +196,18 @@ public:
      * Construct HMR Cell Clustering
      */
     void
-    setup_cell_clusters(Interpolation_Mesh_HMR & aInterpolationMesh)
+    setup_cell_clusters(Interpolation_Mesh_HMR * aInterpolationMesh)
     {
         // check to see the meshes are the same (since all trivial)
-        MORIS_ASSERT(this->get_num_nodes() == aInterpolationMesh.get_num_nodes(),"Mismatch nodes between integration and interpolation mesh");
-//        MORIS_ASSERT(this->get_num_elems() == aInterpolationMesh.get_num_elems(),"Mismatch elements between integration and interpolation mesh");
-        MORIS_ASSERT(this->get_num_elemens_including_aura() == aInterpolationMesh.get_num_elemens_including_aura(),"Mismatch elements between integration and interpolation mesh");
+        MORIS_ASSERT(this->get_num_nodes() == aInterpolationMesh->get_num_nodes(),"Mismatch nodes between integration and interpolation mesh");
+//        MORIS_ASSERT(this->get_num_elems() == aInterpolationMesh->get_num_elems(),"Mismatch elements between integration and interpolation mesh");
+        MORIS_ASSERT(this->get_num_elemens_including_aura() == aInterpolationMesh->get_num_elemens_including_aura(),"Mismatch elements between integration and interpolation mesh");
 
         // get the cell rank
         enum EntityRank tCellRank = this->get_cell_rank();
 
         // number of interpolation cells
-        moris::uint tNumInterpCells = aInterpolationMesh.get_num_entities(tCellRank);
+        moris::uint tNumInterpCells = aInterpolationMesh->get_num_entities(tCellRank);
 //        moris::uint tNumInterpCells = aInterpolationMesh.get_num_elemens_including_aura();
 
         // size member data
@@ -216,7 +216,7 @@ public:
         for(moris::uint i = 0; i < tNumInterpCells; i++)
         {
             // interpolation cell
-            mtk::Cell const * tInterpCell = &aInterpolationMesh.get_mtk_cell( (moris_index) i );
+            mtk::Cell const * tInterpCell = &aInterpolationMesh->get_mtk_cell( (moris_index) i );
             mCellClusters(i).set_interpolation_cell( tInterpCell );
 
             // integration cell (only primary cells here)
@@ -313,7 +313,7 @@ public:
     /*
      *  setup the side set cluster interface
      */
-    void setup_side_set_clusters( Interpolation_Mesh_HMR & aInterpMesh )
+    void setup_side_set_clusters( Interpolation_Mesh_HMR * aInterpMesh )
     {
         moris::Cell<std::string> aSideSetNames = this->get_set_names( EntityRank::FACE );
 
@@ -346,11 +346,11 @@ public:
                 moris_id tCellId = tCellsInSet( iIGCell )->get_id();
 
                 // interpolation cell index
-                moris_index tCellIndex = aInterpMesh.get_loc_entity_ind_from_entity_glb_id( tCellId,
+                moris_index tCellIndex = aInterpMesh->get_loc_entity_ind_from_entity_glb_id( tCellId,
                                                                                             EntityRank::ELEMENT );
 
                 // construct a trivial side cluster
-                moris::mtk::Cell* tInterpCell = &aInterpMesh.get_mtk_cell( tCellIndex );
+                moris::mtk::Cell* tInterpCell = &aInterpMesh->get_mtk_cell( tCellIndex );
                 mSideSets(i).push_back( Side_Cluster_HMR( tInterpCell,
                                                           tCellsInSet( iIGCell ),
                                                           tCellsInSet( iIGCell )->get_vertices_on_side_ordinal( tSideOrdsInSet(iIGCell) ),

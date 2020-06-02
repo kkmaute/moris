@@ -41,15 +41,17 @@ namespace moris
                 // get dof type
                 MSI::Dof_Type tDofType = aDofTypes( iDof )( 0 );
 
-                // switch on dof type string
+                // if displacement dof type string
                 if( tDofString == "Displacement" )
                 {
                     mDofDispl = tDofType;
                 }
+                // if temperature dof type string
                 else if( tDofString == "Temperature" )
                 {
                     mDofTemp = tDofType;
                 }
+                // if pressure dof type string
                 else if( tDofString == "Pressure" )
                 {
                     mDofPressure = tDofType;

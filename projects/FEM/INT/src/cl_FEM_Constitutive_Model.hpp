@@ -77,7 +77,15 @@ namespace moris
                 // storage for evaluation
                 Matrix< DDRMat > mFlux;
                 Matrix< DDRMat > mDivFlux;
+                Matrix< DDRMat > mGradH;
+                Matrix< DDRMat > mHdot;
+                Matrix< DDRMat > mGradHdot;
+                Matrix< DDRMat > mGradDivFlux;
+                moris::Cell< Matrix< DDRMat > > mGradDivFluxDof;
+                moris::Cell< Matrix< DDRMat > > mGradHdotDof;
+                moris::Cell< Matrix< DDRMat > > mGradHDof;
                 moris::Cell< Matrix< DDRMat > > mdFluxdDof;
+                moris::Cell< Matrix< DDRMat > > mHdotDof;
                 moris::Cell< Matrix< DDRMat > > mdFluxdDv;
                 moris::Cell< Matrix< DDRMat > > mdFluxdx;
                 moris::Cell< Matrix< DDRMat > > mddivfluxdu;
@@ -106,21 +114,6 @@ namespace moris
                 // constitutive model name for input and debug
                 std::string mName;
 
-                // ------------------------------------ //
-                // FIXME: Remove once unified.
-                // enthalpy change rate
-
-                Matrix< DDRMat > mHdot;
-                moris::Cell< Matrix< DDRMat > > mHdotDof;
-
-                // enthalpy gradient change rate
-                Matrix< DDRMat > mGradHdot;
-                moris::Cell< Matrix< DDRMat > > mGradHdotDof;
-
-                // gradient of Divergence of Flux
-                Matrix< DDRMat > mGradDivFlux;
-                moris::Cell< Matrix< DDRMat > > mGradDivFluxDof;
-                // ------------------------------------ //
 
             private:
 
@@ -133,6 +126,14 @@ namespace moris
                 // flag for evaluation
                 bool mFluxEval = true;
                 bool mDivFluxEval = true;
+                bool mHdotEval = true;
+                bool mGradHdotEval = true;
+                bool mGradHEval = true;
+                bool mGradDivFluxEval = true;
+                moris::Cell< bool > mHdotDofEval;
+                moris::Cell< bool > mGradHdotDofEval;
+                moris::Cell< bool > mGradHDofEval;
+                moris::Cell< bool > mGradDivFluxDofEval;
                 moris::Cell< bool > mdFluxdDofEval;
                 moris::Cell< bool > mdFluxdDvEval;
                 moris::Cell< bool > mdFluxdxEval;
@@ -159,17 +160,6 @@ namespace moris
                 moris::Cell< bool > mdConstdDofEval;
                 moris::Cell< bool > mdConstdDvEval;
 
-                // ------------------------------------ //
-                // FIXME: Remove once unified.
-                // eval flags specific to this CM
-                bool mHdotEval = true;
-                bool mGradHdotEval = true;
-                bool mGradDivFluxEval = true;
-
-                moris::Cell<bool> mHdotDofEval;
-                moris::Cell<bool> mGradHdotDofEval;
-                moris::Cell<bool> mGradDivFluxDofEval;
-                // ------------------------------------ //
 
                 //------------------------------------------------------------------------------
             public :
@@ -702,6 +692,21 @@ namespace moris
 
                 //------------------------------------------------------------------------------
                 /**
+                 * evaluates the constitutive model spatial gradient of enthalpy
+                 */
+                virtual void eval_gradH()
+                {
+                    MORIS_ASSERT(false, "eval_gradH: not implemented in base class.");
+                };
+
+                /**
+                 * get the constitutive model spatial gradient of enthalpy
+                 * @param[ out ] mGradH gradient of enthalpy
+                 */
+                const Matrix< DDRMat > & gradH();
+
+                //------------------------------------------------------------------------------
+                /**
                  * evaluates the constitutive model change rate of spatial gradient of enthalpy (needed for GGLS-stabilization)
                  */
                 virtual void eval_gradHdot()
@@ -747,6 +752,24 @@ namespace moris
                  * @param[ out ] mHdotDofDer derivative of the traction wrt dof
                  */
                 const Matrix< DDRMat > & dHdotdDOF( const moris::Cell< MSI::Dof_Type > & aDofType);
+
+                //------------------------------------------------------------------------------
+                /**
+                 * evaluate the constitutive model gradient of enthalpy wrt to a dof type
+                 * @param[ in ] aDofTypes a dof type wrt which the derivative is evaluated
+                 * dgradHdDOF ( mSpaceDim x numDerDof )
+                 */
+                virtual void eval_dGradHdDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes )
+                {
+                    MORIS_ASSERT(false, "eval_dGradHdDOF: not implemented in base class.");
+                };
+
+                /**
+                 * get the gradient of enthalpy wrt dof
+                 * @param[ in ]  aDofType        group of dof type
+                 * @param[ out ] mGradHDer derivative of the gradient of enthalpy wrt dof
+                 */
+                const Matrix< DDRMat > & dGradHdDOF( const moris::Cell< MSI::Dof_Type > & aDofType);
 
                 //------------------------------------------------------------------------------
                 /**
@@ -997,10 +1020,22 @@ namespace moris
 
                 //------------------------------------------------------------------------------
                 /**
-                 * evaluate the gradient of enthalpy change rate wrt dof using finite differences
+                 * evaluate the gradient of enthalpy wrt dof using finite differences
                  * @param[ in ] aDofTypes       a dof type wrt which the derivative is evaluated
-                 * @param[ in ] adFluxdDOF_FD a matrix to fill with derivative evaluation
+                 * @param[ in ] adGradHdDOF_FD  a matrix to fill with derivative evaluation
                  * @param[ in ] aPerturbation   real to perturb for FD
+                 */
+                void eval_dGradHdDOF_FD(
+                        const moris::Cell< MSI::Dof_Type > & aDofTypes,
+                        Matrix< DDRMat >                   & adGradHdDOF_FD,
+                        real                                 aPerturbation );
+
+                //------------------------------------------------------------------------------
+                /**
+                 * evaluate the gradient of enthalpy change rate wrt dof using finite differences
+                 * @param[ in ] aDofTypes          a dof type wrt which the derivative is evaluated
+                 * @param[ in ] adGradHdotdDOF_FD  a matrix to fill with derivative evaluation
+                 * @param[ in ] aPerturbation      real to perturb for FD
                  */
                 void eval_dGradHdotdDOF_FD(
                         const moris::Cell< MSI::Dof_Type > & aDofTypes,

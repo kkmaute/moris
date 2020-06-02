@@ -82,7 +82,10 @@ TEST_CASE( "IWG_Advection_Bulk_2D", "[IWG_Advection_Bulk_2D]" )
     std::shared_ptr< fem::Constitutive_Model > tCMDiffusion = tCMFactory.create_CM( fem::Constitutive_Type::DIFF_LIN_ISO );
     tCMDiffusion->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
     tCMDiffusion->set_property( tPropConductivity, "Conductivity" );
+    tCMDiffusion->set_property( tPropDensity, "Density" );
+    tCMDiffusion->set_property( tPropHeatCapacity, "Heat_Capacity" );
     tCMDiffusion->set_space_dim( 2 );
+
 
     // define stabilization parameters
     fem::SP_Factory tSPFactory;
@@ -98,8 +101,6 @@ TEST_CASE( "IWG_Advection_Bulk_2D", "[IWG_Advection_Bulk_2D]" )
     std::shared_ptr< fem::IWG > tIWG = tIWGFactory.create_IWG( fem::IWG_Type::ADVECTION_BULK );
     tIWG->set_residual_dof_type( { MSI::Dof_Type::TEMP } );
     tIWG->set_dof_type_list( {{ MSI::Dof_Type::VX, MSI::Dof_Type::VY }, { MSI::Dof_Type::TEMP }}, mtk::Master_Slave::MASTER );
-    tIWG->set_property( tPropDensity, "Density" );
-    tIWG->set_property( tPropHeatCapacity, "HeatCapacity" );
     tIWG->set_constitutive_model( tCMDiffusion, "Diffusion" );
     tIWG->set_stabilization_parameter( tSPSUPG, "SUPG" );
 
@@ -288,6 +289,8 @@ TEST_CASE( "IWG_Advection_Bulk_3D", "[IWG_Advection_Bulk_3D]" )
     std::shared_ptr< fem::Constitutive_Model > tCMDiffusion = tCMFactory.create_CM( fem::Constitutive_Type::DIFF_LIN_ISO );
     tCMDiffusion->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
     tCMDiffusion->set_property( tPropConductivity, "Conductivity" );
+    tCMDiffusion->set_property( tPropDensity, "Density" );
+    tCMDiffusion->set_property( tPropHeatCapacity, "Heat_Capacity" );
     tCMDiffusion->set_space_dim( 3 );
 
     // define stabilization parameters
@@ -304,8 +307,6 @@ TEST_CASE( "IWG_Advection_Bulk_3D", "[IWG_Advection_Bulk_3D]" )
     std::shared_ptr< fem::IWG > tIWG = tIWGFactory.create_IWG( fem::IWG_Type::ADVECTION_BULK );
     tIWG->set_residual_dof_type( { MSI::Dof_Type::TEMP } );
     tIWG->set_dof_type_list( {{ MSI::Dof_Type::VX, MSI::Dof_Type::VY, MSI::Dof_Type::VZ }, { MSI::Dof_Type::TEMP }}, mtk::Master_Slave::MASTER );
-    tIWG->set_property( tPropDensity, "Density" );
-    tIWG->set_property( tPropHeatCapacity, "HeatCapacity" );
     tIWG->set_constitutive_model( tCMDiffusion, "Diffusion" );
     tIWG->set_stabilization_parameter( tSPSUPG, "SUPG" );
 

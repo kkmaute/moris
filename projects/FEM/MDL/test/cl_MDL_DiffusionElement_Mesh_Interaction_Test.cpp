@@ -556,7 +556,7 @@ TEST_CASE( "Diffusion_hmr_10x4x4", "[moris],[mdl],[Diffusion_hmr_10x4x4]" )
 
         // construct a mesh manager for the fem
         moris::hmr::Interpolation_Mesh_HMR * tInterpolationMesh = tHMR.create_interpolation_mesh(tLagrangeMeshIndex);
-        moris::hmr::Integration_Mesh_HMR *   tIntegrationMesh   = tHMR.create_integration_mesh(1, 0,*tInterpolationMesh);
+        moris::hmr::Integration_Mesh_HMR *   tIntegrationMesh   = tHMR.create_integration_mesh(1, 0, tInterpolationMesh);
 
         // place the pair in mesh manager
         mtk::Mesh_Manager tMeshManager;
@@ -815,7 +815,7 @@ TEST_CASE( "Diffusion_hmr3_10x4x4", "[moris],[mdl],[Diffusion_hmr3_10x4x4]" )
 
         // construct a mesh manager for the fem
         moris::hmr::Interpolation_Mesh_HMR * tInterpolationMesh = tHMR.create_interpolation_mesh( tLagrangeMeshIndex );
-        moris::hmr::Integration_Mesh_HMR *   tIntegrationMesh   = tHMR.create_integration_mesh( 2, 0, *tInterpolationMesh );
+        moris::hmr::Integration_Mesh_HMR *   tIntegrationMesh   = tHMR.create_integration_mesh( 2, 0, tInterpolationMesh );
 
         // place the pair in mesh manager
         mtk::Mesh_Manager tMeshManager;
@@ -1089,7 +1089,7 @@ TEST_CASE( "Diffusion_hmr_cubic_10x4x4", "[moris],[mdl],[Diffusion_hmr_cubic_10x
 
         // construct a mesh manager for the fem
         moris::hmr::Interpolation_Mesh_HMR * tInterpolationMesh = tHMR.create_interpolation_mesh( tLagrangeMeshIndex );
-        moris::hmr::Integration_Mesh_HMR *   tIntegrationMesh   = tHMR.create_integration_mesh( 3, 0, *tInterpolationMesh );
+        moris::hmr::Integration_Mesh_HMR *   tIntegrationMesh   = tHMR.create_integration_mesh( 3, 0, tInterpolationMesh );
 
         // place the pair in mesh manager
         mtk::Mesh_Manager tMeshManager;

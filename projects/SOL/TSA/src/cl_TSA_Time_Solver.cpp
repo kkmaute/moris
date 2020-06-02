@@ -337,7 +337,7 @@ using namespace tsa;
 
         mSolverInterface->set_adjoint_solution_vector( mFullVectorSensitivity );
 
-        mFullVectorSensitivity->vec_put_scalar( 0.0 );
+        mFullVectorSensitivity->vec_put_scalar( 1.0 );
 
         moris::Cell< enum MSI::Dof_Type > tDofTypeUnion = this->get_dof_type_union();
 

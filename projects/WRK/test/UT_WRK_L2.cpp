@@ -98,9 +98,10 @@ TEST_CASE("WRK L2 test","[WRK_L2_test]")
 
          //----- GE parameter list --------
 
-         moris::Cell<moris::Cell<ParameterList>> tParameterLists(2);
+         moris::Cell<moris::Cell<ParameterList>> tParameterLists(3);
          tParameterLists(0).resize(1);
          tParameterLists(1).resize(1);
+         tParameterLists(2).resize(0);
          tParameterLists(0)(0) = moris::prm::create_gen_parameter_list();
          tParameterLists(0)(0).set("initial_advs", "0.017, 0.9753, 0.0");
          tParameterLists(0)(0).set("HMR_refinements", 2);
@@ -163,7 +164,7 @@ TEST_CASE("WRK L2 test","[WRK_L2_test]")
          tXTKPerformer->set_input_performer( tMTKPerformer_HMR );
          tXTKPerformer->set_output_performer( tMTKPerformer_XTK );
 
-         tXTKPerformer->perform();
+         //tXTKPerformer->perform();
 
          //---------------------------------------------------------------------------------------
          //                               Stage 3: build field

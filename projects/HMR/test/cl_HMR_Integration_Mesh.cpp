@@ -74,7 +74,7 @@ TEST_CASE( "HMR Integration Mesh" , "[hmr],[IG_Mesh]")
     hmr::Interpolation_Mesh_HMR * tOutputInterpMesh = tHMR.create_interpolation_mesh( tLagrangeMeshIndex );
 
     // create pointer to output mesh
-    hmr::Integration_Mesh_HMR * tOutputIntegMesh = tHMR.create_integration_mesh( 1, 0, *tOutputInterpMesh );
+    hmr::Integration_Mesh_HMR * tOutputIntegMesh = tHMR.create_integration_mesh( 1, 0, tOutputInterpMesh );
 
     moris::Cell<std::string> tBlockNames = tOutputIntegMesh->get_block_set_names();
 

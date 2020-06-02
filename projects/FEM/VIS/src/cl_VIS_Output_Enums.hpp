@@ -45,6 +45,7 @@ namespace vis
         K1_SENT,     // 1st stress intensity factor for the case of a single edge notch tension analysis
         DRAG_COEFF,
         LIFT_COEFF,
+        VISCOSITY,
         END_ENUM//
     };
 
@@ -80,6 +81,7 @@ namespace vis
         tVisOutputTypeMap["K1_SENT"]           = vis::Output_Type::K1_SENT;
         tVisOutputTypeMap["DRAG_COEFF"]        = vis::Output_Type::DRAG_COEFF;
         tVisOutputTypeMap["LIFT_COEFF"]        = vis::Output_Type::LIFT_COEFF;
+        tVisOutputTypeMap["VISCOSITY"]        = vis::Output_Type::VISCOSITY;
         tVisOutputTypeMap["END_ENUM"]          = vis::Output_Type::END_ENUM;
 
         return tVisOutputTypeMap;

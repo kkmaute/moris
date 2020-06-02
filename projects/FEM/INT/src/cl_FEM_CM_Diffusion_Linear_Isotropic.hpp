@@ -106,6 +106,13 @@ namespace moris
 
                 //------------------------------------------------------------------------------
                 /**
+                 * evaluates the constitutive model spatial gradient of enthalpy
+                 */
+                virtual void eval_gradH();
+
+
+                //------------------------------------------------------------------------------
+                /**
                  * evaluates the constitutive model change rate of spatial gradient of enthalpy (needed for GGLS-stabilization)
                  */
                 virtual void eval_gradHdot();
@@ -188,6 +195,14 @@ namespace moris
                  * dHdotdDOF ( 1 x numDerDof )
                  */
                 virtual void eval_dHdotdDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes );
+
+                //------------------------------------------------------------------------------
+                /**
+                 * evaluate the constitutive model gradient of enthalpy wrt to a dof type
+                 * @param[ in ] aDofTypes a dof type wrt which the derivative is evaluated
+                 * dGradHdDOF ( mSpaceDim x numDerDof )
+                 */
+                virtual void eval_dGradHdDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes );
 
                 //------------------------------------------------------------------------------
                 /**

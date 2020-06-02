@@ -31,8 +31,6 @@ namespace moris
 
             enum class IWG_Property_Type
             {
-                DENSITY,
-                HEAT_CAPACITY,
                 MAX_ENUM
             };
 

@@ -91,7 +91,7 @@
 
 #include "fn_norm.hpp"
 
-#include "cl_GEN_Geometry_Analytic.hpp"
+#include "cl_GEN_Geometry.hpp"
 #include "cl_GEN_Geometry_Field_HMR.hpp"
 
 #include "cl_PRM_SOL_Parameters.hpp"
@@ -208,7 +208,7 @@ TEST_CASE("2D XTK WITH HMR ThermoElastic 2D","[XTK_HMR_thermoelastic_2D]")
 
         moris::hmr::Interpolation_Mesh_HMR * tInterpolationMesh = tHMR.create_interpolation_mesh(tLagrangeMeshIndex);
 
-        moris::Cell< std::shared_ptr<moris::ge::Geometry_Discrete> > tGeometryVector(1);
+        moris::Cell< std::shared_ptr<moris::ge::Geometry> > tGeometryVector(1);
         tGeometryVector(0) = std::make_shared<moris::ge::Geometry_Field_HMR>(tField);
 
         size_t tModelDimension = 2;
@@ -676,7 +676,7 @@ TEST_CASE("2D XTK WITH HMR ThermoElastic 2D Staggered","[XTK_HMR_thermoelastic_2
 
         moris::hmr::Interpolation_Mesh_HMR * tInterpolationMesh = tHMR.create_interpolation_mesh(tLagrangeMeshIndex);
 
-        moris::Cell< std::shared_ptr<moris::ge::Geometry_Discrete> > tGeometryVector(1);
+        moris::Cell< std::shared_ptr<moris::ge::Geometry> > tGeometryVector(1);
         tGeometryVector(0) = std::make_shared<moris::ge::Geometry_Field_HMR>(tField);
 
         size_t tModelDimension = 2;
@@ -922,7 +922,7 @@ TEST_CASE("2D XTK WITH HMR ThermoElastic 2D Staggered","[XTK_HMR_thermoelastic_2
         tParameterlist( 3 )( 1 )("NLA_DofTypes") = std::string("TEMP");
         tParameterlist( 3 )( 2 ) = moris::prm::create_nonlinear_solver_parameter_list();
         tParameterlist( 3 )( 2 )("NLA_Solver_Implementation") = static_cast< uint >( moris::NLA::NonlinearSolverType::NLBGS_SOLVER );
-        tParameterlist( 3 )( 2 )("NLA_Sub_Nonlinear_Solver") = std::string("0,1");
+        tParameterlist( 3 )( 2 )("NLA_Sub_Nonlinear_Solver") = std::string("1,0");
         tParameterlist( 3 )( 2 )("NLA_DofTypes") = std::string("UX,UY;TEMP");
         tParameterlist( 3 )( 2 )("NLA_Nonlinear_solver_algorithms") = std::string("1");
 

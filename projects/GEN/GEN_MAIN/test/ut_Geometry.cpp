@@ -77,7 +77,7 @@ namespace moris
 
     namespace ge
     {
-        TEST_CASE("Geometry_Analytic with ADVs test", "[GE], [GE_GEOM_ADV]")
+        TEST_CASE("Geometry with ADVs test", "[GE], [GE_GEOM_ADV]")
         {
             // Test parameter list
             // Set up default parameter lists
@@ -106,8 +106,8 @@ namespace moris
             tADVs(0) = 0.0;
             tADVs(1) = 1.0;
             tADVs(2) = 2.0;
-            std::shared_ptr<Geometry_Analytic> tCircle1 = create_geometry(tParameterLists(1)(0), tADVs);
-            std::shared_ptr<Geometry_Analytic> tCircle2 = create_geometry(tParameterLists(1)(1), tADVs);
+            std::shared_ptr<Geometry> tCircle1 = create_geometry(tParameterLists(1)(0), tADVs);
+            std::shared_ptr<Geometry> tCircle2 = create_geometry(tParameterLists(1)(1), tADVs);
 
             // Check field values
             Matrix<DDRMat> tCoordinates(1, 2);
@@ -165,7 +165,7 @@ namespace moris
             Matrix<DDRMat> tConstantParameters(1, 1);
             tConstantParameters(0) = 1.0;
 
-            std::shared_ptr<Geometry_Analytic> tCircle1 = std::make_shared<User_Defined_Geometry>(tADVs,
+            std::shared_ptr<Geometry> tCircle1 = std::make_shared<User_Defined_Geometry>(tADVs,
                                                                                 tGeometryVariableIndices,
                                                                                 tADVIndices,
                                                                                 tConstantParameters,
@@ -174,7 +174,7 @@ namespace moris
 
             tADVIndices(1) = 2;
             tConstantParameters(0) = 2.0;
-            std::shared_ptr<Geometry_Analytic> tCircle2 = std::make_shared<User_Defined_Geometry>(tADVs,
+            std::shared_ptr<Geometry> tCircle2 = std::make_shared<User_Defined_Geometry>(tADVs,
                                                                                   tGeometryVariableIndices,
                                                                                   tADVIndices,
                                                                                   tConstantParameters,
