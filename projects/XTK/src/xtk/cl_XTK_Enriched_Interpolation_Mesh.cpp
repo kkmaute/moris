@@ -210,7 +210,7 @@ Enriched_Interpolation_Mesh::get_writable_mtk_cell( moris_index aElementIndex )
 Matrix< IdMat >
 Enriched_Interpolation_Mesh::get_communication_table() const
 {
-    return mXTKModel->get_background_mesh().get_mesh_data().get_communication_table();
+    return mXTKModel->get_background_mesh().get_communication_table();
 }
 //------------------------------------------------------------------------------
 uint
@@ -494,6 +494,20 @@ Enriched_Interpolation_Mesh::get_owned_and_not_owned_enriched_interpolation_cell
     // map
     std::unordered_map<moris_id,moris_id> tProcRankToDataIndex;
 
+    // access the communication table
+    Matrix<IdMat> tCommTable = this->get_communication_table();
+
+    // resize proc ranks and setup map to comm table
+    aProcRanks.resize(tCommTable.numel());
+    for(moris::uint i = 0; i <tCommTable.numel(); i++)
+    {
+        tProcRankToDataIndex[tCommTable(i)] = i;
+        aProcRanks(i) = (tCommTable(i));
+        aNotOwnedInterpCells.push_back(Cell<Interpolation_Cell_Unzipped *>(0));
+    }
+
+
+
     for(moris::uint i = 0; i <tEnrInterpCells.size(); i++)
     {
         moris_index tOwnerProc = tEnrInterpCells(i)->get_owner();
@@ -505,14 +519,6 @@ Enriched_Interpolation_Mesh::get_owned_and_not_owned_enriched_interpolation_cell
         }
         else
         {
-            if( tProcRankToDataIndex.find(tOwnerProc) == tProcRankToDataIndex.end())
-            {
-                tProcRankToDataIndex[tOwnerProc] = tCurrentProcIndex;
-                aProcRanks.push_back(tOwnerProc);
-                aNotOwnedInterpCells.push_back(Cell<Interpolation_Cell_Unzipped *>(0));
-                tCurrentProcIndex++;
-            }
-
             moris_index tProcDataIndex = tProcRankToDataIndex[tOwnerProc];
             aNotOwnedInterpCells(tProcDataIndex).push_back( tEnrInterpCells(i) );
         }

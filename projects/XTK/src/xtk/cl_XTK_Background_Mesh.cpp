@@ -26,6 +26,7 @@ Background_Mesh::Background_Mesh(moris::mtk::Interpolation_Mesh* aMeshData):
     mExternalMeshData.set_up_external_entity_data(mMeshData);
     initialize_background_mesh_vertices();
     setup_local_to_global_maps();
+    setup_comm_map();
 }
 
 // ----------------------------------------------------------------------------------
@@ -41,6 +42,7 @@ Background_Mesh::Background_Mesh(moris::mtk::Interpolation_Mesh* aMeshData,
     mExternalMeshData.set_up_external_entity_data(mMeshData);
     initialize_background_mesh_vertices();
     setup_local_to_global_maps();
+    setup_comm_map();
 }
 // ----------------------------------------------------------------------------------
 Background_Mesh::~Background_Mesh()
@@ -1152,6 +1154,12 @@ Background_Mesh::get_parent_cell_topology() const
     return tTopo;
 }
 // ----------------------------------------------------------------------------------
+Matrix<IdMat> const &
+Background_Mesh::get_communication_table() const
+{
+    return mCommunicationMap;
+}
+// ----------------------------------------------------------------------------------
 
 moris::Matrix< moris::DDRMat >
 Background_Mesh::get_all_node_coordinates_loc_inds_background_mesh() const
@@ -1221,6 +1229,36 @@ Background_Mesh::setup_local_to_global_maps()
 
 }
 
+void
+Background_Mesh::setup_comm_map()
+{
+    std::unordered_map<moris_id,moris_id> tCommunicationMap;
+    Cell<moris_index> tCellOfProcs;
+    moris_index tIndex = 0;
+
+    for(moris::uint i = 0; i < mMeshData->get_num_entities(EntityRank::NODE); i++)
+    {
+        moris_index tOwner = mMeshData->get_entity_owner((moris_index)i,EntityRank::NODE);
+
+        if(tCommunicationMap.find(tOwner) == tCommunicationMap.end() && tOwner != par_rank())
+        {
+            tCellOfProcs.push_back(tOwner);
+            tCommunicationMap[tOwner] = 1;
+        }
+    }
+
+    mCommunicationMap.resize(1,tCellOfProcs.size());
+    for(moris::uint i = 0; i < tCellOfProcs.size(); i++)
+    {
+        mCommunicationMap(i) = tCellOfProcs(i);
+    }
+
+
+    moris::print(mCommunicationMap,"mCommunicationMap");
+
+    // every proc tell the other procs that they communicate with them
+
+}
 
 // ----------------------------------------------------------------------------------
 

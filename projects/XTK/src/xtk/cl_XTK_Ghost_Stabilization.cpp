@@ -169,16 +169,19 @@ namespace xtk
             {
                 tBaseEnrInterpCellId(iP)(iC) = tNonTrivialNotOwnedInterpCells(iP)(iC)->get_id();
             }
+
+            if(tNonTrivialNotOwnedInterpCells(iP).size() == 0)
+            {
+                tBaseEnrInterpCellId(iP).resize(1,1);
+                tBaseEnrInterpCellId(iP)(0) = MORIS_INDEX_MAX;
+            }
         }
 
         // send requests
         moris::uint tMPITag = 301;
         for(moris::size_t iP = 0; iP<tProcRanks.size(); iP++)
         {
-            if(tBaseEnrInterpCellId(iP).numel() > 0)
-            {
-                mXTKModel->send_outward_requests(tMPITag, tProcRanks,tBaseEnrInterpCellId);
-            }
+            mXTKModel->send_outward_requests(tMPITag, tProcRanks,tBaseEnrInterpCellId);
         }
 
         barrier();
@@ -226,13 +229,21 @@ namespace xtk
         {
             aEnrCellIds(iP).resize(1,aReceivedEnrCellIds(iP).numel());
 
-            for(moris::uint iC = 0; iC< aReceivedEnrCellIds(iP).numel(); iC++)
+            if(aReceivedEnrCellIds(iP)(0,0) != MORIS_INDEX_MAX)
             {
-                auto tIter = aBaseEnrIdToIndexInNonTrivialOwned.find(aReceivedEnrCellIds(iP)(iC));
-                MORIS_ASSERT(tIter != aBaseEnrIdToIndexInNonTrivialOwned.end(),"Enriched cell id not in map");
 
-                aEnrCellIds(iP)(iC) = aNewInterpCellIds(tIter->second);
+                for(moris::uint iC = 0; iC< aReceivedEnrCellIds(iP).numel(); iC++)
+                {
+                    auto tIter = aBaseEnrIdToIndexInNonTrivialOwned.find(aReceivedEnrCellIds(iP)(iC));
 
+                    if(tIter == aBaseEnrIdToIndexInNonTrivialOwned.end())
+                    {
+                        std::cout<<" aReceivedEnrCellIds(iP)(iC)= " <<aReceivedEnrCellIds(iP)(iC)<<std::endl;
+                        MORIS_ASSERT(tIter != aBaseEnrIdToIndexInNonTrivialOwned.end(),"Enriched cell id not in map");
+                    }
+                    aEnrCellIds(iP)(iC) = aNewInterpCellIds(tIter->second);
+
+                }
             }
         }
     }
@@ -431,6 +442,24 @@ namespace xtk
         Cell<Cell<moris_id>> tNotOwnedBGIPVertsIdsToProcs;
         Cell<Cell<moris_id>> tNotOwnedIpCellIdToProcs;
 
+        // get the communication table
+        Matrix<IndexMat> tCommTable  = tEnrInterpMesh.get_communication_table();
+
+        // size
+        aProcRanks.resize(tCommTable.numel());
+
+        for(moris::uint i = 0; i <tCommTable.numel(); i++)
+        {
+            aProcRankToDataIndex[tCommTable(i)] = i;
+            aProcRanks(i) = (tCommTable(i));
+
+            // add cell for verts
+            tNotOwnedIPVertIndsToProcs.push_back(Cell<moris_id>(0));
+            tNotOwnedBGIPVertsIdsToProcs.push_back(Cell<moris_id>(0));
+            tNotOwnedIpCellIdToProcs.push_back(Cell<moris_id>(0));
+        }
+
+
         for (auto tIpCell : aNotOwnedIpCellsInGhost)
         {
             // access the ip cell index
@@ -454,28 +483,6 @@ namespace xtk
                     // get the index of this proc
                     auto tProcIndexInData = aProcRankToDataIndex.find(tOwnerProc);
 
-                    // setup the data if this processor hasnt been used before
-                    if( tProcIndexInData == aProcRankToDataIndex.end())
-                    {
-                        // add to the proc rank to data,
-                        aProcRankToDataIndex[tOwnerProc] = tCurrentIndex;
-
-                        // add the proc to cell
-                        aProcRanks.push_back(tOwnerProc);
-
-                        // add cell for verts
-                        tNotOwnedIPVertIndsToProcs.push_back(Cell<moris_id>(0));
-                        tNotOwnedBGIPVertsIdsToProcs.push_back(Cell<moris_id>(0));
-                        tNotOwnedIpCellIdToProcs.push_back(Cell<moris_id>(0));
-
-                        // update count and first index
-                        tCounts.push_back(0);
-                        tCurrentIndex++;
-
-                        // update the iterator
-                        tProcIndexInData = aProcRankToDataIndex.find(tOwnerProc);
-                    }
-
                     tNotOwnedIPVertIndsToProcs(tProcIndexInData->second).push_back(tVertexPointers(iV)->get_index());
                     tNotOwnedBGIPVertsIdsToProcs(tProcIndexInData->second).push_back(tVertexPointers(iV)->get_base_vertex()->get_id());
                     tNotOwnedIpCellIdToProcs(tProcIndexInData->second).push_back(tEnrIpCell->get_id());
@@ -498,6 +505,16 @@ namespace xtk
                 aNotOwnedIPVertIndsToProcs(iD)(jD) = tNotOwnedIPVertIndsToProcs(iD)(jD);
                 aNotOwnedBGIPVertsIdsToProcs(iD)(jD) = tNotOwnedBGIPVertsIdsToProcs(iD)(jD);
                 aNotOwnedIpCellIdToProcs(iD)(jD) = tNotOwnedIpCellIdToProcs(iD)(jD);
+            }
+
+            if(tNotOwnedIPVertIndsToProcs(iD).size() == 0)
+            {
+                aNotOwnedIPVertIndsToProcs(iD).resize(1,1);
+                aNotOwnedBGIPVertsIdsToProcs(iD).resize(1,1);
+                aNotOwnedIpCellIdToProcs(iD).resize(1,1);
+                aNotOwnedIPVertIndsToProcs(iD)(0) =MORIS_INDEX_MAX;
+                aNotOwnedBGIPVertsIdsToProcs(iD)(0) = MORIS_INDEX_MAX;
+                aNotOwnedIpCellIdToProcs(iD)(0) = MORIS_INDEX_MAX;
             }
         }
 

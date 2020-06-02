@@ -202,7 +202,7 @@ Enriched_Integration_Mesh::get_mtk_cell( moris_index aElementIndex ) const
 Matrix< IdMat >
 Enriched_Integration_Mesh::get_communication_table() const
 {
-    return mModel->mBackgroundMesh.get_mesh_data().get_communication_table();
+    return mModel->mBackgroundMesh.get_communication_table();
 }
 
 moris::Cell<std::string>

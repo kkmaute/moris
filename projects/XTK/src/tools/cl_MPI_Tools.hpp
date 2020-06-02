@@ -105,31 +105,32 @@ void scatter(moris::Cell<moris::moris_id> & aBuffer,
  * Requirement: Column major matrix
  */
 template <typename Size_T_Matrix>
-void nonblocking_send(moris::Matrix<Size_T_Matrix> const & aSendingMatrix,
+MPI_Request nonblocking_send(moris::Matrix<Size_T_Matrix> const & aSendingMatrix,
                       size_t aNumRows,
                       size_t aNumColumns,
                       int aReceivingProc,
                       int aTag)
 {
     int tNumToSend = aSendingMatrix.numel();
-
     MPI_Request tRequest;
 
+    std::cout<<"NONBLOCKING SEND FROM "<<par_rank()<<" TO "<<aReceivingProc<<" WITH TAG "<<aTag<<" | Size: "<<aNumRows<<", "<<aNumColumns<<std::endl;
 
-    std::cout<<"NONBLOCKING SEND FROM "<<par_rank()<<"TO "<<aReceivingProc<<" WITH TAG "<<aTag<<std::endl;
+    MPI_Isend(aSendingMatrix.data(), tNumToSend, moris::get_comm_datatype(aSendingMatrix(0,0)), aReceivingProc, aTag, moris::get_comm(),&tRequest);
 
-    MPI_Isend(aSendingMatrix.data(), tNumToSend, moris::get_comm_datatype(aSendingMatrix(0,0)), aReceivingProc, aTag, moris::get_comm(), &tRequest);
+    return tRequest;
+
 }
 
 inline
 bool
 sent_message_exists(int aOtherProc,
-                    int aTag)
+                    int aTag,
+                    MPI_Status & aStatus)
 {
 
     int flag = 1000;
-    MPI_Status tStatus;
-    MPI_Iprobe(aOtherProc, aTag, moris::get_comm(), &flag, &tStatus);
+    MPI_Iprobe(aOtherProc, aTag, moris::get_comm(), &flag, &aStatus);
 
     std::cout<<"Flag = "<<flag<< " | aOtherProc = "<<aOtherProc<<"| my rank = "<<moris::par_rank()<<" | Tag = "<<aTag<<std::endl;
 
@@ -150,13 +151,20 @@ void receive(moris::Matrix<Size_T_Matrix> & aReceivingMatrix,
              int aSendingProc,
              int aTag)
 {
-    MORIS_ERROR(sent_message_exists(aSendingProc,aTag),"Trying to receive a message that does not exists");
+
     MPI_Status tStatus;
+    MPI_Probe(aSendingProc, aTag, moris::get_comm(), &tStatus);
+
+
+//    MORIS_ERROR(tExists,"Trying to receive a message that does not exists");
+
     int tNumSent = 0;
     MPI_Get_count(&tStatus, moris::get_comm_datatype(aReceivingMatrix(0,0)), &tNumSent);
 
 
     size_t tNumColumns = tNumSent / aNumRows;
+
+    std::cout<<"RECEIVE FROM FROM "<<aSendingProc<<" ON "<<par_rank()<<" WITH TAG "<<aTag<<" | Size: "<<aNumRows<<", "<<tNumColumns<<std::endl;
 
     // Resize the matrix
     aReceivingMatrix.resize(aNumRows, tNumColumns);
@@ -172,13 +180,18 @@ void receive_col_known(moris::Matrix<Size_T_Matrix> & aReceivingMatrix,
              int aSendingProc,
              int aTag)
 {
-
-    MORIS_ERROR(sent_message_exists(aSendingProc,aTag),"Trying to receive a message that does not exists");
     MPI_Status tStatus;
+    bool tExists = sent_message_exists(aSendingProc,aTag,tStatus);
+
+    MORIS_ERROR(tExists,"Trying to receive a message that does not exists");
+
     int tNumSent = 0;
     MPI_Get_count(&tStatus, moris::get_comm_datatype(aReceivingMatrix(0,0)), &tNumSent);
 
+    std::cout<<"tNumSent = "<<tNumSent<<std::endl;
+
     size_t tNumRows = tNumSent / aNumCols;
+
 
     // Resize the matrix
     aReceivingMatrix.resize(tNumRows, aNumCols);

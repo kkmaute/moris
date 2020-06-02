@@ -595,6 +595,7 @@ Enrichment::communicate_basis_information_with_owner(moris_index             con
     moris::moris_index tNumRow = 1;
     moris::moris_index tParRank = par_rank();
 
+
     Cell<moris::Matrix<IdMat>> tReceiveInfoBasisId(par_size());
     Cell<moris::Matrix<IdMat>> tReceivedSubphaseId(par_size());
     Cell<moris::Matrix<IdMat>> tEnrichedBasisIds(par_size());
@@ -605,11 +606,8 @@ Enrichment::communicate_basis_information_with_owner(moris_index             con
         if((moris_index)i != tParRank)
         {
             // if there is a sent message from a processor go receive it
-            if(sent_message_exists(i,tBasisIdsTag))
+            if(sent_message_exists(i,tBasisIdsTag,tStatus))
             {
-                // assert that the other communications exists
-                MORIS_ERROR(sent_message_exists(i,tMaxSubphasetag),"The first message contains basis ids, this was not accompanied with the max integration cell id");
-
                 tReceiveInfoBasisId(i).resize(1,1);
                 tReceivedSubphaseId(i).resize(1,1);
 
@@ -675,7 +673,7 @@ Enrichment::communicate_basis_information_with_owner(moris_index             con
         if((moris_index)i != tParRank)
         {
             // if there is a sent message from a processor go receive it
-            if(sent_message_exists(i,tReturnIdTag))
+            if(sent_message_exists(i,tReturnIdTag,tStatus))
             {
 
                 aEnrichedBasisId(i).resize(1,1);
