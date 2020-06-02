@@ -20,7 +20,8 @@ namespace moris
 
         //-----------------------------------------------------------------------------------------------------------
 
-        void Output_Manager::set_outputs( const uint                              aOutputIndex,
+        void Output_Manager::set_outputs(
+                const uint                              aOutputIndex,
                 const enum VIS_Mesh_Type                aMeshType,
                 const std::string                     & aMeshPath,
                 const std::string                     & aMeshName,
@@ -70,6 +71,8 @@ namespace moris
             tOutputData.mOutputPath = std::get< 0 >( aParamterelist.get< std::pair< std::string, std::string > >( "File_Name" ) );
             tOutputData.mMeshName   = std::get< 1 >( aParamterelist.get< std::pair< std::string, std::string > >( "File_Name" ) );
 
+            tOutputData.mSaveFrequency  = aParamterelist.get< moris::sint >( "Save_Frequency" );
+
             moris::Cell< std::string > tSetNames;
             string_to_cell( aParamterelist.get< std::string >( "Set_Names" ), tSetNames );
             tOutputData.mSetNames   = tSetNames;
@@ -109,11 +112,13 @@ namespace moris
 
         //-----------------------------------------------------------------------------------------------------------
 
-        void Output_Manager::create_visualization_mesh( const uint                aVisMeshIndex,
+        void Output_Manager::create_visualization_mesh(
+                const uint                aVisMeshIndex,
                 mtk::Mesh_Manager * aMesh,
                 const uint                aMeshPairIndex)
         {
-            MORIS_ERROR( mOutputData( aVisMeshIndex ).mMeshIndex == ( sint )aVisMeshIndex, "create_visualization_meshes(), Visualization mesh not set" );
+            MORIS_ERROR( mOutputData( aVisMeshIndex ).mMeshIndex == ( sint )aVisMeshIndex,
+                    "create_visualization_meshes(), Visualization mesh not set" );
 
             mMTKMesh = aMesh;
             mMTKMeshPairIndex = aMeshPairIndex;
@@ -134,7 +139,8 @@ namespace moris
 
         //-----------------------------------------------------------------------------------------------------------
 
-        void Output_Manager::set_visualization_sets( const uint                                   aVisMeshIndex,
+        void Output_Manager::set_visualization_sets(
+                const uint                             aVisMeshIndex,
                 std::shared_ptr< MSI::Equation_Model > aEquationModel )
         {
             // get number of requested sets
@@ -143,8 +149,8 @@ namespace moris
             // get mtk set index to fem set index map
             //map< moris_index, moris_index > & tMeshSetToFemSetMap
             //map< std::pair< moris_index, bool >, moris_index > & tMeshSetToFemSetMap
-            map< std::tuple< moris_index, bool, bool >, moris_index > & tMeshSetToFemSetMap
-            = aEquationModel->get_mesh_set_to_fem_set_index_map();
+            map< std::tuple< moris_index, bool, bool >, moris_index > & tMeshSetToFemSetMap =
+                    aEquationModel->get_mesh_set_to_fem_set_index_map();
 
             // get equation sets
             moris::Cell< MSI::Equation_Set * > tEquationSets
@@ -153,6 +159,7 @@ namespace moris
             // get integration mesh
             mtk::Interpolation_Mesh* tInterpolationMesh = nullptr;
             mtk::Integration_Mesh*   tIntegrationMesh   = nullptr;
+
             mMTKMesh->get_mesh_pair( mMTKMeshPairIndex, tInterpolationMesh, tIntegrationMesh );
 
             // loop over equation sets.
@@ -167,9 +174,11 @@ namespace moris
                     moris_index tEquationSetIndex = tMeshSetToFemSetMap.find( std::make_tuple( tSetIndex, false, false ) );
 
                     // set vis set to fem set. +1 because 0 is reserved for fem
-                    tEquationSets( tEquationSetIndex )->set_visualization_set( aVisMeshIndex + 1,
-                            mVisMesh( aVisMeshIndex )->get_set_by_index( Ii ),
-                            mOnlyPrimary );
+                    tEquationSets(
+                            tEquationSetIndex )->set_visualization_set(
+                                    aVisMeshIndex + 1,
+                                    mVisMesh( aVisMeshIndex )->get_set_by_index( Ii ),
+                                    mOnlyPrimary );
                 }
             }
         }
@@ -198,8 +207,10 @@ namespace moris
 
             // write standard outputs like IDs and Indices to file
             //this->write_mesh_indices( aVisMeshIndex );
-        }
 
+            // reset field write counter
+            mOutputData( aVisMeshIndex ).mFieldWriteCounter=0;
+        }
 
         //-----------------------------------------------------------------------------------------------------------
 
@@ -293,17 +304,17 @@ namespace moris
 
                 switch( mOutputData( aVisMeshIndex ).mMeshType )
                 {
-                    case ( vis::VIS_Mesh_Type::STANDARD ):
-                            tOnlyPrimaryCells = true ;
-                    break;
+                    case  vis::VIS_Mesh_Type::STANDARD:
+                        tOnlyPrimaryCells = true ;
+                        break;
 
-                    case ( vis::VIS_Mesh_Type::OVERLAPPING_INTERFACE ):
-                            tOnlyPrimaryCells = false;
-                    break;
+                    case  vis::VIS_Mesh_Type::OVERLAPPING_INTERFACE:
+                        tOnlyPrimaryCells = false;
+                        break;
 
-                    case ( vis::VIS_Mesh_Type::FULL_DISCONTINOUS ):
-                             MORIS_ERROR( false, "create_visualization_mesh() - Mesh type FULL_DISCONTINOUS not implemented yet. " );
-                    break;
+                    case  vis::VIS_Mesh_Type::FULL_DISCONTINOUS:
+                        MORIS_ERROR( false, "create_visualization_mesh() - Mesh type FULL_DISCONTINOUS not implemented yet. " );
+                        break;
 
                     default:
                         MORIS_ERROR( false, "create_visualization_mesh() - Mesh type not specified. " );
@@ -382,12 +393,15 @@ namespace moris
                 const real                             aTime,
                 std::shared_ptr< MSI::Equation_Model > aEquationModel )
         {
+            // increment field write counter
+            mOutputData( aVisMeshIndex ).mFieldWriteCounter++;
+
             // write time to file
             mWriter( aVisMeshIndex )->set_time( aTime );
 
             // get mesh set to fem set index map
-            map< std::tuple< moris_index, bool, bool >, moris_index > & tMeshSetToFemSetMap
-            = aEquationModel->get_mesh_set_to_fem_set_index_map( );
+            map< std::tuple< moris_index, bool, bool >, moris_index > & tMeshSetToFemSetMap =
+                    aEquationModel->get_mesh_set_to_fem_set_index_map( );
 
             // get equation sets
             moris::Cell< MSI::Equation_Set * > tEquationSets = aEquationModel->get_equation_sets();
@@ -436,14 +450,29 @@ namespace moris
                     }
                 }
 
-                if( mOutputData( aVisMeshIndex ).mFieldType( Ik ) == Field_Type::NODAL )
+                switch ( mOutputData( aVisMeshIndex ).mFieldType( Ik ) )
                 {
-                    mWriter( aVisMeshIndex )->write_nodal_field( tFieldName, tNodalValues );
+                    case Field_Type::NODAL:
+                        mWriter( aVisMeshIndex )->write_nodal_field( tFieldName, tNodalValues );
+                        break;
+                    case Field_Type::GLOBAL:
+                        mWriter( aVisMeshIndex )->write_global_variable( tFieldName, tGlobalValue );
+                        break;
+                    case Field_Type::ELEMENTAL:
+                        // do nothing here - case is handled above
+                        break;
+                    default:
+                        MORIS_ERROR(false,"undefined FieldType option\n");
                 }
-                else if ( mOutputData( aVisMeshIndex ).mFieldType( Ik ) == Field_Type::GLOBAL )
-                {
-                    mWriter( aVisMeshIndex )->write_global_variable( tFieldName, tGlobalValue );
-                }
+            }
+
+            // check if a copy of the current mesh file should be created
+            sint tFieldWriteCounter = mOutputData( aVisMeshIndex ).mFieldWriteCounter;
+            sint tSaveFrequency     = mOutputData( aVisMeshIndex ).mSaveFrequency;
+
+            if ( std::remainder( tFieldWriteCounter,tSaveFrequency) == 0 )
+            {
+                mWriter( aVisMeshIndex )->save_mesh( );
             }
         }
 
