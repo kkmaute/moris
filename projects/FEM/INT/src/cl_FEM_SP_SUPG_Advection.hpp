@@ -45,7 +45,6 @@ namespace moris
                 enum class Property_Type
                 {
                     CONDUCTIVITY,
-//                    INV_PERMEABILITY, // inverse of the permeability for flow through porous media
                     MAX_ENUM
                 };
 

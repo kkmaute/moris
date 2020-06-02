@@ -44,7 +44,7 @@ void tFIValFunction_UTIWGGGLSDIFFBULK
         moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
         moris::fem::Field_Interpolator_Manager         * aFIManager )
 {
-    aPropMatrix = aParameters( 0 ) * aFIManager->get_field_interpolators_for_type( moris::MSI::Dof_Type::TEMP )->val();
+    aPropMatrix = aParameters( 0 ) + 0.1 * aParameters( 0 ) * aFIManager->get_field_interpolators_for_type( moris::MSI::Dof_Type::TEMP )->val();
 }
 
 void tFIDerFunction_UTIWGGGLSDIFFBULK
@@ -52,7 +52,15 @@ void tFIDerFunction_UTIWGGGLSDIFFBULK
         moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
         moris::fem::Field_Interpolator_Manager         * aFIManager )
 {
-    aPropMatrix = aParameters( 0 ) * aFIManager->get_field_interpolators_for_type( moris::MSI::Dof_Type::TEMP )->N();
+    aPropMatrix = 0.1 * aParameters( 0 ) * aFIManager->get_field_interpolators_for_type( moris::MSI::Dof_Type::TEMP )->N();
+}
+
+void tFIDer0Function_UTIWGGGLSDIFFBULK
+( moris::Matrix< moris::DDRMat >                 & aPropMatrix,
+        moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
+        moris::fem::Field_Interpolator_Manager         * aFIManager )
+{
+    aPropMatrix = 0.0 * aFIManager->get_field_interpolators_for_type( moris::MSI::Dof_Type::TEMP )->N();
 }
 
 namespace moris
@@ -74,10 +82,10 @@ namespace moris
             moris::Cell<bool> tChecks( 1, false );
 
             // define an epsilon environment
-            real tEpsilonRel = 1E-5;
+            real tEpsilonRel = 1.0E-6;
 
             // define a perturbation relative size
-            real tPerturbation = 1E-6;
+            real tPerturbation = 1.0E-6;
 
             // create the properties ------------------------------------------------------------------- //
 
@@ -90,17 +98,19 @@ namespace moris
 
             std::shared_ptr< fem::Property > tPropMasterDensity = std::make_shared< fem::Property > ();
             tPropMasterDensity->set_parameters( { {{ 1.2 }} } );
-//            tPropMasterDensity->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
-//            tPropMasterDensity->set_val_function( tFIValFunction_UTIWGGGLSDIFFBULK );
-//            tPropMasterDensity->set_dof_derivative_functions( { tFIDerFunction_UTIWGGGLSDIFFBULK } );
-            tPropMasterDensity->set_val_function( tConstValFunction_UTIWGGGLSDIFFBULK );
+            tPropMasterDensity->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
+            tPropMasterDensity->set_val_function( tFIValFunction_UTIWGGGLSDIFFBULK );
+            tPropMasterDensity->set_dof_derivative_functions( { tFIDerFunction_UTIWGGGLSDIFFBULK } );
+//            tPropMasterDensity->set_val_function( tConstValFunction_UTIWGGGLSDIFFBULK );
+//            tPropMasterDensity->set_dof_derivative_functions( { tFIDer0Function_UTIWGGGLSDIFFBULK } );
 
             std::shared_ptr< fem::Property > tPropMasterHeatCapacity = std::make_shared< fem::Property > ();
-            tPropMasterHeatCapacity->set_parameters( { {{ 1.3 }} } );
-//            tPropMasterHeatCapacity->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
-//            tPropMasterHeatCapacity->set_val_function( tFIValFunction_UTIWGGGLSDIFFBULK );
-//            tPropMasterHeatCapacity->set_dof_derivative_functions( { tFIDerFunction_UTIWGGGLSDIFFBULK } );
-            tPropMasterHeatCapacity->set_val_function( tConstValFunction_UTIWGGGLSDIFFBULK );
+            tPropMasterHeatCapacity->set_parameters( { {{ 0.3 }} } );
+            tPropMasterHeatCapacity->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
+            tPropMasterHeatCapacity->set_val_function( tFIValFunction_UTIWGGGLSDIFFBULK );
+            tPropMasterHeatCapacity->set_dof_derivative_functions( { tFIDerFunction_UTIWGGGLSDIFFBULK } );
+//            tPropMasterHeatCapacity->set_val_function( tConstValFunction_UTIWGGGLSDIFFBULK );
+//            tPropMasterHeatCapacity->set_dof_derivative_functions( { tFIDer0Function_UTIWGGGLSDIFFBULK } );
 
             // latent heat
             std::shared_ptr< fem::Property > tPropMasterLatentHeat = std::make_shared< fem::Property >();
@@ -110,13 +120,13 @@ namespace moris
 
             // phase change temp
             std::shared_ptr< fem::Property > tPropMasterTmelt = std::make_shared< fem::Property >();
-            tPropMasterTmelt->set_parameters( {{{ 5.0 }}} );
+            tPropMasterTmelt->set_parameters( {{{ 5.2 }}} );
             //tPropMasterTupper->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
             tPropMasterTmelt->set_val_function( tConstValFunction_UTIWGGGLSDIFFBULK );
 
             // phase change constant
             std::shared_ptr< fem::Property > tPropMasterPCconst = std::make_shared< fem::Property >();
-            tPropMasterPCconst->set_parameters( {{{ 2.8 }}} );
+            tPropMasterPCconst->set_parameters( {{{ 2.2 }}} );
             //tPropMasterPCconst->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
             tPropMasterPCconst->set_val_function( tConstValFunction_UTIWGGGLSDIFFBULK );
 
@@ -268,7 +278,7 @@ namespace moris
             // real tMax = test1.max();
             // print( tJacobian,   "tJacobian" );
             // print( tJacobianFD, "tJacobianFD" );
-            // print( test1, "JacobianDifference" );
+            //print( test1, "JacobianDifference" );
             // std::cout << "Maximum difference = " << tMax << " \n" << std::flush;
 
             return tChecks;
@@ -312,8 +322,8 @@ namespace moris
 
             // set coefficients for field interpolators
             Matrix< DDRMat > tUHat0 = {
-                    {3.9},{4.4},{4.9},{4.2},{4.9},{5.4},{5.9},{6.0},
-                    {5.9},{4.4},{3.9},{2.2},{4.9},{6.4},{4.9},{7.0}};
+                    {4.7},{4.8},{4.9},{5.3},{5.2},{5.3},{5.4},{4.5},
+                    {4.9},{5.2},{4.9},{5.3},{5.7},{5.1},{4.8},{4.8}};
             uint tNumDOFs = 16;
             Matrix< DDRMat > tParametricPoint = {{ 0.35}, {-0.25}, { 0.75}, { 0.4 }};
 
@@ -338,15 +348,15 @@ namespace moris
         // ------------------------------------------------------------------------------------- //
         TEST_CASE( "IWG_GGLS_Diffusion_Phase_Change_HEX27", "[moris],[fem],[IWG_GGLS_Diffusion_Phase_Change_HEX27]" )
         {
-            //create a quad4 space element
+            //create a HEX27 space element
             Matrix< DDRMat > tXHat = {
-                    { 0.0, 0.0, 0.0}, { 1.0, 0.0, 0.0}, { 1.0, 1.0, 0.0}, { 0.0, 1.0, 0.0},
-                    { 0.0, 0.0, 1.0}, { 1.0, 0.0, 1.0}, { 1.0, 1.0, 1.0}, { 0.0, 1.0, 1.0},
-                    { 0.5, 0.0, 0.0}, { 1.0, 0.5, 0.0}, { 0.5, 1.0, 0.0}, { 0.0, 0.5, 0.0},
-                    { 0.0, 0.0, 0.5}, { 1.0, 0.0, 0.5}, { 1.0, 1.0, 0.5}, { 0.0, 1.0, 0.5},
-                    { 0.5, 0.0, 1.0}, { 1.0, 0.5, 1.0}, { 0.5, 1.0, 1.0}, { 0.0, 0.5, 1.0},
-                    { 0.5, 0.5, 0.5}, { 0.5, 0.5, 0.0}, { 0.5, 0.5, 1.0},
-                    { 0.5, 0.0, 0.5}, { 1.0, 0.5, 0.5}, { 0.5, 1.0, 0.5}, { 0.0, 0.5, 0.5}};
+                    { 0.0, 0.0, 0.0}, { 4.0, 0.0, 0.0}, { 4.0, 1.0, 0.0}, { 0.0, 1.0, 0.0},
+                    { 0.0, 0.0, 3.0}, { 4.0, 0.0, 3.0}, { 4.0, 1.0, 3.0}, { 0.0, 1.0, 3.0},
+                    { 2.0, 0.0, 0.0}, { 4.0, 0.5, 0.0}, { 2.0, 1.0, 0.0}, { 0.0, 0.5, 0.0},
+                    { 0.0, 0.0, 1.5}, { 4.0, 0.0, 1.5}, { 4.0, 1.0, 1.5}, { 0.0, 1.0, 1.5},
+                    { 2.0, 0.0, 3.0}, { 4.0, 0.5, 3.0}, { 2.0, 1.0, 3.0}, { 0.0, 0.5, 3.0},
+                    { 2.0, 0.5, 1.5}, { 2.0, 0.5, 0.0}, { 2.0, 0.5, 3.0},
+                    { 2.0, 0.0, 1.5}, { 4.0, 0.5, 1.5}, { 2.0, 1.0, 1.5}, { 0.0, 0.5, 1.5}};
 
             //create a line time element
             Matrix< DDRMat > tTHat( 3, 1 );
@@ -371,9 +381,9 @@ namespace moris
 
             // set coefficients for field interpolators
             Matrix< DDRMat > tDOFHat = {
-                    {4.1},{4.2},{4.3},{4.4},{4.5},{4.6},{4.7},{4.4},{4.9},{4.1},{4.2},{4.3},{4.4},{4.5},{4.6},{4.7},{4.8},{4.1},{4.3},{4.2},{4.3},{4.4},{4.5},{4.6},{4.7},{4.8},{4.9},
-                    {5.1},{5.2},{5.3},{5.3},{5.5},{5.6},{5.7},{5.8},{5.9},{5.3},{5.2},{5.3},{5.4},{5.5},{5.2},{5.7},{5.8},{5.9},{5.1},{5.4},{5.3},{5.6},{5.5},{5.9},{5.7},{5.8},{5.9},
-                    {6.4},{6.2},{6.3},{6.4},{6.2},{6.2},{6.7},{6.1},{6.3},{6.1},{6.1},{6.1},{6.2},{6.1},{6.2},{6.7},{6.6},{6.5},{6.6},{6.2},{6.3},{6.4},{6.3},{6.5},{6.3},{6.2},{6.4}};
+                    {5.1},{5.2},{5.3},{5.4},{5.5},{4.6},{4.7},{5.4},{4.9},{5.1},{5.2},{5.3},{5.4},{5.5},{4.6},{4.7},{4.8},{5.1},{5.3},{5.2},{5.3},{5.4},{4.5},{4.6},{4.7},{4.8},{4.9},
+                    {5.1},{5.2},{5.3},{5.3},{5.5},{4.8},{4.7},{4.8},{4.9},{5.3},{5.2},{5.3},{5.4},{4.5},{5.2},{4.7},{4.8},{4.9},{5.1},{5.4},{5.3},{4.6},{5.5},{4.9},{4.7},{4.8},{4.9},
+                    {5.4},{5.2},{5.3},{5.4},{5.2},{5.2},{4.7},{5.1},{5.3},{5.1},{5.1},{5.1},{5.2},{5.3},{5.2},{4.7},{4.6},{4.5},{5.6},{5.2},{5.3},{5.4},{5.3},{4.5},{5.3},{5.2},{5.4}};
 
             uint tNumDOFs = 27 * 3;
             Matrix< DDRMat > tParametricPoint = {{ 0.35}, {-0.25}, { 0.75}, { 0.4 }};
