@@ -309,18 +309,18 @@ namespace moris
                                                     moris::Matrix< moris::DDRMat >         & aDxDp,
                                                     moris::Matrix< moris::IndexMat >       & aADVIndices );
 
-            /**
-             * @brief Returns a reference to the geometry object at the provided index
-             * @param[ in ] aNodeIndex a node index
-             */
-            GEN_Geometry_Object &
-            get_geometry_object( moris::size_t const & aNodeIndex );
-
-            /**
-             * @brief Returns a reference to the geometry object at the provided index
-             */
-            GEN_Geometry_Object const &
-            get_geometry_object(moris::size_t const & aNodeIndex) const;
+//            /**
+//             * @brief Returns a reference to the geometry object at the provided index
+//             * @param[ in ] aNodeIndex a node index
+//             */
+//            GEN_Geometry_Object &
+//            get_geometry_object( moris::size_t const & aNodeIndex );
+//
+//            /**
+//             * @brief Returns a reference to the geometry object at the provided index
+//             */
+//            GEN_Geometry_Object const &
+//            get_geometry_object(moris::size_t const & aNodeIndex) const;
 
             /**
              * @brief Get the total number of phases in the phase table

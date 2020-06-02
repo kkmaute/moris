@@ -385,7 +385,7 @@ namespace moris
                 moris::moris_index tNodeIndex = aInterfaceNodeIndices( iEnt );
         
                 // Get the node geometry object
-                GEN_Geometry_Object & tGeoObj = this->get_geometry_object( tNodeIndex );
+                GEN_Geometry_Object & tGeoObj = this->mGeometryObjectManager.get_geometry_object_from_manager(tNodeIndex);
         
                 // Get the parent topology that this node was created on
                 xtk::Topology const & tParentEdge = tGeoObj.get_parent_entity_topology( );
@@ -567,19 +567,19 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
         
-        GEN_Geometry_Object &
-        Geometry_Engine::get_geometry_object(moris::size_t const & aNodeIndex)
-        {
-           return mGeometryObjectManager.get_geometry_object_from_manager(aNodeIndex);
-        }
-
-        //--------------------------------------------------------------------------------------------------------------
-        
-        GEN_Geometry_Object const &
-        Geometry_Engine::get_geometry_object(moris::size_t const & aNodeIndex) const
-        {
-           return mGeometryObjectManager.get_geometry_object_from_manager(aNodeIndex);
-        }
+//        GEN_Geometry_Object &
+//        Geometry_Engine::get_geometry_object(moris::size_t const & aNodeIndex)
+//        {
+//           return mGeometryObjectManager.get_geometry_object_from_manager(aNodeIndex);
+//        }
+//
+//        //--------------------------------------------------------------------------------------------------------------
+//
+//        GEN_Geometry_Object const &
+//        Geometry_Engine::get_geometry_object(moris::size_t const & aNodeIndex) const
+//        {
+//           return mGeometryObjectManager.get_geometry_object_from_manager(aNodeIndex);
+//        }
 
         //--------------------------------------------------------------------------------------------------------------
         
@@ -603,7 +603,7 @@ namespace moris
         Geometry_Engine::get_entity_phase_val( moris::size_t const & aNodeIndex,
                                                    moris::size_t const & aGeomIndex )
         {
-            GEN_Geometry_Object & tNodesGeoObj = get_geometry_object(aNodeIndex);
+            GEN_Geometry_Object & tNodesGeoObj = mGeometryObjectManager.get_geometry_object_from_manager(aNodeIndex);
             moris::size_t tNodeRowIndex = tNodesGeoObj.get_phase_val_row();
         
             MORIS_ASSERT(tNodeRowIndex<mNodePhaseVals.n_rows(),"Entity row index out of bounds in the nodal phase val matrix");
@@ -616,7 +616,7 @@ namespace moris
         moris::Matrix< moris::DDRMat > const &
         Geometry_Engine::get_node_dx_dp( moris::size_t const & aNodeIndex ) const
         {
-            GEN_Geometry_Object const & tNodesGeoObj = get_geometry_object( aNodeIndex );
+            GEN_Geometry_Object const & tNodesGeoObj = mGeometryObjectManager.get_geometry_object_from_manager(aNodeIndex);
             return tNodesGeoObj.get_sensitivity_dx_dp();
         }
 
@@ -625,7 +625,7 @@ namespace moris
         moris::Matrix< moris::IndexMat > const &
         Geometry_Engine::get_node_adv_indices( moris::size_t const & aNodeIndex ) const
         {
-            GEN_Geometry_Object const & tNodesGeoObj = get_geometry_object( aNodeIndex );
+            GEN_Geometry_Object const & tNodesGeoObj = mGeometryObjectManager.get_geometry_object_from_manager(aNodeIndex);
             return tNodesGeoObj.get_node_adv_indices();
         }
 
@@ -640,7 +640,7 @@ namespace moris
         
             for(moris::size_t i = 0; i<aNodeIndex.n_cols(); i++)
             {
-                GEN_Geometry_Object & tNodesGeoObj = get_geometry_object(aNodeIndex(0,i));
+                GEN_Geometry_Object & tNodesGeoObj = mGeometryObjectManager.get_geometry_object_from_manager(aNodeIndex(0, i));
                 moris::size_t tNodeRowIndex = tNodesGeoObj.get_phase_val_row();
         
                 for(moris::size_t iG = 0; iG < this->get_num_geometries(); iG++)
@@ -671,7 +671,7 @@ namespace moris
             moris::real tNodePhaseValue = 0;
             moris::Matrix< moris::IndexMat > tPhaseOnOff(1, this->get_num_geometries());
         
-            GEN_Geometry_Object & tNodesGeoObj = get_geometry_object(aNodeIndex);
+            GEN_Geometry_Object & tNodesGeoObj = mGeometryObjectManager.get_geometry_object_from_manager(aNodeIndex);
             moris::size_t tNodeRowIndex = tNodesGeoObj.get_phase_val_row();
         
             for(moris::size_t iG = 0; iG < this->get_num_geometries(); iG++)
@@ -706,7 +706,7 @@ namespace moris
         Geometry_Engine::get_node_phase_index_wrt_a_geometry( moris::size_t aNodeIndex,
                                                                   moris::size_t aGeometryIndex )
         {
-            GEN_Geometry_Object & tNodesGeoObj = get_geometry_object(aNodeIndex);
+            GEN_Geometry_Object & tNodesGeoObj = mGeometryObjectManager.get_geometry_object_from_manager(aNodeIndex);
             moris::size_t tNodeRowIndex = tNodesGeoObj.get_phase_val_row();
         
             moris::real tNodePhaseVal = mNodePhaseVals(tNodeRowIndex,aGeometryIndex);
@@ -921,7 +921,7 @@ namespace moris
             {   //Get node id n
                 tNodeInd = aEntityNodeInds(n);
         
-                GEN_Geometry_Object & tGeoObj = get_geometry_object(tNodeInd);
+                GEN_Geometry_Object & tGeoObj = mGeometryObjectManager.get_geometry_object_from_manager(tNodeInd);
                 moris::size_t tPhaseValRowIndex = tGeoObj.get_phase_val_row();
                 tEntityNodeVars(n) = mNodePhaseVals(tPhaseValRowIndex, mActiveGeometryIndex);
             }
@@ -1016,7 +1016,7 @@ namespace moris
 
             for(moris::size_t i = 0; i < tNumNodesAttachedToParent; i++)
             {
-                GEN_Geometry_Object & tGeoObj = get_geometry_object(tNodesAttachedToParent(i));
+                GEN_Geometry_Object & tGeoObj = mGeometryObjectManager.get_geometry_object_from_manager(tNodesAttachedToParent(i));
                 moris::size_t tPhaseRow = tGeoObj.get_phase_val_row();
 
                 tNodesLevelSetValues(0,i) = mNodePhaseVals(tPhaseRow,aGeometryIndex);
