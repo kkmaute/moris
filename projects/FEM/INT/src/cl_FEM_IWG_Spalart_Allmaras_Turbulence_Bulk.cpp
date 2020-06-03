@@ -111,14 +111,15 @@ namespace moris
             this->compute_residual_strong_form( tR );
 
             // compute the residual weak form
-            mSet->get_residual()( 0 )( { tMasterResStartIndex, tMasterResStopIndex }, { 0, 0 } )
-                            += aWStar * (   trans( tFIViscosity->N() ) * tFIViscosity->gradt( 1 )
-                                    + trans( tFIViscosity->N() ) * trans( tFIVelocity->val() ) * tFIViscosity->gradx( 1 )
-                                    - trans( tFIViscosity->N() ) * mCb1 * ( 1 - tFt2 ) * tSTilde * tFIViscosity->val()
-                                    + trans( tFIViscosity->N() ) * ( mCw1 * tFw - mCb1 * tFt2 / std::pow( mKappa, 2.0 ) ) * trans( tFIViscosity->val() ) * tFIViscosity->val() / std::pow( tPropWallDistance->val()( 0 ), 2.0 )
+            mSet->get_residual()( 0 )( { tMasterResStartIndex, tMasterResStopIndex }, { 0, 0 } ) += aWStar * (
+                    trans( tFIViscosity->N() ) * tFIViscosity->gradt( 1 )
+                    + trans( tFIViscosity->N() ) * trans( tFIVelocity->val() - mCb2 * tFIViscosity->gradx( 1 ) / mSigma ) * tFIViscosity->gradx( 1 )
+                    - trans( tFIViscosity->N() ) * mCb1 * ( 1 - tFt2 ) * tSTilde * tFIViscosity->val()
+                    + trans( tFIViscosity->N() ) * ( mCw1 * tFw - mCb1 * tFt2 / std::pow( mKappa, 2.0 ) ) * std::pow( tFIViscosity->val()( 0 ) / tPropWallDistance->val()( 0 ), 2.0 )
             + trans( tFIViscosity->dnNdxn( 1 ) ) * ( tFIViscosity->val()( 0 ) + tPropViscosity->val()( 0 ) ) * tFIViscosity->gradx( 1 ) / mSigma
-            - trans( tFIViscosity->N() ) * mCb2 * trans( tFIViscosity->gradx( 1 ) ) * tFIViscosity->gradx( 1 ) / mSigma
-            + trans( tFIViscosity->dnNdxn( 1 ) ) * tFIVelocity->val() * tSPSUPG->val()( 0 ) * tR( 0 ) );
+            + trans( tFIViscosity->dnNdxn( 1 ) ) * ( tFIVelocity->val() - mCb2 * tFIViscosity->gradx( 1 ) / mSigma ) * tSPSUPG->val()( 0 ) * tR( 0 ) );
+
+//            print( mSet->get_residual()( 0 )( { tMasterResStartIndex, tMasterResStopIndex }, { 0, 0 } ),"Res Bulk" );
         }
 
         //------------------------------------------------------------------------------
@@ -186,15 +187,16 @@ namespace moris
                 if( tDofType( 0 ) == mResidualDofType( 0 ) )
                 {
                     // compute the jacobian
-                    mSet->get_jacobian()( { tMasterResStartIndex, tMasterResStopIndex },
-                            { tMasterDepStartIndex, tMasterDepStopIndex } )
-                            += aWStar * (   trans( tFIViscosity->N() ) * tFIViscosity->dnNdtn( 1 )
-                                    + trans( tFIViscosity->N() ) * trans( tFIVelocity->val() ) * tFIViscosity->dnNdxn( 1 )
-                                    - trans( tFIViscosity->N() ) * mCb1 * ( 1 - tFt2 ) * tSTilde * tFIViscosity->N()
-                                    + trans( tFIViscosity->N() ) * ( mCw1 * tFw - mCb1 * tFt2 / std::pow( mKappa, 2.0 ) ) * 2.0 * trans( tFIViscosity->val() ) * tFIViscosity->N() / std::pow( tPropWallDistance->val()( 0 ), 2.0 )
+                    mSet->get_jacobian()(
+                            { tMasterResStartIndex, tMasterResStopIndex },
+                            { tMasterDepStartIndex, tMasterDepStopIndex } ) += aWStar * (
+                            trans( tFIViscosity->N() ) * tFIViscosity->dnNdtn( 1 )
+                            + trans( tFIViscosity->N() ) * trans( tFIVelocity->val() - 2.0 * mCb2 * tFIViscosity->gradx( 1 ) / mSigma ) * tFIViscosity->dnNdxn( 1 )
+                            - trans( tFIViscosity->N() ) * mCb1 * ( 1 - tFt2 ) * tSTilde * tFIViscosity->N()
+                            + trans( tFIViscosity->N() ) * ( mCw1 * tFw - mCb1 * tFt2 / std::pow( mKappa, 2.0 ) ) * 2.0 * tFIViscosity->val() * tFIViscosity->N() / std::pow( tPropWallDistance->val()( 0 ), 2.0 )
                     + trans( tFIViscosity->dnNdxn( 1 ) ) * tFIViscosity->gradx( 1 ) * tFIViscosity->N() / mSigma
                     + trans( tFIViscosity->dnNdxn( 1 ) ) * ( tFIViscosity->val()( 0 ) + tPropViscosity->val()( 0 ) ) * tFIViscosity->dnNdxn( 1 ) / mSigma
-                    - trans( tFIViscosity->N() ) * mCb2 * 2.0 * trans( tFIViscosity->gradx( 1 ) ) * tFIViscosity->dnNdxn( 1 ) / mSigma );
+                    - trans( tFIViscosity->dnNdxn( 1 ) ) * ( mCb2 * tFIViscosity->dnNdxn( 1 ) / mSigma ) * tSPSUPG->val()( 0 ) * tR( 0 ) );
                 }
 
                 // if velocity dof type
@@ -212,9 +214,11 @@ namespace moris
                 if( tPropViscosity->check_dof_dependency( tDofType ) )
                 {
                     // compute the jacobian
-                    mSet->get_jacobian()( { tMasterResStartIndex, tMasterResStopIndex },
-                            { tMasterDepStartIndex, tMasterDepStopIndex } )
-                            += aWStar * ( trans( tFIViscosity->dnNdxn( 1 ) ) * tFIViscosity->gradx( 1 ) * tPropViscosity->dPropdDOF( tDofType ) / mSigma );
+                    mSet->get_jacobian()(
+                            { tMasterResStartIndex, tMasterResStopIndex },
+                            { tMasterDepStartIndex, tMasterDepStopIndex } ) += aWStar * (
+                                    trans( tFIViscosity->dnNdxn( 1 ) ) *
+                                    tFIViscosity->gradx( 1 ) * tPropViscosity->dPropdDOF( tDofType ) / mSigma );
                 }
 
                 if( tSPSUPG->check_dof_dependency( tDofType ) )
@@ -223,7 +227,9 @@ namespace moris
                     mSet->get_jacobian()(
                             { tMasterResStartIndex, tMasterResStopIndex },
                             { tMasterDepStartIndex, tMasterDepStopIndex } ) += aWStar * (
-                                    trans( tFIViscosity->dnNdxn( 1 ) ) * tFIVelocity->val() * tR( 0 ) * tSPSUPG->dSPdMasterDOF( tDofType ) );
+                                    trans( tFIViscosity->dnNdxn( 1 ) ) *
+                                    ( tFIVelocity->val() - mCb2 * tFIViscosity->gradx( 1 ) / mSigma ) *
+                                    tR( 0 ) * tSPSUPG->dSPdMasterDOF( tDofType ) );
 
                 }
 
@@ -244,14 +250,17 @@ namespace moris
                 this->compute_dfwdu( tDofType, tdfwdu );
 
                 // compute the jacobian
-                mSet->get_jacobian()( { tMasterResStartIndex, tMasterResStopIndex },
-                        { tMasterDepStartIndex, tMasterDepStopIndex } )
-                        += aWStar * (   trans( tFIViscosity->N() ) * mCb1 * tSTilde * tFIViscosity->val() * tdft2du
+                mSet->get_jacobian()(
+                        { tMasterResStartIndex, tMasterResStopIndex },
+                        { tMasterDepStartIndex, tMasterDepStopIndex } ) += aWStar * (
+                                trans( tFIViscosity->N() ) * mCb1 * tSTilde * tFIViscosity->val() * tdft2du
                                 - trans( tFIViscosity->N() ) * mCb1 * ( 1 - tFt2 ) * tFIViscosity->val() * tdSTildedu
-                                + trans( tFIViscosity->N() ) * trans( tFIViscosity->val() ) * tFIViscosity->val() * ( mCw1 * tdfwdu - mCb1 * tdft2du / std::pow( mKappa, 2.0 ) ) / std::pow( tPropWallDistance->val()( 0 ), 2.0 ))
-                                + trans( tFIViscosity->dnNdxn( 1 ) ) * tFIVelocity->val() * tSPSUPG->val()( 0 ) * tJ;
+                                + trans( tFIViscosity->N() ) * ( mCw1 * tdfwdu - mCb1 * tdft2du / std::pow( mKappa, 2.0 ) ) *
+                                std::pow( tFIViscosity->val()( 0 ) / tPropWallDistance->val()( 0 ), 2.0 )
+                                + trans( tFIViscosity->dnNdxn( 1 ) ) *
+                                ( tFIVelocity->val() - mCb2 * tFIViscosity->gradx( 1 ) / mSigma ) *
+                                tSPSUPG->val()( 0 ) * tJ );
             }
-
         }
 
         //------------------------------------------------------------------------------
@@ -306,12 +315,13 @@ namespace moris
             this->compute_divflux( tDivFlux );
 
             // compute strong form of residual
-            aR = tFIViscosity->gradt( 1 )
-                               + trans( tFIVelocity->val() ) * tFIViscosity->gradx( 1 )
-                               - mCb1 * ( 1 - tFt2 ) * tSTilde * tFIViscosity->val()
-                               + ( mCw1 * tFw - mCb1 * tFt2 / std::pow( mKappa, 2.0 ) ) * trans( tFIViscosity->val() ) * tFIViscosity->val() / std::pow( tPropWallDistance->val()( 0 ), 2.0 )
-            - tDivFlux / mSigma
-            - mCb2 * trans( tFIViscosity->gradx( 1 ) ) * tFIViscosity->gradx( 1 ) / mSigma;
+            aR =
+                    tFIViscosity->gradt( 1 ) +
+                    trans( tFIVelocity->val() - mCb2 * tFIViscosity->gradx( 1 ) / mSigma ) * tFIViscosity->gradx( 1 ) -
+                    mCb1 * ( 1 - tFt2 ) * tSTilde * tFIViscosity->val() +
+                    ( mCw1 * tFw - mCb1 * tFt2 / std::pow( mKappa, 2.0 ) ) *
+                    std::pow( tFIViscosity->val()( 0 ) / tPropWallDistance->val()( 0 ), 2.0 ) -
+                    tDivFlux / mSigma ;
         }
 
         //------------------------------------------------------------------------------
@@ -335,8 +345,8 @@ namespace moris
             aJ.set_size( 1, tFIDer->get_number_of_space_time_coefficients(), 0.0 );
 
             // get the wall distance property
-            std::shared_ptr< Property > tPropWallDistance
-            = mMasterProp( static_cast< uint >( IWG_Property_Type::WALL_DISTANCE ) );
+            std::shared_ptr< Property > tPropWallDistance =
+                    mMasterProp( static_cast< uint >( IWG_Property_Type::WALL_DISTANCE ) );
 
             // compute ft2
             real tFt2 = this->compute_ft2();
@@ -366,11 +376,12 @@ namespace moris
             // if dof type is residual df type (here viscosity)
             if( aDofTypes( 0 ) == mResidualDofType( 0 ) )
             {
-                aJ.matrix_data() += tFIViscosity->dnNdtn( 1 )
-                                                  + trans( tFIVelocity->val() ) * tFIViscosity->dnNdxn( 1 )
-                                                  - mCb1 * ( 1 - tFt2 ) * tSTilde * tFIViscosity->N()
-                                                  + ( mCw1 * tFw - mCb1 * tFt2 / std::pow( mKappa, 2.0 ) ) * 2.0 * tFIViscosity->val() * tFIViscosity->N() / std::pow( tPropWallDistance->val()( 0 ), 2.0 )
-                - mCb2 * 2.0 * trans( tFIViscosity->gradx( 1 ) ) * tFIViscosity->dnNdxn( 1 ) / mSigma;
+                aJ.matrix_data() +=
+                        tFIViscosity->dnNdtn( 1 ) +
+                        trans( tFIVelocity->val() - 2.0 * mCb2 * tFIViscosity->gradx( 1 ) / mSigma ) * tFIViscosity->dnNdxn( 1 ) -
+                        mCb1 * ( 1 - tFt2 ) * tSTilde * tFIViscosity->N() +
+                        ( mCw1 * tFw - mCb1 * tFt2 / std::pow( mKappa, 2.0 ) ) *
+                        2.0 * tFIViscosity->val() * tFIViscosity->N() / std::pow( tPropWallDistance->val()( 0 ), 2.0 );
             }
 
             // if dof type is velocity dof type
@@ -381,10 +392,12 @@ namespace moris
             }
 
             // add contribution to jacobian
-            aJ.matrix_data() += mCb1 * tSTilde * tFIViscosity->val() * tdft2du
-                    - mCb1 * ( 1 - tFt2 ) * tFIViscosity->val() * tdstildedu
-                    + trans( tFIViscosity->val() ) * tFIViscosity->val() * ( mCw1 * tdfwdu - mCb1 * tdft2du / std::pow( mKappa, 2.0 ) ) / std::pow( tPropWallDistance->val()( 0 ), 2.0 )
-            - tddivfluxdu / mSigma;
+            aJ.matrix_data() +=
+                    mCb1 * tSTilde * tFIViscosity->val() * tdft2du -
+                    mCb1 * ( 1 - tFt2 ) * tFIViscosity->val() * tdstildedu +
+                    ( mCw1 * tdfwdu - mCb1 * tdft2du / std::pow( mKappa, 2.0 ) ) *
+                    std::pow( tFIViscosity->val()( 0 ) / tPropWallDistance->val()( 0 ), 2.0 ) -
+                    tddivfluxdu / mSigma;
         }
 
         //------------------------------------------------------------------------------
@@ -404,8 +417,8 @@ namespace moris
             uint tSpaceDim = tFIViscosity->dnNdxn( 1 ).n_rows();
 
             // compute the divergence of the flux
-            aDivFlux = trans ( tFIViscosity->gradx( 1 ) ) * tFIViscosity->gradx( 1 )
-                                     + ( tPropViscosity->val()( 0 ) + tFIViscosity->val()( 0 ) ) * sum( tFIViscosity->gradx( 2 )( { 0, tSpaceDim - 1 }, { 0, 0 } ) );
+            aDivFlux = trans ( tFIViscosity->gradx( 1 ) ) * tFIViscosity->gradx( 1 ) +
+                    ( tPropViscosity->val()( 0 ) + tFIViscosity->val()( 0 ) ) * sum( tFIViscosity->gradx( 2 )( { 0, tSpaceDim - 1 }, { 0, 0 } ) );
         }
 
         //------------------------------------------------------------------------------
@@ -593,6 +606,12 @@ namespace moris
                 moris::Cell< MSI::Dof_Type > & aDofTypes,
                 Matrix< DDRMat >             & adsbardu )
         {
+            // get the derivative dof FIs
+            Field_Interpolator * tDerFI = mMasterFIManager->get_field_interpolators_for_type( aDofTypes( 0 ) );
+
+            // init adchidu
+            adsbardu.set_size( 1, tDerFI->get_number_of_space_time_coefficients(), 0.0 );
+
             // compute sbar
             real tSBar = this->compute_sbar();
 
@@ -605,7 +624,14 @@ namespace moris
             this->compute_dwijdu( aDofTypes, tdWijdu );
 
             // compute dsbardu
-            adsbardu = 2.0 * trans( tWij ) * tdWijdu / tSBar;
+            adsbardu.matrix_data() += 2.0 * trans( tWij ) * tdWijdu / tSBar;
+
+            // fixme
+            if( !isfinite( adsbardu ) )
+            {
+                //std::cout<<"IWG_Spalart_Allmaras_Turbulence_Bulk::compute_dsbardu - inf or nan in adsbardu."<<std::endl;
+                adsbardu.set_size( 1, tDerFI->get_number_of_space_time_coefficients(), 0.0 );
+            }
         }
 
         //------------------------------------------------------------------------------
@@ -726,7 +752,7 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
-        real IWG_Spalart_Allmaras_Turbulence_Bulk::compute_stilde()
+        real IWG_Spalart_Allmaras_Turbulence_Bulk::compute_s()
         {
             // get the residual dof FI (here viscosity)
             Field_Interpolator * tFIViscosity =
@@ -736,28 +762,25 @@ namespace moris
             std::shared_ptr< Property > tPropWallDistance =
                     mMasterProp( static_cast< uint >( IWG_Property_Type::WALL_DISTANCE ) );
 
-            // compute SBar
-            real tSBar = this->compute_sbar();
-
             // compute fv2
             real tFv2 = this->compute_fv2();
 
-            // compute stilde
-            real tStilde = tSBar + tFv2 * tFIViscosity->val()( 0 ) / std::pow( mKappa * tPropWallDistance->val()( 0 ), 2.0 );
+            // compute s
+            real tS = tFv2 * tFIViscosity->val()( 0 ) / std::pow( mKappa * tPropWallDistance->val()( 0 ), 2.0 );
 
-            return tStilde;
+            return tS;
         }
 
         //------------------------------------------------------------------------------
-        void IWG_Spalart_Allmaras_Turbulence_Bulk::compute_dstildedu(
+        void IWG_Spalart_Allmaras_Turbulence_Bulk::compute_dsdu(
                 moris::Cell< MSI::Dof_Type > & aDofTypes,
-                Matrix< DDRMat >             & adstildedu )
+                Matrix< DDRMat >             & adsdu )
         {
             // get the derivative dof FIs
-            Field_Interpolator * tDerFI = mMasterFIManager->get_field_interpolators_for_type( aDofTypes( 0 ) );
+            Field_Interpolator * tFIDer = mMasterFIManager->get_field_interpolators_for_type( aDofTypes( 0 ) );
 
             // init adSTildedu
-            adstildedu.set_size( 1, tDerFI->get_number_of_space_time_coefficients(), 0.0 );
+            adsdu.set_size( 1, tFIDer->get_number_of_space_time_coefficients(), 0.0 );
 
             // get the residual dof FI (here viscosity)
             Field_Interpolator * tFIViscosity =
@@ -767,10 +790,6 @@ namespace moris
             std::shared_ptr< Property > tPropWallDistance =
                     mMasterProp( static_cast< uint >( IWG_Property_Type::WALL_DISTANCE ) );
 
-            // compute dSBardu
-            Matrix< DDRMat > tdSBardu;
-            this->compute_dsbardu( aDofTypes, tdSBardu );
-
             // compute fv2
             real tFv2 = this->compute_fv2();
 
@@ -779,13 +798,128 @@ namespace moris
             this->compute_dfv2du( aDofTypes, tdfv2du );
 
             // compute dstildedu
-            adstildedu.matrix_data() += tdSBardu + tFIViscosity->val() * tdfv2du / std::pow( mKappa * tPropWallDistance->val()( 0 ), 2.0 );
+            adsdu.matrix_data() += tFIViscosity->val() * tdfv2du / std::pow( mKappa * tPropWallDistance->val()( 0 ), 2.0 );
 
             // if dof type is residual dof type
             if( aDofTypes( 0 ) == mResidualDofType( 0 ) )
             {
                 // add contribution
-                adstildedu.matrix_data() += tFv2 * tDerFI->N() / std::pow( mKappa * tPropWallDistance->val()( 0 ), 2.0 );
+                adsdu.matrix_data() +=
+                        tFv2 * tFIDer->N() / std::pow( mKappa * tPropWallDistance->val()( 0 ), 2.0 );
+            }
+        }
+
+        //------------------------------------------------------------------------------
+        real IWG_Spalart_Allmaras_Turbulence_Bulk::compute_smod()
+        {
+            // compute Sbar
+            real tSBar = this->compute_sbar();
+
+            // compute S
+            real tS = this->compute_s();
+
+            // compute s
+            real tSMod = tSBar * ( std::pow( mCv2, 2 ) * tSBar + mCv3 * tS ) /
+                    ( ( mCv3 - 2.0 * mCv2 ) * tSBar - tS );
+
+            return tSMod;
+        }
+
+        //------------------------------------------------------------------------------
+        void IWG_Spalart_Allmaras_Turbulence_Bulk::compute_dsmoddu(
+                moris::Cell< MSI::Dof_Type > & aDofTypes,
+                Matrix< DDRMat >             & adsmoddu )
+        {
+            // compute Sbar
+            real tSBar = this->compute_sbar();
+
+            // compute dsbardu
+            Matrix< DDRMat > tdsbardu;
+            this->compute_dsbardu( aDofTypes, tdsbardu );
+
+            // compute S
+            real tS = this->compute_s();
+
+            // compute dsdu
+            Matrix< DDRMat > tdsdu;
+            this->compute_dsdu( aDofTypes, tdsdu );
+
+            // compute smod num
+            real tSModNum = tSBar * ( std::pow( mCv2, 2 ) * tSBar + mCv3 * tS );
+
+            // compute smod deno
+            real tSModDeno = ( mCv3 - 2.0 * mCv2 ) * tSBar - tS;
+
+            // compute dsmoddu
+            adsmoddu = ( ( tdsbardu * ( std::pow( mCv2, 2 ) * tSBar + mCv3 * tS ) +
+                    tSBar * ( std::pow( mCv2, 2 ) * tdsbardu + mCv3 * tdsdu ) ) * tSModDeno -
+                    tSModNum * ( ( mCv3 - 2.0 * mCv2 ) * tdsbardu - tdsdu ) ) /
+                    std::pow( tSModDeno, 2 );
+        }
+
+        //------------------------------------------------------------------------------
+        real IWG_Spalart_Allmaras_Turbulence_Bulk::compute_stilde()
+        {
+            // compute SBar
+            real tSBar = this->compute_sbar();
+
+            // compute S
+            real tS = this->compute_s();
+
+            // init stilde
+            real tSTilde = tSBar;
+
+            // compute STilde
+            if( tS >= - mCv2 * tSBar )
+            {
+                tSTilde += tS;
+            }
+            else
+            {
+                // compute sMod
+                tSTilde += this->compute_smod();
+            }
+
+            // return STilde
+            return tSTilde;
+        }
+
+        //------------------------------------------------------------------------------
+        void IWG_Spalart_Allmaras_Turbulence_Bulk::compute_dstildedu(
+                moris::Cell< MSI::Dof_Type > & aDofTypes,
+                Matrix< DDRMat >             & adstildedu )
+        {
+            // compute SBar
+            real tSBar = this->compute_sbar();
+
+            // compute dSBardu
+            Matrix< DDRMat > tdSBardu;
+            this->compute_dsbardu( aDofTypes, tdSBardu );
+
+            // compute S
+            real tS = this->compute_s();
+
+            // init dstildedu
+            adstildedu = tdSBardu;
+
+            // compute dstildedu
+            if( tS >= - mCv2 * tSBar )
+            {
+                // compute dSdu
+                Matrix< DDRMat > tdSdu;
+                this->compute_dsdu( aDofTypes, tdSdu );
+
+                // add dsdu
+                adstildedu.matrix_data() += tdSdu.matrix_data();
+            }
+            else
+            {
+                // compute dSModdu
+                Matrix< DDRMat > tdSModdu;
+                this->compute_dsmoddu( aDofTypes, tdSModdu );
+
+                // compute sMod
+                adstildedu.matrix_data() += tdSModdu.matrix_data();
             }
         }
 

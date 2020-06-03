@@ -61,6 +61,8 @@ namespace moris
                 real mCt3 = 1.2;
                 real mCt4 = 0.5;
                 real mCv1 = 7.1;
+                real mCv2 = 0.7;
+                real mCv3 = 0.9;
 
                 //------------------------------------------------------------------------------
                 /*
@@ -250,6 +252,42 @@ namespace moris
                 void compute_dsbardu(
                         moris::Cell< MSI::Dof_Type > & aDofTypes,
                         Matrix< DDRMat >             & adsbardu );
+
+                //------------------------------------------------------------------------------
+                /**
+                 * compute S = viscosity * fv2 / ( kappa² * d² )
+                 * @param[ out ] S
+                 */
+                real compute_s();
+
+                //------------------------------------------------------------------------------
+                /**
+                 * compute the derivative of S wrt to a dof type
+                 * @param[ in ] aDofTypes  a list of dof type wrt which
+                 *                         the derivative is requested
+                 * @param[ in ] adSdu a matrix to fill with dSdu
+                 */
+                void compute_dsdu(
+                        moris::Cell< MSI::Dof_Type > & aDofTypes,
+                        Matrix< DDRMat >             & adsdu );
+
+                //------------------------------------------------------------------------------
+                /**
+                 * compute Smod =
+                 * @param[ out ] Smod
+                 */
+                real compute_smod();
+
+                //------------------------------------------------------------------------------
+                /**
+                 * compute the derivative of Smod wrt to a dof type
+                 * @param[ in ] aDofTypes  a list of dof type wrt which
+                 *                         the derivative is requested
+                 * @param[ in ] adSmoddu a matrix to fill with dSmoddu
+                 */
+                void compute_dsmoddu(
+                        moris::Cell< MSI::Dof_Type > & aDofTypes,
+                        Matrix< DDRMat >             & adsmoddu );
 
                 //------------------------------------------------------------------------------
                 /**
