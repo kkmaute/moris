@@ -124,8 +124,9 @@ namespace moris
             Matrix< DDRMat > tVelocityJump = tVelocityFI->val() - tPropVelocity->val();
 
             // compute master residual
-            mSet->get_residual()( 0 )( { tMasterResStartIndex, tMasterResStopIndex }, { 0, 0 } ) -=
-                    aWStar * ( mBeta * trans( tCMFluid->testTraction( mNormal, mResidualDofType ) ) * tM * tVelocityJump );
+            mSet->get_residual()( 0 )( { tMasterResStartIndex, tMasterResStopIndex }, { 0, 0 } ) +=
+                    aWStar * (
+                            mBeta * trans( tCMFluid->testTraction( mNormal, mResidualDofType ) ) * tM * tVelocityJump );
         }
 
         //------------------------------------------------------------------------------
@@ -197,7 +198,7 @@ namespace moris
                     // compute jacobian direct dependencies
                     mSet->get_jacobian()(
                             { tMasterResStartIndex, tMasterResStopIndex },
-                            { tMasterDepStartIndex, tMasterDepStopIndex } ) -= aWStar * (
+                            { tMasterDepStartIndex, tMasterDepStopIndex } ) += aWStar * (
                                     mBeta * trans( tCMFluid->testTraction( mNormal, mResidualDofType ) ) * tM * tVelocityFI->N() );
                 }
 
@@ -207,7 +208,7 @@ namespace moris
                     // add contribution of CM to jacobian
                     mSet->get_jacobian()(
                             { tMasterResStartIndex, tMasterResStopIndex },
-                            { tMasterDepStartIndex, tMasterDepStopIndex } ) += aWStar * (
+                            { tMasterDepStartIndex, tMasterDepStopIndex } ) -= aWStar * (
                                     mBeta * trans( tCMFluid->testTraction( mNormal, mResidualDofType ) ) * tM * tPropVelocity->dPropdDOF( tDofType ) );
                 }
 
@@ -217,7 +218,7 @@ namespace moris
                     // add contribution of CM to jacobian
                     mSet->get_jacobian()(
                             { tMasterResStartIndex, tMasterResStopIndex },
-                            { tMasterDepStartIndex, tMasterDepStopIndex } ) -= aWStar * (
+                            { tMasterDepStartIndex, tMasterDepStopIndex } ) += aWStar * (
                                     mBeta * tCMFluid->dTestTractiondDOF( tDofType, mNormal, tM * tVelocityJump, mResidualDofType ) );
                 }
             }

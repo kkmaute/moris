@@ -596,7 +596,6 @@ namespace moris
 
             aRC = tVelocityFI->div();
 
-
             // if permeability
             if ( tInvPermeabProp != nullptr )
             {
@@ -722,7 +721,7 @@ namespace moris
                 aJM.matrix_data() -= tIncFluidCM->ddivfluxdu( aDofTypes ).matrix_data();
             }
 
-            // if permeability depends on DoF type
+            // if permeability depends on dof type
             if ( tInvPermeabProp != nullptr )
             {
                 if( tGravityProp->check_dof_dependency( aDofTypes ) )

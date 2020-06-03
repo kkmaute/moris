@@ -87,7 +87,7 @@ moris::Cell<bool> test_IWG_Diffusion_Bulk(
     moris::Cell<bool> tChecks( 1, false );
 
     // define an epsilon environment
-    real tEpsilon = 1E-6;
+    real tEpsilon = 1E-4;
 
     // define a perturbation relative size
     real tPerturbation = 1E-6;
