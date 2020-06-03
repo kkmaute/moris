@@ -300,6 +300,25 @@ namespace moris
 
                 //------------------------------------------------------------------------------
                 /**
+                 * compute the derivative of viscosityt wrt to x
+                 * @param[ in ] adviscositytdx a matrix to fill with dviscositytdx
+                 */
+                void compute_dviscositytdx( Matrix< DDRMat > & adviscositytdx );
+
+                //------------------------------------------------------------------------------
+                /**
+                 * compute the derivative of the gradx of turbulence viscosity
+                 *  wrt to a dof type
+                 * @param[ in ] aDofTypes        a list of dof type wrt which
+                 *                               the derivative is requested
+                 * @param[ in ] adviscositytdxdu a matrix to fill with dviscositytdxdu
+                 */
+                void compute_dviscositytdxdu(
+                        const moris::Cell< MSI::Dof_Type > & aDofTypes,
+                        Matrix< DDRMat >                   & adviscositytdxdu );
+
+                //------------------------------------------------------------------------------
+                /**
                  * compute chi = viscosityDof / viscosityPtop
                  * @param[ out ] chi
                  */
@@ -318,6 +337,24 @@ namespace moris
 
                 //------------------------------------------------------------------------------
                 /**
+                 * compute the derivative of chi wrt to x
+                 * @param[ in ] adchidx a matrix to fill with dchidx
+                 */
+                void compute_dchidx( Matrix< DDRMat > & adchidx );
+
+                //------------------------------------------------------------------------------
+                /**
+                 * compute the derivative of dchidx wrt to a dof type
+                 * @param[ in ] aDofTypes  a list of dof type wrt which
+                 *                         the derivative is requested
+                 * @param[ in ] adchidxdu  a matrix to fill with dchidxdu
+                 *                  */
+                void compute_dchidxdu(
+                        const moris::Cell< MSI::Dof_Type > & aDofTypes,
+                        Matrix< DDRMat >                   & adchidxdu );
+
+                //------------------------------------------------------------------------------
+                /**
                  * compute fv1 = chi³ / ( chi³ + cv1³)
                  * @param[ out ] fv1
                  */
@@ -333,6 +370,24 @@ namespace moris
                 void compute_dfv1du(
                         const moris::Cell< MSI::Dof_Type > & aDofTypes,
                         Matrix< DDRMat >                   & adfv1du );
+
+                //------------------------------------------------------------------------------
+                /**
+                 * compute the derivative of fv1 wrt to x
+                 * @param[ in ] adfv1dx a matrix to fill with dfv1dx
+                 */
+                void compute_dfv1dx( Matrix< DDRMat > & adfv1dx );
+
+                //------------------------------------------------------------------------------
+                /**
+                 * compute the derivative of dfv1dx wrt to a dof type
+                 * @param[ in ] aDofTypes  a list of dof type wrt which
+                 *                         the derivative is requested
+                 * @param[ in ] adfv1dxdu  a matrix to fill with dfv1dxdu
+                 */
+                void compute_dfv1dxdu(
+                        const moris::Cell< MSI::Dof_Type > & aDofTypes,
+                        Matrix< DDRMat >                   & adfv1dxdu );
 
                 //--------------------------------------------------------------------------------------------------------------
         };
