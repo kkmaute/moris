@@ -36,6 +36,7 @@ namespace moris
                 {
                     DIRICHLET,
                     VISCOSITY,
+                    SELECT,
                     MAX_ENUM
                 };
 
@@ -58,8 +59,9 @@ namespace moris
                 //------------------------------------------------------------------------------
                 /*
                  *  constructor
+                 *  aBeta signed int for symmetric/unsymmetric Nitsche
                  */
-                IWG_Spalart_Allmaras_Turbulence_Dirichlet();
+                IWG_Spalart_Allmaras_Turbulence_Dirichlet( sint aBeta );
 
                 //------------------------------------------------------------------------------
                 /**

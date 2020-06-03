@@ -4,6 +4,7 @@
 #include "cl_FEM_Field_Interpolator_Manager.hpp"
 //LINALG/src
 #include "fn_trans.hpp"
+#include "fn_eye.hpp"
 
 namespace moris
 {
@@ -11,14 +12,18 @@ namespace moris
     {
 
         //------------------------------------------------------------------------------
-        IWG_Spalart_Allmaras_Turbulence_Dirichlet::IWG_Spalart_Allmaras_Turbulence_Dirichlet()
+        IWG_Spalart_Allmaras_Turbulence_Dirichlet::IWG_Spalart_Allmaras_Turbulence_Dirichlet( sint aBeta )
         {
+            // set mBeta for symmetric/unsymmetric Nitsche
+            mBeta = aBeta;
+
             // set size for the property pointer cell
             mMasterProp.resize( static_cast< uint >( IWG_Property_Type::MAX_ENUM ), nullptr );
 
             // populate the property map
             mPropertyMap[ "Dirichlet" ] = IWG_Property_Type::DIRICHLET;
             mPropertyMap[ "Viscosity" ] = IWG_Property_Type::VISCOSITY;
+            mPropertyMap[ "Select" ]    = IWG_Property_Type::SELECT;
 
             // set size for the stabilization parameter pointer cell
             mStabilizationParam.resize( static_cast< uint >( IWG_Stabilization_Type::MAX_ENUM ), nullptr );
@@ -87,6 +92,25 @@ namespace moris
             std::shared_ptr< Stabilization_Parameter > tSPNitsche =
                     mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::NITSCHE ) );
 
+            // get the selection matrix property
+            std::shared_ptr< Property > tPropSelect =
+                    mMasterProp( static_cast< uint >( IWG_Property_Type::SELECT ) );
+
+            // set a default selection matrix if needed
+            Matrix< DDRMat > tM;
+            if ( tPropSelect == nullptr )
+            {
+                // get spatial dimension
+                uint tSpaceDim = tFIViscosity->get_dof_type().size();
+
+                // set selection matrix as identity
+                eye( tSpaceDim, tSpaceDim, tM );
+            }
+            else
+            {
+                tM = tPropSelect->val();
+            }
+
             // compute the jump
             Matrix< DDRMat > tJump = tFIViscosity->val() - tPropDirichlet->val();
 
@@ -101,9 +125,9 @@ namespace moris
             // compute the residual weak form
             mSet->get_residual()( 0 )( { tMasterResStartIndex, tMasterResStopIndex }, { 0, 0 } ) +=
                     aWStar * (
-                            - trans( tFIViscosity->N() ) * tTraction / mSigma
-                            + mBeta * trans( tTestTraction ) * tJump / mSigma
-                            + trans( tFIViscosity->N() ) * tSPNitsche->val()( 0 ) * tJump );
+                            - trans( tFIViscosity->N() ) * tM * tTraction / mSigma
+                            + mBeta * trans( tTestTraction ) * tM * tJump / mSigma
+                            + tSPNitsche->val()( 0 ) * trans( tFIViscosity->N() ) * tM * tJump );
         }
 
         //------------------------------------------------------------------------------
@@ -130,6 +154,25 @@ namespace moris
             // get the Nitsche stabilization parameter
             std::shared_ptr< Stabilization_Parameter > tSPNitsche =
                     mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::NITSCHE ) );
+
+            // get the selection matrix property
+            std::shared_ptr< Property > tPropSelect =
+                    mMasterProp( static_cast< uint >( IWG_Property_Type::SELECT ) );
+
+            // set a default selection matrix if needed
+            Matrix< DDRMat > tM;
+            if ( tPropSelect == nullptr )
+            {
+                // get spatial dimension
+                uint tSpaceDim = tFIViscosity->get_dof_type().size();
+
+                // set selection matrix as identity
+                eye( tSpaceDim, tSpaceDim, tM );
+            }
+            else
+            {
+                tM = tPropSelect->val();
+            }
 
             // compute the jump
             Matrix< DDRMat > tJump = tFIViscosity->val() - tPropDirichlet->val();
@@ -159,8 +202,8 @@ namespace moris
                     mSet->get_jacobian()(
                             { tMasterResStartIndex, tMasterResStopIndex },
                             { tMasterDepStartIndex, tMasterDepStopIndex } ) += aWStar * (
-                                    mBeta * trans( tTestTraction  ) * tFIViscosity->N() / mSigma
-                                    + tSPNitsche->val()( 0 ) * trans( tFIViscosity->N() ) * tFIViscosity->N() );
+                                    + mBeta * trans( tTestTraction ) * tM * tFIViscosity->N() / mSigma
+                                    + tSPNitsche->val()( 0 ) * trans( tFIViscosity->N() ) * tM * tFIViscosity->N() );
                 }
 
                 // if imposed viscosity depends on dof type
@@ -170,8 +213,8 @@ namespace moris
                     mSet->get_jacobian()(
                             { tMasterResStartIndex, tMasterResStopIndex },
                             { tMasterDepStartIndex, tMasterDepStopIndex } ) -= aWStar * (
-                                    mBeta * trans( tTestTraction ) * tPropDirichlet->dPropdDOF( tDofType ) / mSigma
-                                    + tSPNitsche->val()( 0 ) * trans( tFIViscosity->N() ) * tPropDirichlet->dPropdDOF( tDofType ) );
+                                    + mBeta * trans( tTestTraction ) * tPropDirichlet->dPropdDOF( tDofType ) / mSigma
+                                    + tSPNitsche->val()( 0 ) * trans( tFIViscosity->N() ) * tM * tPropDirichlet->dPropdDOF( tDofType ) );
                 }
 
                 // if Nitsche SP depends on dof type
@@ -181,7 +224,7 @@ namespace moris
                     mSet->get_jacobian()(
                             { tMasterResStartIndex, tMasterResStopIndex },
                             { tMasterDepStartIndex, tMasterDepStopIndex } ) += aWStar * (
-                                    trans( tFIViscosity->N() ) * tJump * tSPNitsche->dSPdMasterDOF( tDofType ) );
+                                    trans( tFIViscosity->N() ) * tM * tJump * tSPNitsche->dSPdMasterDOF( tDofType ) );
                 }
 
                 // compute dtractiondu
@@ -196,8 +239,8 @@ namespace moris
                 mSet->get_jacobian()(
                         { tMasterResStartIndex, tMasterResStopIndex },
                         { tMasterDepStartIndex, tMasterDepStopIndex } ) += aWStar * (
-                                - trans( tFIViscosity->N() ) * tdtractiondu / mSigma
-                                + mBeta * tJump( 0 ) * tdtesttractiondu / mSigma );
+                                - trans( tFIViscosity->N() ) * tM * tdtractiondu / mSigma
+                                + mBeta * tM( 0 ) * tJump( 0 ) * tdtesttractiondu / mSigma );
             }
         }
 
@@ -283,10 +326,11 @@ namespace moris
                 Matrix< DDRMat >             & aTestTraction )
         {
             // get the der FI
-            Field_Interpolator * tFIDer = mMasterFIManager->get_field_interpolators_for_type( aTestDofTypes( 0 ) );
+            Field_Interpolator * tFITest =
+                    mMasterFIManager->get_field_interpolators_for_type( aTestDofTypes( 0 ) );
 
             // init the derivative of the divergence of the flux
-            aTestTraction.set_size( 1, tFIDer->get_number_of_space_time_coefficients(), 0.0 );
+            aTestTraction.set_size( 1, tFITest->get_number_of_space_time_coefficients(), 0.0 );
 
             // get the residual dof FI (here viscosity)
             Field_Interpolator * tFIViscosity =

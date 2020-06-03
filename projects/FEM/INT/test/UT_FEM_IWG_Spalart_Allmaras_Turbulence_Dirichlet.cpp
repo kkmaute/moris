@@ -269,7 +269,7 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Dirichlet", "[IWG_Spalart_Allmaras_T
             fem::IWG_Factory tIWGFactory;
 
             std::shared_ptr< fem::IWG > tIWG =
-                    tIWGFactory.create_IWG( fem::IWG_Type::SPALART_ALLMARAS_TURBULENCE_DIRICHLET );
+                    tIWGFactory.create_IWG( fem::IWG_Type::SPALART_ALLMARAS_TURBULENCE_DIRICHLET_SYMMETRIC_NITSCHE );
             tIWG->set_residual_dof_type( tVisDofTypes );
             tIWG->set_dof_type_list( { tVisDofTypes }, mtk::Master_Slave::MASTER );
             tIWG->set_property( tPropViscosity, "Viscosity" );
