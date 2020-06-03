@@ -63,7 +63,7 @@ namespace moris
             moris::Cell<bool> tChecks( 4, false );
 
             // real for check
-            real tEpsilonRel = 5E-5;
+            real tEpsilonRel = 1.0E-6;
 
             // create the properties --------------------------------------------------------------------- //
 
@@ -99,13 +99,13 @@ namespace moris
 
             // phase change temp
             std::shared_ptr< fem::Property > tPropMasterTmelt = std::make_shared< fem::Property >();
-            tPropMasterTmelt->set_parameters( {{{ 5.0 }}} );
+            tPropMasterTmelt->set_parameters( {{{ 5.2 }}} );
             //tPropMasterTupper->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
             tPropMasterTmelt->set_val_function( tConstValFunction_UT_CM_Diff_PC );
 
             // phase change constant
             std::shared_ptr< fem::Property > tPropMasterPCconst = std::make_shared< fem::Property >();
-            tPropMasterPCconst->set_parameters( {{{ 2.8 }}} );
+            tPropMasterPCconst->set_parameters( {{{ 1.8 }}} );
             //tPropMasterPCconst->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
             tPropMasterPCconst->set_val_function( tConstValFunction_UT_CM_Diff_PC );
 
@@ -184,12 +184,13 @@ namespace moris
 
             //check stress derivative
             bool tCheckHdot = true;
-            real tEpsilon = std::abs( tEpsilonRel * tdHdotdDOF( 0, 0 ) );
             for ( uint iStress = 0; iStress < tdHdotdDOF.n_rows(); iStress++ )
             {
                 for( uint jStress = 0; jStress < tdHdotdDOF.n_cols(); jStress++ )
                 {
-                    tCheckHdot = tCheckHdot && ( std::abs( tdHdotdDOF( iStress, jStress ) - tdHdotdDOF_FD( iStress, jStress ) ) < tEpsilon );
+                    tCheckHdot = tCheckHdot &&
+                            ( std::abs( ( tdHdotdDOF( iStress, jStress ) - tdHdotdDOF_FD( iStress, jStress ) ) /
+                                    tdHdotdDOF( iStress, jStress ) ) < tEpsilonRel );
                 }
             }
             //REQUIRE( tCheckHdot );
@@ -219,7 +220,6 @@ namespace moris
                     tCheckGradH = tCheckGradH &&
                             ( std::abs( tdGradHdDOF( iStress, jStress ) - tdGradHdDOF_FD( iStress, jStress ) ) <
                                     tEpsilonRel * std::abs(tdGradHdDOF( iStress, jStress )) );
-
                 }
             }
             //REQUIRE( tCheckGradH );
@@ -250,7 +250,6 @@ namespace moris
                     tCheckGradHdot = tCheckGradHdot &&
                             ( std::abs( tdGradHdotdDOF( iStress, jStress ) - tdGradHdotdDOF_FD( iStress, jStress ) ) <
                                     tEpsilonRel * std::abs(tdGradHdotdDOF( iStress, jStress )) );
-
                 }
             }
             //REQUIRE( tCheckGradHdot );
@@ -274,12 +273,14 @@ namespace moris
 
             //check strain derivative
             bool tCheckGradDivFlux = true;
-            tEpsilon = std::abs( tEpsilonRel );
             for ( uint iStress = 0; iStress < tdGradDivFluxdDOF.n_rows(); iStress++ )
             {
                 for( uint jStress = 0; jStress < tdGradDivFluxdDOF.n_cols(); jStress++ )
                 {
-                    tCheckGradDivFlux = tCheckGradDivFlux && ( std::abs( tdGradDivFluxdDOF( iStress, jStress ) - tdGradDivFluxdDOF_FD( iStress, jStress ) ) < tEpsilon );
+                    tCheckGradDivFlux = tCheckGradDivFlux &&
+                            ( std::abs( ( tdGradDivFluxdDOF( iStress, jStress ) - tdGradDivFluxdDOF_FD( iStress, jStress ) ) /
+                                    tdGradDivFluxdDOF( iStress, jStress ) ) < tEpsilonRel
+                                    || tdGradDivFluxdDOF( iStress, jStress ) < 1.0e-13 );
                 }
             }
             //REQUIRE( tCheckGradDivFlux );
@@ -333,7 +334,7 @@ namespace moris
                     mtk::Interpolation_Order::LINEAR );
 
             // set coefficients for field interpolators
-            Matrix< DDRMat > tUHat0 = {{3.9},{4.4},{4.9},{4.2},{4.9},{5.4},{5.9},{6.0}};
+            Matrix< DDRMat > tUHat0 = {{5.3},{5.1},{4.8},{5.3},{4.8},{4.9},{5.5},{4.9}};
             Matrix< DDRMat > tParametricPoint = {{-0.4}, { 0.1}, {-0.6}};
 
             // run test
@@ -397,8 +398,8 @@ namespace moris
 
             // set coefficients for field interpolators
             Matrix< DDRMat > tUHat0 = {
-                    {3.7},{4.2},{4.9},{4.2},{4.9},{3.4},{5.9},{4.3},
-                    {4.7},{5.2},{5.3},{5.2},{5.9},{6.4},{6.9},{6.5}};
+                    {5.3},{5.1},{4.8},{5.3},{4.8},{4.9},{5.5},{4.9},
+                    {5.1},{5.4},{4.9},{5.1},{4.9},{4.8},{5.2},{5.2}};
             Matrix< DDRMat > tParametricPoint = {{-0.4}, { 0.1}, {-0.6}, {0.3}};
 
             // run test
@@ -432,15 +433,15 @@ namespace moris
             // set number of spatial dimensions
             uint tSpatialDims = 3;
 
-            //create a quad4 space element
+            //create a HEX27 space element
             Matrix< DDRMat > tXHat = {
-                    { 0.0, 0.0, 0.0}, { 1.0, 0.0, 0.0}, { 1.0, 1.0, 0.0}, { 0.0, 1.0, 0.0},
-                    { 0.0, 0.0, 1.0}, { 1.0, 0.0, 1.0}, { 1.0, 1.0, 1.0}, { 0.0, 1.0, 1.0},
-                    { 0.5, 0.0, 0.0}, { 1.0, 0.5, 0.0}, { 0.5, 1.0, 0.0}, { 0.0, 0.5, 0.0},
-                    { 0.0, 0.0, 0.5}, { 1.0, 0.0, 0.5}, { 1.0, 1.0, 0.5}, { 0.0, 1.0, 0.5},
-                    { 0.5, 0.0, 1.0}, { 1.0, 0.5, 1.0}, { 0.5, 1.0, 1.0}, { 0.0, 0.5, 1.0},
-                    { 0.5, 0.5, 0.5}, { 0.5, 0.5, 0.0}, { 0.5, 0.5, 1.0},
-                    { 0.5, 0.0, 0.5}, { 1.0, 0.5, 0.5}, { 0.5, 1.0, 0.5}, { 0.0, 0.5, 0.5}};
+                    { 0.0, 0.0, 0.0}, { 4.0, 0.0, 0.0}, { 4.0, 1.0, 0.0}, { 0.0, 1.0, 0.0},
+                    { 0.0, 0.0, 3.0}, { 4.0, 0.0, 3.0}, { 4.0, 1.0, 3.0}, { 0.0, 1.0, 3.0},
+                    { 2.0, 0.0, 0.0}, { 4.0, 0.5, 0.0}, { 2.0, 1.0, 0.0}, { 0.0, 0.5, 0.0},
+                    { 0.0, 0.0, 1.5}, { 4.0, 0.0, 1.5}, { 4.0, 1.0, 1.5}, { 0.0, 1.0, 1.5},
+                    { 2.0, 0.0, 3.0}, { 4.0, 0.5, 3.0}, { 2.0, 1.0, 3.0}, { 0.0, 0.5, 3.0},
+                    { 2.0, 0.5, 1.5}, { 2.0, 0.5, 0.0}, { 2.0, 0.5, 3.0},
+                    { 2.0, 0.0, 1.5}, { 4.0, 0.5, 1.5}, { 2.0, 1.0, 1.5}, { 0.0, 0.5, 1.5}};
 
             //create a line time element
             Matrix< DDRMat > tTHat( 3, 1 );
@@ -466,11 +467,12 @@ namespace moris
 
 
             // set coefficients for field interpolators
+            // set coefficients for field interpolators
             Matrix< DDRMat > tUHat0 = {
-                    {4.1},{4.2},{4.3},{4.4},{4.5},{4.6},{4.7},{4.4},{4.9},{4.1},{4.2},{4.3},{4.4},{4.5},{4.6},{4.7},{4.8},{4.1},{4.3},{4.2},{4.3},{4.4},{4.5},{4.6},{4.7},{4.8},{4.9},
-                    {5.1},{5.2},{5.3},{5.3},{5.5},{5.6},{5.7},{5.8},{5.9},{5.3},{5.2},{5.3},{5.4},{5.5},{5.2},{5.7},{5.8},{5.9},{5.1},{5.4},{5.3},{5.6},{5.5},{5.9},{5.7},{5.8},{5.9},
-                    {6.4},{6.2},{6.3},{6.4},{6.2},{6.6},{6.7},{6.1},{6.9},{6.1},{6.1},{6.3},{6.4},{6.9},{6.8},{6.7},{6.6},{6.5},{6.6},{6.2},{6.3},{6.4},{6.5},{6.6},{6.7},{6.8},{6.9}};
-            Matrix< DDRMat > tParametricPoint = {{-0.4}, { 0.1}, {-0.6}, {0.5}};
+                    {5.1},{5.2},{5.3},{5.4},{5.5},{4.6},{4.7},{5.4},{4.9},{5.1},{5.2},{5.3},{5.4},{5.5},{4.6},{4.7},{4.8},{5.1},{5.3},{5.2},{5.3},{5.4},{4.5},{4.6},{4.7},{4.8},{4.9},
+                    {5.1},{5.2},{5.3},{5.3},{5.5},{4.8},{4.7},{4.8},{4.9},{5.3},{5.2},{5.3},{5.4},{4.5},{5.2},{4.7},{4.8},{4.9},{5.1},{5.4},{5.3},{4.6},{5.5},{4.9},{4.7},{4.8},{4.9},
+                    {5.4},{5.2},{5.3},{5.4},{5.2},{5.2},{4.7},{5.1},{5.3},{5.1},{5.1},{5.1},{5.2},{5.3},{5.2},{4.7},{4.6},{4.5},{5.6},{5.2},{5.3},{5.4},{5.3},{4.5},{5.3},{5.2},{5.4}};
+            Matrix< DDRMat > tParametricPoint = {{ 0.35}, {-0.25}, { 0.75}, { 0.4 }};
 
             // run test
             moris::Cell<bool> tChecks = test_phase_change_constitutive_model(
@@ -544,11 +546,12 @@ namespace moris
 
             // set coefficients for field interpolators
             Matrix< DDRMat > tUHat0 = {
-                    {4.1},{4.2},{4.3},{4.4},{4.5},{4.6},{4.7},{4.8},{4.9},{4.1},{4.2},{4.3},{4.4},{4.5},{4.6},{4.7},
-                    {5.1},{5.2},{5.3},{5.4},{5.5},{5.6},{5.7},{5.8},{5.9},{5.1},{5.2},{5.3},{5.4},{5.5},{5.6},{5.7},
-                    {6.1},{6.2},{6.3},{6.4},{6.5},{6.6},{6.7},{6.8},{6.9},{6.1},{6.2},{6.3},{6.4},{6.5},{6.6},{6.7},
-                    {7.1},{7.2},{7.3},{7.4},{7.5},{7.6},{7.7},{7.8},{7.9},{7.1},{7.2},{7.3},{7.4},{7.5},{7.6},{7.7},};
-            Matrix< DDRMat > tParametricPoint = {{-0.4}, { 0.1}, {-0.6}};
+                    {5.2},{5.3},{5.3},{5.3},{4.8},{4.9},{5.3},{5.5},{4.8},{4.9},{5.3},{4.8},{4.7},{5.3},{5.5},{5.1},
+                    {5.3},{5.3},{4.8},{4.9},{5.3},{5.5},{4.8},{5.3},{5.3},{5.3},{4.8},{4.9},{4.8},{4.7},{5.3},{4.7},
+                    {5.3},{5.3},{4.8},{4.8},{4.9},{5.3},{5.5},{5.3},{5.3},{5.3},{5.3},{4.8},{4.9},{4.7},{5.3},{5.2},
+                    {5.3},{4.8},{4.9},{5.3},{5.5},{4.8},{4.8},{5.3},{5.3},{5.3},{4.8},{4.8},{4.9},{5.3},{4.8},{4.9} };
+
+            Matrix< DDRMat > tParametricPoint = {{ 0.8}, {-0.9}, { 0.2}};
 
             // run test
             moris::Cell<bool> tChecks = test_phase_change_constitutive_model(

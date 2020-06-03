@@ -301,7 +301,7 @@ TEST_CASE("fiber_problem_test", "[GE],[fiber_test]")
     tFieldData( 0 ) = tGENGeometryEngine_temp.get_cylinder_vals( tMeshIndex, &tFibers, tNumberOfFibers );
 
     hmr::Interpolation_Mesh_HMR *      tInterpMesh      = tHMR.create_interpolation_mesh( tLagrangeMeshIndex );
-    moris::hmr::Integration_Mesh_HMR * tIntegrationMesh = tHMR.create_integration_mesh( 1, 0,*tInterpMesh );
+    moris::hmr::Integration_Mesh_HMR * tIntegrationMesh = tHMR.create_integration_mesh( 1, 0, tInterpMesh );
 
     mtk::Mesh_Manager tMesh1;
 

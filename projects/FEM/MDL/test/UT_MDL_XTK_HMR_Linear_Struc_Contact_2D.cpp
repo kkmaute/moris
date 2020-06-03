@@ -62,16 +62,10 @@
 
 #include "cl_GEN_Circle.hpp"
 #include "cl_GEN_Plane.hpp"
-#include "cl_GEN_Geometry.hpp"
-
 
 #include "cl_PRM_HMR_Parameters.hpp"
 
-
 #include <functional>
-
-#include "cl_GEN_Geometry_Field_HMR.hpp"
-
 
 namespace moris
 {
@@ -139,41 +133,40 @@ TEST_CASE("2D Linear Stuct Contract","[XTK_HMR_LS_Contact_2D]")
 
 
         // Construct Left Plane
+
         Matrix<moris::DDRMat> tLeftCenters = {{ (tCenterPoint(0) + 0.01)  - ( tBlockL / 2 ) * std::cos(tAngle) ,
                                                 (tCenterPoint(1) + 0.01) - tBlockH / 2 * std::sin(tAngle) }};
         Matrix<moris::DDRMat> tLeftNormal  = {{-std::cos(tAngle),-std::sin(tAngle)}};
-        moris::ge::Plane tLeftPlane(tLeftCenters(0), tLeftCenters(1), tLeftNormal(0), tLeftNormal(1));
-        auto tLeftPlaneFP = [&tLeftPlane] (moris::Matrix< moris::DDRMat > const & aCoordinates) { return tLeftPlane.evaluate_field_value(aCoordinates); }; /*Lambda pointer for class */
+        std::shared_ptr<moris::ge::Plane> tLeftPlane = std::make_shared<moris::ge::Plane>(tLeftCenters(0), tLeftCenters(1), tLeftNormal(0), tLeftNormal(1));
+        auto tLeftPlaneFP = [&tLeftPlane] (moris::Matrix< moris::DDRMat > const & aCoordinates) { return tLeftPlane->evaluate_field_value(aCoordinates); }; /*Lambda pointer for class */
 
         // Construct Right Plane
         Matrix<moris::DDRMat> tRightCenters = {{ (tCenterPoint(0) + 0.01)  + ( tBlockL / 2 ) * std::cos(tAngle) ,
                                                  (tCenterPoint(1) + 0.01) + tBlockH / 2 * std::sin(tAngle) }};
         Matrix<moris::DDRMat> tRightNormal  = {{std::cos(tAngle),std::sin(tAngle)}};
-        moris::ge::Plane tRightPlane(tRightCenters(0), tRightCenters(1), tRightNormal(0), tRightNormal(1));
-        auto tRightPlaneFP = [&tRightPlane] (moris::Matrix< moris::DDRMat > const & aCoordinates) { return tRightPlane.evaluate_field_value(aCoordinates); }; /*Lambda pointer for class */
+        std::shared_ptr<moris::ge::Plane> tRightPlane = std::make_shared<moris::ge::Plane>(tRightCenters(0), tRightCenters(1), tRightNormal(0), tRightNormal(1));
+        auto tRightPlaneFP = [&tRightPlane] (moris::Matrix< moris::DDRMat > const & aCoordinates) { return tRightPlane->evaluate_field_value(aCoordinates); }; /*Lambda pointer for class */
 
         // Construct Mid Plane
-        Matrix<moris::DDRMat> tMidCenters = {{ tCenterPoint(0) , tCenterPoint(1)  }};
-        Matrix<moris::DDRMat> tMidNormal  = {{std::cos(tAngle) - 1,1-std::sin(tAngle)}};
-        moris::ge::Plane tMidPlane(tMidCenters(0), tMidCenters(1), tMidNormal(0), tMidNormal(1));
+//        Matrix<moris::DDRMat> tMidCenters = {{ tCenterPoint(0) , tCenterPoint(1)  }};
+//        Matrix<moris::DDRMat> tMidNormal  = {{std::cos(tAngle) - 1,1-std::sin(tAngle)}};
+//        moris::ge::Plane tMidPlane(tMidCenters(0), tMidCenters(1), tMidNormal(0), tMidNormal(1));
 //        auto tMidPlaneFP = [&tMidPlane] (moris::Matrix< moris::DDRMat > const & aCoordinates) { return tMidPlane.evaluate_field_value_with_single_coordinate(aCoordinates); }; /*Lambda for class */
 
         // Construct Top Plane
-//        Matrix<moris::DDRMat> tTopCenters = {{0, tCenterPoint(1) + 0.01 + tBlockH / 2  }};
         Matrix<moris::DDRMat> tTopCenters = {{(tCenterPoint(0) + 0.01) - tBlockH / 2 * std::sin(tAngle) ,
                                               (tCenterPoint(1) + 0.01) + tBlockH / 2 * std::cos(tAngle)}};
         Matrix<moris::DDRMat> tTopNormal  = {{std::cos(tAngle) - 1,1-std::sin(tAngle)}};
-        moris::ge::Plane tTopPlane(tTopCenters(0), tTopCenters(1), tTopNormal(0), tTopNormal(1));
-        auto tTopPlaneFP = [&tTopPlane] (moris::Matrix< moris::DDRMat > const & aCoordinates) { return tTopPlane.evaluate_field_value(aCoordinates); }; /*Lambda for class */
+        std::shared_ptr<moris::ge::Plane> tTopPlane = std::make_shared<moris::ge::Plane>(tTopCenters(0), tTopCenters(1), tTopNormal(0), tTopNormal(1));
+        auto tTopPlaneFP = [&tTopPlane] (moris::Matrix< moris::DDRMat > const & aCoordinates) { return tTopPlane->evaluate_field_value(aCoordinates); }; /*Lambda for class */
 
         // Construct Bottom Plane
-//        Matrix<moris::DDRMat> tBottomCenters = {{0, tCenterPoint(1) + 0.01 - tBlockH / 2  }};
         Matrix<moris::DDRMat> tBottomCenters = {{(tCenterPoint(0) + 0.01) + tBlockH / 2 * std::sin(tAngle) ,
                                                  (tCenterPoint(1) + 0.01) - tBlockH / 2 * std::cos(tAngle)}};
 
         Matrix<moris::DDRMat> tBottomNormal  = {{1 - std::cos(tAngle),std::sin(tAngle) - 1}};
-        moris::ge::Plane tBottomPlane(tBottomCenters(0), tBottomCenters(1), tBottomNormal(0), tBottomNormal(1));
-        auto tBottomPlaneFP = [&tBottomPlane] (moris::Matrix< moris::DDRMat > const & aCoordinates) { return tBottomPlane.evaluate_field_value(aCoordinates); }; /*Lambda for class */
+        std::shared_ptr<moris::ge::Plane> tBottomPlane = std::make_shared<moris::ge::Plane>(tBottomCenters(0), tBottomCenters(1), tBottomNormal(0), tBottomNormal(1));
+        auto tBottomPlaneFP = [&tBottomPlane] (moris::Matrix< moris::DDRMat > const & aCoordinates) { return tBottomPlane->evaluate_field_value(aCoordinates); }; /*Lambda for class */
 
         if(tVerboseGeometry)
         {
@@ -192,10 +185,6 @@ TEST_CASE("2D Linear Stuct Contract","[XTK_HMR_LS_Contact_2D]")
             std::cout<<"\nTop Plane :"<<std::endl;
             std::cout<<"    xc = "<<std::setw(16)<<tTopCenters(0)<<std::setw(16)<<tTopCenters(1)<<std::endl;
             std::cout<<"    n  = "<<std::setw(16)<<tTopNormal(0)<<std::setw(16)<< tTopNormal(1)<<std::endl;
-
-            std::cout<<"\nMid Plane :"<<std::endl;
-            std::cout<<"    xc = "<<std::setw(16)<<tMidCenters(0)<<std::setw(16)<<tMidCenters(1)<<std::endl;
-            std::cout<<"    n  = "<<std::setw(16)<<tMidNormal(0)<<std::setw(16)<< tMidNormal(1)<<std::endl;
         }
 
         uint tLagrangeMeshIndex = 0;
@@ -265,7 +254,6 @@ TEST_CASE("2D Linear Stuct Contract","[XTK_HMR_LS_Contact_2D]")
 
         tLeftField->evaluate_scalar_function( tLeftPlaneFP );
         tRightField->evaluate_scalar_function( tRightPlaneFP );
-//        tMidField->evaluate_scalar_function( tMidPlaneFP );
         tTopField->evaluate_scalar_function( tTopPlaneFP );
         tBottomField->evaluate_scalar_function( tBottomPlaneFP );
 
@@ -276,13 +264,11 @@ TEST_CASE("2D Linear Stuct Contract","[XTK_HMR_LS_Contact_2D]")
         moris::hmr::Interpolation_Mesh_HMR * tInterpolationMesh = tHMR.create_interpolation_mesh(tLagrangeMeshIndex);
 
         //-----------------------------------------------------------------------------------------------
-
-        // NOTE the order of this geometry vector is important. If it changes the resulting bulk phase of the output mesh change.
         moris::Cell<std::shared_ptr<moris::ge::Geometry>> tGeometryVector(4);
-        tGeometryVector(0) = std::make_shared<moris::ge::Geometry_Field_HMR>(tLeftField);
-        tGeometryVector(1) = std::make_shared<moris::ge::Geometry_Field_HMR>(tRightField);
-        tGeometryVector(2) = std::make_shared<moris::ge::Geometry_Field_HMR>(tTopField);
-        tGeometryVector(3) = std::make_shared<moris::ge::Geometry_Field_HMR>(tBottomField);
+        tGeometryVector(0) = tLeftPlane;
+        tGeometryVector(1) = tRightPlane;
+        tGeometryVector(2) = tTopPlane;
+        tGeometryVector(3) = tBottomPlane;
 
         size_t tModelDimension = 2;
         moris::ge::Phase_Table tPhaseTable (tGeometryVector.size(), moris::ge::Phase_Table_Structure::EXP_BASE_2);

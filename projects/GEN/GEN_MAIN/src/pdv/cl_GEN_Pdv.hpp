@@ -1,7 +1,7 @@
 #ifndef MORIS_CL_GEN_PDV_HPP_
 #define MORIS_CL_GEN_PDV_HPP_
 
-#include "cl_GEN_Property.hpp"
+#include "cl_Matrix.hpp"
 
 namespace moris
 {

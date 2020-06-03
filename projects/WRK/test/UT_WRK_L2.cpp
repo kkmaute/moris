@@ -45,8 +45,6 @@
 #include "cl_PRM_XTK_Parameters.hpp"
 #include "fn_PRM_GEN_Parameters.hpp"
 
-#include "cl_GEN_Geometry_Field_HMR.hpp"
-
 using namespace moris;
 
 Matrix< DDRMat > tSimpleFunc( moris::Cell< Matrix< DDRMat > >         & aCoeff )
@@ -164,7 +162,7 @@ TEST_CASE("WRK L2 test","[WRK_L2_test]")
          tXTKPerformer->set_input_performer( tMTKPerformer_HMR );
          tXTKPerformer->set_output_performer( tMTKPerformer_XTK );
 
-//         tXTKPerformer->perform();
+         //tXTKPerformer->perform();
 
          //---------------------------------------------------------------------------------------
          //                               Stage 3: build field

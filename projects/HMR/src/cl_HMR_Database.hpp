@@ -305,6 +305,38 @@ namespace moris
 // -----------------------------------------------------------------------------
 
             /**
+             * returns the proc neighbors for this proc
+             */
+            Matrix< IdMat > get_proc_neighbors() const
+            {
+                Matrix< IdMat > tProcNeighbors = mBackgroundMesh->get_proc_neigbors();
+
+                uint tCounter = 0;
+                for( uint Ik = 0; Ik < tProcNeighbors.numel(); Ik++)
+                {
+                    if( tProcNeighbors( Ik ) != gNoProcNeighbor )
+                    {
+                        tCounter++;
+                    }
+                }
+
+                Matrix< IdMat > tProcNeighborsActive( tCounter, 1, gNoProcNeighbor );
+
+                tCounter = 0;
+                for( uint Ik = 0; Ik < tProcNeighbors.numel(); Ik++)
+                {
+                    if( tProcNeighbors( Ik ) != gNoProcNeighbor )
+                    {
+                        tProcNeighborsActive( tCounter++ ) = tProcNeighbors( Ik );
+                    }
+                }
+
+                return tProcNeighborsActive;
+            }
+
+// -----------------------------------------------------------------------------
+
+            /**
              * return pointer to parameter object ( const version )
              */
             Parameters * get_parameters()

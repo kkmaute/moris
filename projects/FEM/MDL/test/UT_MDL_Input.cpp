@@ -58,7 +58,7 @@
 #include "cl_HMR_Lagrange_Mesh_Base.hpp" //HMR/src
 #include "cl_HMR_Parameters.hpp" //HMR/src
 
-#include "cl_GEN_Geometry_Field_HMR.hpp"
+#include "cl_GEN_Plane.hpp"
 
 #include "fn_norm.hpp"
 
@@ -170,7 +170,7 @@ TEST_CASE("MDL Input","[MDL_Input]")
         hmr::Interpolation_Mesh_HMR * tInterpMesh = tHMR.create_interpolation_mesh( tLagrangeMeshIndex  );
 
         moris::Cell< std::shared_ptr<moris::ge::Geometry> > tGeometryVector(1);
-        tGeometryVector(0) = std::make_shared<moris::ge::Geometry_Field_HMR>(tField);
+        tGeometryVector(0) = std::make_shared<moris::ge::Plane>(1.0, 1.0, 1.4, 0.0, 0.0, 1.0);
 
         // Tell the geometry engine about the discrete field mesh and how to interpret phases
         ge::Phase_Table tPhaseTable (1, moris::ge::Phase_Table_Structure::EXP_BASE_2);

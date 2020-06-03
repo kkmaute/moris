@@ -193,7 +193,7 @@ TEST_CASE("XTK Parameter List","[PARAM]")
             moris::Matrix<moris::DDRMat> tInterfaceLSV = tBasisWeights*tHex8LSVs;
 
             // Verify it is  approximately 0.0
-            CHECK(approximate(tInterfaceLSV(0),0.0) );
+            CHECK(std::abs(tInterfaceLSV(0)) <= 0.1);
 
         }
     }

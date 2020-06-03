@@ -77,9 +77,10 @@
 #include "cl_TSA_Monolithic_Time_Solver.hpp"
 #include "cl_TSA_Time_Solver.hpp"
 
-#include "cl_GEN_Geometry_Field_HMR.hpp"
+#include "cl_GEN_Circle.hpp"
+#include "cl_GEN_Plane.hpp"
+#include "cl_GEN_User_Defined_Geometry.hpp"
 #include "fn_norm.hpp"
-
 
 moris::real
 Plane4MatMDL1(const moris::Matrix< moris::DDRMat > & aPoint )
@@ -203,6 +204,11 @@ MultiMat3dCyl(const moris::Matrix< moris::DDRMat > & aPoint )
     return std::max(std::max(lsFromLeft, lsFromRight), lsFromRad);
 }
 
+real MultiMat3dCylGeometry(const Matrix<DDRMat>& aCoordinates, const Cell<real*>& aParameters)
+{
+    return MultiMat3dCyl(aCoordinates);
+}
+
 void
 run_hmr_for_multi_mat_model_3d(hmr::HMR  &                    aHMR,
                                Cell<std::shared_ptr< moris::hmr::Field >> & aFields)
@@ -279,8 +285,8 @@ TEST_CASE("XTK HMR 4 Material Bar Intersected By Plane and Hole","[XTK_HMR_PLANE
          hmr::Interpolation_Mesh_HMR * tInterpMesh = tHMR.create_interpolation_mesh( tLagrangeMeshIndex  );
 
         moris::Cell< std::shared_ptr<moris::ge::Geometry> > tGeometryVector(2);
-        tGeometryVector(0) = std::make_shared<moris::ge::Geometry_Field_HMR>(tHMRFields(0));
-        tGeometryVector(1) = std::make_shared<moris::ge::Geometry_Field_HMR>(tHMRFields(1));
+        tGeometryVector(0) = std::make_shared<moris::ge::Circle>(0.01, 0.01, 0.47334);
+        tGeometryVector(1) = std::make_shared<moris::ge::Plane>(0.1, 0.1, 1.0, 0.0);
 
          size_t tModelDimension = 2;
          moris::ge::Phase_Table     tPhaseTable (tGeometryVector.size(), moris::ge::Phase_Table_Structure::EXP_BASE_2);
@@ -747,8 +753,8 @@ TEST_CASE("XTK HMR 4 Material Bar Intersected By Plane and Hole 3D","[XTK_HMR_PL
          hmr::Interpolation_Mesh_HMR * tInterpMesh = tHMR.create_interpolation_mesh( tLagrangeMeshIndex  );
 
         moris::Cell< std::shared_ptr<moris::ge::Geometry> > tGeometryVector(2);
-        tGeometryVector(0) = std::make_shared<moris::ge::Geometry_Field_HMR>(tHMRFields(0));
-        tGeometryVector(1) = std::make_shared<moris::ge::Geometry_Field_HMR>(tHMRFields(1));
+        tGeometryVector(0) = std::make_shared<moris::ge::User_Defined_Geometry>(Matrix<DDRMat>(0, 0), &(MultiMat3dCylGeometry));
+        tGeometryVector(1) = std::make_shared<moris::ge::Plane>(0.1, 0.1, 0.1, 1.0, 0.0, 0.0);
 
          size_t tModelDimension = 3;
          moris::ge::Phase_Table     tPhaseTable (tGeometryVector.size(), moris::ge::Phase_Table_Structure::EXP_BASE_2);

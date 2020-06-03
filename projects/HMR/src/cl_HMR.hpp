@@ -294,12 +294,12 @@ namespace mtk
 
             Integration_Mesh_HMR * create_integration_mesh( const uint                   & aLagrangeOrder,
                                                             const uint                   & aPattern,
-                                                            Interpolation_Mesh_HMR & aInterpolationMesh);
+                                                            Interpolation_Mesh_HMR * aInterpolationMesh);
 
 // -----------------------------------------------------------------------------
 
              Integration_Mesh_HMR * create_integration_mesh( const uint                   & aLagrangeMeshIndex,
-                                                             Interpolation_Mesh_HMR & aInterpolationMesh);
+                                                             Interpolation_Mesh_HMR * aInterpolationMesh);
 
 // -----------------------------------------------------------------------------
             std::shared_ptr< Field > create_field( const std::string & aLabel );

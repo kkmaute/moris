@@ -142,7 +142,7 @@ namespace moris
                 tInputInterpMeshes.push_back( tInputInterpMesh );
 
                 // create integration mesh input
-                Integration_Mesh_HMR * tInputIntegMesh = aHMR->create_integration_mesh(tMeshOrders( m ), aHMR->get_parameters()->get_lagrange_input_pattern(), *tInputInterpMesh );
+                Integration_Mesh_HMR * tInputIntegMesh = aHMR->create_integration_mesh(tMeshOrders( m ), aHMR->get_parameters()->get_lagrange_input_pattern(), tInputInterpMesh );
 
                 // add to vector of input integration meshes
                 tInputIntegMeshes.push_back( tInputIntegMesh );
@@ -154,7 +154,7 @@ namespace moris
                 tUnionInterpMeshes.push_back( tUnionInterpMesh );
 
                 // create integration mesh union
-                Integration_Mesh_HMR * tUnionIntegMesh = aHMR->create_integration_mesh(tMeshOrders( m ), aHMR->get_parameters()->get_union_pattern(), *tUnionInterpMesh );
+                Integration_Mesh_HMR * tUnionIntegMesh = aHMR->create_integration_mesh(tMeshOrders( m ), aHMR->get_parameters()->get_union_pattern(), tUnionInterpMesh );
 
                 // add to vector of union interpolation meshes
                 tUnionIntegMeshes.push_back(tUnionIntegMesh);

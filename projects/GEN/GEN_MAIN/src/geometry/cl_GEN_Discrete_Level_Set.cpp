@@ -8,20 +8,22 @@ namespace moris
         //--------------------------------------------------------------------------------------------------------------
 
         Discrete_Level_Set::Discrete_Level_Set(moris::mtk::Interpolation_Mesh* aMesh,
-                moris::Cell<std::string> const & aFieldNames, EntityRank aEntityRank)
-                : Field(Matrix<DDRMat>(1, 1, 0.0))
+                                               moris::Cell<std::string> const & aFieldNames,
+                                               EntityRank aEntityRank)
+                                               : Field(Matrix<DDRMat>(1, 1, 0.0)),
+                                                 mFieldNames(aFieldNames),
+                                                 mMesh(aMesh),
+                                                 mEntityRank(aEntityRank)
         {
-            mFieldNames = aFieldNames;
-            mMesh = aMesh;
-            mEntityRank = aEntityRank;
         }
 
         //--------------------------------------------------------------------------------------------------------------
 
         real Discrete_Level_Set::evaluate_field_value(uint aEntityIndex)
         {
-            std::string tActiveFieldName = mFieldNames(mActiveFieldIndex);
-            return mMesh->get_entity_field_value_real_scalar({{moris_index(aEntityIndex)}}, tActiveFieldName, mEntityRank)(0);
+            return mMesh->get_entity_field_value_real_scalar({{moris_index(aEntityIndex)}},
+                                                             mFieldNames(mActiveFieldIndex),
+                                                             mEntityRank)(0);
         }
 
         //--------------------------------------------------------------------------------------------------------------

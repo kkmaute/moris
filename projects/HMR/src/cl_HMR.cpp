@@ -145,7 +145,7 @@ namespace moris
             moris::hmr::Interpolation_Mesh_HMR * tInterpolationMesh
                          = this->create_interpolation_mesh( tLagrangeMeshIndex );
             moris::hmr::Integration_Mesh_HMR *   tIntegrationMesh
-                         = this->create_integration_mesh( tLagrangeMeshIndex, *tInterpolationMesh );
+                         = this->create_integration_mesh( tLagrangeMeshIndex, tInterpolationMesh );
 
             MORIS_ERROR( mMTKPerformer != nullptr, "HMR::perform(), MTK performer not set!" );
 
@@ -705,7 +705,7 @@ namespace moris
 
         Integration_Mesh_HMR * HMR::create_integration_mesh( const uint &                   aLagrangeOrder,
                                                              const uint &                   aPattern,
-                                                             Interpolation_Mesh_HMR & aInterpolationMesh)
+                                                             Interpolation_Mesh_HMR * aInterpolationMesh)
         {
             return new Integration_Mesh_HMR ( mDatabase,
                                               aLagrangeOrder,
@@ -716,7 +716,7 @@ namespace moris
 // -----------------------------------------------------------------------------
 
         Integration_Mesh_HMR * HMR::create_integration_mesh( const uint &                   aLagrangeMeshIndex,
-                                                             Interpolation_Mesh_HMR & aInterpolationMesh)
+                                                             Interpolation_Mesh_HMR * aInterpolationMesh)
         {
             return new Integration_Mesh_HMR ( mDatabase,
                                               aLagrangeMeshIndex,
@@ -1752,7 +1752,7 @@ namespace moris
             }
 
             // construct union integration mesh (note: this is not ever used but is needed for mesh manager)
-            Integration_Mesh_HMR* tIntegrationUnionMesh = this->create_integration_mesh( tOrder, mParameters->get_union_pattern(), *tUnionInterpolationMesh );
+            Integration_Mesh_HMR* tIntegrationUnionMesh = this->create_integration_mesh( tOrder, mParameters->get_union_pattern(), tUnionInterpolationMesh );
 
 
             // Add union mesh to mesh manager

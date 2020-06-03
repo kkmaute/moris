@@ -20,7 +20,10 @@ namespace moris
              * @param aADVIndices The indices of the ADV vector to fill in the geometry variables
              * @param aConstantParameters The constant parameters not filled by ADVs
              */
-            Circle(Matrix<DDRMat>& aADVs, Matrix<DDUMat> aGeometryVariableIndices, Matrix<DDUMat> aADVIndices, Matrix<DDRMat> aConstantParameters);
+            Circle(Matrix<DDRMat>& aADVs,
+                   Matrix<DDUMat> aGeometryVariableIndices,
+                   Matrix<DDUMat> aADVIndices,
+                   Matrix<DDRMat> aConstantParameters);
 
             /**
              * Constructor with only constant parameters
