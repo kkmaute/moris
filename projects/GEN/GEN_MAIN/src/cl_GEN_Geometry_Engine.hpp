@@ -416,11 +416,6 @@ namespace moris
             moris::size_t get_num_design_variables();
 
             /**
-             * returns a pointer to the geometry object manager
-             */
-            Geometry_Object_Manager* get_all_geom_obj();
-
-            /**
              * Register an MTK mesh pair to be used for later computation(s)
              */
             void register_mesh( mtk::Mesh_Manager* aMesh );
