@@ -316,9 +316,10 @@ void FEMParameterList( moris::Cell< moris::Cell< ParameterList > > & tParameterL
     // create Nitsche stabilization parameter for viscosity
     tParameterList( 2 ).push_back( prm::create_stabilization_parameter_parameter_list() );
     tParameterList( 2 )( tSPCounter ).set( "stabilization_name",      std::string("SPNitscheV") );
-    tParameterList( 2 )( tSPCounter ).set( "stabilization_type",      static_cast< uint >( fem::Stabilization_Type::DIRICHLET_NITSCHE ) );
+    tParameterList( 2 )( tSPCounter ).set( "stabilization_type",      static_cast< uint >( fem::Stabilization_Type::TURBULENCE_DIRICHLET_NITSCHE ) );
     tParameterList( 2 )( tSPCounter ).set( "function_parameters",     std::string("100.0") );
-    tParameterList( 2 )( tSPCounter ).set( "master_properties",       std::string("PropViscosity,Material") );
+    tParameterList( 2 )( tSPCounter ).set( "master_dof_dependencies", std::pair< std::string, std::string >( "VISCOSITY", "Viscosity" ) );
+    tParameterList( 2 )( tSPCounter ).set( "master_properties",       std::string("PropViscosity,Viscosity") );
     tSPCounter++;
     
     //------------------------------------------------------------------------------
