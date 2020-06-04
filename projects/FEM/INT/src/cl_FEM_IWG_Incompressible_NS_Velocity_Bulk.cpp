@@ -574,7 +574,7 @@ namespace moris
             std::shared_ptr< Property > tInvPermeabProp   =
                     mMasterProp( static_cast< uint >( IWG_Property_Type::INV_PERMEABILITY ) );
             std::shared_ptr< Property > tMassSourceProp   =
-                    mMasterProp( static_cast< uint >( IWG_Property_Type::INV_PERMEABILITY ) );
+                    mMasterProp( static_cast< uint >( IWG_Property_Type::MASS_SOURCE ) );
 
             // get the incompressible fluid constitutive model
             std::shared_ptr< Constitutive_Model > tIncFluidCM =
@@ -603,7 +603,7 @@ namespace moris
             if ( tMassSourceProp != nullptr )
             {
                 // add mass source to continuity eqn residual
-                aRC +=  1/tDensity * tMassSourceProp->val()(0) ;
+                aRC += tMassSourceProp->val()( 0 ) / tDensity ;
             }
 
             // if permeability
@@ -706,27 +706,6 @@ namespace moris
                         tDensity * tujvij ;
 
                 aJC.matrix_data() += tVelocityFI->div_operator().matrix_data();
-
-                // if mass source
-                if ( tMassSourceProp != nullptr )
-                {
-                    // add mass source to continuity eqn residual
-                    //aJC.matrix_data() +=  tMassSourceProp->val()(0) ;
-
-                    // if indirect DoF dependency of source term
-                    if( tMassSourceProp->check_dof_dependency( aDofTypes ) )
-                    {
-                        aJC.matrix_data() += 1/tDensity * tMassSourceProp->dPropdDOF( aDofTypes ).matrix_data() ;
-                    }
-                }
-
-                // if permeability
-                if ( tInvPermeabProp != nullptr )
-                {
-                    // add brinkman term to jacobian strong form
-                    aJM.matrix_data() +=
-                            tInvPermeabProp->val()( 0 ) * tVelocityFI->N() ;
-                }
             }
 
             // if density depends on dof type
@@ -738,20 +717,49 @@ namespace moris
                         trans( tVelocityFI->gradx( 1 ) ) * tVelocityFI->val() * tDensityProp->dPropdDOF( aDofTypes );
             }
 
+            // if permeability
+            if ( tInvPermeabProp != nullptr )
+            {
+                // if derivative dof type is residual dof type
+                if( aDofTypes( 0 ) == mResidualDofType( 0 ) )
+                {
+                    // add brinkman term to jacobian strong form
+                    aJM.matrix_data() += tInvPermeabProp->val()( 0 ) * tVelocityFI->N() ;
+                }
+
+                // if permeability depends on dof type
+                if( tInvPermeabProp->check_dof_dependency( aDofTypes ) )
+                {
+                    // add brinkman term to jacobian strong form
+                    aJM.matrix_data() += tInvPermeabProp->dPropdDOF( aDofTypes ).matrix_data() * tVelocityFI->val() ;
+                }
+            }
+
+            // if mass source
+            if ( tMassSourceProp != nullptr )
+            {
+                // if indirect DoF dependency of source term
+                if( tMassSourceProp->check_dof_dependency( aDofTypes ) )
+                {
+                    // add contribution to jacobian
+                    aJC.matrix_data() +=
+                            tMassSourceProp->dPropdDOF( aDofTypes ).matrix_data() / tDensity ;
+                }
+
+                // if density depends on dof type
+                if( tDensityProp->check_dof_dependency( aDofTypes ) )
+                {
+                    // add contribution to jacobian
+                    aJC.matrix_data() -=
+                            tMassSourceProp->val() * tDensityProp->dPropdDOF( aDofTypes ) / std::pow( tDensity, 2 );
+                }
+            }
+
             // if CM depends on dof type
             if( tIncFluidCM->check_dof_dependency( aDofTypes ) )
             {
                 // compute contribution to jacobian strong form
                 aJM.matrix_data() -= tIncFluidCM->ddivfluxdu( aDofTypes ).matrix_data();
-            }
-
-            // if permeability depends on dof type
-            if ( tInvPermeabProp != nullptr )
-            {
-                if( tInvPermeabProp->check_dof_dependency( aDofTypes ) )
-                {
-                    aJM.matrix_data() += tInvPermeabProp->dPropdDOF( aDofTypes ).matrix_data() * tVelocityFI->val() ;
-                }
             }
 
             // if gravity
