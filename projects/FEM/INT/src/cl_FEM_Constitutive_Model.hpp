@@ -826,7 +826,7 @@ namespace moris
                  */
                 virtual void eval_dTractiondDOF(
                         const moris::Cell< MSI::Dof_Type > & aDofTypes,
-                        const Matrix< DDRMat >             & aNormal)
+                        const Matrix< DDRMat >             & aNormal )
                 {
                     MORIS_ERROR( false, " Constitutive_Model::eval_dTractiondDOF - This function does nothing. " );
                 }
@@ -1004,6 +1004,44 @@ namespace moris
                 void eval_dFluxdDOF_FD(
                         const moris::Cell< MSI::Dof_Type > & aDofTypes,
                         Matrix< DDRMat >                   & adFluxdDOF_FD,
+                        real                                 aPerturbation );
+
+                //------------------------------------------------------------------------------
+                /**
+                 * evaluate the traction derivative wrt to a dof type
+                 * @param[ in ] aDofTypes       a dof type wrt which the derivative is evaluated
+                 * @param[ in ] adtractiondu_FD a matrix to fill with derivative evaluation
+                 * @param[ in ] aPerturbation   a real to perturb for FD
+                 * @param[ in ] aNormal         a normal
+                 */
+                void eval_dtractiondu_FD(
+                        const moris::Cell< MSI::Dof_Type > & aDofTypes,
+                        Matrix< DDRMat >                   & adtractiondu_FD,
+                        real                                 aPerturbation,
+                        Matrix< DDRMat >                   & aNormal );
+
+                //------------------------------------------------------------------------------
+                /**
+                 * evaluate the div flux derivative wrt to a dof type
+                 * @param[ in ] aDofTypes     a dof type wrt which the derivative is evaluated
+                 * @param[ in ] ddivfluxdu_FD a matrix to fill with derivative evaluation
+                 * @param[ in ] aPerturbation a real to perturb for FD
+                 */
+                void eval_ddivfluxdu_FD(
+                        const moris::Cell< MSI::Dof_Type > & aDofTypes,
+                        Matrix< DDRMat >                   & ddivfluxdu_FD,
+                        real                                 aPerturbation );
+
+                //------------------------------------------------------------------------------
+                /**
+                 * evaluate the div strain derivative wrt to a dof type
+                 * @param[ in ] aDofTypes        a dof type wrt which the derivative is evaluated
+                 * @param[ in ] addivstraindu_FD a matrix to fill with derivative evaluation
+                 * @param[ in ] aPerturbation    a real to perturb for FD
+                 */
+                void eval_ddivstraindu_FD(
+                        const moris::Cell< MSI::Dof_Type > & aDofTypes,
+                        Matrix< DDRMat >                   & addivstraindu_FD,
                         real                                 aPerturbation );
 
                 //------------------------------------------------------------------------------

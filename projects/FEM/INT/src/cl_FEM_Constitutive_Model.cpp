@@ -663,9 +663,9 @@ namespace moris
             uint tDerNumBases  = tFI->get_number_of_space_time_bases();
             uint tDerNumFields = tFI->get_number_of_fields();
 
-            // FIXME works only for diffusion
             // set size for derivative
-            adFluxdDOF_FD.set_size( mSpaceDim, tDerNumDof, 0.0 );
+            uint tNumRow = this->flux().n_rows();
+            adFluxdDOF_FD.set_size( tNumRow, tDerNumDof, 0.0 );
 
             // coefficients for dof type wrt which derivative is computed
             Matrix< DDRMat > tCoeff = tFI->get_coeff();
@@ -686,13 +686,6 @@ namespace moris
                     // setting the perturbed coefficients
                     tFI->set_coeff( tCoeffPert );
 
-                    // reset properties
-                    uint tNumProps = mProperties.size();
-                    for ( uint iProp = 0; iProp < tNumProps; iProp++ )
-                    {
-                        mProperties( iProp )->reset_eval_flags();
-                    }
-
                     // reset constitutive model
                     this->reset_eval_flags();
 
@@ -705,12 +698,6 @@ namespace moris
 
                     // setting the perturbed coefficients
                     tFI->set_coeff( tCoeffPert );
-
-                    // reset properties
-                    for ( uint iProp = 0; iProp < tNumProps; iProp++ )
-                    {
-                        mProperties( iProp )->reset_eval_flags();
-                    }
 
                     // reset constitutive model
                     this->reset_eval_flags();
@@ -729,6 +716,220 @@ namespace moris
             tFI->set_coeff( tCoeff );
         }
 
+        //------------------------------------------------------------------------------
+        void Constitutive_Model::eval_dtractiondu_FD(
+                const moris::Cell< MSI::Dof_Type > & aDofTypes,
+                Matrix< DDRMat >                   & adtractiondu_FD,
+                real                                 aPerturbation,
+                Matrix< DDRMat >                   & aNormal )
+        {
+            // get the field interpolator for type
+            Field_Interpolator* tFIDerivative =
+                    mFIManager->get_field_interpolators_for_type( aDofTypes( 0 ) );
+
+            // get number of coefficients, fields and bases for the considered FI
+            uint tDerNumDof    = tFIDerivative->get_number_of_space_time_coefficients();
+            uint tDerNumBases  = tFIDerivative->get_number_of_space_time_bases();
+            uint tDerNumFields = tFIDerivative->get_number_of_fields();
+
+            // set size for derivative
+            uint tNumRow = this->traction( aNormal ).n_rows();
+            adtractiondu_FD.set_size( tNumRow, tDerNumDof, 0.0 );
+
+            // coefficients for dof type wrt which derivative is computed
+            Matrix< DDRMat > tCoeff = tFIDerivative->get_coeff();
+
+            // initialize dof counter
+            uint tDofCounter = 0;
+
+            // loop over coefficients columns
+            for( uint iCoeffCol = 0; iCoeffCol < tDerNumFields; iCoeffCol++ )
+            {
+                // loop over coefficients rows
+                for( uint iCoeffRow = 0; iCoeffRow < tDerNumBases; iCoeffRow++ )
+                {
+                    // perturbation of the coefficient
+                    Matrix< DDRMat > tCoeffPert = tCoeff;
+                    tCoeffPert( iCoeffRow, iCoeffCol ) +=
+                            aPerturbation * tCoeffPert( iCoeffRow, iCoeffCol );
+
+                    // setting the perturbed coefficients
+                    tFIDerivative->set_coeff( tCoeffPert );
+
+                    // reset constitutive model eval flag
+                    this->reset_eval_flags();
+
+                    // evaluate the residual
+                    Matrix< DDRMat > tTractionPlus = this->traction( aNormal );
+
+                    // perturbation of the coefficient
+                    tCoeffPert = tCoeff;
+                    tCoeffPert( iCoeffRow, iCoeffCol ) -=
+                            aPerturbation * tCoeffPert( iCoeffRow, iCoeffCol );
+
+                    // setting the perturbed coefficients
+                    tFIDerivative->set_coeff( tCoeffPert );
+
+                    // reset constitutive model eval flags
+                    this->reset_eval_flags();
+
+                    // evaluate the residual
+                    Matrix< DDRMat > tTractionMinus = this->traction( aNormal );
+
+                    // evaluate Jacobian
+                    adtractiondu_FD.get_column( tDofCounter ) =
+                            ( tTractionPlus - tTractionMinus ) /
+                            ( 2.0 * aPerturbation * tCoeff( iCoeffRow, iCoeffCol ) );
+
+                    // update dof counter
+                    tDofCounter++;
+                }
+            }
+            // reset the coefficients values
+            tFIDerivative->set_coeff( tCoeff );
+        }
+
+        //------------------------------------------------------------------------------
+        void Constitutive_Model::eval_ddivfluxdu_FD(
+                const moris::Cell< MSI::Dof_Type > & aDofTypes,
+                Matrix< DDRMat >                   & addivfluxdu_FD,
+                real                                 aPerturbation )
+        {
+            // get the field interpolator for type
+            Field_Interpolator* tFIDerivative =
+                    mFIManager->get_field_interpolators_for_type( aDofTypes( 0 ) );
+
+            // get number of coefficients, fields and bases for the considered FI
+            uint tDerNumDof    = tFIDerivative->get_number_of_space_time_coefficients();
+            uint tDerNumBases  = tFIDerivative->get_number_of_space_time_bases();
+            uint tDerNumFields = tFIDerivative->get_number_of_fields();
+
+            // set size for derivative
+            addivfluxdu_FD.set_size( mSpaceDim, tDerNumDof, 0.0 );
+
+            // coefficients for dof type wrt which derivative is computed
+            Matrix< DDRMat > tCoeff = tFIDerivative->get_coeff();
+
+            // initialize dof counter
+            uint tDofCounter = 0;
+
+            // loop over coefficients columns
+            for( uint iCoeffCol = 0; iCoeffCol < tDerNumFields; iCoeffCol++ )
+            {
+                // loop over coefficients rows
+                for( uint iCoeffRow = 0; iCoeffRow < tDerNumBases; iCoeffRow++ )
+                {
+                    // perturbation of the coefficient
+                    Matrix< DDRMat > tCoeffPert = tCoeff;
+                    tCoeffPert( iCoeffRow, iCoeffCol ) +=
+                            aPerturbation * tCoeffPert( iCoeffRow, iCoeffCol );
+
+                    // setting the perturbed coefficients
+                    tFIDerivative->set_coeff( tCoeffPert );
+
+                    // reset constitutive model eval flag
+                    this->reset_eval_flags();
+
+                    // evaluate the residual
+                    Matrix< DDRMat > tDivFluxPlus = this->divflux();
+
+                    // perturbation of the coefficient
+                    tCoeffPert = tCoeff;
+                    tCoeffPert( iCoeffRow, iCoeffCol ) -=
+                            aPerturbation * tCoeffPert( iCoeffRow, iCoeffCol );
+
+                    // setting the perturbed coefficients
+                    tFIDerivative->set_coeff( tCoeffPert );
+
+                    // reset constitutive model eval flags
+                    this->reset_eval_flags();
+
+                    // evaluate the residual
+                    Matrix< DDRMat > tDivFluxMinus = this->divflux();
+
+                    // evaluate Jacobian
+                    addivfluxdu_FD.get_column( tDofCounter ) =
+                            ( tDivFluxPlus - tDivFluxMinus ) /
+                            ( 2.0 * aPerturbation * tCoeff( iCoeffRow, iCoeffCol ) );
+
+                    // update dof counter
+                    tDofCounter++;
+                }
+            }
+            // reset the coefficients values
+            tFIDerivative->set_coeff( tCoeff );
+        }
+
+        //------------------------------------------------------------------------------
+        void Constitutive_Model::eval_ddivstraindu_FD(
+                const moris::Cell< MSI::Dof_Type > & aDofTypes,
+                Matrix< DDRMat >                   & addivstraindu_FD,
+                real                                 aPerturbation )
+        {
+            // get the field interpolator for type
+            Field_Interpolator* tFIDerivative =
+                    mFIManager->get_field_interpolators_for_type( aDofTypes( 0 ) );
+
+            // get number of coefficients, fields and bases for the considered FI
+            uint tDerNumDof    = tFIDerivative->get_number_of_space_time_coefficients();
+            uint tDerNumBases  = tFIDerivative->get_number_of_space_time_bases();
+            uint tDerNumFields = tFIDerivative->get_number_of_fields();
+
+            // set size for derivative
+            addivstraindu_FD.set_size( mSpaceDim, tDerNumDof, 0.0 );
+
+            // coefficients for dof type wrt which derivative is computed
+            Matrix< DDRMat > tCoeff = tFIDerivative->get_coeff();
+
+            // initialize dof counter
+            uint tDofCounter = 0;
+
+            // loop over coefficients columns
+            for( uint iCoeffCol = 0; iCoeffCol < tDerNumFields; iCoeffCol++ )
+            {
+                // loop over coefficients rows
+                for( uint iCoeffRow = 0; iCoeffRow < tDerNumBases; iCoeffRow++ )
+                {
+                    // perturbation of the coefficient
+                    Matrix< DDRMat > tCoeffPert = tCoeff;
+                    tCoeffPert( iCoeffRow, iCoeffCol ) +=
+                            aPerturbation * tCoeffPert( iCoeffRow, iCoeffCol );
+
+                    // setting the perturbed coefficients
+                    tFIDerivative->set_coeff( tCoeffPert );
+
+                    // reset constitutive model eval flag
+                    this->reset_eval_flags();
+
+                    // evaluate the residual
+                    Matrix< DDRMat > tDivStrainPlus = this->divstrain();
+
+                    // perturbation of the coefficient
+                    tCoeffPert = tCoeff;
+                    tCoeffPert( iCoeffRow, iCoeffCol ) -=
+                            aPerturbation * tCoeffPert( iCoeffRow, iCoeffCol );
+
+                    // setting the perturbed coefficients
+                    tFIDerivative->set_coeff( tCoeffPert );
+
+                    // reset constitutive model eval flags
+                    this->reset_eval_flags();
+
+                    // evaluate the residual
+                    Matrix< DDRMat > tDivStrainMinus = this->divstrain();
+
+                    // evaluate Jacobian
+                    addivstraindu_FD.get_column( tDofCounter ) =
+                            ( tDivStrainPlus - tDivStrainMinus ) /
+                            ( 2.0 * aPerturbation * tCoeff( iCoeffRow, iCoeffCol ) );
+
+                    // update dof counter
+                    tDofCounter++;
+                }
+            }
+            // reset the coefficients values
+            tFIDerivative->set_coeff( tCoeff );
+        }
 
         //------------------------------------------------------------------------------
         void Constitutive_Model::eval_dHdotdDOF_FD(
@@ -767,13 +968,6 @@ namespace moris
                     // setting the perturbed coefficients
                     tFI->set_coeff( tCoeffPert );
 
-                    // reset properties
-                    uint tNumProps = mProperties.size();
-                    for ( uint iProp = 0; iProp < tNumProps; iProp++ )
-                    {
-                        mProperties( iProp )->reset_eval_flags();
-                    }
-
                     // reset constitutive model
                     this->reset_eval_flags();
 
@@ -786,12 +980,6 @@ namespace moris
 
                     // setting the perturbed coefficients
                     tFI->set_coeff( tCoeffPert );
-
-                    // reset properties
-                    for ( uint iProp = 0; iProp < tNumProps; iProp++ )
-                    {
-                        mProperties( iProp )->reset_eval_flags();
-                    }
 
                     // reset constitutive model
                     this->reset_eval_flags();
@@ -848,13 +1036,6 @@ namespace moris
                     // setting the perturbed coefficients
                     tFI->set_coeff( tCoeffPert );
 
-                    // reset properties
-                    uint tNumProps = mProperties.size();
-                    for ( uint iProp = 0; iProp < tNumProps; iProp++ )
-                    {
-                        mProperties( iProp )->reset_eval_flags();
-                    }
-
                     // reset constitutive model
                     this->reset_eval_flags();
 
@@ -867,12 +1048,6 @@ namespace moris
 
                     // setting the perturbed coefficients
                     tFI->set_coeff( tCoeffPert );
-
-                    // reset properties
-                    for ( uint iProp = 0; iProp < tNumProps; iProp++ )
-                    {
-                        mProperties( iProp )->reset_eval_flags();
-                    }
 
                     // reset constitutive model
                     this->reset_eval_flags();
@@ -929,13 +1104,6 @@ namespace moris
                     // setting the perturbed coefficients
                     tFI->set_coeff( tCoeffPert );
 
-                    // reset properties
-                    uint tNumProps = mProperties.size();
-                    for ( uint iProp = 0; iProp < tNumProps; iProp++ )
-                    {
-                        mProperties( iProp )->reset_eval_flags();
-                    }
-
                     // reset constitutive model
                     this->reset_eval_flags();
 
@@ -948,12 +1116,6 @@ namespace moris
 
                     // setting the perturbed coefficients
                     tFI->set_coeff( tCoeffPert );
-
-                    // reset properties
-                    for ( uint iProp = 0; iProp < tNumProps; iProp++ )
-                    {
-                        mProperties( iProp )->reset_eval_flags();
-                    }
 
                     // reset constitutive model
                     this->reset_eval_flags();
@@ -1010,13 +1172,6 @@ namespace moris
                     // setting the perturbed coefficients
                     tFI->set_coeff( tCoeffPert );
 
-                    // reset properties
-                    uint tNumProps = mProperties.size();
-                    for ( uint iProp = 0; iProp < tNumProps; iProp++ )
-                    {
-                        mProperties( iProp )->reset_eval_flags();
-                    }
-
                     // reset constitutive model
                     this->reset_eval_flags();
 
@@ -1029,12 +1184,6 @@ namespace moris
 
                     // setting the perturbed coefficients
                     tFI->set_coeff( tCoeffPert );
-
-                    // reset properties
-                    for ( uint iProp = 0; iProp < tNumProps; iProp++ )
-                    {
-                        mProperties( iProp )->reset_eval_flags();
-                    }
 
                     // reset constitutive model
                     this->reset_eval_flags();
@@ -1070,7 +1219,9 @@ namespace moris
 
             // FIXME works only for diffusion
             // set size for derivative
-            adStraindDOF_FD.set_size( mSpaceDim, tDerNumDof, 0.0 );
+            uint tNumRow = this->strain().n_rows();
+
+            adStraindDOF_FD.set_size( tNumRow, tDerNumDof, 0.0 );
 
             // coefficients for dof type wrt which derivative is computed
             Matrix< DDRMat > tCoeff = tFI->get_coeff();
@@ -1091,13 +1242,6 @@ namespace moris
                     // setting the perturbed coefficients
                     tFI->set_coeff( tCoeffPert );
 
-                    // reset properties
-                    uint tNumProps = mProperties.size();
-                    for ( uint iProp = 0; iProp < tNumProps; iProp++ )
-                    {
-                        mProperties( iProp )->reset_eval_flags();
-                    }
-
                     // reset constitutive model
                     this->reset_eval_flags();
 
@@ -1110,12 +1254,6 @@ namespace moris
 
                     // setting the perturbed coefficients
                     tFI->set_coeff( tCoeffPert );
-
-                    // reset properties
-                    for ( uint iProp = 0; iProp < tNumProps; iProp++ )
-                    {
-                        mProperties( iProp )->reset_eval_flags();
-                    }
 
                     // reset constitutive model
                     this->reset_eval_flags();
@@ -1172,13 +1310,6 @@ namespace moris
                     // setting the perturbed coefficients
                     tFI->set_coeff( tCoeffPert );
 
-                    // reset properties
-                    uint tNumProps = mProperties.size();
-                    for ( uint iProp = 0; iProp < tNumProps; iProp++ )
-                    {
-                        mProperties( iProp )->reset_eval_flags();
-                    }
-
                     // reset constitutive model
                     this->reset_eval_flags();
 
@@ -1191,12 +1322,6 @@ namespace moris
 
                     // setting the perturbed coefficients
                     tFI->set_coeff( tCoeffPert );
-
-                    // reset properties
-                    for ( uint iProp = 0; iProp < tNumProps; iProp++ )
-                    {
-                        mProperties( iProp )->reset_eval_flags();
-                    }
 
                     // reset constitutive model
                     this->reset_eval_flags();
@@ -1253,13 +1378,6 @@ namespace moris
                     // setting the perturbed coefficients
                     tFI->set_coeff( tCoeffPert );
 
-                    // reset properties
-                    uint tNumProps = mProperties.size();
-                    for ( uint iProp = 0; iProp < tNumProps; iProp++ )
-                    {
-                        mProperties( iProp )->reset_eval_flags();
-                    }
-
                     // reset constitutive model
                     this->reset_eval_flags();
 
@@ -1272,12 +1390,6 @@ namespace moris
 
                     // setting the perturbed coefficients
                     tFI->set_coeff( tCoeffPert );
-
-                    // reset properties
-                    for ( uint iProp = 0; iProp < tNumProps; iProp++ )
-                    {
-                        mProperties( iProp )->reset_eval_flags();
-                    }
 
                     // reset constitutive model
                     this->reset_eval_flags();
