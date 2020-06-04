@@ -36,6 +36,7 @@ namespace moris
                     GRAVITY,
                     THERMAL_EXPANSION,
                     REF_TEMP,
+                    MASS_SOURCE,
                     MAX_ENUM
                 };
 
@@ -185,8 +186,5 @@ namespace moris
         //------------------------------------------------------------------------------
     } /* namespace fem */
 } /* namespace moris */
-
-
-
 
 #endif /* PROJECTS_FEM_INT_SRC_CL_FEM_IWG_INCOMPRESSIBLE_NS_PRESSURE_BULK_HPP_ */
