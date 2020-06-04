@@ -31,21 +31,21 @@ namespace moris
             // Set up geometry
             ParameterList tCircle1ParameterList = prm::create_geometry_parameter_list();
             tCircle1ParameterList.set("type", "circle");
-            tCircle1ParameterList.set("geometry_variable_indices", "0, 2");
-            tCircle1ParameterList.set("adv_indices", "0, 1");
-            tCircle1ParameterList.set("constant_parameters", "1.0");
+            tCircle1ParameterList.set("geometry_variable_indices", "all");
+            tCircle1ParameterList.set("adv_indices", "0, 1, 3");
 
             ParameterList tCircle2ParameterList = prm::create_geometry_parameter_list();
             tCircle2ParameterList.set("type", "circle");
-            tCircle2ParameterList.set("geometry_variable_indices", "0, 2");
-            tCircle2ParameterList.set("adv_indices", "0, 2");
-            tCircle2ParameterList.set("constant_parameters", "2.0");
+            tCircle2ParameterList.set("geometry_variable_indices", "all");
+            tCircle2ParameterList.set("adv_indices", "0, 2, 4");
 
             // Create circles
-            Matrix<DDRMat> tADVs(3, 1);
+            Matrix<DDRMat> tADVs(5, 1);
             tADVs(0) = 0.0;
             tADVs(1) = 1.0;
             tADVs(2) = 2.0;
+            tADVs(3) = 1.0;
+            tADVs(4) = 2.0;
             std::shared_ptr<Geometry> tCircle1 = create_geometry(tCircle1ParameterList, tADVs);
             std::shared_ptr<Geometry> tCircle2 = create_geometry(tCircle2ParameterList, tADVs);
 
@@ -79,8 +79,8 @@ namespace moris
 
             // Change ADVs and coordinates
             tADVs(0) = 1.0;
-            tADVs(1) = 2.0;
-            tADVs(2) = 3.0;
+            tADVs(3) = 2.0;
+            tADVs(4) = 3.0;
             tCoordinates0(0) = 1.0;
             tCoordinates0(1) = -1.0;
             tCoordinates1(0) = 3.0;
@@ -116,14 +116,15 @@ namespace moris
             // Set up geometry
             ParameterList tSphereParameterList = prm::create_geometry_parameter_list();
             tSphereParameterList.set("type", "sphere");
-            tSphereParameterList.set("geometry_variable_indices", "0, 3");
-            tSphereParameterList.set("adv_indices", "0, 1");
-            tSphereParameterList.set("constant_parameters", "0.0, 1.0");
+            tSphereParameterList.set("geometry_variable_indices", "all");
+            tSphereParameterList.set("adv_indices", "all");
 
             // Create sphere
-            Matrix<DDRMat> tADVs(2, 1);
+            Matrix<DDRMat> tADVs(4, 1);
             tADVs(0) = -1.0;
-            tADVs(1) = 2.0;
+            tADVs(1) = 0.0;
+            tADVs(2) = 1.0;
+            tADVs(3) = 2.0;
             std::shared_ptr<Geometry> tSphere = create_geometry(tSphereParameterList, tADVs);
 
             // Set coordinates for checking
@@ -147,7 +148,7 @@ namespace moris
 
             // Change ADVs and coordinates
             tADVs(0) = 0.0;
-            tADVs(1) = 1.0;
+            tADVs(3) = 1.0;
             tCoordinates1(2) = -1.0;
             tCoordinates2(1) = -2.0;
 
@@ -168,11 +169,14 @@ namespace moris
         TEST_CASE("User-Defined Geometry Test", "[GE], [GE_USER_DEFINED_GEOMETRY]")
         {
             // Create user-defined geometry
-            Matrix<DDRMat> tADVs(1, 1, -1.0);
+            Matrix<DDRMat> tADVs(2, 1, -1.0);
+            tADVs(0) = -1.0;
+            tADVs(1) = 0.5;
+
             std::shared_ptr<Geometry> tGeometry = std::make_shared<User_Defined_Geometry>(tADVs,
-                                                                                          Matrix<DDUMat>(1, 1, 1),
-                                                                                          Matrix<DDUMat>(1, 1, 0),
-                                                                                          Matrix<DDRMat>(1, 1, 0.5),
+                                                                                          Matrix<DDUMat>({{1, 0}}),
+                                                                                          Matrix<DDUMat>({{0, 1}}),
+                                                                                          Matrix<DDRMat>({{}}),
                                                                                           &user_defined_geometry_field,
                                                                                           &user_defined_geometry_sensitivity);
 
