@@ -19,18 +19,6 @@ set(HEADERS
 	fn_GEN_approximate.hpp
 	fn_GEN_Triangle_Geometry.hpp
 
-	topology/cl_GEN_Basis_Function.hpp
-	topology/cl_GEN_Edge_Topology.hpp
-	topology/cl_GEN_Hexahedron_8_Topology.hpp
-	topology/cl_GEN_Hexahedron_8_Basis_Function.hpp
-	topology/cl_GEN_Interpolation.hpp
-	topology/cl_GEN_Linear_Basis_Functions.hpp
-
-	topology/cl_GEN_Pending_Node.hpp
-	topology/cl_GEN_Quad_4_Basis_Function.hpp
-	topology/cl_GEN_Quad_4_Topology.hpp
-	topology/cl_GEN_Topology.hpp
-
 	pdv/cl_GEN_Pdv_Host_Manager.hpp
 	pdv/cl_GEN_Pdv_Host.hpp
 	pdv/cl_GEN_Pdv.hpp
@@ -55,12 +43,11 @@ set(HEADERS
     )
     
 # List header dependencies                                                                                                                                                                                                                                                     
-set(GEN_INCLUDES                                                                                                                                                                                                                                                               
+set(GEN_INCLUDES
     "topology"
     "pdv"
     "geometry"
     "property"
-	"topology"
     )
 
 # Include depedency directories
@@ -69,28 +56,6 @@ foreach(GEN_INCLUDES ${GEN_INCLUDES})
     list(APPEND CMAKE_CURRENT_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/${GEN_INCLUDES}")
 endforeach()
 
-
-# include_directories(${MORIS_PACKAGE_DIR}/GEN/src/include)
-
-#FIXME: Remove this once xtk has removed subdirectories from its package
-set(XTK_INCLUDES
-    "assert"
-    "containers"
-    "core"
-    "pdv"
-    "geometry"
-    "ios"
-    "linalg"
-    "mesh"
-    "tools"
-    "topology"
-    "xtk"
-    )
-
-# Include depedency directories
-foreach(XTK_INCLUDE ${XTK_INCLUDES})
-    include_directories(${MORIS_PACKAGE_DIR}/XTK/src/${XTK_INCLUDE})
-endforeach()
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Geometry Engine Library
 
