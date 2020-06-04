@@ -17,14 +17,14 @@
 #include "cl_FEM_SP_SUPG_Advection.hpp"
 #include "cl_FEM_SP_GGLS_Diffusion.hpp"
 #include "cl_FEM_SP_SUPG_Spalart_Allmaras_Turbulence.hpp"
-#include "cl_FEM_SP_Turbulence_Viscosity.hpp"
 
 namespace moris
 {
     namespace fem
     {
         //------------------------------------------------------------------------------
-        std::shared_ptr< Stabilization_Parameter > SP_Factory::create_SP( fem::Stabilization_Type aStabilizationType )
+        std::shared_ptr< Stabilization_Parameter > SP_Factory::create_SP(
+                fem::Stabilization_Type aStabilizationType )
         {
             switch( aStabilizationType )
             {
@@ -75,9 +75,6 @@ namespace moris
 
                 case fem::Stabilization_Type::SUPG_SPALART_ALLMARAS_TURBULENCE :
                     return std::make_shared< SP_SUPG_Spalart_Allmaras_Turbulence >();
-
-                case fem::Stabilization_Type::TURBULENCE_VISCOSITY :
-                    return std::make_shared< SP_Turbulence_Viscosity >();
 
                 default:
                     MORIS_ERROR( false, " SP_Factory::create_SP - No stabilization type specified. " );

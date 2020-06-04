@@ -30,13 +30,68 @@ namespace moris
 
             // populate the constitutive map
             mConstitutiveMap[ "IncompressibleFluid" ] = IWG_Constitutive_Type::INCOMPRESSIBLE_FLUID;
+            mConstitutiveMap[ "TurbulenceFluid" ]     = IWG_Constitutive_Type::TURBULENCE_FLUID;
 
             // set size for the stabilization parameter pointer cell
             mStabilizationParam.resize( static_cast< uint >( IWG_Stabilization_Type::MAX_ENUM ), nullptr );
 
             // populate the stabilization map
             mStabilizationMap[ "IncompressibleFlow" ] = IWG_Stabilization_Type::INCOMPRESSIBLE_FLOW;
-            mStabilizationMap[ "TurbulenceViscosity" ] = IWG_Stabilization_Type::TURBULENCE_VISCOSITY;
+        }
+
+        //------------------------------------------------------------------------------
+        void IWG_Incompressible_NS_Velocity_Bulk::set_property(
+                std::shared_ptr< Property > aProperty,
+                std::string                 aPropertyString,
+                mtk::Master_Slave           aIsMaster )
+        {
+            // check that aPropertyString makes sense
+            std::string tErrMsg =
+                    std::string( "IWG_Incompressible_NS_Velocity_Bulk::set_property - Unknown aPropertyString: " ) +
+                    aPropertyString;
+            MORIS_ERROR( mPropertyMap.find( aPropertyString ) != mPropertyMap.end(), tErrMsg.c_str() );
+
+            // check no slave allowed
+            MORIS_ERROR( aIsMaster == mtk::Master_Slave::MASTER,
+                    "IWG_Incompressible_NS_Velocity_Bulk::set_property - No slave allowed." );
+
+            // set the property in the property cell
+            this->get_properties( aIsMaster )( static_cast< uint >( mPropertyMap[ aPropertyString ] ) ) = aProperty;
+        }
+
+        //------------------------------------------------------------------------------
+        void IWG_Incompressible_NS_Velocity_Bulk::set_constitutive_model(
+                std::shared_ptr< Constitutive_Model > aConstitutiveModel,
+                std::string                           aConstitutiveString,
+                mtk::Master_Slave                     aIsMaster  )
+        {
+            // check that aConstitutiveString makes sense
+            std::string tErrMsg =
+                    std::string( "IWG_Incompressible_NS_Velocity_Bulk::set_constitutive_model - Unknown aConstitutiveString: " ) +
+                    aConstitutiveString;
+            MORIS_ERROR( mConstitutiveMap.find( aConstitutiveString ) != mConstitutiveMap.end(), tErrMsg.c_str() );
+
+            // check no slave allowed
+            MORIS_ERROR( aIsMaster == mtk::Master_Slave::MASTER,
+                    "IWG_Incompressible_NS_Velocity_Bulk::set_constitutive_model - No slave allowed." );
+
+            // set the constitutive model in the constitutive model cell
+            this->get_constitutive_models( aIsMaster )( static_cast< uint >( mConstitutiveMap[ aConstitutiveString ] ) ) = aConstitutiveModel;
+        }
+
+        //------------------------------------------------------------------------------
+        void IWG_Incompressible_NS_Velocity_Bulk::set_stabilization_parameter(
+                std::shared_ptr< Stabilization_Parameter > aStabilizationParameter,
+                std::string                                aStabilizationString )
+        {
+            // check that aConstitutiveString makes sense
+            std::string tErrMsg =
+                    std::string( "IWG_Incompressible_NS_Velocity_Bulk::set_stabilization_parameter - Unknown aStabilizationString: " ) +
+                    aStabilizationString;
+            MORIS_ERROR( mStabilizationMap.find( aStabilizationString ) != mStabilizationMap.end(), tErrMsg.c_str() );
+
+            // set the stabilization parameter in the stabilization parameter cell
+            this->get_stabilization_parameters()( static_cast< uint >( mStabilizationMap[ aStabilizationString ] ) ) = aStabilizationParameter;
         }
 
         //------------------------------------------------------------------------------
@@ -80,13 +135,13 @@ namespace moris
             std::shared_ptr< Constitutive_Model > tIncFluidCM =
                     mMasterCM( static_cast< uint >( IWG_Constitutive_Type::INCOMPRESSIBLE_FLUID ) );
 
+            // get the turbulence fluid constitutive model
+            std::shared_ptr< Constitutive_Model > tCMTurbulence =
+                    mMasterCM( static_cast< uint >( IWG_Constitutive_Type::TURBULENCE_FLUID ) );
+
             // get the incompressible flow stabilization parameter
             std::shared_ptr< Stabilization_Parameter > tSPSUPSPSPG =
                     mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::INCOMPRESSIBLE_FLOW ) );
-
-            // get the turbulent viscosity stabilization parameter
-            std::shared_ptr< Stabilization_Parameter > tSPTurbulenceViscosity =
-                    mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::TURBULENCE_VISCOSITY ) );
 
             // compute the residual strong form
             Matrix< DDRMat > tRM;
@@ -161,11 +216,11 @@ namespace moris
             }
 
             // if turbulence
-            if( tSPTurbulenceViscosity != nullptr )
+            if( tCMTurbulence != nullptr )
             {
                 // add contribution to residual
-                mSet->get_residual()( 0 )( { tMasterResStartIndex, tMasterResStopIndex }, { 0, 0 } )
-                        -= aWStar * ( trans( tIncFluidCM->testStrain() ) * tPre * 2.0 * tDensity * tSPTurbulenceViscosity->val()( 0 ) * tIncFluidCM->strain() );
+                mSet->get_residual()( 0 )( { tMasterResStartIndex, tMasterResStopIndex }, { 0, 0 } ) +=
+                        aWStar * ( trans( tCMTurbulence->testStrain() ) * tPre * tCMTurbulence->flux() );
             }
         }
 
@@ -213,13 +268,13 @@ namespace moris
             std::shared_ptr< Constitutive_Model > tIncFluidCM =
                     mMasterCM( static_cast< uint >( IWG_Constitutive_Type::INCOMPRESSIBLE_FLUID ) );
 
+            // get the turbulence constitutive model
+            std::shared_ptr< Constitutive_Model > tCMTurbulence =
+                    mMasterCM( static_cast< uint >( IWG_Constitutive_Type::TURBULENCE_FLUID ) );
+
             // get the incompressible flow stabilization parameter
             std::shared_ptr< Stabilization_Parameter > tSPSUPSPSPG =
                     mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::INCOMPRESSIBLE_FLOW ) );
-
-            // get the turbulence viscosity stabilization parameter
-            std::shared_ptr< Stabilization_Parameter > tSPTurbulenceViscosity =
-                    mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::TURBULENCE_VISCOSITY ) );
 
             // build multiplication matrix for sigma_ij epsilon_ij
             Matrix< DDRMat > tPre;
@@ -322,7 +377,7 @@ namespace moris
                                     tDensityProp->dPropdDOF( tDofType );
                 }
 
-                // if constitutive model has dependency on the dof type
+                // if fluid CM depends on dof type
                 if ( tIncFluidCM->check_dof_dependency( tDofType ) )
                 {
                     // compute the jacobian
@@ -330,6 +385,21 @@ namespace moris
                             { tMasterResStartIndex, tMasterResStopIndex },
                             { tMasterDepStartIndex, tMasterDepStopIndex } )
                             += aWStar * ( trans( tIncFluidCM->testStrain() ) * tPre * tIncFluidCM->dFluxdDOF( tDofType ) );
+                    // FIXME add dteststrainddof
+                }
+
+                // if turbulence CM depends on dof type
+                if( tCMTurbulence != nullptr )
+                {
+                    if( tCMTurbulence->check_dof_dependency( tDofType ) )
+                    {
+                        // add contribution to jacobian
+                        mSet->get_jacobian()(
+                                { tMasterResStartIndex, tMasterResStopIndex },
+                                { tMasterDepStartIndex, tMasterDepStopIndex } ) +=
+                                aWStar * ( trans( tCMTurbulence->testStrain() ) * tPre * tCMTurbulence->dFluxdDOF( tDofType ) );
+                        // FIXME add dteststrainddof
+                    }
                 }
 
                 // if stabilization parameter has dependency on the dof type
@@ -458,48 +528,6 @@ namespace moris
                                         * tGravityProp->dPropdDOF( tDofType ) );
                     }
                 }
-
-                // if turbulence
-                if( tSPTurbulenceViscosity != nullptr )
-                {
-                    // if turbulence viscosity SP depends on dof type
-                    if( tSPTurbulenceViscosity->check_dof_dependency( tDofType ) )
-                    {
-                        // add contribution to jacobian
-                        mSet->get_jacobian()(
-                                { tMasterResStartIndex, tMasterResStopIndex },
-                                { tMasterDepStartIndex, tMasterDepStopIndex } )
-                                -= aWStar * (
-                                        trans( tIncFluidCM->testStrain() ) * tPre * 2.0 * tDensity *
-                                        tIncFluidCM->strain() *
-                                        tSPTurbulenceViscosity->dSPdMasterDOF( tDofType ) );
-                    }
-
-                    // if density property depends on dof type
-                    if( tDensityProp->check_dof_dependency( tDofType ) )
-                    {
-                        // add contribution to jacobian
-                        mSet->get_jacobian()(
-                                { tMasterResStartIndex, tMasterResStopIndex },
-                                { tMasterDepStartIndex, tMasterDepStopIndex } )
-                                -= aWStar * (
-                                        trans( tIncFluidCM->testStrain() ) * tPre * 2.0 *
-                                        tSPTurbulenceViscosity->val()( 0 ) * tIncFluidCM->strain() *
-                                        tDensityProp->dPropdDOF( tDofType ) );
-                    }
-
-                    // if fluid CM depends on dof type
-                    if ( tIncFluidCM->check_dof_dependency( tDofType ) )
-                    {
-                        // add contribution to jacobian
-                        mSet->get_jacobian()(
-                                { tMasterResStartIndex, tMasterResStopIndex },
-                                { tMasterDepStartIndex, tMasterDepStopIndex } )
-                                -= aWStar * (
-                                        trans( tIncFluidCM->testStrain() ) * tPre * 2.0 * tDensity *
-                                        tSPTurbulenceViscosity->val()( 0 ) * tIncFluidCM->dStraindDOF( tDofType ) );
-                    }
-                }
             }
         }
 
@@ -540,7 +568,7 @@ namespace moris
                     mMasterProp( static_cast< uint >( IWG_Property_Type::GRAVITY ) );
             std::shared_ptr< Property > tThermalExpProp =
                     mMasterProp( static_cast< uint >( IWG_Property_Type::THERMAL_EXPANSION ) );
-            std::shared_ptr< Property > tRefTempProp    =
+            std::shared_ptr< Property > tRefTempProp =
                     mMasterProp( static_cast< uint >( IWG_Property_Type::REF_TEMP ) );
             std::shared_ptr< Property > tInvPermeabProp   =
                     mMasterProp( static_cast< uint >( IWG_Property_Type::INV_PERMEABILITY ) );
@@ -548,6 +576,10 @@ namespace moris
             // get the incompressible fluid constitutive model
             std::shared_ptr< Constitutive_Model > tIncFluidCM =
                     mMasterCM( static_cast< uint >( IWG_Constitutive_Type::INCOMPRESSIBLE_FLUID ) );
+
+            // get the turbulence fluid constitutive model
+            std::shared_ptr< Constitutive_Model > tCMTurbulence =
+                    mMasterCM( static_cast< uint >( IWG_Constitutive_Type::TURBULENCE_FLUID ) );
 
             // get the incompressible flow stabilization parameter
             std::shared_ptr< Stabilization_Parameter > tSPSUPSPSPG =
@@ -557,12 +589,12 @@ namespace moris
             real tDensity = tDensityProp->val()( 0 );
 
             // compute the residual strong form
-            aRM = tDensity * trans( tVelocityFI->gradt( 1 ) ) +
+            aRM =
+                    tDensity * trans( tVelocityFI->gradt( 1 ) ) +
                     tDensity * trans( tVelocityFI->gradx( 1 ) ) * tVelocityFI->val() -
                     tIncFluidCM->divflux();
 
             aRC = tVelocityFI->div();
-
 
             // if permeability
             if ( tInvPermeabProp != nullptr )
@@ -590,6 +622,12 @@ namespace moris
                     aRM.matrix_data() -=
                             tDensity * tGravityProp->val() * tThermalExpProp->val() * ( tTempFI->val() - tRefTempProp->val() );
                 }
+            }
+
+            if( tCMTurbulence != nullptr )
+            {
+                // add contribution to residual
+                aRM.matrix_data() -= tCMTurbulence->divflux().matrix_data();
             }
         }
 
@@ -626,6 +664,10 @@ namespace moris
             // get the incompressible fluid constitutive model
             std::shared_ptr< Constitutive_Model > tIncFluidCM =
                     mMasterCM( static_cast< uint >( IWG_Constitutive_Type::INCOMPRESSIBLE_FLUID ) );
+
+            // get the turbulence fluid constitutive model
+            std::shared_ptr< Constitutive_Model > tCMTurbulence =
+                    mMasterCM( static_cast< uint >( IWG_Constitutive_Type::TURBULENCE_FLUID ) );
 
             // get the incompressible flow stabilization parameter
             std::shared_ptr< Stabilization_Parameter > tSPSUPSPSPG =
@@ -678,7 +720,7 @@ namespace moris
                 aJM.matrix_data() -= tIncFluidCM->ddivfluxdu( aDofTypes ).matrix_data();
             }
 
-            // if permeability depends on DoF type
+            // if permeability depends on dof type
             if ( tInvPermeabProp != nullptr )
             {
                 if( tInvPermeabProp->check_dof_dependency( aDofTypes ) )
@@ -752,6 +794,17 @@ namespace moris
                                 tGravityProp->val() *
                                 tThermalExpProp->val() * ( tTempFI->val() - tRefTempProp->val() ) *
                                 tDensityProp->dPropdDOF( aDofTypes );
+                    }
+                }
+
+                // if turbulence
+                if( tCMTurbulence != nullptr )
+                {
+                    // if turbulence CM depends on dof type
+                    if( tCMTurbulence->check_dof_dependency( aDofTypes ) )
+                    {
+                        // compute contribution to jacobian strong form
+                        aJM.matrix_data() -= tCMTurbulence->ddivfluxdu( aDofTypes ).matrix_data();
                     }
                 }
             }

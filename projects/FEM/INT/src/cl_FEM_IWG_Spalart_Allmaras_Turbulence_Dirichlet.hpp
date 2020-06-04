@@ -1,21 +1,21 @@
 /*
- * cl_FEM_IWG_Incompressible_NS_Velocity_Bulk.hpp
+ * cl_FEM_IWG_Spalart_Allmaras_Turbulence_Dirichlet.hpp
  *
- *  Created on: Mar 03, 2020
+ *  Created on: May 27, 2020
  *      Author: noel
  */
 
-#ifndef SRC_FEM_CL_FEM_IWG_INCOMPRESSIBLE_NS_VELOCITY_BULK_HPP_
-#define SRC_FEM_CL_FEM_IWG_INCOMPRESSIBLE_NS_VELOCITY_BULK_HPP_
-
+#ifndef SRC_FEM_CL_FEM_IWG_SPALART_ALLMARAS_TURBULENCE_DIRICHLET_HPP_
+#define SRC_FEM_CL_FEM_IWG_SPALART_ALLMARAS_TURBULENCE_DIRICHLET_HPP_
+//MRS/COR/src
 #include <map>
-#include "typedefs.hpp"                     //MRS/COR/src
-#include "cl_Cell.hpp"                      //MRS/CON/src
-
-#include "cl_Matrix.hpp"                    //LINALG/src
-#include "linalg_typedefs.hpp"              //LINALG/src
-
-#include "cl_FEM_IWG.hpp"                   //FEM/INT/src
+#include "typedefs.hpp"
+#include "cl_Cell.hpp"
+//LINALG/src
+#include "cl_Matrix.hpp"
+#include "linalg_typedefs.hpp"
+//FEM/INT/src
+#include "cl_FEM_IWG.hpp"
 
 namespace moris
 {
@@ -23,58 +23,51 @@ namespace moris
     {
         //------------------------------------------------------------------------------
 
-        class IWG_Incompressible_NS_Velocity_Bulk : public IWG
+        class IWG_Spalart_Allmaras_Turbulence_Dirichlet : public IWG
         {
 
                 //------------------------------------------------------------------------------
             public:
 
+                real mBeta = 1.0;
+
                 // local property enums
                 enum class IWG_Property_Type
                 {
-                    DENSITY,
-                    GRAVITY,
-                    THERMAL_EXPANSION,
-                    REF_TEMP,
-                    INV_PERMEABILITY,
+                    DIRICHLET,
+                    VISCOSITY,
+                    SELECT,
                     MAX_ENUM
                 };
 
                 // local string to property enum map
                 std::map< std::string, IWG_Property_Type > mPropertyMap;
 
-                // local constitutive enums
-                enum class IWG_Constitutive_Type
-                {
-                    INCOMPRESSIBLE_FLUID,
-                    TURBULENCE_FLUID,
-                    MAX_ENUM
-                };
-
-                // local string to constitutive enum map
-                std::map< std::string, IWG_Constitutive_Type > mConstitutiveMap;
-
                 // local stabilization enums
                 enum class IWG_Stabilization_Type
                 {
-                    INCOMPRESSIBLE_FLOW,
+                    NITSCHE,
                     MAX_ENUM
                 };
 
                 // local string to constitutive enum map
                 std::map< std::string, IWG_Stabilization_Type > mStabilizationMap;
 
+                // FIXME temp all the constants
+                real mSigma = 2.0/3.0;
+
                 //------------------------------------------------------------------------------
                 /*
                  *  constructor
+                 *  aBeta signed int for symmetric/unsymmetric Nitsche
                  */
-                IWG_Incompressible_NS_Velocity_Bulk();
+                IWG_Spalart_Allmaras_Turbulence_Dirichlet( sint aBeta );
 
                 //------------------------------------------------------------------------------
                 /**
                  * trivial destructor
                  */
-                ~IWG_Incompressible_NS_Velocity_Bulk(){};
+                ~IWG_Spalart_Allmaras_Turbulence_Dirichlet(){};
 
                 //------------------------------------------------------------------------------
                 /**
@@ -87,18 +80,6 @@ namespace moris
                         std::shared_ptr< Property > aProperty,
                         std::string                 aPropertyString,
                         mtk::Master_Slave           aIsMaster = mtk::Master_Slave::MASTER );
-
-                //------------------------------------------------------------------------------
-                /**
-                 * set constitutive model
-                 * @param[ in ] aConstitutiveModel  a constitutive model pointer
-                 * @param[ in ] aConstitutiveString a string defining the constitutive model
-                 * @param[ in ] aIsMaster           an enum for master or slave
-                 */
-                void set_constitutive_model(
-                        std::shared_ptr< Constitutive_Model > aConstitutiveModel,
-                        std::string                           aConstitutiveString,
-                        mtk::Master_Slave                     aIsMaster = mtk::Master_Slave::MASTER );
 
                 //------------------------------------------------------------------------------
                 /**
@@ -139,58 +120,51 @@ namespace moris
                 void compute_dRdp( real aWStar );
 
             private:
-                //------------------------------------------------------------------------------
-                /**
-                 * compute the residual strong form
-                 * @param[ in ] aRM a matrix to fill with RM
-                 * @param[ in ] aRC a matrix to fill with RC
-                 */
-                void compute_residual_strong_form(
-                        Matrix< DDRMat > & aRM,
-                        real             & aRC );
 
                 //------------------------------------------------------------------------------
                 /**
-                 * compute the residual strong form
-                 * @param[ in ] aDofTypes a list of dof type wrt which
-                 *                        the derivative is requested
-                 * @param[ in ] aJM       a matrix to fill with dRMdDof
-                 * @param[ in ] aJC       a matrix to fill with dRCdDof
+                 * compute the traction = ( v + vtilde ) * grad vtilde
+                 * @param[ in ] aTraction a matrix to fill with traction
                  */
-                void compute_jacobian_strong_form(
-                        moris::Cell< MSI::Dof_Type >   aDofTypes,
-                        Matrix< DDRMat >             & aJM,
-                        Matrix< DDRMat >             & aJC );
+                void compute_traction( Matrix< DDRMat > & aTraction );
 
                 //------------------------------------------------------------------------------
                 /**
-                 * compute the term uj vij
-                 * @param[ in ] aujvij a matrix to fill with uj vij
+                 * compute the derivative of the traction = ( v + vtilde ) * grad vtilde
+                 * wrt dof type aDofTypes
+                 * @param[ in ] aDofTypes    group of dervative dof types
+                 * @param[ in ] adtractiondu a matrix to fill with dtractiondu
                  */
-                void compute_ujvij( Matrix< DDRMat > & aujvij );
+                void compute_dtractiondu(
+                        moris::Cell< MSI::Dof_Type > & aDofTypes,
+                        Matrix< DDRMat >             & adtractiondu );
 
                 //------------------------------------------------------------------------------
                 /**
-                 * compute the term uj vij rm
-                 * @param[ in ] aujvijrm a matrix to fill with uj vij rm
-                 * @param[ in ] arm      provided strong form residual
+                 * compute the test traction = delta ( ( v + vtilde ) * grad vtilde )
+                 * @param[ in ] aTestDofTypes group of test dof types
+                 * @param[ in ] aTestTraction a matrix to fill with test traction
                  */
-                void compute_ujvijrm(
-                        Matrix< DDRMat > & aujvijrm,
-                        Matrix< DDRMat > & arm );
+                void compute_testtraction(
+                        moris::Cell< MSI::Dof_Type> & aTestDofTypes,
+                        Matrix< DDRMat >            & aTestTraction );
 
                 //------------------------------------------------------------------------------
-                // FIXME provided directly by the field interpolator?
                 /**
-                 * compute the term dnNdtn
-                 * @param[ in ] adnNdtn a matrix to fill with dnNdtn
+                 * compute the derivative of the test traction
+                 * = delta ( ( v + vtilde ) * grad vtilde )
+                 * @param[ in ] aTestDofTypes    group of test dof types
+                 * @param[ in ] aDofTypes        group of derivative dof types
+                 * @param[ in ] adtesttractiondu a matrix to fill with test traction
                  */
-                void compute_dnNdtn( Matrix< DDRMat > & adnNdtn );
+                void compute_dtesttractiondu(
+                        moris::Cell< MSI::Dof_Type> & aTestDofTypes,
+                        moris::Cell< MSI::Dof_Type> & aDofTypes,
+                        Matrix< DDRMat >            & adtesttractiondu );
 
-                //------------------------------------------------------------------------------
         };
         //------------------------------------------------------------------------------
     } /* namespace fem */
 } /* namespace moris */
 
-#endif /* SRC_FEM_CL_FEM_IWG_INCOMPRESSIBLE_NS_VELOCITY_BULK_HPP_ */
+#endif /* SRC_FEM_CL_FEM_IWG_SPALART_ALLMARAS_TURBULENCE_DIRICHLET_HPP_ */

@@ -1,7 +1,6 @@
 #include <string>
 #include <catch.hpp>
 #include <memory>
-
 #include "assert.hpp"
 
 #define protected public
@@ -16,7 +15,7 @@
 #include "op_equal_equal.hpp"
 //MTK/src
 #include "cl_MTK_Enums.hpp"
-//FEM//INT/src
+//FEM//INT//src
 #include "cl_FEM_Enums.hpp"
 #include "cl_FEM_Field_Interpolator.hpp"
 #include "cl_FEM_Property.hpp"
@@ -24,7 +23,7 @@
 #include "cl_FEM_SP_Factory.hpp"
 #include "cl_FEM_IWG_Factory.hpp"
 
-void tConstValFunction_SATurbulenceBulk
+void tConstValFunction_SATurbulenceDirichlet
 ( moris::Matrix< moris::DDRMat >                 & aPropMatrix,
   moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
   moris::fem::Field_Interpolator_Manager         * aFIManager )
@@ -32,7 +31,7 @@ void tConstValFunction_SATurbulenceBulk
     aPropMatrix = aParameters( 0 );
 }
 
-void tVISCOSITYFIValFunction_SATurbulenceBulk
+void tVISCOSITYFIValFunction_SATurbulenceDirichlet
 ( moris::Matrix< moris::DDRMat >                 & aPropMatrix,
   moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
   moris::fem::Field_Interpolator_Manager         * aFIManager )
@@ -42,7 +41,7 @@ void tVISCOSITYFIValFunction_SATurbulenceBulk
             aFIManager->get_field_interpolators_for_type( moris::MSI::Dof_Type::VISCOSITY )->val();
 }
 
-void tVISCOSITYFIDerFunction_SATurbulenceBulk
+void tVISCOSITYFIDerFunction_SATurbulenceDirichlet
 ( moris::Matrix< moris::DDRMat >                 & aPropMatrix,
   moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
   moris::fem::Field_Interpolator_Manager         * aFIManager )
@@ -55,7 +54,7 @@ void tVISCOSITYFIDerFunction_SATurbulenceBulk
 using namespace moris;
 using namespace fem;
 
-TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Bulk", "[IWG_Spalart_Allmaras_Turbulence_Bulk]" )
+TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Dirichlet", "[IWG_Spalart_Allmaras_Turbulence_Dirichlet]" )
 {
     // define an epsilon environment
     real tEpsilon = 1E-3;
@@ -77,11 +76,13 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Bulk", "[IWG_Spalart_Allmaras_Turbul
         // create evaluation point xi, tau
         Matrix< DDRMat > tParamPoint;
 
+        // create the normal
+        Matrix< DDRMat > tNormal;
+
         // create list with number of coeffs
         Matrix< DDRMat > tNumCoeffs;
 
         // dof type list
-        moris::Cell< MSI::Dof_Type > tVelDofTypes;
         moris::Cell< MSI::Dof_Type > tVisDofTypes = { MSI::Dof_Type::VISCOSITY };
 
         // switch on space dimension
@@ -104,8 +105,8 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Bulk", "[IWG_Spalart_Allmaras_Turbul
                // number of coefficients
                tNumCoeffs = {{ 8 },{ 18 },{ 32 }};
 
-               // set velocity dof types
-               tVelDofTypes = { MSI::Dof_Type::VX, MSI::Dof_Type::VY };
+               // set the normal
+               tNormal = {{ 1.0 }, { 0.0 }};
 
                break;
             }
@@ -130,8 +131,8 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Bulk", "[IWG_Spalart_Allmaras_Turbul
                 // number of coefficients
                 tNumCoeffs = {{ 16 },{ 54 },{ 128 }};
 
-                // set velocity dof types
-                tVelDofTypes = { MSI::Dof_Type::VX, MSI::Dof_Type::VY, MSI::Dof_Type::VZ };
+                // set the normal
+                tNormal = {{ 1.0 }, { 0.0 }, { 0.0 }};
 
                 break;
             }
@@ -172,11 +173,9 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Bulk", "[IWG_Spalart_Allmaras_Turbul
             mtk::Interpolation_Order tInterpolationOrder;
 
             // create random coefficients for master FI
-            arma::Mat< double > tMasterMatrixVel;
             arma::Mat< double > tMasterMatrixVis;
 
             // get number of dof
-            int tNumDofVel = 0;
             int tNumDofVis = 0;
 
             // switch on interpolation order
@@ -188,11 +187,9 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Bulk", "[IWG_Spalart_Allmaras_Turbul
                     tInterpolationOrder = mtk::Interpolation_Order::LINEAR;
 
                     // get number of dof
-                    tNumDofVel = tNumCoeffs( 0 ) * iSpaceDim;
                     tNumDofVis = tNumCoeffs( 0 );
 
                     // create random coefficients for master FI
-                    tMasterMatrixVel.randu( tNumCoeffs( 0 ), iSpaceDim );
                     tMasterMatrixVis.randu( tNumCoeffs( 0 ), 1 );
                     break;
                 }
@@ -202,11 +199,9 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Bulk", "[IWG_Spalart_Allmaras_Turbul
                     tInterpolationOrder = mtk::Interpolation_Order::QUADRATIC;
 
                     // get number of dof
-                    tNumDofVel = tNumCoeffs( 1 ) * iSpaceDim;
                     tNumDofVis = tNumCoeffs( 1 );
 
                     // create random coefficients for master FI
-                    tMasterMatrixVel.randu( tNumCoeffs( 1 ), iSpaceDim );
                     tMasterMatrixVis.randu( tNumCoeffs( 1 ), 1 );
 
                     break;
@@ -217,11 +212,9 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Bulk", "[IWG_Spalart_Allmaras_Turbul
                     tInterpolationOrder = mtk::Interpolation_Order::CUBIC;
 
                     // get number of dof
-                    tNumDofVel = tNumCoeffs( 2 ) * iSpaceDim;
                     tNumDofVis = tNumCoeffs( 2 );
 
                     // create random coefficients for master FI
-                    tMasterMatrixVel.randu( tNumCoeffs( 2 ), iSpaceDim );
                     tMasterMatrixVis.randu( tNumCoeffs( 2 ), 1 );
                     break;
                 }
@@ -240,56 +233,48 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Bulk", "[IWG_Spalart_Allmaras_Turbul
                                          mtk::Interpolation_Order::LINEAR );
 
             // fill random coefficients for master FI
-            Matrix< DDRMat > tMasterDOFHatVel;
-            tMasterDOFHatVel.matrix_data() = 10.0 * tMasterMatrixVel;
             Matrix< DDRMat > tMasterDOFHatVis;
             tMasterDOFHatVis.matrix_data() = 10.0 * tMasterMatrixVis;
 
             // create a cell of field interpolators for IWG
-            Cell< Field_Interpolator* > tMasterFIs( 2 );
-
-            // create the field interpolator velocity
-            tMasterFIs( 0 ) = new Field_Interpolator( iSpaceDim, tFIRule, &tGI, tVelDofTypes );
-            tMasterFIs( 0 )->set_coeff( tMasterDOFHatVel );
-            tMasterFIs( 0 )->set_space_time( tParamPoint );
+            Cell< Field_Interpolator* > tMasterFIs( 1 );
 
             // create the field interpolator viscosity
-            tMasterFIs( 1 ) = new Field_Interpolator( 1, tFIRule, &tGI, tVisDofTypes );
-            tMasterFIs( 1 )->set_coeff( tMasterDOFHatVis );
-            tMasterFIs( 1 )->set_space_time( tParamPoint );
+            tMasterFIs( 0 ) = new Field_Interpolator( 1, tFIRule, &tGI, tVisDofTypes );
+            tMasterFIs( 0 )->set_coeff( tMasterDOFHatVis );
+            tMasterFIs( 0 )->set_space_time( tParamPoint );
 
             // create the properties
-            std::shared_ptr< fem::Property > tPropWallDistance = std::make_shared< fem::Property >();
-            tPropWallDistance->set_parameters( { {{ 1.0 }} } );
-            tPropWallDistance->set_val_function( tConstValFunction_SATurbulenceBulk );
+            std::shared_ptr< fem::Property > tPropDirichlet = std::make_shared< fem::Property >();
+            tPropDirichlet->set_parameters( { {{ 2.0 }} } );
+            tPropDirichlet->set_dof_type_list( { tVisDofTypes } );
+            tPropDirichlet->set_val_function( tVISCOSITYFIValFunction_SATurbulenceDirichlet );
+            tPropDirichlet->set_dof_derivative_functions( { tVISCOSITYFIDerFunction_SATurbulenceDirichlet } );
 
             std::shared_ptr< fem::Property > tPropViscosity = std::make_shared< fem::Property >();
             tPropViscosity->set_parameters( { {{ 2.0 }} } );
-            //tPropViscosity->set_val_function( tConstValFunction_SATurbulenceBulk );
             tPropViscosity->set_dof_type_list( { tVisDofTypes } );
-            tPropViscosity->set_val_function( tVISCOSITYFIValFunction_SATurbulenceBulk );
-            tPropViscosity->set_dof_derivative_functions( { tVISCOSITYFIDerFunction_SATurbulenceBulk } );
+            tPropViscosity->set_val_function( tVISCOSITYFIValFunction_SATurbulenceDirichlet );
+            tPropViscosity->set_dof_derivative_functions( { tVISCOSITYFIDerFunction_SATurbulenceDirichlet } );
 
             // define stabilization parameters
             fem::SP_Factory tSPFactory;
 
-            std::shared_ptr< fem::Stabilization_Parameter > tSPSUPG =
-                    tSPFactory.create_SP( fem::Stabilization_Type::SUPG_SPALART_ALLMARAS_TURBULENCE );
-            tSPSUPG->set_dof_type_list( {{ MSI::Dof_Type::VX, MSI::Dof_Type::VY }, { MSI::Dof_Type::VISCOSITY }}, mtk::Master_Slave::MASTER );
-            tSPSUPG->set_property( tPropViscosity, "Viscosity", mtk::Master_Slave::MASTER );
-            tSPSUPG->set_property( tPropWallDistance, "WallDistance", mtk::Master_Slave::MASTER );
-            tSPSUPG->set_space_dim( iSpaceDim );
+            std::shared_ptr< fem::Stabilization_Parameter > tSPNitsche =
+                    tSPFactory.create_SP( fem::Stabilization_Type::DIRICHLET_NITSCHE );
+            tSPNitsche->set_parameters( { {{ 1.0 }} } );
+            tSPNitsche->set_property( tPropViscosity, "Material", mtk::Master_Slave::MASTER );
 
             // define the IWGs
             fem::IWG_Factory tIWGFactory;
 
-            std::shared_ptr< fem::IWG > tIWG
-            = tIWGFactory.create_IWG( fem::IWG_Type::SPALART_ALLMARAS_TURBULENCE_BULK );
+            std::shared_ptr< fem::IWG > tIWG =
+                    tIWGFactory.create_IWG( fem::IWG_Type::SPALART_ALLMARAS_TURBULENCE_DIRICHLET_SYMMETRIC_NITSCHE );
             tIWG->set_residual_dof_type( tVisDofTypes );
-            tIWG->set_dof_type_list( { tVelDofTypes, tVisDofTypes }, mtk::Master_Slave::MASTER );
-            tIWG->set_property( tPropWallDistance, "WallDistance" );
+            tIWG->set_dof_type_list( { tVisDofTypes }, mtk::Master_Slave::MASTER );
             tIWG->set_property( tPropViscosity, "Viscosity" );
-            tIWG->set_stabilization_parameter( tSPSUPG, "SUPG" );
+            tIWG->set_property( tPropDirichlet, "Dirichlet" );
+            tIWG->set_stabilization_parameter( tSPNitsche, "Nitsche" );
 
             // set a fem set pointer
             MSI::Equation_Set * tSet = new fem::Set();
@@ -300,34 +285,33 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Bulk", "[IWG_Spalart_Allmaras_Turbul
 
             // set size and populate the set dof type map
             tIWG->mSet->mUniqueDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
-            tIWG->mSet->mUniqueDofTypeMap( static_cast< int >( MSI::Dof_Type::VX ) ) = 0;
-            tIWG->mSet->mUniqueDofTypeMap( static_cast< int >( MSI::Dof_Type::VISCOSITY ) ) = 1;
+            tIWG->mSet->mUniqueDofTypeMap( static_cast< int >( MSI::Dof_Type::VISCOSITY ) ) = 0;
 
             // set size and populate the set master dof type map
             tIWG->mSet->mMasterDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
-            tIWG->mSet->mMasterDofTypeMap( static_cast< int >( MSI::Dof_Type::VX ) ) = 0;
-            tIWG->mSet->mMasterDofTypeMap( static_cast< int >( MSI::Dof_Type::VISCOSITY ) ) = 1;
+            tIWG->mSet->mMasterDofTypeMap( static_cast< int >( MSI::Dof_Type::VISCOSITY ) ) = 0;
 
             // set size and fill the set residual assembly map
-            tIWG->mSet->mResDofAssemblyMap.resize( 2 );
-            tIWG->mSet->mResDofAssemblyMap( 0 ) = { { 0, tNumDofVel-1 } };
-            tIWG->mSet->mResDofAssemblyMap( 1 ) = { { tNumDofVel, tNumDofVel + tNumDofVis - 1 } };
+            tIWG->mSet->mResDofAssemblyMap.resize( 1 );
+            tIWG->mSet->mResDofAssemblyMap( 0 ) = { { 0, tNumDofVis-1 } };
 
             // set size and fill the set jacobian assembly map
-            tIWG->mSet->mJacDofAssemblyMap.resize( 2 );
-            tIWG->mSet->mJacDofAssemblyMap( 0 ) = { { 0, tNumDofVel-1 }, { tNumDofVel, tNumDofVel + tNumDofVis - 1 } };
-            tIWG->mSet->mJacDofAssemblyMap( 1 ) = { { 0, tNumDofVel-1 }, { tNumDofVel, tNumDofVel + tNumDofVis - 1 } };
+            tIWG->mSet->mJacDofAssemblyMap.resize( 1 );
+            tIWG->mSet->mJacDofAssemblyMap( 0 ) = { { 0, tNumDofVis-1 } };
 
             // set size and init the set residual and jacobian
             tIWG->mSet->mResidual.resize( 1 );
-            tIWG->mSet->mResidual( 0 ).set_size( tNumDofVel + tNumDofVis, 1, 0.0 );
-            tIWG->mSet->mJacobian.set_size( tNumDofVel + tNumDofVis, tNumDofVel + tNumDofVis, 0.0 );
+            tIWG->mSet->mResidual( 0 ).set_size( tNumDofVis, 1, 0.0 );
+            tIWG->mSet->mJacobian.set_size( tNumDofVis, tNumDofVis, 0.0 );
+
+            // set the normal
+            tIWG->set_normal( tNormal );
 
             // build global dof type list
             tIWG->get_global_dof_type_list();
 
             // populate the requested master dof type
-            tIWG->mRequestedMasterGlobalDofTypes = { { MSI::Dof_Type::VX }, { MSI::Dof_Type::VISCOSITY } };
+            tIWG->mRequestedMasterGlobalDofTypes = { { MSI::Dof_Type::VISCOSITY } };
 
             // create a field interpolator manager
             moris::Cell< moris::Cell< enum MSI::Dof_Type > > tDummyDof;
@@ -363,10 +347,9 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Bulk", "[IWG_Spalart_Allmaras_Turbul
                                                         tJacobian,
                                                         tJacobianFD );
 
-//            print( tJacobian(   { 0, tNumDofVis-1 }, { 0, tNumDofVel-1 } ), "tJacobianVU" );
-//            print( tJacobianFD( { 0, tNumDofVis-1 }, { 0, tNumDofVel-1 } ), "tJacobianFDVU" );
-//            print( tJacobian(   { 0, tNumDofVis-1 }, { tNumDofVel, tNumDofVel + tNumDofVis - 1 }), "tJacobianVV" );
-//            print( tJacobianFD( { 0, tNumDofVis-1 }, { tNumDofVel, tNumDofVel + tNumDofVis - 1 }), "tJacobianFDVV" );
+//            // print for debug
+//            print( tJacobian(   { 0, tNumDofVis-1 }, { 0, tNumDofVis-1 } ), "tJacobianVV" );
+//            print( tJacobianFD( { 0, tNumDofVis-1 }, { 0, tNumDofVis-1 } ), "tJacobianFDVV" );
 
 //            std::cout<<"Case: Geometry "<<iSpaceDim<<" Order "<<iInterpOrder<<std::endl;
 

@@ -40,15 +40,6 @@ namespace moris
                 // local string to property enum map
                 std::map< std::string, IWG_Property_Type > mPropertyMap;
 
-                // local constitutive enums
-                enum class IWG_Constitutive_Type
-                {
-                    MAX_ENUM
-                };
-
-                // local string to constitutive enum map
-                std::map< std::string, IWG_Constitutive_Type > mConstitutiveMap;
-
                 // local stabilization enums
                 enum class IWG_Stabilization_Type
                 {
@@ -70,6 +61,8 @@ namespace moris
                 real mCt3 = 1.2;
                 real mCt4 = 0.5;
                 real mCv1 = 7.1;
+                real mCv2 = 0.7;
+                real mCv3 = 0.9;
 
                 //------------------------------------------------------------------------------
                 /*
@@ -93,43 +86,7 @@ namespace moris
                 void set_property(
                         std::shared_ptr< Property > aProperty,
                         std::string                 aPropertyString,
-                        mtk::Master_Slave           aIsMaster = mtk::Master_Slave::MASTER )
-                {
-                    // check that aPropertyString makes sense
-                    MORIS_ERROR( mPropertyMap.find( aPropertyString ) != mPropertyMap.end(),
-                            "IWG_Spalart_Allmaras_Turbulence_Bulk::set_property - Unknown aPropertyString." );
-
-                    // check no slave allowed
-                    MORIS_ERROR( aIsMaster == mtk::Master_Slave::MASTER,
-                            "IWG_Spalart_Allmaras_Turbulence_Bulk::set_property - No slave allowed." );
-
-                    // set the property in the property cell
-                    this->get_properties( aIsMaster )( static_cast< uint >( mPropertyMap[ aPropertyString ] ) ) = aProperty;
-                }
-
-                //------------------------------------------------------------------------------
-                /**
-                 * set constitutive model
-                 * @param[ in ] aConstitutiveModel  a constitutive model pointer
-                 * @param[ in ] aConstitutiveString a string defining the constitutive model
-                 * @param[ in ] aIsMaster           an enum for master or slave
-                 */
-                void set_constitutive_model(
-                        std::shared_ptr< Constitutive_Model > aConstitutiveModel,
-                        std::string                           aConstitutiveString,
-                        mtk::Master_Slave                     aIsMaster = mtk::Master_Slave::MASTER )
-                {
-                    // check that aConstitutiveString makes sense
-                    MORIS_ERROR( mConstitutiveMap.find( aConstitutiveString ) != mConstitutiveMap.end(),
-                            "IWG_Spalart_Allmaras_Turbulence_Bulk::set_constitutive_model - Unknown aConstitutiveString." );
-
-                    // check no slave allowed
-                    MORIS_ERROR( aIsMaster == mtk::Master_Slave::MASTER,
-                            "IWG_Spalart_Allmaras_Turbulence_Bulk::set_constitutive_model - No slave allowed." );
-
-                    // set the constitutive model in the constitutive model cell
-                    this->get_constitutive_models( aIsMaster )( static_cast< uint >( mConstitutiveMap[ aConstitutiveString ] ) ) = aConstitutiveModel;
-                }
+                        mtk::Master_Slave           aIsMaster = mtk::Master_Slave::MASTER );
 
                 //------------------------------------------------------------------------------
                 /**
@@ -139,15 +96,7 @@ namespace moris
                  */
                 void set_stabilization_parameter(
                         std::shared_ptr< Stabilization_Parameter > aStabilizationParameter,
-                        std::string                                aStabilizationString )
-                {
-                    // check that aConstitutiveString makes sense
-                    MORIS_ERROR( mStabilizationMap.find( aStabilizationString ) != mStabilizationMap.end(),
-                            "IWG_Spalart_Allmaras_Turbulence_Bulk::set_stabilization_parameter - Unknown aStabilizationString." );
-
-                    // set the stabilization parameter in the stabilization parameter cell
-                    this->get_stabilization_parameters()( static_cast< uint >( mStabilizationMap[ aStabilizationString ] ) ) = aStabilizationParameter;
-                }
+                        std::string                                aStabilizationString );
 
                 //------------------------------------------------------------------------------
                 /**
@@ -193,7 +142,7 @@ namespace moris
                  * @param[ in ] aJ        a matrix to fill with dRdDof
                  */
                 void compute_jacobian_strong_form(
-                        moris::Cell< MSI::Dof_Type >   aDofTypes,
+                        moris::Cell< MSI::Dof_Type > & aDofTypes,
                         Matrix< DDRMat >             & aJ );
 
                 //------------------------------------------------------------------------------
@@ -211,7 +160,7 @@ namespace moris
                  * @param[ in ] adwijdu    a matrix to fill with dwijdu
                  */
                 void compute_ddivfluxdu(
-                        moris::Cell< MSI::Dof_Type >   aDofTypes,
+                        moris::Cell< MSI::Dof_Type > & aDofTypes,
                         Matrix< DDRMat >             & adDivFluxdu );
 
                 //------------------------------------------------------------------------------
@@ -229,7 +178,7 @@ namespace moris
                  * @param[ in ] adwijdu    a matrix to fill with dwijdu
                  */
                 void compute_dwijdu(
-                        moris::Cell< MSI::Dof_Type >   aDofTypes,
+                        moris::Cell< MSI::Dof_Type > & aDofTypes,
                         Matrix< DDRMat >             & adwijdu );
 
                 //------------------------------------------------------------------------------
@@ -247,7 +196,7 @@ namespace moris
                  * @param[ in ] adchidu    a matrix to fill with dchidu
                  */
                 void compute_dchidu(
-                        moris::Cell< MSI::Dof_Type >   aDofTypes,
+                        moris::Cell< MSI::Dof_Type > & aDofTypes,
                         Matrix< DDRMat >             & adchidu );
 
                 //------------------------------------------------------------------------------
@@ -265,7 +214,7 @@ namespace moris
                  * @param[ in ] adfv1du    a matrix to fill with dfv1du
                  */
                 void compute_dfv1du(
-                        moris::Cell< MSI::Dof_Type >   aDofTypes,
+                        moris::Cell< MSI::Dof_Type > & aDofTypes,
                         Matrix< DDRMat >             & adfv1du );
 
                 //------------------------------------------------------------------------------
@@ -283,7 +232,7 @@ namespace moris
                  * @param[ in ] adfv2du    a matrix to fill with dfv2du
                  */
                 void compute_dfv2du(
-                        moris::Cell< MSI::Dof_Type >   aDofTypes,
+                        moris::Cell< MSI::Dof_Type > & aDofTypes,
                         Matrix< DDRMat >             & adfv2du );
 
                 //------------------------------------------------------------------------------
@@ -301,8 +250,44 @@ namespace moris
                  * @param[ in ] adSBardu a matrix to fill with dSBardu
                  */
                 void compute_dsbardu(
-                        moris::Cell< MSI::Dof_Type >   aDofTypes,
+                        moris::Cell< MSI::Dof_Type > & aDofTypes,
                         Matrix< DDRMat >             & adsbardu );
+
+                //------------------------------------------------------------------------------
+                /**
+                 * compute S = viscosity * fv2 / ( kappa² * d² )
+                 * @param[ out ] S
+                 */
+                real compute_s();
+
+                //------------------------------------------------------------------------------
+                /**
+                 * compute the derivative of S wrt to a dof type
+                 * @param[ in ] aDofTypes  a list of dof type wrt which
+                 *                         the derivative is requested
+                 * @param[ in ] adSdu a matrix to fill with dSdu
+                 */
+                void compute_dsdu(
+                        moris::Cell< MSI::Dof_Type > & aDofTypes,
+                        Matrix< DDRMat >             & adsdu );
+
+                //------------------------------------------------------------------------------
+                /**
+                 * compute Smod =
+                 * @param[ out ] Smod
+                 */
+                real compute_smod();
+
+                //------------------------------------------------------------------------------
+                /**
+                 * compute the derivative of Smod wrt to a dof type
+                 * @param[ in ] aDofTypes  a list of dof type wrt which
+                 *                         the derivative is requested
+                 * @param[ in ] adSmoddu a matrix to fill with dSmoddu
+                 */
+                void compute_dsmoddu(
+                        moris::Cell< MSI::Dof_Type > & aDofTypes,
+                        Matrix< DDRMat >             & adsmoddu );
 
                 //------------------------------------------------------------------------------
                 /**
@@ -319,7 +304,7 @@ namespace moris
                  * @param[ in ] adSTildedu a matrix to fill with dSTildedu
                  */
                 void compute_dstildedu(
-                        moris::Cell< MSI::Dof_Type >   aDofTypes,
+                        moris::Cell< MSI::Dof_Type > & aDofTypes,
                         Matrix< DDRMat >             & adstildedu );
 
                 //------------------------------------------------------------------------------
@@ -337,7 +322,7 @@ namespace moris
                  * @param[ in ] adft2du a matrix to fill with dft2du
                  */
                 void compute_dft2du(
-                        moris::Cell< MSI::Dof_Type >   aDofTypes,
+                        moris::Cell< MSI::Dof_Type > & aDofTypes,
                         Matrix< DDRMat >          & adft2du );
 
                 //------------------------------------------------------------------------------
@@ -355,7 +340,7 @@ namespace moris
                  * @param[ in ] adrdu a matrix to fill with drdu
                  */
                 void compute_drdu(
-                        moris::Cell< MSI::Dof_Type >   aDofTypes,
+                        moris::Cell< MSI::Dof_Type > & aDofTypes,
                         Matrix< DDRMat >             & adrdu );
 
                 //------------------------------------------------------------------------------
@@ -373,7 +358,7 @@ namespace moris
                  * @param[ in ] adgdu a matrix to fill with dgdu
                  */
                 void compute_dgdu(
-                        moris::Cell< MSI::Dof_Type >   aDofTypes,
+                        moris::Cell< MSI::Dof_Type > & aDofTypes,
                         Matrix< DDRMat >             & adgdu );
 
                 //------------------------------------------------------------------------------
@@ -393,8 +378,8 @@ namespace moris
                  * @param[ in ] adfwdu a matrix to fill with dfwdu
                  */
                 void compute_dfwdu(
-                        moris::Cell< MSI::Dof_Type >   aDofTypes,
-                        Matrix< DDRMat >          & adfwdu );
+                        moris::Cell< MSI::Dof_Type > & aDofTypes,
+                        Matrix< DDRMat >             & adfwdu );
 
                 //------------------------------------------------------------------------------
         };

@@ -10,6 +10,7 @@
 #include "fn_inv.hpp"
 #include "op_div.hpp"
 #include "fn_diag_vec.hpp"
+#include "fn_isfinite.hpp"
 
 namespace moris
 {
@@ -55,7 +56,7 @@ namespace moris
                         {
                             mMasterDofVelocity = tDofType;
                         }
-                        if( tDofString == "Viscosity" )
+                        else if( tDofString == "Viscosity" )
                         {
                             mMasterDofViscosity = tDofType;
                         }
@@ -91,8 +92,10 @@ namespace moris
                 mtk::Master_Slave           aIsMaster )
         {
             // check that aPropertyString makes sense
-            MORIS_ERROR( mPropertyMap.find( aPropertyString ) != mPropertyMap.end(),
-                    "SP_SUPG_Spalart_Allmaras_Turbulence::set_property - Unknown aPropertyString." );
+            std::string tErrMsg =
+                    std::string( "SP_SUPG_Spalart_Allmaras_Turbulence::set_property - Unknown aPropertyString: " ) +
+                    aPropertyString;
+            MORIS_ERROR( mPropertyMap.find( aPropertyString ) != mPropertyMap.end(), tErrMsg.c_str() );
 
             // set the property in the property cell
             this->get_properties( aIsMaster )( static_cast< uint >( mPropertyMap[ aPropertyString ] ) ) = aProperty;
@@ -134,7 +137,7 @@ namespace moris
             std::shared_ptr< Property > tPropWallDistance =
                     mMasterProp( static_cast< uint >( Property_Type::WALL_DISTANCE ) );
 
-            // evaluate a = u - 1/sigma cb2 gradv
+            // evaluate a = u - cb2/sigma gradv
             Matrix< DDRMat > tA = tVelocityFI->val() - mCb2 * tViscosityFI->gradx( 1 ) / mSigma;
 
             // evaluate norm( a )
@@ -153,12 +156,16 @@ namespace moris
             // evaluate fw
             real tFw = this->compute_fw();
 
-            // evaluate s = cb1 * ( 1 -ft2 ) * stilde - ( cw1 * fw - cb1 * ft2 / kappa^2 ) * vtilde / d^2
-            real tS = mCb1 * ( 1 - tFt2 ) * tSTilde
-                    - ( mCw1 * tFw - mCb1 * tFt2 / std::pow( mKappa, 2.0 ) ) * tViscosityFI->val()( 0 ) / std::pow( tPropWallDistance->val()( 0 ), 2.0 );
+            // evaluate s = - cb1 * ( 1 -ft2 ) * stilde + ( cw1 * fw - cb1 * ft2 / kappa^2 ) * vtilde / d^2
+            real tS = - mCb1 * ( 1 - tFt2 ) * tSTilde +
+                    ( mCw1 * tFw - mCb1 * tFt2 / std::pow( mKappa, 2.0 ) ) *
+                    tViscosityFI->val()( 0 ) / std::pow( tPropWallDistance->val()( 0 ), 2.0 );
 
             // evaluate tau
-            real tTau = 2.0 * tNormA / mElementSize + tK / std::pow( mElementSize, 2.0 ) - tS;
+            real tTau =
+                    std::pow( 2.0 * tNormA / mElementSize, 2 ) +
+                    std::pow( 4 * tK / std::pow( mElementSize, 2.0 ), 2 ) +
+                    std::pow( tS, 2 );
 
             // set tau
             mPPVal = {{ std::pow( tTau, -0.5 ) }};
@@ -211,69 +218,78 @@ namespace moris
             Matrix< DDRMat > tdfwdu;
             this->compute_dfwdu( aDofTypes, tdfwdu );
 
+            // evaluate a = u - 1/sigma cb2 gradv
+            Matrix< DDRMat > tA = tVelocityFI->val() - mCb2 * tViscosityFI->gradx( 1 ) / mSigma;
+
+            // evaluate norm( a )
+            Matrix< DDRMat > tA2 = trans( tA ) * tA;
+            real tNormA = std::sqrt( tA2( 0 ) );
+
+            // tau A
+            real tTauA = 2.0 * tNormA / mElementSize;
+
+            // evaluate k = ( vtilde + v ) / sigma
+            real tK = ( tViscosityFI->val()( 0 ) + tPropViscosity->val()( 0 ) ) / mSigma;
+
+            // tau K
+            real tTauK = 4 * tK / std::pow( mElementSize, 2.0 );
+
+            // evaluate fw
+            real tFw = this->compute_fw();
+
+            // evaluate s = - cb1 * ( 1 -ft2 ) * stilde + ( cw1 * fw - cb1 * ft2 / kappa^2 ) * vtilde / d^2
+            real tS = - mCb1 * ( 1 - tFt2 ) * tSTilde +
+                    ( mCw1 * tFw - mCb1 * tFt2 / std::pow( mKappa, 2.0 ) ) *
+                    tViscosityFI->val()( 0 ) / std::pow( tPropWallDistance->val()( 0 ), 2.0 );
+
+            // init derivative of tauA, tauK, tauS
+            Matrix< DDRMat > tdtauAdu( 1, tFI->get_number_of_space_time_coefficients(), 0.0 );
+            Matrix< DDRMat > tdtauKdu( 1, tFI->get_number_of_space_time_coefficients(), 0.0 );
+            Matrix< DDRMat > tdtauSdu( 1, tFI->get_number_of_space_time_coefficients(), 0.0 );
+
             // if dof type is velocity
             if( aDofTypes( 0 ) == mMasterDofVelocity )
             {
-                // evaluate a = u - 1/sigma cb2 gradv
-                Matrix< DDRMat > tA = tVelocityFI->val() - mCb2 * tViscosityFI->gradx( 1 ) / mSigma;
-
-                // evaluate norm( a )
-                Matrix< DDRMat > tA2 = trans( tA ) * tA;
-                real tNormA = std::sqrt( tA2( 0 ) );
-
-                // evaluate dadu
-                Matrix< DDRMat > tdadu = tVelocityFI->N();
-
                 // add contribution to dSPdu
-                mdPPdMasterDof( tDofIndex ).matrix_data() +=
-                        2.0 * trans( tA ) * tdadu / ( mElementSize * tNormA );
+                tdtauAdu.matrix_data() +=
+                        2.0 * trans( tA ) * tVelocityFI->N() / ( mElementSize * tNormA );
             }
 
             // if dof type is velocity
             if( aDofTypes( 0 ) == mMasterDofViscosity )
             {
-                // evaluate a = u - 1/sigma cb2 gradv
-                Matrix< DDRMat > tA = tVelocityFI->val() - mCb2 * tViscosityFI->gradx( 1 ) / mSigma;
-
-                // evaluate norm( a )
-                Matrix< DDRMat > tA2 = trans( tA ) * tA;
-                real tNormA = std::sqrt( tA2( 0 ) );
-
                 // evaluate dadu
-                Matrix< DDRMat > tdadu = - mCb2 * tViscosityFI->dnNdxn( 1 ) / mSigma;
+                tdtauAdu.matrix_data() -=
+                        2.0 * trans( tA ) * ( mCb2 * tViscosityFI->dnNdxn( 1 ) / mSigma ) / ( mElementSize * tNormA );
 
                 // evaluate dkdu
-                Matrix< DDRMat > tdkdu = tViscosityFI->N() / ( std::pow( mElementSize, 2.0 ) * mSigma );
-
-                // evaluate fw
-                real tFw = this->compute_fw();
+                tdtauKdu.matrix_data() +=
+                        4.0 * tViscosityFI->N() / ( std::pow( mElementSize, 2.0 ) * mSigma );
 
                 // evaluate dsdu
-                Matrix< DDRMat > tdsdu = - ( mCw1 * tFw - mCb1 * tFt2 / std::pow( mKappa, 2.0 ) ) * tViscosityFI->N() / std::pow( tPropWallDistance->val()( 0 ), 2.0 );
-
-                // add contribution to dSPdu
-                mdPPdMasterDof( tDofIndex ).matrix_data() +=
-                        2.0 * trans( tA ) * tdadu / ( mElementSize * tNormA ) + tdkdu - tdsdu;
+                tdtauSdu.matrix_data() +=
+                        ( mCw1 * tFw - mCb1 * tFt2 / std::pow( mKappa, 2.0 ) ) * tViscosityFI->N() / std::pow( tPropWallDistance->val()( 0 ), 2.0 );
             }
 
             if( tPropViscosity->check_dof_dependency( aDofTypes ) )
             {
                 // add contribution to dSPdu
-                mdPPdMasterDof( tDofIndex ).matrix_data() +=
-                        tPropViscosity->dPropdDOF( aDofTypes ) / ( std::pow( mElementSize, 2.0 ) * mSigma );
+                tdtauKdu.matrix_data() +=
+                        4.0 * tPropViscosity->dPropdDOF( aDofTypes ) / ( std::pow( mElementSize, 2.0 ) * mSigma );
             }
 
             // add contribution from s
-            mdPPdMasterDof( tDofIndex ).matrix_data() -=
-                     mCb1 * ( - tSTilde * tdft2du + ( 1 - tFt2 ) * tdstildedu )
-                    - mCw1 * tViscosityFI->val()( 0 ) * tdfwdu / std::pow( tPropWallDistance->val()( 0 ), 2.0 )
-                    + mCb1 * tViscosityFI->val()( 0 ) * tdft2du / std::pow( mKappa * tPropWallDistance->val()( 0 ), 2.0 );
+            tdtauSdu.matrix_data() +=
+                    mCb1 * ( tSTilde * tdft2du - ( 1 - tFt2 ) * tdstildedu ) +
+                    ( mCw1 * tdfwdu - mCb1 * tdft2du / std::pow( mKappa, 2 ) ) *
+                    tViscosityFI->val()( 0 ) / std::pow( tPropWallDistance->val()( 0 ), 2.0 );
 
             // evaluate tau
             Matrix< DDRMat > tTau = this->val();
 
             // scale dSPdu
-            mdPPdMasterDof( tDofIndex ) = - 0.5 * std::pow( tTau( 0 ), 3 ) * mdPPdMasterDof( tDofIndex );
+            mdPPdMasterDof( tDofIndex ) = - 0.5 * std::pow( tTau( 0 ), 3 ) *
+                    ( 2.0 * tTauA * tdtauAdu + 2.0 * tTauK * tdtauKdu + 2.0 * tS * tdtauSdu );
         }
 
         //------------------------------------------------------------------------------
@@ -321,8 +337,8 @@ namespace moris
 
         //------------------------------------------------------------------------------
         void SP_SUPG_Spalart_Allmaras_Turbulence::compute_dwijdu(
-                moris::Cell< MSI::Dof_Type >   aDofTypes,
-                Matrix< DDRMat >             & adwijdu )
+                const moris::Cell< MSI::Dof_Type > & aDofTypes,
+                Matrix< DDRMat >                   & adwijdu )
         {
             // get the der FI
             Field_Interpolator * tFIDer =
@@ -414,8 +430,8 @@ namespace moris
 
         //------------------------------------------------------------------------------
         void SP_SUPG_Spalart_Allmaras_Turbulence::compute_dsbardu(
-                moris::Cell< MSI::Dof_Type >   aDofTypes,
-                Matrix< DDRMat >             & adsbardu )
+                const moris::Cell< MSI::Dof_Type > & aDofTypes,
+                Matrix< DDRMat >                   & adsbardu )
         {
             // compute sbar
             real tSBar = this->compute_sbar();
@@ -430,6 +446,15 @@ namespace moris
 
             // compute dsbardu
             adsbardu = 2.0 * trans( tWij ) * tdWijdu / tSBar;
+
+            // fixme
+            if( !isfinite( adsbardu ) )
+            {
+                // get the derivative dof FIs
+                Field_Interpolator * tDerFI = mMasterFIManager->get_field_interpolators_for_type( aDofTypes( 0 ) );
+                // std::cout<<"SP_SUPG_Spalart_Allmaras_Turbulence::compute_dsbardu - inf or nan in adsbardu."<<std::endl;
+                adsbardu.set_size( 1, tDerFI->get_number_of_space_time_coefficients(), 0.0 );
+            }
         }
 
         //------------------------------------------------------------------------------
@@ -451,8 +476,8 @@ namespace moris
 
         //------------------------------------------------------------------------------
         void SP_SUPG_Spalart_Allmaras_Turbulence::compute_dchidu(
-                moris::Cell< MSI::Dof_Type >   aDofTypes,
-                Matrix< DDRMat >             & adchidu )
+                const moris::Cell< MSI::Dof_Type > & aDofTypes,
+                Matrix< DDRMat >                   & adchidu )
         {
             // get the derivative dof FIs
             Field_Interpolator * tDerFI =
@@ -499,8 +524,8 @@ namespace moris
 
         //------------------------------------------------------------------------------
         void SP_SUPG_Spalart_Allmaras_Turbulence::compute_dfv1du(
-                moris::Cell< MSI::Dof_Type >   aDofTypes,
-                Matrix< DDRMat >             & adfv1du )
+                const moris::Cell< MSI::Dof_Type > & aDofTypes,
+                Matrix< DDRMat >                   & adfv1du )
         {
             // compute chi
             real tChi = this->compute_chi();
@@ -523,15 +548,15 @@ namespace moris
             real tFv1 = this->compute_fv1();
 
             // compute fv2
-            real tFv2 = 1.0 - tChi / ( 1 + tChi * tFv1 );
+            real tFv2 = 1.0 - tChi / ( 1.0 + tChi * tFv1 );
 
             return tFv2;
         }
 
         //------------------------------------------------------------------------------
         void SP_SUPG_Spalart_Allmaras_Turbulence::compute_dfv2du(
-                moris::Cell< MSI::Dof_Type >   aDofTypes,
-                Matrix< DDRMat >             & adfv2du )
+                const moris::Cell< MSI::Dof_Type > & aDofTypes,
+                Matrix< DDRMat >                   & adfv2du )
         {
             // compute chi
             real tChi = this->compute_chi();
@@ -552,9 +577,9 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
-        real SP_SUPG_Spalart_Allmaras_Turbulence::compute_stilde()
+        real SP_SUPG_Spalart_Allmaras_Turbulence::compute_s()
         {
-            // get the viscosity FI
+            // get the residual dof FI (here viscosity)
             Field_Interpolator * tFIViscosity =
                     mMasterFIManager->get_field_interpolators_for_type( mMasterDofViscosity );
 
@@ -562,29 +587,25 @@ namespace moris
             std::shared_ptr< Property > tPropWallDistance =
                     mMasterProp( static_cast< uint >( Property_Type::WALL_DISTANCE ) );
 
-            // compute SBar
-            real tSBar = this->compute_sbar();
-
             // compute fv2
             real tFv2 = this->compute_fv2();
 
-            // compute stilde
-            real tStilde = tSBar + tFv2 * tFIViscosity->val()( 0 ) / std::pow( mKappa * tPropWallDistance->val()( 0 ), 2.0 );
+            // compute s
+            real tS = tFv2 * tFIViscosity->val()( 0 ) / std::pow( mKappa * tPropWallDistance->val()( 0 ), 2.0 );
 
-            return tStilde;
+            return tS;
         }
 
         //------------------------------------------------------------------------------
-        void SP_SUPG_Spalart_Allmaras_Turbulence::compute_dstildedu(
-                moris::Cell< MSI::Dof_Type >   aDofTypes,
-                Matrix< DDRMat >             & adstildedu )
+        void SP_SUPG_Spalart_Allmaras_Turbulence::compute_dsdu(
+                const moris::Cell< MSI::Dof_Type > & aDofTypes,
+                Matrix< DDRMat >                   & adsdu )
         {
             // get the derivative dof FIs
-            Field_Interpolator * tDerFI =
-                    mMasterFIManager->get_field_interpolators_for_type( aDofTypes( 0 ) );
+            Field_Interpolator * tFIDer = mMasterFIManager->get_field_interpolators_for_type( aDofTypes( 0 ) );
 
             // init adSTildedu
-            adstildedu.set_size( 1, tDerFI->get_number_of_space_time_coefficients(), 0.0 );
+            adsdu.set_size( 1, tFIDer->get_number_of_space_time_coefficients(), 0.0 );
 
             // get the residual dof FI (here viscosity)
             Field_Interpolator * tFIViscosity =
@@ -594,10 +615,6 @@ namespace moris
             std::shared_ptr< Property > tPropWallDistance =
                     mMasterProp( static_cast< uint >( Property_Type::WALL_DISTANCE ) );
 
-            // compute dSBardu
-            Matrix< DDRMat > tdSBardu;
-            this->compute_dsbardu( aDofTypes, tdSBardu );
-
             // compute fv2
             real tFv2 = this->compute_fv2();
 
@@ -606,16 +623,130 @@ namespace moris
             this->compute_dfv2du( aDofTypes, tdfv2du );
 
             // compute dstildedu
-            adstildedu.matrix_data() += tdSBardu + tFIViscosity->val() * tdfv2du / std::pow( mKappa * tPropWallDistance->val()( 0 ), 2.0 );
+            adsdu.matrix_data() += tFIViscosity->val() * tdfv2du / std::pow( mKappa * tPropWallDistance->val()( 0 ), 2.0 );
 
             // if dof type is residual dof type
             if( aDofTypes( 0 ) == mMasterDofViscosity )
             {
                 // add contribution
-                adstildedu.matrix_data() += tFv2 * tDerFI->N() / std::pow( mKappa * tPropWallDistance->val()( 0 ), 2.0 );
+                adsdu.matrix_data() +=
+                        tFv2 * tFIDer->N() / std::pow( mKappa * tPropWallDistance->val()( 0 ), 2.0 );
             }
         }
 
+        //------------------------------------------------------------------------------
+        real SP_SUPG_Spalart_Allmaras_Turbulence::compute_smod()
+        {
+            // compute Sbar
+            real tSBar = this->compute_sbar();
+
+            // compute S
+            real tS = this->compute_s();
+
+            // compute s
+            real tSMod = tSBar * ( std::pow( mCv2, 2 ) * tSBar + mCv3 * tS ) /
+                    ( ( mCv3 - 2.0 * mCv2 ) * tSBar - tS );
+
+            return tSMod;
+        }
+
+        //------------------------------------------------------------------------------
+        void SP_SUPG_Spalart_Allmaras_Turbulence::compute_dsmoddu(
+                const moris::Cell< MSI::Dof_Type > & aDofTypes,
+                Matrix< DDRMat >                   & adsmoddu )
+        {
+            // compute Sbar
+            real tSBar = this->compute_sbar();
+
+            // compute dsbardu
+            Matrix< DDRMat > tdsbardu;
+            this->compute_dsbardu( aDofTypes, tdsbardu );
+
+            // compute S
+            real tS = this->compute_s();
+
+            // compute dsdu
+            Matrix< DDRMat > tdsdu;
+            this->compute_dsdu( aDofTypes, tdsdu );
+
+            // compute smod num
+            real tSModNum = tSBar * ( std::pow( mCv2, 2 ) * tSBar + mCv3 * tS );
+
+            // compute smod deno
+            real tSModDeno = ( mCv3 - 2.0 * mCv2 ) * tSBar - tS;
+
+            // compute dsmoddu
+            adsmoddu = ( ( tdsbardu * ( std::pow( mCv2, 2 ) * tSBar + mCv3 * tS ) +
+                    tSBar * ( std::pow( mCv2, 2 ) * tdsbardu + mCv3 * tdsdu ) ) * tSModDeno -
+                    tSModNum * ( ( mCv3 - 2.0 * mCv2 ) * tdsbardu - tdsdu ) ) /
+                    std::pow( tSModDeno, 2 );
+        }
+
+        //------------------------------------------------------------------------------
+        real SP_SUPG_Spalart_Allmaras_Turbulence::compute_stilde()
+        {
+            // compute SBar
+            real tSBar = this->compute_sbar();
+
+            // compute S
+            real tS = this->compute_s();
+
+            // init stilde
+            real tSTilde = tSBar;
+
+            // compute STilde
+            if( tS >= - mCv2 * tSBar )
+            {
+                tSTilde += tS;
+            }
+            else
+            {
+                // compute sMod
+                tSTilde += this->compute_smod();
+            }
+
+            // return STilde
+            return tSTilde;
+        }
+
+        //------------------------------------------------------------------------------
+        void SP_SUPG_Spalart_Allmaras_Turbulence::compute_dstildedu(
+                const moris::Cell< MSI::Dof_Type > & aDofTypes,
+                Matrix< DDRMat >                   & adstildedu )
+        {
+            // compute SBar
+            real tSBar = this->compute_sbar();
+
+            // compute dSBardu
+            Matrix< DDRMat > tdSBardu;
+            this->compute_dsbardu( aDofTypes, tdSBardu );
+
+            // compute S
+            real tS = this->compute_s();
+
+            // init dstildedu
+            adstildedu = tdSBardu;
+
+            // compute dstildedu
+            if( tS >= - mCv2 * tSBar )
+            {
+                // compute dSdu
+                Matrix< DDRMat > tdSdu;
+                this->compute_dsdu( aDofTypes, tdSdu );
+
+                // add dsdu
+                adstildedu.matrix_data() += tdSdu.matrix_data();
+            }
+            else
+            {
+                // compute dSModdu
+                Matrix< DDRMat > tdSModdu;
+                this->compute_dsmoddu( aDofTypes, tdSModdu );
+
+                // add dsmoddu
+                adstildedu.matrix_data() += tdSModdu.matrix_data();
+            }
+        }
         //------------------------------------------------------------------------------
         real SP_SUPG_Spalart_Allmaras_Turbulence::compute_ft2()
         {
@@ -630,8 +761,8 @@ namespace moris
 
         //------------------------------------------------------------------------------
         void SP_SUPG_Spalart_Allmaras_Turbulence::compute_dft2du(
-                moris::Cell< MSI::Dof_Type >   aDofTypes,
-                Matrix< DDRMat >             & adft2du )
+                const moris::Cell< MSI::Dof_Type > & aDofTypes,
+                Matrix< DDRMat >                   & adft2du )
         {
             // compute ft2
             real tFt2 = this->compute_ft2();
@@ -665,7 +796,8 @@ namespace moris
             real tR = tFIViscosity->val()( 0 ) / ( tSTilde * std::pow( mKappa * tPropWallDistance->val()( 0 ), 2.0 ) );
 
             // compute r
-            if ( tR > 10.0 )
+            Matrix< DDRMat > tRMatrix = {{ tR }};
+            if ( ( tR > 10.0 ) || !( isfinite( tRMatrix ) ) )
             {
                 tR = 10.0;
             }
@@ -675,8 +807,8 @@ namespace moris
 
         //------------------------------------------------------------------------------
         void SP_SUPG_Spalart_Allmaras_Turbulence::compute_drdu(
-                moris::Cell< MSI::Dof_Type >   aDofTypes,
-                Matrix< DDRMat >             & adrdu )
+                const moris::Cell< MSI::Dof_Type > & aDofTypes,
+                Matrix< DDRMat >                   & adrdu )
         {
             // get the derivative dof FIs
             Field_Interpolator * tDerFI =
@@ -734,8 +866,8 @@ namespace moris
 
         //------------------------------------------------------------------------------
         void SP_SUPG_Spalart_Allmaras_Turbulence::compute_dgdu(
-                moris::Cell< MSI::Dof_Type >   aDofTypes,
-                Matrix< DDRMat >             & adgdu )
+                const moris::Cell< MSI::Dof_Type > & aDofTypes,
+                Matrix< DDRMat >                   & adgdu )
         {
             // compute r
             real tR = this->compute_r();
@@ -763,8 +895,8 @@ namespace moris
 
         //------------------------------------------------------------------------------
         void SP_SUPG_Spalart_Allmaras_Turbulence::compute_dfwdu(
-                moris::Cell< MSI::Dof_Type >   aDofTypes,
-                Matrix< DDRMat >             & adfwdu )
+                const moris::Cell< MSI::Dof_Type > & aDofTypes,
+                Matrix< DDRMat >                   & adfwdu )
         {
             // compute g
             real tG = this->compute_g();
