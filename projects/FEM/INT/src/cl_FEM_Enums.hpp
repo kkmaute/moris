@@ -194,6 +194,7 @@ namespace moris
             VELOCITY_DIRICHLET_NITSCHE,
             SUPG_ADVECTION,
             SUPG_SPALART_ALLMARAS_TURBULENCE,
+            TURBULENCE_DIRICHLET_NITSCHE,
             END_STABILIZATION_TYPE
         };
 

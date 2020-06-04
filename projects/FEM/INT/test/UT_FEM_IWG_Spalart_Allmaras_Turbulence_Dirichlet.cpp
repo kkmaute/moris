@@ -60,7 +60,7 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Dirichlet", "[IWG_Spalart_Allmaras_T
     real tEpsilon = 1E-3;
 
     // define a perturbation relative size
-    real tPerturbation = 1E-4;
+    real tPerturbation = 1E-6;
 
     // loop on the space dimension
     for( uint iSpaceDim = 2; iSpaceDim < 4; iSpaceDim++ )
@@ -106,7 +106,7 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Dirichlet", "[IWG_Spalart_Allmaras_T
                tNumCoeffs = {{ 8 },{ 18 },{ 32 }};
 
                // set the normal
-               tNormal = {{ 1.0 }, { 0.0 }};
+               tNormal = {{ 0.8 }, { -0.25 }};
 
                break;
             }
@@ -132,7 +132,7 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Dirichlet", "[IWG_Spalart_Allmaras_T
                 tNumCoeffs = {{ 16 },{ 54 },{ 128 }};
 
                 // set the normal
-                tNormal = {{ 1.0 }, { 0.0 }, { 0.0 }};
+                tNormal = {{ 0.8 }, { -0.25 }, { 0.12 }};
 
                 break;
             }
@@ -261,9 +261,10 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Dirichlet", "[IWG_Spalart_Allmaras_T
             fem::SP_Factory tSPFactory;
 
             std::shared_ptr< fem::Stabilization_Parameter > tSPNitsche =
-                    tSPFactory.create_SP( fem::Stabilization_Type::DIRICHLET_NITSCHE );
+                    tSPFactory.create_SP( fem::Stabilization_Type::TURBULENCE_DIRICHLET_NITSCHE );
             tSPNitsche->set_parameters( { {{ 1.0 }} } );
-            tSPNitsche->set_property( tPropViscosity, "Material", mtk::Master_Slave::MASTER );
+            tSPNitsche->set_dof_type_list( { tVisDofTypes }, mtk::Master_Slave::MASTER );
+            tSPNitsche->set_property( tPropViscosity, "Viscosity", mtk::Master_Slave::MASTER );
 
             // define the IWGs
             fem::IWG_Factory tIWGFactory;
