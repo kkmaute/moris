@@ -83,7 +83,7 @@ TEST_CASE( "IWG_Advection_Bulk_2D", "[IWG_Advection_Bulk_2D]" )
     tCMDiffusion->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
     tCMDiffusion->set_property( tPropConductivity, "Conductivity" );
     tCMDiffusion->set_property( tPropDensity, "Density" );
-    tCMDiffusion->set_property( tPropHeatCapacity, "Heat_Capacity" );
+    tCMDiffusion->set_property( tPropHeatCapacity, "HeatCapacity" );
     tCMDiffusion->set_space_dim( 2 );
 
 
@@ -290,7 +290,7 @@ TEST_CASE( "IWG_Advection_Bulk_3D", "[IWG_Advection_Bulk_3D]" )
     tCMDiffusion->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
     tCMDiffusion->set_property( tPropConductivity, "Conductivity" );
     tCMDiffusion->set_property( tPropDensity, "Density" );
-    tCMDiffusion->set_property( tPropHeatCapacity, "Heat_Capacity" );
+    tCMDiffusion->set_property( tPropHeatCapacity, "HeatCapacity" );
     tCMDiffusion->set_space_dim( 3 );
 
     // define stabilization parameters

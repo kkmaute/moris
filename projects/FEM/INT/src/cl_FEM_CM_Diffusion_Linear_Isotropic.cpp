@@ -20,9 +20,9 @@ namespace moris
             mProperties.resize( static_cast< uint >( Property_Type::MAX_ENUM ), nullptr );
 
             // populate the property map
-            mPropertyMap[ "Conductivity" ]  = Property_Type::CONDUCTIVITY;
-            mPropertyMap[ "Density" ]       = Property_Type::DENSITY;
-            mPropertyMap[ "Heat_Capacity" ] = Property_Type::HEAT_CAPACITY;
+            mPropertyMap[ "Conductivity" ] = Property_Type::CONDUCTIVITY;
+            mPropertyMap[ "Density" ]      = Property_Type::DENSITY;
+            mPropertyMap[ "HeatCapacity" ] = Property_Type::HEAT_CAPACITY;
         }
 
         //------------------------------------------------------------------------------
@@ -43,7 +43,7 @@ namespace moris
                 MSI::Dof_Type tDofType = aDofTypes( iDof )( 0 );
 
                 // if temperature dof type string
-                if( tDofString == "Temp" )
+                if( tDofString == "Temperature" )
                 {
                     mTempDof = tDofType;
                 }
