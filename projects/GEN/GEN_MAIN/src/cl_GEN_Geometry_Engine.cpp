@@ -310,7 +310,6 @@ namespace moris
         
                     mNodePhaseVals(i+tNumCurrNodes,j) = tLevelSetValues(0,0);
                 }
-        
             }
         }
 
@@ -375,6 +374,8 @@ namespace moris
                                                                  moris_index                aGeomIndex,
                                                                  bool               const   aGlbCoord )
         {
+            mInterfaceNodeIndices = aInterfaceNodeIndices;
+
             // Figure out how many entities to compute sensitivity for
             uint tNumEntities = aInterfaceNodeIndices.numel();
         
@@ -420,12 +421,11 @@ namespace moris
         
                 // FIXME: Parent edge nodes need to not be the ADVs
                 Matrix< IndexMat > tADVIndices;
-        
                 compute_dx_dp_for_an_intersection( tParentEntityNodes, aNodeCoords, tIntersectLocalCoordinate, tEntityNodeVars, tDxDp, tADVIndices );
         
                 tGeoObj.set_sensitivity_dx_dp( tDxDp );
-                tGeoObj.set_node_adv_indices( tParentEntityNodes );
-              }
+                tGeoObj.set_node_adv_indices(tADVIndices);
+            }
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -564,22 +564,6 @@ namespace moris
                         aIntersectionLclCoordinate, aEntityNodeIndices, aEntityNodeVars, aDxDp );
             }
         }
-
-        //--------------------------------------------------------------------------------------------------------------
-        
-//        GEN_Geometry_Object &
-//        Geometry_Engine::get_geometry_object(moris::size_t const & aNodeIndex)
-//        {
-//           return mGeometryObjectManager.get_geometry_object_from_manager(aNodeIndex);
-//        }
-//
-//        //--------------------------------------------------------------------------------------------------------------
-//
-//        GEN_Geometry_Object const &
-//        Geometry_Engine::get_geometry_object(moris::size_t const & aNodeIndex) const
-//        {
-//           return mGeometryObjectManager.get_geometry_object_from_manager(aNodeIndex);
-//        }
 
         //--------------------------------------------------------------------------------------------------------------
         
@@ -953,8 +937,6 @@ namespace moris
                 tIsIntersected = true;
             }
         
-        //        MORIS_ASSERT(tMax != mThresholdValue && tMin != mThresholdValue, "Threshold levelset value at all nodes! There is no handling of this inside XTK currently.");
-        
             else if((tMax > mThresholdValue) &&
                (tMin < mThresholdValue))
             {
@@ -1204,7 +1186,7 @@ namespace moris
                 }
                 default:
                 {
-                    MORIS_ERROR( false,"Geometry_Engine::initialize_integ_pdv_host_list() - Geometry Engine only works for 2D and 3D models." );
+                    MORIS_ERROR( false, "Geometry_Engine::initialize_integ_pdv_host_list() - Geometry Engine only works for 2D and 3D models." );
                 }
             }
 
@@ -1223,19 +1205,36 @@ namespace moris
             // Create hosts
             mPdvHostManager.create_ig_pdv_hosts(tNumNodes, tNodeIndicesPerSet, tPdvTypes);
 
-            // Assign PDVs
+            // Assign PDVs to all nodes with coordinate values
             Matrix<F31RMat> tCoordinates;
-            for(uint tNodeIndex = 0; tNodeIndex < tNumNodes; tNodeIndex++)
+            for (uint tNodeIndex = 0; tNodeIndex < tNumNodes; tNodeIndex++)
             {
                 // Get coordinates
                 tCoordinates = tIntegrationMesh->get_node_coordinate(tNodeIndex);
 
-                // Create PDVs
                 mPdvHostManager.create_ig_pdv(tNodeIndex, PDV_Type::X_COORDINATE, tCoordinates(0));
                 mPdvHostManager.create_ig_pdv(tNodeIndex, PDV_Type::Y_COORDINATE, tCoordinates(1));
                 if (mSpatialDim == 3)
                 {
                     mPdvHostManager.create_ig_pdv(tNodeIndex, PDV_Type::Z_COORDINATE, tCoordinates(2));
+                }
+
+            }
+
+            // Assign interface PDVs
+            for (uint tInterfaceIndex = 0; tInterfaceIndex < mInterfaceNodeIndices.length(); tInterfaceIndex++)
+            {
+                // Get node index
+                uint tNodeIndex = mInterfaceNodeIndices(tInterfaceIndex);
+
+                // Get geometry object
+                GEN_Geometry_Object* tGeometryObject = mGeometryObjectManager.get_geometry_object(tNodeIndex);
+
+                mPdvHostManager.create_ig_pdv(tNodeIndex, PDV_Type::X_COORDINATE, tGeometryObject, 0);
+                mPdvHostManager.create_ig_pdv(tNodeIndex, PDV_Type::Y_COORDINATE, tGeometryObject, 1);
+                if (mSpatialDim == 3)
+                {
+                    mPdvHostManager.create_ig_pdv(tNodeIndex, PDV_Type::Z_COORDINATE, tGeometryObject, 2);
                 }
             }
         }

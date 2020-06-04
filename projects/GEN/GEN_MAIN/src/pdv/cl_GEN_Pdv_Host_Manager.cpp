@@ -448,11 +448,23 @@ namespace moris
             Matrix<DDRMat> tHostAdvSensitivities(0, 0);
 
             // Need to know the size of the sensitivities
+            uint tFirstPdvHostIndex = 0;
             if (mIpPdvHosts.size() > 0)
             {
-                mIpPdvHosts(0)->get_all_sensitivities(tHostAdvSensitivities);
-                tTotalAdvSensitivities.resize(mGlobalPdvIndex, tHostAdvSensitivities.n_cols());
+                while (tHostAdvSensitivities.numel() == 0)
+                {
+                    mIpPdvHosts(tFirstPdvHostIndex++)->get_all_sensitivities(tHostAdvSensitivities);
+
+                }
             }
+            else if (mIgPdvHosts.size() > 0)
+            {
+                while (tHostAdvSensitivities.numel() == 0)
+                {
+                    mIgPdvHosts(tFirstPdvHostIndex++)->get_all_sensitivities(tHostAdvSensitivities);
+                }
+            }
+            tTotalAdvSensitivities.resize(mGlobalPdvIndex, tHostAdvSensitivities.n_cols());
 
             // Loop over PDV hosts
             for (uint tPdvHostIndex = 0; tPdvHostIndex < mIpPdvHosts.size(); tPdvHostIndex++)
@@ -467,7 +479,18 @@ namespace moris
                     tTotalAdvSensitivities.set_row(tHostPdvIndices(tRowIndex), tHostAdvSensitivities.get_row(tRowIndex));
                 }
             }
+            for (uint tPdvHostIndex = 0; tPdvHostIndex < mIgPdvHosts.size(); tPdvHostIndex++)
+            {
+                // Get sensitivities
+                mIgPdvHosts(tPdvHostIndex)->get_all_sensitivities(tHostAdvSensitivities);
+                const Matrix<DDUMat>& tHostPdvIndices = mIgPdvHosts(tPdvHostIndex)->get_all_global_indices();
 
+                // Add to total matrix
+                for (uint tRowIndex = 0; tRowIndex < tHostAdvSensitivities.n_rows(); tRowIndex++)
+                {
+                    tTotalAdvSensitivities.set_row(tHostPdvIndices(tRowIndex), tHostAdvSensitivities.get_row(tRowIndex));
+                }
+            }
             return tTotalAdvSensitivities;
         }
 

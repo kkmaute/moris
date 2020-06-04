@@ -24,7 +24,7 @@ namespace moris
 
         void Pdv_Intersection::get_sensitivity(uint aNodeIndex, const Matrix<DDRMat>& aCoordinates, Matrix<DDRMat>& aSensitivities)
         {
-            aSensitivities = mIntersection->get_sensitivity_dx_dp();
+            aSensitivities = mIntersection->get_sensitivity_dx_dp().get_row(mDimension);
         }
 
         //--------------------------------------------------------------------------------------------------------------

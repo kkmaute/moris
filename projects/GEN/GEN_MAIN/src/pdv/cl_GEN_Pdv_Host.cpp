@@ -142,15 +142,19 @@ namespace moris
 
         void Pdv_Host::get_all_sensitivities(Matrix<DDRMat>& aSensitivities)
         {
+            aSensitivities.resize(0, aSensitivities.n_cols());
             if (mPdvs.size() > 0)
             {
-                mPdvs(0)->get_sensitivity(mNodeIndex, mCoordinates, aSensitivities);
-                aSensitivities.resize(mPdvs.size(), aSensitivities.n_cols());
+                uint tActivePdvIndex = 0;
                 Matrix<DDRMat> tSensitivities(0, 0);
                 for (uint tPdvIndex = 0; tPdvIndex < mPdvs.size(); tPdvIndex++)
                 {
-                    mPdvs(tPdvIndex)->get_sensitivity(mNodeIndex, mCoordinates, tSensitivities);
-                    aSensitivities.set_row(tPdvIndex, tSensitivities);
+                    if (mPdvs(tPdvIndex)->mIsActive)
+                    {
+                        mPdvs(tPdvIndex)->get_sensitivity(mNodeIndex, mCoordinates, tSensitivities);
+                        aSensitivities.resize(tActivePdvIndex + 1, tSensitivities.length());
+                        aSensitivities.set_row(tActivePdvIndex++, tSensitivities);
+                    }
                 }
             }
         }
