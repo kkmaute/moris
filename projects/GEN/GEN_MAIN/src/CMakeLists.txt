@@ -98,6 +98,7 @@ endforeach()
 set(LIB_SOURCES
 
 	cl_GEN_Geometry_Engine.cpp
+	cl_GEN_Geometry_Object_Manager.cpp
 	cl_GEN_Geometry_Object.cpp
 	cl_GEN_Phase_Table.cpp
 	cl_GEN_Field_Base.cpp
