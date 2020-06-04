@@ -36,6 +36,7 @@ namespace moris
                 GRAVITY,
                 THERMAL_EXPANSION,
                 REF_TEMP,
+                MASS_SOURCE,
                 MAX_ENUM
             };
 

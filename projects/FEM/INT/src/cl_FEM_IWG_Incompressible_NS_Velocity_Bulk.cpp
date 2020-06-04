@@ -24,6 +24,7 @@ namespace moris
             mPropertyMap[ "ThermalExpansion" ] = IWG_Property_Type::THERMAL_EXPANSION;
             mPropertyMap[ "ReferenceTemp" ]    = IWG_Property_Type::REF_TEMP;
             mPropertyMap[ "InvPermeability" ]  = IWG_Property_Type::INV_PERMEABILITY;
+            mPropertyMap[ "MassSource" ]       = IWG_Property_Type::MASS_SOURCE;
 
             // set size for the constitutive model pointer cell
             mMasterCM.resize( static_cast< uint >( IWG_Constitutive_Type::MAX_ENUM ), nullptr );
@@ -257,7 +258,7 @@ namespace moris
             std::shared_ptr< Property > tRefTempProp    =
                     mMasterProp( static_cast< uint >( IWG_Property_Type::REF_TEMP ) );
 
-            // get the inverted permeability (porosity) property
+            // get the inverted permeability property
             std::shared_ptr< Property > tInvPermeabProp   =
                     mMasterProp( static_cast< uint >( IWG_Property_Type::INV_PERMEABILITY ) );
 
@@ -572,6 +573,8 @@ namespace moris
                     mMasterProp( static_cast< uint >( IWG_Property_Type::REF_TEMP ) );
             std::shared_ptr< Property > tInvPermeabProp   =
                     mMasterProp( static_cast< uint >( IWG_Property_Type::INV_PERMEABILITY ) );
+            std::shared_ptr< Property > tMassSourceProp   =
+                    mMasterProp( static_cast< uint >( IWG_Property_Type::INV_PERMEABILITY ) );
 
             // get the incompressible fluid constitutive model
             std::shared_ptr< Constitutive_Model > tIncFluidCM =
@@ -595,6 +598,13 @@ namespace moris
                     tIncFluidCM->divflux();
 
             aRC = tVelocityFI->div();
+
+            // if mass source
+            if ( tMassSourceProp != nullptr )
+            {
+                // add mass source to continuity eqn residual
+                aRC +=  1/tDensity * tMassSourceProp->val()(0) ;
+            }
 
             // if permeability
             if ( tInvPermeabProp != nullptr )
@@ -660,6 +670,8 @@ namespace moris
                     mMasterProp( static_cast< uint >( IWG_Property_Type::REF_TEMP ) );
             std::shared_ptr< Property > tInvPermeabProp   =
                     mMasterProp( static_cast< uint >( IWG_Property_Type::INV_PERMEABILITY ) );
+            std::shared_ptr< Property > tMassSourceProp   =
+                    mMasterProp( static_cast< uint >( IWG_Property_Type::MASS_SOURCE ) );
 
             // get the incompressible fluid constitutive model
             std::shared_ptr< Constitutive_Model > tIncFluidCM =
@@ -694,6 +706,19 @@ namespace moris
                         tDensity * tujvij ;
 
                 aJC.matrix_data() += tVelocityFI->div_operator().matrix_data();
+
+                // if mass source
+                if ( tMassSourceProp != nullptr )
+                {
+                    // add mass source to continuity eqn residual
+                    //aJC.matrix_data() +=  tMassSourceProp->val()(0) ;
+
+                    // if indirect DoF dependency of source term
+                    if( tMassSourceProp->check_dof_dependency( aDofTypes ) )
+                    {
+                        aJC.matrix_data() += 1/tDensity * tMassSourceProp->dPropdDOF( aDofTypes ).matrix_data() ;
+                    }
+                }
 
                 // if permeability
                 if ( tInvPermeabProp != nullptr )

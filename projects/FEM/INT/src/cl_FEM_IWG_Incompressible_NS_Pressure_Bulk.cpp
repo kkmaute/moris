@@ -21,6 +21,7 @@ namespace moris
             mPropertyMap[ "Gravity" ]          = IWG_Property_Type::GRAVITY;
             mPropertyMap[ "ThermalExpansion" ] = IWG_Property_Type::THERMAL_EXPANSION;
             mPropertyMap[ "ReferenceTemp" ]    = IWG_Property_Type::REF_TEMP;
+            mPropertyMap[ "MassSource" ]       = IWG_Property_Type::MASS_SOURCE;
 
             // set size for the constitutive model pointer cell
             mMasterCM.resize( static_cast< uint >( IWG_Constitutive_Type::MAX_ENUM ), nullptr );
@@ -52,6 +53,13 @@ namespace moris
             Field_Interpolator * tPressureFI = mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );
             Field_Interpolator * tVelocityFI = mMasterFIManager->get_field_interpolators_for_type( MSI::Dof_Type::VX ); //FIXME this need to be protected
 
+            // get the source property
+            std::shared_ptr< Property > tPropSource =
+                    mMasterProp( static_cast< uint >( IWG_Property_Type::MASS_SOURCE ) );
+
+            // get the density
+            real tDensity = mMasterProp( static_cast< uint >( IWG_Property_Type::DENSITY ) )->val()(0);
+
             // get the incompressible flow stabilization parameter
             std::shared_ptr< Stabilization_Parameter > tIncFlowSP
             = mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::INCOMPRESSIBLE_FLOW ) );
@@ -65,6 +73,16 @@ namespace moris
             += aWStar
             * (   trans( tPressureFI->N() ) * tVelocityFI->div()
                 + trans( tPressureFI->dnNdxn( 1 ) ) * tIncFlowSP->val()( 0 ) * tRM );
+
+            // if source term is defined
+            if (tPropSource != nullptr)
+            {
+                // add contribution of source term
+                mSet->get_residual()( 0 )( { tMasterResStartIndex, tMasterResStopIndex }, { 0, 0 } )
+                += aWStar *
+                (   trans( tPressureFI->N() ) * tPropSource->val()(0) / tDensity );
+            }
+
         }
 
 //------------------------------------------------------------------------------
@@ -82,6 +100,13 @@ namespace moris
 
             // get the pressure FIs
             Field_Interpolator * tPressureFI = mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );
+
+            // get the source property
+            std::shared_ptr< Property > tPropSource =
+                    mMasterProp( static_cast< uint >( IWG_Property_Type::MASS_SOURCE ) );
+
+            // get the density
+            real tDensity = mMasterProp( static_cast< uint >( IWG_Property_Type::DENSITY ) )->val()(0);
 
             // get the incompressible flow stabilization parameter
             std::shared_ptr< Stabilization_Parameter > tIncFlowSP
@@ -123,6 +148,18 @@ namespace moris
                 mSet->get_jacobian()( { tMasterResStartIndex, tMasterResStopIndex },
                                       { tMasterDepStartIndex, tMasterDepStopIndex } )
                 += aWStar * ( trans( tPressureFI->dnNdxn( 1 ) ) * tIncFlowSP->val()( 0 ) * tJM );
+
+                // if source term has dependency on the dof type
+                if (tPropSource != nullptr)
+                {
+                    if ( tPropSource->check_dof_dependency( tDofType ) )
+                    {
+                        // add contribution of source term
+                        mSet->get_residual()( 0 )( { tMasterResStartIndex, tMasterResStopIndex }, { 0, 0 } )
+                            += aWStar *
+                            (   trans( tPressureFI->N() ) * 1/tDensity * tPropSource->dPropdDOF( tDofType )   );
+                    }
+                }
 
                 // if stabilization parameter has dependency on the dof type
                 if ( tIncFlowSP->check_dof_dependency( tDofType ) )

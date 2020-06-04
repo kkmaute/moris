@@ -37,6 +37,7 @@ namespace moris
                     THERMAL_EXPANSION,
                     REF_TEMP,
                     INV_PERMEABILITY,
+                    MASS_SOURCE,
                     MAX_ENUM
                 };
 
