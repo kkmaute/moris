@@ -1,9 +1,5 @@
-//
-// Created by christopherson on 5/18/20.
-//
-
-#ifndef MORIS_CL_Field_HPP
-#define MORIS_CL_Field_HPP
+#ifndef MORIS_CL_GEN_Field_HPP
+#define MORIS_CL_GEN_Field_HPP
 
 #include "cl_Matrix.hpp"
 
@@ -17,9 +13,10 @@ namespace moris
             Cell<real*> mFieldVariables;
 
         private:
-            Cell<bool> mActiveVariables;
             Matrix<DDUMat> mADVIndices;
             Matrix<DDRMat> mConstantParameters;
+            Cell<bool> mActiveVariables;
+            uint mNumActiveVariables;
 
         protected:
 
@@ -95,4 +92,4 @@ namespace moris
 }
 
 
-#endif //MORIS_CL_Field_HPP
+#endif //MORIS_CL_GEN_Field_HPP
