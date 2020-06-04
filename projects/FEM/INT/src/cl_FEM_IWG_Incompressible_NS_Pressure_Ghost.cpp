@@ -12,7 +12,7 @@ namespace moris
     namespace fem
     {
 
-//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
         IWG_Incompressible_NS_Pressure_Ghost::IWG_Incompressible_NS_Pressure_Ghost()
         {
             // set size for the stabilization parameter pointer cell
@@ -22,7 +22,22 @@ namespace moris
             mStabilizationMap[ "PressureGhost" ] = IWG_Stabilization_Type::PRESSURE_GHOST;
         }
 
-//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
+        void IWG_Incompressible_NS_Pressure_Ghost::set_stabilization_parameter(
+                std::shared_ptr< Stabilization_Parameter > aStabilizationParameter,
+                std::string                                aStabilizationString )
+        {
+            // check that aStabilizationString makes sense
+            std::string tErrMsg =
+                    std::string( "IWG_Incompressible_NS_Pressure_Ghost::set_stabilization_parameter - Unknown aStabilizationString: " ) +
+                    aStabilizationString;
+            MORIS_ERROR( mStabilizationMap.find( aStabilizationString ) != mStabilizationMap.end(), tErrMsg.c_str() );
+
+            // set the stabilization parameter in the stabilization parameter cell
+            this->get_stabilization_parameters()( static_cast< uint >( mStabilizationMap[ aStabilizationString ] ) ) = aStabilizationParameter;
+        }
+
+        //------------------------------------------------------------------------------
         void IWG_Incompressible_NS_Pressure_Ghost::compute_residual( real aWStar )
         {
             // check master field interpolators
@@ -49,17 +64,17 @@ namespace moris
             // FIXME the order should be set differently
             switch ( tFIMaster->get_space_interpolation_order() )
             {
-                case( mtk::Interpolation_Order::LINEAR ):
+                case mtk::Interpolation_Order::LINEAR :
                 {
                     mOrder = 1;
                     break;
                 }
-                case( mtk::Interpolation_Order::QUADRATIC ):
+                case mtk::Interpolation_Order::QUADRATIC :
                 {
                     mOrder = 2;
                     break;
                 }
-                case( mtk::Interpolation_Order::CUBIC ):
+                case mtk::Interpolation_Order::CUBIC :
                 {
                     mOrder = 3;
                     break;
@@ -88,9 +103,9 @@ namespace moris
                 // premultiply common terms
                 Matrix< DDRMat > tPreMultiply
                 = tSPPressure->val()( 0 ) * tFlatNormal * ( tFIMaster->gradx( iOrder ) - tFISlave->gradx( iOrder ) ) ;
-                 tPreMultiply = reshape( tPreMultiply , tPreMultiply.numel(), 1 );
+                tPreMultiply = reshape( tPreMultiply , tPreMultiply.numel(), 1 );
 
-                 // get flattened directional derivatives for master and slave
+                // get flattened directional derivatives for master and slave
                 Matrix< DDRMat > tMasterdNdxFlat;
                 this->compute_flat_dnNdxn( tMasterdNdxFlat, iOrder, mtk::Master_Slave::MASTER );
                 Matrix< DDRMat > tSlavedNdxFlat;
@@ -98,15 +113,15 @@ namespace moris
 
                 // compute master residual
                 mSet->get_residual()( 0 )( { tMasterResStartIndex, tMasterResStopIndex }, { 0, 0 } )
-                += aWStar * ( tMasterdNdxFlat * tPreMultiply );
+                                                += aWStar * ( tMasterdNdxFlat * tPreMultiply );
 
                 // compute slave residual
                 mSet->get_residual()( 0 )( { tSlaveResStartIndex, tSlaveResStopIndex }, { 0, 0 } )
-                -= aWStar *( tSlavedNdxFlat * tPreMultiply );
+                                                -= aWStar *( tSlavedNdxFlat * tPreMultiply );
             }
         }
 
-//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
         void IWG_Incompressible_NS_Pressure_Ghost::compute_jacobian( real aWStar )
         {
 #ifdef DEBUG
@@ -133,17 +148,17 @@ namespace moris
             // get the interpolation order
             switch ( tFIMaster->get_space_interpolation_order() )
             {
-                case( mtk::Interpolation_Order::LINEAR ):
+                case mtk::Interpolation_Order::LINEAR :
                 {
                     mOrder = 1;
                     break;
                 }
-                case( mtk::Interpolation_Order::QUADRATIC ):
+                case mtk::Interpolation_Order::QUADRATIC :
                 {
                     mOrder = 2;
                     break;
                 }
-                case( mtk::Interpolation_Order::CUBIC ):
+                case mtk::Interpolation_Order::CUBIC :
                 {
                     mOrder = 3;
                     break;
@@ -195,13 +210,13 @@ namespace moris
                     {
                         // dRM/dM
                         mSet->get_jacobian()( { tMasterResStartIndex, tMasterResStopIndex },
-                                              { tMasterDepStartIndex, tMasterDepStopIndex } )
-                        += aWStar * ( tMasterdNdxFlat * tSPPressure->val()( 0 ) * trans( tMasterdNdxFlat ) );
+                                { tMasterDepStartIndex, tMasterDepStopIndex } )
+                                += aWStar * ( tMasterdNdxFlat * tSPPressure->val()( 0 ) * trans( tMasterdNdxFlat ) );
 
                         // dRS/dM
                         mSet->get_jacobian()( { tSlaveResStartIndex,  tSlaveResStopIndex },
-                                              { tMasterDepStartIndex, tMasterDepStopIndex } )
-                        -= aWStar * ( tSlavedNdxFlat * tSPPressure->val()( 0 ) * trans( tMasterdNdxFlat ) );
+                                { tMasterDepStartIndex, tMasterDepStopIndex } )
+                                -= aWStar * ( tSlavedNdxFlat * tSPPressure->val()( 0 ) * trans( tMasterdNdxFlat ) );
                     }
 
                     // if stabilization parameter dependency on the dof type
@@ -215,12 +230,12 @@ namespace moris
 
                         // add contribution to jacobian
                         mSet->get_jacobian()( { tMasterResStartIndex, tMasterResStopIndex },
-                                              { tMasterDepStartIndex, tMasterDepStopIndex } )
-                        += aWStar * ( tMasterdNdxFlat * tPreMultiply );
+                                { tMasterDepStartIndex, tMasterDepStopIndex } )
+                                += aWStar * ( tMasterdNdxFlat * tPreMultiply );
 
                         mSet->get_jacobian()( { tSlaveResStartIndex,  tSlaveResStopIndex },
-                                              { tMasterDepStartIndex, tMasterDepStopIndex } )
-                        -= aWStar * ( tSlavedNdxFlat  * tPreMultiply );
+                                { tMasterDepStartIndex, tMasterDepStopIndex } )
+                                -= aWStar * ( tSlavedNdxFlat  * tPreMultiply );
                     }
                 }
 
@@ -240,19 +255,19 @@ namespace moris
                     {
                         // dRM/dS
                         mSet->get_jacobian()( { tMasterResStartIndex, tMasterResStopIndex },
-                                              { tSlaveDepStartIndex,  tSlaveDepStopIndex } )
-                        -= aWStar * ( tMasterdNdxFlat * tSPPressure->val()( 0 ) * trans( tSlavedNdxFlat ) );
+                                { tSlaveDepStartIndex,  tSlaveDepStopIndex } )
+                                -= aWStar * ( tMasterdNdxFlat * tSPPressure->val()( 0 ) * trans( tSlavedNdxFlat ) );
 
                         // dRS/dS
                         mSet->get_jacobian()( { tSlaveResStartIndex, tSlaveResStopIndex },
-                                              { tSlaveDepStartIndex, tSlaveDepStopIndex } )
-                        += aWStar * ( tSlavedNdxFlat * tSPPressure->val()( 0 ) * trans( tSlavedNdxFlat ) );
+                                { tSlaveDepStartIndex, tSlaveDepStopIndex } )
+                                += aWStar * ( tSlavedNdxFlat * tSPPressure->val()( 0 ) * trans( tSlavedNdxFlat ) );
                     }
                 }
             }
         }
 
-//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
         void IWG_Incompressible_NS_Pressure_Ghost::compute_jacobian_and_residual( real aWStar )
         {
 #ifdef DEBUG
@@ -263,7 +278,7 @@ namespace moris
             MORIS_ERROR( false, "IWG_Incompressible_NS_Pressure_Ghost::compute_jacobian_and_residual - Not implemented." );
         }
 
-//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
         void IWG_Incompressible_NS_Pressure_Ghost::compute_dRdp( real aWStar )
         {
 #ifdef DEBUG
@@ -274,11 +289,11 @@ namespace moris
             MORIS_ERROR( false, "IWG_Incompressible_NS_Pressure_Ghost::compute_dRdp - Not implemented." );
         }
 
-//------------------------------------------------------------------------------
-        void IWG_Incompressible_NS_Pressure_Ghost::compute_flat_dnNdxn
-        ( Matrix< DDRMat >  & aFlatdnNdxn,
-          uint                aOrder,
-          mtk::Master_Slave   aIsMaster )
+        //------------------------------------------------------------------------------
+        void IWG_Incompressible_NS_Pressure_Ghost::compute_flat_dnNdxn(
+                Matrix< DDRMat >  & aFlatdnNdxn,
+                uint                aOrder,
+                mtk::Master_Slave   aIsMaster )
         {
             // get flattened normal
             Matrix< DDRMat > tFlatNormal;
@@ -287,7 +302,7 @@ namespace moris
             // get the residual dof type FI (here pressure)
             Field_Interpolator * tPressureFI
             = this->get_field_interpolator_manager( aIsMaster )
-                  ->get_field_interpolators_for_type( mResidualDofType( 0 ) );
+            ->get_field_interpolators_for_type( mResidualDofType( 0 ) );
 
             // get number of fields
             uint tNumFields = tPressureFI->get_number_of_fields();
@@ -305,15 +320,15 @@ namespace moris
             {
                 // fill block flat dnNdxn
                 aFlatdnNdxn({ iField * tNumRows, ( iField + 1 ) * tNumRows - 1 },
-                            { iField * tNumCols, ( iField + 1 ) * tNumCols - 1 } )
-                = tdnNdxn.matrix_data();
+                        { iField * tNumCols, ( iField + 1 ) * tNumCols - 1 } )
+                                                = tdnNdxn.matrix_data();
             }
         }
 
-//------------------------------------------------------------------------------
-        void IWG_Incompressible_NS_Pressure_Ghost::get_normal_matrix
-        ( Matrix< DDRMat > & aFlatNormal,
-          uint               aOrder )
+        //------------------------------------------------------------------------------
+        void IWG_Incompressible_NS_Pressure_Ghost::get_normal_matrix(
+                Matrix< DDRMat > & aFlatNormal,
+                uint               aOrder )
         {
             // get spatial dimensions
             uint tSpaceDim = mNormal.numel();
@@ -321,16 +336,16 @@ namespace moris
             // switch on the ghost order
             switch( aOrder )
             {
-                case ( 1 ):
+                case 1 :
                 {
                     switch ( tSpaceDim )
                     {
-                        case ( 2 ):
+                        case 2 :
                         {
                             aFlatNormal = trans( mNormal );
                             break;
                         }
-                        case ( 3 ):
+                        case 3 :
                         {
                             aFlatNormal = trans( mNormal );
                             break;
@@ -344,11 +359,11 @@ namespace moris
                     break;
                 }
 
-                case ( 2 ):
+                case 2 :
                 {
                     switch ( tSpaceDim )
                     {
-                        case ( 2 ):
+                        case 2 :
                         {
                             // set the normal matrix size
                             aFlatNormal.set_size( 2, 3, 0.0 );
@@ -362,7 +377,7 @@ namespace moris
 
                             break;
                         }
-                        case ( 3 ):
+                        case 3 :
                         {
                             // set the normal matrix size
                             aFlatNormal.set_size( 3, 6, 0.0 );
@@ -392,11 +407,11 @@ namespace moris
                     break;
                 }
 
-                case ( 3 ):
+                case 3 :
                 {
                     switch ( tSpaceDim )
                     {
-                        case ( 2 ):
+                        case 2 :
                         {
                             // set the normal matrix size
                             aFlatNormal.set_size( 3, 4, 0.0 );
@@ -413,7 +428,7 @@ namespace moris
                             aFlatNormal( 2, 3 ) = tSqrtOf2 * mNormal( 1 );
                             break;
                         }
-                        case ( 3 ):
+                        case 3 :
                         {
                             // set the normal matrix size
                             aFlatNormal.set_size( 6, 10, 0.0 );
@@ -463,6 +478,6 @@ namespace moris
             }
         }
 
-//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
     } /* namespace fem */
 } /* namespace moris */

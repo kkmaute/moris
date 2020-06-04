@@ -41,10 +41,10 @@ namespace moris
 
                 enum class IWG_Stabilization_Type
                 {
-                        NITSCHE_INTERFACE,
-                        MASTER_WEIGHT_INTERFACE,
-                        SLAVE_WEIGHT_INTERFACE,
-                        MAX_ENUM
+                    NITSCHE_INTERFACE,
+                    MASTER_WEIGHT_INTERFACE,
+                    SLAVE_WEIGHT_INTERFACE,
+                    MAX_ENUM
                 };
 
                 // Local string to constitutive enum map
@@ -72,15 +72,7 @@ namespace moris
                 void set_constitutive_model(
                         std::shared_ptr< Constitutive_Model > aConstitutiveModel,
                         std::string                           aConstitutiveString,
-                        mtk::Master_Slave                     aIsMaster = mtk::Master_Slave::MASTER )
-                {
-                    // check that aConstitutiveString makes sense
-                    MORIS_ERROR( mConstitutiveMap.find( aConstitutiveString ) != mConstitutiveMap.end(),
-                            "IWG_Diffusion_Interface::set_constitutive_model - Unknown aConstitutiveString." );
-
-                    // set the constitutive model in the constitutive model cell
-                    this->get_constitutive_models( aIsMaster )( static_cast< uint >( mConstitutiveMap[ aConstitutiveString ] ) ) = aConstitutiveModel;
-                }
+                        mtk::Master_Slave                     aIsMaster = mtk::Master_Slave::MASTER );
 
                 //------------------------------------------------------------------------------
                 /**
@@ -90,15 +82,7 @@ namespace moris
                  */
                 void set_stabilization_parameter(
                         std::shared_ptr< Stabilization_Parameter > aStabilizationParameter,
-                        std::string                                aStabilizationString )
-                {
-                    // check that aConstitutiveString makes sense
-                    MORIS_ERROR( mStabilizationMap.find( aStabilizationString ) != mStabilizationMap.end(),
-                            "IWG_Diffusion_Interface::set_stabilization_parameter - Unknown aStabilizationString." );
-
-                    // set the stabilization parameter in the stabilization parameter cell
-                    this->get_stabilization_parameters()( static_cast< uint >( mStabilizationMap[ aStabilizationString ] ) ) = aStabilizationParameter;
-                }
+                        std::string                                aStabilizationString );
 
                 //------------------------------------------------------------------------------
                 /**

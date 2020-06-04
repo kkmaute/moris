@@ -123,14 +123,14 @@ namespace moris
 
                 //------------------------------------------------------------------------------
                 /**
-                 * compute the traction = ( v + vtilde ) * grad vtilde
+                 * compute the traction = ( v + vtilde ) * grad vtilde / mSigma
                  * @param[ in ] aTraction a matrix to fill with traction
                  */
                 void compute_traction( Matrix< DDRMat > & aTraction );
 
                 //------------------------------------------------------------------------------
                 /**
-                 * compute the derivative of the traction = ( v + vtilde ) * grad vtilde
+                 * compute the derivative of the traction = ( v + vtilde ) * grad vtilde / mSigma
                  * wrt dof type aDofTypes
                  * @param[ in ] aDofTypes    group of dervative dof types
                  * @param[ in ] adtractiondu a matrix to fill with dtractiondu
@@ -141,7 +141,8 @@ namespace moris
 
                 //------------------------------------------------------------------------------
                 /**
-                 * compute the test traction = delta ( ( v + vtilde ) * grad vtilde )
+                 * compute the test traction
+                 *  = delta ( ( v + vtilde ) * grad vtilde  / mSigma )
                  * @param[ in ] aTestDofTypes group of test dof types
                  * @param[ in ] aTestTraction a matrix to fill with test traction
                  */
@@ -152,7 +153,7 @@ namespace moris
                 //------------------------------------------------------------------------------
                 /**
                  * compute the derivative of the test traction
-                 * = delta ( ( v + vtilde ) * grad vtilde )
+                 * = delta ( ( v + vtilde ) * grad vtilde  / mSigma )
                  * @param[ in ] aTestDofTypes    group of test dof types
                  * @param[ in ] aDofTypes        group of derivative dof types
                  * @param[ in ] adtesttractiondu a matrix to fill with test traction

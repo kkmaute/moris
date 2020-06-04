@@ -14,9 +14,6 @@ namespace moris
         //------------------------------------------------------------------------------
         IWG_Advection_Bulk::IWG_Advection_Bulk()
         {
-            // set size for the property pointer cell
-            mMasterProp.resize( static_cast< uint >( IWG_Property_Type::MAX_ENUM ), nullptr );
-
             // set size for the constitutive model pointer cell
             mMasterCM.resize( static_cast< uint >( IWG_Constitutive_Type::MAX_ENUM ), nullptr );
 
@@ -28,6 +25,46 @@ namespace moris
 
             // populate the stabilization map
             mStabilizationMap[ "SUPG" ] = IWG_Stabilization_Type::SUPG;
+        }
+
+        //------------------------------------------------------------------------------
+        void IWG_Advection_Bulk::set_constitutive_model(
+                std::shared_ptr< Constitutive_Model > aConstitutiveModel,
+                std::string                           aConstitutiveString,
+                mtk::Master_Slave                     aIsMaster )
+        {
+            // check that aConstitutiveString makes sense
+            if ( mConstitutiveMap.find( aConstitutiveString ) == mConstitutiveMap.end() )
+            {
+                std::string tErrMsg =
+                        std::string("IWG_Advection_Bulk::set_constitutive_model - Unknown aConstitutiveString: ") +
+                        aConstitutiveString;
+
+                MORIS_ERROR( false, tErrMsg.c_str() );
+            }
+
+            // check no slave allowed
+            MORIS_ERROR( aIsMaster == mtk::Master_Slave::MASTER,
+                    "IWG_Advection_Bulk::set_constitutive_model - No slave allowed." );
+
+            // set the constitutive model in the constitutive model cell
+            this->get_constitutive_models( aIsMaster )( static_cast< uint >( mConstitutiveMap[ aConstitutiveString ] ) ) = aConstitutiveModel;
+        }
+
+        //------------------------------------------------------------------------------
+        void IWG_Advection_Bulk::set_stabilization_parameter(
+                std::shared_ptr< Stabilization_Parameter > aStabilizationParameter,
+                std::string                                aStabilizationString )
+        {
+            // check that aStabilizationString makes sense
+            std::string tErrMsg =
+                    std::string( "IWG_GGLS_Diffusion_Phase_Change_Bulk::set_stabilization_parameter - Unknown aStabilizationString: " ) +
+                    aStabilizationString;
+            MORIS_ERROR( mStabilizationMap.find( aStabilizationString ) != mStabilizationMap.end(), tErrMsg.c_str() );
+
+
+            // set the stabilization parameter in the stabilization parameter cell
+            this->get_stabilization_parameters()( static_cast< uint >( mStabilizationMap[ aStabilizationString ] ) ) = aStabilizationParameter;
         }
 
         //------------------------------------------------------------------------------
@@ -180,7 +217,8 @@ namespace moris
         {
             // get the velocity dof field interpolator
             // FIXME protect dof type
-            Field_Interpolator* tFIVelocity = mMasterFIManager->get_field_interpolators_for_type( MSI::Dof_Type::VX );
+            Field_Interpolator* tFIVelocity =
+                    mMasterFIManager->get_field_interpolators_for_type( MSI::Dof_Type::VX );
 
             // get the diffusion CM
             std::shared_ptr< Constitutive_Model > tCMDiffusion =
@@ -191,7 +229,7 @@ namespace moris
 
         //------------------------------------------------------------------------------
         void IWG_Advection_Bulk::compute_jacobian_strong_form (
-                moris::Cell< MSI::Dof_Type >   aDofTypes,
+                moris::Cell< MSI::Dof_Type > & aDofTypes,
                 Matrix< DDRMat >             & aJT )
         {
             // get the res dof and the derivative dof FIs

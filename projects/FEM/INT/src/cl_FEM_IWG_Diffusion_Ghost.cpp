@@ -4,8 +4,6 @@
 #include "cl_FEM_Field_Interpolator_Manager.hpp"
 
 #include "fn_trans.hpp"
-#include "fn_eye.hpp"
-#include "fn_dot.hpp"
 
 namespace moris
 {
@@ -19,6 +17,21 @@ namespace moris
 
             // populate the stabilization map
             mStabilizationMap[ "GhostDispl" ] = IWG_Stabilization_Type::GHOST_DISPL;
+        }
+
+        //------------------------------------------------------------------------------
+        void IWG_Diffusion_Ghost::set_stabilization_parameter(
+                std::shared_ptr< Stabilization_Parameter > aStabilizationParameter,
+                std::string                                aStabilizationString )
+        {
+            // check that aStabilizationString makes sense
+            std::string tErrMsg =
+                    std::string( "IWG_Diffusion_Ghost::set_stabilization_parameter - Unknown aStabilizationString: " ) +
+                    aStabilizationString;
+            MORIS_ERROR( mStabilizationMap.find( aStabilizationString ) != mStabilizationMap.end(), tErrMsg.c_str() );
+
+            // set the stabilization parameter in the stabilization parameter cell
+            this->get_stabilization_parameters()( static_cast< uint >( mStabilizationMap[ aStabilizationString ] ) ) = aStabilizationParameter;
         }
 
         //------------------------------------------------------------------------------

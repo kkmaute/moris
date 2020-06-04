@@ -125,8 +125,8 @@ namespace moris
             // compute the residual weak form
             mSet->get_residual()( 0 )( { tMasterResStartIndex, tMasterResStopIndex }, { 0, 0 } ) +=
                     aWStar * (
-                            - trans( tFIViscosity->N() ) * tM * tTraction / mSigma
-                            + mBeta * trans( tTestTraction ) * tM * tJump / mSigma
+                            - trans( tFIViscosity->N() ) * tM * tTraction
+                            + mBeta * trans( tTestTraction ) * tM * tJump
                             + tSPNitsche->val()( 0 ) * trans( tFIViscosity->N() ) * tM * tJump );
         }
 
@@ -202,7 +202,7 @@ namespace moris
                     mSet->get_jacobian()(
                             { tMasterResStartIndex, tMasterResStopIndex },
                             { tMasterDepStartIndex, tMasterDepStopIndex } ) += aWStar * (
-                                    + mBeta * trans( tTestTraction ) * tM * tFIViscosity->N() / mSigma
+                                    + mBeta * trans( tTestTraction ) * tM * tFIViscosity->N()
                                     + tSPNitsche->val()( 0 ) * trans( tFIViscosity->N() ) * tM * tFIViscosity->N() );
                 }
 
@@ -213,7 +213,7 @@ namespace moris
                     mSet->get_jacobian()(
                             { tMasterResStartIndex, tMasterResStopIndex },
                             { tMasterDepStartIndex, tMasterDepStopIndex } ) -= aWStar * (
-                                    + mBeta * trans( tTestTraction ) * tPropDirichlet->dPropdDOF( tDofType ) / mSigma
+                                    + mBeta * trans( tTestTraction ) * tM * tPropDirichlet->dPropdDOF( tDofType )
                                     + tSPNitsche->val()( 0 ) * trans( tFIViscosity->N() ) * tM * tPropDirichlet->dPropdDOF( tDofType ) );
                 }
 
@@ -239,8 +239,8 @@ namespace moris
                 mSet->get_jacobian()(
                         { tMasterResStartIndex, tMasterResStopIndex },
                         { tMasterDepStartIndex, tMasterDepStopIndex } ) += aWStar * (
-                                - trans( tFIViscosity->N() ) * tM * tdtractiondu / mSigma
-                                + mBeta * tM( 0 ) * tJump( 0 ) * tdtesttractiondu / mSigma );
+                                - trans( tFIViscosity->N() ) * tM * tdtractiondu
+                                + mBeta * tM( 0 ) * tJump( 0 ) * tdtesttractiondu );
             }
         }
 
@@ -280,7 +280,7 @@ namespace moris
             // compute the traction
             aTraction =
                     ( tFIViscosity->val()( 0 ) + tPropViscosity->val()( 0 ) ) *
-                    trans ( tFIViscosity->gradx( 1 ) ) * mNormal;
+                    trans ( tFIViscosity->gradx( 1 ) ) * mNormal / mSigma;
         }
 
         //------------------------------------------------------------------------------
@@ -318,6 +318,9 @@ namespace moris
                 adtractiondu.matrix_data() +=
                         trans( mNormal ) * tFIViscosity->gradx( 1 ) * tPropViscosity->dPropdDOF( aDofTypes );
             }
+
+            // scale dtractiondu with sigma
+            adtractiondu = adtractiondu / mSigma;
         }
 
         //------------------------------------------------------------------------------
@@ -356,6 +359,9 @@ namespace moris
                 aTestTraction.matrix_data() +=
                         trans( mNormal ) * tFIViscosity->gradx( 1 ) * tPropViscosity->dPropdDOF( aTestDofTypes );
             }
+
+            // scale testtraction with sigma
+            aTestTraction = aTestTraction / mSigma;
         }
 
         //------------------------------------------------------------------------------
@@ -385,25 +391,37 @@ namespace moris
                     0.0 );
 
             // if derivative dof type is residual dof type
-            if( ( aTestDofTypes( 0 ) == mResidualDofType( 0 ) ) && ( aDofTypes( 0 ) == mResidualDofType( 0 ) ) )
+            if( aTestDofTypes( 0 ) == mResidualDofType( 0 ) )
             {
-                adtesttractiondu.matrix_data() +=
-                        trans( tFIViscosity->N() ) * trans( mNormal ) * tFIViscosity->dnNdxn( 1 )
-                        + trans( tFIViscosity->dnNdxn( 1 ) ) * mNormal * tFIViscosity->N() ;
-
-                if( tPropViscosity->check_dof_dependency( aTestDofTypes ) )
+                // if derivative dof type is residual dof type
+                if( aDofTypes( 0 ) == mResidualDofType( 0 ) )
                 {
                     adtesttractiondu.matrix_data() +=
-                            trans( tPropViscosity->dPropdDOF( aTestDofTypes ) ) * trans( mNormal ) * tFIViscosity->dnNdxn( 1 );
+                            trans( tFIViscosity->N() ) * trans( mNormal ) * tFIViscosity->dnNdxn( 1 )
+                            + trans( tFIViscosity->dnNdxn( 1 ) ) * mNormal * tFIViscosity->N() ;
+
+                    // if viscosity property depends on test dof type
+                    if( tPropViscosity->check_dof_dependency( aTestDofTypes ) )
+                    {
+                        adtesttractiondu.matrix_data() +=
+                                trans( tPropViscosity->dPropdDOF( aTestDofTypes ) ) * trans( mNormal ) * tFIViscosity->dnNdxn( 1 );
+                    }
                 }
 
+                // is viscosity property depends on derivative dof type
                 if( tPropViscosity->check_dof_dependency( aDofTypes ) )
                 {
                     adtesttractiondu.matrix_data() +=
                             trans( tFIViscosity->dnNdxn( 1 ) ) * mNormal * tPropViscosity->dPropdDOF( aDofTypes );
                 }
-
             }
+            else
+            {
+                MORIS_ERROR( false, "IWG_Spalart_Allmaras_Turbulence_Dirichlet::compute_dtesttractiondu - only implemented for residaul dof type as test dof type" );;
+            }
+
+            // scale dtesttractiondu with sigma
+            adtesttractiondu = adtesttractiondu / mSigma;
         }
 
         //------------------------------------------------------------------------------

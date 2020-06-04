@@ -21,167 +21,119 @@ namespace moris
 {
     namespace fem
     {
-//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
 
         class IWG_Advection_Bulk : public IWG
         {
 
-//------------------------------------------------------------------------------
-        public:
+                //------------------------------------------------------------------------------
+            public:
 
-            enum class IWG_Property_Type
-            {
-                MAX_ENUM
-            };
+                // local constitutive enums
+                enum class IWG_Constitutive_Type
+                {
+                    DIFFUSION,
+                    MAX_ENUM
+                };
 
-            // Local string to property enum map
-            std::map< std::string, IWG_Property_Type > mPropertyMap;
+                // local string to constitutive enum map
+                std::map< std::string, IWG_Constitutive_Type > mConstitutiveMap;
 
-            // local constitutive enums
-            enum class IWG_Constitutive_Type
-            {
-                DIFFUSION,
-                MAX_ENUM
-            };
+                // local stabilization enums
+                enum class IWG_Stabilization_Type
+                {
+                    SUPG,
+                    MAX_ENUM
+                };
 
-            // local string to constitutive enum map
-            std::map< std::string, IWG_Constitutive_Type > mConstitutiveMap;
+                // local string to constitutive enum map
+                std::map< std::string, IWG_Stabilization_Type > mStabilizationMap;
 
-            // local stabilization enums
-            enum class IWG_Stabilization_Type
-            {
-                SUPG,
-                MAX_ENUM
-            };
+                //------------------------------------------------------------------------------
+                /*
+                 *  constructor
+                 */
+                IWG_Advection_Bulk();
 
-            // local string to constitutive enum map
-            std::map< std::string, IWG_Stabilization_Type > mStabilizationMap;
+                //------------------------------------------------------------------------------
+                /**
+                 * trivial destructor
+                 */
+                ~IWG_Advection_Bulk(){};
 
-//------------------------------------------------------------------------------
-            /*
-             *  constructor
-             */
-            IWG_Advection_Bulk();
+                //------------------------------------------------------------------------------
+                /**
+                 * set constitutive model
+                 * @param[ in ] aConstitutiveModel  a constitutive model pointer
+                 * @param[ in ] aConstitutiveString a string defining the constitutive model
+                 * @param[ in ] aIsMaster           an enum for master or slave
+                 */
+                void set_constitutive_model(
+                        std::shared_ptr< Constitutive_Model > aConstitutiveModel,
+                        std::string                           aConstitutiveString,
+                        mtk::Master_Slave                     aIsMaster = mtk::Master_Slave::MASTER );
 
-//------------------------------------------------------------------------------
-            /**
-             * trivial destructor
-             */
-            ~IWG_Advection_Bulk(){};
+                //------------------------------------------------------------------------------
+                /**
+                 * set stabilization parameter
+                 * @param[ in ] aStabilizationParameter a stabilization parameter pointer
+                 * @param[ in ] aStabilizationString    a string defining the stabilization parameter
+                 */
+                void set_stabilization_parameter(
+                        std::shared_ptr< Stabilization_Parameter > aStabilizationParameter,
+                        std::string                                aStabilizationString );
 
-//------------------------------------------------------------------------------
-            /**
-             * set property
-             * @param[ in ] aProperty       a property pointer
-             * @param[ in ] aPropertyString a string defining the property
-             * @param[ in ] aIsMaster       an enum for master or slave
-             */
-            void set_property( std::shared_ptr< Property > aProperty,
-                               std::string                 aPropertyString,
-                               mtk::Master_Slave           aIsMaster = mtk::Master_Slave::MASTER )
-            {
-                // check that aPropertyString makes sense
-                MORIS_ERROR( mPropertyMap.find( aPropertyString ) != mPropertyMap.end(),
-                             "IWG_Advection_Bulk::set_property - Unknown aPropertyString." );
+                //------------------------------------------------------------------------------
+                /**
+                 * compute the residual
+                 * @param[ in ] aWStar weight associated to the evaluation point
+                 */
+                void compute_residual( real aWStar );
 
-                // check no slave allowed
-                MORIS_ERROR( aIsMaster == mtk::Master_Slave::MASTER,
-                             "IWG_Advection_Bulk::set_property - No slave allowed." );
+                //------------------------------------------------------------------------------
+                /**
+                 * compute the jacobian
+                 * @param[ in ] aWStar weight associated to the evaluation point
+                 */
+                void compute_jacobian( real aWStar );
 
-                // set the property in the property cell
-                this->get_properties( aIsMaster )( static_cast< uint >( mPropertyMap[ aPropertyString ] ) ) = aProperty;
-            }
+                //------------------------------------------------------------------------------
+                /**
+                 * compute the residual and the jacobian
+                 * @param[ in ] aWStar weight associated to the evaluation point
+                 */
+                void compute_jacobian_and_residual( real aWStar );
 
-//------------------------------------------------------------------------------
-            /**
-             * set constitutive model
-             * @param[ in ] aConstitutiveModel  a constitutive model pointer
-             * @param[ in ] aConstitutiveString a string defining the constitutive model
-             * @param[ in ] aIsMaster           an enum for master or slave
-             */
-            void set_constitutive_model( std::shared_ptr< Constitutive_Model > aConstitutiveModel,
-                                         std::string                           aConstitutiveString,
-                                         mtk::Master_Slave                     aIsMaster = mtk::Master_Slave::MASTER )
-            {
-                // check that aConstitutiveString makes sense
-                MORIS_ERROR( mConstitutiveMap.find( aConstitutiveString ) != mConstitutiveMap.end(),
-                             "IWG_Advection_Bulk::set_constitutive_model - Unknown aConstitutiveString." );
+                //------------------------------------------------------------------------------
+                /**
+                 * compute the derivative of the residual wrt design variables
+                 * @param[ in ] aWStar weight associated to the evaluation point
+                 */
+                void compute_dRdp( real aWStar );
 
-                // check no slave allowed
-                MORIS_ERROR( aIsMaster == mtk::Master_Slave::MASTER,
-                             "IWG_Advection_Bulk::set_constitutive_model - No slave allowed." );
+            private:
+                //------------------------------------------------------------------------------
+                /**
+                 * compute the residual strong form
+                 * @param[ in ] aRT a matrix to fill with RM
+                 */
+                void compute_residual_strong_form( Matrix< DDRMat > & aRT );
 
-                // set the constitutive model in the constitutive model cell
-                this->get_constitutive_models( aIsMaster )( static_cast< uint >( mConstitutiveMap[ aConstitutiveString ] ) ) = aConstitutiveModel;
-            }
-
-//------------------------------------------------------------------------------
-            /**
-             * set stabilization parameter
-             * @param[ in ] aStabilizationParameter a stabilization parameter pointer
-             * @param[ in ] aStabilizationString    a string defining the stabilization parameter
-             */
-            void set_stabilization_parameter( std::shared_ptr< Stabilization_Parameter > aStabilizationParameter,
-                                              std::string                                aStabilizationString )
-            {
-                // check that aConstitutiveString makes sense
-                MORIS_ERROR( mStabilizationMap.find( aStabilizationString ) != mStabilizationMap.end(),
-                             "IWG_Advection_Bulk::set_stabilization_parameter - Unknown aStabilizationString." );
-
-                // set the stabilization parameter in the stabilization parameter cell
-                this->get_stabilization_parameters()( static_cast< uint >( mStabilizationMap[ aStabilizationString ] ) ) = aStabilizationParameter;
-            }
-
-//------------------------------------------------------------------------------
-            /**
-             * compute the residual
-             * @param[ in ] aWStar weight associated to the evaluation point
-             */
-            void compute_residual( real aWStar );
-
-//------------------------------------------------------------------------------
-            /**
-             * compute the jacobian
-             * @param[ in ] aWStar weight associated to the evaluation point
-             */
-            void compute_jacobian( real aWStar );
-
-//------------------------------------------------------------------------------
-            /**
-             * compute the residual and the jacobian
-             * @param[ in ] aWStar weight associated to the evaluation point
-             */
-            void compute_jacobian_and_residual( real aWStar );
-
-//------------------------------------------------------------------------------
-            /**
-             * compute the derivative of the residual wrt design variables
-             * @param[ in ] aWStar weight associated to the evaluation point
-             */
-            void compute_dRdp( real aWStar );
-
-        private:
-//------------------------------------------------------------------------------
-            /**
-             * compute the residual strong form
-             * @param[ in ] aRT a matrix to fill with RM
-             */
-            void compute_residual_strong_form( Matrix< DDRMat > & aRT );
-
-//------------------------------------------------------------------------------
-            /**
-             * compute the residual strong form
-             * @param[ in ] aDofTypes a list of dof type wrt which
-             *                        the derivative is requested
-             * @param[ in ] aJT       a matrix to fill with dRMdDof
-             */
-            void compute_jacobian_strong_form( moris::Cell< MSI::Dof_Type > aDofTypes,
-                                               Matrix< DDRMat > & aJT );
+                //------------------------------------------------------------------------------
+                /**
+                 * compute the residual strong form
+                 * @param[ in ] aDofTypes a list of dof type wrt which
+                 *                        the derivative is requested
+                 * @param[ in ] aJT       a matrix to fill with dRMdDof
+                 */
+                void compute_jacobian_strong_form(
+                        moris::Cell< MSI::Dof_Type > & aDofTypes,
+                        Matrix< DDRMat >             & aJT );
 
 
-//------------------------------------------------------------------------------
+                //------------------------------------------------------------------------------
         };
-//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
     } /* namespace fem */
 } /* namespace moris */
 

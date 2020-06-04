@@ -84,7 +84,7 @@ namespace moris
                 std::shared_ptr< Stabilization_Parameter > aStabilizationParameter,
                 std::string                                aStabilizationString )
         {
-            // check that aConstitutiveString makes sense
+            // check that aStabilizationString makes sense
             std::string tErrMsg =
                     std::string( "IWG_Incompressible_NS_Velocity_Bulk::set_stabilization_parameter - Unknown aStabilizationString: " ) +
                     aStabilizationString;
