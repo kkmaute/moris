@@ -157,7 +157,7 @@ namespace moris
             {
                 // add brinkman term to residual weak form
                 mSet->get_residual()( 0 )( { tMasterResStartIndex, tMasterResStopIndex }, { 0, 0 } )
-                        += aWStar * ( trans( tVelocityFI->N() ) * tInvPermeabProp->val()( 0 ) * tVelocityFI->gradx( 1 ) );
+                        += aWStar * ( trans( tVelocityFI->N() ) * tInvPermeabProp->val()( 0 ) * tVelocityFI->val() );
             }
 
             // if turbulence
@@ -290,7 +290,7 @@ namespace moris
                         mSet->get_jacobian()(
                                 { tMasterResStartIndex, tMasterResStopIndex },
                                 { tMasterDepStartIndex, tMasterDepStopIndex } )
-                                += aWStar * ( trans( tVelocityFI->N() ) * tInvPermeabProp->val()( 0 ) * tVelocityFI->dnNdxn( 1 ) );
+                                += aWStar * ( trans( tVelocityFI->N() ) * tInvPermeabProp->val()( 0 ) * tVelocityFI->N() );
                     }
 
                 }
@@ -347,14 +347,14 @@ namespace moris
                 // if permeability depends on DoF type
                 if ( tInvPermeabProp != nullptr )
                 {
-                    if( tGravityProp->check_dof_dependency( tDofType ) )
+                    if( tInvPermeabProp->check_dof_dependency( tDofType ) )
                     {
                         mSet->get_jacobian()(
                                 { tMasterResStartIndex, tMasterResStopIndex },
                                 { tMasterDepStartIndex, tMasterDepStopIndex } )
                                 += aWStar * (
                                         trans( tVelocityFI->N() ) *
-                                        tInvPermeabProp->dPropdDOF( tDofType ) * tVelocityFI->gradx( 1 ) );
+                                        tInvPermeabProp->dPropdDOF( tDofType ) * tVelocityFI->val() );
                     }
                 }
 
@@ -568,7 +568,7 @@ namespace moris
             if ( tInvPermeabProp != nullptr )
             {
                 // add brinkman term to residual strong form
-                aRM.matrix_data() +=  tInvPermeabProp->val()( 0 ) * tVelocityFI->gradx( 1 ) ;
+                aRM.matrix_data() +=  tInvPermeabProp->val()( 0 ) * tVelocityFI->val() ;
             }
 
 
@@ -658,9 +658,8 @@ namespace moris
                 {
                     // add brinkman term to jacobian strong form
                     aJM.matrix_data() +=
-                            tInvPermeabProp->val()( 0 ) * tVelocityFI->dnNdxn( 1 ) ;
+                            tInvPermeabProp->val()( 0 ) * tVelocityFI->N() ;
                 }
-
             }
 
             // if density depends on dof type
@@ -682,9 +681,9 @@ namespace moris
             // if permeability depends on DoF type
             if ( tInvPermeabProp != nullptr )
             {
-                if( tGravityProp->check_dof_dependency( aDofTypes ) )
+                if( tInvPermeabProp->check_dof_dependency( aDofTypes ) )
                 {
-                    aJM.matrix_data() += tInvPermeabProp->dPropdDOF( aDofTypes ).matrix_data() * tVelocityFI->gradx( 1 ) ;
+                    aJM.matrix_data() += tInvPermeabProp->dPropdDOF( aDofTypes ).matrix_data() * tVelocityFI->val() ;
                 }
             }
 
