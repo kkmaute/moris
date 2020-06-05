@@ -87,7 +87,7 @@ namespace moris
             tCMMasterDiffLinIso->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
             tCMMasterDiffLinIso->set_property( tPropMasterConductivity, "Conductivity" );
             tCMMasterDiffLinIso->set_property( tPropMasterDensity, "Density" );
-            tCMMasterDiffLinIso->set_property( tPropMasterHeatCapacity, "Heat_Capacity" );
+            tCMMasterDiffLinIso->set_property( tPropMasterHeatCapacity, "HeatCapacity" );
             tCMMasterDiffLinIso->set_space_dim( aSpatialDim );
 
             //create a space and a time geometry interpolator

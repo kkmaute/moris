@@ -23,6 +23,26 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+        void IWG_Diffusion_Neumann::set_property(
+                std::shared_ptr< Property > aProperty,
+                std::string                 aPropertyString,
+                mtk::Master_Slave           aIsMaster )
+        {
+            // check that aPropertyString makes sense
+            std::string tErrMsg =
+                    std::string( "IWG_Diffusion_Neumann::set_property - Unknown aPropertyString: " ) +
+                    aPropertyString;
+            MORIS_ERROR( mPropertyMap.find( aPropertyString ) != mPropertyMap.end(), tErrMsg.c_str() );
+
+            // check no slave allowed
+            MORIS_ERROR( aIsMaster == mtk::Master_Slave::MASTER,
+                    "IWG_Diffusion_Neumann::set_property - No slave allowed." );
+
+            // set the property in the property cell
+            this->get_properties( aIsMaster )( static_cast< uint >( mPropertyMap[ aPropertyString ] ) ) = aProperty;
+        }
+
+        //------------------------------------------------------------------------------
         void IWG_Diffusion_Neumann::compute_residual( real tWStar )
         {
 #ifdef DEBUG

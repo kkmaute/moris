@@ -40,10 +40,14 @@ set(HEADERS
     cl_FEM_IWG_Incompressible_NS_Viscous_Velocity_Ghost.hpp
     cl_FEM_IWG_Incompressible_NS_Convective_Velocity_Ghost.hpp
     cl_FEM_IWG_Incompressible_NS_Pressure_Ghost.hpp
-    cl_FEM_IWG_INCOMPRESSIBLE_NS_Velocity_Dirichlet_Nitsche.hpp
+    cl_FEM_IWG_Incompressible_NS_Velocity_Dirichlet_Nitsche.hpp
     cl_FEM_IWG_Incompressible_NS_Pressure_Dirichlet_Nitsche.hpp
     cl_FEM_IWG_Incompressible_NS_Pressure_Neumann.hpp
+    cl_FEM_IWG_Incompressible_NS_Velocity_Interface.hpp
+    cl_FEM_IWG_Incompressible_NS_Pressure_Interface.hpp
     cl_FEM_IWG_Spalart_Allmaras_Turbulence_Bulk.hpp
+    cl_FEM_IWG_Spalart_Allmaras_Turbulence_Dirichlet.hpp
+    cl_FEM_IWG_Spalart_Allmaras_Turbulence_Interface.hpp
     cl_FEM_IWG_Time_Continuity_Dof.hpp
     #cl_FEM_IWG_Helmholtz_Bulk.hpp
     #cl_FEM_IWG_Helmholtz_Bulk2.hpp
@@ -116,6 +120,7 @@ set(HEADERS
     cl_FEM_CM_Diffusion_Linear_Isotropic.hpp
     cl_FEM_CM_Diffusion_Linear_Isotropic_Phase_Change.hpp
     cl_FEM_CM_Fluid_Incompressible.hpp
+    cl_FEM_CM_Fluid_Turbulence.hpp
     cl_FEM_CM_Factory.hpp
     cl_FEM_IQI.hpp
     cl_FEM_IQI_Analytic.hpp
@@ -150,7 +155,7 @@ set(HEADERS
     cl_FEM_SP_SUPG_Advection.hpp
     cl_FEM_SP_GGLS_Diffusion.hpp
     cl_FEM_SP_SUPG_Spalart_Allmaras_Turbulence.hpp
-    cl_FEM_SP_Turbulence_Viscosity.hpp
+    cl_FEM_SP_Turbulence_Dirichlet_Nitsche.hpp
     cl_FEM_Set_User_Info.hpp
     cl_FEM_Interpolation_Element.hpp
     cl_FEM_Model.hpp
@@ -195,7 +200,11 @@ set(LIB_SOURCES
     cl_FEM_IWG_Incompressible_NS_Velocity_Dirichlet_Nitsche.cpp
     cl_FEM_IWG_Incompressible_NS_Pressure_Dirichlet_Nitsche.cpp
     cl_FEM_IWG_Incompressible_NS_Pressure_Neumann.cpp
+    cl_FEM_IWG_Incompressible_NS_Velocity_Interface.cpp
+    cl_FEM_IWG_Incompressible_NS_Pressure_Interface.cpp
     cl_FEM_IWG_Spalart_Allmaras_Turbulence_Bulk.cpp
+    cl_FEM_IWG_Spalart_Allmaras_Turbulence_Dirichlet.cpp
+    cl_FEM_IWG_Spalart_Allmaras_Turbulence_Interface.cpp
     cl_FEM_IWG_Time_Continuity_Dof.cpp
     #cl_FEM_IWG_Helmholtz_Bulk.cpp
     #cl_FEM_IWG_Helmholtz_Bulk2.cpp
@@ -222,6 +231,7 @@ set(LIB_SOURCES
     cl_FEM_CM_Diffusion_Linear_Isotropic_Phase_Change.cpp
     cl_FEM_CM_Struc_Linear_Isotropic.cpp
     cl_FEM_CM_Fluid_Incompressible.cpp
+    cl_FEM_CM_Fluid_Turbulence.cpp
     cl_FEM_Stabilization_Parameter.cpp
     cl_FEM_SP_Factory.cpp
     cl_FEM_SP_Dirichlet_Nitsche.cpp
@@ -241,7 +251,7 @@ set(LIB_SOURCES
     cl_FEM_SP_SUPG_Spalart_Allmaras_Turbulence.cpp
     cl_FEM_SP_GGLS_Diffusion.cpp
     cl_FEM_SP_SUPG_Spalart_Allmaras_Turbulence.cpp
-    cl_FEM_SP_Turbulence_Viscosity.cpp
+    cl_FEM_SP_Turbulence_Dirichlet_Nitsche.cpp
     cl_FEM_IQI.cpp
     cl_FEM_IQI_Analytic.cpp
     cl_FEM_IQI_Factory.cpp

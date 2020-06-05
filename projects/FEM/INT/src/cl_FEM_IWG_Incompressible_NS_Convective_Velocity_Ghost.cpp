@@ -12,7 +12,7 @@ namespace moris
     namespace fem
     {
 
-//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
         IWG_Incompressible_NS_Convective_Velocity_Ghost::IWG_Incompressible_NS_Convective_Velocity_Ghost()
         {
             // set size for the stabilization parameter pointer cell
@@ -22,7 +22,22 @@ namespace moris
             mStabilizationMap[ "ConvectiveGhost" ] = IWG_Stabilization_Type::CONVECTIVE_GHOST;
         }
 
-//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
+        void IWG_Incompressible_NS_Convective_Velocity_Ghost::set_stabilization_parameter(
+                std::shared_ptr< Stabilization_Parameter > aStabilizationParameter,
+                std::string                                aStabilizationString )
+        {
+            // check that aStabilizationString makes sense
+            std::string tErrMsg =
+                    std::string( "IWG_Incompressible_NS_Convective_Velocity_Ghost::set_stabilization_parameter - Unknown aStabilizationString: " ) +
+                    aStabilizationString;
+            MORIS_ERROR( mStabilizationMap.find( aStabilizationString ) != mStabilizationMap.end(), tErrMsg.c_str() );
+
+            // set the stabilization parameter in the stabilization parameter cell
+            this->get_stabilization_parameters()( static_cast< uint >( mStabilizationMap[ aStabilizationString ] ) ) = aStabilizationParameter;
+        }
+
+        //------------------------------------------------------------------------------
         void IWG_Incompressible_NS_Convective_Velocity_Ghost::compute_residual( real aWStar )
         {
             // check master field interpolators
@@ -47,33 +62,33 @@ namespace moris
             Field_Interpolator * tFISlave  = mSlaveFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );
 
             // get the convective stabilization parameter
-            std::shared_ptr< Stabilization_Parameter > tSPConvective
-            = mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::CONVECTIVE_GHOST ) );
+            std::shared_ptr< Stabilization_Parameter > tSPConvective =
+                    mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::CONVECTIVE_GHOST ) );
 
             // FIXME set normal for stabilization parameter
             tSPConvective->set_normal( mNormal );
 
             // get flattened derivatives dnNdxn for master and slave
-           Matrix< DDRMat > tMasterdNdx;
-           this->compute_dnNdxn( tMasterdNdx, mtk::Master_Slave::MASTER );
-           Matrix< DDRMat > tSlavedNdx;
-           this->compute_dnNdxn( tSlavedNdx, mtk::Master_Slave::SLAVE );
+            Matrix< DDRMat > tMasterdNdx;
+            this->compute_dnNdxn( tMasterdNdx, mtk::Master_Slave::MASTER );
+            Matrix< DDRMat > tSlavedNdx;
+            this->compute_dnNdxn( tSlavedNdx, mtk::Master_Slave::SLAVE );
 
-           // premultiply common terms
-           Matrix< DDRMat > tConvectivePreMultiply
-           = tSPConvective->val()( 0 ) * ( tFIMaster->gradx( 1 ) - tFISlave->gradx( 1 ) ) ;
-           tConvectivePreMultiply = reshape( tConvectivePreMultiply, tConvectivePreMultiply.numel(), 1 );
+            // premultiply common terms
+            Matrix< DDRMat > tConvectivePreMultiply
+            = tSPConvective->val()( 0 ) * ( tFIMaster->gradx( 1 ) - tFISlave->gradx( 1 ) ) ;
+            tConvectivePreMultiply = reshape( tConvectivePreMultiply, tConvectivePreMultiply.numel(), 1 );
 
             // compute master residual
             mSet->get_residual()( 0 )( { tMasterResStartIndex, tMasterResStopIndex }, { 0, 0 } )
-            += aWStar * ( trans( tMasterdNdx ) * tConvectivePreMultiply );
+                    += aWStar * ( trans( tMasterdNdx ) * tConvectivePreMultiply );
 
             // compute slave residual
             mSet->get_residual()( 0 )( { tSlaveResStartIndex, tSlaveResStopIndex }, { 0, 0 } )
-            -= aWStar * ( trans( tSlavedNdx ) * tConvectivePreMultiply );
+                    -= aWStar * ( trans( tSlavedNdx ) * tConvectivePreMultiply );
         }
 
-//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
         void IWG_Incompressible_NS_Convective_Velocity_Ghost::compute_jacobian( real aWStar )
         {
 #ifdef DEBUG
@@ -130,13 +145,13 @@ namespace moris
                 {
                     // dRM/dM
                     mSet->get_jacobian()( { tMasterResStartIndex, tMasterResStopIndex },
-                                          { tMasterDepStartIndex, tMasterDepStopIndex } )
-                    += aWStar * ( tSPConvective->val()( 0 ) * trans( tMasterdNdx ) * tMasterdNdx );
+                            { tMasterDepStartIndex, tMasterDepStopIndex } )
+                            += aWStar * ( tSPConvective->val()( 0 ) * trans( tMasterdNdx ) * tMasterdNdx );
 
                     // dRS/dM
                     mSet->get_jacobian()( { tSlaveResStartIndex,  tSlaveResStopIndex },
-                                          { tMasterDepStartIndex, tMasterDepStopIndex } )
-                    -= aWStar * ( tSPConvective->val()( 0 ) * trans( tSlavedNdx ) * tMasterdNdx );
+                            { tMasterDepStartIndex, tMasterDepStopIndex } )
+                            -= aWStar * ( tSPConvective->val()( 0 ) * trans( tSlavedNdx ) * tMasterdNdx );
                 }
 
                 // if stabilization parameter dependency on the dof type
@@ -149,12 +164,12 @@ namespace moris
 
                     // add contribution to jacobian
                     mSet->get_jacobian()( { tMasterResStartIndex, tMasterResStopIndex },
-                                          { tMasterDepStartIndex, tMasterDepStopIndex } )
-                    += aWStar * ( trans( tMasterdNdx ) * tConvectivePreMultiply );
+                            { tMasterDepStartIndex, tMasterDepStopIndex } )
+                            += aWStar * ( trans( tMasterdNdx ) * tConvectivePreMultiply );
 
                     mSet->get_jacobian()( { tSlaveResStartIndex,  tSlaveResStopIndex },
-                                          { tMasterDepStartIndex, tMasterDepStopIndex } )
-                    -= aWStar * ( trans( tSlavedNdx ) * tConvectivePreMultiply );
+                            { tMasterDepStartIndex, tMasterDepStopIndex } )
+                            -= aWStar * ( trans( tSlavedNdx ) * tConvectivePreMultiply );
                 }
             }
 
@@ -174,18 +189,18 @@ namespace moris
                 {
                     // dRM/dS
                     mSet->get_jacobian()( { tMasterResStartIndex, tMasterResStopIndex },
-                                          { tSlaveDepStartIndex,  tSlaveDepStopIndex } )
-                    -= aWStar * ( tSPConvective->val()( 0 ) * trans( tMasterdNdx ) * tSlavedNdx );
+                            { tSlaveDepStartIndex,  tSlaveDepStopIndex } )
+                            -= aWStar * ( tSPConvective->val()( 0 ) * trans( tMasterdNdx ) * tSlavedNdx );
 
                     // dRS/dS
                     mSet->get_jacobian()( { tSlaveResStartIndex, tSlaveResStopIndex },
-                                          { tSlaveDepStartIndex, tSlaveDepStopIndex } )
-                    += aWStar * ( tSPConvective->val()( 0 ) * trans( tSlavedNdx ) * tSlavedNdx );
+                            { tSlaveDepStartIndex, tSlaveDepStopIndex } )
+                            += aWStar * ( tSPConvective->val()( 0 ) * trans( tSlavedNdx ) * tSlavedNdx );
                 }
             }
         }
 
-//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
         void IWG_Incompressible_NS_Convective_Velocity_Ghost::compute_jacobian_and_residual( real aWStar )
         {
 #ifdef DEBUG
@@ -196,7 +211,7 @@ namespace moris
             MORIS_ERROR( false, "IWG_Incompressible_NS_Convective_Velocity_Ghost::compute_jacobian_and_residual - Not implemented." );
         }
 
-//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
         void IWG_Incompressible_NS_Convective_Velocity_Ghost::compute_dRdp( real aWStar )
         {
 #ifdef DEBUG
@@ -207,15 +222,15 @@ namespace moris
             MORIS_ERROR( false, "IWG_Incompressible_NS_Convective_Velocity_Ghost::compute_dRdp - Not implemented." );
         }
 
-//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
         void IWG_Incompressible_NS_Convective_Velocity_Ghost::compute_dnNdxn
         ( Matrix< DDRMat >  & adNdx,
-          mtk::Master_Slave   aIsMaster )
+                mtk::Master_Slave   aIsMaster )
         {
             // get the field interpolator for residual dof type
             Field_Interpolator * tFI
             = this->get_field_interpolator_manager( aIsMaster )
-                  ->get_field_interpolators_for_type( mResidualDofType( 0 ) );
+            ->get_field_interpolators_for_type( mResidualDofType( 0 ) );
 
             // init size for dnNdtn
             uint tNumField = tFI->get_number_of_fields();
@@ -228,11 +243,11 @@ namespace moris
             {
                 // fill the matrix for each dimension
                 adNdx( { iField * tNumRow, ( iField + 1 ) * tNumRow -1 },
-                       { iField * tNumCol, ( iField + 1 ) * tNumCol - 1 } )
-                = tFI->dnNdxn( 1 ).matrix_data();
+                        { iField * tNumCol, ( iField + 1 ) * tNumCol - 1 } )
+                        = tFI->dnNdxn( 1 ).matrix_data();
             }
         }
 
-//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
     } /* namespace fem */
 } /* namespace moris */

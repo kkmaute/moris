@@ -11,7 +11,7 @@ namespace moris
 {
     namespace fem
     {
-//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
         IWG_Isotropic_Struc_Linear_Virtual_Work_Ghost::IWG_Isotropic_Struc_Linear_Virtual_Work_Ghost()
         {
             // set size for the constitutive model pointer cell
@@ -28,7 +28,38 @@ namespace moris
             mStabilizationMap[ "GhostVWOrder1" ] = IWG_Stabilization_Type::GHOST_VW_1;
         }
 
-//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
+        void IWG_Isotropic_Struc_Linear_Virtual_Work_Ghost::set_constitutive_model(
+                std::shared_ptr< Constitutive_Model > aConstitutiveModel,
+                std::string                           aConstitutiveString,
+                mtk::Master_Slave                     aIsMaster  )
+        {
+            // check that aConstitutiveString makes sense
+            std::string tErrMsg =
+                    std::string( "IWG_Isotropic_Struc_Linear_Virtual_Work_Ghost::set_constitutive_model - Unknown aConstitutiveString: " ) +
+                    aConstitutiveString;
+            MORIS_ERROR( mConstitutiveMap.find( aConstitutiveString ) != mConstitutiveMap.end(), tErrMsg.c_str() );
+
+            // set the constitutive model in the constitutive model cell
+            this->get_constitutive_models( aIsMaster )( static_cast< uint >( mConstitutiveMap[ aConstitutiveString ] ) ) = aConstitutiveModel;
+        }
+
+        //------------------------------------------------------------------------------
+        void IWG_Isotropic_Struc_Linear_Virtual_Work_Ghost::set_stabilization_parameter(
+                std::shared_ptr< Stabilization_Parameter > aStabilizationParameter,
+                std::string                                aStabilizationString )
+        {
+            // check that aStabilizationString makes sense
+            std::string tErrMsg =
+                    std::string( "IWG_Isotropic_Struc_Linear_Virtual_Work_Ghost::set_stabilization_parameter - Unknown aStabilizationString: " ) +
+                    aStabilizationString;
+            MORIS_ERROR( mStabilizationMap.find( aStabilizationString ) != mStabilizationMap.end(), tErrMsg.c_str() );
+
+            // set the stabilization parameter in the stabilization parameter cell
+            this->get_stabilization_parameters()( static_cast< uint >( mStabilizationMap[ aStabilizationString ] ) ) = aStabilizationParameter;
+        }
+
+        //------------------------------------------------------------------------------
         void IWG_Isotropic_Struc_Linear_Virtual_Work_Ghost::compute_residual( real aWStar )
         {
 #ifdef DEBUG
@@ -48,36 +79,37 @@ namespace moris
             uint tSlaveResStopIndex  = mSet->get_res_dof_assembly_map()( tDofIndexSlave )( 0, 1 );
 
             // get master field interpolator for the residual dof type
-            Field_Interpolator * tMasterFI = mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );
+            Field_Interpolator * tMasterFI =
+                    mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );
 
-//            // get slave field interpolator for the residual dof type
-//            Field_Interpolator * tSlaveFI  = mSlaveFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );
+            //            // get slave field interpolator for the residual dof type
+            //            Field_Interpolator * tSlaveFI  = mSlaveFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );
 
             // FIXME the order should be set differently
             switch ( tMasterFI->get_space_interpolation_order() )
             {
-                case( mtk::Interpolation_Order::LINEAR ):
+                case mtk::Interpolation_Order::LINEAR :
                 {
                     mOrder = 1;
                     break;
                 }
-                case( mtk::Interpolation_Order::QUADRATIC ):
+                case mtk::Interpolation_Order::QUADRATIC :
                 {
                     mOrder = 2;
                     break;
                 }
-                case( mtk::Interpolation_Order::CUBIC ):
+                case mtk::Interpolation_Order::CUBIC :
                 {
                     mOrder = 3;
                     break;
                 }
                 default:
                 {
-                    MORIS_ERROR( false, "IWG_Diffusion_Virtual_Work_Ghost::compute_residual - order not supported");
+                    MORIS_ERROR( false, "IWG_Isotropic_Struc_Linear_Virtual_Work_Ghost::compute_residual - order not supported");
                     break;
                 }
             }
-            MORIS_ERROR( mOrder <= 1, "IWG_Diffusion_Virtual_Work_Ghost:compute_residual - only first order supported. ");
+            MORIS_ERROR( mOrder <= 1, "IWG_Isotropic_Struc_Linear_Virtual_Work_Ghost:compute_residual - only first order supported. ");
 
             // get indices for SP, CM and properties
             uint tElastLinIsoIndex = static_cast< uint >( IWG_Constitutive_Type::ELAST_LIN_ISO );
@@ -93,19 +125,20 @@ namespace moris
                 this->get_normal_matrix( 2, tNormalMatrix );
 
                 // compute the jump in traction
-                Matrix< DDRMat > tGradJump = mMasterCM( tElastLinIsoIndex )->traction( mNormal )
-                                           - mSlaveCM( tElastLinIsoIndex )->traction( mNormal );
+                Matrix< DDRMat > tGradJump =
+                        mMasterCM( tElastLinIsoIndex )->traction( mNormal ) -
+                        mSlaveCM( tElastLinIsoIndex )->traction( mNormal );
 
                 // compute the residual
-                mSet->get_residual()( 0 )( { tMasterResStartIndex, tMasterResStopIndex }, { 0, 0 } )
-                += tGhostPenalty * trans( mMasterCM( tElastLinIsoIndex )->testStrain() ) * trans( tNormalMatrix ) * tGradJump * aWStar;
+                mSet->get_residual()( 0 )( { tMasterResStartIndex, tMasterResStopIndex }, { 0, 0 } ) += aWStar * (
+                        tGhostPenalty * trans( mMasterCM( tElastLinIsoIndex )->testStrain() ) * trans( tNormalMatrix ) * tGradJump );
 
-                mSet->get_residual()( 0 )( { tSlaveResStartIndex,  tSlaveResStopIndex },  { 0, 0 } )
-                -= tGhostPenalty * trans( mSlaveCM( tElastLinIsoIndex )->testStrain() )  * trans( tNormalMatrix ) * tGradJump * aWStar;
+                mSet->get_residual()( 0 )( { tSlaveResStartIndex,  tSlaveResStopIndex },  { 0, 0 } ) -= aWStar * (
+                        tGhostPenalty * trans( mSlaveCM( tElastLinIsoIndex )->testStrain() )  * trans( tNormalMatrix ) * tGradJump );
             }
         }
 
-//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
         void IWG_Isotropic_Struc_Linear_Virtual_Work_Ghost::compute_jacobian( real aWStar )
         {
 #ifdef DEBUG
@@ -125,37 +158,38 @@ namespace moris
             uint tSlaveResStopIndex  = mSet->get_res_dof_assembly_map()( tDofIndexSlave )( 0, 1 );
 
             // get master field interpolator for the residual dof type
-            Field_Interpolator * tMasterFI = mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );
+            Field_Interpolator * tMasterFI =
+                    mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );
 
-//            // get slave field interpolator for the residual dof type
-//            Field_Interpolator * tSlaveFI  = mSlaveFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );
+            //            // get slave field interpolator for the residual dof type
+            //            Field_Interpolator * tSlaveFI  = mSlaveFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );
 
             // FIXME the order should be set differently
             switch ( tMasterFI->get_space_interpolation_order() )
             {
-                case( mtk::Interpolation_Order::LINEAR ):
+                case mtk::Interpolation_Order::LINEAR :
                 {
                     mOrder = 1;
                     break;
                 }
-                case( mtk::Interpolation_Order::QUADRATIC ):
+                case mtk::Interpolation_Order::QUADRATIC :
                 {
                     mOrder = 2;
                     break;
                 }
-                case( mtk::Interpolation_Order::CUBIC ):
+                case mtk::Interpolation_Order::CUBIC :
                 {
                     mOrder = 3;
                     break;
                 }
                 default:
                 {
-                    MORIS_ERROR( false, "IWG_Diffusion_Virtual_Work_Ghost::compute_residual - order not supported");
+                    MORIS_ERROR( false, "IWG_Isotropic_Struc_Linear_Virtual_Work_Ghost::compute_residual - order not supported");
                     break;
                 }
             }
 
-            MORIS_ERROR( mOrder <= 1, "IWG_Diffusion_Virtual_Work_Ghost:compute_residual - only first order supported. ");
+            MORIS_ERROR( mOrder <= 1, "IWG_Isotropic_Struc_Linear_Virtual_Work_Ghost:compute_residual - only first order supported. ");
 
             // get number of master dof dependencies
             uint tMasterNumDofDependencies = mRequestedMasterGlobalDofTypes.size();
@@ -188,17 +222,17 @@ namespace moris
                     if ( mMasterCM( tElastLinIsoIndex )->check_dof_dependency( tDofType ) )
                     {
                         // add contribution to jacobian
-                        mSet->get_jacobian()( { tMasterResStartIndex, tMasterResStopIndex },
-                                              { tDepStartIndex,       tDepStopIndex } )
-                        += tGhostPenalty * trans( mMasterCM( tElastLinIsoIndex )->testStrain() ) * trans( tNormalMatrix )
-                                         * mMasterCM( tElastLinIsoIndex )->dTractiondDOF( tDofType, mNormal )
-                                         * aWStar;
+                        mSet->get_jacobian()(
+                                { tMasterResStartIndex, tMasterResStopIndex },
+                                { tDepStartIndex,       tDepStopIndex } ) += aWStar * (
+                                        tGhostPenalty * trans( mMasterCM( tElastLinIsoIndex )->testStrain() ) *
+                                        trans( tNormalMatrix ) * mMasterCM( tElastLinIsoIndex )->dTractiondDOF( tDofType, mNormal ) );
 
-                        mSet->get_jacobian()( { tSlaveResStartIndex, tSlaveResStopIndex },
-                                              { tDepStartIndex,      tDepStopIndex } )
-                        -= tGhostPenalty * trans( mSlaveCM( tElastLinIsoIndex )->testStrain() ) * trans( tNormalMatrix )
-                                         * mMasterCM( tElastLinIsoIndex )->dTractiondDOF( tDofType, mNormal )
-                                         * aWStar;
+                        mSet->get_jacobian()(
+                                { tSlaveResStartIndex, tSlaveResStopIndex },
+                                { tDepStartIndex,      tDepStopIndex } ) -= aWStar * (
+                                        tGhostPenalty * trans( mSlaveCM( tElastLinIsoIndex )->testStrain() ) *
+                                        trans( tNormalMatrix ) * mMasterCM( tElastLinIsoIndex )->dTractiondDOF( tDofType, mNormal ) );
                     }
                 }
 
@@ -218,38 +252,38 @@ namespace moris
                     if ( mSlaveCM( tElastLinIsoIndex )->check_dof_dependency( tDofType ) )
                     {
                         // add contribution to jacobian
-                        mSet->get_jacobian()( { tMasterResStartIndex, tMasterResStopIndex },
-                                              { tDepStartIndex,       tDepStopIndex } )
-                        -= tGhostPenalty * trans( mMasterCM( tElastLinIsoIndex )->testStrain() ) * trans( tNormalMatrix )
-                                         * mSlaveCM( tElastLinIsoIndex )->dTractiondDOF( tDofType, mNormal )
-                                         * aWStar;
+                        mSet->get_jacobian()(
+                                { tMasterResStartIndex, tMasterResStopIndex },
+                                { tDepStartIndex,       tDepStopIndex } ) -= aWStar * (
+                                        tGhostPenalty * trans( mMasterCM( tElastLinIsoIndex )->testStrain() ) *
+                                        trans( tNormalMatrix ) * mSlaveCM( tElastLinIsoIndex )->dTractiondDOF( tDofType, mNormal ) );
 
-                        mSet->get_jacobian()( { tSlaveResStartIndex, tSlaveResStopIndex },
-                                              { tDepStartIndex,      tDepStopIndex } )
-                        += tGhostPenalty * trans( mSlaveCM( tElastLinIsoIndex )->testStrain() ) * trans( tNormalMatrix )
-                                         * mSlaveCM( tElastLinIsoIndex )->dTractiondDOF( tDofType, mNormal )
-                                         * aWStar;
+                        mSet->get_jacobian()(
+                                { tSlaveResStartIndex, tSlaveResStopIndex },
+                                { tDepStartIndex,      tDepStopIndex } ) += aWStar * (
+                                        tGhostPenalty * trans( mSlaveCM( tElastLinIsoIndex )->testStrain() ) *
+                                        trans( tNormalMatrix ) * mSlaveCM( tElastLinIsoIndex )->dTractiondDOF( tDofType, mNormal ) );
                     }
                 }
             }
         }
 
-//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
         void IWG_Isotropic_Struc_Linear_Virtual_Work_Ghost::compute_jacobian_and_residual( real aWStar )
         {
             MORIS_ERROR( false, "IWG_Isotropic_Struc_Linear_Virtual_Work_Ghost::compute_jacobian_and_residual - Not implemented." );
         }
 
-//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
         void IWG_Isotropic_Struc_Linear_Virtual_Work_Ghost::compute_dRdp( real aWStar )
         {
             MORIS_ERROR( false, "IWG_Isotropic_Struc_Linear_Virtual_Work_Ghost::compute_dRdp - This function does nothing.");
         }
 
-//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
         void IWG_Isotropic_Struc_Linear_Virtual_Work_Ghost::get_normal_matrix
         ( uint               aOrderGhost,
-          Matrix< DDRMat > & aNormalMatrix )
+                Matrix< DDRMat > & aNormalMatrix )
         {
             // get spatial dimensions
             uint tSpaceDim = mNormal.numel();
@@ -257,16 +291,16 @@ namespace moris
             // switch on the ghost order
             switch( aOrderGhost )
             {
-                case ( 1 ):
+                case 1 :
                 {
                     switch ( tSpaceDim )
                     {
-                        case ( 2 ):
+                        case 2 :
                         {
                             aNormalMatrix = trans( mNormal );
                             break;
                         }
-                        case ( 3 ):
+                        case 3 :
                         {
                             aNormalMatrix = trans( mNormal );
                             break;
@@ -280,11 +314,11 @@ namespace moris
                     break;
                 }
 
-                case ( 2 ):
+                case 2 :
                 {
                     switch ( tSpaceDim )
                     {
-                        case ( 2 ):
+                        case 2 :
                         {
                             // set the normal matrix size
                             aNormalMatrix.set_size( 2, 3, 0.0 );
@@ -298,7 +332,7 @@ namespace moris
 
                             break;
                         }
-                        case ( 3 ):
+                        case  3 :
                         {
                             // set the normal matrix size
                             aNormalMatrix.set_size( 3, 6, 0.0 );
@@ -328,11 +362,11 @@ namespace moris
                     break;
                 }
 
-                case ( 3 ):
+                case 3 :
                 {
                     switch ( tSpaceDim )
                     {
-                        case ( 2 ):
+                        case 2 :
                         {
                             // set the normal matrix size
                             aNormalMatrix.set_size( 3, 4, 0.0 );
@@ -350,7 +384,7 @@ namespace moris
 
                             break;
                         }
-                        case ( 3 ):
+                        case 3 :
                         {
                             // set the normal matrix size
                             aNormalMatrix.set_size( 6, 10, 0.0 );
@@ -401,6 +435,6 @@ namespace moris
             }
         }
 
-//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
     } /* namespace fem */
 } /* namespace moris */

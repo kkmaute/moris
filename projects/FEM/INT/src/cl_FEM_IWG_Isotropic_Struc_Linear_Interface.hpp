@@ -23,112 +23,98 @@ namespace moris
 {
     namespace fem
     {
-//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
 
         class IWG_Isotropic_Struc_Linear_Interface : public IWG
         {
 
-        public:
+            public:
 
-            enum class IWG_Constitutive_Type
-            {
-                ELAST_LIN_ISO,
-                MAX_ENUM
-            };
+                enum class IWG_Constitutive_Type
+                {
+                    ELAST_LIN_ISO,
+                    MAX_ENUM
+                };
 
-            // Local string to constitutive enum map
-            std::map< std::string, IWG_Constitutive_Type > mConstitutiveMap;
+                // Local string to constitutive enum map
+                std::map< std::string, IWG_Constitutive_Type > mConstitutiveMap;
 
-            enum class IWG_Stabilization_Type
-            {
-                NITSCHE_INTERFACE,
-                MASTER_WEIGHT_INTERFACE,
-                SLAVE_WEIGHT_INTERFACE,
-                MAX_ENUM
-            };
+                enum class IWG_Stabilization_Type
+                {
+                        NITSCHE_INTERFACE,
+                        MASTER_WEIGHT_INTERFACE,
+                        SLAVE_WEIGHT_INTERFACE,
+                        MAX_ENUM
+                };
 
-            // Local string to constitutive enum map
-            std::map< std::string, IWG_Stabilization_Type > mStabilizationMap;
+                // Local string to constitutive enum map
+                std::map< std::string, IWG_Stabilization_Type > mStabilizationMap;
 
-//------------------------------------------------------------------------------
-            /*
-             * constructor
-             */
-            IWG_Isotropic_Struc_Linear_Interface();
+                //------------------------------------------------------------------------------
+                /*
+                 * constructor
+                 */
+                IWG_Isotropic_Struc_Linear_Interface();
 
-//------------------------------------------------------------------------------
-            /**
-             * trivial destructor
-             */
-            ~IWG_Isotropic_Struc_Linear_Interface(){};
+                //------------------------------------------------------------------------------
+                /**
+                 * trivial destructor
+                 */
+                ~IWG_Isotropic_Struc_Linear_Interface(){};
 
-//------------------------------------------------------------------------------
-            /**
-             * set constitutive model
-             * @param[ in ] aConstitutiveModel  a constitutive model pointer
-             * @param[ in ] aConstitutiveString a string defining the constitutive model
-             * @param[ in ] aIsMaster           an enum for master or slave
-             */
-            void set_constitutive_model( std::shared_ptr< Constitutive_Model > aConstitutiveModel,
-                                         std::string                           aConstitutiveString,
-                                         mtk::Master_Slave                     aIsMaster = mtk::Master_Slave::MASTER )
-            {
-                // check that aConstitutiveString makes sense
-                MORIS_ERROR( mConstitutiveMap.find( aConstitutiveString ) != mConstitutiveMap.end(),
-                             "IWG_Isotropic_Struc_Linear_Interface::set_constitutive_model - Unknown aConstitutiveString." );
+                //------------------------------------------------------------------------------
+                /**
+                 * set constitutive model
+                 * @param[ in ] aConstitutiveModel  a constitutive model pointer
+                 * @param[ in ] aConstitutiveString a string defining the constitutive model
+                 * @param[ in ] aIsMaster           an enum for master or slave
+                 */
+                void set_constitutive_model(
+                        std::shared_ptr< Constitutive_Model > aConstitutiveModel,
+                        std::string                           aConstitutiveString,
+                        mtk::Master_Slave                     aIsMaster = mtk::Master_Slave::MASTER );
 
-                // set the constitutive model in the constitutive model cell
-                this->get_constitutive_models( aIsMaster )( static_cast< uint >( mConstitutiveMap[ aConstitutiveString ] ) ) = aConstitutiveModel;
-            }
+                //------------------------------------------------------------------------------
+                /**
+                 * set stabilization parameter
+                 * @param[ in ] aStabilizationParameter a stabilization parameter pointer
+                 * @param[ in ] aStabilizationString    a string defining the stabilization parameter
+                 */
+                void set_stabilization_parameter(
+                        std::shared_ptr< Stabilization_Parameter > aStabilizationParameter,
+                        std::string                                aStabilizationString );
 
-//------------------------------------------------------------------------------
-            /**
-             * set stabilization parameter
-             * @param[ in ] aStabilizationParameter a stabilization parameter pointer
-             * @param[ in ] aStabilizationString    a string defining the stabilization parameter
-             */
-            void set_stabilization_parameter( std::shared_ptr< Stabilization_Parameter > aStabilizationParameter,
-                                              std::string                                aStabilizationString )
-            {
-                // check that aConstitutiveString makes sense
-                 MORIS_ERROR( mStabilizationMap.find( aStabilizationString ) != mStabilizationMap.end(),
-                              "IWG_Isotropic_Struc_Linear_Interface::set_stabilization_parameter - Unknown aStabilizationString." );
+                //------------------------------------------------------------------------------
+                /**
+                 * compute the residual
+                 * @param[ in ] aWStar weight associated to the evaluation point
+                 */
+                void compute_residual( real aWStar );
 
-                // set the stabilization parameter in the stabilization parameter cell
-                this->get_stabilization_parameters()( static_cast< uint >( mStabilizationMap[ aStabilizationString ] ) ) = aStabilizationParameter;
-            }
+                //------------------------------------------------------------------------------
+                /**
+                 * compute the jacobian
+                 * @param[ in ] aWStar weight associated to the evaluation point
+                 */
+                void compute_jacobian( real aWStar );
 
-//------------------------------------------------------------------------------
-            /**
-             * compute the residual
-             * @param[ in ] aWStar weight associated to the evaluation point
-             */
-            void compute_residual( real aWStar );
+                //------------------------------------------------------------------------------
+                /**
+                 * compute the residual and the jacobian
+                 * @param[ in ] aWStar weight associated to the evaluation point
+                 */
+                void compute_jacobian_and_residual( real aWStar );
 
-//------------------------------------------------------------------------------
-            /**
-             * compute the jacobian
-             * @param[ in ] aWStar weight associated to the evaluation point
-             */
-            void compute_jacobian( real aWStar );
+                //------------------------------------------------------------------------------
+                /**
+                 * compute the derivative of the residual wrt design variables
+                 * @param[ in ] aWStar weight associated to the evaluation point
+                 */
+                void compute_dRdp( real aWStar );
 
-//------------------------------------------------------------------------------
-            /**
-             * compute the residual and the jacobian
-             * @param[ in ] aWStar weight associated to the evaluation point
-             */
-            void compute_jacobian_and_residual( real aWStar );
-
-//------------------------------------------------------------------------------
-            /**
-             * compute the derivative of the residual wrt design variables
-             * @param[ in ] aWStar weight associated to the evaluation point
-             */
-            void compute_dRdp( real aWStar );
-
-//------------------------------------------------------------------------------
+                //------------------------------------------------------------------------------
         };
-//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
     } /* namespace fem */
 } /* namespace moris */
 

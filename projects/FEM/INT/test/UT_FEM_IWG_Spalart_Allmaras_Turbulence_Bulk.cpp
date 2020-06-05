@@ -4,24 +4,25 @@
 
 #include "assert.hpp"
 
-#include "cl_MTK_Enums.hpp" //MTK/src
-#include "cl_FEM_Enums.hpp"                                //FEM//INT/src
-
-#include "op_equal_equal.hpp"
-
 #define protected public
 #define private   public
-#include "cl_FEM_Field_Interpolator_Manager.hpp"                   //FEM//INT//src
-#include "cl_FEM_IWG.hpp"         //FEM/INT/src
-#include "cl_FEM_Set.hpp"         //FEM/INT/src
+//FEM//INT//src
+#include "cl_FEM_Field_Interpolator_Manager.hpp"
+#include "cl_FEM_IWG.hpp"
+#include "cl_FEM_Set.hpp"
 #undef protected
 #undef private
-
-#include "cl_FEM_Field_Interpolator.hpp"                   //FEM//INT//src
-#include "cl_FEM_Property.hpp"                   //FEM//INT//src
-#include "cl_FEM_CM_Factory.hpp"                   //FEM//INT//src
-#include "cl_FEM_SP_Factory.hpp"                   //FEM//INT//src
-#include "cl_FEM_IWG_Factory.hpp"                   //FEM//INT//src
+//LINALG/src
+#include "op_equal_equal.hpp"
+//MTK/src
+#include "cl_MTK_Enums.hpp"
+//FEM//INT/src
+#include "cl_FEM_Enums.hpp"
+#include "cl_FEM_Field_Interpolator.hpp"
+#include "cl_FEM_Property.hpp"
+#include "cl_FEM_CM_Factory.hpp"
+#include "cl_FEM_SP_Factory.hpp"
+#include "cl_FEM_IWG_Factory.hpp"
 
 void tConstValFunction_SATurbulenceBulk
 ( moris::Matrix< moris::DDRMat >                 & aPropMatrix,
@@ -31,20 +32,24 @@ void tConstValFunction_SATurbulenceBulk
     aPropMatrix = aParameters( 0 );
 }
 
-void tTEMPFIValFunction_SATurbulenceBulk
+void tVISCOSITYFIValFunction_SATurbulenceBulk
 ( moris::Matrix< moris::DDRMat >                 & aPropMatrix,
   moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
   moris::fem::Field_Interpolator_Manager         * aFIManager )
 {
-    aPropMatrix = aParameters( 0 ) * aFIManager->get_field_interpolators_for_type( moris::MSI::Dof_Type::VISCOSITY )->val();
+    aPropMatrix =
+            aParameters( 0 ) *
+            aFIManager->get_field_interpolators_for_type( moris::MSI::Dof_Type::VISCOSITY )->val();
 }
 
-void tTEMPFIDerFunction_SATurbulenceBulk
+void tVISCOSITYFIDerFunction_SATurbulenceBulk
 ( moris::Matrix< moris::DDRMat >                 & aPropMatrix,
   moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
   moris::fem::Field_Interpolator_Manager         * aFIManager )
 {
-    aPropMatrix = aParameters( 0 ) * aFIManager->get_field_interpolators_for_type( moris::MSI::Dof_Type::VISCOSITY )->N();
+    aPropMatrix =
+            aParameters( 0 ) *
+            aFIManager->get_field_interpolators_for_type( moris::MSI::Dof_Type::VISCOSITY )->N();
 }
 
 using namespace moris;
@@ -260,7 +265,10 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Bulk", "[IWG_Spalart_Allmaras_Turbul
 
             std::shared_ptr< fem::Property > tPropViscosity = std::make_shared< fem::Property >();
             tPropViscosity->set_parameters( { {{ 2.0 }} } );
-            tPropViscosity->set_val_function( tConstValFunction_SATurbulenceBulk );
+            //tPropViscosity->set_val_function( tConstValFunction_SATurbulenceBulk );
+            tPropViscosity->set_dof_type_list( { tVisDofTypes } );
+            tPropViscosity->set_val_function( tVISCOSITYFIValFunction_SATurbulenceBulk );
+            tPropViscosity->set_dof_derivative_functions( { tVISCOSITYFIDerFunction_SATurbulenceBulk } );
 
             // define stabilization parameters
             fem::SP_Factory tSPFactory;

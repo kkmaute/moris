@@ -145,14 +145,14 @@ void FEMParameterList( moris::Cell< moris::Cell< ParameterList > > & tParameterL
     tParameterList( 1 )( 2 ) = prm::create_constitutive_model_parameter_list();
     tParameterList( 1 )( 2 ).set( "constitutive_name", std::string("CMDiffLinIso1") );
     tParameterList( 1 )( 2 ).set( "constitutive_type", static_cast< uint >( fem::Constitutive_Type::DIFF_LIN_ISO ) );
-    tParameterList( 1 )( 2 ).set( "dof_dependencies",  std::pair< std::string, std::string >( "TEMP", "Temp" ) );
+    tParameterList( 1 )( 2 ).set( "dof_dependencies",  std::pair< std::string, std::string >( "TEMP", "Temperature" ) );
     tParameterList( 1 )( 2 ).set( "properties",        std::string("PropConductivity1,Conductivity") );
     
     // create parameter list for constitutive model 4
     tParameterList( 1 )( 3 ) = prm::create_constitutive_model_parameter_list();
     tParameterList( 1 )( 3 ).set( "constitutive_name", std::string("CMDiffLinIso2") );
     tParameterList( 1 )( 3 ).set( "constitutive_type", static_cast< uint >( fem::Constitutive_Type::DIFF_LIN_ISO ) );
-    tParameterList( 1 )( 3 ).set( "dof_dependencies",  std::pair< std::string, std::string >( "TEMP", "Temp" ) );
+    tParameterList( 1 )( 3 ).set( "dof_dependencies",  std::pair< std::string, std::string >( "TEMP", "Temperature" ) );
     tParameterList( 1 )( 3 ).set( "properties",        std::string("PropConductivity2,Conductivity") );
     
     //------------------------------------------------------------------------------

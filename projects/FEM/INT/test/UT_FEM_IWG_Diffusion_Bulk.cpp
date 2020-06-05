@@ -87,7 +87,7 @@ moris::Cell<bool> test_IWG_Diffusion_Bulk(
     moris::Cell<bool> tChecks( 1, false );
 
     // define an epsilon environment
-    real tEpsilon = 1.0E-6;
+    real tEpsilon = 1.0E-4;
 
     // define a perturbation relative size
     real tPerturbation = 1.0E-6;
@@ -128,7 +128,7 @@ moris::Cell<bool> test_IWG_Diffusion_Bulk(
     tCMMasterDiffLinIso->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
     tCMMasterDiffLinIso->set_property( tPropMasterConductivity, "Conductivity" );
     tCMMasterDiffLinIso->set_property( tPropMasterDensity, "Density");
-    tCMMasterDiffLinIso->set_property( tPropMasterHeatCapacity, "Heat_Capacity");
+    tCMMasterDiffLinIso->set_property( tPropMasterHeatCapacity, "HeatCapacity");
     tCMMasterDiffLinIso->set_space_dim( 3 );
 
     // define the IWGs
@@ -409,7 +409,7 @@ TEST_CASE( "IWG_Diffusion_Bulk_Geo_Prop", "[moris],[fem],[IWG_Diff_Bulk_Geo_Prop
     tCMMasterDiffLinIso->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
     tCMMasterDiffLinIso->set_property( tPropMasterConductivity, "Conductivity" );
     tCMMasterDiffLinIso->set_property( tPropMasterDensity, "Density");
-    tCMMasterDiffLinIso->set_property( tPropMasterHeatCapacity, "Heat_Capacity");
+    tCMMasterDiffLinIso->set_property( tPropMasterHeatCapacity, "HeatCapacity");
     tCMMasterDiffLinIso->set_space_dim( 3 );
 
     // define the IWGs
