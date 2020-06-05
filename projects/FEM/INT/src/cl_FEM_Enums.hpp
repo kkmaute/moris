@@ -195,6 +195,7 @@ namespace moris
             SUPG_ADVECTION,
             SUPG_SPALART_ALLMARAS_TURBULENCE,
             TURBULENCE_DIRICHLET_NITSCHE,
+            GHOST_TURBULENCE,
             END_STABILIZATION_TYPE
         };
 
