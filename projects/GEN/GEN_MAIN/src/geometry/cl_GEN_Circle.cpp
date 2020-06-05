@@ -53,11 +53,19 @@ namespace moris
             real tYCenter = *(mFieldVariables(1));
 
             // Calculate sensitivities
-            aSensitivities.resize(3, 1);
+            aSensitivities.resize(1, 3);
             real tDenominator = sqrt(pow(aCoordinates(0) - tXCenter, 2) + pow(aCoordinates(1) - tYCenter, 2));
-            aSensitivities(0) = (tXCenter - aCoordinates(0)) / tDenominator;
-            aSensitivities(1) = (tYCenter - aCoordinates(1)) / tDenominator;
-            aSensitivities(2) = -1;
+            if (tDenominator == 0.0)
+            {
+                aSensitivities(0) = 0.0;
+                aSensitivities(1) = 0.0;
+            }
+            else
+            {
+                aSensitivities(0) = (tXCenter - aCoordinates(0)) / tDenominator;
+                aSensitivities(1) = (tYCenter - aCoordinates(1)) / tDenominator;
+            }
+            aSensitivities(2) = -1.0;
         }
 
         //--------------------------------------------------------------------------------------------------------------

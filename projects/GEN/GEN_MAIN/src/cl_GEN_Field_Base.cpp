@@ -1,7 +1,3 @@
-//
-// Created by christopherson on 5/18/20.
-//
-
 #include "cl_GEN_Field_Base.hpp"
 
 namespace moris
@@ -16,15 +12,17 @@ namespace moris
                      Matrix<DDUMat> aADVIndices,
                      Matrix<DDRMat> aConstantParameters)
                 : mADVIndices(aADVIndices),
-                mConstantParameters(aConstantParameters)
+                  mConstantParameters(aConstantParameters),
+                  mActiveVariables(aFieldVariableIndices.length() + mConstantParameters.length(), true)
 
         {
             // Check that the number of field variables indices equals the number of ADV indices, resize field variables
             MORIS_ERROR(aFieldVariableIndices.length() == aADVIndices.length(),
-                        "gen::Field: Number of field variables indices must equal the number of ADV indices");
+                        "ge::Field: Number of field variables indices must equal the number of ADV indices");
 
             // Resize field variables
             uint tNumInputs = aFieldVariableIndices.length() + mConstantParameters.length();
+            mNumActiveVariables = tNumInputs;
             mFieldVariables.resize(tNumInputs);
 
             // Fill with pointers to ADVs
@@ -40,6 +38,8 @@ namespace moris
                 if (mFieldVariables(tVariableIndex) == nullptr)
                 {
                     mFieldVariables(tVariableIndex) = &(mConstantParameters(tParameterIndex++));
+                    mActiveVariables(tVariableIndex) = false;
+                    mNumActiveVariables--;
                 }
             }
         }
@@ -47,7 +47,9 @@ namespace moris
         //--------------------------------------------------------------------------------------------------------------
 
         Field::Field(Matrix<DDRMat> aConstantParameters)
-                : mConstantParameters(aConstantParameters)
+                : mConstantParameters(aConstantParameters),
+                  mActiveVariables(aConstantParameters.length(), false),
+                  mNumActiveVariables(0)
         {
             // Resize field variables
             uint tNumInputs = mConstantParameters.length();
@@ -89,9 +91,10 @@ namespace moris
             {
                 if (mActiveVariables(tVariableIndex))
                 {
-                    aSensitivities(tVariableIndex++) = tSensitivityIndex;
+                    aSensitivities(tVariableIndex++) = aSensitivities(tSensitivityIndex);
                 }
             }
+            aSensitivities.resize(1, mNumActiveVariables);
         }
 
         //--------------------------------------------------------------------------------------------------------------
