@@ -122,6 +122,7 @@ namespace xtk
                     Cell<Matrix<IndexMat>> const & aRequestedIpCellIds,
                     Cell<Matrix<DDRMat>>   & aTMatrixWeights,
                     Cell<Matrix<IndexMat>> & aTMatrixIndices,
+                    Cell<Matrix<IndexMat>> & aBasisOwners,
                     Cell<Matrix<IndexMat>> & aTMatrixOffsets);
 
             void
@@ -129,6 +130,7 @@ namespace xtk
                                                            Vertex_Enrichment* aInterpolation,
                                                            Matrix<DDRMat>   & aTMatrixWeights,
                                                            Matrix<IndexMat> & aTMatrixIndices,
+                                                           Matrix<IndexMat> & aTMatrixOwners,
                                                            Matrix<IndexMat> & aTMatrixOffsets);
 
             void
@@ -136,15 +138,18 @@ namespace xtk
                     moris::uint      const & aNumVerts,
                     Matrix<DDRMat>   const & aTMatrixWeights,
                     Matrix<IndexMat> const & aTMatrixIndices,
+                    Matrix<IndexMat> const & aTMatrixOwners,
                     Matrix<IndexMat> const & aTMatrixOffsets,
                     Cell<Matrix<DDRMat>>   & aExtractedTMatrixWeights,
-                    Cell<Matrix<IndexMat>> & aExtractedTMatrixIndices);
+                    Cell<Matrix<IndexMat>> & aExtractedTMatrixIndices,
+                    Cell<Matrix<IndexMat>> & aExtractedBasisOwners);
 
             void
             handle_received_interpolation_data(
                     Cell<Matrix<IndexMat>> const & aNotOwnedIPVertIndsToProcs,
                     Cell<Matrix<DDRMat>>   const & aRequestedTMatrixWeights,
                     Cell<Matrix<IndexMat>> const & aRequestedTMatrixIndices,
+                    Cell<Matrix<IndexMat>> const & aRequestedBasisOwners,
                     Cell<Matrix<IndexMat>> const & aRequestedTMatrixOffsets);
 
             // ----------------------------------------------------------------------------------

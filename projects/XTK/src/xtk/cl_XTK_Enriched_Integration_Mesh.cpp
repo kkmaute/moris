@@ -1343,6 +1343,9 @@ Enriched_Integration_Mesh::setup_blockset_with_cell_clusters()
     // enriched interpolation mesh
     Enriched_Interpolation_Mesh* tEnrInterpMesh = mModel->mEnrichedInterpMesh(mMeshIndexInModel);
 
+    // my proc rank
+    moris_index tProcRank = par_rank();
+
     // get block sets (in background mesh data)
     Cell<std::string> tBlockSetsNames = tBackgroundMesh.get_mesh_data().get_set_names(EntityRank::ELEMENT);
 
@@ -1386,21 +1389,24 @@ Enriched_Integration_Mesh::setup_blockset_with_cell_clusters()
             // get cluster associated with enriched cell
             xtk::Cell_Cluster const & tCluster = this->get_cell_cluster(tEnrichedCellsInBlock(iC)->get_index());
 
-            // set ord
-            moris_index tSetOrd = MORIS_INDEX_MAX;
-
-            if(tCluster.is_trivial())
+            if(tEnrichedCellsInBlock(iC)->get_owner() == tProcRank)
             {
-                tSetOrd = tNoChildBlockSetOrds(tBulkPhaseIndex);
-            }
+                // set ord
+                moris_index tSetOrd = MORIS_INDEX_MAX;
 
-            else
-            {
-                tSetOrd = tChildBlockSetOrds(tBulkPhaseIndex);
-            }
+                if(tCluster.is_trivial())
+                {
+                    tSetOrd = tNoChildBlockSetOrds(tBulkPhaseIndex);
+                }
 
-            // add to member data
-            mPrimaryBlockSetClusters(tSetOrd).push_back(&tCluster);
+                else
+                {
+                    tSetOrd = tChildBlockSetOrds(tBulkPhaseIndex);
+                }
+
+                // add to member data
+                mPrimaryBlockSetClusters(tSetOrd).push_back(&tCluster);
+            }
         }
     }
 

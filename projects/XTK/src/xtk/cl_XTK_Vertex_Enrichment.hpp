@@ -137,6 +137,10 @@ public:
                       moris::Matrix<moris::DDRMat>   const & aBasisWeight);
 
     void
+    add_basis_owners( moris::Matrix<moris::IndexMat> const & aBasisIndices,
+                      moris::Matrix<moris::IndexMat> const & aBasisOwners);
+
+    void
     add_base_vertex_interpolation(mtk::Vertex_Interpolation * aBaseVertInterp);
 
 
@@ -171,6 +175,7 @@ protected:
     moris::moris_index               mNodeIndex;
     moris::Matrix< moris::IndexMat > mBasisIndices;
     moris::Matrix< moris::IndexMat > mBasisIds;
+    moris::Matrix< moris::IndexMat > mBasisOwners;
     moris::Matrix< moris::DDRMat >   mBasisWeights;
     mtk::Vertex_Interpolation *      mBaseVertexInterp;
     std::unordered_map<moris::moris_index, moris::moris_index> mBasisMap; /*From basis to local index*/

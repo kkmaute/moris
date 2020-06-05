@@ -91,6 +91,11 @@ Interpolation_Cell_Unzipped::get_xtk_interpolation_vertices() const
     return mVertices;
 }
 //------------------------------------------------------------------------------
+moris::Cell< xtk::Interpolation_Vertex_Unzipped* > &
+Interpolation_Cell_Unzipped::get_xtk_interpolation_vertices()
+{
+    return mVertices;
+}
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------

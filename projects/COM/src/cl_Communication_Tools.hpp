@@ -15,6 +15,7 @@
 #include "cl_Communication_Manager.hpp" // COM/src
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
+#include "fn_isvector.hpp"
 
 //#include "cl_Bitset.hpp" // CON/src
 #include "cl_Cell.hpp" // CON/src
@@ -133,6 +134,7 @@ namespace moris
 
 
     moris::uint gather_value_and_bcast_max( moris::uint aMessage );
+
 
 
     /*
@@ -758,6 +760,74 @@ namespace moris
              return tString;
          }
 //------------------------------------------------------------------------------
+
+         /*!
+          * Gathers matrix from procs, on root proc
+          * Only aGatheredMats is populated on base proc
+          */
+         template <typename MatrixType>
+         void
+         all_gather_vector(
+                 Matrix<MatrixType> const & aMatToGather,
+                 Cell<Matrix<MatrixType>> & aGatheredMats,
+                 moris_index aTag,
+                 moris_index aBaseProc = 0)
+         {
+             MORIS_ERROR(isvector(aMatToGather),"all_gather_vector implemented for row or col vectors.");
+
+             bool tColumn = false;
+             if( iscol(aMatToGather))
+             {
+                 tColumn = true;
+             }
+
+             MPI_Request tRequest;
+             // send the matrix
+             MPI_Isend(aMatToGather.data(), aMatToGather.numel(), moris::get_comm_datatype(aMatToGather(0)), aBaseProc, aTag, moris::get_comm(),&tRequest);
+
+             barrier();
+
+             // on base rank go ahead and receive the data
+             if(par_rank() == aBaseProc)
+             {
+                 aGatheredMats.resize(par_size());
+                 for(moris::uint i = 0; i < par_size(); i++)
+                 {
+                     MPI_Status tStatus;
+                     MPI_Probe(i, aTag, moris::get_comm(), &tStatus);
+
+
+                 //    MORIS_ERROR(tExists,"Trying to receive a message that does not exists");
+
+                     int tLength = 0;
+                     MPI_Get_count(&tStatus, moris::get_comm_datatype(aMatToGather(0)), &tLength);
+
+                     moris_index tNumCol = 0;
+                     moris_index tNumRow = 0;
+                     if(tColumn)
+                     {
+                         tNumCol = tLength;
+                         tNumRow = 1;
+                     }
+
+                     else
+                     {
+                         tNumCol = 1;
+                         tNumRow = tLength;
+                     }
+
+                 //    std::cout<<"RECEIVE FROM FROM "<<aSendingProc<<" ON "<<par_rank()<<" WITH TAG "<<aTag<<" | Size: "<<aNumRows<<", "<<tNumColumns<<std::endl;
+
+                     // Resize the matrix
+                     aGatheredMats(i).resize(tNumRow, tNumCol);
+
+                     MPI_Recv(aGatheredMats(i).data(), tLength, moris::get_comm_datatype(aMatToGather(0)), i, aTag, moris::get_comm(), &tStatus);
+                 }
+             }
+
+             barrier();
+         }
+
 }
 
 

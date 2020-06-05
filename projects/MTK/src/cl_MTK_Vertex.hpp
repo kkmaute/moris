@@ -104,6 +104,13 @@ namespace moris
                 return nullptr;
             }
 
+
+            virtual bool has_interpolation( const uint aBSplineMeshIndex )
+            {
+                MORIS_ERROR( false,"Function not implemented in base vertex" );
+                return false;
+            }
+
 //------------------------------------------------------------------------------
 
             virtual uint

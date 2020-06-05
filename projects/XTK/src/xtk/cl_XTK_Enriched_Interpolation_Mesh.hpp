@@ -153,6 +153,9 @@ protected:
     Interpolation_Vertex_Unzipped &
     get_xtk_interp_vertex(moris::uint aVertexIndex);
 
+    void
+    add_proc_to_comm_table(moris_index aProcRank);
+
 public:
     //------------------------------------------------------------------------------
     /*

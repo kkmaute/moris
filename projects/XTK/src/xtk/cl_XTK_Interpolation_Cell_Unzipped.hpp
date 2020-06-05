@@ -74,11 +74,13 @@ public:
     moris::Cell< xtk::Interpolation_Vertex_Unzipped* > const &
     get_xtk_interpolation_vertices() const;
     //------------------------------------------------------------------------------
-
+protected:
+    moris::Cell< xtk::Interpolation_Vertex_Unzipped* > &
+    get_xtk_interpolation_vertices();
 
     // friend class
     friend class Enrichment;
-
+    friend class Ghost_Stabilization;
 
 private:
     moris::mtk::Cell*                                  mBaseCell;

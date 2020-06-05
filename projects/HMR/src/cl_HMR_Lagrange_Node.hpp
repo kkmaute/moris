@@ -56,7 +56,8 @@ namespace moris
                     const luint        * aIJK,
                     const  uint        & aLevel,
                     const  uint        & aOwner) :
-                        Basis( aLevel, aOwner )
+                        Basis( aLevel, aOwner ),
+                        mInterpolations( gNumberOfMeshes, nullptr )
             {
                 // save ijk position in memory.
                 for( uint k=0; k<N; ++k )

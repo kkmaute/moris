@@ -446,6 +446,9 @@ public:
     Matrix<IdMat> const &
     get_communication_table() const;
 
+    void
+    add_proc_to_comm_table(moris_index aProcRank);
+
 
 private:
     // Background mesh data

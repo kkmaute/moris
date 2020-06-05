@@ -303,7 +303,7 @@ namespace moris
         // Loop over communication table to fill the communication table map
         for ( moris::uint Ik = 0; Ik < tNumCommProcs; Ik++ )
         {
-            tCommTableMap( mCommTable( Ik, 0 ), 0 ) = Ik;
+            tCommTableMap( mCommTable( Ik ), 0 ) = Ik;
         }
 
         // Loop over all different adof types and time in this temporary list
@@ -436,7 +436,7 @@ namespace moris
         // Loop over communication table to fill the communication table map
         for ( moris::uint Ik = 0; Ik < tNumCommProcs; Ik++ )
         {
-            tCommTableMap( mCommTable( Ik, 0 ), 0 ) = Ik;
+            tCommTableMap( mCommTable( Ik ), 0 ) = Ik;
         }
 
         // Loop over all different adof types and time in this temporary list
