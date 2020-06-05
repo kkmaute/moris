@@ -5,7 +5,7 @@
 #ifndef MORIS_CL_GEN_FIELD_DISCRETE_HPP
 #define MORIS_CL_GEN_FIELD_DISCRETE_HPP
 
-#include "cl_GEN_Field_Base.hpp"
+#include "cl_GEN_Field.hpp"
 
 namespace moris
 {

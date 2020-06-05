@@ -11,7 +11,7 @@ set(HEADERS
 	cl_GEN_Geometry_Object_Manager.hpp
 	cl_GEN_Geometry_Object.hpp
 	cl_GEN_Phase_Table.hpp
-	cl_GEN_Field_Base.hpp
+		cl_GEN_Field.hpp
 	cl_GEN_Field_Analytic.hpp
 	cl_GEN_Field_Discrete.hpp
 	fn_GEN_Matrix_Base_Utilities.hpp
@@ -99,7 +99,7 @@ set(LIB_SOURCES
 	cl_GEN_Geometry_Object_Manager.cpp
 	cl_GEN_Geometry_Object.cpp
 	cl_GEN_Phase_Table.cpp
-	cl_GEN_Field_Base.cpp
+		cl_GEN_Field.cpp
 	cl_GEN_Field_Analytic.cpp
 	cl_GEN_Field_Discrete.cpp
 
