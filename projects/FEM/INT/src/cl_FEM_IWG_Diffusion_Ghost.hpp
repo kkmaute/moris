@@ -64,15 +64,7 @@ namespace moris
                  */
                 void set_stabilization_parameter(
                         std::shared_ptr< Stabilization_Parameter > aStabilizationParameter,
-                        std::string                                aStabilizationString )
-                {
-                    // check that aConstitutiveString makes sense
-                    MORIS_ERROR( mStabilizationMap.find( aStabilizationString ) != mStabilizationMap.end(),
-                            "IWG_Diffusion_Ghost::set_stabilization_parameter - Unknown aStabilizationString." );
-
-                    // set the stabilization parameter in the stabilization parameter cell
-                    this->get_stabilization_parameters()( static_cast< uint >( mStabilizationMap[ aStabilizationString ] ) ) = aStabilizationParameter;
-                }
+                        std::string                                aStabilizationString );
 
                 //------------------------------------------------------------------------------
                 /**

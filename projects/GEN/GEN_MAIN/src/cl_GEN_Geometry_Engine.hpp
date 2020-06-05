@@ -2,7 +2,6 @@
 #define PROJECTS_GEN_GEN_MAIN_SRC_GEOMENG_CL_Geometry_Engine_HPP_
 
 // GEN
-#include "cl_GEN_Basis_Function.hpp"
 #include "cl_GEN_Interpolaton.hpp"
 #include "cl_GEN_Pending_Node.hpp"
 #include "cl_GEN_Phase_Table.hpp"
@@ -58,26 +57,22 @@ namespace moris
                                               moris::Matrix< moris::DDRMat >  & aEdgeNodePhi,
                                               moris::Matrix< moris::DDRMat >  & aDxDp )
         {
+            moris::real const & tPhiA = aEdgeNodePhi(0,0);
+            moris::real const & tPhiB = aEdgeNodePhi(1,0);
 
-             MORIS_ASSERT(aDPhiADp.n_rows() != 0,"dPhi/dp not implemented in geometry would cause a seg fault here");
-             MORIS_ASSERT(aDPhiBDp.n_rows() != 0,"dPhi/dp not implemented in geometry would cause a seg fault here");
-             moris::real const & tPhiA = aEdgeNodePhi(0,0);
-             moris::real const & tPhiB = aEdgeNodePhi(1,0);
+             // Initialize
+            moris::Matrix< moris::DDRMat > tXa = trans(aEdgeCoordinates.get_row(0));
+            moris::Matrix< moris::DDRMat > tXb = trans(aEdgeCoordinates.get_row(1));
 
-              // Initialize
-             moris::Matrix< moris::DDRMat > tXa = aEdgeCoordinates.get_row(0);
-             moris::Matrix< moris::DDRMat > tXb = aEdgeCoordinates.get_row(1);
+            // Compute $\frac{\partial x_{\Gamma}}{\partial \phi}$
+            moris::DDRMat tDxgammaDphiA = -(tPhiB)/std::pow((tPhiA-tPhiB),2)*(tXb.matrix_data()-tXa.matrix_data());
+            moris::DDRMat tDxgammaDphiB =  (tPhiA)/std::pow((tPhiA-tPhiB),2)*(tXb.matrix_data()-tXa.matrix_data());
+            moris::Matrix< moris::DDRMat > tDxgDphiAMat(tDxgammaDphiA);
+            moris::Matrix< moris::DDRMat > tDxgDphiBMat(tDxgammaDphiB);
 
-             // Compute $\frac{\partial x_{\Gamma}}{\partial \phi}$
-             moris::DDRMat tDxgammaDphiA = -(tPhiB)/std::pow((tPhiA-tPhiB),2)*(tXb.matrix_data()-tXa.matrix_data());
-             moris::DDRMat tDxgammaDphiB =  (tPhiA)/std::pow((tPhiA-tPhiB),2)*(tXb.matrix_data()-tXa.matrix_data());
-             moris::Matrix< moris::DDRMat > tDxgDphiAMat(tDxgammaDphiA);
-             moris::Matrix< moris::DDRMat > tDxgDphiBMat(tDxgammaDphiB);
-
-              // Compute dx/dp
-             moris::DDRMat tDxDp = aDPhiADp * moris::trans(tDxgDphiAMat) +  aDPhiBDp * moris::trans(tDxgDphiBMat);
-             aDxDp = moris::Matrix< moris::DDRMat >(tDxDp);
-
+            // Compute dx/dp
+            moris::DDRMat tDxDp = tDxgDphiAMat * aDPhiADp + tDxgDphiBMat * aDPhiBDp;
+            aDxDp = moris::Matrix< moris::DDRMat >(tDxDp);
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -130,6 +125,8 @@ namespace moris
 
             bool mTypesSet      = false;
             moris::Cell< moris::moris_index > mIntegNodeIndices;
+
+            Matrix<IndexMat> mInterfaceNodeIndices;
 
         public:
 
@@ -313,19 +310,6 @@ namespace moris
                                                     moris::Matrix< moris::IndexMat >       & aADVIndices );
 
             /**
-             * @brief Returns a reference to the geometry object at the provided index
-             * @param[ in ] aNodeIndex a node index
-             */
-            GEN_Geometry_Object &
-            get_geometry_object( moris::size_t const & aNodeIndex );
-
-            /**
-             * @brief Returns a reference to the geometry object at the provided index
-             */
-            GEN_Geometry_Object const &
-            get_geometry_object(moris::size_t const & aNodeIndex) const;
-
-            /**
              * @brief Get the total number of phases in the phase table
              */
             moris::size_t get_num_phases();
@@ -419,11 +403,6 @@ namespace moris
             moris::size_t get_num_design_variables();
 
             /**
-             * returns a pointer to the geometry object manager
-             */
-            Geometry_Object_Manager* get_all_geom_obj();
-
-            /**
              * Register an MTK mesh pair to be used for later computation(s)
              */
             void register_mesh( mtk::Mesh_Manager* aMesh );
@@ -451,19 +430,6 @@ namespace moris
              * Performs refinement on an HMR mesh
              */
             void perform_refinement( );
-
-        //    /*
-        //     * @brief function specific to fiber problem TODO this will be removed
-        //     */
-        //    Matrix< DDRMat > get_cylinder_vals( moris_index aWhichMesh,
-        //                                        GEN_CylinderWithEndCaps* aFiber,
-        //                                        uint aNumberOfFibers );
-
-//            /*
-//             * @brief gives the maximum level-set values at all nodes in the mesh
-//             */
-//            void get_max_field_values_for_all_geometries( Matrix< DDRMat > & aAllFieldVals,
-//                                                          moris_index        aWhichMesh = 0 );
 
             /**
              * Fills a cell of MORIS matrices with the level-set values corresponding to each geometry

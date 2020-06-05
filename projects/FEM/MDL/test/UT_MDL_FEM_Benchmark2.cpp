@@ -73,8 +73,6 @@
 
 #include <functional>
 
-#include "../../../GEN/GEN_MAIN/src/geometry/cl_GEN_Geometry_Field_HMR.hpp"
-
 namespace moris
 {
 

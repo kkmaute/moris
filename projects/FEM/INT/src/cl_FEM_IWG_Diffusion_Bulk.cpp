@@ -11,7 +11,6 @@ namespace moris
     {
 
         //------------------------------------------------------------------------------
-
         IWG_Diffusion_Bulk::IWG_Diffusion_Bulk()
         {
             // set size for the property pointer cell
@@ -31,6 +30,69 @@ namespace moris
 
             // populate the stabilization map
             mStabilizationMap[ "GGLS_Param" ] = IWG_Stabilization_Type::GGLS_DIFFUSION;
+        }
+
+        //------------------------------------------------------------------------------
+        void IWG_Diffusion_Bulk::set_property(
+                std::shared_ptr< Property > aProperty,
+                std::string                 aPropertyString,
+                mtk::Master_Slave           aIsMaster )
+        {
+            // check that aPropertyString makes sense
+            if ( mPropertyMap.find( aPropertyString ) == mPropertyMap.end() )
+            {
+                std::string tErrMsg =
+                        std::string("IWG_Diffusion_Bulk::set_property - Unknown aPropertyString : ") +
+                        aPropertyString;
+
+                MORIS_ERROR( false , tErrMsg.c_str() );
+            }
+
+            // check no slave allowed
+            MORIS_ERROR( aIsMaster == mtk::Master_Slave::MASTER,
+                    "IWG_Diffusion_Bulk::set_property - No slave allowed." );
+
+            // set the property in the property cell
+            this->get_properties( aIsMaster )( static_cast< uint >( mPropertyMap[ aPropertyString ] ) ) = aProperty;
+        }
+
+        //------------------------------------------------------------------------------
+        void IWG_Diffusion_Bulk::set_constitutive_model(
+                std::shared_ptr< Constitutive_Model > aConstitutiveModel,
+                std::string                           aConstitutiveString,
+                mtk::Master_Slave                     aIsMaster )
+        {
+            // check that aConstitutiveString makes sense
+            if ( mConstitutiveMap.find( aConstitutiveString ) == mConstitutiveMap.end() )
+            {
+                std::string tErrMsg =
+                        std::string("IWG_Diffusion_Bulk::set_constitutive_model - Unknown aConstitutiveString: ") +
+                        aConstitutiveString;
+
+                MORIS_ERROR( false, tErrMsg.c_str() );
+            }
+
+            // check no slave allowed
+            MORIS_ERROR( aIsMaster == mtk::Master_Slave::MASTER,
+                    "IWG_Diffusion_Bulk::set_constitutive_model - No slave allowed." );
+
+            // set the constitutive model in the constitutive model cell
+            this->get_constitutive_models( aIsMaster )( static_cast< uint >( mConstitutiveMap[ aConstitutiveString ] ) ) = aConstitutiveModel;
+        }
+
+        //------------------------------------------------------------------------------
+        void IWG_Diffusion_Bulk::set_stabilization_parameter(
+                std::shared_ptr< Stabilization_Parameter > aStabilizationParameter,
+                std::string                                aStabilizationString )
+        {
+            // check that aStabilizationString makes sense
+            std::string tErrMsg =
+                    std::string( "IWG_GGLS_Diffusion_Phase_Change_Bulk::set_stabilization_parameter - Unknown aStabilizationString: " ) +
+                    aStabilizationString;
+            MORIS_ERROR( mStabilizationMap.find( aStabilizationString ) != mStabilizationMap.end(), tErrMsg.c_str() );
+
+            // set the stabilization parameter in the stabilization parameter cell
+            this->get_stabilization_parameters()( static_cast< uint >( mStabilizationMap[ aStabilizationString ] ) ) = aStabilizationParameter;
         }
 
         //------------------------------------------------------------------------------

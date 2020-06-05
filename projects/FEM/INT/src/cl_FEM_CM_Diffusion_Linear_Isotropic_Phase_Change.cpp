@@ -49,14 +49,14 @@ namespace moris
                 MSI::Dof_Type tDofType = aDofTypes( iDof )( 0 );
 
                 // switch on dof type string
-                if( tDofString == "Temp" )
+                if( tDofString == "Temperature" )
                 {
                     mTempDof = tDofType;
                 }
                 else
                 {
                     std::string tErrMsg =
-                            std::string("CM_Diffusion_Linear_Isotropic::set_dof_type_list - Unknown aDofString : ") +
+                            std::string("CM_Diffusion_Linear_Isotropic_Phase_Change::set_dof_type_list - Unknown aDofString : ") +
                             tDofString;
                     MORIS_ERROR( false , tErrMsg.c_str() );
                 }

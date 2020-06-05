@@ -177,8 +177,7 @@ replace_row(size_t const & aRowIndex1,
         size_t tNumRows2 = aMatrix2.n_rows();
         size_t tNumCols2 = aMatrix2.n_cols();
 
-        MORIS_ERROR(tNumRows1 = tNumRows2, "Different number of rows");
-        MORIS_ERROR(tNumCols1 = tNumCols2, "Different number of cols");
+        MORIS_ERROR(tNumCols1 == tNumCols2, "Different number of cols");
         MORIS_ERROR(aRowIndex1<tNumRows1,"Row index out of bounds matrix 1");
         MORIS_ERROR(aRowIndex2<tNumRows2,"Row index out of bounds matrix 2");
     }

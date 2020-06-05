@@ -10,6 +10,7 @@ namespace moris
         Pdv_Value::Pdv_Value(real aValue)
         : mValue(aValue)
         {
+            mIsActive = false;
         }
 
         //--------------------------------------------------------------------------------------------------------------

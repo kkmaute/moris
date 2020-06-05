@@ -38,8 +38,7 @@
 #include "xtk_typedefs.hpp"
 
 //------------------------------------------------------------------------------
-#include "cl_GEN_Geometry.hpp"
-#include "cl_GEN_Geometry_Field_HMR.hpp"
+#include "cl_GEN_User_Defined_Geometry.hpp"
 #include "cl_GEN_Phase_Table.hpp"
 
 #include "cl_PRM_HMR_Parameters.hpp"
@@ -67,6 +66,11 @@ LevelSetFunction( const moris::Matrix< moris::DDRMat > & aPoint )
     real mYc = 1.0;
     real mZc = 3.7;
     return mXn*(aPoint(0)-mXc) + mYn*(aPoint(1)-mYc) + mZn*(aPoint(2)-mZc);
+}
+
+moris::real LevelSetFunctionGeometry(const moris::Matrix<moris::DDRMat>& aCoordinates, const moris::Cell<moris::real*>& aParameters)
+{
+    return LevelSetFunction(aCoordinates);
 }
 
 moris::real
@@ -132,7 +136,7 @@ main(
     std::cout<<"Num Cells ="<<tMesh->get_num_elems()<<std::endl;
 
     moris::Cell<std::shared_ptr<moris::ge::Geometry>> tGeometryVector(1);
-    tGeometryVector(0) = std::make_shared<moris::ge::Geometry_Field_HMR>(tField);
+    tGeometryVector(0) = std::make_shared<ge::User_Defined_Geometry>(Matrix<DDRMat>(0, 0), &(LevelSetFunctionGeometry));
 
     // Tell the geometry engine about the discrete field mesh and how to interpret phases
     moris::ge::Phase_Table tPhaseTable (1, moris::ge::Phase_Table_Structure::EXP_BASE_2);

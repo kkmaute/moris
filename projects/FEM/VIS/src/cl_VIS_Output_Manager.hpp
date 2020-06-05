@@ -44,6 +44,12 @@ namespace moris
             //! Mesh Index for sanity checks
             sint                            mMeshIndex = -1;
 
+            //! Frequency with which output file is save during transient simulation
+            sint                            mSaveFrequency = MORIS_SINT_MAX;
+
+            //! Counter of writing fields to mesh
+            sint                            mFieldWriteCounter = 0;
+
             //! Mesh Type
             enum VIS_Mesh_Type              mMeshType;
 
@@ -88,7 +94,7 @@ namespace moris
 
             moris::uint                     mMTKMeshPairIndex;
 
-            moris::real mTimeStamp;
+            moris::real                     mTimeStamp;
 
         protected:
 

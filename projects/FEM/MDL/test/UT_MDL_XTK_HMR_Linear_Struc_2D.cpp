@@ -81,8 +81,6 @@
 #include "fn_norm.hpp"
 
 #include "cl_GEN_Circle.hpp"
-#include "cl_GEN_Geometry.hpp"
-#include "cl_GEN_Geometry_Field_HMR.hpp"
 
 #include "cl_PRM_HMR_Parameters.hpp"
 

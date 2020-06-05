@@ -60,19 +60,7 @@ namespace moris
                 void set_property(
                         std::shared_ptr< Property > aProperty,
                         std::string                 aPropertyString,
-                        mtk::Master_Slave           aIsMaster = mtk::Master_Slave::MASTER )
-                {
-                    // check that aPropertyString makes sense
-                    MORIS_ERROR( mPropertyMap.find( aPropertyString ) != mPropertyMap.end(),
-                            "IWG_Diffusion_Neumann::set_property - Unknown aPropertyString." );
-
-                    // check no slave allowed
-                    MORIS_ERROR( aIsMaster == mtk::Master_Slave::MASTER,
-                            "IWG_Diffusion_Neumann::set_property - No slave allowed." );
-
-                    // set the property in the property cell
-                    this->get_properties( aIsMaster )( static_cast< uint >( mPropertyMap[ aPropertyString ] ) ) = aProperty;
-                }
+                        mtk::Master_Slave           aIsMaster = mtk::Master_Slave::MASTER );
 
                 //------------------------------------------------------------------------------
                 /**

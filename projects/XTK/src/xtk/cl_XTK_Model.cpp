@@ -5165,9 +5165,7 @@ Model::extract_interface_sensitivity_sparse(moris::Matrix<moris::IndexMat> const
 
         if(mBackgroundMesh.is_interface_node(tNodeIndex,0))
         {
-            moris::ge::GEN_Geometry_Object const & tNodeGeoObj = mGeometryEngine->get_geometry_object(tNodeIndex);
-
-            moris::Matrix< moris::DDRMat > const & tdxdp = tNodeGeoObj.get_sensitivity_dx_dp();
+            moris::Matrix< moris::DDRMat > const & tdxdp = mGeometryEngine->get_node_dx_dp(tNodeIndex);
 
             MORIS_ASSERT(tdxdp.n_rows() == 2,"Invalid dxdp size for sparse packing, This function only works on tet meshes with discrete fields at the moment");
             MORIS_ASSERT(tdxdp.n_cols() == 3,"Invalid dxdp size for sparse packing, This function only works on tet meshes with discrete fields at the moment");
@@ -5179,7 +5177,7 @@ Model::extract_interface_sensitivity_sparse(moris::Matrix<moris::IndexMat> const
             adxdpData(4)(iNode) = tdxdp(1,1);
             adxdpData(5)(iNode) = tdxdp(1,2);
 
-            moris::Matrix< moris::IndexMat > const & tDesVarInds = tNodeGeoObj.get_node_adv_indices();
+            moris::Matrix< moris::IndexMat > const & tDesVarInds = mGeometryEngine->get_node_adv_indices(tNodeIndex);
 
             aDesVars(0)(iNode) = (moris::real)mBackgroundMesh.get_mesh_data().get_glb_entity_id_from_entity_loc_index(tDesVarInds(0),EntityRank::NODE);
             aDesVars(1)(iNode) = (moris::real)mBackgroundMesh.get_mesh_data().get_glb_entity_id_from_entity_loc_index(tDesVarInds(1),EntityRank::NODE);
@@ -5218,9 +5216,7 @@ Model::extract_interface_sensitivity_dense(moris::Matrix<moris::IndexMat> const 
 
         if(mBackgroundMesh.is_interface_node(tNodeIndex,0))
         {
-            moris::ge::GEN_Geometry_Object const & tNodeGeoObj = mGeometryEngine->get_geometry_object(tNodeIndex);
-
-            moris::Matrix< moris::DDRMat > const & tdxdp = tNodeGeoObj.get_sensitivity_dx_dp();
+            moris::Matrix< moris::DDRMat > const & tdxdp = mGeometryEngine->get_node_dx_dp(tNodeIndex);
 
             MORIS_ASSERT(tdxdp.n_rows() == tNumDVs,"Invalid dxdp size for dense packing");
             MORIS_ASSERT(tdxdp.n_cols() == tSpatialDim,"Invalid dxdp size for dense packing");

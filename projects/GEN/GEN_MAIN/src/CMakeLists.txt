@@ -19,31 +19,30 @@ set(HEADERS
 	fn_GEN_approximate.hpp
 	fn_GEN_Triangle_Geometry.hpp
 
-	topology/cl_GEN_Basis_Function.hpp
-	topology/cl_GEN_Edge_Topology.hpp
-	topology/cl_GEN_Hexahedron_8_Topology.hpp
-	topology/cl_GEN_Hexahedron_8_Basis_Function.hpp
-	topology/cl_GEN_Interpolation.hpp
-	topology/cl_GEN_Linear_Basis_Functions.hpp
-
-	topology/cl_GEN_Pending_Node.hpp
-	topology/cl_GEN_Quad_4_Basis_Function.hpp
-	topology/cl_GEN_Quad_4_Topology.hpp
-	topology/cl_GEN_Topology.hpp
+#	topology/cl_GEN_Basis_Function.hpp
+#	topology/cl_GEN_Edge_Topology.hpp
+#	topology/cl_GEN_Hexahedron_8_Topology.hpp
+#	topology/cl_GEN_Hexahedron_8_Basis_Function.hpp
+#	topology/cl_GEN_Interpolation.hpp
+#	topology/cl_GEN_Linear_Basis_Functions.hpp
+#
+#	topology/cl_GEN_Pending_Node.hpp
+#	topology/cl_GEN_Quad_4_Basis_Function.hpp
+#	topology/cl_GEN_Quad_4_Topology.hpp
+#	topology/cl_GEN_Topology.hpp
+#	topology/cl_GEN_Edge_Topology.hpp
 
 	pdv/cl_GEN_Pdv_Host_Manager.hpp
 	pdv/cl_GEN_Pdv_Host.hpp
 	pdv/cl_GEN_Pdv.hpp
 	pdv/cl_GEN_Pdv_Value.hpp
 	pdv/cl_GEN_Pdv_Property.hpp
+	pdv/cl_GEN_Pdv_Intersection.hpp
 
 	geometry/cl_GEN_Geometry.hpp
 	geometry/cl_GEN_Circle.hpp
-#	geometry/cl_GEN_Cylinder_With_End_Caps.hpp
 	geometry/cl_GEN_Discrete_Level_Set.hpp
-#	geometry/cl_GEN_Geom_Data.hpp
-	geometry/cl_GEN_Geometry_Field_HMR.hpp
-#	geometry/cl_GEN_Sphere.hpp
+	geometry/cl_GEN_Sphere.hpp
 	geometry/cl_GEN_User_Defined_Geometry.hpp
 #	geometry/fn_bounding_box.hpp
 	geometry/fn_GEN_create_geometry.hpp
@@ -57,12 +56,11 @@ set(HEADERS
     )
     
 # List header dependencies                                                                                                                                                                                                                                                     
-set(GEN_INCLUDES                                                                                                                                                                                                                                                               
+set(GEN_INCLUDES
     "topology"
     "pdv"
     "geometry"
     "property"
-	"topology"
     )
 
 # Include depedency directories
@@ -70,9 +68,6 @@ foreach(GEN_INCLUDES ${GEN_INCLUDES})
     include_directories(${MORIS_PACKAGE_DIR}/GEN/GEN_MAIN/src/${GEN_INCLUDES})
     list(APPEND CMAKE_CURRENT_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/${GEN_INCLUDES}")
 endforeach()
-
-
-# include_directories(${MORIS_PACKAGE_DIR}/GEN/src/include)
 
 #FIXME: Remove this once xtk has removed subdirectories from its package
 set(XTK_INCLUDES
@@ -100,6 +95,7 @@ endforeach()
 set(LIB_SOURCES
 
 	cl_GEN_Geometry_Engine.cpp
+	cl_GEN_Geometry_Object_Manager.cpp
 	cl_GEN_Geometry_Object.cpp
 	cl_GEN_Phase_Table.cpp
 	cl_GEN_Field_Base.cpp
@@ -111,13 +107,15 @@ set(LIB_SOURCES
 	pdv/cl_GEN_Pdv.cpp
 	pdv/cl_GEN_Pdv_Value.cpp
 	pdv/cl_GEN_Pdv_Property.cpp
+	pdv/cl_GEN_Pdv_Intersection.cpp
 
 	geometry/cl_GEN_Geometry.cpp
-	geometry/fn_GEN_create_geometry.cpp
 	geometry/cl_GEN_Circle.cpp
+	geometry/cl_GEN_Sphere.cpp
 	geometry/cl_GEN_Plane.cpp
-	geometry/cl_GEN_User_Defined_Geometry.cpp
 	geometry/cl_GEN_Discrete_Level_Set.cpp
+	geometry/cl_GEN_User_Defined_Geometry.cpp
+	geometry/fn_GEN_create_geometry.cpp
 	
 	property/cl_GEN_Property.cpp
 	property/cl_GEN_Discrete_Property.cpp

@@ -12,7 +12,7 @@ namespace moris
     namespace fem
     {
 
-//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
         IWG_Isotropic_Struc_Linear_Neumann::IWG_Isotropic_Struc_Linear_Neumann()
         {
             // set size for the property pointer cell
@@ -22,7 +22,28 @@ namespace moris
             mPropertyMap[ "Neumann" ] = IWG_Property_Type::NEUMANN;
         }
 
-//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
+        void IWG_Isotropic_Struc_Linear_Neumann::set_property(
+                std::shared_ptr< Property > aProperty,
+                std::string                 aPropertyString,
+                mtk::Master_Slave           aIsMaster )
+        {
+            // check that aPropertyString makes sense
+            std::string tErrMsg =
+                    std::string( "IWG_Isotropic_Struc_Linear_Neumann::set_property - Unknown aPropertyString: " ) +
+                    aPropertyString;
+            MORIS_ERROR( mPropertyMap.find( aPropertyString ) != mPropertyMap.end(), tErrMsg.c_str() );
+
+            // check no slave allowed
+            MORIS_ERROR( aIsMaster == mtk::Master_Slave::MASTER,
+                    "IWG_Isotropic_Struc_Linear_Neumann::set_property - No slave allowed." );
+
+            // set the property in the property cell
+            this->get_properties( aIsMaster )( static_cast< uint >( mPropertyMap[ aPropertyString ] ) ) = aProperty;
+        }
+
+
+        //------------------------------------------------------------------------------
         void IWG_Isotropic_Struc_Linear_Neumann::compute_residual( real aWStar )
         {
 #ifdef DEBUG
@@ -36,18 +57,19 @@ namespace moris
             uint tMasterResStopIndex  = mSet->get_res_dof_assembly_map()( tMasterDofIndex )( 0, 1 );
 
             // get field interpolator for the residual dof type
-            Field_Interpolator * tFI = mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );
+            Field_Interpolator * tFI =
+                    mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );
 
             // get load property
-            std::shared_ptr< Property > tPropNeumann
-            = mMasterProp( static_cast< uint >( IWG_Property_Type::NEUMANN ) );
+            std::shared_ptr< Property > tPropNeumann =
+                    mMasterProp( static_cast< uint >( IWG_Property_Type::NEUMANN ) );
 
             // compute the residual
-            mSet->get_residual()( 0 )( { tMasterResStartIndex, tMasterResStopIndex }, { 0, 0 } )
-            -= aWStar * ( trans( tFI->N() ) * tPropNeumann->val() );
+            mSet->get_residual()( 0 )( { tMasterResStartIndex, tMasterResStopIndex }, { 0, 0 } ) -= aWStar * (
+                    trans( tFI->N() ) * tPropNeumann->val() );
         }
 
-//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
         void IWG_Isotropic_Struc_Linear_Neumann::compute_jacobian( real aWStar )
         {
 #ifdef DEBUG
@@ -61,11 +83,12 @@ namespace moris
             uint tMasterResStopIndex  = mSet->get_res_dof_assembly_map()( tMasterDofIndex )( 0, 1 );
 
             // get field interpolator for the residual dof type
-            Field_Interpolator * tFI = mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );
+            Field_Interpolator * tFI =
+                    mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );
 
             // get load property
-            std::shared_ptr< Property > tPropNeumann
-            = mMasterProp( static_cast< uint >( IWG_Property_Type::NEUMANN ) );
+            std::shared_ptr< Property > tPropNeumann =
+                    mMasterProp( static_cast< uint >( IWG_Property_Type::NEUMANN ) );
 
             // compute the jacobian for indirect IWG dof dependencies through properties
             for( uint iDOF = 0; iDOF < mRequestedMasterGlobalDofTypes.size(); iDOF++ )
@@ -82,25 +105,26 @@ namespace moris
                 if ( tPropNeumann->check_dof_dependency( tDofType ) )
                 {
                     // add contribution to jacobian
-                    mSet->get_jacobian()( { tMasterResStartIndex, tMasterResStopIndex },
-                                          { tMasterDepStartIndex, tMasterDepStopIndex } )
-                    -= aWStar * ( trans( tFI->N() ) * tPropNeumann->dPropdDOF( tDofType ) );
+                    mSet->get_jacobian()(
+                            { tMasterResStartIndex, tMasterResStopIndex },
+                            { tMasterDepStartIndex, tMasterDepStopIndex } ) -= aWStar * (
+                                    trans( tFI->N() ) * tPropNeumann->dPropdDOF( tDofType ) );
                 }
             }
         }
 
-//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
         void IWG_Isotropic_Struc_Linear_Neumann::compute_jacobian_and_residual( real aWStar )
         {
             MORIS_ERROR( false, "IWG_Isotropic_Struc_Linear_Neumann::compute_jacobian_and_residual - Not implemented.");
         }
 
-//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
         void IWG_Isotropic_Struc_Linear_Neumann::compute_dRdp( real aWStar )
         {
             MORIS_ERROR( false, "IWG_Isotropic_Struc_Linear_Neumann::compute_dRdp - Not implemented.");
         }
 
-//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
     } /* namespace fem */
 } /* namespace moris */

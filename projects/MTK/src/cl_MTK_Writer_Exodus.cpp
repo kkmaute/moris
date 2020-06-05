@@ -1,8 +1,8 @@
 //
 // Created by christopherson on 9/13/19.
 //
-
 #include <exodusII.h>
+
 #include "cl_MTK_Writer_Exodus.hpp"
 #include "cl_MTK_Mesh_Core.hpp"
 #include "cl_MTK_Integration_Mesh.hpp"
@@ -44,17 +44,25 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        void Writer_Exodus::set_error_options(bool abort, bool debug, bool verbose)
+        void Writer_Exodus::set_error_options(
+                bool abort,
+                bool debug,
+                bool verbose)
         {
             ex_opts(abort * EX_ABORT | debug * EX_DEBUG | verbose * EX_VERBOSE);
         }
 
         //--------------------------------------------------------------------------------------------------------------
 
-        void Writer_Exodus::open_file(std::string aExodusFileName, bool aReadOnly, float aVersion)
+        void Writer_Exodus::open_file(
+                std::string  & aExodusFileName,
+                bool           aReadOnly,
+                float          aVersion)
         {
             MORIS_ERROR(mExoid == -1, "Exodus file is currently open, call close_file() before opening a new one.");
+
             int tCPUWordSize = sizeof(moris::real), tIOWordSize = 0;
+
             if (aReadOnly)
             {
                 mExoid = ex_open(aExodusFileName.c_str(), EX_READ, &tCPUWordSize, &tIOWordSize, &aVersion);
@@ -71,6 +79,7 @@ namespace moris
         {
             ex_close(mExoid);
             mExoid = -1;
+
             if (aRename)
             {
                 MORIS_ERROR( std::rename(mTempFileName.c_str(), mPermFileName.c_str()) == 0 ,"Cannot save exodus file");
@@ -79,10 +88,14 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        void Writer_Exodus::write_mesh(std::string aFilePath, const std::string& aFileName)
+        void Writer_Exodus::write_mesh(
+                std::string         aFilePath,
+                const std::string & aFileName)
         {
             MORIS_ERROR(mMesh != nullptr, "No mesh has been given to the Exodus Writer!");
+
             this->create_init_mesh_file(aFilePath, aFileName);
+
             this->write_nodes();
             this->write_node_sets();
             this->write_blocks();
@@ -91,7 +104,10 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        void Writer_Exodus::write_points(std::string aFilePath, const std::string& aFileName, Matrix<DDRMat> aCoordinates)
+        void Writer_Exodus::write_points(
+                std::string         aFilePath,
+                const std::string & aFileName,
+                Matrix<DDRMat>      aCoordinates)
         {
             // Create the actual file
             this->create_file(aFilePath, aFileName);
@@ -233,6 +249,30 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
+        void Writer_Exodus::save_mesh()
+        {
+            // close mesh
+            ex_close(mExoid);
+
+            // write log information
+            std::string tMassage = "Copying " + mTempFileName + " to " + mPermFileName +".";
+
+            MORIS_LOG( tMassage.c_str() );
+
+            // copy temporary file on permanent file
+            std::ifstream src(mTempFileName.c_str(),  std::ios::binary);
+            std::ofstream dest(mPermFileName.c_str(), std::ios::binary);
+            dest << src.rdbuf();
+
+            // open mesh file again
+            int tCPUWordSize = sizeof(moris::real), tIOWordSize = 0;
+            float tVersion;
+
+            mExoid = ex_open(mTempFileName.c_str(), EX_WRITE, &tCPUWordSize, &tIOWordSize, &tVersion);
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
         void Writer_Exodus::set_time(moris::real aTimeValue)
         {
             ex_put_time(mExoid, ++mTimeStep, &aTimeValue);
@@ -257,7 +297,7 @@ namespace moris
         //--------------------------------------------------------------------------------------------------------------
 
         void Writer_Exodus::write_nodal_field(       
-                std::string                    aFieldName,
+                std::string                          aFieldName,
                 const moris::Matrix<moris::DDRMat> & aFieldValues)
         {
             // Field name to index
@@ -278,7 +318,7 @@ namespace moris
         //--------------------------------------------------------------------------------------------------------------
 
         void Writer_Exodus::write_elemental_field(       
-               std::string                           aBlockName,
+                std::string                          aBlockName,
                 std::string                          aFieldName,
                 const moris::Matrix<moris::DDRMat> & aFieldValues)
         {
@@ -325,7 +365,9 @@ namespace moris
         // Private
         //--------------------------------------------------------------------------------------------------------------
 
-        void Writer_Exodus::create_file(std::string aFilePath, const std::string& aFileName)
+        void Writer_Exodus::create_file(
+                std::string         aFilePath,
+                const std::string & aFileName)
         {
             MORIS_ERROR(mExoid == -1, "Exodus file is currently open, call close_file() before creating a new one.");
 
@@ -351,7 +393,9 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        void Writer_Exodus::create_init_mesh_file(std::string aFilePath, const std::string& aFileName)
+        void Writer_Exodus::create_init_mesh_file(
+                std::string         aFilePath,
+                const std::string & aFileName)
         {
             // Create the actual file
             this->create_file(aFilePath, aFileName);

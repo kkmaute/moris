@@ -11,7 +11,6 @@
 #include "cl_FEM_Set.hpp"
 #undef protected
 #undef private
-
 //LINALG/src
 #include "op_equal_equal.hpp"
 //MTK/src
@@ -66,6 +65,7 @@ TEST_CASE( "IWG_Incompressible_NS_Dirichlet_Nitsche", "[IWG_Incompressible_NS_Di
         // dof type list
         moris::Cell< MSI::Dof_Type > tVelDofTypes;
         moris::Cell< MSI::Dof_Type > tPDofTypes = { MSI::Dof_Type::P };
+        moris::Cell< MSI::Dof_Type > tVisDofTypes = { MSI::Dof_Type::VISCOSITY };
 
         // gravity
         Matrix< DDRMat > tVelocity( iSpaceDim, 1, 10.0 );
@@ -89,7 +89,6 @@ TEST_CASE( "IWG_Incompressible_NS_Dirichlet_Nitsche", "[IWG_Incompressible_NS_Di
 
                // number of coefficients
                tNumCoeffs = {{ 8 },{ 18 },{ 32 }};
-
 
                // set the normal
                tNormal = {{ 1.0 }, { 0.0 }};
@@ -119,7 +118,6 @@ TEST_CASE( "IWG_Incompressible_NS_Dirichlet_Nitsche", "[IWG_Incompressible_NS_Di
 
                 // number of coefficients
                 tNumCoeffs = {{ 16 },{ 54 },{ 128 }};
-
 
                 // set the normal
                 tNormal = {{ 1.0 }, { 0.0 }, { 0.0 }};
@@ -168,10 +166,12 @@ TEST_CASE( "IWG_Incompressible_NS_Dirichlet_Nitsche", "[IWG_Incompressible_NS_Di
             // create random coefficients for master FI
             arma::Mat< double > tMasterMatrixVel;
             arma::Mat< double > tMasterMatrixP;
+            arma::Mat< double > tMasterMatrixVis;
 
             // get number of dof
             int tNumDofVel = 0;
             int tNumDofP = 0;
+            int tNumDofVis = 0;
 
             // switch on interpolation order
             switch( iInterpOrder )
@@ -184,10 +184,13 @@ TEST_CASE( "IWG_Incompressible_NS_Dirichlet_Nitsche", "[IWG_Incompressible_NS_Di
                     // get number of dof
                     tNumDofVel = tNumCoeffs( 0 ) * iSpaceDim;
                     tNumDofP = tNumCoeffs( 0 );
+                    tNumDofVis = tNumCoeffs( 0 );
 
                     // create random coefficients for master FI
                     tMasterMatrixVel.randu( tNumCoeffs( 0 ), iSpaceDim );
                     tMasterMatrixP.randu( tNumCoeffs( 0 ), 1 );
+                    tMasterMatrixVis.randu( tNumCoeffs( 0 ), 1 );
+
                     break;
                 }
                 case 2 :
@@ -198,10 +201,13 @@ TEST_CASE( "IWG_Incompressible_NS_Dirichlet_Nitsche", "[IWG_Incompressible_NS_Di
                     // get number of dof
                     tNumDofVel = tNumCoeffs( 1 ) * iSpaceDim;
                     tNumDofP = tNumCoeffs( 1 );
+                    tNumDofVis = tNumCoeffs( 1 );
 
                     // create random coefficients for master FI
                     tMasterMatrixVel.randu( tNumCoeffs( 1 ), iSpaceDim );
                     tMasterMatrixP.randu( tNumCoeffs( 1 ), 1 );
+                    tMasterMatrixVis.randu( tNumCoeffs( 1 ), 1 );
+
                     break;
                 }
                 case 3 :
@@ -212,10 +218,13 @@ TEST_CASE( "IWG_Incompressible_NS_Dirichlet_Nitsche", "[IWG_Incompressible_NS_Di
                     // get number of dof
                     tNumDofVel = tNumCoeffs( 2 ) * iSpaceDim;
                     tNumDofP = tNumCoeffs( 2 );
+                    tNumDofVis = tNumCoeffs( 2 );
 
                     // create random coefficients for master FI
                     tMasterMatrixVel.randu( tNumCoeffs( 2 ), iSpaceDim );
                     tMasterMatrixP.randu( tNumCoeffs( 2 ), 1 );
+                    tMasterMatrixVis.randu( tNumCoeffs( 2 ), 1 );
+
                     break;
                 }
                 default:
@@ -237,9 +246,11 @@ TEST_CASE( "IWG_Incompressible_NS_Dirichlet_Nitsche", "[IWG_Incompressible_NS_Di
             tMasterDOFHatVel.matrix_data() = 10.0 * tMasterMatrixVel;
             Matrix< DDRMat > tMasterDOFHatP;
             tMasterDOFHatP.matrix_data() = 10.0 * tMasterMatrixP;
+            Matrix< DDRMat > tMasterDOFHatVis;
+            tMasterDOFHatVis.matrix_data() = 10.0 * tMasterMatrixVis;
 
             // create a cell of field interpolators for IWG
-            Cell< Field_Interpolator* > tMasterFIs( 2 );
+            Cell< Field_Interpolator* > tMasterFIs( 3 );
 
             // create the field interpolator velocity
             tMasterFIs( 0 ) = new Field_Interpolator( iSpaceDim, tFIRule, &tGI, tVelDofTypes );
@@ -250,6 +261,11 @@ TEST_CASE( "IWG_Incompressible_NS_Dirichlet_Nitsche", "[IWG_Incompressible_NS_Di
             tMasterFIs( 1 ) = new Field_Interpolator( 1, tFIRule, &tGI, tPDofTypes );
             tMasterFIs( 1 )->set_coeff( tMasterDOFHatP );
             tMasterFIs( 1 )->set_space_time( tParamPoint );
+
+            // create the field interpolator viscosity
+            tMasterFIs( 2 ) = new Field_Interpolator( 1, tFIRule, &tGI, tVisDofTypes );
+            tMasterFIs( 2 )->set_coeff( tMasterDOFHatVis );
+            tMasterFIs( 2 )->set_space_time( tParamPoint );
 
             // create the properties
             std::shared_ptr< fem::Property > tPropViscosity = std::make_shared< fem::Property >();
@@ -274,6 +290,13 @@ TEST_CASE( "IWG_Incompressible_NS_Dirichlet_Nitsche", "[IWG_Incompressible_NS_Di
             tCMMasterIncFluid->set_property( tPropDensity, "Density" );
             tCMMasterIncFluid->set_space_dim( iSpaceDim );
 
+            std::shared_ptr< fem::Constitutive_Model > tCMMasterTurbulence =
+                    tCMFactory.create_CM( fem::Constitutive_Type::FLUID_TURBULENCE );
+            tCMMasterTurbulence->set_dof_type_list( { tVelDofTypes, tVisDofTypes } );
+            tCMMasterTurbulence->set_property( tPropViscosity, "Viscosity" );
+            tCMMasterTurbulence->set_property( tPropDensity, "Density" );
+            tCMMasterTurbulence->set_space_dim( iSpaceDim );
+
             // define stabilization parameters
             fem::SP_Factory tSPFactory;
 
@@ -290,15 +313,16 @@ TEST_CASE( "IWG_Incompressible_NS_Dirichlet_Nitsche", "[IWG_Incompressible_NS_Di
             std::shared_ptr< fem::IWG > tIWGVelocity =
                     tIWGFactory.create_IWG( fem::IWG_Type::INCOMPRESSIBLE_NS_VELOCITY_DIRICHLET_SYMMETRIC_NITSCHE );
             tIWGVelocity->set_residual_dof_type( tVelDofTypes );
-            tIWGVelocity->set_dof_type_list( { tVelDofTypes, tPDofTypes}, mtk::Master_Slave::MASTER );
+            tIWGVelocity->set_dof_type_list( { tVelDofTypes, tPDofTypes, tVisDofTypes }, mtk::Master_Slave::MASTER );
             tIWGVelocity->set_property( tPropVelocity, "Dirichlet" );
             tIWGVelocity->set_constitutive_model( tCMMasterIncFluid, "IncompressibleFluid" );
+            tIWGVelocity->set_constitutive_model( tCMMasterTurbulence, "TurbulenceFluid" );
             tIWGVelocity->set_stabilization_parameter( tSPNitsche, "DirichletNitsche" );
 
             std::shared_ptr< fem::IWG > tIWGPressure =
                     tIWGFactory.create_IWG( fem::IWG_Type::INCOMPRESSIBLE_NS_PRESSURE_DIRICHLET_SYMMETRIC_NITSCHE );
             tIWGPressure->set_residual_dof_type( tPDofTypes );
-            tIWGPressure->set_dof_type_list( { tVelDofTypes, tPDofTypes }, mtk::Master_Slave::MASTER );
+            tIWGPressure->set_dof_type_list( { tVelDofTypes, tPDofTypes, tVisDofTypes }, mtk::Master_Slave::MASTER );
             tIWGPressure->set_property( tPropVelocity, "Dirichlet" );
             tIWGPressure->set_constitutive_model( tCMMasterIncFluid, "IncompressibleFluid" );
 
@@ -312,28 +336,32 @@ TEST_CASE( "IWG_Incompressible_NS_Dirichlet_Nitsche", "[IWG_Incompressible_NS_Di
 
             // set size and populate the set dof type map
             tIWGVelocity->mSet->mUniqueDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
-            tIWGVelocity->mSet->mUniqueDofTypeMap( static_cast< int >( MSI::Dof_Type::VX ) )   = 0;
-            tIWGVelocity->mSet->mUniqueDofTypeMap( static_cast< int >( MSI::Dof_Type::P ) )    = 1;
+            tIWGVelocity->mSet->mUniqueDofTypeMap( static_cast< int >( MSI::Dof_Type::VX ) )        = 0;
+            tIWGVelocity->mSet->mUniqueDofTypeMap( static_cast< int >( MSI::Dof_Type::P ) )         = 1;
+            tIWGVelocity->mSet->mUniqueDofTypeMap( static_cast< int >( MSI::Dof_Type::VISCOSITY ) ) = 2;
 
             // set size and populate the set master dof type map
             tIWGVelocity->mSet->mMasterDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
-            tIWGVelocity->mSet->mMasterDofTypeMap( static_cast< int >( MSI::Dof_Type::VX ) )   = 0;
-            tIWGVelocity->mSet->mMasterDofTypeMap( static_cast< int >( MSI::Dof_Type::P ) )    = 1;
+            tIWGVelocity->mSet->mMasterDofTypeMap( static_cast< int >( MSI::Dof_Type::VX ) )        = 0;
+            tIWGVelocity->mSet->mMasterDofTypeMap( static_cast< int >( MSI::Dof_Type::P ) )         = 1;
+            tIWGVelocity->mSet->mMasterDofTypeMap( static_cast< int >( MSI::Dof_Type::VISCOSITY ) ) = 2;
 
             // set size and fill the set residual assembly map
-            tIWGVelocity->mSet->mResDofAssemblyMap.resize( 2 );
+            tIWGVelocity->mSet->mResDofAssemblyMap.resize( 3 );
             tIWGVelocity->mSet->mResDofAssemblyMap( 0 ) = { { 0, tNumDofVel-1 } };
             tIWGVelocity->mSet->mResDofAssemblyMap( 1 ) = { { tNumDofVel, tNumDofVel + tNumDofP - 1 } };
+            tIWGVelocity->mSet->mResDofAssemblyMap( 2 ) = { { tNumDofVel + tNumDofP, tNumDofVel + tNumDofP + tNumDofVis - 1 } };
 
             // set size and fill the set jacobian assembly map
-            tIWGVelocity->mSet->mJacDofAssemblyMap.resize( 2 );
-            tIWGVelocity->mSet->mJacDofAssemblyMap( 0 ) = { { 0, tNumDofVel - 1 }, { tNumDofVel, tNumDofVel + tNumDofP - 1 } };
-            tIWGVelocity->mSet->mJacDofAssemblyMap( 1 ) = { { 0, tNumDofVel - 1 }, { tNumDofVel, tNumDofVel + tNumDofP - 1 } };
+            tIWGVelocity->mSet->mJacDofAssemblyMap.resize( 3 );
+            tIWGVelocity->mSet->mJacDofAssemblyMap( 0 ) = { { 0, tNumDofVel - 1 }, { tNumDofVel, tNumDofVel + tNumDofP - 1 }, { tNumDofVel + tNumDofP, tNumDofVel + tNumDofP + tNumDofVis - 1 } };
+            tIWGVelocity->mSet->mJacDofAssemblyMap( 1 ) = { { 0, tNumDofVel - 1 }, { tNumDofVel, tNumDofVel + tNumDofP - 1 }, { tNumDofVel + tNumDofP, tNumDofVel + tNumDofP + tNumDofVis - 1 } };
+            tIWGVelocity->mSet->mJacDofAssemblyMap( 2 ) = { { 0, tNumDofVel - 1 }, { tNumDofVel, tNumDofVel + tNumDofP - 1 }, { tNumDofVel + tNumDofP, tNumDofVel + tNumDofP + tNumDofVis - 1 } };
 
             // set size and init the set residual and jacobian
             tIWGVelocity->mSet->mResidual.resize( 1 );
-            tIWGVelocity->mSet->mResidual( 0 ).set_size( tNumDofVel + tNumDofP, 1, 0.0 );
-            tIWGVelocity->mSet->mJacobian.set_size( tNumDofVel + tNumDofP, tNumDofVel + tNumDofP, 0.0 );
+            tIWGVelocity->mSet->mResidual( 0 ).set_size( tNumDofVel + tNumDofP + tNumDofVis, 1, 0.0 );
+            tIWGVelocity->mSet->mJacobian.set_size( tNumDofVel + tNumDofP + tNumDofVis, tNumDofVel + tNumDofP + tNumDofVis, 0.0 );
 
             // set the normal
             tIWGVelocity->set_normal( tNormal );
@@ -344,8 +372,8 @@ TEST_CASE( "IWG_Incompressible_NS_Dirichlet_Nitsche", "[IWG_Incompressible_NS_Di
             tIWGPressure->get_global_dof_type_list();
 
             // populate the requested master dof type
-            tIWGVelocity->mRequestedMasterGlobalDofTypes = { { MSI::Dof_Type::VX }, { MSI::Dof_Type::P } };
-            tIWGPressure->mRequestedMasterGlobalDofTypes = { { MSI::Dof_Type::VX }, { MSI::Dof_Type::P } };
+            tIWGVelocity->mRequestedMasterGlobalDofTypes = { { MSI::Dof_Type::VX }, { MSI::Dof_Type::P }, { MSI::Dof_Type::VISCOSITY } };
+            tIWGPressure->mRequestedMasterGlobalDofTypes = { { MSI::Dof_Type::VX }, { MSI::Dof_Type::P }, { MSI::Dof_Type::VISCOSITY } };
 
             // create a field interpolator manager
             moris::Cell< moris::Cell< enum MSI::Dof_Type > > tDummyDof;
@@ -384,10 +412,13 @@ TEST_CASE( "IWG_Incompressible_NS_Dirichlet_Nitsche", "[IWG_Incompressible_NS_Di
                     1.0,
                     tVelocityJacobian,
                     tVelocityJacobianFD );
+
 //            print( tVelocityJacobian(   { 0, tNumDofVel-1 }, { 0, tNumDofVel-1 } ), "tJacobianVV" );
 //            print( tVelocityJacobianFD( { 0, tNumDofVel-1 }, { 0, tNumDofVel-1 } ), "tJacobianFDVV" );
 //            print( tVelocityJacobian(   { 0, tNumDofVel-1 }, { tNumDofVel, tNumDofVel + tNumDofP - 1 }), "tJacobianVP" );
 //            print( tVelocityJacobianFD( { 0, tNumDofVel-1 }, { tNumDofVel, tNumDofVel + tNumDofP - 1 }), "tJacobianFDVP" );
+//            print( tVelocityJacobian(   { 0, tNumDofVel-1 }, { tNumDofVel + tNumDofP, tNumDofVel + tNumDofP + tNumDofVis - 1 }), "tJacobianVVis" );
+//            print( tVelocityJacobianFD( { 0, tNumDofVel-1 }, { tNumDofVel + tNumDofP, tNumDofVel + tNumDofP + tNumDofVis - 1 }), "tJacobianFDVVis" );
 
             // require check is true
             REQUIRE( tCheckVelocityJacobian );

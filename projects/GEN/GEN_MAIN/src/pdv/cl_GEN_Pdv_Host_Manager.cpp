@@ -392,20 +392,6 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        void Pdv_Host_Manager::mark_ip_pdv_as_inactive(moris_index aNodeIndex, PDV_Type aPdvType)
-        {
-            mIpPdvHosts(aNodeIndex)->mark_pdv_as_inactive(aPdvType);
-        }
-
-        //--------------------------------------------------------------------------------------------------------------
-
-        void Pdv_Host_Manager::mark_ig_pdv_as_inactive(moris_index aNodeIndex, PDV_Type aPdvType)
-        {
-            mIgPdvHosts(aNodeIndex)->mark_pdv_as_inactive(aPdvType);
-        }
-
-        //--------------------------------------------------------------------------------------------------------------
-
         void Pdv_Host_Manager::set_ip_requested_dv_types(Cell<PDV_Type>& aPdvTypes)
         {
             mRequestedIpPdvTypes = aPdvTypes;
@@ -420,6 +406,13 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
+        void Pdv_Host_Manager::create_ip_pdv(uint aNodeIndex, PDV_Type aPdvType, real aPdvVal)
+        {
+            mIpPdvHosts(aNodeIndex)->create_pdv(aPdvType, aPdvVal);
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
         void Pdv_Host_Manager::create_ip_pdv(uint aNodeIndex, PDV_Type aPdvType, std::shared_ptr<Property> aPropertyPointer)
         {
             mIpPdvHosts(aNodeIndex)->create_pdv(aPdvType, aPropertyPointer);
@@ -427,16 +420,16 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        void Pdv_Host_Manager::create_ip_pdv(uint aNodeIndex, PDV_Type aPdvType, moris::real aPdvVal)
+        void Pdv_Host_Manager::create_ig_pdv(uint aNodeIndex, PDV_Type aPdvType, moris::real aPdvVal)
         {
-            mIpPdvHosts(aNodeIndex)->create_pdv(aPdvType, aPdvVal);
+            mIgPdvHosts(aNodeIndex)->create_pdv(aPdvType, aPdvVal);
         }
 
         //--------------------------------------------------------------------------------------------------------------
 
-        void Pdv_Host_Manager::create_ig_pdv(uint aNodeIndex, PDV_Type aPdvType, moris::real aPdvVal)
+        void Pdv_Host_Manager::create_ig_pdv(uint aNodeIndex, PDV_Type aPdvType, GEN_Geometry_Object* aIntersection, uint aDimension)
         {
-            mIgPdvHosts(aNodeIndex)->create_pdv(aPdvType, aPdvVal);
+            mIgPdvHosts(aNodeIndex)->create_pdv(aPdvType, aIntersection, aDimension);
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -455,11 +448,23 @@ namespace moris
             Matrix<DDRMat> tHostAdvSensitivities(0, 0);
 
             // Need to know the size of the sensitivities
+            uint tFirstPdvHostIndex = 0;
             if (mIpPdvHosts.size() > 0)
             {
-                mIpPdvHosts(0)->get_all_sensitivities(tHostAdvSensitivities);
-                tTotalAdvSensitivities.resize(mGlobalPdvIndex, tHostAdvSensitivities.n_cols());
+                while (tHostAdvSensitivities.numel() == 0)
+                {
+                    mIpPdvHosts(tFirstPdvHostIndex++)->get_all_sensitivities(tHostAdvSensitivities);
+
+                }
             }
+            else if (mIgPdvHosts.size() > 0)
+            {
+                while (tHostAdvSensitivities.numel() == 0)
+                {
+                    mIgPdvHosts(tFirstPdvHostIndex++)->get_all_sensitivities(tHostAdvSensitivities);
+                }
+            }
+            tTotalAdvSensitivities.resize(mGlobalPdvIndex, tHostAdvSensitivities.n_cols());
 
             // Loop over PDV hosts
             for (uint tPdvHostIndex = 0; tPdvHostIndex < mIpPdvHosts.size(); tPdvHostIndex++)
@@ -474,7 +479,18 @@ namespace moris
                     tTotalAdvSensitivities.set_row(tHostPdvIndices(tRowIndex), tHostAdvSensitivities.get_row(tRowIndex));
                 }
             }
+            for (uint tPdvHostIndex = 0; tPdvHostIndex < mIgPdvHosts.size(); tPdvHostIndex++)
+            {
+                // Get sensitivities
+                mIgPdvHosts(tPdvHostIndex)->get_all_sensitivities(tHostAdvSensitivities);
+                const Matrix<DDUMat>& tHostPdvIndices = mIgPdvHosts(tPdvHostIndex)->get_all_global_indices();
 
+                // Add to total matrix
+                for (uint tRowIndex = 0; tRowIndex < tHostAdvSensitivities.n_rows(); tRowIndex++)
+                {
+                    tTotalAdvSensitivities.set_row(tHostPdvIndices(tRowIndex), tHostAdvSensitivities.get_row(tRowIndex));
+                }
+            }
             return tTotalAdvSensitivities;
         }
 

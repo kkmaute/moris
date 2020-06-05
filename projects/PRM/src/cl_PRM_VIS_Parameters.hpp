@@ -33,13 +33,14 @@ namespace moris
     {
         ParameterList mVISParameterList;
 
-        mVISParameterList.insert( "Output_Index", 0 );
-        mVISParameterList.insert( "Mesh_Type"   , static_cast< uint >( vis::VIS_Mesh_Type::OVERLAPPING_INTERFACE ) );
-        mVISParameterList.insert( "File_Name"   , std::pair< std::string, std::string >( "", "" ) );
-        mVISParameterList.insert( "Set_Names"   , std::string("") );
-        mVISParameterList.insert( "Field_Names" , std::string("") );
-        mVISParameterList.insert( "Field_Type"  , std::string("") );
-        mVISParameterList.insert( "Output_Type" , std::string("") );
+        mVISParameterList.insert( "Output_Index"   , 0 );
+        mVISParameterList.insert( "Mesh_Type"      , static_cast< uint >( vis::VIS_Mesh_Type::OVERLAPPING_INTERFACE ) );
+        mVISParameterList.insert( "File_Name"      , std::pair< std::string, std::string >( "", "" ) );
+        mVISParameterList.insert( "Save_Frequency" , MORIS_SINT_MAX );
+        mVISParameterList.insert( "Set_Names"      , std::string("") );
+        mVISParameterList.insert( "Field_Names"    , std::string("") );
+        mVISParameterList.insert( "Field_Type"     , std::string("") );
+        mVISParameterList.insert( "Output_Type"    , std::string("") );
 
         return mVISParameterList;
     }

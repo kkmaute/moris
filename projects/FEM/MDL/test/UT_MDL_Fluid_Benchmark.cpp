@@ -73,7 +73,6 @@
 #include "cl_GEN_Circle.hpp"
 #include "cl_GEN_Plane.hpp"
 #include <functional>
-#include "cl_GEN_Geometry_Field_HMR.hpp"
 
 namespace moris
 {
