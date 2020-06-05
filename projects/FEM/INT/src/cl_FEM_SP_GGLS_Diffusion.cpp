@@ -20,7 +20,7 @@ namespace moris
             // populate the map
             mPropertyMap[ "Conductivity" ]         = Property_Type::CONDUCTIVITY;
             mPropertyMap[ "Density" ]              = Property_Type::DENSITY;
-            mPropertyMap[ "Heat_Capacity" ]        = Property_Type::HEAT_CAPACITY;
+            mPropertyMap[ "HeatCapacity" ]        = Property_Type::HEAT_CAPACITY;
             mPropertyMap[ "Latent_Heat" ]          = Property_Type::LATENT_HEAT;
             mPropertyMap[ "PC_Temp" ]              = Property_Type::PC_TEMP;
             mPropertyMap[ "Phase_State_Function" ] = Property_Type::PHASE_STATE_FUNCTION;
@@ -61,7 +61,7 @@ namespace moris
                         MSI::Dof_Type tDofType = aDofTypes( iDof )( 0 );
 
                         // if velocity
-                        if( tDofString == "Temp" )
+                        if( tDofString == "Temperature" )
                         {
                             mMasterDofTemp = tDofType;
                         }

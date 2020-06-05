@@ -146,7 +146,7 @@ namespace moris
             tCMMasterDiffLinIsoPC->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
             tCMMasterDiffLinIsoPC->set_property( tPropMasterConductivity, "Conductivity" );
             tCMMasterDiffLinIsoPC->set_property( tPropMasterDensity     , "Density" );
-            tCMMasterDiffLinIsoPC->set_property( tPropMasterHeatCapacity, "Heat_Capacity" );
+            tCMMasterDiffLinIsoPC->set_property( tPropMasterHeatCapacity, "HeatCapacity" );
             tCMMasterDiffLinIsoPC->set_property( tPropMasterLatentHeat  , "Latent_Heat" );
             tCMMasterDiffLinIsoPC->set_property( tPropMasterTmelt       , "PC_Temp" );
             tCMMasterDiffLinIsoPC->set_property( tPropMasterPCfunction  , "Phase_State_Function" );
@@ -161,7 +161,7 @@ namespace moris
             tSPGGLSParam->set_parameters( { {{ 1.0 }} });
             tSPGGLSParam->set_property( tPropMasterConductivity, "Conductivity", mtk::Master_Slave::MASTER );
             tSPGGLSParam->set_property( tPropMasterDensity, "Density", mtk::Master_Slave::MASTER );
-            tSPGGLSParam->set_property( tPropMasterHeatCapacity, "Heat_Capacity", mtk::Master_Slave::MASTER );
+            tSPGGLSParam->set_property( tPropMasterHeatCapacity, "HeatCapacity", mtk::Master_Slave::MASTER );
 
 
             // define the IWGs
