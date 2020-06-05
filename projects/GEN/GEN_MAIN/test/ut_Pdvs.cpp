@@ -127,7 +127,7 @@ namespace moris
             // ------------------- Check global map ----------------------- //
             const Matrix<DDSMat> & tLocalGlobalMap = tPdvHostManager.get_my_local_global_map();
 
-            CHECK(tLocalGlobalMap.length() == 38);
+            REQUIRE(tLocalGlobalMap.length() == 38);
             for (int tGlobalPdvIndex = 0; tGlobalPdvIndex < 38; tGlobalPdvIndex++)
             {
                 CHECK(tLocalGlobalMap(tGlobalPdvIndex) == tGlobalPdvIndex);

@@ -265,14 +265,14 @@ namespace moris
             MORIS_ERROR(tNumSets == aNodeIndicesPerSet.size(),
                     "Information passed to Pdv_Host_Manager.create_ip_pdv_hosts() does not have a consistent number of sets!");
 
-            // Set PDV_Type types
+            // Set PDV types
             mIpPdvTypes = aPdvTypes;
             mUniqueIpPdvTypes.resize(tNumSets);
 
-            // Initialize PDV_Type hosts
+            // Initialize PDV hosts
             mIpPdvHosts.resize(aTotalNodes, nullptr);
 
-            // Create PDV_Type hosts
+            // Create PDV hosts
             for (uint tMeshSetIndex = 0; tMeshSetIndex < tNumSets; tMeshSetIndex++)
             {
                 // Get number of unique PDVs
@@ -283,7 +283,7 @@ namespace moris
                 }
                 mUniqueIpPdvTypes(tMeshSetIndex).resize(tNumUniquePdvs);
 
-                // Copy PDV_Type types over
+                // Copy PDV types over
                 uint tUniquePdvIndex = 0;
                 for (uint tGroupIndex = 0; tGroupIndex < mIpPdvTypes(tMeshSetIndex).size(); tGroupIndex++)
                 {
@@ -293,7 +293,7 @@ namespace moris
                     }
                 }
 
-                // Create PDV_Type hosts
+                // Create PDV hosts
                 for (uint tNodeIndexOnSet = 0; tNodeIndexOnSet < aNodeIndicesPerSet(tMeshSetIndex).length(); tNodeIndexOnSet++)
                 {
                     // Create new host or add unique PDVs
@@ -301,7 +301,7 @@ namespace moris
                     if (mIpPdvHosts(aNodeIndicesPerSet(tMeshSetIndex)(tNodeIndexOnSet)) == nullptr)
                     {
                         mIpPdvHosts(aNodeIndicesPerSet(tMeshSetIndex)(tNodeIndexOnSet))
-                        = std::make_shared<Pdv_Host>(aNodeIndicesPerSet(tMeshSetIndex)(tNodeIndexOnSet),
+                        = std::make_shared<Interpolation_Pdv_Host>(aNodeIndicesPerSet(tMeshSetIndex)(tNodeIndexOnSet),
                                                      mUniqueIpPdvTypes(tMeshSetIndex),
                                                      mGlobalPdvIndex);
                     }
@@ -313,7 +313,7 @@ namespace moris
                     // Resize global map
                     mGlobalPdvTypeMap.resize(mGlobalPdvTypeMap.length() + tNumAddedPdvs, 1);
 
-                    // Update global PDV_Type indices
+                    // Update global PDV indices
                     for (uint tPdvIndex = 0; tPdvIndex < tNumAddedPdvs; tPdvIndex++)
                     {
                         mGlobalPdvTypeMap(mGlobalPdvIndex) = mGlobalPdvIndex;
@@ -332,14 +332,14 @@ namespace moris
             MORIS_ERROR(tNumSets == aNodeIndicesPerSet.size(),
             "Information passed to Pdv_Host_Manager.create_ig_pdv_hosts() does not have a consistent number of sets!");
 
-            // Set PDV_Type types
+            // Set PDV types
             mIgPdvTypes = aPdvTypes;
             mUniqueIgPdvTypes.resize(tNumSets);
 
-            // Initialize PDV_Type hosts
+            // Initialize PDV hosts
             mIgPdvHosts.resize(aTotalNodes, nullptr);
 
-            // Create PDV_Type hosts
+            // Create PDV hosts
             for (uint tMeshSetIndex = 0; tMeshSetIndex < tNumSets; tMeshSetIndex++)
             {
                 // Get number of unique PDVs
@@ -350,7 +350,7 @@ namespace moris
                 }
                 mUniqueIgPdvTypes(tMeshSetIndex).resize(tNumUniquePdvs);
 
-                // Copy PDV_Type types over
+                // Copy PDV types over
                 uint tUniquePdvIndex = 0;
                 for (uint tGroupIndex = 0; tGroupIndex < mIgPdvTypes(tMeshSetIndex).size(); tGroupIndex++)
                 {
@@ -360,31 +360,26 @@ namespace moris
                     }
                 }
 
-                // Create PDV_Type hosts
+                // Create PDV hosts
                 for (uint tNodeIndexOnSet = 0; tNodeIndexOnSet < aNodeIndicesPerSet(tMeshSetIndex).length(); tNodeIndexOnSet++)
                 {
-                    // Create new host or add unique PDVs
+                    // Create new host if not created already
                     uint tNumAddedPdvs = tNumUniquePdvs;
                     if (mIgPdvHosts(aNodeIndicesPerSet(tMeshSetIndex)(tNodeIndexOnSet)) == nullptr)
                     {
                         mIgPdvHosts(aNodeIndicesPerSet(tMeshSetIndex)(tNodeIndexOnSet))
-                        = std::make_shared<Pdv_Host>(aNodeIndicesPerSet(tMeshSetIndex)(tNodeIndexOnSet),
+                        = std::make_shared<Integration_Pdv_Host>(aNodeIndicesPerSet(tMeshSetIndex)(tNodeIndexOnSet),
                                                      mUniqueIgPdvTypes(tMeshSetIndex),
                                                      mGlobalPdvIndex);
-                    }
-                    else
-                    {
-                        tNumAddedPdvs = mIgPdvHosts(aNodeIndicesPerSet(tMeshSetIndex)(tNodeIndexOnSet))->add_pdv_types(mUniqueIgPdvTypes(tMeshSetIndex), mGlobalPdvIndex);
-                    }
+                        // Resize global map
+                        mGlobalPdvTypeMap.resize(mGlobalPdvTypeMap.length() + tNumAddedPdvs, 1);
 
-                    // Resize global map
-                    mGlobalPdvTypeMap.resize(mGlobalPdvTypeMap.length() + tNumAddedPdvs, 1);
-
-                    // Update global PDV_Type indices
-                    for (uint tPdvIndex = 0; tPdvIndex < tNumAddedPdvs; tPdvIndex++)
-                    {
-                        mGlobalPdvTypeMap(mGlobalPdvIndex) = mGlobalPdvIndex;
-                        mGlobalPdvIndex++;
+                        // Update global PDV indices
+                        for (uint tPdvIndex = 0; tPdvIndex < tNumAddedPdvs; tPdvIndex++)
+                        {
+                            mGlobalPdvTypeMap(mGlobalPdvIndex) = mGlobalPdvIndex;
+                            mGlobalPdvIndex++;
+                        }
                     }
                 }
             }
@@ -483,12 +478,12 @@ namespace moris
             {
                 // Get sensitivities
                 mIgPdvHosts(tPdvHostIndex)->get_all_sensitivities(tHostAdvSensitivities);
-                const Matrix<DDUMat>& tHostPdvIndices = mIgPdvHosts(tPdvHostIndex)->get_all_global_indices();
+                uint tStartingGlobalIndex = mIgPdvHosts(tPdvHostIndex)->get_starting_global_index();
 
                 // Add to total matrix
                 for (uint tRowIndex = 0; tRowIndex < tHostAdvSensitivities.n_rows(); tRowIndex++)
                 {
-                    tTotalAdvSensitivities.set_row(tHostPdvIndices(tRowIndex), tHostAdvSensitivities.get_row(tRowIndex));
+                    tTotalAdvSensitivities.set_row(tStartingGlobalIndex + tRowIndex, tHostAdvSensitivities.get_row(tRowIndex));
                 }
             }
             return tTotalAdvSensitivities;

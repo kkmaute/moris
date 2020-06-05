@@ -1,5 +1,5 @@
-#ifndef MORIS_CL_GEN_PDV_Type_HOST_HPP_
-#define MORIS_CL_GEN_PDV_Type_HOST_HPP_
+#ifndef MORIS_CL_GEN_INTERPOLATION_PDV_Type_HOST_HPP_
+#define MORIS_CL_GEN_INTERPOLATION_PDV_Type_HOST_HPP_
 
 #include "cl_GEN_Pdv_Enums.hpp"
 #include "cl_GEN_Pdv.hpp"
@@ -8,10 +8,9 @@ namespace moris
 {
     namespace ge
     {
-        class GEN_Geometry_Object;
         class Property;
 
-        class Pdv_Host
+        class Interpolation_Pdv_Host
         {
         private :
             // Identifies the host node
@@ -31,12 +30,12 @@ namespace moris
              * @param aPdvTypes PDV types for this host
              * @param aStartingGlobalIndex Global index to start assigning new PDV types
              */
-            Pdv_Host(uint aNodeIndex, const Cell<PDV_Type>& aPdvTypes, uint aStartingGlobalIndex);
+            Interpolation_Pdv_Host(uint aNodeIndex, const Cell<PDV_Type>& aPdvTypes, uint aStartingGlobalIndex);
             
             /**
              * destructor
              */
-            ~Pdv_Host();
+            ~Interpolation_Pdv_Host();
 
             /**
              * Update the pdv type list to include potentially new PDV types
@@ -62,15 +61,6 @@ namespace moris
              * @param aPropertyPointer Pointer to a GEN property
              */
             void create_pdv(PDV_Type aPdvType, std::shared_ptr<Property> aPropertyPointer);
-
-            /**
-             * Create PDV based on an intersection object
-             *
-             * @param aPdvType PDV type
-             * @param aIntersection Pointer to an object with intersection information
-             * @param aDimension 0, 1, or 2, corresponding to X, Y, and Z dimensions
-             */
-            void create_pdv(PDV_Type aPdvType, GEN_Geometry_Object* aIntersection, uint aDimension);
             
             /**
              * Check if PDV type is active on this host
@@ -111,7 +101,7 @@ namespace moris
             void get_all_sensitivities(Matrix<DDRMat>& aSensitivities);
             
         };
-    }  // end ge namepsace
-} // end moris namespace
+    }
+}
 
-#endif /* MORIS_CL_GEN_PDV_HOST_HPP_ */
+#endif /* MORIS_CL_GEN_INTERPOLATION_PDV_HOST_HPP_ */

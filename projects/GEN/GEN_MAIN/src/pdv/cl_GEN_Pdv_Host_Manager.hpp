@@ -2,7 +2,8 @@
 #define MORIS_CL_GEN_PDV_HOST_MANAGER_HPP_
 
 #include "cl_MSI_Design_Variable_Interface.hpp"
-#include "cl_GEN_Pdv_Host.hpp"
+#include "cl_GEN_Interpolation_Pdv_Host.hpp"
+#include "cl_GEN_Integration_Pdv_Host.hpp"
 #include "cl_GEN_Pdv_Enums.hpp"
 #include "cl_Matrix.hpp"
 
@@ -14,8 +15,8 @@ namespace moris
         {
         private:
             // list of pdv hosts - interpolation nodes
-            Cell<std::shared_ptr<Pdv_Host>> mIpPdvHosts;
-            Cell<std::shared_ptr<Pdv_Host>> mIgPdvHosts;
+            Cell<std::shared_ptr<Interpolation_Pdv_Host>> mIpPdvHosts;
+            Cell<std::shared_ptr<Integration_Pdv_Host>> mIgPdvHosts;
             
             // Groups of PDV types used per set
             Cell<Cell<Cell<PDV_Type>>> mIpPdvTypes;
