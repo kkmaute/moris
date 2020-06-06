@@ -145,11 +145,11 @@ namespace moris
             Field_Interpolator * tFI = mMasterFIManager->get_field_interpolators_for_type( aDofTypes( 0 ) );
 
             // set size for dSPdMasterDof
-            mdPPdMasterDof( tDofIndex ).set_size( 1, tFI->get_number_of_space_time_coefficients(), 0.0 )
+            mdPPdMasterDof( tDofIndex ).set_size( 1, tFI->get_number_of_space_time_coefficients(), 0.0 );
 
-                // get velocity field interpolator
-                Field_Interpolator * tVelocityFI =
-                        mMasterFIManager->get_field_interpolators_for_type( mMasterDofVelocity );
+            // get velocity field interpolator
+            Field_Interpolator * tVelocityFI =
+                    mMasterFIManager->get_field_interpolators_for_type( mMasterDofVelocity );
 
             // get the viscosity property
             std::shared_ptr< Property > tViscosityProp =
