@@ -791,11 +791,10 @@ namespace moris
              if(par_rank() == aBaseProc)
              {
                  aGatheredMats.resize(par_size());
-                 for(moris::uint i = 0; i < par_size(); i++)
+                 for(int i = 0; i < par_size(); i++)
                  {
                      MPI_Status tStatus;
                      MPI_Probe(i, aTag, moris::get_comm(), &tStatus);
-
 
                  //    MORIS_ERROR(tExists,"Trying to receive a message that does not exists");
 
@@ -815,8 +814,6 @@ namespace moris
                          tNumCol = 1;
                          tNumRow = tLength;
                      }
-
-                 //    std::cout<<"RECEIVE FROM FROM "<<aSendingProc<<" ON "<<par_rank()<<" WITH TAG "<<aTag<<" | Size: "<<aNumRows<<", "<<tNumColumns<<std::endl;
 
                      // Resize the matrix
                      aGatheredMats(i).resize(tNumRow, tNumCol);

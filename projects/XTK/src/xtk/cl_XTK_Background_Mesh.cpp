@@ -1251,7 +1251,6 @@ Background_Mesh::setup_comm_map()
     {
     std::unordered_map<moris_id,moris_id> tCommunicationMap;
     Cell<moris_index> tCellOfProcs;
-    moris_index tIndex = 0;
 
     for(moris::uint i = 0; i < mMeshData->get_num_entities(EntityRank::NODE); i++)
     {
