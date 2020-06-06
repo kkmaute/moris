@@ -124,9 +124,9 @@ namespace moris
             Matrix< DDRMat > tVelocityJump = tVelocityFI->val() - tPropVelocity->val();
 
             // compute master residual
-            mSet->get_residual()( 0 )( { tMasterResStartIndex, tMasterResStopIndex }, { 0, 0 } ) +=
+            mSet->get_residual()( 0 )( { tMasterResStartIndex, tMasterResStopIndex }, { 0, 0 } ) -=
                     aWStar * (
-                            - mBeta * trans( tCMFluid->testTraction( mNormal, mResidualDofType ) ) * tM * tVelocityJump );
+                             mBeta * trans( tCMFluid->testTraction( mNormal, mResidualDofType ) ) * tM * tVelocityJump );
         }
 
         //------------------------------------------------------------------------------
@@ -198,8 +198,8 @@ namespace moris
                     // compute jacobian direct dependencies
                     mSet->get_jacobian()(
                             { tMasterResStartIndex, tMasterResStopIndex },
-                            { tMasterDepStartIndex, tMasterDepStopIndex } ) += aWStar * (
-                                    - mBeta * trans( tCMFluid->testTraction( mNormal, mResidualDofType ) ) * tM * tVelocityFI->N() );
+                            { tMasterDepStartIndex, tMasterDepStopIndex } ) -= aWStar * (
+                                     mBeta * trans( tCMFluid->testTraction( mNormal, mResidualDofType ) ) * tM * tVelocityFI->N() );
                 }
 
                 // if imposed velocity property depends on dof type
@@ -208,8 +208,8 @@ namespace moris
                     // add contribution of CM to jacobian
                     mSet->get_jacobian()(
                             { tMasterResStartIndex, tMasterResStopIndex },
-                            { tMasterDepStartIndex, tMasterDepStopIndex } ) -= aWStar * (
-                                    - mBeta * trans( tCMFluid->testTraction( mNormal, mResidualDofType ) ) * tM * tPropVelocity->dPropdDOF( tDofType ) );
+                            { tMasterDepStartIndex, tMasterDepStopIndex } ) += aWStar * (
+                                     mBeta * trans( tCMFluid->testTraction( mNormal, mResidualDofType ) ) * tM * tPropVelocity->dPropdDOF( tDofType ) );
                 }
 
                 // if fluid constitutive model depends on dof type
@@ -218,8 +218,8 @@ namespace moris
                     // add contribution of CM to jacobian
                     mSet->get_jacobian()(
                             { tMasterResStartIndex, tMasterResStopIndex },
-                            { tMasterDepStartIndex, tMasterDepStopIndex } ) += aWStar * (
-                                    - mBeta * tCMFluid->dTestTractiondDOF( tDofType, mNormal, tM * tVelocityJump, mResidualDofType ) );
+                            { tMasterDepStartIndex, tMasterDepStopIndex } ) -= aWStar * (
+                                     mBeta * tCMFluid->dTestTractiondDOF( tDofType, mNormal, tM * tVelocityJump, mResidualDofType ) );
                 }
             }
         }

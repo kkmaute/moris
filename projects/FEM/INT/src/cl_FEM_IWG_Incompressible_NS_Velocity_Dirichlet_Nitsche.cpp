@@ -154,7 +154,7 @@ namespace moris
             mSet->get_residual()( 0 )( { tMasterResStartIndex, tMasterResStopIndex }, { 0, 0 } ) +=
                     aWStar * (
                             - trans( tFIVelocity->N() ) * tM * tCMFluid->traction( mNormal )
-                            + mBeta * trans( tCMFluid->testTraction( mNormal, mResidualDofType ) ) * tM * tVelocityJump
+                            - mBeta * trans( tCMFluid->testTraction( mNormal, mResidualDofType ) ) * tM * tVelocityJump
                             + tSPNitsche->val()( 0 ) * trans( tFIVelocity->N() ) * tM * tVelocityJump );
 
             // if turbulence
