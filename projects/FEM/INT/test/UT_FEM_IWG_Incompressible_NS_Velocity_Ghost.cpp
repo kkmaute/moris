@@ -4,7 +4,7 @@
 
 #define protected public
 #define private   public
- //FEM//INT//src
+//FEM//INT//src
 #include "cl_FEM_Field_Interpolator_Manager.hpp"
 #include "cl_FEM_IWG.hpp"
 #include "cl_FEM_Set.hpp"
@@ -21,26 +21,26 @@
 //LINALG
 #include "op_equal_equal.hpp"
 
-void tFIConstValFunction_UTVelocityGhost
-( moris::Matrix< moris::DDRMat >                 & aPropMatrix,
-  moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
-  moris::fem::Field_Interpolator_Manager         * aFIManager )
+void tFIConstValFunction_UTVelocityGhost(
+        moris::Matrix< moris::DDRMat >                 & aPropMatrix,
+        moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
+        moris::fem::Field_Interpolator_Manager         * aFIManager )
 {
     aPropMatrix = aParameters( 0 );
 }
 
-void tFIValFunction_UTVelocityGhost
-( moris::Matrix< moris::DDRMat >                 & aPropMatrix,
-  moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
-  moris::fem::Field_Interpolator_Manager         * aFIManager )
+void tFIValFunction_UTVelocityGhost(
+        moris::Matrix< moris::DDRMat >                 & aPropMatrix,
+        moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
+        moris::fem::Field_Interpolator_Manager         * aFIManager )
 {
     aPropMatrix = aParameters( 0 ) * sum( aFIManager->get_field_interpolators_for_type( moris::MSI::Dof_Type::VX )->val() );
 }
 
-void tFIDerFunction_UTVelocityGhost
-( moris::Matrix< moris::DDRMat >                 & aPropMatrix,
-  moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
-  moris::fem::Field_Interpolator_Manager         * aFIManager )
+void tFIDerFunction_UTVelocityGhost(
+        moris::Matrix< moris::DDRMat >                 & aPropMatrix,
+        moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
+        moris::fem::Field_Interpolator_Manager         * aFIManager )
 {
     moris::Matrix< moris::DDRMat > tTemp = trans( aFIManager->get_field_interpolators_for_type( moris::MSI::Dof_Type::VX )->N() );
     moris::Matrix< moris::DDRMat > tReturn( tTemp.n_rows(), 1 );
@@ -63,7 +63,7 @@ TEST_CASE( "IWG_Incompressible_NS_Velocity_Ghost", "[moris],[fem],[IWG_Incompres
     real tEpsilon = 1E-4;
 
     // define a perturbation relative size
-    real tPerturbation = 1E-4;
+    real tPerturbation = 1E-6;
 
     // loop on the space dimension
     for( uint iSpaceDim = 2; iSpaceDim < 4; iSpaceDim++ )
@@ -90,45 +90,45 @@ TEST_CASE( "IWG_Incompressible_NS_Velocity_Ghost", "[moris],[fem],[IWG_Incompres
 
         switch( iSpaceDim )
         {
-            case( 2 ):
+            case 2 :
             {
                 // set geometry type
                 tGeometryType = mtk::Geometry_Type::QUAD;
 
                 // fill space coeff xHat
                 tXHat = {{ 0.0, 0.0 },
-                         { 1.0, 0.0 },
-                         { 1.0, 1.0 },
-                         { 0.0, 1.0 }};
+                        { 1.0, 0.0 },
+                        { 1.0, 1.0 },
+                        { 0.0, 1.0 }};
 
-               // fill evaluation point xi, tau
-               tParamPoint = {{ 0.35}, {-0.25}, { 0.0 }};
+                // fill evaluation point xi, tau
+                tParamPoint = {{ 0.35}, {-0.25}, { 0.0 }};
 
-               // number of coefficients
-               tNumCoeffs = {{ 4 },{ 9 },{ 16 }};
+                // number of coefficients
+                tNumCoeffs = {{ 4 },{ 9 },{ 16 }};
 
-               // set the normal
-               tNormal = {{ 1.0 }, { 0.0 }};
+                // set the normal
+                tNormal = {{ 0.75 }, { 0.23 }};
 
-               // set dof type list
-               tDofTypes = { MSI::Dof_Type::VX, MSI::Dof_Type::VY };
+                // set dof type list
+                tDofTypes = { MSI::Dof_Type::VX, MSI::Dof_Type::VY };
 
-               break;
+                break;
             }
-            case( 3 ):
+            case 3 :
             {
                 // set geometry type
                 tGeometryType = mtk::Geometry_Type::HEX;
 
                 // fill space coeff xHat
                 tXHat = {{ 0.0, 0.0, 0.0 },
-                         { 1.0, 0.0, 0.0 },
-                         { 1.0, 1.0, 0.0 },
-                         { 0.0, 1.0, 0.0 },
-                         { 0.0, 0.0, 1.0 },
-                         { 1.0, 0.0, 1.0 },
-                         { 1.0, 1.0, 1.0 },
-                         { 0.0, 1.0, 1.0 }};
+                        { 1.0, 0.0, 0.0 },
+                        { 1.0, 1.0, 0.0 },
+                        { 0.0, 1.0, 0.0 },
+                        { 0.0, 0.0, 1.0 },
+                        { 1.0, 0.0, 1.0 },
+                        { 1.0, 1.0, 1.0 },
+                        { 0.0, 1.0, 1.0 }};
 
                 // fill evaluation point xi, tau
                 tParamPoint = {{ 0.35}, {-0.25}, { 0.75}, { 0.0 }};
@@ -137,7 +137,7 @@ TEST_CASE( "IWG_Incompressible_NS_Velocity_Ghost", "[moris],[fem],[IWG_Incompres
                 tNumCoeffs = {{ 8 },{ 27 },{ 64 }};
 
                 // set the normal
-                tNormal = {{1.0},{0.0},{0.0}};
+                tNormal = {{0.75},{-0.13},{0.24}};
 
                 // set dof type list
                 tDofTypes = { MSI::Dof_Type::VX, MSI::Dof_Type::VY, MSI::Dof_Type::VZ };
@@ -155,10 +155,10 @@ TEST_CASE( "IWG_Incompressible_NS_Velocity_Ghost", "[moris],[fem],[IWG_Incompres
         //------------------------------------------------------------------------------
         // create a space geometry interpolation rule
         Interpolation_Rule tGIRule( tGeometryType,
-                                    Interpolation_Type::LAGRANGE,
-                                    mtk::Interpolation_Order::LINEAR,
-                                    Interpolation_Type::LAGRANGE,
-                                    mtk::Interpolation_Order::LINEAR );
+                Interpolation_Type::LAGRANGE,
+                mtk::Interpolation_Order::LINEAR,
+                Interpolation_Type::LAGRANGE,
+                mtk::Interpolation_Order::LINEAR );
 
         // create a space time geometry interpolator
         Geometry_Interpolator tGI = Geometry_Interpolator( tGIRule );
@@ -190,7 +190,7 @@ TEST_CASE( "IWG_Incompressible_NS_Velocity_Ghost", "[moris],[fem],[IWG_Incompres
             // switch on interpolation order
             switch( iInterpOrder )
             {
-                case ( 1 ):
+                case 1 :
                 {
                     // set interpolation type
                     tInterpolationOrder = mtk::Interpolation_Order::LINEAR;
@@ -205,7 +205,7 @@ TEST_CASE( "IWG_Incompressible_NS_Velocity_Ghost", "[moris],[fem],[IWG_Incompres
                     tSlaveMatrix.randu( tNumCoeffs( 0 ), iSpaceDim );
                     break;
                 }
-                case ( 2 ):
+                case 2 :
                 {
                     // set interpolation type
                     tInterpolationOrder = mtk::Interpolation_Order::QUADRATIC;
@@ -220,7 +220,7 @@ TEST_CASE( "IWG_Incompressible_NS_Velocity_Ghost", "[moris],[fem],[IWG_Incompres
                     tSlaveMatrix.randu( tNumCoeffs( 1 ), iSpaceDim );
                     break;
                 }
-                case ( 3 ):
+                case 3 :
                 {
                     // set interpolation type
                     tInterpolationOrder = mtk::Interpolation_Order::CUBIC;
@@ -244,10 +244,10 @@ TEST_CASE( "IWG_Incompressible_NS_Velocity_Ghost", "[moris],[fem],[IWG_Incompres
 
             //create a space time interpolation rule
             Interpolation_Rule tFIRule ( tGeometryType,
-                                         Interpolation_Type::LAGRANGE,
-                                         tInterpolationOrder,
-                                         Interpolation_Type::CONSTANT,
-                                         mtk::Interpolation_Order::CONSTANT );
+                    Interpolation_Type::LAGRANGE,
+                    tInterpolationOrder,
+                    Interpolation_Type::CONSTANT,
+                    mtk::Interpolation_Order::CONSTANT );
 
             // fill random coefficients for master FI
             Matrix< DDRMat > tMasterDOFHat;
@@ -408,18 +408,19 @@ TEST_CASE( "IWG_Incompressible_NS_Velocity_Ghost", "[moris],[fem],[IWG_Incompres
             Matrix< DDRMat > tJacobiansFD;
 
             // check jacobian by FD
-            bool tCheckJacobian = tIWGViscous->check_jacobian_double( tPerturbation,
-                                                                      tEpsilon,
-                                                                      1.0,
-                                                                      tJacobians,
-                                                                      tJacobiansFD );
+            bool tCheckViscousJacobian = tIWGViscous->check_jacobian_double(
+                    tPerturbation,
+                    tEpsilon,
+                    1.0,
+                    tJacobians,
+                    tJacobiansFD );
 
-//            // print for debug
-//            print( tJacobians,"tJacobians");
-//            print( tJacobiansFD,"tJacobiansFD");
+            //            // print for debug
+            //            print( tJacobians,"tJacobians");
+            //            print( tJacobiansFD,"tJacobiansFD");
 
             // require check is true
-            REQUIRE( tCheckJacobian );
+            REQUIRE( tCheckViscousJacobian );
 
             // reset residual and jacobian
             //------------------------------------------------------------------------------
@@ -438,21 +439,22 @@ TEST_CASE( "IWG_Incompressible_NS_Velocity_Ghost", "[moris],[fem],[IWG_Incompres
 
             // check jacobian by FD
             bool tCheckConvectiveJacobian
-            = tIWGConvective->check_jacobian_double( tPerturbation,
-                                                     tEpsilon,
-                                                     1.0,
-                                                     tConvectiveJacobians,
-                                                     tConvectiveJacobiansFD );
+            = tIWGConvective->check_jacobian_double(
+                    tPerturbation,
+                    tEpsilon,
+                    1.0,
+                    tConvectiveJacobians,
+                    tConvectiveJacobiansFD );
 
-//            // print for debug
-//            print( tConvectiveJacobians,"tConvectiveJacobians");
-//            print( tConvectiveJacobiansFD,"tConvectiveJacobiansFD");
+            //            // print for debug
+            //            print( tConvectiveJacobians,"tConvectiveJacobians");
+            //            print( tConvectiveJacobiansFD,"tConvectiveJacobiansFD");
 
             // require check is true
             REQUIRE( tCheckConvectiveJacobian );
 
-//            // print the treated case
-//            std::cout<<"Case: Geometry "<<iSpaceDim<<" Order "<<iInterpOrder<<std::endl;
+            //            // print the treated case
+            //            std::cout<<"Case: Geometry "<<iSpaceDim<<" Order "<<iInterpOrder<<std::endl;
 
 
             // clean up

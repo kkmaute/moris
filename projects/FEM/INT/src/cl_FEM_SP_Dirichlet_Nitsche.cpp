@@ -40,8 +40,10 @@ namespace moris
                 mtk::Master_Slave           aIsMaster )
         {
             // check that aPropertyString makes sense
-            MORIS_ERROR( mPropertyMap.find( aPropertyString ) != mPropertyMap.end(),
-                    "SP_Dirichlet_Nitsche::set_property - Unknown aPropertyString." );
+            std::string tErrMsg =
+                    std::string( "SP_Dirichlet_Nitsche::set_property - Unknown aPropertyString : " ) +
+                    aPropertyString;
+            MORIS_ERROR( mPropertyMap.find( aPropertyString ) != mPropertyMap.end() , tErrMsg.c_str() );
 
             // set the property in the property cell
             this->get_properties( aIsMaster )( static_cast< uint >( mPropertyMap[ aPropertyString ] ) ) = aProperty;
@@ -86,7 +88,7 @@ namespace moris
             {
                 // compute derivative with indirect dependency through properties
                 mdPPdMasterDof( tDofIndex ).matrix_data() +=
-                        this->val()( 0 ) / tPropMaterial->val()( 0 ) * tPropMaterial->dPropdDOF( aDofTypes );
+                        mParameters( 0 ) * tPropMaterial->dPropdDOF( aDofTypes ) / mElementSize;
             }
         }
 

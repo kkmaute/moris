@@ -75,17 +75,16 @@ namespace moris
             this->compute_dnNdxn( tSlavedNdx, mtk::Master_Slave::SLAVE );
 
             // premultiply common terms
-            Matrix< DDRMat > tConvectivePreMultiply
-            = tSPConvective->val()( 0 ) * ( tFIMaster->gradx( 1 ) - tFISlave->gradx( 1 ) ) ;
+            Matrix< DDRMat > tConvectivePreMultiply = tSPConvective->val()( 0 ) * ( tFIMaster->gradx( 1 ) - tFISlave->gradx( 1 ) ) ;
             tConvectivePreMultiply = reshape( tConvectivePreMultiply, tConvectivePreMultiply.numel(), 1 );
 
             // compute master residual
-            mSet->get_residual()( 0 )( { tMasterResStartIndex, tMasterResStopIndex }, { 0, 0 } )
-                    += aWStar * ( trans( tMasterdNdx ) * tConvectivePreMultiply );
+            mSet->get_residual()( 0 )( { tMasterResStartIndex, tMasterResStopIndex }, { 0, 0 } ) += aWStar * (
+                    trans( tMasterdNdx ) * tConvectivePreMultiply );
 
             // compute slave residual
-            mSet->get_residual()( 0 )( { tSlaveResStartIndex, tSlaveResStopIndex }, { 0, 0 } )
-                    -= aWStar * ( trans( tSlavedNdx ) * tConvectivePreMultiply );
+            mSet->get_residual()( 0 )( { tSlaveResStartIndex, tSlaveResStopIndex }, { 0, 0 } ) -= aWStar * (
+                    trans( tSlavedNdx ) * tConvectivePreMultiply );
         }
 
         //------------------------------------------------------------------------------

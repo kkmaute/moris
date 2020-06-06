@@ -12,7 +12,7 @@ namespace moris
     namespace fem
     {
 
-//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
         IWG_Incompressible_NS_Viscous_Velocity_Ghost::IWG_Incompressible_NS_Viscous_Velocity_Ghost()
         {
             // set size for the stabilization parameter pointer cell
@@ -23,7 +23,22 @@ namespace moris
             mStabilizationMap[ "TimeVelocityGhost" ] = IWG_Stabilization_Type::TIME_VELOCITY_GHOST;
         }
 
-//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
+        void IWG_Incompressible_NS_Viscous_Velocity_Ghost::set_stabilization_parameter(
+                std::shared_ptr< Stabilization_Parameter > aStabilizationParameter,
+                std::string                                aStabilizationString )
+        {
+            // check that aStabilizationString makes sense
+            std::string tErrMsg =
+                    std::string( "IWG_Incompressible_NS_Viscous_Velocity_Ghost::set_stabilization_parameter - Unknown aStabilizationString: " ) +
+                    aStabilizationString;
+            MORIS_ERROR( mStabilizationMap.find( aStabilizationString ) != mStabilizationMap.end(), tErrMsg.c_str() );
+
+            // set the stabilization parameter in the stabilization parameter cell
+            this->get_stabilization_parameters()( static_cast< uint >( mStabilizationMap[ aStabilizationString ] ) ) = aStabilizationParameter;
+        }
+
+        //------------------------------------------------------------------------------
         void IWG_Incompressible_NS_Viscous_Velocity_Ghost::compute_residual( real aWStar )
         {
             // check master field interpolators
@@ -50,17 +65,17 @@ namespace moris
             // FIXME the order should be set differently
             switch ( tFIMaster->get_space_interpolation_order() )
             {
-                case( mtk::Interpolation_Order::LINEAR ):
+                case mtk::Interpolation_Order::LINEAR :
                 {
                     mOrder = 1;
                     break;
                 }
-                case( mtk::Interpolation_Order::QUADRATIC ):
+                case mtk::Interpolation_Order::QUADRATIC :
                 {
                     mOrder = 2;
                     break;
                 }
-                case( mtk::Interpolation_Order::CUBIC ):
+                case mtk::Interpolation_Order::CUBIC :
                 {
                     mOrder = 3;
                     break;
@@ -76,47 +91,52 @@ namespace moris
             for ( uint iOrder = 1; iOrder <= mOrder; iOrder++ )
             {
                 // get the viscous stabilization parameter
-                std::shared_ptr< Stabilization_Parameter > tSPViscous
-                = mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::VISCOUS_GHOST ) );
+                std::shared_ptr< Stabilization_Parameter > tSPViscous =
+                        mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::VISCOUS_GHOST ) );
 
                 // get the time velocity stabilization parameter
-                std::shared_ptr< Stabilization_Parameter > tSPTime
-                = mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::TIME_VELOCITY_GHOST ) );
+                std::shared_ptr< Stabilization_Parameter > tSPTime =
+                        mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::TIME_VELOCITY_GHOST ) );
 
                 // set the order for stabilization parameters
                 tSPViscous->set_interpolation_order( iOrder );
-                //tSPTime->set_interpolation_order( iOrder );
+                real tSP = tSPViscous->val()( 0 );
+
+                // if sp time was set
+                if( tSPTime != nullptr )
+                {
+                    // set the order for stabilization parameters
+                    tSPTime->set_interpolation_order( iOrder );
+
+                    // add value to sp
+                    tSP += tSPTime->val()( 0 );
+                }
 
                 // get normal matrix
                 Matrix< DDRMat > tFlatNormal;
                 this->get_normal_matrix( tFlatNormal, iOrder );
 
                 // premultiply common terms
-                Matrix< DDRMat > tPreMultiply
-                = tSPViscous->val()( 0 )
-                  * tFlatNormal * ( tFIMaster->gradx( iOrder ) - tFISlave->gradx( iOrder ) ) ;
-                 tPreMultiply = reshape( tPreMultiply , tPreMultiply.numel(), 1 );
-//                = ( tSPViscous->val()( 0 ) + tSPTime->val()( 0 ) )
-//                  * tFlatNormal * ( tFIMaster->gradx( iOrder ) - tFISlave->gradx( iOrder ) ) ;
-//                 tPreMultiply = reshape( tPreMultiply , tPreMultiply.numel(), 1 );
+                Matrix< DDRMat > tPreMultiply = tSP * tFlatNormal * ( tFIMaster->gradx( iOrder ) - tFISlave->gradx( iOrder ) ) ;
+                tPreMultiply = reshape( tPreMultiply , tPreMultiply.numel(), 1 );
 
-                 // get flattened directional derivatives for master and slave
+                // get flattened directional derivatives for master and slave
                 Matrix< DDRMat > tMasterdNdxFlat;
                 this->compute_flat_dnNdxn( tMasterdNdxFlat, iOrder, mtk::Master_Slave::MASTER );
                 Matrix< DDRMat > tSlavedNdxFlat;
                 this->compute_flat_dnNdxn( tSlavedNdxFlat, iOrder, mtk::Master_Slave::SLAVE );
 
                 // compute master residual
-                mSet->get_residual()( 0 )( { tMasterResStartIndex, tMasterResStopIndex }, { 0, 0 } )
-                += aWStar * ( tMasterdNdxFlat * tPreMultiply );
+                mSet->get_residual()( 0 )( { tMasterResStartIndex, tMasterResStopIndex }, { 0, 0 } ) += aWStar * (
+                        tMasterdNdxFlat * tPreMultiply );
 
                 // compute slave residual
-                mSet->get_residual()( 0 )( { tSlaveResStartIndex, tSlaveResStopIndex }, { 0, 0 } )
-                -= aWStar *( tSlavedNdxFlat * tPreMultiply );
+                mSet->get_residual()( 0 )( { tSlaveResStartIndex, tSlaveResStopIndex }, { 0, 0 } ) -= aWStar * (
+                        tSlavedNdxFlat * tPreMultiply );
             }
         }
 
-//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
         void IWG_Incompressible_NS_Viscous_Velocity_Ghost::compute_jacobian( real aWStar )
         {
 #ifdef DEBUG
@@ -135,25 +155,35 @@ namespace moris
             uint tSlaveResStopIndex  = mSet->get_res_dof_assembly_map()( tSlaveDofIndex )( 0, 1 );
 
             // get the master field interpolator for residual dof type
-            Field_Interpolator * tFIMaster = mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );
+            Field_Interpolator * tFIMaster =
+                    mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );
 
             // get the slave field interpolator for residual dof type
-            Field_Interpolator * tFISlave  = mSlaveFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );
+            Field_Interpolator * tFISlave  =
+                    mSlaveFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );
+
+            // get the stabilization parameter
+            std::shared_ptr< Stabilization_Parameter > tSPViscous =
+                    mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::VISCOUS_GHOST ) );
+
+            // get the time velocity stabilization parameter
+            std::shared_ptr< Stabilization_Parameter > tSPTime =
+                    mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::TIME_VELOCITY_GHOST ) );
 
             // get the interpolation order
             switch ( tFIMaster->get_space_interpolation_order() )
             {
-                case( mtk::Interpolation_Order::LINEAR ):
+                case mtk::Interpolation_Order::LINEAR :
                 {
                     mOrder = 1;
                     break;
                 }
-                case( mtk::Interpolation_Order::QUADRATIC ):
+                case mtk::Interpolation_Order::QUADRATIC :
                 {
                     mOrder = 2;
                     break;
                 }
-                case( mtk::Interpolation_Order::CUBIC ):
+                case mtk::Interpolation_Order::CUBIC :
                 {
                     mOrder = 3;
                     break;
@@ -168,17 +198,19 @@ namespace moris
             // loop over the interpolation orders
             for ( uint iOrder = 1; iOrder <= mOrder; iOrder++ )
             {
-                // get the stabilization parameter
-                std::shared_ptr< Stabilization_Parameter > tSPViscous
-                = mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::VISCOUS_GHOST ) );
-
-                // get the time velocity stabilization parameter
-                std::shared_ptr< Stabilization_Parameter > tSPTime
-                = mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::TIME_VELOCITY_GHOST ) );
-
-                // set the order for the stabilization parameter
+                // set the order for stabilization parameters
                 tSPViscous->set_interpolation_order( iOrder );
-                //tSPTime->set_interpolation_order( iOrder );
+                real tSP = tSPViscous->val()( 0 );
+
+                // if sp time was set
+                if( tSPTime != nullptr )
+                {
+                    // set the order for stabilization parameters
+                    tSPTime->set_interpolation_order( iOrder );
+
+                    // add value to sp
+                    tSP += tSPTime->val()( 0 );
+                }
 
                 // get flattened normal
                 Matrix< DDRMat > tFlatNormal;
@@ -209,56 +241,60 @@ namespace moris
                     if ( tDofType( 0 ) == mResidualDofType( 0 ) )
                     {
                         // dRM/dM
-                        mSet->get_jacobian()( { tMasterResStartIndex, tMasterResStopIndex },
-                                              { tMasterDepStartIndex, tMasterDepStopIndex } )
-                        += aWStar * ( tMasterdNdxFlat * ( tSPViscous->val()( 0 ) ) * trans( tMasterdNdxFlat ) );
-                        //+= aWStar * ( tMasterdNdxFlat * ( tSPViscous->val()( 0 ) + tSPTime->val()( 0 ) ) * trans( tMasterdNdxFlat ) );
+                        mSet->get_jacobian()(
+                                { tMasterResStartIndex, tMasterResStopIndex },
+                                { tMasterDepStartIndex, tMasterDepStopIndex } ) += aWStar * (
+                                        tMasterdNdxFlat * tSP * trans( tMasterdNdxFlat ) );
 
                         // dRS/dM
-                        mSet->get_jacobian()( { tSlaveResStartIndex,  tSlaveResStopIndex },
-                                              { tMasterDepStartIndex, tMasterDepStopIndex } )
-                        -= aWStar * ( tSlavedNdxFlat * ( tSPViscous->val()( 0 ) ) * trans( tMasterdNdxFlat ) );
-                        //-= aWStar * ( tSlavedNdxFlat * ( tSPViscous->val()( 0 ) + tSPTime->val()( 0 ) ) * trans( tMasterdNdxFlat ) );
-
+                        mSet->get_jacobian()(
+                                { tSlaveResStartIndex,  tSlaveResStopIndex },
+                                { tMasterDepStartIndex, tMasterDepStopIndex } ) -= aWStar * (
+                                        tSlavedNdxFlat * tSP * trans( tMasterdNdxFlat ) );
                     }
 
                     // if viscous stabilization parameter depends on dof type
                     if ( tSPViscous->check_dof_dependency( tDofType ) )
                     {
                         // premultiply common terms
-                        Matrix< DDRMat > tPreMultiply
-                        = tFlatNormal * ( tFIMaster->gradx( iOrder ) - tFISlave->gradx( iOrder ) );
+                        Matrix< DDRMat > tPreMultiply = tFlatNormal * ( tFIMaster->gradx( iOrder ) - tFISlave->gradx( iOrder ) );
                         tPreMultiply = reshape( tPreMultiply , tPreMultiply.numel(), 1 );
                         tPreMultiply = tPreMultiply * tSPViscous->dSPdMasterDOF( tDofType );
 
                         // add contribution to jacobian
-                        mSet->get_jacobian()( { tMasterResStartIndex, tMasterResStopIndex },
-                                              { tMasterDepStartIndex, tMasterDepStopIndex } )
-                        += aWStar * ( tMasterdNdxFlat * tPreMultiply );
+                        mSet->get_jacobian()(
+                                { tMasterResStartIndex, tMasterResStopIndex },
+                                { tMasterDepStartIndex, tMasterDepStopIndex } ) += aWStar * (
+                                        tMasterdNdxFlat * tPreMultiply );
 
-                        mSet->get_jacobian()( { tSlaveResStartIndex,  tSlaveResStopIndex },
-                                              { tMasterDepStartIndex, tMasterDepStopIndex } )
-                        -= aWStar * ( tSlavedNdxFlat  * tPreMultiply );
+                        mSet->get_jacobian()(
+                                { tSlaveResStartIndex,  tSlaveResStopIndex },
+                                { tMasterDepStartIndex, tMasterDepStopIndex } ) -= aWStar * (
+                                        tSlavedNdxFlat  * tPreMultiply );
                     }
 
-//                    // if time stabilization parameter depends on dof type
-//                    if ( tSPTime->check_dof_dependency( tDofType ) )
-//                    {
-//                        // premultiply common terms
-//                        Matrix< DDRMat > tPreMultiply
-//                        = tFlatNormal * ( tFIMaster->gradx( iOrder ) - tFISlave->gradx( iOrder ) );
-//                        tPreMultiply = reshape( tPreMultiply , tPreMultiply.numel(), 1 );
-//                        tPreMultiply = tPreMultiply * tSPTime->dSPdMasterDOF( tDofType );
-//
-//                        // add contribution to jacobian
-//                        mSet->get_jacobian()( { tMasterResStartIndex, tMasterResStopIndex },
-//                                              { tMasterDepStartIndex, tMasterDepStopIndex } )
-//                        += aWStar * ( tMasterdNdxFlat * tPreMultiply );
-//
-//                        mSet->get_jacobian()( { tSlaveResStartIndex,  tSlaveResStopIndex },
-//                                              { tMasterDepStartIndex, tMasterDepStopIndex } )
-//                        -= aWStar * ( tSlavedNdxFlat  * tPreMultiply );
-//                    }
+                    // if time stabilization parameter depends on dof type
+                    if( tSPTime != nullptr )
+                    {
+                        if ( tSPTime->check_dof_dependency( tDofType ) )
+                        {
+                            // premultiply common terms
+                            Matrix< DDRMat > tPreMultiply = tFlatNormal * ( tFIMaster->gradx( iOrder ) - tFISlave->gradx( iOrder ) );
+                            tPreMultiply = reshape( tPreMultiply , tPreMultiply.numel(), 1 );
+                            tPreMultiply = tPreMultiply * tSPTime->dSPdMasterDOF( tDofType );
+
+                            // add contribution to jacobian
+                            mSet->get_jacobian()(
+                                    { tMasterResStartIndex, tMasterResStopIndex },
+                                    { tMasterDepStartIndex, tMasterDepStopIndex } ) += aWStar * (
+                                            tMasterdNdxFlat * tPreMultiply );
+
+                            mSet->get_jacobian()(
+                                    { tSlaveResStartIndex,  tSlaveResStopIndex },
+                                    { tMasterDepStartIndex, tMasterDepStopIndex } ) -= aWStar * (
+                                            tSlavedNdxFlat  * tPreMultiply );
+                        }
+                    }
                 }
 
                 // compute the jacobian for indirect dof dependencies through slave
@@ -276,22 +312,22 @@ namespace moris
                     if ( tDofType( 0 ) == mResidualDofType( 0 ) )
                     {
                         // dRM/dS
-                        mSet->get_jacobian()( { tMasterResStartIndex, tMasterResStopIndex },
-                                              { tSlaveDepStartIndex,  tSlaveDepStopIndex } )
-                        -= aWStar * ( tMasterdNdxFlat * ( tSPViscous->val()( 0 ) ) * trans( tSlavedNdxFlat ) );
-                        //-= aWStar * ( tMasterdNdxFlat * ( tSPViscous->val()( 0 ) + tSPTime->val()( 0 ) ) * trans( tSlavedNdxFlat ) );
+                        mSet->get_jacobian()(
+                                { tMasterResStartIndex, tMasterResStopIndex },
+                                { tSlaveDepStartIndex,  tSlaveDepStopIndex } ) -= aWStar * (
+                                        tMasterdNdxFlat * tSP * trans( tSlavedNdxFlat ) );
 
                         // dRS/dS
-                        mSet->get_jacobian()( { tSlaveResStartIndex, tSlaveResStopIndex },
-                                              { tSlaveDepStartIndex, tSlaveDepStopIndex } )
-                        += aWStar * ( tSlavedNdxFlat * ( tSPViscous->val()( 0 ) ) * trans( tSlavedNdxFlat ) );
-                        //+= aWStar * ( tSlavedNdxFlat * ( tSPViscous->val()( 0 ) + tSPTime->val()( 0 ) ) * trans( tSlavedNdxFlat ) );
+                        mSet->get_jacobian()(
+                                { tSlaveResStartIndex, tSlaveResStopIndex },
+                                { tSlaveDepStartIndex, tSlaveDepStopIndex } ) += aWStar * (
+                                        tSlavedNdxFlat * tSP * trans( tSlavedNdxFlat ) );
                     }
                 }
             }
         }
 
-//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
         void IWG_Incompressible_NS_Viscous_Velocity_Ghost::compute_jacobian_and_residual( real aWStar )
         {
 #ifdef DEBUG
@@ -302,7 +338,7 @@ namespace moris
             MORIS_ERROR( false, "IWG_Incompressible_NS_Viscous_Velocity_Ghost::compute_jacobian_and_residual - Not implemented." );
         }
 
-//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
         void IWG_Incompressible_NS_Viscous_Velocity_Ghost::compute_dRdp( real aWStar )
         {
 #ifdef DEBUG
@@ -313,20 +349,19 @@ namespace moris
             MORIS_ERROR( false, "IWG_Incompressible_NS_Viscous_Velocity_Ghost::compute_dRdp - Not implemented." );
         }
 
-//------------------------------------------------------------------------------
-        void IWG_Incompressible_NS_Viscous_Velocity_Ghost::compute_flat_dnNdxn
-        ( Matrix< DDRMat >  & aFlatdnNdxn,
-          uint                aOrder,
-          mtk::Master_Slave   aIsMaster )
+        //------------------------------------------------------------------------------
+        void IWG_Incompressible_NS_Viscous_Velocity_Ghost::compute_flat_dnNdxn(
+                Matrix< DDRMat >  & aFlatdnNdxn,
+                uint                aOrder,
+                mtk::Master_Slave   aIsMaster )
         {
             // get flattened normal
             Matrix< DDRMat > tFlatNormal;
             this->get_normal_matrix( tFlatNormal, aOrder );
 
             // get the residual dof type FI (here velocity)
-            Field_Interpolator * tVelocityFI
-            = this->get_field_interpolator_manager( aIsMaster )
-                  ->get_field_interpolators_for_type( mResidualDofType( 0 ) );
+            Field_Interpolator * tVelocityFI = this->get_field_interpolator_manager( aIsMaster )->
+                    get_field_interpolators_for_type( mResidualDofType( 0 ) );
 
             // get number of fields
             uint tNumFields = tVelocityFI->get_number_of_fields();
@@ -343,16 +378,17 @@ namespace moris
             for( uint iField = 0; iField < tNumFields; iField++ )
             {
                 // fill block flat dnNdxn
-                aFlatdnNdxn({ iField * tNumRows, ( iField + 1 ) * tNumRows - 1 },
-                            { iField * tNumCols, ( iField + 1 ) * tNumCols - 1 } )
-                = tdnNdxn.matrix_data();
+                aFlatdnNdxn(
+                        { iField * tNumRows, ( iField + 1 ) * tNumRows - 1 },
+                        { iField * tNumCols, ( iField + 1 ) * tNumCols - 1 } ) =
+                                tdnNdxn.matrix_data();
             }
         }
 
-//------------------------------------------------------------------------------
-        void IWG_Incompressible_NS_Viscous_Velocity_Ghost::get_normal_matrix
-        ( Matrix< DDRMat > & aFlatNormal,
-          uint               aOrder )
+        //------------------------------------------------------------------------------
+        void IWG_Incompressible_NS_Viscous_Velocity_Ghost::get_normal_matrix(
+                Matrix< DDRMat > & aFlatNormal,
+                uint               aOrder )
         {
             // get spatial dimensions
             uint tSpaceDim = mNormal.numel();
@@ -360,16 +396,16 @@ namespace moris
             // switch on the ghost order
             switch( aOrder )
             {
-                case ( 1 ):
+                case 1 :
                 {
                     switch ( tSpaceDim )
                     {
-                        case ( 2 ):
+                        case 2 :
                         {
                             aFlatNormal = trans( mNormal );
                             break;
                         }
-                        case ( 3 ):
+                        case 3 :
                         {
                             aFlatNormal = trans( mNormal );
                             break;
@@ -383,11 +419,11 @@ namespace moris
                     break;
                 }
 
-                case ( 2 ):
+                case 2 :
                 {
                     switch ( tSpaceDim )
                     {
-                        case ( 2 ):
+                        case 2 :
                         {
                             // set the normal matrix size
                             aFlatNormal.set_size( 2, 3, 0.0 );
@@ -401,7 +437,7 @@ namespace moris
 
                             break;
                         }
-                        case ( 3 ):
+                        case 3 :
                         {
                             // set the normal matrix size
                             aFlatNormal.set_size( 3, 6, 0.0 );
@@ -431,11 +467,11 @@ namespace moris
                     break;
                 }
 
-                case ( 3 ):
+                case 3 :
                 {
                     switch ( tSpaceDim )
                     {
-                        case ( 2 ):
+                        case 2 :
                         {
                             // set the normal matrix size
                             aFlatNormal.set_size( 3, 4, 0.0 );
@@ -452,7 +488,7 @@ namespace moris
                             aFlatNormal( 2, 3 ) = tSqrtOf2 * mNormal( 1 );
                             break;
                         }
-                        case ( 3 ):
+                        case 3 :
                         {
                             // set the normal matrix size
                             aFlatNormal.set_size( 6, 10, 0.0 );
@@ -502,6 +538,6 @@ namespace moris
             }
         }
 
-//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
     } /* namespace fem */
 } /* namespace moris */
