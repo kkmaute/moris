@@ -44,6 +44,8 @@
 #include "cl_FEM_IWG_Incompressible_NS_Pressure_Neumann.hpp"
 #include "cl_FEM_IWG_Incompressible_NS_Velocity_Interface.hpp"
 #include "cl_FEM_IWG_Incompressible_NS_Pressure_Interface.hpp"
+//Fluid/solid interface
+#include "cl_FEM_IWG_FS_Struc_Interface.hpp"
 // Time continuity
 #include "cl_FEM_IWG_Time_Continuity_Dof.hpp"
 // Turbulence
@@ -168,6 +170,9 @@ namespace moris
 
                 case IWG_Type::INCOMPRESSIBLE_NS_PRESSURE_INTERFACE :
                     return std::make_shared< IWG_Incompressible_NS_Pressure_Interface >();
+
+                case IWG_Type::FS_STRUC_INTERFACE :
+                    return std::make_shared< IWG_FS_Struc_Interface >();
 
                 case IWG_Type::TIME_CONTINUITY_DOF :
                     return std::make_shared< IWG_Time_Continuity_Dof >();
