@@ -376,11 +376,11 @@ namespace moris
         tParameterList( 1 ).push_back( prm::create_constitutive_model_parameter_list() );
         tParameterList( 1 )( tCMCounter ).set( "constitutive_name", std::string("CMDiffusion") );
         tParameterList( 1 )( tCMCounter ).set( "constitutive_type", static_cast< uint >( fem::Constitutive_Type::DIFF_LIN_ISO ) );
-        tParameterList( 1 )( tCMCounter ).set( "dof_dependencies",  std::pair< std::string, std::string >( "TEMP", "Temp" ) );
+        tParameterList( 1 )( tCMCounter ).set( "dof_dependencies",  std::pair< std::string, std::string >( "TEMP", "Temperature" ) );
         tParameterList( 1 )( tCMCounter ).set( "properties",
                 std::string("PropConductivity,Conductivity;") +
                 std::string("PropDensity     ,Density;")      +
-                std::string("PropCapacity    ,Heat_Capacity") );
+                std::string("PropCapacity    ,HeatCapacity") );
         tCMCounter++;
 
         //------------------------------------------------------------------------------
