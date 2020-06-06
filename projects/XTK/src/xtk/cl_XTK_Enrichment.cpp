@@ -210,7 +210,7 @@ Enrichment::setup_background_vertex_interpolations()
 
             // if I own the vertex we know the vertex interpolation
             // exists on this server
-            if(tVert.get_owner() == tMyProc)
+            if(tVert.has_interpolation(mMeshIndices(iM)+1))
             {
                 mEnrichmentData(iM).mBGVertexInterpolations(iV) =tVert.get_interpolation(mMeshIndices(iM));
             }
@@ -487,21 +487,35 @@ Enrichment::assign_enriched_coefficients_identifiers(moris_index const &        
     mEnrichmentData(aEnrichmentDataIndex).mEnrichedBasisIndexToId.fill(MORIS_INDEX_MAX);
 
     moris_index tParRank = par_rank();
-    moris_index tParSize = par_size();
+
+    // get the comm table
+    Matrix<IndexMat> tCommTable = mXTKModelPtr->get_background_mesh().get_communication_table();
+
+    // Procs CEll
+    Cell<moris_index> tProcRanks(tCommTable.numel());
+
+    std::unordered_map<moris_id,moris_id> tProcRankToIndexInData;
+
+    // resize proc ranks and setup map to comm table
+    for(moris::uint i = 0; i <tCommTable.numel(); i++)
+    {
+        tProcRankToIndexInData[tCommTable(i)] = i;
+        tProcRanks(i) = (tCommTable(i));
+    }
 
     // first index and id ( not first gets background basis information)
     moris::moris_index tIndOffset = 0;
     moris::moris_id tBasisIdOffset = mBackgroundMeshPtr->allocate_entity_ids(mEnrichmentData(aEnrichmentDataIndex).mNumEnrichmentLevels, mBasisRank);
 
-    Cell<Cell<moris_index>> tBasisIdToBasisOwner(tParSize);
-    Cell<Cell<moris_index>> tSubphaseIdInSupport(tParSize);
-    Cell<Cell<moris_index>> tBasisIndexToBasisOwner(tParSize);
+    Cell<Cell<moris_index>> tBasisIdToBasisOwner(tCommTable.numel());
+    Cell<Cell<moris_index>> tSubphaseIdInSupport(tCommTable.numel());
+    Cell<Cell<moris_index>> tBasisIndexToBasisOwner(tCommTable.numel());
 
     for(moris::uint  i = 0; i < mEnrichmentData(aEnrichmentDataIndex).mBasisEnrichmentIndices.size(); i++)
     {
         moris_index tOwner = mBackgroundMeshPtr->get_mesh_data().get_entity_owner(i,mBasisRank,mMeshIndices(aEnrichmentDataIndex));
         moris_id    tBackBasisId  = mBackgroundMeshPtr->get_mesh_data().get_glb_entity_id_from_entity_loc_index(i,mBasisRank,mMeshIndices(aEnrichmentDataIndex));
-
+        moris_index tProcDataIndex = tProcRankToIndexInData[tOwner];
         // always set indices
         moris::Matrix<moris::IndexMat> &  tBasisEnrichmentInds = mEnrichmentData(aEnrichmentDataIndex).mBasisEnrichmentIndices(i);
         for(moris::uint j = 0 ; j < tBasisEnrichmentInds.numel(); j++)
@@ -532,16 +546,16 @@ Enrichment::assign_enriched_coefficients_identifiers(moris_index const &        
 
                 moris_index tFirstSubphaseInSupportId = mXTKModelPtr->get_subphase_id(tFirstSubphaseInSupportIndex);
 
-                tBasisIdToBasisOwner(tOwner).push_back(tBackBasisId);
-                tSubphaseIdInSupport(tOwner).push_back(tFirstSubphaseInSupportId);
-                tBasisIndexToBasisOwner(tOwner).push_back(tEnrichedBasisIndex);
+                tBasisIdToBasisOwner(tProcDataIndex).push_back(tBackBasisId);
+                tSubphaseIdInSupport(tProcDataIndex).push_back(tFirstSubphaseInSupportId);
+                tBasisIndexToBasisOwner(tProcDataIndex).push_back(tEnrichedBasisIndex);
             }
         }
     }
 
     // send information about not owned enriched basis to owner proc
     Cell<moris::Matrix<moris::IndexMat>> tNotOwnedEnrichedBasisId;
-    communicate_basis_information_with_owner(aEnrichmentDataIndex,tBasisIdToBasisOwner,tSubphaseIdInSupport,tNotOwnedEnrichedBasisId);
+    communicate_basis_information_with_owner(aEnrichmentDataIndex,tBasisIdToBasisOwner,tSubphaseIdInSupport,tProcRanks,tProcRankToIndexInData,tNotOwnedEnrichedBasisId);
 
     // set the received information in my data
     set_received_enriched_basis_ids(aEnrichmentDataIndex,tNotOwnedEnrichedBasisId,tBasisIndexToBasisOwner);
@@ -551,15 +565,17 @@ Enrichment::assign_enriched_coefficients_identifiers(moris_index const &        
 
 
 void
-Enrichment::communicate_basis_information_with_owner(moris_index             const &        aEnrichmentDataIndex,
-                                                     Cell<Cell<moris_index>> const &        aBasisIdToBasisOwner,
-                                                     Cell<Cell<moris_index>> const &        aSubphaseIdInSupport,
-                                                     Cell<moris::Matrix<moris::IndexMat>> & aEnrichedBasisId)
+Enrichment::communicate_basis_information_with_owner(moris_index             const &         aEnrichmentDataIndex,
+                                                     Cell<Cell<moris_index>> const &         aBasisIdToBasisOwner,
+                                                     Cell<Cell<moris_index>> const &         aSubphaseIdInSupport,
+                                                     Cell<moris_index>       const &         aProcRanks,
+                                                     std::unordered_map<moris_id,moris_id> & aProcRankToIndexInData,
+                                                     Cell<moris::Matrix<moris::IndexMat>>  & aEnrichedBasisId)
 {
 
     // copy into a matrix
-    Cell<moris::Matrix<moris::IndexMat>> tBasisIdToBasisOwnerMat(par_size());
-    Cell<moris::Matrix<moris::IndexMat>> tSubphaseIdInSupport(par_size());
+    Cell<moris::Matrix<moris::IndexMat>> tBasisIdToBasisOwnerMat(aProcRanks.size());
+    Cell<moris::Matrix<moris::IndexMat>> tSubphaseIdInSupport(aProcRanks.size());
 
     for(moris::uint i =0; i < aBasisIdToBasisOwner.size(); i++)
     {
@@ -571,6 +587,15 @@ Enrichment::communicate_basis_information_with_owner(moris_index             con
             tBasisIdToBasisOwnerMat(i)(j) = aBasisIdToBasisOwner(i)(j);
             tSubphaseIdInSupport(i)(j) = aSubphaseIdInSupport(i)(j);
         }
+
+        if(aBasisIdToBasisOwner(i).size() == 0)
+        {
+            tBasisIdToBasisOwnerMat(i).resize(1,1);
+            tBasisIdToBasisOwnerMat(i)(0) = MORIS_INDEX_MAX;
+
+            tSubphaseIdInSupport(i).resize(1,1);
+            tSubphaseIdInSupport(i)(0) = MORIS_INDEX_MAX;
+        }
     }
 
     // send to processor (no particular reason for these tag number choices)
@@ -580,13 +605,11 @@ Enrichment::communicate_basis_information_with_owner(moris_index             con
 
     for(moris::uint i = 0; i < tBasisIdToBasisOwnerMat.size(); i++)
     {
-        if(tBasisIdToBasisOwnerMat(i).numel()>0 && i != (uint)par_rank())
-        {
-            // send child element ids
-            nonblocking_send(tBasisIdToBasisOwnerMat(i),tBasisIdToBasisOwnerMat(i).n_rows(),tBasisIdToBasisOwnerMat(i).n_cols(),i,tBasisIdsTag);
-            // send element parent ids
-            nonblocking_send(tSubphaseIdInSupport(i),tSubphaseIdInSupport(i).n_rows(),tSubphaseIdInSupport(i).n_cols(),i,tMaxSubphasetag);
-        }
+        // send child element ids
+        nonblocking_send(tBasisIdToBasisOwnerMat(i),tBasisIdToBasisOwnerMat(i).n_rows(),tBasisIdToBasisOwnerMat(i).n_cols(),aProcRanks(i),tBasisIdsTag);
+        // send element parent ids
+        nonblocking_send(tSubphaseIdInSupport(i),tSubphaseIdInSupport(i).n_rows(),tSubphaseIdInSupport(i).n_cols(),aProcRanks(i),tMaxSubphasetag);
+
     }
 
     barrier();
@@ -595,100 +618,84 @@ Enrichment::communicate_basis_information_with_owner(moris_index             con
     moris::moris_index tNumRow = 1;
     moris::moris_index tParRank = par_rank();
 
-    Cell<moris::Matrix<IdMat>> tReceiveInfoBasisId(par_size());
-    Cell<moris::Matrix<IdMat>> tReceivedSubphaseId(par_size());
-    Cell<moris::Matrix<IdMat>> tEnrichedBasisIds(par_size());
-    aEnrichedBasisId.resize(par_size());
 
-    for(moris::uint i = 0; i<(moris::uint)par_size(); i++)
+    Cell<moris::Matrix<IdMat>> tReceiveInfoBasisId(aProcRanks.size());
+    Cell<moris::Matrix<IdMat>> tReceivedSubphaseId(aProcRanks.size());
+    Cell<moris::Matrix<IdMat>> tEnrichedBasisIds(aProcRanks.size());
+    aEnrichedBasisId.resize(aProcRanks.size());
+
+    for(moris::uint i = 0; i < aProcRanks.size(); i++)
     {
-        if((moris_index)i != tParRank)
-        {
-            // if there is a sent message from a processor go receive it
-            if(sent_message_exists(i,tBasisIdsTag))
-            {
-                // assert that the other communications exists
-                MORIS_ERROR(sent_message_exists(i,tMaxSubphasetag),"The first message contains basis ids, this was not accompanied with the max integration cell id");
 
-                tReceiveInfoBasisId(i).resize(1,1);
-                tReceivedSubphaseId(i).resize(1,1);
+        tReceiveInfoBasisId(i).resize(1,1);
+        tReceivedSubphaseId(i).resize(1,1);
 
-                receive(tReceiveInfoBasisId(i),tNumRow, i,tBasisIdsTag);
-                receive(tReceivedSubphaseId(i),tNumRow, i,tMaxSubphasetag);
+        receive(tReceiveInfoBasisId(i),tNumRow, aProcRanks(i),tBasisIdsTag);
+        receive(tReceivedSubphaseId(i),tNumRow, aProcRanks(i),tMaxSubphasetag);
 
-                tEnrichedBasisIds(i).resize(tReceiveInfoBasisId(i).n_rows(),tReceiveInfoBasisId(i).n_cols());
-            }
-        }
+        tEnrichedBasisIds(i).resize(tReceiveInfoBasisId(i).n_rows(),tReceiveInfoBasisId(i).n_cols());
+
     }
 
     // iterate through received information and setup response information
-    for(moris::uint i = 0; i<(moris::uint)par_size(); i++)
+    for(moris::uint i = 0; i<aProcRanks.size(); i++)
     {
         moris_id tBasisId = 0;
         moris_id tBasisIndex = 0;
         moris_index tCount = 0;
         aEnrichedBasisId(i).resize(tReceiveInfoBasisId(i).n_rows(),tReceiveInfoBasisId(i).n_cols());
-        for(moris::uint j = 0; j < tReceiveInfoBasisId(i).n_cols(); j++)
+
+        if(tReceiveInfoBasisId(i)(0) != MORIS_INDEX_MAX)
         {
-            if(tBasisId != tReceiveInfoBasisId(i)(j))
+            for(moris::uint j = 0; j < tReceiveInfoBasisId(i).n_cols(); j++)
             {
-                tBasisId = tReceiveInfoBasisId(i)(j);
-                tBasisIndex = mBackgroundMeshPtr->get_mesh_data().get_loc_entity_ind_from_entity_glb_id(tBasisId,mBasisRank,mMeshIndices(aEnrichmentDataIndex));
-            }
-
-            moris_id tSubphaseId = tReceivedSubphaseId(i)(j);
-            moris_index tSubphaseIndex = mXTKModelPtr->get_subphase_index(tSubphaseId);
-
-             // iterate through the max integ ids and match
-
-            bool tFound = false;
-            for(moris::uint k = 0; k < mEnrichmentData(aEnrichmentDataIndex).mBasisEnrichmentIndices(tBasisIndex).numel(); k++)
-            {
-                if(this->subphase_is_in_support(aEnrichmentDataIndex,tSubphaseIndex,mEnrichmentData(aEnrichmentDataIndex).mBasisEnrichmentIndices(tBasisIndex)(k)))
+                if(tBasisId != tReceiveInfoBasisId(i)(j))
                 {
-
-                    moris_index tEnrichedBasisIndex = mEnrichmentData(aEnrichmentDataIndex).mBasisEnrichmentIndices(tBasisIndex)(k);
-                    moris_index tEnrichedBasisId    = mEnrichmentData(aEnrichmentDataIndex).mEnrichedBasisIndexToId(tEnrichedBasisIndex);
-
-                    tEnrichedBasisIds(i)(tCount) = tEnrichedBasisId;
-                    tCount++;
-                    tFound = true;
+                    tBasisId = tReceiveInfoBasisId(i)(j);
+                    tBasisIndex = mBackgroundMeshPtr->get_mesh_data().get_loc_entity_ind_from_entity_glb_id(tBasisId,mBasisRank,mMeshIndices(aEnrichmentDataIndex));
                 }
+
+                moris_id tSubphaseId = tReceivedSubphaseId(i)(j);
+                moris_index tSubphaseIndex = mXTKModelPtr->get_subphase_index(tSubphaseId);
+
+                // iterate through the max integ ids and match
+
+                bool tFound = false;
+                for(moris::uint k = 0; k < mEnrichmentData(aEnrichmentDataIndex).mBasisEnrichmentIndices(tBasisIndex).numel(); k++)
+                {
+                    if(this->subphase_is_in_support(aEnrichmentDataIndex,tSubphaseIndex,mEnrichmentData(aEnrichmentDataIndex).mBasisEnrichmentIndices(tBasisIndex)(k)))
+                    {
+
+                        moris_index tEnrichedBasisIndex = mEnrichmentData(aEnrichmentDataIndex).mBasisEnrichmentIndices(tBasisIndex)(k);
+                        moris_index tEnrichedBasisId    = mEnrichmentData(aEnrichmentDataIndex).mEnrichedBasisIndexToId(tEnrichedBasisIndex);
+
+                        tEnrichedBasisIds(i)(tCount) = tEnrichedBasisId;
+                        tCount++;
+                        tFound = true;
+                    }
+                }
+
+                MORIS_ERROR(tFound,"Basis not found");
             }
-
-            MORIS_ERROR(tFound,"Basis not found");
         }
 
-        // send the information back
-        if(tEnrichedBasisIds(i).numel() > 0)
+        else
         {
-            // send enriched ids
-            nonblocking_send(tEnrichedBasisIds(i),tEnrichedBasisIds(i).n_rows(),tEnrichedBasisIds(i).n_cols(),i,tReturnIdTag);
+            tEnrichedBasisIds(i)(0) = MORIS_INDEX_MAX;
         }
+
+
+        // send enriched ids
+        nonblocking_send(tEnrichedBasisIds(i),tEnrichedBasisIds(i).n_rows(),tEnrichedBasisIds(i).n_cols(),aProcRanks(i),tReturnIdTag);
     }
 
     barrier();
 
     // recieve information
-    for(moris::uint i = 0; i<(moris::uint)par_size(); i++)
+    for(moris::uint i = 0; i<aProcRanks.size(); i++)
     {
-        if((moris_index)i != tParRank)
-        {
-            // if there is a sent message from a processor go receive it
-            if(sent_message_exists(i,tReturnIdTag))
-            {
-
-                aEnrichedBasisId(i).resize(1,1);
-
-                receive(aEnrichedBasisId(i),tNumRow, i,tReturnIdTag);
-
-            }
-
-            else
-            {
-                aEnrichedBasisId(i).resize(0,0);
-            }
-        }
+        aEnrichedBasisId(i).resize(1,1);
+        receive(aEnrichedBasisId(i),tNumRow, aProcRanks(i),tReturnIdTag);
     }
 
     barrier();
@@ -703,14 +710,18 @@ Enrichment::set_received_enriched_basis_ids(moris_index const & aEnrichmentDataI
 {
     for(moris::uint i = 0 ; i < aReceivedEnrichedIds.size(); i++ )
     {
-        MORIS_ASSERT(aReceivedEnrichedIds(i).numel() == aBasisIndexToBasisOwner(i).size(),"Dimension mismatch between received information and expected information");
 
-        for(moris::uint j = 0; j < aReceivedEnrichedIds(i).numel(); j++)
+        if(aReceivedEnrichedIds(i)(0) != MORIS_INDEX_MAX)
         {
-            moris_index tLocalBasisIndex = aBasisIndexToBasisOwner(i)(j);
-            moris_index tGlobaId  = aReceivedEnrichedIds(i)(j);
-            MORIS_ASSERT(mEnrichmentData(aEnrichmentDataIndex).mEnrichedBasisIndexToId(tLocalBasisIndex) == MORIS_INDEX_MAX,"Id already set for this basis function");
-            mEnrichmentData(aEnrichmentDataIndex).mEnrichedBasisIndexToId(tLocalBasisIndex) = tGlobaId;
+            MORIS_ASSERT(aReceivedEnrichedIds(i).numel() == aBasisIndexToBasisOwner(i).size(),"Dimension mismatch between received information and expected information");
+
+            for(moris::uint j = 0; j < aReceivedEnrichedIds(i).numel(); j++)
+            {
+                moris_index tLocalBasisIndex = aBasisIndexToBasisOwner(i)(j);
+                moris_index tGlobaId  = aReceivedEnrichedIds(i)(j);
+                MORIS_ASSERT(mEnrichmentData(aEnrichmentDataIndex).mEnrichedBasisIndexToId(tLocalBasisIndex) == MORIS_INDEX_MAX,"Id already set for this basis function");
+                mEnrichmentData(aEnrichmentDataIndex).mEnrichedBasisIndexToId(tLocalBasisIndex) = tGlobaId;
+            }
         }
     }
 }
@@ -1026,6 +1037,7 @@ Enrichment::construct_enriched_interpolation_vertices_and_cells()
                     {
                         if(tNewVertFlag)
                         {
+
                             // Create interpolation vertex
                             tEnrInterpMesh->mEnrichedInterpVerts(tVertEnrichIndex)
                                                             = Interpolation_Vertex_Unzipped(tVertices(iEV), tVertId, tVertEnrichIndex,
@@ -1034,6 +1046,34 @@ Enrichment::construct_enriched_interpolation_vertices_and_cells()
 
                             tVertId++;
                             tVertexCount++;
+
+//                            if(par_rank() == 1)
+//                            {
+//                                if(tVertEnrichIndex == 5023)
+//                                {
+//
+//
+//                                    Interpolation_Vertex_Unzipped & tVertex = tEnrInterpMesh->mEnrichedInterpVerts(tVertEnrichIndex);
+//                                    std::cout<<"tVertexInd = "<<tVertex.get_index()<<std::endl;
+//
+//                                    mtk::Vertex const * tBGVertex = tVertex.get_base_vertex();
+//
+//                                    std::cout<<"tVertices(iEV) id = "<<tVertices(iEV)->get_id()<<std::endl;
+//
+//                                    Matrix<DDRMat> tCoords = tBGVertex->get_coords();
+//
+//                                    std::cout<<"tBGVertex Id: "<<tBGVertex->get_id()<<" | Interpolation address: " <<tBGVertex->get_interpolation(0)<<" | Coords: "<<tCoords(0)<< ", "<<tCoords(1)<<std::endl;
+//
+//
+//                                    const mtk::Vertex_Interpolation * tInterp = tBGVertex->get_interpolation(0);
+//
+//                                    moris::print(*(tInterp->get_weights()),"tInterp->get_weights()");
+//                                    moris::print(tInterp->get_owners(),"tInterp->get_owners()");
+//
+//                                    moris::print(tVertex.get_interpolation(0)->get_owners(),"tVertex.get_interpolation(0)->get_owners()");
+//                                }
+//                            }
+
                         }
                         tEnrInterpCellToVertex(tCellIndex,iEV) = tVertEnrichIndex;
                     }
@@ -1210,16 +1250,17 @@ Enrichment::construct_enriched_vertex_interpolation(moris_index const & aEnrichm
 {
     // allocate a new vertex enrichment
     aVertexEnrichment = Vertex_Enrichment();
-
     // a nullptr here would indicate an aura node without a t-matrix
     if(aBaseVertexInterp!= nullptr)
     {
-
     // iterate through basis in the base vertex interpolation
     moris::uint tNumCoeffs = aBaseVertexInterp->get_number_of_coefficients();
 
     // indices of the coefficients
     Matrix< IndexMat > tBaseVertCoeffInds = aBaseVertexInterp->get_indices();
+
+    // get owners
+    Matrix< IndexMat > tBaseVertOwners = aBaseVertexInterp->get_owners();
 
     // weights of the coefficients
     const Matrix< DDRMat > * tBaseVertWeights = aBaseVertexInterp->get_weights();
@@ -1261,6 +1302,7 @@ Enrichment::construct_enriched_vertex_interpolation(moris_index const & aEnrichm
     }
 
     aVertexEnrichment.add_basis_information(tEnrichCoeffInds,tEnrichCoeffIds);
+    aVertexEnrichment.add_basis_owners(tEnrichCoeffInds,tBaseVertOwners);
     aVertexEnrichment.add_basis_weights(tEnrichCoeffInds,*tBaseVertWeights);
     aVertexEnrichment.add_base_vertex_interpolation(aBaseVertexInterp);
     }

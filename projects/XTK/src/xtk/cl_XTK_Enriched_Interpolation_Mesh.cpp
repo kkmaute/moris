@@ -87,12 +87,8 @@ Enriched_Interpolation_Mesh::get_num_coeffs(const uint aBSplineMeshIndex) const
 {
 	uint tNumCoeffs = 0;
 	moris_index tLocalMeshIndex = this->get_local_mesh_index(aBSplineMeshIndex);
-	for(auto it = mCoeffToEnrichCoeffs(tLocalMeshIndex).cbegin(); it < mCoeffToEnrichCoeffs(tLocalMeshIndex).cend(); it++)
-	{
-		tNumCoeffs = tNumCoeffs + it->numel();
-	}
 
-	return tNumCoeffs;
+	return mEnrichCoeffLocToGlob(tLocalMeshIndex).numel();
 }
 
 //------------------------------------------------------------------------------
@@ -210,7 +206,7 @@ Enriched_Interpolation_Mesh::get_writable_mtk_cell( moris_index aElementIndex )
 Matrix< IdMat >
 Enriched_Interpolation_Mesh::get_communication_table() const
 {
-    return mXTKModel->get_background_mesh().get_mesh_data().get_communication_table();
+    return mXTKModel->get_background_mesh().get_communication_table();
 }
 //------------------------------------------------------------------------------
 uint
@@ -494,6 +490,20 @@ Enriched_Interpolation_Mesh::get_owned_and_not_owned_enriched_interpolation_cell
     // map
     std::unordered_map<moris_id,moris_id> tProcRankToDataIndex;
 
+    // access the communication table
+    Matrix<IdMat> tCommTable = this->get_communication_table();
+
+    // resize proc ranks and setup map to comm table
+    aProcRanks.resize(tCommTable.numel());
+    for(moris::uint i = 0; i <tCommTable.numel(); i++)
+    {
+        tProcRankToDataIndex[tCommTable(i)] = i;
+        aProcRanks(i) = (tCommTable(i));
+        aNotOwnedInterpCells.push_back(Cell<Interpolation_Cell_Unzipped *>(0));
+    }
+
+
+
     for(moris::uint i = 0; i <tEnrInterpCells.size(); i++)
     {
         moris_index tOwnerProc = tEnrInterpCells(i)->get_owner();
@@ -505,14 +515,6 @@ Enriched_Interpolation_Mesh::get_owned_and_not_owned_enriched_interpolation_cell
         }
         else
         {
-            if( tProcRankToDataIndex.find(tOwnerProc) == tProcRankToDataIndex.end())
-            {
-                tProcRankToDataIndex[tOwnerProc] = tCurrentProcIndex;
-                aProcRanks.push_back(tOwnerProc);
-                aNotOwnedInterpCells.push_back(Cell<Interpolation_Cell_Unzipped *>(0));
-                tCurrentProcIndex++;
-            }
-
             moris_index tProcDataIndex = tProcRankToDataIndex[tOwnerProc];
             aNotOwnedInterpCells(tProcDataIndex).push_back( tEnrInterpCells(i) );
         }
@@ -524,6 +526,14 @@ Enriched_Interpolation_Mesh::get_xtk_interp_vertex(moris::uint aVertexIndex)
 {
     return mEnrichedInterpVerts(aVertexIndex);
 }
+//------------------------------------------------------------------------------
+
+void
+Enriched_Interpolation_Mesh::add_proc_to_comm_table(moris_index aProcRank)
+{
+  mXTKModel->get_background_mesh().add_proc_to_comm_table(aProcRank);
+}
+
 //------------------------------------------------------------------------------
 moris_index
 Enriched_Interpolation_Mesh::get_enr_basis_index_from_enr_basis_id(
@@ -724,6 +734,35 @@ Enriched_Interpolation_Mesh::finalize_setup()
 {
     this->setup_local_to_global_maps();
     this->setup_not_owned_vertices();
+
+//    if(par_rank() == 1)
+//    {
+//        moris_id tVertexId = 5024;
+//
+//        moris_index tVertexInd= this->get_loc_entity_ind_from_entity_glb_id(tVertexId,EntityRank::NODE);
+//
+//        std::cout<<"tVertexInd = "<<tVertexInd<<std::endl;
+//
+//
+//        Interpolation_Vertex_Unzipped & tVertex = mEnrichedInterpVerts(tVertexInd);
+//
+//        mtk::Vertex const * tBGVertex = tVertex.get_base_vertex();
+//
+//        Matrix<DDRMat> tCoords = tBGVertex->get_coords();
+//
+//        std::cout<<"tBGVertex Id: "<<tBGVertex->get_id()<<" | Interpolation address: " <<tBGVertex->get_interpolation(0)<<" | Coords: "<<tCoords(0)<< ", "<<tCoords(1)<<std::endl;
+//
+//
+//        const mtk::Vertex_Interpolation * tInterp = tBGVertex->get_interpolation(0);
+//
+//        moris::print(*(tInterp->get_weights()),"tInterp->get_weights()");
+//        moris::print(tInterp->get_owners(),"tInterp->get_owners()");
+//        moris::print(tVertex.get_interpolation(0)->get_owners(),"tVertex.get_interpolation(0)->get_owners()");
+////
+////        Interpolation_Mesh & tIPMesh = mXTKModel->get_background_mesh().get_mesh_data();
+////
+////        mtk::Vertex const & tHMRVert = tIPMesh.get_mtk_vertex(tBGVertex-)
+//    }
 }
 //------------------------------------------------------------------------------
 void

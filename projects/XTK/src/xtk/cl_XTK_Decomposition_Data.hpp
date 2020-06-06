@@ -372,6 +372,8 @@ namespace xtk
         print(moris::mtk::Mesh const & aBackgroundMesh)
         {
             std::cout<<"========================"<<std::endl;
+            if(tNewNodeId.size() > 0)
+            {
             auto it = max_element(std::begin(tNewNodeId), std::end(tNewNodeId));
             std::cout<<"Max Id:"<<*it<<std::endl;
 
@@ -384,6 +386,11 @@ namespace xtk
                     std::cout<<std::scientific<<std::setw(14)<<tNewNodeCoordinate(i)(j)<< "   ";
                 }
                 std::cout<<std::endl;
+            }
+            }
+            else
+            {
+                std::cout<<"No Node Requests"<<std::endl;
             }
         }
 

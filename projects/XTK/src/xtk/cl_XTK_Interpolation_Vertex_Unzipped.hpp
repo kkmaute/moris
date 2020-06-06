@@ -53,6 +53,13 @@ public:
     add_vertex_interpolation(const uint aOrder,
                              Vertex_Enrichment* aVertexInterp);
 
+
+    friend class Ghost_Stabilization;
+    friend class Enriched_Interpolation_Mesh;
+
+protected:
+    mtk::Vertex * get_base_vertex(  );
+
 private:
     // the parent vertex
     mtk::Vertex* mBaseInterpVertex;

@@ -216,7 +216,7 @@ Model::perform()
 
     if( mParameterList.get<bool>("exodus_output_XTK_ig_mesh") )
     {
-        tEnrIntegMesh.deactivate_empty_sets();
+//        tEnrIntegMesh.deactivate_empty_sets();
 
         // Write mesh
         moris::mtk::Writer_Exodus writer( &tEnrIntegMesh );
@@ -1348,16 +1348,19 @@ Model::assign_node_requests_identifiers(Decomposition_Data & aDecompData,
     Cell<Matrix<IndexMat>> tOutwardRequests;
     this->setup_outward_requests(aDecompData, tNotOwnedRequests, tProcRanks, tProcRankToDataIndex, tOutwardRequests);
 
+
     // send requests to owning processor
     this->send_outward_requests(aMPITag,tProcRanks,tOutwardRequests);
 
     // hold on to make sure everyone has sent all their information
     barrier();
 
+
+
     // receive the requests
     Cell<Matrix<IndexMat>> tReceivedRequests;
     Cell<uint> tProcsReceivedFrom;
-    this->inward_receive_requests(aMPITag,3, tReceivedRequests, tProcsReceivedFrom);
+    this->inward_receive_requests(aMPITag, 3, tReceivedRequests, tProcsReceivedFrom);
 
     // Prepare request answers
     Cell<Matrix<IndexMat>> tRequestAnwers;
@@ -1394,6 +1397,10 @@ Model::sort_new_node_requests_by_owned_and_not_owned(Decomposition_Data         
     // access the mesh data behind the background mesh
     moris::mtk::Mesh & tMeshData = mBackgroundMesh.get_mesh_data();
 
+    // access the communication
+    Matrix<IdMat> tCommTable = mBackgroundMesh.get_communication_table();
+
+
     // number of new nodes
     moris::uint tNumNewNodes = tDecompData.tNewNodeParentIndex.size();
 
@@ -1402,6 +1409,15 @@ Model::sort_new_node_requests_by_owned_and_not_owned(Decomposition_Data         
 
     // index
     moris::uint tCurrentIndex = 0;
+
+    // resize proc ranks and setup map to comm table
+    aProcRanks.resize(tCommTable.numel());
+    for(moris::uint i = 0; i <tCommTable.numel(); i++)
+    {
+        aProcRankToIndexInData[tCommTable(i)] = i;
+        aProcRanks(i) = (tCommTable(i));
+        aNotOwnedRequests.push_back(Cell<uint>(0));
+    }
 
     // iterate through each node request and figure out the owner
     for(moris::uint i = 0; i <tNumNewNodes; i++)
@@ -1420,15 +1436,6 @@ Model::sort_new_node_requests_by_owned_and_not_owned(Decomposition_Data         
         }
         else
         {
-
-            if( aProcRankToIndexInData.find(tOwnerProc) == aProcRankToIndexInData.end())
-            {
-                aProcRankToIndexInData[tOwnerProc] = tCurrentIndex;
-                aProcRanks.push_back(tOwnerProc);
-                aNotOwnedRequests.push_back(Cell<uint>(0));
-                tCurrentIndex++;
-            }
-
             moris_index tIndex = aProcRankToIndexInData[tOwnerProc];
 
             aNotOwnedRequests(tIndex).push_back(i);
@@ -1486,7 +1493,15 @@ Model::setup_outward_requests(Decomposition_Data              const & aDecompDat
         //   r0 - parent entity id
         //   r1 - parent entity rank
         //   r2 - Secondary id
-        aOutwardRequests(i) = moris::Matrix<IndexMat>(3,tNumRequests);
+        if(tNumRequests > 0)
+        {
+            aOutwardRequests(i) = moris::Matrix<IndexMat>(3,tNumRequests);
+        }
+
+        else
+        {
+            aOutwardRequests(i) = moris::Matrix<IndexMat>(3,1,MORIS_INDEX_MAX);
+        }
 
         // populate matrix to send;
         for(moris::uint j = 0; j < tNumRequests; j++)
@@ -1523,34 +1538,45 @@ Model::send_outward_requests(moris_index            const & aMPITag,
                              Cell<uint>             const & aProcRanks,
                              Cell<Matrix<IndexMat>> & aOutwardRequests)
 {
+    // Cell of requests
+    Cell<MPI_Request> tRequests(aProcRanks.size());
+    MPI_Status tStatus;
+
     // iterate through owned requests and send
     for(moris::uint i = 0; i < aProcRanks.size(); i++)
     {
-        nonblocking_send(aOutwardRequests(i),aOutwardRequests(i).n_rows(),aOutwardRequests(i).n_cols(),aProcRanks(i),aMPITag);
+        tRequests(i) = nonblocking_send(aOutwardRequests(i),aOutwardRequests(i).n_rows(),aOutwardRequests(i).n_cols(),aProcRanks(i),aMPITag);
     }
+
 }
 
 void
-Model::inward_receive_requests(moris_index            const & aMPITag,
-                               moris::uint                    aNumRows,
-                               Cell<Matrix<IndexMat>> &       aReceivedData,
-                               Cell<uint>             &       aProcRanksReceivedFrom)
+Model::inward_receive_requests(
+        moris_index            const & aMPITag,
+        moris::uint                    aNumRows,
+        Cell<Matrix<IndexMat>> &       aReceivedData,
+        Cell<uint>             &       aProcRanksReceivedFrom)
 {
+
+    // ensure the sizes are correct.
+    aReceivedData.resize(0);
+    aProcRanksReceivedFrom.resize(0);
+
+    // access the mesh data behind the background mesh
+    moris::mtk::Mesh & tMeshData = mBackgroundMesh.get_mesh_data();
+
+    // access the communication table
+    Matrix<IdMat> tCommTable = mBackgroundMesh.get_communication_table();
+
     moris::moris_index tParRank = par_rank();
     moris::uint tCount = 0;
-    for(moris::uint i = 0; i<(moris::uint)par_size(); i++)
+    MPI_Status tStatus;
+    for(moris::uint i = 0; i<tCommTable.numel(); i++)
     {
-        if((moris_index)i != tParRank)
-        {
-            // if there is a sent message from a processor go receive it
-            if(sent_message_exists(i,aMPITag))
-            {
-                aReceivedData.push_back(Matrix<IndexMat>(1,1));
-                aProcRanksReceivedFrom.push_back(i);
-                receive(aReceivedData(tCount),aNumRows, i,aMPITag);
-                tCount++;
-            }
-        }
+        aReceivedData.push_back(Matrix<IndexMat>(1,1));
+        aProcRanksReceivedFrom.push_back(tCommTable(i));
+        receive(aReceivedData(tCount),aNumRows, tCommTable(i),aMPITag);
+        tCount++;
     }
 }
 
@@ -1560,14 +1586,21 @@ Model::inward_receive_request_answers(moris_index            const & aMPITag,
                                       Cell<uint>             const & aProcRanks,
                                       Cell<Matrix<IndexMat>> &       aReceivedRequestAnswers)
 {
+
+    MPI_Status tStatus;
+
     for(moris::uint i = 0; i<aProcRanks.size(); i++)
     {
-        // if there is a sent message from a processor go receive it
-        if(sent_message_exists(aProcRanks(i),aMPITag))
+
+        bool tFlag = sent_message_exists(aProcRanks(i),aMPITag,tStatus);
+        while(tFlag == false)
         {
-            aReceivedRequestAnswers.push_back(Matrix<IndexMat>(1,1));
-            receive(aReceivedRequestAnswers(i),aNumRows, aProcRanks(i),aMPITag);
+            tFlag = sent_message_exists(aProcRanks(i),aMPITag,tStatus);
         }
+
+        aReceivedRequestAnswers.push_back(Matrix<IndexMat>(1,1));
+        receive(aReceivedRequestAnswers(i),aNumRows, aProcRanks(i),aMPITag);
+
     }
 }
 
@@ -1583,56 +1616,71 @@ Model::handle_received_request_answers(Decomposition_Data & aDecompData,
     {
         uint tNumReceivedReqs = aRequests(i).n_cols();
 
-        // iterate through received requests
-        for(moris::uint j = 0; j < tNumReceivedReqs; j++)
+
+        // avoid the dummy message
+        if(aRequests(i)(0,0) != MORIS_INDEX_MAX)
         {
-            moris_id        tParentId      = aRequests(i)(0,j);
-            enum EntityRank tParentRank    = (enum EntityRank) aRequests(i)(1,j);
-            moris_id        tSecondaryId   = aRequests(i)(2,j);
-            moris_index     tParentInd     = mBackgroundMesh.get_mesh_data().get_loc_entity_ind_from_entity_glb_id(tParentId,tParentRank);
-            bool            tRequestExists = false;
-            moris_index     tRequestIndex  = MORIS_INDEX_MAX;
 
-            if(aDecompData.mHasSecondaryIdentifier)
+            // iterate through received requests
+            for(moris::uint j = 0; j < tNumReceivedReqs; j++)
             {
-                tRequestExists = aDecompData.request_exists(tParentInd,tSecondaryId,(EntityRank)tParentRank,tRequestIndex);
-            }
+                moris_id        tParentId      = aRequests(i)(0,j);
+                enum EntityRank tParentRank    = (enum EntityRank) aRequests(i)(1,j);
+                moris_id        tSecondaryId   = aRequests(i)(2,j);
+                moris_index     tParentInd     = mBackgroundMesh.get_mesh_data().get_loc_entity_ind_from_entity_glb_id(tParentId,tParentRank);
+                bool            tRequestExists = false;
+                moris_index     tRequestIndex  = MORIS_INDEX_MAX;
 
-            else
-            {
-                tRequestExists = aDecompData.request_exists(tParentInd,(EntityRank)tParentRank,tRequestIndex);
-            }
-
-            if(tRequestExists)
-            {
-
-                moris_id tNodeId =aRequestAnswers(i)(j);
-
-                // meaning the owning processor expected this and gave an answer
-                if(tNodeId < MORIS_ID_MAX)
+                if(aDecompData.mHasSecondaryIdentifier)
                 {
-                    aDecompData.tNewNodeId(tRequestIndex) = tNodeId;
+                    tRequestExists = aDecompData.request_exists(tParentInd,tSecondaryId,(EntityRank)tParentRank,tRequestIndex);
                 }
 
-                // This is a hanging
                 else
                 {
-                    MORIS_ASSERT(aDecompData.mSubdivisionMethod == Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8 && (int)tParentRank == 2," The only known case where hanging nodes are allowed to show up is on a face during NC_REGULAR_SUBDIVISION_HEX8");
-                    aDecompData.tNewNodeOwner(tRequestIndex) = par_rank();
+                    tRequestExists = aDecompData.request_exists(tParentInd,(EntityRank)tParentRank,tRequestIndex);
                 }
 
-                // set the new node index
-                aDecompData.tNewNodeIndex(tRequestIndex) = aNodeInd;
-                aNodeInd++;
+                if(tRequestExists && aRequestAnswers(i)(j))
+                {
 
-                // set the new node id
-                aDecompData.tNewNodeId(tRequestIndex) = tNodeId;
+                    moris_id tNodeId =aRequestAnswers(i)(j);
 
-                aDecompData.mNumNewNodesWithIds++;
-            }
-            else
-            {
-                MORIS_ASSERT(0,"Request does not exist.");
+                    // meaning the owning processor expected this and gave an answer
+                    if(tNodeId < MORIS_ID_MAX && aDecompData.tNewNodeId(tRequestIndex) == MORIS_INDEX_MAX)
+                    {
+                        aDecompData.tNewNodeId(tRequestIndex) = tNodeId;
+                        aDecompData.tNewNodeIndex(tRequestIndex) = aNodeInd;
+                        aNodeInd++;
+
+                        // set the new node id
+                        aDecompData.tNewNodeId(tRequestIndex) = tNodeId;
+
+                        aDecompData.mNumNewNodesWithIds++;
+
+                    }
+
+                    // This is a hanging
+                    else
+                    {
+                        //                    MORIS_ASSERT(aDecompData.mSubdivisionMethod == Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8 && (int)tParentRank == 2," The only known case where hanging nodes are allowed to show up is on a face during NC_REGULAR_SUBDIVISION_HEX8");
+                        //                    aDecompData.tNewNodeOwner(tRequestIndex) = par_rank();
+
+                        //                    aDecompData.tNewNodeId(tRequestIndex) = tNodeId;
+                        //                    aDecompData.tNewNodeIndex(tRequestIndex) = aNodeInd;
+                        //                    aNodeInd++;
+                        //
+                        //                    // set the new node id
+                        //                    aDecompData.tNewNodeId(tRequestIndex) = tNodeId;
+                        //
+                        //                    aDecompData.mNumNewNodesWithIds++;
+
+                    }
+                }
+                else
+                {
+                    MORIS_ASSERT(0,"Request does not exist.");
+                }
             }
         }
     }
@@ -1661,12 +1709,13 @@ Model::inward_receive_requests_reals(
     {
         moris::moris_index tParRank = par_rank();
         moris::uint tCount = 0;
+        MPI_Status tStatus;
         for(moris::uint i = 0; i<(moris::uint)par_size(); i++)
         {
             if((moris_index)i != tParRank)
             {
                 // if there is a sent message from a processor go receive it
-                if(sent_message_exists(i,aMPITag))
+                if(sent_message_exists(i,aMPITag,tStatus))
                 {
                     aReceivedData.push_back(Matrix<DDRMat>(1,1));
                     aProcRanksReceivedFrom.push_back(i);
@@ -1699,12 +1748,8 @@ Model::inward_receive_request_answers_reals(moris_index            const & aMPIT
 {
     for(moris::uint i = 0; i<aProcRanks.size(); i++)
     {
-        // if there is a sent message from a processor go receive it
-        if(sent_message_exists(aProcRanks(i),aMPITag))
-        {
-            aReceivedData.push_back(Matrix<DDRMat>(1,1));
-            receive(aReceivedData(i),aNumRows, aProcRanks(i),aMPITag);
-        }
+        aReceivedData.push_back(Matrix<DDRMat>(1,1));
+        receive(aReceivedData(i),aNumRows, aProcRanks(i),aMPITag);
     }
 }
 
@@ -1724,35 +1769,48 @@ Model::prepare_request_answers( Decomposition_Data & aDecompData,
 
         aRequestAnswers(i).resize(1,tNumReceivedReqs);
 
-        // iterate through received requests
-        for(moris::uint j = 0; j < tNumReceivedReqs; j++)
+        aRequestAnswers(i)(0) = MORIS_INDEX_MAX;
+
+        // avoid the dummy message
+        if(aReceiveData(i)(0,0) != MORIS_INDEX_MAX)
         {
-            moris_id        tParentId      = aReceiveData(i)(0,j);
-            enum EntityRank tParentRank    = (enum EntityRank) aReceiveData(i)(1,j);
-            moris_id        tSecondaryId   = aReceiveData(i)(2,j);
-            moris_index     tParentInd     = mBackgroundMesh.get_mesh_data().get_loc_entity_ind_from_entity_glb_id(tParentId,tParentRank);
-            bool            tRequestExists = false;
-            moris_index     tRequestIndex  = MORIS_INDEX_MAX;
 
-            if(aDecompData.mHasSecondaryIdentifier)
+            // iterate through received requests
+            for(moris::uint j = 0; j < tNumReceivedReqs; j++)
             {
-                tRequestExists = aDecompData.request_exists(tParentInd,tSecondaryId,(EntityRank)tParentRank,tRequestIndex);
-            }
+                moris_id        tParentId      = aReceiveData(i)(0,j);
+                enum EntityRank tParentRank    = (enum EntityRank) aReceiveData(i)(1,j);
+                moris_id        tSecondaryId   = aReceiveData(i)(2,j);
+                moris_index     tParentInd     = mBackgroundMesh.get_mesh_data().get_loc_entity_ind_from_entity_glb_id(tParentId,tParentRank);
+                bool            tRequestExists = false;
+                moris_index     tRequestIndex  = MORIS_INDEX_MAX;
 
-            else
-            {
-                tRequestExists = aDecompData.request_exists(tParentInd,(EntityRank)tParentRank,tRequestIndex);
-            }
+                if(aDecompData.mHasSecondaryIdentifier)
+                {
+                    tRequestExists = aDecompData.request_exists(tParentInd,tSecondaryId,(EntityRank)tParentRank,tRequestIndex);
+                }
 
-            if(tRequestExists)
-            {
-                moris_id tNodeId =aDecompData.tNewNodeId(tRequestIndex);
-                aRequestAnswers(i)(j) = tNodeId;
-            }
-            else
-            {
-                aRequestAnswers(i)(j) = MORIS_ID_MAX;
-                MORIS_ASSERT(0,"Request does not exist. Need to handle hanging node in reg sub of hex8");
+                else
+                {
+                    tRequestExists = aDecompData.request_exists(tParentInd,(EntityRank)tParentRank,tRequestIndex);
+                }
+
+                if(tRequestExists)
+                {
+                    moris_id tNodeId =aDecompData.tNewNodeId(tRequestIndex);
+                    aRequestAnswers(i)(j) = tNodeId;
+
+                    if(tNodeId == MORIS_ID_MAX)
+                    {
+                        std::cout<<"tParentId = "<<tParentId<<" | Rank "<<(uint)tParentRank<<std::endl;
+                        //                    MORIS_ERROR(0,"Max node");
+                    }
+                }
+                else
+                {
+                    aRequestAnswers(i)(j) = MORIS_ID_MAX;
+                    MORIS_ASSERT(0,"Request does not exist. Need to handle hanging node in reg sub of hex8");
+                }
             }
         }
 
@@ -1766,10 +1824,16 @@ Model::return_request_answers(  moris_index const & aMPITag,
                                 Cell<Matrix<IndexMat>> const & aRequestAnswers,
                                 Cell<uint> const & aProcRanks)
 {
+    // access the mesh data behind the background mesh
+    moris::mtk::Mesh & tMeshData = mBackgroundMesh.get_mesh_data();
+
+    // access the communication table
+    Matrix<IdMat> tCommTable = mBackgroundMesh.get_communication_table();
+
     // iterate through owned requests and send
-    for(moris::uint i = 0; i < aProcRanks.size(); i++)
+    for(moris::uint i = 0; i < tCommTable.numel(); i++)
     {
-        nonblocking_send(aRequestAnswers(i),aRequestAnswers(i).n_rows(),aRequestAnswers(i).n_cols(),aProcRanks(i),aMPITag);
+        nonblocking_send(aRequestAnswers(i),aRequestAnswers(i).n_rows(),aRequestAnswers(i).n_cols(),tCommTable(i),aMPITag);
     }
 }
 
@@ -1845,6 +1909,14 @@ Model::assign_child_element_identifiers()
         tOwnedChildMeshes(i)->set_child_element_inds(tElementIndOffset);
     }
 
+    // set the indices of the child elements in not owned but not the ids
+    // set child elements ids in the children meshes which I own and dont share
+    Cell<Child_Mesh*> const & tNotOwnedChildMeshes     = mCutMesh.get_not_owned_child_meshes();
+    for(moris::size_t i = 0; i<tNotOwnedChildMeshes.size(); i++)
+    {
+        tNotOwnedChildMeshes(i)->set_child_element_inds(tElementIndOffset);
+    }
+
     // prepare outward requests
     Cell<Cell<moris_id>>        tNotOwnedChildMeshesToProcs;
     Cell<moris::Matrix<IdMat>>  tOwnedParentCellId;
@@ -1867,8 +1939,8 @@ Model::assign_child_element_identifiers()
     Cell<uint> tProcsReceivedFrom2;
     this->inward_receive_requests(tMPITag, 1, tReceivedParentCellIds, tProcsReceivedFrom1);
     this->inward_receive_requests(tMPITag+1,1, tReceivedParentCellNumChildren, tProcsReceivedFrom2);
-    MORIS_ASSERT(tProcsReceivedFrom1.size() == tProcsReceivedFrom2.size(),"Size mismatch between procs received from child cell ids and number of child cells");
 
+    MORIS_ASSERT(tProcsReceivedFrom1.size() == tProcsReceivedFrom2.size(),"Size mismatch between procs received from child cell ids and number of child cells");
     Cell<Matrix<IndexMat>> tChildIdOffsets;
     this->prepare_child_cell_id_answers(tReceivedParentCellIds,tReceivedParentCellNumChildren,tChildIdOffsets);
 
@@ -1905,22 +1977,31 @@ Model::prepare_child_element_identifier_requests(Cell<Cell<moris_id>>       & aN
     Cell<moris_id>            tCounts(0);
     moris_index tCurrentIndex = 0;
 
+    //set up the porcs
+    // access the mesh data behind the background mesh
+    moris::mtk::Mesh & tMeshData = mBackgroundMesh.get_mesh_data();
+
+    // access the communication table
+    Matrix<IdMat> tCommTable = mBackgroundMesh.get_communication_table();
+
+    for(moris::size_t i = 0; i < tCommTable.numel(); i++)
+    {
+            aProcRankToDataIndex[tCommTable(i)] = tCurrentIndex;
+            aProcRanks.push_back(tCommTable(i));
+            aNotOwnedChildMeshesToProcs.push_back(Cell<moris_id>(0));
+            tCounts.push_back(0);
+            tCurrentIndex++;
+    }
+
+
     // sort child meshes by owner
     for(moris::size_t i = 0; i < tNotOwnedChildMeshes.size(); i++)
     {
         moris_index tOwnerProc = tNotOwnedChildMeshOwners(i);
-
-        if( aProcRankToDataIndex.find(tOwnerProc) == aProcRankToDataIndex.end())
-        {
-            aProcRankToDataIndex[tOwnerProc] = tCurrentIndex;
-            aProcRanks.push_back(tOwnerProc);
-            aNotOwnedChildMeshesToProcs.push_back(Cell<moris_id>(0));
-            tCounts.push_back(0);
-            tCurrentIndex++;
-        }
-
         moris_index tProcDataIndex = aProcRankToDataIndex[tOwnerProc];
         aNotOwnedChildMeshesToProcs(tProcDataIndex).push_back(i);
+
+        moris_id tParentCellId = mBackgroundMesh.get_mesh_data().get_glb_entity_id_from_entity_loc_index(tNotOwnedChildMeshes(i)->get_parent_element_index(),EntityRank::ELEMENT);
     }
 
     aOwnedParentCellId.resize(aNotOwnedChildMeshesToProcs.size());
@@ -1940,10 +2021,24 @@ Model::prepare_child_element_identifier_requests(Cell<Cell<moris_id>>       & aN
         {
             Child_Mesh* tCM = tNotOwnedChildMeshes(aNotOwnedChildMeshesToProcs(i)(j));
 
-            aOwnedParentCellId(i)(j)      = mBackgroundMesh.get_glb_entity_id_from_entity_loc_index(tCM->get_parent_element_index(),EntityRank::ELEMENT);
+            aOwnedParentCellId(i)(j)      = mBackgroundMesh.get_mesh_data().get_glb_entity_id_from_entity_loc_index(tCM->get_parent_element_index(),EntityRank::ELEMENT);
             aNumOwnedCellIdsOffsets(i)(j) = tCM->get_num_entities(EntityRank::ELEMENT);
         }
     }
+
+    for(moris::size_t i = 0; i < tCommTable.numel(); i++)
+    {
+
+        if(aNotOwnedChildMeshesToProcs(i).size() == 0)
+        {
+            aOwnedParentCellId(i).resize(1,1);
+            aNumOwnedCellIdsOffsets(i).resize(1,1);
+            aOwnedParentCellId(i)(0,0) = MORIS_INDEX_MAX;
+            aNumOwnedCellIdsOffsets(i)(0,0) = MORIS_INDEX_MAX;
+        }
+
+    }
+
 }
 
 void
@@ -1963,22 +2058,37 @@ Model::prepare_child_cell_id_answers(Cell<Matrix<IndexMat>> & aReceivedParentCel
 
         aChildCellIdOffset(i).resize(1,tNumReceivedReqs);
 
-        // iterate through received requests
-        for(moris::uint j = 0; j < tNumReceivedReqs; j++)
+        if(aReceivedParentCellIds(i)(0) != MORIS_INDEX_MAX)
         {
-            // parent cell information
-            moris_id tParentId           = aReceivedParentCellIds(i)(0,j);
-            moris_index tParentCellIndex = mBackgroundMesh.get_mesh_data().get_loc_entity_ind_from_entity_glb_id(tParentId,EntityRank::ELEMENT);
+            // iterate through received requests
+            for(moris::uint j = 0; j < tNumReceivedReqs; j++)
+            {
+                // parent cell information
+                moris_id tParentId           = aReceivedParentCellIds(i)(0,j);
+                moris_index tParentCellIndex = mBackgroundMesh.get_mesh_data().get_loc_entity_ind_from_entity_glb_id(tParentId,EntityRank::ELEMENT);
 
-            // get child mesh
-            MORIS_ASSERT(mBackgroundMesh.entity_has_children(tParentCellIndex,EntityRank::ELEMENT),"Request is made for child element ids on a parent cell not intersected");
-            moris_index tCMIndex = mBackgroundMesh.child_mesh_index(tParentCellIndex,EntityRank::ELEMENT);
-            Child_Mesh & tCM = mCutMesh.get_child_mesh(tCMIndex);
+                // get child mesh
+                MORIS_ASSERT(mBackgroundMesh.entity_has_children(tParentCellIndex,EntityRank::ELEMENT),"Request is made for child element ids on a parent cell not intersected");
+                moris_index tCMIndex = mBackgroundMesh.child_mesh_index(tParentCellIndex,EntityRank::ELEMENT);
+                Child_Mesh & tCM = mCutMesh.get_child_mesh(tCMIndex);
 
-            // place in return data
-            MORIS_ASSERT(tCM.get_num_entities(EntityRank::ELEMENT) == (uint)aReceivedParentCellNumChildren(i)(j),"Number of child cells in child mesh do not match number on other processor");
-            aChildCellIdOffset(i)(j) = tCM.get_element_ids()(0);
+                MORIS_ASSERT(par_rank() == mBackgroundMesh.get_mesh_data().get_entity_owner(tParentCellIndex,EntityRank::ELEMENT),"I dont own this entity that had info requestsed.");
+
+                // place in return data
+                MORIS_ASSERT(tCM.get_num_entities(EntityRank::ELEMENT) == (uint)aReceivedParentCellNumChildren(i)(j),"Number of child cells in child mesh do not match number on other processor");
+
+                // since hmr ownership is not correct
+                if(tCM.get_element_ids().numel()>0)
+                {
+                    aChildCellIdOffset(i)(j) = tCM.get_element_ids()(0);
+                }
+            }
         }
+        else
+        {
+            aChildCellIdOffset(i)(0) =   MORIS_INDEX_MAX;
+        }
+
     }
 }
 
@@ -2003,7 +2113,6 @@ Model::handle_received_child_cell_id_request_answers(
             moris_id tChildCellFirstId = aReceivedChildCellIdOffset(i)(j);
 
             tCM->set_child_element_ids(tChildCellFirstId);
-            tCM->set_child_element_inds(aCellInd);
         }
     }
 }
@@ -2441,6 +2550,23 @@ Model::prepare_subphase_identifier_requests(Cell<Cell<moris_id>>       & aNotOwn
                                             Cell<uint>                 & aProcRanks,
                                             std::unordered_map<moris_id,moris_id> & aProcRankToDataIndex)
 {
+    // access the mesh data behind the background mesh
+    moris::mtk::Mesh & tMeshData = mBackgroundMesh.get_mesh_data();
+
+    // access the communication table
+    Matrix<IdMat> tCommTable = mBackgroundMesh.get_communication_table();
+
+    // resize proc ranks and setup map to comm table
+    aProcRanks.resize(tCommTable.numel());
+    for(moris::uint i = 0; i <tCommTable.numel(); i++)
+    {
+        aProcRankToDataIndex[tCommTable(i)] = i;
+        aProcRanks(i) = (tCommTable(i));
+        aNotOwnedSubphasesToProcs.push_back(Cell<moris_id>(0));
+        aSubphaseCMIndices.push_back(Cell<moris_id>(0));
+    }
+
+
     // ask owning processor about child element ids
     Cell<Child_Mesh*> const & tNotOwnedChildMeshes     = mCutMesh.get_not_owned_child_meshes();
     Cell<moris_id>    const & tNotOwnedChildMeshOwners = mCutMesh.get_not_owned_child_owners();
@@ -2450,15 +2576,6 @@ Model::prepare_subphase_identifier_requests(Cell<Cell<moris_id>>       & aNotOwn
     for(moris::size_t i = 0; i < tNotOwnedChildMeshes.size(); i++)
     {
         moris_index tOwnerProc = tNotOwnedChildMeshOwners(i);
-
-        if( aProcRankToDataIndex.find(tOwnerProc) == aProcRankToDataIndex.end())
-        {
-            aProcRankToDataIndex[tOwnerProc] = tCurrentIndex;
-            aProcRanks.push_back(tOwnerProc);
-            aNotOwnedSubphasesToProcs.push_back(Cell<moris_id>(0));
-            aSubphaseCMIndices.push_back(Cell<moris_id>(0));
-            tCurrentIndex++;
-        }
 
         moris_index tProcDataIndex = aProcRankToDataIndex[tOwnerProc];
 
@@ -2485,6 +2602,14 @@ Model::prepare_subphase_identifier_requests(Cell<Cell<moris_id>>       & aNotOwn
         // allocate matrix
         aParentCellIds(i).resize(1,tNumCM);
         aChildCellIds(i).resize(1,tNumCM);
+
+        if(tNumCM == 0)
+        {
+            aParentCellIds(i).resize(1,1);
+            aChildCellIds(i).resize(1,1);
+            aParentCellIds(i)(0) = MORIS_INDEX_MAX;
+            aChildCellIds(i)(0) = MORIS_INDEX_MAX;
+        }
 
         for(moris::uint j = 0; j < tNumCM; j++)
         {
@@ -2525,37 +2650,40 @@ Model::prepare_subphase_id_answers(Cell<Matrix<IndexMat>> & aReceivedParentCellI
 
         aSubphaseIds(i).resize(1,tNumReceivedReqs);
 
-        // iterate through received requests
-        for(moris::uint j = 0; j < tNumReceivedReqs; j++)
+        if(aReceivedParentCellIds(i)(0,0) != MORIS_INDEX_MAX)
         {
-            // parent cell information
-            moris_id tParentId           = aReceivedParentCellIds(i)(0,j);
-            moris_index tParentCellIndex = mBackgroundMesh.get_mesh_data().get_loc_entity_ind_from_entity_glb_id(tParentId,EntityRank::ELEMENT);
-
-            // Child cell information
-            moris_id tChildCellId = aFirstChildCellIds(i)(j);
-
-            // get child mesh
-            MORIS_ASSERT(mBackgroundMesh.entity_has_children(tParentCellIndex,EntityRank::ELEMENT),"Request is made for child element ids on a parent cell not intersected");
-            moris_index tCMIndex = mBackgroundMesh.child_mesh_index(tParentCellIndex,EntityRank::ELEMENT);
-            Child_Mesh & tCM = mCutMesh.get_child_mesh(tCMIndex);
-
-
-            // figure out which subphase this child cell belongs to in the given child mesh
-            Matrix<IdMat> const & tChildMeshCellIds = tCM.get_element_ids();
-            moris_id tSubphaseId = MORIS_ID_MAX;
-            for(moris::uint iCM = 0; iCM < tChildMeshCellIds.numel(); iCM++)
+            // iterate through received requests
+            for(moris::uint j = 0; j < tNumReceivedReqs; j++)
             {
-                if(tChildMeshCellIds(iCM) == tChildCellId)
+                // parent cell information
+                moris_id tParentId           = aReceivedParentCellIds(i)(0,j);
+                moris_index tParentCellIndex = mBackgroundMesh.get_mesh_data().get_loc_entity_ind_from_entity_glb_id(tParentId,EntityRank::ELEMENT);
+
+                // Child cell information
+                moris_id tChildCellId = aFirstChildCellIds(i)(j);
+
+                // get child mesh
+                MORIS_ASSERT(mBackgroundMesh.entity_has_children(tParentCellIndex,EntityRank::ELEMENT),"Request is made for child element ids on a parent cell not intersected");
+                moris_index tCMIndex = mBackgroundMesh.child_mesh_index(tParentCellIndex,EntityRank::ELEMENT);
+                Child_Mesh & tCM = mCutMesh.get_child_mesh(tCMIndex);
+
+
+                // figure out which subphase this child cell belongs to in the given child mesh
+                Matrix<IdMat> const & tChildMeshCellIds = tCM.get_element_ids();
+                moris_id tSubphaseId = MORIS_ID_MAX;
+                for(moris::uint iCM = 0; iCM < tChildMeshCellIds.numel(); iCM++)
                 {
-                    tSubphaseId = tCM.get_element_subphase_id(iCM);
+                    if(tChildMeshCellIds(iCM) == tChildCellId)
+                    {
+                        tSubphaseId = tCM.get_element_subphase_id(iCM);
+                    }
                 }
+
+                MORIS_ERROR(tSubphaseId!= MORIS_ID_MAX,"Child cell id not found in child mesh");
+
+                // place in return data
+                aSubphaseIds(i)(j) = tSubphaseId;
             }
-
-            MORIS_ERROR(tSubphaseId!= MORIS_ID_MAX,"Child cell id not found in child mesh");
-
-            // place in return data
-            aSubphaseIds(i)(j) = tSubphaseId;
         }
     }
 }
