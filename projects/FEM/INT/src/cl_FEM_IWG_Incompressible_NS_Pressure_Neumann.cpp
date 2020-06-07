@@ -4,23 +4,46 @@
 #include "cl_FEM_Field_Interpolator_Manager.hpp"
 
 #include "fn_trans.hpp"
+#include "fn_norm.hpp"
 
 namespace moris
 {
     namespace fem
     {
 
-//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
         IWG_Incompressible_NS_Pressure_Neumann::IWG_Incompressible_NS_Pressure_Neumann()
         {
             // set size for the property pointer cell
             mMasterProp.resize( static_cast< uint >( IWG_Property_Type::MAX_ENUM ), nullptr );
 
             // populate the property map
-            mPropertyMap[ "Pressure" ] = IWG_Property_Type::PRESSURE;
+            mPropertyMap[ "Pressure" ]      = IWG_Property_Type::PRESSURE;
+            mPropertyMap[ "TotalPressure" ] = IWG_Property_Type::TOTAL_PRESSURE;
+            mPropertyMap[ "Density" ]       = IWG_Property_Type::DENSITY;
         }
 
-//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
+        void IWG_Incompressible_NS_Pressure_Neumann::set_property(
+                std::shared_ptr< Property > aProperty,
+                std::string                 aPropertyString,
+                mtk::Master_Slave           aIsMaster)
+        {
+            // check that aPropertyString makes sense
+            std::string tErrMsg =
+                    std::string( "IWG_Incompressible_NS_Pressure_Neumann::set_property - Unknown aPropertyString: " ) +
+                    aPropertyString;
+            MORIS_ERROR( mPropertyMap.find( aPropertyString ) != mPropertyMap.end(), tErrMsg.c_str() );
+
+            // check no slave allowed
+            MORIS_ERROR( aIsMaster == mtk::Master_Slave::MASTER,
+                    "IWG_Incompressible_NS_Pressure_Neumann::set_property - No slave allowed." );
+
+            // set the property in the property cell
+            this->get_properties( aIsMaster )( static_cast< uint >( mPropertyMap[ aPropertyString ] ) ) = aProperty;
+        }
+
+        //------------------------------------------------------------------------------
         void IWG_Incompressible_NS_Pressure_Neumann::compute_residual( real aWStar )
         {
             // check master field interpolators
@@ -37,15 +60,57 @@ namespace moris
             Field_Interpolator * tVelocityFI = mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );
 
             // get the imposed pressure property
-            std::shared_ptr< Property > tPropPressure
-            = mMasterProp( static_cast< uint >( IWG_Property_Type::PRESSURE ) );
+            std::shared_ptr< Property > tPropPressure =
+                    mMasterProp( static_cast< uint >( IWG_Property_Type::PRESSURE ) );
+
+            // get the imposed total pressure property
+            std::shared_ptr< Property > tPropTotalPressure =
+                    mMasterProp( static_cast< uint >( IWG_Property_Type::TOTAL_PRESSURE ) );
+
+            // check that either pressure or total pressure property is set
+            // Fixme: this check should moved in to checking function and not executed when computing residual
+            MORIS_ERROR( tPropPressure != nullptr || tPropTotalPressure != nullptr,
+                    "IWG_Incompressible_NS_Pressure_Neumann::compute_residual - Either Pressure or TotalPressure needs to be set." );
+
+            // check that not both pressure and total pressure are set
+            // Fixme: this check should moved in to checking function and not executed when computing residual
+            MORIS_ERROR( tPropPressure == nullptr || tPropTotalPressure == nullptr,
+                    "IWG_Incompressible_NS_Pressure_Neumann::set_property - Can only set either Pressure or TotalPressure." );
 
             // compute the residual weak form
-            mSet->get_residual()( 0 )( { tMasterResStartIndex, tMasterResStopIndex }, { 0, 0 } )
-            += aWStar * ( trans( tVelocityFI->N() ) * tPropPressure->val()( 0 ) * mNormal );
+
+            // when pressure is imposed
+            if ( tPropPressure != nullptr )
+            {
+                mSet->get_residual()( 0 )(
+                        { tMasterResStartIndex, tMasterResStopIndex },
+                        { 0, 0 } ) +=
+                                aWStar * ( trans( tVelocityFI->N() ) * tPropPressure->val()( 0 ) * mNormal );
+            }
+            // when total pressure is imposed
+            else
+            {
+                // get density property
+                std::shared_ptr< Property > tPropDensity =
+                        mMasterProp( static_cast< uint >( IWG_Property_Type::DENSITY ) );
+
+                // check that density is set
+                // Fixme: this check should moved in to checking function and not executed when computing residual
+                MORIS_ERROR( tPropDensity != nullptr,
+                        "IWG_Incompressible_NS_Pressure_Neumann::compute_residual - Density needs to be set if TotalPressure BC is used." );
+
+                // compute imposed pressure from prescribed total pressure and velocities
+                const real tVelocNorm2      = std::pow( norm( tVelocityFI->val() ), 2.0);
+                const real tImposedPressure = tPropTotalPressure->val()( 0 ) - 0.5 * tPropDensity->val()( 0 ) * tVelocNorm2;
+
+                mSet->get_residual()( 0 )(
+                        { tMasterResStartIndex, tMasterResStopIndex },
+                        { 0, 0 } ) +=
+                                aWStar * ( tImposedPressure * trans( tVelocityFI->N() ) * mNormal );
+            }
         }
 
-//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
         void IWG_Incompressible_NS_Pressure_Neumann::compute_jacobian( real aWStar )
         {
 #ifdef DEBUG
@@ -62,11 +127,20 @@ namespace moris
             Field_Interpolator * tVelocityFI = mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );
 
             // get the imposed pressure property
-            std::shared_ptr< Property > tPropPressure
-            = mMasterProp( static_cast< uint >( IWG_Property_Type::PRESSURE ) );
+            std::shared_ptr< Property > tPropPressure =
+                    mMasterProp( static_cast< uint >( IWG_Property_Type::PRESSURE ) );
+
+            // get the imposed total pressure property
+            std::shared_ptr< Property > tPropTotalPressure =
+                    mMasterProp( static_cast< uint >( IWG_Property_Type::TOTAL_PRESSURE ) );
+
+            // get density property
+            std::shared_ptr< Property > tPropDensity =
+                    mMasterProp( static_cast< uint >( IWG_Property_Type::DENSITY ) );
 
             // compute the jacobian for dof dependencies
             uint tNumDofDependencies = mRequestedMasterGlobalDofTypes.size();
+
             for( uint iDOF = 0; iDOF < tNumDofDependencies; iDOF++ )
             {
                 // get the treated dof type
@@ -77,18 +151,62 @@ namespace moris
                 uint tMasterDepStartIndex = mSet->get_jac_dof_assembly_map()( tMasterDofIndex )( tDofDepIndex, 0 );
                 uint tMasterDepStopIndex  = mSet->get_jac_dof_assembly_map()( tMasterDofIndex )( tDofDepIndex, 1 );
 
-                // if imposed pressure property depends on the dof type
-                if ( tPropPressure->check_dof_dependency( tDofType ) )
+                // when pressure is imposed
+                if ( tPropPressure != nullptr )
                 {
-                    // compute the jacobian
-                    mSet->get_jacobian()( { tMasterResStartIndex, tMasterResStopIndex },
-                                          { tMasterDepStartIndex, tMasterDepStopIndex } )
-                    += aWStar * ( trans( tVelocityFI->N() ) * mNormal * tPropPressure->dPropdDOF( tDofType ) );
+                    // if imposed pressure property depends on the dof type
+                    if ( tPropPressure->check_dof_dependency( tDofType ) )
+                    {
+                        // compute the jacobian
+                        mSet->get_jacobian()(
+                                { tMasterResStartIndex, tMasterResStopIndex },
+                                { tMasterDepStartIndex, tMasterDepStopIndex } ) +=
+                                        aWStar * ( trans( tVelocityFI->N() ) * mNormal * tPropPressure->dPropdDOF( tDofType ) );
+                    }
+                }
+                else
+                {
+                    // if dof type is residual dof type
+                    if ( tDofType( 0 ) == mResidualDofType( 0 ) )
+                    {
+                        // compute derivative of imposed pressure with respect to velocities
+                        const Matrix< DDRMat > tdpredvel =
+                               -1.0 * tPropDensity->val()( 0 ) * trans( tVelocityFI->val() ) * tVelocityFI->N();
+
+                        // compute the jacobian/
+                        mSet->get_jacobian()(
+                                { tMasterResStartIndex, tMasterResStopIndex },
+                                { tMasterDepStartIndex, tMasterDepStopIndex } ) +=
+                                        aWStar * ( trans( tVelocityFI->N() ) * mNormal * tdpredvel );
+                    }
+
+                    // if imposed total pressure property depends on the dof type
+                    if ( tPropTotalPressure->check_dof_dependency( tDofType ) )
+                    {
+                        // compute the jacobian
+                        mSet->get_jacobian()(
+                                { tMasterResStartIndex, tMasterResStopIndex },
+                                { tMasterDepStartIndex, tMasterDepStopIndex } ) +=
+                                        aWStar * ( trans( tVelocityFI->N() ) * mNormal * tPropTotalPressure->dPropdDOF( tDofType ) );
+                    }
+
+                    // if density property depends on the dof type
+                    if ( tPropDensity->check_dof_dependency( tDofType ) )
+                    {
+                        // compute derivative of imposed pressure with respect to density
+                        const real tdpreddens = - 0.5 * std::pow( norm( tVelocityFI->val() ), 2.0);
+
+                        // compute the jacobian
+                        mSet->get_jacobian()(
+                                { tMasterResStartIndex, tMasterResStopIndex },
+                                { tMasterDepStartIndex, tMasterDepStopIndex } ) +=
+                                        aWStar * ( tdpreddens * trans( tVelocityFI->N() ) * mNormal * tPropDensity->dPropdDOF( tDofType ) );
+                    }
                 }
             }
         }
 
-//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
         void IWG_Incompressible_NS_Pressure_Neumann::compute_jacobian_and_residual( real aWStar )
         {
 #ifdef DEBUG
@@ -99,7 +217,7 @@ namespace moris
             MORIS_ERROR( false, "IWG_Incompressible_NS_Pressure_Neumann::compute_jacobian_and_residual - Not implemented." );
         }
 
-//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
         void IWG_Incompressible_NS_Pressure_Neumann::compute_dRdp( real aWStar )
         {
 #ifdef DEBUG
@@ -110,11 +228,6 @@ namespace moris
             MORIS_ERROR( false, "IWG_Incompressible_NS_Pressure_Neumann::compute_dRdp - Not implemented." );
         }
 
-//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
     } /* namespace fem */
 } /* namespace moris */
-
-
-
-
-
