@@ -216,7 +216,10 @@ Model::perform()
 
     if( mParameterList.get<bool>("exodus_output_XTK_ig_mesh") )
     {
-//        tEnrIntegMesh.deactivate_empty_sets();
+        if(par_size() == 1)
+        {
+            tEnrIntegMesh.deactivate_empty_sets();
+        }
 
         // Write mesh
         moris::mtk::Writer_Exodus writer( &tEnrIntegMesh );
