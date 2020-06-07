@@ -35,7 +35,9 @@ namespace moris
         {
             bool tIsConverged = false;
 
-            Cell< moris::real > solNorm = tNonLinSolver->mNonlinearProblem->get_full_vector()->vec_norm2();
+//            Cell< moris::real > solNorm = tNonLinSolver->mNonlinearProblem->get_full_vector()->vec_norm2();
+
+            Cell< moris::real > solNorm = tNonLinSolver->mNonlinearProblem->get_linearized_problem()->get_free_solver_LHS()->vec_norm2();
 
             aResNorm = tNonLinSolver->mNonlinearProblem->get_linearized_problem()->get_solver_RHS()->vec_norm2()( 0 );
 

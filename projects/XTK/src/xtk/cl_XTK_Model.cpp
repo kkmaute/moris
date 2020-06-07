@@ -75,20 +75,21 @@ namespace xtk
     /*
      * using the general geometry engine
      */
-    Model::Model(uint aModelDimension,
+    Model::Model(
+            uint aModelDimension,
             moris::mtk::Interpolation_Mesh* aMeshData,
             moris::ge::Geometry_Engine* aGeometryEngine,
-            bool aLinkGeometryOnConstruction ) :
-                                                  mSameMesh(false),
-                                                  mModelDimension(aModelDimension),
-                                                  mBackgroundMesh(aMeshData,aGeometryEngine),
-                                                  mCutMesh(this,mModelDimension),
-                                                  mGeometryEngine(aGeometryEngine),
-                                                  mEnrichment(nullptr),
-                                                  mGhostStabilization(nullptr),
-                                                  mEnrichedInterpMesh(0,nullptr),
-                                                  mEnrichedIntegMesh(0,nullptr),
-                                                  mConvertedToTet10s(false)
+            bool aLinkGeometryOnConstruction )
+    : mSameMesh(false),
+      mModelDimension(aModelDimension),
+      mBackgroundMesh(aMeshData,aGeometryEngine),
+      mCutMesh(this,mModelDimension),
+      mGeometryEngine(aGeometryEngine),
+      mEnrichment(nullptr),
+      mGhostStabilization(nullptr),
+      mEnrichedInterpMesh(0,nullptr),
+      mEnrichedIntegMesh(0,nullptr),
+      mConvertedToTet10s(false)
     {
         // flag this as a non-parameter list based run
         mParameterList.insert("has_parameter_list", false);
@@ -101,8 +102,9 @@ namespace xtk
         mBackgroundMesh.initialize_interface_node_flags(mBackgroundMesh.get_num_entities(EntityRank::NODE),mGeometryEngine->get_num_geometries());
     }
 
-    Model::Model( moris::ParameterList const & aParameterList):
-                mParameterList(aParameterList)
+    Model::Model(
+            moris::ParameterList const & aParameterList)
+    : mParameterList(aParameterList)
     {
         // flag this as a paramter list based run
         mParameterList.insert("has_parameter_list", true);
@@ -225,7 +227,10 @@ namespace xtk
 
         if( mParameterList.get<bool>("exodus_output_XTK_ig_mesh") )
         {
-            //        tEnrIntegMesh.deactivate_empty_sets();
+            if(par_size() == 1)
+            {
+                tEnrIntegMesh.deactivate_empty_sets();
+            }
 
             // Write mesh
             moris::mtk::Writer_Exodus writer( &tEnrIntegMesh );
@@ -249,7 +254,7 @@ namespace xtk
         bool tDecompose = mParameterList.get<bool>("decompose");
         bool tEnrich    = mParameterList.get<bool>("enrich");
         bool tGhost     = mParameterList.get<bool>("ghost_stab");
-        bool tMultigrid     = mParameterList.get<bool>("multigrid");
+        bool tMultigrid = mParameterList.get<bool>("multigrid");
 
         if(tEnrich == true)
         {
@@ -332,7 +337,6 @@ namespace xtk
 
     }
 
-
     // ----------------------------------------------------------------------------------
     // Decomposition Source code
     // ----------------------------------------------------------------------------------
@@ -347,7 +351,7 @@ namespace xtk
 
         // Process for a decomposition
         uint tNumDecompositions = aMethods.size();
-        uint tNumGeometries = mGeometryEngine->get_num_geometries();
+        uint tNumGeometries     = mGeometryEngine->get_num_geometries();
 
         print_decompsition_preamble(aMethods);
 
@@ -357,6 +361,7 @@ namespace xtk
 
         bool tNonConformingMeshFlag = false;
         bool tSetPhase = true;
+
         if(aMethods.size() == 1)
         {
             tNonConformingMeshFlag = true;
@@ -404,7 +409,8 @@ namespace xtk
     }
 
     void
-    Model::decompose_internal(enum Subdivision_Method    const & aSubdivisionMethod,
+    Model::decompose_internal(
+            enum Subdivision_Method    const & aSubdivisionMethod,
             moris::uint                        aGeomIndex,
             moris::Matrix< moris::IndexMat > & aActiveChildMeshIndices,
             bool const &                       aFirstSubdivision,
@@ -412,8 +418,8 @@ namespace xtk
     {
         switch (aSubdivisionMethod)
         {
-            case (Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8):
-                    {
+            case Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8:
+            {
                 //            MORIS_ASSERT(tXTKMeshData.get_entity_connected_to_entity_loc_inds(0, moris::EntityRank::ELEMENT, moris::EntityRank::NODE).numel() == 8, "NC_REGULAR_SUBDIVISION_HEX8 is for HEX8 meshes only.");
                 MORIS_ASSERT(aFirstSubdivision,"NC_REGULAR_SUBDIVISION_HEX8 needs to be the first subdivision routine for each geometry");
                 MORIS_ASSERT(mModelDimension == 3,"NC_REGULAR_SUBDIVISION_HEX8 needs to be done on a 3D mesh");
@@ -463,9 +469,9 @@ namespace xtk
                 }
 
                 break;
-                    }
-            case (Subdivision_Method::NC_REGULAR_SUBDIVISION_QUAD4):
-                {
+            }
+            case Subdivision_Method::NC_REGULAR_SUBDIVISION_QUAD4:
+            {
                 MORIS_ASSERT(aFirstSubdivision, "NC_REGULAR_SUBDIVISION_QUAD4 needs to be the first subdivision routine for each geometry.");
                 MORIS_ASSERT(mModelDimension == 2, "NC_REGULAR_SUBDIVISION_QUAD4 needs to be done on a 2D mesh.");
 
@@ -515,9 +521,9 @@ namespace xtk
                 }
                 break;
 
-                }
-            case (Subdivision_Method::C_HIERARCHY_TET4):
-                    {
+            }
+            case Subdivision_Method::C_HIERARCHY_TET4:
+            {
 
                 // If it the first subdivision we need to find the intersected before placing the conformal nodes
                 // Intersected elements are flagged via the Geometry_Engine
@@ -534,7 +540,6 @@ namespace xtk
 
                     // set the child cell topology as tet 4s
                     mCutMesh.set_child_element_topology(CellTopology::TET4);
-
                 }
 
                 // For hex background meshes we have a three dimension parametric coordinate
@@ -549,10 +554,10 @@ namespace xtk
                 // initialize a struct of all the data we are keeping track of in this decomposition
                 // intended to reduce the clutter of function inputs etc
                 Decomposition_Data tDecompData;
-                tDecompData.mSubdivisionMethod = Subdivision_Method::C_HIERARCHY_TET4;
-                tDecompData.mConformalDecomp = true;
+                tDecompData.mSubdivisionMethod      = Subdivision_Method::C_HIERARCHY_TET4;
+                tDecompData.mConformalDecomp        = true;
                 tDecompData.mHasSecondaryIdentifier = true;
-                tDecompData.mFirstSubdivision = aFirstSubdivision;
+                tDecompData.mFirstSubdivision       = aFirstSubdivision;
 
                 // Initialize
                 moris::size_t tEdgeInd = MORIS_INDEX_MAX;
@@ -578,7 +583,6 @@ namespace xtk
 
                 for (moris::size_t j = 0; j < aActiveChildMeshIndices.n_cols(); j++)
                 {
-
                     // Initialize geometry objects
                     Cell<moris::ge::GEN_Geometry_Object> tGeoObjects;
 
@@ -672,7 +676,6 @@ namespace xtk
                             // Creating a new node add 1 to count
                             tNumNewNodes++;
                         }
-
                         else if(tGeoObjects(k).all_parent_nodes_on_interface())
                         {
                             moris::moris_index tParentIndex = tGeoObjects(k).get_parent_entity_index();
@@ -721,7 +724,6 @@ namespace xtk
                     }
                 }
 
-
                 // Set Node Ids and tell the child mesh to update
                 for (moris::size_t j = 0; j < aActiveChildMeshIndices.n_cols(); j++)
                 {
@@ -733,9 +735,9 @@ namespace xtk
                 }
 
                 break;
-                    }
-            case (Subdivision_Method::C_TRI3):
-        {
+            }
+            case Subdivision_Method::C_TRI3:
+            {
                 // If it the first subdivision we need to find the intersected before placing the conformal nodes
                 // Intersected elements are flagged via the Geometry_Engine
                 if(aFirstSubdivision)
@@ -942,10 +944,8 @@ namespace xtk
                     mCutMesh.modify_templated_mesh(aActiveChildMeshIndices(0,j), TemplateType::CONFORMAL_TRI3);
                 }
 
-
-
                 break;
-        }
+            }
             default:
             {
                 moris::size_t breaker = 0;
@@ -954,11 +954,11 @@ namespace xtk
         }
     }
 
-
     void
-    Model::decompose_internal_reg_sub_hex8_make_requests(moris::Matrix< moris::IndexMat > & aActiveChildMeshIndices,
+    Model::decompose_internal_reg_sub_hex8_make_requests(
+            moris::Matrix< moris::IndexMat > & aActiveChildMeshIndices,
             moris::Matrix< moris::IndexMat > & tNewPairBool,
-            Decomposition_Data & tDecompData)
+            Decomposition_Data               & tDecompData)
     {
         // mesh data accessor
         moris::mtk::Mesh & tXTKMeshData = mBackgroundMesh.get_mesh_data();
@@ -972,8 +972,8 @@ namespace xtk
 
         // parametric coordinates relative to hex where we put the nodes
         // Parametric coordinates for this subdivision routine
-        const moris::Matrix< moris::DDRMat > tParamCoordsRelativeToElem(
-                {{ 0.0, -1.0,  0.0},
+        const moris::Matrix< moris::DDRMat > tParamCoordsRelativeToElem({
+            { 0.0, -1.0,  0.0},
             { 1.0,  0.0,  0.0},
             { 0.0,  1.0,  0.0},
             {-1.0,  0.0,  0.0},
@@ -981,14 +981,13 @@ namespace xtk
             { 0.0,  0.0,  1.0},
             { 0.0,  0.0,  0.0}});
 
-        const moris::Matrix< moris::DDRMat > tParamCoordsRelativeToFace(
-                {{ 0.0,  0.0},
+        const moris::Matrix< moris::DDRMat > tParamCoordsRelativeToFace({
+            { 0.0,  0.0},
             { 0.0,  0.0},
             { 0.0,  0.0},
             { 0.0,  0.0},
             { 0.0,  0.0},
             { 0.0,  0.0}});
-
 
         // get the underlying background mesh data
         moris::mtk::Mesh & tMeshData = mBackgroundMesh.get_mesh_data();
@@ -998,7 +997,6 @@ namespace xtk
         {
             if(tNewPairBool(0,i) == 0)
             {
-
                 // Get element index
                 moris::moris_index tElemInd = mCutMesh.get_parent_element_index(aActiveChildMeshIndices(0,i));
 
@@ -1009,7 +1007,6 @@ namespace xtk
                 // Request will return a pointer to where the created node index will be placed
                 for (moris::size_t fi = 0; fi < 6; fi++)
                 {
-
                     moris_index tRequestLoc = MORIS_INDEX_MAX;
                     bool tRequestExists = tDecompData.request_exists(tFaceIndices(fi),EntityRank::FACE,tRequestLoc);
 
@@ -1022,7 +1019,6 @@ namespace xtk
                         // face owner
                         moris::moris_index tOwningProc = tMeshData.get_entity_owner(tFaceIndices(fi), EntityRank::FACE);
 
-
                         // coordinates of nodes attached to the nodes of this face
                         moris::Matrix<moris::DDRMat> tCoordinates = mBackgroundMesh.get_selected_node_coordinates_loc_inds(tFaceNodes);
 
@@ -1031,12 +1027,14 @@ namespace xtk
                         xtk::Interpolation::bilinear_interpolation(tCoordinates, tParamCoordsRelativeToFace.get_row(fi),tNewNodeCoordinates);
 
                         // location for this face in the map
-                        moris_index tNewNodeIndexInSubdivision = tDecompData.register_new_request(tFaceIndices(fi),
+                        moris_index tNewNodeIndexInSubdivision = tDecompData.register_new_request(
+                                tFaceIndices(fi),
                                 tOwningProc,
                                 EntityRank::FACE,
                                 tNewNodeCoordinates,
                                 new Quad_4_Topology(tFaceNodes), /*Note: this is deleted in the decomp data deconstructor*/
                                 tParamCoordsRelativeToFace.get_row(fi));
+
                         // add to pending node pointers for child mesh
                         tDecompData.tCMNewNodeLoc(i)(fi) = tNewNodeIndexInSubdivision;
 
@@ -1067,7 +1065,6 @@ namespace xtk
 
                         MORIS_ASSERT(all_true(tNewNodeCoordinates == tExistingNodeCoordinate) ,"Node coordinates created on same face do not match");
 #endif
-
                     }
                 }
 
@@ -1089,11 +1086,10 @@ namespace xtk
                 // owner of element
                 moris::moris_index tOwningProc = tMeshData.get_entity_owner(tElemInd, EntityRank::ELEMENT);
 
-
                 MORIS_ASSERT(!tDecompData.request_exists(tElemInd,EntityRank::ELEMENT,tNewNodeIndexInSubdivision),"All element requests should be unique, therefore tNewRequest is expected to be true here");
 
-
-                tNewNodeIndexInSubdivision = tDecompData.register_new_request(tElemInd,
+                tNewNodeIndexInSubdivision = tDecompData.register_new_request(
+                        tElemInd,
                         tOwningProc,
                         EntityRank::ELEMENT,
                         tNewNodeCoordinates,
@@ -1103,17 +1099,15 @@ namespace xtk
                 // add child mesh new node location and parametric coordinate relative to element
                 tDecompData.tCMNewNodeLoc(i)(6) = tNewNodeIndexInSubdivision;
                 tDecompData.tCMNewNodeParamCoord(i).push_back(tParamCoordsRelativeToElem.get_row(6));
-
             }
-
         }
-
     }
 
     void
-    Model::decompose_internal_reg_sub_quad4_make_requests(moris::Matrix< moris::IndexMat > & aActiveChildMeshIndices,
+    Model::decompose_internal_reg_sub_quad4_make_requests(
+            moris::Matrix< moris::IndexMat > & aActiveChildMeshIndices,
             moris::Matrix< moris::IndexMat > & tNewPairBool,
-            Decomposition_Data                & tDecompData)
+            Decomposition_Data               & tDecompData)
     {
         // Get access to mesh data
         moris::mtk::Mesh & tXTKMeshData = mBackgroundMesh.get_mesh_data();
@@ -1126,8 +1120,7 @@ namespace xtk
         tDecompData.tCMNewNodeParamCoord.resize(tIntersectedCount);
 
         // Parametric coordinates relative to quad where we put the nodes
-        const moris::Matrix< moris::DDRMat > tParamCoordsRelativeToElem(
-                {{ 0.0,  0.0}});
+        const moris::Matrix< moris::DDRMat > tParamCoordsRelativeToElem({{ 0.0,  0.0}});
 
         // get the underlying background mesh data
         moris::mtk::Mesh & tMeshData = mBackgroundMesh.get_mesh_data();
@@ -1137,7 +1130,6 @@ namespace xtk
         {
             if(tNewPairBool(0,i) == 0)
             {
-
                 // Get element index
                 moris::moris_index tElemInd = mCutMesh.get_parent_element_index(aActiveChildMeshIndices(0,i));
 
@@ -1159,11 +1151,11 @@ namespace xtk
                 // owner of element
                 moris::moris_index tOwningProc = tMeshData.get_entity_owner(tElemInd, EntityRank::ELEMENT);
 
+                MORIS_ASSERT(!tDecompData.request_exists(tElemInd,EntityRank::ELEMENT,tNewNodeIndexInSubdivision),
+                        "All element requests should be unique, therefore tNewRequest is expected to be true here");
 
-                MORIS_ASSERT(!tDecompData.request_exists(tElemInd,EntityRank::ELEMENT,tNewNodeIndexInSubdivision),"All element requests should be unique, therefore tNewRequest is expected to be true here");
-
-
-                tNewNodeIndexInSubdivision = tDecompData.register_new_request(tElemInd,
+                tNewNodeIndexInSubdivision = tDecompData.register_new_request(
+                        tElemInd,
                         tOwningProc,
                         EntityRank::ELEMENT,
                         tNewNodeCoordinates,
@@ -1173,15 +1165,13 @@ namespace xtk
                 // add child mesh new node location and parametric coordinate relative to element
                 tDecompData.tCMNewNodeLoc(i)(0) = tNewNodeIndexInSubdivision;
                 tDecompData.tCMNewNodeParamCoord(i).push_back(tParamCoordsRelativeToElem.get_row(0));
-
             }
-
         }
     }
 
-
     void
-    Model::decompose_internal_set_new_nodes_in_child_mesh_reg_sub(moris::Matrix< moris::IndexMat > & aActiveChildMeshIndices,
+    Model::decompose_internal_set_new_nodes_in_child_mesh_reg_sub(
+            moris::Matrix< moris::IndexMat > & aActiveChildMeshIndices,
             moris::Matrix< moris::IndexMat > & tNewPairBool,
             moris::real                        tNumParamCoords,
             Decomposition_Data &               tDecompData)
@@ -1195,7 +1185,6 @@ namespace xtk
             // only regularly subdivide if it hasnt already been regularly subdivided
             if(tNewPairBool(0,i) == 0)
             {
-
                 // number of new nodes for child mesh i
                 moris::uint tNumNewNodesForCM = tDecompData.tCMNewNodeLoc(i).size();
 
@@ -1233,13 +1222,11 @@ namespace xtk
                 }
             }
         }
-
     }
 
-
-
     void
-    Model::decompose_internal_set_new_nodes_in_child_mesh_nh(moris::Matrix< moris::IndexMat > & aActiveChildMeshIndices,
+    Model::decompose_internal_set_new_nodes_in_child_mesh_nh(
+            moris::Matrix< moris::IndexMat > & aActiveChildMeshIndices,
             Decomposition_Data &               tDecompData)
     {
         // number of intersected elements
@@ -1270,7 +1257,6 @@ namespace xtk
 
             // retrieve child mesh
             Child_Mesh & tChildMesh = mCutMesh.get_child_mesh(aActiveChildMeshIndices(i));
-
 
             // add node indices, ids, and vertices to child mesh
             tChildMesh.add_node_indices(tCMNewNodeInds);
@@ -1304,7 +1290,6 @@ namespace xtk
                 MORIS_ERROR(0,"Invalid background cell topo");
             }
 
-
             tChildMesh.allocate_parametric_coordinates(tNumNewNodesForCM,tDimParamCoord);
 
             // iterate through nods and add parametric coordinate
@@ -1319,16 +1304,17 @@ namespace xtk
     Model::create_new_node_association_with_geometry(Decomposition_Data & tDecompData)
     {
         // create geometry objects for each node
-        mGeometryEngine->create_new_node_geometry_objects(tDecompData.tNewNodeIndex,
+        mGeometryEngine->create_new_node_geometry_objects(
+                tDecompData.tNewNodeIndex,
                 tDecompData.mConformalDecomp,
                 tDecompData.tNewNodeParentTopology,
                 tDecompData.tParamCoordRelativeToParent,
                 tDecompData.tNewNodeCoordinate);
     }
 
-
     void
-    Model::assign_node_requests_identifiers(Decomposition_Data & aDecompData,
+    Model::assign_node_requests_identifiers(
+            Decomposition_Data & aDecompData,
             moris::moris_index   aMPITag)
     {
         barrier();
@@ -1357,14 +1343,11 @@ namespace xtk
         Cell<Matrix<IndexMat>> tOutwardRequests;
         this->setup_outward_requests(aDecompData, tNotOwnedRequests, tProcRanks, tProcRankToDataIndex, tOutwardRequests);
 
-
         // send requests to owning processor
         this->send_outward_requests(aMPITag,tProcRanks,tOutwardRequests);
 
         // hold on to make sure everyone has sent all their information
         barrier();
-
-
 
         // receive the requests
         Cell<Matrix<IndexMat>> tReceivedRequests;
@@ -1408,7 +1391,6 @@ namespace xtk
 
         // access the communication
         Matrix<IdMat> tCommTable = mBackgroundMesh.get_communication_table();
-
 
         // number of new nodes
         moris::uint tNumNewNodes = tDecompData.tNewNodeParentIndex.size();
@@ -1473,9 +1455,9 @@ namespace xtk
         }
     }
 
-
     void
-    Model::setup_outward_requests(Decomposition_Data              const & aDecompData,
+    Model::setup_outward_requests(
+            Decomposition_Data              const & aDecompData,
             Cell<Cell<uint>>                const & aNotOwnedRequests,
             Cell<uint>                      const & aProcRanks,
             std::unordered_map<moris_id,moris_id> & aProcRankToIndexInData,
@@ -1536,11 +1518,11 @@ namespace xtk
         }
 
         return true;
-
     }
 
     void
-    Model::send_outward_requests(moris_index            const & aMPITag,
+    Model::send_outward_requests(
+            moris_index            const & aMPITag,
             Cell<uint>             const & aProcRanks,
             Cell<Matrix<IndexMat>> & aOutwardRequests)
     {
@@ -1561,7 +1543,6 @@ namespace xtk
             Cell<Matrix<IndexMat>> &       aReceivedData,
             Cell<uint>             &       aProcRanksReceivedFrom)
     {
-
         // ensure the sizes are correct.
         aReceivedData.resize(0);
         aProcRanksReceivedFrom.resize(0);
@@ -1579,17 +1560,16 @@ namespace xtk
     }
 
     void
-    Model::inward_receive_request_answers(moris_index            const & aMPITag,
+    Model::inward_receive_request_answers(
+            moris_index            const & aMPITag,
             moris::uint            const & aNumRows,
             Cell<uint>             const & aProcRanks,
             Cell<Matrix<IndexMat>> &       aReceivedRequestAnswers)
     {
-
         MPI_Status tStatus;
 
         for(moris::uint i = 0; i<aProcRanks.size(); i++)
         {
-
             bool tFlag = sent_message_exists(aProcRanks(i),aMPITag,tStatus);
             while(tFlag == false)
             {
@@ -1598,16 +1578,16 @@ namespace xtk
 
             aReceivedRequestAnswers.push_back(Matrix<IndexMat>(1,1));
             receive(aReceivedRequestAnswers(i),aNumRows, aProcRanks(i),aMPITag);
-
         }
     }
 
     void
-    Model::handle_received_request_answers(Decomposition_Data & aDecompData,
+    Model::handle_received_request_answers(
+            Decomposition_Data           & aDecompData,
             Cell<Matrix<IndexMat>> const & aRequests,
             Cell<Matrix<IndexMat>> const & aRequestAnswers,
-            moris::moris_id &    aNodeInd,
-            moris::moris_id &    aNodeId)
+            moris::moris_id              & aNodeInd,
+            moris::moris_id              & aNodeId)
     {
         // iterate through received data
         for(moris::uint i = 0; i < aRequests.size(); i++)
@@ -1737,10 +1717,11 @@ namespace xtk
     }
 
     void
-    Model::inward_receive_request_answers_reals(moris_index            const & aMPITag,
+    Model::inward_receive_request_answers_reals(
+            moris_index            const & aMPITag,
             moris::uint            const & aNumRows,
             Cell<uint>             const & aProcRanks,
-            Cell<Matrix<DDRMat>> &       aReceivedData)
+            Cell<Matrix<DDRMat>>         & aReceivedData)
     {
         for(moris::uint i = 0; i<aProcRanks.size(); i++)
         {
@@ -1750,7 +1731,8 @@ namespace xtk
     }
 
     void
-    Model::prepare_request_answers( Decomposition_Data & aDecompData,
+    Model::prepare_request_answers(
+            Decomposition_Data           & aDecompData,
             Cell<Matrix<IndexMat>> const & aReceiveData,
             Cell<Matrix<IndexMat>>       & aRequestAnswers)
     {
@@ -1769,7 +1751,6 @@ namespace xtk
             // avoid the dummy message
             if(aReceiveData(i)(0,0) != MORIS_INDEX_MAX)
             {
-
                 // iterate through received requests
                 for(moris::uint j = 0; j < tNumReceivedReqs; j++)
                 {
@@ -1784,7 +1765,6 @@ namespace xtk
                     {
                         tRequestExists = aDecompData.request_exists(tParentInd,tSecondaryId,(EntityRank)tParentRank,tRequestIndex);
                     }
-
                     else
                     {
                         tRequestExists = aDecompData.request_exists(tParentInd,(EntityRank)tParentRank,tRequestIndex);
@@ -1812,9 +1792,10 @@ namespace xtk
     }
 
     void
-    Model::return_request_answers(  moris_index const & aMPITag,
+    Model::return_request_answers(
+            moris_index            const & aMPITag,
             Cell<Matrix<IndexMat>> const & aRequestAnswers,
-            Cell<uint> const & aProcRanks)
+            Cell<uint>             const & aProcRanks)
     {
         // access the communication table
         Matrix<IdMat> tCommTable = mBackgroundMesh.get_communication_table();
@@ -1877,7 +1858,6 @@ namespace xtk
 
         // setup global to local subphase map
         this->setup_glob_to_loc_subphase_map();
-
     }
 
     void
@@ -1910,8 +1890,9 @@ namespace xtk
         Cell<Cell<moris_id>>        tNotOwnedChildMeshesToProcs;
         Cell<moris::Matrix<IdMat>>  tOwnedParentCellId;
         Cell<moris::Matrix<IdMat>>  tNumOwnedCellIdsOffsets;
-        Cell<uint>           tProcRanks;
+        Cell<uint>                  tProcRanks;
         std::unordered_map<moris_id,moris_id>  tProcRankToDataIndex;
+
         this->prepare_child_element_identifier_requests(tNotOwnedChildMeshesToProcs, tOwnedParentCellId, tNumOwnedCellIdsOffsets, tProcRanks,tProcRankToDataIndex);
 
         // send requests
@@ -2072,8 +2053,8 @@ namespace xtk
     void
     Model::handle_received_child_cell_id_request_answers(
             Cell<Cell<moris_index>> const & aChildMeshesInInNotOwned,
-            Cell<Matrix<IndexMat>> const & aReceivedChildCellIdOffset,
-            moris::moris_id              & aCellInd)
+            Cell<Matrix<IndexMat>>  const & aReceivedChildCellIdOffset,
+            moris::moris_id               & aCellInd)
     {
         Cell<Child_Mesh*> const & tNotOwnedChildMeshes     = mCutMesh.get_not_owned_child_meshes();
 
@@ -2102,8 +2083,6 @@ namespace xtk
         Matrix<IndexMat> tChildElementIds  = mCutMesh.get_all_element_ids();
 
         mBackgroundMesh.add_cells_to_global_to_local_map(tChildElementInds,tChildElementIds);
-
-
     }
 
     void
@@ -2240,7 +2219,8 @@ namespace xtk
         mBackgroundMesh.register_new_downward_inheritance(tXTKElementToCutMeshPairs);
     }
 
-    void  Model::run_first_cut_routine(enum TemplateType const &          aTemplateType,
+    void  Model::run_first_cut_routine(
+            enum TemplateType const &          aTemplateType,
             moris::uint                        aGeomIndex,
             moris::size_t const &              aNumNodesPerElement,
             moris::Matrix< moris::IndexMat > & aActiveChildMeshIndices,
@@ -2340,7 +2320,6 @@ namespace xtk
 
                 // add node ids
                 tChildMesh.add_node_ids(tNodetoElemConnVec);
-
             }
             else
             {
@@ -2360,7 +2339,6 @@ namespace xtk
     void
     Model::create_child_element_mtk_cells()
     {
-
         moris::uint tNumChildMeshes = mCutMesh.get_num_child_meshes();
 
         moris::mtk::Mesh const & tMeshData = mBackgroundMesh.get_mesh_data();
@@ -2502,11 +2480,11 @@ namespace xtk
         this->handle_received_subphase_id_request_answers(tNotOwnedSubphasesToProcs,tCMSubphaseIndices,tReceivedSubphaseIds);
 
         barrier();
-
     }
 
     void
-    Model::prepare_subphase_identifier_requests(Cell<Cell<moris_id>>       & aNotOwnedSubphasesToProcs,
+    Model::prepare_subphase_identifier_requests(
+            Cell<Cell<moris_id>>       & aNotOwnedSubphasesToProcs,
             Cell<Cell<moris_id>>       & aSubphaseCMIndices,
             Cell<moris::Matrix<IdMat>> & aParentCellIds,
             Cell<moris::Matrix<IdMat>> & aChildCellIds,
@@ -2591,7 +2569,8 @@ namespace xtk
     }
 
     void
-    Model::prepare_subphase_id_answers(Cell<Matrix<IndexMat>> & aReceivedParentCellIds,
+    Model::prepare_subphase_id_answers(
+            Cell<Matrix<IndexMat>> & aReceivedParentCellIds,
             Cell<Matrix<IndexMat>> & aFirstChildCellIds,
             Cell<Matrix<IndexMat>> & aSubphaseIds)
     {
@@ -2624,10 +2603,10 @@ namespace xtk
                     moris_index tCMIndex = mBackgroundMesh.child_mesh_index(tParentCellIndex,EntityRank::ELEMENT);
                     Child_Mesh & tCM = mCutMesh.get_child_mesh(tCMIndex);
 
-
                     // figure out which subphase this child cell belongs to in the given child mesh
                     Matrix<IdMat> const & tChildMeshCellIds = tCM.get_element_ids();
                     moris_id tSubphaseId = MORIS_ID_MAX;
+
                     for(moris::uint iCM = 0; iCM < tChildMeshCellIds.numel(); iCM++)
                     {
                         if(tChildMeshCellIds(iCM) == tChildCellId)
@@ -5254,7 +5233,5 @@ namespace xtk
         return tGeometryFieldRank;
     }
     //------------------------------------------------------------------------------
-
-
 
 }
