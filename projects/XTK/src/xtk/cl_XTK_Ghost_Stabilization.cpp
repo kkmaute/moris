@@ -420,28 +420,24 @@ namespace xtk
         //wait
         barrier();
 
-}
-// ----------------------------------------------------------------------------------
+    }
+    // ----------------------------------------------------------------------------------
     void
     Ghost_Stabilization::prepare_interpolation_vertex_t_matrix_requests(
             std::unordered_map<moris_index,bool> const & aNotOwnedIpCellsInGhost,
-                                Cell<Matrix<IndexMat>>                     & aNotOwnedIPVertIndsToProcs,
-                                Cell<Matrix<IndexMat>>                     & aNotOwnedBGIPVertsIdsToProcs,
-                                Cell<Matrix<IndexMat>>                     & aNotOwnedIpCellIdToProcs,
-                                Cell<uint>                                 & aProcRanks,
-                                std::unordered_map<moris_id,moris_id>      & aProcRankToDataIndex)
+            Cell<Matrix<IndexMat>>                     & aNotOwnedIPVertIndsToProcs,
+            Cell<Matrix<IndexMat>>                     & aNotOwnedBGIPVertsIdsToProcs,
+            Cell<Matrix<IndexMat>>                     & aNotOwnedIpCellIdToProcs,
+            Cell<uint>                                 & aProcRanks,
+            std::unordered_map<moris_id,moris_id>      & aProcRankToDataIndex)
     {
         // access the enriched interpolation mesh
         Enriched_Interpolation_Mesh & tEnrInterpMesh = mXTKModel->get_enriched_interp_mesh();
 
         Cell<Interpolation_Cell_Unzipped*> & tEnrIpCells = tEnrInterpMesh.get_enriched_interpolation_cells();
 
-        // par rank
-        moris_index tParRank = moris::par_rank();
-
         // Counter and current proc index
         Cell<moris_id> tCounts(0);
-        moris_index    tCurrentIndex = 0;
 
         // temporary cell of cells which will be converted to matrices later
         Cell<Cell<moris_id>> tNotOwnedIPVertIndsToProcs;
@@ -540,7 +536,7 @@ namespace xtk
 
         MORIS_ASSERT(aRequestedBgVertexIds.size() == aRequestedIpCellIds.size(),"Mismatch in received communication information.");
 
-        // information about size of interplation mats
+        // information about size of interpolation mats
         Cell<uint> tSizes(aRequestedBgVertexIds.size(),0);
 
         //resize the input data
@@ -618,7 +614,7 @@ namespace xtk
         }
 
     }
-   // ----------------------------------------------------------------------------------
+    // ----------------------------------------------------------------------------------
     void
     Ghost_Stabilization::handle_received_interpolation_data(
             Cell<Matrix<IndexMat>> const & aNotOwnedIPVertIndsToProcs,
@@ -641,7 +637,6 @@ namespace xtk
         {
             tProcRankToIndexInData[tCommTable(i)] = i;
         }
-
 
         // iterate through returned information
         for(moris::uint iP = 0; iP < aNotOwnedIPVertIndsToProcs.size(); iP++)
@@ -717,9 +712,7 @@ namespace xtk
                 tVertexInterp->add_basis_weights(tBasisIndices,tExtractedTMatrixWeights(iV));
                 tVertexInterp->add_basis_owners(tBasisIndices,tExtractedTBasisOwners(iV));
                 tVertexInterp->add_base_vertex_interpolation(nullptr); // base vertex interpolation does not exists (other  proc)
-
             }
-
         }
 
     }
@@ -1226,7 +1219,7 @@ namespace xtk
         switch(tSpatialDim)
         {
             case(2):
-                        aPermutedSlaveVertices   = {aSlaveVertices(1),aSlaveVertices(0)};
+                                aPermutedSlaveVertices   = {aSlaveVertices(1),aSlaveVertices(0)};
             aPermutedAdjMastVertices = {aMasterVertices(0),aMasterVertices(1)};
             break;
             default:
@@ -1245,100 +1238,100 @@ namespace xtk
         switch(tTag)
         {
             case(200):
-                            aLocCoord = {{{0,-1}},{{-1,-1}}};
+                                    aLocCoord = {{{0,-1}},{{-1,-1}}};
             break;
             case(201):
-                            aLocCoord = {{{1,-1}},{{0,-1}}};
+                                    aLocCoord = {{{1,-1}},{{0,-1}}};
             break;
             case(211):
-                            aLocCoord = {{{1,0}},{{1,-1}}};
+                                    aLocCoord = {{{1,0}},{{1,-1}}};
             break;
             case(213):
-                            aLocCoord = {{{1,1}},{{1,0}}};
+                                    aLocCoord = {{{1,1}},{{1,0}}};
             break;
             case(223):
-                            aLocCoord = {{{-1,1}},{{0,1}}};
+                                    aLocCoord = {{{-1,1}},{{0,1}}};
             break;
             case(222):
-                            aLocCoord = {{{0,1}},{{1,1}}};
+                                    aLocCoord = {{{0,1}},{{1,1}}};
             break;
             case(230):
-                            aLocCoord = {{{-1,0}},{{-1,1}}};
+                                    aLocCoord = {{{-1,0}},{{-1,1}}};
             break;
             case(232):
-                            aLocCoord = {{{-1,-1}},{{-1,0}}};
+                                    aLocCoord = {{{-1,-1}},{{-1,0}}};
             break;
             case(300):
-                            aLocCoord = {{{-1,-1,-1}},{{-1,-1,0}},{{0,-1,0}},{{0,-1,-1}}};
+                                    aLocCoord = {{{-1,-1,-1}},{{-1,-1,0}},{{0,-1,0}},{{0,-1,-1}}};
             break;
             case(301):
-                            aLocCoord = {{{0,-1,-1}},{{0,-1,0}},{{1,-1,0}},{{1,-1,-1}}};
+                                    aLocCoord = {{{0,-1,-1}},{{0,-1,0}},{{1,-1,0}},{{1,-1,-1}}};
             break;
             case(304):
-                            aLocCoord = {{{0,-1,0}},{{0,-1,1}},{{1,-1,1}},{{1,-1,0}}};
+                                    aLocCoord = {{{0,-1,0}},{{0,-1,1}},{{1,-1,1}},{{1,-1,0}}};
             break;
             case(305):
-                            aLocCoord = {{{-1,-1,0}},{{-1,-1,1}},{{0,-1,1}},{{0,-1,0}}};
+                                    aLocCoord = {{{-1,-1,0}},{{-1,-1,1}},{{0,-1,1}},{{0,-1,0}}};
             break;
             case(311):
-                            aLocCoord = {{{1,-1,-1}},{{1,-1,0}},{{1,0,0}},{{1,0,-1}}};
+                                    aLocCoord = {{{1,-1,-1}},{{1,-1,0}},{{1,0,0}},{{1,0,-1}}};
             break;
             case(313):
-                            aLocCoord = {{{1,0,-1}},{{1,0,0}},{{1,1,0}},{{1,1,-1}}};
+                                    aLocCoord = {{{1,0,-1}},{{1,0,0}},{{1,1,0}},{{1,1,-1}}};
             break;
             case(315):
-                            aLocCoord = {{{1,0,0}},{{1,0,1}},{{1,1,1}},{{1,1,0}}};
+                                    aLocCoord = {{{1,0,0}},{{1,0,1}},{{1,1,1}},{{1,1,0}}};
             break;
             case(317):
-                            aLocCoord = {{{1,-1,0}},{{1,-1,1}},{{1,0,1}},{{1,0,0}}};
+                                    aLocCoord = {{{1,-1,0}},{{1,-1,1}},{{1,0,1}},{{1,0,0}}};
             break;
             case(322):
-                            aLocCoord = {{{1,1,-1}},{{1,1,0}},{{0,1,0}},{{0,1,-1}}};
+                                    aLocCoord = {{{1,1,-1}},{{1,1,0}},{{0,1,0}},{{0,1,-1}}};
             break;
             case(323):
-                            aLocCoord = {{{0,1,-1}},{{0,1,0}},{{-1,1,0}},{{-1,1,-1}}};
+                                    aLocCoord = {{{0,1,-1}},{{0,1,0}},{{-1,1,0}},{{-1,1,-1}}};
             break;
             case(326):
-                            aLocCoord = {{{0,1,0}},{{0,1,1}},{{-1,1,1}},{{-1,1,0}}};
+                                    aLocCoord = {{{0,1,0}},{{0,1,1}},{{-1,1,1}},{{-1,1,0}}};
             break;
             case(327):
-                            aLocCoord = {{{1,1,0}},{{1,1,1}},{{0,1,1}},{{0,1,0}}};
+                                    aLocCoord = {{{1,1,0}},{{1,1,1}},{{0,1,1}},{{0,1,0}}};
             break;
             case(330):
-                            aLocCoord = {{{-1,0,-1}},{{-1,1,-1}},{{-1,1,0}},{{-1,0,0}}};
+                                    aLocCoord = {{{-1,0,-1}},{{-1,1,-1}},{{-1,1,0}},{{-1,0,0}}};
             break;
             case(332):
-                            aLocCoord = {{{-1,-1,-1}},{{-1,0,-1}},{{-1,0,0}},{{-1,-1,0}}};
+                                    aLocCoord = {{{-1,-1,-1}},{{-1,0,-1}},{{-1,0,0}},{{-1,-1,0}}};
             break;
             case(334):
-                            aLocCoord = {{{-1,-1,0}},{{-1,0,0}},{{-1,0,1}},{{-1,-1,1}}};
+                                    aLocCoord = {{{-1,-1,0}},{{-1,0,0}},{{-1,0,1}},{{-1,-1,1}}};
             break;
             case(336):
-                            aLocCoord = {{{-1,0,0}},{{-1,1,0}},{{-1,1,1}},{{-1,0,1}}};
+                                    aLocCoord = {{{-1,0,0}},{{-1,1,0}},{{-1,1,1}},{{-1,0,1}}};
             break;
             case(340):
-                            aLocCoord = {{{0,0,-1}},{{1,0,-1}},{{1,1,-1}},{{0,1,-1}}};
+                                    aLocCoord = {{{0,0,-1}},{{1,0,-1}},{{1,1,-1}},{{0,1,-1}}};
             break;
             case(341):
-                            aLocCoord = {{{-1,0,-1}},{{0,0,-1}},{{0,1,-1}},{{-1,1,-1}}};
+                                    aLocCoord = {{{-1,0,-1}},{{0,0,-1}},{{0,1,-1}},{{-1,1,-1}}};
             break;
             case(342):
-                            aLocCoord = {{{-1,-1,-1}},{{0,-1,-1}},{{0,0,-1}},{{-1,0,-1}}};
+                                    aLocCoord = {{{-1,-1,-1}},{{0,-1,-1}},{{0,0,-1}},{{-1,0,-1}}};
             break;
             case(343):
-                            aLocCoord = {{{0,-1,-1}},{{1,-1,-1}},{{1,0,-1}},{{0,0,-1}}};
+                                    aLocCoord = {{{0,-1,-1}},{{1,-1,-1}},{{1,0,-1}},{{0,0,-1}}};
             break;
             case(354):
-                            aLocCoord = {{{-1,-1, 1}},{{-1,0,1}},{{0,0,1}},{{0,-1,1}}};
+                                    aLocCoord = {{{-1,-1, 1}},{{-1,0,1}},{{0,0,1}},{{0,-1,1}}};
             break;
             case(355):
-                            aLocCoord = {{{0,-1,1}},{{0,0,1}},{{1,0,1}},{{1,-1, 1}}};
+                                    aLocCoord = {{{0,-1,1}},{{0,0,1}},{{1,0,1}},{{1,-1, 1}}};
             break;
             case(356):
-                            aLocCoord = {{{0,0,1}},{{0,1,1}},{{1,1,1}},{{1,0,1}}};
+                                    aLocCoord = {{{0,0,1}},{{0,1,1}},{{1,1,1}},{{1,0,1}}};
             break;
             case(357):
-                            aLocCoord = {{{-1,0,1}},{{-1,1,1}},{{0,1,1}},{{0,0,1}}};
+                                    aLocCoord = {{{-1,0,1}},{{-1,1,1}},{{0,1,1}},{{0,0,1}}};
             break;
             default:
                 MORIS_ERROR(0,"Invalid tag (100*spatial dim + 10 * side ord + transition location)");

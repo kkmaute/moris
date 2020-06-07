@@ -116,13 +116,13 @@ Model::set_mtk_background_mesh(moris::mtk::Interpolation_Mesh* aMesh)
 void
 Model::set_input_performer( std::shared_ptr< mtk::Mesh_Manager > aMTKPerformer )
 {
-	mMTKInputPerformer = aMTKPerformer;
+mMTKInputPerformer = aMTKPerformer;
 }
 
 void
 Model::set_output_performer( std::shared_ptr< mtk::Mesh_Manager > aMTKPerformer )
 {
-	mMTKOutputPerformer = aMTKPerformer;
+mMTKOutputPerformer = aMTKPerformer;
 }
 
 void
@@ -218,7 +218,7 @@ Model::perform()
     {
         if(par_size() == 1)
         {
-            tEnrIntegMesh.deactivate_empty_sets();
+        tEnrIntegMesh.deactivate_empty_sets();
         }
 
         // Write mesh
@@ -3205,12 +3205,12 @@ Model::perform_basis_enrichment_internal(enum EntityRank  const & aBasisRank,
 {
     // initialize enrichment (ptr because of circular dependency)
     mEnrichment = new Enrichment(Enrichment_Method::USE_INTERPOLATION_CELL_BASIS,
-    							 aBasisRank,
-    							aMeshIndex,
-    							mGeometryEngine->get_num_phases(),
-    							this,
-    							&mCutMesh,
-    							&mBackgroundMesh);
+     aBasisRank,
+    aMeshIndex,
+    mGeometryEngine->get_num_phases(),
+    this,
+    &mCutMesh,
+    &mBackgroundMesh);
 
     // Set verbose flag to match XTK.
     mEnrichment->mVerbose = mVerbose;
