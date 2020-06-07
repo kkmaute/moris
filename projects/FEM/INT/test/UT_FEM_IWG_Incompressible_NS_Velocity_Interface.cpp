@@ -63,7 +63,7 @@ TEST_CASE( "IWG_Incompressible_NS_Velocity_Interface", "[moris],[fem],[IWG_Incom
     real tEpsilon = 1E-4;
 
     // define a perturbation relative size
-    real tPerturbation = 1E-4;
+    real tPerturbation = 1E-6;
 
     // loop on the space dimension
     for( uint iSpaceDim = 2; iSpaceDim < 4; iSpaceDim++ )
@@ -84,6 +84,9 @@ TEST_CASE( "IWG_Incompressible_NS_Velocity_Interface", "[moris],[fem],[IWG_Incom
 
         // create the normal
         Matrix< DDRMat > tNormal;
+        arma::Mat< double > tNormalRand;
+        tNormalRand.randu( iSpaceDim, 1 );
+        tNormal.matrix_data() = tNormalRand;
 
         // dof type list
         Cell< MSI::Dof_Type > tVelDofTypes;
@@ -108,9 +111,6 @@ TEST_CASE( "IWG_Incompressible_NS_Velocity_Interface", "[moris],[fem],[IWG_Incom
 
                // number of coefficients
                tNumCoeffs = {{ 4 },{ 9 },{ 16 }};
-
-               // set the normal
-               tNormal = {{ 1.0 }, { 0.0 }};
 
                // set dof type list
                tVelDofTypes = { MSI::Dof_Type::VX, MSI::Dof_Type::VY };
@@ -137,9 +137,6 @@ TEST_CASE( "IWG_Incompressible_NS_Velocity_Interface", "[moris],[fem],[IWG_Incom
 
                 // number of coefficients
                 tNumCoeffs = {{ 8 },{ 27 },{ 64 }};
-
-                // set the normal
-                tNormal = {{1.0},{0.0},{0.0}};
 
                 // set dof type list
                 tVelDofTypes = { MSI::Dof_Type::VX, MSI::Dof_Type::VY, MSI::Dof_Type::VZ };

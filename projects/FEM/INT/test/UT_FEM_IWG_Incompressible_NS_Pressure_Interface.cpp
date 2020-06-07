@@ -63,7 +63,7 @@ TEST_CASE( "IWG_Incompressible_NS_Pressure_Interface", "[moris],[fem],[IWG_Incom
     real tEpsilon = 1E-4;
 
     // define a perturbation relative size
-    real tPerturbation = 1E-4;
+    real tPerturbation = 1E-6;
 
     // loop on the space dimension
     for( uint iSpaceDim = 2; iSpaceDim < 4; iSpaceDim++ )
@@ -84,6 +84,9 @@ TEST_CASE( "IWG_Incompressible_NS_Pressure_Interface", "[moris],[fem],[IWG_Incom
 
         // create the normal
         Matrix< DDRMat > tNormal;
+        arma::Mat< double > tNormalRand;
+        tNormalRand.randu( iSpaceDim, 1 );
+        tNormal.matrix_data() = tNormalRand;
 
         // dof type list
         Cell< MSI::Dof_Type > tVelDofTypes;

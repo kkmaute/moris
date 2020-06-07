@@ -61,6 +61,9 @@ TEST_CASE( "IWG_Incompressible_NS_Dirichlet_Nitsche", "[IWG_Incompressible_NS_Di
 
         // create the normal
         Matrix< DDRMat > tNormal;
+        arma::Mat< double > tNormalRand;
+        tNormalRand.randu( iSpaceDim, 1 );
+        tNormal.matrix_data() = tNormalRand;
 
         // dof type list
         moris::Cell< MSI::Dof_Type > tVelDofTypes;
@@ -90,9 +93,6 @@ TEST_CASE( "IWG_Incompressible_NS_Dirichlet_Nitsche", "[IWG_Incompressible_NS_Di
                // number of coefficients
                tNumCoeffs = {{ 8 },{ 18 },{ 32 }};
 
-               // set the normal
-               tNormal = {{ 1.0 }, { 0.0 }};
-
                // set velocity dof types
                tVelDofTypes = { MSI::Dof_Type::VX, MSI::Dof_Type::VY };
 
@@ -118,9 +118,6 @@ TEST_CASE( "IWG_Incompressible_NS_Dirichlet_Nitsche", "[IWG_Incompressible_NS_Di
 
                 // number of coefficients
                 tNumCoeffs = {{ 16 },{ 54 },{ 128 }};
-
-                // set the normal
-                tNormal = {{ 1.0 }, { 0.0 }, { 0.0 }};
 
                 // set velocity dof types
                 tVelDofTypes = { MSI::Dof_Type::VX, MSI::Dof_Type::VY, MSI::Dof_Type::VZ };

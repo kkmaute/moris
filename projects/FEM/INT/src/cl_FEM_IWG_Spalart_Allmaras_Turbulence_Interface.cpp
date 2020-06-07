@@ -123,7 +123,7 @@ namespace moris
 
             // compute slave residual
             mSet->get_residual()( 0 )( { tSlaveResStartIndex, tSlaveResStopIndex }, { 0, 0 } ) += aWStar * (
-                    trans( tFISlave->N() ) * tTraction
+                    + trans( tFISlave->N() ) * tTraction
                     + tSPSlaveWeight->val()( 0 ) * trans( tSlaveTestTraction ) * tJumpViscosity
                     - tSPNitsche->val()( 0 ) * trans( tFISlave->N() ) * tJumpViscosity );
         }
@@ -202,13 +202,13 @@ namespace moris
                     mSet->get_jacobian()(
                             { tMasterResStartIndex, tMasterResStopIndex },
                             { tMasterDepStartIndex, tMasterDepStopIndex } ) += aWStar * (
-                                    tSPMasterWeight->val()( 0 ) * trans( tMasterTestTraction ) * tFIMaster->N()
+                                    + tSPMasterWeight->val()( 0 ) * trans( tMasterTestTraction ) * tFIMaster->N()
                                     + tSPNitsche->val()( 0 ) * trans( tFIMaster->N() ) * tFIMaster->N() );
 
                     mSet->get_jacobian()(
                             { tSlaveResStartIndex,  tSlaveResStopIndex },
                             { tMasterDepStartIndex, tMasterDepStopIndex } ) += aWStar * (
-                                    tSPSlaveWeight->val()( 0 ) * trans( tSlaveTestTraction ) * tFIMaster->N()
+                                    + tSPSlaveWeight->val()( 0 ) * trans( tSlaveTestTraction ) * tFIMaster->N()
                                     - tSPNitsche->val()( 0 ) * trans( tFISlave->N() ) * tFIMaster->N() );
                 }
 
@@ -230,7 +230,7 @@ namespace moris
                 mSet->get_jacobian()(
                         { tSlaveResStartIndex,  tSlaveResStopIndex },
                         { tMasterDepStartIndex, tMasterDepStopIndex } ) += aWStar * (
-                                trans( tFISlave->N() ) * tSPMasterWeight->val()( 0 ) * tMasterdTractiondu );
+                                + trans( tFISlave->N() ) * tSPMasterWeight->val()( 0 ) * tMasterdTractiondu );
 
                 // if dependency of stabilization parameters on the dof type
                 if ( tSPNitsche->check_dof_dependency( tDofType, mtk::Master_Slave::MASTER ) )
@@ -239,12 +239,12 @@ namespace moris
                     mSet->get_jacobian()(
                             { tMasterResStartIndex, tMasterResStopIndex },
                             { tMasterDepStartIndex, tMasterDepStopIndex } ) += aWStar * (
-                                    trans( tFIMaster->N() ) * tJumpViscosity * tSPNitsche->dSPdMasterDOF( tDofType ) );
+                                    + trans( tFIMaster->N() ) * tJumpViscosity * tSPNitsche->dSPdMasterDOF( tDofType ) );
 
                     mSet->get_jacobian()(
                             { tSlaveResStartIndex,  tSlaveResStopIndex },
-                            { tMasterDepStartIndex, tMasterDepStopIndex } ) -= aWStar * (
-                                    trans( tFISlave->N() ) * tJumpViscosity * tSPNitsche->dSPdMasterDOF( tDofType ) );
+                            { tMasterDepStartIndex, tMasterDepStopIndex } ) += aWStar * (
+                                    - trans( tFISlave->N() ) * tJumpViscosity * tSPNitsche->dSPdMasterDOF( tDofType ) );
                 }
 
                 if ( tSPMasterWeight->check_dof_dependency( tDofType, mtk::Master_Slave::MASTER ) )
@@ -259,7 +259,7 @@ namespace moris
                     mSet->get_jacobian()(
                             { tSlaveResStartIndex,  tSlaveResStopIndex },
                             { tMasterDepStartIndex, tMasterDepStopIndex } ) += aWStar * (
-                                    trans( tFISlave->N() ) * tMasterTraction * tSPMasterWeight->dSPdMasterDOF( tDofType ) );
+                                    + trans( tFISlave->N() ) * tMasterTraction * tSPMasterWeight->dSPdMasterDOF( tDofType ) );
                 }
 
                 if ( tSPSlaveWeight->check_dof_dependency( tDofType, mtk::Master_Slave::MASTER ) )
@@ -267,13 +267,13 @@ namespace moris
                     // add contribution to jacobian
                     mSet->get_jacobian()(
                             { tMasterResStartIndex, tMasterResStopIndex },
-                            { tMasterDepStartIndex, tMasterDepStopIndex } ) -= aWStar * (
-                                    trans( tFIMaster->N() ) * tSlaveTraction * tSPSlaveWeight->dSPdMasterDOF( tDofType ) );
+                            { tMasterDepStartIndex, tMasterDepStopIndex } ) += aWStar * (
+                                    - trans( tFIMaster->N() ) * tSlaveTraction * tSPSlaveWeight->dSPdMasterDOF( tDofType ) );
 
                     mSet->get_jacobian()(
                             { tSlaveResStartIndex,  tSlaveResStopIndex },
                             { tMasterDepStartIndex, tMasterDepStopIndex } ) += aWStar * (
-                                    trans( tFISlave->N() ) * tSlaveTraction * tSPSlaveWeight->dSPdMasterDOF( tDofType )
+                                    + trans( tFISlave->N() ) * tSlaveTraction * tSPSlaveWeight->dSPdMasterDOF( tDofType )
                                     + trans( tSlaveTestTraction ) * tJumpViscosity * tSPSlaveWeight->dSPdMasterDOF( tDofType ) );
                 }
             }
@@ -317,13 +317,13 @@ namespace moris
                 // add contribution to jacobian
                 mSet->get_jacobian()(
                         { tMasterResStartIndex, tMasterResStopIndex },
-                        { tSlaveDepStartIndex,  tSlaveDepStopIndex  } ) -= aWStar * (
-                                trans( tFIMaster->N() ) * tSPSlaveWeight->val()( 0 ) * tSlavedTractiondu );
+                        { tSlaveDepStartIndex,  tSlaveDepStopIndex  } ) += aWStar * (
+                                - trans( tFIMaster->N() ) * tSPSlaveWeight->val()( 0 ) * tSlavedTractiondu );
 
                 mSet->get_jacobian()(
                         { tSlaveResStartIndex, tSlaveResStopIndex },
                         { tSlaveDepStartIndex, tSlaveDepStopIndex } ) += aWStar * (
-                                trans( tFISlave->N() ) * tSPSlaveWeight->val()( 0 ) * tSlavedTractiondu )
+                                + trans( tFISlave->N() ) * tSPSlaveWeight->val()( 0 ) * tSlavedTractiondu )
                                 + tSPSlaveWeight->val()( 0 ) * tSlavedTestTractiondu * tJumpViscosity( 0 );
 
                 // if dependency of stabilization parameters on the dof type
@@ -333,11 +333,11 @@ namespace moris
                     mSet->get_jacobian()(
                             { tMasterResStartIndex, tMasterResStopIndex },
                             { tSlaveDepStartIndex,  tSlaveDepStopIndex  } ) += aWStar * (
-                                    trans( tFIMaster->N() ) * tJumpViscosity * tSPNitsche->dSPdSlaveDOF( tDofType ) );
+                                    + trans( tFIMaster->N() ) * tJumpViscosity * tSPNitsche->dSPdSlaveDOF( tDofType ) );
 
                     mSet->get_jacobian()( { tSlaveResStartIndex, tSlaveResStopIndex },
-                            { tSlaveDepStartIndex, tSlaveDepStopIndex } ) -= aWStar * (
-                                    trans( tFISlave->N() ) * tJumpViscosity * tSPNitsche->dSPdSlaveDOF( tDofType ) );
+                            { tSlaveDepStartIndex, tSlaveDepStopIndex } ) += aWStar * (
+                                    - trans( tFISlave->N() ) * tJumpViscosity * tSPNitsche->dSPdSlaveDOF( tDofType ) );
                 }
 
                 if ( tSPMasterWeight->check_dof_dependency( tDofType, mtk::Master_Slave::SLAVE ) )
@@ -352,7 +352,7 @@ namespace moris
                     mSet->get_jacobian()(
                             { tSlaveResStartIndex, tSlaveResStopIndex },
                             { tSlaveDepStartIndex, tSlaveDepStopIndex } ) += aWStar * (
-                                    trans( tFISlave->N() ) * tMasterTraction * tSPMasterWeight->dSPdSlaveDOF( tDofType ) );
+                                    + trans( tFISlave->N() ) * tMasterTraction * tSPMasterWeight->dSPdSlaveDOF( tDofType ) );
                 }
 
                 if ( tSPSlaveWeight->check_dof_dependency( tDofType, mtk::Master_Slave::SLAVE ) )
@@ -360,13 +360,13 @@ namespace moris
                     // add contribution to jacobian
                     mSet->get_jacobian()(
                             { tMasterResStartIndex, tMasterResStopIndex },
-                            { tSlaveDepStartIndex,  tSlaveDepStopIndex  } ) -= aWStar * (
-                                    trans( tFIMaster->N() ) * tSlaveTraction * tSPSlaveWeight->dSPdSlaveDOF( tDofType ) );
+                            { tSlaveDepStartIndex,  tSlaveDepStopIndex  } ) += aWStar * (
+                                    - trans( tFIMaster->N() ) * tSlaveTraction * tSPSlaveWeight->dSPdSlaveDOF( tDofType ) );
 
                     mSet->get_jacobian()(
                             { tSlaveResStartIndex, tSlaveResStopIndex },
                             { tSlaveDepStartIndex, tSlaveDepStopIndex } ) += aWStar * (
-                                    trans( tFISlave->N() ) * tSlaveTraction * tSPSlaveWeight->dSPdSlaveDOF( tDofType )
+                                    + trans( tFISlave->N() ) * tSlaveTraction * tSPSlaveWeight->dSPdSlaveDOF( tDofType )
                                     + trans( tSlaveTestTraction ) * tJumpViscosity * tSPSlaveWeight->dSPdSlaveDOF( tDofType ) );
                 }
             }
