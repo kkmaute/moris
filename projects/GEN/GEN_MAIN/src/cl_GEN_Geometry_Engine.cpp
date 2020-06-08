@@ -1123,6 +1123,7 @@ namespace moris
             uint tNumSets = aPdvTypes.size();
             uint tNumNodes = mMeshManager->get_interpolation_mesh(aMeshIndex)->get_num_nodes();
             Cell<Matrix<DDSMat>> tNodeIndicesPerSet(tNumSets);
+            Cell<Matrix<F31RMat>> tNodeCoordinates(tNumNodes);
 
             // Loop through sets
             Cell<Cell<Cell<PDV_Type>>> tPdvTypes(tNumSets);
@@ -1149,11 +1150,16 @@ namespace moris
                         tNodeIndicesPerSet(tMeshSetIndex)(tCurrentNode++) = tNodeIndicesInCluster(tNodeInCluster);
                     }
                 }
-                //tNodeIndicesPerSet(tMeshSetIndex) = tInterpolationMesh->get_set_by_index(tMeshSetIndex)->get_vertices_inds_on_block(false);
+            }
+
+            // Get node coordinates
+            for (uint tNodeIndex = 0; tNodeIndex < tNumNodes; tNodeIndex++)
+            {
+                tNodeCoordinates(tNodeIndex) = mMeshManager->get_interpolation_mesh(aMeshIndex)->get_node_coordinate(tNodeIndex);
             }
 
             // Create hosts
-            mPdvHostManager.create_ip_pdv_hosts(tNumNodes, tNodeIndicesPerSet, aPdvTypes);
+            mPdvHostManager.create_ip_pdv_hosts(tNodeIndicesPerSet, tNodeCoordinates, aPdvTypes);
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -1165,6 +1171,7 @@ namespace moris
             uint tNumSets = tIntegrationMesh->get_num_sets();
             uint tNumNodes = tIntegrationMesh->get_num_nodes();
             Cell<Matrix<DDSMat>> tNodeIndicesPerSet(tNumSets);
+            Cell<Matrix<F31RMat>> tNodeCoordinates(tNumNodes);
 
             // Cell of IG PDV_Type types
             Cell<PDV_Type> tCoordinatePdvs(mSpatialDim);
@@ -1202,23 +1209,24 @@ namespace moris
                 tPdvTypes(tMeshSetIndex)(0) = tCoordinatePdvs;
             }
 
-            // Create hosts
-            mPdvHostManager.create_ig_pdv_hosts(tNumNodes, tNodeIndicesPerSet, tPdvTypes);
-
-            // Assign PDVs to all nodes with coordinate values
-            Matrix<F31RMat> tCoordinates;
+            // Get node coordinates
             for (uint tNodeIndex = 0; tNodeIndex < tNumNodes; tNodeIndex++)
             {
-                // Get coordinates
-                tCoordinates = tIntegrationMesh->get_node_coordinate(tNodeIndex);
+                tNodeCoordinates(tNodeIndex) = mMeshManager->get_interpolation_mesh(aMeshIndex)->get_node_coordinate(tNodeIndex);
+            }
 
-                mPdvHostManager.create_ig_pdv(tNodeIndex, PDV_Type::X_COORDINATE, tCoordinates(0));
-                mPdvHostManager.create_ig_pdv(tNodeIndex, PDV_Type::Y_COORDINATE, tCoordinates(1));
+            // Create hosts
+            mPdvHostManager.create_ig_pdv_hosts(tNodeIndicesPerSet, tNodeCoordinates, tPdvTypes);
+
+            // Assign PDVs to all nodes with coordinate values
+            for (uint tNodeIndex = 0; tNodeIndex < tNumNodes; tNodeIndex++)
+            {
+                mPdvHostManager.create_ig_pdv(tNodeIndex, PDV_Type::X_COORDINATE, tNodeCoordinates(tNodeIndex)(0));
+                mPdvHostManager.create_ig_pdv(tNodeIndex, PDV_Type::Y_COORDINATE, tNodeCoordinates(tNodeIndex)(1));
                 if (mSpatialDim == 3)
                 {
-                    mPdvHostManager.create_ig_pdv(tNodeIndex, PDV_Type::Z_COORDINATE, tCoordinates(2));
+                    mPdvHostManager.create_ig_pdv(tNodeIndex, PDV_Type::Z_COORDINATE, tNodeCoordinates(tNodeIndex)(2));
                 }
-
             }
 
             // Assign interface PDVs

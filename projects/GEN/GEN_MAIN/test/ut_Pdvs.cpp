@@ -42,7 +42,7 @@ namespace moris
             tIpPdvTypes(1)(1)(0) = PDV_Type::ELASTIC_MODULUS;
 
             // Create PDV_Type hosts
-            tPdvHostManager.create_ip_pdv_hosts(6, tIpNodeIndicesPerSet, tIpPdvTypes);
+            tPdvHostManager.create_ip_pdv_hosts(tIpNodeIndicesPerSet, Cell<Matrix<F31RMat>>(6), tIpPdvTypes);
 
             // Set PDVs
             for (uint tMeshSetIndex = 0; tMeshSetIndex < 2; tMeshSetIndex++)
@@ -96,7 +96,7 @@ namespace moris
             }
 
             // Create PDV_Type hosts
-            tPdvHostManager.create_ig_pdv_hosts(8, tIgNodeIndicesPerSet, tIgPdvTypes);
+            tPdvHostManager.create_ig_pdv_hosts(tIgNodeIndicesPerSet, Cell<Matrix<F31RMat>>(8), tIgPdvTypes);
 
             // Set PDVs
             for (uint tMeshSetIndex = 0; tMeshSetIndex < 3; tMeshSetIndex++)
@@ -161,7 +161,7 @@ namespace moris
             tIpPdvTypes(0)(0)(0) = PDV_Type::DENSITY;
 
             // Create PDV_Type hosts
-            tPdvHostManager.create_ip_pdv_hosts(4, tIpNodeIndicesPerSet, tIpPdvTypes);
+            tPdvHostManager.create_ip_pdv_hosts(tIpNodeIndicesPerSet, Cell<Matrix<F31RMat>>(4), tIpPdvTypes);
 
             // Set PDVs
             for (uint tNodeIndex = 0; tNodeIndex < 4; tNodeIndex++)

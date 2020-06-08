@@ -15,7 +15,7 @@ namespace moris
         private :
             // Identifies the host node
             uint mNodeIndex;
-            Matrix<DDRMat> mCoordinates;
+            const Matrix<DDRMat>& mCoordinates;
 
             // Information about the contained PDVs
             Cell<std::shared_ptr<Pdv>> mPdvs;
@@ -30,7 +30,10 @@ namespace moris
              * @param aPdvTypes PDV types for this host
              * @param aStartingGlobalIndex Global index to start assigning new PDV types
              */
-            Interpolation_Pdv_Host(uint aNodeIndex, const Cell<PDV_Type>& aPdvTypes, uint aStartingGlobalIndex);
+            Interpolation_Pdv_Host(uint aNodeIndex,
+                                   const Matrix<DDRMat>& aCoordinates,
+                                   const Cell<PDV_Type>& aPdvTypes,
+                                   uint aStartingGlobalIndex);
             
             /**
              * destructor

@@ -193,20 +193,24 @@ namespace moris
             /**
              * Create the pdv hosts on interpolation nodes based on the pdv types per set
              *
-             * @param aTotalNodes The total number of nodes where a PDV host will be created
              * @param aNodeIndicesPerSet The node indices contained on a set
+             * @param aNodeCoordinates The node coordinates indexed by node
              * @param aPdvTypes The PDV types per set, grouped
              */
-            void create_ip_pdv_hosts(uint aTotalNodes, Cell<Matrix<DDSMat>> aNodeIndicesPerSet, Cell<Cell<Cell<PDV_Type>>> aPdvTypes);
+            void create_ip_pdv_hosts(Cell<Matrix<DDSMat>>        aNodeIndicesPerSet,
+                                     const Cell<Matrix<DDRMat>>& aNodeCoordinates,
+                                     Cell<Cell<Cell<PDV_Type>>>         aPdvTypes);
 
             /**
              * Create the pdv hosts on integration nodes based on the pdv types per set
              *
-             * @param aTotalNodes The total number of nodes where a PDV host will be created
              * @param aNodeIndicesPerSet The node indices contained on a set
+             * @param aNodeCoordinates The node coordinates indexed by node
              * @param aPdvTypes The PDV types per set, grouped
              */
-            void create_ig_pdv_hosts(uint aTotalNodes, Cell<Matrix<DDSMat>> aNodeIndicesPerSet, Cell<Cell<Cell<PDV_Type>>> aPdvTypes);
+            void create_ig_pdv_hosts(Cell<Matrix<DDSMat>>        aNodeIndicesPerSet,
+                                     const Cell<Matrix<DDRMat>>& aNodeCoordinates,
+                                     Cell<Cell<Cell<PDV_Type>>>         aPdvTypes);
             
             /**
              * Set the requested interpolation node PDV types for sensitivities

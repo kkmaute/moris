@@ -9,9 +9,13 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        Integration_Pdv_Host::Integration_Pdv_Host(uint aNodeIndex, const Cell<PDV_Type>& aPdvTypes, uint aGlobalIndex)
-                : mNodeIndex(aNodeIndex),
-                  mStartingGlobalIndex(aGlobalIndex)
+        Integration_Pdv_Host::Integration_Pdv_Host(uint aNodeIndex,
+                                                   const Matrix<DDRMat>& aCoordinates,
+                                                   const Cell<PDV_Type>& aPdvTypes,
+                                                   uint aStartingGlobalIndex)
+        : mNodeIndex(aNodeIndex),
+          mCoordinates(aCoordinates),
+          mStartingGlobalIndex(aStartingGlobalIndex)
         {
         }
 
