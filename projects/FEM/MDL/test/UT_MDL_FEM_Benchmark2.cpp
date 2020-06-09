@@ -225,7 +225,7 @@ TEST_CASE("MDL_FEM_Benchmark_Diffusion_1Mat","[MDL_FEM_Benchmark_Diffusion_1Mat]
             moris::ge::Phase_Table tPhaseTable (1, moris::ge::Phase_Table_Structure::EXP_BASE_2);
             moris::ge::Geometry_Engine tGENGeometryEngine(tGeometry, tPhaseTable, 2);
 
-            moris_index tMeshIndex = tGENGeometryEngine.register_mesh( tMesh );
+            moris_index tMeshIndex = 0;
 
             uint tNumIPNodes = tMesh->get_num_nodes();
             Matrix<DDRMat> tFieldData( tNumIPNodes,1 );
@@ -565,7 +565,7 @@ TEST_CASE("MDL_FEM_Benchmark_Diffusion_1Mat_Ghost","[MDL_FEM_Benchmark_Diffusion
             moris::ge::Phase_Table     tPhaseTable( tGeomVec.size(), moris::ge::Phase_Table_Structure::EXP_BASE_2 );
             moris::ge::Geometry_Engine tGENGeometryEngine( tGeomVec, tPhaseTable, 2 );
 
-            moris_index tMeshIndex = tGENGeometryEngine.register_mesh( tMesh );
+            moris_index tMeshIndex = 0;
 
             uint tNumIPNodes = tMesh->get_num_nodes();
             Matrix<DDRMat> tFieldData( tNumIPNodes,1 );
@@ -950,7 +950,7 @@ TEST_CASE("FEM Benchmark 2 - 2Mat","[MDL_FEM_Benchmark2_2Mat]")
             moris::ge::Phase_Table     tPhaseTable( tGeometry.size(), moris::ge::Phase_Table_Structure::EXP_BASE_2 );
             moris::ge::Geometry_Engine tGENGeometryEngine( tGeometry, tPhaseTable,2 );
 
-            moris_index tMeshIndex = tGENGeometryEngine.register_mesh( tMesh );
+            moris_index tMeshIndex = 0;
 
             uint tNumIPNodes = tMesh->get_num_nodes();
             Matrix< DDRMat > tFieldData0( tNumIPNodes,1 );
@@ -1358,7 +1358,7 @@ TEST_CASE("FEM Benchmark Diffusion Inclusion - 2Mat","[MDL_FEM_Benchmark_Diffusi
             moris::ge::Phase_Table     tPhaseTable( tGeometry.size(), moris::ge::Phase_Table_Structure::EXP_BASE_2 );
             moris::ge::Geometry_Engine tGENGeometryEngine( tGeometry, tPhaseTable,2 );
 
-            moris_index tMeshIndex = tGENGeometryEngine.register_mesh( tMesh );
+            moris_index tMeshIndex = 0;
 
             uint tNumIPNodes = tMesh->get_num_nodes();
             Matrix< DDRMat > tFieldData0( tNumIPNodes,1 );

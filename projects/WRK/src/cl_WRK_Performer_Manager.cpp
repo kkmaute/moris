@@ -94,11 +94,6 @@ void Performer_Manager::set_performer_cooperations()
     mHMRPerformer( 0 )->set_performer( mMTKPerformer( 0 ) );
 
     //---------------------------------------------------------------------------------------
-    //                               Set performer to GE
-    //---------------------------------------------------------------------------------------
-    mGENPerformer( 0 )->register_mesh( mHMRPerformer( 0 ) );
-
-    //---------------------------------------------------------------------------------------
     //                               Set performer to XTK
     //---------------------------------------------------------------------------------------
     mXTKPerformer( 0 )->set_geometry_engine( mGENPerformer( 0 ).get() );

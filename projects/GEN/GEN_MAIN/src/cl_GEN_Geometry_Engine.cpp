@@ -738,59 +738,40 @@ namespace moris
         
         //--------------------------------------------------------------------------------------------------------------
         
-        void Geometry_Engine::register_mesh( mtk::Mesh_Manager* aMesh )
+        void Geometry_Engine::register_mesh(std::shared_ptr<mtk::Mesh_Manager> aMeshManager)
         {
-            mMeshManager = aMesh;
-        
-            mSpatialDim = mMeshManager->get_interpolation_mesh(0 )->get_spatial_dim();	// assuming there is only one pair in the manager
-        }
-
-        //--------------------------------------------------------------------------------------------------------------
-
-        moris_index Geometry_Engine::register_mesh( std::shared_ptr< moris::hmr::Mesh > aMesh )   //FIXME: this needs to be deleted and the GE should only be able to register a mesh pair
-        {
-            mMesh_HMR.push_back( aMesh );
-
-            mSpatialDim = mMesh_HMR( mMesh_HMR.size()-1 )->get_spatial_dim();
-
-            return mMesh_HMR.size()-1;
-        }
-
-        //--------------------------------------------------------------------------------------------------------------
-
-        moris_index Geometry_Engine::register_mesh( std::shared_ptr< hmr::HMR > aHMR )   //FIXME: same as above
-        {
-            mHMRPerformer.push_back(aHMR);
-            mMesh_HMR.push_back( aHMR->create_mesh(0) );
-
-            mSpatialDim = mMesh_HMR( mMesh_HMR.size()-1 )->get_spatial_dim();
-
-            return mMesh_HMR.size()-1;
-        }
-
-        //--------------------------------------------------------------------------------------------------------------
-
-        void Geometry_Engine::perform( )
-        {
-            this->perform_refinement();
+            mMeshManager = aMeshManager;
         }
 
         //--------------------------------------------------------------------------------------------------------------
         
-        void Geometry_Engine::perform_refinement()
+        void Geometry_Engine::perform_refinement(std::shared_ptr<hmr::HMR> aHMRPerformer)
         {
-            for( uint Ik = 0; Ik < mNumRefinements; ++Ik )
+            // Create mesh
+            std::shared_ptr<hmr::Mesh> tMesh = aHMRPerformer->create_mesh(0);
+
+            // Loop over set number of refinement levels
+            for (uint tRefinement = 0; tRefinement < mNumRefinements; tRefinement++)
             {
-                moris::Cell< moris::Matrix< DDRMat > > tValues;
-        
-                this->get_field_values_for_all_geometries( tValues );
-        
-                for( uint Ij = 0; Ij < tValues.size(); ++Ij )
+                // For each refinement level, get the mesh indices and node coordinates
+                Matrix<DDUMat> tNodeIndices(tMesh->get_num_nodes(), 1);
+                Cell<Matrix<DDRMat>> tCoordinates(tMesh->get_num_nodes());
+                for (uint tNodeIndex = 0; tNodeIndex < tMesh->get_num_nodes(); tNodeIndex++)
                 {
-                    mHMRPerformer( 0 )->based_on_field_put_elements_on_queue( tValues( Ij ), 0 );
+                    tNodeIndices(tNodeIndex) = tNodeIndex; //FIXME
+                    tCoordinates(tNodeIndex) = tMesh->get_node_coordinate(tNodeIndex);
                 }
 
-                mHMRPerformer( 0 )->perform_refinement_based_on_working_pattern( 0, false );
+                // Loop over geometries to get field values and put on queue
+                for (uint tGeometryIndex = 0; tGeometryIndex < mGeometry.size(); tGeometryIndex++)
+                {
+                    aHMRPerformer->based_on_field_put_elements_on_queue(
+                            this->evaluate_geometry_field_values(tNodeIndices, tCoordinates, tGeometryIndex),
+                            0);
+                }
+
+                // Perform refinement
+                aHMRPerformer->perform_refinement_based_on_working_pattern( 0, false );
             }
         }
 
@@ -830,6 +811,26 @@ namespace moris
         //
         //      return tLSVals;
         //}
+
+        //--------------------------------------------------------------------------------------------------------------
+
+        Matrix<DDRMat> Geometry_Engine::evaluate_geometry_field_values(const Matrix<DDUMat>&       aNodeIndices,
+                                                                       const Cell<Matrix<DDRMat>>& aCoordinates,
+                                                                       uint                        aGeometryIndex)
+        {
+            // Check node indices and coordinates
+            MORIS_ASSERT(aNodeIndices.length() == aCoordinates.size(),
+                         "Node indices and coordinates provided to get_field_values_for_all_geometries must have the same size");
+
+            // Get field values
+            Matrix<DDRMat> tFieldValues(aNodeIndices.length(), 1);
+            for (uint tNodeIndex = 0; tNodeIndex < aNodeIndices.length(); tNodeIndex++)
+            {
+                tFieldValues(tNodeIndex) = mGeometry(aGeometryIndex)->evaluate_field_value(aNodeIndices(tNodeIndex), aCoordinates(tNodeIndex));
+            }
+
+            return tFieldValues;
+        }
 
         //--------------------------------------------------------------------------------------------------------------
 
@@ -971,30 +972,6 @@ namespace moris
             aLevelSetValues = tBasisValues*moris::trans(tNodesLevelSetValues);
         
          }
-
-        //--------------------------------------------------------------------------------------------------------------
-        
-        void Geometry_Engine::get_field_values_for_all_geometries( moris::Cell< Matrix< DDRMat > > & aAllFieldVals,
-                                                  const moris_index                 aWhichMesh )
-        {
-            //TODO: implement for a mesh manager (rather than just an HMR mesh)
-            uint tNumVertices = mMesh_HMR( aWhichMesh )->get_num_nodes();
-        
-            aAllFieldVals.resize(this->get_num_geometries());
-
-            // Evaluate field values
-            for ( uint Ik = 0; Ik < mGeometry.size(); Ik++ )
-            {
-                aAllFieldVals( Ik ).set_size( tNumVertices, 1, - MORIS_REAL_MAX );
-                for( uint iVert = 0; iVert <tNumVertices; iVert++)
-                {
-                    Matrix< DDRMat > tCoord = mMesh_HMR( aWhichMesh )->get_mtk_vertex( iVert ).get_coords();
-                    aAllFieldVals( Ik )( iVert ) = mGeometry(Ik)->evaluate_field_value(iVert, tCoord);
-        
-                    // FIXME will not work in parallel. Ind are not consistent because of aura
-                }
-            }
-        }
 
         //--------------------------------------------------------------------------------------------------------------
 

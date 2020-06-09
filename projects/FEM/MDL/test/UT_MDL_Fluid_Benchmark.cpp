@@ -211,7 +211,7 @@ namespace moris
             moris::ge::Phase_Table tPhaseTable (4, moris::ge::Phase_Table_Structure::EXP_BASE_2);
             moris::ge::Geometry_Engine tGENGeometryEngine(tGeometry, tPhaseTable, 2);
 
-            moris_index tMeshIndex = tGENGeometryEngine.register_mesh( tMesh );
+            moris_index tMeshIndex = 0;
 
             uint tNumIPNodes = tMesh->get_num_nodes();
             Matrix< DDRMat > tFieldData0( tNumIPNodes,1 );
@@ -621,7 +621,7 @@ TEST_CASE("MDL_Fluid_Benchmark_Immersed_Inlet_Pressure","[MDL_Fluid_Benchmark_Im
             moris::ge::Phase_Table tPhaseTable (4, moris::ge::Phase_Table_Structure::EXP_BASE_2);
             moris::ge::Geometry_Engine tGENGeometryEngine(tGeometry, tPhaseTable, 2);
 
-            moris_index tMeshIndex = tGENGeometryEngine.register_mesh( tMesh );
+            moris_index tMeshIndex = 0;
 
             uint tNumIPNodes = tMesh->get_num_nodes();
             Matrix< DDRMat > tFieldData0( tNumIPNodes,1 );

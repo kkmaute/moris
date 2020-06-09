@@ -118,9 +118,7 @@ namespace moris
             moris::Matrix< moris::DDRMat > mNodePhaseVals;
 
             // Mesh
-            mtk::Mesh_Manager* mMeshManager;
-            moris::Cell< std::shared_ptr< moris::hmr::HMR > > mHMRPerformer;
-            moris::Cell< std::shared_ptr< moris::hmr::Mesh > > mMesh_HMR; //FIXME needs to be more general to only have a mesh manager as this member
+            std::shared_ptr<mtk::Mesh_Manager> mMeshManager;
 
             bool mTypesSet      = false;
             moris::Cell< moris::moris_index > mIntegNodeIndices;
@@ -384,39 +382,16 @@ namespace moris
             moris::size_t get_num_design_variables();
 
             /**
-             * Register an MTK mesh pair to be used for later computation(s)
-             */
-            void register_mesh( mtk::Mesh_Manager* aMesh );
-
-            /**
-             * Register an HMR mesh
+             * Register an MTK mesh pair to the geometry engine
              *
-             * @warning will be removed in a future update, GE will only be able to register an mtk mesh pair
+             * @param aMeshManager MTK mesh manager with interpolation and integration meshes
              */
-            moris_index register_mesh( std::shared_ptr< moris::hmr::Mesh > aMesh ); //FIXME: this needs to be deleted and the GE should only be able to register an mtk mesh pair
-
-            /**
-             * Register an HMR mesh
-             *
-             * @warning will be removed in a future update, GE will only be able to register an mtk mesh pair
-             */
-            moris_index register_mesh( std::shared_ptr< hmr::HMR > aHMR );
-
-            /**
-             * Allows GE to become a performer
-             */
-            void perform( );
+            void register_mesh(std::shared_ptr<mtk::Mesh_Manager> aMeshManager);
 
             /**
              * Performs refinement on an HMR mesh
              */
-            void perform_refinement( );
-
-            /**
-             * Fills a cell of MORIS matrices with the level-set values corresponding to each geometry
-             */
-            void get_field_values_for_all_geometries( moris::Cell< Matrix< DDRMat > > & aAllFieldVals,
-                                                      const moris_index                 aWhichMesh = 0 );
+            void perform_refinement(std::shared_ptr<hmr::HMR >aHMRPerformer);
 
             /**
              * @brief assign the pdv type and property for each pdv host in a given set
@@ -455,6 +430,18 @@ namespace moris
             void assign_pdv_hosts();
 
         private:
+
+            /**
+             * Gets all of the geometry field values at the specified coordinates
+             *
+             * @param aNodeIndices Node indices on the mesh
+             * @param aCoordinates Coordinate values for evaluating the geometry fields
+             * @param aGeometryIndex Index of the geometry for evaluating the field of
+             * @return Field values
+             */
+            Matrix<DDRMat> evaluate_geometry_field_values(const Matrix<DDUMat>&       aNodeIndices,
+                                                          const Cell<Matrix<DDRMat>>& aCoordinates,
+                                                          uint                        aGeometryIndex = 0);
 
             /**
              * Compute_intersection_info, calculates the relevant intersection information placed in the geometry object

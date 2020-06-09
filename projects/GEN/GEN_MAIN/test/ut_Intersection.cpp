@@ -67,8 +67,8 @@ namespace moris
             mtk::Integration_Mesh*   tIntegMesh  = create_integration_mesh_from_interpolation_mesh( MeshType::STK,tInterpMesh );
 
             // Place the pair in mesh manager
-            mtk::Mesh_Manager tMeshManager;
-            uint tMeshIndex = tMeshManager.register_mesh_pair( tInterpMesh, tIntegMesh );
+            std::shared_ptr<mtk::Mesh_Manager> tMeshManager = std::make_shared<mtk::Mesh_Manager>();
+            uint tMeshIndex = tMeshManager->register_mesh_pair( tInterpMesh, tIntegMesh );
 
             // Create circle geometry
             real tRadius = 0.6;
@@ -82,7 +82,7 @@ namespace moris
             // Create geometry engine
             moris::ge::Phase_Table      tPhaseTable( 1, moris::ge::Phase_Table_Structure::EXP_BASE_2 );
             moris::ge::Geometry_Engine  tGeometryEngine( tGeometry, tPhaseTable, tNumDim );
-            tGeometryEngine.register_mesh(&tMeshManager);
+            tGeometryEngine.register_mesh(tMeshManager);
 
             //=================== manual calls to GE (w/out XTK model) =============================
             uint tNumNodes = tInterpMesh->get_num_nodes();
