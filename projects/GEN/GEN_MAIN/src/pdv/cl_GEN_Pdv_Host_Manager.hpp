@@ -11,6 +11,15 @@ namespace moris
 {
     namespace ge
     {
+
+        // Intersection info data structure, becomes intersection data using integration PDV hosts
+        struct Intersection_Info
+        {
+            std::shared_ptr<Geometry> mGeometry;
+            uint mNodeIndex;
+            Matrix<IndexMat> mParentNodeIndices;
+        };
+
         class Pdv_Host_Manager : public MSI::Design_Variable_Interface
         {
         private:
@@ -210,7 +219,8 @@ namespace moris
              */
             void create_ig_pdv_hosts(Cell<Matrix<DDSMat>>        aNodeIndicesPerSet,
                                      const Cell<Matrix<DDRMat>>& aNodeCoordinates,
-                                     Cell<Cell<Cell<PDV_Type>>>         aPdvTypes);
+                                     Cell<Cell<Cell<PDV_Type>>>  aPdvTypes,
+                                     Cell<Intersection_Info>     aIntersectionInfo = Cell<Intersection_Info>(0));
             
             /**
              * Set the requested interpolation node PDV types for sensitivities
@@ -245,25 +255,6 @@ namespace moris
             void create_ip_pdv(uint aNodeIndex, PDV_Type aPdvType, std::shared_ptr<Property> aPropertyPointer);
 
             /**
-             * Create PDV on integration mesh node with real value
-             *
-             * @param aNodeIndex Node index
-             * @param aPdvType PDV type
-             * @param aPdvVal PDV value
-             */
-            void create_ig_pdv(uint aNodeIndex, PDV_Type aPdvType, real aPdvVal);
-
-            /**
-             * Create PDV on integration mesh node which represents an intersection
-             *
-             * @param aNodeIndex Node index
-             * @param aPdvType PDV type
-             * @param aIntersection PDV value
-             * @param aDimension 0, 1, or 2, corresponding to X, Y, and Z dimensions
-             */
-            void create_ig_pdv(uint aNodeIndex, PDV_Type aPdvType, GEN_Geometry_Object* aIntersection, uint aDimension);
-
-            /**
              * Does the necessary chain rule on the IQI derivatives with respect to PDVs which each of the PDV
              * derivatives with respect to the ADVs, to obtain the complete sensitivities.
              *
@@ -278,6 +269,14 @@ namespace moris
              * @return Matrix of pdv/adv sensitivities
              */
             Matrix<DDRMat> compute_dpdv_dadv();
+
+            /**
+             * Converts intersection information from that provided by the geometry engine to that needed by the PDV host
+             *
+             * @param aIntersectionInfo Intersection information with node indices
+             * @return Intersection data structure with PDV hosts
+             */
+            std::shared_ptr<Intersection> convert_info_to_intersection(Intersection_Info aIntersectionInfo);
 
 //            /**
 //             * communicate dv types

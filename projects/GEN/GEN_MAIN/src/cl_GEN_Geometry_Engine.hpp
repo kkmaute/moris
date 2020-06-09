@@ -475,22 +475,6 @@ namespace moris
         private:
 
             /**
-             * Get the index of analytic geometry
-             *
-             * @param aGlobalGeometryIndex Global geometry index (active geometry)
-             * @return Index for the analytic geometry cell
-             */
-            size_t analytic_geometry_index(size_t aGlobalGeometryIndex);
-
-            /**
-             * Get the index of discrete geometry
-             *
-             * @param aGlobalGeometryIndex Global geometry index (active geometry)
-             * @return Index for the discrete geometry cell
-             */
-            size_t discrete_geometry_index(size_t aGlobalGeometryIndex);
-
-            /**
              * Compute_intersection_info, calculates the relevant intersection information placed in the geometry object
              *
              * @param[in]  aEntityNodeInds - node to entity connectivity

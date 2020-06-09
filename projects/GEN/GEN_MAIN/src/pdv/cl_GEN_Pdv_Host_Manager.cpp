@@ -330,7 +330,8 @@ namespace moris
 
         void Pdv_Host_Manager::create_ig_pdv_hosts(Cell<Matrix<DDSMat>>        aNodeIndicesPerSet,
                                                    const Cell<Matrix<DDRMat>>& aNodeCoordinates,
-                                                   Cell<Cell<Cell<PDV_Type>>>         aPdvTypes)
+                                                   Cell<Cell<Cell<PDV_Type>>>  aPdvTypes,
+                                                   Cell<Intersection_Info>     aIntersectionInfo)
         {
             // Check that number of sets is consistent
             uint tNumSets = aPdvTypes.size();
@@ -375,7 +376,6 @@ namespace moris
                         mIgPdvHosts(aNodeIndicesPerSet(tMeshSetIndex)(tNodeIndexOnSet))
                         = std::make_shared<Integration_Pdv_Host>(aNodeIndicesPerSet(tMeshSetIndex)(tNodeIndexOnSet),
                                                                  aNodeCoordinates(aNodeIndicesPerSet(tMeshSetIndex)(tNodeIndexOnSet)),
-                                                                 mUniqueIgPdvTypes(tMeshSetIndex),
                                                                  mGlobalPdvIndex);
                         // Resize global map
                         mGlobalPdvTypeMap.resize(mGlobalPdvTypeMap.length() + tNumAddedPdvs, 1);
@@ -388,6 +388,13 @@ namespace moris
                         }
                     }
                 }
+            }
+
+            // Set intersection info
+            for (uint tIntersectionIndex = 0; tIntersectionIndex < aIntersectionInfo.size(); tIntersectionIndex++)
+            {
+                mIgPdvHosts(aIntersectionInfo(tIntersectionIndex).mNodeIndex)->set_as_intersection(
+                        this->convert_info_to_intersection(aIntersectionInfo(tIntersectionIndex)));
             }
         }
 
@@ -421,20 +428,6 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        void Pdv_Host_Manager::create_ig_pdv(uint aNodeIndex, PDV_Type aPdvType, moris::real aPdvVal)
-        {
-            mIgPdvHosts(aNodeIndex)->create_pdv(aPdvType, aPdvVal);
-        }
-
-        //--------------------------------------------------------------------------------------------------------------
-
-        void Pdv_Host_Manager::create_ig_pdv(uint aNodeIndex, PDV_Type aPdvType, GEN_Geometry_Object* aIntersection, uint aDimension)
-        {
-            mIgPdvHosts(aNodeIndex)->create_pdv(aPdvType, aIntersection, aDimension);
-        }
-
-        //--------------------------------------------------------------------------------------------------------------
-
         Matrix<DDRMat> Pdv_Host_Manager::compute_diqi_dadv()
         {
             return this->get_dQidu() * this->compute_dpdv_dadv();
@@ -446,31 +439,31 @@ namespace moris
         {
             // Information from each host
             Matrix<DDRMat> tTotalAdvSensitivities(0, 0);
-            Matrix<DDRMat> tHostAdvSensitivities(0, 0);
+            Matrix<DDRMat> tTestSensitivities(0, 0);
 
             // Need to know the size of the sensitivities
             uint tFirstPdvHostIndex = 0;
             if (mIpPdvHosts.size() > 0)
             {
-                while (tHostAdvSensitivities.numel() == 0)
+                while (tTestSensitivities.numel() == 0)
                 {
-                    mIpPdvHosts(tFirstPdvHostIndex++)->get_all_sensitivities(tHostAdvSensitivities);
-
+                    mIpPdvHosts(tFirstPdvHostIndex++)->get_all_sensitivities(tTestSensitivities);
                 }
             }
             else if (mIgPdvHosts.size() > 0)
             {
-                while (tHostAdvSensitivities.numel() == 0)
+                while (tTestSensitivities.numel() == 0)
                 {
-                    mIgPdvHosts(tFirstPdvHostIndex++)->get_all_sensitivities(tHostAdvSensitivities);
+                    mIgPdvHosts(tFirstPdvHostIndex++)->get_all_sensitivities(tTestSensitivities);
                 }
             }
-            tTotalAdvSensitivities.resize(mGlobalPdvIndex, tHostAdvSensitivities.n_cols());
+            tTotalAdvSensitivities.resize(mGlobalPdvIndex, tTestSensitivities.n_cols());
 
             // Loop over PDV hosts
             for (uint tPdvHostIndex = 0; tPdvHostIndex < mIpPdvHosts.size(); tPdvHostIndex++)
             {
                 // Get sensitivities
+                Matrix<DDRMat> tHostAdvSensitivities(0, 0);
                 mIpPdvHosts(tPdvHostIndex)->get_all_sensitivities(tHostAdvSensitivities);
                 const Matrix<DDUMat>& tHostPdvIndices = mIpPdvHosts(tPdvHostIndex)->get_all_global_indices();
 
@@ -483,6 +476,7 @@ namespace moris
             for (uint tPdvHostIndex = 0; tPdvHostIndex < mIgPdvHosts.size(); tPdvHostIndex++)
             {
                 // Get sensitivities
+                Matrix<DDRMat> tHostAdvSensitivities(0, 0);
                 mIgPdvHosts(tPdvHostIndex)->get_all_sensitivities(tHostAdvSensitivities);
                 uint tStartingGlobalIndex = mIgPdvHosts(tPdvHostIndex)->get_starting_global_index();
 
@@ -493,6 +487,25 @@ namespace moris
                 }
             }
             return tTotalAdvSensitivities;
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
+        std::shared_ptr<Intersection> Pdv_Host_Manager::convert_info_to_intersection(Intersection_Info aIntersectionInfo)
+        {
+            std::shared_ptr<Intersection> tIntersection = std::make_shared<Intersection>();
+
+            // Copy over geometry
+            tIntersection->mGeometry = aIntersectionInfo.mGeometry;
+
+            // Nodes
+            tIntersection->mNodes.resize(aIntersectionInfo.mParentNodeIndices.length());
+            for (uint tNodeIndex = 0; tNodeIndex < aIntersectionInfo.mParentNodeIndices.length(); tNodeIndex++)
+            {
+                tIntersection->mNodes(tNodeIndex) = mIgPdvHosts(aIntersectionInfo.mParentNodeIndices(tNodeIndex));
+            }
+
+            return tIntersection;
         }
 
         //--------------------------------------------------------------------------------------------------------------

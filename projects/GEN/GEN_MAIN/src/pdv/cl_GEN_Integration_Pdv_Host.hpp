@@ -8,7 +8,16 @@ namespace moris
 {
     namespace ge
     {
-        class GEN_Geometry_Object;
+        // Forward declaration for struct
+        class Geometry;
+        class Integration_Pdv_Host;
+
+        // Intersection data structure
+        struct Intersection
+        {
+            std::shared_ptr<Geometry> mGeometry;
+            Cell<std::shared_ptr<Integration_Pdv_Host>> mNodes;
+        };
 
         class Integration_Pdv_Host
         {
@@ -18,8 +27,8 @@ namespace moris
             const Matrix<DDRMat>& mCoordinates;
 
             // PDV Information
-            Cell<std::shared_ptr<Pdv>> mPdvs = Cell<std::shared_ptr<Pdv>>(3, nullptr);
             uint mStartingGlobalIndex;
+            std::shared_ptr<Intersection> mIntersection = nullptr;
 
         public:
 
@@ -31,8 +40,8 @@ namespace moris
              */
             Integration_Pdv_Host(uint aNodeIndex,
                                  const Matrix<DDRMat>& aCoordinates,
-                                 const Cell<PDV_Type>& aPdvTypes,
-                                 uint aStartingGlobalIndex);
+                                 uint aStartingGlobalIndex,
+                                 std::shared_ptr<Intersection> aIntersection = nullptr);
 
             /**
              * destructor
@@ -40,21 +49,11 @@ namespace moris
             ~Integration_Pdv_Host();
 
             /**
-             * Create PDV with real value
+             * Sets this PDV host as an intersection point
              *
-             * @param aPdvType PDV type
-             * @param aPdvVal PDV value
+             * @param aIntersection Information about other PDV hosts this PDV hosts depends on based on an intersection
              */
-            void create_pdv(PDV_Type aPdvType, moris::real aPdvVal);
-
-            /**
-             * Create PDV based on an intersection object
-             *
-             * @param aPdvType PDV type
-             * @param aIntersection Pointer to an object with intersection information
-             * @param aDimension 0, 1, or 2, corresponding to X, Y, and Z dimensions
-             */
-            void create_pdv(PDV_Type aPdvType, GEN_Geometry_Object* aIntersection, uint aDimension);
+            void set_as_intersection(std::shared_ptr<Intersection> aIntersection);
 
             /**
              * Check if PDV type is active on this host

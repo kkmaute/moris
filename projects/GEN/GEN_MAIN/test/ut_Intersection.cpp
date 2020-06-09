@@ -237,8 +237,14 @@ namespace moris
 //
 //                moris::hmr::Interpolation_Mesh_HMR * tInterpolationMesh = tHMR.create_interpolation_mesh(tLagrangeMeshIndex);
 //
+//                // Create circle geometry
+//                real tRadius = 0.4501;
+//                Matrix<DDRMat> tADVs = {{0.0, 0.0, tRadius}};
 //                Cell<std::shared_ptr<moris::ge::Geometry>> tGeometry(1);
-//                tGeometry(0) = std::make_shared<moris::ge::Circle>(0.0, 0.0, 0.4501);
+//                tGeometry(0) = std::make_shared<moris::ge::Circle>(tADVs,
+//                                                                   Matrix<DDUMat>({{0, 1, 2}}),
+//                                                                   Matrix<DDUMat>({{0, 1, 2}}),
+//                                                                   Matrix<DDRMat>(0, 0));
 //
 //                moris::ge::Phase_Table tPhaseTable (1, moris::ge::Phase_Table_Structure::EXP_BASE_2);
 //                moris::ge::Geometry_Engine tGeometryEngine(tGeometry, tPhaseTable, 2);
@@ -247,11 +253,10 @@ namespace moris
 //                tXTKModel.mVerbose = false;
 //
 //                //Specify decomposition Method and Cut Mesh ---------------------------------------
-//                Cell<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_QUAD4, Subdivision_Method::C_TRI3};
+//                Cell<Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_QUAD4, Subdivision_Method::C_TRI3};
 //                tXTKModel.decompose(tDecompositionMethods);
 //
 //                tXTKModel.perform_basis_enrichment( EntityRank::NODE, 0 );
-//                moris::print(tXTKModel.get_background_mesh().get_interface_nodes_loc_inds(0), "interface nodes");
 //
 //                xtk::Enriched_Interpolation_Mesh &tEnrInterpMesh = tXTKModel.get_enriched_interp_mesh();
 //                xtk::Enriched_Integration_Mesh &tEnrIntegMesh = tXTKModel.get_enriched_integ_mesh();

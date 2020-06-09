@@ -95,20 +95,20 @@ namespace moris
                 tIgPdvTypes(tMeshSetIndex)(0) = tCoordinatePdvs;
             }
 
-            // Create PDV_Type hosts
-            tPdvHostManager.create_ig_pdv_hosts(tIgNodeIndicesPerSet, Cell<Matrix<F31RMat>>(8), tIgPdvTypes);
-
-            // Set PDVs
-            for (uint tMeshSetIndex = 0; tMeshSetIndex < 3; tMeshSetIndex++)
+            // Coordinates
+            Matrix<F31RMat> tCoordinates(3, 1);
+            Cell<Matrix<F31RMat>> tAllNodeCoordinates(8);
+            for (uint tNodeIndex = 0; tNodeIndex < 8; tNodeIndex++)
             {
-                for (uint tNodeIndex = 0; tNodeIndex < tIgNodeIndicesPerSet(tMeshSetIndex).length(); tNodeIndex++)
+                for (uint tDimension = 0; tDimension < 3; tDimension++)
                 {
-                    for (uint tPdvIndex = 0; tPdvIndex < 3; tPdvIndex++)
-                    {
-                        tPdvHostManager.create_ig_pdv(uint(tIgNodeIndicesPerSet(tMeshSetIndex)(tNodeIndex)), tIgPdvTypes(tMeshSetIndex)(0)(tPdvIndex), real(tIgPdvTypes(tMeshSetIndex)(0)(tPdvIndex)));
-                    }
+                    tCoordinates(tDimension) = real(tNodeIndex * tDimension);
                 }
+                tAllNodeCoordinates(tNodeIndex) = tCoordinates;
             }
+
+            // Create PDV_Type hosts
+            tPdvHostManager.create_ig_pdv_hosts(tIgNodeIndicesPerSet, tAllNodeCoordinates, tIgPdvTypes);
 
             // Check PDVs
             for (uint tMeshSetIndex = 0; tMeshSetIndex < 3; tMeshSetIndex++)
@@ -119,7 +119,7 @@ namespace moris
                 {
                     for (uint tDimension = 0; tDimension < 3; tDimension++)
                     {
-                        CHECK(tPdvValues(tDimension)(tNodeIndex) == real(tDimension));
+                        CHECK(tPdvValues(tDimension)(tNodeIndex) == Approx(real(tIgNodeIndicesPerSet(tMeshSetIndex)(tNodeIndex) * tDimension)));
                     }
                 }
             }

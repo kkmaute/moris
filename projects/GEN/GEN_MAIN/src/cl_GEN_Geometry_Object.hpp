@@ -27,6 +27,8 @@ namespace ge
 class GEN_Geometry_Object
 {
 public:
+    uint mGeometryIndex; // FIXME this is a hack
+
     GEN_Geometry_Object():
         mAllParentNodesOnInterface( false ),
         mHasParentNodesOnInterface( false )
@@ -120,6 +122,7 @@ public:
 
     //------------------------------------------------------------------------------
 private:
+
     moris::moris_index mPhaseValIndex;
     //------------------------------------------------------------------------------
     moris::real                      mInterfaceLclCoords;

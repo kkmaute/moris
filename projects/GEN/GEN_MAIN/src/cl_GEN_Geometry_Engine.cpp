@@ -285,6 +285,7 @@ namespace moris
             for(moris::size_t i = 0; i<tNumNewNodes; i++)
             {
                 tGeometryObjects(i).set_phase_val_row(i+tNumCurrNodes);
+                tGeometryObjects(i).mGeometryIndex = mActiveGeometryIndex;
                 tNodeIndex(0,i) = aNewNodeIndices(i);
                 if(aStoreParentTopo)
                 {
@@ -855,19 +856,6 @@ namespace moris
         //      return tLSVals;
         //}
 
-
-        size_t Geometry_Engine::analytic_geometry_index(size_t aGlobalGeometryIndex)
-        {
-            return aGlobalGeometryIndex;
-        }
-
-        //--------------------------------------------------------------------------------------------------------------
-
-        size_t Geometry_Engine::discrete_geometry_index(size_t aGlobalGeometryIndex)
-        {
-            return aGlobalGeometryIndex - mGeometry.size();
-        }
-
         //--------------------------------------------------------------------------------------------------------------
 
         bool
@@ -1212,39 +1200,25 @@ namespace moris
             // Get node coordinates
             for (uint tNodeIndex = 0; tNodeIndex < tNumNodes; tNodeIndex++)
             {
-                tNodeCoordinates(tNodeIndex) = mMeshManager->get_interpolation_mesh(aMeshIndex)->get_node_coordinate(tNodeIndex);
+                tNodeCoordinates(tNodeIndex) = mMeshManager->get_integration_mesh(aMeshIndex)->get_node_coordinate(tNodeIndex);
+            }
+
+            // Get intersection dependencies
+            Cell<Intersection_Info> tIntersectionInfo(mInterfaceNodeIndices.length());
+            for (uint tNodeIndex = 0; tNodeIndex < mInterfaceNodeIndices.length(); tNodeIndex++)
+            {
+                // Get geometry object TODO will be removed in future
+                GEN_Geometry_Object* tGeometryObject = mGeometryObjectManager.get_geometry_object( mInterfaceNodeIndices(tNodeIndex));
+                xtk::Topology const & tParentEdge = tGeometryObject->get_parent_entity_topology();
+
+                // Set info
+                tIntersectionInfo(tNodeIndex).mGeometry = this->mGeometry(tGeometryObject->mGeometryIndex);
+                tIntersectionInfo(tNodeIndex).mNodeIndex = mInterfaceNodeIndices(tNodeIndex);
+                tIntersectionInfo(tNodeIndex).mParentNodeIndices = tParentEdge.get_node_indices();;
             }
 
             // Create hosts
-            mPdvHostManager.create_ig_pdv_hosts(tNodeIndicesPerSet, tNodeCoordinates, tPdvTypes);
-
-            // Assign PDVs to all nodes with coordinate values
-            for (uint tNodeIndex = 0; tNodeIndex < tNumNodes; tNodeIndex++)
-            {
-                mPdvHostManager.create_ig_pdv(tNodeIndex, PDV_Type::X_COORDINATE, tNodeCoordinates(tNodeIndex)(0));
-                mPdvHostManager.create_ig_pdv(tNodeIndex, PDV_Type::Y_COORDINATE, tNodeCoordinates(tNodeIndex)(1));
-                if (mSpatialDim == 3)
-                {
-                    mPdvHostManager.create_ig_pdv(tNodeIndex, PDV_Type::Z_COORDINATE, tNodeCoordinates(tNodeIndex)(2));
-                }
-            }
-
-            // Assign interface PDVs
-            for (uint tInterfaceIndex = 0; tInterfaceIndex < mInterfaceNodeIndices.length(); tInterfaceIndex++)
-            {
-                // Get node index
-                uint tNodeIndex = mInterfaceNodeIndices(tInterfaceIndex);
-
-                // Get geometry object
-                GEN_Geometry_Object* tGeometryObject = mGeometryObjectManager.get_geometry_object(tNodeIndex);
-
-                mPdvHostManager.create_ig_pdv(tNodeIndex, PDV_Type::X_COORDINATE, tGeometryObject, 0);
-                mPdvHostManager.create_ig_pdv(tNodeIndex, PDV_Type::Y_COORDINATE, tGeometryObject, 1);
-                if (mSpatialDim == 3)
-                {
-                    mPdvHostManager.create_ig_pdv(tNodeIndex, PDV_Type::Z_COORDINATE, tGeometryObject, 2);
-                }
-            }
+            mPdvHostManager.create_ig_pdv_hosts(tNodeIndicesPerSet, tNodeCoordinates, tPdvTypes, tIntersectionInfo);
         }
 
         //--------------------------------------------------------------------------------------------------------------
