@@ -78,10 +78,10 @@ namespace moris
                     mMyPdofHosts( Ik )( Ii ) = aPdofHostList( tNodeID );
 
                     // FIXME rewrite this function
-                    for ( moris::uint Ij=0; Ij < mEquationSet->get_unique_dof_type_list().size(); Ij++ )
+                    for ( moris::uint Ij=0; Ij < mEquationSet->get_unique_master_slave_dof_type_list()( Ik ).size(); Ij++ )
                     {
                         mMyPdofHosts( Ik )( Ii )->set_pdof_type(
-                                mEquationSet->get_unique_dof_type_list()( Ij ),
+                                mEquationSet->get_unique_master_slave_dof_type_list()( Ik )( Ij ),
                                 aTimePerDofType,
                                 aNumUsedDofTypes,
                                 aPdofTypeMap );
@@ -99,7 +99,7 @@ namespace moris
             moris::uint tNumMyFreePdofs = 0;
 
             // Loop over all pdof hosts and get their number of (free) pdofs
-            for ( moris::uint Ik=0; Ik < mMyPdofHosts.size(); Ik++ )
+            for ( moris::uint Ik=0; Ik < mNumPdofSystems; Ik++ )
             {
                 // Get number of pdof hosts corresponding to this equation object
                 moris::uint tNumMyPdofHosts = mMyPdofHosts( Ik ).size();
@@ -114,7 +114,7 @@ namespace moris
             mFreePdofs.reserve( tNumMyFreePdofs );
 
             // Loop over pdof systems. Is one except for double sided clusters
-            for ( moris::uint Ia=0; Ia < mMyPdofHosts.size(); Ia++ )
+            for ( moris::uint Ia=0; Ia < mNumPdofSystems; Ia++ )
             {
                 moris::uint tNumMyPdofHosts = mMyPdofHosts( Ia ).size();
 
@@ -137,21 +137,18 @@ namespace moris
             //----------------------------------------------------------------------------------------------------------
 
             // Ask the first pdof host for the number of pdof types //FIXME
-            mFreePdofList.resize( mMyPdofHosts.size() );
+            mFreePdofList.resize( mNumPdofSystems );
 
-            for ( moris::uint Ik=0; Ik < mMyPdofHosts.size(); Ik++ )
+            for ( moris::uint Ia=0; Ia < mNumPdofSystems; Ia++ )
             {
-                mFreePdofList( Ik ).resize( mMyPdofHosts( Ik )( 0 )->get_pdof_hosts_pdof_list().size() );
-            }
+                mFreePdofList( Ia ).resize( mMyPdofHosts( Ia )( 0 )->get_pdof_hosts_pdof_list().size() );
 
-            for ( moris::uint Ia=0; Ia < mMyPdofHosts.size(); Ia++ )
-            {
                 // Loop over all pdof hosts and get their number of (free) pdofs
-                for ( moris::uint Ik=0; Ik < mMyPdofHosts( Ia )( 0 )->get_pdof_hosts_pdof_list().size(); Ik++ )
+                for ( moris::uint Ik = 0; Ik < mMyPdofHosts( Ia )( 0 )->get_pdof_hosts_pdof_list().size(); Ik++ )
                 {
                     uint tNumPdofs = 0;
 
-                    for ( moris::uint Ii=0; Ii < mMyPdofHosts( Ia ).size(); Ii++ )
+                    for ( moris::uint Ii = 0; Ii < mMyPdofHosts( Ia ).size(); Ii++ )
                     {
                         tNumPdofs = tNumPdofs + mMyPdofHosts( Ia )( Ii )->get_pdof_hosts_pdof_list()( Ik ).size();
                     }
@@ -160,7 +157,7 @@ namespace moris
                 }
             }
 
-            for ( moris::uint Ia=0; Ia < mMyPdofHosts.size(); Ia++ )
+            for ( moris::uint Ia=0; Ia < mNumPdofSystems; Ia++ )
             {
                 moris::uint tNumMyPdofHosts = mMyPdofHosts( Ia ).size();
 
@@ -172,7 +169,7 @@ namespace moris
                     {
                         for ( moris::uint Ik=0; Ik < tNumMyPdofHosts; Ik++ )
                         {
-                            //                        mFreePdofList( Ia )( Ik ).append( mMyPdofHosts( Ia )( Ii )->get_pdof_hosts_pdof_list()( Ik ) );
+                            // mFreePdofList( Ia )( Ik ).append( mMyPdofHosts( Ia )( Ii )->get_pdof_hosts_pdof_list()( Ik ) );
                             // Append all time levels of this pdof type
                             mFreePdofList( Ia )( Ij ).push_back( ( mMyPdofHosts( Ia )( Ik )->get_pdof_hosts_pdof_list() )( Ij )( Ii ) );
                         }
@@ -205,7 +202,8 @@ namespace moris
                 // Loop over all pdofs to get their adofs and put them into a unique list
                 for ( moris::uint Ij=0; Ij < tNumMyPdofs; Ij++ )
                 {
-                    tNonUniqueAdofIds ( {tAdofPosCounter, tAdofPosCounter + ( mFreePdofs( Ij )->mAdofIds ).numel() -1 }, { 0, 0} ) = mFreePdofs( Ij )->mAdofIds.matrix_data();
+                    tNonUniqueAdofIds ( {tAdofPosCounter, tAdofPosCounter + ( mFreePdofs( Ij )->mAdofIds ).numel() -1 }, { 0, 0} ) =
+                            mFreePdofs( Ij )->mAdofIds.matrix_data();
 
                     // Add number if these adofs to number of assembled adofs
                     tAdofPosCounter = tAdofPosCounter + ( mFreePdofs( Ij )->mAdofIds ).numel();
@@ -472,10 +470,15 @@ namespace moris
                 {
                     moris::sint tDofTypeIndex = tDofManager->get_pdof_index_for_type( tRequestedDofTypes( Ik ) );
 
-                    aEqnObjAdofId( { tCounter, tCounter + mUniqueAdofTypeList( Ii )( tDofTypeIndex ).numel() - 1 }, { 0, 0 }) =
-                            mUniqueAdofTypeList( Ii )( tDofTypeIndex ).matrix_data();
+                    uint tNumEntries = mUniqueAdofTypeList( Ii )( tDofTypeIndex ).numel();
 
-                    tCounter += mUniqueAdofTypeList( Ii )( tDofTypeIndex ).numel();
+                    if( tNumEntries != 0 )
+                    {
+                       aEqnObjAdofId( { tCounter, tCounter + tNumEntries - 1 }, { 0, 0 }) =
+                                mUniqueAdofTypeList( Ii )( tDofTypeIndex ).matrix_data();
+
+                        tCounter += tNumEntries;
+                    }
                 }
             }
 

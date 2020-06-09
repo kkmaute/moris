@@ -94,6 +94,10 @@ namespace moris
                 Matrix< DDRMat > mTime;
 
                 // unique list of dof and dv types
+                moris::Cell< moris::Cell< enum MSI::Dof_Type > > mUniqueDofTypeListMasterSlave;
+                moris::Cell< moris::Cell< enum PDV_Type > > mUniqueDvTypeListMasterSlave;
+
+                // unique list of dof and dv types. Master and Slave are combined
                 moris::Cell< enum MSI::Dof_Type > mUniqueDofTypeList;
                 moris::Cell< enum PDV_Type >      mUniqueDvTypeList;
 
@@ -745,9 +749,19 @@ namespace moris
                  * get unique dof type list
                  * @param[ out ] mUniqueDofTypeList a unique list of dof type
                  */
-                moris::Cell< enum MSI::Dof_Type > & get_unique_dof_type_list()
+                const moris::Cell< enum MSI::Dof_Type > & get_unique_dof_type_list()
                 {
                     return mUniqueDofTypeList;
+                }
+
+                //------------------------------------------------------------------------------
+                /**
+                 * get unique dof type list
+                 * @param[ out ] mUniqueDofTypeList a unique list of dof type
+                 */
+                const moris::Cell< moris::Cell< enum MSI::Dof_Type > > & get_unique_master_slave_dof_type_list()
+                {
+                    return mUniqueDofTypeListMasterSlave;
                 }
 
                 //------------------------------------------------------------------------------
