@@ -66,13 +66,8 @@ namespace moris
         //loop over all equation objects, asking for their pdof types
         for ( moris::uint Ii=0; Ii < tNumEquationBlocks; Ii++ )
         {
-
-            // Create temporary dof type list
-            moris::Cell< enum Dof_Type > tDofType;
-
             // Ask equation object for its dof types
-//            aListEqnBlock( Ii )->get_dof_types( tDofType );
-            tDofType = aListEqnBlock( Ii )->get_unique_dof_type_list();
+            const moris::Cell< enum Dof_Type > & tDofType = aListEqnBlock( Ii )->get_unique_dof_type_list();
 
             // Loop over all dof types
             for ( moris::uint Ik=0; Ik < tDofType.size(); Ik++ )
@@ -85,7 +80,6 @@ namespace moris
         // Loop over tListToCheckIfEnumExist. Add Ddof type to list if corresponding value = 1
         for ( moris::uint Ij=0; Ij < tListToCheckIfEnumExist.numel(); Ij++ )
         {
-
             if ( tListToCheckIfEnumExist(Ij , 0) == 1)
             {
                 tTemporaryPdofTypeList.push_back( ( Dof_Type ) Ij );
