@@ -161,7 +161,7 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        Matrix<DDRMat> Geometry_Engine::get_dcriteria_dadv() // TODO
+        Matrix<DDRMat> Geometry_Engine::get_dcriteria_dadv()
         {
             return mPdvHostManager.compute_diqi_dadv();
         }
@@ -548,7 +548,6 @@ namespace moris
             if (mGeometry(mActiveGeometryIndex)->sensitivities_available())
             {
                 // Analytic
-                aADVIndices = get_node_adv_indices_analytic();
                 for(moris::size_t i = 0; i < tNumNodes; i++)
                 {
                     mGeometry(mActiveGeometryIndex)->evaluate_sensitivity(aEntityNodeIndices(0, i),
@@ -560,7 +559,6 @@ namespace moris
             else
             {
                 // Discrete
-                aADVIndices = aEntityNodeIndices;
                 compute_dx_dp_finite_difference( mPerturbationValue, aGlobalNodeCoordinates, tEntityNodeCoordinates,
                         aIntersectionLclCoordinate, aEntityNodeIndices, aEntityNodeVars, aDxDp );
             }
@@ -603,15 +601,6 @@ namespace moris
         {
             GEN_Geometry_Object const & tNodesGeoObj = mGeometryObjectManager.get_geometry_object_from_manager(aNodeIndex);
             return tNodesGeoObj.get_sensitivity_dx_dp();
-        }
-
-        //--------------------------------------------------------------------------------------------------------------
-        
-        moris::Matrix< moris::IndexMat > const &
-        Geometry_Engine::get_node_adv_indices( moris::size_t const & aNodeIndex ) const
-        {
-            GEN_Geometry_Object const & tNodesGeoObj = mGeometryObjectManager.get_geometry_object_from_manager(aNodeIndex);
-            return tNodesGeoObj.get_node_adv_indices();
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -739,20 +728,6 @@ namespace moris
                     "Trying to advance past the number of geometries in the geometry engine");
             mActiveGeometryIndex += 1;
         }
-        
-        //--------------------------------------------------------------------------------------------------------------
-        
-        moris::Matrix< moris::IndexMat >
-        Geometry_Engine::get_node_adv_indices_analytic()
-        {
-            moris::size_t tNumDVS = get_num_design_variables();
-            moris::Matrix< moris::IndexMat > tMatrix(1,tNumDVS);
-            for(moris::size_t i = 0; i<tNumDVS; i++)
-            {
-                tMatrix(0,i) = (moris::moris_index)i;
-            }
-            return tMatrix;
-        }
 
         //--------------------------------------------------------------------------------------------------------------
 
@@ -771,13 +746,13 @@ namespace moris
         }
 
         //--------------------------------------------------------------------------------------------------------------
-        
+
         moris_index Geometry_Engine::register_mesh( std::shared_ptr< moris::hmr::Mesh > aMesh )   //FIXME: this needs to be deleted and the GE should only be able to register a mesh pair
         {
             mMesh_HMR.push_back( aMesh );
-        
+
             mSpatialDim = mMesh_HMR( mMesh_HMR.size()-1 )->get_spatial_dim();
-        
+
             return mMesh_HMR.size()-1;
         }
 

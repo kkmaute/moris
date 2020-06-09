@@ -129,7 +129,6 @@ namespace xtk
               if( i == 0)
               {
                   tDxDp     = tGEOut->get_node_dx_dp(tInterfaceNodeInd);
-                  tDxDpInds = tGEOut->get_node_adv_indices(tInterfaceNodeInd);
               }
               else
               {
@@ -145,7 +144,6 @@ namespace xtk
           real t2Norm                        = moris::norm((tDxDpFD-tDxDp.get_row(0)));
 
           // check the design index is the one we expect
-          CHECK(tDxDpInds(0) == 1);
           CHECK(t2Norm < tTol);
 
       }

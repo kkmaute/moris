@@ -334,12 +334,6 @@ namespace moris
             get_node_dx_dp(moris::size_t const & aNodeIndex) const;
 
             /**
-             * @brief get adv indices for a node
-             */
-            moris::Matrix< moris::IndexMat > const &
-            get_node_adv_indices( moris::size_t const & aNodeIndex ) const;
-
-            /**
              * @brief For a given node index, return the phase index relative to each geometry (i.e. inside/outside indicator)
              */
             void get_phase_index( moris::Matrix< moris::DDSTMat > const & aNodeIndex,
@@ -383,18 +377,6 @@ namespace moris
              * @brief Advance the active geometry index
              */
             void advance_geometry_index();
-
-            /**
-             * this function need to be deleted as they are not used in the current PDV_Type interface implementation !!!
-             */
-            moris::Matrix< moris::IndexMat > get_node_adv_indices_analytic();
-
-            /**
-             * @brief Returns the ADV indices of the provided nodes
-             * this function need to be deleted as they are not used in the current PDV_Type interface implementation !!!
-             */
-            moris::Matrix< moris::IndexMat > get_node_adv_indices_discrete
-            ( moris::Matrix< moris::IndexMat > const & aEntityNodes );
 
             /**
              * Returns the number of advs

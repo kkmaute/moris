@@ -5048,13 +5048,6 @@ Model::extract_interface_sensitivity_sparse(moris::Matrix<moris::IndexMat> const
             adxdpData(3)(iNode) = tdxdp(1,0);
             adxdpData(4)(iNode) = tdxdp(1,1);
             adxdpData(5)(iNode) = tdxdp(1,2);
-
-            moris::Matrix< moris::IndexMat > const & tDesVarInds = mGeometryEngine->get_node_adv_indices(tNodeIndex);
-
-            aDesVars(0)(iNode) = (moris::real)mBackgroundMesh.get_mesh_data().get_glb_entity_id_from_entity_loc_index(tDesVarInds(0),EntityRank::NODE);
-            aDesVars(1)(iNode) = (moris::real)mBackgroundMesh.get_mesh_data().get_glb_entity_id_from_entity_loc_index(tDesVarInds(1),EntityRank::NODE);
-
-            aNumDesVars(iNode) = tDesVarInds.numel();
         }
 
     }
