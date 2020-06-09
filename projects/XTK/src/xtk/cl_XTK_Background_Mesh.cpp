@@ -26,6 +26,7 @@ Background_Mesh::Background_Mesh(moris::mtk::Interpolation_Mesh* aMeshData):
     mExternalMeshData.set_up_external_entity_data(mMeshData);
     initialize_background_mesh_vertices();
     setup_local_to_global_maps();
+    setup_comm_map();
 }
 
 // ----------------------------------------------------------------------------------
@@ -41,6 +42,7 @@ Background_Mesh::Background_Mesh(moris::mtk::Interpolation_Mesh* aMeshData,
     mExternalMeshData.set_up_external_entity_data(mMeshData);
     initialize_background_mesh_vertices();
     setup_local_to_global_maps();
+    setup_comm_map();
 }
 // ----------------------------------------------------------------------------------
 Background_Mesh::~Background_Mesh()
@@ -1152,6 +1154,27 @@ Background_Mesh::get_parent_cell_topology() const
     return tTopo;
 }
 // ----------------------------------------------------------------------------------
+Matrix<IdMat> const &
+Background_Mesh::get_communication_table() const
+{
+    return mCommunicationMap;
+}
+
+void
+Background_Mesh::add_proc_to_comm_table(moris_index aProcRank)
+{
+    moris_index tIndex = mCommunicationMap.numel();
+
+    for(moris::uint i = 0 ; i < mCommunicationMap.numel(); i++)
+    {
+        MORIS_ERROR(mCommunicationMap(i) != aProcRank,"Processor rank already in communication table");
+    }
+
+    mCommunicationMap.resize(1,mCommunicationMap.numel()+1);
+    mCommunicationMap(tIndex) = aProcRank;
+
+}
+// ----------------------------------------------------------------------------------
 
 moris::Matrix< moris::DDRMat >
 Background_Mesh::get_all_node_coordinates_loc_inds_background_mesh() const
@@ -1221,6 +1244,87 @@ Background_Mesh::setup_local_to_global_maps()
 
 }
 
+void
+Background_Mesh::setup_comm_map()
+{
+    if(par_size() > 1)
+    {
+    std::unordered_map<moris_id,moris_id> tCommunicationMap;
+    Cell<moris_index> tCellOfProcs;
+
+    for(moris::uint i = 0; i < mMeshData->get_num_entities(EntityRank::NODE); i++)
+    {
+        moris_index tOwner = mMeshData->get_entity_owner((moris_index)i,EntityRank::NODE);
+
+        if(tCommunicationMap.find(tOwner) == tCommunicationMap.end() && tOwner != par_rank())
+        {
+            tCellOfProcs.push_back(tOwner);
+            tCommunicationMap[tOwner] = 1;
+        }
+    }
+
+    mCommunicationMap.resize(1,tCellOfProcs.size());
+    for(moris::uint i = 0; i < tCellOfProcs.size(); i++)
+    {
+        mCommunicationMap(i) = tCellOfProcs(i);
+    }
+
+    Cell<Matrix<IndexMat>> tGatheredMats;
+    moris_index tTag = 10009;
+    all_gather_vector(mCommunicationMap,tGatheredMats,tTag,0);
+
+    if(par_rank() == 0)
+    {
+        Cell<Cell<uint>> tProcToProc(par_size());
+
+        for(moris::uint i = 0; i < tGatheredMats.size(); i++)
+        {
+            for(moris::uint j = 0; j < tGatheredMats(i).numel(); j ++)
+            {
+                tProcToProc(tGatheredMats(i)(j)).push_back((moris_index)i);
+            }
+        }
+
+        Cell<Matrix<IndexMat>> tReturnMats(tProcToProc.size());
+        // convert to a matrix
+        for(moris::uint  i = 0; i < tProcToProc.size(); i++)
+        {
+            tReturnMats(i).resize(1,tProcToProc(i).size());
+
+            for(moris::uint j = 0; j < tProcToProc(i).size(); j++)
+            {
+                tReturnMats(i)(j) = tProcToProc(i)(j);
+            }
+        }
+
+        // send them back
+        for(moris::uint i = 0; i < tReturnMats.size(); i++)
+        {
+            nonblocking_send(tReturnMats(i),tReturnMats(i).n_rows(),tReturnMats(i).n_cols(),i,tTag);
+        }
+    }
+
+    barrier();
+    Matrix<IndexMat> tTempCommMap(1,1,0);
+    receive(tTempCommMap,1,0,tTag);
+
+    for(moris::uint i =0; i < tTempCommMap.numel(); i++)
+    {
+        if(tCommunicationMap.find(tTempCommMap(i)) == tCommunicationMap.end() && tTempCommMap(i) != par_rank())
+        {
+            moris_index tIndex = mCommunicationMap.numel();
+            mCommunicationMap.resize(1,mCommunicationMap.numel()+1);
+
+            tCommunicationMap[tTempCommMap(i)] = 1;
+
+            mCommunicationMap(tIndex) = tTempCommMap(i);
+        }
+    }
+
+    barrier();
+    // every proc tell the other procs that they communicate with them
+    }
+}
 
 // ----------------------------------------------------------------------------------
 

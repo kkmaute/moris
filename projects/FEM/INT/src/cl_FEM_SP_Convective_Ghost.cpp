@@ -88,9 +88,10 @@ namespace moris
                 mtk::Master_Slave           aIsMaster )
         {
             // check that aPropertyString makes sense
-            MORIS_ERROR(
-                    mPropertyMap.find( aPropertyString ) != mPropertyMap.end(),
-                    "SP_Viscous_Ghost::set_property - Unknown aPropertyString." );
+            std::string tErrMsg =
+                    std::string( "SP_Convective_Ghost::set_property - Unknown aPropertyString : ") +
+                    aPropertyString;
+            MORIS_ERROR( mPropertyMap.find( aPropertyString ) != mPropertyMap.end() , tErrMsg.c_str() );
 
             // set the property in the property cell
             this->get_properties( aIsMaster )( static_cast< uint >( mPropertyMap[ aPropertyString ] ) ) = aProperty;
@@ -147,15 +148,16 @@ namespace moris
             if( aDofTypes( 0 ) == mMasterDofVelocity )
             {
                 // get the sign of u.n
-                Matrix< DDRMat > tSign = tAbs / tAbsReal;
-                if ( tAbsReal == 0.0 )
+                real tSign = 1.0;
+                if ( tAbs( 0 ) < 0.0 )
                 {
-                    tSign = {{ 0.0 }};
+                    tSign = -1.0;
                 }
 
                 // compute contribution from velocity
                 mdPPdMasterDof( tDofIndex ).matrix_data() +=
-                        mParameters( 0 ) * std::pow( mElementSize, 2.0 ) * tDensityProp->val()( 0 ) * tSign * trans( mNormal ) * tVelocityFI->N();
+                        mParameters( 0 ) * std::pow( mElementSize, 2.0 ) * tDensityProp->val()( 0 ) *
+                        tSign * trans( mNormal ) * tVelocityFI->N();
             }
 
             // if density depends on dof
@@ -163,7 +165,8 @@ namespace moris
             {
                 // compute contribution from density
                 mdPPdMasterDof( tDofIndex ).matrix_data() +=
-                        mParameters( 0 ) * std::pow( mElementSize, 2.0 ) * tAbsReal * tDensityProp->dPropdDOF( aDofTypes );
+                        mParameters( 0 ) * std::pow( mElementSize, 2.0 ) * tAbsReal *
+                        tDensityProp->dPropdDOF( aDofTypes );
             }
         }
 

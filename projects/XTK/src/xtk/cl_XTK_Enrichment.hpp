@@ -298,9 +298,11 @@ private:
 
     void
     communicate_basis_information_with_owner(moris_index const & aEnrichmentDataIndex,
-                                             Cell<Cell<moris_index>> const        & aBasisIdToBasisOwner,
-                                             Cell<Cell<moris_index>> const        & aMaxSubphaseIdToBasisOwner,
-                                             Cell<moris::Matrix<moris::IndexMat>> & aEnrichedBasisId);
+                                             Cell<Cell<moris_index>> const         & aBasisIdToBasisOwner,
+                                             Cell<Cell<moris_index>> const         & aMaxSubphaseIdToBasisOwner,
+                                             Cell<moris_index>       const         & aProcRanks,
+                                             std::unordered_map<moris_id,moris_id> & aProcRankToIndexInData,
+                                             Cell<moris::Matrix<moris::IndexMat>>  & aEnrichedBasisId);
 
     // ----------------------------------------------------------------------------------
 

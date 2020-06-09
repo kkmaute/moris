@@ -45,6 +45,7 @@ set(HEADERS
     cl_FEM_IWG_Incompressible_NS_Pressure_Neumann.hpp
     cl_FEM_IWG_Incompressible_NS_Velocity_Interface.hpp
     cl_FEM_IWG_Incompressible_NS_Pressure_Interface.hpp
+    cl_FEM_IWG_FS_Struc_Interface.hpp
     cl_FEM_IWG_Spalart_Allmaras_Turbulence_Bulk.hpp
     cl_FEM_IWG_Spalart_Allmaras_Turbulence_Dirichlet.hpp
     cl_FEM_IWG_Spalart_Allmaras_Turbulence_Interface.hpp
@@ -203,6 +204,7 @@ set(LIB_SOURCES
     cl_FEM_IWG_Incompressible_NS_Pressure_Neumann.cpp
     cl_FEM_IWG_Incompressible_NS_Velocity_Interface.cpp
     cl_FEM_IWG_Incompressible_NS_Pressure_Interface.cpp
+    cl_FEM_IWG_FS_Struc_Interface.cpp
     cl_FEM_IWG_Spalart_Allmaras_Turbulence_Bulk.cpp
     cl_FEM_IWG_Spalart_Allmaras_Turbulence_Dirichlet.cpp
     cl_FEM_IWG_Spalart_Allmaras_Turbulence_Interface.cpp

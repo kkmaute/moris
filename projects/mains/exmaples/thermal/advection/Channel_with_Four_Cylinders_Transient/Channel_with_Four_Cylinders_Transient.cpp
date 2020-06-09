@@ -380,7 +380,7 @@ namespace moris
         tParameterList( 1 )( tCMCounter ).set( "properties",
                 std::string("PropConductivity,Conductivity;") +
                 std::string("PropDensity     ,Density;")      +
-                std::string("PropCapacity    ,Heat_Capacity") );
+                std::string("PropCapacity    ,HeatCapacity") );
         tCMCounter++;
 
         //------------------------------------------------------------------------------

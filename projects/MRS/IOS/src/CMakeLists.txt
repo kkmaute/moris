@@ -35,6 +35,7 @@ set(LIB_SOURCES
 # List library dependencies
 set(LIB_DEPENDENCIES
     ${COR}-lib
+    ${MORIS_BASE_LIBS}
      )
 
 # Set the output path for library
@@ -51,6 +52,7 @@ target_include_directories(${IOS}-lib INTERFACE
 	$<INSTALL_INTERFACE:${${IOS}_HEADER_INSTALL_DIR}> )
 
 target_link_libraries(${IOS}-lib PUBLIC ${LIB_DEPENDENCIES})
+set_target_properties(${IOS}-lib PROPERTIES OUTPUT_NAME ${IOS})
 
 foreach(TPL ${IOS_TPL_DEPENDENCIES})
 	string(TOLOWER ${TPL} tpl)
@@ -61,8 +63,7 @@ foreach(TPL ${IOS_TPL_DEPENDENCIES})
     string(TOUPPER ${TPL} TPL)
     target_include_directories(${IOS}-lib
     	PUBLIC ${MORIS_${TPL}_LIBRARY_DIRS} ${MORIS_${TPL}_INCLUDE_DIRS})
-    #target_link_libraries(${IOS}-lib
-    #	INTERFACE ${MORIS_${TPL}_LIBRARIES})
+
     target_compile_definitions(${IOS}-lib
     	PUBLIC ${MORIS_${TPL}_DEFINITIONS})
 endforeach()

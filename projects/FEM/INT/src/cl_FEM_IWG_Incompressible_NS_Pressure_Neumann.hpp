@@ -33,6 +33,8 @@ namespace moris
             enum class IWG_Property_Type
             {
                 PRESSURE,
+                TOTAL_PRESSURE,
+                DENSITY,
                 MAX_ENUM
             };
 
@@ -60,19 +62,7 @@ namespace moris
              */
             void set_property( std::shared_ptr< Property > aProperty,
                                std::string                 aPropertyString,
-                               mtk::Master_Slave           aIsMaster = mtk::Master_Slave::MASTER )
-            {
-                // check that aPropertyString makes sense
-                MORIS_ERROR( mPropertyMap.find( aPropertyString ) != mPropertyMap.end(),
-                             "IWG_Incompressible_NS_Pressure_Neumann::set_property - Unknown aPropertyString." );
-
-                // check no slave allowed
-                MORIS_ERROR( aIsMaster == mtk::Master_Slave::MASTER,
-                             "IWG_Incompressible_NS_Pressure_Neumann::set_property - No slave allowed." );
-
-                // set the property in the property cell
-                this->get_properties( aIsMaster )( static_cast< uint >( mPropertyMap[ aPropertyString ] ) ) = aProperty;
-            }
+                               mtk::Master_Slave           aIsMaster = mtk::Master_Slave::MASTER );
 
 //------------------------------------------------------------------------------
             /**
@@ -107,8 +97,5 @@ namespace moris
 //------------------------------------------------------------------------------
     } /* namespace fem */
 } /* namespace moris */
-
-
-
 
 #endif /* PROJECTS_FEM_INT_SRC_CL_FEM_IWG_INCOMPRESSIBLE_NS_PRESSURE_BULK_HPP_ */

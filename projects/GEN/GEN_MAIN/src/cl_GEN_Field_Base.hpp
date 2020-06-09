@@ -41,7 +41,8 @@ namespace moris
             Field(Matrix<DDRMat> aConstantParameters);
 
         public:
-
+	
+	Field(){};
             /**
              * Destructor
              */
