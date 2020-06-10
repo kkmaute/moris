@@ -57,7 +57,6 @@ public:
     friend class Ghost_Stabilization;
     friend class Enriched_Interpolation_Mesh;
 
-protected:
     mtk::Vertex * get_base_vertex(  );
 
 private:
