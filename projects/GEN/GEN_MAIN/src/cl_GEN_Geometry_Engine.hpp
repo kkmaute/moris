@@ -44,37 +44,6 @@ namespace moris
     {
 
         //--------------------------------------------------------------------------------------------------------------
-
-        /**
-         * $\frac{\partial{\phi_A}}{\partial{p}}$ (change in phi with respect to a design variable
-         * See for more detailed description of this function:
-         */
-        inline
-        void compute_dx_dp_with_linear_basis( moris::Matrix< moris::DDRMat >  & aDPhiADp,
-                                              moris::Matrix< moris::DDRMat >  & aDPhiBDp,
-                                              moris::Matrix< moris::DDRMat >  & aEdgeCoordinates,
-                                              moris::Matrix< moris::DDRMat >  & aEdgeNodePhi,
-                                              moris::Matrix< moris::DDRMat >  & aDxDp )
-        {
-            moris::real const & tPhiA = aEdgeNodePhi(0,0);
-            moris::real const & tPhiB = aEdgeNodePhi(1,0);
-
-             // Initialize
-            moris::Matrix< moris::DDRMat > tXa = trans(aEdgeCoordinates.get_row(0));
-            moris::Matrix< moris::DDRMat > tXb = trans(aEdgeCoordinates.get_row(1));
-
-            // Compute $\frac{\partial x_{\Gamma}}{\partial \phi}$
-            moris::DDRMat tDxgammaDphiA = -(tPhiB)/std::pow((tPhiA-tPhiB),2)*(tXb.matrix_data()-tXa.matrix_data());
-            moris::DDRMat tDxgammaDphiB =  (tPhiA)/std::pow((tPhiA-tPhiB),2)*(tXb.matrix_data()-tXa.matrix_data());
-            moris::Matrix< moris::DDRMat > tDxgDphiAMat(tDxgammaDphiA);
-            moris::Matrix< moris::DDRMat > tDxgDphiBMat(tDxgammaDphiB);
-
-            // Compute dx/dp
-            moris::DDRMat tDxDp = tDxgDphiAMat * aDPhiADp + tDxgDphiBMat * aDPhiBDp;
-            aDxDp = moris::Matrix< moris::DDRMat >(tDxDp);
-        }
-
-        //--------------------------------------------------------------------------------------------------------------
         // GEOMETRY ENGINE
         //--------------------------------------------------------------------------------------------------------------
 
@@ -257,19 +226,12 @@ namespace moris
                                  moris::size_t                            aCheckType,
                                  Cell<GEN_Geometry_Object> &              aGeometryObjects );
 
-            /*!
-             * @brief Computes the interface sensitivity of the provided node indices. After this call,
-             * the sensitivity information of these interface nodes can be accessed through the interface
-             * nodes respective geometry object.
-             * @param[in] aInterfaceNodeIndices - Interface Node Indices (should be interface nodes wrt geometry index provided)
-             * @param[in] aNodeCoords -  Node coordinates with location corresponding to indices of aIntefaceNodeIndices.
-             * @param[in] aGeomIndex - Geometry Index
-             * @param[in] aGlbCoord  - bool to calculate the global coordinate of the intersection point
+            /**
+             * Sets the indices for the nodes on the interface
+             *
+             * @param aInterfaceNodeIndices Interface node indices
              */
-            void compute_interface_sensitivity( Matrix< IndexMat > const & aInterfaceNodeIndices,
-                                                Matrix< DDRMat >   const & aNodeCoords,
-                                                moris_index                aGeomIndex,
-                                                bool               const   aGlbCoord = false );
+            void set_interface_nodes( Matrix< IndexMat > const & aInterfaceNodeIndices);
 
             /**
              * Computes the intersection of an isocountour with an entity and returning the local coordinate relative to the parent

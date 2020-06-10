@@ -4995,7 +4995,7 @@ Model::compute_interface_sensitivity_internal()
         moris::Matrix< moris::IndexMat > tInterfaceNodes = mBackgroundMesh.get_interface_nodes_loc_inds(iGeo);
 
         // Compute interface sensitivity
-        mGeometryEngine->compute_interface_sensitivity(tInterfaceNodes,tNodeCoords,iGeo);
+        mGeometryEngine->set_interface_nodes(tInterfaceNodes);
     }
 }
 

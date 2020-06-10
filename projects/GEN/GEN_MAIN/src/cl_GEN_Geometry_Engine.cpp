@@ -369,64 +369,10 @@ namespace moris
         }
 
         //--------------------------------------------------------------------------------------------------------------
-        
-        void Geometry_Engine::compute_interface_sensitivity( Matrix< IndexMat > const & aInterfaceNodeIndices,
-                                                                 Matrix< DDRMat >   const & aNodeCoords,
-                                                                 moris_index                aGeomIndex,
-                                                                 bool               const   aGlbCoord )
+
+        void Geometry_Engine::set_interface_nodes( Matrix< IndexMat > const & aInterfaceNodeIndices)
         {
             mInterfaceNodeIndices = aInterfaceNodeIndices;
-
-            // Figure out how many entities to compute sensitivity for
-            uint tNumEntities = aInterfaceNodeIndices.numel();
-        
-            // iterate through node indices and compute sensitivity for each
-            for( uint iEnt = 0; iEnt<tNumEntities; iEnt++ )
-            {
-                // get the node index
-                moris::moris_index tNodeIndex = aInterfaceNodeIndices( iEnt );
-        
-                // Get the node geometry object
-                GEN_Geometry_Object & tGeoObj = this->mGeometryObjectManager.get_geometry_object_from_manager(tNodeIndex);
-        
-                // Get the parent topology that this node was created on
-                xtk::Topology const & tParentEdge = tGeoObj.get_parent_entity_topology( );
-        
-                MORIS_ASSERT(tParentEdge.get_topology_type() == xtk::Topology_Type::EDGE,"Only supporting interface sensitivity computation on an edge");
-        
-                // Get the node indices from the topology
-                Matrix< IndexMat > const & tParentEntityNodes = tParentEdge.get_node_indices( );
-        
-                // Initialize sensitivity
-                Matrix< DDRMat > tDxDp(1,1,0.0);
-        
-                // Get the node vars of the parent edge nodes
-                Matrix< DDRMat > tEntityNodeVars( tParentEntityNodes.numel(), 1 );
-                for(uint i = 0; i < tParentEntityNodes.numel(); i++)
-                {
-                    tEntityNodeVars(i) = this->get_entity_phase_val( tParentEntityNodes(i), aGeomIndex );
-                }
-        
-                // Recompute local intersection (This could be stored instead)
-                Matrix< DDRMat > tIntersectLocalCoordinate( 1, 1, 0.0 );
-                Matrix< DDRMat > tIntersectGlobalCoordinate( 1, 1, 0.0 );
-                get_intersection_location(mThresholdValue,
-                                          mPerturbationValue,
-                                          aNodeCoords,
-                                          tEntityNodeVars,
-                                          tParentEntityNodes,
-                                          tIntersectLocalCoordinate,
-                                          tIntersectGlobalCoordinate,
-                                          true,
-                                          aGlbCoord);
-        
-                // FIXME: Parent edge nodes need to not be the ADVs
-                Matrix< IndexMat > tADVIndices;
-                compute_dx_dp_for_an_intersection( tParentEntityNodes, aNodeCoords, tIntersectLocalCoordinate, tEntityNodeVars, tDxDp, tADVIndices );
-        
-                tGeoObj.set_sensitivity_dx_dp( tDxDp );
-                tGeoObj.set_node_adv_indices(tADVIndices);
-            }
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -517,50 +463,8 @@ namespace moris
                 tDxDp.matrix_data() = tScale * (tPerturbedGlobCoordinates(1).matrix_data() - tPerturbedGlobCoordinates(0).matrix_data());
         
                 replace_row(0, tDxDp, i, aDxDp);
-        
-        
-            }
-        }
 
-        //--------------------------------------------------------------------------------------------------------------
-        
-        void Geometry_Engine::compute_dx_dp_for_an_intersection( moris::Matrix< moris::IndexMat > const & aEntityNodeIndices,
-                                                                     moris::Matrix< moris::DDRMat >   const & aGlobalNodeCoordinates,
-                                                                     moris::Matrix< moris::DDRMat >   const & aIntersectionLclCoordinate,
-                                                                     moris::Matrix< moris::DDRMat >         & aEntityNodeVars,
-                                                                     moris::Matrix< moris::DDRMat >         & aDxDp,
-                                                                     moris::Matrix< moris::IndexMat >       & aADVIndices )
-        {
-            moris::size_t tNumNodes = aEntityNodeIndices.n_cols();
-        
-            MORIS_ASSERT(tNumNodes == 2, "Currently, compute_dx_dp_for_an_intersection is only supported on edges");
-        
-            // Initialize
-            moris::Cell< moris::Matrix< moris::DDRMat > > tDPhiiDp(2);// = { moris::Matrix< moris::DDRMat >(0,0), moris::Matrix< moris::DDRMat >(0,0) };
-            uint tDim = aGlobalNodeCoordinates.n_cols();
-            moris::Matrix< moris::DDRMat > tEntityNodeCoordinates( tNumNodes,tDim );
-        
-            // Assemble the entity local coordinates
-            replace_row(aEntityNodeIndices(0,0), aGlobalNodeCoordinates,0,tEntityNodeCoordinates);
-            replace_row(aEntityNodeIndices(0,1), aGlobalNodeCoordinates,1,tEntityNodeCoordinates);
-        
-            // Get information from geometry
-            if (mGeometry(mActiveGeometryIndex)->sensitivities_available())
-            {
-                // Analytic
-                for(moris::size_t i = 0; i < tNumNodes; i++)
-                {
-                    mGeometry(mActiveGeometryIndex)->evaluate_sensitivity(aEntityNodeIndices(0, i),
-                                                                          aGlobalNodeCoordinates.get_row(aEntityNodeIndices(0, i)),
-                                                                          tDPhiiDp(i));
-                }
-                compute_dx_dp_with_linear_basis( tDPhiiDp(0), tDPhiiDp(1), tEntityNodeCoordinates, aEntityNodeVars, aDxDp );
-            }
-            else
-            {
-                // Discrete
-                compute_dx_dp_finite_difference( mPerturbationValue, aGlobalNodeCoordinates, tEntityNodeCoordinates,
-                        aIntersectionLclCoordinate, aEntityNodeIndices, aEntityNodeVars, aDxDp );
+
             }
         }
 
@@ -777,43 +681,6 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        //Matrix< DDRMat > Geometry_Engine::get_cylinder_vals( moris_index aWhichMesh,
-        //                                                         GEN_CylinderWithEndCaps* aFiber,
-        //                                                         uint aNumberOfFibers )  //FIXME this is currently only setup to work with an HMR member mesh
-        //{
-        //    uint tNumOfIPNodes = mMesh_HMR( aWhichMesh )->get_num_nodes();
-        //
-        //    Matrix< DDRMat > tLSVals(tNumOfIPNodes, 1, 1.0); // FIXME: 10.0 needs to be replaced with problem dependent value
-        //
-        //    for( uint k=0; k<aNumberOfFibers; ++k )
-        //    {
-        //        uint tNumCylinders = aFiber->get_number_of_cylinders(k);
-        //
-        //        for( uint l=0; l<tNumCylinders; ++l )
-        //        {
-        //            Matrix<DDRMat> tMidPoint;
-        //            Matrix<DDRMat> tLength;
-        //            aFiber->midPoint_and_BB_dims( k, l, tMidPoint, tLength, 1.0 ); // FIXME: 1.0 needs to be the size of the coarsest element ( this is the bounding box buffer value )
-        //
-        //            Matrix<IndexMat> tNodeIndices;
-        //            mMesh_HMR( aWhichMesh )->get_nodes_indices_in_bounding_box( tMidPoint,
-        //                                                                        { { tLength(0) },{ tLength(1) } ,{ tLength(2) }},
-        //                                                                        tNodeIndices );
-        //            for( uint i=0; i<tNodeIndices.numel(); ++i )
-        //            {
-        //                Matrix<DDRMat> tVertexCoords = mMesh_HMR( aWhichMesh )->get_mtk_vertex( tNodeIndices( i ) ).get_coords();
-        //                tLSVals( tNodeIndices( i ) ) = std::min( tLSVals( tNodeIndices( i ) ),
-        //                                                         aFiber->create_cylinder( tVertexCoords, k, l ) );
-        //            }
-        //
-        //        }
-        //    }
-        //
-        //      return tLSVals;
-        //}
-
-        //--------------------------------------------------------------------------------------------------------------
-
         Matrix<DDRMat> Geometry_Engine::evaluate_geometry_field_values(const Matrix<DDUMat>&       aNodeIndices,
                                                                        const Cell<Matrix<DDRMat>>& aCoordinates,
                                                                        uint                        aGeometryIndex)
@@ -926,9 +793,6 @@ namespace moris
                     aGeometryObject.set_interface_glb_coord(tIntersectGlobalCoordinate);
                     if(mComputeDxDp)
                     {
-                        moris::Matrix< moris::DDRMat > tDxDp(1,1,100.0);
-                        compute_dx_dp_for_an_intersection(aEntityNodeInds,aNodeCoords,tIntersectLocalCoordinate,tEntityNodeVars, tDxDp, aNodeADVIndices);
-                        aGeometryObject.set_sensitivity_dx_dp(tDxDp);
                         aGeometryObject.set_node_adv_indices(aNodeADVIndices);
                     }
                }
@@ -1081,7 +945,7 @@ namespace moris
                 {
                     tCluster = tSet->get_clusters_by_index(tClusterIndex);
 
-                    // Indices on cluster FIXME get rid of copying over indices
+                    // Indices on cluster
                     tNodeIndicesInCluster = tCluster->get_interpolation_cell().get_vertex_inds();
                     tNodeIndicesPerSet(tMeshSetIndex).resize(tNodeIndicesPerSet(tMeshSetIndex).length() + tNodeIndicesInCluster.length(), 1);
                     
