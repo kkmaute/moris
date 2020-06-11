@@ -828,7 +828,7 @@ namespace xtk
         mEnrichCoeffOwnership.resize(mMeshIndices.numel());
 
         // iterate through meshes
-        for(moris::uint iM = 0; iM < mMeshIndices(iM); iM++)
+        for(moris::uint iM = 0; iM < mMeshIndices.numel(); iM++)
         {
             mEnrichCoeffOwnership(iM).resize(1,mEnrichCoeffLocToGlob(iM).numel());
 
