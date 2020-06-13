@@ -8,26 +8,26 @@ set(${WRK}_VERSION ${MORIS_VERSION})
 set(HEADERS
      )
      
-set(XTK_INCLUDES                                                                                                                                                                                                                                                               
-    "assert"                                                                                                                                                                                                                                                                   
-    "containers"                                                                                                                                                                                                                                                               
-    "core"                                                                                                                                                                                                                                                                     
-    "geomeng"                                                                                                                                                                                                                                                                  
-    "geometry"                                                                                                                                                                                                                                                                 
-    "ios"                                                                                                                                                                                                                                                                      
-    "linalg"                                                                                                                                                                                                                                                                   
-    "mesh"                                                                                                                                                                                                                                                                     
-    "tools"                                                                                                                                                                                                                                                                    
-    "topology"                                                                                                                                                                                                                                                                 
-    "xtk"                                                                                                                                                                                                                                                                      
-    )    
+set(XTK_INCLUDES
+    "assert"
+    "containers"
+    "core"
+    "geomeng"
+    "geometry"
+    "ios"
+    "linalg"
+    "mesh"
+    "tools"
+    "topology"
+	"xtk"
+	)    
     
-# Include depedency directories                                                                                                                                                                                                                                                
+# Include depedency directories                                    
 foreach(XTK_INCLUDE ${XTK_INCLUDES})  
-    include_directories(${MORIS_PACKAGE_DIR}/XTK/src/${XTK_INCLUDE})                                                                                                                                                                                                           
+    include_directories(${MORIS_PACKAGE_DIR}/XTK/src/${XTK_INCLUDE}) 
 endforeach()   
 
-set(GEN_INCLUDES                                                                                                                                                                                                                                                               
+set(GEN_INCLUDES        
     "additional"
     "geomeng"
     "geometry"
@@ -46,6 +46,7 @@ endforeach()
 set(LIB_SOURCES
     cl_WRK_Performer_Manager.cpp
     cl_WRK_Workflow.cpp
+    fn_WRK_Workflow_Main_Interface.cpp
     )
 
 # List library dependencies
