@@ -92,6 +92,9 @@ namespace moris
             // HMR refinements
             uint mNumRefinements;
 
+            // HMR user defined refinement function
+            MORIS_USER_DEFINED_REFINEMENT_FUNCTION mUserDefinedFunc;
+
             // ADVs/IQIs
             Matrix<DDRMat> mADVs;
             Matrix<DDRMat> mLowerBounds;
