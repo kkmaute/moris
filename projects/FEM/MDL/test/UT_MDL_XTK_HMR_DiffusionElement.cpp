@@ -812,7 +812,7 @@ TEST_CASE("HMR Interpolation XTK Cut Diffusion Model Multigrid","[XTK_HMR_DIFF_M
         {
             // Write mesh
             moris::mtk::Writer_Exodus writer(tIntegMesh1);
-            writer.write_mesh("", "./xtk_exo/xtk_multigrid.exo");
+            writer.write_mesh("", "./xtk_multigrid.exo");
 
             // Write the fields
             writer.set_time(0.0);
