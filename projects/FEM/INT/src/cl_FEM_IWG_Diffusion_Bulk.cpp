@@ -29,7 +29,7 @@ namespace moris
             mStabilizationParam.resize( static_cast< uint >( IWG_Stabilization_Type::MAX_ENUM ), nullptr );
 
             // populate the stabilization map
-            mStabilizationMap[ "GGLS_Param" ] = IWG_Stabilization_Type::GGLS_DIFFUSION;
+            mStabilizationMap[ "GGLSParam" ] = IWG_Stabilization_Type::GGLS_DIFFUSION;
         }
 
         //------------------------------------------------------------------------------
