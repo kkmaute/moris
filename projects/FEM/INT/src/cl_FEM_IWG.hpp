@@ -520,8 +520,8 @@ namespace moris
                  * for both master and slave
                  */
                 void get_non_unique_dof_and_dv_types(
-                        moris::Cell< MSI::Dof_Type > & aDofTypes,
-                        moris::Cell< PDV_Type >        & aDvTypes );
+                        moris::Cell< moris::Cell< MSI::Dof_Type > > & aDofTypes,
+                        moris::Cell< moris::Cell< PDV_Type > >      & aDvTypes );
 
                 //------------------------------------------------------------------------------
                 /**

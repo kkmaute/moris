@@ -36,14 +36,13 @@ add_executable(${HMR_TEST} ${TEST_SOURCES})
 target_link_libraries(${HMR_TEST} PRIVATE ${TEST_DEPENDENCIES})
 set_target_properties(${HMR_TEST} PROPERTIES OUTPUT_NAME ${HMR_TEST}${EXE_EXT})
 
-
 # Add parallel tests
 if(MORIS_HAVE_PARALLEL_TESTS)
-	set(HMR_TEST_PROCS ${MORIS_TEST_PROCS})
-	foreach(PROCS ${HMR_TEST_PROCS})
-		set(HMR_PARALLEL_TEST ${HMR_TEST}-${PROCS}-procs)
-		add_test(NAME ${HMR_PARALLEL_TEST} 
-			COMMAND ${MORIS_EXECUTE_COMMAND} -n ${PROCS} ${VALGRIND} ${VALGRIND_OPTIONS} $<TARGET_FILE:${HMR_TEST}>)
-	endforeach()
+    set(HMR_TEST_PROCS ${MORIS_TEST_PROCS})
+    foreach(PROCS ${HMR_TEST_PROCS})
+        set(HMR_PARALLEL_TEST ${HMR_TEST}-${PROCS}-procs)
+        add_test(NAME ${HMR_PARALLEL_TEST} 
+            COMMAND ${MORIS_EXECUTE_COMMAND} -n ${PROCS} ${VALGRIND} ${VALGRIND_OPTIONS} $<TARGET_FILE:${HMR_TEST}>)
+    endforeach()
 endif()
 

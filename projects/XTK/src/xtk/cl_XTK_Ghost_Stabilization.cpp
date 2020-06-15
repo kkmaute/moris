@@ -29,6 +29,47 @@ namespace xtk
     {
         Ghost_Setup_Data tGhostSetupData;
 
+
+        xtk::Enriched_Interpolation_Mesh & tEnrIpMesh  = mXTKModel->get_enriched_interp_mesh(0);
+          moris::uint tNumVerts = tEnrIpMesh.get_num_entities(EntityRank::NODE,0);
+
+
+
+          Cell<moris_index> tOwnedIndices;
+          Cell<moris_index> tOwnedIds;
+
+          // iterate through vertices
+          for(moris::uint iV = 0; iV < tNumVerts; iV++)
+          {
+              // get the vertex
+              xtk::Interpolation_Vertex_Unzipped & tVertex = tEnrIpMesh.get_xtk_interp_vertex((moris_index)iV);
+              if(tVertex.get_base_vertex()->has_interpolation(1))
+              {
+                  xtk::Vertex_Enrichment* tInterp =  tVertex.get_xtk_interpolation(0);
+
+                  Matrix<IndexMat> tOwners  = tInterp->get_owners();
+                  Matrix<IndexMat> tIndices = tInterp->get_indices();
+                  Matrix<IndexMat> tIds     = tInterp->get_ids();
+                  // iterate through basis functions
+                  for(moris::uint  iB = 0; iB <tOwners.numel(); iB++)
+                  {
+                      if(tOwners(iB) == par_rank())
+                      {
+                          tOwnedIndices.push_back(tIndices(iB));
+                          tOwnedIds.push_back(tIds(iB));
+                      }
+                  }
+              }
+          }
+
+
+          unique(tOwnedIndices);
+          unique(tOwnedIds);
+
+          std::cout<<"before ghost tOwnedIndices.size() = "<<tOwnedIndices.size()<<std::endl;
+          std::cout<<"before ghost tOwnedIds.size() = "<<tOwnedIds.size()<<std::endl;
+
+
         // construct trivial subphase interpolation cells
         this->construct_ip_ig_cells_for_ghost_side_clusters(tGhostSetupData);
 
@@ -40,6 +81,43 @@ namespace xtk
 
         // Construct Ghost Double Side Clusters and Sets
         this->construct_ghost_double_side_sets_in_mesh(tGhostSetupData);
+
+
+
+        tOwnedIndices.clear();
+        tOwnedIds.clear();
+
+        // iterate through vertices
+        for(moris::uint iV = 0; iV < tNumVerts; iV++)
+        {
+            // get the vertex
+            xtk::Interpolation_Vertex_Unzipped & tVertex = tEnrIpMesh.get_xtk_interp_vertex((moris_index)iV);
+            if(tVertex.get_base_vertex()->has_interpolation(1))
+            {
+                xtk::Vertex_Enrichment* tInterp =  tVertex.get_xtk_interpolation(0);
+
+                Matrix<IndexMat> tOwners  = tInterp->get_owners();
+                Matrix<IndexMat> tIndices = tInterp->get_indices();
+                Matrix<IndexMat> tIds     = tInterp->get_ids();
+                // iterate through basis functions
+                for(moris::uint  iB = 0; iB <tOwners.numel(); iB++)
+                {
+                    if(tOwners(iB) == par_rank())
+                    {
+                        tOwnedIndices.push_back(tIndices(iB));
+                        tOwnedIds.push_back(tIds(iB));
+                    }
+                }
+            }
+        }
+
+
+        unique(tOwnedIndices);
+        unique(tOwnedIds);
+
+        std::cout<<"tOwnedIndices.size() = "<<tOwnedIndices.size()<<std::endl;
+        std::cout<<"tOwnedIds.size() = "<<tOwnedIds.size()<<std::endl;
+
     }
     // ----------------------------------------------------------------------------------
     void
@@ -555,6 +633,7 @@ namespace xtk
         // also collect vertex interpolations
         for(moris::uint iP = 0; iP < aRequestedBgVertexIds.size(); iP++)
         {
+
             // size the tmatrix offset for each vertex requested (num verts +1)
             aTMatrixOffsets(iP).resize(1,aRequestedBgVertexIds(iP).numel()+1 );
 
@@ -638,6 +717,8 @@ namespace xtk
             tProcRankToIndexInData[tCommTable(i)] = i;
         }
 
+        moris::print(tCommTable,"tCommTable");
+
         // iterate through returned information
         for(moris::uint iP = 0; iP < aNotOwnedIPVertIndsToProcs.size(); iP++)
         {
@@ -654,6 +735,7 @@ namespace xtk
                     tExtractedTMatrixWeights,
                     tExtractedTMatrixIds,
                     tExtractedTBasisOwners);
+
 
             // iterate through vertices and set their interpolation weights and basis ids
             for(moris::uint iV = 0; iV < aNotOwnedIPVertIndsToProcs(iP).numel(); iV++)
@@ -676,23 +758,27 @@ namespace xtk
                     // add this basis to the mesh if it doesnt exists on the current partition
                     if(!tEnrInterpMesh.basis_exists_on_partition(tEnrInterpMesh.mMeshIndices(0),tId))
                     {
-                        tEnrInterpMesh.add_basis_function(tEnrInterpMesh.mMeshIndices(0),tId);
+                        MORIS_ASSERT(tExtractedTBasisOwners(iV)(iBs) != par_rank(),"Owned basis should already exist on partition.");
+
+                        tEnrInterpMesh.add_basis_function(tEnrInterpMesh.mMeshIndices(0),tId,tExtractedTBasisOwners(iV)(iBs));
                     }
+
                     tBasisIndices(iBs) = tEnrInterpMesh.get_enr_basis_index_from_enr_basis_id(tEnrInterpMesh.mMeshIndices(0),tId);
+
 
                     moris_id tBasisOwner = tExtractedTBasisOwners(iV)(iBs);
 
-                    MORIS_ASSERT(tBasisOwner <10000000,"Max owner detected");
+                    MORIS_ASSERT(tEnrInterpMesh.get_basis_owner(tBasisIndices(iBs),tEnrInterpMesh.mMeshIndices(0)) == tBasisOwner,"Ownership discrepency.");
 
                     // if the basis has an owning proc that is not in the comm table, add it to the comm table
                     if(tProcRankToIndexInData.find(tBasisOwner) == tProcRankToIndexInData.end() && tBasisOwner != par_rank())
                     {
-                        std::cout<<"tBasisOwner = "<<tBasisOwner<<std::endl;
                         tEnrInterpMesh.add_proc_to_comm_table(tBasisOwner);
                         tProcRankToIndexInData[tBasisOwner] = tCount;
                         tCount++;
                     }
                 }
+
 
                 // iterate through basis in the base vertex interpolation
                 moris::uint tNumCoeffs = tExtractedTMatrixIds(iV).numel();
@@ -784,10 +870,8 @@ namespace xtk
             aTMatrixIndices(aCount) = tBasisIndices(i);
             aTMatrixWeights(aCount) = tBasisWeights(i);
 
-            if(tBasisOwners(i) >par_size() || tBasisOwners(i) < 0)
-            {
-                std::cout<<"Basis owner with weird rank"<<std::endl;
-            }
+            MORIS_ASSERT(tBasisOwners(i) < par_size() || tBasisOwners(i) > 0, "Bad ownership for basis function.");
+
             aTMatrixOwners(aCount)  = tBasisOwners(i);
             aCount++;
         }
@@ -978,6 +1062,14 @@ namespace xtk
             moris_index const & aSecondSubphase,
             moris_index &       aTrivialFlag)
     {
+
+        // Rules:
+        // 1. Only create ghost facets between a subphase created inside an intersected
+        //    cell and its neighbors.
+        // 2. The owning processor of the master (first) subphase constructs the ghost facet.
+        // 3. Construct from coarse to fine in HMR
+
+
         // make sure flag is set to true
         aTrivialFlag = 0;
 
@@ -1006,6 +1098,7 @@ namespace xtk
         // proc rank
         moris_index tProcRank = par_rank();
 
+        // if both subphases are not in child meshes return false
         if(!mXTKModel->subphase_is_in_child_mesh(aFirstSubphase) && !mXTKModel->subphase_is_in_child_mesh(aSecondSubphase))
         {
             return false;
@@ -1015,13 +1108,13 @@ namespace xtk
         // always create from large to small facet
         if(tFirstLevel < tSecondLevel)
         {
-            aTrivialFlag = 1;
-            return true;
-        }
 
-        // if the second subphase is more coarse than the first subphase
-        if(tFirstLevel > tSecondLevel)
-        {
+            if(tFirstOwnerIndex == tProcRank)
+            {
+                aTrivialFlag = 1;
+                return true;
+            }
+
             return false;
         }
 

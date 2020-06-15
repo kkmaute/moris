@@ -252,10 +252,15 @@ namespace xtk
 
         moris_index tLocalMeshIndex = this->get_local_mesh_index(aBSplineIndex);
 
-        for(moris::uint i = 0; i < mEnrichCoeffLocToGlob(tLocalMeshIndex).numel(); i++)
+        for(moris::uint iB =0; iB <mEnrichCoeffLocToGlob(tLocalMeshIndex).numel(); iB++)
         {
-            aAdofMap[mEnrichCoeffLocToGlob(tLocalMeshIndex)(i)] = i;
+            MORIS_ASSERT(!aAdofMap.key_exists(mEnrichCoeffLocToGlob(tLocalMeshIndex)(iB)),"Duplicate id in the basis map detected");
+
+            aAdofMap[mEnrichCoeffLocToGlob(tLocalMeshIndex)(iB)] = (moris_index) iB;
+
         }
+
+
     }
     //------------------------------------------------------------------------------
     Matrix<IndexMat> const &
@@ -415,7 +420,8 @@ namespace xtk
     moris_index
     Enriched_Interpolation_Mesh::add_basis_function(
             moris_index const & aMeshIndex,
-            moris_index const & aBasisIdToAdd)
+            moris_index const & aBasisIdToAdd,
+            moris_index const & aBasisOwner)
     {
         MORIS_ASSERT(!this->basis_exists_on_partition(aMeshIndex,aBasisIdToAdd),"Basis that you are trying to add already exists in this mesh");
 
@@ -424,9 +430,12 @@ namespace xtk
 
         // add a size of 1
         mEnrichCoeffLocToGlob(tLocMesh).resize(1,tNewIndex+1);
+        mEnrichCoeffOwnership(tLocMesh).resize(1,tNewIndex+1);
+
 
         // add the local to glb map
         mEnrichCoeffLocToGlob(tLocMesh)(tNewIndex) = aBasisIdToAdd;
+        mEnrichCoeffOwnership(tLocMesh)(tNewIndex) = aBasisOwner;
 
         // add to glb to local map
         mGlobaltoLocalBasisMaps(tLocMesh)[aBasisIdToAdd] = tNewIndex;
@@ -466,6 +475,15 @@ namespace xtk
     {
         MORIS_ASSERT(aLocalInterpIndex < (moris_index) mMeshIndices.numel(),"Local interpolation index out of bounds");
         return mMeshIndices(aLocalInterpIndex);
+    }
+    //------------------------------------------------------------------------------
+    moris_index
+    Enriched_Interpolation_Mesh::get_basis_owner(moris_index aBasisIndex,
+                                                 moris_index aMeshIndex)
+    {
+        moris_index tLocMesh = this->get_local_mesh_index(aMeshIndex);
+
+        return mEnrichCoeffOwnership(tLocMesh)(aBasisIndex);
     }
 
     //------------------------------------------------------------------------------
@@ -742,6 +760,7 @@ namespace xtk
     {
         this->setup_local_to_global_maps();
         this->setup_not_owned_vertices();
+        this->setup_basis_ownership();
 
         //    if(par_rank() == 1)
         //    {
@@ -800,6 +819,34 @@ namespace xtk
                 mNotOwnedVerts.push_back(tVert.get_index());
             }
         }
+    }
+    //------------------------------------------------------------------------------
+    void
+    Enriched_Interpolation_Mesh::setup_basis_ownership()
+    {
+        // size data
+        mEnrichCoeffOwnership.resize(mMeshIndices.numel());
+
+        // iterate through meshes
+        for(moris::uint iM = 0; iM < mMeshIndices.numel(); iM++)
+        {
+            mEnrichCoeffOwnership(iM).resize(1,mEnrichCoeffLocToGlob(iM).numel());
+
+            mEnrichCoeffOwnership(iM).fill(MORIS_INDEX_MAX);
+
+            // iterate through basis functions
+            for(moris::uint iB = 0; iB < mCoeffToEnrichCoeffs(iM).size(); iB++)
+            {
+                moris_index tOwner = mXTKModel->get_background_mesh().get_mesh_data().get_entity_owner((moris_index)iB,mBasisRank, mMeshIndices(iM));
+
+                for(moris::uint iEB = 0; iEB < mCoeffToEnrichCoeffs(iM)(iB).numel(); iEB++)
+                {
+                    moris_index tEnrIndex = mCoeffToEnrichCoeffs(iM)(iB)(iEB);
+                    mEnrichCoeffOwnership(iM)(tEnrIndex) = tOwner;
+                }
+            }
+        }
+
     }
     //------------------------------------------------------------------------------
     void

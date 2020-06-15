@@ -18,11 +18,11 @@ namespace moris
             mMasterProp.resize( static_cast< uint >( Property_Type::MAX_ENUM ), nullptr );
 
             // populate the map
-            mPropertyMap[ "Conductivity" ]         = Property_Type::CONDUCTIVITY;
-            mPropertyMap[ "Density" ]              = Property_Type::DENSITY;
-            mPropertyMap[ "HeatCapacity" ]        = Property_Type::HEAT_CAPACITY;
-            mPropertyMap[ "LatentHeat" ]          = Property_Type::LATENT_HEAT;
-            mPropertyMap[ "PCTemp" ]              = Property_Type::PC_TEMP;
+            mPropertyMap[ "Conductivity" ]       = Property_Type::CONDUCTIVITY;
+            mPropertyMap[ "Density" ]            = Property_Type::DENSITY;
+            mPropertyMap[ "HeatCapacity" ]       = Property_Type::HEAT_CAPACITY;
+            mPropertyMap[ "LatentHeat" ]         = Property_Type::LATENT_HEAT;
+            mPropertyMap[ "PCTemp" ]             = Property_Type::PC_TEMP;
             mPropertyMap[ "PhaseStateFunction" ] = Property_Type::PHASE_STATE_FUNCTION;
             mPropertyMap[ "PhaseChangeConst" ]   = Property_Type::PHASE_CHANGE_CONST;
         }

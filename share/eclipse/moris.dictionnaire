@@ -28,3 +28,5 @@ interpolator
 residual
 nodal
 enrichment
+Nitsche
+Lagrange

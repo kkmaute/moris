@@ -78,7 +78,7 @@ namespace moris
         tParameterList.insert( "use_multigrid", 0 );
 
         //! boolean for numbering of aura
-        tParameterList.insert( "use_number_aura", 0 );
+        tParameterList.insert( "use_number_aura", 1 );
 
         //! initial refinement level
         tParameterList.insert( "initial_refinement", 0 );

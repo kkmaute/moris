@@ -138,7 +138,14 @@ public:
     moris_index
     get_interpolation_index(moris_index const & aLocalInterpIndex) const;
 
-protected:
+    /*!
+     * get basis owner
+     */
+    moris_index
+    get_basis_owner(moris_index aBasisIndex,
+            moris_index aMeshIndex);
+
+public:
     Cell<Interpolation_Cell_Unzipped*> &
     get_enriched_interpolation_cells() ;
 
@@ -256,6 +263,9 @@ protected:
     Cell<moris::Matrix<moris::IdMat>> mEnrichCoeffLocToGlob;
     Cell<std::unordered_map<moris_id,moris_index>> mGlobaltoLocalBasisMaps;
 
+    // basis ownership
+    Cell<moris::Matrix<moris::IdMat>> mEnrichCoeffOwnership;
+
     //
 
     // Entity maps
@@ -323,8 +333,9 @@ protected:
      * returns the index
      */
     moris_index
-    add_basis_function(moris_index const & aMeshIndex,
-                       moris_index const & aBasisIdToAdd);
+    add_basis_function( moris_index const & aMeshIndex,
+            moris_index const & aBasisIdToAdd,
+            moris_index const & aBasisOwner);
 
     void
     finalize_setup();
@@ -334,6 +345,7 @@ protected:
     void setup_vertex_maps();
     void setup_cell_maps();
     void setup_basis_maps();
+    void setup_basis_ownership();
     void setup_mesh_index_map();
 
     // not owned vertex functions

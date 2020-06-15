@@ -29,7 +29,7 @@ namespace MSI
 
     Pdof_Host::~Pdof_Host()
     {
-        for( moris::Cell< Pdof* > tList : mListOfPdofTimePerType )
+        for( moris::Cell< Pdof* > & tList : mListOfPdofTimePerType )
         {
             for( Pdof* tPdof : tList )
             {
@@ -56,7 +56,7 @@ namespace MSI
             // Set mPdofTypeExist to 1. ==> Dof type exists
             mPdofTypeExist( tDofTypeIndex ) = 1;
 
-            mListOfPdofTimePerType( tDofTypeIndex ).resize( tNumTimeLevelforDofType );
+            mListOfPdofTimePerType( tDofTypeIndex ).resize( tNumTimeLevelforDofType, nullptr );
 
             // Create new dof type. Add index and time
             for ( moris::uint Ii = 0; Ii < tNumTimeLevelforDofType; Ii++ )
@@ -73,7 +73,7 @@ namespace MSI
         }
         else
         {
-            MORIS_ERROR( tNumTimeLevelforDofType == mListOfPdofTimePerType( tDofTypeIndex ).size(), " Pdof_Host::set_pdof_type(). Time Levels are not consistent.");
+            MORIS_ASSERT( tNumTimeLevelforDofType == mListOfPdofTimePerType( tDofTypeIndex ).size(), " Pdof_Host::set_pdof_type(). Time Levels are not consistent.");
         }
 
         // FIXME return pointer to pdof?
@@ -113,20 +113,9 @@ namespace MSI
             if ( mListOfPdofTimePerType( Ii ).size() != 0 )
             {
                  // Get mesh Ids for the used adofs
-                 Matrix< DDSMat > tAdofMeshId  = mNodeObj->get_adof_ids( tAdofMeshIndex );
+                 Matrix< DDSMat > tAdofMeshId  = mNodeObj->get_adof_ids    ( tAdofMeshIndex );
                  Matrix< DDSMat > tAdofMeshInd = mNodeObj->get_adof_indices( tAdofMeshIndex );
-
-                 // since petsc requires int, the owner matrix must be casted
-                 auto tOwners = mNodeObj->get_adof_owners( tAdofMeshIndex );
-
-                 moris::uint tNumberOfOwners = tOwners.numel();
-
-                 Matrix< DDSMat > tAdofOwningProcessorList( tNumberOfOwners, 1 );
-
-                 for( uint k=0; k<tNumberOfOwners; ++k )
-                 {
-                     tAdofOwningProcessorList( k ) = tOwners( k );
-                 }
+                 Matrix< IdMat >  tOwners      = mNodeObj->get_adof_owners ( tAdofMeshIndex );
 
                  for ( moris::uint Ij = 0; Ij < mListOfPdofTimePerType( Ii ).size(); Ij++ )
                  {
@@ -148,7 +137,7 @@ namespace MSI
                             aAdofList( tAdofType + Ij )( tAdofMeshInd( Ik ) ) = new Adof();
 
                             // Set this adofs owning processor
-                            aAdofList( tAdofType + Ij )( tAdofMeshInd( Ik ) )->set_adof_owning_processor( tAdofOwningProcessorList( Ik ) );
+                            aAdofList( tAdofType + Ij )( tAdofMeshInd( Ik ) )->set_adof_owning_processor( tOwners( Ik ) );
 
                             // Set adof external Id and Ind. Id used for comm, Ind used for HMR ordering
                             aAdofList( tAdofType + Ij )( tAdofMeshInd( Ik ) )->set_adof_external_id( tAdofMeshId( Ik ) );               //FIXME delete

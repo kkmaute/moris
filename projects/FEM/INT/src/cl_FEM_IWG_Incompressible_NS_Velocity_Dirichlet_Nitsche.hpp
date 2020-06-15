@@ -37,6 +37,7 @@ namespace moris
                 {
                         DIRICHLET,
                         SELECT,
+                        UPWIND,
                         MAX_ENUM
                 };
 
