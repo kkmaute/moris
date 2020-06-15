@@ -129,7 +129,7 @@ namespace moris
             mXi.matrix_data()  = aParamPoint( { 0, mNSpaceParamDim-1 }, { 0, 0 } );
             mTau.matrix_data() = aParamPoint( mNSpaceParamDim );
 
-            // set bool for evaluation
+            // reset bool for evaluation
             mNEval      = true;
             mNBuildEval = true;
             mdNdxEval   = true;
@@ -137,6 +137,7 @@ namespace moris
             md3Ndx3Eval = true;
             mdNdtEval   = true;
             md2Ndt2Eval = true;
+            md2NdxtEval = true;
         }
 
 //------------------------------------------------------------------------------
@@ -222,7 +223,7 @@ namespace moris
              switch ( aDerivativeOrder )
              {
                  // 1st order spatial derivatives of the shape functions
-                 case( 1 ) :
+                 case 1 :
                  {
                      // if dNdx needs to be evaluated
                      if( mdNdxEval )
@@ -237,7 +238,7 @@ namespace moris
                      return mdNdx;
                  }
                  // 2nd order spatial derivatives of the shape functions
-                 case ( 2 ) :
+                 case 2 :
                  {
                      // if d2Ndx2 needs to be evaluated
                      if( md2Ndx2Eval )
@@ -251,7 +252,7 @@ namespace moris
                      // return member data
                      return md2Ndx2;
                  }
-                 case ( 3 ) :
+                 case 3 :
                  {
                      // if d3Ndx3 needs to be evaluated
                      if( md3Ndx3Eval )
@@ -407,7 +408,7 @@ namespace moris
              switch ( aDerivativeOrder )
              {
                  // 1st order time derivatives of the shape functions
-                 case( 1 ) :
+                 case 1 :
                  {
                      // if dNdx needs to be evaluated
                      if( mdNdtEval )
@@ -422,7 +423,7 @@ namespace moris
                      return mdNdt;
                  }
                  // 2nd order time derivatives of the shape functions
-                 case ( 2 ) :
+                 case 2 :
                  {
                      // if d2Ndt2 needs to be evaluated
                      if( md2Ndt2Eval )
@@ -475,9 +476,6 @@ namespace moris
 
             // transform output matrix to dNdX
             mdNdt = solve( tJGeot, tdNFielddTau );
-
-//            // set bool for evaluation
-//            mdNdtEval = false;
         }
 
 //------------------------------------------------------------------------------
@@ -522,9 +520,6 @@ namespace moris
             //build the second derivatives of the space time SF wrt t
             Matrix< DDRMat > td2NFielddTau2 = td2NFielddtau2 - tKGeot * tdNFielddt;
             md2Ndt2 = solve( tLGeot, td2NFielddTau2 );
-
-//            // set bool for evaluation
-//            md2Ndt2Eval = false;
         }
 //------------------------------------------------------------------------------
         void Field_Interpolator::eval_d2Ndxt()
@@ -565,7 +560,6 @@ namespace moris
             // compute first derivative of the SF wrt x
             //md2Ndxt = inv( tJGeoSpacet ) * inv( tJGeoTimet ) * tdNFielddXiTau;
             md2Ndxt = inv( tJGeoSpacet ) * tdNFielddXiTau / tJGeoTimet( 0 ) ;
-
         }
 
 //------------------------------------------------------------------------------
@@ -583,7 +577,6 @@ namespace moris
              // return member data
              return md2Ndxt;
          }
-
 
 //------------------------------------------------------------------------------
         Matrix< DDRMat > Field_Interpolator::val()
@@ -607,7 +600,6 @@ namespace moris
 
             // evaluate and return gradient
             return this->dnNdxn( aDerivativeOrder ) * mUHat ;
-
         }
 
 //------------------------------------------------------------------------------
@@ -631,9 +623,6 @@ namespace moris
 
         moris::Matrix< DDRMat > Field_Interpolator::div_operator()
         {
-            // init div operator
-//            Matrix< DDRMat > tDivOperator = reshape( trans( this->dNdx( 1 ) ), 1, this->dNdx( 1 ).numel() );
-
             // evaluate spatial divergence operator from dNdx
             return  reshape( trans( this->dnNdxn( 1 ) ), 1, this->dnNdxn( 1 ).numel() );
         }
