@@ -47,6 +47,7 @@ namespace moris
                 enum class IWG_Constitutive_Type
                 {
                         INCOMPRESSIBLE_FLUID,
+                        TURBULENCE_FLUID,
                         MAX_ENUM
                 };
 

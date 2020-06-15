@@ -28,6 +28,7 @@ namespace moris
 
             // populate the constitutive map
             mConstitutiveMap[ "IncompressibleFluid" ] = IWG_Constitutive_Type::INCOMPRESSIBLE_FLUID;
+            mConstitutiveMap[ "TurbulenceFluid" ]     = IWG_Constitutive_Type::TURBULENCE_FLUID;
 
             // set size for the stabilization parameter pointer cell
             mStabilizationParam.resize( static_cast< uint >( IWG_Stabilization_Type::MAX_ENUM ), nullptr );
@@ -268,6 +269,10 @@ namespace moris
             std::shared_ptr< Constitutive_Model > tIncFluidCM =
                     mMasterCM( static_cast< uint >( IWG_Constitutive_Type::INCOMPRESSIBLE_FLUID ) );
 
+            // get the turbulence fluid constitutive model
+            std::shared_ptr< Constitutive_Model > tCMTurbulence =
+                    mMasterCM( static_cast< uint >( IWG_Constitutive_Type::TURBULENCE_FLUID ) );
+
             // get the incompressible flow stabilization parameter
             std::shared_ptr< Stabilization_Parameter > tIncFlowSP =
                     mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::INCOMPRESSIBLE_FLOW ) );
@@ -301,6 +306,12 @@ namespace moris
                             ( tTempFI->val() - tRefTempProp->val() );
                 }
             }
+
+            if( tCMTurbulence != nullptr )
+            {
+                // add contribution to residual
+                aRM.matrix_data() -= tCMTurbulence->divflux().matrix_data();
+            }
         }
 
         //------------------------------------------------------------------------------
@@ -313,7 +324,8 @@ namespace moris
             Field_Interpolator * tDerFI      = mMasterFIManager->get_field_interpolators_for_type( aDofTypes( 0 ) );
 
             // init aJM and aJC
-            aJM.set_size( tVelocityFI->get_number_of_fields(),
+            aJM.set_size(
+                    tVelocityFI->get_number_of_fields(),
                     tDerFI->get_number_of_space_time_coefficients(), 0.0 );
 
             // get the density and gravity properties
@@ -325,6 +337,10 @@ namespace moris
             // get the incompressible fluid constitutive model
             std::shared_ptr< Constitutive_Model > tIncFluidCM =
                     mMasterCM( static_cast< uint >( IWG_Constitutive_Type::INCOMPRESSIBLE_FLUID ) );
+
+            // get the turbulence fluid constitutive model
+            std::shared_ptr< Constitutive_Model > tCMTurbulence =
+                    mMasterCM( static_cast< uint >( IWG_Constitutive_Type::TURBULENCE_FLUID ) );
 
             // get the incompressible flow stabilization parameter
             std::shared_ptr< Stabilization_Parameter > tIncFlowSP =
@@ -436,6 +452,17 @@ namespace moris
                                 tGravityProp->val() *
                                 tThermalExpProp->val() * ( tTempFI->val() - tRefTempProp->val() ) *
                                 tDensityProp->dPropdDOF( aDofTypes );
+                    }
+                }
+
+                // if turbulence
+                if( tCMTurbulence != nullptr )
+                {
+                    // if turbulence CM depends on dof type
+                    if( tCMTurbulence->check_dof_dependency( aDofTypes ) )
+                    {
+                        // compute contribution to jacobian strong form
+                        aJM.matrix_data() -= tCMTurbulence->ddivfluxdu( aDofTypes ).matrix_data();
                     }
                 }
             }
