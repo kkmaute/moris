@@ -1022,6 +1022,24 @@ namespace moris
 
                 //------------------------------------------------------------------------------
                 /**
+                 * evaluate the test traction derivative wrt to a dof type
+                 * @param[ in ] aDofTypes       a dof type wrt which the derivative is evaluated
+                 * @param[ in ] aTestDofTypes   a test dof type wrt which the test traction is evaluated
+                 * @param[ in ] adtestractiondu_FD a matrix to fill with derivative evaluation
+                 * @param[ in ] aPerturbation   a real to perturb for FD
+                 * @param[ in ] aNormal         a normal
+                 * @param[ in ] aJump         a jump
+                 */
+                void eval_dtesttractiondu_FD(
+                        const moris::Cell< MSI::Dof_Type > & aDofTypes,
+                        const moris::Cell< MSI::Dof_Type > & aTestDofTypes,
+                        Matrix< DDRMat >                   & adtesttractiondu_FD,
+                        real                                 aPerturbation,
+                        Matrix< DDRMat >                   & aNormal,
+                        Matrix< DDRMat >                   & aJump );
+
+                //------------------------------------------------------------------------------
+                /**
                  * evaluate the div flux derivative wrt to a dof type
                  * @param[ in ] aDofTypes     a dof type wrt which the derivative is evaluated
                  * @param[ in ] ddivfluxdu_FD a matrix to fill with derivative evaluation

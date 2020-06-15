@@ -790,6 +790,84 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+        void Constitutive_Model::eval_dtesttractiondu_FD(
+                const moris::Cell< MSI::Dof_Type > & aDofTypes,
+                const moris::Cell< MSI::Dof_Type > & aTestDofTypes,
+                Matrix< DDRMat >                   & adtesttractiondu_FD,
+                real                                 aPerturbation,
+                Matrix< DDRMat >                   & aNormal,
+                Matrix< DDRMat >                   & aJump )
+        {
+            // get the field interpolator for type
+            Field_Interpolator* tFIDerivative =
+                    mFIManager->get_field_interpolators_for_type( aDofTypes( 0 ) );
+
+            // get number of coefficients, fields and bases for the considered FI
+            uint tDerNumDof    = tFIDerivative->get_number_of_space_time_coefficients();
+            uint tDerNumBases  = tFIDerivative->get_number_of_space_time_bases();
+            uint tDerNumFields = tFIDerivative->get_number_of_fields();
+
+            // set size for derivative
+            Matrix< DDRMat > tTestTractionForSize = trans( trans( aJump ) * this->testTraction( aNormal, aTestDofTypes ) );
+            uint tNumRow = tTestTractionForSize.n_rows();
+            adtesttractiondu_FD.set_size( tNumRow, tDerNumDof, 0.0 );
+
+            // coefficients for dof type wrt which derivative is computed
+            Matrix< DDRMat > tCoeff = tFIDerivative->get_coeff();
+
+            // initialize dof counter
+            uint tDofCounter = 0;
+
+            // loop over coefficients columns
+            for( uint iCoeffCol = 0; iCoeffCol < tDerNumFields; iCoeffCol++ )
+            {
+                // loop over coefficients rows
+                for( uint iCoeffRow = 0; iCoeffRow < tDerNumBases; iCoeffRow++ )
+                {
+                    // perturbation of the coefficient
+                    Matrix< DDRMat > tCoeffPert = tCoeff;
+                    tCoeffPert( iCoeffRow, iCoeffCol ) +=
+                            aPerturbation * tCoeffPert( iCoeffRow, iCoeffCol );
+
+                    // setting the perturbed coefficients
+                    tFIDerivative->set_coeff( tCoeffPert );
+
+                    // reset constitutive model eval flag
+                    this->reset_eval_flags();
+
+                    // evaluate the residual
+                    Matrix< DDRMat > tTestTractionPlus =
+                            trans( trans( aJump ) * this->testTraction( aNormal, aTestDofTypes ) );
+
+                    // perturbation of the coefficient
+                    tCoeffPert = tCoeff;
+                    tCoeffPert( iCoeffRow, iCoeffCol ) -=
+                            aPerturbation * tCoeffPert( iCoeffRow, iCoeffCol );
+
+                    // setting the perturbed coefficients
+                    tFIDerivative->set_coeff( tCoeffPert );
+
+                    // reset constitutive model eval flags
+                    this->reset_eval_flags();
+
+                    // evaluate the residual
+                    Matrix< DDRMat > tTestTractionMinus =
+                            trans( trans( aJump ) * this->testTraction( aNormal, aTestDofTypes ) );
+
+                    // evaluate Jacobian
+                    adtesttractiondu_FD.get_column( tDofCounter ) =
+                            ( tTestTractionPlus - tTestTractionMinus ) /
+                            ( 2.0 * aPerturbation * tCoeff( iCoeffRow, iCoeffCol ) );
+
+                    // update dof counter
+                    tDofCounter++;
+                }
+            }
+            // reset the coefficients values
+            tFIDerivative->set_coeff( tCoeff );
+        }
+
+        //------------------------------------------------------------------------------
         void Constitutive_Model::eval_ddivfluxdu_FD(
                 const moris::Cell< MSI::Dof_Type > & aDofTypes,
                 Matrix< DDRMat >                   & addivfluxdu_FD,
@@ -805,7 +883,8 @@ namespace moris
             uint tDerNumFields = tFIDerivative->get_number_of_fields();
 
             // set size for derivative
-            addivfluxdu_FD.set_size( mSpaceDim, tDerNumDof, 0.0 );
+            uint tNumRows = this->divflux().n_rows();
+            addivfluxdu_FD.set_size( tNumRows, tDerNumDof, 0.0 );
 
             // coefficients for dof type wrt which derivative is computed
             Matrix< DDRMat > tCoeff = tFIDerivative->get_coeff();
@@ -876,7 +955,8 @@ namespace moris
             uint tDerNumFields = tFIDerivative->get_number_of_fields();
 
             // set size for derivative
-            addivstraindu_FD.set_size( mSpaceDim, tDerNumDof, 0.0 );
+            uint tNumRows = this->divstrain().n_rows();
+            addivstraindu_FD.set_size( tNumRows, tDerNumDof, 0.0 );
 
             // coefficients for dof type wrt which derivative is computed
             Matrix< DDRMat > tCoeff = tFIDerivative->get_coeff();
@@ -945,9 +1025,9 @@ namespace moris
             uint tDerNumBases  = tFI->get_number_of_space_time_bases();
             uint tDerNumFields = tFI->get_number_of_fields();
 
-            // FIXME works only for diffusion
             // set size for derivative
-            adHdotdDOF_FD.set_size( 1, tDerNumDof, 0.0 );
+            uint tNumRows = this->Hdot().n_rows();
+            adHdotdDOF_FD.set_size( tNumRows, tDerNumDof, 0.0 );
 
             // coefficients for dof type wrt which derivative is computed
             Matrix< DDRMat > tCoeff = tFI->get_coeff();
@@ -1013,9 +1093,9 @@ namespace moris
             uint tDerNumBases  = tFI->get_number_of_space_time_bases();
             uint tDerNumFields = tFI->get_number_of_fields();
 
-            // FIXME works only for diffusion
             // set size for derivative
-            adGradHdDOF_FD.set_size( mSpaceDim, tDerNumDof, 0.0 );
+            uint tNumRows = this->gradH().n_rows();
+            adGradHdDOF_FD.set_size( tNumRows, tDerNumDof, 0.0 );
 
             // coefficients for dof type wrt which derivative is computed
             Matrix< DDRMat > tCoeff = tFI->get_coeff();
@@ -1081,9 +1161,9 @@ namespace moris
             uint tDerNumBases  = tFI->get_number_of_space_time_bases();
             uint tDerNumFields = tFI->get_number_of_fields();
 
-            // FIXME works only for diffusion
             // set size for derivative
-            adGradHdotdDOF_FD.set_size( mSpaceDim, tDerNumDof, 0.0 );
+            uint tNumRows = this->gradHdot().n_rows();
+            adGradHdotdDOF_FD.set_size( tNumRows, tDerNumDof, 0.0 );
 
             // coefficients for dof type wrt which derivative is computed
             Matrix< DDRMat > tCoeff = tFI->get_coeff();
@@ -1149,9 +1229,9 @@ namespace moris
             uint tDerNumBases  = tFI->get_number_of_space_time_bases();
             uint tDerNumFields = tFI->get_number_of_fields();
 
-            // FIXME works only for diffusion
             // set size for derivative
-            adGradDivFluxdDOF_FD.set_size( mSpaceDim, tDerNumDof, 0.0 );
+            uint tNumRows = this->graddivflux().n_rows();
+            adGradDivFluxdDOF_FD.set_size( tNumRows, tDerNumDof, 0.0 );
 
             // coefficients for dof type wrt which derivative is computed
             Matrix< DDRMat > tCoeff = tFI->get_coeff();
@@ -1217,10 +1297,8 @@ namespace moris
             uint tDerNumBases  = tFI->get_number_of_space_time_bases();
             uint tDerNumFields = tFI->get_number_of_fields();
 
-            // FIXME works only for diffusion
             // set size for derivative
             uint tNumRow = this->strain().n_rows();
-
             adStraindDOF_FD.set_size( tNumRow, tDerNumDof, 0.0 );
 
             // coefficients for dof type wrt which derivative is computed
@@ -1287,9 +1365,9 @@ namespace moris
             uint tDerNumBases  = tFI->get_number_of_space_time_bases();
             uint tDerNumFields = tFI->get_number_of_fields();
 
-            // FIXME works only for diffusion
             // set size for derivative
-            adFluxdDV_FD.set_size( mSpaceDim, tDerNumDv, 0.0 );
+            uint tNumRow = this->flux().n_rows();
+            adFluxdDV_FD.set_size( tNumRow, tDerNumDv, 0.0 );
 
             // coefficients for dv type wrt which derivative is computed
             Matrix< DDRMat > tCoeff = tFI->get_coeff();
@@ -1355,9 +1433,9 @@ namespace moris
             uint tDerNumBases  = tFI->get_number_of_space_time_bases();
             uint tDerNumFields = tFI->get_number_of_fields();
 
-            // FIXME works only for diffusion
             // set size for derivative
-            adStraindDV_FD.set_size( mSpaceDim, tDerNumDv, 0.0 );
+            uint tNumRow = this->strain().n_rows();
+            adStraindDV_FD.set_size( tNumRow, tDerNumDv, 0.0 );
 
             // coefficients for dv type wrt which derivative is computed
             Matrix< DDRMat > tCoeff = tFI->get_coeff();

@@ -575,17 +575,24 @@ namespace moris
             std::shared_ptr< Property > tViscosityProp =
                     mProperties( static_cast< uint >( CM_Property_Type::VISCOSITY ) );
 
-            // if dependency on the dof type
+            // flatten normal
+            Matrix< DDRMat > tFlatNormal;
+            this->flatten_normal( aNormal, tFlatNormal );
+
+            // if viscosity property depends on test or derivative dof type
             if ( tViscosityProp->check_dof_dependency( aDofTypes ) )
             {
-                // flatten normal
-                Matrix< DDRMat > tFlatNormal;
-                this->flatten_normal( aNormal, tFlatNormal );
-
                 // compute contribution to dTestTractiondDof
                 mdTestTractiondDof( tTestDofIndex )( tDofIndex ).matrix_data() +=
-                        trans( this->testTraction( tFlatNormal, aTestDofTypes ) ) *
-                        aJump * tViscosityProp->dPropdDOF( aDofTypes ) / tViscosityProp->val()( 0 );
+                        2.0 * trans( tFlatNormal * this->dStraindDOF( aTestDofTypes ) ) * aJump * tViscosityProp->dPropdDOF( aDofTypes );
+            }
+
+            // if viscosity property depends on test or derivative dof type
+            if ( tViscosityProp->check_dof_dependency( aTestDofTypes ) )
+            {
+                // compute contribution to dTestTractiondDof
+                mdTestTractiondDof( tTestDofIndex )( tDofIndex ).matrix_data() +=
+                        2.0 * trans( tViscosityProp->dPropdDOF( aTestDofTypes ) ) * trans( aJump ) * tFlatNormal * this->dStraindDOF( aDofTypes );
             }
         }
 
