@@ -1379,7 +1379,8 @@ namespace moris
                 real               aEpsilon,
                 real               aWStar,
                 Matrix< DDRMat > & aJacobians,
-                Matrix< DDRMat > & aJacobiansFD )
+                Matrix< DDRMat > & aJacobiansFD,
+                bool               aErrorPrint )
         {
             // compute jacobian with IWG
             this->compute_jacobian( aWStar );
@@ -1399,6 +1400,12 @@ namespace moris
 
             // compute jacobian by FD
             this->compute_jacobian_FD( aWStar, aPerturbation, aJacobiansFD );
+
+            // check that matrices to compare have same size
+            MORIS_ERROR(
+                    ( aJacobians.n_rows() == aJacobiansFD.n_rows() ) &&
+                    ( aJacobians.n_cols() == aJacobiansFD.n_cols() ),
+                    "IWG::check_jacobian - matrices to check do not share same dimensions." );
 
             //define a boolean for check
             bool tCheckJacobian = true;
@@ -1422,16 +1429,18 @@ namespace moris
                     // update check value
                     tCheckJacobian = tCheckJacobian && ( ( tAbsolute < aEpsilon ) || ( tRelative < aEpsilon ) );
 
-//                    // for debug
-//                    //std::cout<<"Relative difference "<<tRelative<<"\n"<<std::flush;
-//                    if( ( ( tAbsolute < aEpsilon ) || ( tRelative < aEpsilon ) ) == false )
-//                    {
-//                        std::cout<<"iiJac "<<iiJac<<" - jjJac "<<jjJac<<"\n"<<std::flush;
-//                        std::cout<<"aJacobians( iiJac, jjJac ) "<<aJacobians( iiJac, jjJac )<<"\n"<<std::flush;
-//                        std::cout<<"aJacobiansFD( iiJac, jjJac ) "<<aJacobiansFD( iiJac, jjJac )<<"\n"<<std::flush;
-//                        std::cout<<"Absolute difference "<<tAbsolute<<"\n"<<std::flush;
-//                        std::cout<<"Relative difference "<<tRelative<<"\n"<<std::flush;
-//                    }
+                    // debug print
+                    if( ( ( tAbsolute < aEpsilon ) || ( tRelative < aEpsilon ) ) == false )
+                    {
+                        if( aErrorPrint )
+                        {
+                            std::cout<<"iiJac "<<iiJac<<" - jjJac "<<jjJac<<"\n"<<std::flush;
+                            std::cout<<"aJacobians( iiJac, jjJac )   "<<aJacobians( iiJac, jjJac )<<"\n"<<std::flush;
+                            std::cout<<"aJacobiansFD( iiJac, jjJac ) "<<aJacobiansFD( iiJac, jjJac )<<"\n"<<std::flush;
+                            std::cout<<"Absolute difference "<<tAbsolute<<"\n"<<std::flush;
+                            std::cout<<"Relative difference "<<tRelative<<"\n"<<std::flush;
+                        }
+                    }
                 }
             }
 
@@ -1445,7 +1454,8 @@ namespace moris
                 real               aEpsilon,
                 real               aWStar,
                 Matrix< DDRMat > & aJacobians,
-                Matrix< DDRMat > & aJacobiansFD )
+                Matrix< DDRMat > & aJacobiansFD,
+                bool               aErrorPrint )
         {
             // compute jacobian with IWG
             this->compute_jacobian( aWStar );
@@ -1479,6 +1489,12 @@ namespace moris
             // compute jacobian by FD
             this->compute_jacobian_FD_double( aWStar, aPerturbation, aJacobiansFD );
 
+            // check that matrices to compare have same size
+            MORIS_ERROR(
+                    ( aJacobians.n_rows() == aJacobiansFD.n_rows() ) &&
+                    ( aJacobians.n_cols() == aJacobiansFD.n_cols() ),
+                    "IWG::check_jacobian_double - matrices to check do not share same dimensions." );
+
             //define a boolean for check
             bool tCheckJacobian = true;
 
@@ -1497,15 +1513,18 @@ namespace moris
                     // update check value
                     tCheckJacobian = tCheckJacobian && ( ( tAbsolute < aEpsilon ) || ( tRelative < aEpsilon ) );
 
-                    //                    // for debug
-                    //                    if( ( ( tAbsolute < aEpsilon ) || ( tRelative < aEpsilon ) ) == false )
-                    //                    {
-                    //                        std::cout<<"iiJac "<<iiJac<<" - jjJac "<<jjJac<<"\n"<<std::flush;
-                    //                        std::cout<<"aJacobians( iiJac, jjJac ) "<<aJacobians( iiJac, jjJac )<<"\n"<<std::flush;
-                    //                        std::cout<<"aJacobiansFD( iiJac, jjJac ) "<<aJacobiansFD( iiJac, jjJac )<<"\n"<<std::flush;
-                    //                        std::cout<<"Absolute difference "<<tAbsolute<<"\n"<<std::flush;
-                    //                        std::cout<<"Relative difference "<<tRelative<<"\n"<<std::flush;
-                    //                    }
+                    // for debug
+                    if( ( ( tAbsolute < aEpsilon ) || ( tRelative < aEpsilon ) ) == false )
+                    {
+                        if( aErrorPrint )
+                        {
+                            std::cout<<"iiJac "<<iiJac<<" - jjJac "<<jjJac<<"\n"<<std::flush;
+                            std::cout<<"aJacobians( iiJac, jjJac )   "<<aJacobians( iiJac, jjJac )<<"\n"<<std::flush;
+                            std::cout<<"aJacobiansFD( iiJac, jjJac ) "<<aJacobiansFD( iiJac, jjJac )<<"\n"<<std::flush;
+                            std::cout<<"Absolute difference "<<tAbsolute<<"\n"<<std::flush;
+                            std::cout<<"Relative difference "<<tRelative<<"\n"<<std::flush;
+                        }
+                    }
                 }
             }
 

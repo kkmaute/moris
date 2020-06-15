@@ -220,6 +220,15 @@ namespace moris
                 void set_normal( Matrix< DDRMat > & aNormal )
                 {
                     mNormal = aNormal;
+
+                    // set normal for SP
+                    for ( std::shared_ptr< Stabilization_Parameter > tSP : mStabilizationParam )
+                    {
+                        if( tSP != nullptr )
+                        {
+                            tSP->set_normal( mNormal );
+                        }
+                    }
                 }
 
                 //------------------------------------------------------------------------------
@@ -448,22 +457,22 @@ namespace moris
                  * @param[ out ] aConstitutiveModels cell of constitutive model pointers
                  */
                 moris::Cell< std::shared_ptr< Constitutive_Model > > & get_constitutive_models( mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER )
-                     {
+                {
                     // switch on master/slave
                     switch( aIsMaster )
                     {
                         // if master
                         case mtk::Master_Slave::MASTER :
-                         {
+                        {
                             // return master property pointers
                             return mMasterCM;
-                         }
+                        }
                         // if slave
                         case mtk::Master_Slave::SLAVE :
-                         {
+                        {
                             // return slave property pointers
                             return mSlaveCM;
-                         }
+                        }
                         // if none
                         default:
                         {
@@ -471,7 +480,7 @@ namespace moris
                             return mMasterCM;
                         }
                     }
-                     }
+                }
 
                 //------------------------------------------------------------------------------
                 /**
@@ -561,13 +570,15 @@ namespace moris
                  * @param[ in ] aWStar        real weight associated to evaluation point
                  * @param[ in ] aJacobians    cell of cell of matrices to fill with Jacobians
                  * @param[ in ] aJacobians_FD cell of cell of matrices to fill with Jacobians by FD
+                 * @param[ in ] aErrorPrint   bool set to true to print non matching values in jacobian
                  */
                 bool check_jacobian(
                         real               aPerturbation,
                         real               aEpsilon,
                         real               aWStar,
                         Matrix< DDRMat > & aJacobians,
-                        Matrix< DDRMat > & aJacobiansFD );
+                        Matrix< DDRMat > & aJacobiansFD,
+                        bool               aErrorPrint = false );
 
                 //------------------------------------------------------------------------------
                 /**
@@ -577,13 +588,15 @@ namespace moris
                  * @param[ in ] aWStar        real weight associated to evaluation point
                  * @param[ in ] aJacobians    cell of cell of matrices to fill with Jacobians
                  * @param[ in ] aJacobiansFD cell of cell of matrices to fill with Jacobians by FD
+                 * @param[ in ] aErrorPrint   bool set to true to print non matching values in jacobian
                  */
                 bool check_jacobian_double(
                         real               aPerturbation,
                         real               aEpsilon,
                         real               aWStar,
                         Matrix< DDRMat > & aJacobians,
-                        Matrix< DDRMat > & aJacobiansFD );
+                        Matrix< DDRMat > & aJacobiansFD,
+                        bool               aErrorPrint = false );
 
                 //------------------------------------------------------------------------------
                 /**
