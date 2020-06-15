@@ -18,7 +18,6 @@
 #include "cl_FEM_SP_GGLS_Diffusion.hpp"
 #include "cl_FEM_SP_SUPG_Spalart_Allmaras_Turbulence.hpp"
 #include "cl_FEM_SP_Turbulence_Dirichlet_Nitsche.hpp"
-#include "cl_FEM_SP_Ghost_Turbulence.hpp"
 
 namespace moris
 {
@@ -80,9 +79,6 @@ namespace moris
 
                 case fem::Stabilization_Type::TURBULENCE_DIRICHLET_NITSCHE :
                     return std::make_shared< SP_Turbulence_Dirichlet_Nitsche >();
-
-                case fem::Stabilization_Type::GHOST_TURBULENCE :
-                    return std::make_shared< SP_Ghost_Turbulence >();
 
                 default:
                     MORIS_ERROR( false, " SP_Factory::create_SP - No stabilization type specified. " );
