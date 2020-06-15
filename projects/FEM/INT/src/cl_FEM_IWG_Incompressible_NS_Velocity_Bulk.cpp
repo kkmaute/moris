@@ -610,9 +610,8 @@ namespace moris
             if ( tInvPermeabProp != nullptr )
             {
                 // add brinkman term to residual strong form
-                aRM.matrix_data() +=  tInvPermeabProp->val()( 0 ) * tVelocityFI->val() ;
+                aRM.matrix_data() += tInvPermeabProp->val()( 0 ) * tVelocityFI->val() ;
             }
-
 
             // if gravity
             if ( tGravityProp != nullptr )
