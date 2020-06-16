@@ -7,6 +7,7 @@
 
 #include "cl_XTK_Ghost_Stabilization.hpp"
 #include "cl_XTK_Enriched_Integration_Mesh.hpp"
+#include "cl_XTK_Enriched_Interpolation_Mesh.hpp"
 #include "cl_XTK_Cell_Cluster.hpp"
 #include "cl_XTK_Cell_No_CM.hpp"
 #include "cl_MTK_Cell.hpp"
@@ -29,8 +30,36 @@ namespace xtk
     {
         Ghost_Setup_Data tGhostSetupData;
 
-
         xtk::Enriched_Interpolation_Mesh & tEnrIpMesh  = mXTKModel->get_enriched_interp_mesh(0);
+//        xtk::Enriched_Integration_Mesh & tEnrIgMesh  = mXTKModel->get_enriched_integ_mesh(0);
+//
+//        // collect vertices in bulk phase 160
+//        moris::Cell<std::string> tBlockSets = {"HMR_dummy_c_p160,HMR_dummy_n_p160"};
+//
+//        Cell<Interpolation_Cell_Unzipped const *> tPreGhostIpCells;
+//
+//        // iterate through block sets
+//        for(moris::uint i = 0; i < tBlockSets.size(); i++)
+//        {
+//            moris_index tBlockSetOrd = tEnrIgMesh.get_block_set_index(tBlockSets(i));
+//            moris::Cell<xtk::Cell_Cluster const *> tCellClusters = tEnrIgMesh.get_xtk_cell_clusters_in_set(tBlockSetOrd);
+//
+//            // iterate through clusters
+//            for(moris::uint iCl = 0; iCl < tCellClusters.size(); iCl++)
+//            {
+//                tPreGhostIpCells.push_back(tCellClusters(iCl)->get_xtk_interpolation_cell());
+//            }
+//
+//        }
+
+//
+//        mtk::Mesh_Checker tMeshChecker(0,&mXTKModel->get_enriched_interp_mesh(0),&mXTKModel->get_enriched_integ_mesh(0));
+//        tMeshChecker.perform();
+//        tMeshChecker.print_diagnostics();
+//
+//
+//
+
           moris::uint tNumVerts = tEnrIpMesh.get_num_entities(EntityRank::NODE,0);
 
 
@@ -65,9 +94,6 @@ namespace xtk
 
           unique(tOwnedIndices);
           unique(tOwnedIds);
-
-          std::cout<<"before ghost tOwnedIndices.size() = "<<tOwnedIndices.size()<<std::endl;
-          std::cout<<"before ghost tOwnedIds.size() = "<<tOwnedIds.size()<<std::endl;
 
 
         // construct trivial subphase interpolation cells
@@ -115,8 +141,29 @@ namespace xtk
         unique(tOwnedIndices);
         unique(tOwnedIds);
 
-        std::cout<<"tOwnedIndices.size() = "<<tOwnedIndices.size()<<std::endl;
-        std::cout<<"tOwnedIds.size() = "<<tOwnedIds.size()<<std::endl;
+//        this->visualize_ghost_on_mesh(160);
+
+//        oris::Cell<mtk::Cluster const*>
+//        Enriched_Integration_Mesh::get_double_side_set_cluster(moris_index aSideSetOrdinal)
+//
+//
+//        Cell<Interpolation_Cell_Unzipped const *> tGhostIpCells;
+//
+//
+//        // iterate through block sets
+//        for(moris::uint i = 0; i < tBlockSets.size(); i++)
+//        {
+//            moris_index tBlockSetOrd = tEnrIgMesh.get_block_set_index(tBlockSets(i));
+//            moris::Cell<xtk::Cell_Cluster const *> tCellClusters = tEnrIgMesh.get_xtk_cell_clusters_in_set(tBlockSetOrd);
+//
+//            // iterate through clusters
+//            for(moris::uint iCl = 0; iCl < tCellClusters.size(); iCl++)
+//            {
+//                tGhostIpCells.push_back(tCellClusters(iCl)->get_xtk_interpolation_cell());
+//            }
+//
+//        }
+
 
     }
     // ----------------------------------------------------------------------------------
@@ -326,10 +373,11 @@ namespace xtk
     }
     // ----------------------------------------------------------------------------------
     void
-    Ghost_Stabilization::create_not_owned_ghost_ip_cells( Ghost_Setup_Data &                                      aGhostSetupData,
-            Enriched_Interpolation_Mesh &                           aEnrInterpMesh,
+    Ghost_Stabilization::create_not_owned_ghost_ip_cells(
+            Ghost_Setup_Data &                                aGhostSetupData,
+            Enriched_Interpolation_Mesh &                     aEnrInterpMesh,
             Cell<Cell<Interpolation_Cell_Unzipped *>> const & aNonTrivialNotOwnedInterpCells,
-            Cell<Matrix<IndexMat>>                          const & aReceivedEnrCellIds)
+            Cell<Matrix<IndexMat>>                    const & aReceivedEnrCellIds)
     {
         // iterate through received data
         for(moris::uint i = 0; i < aNonTrivialNotOwnedInterpCells.size(); i++)
@@ -717,8 +765,6 @@ namespace xtk
             tProcRankToIndexInData[tCommTable(i)] = i;
         }
 
-        moris::print(tCommTable,"tCommTable");
-
         // iterate through returned information
         for(moris::uint iP = 0; iP < aNotOwnedIPVertIndsToProcs.size(); iP++)
         {
@@ -1062,7 +1108,6 @@ namespace xtk
             moris_index const & aSecondSubphase,
             moris_index &       aTrivialFlag)
     {
-
         // Rules:
         // 1. Only create ghost facets between a subphase created inside an intersected
         //    cell and its neighbors.
@@ -1075,6 +1120,9 @@ namespace xtk
 
         moris_index tFirstSubphaseId  = mXTKModel->get_subphase_id(aFirstSubphase);
         moris_index tSecondSubphaseId = mXTKModel->get_subphase_id(aSecondSubphase);
+
+        MORIS_ASSERT(tFirstSubphaseId != tSecondSubphaseId,
+             "Subphase neighbor relation inconsistent\n");
 
         // interpolation cell for this subphase
         moris_index tFirstInterpCell  = aGhostSetupData.mSubphaseIndexToInterpolationCellIndex(aFirstSubphase);
@@ -1093,7 +1141,7 @@ namespace xtk
 
         // owners of interpolation cells
         moris_index tFirstOwnerIndex  = tFirstCell.get_owner();
-        moris_index tSecondOwnerIndex = tSecondCell.get_owner();
+//        moris_index tSecondOwnerIndex = tSecondCell.get_owner();
 
         // proc rank
         moris_index tProcRank = par_rank();
@@ -1104,8 +1152,17 @@ namespace xtk
             return false;
         }
 
-        // HMR large to small facet transition and I own it
-        // always create from large to small facet
+        // Check based on refinement level of subphases
+
+        // if the first subphase is more coarse than the second subphase,
+        // do not construct ghost
+        if(tFirstLevel > tSecondLevel)
+        {
+            return false;
+        }
+
+        // if the first subphase is finer than the second subphase
+        // do construct ghost if proc owns first subphase
         if(tFirstLevel < tSecondLevel)
         {
 
@@ -1118,23 +1175,23 @@ namespace xtk
             return false;
         }
 
-        // normal checks
+        // first set of checks passed - subphases are on same refinement level
+
+        // do not construct if first subphase ID is smaller than second subphase ID
         if(tFirstSubphaseId < tSecondSubphaseId)
         {
             return false;
         }
 
-        // master owner is greater than slave owner
-        if(tFirstOwnerIndex > tSecondOwnerIndex)
+        // second set of checks passed - first subphase ID is larger than second one
+
+        // do not construct if I do not own first subphase
+        if(tFirstOwnerIndex != tProcRank )
         {
             return false;
         }
 
-
-        if(tFirstOwnerIndex == tProcRank && tSecondOwnerIndex == tProcRank)
-        {
-            return true;
-        }
+        // third set of checks passed - first subphase ID is larger than second one and it is owned by current proc
 
         return true;
     }

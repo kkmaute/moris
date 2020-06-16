@@ -648,12 +648,14 @@ private:
                                          Cell<Cell<moris_id>>       & aSubphaseCMIndices,
                                          Cell<moris::Matrix<IdMat>> & aParentCellIds,
                                          Cell<moris::Matrix<IdMat>> & aChildCellIds,
+                                         Cell<moris::Matrix<IdMat>> & aNumChildCellsInSubphase,
                                          Cell<uint>                 & aProcRanks,
                                          std::unordered_map<moris_id,moris_id> & aProcRankToDataIndex);
 
     void
     prepare_subphase_id_answers(Cell<Matrix<IndexMat>> & aReceivedParentCellIds,
                                 Cell<Matrix<IndexMat>> & aFirstChildCellIds,
+                                Cell<Matrix<IndexMat>> & aReceivedNumChildCellsInSubphase,
                                 Cell<Matrix<IndexMat>> & aSubphaseIds);
 
     void

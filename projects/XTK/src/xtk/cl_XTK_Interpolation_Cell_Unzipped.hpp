@@ -81,6 +81,7 @@ protected:
     // friend class
     friend class Enrichment;
     friend class Ghost_Stabilization;
+    friend class Enriched_Interpolation_Mesh;
 
 private:
     moris::mtk::Cell*                                  mBaseCell;

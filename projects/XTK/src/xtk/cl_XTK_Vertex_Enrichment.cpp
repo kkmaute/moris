@@ -185,11 +185,21 @@ Vertex_Enrichment::get_basis_weights()
 bool
 Vertex_Enrichment::basis_exists_in_enrichment(moris_index aBasisIndex) const
 {
-
-
     return mBasisMap.find(aBasisIndex) != mBasisMap.end();
 }
 //------------------------------------------------------------------------------
+bool
+Vertex_Enrichment::has_interpolation() const
+{
+    if(mBasisIndices.numel() == 0)
+    {
+        return false;
+    }
+    else
+    {
+        return true;
+    }
+}
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------

@@ -68,6 +68,21 @@ Interpolation_Vertex_Unzipped::get_interpolation( const uint aOrder ) const
     return mInterpolation(aOrder);
 }
 //------------------------------------------------------------------------------
+bool
+Interpolation_Vertex_Unzipped::has_interpolation( const uint aBSplineMeshIndex )
+{
+    if( mInterpolation(aBSplineMeshIndex)->has_interpolation())
+    {
+        return true;
+    }
+    else
+    {
+        return false;
+    }
+}
+
+
+//------------------------------------------------------------------------------
 Vertex_Enrichment *
 Interpolation_Vertex_Unzipped::get_xtk_interpolation( const uint aOrder )
 {
@@ -106,5 +121,11 @@ Interpolation_Vertex_Unzipped::add_vertex_interpolation(const uint aOrder,
     mInterpolation(aOrder) = aVertexInterp;
 }
 //------------------------------------------------------------------------------
+
+void
+Interpolation_Vertex_Unzipped::set_vertex_id(moris_index const & aId)
+{
+    mVertexId = aId;
+}
 
 }
