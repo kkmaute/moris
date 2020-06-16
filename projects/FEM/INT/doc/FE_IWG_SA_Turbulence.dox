@@ -1,0 +1,141 @@
+namespace moris {
+namespace fem {
+
+/** @defgroup FE_IWG_SA_Turbulence_Bulk Bulk IWG for Spalart-Allmaras Turbulence Model 
+
+The strong form of the Spalart-Allmaras turbulence equation is given as:
+\f[
+\frac{\partial \tilde{\nu}}{\partial t} 
++ \mathbf{u} \cdot \nabla \tilde{\nu} 
+= c_{b1}\ (1-f_{t2})\ \tilde{S}\ \tilde{\nu}
+- \left[ c_{w1}\ f_{w} - \frac{c_{b1}}{\kappa^2} f_{t2} \right] \bigg( \frac{\tilde{\nu}}{d} \bigg)^2
++ \frac{1}{\sigma} \left[ \nabla \cdot \bigg( ( \nu + \tilde{\nu} )\ \nabla \tilde{\nu} \bigg) + c_{b2}\ || \nabla \tilde{\nu} ||^2 \right]
+\f]
+where
+\f[
+\begin{array}{l}
+f_{t2} = c_{t3} \exp(-c_{t4} \chi^2),\quad \chi = \frac{\tilde{\nu}}{\nu}, \quad c_{t3} = 1.2, \quad c_{t4} = 0.5\\[10pt]
+c_{b1} = 0.1355, \quad c_{b2} = 0.622, \quad \sigma = 2/3, \quad \kappa = 0.41,\\[10pt] 
+f_{w} =  g \left[ \frac{1+c_{w3}^6}{g^6 + c_{w3}^3} \right], \quad g = r + c_{w2} (r^6 - r), \quad r = min \left[\frac{\tilde{\nu}}{\tilde{S} \kappa^2 d^2}, 10.0 \right] \\[10pt] 
+c_{w1} = c_{b1}/\kappa^2 + (1+c_{b2})/\sigma, \quad c_{w2} = 0.3, \quad c_{w3} = 2
+\end{array}
+\f]
+
+To ensure the non-negativity of \f$ \tilde{S} \f$
+\f[
+\tilde{S} = \left\{
+\begin{array}{ll}
+S + \overline{S} & \mbox{if}\ \overline{S} \leq -c_{v2} S \\
+S + \frac{S \left( c_{v2}^2 S + c_{v3} \overline{S} \right)}{\left( c_{v3} - 2 c_{v2} \right) S - \overline{S}}& \mbox{if}\ \overline{S} < -c_{v2} S
+\end{array}
+\right.
+\f]
+where 
+\f[
+\begin{array}{lll}
+S & = & \sqrt{2 W_{ij} W_{ij}}, \quad W_{ij} = \frac{1}{2} \left( \frac{\partial v_i}{\partial x_j} - \frac{\partial v_j}{\partial x_i} \right) \\[10pt]
+\overline{S} & = & \frac{\tilde{\nu}}{\kappa^2 d^2} f_{v2}\\[10pt]
+f_{v2} & = & 1 - \frac{\chi}{1+\chi f_{v1}}\\
+f_{v1} & = & \frac{\chi^3}{\chi^3 + c_{v1}^3} \\
+\end{array}
+\f]
+
+\f[
+\begin{array}{l}
+c_{v1} = 7.1, \quad c_{v2} = 0.7, \quad c_{v3} = 0.9
+\end{array}
+\f]
+
+The Spalart-Allmaras turbulence equation can be rewritten as a standard advection-diffusion-reaction equation: 
+\f[
+\frac{\partial \tilde{\nu}}{\partial t} 
++ \mathbf{a} \cdot \nabla \tilde{\nu} 
+= \nabla \cdot \left( \kappa\ \nabla \tilde{\nu} \right) 
++ s\ \tilde{\nu}
+\f]
+
+\f[
+\frac{\partial \tilde{\nu}}{\partial t} 
++ \left( \mathbf{u} - \frac{c_{b2}}{\sigma}\ \nabla \tilde{\nu} \right) \cdot \nabla \tilde{\nu}  
+= \frac{1}{\sigma} \nabla \cdot \left[ ( \nu + \tilde{\nu} )\ \nabla \tilde{\nu} \right]
++\left[ c_{b1}\ (1-f_{t2})\ \tilde{S} - \left( c_{w1}\ f_{w} - \frac{c_{b1}}{\kappa^2} f_{t2} \right) \frac{\tilde{\nu}}{d^2} \right] \tilde{\nu}
+\f]
+where 
+\f[
+\begin{array}{lll}
+\mathbf{a} & = & \displaystyle \mathbf{u} - \frac{c_{b2}}{\sigma} \nabla \tilde{\nu},\\
+\kappa & = & \displaystyle \frac{\nu + \tilde{\nu}}{\sigma},\\
+s & = & \displaystyle c_{b1} \left( 1 - f_{t2} \right) \tilde{S} - \left( c_{w1} f_w - \frac{c_{b1}}{\kappa^2} f_{t2} \right) \frac{\tilde{v}}{d^2} 
+\end{array}
+\f]
+
+The weak form of the Spalart-Allmaras equation is given as:
+\f[
+\displaystyle 
+R_{\tilde{\nu}} = \bigg( w,\ \frac{\partial \tilde{\nu}}{\partial t} \bigg)_{\Omega} 
++ \bigg( w,\ \left[ \mathbf{u} - \frac{c_{b2}}{\sigma} \nabla \tilde{\nu} \right] \cdot \nabla \tilde{\nu} \bigg)_{\Omega}
++ \bigg( \nabla w,\ \frac{1}{\sigma} \left[ ( \nu + \tilde{\nu} )\ \nabla \tilde{\nu} \right] \bigg)_{\Omega}
+- \bigg( w,\ \left[ c_{b1}\ (1-f_{t2})\ \tilde{S} - \left( c_{w1}\ f_{w} - \frac{c_{b1}}{\kappa^2} f_{t2} \right) \frac{\tilde{\nu}}{d^2} \right] \tilde{\nu} \bigg)_{\Omega}  
+ \f]
+
+The equation is stabilized with SUPG:
+\f[
+\begin{array}{lll}
+R_{\tilde{\nu}}^{SUPG} & = & \bigg( \left[ \mathbf{u} - \frac{c_{b2}}{\sigma} \nabla \tilde{\nu} \right] \cdot \nabla w,\ \tau_{\tilde{\nu}}\ r_{\tilde{\nu}} \bigg)_{\Omega}\\[15pt]
+
+r_{\tilde{\nu}} & = &
+\frac{\partial \tilde{\nu}}{\partial t} 
++ \left( \mathbf{u} - \frac{c_{b2}}{\sigma}\ \nabla \tilde{\nu} \right) \cdot \nabla \tilde{\nu} 
+- \frac{1}{\sigma} \nabla \cdot \left[ ( \nu + \tilde{\nu} )\ \nabla \tilde{\nu} \right] 
+- \left[ c_{b1}\ (1-f_{t2})\ \tilde{S} - \left( c_{w1}\ f_{w} - \frac{c_{b1}}{\kappa^2} f_{t2} \right) \frac{\tilde{\nu}}{d^2} \right] \tilde{\nu}\\[15pt]
+
+\tau_{\tilde{\nu}} & = & \left[ \left(\frac{2\ || \mathbf{a} ||}{h} \right)^2 + \left( \frac{4 \kappa}{h^2} \right)^2 + \left( s \right)^2 \right]^{-1/2}\\
+\end{array}
+\f]
+
+The bulk part of the residual \f$ R_{\tilde{\nu}} \f$ and the SUPG stabilization are implemented 
+in IWG_Spalart_Allmaras_Turbulence_Bulk,
+corresponding to the enum IWG\_Type::SPALART\_ALLMARAS\_TURBULENCE\_BULK.
+
+Dirichlet boundary conditions on the modified viscosity are applied via Nitsche's formulation:
+\f[
+\begin{array}{lll}
+R_{\tilde{\nu}}^{D} & =  & 
+- \bigg( w,\ \sigma( \tilde{\nu} ) \cdot \mathbf{n} \bigg)_{\Gamma_D}
++ \bigg( \sigma( w ) \cdot \mathbf{n},\ \tilde{\nu}- \overline{\tilde{\nu}} \bigg)_{\Gamma_D}
++ \bigg( \gamma^N_{\tilde{\nu}} w,\ \tilde{\nu}- \overline{\tilde{\nu}} \bigg)_{\Gamma_D}\\[15pt]
+
+\sigma(\tilde{\nu}) & = & \frac{\nu + \tilde{\nu}}{\sigma} \nabla \tilde{\nu}\\[15pt]
+
+\gamma^N_{\tilde{\nu}} & = & \alpha^{N}_{\tilde{\nu}}\ \frac{\nu + \tilde{\nu}}{\sigma h}
+\end{array}
+\f]
+
+The BC part of the residual \f$ R_{\tilde{\nu}}^{D} \f$ is implemented in 
+IWG_Spalart_Allmaras_Turbulence_Dirichlet,
+corresponding to the enum IWG\_Type::SPALART_ALLMARAS_TURBULENCE_SYMMETRIC_DIRICHLET_NITSCHE.
+The stabilization parameter \f$ \gamma^N_{\tilde{\nu}} \f$ is implemented in
+SP_Turbulence_Dirichlet_Nitsche, corresponding to the enum SP_Type::TURBULENCE_DIRICHLET_NITSCHE.
+
+Face-oriented ghost stabilization:
+\f[
+\begin{array}{lll}
+R_{\tilde{\nu}}^{GP} & =  & 
+\sum_{F} \sum_{i} \int_{F} \gamma^{GP}_{\tilde{\nu}} [[ \frac{\partial^i w}{\partial \mathbf{x}^i} \cdot \mathbf{n} ]] 
+: [[ \frac{\partial^i \tilde{\nu}}{\partial \mathbf{x}^i} \cdot \mathbf{n} ]] \ d\Gamma\\ [15pt]
+
+\gamma^{GP}_{\tilde{\nu}} & = & \alpha^{GP}_{\tilde{\nu}}\ \nu\ h^{2(i - 1) +1}
+
+\end{array}
+\f]
+
+The ghost part of the residual \f$ R_{\tilde{\nu}}^{GP} \f$ is implemented in
+IWG_Diffusion_Ghost
+corresponding to the enum  IWG_Type::SPATIALDIFF_GHOST.
+The stabilization parameter \f$ \gamma^{GP}_{\tilde{\nu}} \f$ is implemented in
+SP_Ghost_Displacement, corresponding to the enum SP_Type::GHOST_DISPL.
+
+*/
+
+}
+}
