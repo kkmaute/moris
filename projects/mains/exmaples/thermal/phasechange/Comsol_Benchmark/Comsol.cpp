@@ -286,7 +286,7 @@ namespace moris
         tParameterList( 1 ).push_back( prm::create_constitutive_model_parameter_list() );
         tParameterList( 1 )( tCMCounter ).set( "constitutive_name", std::string("CMDiffusionPhaseChange") );
         tParameterList( 1 )( tCMCounter ).set( "constitutive_type", static_cast< uint >( fem::Constitutive_Type::DIFF_LIN_ISO_PC ) );
-        tParameterList( 1 )( tCMCounter ).set( "dof_dependencies",  std::pair< std::string, std::string >( "TEMP", "Temp" ) );
+        tParameterList( 1 )( tCMCounter ).set( "dof_dependencies",  std::pair< std::string, std::string >( "TEMP", "Temperature" ) );
         tParameterList( 1 )( tCMCounter ).set( "properties",        std::string("PropConductivity,Conductivity;PropDensity,Density;PropHeatCapacity,Heat_Capacity;PropLatentHeat,Latent_Heat;PropPCTemp,PC_Temp;PropPhaseState,Phase_State_Function;PropPCconst,Phase_Change_Const") );
         tCMCounter++;
 
@@ -307,7 +307,7 @@ namespace moris
         tParameterList( 2 )( tSPCounter ).set( "stabilization_name",      std::string("SPGGLSDiffusion") );
         tParameterList( 2 )( tSPCounter ).set( "stabilization_type",      static_cast< uint >( fem::Stabilization_Type::GGLS_DIFFUSION_PC ) );
         tParameterList( 2 )( tSPCounter ).set( "master_properties",       std::string("PropConductivity,Conductivity;PropDensity,Density;PropHeatCapacity,Heat_Capacity") );
-        tParameterList( 2 )( tSPCounter ).set( "master_dof_dependencies", std::pair< std::string, std::string >( "TEMP", "Temp" ) );
+        tParameterList( 2 )( tSPCounter ).set( "master_dof_dependencies", std::pair< std::string, std::string >( "TEMP", "Temperature" ) );
         tSPCounter++;
 
         // create parameter list for stabilization parameter 1

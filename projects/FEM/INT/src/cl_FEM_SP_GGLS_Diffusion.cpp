@@ -18,13 +18,13 @@ namespace moris
             mMasterProp.resize( static_cast< uint >( Property_Type::MAX_ENUM ), nullptr );
 
             // populate the map
-            mPropertyMap[ "Conductivity" ]         = Property_Type::CONDUCTIVITY;
-            mPropertyMap[ "Density" ]              = Property_Type::DENSITY;
-            mPropertyMap[ "Heat_Capacity" ]        = Property_Type::HEAT_CAPACITY;
-            mPropertyMap[ "Latent_Heat" ]          = Property_Type::LATENT_HEAT;
-            mPropertyMap[ "PC_Temp" ]              = Property_Type::PC_TEMP;
-            mPropertyMap[ "Phase_State_Function" ] = Property_Type::PHASE_STATE_FUNCTION;
-            mPropertyMap[ "Phase_Change_Const" ]   = Property_Type::PHASE_CHANGE_CONST;
+            mPropertyMap[ "Conductivity" ]       = Property_Type::CONDUCTIVITY;
+            mPropertyMap[ "Density" ]            = Property_Type::DENSITY;
+            mPropertyMap[ "HeatCapacity" ]       = Property_Type::HEAT_CAPACITY;
+            mPropertyMap[ "LatentHeat" ]         = Property_Type::LATENT_HEAT;
+            mPropertyMap[ "PCTemp" ]             = Property_Type::PC_TEMP;
+            mPropertyMap[ "PhaseStateFunction" ] = Property_Type::PHASE_STATE_FUNCTION;
+            mPropertyMap[ "PhaseChangeConst" ]   = Property_Type::PHASE_CHANGE_CONST;
         }
 
         //------------------------------------------------------------------------------
@@ -61,7 +61,7 @@ namespace moris
                         MSI::Dof_Type tDofType = aDofTypes( iDof )( 0 );
 
                         // if velocity
-                        if( tDofString == "Temp" )
+                        if( tDofString == "Temperature" )
                         {
                             mMasterDofTemp = tDofType;
                         }

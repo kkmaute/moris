@@ -137,6 +137,7 @@ namespace moris
             md3Ndx3Eval = true;
             mdNdtEval   = true;
             md2Ndt2Eval = true;
+            md2NdxtEval = true;
         }
 
 //------------------------------------------------------------------------------

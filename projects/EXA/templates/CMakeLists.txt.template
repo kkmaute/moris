@@ -1,73 +1,49 @@
-# MORIS mains -------------------------------------------------------------
-# -------------------------------------------------------------------------
+set(EXAMPLE_MAIN Main_<Example Name>)
+set(EXAMPLE_FILE <ExaChannel_with_Four_Cylinders_Transient)
 
-# Note: These execiutables are to be replaced by project-specific mains
-#       ...eventaually.
-
-# Third party libraries
-list(REMOVE_DUPLICATES MAIN_TPL_DEPENDENCIES)
-foreach(MAIN_TPL ${MAIN_TPL_DEPENDENCIES})
-    include(${MORIS_TPL_DIR}/${MAIN_TPL}.cmake)
-endforeach()
-
-# Set executable output location
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
-
-# List mains
-set(MAINS
-    main.cpp )
+# List source files
+set(EXAMPLE_SOURCES
+    ../../../src/example_main.cpp
+    example_test_case.cpp
+)
 
 # List include directories
-set(MAIN_INCLUDES
+set(EXAMPLE_INCLUDES
     ${COM}
     ${IOS}
     ${WRK}
     ${LINALG}
         )
 
-foreach(MAIN_INCLUDE ${MAIN_INCLUDES})
-    include_directories(../${MAIN_INCLUDE}/src)
+foreach(EXAMPLE_INCLUDE ${EXAMPLE_INCLUDES})
+    include_directories(../${EXAMPLE_INCLUDE}/src)
 endforeach()
 
-# Additonal (optional) includes
-include_directories(../STK/src/Hierarchical)
-
 # List executable dependencies
-set(MAIN_DEPENDENCIES
+set(EXAMPLE_DEPENDENCIES
     ${HMR}-lib
     ${COM}-lib
     ${WRK}-lib
     ${MORIS_PETSC_LIBS}
     ${MORIS_BOOST_LIBS}
     ${MORIS_ACML_LAPACK_MKL_OPENBLAS_LIBS}
-#     ${MORIS_MPI_LIBS}
     ${MORIS_ARMADILLO_EIGEN_LIBS}
     ${MORIS_SUPERLU_LIBS}
     ${MORIS_LDLIBS}
     ${MORIS_TRILINOS_LIBS}
     ${MORIS_BASE_LIBS}
     )
-
-# Create and link main executables
-foreach(MAIN ${MAINS})
-    string(REPLACE ".cpp" "-${EXECUTABLE}" EXE_NAME ${MAIN})
-    add_executable(moris ${MAIN})
-    target_link_libraries(moris ${MAIN_DEPENDENCIES})
-    list(APPEND MAIN_EXECUTABLES moris)
-endforeach()
-
-# Install executables
-install(TARGETS ${MAIN_EXECUTABLES}
-    DESTINATION ${EXE_INSTALL_DIR} )
     
-    
-# -------------------------------------------------------------------------
-# Making of input file shared object --------------------------------------
-# -------------------------------------------------------------------------
+# Set the output path for example
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${BIN})
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${BIN})
 
-## create dynamically linked .so files
-set(HARDCODED_INPUT_FILE input_file)
+# Create executable
+add_executable(${EXAMPLE_MAIN} ${EXAMPLE_SOURCES})
+target_link_libraries(${EXAMPLE_MAIN} PRIVATE ${EXAMPLE_DEPENDENCIES})
+set_target_properties(${EXAMPLE_MAIN} PROPERTIES OUTPUT_NAME ${EXAMPLE_MAIN}${EXE_EXT})
 
+# create dynamically linked .so files
 set(SO_TPLS
 "trilinos"
 ${ARMADILLO_EIGEN}
@@ -81,7 +57,6 @@ SET(SO_INCLUDES
     ${MORIS_PACKAGE_DIR}/FEM/MSI/src 
     ${MORIS_PACKAGE_DIR}/FEM/VIS/src 
     ${MORIS_PACKAGE_DIR}/GEN/GEN_CORE/src 
-    ${MORIS_PACKAGE_DIR}/HMR/src 
     ${MORIS_PACKAGE_DIR}/SOL/DLA/src 
     ${MORIS_PACKAGE_DIR}/SOL/TSA/src
     ${MORIS_PACKAGE_DIR}/SOL/NLA/src 
@@ -110,5 +85,11 @@ foreach(TPL ${SO_TPLS})
     list(APPEND SO_INCLUDES ${MORIS_${TPL}_INCLUDE_DIRS})
 endforeach()
 
-dynamic_link_input("shared_object_file" ${HARDCODED_INPUT_FILE} ${HARDCODED_INPUT_FILE}.cpp  ${SO_INCLUDES})
+dynamic_link_input(${EXAMPLE_FILE} ${EXAMPLE_FILE} ${EXAMPLE_FILE}.cpp ${SO_INCLUDES})
 
+# Add parallel tests
+if(MORIS_HAVE_PARALLEL_TESTS)
+	add_test(NAME ${EXAMPLE_FILE} 
+	COMMAND ${MORIS_EXECUTE_COMMAND} -n 1 ${VALGRIND} ${VALGRIND_OPTIONS} $<TARGET_FILE:${EXAMPLE_MAIN}>
+    WORKING_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
+endif()

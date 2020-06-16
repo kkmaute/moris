@@ -1,3 +1,9 @@
+//
+// Generic main for examples using catch test environment
+//
+
+#define CATCH_CONFIG_RUNNER
+#include <catch.hpp>
 #include "cl_Communication_Manager.hpp" // COM/src
 #include "cl_Logger.hpp"                // MRS/IOS/src
 #include "banner.hpp"                   // COR/src
@@ -6,12 +12,8 @@ moris::Comm_Manager gMorisComm;
 moris::Logger       gLogger;
 
 using namespace moris;
+
 //---------------------------------------------------------------
-
-int fn_WRK_Workflow_Main_Interface( int argc, char * argv[] );
-
-//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 int main( int argc, char * argv[] )
 {
@@ -24,8 +26,8 @@ int main( int argc, char * argv[] )
     // print banner
     moris::print_banner( argc, argv );
 
-    // call to performance manager main interface
-    int tRet = fn_WRK_Workflow_Main_Interface( argc, argv );
+    // Run Tests
+    int tRet = Catch::Session().run( argc, argv );
 
     // finalize MORIS global communication manager
     gMorisComm.finalize();

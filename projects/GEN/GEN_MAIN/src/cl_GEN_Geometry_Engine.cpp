@@ -15,6 +15,9 @@
 #include "cl_HMR_Mesh.hpp"
 #include "cl_HMR.hpp"
 
+// PRM
+#include "cl_PRM_HMR_Parameters.hpp"
+
 // MRS/IOS
 #include "fn_Parsing_Tools.hpp"
 
@@ -23,25 +26,26 @@ namespace moris
     namespace ge
     {
         //--------------------------------------------------------------------------------------------------------------
-        
-        Geometry_Engine::Geometry_Engine(moris::Cell<moris::Cell<ParameterList>> aParameterLists, std::shared_ptr<moris::Library_IO> aLibrary) :
-        // User options
-        mSpatialDim(aParameterLists(0)(0).get<int>("spatial_dimensions")),
-        mThresholdValue(aParameterLists(0)(0).get<real>("threshold_value")),
-        mPerturbationValue(aParameterLists(0)(0).get<real>("perturbation_value")),
-        mNumRefinements(aParameterLists(0)(0).get<int>("HMR_refinements")),
 
-        // ADVs/IQIs
-        mADVs((uint)aParameterLists(0)(0).get<int>("advs_size"), 1, aParameterLists(0)(0).get<real>("initial_advs_fill")),
-        mLowerBounds((uint)aParameterLists(0)(0).get<int>("advs_size"), 1, aParameterLists(0)(0).get<real>("lower_bounds_fill")),
-        mUpperBounds((uint)aParameterLists(0)(0).get<int>("advs_size"), 1, aParameterLists(0)(0).get<real>("upper_bounds_fill")),
-        mRequestedIQIs(string_to_cell<std::string>(aParameterLists(0)(0).get<std::string>("IQI_types"))),
+        Geometry_Engine::Geometry_Engine(
+                moris::Cell<moris::Cell<ParameterList>> aParameterLists,
+                std::shared_ptr<moris::Library_IO> aLibrary):
+                // User options
+                mSpatialDim(aParameterLists(0)(0).get<int>("spatial_dimensions")),
+                mThresholdValue(aParameterLists(0)(0).get<real>("threshold_value")),
+                mPerturbationValue(aParameterLists(0)(0).get<real>("perturbation_value")),
+                mNumRefinements(aParameterLists(0)(0).get<int>("HMR_refinements")),
 
-        // Phase table
-        mPhaseTable(string_to_mat<IndexMat>(aParameterLists(0)(0).get<std::string>("phase_table")).numel()
-              ? Phase_Table(string_to_mat<IndexMat>(aParameterLists(0)(0).get<std::string>("phase_table")), aParameterLists(0)(0).get<std::string>("phase_table_structure"))
-              : Phase_Table(aParameterLists(1).size(), aParameterLists(0)(0).get<std::string>("phase_table_structure")))
+                // ADVs/IQIs
+                mADVs((uint)aParameterLists(0)(0).get<int>("advs_size"), 1, aParameterLists(0)(0).get<real>("initial_advs_fill")),
+                mLowerBounds((uint)aParameterLists(0)(0).get<int>("advs_size"), 1, aParameterLists(0)(0).get<real>("lower_bounds_fill")),
+                mUpperBounds((uint)aParameterLists(0)(0).get<int>("advs_size"), 1, aParameterLists(0)(0).get<real>("upper_bounds_fill")),
+                mRequestedIQIs(string_to_cell<std::string>(aParameterLists(0)(0).get<std::string>("IQI_types"))),
 
+                // Phase table
+                mPhaseTable(string_to_mat<IndexMat>(aParameterLists(0)(0).get<std::string>("phase_table")).numel()
+                      ? Phase_Table(string_to_mat<IndexMat>(aParameterLists(0)(0).get<std::string>("phase_table")), aParameterLists(0)(0).get<std::string>("phase_table_structure"))
+                      : Phase_Table(aParameterLists(1).size(), aParameterLists(0)(0).get<std::string>("phase_table_structure")))
         {
             // Explicit ADVs and bounds
             Matrix<DDRMat> tInitialADVs = string_to_mat<DDRMat>(aParameterLists(0)(0).get<std::string>("initial_advs"));
@@ -80,6 +84,14 @@ namespace moris
                 }
             }
 
+            // Create function pointer for user defined refinement function
+            std::string tUserDefinedFunc = aParameterLists(0)(0).get<std::string>("user_defined_refinement_function");
+
+            if ( tUserDefinedFunc.size() > 1 )
+            {
+                mUserDefinedFunc = aLibrary->load_user_defined_refinement_functions( tUserDefinedFunc );
+            }
+
             // Create properties
             mProperties = create_properties(aParameterLists(2), mADVs, aLibrary);
             mPropertyParameterLists = aParameterLists(2);
@@ -98,16 +110,16 @@ namespace moris
         //--------------------------------------------------------------------------------------------------------------
 
         Geometry_Engine::Geometry_Engine(Cell<std::shared_ptr<Geometry>>    aGeometry,
-                                         Phase_Table                        aPhaseTable,
-                                         uint                               aSpatialDim,
-                                         real                               aThresholdValue,
-                                         real                               aPerturbationValue)
-            : mSpatialDim(aSpatialDim),
-              mThresholdValue(aThresholdValue),
-              mPerturbationValue(aPerturbationValue),
-              mActiveGeometryIndex(0),
-              mGeometry(aGeometry),
-              mPhaseTable(aPhaseTable)
+                Phase_Table                        aPhaseTable,
+                uint                               aSpatialDim,
+                real                               aThresholdValue,
+                real                               aPerturbationValue)
+        : mSpatialDim(aSpatialDim),
+          mThresholdValue(aThresholdValue),
+          mPerturbationValue(aPerturbationValue),
+          mActiveGeometryIndex(0),
+          mGeometry(aGeometry),
+          mPhaseTable(aPhaseTable)
         {
         }
 
@@ -174,15 +186,15 @@ namespace moris
         }
 
         //--------------------------------------------------------------------------------------------------------------
-        
+
         void Geometry_Engine::initialize_geometry_objects_for_background_mesh_nodes(moris::size_t const & aNumNodes)
         {
             // Allocate space
             mNodePhaseVals = moris::Matrix< moris::DDRMat >(aNumNodes, this->get_num_geometries(), 0);
-        
+
             // Allocate geometry object
             Cell< GEN_Geometry_Object > tGeometryObjects( aNumNodes );
-        
+
             // Associate each geometry object with a row in phase val matrix (note phase val computed later)
             moris::Matrix< moris::IndexMat > tNodeIndex( 1, aNumNodes );
             for(moris::size_t i = 0; i < aNumNodes; i++)
@@ -190,19 +202,19 @@ namespace moris
                 tGeometryObjects(i).set_phase_val_row(i);
                 tNodeIndex(0, i) = i;
             }
-        
+
             // Place these in the geometry object manager
             mGeometryObjectManager.store_geometry_objects(tNodeIndex, tGeometryObjects);
         }
 
         //--------------------------------------------------------------------------------------------------------------
-        
+
         void Geometry_Engine::initialize_geometry_object_phase_values( moris::Matrix< moris::DDRMat > const & aNodeCoords )
         {
             // Allocate space
             size_t tNumNodes = aNodeCoords.n_rows();
             uint tNumGeometries = mGeometry.size();
-        
+
             // Loop through each geometry and then each node and compute the level set field value
             for (moris::size_t tGeometryIndex = 0; tGeometryIndex < tNumGeometries; tGeometryIndex++) // Analytic
             {
@@ -215,19 +227,20 @@ namespace moris
         }
 
         //--------------------------------------------------------------------------------------------------------------
-        
-        void Geometry_Engine::associate_new_nodes_with_geometry_object( Cell<Pending_Node> & aNewNodes,
-                                                                            bool                 aInterfaceNodes )
+
+        void Geometry_Engine::associate_new_nodes_with_geometry_object(
+                Cell<Pending_Node> & aNewNodes,
+                bool                 aInterfaceNodes )
         {
             // Allocate space
             moris::size_t tNumNewNodes = aNewNodes.size();
             moris::size_t tNumCurrNodes = mNodePhaseVals.n_rows();
-        
+
             // add space to the node phase value table
             mNodePhaseVals.resize(tNumNewNodes+tNumCurrNodes, this->get_num_geometries());
-        
+
             Cell<GEN_Geometry_Object> tGeometryObjects(tNumNewNodes);
-        
+
             moris::Matrix< moris::IndexMat > tNodeIndex(1,tNumNewNodes);
             for(moris::size_t i = 0; i<tNumNewNodes; i++)
             {
@@ -238,16 +251,16 @@ namespace moris
                     tGeometryObjects(i).set_parent_entity_topology(aNewNodes(i).get_parent_topology_ptr());
                 }
             }
-        
+
             if(tNumNewNodes !=0)
             {
                 mGeometryObjectManager.store_geometry_objects(tNodeIndex,tGeometryObjects);
             }
-        
+
             // Compute and store level set value of this node for each new node
             for(moris::size_t j = 0; j < this->get_num_geometries(); j++)
             {
-        
+
                 for(moris::size_t i = 0; i < tNumNewNodes; i++ )
                 {
                     // Ask the pending node about its parent
@@ -255,32 +268,33 @@ namespace moris
                     moris::Matrix< moris::DDRMat > const & tLocalCoordinate = aNewNodes(i).get_local_coordinate_relative_to_parent();
                     moris::Matrix< moris::DDRMat >  tLevelSetValues(1,1);
                     xtk::Topology const & tParentTopology = aNewNodes(i).get_parent_topology();
-        
+
                     // Interpolate all level set values to node
                     this->interpolate_level_set_value_to_child_node_location(tParentTopology, j,tLocalCoordinate,tLevelSetValues);
                     mNodePhaseVals(i+tNumCurrNodes,j) = tLevelSetValues(0,0);
                 }
-        
+
             }
         }
-        
+
         //--------------------------------------------------------------------------------------------------------------
-        
-        void Geometry_Engine::create_new_node_geometry_objects( Cell< moris_index >  const & aNewNodeIndices,
-                                                                    bool                         aStoreParentTopo,
-                                                                    Cell<xtk::Topology*> const & aParentTopo,
-                                                                    Cell<Matrix<DDRMat>> const & aParamCoordRelativeToParent,
-                                                                    Cell<Matrix<DDRMat>> const & aGlobalNodeCoord )
+
+        void Geometry_Engine::create_new_node_geometry_objects(
+                Cell< moris_index >  const & aNewNodeIndices,
+                bool                         aStoreParentTopo,
+                Cell<xtk::Topology*> const & aParentTopo,
+                Cell<Matrix<DDRMat>> const & aParamCoordRelativeToParent,
+                Cell<Matrix<DDRMat>> const & aGlobalNodeCoord )
         {
             // Allocate space
             moris::size_t tNumNewNodes = aNewNodeIndices.size();
             moris::size_t tNumCurrNodes = mNodePhaseVals.n_rows();
-        
+
             // add space to the node phase value table
             mNodePhaseVals.resize(tNumNewNodes+tNumCurrNodes, this->get_num_geometries());
-        
+
             Cell<GEN_Geometry_Object> tGeometryObjects(tNumNewNodes);
-        
+
             moris::Matrix< moris::IndexMat > tNodeIndex(1,tNumNewNodes);
             for(moris::size_t i = 0; i<tNumNewNodes; i++)
             {
@@ -292,158 +306,169 @@ namespace moris
                     mIntegNodeIndices.push_back( aNewNodeIndices(i) );
                 }
             }
-        
+
             if(tNumNewNodes !=0)
             {
                 mGeometryObjectManager.store_geometry_objects(tNodeIndex,tGeometryObjects);
             }
-        
+
             for(moris::size_t j = 0; j < this->get_num_geometries(); j++)
             {
-        
+
                 for(moris::size_t i = 0; i<tNumNewNodes; i++ )
                 {
                     // Ask the pending node about its parent
                     // This information is needed to know what to interpolate based on
                     moris::Matrix< moris::DDRMat >  tLevelSetValues(1,1);
                     this->interpolate_level_set_value_to_child_node_location(*aParentTopo(i), j, aParamCoordRelativeToParent(i),tLevelSetValues);
-        
+
                     mNodePhaseVals(i+tNumCurrNodes,j) = tLevelSetValues(0,0);
                 }
             }
         }
 
         //--------------------------------------------------------------------------------------------------------------
-        
-        void Geometry_Engine::link_new_nodes_to_existing_geometry_objects( Matrix< IndexMat > const & aNodesIndicesWithGeomObj,
-                                                                               Matrix< IndexMat > const & aNodesIndicesToLink )
+
+        void Geometry_Engine::link_new_nodes_to_existing_geometry_objects(
+                Matrix< IndexMat > const & aNodesIndicesWithGeomObj,
+                Matrix< IndexMat > const & aNodesIndicesToLink )
         {
             // Assert lengths match
             MORIS_ASSERT(aNodesIndicesWithGeomObj.numel() == aNodesIndicesToLink.numel(),
-            "Length of nodes with geometry objects does not match length of list with node indices to link  ");
-        
+                    "Length of nodes with geometry objects does not match length of list with node indices to link  ");
+
             // Number of nodes to link
             uint tNumNodes = aNodesIndicesWithGeomObj.numel();
-        
+
             // Iterate through nodes and create the link
             for(uint i = 0; i <tNumNodes; i++)
             {
                 mGeometryObjectManager.link_to_node_to_another_nodes_geometry_object(aNodesIndicesWithGeomObj(i),aNodesIndicesToLink(i));
             }
-        
+
         }
-        
+
         //--------------------------------------------------------------------------------------------------------------
-        
-        void Geometry_Engine::is_intersected( moris::Matrix< moris::DDRMat > const &   aNodeCoords,
-                                                  moris::Matrix< moris::IndexMat > const & aNodetoEntityConn,
-                                                  moris::size_t                            aCheckType,
-                                                  Cell< GEN_Geometry_Object > &            aGeometryObjects )
+
+        void Geometry_Engine::is_intersected(
+                moris::Matrix< moris::DDRMat > const &   aNodeCoords,
+                moris::Matrix< moris::IndexMat > const & aNodetoEntityConn,
+                moris::size_t                            aCheckType,
+                Cell< GEN_Geometry_Object > &            aGeometryObjects )
         {
             //Get information for loops
             moris::size_t tNumEntities = aNodetoEntityConn.n_rows(); // Number of entities provided to the geometry engine
-        
+
             //Initialize
             moris::size_t tIntersectedCount = 0;    // Intersected element counter
             aGeometryObjects.clear();
             aGeometryObjects.resize(tNumEntities,GEN_Geometry_Object());
-        
+
             //Loop over elements and determine if the element has an intersection
             for(moris::moris_index i = 0; i < (moris::moris_index)tNumEntities; i++)
             {
-        
+
                 //Populate the intersection flag of this element with a bool
                 moris::Matrix< moris::IndexMat > tRow = aNodetoEntityConn.get_row(i);
                 moris::Matrix< moris::IndexMat > tNodeADVIndices;
                 bool tIsIntersected = compute_intersection_info( i,tRow, aNodeCoords, aCheckType, tNodeADVIndices, aGeometryObjects(tIntersectedCount) );
-        
+
                 if(tIsIntersected)
                 {
                     tIntersectedCount++;
                 }
             }
-        
+
             // resize
             aGeometryObjects.resize( tIntersectedCount, GEN_Geometry_Object() );
         }
 
         //--------------------------------------------------------------------------------------------------------------
-        
-        void Geometry_Engine::compute_interface_sensitivity( Matrix< IndexMat > const & aInterfaceNodeIndices,
-                                                                 Matrix< DDRMat >   const & aNodeCoords,
-                                                                 moris_index                aGeomIndex,
-                                                                 bool               const   aGlbCoord )
+
+        void Geometry_Engine::compute_interface_sensitivity(
+                Matrix< IndexMat > const & aInterfaceNodeIndices,
+                Matrix< DDRMat >   const & aNodeCoords,
+                moris_index                aGeomIndex,
+                bool               const   aGlbCoord )
         {
             mInterfaceNodeIndices = aInterfaceNodeIndices;
 
             // Figure out how many entities to compute sensitivity for
             uint tNumEntities = aInterfaceNodeIndices.numel();
-        
+
             // iterate through node indices and compute sensitivity for each
             for( uint iEnt = 0; iEnt<tNumEntities; iEnt++ )
             {
                 // get the node index
                 moris::moris_index tNodeIndex = aInterfaceNodeIndices( iEnt );
-        
+
                 // Get the node geometry object
                 GEN_Geometry_Object & tGeoObj = this->mGeometryObjectManager.get_geometry_object_from_manager(tNodeIndex);
-        
+
                 // Get the parent topology that this node was created on
                 xtk::Topology const & tParentEdge = tGeoObj.get_parent_entity_topology( );
-        
+
                 MORIS_ASSERT(tParentEdge.get_topology_type() == xtk::Topology_Type::EDGE,"Only supporting interface sensitivity computation on an edge");
-        
+
                 // Get the node indices from the topology
                 Matrix< IndexMat > const & tParentEntityNodes = tParentEdge.get_node_indices( );
-        
+
                 // Initialize sensitivity
                 Matrix< DDRMat > tDxDp(1,1,0.0);
-        
+
                 // Get the node vars of the parent edge nodes
                 Matrix< DDRMat > tEntityNodeVars( tParentEntityNodes.numel(), 1 );
                 for(uint i = 0; i < tParentEntityNodes.numel(); i++)
                 {
                     tEntityNodeVars(i) = this->get_entity_phase_val( tParentEntityNodes(i), aGeomIndex );
                 }
-        
+
                 // Recompute local intersection (This could be stored instead)
                 Matrix< DDRMat > tIntersectLocalCoordinate( 1, 1, 0.0 );
                 Matrix< DDRMat > tIntersectGlobalCoordinate( 1, 1, 0.0 );
-                get_intersection_location(mThresholdValue,
-                                          mPerturbationValue,
-                                          aNodeCoords,
-                                          tEntityNodeVars,
-                                          tParentEntityNodes,
-                                          tIntersectLocalCoordinate,
-                                          tIntersectGlobalCoordinate,
-                                          true,
-                                          aGlbCoord);
-        
+                get_intersection_location(
+                        mThresholdValue,
+                        mPerturbationValue,
+                        aNodeCoords,
+                        tEntityNodeVars,
+                        tParentEntityNodes,
+                        tIntersectLocalCoordinate,
+                        tIntersectGlobalCoordinate,
+                        true,
+                        aGlbCoord);
+
                 // FIXME: Parent edge nodes need to not be the ADVs
                 Matrix< IndexMat > tADVIndices;
-                compute_dx_dp_for_an_intersection( tParentEntityNodes, aNodeCoords, tIntersectLocalCoordinate, tEntityNodeVars, tDxDp, tADVIndices );
-        
+                compute_dx_dp_for_an_intersection(
+                        tParentEntityNodes,
+                        aNodeCoords,
+                        tIntersectLocalCoordinate,
+                        tEntityNodeVars,
+                        tDxDp,
+                        tADVIndices );
+
                 tGeoObj.set_sensitivity_dx_dp( tDxDp );
                 tGeoObj.set_node_adv_indices(tADVIndices);
             }
         }
 
         //--------------------------------------------------------------------------------------------------------------
-        
-        void Geometry_Engine::get_intersection_location( moris::real const &                      aIsocontourThreshold,
-                                                             moris::real const &                      aPerturbationThreshold,
-                                                             moris::Matrix< moris::DDRMat > const &   aGlobalNodeCoordinates,
-                                                             moris::Matrix< moris::DDRMat > const &   aEntityNodeVars,
-                                                             moris::Matrix< moris::IndexMat > const & aEntityNodeIndices,
-                                                             moris::Matrix< moris::DDRMat > &         aIntersectionLocalCoordinates,
-                                                             moris::Matrix< moris::DDRMat > &         aIntersectionGlobalCoordinates,
-                                                             bool                                     aCheckLocalCoordinate,
-                                                             bool                                     aComputeGlobalCoordinate )
+
+        void Geometry_Engine::get_intersection_location(
+                moris::real const &                      aIsocontourThreshold,
+                moris::real const &                      aPerturbationThreshold,
+                moris::Matrix< moris::DDRMat > const &   aGlobalNodeCoordinates,
+                moris::Matrix< moris::DDRMat > const &   aEntityNodeVars,
+                moris::Matrix< moris::IndexMat > const & aEntityNodeIndices,
+                moris::Matrix< moris::DDRMat > &         aIntersectionLocalCoordinates,
+                moris::Matrix< moris::DDRMat > &         aIntersectionGlobalCoordinates,
+                bool                                     aCheckLocalCoordinate,
+                bool                                     aComputeGlobalCoordinate )
         {
-        
+
             // compute the local coordinate where the intersection occurs
             Interpolation::linear_interpolation_value(aEntityNodeVars, aIsocontourThreshold, aIntersectionLocalCoordinates);
-        
+
             // Perturb away from node if necessary
             if(aCheckLocalCoordinate)
             {
@@ -451,13 +476,13 @@ namespace moris
                 {
                     aIntersectionLocalCoordinates(0, 0) = aIntersectionLocalCoordinates(0, 0) - aPerturbationThreshold;
                 }
-        
+
                 if(aIntersectionLocalCoordinates(0, 0) <= -1+aPerturbationThreshold)
                 {
                     aIntersectionLocalCoordinates(0, 0) = aIntersectionLocalCoordinates(0, 0) + aPerturbationThreshold;
                 }
             }
-        
+
             // Compute the global coordinate only if you plan to use it
             if(aComputeGlobalCoordinate)
             {
@@ -465,84 +490,93 @@ namespace moris
                 moris::Matrix< moris::DDRMat > tEntityCoordinates(2,mSpatialDim);
                 replace_row(aEntityNodeIndices(0,0), aGlobalNodeCoordinates,0,tEntityCoordinates);
                 replace_row(aEntityNodeIndices(0,1), aGlobalNodeCoordinates,1,tEntityCoordinates);
-        
+
                 // compute the global coordinate
                 Interpolation::linear_interpolation_location(tEntityCoordinates,aIntersectionLocalCoordinates,aIntersectionGlobalCoordinates);
             }
         }
 
         //--------------------------------------------------------------------------------------------------------------
-        
-        void Geometry_Engine::compute_dx_dp_finite_difference( moris::real                      const & aPerturbationVal,
-                                                                   moris::Matrix< moris::DDRMat >   const & aGlobalNodeCoordinates,
-                                                                   moris::Matrix< moris::DDRMat >   const & aEntityNodeCoordinates,
-                                                                   moris::Matrix< moris::DDRMat >   const & aIntersectionLclCoordinate,
-                                                                   moris::Matrix< moris::IndexMat > const & aEntityNodeIndices,
-                                                                   moris::Matrix< moris::DDRMat >         & aEntityNodeVars,
-                                                                   moris::Matrix< moris::DDRMat >         & aDxDp )
+
+        void Geometry_Engine::compute_dx_dp_finite_difference(
+                moris::real                      const & aPerturbationVal,
+                moris::Matrix< moris::DDRMat >   const & aGlobalNodeCoordinates,
+                moris::Matrix< moris::DDRMat >   const & aEntityNodeCoordinates,
+                moris::Matrix< moris::DDRMat >   const & aIntersectionLclCoordinate,
+                moris::Matrix< moris::IndexMat > const & aEntityNodeIndices,
+                moris::Matrix< moris::DDRMat >         & aEntityNodeVars,
+                moris::Matrix< moris::DDRMat >         & aDxDp )
         {
-        
+
             moris::size_t tNumNodeVars = aEntityNodeVars.n_rows();
             MORIS_ASSERT(tNumNodeVars == 2, "Currently compute_dx_dp_finite_difference has only been tested on edges");
             aDxDp.resize(2, 3);
-        
+
             moris::real tPerturbationLen = 2 * aPerturbationVal;
             moris::real tScale   = 1/tPerturbationLen;
             Cell<moris::real>  tPerturbationSign = {1, -1};
-        
+
             moris::Matrix< moris::DDRMat >       tDxDp(1, 3);
             moris::Matrix< moris::DDRMat >       tPerturbedLocalCoordinate(1, 1);
             Cell<moris::Matrix< moris::DDRMat >> tPerturbedGlobCoordinates = {moris::Matrix< moris::DDRMat >(1, 3),
-                                                                     moris::Matrix< moris::DDRMat >(1, 3)};
+                    moris::Matrix< moris::DDRMat >(1, 3)};
+
             // Loop over all the nodes and perturb up and down
             for(moris::size_t i = 0; i < tNumNodeVars; i++)
             {
                 // Perturb up and down
                 for(moris::size_t j = 0; j < 2; j++)
                 {
-        
+
                     moris::real tPerturb = tPerturbationSign(j) * aPerturbationVal;
                     // Perturb
                     aEntityNodeVars(i, 0) = aEntityNodeVars(i, 0) + tPerturb;
-        
+
                     // Locate perturbed interface
-                    get_intersection_location(mThresholdValue, aPerturbationVal, aGlobalNodeCoordinates, aEntityNodeVars, aEntityNodeIndices, tPerturbedLocalCoordinate, tPerturbedGlobCoordinates(j),false, true);
-        
+                    get_intersection_location(
+                            mThresholdValue,
+                            aPerturbationVal,
+                            aGlobalNodeCoordinates,
+                            aEntityNodeVars,
+                            aEntityNodeIndices,
+                            tPerturbedLocalCoordinate,
+                            tPerturbedGlobCoordinates(j),
+                            false,
+                            true);
+
                     // Reverse perturb
                     aEntityNodeVars(i, 0) = aEntityNodeVars(i, 0) - tPerturb;
-        
+
                 }
-        
+
                 tDxDp.matrix_data() = tScale * (tPerturbedGlobCoordinates(1).matrix_data() - tPerturbedGlobCoordinates(0).matrix_data());
-        
+
                 replace_row(0, tDxDp, i, aDxDp);
-        
-        
             }
         }
 
         //--------------------------------------------------------------------------------------------------------------
-        
+
         void Geometry_Engine::compute_dx_dp_for_an_intersection( moris::Matrix< moris::IndexMat > const & aEntityNodeIndices,
-                                                                     moris::Matrix< moris::DDRMat >   const & aGlobalNodeCoordinates,
-                                                                     moris::Matrix< moris::DDRMat >   const & aIntersectionLclCoordinate,
-                                                                     moris::Matrix< moris::DDRMat >         & aEntityNodeVars,
-                                                                     moris::Matrix< moris::DDRMat >         & aDxDp,
-                                                                     moris::Matrix< moris::IndexMat >       & aADVIndices )
+                moris::Matrix< moris::DDRMat >   const & aGlobalNodeCoordinates,
+                moris::Matrix< moris::DDRMat >   const & aIntersectionLclCoordinate,
+                moris::Matrix< moris::DDRMat >         & aEntityNodeVars,
+                moris::Matrix< moris::DDRMat >         & aDxDp,
+                moris::Matrix< moris::IndexMat >       & aADVIndices )
         {
             moris::size_t tNumNodes = aEntityNodeIndices.n_cols();
-        
+
             MORIS_ASSERT(tNumNodes == 2, "Currently, compute_dx_dp_for_an_intersection is only supported on edges");
-        
+
             // Initialize
             moris::Cell< moris::Matrix< moris::DDRMat > > tDPhiiDp(2);// = { moris::Matrix< moris::DDRMat >(0,0), moris::Matrix< moris::DDRMat >(0,0) };
             uint tDim = aGlobalNodeCoordinates.n_cols();
             moris::Matrix< moris::DDRMat > tEntityNodeCoordinates( tNumNodes,tDim );
-        
+
             // Assemble the entity local coordinates
             replace_row(aEntityNodeIndices(0,0), aGlobalNodeCoordinates,0,tEntityNodeCoordinates);
             replace_row(aEntityNodeIndices(0,1), aGlobalNodeCoordinates,1,tEntityNodeCoordinates);
-        
+
             // Get information from geometry
             if (mGeometry(mActiveGeometryIndex)->sensitivities_available())
             {
@@ -551,8 +585,8 @@ namespace moris
                 for(moris::size_t i = 0; i < tNumNodes; i++)
                 {
                     mGeometry(mActiveGeometryIndex)->evaluate_sensitivity(aEntityNodeIndices(0, i),
-                                                                          aGlobalNodeCoordinates.get_row(aEntityNodeIndices(0, i)),
-                                                                          tDPhiiDp(i));
+                            aGlobalNodeCoordinates.get_row(aEntityNodeIndices(0, i)),
+                            tDPhiiDp(i));
                 }
                 compute_dx_dp_with_linear_basis( tDPhiiDp(0), tDPhiiDp(1), tEntityNodeCoordinates, aEntityNodeVars, aDxDp );
             }
@@ -566,37 +600,37 @@ namespace moris
         }
 
         //--------------------------------------------------------------------------------------------------------------
-        
+
         moris::size_t Geometry_Engine::get_num_phases()
         {
             return mPhaseTable.get_num_phases();
         }
 
         //--------------------------------------------------------------------------------------------------------------
-        
+
         moris::moris_index
         Geometry_Engine::get_phase_sign_of_given_phase_and_geometry( moris::moris_index aPhaseIndex,
-                                                                         moris::moris_index aGeometryIndex )
+                moris::moris_index aGeometryIndex )
         {
             return mPhaseTable.get_phase_sign_of_given_phase_and_geometry( aPhaseIndex,aGeometryIndex );
         }
 
         //--------------------------------------------------------------------------------------------------------------
-        
+
         moris::real
         Geometry_Engine::get_entity_phase_val( moris::size_t const & aNodeIndex,
-                                                   moris::size_t const & aGeomIndex )
+                moris::size_t const & aGeomIndex )
         {
             GEN_Geometry_Object & tNodesGeoObj = mGeometryObjectManager.get_geometry_object_from_manager(aNodeIndex);
             moris::size_t tNodeRowIndex = tNodesGeoObj.get_phase_val_row();
-        
+
             MORIS_ASSERT(tNodeRowIndex<mNodePhaseVals.n_rows(),"Entity row index out of bounds in the nodal phase val matrix");
-        
+
             return mNodePhaseVals(tNodeRowIndex,aGeomIndex);
         }
 
         //--------------------------------------------------------------------------------------------------------------
-        
+
         moris::Matrix< moris::DDRMat > const &
         Geometry_Engine::get_node_dx_dp( moris::size_t const & aNodeIndex ) const
         {
@@ -605,7 +639,7 @@ namespace moris
         }
 
         //--------------------------------------------------------------------------------------------------------------
-        
+
         moris::Matrix< moris::IndexMat > const &
         Geometry_Engine::get_node_adv_indices( moris::size_t const & aNodeIndex ) const
         {
@@ -614,29 +648,29 @@ namespace moris
         }
 
         //--------------------------------------------------------------------------------------------------------------
-        
+
         void Geometry_Engine::get_phase_index( moris::Matrix< moris::DDSTMat > const & aNodeIndex,
-                                                   moris::Matrix< moris::DDSTMat > & aNodePhaseIndex )
+                moris::Matrix< moris::DDSTMat > & aNodePhaseIndex )
         {
             // 0 for neg 1 for pos
             moris::real tNodePhaseValue = 0;
             moris::Matrix< moris::IndexMat > tPhaseOnOff(1, this->get_num_geometries());
-        
+
             for(moris::size_t i = 0; i<aNodeIndex.n_cols(); i++)
             {
                 GEN_Geometry_Object & tNodesGeoObj = mGeometryObjectManager.get_geometry_object_from_manager(aNodeIndex(0, i));
                 moris::size_t tNodeRowIndex = tNodesGeoObj.get_phase_val_row();
-        
+
                 for(moris::size_t iG = 0; iG < this->get_num_geometries(); iG++)
                 {
                     tNodePhaseValue =  mNodePhaseVals(tNodeRowIndex, iG);
-        
+
                     // Negative
                     if(tNodePhaseValue<mThresholdValue)
                     {
                         tPhaseOnOff(0, iG) = 0;
                     }
-        
+
                     else
                     {
                         tPhaseOnOff(0, iG) = 1;
@@ -647,27 +681,27 @@ namespace moris
         }
 
         //--------------------------------------------------------------------------------------------------------------
-        
+
         void Geometry_Engine::get_phase_index( moris::moris_index const & aNodeIndex,
-                                                   moris::size_t & aNodePhaseIndex )
+                moris::size_t & aNodePhaseIndex )
         {
             // 0 for neg 1 for pos
             moris::real tNodePhaseValue = 0;
             moris::Matrix< moris::IndexMat > tPhaseOnOff(1, this->get_num_geometries());
-        
+
             GEN_Geometry_Object & tNodesGeoObj = mGeometryObjectManager.get_geometry_object_from_manager(aNodeIndex);
             moris::size_t tNodeRowIndex = tNodesGeoObj.get_phase_val_row();
-        
+
             for(moris::size_t iG = 0; iG < this->get_num_geometries(); iG++)
             {
                 tNodePhaseValue =  mNodePhaseVals(tNodeRowIndex,iG);
-        
+
                 // Negative
                 if(tNodePhaseValue<mThresholdValue)
                 {
                     tPhaseOnOff(0,iG) = 0;
                 }
-        
+
                 else
                 {
                     tPhaseOnOff(0,iG) = 1;
@@ -685,18 +719,18 @@ namespace moris
         }
 
         //--------------------------------------------------------------------------------------------------------------
-        
+
         moris::size_t
         Geometry_Engine::get_node_phase_index_wrt_a_geometry( moris::size_t aNodeIndex,
-                                                                  moris::size_t aGeometryIndex )
+                moris::size_t aGeometryIndex )
         {
             GEN_Geometry_Object & tNodesGeoObj = mGeometryObjectManager.get_geometry_object_from_manager(aNodeIndex);
             moris::size_t tNodeRowIndex = tNodesGeoObj.get_phase_val_row();
-        
+
             moris::real tNodePhaseVal = mNodePhaseVals(tNodeRowIndex,aGeometryIndex);
-        
+
             moris::size_t tPhaseOnOff = 10000;
-        
+
             if(tNodePhaseVal < mThresholdValue)
             {
                 tPhaseOnOff = 0;
@@ -705,7 +739,7 @@ namespace moris
             {
                 tPhaseOnOff = 1;
             }
-        
+
             return tPhaseOnOff;
         }
 
@@ -715,14 +749,14 @@ namespace moris
         {
             return mGeometry.size();
         }
-        
+
         //--------------------------------------------------------------------------------------------------------------
-        
+
         moris::size_t Geometry_Engine::get_num_bulk_phase()
         {
             return mPhaseTable.get_num_phases();
         }
-        
+
         //--------------------------------------------------------------------------------------------------------------
 
         moris::size_t Geometry_Engine::get_active_geometry_index()
@@ -738,9 +772,9 @@ namespace moris
                     "Trying to advance past the number of geometries in the geometry engine");
             mActiveGeometryIndex += 1;
         }
-        
+
         //--------------------------------------------------------------------------------------------------------------
-        
+
         moris::Matrix< moris::IndexMat >
         Geometry_Engine::get_node_adv_indices_analytic()
         {
@@ -759,24 +793,24 @@ namespace moris
         {
             return mADVs.length();
         }
-        
+
         //--------------------------------------------------------------------------------------------------------------
-        
+
         void Geometry_Engine::register_mesh( mtk::Mesh_Manager* aMesh )
         {
             mMeshManager = aMesh;
-        
+
             mSpatialDim = mMeshManager->get_interpolation_mesh(0 )->get_spatial_dim();	// assuming there is only one pair in the manager
         }
 
         //--------------------------------------------------------------------------------------------------------------
-        
+
         moris_index Geometry_Engine::register_mesh( std::shared_ptr< moris::hmr::Mesh > aMesh )   //FIXME: this needs to be deleted and the GE should only be able to register a mesh pair
         {
             mMesh_HMR.push_back( aMesh );
-        
+
             mSpatialDim = mMesh_HMR( mMesh_HMR.size()-1 )->get_spatial_dim();
-        
+
             return mMesh_HMR.size()-1;
         }
 
@@ -800,61 +834,38 @@ namespace moris
         }
 
         //--------------------------------------------------------------------------------------------------------------
-        
+
         void Geometry_Engine::perform_refinement()
         {
+            // initialize parameter list for user defined refinement function (currently just dummy list)
+            ParameterList tParam = prm::create_hmr_parameter_list();
+
+            // perform refinement steps
             for( uint Ik = 0; Ik < mNumRefinements; ++Ik )
             {
                 moris::Cell< moris::Matrix< DDRMat > > tValues;
-        
+
                 this->get_field_values_for_all_geometries( tValues );
-        
-                for( uint Ij = 0; Ij < tValues.size(); ++Ij )
+
+                // call either user defined refinement function or default function
+                if( mUserDefinedFunc != nullptr )
                 {
-                    mHMRPerformer( 0 )->based_on_field_put_elements_on_queue( tValues( Ij ), 0 );
+                    mHMRPerformer( 0 )->user_defined_flagging( mUserDefinedFunc, tValues, tParam, 0 );
+                }
+                else
+                {
+                    for( uint Ij = 0; Ij < tValues.size(); ++Ij )
+                    {
+                        mHMRPerformer( 0 )->based_on_field_put_elements_on_queue( tValues( Ij ), 0 );
+                    }
                 }
 
+                // perform additional refinement
                 mHMRPerformer( 0 )->perform_refinement_based_on_working_pattern( 0, false );
             }
         }
 
         //--------------------------------------------------------------------------------------------------------------
-
-        //Matrix< DDRMat > Geometry_Engine::get_cylinder_vals( moris_index aWhichMesh,
-        //                                                         GEN_CylinderWithEndCaps* aFiber,
-        //                                                         uint aNumberOfFibers )  //FIXME this is currently only setup to work with an HMR member mesh
-        //{
-        //    uint tNumOfIPNodes = mMesh_HMR( aWhichMesh )->get_num_nodes();
-        //
-        //    Matrix< DDRMat > tLSVals(tNumOfIPNodes, 1, 1.0); // FIXME: 10.0 needs to be replaced with problem dependent value
-        //
-        //    for( uint k=0; k<aNumberOfFibers; ++k )
-        //    {
-        //        uint tNumCylinders = aFiber->get_number_of_cylinders(k);
-        //
-        //        for( uint l=0; l<tNumCylinders; ++l )
-        //        {
-        //            Matrix<DDRMat> tMidPoint;
-        //            Matrix<DDRMat> tLength;
-        //            aFiber->midPoint_and_BB_dims( k, l, tMidPoint, tLength, 1.0 ); // FIXME: 1.0 needs to be the size of the coarsest element ( this is the bounding box buffer value )
-        //
-        //            Matrix<IndexMat> tNodeIndices;
-        //            mMesh_HMR( aWhichMesh )->get_nodes_indices_in_bounding_box( tMidPoint,
-        //                                                                        { { tLength(0) },{ tLength(1) } ,{ tLength(2) }},
-        //                                                                        tNodeIndices );
-        //            for( uint i=0; i<tNodeIndices.numel(); ++i )
-        //            {
-        //                Matrix<DDRMat> tVertexCoords = mMesh_HMR( aWhichMesh )->get_mtk_vertex( tNodeIndices( i ) ).get_coords();
-        //                tLSVals( tNodeIndices( i ) ) = std::min( tLSVals( tNodeIndices( i ) ),
-        //                                                         aFiber->create_cylinder( tVertexCoords, k, l ) );
-        //            }
-        //
-        //        }
-        //    }
-        //
-        //      return tLSVals;
-        //}
-
 
         size_t Geometry_Engine::analytic_geometry_index(size_t aGlobalGeometryIndex)
         {
@@ -871,64 +882,65 @@ namespace moris
         //--------------------------------------------------------------------------------------------------------------
 
         bool
-        Geometry_Engine::compute_intersection_info( moris::moris_index               const & aEntityIndex,
-                                                        moris::Matrix< moris::IndexMat > const & aEntityNodeInds,
-                                                        moris::Matrix< moris::DDRMat >   const & aNodeCoords,
-                                                        moris::size_t const &                    aCheckType,
-                                                        moris::Matrix< moris::IndexMat > &       aNodeADVIndices,
-                                                        GEN_Geometry_Object & aGeometryObject )
+        Geometry_Engine::compute_intersection_info(
+                moris::moris_index               const & aEntityIndex,
+                moris::Matrix< moris::IndexMat > const & aEntityNodeInds,
+                moris::Matrix< moris::DDRMat >   const & aNodeCoords,
+                moris::size_t const &                    aCheckType,
+                moris::Matrix< moris::IndexMat > &       aNodeADVIndices,
+                GEN_Geometry_Object & aGeometryObject )
         {
             //Initialize
             bool tIsIntersected = false;
-        
+
             moris::real tMax = 0;
             moris::real tMin = 0;
             moris::uint tMaxLocRow = 0;
             moris::uint tMaxLocCol = 0;
             moris::uint tMinLocRow = 0;
             moris::uint tMinLocCol = 0;
-        
+
             moris::size_t tNodeInd  = 0;
             moris::size_t tNumNodes = aEntityNodeInds.numel();
             moris::Matrix< moris::DDRMat > tEntityNodeVars(tNumNodes, 1);
             moris::Matrix< moris::DDRMat > tInterpLocationCoords(1,1);
-        
+
             // Loop through nodes and get levelset values from precomputed values in aNodeVars or in the levelset mesh
             for(moris::size_t n = 0; n < tNumNodes; n++)
             {   //Get node id n
                 tNodeInd = aEntityNodeInds(n);
-        
+
                 GEN_Geometry_Object & tGeoObj = mGeometryObjectManager.get_geometry_object_from_manager(tNodeInd);
                 moris::size_t tPhaseValRowIndex = tGeoObj.get_phase_val_row();
                 tEntityNodeVars(n) = mNodePhaseVals(tPhaseValRowIndex, mActiveGeometryIndex);
             }
-        
-            //get the max and minimum levelset value for the entity
+
+            //get the max and minimum level set value for the entity
             tMax = tEntityNodeVars.max(tMaxLocRow,tMaxLocCol);
             tMin = tEntityNodeVars.min(tMinLocRow,tMinLocCol);
-        
+
             //    If there is a sign change in element node variables return true, else return false
-        
+
             //TODO: intersection flag should not be a moris::real (needs to be a bool) split this function
             moris::Matrix< moris::DDRMat > tIntersection(1, 2, 0.0);// Initialize as false
-        
+
             moris::real tErrorFactor = 1;
             // If the max is also the threshold value, figure out which node is on the interface
-        
+
             if( moris::ge::approximate(tMin, mThresholdValue, tErrorFactor) && moris::ge::approximate(tMax, mThresholdValue,tErrorFactor))
             {
                 aGeometryObject.set_parent_entity_index(aEntityIndex);
                 aGeometryObject.mark_all_nodes_as_on_interface();
                 tIsIntersected = true;
             }
-        
+
             else if(moris::ge::approximate(tMax,mThresholdValue, tErrorFactor))
             {
                 aGeometryObject.set_parent_entity_index(aEntityIndex);
                 aGeometryObject.mark_node_as_on_interface(tMaxLocRow);
                 tIsIntersected = true;
             }
-        
+
             // If the min is also the threshold value, figure out which node is on the interface
             else if(moris::ge::approximate(tMin,mThresholdValue, tErrorFactor))
             {
@@ -936,9 +948,9 @@ namespace moris
                 aGeometryObject.mark_node_as_on_interface(tMinLocRow);
                 tIsIntersected = true;
             }
-        
+
             else if((tMax > mThresholdValue) &&
-               (tMin < mThresholdValue))
+                    (tMin < mThresholdValue))
             {
                 aGeometryObject.set_parent_entity_index(aEntityIndex);
                 aGeometryObject.mark_nodes_as_not_on_interface();
@@ -947,17 +959,17 @@ namespace moris
                 {
                     moris::Matrix< moris::DDRMat > tIntersectLocalCoordinate(1,1);
                     moris::Matrix< moris::DDRMat > tIntersectGlobalCoordinate(1,mSpatialDim);
-        
+
                     get_intersection_location(mThresholdValue,
-                                              mPerturbationValue,
-                                              aNodeCoords,
-                                              tEntityNodeVars,
-                                              aEntityNodeInds,
-                                              tIntersectLocalCoordinate,
-                                              tIntersectGlobalCoordinate,
-                                              true,
-                                              true);
-        
+                            mPerturbationValue,
+                            aNodeCoords,
+                            tEntityNodeVars,
+                            aEntityNodeInds,
+                            tIntersectLocalCoordinate,
+                            tIntersectGlobalCoordinate,
+                            true,
+                            true);
+
                     aGeometryObject.set_interface_loc_coord(tIntersectLocalCoordinate(0));
                     aGeometryObject.set_interface_glb_coord(tIntersectGlobalCoordinate);
                     if(mComputeDxDp)
@@ -967,24 +979,25 @@ namespace moris
                         aGeometryObject.set_sensitivity_dx_dp(tDxDp);
                         aGeometryObject.set_node_adv_indices(aNodeADVIndices);
                     }
-               }
+                }
             }
-        
+
             return tIsIntersected;
-        
+
         }
 
         //--------------------------------------------------------------------------------------------------------------
 
         void
-        Geometry_Engine::interpolate_level_set_value_to_child_node_location( xtk::Topology const & aParentTopology,
-                                                                                 moris::size_t const &                  aGeometryIndex,
-                                                                                 moris::Matrix< moris::DDRMat > const & aNodeLocalCoordinate,
-                                                                                 moris::Matrix< moris::DDRMat >       & aLevelSetValues  )
+        Geometry_Engine::interpolate_level_set_value_to_child_node_location(
+                xtk::Topology const &                  aParentTopology,
+                moris::size_t const &                  aGeometryIndex,
+                moris::Matrix< moris::DDRMat > const & aNodeLocalCoordinate,
+                moris::Matrix< moris::DDRMat >       & aLevelSetValues  )
         {
-                     // Get node indices attached to parent (These are indices relative to another mesh and may need to be mapped)
+            // Get node indices attached to parent (These are indices relative to another mesh and may need to be mapped)
             moris::Matrix< moris::IndexMat > const & tNodesAttachedToParent = aParentTopology.get_node_indices();
-        
+
             // Get number of nodes attached to parent
             moris::size_t tNumNodesAttachedToParent = tNodesAttachedToParent.numel();
             moris::Matrix< moris::DDRMat > tNodesLevelSetValues(1, tNumNodesAttachedToParent);
@@ -996,27 +1009,27 @@ namespace moris
 
                 tNodesLevelSetValues(0,i) = mNodePhaseVals(tPhaseRow,aGeometryIndex);
             }
-        
+
             // Ask the topology how to interpolate
             moris::Matrix< moris::DDRMat > tBasisValues(1,1);
             xtk::Basis_Function const & tParentBasisFunctions = aParentTopology.get_basis_function();
-        
+
             // Evaluate basis function
             tParentBasisFunctions.evaluate_basis_function(aNodeLocalCoordinate,tBasisValues);
-        
+
             // Compute \phi = Ni.\phi_i
             aLevelSetValues = tBasisValues*moris::trans(tNodesLevelSetValues);
-        
-         }
+        }
 
         //--------------------------------------------------------------------------------------------------------------
-        
-        void Geometry_Engine::get_field_values_for_all_geometries( moris::Cell< Matrix< DDRMat > > & aAllFieldVals,
-                                                  const moris_index                 aWhichMesh )
+
+        void Geometry_Engine::get_field_values_for_all_geometries(
+                moris::Cell< Matrix< DDRMat > > & aAllFieldVals,
+                const moris_index                 aWhichMesh )
         {
             //TODO: implement for a mesh manager (rather than just an HMR mesh)
             uint tNumVertices = mMesh_HMR( aWhichMesh )->get_num_nodes();
-        
+
             aAllFieldVals.resize(this->get_num_geometries());
 
             // Evaluate field values
@@ -1027,7 +1040,7 @@ namespace moris
                 {
                     Matrix< DDRMat > tCoord = mMesh_HMR( aWhichMesh )->get_mtk_vertex( iVert ).get_coords();
                     aAllFieldVals( Ik )( iVert ) = mGeometry(Ik)->evaluate_field_value(iVert, tCoord);
-        
+
                     // FIXME will not work in parallel. Ind are not consistent because of aura
                 }
             }
@@ -1035,10 +1048,11 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        void Geometry_Engine::assign_ip_hosts_by_set_name(std::string                     aSetName,
-                                                              std::shared_ptr< Property > aPropertyPointer,
-                                                              PDV_Type                     aPdvType,
-                                                              moris_index                     aWhichMesh)
+        void Geometry_Engine::assign_ip_hosts_by_set_name(
+                std::string                 aSetName,
+                std::shared_ptr< Property > aPropertyPointer,
+                PDV_Type                    aPdvType,
+                moris_index                 aWhichMesh)
         {
             // get the mesh set from name
             moris::mtk::Set* tSetPointer = mMeshManager->get_integration_mesh( aWhichMesh )->get_set_by_name( aSetName );
@@ -1075,10 +1089,11 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        void Geometry_Engine::assign_ip_hosts_by_set_index( moris_index                     aSetIndex,
-                                                                std::shared_ptr< Property > aPropertyPointer,
-                                                                PDV_Type                     aPdvType,
-                                                                moris_index                     aWhichMesh)
+        void Geometry_Engine::assign_ip_hosts_by_set_index(
+                moris_index                 aSetIndex,
+                std::shared_ptr< Property > aPropertyPointer,
+                PDV_Type                    aPdvType,
+                moris_index                 aWhichMesh)
         {
             // get the mesh set from index
             moris::mtk::Set* tSetPointer = mMeshManager->get_integration_mesh( aWhichMesh )->get_set_by_index( aSetIndex );
@@ -1143,7 +1158,7 @@ namespace moris
                     // Indices on cluster FIXME get rid of copying over indices
                     tNodeIndicesInCluster = tCluster->get_interpolation_cell().get_vertex_inds();
                     tNodeIndicesPerSet(tMeshSetIndex).resize(tNodeIndicesPerSet(tMeshSetIndex).length() + tNodeIndicesInCluster.length(), 1);
-                    
+
                     for (uint tNodeInCluster = 0; tNodeInCluster < tNodeIndicesInCluster.length(); tNodeInCluster++)
                     {
                         tNodeIndicesPerSet(tMeshSetIndex)(tCurrentNode++) = tNodeIndicesInCluster(tNodeInCluster);
@@ -1172,18 +1187,18 @@ namespace moris
             switch(mSpatialDim)
             {
                 case(2):
-                {
+                    {
                     tCoordinatePdvs(0) = PDV_Type::X_COORDINATE;
                     tCoordinatePdvs(1) = PDV_Type::Y_COORDINATE;
                     break;
-                }
+                    }
                 case(3):
-                {
+                    {
                     tCoordinatePdvs(0) = PDV_Type::X_COORDINATE;
                     tCoordinatePdvs(1) = PDV_Type::Y_COORDINATE;
                     tCoordinatePdvs(2) = PDV_Type::Z_COORDINATE;
                     break;
-                }
+                    }
                 default:
                 {
                     MORIS_ERROR( false, "Geometry_Engine::initialize_integ_pdv_host_list() - Geometry Engine only works for 2D and 3D models." );
@@ -1311,5 +1326,3 @@ namespace moris
 
     }   // end ge namespace
 }   // end moris namespace
-
-
