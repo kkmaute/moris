@@ -26,7 +26,7 @@ namespace moris
             Cell< Background_Element_Base * > & aNeighbors )
         {
              // make sure order is not too big
-             MORIS_ASSERT( 0 < aOrder && aOrder <= 3, "Neighbor order too big.");
+             MORIS_ASSERT( 0 < aOrder && aOrder <= 3, "Implemented refinement buffer options are 1, 2, and 3.");
 
              // array that contains max size
              uint tArraySize[ 4 ] = { 0, 8, 24, 48 };
