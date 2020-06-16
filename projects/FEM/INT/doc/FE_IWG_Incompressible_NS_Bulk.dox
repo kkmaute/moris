@@ -1,0 +1,83 @@
+namespace moris {
+namespace fem {
+
+/** @defgroup FE_IWG_Incompressible_NS_Bulk Bulk IWG for Incompressible Navier-Stokes 
+
+The strong form of the Navier-Stokes equations is given as:
+\f[
+\begin{array}{l}
+\rho \frac{\partial \mathbf{u}}{\partial t} 
++ \rho \mathbf{u} \cdot \nabla \mathbf{u} 
+= \nabla \cdot \left[ \boldsymbol{\sigma}(\mathbf{u}, p) 
++ \boldsymbol{\sigma}_t( \mathbf{u}, \tilde{\nu}) \right] 
++ \rho \mathbf{g}\\
+
+\nabla \cdot \mathbf{u} = 0
+\end{array}
+\f]
+
+where \f$ \mathbf{u} \f$ is the fluid velocity, 
+\f$ p \f$ is the fluid pressure, 
+\f$ \rho \f$ is the fluid density, 
+\f$ \mu \f$ is the fluid kinematic viscosity, 
+\f$ \boldsymbol{\sigma}(\mathbf{u}, p) \f$ is the stress 
+and is given as \f$ \sigma_{ij} = -p \delta_{ij} + 2 \mu \epsilon_{ij} \f$,
+\f$ \boldsymbol{\epsilon}(\mathbf{u}) \f$ is the strain 
+and is given as \f$ \epsilon_{ij}( \mathbf{u} ) = \frac{1}{2} \left( \nabla \mathbf{u} + \nabla \mathbf{u}^T \right) \f$.
+
+The weak form of the Navier-Stokes equations (bulk part) is given as:
+\f[
+\begin{array}{lll}
+\mathbf{R}_{u} & = & \displaystyle
+  \left( \mathbf{v},\ \rho \frac{\partial \mathbf{u}}{\partial t} \right)_{\Omega}
++ \left( \mathbf{v},\ \rho \mathbf{u} \cdot \nabla \mathbf{u} \right)_{\Omega}\\
+&&
+- \left( \boldsymbol{\varepsilon}( \mathbf{v} ),\ \boldsymbol{\sigma}( \mathbf{u}, p) \right)_{\Omega}
+- \left( \boldsymbol{\varepsilon}( \mathbf{v} ),\ \boldsymbol{\sigma}_t( \mathbf{u}, \tilde{\nu}) \right)_{\Omega}\\
+&& -  \left( \mathbf{v},\ \rho \mathbf{g}\right)_{\Omega}
+- \left( \mathbf{v},\ \mathbf{h}\right)_{\Gamma_N}\\
+
+\mathbf{R}_{p} & = & \left( q,\ \nabla \cdot \mathbf{u} \right)_{\Omega}\\
+\end{array}
+\f]
+
+where 
+\f$ \mathbf{v} \f$ is the test velocity, 
+\f$ q \f$ is the test pressure.
+
+They are stabilized using SUPG/PSPG:
+
+\f[
+\begin{array}{lll}
+\mathbf{R}_{u}^{SUPG} & = &
+\left( \rho \mathbf{u} \cdot \nabla\mathbf{v},\ \tau_{M} \mathbf{r}_{M}\right)_{\Omega}
++ \left( \nabla \cdot \mathbf{v},\ \tau_{C} \mathbf{r}_{C} \right)_{\Omega}\\
+
+\mathbf{R}_{p}^{PSPG} & = & \left( \nabla q,\ \tau_{M} \mathbf{r}_{M} \right)_{\Omega}\\
+\end{array}
+\f]
+where 
+
+\f[
+\begin{array}{lll}
+\mathbf{r}_{M} & = & 
+\rho \frac{\partial \mathbf{u}}{\partial t} 
++ \rho \mathbf{u} \cdot \nabla \mathbf{u} 
+- \nabla \cdot \left[ \boldsymbol{\sigma}(\mathbf{u}, p) 
++ \boldsymbol{\sigma}_t( \mathbf{u}, \tilde{\nu}) \right] 
+- \rho \mathbf{g}\\
+
+\mathbf{r}_{C} & = & \nabla \cdot \mathbf{u}\\
+
+\tau_{M} & = &
+\frac{1}{\sqrt{ (\frac{2 \rho}{\Delta t})^2 + (\rho \mathbf{u}) \cdot \mathbf{G} \cdot (\rho \mathbf{u}) + C_I (\mu)^2 \mathbf{G} : \mathbf{G}}}\\
+
+\tau_{C} & = & \frac{1}{\tau_{M} tr(\mathbf{G})}, 
+\quad G_{ij} = \sum_d \frac{\partial \xi_d}{\partial x_i} \frac{\partial \xi_d}{\partial x_j}\\
+\end{array}
+\f]
+
+*/
+
+}
+}
