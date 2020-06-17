@@ -18,6 +18,8 @@ namespace moris
             Cell<std::string> mFieldNames;
             moris::mtk::Interpolation_Mesh* mMesh;
             EntityRank mEntityRank;
+            uint mNumOriginalNodes;
+            Cell<Child_Node> mChildNodes;
 
         public:
             /**
@@ -59,7 +61,15 @@ namespace moris
              *
              * @return If sensitivities are implemented or not (false for discrete level set)
              */
-            virtual bool sensitivities_available();
+            bool sensitivities_available();
+
+            /**
+             * Add a new child node for evaluation
+             *
+             * @param aNodeIndex Index of the child node
+             * @param aChildNode Contains information about how the child node was created
+             */
+            void add_child_node(uint aNodeIndex, Child_Node aChildNode);
 
         };
     }
