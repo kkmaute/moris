@@ -621,7 +621,7 @@ TEST_CASE("HMR Interpolation XTK Cut Diffusion Model Lag Order 2","[XTK_HMR_DIFF
         		         "./",
                                   "XTK_HMR_DIFF.exo",
                                   { "HMR_dummy_c_p0", "HMR_dummy_n_p0"},
-                                  { "Temp" },
+                                  { "Temperature" },
                                   {   vis::Field_Type::NODAL },
                                   { vis::Output_Type::TEMP } );
 
@@ -812,7 +812,7 @@ TEST_CASE("HMR Interpolation XTK Cut Diffusion Model Multigrid","[XTK_HMR_DIFF_M
         {
             // Write mesh
             moris::mtk::Writer_Exodus writer(tIntegMesh1);
-            writer.write_mesh("", "./xtk_exo/xtk_multigrid.exo");
+            writer.write_mesh("", "./xtk_multigrid.exo");
 
             // Write the fields
             writer.set_time(0.0);

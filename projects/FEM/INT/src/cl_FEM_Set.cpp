@@ -723,6 +723,8 @@ namespace moris
 
             MORIS_ASSERT( tMaxEnum != -1, "Set::create_dof_and_dv_type_maps(), no information to build dof type map" );
 
+            tMaxEnum = static_cast< int >( MSI::Dof_Type::END_ENUM );
+
             // set size of dof type map    // FIXME replace with map
             mMasterDofTypeMap.set_size( tMaxEnum, 1, -1 );
 
