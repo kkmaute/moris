@@ -1,6 +1,6 @@
 namespace moris {
 
-/** @defgroup Background The Optimization Problem
+/** @defgroup Background Optimization Background
 
 @section FormOpt Formulating an Optimization Problem
 
@@ -23,7 +23,8 @@ Objective and constraints are in general composed of explicit functions of the o
 variables \f$ \mathbf s \f$  and so-called design or optimization criteria \f$ \mathbf q \f$ , like structural
 weight, strain energy etc. In general these criteria are functions of the discretized state variables \f$ \mathbf u \f$, 
 like displacements, temperature, pressure etc. which can in turn be functions of the optimization variables \f$ \mathbf s \f$.
-The optimization criteria may further directly depend on the optimization variables \f$ \mathbf s \f$.
+The optimization criteria may further directly depend on the optimization variables \f$ \mathbf s \f$. Evaluating design
+criteria and obtaining objective and constraint values is often called a "forward analysis".
 
 \f{eqnarray*}{
 f & = & f \Big( \mathbf s, \mathbf q( \mathbf u, \mathbf s ) \Big) \\
@@ -31,17 +32,16 @@ f & = & f \Big( \mathbf s, \mathbf q( \mathbf u, \mathbf s ) \Big) \\
 \mathbf g & = & \mathbf g \Big( \mathbf s, \mathbf q( \mathbf u, \mathbf s ) \Big) 
 \f}
 
-@section Sensitivity Sensitivity Anlaysis
-
-The general nonlinear optimization problem can be solved by diverse iterative methods,
-like nonlinear programming or genetic and evolutionary algorithms. For some problems it may
-be efficient to apply subsequently different methods. For example, a robust evolutionary 
-strategy determines roughly the position of the optimum. The final approach is done by a 
-mathematical program method with a high convergence rate near the optimum. 
-
-Since our forward analysis involves modeling of problems with sufficiently smooth gradients,
-gradient-based optimization methods can be efficiently applied. The gradients of objective
-and constraints can be written as:
+@section Sensitivity Sensitivity Analysis
+Most mathematical programming approaches to optimization require the gradients of the objectives and constraints with
+respect to the design variables \f$ \mathbf s \f$: \f$ \dfrac {df}{ d \mathbf s} \f$,
+\f$ \dfrac {d \mathbf g}{ d \mathbf s} \f$, and \f$ \dfrac {d \mathbf h}{ d \mathbf s} \f$. This is frequently referred
+to as sensitivity analysis, which more generally encompasses the evaluation of how "sensitive" an outcome is to certain
+system inputs. These derivatives tell the algorithm how influential each of the design variables is on the design's
+performance. They consist of components which may be coming from different places, like in the formulations of the
+objectives and constraints above. Splitting these up in the sensitivity analysis allows us to keep MORIS very modular;
+a code module that can compute a design criteria \f$ \mathbf q \f$ can also be asked for its specific sensitivities.
+More on this in the MORIS optimization framework documentation.
 
 \f{eqnarray*}{
 \frac {df}{ d \mathbf s} & = & \frac {\partial f}{\partial \mathbf s} +
@@ -51,27 +51,28 @@ and constraints can be written as:
                                \frac {\partial \mathbf q}{\partial \mathbf u}
                                \frac {\partial \mathbf u}{\partial \mathbf s} \\
                            
-\frac {d \mathbf h}{ d \mathbf s} & = & \frac {\partial \mathbf h }{\partial \mathbf s} +
-                                        \frac {\partial \mathbf h }{\partial \mathbf q}
-                                        \frac {\partial \mathbf q}{\partial \mathbf s} +
-                                        \frac {\partial \mathbf h }{\partial \mathbf q}
-                                        \frac {\partial \mathbf q}{\partial \mathbf u}
-                                        \frac {\partial \mathbf u}{\partial \mathbf s} \\
-                           
 \frac {d \mathbf g}{ d \mathbf s} & = & \frac {\partial \mathbf g }{\partial \mathbf s} +
                                         \frac {\partial \mathbf g }{\partial \mathbf q}
                                         \frac {\partial \mathbf q}{\partial \mathbf s} +
                                         \frac {\partial \mathbf g }{\partial \mathbf q}
                                         \frac {\partial \mathbf q}{\partial \mathbf u}
-                                        \frac {\partial \mathbf u}{\partial \mathbf s} 
+                                        \frac {\partial \mathbf u}{\partial \mathbf s} \\
+
+\frac {d \mathbf h}{ d \mathbf s} & = & \frac {\partial \mathbf h }{\partial \mathbf s} +
+                                        \frac {\partial \mathbf h }{\partial \mathbf q}
+                                        \frac {\partial \mathbf q}{\partial \mathbf s} +
+                                        \frac {\partial \mathbf h }{\partial \mathbf q}
+                                        \frac {\partial \mathbf q}{\partial \mathbf u}
+                                        \frac {\partial \mathbf u}{\partial \mathbf s}
 \f}
 
 Consequently, the derivatives of the design criteria with respect to the field variables
 requires the derivatives of the field variables \f$ \mathbf u \f$ with respect to the design 
 variables \f$ \mathbf s \f$. 
 
-There are various approaches to determine the derivatives of the design criteria with respect
-to the field variables. The most important approaches are:
+There are various approaches to determine the derivatives of the design criteria with respect to the field variables.
+Since the MORIS optimization module does not directly know about the field variables or even how the design criteria are
+computed, we mention these briefly and a more in-depth discussion can be done in FEM. The most important approaches are:
 - Numerical sensitivity analysis: approximation of the derivatives \f$ d \mathbf u / d \mathbf s \f$ by means of finite differences.
 - Analytical sensitivity analysis: analytical derivation of the gradient terms. Depending on 
 the number of optimization variables \f$ n_s \f$ and design criteria \f$ n_q \f$, different
@@ -79,16 +80,11 @@ approaches can prove to be more efficient:
   -# \f$ n_s \le n_q \f$ - direct method 
   -# \f$ n_s \ge n_q \f$ - adjoint method
   
-  
-@section NOTE NOTE
-
-CURRENTLY, the framework does not support the existence of field variables. As a 
-result, the gradients of the objective and constraints are computed using solely the first
-two terms from the equations stated above.
-
-As the current capabilities expand, this chapter will accordingly be modified to include the 
-relevant details
-
+The MORIS optimization module also supports computing the entire derivatives (e.g. \f$ \dfrac {df}{ d \mathbf s} \f$)
+via finite differences. Sensitivity analysis using finite differences is much slower than using analytical sensitivities,
+so this is not recommended for most optimization runs where speed is important. However, there may be some cases where
+the derivatives of design criteria may be difficult or impossible to obtain without finite differences. Finite difference
+functionality is also provided so that the user can check their provided sensitivities with those obtained numerically.
 
 */
 }
