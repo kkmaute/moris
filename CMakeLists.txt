@@ -285,14 +285,6 @@ include(${MORIS_CMAKE_DIR}/utilities/moris_macros.cmake)
 ## Dynamic link test function
 include(${MORIS_CMAKE_DIR}/utilities/dynamic_link_input.cmake)
 
-# ------------------------------------------------------------------------
-# Add git revision
-# https://stackoverflow.com/questions/1435953/how-can-i-pass-git-sha1-to-compiler-as-definition-using-cmake
-
-list(APPEND CMAKE_MODULE_PATH "${MORIS_CMAKE_DIR}/utilities//")
-include(GetGitRevisionDescription)
-get_git_head_revision(MORIS_GIT_BRANCH MORIS_GIT_HASH)
-
 # -------------------------------------------------------------------------
 # Compiler ----------------------------------------------------------------
 # -------------------------------------------------------------------------
