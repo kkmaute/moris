@@ -35,6 +35,7 @@ namespace moris
                 mThresholdValue(aParameterLists(0)(0).get<real>("threshold_value")),
                 mPerturbationValue(aParameterLists(0)(0).get<real>("perturbation_value")),
                 mNumRefinements(aParameterLists(0)(0).get<int>("HMR_refinements")),
+                mUserDefinedFunc(nullptr),
 
                 // ADVs/IQIs
                 mADVs((uint)aParameterLists(0)(0).get<int>("advs_size"), 1, aParameterLists(0)(0).get<real>("initial_advs_fill")),
