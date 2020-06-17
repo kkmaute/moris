@@ -1,8 +1,5 @@
-# MORIS mains -------------------------------------------------------------
+# MORIS main -------------------------------------------------------------
 # -------------------------------------------------------------------------
-
-# Note: These execiutables are to be replaced by project-specific mains
-#       ...eventaually.
 
 # Third party libraries
 list(REMOVE_DUPLICATES MAIN_TPL_DEPENDENCIES)
@@ -13,8 +10,8 @@ endforeach()
 # Set executable output location
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
 
-# List mains
-set(MAINS
+# main moris file
+set(MAIN
     main.cpp )
 
 # List include directories
@@ -36,6 +33,7 @@ include_directories(../STK/src/Hierarchical)
 set(MAIN_DEPENDENCIES
     ${HMR}-lib
     ${COM}-lib
+    ${IOS}-lib
     ${WRK}-lib
     ${MORIS_PETSC_LIBS}
     ${MORIS_BOOST_LIBS}
@@ -48,19 +46,19 @@ set(MAIN_DEPENDENCIES
     ${MORIS_BASE_LIBS}
     )
 
+# ------------------------------------------------------------------------
+
 # Create and link main executables
-foreach(MAIN ${MAINS})
-    string(REPLACE ".cpp" "-${EXECUTABLE}" EXE_NAME ${MAIN})
-    add_executable(moris ${MAIN})
-    target_link_libraries(moris ${MAIN_DEPENDENCIES})
-    list(APPEND MAIN_EXECUTABLES moris)
-endforeach()
+string(REPLACE ".cpp" "-${EXECUTABLE}" EXE_NAME ${MAIN})
+add_executable(moris ${MAIN})
+target_link_libraries(moris ${MAIN_DEPENDENCIES})
+list(APPEND MAIN_EXECUTABLES moris)
+
 
 # Install executables
 install(TARGETS ${MAIN_EXECUTABLES}
     DESTINATION ${EXE_INSTALL_DIR} )
-    
-    
+
 # -------------------------------------------------------------------------
 # Making of input file shared object --------------------------------------
 # -------------------------------------------------------------------------
