@@ -1,0 +1,24 @@
+#define MORIS_GIT_BRANCH "@MORIS_GIT_BRANCH@"
+#define MORIS_GIT_HASH   "@MORIS_GIT_HASH@"
+
+#include "cl_Git_info.hpp"
+
+namespace moris
+{
+
+git_info::git_info()
+{
+    mMORIS_GIT_BRANCH = MORIS_GIT_BRANCH;
+    mMORIS_GIT_HASH   = MORIS_GIT_HASH;
+}
+
+std::string git_info::get_git_branch()
+{
+    return mMORIS_GIT_BRANCH;
+}
+
+std::string git_info::get_git_hash()
+{
+    return mMORIS_GIT_HASH;
+}
+}

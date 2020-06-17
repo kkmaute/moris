@@ -459,7 +459,11 @@ Enriched_Integration_Mesh::deactivate_empty_side_sets()
 
     for(moris::uint i = 0; i < tOldSetClusters.size(); i++)
     {
-        if ( tOldSetClusters(i).size() > 0)
+        uint tMySize = tOldSetClusters(i).size();
+        uint tAllSize = 0;
+        sum_all(tMySize,tAllSize);
+
+        if ( tAllSize > 0)
         {
             mSideSetLabels.push_back(tOldSetNames(i));
             mSideSets.push_back(tOldSetClusters(i));
@@ -503,8 +507,10 @@ Enriched_Integration_Mesh::deactivate_empty_block_sets()
     for(moris::uint i = 0; i < tOldSetClusters.size(); i++)
     {
 
-
-        if ( tOldSetClusters(i).size() > 0)
+        uint tMySize = tOldSetClusters(i).size();
+        uint tAllSize = 0;
+        sum_all(tMySize,tAllSize);
+        if ( tAllSize > 0)
         {
             mBlockSetNames.push_back(tOldSetNames(i));
             mPrimaryBlockSetClusters.push_back(tOldSetClusters(i));
@@ -767,6 +773,15 @@ Enriched_Integration_Mesh::get_cell_clusters_in_set(moris_index aBlockSetOrdinal
     return tClusterInSet;
 
 }
+//------------------------------------------------------------------------------
+moris::Cell<xtk::Cell_Cluster const  *>  const &
+Enriched_Integration_Mesh::get_xtk_cell_clusters_in_block_set(moris_index aBlockSetOrdinal) const
+{
+    MORIS_ASSERT(aBlockSetOrdinal<(moris_index)mBlockSetNames.size(),"Requested block set ordinal out of bounds.");
+
+    return mPrimaryBlockSetClusters(aBlockSetOrdinal);
+}
+//------------------------------------------------------------------------------
 Matrix<IndexMat>
 Enriched_Integration_Mesh::get_block_set_colors(moris_index aBlockSetOrdinal) const
 {
@@ -1180,7 +1195,7 @@ Enriched_Integration_Mesh::allocate_entity_ids(moris::size_t  aNumReqs,
 
     tNumIdsRequested(0) = (moris::moris_id)aNumReqs;
 
-    xtk::gather(tNumIdsRequested,aGatheredInfo);
+    moris::gather(tNumIdsRequested,aGatheredInfo);
 
     moris::Cell<moris::moris_id> tProcFirstID(tProcSize);
 
@@ -1198,7 +1213,7 @@ Enriched_Integration_Mesh::allocate_entity_ids(moris::size_t  aNumReqs,
 
     }
 
-    xtk::scatter(tProcFirstID,tFirstId);
+    moris::scatter(tProcFirstID,tFirstId);
 
     return tFirstId(0);
 }

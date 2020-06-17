@@ -1271,7 +1271,7 @@ Background_Mesh::setup_comm_map()
 
     Cell<Matrix<IndexMat>> tGatheredMats;
     moris_index tTag = 10009;
-    all_gather_vector(mCommunicationMap,tGatheredMats,tTag,0);
+    all_gather_vector(mCommunicationMap,tGatheredMats,tTag,1,0);
 
     if(par_rank() == 0)
     {

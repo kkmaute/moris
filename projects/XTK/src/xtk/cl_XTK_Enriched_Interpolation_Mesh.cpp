@@ -758,6 +758,7 @@ namespace xtk
     void
     Enriched_Interpolation_Mesh::finalize_setup()
     {
+
         this->setup_local_to_global_maps();
         this->setup_not_owned_vertices();
         this->setup_basis_ownership();
@@ -799,9 +800,12 @@ namespace xtk
         mLocalToGlobalMaps = Cell<Matrix< IdMat >>( 4 );
         mGlobaltoLobalMaps = Cell<std::unordered_map<moris_id,moris_index>>(4);
 
-        this->setup_vertex_maps();
         this->setup_cell_maps();
         this->setup_basis_maps();
+
+        this->assign_ip_vertex_ids();
+
+        this->setup_vertex_maps();
     }
     //------------------------------------------------------------------------------
     void
@@ -820,12 +824,284 @@ namespace xtk
             }
         }
     }
+
+    //------------------------------------------------------------------------------
+    void
+    Enriched_Interpolation_Mesh::assign_ip_vertex_ids()
+    {
+        // mpitag
+        moris_index tTag = 600001;
+
+        // owned requests and shared requests sorted by owning proc
+        Cell<uint> tOwnedVertices;
+        Cell<Cell<uint>> tNotOwnedVertices;
+        Cell<Cell<uint>> tNotOwnedIpCells;
+        Cell<uint> tProcRanks;
+        std::unordered_map<moris_id,moris_id> tProcRankToDataIndex;
+        this->sort_ip_vertices_by_owned_and_not_owned(tOwnedVertices,tNotOwnedVertices,tNotOwnedIpCells,tProcRanks,tProcRankToDataIndex);
+
+        moris::moris_id tVertexId  = mXTKModel->get_background_mesh().allocate_entity_ids(tOwnedVertices.size(), EntityRank::NODE);
+
+        // Assign owned request identifiers
+        this->assign_owned_ip_vertex_ids(tOwnedVertices, tVertexId);
+
+        // prepare node information request data
+        Cell<Matrix<IndexMat>> tOutwardBaseVertexIds;
+        Cell<Matrix<IndexMat>> tOutwardIpCellIds;
+        this->setup_outward_ip_vertex_requests( tNotOwnedVertices, tNotOwnedIpCells, tProcRanks, tProcRankToDataIndex, tOutwardBaseVertexIds,tOutwardIpCellIds);
+
+
+        // send requests to owning processor
+        mXTKModel->send_outward_requests(tTag,tProcRanks,tOutwardBaseVertexIds);
+        mXTKModel->send_outward_requests(tTag+1,tProcRanks,tOutwardIpCellIds);
+
+        // hold on to make sure everyone has sent all their information
+        barrier();
+
+        // receive the requests
+        Cell<Matrix<IndexMat>> tReceivedBaseVertexIds;
+        Cell<Matrix<IndexMat>> tReceivedIpCellIds;
+        Cell<uint> tProcsReceivedFrom1;
+        Cell<uint> tProcsReceivedFrom2;
+        mXTKModel->inward_receive_requests(tTag, 1, tReceivedBaseVertexIds, tProcsReceivedFrom1);
+        mXTKModel->inward_receive_requests(tTag+1, 1, tReceivedIpCellIds, tProcsReceivedFrom2);
+
+        MORIS_ASSERT(tProcsReceivedFrom1.size() == tProcsReceivedFrom2.size(),"Size mismatch between procs received from child cell ids and number of child cells");
+        Cell<Matrix<IndexMat>> tVertexIdsAnswers;
+        this->prepare_ip_vertex_id_answers(tReceivedBaseVertexIds,tReceivedIpCellIds,tVertexIdsAnswers);
+
+        // return information
+        mXTKModel->return_request_answers(tTag+2, tVertexIdsAnswers, tProcsReceivedFrom1);
+
+        // receive the information
+        barrier();
+
+        // receive the answers
+        Cell<Matrix<IndexMat>> tReceivedVertexIds;
+        mXTKModel->inward_receive_request_answers(tTag+2,1,tProcRanks,tReceivedVertexIds);
+
+        // add child cell ids to not owned child meshes
+         this->handle_received_ip_vertex_ids(tNotOwnedVertices,tReceivedVertexIds);
+
+
+
+    }
+
+    void
+    Enriched_Interpolation_Mesh::sort_ip_vertices_by_owned_and_not_owned(
+            Cell<uint>                            & aOwnedVertices,
+            Cell<Cell<uint>>                      & aNotOwnedVertices,
+            Cell<Cell<uint>>                      & aNotOwnedIPCells,
+            Cell<uint>                            & aProcRanks,
+            std::unordered_map<moris_id,moris_id> & aProcRankToIndexInData)
+    {
+
+        // access the mesh data behind the background mesh
+        // access the communication
+        Matrix<IdMat> tCommTable = this->get_communication_table();
+
+
+        // Par rank
+        moris::moris_index tParRank = par_rank();
+
+        // resize proc ranks and setup map to comm table
+        aProcRanks.resize(tCommTable.numel());
+        for(moris::uint i = 0; i <tCommTable.numel(); i++)
+        {
+            aProcRankToIndexInData[tCommTable(i)] = i;
+            aProcRanks(i) = (tCommTable(i));
+            aNotOwnedVertices.push_back(Cell<uint>(0));
+            aNotOwnedIPCells.push_back(Cell<uint>(0));
+        }
+
+        // Number of cells
+        uint tNumCells = this->get_num_entities(EntityRank::ELEMENT);
+
+        // number of nodes
+        uint tNumVerts = this->get_num_entities(EntityRank::NODE);
+
+        // Keep track of nodes which have ids
+        Cell<uint> tNodeTracker(tNumVerts,0);
+
+        // iterate through cells
+        for(moris::uint iC = 0; iC < tNumCells; iC++)
+        {
+            Interpolation_Cell_Unzipped const &  tCell = *mEnrichedInterpCells((moris_index)iC);
+
+            moris::Cell< xtk::Interpolation_Vertex_Unzipped* > const & tVerts = tCell.get_xtk_interpolation_vertices();
+
+            // iterate through vertices
+            for(moris::uint iV = 0; iV < tVerts.size(); iV++)
+            {
+                moris_index tVertexIndex = tVerts(iV)->get_index();
+                moris_index tOwner = tVerts(iV)->get_owner();
+
+                if(tNodeTracker(tVertexIndex) == 0)
+                {
+                    if(tOwner == tParRank)
+                    {
+                        aOwnedVertices.push_back(tVertexIndex);
+                    }
+                    else
+                    {
+                        moris_index tIndex = aProcRankToIndexInData[tOwner];
+                        aNotOwnedVertices(tIndex).push_back(tVertexIndex);
+                        aNotOwnedIPCells(tIndex).push_back(tCell.get_index());
+                    }
+                    tNodeTracker(tVertexIndex) = 1;
+                }
+            }
+        }
+
+
+
+    }
+
+    //------------------------------------------------------------------------------
+
+    void
+    Enriched_Interpolation_Mesh::assign_owned_ip_vertex_ids(
+            Cell<uint> const & aOwnedIpVerts,
+            moris::moris_id  & aNodeId)
+    {
+        // iterate through vertices that i own and assign a node id to them
+        for(moris::uint i = 0; i < aOwnedIpVerts.size(); i ++)
+        {
+            mEnrichedInterpVerts(aOwnedIpVerts(i)).set_vertex_id(aNodeId);
+            aNodeId++;
+        }
+    }
+
+    //------------------------------------------------------------------------------
+
+    void
+    Enriched_Interpolation_Mesh::setup_outward_ip_vertex_requests(
+            Cell<Cell<uint>>                const & aNotOwnedIpVerts,
+            Cell<Cell<uint>>                const & aNotOwnedIpCells,
+            Cell<uint>                      const & aProcRanks,
+            std::unordered_map<moris_id,moris_id> & aProcRankToIndexInData,
+            Cell<Matrix<IndexMat>>                & aOutwardBaseVertexIds,
+            Cell<Matrix<IndexMat>>                & aOutwardIpCellIds)
+    {
+
+        MORIS_ASSERT(aNotOwnedIpVerts.size() == aNotOwnedIpCells.size(),"Dimension mismatch");
+
+        aOutwardBaseVertexIds.resize(aNotOwnedIpVerts.size());
+        aOutwardIpCellIds.resize(aNotOwnedIpVerts.size());
+
+        // iterate through the verts and collect them for communication
+        for(moris::uint iP = 0; iP < aNotOwnedIpVerts.size(); iP++)
+        {
+
+            aOutwardBaseVertexIds(iP).resize(1,aNotOwnedIpVerts(iP).size());
+            aOutwardIpCellIds(iP).resize(1,aNotOwnedIpVerts(iP).size());
+
+            for(moris::uint iV = 0; iV < aNotOwnedIpVerts(iP).size(); iV++ )
+            {
+                moris_index tVertexIndex = aNotOwnedIpVerts(iP)(iV);
+                moris_index tCellIndex   = aNotOwnedIpCells(iP)(iV);
+
+                aOutwardBaseVertexIds(iP)(iV) = mEnrichedInterpVerts(tVertexIndex).get_base_vertex()->get_id();
+                aOutwardIpCellIds(iP)(iV) = mEnrichedInterpCells(tCellIndex)->get_id();
+            }
+
+            if(aNotOwnedIpVerts(iP).size() == 0)
+            {
+                aOutwardBaseVertexIds(iP).resize(1,1);
+                aOutwardIpCellIds(iP).resize(1,1);
+
+                aOutwardBaseVertexIds(iP)(0) = MORIS_INDEX_MAX;
+                aOutwardIpCellIds(iP)(0) = MORIS_INDEX_MAX;
+            }
+        }
+    }
+
+    void
+    Enriched_Interpolation_Mesh::prepare_ip_vertex_id_answers(
+            Cell<Matrix<IndexMat>> & aReceivedBaseVertexIds,
+            Cell<Matrix<IndexMat>> & aReceivedIpCellIds,
+            Cell<Matrix<IndexMat>> & aVertexIdAnswer)
+    {
+        MORIS_ASSERT(aReceivedBaseVertexIds.size() == aReceivedIpCellIds.size(),"Mismatch in received base vertex ids and received ip cell");
+
+        // allocate answer size
+        aVertexIdAnswer.resize(aReceivedBaseVertexIds.size());
+
+        // iterate through received data
+        for(moris::uint i = 0; i < aReceivedBaseVertexIds.size(); i++)
+        {
+            uint tNumReceivedReqs = aReceivedBaseVertexIds(i).n_cols();
+
+            aVertexIdAnswer(i).resize(1,tNumReceivedReqs);
+
+            if(aReceivedBaseVertexIds(i)(0) != MORIS_INDEX_MAX)
+            {
+                // iterate through received requests
+                for(moris::uint j = 0; j < tNumReceivedReqs; j++)
+                {
+                    bool tSuccess = false;
+
+                    // base vertex id
+                    moris_index tBaseVertexId = aReceivedBaseVertexIds(i)(j);
+
+                    // ip cell id
+                    moris_index tIpCellId = aReceivedIpCellIds(i)(j);
+
+                    // ip cell index
+                    moris_index tIpCellInd = this->get_loc_entity_ind_from_entity_glb_id(tIpCellId,EntityRank::ELEMENT);
+
+                    // ip cell
+                    Interpolation_Cell_Unzipped* tIpCell = mEnrichedInterpCells(tIpCellInd);
+
+                    // vertices attached to the ip cell
+                    moris::Cell< xtk::Interpolation_Vertex_Unzipped* > const & tVerts = tIpCell->get_xtk_interpolation_vertices();
+
+                    for(moris::uint iV = 0; iV < tVerts.size(); iV++)
+                    {
+                        if(tVerts(iV)->get_base_vertex()->get_id() == tBaseVertexId)
+                        {
+                            tSuccess = true;
+                            aVertexIdAnswer(i)(j) = tVerts(iV)->get_id();
+                        }
+                    }
+
+                    MORIS_ASSERT(tSuccess,"Vertex Not Found");
+                }
+            }
+            else
+            {
+                aVertexIdAnswer(i)(0) =   MORIS_INDEX_MAX;
+            }
+        }
+    }
+
+    //------------------------------------------------------------------------------
+
+    void
+    Enriched_Interpolation_Mesh::handle_received_ip_vertex_ids(
+            Cell<Cell<uint>> const & aNotOwnedVertices,
+            Cell<Matrix<IndexMat>>  const & aReceivedVertexIds)
+    {
+        // iterate through received data
+        for(moris::uint i = 0; i < aNotOwnedVertices.size(); i++)
+        {
+            uint tNumReceivedReqs = aNotOwnedVertices(i).size();
+
+            // iterate through received requests
+            for(moris::uint j = 0; j < tNumReceivedReqs; j++)
+            {
+                mEnrichedInterpVerts(aNotOwnedVertices(i)(j)).set_vertex_id(aReceivedVertexIds(i)(j));
+            }
+        }
+    }
+
     //------------------------------------------------------------------------------
     void
     Enriched_Interpolation_Mesh::setup_basis_ownership()
     {
         // size data
         mEnrichCoeffOwnership.resize(mMeshIndices.numel());
+
 
         // iterate through meshes
         for(moris::uint iM = 0; iM < mMeshIndices.numel(); iM++)
@@ -834,19 +1110,34 @@ namespace xtk
 
             mEnrichCoeffOwnership(iM).fill(MORIS_INDEX_MAX);
 
+
             // iterate through basis functions
             for(moris::uint iB = 0; iB < mCoeffToEnrichCoeffs(iM).size(); iB++)
             {
                 moris_index tOwner = mXTKModel->get_background_mesh().get_mesh_data().get_entity_owner((moris_index)iB,mBasisRank, mMeshIndices(iM));
 
+
                 for(moris::uint iEB = 0; iEB < mCoeffToEnrichCoeffs(iM)(iB).numel(); iEB++)
                 {
                     moris_index tEnrIndex = mCoeffToEnrichCoeffs(iM)(iB)(iEB);
                     mEnrichCoeffOwnership(iM)(tEnrIndex) = tOwner;
+
+                    if(tOwner != par_rank())
+                    {
+                        mNotOwnedBasis.push_back(mEnrichCoeffLocToGlob(iM)(tEnrIndex));
+                    }
+                    else
+                    {
+                        mOwnedBasis.push_back(mEnrichCoeffLocToGlob(iM)(tEnrIndex));
+                    }
+
+                    if(mEnrichCoeffLocToGlob(iM)(tEnrIndex) == 1582)
+                    {
+                        std::cout<<"Basis Id 1582 | Owner = "<<tOwner<<std::endl;
+                    }
                 }
             }
         }
-
     }
     //------------------------------------------------------------------------------
     void
@@ -934,7 +1225,7 @@ namespace xtk
 
         tNumIdsRequested(0) = (moris::moris_id)aNumReqs;
 
-        xtk::gather(tNumIdsRequested,aGatheredInfo);
+        moris::gather(tNumIdsRequested,aGatheredInfo);
 
         moris::Cell<moris::moris_id> tProcFirstID(tProcSize);
 
@@ -951,7 +1242,7 @@ namespace xtk
             }
         }
 
-        xtk::scatter(tProcFirstID,tFirstId);
+        moris::scatter(tProcFirstID,tFirstId);
 
         return tFirstId(0);
     }
