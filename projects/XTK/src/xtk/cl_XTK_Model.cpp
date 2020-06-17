@@ -103,8 +103,15 @@ namespace xtk
     }
 
     Model::Model(
-            moris::ParameterList const & aParameterList)
-    : mParameterList(aParameterList)
+            moris::ParameterList const & aParameterList )
+    : mSameMesh(false),
+      mParameterList(aParameterList),
+      mModelDimension(UINT_MAX),
+      mEnrichment(nullptr),
+      mGhostStabilization(nullptr),
+      mEnrichedInterpMesh(0,nullptr),
+      mEnrichedIntegMesh(0,nullptr),
+      mConvertedToTet10s(false)
     {
         // flag this as a paramter list based run
         mParameterList.insert("has_parameter_list", true);
@@ -206,6 +213,13 @@ namespace xtk
         if(mParameterList.get<bool>("ghost_stab"))
         {
             this->construct_face_oriented_ghost_penalization_cells();
+
+            if( mParameterList.get<bool>("exodus_output_XTK_ghost_mesh") )
+
+                for(moris::moris_index i = 0; i < (moris_index)mGeometryEngine->get_num_bulk_phase(); i++)
+                {
+                    mGhostStabilization->visualize_ghost_on_mesh(i);
+                }
 
         }
 
@@ -2612,26 +2626,29 @@ namespace xtk
                     moris_id tNumChildCells = aReceivedNumChildCellsInSubphase(i)(j);
 
                     // get child mesh
-                    MORIS_ASSERT(mBackgroundMesh.entity_has_children(tParentCellIndex,EntityRank::ELEMENT),"Request is made for child element ids on a parent cell not intersected");
+                    MORIS_ASSERT(mBackgroundMesh.entity_has_children(tParentCellIndex,EntityRank::ELEMENT),
+                            "Request is made for child element ids on a parent cell not intersected");
+
                     moris_index tCMIndex = mBackgroundMesh.child_mesh_index(tParentCellIndex,EntityRank::ELEMENT);
-                    Child_Mesh & tCM = mCutMesh.get_child_mesh(tCMIndex);
+                    Child_Mesh & tCM     = mCutMesh.get_child_mesh(tCMIndex);
 
                     // figure out which subphase this child cell belongs to in the given child mesh
                     Matrix<IdMat> const & tChildMeshCellIds = tCM.get_element_ids();
-                    moris_id tSubphaseId = MORIS_ID_MAX;
-                    moris_index tSubphaseIndex = MORIS_ID_MAX;
+
+                    moris_id tSubphaseId         = MORIS_ID_MAX;
                     moris_index tCMSubphaseIndex = MORIS_ID_MAX;
 
                     for(moris::uint iCM = 0; iCM < tChildMeshCellIds.numel(); iCM++)
                     {
                         if(tChildMeshCellIds(iCM) == tChildCellId)
                         {
-                            tSubphaseId = tCM.get_element_subphase_id(iCM);
+                            tSubphaseId      = tCM.get_element_subphase_id(iCM);
                             tCMSubphaseIndex = tCM.get_element_subphase_index(iCM);
 
                             Cell<moris::Matrix< moris::IndexMat >> const & tSubphaseClusters = tCM.get_subphase_groups();
 
-                            MORIS_ERROR(tSubphaseClusters(tCMSubphaseIndex).numel() == tNumChildCells,"Number of cells in subphase mismatch");
+                            MORIS_ERROR( (moris_id) tSubphaseClusters(tCMSubphaseIndex).numel() == tNumChildCells,
+                                    "Number of cells in subphase mismatch");
                         }
                     }
 
