@@ -70,7 +70,6 @@ namespace xtk
           Cell<Matrix< DDRMat >> tInterfaceNodeLocation(2);
 
           // computed sensitivity
-          Matrix< DDRMat > tDxDp(1,1);
           Matrix< IndexMat > tDxDpInds(1,1);
 
           Matrix< DDRMat > tDxDpComp(3,1,10.0);
@@ -126,11 +125,7 @@ namespace xtk
               Background_Mesh & tBackgroundMesh = tXTKModel.get_background_mesh();
 
               // store the xtk computed derivative
-              if( i == 0)
-              {
-                  tDxDp     = tGEOut->get_node_dx_dp(tInterfaceNodeInd);
-              }
-              else
+              if (i != 0)
               {
                   tInterfaceNodeLocation(i-1) = tBackgroundMesh.get_selected_node_coordinates_loc_inds({{tInterfaceNodeInd}});
               }
