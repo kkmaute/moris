@@ -952,58 +952,55 @@ TEST_CASE("HMR Interpolation XTK Cut Diffusion Model Multigrid","[XTK_HMR_DIFF_M
         tModel->set_output_manager( &tOutputData );
 
 	//-------------------------------------------------------
-    sol::SOL_Warehouse tSolverWarehouse( tModel->get_solver_interface() );
+        sol::SOL_Warehouse tSolverWarehouse( tModel->get_solver_interface() );
 
-      moris::Cell< moris::Cell< moris::ParameterList > > tParameterlist( 7 );
-      for( uint Ik = 0; Ik < 7; Ik ++)
-      {
-          tParameterlist( Ik ).resize(1);
-      }
+        moris::Cell< moris::Cell< moris::ParameterList > > tParameterlist( 7 );
+        for( uint Ik = 0; Ik < 7; Ik ++)
+        {
+           tParameterlist( Ik ).resize(1);
+        }
 
-      tParameterlist( 0 )(0) = moris::prm::create_linear_algorithm_parameter_list( sol::SolverType::PETSC );
-      tParameterlist( 0 )(0).set( "KSPType", std::string( "fgmres" ) );
-      tParameterlist( 0 )(0).set( "PCType", std::string( "mg" ) );
-      tParameterlist( 0 )(0).set( "ILUFill", 3 );
-      tParameterlist( 0 )(0).set( "ILUTol", 1e-6 );
+        tParameterlist( 0 )(0) = moris::prm::create_linear_algorithm_parameter_list( sol::SolverType::PETSC );
+        tParameterlist( 0 )(0).set( "KSPType", std::string( "fgmres" ) );
+        tParameterlist( 0 )(0).set( "PCType", std::string( "mg" ) );
+        tParameterlist( 0 )(0).set( "ILUFill", 3 );
+        tParameterlist( 0 )(0).set( "ILUTol", 1e-6 );
 
-      tParameterlist( 1 )(0) = moris::prm::create_linear_solver_parameter_list();
-      tParameterlist( 2 )(0) = moris::prm::create_nonlinear_algorithm_parameter_list();
-      tParameterlist( 3 )(0) = moris::prm::create_nonlinear_solver_parameter_list();
-      tParameterlist( 3 )(0).set("NLA_DofTypes"      , std::string("TEMP") );
+        tParameterlist( 1 )(0) = moris::prm::create_linear_solver_parameter_list();
+        tParameterlist( 2 )(0) = moris::prm::create_nonlinear_algorithm_parameter_list();
+        tParameterlist( 3 )(0) = moris::prm::create_nonlinear_solver_parameter_list();
+        tParameterlist( 3 )(0).set("NLA_DofTypes"      , std::string("TEMP") );
 
-      tParameterlist( 4 )(0) = moris::prm::create_time_solver_algorithm_parameter_list();
-      tParameterlist( 5 )(0) = moris::prm::create_time_solver_parameter_list();
-      tParameterlist( 5 )(0).set("TSA_DofTypes"      , std::string("TEMP") );
+        tParameterlist( 4 )(0) = moris::prm::create_time_solver_algorithm_parameter_list();
+        tParameterlist( 5 )(0) = moris::prm::create_time_solver_parameter_list();
+        tParameterlist( 5 )(0).set("TSA_DofTypes"      , std::string("TEMP") );
 
-      tParameterlist( 6 )(0) = moris::prm::create_solver_warehouse_parameterlist();
-      tParameterlist( 6 )(0).set("SOL_TPL_Type"      , static_cast< uint >( sol::MapType::Petsc ) );
+        tParameterlist( 6 )(0) = moris::prm::create_solver_warehouse_parameterlist();
+        tParameterlist( 6 )(0).set("SOL_TPL_Type"      , static_cast< uint >( sol::MapType::Petsc ) );
 
-      tSolverWarehouse.set_parameterlist( tParameterlist );
+        tSolverWarehouse.set_parameterlist( tParameterlist );
 
-      tSolverWarehouse.initialize();
+        tSolverWarehouse.initialize();
 
-      tsa::Time_Solver * tTimeSolver = tSolverWarehouse.get_main_time_solver();
+        tsa::Time_Solver * tTimeSolver = tSolverWarehouse.get_main_time_solver();
 
-      tTimeSolver->solve();
+        tTimeSolver->solve();
 
-      moris::Matrix< DDRMat > tSolution;
-      tTimeSolver->get_full_solution( tSolution );
+        moris::Matrix< DDRMat > tSolution;
+        tTimeSolver->get_full_solution( tSolution );
 
-//      print( tSolution,"tSolution");
-	//-------------------------------------------------------
-
-        CHECK( equal_to( tSolution( 0, 0 ), 4.999624288576423, 1.0e+08 ) );
-        CHECK( equal_to( tSolution( 1, 0 ), 5.000077082616270, 1.0e+08 ) );
-        CHECK( equal_to( tSolution( 2, 0 ), 4.999624291626882, 1.0e+08 ) );
-        CHECK( equal_to( tSolution( 3, 0 ), 5.000077079630372, 1.0e+08 ) );
-        CHECK( equal_to( tSolution( 4, 0 ), 17.06510485378407, 1.0e+08 ) );
-        CHECK( equal_to( tSolution( 5, 0 ), 17.02038615714842, 1.0e+08 ) );
-        CHECK( equal_to( tSolution( 6, 0 ), 17.06510471401616, 1.0e+08 ) );
-        CHECK( equal_to( tSolution( 7, 0 ), 17.02038619038510, 1.0e+08 ) );
-        CHECK( equal_to( tSolution( 8, 0 ), 5.000221545625442, 1.0e+08 ) );
-        CHECK( equal_to( tSolution( 382, 0 ), 51.10764688788053, 1.0e+08 ) );
-        CHECK( equal_to( tSolution( 461, 0 ), 17.06510449562584, 1.0e+08 ) );
-        CHECK( equal_to( tSolution( 505, 0 ), 29.33562066622119, 1.0e+08 ) );
+        CHECK( equal_to( tSolution( 0, 0 ), 4.999591892500180, 1.0e+08 ) );
+        CHECK( equal_to( tSolution( 1, 0 ), 5.000081957190350, 1.0e+08 ) );
+        CHECK( equal_to( tSolution( 2, 0 ), 4.999591897493581, 1.0e+08 ) );
+        CHECK( equal_to( tSolution( 3, 0 ), 5.000081951223003, 1.0e+08 ) );
+        CHECK( equal_to( tSolution( 4, 0 ), 17.12282413844208, 1.0e+08 ) );
+        CHECK( equal_to( tSolution( 5, 0 ), 17.07413794445246, 1.0e+08 ) );
+        CHECK( equal_to( tSolution( 6, 0 ), 17.12282396030806, 1.0e+08 ) );
+        CHECK( equal_to( tSolution( 7, 0 ), 17.07413802489490, 1.0e+08 ) );
+        CHECK( equal_to( tSolution( 8, 0 ), 5.000244192065129, 1.0e+08 ) );
+        CHECK( equal_to( tSolution( 382, 0 ), 51.49916278038950, 1.0e+08 ) );
+        CHECK( equal_to( tSolution( 461, 0 ), 17.12282369430180, 1.0e+08 ) );
+        CHECK( equal_to( tSolution( 505, 0 ), 29.47091327323650, 1.0e+08 ) );
 
 
         delete tInterpMesh;
@@ -1242,58 +1239,55 @@ TEST_CASE(" XTK Diffusion  Multigrid","[XTK_DIFF_MULTIGRID]")
         tModel->set_output_manager( &tOutputData );
 
 	//-------------------------------------------------------
-    sol::SOL_Warehouse tSolverWarehouse( tModel->get_solver_interface() );
+        sol::SOL_Warehouse tSolverWarehouse( tModel->get_solver_interface() );
 
-      moris::Cell< moris::Cell< moris::ParameterList > > tParameterlist( 7 );
-      for( uint Ik = 0; Ik < 7; Ik ++)
-      {
-          tParameterlist( Ik ).resize(1);
-      }
+        moris::Cell< moris::Cell< moris::ParameterList > > tParameterlist( 7 );
+        for( uint Ik = 0; Ik < 7; Ik ++)
+        {
+            tParameterlist( Ik ).resize(1);
+        }
 
-      tParameterlist( 0 )(0) = moris::prm::create_linear_algorithm_parameter_list( sol::SolverType::PETSC );
-      tParameterlist( 0 )(0).set( "KSPType", std::string( "fgmres" ) );
-      tParameterlist( 0 )(0).set( "PCType", std::string( "mg" ) );
-      tParameterlist( 0 )(0).set( "ILUFill", 0 );
-      tParameterlist( 0 )(0).set( "ILUTol", 1e-6 );
+        tParameterlist( 0 )(0) = moris::prm::create_linear_algorithm_parameter_list( sol::SolverType::PETSC );
+        tParameterlist( 0 )(0).set( "KSPType", std::string( "fgmres" ) );
+        tParameterlist( 0 )(0).set( "PCType", std::string( "mg" ) );
+        tParameterlist( 0 )(0).set( "ILUFill", 0 );
+        tParameterlist( 0 )(0).set( "ILUTol", 1e-6 );
 
-      tParameterlist( 1 )(0) = moris::prm::create_linear_solver_parameter_list();
-      tParameterlist( 2 )(0) = moris::prm::create_nonlinear_algorithm_parameter_list();
-      tParameterlist( 3 )(0) = moris::prm::create_nonlinear_solver_parameter_list();
-      tParameterlist( 3 )(0).set("NLA_DofTypes"      , std::string("TEMP") );
+        tParameterlist( 1 )(0) = moris::prm::create_linear_solver_parameter_list();
+        tParameterlist( 2 )(0) = moris::prm::create_nonlinear_algorithm_parameter_list();
+        tParameterlist( 3 )(0) = moris::prm::create_nonlinear_solver_parameter_list();
+        tParameterlist( 3 )(0).set("NLA_DofTypes"      , std::string("TEMP") );
 
-      tParameterlist( 4 )(0) = moris::prm::create_time_solver_algorithm_parameter_list();
-      tParameterlist( 5 )(0) = moris::prm::create_time_solver_parameter_list();
-      tParameterlist( 5 )(0).set("TSA_DofTypes"      , std::string("TEMP") );
+        tParameterlist( 4 )(0) = moris::prm::create_time_solver_algorithm_parameter_list();
+        tParameterlist( 5 )(0) = moris::prm::create_time_solver_parameter_list();
+        tParameterlist( 5 )(0).set("TSA_DofTypes"      , std::string("TEMP") );
 
-      tParameterlist( 6 )(0) = moris::prm::create_solver_warehouse_parameterlist();
-      tParameterlist( 6 )(0).set("SOL_TPL_Type"      , static_cast< uint >( sol::MapType::Petsc ) );
+        tParameterlist( 6 )(0) = moris::prm::create_solver_warehouse_parameterlist();
+        tParameterlist( 6 )(0).set("SOL_TPL_Type"      , static_cast< uint >( sol::MapType::Petsc ) );
 
-      tSolverWarehouse.set_parameterlist( tParameterlist );
+        tSolverWarehouse.set_parameterlist( tParameterlist );
 
-      tSolverWarehouse.initialize();
+        tSolverWarehouse.initialize();
 
-      tsa::Time_Solver * tTimeSolver = tSolverWarehouse.get_main_time_solver();
+        tsa::Time_Solver * tTimeSolver = tSolverWarehouse.get_main_time_solver();
 
-      tTimeSolver->solve();
+        tTimeSolver->solve();
 
-      moris::Matrix< DDRMat > tSolution;
-      tTimeSolver->get_full_solution( tSolution );
+        moris::Matrix< DDRMat > tSolution;
+        tTimeSolver->get_full_solution( tSolution );
 
-//      print( tSolution,"tSolution");
-	//-------------------------------------------------------
-
-        CHECK( equal_to( tSolution( 0, 0 ), 4.999624288576423, 1.0e+08 ) );
-        CHECK( equal_to( tSolution( 1, 0 ), 5.000077082616270, 1.0e+08 ) );
-        CHECK( equal_to( tSolution( 2, 0 ), 4.999624291626882, 1.0e+08 ) );
-        CHECK( equal_to( tSolution( 3, 0 ), 5.000077079630372, 1.0e+08 ) );
-        CHECK( equal_to( tSolution( 4, 0 ), 17.06510485378407, 1.0e+08 ) );
-        CHECK( equal_to( tSolution( 5, 0 ), 17.02038615714842, 1.0e+08 ) );
-        CHECK( equal_to( tSolution( 6, 0 ), 17.06510471401616, 1.0e+08 ) );
-        CHECK( equal_to( tSolution( 7, 0 ), 17.02038619038510, 1.0e+08 ) );
-        CHECK( equal_to( tSolution( 8, 0 ), 5.000221545625442, 1.0e+08 ) );
-        CHECK( equal_to( tSolution( 382, 0 ), 51.10764688788053, 1.0e+08 ) );
-        CHECK( equal_to( tSolution( 461, 0 ), 17.06510449562584, 1.0e+08 ) );
-        CHECK( equal_to( tSolution( 505, 0 ), 29.33562066622119, 1.0e+08 ) );
+        CHECK( equal_to( tSolution( 0, 0 ), 4.999591892500180, 1.0e+08 ) );
+        CHECK( equal_to( tSolution( 1, 0 ), 5.000081957190350, 1.0e+08 ) );
+        CHECK( equal_to( tSolution( 2, 0 ), 4.999591897493581, 1.0e+08 ) );
+        CHECK( equal_to( tSolution( 3, 0 ), 5.000081951223003, 1.0e+08 ) );
+        CHECK( equal_to( tSolution( 4, 0 ), 17.12282413844208, 1.0e+08 ) );
+        CHECK( equal_to( tSolution( 5, 0 ), 17.07413794445246, 1.0e+08 ) );
+        CHECK( equal_to( tSolution( 6, 0 ), 17.12282396030806, 1.0e+08 ) );
+        CHECK( equal_to( tSolution( 7, 0 ), 17.07413802489490, 1.0e+08 ) );
+        CHECK( equal_to( tSolution( 8, 0 ), 5.000244192065129, 1.0e+08 ) );
+        CHECK( equal_to( tSolution( 382, 0 ), 51.49916278038950, 1.0e+08 ) );
+        CHECK( equal_to( tSolution( 461, 0 ), 17.12282369430180, 1.0e+08 ) );
+        CHECK( equal_to( tSolution( 505, 0 ), 29.47091327323650, 1.0e+08 ) );
         delete tInterpMesh;
     }
 }
