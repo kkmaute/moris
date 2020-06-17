@@ -199,7 +199,7 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        TEST_CASE("general_test_02","[GE],[sensitivity_check_02]")
+        TEST_CASE("Full Interface Sensitivity Test", "[GE], [INTERSECTION_SENSITIVITY]")
         {
             if(par_size()<=1)
             {

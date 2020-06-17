@@ -2,7 +2,6 @@
 #define PROJECTS_GEN_GEN_MAIN_SRC_GEOMENG_CL_Geometry_Engine_HPP_
 
 // GEN
-#include "cl_GEN_Interpolaton.hpp"
 #include "cl_GEN_Pending_Node.hpp"
 #include "cl_GEN_Phase_Table.hpp"
 
@@ -58,7 +57,7 @@ namespace moris
         private:
 
             // HMR refinements
-            uint mNumRefinements;
+            uint mNumRefinements = 0;
 
             // ADVs/IQIs
             Matrix<DDRMat> mADVs;
@@ -83,14 +82,9 @@ namespace moris
             // Phase Table
             Phase_Table mPhaseTable;
 
-            // Node Entity Phase Vals - only analytic phase values are stored here to prevent duplicate storage of discrete geometries
-            moris::Matrix< moris::DDRMat > mNodePhaseVals;
-
             // Mesh
             std::shared_ptr<mtk::Mesh_Manager> mMeshManager;
-
             bool mTypesSet      = false;
-            moris::Cell< moris::moris_index > mIntegNodeIndices;
 
             Matrix<IndexMat> mInterfaceNodeIndices;
 
@@ -172,35 +166,26 @@ namespace moris
             MSI::Design_Variable_Interface* get_design_variable_interface();
 
             /**
-             * @brief Initial allocation of geometry objects,
-             * this creates a geometry object for each node coordinate.
-             * In this case, aNodeCoords needs to be ordered by proc indices.
-             * @param[ in ] aNumNodes number of nodes
+             * Gets all of the geometry field values at the specified coordinates
+             *
+             * @param aNodeIndices Node indices on the mesh
+             * @param aCoordinates Coordinate values for evaluating the geometry fields
+             * @param aGeometryIndex Index of the geometry for evaluating the field of
+             * @return Field values
              */
-            void initialize_geometry_objects_for_background_mesh_nodes( moris::size_t const & aNumNodes );
-
-            /**
-             * ???
-             * @param[ in ] aNodeCoords node coordinates
-             */
-            void initialize_geometry_object_phase_values( moris::Matrix< moris::DDRMat > const & aNodeCoords );
-
-            /**
-             * @brief Creates a geometry object association for pending nodes
-             * These nodes have node indices and parent information
-             */
-            void associate_new_nodes_with_geometry_object( moris::Cell< Pending_Node > & aNewNodes,
-                                                           bool                          aInterfaceNodes );
+            real get_geometry_field_value(      uint            aNodeIndex,
+                                          const Matrix<DDRMat>& aCoordinates,
+                                                uint            aGeometryIndex = 0);
 
             /**
              * create new node geometry objects
              * @param[ in ] aNodeCoords node coordinates
              */
-            void create_new_node_geometry_objects(Cell< moris_index >  const & aNewNodeIndices,
-                                                  bool                         aStoreParentTopo,
-                                                  Cell<xtk::Topology*> const & aParentTopo,
-                                                  Cell<Matrix<DDRMat>> const & aParamCoordRelativeToParent,
-                                                  Cell<Matrix<DDRMat>> const & aGlobalNodeCoord);
+            void create_new_node_geometry_objects( const Cell<moris_index>&    aNewNodeIndices,
+                                                   bool                        aStoreParentTopo,
+                                                   const Cell<xtk::Topology*>& aParentTopo,
+                                                   const Cell<Matrix<DDRMat>>& aParamCoordRelativeToParent,
+                                                   const Matrix<DDRMat>&       aGlobalNodeCoord );
 
             /**
              * @brief Links new nodes with an existing geometry object. This is used for unzipped interfaces
@@ -237,15 +222,15 @@ namespace moris
              * Computes the intersection of an isocountour with an entity and returning the local coordinate relative to the parent
              * and the global coordinate if needed
              */
-            void get_intersection_location( moris::real const &                      aIsocontourThreshold,
-                                            moris::real const &                      aPerturbationThreshold,
-                                            moris::Matrix< moris::DDRMat > const &   aGlobalNodeCoordinates,
-                                            moris::Matrix< moris::DDRMat > const &   aEntityNodeVars,
-                                            moris::Matrix< moris::IndexMat > const & aEntityNodeIndices,
-                                            moris::Matrix< moris::DDRMat > &         aIntersectionLocalCoordinates,
-                                            moris::Matrix< moris::DDRMat > &         aIntersectionGlobalCoordinates,
-                                            bool                                     aCheckLocalCoordinate = true,
-                                            bool                                     aComputeGlobalCoordinate = false );
+            void get_intersection_location( real                    aIsocontourThreshold,
+                                            real                    aPerturbationThreshold,
+                                            const Matrix<DDRMat>&   aGlobalNodeCoordinates,
+                                            const Matrix<DDRMat>&   aEntityNodeVars,
+                                            const Matrix<IndexMat>& aEntityNodeIndices,
+                                            Matrix<DDRMat>&         aIntersectionLocalCoordinates,
+                                            Matrix<DDRMat>&         aIntersectionGlobalCoordinates,
+                                            bool                    aCheckLocalCoordinate = false,
+                                            bool                    aComputeGlobalCoordinate = false);
 
             /**
              * Computes dx/dp using finite differencing
@@ -281,42 +266,25 @@ namespace moris
                                                         moris::moris_index aGeometryIndex );
 
             /**
-             * @brief Get phase value for a given node and geometry index
-             */
-            moris::real
-            get_entity_phase_val( moris::size_t const & aNodeIndex,
-                                  moris::size_t const & aGeomIndex );
-
-            /**
              * @brief Get dxdp for a node
              */
             moris::Matrix< moris::DDRMat > const &
             get_node_dx_dp(moris::size_t const & aNodeIndex) const;
 
             /**
-             * @brief For a given node index, return the phase index relative to each geometry (i.e. inside/outside indicator)
-             */
-            void get_phase_index( moris::Matrix< moris::DDSTMat > const & aNodeIndex,
-                                  moris::Matrix< moris::DDSTMat > & aNodePhaseIndex );
-
-            /**
-              * @brief For a given node index, return the phase index relative to each geometry (i.e. inside/outside indicator)
+              * For a given node index, return the phase index relative to each geometry (i.e. inside/outside indicator)
               */
-             void get_phase_index( moris::moris_index const & aNodeIndex,
-                                   moris::size_t & aNodePhaseIndex );
+            size_t get_phase_index(moris_index aNodeIndex, const Matrix<DDRMat>& aCoordinates);
 
             /**
              * @brief Provided the inside and out phase values for an entity, return the phase index
              */
-            moris::moris_index
-            get_elem_phase_index(moris::Matrix< moris::IndexMat > const & aElemOnOff);
+            moris_index get_elem_phase_index(moris::Matrix< moris::IndexMat > const & aElemOnOff);
 
             /**
              * @brief Returns whether a node is inside or outside wrt to a given geometry index
              */
-            moris::size_t
-            get_node_phase_index_wrt_a_geometry(moris::size_t aNodeIndex,
-                                                moris::size_t aGeometryIndex);
+            size_t get_node_phase_index_wrt_a_geometry(uint aNodeIndex, const Matrix<DDRMat>& aCoordinates, uint aGeometryIndex);
 
             /**
              * @brief Returns the number of geometries
@@ -352,8 +320,11 @@ namespace moris
 
             /**
              * Performs refinement on an HMR mesh
+             *
+             * @param aHMRPerformer Shared pointer to HMR
+             * @param aNumRefinements Number of refinements to perform, if not given will be taken from GEN parameters
              */
-            void perform_refinement(std::shared_ptr<hmr::HMR >aHMRPerformer);
+            void perform_refinement(std::shared_ptr<hmr::HMR >aHMRPerformer, uint aNumRefinements = 0);
 
             /**
              * @brief assign the pdv type and property for each pdv host in a given set
@@ -394,18 +365,6 @@ namespace moris
         private:
 
             /**
-             * Gets all of the geometry field values at the specified coordinates
-             *
-             * @param aNodeIndices Node indices on the mesh
-             * @param aCoordinates Coordinate values for evaluating the geometry fields
-             * @param aGeometryIndex Index of the geometry for evaluating the field of
-             * @return Field values
-             */
-            Matrix<DDRMat> evaluate_geometry_field_values(const Matrix<DDUMat>&       aNodeIndices,
-                                                          const Cell<Matrix<DDRMat>>& aCoordinates,
-                                                          uint                        aGeometryIndex = 0);
-
-            /**
              * Compute_intersection_info, calculates the relevant intersection information placed in the geometry object
              *
              * @param[in]  aEntityNodeInds - node to entity connectivity
@@ -428,10 +387,11 @@ namespace moris
              * @param aNodeLocalCoordinate
              * @param aLevelSetValues
              */
-            void interpolate_level_set_value_to_child_node_location( xtk::Topology                  const & aParentTopology,
-                                                                     moris::size_t                  const & aGeometryIndex,
-                                                                     moris::Matrix< moris::DDRMat > const & aNodeLocalCoordinate,
-                                                                     moris::Matrix< moris::DDRMat >       & aLevelSetValues );
+            void interpolate_level_set_value_to_child_node_location( const xtk::Topology&        aParentTopology,
+                                                                           size_t                aGeometryIndex,
+                                                                     const Matrix<DDRMat>&       aNodeLocalCoordinate,
+                                                                     const Matrix<DDRMat>& aNodeGlobalCoordinates,
+                                                                           Matrix<DDRMat>&       aLevelSetValues );
 
         };
     }
