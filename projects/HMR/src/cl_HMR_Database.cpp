@@ -1403,11 +1403,10 @@ namespace moris
 
         void Database::create_extra_refinement_buffer_for_level( const uint aLevel )
         {
-            MORIS_ASSERT(false, "create_extra_refinement_buffer_for_level(), not changed yet");
             // collect elements from level
             Cell< Background_Element_Base * > tElementsOfLevel;
 
-            uint tWorkingPattern = mParameters->get_working_pattern();
+            uint tActivationPatter = mParameters->get_working_pattern();
 
             // collect elements on level
             mBackgroundMesh->collect_elements_on_level( aLevel, tElementsOfLevel );
@@ -1416,7 +1415,7 @@ namespace moris
             luint tCount = 0;
             for( Background_Element_Base * tElement : tElementsOfLevel )
             {
-                if( tElement->is_refined( tWorkingPattern ) )
+                if( tElement->is_queued_for_refinement() )
                 {
                     ++tCount;
                 }
@@ -1430,7 +1429,7 @@ namespace moris
 
             for( Background_Element_Base * tElement : tElementsOfLevel )
             {
-                if( tElement->is_refined( tWorkingPattern ) )
+                if( tElement->is_queued_for_refinement() )
                 {
                     tElements( tCount++ ) = tElement;
                 }
@@ -1460,7 +1459,7 @@ namespace moris
                         if( ! tNeighbor->has_children() )
                         {
                             // remember refinement flag
-                            uint tFlag = tNeighbor->is_queued_for_refinement();
+                            bool tFlag = tNeighbor->is_queued_for_refinement();
 
                             // tell mesh to create children and keep state
                             mBackgroundMesh->refine_element( tNeighbor, true );
@@ -1493,7 +1492,7 @@ namespace moris
                     tNeighbor->put_on_refinement_queue();
 
                     // set flag on working pattern
-                    tNeighbor->set_refined_flag( tWorkingPattern );
+                    tNeighbor->set_refined_flag( tActivationPatter );
                 }
             }
         }

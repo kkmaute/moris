@@ -93,7 +93,7 @@ namespace moris
             uint mNumRefinements;
 
             // HMR user defined refinement function
-            MORIS_USER_DEFINED_REFINEMENT_FUNCTION mUserDefinedFunc;
+            MORIS_USER_DEFINED_REFINEMENT_FUNCTION mUserDefinedFunc = nullptr;
 
             // ADVs/IQIs
             Matrix<DDRMat> mADVs;
@@ -122,7 +122,7 @@ namespace moris
             moris::Matrix< moris::DDRMat > mNodePhaseVals;
 
             // Mesh
-            mtk::Mesh_Manager* mMeshManager;
+            mtk::Mesh_Manager* mMeshManager = nullptr;
             moris::Cell< std::shared_ptr< moris::hmr::HMR > > mHMRPerformer;
             moris::Cell< std::shared_ptr< moris::hmr::Mesh > > mMesh_HMR; //FIXME needs to be more general to only have a mesh manager as this member
 

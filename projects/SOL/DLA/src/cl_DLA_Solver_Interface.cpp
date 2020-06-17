@@ -145,6 +145,8 @@ void Solver_Interface::assemble_jacobian( moris::sol::Dist_Matrix * aMat )
 
     // global assembly to switch entries to the right processor
     aMat->matrix_global_assembly();
+
+    //aMat->print();
 }
 
 //---------------------------------------------------------------------------------------------------------
@@ -193,6 +195,7 @@ void Solver_Interface::fill_matrix_and_RHS( moris::sol::Dist_Matrix * aMat,
     }
     // global assembly to switch entries to the right processor
     aMat->matrix_global_assembly();
+//    aMat->print();
 
     aVectorRHS->vector_global_asembly();
 }

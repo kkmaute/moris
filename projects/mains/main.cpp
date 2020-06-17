@@ -1,9 +1,17 @@
+#include "../MRS/IOS/src/cl_Git_info.hpp"
 #include "cl_Communication_Manager.hpp" // COM/src
 #include "cl_Logger.hpp"                // MRS/IOS/src
 #include "banner.hpp"                   // COR/src
 
 moris::Comm_Manager gMorisComm;
 moris::Logger       gLogger;
+
+//extern "C"
+//{
+//extern const char* GIT_TAG;
+//extern const char* GIT_REV;
+//extern const char* GIT_BRANCH;
+//}
 
 using namespace moris;
 //---------------------------------------------------------------
@@ -23,6 +31,11 @@ int main( int argc, char * argv[] )
 
     // print banner
     moris::print_banner( argc, argv );
+
+    // print git branch and hash
+    git_info tGitInfo;
+    std::fprintf( stdout, "\n     GIT revision  : %s\n",  tGitInfo.get_git_branch().c_str() );
+    std::fprintf( stdout,   "     GIT revision  : %s\n\n",tGitInfo.get_git_hash().c_str() );
 
     // call to performance manager main interface
     int tRet = fn_WRK_Workflow_Main_Interface( argc, argv );
