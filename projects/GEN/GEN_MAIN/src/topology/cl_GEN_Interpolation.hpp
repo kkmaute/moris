@@ -74,14 +74,10 @@ public:
         size_t tNumPoints = aInterpVars.n_rows();
         size_t tNumInterpolationVars = aInterpVars.n_cols();
         moris::Matrix< Real_Matrix > tTmpVar(tNumPoints, 1, 0);
-        moris::print(aInterpVars, "interp vars");
         for(size_t i = 0; i < tNumInterpolationVars; i++)
         {
-            std::cout << 1 << std::endl;
             moris::Matrix< Real_Matrix > tTmpVar = aInterpVars.get_column(i);
-            std::cout << 2 << std::endl;
             aLocalCoordinate(i) = (2 * aValue - tTmpVar(1) - tTmpVar(0)) / (tTmpVar(1) - tTmpVar(0));
-            std::cout << 3 << std::endl;
         }
     }
 
