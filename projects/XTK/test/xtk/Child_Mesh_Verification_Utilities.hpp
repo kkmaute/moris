@@ -14,10 +14,10 @@
 #include "cl_XTK_Child_Mesh.hpp"
 #include "cl_XTK_Cut_Mesh.hpp"
 #include "cl_XTK_Background_Mesh.hpp"
+#include "fn_equal_to.hpp"
 using namespace moris;
 namespace xtk
 {
-
 bool
 node_is_on_face(Matrix<DDRMat> const & aFaceCoords,
                 Row_View_Real  const & aNodeCoord)
@@ -26,12 +26,12 @@ node_is_on_face(Matrix<DDRMat> const & aFaceCoords,
     Matrix<DDRMat> tFaceXCoords = aFaceCoords.get_column(0);
     Matrix<DDRMat> tFaceYCoords = aFaceCoords.get_column(1);
     Matrix<DDRMat> tFaceZCoords = aFaceCoords.get_column(2);
-    real tXHigh = tFaceXCoords.max();
-    real tXLow  = tFaceXCoords.min();
-    real tYHigh = tFaceYCoords.max();
-    real tYLow  = tFaceYCoords.min();
-    real tZHigh = tFaceZCoords.max();
-    real tZLow  = tFaceZCoords.min();
+   moris:: real tXHigh = tFaceXCoords.max();
+    moris::real tXLow  = tFaceXCoords.min();
+    moris::real tYHigh = tFaceYCoords.max();
+    moris::real tYLow  = tFaceYCoords.min();
+   moris:: real tZHigh = tFaceZCoords.max();
+    moris::real tZLow  = tFaceZCoords.min();
 
 
     // check x coordinate of node is within bounding box
@@ -40,17 +40,30 @@ node_is_on_face(Matrix<DDRMat> const & aFaceCoords,
     {
         tXInBox = true;
     }
+    if(moris::equal_to(aNodeCoord(0),tXHigh) ||moris:: equal_to(aNodeCoord(0),tXLow) )
+    {
+        tXInBox = true;
+    }
 
     // check y coordinate of node is within bounding box
     bool tYInBox = false;
-    if(aNodeCoord(1) <= tYHigh && aNodeCoord(1) >= tYLow )
+    if(aNodeCoord(1) < tYHigh && aNodeCoord(1) > tYLow )
+    {
+        tYInBox = true;
+    }
+    if(moris::equal_to(aNodeCoord(1),tYHigh) || moris::equal_to(aNodeCoord(1),tYLow) )
     {
         tYInBox = true;
     }
 
     // check z coordinate of node is within bounding box
     bool tZInBox = false;
-    if(aNodeCoord(2) <= tZHigh && aNodeCoord(2) >= tZLow )
+    if(aNodeCoord(2) < tZHigh && aNodeCoord(2) >tZLow )
+    {
+        tZInBox = true;
+    }
+
+    if(moris::equal_to(aNodeCoord(2),tZHigh) ||moris::equal_to(aNodeCoord(2),tZLow) )
     {
         tZInBox = true;
     }
