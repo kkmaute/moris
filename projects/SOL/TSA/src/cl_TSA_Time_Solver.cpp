@@ -352,52 +352,74 @@ using namespace tsa;
 
     void Time_Solver::initialize_sol_vec()
     {
-        // initialize solution vector with zero
-        mFullVector->vec_put_scalar( 0.0 );
-
         // extract initialization string from parameterlist
         moris::Cell< moris::Cell< std::string > > tDofTypeAndValuePair;
         string_to_cell_of_cell( mParameterListTimeSolver.get< std::string >( "TSA_Initialize_Sol_Vec" ),
-                                tDofTypeAndValuePair );
+                tDofTypeAndValuePair );
 
         // get string to dof type map
         map< std::string, enum MSI::Dof_Type > tDofTypeMap = MSI::get_msi_dof_type_map();
 
-        // loop over input dof types
-        for( uint Ik = 0; Ik < tDofTypeAndValuePair.size(); Ik++ )
+        // initialize solution vector with zero
+        mFullVector->vec_put_scalar( 0.0 );
+
+        if( tDofTypeAndValuePair.size() > 0 )
         {
-            // First string is dof type
-            moris::Cell< enum MSI::Dof_Type > tDofType = { tDofTypeMap.find( tDofTypeAndValuePair( Ik )( 0 ) ) };
+            // create map object
+            Matrix_Vector_Factory tMatFactory( mSolverWarehouse->get_tpl_type() );
+            sol::Dist_Map * tFeeMap = tMatFactory.create_map( mSolverInterface->get_my_local_global_map() );
 
-            // get local global ids for this dof type
-            moris::Matrix< IdMat > tAdofIds = mSolverInterface->get_my_local_global_map( tDofType );
+            uint tNumRHMS = mSolverInterface->get_num_rhs();
 
-            // get value from input
-            moris::real tValue = std::stod( tDofTypeAndValuePair( Ik )( 1 ) );
+            // full vector and prev full vector
+            sol::Dist_Vector * tFreeVector = tMatFactory.create_vector( mSolverInterface, tFeeMap, tNumRHMS );
 
-            // add value into Matrix
-            moris::Matrix< DDRMat > tValues( tAdofIds.numel(), 1, tValue );
+            tFreeVector->vec_put_scalar( 0.0 );
 
-            if( tDofTypeAndValuePair( Ik ).size() == 2 )
+            //-----------------------------------------------------
+
+            // loop over input dof types
+            for( uint Ik = 0; Ik < tDofTypeAndValuePair.size(); Ik++ )
             {
-                // replace inital values in solution vector
-                mFullVector->replace_global_values( tAdofIds,
-                                                    tValues );
-            }
-            else if( tDofTypeAndValuePair( Ik ).size() == 3 )
-            {
-                // get solution vector index
-                moris::sint tVectorIndex = std::stoi( tDofTypeAndValuePair( Ik )( 2 ) );
+                // First string is dof type
+                moris::Cell< enum MSI::Dof_Type > tDofType = { tDofTypeMap.find( tDofTypeAndValuePair( Ik )( 0 ) ) };
 
-                // replace inital values in solution vector
-                mFullVector->replace_global_values( tAdofIds,
-                                                    tValues,
-                                                    ( uint ) tVectorIndex );
+                // get local global ids for this dof type
+                moris::Matrix< IdMat > tAdofIds = mSolverInterface->get_my_local_global_map( tDofType );
+
+                // get value from input
+                moris::real tValue = std::stod( tDofTypeAndValuePair( Ik )( 1 ) );
+
+                // add value into Matrix
+                moris::Matrix< DDRMat > tValues( tAdofIds.numel(), 1, tValue );
+
+                if( tDofTypeAndValuePair( Ik ).size() == 2 )
+                {
+                    // replace inital values in solution vector
+                    tFreeVector->replace_global_values( tAdofIds,
+                            tValues );
+                }
+                else if( tDofTypeAndValuePair( Ik ).size() == 3 )
+                {
+                    // get solution vector index
+                    moris::sint tVectorIndex = std::stoi( tDofTypeAndValuePair( Ik )( 2 ) );
+
+                    // replace inital values in solution vector
+                    tFreeVector->replace_global_values( tAdofIds,
+                            tValues,
+                            ( uint ) tVectorIndex );
+                }
+                else
+                {
+                    MORIS_ERROR( false, " Time_Solver::initialize_sol_vec(), TSA_Initialize_Sol_Vec input not correct" );
+                }
             }
-            else
-            {
-                MORIS_ERROR( false, " Time_Solver::initialize_sol_vec(), TSA_Initialize_Sol_Vec input not correct" );
-            }
+
+            mFullVector->import_local_to_global( *tFreeVector );
+
+            delete( tFreeVector );
+            delete( tFeeMap );
+
         }
     }
 
