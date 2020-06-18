@@ -59,6 +59,13 @@ namespace moris
         get_global_comm();
 
         /**
+         * Reset the global communicator
+         */
+        void
+        reset_global_comm(MPI_Comm & aNewGlobalComm,
+                moris_index const & aCommIndex);
+
+        /**
          * Returns the communicator at the given index
          * @param[in] aCommIndex - A communicator index
          */

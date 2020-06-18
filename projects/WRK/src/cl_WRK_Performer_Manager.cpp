@@ -1,5 +1,3 @@
-
-
 #include "cl_Stopwatch.hpp" //CHR/src
 
 // fixme: temporary
@@ -26,7 +24,6 @@
 #include "cl_XTK_Enriched_Integration_Mesh.hpp"
 
 #include "cl_WRK_Performer_Manager.hpp"
-
 
 #include "fn_Exec_load_user_library.hpp"
 
@@ -81,7 +78,7 @@ void Performer_Manager::initialize_performers()
     // create XTK performer
     mXTKPerformer( 0 ) = std::make_shared< xtk::Model >( tXTKParameterList( 0 )( 0 ) );
 
-    // crreate MDL performer
+    // create MDL performer
     mMDLPerformer( 0 ) = std::make_shared< mdl::Model >( mLibrary, 0 );
 
 }

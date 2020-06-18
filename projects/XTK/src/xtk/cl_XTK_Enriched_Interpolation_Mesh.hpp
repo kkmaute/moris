@@ -138,7 +138,14 @@ public:
     moris_index
     get_interpolation_index(moris_index const & aLocalInterpIndex) const;
 
-protected:
+    /*!
+     * get basis owner
+     */
+    moris_index
+    get_basis_owner(moris_index aBasisIndex,
+            moris_index aMeshIndex);
+
+public:
     Cell<Interpolation_Cell_Unzipped*> &
     get_enriched_interpolation_cells() ;
 
@@ -152,6 +159,9 @@ protected:
 
     Interpolation_Vertex_Unzipped &
     get_xtk_interp_vertex(moris::uint aVertexIndex);
+
+    void
+    add_proc_to_comm_table(moris_index aProcRank);
 
 public:
     //------------------------------------------------------------------------------
@@ -253,6 +263,9 @@ protected:
     Cell<moris::Matrix<moris::IdMat>> mEnrichCoeffLocToGlob;
     Cell<std::unordered_map<moris_id,moris_index>> mGlobaltoLocalBasisMaps;
 
+    // basis ownership
+    Cell<moris::Matrix<moris::IdMat>> mEnrichCoeffOwnership;
+
     //
 
     // Entity maps
@@ -267,6 +280,10 @@ protected:
 
     // Not owned vertex list
     Cell<moris_index> mNotOwnedVerts;
+
+    // not owned basis functions
+    Cell<moris_index> mNotOwnedBasis;
+    Cell<moris_index> mOwnedBasis;
 
     // functions used by enrichment for construction of the mesh
     /*
@@ -320,8 +337,9 @@ protected:
      * returns the index
      */
     moris_index
-    add_basis_function(moris_index const & aMeshIndex,
-                       moris_index const & aBasisIdToAdd);
+    add_basis_function( moris_index const & aMeshIndex,
+            moris_index const & aBasisIdToAdd,
+            moris_index const & aBasisOwner);
 
     void
     finalize_setup();
@@ -331,10 +349,48 @@ protected:
     void setup_vertex_maps();
     void setup_cell_maps();
     void setup_basis_maps();
+    void setup_basis_ownership();
     void setup_mesh_index_map();
 
     // not owned vertex functions
     void setup_not_owned_vertices();
+
+    void
+    assign_ip_vertex_ids();
+
+    void
+    sort_ip_vertices_by_owned_and_not_owned(
+            Cell<uint>                            & aOwnedVertices,
+            Cell<Cell<uint>>                      & aNotOwnedVertices,
+            Cell<Cell<uint>>                      & aNotOwnedIPCells,
+            Cell<uint>                            & aProcRanks,
+            std::unordered_map<moris_id,moris_id> & aProcRankToIndexInData);
+
+
+    void
+    assign_owned_ip_vertex_ids(
+            Cell<uint> const & aOwnedIpVerts,
+            moris::moris_id  & aNodeId);
+
+    void
+    setup_outward_ip_vertex_requests(
+            Cell<Cell<uint>>                const & aNotOwnedIpVerts,
+            Cell<Cell<uint>>                const & aNotOwnedIpCells,
+            Cell<uint>                      const & aProcRanks,
+            std::unordered_map<moris_id,moris_id> & aProcRankToIndexInData,
+            Cell<Matrix<IndexMat>>                & aOutwardBaseVertexIds,
+            Cell<Matrix<IndexMat>>                & aOutwardIpCellIds);
+
+    void
+    prepare_ip_vertex_id_answers(
+            Cell<Matrix<IndexMat>> & aReceivedBaseVertexIds,
+            Cell<Matrix<IndexMat>> & aReceivedIpCellIds,
+            Cell<Matrix<IndexMat>> & aVertexIdAnswer);
+
+    void
+    handle_received_ip_vertex_ids(
+            Cell<Cell<uint>> const & aNotOwnedVertices,
+            Cell<Matrix<IndexMat>>  const & aReceivedVertexIds);
 
     //------------------------------------------------------------------------------
     // Parallel functions

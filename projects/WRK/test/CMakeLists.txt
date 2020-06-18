@@ -24,17 +24,17 @@ set(TEST_DEPENDENCIES
     ${HMR}-lib
     )
     
-    set(XTK_INCLUDES                                                                                                                                                                                                                                                               
-    "assert"                                                                                                                                                                                                                                                                   
-    "containers"                                                                                                                                                                                                                                                               
-    "core"                                                                                                                                                                                                                                                                     
-    "geomeng"                                                                                                                                                                                                                                                                  
-    "geometry"                                                                                                                                                                                                                                                                 
-    "ios"                                                                                                                                                                                                                                                                      
-    "linalg"                                                                                                                                                                                                                                                                   
-    "mesh"                                                                                                                                                                                                                                                                     
-    "tools"                                                                                                                                                                                                                                                                    
-    "topology"                                                                                                                                                                                                                                                                 
+    set(XTK_INCLUDES
+    "assert"
+    "containers"
+    "core"
+    "geomeng"
+    "geometry"
+    "ios"
+    "linalg"
+    "mesh"
+    "tools"
+    "topology"
     "xtk"                                                                                                                                                                                                                                                                      
     )  
     
@@ -113,5 +113,3 @@ endforeach()
 foreach(base_name ${GEN_TEST_INPUT_FILE_BASE})
     dynamic_link_input(${base_name} ${base_name} ${base_name}.cpp ${SO_INCLUDES})
 endforeach()
-
-

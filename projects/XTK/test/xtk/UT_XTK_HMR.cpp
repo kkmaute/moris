@@ -9,6 +9,8 @@
 
 #include "cl_XTK_Model.hpp"
 #include "cl_XTK_Enriched_Integration_Mesh.hpp"
+#include "cl_XTK_Enriched_Interpolation_Mesh.hpp"
+#include "cl_XTK_Vertex_Enrichment.hpp"
 //#include "cl_Geom_Field.hpp"
 #include "typedefs.hpp"
 
@@ -44,7 +46,7 @@
 
 #include "fn_norm.hpp"
 
-
+#include <map>
 namespace moris
 {
 
@@ -199,8 +201,63 @@ TEST_CASE("XTK HMR Test","[XTK_HMR]")
             // Perform the enrichment
             tXTKModel.perform_basis_enrichment(EntityRank::BSPLINE,0);
 
+            xtk::Enriched_Interpolation_Mesh & tEnrIpMesh  = tXTKModel.get_enriched_interp_mesh(0);
+
+            Matrix<IndexMat> const & tEnrCoeffs = tEnrIpMesh.get_enriched_coefficient_local_to_global_map(0);
+
             // perform ghost stabilization
             tXTKModel.construct_face_oriented_ghost_penalization_cells();
+
+
+            // get the enriched basis coeffs
+
+            // Check for double ids/indices
+            std::unordered_map<moris_index,moris_index> tBasisIdMap;
+            for(moris::uint i = 0 ; i < tEnrCoeffs.numel(); i++)
+            {
+                MORIS_ASSERT(tBasisIdMap.find(tEnrCoeffs(i)) == tBasisIdMap.end(),"Id already in the map");
+
+                tBasisIdMap[tEnrCoeffs(i)] = i;
+
+            }
+
+            moris::uint tNumVerts = tEnrIpMesh.get_num_entities(EntityRank::NODE,0);
+
+
+            Cell<moris_index> tOwnedIndices;
+            Cell<moris_index> tOwnedIds;
+
+            // iterate through vertices
+            for(moris::uint iV = 0; iV < tNumVerts; iV++)
+            {
+                // get the vertex
+                xtk::Interpolation_Vertex_Unzipped & tVertex = tEnrIpMesh.get_xtk_interp_vertex((moris_index)iV);
+                if(tVertex.get_base_vertex()->has_interpolation(1))
+                {
+                    xtk::Vertex_Enrichment* tInterp =  tVertex.get_xtk_interpolation(0);
+
+                    Matrix<IndexMat> tOwners  = tInterp->get_owners();
+                    Matrix<IndexMat> tIndices = tInterp->get_indices();
+                    Matrix<IndexMat> tIds     = tInterp->get_ids();
+                    // iterate through basis functions
+                    for(moris::uint  iB = 0; iB <tOwners.numel(); iB++)
+                    {
+                        if(tOwners(iB) == par_rank())
+                        {
+                            tOwnedIndices.push_back(tIndices(iB));
+                            tOwnedIds.push_back(tIds(iB));
+                        }
+                    }
+                }
+            }
+
+
+            unique(tOwnedIndices);
+            unique(tOwnedIds);
+
+
+            std::cout<<"tOwnedIndices.size() = "<<tOwnedIndices.size()<<std::endl;
+            std::cout<<"tOwnedIds.size() = "<<tOwnedIds.size()<<std::endl;
 
             delete tInterpMesh;
 

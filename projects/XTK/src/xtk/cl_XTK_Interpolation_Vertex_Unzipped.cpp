@@ -56,14 +56,32 @@ Interpolation_Vertex_Unzipped::get_owner() const
 mtk::Vertex_Interpolation *
 Interpolation_Vertex_Unzipped::get_interpolation( const uint aOrder )
 {
+    MORIS_ASSERT(mInterpolation(aOrder) != nullptr,"Accessing vertex interpolation on a vertex which does not have vertex interpolation information.");
+
     return mInterpolation(aOrder);
 }
 //------------------------------------------------------------------------------
 const mtk::Vertex_Interpolation *
 Interpolation_Vertex_Unzipped::get_interpolation( const uint aOrder ) const
 {
+    MORIS_ASSERT(mInterpolation(aOrder) != nullptr,"Accessing vertex interpolation on a vertex which does not have vertex interpolation information.");
     return mInterpolation(aOrder);
 }
+//------------------------------------------------------------------------------
+bool
+Interpolation_Vertex_Unzipped::has_interpolation( const uint aBSplineMeshIndex )
+{
+    if( mInterpolation(aBSplineMeshIndex)->has_interpolation())
+    {
+        return true;
+    }
+    else
+    {
+        return false;
+    }
+}
+
+
 //------------------------------------------------------------------------------
 Vertex_Enrichment *
 Interpolation_Vertex_Unzipped::get_xtk_interpolation( const uint aOrder )
@@ -75,9 +93,16 @@ Vertex_Enrichment const *
 Interpolation_Vertex_Unzipped::get_xtk_interpolation( const uint aOrder ) const
 {
     return mInterpolation(aOrder);
-}//------------------------------------------------------------------------------
+}
+//------------------------------------------------------------------------------
 mtk::Vertex const *
 Interpolation_Vertex_Unzipped::get_base_vertex(  ) const
+{
+    return mBaseInterpVertex;
+}
+//------------------------------------------------------------------------------
+mtk::Vertex *
+Interpolation_Vertex_Unzipped::get_base_vertex(  )
 {
     return mBaseInterpVertex;
 }
@@ -96,5 +121,11 @@ Interpolation_Vertex_Unzipped::add_vertex_interpolation(const uint aOrder,
     mInterpolation(aOrder) = aVertexInterp;
 }
 //------------------------------------------------------------------------------
+
+void
+Interpolation_Vertex_Unzipped::set_vertex_id(moris_index const & aId)
+{
+    mVertexId = aId;
+}
 
 }

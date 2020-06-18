@@ -23,3 +23,10 @@ traction
 enthalpy
 isotropic
 flux
+advection
+interpolator
+residual
+nodal
+enrichment
+Nitsche
+Lagrange

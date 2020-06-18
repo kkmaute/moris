@@ -239,6 +239,11 @@ namespace moris
                 return mVertexInterpolation;
             }
 
+            bool has_interpolation( const uint aBSplineMeshIndex )
+            {
+                return true;
+            }
+
 
 //------------------------------------------------------------------------------
         };

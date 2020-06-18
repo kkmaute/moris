@@ -1,12 +1,12 @@
 /*
- * cl_FEM_SP_Turbulence_Viscosity.hpp
+ * cl_FEM_SP_Ghost_Displacement.hpp
  *
- *  Created on: May 19, 2020
+ *  Created on: Jun 05, 2020
  *  Author: noel
  */
 
-#ifndef SRC_FEM_CL_FEM_SP_TURBULENCE_VISCOSITY_HPP_
-#define SRC_FEM_CL_FEM_SP_TURBULENCE_VISCOSITY_HPP_
+#ifndef SRC_FEM_CL_FEM_SP_GHOST_TURBULENCE_HPP_
+#define SRC_FEM_CL_FEM_SP_GHOST_TURBULENCE_HPP_
 
 #include <map>
 //MRS/COR/src
@@ -27,53 +27,51 @@ namespace moris
     {
         //------------------------------------------------------------------------------
 
-        class SP_Turbulence_Viscosity : public Stabilization_Parameter
+        class SP_Ghost_Turbulence : public Stabilization_Parameter
         {
 
                 //------------------------------------------------------------------------------
-            private :
+            private:
 
-                // default dof type
+                // cluster measures
+                real mElementSize = 1.0;
+
+                // populate the dof map (default)
                 MSI::Dof_Type mMasterDofViscosity = MSI::Dof_Type::VISCOSITY;
 
                 // FIXME temp all the constants
-                real mCv1 = 7.1;
+                real mSigma = 2.0/3.0;
 
-            public :
+            public:
 
                 // property type for the SP
-                enum class Property_Type
+                enum class SP_Property_Type
                 {
-                    VISCOSITY, // fluid viscosity
+                    VISCOSITY,
                     MAX_ENUM
                 };
 
-                // local string to property enum map
-                std::map< std::string, Property_Type > mPropertyMap;
+                // Local string to property enum map
+                std::map< std::string, SP_Property_Type > mPropertyMap;
 
                 //------------------------------------------------------------------------------
                 /*
                  * constructor
+                 * Rem: mParameters( 0 ) - gamma penalty parameter
                  */
-                SP_Turbulence_Viscosity();
+                SP_Ghost_Turbulence();
 
                 //------------------------------------------------------------------------------
                 /**
                  * trivial destructor
                  */
-                ~SP_Turbulence_Viscosity(){};
+                ~SP_Ghost_Turbulence(){};
 
                 //------------------------------------------------------------------------------
                 /**
                  * reset the cluster measures required for this SP
                  */
                 void reset_cluster_measures();
-
-                //------------------------------------------------------------------------------
-                /**
-                 * set function pointers for evaluation
-                 */
-                void set_function_pointers();
 
                 //------------------------------------------------------------------------------
                 /**
@@ -124,6 +122,7 @@ namespace moris
                 /**
                  * evaluate the penalty parameter derivative wrt to a master dof type
                  * @param[ in ] aDofTypes a dof type wrt which the derivative is evaluated
+                 * dPPdMasterDOF ( 1 x numDerDof )
                  */
                 void eval_dSPdMasterDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes );
 
@@ -131,50 +130,12 @@ namespace moris
                 /**
                  * evaluate the penalty parameter derivative wrt to a master dv type
                  * @param[ in ] aDvTypes a dv type wrt which the derivative is evaluated
+                 * dPPdMasterDV ( 1 x numDerDv )
                  */
                 void eval_dSPdMasterDV( const moris::Cell< PDV_Type > & aDvTypes )
                 {
-                    MORIS_ERROR( false, "SP_Turbulence_Viscosity::eval_dSPdMasterDV - not implemented." );
+                    MORIS_ERROR( false, "SP_Ghost_Turbulence::eval_dSPdMasterDV: not implemented." );
                 }
-
-                //------------------------------------------------------------------------------
-            private:
-
-                //------------------------------------------------------------------------------
-                /**
-                 * compute chi = viscosityDof / viscosityPtop
-                 * @param[ out ] chi
-                 */
-                real compute_chi();
-
-                //------------------------------------------------------------------------------
-                /**
-                 * compute the derivative of chi wrt to a dof type
-                 * @param[ in ] aDofTypes  a list of dof type wrt which
-                 *                         the derivative is requested
-                 * @param[ in ] adchidu    a matrix to fill with dchidu
-                 */
-                void compute_dchidu(
-                        moris::Cell< MSI::Dof_Type >   aDofTypes,
-                        Matrix< DDRMat >             & adchidu );
-
-                //------------------------------------------------------------------------------
-                /**
-                 * compute fv1 = chi³ / ( chi³ + cv1³)
-                 * @param[ out ] fv1
-                 */
-                real compute_fv1();
-
-                //------------------------------------------------------------------------------
-                /**
-                 * compute the derivative of fv1 wrt to a dof type
-                 * @param[ in ] aDofTypes  a list of dof type wrt which
-                 *                         the derivative is requested
-                 * @param[ in ] adfv1du    a matrix to fill with dfv1du
-                 */
-                void compute_dfv1du(
-                        moris::Cell< MSI::Dof_Type >   aDofTypes,
-                        Matrix< DDRMat >             & adfv1du );
 
                 //------------------------------------------------------------------------------
         };
@@ -182,4 +143,4 @@ namespace moris
     } /* namespace fem */
 } /* namespace moris */
 
-#endif /* SRC_FEM_CL_FEM_SP_TURBULENCE_VISCOSITY_HPP_ */
+#endif /* SRC_FEM_CL_FEM_SP_GHOST_TURBULENCE_HPP_ */

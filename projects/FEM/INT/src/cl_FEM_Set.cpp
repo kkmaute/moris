@@ -282,63 +282,131 @@ namespace moris
         void Set::create_unique_dof_and_dv_type_lists()
         {
             // init dof and dv type counter
-            uint tDofCounter = 0;
-            uint tDvCounter  = 0;
+            uint tMasterDofCounter = 0;
+            uint tMasterDvCounter  = 0;
+            uint tSlaveDofCounter = 0;
+            uint tSlaveDvCounter  = 0;
 
             // loop over the IWGs
             for ( std::shared_ptr< IWG > tIWG : mIWGs )
             {
                 // get an IWG non unique dof and dv types
-                moris::Cell< MSI::Dof_Type >  tActiveDofType;
-                moris::Cell< PDV_Type >         tActiveDvType;
+                moris::Cell< moris::Cell< MSI::Dof_Type > > tActiveDofType;
+                moris::Cell< moris::Cell< PDV_Type > >      tActiveDvType;
                 tIWG->get_non_unique_dof_and_dv_types( tActiveDofType, tActiveDvType );
 
                 // update dof and dv type counters
-                tDofCounter += tActiveDofType.size();
-                tDvCounter  += tActiveDvType.size();
+                tMasterDofCounter += tActiveDofType( 0 ).size();
+                tMasterDvCounter  += tActiveDvType( 0 ).size();
+                tSlaveDofCounter += tActiveDofType( 1 ).size();
+                tSlaveDvCounter  += tActiveDvType( 1 ).size();
             }
 
             // loop over the IQIs
             for ( std::shared_ptr< IQI > tIQI : mIQIs )
             {
                 // get an IWG non unique dof and dv types
-                moris::Cell< MSI::Dof_Type >  tActiveDofType;
-                moris::Cell< PDV_Type >   tActiveDvType;
+                moris::Cell< moris::Cell< MSI::Dof_Type > > tActiveDofType;
+                moris::Cell< moris::Cell< PDV_Type > >      tActiveDvType;
                 tIQI->get_non_unique_dof_and_dv_types( tActiveDofType, tActiveDvType );
 
                 // update dof and dv type counter
-                tDofCounter += tActiveDofType.size();
-                tDvCounter  += tActiveDvType.size();
+                tMasterDofCounter += tActiveDofType( 0 ).size();
+                tMasterDvCounter  += tActiveDvType( 0 ).size();
+                tSlaveDofCounter += tActiveDofType( 1 ).size();
+                tSlaveDvCounter  += tActiveDvType( 1 ).size();
             }
 
+            mUniqueDofTypeListMasterSlave.resize( 2 );
+            mUniqueDvTypeListMasterSlave.resize( 2 );
+
+            mUniqueDofTypeListMasterSlave( 0 ).reserve( tMasterDofCounter );
+            mUniqueDofTypeListMasterSlave( 1 ).reserve( tSlaveDofCounter );
+            mUniqueDvTypeListMasterSlave ( 0 ).reserve( tMasterDvCounter );
+            mUniqueDvTypeListMasterSlave ( 1 ).reserve( tSlaveDvCounter );
+
             // set max size for the unique dof and dv type lists
-            mUniqueDofTypeList.reserve( tDofCounter );
-            mUniqueDvTypeList.reserve( tDvCounter );
+            mUniqueDofTypeList.reserve( tMasterDofCounter + tSlaveDofCounter );
+            mUniqueDvTypeList.reserve( tMasterDvCounter + tSlaveDvCounter );
 
             // loop over the IWGs
             for ( std::shared_ptr< IWG > tIWG : mIWGs )
             {
                 // get non unique dof and dv types
-                moris::Cell< MSI::Dof_Type > tActiveDofType;
-                moris::Cell< PDV_Type >        tActiveDvType;
+                moris::Cell< moris::Cell< MSI::Dof_Type > > tActiveDofType;
+                moris::Cell< moris::Cell< PDV_Type > >      tActiveDvType;
                 tIWG->get_non_unique_dof_and_dv_types( tActiveDofType, tActiveDvType );
 
                 // populate the corresponding unique dof and dv type lists
-                mUniqueDofTypeList.append( tActiveDofType );
-                mUniqueDvTypeList.append( tActiveDvType );
+                mUniqueDofTypeListMasterSlave( 0 ).append( tActiveDofType( 0 ) );
+                mUniqueDofTypeListMasterSlave( 1 ).append( tActiveDofType( 1 ) );
+                mUniqueDvTypeListMasterSlave( 0 ).append( tActiveDvType( 0 ) );
+                mUniqueDvTypeListMasterSlave( 1 ).append( tActiveDvType( 1 ) );
+
+                mUniqueDofTypeList.append( tActiveDofType( 0 ) );
+                mUniqueDofTypeList.append( tActiveDofType( 1 ) );
+                mUniqueDvTypeList.append( tActiveDvType( 0 ) );
+                mUniqueDvTypeList.append( tActiveDvType( 1 ) );
             }
 
             // loop over the IQIs
             for ( std::shared_ptr< IQI > tIQI : mIQIs )
             {
                 // get non unique dof and dv types
-                moris::Cell< MSI::Dof_Type > tActiveDofType;
-                moris::Cell< PDV_Type >        tActiveDvType;
+                moris::Cell< moris::Cell< MSI::Dof_Type > > tActiveDofType;
+                moris::Cell< moris::Cell< PDV_Type > >      tActiveDvType;
                 tIQI->get_non_unique_dof_and_dv_types( tActiveDofType, tActiveDvType );
 
                 // populate the corresponding unique dof and dv type lists
-                mUniqueDofTypeList.append( tActiveDofType );
-                mUniqueDvTypeList.append( tActiveDvType );
+                mUniqueDofTypeListMasterSlave( 0 ).append( tActiveDofType( 0 ) );
+                mUniqueDofTypeListMasterSlave( 1 ).append( tActiveDofType( 1 ) );
+                mUniqueDvTypeListMasterSlave( 0 ).append( tActiveDvType( 0 ) );
+                mUniqueDvTypeListMasterSlave( 1 ).append( tActiveDvType( 1 ) );
+
+                mUniqueDofTypeList.append( tActiveDofType( 0 ) );
+                mUniqueDofTypeList.append( tActiveDofType( 1 ) );
+                mUniqueDvTypeList.append( tActiveDvType( 0 ) );
+                mUniqueDvTypeList.append( tActiveDvType( 1 ) );
+            }
+
+            {
+                // make the dof type list unique
+                std::sort( ( mUniqueDofTypeListMasterSlave( 0 ).data() ).data(),
+                        ( mUniqueDofTypeListMasterSlave( 0 ).data() ).data() + mUniqueDofTypeListMasterSlave( 0 ).size());
+                auto last = std::unique( ( mUniqueDofTypeListMasterSlave( 0 ).data() ).data(),
+                        ( mUniqueDofTypeListMasterSlave( 0 ).data() ).data() + mUniqueDofTypeListMasterSlave( 0 ).size() );
+                auto pos  = std::distance( ( mUniqueDofTypeListMasterSlave( 0 ).data() ).data(), last );
+                mUniqueDofTypeListMasterSlave( 0 ).resize( pos );
+            }
+
+            {
+                // make the dof type list unique
+                std::sort( ( mUniqueDofTypeListMasterSlave( 1 ).data() ).data(),
+                        ( mUniqueDofTypeListMasterSlave( 1 ).data() ).data() + mUniqueDofTypeListMasterSlave( 1 ).size());
+                auto last = std::unique( ( mUniqueDofTypeListMasterSlave( 1 ).data() ).data(),
+                        ( mUniqueDofTypeListMasterSlave( 1 ).data() ).data() + mUniqueDofTypeListMasterSlave( 1 ).size() );
+                auto pos  = std::distance( ( mUniqueDofTypeListMasterSlave( 1 ).data() ).data(), last );
+                mUniqueDofTypeListMasterSlave( 1 ).resize( pos );
+            }
+
+            {
+                // make the dof type list unique
+                std::sort( ( mUniqueDvTypeListMasterSlave( 0 ).data() ).data(),
+                        ( mUniqueDvTypeListMasterSlave( 0 ).data() ).data() + mUniqueDvTypeListMasterSlave( 0 ).size());
+                auto last = std::unique( ( mUniqueDvTypeListMasterSlave( 0 ).data() ).data(),
+                        ( mUniqueDvTypeListMasterSlave( 0 ).data() ).data() + mUniqueDvTypeListMasterSlave( 0 ).size() );
+                auto pos  = std::distance( ( mUniqueDvTypeListMasterSlave( 0 ).data() ).data(), last );
+                mUniqueDvTypeListMasterSlave( 0 ).resize( pos );
+            }
+
+            {
+                // make the dof type list unique
+                std::sort( ( mUniqueDvTypeListMasterSlave( 1 ).data() ).data(),
+                        ( mUniqueDvTypeListMasterSlave( 1 ).data() ).data() + mUniqueDvTypeListMasterSlave( 1 ).size());
+                auto last = std::unique( ( mUniqueDvTypeListMasterSlave( 1 ).data() ).data(),
+                        ( mUniqueDvTypeListMasterSlave( 1 ).data() ).data() + mUniqueDvTypeListMasterSlave( 1 ).size() );
+                auto pos  = std::distance( ( mUniqueDvTypeListMasterSlave( 1 ).data() ).data(), last );
+                mUniqueDvTypeListMasterSlave( 1 ).resize( pos );
             }
 
             {
@@ -563,7 +631,7 @@ namespace moris
             // dof types
             //------------------------------------------------------------------------------
             // Create temporary dof type list
-            moris::Cell< enum MSI::Dof_Type > tDofType = get_unique_dof_type_list();
+            const moris::Cell< enum MSI::Dof_Type > & tDofType = get_unique_dof_type_list();
 
             //Get number of unique adofs of this equation object
             moris::uint tNumUniqueDofTypes = tDofType.size();
@@ -654,6 +722,8 @@ namespace moris
             tMaxEnum++;
 
             MORIS_ASSERT( tMaxEnum != -1, "Set::create_dof_and_dv_type_maps(), no information to build dof type map" );
+
+            tMaxEnum = static_cast< int >( MSI::Dof_Type::END_ENUM );
 
             // set size of dof type map    // FIXME replace with map
             mMasterDofTypeMap.set_size( tMaxEnum, 1, -1 );

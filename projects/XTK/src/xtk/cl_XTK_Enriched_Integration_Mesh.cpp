@@ -202,7 +202,7 @@ Enriched_Integration_Mesh::get_mtk_cell( moris_index aElementIndex ) const
 Matrix< IdMat >
 Enriched_Integration_Mesh::get_communication_table() const
 {
-    return mModel->mBackgroundMesh.get_mesh_data().get_communication_table();
+    return mModel->mBackgroundMesh.get_communication_table();
 }
 
 moris::Cell<std::string>
@@ -459,7 +459,11 @@ Enriched_Integration_Mesh::deactivate_empty_side_sets()
 
     for(moris::uint i = 0; i < tOldSetClusters.size(); i++)
     {
-        if ( tOldSetClusters(i).size() > 0)
+        uint tMySize = tOldSetClusters(i).size();
+        uint tAllSize = 0;
+        sum_all(tMySize,tAllSize);
+
+        if ( tAllSize > 0)
         {
             mSideSetLabels.push_back(tOldSetNames(i));
             mSideSets.push_back(tOldSetClusters(i));
@@ -503,8 +507,10 @@ Enriched_Integration_Mesh::deactivate_empty_block_sets()
     for(moris::uint i = 0; i < tOldSetClusters.size(); i++)
     {
 
-
-        if ( tOldSetClusters(i).size() > 0)
+        uint tMySize = tOldSetClusters(i).size();
+        uint tAllSize = 0;
+        sum_all(tMySize,tAllSize);
+        if ( tAllSize > 0)
         {
             mBlockSetNames.push_back(tOldSetNames(i));
             mPrimaryBlockSetClusters.push_back(tOldSetClusters(i));
@@ -767,6 +773,15 @@ Enriched_Integration_Mesh::get_cell_clusters_in_set(moris_index aBlockSetOrdinal
     return tClusterInSet;
 
 }
+//------------------------------------------------------------------------------
+moris::Cell<xtk::Cell_Cluster const  *>  const &
+Enriched_Integration_Mesh::get_xtk_cell_clusters_in_block_set(moris_index aBlockSetOrdinal) const
+{
+    MORIS_ASSERT(aBlockSetOrdinal<(moris_index)mBlockSetNames.size(),"Requested block set ordinal out of bounds.");
+
+    return mPrimaryBlockSetClusters(aBlockSetOrdinal);
+}
+//------------------------------------------------------------------------------
 Matrix<IndexMat>
 Enriched_Integration_Mesh::get_block_set_colors(moris_index aBlockSetOrdinal) const
 {
@@ -1180,7 +1195,7 @@ Enriched_Integration_Mesh::allocate_entity_ids(moris::size_t  aNumReqs,
 
     tNumIdsRequested(0) = (moris::moris_id)aNumReqs;
 
-    xtk::gather(tNumIdsRequested,aGatheredInfo);
+    moris::gather(tNumIdsRequested,aGatheredInfo);
 
     moris::Cell<moris::moris_id> tProcFirstID(tProcSize);
 
@@ -1198,7 +1213,7 @@ Enriched_Integration_Mesh::allocate_entity_ids(moris::size_t  aNumReqs,
 
     }
 
-    xtk::scatter(tProcFirstID,tFirstId);
+    moris::scatter(tProcFirstID,tFirstId);
 
     return tFirstId(0);
 }
@@ -1343,6 +1358,9 @@ Enriched_Integration_Mesh::setup_blockset_with_cell_clusters()
     // enriched interpolation mesh
     Enriched_Interpolation_Mesh* tEnrInterpMesh = mModel->mEnrichedInterpMesh(mMeshIndexInModel);
 
+    // my proc rank
+    moris_index tProcRank = par_rank();
+
     // get block sets (in background mesh data)
     Cell<std::string> tBlockSetsNames = tBackgroundMesh.get_mesh_data().get_set_names(EntityRank::ELEMENT);
 
@@ -1386,21 +1404,24 @@ Enriched_Integration_Mesh::setup_blockset_with_cell_clusters()
             // get cluster associated with enriched cell
             xtk::Cell_Cluster const & tCluster = this->get_cell_cluster(tEnrichedCellsInBlock(iC)->get_index());
 
-            // set ord
-            moris_index tSetOrd = MORIS_INDEX_MAX;
-
-            if(tCluster.is_trivial())
+            if(tEnrichedCellsInBlock(iC)->get_owner() == tProcRank)
             {
-                tSetOrd = tNoChildBlockSetOrds(tBulkPhaseIndex);
-            }
+                // set ord
+                moris_index tSetOrd = MORIS_INDEX_MAX;
 
-            else
-            {
-                tSetOrd = tChildBlockSetOrds(tBulkPhaseIndex);
-            }
+                if(tCluster.is_trivial())
+                {
+                    tSetOrd = tNoChildBlockSetOrds(tBulkPhaseIndex);
+                }
 
-            // add to member data
-            mPrimaryBlockSetClusters(tSetOrd).push_back(&tCluster);
+                else
+                {
+                    tSetOrd = tChildBlockSetOrds(tBulkPhaseIndex);
+                }
+
+                // add to member data
+                mPrimaryBlockSetClusters(tSetOrd).push_back(&tCluster);
+            }
         }
     }
 

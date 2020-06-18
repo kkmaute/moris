@@ -197,35 +197,37 @@ namespace moris
 
         //------------------------------------------------------------------------------
         void IWG::get_non_unique_dof_and_dv_types(
-                moris::Cell< MSI::Dof_Type > & aDofTypes,
-                moris::Cell< PDV_Type >        & aDvTypes )
+                moris::Cell< moris::Cell< MSI::Dof_Type > > & aDofTypes,
+                moris::Cell< moris::Cell< PDV_Type > >      & aDvTypes )
         {
             // init counters for dof and dv types
-            uint tDofCounter = 0;
-            uint tDvCounter  = 0;
+            uint tMasterDofCounter = 0;
+            uint tSlaveDofCounter = 0;
+            uint tMasterDvCounter  = 0;
+            uint tSlaveDvCounter  = 0;
 
             // get number of direct master dof dependencies
             for ( uint iDof = 0; iDof < mMasterDofTypes.size(); iDof++ )
             {
-                tDofCounter += mMasterDofTypes( iDof ).size();
+                tMasterDofCounter += mMasterDofTypes( iDof ).size();
             }
 
             // get number of direct master dv dependencies
             for ( uint iDv = 0; iDv < mMasterDvTypes.size(); iDv++ )
             {
-                tDvCounter += mMasterDvTypes( iDv ).size();
+                tMasterDvCounter += mMasterDvTypes( iDv ).size();
             }
 
             // get number of direct slave dof dependencies
             for ( uint iDof = 0; iDof < mSlaveDofTypes.size(); iDof++ )
             {
-                tDofCounter += mSlaveDofTypes( iDof ).size();
+                tSlaveDofCounter += mSlaveDofTypes( iDof ).size();
             }
 
             // get number of direct slave dv dependencies
             for ( uint iDv = 0; iDv < mSlaveDvTypes.size(); iDv++ )
             {
-                tDvCounter += mSlaveDvTypes( iDv ).size();
+                tSlaveDvCounter += mSlaveDvTypes( iDv ).size();
             }
 
             // loop over the master properties
@@ -241,8 +243,8 @@ namespace moris
                             tActiveDvTypes );
 
                     //update dof and dv counters
-                    tDofCounter += tActiveDofTypes.size();
-                    tDvCounter  += tActiveDvTypes.size();
+                    tMasterDofCounter += tActiveDofTypes.size();
+                    tMasterDvCounter  += tActiveDvTypes.size();
                 }
             }
 
@@ -260,8 +262,8 @@ namespace moris
                             tActiveDvTypes );
 
                     // update dof and dv counter
-                    tDofCounter += tActiveDofTypes.size();
-                    tDvCounter  += tActiveDvTypes.size();
+                    tSlaveDofCounter += tActiveDofTypes.size();
+                    tSlaveDvCounter  += tActiveDvTypes.size();
                 }
             }
 
@@ -278,8 +280,8 @@ namespace moris
                             tActiveDvTypes );
 
                     // update dof and dv counters
-                    tDofCounter += tActiveDofTypes.size();
-                    tDvCounter  += tActiveDvTypes.size();
+                    tMasterDofCounter += tActiveDofTypes.size();
+                    tMasterDvCounter  += tActiveDvTypes.size();
 
                 }
             }
@@ -297,8 +299,8 @@ namespace moris
                             tActiveDvTypes );
 
                     // update dof and dv counters
-                    tDofCounter += tActiveDofTypes.size();
-                    tDvCounter  += tActiveDvTypes.size();
+                    tSlaveDofCounter += tActiveDofTypes.size();
+                    tSlaveDvCounter  += tActiveDvTypes.size();
                 }
             }
 
@@ -315,41 +317,48 @@ namespace moris
                             tActiveDvTypes );
 
                     // update dof and dv counters
-                    tDofCounter += tActiveDofTypes.size();
-                    tDvCounter  += tActiveDvTypes.size();
+                    tMasterDofCounter += tActiveDofTypes.size();
+                    tMasterDvCounter  += tActiveDvTypes.size();
+                    tSlaveDofCounter += tActiveDofTypes.size();
+                    tSlaveDvCounter  += tActiveDvTypes.size();
                 }
             }
 
             // reserve memory for dof and dv type lists
-            aDofTypes.reserve( tDofCounter );
-            aDvTypes.reserve( tDvCounter );
+            aDofTypes.resize( 2 );
+            aDvTypes.resize( 2 );
+
+            aDofTypes( 0 ).reserve( tMasterDofCounter );
+            aDvTypes( 0 ) .reserve( tMasterDvCounter );
+            aDofTypes( 1 ) .reserve( tSlaveDofCounter );
+            aDvTypes( 1 ) .reserve( tSlaveDvCounter );
 
             // loop over master dof direct dependencies
             for ( uint iDof = 0; iDof < mMasterDofTypes.size(); iDof++ )
             {
                 // populate the dof list
-                aDofTypes.append( mMasterDofTypes( iDof ) );
+                aDofTypes( 0 ).append( mMasterDofTypes( iDof ) );
             }
 
             // loop over master dv direct dependencies
             for ( uint iDv = 0; iDv < mMasterDvTypes.size(); iDv++ )
             {
                 // populate the dv list
-                aDvTypes.append( mMasterDvTypes( iDv ) );
+                aDvTypes( 0 ).append( mMasterDvTypes( iDv ) );
             }
 
             // loop over slave dof direct dependencies
             for ( uint iDof = 0; iDof < mSlaveDofTypes.size(); iDof++ )
             {
                 //populate the dof list
-                aDofTypes.append( mSlaveDofTypes( iDof )  );
+                aDofTypes( 1 ).append( mSlaveDofTypes( iDof )  );
             }
 
             // loop over slave dv direct dependencies
             for ( uint iDv = 0; iDv < mSlaveDvTypes.size(); iDv++ )
             {
                 //populate the dv list
-                aDvTypes.append( mSlaveDvTypes( iDv )  );
+                aDvTypes( 1 ).append( mSlaveDvTypes( iDv )  );
             }
 
             // loop over master properties
@@ -365,8 +374,8 @@ namespace moris
                             tActiveDvTypes );
 
                     // populate the dof and dv lists
-                    aDofTypes.append( tActiveDofTypes );
-                    aDvTypes.append( tActiveDvTypes );
+                    aDofTypes( 0 ).append( tActiveDofTypes );
+                    aDvTypes( 0 ).append( tActiveDvTypes );
                 }
             }
 
@@ -383,8 +392,8 @@ namespace moris
                             tActiveDvTypes );
 
                     // populate the dof and dv lists
-                    aDofTypes.append( tActiveDofTypes );
-                    aDvTypes.append( tActiveDvTypes );
+                    aDofTypes( 1 ).append( tActiveDofTypes );
+                    aDvTypes( 1 ).append( tActiveDvTypes );
                 }
             }
 
@@ -401,8 +410,8 @@ namespace moris
                             tActiveDvTypes );
 
                     // populate the dof and dv lists
-                    aDofTypes.append( tActiveDofTypes );
-                    aDvTypes.append( tActiveDvTypes );
+                    aDofTypes( 0 ).append( tActiveDofTypes );
+                    aDvTypes( 0 ).append( tActiveDvTypes );
                 }
             }
 
@@ -419,11 +428,14 @@ namespace moris
                             tActiveDvTypes );
 
                     // populate the dof and dv lists
-                    aDofTypes.append( tActiveDofTypes );
-                    aDvTypes.append( tActiveDvTypes );
+                    aDofTypes( 1 ).append( tActiveDofTypes );
+                    aDvTypes( 1 ).append( tActiveDvTypes );
                 }
             }
 
+            // FIXME this is potentially problematic since it will add slave dependencies even for bulk elements
+            // FIXME Ask lise about it. We could ask the set for the element type. should work for DOUBLE_SIDED.
+            // FIXME Whats with time boundary
             // loop over the stabilization parameters
             for ( std::shared_ptr< Stabilization_Parameter > tSP : mStabilizationParam )
             {
@@ -437,8 +449,10 @@ namespace moris
                             tActiveDvTypes );
 
                     // populate the dof and dv lists
-                    aDofTypes.append( tActiveDofTypes );
-                    aDvTypes.append( tActiveDvTypes );
+                    aDofTypes( 0 ).append( tActiveDofTypes );
+                    aDvTypes( 0 ).append( tActiveDvTypes );
+                    aDofTypes( 1 ).append( tActiveDofTypes );
+                    aDvTypes( 1 ).append( tActiveDvTypes );
                 }
             }
         }

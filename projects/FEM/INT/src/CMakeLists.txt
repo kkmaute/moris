@@ -45,6 +45,7 @@ set(HEADERS
     cl_FEM_IWG_Incompressible_NS_Pressure_Neumann.hpp
     cl_FEM_IWG_Incompressible_NS_Velocity_Interface.hpp
     cl_FEM_IWG_Incompressible_NS_Pressure_Interface.hpp
+    cl_FEM_IWG_FS_Struc_Interface.hpp
     cl_FEM_IWG_Spalart_Allmaras_Turbulence_Bulk.hpp
     cl_FEM_IWG_Spalart_Allmaras_Turbulence_Dirichlet.hpp
     cl_FEM_IWG_Spalart_Allmaras_Turbulence_Interface.hpp
@@ -156,6 +157,7 @@ set(HEADERS
     cl_FEM_SP_GGLS_Diffusion.hpp
     cl_FEM_SP_SUPG_Spalart_Allmaras_Turbulence.hpp
     cl_FEM_SP_Turbulence_Dirichlet_Nitsche.hpp
+    cl_FEM_SP_Ghost_Turbulence.hpp
     cl_FEM_Set_User_Info.hpp
     cl_FEM_Interpolation_Element.hpp
     cl_FEM_Model.hpp
@@ -202,6 +204,7 @@ set(LIB_SOURCES
     cl_FEM_IWG_Incompressible_NS_Pressure_Neumann.cpp
     cl_FEM_IWG_Incompressible_NS_Velocity_Interface.cpp
     cl_FEM_IWG_Incompressible_NS_Pressure_Interface.cpp
+    cl_FEM_IWG_FS_Struc_Interface.cpp
     cl_FEM_IWG_Spalart_Allmaras_Turbulence_Bulk.cpp
     cl_FEM_IWG_Spalart_Allmaras_Turbulence_Dirichlet.cpp
     cl_FEM_IWG_Spalart_Allmaras_Turbulence_Interface.cpp
@@ -252,6 +255,7 @@ set(LIB_SOURCES
     cl_FEM_SP_GGLS_Diffusion.cpp
     cl_FEM_SP_SUPG_Spalart_Allmaras_Turbulence.cpp
     cl_FEM_SP_Turbulence_Dirichlet_Nitsche.cpp
+    cl_FEM_SP_Ghost_Turbulence.cpp
     cl_FEM_IQI.cpp
     cl_FEM_IQI_Analytic.cpp
     cl_FEM_IQI_Factory.cpp

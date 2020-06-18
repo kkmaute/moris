@@ -52,7 +52,11 @@ namespace moris
 
         tParameterList.insert( "print_enriched_ig_mesh", false );
 
+        // write XTK exodus mesh
         tParameterList.insert( "exodus_output_XTK_ig_mesh", false );
+
+        // add ghost blocks to XTK exodus mesh
+        tParameterList.insert( "exodus_output_XTK_ghost_mesh", false );
 
         // enriched integration mesh options
         tParameterList.insert( "high_to_low_dbl_side_sets", false );

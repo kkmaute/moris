@@ -42,6 +42,7 @@ public:
     moris_index                       get_owner() const;
     mtk::Vertex_Interpolation *       get_interpolation( const uint aOrder );
     const mtk::Vertex_Interpolation * get_interpolation( const uint aOrder ) const;
+    bool                              has_interpolation( const uint aBSplineMeshIndex );
     //------------------------------------------------------------------------------
 
     Vertex_Enrichment *       get_xtk_interpolation( const uint aOrder );
@@ -52,6 +53,16 @@ public:
     void
     add_vertex_interpolation(const uint aOrder,
                              Vertex_Enrichment* aVertexInterp);
+
+
+    friend class Ghost_Stabilization;
+    friend class Enriched_Interpolation_Mesh;
+
+    mtk::Vertex * get_base_vertex(  );
+protected:
+
+    void
+    set_vertex_id(moris_index const & aId);
 
 private:
     // the parent vertex

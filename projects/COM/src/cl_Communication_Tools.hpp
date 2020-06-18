@@ -15,6 +15,7 @@
 #include "cl_Communication_Manager.hpp" // COM/src
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
+#include "fn_isvector.hpp"
 
 //#include "cl_Bitset.hpp" // CON/src
 #include "cl_Cell.hpp" // CON/src
@@ -133,6 +134,7 @@ namespace moris
 
 
     moris::uint gather_value_and_bcast_max( moris::uint aMessage );
+
 
 
     /*
@@ -386,175 +388,6 @@ namespace moris
     int
     create_comm_tag ( const int & aSource, const int & aTarget ) ;
 
-//------------------------------------------------------------------------------
-    /**
-     *
-     * @brief                 Sends a moris::Mat<T> to the proc aTarget.
-     *                        Receiving proc must call recv_mat_from_proc.
-     *                        Does nothing if MORIS is run in serial.
-     *
-     * @param[in] aMatrix     matrix to be communicated
-     * @param[in] aTarget     rank of receiving proc
-     *
-     */
-/*    template <typename T> void
-    send_mat_to_proc( const Matrix< T > & aMatrix,
-                      const int      & aTarget )
-    {
-		
-        if ( par_size() > 1 )
-        {
-			
-			
-            // get dimensions of matrix
-            uint tRowsCols[ 2 ] ;
-            tRowsCols[ 0 ] = aMatrix.n_rows();
-            tRowsCols[ 1 ] = aMatrix.n_cols();
-
-            // determine length of matrix to send
-            uint tLength = tRowsCols[ 0 ]*tRowsCols[ 1 ] ;
-
-            // make sure that MPI can send this data set
-            MORIS_ASSERT( tLength < INT_MAX,
-                          "send_mat_to_proc: matrix too big" );
-			
-            // determine MPI datatype
-            MPI_Datatype tRowsColsType = get_comm_datatype ( tLength );
-			
-            // create message tag
-            int tTag = create_comm_tag ( par_rank(), aTarget );
-
-            // send array size
-            MPI_Send(
-                    tRowsCols,
-                    2,
-                    tRowsColsType,
-                    aTarget,
-                    tTag,
-                    gMorisComm.get_global_comm() );
-                    
-            // create temporary buffer array
-            typename Matrix< T >::Data_Type* tArray  = new typename Matrix< T >::Data_Type[ tLength ];
-
-            // counter for flattening
-            uint tCount = 0;
-
-            // flatten matrix
-            for ( uint j=0; j<tRowsCols[ 1 ] ; ++j )
-            {
-                for ( uint i=0; i<tRowsCols[ 0 ] ; ++i )
-                {
-                    tArray[ tCount++ ] = aMatrix( i, j );
-                }
-            }
-
-            // get data type
-            typename Matrix< T >::Data_Type tSample = 0;
-            MPI_Datatype tType = get_comm_datatype ( tSample );
-
-            // increment tag
-            ++tTag;
-			
-            // send data
-            MPI_Send(
-                    tArray,
-                    tLength,
-                    tType,
-                    aTarget,
-                    tTag,
-                    gMorisComm.get_global_comm() );
-			
-			
-            // delete buffer
-            delete [] tArray;
-
-        }
-    } */
-//------------------------------------------------------------------------------
-    /**
-     *
-     * @brief                 Receives a moris::Mat<T> from the proc aSource.
-     *                        Sending proc must call send_mat_to_proc.
-     *                        Does nothing if MORIS is run in serial.
-     *
-     * @param[in] aMatrix     matrix to be communicated
-     * @param[in] aSource     rank of sending proc
-     *
-     */
-    /*template <typename T> void
-    recv_mat_from_proc( Matrix< T >  & aMatrix,
-                        const int & aSource )
-        {
-            if ( par_size() > 1 )
-            {
-                // status
-                MPI_Status tStatus;
-
-                // get dimensions of matrix
-                uint tRowsCols[ 2 ] ;
-
-                uint tLength = 0;
-
-                // determine MPI data type
-                MPI_Datatype tRowsColsType = get_comm_datatype ( tLength );
-
-                // create message tag
-                int tTag = create_comm_tag ( aSource, par_rank() );
-
-                // receive array size
-                MPI_Recv(
-                        tRowsCols,
-                        2,
-                        tRowsColsType,
-                        aSource,
-                        tTag,
-                        gMorisComm.get_global_comm(),
-                        &tStatus );
-
-                // calculate length of array to expect
-                tLength = tRowsCols[ 0 ]*tRowsCols[ 1 ];
-
-                // create temporary buffer array
-                typename Matrix< T >::Data_Type* tArray  = new typename Matrix< T >::Data_Type[ tLength ];
-
-                // get data type
-                typename Matrix< T >::Data_Type tSample = 0;
-                MPI_Datatype tType = get_comm_datatype ( tSample );
-
-                // increment tag
-                ++tTag;
-
-                // receive data
-                MPI_Recv(
-                        tArray,
-                        tLength,
-                        tType,
-                        aSource,
-                        tTag,
-                        gMorisComm.get_global_comm(),
-                        &tStatus );
-
-                // assign memory for matrix
-                uint tRows = tRowsCols[ 0 ];
-                uint tCols = tRowsCols[ 1 ];
-                aMatrix.set_size( tRows, tCols );
-
-                // counter for unflattening
-                uint tCount = 0;
-
-                // unflatten matrix
-                for ( uint j=0; j<tCols ; ++j )
-                {
-                    for ( uint i=0; i<tRows ; ++i )
-                    {
-                        aMatrix( i, j ) = tArray[ tCount++ ];
-                    }
-                }
-
-                // delete buffer
-                delete [] tArray;
-            }
-        } */
 
 //------------------------------------------------------------------------------
 
@@ -927,6 +760,73 @@ namespace moris
              return tString;
          }
 //------------------------------------------------------------------------------
+
+         /*!
+          * Gathers matrix from procs, on root proc
+          * Only aGatheredMats is populated on base proc
+          */
+         template <typename MatrixType>
+         void
+         all_gather_vector(
+                 Matrix<MatrixType> const & aMatToGather,
+                 Cell<Matrix<MatrixType>> & aGatheredMats,
+                 moris_index aTag,
+                 moris_index aFixedDim,
+                 moris_index aBaseProc = 0)
+         {
+
+             // if rows are fixed
+             moris_index tNumRow = 0;
+             moris_index tNumCol = 0;
+             if(aFixedDim == 0)
+             {
+                 tNumRow = aMatToGather.n_rows();
+             }
+             else
+             {
+                 tNumCol = aMatToGather.n_cols();
+             }
+
+
+             MPI_Request tRequest;
+             // send the matrix
+             MPI_Isend(aMatToGather.data(), aMatToGather.numel(), moris::get_comm_datatype(aMatToGather(0,0)), aBaseProc, aTag, moris::get_comm(),&tRequest);
+
+             barrier();
+
+             // on base rank go ahead and receive the data
+             if(par_rank() == aBaseProc)
+             {
+                 aGatheredMats.resize(par_size());
+                 for(int i = 0; i < par_size(); i++)
+                 {
+                     MPI_Status tStatus;
+                     MPI_Probe(i, aTag, moris::get_comm(), &tStatus);
+
+                 //    MORIS_ERROR(tExists,"Trying to receive a message that does not exists");
+
+                     int tLength = 0;
+                     MPI_Get_count(&tStatus, moris::get_comm_datatype(aMatToGather(0,0)), &tLength);
+
+                     if(aFixedDim == 0)
+                     {
+                         tNumCol = tLength/tNumRow;
+                     }
+                     else
+                     {
+                         tNumRow = tLength/tNumCol;
+                     }
+
+                     // Resize the matrix
+                     aGatheredMats(i).resize(tNumRow, tNumCol);
+
+                     MPI_Recv(aGatheredMats(i).data(), tLength, moris::get_comm_datatype(aMatToGather(0,0)), i, aTag, moris::get_comm(), &tStatus);
+                 }
+             }
+
+             barrier();
+         }
+
 }
 
 

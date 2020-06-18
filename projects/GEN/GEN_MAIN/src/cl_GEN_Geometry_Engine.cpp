@@ -17,6 +17,9 @@
 #include "cl_HMR_Mesh.hpp"
 #include "cl_HMR.hpp"
 
+// PRM
+#include "cl_PRM_HMR_Parameters.hpp"
+
 // MRS/IOS
 #include "fn_Parsing_Tools.hpp"
 
@@ -25,25 +28,26 @@ namespace moris
     namespace ge
     {
         //--------------------------------------------------------------------------------------------------------------
-        
-        Geometry_Engine::Geometry_Engine(moris::Cell<moris::Cell<ParameterList>> aParameterLists, std::shared_ptr<moris::Library_IO> aLibrary) :
-        // User options
-        mSpatialDim(aParameterLists(0)(0).get<int>("spatial_dimensions")),
-        mThresholdValue(aParameterLists(0)(0).get<real>("threshold_value")),
-        mPerturbationValue(aParameterLists(0)(0).get<real>("perturbation_value")),
-        mNumRefinements(aParameterLists(0)(0).get<int>("HMR_refinements")),
 
-        // ADVs/IQIs
-        mADVs((uint)aParameterLists(0)(0).get<int>("advs_size"), 1, aParameterLists(0)(0).get<real>("initial_advs_fill")),
-        mLowerBounds((uint)aParameterLists(0)(0).get<int>("advs_size"), 1, aParameterLists(0)(0).get<real>("lower_bounds_fill")),
-        mUpperBounds((uint)aParameterLists(0)(0).get<int>("advs_size"), 1, aParameterLists(0)(0).get<real>("upper_bounds_fill")),
-        mRequestedIQIs(string_to_cell<std::string>(aParameterLists(0)(0).get<std::string>("IQI_types"))),
+        Geometry_Engine::Geometry_Engine(Cell<Cell<ParameterList>> aParameterLists,
+                                         std::shared_ptr<moris::Library_IO> aLibrary):
+                // User options
+                mSpatialDim(aParameterLists(0)(0).get<int>("spatial_dimensions")),
+                mThresholdValue(aParameterLists(0)(0).get<real>("threshold_value")),
+                mPerturbationValue(aParameterLists(0)(0).get<real>("perturbation_value")),
+                mNumRefinements(aParameterLists(0)(0).get<int>("HMR_refinements")),
+                mUserDefinedFunc(nullptr),
 
-        // Phase table
-        mPhaseTable(string_to_mat<IndexMat>(aParameterLists(0)(0).get<std::string>("phase_table")).numel()
-              ? Phase_Table(string_to_mat<IndexMat>(aParameterLists(0)(0).get<std::string>("phase_table")), aParameterLists(0)(0).get<std::string>("phase_table_structure"))
-              : Phase_Table(aParameterLists(1).size(), aParameterLists(0)(0).get<std::string>("phase_table_structure")))
+                // ADVs/IQIs
+                mADVs((uint)aParameterLists(0)(0).get<int>("advs_size"), 1, aParameterLists(0)(0).get<real>("initial_advs_fill")),
+                mLowerBounds((uint)aParameterLists(0)(0).get<int>("advs_size"), 1, aParameterLists(0)(0).get<real>("lower_bounds_fill")),
+                mUpperBounds((uint)aParameterLists(0)(0).get<int>("advs_size"), 1, aParameterLists(0)(0).get<real>("upper_bounds_fill")),
+                mRequestedIQIs(string_to_cell<std::string>(aParameterLists(0)(0).get<std::string>("IQI_types"))),
 
+                // Phase table
+                mPhaseTable(string_to_mat<IndexMat>(aParameterLists(0)(0).get<std::string>("phase_table")).numel()
+                      ? Phase_Table(string_to_mat<IndexMat>(aParameterLists(0)(0).get<std::string>("phase_table")), aParameterLists(0)(0).get<std::string>("phase_table_structure"))
+                      : Phase_Table(aParameterLists(1).size(), aParameterLists(0)(0).get<std::string>("phase_table_structure")))
         {
             // Explicit ADVs and bounds
             Matrix<DDRMat> tInitialADVs = string_to_mat<DDRMat>(aParameterLists(0)(0).get<std::string>("initial_advs"));
@@ -80,6 +84,14 @@ namespace moris
                 {
                     mGeometry(tGeometryIndex) = create_geometry(aParameterLists(1)(tGeometryIndex), mADVs, aLibrary);
                 }
+            }
+
+            // Create function pointer for user defined refinement function
+            std::string tUserDefinedFunc = aParameterLists(0)(0).get<std::string>("user_defined_refinement_function");
+
+            if ( tUserDefinedFunc.size() > 1 )
+            {
+                mUserDefinedFunc = aLibrary->load_user_defined_refinement_functions( tUserDefinedFunc );
             }
 
             // Create properties
@@ -183,9 +195,9 @@ namespace moris
         {
             return mGeometry(aGeometryIndex)->evaluate_field_value(aNodeIndex, aCoordinates);
         }
-        
+
         //--------------------------------------------------------------------------------------------------------------
-        
+
         void Geometry_Engine::create_new_node_geometry_objects( const Cell<moris_index>&    aNewNodeIndices,
                                                                 bool                        aStoreParentTopo,
                                                                 const Cell<xtk::Topology*>& aParentTopo,
@@ -371,8 +383,17 @@ namespace moris
                     aEntityNodeVars(i, 0) = aEntityNodeVars(i, 0) + tPerturb;
         
                     // Locate perturbed interface
-                    get_intersection_location(mThresholdValue, aPerturbationVal, aGlobalNodeCoordinates, aEntityNodeVars, aEntityNodeIndices, tPerturbedLocalCoordinate, tPerturbedGlobCoordinates(j),false, true);
-        
+                    get_intersection_location(
+                            mThresholdValue,
+                            aPerturbationVal,
+                            aGlobalNodeCoordinates,
+                            aEntityNodeVars,
+                            aEntityNodeIndices,
+                            tPerturbedLocalCoordinate,
+                            tPerturbedGlobCoordinates(j),
+                            false,
+                            true);
+
                     // Reverse perturb
                     aEntityNodeVars(i, 0) = aEntityNodeVars(i, 0) - tPerturb;
         
@@ -403,7 +424,7 @@ namespace moris
         }
 
         //--------------------------------------------------------------------------------------------------------------
-        
+
         moris::Matrix< moris::DDRMat > const &
         Geometry_Engine::get_node_dx_dp( moris::size_t const & aNodeIndex ) const
         {
@@ -451,13 +472,13 @@ namespace moris
                                                                           uint            aGeometryIndex)
         {
             real tNodePhaseValue = this->get_geometry_field_value(aNodeIndex, aCoordinates, aGeometryIndex);
-        
+
             moris::size_t tPhaseOnOff = 1;
             if (tNodePhaseValue < mThresholdValue)
             {
                 tPhaseOnOff = 0;
             }
-        
+
             return tPhaseOnOff;
         }
 
@@ -506,7 +527,7 @@ namespace moris
         }
 
         //--------------------------------------------------------------------------------------------------------------
-        
+
         void Geometry_Engine::perform_refinement(std::shared_ptr<hmr::HMR> aHMRPerformer, uint aNumRefinements)
         {
             // Create mesh
@@ -517,6 +538,9 @@ namespace moris
             {
                 aNumRefinements = mNumRefinements;
             }
+
+            // FIXME
+            ParameterList tParameters = prm::create_hmr_parameter_list();
 
             // Loop over set number of refinement levels
             for (uint tRefinement = 0; tRefinement < aNumRefinements; tRefinement++)
@@ -529,7 +553,17 @@ namespace moris
                     {
                         tFieldValues(tNodeIndex) = this->get_geometry_field_value(tNodeIndex, tMesh->get_node_coordinate(tNodeIndex), tGeometryIndex);
                     }
-                    aHMRPerformer->based_on_field_put_elements_on_queue(tFieldValues, 0);
+
+                    // Call either user defined refinement function or default function
+                    if ( mUserDefinedFunc != nullptr )
+                    {
+                        Cell<Matrix<DDRMat>> tCellFieldValues({tFieldValues});
+                        aHMRPerformer->user_defined_flagging( mUserDefinedFunc, tCellFieldValues, tParameters, 0 );
+                    }
+                    else
+                    {
+                        aHMRPerformer->based_on_field_put_elements_on_queue(tFieldValues, 0);
+                    }
                 }
 
                 // Perform refinement
@@ -539,13 +573,12 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        bool
-        Geometry_Engine::compute_intersection_info( moris::moris_index               const & aEntityIndex,
-                                                        moris::Matrix< moris::IndexMat > const & aEntityNodeInds,
-                                                        moris::Matrix< moris::DDRMat >   const & aNodeCoords,
-                                                        moris::size_t const &                    aCheckType,
-                                                        moris::Matrix< moris::IndexMat > &       aNodeADVIndices,
-                                                        GEN_Geometry_Object & aGeometryObject )
+        bool Geometry_Engine::compute_intersection_info( moris::moris_index               const & aEntityIndex,
+                                                         moris::Matrix< moris::IndexMat > const & aEntityNodeInds,
+                                                         moris::Matrix< moris::DDRMat >   const & aNodeCoords,
+                                                         moris::size_t const &                    aCheckType,
+                                                         moris::Matrix< moris::IndexMat > &       aNodeADVIndices,
+                                                         GEN_Geometry_Object & aGeometryObject )
         {
             //Initialize
             bool tIsIntersected = false;
@@ -560,7 +593,7 @@ namespace moris
             moris::size_t tNodeInd  = 0;
             moris::size_t tNumNodes = aEntityNodeInds.numel();
             moris::Matrix< moris::DDRMat > tEntityNodeVars(tNumNodes, 1);
-        
+
             // Loop through nodes and get levelset values from precomputed values in aNodeVars or in the levelset mesh
             for (moris::size_t n = 0; n < tNumNodes; n++)
             {
@@ -673,14 +706,14 @@ namespace moris
                 // Compute \phi = Ni.\phi_i
                 aLevelSetValues = tBasisValues * moris::trans(tNodesLevelSetValues);
             }
-         }
+        }
 
         //--------------------------------------------------------------------------------------------------------------
 
-        void Geometry_Engine::assign_ip_hosts_by_set_name(std::string                     aSetName,
-                                                              std::shared_ptr< Property > aPropertyPointer,
-                                                              PDV_Type                     aPdvType,
-                                                              moris_index                     aWhichMesh)
+        void Geometry_Engine::assign_ip_hosts_by_set_name(std::string                 aSetName,
+                                                          std::shared_ptr< Property > aPropertyPointer,
+                                                          PDV_Type                    aPdvType,
+                                                          moris_index                 aWhichMesh)
         {
             // get the mesh set from name
             moris::mtk::Set* tSetPointer = mMeshManager->get_integration_mesh( aWhichMesh )->get_set_by_name( aSetName );
@@ -717,10 +750,10 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        void Geometry_Engine::assign_ip_hosts_by_set_index( moris_index                     aSetIndex,
-                                                                std::shared_ptr< Property > aPropertyPointer,
-                                                                PDV_Type                     aPdvType,
-                                                                moris_index                     aWhichMesh)
+        void Geometry_Engine::assign_ip_hosts_by_set_index( moris_index                 aSetIndex,
+                                                            std::shared_ptr< Property > aPropertyPointer,
+                                                            PDV_Type                    aPdvType,
+                                                            moris_index                 aWhichMesh)
         {
             // get the mesh set from index
             moris::mtk::Set* tSetPointer = mMeshManager->get_integration_mesh( aWhichMesh )->get_set_by_index( aSetIndex );
@@ -947,5 +980,3 @@ namespace moris
 
     }   // end ge namespace
 }   // end moris namespace
-
-

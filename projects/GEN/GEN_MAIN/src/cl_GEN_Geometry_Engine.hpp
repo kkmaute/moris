@@ -59,6 +59,9 @@ namespace moris
             // HMR refinements
             uint mNumRefinements = 0;
 
+            // HMR user defined refinement function
+            MORIS_USER_DEFINED_REFINEMENT_FUNCTION mUserDefinedFunc = nullptr;
+
             // ADVs/IQIs
             Matrix<DDRMat> mADVs;
             Matrix<DDRMat> mLowerBounds;
@@ -96,7 +99,7 @@ namespace moris
              * @param aParameterLists GEN parameter lists (see fn_PRM_GEN_Parameters.hpp)
              * @param aLibrary Library used for pulling user-defined functions
              */
-            Geometry_Engine(moris::Cell<moris::Cell<ParameterList>> aParameterLists,
+            Geometry_Engine(Cell<Cell<ParameterList>> aParameterLists,
                             std::shared_ptr<moris::Library_IO> aLibrary = nullptr);
 
             /**

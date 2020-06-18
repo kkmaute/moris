@@ -13,7 +13,8 @@ namespace xtk
 {
 //------------------------------------------------------------------------------
 Vertex_Enrichment::Vertex_Enrichment():
- mNodeIndex(MORIS_INDEX_MAX)
+ mNodeIndex(MORIS_INDEX_MAX),
+ mBaseVertexInterp(nullptr)
 {}
 //------------------------------------------------------------------------------
 Matrix< IdMat >
@@ -37,7 +38,7 @@ Vertex_Enrichment::get_weights() const
 Matrix< IdMat >
 Vertex_Enrichment::get_owners() const
 {
-    return mBaseVertexInterp->get_owners();
+    return mBasisOwners;
 }
 //------------------------------------------------------------------------------
 void
@@ -67,6 +68,7 @@ Vertex_Enrichment::add_basis_information( moris::Matrix<moris::IndexMat> const &
     mBasisIndices.resize(tNumBasis,1);
     mBasisIds.resize(tNumBasis,1);
     mBasisWeights.resize(tNumBasis,1);
+    mBasisOwners.resize(tNumBasis,1);
 
     // iterate to store data
     for(moris::uint i = 0; i<aBasisIndices.numel(); i++ )
@@ -85,6 +87,18 @@ Vertex_Enrichment::add_basis_weights(moris::Matrix<moris::IndexMat> const & aBas
     {
         moris::uint tBasisLocInd = this->local_basis_index(aBasisIndices(i));
         mBasisWeights(tBasisLocInd) = aBasisWeight(i);
+    }
+}
+//------------------------------------------------------------------------------
+
+void
+Vertex_Enrichment::add_basis_owners( moris::Matrix<moris::IndexMat> const & aBasisIndices,
+                                     moris::Matrix<moris::IndexMat> const & aBasisOwners)
+{
+    for(moris::uint i = 0; i <aBasisIndices.numel(); i++)
+    {
+        moris::uint tBasisLocInd = this->local_basis_index(aBasisIndices(i));
+        mBasisOwners(tBasisLocInd) = aBasisOwners(i);
     }
 }
 //------------------------------------------------------------------------------
@@ -171,11 +185,21 @@ Vertex_Enrichment::get_basis_weights()
 bool
 Vertex_Enrichment::basis_exists_in_enrichment(moris_index aBasisIndex) const
 {
-
-
     return mBasisMap.find(aBasisIndex) != mBasisMap.end();
 }
 //------------------------------------------------------------------------------
+bool
+Vertex_Enrichment::has_interpolation() const
+{
+    if(mBasisIndices.numel() == 0)
+    {
+        return false;
+    }
+    else
+    {
+        return true;
+    }
+}
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------

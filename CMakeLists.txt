@@ -53,6 +53,7 @@ set(COM "COM")
 set(CON "CON")
 set(COR "COR")
 set(DLA "DLA")
+set(EXA "EXA")
 set(EXC "EXC")
 set(FEM "FEM")
 #set(GE "GE")
@@ -191,6 +192,11 @@ option(HAVE_LBFGS
 
 option(MORIS_USE_TESTS
     "Compile unit tests." ON )
+    
+    
+option(MORIS_USE_EXAMPLES
+     "Build the examples." ON)
+    
 
 option(MORIS_HAVE_PARALLEL_TESTS
 	"Run unit tests in parallel. MORIS_USE_TESTS must be ON." ON)
@@ -278,14 +284,6 @@ include(${MORIS_CMAKE_DIR}/utilities/moris_macros.cmake)
 # ------------------------------------------------------------------------
 ## Dynamic link test function
 include(${MORIS_CMAKE_DIR}/utilities/dynamic_link_input.cmake)
-
-# ------------------------------------------------------------------------
-# Add git revision
-# https://stackoverflow.com/questions/1435953/how-can-i-pass-git-sha1-to-compiler-as-definition-using-cmake
-
-list(APPEND CMAKE_MODULE_PATH "${MORIS_CMAKE_DIR}/utilities//")
-include(GetGitRevisionDescription)
-get_git_head_revision(MORIS_GIT_BRANCH MORIS_GIT_HASH)
 
 # -------------------------------------------------------------------------
 # Compiler ----------------------------------------------------------------
@@ -563,13 +561,11 @@ if (MORIS_USE_EIGEN)
     list(APPEND MORIS_DEFINITIONS "-DMORIS_USE_EIGEN")
 endif()
 
-
 # -------------------------------------------------------------------------
 # ARPACK ------------------------------------------------------------------
 # -------------------------------------------------------------------------
 
 #include(${MORIS_TPL_DIR}/arpack.cmake)
-
 
 # -------------------------------------------------------------------------
 # MORIS variable handling ------------------------------------------------------
@@ -758,6 +754,14 @@ if (MORIS_USE_VALGRIND)
 else()
    set(VALGRIND "")
    set(VALGRIND_OPTIONS "")
+endif()
+
+# -------------------------------------------------------------------------
+# MORIS examples  --------------------------------------------------------
+# -------------------------------------------------------------------------
+if(MORIS_USE_EXAMPLES)
+    message(STATUS "Build examples")
+    include(${MORIS_DEPENDS_DIR}/EXA_Depends.cmake)
 endif()
 
 # -------------------------------------------------------------------------

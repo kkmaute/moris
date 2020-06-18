@@ -89,9 +89,10 @@ namespace moris
                 mtk::Master_Slave           aIsMaster )
         {
             // check that aPropertyString makes sense
-            MORIS_ERROR(
-                    mPropertyMap.find( aPropertyString ) != mPropertyMap.end(),
-                    "SP_Pressure_Ghost::set_property - Unknown aPropertyString." );
+            std::string tErrMsg =
+                    std::string( "SP_Pressure_Ghost::set_property - Unknown aPropertyString : ") +
+                    aPropertyString;
+            MORIS_ERROR( mPropertyMap.find( aPropertyString ) != mPropertyMap.end() , tErrMsg.c_str() );
 
             // set the property in the property cell
             this->get_properties( aIsMaster )( static_cast< uint >( mPropertyMap[ aPropertyString ] ) ) = aProperty;
@@ -146,13 +147,19 @@ namespace moris
             // set size for dSPdMasterDof
             mdPPdMasterDof( tDofIndex ).set_size( 1, tFI->get_number_of_space_time_coefficients(), 0.0 );
 
-            // get the viscosity and density property
-            std::shared_ptr< Property > tViscosityProp = mMasterProp( static_cast< uint >( Property_Type::VISCOSITY ) );
-            std::shared_ptr< Property > tDensityProp   = mMasterProp( static_cast< uint >( Property_Type::DENSITY ) );
-
-            // compute infinity norm
+            // get velocity field interpolator
             Field_Interpolator * tVelocityFI =
                     mMasterFIManager->get_field_interpolators_for_type( mMasterDofVelocity );
+
+            // get the viscosity property
+            std::shared_ptr< Property > tViscosityProp =
+                    mMasterProp( static_cast< uint >( Property_Type::VISCOSITY ) );
+
+            // get the density property
+            std::shared_ptr< Property > tDensityProp =
+                    mMasterProp( static_cast< uint >( Property_Type::DENSITY ) );
+
+            // compute infinity norm
             uint tInfinityNormIndex = 0;
             real tInfinityNorm = std::abs( tVelocityFI->val()( 0 ) );
             for( uint iDim = 0; iDim < tVelocityFI->val().numel(); iDim++ )
@@ -177,10 +184,12 @@ namespace moris
             // if dof type == velocity
             if( aDofTypes( 0 ) == mMasterDofVelocity )
             {
-                // compute derivative of infinity norm
-                Matrix< DDRMat > tdInfinityNormdu =
-                        tFI->N().get_row( tInfinityNormIndex ) *
-                        tVelocityFI->val()( tInfinityNormIndex ) / tInfinityNorm;
+                // compute derivative of the infinity norm
+                Matrix< DDRMat > tdInfinityNormdu = tVelocityFI->N().get_row( tInfinityNormIndex );
+                if( tVelocityFI->val()( tInfinityNormIndex ) < 0.0 )
+                {
+                    tdInfinityNormdu = -1.0 * tdInfinityNormdu;
+                }
 
                 // compute contribution from velocity
                 mdPPdMasterDof( tDofIndex ).matrix_data() -=

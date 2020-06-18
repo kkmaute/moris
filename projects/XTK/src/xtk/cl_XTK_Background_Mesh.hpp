@@ -443,6 +443,12 @@ public:
     enum CellTopology
     get_parent_cell_topology() const;
 
+    Matrix<IdMat> const &
+    get_communication_table() const;
+
+    void
+    add_proc_to_comm_table(moris_index aProcRank);
+
 
 private:
     // Background mesh data
@@ -458,6 +464,9 @@ private:
 
     // Local to Global Id Entity Matrix
     moris::Cell<moris::Matrix<moris::IdMat>> mEntityLocaltoGlobalMap;
+
+    // communication map
+    moris::Matrix<IdMat> mCommunicationMap;
 
     // Elements constructed by the decomposition process mtk Cells
     std::map < moris_id, moris_index > mChildMtkCellMap; /* To go from cell index to location in child cell ptrs*/
@@ -503,6 +512,9 @@ private:
      */
     void
     setup_local_to_global_maps();
+
+    void
+    setup_comm_map();
 
 
 };
