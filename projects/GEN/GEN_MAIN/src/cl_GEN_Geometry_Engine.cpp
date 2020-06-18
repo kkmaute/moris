@@ -69,11 +69,11 @@ namespace moris
             }
             for (uint tADVIndex = 0; tADVIndex < tLowerBounds.length(); tADVIndex++)
             {
-                mADVs(tADVIndex) = tLowerBounds(tADVIndex);
+                mLowerBounds(tADVIndex) = tLowerBounds(tADVIndex);
             }
             for (uint tADVIndex = 0; tADVIndex < tUpperBounds.length(); tADVIndex++)
             {
-                mADVs(tADVIndex) = tUpperBounds(tADVIndex);
+                mUpperBounds(tADVIndex) = tUpperBounds(tADVIndex);
             }
 
             // Build geometry (just analytic for right now)
