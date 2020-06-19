@@ -94,13 +94,10 @@ Some functionality might only live in @ref LinAlg so keep that in mind.
 
 /** @defgroup OptModule Optimization Module
     
-This module discusses MORIS's optimization package. The first submodule 
-introduces the theoretical background of formulating an optimzation problem, the 
-second submodule introduces the current optimization framework of MORIS, the 
-third submodule introduces the MORIS wrapper around the GCMMA optimization 
-solver (cl_OptAlgGCMMA.hpp), and the fourth submodule introduces the option of 
-performing a dummy optimization by sweeping the design variables 
-(cl_OptAlgSweep.hpp).
+This module discusses MORIS's optimization package. The first submodule introduces the theoretical background of
+formulating an optimzation problem, and the second submodule introduces the current overall optimization framework of
+MORIS. The other submodules give detailed descriptions of the individual algorithms and their specific functionalities
+available in MORIS.
 */
     
 /** @addtogroup Background

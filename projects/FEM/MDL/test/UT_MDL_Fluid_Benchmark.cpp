@@ -193,63 +193,12 @@ namespace moris
         tParameters.set( "severity_level", 2 );
         tParameters.set( "use_number_aura", 0 );
 
-        hmr::HMR tHMR( tParameters );
+        std::shared_ptr<hmr::HMR> tHMR = std::make_shared<hmr::HMR>( tParameters );
 
-        //initial refinement
-        tHMR.perform_initial_refinement( 0 );
+        // Initial refinement
+        tHMR->perform_initial_refinement( 0 );
 
-        std::shared_ptr< moris::hmr::Mesh > tMesh = tHMR.create_mesh( tLagrangeMeshIndex );
-
-        for( uint k = 0; k < tNumRef; k++ )
-        {
-            Cell<std::shared_ptr<moris::ge::Geometry>> tGeometry(4);
-            tGeometry(0) = std::make_shared<moris::ge::Plane>(0.0, tPlaneBottom, 0.0, 1.0);
-            tGeometry(1) = std::make_shared<moris::ge::Plane>(0.0, tPlaneTop, 0.0, 1.0);
-            tGeometry(2) = std::make_shared<moris::ge::Plane>(tPlaneLeft, 0.0, 1.0, 0.0);
-            tGeometry(3) = std::make_shared<moris::ge::Plane>(tPlaneRight, 0.0, 1.0, 0.0);
-
-            moris::ge::Phase_Table tPhaseTable (4, moris::ge::Phase_Table_Structure::EXP_BASE_2);
-            moris::ge::Geometry_Engine tGENGeometryEngine(tGeometry, tPhaseTable, 2);
-
-            moris_index tMeshIndex = tGENGeometryEngine.register_mesh( tMesh );
-
-            uint tNumIPNodes = tMesh->get_num_nodes();
-            Matrix< DDRMat > tFieldData0( tNumIPNodes,1 );
-            Matrix< DDRMat > tFieldData1( tNumIPNodes,1 );
-            Matrix< DDRMat > tFieldData2( tNumIPNodes,1 );
-            Matrix< DDRMat > tFieldData3( tNumIPNodes,1 );
-
-            tGENGeometryEngine.initialize_geometry_objects_for_background_mesh_nodes( tNumIPNodes );
-            Matrix< DDRMat > tCoords( tNumIPNodes, tModelDimension );
-            for( uint i = 0; i < tNumIPNodes; i++ )
-            {
-                tCoords.set_row( i, tMesh->get_mtk_vertex(i).get_coords() );
-            }
-
-            tGENGeometryEngine.initialize_geometry_object_phase_values( tCoords );
-
-            for( uint i = 0; i < tNumIPNodes; i++ )
-            {
-                tFieldData0( i ) = tGENGeometryEngine.get_entity_phase_val( i, 0 );
-                tFieldData1( i ) = tGENGeometryEngine.get_entity_phase_val( i, 1 );
-                tFieldData2( i ) = tGENGeometryEngine.get_entity_phase_val( i, 2 );
-                tFieldData3( i ) = tGENGeometryEngine.get_entity_phase_val( i, 3 );
-            }
-
-            tHMR.based_on_field_put_elements_on_queue( tFieldData0, tLagrangeMeshIndex );
-            tHMR.based_on_field_put_elements_on_queue( tFieldData1, tLagrangeMeshIndex );
-            tHMR.based_on_field_put_elements_on_queue( tFieldData2, tLagrangeMeshIndex );
-            tHMR.based_on_field_put_elements_on_queue( tFieldData3, tLagrangeMeshIndex );
-
-            tHMR.perform_refinement_based_on_working_pattern( 0, false );
-        }
-        tHMR.finalize();
-
-        moris::hmr::Interpolation_Mesh_HMR * tInterpolationMesh
-                = tHMR.create_interpolation_mesh( tLagrangeMeshIndex );
-
-        //-----------------------------------------------------------------------------------------------
-
+        // Create geometry engine
         Cell<std::shared_ptr<moris::ge::Geometry>> tGeometry(4);
         tGeometry(0) = std::make_shared<moris::ge::Plane>(0.0, tPlaneBottom, 0.0, 1.0);
         tGeometry(1) = std::make_shared<moris::ge::Plane>(0.0, tPlaneTop, 0.0, 1.0);
@@ -257,10 +206,17 @@ namespace moris
         tGeometry(3) = std::make_shared<moris::ge::Plane>(tPlaneRight, 0.0, 1.0, 0.0);
 
         moris::ge::Phase_Table tPhaseTable (4, moris::ge::Phase_Table_Structure::EXP_BASE_2);
-        moris::ge::Geometry_Engine tGENGeometryEngine0(tGeometry, tPhaseTable, 2);
+        moris::ge::Geometry_Engine tGENGeometryEngine(tGeometry, tPhaseTable, 2);
+
+        // Perform additional refinement
+        tGENGeometryEngine.perform_refinement(tHMR);
+
+        // Get interpolation mesh
+        tHMR->finalize();
+        moris::hmr::Interpolation_Mesh_HMR * tInterpolationMesh = tHMR->create_interpolation_mesh(tLagrangeMeshIndex);
 
         // --------------------------------------------------------------------------------------
-        xtk::Model tXTKModel( tModelDimension, tInterpolationMesh, &tGENGeometryEngine0 );
+        xtk::Model tXTKModel( tModelDimension, tInterpolationMesh, &tGENGeometryEngine );
         tXTKModel.mVerbose = true;
 
         //Specify decomposition Method and Cut Mesh ---------------------------------------
@@ -603,64 +559,12 @@ TEST_CASE("MDL_Fluid_Benchmark_Immersed_Inlet_Pressure","[MDL_Fluid_Benchmark_Im
         tParameters.set( "severity_level", 2 );
         tParameters.set( "use_number_aura", 0 );
 
-        hmr::HMR tHMR( tParameters );
+        std::shared_ptr<hmr::HMR> tHMR = std::make_shared<hmr::HMR>( tParameters );
 
-        //initial refinement
-        tHMR.perform_initial_refinement( 0 );
+        // Initial refinement
+        tHMR->perform_initial_refinement( 0 );
 
-        std::shared_ptr< moris::hmr::Mesh > tMesh = tHMR.create_mesh( tLagrangeMeshIndex );
-
-        for( uint k = 0; k < tNumRef; k++ )
-        {
-            Cell<std::shared_ptr<moris::ge::Geometry>> tGeometry(4);
-            tGeometry(0) = std::make_shared<moris::ge::Plane>(0.0, tPlaneBottom, 0.0, 1.0);
-            tGeometry(1) = std::make_shared<moris::ge::Plane>(0.0, tPlaneTop, 0.0, 1.0);
-            tGeometry(2) = std::make_shared<moris::ge::Plane>(tPlaneLeft, 0.0, 1.0, 0.0);
-            tGeometry(3) = std::make_shared<moris::ge::Plane>(tPlaneRight, 0.0, 1.0, 0.0);
-
-            moris::ge::Phase_Table tPhaseTable (4, moris::ge::Phase_Table_Structure::EXP_BASE_2);
-            moris::ge::Geometry_Engine tGENGeometryEngine(tGeometry, tPhaseTable, 2);
-
-            moris_index tMeshIndex = tGENGeometryEngine.register_mesh( tMesh );
-
-            uint tNumIPNodes = tMesh->get_num_nodes();
-            Matrix< DDRMat > tFieldData0( tNumIPNodes,1 );
-            Matrix< DDRMat > tFieldData1( tNumIPNodes,1 );
-            Matrix< DDRMat > tFieldData2( tNumIPNodes,1 );
-            Matrix< DDRMat > tFieldData3( tNumIPNodes,1 );
-
-            tGENGeometryEngine.initialize_geometry_objects_for_background_mesh_nodes( tNumIPNodes );
-            Matrix< DDRMat > tCoords( tNumIPNodes, tModelDimension );
-            for( uint i = 0; i < tNumIPNodes; i++ )
-            {
-                tCoords.set_row( i, tMesh->get_mtk_vertex(i).get_coords() );
-            }
-
-            tGENGeometryEngine.initialize_geometry_object_phase_values( tCoords );
-
-            for( uint i = 0; i < tNumIPNodes; i++ )
-            {
-                tFieldData0( i ) = tGENGeometryEngine.get_entity_phase_val( i, 0 );
-                tFieldData1( i ) = tGENGeometryEngine.get_entity_phase_val( i, 1 );
-                tFieldData2( i ) = tGENGeometryEngine.get_entity_phase_val( i, 2 );
-                tFieldData3( i ) = tGENGeometryEngine.get_entity_phase_val( i, 3 );
-            }
-
-            tHMR.based_on_field_put_elements_on_queue( tFieldData0, tLagrangeMeshIndex );
-            tHMR.based_on_field_put_elements_on_queue( tFieldData1, tLagrangeMeshIndex );
-            tHMR.based_on_field_put_elements_on_queue( tFieldData2, tLagrangeMeshIndex );
-            tHMR.based_on_field_put_elements_on_queue( tFieldData3, tLagrangeMeshIndex );
-
-            tHMR.perform_refinement_based_on_working_pattern( 0, false );
-        }
-        tHMR.finalize();
-        //        tHMR.save_to_exodus( 0, tHMRIPMeshFileName );
-
-        moris::hmr::Interpolation_Mesh_HMR * tInterpolationMesh
-                = tHMR.create_interpolation_mesh( tLagrangeMeshIndex );
-
-        //-----------------------------------------------------------------------------------------------
-
+        // Create geometry engine
         Cell<std::shared_ptr<moris::ge::Geometry>> tGeometry(4);
         tGeometry(0) = std::make_shared<moris::ge::Plane>(0.0, tPlaneBottom, 0.0, 1.0);
         tGeometry(1) = std::make_shared<moris::ge::Plane>(0.0, tPlaneTop, 0.0, 1.0);
@@ -668,10 +572,17 @@ TEST_CASE("MDL_Fluid_Benchmark_Immersed_Inlet_Pressure","[MDL_Fluid_Benchmark_Im
         tGeometry(3) = std::make_shared<moris::ge::Plane>(tPlaneRight, 0.0, 1.0, 0.0);
 
         moris::ge::Phase_Table tPhaseTable (4, moris::ge::Phase_Table_Structure::EXP_BASE_2);
-        moris::ge::Geometry_Engine tGENGeometryEngine0(tGeometry, tPhaseTable, 2);
+        moris::ge::Geometry_Engine tGENGeometryEngine(tGeometry, tPhaseTable, 2);
+
+        // Perform additional refinement
+        tGENGeometryEngine.perform_refinement(tHMR);
+
+        // Get interpolation mesh
+        tHMR->finalize();
+        moris::hmr::Interpolation_Mesh_HMR * tInterpolationMesh = tHMR->create_interpolation_mesh(tLagrangeMeshIndex);
 
         // --------------------------------------------------------------------------------------
-        xtk::Model tXTKModel( tModelDimension, tInterpolationMesh, &tGENGeometryEngine0 );
+        xtk::Model tXTKModel( tModelDimension, tInterpolationMesh, &tGENGeometryEngine );
         tXTKModel.mVerbose = true;
 
         //Specify decomposition Method and Cut Mesh ---------------------------------------
@@ -2346,67 +2257,28 @@ TEST_CASE("MDL_Fluid_Benchmark_Radial_Couette_Flow","[MDL_Fluid_Benchmark_Radial
         tParameters.set( "severity_level", 2 );
         tParameters.set( "use_number_aura", 0 );
 
-        hmr::HMR tHMR( tParameters );
+        std::shared_ptr<hmr::HMR> tHMR = std::make_shared<hmr::HMR>( tParameters );
 
-        //initial refinement
-        tHMR.perform_initial_refinement( 0 );
+        // Initial refinement
+        tHMR->perform_initial_refinement( 0 );
 
-        std::shared_ptr< moris::hmr::Mesh > tMesh = tHMR.create_mesh( tLagrangeMeshIndex );
+        // Create geometry engine
+        Cell<std::shared_ptr<moris::ge::Geometry>> tGeometry(2);
+        tGeometry(0) = std::make_shared<moris::ge::Circle>(tCenterPoint(0), tCenterPoint(1), tROut);
+        tGeometry(1) = std::make_shared<moris::ge::Circle>(tCenterPoint(0), tCenterPoint(1), tRIn);
 
-        // loop over refinement
-        for( uint k=0; k<tNumRef; ++k )
-        {
-            Cell<std::shared_ptr<moris::ge::Geometry>> tGeometry(2);
-            tGeometry(0) = std::make_shared<moris::ge::Circle>(tCenterPoint(0), tCenterPoint(1), tROut);
-            tGeometry(1) = std::make_shared<moris::ge::Circle>(tCenterPoint(0), tCenterPoint(1), tRIn);
+        moris::ge::Phase_Table tPhaseTable (2, moris::ge::Phase_Table_Structure::EXP_BASE_2);
+        moris::ge::Geometry_Engine tGENGeometryEngine(tGeometry, tPhaseTable, 2);
 
-            size_t tModelDimension = 2;
-            moris::ge::Phase_Table         tPhaseTable( 2, moris::ge::Phase_Table_Structure::EXP_BASE_2 );
-            moris::ge::Geometry_Engine     tGENGeometryEngine( tGeometry, tPhaseTable, tModelDimension );
+        // Perform additional refinement
+        tGENGeometryEngine.perform_refinement(tHMR);
 
-            //moris_index tMeshIndex = tGENGeometryEngine.register_mesh( tMesh );
-
-            uint tNumIPNodes = tMesh->get_num_nodes();
-            Matrix<DDRMat> tFieldData( tNumIPNodes,1 );
-            Matrix<DDRMat> tFieldData0( tNumIPNodes,1 );
-
-            tGENGeometryEngine.initialize_geometry_objects_for_background_mesh_nodes( tNumIPNodes );
-            Matrix< DDRMat > tCoords( tNumIPNodes, 2 );
-            for( uint i = 0; i < tNumIPNodes; i++ )
-            {
-                tCoords.set_row( i, tMesh->get_mtk_vertex(i).get_coords() );
-            }
-
-            tGENGeometryEngine.initialize_geometry_object_phase_values( tCoords );
-
-            for(uint i=0; i<tNumIPNodes; i++)
-            {
-                tFieldData( i )  = tGENGeometryEngine.get_entity_phase_val( i, 0 );
-                tFieldData0( i ) = tGENGeometryEngine.get_entity_phase_val( i, 1 );
-            }
-
-            tHMR.based_on_field_put_elements_on_queue( tFieldData, tLagrangeMeshIndex );
-            tHMR.based_on_field_put_elements_on_queue( tFieldData0, tLagrangeMeshIndex );
-
-            tHMR.perform_refinement_based_on_working_pattern( 0, false );
-        }
-        tHMR.finalize();
-
-        moris::hmr::Interpolation_Mesh_HMR * tInterpolationMesh
-        = tHMR.create_interpolation_mesh( tLagrangeMeshIndex );
-
-        //-----------------------------------------------------------------------------------------------
-
-        Cell<std::shared_ptr<moris::ge::Geometry>> tGeometry0(2);
-        tGeometry0(0) = std::make_shared<moris::ge::Circle>(tCenterPoint(0), tCenterPoint(1), tROut);
-        tGeometry0(1) = std::make_shared<moris::ge::Circle>(tCenterPoint(0), tCenterPoint(1), tRIn);
-
-        size_t tModelDimension = 2;
-        moris::ge::Phase_Table         tPhaseTable0( 2, moris::ge::Phase_Table_Structure::EXP_BASE_2 );
-        moris::ge::Geometry_Engine     tGENGeometryEngine0( tGeometry0, tPhaseTable0, tModelDimension );
+        // Get interpolation mesh
+        tHMR->finalize();
+        moris::hmr::Interpolation_Mesh_HMR * tInterpolationMesh = tHMR->create_interpolation_mesh(tLagrangeMeshIndex);
 
         // --------------------------------------------------------------------------------------
-        xtk::Model tXTKModel( tModelDimension, tInterpolationMesh, &tGENGeometryEngine0 );
+        xtk::Model tXTKModel( 2, tInterpolationMesh, &tGENGeometryEngine );
         tXTKModel.mVerbose = true;
 
         //Specify decomposition Method and Cut Mesh ---------------------------------------
