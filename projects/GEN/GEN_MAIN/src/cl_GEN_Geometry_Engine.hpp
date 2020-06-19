@@ -52,7 +52,6 @@ namespace moris
             moris::uint mSpatialDim;
             moris::real mThresholdValue;
             moris::real mPerturbationValue;
-            bool mComputeDxDp = false; // FIXME change this?
 
         private:
 
@@ -236,27 +235,6 @@ namespace moris
                                             bool                    aComputeGlobalCoordinate = false);
 
             /**
-             * Computes dx/dp using finite differencing
-             */
-            void compute_dx_dp_finite_difference( moris::real                      const & aPerturbationVal,
-                                                  moris::Matrix< moris::DDRMat >   const & aGlobalNodeCoordinates,
-                                                  moris::Matrix< moris::DDRMat >   const & aEntityNodeCoordinates,
-                                                  moris::Matrix< moris::DDRMat >   const & aIntersectionLclCoordinate,
-                                                  moris::Matrix< moris::IndexMat > const & aEntityNodeIndices,
-                                                  moris::Matrix< moris::DDRMat >         & aEntityNodeVars,
-                                                  moris::Matrix< moris::DDRMat >         & aDxDp );
-
-            /**
-             * Computes dx/dp of an intersection
-             */
-            void compute_dx_dp_for_an_intersection( moris::Matrix< moris::IndexMat > const & aEntityNodeIndices,
-                                                    moris::Matrix< moris::DDRMat >   const & aGlobalNodeCoordinates,
-                                                    moris::Matrix< moris::DDRMat >   const & aIntersectionLclCoordinate,
-                                                    moris::Matrix< moris::DDRMat >         & aEntityNodeVars,
-                                                    moris::Matrix< moris::DDRMat >         & aDxDp,
-                                                    moris::Matrix< moris::IndexMat >       & aADVIndices );
-
-            /**
              * @brief Get the total number of phases in the phase table
              */
             moris::size_t get_num_phases();
@@ -267,12 +245,6 @@ namespace moris
             moris::moris_index
             get_phase_sign_of_given_phase_and_geometry( moris::moris_index aPhaseIndex,
                                                         moris::moris_index aGeometryIndex );
-
-            /**
-             * @brief Get dxdp for a node
-             */
-            moris::Matrix< moris::DDRMat > const &
-            get_node_dx_dp(moris::size_t const & aNodeIndex) const;
 
             /**
               * For a given node index, return the phase index relative to each geometry (i.e. inside/outside indicator)
@@ -308,11 +280,6 @@ namespace moris
              * @brief Advance the active geometry index
              */
             void advance_geometry_index();
-
-            /**
-             * Returns the number of advs
-             */
-            moris::size_t get_num_design_variables();
 
             /**
              * Register an MTK mesh pair to the geometry engine

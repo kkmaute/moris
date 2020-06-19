@@ -94,11 +94,6 @@ namespace xtk
         // flag this as a non-parameter list based run
         mParameterList.insert("has_parameter_list", false);
 
-        if(aLinkGeometryOnConstruction == true)
-        {
-            link_background_mesh_to_geometry_objects();
-        }
-
         mBackgroundMesh.initialize_interface_node_flags(mBackgroundMesh.get_num_entities(EntityRank::NODE),mGeometryEngine->get_num_geometries());
     }
 
@@ -156,7 +151,6 @@ namespace xtk
         mConvertedToTet10s  = false;
 
         mBackgroundMesh = Background_Mesh(aMesh,mGeometryEngine);
-        link_background_mesh_to_geometry_objects();
         mBackgroundMesh.initialize_interface_node_flags(mBackgroundMesh.get_num_entities(EntityRank::NODE),mGeometryEngine->get_num_geometries());
     }
 
@@ -357,9 +351,6 @@ namespace xtk
     {
         // Start clock
         std::clock_t tTotalTime = std::clock();
-
-        // Assert that there has been a link between geometry model and background mesh
-        MORIS_ERROR(mLinkedBackground, "Geometry model and background mesh have not been linked via call to link_background_mesh_to_geometry_objects");
 
         // Process for a decomposition
         uint tNumDecompositions = aMethods.size();
@@ -1823,12 +1814,6 @@ Model::create_new_node_association_with_geometry(Decomposition_Data & tDecompDat
     }
 
     void
-    Model::link_background_mesh_to_geometry_objects()
-    {
-        mLinkedBackground = true;
-    }
-
-    void
     Model::finalize_decomp_in_xtk_mesh(bool aSetPhase)
     {
         // Change XTK model decomposition state flag
@@ -2702,23 +2687,17 @@ Model::create_new_node_association_with_geometry(Decomposition_Data & tDecompDat
     void
     Model::compute_sensitivity()
     {
-        // Start the clock
-        std::clock_t start = std::clock();
-
         // verify the state of the xtk model
         MORIS_ERROR(mDecomposed,"Prior to computing sensitivity, the decomposition process must be called");
         MORIS_ERROR(!mConvertedToTet10s,"Prior to computing sensitivity, the convert tet4 to tet10 process was called");
         MORIS_ERROR(!mSensitivity,"Calling compute interface sensitivity twice is not supported");
 
-        // Compute interface sensitivity
-        compute_interface_sensitivity_internal();
-
-        // Change the sensitivity computation state flag
-        mSensitivity = true;
-
-        if(moris::par_rank() == 0 && mVerbose)
+        // Set interface nodes to GE
+        uint tNumGeoms = mGeometryEngine->get_num_geometries();
+        for (uint iGeo = 0; iGeo < tNumGeoms; iGeo++)
         {
-            std::cout<<"XTK: Sensitivity computation completed in " <<(std::clock() - start) / (double)(CLOCKS_PER_SEC)<<" s."<<std::endl;
+            moris::Matrix<moris::IndexMat> tInterfaceNodes = mBackgroundMesh.get_interface_nodes_loc_inds(iGeo);
+            mGeometryEngine->set_interface_nodes(tInterfaceNodes);
         }
     }
 
@@ -4187,54 +4166,6 @@ Model::create_new_node_association_with_geometry(Decomposition_Data & tDecompDat
         moris::Cell<moris::mtk::Scalar_Field_Info<DDRMat>> tdxdpDataFields;
         moris::Cell<moris::mtk::Scalar_Field_Info<DDRMat>> tDesVarFields;
         moris::Cell<moris::mtk::Scalar_Field_Info<DDRMat>> tNumDesVarsField;
-        if(aOutputOptions.mPackageDxDpSparsely && mSensitivity)
-        {
-            this->extract_interface_sensitivity_sparse(tOutputtedNodeInds,adxdpData,adxdpNames,aDesVars,aDesVarsName,aNumDesVars,aNumDesVarsName);
-
-            tdxdpDataFields.resize(adxdpData.size());
-            tDesVarFields.resize(aDesVars.size());
-            tDesVarFields.resize(1);
-
-            // place into a field
-            for(moris::uint  i = 0; i <tdxdpDataFields.size(); i++)
-            {
-                tdxdpDataFields(i).set_field_name(adxdpNames(i));
-                tdxdpDataFields(i).set_field_entity_rank(moris::EntityRank::NODE);
-                tdxdpDataFields(i).add_field_data( &tLocalToGlobalNodeMap, &adxdpData(i));
-                add_field_for_mesh_input(&tdxdpDataFields(i),tFieldsInfo);
-            }
-
-            for(moris::uint  i = 0; i <tDesVarFields.size(); i++)
-            {
-                tDesVarFields(i).set_field_name(aDesVarsName(i));
-                tDesVarFields(i).set_field_entity_rank(moris::EntityRank::NODE);
-                tDesVarFields(i).add_field_data( &tLocalToGlobalNodeMap, &aDesVars(i));
-                add_field_for_mesh_input(&tDesVarFields(i),tFieldsInfo);
-            }
-
-            tNumDesVarsField(0).set_field_name(aNumDesVarsName);
-            tNumDesVarsField(0).set_field_entity_rank(moris::EntityRank::NODE);
-            tNumDesVarsField(0).add_field_data( &tLocalToGlobalNodeMap, &aNumDesVars);
-            add_field_for_mesh_input(&tNumDesVarsField(0),tFieldsInfo);
-
-        }
-
-        if(aOutputOptions.mPackageDxDpDensely && mSensitivity)
-        {
-            this->extract_interface_sensitivity_dense(tOutputtedNodeInds,adxdpData,adxdpNames);
-
-            tdxdpDataFields.resize(adxdpData.size());
-
-            // place into a field
-            for(moris::uint  i = 0; i <tdxdpDataFields.size(); i++)
-            {
-                tdxdpDataFields(i).set_field_name(adxdpNames(i));
-                tdxdpDataFields(i).set_field_entity_rank(moris::EntityRank::NODE);
-                tdxdpDataFields(i).add_field_data( &tLocalToGlobalNodeMap, &adxdpData(i));
-                add_field_for_mesh_input(&tdxdpDataFields(i),tFieldsInfo);
-            }
-        }
-
 
         //TODO: implement node owner (currently set to owned by this proc)
         //    moris::Matrix<moris::IdMat> tNodeOwner(1,tOutputtedNodeInds.numel(),moris::par_rank());
@@ -5074,128 +5005,6 @@ Model::output_node(moris::moris_index aNodeIndex,
             std::cout<<std::endl;
         }
     }
-
-
-    //------------------------------------------------------------------------------
-    void
-    Model::compute_interface_sensitivity_internal()
-    {
-        // Number of geometries in the geometry engine (we need to compute sensitivity wrt each)
-        uint tNumGeoms = mGeometryEngine->get_num_geometries();
-
-        // Node coordinates
-        moris::Matrix< moris::DDRMat > tNodeCoords = mBackgroundMesh.get_all_node_coordinates_loc_inds();
-
-        for(uint iGeo = 0; iGeo <tNumGeoms; iGeo++)
-        {
-            // Get interface nodes
-            moris::Matrix< moris::IndexMat > tInterfaceNodes = mBackgroundMesh.get_interface_nodes_loc_inds(iGeo);
-
-        // Compute interface sensitivity
-        mGeometryEngine->set_interface_nodes(tInterfaceNodes);
-    }
-}
-
-
-    void
-    Model::extract_interface_sensitivity_sparse(moris::Matrix<moris::IndexMat> const & aNodeIndsToOutput,
-            moris::Cell<moris::Matrix<DDRMat>>   & adxdpData,
-            moris::Cell<std::string>             & adxdpNames,
-            moris::Cell<moris::Matrix<DDRMat>>   & aDesVars,
-            moris::Cell<std::string>             & aDesVarsName,
-            moris::Matrix<moris::DDRMat>         & aNumDesVars,
-            std::string                          & aNumDesVarsName) const
-    {
-        // names of sparsely packaged fields
-        moris::uint tNumFields = 6;
-        adxdpNames = moris::Cell<std::string>({{"dx0dp0"},
-            {"dx1dp0"},
-            {"dx2dp0"},
-            {"dx0dp1"},
-            {"dx1dp1"},
-            {"dx2dp1"}});
-
-
-
-        moris::uint tNumNodes = aNodeIndsToOutput.numel();
-        adxdpData = moris::Cell<moris::Matrix<moris::DDRMat>>(tNumFields,moris::Matrix<moris::DDRMat>(tNumNodes,1,0.0));
-
-        //TODO: hardcoded to 2
-        tNumFields = 2;
-        aDesVarsName = moris::Cell<std::string>({{"DesVar0"},{"DesVar1"}});
-        aDesVars = moris::Cell<moris::Matrix<moris::DDRMat>>(tNumFields,moris::Matrix<moris::DDRMat>(tNumNodes,1));
-
-        aNumDesVarsName = "NumDesVar";
-        aNumDesVars = moris::Matrix<moris::DDRMat>(1,tNumNodes,0);
-
-        for(moris::uint iNode = 0; iNode<tNumNodes; iNode++)
-        {
-            moris::moris_index tNodeIndex = aNodeIndsToOutput(iNode);
-
-            if(mBackgroundMesh.is_interface_node(tNodeIndex,0))
-            {
-                moris::Matrix< moris::DDRMat > const & tdxdp = mGeometryEngine->get_node_dx_dp(tNodeIndex);
-
-                MORIS_ASSERT(tdxdp.n_rows() == 2,"Invalid dxdp size for sparse packing, This function only works on tet meshes with discrete fields at the moment");
-                MORIS_ASSERT(tdxdp.n_cols() == 3,"Invalid dxdp size for sparse packing, This function only works on tet meshes with discrete fields at the moment");
-
-                adxdpData(0)(iNode) = tdxdp(0,0);
-                adxdpData(1)(iNode) = tdxdp(0,1);
-                adxdpData(2)(iNode) = tdxdp(0,2);
-                adxdpData(3)(iNode) = tdxdp(1,0);
-                adxdpData(4)(iNode) = tdxdp(1,1);
-                adxdpData(5)(iNode) = tdxdp(1,2);
-        }
-
-        }
-    }
-
-    void
-    Model::extract_interface_sensitivity_dense(moris::Matrix<moris::IndexMat> const & aNodeIndsToOutput,
-            moris::Cell<moris::Matrix<DDRMat>>   & adxdpData,
-            moris::Cell<std::string>             & adxdpNames) const
-    {
-        // names of sparsely packaged fields
-        moris::uint tNumDVs = mGeometryEngine->get_num_design_variables();
-
-        // spatial dimension (used often here)
-        moris::uint tSpatialDim = this->get_spatial_dim();
-
-        for(moris::uint i = 0; i< tNumDVs; i++)
-        {
-            for(moris::uint j = 0; j < tSpatialDim; j++)
-            {
-                adxdpNames.push_back("dx" + std::to_string(j)+"dp"+std::to_string(i));
-            }
-        }
-
-        moris::uint tNumNodes = aNodeIndsToOutput.numel();
-        adxdpData = moris::Cell<moris::Matrix<moris::DDRMat>>(tNumDVs*tSpatialDim,moris::Matrix<moris::DDRMat>(tNumNodes,1,0.0));
-
-        for(moris::uint iNode = 0; iNode<tNumNodes; iNode++)
-        {
-            moris::moris_index tNodeIndex = aNodeIndsToOutput(iNode);
-
-            if(mBackgroundMesh.is_interface_node(tNodeIndex,0))
-            {
-                moris::Matrix< moris::DDRMat > const & tdxdp = mGeometryEngine->get_node_dx_dp(tNodeIndex);
-
-                MORIS_ASSERT(tdxdp.n_rows() == tNumDVs,"Invalid dxdp size for dense packing");
-                MORIS_ASSERT(tdxdp.n_cols() == tSpatialDim,"Invalid dxdp size for dense packing");
-
-                moris::uint tCount = 0;
-                for(moris::uint i = 0; i< tNumDVs; i++)
-                {
-                    for(moris::uint j = 0; j < tSpatialDim; j++)
-                    {
-                        adxdpData(tCount)(iNode) = tdxdp(i,j);
-                        tCount++;
-                    }
-                }
-            }
-        }
-    }
-
 
     //------------------------------------------------------------------------------
 

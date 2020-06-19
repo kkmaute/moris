@@ -103,7 +103,6 @@ TEST_CASE("XTK Cell Clusters","[MTK_CLUSTER_XTK]")
 
         moris::ge::Phase_Table tPhaseTable (1, moris::ge::Phase_Table_Structure::EXP_BASE_2);
         moris::ge::Geometry_Engine tGeometryEngine(tGeometry, tPhaseTable, 3);
-        tGeometryEngine.mComputeDxDp = false;
 
         /*
          * Setup XTK Model and tell it how to cut

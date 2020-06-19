@@ -350,65 +350,6 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
         
-        void Geometry_Engine::compute_dx_dp_finite_difference( moris::real                      const & aPerturbationVal,
-                                                                   moris::Matrix< moris::DDRMat >   const & aGlobalNodeCoordinates,
-                                                                   moris::Matrix< moris::DDRMat >   const & aEntityNodeCoordinates,
-                                                                   moris::Matrix< moris::DDRMat >   const & aIntersectionLclCoordinate,
-                                                                   moris::Matrix< moris::IndexMat > const & aEntityNodeIndices,
-                                                                   moris::Matrix< moris::DDRMat >         & aEntityNodeVars,
-                                                                   moris::Matrix< moris::DDRMat >         & aDxDp )
-        {
-        
-            moris::size_t tNumNodeVars = aEntityNodeVars.n_rows();
-            MORIS_ASSERT(tNumNodeVars == 2, "Currently compute_dx_dp_finite_difference has only been tested on edges");
-            aDxDp.resize(2, 3);
-        
-            moris::real tPerturbationLen = 2 * aPerturbationVal;
-            moris::real tScale   = 1/tPerturbationLen;
-            Cell<moris::real>  tPerturbationSign = {1, -1};
-        
-            moris::Matrix< moris::DDRMat >       tDxDp(1, 3);
-            moris::Matrix< moris::DDRMat >       tPerturbedLocalCoordinate(1, 1);
-            Cell<moris::Matrix< moris::DDRMat >> tPerturbedGlobCoordinates = {moris::Matrix< moris::DDRMat >(1, 3),
-                                                                     moris::Matrix< moris::DDRMat >(1, 3)};
-            // Loop over all the nodes and perturb up and down
-            for(moris::size_t i = 0; i < tNumNodeVars; i++)
-            {
-                // Perturb up and down
-                for(moris::size_t j = 0; j < 2; j++)
-                {
-        
-                    moris::real tPerturb = tPerturbationSign(j) * aPerturbationVal;
-                    // Perturb
-                    aEntityNodeVars(i, 0) = aEntityNodeVars(i, 0) + tPerturb;
-        
-                    // Locate perturbed interface
-                    get_intersection_location(
-                            mThresholdValue,
-                            aPerturbationVal,
-                            aGlobalNodeCoordinates,
-                            aEntityNodeVars,
-                            aEntityNodeIndices,
-                            tPerturbedLocalCoordinate,
-                            tPerturbedGlobCoordinates(j),
-                            false,
-                            true);
-
-                    // Reverse perturb
-                    aEntityNodeVars(i, 0) = aEntityNodeVars(i, 0) - tPerturb;
-        
-                }
-        
-                tDxDp.matrix_data() = tScale * (tPerturbedGlobCoordinates(1).matrix_data() - tPerturbedGlobCoordinates(0).matrix_data());
-        
-                replace_row(0, tDxDp, i, aDxDp);
-
-
-            }
-        }
-
-        //--------------------------------------------------------------------------------------------------------------
-        
         moris::size_t Geometry_Engine::get_num_phases()
         {
             return mPhaseTable.get_num_phases();
@@ -421,15 +362,6 @@ namespace moris
                                                                          moris::moris_index aGeometryIndex )
         {
             return mPhaseTable.get_phase_sign_of_given_phase_and_geometry( aPhaseIndex,aGeometryIndex );
-        }
-
-        //--------------------------------------------------------------------------------------------------------------
-
-        moris::Matrix< moris::DDRMat > const &
-        Geometry_Engine::get_node_dx_dp( moris::size_t const & aNodeIndex ) const
-        {
-            GEN_Geometry_Object const & tNodesGeoObj = mGeometryObjectManager.get_geometry_object_from_manager(aNodeIndex);
-            return tNodesGeoObj.get_sensitivity_dx_dp();
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -510,13 +442,6 @@ namespace moris
             MORIS_ASSERT(mActiveGeometryIndex < mGeometry.size(),
                     "Trying to advance past the number of geometries in the geometry engine");
             mActiveGeometryIndex += 1;
-        }
-
-        //--------------------------------------------------------------------------------------------------------------
-
-        moris::size_t Geometry_Engine::get_num_design_variables()
-        {
-            return mADVs.length();
         }
         
         //--------------------------------------------------------------------------------------------------------------
@@ -659,10 +584,6 @@ namespace moris
         
                     aGeometryObject.set_interface_loc_coord(tIntersectLocalCoordinate(0));
                     aGeometryObject.set_interface_glb_coord(tIntersectGlobalCoordinate);
-                    if(mComputeDxDp)
-                    {
-                        aGeometryObject.set_node_adv_indices(aNodeADVIndices);
-                    }
                }
             }
         

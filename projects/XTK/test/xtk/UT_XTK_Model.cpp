@@ -356,7 +356,6 @@ TEST_CASE("Propagate Mesh Sets","[SET_PROPOGATION]")
     moris::ge::Geometry_Engine tGeometryEngine(tGeometry, tPhaseTable);
 
     tGeometryEngine.mThresholdValue = 0.0;
-    tGeometryEngine.mComputeDxDp = false;
 
     /*
      * Load Mesh which has 3 block sets. These blocks are named:

@@ -380,7 +380,6 @@ namespace xtk
         private:
 
             // XTK Model State Flags
-            bool mLinkedBackground  = false; // Model background mesh linked to geometry model
             bool mDecomposed        = false; // Model has been decomposed
             bool mSensitivity       = false; // Model has computed sensitivity
             bool mConvertedToTet10s = false; // Model has been converted from tet4's to tet10s
@@ -570,12 +569,6 @@ namespace xtk
 
         private:
 
-             /*!
-              * Initializes link between background mesh and the geometry
-              */
-             void
-             link_background_mesh_to_geometry_objects();
-
              /*
               * Perform all tasks needed to finalize the decomposition process, such that the model is ready for enrichment, conversion to tet10 etc.
               * Tasks performed here:
@@ -715,30 +708,6 @@ namespace xtk
                       moris::Matrix< moris::IndexMat > const & aSideOrdinalPairs);
               void
               unzip_interface_assign_element_identifiers();
-
-
-
-
-              // Sensitivity computation functions -----------------------------------------------
-              void
-              compute_interface_sensitivity_internal();
-
-
-              void
-              extract_interface_sensitivity_sparse(
-                      moris::Matrix<moris::IndexMat> const & aNodeIndsToOutput,
-                      moris::Cell<moris::Matrix<DDRMat>>   & adxdpData,
-                      moris::Cell<std::string>             & adxdpNames,
-                      moris::Cell<moris::Matrix<DDRMat>>   & aDesVars,
-                      moris::Cell<std::string>             & aDesVarsName,
-                      moris::Matrix<moris::DDRMat>         & aNumDesVars,
-                      std::string                          & aNumDesVarsName) const;
-
-              void
-              extract_interface_sensitivity_dense(
-                      moris::Matrix<moris::IndexMat> const & aNodeIndsToOutput,
-                      moris::Cell<moris::Matrix<DDRMat>>   & adxdpData,
-                      moris::Cell<std::string>             & adxdpNames) const;
 
               // Enrichment computation functions -----------------------------------------------
 

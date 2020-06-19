@@ -103,7 +103,6 @@ TEST_CASE("Enrichment Example 1","[ENRICH_1]")
         moris::ge::Geometry_Engine tGeometryEngine(tGeometry, tPhaseTable);
 
         tGeometryEngine.mThresholdValue = 0.0;
-        tGeometryEngine.mComputeDxDp = false;
 
         /*
          * Setup XTK Model and tell it how to cut
@@ -235,7 +234,6 @@ TEST_CASE("8 Element 10 enrichment Levels","[ENRICH_10_EL_CLUSTER]")
         moris::ge::Geometry_Engine tGeometryEngine(tGeometry, tPhaseTable);
 
         tGeometryEngine.mThresholdValue = 0.0;
-        tGeometryEngine.mComputeDxDp = false;
 
         /*
          * Setup XTK Model and tell it how to cut
