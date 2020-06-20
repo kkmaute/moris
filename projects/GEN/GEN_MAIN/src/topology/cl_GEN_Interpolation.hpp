@@ -77,8 +77,7 @@ public:
         for(size_t i = 0; i < tNumInterpolationVars; i++)
         {
             moris::Matrix< Real_Matrix > tTmpVar = aInterpVars.get_column(i);
-
-            aLocalCoordinate(0, i) = (2 * aValue - tTmpVar(1, 0) - tTmpVar(0, 0)) / (tTmpVar(1, 0) - tTmpVar(0, 0));
+            aLocalCoordinate(i) = (2 * aValue - tTmpVar(1) - tTmpVar(0)) / (tTmpVar(1) - tTmpVar(0));
         }
     }
 

@@ -1,7 +1,7 @@
 #ifndef MORIS_CL_GEN_PROPERTY_HPP_
 #define MORIS_CL_GEN_PROPERTY_HPP_
 
-#include "cl_GEN_Field_Base.hpp"
+#include "cl_GEN_Field.hpp"
 
 namespace moris
 {

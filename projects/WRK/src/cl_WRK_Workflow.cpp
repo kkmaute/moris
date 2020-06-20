@@ -34,7 +34,7 @@ namespace moris
             mPerformerManager->mHMRPerformer( 0 )->perform_initial_refinement( 0 );
 
             // HMR refined by GE
-            mPerformerManager->mGENPerformer( 0 )->perform();
+            mPerformerManager->mGENPerformer( 0 )->perform_refinement(mPerformerManager->mHMRPerformer( 0 ));
 
             // HMR finalize
             mPerformerManager->mHMRPerformer( 0 )->perform();
@@ -44,13 +44,13 @@ namespace moris
             //---------------------------------------------------------------------------------------
 
             // Register Mesh to Ge
-            mPerformerManager->mGENPerformer( 0 )->register_mesh( mPerformerManager->mMTKPerformer( 0 ).get() );
+            mPerformerManager->mGENPerformer( 0 )->register_mesh( mPerformerManager->mMTKPerformer( 0 ) );
 
             // XTK perform - decompose - enrich - ghost - multigrid
             mPerformerManager->mXTKPerformer( 0 )->perform();
 
             // Assign PDVs
-            mPerformerManager->mGENPerformer( 0 )->register_mesh( mPerformerManager->mMTKPerformer( 1 ).get() );
+            mPerformerManager->mGENPerformer( 0 )->register_mesh( mPerformerManager->mMTKPerformer( 1 ) );
             mPerformerManager->mGENPerformer( 0 )->assign_pdv_hosts();
 
             //---------------------------------------------------------------------------------------

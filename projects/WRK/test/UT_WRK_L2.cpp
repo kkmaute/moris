@@ -132,13 +132,11 @@ TEST_CASE("WRK L2 test","[WRK_L2_test]")
 
          std::shared_ptr< ge::Geometry_Engine > tGENPerformer = std::make_shared< ge::Geometry_Engine >( tParameterLists );
 
-         tGENPerformer->register_mesh( tHMRPerformer );
-
          // uniform initial refinement
          tHMRPerformer->perform_initial_refinement( 0 );
 
          // HMR refined by GE
-         tGENPerformer->perform();
+         tGENPerformer->perform_refinement(tHMRPerformer);
 
          std::shared_ptr< mtk::Mesh_Manager > tMTKPerformer_HMR = std::make_shared< mtk::Mesh_Manager >();
          tHMRPerformer->set_performer( tMTKPerformer_HMR );
@@ -151,7 +149,7 @@ TEST_CASE("WRK L2 test","[WRK_L2_test]")
          //---------------------------------------------------------------------------------------
 
          // Register Mesh to Ge
-         tGENPerformer->register_mesh( tMTKPerformer_HMR.get() );
+         tGENPerformer->register_mesh( tMTKPerformer_HMR );
 
          // create MTK performer - will be used for XTK mesh
          std::shared_ptr< mtk::Mesh_Manager > tMTKPerformer_XTK = std::make_shared< mtk::Mesh_Manager >();

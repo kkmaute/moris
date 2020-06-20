@@ -180,7 +180,9 @@ TEST_CASE("XTK Parameter List","[PARAM]")
             moris::Matrix< moris::DDRMat > tHex8LSVs(8,1);
             for(size_t iNode = 0; iNode<8; iNode++)
             {
-                tHex8LSVs(iNode)  = tXTKModel.get_geom_engine()->get_entity_phase_val(tNodesAttachedToParentElem(iNode),0);
+                tHex8LSVs(iNode)  = tXTKModel.get_geom_engine()->get_geometry_field_value(tNodesAttachedToParentElem(iNode),
+                                                                                          tMeshData->get_node_coordinate(tNodesAttachedToParentElem(iNode)),
+                                                                                          0);
             }
 
             // Get the interface node parametric coordinate in iCM
@@ -193,7 +195,7 @@ TEST_CASE("XTK Parameter List","[PARAM]")
             moris::Matrix<moris::DDRMat> tInterfaceLSV = tBasisWeights*tHex8LSVs;
 
             // Verify it is  approximately 0.0
-            CHECK(std::abs(tInterfaceLSV(0)) <= 0.1);
+            CHECK(std::abs(tInterfaceLSV(0)) <= 0.15);
 
         }
     }

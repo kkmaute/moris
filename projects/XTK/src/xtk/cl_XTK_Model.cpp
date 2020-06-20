@@ -725,16 +725,18 @@ namespace xtk
                 {
                     mBackgroundMesh.mark_node_as_interface_node(tDecompData.tNewNodeIndex(i),tGeomIndex);
 
-                    // determine if this vertex is on other interfaces
-                    for(moris::uint j = 0; j < mGeometryEngine->get_num_geometries(); j++)
+                // determine if this vertex is on other interfaces
+                for(moris::uint j = 0; j < mGeometryEngine->get_num_geometries(); j++)
+                {
+                    moris::real const & tPhaseVal = mGeometryEngine->get_geometry_field_value(tDecompData.tNewNodeIndex(i),
+                                                                                              tDecompData.tNewNodeCoordinate(i),
+                                                                                              j);
+                    if(moris::equal_to(0.0,tPhaseVal))
                     {
-                        moris::real const & tPhaseVal = mGeometryEngine->get_entity_phase_val(tDecompData.tNewNodeIndex(i),(moris_index)j);
-                        if(moris::equal_to(0.0,tPhaseVal))
-                        {
-                            mBackgroundMesh.mark_node_as_interface_node(tDecompData.tNewNodeIndex(i),j);
-                        }
+                        mBackgroundMesh.mark_node_as_interface_node(tDecompData.tNewNodeIndex(i),j);
                     }
                 }
+            }
 
                 // Set Node Ids and tell the child mesh to update
                 for (moris::size_t j = 0; j < aActiveChildMeshIndices.n_cols(); j++)
@@ -938,7 +940,9 @@ namespace xtk
                     // determine if this vertex is on other interfaces
                     for(moris::uint j = 0; j < mGeometryEngine->get_num_geometries(); j++)
                     {
-                        moris::real const & tPhaseVal = mGeometryEngine->get_entity_phase_val(tDecompData.tNewNodeIndex(i),(moris_index)j);
+                        moris::real const & tPhaseVal = mGeometryEngine->get_geometry_field_value(tDecompData.tNewNodeIndex(i),
+                                                                                                  tDecompData.tNewNodeCoordinate(i),
+                                                                                                  j);
                         if(moris::equal_to(0.0,tPhaseVal))
                         {
                             mBackgroundMesh.mark_node_as_interface_node(tDecompData.tNewNodeIndex(i),j);
@@ -1312,17 +1316,16 @@ namespace xtk
         }
     }
 
-    void
-    Model::create_new_node_association_with_geometry(Decomposition_Data & tDecompData)
-    {
-        // create geometry objects for each node
-        mGeometryEngine->create_new_node_geometry_objects(
-                tDecompData.tNewNodeIndex,
-                tDecompData.mConformalDecomp,
-                tDecompData.tNewNodeParentTopology,
-                tDecompData.tParamCoordRelativeToParent,
-                tDecompData.tNewNodeCoordinate);
-    }
+void
+Model::create_new_node_association_with_geometry(Decomposition_Data & tDecompData)
+{
+    // create geometry objects for each node
+    mGeometryEngine->create_new_node_geometry_objects(tDecompData.tNewNodeIndex,
+                                                      tDecompData.mConformalDecomp,
+                                                      tDecompData.tNewNodeParentTopology,
+                                                      tDecompData.tParamCoordRelativeToParent,
+                                                      mBackgroundMesh.get_all_node_coordinates_loc_inds());
+}
 
     void
     Model::assign_node_requests_identifiers(
@@ -1822,11 +1825,6 @@ namespace xtk
     void
     Model::link_background_mesh_to_geometry_objects()
     {
-        // initialize geometry objects
-        moris::Matrix< moris::DDRMat > tNodeCoords = mBackgroundMesh.get_all_node_coordinates_loc_inds();
-
-        mGeometryEngine->initialize_geometry_objects_for_background_mesh_nodes(tNodeCoords.n_rows());
-        mGeometryEngine->initialize_geometry_object_phase_values(tNodeCoords);
         mLinkedBackground = true;
     }
 
@@ -3650,14 +3648,14 @@ namespace xtk
         {
             moris::mtk::Vertex & tVertex = mBackgroundMesh.get_mtk_vertex(i);
 
-            std::cout<<"Vertex Id: "<<std::setw(8)<<tVertex.get_id()<<" | ";
-            for(moris::uint j = 0; j < mGeometryEngine->get_num_geometries(); j++)
-            {
-                std::cout<<std::setw(12)<<mGeometryEngine->get_entity_phase_val(tVertex.get_index(),j)<<" , ";
-            }
-            std::cout<<std::endl;
+        std::cout<<"Vertex Id: "<<std::setw(8)<<tVertex.get_id()<<" | ";
+        for(moris::uint j = 0; j < mGeometryEngine->get_num_geometries(); j++)
+        {
+            std::cout<<std::setw(12)<<mGeometryEngine->get_geometry_field_value(tVertex.get_index(), tVertex.get_coords(), j)<<" , ";
         }
+        std::cout<<std::endl;
     }
+}
 
 
     void
@@ -4518,10 +4516,7 @@ namespace xtk
             {
                 if(output_node(i,aOutputOptions) && mBackgroundMesh.get_vertex_owner(i) == tMyProcRank)
                 {
-
-                    moris::size_t tPhaseIndex = 0;
                     moris_index   tVertexIndex = mBackgroundMesh.get_loc_entity_ind_from_entity_glb_id(tNodeMap(i),EntityRank::NODE);
-                    mGeometryEngine->get_phase_index(tVertexIndex,tPhaseIndex);
                     aOutputtedNodeInds(tCount) = tVertexIndex;
                     tRestrictedNodeMap(tCount) = tNodeMap(i);
 
@@ -5001,14 +4996,14 @@ namespace xtk
     //------------------------------------------------------------------------------
 
 
-    bool
-    Model::output_node(moris::moris_index aNodeIndex,
-            Output_Options const & aOutputOptions)
-    {
-        bool tIsInterface = mBackgroundMesh.is_interface_node(aNodeIndex,0);
-        moris::size_t tPhaseIndex = 0;
-        mGeometryEngine->get_phase_index(aNodeIndex,tPhaseIndex);
-
+bool
+Model::output_node(moris::moris_index aNodeIndex,
+                   Output_Options const & aOutputOptions)
+{
+    bool tIsInterface = mBackgroundMesh.is_interface_node(aNodeIndex,0);
+    moris::size_t tPhaseIndex = 0;
+    mGeometryEngine->get_phase_index(aNodeIndex,
+                                     mBackgroundMesh.get_selected_node_coordinates_loc_inds({{aNodeIndex}}));
 
         if(aOutputOptions.output_phase(tPhaseIndex) && !tIsInterface)
         {
@@ -5032,18 +5027,21 @@ namespace xtk
         moris::Matrix< moris::IndexMat > tNodalPhaseVals(1,tNumGeom,MORIS_INDEX_MAX);
 
 
-        for(moris::size_t i = 0; i<tNumGeom; i++)
+    for (moris::uint i = 0; i < tNumGeom; i++)
+    {
+        bool tFoundNonInterfaceNode = false;
+        for( moris::size_t j = 0; j<tNumNodesPerElem; j++)
         {
-            bool tFoundNonInterfaceNode = false;
-            for( moris::size_t j = 0; j<tNumNodesPerElem; j++)
+            if(!mBackgroundMesh.is_interface_node(aElementToNodeIndex(aRowIndex,j),i))
             {
-                if(!mBackgroundMesh.is_interface_node(aElementToNodeIndex(aRowIndex,j),i))
-                {
-                    tNodalPhaseVals(0,i) = mGeometryEngine->get_node_phase_index_wrt_a_geometry(aElementToNodeIndex(aRowIndex,j),i);
-                    tFoundNonInterfaceNode = true;
-                    break;
-                }
+                tNodalPhaseVals(0,i) = mGeometryEngine->
+                        get_node_phase_index_wrt_a_geometry((moris::uint)aElementToNodeIndex(aRowIndex, j),
+                                                            mBackgroundMesh.get_selected_node_coordinates_loc_inds({{ aElementToNodeIndex(aRowIndex,j) }}),
+                                                            i);
+                tFoundNonInterfaceNode = true;
+                break;
             }
+        }
 
             if(!tFoundNonInterfaceNode)
             {
@@ -5093,10 +5091,10 @@ namespace xtk
             // Get interface nodes
             moris::Matrix< moris::IndexMat > tInterfaceNodes = mBackgroundMesh.get_interface_nodes_loc_inds(iGeo);
 
-            // Compute interface sensitivity
-            mGeometryEngine->compute_interface_sensitivity(tInterfaceNodes,tNodeCoords,iGeo);
-        }
+        // Compute interface sensitivity
+        mGeometryEngine->set_interface_nodes(tInterfaceNodes);
     }
+}
 
 
     void
@@ -5147,14 +5145,7 @@ namespace xtk
                 adxdpData(3)(iNode) = tdxdp(1,0);
                 adxdpData(4)(iNode) = tdxdp(1,1);
                 adxdpData(5)(iNode) = tdxdp(1,2);
-
-                moris::Matrix< moris::IndexMat > const & tDesVarInds = mGeometryEngine->get_node_adv_indices(tNodeIndex);
-
-                aDesVars(0)(iNode) = (moris::real)mBackgroundMesh.get_mesh_data().get_glb_entity_id_from_entity_loc_index(tDesVarInds(0),EntityRank::NODE);
-                aDesVars(1)(iNode) = (moris::real)mBackgroundMesh.get_mesh_data().get_glb_entity_id_from_entity_loc_index(tDesVarInds(1),EntityRank::NODE);
-
-                aNumDesVars(iNode) = tDesVarInds.numel();
-            }
+        }
 
         }
     }
@@ -5218,15 +5209,16 @@ namespace xtk
         // Allocate output data
         moris::Cell< moris::Matrix < moris::DDRMat > > tGeometryData(tNumGeometries, moris::Matrix<moris::DDRMat>(tNumNodes,1));
 
-        //Iterate through geometries
-        for(uint iG = 0; iG <tNumGeometries; iG++)
+    //Iterate through geometries
+    moris::Matrix< moris::DDRMat > tNodeCoords = mBackgroundMesh.get_selected_node_coordinates_loc_inds(aNodeIndsToOutput);
+    for(uint iG = 0; iG <tNumGeometries; iG++)
+    {
+        // Iterate through nodes
+        for(uint iN = 0; iN<tNumNodes; iN++)
         {
-            // Iterate through nodes
-            for(uint iN = 0; iN<tNumNodes; iN++)
-            {
-                tGeometryData(iG)(iN) = mGeometryEngine->get_entity_phase_val(aNodeIndsToOutput(iN),iG);
-            }
+            tGeometryData(iG)(iN) = mGeometryEngine->get_geometry_field_value(aNodeIndsToOutput(iN), tNodeCoords.get_row(iN), iG);
         }
+    }
 
         return tGeometryData;
     }

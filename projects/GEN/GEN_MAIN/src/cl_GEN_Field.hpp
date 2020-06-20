@@ -2,6 +2,7 @@
 #define MORIS_CL_GEN_Field_HPP
 
 #include "cl_Matrix.hpp"
+#include "cl_GEN_Child_Node.hpp"
 
 namespace moris
 {
@@ -75,6 +76,14 @@ namespace moris
             void evaluate_sensitivity(      uint            aIndex,
                                       const Matrix<DDRMat>& aCoordinates,
                                             Matrix<DDRMat>& aSensitivities);
+
+            /**
+             * Add a new child node for evaluation, implemented for discrete fields
+             *
+             * @param aNodeIndex Index of the child node
+             * @param aChildNode Contains information about how the child node was created
+             */
+            virtual void add_child_node(uint aNodeIndex, Child_Node aChildNode);
 
         private:
 

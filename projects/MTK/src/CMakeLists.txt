@@ -76,6 +76,7 @@ stk_impl/cl_MTK_Side_Cluster_STK.cpp
 cl_MTK_Integration_Mesh.cpp
 cl_MTK_Block.cpp
 cl_MTK_Mesh_Checker.cpp
+cl_MTK_Exodus_IO_Helper.cpp
 cl_MTK_Writer_Exodus.cpp
 cl_MTK_Reader_Exodus.cpp
 cl_MTK_Cell_Info_Factory.cpp
