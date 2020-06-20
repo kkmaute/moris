@@ -55,9 +55,9 @@ namespace xtk
 //        }
 
 //
-        mtk::Mesh_Checker tMeshChecker(0,&mXTKModel->get_enriched_interp_mesh(0),&mXTKModel->get_enriched_integ_mesh(0));
-        tMeshChecker.perform();
-        tMeshChecker.print_diagnostics();
+//        mtk::Mesh_Checker tMeshChecker(0,&mXTKModel->get_enriched_interp_mesh(0),&mXTKModel->get_enriched_integ_mesh(0));
+//        tMeshChecker.perform();
+//        tMeshChecker.print_diagnostics();
 
 
 
