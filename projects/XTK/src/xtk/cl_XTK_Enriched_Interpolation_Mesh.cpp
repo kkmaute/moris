@@ -696,12 +696,11 @@ namespace xtk
     void Enriched_Interpolation_Mesh::print_enriched_cell_maps() const
     {
         moris::uint tNumCells = this->get_num_entities(EntityRank::ELEMENT);
-        moris::uint tSpatialDim = mXTKModel->get_spatial_dim();
 
         std::cout<<"\nCell Map:"<<std::endl;
         for(moris::uint i =0; i <tNumCells; i++)
         {
-            std::cout<<"    Cell Index: "<<std::setw(9)<<i<< " | Cell Id: "<<std::setw(9) <<mLocalToGlobalMaps(tSpatialDim)(i)<<std::endl;
+            std::cout<<"    Cell Index: "<<std::setw(9)<<i<< " | Cell Id: "<<std::setw(9) <<mLocalToGlobalMaps(3)(i)<<std::endl;
         }
     }
     //------------------------------------------------------------------------------
@@ -1183,6 +1182,8 @@ namespace xtk
         moris::uint tNumCells = this->get_num_entities(EntityRank::ELEMENT);
 
         mLocalToGlobalMaps(3) = Matrix<IdMat>(tNumCells,1);
+
+//        mGlobaltoLobalMaps(3).clear();
 
         for(moris::uint i =0; i <tNumCells; i++)
         {

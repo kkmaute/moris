@@ -31,8 +31,10 @@ namespace xtk
         Ghost_Setup_Data tGhostSetupData;
 
         xtk::Enriched_Interpolation_Mesh & tEnrIpMesh  = mXTKModel->get_enriched_interp_mesh(0);
+
 //        xtk::Enriched_Integration_Mesh & tEnrIgMesh  = mXTKModel->get_enriched_integ_mesh(0);
 //
+
 //        // collect vertices in bulk phase 160
 //        moris::Cell<std::string> tBlockSets = {"HMR_dummy_c_p160,HMR_dummy_n_p160"};
 //
@@ -53,12 +55,12 @@ namespace xtk
 //        }
 
 //
-//        mtk::Mesh_Checker tMeshChecker(0,&mXTKModel->get_enriched_interp_mesh(0),&mXTKModel->get_enriched_integ_mesh(0));
-//        tMeshChecker.perform();
-//        tMeshChecker.print_diagnostics();
-//
-//
-//
+        mtk::Mesh_Checker tMeshChecker(0,&mXTKModel->get_enriched_interp_mesh(0),&mXTKModel->get_enriched_integ_mesh(0));
+        tMeshChecker.perform();
+        tMeshChecker.print_diagnostics();
+
+
+
 
           moris::uint tNumVerts = tEnrIpMesh.get_num_entities(EntityRank::NODE,0);
 
@@ -108,7 +110,8 @@ namespace xtk
         // Construct Ghost Double Side Clusters and Sets
         this->construct_ghost_double_side_sets_in_mesh(tGhostSetupData);
 
-
+        // tell the interp mesh to update its cell maps
+        tEnrIpMesh.setup_cell_maps();
 
         tOwnedIndices.clear();
         tOwnedIds.clear();
