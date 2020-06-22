@@ -32,7 +32,6 @@ namespace moris
         Geometry_Engine::Geometry_Engine(Cell<Cell<ParameterList>> aParameterLists,
                                          std::shared_ptr<moris::Library_IO> aLibrary):
                 // User options
-                mSpatialDim(aParameterLists(0)(0).get<int>("spatial_dimensions")),
                 mThresholdValue(aParameterLists(0)(0).get<real>("threshold_value")),
                 mPerturbationValue(aParameterLists(0)(0).get<real>("perturbation_value")),
                 mNumRefinements(aParameterLists(0)(0).get<int>("HMR_refinements")),
@@ -449,6 +448,7 @@ namespace moris
         void Geometry_Engine::register_mesh(std::shared_ptr<mtk::Mesh_Manager> aMeshManager)
         {
             mMeshManager = aMeshManager;
+            mSpatialDim = mMeshManager->get_interpolation_mesh(0)->get_spatial_dim();
         }
 
         //--------------------------------------------------------------------------------------------------------------

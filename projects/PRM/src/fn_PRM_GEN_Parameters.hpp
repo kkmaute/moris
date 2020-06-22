@@ -19,7 +19,6 @@ namespace moris
             ParameterList tParameterList;
 
             // General
-            tParameterList.insert("spatial_dimensions", 3);      // Number of spatial dimensions
             tParameterList.insert("threshold_value", 0.0);
             tParameterList.insert("perturbation_value", 1E-6);
             tParameterList.insert("HMR_refinements", 0);        // Number of HMR refinements to be performed
