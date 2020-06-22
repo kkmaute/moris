@@ -18,8 +18,8 @@ namespace moris
         {
             ParameterList tParameterList;
 
-            // General
-            tParameterList.insert("threshold_value", 0.0);
+            // Level-set parameters
+            tParameterList.insert("isocontour_threshold", 0.0);
             tParameterList.insert("perturbation_value", 1E-6);
             tParameterList.insert("HMR_refinements", 0);        // Number of HMR refinements to be performed
 

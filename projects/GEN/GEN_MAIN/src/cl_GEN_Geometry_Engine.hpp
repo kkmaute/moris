@@ -49,11 +49,13 @@ namespace moris
         class Geometry_Engine
         {
         public:
-            moris::uint mSpatialDim;
-            moris::real mThresholdValue;
-            moris::real mPerturbationValue;
+            real mIsocontourThreshold;
+            real mPerturbationValue;
 
         private:
+
+            // Spatial dimensions
+            uint mSpatialDim
 
             // HMR refinements
             uint mNumRefinements = 0;

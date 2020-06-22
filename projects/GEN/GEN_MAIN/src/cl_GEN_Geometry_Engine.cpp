@@ -32,7 +32,7 @@ namespace moris
         Geometry_Engine::Geometry_Engine(Cell<Cell<ParameterList>> aParameterLists,
                                          std::shared_ptr<moris::Library_IO> aLibrary):
                 // User options
-                mThresholdValue(aParameterLists(0)(0).get<real>("threshold_value")),
+                mIsocontourThreshold(aParameterLists(0)(0).get<real>("threshold_value")),
                 mPerturbationValue(aParameterLists(0)(0).get<real>("perturbation_value")),
                 mNumRefinements(aParameterLists(0)(0).get<int>("HMR_refinements")),
                 mUserDefinedFunc(nullptr),
@@ -116,7 +116,7 @@ namespace moris
                                          real                               aThresholdValue,
                                          real                               aPerturbationValue)
             : mSpatialDim(aSpatialDim),
-              mThresholdValue(aThresholdValue),
+              mIsocontourThreshold(aThresholdValue),
               mPerturbationValue(aPerturbationValue),
               mActiveGeometryIndex(0),
               mGeometry(aGeometry),
@@ -307,7 +307,7 @@ namespace moris
         //--------------------------------------------------------------------------------------------------------------
 
         void Geometry_Engine::get_intersection_location( real                    aIsocontourThreshold,
-                                                         real                    aPerturbationThreshold,
+                                                         real                    aPerturbationValue,
                                                          const Matrix<DDRMat>&   aGlobalNodeCoordinates,
                                                          const Matrix<DDRMat>&   aEntityNodeVars,
                                                          const Matrix<IndexMat>& aEntityNodeIndices,
@@ -323,14 +323,14 @@ namespace moris
             // Perturb away from node if necessary
             if(aCheckLocalCoordinate)
             {
-                if(aIntersectionLocalCoordinates(0, 0) >= 1-aPerturbationThreshold)
+                if(aIntersectionLocalCoordinates(0, 0) >= 1-aPerturbationValue)
                 {
-                    aIntersectionLocalCoordinates(0, 0) = aIntersectionLocalCoordinates(0, 0) - aPerturbationThreshold;
+                    aIntersectionLocalCoordinates(0, 0) = aIntersectionLocalCoordinates(0, 0) - aPerturbationValue;
                 }
 
-                if(aIntersectionLocalCoordinates(0, 0) <= -1+aPerturbationThreshold)
+                if(aIntersectionLocalCoordinates(0, 0) <= -1+aPerturbationValue)
                 {
-                    aIntersectionLocalCoordinates(0, 0) = aIntersectionLocalCoordinates(0, 0) + aPerturbationThreshold;
+                    aIntersectionLocalCoordinates(0, 0) = aIntersectionLocalCoordinates(0, 0) + aPerturbationValue;
                 }
             }
 
@@ -376,7 +376,7 @@ namespace moris
                 tNodePhaseValue = this->get_geometry_field_value(aNodeIndex, aCoordinates, tGeometryIndex);
 
                 // Negative
-                if (tNodePhaseValue < mThresholdValue)
+                if (tNodePhaseValue < mIsocontourThreshold)
                 {
                     tPhaseOnOff(0, tGeometryIndex) = 0;
                 }
@@ -405,7 +405,7 @@ namespace moris
             real tNodePhaseValue = this->get_geometry_field_value(aNodeIndex, aCoordinates, aGeometryIndex);
 
             moris::size_t tPhaseOnOff = 1;
-            if (tNodePhaseValue < mThresholdValue)
+            if (tNodePhaseValue < mIsocontourThreshold)
             {
                 tPhaseOnOff = 0;
             }
@@ -539,14 +539,14 @@ namespace moris
             moris::real tErrorFactor = 1;
             // If the max is also the threshold value, figure out which node is on the interface
 
-            if( moris::ge::approximate(tMin, mThresholdValue, tErrorFactor) && moris::ge::approximate(tMax, mThresholdValue,tErrorFactor))
+            if( moris::ge::approximate(tMin, mIsocontourThreshold, tErrorFactor) && moris::ge::approximate(tMax, mIsocontourThreshold,tErrorFactor))
             {
                 aGeometryObject.set_parent_entity_index(aEntityIndex);
                 aGeometryObject.mark_all_nodes_as_on_interface();
                 tIsIntersected = true;
             }
 
-            else if(moris::ge::approximate(tMax,mThresholdValue, tErrorFactor))
+            else if(moris::ge::approximate(tMax,mIsocontourThreshold, tErrorFactor))
             {
                 aGeometryObject.set_parent_entity_index(aEntityIndex);
                 aGeometryObject.mark_node_as_on_interface(tMaxLocRow);
@@ -554,15 +554,15 @@ namespace moris
             }
 
             // If the min is also the threshold value, figure out which node is on the interface
-            else if(moris::ge::approximate(tMin,mThresholdValue, tErrorFactor))
+            else if(moris::ge::approximate(tMin,mIsocontourThreshold, tErrorFactor))
             {
                 aGeometryObject.set_parent_entity_index(aEntityIndex);
                 aGeometryObject.mark_node_as_on_interface(tMinLocRow);
                 tIsIntersected = true;
             }
 
-            else if((tMax > mThresholdValue) &&
-               (tMin < mThresholdValue))
+            else if((tMax > mIsocontourThreshold) &&
+               (tMin < mIsocontourThreshold))
             {
                 aGeometryObject.set_parent_entity_index(aEntityIndex);
                 aGeometryObject.mark_nodes_as_not_on_interface();
@@ -572,7 +572,7 @@ namespace moris
                     moris::Matrix< moris::DDRMat > tIntersectLocalCoordinate(1,1);
                     moris::Matrix< moris::DDRMat > tIntersectGlobalCoordinate(1,mSpatialDim);
 
-                    get_intersection_location(mThresholdValue,
+                    get_intersection_location(mIsocontourThreshold,
                                               mPerturbationValue,
                                               aNodeCoords,
                                               tEntityNodeVars,
