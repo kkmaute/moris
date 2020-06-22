@@ -1065,7 +1065,7 @@ namespace xtk
                         }
                     }
 
-                    MORIS_ASSERT(tSuccess,"Vertex Not Found");
+                    MORIS_ERROR(tSuccess,"Vertex Not Found");
                 }
             }
             else
