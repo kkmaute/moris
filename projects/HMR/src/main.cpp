@@ -134,10 +134,7 @@ void state_refine_mesh( const Arguments & aArguments )
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
     // call user defined refinement function
-    tHMR->user_defined_flagging( 0,
-                                 tInputFields,
-                                 tParams.get_parameter_list(),
-                                 0 );
+    //tHMR->based_on_field_put_elements_on_queue( tInputFields, 0, 0 );
 
     // perform refinement
 //    tHMR->perform_refinement_based_on_working_pattern( RefinementMode::LAGRANGE_REFINE );    FIXME

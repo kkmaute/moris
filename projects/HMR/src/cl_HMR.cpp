@@ -1118,159 +1118,18 @@ namespace moris
         // ----------------------------------------------------------------------------
 
         void HMR::user_defined_flagging(
-                uint                               aFunctionIndex,
-                Cell< std::shared_ptr< Field > > & aFields,
-                ParameterList                    & aParameters,
-                const uint                       & aPattern )
+                Cell< hmr::Element * >   & aCells,
+                Cell< hmr::Element * >   & aCandidates,
+                const  Matrix< DDRMat >  & aVertexValues,
+                uint                       aFunctionIndex)
         {
-            // remember current active scheme
-            uint tActivePattern = mDatabase->get_activation_pattern();
-
-            // set activation pattern to input
-            if( tActivePattern != aPattern )
-            {
-                // set active pattern to input mesh
-                mDatabase->set_activation_pattern( aPattern );
-            }
-
-            // get number of fields
-            uint tNumberOfFields = aFields.size();
-
-            MORIS_ERROR( tNumberOfFields > 0, "No fields defined for refinement" );
-
-            // create empty cell of fields
-            Matrix< DDRMat> tEmpty;
-            Cell< Matrix< DDRMat> > tFields( tNumberOfFields, tEmpty );
 
             // get number of elements from input mesh
-            uint tNumberOfElements  = mDatabase->get_background_mesh()->get_number_of_active_elements_on_proc();
-
-            // loop over all fields
-            for( auto tField: aFields )
-            {
-                // test if field has node values
-                if( tField->get_node_values().length() == 0 )
-                {
-                    tField->evaluate_node_values();
-                }
-            }
-
-            // grab max level from settings
-            uint tMaxLevel = mParameters->get_max_refinement_level();
-
-            uint tLagrangeInputMeshIndex = mParameters->get_lagrange_input_mesh()(0);             //FIXME this works only for one input mesh
+            uint tNumberOfElements  = aCandidates.size();
 
             // loop over all elements
-            for( uint e=0; e<tNumberOfElements; ++e )
+            for( uint e = 0; e < tNumberOfElements; ++e )
             {
-                // get pointer to element
-                Element * tElement =  mMeshes( tLagrangeInputMeshIndex )->get_lagrange_mesh()->get_element( e );
-
-                // only consider element if level is below max specified level
-
-                // loop over all fields
-                for( uint f = 0; f<tNumberOfFields; ++f )
-                {
-                    // grab nodal values
-                    aFields( f )->get_element_local_node_values( e, tFields( f ) );
-                }
-
-                // check flag from user defined function
-                int tFlag = mParameters->get_refinement_function(aFunctionIndex)( tElement,
-                                                                                 tFields,
-                                                                                 aParameters );
-
-                // chop flag if element is at max defined level
-                if( tElement->get_level() > tMaxLevel )
-                {
-                    // an element above the max level can only be coarsened
-                    tFlag = -1;
-                }
-                else if( tElement->get_level() == tMaxLevel)
-                {
-                    // an element on the max level can only be kept or coarsened
-                    // but nor refined
-                    tFlag = std::min( tFlag, 0 );
-                }
-
-                // perform flagging test
-                if( tFlag == 1 )
-                {
-                    // flag this element and parents of neighbors
-                    mDatabase->flag_element( e );
-                }
-                else if ( tFlag == 0 )
-                {
-                    // flag the parent of this element
-                    mDatabase->flag_parent( e );
-                }
-            }
-
-            //            // get max level on this mesh
-            //            uint tMaxLevelOnMesh = mDatabase->get_background_mesh()->get_max_level();
-            //
-            //            if( mParameters->get_refinement_buffer() > 0 )
-            //            {
-            //                // get number of levels
-            //                for( uint tLevel=0; tLevel<=tMaxLevelOnMesh; ++tLevel )
-            //                {
-            //                    // create extra buffer
-            //                    mDatabase->create_extra_refinement_buffer_for_level( tLevel );
-            //                }
-            //            }
-
-            // reset activation pattern of database
-            if( tActivePattern != aPattern )
-            {
-                mDatabase->set_activation_pattern( tActivePattern );
-            }
-        }
-
-        // ----------------------------------------------------------------------------
-
-        void HMR::user_defined_flagging(
-                uint                       aFunctionIndex,
-                Cell< Matrix< DDRMat > > & aFields,
-                ParameterList            & aParameters,
-                const uint               & aPattern )
-        {
-            // remember current active scheme
-            uint tActivePattern = mDatabase->get_activation_pattern();
-
-            // set activation pattern to input
-            if( tActivePattern != aPattern )
-            {
-                // set active pattern to input mesh
-                mDatabase->set_activation_pattern( aPattern );
-            }
-
-            // get number of fields
-            uint tNumberOfFields = aFields.size();
-
-            MORIS_ERROR( tNumberOfFields > 0, "No fields defined for refinement" );
-
-            // create empty cell of fields
-            Matrix< DDRMat> tEmpty;
-            Cell< Matrix< DDRMat> > tFields( tNumberOfFields, tEmpty );
-
-            // get number of elements from input mesh
-            uint tNumberOfElements  = mDatabase->get_background_mesh()->get_number_of_active_elements_on_proc();
-
-            // grab max level from settings
-            uint tMaxLevel = mParameters->get_max_refinement_level();
-
-            // check that at least one Lagrange input mesh is defined
-            MORIS_ASSERT(mParameters->get_lagrange_input_mesh().numel() > 0,
-                    "No Lagrange input mesh has been defined - one and only one needs to be specified\n");
-
-            // get index of Lagrange input mesh
-            uint tLagrangeInputMeshIndex = mParameters->get_lagrange_input_mesh()(0); //FIXME this works only for one input mesh
-
-            // loop over all elements
-            for( uint e=0; e<tNumberOfElements; ++e )
-            {
-                // get pointer to element
-                Element * tElement =  mMeshes( tLagrangeInputMeshIndex )->get_lagrange_mesh()->get_element( e );
 
                 // TODO comment these lines in toa ctivate refinement buffer.
                 // TODO it should just work. However it is not validated yet.
@@ -1289,55 +1148,41 @@ namespace moris
 
                 // only consider element if level is below max specified level
 
-                Matrix< IndexMat > tElementsInds = tElement->get_vertex_inds();
+                Matrix< IndexMat > tElementsInds = aCandidates(e)->get_vertex_inds();
 
-                // loop over all fields
-                for (uint k=0;k< tNumberOfFields;++k)
+                // loop over all nodes of an element
+                Matrix<DDRMat> tElementField(tElementsInds.numel(), 1 );
+                for( uint f = 0; f<tElementsInds.numel(); ++f )
                 {
-                    tFields( k ).set_size(tElementsInds.numel(), 1 );
-
-                    // loop over all nodes of an element
-                    for( uint f = 0; f<tElementsInds.numel(); ++f )
-                    {
-                        tFields( k )( f ) = aFields( k )( tElementsInds( f ) );
-                    }
+                    tElementField( f ) = aVertexValues( tElementsInds( f ) );
                 }
 
                 // check flag from user defined function
-                int tFlag = mParameters->get_refinement_function(aFunctionIndex)( tElement,
-                                                                                 tFields,
-                                                                                 aParameters );
-
-                // chop flag if element is at max defined level
-                if( tElement->get_level() > tMaxLevel )
-                {
-                    // an element above the max level can only be coarsened
-                    tFlag = -1;
-                }
-                else if( tElement->get_level() == tMaxLevel)
-                {
-                    // an element on the max level can only be kept or coarsened
-                    // but nor refined
-                    tFlag = std::min( tFlag, 0 );
-                }
+                int tFlag = mParameters->get_refinement_function(aFunctionIndex)( aCandidates(e),
+                                                                                  tElementField);
+//                // chop flag if element is at max defined level
+//                if( tElement->get_level() > tMaxLevel )
+//                {
+//                    // an element above the max level can only be coarsened
+//                    tFlag = -1;
+//                }
+//                else if( tElement->get_level() == tMaxLevel)
+//                {
+//                    // an element on the max level can only be kept or coarsened
+//                    // but nor refined
+//                    tFlag = std::min( tFlag, 0 );
+//                }
 
                 // perform flagging test
                 if( tFlag == 1 )
                 {
-                    // flag this element and parents of neighbors
-                    mDatabase->flag_element( e );
+                    aCells.push_back(aCandidates(e));
                 }
-                else if ( tFlag == 0 )
-                {
-                    // flag the parent of this element
-                    mDatabase->flag_parent( e );
-                }
-            }
-
-            // reset activation pattern of database
-            if( tActivePattern != aPattern )
-            {
-                mDatabase->set_activation_pattern( tActivePattern );
+//                else if ( tFlag == 0 )
+//                {
+//                    // flag the parent of this element
+//                    mDatabase->flag_parent( e );
+//                }
             }
         }
 
@@ -1492,8 +1337,10 @@ namespace moris
 
         // -----------------------------------------------------------------------------
 
-        uint HMR::based_on_field_put_elements_on_queue( const Matrix< DDRMat > & aFieldValues,
-                const uint             & aLagrangeMeshIndex )
+        uint HMR::based_on_field_put_elements_on_queue(
+                const Matrix< DDRMat > & aFieldValues,
+                uint                     aLagrangeMeshIndex,
+                sint                     aFunctionIndex)
         {
             uint aElementCounter = 0;
 
@@ -1508,9 +1355,20 @@ namespace moris
                     aLagrangeMeshIndex);
 
             // call refinement manager and get intersected cells
-            this->find_cells_intersected_by_levelset( tRefinementList,
-                    tCandidates,
-                    aFieldValues );
+            if (aFunctionIndex < 0)
+            {
+                this->find_cells_intersected_by_levelset( tRefinementList,
+                                                          tCandidates,
+                                                          aFieldValues );
+            }
+            else
+            {
+                this->user_defined_flagging(tRefinementList,
+                                            tCandidates,
+                                            aFieldValues,
+                                            uint(aFunctionIndex));
+            }
+
 
             // add length of list to counter
             aElementCounter += tRefinementList.size();

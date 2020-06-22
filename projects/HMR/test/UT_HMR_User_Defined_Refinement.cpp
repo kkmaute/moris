@@ -36,8 +36,7 @@ LevelSetFunction_2( const moris::Matrix< moris::DDRMat > & aPoint )
 }
 
 int user_defined_refinement(       Element                  * aElement,
-                             const Cell< Matrix< DDRMat > > & aElementLocalValues,
-                                   ParameterList            & aParameters )
+                             const Matrix< DDRMat > & aElementLocalValues)
 {
     int aDoRefine = -1;
 
@@ -63,10 +62,10 @@ int user_defined_refinement(       Element                  * aElement,
     uint curlevel = aElement->get_level();
 
     // refinement strategy
-    if ( aElementLocalValues( 0 ).max() >= lsth - lsbwabs )
+    if ( aElementLocalValues.max() >= lsth - lsbwabs )
     {
         // for volume refinement
-        if ( aElementLocalValues( 0 ).min() >= lsth + lsbwabs )
+        if ( aElementLocalValues.min() >= lsth + lsbwabs )
         {
             if( curlevel < maxvolref && curlevel < maxlevel )
             {
@@ -193,9 +192,7 @@ TEST_CASE("HMR_User_Defined_Refinement", "[moris],[mesh],[hmr],[HMR_User_Defined
 
             tField->evaluate_scalar_function( LevelSetFunction );
 
-            moris::Cell< std::shared_ptr< moris::hmr::Field > > tFields( 1, tField );
-
-            tHMR.user_defined_flagging( 0, tFields, tParam, 0 );
+            tHMR.based_on_field_put_elements_on_queue( tField->get_node_values(), 0, 0 );
 
             tHMR.perform_refinement_based_on_working_pattern( 0, true );
 
@@ -203,7 +200,7 @@ TEST_CASE("HMR_User_Defined_Refinement", "[moris],[mesh],[hmr],[HMR_User_Defined
             // Second refinement with field 2
             tField->evaluate_scalar_function( LevelSetFunction_2 );
 
-            tHMR.user_defined_flagging( 0, tFields, tParam, 0 );
+            tHMR.based_on_field_put_elements_on_queue( tField->get_node_values(), 0, 0 );
 
             tHMR.perform_refinement_based_on_working_pattern( 0, true );
 
@@ -218,7 +215,7 @@ TEST_CASE("HMR_User_Defined_Refinement", "[moris],[mesh],[hmr],[HMR_User_Defined
              uint tNumCoeffs = tMesh->get_num_coeffs( 0 );
 
              // perform test
-             REQUIRE( tNumElements == 619 );
+             REQUIRE( tNumElements == 1126 );
 //             REQUIRE( tNumNodes == 722 );
 //             REQUIRE( tNumCoeffs == 584 );
     }

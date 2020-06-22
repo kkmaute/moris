@@ -17,9 +17,6 @@
 #include "cl_HMR_Mesh.hpp"
 #include "cl_HMR.hpp"
 
-// PRM
-#include "cl_PRM_HMR_Parameters.hpp"
-
 // MRS/IOS
 #include "fn_Parsing_Tools.hpp"
 
@@ -35,7 +32,6 @@ namespace moris
                 mIsocontourThreshold(aParameterLists(0)(0).get<real>("isocontour_threshold")),
                 mPerturbationValue(aParameterLists(0)(0).get<real>("perturbation_value")),
                 mNumRefinements(aParameterLists(0)(0).get<int>("HMR_refinements")),
-                mUserDefinedFunc(nullptr),
 
                 // ADVs/IQIs
                 mADVs((uint)aParameterLists(0)(0).get<int>("advs_size"), 1, aParameterLists(0)(0).get<real>("initial_advs_fill")),
@@ -83,14 +79,6 @@ namespace moris
                 {
                     mGeometry(tGeometryIndex) = create_geometry(aParameterLists(1)(tGeometryIndex), mADVs, aLibrary);
                 }
-            }
-
-            // Create function pointer for user defined refinement function
-            std::string tUserDefinedFunc = aParameterLists(0)(0).get<std::string>("user_defined_refinement_function");
-
-            if ( tUserDefinedFunc.size() > 1 )
-            {
-                mUserDefinedFunc = aLibrary->load_user_defined_refinement_functions( tUserDefinedFunc );
             }
 
             // Create properties
@@ -463,9 +451,6 @@ namespace moris
                 aNumRefinements = mNumRefinements;
             }
 
-            // FIXME
-            ParameterList tParameters = prm::create_hmr_parameter_list();
-
             // Loop over set number of refinement levels
             for (uint tRefinement = 0; tRefinement < aNumRefinements; tRefinement++)
             {
@@ -476,16 +461,6 @@ namespace moris
                     for (uint tNodeIndex = 0; tNodeIndex < tMesh->get_num_nodes(); tNodeIndex++)
                     {
                         tFieldValues(tNodeIndex) = this->get_geometry_field_value(tNodeIndex, tMesh->get_node_coordinate(tNodeIndex), tGeometryIndex);
-                    }
-
-                    // Call either user defined refinement function or default function
-                    if (mUserDefinedFunc != nullptr )
-                    {
-                        Cell<Matrix<DDRMat>> tCellFieldValues({tFieldValues});
-                        aHMRPerformer->user_defined_flagging( 0, tCellFieldValues, tParameters, 0 );
-                    }
-                    else
-                    {
                         aHMRPerformer->based_on_field_put_elements_on_queue(tFieldValues, 0);
                     }
                 }

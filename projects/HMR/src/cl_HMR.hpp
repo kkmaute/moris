@@ -382,7 +382,8 @@ namespace moris
 
                 uint based_on_field_put_elements_on_queue(
                         const Matrix< DDRMat > & aFieldValues,
-                        const uint             & aLagrangeMeshIndex);
+                        uint                     aLagrangeMeshIndex,
+                        sint                     aFunctionIndex = -1);
 
                 // -----------------------------------------------------------------------------
 
@@ -490,21 +491,14 @@ namespace moris
 
                 // -----------------------------------------------------------------------------
 
-                void user_defined_flagging(
-                        uint                               aFunctionIndex,
-                        Cell< std::shared_ptr< Field > > & aFields,
-                        ParameterList                    & aParameters,
-                        const uint                       & aPattern );
+        private:
 
-                // -----------------------------------------------------------------------------
+            void user_defined_flagging(
+                    Cell< hmr::Element * >   & aCells,
+                    Cell< hmr::Element * >   & aCandidates,
+                    const  Matrix< DDRMat >  & aVertexValues,
+                    uint                       aFunctionIndex);
 
-                void user_defined_flagging(
-                        uint                       aFunctionIndex,
-                        Cell< Matrix< DDRMat > > & aFields,
-                        ParameterList            & aParameters,
-                        const uint               & aPattern );
-
-                // -----------------------------------------------------------------------------
         }; /* HMR */
 
     } /* namespace hmr */
