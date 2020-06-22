@@ -65,7 +65,8 @@ namespace moris
         // -----------------------------------------------------------------------------
 
         // alternative constuctor that uses parameter list
-        HMR::HMR ( ParameterList & aParameterList ) : HMR( new Parameters( aParameterList ) )
+        HMR::HMR ( ParameterList & aParameterList,
+                   std::shared_ptr<moris::Library_IO> aLibrary ) : HMR( new Parameters( aParameterList, aLibrary ) )
         {
             mDatabase->set_parameter_owning_flag();
         }
@@ -1117,12 +1118,7 @@ namespace moris
         // ----------------------------------------------------------------------------
 
         void HMR::user_defined_flagging(
-                int ( *aFunction )
-                (
-                        Element                          * aElement,
-                        const Cell< Matrix< DDRMat > >   & aElementLocalValues,
-                        ParameterList                    & aParameters
-                ),
+                uint                               aFunctionIndex,
                 Cell< std::shared_ptr< Field > > & aFields,
                 ParameterList                    & aParameters,
                 const uint                       & aPattern )
@@ -1180,9 +1176,9 @@ namespace moris
                 }
 
                 // check flag from user defined function
-                int tFlag = aFunction( tElement,
-                        tFields,
-                        aParameters );
+                int tFlag = mParameters->get_refinement_function(aFunctionIndex)( tElement,
+                                                                                 tFields,
+                                                                                 aParameters );
 
                 // chop flag if element is at max defined level
                 if( tElement->get_level() > tMaxLevel )
@@ -1233,15 +1229,10 @@ namespace moris
         // ----------------------------------------------------------------------------
 
         void HMR::user_defined_flagging(
-                int ( *aFunction )
-                (
-                        Element                          * aElement,
-                        const Cell< Matrix< DDRMat > >   & aElementLocalValues,
-                        ParameterList                    & aParameters
-                ),
-                Cell< Matrix< DDRMat > >         & aFields,
-                ParameterList                    & aParameters,
-                const uint                       & aPattern )
+                uint                       aFunctionIndex,
+                Cell< Matrix< DDRMat > > & aFields,
+                ParameterList            & aParameters,
+                const uint               & aPattern )
         {
             // remember current active scheme
             uint tActivePattern = mDatabase->get_activation_pattern();
@@ -1313,10 +1304,9 @@ namespace moris
                 }
 
                 // check flag from user defined function
-                int tFlag = aFunction(
-                        tElement,
-                        tFields,
-                        aParameters );
+                int tFlag = mParameters->get_refinement_function(aFunctionIndex)( tElement,
+                                                                                 tFields,
+                                                                                 aParameters );
 
                 // chop flag if element is at max defined level
                 if( tElement->get_level() > tMaxLevel )

@@ -12,6 +12,8 @@
 #include "cl_HMR_Element.hpp"
 #include "cl_HMR_Field_Param.hpp"
 #include "cl_HMR_Parameters.hpp"     //HMR/src
+#include "fn_Exec_load_user_library.hpp"
+
 namespace moris
 {
     namespace mtk
@@ -114,7 +116,8 @@ namespace moris
                  *
                  * @param[in] aParameters  ref to container of user defined settings
                  */
-                HMR ( ParameterList & aParameterList ) ;
+                HMR ( ParameterList & aParameterList,
+                      std::shared_ptr<moris::Library_IO> aLibrary = nullptr ) ;
 
                 // -----------------------------------------------------------------------------
 
@@ -488,12 +491,7 @@ namespace moris
                 // -----------------------------------------------------------------------------
 
                 void user_defined_flagging(
-                        int (*aFunction)
-                        (
-                                Element                          * aElement,
-                                const Cell< Matrix< DDRMat > >   & aElementLocalValues,
-                                ParameterList                    & aParameters
-                        ),
+                        uint                               aFunctionIndex,
                         Cell< std::shared_ptr< Field > > & aFields,
                         ParameterList                    & aParameters,
                         const uint                       & aPattern );
@@ -501,15 +499,10 @@ namespace moris
                 // -----------------------------------------------------------------------------
 
                 void user_defined_flagging(
-                        int (*aFunction)
-                        (
-                                Element                          * aElement,
-                                const Cell< Matrix< DDRMat > >   & aElementLocalValues,
-                                ParameterList                    & aParameters
-                        ),
-                        Cell< Matrix< DDRMat > >         & aFields,
-                        ParameterList                    & aParameters,
-                        const uint                       & aPattern );
+                        uint                       aFunctionIndex,
+                        Cell< Matrix< DDRMat > > & aFields,
+                        ParameterList            & aParameters,
+                        const uint               & aPattern );
 
                 // -----------------------------------------------------------------------------
         }; /* HMR */

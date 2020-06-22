@@ -119,7 +119,7 @@ TEST_CASE("HMR_User_Defined_Refinement", "[moris],[mesh],[hmr],[HMR_User_Defined
     //    gLogger.set_severity_level( 0 );
     // can only perform test for 1, 2 or 4 procs
     // do this test for 2 and 3 dimensions
-    if( par_size() ==0 )
+    if( par_rank() == 0 )
     {
     for( moris::uint tDimension=2; tDimension<=2; ++tDimension )
     {
@@ -169,6 +169,8 @@ TEST_CASE("HMR_User_Defined_Refinement", "[moris],[mesh],[hmr],[HMR_User_Defined
 
             tParameters.set_lagrange_to_bspline_mesh( tLagrangeToBSplineMesh );
 
+            tParameters.set_refinement_functions( {&user_defined_refinement} );
+
     //------------------------------------------------------------------------------
     //  HMR Initialization
     //------------------------------------------------------------------------------
@@ -193,7 +195,7 @@ TEST_CASE("HMR_User_Defined_Refinement", "[moris],[mesh],[hmr],[HMR_User_Defined
 
             moris::Cell< std::shared_ptr< moris::hmr::Field > > tFields( 1, tField );
 
-            tHMR.user_defined_flagging( user_defined_refinement, tFields, tParam, 0 );
+            tHMR.user_defined_flagging( 0, tFields, tParam, 0 );
 
             tHMR.perform_refinement_based_on_working_pattern( 0, true );
 
@@ -201,7 +203,7 @@ TEST_CASE("HMR_User_Defined_Refinement", "[moris],[mesh],[hmr],[HMR_User_Defined
             // Second refinement with field 2
             tField->evaluate_scalar_function( LevelSetFunction_2 );
 
-            tHMR.user_defined_flagging( user_defined_refinement, tFields, tParam, 0 );
+            tHMR.user_defined_flagging( 0, tFields, tParam, 0 );
 
             tHMR.perform_refinement_based_on_working_pattern( 0, true );
 

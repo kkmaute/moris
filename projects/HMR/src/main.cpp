@@ -121,10 +121,6 @@ void state_refine_mesh( const Arguments & aArguments )
     // create library
     Library tLibrary(  tParams.get_library_path() );
 
-    // load user defined function
-    MORIS_HMR_USER_FUNCTION user_refinement = tLibrary.load_function(
-            tParams.get_user_function_name() );
-
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     // Step 4: Initialize Fields
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -138,7 +134,7 @@ void state_refine_mesh( const Arguments & aArguments )
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
     // call user defined refinement function
-    tHMR->user_defined_flagging( user_refinement,
+    tHMR->user_defined_flagging( 0,
                                  tInputFields,
                                  tParams.get_parameter_list(),
                                  0 );

@@ -483,7 +483,7 @@ namespace moris
                     if ( mUserDefinedFunc != nullptr )
                     {
                         Cell<Matrix<DDRMat>> tCellFieldValues({tFieldValues});
-                        aHMRPerformer->user_defined_flagging( mUserDefinedFunc, tCellFieldValues, tParameters, 0 );
+                        aHMRPerformer->user_defined_flagging( 0, tCellFieldValues, tParameters, 0 );
                     }
                     else
                     {
