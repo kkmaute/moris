@@ -32,7 +32,7 @@ namespace moris
         Geometry_Engine::Geometry_Engine(Cell<Cell<ParameterList>> aParameterLists,
                                          std::shared_ptr<moris::Library_IO> aLibrary):
                 // User options
-                mIsocontourThreshold(aParameterLists(0)(0).get<real>("threshold_value")),
+                mIsocontourThreshold(aParameterLists(0)(0).get<real>("isocontour_threshold")),
                 mPerturbationValue(aParameterLists(0)(0).get<real>("perturbation_value")),
                 mNumRefinements(aParameterLists(0)(0).get<int>("HMR_refinements")),
                 mUserDefinedFunc(nullptr),
@@ -113,11 +113,11 @@ namespace moris
         Geometry_Engine::Geometry_Engine(Cell<std::shared_ptr<Geometry>>    aGeometry,
                                          Phase_Table                        aPhaseTable,
                                          uint                               aSpatialDim,
-                                         real                               aThresholdValue,
+                                         real                               aIsocontourThreshold,
                                          real                               aPerturbationValue)
-            : mSpatialDim(aSpatialDim),
-              mIsocontourThreshold(aThresholdValue),
+            : mIsocontourThreshold(aIsocontourThreshold),
               mPerturbationValue(aPerturbationValue),
+              mSpatialDim(aSpatialDim),
               mActiveGeometryIndex(0),
               mGeometry(aGeometry),
               mPhaseTable(aPhaseTable)
@@ -306,31 +306,30 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        void Geometry_Engine::get_intersection_location( real                    aIsocontourThreshold,
-                                                         real                    aPerturbationValue,
-                                                         const Matrix<DDRMat>&   aGlobalNodeCoordinates,
-                                                         const Matrix<DDRMat>&   aEntityNodeVars,
-                                                         const Matrix<IndexMat>& aEntityNodeIndices,
-                                                         Matrix<DDRMat>&         aIntersectionLocalCoordinates,
-                                                         Matrix<DDRMat>&         aIntersectionGlobalCoordinates,
-                                                         bool                    aCheckLocalCoordinate,
-                                                         bool                    aComputeGlobalCoordinate )
+        void Geometry_Engine::get_intersection_location(
+                const Matrix<DDRMat>&   aGlobalNodeCoordinates,
+                const Matrix<DDRMat>&   aEntityNodeVars,
+                const Matrix<IndexMat>& aEntityNodeIndices,
+                Matrix<DDRMat>&         aIntersectionLocalCoordinates,
+                Matrix<DDRMat>&         aIntersectionGlobalCoordinates,
+                bool                    aCheckLocalCoordinate,
+                bool                    aComputeGlobalCoordinate)
         {
 
             // compute the local coordinate where the intersection occurs
-            Interpolation::linear_interpolation_value(aEntityNodeVars, aIsocontourThreshold, aIntersectionLocalCoordinates);
+            Interpolation::linear_interpolation_value(aEntityNodeVars, mIsocontourThreshold, aIntersectionLocalCoordinates);
 
             // Perturb away from node if necessary
             if(aCheckLocalCoordinate)
             {
-                if(aIntersectionLocalCoordinates(0, 0) >= 1-aPerturbationValue)
+                if(aIntersectionLocalCoordinates(0, 0) >= 1-mPerturbationValue)
                 {
-                    aIntersectionLocalCoordinates(0, 0) = aIntersectionLocalCoordinates(0, 0) - aPerturbationValue;
+                    aIntersectionLocalCoordinates(0, 0) = aIntersectionLocalCoordinates(0, 0) - mPerturbationValue;
                 }
 
-                if(aIntersectionLocalCoordinates(0, 0) <= -1+aPerturbationValue)
+                if(aIntersectionLocalCoordinates(0, 0) <= -1+mPerturbationValue)
                 {
-                    aIntersectionLocalCoordinates(0, 0) = aIntersectionLocalCoordinates(0, 0) + aPerturbationValue;
+                    aIntersectionLocalCoordinates(0, 0) = aIntersectionLocalCoordinates(0, 0) + mPerturbationValue;
                 }
             }
 
@@ -572,9 +571,7 @@ namespace moris
                     moris::Matrix< moris::DDRMat > tIntersectLocalCoordinate(1,1);
                     moris::Matrix< moris::DDRMat > tIntersectGlobalCoordinate(1,mSpatialDim);
 
-                    get_intersection_location(mIsocontourThreshold,
-                                              mPerturbationValue,
-                                              aNodeCoords,
+                    get_intersection_location(aNodeCoords,
                                               tEntityNodeVars,
                                               aEntityNodeInds,
                                               tIntersectLocalCoordinate,

@@ -48,14 +48,14 @@ namespace moris
 
         class Geometry_Engine
         {
-        public:
+        private:
+
+            // Level-set isocontour threshold
             real mIsocontourThreshold;
             real mPerturbationValue;
 
-        private:
-
             // Spatial dimensions
-            uint mSpatialDim
+            uint mSpatialDim;
 
             // HMR refinements
             uint mNumRefinements = 0;
@@ -111,10 +111,10 @@ namespace moris
              * @param[ in ] aSpatialDim spatial dimensions
              */
             Geometry_Engine(Cell< std::shared_ptr<Geometry> >   aGeometry,
-                                Phase_Table                     aPhaseTable,
-                                uint                            aSpatialDim = 3,
-                                real                            aThresholdValue = 0.0,
-                                real                            aPerturbationValue = 1E-6);
+                            Phase_Table                     aPhaseTable,
+                            uint                            aSpatialDim = 3,
+                            real                            aIsocontourThreshold = 0.0,
+                            real                            aPerturbationValue = 1E-6);
 
             /**
              * Destructor
@@ -226,15 +226,14 @@ namespace moris
              * Computes the intersection of an isocountour with an entity and returning the local coordinate relative to the parent
              * and the global coordinate if needed
              */
-            void get_intersection_location( real                    aIsocontourThreshold,
-                                            real                    aPerturbationThreshold,
-                                            const Matrix<DDRMat>&   aGlobalNodeCoordinates,
-                                            const Matrix<DDRMat>&   aEntityNodeVars,
-                                            const Matrix<IndexMat>& aEntityNodeIndices,
-                                            Matrix<DDRMat>&         aIntersectionLocalCoordinates,
-                                            Matrix<DDRMat>&         aIntersectionGlobalCoordinates,
-                                            bool                    aCheckLocalCoordinate = false,
-                                            bool                    aComputeGlobalCoordinate = false);
+            void get_intersection_location(
+                    const Matrix<DDRMat>&   aGlobalNodeCoordinates,
+                    const Matrix<DDRMat>&   aEntityNodeVars,
+                    const Matrix<IndexMat>& aEntityNodeIndices,
+                    Matrix<DDRMat>&         aIntersectionLocalCoordinates,
+                    Matrix<DDRMat>&         aIntersectionGlobalCoordinates,
+                    bool                    aCheckLocalCoordinate = false,
+                    bool                    aComputeGlobalCoordinate = false);
 
             /**
              * @brief Get the total number of phases in the phase table
