@@ -182,29 +182,14 @@ namespace moris
                  * @param[ out ] aFieldInterpolatorManager a field interpolator manager pointer
                  * @param[ in ]  aIsMaster                 an enum for master or slave
                  */
-                Field_Interpolator_Manager * get_field_interpolator_manager( mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER )
-                {
-                    switch ( aIsMaster )
-                    {
-                        case mtk::Master_Slave::MASTER :
-                            return mMasterFIManager;
-
-                        case mtk::Master_Slave::SLAVE :
-                            return mSlaveFIManager;
-
-                        default :
-                            MORIS_ERROR( false, "IWG::get_field_inetrpolator_manager - can only be master or slave." );
-                            return mMasterFIManager;
-                    }
-                }
+                Field_Interpolator_Manager * get_field_interpolator_manager(
+                        mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER );
 
                 //------------------------------------------------------------------------------
                 /*
                  * free memory
                  */
-                void free_memory()
-                {
-                }
+                void free_memory(){}
 
                 //------------------------------------------------------------------------------
                 /**
@@ -221,19 +206,7 @@ namespace moris
                  * set normal
                  * @param[ in ] aNormal normal vector
                  */
-                void set_normal( Matrix< DDRMat > & aNormal )
-                {
-                    mNormal = aNormal;
-
-                    // set normal for SP
-                    for ( std::shared_ptr< Stabilization_Parameter > tSP : mStabilizationParam )
-                    {
-                        if( tSP != nullptr )
-                        {
-                            tSP->set_normal( mNormal );
-                        }
-                    }
-                }
+                void set_normal( Matrix< DDRMat > & aNormal );
 
                 //------------------------------------------------------------------------------
                 /**
@@ -263,27 +236,7 @@ namespace moris
                  */
                 void set_dof_type_list(
                         const moris::Cell< moris::Cell< MSI::Dof_Type > > & aDofTypes,
-                        mtk::Master_Slave                                   aIsMaster = mtk::Master_Slave::MASTER )
-                {
-                    switch ( aIsMaster )
-                    {
-                        case mtk::Master_Slave::MASTER :
-                        {
-                            mMasterDofTypes = aDofTypes;
-                            break;
-                        }
-                        case mtk::Master_Slave::SLAVE :
-                        {
-                            mSlaveDofTypes = aDofTypes;
-                            break;
-                        }
-                        default :
-                        {
-                            MORIS_ERROR( false, "IWG::set_dof_type_list - can only be MASTER or SLAVE.");
-                            break;
-                        }
-                    }
-                }
+                        mtk::Master_Slave                                   aIsMaster = mtk::Master_Slave::MASTER );
 
                 //------------------------------------------------------------------------------
                 /**
@@ -291,34 +244,9 @@ namespace moris
                  * @param[ in ] aIsMaster enum master or slave
                  * @param[ out ] aDofTypes a list of group of dof types
                  */
-                const moris::Cell< moris::Cell< MSI::Dof_Type > > & get_dof_type_list( mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER ) const
-                {
-                    // switch on master/slave
-                    switch( aIsMaster )
-                    {
-                        // if master
-                        case mtk::Master_Slave::MASTER :
-                        {
-                            // return master global dof type list
-                            return mMasterDofTypes;
-                            break;
-                        }
-                        // if slave
-                        case mtk::Master_Slave::SLAVE :
-                        {
-                            // return slave global dof type list
-                            return mSlaveDofTypes;
-                            break;
-                        }
-                        // if none
-                        default:
-                        {
-                            MORIS_ASSERT( false, "IWG::get_dof_type_list - can only be master or slave." );
-                            return mMasterDofTypes;
-                            break;
-                        }
-                    }
-                };
+                const moris::Cell< moris::Cell< MSI::Dof_Type > > & get_dof_type_list(
+                        mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER ) const;
+
 
                 //------------------------------------------------------------------------------
                 /**
@@ -328,27 +256,7 @@ namespace moris
                  */
                 void set_dv_type_list(
                         const moris::Cell< moris::Cell< PDV_Type > > & aDvTypes,
-                              mtk::Master_Slave                        aIsMaster = mtk::Master_Slave::MASTER )
-                {
-                    switch ( aIsMaster )
-                    {
-                        case mtk::Master_Slave::MASTER :
-                        {
-                            mMasterDvTypes = aDvTypes;
-                            break;
-                        }
-                        case mtk::Master_Slave::SLAVE :
-                        {
-                            mSlaveDvTypes = aDvTypes;
-                            break;
-                        }
-                        default :
-                        {
-                            MORIS_ERROR( false, "IWG::set_dv_type_list - can only be MASTER or SLAVE.");
-                            break;
-                        }
-                    }
-                }
+                              mtk::Master_Slave                        aIsMaster = mtk::Master_Slave::MASTER );
 
                 //------------------------------------------------------------------------------
                 /**
@@ -356,41 +264,16 @@ namespace moris
                  * @param[ in ]  aIsMaster enum master or slave
                  * @param[ out ] aDvTypes a list of group of dv types
                  */
-                const moris::Cell< moris::Cell< PDV_Type > > & get_dv_type_list( mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER ) const
-                {
-                    // switch on master/slave
-                    switch( aIsMaster )
-                    {
-                        // if master
-                        case mtk::Master_Slave::MASTER :
-                        {
-                            // return master global dof type list
-                            return mMasterDvTypes;
-                            break;
-                        }
-                        // if slave
-                        case mtk::Master_Slave::SLAVE :
-                        {
-                            // return slave global dof type list
-                            return mSlaveDvTypes;
-                            break;
-                        }
-                        // if none
-                        default:
-                        {
-                            MORIS_ASSERT( false, "IWG::get_dv_type_list - can only be master or slave." );
-                            return mMasterDvTypes;
-                            break;
-                        }
-                    }
-                };
+                const moris::Cell< moris::Cell< PDV_Type > > & get_dv_type_list(
+                        mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER ) const;
 
                 //------------------------------------------------------------------------------
                 /**
                  * check that field interpolators were assigned
                  * @param[ in ]  aIsMaster enum master or slave
                  */
-                void check_field_interpolators( mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER );
+                void check_field_interpolators(
+                        mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER );
 
                 //------------------------------------------------------------------------------
                 /**
@@ -414,31 +297,7 @@ namespace moris
                  * @param[ out ] aProperties cell of property pointers
                  */
                 moris::Cell< std::shared_ptr< Property > > & get_properties(
-                        mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER )
-                {
-                    // switch on master/slave
-                    switch( aIsMaster )
-                    {
-                        // if master
-                        case mtk::Master_Slave::MASTER :
-                         {
-                            // return master property pointers
-                            return mMasterProp;
-                         }
-                        // if slave
-                        case mtk::Master_Slave::SLAVE :
-                         {
-                            // return slave property pointers
-                            return mSlaveProp;
-                         }
-                        // if none
-                        default:
-                        {
-                            MORIS_ASSERT( false, "IWG::get_properties - can only be master or slave." );
-                            return mMasterProp;
-                        }
-                    }
-                }
+                        mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER );
 
                 //------------------------------------------------------------------------------
                 /**
@@ -461,31 +320,9 @@ namespace moris
                  * @param[ in ]  aIsMaster           enum master or slave
                  * @param[ out ] aConstitutiveModels cell of constitutive model pointers
                  */
-                moris::Cell< std::shared_ptr< Constitutive_Model > > & get_constitutive_models( mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER )
-                {
-                    // switch on master/slave
-                    switch( aIsMaster )
-                    {
-                        // if master
-                        case mtk::Master_Slave::MASTER :
-                        {
-                            // return master property pointers
-                            return mMasterCM;
-                        }
-                        // if slave
-                        case mtk::Master_Slave::SLAVE :
-                        {
-                            // return slave property pointers
-                            return mSlaveCM;
-                        }
-                        // if none
-                        default:
-                        {
-                            MORIS_ASSERT( false, "IWG::get_constitutive_models - can only be master or slave." );
-                            return mMasterCM;
-                        }
-                    }
-                }
+                moris::Cell< std::shared_ptr< Constitutive_Model > > & get_constitutive_models(
+                        mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER );
+
 
                 //------------------------------------------------------------------------------
                 /**
@@ -666,7 +503,6 @@ namespace moris
 
         };
         //------------------------------------------------------------------------------
-
 
     } /* namespace fem */
 } /* namespace moris */

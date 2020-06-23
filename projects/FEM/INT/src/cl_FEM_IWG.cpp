@@ -175,6 +175,24 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+        Field_Interpolator_Manager * IWG::get_field_interpolator_manager(
+                mtk::Master_Slave aIsMaster )
+        {
+            switch ( aIsMaster )
+            {
+                case mtk::Master_Slave::MASTER :
+                    return mMasterFIManager;
+
+                case mtk::Master_Slave::SLAVE :
+                    return mSlaveFIManager;
+
+                default :
+                    MORIS_ERROR( false, "IWG::get_field_interpolator_manager - can only be master or slave." );
+                    return mMasterFIManager;
+            }
+        }
+
+        //------------------------------------------------------------------------------
         void IWG::set_field_interpolator_manager_previous_time(
                 Field_Interpolator_Manager * aFieldInterpolatorManager,
                 mtk::Master_Slave            aIsMaster )
@@ -191,6 +209,189 @@ namespace moris
                 {
                     MORIS_ERROR( false, "IWG::set_field_interpolator_manager - can only be master");
                     break;
+                }
+            }
+        }
+
+        //------------------------------------------------------------------------------
+        void IWG::set_normal( Matrix< DDRMat > & aNormal )
+        {
+            mNormal = aNormal;
+
+            // set normal for SP
+            for ( std::shared_ptr< Stabilization_Parameter > tSP : mStabilizationParam )
+            {
+                if( tSP != nullptr )
+                {
+                    tSP->set_normal( mNormal );
+                }
+            }
+        }
+
+        //------------------------------------------------------------------------------
+        void IWG::set_dof_type_list(
+                const moris::Cell< moris::Cell< MSI::Dof_Type > > & aDofTypes,
+                mtk::Master_Slave                                   aIsMaster )
+        {
+            switch ( aIsMaster )
+            {
+                case mtk::Master_Slave::MASTER :
+                {
+                    mMasterDofTypes = aDofTypes;
+                    break;
+                }
+                case mtk::Master_Slave::SLAVE :
+                {
+                    mSlaveDofTypes = aDofTypes;
+                    break;
+                }
+                default :
+                {
+                    MORIS_ERROR( false, "IWG::set_dof_type_list - can only be MASTER or SLAVE.");
+                    break;
+                }
+            }
+        }
+
+        //------------------------------------------------------------------------------
+        const moris::Cell< moris::Cell< MSI::Dof_Type > > & IWG::get_dof_type_list(
+                mtk::Master_Slave aIsMaster ) const
+        {
+            // switch on master/slave
+            switch( aIsMaster )
+            {
+                // if master
+                case mtk::Master_Slave::MASTER :
+                {
+                    // return master global dof type list
+                    return mMasterDofTypes;
+                    break;
+                }
+                // if slave
+                case mtk::Master_Slave::SLAVE :
+                {
+                    // return slave global dof type list
+                    return mSlaveDofTypes;
+                    break;
+                }
+                // if none
+                default:
+                {
+                    MORIS_ASSERT( false, "IWG::get_dof_type_list - can only be master or slave." );
+                    return mMasterDofTypes;
+                    break;
+                }
+            }
+        }
+
+        //------------------------------------------------------------------------------
+        void IWG::set_dv_type_list(
+                const moris::Cell< moris::Cell< PDV_Type > > & aDvTypes,
+                mtk::Master_Slave                              aIsMaster )
+        {
+            switch ( aIsMaster )
+            {
+                case mtk::Master_Slave::MASTER :
+                {
+                    mMasterDvTypes = aDvTypes;
+                    break;
+                }
+                case mtk::Master_Slave::SLAVE :
+                {
+                    mSlaveDvTypes = aDvTypes;
+                    break;
+                }
+                default :
+                {
+                    MORIS_ERROR( false, "IWG::set_dv_type_list - can only be MASTER or SLAVE.");
+                    break;
+                }
+            }
+        }
+
+        //------------------------------------------------------------------------------
+        const moris::Cell< moris::Cell< PDV_Type > > & IWG::get_dv_type_list(
+                mtk::Master_Slave aIsMaster ) const
+        {
+            // switch on master/slave
+            switch( aIsMaster )
+            {
+                // if master
+                case mtk::Master_Slave::MASTER :
+                {
+                    // return master global dof type list
+                    return mMasterDvTypes;
+                    break;
+                }
+                // if slave
+                case mtk::Master_Slave::SLAVE :
+                {
+                    // return slave global dof type list
+                    return mSlaveDvTypes;
+                    break;
+                }
+                // if none
+                default:
+                {
+                    MORIS_ASSERT( false, "IWG::get_dv_type_list - can only be master or slave." );
+                    return mMasterDvTypes;
+                    break;
+                }
+            }
+        }
+
+        //------------------------------------------------------------------------------
+        moris::Cell< std::shared_ptr< Property > > & IWG::get_properties(
+                mtk::Master_Slave aIsMaster )
+        {
+            // switch on master/slave
+            switch( aIsMaster )
+            {
+                // if master
+                case mtk::Master_Slave::MASTER :
+                {
+                    // return master property pointers
+                    return mMasterProp;
+                }
+                // if slave
+                case mtk::Master_Slave::SLAVE :
+                {
+                    // return slave property pointers
+                    return mSlaveProp;
+                }
+                // if none
+                default:
+                {
+                    MORIS_ASSERT( false, "IWG::get_properties - can only be master or slave." );
+                    return mMasterProp;
+                }
+            }
+        }
+
+        //------------------------------------------------------------------------------
+        moris::Cell< std::shared_ptr< Constitutive_Model > > & IWG::get_constitutive_models(
+                mtk::Master_Slave aIsMaster )
+        {
+            // switch on master/slave
+            switch( aIsMaster )
+            {
+                // if master
+                case mtk::Master_Slave::MASTER :
+                {
+                    // return master property pointers
+                    return mMasterCM;
+                }
+                // if slave
+                case mtk::Master_Slave::SLAVE :
+                {
+                    // return slave property pointers
+                    return mSlaveCM;
+                }
+                // if none
+                default:
+                {
+                    MORIS_ASSERT( false, "IWG::get_constitutive_models - can only be master or slave." );
+                    return mMasterCM;
                 }
             }
         }
