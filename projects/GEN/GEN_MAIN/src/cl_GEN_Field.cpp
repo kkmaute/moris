@@ -1,4 +1,4 @@
-#include "cl_GEN_Field_Base.hpp"
+#include "cl_GEN_Field.hpp"
 
 namespace moris
 {
@@ -95,6 +95,12 @@ namespace moris
                 }
             }
             aSensitivities.resize(1, mNumActiveVariables);
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
+        void Field::add_child_node(uint aNodeIndex, Child_Node aChildNode)
+        {
         }
 
         //--------------------------------------------------------------------------------------------------------------

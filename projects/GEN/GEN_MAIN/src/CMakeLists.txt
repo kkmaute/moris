@@ -11,7 +11,7 @@ set(HEADERS
 	cl_GEN_Geometry_Object_Manager.hpp
 	cl_GEN_Geometry_Object.hpp
 	cl_GEN_Phase_Table.hpp
-	cl_GEN_Field_Base.hpp
+	cl_GEN_Field.hpp
 	cl_GEN_Field_Analytic.hpp
 	cl_GEN_Field_Discrete.hpp
 	fn_GEN_Matrix_Base_Utilities.hpp
@@ -23,7 +23,7 @@ set(HEADERS
 #	topology/cl_GEN_Edge_Topology.hpp
 #	topology/cl_GEN_Hexahedron_8_Topology.hpp
 #	topology/cl_GEN_Hexahedron_8_Basis_Function.hpp
-#	topology/cl_GEN_Interpolation.hpp
+	topology/cl_GEN_Interpolation.hpp
 #	topology/cl_GEN_Linear_Basis_Functions.hpp
 #
 #	topology/cl_GEN_Pending_Node.hpp
@@ -33,7 +33,8 @@ set(HEADERS
 #	topology/cl_GEN_Edge_Topology.hpp
 
 	pdv/cl_GEN_Pdv_Host_Manager.hpp
-	pdv/cl_GEN_Pdv_Host.hpp
+	pdv/cl_GEN_Interpolation_Pdv_Host.hpp
+	pdv/cl_GEN_Integration_Pdv_Host.cpp
 	pdv/cl_GEN_Pdv.hpp
 	pdv/cl_GEN_Pdv_Value.hpp
 	pdv/cl_GEN_Pdv_Property.hpp
@@ -46,6 +47,7 @@ set(HEADERS
 	geometry/cl_GEN_User_Defined_Geometry.hpp
 #	geometry/fn_bounding_box.hpp
 	geometry/fn_GEN_create_geometry.hpp
+	geometry/cl_GEN_Child_Node.hpp
 	
 	property/cl_GEN_Property.hpp
 	property/cl_GEN_Discrete_Property.hpp
@@ -98,12 +100,13 @@ set(LIB_SOURCES
 	cl_GEN_Geometry_Object_Manager.cpp
 	cl_GEN_Geometry_Object.cpp
 	cl_GEN_Phase_Table.cpp
-	cl_GEN_Field_Base.cpp
+	cl_GEN_Field.cpp
 	cl_GEN_Field_Analytic.cpp
 	cl_GEN_Field_Discrete.cpp
 
 	pdv/cl_GEN_Pdv_Host_Manager.cpp
-	pdv/cl_GEN_Pdv_Host.cpp
+	pdv/cl_GEN_Interpolation_Pdv_Host.cpp
+	pdv/cl_GEN_Integration_Pdv_Host.cpp
 	pdv/cl_GEN_Pdv.cpp
 	pdv/cl_GEN_Pdv_Value.cpp
 	pdv/cl_GEN_Pdv_Property.cpp
@@ -116,6 +119,7 @@ set(LIB_SOURCES
 	geometry/cl_GEN_Discrete_Level_Set.cpp
 	geometry/cl_GEN_User_Defined_Geometry.cpp
 	geometry/fn_GEN_create_geometry.cpp
+	geometry/cl_GEN_Child_Node.cpp
 	
 	property/cl_GEN_Property.cpp
 	property/cl_GEN_Discrete_Property.cpp

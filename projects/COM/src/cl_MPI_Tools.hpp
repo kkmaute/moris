@@ -11,7 +11,7 @@
 #include <stdlib.h>
 #include <mpi.h>
 
-#include "xtk_typedefs.hpp"
+#include "typedefs.hpp"
 #include "cl_Cell.hpp"
 
 #include "cl_Matrix.hpp"
@@ -19,11 +19,11 @@
 #include "cl_Communication_Tools.hpp"
 
 
-namespace xtk
+namespace moris
 {
 
 inline
-void gather(moris::Cell<xtk::uint> & aBuffer, moris::Cell<xtk::uint> & aResult)
+void gather(moris::Cell<uint> & aBuffer, moris::Cell<uint> & aResult)
 {
     int tProcRank = 0;
     int tProcSize = 0;
@@ -65,7 +65,7 @@ void gather(moris::Cell<moris::moris_id> & aBuffer,
  * Require the result to be sized appropriately
  */
 inline
-void scatter(moris::Cell<xtk::uint> & aBuffer, moris::Cell<xtk::uint> & aResult)
+void scatter(moris::Cell<uint> & aBuffer, moris::Cell<uint> & aResult)
 {
     int tProcRank = 0;
     int tProcSize = 0;
@@ -214,7 +214,7 @@ allocate_ids(moris::size_t aNumIdstoAllocate,
 
     tNumIdsRequested(0) = (moris::moris_id)aNumIdstoAllocate;
 
-    xtk::gather(tNumIdsRequested,aGatheredInfo);
+    gather(tNumIdsRequested,aGatheredInfo);
 
     moris::Cell<moris::moris_id> tProcFirstID(tProcSize);
 
@@ -234,7 +234,7 @@ allocate_ids(moris::size_t aNumIdstoAllocate,
 
     }
 
-    xtk::scatter(tProcFirstID,tFirstId);
+    scatter(tProcFirstID,tFirstId);
 
 
     return tFirstId(0);

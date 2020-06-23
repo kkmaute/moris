@@ -365,7 +365,7 @@ public:
 
         tNumIdsRequested(0) = (moris::moris_id)aNumIdstoAllocate;
 
-        xtk::gather(tNumIdsRequested,aGatheredInfo);
+        moris::gather(tNumIdsRequested,aGatheredInfo);
 
         moris::Cell<moris::moris_id> tProcFirstID(tProcSize);
 
@@ -385,7 +385,7 @@ public:
 
         }
 
-        xtk::scatter(tProcFirstID,tFirstId);
+        moris::scatter(tProcFirstID,tFirstId);
 
 
         return tFirstId(0);

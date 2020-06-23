@@ -771,19 +771,26 @@ namespace moris
                  Matrix<MatrixType> const & aMatToGather,
                  Cell<Matrix<MatrixType>> & aGatheredMats,
                  moris_index aTag,
+                 moris_index aFixedDim,
                  moris_index aBaseProc = 0)
          {
-             MORIS_ERROR(isvector(aMatToGather),"all_gather_vector implemented for row or col vectors.");
 
-             bool tColumn = false;
-             if( iscol(aMatToGather))
+             // if rows are fixed
+             moris_index tNumRow = 0;
+             moris_index tNumCol = 0;
+             if(aFixedDim == 0)
              {
-                 tColumn = true;
+                 tNumRow = aMatToGather.n_rows();
              }
+             else
+             {
+                 tNumCol = aMatToGather.n_cols();
+             }
+
 
              MPI_Request tRequest;
              // send the matrix
-             MPI_Isend(aMatToGather.data(), aMatToGather.numel(), moris::get_comm_datatype(aMatToGather(0)), aBaseProc, aTag, moris::get_comm(),&tRequest);
+             MPI_Isend(aMatToGather.data(), aMatToGather.numel(), moris::get_comm_datatype(aMatToGather(0,0)), aBaseProc, aTag, moris::get_comm(),&tRequest);
 
              barrier();
 
@@ -799,26 +806,21 @@ namespace moris
                  //    MORIS_ERROR(tExists,"Trying to receive a message that does not exists");
 
                      int tLength = 0;
-                     MPI_Get_count(&tStatus, moris::get_comm_datatype(aMatToGather(0)), &tLength);
+                     MPI_Get_count(&tStatus, moris::get_comm_datatype(aMatToGather(0,0)), &tLength);
 
-                     moris_index tNumCol = 0;
-                     moris_index tNumRow = 0;
-                     if(tColumn)
+                     if(aFixedDim == 0)
                      {
-                         tNumCol = tLength;
-                         tNumRow = 1;
+                         tNumCol = tLength/tNumRow;
                      }
-
                      else
                      {
-                         tNumCol = 1;
-                         tNumRow = tLength;
+                         tNumRow = tLength/tNumCol;
                      }
 
                      // Resize the matrix
                      aGatheredMats(i).resize(tNumRow, tNumCol);
 
-                     MPI_Recv(aGatheredMats(i).data(), tLength, moris::get_comm_datatype(aMatToGather(0)), i, aTag, moris::get_comm(), &tStatus);
+                     MPI_Recv(aGatheredMats(i).data(), tLength, moris::get_comm_datatype(aMatToGather(0,0)), i, aTag, moris::get_comm(), &tStatus);
                  }
              }
 

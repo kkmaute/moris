@@ -149,14 +149,6 @@ TEST_CASE("param_test_01","[GE],[param_sweep_01]")
 
             moris::ge::Phase_Table      tPhaseTable( 1,  moris::ge::Phase_Table_Structure::EXP_BASE_2 );
             moris::ge::Geometry_Engine  tGENGeometryEngine( tGeometry, tPhaseTable );
-
-            tGENGeometryEngine.initialize_geometry_objects_for_background_mesh_nodes( tNumNodes );
-            for( uint i=0; i<tNumNodes; i++ )
-            {
-                tGENGeometryEngine.initialize_geometry_object_phase_values( tAllCoords );
-                tLSVals(i) = tGENGeometryEngine.get_entity_phase_val( i,0 );
-            }
-            tInterpMesh->add_mesh_field_real_scalar_data_loc_inds(tFieldNames(iIter), EntityRank::NODE, tLSVals);
         }
         //------------------------------------------------------------------------------
 //        std::string tOutputFile = "./sweep_radius.exo";

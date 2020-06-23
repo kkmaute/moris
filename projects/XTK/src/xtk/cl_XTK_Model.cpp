@@ -94,17 +94,19 @@ namespace xtk
         // flag this as a non-parameter list based run
         mParameterList.insert("has_parameter_list", false);
 
-        if(aLinkGeometryOnConstruction == true)
-        {
-            link_background_mesh_to_geometry_objects();
-        }
-
         mBackgroundMesh.initialize_interface_node_flags(mBackgroundMesh.get_num_entities(EntityRank::NODE),mGeometryEngine->get_num_geometries());
     }
 
     Model::Model(
-            moris::ParameterList const & aParameterList)
-    : mParameterList(aParameterList)
+            moris::ParameterList const & aParameterList )
+    : mSameMesh(false),
+      mParameterList(aParameterList),
+      mModelDimension(UINT_MAX),
+      mEnrichment(nullptr),
+      mGhostStabilization(nullptr),
+      mEnrichedInterpMesh(0,nullptr),
+      mEnrichedIntegMesh(0,nullptr),
+      mConvertedToTet10s(false)
     {
         // flag this as a paramter list based run
         mParameterList.insert("has_parameter_list", true);
@@ -149,7 +151,6 @@ namespace xtk
         mConvertedToTet10s  = false;
 
         mBackgroundMesh = Background_Mesh(aMesh,mGeometryEngine);
-        link_background_mesh_to_geometry_objects();
         mBackgroundMesh.initialize_interface_node_flags(mBackgroundMesh.get_num_entities(EntityRank::NODE),mGeometryEngine->get_num_geometries());
     }
 
@@ -206,6 +207,14 @@ namespace xtk
         if(mParameterList.get<bool>("ghost_stab"))
         {
             this->construct_face_oriented_ghost_penalization_cells();
+
+            if( mParameterList.get<bool>("exodus_output_XTK_ghost_mesh") )
+
+                for(moris::moris_index i = 0; i < (moris_index)mGeometryEngine->get_num_bulk_phase(); i++)
+                {
+                    mGhostStabilization->visualize_ghost_on_mesh(i);
+                }
+
         }
 
         if( mParameterList.get<bool>("multigrid") )
@@ -227,10 +236,7 @@ namespace xtk
 
         if( mParameterList.get<bool>("exodus_output_XTK_ig_mesh") )
         {
-            if(par_size() == 1)
-            {
-                tEnrIntegMesh.deactivate_empty_sets();
-            }
+            tEnrIntegMesh.deactivate_empty_sets();
 
             // Write mesh
             moris::mtk::Writer_Exodus writer( &tEnrIntegMesh );
@@ -345,9 +351,6 @@ namespace xtk
     {
         // Start clock
         std::clock_t tTotalTime = std::clock();
-
-        // Assert that there has been a link between geometry model and background mesh
-        MORIS_ERROR(mLinkedBackground, "Geometry model and background mesh have not been linked via call to link_background_mesh_to_geometry_objects");
 
         // Process for a decomposition
         uint tNumDecompositions = aMethods.size();
@@ -713,16 +716,18 @@ namespace xtk
                 {
                     mBackgroundMesh.mark_node_as_interface_node(tDecompData.tNewNodeIndex(i),tGeomIndex);
 
-                    // determine if this vertex is on other interfaces
-                    for(moris::uint j = 0; j < mGeometryEngine->get_num_geometries(); j++)
+                // determine if this vertex is on other interfaces
+                for(moris::uint j = 0; j < mGeometryEngine->get_num_geometries(); j++)
+                {
+                    moris::real const & tPhaseVal = mGeometryEngine->get_geometry_field_value(tDecompData.tNewNodeIndex(i),
+                                                                                              tDecompData.tNewNodeCoordinate(i),
+                                                                                              j);
+                    if(moris::equal_to(0.0,tPhaseVal))
                     {
-                        moris::real const & tPhaseVal = mGeometryEngine->get_entity_phase_val(tDecompData.tNewNodeIndex(i),(moris_index)j);
-                        if(moris::equal_to(0.0,tPhaseVal))
-                        {
-                            mBackgroundMesh.mark_node_as_interface_node(tDecompData.tNewNodeIndex(i),j);
-                        }
+                        mBackgroundMesh.mark_node_as_interface_node(tDecompData.tNewNodeIndex(i),j);
                     }
                 }
+            }
 
                 // Set Node Ids and tell the child mesh to update
                 for (moris::size_t j = 0; j < aActiveChildMeshIndices.n_cols(); j++)
@@ -926,7 +931,9 @@ namespace xtk
                     // determine if this vertex is on other interfaces
                     for(moris::uint j = 0; j < mGeometryEngine->get_num_geometries(); j++)
                     {
-                        moris::real const & tPhaseVal = mGeometryEngine->get_entity_phase_val(tDecompData.tNewNodeIndex(i),(moris_index)j);
+                        moris::real const & tPhaseVal = mGeometryEngine->get_geometry_field_value(tDecompData.tNewNodeIndex(i),
+                                                                                                  tDecompData.tNewNodeCoordinate(i),
+                                                                                                  j);
                         if(moris::equal_to(0.0,tPhaseVal))
                         {
                             mBackgroundMesh.mark_node_as_interface_node(tDecompData.tNewNodeIndex(i),j);
@@ -1300,17 +1307,16 @@ namespace xtk
         }
     }
 
-    void
-    Model::create_new_node_association_with_geometry(Decomposition_Data & tDecompData)
-    {
-        // create geometry objects for each node
-        mGeometryEngine->create_new_node_geometry_objects(
-                tDecompData.tNewNodeIndex,
-                tDecompData.mConformalDecomp,
-                tDecompData.tNewNodeParentTopology,
-                tDecompData.tParamCoordRelativeToParent,
-                tDecompData.tNewNodeCoordinate);
-    }
+void
+Model::create_new_node_association_with_geometry(Decomposition_Data & tDecompData)
+{
+    // create geometry objects for each node
+    mGeometryEngine->create_new_node_geometry_objects(tDecompData.tNewNodeIndex,
+                                                      tDecompData.mConformalDecomp,
+                                                      tDecompData.tNewNodeParentTopology,
+                                                      tDecompData.tParamCoordRelativeToParent,
+                                                      mBackgroundMesh.get_all_node_coordinates_loc_inds());
+}
 
     void
     Model::assign_node_requests_identifiers(
@@ -1805,17 +1811,6 @@ namespace xtk
         {
             nonblocking_send(aRequestAnswers(i),aRequestAnswers(i).n_rows(),aRequestAnswers(i).n_cols(),tCommTable(i),aMPITag);
         }
-    }
-
-    void
-    Model::link_background_mesh_to_geometry_objects()
-    {
-        // initialize geometry objects
-        moris::Matrix< moris::DDRMat > tNodeCoords = mBackgroundMesh.get_all_node_coordinates_loc_inds();
-
-        mGeometryEngine->initialize_geometry_objects_for_background_mesh_nodes(tNodeCoords.n_rows());
-        mGeometryEngine->initialize_geometry_object_phase_values(tNodeCoords);
-        mLinkedBackground = true;
     }
 
     void
@@ -2443,29 +2438,33 @@ namespace xtk
         Cell<Cell<moris_id>>        tCMSubphaseIndices;
         Cell<moris::Matrix<IdMat>>  tParentCellIds;
         Cell<moris::Matrix<IdMat>>  tChildCellIds;
+        Cell<moris::Matrix<IdMat>>  tNumChildCellsInSubphase;
         Cell<uint>                  tProcRanks;
         std::unordered_map<moris_id,moris_id>  tProcRankToDataIndex;
-        this->prepare_subphase_identifier_requests(tNotOwnedSubphasesToProcs, tCMSubphaseIndices, tParentCellIds, tChildCellIds, tProcRanks,tProcRankToDataIndex);
+        this->prepare_subphase_identifier_requests(tNotOwnedSubphasesToProcs, tCMSubphaseIndices, tParentCellIds, tChildCellIds, tNumChildCellsInSubphase,tProcRanks,tProcRankToDataIndex);
 
         // send requests
         moris::uint tMPITag = 221;
         this->send_outward_requests(tMPITag, tProcRanks,tParentCellIds);
         this->send_outward_requests(tMPITag+1, tProcRanks, tChildCellIds);
+        this->send_outward_requests(tMPITag+2, tProcRanks, tNumChildCellsInSubphase);
 
         barrier();
 
         // receive requests
         Cell<Matrix<IndexMat>> tReceivedParentCellIds;
         Cell<Matrix<IndexMat>> tFirstChildCellIds;
+        Cell<Matrix<IndexMat>> tReceivedNumChildCellsInSubphase;
         Cell<uint> tProcsReceivedFrom1;
         Cell<uint> tProcsReceivedFrom2;
         this->inward_receive_requests(tMPITag, 1, tReceivedParentCellIds, tProcsReceivedFrom1);
         this->inward_receive_requests(tMPITag+1,1, tFirstChildCellIds, tProcsReceivedFrom2);
+        this->inward_receive_requests(tMPITag+2,1, tReceivedNumChildCellsInSubphase, tProcsReceivedFrom2);
         MORIS_ASSERT(tProcsReceivedFrom1.size() == tProcsReceivedFrom2.size(),"Size mismatch between procs received from child cell ids and number of child cells");
 
         // prepare answers
         Cell<Matrix<IndexMat>> tSubphaseIds;
-        this->prepare_subphase_id_answers(tReceivedParentCellIds,tFirstChildCellIds,tSubphaseIds);
+        this->prepare_subphase_id_answers(tReceivedParentCellIds,tFirstChildCellIds,tReceivedNumChildCellsInSubphase,tSubphaseIds);
 
         // return information
         this->return_request_answers(tMPITag+2, tSubphaseIds, tProcsReceivedFrom1);
@@ -2488,6 +2487,7 @@ namespace xtk
             Cell<Cell<moris_id>>       & aSubphaseCMIndices,
             Cell<moris::Matrix<IdMat>> & aParentCellIds,
             Cell<moris::Matrix<IdMat>> & aChildCellIds,
+            Cell<moris::Matrix<IdMat>> & aNumChildCellsInSubphase,
             Cell<uint>                 & aProcRanks,
             std::unordered_map<moris_id,moris_id> & aProcRankToDataIndex)
     {
@@ -2527,6 +2527,7 @@ namespace xtk
 
         aParentCellIds.resize(aNotOwnedSubphasesToProcs.size());
         aChildCellIds.resize(aNotOwnedSubphasesToProcs.size());
+        aNumChildCellsInSubphase.resize(aNotOwnedSubphasesToProcs.size());
 
         // iterate through procs and child meshes shared with that processor
         for(moris::size_t i = 0; i < aNotOwnedSubphasesToProcs.size(); i++)
@@ -2537,13 +2538,16 @@ namespace xtk
             // allocate matrix
             aParentCellIds(i).resize(1,tNumCM);
             aChildCellIds(i).resize(1,tNumCM);
+            aNumChildCellsInSubphase(i).resize(1,tNumCM);
 
             if(tNumCM == 0)
             {
                 aParentCellIds(i).resize(1,1);
                 aChildCellIds(i).resize(1,1);
+                aNumChildCellsInSubphase(i).resize(1,1);
                 aParentCellIds(i)(0) = MORIS_INDEX_MAX;
                 aChildCellIds(i)(0) = MORIS_INDEX_MAX;
+                aNumChildCellsInSubphase(i)(0) = MORIS_INDEX_MAX;
             }
 
             for(moris::uint j = 0; j < tNumCM; j++)
@@ -2562,8 +2566,10 @@ namespace xtk
                 // cell index
                 moris_index tCMCellInd = tSubphaseClusters(tSPIndex)(0);
 
-                aParentCellIds(i)(j) = mBackgroundMesh.get_glb_entity_id_from_entity_loc_index(tCM->get_parent_element_index(),EntityRank::ELEMENT);
-                aChildCellIds(i)(j)  = tCellIds(tCMCellInd);
+                aParentCellIds(i)(j)           = mBackgroundMesh.get_glb_entity_id_from_entity_loc_index(tCM->get_parent_element_index(),EntityRank::ELEMENT);
+                aChildCellIds(i)(j)            = tCellIds(tCMCellInd);
+                aNumChildCellsInSubphase(i)(j) = tSubphaseClusters(tSPIndex).numel();
+
             }
         }
     }
@@ -2572,6 +2578,7 @@ namespace xtk
     Model::prepare_subphase_id_answers(
             Cell<Matrix<IndexMat>> & aReceivedParentCellIds,
             Cell<Matrix<IndexMat>> & aFirstChildCellIds,
+            Cell<Matrix<IndexMat>> & aReceivedNumChildCellsInSubphase,
             Cell<Matrix<IndexMat>> & aSubphaseIds)
     {
         MORIS_ASSERT(aReceivedParentCellIds.size() == aFirstChildCellIds.size(),"Mismatch in received parent cell ids and received parent cell number of children");
@@ -2598,20 +2605,33 @@ namespace xtk
                     // Child cell information
                     moris_id tChildCellId = aFirstChildCellIds(i)(j);
 
+                    // number of child cells in subphase
+                    moris_id tNumChildCells = aReceivedNumChildCellsInSubphase(i)(j);
+
                     // get child mesh
-                    MORIS_ASSERT(mBackgroundMesh.entity_has_children(tParentCellIndex,EntityRank::ELEMENT),"Request is made for child element ids on a parent cell not intersected");
+                    MORIS_ASSERT(mBackgroundMesh.entity_has_children(tParentCellIndex,EntityRank::ELEMENT),
+                            "Request is made for child element ids on a parent cell not intersected");
+
                     moris_index tCMIndex = mBackgroundMesh.child_mesh_index(tParentCellIndex,EntityRank::ELEMENT);
-                    Child_Mesh & tCM = mCutMesh.get_child_mesh(tCMIndex);
+                    Child_Mesh & tCM     = mCutMesh.get_child_mesh(tCMIndex);
 
                     // figure out which subphase this child cell belongs to in the given child mesh
                     Matrix<IdMat> const & tChildMeshCellIds = tCM.get_element_ids();
-                    moris_id tSubphaseId = MORIS_ID_MAX;
+
+                    moris_id tSubphaseId         = MORIS_ID_MAX;
+                    moris_index tCMSubphaseIndex = MORIS_ID_MAX;
 
                     for(moris::uint iCM = 0; iCM < tChildMeshCellIds.numel(); iCM++)
                     {
                         if(tChildMeshCellIds(iCM) == tChildCellId)
                         {
-                            tSubphaseId = tCM.get_element_subphase_id(iCM);
+                            tSubphaseId      = tCM.get_element_subphase_id(iCM);
+                            tCMSubphaseIndex = tCM.get_element_subphase_index(iCM);
+
+                            Cell<moris::Matrix< moris::IndexMat >> const & tSubphaseClusters = tCM.get_subphase_groups();
+
+                            MORIS_ERROR( (moris_id) tSubphaseClusters(tCMSubphaseIndex).numel() == tNumChildCells,
+                                    "Number of cells in subphase mismatch");
                         }
                     }
 
@@ -2667,23 +2687,17 @@ namespace xtk
     void
     Model::compute_sensitivity()
     {
-        // Start the clock
-        std::clock_t start = std::clock();
-
         // verify the state of the xtk model
         MORIS_ERROR(mDecomposed,"Prior to computing sensitivity, the decomposition process must be called");
         MORIS_ERROR(!mConvertedToTet10s,"Prior to computing sensitivity, the convert tet4 to tet10 process was called");
         MORIS_ERROR(!mSensitivity,"Calling compute interface sensitivity twice is not supported");
 
-        // Compute interface sensitivity
-        compute_interface_sensitivity_internal();
-
-        // Change the sensitivity computation state flag
-        mSensitivity = true;
-
-        if(moris::par_rank() == 0 && mVerbose)
+        // Set interface nodes to GE
+        uint tNumGeoms = mGeometryEngine->get_num_geometries();
+        for (uint iGeo = 0; iGeo < tNumGeoms; iGeo++)
         {
-            std::cout<<"XTK: Sensitivity computation completed in " <<(std::clock() - start) / (double)(CLOCKS_PER_SEC)<<" s."<<std::endl;
+            moris::Matrix<moris::IndexMat> tInterfaceNodes = mBackgroundMesh.get_interface_nodes_loc_inds(iGeo);
+            mGeometryEngine->set_interface_nodes(tInterfaceNodes);
         }
     }
 
@@ -3613,14 +3627,14 @@ namespace xtk
         {
             moris::mtk::Vertex & tVertex = mBackgroundMesh.get_mtk_vertex(i);
 
-            std::cout<<"Vertex Id: "<<std::setw(8)<<tVertex.get_id()<<" | ";
-            for(moris::uint j = 0; j < mGeometryEngine->get_num_geometries(); j++)
-            {
-                std::cout<<std::setw(12)<<mGeometryEngine->get_entity_phase_val(tVertex.get_index(),j)<<" , ";
-            }
-            std::cout<<std::endl;
+        std::cout<<"Vertex Id: "<<std::setw(8)<<tVertex.get_id()<<" | ";
+        for(moris::uint j = 0; j < mGeometryEngine->get_num_geometries(); j++)
+        {
+            std::cout<<std::setw(12)<<mGeometryEngine->get_geometry_field_value(tVertex.get_index(), tVertex.get_coords(), j)<<" , ";
         }
+        std::cout<<std::endl;
     }
+}
 
 
     void
@@ -4152,54 +4166,6 @@ namespace xtk
         moris::Cell<moris::mtk::Scalar_Field_Info<DDRMat>> tdxdpDataFields;
         moris::Cell<moris::mtk::Scalar_Field_Info<DDRMat>> tDesVarFields;
         moris::Cell<moris::mtk::Scalar_Field_Info<DDRMat>> tNumDesVarsField;
-        if(aOutputOptions.mPackageDxDpSparsely && mSensitivity)
-        {
-            this->extract_interface_sensitivity_sparse(tOutputtedNodeInds,adxdpData,adxdpNames,aDesVars,aDesVarsName,aNumDesVars,aNumDesVarsName);
-
-            tdxdpDataFields.resize(adxdpData.size());
-            tDesVarFields.resize(aDesVars.size());
-            tDesVarFields.resize(1);
-
-            // place into a field
-            for(moris::uint  i = 0; i <tdxdpDataFields.size(); i++)
-            {
-                tdxdpDataFields(i).set_field_name(adxdpNames(i));
-                tdxdpDataFields(i).set_field_entity_rank(moris::EntityRank::NODE);
-                tdxdpDataFields(i).add_field_data( &tLocalToGlobalNodeMap, &adxdpData(i));
-                add_field_for_mesh_input(&tdxdpDataFields(i),tFieldsInfo);
-            }
-
-            for(moris::uint  i = 0; i <tDesVarFields.size(); i++)
-            {
-                tDesVarFields(i).set_field_name(aDesVarsName(i));
-                tDesVarFields(i).set_field_entity_rank(moris::EntityRank::NODE);
-                tDesVarFields(i).add_field_data( &tLocalToGlobalNodeMap, &aDesVars(i));
-                add_field_for_mesh_input(&tDesVarFields(i),tFieldsInfo);
-            }
-
-            tNumDesVarsField(0).set_field_name(aNumDesVarsName);
-            tNumDesVarsField(0).set_field_entity_rank(moris::EntityRank::NODE);
-            tNumDesVarsField(0).add_field_data( &tLocalToGlobalNodeMap, &aNumDesVars);
-            add_field_for_mesh_input(&tNumDesVarsField(0),tFieldsInfo);
-
-        }
-
-        if(aOutputOptions.mPackageDxDpDensely && mSensitivity)
-        {
-            this->extract_interface_sensitivity_dense(tOutputtedNodeInds,adxdpData,adxdpNames);
-
-            tdxdpDataFields.resize(adxdpData.size());
-
-            // place into a field
-            for(moris::uint  i = 0; i <tdxdpDataFields.size(); i++)
-            {
-                tdxdpDataFields(i).set_field_name(adxdpNames(i));
-                tdxdpDataFields(i).set_field_entity_rank(moris::EntityRank::NODE);
-                tdxdpDataFields(i).add_field_data( &tLocalToGlobalNodeMap, &adxdpData(i));
-                add_field_for_mesh_input(&tdxdpDataFields(i),tFieldsInfo);
-            }
-        }
-
 
         //TODO: implement node owner (currently set to owned by this proc)
         //    moris::Matrix<moris::IdMat> tNodeOwner(1,tOutputtedNodeInds.numel(),moris::par_rank());
@@ -4481,10 +4447,7 @@ namespace xtk
             {
                 if(output_node(i,aOutputOptions) && mBackgroundMesh.get_vertex_owner(i) == tMyProcRank)
                 {
-
-                    moris::size_t tPhaseIndex = 0;
                     moris_index   tVertexIndex = mBackgroundMesh.get_loc_entity_ind_from_entity_glb_id(tNodeMap(i),EntityRank::NODE);
-                    mGeometryEngine->get_phase_index(tVertexIndex,tPhaseIndex);
                     aOutputtedNodeInds(tCount) = tVertexIndex;
                     tRestrictedNodeMap(tCount) = tNodeMap(i);
 
@@ -4964,14 +4927,14 @@ namespace xtk
     //------------------------------------------------------------------------------
 
 
-    bool
-    Model::output_node(moris::moris_index aNodeIndex,
-            Output_Options const & aOutputOptions)
-    {
-        bool tIsInterface = mBackgroundMesh.is_interface_node(aNodeIndex,0);
-        moris::size_t tPhaseIndex = 0;
-        mGeometryEngine->get_phase_index(aNodeIndex,tPhaseIndex);
-
+bool
+Model::output_node(moris::moris_index aNodeIndex,
+                   Output_Options const & aOutputOptions)
+{
+    bool tIsInterface = mBackgroundMesh.is_interface_node(aNodeIndex,0);
+    moris::size_t tPhaseIndex = 0;
+    mGeometryEngine->get_phase_index(aNodeIndex,
+                                     mBackgroundMesh.get_selected_node_coordinates_loc_inds({{aNodeIndex}}));
 
         if(aOutputOptions.output_phase(tPhaseIndex) && !tIsInterface)
         {
@@ -4995,18 +4958,21 @@ namespace xtk
         moris::Matrix< moris::IndexMat > tNodalPhaseVals(1,tNumGeom,MORIS_INDEX_MAX);
 
 
-        for(moris::size_t i = 0; i<tNumGeom; i++)
+    for (moris::uint i = 0; i < tNumGeom; i++)
+    {
+        bool tFoundNonInterfaceNode = false;
+        for( moris::size_t j = 0; j<tNumNodesPerElem; j++)
         {
-            bool tFoundNonInterfaceNode = false;
-            for( moris::size_t j = 0; j<tNumNodesPerElem; j++)
+            if(!mBackgroundMesh.is_interface_node(aElementToNodeIndex(aRowIndex,j),i))
             {
-                if(!mBackgroundMesh.is_interface_node(aElementToNodeIndex(aRowIndex,j),i))
-                {
-                    tNodalPhaseVals(0,i) = mGeometryEngine->get_node_phase_index_wrt_a_geometry(aElementToNodeIndex(aRowIndex,j),i);
-                    tFoundNonInterfaceNode = true;
-                    break;
-                }
+                tNodalPhaseVals(0,i) = mGeometryEngine->
+                        get_node_phase_index_wrt_a_geometry((moris::uint)aElementToNodeIndex(aRowIndex, j),
+                                                            mBackgroundMesh.get_selected_node_coordinates_loc_inds({{ aElementToNodeIndex(aRowIndex,j) }}),
+                                                            i);
+                tFoundNonInterfaceNode = true;
+                break;
             }
+        }
 
             if(!tFoundNonInterfaceNode)
             {
@@ -5040,135 +5006,6 @@ namespace xtk
         }
     }
 
-
-    //------------------------------------------------------------------------------
-    void
-    Model::compute_interface_sensitivity_internal()
-    {
-        // Number of geometries in the geometry engine (we need to compute sensitivity wrt each)
-        uint tNumGeoms = mGeometryEngine->get_num_geometries();
-
-        // Node coordinates
-        moris::Matrix< moris::DDRMat > tNodeCoords = mBackgroundMesh.get_all_node_coordinates_loc_inds();
-
-        for(uint iGeo = 0; iGeo <tNumGeoms; iGeo++)
-        {
-            // Get interface nodes
-            moris::Matrix< moris::IndexMat > tInterfaceNodes = mBackgroundMesh.get_interface_nodes_loc_inds(iGeo);
-
-            // Compute interface sensitivity
-            mGeometryEngine->compute_interface_sensitivity(tInterfaceNodes,tNodeCoords,iGeo);
-        }
-    }
-
-
-    void
-    Model::extract_interface_sensitivity_sparse(moris::Matrix<moris::IndexMat> const & aNodeIndsToOutput,
-            moris::Cell<moris::Matrix<DDRMat>>   & adxdpData,
-            moris::Cell<std::string>             & adxdpNames,
-            moris::Cell<moris::Matrix<DDRMat>>   & aDesVars,
-            moris::Cell<std::string>             & aDesVarsName,
-            moris::Matrix<moris::DDRMat>         & aNumDesVars,
-            std::string                          & aNumDesVarsName) const
-    {
-        // names of sparsely packaged fields
-        moris::uint tNumFields = 6;
-        adxdpNames = moris::Cell<std::string>({{"dx0dp0"},
-            {"dx1dp0"},
-            {"dx2dp0"},
-            {"dx0dp1"},
-            {"dx1dp1"},
-            {"dx2dp1"}});
-
-
-
-        moris::uint tNumNodes = aNodeIndsToOutput.numel();
-        adxdpData = moris::Cell<moris::Matrix<moris::DDRMat>>(tNumFields,moris::Matrix<moris::DDRMat>(tNumNodes,1,0.0));
-
-        //TODO: hardcoded to 2
-        tNumFields = 2;
-        aDesVarsName = moris::Cell<std::string>({{"DesVar0"},{"DesVar1"}});
-        aDesVars = moris::Cell<moris::Matrix<moris::DDRMat>>(tNumFields,moris::Matrix<moris::DDRMat>(tNumNodes,1));
-
-        aNumDesVarsName = "NumDesVar";
-        aNumDesVars = moris::Matrix<moris::DDRMat>(1,tNumNodes,0);
-
-        for(moris::uint iNode = 0; iNode<tNumNodes; iNode++)
-        {
-            moris::moris_index tNodeIndex = aNodeIndsToOutput(iNode);
-
-            if(mBackgroundMesh.is_interface_node(tNodeIndex,0))
-            {
-                moris::Matrix< moris::DDRMat > const & tdxdp = mGeometryEngine->get_node_dx_dp(tNodeIndex);
-
-                MORIS_ASSERT(tdxdp.n_rows() == 2,"Invalid dxdp size for sparse packing, This function only works on tet meshes with discrete fields at the moment");
-                MORIS_ASSERT(tdxdp.n_cols() == 3,"Invalid dxdp size for sparse packing, This function only works on tet meshes with discrete fields at the moment");
-
-                adxdpData(0)(iNode) = tdxdp(0,0);
-                adxdpData(1)(iNode) = tdxdp(0,1);
-                adxdpData(2)(iNode) = tdxdp(0,2);
-                adxdpData(3)(iNode) = tdxdp(1,0);
-                adxdpData(4)(iNode) = tdxdp(1,1);
-                adxdpData(5)(iNode) = tdxdp(1,2);
-
-                moris::Matrix< moris::IndexMat > const & tDesVarInds = mGeometryEngine->get_node_adv_indices(tNodeIndex);
-
-                aDesVars(0)(iNode) = (moris::real)mBackgroundMesh.get_mesh_data().get_glb_entity_id_from_entity_loc_index(tDesVarInds(0),EntityRank::NODE);
-                aDesVars(1)(iNode) = (moris::real)mBackgroundMesh.get_mesh_data().get_glb_entity_id_from_entity_loc_index(tDesVarInds(1),EntityRank::NODE);
-
-                aNumDesVars(iNode) = tDesVarInds.numel();
-            }
-
-        }
-    }
-
-    void
-    Model::extract_interface_sensitivity_dense(moris::Matrix<moris::IndexMat> const & aNodeIndsToOutput,
-            moris::Cell<moris::Matrix<DDRMat>>   & adxdpData,
-            moris::Cell<std::string>             & adxdpNames) const
-    {
-        // names of sparsely packaged fields
-        moris::uint tNumDVs = mGeometryEngine->get_num_design_variables();
-
-        // spatial dimension (used often here)
-        moris::uint tSpatialDim = this->get_spatial_dim();
-
-        for(moris::uint i = 0; i< tNumDVs; i++)
-        {
-            for(moris::uint j = 0; j < tSpatialDim; j++)
-            {
-                adxdpNames.push_back("dx" + std::to_string(j)+"dp"+std::to_string(i));
-            }
-        }
-
-        moris::uint tNumNodes = aNodeIndsToOutput.numel();
-        adxdpData = moris::Cell<moris::Matrix<moris::DDRMat>>(tNumDVs*tSpatialDim,moris::Matrix<moris::DDRMat>(tNumNodes,1,0.0));
-
-        for(moris::uint iNode = 0; iNode<tNumNodes; iNode++)
-        {
-            moris::moris_index tNodeIndex = aNodeIndsToOutput(iNode);
-
-            if(mBackgroundMesh.is_interface_node(tNodeIndex,0))
-            {
-                moris::Matrix< moris::DDRMat > const & tdxdp = mGeometryEngine->get_node_dx_dp(tNodeIndex);
-
-                MORIS_ASSERT(tdxdp.n_rows() == tNumDVs,"Invalid dxdp size for dense packing");
-                MORIS_ASSERT(tdxdp.n_cols() == tSpatialDim,"Invalid dxdp size for dense packing");
-
-                moris::uint tCount = 0;
-                for(moris::uint i = 0; i< tNumDVs; i++)
-                {
-                    for(moris::uint j = 0; j < tSpatialDim; j++)
-                    {
-                        adxdpData(tCount)(iNode) = tdxdp(i,j);
-                        tCount++;
-                    }
-                }
-            }
-        }
-    }
-
-
     //------------------------------------------------------------------------------
 
     moris::Cell< moris::Matrix < moris::DDRMat > >
@@ -5181,15 +5018,16 @@ namespace xtk
         // Allocate output data
         moris::Cell< moris::Matrix < moris::DDRMat > > tGeometryData(tNumGeometries, moris::Matrix<moris::DDRMat>(tNumNodes,1));
 
-        //Iterate through geometries
-        for(uint iG = 0; iG <tNumGeometries; iG++)
+    //Iterate through geometries
+    moris::Matrix< moris::DDRMat > tNodeCoords = mBackgroundMesh.get_selected_node_coordinates_loc_inds(aNodeIndsToOutput);
+    for(uint iG = 0; iG <tNumGeometries; iG++)
+    {
+        // Iterate through nodes
+        for(uint iN = 0; iN<tNumNodes; iN++)
         {
-            // Iterate through nodes
-            for(uint iN = 0; iN<tNumNodes; iN++)
-            {
-                tGeometryData(iG)(iN) = mGeometryEngine->get_entity_phase_val(aNodeIndsToOutput(iN),iG);
-            }
+            tGeometryData(iG)(iN) = mGeometryEngine->get_geometry_field_value(aNodeIndsToOutput(iN), tNodeCoords.get_row(iN), iG);
         }
+    }
 
         return tGeometryData;
     }

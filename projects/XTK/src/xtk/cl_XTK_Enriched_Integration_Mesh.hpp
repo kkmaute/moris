@@ -91,6 +91,8 @@ public:
     //------------------------------------------------------------------------------
     // Additional Set Functions
     //------------------------------------------------------------------------------
+    moris::Cell<xtk::Cell_Cluster const  *>  const & get_xtk_cell_clusters_in_block_set(moris_index aBlockSetOrdinal) const;
+
     /*
      * Get the side set name of the interface.
      */

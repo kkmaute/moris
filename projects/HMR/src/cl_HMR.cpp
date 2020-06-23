@@ -1281,6 +1281,21 @@ namespace moris
                 // get pointer to element
                 Element * tElement =  mMeshes( tLagrangeInputMeshIndex )->get_lagrange_mesh()->get_element( e );
 
+                // TODO comment these lines in toa ctivate refinement buffer.
+                // TODO it should just work. However it is not validated yet.
+//              // get max level on this mesh
+//              uint tMaxLevelOnMesh = mDatabase->get_background_mesh()->get_max_level();
+//
+//              if( mParameters->get_refinement_buffer() > 0 )
+//              {
+//                  // get number of levels
+//                  for( uint tLevel=0; tLevel<=tMaxLevelOnMesh; ++tLevel )
+//                  {
+//                      // create extra buffer
+//                      mDatabase->create_extra_refinement_buffer_for_level( tLevel );
+//                  }
+//              }
+
                 // only consider element if level is below max specified level
 
                 Matrix< IndexMat > tElementsInds = tElement->get_vertex_inds();
@@ -1512,6 +1527,19 @@ namespace moris
 
             // flag elements in HMR
             this->put_elements_on_refinment_queue( tRefinementList );
+
+            // get max level on this mesh
+            uint tMaxLevelOnMesh = mDatabase->get_background_mesh()->get_max_level();
+
+            if( mParameters->get_refinement_buffer() > 0 )
+            {
+                // get number of levels
+                for( uint tLevel=0; tLevel<=tMaxLevelOnMesh; ++tLevel )
+                {
+                    // create extra buffer
+                    mDatabase->create_extra_refinement_buffer_for_level( tLevel );
+                }
+            }
 
             // return number of flagged elements
             return aElementCounter;

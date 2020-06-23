@@ -42,6 +42,18 @@ set(LIB_DEPENDENCIES
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${LIB})
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${LIB})
 
+# ------------------------------------------------------------------------
+# Add git revision
+# https://stackoverflow.com/questions/1435953/how-can-i-pass-git-sha1-to-compiler-as-definition-using-cmake
+
+include(${MORIS_CMAKE_DIR}/utilities/GetGitRevisionDescription.cmake)
+get_git_head_revision(MORIS_GIT_BRANCH MORIS_GIT_HASH)
+message( STATUS "done with GetGitRevisionDescription " ${MORIS_GIT_BRANCH} "  " ${MORIS_GIT_HASH})
+
+configure_file("${CMAKE_CURRENT_SOURCE_DIR}/cl_Git_info.cpp.in" "${CMAKE_CURRENT_BINARY_DIR}/cl_Git_info.cpp" @ONLY)
+
+list(APPEND LIB_SOURCES "${CMAKE_CURRENT_BINARY_DIR}/cl_Git_info.cpp")
+list(APPEND HEADERS moris_git_info.hpp)
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # IOS Target

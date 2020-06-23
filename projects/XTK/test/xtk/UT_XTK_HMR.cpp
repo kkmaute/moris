@@ -205,11 +205,8 @@ TEST_CASE("XTK HMR Test","[XTK_HMR]")
 
             Matrix<IndexMat> const & tEnrCoeffs = tEnrIpMesh.get_enriched_coefficient_local_to_global_map(0);
 
-            std::cout<<"Num enriched coeffs = "<<tEnrCoeffs.numel()<<std::endl;
-
             // perform ghost stabilization
             tXTKModel.construct_face_oriented_ghost_penalization_cells();
-            std::cout<<"Num enriched coeffs = "<<tEnrCoeffs.numel()<<std::endl;
 
 
             // get the enriched basis coeffs
@@ -218,8 +215,6 @@ TEST_CASE("XTK HMR Test","[XTK_HMR]")
             std::unordered_map<moris_index,moris_index> tBasisIdMap;
             for(moris::uint i = 0 ; i < tEnrCoeffs.numel(); i++)
             {
-                std::cout<<"Index = "<< i<<" | Id = "<<tEnrCoeffs(i)<<" | index from id = "<<tEnrIpMesh.get_enr_basis_index_from_enr_basis_id(0,tEnrCoeffs(i))<<std::endl;
-
                 MORIS_ASSERT(tBasisIdMap.find(tEnrCoeffs(i)) == tBasisIdMap.end(),"Id already in the map");
 
                 tBasisIdMap[tEnrCoeffs(i)] = i;
