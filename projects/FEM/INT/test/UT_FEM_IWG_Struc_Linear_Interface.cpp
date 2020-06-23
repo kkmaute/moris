@@ -5,7 +5,7 @@
 
 #include "cl_MTK_Enums.hpp" //MTK/src
 #include "cl_FEM_Enums.hpp"                                     //FEM//INT/src
-                               //FEM//INT//src
+//FEM//INT//src
 
 #define protected public
 #define private   public
@@ -26,8 +26,8 @@
 
 void tConstValFunction_UTInterface
 ( moris::Matrix< moris::DDRMat >                 & aPropMatrix,
-  moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
-  moris::fem::Field_Interpolator_Manager         * aFIManager )
+        moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
+        moris::fem::Field_Interpolator_Manager         * aFIManager )
 {
     aPropMatrix = aParameters( 0 );
 }
@@ -112,19 +112,19 @@ TEST_CASE( "IWG_Struc_Linear_Interface", "[moris],[fem],[IWG_Struc_Linear_Interf
     //------------------------------------------------------------------------------
     // create a space geometry interpolation rule
     Interpolation_Rule tGIRule( mtk::Geometry_Type::QUAD,
-                                Interpolation_Type::LAGRANGE,
-                                mtk::Interpolation_Order::LINEAR,
-                                Interpolation_Type::CONSTANT,
-                                mtk::Interpolation_Order::CONSTANT );
+            Interpolation_Type::LAGRANGE,
+            mtk::Interpolation_Order::LINEAR,
+            Interpolation_Type::CONSTANT,
+            mtk::Interpolation_Order::CONSTANT );
 
     // create a space time geometry interpolator
     Geometry_Interpolator tGI = Geometry_Interpolator( tGIRule );
 
     // create space coeff xHat
     Matrix< DDRMat > tXHat = {{ 0.0, 0.0 },
-                              { 1.0, 0.0 },
-                              { 1.0, 1.0 },
-                              { 0.0, 1.0 }};
+            { 1.0, 0.0 },
+            { 1.0, 1.0 },
+            { 0.0, 1.0 }};
 
     // create time coeff tHat
     Matrix< DDRMat > tTHat = {{ 0.0 }};
@@ -139,10 +139,10 @@ TEST_CASE( "IWG_Struc_Linear_Interface", "[moris],[fem],[IWG_Struc_Linear_Interf
     //------------------------------------------------------------------------------
     //create a space time interpolation rule
     Interpolation_Rule tFIRule ( mtk::Geometry_Type::QUAD,
-                                 Interpolation_Type::LAGRANGE,
-                                 mtk::Interpolation_Order::LINEAR,
-                                 Interpolation_Type::CONSTANT,
-                                 mtk::Interpolation_Order::CONSTANT );
+            Interpolation_Type::LAGRANGE,
+            mtk::Interpolation_Order::LINEAR,
+            Interpolation_Type::CONSTANT,
+            mtk::Interpolation_Order::CONSTANT );
 
     // create random coefficients
     arma::Mat< double > tMatrix;
@@ -160,9 +160,9 @@ TEST_CASE( "IWG_Struc_Linear_Interface", "[moris],[fem],[IWG_Struc_Linear_Interf
 
         // create the field interpolator
         tMasterFIs( iDOF ) = new Field_Interpolator( tNumOfFields,
-                                                     tFIRule,
-                                                     &tGI,
-                                                     tIWG->get_dof_type_list()( iDOF ) );
+                tFIRule,
+                &tGI,
+                tIWG->get_dof_type_list()( iDOF ) );
 
         // set the coefficients uHat
         tMasterFIs( iDOF )->set_coeff( tDOFHat );
@@ -181,9 +181,9 @@ TEST_CASE( "IWG_Struc_Linear_Interface", "[moris],[fem],[IWG_Struc_Linear_Interf
 
         // create the field interpolator
         tSlaveFIs( iDOF ) = new Field_Interpolator( tNumOfFields,
-                                                    tFIRule,
-                                                    &tGI,
-                                                    tIWG->get_dof_type_list( mtk::Master_Slave::SLAVE )( iDOF ) );
+                tFIRule,
+                &tGI,
+                tIWG->get_dof_type_list( mtk::Master_Slave::SLAVE )( iDOF ) );
 
         // set the coefficients uHat
         tSlaveFIs( iDOF )->set_coeff( tDOFHat );
@@ -193,10 +193,10 @@ TEST_CASE( "IWG_Struc_Linear_Interface", "[moris],[fem],[IWG_Struc_Linear_Interf
     }
 
     // define an epsilon environment
-    real tEpsilon = 1E-4;
+    real tEpsilon = 1E-6;
 
     // define a perturbation relative size
-    real tPerturbation = 1E-4;
+    real tPerturbation = 1E-6;
 
     MSI::Equation_Set * tSet = new fem::Set();
 
@@ -261,15 +261,17 @@ TEST_CASE( "IWG_Struc_Linear_Interface", "[moris],[fem],[IWG_Struc_Linear_Interf
     Matrix< DDRMat > tJacobiansFD;
 
     // check jacobian by FD
-    bool tCheckJacobian = tIWG->check_jacobian_double( tPerturbation,
-                                                       tEpsilon,
-                                                       1.0,
-                                                       tJacobians,
-                                                       tJacobiansFD );
+    bool tCheckJacobian = tIWG->check_jacobian(
+            tPerturbation,
+            tEpsilon,
+            1.0,
+            tJacobians,
+            tJacobiansFD,
+            true );
 
-//        // print for debug
-//        print( tJacobians,"tJacobians");
-//        print( tJacobiansFD,"tJacobiansFD");
+    //        // print for debug
+    //        print( tJacobians,"tJacobians");
+    //        print( tJacobiansFD,"tJacobiansFD");
 
     // require check is true
     REQUIRE( tCheckJacobian );
