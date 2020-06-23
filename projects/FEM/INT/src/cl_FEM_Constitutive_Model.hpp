@@ -7,16 +7,22 @@
 #ifndef SRC_FEM_CL_FEM_CONSTITUTIVE_MODEL_HPP_
 #define SRC_FEM_CL_FEM_CONSTITUTIVE_MODEL_HPP_
 
-#include "typedefs.hpp"                     //MRS/COR/src
-//#include "linalg_typedefs.hpp"              //MRS/COR/src
-#include "cl_Cell.hpp"                      //MRS/CON/src
-#include "cl_Matrix.hpp"                    //LNA/src
-#include "cl_FEM_Field_Interpolator.hpp"    //FEM/INT/src
-#include "cl_FEM_Property.hpp"              //FEM/INT/src
-#include "cl_FEM_Enums.hpp"                 //FEM/INT/src
-#include "cl_MSI_Dof_Type_Enums.hpp"        //FEM/MSI/src
+//MRS/COR/src
+#include "typedefs.hpp"
+//#include "linalg_typedefs.hpp"
+//MRS/CON/src
+#include "cl_Cell.hpp"
+//LNA/src
+#include "cl_Matrix.hpp"
+//FEM/INT/src
+#include "cl_FEM_Field_Interpolator.hpp"
+#include "cl_FEM_Property.hpp"
+#include "cl_FEM_Enums.hpp"
+#include "fn_FEM_FD_Scheme.hpp"
+//FEM/MSI/src
+#include "cl_MSI_Dof_Type_Enums.hpp"
 #include <map>
-
+//GEN/src
 #include "cl_GEN_Pdv_Enums.hpp"
 
 namespace moris
@@ -112,8 +118,7 @@ namespace moris
                 moris::Cell< Matrix< DDRMat > > mdConstdDv;
 
                 // constitutive model name for input and debug
-                std::string mName;
-
+                std::string mName = "Undefined";
 
             private:
 
@@ -365,7 +370,7 @@ namespace moris
                  */
                 virtual void set_property(
                         std::shared_ptr< fem::Property > aProperty,
-                        std::string                      aPropertyType )
+                        std::string                      aPropertyString )
                 {
                     MORIS_ERROR( false, "Constitutive_Model::set_property - Not implemented for base class." );
                 }
@@ -379,6 +384,18 @@ namespace moris
                 {
                     return mProperties;
                 };
+
+                //------------------------------------------------------------------------------
+                /**
+                 * get property
+                 * @param[ in ]  aPropertyType string for required property
+                 * @param[ out ] mProperty     required property pointer
+                 */
+                virtual std::shared_ptr< Property > get_property( std::string aPropertyType )
+                {
+                    MORIS_ERROR( false, "Constitutive_Model::get_property - Not implemented for base class." );
+                    return nullptr;
+                }
 
                 //------------------------------------------------------------------------------
                 /**
@@ -997,14 +1014,16 @@ namespace moris
                 //------------------------------------------------------------------------------
                 /**
                  * evaluate the constitutive model stress derivative wrt to a dof type
-                 * @param[ in ] aDofTypes       a dof type wrt which the derivative is evaluated
-                 * @param[ in ] adFluxdDOF_FD a matrix to fill with derivative evaluation
+                 * @param[ in ] aDofTypes       dof type wrt which the derivative is evaluated
+                 * @param[ in ] adFluxdDOF_FD   matrix to fill with derivative evaluation
                  * @param[ in ] aPerturbation   real to perturb for FD
+                 * @param[ in ] aFDSchemeType   enum for FD scheme
                  */
                 void eval_dFluxdDOF_FD(
                         const moris::Cell< MSI::Dof_Type > & aDofTypes,
                         Matrix< DDRMat >                   & adFluxdDOF_FD,
-                        real                                 aPerturbation );
+                        real                                 aPerturbation,
+                        fem::FDScheme_Type                   aFDSchemeType = fem::FDScheme_Type::POINT_5 );
 
                 //------------------------------------------------------------------------------
                 /**
@@ -1018,7 +1037,8 @@ namespace moris
                         const moris::Cell< MSI::Dof_Type > & aDofTypes,
                         Matrix< DDRMat >                   & adtractiondu_FD,
                         real                                 aPerturbation,
-                        Matrix< DDRMat >                   & aNormal );
+                        Matrix< DDRMat >                   & aNormal,
+                        fem::FDScheme_Type                   aFDSchemeType = fem::FDScheme_Type::POINT_5 );
 
                 //------------------------------------------------------------------------------
                 /**
@@ -1036,7 +1056,8 @@ namespace moris
                         Matrix< DDRMat >                   & adtesttractiondu_FD,
                         real                                 aPerturbation,
                         Matrix< DDRMat >                   & aNormal,
-                        Matrix< DDRMat >                   & aJump );
+                        Matrix< DDRMat >                   & aJump,
+                        fem::FDScheme_Type                   aFDSchemeType = fem::FDScheme_Type::POINT_5 );
 
                 //------------------------------------------------------------------------------
                 /**
@@ -1048,7 +1069,8 @@ namespace moris
                 void eval_ddivfluxdu_FD(
                         const moris::Cell< MSI::Dof_Type > & aDofTypes,
                         Matrix< DDRMat >                   & ddivfluxdu_FD,
-                        real                                 aPerturbation );
+                        real                                 aPerturbation,
+                        fem::FDScheme_Type                   aFDSchemeType = fem::FDScheme_Type::POINT_5 );
 
                 //------------------------------------------------------------------------------
                 /**
@@ -1060,7 +1082,8 @@ namespace moris
                 void eval_ddivstraindu_FD(
                         const moris::Cell< MSI::Dof_Type > & aDofTypes,
                         Matrix< DDRMat >                   & addivstraindu_FD,
-                        real                                 aPerturbation );
+                        real                                 aPerturbation,
+                        fem::FDScheme_Type                   aFDSchemeType = fem::FDScheme_Type::POINT_5 );
 
                 //------------------------------------------------------------------------------
                 /**
@@ -1072,7 +1095,8 @@ namespace moris
                 void eval_dHdotdDOF_FD(
                         const moris::Cell< MSI::Dof_Type > & aDofTypes,
                         Matrix< DDRMat >                   & adHdotdDOF_FD,
-                        real                                 aPerturbation );
+                        real                                 aPerturbation,
+                        fem::FDScheme_Type                   aFDSchemeType = fem::FDScheme_Type::POINT_5 );
 
                 //------------------------------------------------------------------------------
                 /**
@@ -1084,7 +1108,8 @@ namespace moris
                 void eval_dGradHdDOF_FD(
                         const moris::Cell< MSI::Dof_Type > & aDofTypes,
                         Matrix< DDRMat >                   & adGradHdDOF_FD,
-                        real                                 aPerturbation );
+                        real                                 aPerturbation,
+                        fem::FDScheme_Type                   aFDSchemeType = fem::FDScheme_Type::POINT_5);
 
                 //------------------------------------------------------------------------------
                 /**
@@ -1096,7 +1121,8 @@ namespace moris
                 void eval_dGradHdotdDOF_FD(
                         const moris::Cell< MSI::Dof_Type > & aDofTypes,
                         Matrix< DDRMat >                   & adGradHdotdDOF_FD,
-                        real                                 aPerturbation );
+                        real                                 aPerturbation,
+                        fem::FDScheme_Type                   aFDSchemeType = fem::FDScheme_Type::POINT_5 );
 
                 //------------------------------------------------------------------------------
                 /**
@@ -1108,7 +1134,8 @@ namespace moris
                 void eval_dGradDivFluxdDOF_FD(
                         const moris::Cell< MSI::Dof_Type > & aDofTypes,
                         Matrix< DDRMat >                   & adGradDivFluxdDOF_FD,
-                        real                                 aPerturbation );
+                        real                                 aPerturbation,
+                        fem::FDScheme_Type                   aFDSchemeType = fem::FDScheme_Type::POINT_5 );
 
                 //------------------------------------------------------------------------------
                 /**
@@ -1120,7 +1147,8 @@ namespace moris
                 void eval_dStraindDOF_FD(
                         const moris::Cell< MSI::Dof_Type > & aDofTypes,
                         Matrix< DDRMat >                   & adStraindDOF_FD,
-                        real                                 aPerturbation );
+                        real                                 aPerturbation,
+                        fem::FDScheme_Type                   aFDSchemeType = fem::FDScheme_Type::POINT_5 );
 
                 //------------------------------------------------------------------------------
                 /**
@@ -1133,7 +1161,8 @@ namespace moris
                 void eval_dFluxdDV_FD(
                         const moris::Cell< PDV_Type > & aDvTypes,
                         Matrix< DDRMat >              & adFluxdDV_FD,
-                        real                            aPerturbation );
+                        real                            aPerturbation,
+                        fem::FDScheme_Type              aFDSchemeType = fem::FDScheme_Type::POINT_5 );
 
                 //------------------------------------------------------------------------------
                 /**
@@ -1146,7 +1175,8 @@ namespace moris
                 void eval_dStraindDV_FD(
                         const moris::Cell< PDV_Type > & aDvTypes,
                         Matrix< DDRMat >              & adStraindDV_FD,
-                        real                            aPerturbation );
+                        real                            aPerturbation,
+                        fem::FDScheme_Type              aFDSchemeType = fem::FDScheme_Type::POINT_5 );
 
                 //------------------------------------------------------------------------------
                 /*
