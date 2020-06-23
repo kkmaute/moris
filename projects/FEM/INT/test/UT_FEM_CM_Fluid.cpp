@@ -225,7 +225,7 @@ TEST_CASE( "CM_Fluid", "[CM_Fluid]" )
                     Interpolation_Type::LAGRANGE,
                     mtk::Interpolation_Order::LINEAR );
 
-            // fill random coefficients for master FI
+            // fill coefficients for master FI
             Matrix< DDRMat > tMasterDOFHatVel;
             fill_uhat( tMasterDOFHatVel, iSpaceDim, iInterpOrder );
             Matrix< DDRMat > tMasterDOFHatP;

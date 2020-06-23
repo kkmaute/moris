@@ -52,7 +52,7 @@ TEST_CASE( "IWG_Diff_VWGhost", "[moris],[fem],[IWG_Diff_VWGhost]" )
 {
     // define an epsilon environment
     // FIXME
-    real tEpsilon = 1.0E-4;
+    real tEpsilon = 1.0E-3;
 
     // define a perturbation relative size
     real tPerturbation = 1.0E-6;

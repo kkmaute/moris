@@ -31,7 +31,7 @@ TEST_CASE( "IWG_Incompressible_NS_Velocity_Bulk", "[IWG_Incompressible_NS_Veloci
 {
     // define an epsilon environment
     // FIXME
-    real tEpsilon = 1E-5;
+    real tEpsilon = 1E-4;
 
     // define a perturbation relative size
     real tPerturbation = 1E-6;
