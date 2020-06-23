@@ -72,7 +72,7 @@ namespace moris
             if ( mPropertyMap.find( aPropertyString ) == mPropertyMap.end() )
             {
                 std::string tErrMsg =
-                        std::string("CM_Diffusion_Linear_Isotropic_Phase_Change::set_property - Unknown aPropertyString : ") +
+                        std::string( "CM_Diffusion_Linear_Isotropic_Phase_Change::set_property - Unknown aPropertyString : ") +
                         aPropertyString;
 
                 MORIS_ERROR( false , tErrMsg.c_str() );
@@ -80,6 +80,24 @@ namespace moris
 
             // set the property in the property cell
             mProperties( static_cast< uint >( mPropertyMap[ aPropertyString ] ) ) = aProperty;
+        }
+
+        //------------------------------------------------------------------------------
+        std::shared_ptr< Property > CM_Diffusion_Linear_Isotropic_Phase_Change::get_property(
+                std::string aPropertyString )
+        {
+            // check that aPropertyString makes sense
+            if ( mPropertyMap.find( aPropertyString ) == mPropertyMap.end() )
+            {
+                std::string tErrMsg =
+                        std::string( "CM_Diffusion_Linear_Isotropic_Phase_Change::get_property - Unknown aPropertyString : ") +
+                        aPropertyString;
+
+                MORIS_ERROR( false , tErrMsg.c_str() );
+            }
+
+            // get the property in the property cell
+            return  mProperties( static_cast< uint >( mPropertyMap[ aPropertyString ] ) );
         }
 
         //------------------------------------------------------------------------------
