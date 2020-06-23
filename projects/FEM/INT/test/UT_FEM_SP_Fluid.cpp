@@ -262,6 +262,10 @@ TEST_CASE( "SP_Fluid", "[SP_Fluid]" )
             tPropFluidViscosity->set_parameters( { {{ tFluidViscosity }} } );
             tPropFluidViscosity->set_val_function( tConstValFunc_SPFluid );
 
+            std::shared_ptr< fem::Property > tPropWallDistance = std::make_shared< fem::Property >();
+            tPropWallDistance->set_parameters( { {{ 1.0 }} } );
+            tPropWallDistance->set_val_function( tConstValFunc_SPFluid );
+
             // define stabilization parameters
             fem::SP_Factory tSPFactory;
 
@@ -298,6 +302,13 @@ TEST_CASE( "SP_Fluid", "[SP_Fluid]" )
             tSPPressureGhost->set_property( tPropFluidViscosity, "Viscosity", mtk::Master_Slave::MASTER );
             tSPPressureGhost->set_property( tPropFluidDensity, "Density", mtk::Master_Slave::MASTER );
 
+            std::shared_ptr< fem::Stabilization_Parameter > tSPSUPGSA=
+                                tSPFactory.create_SP( fem::Stabilization_Type::SUPG_SPALART_ALLMARAS_TURBULENCE );
+            tSPSUPGSA->set_dof_type_list( {{ MSI::Dof_Type::VX, MSI::Dof_Type::VY }, { MSI::Dof_Type::VISCOSITY } }, mtk::Master_Slave::MASTER );
+            tSPSUPGSA->set_property( tPropFluidViscosity, "Viscosity", mtk::Master_Slave::MASTER );
+            tSPSUPGSA->set_property( tPropWallDistance, "WallDistance", mtk::Master_Slave::MASTER );
+            tSPSUPGSA->set_space_dim( 2 );
+
             // set a fem set pointer
             MSI::Equation_Set * tSet = new fem::Set();
             tSPIncFlow->set_set_pointer( reinterpret_cast< fem::Set* >( tSet ) );
@@ -305,6 +316,7 @@ TEST_CASE( "SP_Fluid", "[SP_Fluid]" )
             tSPViscousGhost->set_set_pointer( reinterpret_cast< fem::Set* >( tSet ) );
             tSPConvectiveGhost->set_set_pointer( reinterpret_cast< fem::Set* >( tSet ) );
             tSPPressureGhost->set_set_pointer( reinterpret_cast< fem::Set* >( tSet ) );
+            tSPSUPGSA->set_set_pointer( reinterpret_cast< fem::Set* >( tSet ) );
 
             // set size for the set EqnObjDofTypeList
             tSPIncFlow->mSet->mUniqueDofTypeList.resize( 100, MSI::Dof_Type::END_ENUM );
@@ -327,6 +339,7 @@ TEST_CASE( "SP_Fluid", "[SP_Fluid]" )
             tSPViscousGhost->get_global_dof_type_list();
             tSPConvectiveGhost->get_global_dof_type_list();
             tSPPressureGhost->get_global_dof_type_list();
+            tSPSUPGSA->get_global_dof_type_list();
 
             // set normal
             tSPIncFlow->set_normal( tNormal );
@@ -334,6 +347,7 @@ TEST_CASE( "SP_Fluid", "[SP_Fluid]" )
             tSPViscousGhost->set_normal( tNormal );
             tSPConvectiveGhost->set_normal( tNormal );
             tSPPressureGhost->set_normal( tNormal );
+            tSPSUPGSA->set_normal( tNormal );
 
             // set order
             tSPIncFlow->set_interpolation_order( iInterpOrder );
@@ -341,6 +355,7 @@ TEST_CASE( "SP_Fluid", "[SP_Fluid]" )
             tSPViscousGhost->set_interpolation_order( iInterpOrder );
             tSPConvectiveGhost->set_interpolation_order( iInterpOrder );
             tSPPressureGhost->set_interpolation_order( iInterpOrder );
+            tSPSUPGSA->set_interpolation_order( iInterpOrder );
 
             // create a field interpolator manager
             moris::Cell< moris::Cell< enum PDV_Type > > tDummyDv;
@@ -361,6 +376,7 @@ TEST_CASE( "SP_Fluid", "[SP_Fluid]" )
             tSPViscousGhost->set_field_interpolator_manager( &tFIManager );
             tSPConvectiveGhost->set_field_interpolator_manager( &tFIManager );
             tSPPressureGhost->set_field_interpolator_manager( &tFIManager );
+            tSPSUPGSA->set_field_interpolator_manager( &tFIManager );
 
 //            // print for debug
 //            std::cout<<"Case: Geometry "<<iSpaceDim<<" Order "<<iInterpOrder<<std::endl;
@@ -380,7 +396,7 @@ TEST_CASE( "SP_Fluid", "[SP_Fluid]" )
 
                 // evaluate dfluxdu by FD
                 Matrix< DDRMat > tdspduFD;
-                tSPIncFlow->eval_dSPdDOF_FD( tDofDerivative, tdspduFD, tPerturbation );
+                tSPIncFlow->eval_dSPdMasterDOF_FD( tDofDerivative, tdspduFD, tPerturbation );
 
                 // check that analytical and FD match
                 bool tCheckSPSUPGPSPG = fem::check( tdspdu, tdspduFD, tEpsilon );
@@ -401,7 +417,7 @@ TEST_CASE( "SP_Fluid", "[SP_Fluid]" )
 
                 // evaluate dfluxdu by FD
                 Matrix< DDRMat > tdspduFD;
-                tSPNitsche->eval_dSPdDOF_FD( tDofDerivative, tdspduFD, tPerturbation );
+                tSPNitsche->eval_dSPdMasterDOF_FD( tDofDerivative, tdspduFD, tPerturbation );
 
                 // check that analytical and FD match
                 bool tCheckSPNitsche = fem::check( tdspdu, tdspduFD, tEpsilon );
@@ -422,7 +438,7 @@ TEST_CASE( "SP_Fluid", "[SP_Fluid]" )
 
                 // evaluate dfluxdu by FD
                 Matrix< DDRMat > tdspduFD;
-                tSPViscousGhost->eval_dSPdDOF_FD( tDofDerivative, tdspduFD, tPerturbation );
+                tSPViscousGhost->eval_dSPdMasterDOF_FD( tDofDerivative, tdspduFD, tPerturbation );
 
                 // check that analytical and FD match
                 bool tCheckSPViscousGhost = fem::check( tdspdu, tdspduFD, tEpsilon );
@@ -443,7 +459,7 @@ TEST_CASE( "SP_Fluid", "[SP_Fluid]" )
 
                 // evaluate dfluxdu by FD
                 Matrix< DDRMat > tdspduFD;
-                tSPConvectiveGhost->eval_dSPdDOF_FD( tDofDerivative, tdspduFD, tPerturbation );
+                tSPConvectiveGhost->eval_dSPdMasterDOF_FD( tDofDerivative, tdspduFD, tPerturbation );
 
                 // check that analytical and FD match
                 bool tCheckSPConvectiveGhost = fem::check( tdspdu, tdspduFD, tEpsilon );
@@ -464,11 +480,32 @@ TEST_CASE( "SP_Fluid", "[SP_Fluid]" )
 
                 // evaluate dfluxdu by FD
                 Matrix< DDRMat > tdspduFD;
-                tSPPressureGhost->eval_dSPdDOF_FD( tDofDerivative, tdspduFD, tPerturbation );
+                tSPPressureGhost->eval_dSPdMasterDOF_FD( tDofDerivative, tdspduFD, tPerturbation );
 
                 // check that analytical and FD match
                 bool tCheckSPPressureGhost = fem::check( tdspdu, tdspduFD, tEpsilon );
                 REQUIRE( tCheckSPPressureGhost );
+            }
+
+            // populate the requested master dof type for SP
+            tMasterDofTypes = tSPSUPGSA->get_global_dof_type_list();
+
+            // loop over requested dof type
+            for( uint iRequestedDof = 0; iRequestedDof < tMasterDofTypes.size(); iRequestedDof++ )
+            {
+                // derivative dof type
+                Cell< MSI::Dof_Type > tDofDerivative = tMasterDofTypes( iRequestedDof );
+
+                // evaluate dspdu
+                Matrix< DDRMat > tdspdu = tSPSUPGSA->dSPdMasterDOF( tDofDerivative );
+
+                // evaluate dfluxdu by FD
+                Matrix< DDRMat > tdspduFD;
+                tSPSUPGSA->eval_dSPdMasterDOF_FD( tDofDerivative, tdspduFD, tPerturbation );
+
+                // check that analytical and FD match
+                bool tCheckSPSUPGSA = fem::check( tdspdu, tdspduFD, tEpsilon );
+                REQUIRE( tCheckSPSUPGSA );
             }
 
             // clean up
