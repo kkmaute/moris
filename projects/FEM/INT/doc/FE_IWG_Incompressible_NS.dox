@@ -100,14 +100,14 @@ Dirichlet boundary conditions are imposed weakly via Nitsche's formulation as:
 + \left( \gamma_N\ \mathbf{v},\ \mathbf{u} - \overline{\mathbf{u}} \right)_{\Gamma_D}\\
 
 \mathbf{R}_{p}^{D} & = & \displaystyle
-- \beta \left( q \cdot \mathbf{n},\ \mathbf{u} - \overline{\mathbf{u}} \right)_{\Gamma_D},\\
+- \beta\ \left( -q \cdot \mathbf{n},\ \mathbf{u} - \overline{\mathbf{u}} \right)_{\Gamma_D},\\
 
  \gamma_N & = & \displaystyle 
  \alpha_N \left( \frac{\mu}{h} + \frac{\rho || \mathbf{u} ||_{\infty}}{6} + \frac{\rho h}{12 \theta \Delta t} \right)
 \end{array}
 \f]
 
-where \f$ \beta = 1 \f$ for symmetric version and \f$ \beta = -1 \f$ for skew symmetric version.
+where \f$ \beta = -1 \f$ for symmetric version and \f$ \beta = 1 \f$ for skew symmetric version.
 The velocity side part of the residual \f$ \mathbf{R}_{u}^{D} \f$ is implemented in 
 IWG_Incompressible_NS_Velocity_Dirichlet_Nitsche,
 corresponding to the enums IWG\_Type::INCOMPRESSIBLE_NS_VELOCITY_DIRICHLET_SYMMETRIC_NITSCHE 
@@ -119,30 +119,48 @@ and IWG\_Type::INCOMPRESSIBLE_NS_PRESSURE_DIRICHLET_UNSYMMETRIC_NITSCHE.
 The stabilization parameter \f$ \gamma_N \f$ are implemented in
 SP_Velocity_Dirichlet_Nitsche, corresponding to the enum SP_Type::VELOCITY_DIRICHLET_NITSCHE.
 
+Fluid/fluid interface conditions are also imposed weakly via Nitsche's formulation:
+\f[
+\begin{array}{lll}
+\mathbf{R}_{u}^{\Gamma_{ifc}} & = & \displaystyle
+- \left( [[\mathbf{v}]],\ \{\boldsymbol{\sigma}(\mathbf{u}, p) \cdot \mathbf{n} \} \right)_{\Gamma_{ifc}}
+- \beta \left( \{2 \mu \boldsymbol{\varepsilon}(\mathbf{v}) \cdot \mathbf{n} \},\ [[\mathbf{u}]] \right)_{\Gamma_{ifc}}
+- \beta \left( \{2 \mu_t(\tilde{\nu}) \boldsymbol{\varepsilon}(\mathbf{v}) \cdot \mathbf{n} \},\ [[\mathbf{u}]] \right)_{\Gamma_{ifc}}
++ \left( \gamma_N\ [[\mathbf{v}]],\ [[\mathbf{u}]] \right)_{\Gamma_{ifc}}\\
+
+\mathbf{R}_{p}^{\Gamma_{ifc}} & = & \displaystyle
+- \beta \left( \{ -q \cdot \mathbf{n} \},\ [[\mathbf{u}]] \right)_{\Gamma_{ifc}},\\
+
+ \gamma_N & = & \displaystyle 
+ \alpha_N \left( \right)
+\end{array}
+\f]
+
+
 Face-oriented ghost stabilization for Incompressible Navier-Stokes
 \f[
 \begin{array}{lll}
 \mathbf{R}_{\mu}^{GP} & = & 
-\sum_{F} \sum_{i} \int_{F} \gamma_{\mu}^{GP} \left[[ \frac{\partial^i \mathbf{v}}{\partial \mathbf{x}^i} \cdot \mathbf{n} \right]] 
-: \left[[ \frac{\partial^i \mathbf{u}}{\partial \mathbf{x}^i} \cdot \mathbf{n}\right]]\ d\Gamma\\
+\sum_{F} \sum_{i} \int_{F} \gamma_{\mu}^{GP} [[ \frac{\partial^i \mathbf{v}}{\partial \mathbf{x}^i} \cdot \mathbf{n} ]] 
+: [[ \frac{\partial^i \mathbf{u}}{\partial \mathbf{x}^i} \cdot \mathbf{n} ]]\ d\Gamma\\
 
 \gamma_{\mu}^{GP} & = & \alpha_{\mu}^{GP} \mu h^{2(i-1)+1}\\
 
 \mathbf{R}_{p}^{GP} & = & 
-\sum_{F} \sum_{i} \int_{F} \gamma_{p}^{GP} \left[[ \frac{\partial^i q}{\partial \mathbf{x}^i} \cdot \mathbf{n} \right]] 
-: \left[[ \frac{\partial^i p}{\partial \mathbf{x}^i} \cdot \mathbf{n}\right]]\ d\Gamma\\ 
+\sum_{F} \sum_{i} \int_{F} \gamma_{p}^{GP} [[ \frac{\partial^i q}{\partial \mathbf{x}^i} \cdot \mathbf{n} ]] 
+: [[ \frac{\partial^i p}{\partial \mathbf{x}^i} \cdot \mathbf{n} ]]\ d\Gamma\\ 
 
 \gamma_{p}^{GP} & = & \alpha_{p}^{GP} \left( \frac{\mu}{h} + \frac{\rho ||\mathbf{u}||_{\infty}}{6} + \frac{\rho h}{12 \theta \Delta t}  \right)^{-1} h^{2i}\\
 
 \mathbf{R}_{u}^{GP} & = & 
-\sum_{F} \int_{F} \gamma_{u}^{GP} \left[[ \frac{\partial \mathbf{v}}{\partial \mathbf{x}} \cdot \mathbf{n} \right]] 
-: \left[[ \frac{\partial \mathbf{u}}{\partial \mathbf{x}} \cdot \mathbf{n}\right]]\ d\Gamma\\ 
+\sum_{F} \int_{F} \gamma_{u}^{GP} [[ \frac{\partial \mathbf{v}}{\partial \mathbf{x}} \cdot \mathbf{n} ]] 
+: [[ \frac{\partial \mathbf{u}}{\partial \mathbf{x}} \cdot \mathbf{n} ]]\ d\Gamma\\ 
 
 \gamma_{u}^{GP} & = & \alpha_{u}^{GP} \rho |\mathbf{u} \cdot \mathbf{n}| h^2\\
 
 \mathbf{R}_{t}^{GP} & = & 
-\sum_{F} \sum_{i} \int_{F} \gamma_{t}^{GP} \left[[ \frac{\partial^i q}{\partial \mathbf{x}^i} \cdot \mathbf{n} \right]] 
-: \left[[ \frac{\partial^i p}{\partial \mathbf{x}^i} \cdot \mathbf{n}\right]]\ d\Gamma\\
+\sum_{F} \sum_{i} \int_{F} \gamma_{t}^{GP} [[ \frac{\partial^i q}{\partial \mathbf{x}^i} \cdot \mathbf{n} ]] 
+: [[ \frac{\partial^i p}{\partial \mathbf{x}^i} \cdot \mathbf{n} ]]\ d\Gamma\\
 
 \gamma_{t}^{GP} & = & \alpha_{t}^{GP} \frac{\rho}{\theta \Delta t} h^{2(i-1)+3}
 

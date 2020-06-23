@@ -1,7 +1,7 @@
 namespace moris {
 namespace fem {
 
-/** @defgroup FE_IWG_SA_Turbulence_Bulk Bulk IWG for Spalart-Allmaras Turbulence Model 
+/** @defgroup FE_IWG_SA_Turbulence IWGs for Spalart-Allmaras Turbulence Model 
 
 The strong form of the Spalart-Allmaras turbulence equation is given as:
 \f[
@@ -120,9 +120,9 @@ SP_Turbulence_Dirichlet_Nitsche, corresponding to the enum SP_Type::TURBULENCE_D
 Face-oriented ghost stabilization:
 \f[
 \begin{array}{lll}
-R_{\tilde{\nu}}^{GP} & =  & 
+R_{\tilde{\nu}}^{GP} & = & 
 \sum_{F} \sum_{i} \int_{F} \gamma^{GP}_{\tilde{\nu}} [[ \frac{\partial^i w}{\partial \mathbf{x}^i} \cdot \mathbf{n} ]] 
-: [[ \frac{\partial^i \tilde{\nu}}{\partial \mathbf{x}^i} \cdot \mathbf{n} ]] \ d\Gamma\\ [15pt]
+: [[ \frac{\partial^i \tilde{\nu}}{\partial \mathbf{x}^i} \cdot \mathbf{n} ]] \ d\Gamma\\
 
 \gamma^{GP}_{\tilde{\nu}} & = & \alpha^{GP}_{\tilde{\nu}}\ \nu\ h^{2(i - 1) +1}
 
