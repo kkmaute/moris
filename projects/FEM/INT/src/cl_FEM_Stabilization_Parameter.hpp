@@ -18,6 +18,7 @@
 #include "cl_FEM_Property.hpp"
 #include "cl_FEM_Constitutive_Model.hpp"
 #include "cl_FEM_Enums.hpp"
+#include "fn_FEM_FD_Scheme.hpp"
 //FEM/MSI/src
 #include "cl_MSI_Dof_Type_Enums.hpp"
 //GEN/src
@@ -508,6 +509,21 @@ namespace moris
 
                 //------------------------------------------------------------------------------
                 /**
+                 * evaluate the stabilization parameter derivative wrt master dof
+                 * by finite difference
+                 * @param[ in ] aDofTypes     dof type wrt which the derivative is evaluated
+                 * @param[ in ] adSPdDOF_FD   matrix to fill with SP derivative wrt dof
+                 * @param[ in ] aPerturbation relative perturbation for finite difference
+                 * @param[ in ] aFDSchemeType enum for FD scheme
+                 */
+                void eval_dSPdMasterDOF_FD(
+                        const moris::Cell< MSI::Dof_Type > & aDofTypes,
+                        Matrix< DDRMat >                   & adSPdDOF_FD,
+                        real                                 aPerturbation,
+                        fem::FDScheme_Type                   aFDSchemeType = fem::FDScheme_Type::POINT_5 );
+
+                //------------------------------------------------------------------------------
+                /**
                  * get the stabilization parameter derivative wrt slave dof
                  * @param[ in ]  aDofTypes     dof type wrt which the derivative is evaluated
                  * @param[ out ] mdSPdSlaveDof stabilization parameter derivative wrt slave dof
@@ -532,13 +548,13 @@ namespace moris
                  * @param[ in ] aDofTypes     dof type wrt which the derivative is evaluated
                  * @param[ in ] adSPdDOF_FD   matrix to fill with SP derivative wrt dof
                  * @param[ in ] aPerturbation relative perturbation for finite difference
-                 * @param[ in ] aIsMaster     enum for master or slave
+                 * @param[ in ] aFDSchemeType enum for FD scheme
                  */
-                void eval_dSPdDOF_FD(
+                void eval_dSPdSlaveDOF_FD(
                         const moris::Cell< MSI::Dof_Type > & aDofTypes,
                         Matrix< DDRMat >                   & adSPdDOF_FD,
                         real                                 aPerturbation,
-                        mtk::Master_Slave                    aIsMaster = mtk::Master_Slave::MASTER );
+                        fem::FDScheme_Type                   aFDSchemeType = fem::FDScheme_Type::POINT_5 );
 
                 //------------------------------------------------------------------------------
                 /**
