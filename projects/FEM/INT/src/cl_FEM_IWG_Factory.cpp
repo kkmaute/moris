@@ -166,16 +166,16 @@ namespace moris
                     return std::make_shared< IWG_Incompressible_NS_Pressure_Neumann >();
 
                 case IWG_Type::INCOMPRESSIBLE_NS_VELOCITY_INTERFACE_SYMMETRIC_NITSCHE :
-                    return std::make_shared< IWG_Incompressible_NS_Velocity_Interface >( 1 );
-
-                case IWG_Type::INCOMPRESSIBLE_NS_VELOCITY_INTERFACE_UNSYMMETRIC_NITSCHE :
                     return std::make_shared< IWG_Incompressible_NS_Velocity_Interface >( -1 );
 
+                case IWG_Type::INCOMPRESSIBLE_NS_VELOCITY_INTERFACE_UNSYMMETRIC_NITSCHE :
+                    return std::make_shared< IWG_Incompressible_NS_Velocity_Interface >( 1 );
+
                 case IWG_Type::INCOMPRESSIBLE_NS_PRESSURE_INTERFACE_SYMMETRIC_NITSCHE :
-                    return std::make_shared< IWG_Incompressible_NS_Pressure_Interface >( 1 );
+                    return std::make_shared< IWG_Incompressible_NS_Pressure_Interface >( -1 );
 
                 case IWG_Type::INCOMPRESSIBLE_NS_PRESSURE_INTERFACE_UNSYMMETRIC_NITSCHE :
-                    return std::make_shared< IWG_Incompressible_NS_Pressure_Interface >( -1 );
+                    return std::make_shared< IWG_Incompressible_NS_Pressure_Interface >( 1 );
 
                 case IWG_Type::FS_STRUC_INTERFACE :
                     return std::make_shared< IWG_FS_Struc_Interface >();
