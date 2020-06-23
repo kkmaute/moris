@@ -162,6 +162,7 @@ set(HEADERS
     cl_FEM_Model.hpp
     fn_FEM_CM_Phase_State_Functions.hpp
     fn_FEM_Check.hpp
+    fn_FEM_FD_Scheme.hpp
     )
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
