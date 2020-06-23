@@ -118,8 +118,10 @@ namespace moris
             INCOMPRESSIBLE_NS_PRESSURE_DIRICHLET_SYMMETRIC_NITSCHE,
             INCOMPRESSIBLE_NS_PRESSURE_DIRICHLET_UNSYMMETRIC_NITSCHE,
             INCOMPRESSIBLE_NS_IMPOSED_PRESSURE,
-            INCOMPRESSIBLE_NS_VELOCITY_INTERFACE,
-            INCOMPRESSIBLE_NS_PRESSURE_INTERFACE,
+            INCOMPRESSIBLE_NS_VELOCITY_INTERFACE_SYMMETRIC_NITSCHE,
+            INCOMPRESSIBLE_NS_VELOCITY_INTERFACE_UNSYMMETRIC_NITSCHE,
+            INCOMPRESSIBLE_NS_PRESSURE_INTERFACE_SYMMETRIC_NITSCHE,
+            INCOMPRESSIBLE_NS_PRESSURE_INTERFACE_UNSYMMETRIC_NITSCHE,
             FS_STRUC_INTERFACE,
             TIME_CONTINUITY_DOF,
             SPALART_ALLMARAS_TURBULENCE_BULK,
@@ -208,6 +210,17 @@ namespace moris
             INTERFACE_SURFACE,
             ELEMENT_SIZE,
             END_CLUSTER_MEASURE
+        };
+
+        //------------------------------------------------------------------------------
+        enum class FDScheme_Type
+        {
+            UNDEFINED,
+            POINT_1_FORWARD,
+            POINT_1_BACKWARD,
+            POINT_3_CENTRAL,
+            POINT_5,
+            END_FD_SCHEME
         };
 
 //------------------------------------------------------------------------------
