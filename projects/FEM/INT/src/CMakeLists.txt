@@ -50,6 +50,8 @@ set(HEADERS
     cl_FEM_IWG_Spalart_Allmaras_Turbulence_Dirichlet.hpp
     cl_FEM_IWG_Spalart_Allmaras_Turbulence_Interface.hpp
     cl_FEM_IWG_Time_Continuity_Dof.hpp
+    cl_FEM_IWG_Isotropic_Struc_Linear_Contact_Penalty.hpp
+    cl_FEM_IWG_Isotropic_Struc_Linear_Contact_Nitsche.hpp
     #cl_FEM_IWG_Helmholtz_Bulk.hpp
     #cl_FEM_IWG_Helmholtz_Bulk2.hpp
     #cl_FEM_IWG_Helmholtz_Interface.hpp
@@ -157,6 +159,8 @@ set(HEADERS
     cl_FEM_SP_GGLS_Diffusion.hpp
     cl_FEM_SP_SUPG_Spalart_Allmaras_Turbulence.hpp
     cl_FEM_SP_Turbulence_Dirichlet_Nitsche.hpp
+    cl_FEM_SP_Stab_Penalty_Contact.hpp
+    cl_FEM_SP_Penalty_Contact.hpp
     cl_FEM_Set_User_Info.hpp
     cl_FEM_Interpolation_Element.hpp
     cl_FEM_Model.hpp
@@ -210,6 +214,8 @@ set(LIB_SOURCES
     cl_FEM_IWG_Spalart_Allmaras_Turbulence_Dirichlet.cpp
     cl_FEM_IWG_Spalart_Allmaras_Turbulence_Interface.cpp
     cl_FEM_IWG_Time_Continuity_Dof.cpp
+    cl_FEM_IWG_Isotropic_Struc_Linear_Contact_Penalty.cpp
+    cl_FEM_IWG_Isotropic_Struc_Linear_Contact_Nitsche.cpp
     #cl_FEM_IWG_Helmholtz_Bulk.cpp
     #cl_FEM_IWG_Helmholtz_Bulk2.cpp
     #cl_FEM_IWG_Helmholtz_Interface.cpp
@@ -254,6 +260,8 @@ set(LIB_SOURCES
     cl_FEM_SP_SUPG_Advection.cpp
     cl_FEM_SP_SUPG_Spalart_Allmaras_Turbulence.cpp
     cl_FEM_SP_GGLS_Diffusion.cpp
+    cl_FEM_SP_Stab_Penalty_Contact.cpp
+    cl_FEM_SP_Penalty_Contact.cpp
     cl_FEM_SP_Turbulence_Dirichlet_Nitsche.cpp
     cl_FEM_IQI.cpp
     cl_FEM_IQI_Analytic.cpp

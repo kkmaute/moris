@@ -1,12 +1,12 @@
 /*
- * cl_FEM_IWG_Isotropic_Struc_Linear_Contact_Penalty.hpp
+ * cl_FEM_IWG_Isotropic_Struc_Linear_Contact_Nitsche.hpp
  *
- *  Created on: Jan 27, 2020
+ *  Created on: Feb 18, 2020
  *      Author: ritzert
  */
 
-#ifndef PROJECTS_FEM_INT_SRC_CL_FEM_IWG_ISOTROPIC_STRUC_LINEAR_CONTACT_PENALTY_HPP_
-#define PROJECTS_FEM_INT_SRC_CL_FEM_IWG_ISOTROPIC_STRUC_LINEAR_CONTACT_PENALTY_HPP_
+#ifndef PROJECTS_FEM_INT_SRC_CL_FEM_IWG_ISOTROPIC_STRUC_LINEAR_CONTACT_NITSCHE_HPP_
+#define PROJECTS_FEM_INT_SRC_CL_FEM_IWG_ISOTROPIC_STRUC_LINEAR_CONTACT_NITSCHE_HPP_
 
 #include <map>
 
@@ -25,12 +25,17 @@ namespace moris
     {
 //------------------------------------------------------------------------------
 
-        class IWG_Isotropic_Struc_Linear_Contact_Penalty : public IWG
+        class IWG_Isotropic_Struc_Linear_Contact_Nitsche : public IWG
         {
 
         public:
+            
+            // sign for symmetric/unsymmetric Nitsche
+            sint mBeta = 1;
+
             enum class IWG_Property_Type
             {
+                MATERIAL,
                 MAX_ENUM
             };
             // Local string to property enum map
@@ -46,26 +51,29 @@ namespace moris
             std::map< std::string, IWG_Constitutive_Type > mConstitutiveMap;
 
             enum class IWG_Stabilization_Type
-            {
-                    PENALTY_CONTACT,
-                    STAB_PENALTY_CONTACT,
-                    MAX_ENUM
-            };
+                        {
+                            PENALTY_CONTACT,
+                            MASTER_WEIGHT_INTERFACE,
+                            SLAVE_WEIGHT_INTERFACE,
+                            MAX_ENUM
+                        };
 
             // Local string to constitutive enum map
             std::map< std::string, IWG_Stabilization_Type > mStabilizationMap;
+
+            //real mStabParam = 1500;
 
 //------------------------------------------------------------------------------
             /*
              * constructor
              */
-            IWG_Isotropic_Struc_Linear_Contact_Penalty();
+            IWG_Isotropic_Struc_Linear_Contact_Nitsche(sint aBeta);
 
 //------------------------------------------------------------------------------
             /**
              * trivial destructor
              */
-            ~IWG_Isotropic_Struc_Linear_Contact_Penalty(){};
+            ~IWG_Isotropic_Struc_Linear_Contact_Nitsche(){};
 
 //------------------------------------------------------------------------------
             /**
@@ -76,13 +84,7 @@ namespace moris
              */
             void set_property( std::shared_ptr< Property > aProperty,
                                std::string                 aPropertyString,
-                               mtk::Master_Slave           aIsMaster = mtk::Master_Slave::MASTER )
-            {
-
-                // FIXME check that property type makes sense?
-                // set the property in the property cell
-                this->get_properties( aIsMaster )( static_cast< uint >( mPropertyMap[ aPropertyString ] ) ) = aProperty;
-            }
+                               mtk::Master_Slave           aIsMaster = mtk::Master_Slave::MASTER );
 
 //------------------------------------------------------------------------------
             /**
@@ -93,42 +95,33 @@ namespace moris
              */
             void set_constitutive_model( std::shared_ptr< Constitutive_Model > aConstitutiveModel,
                                          std::string                           aConstitutiveString,
-                                         mtk::Master_Slave                     aIsMaster = mtk::Master_Slave::MASTER )
-            {
-                // FIXME check that constitutive string makes sense?
+                                         mtk::Master_Slave                     aIsMaster = mtk::Master_Slave::MASTER );
 
-                // set the constitutive model in the constitutive model cell
-                this->get_constitutive_models( aIsMaster )( static_cast< uint >( mConstitutiveMap[ aConstitutiveString ] ) ) = aConstitutiveModel;
-            }
 //------------------------------------------------------------------------------
-            /**
-             * set stabilization parameter
-             * @param[ in ] aStabilizationParameter a stabilization parameter pointer
-             * @param[ in ] aStabilizationString    a string defining the stabilization parameter
-             */
-            void set_stabilization_parameter( std::shared_ptr< Stabilization_Parameter > aStabilizationParameter,
-                                              std::string                                aStabilizationString )
-            {
-                // FIXME check that stabilization string makes sense?
+        /**
+        * set stabilization parameter
+            * @param[ in ] aStabilizationParameter a stabilization parameter pointer
+            * @param[ in ] aStabilizationString    a string defining the stabilization parameter
+            */
+        void set_stabilization_parameter(
+                std::shared_ptr< Stabilization_Parameter > aStabilizationParameter,
+                std::string                                aStabilizationString );
 
-                std::cout<<"aStabilizationString = "<<aStabilizationString<<std::endl;
 
-                // set the stabilization parameter in the stabilization parameter cell
-                this->get_stabilization_parameters()( static_cast< uint >( mStabilizationMap[ aStabilizationString ] ) ) = aStabilizationParameter;
-            }
 
 //------------------------------------------------------------------------------
             /**
              * compute the residual
              * @param[ in ] aResidual cell of residual vectors to fill
              */
-            void compute_residual( real tWStar );
+            void compute_residual( real aWStar );
+
 //------------------------------------------------------------------------------
             /**
              * compute the jacobian
              * @param[ in ] aJacobians cell of cell of jacobian matrices to fill
              */
-            void compute_jacobian( real tWStar );
+            void compute_jacobian( real aWStar );
 
 //------------------------------------------------------------------------------
             /**
@@ -137,6 +130,7 @@ namespace moris
              * @param[ in ] aResidual  cell of residual vectors to fill
              */
             void compute_jacobian_and_residual( real aWStar );
+
 
 //------------------------------------------------------------------------------
             /**
@@ -152,4 +146,7 @@ namespace moris
 } /* namespace moris */
 
 
-#endif /* PROJECTS_FEM_INT_SRC_CL_FEM_IWG_ISOTROPIC_STRUC_LINEAR_CONTACT_PENALTY_HPP_ */
+
+
+
+#endif /* PROJECTS_FEM_INT_SRC_CL_FEM_IWG_ISOTROPIC_STRUC_LINEAR_CONTACT_NITSCHE_HPP_ */

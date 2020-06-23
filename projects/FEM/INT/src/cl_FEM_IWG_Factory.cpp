@@ -46,12 +46,15 @@
 #include "cl_FEM_IWG_Incompressible_NS_Pressure_Interface.hpp"
 //Fluid/solid interface
 #include "cl_FEM_IWG_FS_Struc_Interface.hpp"
-// Time continuity
+//Time continuity
 #include "cl_FEM_IWG_Time_Continuity_Dof.hpp"
-// Turbulence
+//Turbulence
 #include "cl_FEM_IWG_Spalart_Allmaras_Turbulence_Bulk.hpp"
 #include "cl_FEM_IWG_Spalart_Allmaras_Turbulence_Dirichlet.hpp"
 #include "cl_FEM_IWG_Spalart_Allmaras_Turbulence_Interface.hpp"
+//Contact
+#include "cl_FEM_IWG_Isotropic_Struc_Linear_Contact_Penalty.hpp"
+#include "cl_FEM_IWG_Isotropic_Struc_Linear_Contact_Nitsche.hpp"
 
 namespace moris
 {
@@ -194,6 +197,15 @@ namespace moris
 
                 case IWG_Type::SPALART_ALLMARAS_TURBULENCE_INTERFACE :
                     return std::make_shared< IWG_Spalart_Allmaras_Turbulence_Interface >();
+
+                case IWG_Type::STRUC_LINEAR_CONTACT_SYMMETRIC_NITSCHE :
+                    return std::make_shared< IWG_Isotropic_Struc_Linear_Contact_Nitsche >(-1);
+
+                case IWG_Type::STRUC_LINEAR_CONTACT_UNSYMMETRIC_NITSCHE :
+                    return std::make_shared< IWG_Isotropic_Struc_Linear_Contact_Nitsche >(1);
+
+                case IWG_Type::STRUC_LINEAR_CONTACT_PENALTY :
+                    return std::make_shared< IWG_Isotropic_Struc_Linear_Contact_Penalty >();
 
                 default:
                     MORIS_ERROR( false, " IWG_Factory::create_IWGs - IWG type specified is not defined. " );
