@@ -6,21 +6,25 @@
  */
 #ifndef SRC_FEM_CL_FEM_IWG_HPP_
 #define SRC_FEM_CL_FEM_IWG_HPP_
-
-#include "typedefs.hpp"                     //MRS/COR/src
-#include "cl_Cell.hpp"                      //MRS/CON/src
-#include "cl_Matrix.hpp"                    //LNA/src
-#include "linalg_typedefs.hpp"              //MRS/COR/src           // note: linalg_typedefs.hpp must be included AFTER the cl_Matrix.hpp
-#include "cl_FEM_Field_Interpolator.hpp"    //FEM/INT/src
-#include "cl_FEM_Property.hpp"              //FEM/INT/src
-#include "cl_FEM_Constitutive_Model.hpp"    //FEM/INT/src
-#include "cl_FEM_Stabilization_Parameter.hpp"    //FEM/INT/src
-#include "cl_MSI_Dof_Type_Enums.hpp"        //FEM/MSI/src
-#include "cl_FEM_Enums.hpp"                 //FEM/MSI/src
-
-#include "cl_GEN_Pdv_Enums.hpp"
-
+//MRS/CON/src
+#include "cl_Cell.hpp"
+//LNA/src
+#include "cl_Matrix.hpp"
+#include "typedefs.hpp"
 #include "fn_reshape.hpp"
+//MRS/COR/src // note: linalg_typedefs.hpp must be included AFTER the cl_Matrix.hpp
+#include "linalg_typedefs.hpp"
+//FEM/INT/src
+#include "cl_FEM_Field_Interpolator.hpp"
+#include "cl_FEM_Property.hpp"
+#include "cl_FEM_Constitutive_Model.hpp"
+#include "cl_FEM_Stabilization_Parameter.hpp"
+#include "cl_FEM_Enums.hpp"
+#include "fn_FEM_FD_Scheme.hpp"
+//FEM/MSI/src
+#include "cl_MSI_Dof_Type_Enums.hpp"
+//GEN/src
+#include "cl_GEN_Pdv_Enums.hpp"
 
 namespace moris
 {
@@ -409,8 +413,9 @@ namespace moris
                  * @param[ in ]  aIsMaster   enum master or slave
                  * @param[ out ] aProperties cell of property pointers
                  */
-                moris::Cell< std::shared_ptr< Property > > & get_properties( mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER )
-                     {
+                moris::Cell< std::shared_ptr< Property > > & get_properties(
+                        mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER )
+                {
                     // switch on master/slave
                     switch( aIsMaster )
                     {
@@ -433,7 +438,7 @@ namespace moris
                             return mMasterProp;
                         }
                     }
-                     }
+                }
 
                 //------------------------------------------------------------------------------
                 /**
@@ -529,8 +534,8 @@ namespace moris
                  * @param[ in ]  aIsMaster       enum master or slave
                  * @param[ out ] mGlobalDofTypes global list of group of dof types
                  */
-                moris::Cell< moris::Cell< MSI::Dof_Type > > &
-                get_global_dof_type_list( mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER );
+                moris::Cell< moris::Cell< MSI::Dof_Type > > & get_global_dof_type_list(
+                        mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER );
 
                 //------------------------------------------------------------------------------
                 /**
@@ -538,8 +543,8 @@ namespace moris
                  * @param[ in ]  aIsMaster       enum master or slave
                  * @param[ out ] mGlobalDvTypes global list of group of dv types
                  */
-                moris::Cell< moris::Cell< PDV_Type > > &
-                get_global_dv_type_list( mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER );
+                moris::Cell< moris::Cell< PDV_Type > > & get_global_dv_type_list(
+                        mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER );
 
                 //------------------------------------------------------------------------------
                 /**
@@ -554,6 +559,23 @@ namespace moris
                  * @param[ in ] aWStar weight associated to the evaluation point
                  */
                 virtual void compute_jacobian( real aWStar ) = 0;
+
+                //------------------------------------------------------------------------------
+                /**
+                 * evaluate the Jacobian by finite difference
+                 * @param[ in ] aPerturbation real to perturb for FD
+                 * @param[ in ] aWStar        weight associated to evaluation point
+                 * @param[ in ] aFDSchemeType enum for FD scheme
+                 */
+                void compute_jacobian_FD(
+                        real               aWStar,
+                        real               aPerturbation,
+                        fem::FDScheme_Type aFDSchemeType = fem::FDScheme_Type::POINT_5 );
+
+                void compute_jacobian_FD_double(
+                        real               aWStar,
+                        real               aPerturbation,
+                        fem::FDScheme_Type aFDSchemeType = fem::FDScheme_Type::POINT_5 );
 
                 //------------------------------------------------------------------------------
                 /**
@@ -582,24 +604,6 @@ namespace moris
 
                 //------------------------------------------------------------------------------
                 /**
-                 * check the Jacobian with FD double
-                 * @param[ in ] aPerturbation real to perturb for FD
-                 * @param[ in ] aEpsilon      real for check
-                 * @param[ in ] aWStar        real weight associated to evaluation point
-                 * @param[ in ] aJacobians    cell of cell of matrices to fill with Jacobians
-                 * @param[ in ] aJacobiansFD cell of cell of matrices to fill with Jacobians by FD
-                 * @param[ in ] aErrorPrint   bool set to true to print non matching values in jacobian
-                 */
-                bool check_jacobian_double(
-                        real               aPerturbation,
-                        real               aEpsilon,
-                        real               aWStar,
-                        Matrix< DDRMat > & aJacobians,
-                        Matrix< DDRMat > & aJacobiansFD,
-                        bool               aErrorPrint = false );
-
-                //------------------------------------------------------------------------------
-                /**
                  * evaluate the derivative of the residual wrt the design variables
                  * @param[ in ] aWStar weight associated to evaluation point
                  */
@@ -613,12 +617,14 @@ namespace moris
                  * @param[ in ] aPerturbation real for dv perturbation
                  */
                 void compute_dRdp_FD_material(
-                        moris::real aWStar,
-                        moris::real aPerturbation );
+                        moris::real        aWStar,
+                        moris::real        aPerturbation,
+                        fem::FDScheme_Type aFDSchemeType = fem::FDScheme_Type::POINT_3_CENTRAL );
 
                 void compute_dRdp_FD_material_double(
-                        moris::real aWStar,
-                        moris::real aPerturbation );
+                        moris::real        aWStar,
+                        moris::real        aPerturbation,
+                        fem::FDScheme_Type aFDSchemeType = fem::FDScheme_Type::POINT_3_CENTRAL );
 
                 //------------------------------------------------------------------------------
                 /**
@@ -633,7 +639,8 @@ namespace moris
                         moris::real                       aWStar,
                         moris::real                       aPerturbation,
                         moris::Cell< Matrix< DDSMat > > & aIsActive,
-                        Matrix< IndexMat >              & aVertexIndices );
+                        Matrix< IndexMat >              & aVertexIndices,
+                        fem::FDScheme_Type                aFDSchemeType = fem::FDScheme_Type::POINT_3_CENTRAL );
 
                 void compute_dRdp_FD_geometry_double(
                         moris::real                       aWStar,
@@ -641,7 +648,8 @@ namespace moris
                         moris::Cell< Matrix< DDSMat > > & aMasterIsActive,
                         Matrix< IndexMat >              & aMasterVertexIndices,
                         moris::Cell< Matrix< DDSMat > > & aSlaveIsActive,
-                        Matrix< IndexMat >              & aSlaveVertexIndices );
+                        Matrix< IndexMat >              & aSlaveVertexIndices,
+                        fem::FDScheme_Type                aFDSchemeType = fem::FDScheme_Type::POINT_3_CENTRAL );
 
                 //------------------------------------------------------------------------------
                 /**
@@ -651,34 +659,10 @@ namespace moris
 
                 //------------------------------------------------------------------------------
                 /**
-                 * evaluate the Jacobian by finite difference
-                 * @param[ in ] aPerturbation real to perturb for FD
-                 * @param[ in ] aWStar        weight associated to evaluation point
-                 * @param[ in ] aJacobiansFD  cell of cell of matrices to fill with Jacobians evaluated by FD
-                 */
-                void compute_jacobian_FD(
-                        real               aWStar,
-                        real               aPerturbation,
-                        Matrix< DDRMat > & aJacobiansFD );
-
-                //------------------------------------------------------------------------------
-                /**
-                 * evaluate the Jacobian by finite difference
-                 * @param[ in ] aWStar        weight associated with evaluation point
-                 * @param[ in ] aPerturbation real to perturb for FD
-                 * @param[ in ] aJacobiansFD  cell of cell of matrices to fill with Jacobians evaluated by FD
-                 */
-                void compute_jacobian_FD_double(
-                        real               aWStar,
-                        real               aPerturbation,
-                        Matrix< DDRMat > & aJacobiansFD );
-
-                //------------------------------------------------------------------------------
-                /**
                  * build a list of dof types requested by the solver and owned by the IWG
-                 * @param[ in ] aItResidual bool true if ???
+                 * @param[ in ] aIsResidual bool true if residual evaluation
                  */
-                void build_requested_dof_type_list( const bool aItResidual );
+                void build_requested_dof_type_list( const bool aIsResidual );
 
         };
         //------------------------------------------------------------------------------
