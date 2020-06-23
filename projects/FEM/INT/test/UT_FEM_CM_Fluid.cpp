@@ -12,39 +12,14 @@
 
 //LINALG/src
 #include "fn_equal_to.hpp"
+#include "fn_norm.hpp"
 //FEM/INT/src
 #include "cl_FEM_Field_Interpolator.hpp"
+#include "cl_FEM_Integrator.hpp"
 #include "cl_FEM_Property.hpp"
 #include "cl_FEM_CM_Factory.hpp"
 #include "fn_FEM_Check.hpp"
-
-void tConstValFunc_CMFluid(
-        moris::Matrix< moris::DDRMat >                 & aPropMatrix,
-        moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
-        moris::fem::Field_Interpolator_Manager         * aFIManager )
-{
-    aPropMatrix = aParameters( 0 );
-}
-
-void tValFunc_CMFluid(
-        moris::Matrix< moris::DDRMat >                 & aPropMatrix,
-        moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
-        moris::fem::Field_Interpolator_Manager         * aFIManager )
-{
-    aPropMatrix =
-            aParameters( 0 )
-            + aParameters( 0 ) * aFIManager->get_field_interpolators_for_type( moris::MSI::Dof_Type::P )->val();
-}
-
-void tDerFunc_CMFluid(
-        moris::Matrix< moris::DDRMat >                 & aPropMatrix,
-        moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
-        moris::fem::Field_Interpolator_Manager         * aFIManager )
-{
-    aPropMatrix =
-            aParameters( 0 ) *
-            aFIManager->get_field_interpolators_for_type( moris::MSI::Dof_Type::P )->N();
-}
+#include "FEM_Test_Proxy/cl_FEM_Inputs_for_NS_Incompressible_UT.cpp"
 
 using namespace moris;
 using namespace fem;
@@ -56,9 +31,6 @@ TEST_CASE( "CM_Fluid", "[CM_Fluid]" )
 
     // define a perturbation relative size
     real tPerturbation = 1E-6;
-
-    // number of evaluation points
-    uint tNumGPs = 5;
 
     // init geometry inputs
     //------------------------------------------------------------------------------
@@ -74,6 +46,11 @@ TEST_CASE( "CM_Fluid", "[CM_Fluid]" )
             mtk::Interpolation_Order::QUADRATIC,
             mtk::Interpolation_Order::CUBIC };
 
+    // create list of integration orders
+        moris::Cell< fem::Integration_Order > tIntegrationOrders = {
+                 fem::Integration_Order::QUAD_2x2,
+                 fem::Integration_Order::HEX_2x2x2 };
+
     // create list with number of coeffs
     Matrix< DDRMat > tNumCoeffs = {{ 8, 18, 32 },{ 16, 54, 128 }};
 
@@ -85,17 +62,17 @@ TEST_CASE( "CM_Fluid", "[CM_Fluid]" )
     // create the properties
     std::shared_ptr< fem::Property > tPropViscosity = std::make_shared< fem::Property >();
     tPropViscosity->set_parameters( { {{ 1.0 }} } );
-    tPropViscosity->set_val_function( tConstValFunc_CMFluid );
+    tPropViscosity->set_val_function( tConstValFunc );
     //tPropViscosity->set_dof_type_list( { tPDofTypes } );
-    //tPropViscosity->set_val_function( tValFunc_CMFluid );
-    //tPropViscosity->set_dof_derivative_functions( { tDerFunc_CMFluid } );
+    //tPropViscosity->set_val_function( tPFIValFunc );
+    //tPropViscosity->set_dof_derivative_functions( { tPFIDerFunc } );
 
     std::shared_ptr< fem::Property > tPropDensity = std::make_shared< fem::Property >();
     tPropDensity->set_parameters( { {{ 1.0 }} } );
-    tPropDensity->set_val_function( tConstValFunc_CMFluid );
+    tPropDensity->set_val_function( tConstValFunc );
     //tPropDensity->set_dof_type_list( { tPDofTypes } );
-    //tPropDensity->set_val_function( tValFunc_CMFluid );
-    //tPropDensity->set_dof_derivative_functions( { tDerFunc_CMFluid } );
+    //tPropDensity->set_val_function( tPFIValFunc );
+    //tPropDensity->set_dof_derivative_functions( { tPFIDerFunc } );
 
     // define constitutive models
     fem::CM_Factory tCMFactory;
@@ -129,11 +106,12 @@ TEST_CASE( "CM_Fluid", "[CM_Fluid]" )
     // loop on the space dimension
     for( uint iSpaceDim = 2; iSpaceDim < 4; iSpaceDim++ )
     {
-        // create the normal
-        Matrix< DDRMat > tNormal = arma::randu( iSpaceDim, 1 );
+        // create and set normal
+        Matrix< DDRMat > tNormal( iSpaceDim, 1, 0.5 );
+        tNormal = tNormal / norm( tNormal );
 
         // create the jump
-        Matrix< DDRMat > tJump = arma::randu( iSpaceDim, 1 );
+        Matrix< DDRMat > tJump( iSpaceDim, 1, 10.0 );
 
         // switch on space dimension
         switch( iSpaceDim )
@@ -205,6 +183,27 @@ TEST_CASE( "CM_Fluid", "[CM_Fluid]" )
         // loop on the interpolation order
         for( uint iInterpOrder = 1; iInterpOrder < 4; iInterpOrder++ )
         {
+            // integration points
+            //------------------------------------------------------------------------------
+            // get an integration order
+            fem::Integration_Order tIntegrationOrder = tIntegrationOrders( iSpaceDim - 2 );
+
+            // create an integration rule
+            fem::Integration_Rule tIntegrationRule(
+                    tGeometryType,
+                    Integration_Type::GAUSS,
+                    tIntegrationOrder,
+                    mtk::Geometry_Type::LINE,
+                    Integration_Type::GAUSS,
+                    fem::Integration_Order::BAR_2 );
+
+            // create an integrator
+            fem::Integrator tIntegrator( tIntegrationRule );
+
+            // get integration points
+            Matrix< DDRMat > tIntegPoints;
+            tIntegrator.get_points( tIntegPoints );
+
             // field interpolators
             //------------------------------------------------------------------------------
             // create an interpolation order
@@ -227,8 +226,10 @@ TEST_CASE( "CM_Fluid", "[CM_Fluid]" )
                     mtk::Interpolation_Order::LINEAR );
 
             // fill random coefficients for master FI
-            Matrix< DDRMat > tMasterDOFHatVel = 100.0 * arma::randu( tNumCoeff, iSpaceDim );
-            Matrix< DDRMat > tMasterDOFHatP   = 100.0 * arma::randu( tNumCoeff, 1 );
+            Matrix< DDRMat > tMasterDOFHatVel;
+            fill_uhat( tMasterDOFHatVel, iSpaceDim, iInterpOrder );
+            Matrix< DDRMat > tMasterDOFHatP;
+            fill_phat( tMasterDOFHatP, iSpaceDim, iInterpOrder );
 
             // create a cell of field interpolators for IWG
             Cell< Field_Interpolator* > tMasterFIs( tDofTypes.size() );
@@ -256,14 +257,14 @@ TEST_CASE( "CM_Fluid", "[CM_Fluid]" )
             // set IWG field interpolator manager
             tCMMasterFluid->set_field_interpolator_manager( &tFIManager );
 
+            uint tNumGPs = tIntegPoints.n_cols();
             for( uint iGP = 0; iGP < tNumGPs; iGP ++ )
             {
                 // reset IWG evaluation flags
                 tCMMasterFluid->reset_eval_flags();
 
                 // create evaluation point xi, tau
-                arma::arma_rng::set_seed_random();
-                Matrix< DDRMat > tParamPoint = arma::randu( iSpaceDim + 1, 1 );
+                Matrix< DDRMat > tParamPoint = tIntegPoints.get_column( iGP );
 
                 // set integration point
                 tCMMasterFluid->mSet->mMasterFIManager->set_space_time( tParamPoint );
@@ -388,13 +389,11 @@ TEST_CASE( "CM_Fluid", "[CM_Fluid]" )
 TEST_CASE( "CM_Fluid_Turbulence", "[CM_Fluid_Turbulence]" )
 {
     // define an epsilon environment
+    // FIXME
     real tEpsilon = 1E-5;
 
     // define a perturbation relative size
     real tPerturbation = 1E-6;
-
-    // number of evaluation points
-    uint tNumGPs = 5;
 
     // init geometry inputs
     //------------------------------------------------------------------------------
@@ -410,29 +409,33 @@ TEST_CASE( "CM_Fluid_Turbulence", "[CM_Fluid_Turbulence]" )
             mtk::Interpolation_Order::QUADRATIC,
             mtk::Interpolation_Order::CUBIC };
 
+    // create list of integration orders
+    moris::Cell< fem::Integration_Order > tIntegrationOrders = {
+            fem::Integration_Order::QUAD_2x2,
+            fem::Integration_Order::HEX_2x2x2 };
+
     // create list with number of coeffs
     Matrix< DDRMat > tNumCoeffs = {{ 8, 18, 32 },{ 16, 54, 128 }};
 
     // dof type list
     moris::Cell< MSI::Dof_Type > tVelDofTypes  = { MSI::Dof_Type::VX };
-    moris::Cell< MSI::Dof_Type > tPDofTypes    = { MSI::Dof_Type::P };
     moris::Cell< MSI::Dof_Type > tVisDofTypes  = { MSI::Dof_Type::VISCOSITY };
-    moris::Cell< moris::Cell< MSI::Dof_Type > > tDofTypes = { tVelDofTypes, tPDofTypes, tVisDofTypes };
+    moris::Cell< moris::Cell< MSI::Dof_Type > > tDofTypes = { tVelDofTypes, tVisDofTypes };
 
     // create the properties
     std::shared_ptr< fem::Property > tPropViscosity = std::make_shared< fem::Property >();
     tPropViscosity->set_parameters( { {{ 1.0 }} } );
-    tPropViscosity->set_val_function( tConstValFunc_CMFluid );
+    tPropViscosity->set_val_function( tConstValFunc );
     //tPropViscosity->set_dof_type_list( { tPDofTypes } );
-    //tPropViscosity->set_val_function( tValFunc_CMFluid );
-    //tPropViscosity->set_dof_derivative_functions( { tDerFunc_CMFluid } );
+    //tPropViscosity->set_val_function( tPFIValFunc );
+    //tPropViscosity->set_dof_derivative_functions( { tPFIDerFunc } );
 
     std::shared_ptr< fem::Property > tPropDensity = std::make_shared< fem::Property >();
     tPropDensity->set_parameters( { {{ 1.0 }} } );
-    tPropDensity->set_val_function( tConstValFunc_CMFluid );
+    tPropDensity->set_val_function( tConstValFunc );
     //tPropDensity->set_dof_type_list( { tPDofTypes } );
-    //tPropDensity->set_val_function( tValFunc_CMFluid );
-    //tPropDensity->set_dof_derivative_functions( { tDerFunc_CMFluid } );
+    //tPropDensity->set_val_function( tPFIValFunc );
+    //tPropDensity->set_dof_derivative_functions( { tPFIDerFunc } );
 
     // define constitutive models
     fem::CM_Factory tCMFactory;
@@ -453,14 +456,12 @@ TEST_CASE( "CM_Fluid_Turbulence", "[CM_Fluid_Turbulence]" )
     // set size and populate the set dof type map
     tCMMasterTurbulence->mSet->mUniqueDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
     tCMMasterTurbulence->mSet->mUniqueDofTypeMap( static_cast< int >( MSI::Dof_Type::VX ) )        = 0;
-    tCMMasterTurbulence->mSet->mUniqueDofTypeMap( static_cast< int >( MSI::Dof_Type::P ) )         = 1;
-    tCMMasterTurbulence->mSet->mUniqueDofTypeMap( static_cast< int >( MSI::Dof_Type::VISCOSITY ) ) = 2;
+    tCMMasterTurbulence->mSet->mUniqueDofTypeMap( static_cast< int >( MSI::Dof_Type::VISCOSITY ) ) = 1;
 
     // set size and populate the set master dof type map
     tCMMasterTurbulence->mSet->mMasterDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
     tCMMasterTurbulence->mSet->mMasterDofTypeMap( static_cast< int >( MSI::Dof_Type::VX ) )        = 0;
-    tCMMasterTurbulence->mSet->mMasterDofTypeMap( static_cast< int >( MSI::Dof_Type::P ) )         = 1;
-    tCMMasterTurbulence->mSet->mMasterDofTypeMap( static_cast< int >( MSI::Dof_Type::VISCOSITY ) ) = 2;
+    tCMMasterTurbulence->mSet->mMasterDofTypeMap( static_cast< int >( MSI::Dof_Type::VISCOSITY ) ) = 1;
 
     // build global dof type list
     tCMMasterTurbulence->get_global_dof_type_list();
@@ -468,11 +469,12 @@ TEST_CASE( "CM_Fluid_Turbulence", "[CM_Fluid_Turbulence]" )
     // loop on the space dimension
     for( uint iSpaceDim = 2; iSpaceDim < 4; iSpaceDim++ )
     {
-        // create the normal
-        Matrix< DDRMat > tNormal = arma::randu( iSpaceDim, 1 );
+        // create normal
+        Matrix< DDRMat > tNormal( iSpaceDim, 1, 0.5 );
+        tNormal = tNormal / norm( tNormal );
 
         // create the jump
-        Matrix< DDRMat > tJump = arma::randu( iSpaceDim, 1 );
+        Matrix< DDRMat > tJump( iSpaceDim, 1, 10.0 );
 
         // switch on space dimension
         switch( iSpaceDim )
@@ -544,6 +546,27 @@ TEST_CASE( "CM_Fluid_Turbulence", "[CM_Fluid_Turbulence]" )
         // loop on the interpolation order
         for( uint iInterpOrder = 1; iInterpOrder < 4; iInterpOrder++ )
         {
+            // integration points
+            //------------------------------------------------------------------------------
+            // get an integration order
+            fem::Integration_Order tIntegrationOrder = tIntegrationOrders( iSpaceDim - 2 );
+
+            // create an integration rule
+            fem::Integration_Rule tIntegrationRule(
+                    tGeometryType,
+                    Integration_Type::GAUSS,
+                    tIntegrationOrder,
+                    mtk::Geometry_Type::LINE,
+                    Integration_Type::GAUSS,
+                    fem::Integration_Order::BAR_2 );
+
+            // create an integrator
+            fem::Integrator tIntegrator( tIntegrationRule );
+
+            // get integration points
+            Matrix< DDRMat > tIntegPoints;
+            tIntegrator.get_points( tIntegPoints );
+
             // field interpolators
             //------------------------------------------------------------------------------
             // create an interpolation order
@@ -554,7 +577,6 @@ TEST_CASE( "CM_Fluid_Turbulence", "[CM_Fluid_Turbulence]" )
 
             // get number of dof
             int tNumDofVel = tNumCoeff * iSpaceDim;
-            int tNumDofP   = tNumCoeff;
             int tNumDofVis = tNumCoeff;
 
             //create a space time interpolation rule
@@ -566,9 +588,10 @@ TEST_CASE( "CM_Fluid_Turbulence", "[CM_Fluid_Turbulence]" )
                     mtk::Interpolation_Order::LINEAR );
 
             // fill random coefficients for master FI
-            Matrix< DDRMat > tMasterDOFHatVel = 10.0 * arma::randu( tNumCoeff, iSpaceDim );
-            Matrix< DDRMat > tMasterDOFHatP   = 10.0 * arma::randu( tNumCoeff, 1 );
-            Matrix< DDRMat > tMasterDOFHatVis = 10.0 * arma::randu( tNumCoeff, 1 );
+            Matrix< DDRMat > tMasterDOFHatVel;
+            fill_uhat( tMasterDOFHatVel, iSpaceDim, iInterpOrder );
+            Matrix< DDRMat > tMasterDOFHatVis;
+            fill_phat( tMasterDOFHatVis, iSpaceDim, iInterpOrder );
 
             // create a cell of field interpolators for IWG
             Cell< Field_Interpolator* > tMasterFIs( tDofTypes.size() );
@@ -577,13 +600,9 @@ TEST_CASE( "CM_Fluid_Turbulence", "[CM_Fluid_Turbulence]" )
             tMasterFIs( 0 ) = new Field_Interpolator( iSpaceDim, tFIRule, &tGI, tVelDofTypes );
             tMasterFIs( 0 )->set_coeff( tMasterDOFHatVel );
 
-            // create the field interpolator pressure
-            tMasterFIs( 1 ) = new Field_Interpolator( 1, tFIRule, &tGI, tPDofTypes );
-            tMasterFIs( 1 )->set_coeff( tMasterDOFHatP );
-
             // create the field interpolator viscosity
-            tMasterFIs( 2 ) = new Field_Interpolator( 1, tFIRule, &tGI, tVisDofTypes );
-            tMasterFIs( 2 )->set_coeff( tMasterDOFHatVis );
+            tMasterFIs( 1 ) = new Field_Interpolator( 1, tFIRule, &tGI, tVisDofTypes );
+            tMasterFIs( 1 )->set_coeff( tMasterDOFHatVis );
 
             // create a field interpolator manager
             moris::Cell< moris::Cell< enum PDV_Type > > tDummyDv;
@@ -600,14 +619,14 @@ TEST_CASE( "CM_Fluid_Turbulence", "[CM_Fluid_Turbulence]" )
             // set IWG field interpolator manager
             tCMMasterTurbulence->set_field_interpolator_manager( &tFIManager );
 
+            uint tNumGPs = tIntegPoints.n_cols();
             for( uint iGP = 0; iGP < tNumGPs; iGP ++ )
             {
                 // reset IWG evaluation flags
                 tCMMasterTurbulence->reset_eval_flags();
 
                 // create evaluation point xi, tau
-                arma::arma_rng::set_seed_random();
-                Matrix< DDRMat > tParamPoint = arma::randu( iSpaceDim + 1, 1 );
+                Matrix< DDRMat > tParamPoint = tIntegPoints.get_column( iGP );
 
                 // set integration point
                 tCMMasterTurbulence->mSet->mMasterFIManager->set_space_time( tParamPoint );
@@ -728,3 +747,5 @@ TEST_CASE( "CM_Fluid_Turbulence", "[CM_Fluid_Turbulence]" )
         }
     }
 }/*END_TEST_CASE*/
+
+

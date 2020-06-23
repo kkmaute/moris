@@ -13,6 +13,7 @@
 #undef private
 //LINALG/src
 #include "op_equal_equal.hpp"
+#include "fn_norm.hpp"
 //MTK/src
 #include "cl_MTK_Enums.hpp"
 //FEM//INT//src
@@ -22,34 +23,7 @@
 #include "cl_FEM_CM_Factory.hpp"
 #include "cl_FEM_SP_Factory.hpp"
 #include "cl_FEM_IWG_Factory.hpp"
-
-void tConstValFunction_SATurbulenceDirichlet
-( moris::Matrix< moris::DDRMat >                 & aPropMatrix,
-  moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
-  moris::fem::Field_Interpolator_Manager         * aFIManager )
-{
-    aPropMatrix = aParameters( 0 );
-}
-
-void tVISCOSITYFIValFunction_SATurbulenceDirichlet
-( moris::Matrix< moris::DDRMat >                 & aPropMatrix,
-  moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
-  moris::fem::Field_Interpolator_Manager         * aFIManager )
-{
-    aPropMatrix =
-            aParameters( 0 ) *
-            aFIManager->get_field_interpolators_for_type( moris::MSI::Dof_Type::VISCOSITY )->val();
-}
-
-void tVISCOSITYFIDerFunction_SATurbulenceDirichlet
-( moris::Matrix< moris::DDRMat >                 & aPropMatrix,
-  moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
-  moris::fem::Field_Interpolator_Manager         * aFIManager )
-{
-    aPropMatrix =
-            aParameters( 0 ) *
-            aFIManager->get_field_interpolators_for_type( moris::MSI::Dof_Type::VISCOSITY )->N();
-}
+#include "FEM_Test_Proxy/cl_FEM_Inputs_for_NS_Incompressible_UT.cpp"
 
 using namespace moris;
 using namespace fem;
@@ -57,13 +31,10 @@ using namespace fem;
 TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Dirichlet", "[IWG_Spalart_Allmaras_Turbulence_Dirichlet]" )
 {
     // define an epsilon environment
-    real tEpsilon = 1E-5;
+    real tEpsilon = 1E-6;
 
     // define a perturbation relative size
     real tPerturbation = 1E-6;
-
-    // number of evaluation points
-    uint tNumGPs = 5;
 
     // init geometry inputs
     //------------------------------------------------------------------------------
@@ -79,6 +50,11 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Dirichlet", "[IWG_Spalart_Allmaras_T
             mtk::Interpolation_Order::QUADRATIC,
             mtk::Interpolation_Order::CUBIC };
 
+    // create list of integration orders
+    moris::Cell< fem::Integration_Order > tIntegrationOrders = {
+            fem::Integration_Order::QUAD_2x2,
+            fem::Integration_Order::HEX_2x2x2 };
+
     // create list with number of coeffs
     Matrix< DDRMat > tNumCoeffs = {{ 8, 18, 32 },{ 16, 54, 128 }};
 
@@ -92,17 +68,17 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Dirichlet", "[IWG_Spalart_Allmaras_T
     // create the properties
     std::shared_ptr< fem::Property > tPropDirichlet = std::make_shared< fem::Property >();
     tPropDirichlet->set_parameters( { {{ 2.0 }} } );
-    tPropDirichlet->set_val_function( tConstValFunction_SATurbulenceDirichlet );
+    tPropDirichlet->set_val_function( tConstValFunc );
     //tPropDirichlet->set_dof_type_list( { tVisDofTypes } );
-    //tPropDirichlet->set_val_function( tVISCOSITYFIValFunction_SATurbulenceDirichlet );
-    //tPropDirichlet->set_dof_derivative_functions( { tVISCOSITYFIDerFunction_SATurbulenceDirichlet } );
+    //tPropDirichlet->set_val_function( tVISCOSITYFIValFunc );
+    //tPropDirichlet->set_dof_derivative_functions( { tVISCOSITYFIDerFunc } );
 
     std::shared_ptr< fem::Property > tPropViscosity = std::make_shared< fem::Property >();
     tPropViscosity->set_parameters( { {{ 2.0 }} } );
-    tPropViscosity->set_val_function( tConstValFunction_SATurbulenceDirichlet );
+    tPropViscosity->set_val_function( tConstValFunc );
     //tPropViscosity->set_dof_type_list( { tVisDofTypes } );
-    //tPropViscosity->set_val_function( tVISCOSITYFIValFunction_SATurbulenceDirichlet );
-    //tPropViscosity->set_dof_derivative_functions( { tVISCOSITYFIDerFunction_SATurbulenceDirichlet } );
+    //tPropViscosity->set_val_function( tVISCOSITYFIValFunc );
+    //tPropViscosity->set_dof_derivative_functions( { tVISCOSITYFIDerFunc } );
 
     // define stabilization parameters
     fem::SP_Factory tSPFactory;
@@ -146,6 +122,11 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Dirichlet", "[IWG_Spalart_Allmaras_T
     // loop on the space dimension
     for( uint iSpaceDim = 2; iSpaceDim < 4; iSpaceDim++ )
     {
+        // create and set normal
+        Matrix< DDRMat > tNormal( iSpaceDim, 1, 0.5 );
+        tNormal = tNormal / norm( tNormal );
+        tIWG->set_normal( tNormal );
+
         // set geometry inputs
         //------------------------------------------------------------------------------
         // switch on space dimension
@@ -215,13 +196,30 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Dirichlet", "[IWG_Spalart_Allmaras_T
         // set space dimension to CM, SP
         tSPNitsche->set_space_dim( iSpaceDim );
 
-        // set normal to IWG
-        Matrix< DDRMat > tNormal = arma::randu( iSpaceDim, 1 );
-        tIWG->set_normal( tNormal );
-
         // loop on the interpolation order
         for( uint iInterpOrder = 1; iInterpOrder < 4; iInterpOrder++ )
         {
+            // integration points
+            //------------------------------------------------------------------------------
+            // get an integration order
+            fem::Integration_Order tIntegrationOrder = tIntegrationOrders( iSpaceDim - 2 );
+
+            // create an integration rule
+            fem::Integration_Rule tIntegrationRule(
+                    tGeometryType,
+                    Integration_Type::GAUSS,
+                    tIntegrationOrder,
+                    mtk::Geometry_Type::LINE,
+                    Integration_Type::GAUSS,
+                    fem::Integration_Order::BAR_2 );
+
+            // create an integrator
+            fem::Integrator tIntegrator( tIntegrationRule );
+
+            // get integration points
+            Matrix< DDRMat > tIntegPoints;
+            tIntegrator.get_points( tIntegPoints );
+
             // field interpolators
             //------------------------------------------------------------------------------
             // create an interpolation order
@@ -241,9 +239,11 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Dirichlet", "[IWG_Spalart_Allmaras_T
                                          Interpolation_Type::LAGRANGE,
                                          mtk::Interpolation_Order::LINEAR );
 
-            // fill random coefficients for master FI
-            Matrix< DDRMat > tMasterDOFHatVel  = 10.0 * arma::randu( tNumCoeff, iSpaceDim );
-            Matrix< DDRMat > tMasterDOFHatVis  = 10.0 * arma::randu( tNumCoeff, 1 );
+            // fill coefficients for master FI
+            Matrix< DDRMat > tMasterDOFHatVel;
+            fill_uhat( tMasterDOFHatVel, iSpaceDim, iInterpOrder );
+            Matrix< DDRMat > tMasterDOFHatVis;
+            fill_phat( tMasterDOFHatVis, iSpaceDim, iInterpOrder );
 
             // create a cell of field interpolators for IWG
             Cell< Field_Interpolator* > tMasterFIs( tDofTypes.size() );
@@ -295,14 +295,15 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Dirichlet", "[IWG_Spalart_Allmaras_T
             // set IWG field interpolator manager
             tIWG->set_field_interpolator_manager( &tFIManager );
 
+            // loop over integration points
+            uint tNumGPs = tIntegPoints.n_cols();
             for( uint iGP = 0; iGP < tNumGPs; iGP ++ )
             {
                 // reset IWG evaluation flags
                 tIWG->reset_eval_flags();
 
                 // create evaluation point xi, tau
-                arma::arma_rng::set_seed_random();
-                Matrix< DDRMat > tParamPoint = arma::randu( iSpaceDim + 1, 1 );
+                Matrix< DDRMat > tParamPoint = tIntegPoints.get_column( iGP );
 
                 // set integration point
                 tIWG->mSet->mMasterFIManager->set_space_time( tParamPoint );

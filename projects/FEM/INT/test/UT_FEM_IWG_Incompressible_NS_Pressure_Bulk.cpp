@@ -23,46 +23,8 @@
 #include "cl_FEM_CM_Factory.hpp"
 #include "cl_FEM_SP_Factory.hpp"
 #include "cl_FEM_IWG_Factory.hpp"
-
-void tConstValFunction_NSPBULK
-( moris::Matrix< moris::DDRMat >                 & aPropMatrix,
-  moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
-  moris::fem::Field_Interpolator_Manager         * aFIManager )
-{
-    aPropMatrix = aParameters( 0 );
-}
-
-void tTEMPFIValFunction_NSPBULK
-( moris::Matrix< moris::DDRMat >                 & aPropMatrix,
-  moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
-  moris::fem::Field_Interpolator_Manager         * aFIManager )
-{
-    aPropMatrix = aParameters( 0 ) * aFIManager->get_field_interpolators_for_type( moris::MSI::Dof_Type::TEMP )->val();
-}
-
-void tTEMPFIDerFunction_NSPBULK
-( moris::Matrix< moris::DDRMat >                 & aPropMatrix,
-  moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
-  moris::fem::Field_Interpolator_Manager         * aFIManager )
-{
-    aPropMatrix = aParameters( 0 ) * aFIManager->get_field_interpolators_for_type( moris::MSI::Dof_Type::TEMP )->N();
-}
-
-void tPFIValFunction_NSPBULK
-( moris::Matrix< moris::DDRMat >                 & aPropMatrix,
-  moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
-  moris::fem::Field_Interpolator_Manager         * aFIManager )
-{
-    aPropMatrix = aParameters( 0 ) * aFIManager->get_field_interpolators_for_type( moris::MSI::Dof_Type::P )->val();
-}
-
-void tPFIDerFunction_NSPBULK
-( moris::Matrix< moris::DDRMat >                 & aPropMatrix,
-  moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
-  moris::fem::Field_Interpolator_Manager         * aFIManager )
-{
-    aPropMatrix = aParameters( 0 ) * aFIManager->get_field_interpolators_for_type( moris::MSI::Dof_Type::P )->N();
-}
+#include "cl_FEM_Integrator.hpp"
+#include "FEM_Test_Proxy/cl_FEM_Inputs_for_NS_Incompressible_UT.cpp"
 
 using namespace moris;
 using namespace fem;
@@ -70,13 +32,10 @@ using namespace fem;
 TEST_CASE( "IWG_Incompressible_NS_Pressure_Bulk", "[IWG_Incompressible_NS_Pressure_Bulk]" )
 {
     // define an epsilon environment
-    real tEpsilon = 1E-4;
+    real tEpsilon = 1E-6;
 
     // define a perturbation relative size
     real tPerturbation = 1E-6;
-
-    // number of evaluation points
-    uint tNumGPs = 5;
 
     // init geometry inputs
     //------------------------------------------------------------------------------
@@ -91,6 +50,11 @@ TEST_CASE( "IWG_Incompressible_NS_Pressure_Bulk", "[IWG_Incompressible_NS_Pressu
             mtk::Interpolation_Order::LINEAR,
             mtk::Interpolation_Order::QUADRATIC,
             mtk::Interpolation_Order::CUBIC };
+
+    // create list of integration orders
+    moris::Cell< fem::Integration_Order > tIntegrationOrders = {
+            fem::Integration_Order::QUAD_2x2,
+            fem::Integration_Order::HEX_2x2x2 };
 
     // create list with number of coeffs
     Matrix< DDRMat > tNumCoeffs = {{ 8, 18, 32 },{ 16, 54, 128 }};
@@ -107,37 +71,37 @@ TEST_CASE( "IWG_Incompressible_NS_Pressure_Bulk", "[IWG_Incompressible_NS_Pressu
     // create the properties
     std::shared_ptr< fem::Property > tPropViscosity = std::make_shared< fem::Property >();
     tPropViscosity->set_parameters( { {{ 1.0 }} } );
-    tPropViscosity->set_val_function( tConstValFunction_NSPBULK );
+    tPropViscosity->set_val_function( tConstValFunc );
     //tPropViscosity->set_dof_type_list( { tPDofTypes } );
-    //tPropViscosity->set_val_function( tPFIValFunction_NSPBULK );
-    //tPropViscosity->set_dof_derivative_functions( { tPFIDerFunction_NSPBULK } );
+    //tPropViscosity->set_val_function( tPFIValFunc );
+    //tPropViscosity->set_dof_derivative_functions( { tPFIDerFunc } );
 
     std::shared_ptr< fem::Property > tPropDensity = std::make_shared< fem::Property >();
     tPropDensity->set_parameters( { {{ 2.0 }} } );
-    tPropDensity->set_val_function( tConstValFunction_NSPBULK );
+    tPropDensity->set_val_function( tConstValFunc );
     //tPropDensity->set_dof_type_list( { tPDofTypes } );
-    //tPropDensity->set_val_function( tPFIValFunction_NSPBULK );
-    //tPropDensity->set_dof_derivative_functions( { tPFIDerFunction_NSPBULK } );
+    //tPropDensity->set_val_function( tPFIValFunc );
+    //tPropDensity->set_dof_derivative_functions( { tPFIDerFunc } );
 
     std::shared_ptr< fem::Property > tPropGravity = std::make_shared< fem::Property >();
-    tPropGravity->set_val_function( tConstValFunction_NSPBULK );
+    tPropGravity->set_val_function( tConstValFunc );
     //tPropGravity->set_dof_type_list( { tPDofTypes } );
-    //tPropGravity->set_val_function( tPFIValFunction_NSPBULK );
-    //tPropGravity->set_dof_derivative_functions( { tPFIDerFunction_NSPBULK } );
+    //tPropGravity->set_val_function( tPFIValFunc );
+    //tPropGravity->set_dof_derivative_functions( { tPFIDerFunc } );
 
     std::shared_ptr< fem::Property > tPropThermalExp = std::make_shared< fem::Property >();
     tPropThermalExp->set_parameters( { {{ 23.0 }} } );
-    tPropThermalExp->set_val_function( tConstValFunction_NSPBULK );
+    tPropThermalExp->set_val_function( tConstValFunc );
     //tPropThermalExp->set_dof_type_list( { tTEMPDofTypes } );
-    //tPropThermalExp->set_val_function( tTEMPFIValFunction_NSPBULK );
-    //tPropThermalExp->set_dof_derivative_functions( { tTEMPFIDerFunction_NSPBULK } );
+    //tPropThermalExp->set_val_function( tTEMPFIValFunc );
+    //tPropThermalExp->set_dof_derivative_functions( { tTEMPFIDerFunc } );
 
     std::shared_ptr< fem::Property > tPropRefTemp = std::make_shared< fem::Property >();
     tPropRefTemp->set_parameters( { {{ 15.0 }} } );
-    tPropRefTemp->set_val_function( tConstValFunction_NSPBULK );
+    tPropRefTemp->set_val_function( tConstValFunc );
     //tPropRefTemp->set_dof_type_list( { tTEMPDofTypes } );
-    //tPropRefTemp->set_val_function( tTEMPFIValFunction_NSPBULK );
-    //tPropRefTemp->set_dof_derivative_functions( { tTEMPFIDerFunction_NSPBULK } );
+    //tPropRefTemp->set_val_function( tTEMPFIValFunc );
+    //tPropRefTemp->set_dof_derivative_functions( { tTEMPFIDerFunc } );
 
     // define constitutive models
     fem::CM_Factory tCMFactory;
@@ -171,7 +135,6 @@ TEST_CASE( "IWG_Incompressible_NS_Pressure_Bulk", "[IWG_Incompressible_NS_Pressu
             tIWGFactory.create_IWG( fem::IWG_Type::INCOMPRESSIBLE_NS_PRESSURE_BULK );
     tIWG->set_residual_dof_type( tPDofTypes );
     tIWG->set_dof_type_list( tDofTypes, mtk::Master_Slave::MASTER );
-    tIWG->set_property( tPropDensity, "Density" );
     tIWG->set_property( tPropGravity, "Gravity" );
     tIWG->set_property( tPropThermalExp, "ThermalExpansion" );
     tIWG->set_property( tPropRefTemp, "ReferenceTemp" );
@@ -280,6 +243,27 @@ TEST_CASE( "IWG_Incompressible_NS_Pressure_Bulk", "[IWG_Incompressible_NS_Pressu
         // loop on the interpolation order
         for( uint iInterpOrder = 1; iInterpOrder < 4; iInterpOrder++ )
         {
+            // integration points
+            //------------------------------------------------------------------------------
+            // get an integration order
+            fem::Integration_Order tIntegrationOrder   = tIntegrationOrders( iSpaceDim - 2 );
+
+            // create an integration rule
+            fem::Integration_Rule tIntegrationRule(
+                    tGeometryType,
+                    Integration_Type::GAUSS,
+                    tIntegrationOrder,
+                    mtk::Geometry_Type::LINE,
+                    Integration_Type::GAUSS,
+                    fem::Integration_Order::BAR_2 );
+
+            // create an integrator
+            fem::Integrator tIntegrator( tIntegrationRule );
+
+            // get integration points
+            Matrix< DDRMat > tIntegPoints;
+            tIntegrator.get_points( tIntegPoints );
+
             // field interpolators
             //------------------------------------------------------------------------------
             // create an interpolation order
@@ -301,11 +285,15 @@ TEST_CASE( "IWG_Incompressible_NS_Pressure_Bulk", "[IWG_Incompressible_NS_Pressu
                                          Interpolation_Type::LAGRANGE,
                                          mtk::Interpolation_Order::LINEAR );
 
-            // fill random coefficients for master FI
-            Matrix< DDRMat > tMasterDOFHatVel  = 10.0 * arma::randu( tNumCoeff, iSpaceDim );
-            Matrix< DDRMat > tMasterDOFHatP    = 10.0 * arma::randu( tNumCoeff, 1 );
-            Matrix< DDRMat > tMasterDOFHatTEMP = 10.0 * arma::randu( tNumCoeff, 1 );
-            Matrix< DDRMat > tMasterDOFHatVis  = 10.0 * arma::randu( tNumCoeff, 1 );
+            // fill coefficients for master FI
+            Matrix< DDRMat > tMasterDOFHatVel;
+            fill_uhat( tMasterDOFHatVel, iSpaceDim, iInterpOrder );
+            Matrix< DDRMat > tMasterDOFHatP;
+            fill_phat( tMasterDOFHatP, iSpaceDim, iInterpOrder );
+            Matrix< DDRMat > tMasterDOFHatTEMP;
+            fill_phat( tMasterDOFHatTEMP, iSpaceDim, iInterpOrder );
+            Matrix< DDRMat > tMasterDOFHatVis;
+            fill_phat( tMasterDOFHatVis, iSpaceDim, iInterpOrder );
 
             // create a cell of field interpolators for IWG
             Cell< Field_Interpolator* > tMasterFIs( tDofTypes.size() );
@@ -377,14 +365,15 @@ TEST_CASE( "IWG_Incompressible_NS_Pressure_Bulk", "[IWG_Incompressible_NS_Pressu
             // set IWG field interpolator manager
             tIWG->set_field_interpolator_manager( &tFIManager );
 
+            // loop over integartion points
+            uint tNumGPs = tIntegPoints.n_cols();
             for( uint iGP = 0; iGP < tNumGPs; iGP ++ )
             {
                 // reset IWG evaluation flags
                 tIWG->reset_eval_flags();
 
                 // create evaluation point xi, tau
-                arma::arma_rng::set_seed_random();
-                Matrix< DDRMat > tParamPoint = arma::randu( iSpaceDim + 1, 1 );
+                Matrix< DDRMat > tParamPoint = tIntegPoints.get_column( iGP );
 
                 // set integration point
                 tIWG->mSet->mMasterFIManager->set_space_time( tParamPoint );

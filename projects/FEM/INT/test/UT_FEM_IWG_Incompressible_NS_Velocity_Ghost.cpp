@@ -18,43 +18,10 @@
 #include "cl_FEM_IWG_Factory.hpp"
 #include "cl_FEM_CM_Factory.hpp"
 #include "cl_FEM_SP_Factory.hpp"
+#include "FEM_Test_Proxy/cl_FEM_Inputs_for_NS_Incompressible_UT.cpp"
 //LINALG
 #include "op_equal_equal.hpp"
-
-void tFIConstValFunction_UTVelocityGhost(
-        moris::Matrix< moris::DDRMat >                 & aPropMatrix,
-        moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
-        moris::fem::Field_Interpolator_Manager         * aFIManager )
-{
-    aPropMatrix = aParameters( 0 );
-}
-
-void tFIValFunction_UTVelocityGhost(
-        moris::Matrix< moris::DDRMat >                 & aPropMatrix,
-        moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
-        moris::fem::Field_Interpolator_Manager         * aFIManager )
-{
-    moris::fem::Field_Interpolator * tFIVelocity =
-                aFIManager->get_field_interpolators_for_type( moris::MSI::Dof_Type::VX );
-
-    aPropMatrix = aParameters( 0 ) * sum( tFIVelocity->val() );
-}
-
-void tFIDerFunction_UTVelocityGhost(
-        moris::Matrix< moris::DDRMat >                 & aPropMatrix,
-        moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
-        moris::fem::Field_Interpolator_Manager         * aFIManager )
-{
-    moris::fem::Field_Interpolator * tFIVelocity =
-            aFIManager->get_field_interpolators_for_type( moris::MSI::Dof_Type::VX );
-
-    moris::Matrix< moris::DDRMat > tReturn( 1, tFIVelocity->get_number_of_space_time_coefficients() );
-    for( uint i = 0; i < tFIVelocity->N().n_rows(); i++ )
-    {
-        tReturn.matrix_data() += tFIVelocity->N().get_row( i );
-    }
-    aPropMatrix = aParameters( 0 ) * tReturn;
-}
+#include "fn_norm.hpp"
 
 using namespace moris;
 using namespace fem;
@@ -62,13 +29,11 @@ using namespace fem;
 TEST_CASE( "IWG_Incompressible_NS_Viscous_Ghost", "[IWG_Incompressible_NS_Viscous_Ghost]" )
 {
     // define an epsilon environment
-    real tEpsilon = 1E-4;
+    // FIXME
+    real tEpsilon = 1E-5;
 
     // define a perturbation relative size
     real tPerturbation = 1E-6;
-
-    // number of evaluation points
-    uint tNumGPs = 5;
 
     // init geometry inputs
     //------------------------------------------------------------------------------
@@ -84,6 +49,11 @@ TEST_CASE( "IWG_Incompressible_NS_Viscous_Ghost", "[IWG_Incompressible_NS_Viscou
             mtk::Interpolation_Order::QUADRATIC,
             mtk::Interpolation_Order::CUBIC };
 
+    // create list of integration orders
+    moris::Cell< fem::Integration_Order > tIntegrationOrders = {
+            fem::Integration_Order::QUAD_2x2,
+            fem::Integration_Order::HEX_2x2x2 };
+
     // create list with number of coeffs
     Matrix< DDRMat > tNumCoeffs = {{ 8, 18, 32 },{ 16, 54, 128 }};
 
@@ -94,17 +64,17 @@ TEST_CASE( "IWG_Incompressible_NS_Viscous_Ghost", "[IWG_Incompressible_NS_Viscou
     // create the properties
     std::shared_ptr< fem::Property > tPropMasterViscosity = std::make_shared< fem::Property >();
     tPropMasterViscosity->set_parameters( { {{ 1.0 }} } );
-    tPropMasterViscosity->set_val_function( tFIConstValFunction_UTVelocityGhost );
+    tPropMasterViscosity->set_val_function( tConstValFunc );
     //tPropMasterViscosity->set_dof_type_list( { tVelDofTypes } );
-    //tPropMasterViscosity->set_val_function( tFIValFunction_UTVelocityGhost );
-    //tPropMasterViscosity->set_dof_derivative_functions( { tFIDerFunction_UTVelocityGhost } );
+    //tPropMasterViscosity->set_val_function( tVXFIValFunc );
+    //tPropMasterViscosity->set_dof_derivative_functions( { tVXFIDerFunc } );
 
     std::shared_ptr< fem::Property > tPropMasterDensity = std::make_shared< fem::Property >();
     tPropMasterDensity->set_parameters( { {{ 1.0 }} } );
-    tPropMasterDensity->set_val_function( tFIConstValFunction_UTVelocityGhost );
+    tPropMasterDensity->set_val_function( tConstValFunc );
     //tPropMasterDensity->set_dof_type_list( { tVelDofTypes } );
-    //tPropMasterDensity->set_val_function( tFIValFunction_UTVelocityGhost );
-    //tPropMasterDensity->set_dof_derivative_functions( { tFIDerFunction_UTVelocityGhost } );
+    //tPropMasterDensity->set_val_function( tVXFIValFunc );
+    //tPropMasterDensity->set_dof_derivative_functions( { tVXFIDerFunc } );
 
     // define stabilization parameters
     fem::SP_Factory tSPFactory;
@@ -154,6 +124,11 @@ TEST_CASE( "IWG_Incompressible_NS_Viscous_Ghost", "[IWG_Incompressible_NS_Viscou
     // loop on the space dimension
     for( uint iSpaceDim = 2; iSpaceDim < 4; iSpaceDim++ )
     {
+        // create and set normal
+        Matrix< DDRMat > tNormal( iSpaceDim, 1, 0.5 );
+        tNormal = tNormal / norm( tNormal );
+        tIWG->set_normal( tNormal );
+
         // set geometry inputs
         //------------------------------------------------------------------------------
         // switch on space dimension
@@ -222,13 +197,30 @@ TEST_CASE( "IWG_Incompressible_NS_Viscous_Ghost", "[IWG_Incompressible_NS_Viscou
         tSPViscousGhost->set_space_dim( iSpaceDim );
         tSPTimeGhost->set_space_dim( iSpaceDim );
 
-        // set normal to IWG
-        Matrix< DDRMat > tNormal = arma::randu( iSpaceDim, 1 );
-        tIWG->set_normal( tNormal );
-
         // loop on the interpolation order
         for( uint iInterpOrder = 1; iInterpOrder < 4; iInterpOrder++ )
         {
+            // integration points
+            //------------------------------------------------------------------------------
+            // get an integration order
+            fem::Integration_Order tIntegrationOrder = tIntegrationOrders( iSpaceDim - 2 );
+
+            // create an integration rule
+            fem::Integration_Rule tIntegrationRule(
+                    tGeometryType,
+                    Integration_Type::GAUSS,
+                    tIntegrationOrder,
+                    mtk::Geometry_Type::LINE,
+                    Integration_Type::GAUSS,
+                    fem::Integration_Order::BAR_2 );
+
+            // create an integrator
+            fem::Integrator tIntegrator( tIntegrationRule );
+
+            // get integration points
+            Matrix< DDRMat > tIntegPoints;
+            tIntegrator.get_points( tIntegPoints );
+
             // field interpolators
             //------------------------------------------------------------------------------
             // create an interpolation order
@@ -248,8 +240,9 @@ TEST_CASE( "IWG_Incompressible_NS_Viscous_Ghost", "[IWG_Incompressible_NS_Viscou
                                          Interpolation_Type::LAGRANGE,
                                          mtk::Interpolation_Order::LINEAR );
 
-            // fill random coefficients for master FI
-            Matrix< DDRMat > tMasterDOFHatVel  = 10.0 * arma::randu( tNumCoeff, iSpaceDim );
+            // fill coefficients for master FI
+            Matrix< DDRMat > tMasterDOFHatVel;
+            fill_uhat( tMasterDOFHatVel, iSpaceDim, iInterpOrder );
 
             // create a cell of field interpolators for IWG
             Cell< Field_Interpolator* > tMasterFIs( tDofTypes.size() );
@@ -259,7 +252,8 @@ TEST_CASE( "IWG_Incompressible_NS_Viscous_Ghost", "[IWG_Incompressible_NS_Viscou
             tMasterFIs( 0 )->set_coeff( tMasterDOFHatVel );
 
             // fill random coefficients for slave FI
-            Matrix< DDRMat > tSlaveDOFHatVel  = 10.0 * arma::randu( tNumCoeff, iSpaceDim );
+            Matrix< DDRMat > tSlaveDOFHatVel;
+            fill_uhat( tSlaveDOFHatVel, iSpaceDim, iInterpOrder );
 
             // create a cell of field interpolators for IWG
             Cell< Field_Interpolator* > tSlaveFIs( tDofTypes.size() );
@@ -314,14 +308,15 @@ TEST_CASE( "IWG_Incompressible_NS_Viscous_Ghost", "[IWG_Incompressible_NS_Viscou
             tIWG->set_field_interpolator_manager( &tMasterFIManager, mtk::Master_Slave::MASTER );
             tIWG->set_field_interpolator_manager( &tSlaveFIManager, mtk::Master_Slave::SLAVE );
 
+            // loop over integration points
+            uint tNumGPs = tIntegPoints.n_cols();
             for( uint iGP = 0; iGP < tNumGPs; iGP ++ )
             {
                 // reset IWG evaluation flags
                 tIWG->reset_eval_flags();
 
                 // create evaluation point xi, tau
-                arma::arma_rng::set_seed_random();
-                Matrix< DDRMat > tParamPoint = arma::randu( iSpaceDim + 1, 1 );
+                Matrix< DDRMat > tParamPoint = tIntegPoints.get_column( iGP );
 
                 // set integration point
                 tIWG->mSet->mMasterFIManager->set_space_time( tParamPoint );
@@ -345,7 +340,7 @@ TEST_CASE( "IWG_Incompressible_NS_Viscous_Ghost", "[IWG_Incompressible_NS_Viscou
                 Matrix< DDRMat > tJacobianFD;
 
                 // check jacobian by FD
-                bool tCheckJacobian = tIWG->check_jacobian_double(
+                bool tCheckJacobian = tIWG->check_jacobian(
                         tPerturbation,
                         tEpsilon,
                         1.0,
@@ -374,13 +369,10 @@ TEST_CASE( "IWG_Incompressible_NS_Viscous_Ghost", "[IWG_Incompressible_NS_Viscou
 TEST_CASE( "IWG_Incompressible_NS_Convective_Ghost", "[IWG_Incompressible_NS_Convective_Ghost]" )
 {
     // define an epsilon environment
-    real tEpsilon = 1E-4;
+    real tEpsilon = 1E-6;
 
     // define a perturbation relative size
     real tPerturbation = 1E-6;
-
-    // number of evaluation points
-    uint tNumGPs = 5;
 
     // init geometry inputs
     //------------------------------------------------------------------------------
@@ -396,6 +388,11 @@ TEST_CASE( "IWG_Incompressible_NS_Convective_Ghost", "[IWG_Incompressible_NS_Con
             mtk::Interpolation_Order::QUADRATIC,
             mtk::Interpolation_Order::CUBIC };
 
+    // create list of integration orders
+    moris::Cell< fem::Integration_Order > tIntegrationOrders = {
+            fem::Integration_Order::QUAD_2x2,
+            fem::Integration_Order::HEX_2x2x2 };
+
     // create list with number of coeffs
     Matrix< DDRMat > tNumCoeffs = {{ 8, 18, 32 },{ 16, 54, 128 }};
 
@@ -406,10 +403,10 @@ TEST_CASE( "IWG_Incompressible_NS_Convective_Ghost", "[IWG_Incompressible_NS_Con
     // create the properties
     std::shared_ptr< fem::Property > tPropMasterDensity = std::make_shared< fem::Property >();
     tPropMasterDensity->set_parameters( { {{ 1.0 }} } );
-    tPropMasterDensity->set_val_function( tFIConstValFunction_UTVelocityGhost );
+    tPropMasterDensity->set_val_function( tConstValFunc );
     //tPropMasterDensity->set_dof_type_list( { tVelDofTypes } );
-    //tPropMasterDensity->set_val_function( tFIValFunction_UTVelocityGhost );
-    //tPropMasterDensity->set_dof_derivative_functions( { tFIDerFunction_UTVelocityGhost } );
+    //tPropMasterDensity->set_val_function( tVXFIValFunc );
+    //tPropMasterDensity->set_dof_derivative_functions( { tVXFIDerFunc } );
 
     // define stabilization parameters
     fem::SP_Factory tSPFactory;
@@ -454,6 +451,11 @@ TEST_CASE( "IWG_Incompressible_NS_Convective_Ghost", "[IWG_Incompressible_NS_Con
     // loop on the space dimension
     for( uint iSpaceDim = 2; iSpaceDim < 4; iSpaceDim++ )
     {
+        // create and set normal
+        Matrix< DDRMat > tNormal( iSpaceDim, 1, 0.5 );
+        tNormal = tNormal / norm( tNormal );
+        tIWG->set_normal( tNormal );
+
         // set geometry inputs
         //------------------------------------------------------------------------------
         // switch on space dimension
@@ -521,13 +523,30 @@ TEST_CASE( "IWG_Incompressible_NS_Convective_Ghost", "[IWG_Incompressible_NS_Con
         // set space dimension to CM, SP
         tSPConvectiveGhost->set_space_dim( iSpaceDim );
 
-        // set normal to IWG
-        Matrix< DDRMat > tNormal = arma::randu( iSpaceDim, 1 );
-        tIWG->set_normal( tNormal );
-
         // loop on the interpolation order
         for( uint iInterpOrder = 1; iInterpOrder < 4; iInterpOrder++ )
         {
+            // integration points
+            //------------------------------------------------------------------------------
+            // get an integration order
+            fem::Integration_Order tIntegrationOrder = tIntegrationOrders( iSpaceDim - 2 );
+
+            // create an integration rule
+            fem::Integration_Rule tIntegrationRule(
+                    tGeometryType,
+                    Integration_Type::GAUSS,
+                    tIntegrationOrder,
+                    mtk::Geometry_Type::LINE,
+                    Integration_Type::GAUSS,
+                    fem::Integration_Order::BAR_2 );
+
+            // create an integrator
+            fem::Integrator tIntegrator( tIntegrationRule );
+
+            // get integration points
+            Matrix< DDRMat > tIntegPoints;
+            tIntegrator.get_points( tIntegPoints );
+
             // field interpolators
             //------------------------------------------------------------------------------
             // create an interpolation order
@@ -546,8 +565,9 @@ TEST_CASE( "IWG_Incompressible_NS_Convective_Ghost", "[IWG_Incompressible_NS_Con
                                          Interpolation_Type::LAGRANGE,
                                          mtk::Interpolation_Order::LINEAR );
 
-            // fill random coefficients for master FI
-            Matrix< DDRMat > tMasterDOFHatVel  = 10.0 * arma::randu( tNumCoeff, iSpaceDim );
+            // fill coefficients for master FI
+            Matrix< DDRMat > tMasterDOFHatVel;;
+            fill_uhat( tMasterDOFHatVel, iSpaceDim, iInterpOrder );
 
             // create a cell of field interpolators for IWG
             Cell< Field_Interpolator* > tMasterFIs( tDofTypes.size() );
@@ -556,8 +576,9 @@ TEST_CASE( "IWG_Incompressible_NS_Convective_Ghost", "[IWG_Incompressible_NS_Con
             tMasterFIs( 0 ) = new Field_Interpolator( iSpaceDim, tFIRule, &tGI, tVelDofTypes );
             tMasterFIs( 0 )->set_coeff( tMasterDOFHatVel );
 
-            // fill random coefficients for slave FI
-            Matrix< DDRMat > tSlaveDOFHatVel  = 10.0 * arma::randu( tNumCoeff, iSpaceDim );
+            // fill coefficients for slave FI
+            Matrix< DDRMat > tSlaveDOFHatVel;
+            fill_uhat( tSlaveDOFHatVel, iSpaceDim, iInterpOrder );
 
             // create a cell of field interpolators for IWG
             Cell< Field_Interpolator* > tSlaveFIs( tDofTypes.size() );
@@ -612,14 +633,15 @@ TEST_CASE( "IWG_Incompressible_NS_Convective_Ghost", "[IWG_Incompressible_NS_Con
             tIWG->set_field_interpolator_manager( &tMasterFIManager, mtk::Master_Slave::MASTER );
             tIWG->set_field_interpolator_manager( &tSlaveFIManager, mtk::Master_Slave::SLAVE );
 
+            // loop over integration points
+            uint tNumGPs = tIntegPoints.n_cols();
             for( uint iGP = 0; iGP < tNumGPs; iGP ++ )
             {
                 // reset IWG evaluation flags
                 tIWG->reset_eval_flags();
 
                 // create evaluation point xi, tau
-                arma::arma_rng::set_seed_random();
-                Matrix< DDRMat > tParamPoint = arma::randu( iSpaceDim + 1, 1 );
+                Matrix< DDRMat > tParamPoint = tIntegPoints.get_column( iGP );
 
                 // set integration point
                 tIWG->mSet->mMasterFIManager->set_space_time( tParamPoint );
@@ -643,7 +665,7 @@ TEST_CASE( "IWG_Incompressible_NS_Convective_Ghost", "[IWG_Incompressible_NS_Con
                 Matrix< DDRMat > tJacobianFD;
 
                 // check jacobian by FD
-                bool tCheckJacobian = tIWG->check_jacobian_double(
+                bool tCheckJacobian = tIWG->check_jacobian(
                         tPerturbation,
                         tEpsilon,
                         1.0,

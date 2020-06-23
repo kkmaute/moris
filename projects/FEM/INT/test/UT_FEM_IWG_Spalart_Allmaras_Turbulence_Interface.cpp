@@ -18,32 +18,10 @@
 #include "cl_FEM_IWG_Factory.hpp"
 #include "cl_FEM_CM_Factory.hpp"
 #include "cl_FEM_SP_Factory.hpp"
+#include "FEM_Test_Proxy/cl_FEM_Inputs_for_NS_Incompressible_UT.cpp"
 //LINALG
 #include "op_equal_equal.hpp"
-
-void tFIConstValFunction_UTViscosityInterface
-( moris::Matrix< moris::DDRMat >                 & aPropMatrix,
-  moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
-  moris::fem::Field_Interpolator_Manager         * aFIManager )
-{
-    aPropMatrix = aParameters( 0 );
-}
-
-void tFIValFunction_UTViscosityInterface
-( moris::Matrix< moris::DDRMat >                 & aPropMatrix,
-  moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
-  moris::fem::Field_Interpolator_Manager         * aFIManager )
-{
-    aPropMatrix = aParameters( 0 ) * aFIManager->get_field_interpolators_for_type( moris::MSI::Dof_Type::VISCOSITY )->val();
-}
-
-void tFIDerFunction_UTViscosityInterface
-( moris::Matrix< moris::DDRMat >                 & aPropMatrix,
-  moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
-  moris::fem::Field_Interpolator_Manager         * aFIManager )
-{
-    aPropMatrix = aParameters( 0 ) * aFIManager->get_field_interpolators_for_type( moris::MSI::Dof_Type::VISCOSITY )->N();
-}
+#include "fn_norm.hpp"
 
 using namespace moris;
 using namespace fem;
@@ -55,13 +33,10 @@ using namespace fem;
 TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Interface", "[IWG_Spalart_Allmaras_Turbulence_Interface]" )
 {
     // define an epsilon environment
-    real tEpsilon = 1E-5;
+    real tEpsilon = 1E-6;
 
     // define a perturbation relative size
     real tPerturbation = 1E-6;
-
-    // number of evaluation points
-    uint tNumGPs = 5;
 
     // init geometry inputs
     //------------------------------------------------------------------------------
@@ -77,6 +52,11 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Interface", "[IWG_Spalart_Allmaras_T
             mtk::Interpolation_Order::QUADRATIC,
             mtk::Interpolation_Order::CUBIC };
 
+    // create list of integration orders
+    moris::Cell< fem::Integration_Order > tIntegrationOrders = {
+            fem::Integration_Order::QUAD_2x2,
+            fem::Integration_Order::HEX_2x2x2 };
+
     // create list with number of coeffs
     Matrix< DDRMat > tNumCoeffs = {{ 8, 18, 32 },{ 16, 54, 128 }};
 
@@ -89,18 +69,18 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Interface", "[IWG_Spalart_Allmaras_T
     // create the master properties
     std::shared_ptr< fem::Property > tPropMasterViscosity = std::make_shared< fem::Property >();
     tPropMasterViscosity->set_parameters( { {{ 1.0 }} } );
-    tPropMasterViscosity->set_val_function( tFIConstValFunction_UTViscosityInterface );
+    tPropMasterViscosity->set_val_function( tConstValFunc );
     //tPropMasterViscosity->set_dof_type_list( { tVisDofTypes } );
-    //tPropMasterViscosity->set_val_function( tFIValFunction_UTViscosityInterface );
-    //tPropMasterViscosity->set_dof_derivative_functions( { tFIDerFunction_UTViscosityInterface } );
+    //tPropMasterViscosity->set_val_function( tVISCOSITYFIValFunc );
+    //tPropMasterViscosity->set_dof_derivative_functions( { tVISCOSITYFIDerFunc } );
 
     // create the slave properties
     std::shared_ptr< fem::Property > tPropSlaveViscosity = std::make_shared< fem::Property >();
     tPropSlaveViscosity->set_parameters( { {{ 1.0 }} } );
-    tPropSlaveViscosity->set_val_function( tFIConstValFunction_UTViscosityInterface );
+    tPropSlaveViscosity->set_val_function( tConstValFunc );
     //tPropSlaveViscosity->set_dof_type_list( { tVisDofTypes } );
-    //tPropSlaveViscosity->set_val_function( tFIValFunction_UTViscosityInterface );
-    //tPropSlaveViscosity->set_dof_derivative_functions( { tFIDerFunction_UTViscosityInterface } );
+    //tPropSlaveViscosity->set_val_function( tVISCOSITYFIValFunc );
+    //tPropSlaveViscosity->set_dof_derivative_functions( { tVISCOSITYFIDerFunc } );
 
     // define stabilization parameters
     fem::SP_Factory tSPFactory;
@@ -159,6 +139,11 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Interface", "[IWG_Spalart_Allmaras_T
     // loop on the space dimension
     for( uint iSpaceDim = 2; iSpaceDim < 4; iSpaceDim++ )
     {
+        // create and set normal
+        Matrix< DDRMat > tNormal( iSpaceDim, 1, 0.5 );
+        tNormal = tNormal / norm( tNormal );
+        tIWG->set_normal( tNormal );
+
         // set geometry inputs
         //------------------------------------------------------------------------------
         // switch on space dimension
@@ -222,13 +207,30 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Interface", "[IWG_Spalart_Allmaras_T
         tSPSlaveWeight->set_space_dim( iSpaceDim );
         tSPMasterWeight->set_space_dim( iSpaceDim );
 
-        // set normal to IWG
-        Matrix< DDRMat > tNormal = arma::randu( iSpaceDim, 1 );
-        tIWG->set_normal( tNormal );
-
         // loop on the interpolation order
         for( uint iInterpOrder = 1; iInterpOrder < 4; iInterpOrder++ )
         {
+            // integration points
+            //------------------------------------------------------------------------------
+            // get an integration order
+            fem::Integration_Order tIntegrationOrder = tIntegrationOrders( iSpaceDim - 2 );
+
+            // create an integration rule
+            fem::Integration_Rule tIntegrationRule(
+                    tGeometryType,
+                    Integration_Type::GAUSS,
+                    tIntegrationOrder,
+                    mtk::Geometry_Type::LINE,
+                    Integration_Type::GAUSS,
+                    fem::Integration_Order::BAR_2 );
+
+            // create an integrator
+            fem::Integrator tIntegrator( tIntegrationRule );
+
+            // get integration points
+            Matrix< DDRMat > tIntegPoints;
+            tIntegrator.get_points( tIntegPoints );
+
             // field interpolators
             //------------------------------------------------------------------------------
             // create an interpolation order
@@ -247,8 +249,9 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Interface", "[IWG_Spalart_Allmaras_T
                                          Interpolation_Type::LAGRANGE,
                                          mtk::Interpolation_Order::LINEAR );
 
-            // fill random coefficients for master FI
-            Matrix< DDRMat > tMasterDOFHatVis = 10.0 * arma::randu( tNumCoeff, 1 );
+            // fill coefficients for master FI
+            Matrix< DDRMat > tMasterDOFHatVis;
+            fill_phat( tMasterDOFHatVis, iSpaceDim, iInterpOrder );
 
             // create a cell of field interpolators for IWG
             Cell< Field_Interpolator* > tMasterFIs( tDofTypes.size() );
@@ -258,7 +261,8 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Interface", "[IWG_Spalart_Allmaras_T
             tMasterFIs( 0 )->set_coeff( tMasterDOFHatVis );
 
             // fill random coefficients for slave FI
-            Matrix< DDRMat > tSlaveDOFHatVis  = 10.0 * arma::randu( tNumCoeff, 1 );
+            Matrix< DDRMat > tSlaveDOFHatVis;
+            fill_phat( tSlaveDOFHatVis, iSpaceDim, iInterpOrder );
 
             // create a cell of field interpolators for IWG
             Cell< Field_Interpolator* > tSlaveFIs( tDofTypes.size() );
@@ -313,14 +317,15 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Interface", "[IWG_Spalart_Allmaras_T
             tIWG->set_field_interpolator_manager( &tMasterFIManager, mtk::Master_Slave::MASTER );
             tIWG->set_field_interpolator_manager( &tSlaveFIManager, mtk::Master_Slave::SLAVE );
 
+            // loop over integration points
+            uint tNumGPs = tIntegPoints.n_cols();
             for( uint iGP = 0; iGP < tNumGPs; iGP ++ )
             {
                 // reset IWG evaluation flags
                 tIWG->reset_eval_flags();
 
                 // create evaluation point xi, tau
-                arma::arma_rng::set_seed_random();
-                Matrix< DDRMat > tParamPoint = arma::randu( iSpaceDim + 1, 1 );
+                Matrix< DDRMat > tParamPoint = tIntegPoints.get_column( iGP );
 
                 // set integration point
                 tIWG->mSet->mMasterFIManager->set_space_time( tParamPoint );
@@ -344,7 +349,7 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Interface", "[IWG_Spalart_Allmaras_T
                 Matrix< DDRMat > tJacobianFD;
 
                 // check jacobian by FD
-                bool tCheckJacobian = tIWG->check_jacobian_double(
+                bool tCheckJacobian = tIWG->check_jacobian(
                         tPerturbation,
                         tEpsilon,
                         1.0,
