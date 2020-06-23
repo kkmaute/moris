@@ -95,7 +95,6 @@ namespace moris
         }
 
 //------------------------------------------------------------------------------
-
         Field_Interpolator::~Field_Interpolator()
         {
             // delete interpolation functions
@@ -108,6 +107,20 @@ namespace moris
             {
                 delete mTimeInterpolation;
             }
+        }
+
+        //------------------------------------------------------------------------------
+        void Field_Interpolator::reset_eval_flags()
+        {
+            // reset bool for evaluation
+            mNEval      = true;
+            mNBuildEval = true;
+            mdNdxEval   = true;
+            md2Ndx2Eval = true;
+            md3Ndx3Eval = true;
+            mdNdtEval   = true;
+            md2Ndt2Eval = true;
+            md2NdxtEval = true;
         }
 
 //------------------------------------------------------------------------------
