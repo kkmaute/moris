@@ -64,7 +64,7 @@ void Performer_Manager::initialize_performers()
     tXTKParameterListFunc( tXTKParameterList );
 
     // create HMR performer
-    mHMRPerformer( 0 ) = std::make_shared< hmr::HMR >( tHMRParameterList( 0 )( 0 ) );
+    mHMRPerformer( 0 ) = std::make_shared< hmr::HMR >( tHMRParameterList( 0 )( 0 ), mLibrary );
 
     // create MTK performer - will be used for HMR mesh
     mMTKPerformer( 0 ) =std::make_shared< mtk::Mesh_Manager >();
