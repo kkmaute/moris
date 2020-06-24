@@ -148,7 +148,7 @@ namespace xtk
     {
         mSameMesh           = false;
         mModelDimension     = aMesh->get_spatial_dim();
-        mCutMesh            = Cut_Mesh(this,mModelDimension),
+        mCutMesh            = Cut_Mesh(this,mModelDimension);
                 mEnrichment         = nullptr;
         mGhostStabilization = nullptr;
         mEnrichedInterpMesh = Cell<Enriched_Interpolation_Mesh*>(0, nullptr);
@@ -215,12 +215,12 @@ namespace xtk
             this->construct_face_oriented_ghost_penalization_cells();
 
             if( mParameterList.get<bool>("exodus_output_XTK_ghost_mesh") )
-
+            {
                 for(moris::moris_index i = 0; i < (moris_index)mGeometryEngine->get_num_bulk_phase(); i++)
                 {
                     mGhostStabilization->visualize_ghost_on_mesh(i);
                 }
-
+            }
         }
 
         if( mParameterList.get<bool>("multigrid") )
@@ -251,6 +251,18 @@ namespace xtk
             // Write the fields
             writer.set_time(0.0);
             writer.close_file();
+        }
+
+        if( true ) //mParameterList.get<bool>("exodus_output_XTK_ip_mesh") )
+        {
+            tEnrInterpMesh.print();
+            // Write mesh
+            //moris::mtk::Writer_Exodus writer( &tEnrInterpMesh );
+            //writer.write_mesh("", "./xtk_ip_temp.exo");
+
+            // Write the fields
+            //writer.set_time(0.0);
+            //writer.close_file();
         }
     }
 
@@ -3286,7 +3298,7 @@ Model::create_new_node_association_with_geometry(Decomposition_Data & tDecompDat
         // to get the neighborhood correct
         if(mBackgroundMesh.get_mesh_data().get_mesh_type() == MeshType::HMR)
         {
-            construct_cut_mesh_simple_neighborhood();
+            construct_cut_mesh_simple_neighborhood();    //FIXME: Keenan - comments are missing for these steps
 
             construct_cut_mesh_to_uncut_mesh_neighborhood(tCutToUncutFace);
 
@@ -3578,7 +3590,7 @@ Model::create_new_node_association_with_geometry(Decomposition_Data & tDecompDat
         // iterate through background cells
         for(moris::uint iC = 0; iC < tNumCells; iC++)
         {
-            // if i have no children
+            // if current cell has no children, i.e. is uncut
             if(!mBackgroundMesh.entity_has_children((moris_index)iC,EntityRank::ELEMENT))
             {
                 // get the neighbors
@@ -3587,15 +3599,17 @@ Model::create_new_node_association_with_geometry(Decomposition_Data & tDecompDat
                 // iterate through neighbors
                 for(moris::uint iN = 0; iN<tElementNeighors.n_cols(); iN++ )
                 {
-                    // if the neighbor has no children
+                    // if the neighbor has no children, i.e., is uncut
                     if(!mBackgroundMesh.entity_has_children(tElementNeighors(0,iN),EntityRank::ELEMENT))
                     {
+                        // add neighbor cell to list of neighbors for current cell
                         mElementToElement(iC).push_back(&mBackgroundMesh.get_mtk_cell(tElementNeighors(0,iN)));
                     }
 
                     // mark as a cut to uncut boundary
                     else
                     {
+                        // store
                         aCutToUncutFace.push_back( {(moris_index)iC , tElementNeighors(0,iN), tElementNeighors(1,iN)} );
                     }
                 }

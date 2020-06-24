@@ -82,13 +82,13 @@ class Enrichment_Data
     // For each enriched basis function, the subphase indices in support
     Cell<moris::Matrix< moris::IndexMat >> mSubphaseIndsInEnrichedBasis;
 
-    // Basis enrichment level indics
+    // Basis enrichment level indices
     moris::Cell<moris::Matrix<moris::IndexMat>> mBasisEnrichmentIndices;
     moris::Matrix<moris::IndexMat> mEnrichedBasisIndexToId;
 
     // Unintersected Parent Cell, BackBasis interpolating in them and corresponding enrichment level
     // outer cell corresponds to interp cell index
-    // inncer cell corrsponds to basis/enrlev in intepr cell
+    // inner cell corresponds to basis/enrlev in intepr cell
     moris::Cell<moris::Cell< moris_index >> mSubphaseBGBasisIndices;
     moris::Cell<moris::Cell< moris_index >> mSubphaseBGBasisEnrLev;
 
@@ -309,7 +309,8 @@ private:
     void
     set_received_enriched_basis_ids(moris_index const & aEnrichmentDataIndex,
                                     Cell<moris::Matrix<moris::IndexMat>> const & aReceivedEnrichedIds,
-                                    Cell<Cell<moris_index>> const & aBasisIndexToBasisOwner);
+                                    Cell<Cell<moris_index>> const & aBasisIndexToBasisOwner,
+                                    Cell<Cell<moris_index>> const & aSubphaseIdInSupport);
 
     // ----------------------------------------------------------------------------------
 

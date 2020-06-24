@@ -30,6 +30,7 @@
 //#include "cl_HMR_Database.hpp"
 namespace xtk
 {
+    //-------------------------------------------------------------------------------------
 
     Enrichment::Enrichment(enum Enrichment_Method const & aMethod,
             enum EntityRank        const & aBasisRank,
@@ -37,8 +38,8 @@ namespace xtk
             moris::moris_index     const & aNumBulkPhases,
             xtk::Model*                    aXTKModelPtr,
             xtk::Cut_Mesh*                 aCutMeshPtr,
-            xtk::Background_Mesh*          aBackgroundMeshPtr):
-                mEnrichmentMethod(aMethod),
+            xtk::Background_Mesh*          aBackgroundMeshPtr)
+    : mEnrichmentMethod(aMethod),
                 mBasisRank(aBasisRank),
                 mMeshIndices(aInterpIndex),
                 mNumBulkPhases(aNumBulkPhases),
@@ -50,7 +51,7 @@ namespace xtk
 
     }
 
-
+    //-------------------------------------------------------------------------------------
 
     void
     Enrichment::perform_enrichment()
@@ -64,6 +65,7 @@ namespace xtk
 
     }
 
+    //-------------------------------------------------------------------------------------
 
     Cell<moris::Matrix< moris::IdMat >> const &
     Enrichment::get_element_inds_in_basis_support(moris_index const & aEnrichmentDataIndex ) const
@@ -71,6 +73,7 @@ namespace xtk
         return mEnrichmentData(aEnrichmentDataIndex).mElementIndsInBasis;
     }
 
+    //-------------------------------------------------------------------------------------
 
     Cell<moris::Matrix< moris::IndexMat >> const &
     Enrichment::get_element_enrichment_levels_in_basis_support(moris_index const & aEnrichmentDataIndex ) const
@@ -78,6 +81,7 @@ namespace xtk
         return mEnrichmentData(aEnrichmentDataIndex).mElementEnrichmentLevel;
     }
 
+    //-------------------------------------------------------------------------------------
 
     Cell<moris::Matrix< moris::IndexMat >> const &
     Enrichment::get_subphases_loc_inds_in_enriched_basis(moris_index const & aEnrichmentDataIndex ) const
@@ -85,6 +89,7 @@ namespace xtk
         return mEnrichmentData(aEnrichmentDataIndex).mSubphaseIndsInEnrichedBasis;
     }
 
+    //-------------------------------------------------------------------------------------
 
     Cell<moris::Matrix< moris::IndexMat >>
     Enrichment::get_subphases_glb_id_in_enriched_basis(moris_index const & aEnrichmentDataIndex ) const
@@ -101,6 +106,8 @@ namespace xtk
         }
         return tSubphaseIdsInEnrichedBasis;
     }
+
+    //-------------------------------------------------------------------------------------
 
     void
     Enrichment::perform_basis_cluster_enrichment()
@@ -123,11 +130,11 @@ namespace xtk
             // Number of basis functions
             moris::size_t tNumBasis = tXTKMeshData.get_num_basis_functions(mMeshIndices(iBasisType));
 
-            // Allocate member variables
+            // allocate member variables
             mEnrichmentData(iBasisType).mElementEnrichmentLevel = moris::Cell<moris::Matrix< moris::IndexMat >>(tNumBasis);
             mEnrichmentData(iBasisType).mElementIndsInBasis     = moris::Cell<moris::Matrix< moris::IndexMat >>(tNumBasis);
 
-            // alllocate data used after basis loop
+            // allocate data used after basis loop
             moris::Cell<moris::Matrix< moris::IndexMat >> tSubPhaseBinEnrichment(tNumBasis);
             moris::Cell<moris::Matrix< moris::IndexMat >> tSubphaseClusterIndicesInSupport(tNumBasis);
             moris::Cell<moris_index>                      tMaxEnrichmentLevel(tNumBasis,0);
@@ -173,15 +180,19 @@ namespace xtk
 
     }
 
+    //-------------------------------------------------------------------------------------
+
     void
     Enrichment::construct_neighborhoods()
     {
-        // construct full mesh neighbhoord
+        // construct full mesh neighborhood
         mXTKModelPtr->construct_neighborhood();
 
         // construct subphase neighborhood
         mXTKModelPtr->construct_subphase_neighborhood();
     }
+
+    //-------------------------------------------------------------------------------------
 
     void
     Enrichment::setup_background_vertex_interpolations()
@@ -205,9 +216,10 @@ namespace xtk
                 // access the vertex
                 moris::mtk::Vertex & tVert = tBGIPMesh.get_mtk_vertex((moris_index)iV);
 
-                // if I own the vertex we know the vertex interpolation
-                // exists on this server
-                if(tVert.has_interpolation(mMeshIndices(iM)+1))
+                // if the vertex interpolation exits this vertex is own by the current processor
+                // and the vertex interpolation is stored; otherwise the nullptr is kept indicating
+                // that the vertex is not owned the by current processor
+                if(tVert.has_interpolation(mMeshIndices(iM)+1))                                  // FIXME: Keenan - why is there a +1 needs to be explained; seems hacky
                 {
                     mEnrichmentData(iM).mBGVertexInterpolations(iV) =tVert.get_interpolation(mMeshIndices(iM));
                 }
@@ -216,6 +228,8 @@ namespace xtk
             }
         }
     }
+
+    //-------------------------------------------------------------------------------------
 
     Matrix<IndexMat>
     Enrichment::get_subphase_clusters_in_support(moris::Matrix< moris::IndexMat > const & aElementsInSupport)
@@ -263,6 +277,8 @@ namespace xtk
         return tSubPhaseClusters;
     }
 
+    //-------------------------------------------------------------------------------------
+
     void
     Enrichment::construct_subphase_in_support_map(moris::Matrix< moris::IndexMat > const & aSubphaseClusterIndicesInSupport,
             IndexMap & aSubPhaseIndexToSupportIndex)
@@ -273,14 +289,16 @@ namespace xtk
         }
     }
 
+    //-------------------------------------------------------------------------------------
 
     void
-    Enrichment::generate_pruned_subphase_graph_in_basis_support(moris::Matrix< moris::IndexMat > const & aSubphasesInSupport,
+    Enrichment::generate_pruned_subphase_graph_in_basis_support(
+            moris::Matrix< moris::IndexMat > const & aSubphasesInSupport,
             IndexMap &                               aSubPhaseIndexToSupportIndex,
             moris::Matrix< moris::IndexMat >       & aPrunedSubPhaseToSubphase)
     {
         // Construct full element neighbor graph in support and the corresponding shared faces
-        aPrunedSubPhaseToSubphase.resize(aSubphasesInSupport.numel(), 50);
+        aPrunedSubPhaseToSubphase.resize(aSubphasesInSupport.numel(), 50);    // FIXME: Keenan this allocation needs to done smarter
         aPrunedSubPhaseToSubphase.fill(MORIS_INDEX_MAX);
 
         // get subphase neighborhood information
@@ -308,9 +326,11 @@ namespace xtk
 
     }
 
+    //-------------------------------------------------------------------------------------
 
     void
-    Enrichment::assign_subphase_bin_enrichment_levels_in_basis_support(moris::Matrix< moris::IndexMat > const & aSubphasesInSupport,
+    Enrichment::assign_subphase_bin_enrichment_levels_in_basis_support(
+            moris::Matrix< moris::IndexMat > const & aSubphasesInSupport,
             IndexMap &                               aSubPhaseIndexToSupportIndex,
             moris::Matrix< moris::IndexMat > const & aPrunedSubPhaseToSubphase,
             moris::Matrix< moris::IndexMat >       & aSubPhaseBinEnrichmentVals,
@@ -330,7 +350,8 @@ namespace xtk
         // Flood fill metric value (since all the subphases do not connect to dissimilar phases)
         moris::Matrix< moris::IndexMat > tDummyPhase(1,aSubphasesInSupport.numel(),1);
 
-        aSubPhaseBinEnrichmentVals = flood_fill(aPrunedSubPhaseToSubphase,
+        aSubPhaseBinEnrichmentVals = flood_fill(
+                aPrunedSubPhaseToSubphase,
                 tDummyPhase,
                 tActiveBins,
                 tIncludedBins,
@@ -338,10 +359,13 @@ namespace xtk
                 MORIS_INDEX_MAX,
                 aMaxEnrichmentLevel,
                 true);
-
     }
+
+    //-------------------------------------------------------------------------------------
+
     void
-    Enrichment::unzip_subphase_bin_enrichment_into_element_enrichment(moris_index const & aEnrichmentDataIndex,
+    Enrichment::unzip_subphase_bin_enrichment_into_element_enrichment(
+            moris_index                      const & aEnrichmentDataIndex,
             moris_index const & aBasisIndex,
             moris::Matrix< moris::IndexMat > const & aParentElementsInSupport,
             moris::Matrix< moris::IndexMat > const & aSubphasesInSupport,
@@ -371,7 +395,7 @@ namespace xtk
                 // get the child mesh
                 Child_Mesh & tChildMesh = mCutMeshPtr->get_child_mesh(tSubphaseToCM(tSubphaseIndex));
 
-                // get the child elements in subphas
+                // get the child elements in subphase
                 Cell<moris::Matrix< moris::IndexMat >> const & tCellToSubphase = tChildMesh.get_subphase_groups();
 
                 // element indices of child mesh
@@ -400,8 +424,11 @@ namespace xtk
         }
     }
 
+    //-------------------------------------------------------------------------------------
+
     void
-    Enrichment::construct_enriched_basis_to_subphase_connectivity(moris_index const &              aEnrichmentDataIndex,
+    Enrichment::construct_enriched_basis_to_subphase_connectivity(
+            moris_index                                   const & aEnrichmentDataIndex,
             moris::Cell<moris::Matrix< moris::IndexMat >> const & aSubPhaseBinEnrichment,
             moris::Cell<moris::Matrix< moris::IndexMat >> const & aSubphaseClusterIndicesInSupport,
             moris::Cell<moris_index>                      const & aMaxEnrichmentLevel)
@@ -435,11 +462,12 @@ namespace xtk
             // iterate through subphases in support and add them to appropriate location in mSubphaseIndsInEnrichedBasis
             for(moris::uint iSp = 0; iSp < aSubphaseClusterIndicesInSupport(i).numel(); iSp++)
             {
-                // get cluster enrihcment level
+                // get cluster enrichment level
                 moris_index tClusterEnrLev = aSubPhaseBinEnrichment(i)(iSp);
 
                 // add to the member data
-                mEnrichmentData(aEnrichmentDataIndex).mSubphaseIndsInEnrichedBasis(tBaseIndex+tClusterEnrLev)(tCounter(tClusterEnrLev)) = aSubphaseClusterIndicesInSupport(i)(iSp);
+                mEnrichmentData(aEnrichmentDataIndex).mSubphaseIndsInEnrichedBasis(tBaseIndex+tClusterEnrLev)(tCounter(tClusterEnrLev)) =
+                        aSubphaseClusterIndicesInSupport(i)(iSp);
 
                 // increment count
                 tCounter(tClusterEnrLev)++;
@@ -464,8 +492,11 @@ namespace xtk
         }
     }
 
+    //-------------------------------------------------------------------------------------
+
     void
-    Enrichment::assign_enriched_coefficients_identifiers(moris_index const &              aEnrichmentDataIndex,
+    Enrichment::assign_enriched_coefficients_identifiers(
+            moris_index const &              aEnrichmentDataIndex,
             moris::Cell<moris_index> const & aMaxEnrichmentLevel)
     {
         mEnrichmentData(aEnrichmentDataIndex).mBasisEnrichmentIndices.resize(mEnrichmentData(aEnrichmentDataIndex).mElementIndsInBasis.size());
@@ -502,7 +533,9 @@ namespace xtk
 
         // first index and id ( not first gets background basis information)
         moris::moris_index tIndOffset = 0;
-        moris::moris_id tBasisIdOffset = mBackgroundMeshPtr->allocate_entity_ids(mEnrichmentData(aEnrichmentDataIndex).mNumEnrichmentLevels, mBasisRank);
+        moris::moris_id tBasisIdOffset = mBackgroundMeshPtr->allocate_entity_ids(
+                mEnrichmentData(aEnrichmentDataIndex).mNumEnrichmentLevels,
+                mBasisRank);
 
         Cell<Cell<moris_index>> tBasisIdToBasisOwner(tCommTable.numel());
         Cell<Cell<moris_index>> tSubphaseIdInSupport(tCommTable.numel());
@@ -510,8 +543,17 @@ namespace xtk
 
         for(moris::uint  i = 0; i < mEnrichmentData(aEnrichmentDataIndex).mBasisEnrichmentIndices.size(); i++)
         {
-            moris_index tOwner = mBackgroundMeshPtr->get_mesh_data().get_entity_owner(i,mBasisRank,mMeshIndices(aEnrichmentDataIndex));
-            moris_id    tBackBasisId  = mBackgroundMeshPtr->get_mesh_data().get_glb_entity_id_from_entity_loc_index(i,mBasisRank,mMeshIndices(aEnrichmentDataIndex));
+            moris_index tOwner = mBackgroundMeshPtr->get_mesh_data().get_entity_owner(
+                    i,
+                    mBasisRank,
+                    mMeshIndices(aEnrichmentDataIndex));
+
+            moris_id tBackBasisId   =
+                    mBackgroundMeshPtr->get_mesh_data().get_glb_entity_id_from_entity_loc_index(
+                            i,
+                            mBasisRank,
+                            mMeshIndices(aEnrichmentDataIndex));
+
             moris_index tProcDataIndex = tProcRankToIndexInData[tOwner];
             // always set indices
             moris::Matrix<moris::IndexMat> &  tBasisEnrichmentInds = mEnrichmentData(aEnrichmentDataIndex).mBasisEnrichmentIndices(i);
@@ -521,7 +563,7 @@ namespace xtk
                 tIndOffset++;
             }
 
-            // only set id if we own it and package data for mpi if shared
+            // only set id if we own it and package data for communication if shared
             if(tOwner == tParRank)
             {
                 mEnrichmentData(aEnrichmentDataIndex).mEnrichedBasisIndexToId(tBasisEnrichmentInds(0)) = tBackBasisId;
@@ -550,15 +592,19 @@ namespace xtk
             }
         }
 
-        // send information about not owned enriched basis to owner proc
+        // send information about not owned enriched basis to owner processor
         Cell<moris::Matrix<moris::IndexMat>> tNotOwnedEnrichedBasisId;
         communicate_basis_information_with_owner(aEnrichmentDataIndex,tBasisIdToBasisOwner,tSubphaseIdInSupport,tProcRanks,tProcRankToIndexInData,tNotOwnedEnrichedBasisId);
 
         // set the received information in my data
-        set_received_enriched_basis_ids(aEnrichmentDataIndex,tNotOwnedEnrichedBasisId,tBasisIndexToBasisOwner);
-
+        set_received_enriched_basis_ids(
+                aEnrichmentDataIndex,
+                tNotOwnedEnrichedBasisId,
+                tBasisIndexToBasisOwner,
+                tSubphaseIdInSupport);
 
     }
+
 
 
     void
@@ -603,12 +649,23 @@ namespace xtk
         for(moris::uint i = 0; i < tBasisIdToBasisOwnerMat.size(); i++)
         {
             // send child element ids
-            nonblocking_send(tBasisIdToBasisOwnerMat(i),tBasisIdToBasisOwnerMat(i).n_rows(),tBasisIdToBasisOwnerMat(i).n_cols(),aProcRanks(i),tBasisIdsTag);
+            nonblocking_send(
+                    tBasisIdToBasisOwnerMat(i),
+                    tBasisIdToBasisOwnerMat(i).n_rows(),
+                    tBasisIdToBasisOwnerMat(i).n_cols(),
+                    aProcRanks(i),
+                    tBasisIdsTag);
 
             // send element parent ids
-            nonblocking_send(tSubphaseIdInSupport(i),tSubphaseIdInSupport(i).n_rows(),tSubphaseIdInSupport(i).n_cols(),aProcRanks(i),tMaxSubphasetag);
+            nonblocking_send(
+                    tSubphaseIdInSupport(i),
+                    tSubphaseIdInSupport(i).n_rows(),
+                    tSubphaseIdInSupport(i).n_cols(),
+                    aProcRanks(i),
+                    tMaxSubphasetag);
         }
 
+        // make sure that all sends have been completed
         barrier();
 
         // receive
@@ -645,7 +702,10 @@ namespace xtk
                     if(tBasisId != tReceiveInfoBasisId(i)(j))
                     {
                         tBasisId = tReceiveInfoBasisId(i)(j);
-                        tBasisIndex = mBackgroundMeshPtr->get_mesh_data().get_loc_entity_ind_from_entity_glb_id(tBasisId,mBasisRank,mMeshIndices(aEnrichmentDataIndex));
+                        tBasisIndex = mBackgroundMeshPtr->get_mesh_data().get_loc_entity_ind_from_entity_glb_id(
+                                tBasisId,
+                                mBasisRank,
+                                mMeshIndices(aEnrichmentDataIndex));
                     }
 
                     moris_id tSubphaseId = tReceivedSubphaseId(i)(j);
@@ -677,7 +737,12 @@ namespace xtk
             }
 
             // send enriched ids
-            nonblocking_send(tEnrichedBasisIds(i),tEnrichedBasisIds(i).n_rows(),tEnrichedBasisIds(i).n_cols(),aProcRanks(i),tReturnIdTag);
+            nonblocking_send(
+                    tEnrichedBasisIds(i),
+                    tEnrichedBasisIds(i).n_rows(),
+                    tEnrichedBasisIds(i).n_cols(),
+                    aProcRanks(i),
+                    tReturnIdTag);
         }
 
         barrier();
@@ -692,24 +757,40 @@ namespace xtk
         barrier();
     }
 
+    //-------------------------------------------------------------------------------------
 
     void
-    Enrichment::set_received_enriched_basis_ids(moris_index const & aEnrichmentDataIndex,
+    Enrichment::set_received_enriched_basis_ids(
+            moris_index                          const & aEnrichmentDataIndex,
             Cell<moris::Matrix<moris::IndexMat>> const & aReceivedEnrichedIds,
-            Cell<Cell<moris_index>> const & aBasisIndexToBasisOwner)
+            Cell<Cell<moris_index>>              const & aBasisIndexToBasisOwner,
+            Cell<Cell<moris_index>>              const & aSubphaseIdInSupport)
     {
         for(moris::uint i = 0 ; i < aReceivedEnrichedIds.size(); i++ )
         {
 
             if(aReceivedEnrichedIds(i)(0) != MORIS_INDEX_MAX)
             {
-                MORIS_ASSERT(aReceivedEnrichedIds(i).numel() == aBasisIndexToBasisOwner(i).size(),"Dimension mismatch between received information and expected information");
+                MORIS_ASSERT(aReceivedEnrichedIds(i).numel() == aBasisIndexToBasisOwner(i).size(),
+                        "Dimension mismatch between received information and expected information");
 
                 for(moris::uint j = 0; j < aReceivedEnrichedIds(i).numel(); j++)
                 {
                     moris_index tLocalBasisIndex = aBasisIndexToBasisOwner(i)(j);
                     moris_index tGlobaId  = aReceivedEnrichedIds(i)(j);
-                    MORIS_ASSERT(mEnrichmentData(aEnrichmentDataIndex).mEnrichedBasisIndexToId(tLocalBasisIndex) == MORIS_INDEX_MAX,"Id already set for this basis function");
+                    moris_index tSubphaseId     = aSubphaseIdInSupport(i)(j);
+                    moris_index tSubphaseIndex  = mXTKModelPtr->get_subphase_index(tSubphaseId);
+
+                    if (tGlobaId == 894)
+                    {
+                        moris_index tBulkPhase = mXTKModelPtr->get_cut_mesh().get_bulk_phase_index(tSubphaseIndex);
+                        std::cout << "Prc: " << par_rank() << " tSubphaseIndex = "<< tSubphaseIndex <<  " bulk phase index "<< tBulkPhase << std::endl;
+                    }
+
+
+                    MORIS_ASSERT(mEnrichmentData(aEnrichmentDataIndex).mEnrichedBasisIndexToId(tLocalBasisIndex) == MORIS_INDEX_MAX,
+                            "Id already set for this basis function");
+
                     mEnrichmentData(aEnrichmentDataIndex).mEnrichedBasisIndexToId(tLocalBasisIndex) = tGlobaId;
                 }
             }
@@ -750,8 +831,11 @@ namespace xtk
         return tNumElementsInSupport;
     }
 
+    //-------------------------------------------------------------------------------------
+
     void
-    Enrichment::construct_element_to_basis_connectivity(moris::Cell<moris::Cell<moris::moris_index>> & aElementToBasis,
+    Enrichment::construct_element_to_basis_connectivity(
+            moris::Cell<moris::Cell<moris::moris_index>> & aElementToBasis,
             moris::Cell<moris::Cell<moris::moris_index>> & aElementToBasisEnrichmentLevel)
     {
         // mesh data
@@ -784,9 +868,11 @@ namespace xtk
         }
     }
 
+    //-------------------------------------------------------------------------------------
 
     bool
-    Enrichment::subphase_is_in_support(moris_index const & aEnrichmentDataIndex,
+    Enrichment::subphase_is_in_support(
+            moris_index const & aEnrichmentDataIndex,
             moris_index aSubphaseIndex,
             moris_index aEnrichedBasisIndex)
     {
@@ -805,8 +891,11 @@ namespace xtk
         return false;
     }
 
+    //-------------------------------------------------------------------------------------
+
     void
-    Enrichment::print_basis_support_debug(moris_index aBasisIndex,
+    Enrichment::print_basis_support_debug(
+            moris_index aBasisIndex,
             moris::Matrix< moris::IndexMat > const & aParentElementsInSupport,
             moris::Matrix< moris::IndexMat > const & aSubphasesInSupport,
             IndexMap &                               aSubPhaseIndexToSupportIndex,
@@ -850,7 +939,7 @@ namespace xtk
         std::cout<<"\n--------------------------------------------------"<<std::endl;
     }
 
-
+    //-------------------------------------------------------------------------------------
 
     void
     Enrichment::construct_enriched_interpolation_mesh()
@@ -876,23 +965,30 @@ namespace xtk
         for(moris::uint i = 0; i < mMeshIndices.numel(); i++)
         {
             // add the coeff to enriched coefs to enriched interpolation mesh
-            mXTKModelPtr->mEnrichedInterpMesh(0)->mCoeffToEnrichCoeffs(mMeshIndices(i)) = mEnrichmentData(i).mBasisEnrichmentIndices;
+            mXTKModelPtr->mEnrichedInterpMesh(0)->mCoeffToEnrichCoeffs(mMeshIndices(i)) =
+                    mEnrichmentData(i).mBasisEnrichmentIndices;
 
             // add the local to global map
-            mXTKModelPtr->mEnrichedInterpMesh(0)->mEnrichCoeffLocToGlob(mMeshIndices(i)) = mEnrichmentData(i).mEnrichedBasisIndexToId;
+            mXTKModelPtr->mEnrichedInterpMesh(0)->mEnrichCoeffLocToGlob(mMeshIndices(i)) =
+                    mEnrichmentData(i).mEnrichedBasisIndexToId;
         }
 
         // tell the mesh to finish setting itself up
         mXTKModelPtr->mEnrichedInterpMesh(mMeshIndices(0))->finalize_setup();
     }
 
+    //-------------------------------------------------------------------------------------
+
     void
     Enrichment::construct_enriched_integration_mesh()
     {
-        MORIS_ASSERT(mXTKModelPtr->mEnrichedInterpMesh(mMeshIndices(0)) != nullptr,"No enriched interpolation mesh to link enriched integration mesh to");
+        MORIS_ASSERT(mXTKModelPtr->mEnrichedInterpMesh(mMeshIndices(0)) != nullptr,
+                "No enriched interpolation mesh to link enriched integration mesh to");
 
         mXTKModelPtr->mEnrichedIntegMesh(0) = new Enriched_Integration_Mesh(mXTKModelPtr,mMeshIndices(0));
     }
+
+    //-------------------------------------------------------------------------------------
 
     void
     Enrichment::allocate_interpolation_cells()
@@ -945,6 +1041,9 @@ namespace xtk
         tEnrInterpMesh->mBaseCelltoEnrichedCell.resize(mBackgroundMeshPtr->get_mesh_data().get_num_elems());
     }
 
+    //-------------------------------------------------------------------------------------
+
+    // FIXME: Keenan - the routine needs to be split up into smaller pieces
     void
     Enrichment::construct_enriched_interpolation_vertices_and_cells()
     {
@@ -965,7 +1064,9 @@ namespace xtk
         Enriched_Interpolation_Mesh* tEnrInterpMesh = mXTKModelPtr->mEnrichedInterpMesh(mMeshIndices(0));
 
         // Enriched Interpolation Cell to Vertex Index
-        Matrix<IndexMat> tEnrInterpCellToVertex(tEnrInterpMesh->get_num_elements(),tEnrInterpMesh->mNumVertsPerInterpCell);
+        Matrix<IndexMat> tEnrInterpCellToVertex(
+                tEnrInterpMesh->get_num_elements(),
+                tEnrInterpMesh->mNumVertsPerInterpCell);
 
         // construct a connectivity for the enriched interpolation cells
         if(tMesh.get_num_elems() > 0)
@@ -975,8 +1076,7 @@ namespace xtk
             tEnrInterpMesh->mCellInfo = tFactory.create_cell_info(tDummyCell.get_geometry_type(),tDummyCell.get_interpolation_order());
         }
 
-
-        // construct enriched cells/vertices for the unintersected background cells
+        // construct enriched cells/vertices for the non-cut background cells
         for(moris::uint iEl = 0; iEl < tMesh.get_num_elems(); iEl++ )
         {
             if(!mBackgroundMeshPtr->entity_has_children((moris_index)iEl,EntityRank::ELEMENT))
@@ -1230,6 +1330,7 @@ namespace xtk
 
     }
 
+    //-------------------------------------------------------------------------------------
 
     void
     Enrichment::construct_enriched_vertex_interpolation(moris_index const & aEnrichmentDataIndex,
@@ -1298,6 +1399,8 @@ namespace xtk
         }
     }
 
+    //-------------------------------------------------------------------------------------
+
     std::unordered_map<moris_id,moris_id>
     Enrichment::construct_subphase_basis_to_basis_map(Cell<moris_id> const & aSubPhaseBasisIndex)
     {
@@ -1313,7 +1416,8 @@ namespace xtk
     // ----------------------------------------------------------------------------------
 
     moris::Cell<mtk::Vertex_Interpolation*>
-    Enrichment::get_vertex_interpolations( moris::mtk::Cell & aParentCell,
+    Enrichment::get_vertex_interpolations(
+            moris::mtk::Cell & aParentCell,
             const uint aMeshIndex ) const
     {
         uint tNumVerts = aParentCell.get_number_of_vertices();
@@ -1329,7 +1433,7 @@ namespace xtk
         return tVertexInterp;
     }
 
-    // ----------------------------------------------------------------------------------
+    //-------------------------------------------------------------------------------------
 
     Cell<std::string>
     Enrichment::get_cell_enrichment_field_names() const
@@ -1351,7 +1455,8 @@ namespace xtk
             std::string tBaseEnrich = "el_bt_" + std::to_string(mMeshIndices(iBT))+ "b_";
             for(size_t i = 0; i<tNumBasis; i++)
             {
-                tEnrichmentFields.push_back( tBaseEnrich + std::to_string(mBackgroundMeshPtr->get_glb_entity_id_from_entity_loc_index(i, mBasisRank, mMeshIndices(iBT))) );
+                tEnrichmentFields.push_back(
+                        tBaseEnrich + std::to_string(mBackgroundMeshPtr->get_glb_entity_id_from_entity_loc_index(i, mBasisRank, mMeshIndices(iBT))) );
             }
         }
         // Add local floodfill field to the output mesh
@@ -1364,8 +1469,11 @@ namespace xtk
         return tEnrichmentFields;
     }
 
+    //-------------------------------------------------------------------------------------
+
     void
-    Enrichment::write_cell_enrichment_to_fields(Cell<std::string>  & aEnrichmentFieldStrs,
+    Enrichment::write_cell_enrichment_to_fields(
+            Cell<std::string>  & aEnrichmentFieldStrs,
             mtk::Mesh*           aMeshWithEnrFields) const
     {
         // background mesh data
@@ -1437,7 +1545,7 @@ namespace xtk
         }
     }
 
-
+    //-------------------------------------------------------------------------------------
 
     //
     //void

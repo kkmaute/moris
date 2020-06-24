@@ -99,6 +99,7 @@ namespace xtk
                     Cell<Matrix<IndexMat>>                     & aNotOwnedIPVertIndsToProcs,
                     Cell<Matrix<IndexMat>>                     & aNotOwnedBGIPVertsIdsToProcs,
                     Cell<Matrix<IndexMat>>                     & aNotOwnedIpCellIdToProcs,
+                    Cell<Matrix<IndexMat>>                     & aNotOwnedEnrichedCellBulkPhaseToProcs,
                     Cell<uint>                                 & aProcRanks,
                     std::unordered_map<moris_id,moris_id>      & aProcRankToDataIndex);
             // ----------------------------------------------------------------------------------
@@ -120,6 +121,7 @@ namespace xtk
             prepare_t_matrix_request_answers(
                     Cell<Matrix<IndexMat>> const & aRequestedBgVertexIds,
                     Cell<Matrix<IndexMat>> const & aRequestedIpCellIds,
+                    Cell<Matrix<IndexMat>> const & aIpCellBulkPhases,
                     Cell<Matrix<DDRMat>>   & aTMatrixWeights,
                     Cell<Matrix<IndexMat>> & aTMatrixIndices,
                     Cell<Matrix<IndexMat>> & aBasisOwners,
@@ -147,6 +149,7 @@ namespace xtk
             void
             handle_received_interpolation_data(
                     Cell<Matrix<IndexMat>> const & aNotOwnedIPVertIndsToProcs,
+                    Cell<Matrix<IndexMat>> const & aNotOwnedEnrichedCellBulkPhaseToProcs,
                     Cell<Matrix<DDRMat>>   const & aRequestedTMatrixWeights,
                     Cell<Matrix<IndexMat>> const & aRequestedTMatrixIndices,
                     Cell<Matrix<IndexMat>> const & aRequestedBasisOwners,

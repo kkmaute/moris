@@ -25,6 +25,8 @@ namespace xtk
 
     }
 
+    //------------------------------------------------------------------------------
+
     Enriched_Interpolation_Mesh::~Enriched_Interpolation_Mesh()
     {
         if( mCellInfo!= nullptr ) { delete mCellInfo; }
@@ -222,7 +224,9 @@ namespace xtk
     }
     //------------------------------------------------------------------------------
     moris_id
-    Enriched_Interpolation_Mesh::get_max_entity_id( enum EntityRank aEntityRank,const moris_index aIndex ) const
+    Enriched_Interpolation_Mesh::get_max_entity_id(
+            enum EntityRank   aEntityRank,
+            const moris_index aIndex ) const
     {
         MORIS_ASSERT(aEntityRank == EntityRank::NODE || aEntityRank == EntityRank::ELEMENT,"Only Elements or Nodes have max id");
 
@@ -246,7 +250,9 @@ namespace xtk
     }
     //------------------------------------------------------------------------------
     void
-    Enriched_Interpolation_Mesh::get_adof_map( const uint aBSplineIndex, map< moris_id, moris_index > & aAdofMap ) const
+    Enriched_Interpolation_Mesh::get_adof_map(
+            const uint                     aBSplineIndex,
+            map< moris_id, moris_index > & aAdofMap ) const
     {
         aAdofMap.clear();
 
@@ -264,7 +270,8 @@ namespace xtk
     }
     //------------------------------------------------------------------------------
     Matrix<IndexMat> const &
-    Enriched_Interpolation_Mesh::get_enriched_coefficients_at_background_coefficient(moris_index const & aMeshIndex,
+    Enriched_Interpolation_Mesh::get_enriched_coefficients_at_background_coefficient(
+            moris_index const & aMeshIndex,
             moris_index aBackgroundCoeffIndex) const
     {
         moris_index tLocalMeshIndex = this->get_local_mesh_index(aMeshIndex);
@@ -341,6 +348,11 @@ namespace xtk
         // not new until we make it to the end
         aNewVertex = false;
 
+        // if the vertex has interpolation then there is a potential that the t-matrices
+        // are the same. If not we always construct a new interpolation vertex here
+        if(aBaseInterpVertex->has_interpolation(aMeshIndex+1))
+        {
+
         // iterate through the enriched vertices related to the base vertex and see if any are equal
         for(moris::uint i = 0; i < tNumVertsEnrOnBaseVert; i++)
         {
@@ -350,6 +362,7 @@ namespace xtk
             {
                 return tVertEnrIndex;
             }
+        }
         }
 
         // if we make it through the loop without finding an enrichment vertex
@@ -421,7 +434,8 @@ namespace xtk
     Enriched_Interpolation_Mesh::add_basis_function(
             moris_index const & aMeshIndex,
             moris_index const & aBasisIdToAdd,
-            moris_index const & aBasisOwner)
+            moris_index const & aBasisOwner,
+            moris_index const & aBasisBulkPhase)
     {
         MORIS_ASSERT(!this->basis_exists_on_partition(aMeshIndex,aBasisIdToAdd),"Basis that you are trying to add already exists in this mesh");
 
@@ -431,11 +445,12 @@ namespace xtk
         // add a size of 1
         mEnrichCoeffLocToGlob(tLocMesh).resize(1,tNewIndex+1);
         mEnrichCoeffOwnership(tLocMesh).resize(1,tNewIndex+1);
-
+        mEnrichCoeffBulkPhase(tLocMesh).resize(1,tNewIndex+1);
 
         // add the local to glb map
         mEnrichCoeffLocToGlob(tLocMesh)(tNewIndex) = aBasisIdToAdd;
         mEnrichCoeffOwnership(tLocMesh)(tNewIndex) = aBasisOwner;
+        mEnrichCoeffBulkPhase(tLocMesh)(tNewIndex) = aBasisBulkPhase;
 
         // add to glb to local map
         mGlobaltoLocalBasisMaps(tLocMesh)[aBasisIdToAdd] = tNewIndex;
@@ -445,7 +460,8 @@ namespace xtk
     //------------------------------------------------------------------------------
 
     moris::Cell<Interpolation_Cell_Unzipped const*>
-    Enriched_Interpolation_Mesh::get_enriched_cells_from_base_cells(moris::Cell<moris::mtk::Cell const*> const & aBaseCells) const
+    Enriched_Interpolation_Mesh::get_enriched_cells_from_base_cells(
+            moris::Cell<moris::mtk::Cell const*> const & aBaseCells) const
     {
         uint tNumBaseCells = aBaseCells.size();
 
@@ -478,12 +494,23 @@ namespace xtk
     }
     //------------------------------------------------------------------------------
     moris_index
-    Enriched_Interpolation_Mesh::get_basis_owner(moris_index aBasisIndex,
+    Enriched_Interpolation_Mesh::get_basis_owner(
+            moris_index aBasisIndex,
                                                  moris_index aMeshIndex)
     {
         moris_index tLocMesh = this->get_local_mesh_index(aMeshIndex);
 
         return mEnrichCoeffOwnership(tLocMesh)(aBasisIndex);
+    }
+
+
+    moris_index
+    Enriched_Interpolation_Mesh::get_basis_bulk_phase(moris_index const & aBasisIndex,
+                                                      moris_index const & aMeshIndex) const
+    {
+        moris_index tLocMesh = this->get_local_mesh_index(aMeshIndex);
+
+        return mEnrichCoeffBulkPhase(tLocMesh)(aBasisIndex);
     }
 
     //------------------------------------------------------------------------------
@@ -686,21 +713,39 @@ namespace xtk
     void Enriched_Interpolation_Mesh::print_vertex_maps() const
     {
         moris::uint tNumNodes = this->get_num_entities(EntityRank::NODE);
+
+        moris::uint tMapIndex = (uint)(EntityRank::NODE);
+
+        MORIS_ASSERT(mLocalToGlobalMaps(tMapIndex).numel() == tNumNodes,
+                "Enriched_Interpolation_Mesh::print_vertex_maps: number of nodes and size of map do not match.");
+
         std::cout<<"\nVertex Map:"<<std::endl;
+
         for(moris::uint i =0; i <tNumNodes; i++)
         {
-            std::cout<<"    Vertex Index: "<<std::setw(9)<<i<< " | Vertex Id: "<<std::setw(9) <<mLocalToGlobalMaps(0)(i)<<std::endl;
+            std::cout<<"    Vertex Index: "<<std::setw(9)<<i<< " | Vertex Id: "<<
+                    std::setw(9) <<mLocalToGlobalMaps(tMapIndex)(i)<<std::endl;
         }
+    
     }
+
+    //------------------------------------------------------------------------------
 
     void Enriched_Interpolation_Mesh::print_enriched_cell_maps() const
     {
         moris::uint tNumCells = this->get_num_entities(EntityRank::ELEMENT);
 
+        moris::uint tMapIndex = (uint)(EntityRank::ELEMENT);
+
+        MORIS_ASSERT(mLocalToGlobalMaps(tMapIndex).numel() == tNumCells,
+                "Enriched_Interpolation_Mesh::print_enriched_cell_maps: number of elements and size of map do not match.");
+
         std::cout<<"\nCell Map:"<<std::endl;
+
         for(moris::uint i =0; i <tNumCells; i++)
         {
-            std::cout<<"    Cell Index: "<<std::setw(9)<<i<< " | Cell Id: "<<std::setw(9) <<mLocalToGlobalMaps(3)(i)<<std::endl;
+            std::cout<<"    Cell Index: "<<std::setw(9)<<i<< " | Cell Id: "<<
+                    std::setw(9) <<mLocalToGlobalMaps(tMapIndex)(i)<<std::endl;
         }
     }
     //------------------------------------------------------------------------------
@@ -752,6 +797,77 @@ namespace xtk
             }
         }
     }
+    //------------------------------------------------------------------------------
+    bool
+    Enriched_Interpolation_Mesh::verify_basis_interpolating_into_cluster(mtk::Cluster const & aCluster,
+                                                                         moris_index  const & aMeshIndex,
+                                                                         const mtk::Master_Slave aIsMaster)
+    {
+        //
+        bool tDiagnosticFlag = true;
+
+        // interpolation cell
+        moris::mtk::Cell const & tIpCell = aCluster.get_interpolation_cell( aIsMaster);
+
+        // get the xtk interpolation cell
+        Interpolation_Cell_Unzipped* tEnrichedIpCell = mEnrichedInterpCells(tIpCell.get_index());
+
+        MORIS_ASSERT(tIpCell.get_id() == tEnrichedIpCell->get_id(),"Id mismatch");
+
+        // get the bulkphase index
+        moris_index tBulkPhase = tEnrichedIpCell->get_bulkphase_index();
+
+        // vertices attached to the interpolation cells
+        moris::Cell< mtk::Vertex* > tVertexPointers = tIpCell.get_vertex_pointers();
+
+        //iterate through vertex pointers
+        for(moris::uint i = 0; i < tVertexPointers.size(); i++)
+        {
+            if(!tVertexPointers(i)->has_interpolation(aMeshIndex))
+            {
+                std::cout<<" Id = "<<tVertexPointers(i)->get_id()
+                        <<" | back vertex id = "<<mEnrichedInterpVerts(tVertexPointers(i)->get_index()).get_id()
+                        <<" | owner = "<<tVertexPointers(i)->get_owner()
+                        <<" | my rank = "<<par_rank()
+                        <<" | IP Cell Owner = "<<tEnrichedIpCell->get_owner()
+                        <<" | IP Cell ID = "<<tEnrichedIpCell->get_id()<<std::endl;
+            }
+
+            MORIS_ASSERT(tVertexPointers(i)->has_interpolation(aMeshIndex),"Vertex does not have interpolation.");
+
+            mtk::Vertex_Interpolation * tVertexInterp = tVertexPointers(i)->get_interpolation(aMeshIndex);
+
+            // get the basis indices
+            Matrix<IndexMat> tBasisIndices = tVertexInterp->get_indices();
+            Matrix<IndexMat> tBasisIds = tVertexInterp->get_ids();
+
+            if(tBasisIds.numel() == 0)
+            {
+                std::cout<<"Vertex id = "<<tVertexPointers(i)->get_id()
+                <<" | back vertex id = "<<mEnrichedInterpVerts(tVertexPointers(i)->get_index()).get_id()<<std::endl;
+                MORIS_ASSERT(0,"Interpolation Vertex in cluster does not have at least 1 basis interpolating into it");
+                tDiagnosticFlag = false;
+            }
+
+            //  iterate through basis indices and check bulk phases
+            for(moris::uint iB = 0; iB < tBasisIndices.numel(); iB++)
+            {
+                if(this->get_basis_bulk_phase(tBasisIndices(iB),aMeshIndex) != tBulkPhase)
+                {
+                    std::cout<<"Vertex id = "<<tVertexPointers(i)->get_id()
+                            <<" | back vertex id = "<<mEnrichedInterpVerts(tVertexPointers(i)->get_index()).get_id()
+                            <<" | tBasisIds(iB) = "<<tBasisIds(iB)
+                            <<" | MeshBP"<<this->get_basis_bulk_phase(tBasisIndices(iB),aMeshIndex)
+                            <<" | tBulkPhase = "<<tBulkPhase<<std::endl;
+                MORIS_ASSERT(0,"Basis in cluster does not interpolate into same bulk phase as interpolation cell");
+                tDiagnosticFlag = false;
+                }
+            }
+        }
+
+        return tDiagnosticFlag;
+
+    }
 
     //------------------------------------------------------------------------------
     void
@@ -760,36 +876,220 @@ namespace xtk
 
         this->setup_local_to_global_maps();
         this->setup_not_owned_vertices();
+        this->setup_vertex_to_bulk_phase();
         this->setup_basis_ownership();
+        this->setup_basis_to_bulk_phase();
+        MORIS_ERROR(this->verify_basis_support(),"Issue detected in basis support."); // TODO: change to assert once done debugging
+    }
 
-        //    if(par_rank() == 1)
-        //    {
-        //        moris_id tVertexId = 5024;
-        //
-        //        moris_index tVertexInd= this->get_loc_entity_ind_from_entity_glb_id(tVertexId,EntityRank::NODE);
-        //
-        //        std::cout<<"tVertexInd = "<<tVertexInd<<std::endl;
-        //
-        //
-        //        Interpolation_Vertex_Unzipped & tVertex = mEnrichedInterpVerts(tVertexInd);
-        //
-        //        mtk::Vertex const * tBGVertex = tVertex.get_base_vertex();
-        //
-        //        Matrix<DDRMat> tCoords = tBGVertex->get_coords();
-        //
-        //        std::cout<<"tBGVertex Id: "<<tBGVertex->get_id()<<" | Interpolation address: " <<tBGVertex->get_interpolation(0)<<" | Coords: "<<tCoords(0)<< ", "<<tCoords(1)<<std::endl;
-        //
-        //
-        //        const mtk::Vertex_Interpolation * tInterp = tBGVertex->get_interpolation(0);
-        //
-        //        moris::print(*(tInterp->get_weights()),"tInterp->get_weights()");
-        //        moris::print(tInterp->get_owners(),"tInterp->get_owners()");
-        //        moris::print(tVertex.get_interpolation(0)->get_owners(),"tVertex.get_interpolation(0)->get_owners()");
-        ////
-        ////        Interpolation_Mesh & tIPMesh = mXTKModel->get_background_mesh().get_mesh_data();
-        ////
-        ////        mtk::Vertex const & tHMRVert = tIPMesh.get_mtk_vertex(tBGVertex-)
-        //    }
+    void
+    Enriched_Interpolation_Mesh::setup_basis_to_bulk_phase()
+    {
+
+        // size member data
+        mEnrichCoeffBulkPhase.resize(mMeshIndices.numel());
+
+        // verify all the subphases in a enriched basis support are the same bulk phase
+        for(moris::size_t iMesh = 0; iMesh < mMeshIndices.numel(); iMesh++)
+        {
+            // Number of enriched functions
+            moris::size_t tNumEnrBasis = mEnrichCoeffLocToGlob(iMesh).numel();
+
+            // allocate interpolation cells in basis support
+            moris::Cell<moris::Cell<Interpolation_Cell_Unzipped*>> tCellsInEnrSupports(tNumEnrBasis);
+
+            Cell<Interpolation_Cell_Unzipped*> const & tEnrIpCells = this->get_enriched_interpolation_cells();
+
+            // number of cells
+            moris_index tNumCells = this->get_num_entities(EntityRank::ELEMENT);
+
+            MORIS_ASSERT(tNumCells == tEnrIpCells.size(),"Inconsistent num cells information.");
+
+            // create the enriched interpolation basis to interpolation cell interpolation
+            for(moris::size_t i = 0; i<tNumCells; i++)
+            {
+                moris::Cell< xtk::Interpolation_Vertex_Unzipped* > const & tVertices = tEnrIpCells(i)->get_xtk_interpolation_vertices();
+
+                for(moris::size_t iV = 0; iV < tVertices.size() ; iV++)
+                {
+                    if(tVertices(iV)->has_interpolation(mMeshIndices(iMesh)))
+                    {
+                        Vertex_Enrichment * tVertInterp = tVertices(iV)->get_xtk_interpolation( mMeshIndices(iMesh) );
+
+                        Matrix< IndexMat > tBasisIndices = tVertInterp->get_indices();
+
+                        // iterate through vertices and add the ip cell to the support
+                        for(moris::uint iB = 0; iB< tBasisIndices.numel(); iB++)
+                        {
+                            tCellsInEnrSupports(tBasisIndices(iB)).push_back(tEnrIpCells(i));
+                        }
+                    }
+                }
+            }
+
+
+            mEnrichCoeffBulkPhase(iMesh).resize(1,tNumEnrBasis);
+            mEnrichCoeffBulkPhase(iMesh).fill(MORIS_INDEX_MAX);
+
+            // iterate through enriched basis functions
+            for(moris::size_t i = 0; i<tNumEnrBasis; i++)
+            {
+                // iterate through enriched interpolation cells in the support
+                moris_index tNumSubphaseInSupport = tCellsInEnrSupports(i).size();
+
+                for(moris::uint iSP = 0; iSP < tNumSubphaseInSupport; iSP++)
+                {
+                    Interpolation_Cell_Unzipped* tIpCell = tCellsInEnrSupports(i)(iSP);
+
+
+                    moris_index tSubphaseIndex = tIpCell->get_subphase_index();
+                    moris_index tBulkPhase = tIpCell->get_bulkphase_index();
+
+                    MORIS_ASSERT(tBulkPhase != MORIS_INDEX_MAX,"Bulk phase index not set.");
+
+                    if(iSP == 0)
+                    {
+                        mEnrichCoeffBulkPhase(iMesh)(i) = tBulkPhase;
+                    }
+
+                    if(tBulkPhase != mEnrichCoeffBulkPhase(iMesh)(i))
+                    {
+                        std::cout<<"tExpectedBulkPhase=  "<<mEnrichCoeffBulkPhase(iMesh)(iSP)<<" | tBulkPhase = "<< tBulkPhase <<std::endl;
+                        MORIS_ERROR(0,"Subphase in enriched basis function support not consistent bulkphase");
+                    }
+                }
+            }
+        }
+    }
+
+
+    void
+    Enriched_Interpolation_Mesh::setup_vertex_to_bulk_phase()
+    {
+
+        moris::size_t tNumVertices = this->get_num_nodes();
+
+        // size member data
+        mVertexBulkPhase.resize(1,tNumVertices);
+
+        mVertexBulkPhase.fill(MORIS_INDEX_MAX);
+
+        Cell<Interpolation_Cell_Unzipped*> const & tEnrIpCells = this->get_enriched_interpolation_cells();
+
+        // number of cells
+        moris_index tNumCells = this->get_num_entities(EntityRank::ELEMENT);
+
+        // create the enriched interpolation basis to interpolation cell interpolation
+        for(moris::size_t i = 0; i<tNumCells; i++)
+        {
+            moris::Cell< xtk::Interpolation_Vertex_Unzipped* > const & tVertices = tEnrIpCells(i)->get_xtk_interpolation_vertices();
+
+            for(moris::size_t iV = 0; iV < tVertices.size() ; iV++)
+            {
+                moris_index tVertexIndex = tVertices(iV)->get_index();
+
+                if(mVertexBulkPhase(tVertexIndex) == MORIS_INDEX_MAX)
+                {
+                    mVertexBulkPhase(tVertexIndex) = tEnrIpCells(i)->get_bulkphase_index();
+                }
+
+                else
+                {
+                    if(mVertexBulkPhase(tVertexIndex) != tEnrIpCells(i)->get_bulkphase_index())
+                    {
+
+                    std::cout<< " Vert Id = "<< tVertices(iV)->get_id()
+                             <<" | Vert Owner = "<< tVertices(iV)->get_owner()
+                             <<" | mVertexBulkPhase(tVertexIndex) = "<<mVertexBulkPhase(tVertexIndex)
+                             <<" | tEnrIpCells(i)->get_bulkphase_index() ="<<tEnrIpCells(i)->get_bulkphase_index()
+                             <<std::endl;
+                    }
+                    MORIS_ASSERT(mVertexBulkPhase(tVertexIndex) == tEnrIpCells(i)->get_bulkphase_index(),"Inconsistent vertex bulk phase");
+                }
+            }
+        }
+
+    }
+
+    bool
+    Enriched_Interpolation_Mesh::verify_basis_support()
+    {
+        bool tSubphaseBulkPhasesInSupportDiag = true;
+
+        // verify all the subphases in a enriched basis support are the same bulk phase
+        for(moris::size_t iMesh = 0; iMesh < mMeshIndices.numel(); iMesh++)
+        {
+            // Number of enriched functions
+            moris::size_t tNumEnrBasis = mEnrichCoeffLocToGlob(iMesh).numel();
+
+            // allocate interpolation cells in basis support
+            moris::Cell<moris::Cell<Interpolation_Cell_Unzipped*>> tCellsInEnrSupports(tNumEnrBasis);
+
+            Cell<Interpolation_Cell_Unzipped*> const & tEnrIpCells = this->get_enriched_interpolation_cells();
+
+            // number of cells
+            moris_index tNumCells = this->get_num_entities(EntityRank::ELEMENT);
+
+            MORIS_ASSERT(tNumCells == tEnrIpCells.size(),"Inconsistent num cells information.");
+
+            // create the enriched interpolation basis to interpolation cell interpolation
+            for(moris::size_t i = 0; i<tNumCells; i++)
+            {
+                moris::Cell< xtk::Interpolation_Vertex_Unzipped* > const & tVertices = tEnrIpCells(i)->get_xtk_interpolation_vertices();
+
+                for(moris::size_t iV = 0; iV < tVertices.size() ; iV++)
+                {
+                    if(tVertices(iV)->has_interpolation(mMeshIndices(iMesh)))
+                    {
+                        Vertex_Enrichment * tVertInterp = tVertices(iV)->get_xtk_interpolation( mMeshIndices(iMesh) );
+
+                        Matrix< IndexMat > tBasisIndices = tVertInterp->get_indices();
+
+                        // iterate through vertices and add the ip cell to the support
+                        for(moris::uint iB = 0; iB< tBasisIndices.numel(); iB++)
+                        {
+                            tCellsInEnrSupports(tBasisIndices(iB)).push_back(tEnrIpCells(i));
+                        }
+                    }
+                }
+            }
+
+            // iterate through enriched basis functions
+            for(moris::size_t i = 0; i<tNumEnrBasis; i++)
+            {
+                // iterate through enriched interpolation cells in the support
+                moris_index tNumSubphaseInSupport = tCellsInEnrSupports(i).size();
+
+                moris_index tExpectedBulkPhase = MORIS_INDEX_MAX;
+
+                for(moris::uint iSP = 0; iSP < tNumSubphaseInSupport; iSP++)
+                {
+                    Interpolation_Cell_Unzipped* tIpCell = tCellsInEnrSupports(i)(iSP);
+
+
+                    moris_index tSubphaseIndex = tIpCell->get_subphase_index();
+                    moris_index tBulkPhase = tIpCell->get_bulkphase_index();
+
+                    MORIS_ASSERT(tBulkPhase != MORIS_INDEX_MAX,"Bulk phase index not set.");
+
+                    if(iSP == 0)
+                    {
+                        tExpectedBulkPhase = tBulkPhase;
+                    }
+
+                    if(tBulkPhase != tExpectedBulkPhase)
+                    {
+                        std::cout<<"tExpectedBulkPhase=  "<<tExpectedBulkPhase<<" | tBulkPhase = "<< tBulkPhase <<std::endl;
+                        tSubphaseBulkPhasesInSupportDiag = false;
+                    }
+                }
+            }
+        }
+
+
+
+        MORIS_ERROR(tSubphaseBulkPhasesInSupportDiag,"All bulk phases in support of enriched basis  function do not match");
+        return true;
     }
     //------------------------------------------------------------------------------
     void
@@ -802,7 +1102,7 @@ namespace xtk
         this->setup_cell_maps();
         this->setup_basis_maps();
 
-        this->assign_ip_vertex_ids();
+//        this->assign_ip_vertex_ids();
 
         this->setup_vertex_maps();
     }
@@ -836,10 +1136,20 @@ namespace xtk
         Cell<Cell<uint>> tNotOwnedVertices;
         Cell<Cell<uint>> tNotOwnedIpCells;
         Cell<uint> tProcRanks;
-        std::unordered_map<moris_id,moris_id> tProcRankToDataIndex;
-        this->sort_ip_vertices_by_owned_and_not_owned(tOwnedVertices,tNotOwnedVertices,tNotOwnedIpCells,tProcRanks,tProcRankToDataIndex);
 
-        moris::moris_id tVertexId  = mXTKModel->get_background_mesh().allocate_entity_ids(tOwnedVertices.size(), EntityRank::NODE);
+        std::unordered_map<moris_id,moris_id> tProcRankToDataIndex;
+
+        this->sort_ip_vertices_by_owned_and_not_owned(
+                tOwnedVertices,
+                tNotOwnedVertices,
+                tNotOwnedIpCells,
+                tProcRanks,
+                tProcRankToDataIndex);
+
+        moris::moris_id tVertexId  =
+                mXTKModel->get_background_mesh().allocate_entity_ids(
+                        tOwnedVertices.size(),
+                        EntityRank::NODE);
 
         // Assign owned request identifiers
         this->assign_owned_ip_vertex_ids(tOwnedVertices, tVertexId);
@@ -847,8 +1157,14 @@ namespace xtk
         // prepare node information request data
         Cell<Matrix<IndexMat>> tOutwardBaseVertexIds;
         Cell<Matrix<IndexMat>> tOutwardIpCellIds;
-        this->setup_outward_ip_vertex_requests( tNotOwnedVertices, tNotOwnedIpCells, tProcRanks, tProcRankToDataIndex, tOutwardBaseVertexIds,tOutwardIpCellIds);
 
+        this->setup_outward_ip_vertex_requests(
+                tNotOwnedVertices,
+                tNotOwnedIpCells,
+                tProcRanks,
+                tProcRankToDataIndex,
+                tOutwardBaseVertexIds,
+                tOutwardIpCellIds);
 
         // send requests to owning processor
         mXTKModel->send_outward_requests(tTag,tProcRanks,tOutwardBaseVertexIds);
@@ -860,12 +1176,19 @@ namespace xtk
         // receive the requests
         Cell<Matrix<IndexMat>> tReceivedBaseVertexIds;
         Cell<Matrix<IndexMat>> tReceivedIpCellIds;
+
         Cell<uint> tProcsReceivedFrom1;
         Cell<uint> tProcsReceivedFrom2;
-        mXTKModel->inward_receive_requests(tTag, 1, tReceivedBaseVertexIds, tProcsReceivedFrom1);
-        mXTKModel->inward_receive_requests(tTag+1, 1, tReceivedIpCellIds, tProcsReceivedFrom2);
 
-        MORIS_ASSERT(tProcsReceivedFrom1.size() == tProcsReceivedFrom2.size(),"Size mismatch between procs received from child cell ids and number of child cells");
+        mXTKModel->inward_receive_requests(
+                tTag, 1, tReceivedBaseVertexIds, tProcsReceivedFrom1);
+
+        mXTKModel->inward_receive_requests(
+                tTag+1, 1, tReceivedIpCellIds, tProcsReceivedFrom2);
+
+        MORIS_ASSERT(tProcsReceivedFrom1.size() == tProcsReceivedFrom2.size(),
+                "Size mismatch between procs received from child cell ids and number of child cells");
+
         Cell<Matrix<IndexMat>> tVertexIdsAnswers;
         this->prepare_ip_vertex_id_answers(tReceivedBaseVertexIds,tReceivedIpCellIds,tVertexIdsAnswers);
 
@@ -880,7 +1203,7 @@ namespace xtk
         mXTKModel->inward_receive_request_answers(tTag+2,1,tProcRanks,tReceivedVertexIds);
 
         // add child cell ids to not owned child meshes
-         this->handle_received_ip_vertex_ids(tNotOwnedVertices,tReceivedVertexIds);
+        this->handle_received_ip_vertex_ids(tNotOwnedVertices,tReceivedVertexIds);
 
 
 

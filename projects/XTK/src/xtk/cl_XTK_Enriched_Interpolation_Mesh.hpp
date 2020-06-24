@@ -145,6 +145,13 @@ public:
     get_basis_owner(moris_index aBasisIndex,
             moris_index aMeshIndex);
 
+    /*!
+     * get basis bulk phase
+     */
+    moris_index
+    get_basis_bulk_phase(moris_index const & aBasisIndex,
+                         moris_index const & aMeshIndex) const;
+
 public:
     Cell<Interpolation_Cell_Unzipped*> &
     get_enriched_interpolation_cells() ;
@@ -163,7 +170,7 @@ public:
     void
     add_proc_to_comm_table(moris_index aProcRank);
 
-public:
+
     //------------------------------------------------------------------------------
     /*
      * Provided pointers to base interpolation cells, return all the enriched interpolation cells attached to these
@@ -222,6 +229,13 @@ public:
     void print_basis_information() const;
 
 
+    // verification functions
+    bool
+    verify_basis_interpolating_into_cluster(mtk::Cluster const & aCluster,
+                                            moris_index const  & aMeshIndex,
+                                            const mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER);
+
+
     // friend class
     friend class Enrichment;
     friend class Enriched_Integration_Mesh;
@@ -256,6 +270,10 @@ protected:
     // vertex enrichment to parent vertex index (these are enriched interpolation vertex indices)
     Cell<Cell<moris_index>>       mVertexEnrichmentParentVertexIndex;
 
+    // Bulk phase of each interpolation vertex
+    Matrix<IndexMat>  mVertexBulkPhase;
+
+
     // basis coefficient to enriched basis coefficient
     Cell<moris::Cell<moris::Matrix<moris::IndexMat>>> mCoeffToEnrichCoeffs;
 
@@ -266,7 +284,8 @@ protected:
     // basis ownership
     Cell<moris::Matrix<moris::IdMat>> mEnrichCoeffOwnership;
 
-    //
+    // basis bulk phase
+    Cell<moris::Matrix<moris::IdMat>> mEnrichCoeffBulkPhase;
 
     // Entity maps
     Cell<Matrix< IdMat >>                          mLocalToGlobalMaps;
@@ -337,19 +356,26 @@ protected:
      * returns the index
      */
     moris_index
-    add_basis_function( moris_index const & aMeshIndex,
+    add_basis_function(
+            moris_index const & aMeshIndex,
             moris_index const & aBasisIdToAdd,
-            moris_index const & aBasisOwner);
+            moris_index const & aBasisOwner,
+            moris_index const & aBasisBulkPhase);
 
     void
     finalize_setup();
 
+    bool
+    verify_basis_support();
+
     // map setup
     void setup_local_to_global_maps();
     void setup_vertex_maps();
+    void setup_vertex_to_bulk_phase();
     void setup_cell_maps();
     void setup_basis_maps();
     void setup_basis_ownership();
+    void setup_basis_to_bulk_phase();
     void setup_mesh_index_map();
 
     // not owned vertex functions
