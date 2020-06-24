@@ -90,30 +90,6 @@ Some functionality might only live in @ref LinAlg so keep that in mind.
     
 /** @addtogroup SpAlgTrilinos
     @ingroup SpAlg */
-
-
-/** @defgroup OptModule Optimization Module
-    
-This module discusses MORIS's optimization package. The first submodule introduces the theoretical background of
-formulating an optimzation problem, and the second submodule introduces the current overall optimization framework of
-MORIS. The other submodules give detailed descriptions of the individual algorithms and their specific functionalities
-available in MORIS.
-*/
-    
-/** @addtogroup Background
-    @ingroup OptModule */
-    
-/** @addtogroup Framework
-    @ingroup OptModule */
-    
-/** @addtogroup GCMMA
-    @ingroup OptModule */
-    
-/** @addtogroup Sweep
-    @ingroup OptModule */
-    
-/** @addtogroup OptInp
-    @ingroup OptModule */
     
 //------------------------------------------------------------------------------
 

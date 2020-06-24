@@ -13,8 +13,8 @@ module, visit their respective chapters:
 
   - \link LinAlg Introduction to Linear Algebra and the Matrix class \endlink
   - \link SpAlg Sparse linear algebra \endlink
-  - \link OptModule Introduction to the Optimization Module \endlink
-  - \link CommModule Introduction to the Optimization Module \endlink
+  - \subpage opt_module
+  - \link CommModule Introduction to the Communication Module \endlink
 
 The \b main \b documentation is organized into chapters covering different 
 domains of features. For a complete list of chapters, click
