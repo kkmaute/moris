@@ -37,7 +37,7 @@ void Monolithic_Time_Solver::solve_monolytic_time_system()
 
     bool tMaxTimeIterationReached = false;
 
-    // init time for time slab
+    // initialize time for time slab
     Matrix< DDRMat > tTime( 2, 1, tTime_Scalar );
 
     for ( sint Ik = 0; Ik < tTimeSteps; Ik++ )
@@ -45,7 +45,6 @@ void Monolithic_Time_Solver::solve_monolytic_time_system()
 
         // log number of time steps
         MORIS_LOG_SPEC( OutputSpecifier::Iteration, (Ik+1) );
-//        gLogger.log_specific(OutputSpecifier::Step, (Ik+1) );
 
         // set time for previous time slab
         mSolverInterface->set_previous_time( tTime );
@@ -75,6 +74,12 @@ void Monolithic_Time_Solver::solve_monolytic_time_system()
             tTime( 1, 0 ) = tTime_Scalar;
         }
 
+        std::string tOrnament = "\n================================================================================\n";
+        std::string tTimeInfo = "Time Slab = " + std::to_string(Ik+1) +
+                "   Start | End Time = " + std::to_string(tTime(0,0)) +  " | " + std::to_string(tTime(1,0));
+
+        MORIS_LOG_INFO ((tOrnament+tTimeInfo+tOrnament).c_str());
+
         // set time for current time slab
         mSolverInterface->set_time( tTime );
 
@@ -100,7 +105,6 @@ void Monolithic_Time_Solver::solve_monolytic_time_system()
             MORIS_ASSERT( false, "solve_monolytic_time_system(): lambda value greater than 1 detected...exiting monolithic time loop " );
             break;
         }
-
 
         mSolverInterface->perform_mapping();
     }
