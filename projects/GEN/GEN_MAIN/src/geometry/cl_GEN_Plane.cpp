@@ -10,12 +10,15 @@ namespace moris
     {
 
         //--------------------------------------------------------------------------------------------------------------
-        
+
         Plane::Plane(Matrix<DDRMat>& aADVs,
-                     Matrix<DDUMat> aFieldVariableIndices,
-                     Matrix<DDUMat> aADVIndices,
-                     Matrix<DDRMat> aConstantParameters)
-        : Field(aADVs, aFieldVariableIndices, aADVIndices, aConstantParameters)
+                     Matrix<DDUMat>  aGeometryVariableIndices,
+                     Matrix<DDUMat>  aADVIndices,
+                     Matrix<DDRMat>  aConstantParameters,
+                     sint            aNumRefinements,
+                     sint            aRefinementFunctionIndex)
+                : Field(aADVs, aGeometryVariableIndices, aADVIndices, aConstantParameters),
+                  Geometry(aNumRefinements, aRefinementFunctionIndex)
         {
             if (mFieldVariables.size() == 4)
             {
@@ -35,8 +38,16 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        Plane::Plane(real aXCenter, real aYCenter, real aZCenter, real aXNormal, real aYNormal, real aZNormal)
-        : Field(Matrix<DDRMat>({{aXCenter, aYCenter, aZCenter, aXNormal, aYNormal, aZNormal}}))
+        Plane::Plane(real aXCenter,
+                     real aYCenter,
+                     real aZCenter,
+                     real aXNormal,
+                     real aYNormal,
+                     real aZNormal,
+                     sint aNumRefinements,
+                     sint aRefinementFunctionIndex)
+                : Field(Matrix<DDRMat>({{aXCenter, aYCenter, aZCenter, aXNormal, aYNormal, aZNormal}})),
+                  Geometry(aNumRefinements, aRefinementFunctionIndex)
         {
             m_eval_field = &Plane::eval_field_3d;
             m_eval_sensitivity = &Plane::eval_sensitivity_3d;
@@ -44,8 +55,14 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
     
-        Plane::Plane(real aXCenter, real aYCenter, real aXNormal, real aYNormal)
-        : Field(Matrix<DDRMat>({{aXCenter, aYCenter, aXNormal, aYNormal}}))
+        Plane::Plane(real aXCenter,
+                     real aYCenter,
+                     real aXNormal,
+                     real aYNormal,
+                     sint aNumRefinements,
+                     sint aRefinementFunctionIndex)
+                : Field(Matrix<DDRMat>({{aXCenter, aYCenter, aXNormal, aYNormal}})),
+                  Geometry(aNumRefinements, aRefinementFunctionIndex)
         {
             m_eval_field = &Plane::eval_field_2d;
             m_eval_sensitivity = &Plane::eval_sensitivity_2d;

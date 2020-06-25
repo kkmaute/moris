@@ -28,11 +28,15 @@ namespace moris
              * @param aGeometryVariableIndices Indices of geometry variables to be filled by the ADVs
              * @param aADVIndices The indices of the ADV vector to fill in the geometry variables
              * @param aConstantParameters The constant parameters not filled by ADVs
+             * @param aNumRefinements The number of refinement steps to use for this geometry
+             * @param aRefinementFunctionIndex The index of a user-defined refinement function (-1 = default refinement)
              */
             Sphere(Matrix<DDRMat>& aADVs,
-                   Matrix<DDUMat> aGeometryVariableIndices,
-                   Matrix<DDUMat> aADVIndices,
-                   Matrix<DDRMat> aConstantParameters);
+                   Matrix<DDUMat>  aGeometryVariableIndices,
+                   Matrix<DDUMat>  aADVIndices,
+                   Matrix<DDRMat>  aConstantParameters,
+                   sint            aNumRefinements = 0,
+                   sint            aRefinementFunctionIndex = -1);
 
             /**
              * Constructor with only constant parameters
@@ -41,8 +45,15 @@ namespace moris
              * @param aYCenter y-coordiante of the center of the sphere
              * @param aZCenter z-coordinate of the center of the sphere
              * @param aRadius radius of the sphere
+             * @param aNumRefinements The number of refinement steps to use for this geometry
+             * @param aRefinementFunctionIndex The index of a user-defined refinement function (-1 = default refinement)
              */
-            Sphere(real aXCenter, real aYCenter, real aZCenter, real aRadius);
+            Sphere(real aXCenter,
+                   real aYCenter,
+                   real aZCenter,
+                   real aRadius,
+                   sint aNumRefinements = 0,
+                   sint aRefinementFunctionIndex = -1);
 
             /**
              * Given a node coordinate, this returns the distance to the nearest portion of the sphere's surface

@@ -31,12 +31,11 @@ namespace moris
                 // User options
                 mIsocontourThreshold(aParameterLists(0)(0).get<real>("isocontour_threshold")),
                 mPerturbationValue(aParameterLists(0)(0).get<real>("perturbation_value")),
-                mNumRefinements(aParameterLists(0)(0).get<int>("HMR_refinements")),
 
                 // ADVs/IQIs
-                mADVs((uint)aParameterLists(0)(0).get<int>("advs_size"), 1, aParameterLists(0)(0).get<real>("initial_advs_fill")),
-                mLowerBounds((uint)aParameterLists(0)(0).get<int>("advs_size"), 1, aParameterLists(0)(0).get<real>("lower_bounds_fill")),
-                mUpperBounds((uint)aParameterLists(0)(0).get<int>("advs_size"), 1, aParameterLists(0)(0).get<real>("upper_bounds_fill")),
+                mADVs((uint)aParameterLists(0)(0).get<sint>("advs_size"), 1, aParameterLists(0)(0).get<real>("initial_advs_fill")),
+                mLowerBounds((uint)aParameterLists(0)(0).get<sint>("advs_size"), 1, aParameterLists(0)(0).get<real>("lower_bounds_fill")),
+                mUpperBounds((uint)aParameterLists(0)(0).get<sint>("advs_size"), 1, aParameterLists(0)(0).get<real>("upper_bounds_fill")),
                 mRequestedIQIs(string_to_cell<std::string>(aParameterLists(0)(0).get<std::string>("IQI_types"))),
 
                 // Phase table
@@ -440,33 +439,46 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        void Geometry_Engine::perform_refinement(std::shared_ptr<hmr::HMR> aHMRPerformer, uint aNumRefinements)
+        void Geometry_Engine::perform_refinement(std::shared_ptr<hmr::HMR> aHMRPerformer)
         {
             // Create mesh
             std::shared_ptr<hmr::Mesh> tMesh = aHMRPerformer->create_mesh(0);
 
-            // Determine number of refinements
-            if (aNumRefinements == 0)
-            {
-                aNumRefinements = mNumRefinements;
-            }
+            // Set refinement index/flag
+            bool tPerformRefinement = true;
+            sint tRefinementIndex = 0;
 
             // Loop over set number of refinement levels
-            for (uint tRefinement = 0; tRefinement < aNumRefinements; tRefinement++)
+            while (tPerformRefinement)
             {
-                // Loop over geometries to get field values and put on queue
+                // Reset flag
+                tPerformRefinement = false;
+                
+                // Loop over geometries
                 for (uint tGeometryIndex = 0; tGeometryIndex < mGeometry.size(); tGeometryIndex++)
                 {
-                    Matrix<DDRMat> tFieldValues(tMesh->get_num_nodes(), 1);
-                    for (uint tNodeIndex = 0; tNodeIndex < tMesh->get_num_nodes(); tNodeIndex++)
+                    // Determine if refinement is needed
+                    if (tRefinementIndex < mGeometry(tGeometryIndex)->get_num_refinements())
                     {
-                        tFieldValues(tNodeIndex) = this->get_geometry_field_value(tNodeIndex, tMesh->get_node_coordinate(tNodeIndex), tGeometryIndex);
-                        aHMRPerformer->based_on_field_put_elements_on_queue(tFieldValues, 0);
+                        // Get field and put on queue
+                        Matrix<DDRMat> tFieldValues(tMesh->get_num_nodes(), 1);
+                        for (uint tNodeIndex = 0; tNodeIndex < tMesh->get_num_nodes(); tNodeIndex++)
+                        {
+                            tFieldValues(tNodeIndex) = this->get_geometry_field_value(tNodeIndex, tMesh->get_node_coordinate(tNodeIndex), tGeometryIndex);
+                        }
+                        
+                        // Put elements on queue and set flag for refinement
+                        aHMRPerformer->based_on_field_put_elements_on_queue(tFieldValues, 0, mGeometry(tGeometryIndex)->get_refinement_function_index());
+                        tPerformRefinement = true;
                     }
                 }
 
-                // Perform refinement
-                aHMRPerformer->perform_refinement_based_on_working_pattern( 0, false );
+                // Perform refinement and update index
+                if (tPerformRefinement)
+                {
+                    aHMRPerformer->perform_refinement_based_on_working_pattern( 0, false );
+                    tRefinementIndex++;
+                }
             }
         }
 

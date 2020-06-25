@@ -57,9 +57,6 @@ namespace moris
             // Spatial dimensions
             uint mSpatialDim;
 
-            // HMR refinements
-            uint mNumRefinements = 0;
-
             // ADVs/IQIs
             Matrix<DDRMat> mADVs;
             Matrix<DDRMat> mLowerBounds;
@@ -292,23 +289,23 @@ namespace moris
              * @param aHMRPerformer Shared pointer to HMR
              * @param aNumRefinements Number of refinements to perform, if not given will be taken from GEN parameters
              */
-            void perform_refinement(std::shared_ptr<hmr::HMR >aHMRPerformer, uint aNumRefinements = 0);
+            void perform_refinement(std::shared_ptr<hmr::HMR >aHMRPerformer);
 
             /**
              * @brief assign the pdv type and property for each pdv host in a given set
              */
-            void assign_ip_hosts_by_set_name( std::string                     aSetName,
-                                              std::shared_ptr< Property > aPropertyPointer,
-                                              PDV_Type                     aPdvType,
-                                              moris_index                     aWhichMesh = 0 );
+            void assign_ip_hosts_by_set_name( std::string                 aSetName,
+                                              std::shared_ptr<Property> aPropertyPointer,
+                                              PDV_Type                    aPdvType,
+                                              moris_index                 aWhichMesh = 0 );
 
             /**
              * @brief assign the pdv type and property for each pdv host in a given set
              */
-            void assign_ip_hosts_by_set_index( moris_index                     aSetIndex,
-                                               std::shared_ptr< Property > aPropertyPointer,
-                                               PDV_Type                     aPdvType,
-                                               moris_index                     aWhichMesh = 0 );
+            void assign_ip_hosts_by_set_index( moris_index               aSetIndex,
+                                               std::shared_ptr<Property> aPropertyPointer,
+                                               PDV_Type                  aPdvType,
+                                               moris_index               aWhichMesh = 0 );
 
             /**
              * Create PDV_Type hosts with the specified PDV_Type types on the interpolation mesh
@@ -346,20 +343,6 @@ namespace moris
                                             moris::size_t                    const & aCheckType,
                                             moris::Matrix< moris::IndexMat >       & aNodeADVIndices,
                                             GEN_Geometry_Object                    & aGeometryObject );
-
-            /**
-             * Interpolate given level set values to a child node location
-             *
-             * @param aParentTopology
-             * @param aGeometryIndex
-             * @param aNodeLocalCoordinate
-             * @param aLevelSetValues
-             */
-            void interpolate_level_set_value_to_child_node_location( const xtk::Topology&        aParentTopology,
-                                                                           size_t                aGeometryIndex,
-                                                                     const Matrix<DDRMat>&       aNodeLocalCoordinate,
-                                                                     const Matrix<DDRMat>& aNodeGlobalCoordinates,
-                                                                           Matrix<DDRMat>&       aLevelSetValues );
 
         };
     }
