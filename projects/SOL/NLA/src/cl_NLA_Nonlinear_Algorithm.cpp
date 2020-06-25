@@ -24,6 +24,8 @@ using namespace moris;
 using namespace NLA;
 using namespace dla;
 
+// ----------------------------------------------------------------------------
+
 void Nonlinear_Algorithm::set_linear_solver( dla::Linear_Solver * aLinSolver  )
 {
     // Check if nullptr. If not delete liner solver manager
@@ -37,18 +39,18 @@ void Nonlinear_Algorithm::set_linear_solver( dla::Linear_Solver * aLinSolver  )
 }
 
 //--------------------------------------------------------------------------------------------------------------------------
+
 moris::real Nonlinear_Algorithm::calculate_time_needed( const clock_t aTime )
 {
     moris::real tDeltaTime = (moris::real) ( clock() - aTime ) / CLOCKS_PER_SEC;
 
-    moris::real tDeltaTimeMax   = tDeltaTime;
-
-    max_all( tDeltaTime, tDeltaTimeMax );
+    moris::real tDeltaTimeMax = max_all( tDeltaTime );
 
     return tDeltaTimeMax;
 }
 
 //--------------------------------------------------------------------------------------------------------------------------
+
 void Nonlinear_Algorithm::set_nonlinear_solver_manager( Nonlinear_Solver* aNonlinSolverManager )
 {
     mLinSolverOwned = false;
@@ -57,6 +59,7 @@ void Nonlinear_Algorithm::set_nonlinear_solver_manager( Nonlinear_Solver* aNonli
 }
 
 //--------------------------------------------------------------------------------------------------------------------------
+
 void Nonlinear_Algorithm::set_nonlinear_solver_parameters()
 {
     // Allowable Newton solver iterations
