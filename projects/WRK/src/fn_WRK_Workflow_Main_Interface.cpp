@@ -62,7 +62,7 @@ int fn_WRK_Workflow_Main_Interface( int argc, char * argv[] )
             moris::Cell< moris::Cell< ParameterList > > tOPTParameterList;
             tOPTParameterListFunc( tOPTParameterList );
 
-            // Create workflow
+            // Create work flow
             wrk::Performer_Manager tPerformerManager( tLibrary );
             tPerformerManager.initialize_performers();
             tPerformerManager.set_performer_cooperations();
