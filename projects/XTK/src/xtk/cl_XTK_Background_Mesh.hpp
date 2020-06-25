@@ -131,7 +131,6 @@ namespace xtk
                     moris::size_t   aNewFirstAvailableIndex,
                     enum EntityRank aEntityRank);
 
-
             /*!
              * Create a batch of new nodes
              */
@@ -412,7 +411,6 @@ namespace xtk
             add_cells_to_global_to_local_map(
                     Matrix<IndexMat> const & aCellIndices,
                     Matrix<IdMat>    const & aCellIds);
-
 
             /*!
              * return a pointer to a cell
