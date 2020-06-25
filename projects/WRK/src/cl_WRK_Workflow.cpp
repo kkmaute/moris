@@ -14,21 +14,23 @@ namespace moris
     {
         //--------------------------------------------------------------------------------------------------------------
 
-        Workflow::Workflow( wrk::Performer_Manager * aPerformerManager ) : mPerformerManager( aPerformerManager )
+        Workflow::Workflow( wrk::Performer_Manager * aPerformerManager )
+        : mPerformerManager( aPerformerManager )
         {
         }
 
         //--------------------------------------------------------------------------------------------------------------
 
-        void Workflow::initialize(Matrix<DDRMat>& aADVs, Matrix<DDRMat>& aLowerBounds, Matrix<DDRMat>& aUpperBounds)
+        void Workflow::initialize(
+                Matrix<DDRMat>& aADVs,
+                Matrix<DDRMat>& aLowerBounds,
+                Matrix<DDRMat>& aUpperBounds)
         {
-            aADVs = mPerformerManager->mGENPerformer( 0 )->get_advs();
+            aADVs        = mPerformerManager->mGENPerformer( 0 )->get_advs();
             aLowerBounds = mPerformerManager->mGENPerformer( 0 )->get_lower_bounds();
             aUpperBounds = mPerformerManager->mGENPerformer( 0 )->get_upper_bounds();
 
-            //---------------------------------------------------------------------------------------
-            //                               Stage 1: HMR refinement
-            //---------------------------------------------------------------------------------------
+            // Stage 1: HMR refinement -------------------------------------------------------------------
 
             // uniform initial refinement
             mPerformerManager->mHMRPerformer( 0 )->perform_initial_refinement( 0 );
@@ -39,9 +41,7 @@ namespace moris
             // HMR finalize
             mPerformerManager->mHMRPerformer( 0 )->perform();
 
-            //---------------------------------------------------------------------------------------
-            //                               Stage 2: XTK
-            //---------------------------------------------------------------------------------------
+            // Stage 2: XTK -----------------------------------------------------------------------------
 
             // Register Mesh to Ge
             mPerformerManager->mGENPerformer( 0 )->register_mesh( mPerformerManager->mMTKPerformer( 0 ) );
@@ -53,57 +53,53 @@ namespace moris
             mPerformerManager->mGENPerformer( 0 )->register_mesh( mPerformerManager->mMTKPerformer( 1 ) );
             mPerformerManager->mGENPerformer( 0 )->assign_pdv_hosts();
 
-            //---------------------------------------------------------------------------------------
-            //                               Stage 3: MDL perform
-            //---------------------------------------------------------------------------------------
+            // Stage 3: MDL perform ---------------------------------------------------------------------
+
             mPerformerManager->mMDLPerformer( 0 )->initialize();
 
             mPerformerManager->mMDLPerformer( 0 )->set_design_variable_interface(
                     mPerformerManager->mGENPerformer( 0 )->get_design_variable_interface() );
-
         }
 
         //--------------------------------------------------------------------------------------------------------------
 
         Matrix<DDRMat> Workflow::perform(Matrix<DDRMat> aNewADVs)
         {
-            //---------------------------------------------------------------------------------------
-            //                               Stage 1: HMR refinement
-            //---------------------------------------------------------------------------------------
+            // Stage 1: HMR refinement
 
             // Set new advs in GE
             mPerformerManager->mGENPerformer( 0 )->set_advs(aNewADVs);
-//
-//            // uniform initial refinement
-//            mPerformerManager->mHMRPerformer( 0 )->perform_initial_refinement( 0 );
-//
-//            // HMR refined by GE
-//            mPerformerManager->mGENPerformer( 0 )->perform();
-//
-//            // HMR finalize
-//            mPerformerManager->mHMRPerformer( 0 )->perform();
-//
-//            //---------------------------------------------------------------------------------------
-//            //                               Stage 2: XTK
-//            //---------------------------------------------------------------------------------------
-//
-//            // Register Mesh to Ge
-//            mPerformerManager->mGENPerformer( 0 )->register_mesh( mPerformerManager->mMTKPerformer( 0 ).get() );
-//
-//            // XTK perform - decompose - enrich - ghost - multigrid
-//            mPerformerManager->mXTKPerformer( 0 )->perform();
-//
-//            // Assign PDVs
-//            mPerformerManager->mGENPerformer( 0 )->register_mesh( mPerformerManager->mMTKPerformer( 1 ).get() );
-//            mPerformerManager->mGENPerformer( 0 )->assign_pdv_hosts();
-//
-//            //---------------------------------------------------------------------------------------
-//            //                               Stage 3: MDL perform
-//            //---------------------------------------------------------------------------------------
-//            mPerformerManager->mMDLPerformer( 0 )->initialize();
-//
-//            mPerformerManager->mMDLPerformer( 0 )->set_design_variable_interface(
-//                    mPerformerManager->mGENPerformer( 0 )->get_design_variable_interface() );
+            //
+            //            // uniform initial refinement
+            //            mPerformerManager->mHMRPerformer( 0 )->perform_initial_refinement( 0 );
+            //
+            //            // HMR refined by GE
+            //            mPerformerManager->mGENPerformer( 0 )->perform();
+            //
+            //            // HMR finalize
+            //            mPerformerManager->mHMRPerformer( 0 )->perform();
+            //
+            //            //---------------------------------------------------------------------------------------
+            //            //                               Stage 2: XTK
+            //            //---------------------------------------------------------------------------------------
+            //
+            //            // Register Mesh to Ge
+            //            mPerformerManager->mGENPerformer( 0 )->register_mesh( mPerformerManager->mMTKPerformer( 0 ).get() );
+            //
+            //            // XTK perform - decompose - enrich - ghost - multigrid
+            //            mPerformerManager->mXTKPerformer( 0 )->perform();
+            //
+            //            // Assign PDVs
+            //            mPerformerManager->mGENPerformer( 0 )->register_mesh( mPerformerManager->mMTKPerformer( 1 ).get() );
+            //            mPerformerManager->mGENPerformer( 0 )->assign_pdv_hosts();
+            //
+            //            //---------------------------------------------------------------------------------------
+            //            //                               Stage 3: MDL perform
+            //            //---------------------------------------------------------------------------------------
+            //            mPerformerManager->mMDLPerformer( 0 )->initialize();
+            //
+            //            mPerformerManager->mMDLPerformer( 0 )->set_design_variable_interface(
+            //                    mPerformerManager->mGENPerformer( 0 )->get_design_variable_interface() );
 
             // Build MDL components and solve
             mPerformerManager->mMDLPerformer( 0 )->perform();
@@ -134,6 +130,5 @@ namespace moris
         }
 
         //--------------------------------------------------------------------------------------------------------------
-
     } /* namespace mdl */
 } /* namespace moris */

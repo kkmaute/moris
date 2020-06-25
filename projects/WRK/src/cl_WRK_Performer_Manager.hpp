@@ -18,28 +18,28 @@
 
 namespace xtk
 {
-   class Model;
+    class Model;
 }
 
 namespace moris
 {
-class Library_IO;
-//------------------------------------------------------------------------------
+    class Library_IO;
+    //------------------------------------------------------------------------------
     namespace hmr
     {
-       class HMR;
+        class HMR;
     }
     namespace mtk
     {
-       class Mesh_Manager;
+        class Mesh_Manager;
     }
     namespace ge
     {
-       class Geometry_Engine;
+        class Geometry_Engine;
     }
     namespace mdl
     {
-       class Model;
+        class Model;
     }
     namespace opt
     {
@@ -49,44 +49,44 @@ class Library_IO;
     namespace wrk
     {
         class Workflow;
-//------------------------------------------------------------------------------
+
+        //------------------------------------------------------------------------------
 
         class Performer_Manager
         {
-            std::shared_ptr< Library_IO > mLibrary;
+                std::shared_ptr< Library_IO > mLibrary = nullptr;
 
-            moris::Cell< std::shared_ptr< hmr::HMR > >                 mHMRPerformer;
-            moris::Cell< std::shared_ptr< ge::Geometry_Engine > >      mGENPerformer;
-            moris::Cell< std::shared_ptr< xtk::Model > >               mXTKPerformer;
-            moris::Cell< std::shared_ptr< mtk::Mesh_Manager > >        mMTKPerformer;
-            moris::Cell< std::shared_ptr< mdl::Model > >               mMDLPerformer;
-            moris::Cell< std::shared_ptr< opt::Manager > >             mOPTPerformer;
+                moris::Cell< std::shared_ptr< mtk::Mesh_Manager > >        mMTKPerformer;
+                moris::Cell< std::shared_ptr< hmr::HMR > >                 mHMRPerformer;
+                moris::Cell< std::shared_ptr< ge::Geometry_Engine > >      mGENPerformer;
+                moris::Cell< std::shared_ptr< xtk::Model > >               mXTKPerformer;
+                moris::Cell< std::shared_ptr< mdl::Model > >               mMDLPerformer;
+                moris::Cell< std::shared_ptr< opt::Manager > >             mOPTPerformer;
 
-            friend class wrk::Workflow;
+                friend class wrk::Workflow;
 
+            public:
 
-//------------------------------------------------------------------------------
-        public:
-//------------------------------------------------------------------------------
-            /**
-             * constructor
-             * @param[ in ] aMesh          mesh for this problem
-             */
-            Performer_Manager( std::shared_ptr< Library_IO > aLibrary );
+                //------------------------------------------------------------------------------
+                /**
+                 * constructor
+                 * @param[ in ] aMesh          mesh for this problem
+                 */
+                Performer_Manager( std::shared_ptr< Library_IO > aLibrary );
 
-//------------------------------------------------------------------------------
-            /**
-             * destructor
-             */
-            ~Performer_Manager(){};
+                //------------------------------------------------------------------------------
+                /**
+                 * destructor
+                 */
+                ~Performer_Manager();
 
-            void initialize_performers();
+                void initialize_performers();
 
-            void set_performer_cooperations();
+                void set_performer_cooperations();
 
-//------------------------------------------------------------------------------
+                //------------------------------------------------------------------------------
         };
-//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
     } /* namespace mdl */
 } /* namespace moris */
 
