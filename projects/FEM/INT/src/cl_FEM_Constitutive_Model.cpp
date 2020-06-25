@@ -653,8 +653,17 @@ namespace moris
         void Constitutive_Model::eval_dFluxdDOF_FD(
                 const moris::Cell< MSI::Dof_Type > & aDofTypes,
                 Matrix< DDRMat >                   & adFluxdDOF_FD,
-                real                                 aPerturbation )
+                real                                 aPerturbation,
+                fem::FDScheme_Type                   aFDSchemeType )
         {
+            // get the FD scheme info
+            moris::Cell< moris::Cell< real > > tFDScheme;
+            fd_scheme( aFDSchemeType, tFDScheme );
+            uint tNumPoints = tFDScheme( 0 ).size();
+
+            // get the derivative dof type index
+            uint tDofIndex = mGlobalDofTypeMap( static_cast< uint >( aDofTypes( 0 ) ) );
+
             // get the field interpolator for type
             Field_Interpolator* tFI = mFIManager->get_field_interpolators_for_type( aDofTypes( 0 ) );
 
@@ -665,7 +674,7 @@ namespace moris
 
             // set size for derivative
             uint tNumRow = this->flux().n_rows();
-            adFluxdDOF_FD.set_size( tNumRow, tDerNumDof, 0.0 );
+            mdFluxdDof( tDofIndex ).set_size( tNumRow, tDerNumDof, 0.0 );
 
             // coefficients for dof type wrt which derivative is computed
             Matrix< DDRMat > tCoeff = tFI->get_coeff();
@@ -679,41 +688,38 @@ namespace moris
                 // loop over coefficients rows
                 for( uint iCoeffRow = 0; iCoeffRow < tDerNumBases; iCoeffRow++ )
                 {
-                    // perturbation of the coefficient
-                    Matrix< DDRMat > tCoeffPert = tCoeff;
-                    tCoeffPert( iCoeffRow, iCoeffCol ) += aPerturbation * tCoeffPert( iCoeffRow, iCoeffCol );
+                    // compute the perturbation absolute value
+                    real tDeltaH = aPerturbation * tCoeff( iCoeffRow, iCoeffCol );
 
-                    // setting the perturbed coefficients
-                    tFI->set_coeff( tCoeffPert );
+                    // loop over the points for FD
+                    for( uint iPoint = 0; iPoint < tNumPoints; iPoint++ )
+                    {
+                        // reset the perturbed coefficents
+                        Matrix< DDRMat > tCoeffPert = tCoeff;
 
-                    // reset constitutive model
-                    this->reset_eval_flags();
+                        // pertub the coefficent
+                        tCoeffPert( iCoeffRow, iCoeffCol ) += tFDScheme( 0 )( iPoint ) * tDeltaH;
 
-                    // evaluate the residual
-                    Matrix< DDRMat > tFlux_Plus = this->flux();
+                        // set the perturbed coefficients to FI
+                        tFI->set_coeff( tCoeffPert );
 
-                    // perturbation of the coefficient
-                    tCoeffPert = tCoeff;
-                    tCoeffPert( iCoeffRow, iCoeffCol ) -= aPerturbation * tCoeffPert( iCoeffRow, iCoeffCol );
+                        // reset properties
+                        this->reset_eval_flags();
 
-                    // setting the perturbed coefficients
-                    tFI->set_coeff( tCoeffPert );
-
-                    // reset constitutive model
-                    this->reset_eval_flags();
-
-                    // evaluate the residual
-                    Matrix< DDRMat > tFlux_Minus = this->flux();
-
-                    // evaluate Jacobian
-                    adFluxdDOF_FD.get_column( tDofCounter ) = ( tFlux_Plus - tFlux_Minus ) / ( 2.0 * aPerturbation * tCoeff( iCoeffRow, iCoeffCol ) );
-
+                        // assemble the jacobian
+                        mdFluxdDof( tDofIndex ).get_column( tDofCounter ) +=
+                                        tFDScheme( 1 )( iPoint ) * this->flux() /
+                                        ( tFDScheme( 2 )( 0 ) * tDeltaH );
+                    }
                     // update dof counter
                     tDofCounter++;
                 }
             }
             // reset the coefficients values
             tFI->set_coeff( tCoeff );
+
+            // FIXME
+            adFluxdDOF_FD = mdFluxdDof( tDofIndex );
         }
 
         //------------------------------------------------------------------------------
@@ -721,8 +727,17 @@ namespace moris
                 const moris::Cell< MSI::Dof_Type > & aDofTypes,
                 Matrix< DDRMat >                   & adtractiondu_FD,
                 real                                 aPerturbation,
-                Matrix< DDRMat >                   & aNormal )
+                Matrix< DDRMat >                   & aNormal,
+                fem::FDScheme_Type                   aFDSchemeType )
         {
+            // get the FD scheme info
+            moris::Cell< moris::Cell< real > > tFDScheme;
+            fd_scheme( aFDSchemeType, tFDScheme );
+            uint tNumPoints = tFDScheme( 0 ).size();
+
+            // get the derivative dof type index
+            uint tDofIndex = mGlobalDofTypeMap( static_cast< uint >( aDofTypes( 0 ) ) );
+
             // get the field interpolator for type
             Field_Interpolator* tFIDerivative =
                     mFIManager->get_field_interpolators_for_type( aDofTypes( 0 ) );
@@ -734,7 +749,7 @@ namespace moris
 
             // set size for derivative
             uint tNumRow = this->traction( aNormal ).n_rows();
-            adtractiondu_FD.set_size( tNumRow, tDerNumDof, 0.0 );
+            mdTractiondDof( tDofIndex ).set_size( tNumRow, tDerNumDof, 0.0 );
 
             // coefficients for dof type wrt which derivative is computed
             Matrix< DDRMat > tCoeff = tFIDerivative->get_coeff();
@@ -748,38 +763,62 @@ namespace moris
                 // loop over coefficients rows
                 for( uint iCoeffRow = 0; iCoeffRow < tDerNumBases; iCoeffRow++ )
                 {
-                    // perturbation of the coefficient
-                    Matrix< DDRMat > tCoeffPert = tCoeff;
-                    tCoeffPert( iCoeffRow, iCoeffCol ) +=
-                            aPerturbation * tCoeffPert( iCoeffRow, iCoeffCol );
+                    // compute the perturbation value
+                    real tDeltaH = aPerturbation * tCoeff( iCoeffRow, iCoeffCol );
 
-                    // setting the perturbed coefficients
-                    tFIDerivative->set_coeff( tCoeffPert );
+                    // loop over the points for FD
+                    for( uint iPoint = 0; iPoint < tNumPoints; iPoint++ )
+                    {
+                        // reset the perturbed coefficents
+                        Matrix< DDRMat > tCoeffPert = tCoeff;
 
-                    // reset constitutive model eval flag
-                    this->reset_eval_flags();
+                        // pertub the coefficent
+                        tCoeffPert( iCoeffRow, iCoeffCol ) += tFDScheme( 0 )( iPoint ) * tDeltaH;
 
-                    // evaluate the residual
-                    Matrix< DDRMat > tTractionPlus = this->traction( aNormal );
+                        // set the perturbed coefficients to FI
+                        tFIDerivative->set_coeff( tCoeffPert );
 
-                    // perturbation of the coefficient
-                    tCoeffPert = tCoeff;
-                    tCoeffPert( iCoeffRow, iCoeffCol ) -=
-                            aPerturbation * tCoeffPert( iCoeffRow, iCoeffCol );
+                        // reset properties
+                        this->reset_eval_flags();
 
-                    // setting the perturbed coefficients
-                    tFIDerivative->set_coeff( tCoeffPert );
+                        // assemble the jacobian
+                        mdTractiondDof( tDofIndex ).get_column( tDofCounter ) +=
+                                tFDScheme( 1 )( iPoint ) * this->traction( aNormal ) /
+                                ( tFDScheme( 2 )( 0 ) * tDeltaH );
+                    }
 
-                    // reset constitutive model eval flags
-                    this->reset_eval_flags();
-
-                    // evaluate the residual
-                    Matrix< DDRMat > tTractionMinus = this->traction( aNormal );
-
-                    // evaluate Jacobian
-                    adtractiondu_FD.get_column( tDofCounter ) =
-                            ( tTractionPlus - tTractionMinus ) /
-                            ( 2.0 * aPerturbation * tCoeff( iCoeffRow, iCoeffCol ) );
+//                    // perturbation of the coefficient
+//                    Matrix< DDRMat > tCoeffPert = tCoeff;
+//                    tCoeffPert( iCoeffRow, iCoeffCol ) +=
+//                            aPerturbation * tCoeffPert( iCoeffRow, iCoeffCol );
+//
+//                    // setting the perturbed coefficients
+//                    tFIDerivative->set_coeff( tCoeffPert );
+//
+//                    // reset constitutive model eval flag
+//                    this->reset_eval_flags();
+//
+//                    // evaluate the residual
+//                    Matrix< DDRMat > tTractionPlus = this->traction( aNormal );
+//
+//                    // perturbation of the coefficient
+//                    tCoeffPert = tCoeff;
+//                    tCoeffPert( iCoeffRow, iCoeffCol ) -=
+//                            aPerturbation * tCoeffPert( iCoeffRow, iCoeffCol );
+//
+//                    // setting the perturbed coefficients
+//                    tFIDerivative->set_coeff( tCoeffPert );
+//
+//                    // reset constitutive model eval flags
+//                    this->reset_eval_flags();
+//
+//                    // evaluate the residual
+//                    Matrix< DDRMat > tTractionMinus = this->traction( aNormal );
+//
+//                    // evaluate Jacobian
+//                    adtractiondu_FD.get_column( tDofCounter ) =
+//                            ( tTractionPlus - tTractionMinus ) /
+//                            ( 2.0 * aPerturbation * tCoeff( iCoeffRow, iCoeffCol ) );
 
                     // update dof counter
                     tDofCounter++;
@@ -787,14 +826,108 @@ namespace moris
             }
             // reset the coefficients values
             tFIDerivative->set_coeff( tCoeff );
+
+            // FIXME
+            adtractiondu_FD = mdTractiondDof( tDofIndex );
+        }
+
+        //------------------------------------------------------------------------------
+        void Constitutive_Model::eval_dtesttractiondu_FD(
+                const moris::Cell< MSI::Dof_Type > & aDofTypes,
+                const moris::Cell< MSI::Dof_Type > & aTestDofTypes,
+                Matrix< DDRMat >                   & adtesttractiondu_FD,
+                real                                 aPerturbation,
+                Matrix< DDRMat >                   & aNormal,
+                Matrix< DDRMat >                   & aJump,
+                fem::FDScheme_Type                   aFDSchemeType )
+        {
+            // get the FD scheme info
+            moris::Cell< moris::Cell< real > > tFDScheme;
+            fd_scheme( aFDSchemeType, tFDScheme );
+            uint tNumPoints = tFDScheme( 0 ).size();
+
+            // get the test dof index
+            uint tTestDofIndex = mDofTypeMap( static_cast< uint >( aTestDofTypes( 0 ) ) );
+
+            // get the derivative dof index
+            uint tDofIndex = mGlobalDofTypeMap( static_cast< uint >( aDofTypes( 0 ) ) );
+
+            // get the field interpolator for type
+            Field_Interpolator* tFIDerivative =
+                    mFIManager->get_field_interpolators_for_type( aDofTypes( 0 ) );
+
+            // get number of coefficients, fields and bases for the considered FI
+            uint tDerNumDof    = tFIDerivative->get_number_of_space_time_coefficients();
+            uint tDerNumBases  = tFIDerivative->get_number_of_space_time_bases();
+            uint tDerNumFields = tFIDerivative->get_number_of_fields();
+
+            // set size for derivative
+            Matrix< DDRMat > tTestTractionForSize = trans( trans( aJump ) * this->testTraction( aNormal, aTestDofTypes ) );
+            uint tNumRow = tTestTractionForSize.n_rows();
+            mdTestTractiondDof( tTestDofIndex )( tDofIndex ).set_size( tNumRow, tDerNumDof, 0.0 );
+
+            // coefficients for dof type wrt which derivative is computed
+            Matrix< DDRMat > tCoeff = tFIDerivative->get_coeff();
+
+            // initialize dof counter
+            uint tDofCounter = 0;
+
+            // loop over coefficients columns
+            for( uint iCoeffCol = 0; iCoeffCol < tDerNumFields; iCoeffCol++ )
+            {
+                // loop over coefficients rows
+                for( uint iCoeffRow = 0; iCoeffRow < tDerNumBases; iCoeffRow++ )
+                {
+                    // compute the perturbation absolute value
+                    real tDeltaH = aPerturbation * tCoeff( iCoeffRow, iCoeffCol );
+
+                    // loop over the points for FD
+                    for( uint iPoint = 0; iPoint < tNumPoints; iPoint++ )
+                    {
+                        // reset the perturbed coefficents
+                        Matrix< DDRMat > tCoeffPert = tCoeff;
+
+                        // pertub the coefficent
+                        tCoeffPert( iCoeffRow, iCoeffCol ) += tFDScheme( 0 )( iPoint ) * tDeltaH;
+
+                        // set the perturbed coefficients to FI
+                        tFIDerivative->set_coeff( tCoeffPert );
+
+                        // reset properties
+                        this->reset_eval_flags();
+
+                        // assemble the jacobian
+                        mdTestTractiondDof( tTestDofIndex )( tDofIndex ).get_column( tDofCounter ) +=
+                                tFDScheme( 1 )( iPoint ) * trans( trans( aJump ) * this->testTraction( aNormal, aTestDofTypes ) ) /
+                                ( tFDScheme( 2 )( 0 ) * tDeltaH );
+                    }
+
+                    // update dof counter
+                    tDofCounter++;
+                }
+            }
+            // reset the coefficients values
+            tFIDerivative->set_coeff( tCoeff );
+
+            // FIXME
+            adtesttractiondu_FD = mdTestTractiondDof( tTestDofIndex )( tDofIndex );
         }
 
         //------------------------------------------------------------------------------
         void Constitutive_Model::eval_ddivfluxdu_FD(
                 const moris::Cell< MSI::Dof_Type > & aDofTypes,
                 Matrix< DDRMat >                   & addivfluxdu_FD,
-                real                                 aPerturbation )
+                real                                 aPerturbation,
+                fem::FDScheme_Type                   aFDSchemeType )
         {
+            // get the FD scheme info
+            moris::Cell< moris::Cell< real > > tFDScheme;
+            fd_scheme( aFDSchemeType, tFDScheme );
+            uint tNumPoints = tFDScheme( 0 ).size();
+
+            // get the derivative dof type index
+            uint tDofIndex = mGlobalDofTypeMap( static_cast< uint >( aDofTypes( 0 ) ) );
+
             // get the field interpolator for type
             Field_Interpolator* tFIDerivative =
                     mFIManager->get_field_interpolators_for_type( aDofTypes( 0 ) );
@@ -805,7 +938,8 @@ namespace moris
             uint tDerNumFields = tFIDerivative->get_number_of_fields();
 
             // set size for derivative
-            addivfluxdu_FD.set_size( mSpaceDim, tDerNumDof, 0.0 );
+            uint tNumRows = this->divflux().n_rows();
+            mddivfluxdu( tDofIndex ).set_size( tNumRows, tDerNumDof, 0.0 );
 
             // coefficients for dof type wrt which derivative is computed
             Matrix< DDRMat > tCoeff = tFIDerivative->get_coeff();
@@ -819,38 +953,29 @@ namespace moris
                 // loop over coefficients rows
                 for( uint iCoeffRow = 0; iCoeffRow < tDerNumBases; iCoeffRow++ )
                 {
-                    // perturbation of the coefficient
-                    Matrix< DDRMat > tCoeffPert = tCoeff;
-                    tCoeffPert( iCoeffRow, iCoeffCol ) +=
-                            aPerturbation * tCoeffPert( iCoeffRow, iCoeffCol );
+                    // compute the perturbation absolute value
+                    real tDeltaH = aPerturbation * tCoeff( iCoeffRow, iCoeffCol );
 
-                    // setting the perturbed coefficients
-                    tFIDerivative->set_coeff( tCoeffPert );
+                    // loop over the points for FD
+                    for( uint iPoint = 0; iPoint < tNumPoints; iPoint++ )
+                    {
+                        // reset the perturbed coefficents
+                        Matrix< DDRMat > tCoeffPert = tCoeff;
 
-                    // reset constitutive model eval flag
-                    this->reset_eval_flags();
+                        // pertub the coefficent
+                        tCoeffPert( iCoeffRow, iCoeffCol ) += tFDScheme( 0 )( iPoint ) * tDeltaH;
 
-                    // evaluate the residual
-                    Matrix< DDRMat > tDivFluxPlus = this->divflux();
+                        // set the perturbed coefficients to FI
+                        tFIDerivative->set_coeff( tCoeffPert );
 
-                    // perturbation of the coefficient
-                    tCoeffPert = tCoeff;
-                    tCoeffPert( iCoeffRow, iCoeffCol ) -=
-                            aPerturbation * tCoeffPert( iCoeffRow, iCoeffCol );
+                        // reset properties
+                        this->reset_eval_flags();
 
-                    // setting the perturbed coefficients
-                    tFIDerivative->set_coeff( tCoeffPert );
-
-                    // reset constitutive model eval flags
-                    this->reset_eval_flags();
-
-                    // evaluate the residual
-                    Matrix< DDRMat > tDivFluxMinus = this->divflux();
-
-                    // evaluate Jacobian
-                    addivfluxdu_FD.get_column( tDofCounter ) =
-                            ( tDivFluxPlus - tDivFluxMinus ) /
-                            ( 2.0 * aPerturbation * tCoeff( iCoeffRow, iCoeffCol ) );
+                        // assemble the jacobian
+                        mddivfluxdu( tDofIndex ).get_column( tDofCounter ) +=
+                                tFDScheme( 1 )( iPoint ) * this->divflux() /
+                                ( tFDScheme( 2 )( 0 ) * tDeltaH );
+                    }
 
                     // update dof counter
                     tDofCounter++;
@@ -858,14 +983,26 @@ namespace moris
             }
             // reset the coefficients values
             tFIDerivative->set_coeff( tCoeff );
+
+            // FIXME
+            addivfluxdu_FD = mddivfluxdu( tDofIndex );
         }
 
         //------------------------------------------------------------------------------
         void Constitutive_Model::eval_ddivstraindu_FD(
                 const moris::Cell< MSI::Dof_Type > & aDofTypes,
                 Matrix< DDRMat >                   & addivstraindu_FD,
-                real                                 aPerturbation )
+                real                                 aPerturbation,
+                fem::FDScheme_Type                   aFDSchemeType )
         {
+            // get the FD scheme info
+            moris::Cell< moris::Cell< real > > tFDScheme;
+            fd_scheme( aFDSchemeType, tFDScheme );
+            uint tNumPoints = tFDScheme( 0 ).size();
+
+            // get the derivative dof type index
+            uint tDofIndex = mGlobalDofTypeMap( static_cast< uint >( aDofTypes( 0 ) ) );
+
             // get the field interpolator for type
             Field_Interpolator* tFIDerivative =
                     mFIManager->get_field_interpolators_for_type( aDofTypes( 0 ) );
@@ -876,7 +1013,8 @@ namespace moris
             uint tDerNumFields = tFIDerivative->get_number_of_fields();
 
             // set size for derivative
-            addivstraindu_FD.set_size( mSpaceDim, tDerNumDof, 0.0 );
+            uint tNumRows = this->divstrain().n_rows();
+            mddivstraindu( tDofIndex ).set_size( tNumRows, tDerNumDof, 0.0 );
 
             // coefficients for dof type wrt which derivative is computed
             Matrix< DDRMat > tCoeff = tFIDerivative->get_coeff();
@@ -890,38 +1028,29 @@ namespace moris
                 // loop over coefficients rows
                 for( uint iCoeffRow = 0; iCoeffRow < tDerNumBases; iCoeffRow++ )
                 {
-                    // perturbation of the coefficient
-                    Matrix< DDRMat > tCoeffPert = tCoeff;
-                    tCoeffPert( iCoeffRow, iCoeffCol ) +=
-                            aPerturbation * tCoeffPert( iCoeffRow, iCoeffCol );
+                    // compute the perturbation absolute value
+                    real tDeltaH = aPerturbation * tCoeff( iCoeffRow, iCoeffCol );
 
-                    // setting the perturbed coefficients
-                    tFIDerivative->set_coeff( tCoeffPert );
+                    // loop over the points for FD
+                    for( uint iPoint = 0; iPoint < tNumPoints; iPoint++ )
+                    {
+                        // reset the perturbed coefficents
+                        Matrix< DDRMat > tCoeffPert = tCoeff;
 
-                    // reset constitutive model eval flag
-                    this->reset_eval_flags();
+                        // pertub the coefficent
+                        tCoeffPert( iCoeffRow, iCoeffCol ) += tFDScheme( 0 )( iPoint ) * tDeltaH;
 
-                    // evaluate the residual
-                    Matrix< DDRMat > tDivStrainPlus = this->divstrain();
+                        // set the perturbed coefficients to FI
+                        tFIDerivative->set_coeff( tCoeffPert );
 
-                    // perturbation of the coefficient
-                    tCoeffPert = tCoeff;
-                    tCoeffPert( iCoeffRow, iCoeffCol ) -=
-                            aPerturbation * tCoeffPert( iCoeffRow, iCoeffCol );
+                        // reset properties
+                        this->reset_eval_flags();
 
-                    // setting the perturbed coefficients
-                    tFIDerivative->set_coeff( tCoeffPert );
-
-                    // reset constitutive model eval flags
-                    this->reset_eval_flags();
-
-                    // evaluate the residual
-                    Matrix< DDRMat > tDivStrainMinus = this->divstrain();
-
-                    // evaluate Jacobian
-                    addivstraindu_FD.get_column( tDofCounter ) =
-                            ( tDivStrainPlus - tDivStrainMinus ) /
-                            ( 2.0 * aPerturbation * tCoeff( iCoeffRow, iCoeffCol ) );
+                        // assemble the jacobian
+                        mddivstraindu( tDofIndex ).get_column( tDofCounter ) +=
+                                tFDScheme( 1 )( iPoint ) * this->divstrain() /
+                                ( tFDScheme( 2 )( 0 ) * tDeltaH );
+                    }
 
                     // update dof counter
                     tDofCounter++;
@@ -929,14 +1058,26 @@ namespace moris
             }
             // reset the coefficients values
             tFIDerivative->set_coeff( tCoeff );
+
+            // FIXME
+            addivstraindu_FD = mddivstraindu( tDofIndex );
         }
 
         //------------------------------------------------------------------------------
         void Constitutive_Model::eval_dHdotdDOF_FD(
                 const moris::Cell< MSI::Dof_Type > & aDofTypes,
-                Matrix< DDRMat >             & adHdotdDOF_FD,
-                real                           aPerturbation )
+                Matrix< DDRMat >                   & adHdotdDOF_FD,
+                real                                 aPerturbation,
+                fem::FDScheme_Type                   aFDSchemeType )
         {
+            // get the FD scheme info
+            moris::Cell< moris::Cell< real > > tFDScheme;
+            fd_scheme( aFDSchemeType, tFDScheme );
+            uint tNumPoints = tFDScheme( 0 ).size();
+
+            // get the derivative dof type index
+            uint tDofIndex = mGlobalDofTypeMap( static_cast< uint >( aDofTypes( 0 ) ) );
+
             // get the field interpolator for type
             Field_Interpolator* tFI = mFIManager->get_field_interpolators_for_type( aDofTypes( 0 ) );
 
@@ -945,9 +1086,9 @@ namespace moris
             uint tDerNumBases  = tFI->get_number_of_space_time_bases();
             uint tDerNumFields = tFI->get_number_of_fields();
 
-            // FIXME works only for diffusion
             // set size for derivative
-            adHdotdDOF_FD.set_size( 1, tDerNumDof, 0.0 );
+            uint tNumRows = this->Hdot().n_rows();
+            mHdotDof( tDofIndex ).set_size( tNumRows, tDerNumDof, 0.0 );
 
             // coefficients for dof type wrt which derivative is computed
             Matrix< DDRMat > tCoeff = tFI->get_coeff();
@@ -961,35 +1102,29 @@ namespace moris
                 // loop over coefficients rows
                 for( uint iCoeffRow = 0; iCoeffRow < tDerNumBases; iCoeffRow++ )
                 {
-                    // perturbation of the coefficent
-                    Matrix< DDRMat > tCoeffPert = tCoeff;
-                    tCoeffPert( iCoeffRow, iCoeffCol ) += aPerturbation * tCoeffPert( iCoeffRow, iCoeffCol );
+                    // compute the perturbation absolute value
+                    real tDeltaH = aPerturbation * tCoeff( iCoeffRow, iCoeffCol );
 
-                    // setting the perturbed coefficients
-                    tFI->set_coeff( tCoeffPert );
+                    // loop over the points for FD
+                    for( uint iPoint = 0; iPoint < tNumPoints; iPoint++ )
+                    {
+                        // reset the perturbed coefficents
+                        Matrix< DDRMat > tCoeffPert = tCoeff;
 
-                    // reset constitutive model
-                    this->reset_eval_flags();
+                        // pertub the coefficent
+                        tCoeffPert( iCoeffRow, iCoeffCol ) += tFDScheme( 0 )( iPoint ) * tDeltaH;
 
-                    // evaluate the residual
-                    Matrix< DDRMat > tHdot_Plus = this->Hdot();
+                        // set the perturbed coefficients to FI
+                        tFI->set_coeff( tCoeffPert );
 
-                    // perturbation of the coefficient
-                    tCoeffPert = tCoeff;
-                    tCoeffPert( iCoeffRow, iCoeffCol ) -= aPerturbation * tCoeffPert( iCoeffRow, iCoeffCol );
+                        // reset properties
+                        this->reset_eval_flags();
 
-                    // setting the perturbed coefficients
-                    tFI->set_coeff( tCoeffPert );
-
-                    // reset constitutive model
-                    this->reset_eval_flags();
-
-                    // evaluate the residual
-                    Matrix< DDRMat > tHdot_Minus = this->Hdot();
-
-                    // evaluate Jacobian
-                    adHdotdDOF_FD.get_column( tDofCounter ) =
-                            ( tHdot_Plus - tHdot_Minus ) / ( 2.0 * aPerturbation * tCoeff( iCoeffRow, iCoeffCol ) );
+                        // assemble dHdotdu
+                        mHdotDof( tDofIndex ).get_column( tDofCounter ) +=
+                                tFDScheme( 1 )( iPoint ) * this->Hdot() /
+                                ( tFDScheme( 2 )( 0 ) * tDeltaH );
+                    }
 
                     // update dof counter
                     tDofCounter++;
@@ -997,14 +1132,26 @@ namespace moris
             }
             // reset the coefficients values
             tFI->set_coeff( tCoeff );
+
+            // FIXME
+            adHdotdDOF_FD = mHdotDof( tDofIndex );
         }
 
         //------------------------------------------------------------------------------
         void Constitutive_Model::eval_dGradHdDOF_FD(
                 const moris::Cell< MSI::Dof_Type > & aDofTypes,
                 Matrix< DDRMat >                   & adGradHdDOF_FD,
-                real                                 aPerturbation )
+                real                                 aPerturbation,
+                fem::FDScheme_Type                   aFDSchemeType )
         {
+            // get the FD scheme info
+            moris::Cell< moris::Cell< real > > tFDScheme;
+            fd_scheme( aFDSchemeType, tFDScheme );
+            uint tNumPoints = tFDScheme( 0 ).size();
+
+            // get the derivative dof type index
+            uint tDofIndex = mGlobalDofTypeMap( static_cast< uint >( aDofTypes( 0 ) ) );
+
             // get the field interpolator for type
             Field_Interpolator* tFI = mFIManager->get_field_interpolators_for_type( aDofTypes( 0 ) );
 
@@ -1013,9 +1160,9 @@ namespace moris
             uint tDerNumBases  = tFI->get_number_of_space_time_bases();
             uint tDerNumFields = tFI->get_number_of_fields();
 
-            // FIXME works only for diffusion
             // set size for derivative
-            adGradHdDOF_FD.set_size( mSpaceDim, tDerNumDof, 0.0 );
+            uint tNumRows = this->gradH().n_rows();
+            mGradHDof( tDofIndex ).set_size( tNumRows, tDerNumDof, 0.0 );
 
             // coefficients for dof type wrt which derivative is computed
             Matrix< DDRMat > tCoeff = tFI->get_coeff();
@@ -1029,35 +1176,29 @@ namespace moris
                 // loop over coefficients rows
                 for( uint iCoeffRow = 0; iCoeffRow < tDerNumBases; iCoeffRow++ )
                 {
-                    // perturbation of the coefficient
-                    Matrix< DDRMat > tCoeffPert = tCoeff;
-                    tCoeffPert( iCoeffRow, iCoeffCol ) += aPerturbation * tCoeffPert( iCoeffRow, iCoeffCol );
+                    // compute the perturbation absolute value
+                    real tDeltaH = aPerturbation * tCoeff( iCoeffRow, iCoeffCol );
 
-                    // setting the perturbed coefficients
-                    tFI->set_coeff( tCoeffPert );
+                    // loop over the points for FD
+                    for( uint iPoint = 0; iPoint < tNumPoints; iPoint++ )
+                    {
+                        // reset the perturbed coefficents
+                        Matrix< DDRMat > tCoeffPert = tCoeff;
 
-                    // reset constitutive model
-                    this->reset_eval_flags();
+                        // pertub the coefficent
+                        tCoeffPert( iCoeffRow, iCoeffCol ) += tFDScheme( 0 )( iPoint ) * tDeltaH;
 
-                    // evaluate the residual
-                    Matrix< DDRMat > tGradH_Plus = this->gradH();
+                        // set the perturbed coefficients to FI
+                        tFI->set_coeff( tCoeffPert );
 
-                    // perturbation of the coefficient
-                    tCoeffPert = tCoeff;
-                    tCoeffPert( iCoeffRow, iCoeffCol ) -= aPerturbation * tCoeffPert( iCoeffRow, iCoeffCol );
+                        // reset properties
+                        this->reset_eval_flags();
 
-                    // setting the perturbed coefficients
-                    tFI->set_coeff( tCoeffPert );
-
-                    // reset constitutive model
-                    this->reset_eval_flags();
-
-                    // evaluate the residual
-                    Matrix< DDRMat > tGradH_Minus = this->gradH();
-
-                    // evaluate Jacobian
-                    adGradHdDOF_FD.get_column( tDofCounter ) =
-                            ( tGradH_Plus - tGradH_Minus ) / ( 2.0 * aPerturbation * tCoeff( iCoeffRow, iCoeffCol ) );
+                        // assemble dGradHdu
+                        mGradHDof( tDofIndex ).get_column( tDofCounter ) +=
+                                tFDScheme( 1 )( iPoint ) * this->gradH() /
+                                ( tFDScheme( 2 )( 0 ) * tDeltaH );
+                    }
 
                     // update dof counter
                     tDofCounter++;
@@ -1065,14 +1206,26 @@ namespace moris
             }
             // reset the coefficients values
             tFI->set_coeff( tCoeff );
+
+            // FIXME
+            adGradHdDOF_FD = mGradHDof( tDofIndex );
         }
 
         //------------------------------------------------------------------------------
         void Constitutive_Model::eval_dGradHdotdDOF_FD(
                 const moris::Cell< MSI::Dof_Type > & aDofTypes,
                 Matrix< DDRMat >                   & adGradHdotdDOF_FD,
-                real                                 aPerturbation )
+                real                                 aPerturbation,
+                fem::FDScheme_Type                   aFDSchemeType )
         {
+            // get the FD scheme info
+            moris::Cell< moris::Cell< real > > tFDScheme;
+            fd_scheme( aFDSchemeType, tFDScheme );
+            uint tNumPoints = tFDScheme( 0 ).size();
+
+            // get the derivative dof type index
+            uint tDofIndex = mGlobalDofTypeMap( static_cast< uint >( aDofTypes( 0 ) ) );
+
             // get the field interpolator for type
             Field_Interpolator* tFI = mFIManager->get_field_interpolators_for_type( aDofTypes( 0 ) );
 
@@ -1081,9 +1234,9 @@ namespace moris
             uint tDerNumBases  = tFI->get_number_of_space_time_bases();
             uint tDerNumFields = tFI->get_number_of_fields();
 
-            // FIXME works only for diffusion
             // set size for derivative
-            adGradHdotdDOF_FD.set_size( mSpaceDim, tDerNumDof, 0.0 );
+            uint tNumRows = this->gradHdot().n_rows();
+            mGradHdotDof( tDofIndex ).set_size( tNumRows, tDerNumDof, 0.0 );
 
             // coefficients for dof type wrt which derivative is computed
             Matrix< DDRMat > tCoeff = tFI->get_coeff();
@@ -1097,35 +1250,29 @@ namespace moris
                 // loop over coefficients rows
                 for( uint iCoeffRow = 0; iCoeffRow < tDerNumBases; iCoeffRow++ )
                 {
-                    // perturbation of the coefficient
-                    Matrix< DDRMat > tCoeffPert = tCoeff;
-                    tCoeffPert( iCoeffRow, iCoeffCol ) += aPerturbation * tCoeffPert( iCoeffRow, iCoeffCol );
+                    // compute the perturbation absolute value
+                    real tDeltaH = aPerturbation * tCoeff( iCoeffRow, iCoeffCol );
 
-                    // setting the perturbed coefficients
-                    tFI->set_coeff( tCoeffPert );
+                    // loop over the points for FD
+                    for( uint iPoint = 0; iPoint < tNumPoints; iPoint++ )
+                    {
+                        // reset the perturbed coefficents
+                        Matrix< DDRMat > tCoeffPert = tCoeff;
 
-                    // reset constitutive model
-                    this->reset_eval_flags();
+                        // pertub the coefficent
+                        tCoeffPert( iCoeffRow, iCoeffCol ) += tFDScheme( 0 )( iPoint ) * tDeltaH;
 
-                    // evaluate the residual
-                    Matrix< DDRMat > tGradHdot_Plus = this->gradHdot();
+                        // set the perturbed coefficients to FI
+                        tFI->set_coeff( tCoeffPert );
 
-                    // perturbation of the coefficient
-                    tCoeffPert = tCoeff;
-                    tCoeffPert( iCoeffRow, iCoeffCol ) -= aPerturbation * tCoeffPert( iCoeffRow, iCoeffCol );
+                        // reset properties
+                        this->reset_eval_flags();
 
-                    // setting the perturbed coefficients
-                    tFI->set_coeff( tCoeffPert );
-
-                    // reset constitutive model
-                    this->reset_eval_flags();
-
-                    // evaluate the residual
-                    Matrix< DDRMat > tGradHdot_Minus = this->gradHdot();
-
-                    // evaluate Jacobian
-                    adGradHdotdDOF_FD.get_column( tDofCounter ) =
-                            ( tGradHdot_Plus - tGradHdot_Minus ) / ( 2.0 * aPerturbation * tCoeff( iCoeffRow, iCoeffCol ) );
+                        // assemble dGradHdu
+                        mGradHdotDof( tDofIndex ).get_column( tDofCounter ) +=
+                                tFDScheme( 1 )( iPoint ) * this->gradHdot() /
+                                ( tFDScheme( 2 )( 0 ) * tDeltaH );
+                    }
 
                     // update dof counter
                     tDofCounter++;
@@ -1133,14 +1280,26 @@ namespace moris
             }
             // reset the coefficients values
             tFI->set_coeff( tCoeff );
+
+            // FIXME
+            adGradHdotdDOF_FD = mGradHdotDof( tDofIndex );
         }
 
         //------------------------------------------------------------------------------
         void Constitutive_Model::eval_dGradDivFluxdDOF_FD(
                 const moris::Cell< MSI::Dof_Type > & aDofTypes,
                 Matrix< DDRMat >                   & adGradDivFluxdDOF_FD,
-                real                                 aPerturbation )
+                real                                 aPerturbation,
+                fem::FDScheme_Type                   aFDSchemeType )
         {
+            // get the FD scheme info
+            moris::Cell< moris::Cell< real > > tFDScheme;
+            fd_scheme( aFDSchemeType, tFDScheme );
+            uint tNumPoints = tFDScheme( 0 ).size();
+
+            // get the derivative dof type index
+            uint tDofIndex = mGlobalDofTypeMap( static_cast< uint >( aDofTypes( 0 ) ) );
+
             // get the field interpolator for type
             Field_Interpolator* tFI = mFIManager->get_field_interpolators_for_type( aDofTypes( 0 ) );
 
@@ -1149,9 +1308,9 @@ namespace moris
             uint tDerNumBases  = tFI->get_number_of_space_time_bases();
             uint tDerNumFields = tFI->get_number_of_fields();
 
-            // FIXME works only for diffusion
             // set size for derivative
-            adGradDivFluxdDOF_FD.set_size( mSpaceDim, tDerNumDof, 0.0 );
+            uint tNumRows = this->graddivflux().n_rows();
+            mGradDivFluxDof( tDofIndex ).set_size( tNumRows, tDerNumDof, 0.0 );
 
             // coefficients for dof type wrt which derivative is computed
             Matrix< DDRMat > tCoeff = tFI->get_coeff();
@@ -1165,35 +1324,29 @@ namespace moris
                 // loop over coefficients rows
                 for( uint iCoeffRow = 0; iCoeffRow < tDerNumBases; iCoeffRow++ )
                 {
-                    // perturbation of the coefficient
-                    Matrix< DDRMat > tCoeffPert = tCoeff;
-                    tCoeffPert( iCoeffRow, iCoeffCol ) += aPerturbation * tCoeffPert( iCoeffRow, iCoeffCol );
+                    // compute the perturbation absolute value
+                    real tDeltaH = aPerturbation * tCoeff( iCoeffRow, iCoeffCol );
 
-                    // setting the perturbed coefficients
-                    tFI->set_coeff( tCoeffPert );
+                    // loop over the points for FD
+                    for( uint iPoint = 0; iPoint < tNumPoints; iPoint++ )
+                    {
+                        // reset the perturbed coefficents
+                        Matrix< DDRMat > tCoeffPert = tCoeff;
 
-                    // reset constitutive model
-                    this->reset_eval_flags();
+                        // pertub the coefficent
+                        tCoeffPert( iCoeffRow, iCoeffCol ) += tFDScheme( 0 )( iPoint ) * tDeltaH;
 
-                    // evaluate the residual
-                    Matrix< DDRMat > tGradDivFlux_Plus = this->graddivflux();
+                        // set the perturbed coefficients to FI
+                        tFI->set_coeff( tCoeffPert );
 
-                    // perturbation of the coefficient
-                    tCoeffPert = tCoeff;
-                    tCoeffPert( iCoeffRow, iCoeffCol ) -= aPerturbation * tCoeffPert( iCoeffRow, iCoeffCol );
+                        // reset properties
+                        this->reset_eval_flags();
 
-                    // setting the perturbed coefficients
-                    tFI->set_coeff( tCoeffPert );
-
-                    // reset constitutive model
-                    this->reset_eval_flags();
-
-                    // evaluate the residual
-                    Matrix< DDRMat > tGradDivFlux_Minus = this->graddivflux();
-
-                    // evaluate Jacobian
-                    adGradDivFluxdDOF_FD.get_column( tDofCounter ) =
-                            ( tGradDivFlux_Plus - tGradDivFlux_Minus ) / ( 2.0 * aPerturbation * tCoeff( iCoeffRow, iCoeffCol ) );
+                        // assemble dGradHdu
+                        mGradDivFluxDof( tDofIndex ).get_column( tDofCounter ) +=
+                                tFDScheme( 1 )( iPoint ) * this->graddivflux() /
+                                ( tFDScheme( 2 )( 0 ) * tDeltaH );
+                    }
 
                     // update dof counter
                     tDofCounter++;
@@ -1201,14 +1354,26 @@ namespace moris
             }
             // reset the coefficients values
             tFI->set_coeff( tCoeff );
+
+            // FIXME
+            adGradDivFluxdDOF_FD = mGradDivFluxDof( tDofIndex );
         }
 
         //------------------------------------------------------------------------------
         void Constitutive_Model::eval_dStraindDOF_FD(
                 const moris::Cell< MSI::Dof_Type > & aDofTypes,
                 Matrix< DDRMat >                   & adStraindDOF_FD,
-                real                                 aPerturbation )
+                real                                 aPerturbation,
+                fem::FDScheme_Type                   aFDSchemeType )
         {
+            // get the FD scheme info
+            moris::Cell< moris::Cell< real > > tFDScheme;
+            fd_scheme( aFDSchemeType, tFDScheme );
+            uint tNumPoints = tFDScheme( 0 ).size();
+
+            // get the derivative dof type index
+            uint tDofIndex = mGlobalDofTypeMap( static_cast< uint >( aDofTypes( 0 ) ) );
+
             // get the field interpolator for type
             Field_Interpolator* tFI = mFIManager->get_field_interpolators_for_type( aDofTypes( 0 ) );
 
@@ -1217,11 +1382,9 @@ namespace moris
             uint tDerNumBases  = tFI->get_number_of_space_time_bases();
             uint tDerNumFields = tFI->get_number_of_fields();
 
-            // FIXME works only for diffusion
             // set size for derivative
             uint tNumRow = this->strain().n_rows();
-
-            adStraindDOF_FD.set_size( tNumRow, tDerNumDof, 0.0 );
+            mdStraindDof( tDofIndex ).set_size( tNumRow, tDerNumDof, 0.0 );
 
             // coefficients for dof type wrt which derivative is computed
             Matrix< DDRMat > tCoeff = tFI->get_coeff();
@@ -1235,35 +1398,29 @@ namespace moris
                 // loop over coefficients rows
                 for( uint iCoeffRow = 0; iCoeffRow < tDerNumBases; iCoeffRow++ )
                 {
-                    // perturbation of the coefficient
-                    Matrix< DDRMat > tCoeffPert = tCoeff;
-                    tCoeffPert( iCoeffRow, iCoeffCol ) += aPerturbation * tCoeffPert( iCoeffRow, iCoeffCol );
+                    // compute the perturbation absolute value
+                    real tDeltaH = aPerturbation * tCoeff( iCoeffRow, iCoeffCol );
 
-                    // setting the perturbed coefficients
-                    tFI->set_coeff( tCoeffPert );
+                    // loop over the points for FD
+                    for( uint iPoint = 0; iPoint < tNumPoints; iPoint++ )
+                    {
+                        // reset the perturbed coefficents
+                        Matrix< DDRMat > tCoeffPert = tCoeff;
 
-                    // reset constitutive model
-                    this->reset_eval_flags();
+                        // pertub the coefficent
+                        tCoeffPert( iCoeffRow, iCoeffCol ) += tFDScheme( 0 )( iPoint ) * tDeltaH;
 
-                    // evaluate the residual
-                    Matrix< DDRMat > tStrain_Plus = this->strain();
+                        // set the perturbed coefficients to FI
+                        tFI->set_coeff( tCoeffPert );
 
-                    // perturbation of the coefficient
-                    tCoeffPert = tCoeff;
-                    tCoeffPert( iCoeffRow, iCoeffCol ) -= aPerturbation * tCoeffPert( iCoeffRow, iCoeffCol );
+                        // reset properties
+                        this->reset_eval_flags();
 
-                    // setting the perturbed coefficients
-                    tFI->set_coeff( tCoeffPert );
-
-                    // reset constitutive model
-                    this->reset_eval_flags();
-
-                    // evaluate the residual
-                    Matrix< DDRMat > tStrain_Minus = this->strain();
-
-                    // evaluate Jacobian
-                    adStraindDOF_FD.get_column( tDofCounter ) =
-                            ( tStrain_Plus - tStrain_Minus ) / ( 2.0 * aPerturbation * tCoeff( iCoeffRow, iCoeffCol ) );
+                        // assemble dstraindu
+                        mdStraindDof( tDofIndex ).get_column( tDofCounter ) +=
+                                tFDScheme( 1 )( iPoint ) * this->strain() /
+                                ( tFDScheme( 2 )( 0 ) * tDeltaH );
+                    }
 
                     // update dof counter
                     tDofCounter++;
@@ -1271,14 +1428,22 @@ namespace moris
             }
             // reset the coefficients values
             tFI->set_coeff( tCoeff );
+
+            // FIXME
+            adStraindDOF_FD = mdStraindDof( tDofIndex );
         }
 
         //------------------------------------------------------------------------------
         void Constitutive_Model::eval_dFluxdDV_FD(
                 const moris::Cell< PDV_Type > & aDvTypes,
                 Matrix< DDRMat >              & adFluxdDV_FD,
-                real                            aPerturbation )
+                real                            aPerturbation,
+                fem::FDScheme_Type              aFDSchemeType )
         {
+            // get the FD scheme info
+            moris::Cell< moris::Cell< real > > tFDScheme;
+            fd_scheme( aFDSchemeType, tFDScheme );
+
             // get the field interpolator for type
             Field_Interpolator* tFI = mFIManager->get_field_interpolators_for_type( aDvTypes( 0 ) );
 
@@ -1287,9 +1452,9 @@ namespace moris
             uint tDerNumBases  = tFI->get_number_of_space_time_bases();
             uint tDerNumFields = tFI->get_number_of_fields();
 
-            // FIXME works only for diffusion
             // set size for derivative
-            adFluxdDV_FD.set_size( mSpaceDim, tDerNumDv, 0.0 );
+            uint tNumRow = this->flux().n_rows();
+            adFluxdDV_FD.set_size( tNumRow, tDerNumDv, 0.0 );
 
             // coefficients for dv type wrt which derivative is computed
             Matrix< DDRMat > tCoeff = tFI->get_coeff();
@@ -1345,8 +1510,13 @@ namespace moris
         void Constitutive_Model::eval_dStraindDV_FD(
                 const moris::Cell< PDV_Type > & aDvTypes,
                 Matrix< DDRMat >              & adStraindDV_FD,
-                real                            aPerturbation )
+                real                            aPerturbation,
+                fem::FDScheme_Type              aFDSchemeType )
         {
+            // get the FD scheme info
+            moris::Cell< moris::Cell< real > > tFDScheme;
+            fd_scheme( aFDSchemeType, tFDScheme );
+
             // get the field interpolator for type
             Field_Interpolator* tFI = mFIManager->get_field_interpolators_for_type( aDvTypes( 0 ) );
 
@@ -1355,9 +1525,9 @@ namespace moris
             uint tDerNumBases  = tFI->get_number_of_space_time_bases();
             uint tDerNumFields = tFI->get_number_of_fields();
 
-            // FIXME works only for diffusion
             // set size for derivative
-            adStraindDV_FD.set_size( mSpaceDim, tDerNumDv, 0.0 );
+            uint tNumRow = this->strain().n_rows();
+            adStraindDV_FD.set_size( tNumRow, tDerNumDv, 0.0 );
 
             // coefficients for dv type wrt which derivative is computed
             Matrix< DDRMat > tCoeff = tFI->get_coeff();

@@ -316,7 +316,6 @@ namespace moris
         tIWGVelocityBulk->set_residual_dof_type( { MSI::Dof_Type::VX } );
         tIWGVelocityBulk->set_dof_type_list( {{ MSI::Dof_Type::VX, MSI::Dof_Type::VY }, { MSI::Dof_Type::P }}, mtk::Master_Slave::MASTER );
         tIWGVelocityBulk->set_constitutive_model( tCMFluid, "IncompressibleFluid" );
-        tIWGVelocityBulk->set_property( tPropFluidDensity, "Density" );
         tIWGVelocityBulk->set_stabilization_parameter( tSPIncFlow, "IncompressibleFlow" );
 
         std::shared_ptr< fem::IWG > tIWGPressureBulk
@@ -324,7 +323,6 @@ namespace moris
         tIWGPressureBulk->set_residual_dof_type( { MSI::Dof_Type::P } );
         tIWGPressureBulk->set_dof_type_list( {{ MSI::Dof_Type::VX, MSI::Dof_Type::VY }, { MSI::Dof_Type::P }}, mtk::Master_Slave::MASTER );
         tIWGPressureBulk->set_constitutive_model( tCMFluid, "IncompressibleFluid" );
-        tIWGPressureBulk->set_property( tPropFluidDensity, "Density" );
         tIWGPressureBulk->set_stabilization_parameter( tSPIncFlow, "IncompressibleFlow" );
 
         std::shared_ptr< fem::IWG > tIWGInletVelocity
@@ -682,7 +680,6 @@ TEST_CASE("MDL_Fluid_Benchmark_Immersed_Inlet_Pressure","[MDL_Fluid_Benchmark_Im
         tIWGVelocityBulk->set_residual_dof_type( { MSI::Dof_Type::VX } );
         tIWGVelocityBulk->set_dof_type_list( {{ MSI::Dof_Type::VX, MSI::Dof_Type::VY }, { MSI::Dof_Type::P }}, mtk::Master_Slave::MASTER );
         tIWGVelocityBulk->set_constitutive_model( tCMFluid, "IncompressibleFluid" );
-        tIWGVelocityBulk->set_property( tPropFluidDensity, "Density" );
         tIWGVelocityBulk->set_stabilization_parameter( tSPIncFlow, "IncompressibleFlow" );
 
         std::shared_ptr< fem::IWG > tIWGPressureBulk
@@ -690,7 +687,6 @@ TEST_CASE("MDL_Fluid_Benchmark_Immersed_Inlet_Pressure","[MDL_Fluid_Benchmark_Im
         tIWGPressureBulk->set_residual_dof_type( { MSI::Dof_Type::P } );
         tIWGPressureBulk->set_dof_type_list( {{ MSI::Dof_Type::VX, MSI::Dof_Type::VY }, { MSI::Dof_Type::P }}, mtk::Master_Slave::MASTER );
         tIWGPressureBulk->set_constitutive_model( tCMFluid, "IncompressibleFluid" );
-        tIWGPressureBulk->set_property( tPropFluidDensity, "Density" );
         tIWGPressureBulk->set_stabilization_parameter( tSPIncFlow, "IncompressibleFlow" );
 
         std::shared_ptr< fem::IWG > tIWGInletPressure
@@ -1101,7 +1097,6 @@ TEST_CASE("MDL_Fluid_Benchmark_Immersed_Inlet_Pressure","[MDL_Fluid_Benchmark_Im
 //        tIWGVelocityBulk->set_residual_dof_type( { MSI::Dof_Type::VX } );
 //        tIWGVelocityBulk->set_dof_type_list( {{ MSI::Dof_Type::VX, MSI::Dof_Type::VY, MSI::Dof_Type::VZ }, { MSI::Dof_Type::P }}, mtk::Master_Slave::MASTER );
 //        tIWGVelocityBulk->set_constitutive_model( tCMFluid, "IncompressibleFluid" );
-//        tIWGVelocityBulk->set_property( tPropFluidDensity, "Density" );
 //        tIWGVelocityBulk->set_stabilization_parameter( tSPIncFlow, "IncompressibleFlow" );
 //
 //        std::shared_ptr< fem::IWG > tIWGPressureBulk
@@ -1109,7 +1104,6 @@ TEST_CASE("MDL_Fluid_Benchmark_Immersed_Inlet_Pressure","[MDL_Fluid_Benchmark_Im
 //        tIWGPressureBulk->set_residual_dof_type( { MSI::Dof_Type::P } );
 //        tIWGPressureBulk->set_dof_type_list( {{ MSI::Dof_Type::VX, MSI::Dof_Type::VY, MSI::Dof_Type::VZ }, { MSI::Dof_Type::P }}, mtk::Master_Slave::MASTER );
 //        tIWGPressureBulk->set_constitutive_model( tCMFluid, "IncompressibleFluid" );
-//        tIWGPressureBulk->set_property( tPropFluidDensity, "Density" );
 //        tIWGPressureBulk->set_stabilization_parameter( tSPIncFlow, "IncompressibleFlow" );
 //
 //        std::shared_ptr< fem::IWG > tIWGInletPressure
@@ -1419,7 +1413,6 @@ TEST_CASE("MDL_Fluid_Benchmark_Immersed_Inlet_Pressure","[MDL_Fluid_Benchmark_Im
 //        tIWGVelocityBulk->set_residual_dof_type( { MSI::Dof_Type::VX } );
 //        tIWGVelocityBulk->set_dof_type_list( {{ MSI::Dof_Type::VX, MSI::Dof_Type::VY }, { MSI::Dof_Type::P }}, mtk::Master_Slave::MASTER );
 //        tIWGVelocityBulk->set_constitutive_model( tCMFluid, "IncompressibleFluid" );
-//        tIWGVelocityBulk->set_property( tPropFluidDensity, "Density" );
 //        tIWGVelocityBulk->set_stabilization_parameter( tSPIncFlow, "IncompressibleFlow" );
 //
 //        std::shared_ptr< fem::IWG > tIWGPressureBulk
@@ -1427,7 +1420,6 @@ TEST_CASE("MDL_Fluid_Benchmark_Immersed_Inlet_Pressure","[MDL_Fluid_Benchmark_Im
 //        tIWGPressureBulk->set_residual_dof_type( { MSI::Dof_Type::P } );
 //        tIWGPressureBulk->set_dof_type_list( {{ MSI::Dof_Type::VX, MSI::Dof_Type::VY }, { MSI::Dof_Type::P }}, mtk::Master_Slave::MASTER );
 //        tIWGPressureBulk->set_constitutive_model( tCMFluid, "IncompressibleFluid" );
-//        tIWGPressureBulk->set_property( tPropFluidDensity, "Density" );
 //        tIWGPressureBulk->set_stabilization_parameter( tSPIncFlow, "IncompressibleFlow" );
 //
 //        std::shared_ptr< fem::IWG > tIWGInletVelocity
@@ -1689,7 +1681,6 @@ TEST_CASE("MDL_Fluid_Benchmark_Immersed_Inlet_Pressure","[MDL_Fluid_Benchmark_Im
 //        tIWGVelocityBulk->set_residual_dof_type( { MSI::Dof_Type::VX } );
 //        tIWGVelocityBulk->set_dof_type_list( {{ MSI::Dof_Type::VX, MSI::Dof_Type::VY }, { MSI::Dof_Type::P }}, mtk::Master_Slave::MASTER );
 //        tIWGVelocityBulk->set_constitutive_model( tCMFluid, "IncompressibleFluid" );
-//        tIWGVelocityBulk->set_property( tPropFluidDensity, "Density" );
 //        tIWGVelocityBulk->set_stabilization_parameter( tSPIncFlow, "IncompressibleFlow" );
 //
 //        std::shared_ptr< fem::IWG > tIWGPressureBulk
@@ -1697,7 +1688,6 @@ TEST_CASE("MDL_Fluid_Benchmark_Immersed_Inlet_Pressure","[MDL_Fluid_Benchmark_Im
 //        tIWGPressureBulk->set_residual_dof_type( { MSI::Dof_Type::P } );
 //        tIWGPressureBulk->set_dof_type_list( {{ MSI::Dof_Type::P }, { MSI::Dof_Type::VX, MSI::Dof_Type::VY }}, mtk::Master_Slave::MASTER );
 //        tIWGPressureBulk->set_constitutive_model( tCMFluid, "IncompressibleFluid" );
-//        tIWGPressureBulk->set_property( tPropFluidDensity, "Density" );
 //        tIWGPressureBulk->set_stabilization_parameter( tSPIncFlow, "IncompressibleFlow" );
 //
 //        std::shared_ptr< fem::IWG > tIWGInletPressure
@@ -1956,7 +1946,6 @@ TEST_CASE("MDL_Fluid_Benchmark_Immersed_Inlet_Pressure","[MDL_Fluid_Benchmark_Im
 //        tIWGVelocityBulk->set_residual_dof_type( { MSI::Dof_Type::VX } );
 //        tIWGVelocityBulk->set_dof_type_list( {{ MSI::Dof_Type::VX, MSI::Dof_Type::VY, MSI::Dof_Type::VZ }, { MSI::Dof_Type::P }}, mtk::Master_Slave::MASTER );
 //        tIWGVelocityBulk->set_constitutive_model( tCMFluid, "IncompressibleFluid" );
-//        tIWGVelocityBulk->set_property( tPropFluidDensity, "Density" );
 //        tIWGVelocityBulk->set_stabilization_parameter( tSPIncFlow, "IncompressibleFlow" );
 //
 //        std::shared_ptr< fem::IWG > tIWGPressureBulk
@@ -1964,7 +1953,6 @@ TEST_CASE("MDL_Fluid_Benchmark_Immersed_Inlet_Pressure","[MDL_Fluid_Benchmark_Im
 //        tIWGPressureBulk->set_residual_dof_type( { MSI::Dof_Type::P } );
 //        tIWGPressureBulk->set_dof_type_list( {{ MSI::Dof_Type::P }, { MSI::Dof_Type::VX, MSI::Dof_Type::VY, MSI::Dof_Type::VZ }}, mtk::Master_Slave::MASTER );
 //        tIWGPressureBulk->set_constitutive_model( tCMFluid, "IncompressibleFluid" );
-//        tIWGPressureBulk->set_property( tPropFluidDensity, "Density" );
 //        tIWGPressureBulk->set_stabilization_parameter( tSPIncFlow, "IncompressibleFlow" );
 //
 //        std::shared_ptr< fem::IWG > tIWGInletPressure
@@ -2379,7 +2367,6 @@ TEST_CASE("MDL_Fluid_Benchmark_Radial_Couette_Flow","[MDL_Fluid_Benchmark_Radial
         tIWGVelocityBulk->set_residual_dof_type( { MSI::Dof_Type::VX } );
         tIWGVelocityBulk->set_dof_type_list( {{ MSI::Dof_Type::VX, MSI::Dof_Type::VY }, { MSI::Dof_Type::P }}, mtk::Master_Slave::MASTER );
         tIWGVelocityBulk->set_constitutive_model( tCMFluid, "IncompressibleFluid" );
-        tIWGVelocityBulk->set_property( tPropFluidDensity, "Density" );
         tIWGVelocityBulk->set_stabilization_parameter( tSPIncFlow, "IncompressibleFlow" );
 
         std::shared_ptr< fem::IWG > tIWGPressureBulk
@@ -2387,7 +2374,6 @@ TEST_CASE("MDL_Fluid_Benchmark_Radial_Couette_Flow","[MDL_Fluid_Benchmark_Radial
         tIWGPressureBulk->set_residual_dof_type( { MSI::Dof_Type::P } );
         tIWGPressureBulk->set_dof_type_list( {{ MSI::Dof_Type::VX, MSI::Dof_Type::VY }, { MSI::Dof_Type::P }}, mtk::Master_Slave::MASTER );
         tIWGPressureBulk->set_constitutive_model( tCMFluid, "IncompressibleFluid" );
-        tIWGPressureBulk->set_property( tPropFluidDensity, "Density" );
         tIWGPressureBulk->set_stabilization_parameter( tSPIncFlow, "IncompressibleFlow" );
 
         std::shared_ptr< fem::IWG > tIWGDirichletVelocity

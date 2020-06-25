@@ -30,6 +30,9 @@ namespace moris
                 //------------------------------------------------------------------------------
             public:
 
+                // sign for symmetric/unsymmetric Nitsche
+                sint mBeta = 1;
+
                 // local constitutive enums
                 enum class IWG_Constitutive_Type
                 {
@@ -52,9 +55,10 @@ namespace moris
 
                 //------------------------------------------------------------------------------
                 /*
-                 *  constructor
+                 * constructor
+                 * @param[ in ] aBeta +1 or -1 for symmetric/skew symmetric Nitsche
                  */
-                IWG_Incompressible_NS_Pressure_Interface();
+                IWG_Incompressible_NS_Pressure_Interface( sint aBeta );
 
                 //------------------------------------------------------------------------------
                 /**

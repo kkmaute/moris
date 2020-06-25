@@ -82,7 +82,6 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
-
         void Geometry_Interpolator::set_space_coeff( const Matrix< DDRMat > & aXHat )
         {
             //check the space coefficients input size
@@ -94,7 +93,6 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
-
         void Geometry_Interpolator::set_time_coeff( const Matrix< DDRMat > & aTHat )
         {
             //check the time coefficients input size
@@ -106,7 +104,6 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
-
         void Geometry_Interpolator::set_param_coeff()
         {
             // default implementation
@@ -135,7 +132,6 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
-
         void Geometry_Interpolator::set_space_param_coeff( const Matrix< DDRMat > & aXiHat )
         {
             //check the space param coefficients input size
@@ -151,7 +147,8 @@ namespace moris
         {
             //check the time param coefficients input size
             // fixme can not check the number of cols for aTauHat
-            MORIS_ASSERT( aTauHat.n_rows() == mNumTimeBases, " Geometry_Interpolator::set_time_coeff - Wrong input size (aTauHat). ");
+            MORIS_ASSERT( aTauHat.n_rows() == mNumTimeBases,
+                    " Geometry_Interpolator::set_time_coeff - Wrong input size (aTauHat). ");
 
             // set the time coefficients
             mTauHat = aTauHat;
@@ -245,7 +242,6 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
-
         Matrix< DDRMat > Geometry_Interpolator::extract_space_side_space_param_coeff(
                 moris_index              aSpaceOrdinal,
                 mtk::Interpolation_Order aInterpolationOrder )

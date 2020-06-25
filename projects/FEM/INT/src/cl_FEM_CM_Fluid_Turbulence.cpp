@@ -107,6 +107,24 @@ namespace moris
             mProperties( static_cast< uint >( mPropertyMap[ aPropertyString ] ) ) = aProperty;
         }
 
+        //------------------------------------------------------------------------------
+        std::shared_ptr< Property > CM_Fluid_Turbulence::get_property(
+                std::string aPropertyString )
+        {
+            // check that aPropertyString makes sense
+            if ( mPropertyMap.find( aPropertyString ) == mPropertyMap.end() )
+            {
+                std::string tErrMsg =
+                        std::string( "CM_Fluid_Turbulence::get_property - Unknown aPropertyString : ") +
+                        aPropertyString;
+
+                MORIS_ERROR( false , tErrMsg.c_str() );
+            }
+
+            // get the property in the property cell
+            return  mProperties( static_cast< uint >( mPropertyMap[ aPropertyString ] ) );
+        }
+
         //--------------------------------------------------------------------------------------------------------------
         void CM_Fluid_Turbulence::eval_flux()
         {
@@ -133,7 +151,7 @@ namespace moris
 
             // compute flux
             mDivFlux = 2.0 * tViscosityT * this->divstrain()
-                    + 2.0 * tdViscosityTdxFlat * this->strain();
+                     + 2.0 * tdViscosityTdxFlat * this->strain();
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -158,19 +176,6 @@ namespace moris
             // if velocity dof
             if( aDofTypes( 0 ) == mDofVelocity )
             {
-                // add contribution to ddivstrain/dv
-                mddivfluxdu( tDofIndex ).matrix_data() +=
-                        2.0 * tViscosityT * this->ddivstraindu( aDofTypes );
-            }
-
-            // get the turbulence viscosity
-            Matrix< DDRMat > tdviscositytdu;
-            this->compute_dviscositytdu( aDofTypes, tdviscositytdu );
-
-                // add contribution to ddivstrain/du
-                mddivfluxdu( tDofIndex ).matrix_data() +=
-                        2.0 * this->divstrain() * tdviscositytdu;
-
                 // get the gradx for the turbulence viscosity
                 Matrix< DDRMat > tdViscosityTdx;
                 this->compute_dviscositytdx( tdViscosityTdx );
@@ -179,42 +184,54 @@ namespace moris
                 Matrix< DDRMat > tdViscosityTdxFlat;
                 this->flatten_normal( tdViscosityTdx, tdViscosityTdxFlat );
 
-                //
+                // add contribution to ddivstrain/dv
                 mddivfluxdu( tDofIndex ).matrix_data() +=
-                        2.0 * tdViscosityTdxFlat * this->dStraindDOF( aDofTypes );
+                        tViscosityT * this->ddivstraindu( aDofTypes ) +
+                        tdViscosityTdxFlat * this->dStraindDOF( aDofTypes );
+            }
 
-                // get the derivative of gradx for the turbulence viscosity wrt dof
-                Matrix< DDRMat > tdViscosityTdxdu;
-                this->compute_dviscositytdxdu( aDofTypes, tdViscosityTdxdu );
+            // get the turbulence viscosity
+            Matrix< DDRMat > tdviscositytdu;
+            this->compute_dviscositytdu( aDofTypes, tdviscositytdu );
 
-                Matrix< DDRMat > tStrain = this->strain();
-                Matrix< DDRMat > tStrainFull;
-                switch ( mSpaceDim )
+            // add contribution to ddivstrain/du
+            mddivfluxdu( tDofIndex ).matrix_data() += this->divstrain() * tdviscositytdu;
+
+            // get the derivative of gradx for the turbulence viscosity wrt dof
+            Matrix< DDRMat > tdViscosityTdxdu;
+            this->compute_dviscositytdxdu( aDofTypes, tdViscosityTdxdu );
+
+            Matrix< DDRMat > tStrain = this->strain();
+            Matrix< DDRMat > tStrainFull;
+            switch ( mSpaceDim )
+            {
+                case 2:
                 {
-                    case 2:
-                    {
-                        tStrainFull = {
-                                { tStrain( 0 ), tStrain( 2 ) },
-                                { tStrain( 2 ), tStrain( 1 ) } };
-                        break;
-                    }
-
-                    case 3:
-                    {
-                        tStrainFull = {
-                                { tStrain( 0 ), tStrain( 5 ), tStrain( 4 ) },
-                                { tStrain( 5 ), tStrain( 1 ), tStrain( 3 ) },
-                                { tStrain( 4 ), tStrain( 3 ), tStrain( 2 ) }};
-                        break;
-                    }
-
-                    default:
-                        MORIS_ERROR( false, "CM_Fluid_Turbulence::eval_ddivfluxdu - only 2 or 3D" );
-                        break;
+                    tStrainFull = {
+                            { tStrain( 0 ), tStrain( 2 ) },
+                            { tStrain( 2 ), tStrain( 1 ) } };
+                    break;
                 }
-                //
-                mddivfluxdu( tDofIndex ).matrix_data() +=
-                        2.0 * tStrainFull * tdViscosityTdxdu;
+
+                case 3:
+                {
+                    tStrainFull = {
+                            { tStrain( 0 ), tStrain( 5 ), tStrain( 4 ) },
+                            { tStrain( 5 ), tStrain( 1 ), tStrain( 3 ) },
+                            { tStrain( 4 ), tStrain( 3 ), tStrain( 2 ) }};
+                    break;
+                }
+
+                default:
+                    MORIS_ERROR( false, "CM_Fluid_Turbulence::eval_ddivfluxdu - only 2 or 3D" );
+                    break;
+            }
+
+            //
+            mddivfluxdu( tDofIndex ).matrix_data() += tStrainFull * tdViscosityTdxdu;
+
+            // scale the derivative values
+            mddivfluxdu( tDofIndex ) = 2.0 * mddivfluxdu( tDofIndex );
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -613,9 +630,6 @@ namespace moris
                     tFIDer->get_number_of_space_time_coefficients(),
                     0.0 );
 
-            // get the turbulence viscosity
-            real tViscosityT = this->compute_turbulence_viscosity();
-
             // evaluate derivative of the turbulence viscosity
             Matrix< DDRMat > tdviscositytduder;
             this->compute_dviscositytdu( aDofTypes, tdviscositytduder );
@@ -630,8 +644,14 @@ namespace moris
 
             // compute contribution to dTestTractiondDof
             mdTestTractiondDof( tTestDofIndex )( tDofIndex ).matrix_data() +=
-                    trans( this->testTraction( tFlatNormal, aTestDofTypes ) ) * aJump * tdviscositytduder / tViscosityT
-                    + trans( tdviscositytdutest ) * trans( aJump ) * this->testTraction( tFlatNormal, aDofTypes ) / tViscosityT;
+                    2.0 * trans( tFlatNormal * this->dStraindDOF( aTestDofTypes ) ) * aJump * tdviscositytduder +
+                    2.0 * trans( tdviscositytdutest ) * trans( aJump ) * tFlatNormal * this->dStraindDOF( aDofTypes );
+
+            // if viscosity is the test dof
+            if( aTestDofTypes( 0 ) == mDofViscosity )
+            {
+                MORIS_ERROR( false, "CM_Fluid_Turbulence::eval_dTestTractiondDOF - Case not implemented so far, require d2viscositytdviscosity2" );
+            }
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -713,7 +733,7 @@ namespace moris
         //------------------------------------------------------------------------------
         void CM_Fluid_Turbulence::compute_dviscositytdu(
                 const moris::Cell< MSI::Dof_Type > & aDofTypes,
-                Matrix< DDRMat >             & adviscositytdu )
+                Matrix< DDRMat >                   & adviscositytdu )
         {
             // get the dof type FI
             Field_Interpolator * tFIDer =
@@ -847,9 +867,6 @@ namespace moris
             std::shared_ptr< Property > tPropViscosity =
                     mProperties( static_cast< uint >( CM_Property_Type::VISCOSITY ) );
 
-            // compute chi
-            real tChi = tFIViscosity->val()( 0 ) / tPropViscosity->val()( 0 );
-
             // if dof type is viscosity
             if( aDofTypes( 0 ) == mDofViscosity )
             {
@@ -860,8 +877,8 @@ namespace moris
             if( tPropViscosity->check_dof_dependency( aDofTypes ) )
             {
                 adchidu.matrix_data() -=
-                        tChi * tPropViscosity->dPropdDOF( aDofTypes ) /
-                        tPropViscosity->val()( 0 );
+                        tFIViscosity->val() * tPropViscosity->dPropdDOF( aDofTypes ) /
+                        std::pow( tPropViscosity->val()( 0 ), 2 );
             }
         }
 

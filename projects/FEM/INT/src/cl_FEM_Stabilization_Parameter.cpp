@@ -1542,6 +1542,154 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+        void Stabilization_Parameter::eval_dSPdMasterDOF_FD(
+                const moris::Cell< MSI::Dof_Type > & aDofTypes,
+                Matrix< DDRMat >                   & adSPdDOF_FD,
+                real                                 aPerturbation,
+                fem::FDScheme_Type                   aFDSchemeType )
+        {
+            // get the FD scheme info
+            moris::Cell< moris::Cell< real > > tFDScheme;
+            fd_scheme( aFDSchemeType, tFDScheme );
+            uint tNumPoints = tFDScheme( 0 ).size();
+
+            // get the dof index
+            uint tDofIndex = mMasterGlobalDofTypeMap( static_cast< uint >( aDofTypes( 0 ) ) );
+
+            // get the field interpolator for type
+            Field_Interpolator* tFI =
+                    mMasterFIManager->get_field_interpolators_for_type( aDofTypes( 0 ) );
+
+            // get number of master dofs wrt which derivative is computed
+            uint tDerNumDof    = tFI->get_number_of_space_time_coefficients();
+            uint tDerNumBases  = tFI->get_number_of_space_time_bases();
+            uint tDerNumFields = tFI->get_number_of_fields();
+
+            // set size for derivative
+            uint tNumRow = this->val().n_rows();
+            mdPPdMasterDof( tDofIndex ).set_size( tNumRow, tDerNumDof, 0.0 );
+
+            // coefficients for dof type wrt which derivative is computed
+            Matrix< DDRMat > tCoeff = tFI->get_coeff();
+
+            // initialize dof counter
+            uint tDofCounter = 0;
+
+            // loop over coefficients columns
+            for( uint iCoeffCol = 0; iCoeffCol < tDerNumFields; iCoeffCol++ )
+            {
+                // loop over coefficients rows
+                for( uint iCoeffRow = 0; iCoeffRow < tDerNumBases; iCoeffRow++ )
+                {
+                    // compute the perturbation absolute value
+                    real tDeltaH = aPerturbation * tCoeff( iCoeffRow, iCoeffCol );
+
+                    // loop over the points for FD
+                    for( uint iPoint = 0; iPoint < tNumPoints; iPoint++ )
+                    {
+                        // reset the perturbed coefficents
+                        Matrix< DDRMat > tCoeffPert = tCoeff;
+
+                        // pertub the coefficent
+                        tCoeffPert( iCoeffRow, iCoeffCol ) += tFDScheme( 0 )( iPoint ) * tDeltaH;
+
+                        // set the perturbed coefficients to FI
+                        tFI->set_coeff( tCoeffPert );
+
+                        // reset properties
+                        this->reset_eval_flags();
+
+                        // assemble derivatiev of SP wrt master dof type
+                        mdPPdMasterDof( tDofIndex ).get_column( tDofCounter ) +=
+                                tFDScheme( 1 )( iPoint ) * this->val() /
+                                ( tFDScheme( 2 )( 0 ) * tDeltaH );
+                    }
+                    // update dof counter
+                    tDofCounter++;
+                }
+            }
+            // reset the coefficients values
+            tFI->set_coeff( tCoeff );
+
+            // FIXME
+            adSPdDOF_FD = mdPPdMasterDof( tDofIndex );
+        }
+
+        //------------------------------------------------------------------------------
+        void Stabilization_Parameter::eval_dSPdSlaveDOF_FD(
+                const moris::Cell< MSI::Dof_Type > & aDofTypes,
+                Matrix< DDRMat >                   & adSPdDOF_FD,
+                real                                 aPerturbation,
+                fem::FDScheme_Type                   aFDSchemeType )
+        {
+            // get the FD scheme info
+            moris::Cell< moris::Cell< real > > tFDScheme;
+            fd_scheme( aFDSchemeType, tFDScheme );
+            uint tNumPoints = tFDScheme( 0 ).size();
+
+            // get the dof index
+            uint tDofIndex = mSlaveGlobalDofTypeMap( static_cast< uint >( aDofTypes( 0 ) ) );
+
+            // get the field interpolator for type
+            Field_Interpolator* tFI =
+                    mSlaveFIManager->get_field_interpolators_for_type( aDofTypes( 0 ) );
+
+            // get number of master dofs wrt which derivative is computed
+            uint tDerNumDof    = tFI->get_number_of_space_time_coefficients();
+            uint tDerNumBases  = tFI->get_number_of_space_time_bases();
+            uint tDerNumFields = tFI->get_number_of_fields();
+
+            // set size for derivative
+            uint tNumRow = this->val().n_rows();
+            mdPPdSlaveDof( tDofIndex ).set_size( tNumRow, tDerNumDof, 0.0 );
+
+            // coefficients for dof type wrt which derivative is computed
+            Matrix< DDRMat > tCoeff = tFI->get_coeff();
+
+            // initialize dof counter
+            uint tDofCounter = 0;
+
+            // loop over coefficients columns
+            for( uint iCoeffCol = 0; iCoeffCol < tDerNumFields; iCoeffCol++ )
+            {
+                // loop over coefficients rows
+                for( uint iCoeffRow = 0; iCoeffRow < tDerNumBases; iCoeffRow++ )
+                {
+                    // compute the perturbation absolute value
+                    real tDeltaH = aPerturbation * tCoeff( iCoeffRow, iCoeffCol );
+
+                    // loop over the points for FD
+                    for( uint iPoint = 0; iPoint < tNumPoints; iPoint++ )
+                    {
+                        // reset the perturbed coefficents
+                        Matrix< DDRMat > tCoeffPert = tCoeff;
+
+                        // pertub the coefficent
+                        tCoeffPert( iCoeffRow, iCoeffCol ) += tFDScheme( 0 )( iPoint ) * tDeltaH;
+
+                        // set the perturbed coefficients to FI
+                        tFI->set_coeff( tCoeffPert );
+
+                        // reset properties
+                        this->reset_eval_flags();
+
+                        // assemble the jacobian
+                        mdPPdSlaveDof( tDofIndex ).get_column( tDofCounter ) +=
+                                tFDScheme( 1 )( iPoint ) * this->val() /
+                                ( tFDScheme( 2 )( 0 ) * tDeltaH );
+                    }
+                    // update dof counter
+                    tDofCounter++;
+                }
+            }
+            // reset the coefficients values
+            tFI->set_coeff( tCoeff );
+
+            // FIXME
+            adSPdDOF_FD = mdPPdSlaveDof( tDofIndex );
+        }
+
+        //------------------------------------------------------------------------------
         const Matrix< DDRMat > & Stabilization_Parameter::dSPdMasterDV( const moris::Cell< PDV_Type > & aDvTypes )
         {
             // if aDofType is not an active dv type for the property

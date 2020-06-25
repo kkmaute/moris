@@ -431,7 +431,6 @@ namespace moris
         tParameterList( 3 )( tIWGCounter ).set( "IWG_type",                   static_cast< uint >( fem::IWG_Type::INCOMPRESSIBLE_NS_VELOCITY_BULK ) );
         tParameterList( 3 )( tIWGCounter ).set( "dof_residual",               std::string("VX,VY") );
         tParameterList( 3 )( tIWGCounter ).set( "master_dof_dependencies",    std::string("VX,VY;P;TEMP") );
-        tParameterList( 3 )( tIWGCounter ).set( "master_properties",          std::string("PropDensity,Density") );
         tParameterList( 3 )( tIWGCounter ).set( "master_constitutive_models", std::string("CMFluid,IncompressibleFluid") );
         tParameterList( 3 )( tIWGCounter ).set( "stabilization_parameters",   std::string("SPIncFlow,IncompressibleFlow") );
         tParameterList( 3 )( tIWGCounter ).set( "mesh_set_names",             std::string("HMR_dummy_c_p160,HMR_dummy_n_p160") );
@@ -443,7 +442,6 @@ namespace moris
         tParameterList( 3 )( tIWGCounter ).set( "IWG_type",                   static_cast< uint >( fem::IWG_Type::INCOMPRESSIBLE_NS_PRESSURE_BULK ) );
         tParameterList( 3 )( tIWGCounter ).set( "dof_residual",               std::string("P") );
         tParameterList( 3 )( tIWGCounter ).set( "master_dof_dependencies",    std::string("VX,VY;P;TEMP") );
-        tParameterList( 3 )( tIWGCounter ).set( "master_properties",          std::string("PropDensity,Density") );
         tParameterList( 3 )( tIWGCounter ).set( "master_constitutive_models", std::string("CMFluid,IncompressibleFluid") );
         tParameterList( 3 )( tIWGCounter ).set( "stabilization_parameters",   std::string("SPIncFlow,IncompressibleFlow") );
         tParameterList( 3 )( tIWGCounter ).set( "mesh_set_names",             std::string("HMR_dummy_c_p160,HMR_dummy_n_p160") );

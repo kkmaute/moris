@@ -18,6 +18,7 @@
 #include "cl_FEM_Property.hpp"
 #include "cl_FEM_Constitutive_Model.hpp"
 #include "cl_FEM_Enums.hpp"
+#include "fn_FEM_FD_Scheme.hpp"
 //FEM/MSI/src
 #include "cl_MSI_Dof_Type_Enums.hpp"
 //GEN/src
@@ -473,18 +474,18 @@ namespace moris
 
                 //------------------------------------------------------------------------------
                 /**
-                 * get the penalty parameter value
-                 * @param[ out ] mPPVal penalty parameter value
+                 * get the stabilization parameter value
+                 * @param[ out ] mSPVal stabilization parameter value
                  */
                 const Matrix< DDRMat > & val();
 
                 //------------------------------------------------------------------------------
                 /**
-                 * evaluate the penalty parameter value
+                 * evaluate the stabilization parameter value
                  */
                 virtual void eval_SP()
                 {
-                    MORIS_ERROR( false, " Stabilization_Parameter::eval_PP - Not implemented for base class. " );
+                    MORIS_ERROR( false, " Stabilization_Parameter::eval_SP - Not implemented for base class. " );
                 }
 
                 //------------------------------------------------------------------------------
@@ -497,24 +498,43 @@ namespace moris
 
                 //------------------------------------------------------------------------------
                 /**
-                 * evaluate the penalty parameter derivative wrt master dof
+                 * evaluate the stabilization parameter derivative wrt master dof
+                 * @param[ in ] aDofTypes dof type wrt which the derivative is evaluated
                  */
-                virtual void eval_dSPdMasterDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes )
+                virtual void eval_dSPdMasterDOF(
+                        const moris::Cell< MSI::Dof_Type > & aDofTypes )
                 {
-                    MORIS_ERROR( false, " Penalty_Parameter::eval_dSPdMasterDOF - Not implemented for base class. " );
+                    MORIS_ERROR( false, " Stabilization_Parameter::eval_dSPdMasterDOF - Not implemented for base class. " );
                 }
 
                 //------------------------------------------------------------------------------
                 /**
-                 * get the penalty parameter derivative wrt slave dof
-                 * @param[ in ]  aDofTypes      a dof type wrt which the derivative is evaluated
-                 * @param[ out ] mdPPdSlaveDof penalty parameter derivative wrt master dof
+                 * evaluate the stabilization parameter derivative wrt master dof
+                 * by finite difference
+                 * @param[ in ] aDofTypes     dof type wrt which the derivative is evaluated
+                 * @param[ in ] adSPdDOF_FD   matrix to fill with SP derivative wrt dof
+                 * @param[ in ] aPerturbation relative perturbation for finite difference
+                 * @param[ in ] aFDSchemeType enum for FD scheme
                  */
-                const Matrix< DDRMat > & dSPdSlaveDOF( const moris::Cell< MSI::Dof_Type > & aDofType );
+                void eval_dSPdMasterDOF_FD(
+                        const moris::Cell< MSI::Dof_Type > & aDofTypes,
+                        Matrix< DDRMat >                   & adSPdDOF_FD,
+                        real                                 aPerturbation,
+                        fem::FDScheme_Type                   aFDSchemeType = fem::FDScheme_Type::POINT_5 );
 
                 //------------------------------------------------------------------------------
                 /**
-                 * evaluate the penalty parameter derivative wrt slave dof
+                 * get the stabilization parameter derivative wrt slave dof
+                 * @param[ in ]  aDofTypes     dof type wrt which the derivative is evaluated
+                 * @param[ out ] mdSPdSlaveDof stabilization parameter derivative wrt slave dof
+                 */
+                const Matrix< DDRMat > & dSPdSlaveDOF(
+                        const moris::Cell< MSI::Dof_Type > & aDofType );
+
+                //------------------------------------------------------------------------------
+                /**
+                 * evaluate the stabilization parameter derivative wrt slave dof
+                 * @param[ in ] aDofTypes dof type wrt which the derivative is evaluated
                  */
                 virtual void eval_dSPdSlaveDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes )
                 {
@@ -523,15 +543,31 @@ namespace moris
 
                 //------------------------------------------------------------------------------
                 /**
-                 * get the penalty parameter derivative wrt master dv
-                 * @param[ in ]  aDvTypes      a dv type wrt which the derivative is evaluated
-                 * @param[ out ] mdPPdMasterDv penalty parameter derivative wrt master dv
+                 * evaluate the stabilization parameter derivative wrt master/slave dof
+                 * by finite difference
+                 * @param[ in ] aDofTypes     dof type wrt which the derivative is evaluated
+                 * @param[ in ] adSPdDOF_FD   matrix to fill with SP derivative wrt dof
+                 * @param[ in ] aPerturbation relative perturbation for finite difference
+                 * @param[ in ] aFDSchemeType enum for FD scheme
+                 */
+                void eval_dSPdSlaveDOF_FD(
+                        const moris::Cell< MSI::Dof_Type > & aDofTypes,
+                        Matrix< DDRMat >                   & adSPdDOF_FD,
+                        real                                 aPerturbation,
+                        fem::FDScheme_Type                   aFDSchemeType = fem::FDScheme_Type::POINT_5 );
+
+                //------------------------------------------------------------------------------
+                /**
+                 * get the stabilization parameter derivative wrt master dv
+                 * @param[ in ]  aDvTypes      dv type wrt which the derivative is evaluated
+                 * @param[ out ] mdSPdMasterDv stabilization parameter derivative wrt master dv
                  */
                 const Matrix< DDRMat > & dSPdMasterDV( const moris::Cell< PDV_Type > & aDvTypes );
 
                 //------------------------------------------------------------------------------
                 /**
-                 * evaluate the penalty parameter derivative wrt master dv
+                 * evaluate the stabilization parameter derivative wrt master dv
+                 * @param[ in ] aDvTypes dv type wrt which the derivative is evaluated
                  */
                 virtual void eval_dSPdMasterDV( const moris::Cell< PDV_Type > & aDvTypes )
                 {
@@ -540,19 +576,20 @@ namespace moris
 
                 //------------------------------------------------------------------------------
                 /**
-                 * get the penalty parameter derivative wrt slave dv
+                 * get the stabilization parameter derivative wrt slave dv
                  * @param[ in ]  aDvTypes     a dv type wrt which the derivative is evaluated
-                 * @param[ out ] mdPPdSlaveDv penalty parameter derivative wrt master dv
+                 * @param[ out ] mdSPdSlaveDv stabilization parameter derivative wrt master dv
                  */
                 const Matrix< DDRMat > & dSPdSlaveDV( const moris::Cell< PDV_Type > & aDvTypes );
 
                 //------------------------------------------------------------------------------
                 /**
-                 * evaluate the penalty parameter derivative wrt slave dv
+                 * evaluate the stabilization parameter derivative wrt slave dv
+                 * @param[ in ] aDvTypes dv type wrt which the derivative is evaluated
                  */
                 virtual void eval_dSPdSlaveDV( const moris::Cell< PDV_Type > & aDvTypes )
                 {
-                    MORIS_ERROR( false, " Stabilization_Parameter::eval_dSPdSlaveDV - This function does nothing. " );
+                    MORIS_ERROR( false, " Stabilization_Parameter::eval_dSPdSlaveDV - Not implemented for base class. " );
                 }
 
                 //------------------------------------------------------------------------------

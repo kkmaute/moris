@@ -33,6 +33,7 @@ set(TEST_SOURCES
     UT_FEM_CM_Diff_Lin_Iso.cpp
     UT_FEM_CM_Diff_PC.cpp
     UT_FEM_CM_Fluid.cpp
+    UT_FEM_SP_Fluid.cpp
     UT_FEM_IWG_Diffusion_Bulk.cpp
     UT_FEM_IWG_Diffusion_Phase_Change_Bulk.cpp
     UT_FEM_IWG_GGLS_Diffusion_Phase_Change.cpp
@@ -63,6 +64,7 @@ set(TEST_SOURCES
     UT_FEM_Input.cpp
     UT_FEM_Geometry_Interpolator.cpp
     FEM_Test_Proxy/cl_FEM_Design_Variable_Interface_Proxy.cpp
+    FEM_Test_Proxy/cl_FEM_Inputs_for_NS_Incompressible_UT.cpp
     )
 
 # List test dependencies
