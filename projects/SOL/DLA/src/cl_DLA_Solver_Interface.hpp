@@ -167,9 +167,8 @@ namespace moris
             // FIXME pass return value in as reference
             virtual moris::Matrix< DDSMat >  get_my_local_global_overlapping_map( )
             {
-                moris::Matrix< DDSMat > aMat;
                 //MORIS_ERROR( false, "Solver_Interface::get_my_local_global_overlapping_map(): Virtual class not overwritten" );
-                return aMat;
+                return Matrix< DDSMat > (0,0);
             };
 
             virtual moris::Matrix< DDUMat > get_constrained_Ids() =0;
