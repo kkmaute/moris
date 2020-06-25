@@ -10,21 +10,23 @@
 #include "IO_Tools.hpp"
 
 // for the global clock
-#include "cl_GlobalClock.hpp" // MRS/IOS/src
+#include "cl_GlobalClock.hpp"
 #include "cl_Tracer_Enums.hpp"
 #include "fn_stringify.hpp"
 #include "Log_Constants.hpp"
 
+// need to be revised later
+#include <mpi.h>
+
+int logger_par_rank()
+{
+    int tProcRank;
+    MPI_Comm_rank(MPI_COMM_WORLD, &tProcRank);
+    return tProcRank;
+}
+
 namespace moris
 {
-
-    // class forward declaration
-    //class GlobalClock;
-    //enum class EntityBase;
-    //enum class EntityType;
-    //enum class EntityAction;
-    //enum class OutputSpecifier;
-
     class Logger
     {
         public:
@@ -47,11 +49,11 @@ namespace moris
             // Clock for tracing and timing
             GlobalClock  mGlobalClock;
 
-
-
-
         public:
+
             Logger(){}
+
+            // ==================================================================================
 
             ~Logger()
             {
@@ -73,10 +75,8 @@ namespace moris
 
                 }
 
-
                 if( mWriteToAscii )
                 {
-
                     // log runtime of clock
                     this->log_to_file(OutputSpecifier::ElapsedTime,
                             ( (moris::real) std::clock() - mGlobalClock.mTimeStamps(mGlobalClock.mIndentationLevel) ) / CLOCKS_PER_SEC );
@@ -85,6 +85,8 @@ namespace moris
                     mStream.close();
                 }
             };
+
+            // ==================================================================================
 
             /**
              * Initialize MORIS_LOGGER
@@ -103,16 +105,19 @@ namespace moris
 
             };
 
+            // ==================================================================================
 
             void initialize( int  & argc, char * argv[] );
 
+            // ==================================================================================
 
-            void initialize( const std::string aPath,
-                    const moris::sint aSverityLevel = LOGGER_DEFAULT_SEVERITY_LEVEL,
+            void initialize(
+                    const std::string aPath,
+                    const moris::sint aSverityLevel       = LOGGER_DEFAULT_SEVERITY_LEVEL,
                     const moris::uint aDirectOutputFormat = LOGGER_DEFAULT_DIRECT_OUTPUT)
             {
                 mDirectOutputFormat = aDirectOutputFormat;
-                mSeverityLevel = aSverityLevel;
+                mSeverityLevel      = aSverityLevel;
 
                 mStream.open(aPath,std::ofstream::out);
 
@@ -129,15 +134,21 @@ namespace moris
                 }
             };
 
+            // ==================================================================================
+
             void set_severity_level( const moris::sint aSverityLevel )
             {
                 mSeverityLevel = aSverityLevel;
             };
 
+            // ==================================================================================
+
             moris::sint get_severity_level()
             {
                 return mSeverityLevel;
             };
+
+            // ==================================================================================
 
             template< typename ... Args >
             void log_section( const Args ... aArgs )
@@ -145,16 +156,20 @@ namespace moris
                 // MORIS_ASSERT(mStream.is_open(),"Logger error, the output file stream ofstream is not open);
                 std::string tString = print_log( aArgs ... );
 
-                if (mDirectOutputFormat == 1)
+                // only processor 0 prints message
+                if ( logger_par_rank() == 0 )
                 {
-                    char tTempString[1000];
-                    std::strcpy( tTempString, "===============================================================================\n" );
-                    std::strcat( tTempString, "\n" );
-                    std::strcat( tTempString, tString.c_str() );
-                    std::strcat( tTempString, "\n" );
-                    std::strcat( tTempString, "===============================================================================" );
+                    if (mDirectOutputFormat == 1)
+                    {
+                        char tTempString[1000];
+                        std::strcpy( tTempString, "===============================================================================\n" );
+                        std::strcat( tTempString, "\n" );
+                        std::strcat( tTempString, tString.c_str() );
+                        std::strcat( tTempString, "\n" );
+                        std::strcat( tTempString, "===============================================================================" );
 
-                    std::cout << tTempString << "\n";
+                        std::cout << tTempString << "\n";
+                    }
                 }
 
                 if( mWriteToAscii )
@@ -162,21 +177,27 @@ namespace moris
                     this->log_to_file(tString);
                 }
             }
+
+            // ==================================================================================
 
             template< typename ... Args >
             void log( const Args ... aArgs )
             {
-                // MORIS_ASSERT(mStream.is_open(),"Logger error, the output file stream ofstream is not open);
-
                 std::string tString = print_log( aArgs ... );
 
-                // switch based on OutputFormat provided
-                if (mDirectOutputFormat == 3)
+                // only processor 0 prints message
+                if (logger_par_rank() == 0 )
                 {
-                    std::cout << print_empty_line(mGlobalClock.mIndentationLevel) << "_" << "Log: " << tString << " \n";
+                    // switch based on OutputFormat provided
+                    if (mDirectOutputFormat == 3)
+                    {
+                        std::cout << print_empty_line(mGlobalClock.mIndentationLevel) << "_" << "Log: " << tString << " \n";
+                    }
+                    else if (mDirectOutputFormat == 1)
+                    {
+                        std::cout << tString << "\n";
+                    }
                 }
-                else if (mDirectOutputFormat == 1)
-                    std::cout << tString << "\n";
 
                 if( mWriteToAscii )
                 {
@@ -184,22 +205,25 @@ namespace moris
                 }
             }
 
+            // ==================================================================================
+
             template< typename ... Args >
             void log_info( const Args ... aArgs )
             {
-                // MORIS_ASSERT(mStream.is_open(),"Logger error, the output file stream ofstream is not open);
-
                 std::string tString = print_log( aArgs ... );
 
-                // switch based on OutputFormat provided
-                //            if ((mDirectOutputFormat == 3) || (mDirectOutputFormat == 2))
-                if (mDirectOutputFormat == 3)
+                // only processor 0 prints message
+                if (logger_par_rank() == 0 )
                 {
-                    std::cout << print_empty_line(mGlobalClock.mIndentationLevel) << "_" << "Info: " << tString << " \n" << std::flush;
-                }
-                else if (mDirectOutputFormat == 1)
-                {
-                    std::cout << tString << "\n" << std::flush;
+                    // switch based on OutputFormat provided
+                    if (mDirectOutputFormat == 3)
+                    {
+                        std::cout << print_empty_line(mGlobalClock.mIndentationLevel) << "_" << "Info: " << tString << " \n" << std::flush;
+                    }
+                    else if (mDirectOutputFormat == 1)
+                    {
+                        std::cout << tString << "\n" << std::flush;
+                    }
                 }
 
                 // write to file if requested
@@ -209,6 +233,8 @@ namespace moris
                 }
             }
 
+            // ==================================================================================
+
             template< typename ... Args >
             void log_debug( const Args ... aArgs )
             {
@@ -216,14 +242,18 @@ namespace moris
 
                 std::string tString = print_log( aArgs ... );
 
-                // switch based on OutputFormat provided
-                if ((mDirectOutputFormat == 3) || (mDirectOutputFormat == 2))
+                // only processor 0 prints message
+                if (logger_par_rank() == 0 )
                 {
-                    std::cout << print_empty_line(mGlobalClock.mIndentationLevel) << "_" << "Debug: " << tString << " \n" << std::flush;
-                }
-                else
-                {
-                    std::cout << tString << "\n" << std::flush;
+                    // switch based on OutputFormat provided
+                    if ((mDirectOutputFormat == 3) || (mDirectOutputFormat == 2))
+                    {
+                        std::cout << print_empty_line(mGlobalClock.mIndentationLevel) << "_" << "Debug: " << tString << " \n" << std::flush;
+                    }
+                    else
+                    {
+                        std::cout << tString << "\n" << std::flush;
+                    }
                 }
 
                 // write to file if requested
@@ -233,6 +263,8 @@ namespace moris
                 }
             }
 
+            // ==================================================================================
+
             template< typename ... Args >
             void log_warning( const Args ... aArgs )
             {
@@ -240,14 +272,18 @@ namespace moris
 
                 std::string tString = print_log( aArgs ... );
 
-                // switch based on OutputFormat provided
-                if ((mDirectOutputFormat == 3) || (mDirectOutputFormat == 2))
+                // only processor 0 prints message
+                if (logger_par_rank() == 0 )
                 {
-                    std::cout << print_empty_line(mGlobalClock.mIndentationLevel) << "_" << "WARNING: " << tString << " \n" << std::flush;
-                }
-                else
-                {
-                    std::cout << tString << "\n" << std::flush;
+                    // switch based on OutputFormat provided
+                    if ((mDirectOutputFormat == 3) || (mDirectOutputFormat == 2))
+                    {
+                        std::cout << print_empty_line(mGlobalClock.mIndentationLevel) << "_" << "WARNING: " << tString << " \n" << std::flush;
+                    }
+                    else
+                    {
+                        std::cout << tString << "\n" << std::flush;
+                    }
                 }
 
                 // write to file if requested
@@ -256,6 +292,8 @@ namespace moris
                     this->log_to_file_warning(tString);
                 }
             }
+
+            // ==================================================================================
 
             template< typename ... Args >
             void log_error( const Args ... aArgs )
@@ -267,11 +305,11 @@ namespace moris
                 // switch based on OutputFormat provided
                 if ((mDirectOutputFormat == 3) || (mDirectOutputFormat == 2))
                 {
-                    std::cout << tString << "\n" << std::flush;
+                    std::cout << "Processor = " << logger_par_rank() << " : " << tString << "\n" << std::flush;
                 }
                 else
                 {
-                    std::cout << tString << "\n" << std::flush;
+                    std::cout << "Processor = " << logger_par_rank() << " : "  << tString << "\n" << std::flush;
                 }
 
                 // write to file if requested
@@ -291,31 +329,44 @@ namespace moris
                     enum OutputSpecifier aOutputSpecifier,
                     T                    aOutputValue)
             {
-                    // switch based on OutputFormat provided
-                    if ((mDirectOutputFormat == 3) || (mDirectOutputFormat == 2))
+                    // only processor 0 prints message
+                    if (logger_par_rank() == 0 )
                     {
-                        std::cout << print_empty_line(mGlobalClock.mIndentationLevel) << "_"
-                                << get_enum_str(aOutputSpecifier) << ": "
-                                << ios::stringify(aOutputValue) << " \n" << std::flush;
-                    }
-                    else
-                    {
-                        std::cout << get_enum_str(aOutputSpecifier) << ": " << ios::stringify(aOutputValue) << " \n" << std::flush;
-                    }
 
-                    // write to file if requested
-                    if( mWriteToAscii )
-                    {
-                        this->log_to_file(aOutputSpecifier, aOutputValue);
+                        // switch based on OutputFormat provided
+                        if ((mDirectOutputFormat == 3) || (mDirectOutputFormat == 2))
+                        {
+                            std::cout << print_empty_line(mGlobalClock.mIndentationLevel) << "_"
+                                    << get_enum_str(aOutputSpecifier) << ": "
+                                    << ios::stringify(aOutputValue) << " \n" << std::flush;
+                        }
+                        else
+                        {
+                            std::cout << get_enum_str(aOutputSpecifier) << ": " << ios::stringify(aOutputValue) << " \n" << std::flush;
+                        }
+
+                        // write to file if requested
+                        if( mWriteToAscii )
+                        {
+                            this->log_to_file(aOutputSpecifier, aOutputValue);
+                        }
                     }
             }
 
+            // ==================================================================================
+
             // sign in
-            void sign_in( enum EntityBase aEntityBase, enum EntityType aEntityType, enum EntityAction aEntityAction );
+            void sign_in(
+                    enum EntityBase aEntityBase,
+                    enum EntityType aEntityType,
+                    enum EntityAction aEntityAction );
+
+            // ==================================================================================
 
             // signing out
             void sign_out();
 
+            // ==================================================================================
 
             // write logged info to formated file
             template <class T>
@@ -332,14 +383,22 @@ namespace moris
                     mStream << tLine << std::flush;
             }
 
+            // ==================================================================================
+
             template <class T1, class T2>
-            void log2_to_file(enum OutputSpecifier aOutputSpecifier1, T1 aOutputValue1,
+            void log2_to_file(
+                    enum OutputSpecifier aOutputSpecifier1, T1 aOutputValue1,
                     enum OutputSpecifier aOutputSpecifier2, T2 aOutputValue2);
 
+            // ==================================================================================
+
             template <class T1, class T2, class T3>
-            void log3_to_file(enum OutputSpecifier aOutputSpecifier1, T1 aOutputValue1,
+            void log3_to_file(
+                    enum OutputSpecifier aOutputSpecifier1, T1 aOutputValue1,
                     enum OutputSpecifier aOutputSpecifier2, T2 aOutputValue2,
                     enum OutputSpecifier aOutputSpecifier3, T3 aOutputValue3);
+
+            // ==================================================================================
 
             // logging operation using Clock Info and string
             void log_to_file(std::string aOutputString);
@@ -354,6 +413,8 @@ namespace moris
 
             // print header
             void print_header();
+
+            // ==================================================================================
 
             // print empty line
             std::string print_empty_line(uint aIndentationLevel);
@@ -379,6 +440,8 @@ extern moris::Logger gLogger;
             gLogger.log_section( __VA_ARGS__ ); \
         } while (false)
 
+// ==================================================================================
+
 /**
  * Log an informational severity message.
  *
@@ -392,6 +455,8 @@ extern moris::Logger gLogger;
                 gLogger.log_info( __VA_ARGS__ ); \
             }\
         } while (false)
+
+// ==================================================================================
 
 /**
  * Log an informational severity message.
@@ -407,6 +472,8 @@ extern moris::Logger gLogger;
             }\
         } while (false)
 
+// ==================================================================================
+
 /**
  * Log single output value with specified type
  *
@@ -420,6 +487,8 @@ extern moris::Logger gLogger;
                 gLogger.log_specific( __VA_ARGS__ ); \
             }\
         } while (false)
+
+// ==================================================================================
 
 /**
  * Log a debug severity message.
@@ -436,6 +505,8 @@ extern moris::Logger gLogger;
 #define MORIS_LOG_DEBUG( ... )
 #endif
 
+// ==================================================================================
+
 /**
  * Log a warning severity message.
  *
@@ -450,6 +521,8 @@ extern moris::Logger gLogger;
             }\
         } while (false)
 
+// ==================================================================================
+
 /**
  * Log an error severity message.
  *
@@ -463,6 +536,5 @@ extern moris::Logger gLogger;
                 gLogger.log_warning( __VA_ARGS__ ); \
             }\
         } while (false)
-
 
 #endif	/* MORIS_IOS_CL_LOGGER_HPP_ */
