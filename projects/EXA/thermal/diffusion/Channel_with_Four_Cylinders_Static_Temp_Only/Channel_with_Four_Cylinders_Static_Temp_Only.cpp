@@ -153,14 +153,6 @@ namespace moris
         return std::abs(tValue) < tMinLSvalue ? tMinLSvalue : tValue;
     }
 
-    moris::Matrix<DDRMat> Func_Dummy(
-            const moris::Matrix< DDRMat >     & aCoordinates,
-            const moris::Cell< moris::real* > & aGeometryParameters )
-    {
-        moris::Matrix< DDRMat > dummy;
-        return dummy;
-    }
-
     void OPTParameterList( moris::Cell< moris::Cell< ParameterList > > & tParameterlist )
     {
         tParameterlist.resize( 1 );

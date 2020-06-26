@@ -37,7 +37,10 @@ namespace moris
     moris::real tPlaneTop        = 0.41;               /* y top plane    (m) */
     moris::real tPlaneLeft       = 0.0;                /* x left plane   (m) */
     moris::real tPlaneRight      = 2.2;                /* x right plane  (m) */
-    moris::real tRadius  = 0.05;
+    moris::real tCylinderCenterX = 0.2;
+    moris::real tCylinderCenterY = 0.2;
+    moris::real tCylinderRadius  = 0.05;
+    moris::real tCylinderOffset  = 0.10;
 
     // Constant function for properties
     void Func_Const(
@@ -96,6 +99,54 @@ namespace moris
             const moris::Cell< moris::real* > & aGeometryParameters )
     {
         moris::real tValue = aCoordinates( 0 ) - tPlaneRight;
+
+        return std::abs(tValue) < tMinLSvalue ? tMinLSvalue : tValue;
+    }
+
+    moris::real Func_Cylinder(
+            const moris::Matrix< DDRMat >     & aCoordinates,
+            const moris::Cell< moris::real* > & aGeometryParameters )
+    {
+        moris::real  tValue = tCylinderRadius -
+                std::pow(
+                        std::pow( aCoordinates( 0 ) - 0.4, 2.0 ) +
+                                std::pow( aCoordinates( 1 ) - (0.2 - tCylinderOffset), 2.0 ), 0.5 );
+
+        return std::abs(tValue) < tMinLSvalue ? tMinLSvalue : tValue;
+    }
+
+    moris::real Func_Cylinder2(
+            const moris::Matrix< DDRMat >     & aCoordinates,
+            const moris::Cell< moris::real* > & aGeometryParameters )
+    {
+        moris::real tValue = tCylinderRadius -
+                std::pow(
+                        std::pow( aCoordinates( 0 ) - 0.8, 2.0 ) +
+                                std::pow( aCoordinates( 1 ) - (0.2 + tCylinderOffset ), 2.0 ), 0.5 );
+
+        return std::abs(tValue) < tMinLSvalue ? tMinLSvalue : tValue;
+    }
+
+    moris::real Func_Cylinder3(
+            const moris::Matrix< DDRMat >     & aCoordinates,
+            const moris::Cell< moris::real* > & aGeometryParameters )
+    {
+        moris::real tValue = tCylinderRadius -
+                std::pow(
+                        std::pow( aCoordinates( 0 ) - 1.2, 2.0 ) +
+                                std::pow( aCoordinates( 1 ) - (0.2 - tCylinderOffset), 2.0 ), 0.5 );
+
+        return std::abs(tValue) < tMinLSvalue ? tMinLSvalue : tValue;
+    }
+
+    moris::real Func_Cylinder4(
+            const moris::Matrix< DDRMat >     & aCoordinates,
+            const moris::Cell< moris::real* > & aGeometryParameters )
+    {
+        moris::real tValue = tCylinderRadius -
+                std::pow(
+                        std::pow( aCoordinates( 0 ) - 1.6, 2.0 ) +
+                                std::pow( aCoordinates( 1 ) - (0.2 + tCylinderOffset ), 2.0 ), 0.5 );
 
         return std::abs(tValue) < tMinLSvalue ? tMinLSvalue : tValue;
     }
@@ -182,25 +233,17 @@ namespace moris
         tParameterlist( 1 )( 3 ) = prm::create_user_defined_geometry_parameter_list();
         tParameterlist( 1 )( 3 ).set( "field_function_name", "Func_Right_Plane");
 
-        tParameterlist( 1 )( 4 ) = prm::create_geometry_parameter_list();
-        tParameterlist( 1 )( 4 ).set( "type", "circle");
-        tParameterlist( 1 )( 4 ).set( "constant_parameters", "0.4, 0.1, " + std::to_string(tRadius));
-        tParameterlist( 1 )( 4 ).set( "number_of_refinements", 1);
+        tParameterlist( 1 )( 4 ) = prm::create_user_defined_geometry_parameter_list();
+        tParameterlist( 1 )( 4 ).set( "field_function_name", "Func_Cylinder");
 
-        tParameterlist( 1 )( 5 ) = prm::create_geometry_parameter_list();
-        tParameterlist( 1 )( 5 ).set( "type", "circle");
-        tParameterlist( 1 )( 5 ).set( "constant_parameters", "0.8, 0.3, " + std::to_string(tRadius));
-        tParameterlist( 1 )( 5 ).set( "number_of_refinements", 1);
+        tParameterlist( 1 )( 5 ) = prm::create_user_defined_geometry_parameter_list();
+        tParameterlist( 1 )( 5 ).set( "field_function_name", "Func_Cylinder2");
 
-        tParameterlist( 1 )( 6 ) = prm::create_geometry_parameter_list();
-        tParameterlist( 1 )( 6 ).set( "type", "circle");
-        tParameterlist( 1 )( 6 ).set( "constant_parameters", "1.2, 0.1, " + std::to_string(tRadius));
-        tParameterlist( 1 )( 6 ).set( "number_of_refinements", 1);
+        tParameterlist( 1 )( 6 ) = prm::create_user_defined_geometry_parameter_list();
+        tParameterlist( 1 )( 6 ).set( "field_function_name", "Func_Cylinder3");
 
-        tParameterlist( 1 )( 7 ) = prm::create_geometry_parameter_list();
-        tParameterlist( 1 )( 7 ).set( "type", "circle");
-        tParameterlist( 1 )( 7 ).set( "constant_parameters", "1.6, 0.3, " + std::to_string(tRadius));
-        tParameterlist( 1 )( 7 ).set( "number_of_refinements", 1);
+        tParameterlist( 1 )( 7 ) = prm::create_user_defined_geometry_parameter_list();
+        tParameterlist( 1 )( 7 ).set( "field_function_name", "Func_Cylinder4");
 
     }
 
