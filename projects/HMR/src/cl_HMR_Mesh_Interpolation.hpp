@@ -51,7 +51,6 @@ namespace moris
 
                 ~Interpolation_Mesh_HMR()
                 {
-                    std::cout << "deleting Interpolation_Mesh_HMR" << std::endl;
                 }
         };
     }
