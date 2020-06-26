@@ -243,7 +243,7 @@ TEST_CASE( "IWG_Incompressible_NS_Dirichlet_Velocity_Symmetric_Nitsche",
                     tIntegrationOrder,
                     mtk::Geometry_Type::LINE,
                     Integration_Type::GAUSS,
-                    fem::Integration_Order::BAR_2 );
+                    fem::Integration_Order::BAR_1 );
 
             // create an integrator
             fem::Integrator tIntegrator( tIntegrationRule );
@@ -599,7 +599,7 @@ TEST_CASE( "IWG_Incompressible_NS_Dirichlet_Velocity_Unsymmetric_Nitsche", "[IWG
                     tIntegrationOrder,
                     mtk::Geometry_Type::LINE,
                     Integration_Type::GAUSS,
-                    fem::Integration_Order::BAR_2 );
+                    fem::Integration_Order::BAR_1 );
 
             // create an integrator
             fem::Integrator tIntegrator( tIntegrationRule );
@@ -939,7 +939,7 @@ TEST_CASE( "IWG_Incompressible_NS_Dirichlet_Pressure_Symmetric_Nitsche", "[IWG_I
                     tIntegrationOrder,
                     mtk::Geometry_Type::LINE,
                     Integration_Type::GAUSS,
-                    fem::Integration_Order::BAR_2 );
+                    fem::Integration_Order::BAR_1 );
 
             // create an integrator
             fem::Integrator tIntegrator( tIntegrationRule );
@@ -1279,7 +1279,7 @@ TEST_CASE( "IWG_Incompressible_NS_Dirichlet_Pressure_Unsymmetric_Nitsche", "[IWG
                     tIntegrationOrder,
                     mtk::Geometry_Type::LINE,
                     Integration_Type::GAUSS,
-                    fem::Integration_Order::BAR_2 );
+                    fem::Integration_Order::BAR_1 );
 
             // create an integrator
             fem::Integrator tIntegrator( tIntegrationRule );
