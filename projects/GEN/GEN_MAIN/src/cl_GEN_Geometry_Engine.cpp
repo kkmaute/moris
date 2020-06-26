@@ -703,7 +703,7 @@ namespace moris
             uint tNumSets = aPdvTypes.size();
             uint tNumNodes = mMeshManager->get_interpolation_mesh(aMeshIndex)->get_num_nodes();
             Cell<Matrix<DDSMat>> tNodeIndicesPerSet(tNumSets);
-            Cell<Matrix<F31RMat>> tNodeCoordinates(tNumNodes);
+            Cell<Matrix<DDRMat>> tNodeCoordinates(tNumNodes);
 
             // Loop through sets
             Cell<Cell<Cell<PDV_Type>>> tPdvTypes(tNumSets);
@@ -752,7 +752,7 @@ namespace moris
             uint tNumSets = tIntegrationMesh->get_num_sets();
             uint tNumNodes = tIntegrationMesh->get_num_nodes();
             Cell<Matrix<DDSMat>> tNodeIndicesPerSet(tNumSets);
-            Cell<Matrix<F31RMat>> tNodeCoordinates(tNumNodes);
+            Cell<Matrix<DDRMat>> tNodeCoordinates(tNumNodes);
 
             // Cell of IG PDV_Type types
             Cell<PDV_Type> tCoordinatePdvs(mSpatialDim);

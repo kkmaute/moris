@@ -10,7 +10,7 @@ namespace moris
         //--------------------------------------------------------------------------------------------------------------
         
         Interpolation_Pdv_Host::Interpolation_Pdv_Host(uint aNodeIndex,
-                                                       const Matrix<DDRMat>& aCoordinates,
+                                                       Matrix<DDRMat> aCoordinates,
                                                        const Cell<PDV_Type>& aPdvTypes,
                                                        uint aGlobalIndex)
         : mNodeIndex(aNodeIndex),
