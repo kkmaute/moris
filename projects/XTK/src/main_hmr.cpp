@@ -68,7 +68,9 @@ LevelSetFunction( const moris::Matrix< moris::DDRMat > & aPoint )
     return mXn*(aPoint(0)-mXc) + mYn*(aPoint(1)-mYc) + mZn*(aPoint(2)-mZc);
 }
 
-moris::real LevelSetFunctionGeometry(const moris::Matrix<moris::DDRMat>& aCoordinates, const moris::Cell<moris::real*>& aParameters)
+moris::real LevelSetFunctionGeometry(
+        const moris::Matrix<moris::DDRMat>& aCoordinates,
+        const moris::Cell<moris::real*>& aParameters)
 {
     return LevelSetFunction(aCoordinates);
 }
@@ -76,9 +78,8 @@ moris::real LevelSetFunctionGeometry(const moris::Matrix<moris::DDRMat>& aCoordi
 moris::real
 LevelSetFunction2( const moris::Matrix< moris::DDRMat > & aPoint )
 {
-        return norm( aPoint ) - 2.611;
+    return norm( aPoint ) - 2.611;
 }
-
 
 int
 main(
@@ -91,9 +92,9 @@ main(
     // Severity level 0 - all outputs
     gLogger.initialize( 0 );
 
-//    moris::uint tBplineOrder = 1;
+    //    moris::uint tBplineOrder = 1;
     moris::uint tLagrangeOrder = 1;
-//    moris::uint tMyCoeff = 1;
+    //    moris::uint tMyCoeff = 1;
 
     moris::ParameterList tParameters = prm::create_hmr_parameter_list();
 
@@ -115,22 +116,23 @@ main(
 
     // create field
     std::shared_ptr< moris::hmr::Field > tField = tMesh->create_field( "Circle1", tLagrangeOrder );
-//    std::shared_ptr< moris::hmr::Field > tField2 = tMesh->create_field( "Circle2", tLagrangeOrder );
+    //    std::shared_ptr< moris::hmr::Field > tField2 = tMesh->create_field( "Circle2", tLagrangeOrder );
 
     tField->evaluate_scalar_function( LevelSetFunction );
-//    tField2->evaluate_scalar_function( LevelSetFunction2 );
+    //    tField2->evaluate_scalar_function( LevelSetFunction2 );
 
     for( uint k=0; k<3; ++k )
     {
-            tHMR.flag_surface_elements_on_working_pattern( tField );
-            tHMR.perform_refinement_based_on_working_pattern( 0 );
+        tHMR.flag_surface_elements_on_working_pattern( tField );
+        tHMR.perform_refinement_based_on_working_pattern( 0 );
 
-            tField->evaluate_scalar_function( LevelSetFunction );
+        tField->evaluate_scalar_function( LevelSetFunction );
     }
 
     tHMR.finalize();
 
-    Interpolation_Mesh_HMR * tInterpMesh = tHMR.create_interpolation_mesh( tLagrangeOrder, tHMR.mParameters->get_lagrange_output_pattern()  );
+    Interpolation_Mesh_HMR * tInterpMesh = tHMR.create_interpolation_mesh(
+            tLagrangeOrder, tHMR.mParameters->get_lagrange_output_pattern() );
 
     std::cout<<"Num Nodes ="<<tMesh->get_num_nodes()<<std::endl;
     std::cout<<"Num Cells ="<<tMesh->get_num_elems()<<std::endl;
@@ -142,7 +144,6 @@ main(
     moris::ge::Phase_Table tPhaseTable (1, moris::ge::Phase_Table_Structure::EXP_BASE_2);
     moris::ge::Geometry_Engine tGeometryEngine(tGeometryVector,tPhaseTable);
 
-
     // Tell the XTK model that it should decompose with a C_HIERARCHY_TET4, on the same mesh that the level set field is defined on.
     size_t tModelDimension = 3;
     Cell<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8,Subdivision_Method::C_HIERARCHY_TET4};
@@ -153,12 +154,11 @@ main(
     // Do the cutting
     tXTKModel.decompose(tDecompositionMethods);
 
-//    print_cut_mesh(tXTKModel);
+    //    print_cut_mesh(tXTKModel);
 
-//    tXTKModel.unzip_interface();
-//
-//    tXTKModel.perform_basis_enrichment();
-
+    //    tXTKModel.unzip_interface();
+    //
+    //    tXTKModel.perform_basis_enrichment();
 
     Output_Options tOutputOptions;
     tOutputOptions.mAddNodeSets = false;
@@ -167,12 +167,11 @@ main(
 
     moris::mtk::Mesh* tCutMeshData = tXTKModel.get_output_mesh(tOutputOptions);
 
-
     std::string tMeshOutputFile = "./xtk_exo/xtk_hmr_output.e";
     tCutMeshData->create_output_mesh(tMeshOutputFile);
     delete tCutMeshData;
     delete tInterpMesh;
-//    delete tMeshData;
+    //    delete tMeshData;
 
     //------------------------------------------------------------------------------
     // finalize MORIS global communication manager

@@ -33,7 +33,8 @@ set(EXC_TPL_DEPENDENCIES
     
 set(IOS_TPL_DEPENDENCIES
     "hdf5"
-    "boost" )
+    "boost"
+    "mpi" )
 
  if(USE_GPERFTOOLS) #> TEMPORARY SOLUTION
 	list(APPEND ASR_TPL_DEPENDENCIES "gperftools")
@@ -43,4 +44,3 @@ set(IOS_TPL_DEPENDENCIES
 	list(APPEND EXC_TPL_DEPENDENCIES "gperftools")
 	list(APPEND IOS_TPL_DEPENDENCIES "gperftools")
 endif()
-    

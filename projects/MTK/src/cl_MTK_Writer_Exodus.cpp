@@ -387,8 +387,12 @@ namespace moris
             }
 
             // Create the database
-            int tCPUWordSize = sizeof(moris::real), tIOWordSize = 0;
-            mExoid = ex_create(mTempFileName.c_str(), EX_CLOBBER, &tCPUWordSize, &tIOWordSize);
+            int cpu_ws = sizeof( moris::real );         // word size in bytes of the floating point variables used in moris
+            int io_ws  = sizeof( moris::real );         // word size as stored in exodus
+
+            mExoid = ex_create(mTempFileName.c_str(), EX_CLOBBER, &cpu_ws, &io_ws);
+
+            MORIS_ERROR(mExoid > -1,"Exodus file cannot be created: %s",mTempFileName.c_str());
         }
 
         //--------------------------------------------------------------------------------------------------------------
