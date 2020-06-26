@@ -390,7 +390,7 @@ TEST_CASE( "CM_Fluid_Turbulence", "[CM_Fluid_Turbulence]" )
 {
     // define an epsilon environment
     // FIXME
-    real tEpsilon = 1E-5;
+    real tEpsilon = 2E-5;
 
     // define a perturbation relative size
     real tPerturbation = 1E-6;
