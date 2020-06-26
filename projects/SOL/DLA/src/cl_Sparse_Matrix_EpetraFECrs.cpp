@@ -10,22 +10,18 @@ extern moris::Comm_Manager gMorisComm;
 
 using namespace moris;
 
-Sparse_Matrix_EpetraFECrs::Sparse_Matrix_EpetraFECrs(       Solver_Interface * aInput,
-                                                      const sol::Dist_Map    * aMap ) : sol::Dist_Matrix( aMap )
+// ----------------------------------------------------------------------------
+
+Sparse_Matrix_EpetraFECrs::Sparse_Matrix_EpetraFECrs(
+        Solver_Interface     * aInput,
+        const sol::Dist_Map  * aMap )
+: sol::Dist_Matrix( aMap )
 {
     // Fixme implement get function for nonzero rows
     //BSpline_Mesh_Base::get_number_of_basis_connected_to_basis( const moris_index aIndex )
     moris::uint nonzerosRow =2;
 
-    moris::uint aNumMyDofs = aInput->get_my_local_global_map().n_rows();
-
-    moris::uint tNumMyDofs     = aNumMyDofs;
-    moris::uint tNumGlobalDofs = aNumMyDofs;
-
-    // sum up all distributed dofs
-    sum_all( tNumMyDofs, tNumGlobalDofs );
-
-    //FIXME insert boolian array for BC-- insert NumGlobalElements-- size
+    //FIXME insert boolean array for BC-- insert NumGlobalElements-- size
     mDirichletBCVec.set_size  ( aInput->get_max_num_global_dofs(), 1, 0 );
 
     // build BC vector
@@ -33,8 +29,6 @@ Sparse_Matrix_EpetraFECrs::Sparse_Matrix_EpetraFECrs(       Solver_Interface * a
 
     // create matrix class
     mEpetraMat = new Epetra_FECrsMatrix( Copy, *aMap->get_epetra_map(), nonzerosRow );
-
-    //mEpetraMap = ( Map_Epetra * ) aMap;
 }
 
 // ----------------------------------------------------------------------------------------------------------------------
@@ -47,87 +41,95 @@ Sparse_Matrix_EpetraFECrs::~Sparse_Matrix_EpetraFECrs()
 }
 
 // ----------------------------------------------------------------------------------------------------------------------
-void Sparse_Matrix_EpetraFECrs::dirichlet_BC_vector(       moris::Matrix< DDUMat > & aDirichletBCVec,
-                                                     const moris::Matrix< DDUMat > & aMyConstraintDofs)
- {
-     //build vector with constraint values. unconstraint=0 constraint =1. change this to true/false
-     for (moris::uint Ik=0; Ik< aMyConstraintDofs.n_rows(); Ik++)
-     {
-         aDirichletBCVec( aMyConstraintDofs( Ik,0)     ,0 )  = 1;
-     }
- }
-
-// ----------------------------------------------------------------------------------------------------------------------
-
-void Sparse_Matrix_EpetraFECrs::fill_matrix( const moris::uint             & aNumMyDofs,
-                                             const moris::Matrix< DDRMat > & aA_val,
-                                             const moris::Matrix< DDSMat > & aEleDofConectivity )
+void Sparse_Matrix_EpetraFECrs::dirichlet_BC_vector(
+        moris::Matrix< DDUMat >       & aDirichletBCVec,
+        const moris::Matrix< DDUMat > & aMyConstraintDofs)
 {
-    // insert values to matrix
-    //mEpetraMat->SumIntoGlobalValues(aNumMyDofs, mem_pointer( aEleDofConectivity ), mem_pointer( aA_val ), Epetra_FECrsMatrix::ROW_MAJOR);
-    mEpetraMat->SumIntoGlobalValues(aNumMyDofs, aEleDofConectivity.data(), aA_val.data(), Epetra_FECrsMatrix::COLUMN_MAJOR);
+    //build vector with constraint values. unconstraint=0 constraint =1. change this to true/false
+    for (moris::uint Ik=0; Ik< aMyConstraintDofs.n_rows(); Ik++)
+    {
+        aDirichletBCVec( aMyConstraintDofs( Ik,0)     ,0 )  = 1;
+    }
 }
 
 // ----------------------------------------------------------------------------------------------------------------------
+
+void Sparse_Matrix_EpetraFECrs::fill_matrix(
+        const moris::uint             & aNumMyDofs,
+        const moris::Matrix< DDRMat > & aA_val,
+        const moris::Matrix< DDSMat > & aEleDofConectivity )
+{
+    // insert values to matrix
+    //mEpetraMat->SumIntoGlobalValues(aNumMyDofs, mem_pointer( aEleDofConectivity ), mem_pointer( aA_val ), Epetra_FECrsMatrix::ROW_MAJOR);
+    mEpetraMat->SumIntoGlobalValues(
+            aNumMyDofs,
+            aEleDofConectivity.data(),
+            aA_val.data(),
+            Epetra_FECrsMatrix::COLUMN_MAJOR);
+}
+
+// ----------------------------------------------------------------------------------------------------------------------
+
 void Sparse_Matrix_EpetraFECrs::matrix_global_assembly()
 {
     // Assemble matrix
     mEpetraMat->GlobalAssemble();
-
-    //std::cout<<*mEpetraMat<<std::endl;
 }
 
 // ----------------------------------------------------------------------------------------------------------------------
-void Sparse_Matrix_EpetraFECrs::build_graph( const moris::uint             & aNumMyDof,
-                                             const moris::Matrix< DDSMat > & aElementTopology )
+
+void Sparse_Matrix_EpetraFECrs::build_graph(
+        const moris::uint             & aNumMyDof,
+        const moris::Matrix< DDSMat > & aElementTopology )
 {
-   // Build temporary matrix FIXME
-   moris::Matrix< DDSMat >TempElemDofs (aNumMyDof, 1);
-   TempElemDofs = aElementTopology;
+    // Build temporary matrix FIXME
+    moris::Matrix< DDSMat >TempElemDofs (aNumMyDof, 1);
+    TempElemDofs = aElementTopology;
 
-   // Build Zero matrix and matrix for element free dof id
-   moris::Matrix< DDRMat > tZeros (aNumMyDof*aNumMyDof, 1, 0.0);
-   moris::Matrix< DDSMat > tFreeDofIds (aNumMyDof, 1, -1.0);
+    // Build Zero matrix and matrix for element free dof id
+    moris::Matrix< DDRMat > tZeros (aNumMyDof*aNumMyDof, 1, 0.0);
+    moris::Matrix< DDSMat > tFreeDofIds (aNumMyDof, 1, -1.0);
 
-   //loop over elemental dofs
-   for (moris::uint Ij=0; Ij< aNumMyDof; Ij++)
-   {
+    //loop over elemental dofs
+    for (moris::uint Ij=0; Ij< aNumMyDof; Ij++)
+    {
         //set constrDof to neg value
-//       if ( mMap->return_local_ind_of_global_Id( aElementTopology(Ij,0) ) == -1 )
-//       {
-//           TempElemDofs( Ij, 0) = -1;
-//       }
-       if ( aElementTopology(Ij,0) < 0)
-       {
-           TempElemDofs( Ij, 0) = -1;
-       }
-       else if ( aElementTopology(Ij,0) > (sint)(mDirichletBCVec.length()-1) )
-       {
-           TempElemDofs( Ij, 0) = -1;
-       }
-       else if ( mDirichletBCVec( aElementTopology(Ij,0), 0) == 1)          //FIXME
-       {
-           TempElemDofs( Ij, 0) = -1;
-       }
-   }
+        //       if ( mMap->return_local_ind_of_global_Id( aElementTopology(Ij,0) ) == -1 )
+        //       {
+        //           TempElemDofs( Ij, 0) = -1;
+        //       }
+        if ( aElementTopology(Ij,0) < 0)
+        {
+            TempElemDofs( Ij, 0) = -1;
+        }
+        else if ( aElementTopology(Ij,0) > (sint)(mDirichletBCVec.length()-1) )
+        {
+            TempElemDofs( Ij, 0) = -1;
+        }
+        else if ( mDirichletBCVec( aElementTopology(Ij,0), 0) == 1)          //FIXME
+        {
+            TempElemDofs( Ij, 0) = -1;
+        }
+    }
 
-   // Set counter of number free dofs to 0
-   moris::uint tNumFreeDofs = 0;
+    // Set counter of number free dofs to 0
+    moris::uint tNumFreeDofs = 0;
 
-   for(moris::uint Ik=0 ; Ik< aNumMyDof ; Ik++)
-   {
-       //if (!GMultigrid==true)
-       //{
-           if ( TempElemDofs(Ik,0) < 0 ) continue;                   //elemDofs
-       //}
-       tFreeDofIds(tNumFreeDofs,0) = TempElemDofs(Ik,0);
-       tNumFreeDofs++;
-   }
-   // Fill matrix with zeros to initialize
-   mEpetraMat->InsertGlobalValues(tNumFreeDofs, tFreeDofIds.data(), tZeros.data(), Epetra_FECrsMatrix::COLUMN_MAJOR);
+    for(moris::uint Ik=0 ; Ik< aNumMyDof ; Ik++)
+    {
+        //if (!GMultigrid==true)
+        //{
+        if ( TempElemDofs(Ik,0) < 0 ) continue;                   //elemDofs
+        //}
+        tFreeDofIds(tNumFreeDofs,0) = TempElemDofs(Ik,0);
+        tNumFreeDofs++;
+    }
+    // Fill matrix with zeros to initialize
+    mEpetraMat->InsertGlobalValues(tNumFreeDofs, tFreeDofIds.data(), tZeros.data(), Epetra_FECrsMatrix::COLUMN_MAJOR);
 }
 
 // ----------------------------------------------------------------------------------------------------------------------
+
 void Sparse_Matrix_EpetraFECrs::mat_put_scalar( const moris::real & aValue )
 {
     mEpetraMat->PutScalar( aValue );
@@ -178,6 +180,8 @@ void Sparse_Matrix_EpetraFECrs::sparse_mat_right_scale( const sol::Dist_Vector &
     }
 }
 
+// ----------------------------------------------------------------------------
+
 void Sparse_Matrix_EpetraFECrs::replace_diagonal_values( const sol::Dist_Vector & aDiagVec )
 {
     // check if matrix is filled
@@ -199,7 +203,7 @@ void Sparse_Matrix_EpetraFECrs::replace_diagonal_values( const sol::Dist_Vector 
 
 void Sparse_Matrix_EpetraFECrs::mat_vec_product(
         const moris::sol::Dist_Vector & aInputVec,
-              moris::sol::Dist_Vector & aResult,
+        moris::sol::Dist_Vector       & aResult,
         const bool                      aUseTranspose )
 {
     mEpetraMat->Multiply(

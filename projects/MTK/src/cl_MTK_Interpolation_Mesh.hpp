@@ -23,8 +23,9 @@ namespace moris
             public:
                 Interpolation_Mesh(){};
 
-                ~Interpolation_Mesh(){};
-
+                ~Interpolation_Mesh()
+                {
+                };
         };
     }
 }

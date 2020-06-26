@@ -57,9 +57,15 @@ namespace moris
                 moris::Cell< enum MSI::Dof_Type > mListOfDofTypes;
 
             public :
+
+                // ----------------------------------------------------------------------------
+
                 NLA_Solver_Interface_Proxy();
 
-                NLA_Solver_Interface_Proxy( const moris::uint aNumMyDofs,
+                // ----------------------------------------------------------------------------
+
+                NLA_Solver_Interface_Proxy(
+                        const moris::uint aNumMyDofs,
                         const moris::uint aNumElements,
                         const moris::sint aNX,
                         const moris::sint aNY,
@@ -67,21 +73,36 @@ namespace moris
                         Matrix< DDRMat > ( *aFunctionJac )( const moris::sint aNX, const moris::sint aNY, const Matrix< DDRMat > & tMyValues, const moris::uint aEquationObjectInd ),
                         Matrix< DDSMat > ( *aFunctionTopo )( const moris::sint aNX, const moris::sint aNY, const moris::uint aEquationObjectInd ) );
 
+                // ----------------------------------------------------------------------------
+
                 NLA_Solver_Interface_Proxy( std::shared_ptr< Nonlinear_Algorithm > aNewtonSolver ){};
 
                 // ----------------------------------------------------------------------------------------------
+
                 ~NLA_Solver_Interface_Proxy(){};
 
                 // ----------------------------------------------------------------------------------------------
-                void set_time_value( const moris::real & aLambda,
-                        moris::uint   aPos = 1 );
+
+                void set_time_value(
+                        const moris::real & aLambda,
+                        moris::uint         aPos = 1 );
+                // ----------------------------------------------------------------------------
+
                 void set_time( const Matrix< DDRMat> & aTime );
+
+                // ----------------------------------------------------------------------------
+
                 void set_solution_vector_prev_time_step( sol::Dist_Vector * aSolutionVector );
+
+                // ----------------------------------------------------------------------------
+
                 void perform_mapping();
 
                 // ----------------------------------------------------------------------------------------------
 
                 void set_solution_vector( sol::Dist_Vector * aSolutionVector );
+
+                // ----------------------------------------------------------------------------
 
                 void free_block_memory( const uint aBlockInd ){};
 
@@ -92,10 +113,14 @@ namespace moris
                     mListOfDofTypes = aListOfDofTypes;
                 };
 
+                // ----------------------------------------------------------------------------
+
                 virtual moris::Cell< enum MSI::Dof_Type > get_requested_dof_types()
                 {
                     return mListOfDofTypes;
                 };
+
+                // ----------------------------------------------------------------------------
 
                 void set_secundary_dof_types( const Cell< moris::Cell< enum MSI::Dof_Type > > aListOfDofTypes )
                 {
@@ -104,80 +129,117 @@ namespace moris
 
                 // ----------------------------------------------------------------------------------------------
                 // local dimension of the problem
+
                 uint get_num_my_dofs(){ return mNumMyDofs; };
+
+                // ----------------------------------------------------------------------------
 
                 uint get_max_num_global_dofs()
                 {
-                    moris::uint tNumMyDofs     = mNumMyDofs;
-                    moris::uint tMaxNumGlobalDofs = mNumMyDofs;
+                    moris::uint tNumMyDofs = mNumMyDofs;
 
                     // sum up all distributed dofs
-                    sum_all( tNumMyDofs, tMaxNumGlobalDofs );
+                    moris::uint tMaxNumGlobalDofs = sum_all( tNumMyDofs );
 
                     return tMaxNumGlobalDofs;
                 };
 
+                // ----------------------------------------------------------------------------
+
                 moris::Matrix< DDSMat > & get_time_level_Ids_minus();
+
+                // ----------------------------------------------------------------------------
+
                 moris::Matrix< DDSMat > & get_time_level_Ids_plus();
 
                 // ----------------------------------------------------------------------------------------------
+
                 Matrix< DDSMat > get_my_local_global_map()
                 {
                     return mMyGlobalElements;
                 };
+                // ----------------------------------------------------------------------------
+
                 // local-to-global map
                 Matrix< DDSMat > get_my_local_global_map( const moris::Cell< enum MSI::Dof_Type > & aListOfDofTypes){ return mMyGlobalElements; };
+
+                // ----------------------------------------------------------------------------
 
                 moris::Matrix< DDSMat > get_my_local_global_overlapping_map( ){return mMyGlobalElementsOverlapping; };
 
                 // ----------------------------------------------------------------------------------------------
+
                 // number of elements on proc
                 uint get_num_my_elements(){return mNumElements; };
 
+                // ----------------------------------------------------------------------------
+
                 uint get_num_my_blocks(){return 1; };
+
+                // ----------------------------------------------------------------------------
 
                 uint get_num_equation_objects_on_set( uint aBlockInd){return mNumElements; };
 
                 // ----------------------------------------------------------------------------------------------
-                void get_equation_object_operator(const uint             & aMyElementInd,
+
+                void get_equation_object_operator(
+                        const uint       & aMyElementInd,
                         Matrix< DDRMat > & aElementMatrix);
 
-                void get_equation_object_operator( const uint             & aMyBlockInd,
-                        const uint             & aMyElementInd,
+                // ----------------------------------------------------------------------------
+
+                void get_equation_object_operator(
+                        const uint       & aMyBlockInd,
+                        const uint       & aMyElementInd,
                         Matrix< DDRMat > & aElementMatrix);
 
                 // ----------------------------------------------------------------------------------------------
-                void  get_element_topology(const uint             & aMyElementInd,
+
+                void  get_element_topology(
+                        const uint       & aMyElementInd,
                         Matrix< DDSMat > & aElementTopology)
                 {
                     aElementTopology = mFunctionTopology( mNX, mNY, aMyElementInd );
                 };
 
-                void  get_element_topology(const uint             & aMyBlockInd,
-                        const uint             & aMyElementInd,
+                // ----------------------------------------------------------------------------
+
+                void  get_element_topology(
+                        const uint       & aMyBlockInd,
+                        const uint       & aMyElementInd,
                         Matrix< DDSMat > & aElementTopology)
                 {
                     aElementTopology = mFunctionTopology( mNX, mNY, aMyElementInd );
                 };
 
                 // ----------------------------------------------------------------------------------------------
-                Matrix< DDUMat > get_constrained_Ids(){ return mMyConstraintDofs; };
+
+                Matrix< DDUMat > get_constrained_Ids()
+                {
+                    return mMyConstraintDofs;
+                };
 
                 // ----------------------------------------------------------------------------------------------
+
                 void get_equation_object_rhs(
                         const uint               & aMyElementInd,
                         Cell< Matrix< DDRMat > > & aElementRHS );
+
+                // ----------------------------------------------------------------------------
 
                 void get_equation_object_rhs(
                         const uint               & aMyBlockInd,
                         const uint               & aMyElementInd,
                         Cell< Matrix< DDRMat > > & aElementRHS );
+
                 //------------------------------------------------------------------------------
 
                 void get_equation_object_operator_and_rhs(
                         const moris::uint        & aMyElementInd,
                         Matrix< DDRMat >         & aElementMatrix,
                         Cell< Matrix< DDRMat > > & aElementRHS );
+
+                // ----------------------------------------------------------------------------
 
                 void get_equation_object_operator_and_rhs(
                         const moris::uint        & aMyEquSetInd,

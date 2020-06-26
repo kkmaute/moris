@@ -20,22 +20,25 @@ extern moris::Comm_Manager gMorisComm;
 // TPL header files
 using namespace moris;
 
-Matrix_PETSc::Matrix_PETSc(       moris::Solver_Interface * aInput,
-                            const moris::sol::Dist_Map        * aMap ) : sol::Dist_Matrix( aMap )
+// ----------------------------------------------------------------------------
+
+Matrix_PETSc::Matrix_PETSc(       
+        moris::Solver_Interface    * aInput,
+        const moris::sol::Dist_Map * aMap ) 
+: sol::Dist_Matrix( aMap )
 {
     moris::uint aNumMyDofs = aInput->get_my_local_global_map().numel();
 
-    moris::Matrix< DDUMat > aMyConstraintDofs   = aInput->get_constrained_Ids();
+    moris::Matrix< DDUMat > aMyConstraintDofs = aInput->get_constrained_Ids();
 
     // Fixme Implement nonzero algorithm
-    PetscInt    tNonzeros =16;
-    moris::uint    tNumMyDofs = aNumMyDofs;
-    moris::uint tNumGlobalDofs=  aNumMyDofs;
+    PetscInt    tNonzeros      = 16;
+    moris::uint    tNumMyDofs  = aNumMyDofs;
 
     // sum up all distributed dofs
-    sum_all( tNumMyDofs, tNumGlobalDofs );
+    moris::uint tNumGlobalDofs = sum_all( tNumMyDofs );
 
-    //FIXME insert boolian array for BC-- insert NumGlobalElements-- size
+    //FIXME insert boolean array for BC-- insert NumGlobalElements-- size
     mDirichletBCVec.set_size( tNumGlobalDofs, 1, 0 );
 
     // build BC vector
@@ -57,11 +60,13 @@ Matrix_PETSc::Matrix_PETSc(       moris::Solver_Interface * aInput,
     MatSetOption( mPETScMat, MAT_ROW_ORIENTED, PETSC_FALSE );
 }
 
+// ----------------------------------------------------------------------------
 
-Matrix_PETSc::Matrix_PETSc( const moris::uint aRows,
-                            const moris::uint aCols )
+Matrix_PETSc::Matrix_PETSc(
+        const moris::uint aRows,
+        const moris::uint aCols )
 {
-    // Fixme Implement nonzero algorithm
+    //FIXME Implement nonzero algorithm
     PetscInt    tNonzeros =16;
 
     // Create and set Matrix
@@ -69,12 +74,11 @@ Matrix_PETSc::Matrix_PETSc( const moris::uint aRows,
 
     mDirichletBCVec.set_size( aRows, 1, 0 );
 
-
     MatSetSizes( mPETScMat, aCols, aRows, PETSC_DETERMINE, PETSC_DETERMINE );
     MatSetFromOptions( mPETScMat );
     MatMPIAIJSetPreallocation( mPETScMat, tNonzeros, NULL, tNonzeros, NULL );
 
-//    MatSetOption( mPETScMat, MAT_COLUMN_ORIENTED, PETSC_TRUE );
+    //    MatSetOption( mPETScMat, MAT_COLUMN_ORIENTED, PETSC_TRUE );
 
     //FIXME extra matrix for serial (performance)
     //MatSeqAIJSetPreallocation(mPETScMat, tNonzeros, NULL);
@@ -85,19 +89,22 @@ Matrix_PETSc::Matrix_PETSc( const moris::uint aRows,
 }
 
 // ----------------------------------------------------------------------------
+
 Matrix_PETSc::~Matrix_PETSc()
 {
     MatDestroy( &mPETScMat );
 }
 
-void Matrix_PETSc::build_graph( const moris::uint             & aNumMyDof,
-                                const moris::Matrix< DDSMat > & aElementTopology )
+// ----------------------------------------------------------------------------
+
+void Matrix_PETSc::build_graph(
+        const moris::uint             & aNumMyDof,
+        const moris::Matrix< DDSMat > & aElementTopology )
 {
     moris::Matrix< DDSMat >tTempElemDofs = aElementTopology;
 
     // Build Zero matrix and matrix for element free dof id
     moris::Matrix< DDRMat > tZeros (aNumMyDof*aNumMyDof, 1, 0.0);
-
 
     //loop over elemental dofs
     for ( moris::uint Ij=0; Ij< aNumMyDof; Ij++ )
@@ -116,22 +123,22 @@ void Matrix_PETSc::build_graph( const moris::uint             & aNumMyDof,
         {
             tTempElemDofs( Ij, 0 ) = -1;
         }
-     }
-
-
-
+    }
 
     // Applying Petsc map AO
     AOApplicationToPetsc( mMap->get_petsc_map(), aNumMyDof, tTempElemDofs.data() );
 
     MatSetValues( mPETScMat, aNumMyDof, tTempElemDofs.data(), aNumMyDof, tTempElemDofs.data(), tZeros.data(), ADD_VALUES );
-//    MatSetValues( mPETScMat, aNumMyDof, aElementTopology.data(), aNumMyDof, aElementTopology.data(), tZeros.data(), ADD_VALUES );
+    //    MatSetValues( mPETScMat, aNumMyDof, aElementTopology.data(), aNumMyDof, aElementTopology.data(), tZeros.data(), ADD_VALUES );
     //MatSetValuesBlocked();                                                  //important+
 }
 
-void Matrix_PETSc::fill_matrix( const moris::uint             & aNumMyDof,
-                                const moris::Matrix< DDRMat > & aA_val,
-                                const moris::Matrix< DDSMat > & aEleDofConectivity)
+// ----------------------------------------------------------------------------
+
+void Matrix_PETSc::fill_matrix( 
+        const moris::uint             & aNumMyDof,
+        const moris::Matrix< DDRMat > & aA_val,
+        const moris::Matrix< DDSMat > & aEleDofConectivity)
 {
     moris::Matrix< DDSMat >tTempElemDofs( aNumMyDof, 1 );
     tTempElemDofs = aEleDofConectivity;
@@ -144,7 +151,7 @@ void Matrix_PETSc::fill_matrix( const moris::uint             & aNumMyDof,
         {
             tTempElemDofs( Ij, 0 ) = -1;
         }
-     }
+    }
 
     // Applying Petsc map AO
     AOApplicationToPetsc( mMap->get_petsc_map(), aNumMyDof, tTempElemDofs.data() );
@@ -153,33 +160,41 @@ void Matrix_PETSc::fill_matrix( const moris::uint             & aNumMyDof,
     //MatSetValuesBlocked();                                                  //important+
 }
 
-void Matrix_PETSc::fill_matrix_row( const moris::Matrix< DDRMat > & aA_val,
-                                    const moris::Matrix< DDSMat > & aRow,
-                                    const moris::Matrix< DDSMat > & aCols )
+// ----------------------------------------------------------------------------
+
+void Matrix_PETSc::fill_matrix_row(
+        const moris::Matrix< DDRMat > & aA_val,
+        const moris::Matrix< DDSMat > & aRow,
+        const moris::Matrix< DDSMat > & aCols )
 {
     MatSetValues( mPETScMat,
-                  aRow.numel(),
-                  aRow.data(),
-                  aCols.numel(),
-                  aCols.data(),
-                  aA_val.data(),
-                  INSERT_VALUES );
+            aRow.numel(),
+            aRow.data(),
+            aCols.numel(),
+            aCols.data(),
+            aA_val.data(),
+            INSERT_VALUES );
 }
 
-void Matrix_PETSc::get_matrix_values( const moris::Matrix< DDSMat > & aRequestedIds,
-                                            moris::Matrix< DDRMat > & aValues )
+// ----------------------------------------------------------------------------
+
+void Matrix_PETSc::get_matrix_values( 
+        const moris::Matrix< DDSMat > & aRequestedIds,
+        moris::Matrix< DDRMat >       & aValues )
 {
     // get values in row based format. There is no other way
     MatGetValues( mPETScMat,
-                  aRequestedIds.numel(),
-                  aRequestedIds.data(),
-                  aRequestedIds.numel(),
-                  aRequestedIds.data(),
-                  aValues.data() );
+            aRequestedIds.numel(),
+            aRequestedIds.data(),
+            aRequestedIds.numel(),
+            aRequestedIds.data(),
+            aValues.data() );
 
     // moris is column based.
     aValues = trans( aValues );
 }
+
+// ----------------------------------------------------------------------------
 
 void Matrix_PETSc::matrix_global_assembly()
 {
@@ -189,8 +204,11 @@ void Matrix_PETSc::matrix_global_assembly()
     //MatView(mPETScMat, PETSC_VIEWER_STDOUT_(PETSC_COMM_WORLD) );
 }
 
-void Matrix_PETSc::dirichlet_BC_vector(       moris::Matrix< DDUMat > & aDirichletBCVec,
-                                        const moris::Matrix< DDUMat > & aMyConstraintDofs )
+// ----------------------------------------------------------------------------
+
+void Matrix_PETSc::dirichlet_BC_vector(       
+        moris::Matrix< DDUMat >       & aDirichletBCVec,
+        const moris::Matrix< DDUMat > & aMyConstraintDofs )
 {
     //build vector with constraint values. unconstraint=0 constraint =1. change this to true/false
     for ( moris::uint Ik=0; Ik< aMyConstraintDofs.n_rows(); Ik++ )
@@ -199,10 +217,14 @@ void Matrix_PETSc::dirichlet_BC_vector(       moris::Matrix< DDUMat > & aDirichl
     }
 }
 
+// ----------------------------------------------------------------------------
+
 void Matrix_PETSc::print() const
 {
     MatView( mPETScMat, PETSC_VIEWER_STDOUT_(PETSC_COMM_WORLD) );
 }
+
+// ----------------------------------------------------------------------------
 
 void Matrix_PETSc::save_matrix_to_matlab_file( const char* aFilename )
 {
@@ -217,5 +239,3 @@ void Matrix_PETSc::save_matrix_to_matlab_file( const char* aFilename )
 
     PetscViewerDestroy( &tViewer );
 }
-
-

@@ -19,28 +19,28 @@
 
 namespace xtk
 {
-   class Model;
+    class Model;
 }
 
 namespace moris
 {
-class Library_IO;
-//------------------------------------------------------------------------------
+    class Library_IO;
+    //------------------------------------------------------------------------------
     namespace hmr
     {
-       class HMR;
+        class HMR;
     }
     namespace mtk
     {
-       class Mesh_Manager;
+        class Mesh_Manager;
     }
     namespace ge
     {
-       class GEN_Geometry_Engine;
+        class GEN_Geometry_Engine;
     }
     namespace mdl
     {
-       class Model;
+        class Model;
     }
     namespace opt
     {
@@ -49,50 +49,52 @@ class Library_IO;
 
     namespace wrk
     {
-    class Performer_Manager;
-//------------------------------------------------------------------------------
+        class Performer_Manager;
+        //------------------------------------------------------------------------------
 
         class Workflow : public opt::Criteria_Interface
         {
-        private:
-            wrk::Performer_Manager * mPerformerManager;
+            private:
 
-//------------------------------------------------------------------------------
-        public:
-//------------------------------------------------------------------------------
-            /**
-             * constructor
-             */
-            Workflow( wrk::Performer_Manager * aPerformerManager );
+                wrk::Performer_Manager * mPerformerManager;
 
-//------------------------------------------------------------------------------
-            /**
-             * destructor
-             */
-            ~Workflow(){};
+            public:
 
-            /**
-             * Initializes the vectors of ADV values, lower bounds, and upper bounds
-             */
-            void initialize(Matrix<DDRMat>& aADVs, Matrix<DDRMat>& aLowerBounds, Matrix<DDRMat>& aUpperBounds);
+                //------------------------------------------------------------------------------
+                /**
+                 * constructor
+                 */
+                Workflow( wrk::Performer_Manager * aPerformerManager );
 
-            /**
-             * Gets the criteria values given a new set of ADVs
-             *
-             * @return vector of criteria
-             */
-            Matrix<DDRMat> perform(Matrix<DDRMat> aNewADVs);
+                //------------------------------------------------------------------------------
+                /**
+                 * destructor
+                 */
+                ~Workflow(){};
 
-            /**
-             * Gets the derivative of the criteria with respect to the advs
-             *
-             * @return matrix d(criteria)_i/d(adv)_j
-             */
-            Matrix<DDRMat> compute_dcriteria_dadv();
+                //------------------------------------------------------------------------------
+                /**
+                 * Initializes the vectors of ADV values, lower bounds, and upper bounds
+                 */
+                void initialize(Matrix<DDRMat>& aADVs, Matrix<DDRMat>& aLowerBounds, Matrix<DDRMat>& aUpperBounds);
 
-//------------------------------------------------------------------------------
+                //------------------------------------------------------------------------------
+                /**
+                 * Gets the criteria values given a new set of ADVs
+                 *
+                 * @return vector of criteria
+                 */
+                Matrix<DDRMat> perform(Matrix<DDRMat> aNewADVs);
+
+                //------------------------------------------------------------------------------
+                /**
+                 * Gets the derivative of the criteria with respect to the advs
+                 *
+                 * @return matrix d(criteria)_i/d(adv)_j
+                 */
+                Matrix<DDRMat> compute_dcriteria_dadv();
         };
-//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
     } /* namespace mdl */
 } /* namespace moris */
 

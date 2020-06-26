@@ -60,10 +60,10 @@ int fn_WRK_Workflow_Main_Interface( int argc, char * argv[] )
         moris::Cell< moris::Cell< ParameterList > > tOPTParameterList;
         tOPTParameterListFunc( tOPTParameterList );
 
-        // Create workflow
-        wrk::Performer_Manager tPerformerManager( tLibrary );
-        tPerformerManager.initialize_performers();
-        tPerformerManager.set_performer_cooperations();
+            // Create workflow
+            wrk::Performer_Manager tPerformerManager( tLibrary );
+            tPerformerManager.initialize_performers();
+            tPerformerManager.set_performer_cooperations();
 
         moris::Cell<std::shared_ptr<moris::opt::Criteria_Interface>> tWorkflows = { std::make_shared<wrk::Workflow>( &tPerformerManager ) };
 
