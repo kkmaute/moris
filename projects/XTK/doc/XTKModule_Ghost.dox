@@ -1,0 +1,19 @@
+namespace moris {
+
+/** @defgroup XTKGhost Face Oriented Ghost Stabilization
+Inherent to  unfitted finite element methods  is the presence of basis functions with very small influence on discretized solution of the partial differential equation. This results in ill-conditioning of the nonlinear and linearized system especially near weakly imposed Dirichlet boundary conditions. The motivation behind face oriented ghost stabilization is to mitigate this ill-conditioning by extending the coercivity from the physical domain to the mesh domain \citep{Burman2010}. Face oriented ghost stabilization has been formulated to penalize jumps in the state and state gradients in \citep{Burman2015} :
+
+\f[
+\mathit{R}_{Ghost} = \gamma_g \sum_{F \in \mathit{F}_{cut}} \sum_{j=1}^k h_K^{2(j-1)+1} \int_F \llbracket  D^{j} v_i \rrbracket \llbracket  D^{j} u_i  \rrbracket ds
+\label{eq:ghost_disp}
+\f]
+where $\gamma_g$ is a ghost penalty parameter, \f$F\f$ is a facet, \f$\mathit{F}_{cut}\f$ is the set of penalized facets, $h_K$ is the cell length, \f$k\f$ is the degree of interpolation, \f$\llbracket \xi \rrbracket = \xi_1 - \xi_2\f$ is a jump operator and \f$D^{j}\f$ is the derivative operator.  \f$\gamma_g\f$ is usually set to a value between \f$0.001\f$ and \f$0.05\f$.In some cases discontinuities in the state and state gradients are present by construction, for this case the principle of virtual work has been used to formulate a face oriented ghost stabilization, see Equation \eqref{eq:ghost_pvw} \citep{Geiss2018}. One component of face oriented ghost penalization is development of methods to select the candidate facets for penalization and grouping them appropriately into facet sets. 
+
+\f[
+\mathit{R}_{Ghost} =  \gamma_g  \sum_{F \in \mathit{F}_{cut}} \sum_{j=1}^k h_K^{2(j-1)+1} \int_F \llbracket  D^{j-1} \epsilon_{im}\rrbracket \llbracket  D^{j-1} \sigma_{im}\rrbracket ds
+\f]
+
+An example of a multiple component domain is shown in Figure \ref{fig:ghost}. $\Omega$ consists of three distinct components, blue, green and grey. The set of facets \f$F_{cut}\f$ for penalization is constructed between interpolation cells belonging to the same component. \f$F_{cut}\f$ is a double sided side set as defined in the Mesh section. Integration is always performed over the entirety of the facet $F$ rather than just the portion in the physical domain. Since the facets are defined on a component, the state defined on \f$\Omega_1\f$ does not interact with the state defined on \f$\Omega_2\f$ in \f$R_{Ghost}\f$. In Figure \ref{fig:ghost_close}, a single penalized facet F is shown, a penalized facet consists of a pair of integration domains, one master facet and one slave facet.  Ghost stabilization shown in \eqref{eq:ghost_pvw}, been shown to improve conditioning of the system while not significantly influencing the solution in \citep{Geiss2018}.
+
+ */
+ }

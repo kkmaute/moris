@@ -178,13 +178,16 @@ The core functionalities of HMR are
 
 /** @defgroup MTK_Module Mesh Tool Kit (MTK) Module
 
-The Mesh Toolkit (MTK) is the common API for all mesh implementations in MORIS such as STK, HMR, XTK. MTK is a virtual package that is not allowed to have any dependencies except for the MORIS core packages and LINALG.
+The Mesh Toolkit (MTK) is the common API for all mesh implementations in MORIS such as STK, HMR, XTK. 
 
 MTK entertains two different @ref MTK_Interfaces, which are both accessed through the mesh class.
 
 The first interface concept works on ID, index and entity rank based inquiries to the mesh object. It returns information in Moris matrices. 
 
 The second interface concept is object-based and provides pointers to Blocks, Cells and Vertices. Object attributes such as id, index, neighbors etc are obtained by asking the corresponding object.
+
+@addtogroup MTK_Overview
+@ingroup MTK_Module
 
 @addtogroup MTK_Interfaces
 @ingroup MTK_Module
@@ -246,12 +249,12 @@ The following modules introduce the XTK and its core functionalities.
 /** @addtogroup XTKDecomp
     @ingroup XTKModule */
 
-/** @addtogroup XTKSensitivity
-    @ingroup XTKModule */
-    
 /** @addtogroup XTKEnrich
     @ingroup XTKModule */
-    
+
+/** @addtogroup XTKGhost
+    @ingroup XTKModule */    
+   
 /** @addtogroup XTKOutput
     @ingroup XTKModule */
 
