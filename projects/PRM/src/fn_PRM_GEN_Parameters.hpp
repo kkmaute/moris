@@ -18,10 +18,9 @@ namespace moris
         {
             ParameterList tParameterList;
 
-            // General
-            tParameterList.insert("threshold_value", 0.0);
+            // Level-set parameters
+            tParameterList.insert("isocontour_threshold", 0.0);
             tParameterList.insert("perturbation_value", 1E-6);
-            tParameterList.insert("HMR_refinements", 0);        // Number of HMR refinements to be performed
 
             // ADVs/IQIs
             tParameterList.insert("initial_advs", "");       // Initial ADVs, string converted into vector
@@ -38,8 +37,6 @@ namespace moris
             tParameterList.insert("phase_table", ""); // Construct phase table directly
             tParameterList.insert("phase_table_structure", "exp_base_2"); // Phase table structure (if not using phase_table)
 
-            tParameterList.insert( "user_defined_refinement_function", "" );
-
             return tParameterList;
         }
 
@@ -54,12 +51,11 @@ namespace moris
             ParameterList tParameterList;
 
             tParameterList.insert("type", "");                      // Type (name) of geometry
-            tParameterList.insert("geometry_variable_indices", ""); // String of uints converted to a vector;
-            // geometry variables to fill
-            tParameterList.insert("adv_indices", "");               // String of uints converted to a vector;
-            // advs used to fill in variables
-            tParameterList.insert("constant_parameters", "");       // String of reals converted to a vector;
-            // remaining geometry parameters that are constant
+            tParameterList.insert("geometry_variable_indices", ""); // Geometry variables to fill
+            tParameterList.insert("adv_indices", "");               // ADVs used to fill in variables
+            tParameterList.insert("constant_parameters", "");       // Remaining geometry parameters that are constant
+            tParameterList.insert("number_of_refinements", 0);      // Number of refinement steps using HMR
+            tParameterList.insert("refinement_function_index", -1); // User-defined refinement function (-1 = none)
 
             return tParameterList;
         }
@@ -93,12 +89,9 @@ namespace moris
 
             tParameterList.insert("type", "");                      // Type of property
             tParameterList.insert("name", "");                      // Name of property
-            tParameterList.insert("property_variable_indices", ""); // String of uints converted to a vector;
-            // property variables to fill
-            tParameterList.insert("adv_indices", "");               // String of uints converted to a vector;
-            // advs used to fill in variables
-            tParameterList.insert("constant_parameters", "");       // String of reals converted to a vector;
-            // remaining geometry parameters that are constant
+            tParameterList.insert("property_variable_indices", ""); // Property variables to fill
+            tParameterList.insert("adv_indices", "");               // ADVs used to fill in variables
+            tParameterList.insert("constant_parameters", "");       // Remaining property parameters that are constant
             tParameterList.insert("dependencies", "");              // Names of other properties that this property depends on
 
             // Assignment to PDVs

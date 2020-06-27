@@ -9,12 +9,15 @@ namespace moris
 
         Discrete_Level_Set::Discrete_Level_Set(moris::mtk::Interpolation_Mesh* aMesh,
                                                moris::Cell<std::string> const & aFieldNames,
-                                               EntityRank aEntityRank)
-                                               : Field(Matrix<DDRMat>(1, 1, 0.0)),
-                                                 mFieldNames(aFieldNames),
-                                                 mMesh(aMesh),
-                                                 mEntityRank(aEntityRank),
-                                                 mNumOriginalNodes(aMesh->get_num_nodes())
+                                               EntityRank aEntityRank,
+                                               sint aNumRefinements,
+                                               sint aRefinementFunctionIndex)
+                : Field(Matrix<DDRMat>(1, 1, 0.0)),
+                  Geometry(aNumRefinements, aRefinementFunctionIndex),
+                  mFieldNames(aFieldNames),
+                  mMesh(aMesh),
+                  mEntityRank(aEntityRank),
+                  mNumOriginalNodes(aMesh->get_num_nodes())
         {
         }
 

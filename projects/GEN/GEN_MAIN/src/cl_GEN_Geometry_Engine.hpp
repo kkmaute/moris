@@ -48,18 +48,14 @@ namespace moris
 
         class Geometry_Engine
         {
-        public:
-            moris::uint mSpatialDim;
-            moris::real mThresholdValue;
-            moris::real mPerturbationValue;
-
         private:
 
-            // HMR refinements
-            uint mNumRefinements = 0;
+            // Level-set isocontour threshold
+            real mIsocontourThreshold;
+            real mPerturbationValue;
 
-            // HMR user defined refinement function
-            MORIS_USER_DEFINED_REFINEMENT_FUNCTION mUserDefinedFunc = nullptr;
+            // Spatial dimensions
+            uint mSpatialDim;
 
             // ADVs/IQIs
             Matrix<DDRMat> mADVs;
@@ -109,10 +105,10 @@ namespace moris
              * @param[ in ] aSpatialDim spatial dimensions
              */
             Geometry_Engine(Cell< std::shared_ptr<Geometry> >   aGeometry,
-                                Phase_Table                     aPhaseTable,
-                                uint                            aSpatialDim = 3,
-                                real                            aThresholdValue = 0.0,
-                                real                            aPerturbationValue = 1E-6);
+                            Phase_Table                     aPhaseTable,
+                            uint                            aSpatialDim = 3,
+                            real                            aIsocontourThreshold = 0.0,
+                            real                            aPerturbationValue = 1E-6);
 
             /**
              * Destructor
@@ -224,15 +220,14 @@ namespace moris
              * Computes the intersection of an isocountour with an entity and returning the local coordinate relative to the parent
              * and the global coordinate if needed
              */
-            void get_intersection_location( real                    aIsocontourThreshold,
-                                            real                    aPerturbationThreshold,
-                                            const Matrix<DDRMat>&   aGlobalNodeCoordinates,
-                                            const Matrix<DDRMat>&   aEntityNodeVars,
-                                            const Matrix<IndexMat>& aEntityNodeIndices,
-                                            Matrix<DDRMat>&         aIntersectionLocalCoordinates,
-                                            Matrix<DDRMat>&         aIntersectionGlobalCoordinates,
-                                            bool                    aCheckLocalCoordinate = false,
-                                            bool                    aComputeGlobalCoordinate = false);
+            void get_intersection_location(
+                    const Matrix<DDRMat>&   aGlobalNodeCoordinates,
+                    const Matrix<DDRMat>&   aEntityNodeVars,
+                    const Matrix<IndexMat>& aEntityNodeIndices,
+                    Matrix<DDRMat>&         aIntersectionLocalCoordinates,
+                    Matrix<DDRMat>&         aIntersectionGlobalCoordinates,
+                    bool                    aCheckLocalCoordinate = false,
+                    bool                    aComputeGlobalCoordinate = false);
 
             /**
              * @brief Get the total number of phases in the phase table
@@ -294,23 +289,23 @@ namespace moris
              * @param aHMRPerformer Shared pointer to HMR
              * @param aNumRefinements Number of refinements to perform, if not given will be taken from GEN parameters
              */
-            void perform_refinement(std::shared_ptr<hmr::HMR >aHMRPerformer, uint aNumRefinements = 0);
+            void perform_refinement(std::shared_ptr<hmr::HMR >aHMRPerformer);
 
             /**
              * @brief assign the pdv type and property for each pdv host in a given set
              */
-            void assign_ip_hosts_by_set_name( std::string                     aSetName,
-                                              std::shared_ptr< Property > aPropertyPointer,
-                                              PDV_Type                     aPdvType,
-                                              moris_index                     aWhichMesh = 0 );
+            void assign_ip_hosts_by_set_name( std::string                 aSetName,
+                                              std::shared_ptr<Property> aPropertyPointer,
+                                              PDV_Type                    aPdvType,
+                                              moris_index                 aWhichMesh = 0 );
 
             /**
              * @brief assign the pdv type and property for each pdv host in a given set
              */
-            void assign_ip_hosts_by_set_index( moris_index                     aSetIndex,
-                                               std::shared_ptr< Property > aPropertyPointer,
-                                               PDV_Type                     aPdvType,
-                                               moris_index                     aWhichMesh = 0 );
+            void assign_ip_hosts_by_set_index( moris_index               aSetIndex,
+                                               std::shared_ptr<Property> aPropertyPointer,
+                                               PDV_Type                  aPdvType,
+                                               moris_index               aWhichMesh = 0 );
 
             /**
              * Create PDV_Type hosts with the specified PDV_Type types on the interpolation mesh
@@ -348,20 +343,6 @@ namespace moris
                                             moris::size_t                    const & aCheckType,
                                             moris::Matrix< moris::IndexMat >       & aNodeADVIndices,
                                             GEN_Geometry_Object                    & aGeometryObject );
-
-            /**
-             * Interpolate given level set values to a child node location
-             *
-             * @param aParentTopology
-             * @param aGeometryIndex
-             * @param aNodeLocalCoordinate
-             * @param aLevelSetValues
-             */
-            void interpolate_level_set_value_to_child_node_location( const xtk::Topology&        aParentTopology,
-                                                                           size_t                aGeometryIndex,
-                                                                     const Matrix<DDRMat>&       aNodeLocalCoordinate,
-                                                                     const Matrix<DDRMat>& aNodeGlobalCoordinates,
-                                                                           Matrix<DDRMat>&       aLevelSetValues );
 
         };
     }

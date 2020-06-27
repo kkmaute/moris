@@ -10,7 +10,7 @@ namespace moris
         //--------------------------------------------------------------------------------------------------------------
 
         Integration_Pdv_Host::Integration_Pdv_Host(uint aNodeIndex,
-                                                   const Matrix<DDRMat>& aCoordinates,
+                                                   Matrix<DDRMat> aCoordinates,
                                                    uint aStartingGlobalIndex,
                                                    std::shared_ptr<Intersection> aIntersectionInfo)
         : mNodeIndex(aNodeIndex),

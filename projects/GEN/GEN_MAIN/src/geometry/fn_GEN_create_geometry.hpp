@@ -21,7 +21,10 @@ namespace moris
          * @param aLibrary pointer to library for loading user-defined functions
          * @return Pointer to specific Geometry class
          */
-        std::shared_ptr<Geometry> create_geometry(ParameterList aGeometryParameterList, Matrix<DDRMat>& aADVs, std::shared_ptr<moris::Library_IO> aLibrary = nullptr);
+        std::shared_ptr<Geometry> create_geometry(
+                ParameterList               aGeometryParameterList,
+                Matrix<DDRMat>&             aADVs,
+                std::shared_ptr<Library_IO> aLibrary = nullptr);
 
     }
 }

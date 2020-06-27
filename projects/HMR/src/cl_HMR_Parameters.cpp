@@ -111,7 +111,8 @@ namespace moris
     /*
      * parameter list constructor
      */
-    Parameters::Parameters( ParameterList & aParameterList )
+    Parameters::Parameters( ParameterList & aParameterList,
+                            std::shared_ptr<moris::Library_IO> aLibrary )
     {
         string_to_mat( aParameterList.get< std::string >("number_of_elements_per_dimension"), mNumberOfElementsPerDimension );
 
@@ -176,6 +177,15 @@ namespace moris
 
         // get multigrid parameter
         this->set_number_aura( aParameterList.get< sint >("use_number_aura") == 1 );
+
+        // get user-defined refinement functions
+        Cell<std::string> tFunctionNames = string_to_cell<std::string>(aParameterList.get<std::string>("refinement_function_names"));
+        MORIS_ERROR((aLibrary != nullptr) or (tFunctionNames.size() == 0),
+                "User-defined refinement function names were provided without a library to load them from.");
+        for (uint tFunctionIndex = 0; tFunctionIndex < tFunctionNames.size(); tFunctionIndex++)
+        {
+            mRefinementFunctions.push_back(aLibrary->load_user_defined_refinement_functions(tFunctionNames(tFunctionIndex)));
+        }
     }
 
 //--------------------------------------------------------------------------------
@@ -261,7 +271,7 @@ namespace moris
     void Parameters::copy_selected_parameters( ParameterList & aParameterList )
     {
         // create a temporary parameter object
-        Parameters tParameters( aParameterList );
+        Parameters tParameters( aParameterList, nullptr );
 
         // copy values into myself
         this->copy_selected_parameters( tParameters );
@@ -708,6 +718,22 @@ namespace moris
         }
 
 //--------------------------------------------------------------------------------
+
+        void Parameters::set_refinement_functions( Cell<MORIS_USER_DEFINED_REFINEMENT_FUNCTION> aRefinementFunctions )
+        {
+            mRefinementFunctions = aRefinementFunctions;
+        }
+
+        //--------------------------------------------------------------------------------
+
+        MORIS_USER_DEFINED_REFINEMENT_FUNCTION Parameters::get_refinement_function( uint aFunctionIndex )
+        {
+            MORIS_ASSERT(aFunctionIndex < mRefinementFunctions.size(),
+                    ("A user-defined refinement function with index " + std::to_string(aFunctionIndex) +
+                    " was requested for use, but only " + std::to_string(mRefinementFunctions.size()) +
+                    " user-defined refinement functions were provided to HMR.").c_str());
+            return mRefinementFunctions(aFunctionIndex);
+        }
 
     } /* namespace hmr */
 } /* namespace moris */

@@ -8,13 +8,13 @@ namespace moris
         //--------------------------------------------------------------------------------------------------------------
 
         Sphere::Sphere(Matrix<DDRMat>& aADVs,
-                       Matrix<DDUMat> aGeometryVariableIndices,
-                       Matrix<DDUMat> aADVIndices,
-                       Matrix<DDRMat> aConstantParameters)
-                       : Field(aADVs,
-                               aGeometryVariableIndices,
-                               aADVIndices,
-                               aConstantParameters)
+                       Matrix<DDUMat>  aGeometryVariableIndices,
+                       Matrix<DDUMat>  aADVIndices,
+                       Matrix<DDRMat>  aConstantParameters,
+                       sint            aNumRefinements,
+                       sint            aRefinementFunctionIndex)
+                : Field(aADVs, aGeometryVariableIndices, aADVIndices, aConstantParameters),
+                  Geometry(aNumRefinements, aRefinementFunctionIndex)
         {
             MORIS_ERROR(aGeometryVariableIndices.length() + aConstantParameters.length() == 4,
                         "A sphere geometry must be created with a total of exactly 4 adv and constant parameters");
@@ -22,8 +22,14 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        Sphere::Sphere(real aXCenter, real aYCenter, real aZCenter, real aRadius)
-                : Field(Matrix<DDRMat>({{aXCenter, aYCenter, aZCenter, aRadius}}))
+        Sphere::Sphere(real aXCenter,
+                       real aYCenter,
+                       real aZCenter,
+                       real aRadius,
+                       sint aNumRefinements,
+                       sint aRefinementFunctionIndex)
+                : Field(Matrix<DDRMat>({{aXCenter, aYCenter, aZCenter, aRadius}})),
+                  Geometry(aNumRefinements, aRefinementFunctionIndex)
         {
         }
 

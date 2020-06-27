@@ -46,47 +46,40 @@ int fn_WRK_Workflow_Main_Interface( int argc, char * argv[] )
         return -1;
     }
 
-    try
+    std::string tInputArg = std::string(argv[ 1 ]);
+    std::string tString = "Reading dynamically linked shared object " + tInputArg + ".";
+    MORIS_LOG( tString.c_str() );
+
+    //dynamically linked file
+    std::shared_ptr< Library_IO >tLibrary = std::make_shared< Library_IO >( argv[ 1 ] );
+
     {
-        std::string tInputArg = std::string(argv[ 1 ]);
-        std::string tString = "Reading dynamically linked shared object " + tInputArg + ".";
-        MORIS_LOG( tString.c_str() );
+        // load the OPT parameter list
+        std::string tOPTString = "OPTParameterList";
+        MORIS_PARAMETER_FUNCTION tOPTParameterListFunc = tLibrary->load_parameter_file( tOPTString );
+        moris::Cell< moris::Cell< ParameterList > > tOPTParameterList;
+        tOPTParameterListFunc( tOPTParameterList );
 
-        //dynamically linked file
-        std::shared_ptr< Library_IO >tLibrary = std::make_shared< Library_IO >( argv[ 1 ] );
-
-        {
-            // load the OPT parameter list
-            std::string tOPTString = "OPTParameterList";
-            MORIS_PARAMETER_FUNCTION tOPTParameterListFunc = tLibrary->load_parameter_file( tOPTString );
-            moris::Cell< moris::Cell< ParameterList > > tOPTParameterList;
-            tOPTParameterListFunc( tOPTParameterList );
-
-            // Create work flow
+            // Create workflow
             wrk::Performer_Manager tPerformerManager( tLibrary );
             tPerformerManager.initialize_performers();
             tPerformerManager.set_performer_cooperations();
 
-            moris::Cell<std::shared_ptr<moris::opt::Criteria_Interface>> tWorkflows = { std::make_shared<wrk::Workflow>( &tPerformerManager ) };
+        moris::Cell<std::shared_ptr<moris::opt::Criteria_Interface>> tWorkflows = { std::make_shared<wrk::Workflow>( &tPerformerManager ) };
 
-            if( tOPTParameterList( 0 )( 0 ).get< bool >("is_optimization_problem") )
-            {
-                moris::opt::Manager tManager( tOPTParameterList, tWorkflows );
-                tManager.perform();
+        if( tOPTParameterList( 0 )( 0 ).get< bool >("is_optimization_problem") )
+        {
+            moris::opt::Manager tManager( tOPTParameterList, tWorkflows );
+            tManager.perform();
 
-            }
-            else
-            {
-                Matrix< DDRMat > tDummyMat;
-                tWorkflows(0)->initialize( tDummyMat,tDummyMat,tDummyMat );
-                Matrix<DDRMat> tADVs(1, 1, 0.0);
-                tWorkflows(0)->get_criteria(tADVs);
-            }
         }
-    }
-    catch(...)
-    {
-        std::cerr << "\n\n" << "MORIS encountered an error - see information above - Exit" << "\n\n";
+        else
+        {
+            Matrix< DDRMat > tDummyMat;
+            tWorkflows(0)->initialize( tDummyMat,tDummyMat,tDummyMat );
+            Matrix<DDRMat> tADVs(1, 1, 0.0);
+            tWorkflows(0)->get_criteria(tADVs);
+        }
     }
 
     return 0;

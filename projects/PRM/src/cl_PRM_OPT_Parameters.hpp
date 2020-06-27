@@ -17,12 +17,12 @@ namespace moris
         {
             ParameterList tParameterList;
 
-            tParameterList.insert("is_optimization_problem", false); // if its and OPT problem or forward analysis
+            tParameterList.insert("is_optimization_problem", false); // Whether or not to use OPT
             tParameterList.insert("problem", "user_defined"); // OPT Problem class type
             tParameterList.insert("finite_difference_type", "none");  // Type of finite differencing for gradients;
                                                                       // central, forward, backward, or none
             tParameterList.insert("finite_difference_epsilons", "1E-8"); // Epsilon(s) to use per ADV for finite differencing
-            tParameterList.insert("library", "");
+            tParameterList.insert("library", ""); // Path to a shared object file for user-defined functions
 
             return tParameterList;
         }
@@ -33,9 +33,9 @@ namespace moris
         {
             ParameterList tParameterList;
 
-            tParameterList.insert("shared_advs", false); // opt Interface class type
-            tParameterList.insert("parallel", false);
-            tParameterList.insert("num_processors_per_interface", "");
+            tParameterList.insert("shared_advs", false); // If all of the ADVs are shared between criteria interfaces
+            tParameterList.insert("parallel", false);  // If to execute criteria evaluations in parallel
+            tParameterList.insert("num_processors_per_interface", ""); // Matrix of processors to use per interface
 
             return tParameterList;
         }
@@ -47,7 +47,7 @@ namespace moris
             ParameterList tParameterList;
 
             tParameterList.insert("type", "user_defined"); // OPT Interface class type
-            tParameterList.insert("library", "");
+            tParameterList.insert("library", ""); // Path to a shared object file for user-defined functions
 
             return tParameterList;
         }
@@ -59,12 +59,12 @@ namespace moris
             ParameterList tParameterList;
 
             tParameterList.insert( "algorithm"    , "gcmma"); // Algorithm name, don't change
-            tParameterList.insert( "max_its"      , 100  );  // Allowable GCMMA optimization iterations
-            tParameterList.insert( "max_inner_its", 0    );  // Allowable GCMMA inner iterations per every optimization iteration
-            tParameterList.insert( "norm_drop"    , 1e-4 );  // GCMMA convergence criteria
+            tParameterList.insert( "max_its"      , 100  );  // Maximum number of iterations
+            tParameterList.insert( "max_inner_its", 0    );  // Maximum inner iterations per every optimization iteration
+            tParameterList.insert( "norm_drop"    , 1e-4 );  // Relative change in objective convergence criteria
             tParameterList.insert( "asymp_adapt0" , 0.5  );  // Initial asymptote adaptation factor
-            tParameterList.insert( "asymp_adapt"  , 0.7  );  // Lower asymptote adaptation factor
-            tParameterList.insert( "asymp_adaptc" , 1.2  );  // Upper asymptote adaptation factor
+            tParameterList.insert( "asymp_adapt"  , 0.7  );  // Shrinking asymptote adaptation factor
+            tParameterList.insert( "asymp_adaptc" , 1.2  );  // Expanding asymptote adaptation factor
             tParameterList.insert( "step_size"    , 0.01 );  // GCMMA step size
             tParameterList.insert( "penalty"      , 100.0);  // GCMMA constraint penalty
 

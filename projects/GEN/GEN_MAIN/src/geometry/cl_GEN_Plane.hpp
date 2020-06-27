@@ -22,11 +22,15 @@ namespace moris
              * @param aGeometryVariableIndices Indices of geometry variables to be filled by the ADVs
              * @param aADVIndices The indices of the ADV vector to fill in the geometry variables
              * @param aConstantParameters The constant parameters not filled by ADVs
+             * @param aNumRefinements The number of refinement steps to use for this geometry
+             * @param aRefinementFunctionIndex The index of a user-defined refinement function (-1 = default refinement)
              */
             Plane(Matrix<DDRMat>& aADVs,
-                  Matrix<DDUMat> aGeometryVariableIndices,
-                  Matrix<DDUMat> aADVIndices,
-                  Matrix<DDRMat> aConstantParameters);
+                  Matrix<DDUMat>  aGeometryVariableIndices,
+                  Matrix<DDUMat>  aADVIndices,
+                  Matrix<DDRMat>  aConstantParameters,
+                  sint            aNumRefinements = 0,
+                  sint            aRefinementFunctionIndex = -1);
 
             /**
              * Constructor with only constant parameters, 3D
@@ -37,8 +41,17 @@ namespace moris
              * @param aXNormal x normal for the plane
              * @param aYNormal y normal for the plane
              * @param aZNormal z normal for the plane
+             * @param aNumRefinements The number of refinement steps to use for this geometry
+             * @param aRefinementFunctionIndex The index of a user-defined refinement function (-1 = default refinement)
              */
-            Plane(real aXCenter, real aYCenter, real aZCenter, real aXNormal, real aYNormal, real aZNormal);
+            Plane(real aXCenter,
+                  real aYCenter,
+                  real aZCenter,
+                  real aXNormal,
+                  real aYNormal,
+                  real aZNormal,
+                  sint aNumRefinements = 0,
+                  sint aRefinementFunctionIndex = -1);
 
             /**
              * Constructor with only constant parameters, 2D
@@ -47,8 +60,15 @@ namespace moris
              * @param aYCenter y-coordinate of the center of the plane
              * @param aXNormal x normal for the plane
              * @param aYNormal y normal for the plane
+             * @param aNumRefinements The number of refinement steps to use for this geometry
+             * @param aRefinementFunctionIndex The index of a user-defined refinement function (-1 = default refinement)
              */
-            Plane(real aXCenter, real aYCenter, real aXNormal, real aYNormal);
+            Plane(real aXCenter,
+                  real aYCenter,
+                  real aXNormal,
+                  real aYNormal,
+                  sint aNumRefinements = 0,
+                  sint aRefinementFunctionIndex = -1);
 
             /**
              * Given a node coordinate, the geometry needs to return the distance to the nearest function.

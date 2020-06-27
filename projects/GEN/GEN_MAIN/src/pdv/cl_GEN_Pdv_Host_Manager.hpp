@@ -207,8 +207,8 @@ namespace moris
              * @param aPdvTypes The PDV types per set, grouped
              */
             void create_ip_pdv_hosts(Cell<Matrix<DDSMat>>        aNodeIndicesPerSet,
-                                     const Cell<Matrix<DDRMat>>& aNodeCoordinates,
-                                     Cell<Cell<Cell<PDV_Type>>>         aPdvTypes);
+                                     Cell<Matrix<DDRMat>>        aNodeCoordinates,
+                                     Cell<Cell<Cell<PDV_Type>>>  aPdvTypes);
 
             /**
              * Create the pdv hosts on integration nodes based on the pdv types per set
@@ -218,7 +218,7 @@ namespace moris
              * @param aPdvTypes The PDV types per set, grouped
              */
             void create_ig_pdv_hosts(Cell<Matrix<DDSMat>>        aNodeIndicesPerSet,
-                                     const Cell<Matrix<DDRMat>>& aNodeCoordinates,
+                                     Cell<Matrix<DDRMat>>        aNodeCoordinates,
                                      Cell<Cell<Cell<PDV_Type>>>  aPdvTypes,
                                      Cell<Intersection_Info>     aIntersectionInfo = Cell<Intersection_Info>(0));
             

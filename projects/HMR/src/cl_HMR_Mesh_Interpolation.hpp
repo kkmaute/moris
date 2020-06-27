@@ -15,7 +15,7 @@ namespace moris
 {
     namespace hmr
     {
-        class Interpolation_Mesh_HMR : public Mesh, public mtk::Interpolation_Mesh
+        class Interpolation_Mesh_HMR : public virtual Mesh, public mtk::Interpolation_Mesh
         {
             public:
 
@@ -51,7 +51,6 @@ namespace moris
 
                 ~Interpolation_Mesh_HMR()
                 {
-                    std::cout << "deleting Interpolation_Mesh_HMR" << std::endl;
                 }
         };
     }

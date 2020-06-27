@@ -259,8 +259,8 @@ namespace moris
         //--------------------------------------------------------------------------------------------------------------
 
         void Pdv_Host_Manager::create_ip_pdv_hosts(Cell<Matrix<DDSMat>>        aNodeIndicesPerSet,
-                                                   const Cell<Matrix<DDRMat>>& aNodeCoordinates,
-                                                   Cell<Cell<Cell<PDV_Type>>>         aPdvTypes)
+                                                   Cell<Matrix<DDRMat>>        aNodeCoordinates,
+                                                   Cell<Cell<Cell<PDV_Type>>>  aPdvTypes)
         {
             // Check that number of sets is consistent
             uint tNumSets = aPdvTypes.size();
@@ -329,7 +329,7 @@ namespace moris
         //--------------------------------------------------------------------------------------------------------------
 
         void Pdv_Host_Manager::create_ig_pdv_hosts(Cell<Matrix<DDSMat>>        aNodeIndicesPerSet,
-                                                   const Cell<Matrix<DDRMat>>& aNodeCoordinates,
+                                                   Cell<Matrix<DDRMat>>        aNodeCoordinates,
                                                    Cell<Cell<Cell<PDV_Type>>>  aPdvTypes,
                                                    Cell<Intersection_Info>     aIntersectionInfo)
         {
