@@ -102,12 +102,13 @@ TEST_CASE("WRK L2 test","[WRK_L2_test]")
          tParameterLists(2).resize(0);
          tParameterLists(0)(0) = moris::prm::create_gen_parameter_list();
          tParameterLists(0)(0).set("initial_advs", "0.017, 0.9753, 0.0");
-         tParameterLists(0)(0).set("HMR_refinements", 2);
+
          tParameterLists(1)(0) = moris::prm::create_geometry_parameter_list();
          tParameterLists(1)(0).set("type", "circle");
          tParameterLists(1)(0).set("geometry_variable_indices", "0, 2");
          tParameterLists(1)(0).set("adv_indices", "0, 1");
          tParameterLists(1)(0).set("constant_parameters", "1.0");
+         tParameterLists(1)(0).set("number_of_refinements", 2);
 
          //----- XTK parameter list --------
 
