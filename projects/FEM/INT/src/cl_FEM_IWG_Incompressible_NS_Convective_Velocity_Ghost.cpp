@@ -4,8 +4,6 @@
 #include "cl_FEM_IWG_Incompressible_NS_Convective_Velocity_Ghost.hpp"
 //LINALG/src
 #include "fn_trans.hpp"
-#include "fn_norm.hpp"
-#include "fn_eye.hpp"
 
 namespace moris
 {
@@ -143,14 +141,16 @@ namespace moris
                 if ( tDofType( 0 ) == mResidualDofType( 0 ) )
                 {
                     // dRM/dM
-                    mSet->get_jacobian()( { tMasterResStartIndex, tMasterResStopIndex },
-                            { tMasterDepStartIndex, tMasterDepStopIndex } )
-                            += aWStar * ( tSPConvective->val()( 0 ) * trans( tMasterdNdx ) * tMasterdNdx );
+                    mSet->get_jacobian()(
+                            { tMasterResStartIndex, tMasterResStopIndex },
+                            { tMasterDepStartIndex, tMasterDepStopIndex } ) += aWStar * (
+                                    tSPConvective->val()( 0 ) * trans( tMasterdNdx ) * tMasterdNdx );
 
                     // dRS/dM
-                    mSet->get_jacobian()( { tSlaveResStartIndex,  tSlaveResStopIndex },
-                            { tMasterDepStartIndex, tMasterDepStopIndex } )
-                            -= aWStar * ( tSPConvective->val()( 0 ) * trans( tSlavedNdx ) * tMasterdNdx );
+                    mSet->get_jacobian()(
+                            { tSlaveResStartIndex,  tSlaveResStopIndex },
+                            { tMasterDepStartIndex, tMasterDepStopIndex } ) -= aWStar * (
+                                    tSPConvective->val()( 0 ) * trans( tSlavedNdx ) * tMasterdNdx );
                 }
 
                 // if stabilization parameter dependency on the dof type
@@ -162,13 +162,15 @@ namespace moris
                     tConvectivePreMultiply = tConvectivePreMultiply * tSPConvective->dSPdMasterDOF( tDofType );
 
                     // add contribution to jacobian
-                    mSet->get_jacobian()( { tMasterResStartIndex, tMasterResStopIndex },
-                            { tMasterDepStartIndex, tMasterDepStopIndex } )
-                            += aWStar * ( trans( tMasterdNdx ) * tConvectivePreMultiply );
+                    mSet->get_jacobian()(
+                            { tMasterResStartIndex, tMasterResStopIndex },
+                            { tMasterDepStartIndex, tMasterDepStopIndex } ) += aWStar * (
+                                    trans( tMasterdNdx ) * tConvectivePreMultiply );
 
-                    mSet->get_jacobian()( { tSlaveResStartIndex,  tSlaveResStopIndex },
-                            { tMasterDepStartIndex, tMasterDepStopIndex } )
-                            -= aWStar * ( trans( tSlavedNdx ) * tConvectivePreMultiply );
+                    mSet->get_jacobian()(
+                            { tSlaveResStartIndex,  tSlaveResStopIndex },
+                            { tMasterDepStartIndex, tMasterDepStopIndex } ) -= aWStar * (
+                                    trans( tSlavedNdx ) * tConvectivePreMultiply );
                 }
             }
 
@@ -187,14 +189,16 @@ namespace moris
                 if ( tDofType( 0 ) == mResidualDofType( 0 ) )
                 {
                     // dRM/dS
-                    mSet->get_jacobian()( { tMasterResStartIndex, tMasterResStopIndex },
-                            { tSlaveDepStartIndex,  tSlaveDepStopIndex } )
-                            -= aWStar * ( tSPConvective->val()( 0 ) * trans( tMasterdNdx ) * tSlavedNdx );
+                    mSet->get_jacobian()(
+                            { tMasterResStartIndex, tMasterResStopIndex },
+                            { tSlaveDepStartIndex,  tSlaveDepStopIndex } ) -= aWStar * (
+                                    tSPConvective->val()( 0 ) * trans( tMasterdNdx ) * tSlavedNdx );
 
                     // dRS/dS
-                    mSet->get_jacobian()( { tSlaveResStartIndex, tSlaveResStopIndex },
-                            { tSlaveDepStartIndex, tSlaveDepStopIndex } )
-                            += aWStar * ( tSPConvective->val()( 0 ) * trans( tSlavedNdx ) * tSlavedNdx );
+                    mSet->get_jacobian()(
+                            { tSlaveResStartIndex, tSlaveResStopIndex },
+                            { tSlaveDepStartIndex, tSlaveDepStopIndex } ) += aWStar * (
+                                    tSPConvective->val()( 0 ) * trans( tSlavedNdx ) * tSlavedNdx );
                 }
             }
         }
@@ -222,28 +226,29 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
-        void IWG_Incompressible_NS_Convective_Velocity_Ghost::compute_dnNdxn
-        ( Matrix< DDRMat >  & adNdx,
+        void IWG_Incompressible_NS_Convective_Velocity_Ghost::compute_dnNdxn(
+                Matrix< DDRMat >  & adNdx,
                 mtk::Master_Slave   aIsMaster )
         {
             // get the field interpolator for residual dof type
-            Field_Interpolator * tFI
-            = this->get_field_interpolator_manager( aIsMaster )
-            ->get_field_interpolators_for_type( mResidualDofType( 0 ) );
+            Field_Interpolator * tFIVelocity =
+                    this->get_field_interpolator_manager( aIsMaster )->
+                    get_field_interpolators_for_type( mResidualDofType( 0 ) );
 
             // init size for dnNdtn
-            uint tNumField = tFI->get_number_of_fields();
-            uint tNumRow = tFI->dnNdxn( 1 ).n_rows();
-            uint tNumCol = tFI->dnNdxn( 1 ).n_cols();
+            uint tNumField = tFIVelocity->get_number_of_fields();
+            uint tNumRow = tFIVelocity->dnNdxn( 1 ).n_rows();
+            uint tNumCol = tFIVelocity->dnNdxn( 1 ).n_cols();
             adNdx.set_size( tNumField * tNumRow, tNumField * tNumCol , 0.0 );
 
             // loop over the fields
             for( uint iField = 0; iField < tNumField; iField++ )
             {
                 // fill the matrix for each dimension
-                adNdx( { iField * tNumRow, ( iField + 1 ) * tNumRow -1 },
-                        { iField * tNumCol, ( iField + 1 ) * tNumCol - 1 } )
-                        = tFI->dnNdxn( 1 ).matrix_data();
+                adNdx(
+                        { iField * tNumRow, ( iField + 1 ) * tNumRow -1 },
+                        { iField * tNumCol, ( iField + 1 ) * tNumCol - 1 } ) =
+                                tFIVelocity->dnNdxn( 1 ).matrix_data();
             }
         }
 

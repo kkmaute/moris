@@ -258,11 +258,13 @@ TEST_CASE( "IWG_Diff_Interface", "[moris],[fem],[IWG_Diff_Interface]" )
     Matrix< DDRMat > tJacobiansFD;
 
     // check jacobian by FD
-    bool tCheckJacobian = tIWG->check_jacobian_double( tPerturbation,
-                                                       tEpsilon,
-                                                       1.0,
-                                                       tJacobians,
-                                                       tJacobiansFD );
+    bool tCheckJacobian = tIWG->check_jacobian(
+            tPerturbation,
+            tEpsilon,
+            1.0,
+            tJacobians,
+            tJacobiansFD,
+            true );
 
 //    // print for debug
 //    print( tJacobians,  "tJacobians");

@@ -6,28 +6,15 @@ namespace moris
 {
     namespace fem
     {
-//------------------------------------------------------------------------------
-        void Property::set_parameters_and_functions( moris::Cell< moris::Matrix< DDRMat > > aParameters,
-                                                     PropertyFunc aValFunction,
-                                                     moris::Cell< PropertyFunc > aDofDerFunctions,
-                                                     moris::Cell< PropertyFunc > aDvDerFunctions )
-        {
-            mParameters      = aParameters;
-            mValFunction     = aValFunction;
-            mDofDerFunctions = aDofDerFunctions;
-            mDvDerFunctions  = aDvDerFunctions;
-
-            // set setting flag
-            mSetValFunction     = true;
-            mSetDofDerFunctions = true;
-            mSetDvDerFunctions  = true;
-        }
 
 //------------------------------------------------------------------------------
         void Property::reset_eval_flags()
         {
             // reset the property value
             mPropEval = true;
+
+            // reset the property derivative wrt x
+            mdPropdxEval = true;
 
             // reset the property derivatives wrt dof type
             mPropDofDerEval.assign( mDofTypes.size(), true );
@@ -264,6 +251,35 @@ namespace moris
 
             // use mValFunction to evaluate the property
             mValFunction( mProp, mParameters, mFIManager );
+        }
+
+        //------------------------------------------------------------------------------
+        const Matrix< DDRMat > & Property::dPropdx()
+        {
+            // if the property was not evaluated
+            if( mdPropdxEval )
+            {
+                // evaluate the property
+                this->eval_dPropdx();
+
+                // set bool for evaluation
+                mdPropdxEval = false;
+            }
+            // return the property value
+            return mdPropdx;
+        }
+
+        //------------------------------------------------------------------------------
+        void Property::eval_dPropdx()
+        {
+            // check that mSetSpaceDerFunc was assigned
+            MORIS_ASSERT( mSetSpaceDerFunction == true, "Property::eval_dPropdx - mSpaceDerFunction not assigned. " );
+
+            // check that mFIManager was assigned
+            MORIS_ASSERT( mFIManager != nullptr, "Property::eval_dPropdx - mFIManager not assigned. " );
+
+            // use mSpaceDerFunction to evaluate the property
+            mSpaceDerFunction( mdPropdx, mParameters, mFIManager );
         }
 
 //------------------------------------------------------------------------------

@@ -171,7 +171,7 @@ namespace moris
             tIWG->set_residual_dof_type( { MSI::Dof_Type::TEMP } );
             tIWG->set_dof_type_list( {{ MSI::Dof_Type::TEMP }}, mtk::Master_Slave::MASTER );
             tIWG->set_constitutive_model( tCMMasterDiffLinIsoPC, "Diffusion", mtk::Master_Slave::MASTER );
-            tIWG->set_stabilization_parameter( tSPGGLSParam, "GGLS_Param");
+            tIWG->set_stabilization_parameter( tSPGGLSParam, "GGLSParam");
             tIWG->set_property( tPropMasterBodyLoad, "Load", mtk::Master_Slave::MASTER );
 
             // space and time geometry interpolators

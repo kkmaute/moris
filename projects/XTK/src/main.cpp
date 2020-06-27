@@ -5,7 +5,6 @@
  *      Author: doble
  */
 
-
 // moris core includes
 #include "cl_Communication_Manager.hpp"
 #include "cl_Communication_Tools.hpp"
@@ -13,8 +12,6 @@
 #include "cl_Cell.hpp"
 #include "HDF5_Tools.hpp"
 
-
-//------------------------------------------------------------------------------
 // from linalg
 #include "cl_Matrix.hpp"
 #include "fn_norm.hpp"
@@ -22,7 +19,6 @@
 #include "fn_save_matrix_to_binary_file.hpp"
 #include "fn_print.hpp"
 
-//------------------------------------------------------------------------------
 // XTK
 #include "cl_XTK_Paramfile.hpp"
 #include "cl_XTK_Model.hpp"
@@ -34,7 +30,6 @@
 #include "fn_compute_xtk_model_volumes.hpp"
 #include "fn_compute_interface_surface_area.hpp"
 
-//------------------------------------------------------------------------------
 #include "cl_GEN_Geometry.hpp"
 #include "cl_GEN_Plane.hpp"
 #include "cl_GEN_Sphere.hpp"
@@ -50,8 +45,9 @@ moris::Comm_Manager gMorisComm;
 moris::Logger       gLogger;
 
 moris_index
-get_index_in_cell(Cell<std::string> & aLabels,
-                  std::string         aStr)
+get_index_in_cell(
+        Cell<std::string> & aLabels,
+        std::string         aStr)
 {
     auto  tIt = std::find(aLabels.begin(), aLabels.end(), aStr);
     MORIS_ERROR(tIt != aLabels.end(),"Radius not found in labels for sphere, please use r as the label");
@@ -59,38 +55,37 @@ get_index_in_cell(Cell<std::string> & aLabels,
     return tPos;
 }
 
-
 moris::ge::Geometry*
 geometry_parse_factory(XTK_Problem_Params & aXTKProblemParams)
 {
-  moris::ge::Geometry* tGeometry = nullptr;
-  if (aXTKProblemParams.mGeometryName == "sphere")
+    moris::ge::Geometry* tGeometry = nullptr;
+    if (aXTKProblemParams.mGeometryName == "sphere")
     {
-      MORIS_ERROR( aXTKProblemParams.mRealGeomParams.size() == 4,"For a parsed sphere geometry there needs to be 4 parameters, r, xc, yc, zc");
-      MORIS_ERROR( aXTKProblemParams.mRealGeomLabels.size() == 4,"For a parsed sphere geometry there needs to be 4 labels, r, xc, yc, zc");
+        MORIS_ERROR( aXTKProblemParams.mRealGeomParams.size() == 4,"For a parsed sphere geometry there needs to be 4 parameters, r, xc, yc, zc");
+        MORIS_ERROR( aXTKProblemParams.mRealGeomLabels.size() == 4,"For a parsed sphere geometry there needs to be 4 labels, r, xc, yc, zc");
 
 
-      // find the radius in real parameters
-      std::string tStr = "r";
-      moris_index tPos = get_index_in_cell(aXTKProblemParams.mRealGeomLabels,tStr);
-      moris::real tR =aXTKProblemParams.mRealGeomParams(tPos);
+        // find the radius in real parameters
+        std::string tStr = "r";
+        moris_index tPos = get_index_in_cell(aXTKProblemParams.mRealGeomLabels,tStr);
+        moris::real tR =aXTKProblemParams.mRealGeomParams(tPos);
 
-      // find the xc in real parameters
-      tStr = "xc";
-      tPos = get_index_in_cell(aXTKProblemParams.mRealGeomLabels,tStr);
-      moris::real tXc =aXTKProblemParams.mRealGeomParams(tPos);
+        // find the xc in real parameters
+        tStr = "xc";
+        tPos = get_index_in_cell(aXTKProblemParams.mRealGeomLabels,tStr);
+        moris::real tXc =aXTKProblemParams.mRealGeomParams(tPos);
 
-      // find the yc in real parameters
-      tStr = "yc";
-      tPos = get_index_in_cell(aXTKProblemParams.mRealGeomLabels,tStr);
-      moris::real tYc = aXTKProblemParams.mRealGeomParams(tPos);
+        // find the yc in real parameters
+        tStr = "yc";
+        tPos = get_index_in_cell(aXTKProblemParams.mRealGeomLabels,tStr);
+        moris::real tYc = aXTKProblemParams.mRealGeomParams(tPos);
 
-      // find the zc in real parameters
-      tStr = "zc";
-      tPos = get_index_in_cell(aXTKProblemParams.mRealGeomLabels,tStr);
-      moris::real tZc =aXTKProblemParams.mRealGeomParams(tPos);
+        // find the zc in real parameters
+        tStr = "zc";
+        tPos = get_index_in_cell(aXTKProblemParams.mRealGeomLabels,tStr);
+        moris::real tZc =aXTKProblemParams.mRealGeomParams(tPos);
 
-      tGeometry = new moris::ge::Sphere(tR,tXc,tYc,tZc);
+        tGeometry = new moris::ge::Sphere(tR,tXc,tYc,tZc);
 
     }
     else if (aXTKProblemParams.mGeometryName == "plane")
@@ -163,214 +158,210 @@ geometry_parse_factory(XTK_Problem_Params & aXTKProblemParams)
         tGeometry = new moris::ge::Sphere_Box( tSx, tSy, tSz, tXc, tYc,tZc, tNexp);
     }
 
-  return tGeometry;
+    return tGeometry;
 
 }
 
 void run_xtk_problem(XTK_Problem_Params & aXTKProblemParams)
 {
-          // times to keep track of
-          real tFullTime       = 0.0;
-          real tMeshLoadTime   = 0.0;
-          real tGeometryTime   = 0.0;
-          real tDecompTime     = 0.0;
-          real tSensTime       = 0.0;
-          real tUnzipTime      = 0.0;
-          real tGhostTime      = 0.0;
-          real tEnrichmentTime = 0.0;
-          real tOutputTime     = 0.0;
-          real tWriteObjTime   = 0.0;
-          real tWriteData      = 0.0;
+    // times to keep track of
+    real tFullTime       = 0.0;
+    real tMeshLoadTime   = 0.0;
+    real tGeometryTime   = 0.0;
+    real tDecompTime     = 0.0;
+    real tSensTime       = 0.0;
+    real tUnzipTime      = 0.0;
+    real tGhostTime      = 0.0;
+    real tEnrichmentTime = 0.0;
+    real tOutputTime     = 0.0;
+    real tWriteObjTime   = 0.0;
+    real tWriteData      = 0.0;
 
-          // print some stuff
-          if(par_rank() == 0)
-          {
-          std::cout<<"-------------------------------------------------------------"<<std::endl;
-          std::cout<<"| XTK PROBLEM INFO                                           |"<<std::endl;
-          std::cout<<"-------------------------------------------------------------"<<std::endl;
-          std::cout<<"Input Mesh File:  "<<aXTKProblemParams.mInputMeshFile<<std::endl;
-          aXTKProblemParams.print_geom();
-          aXTKProblemParams.print_operations();
+    // print some stuff
+    if(par_rank() == 0)
+    {
+        std::cout<<"-------------------------------------------------------------"<<std::endl;
+        std::cout<<"| XTK PROBLEM INFO                                           |"<<std::endl;
+        std::cout<<"-------------------------------------------------------------"<<std::endl;
+        std::cout<<"Input Mesh File:  "<<aXTKProblemParams.mInputMeshFile<<std::endl;
+        aXTKProblemParams.print_geom();
+        aXTKProblemParams.print_operations();
 
-          if(aXTKProblemParams.mExport)
-          {
+        if(aXTKProblemParams.mExport)
+        {
             std::cout<<"Output Mesh File: "<<aXTKProblemParams.mOutputMeshFile<< std::endl;
-          }
-          if(aXTKProblemParams.mOutputData)
-          {
+        }
+        if(aXTKProblemParams.mOutputData)
+        {
             std::cout<<"Output Data File: "<<aXTKProblemParams.mDataFile<< std::endl;
-          }
-          if(aXTKProblemParams.mWriteobj)
-          {
-              std::cout<<"Obj Surf File:    "<<aXTKProblemParams.mobjOutputFile<< std::endl;
-          }
+        }
+        if(aXTKProblemParams.mWriteobj)
+        {
+            std::cout<<"Obj Surf File:    "<<aXTKProblemParams.mobjOutputFile<< std::endl;
+        }
 
-          }
-
-
-         std::clock_t  tFullTimer = std::clock();
+    }
 
 
-         // initialize mesh
-         std::clock_t tOpTimer = std::clock();
-         moris::mtk::Interpolation_Mesh* tMeshData = moris::mtk::create_interpolation_mesh( aXTKProblemParams.mMeshType, aXTKProblemParams.mInputMeshFile );
-         tMeshLoadTime = (std::clock() - tOpTimer)/(CLOCKS_PER_SEC/1000);
-
-         // setup the geometry
-         //TODO: support multiple geometries
-         tOpTimer = std::clock();
-         Cell<std::shared_ptr<moris::ge::Geometry>> tGeometry;
-         tGeometry.resize(1);
-         tGeometry(0) = std::shared_ptr<moris::ge::Geometry>(geometry_parse_factory(aXTKProblemParams));
-         tGeometryTime = (std::clock() - tOpTimer)/(CLOCKS_PER_SEC/1000);
-
-          // setup the geometry engine
-          //TODO: support multiple geometries, and different phase tables
-//          Phase_Table tPhaseTable (1,  Phase_Table_Structure::EXP_BASE_2);
-         moris::ge::Phase_Table tPhaseTable (1,  "exp_base_2");
-//          Geometry_Engine tGeometryEngine(*tGeometry,tPhaseTable);
-         moris::ge::Geometry_Engine tGeometryEngine(tGeometry, tPhaseTable);
-
-          // setup the XTK model
-          Model tXTKModel(3,tMeshData,&tGeometryEngine);
-          tXTKModel.mVerbose  =  false;
-
-          // decompose the mesh
-          tOpTimer = std::clock();
-          tXTKModel.decompose(aXTKProblemParams.mSubdivisionMethods);
-          tDecompTime = (std::clock() - tOpTimer)/(CLOCKS_PER_SEC/1000);
-
-          // compute sensitivity
-          if(aXTKProblemParams.mComputeSens)
-          {
-            tOpTimer = std::clock();
-            tXTKModel.compute_sensitivity();
-            tSensTime = (std::clock() - tOpTimer)/(CLOCKS_PER_SEC/1000);
-          }
+    std::clock_t  tFullTimer = std::clock();
 
 
-          // compute sensitivity
-          if(aXTKProblemParams.mUnzip)
-          {
-            tOpTimer = std::clock();
-            tXTKModel.unzip_interface();
-            tUnzipTime = (std::clock() - tOpTimer)/(CLOCKS_PER_SEC/1000);
-          }
+    // initialize mesh
+    std::clock_t tOpTimer = std::clock();
+    moris::mtk::Interpolation_Mesh* tMeshData = moris::mtk::create_interpolation_mesh( aXTKProblemParams.mMeshType, aXTKProblemParams.mInputMeshFile );
+    tMeshLoadTime = (std::clock() - tOpTimer)/(CLOCKS_PER_SEC/1000);
 
-          // perform ghost stabilization
-          if(aXTKProblemParams.mGhost)
-          {
-              tOpTimer = std::clock();
-              tXTKModel.construct_face_oriented_ghost_penalization_cells();
-              tGhostTime = (std::clock() - tOpTimer)/(CLOCKS_PER_SEC/1000);
-          }
+    // setup the geometry
+    //TODO: support multiple geometries
+    tOpTimer = std::clock();
+    Cell<std::shared_ptr<moris::ge::Geometry>> tGeometry;
+    tGeometry.resize(1);
+    tGeometry(0) = std::shared_ptr<moris::ge::Geometry>(geometry_parse_factory(aXTKProblemParams));
+    tGeometryTime = (std::clock() - tOpTimer)/(CLOCKS_PER_SEC/1000);
 
-          // perform ghost stabilization
-          if(aXTKProblemParams.mEnrich)
-          {
-            tOpTimer = std::clock();
-            tXTKModel.perform_basis_enrichment(EntityRank::NODE);
-            tEnrichmentTime = (std::clock() - tOpTimer)/(CLOCKS_PER_SEC/1000);
-          }
+    // setup the geometry engine
+    //TODO: support multiple geometries, and different phase tables
+    //          Phase_Table tPhaseTable (1,  Phase_Table_Structure::EXP_BASE_2);
+    moris::ge::Phase_Table tPhaseTable (1,  "exp_base_2");
+    //          Geometry_Engine tGeometryEngine(*tGeometry,tPhaseTable);
+    moris::ge::Geometry_Engine tGeometryEngine(tGeometry, tPhaseTable);
 
-          // export
-          // TODO: support output option parsing
-          if(aXTKProblemParams.mExport)
-          {
-            Output_Options tXTKOutputOptions;
-            tXTKOutputOptions.mPackageDxDpSparsely = false;
+    // setup the XTK model
+    Model tXTKModel(3,tMeshData,&tGeometryEngine);
+    tXTKModel.mVerbose  =  false;
 
-            tOpTimer = std::clock();
-            moris::mtk::Mesh* tOutputMTK = tXTKModel.get_output_mesh(tXTKOutputOptions);
-            tOutputMTK->create_output_mesh(aXTKProblemParams.mOutputMeshFile);
-            tOutputTime = (std::clock() - tOpTimer)/(CLOCKS_PER_SEC/1000);
+    // decompose the mesh
+    tOpTimer = std::clock();
+    tXTKModel.decompose(aXTKProblemParams.mSubdivisionMethods);
+    tDecompTime = (std::clock() - tOpTimer)/(CLOCKS_PER_SEC/1000);
 
-            delete tOutputMTK;
-          }
-
-          if(aXTKProblemParams.mWriteobj)
-          {
-              tOpTimer = std::clock();
-              moris::Cell<std::string> tBoundingSets = {"surface_1","surface_2","surface_3","surface_4","surface_5","surface_6"};
+    // compute sensitivity
+    if(aXTKProblemParams.mComputeSens)
+    {
+        tOpTimer = std::clock();
+        tXTKModel.compute_sensitivity();
+        tSensTime = (std::clock() - tOpTimer)/(CLOCKS_PER_SEC/1000);
+    }
 
 
-              tXTKModel.extract_surface_mesh_to_obj(aXTKProblemParams.mobjOutputFile,
-                                                    aXTKProblemParams.mPhaseForobj,
-                                                    tBoundingSets);
-              tWriteObjTime = (std::clock() - tOpTimer)/(CLOCKS_PER_SEC/1000);
-          }
+    // compute sensitivity
+    if(aXTKProblemParams.mUnzip)
+    {
+        tOpTimer = std::clock();
+        tXTKModel.unzip_interface();
+        tUnzipTime = (std::clock() - tOpTimer)/(CLOCKS_PER_SEC/1000);
+    }
+
+    // perform ghost stabilization
+    if(aXTKProblemParams.mGhost)
+    {
+        tOpTimer = std::clock();
+        tXTKModel.construct_face_oriented_ghost_penalization_cells();
+        tGhostTime = (std::clock() - tOpTimer)/(CLOCKS_PER_SEC/1000);
+    }
+
+    // perform ghost stabilization
+    if(aXTKProblemParams.mEnrich)
+    {
+        tOpTimer = std::clock();
+        tXTKModel.perform_basis_enrichment(EntityRank::NODE);
+        tEnrichmentTime = (std::clock() - tOpTimer)/(CLOCKS_PER_SEC/1000);
+    }
+
+    // export
+    // TODO: support output option parsing
+    if(aXTKProblemParams.mExport)
+    {
+        Output_Options tXTKOutputOptions;
+        tXTKOutputOptions.mPackageDxDpSparsely = false;
+
+        tOpTimer = std::clock();
+        moris::mtk::Mesh* tOutputMTK = tXTKModel.get_output_mesh(tXTKOutputOptions);
+        tOutputMTK->create_output_mesh(aXTKProblemParams.mOutputMeshFile);
+        tOutputTime = (std::clock() - tOpTimer)/(CLOCKS_PER_SEC/1000);
+
+        delete tOutputMTK;
+    }
+
+    if(aXTKProblemParams.mWriteobj)
+    {
+        tOpTimer = std::clock();
+        moris::Cell<std::string> tBoundingSets = {"surface_1","surface_2","surface_3","surface_4","surface_5","surface_6"};
 
 
-           // stop full clock timer
-          tFullTime = (std::clock() - tFullTimer)/(CLOCKS_PER_SEC/1000);
-
-          if(aXTKProblemParams.mOutputData)
-          {
-            tOpTimer = std::clock();
-            //TODO: abstract to support more phases
-            moris::Matrix<moris::DDRMat> tNodeCoords = tXTKModel.get_background_mesh().get_all_node_coordinates_loc_inds();
-            moris::real tParentPhase0Vol = compute_non_intersected_parent_element_volume_by_phase(0,tNodeCoords,tXTKModel);
-            moris::real tParentPhase1Vol = compute_non_intersected_parent_element_volume_by_phase(1,tNodeCoords,tXTKModel);
-            moris::real tChildPhase0Vol  = compute_child_element_volume_by_phase(0,tNodeCoords,tXTKModel);
-            moris::real tChildPhase1Vol  = compute_child_element_volume_by_phase(1,tNodeCoords,tXTKModel);
-            moris::real tMySurfaceArea   = compute_interface_surface_area(tNodeCoords,tXTKModel);
-
-            moris::real tMyPhase0Volume = tParentPhase0Vol + tChildPhase0Vol;
-            moris::real tMyPhase1Volume = tParentPhase1Vol + tChildPhase1Vol;
-
-            // sum up volumes and surface areas globally
-            // Collect all volumes
-            moris::real tGlbVolume0 = 0.0;
-            sum_all(tMyPhase0Volume,tGlbVolume0);
-
-            // Collect all volumes
-            moris::real tGlbVolume1 = 0.0;
-            sum_all(tMyPhase1Volume,tGlbVolume1);
-
-            moris::real tTotalVolume = tGlbVolume1 + tGlbVolume0;
+        tXTKModel.extract_surface_mesh_to_obj(aXTKProblemParams.mobjOutputFile,
+                aXTKProblemParams.mPhaseForobj,
+                tBoundingSets);
+        tWriteObjTime = (std::clock() - tOpTimer)/(CLOCKS_PER_SEC/1000);
+    }
 
 
-            // Collect all surface areas
-            moris::real tGlbSurf = 0.0;
-            sum_all(tMySurfaceArea,tGlbSurf);
+    // stop full clock timer
+    tFullTime = (std::clock() - tFullTimer)/(CLOCKS_PER_SEC/1000);
 
-            hid_t tHDFId = create_hdf5_file(aXTKProblemParams.mDataFile.c_str());
-            herr_t tErr;
-            save_scalar_to_hdf5_file(tHDFId,"full_time",tFullTime,tErr);
-            save_scalar_to_hdf5_file(tHDFId,"mesh_in_time",tMeshLoadTime,tErr);
-            save_scalar_to_hdf5_file(tHDFId,"geeom_time",tGeometryTime,tErr);
-            save_scalar_to_hdf5_file(tHDFId,"decomp_time",tDecompTime,tErr);
-            save_scalar_to_hdf5_file(tHDFId,"sens_time",tSensTime,tErr);
-            save_scalar_to_hdf5_file(tHDFId,"unzip_time",tUnzipTime,tErr);
-            save_scalar_to_hdf5_file(tHDFId,"ghost_time",tGhostTime,tErr);
-            save_scalar_to_hdf5_file(tHDFId,"enrich_time",tEnrichmentTime,tErr);
-            save_scalar_to_hdf5_file(tHDFId,"mesh_out_time",tOutputTime,tErr);
-            save_scalar_to_hdf5_file(tHDFId,"surf_area",tGlbSurf,tErr);
-            save_scalar_to_hdf5_file(tHDFId,"volume",tTotalVolume,tErr);
-            save_scalar_to_hdf5_file(tHDFId,"par_size",par_size(),tErr);
+    if(aXTKProblemParams.mOutputData)
+    {
+        tOpTimer = std::clock();
+        //TODO: abstract to support more phases
+        moris::Matrix<moris::DDRMat> tNodeCoords = tXTKModel.get_background_mesh().get_all_node_coordinates_loc_inds();
+        moris::real tParentPhase0Vol = compute_non_intersected_parent_element_volume_by_phase(0,tNodeCoords,tXTKModel);
+        moris::real tParentPhase1Vol = compute_non_intersected_parent_element_volume_by_phase(1,tNodeCoords,tXTKModel);
+        moris::real tChildPhase0Vol  = compute_child_element_volume_by_phase(0,tNodeCoords,tXTKModel);
+        moris::real tChildPhase1Vol  = compute_child_element_volume_by_phase(1,tNodeCoords,tXTKModel);
+        moris::real tMySurfaceArea   = compute_interface_surface_area(tNodeCoords,tXTKModel);
 
-            tWriteData = (std::clock() - tOpTimer)/(CLOCKS_PER_SEC/1000);
-          }
+        moris::real tMyPhase0Volume = tParentPhase0Vol + tChildPhase0Vol;
+        moris::real tMyPhase1Volume = tParentPhase1Vol + tChildPhase1Vol;
 
-          // print timing
-          if(par_rank() == 0)
-          {
-          std::cout<<"-------------------------------------------------------------"<<std::endl;
-          std::cout<<"| XTK TIMING INFO (note: Not all times displayed below)     |"<<std::endl;
-          std::cout<<"-------------------------------------------------------------"<<std::endl;
-          std::cout<<"Full XTK problem:    "<<tFullTime<<" ms."<<std::endl;
-          std::cout<<"Mesh Loading:        "<<tMeshLoadTime<<" ms."<<std::endl;
-          std::cout<<"Geometry Setup:      "<<tGeometryTime<<" ms."<<std::endl;
-          std::cout<<"Decomposition:       "<<tDecompTime<<" ms."<<std::endl;
-          std::cout<<"Sensitivity Compute: "<<tSensTime<<" ms."<<std::endl;
-          std::cout<<"Interface Unzip:     "<<tUnzipTime<<" ms."<<std::endl;
-          std::cout<<"Ghost Penalty:       "<<tGhostTime<<" ms."<<std::endl;
-          std::cout<<"Basis Enrichment:    "<<tEnrichmentTime<<" ms."<<std::endl;
-          std::cout<<"Mesh Output Time:    "<<tOutputTime<<" ms."<<std::endl;
-          std::cout<<"Write Obj Time:      "<<tWriteObjTime<<" ms."<<std::endl;
-          std::cout<<"Data Output Time:    "<<tWriteData<<" ms."<<std::endl;
-         }
-         delete tMeshData;
+        // sum up volumes and surface areas globally
+        // Collect all volumes
+        moris::real tGlbVolume0 = sum_all(tMyPhase0Volume);
+
+        // Collect all volumes
+        moris::real tGlbVolume1 = sum_all(tMyPhase1Volume);
+
+        moris::real tTotalVolume = tGlbVolume1 + tGlbVolume0;
+
+        // Collect all surface areas
+        moris::real tGlbSurf = sum_all(tMySurfaceArea);
+
+        hid_t tHDFId = create_hdf5_file(aXTKProblemParams.mDataFile.c_str());
+        herr_t tErr;
+        save_scalar_to_hdf5_file(tHDFId,"full_time",tFullTime,tErr);
+        save_scalar_to_hdf5_file(tHDFId,"mesh_in_time",tMeshLoadTime,tErr);
+        save_scalar_to_hdf5_file(tHDFId,"geeom_time",tGeometryTime,tErr);
+        save_scalar_to_hdf5_file(tHDFId,"decomp_time",tDecompTime,tErr);
+        save_scalar_to_hdf5_file(tHDFId,"sens_time",tSensTime,tErr);
+        save_scalar_to_hdf5_file(tHDFId,"unzip_time",tUnzipTime,tErr);
+        save_scalar_to_hdf5_file(tHDFId,"ghost_time",tGhostTime,tErr);
+        save_scalar_to_hdf5_file(tHDFId,"enrich_time",tEnrichmentTime,tErr);
+        save_scalar_to_hdf5_file(tHDFId,"mesh_out_time",tOutputTime,tErr);
+        save_scalar_to_hdf5_file(tHDFId,"surf_area",tGlbSurf,tErr);
+        save_scalar_to_hdf5_file(tHDFId,"volume",tTotalVolume,tErr);
+        save_scalar_to_hdf5_file(tHDFId,"par_size",par_size(),tErr);
+
+        tWriteData = (std::clock() - tOpTimer)/(CLOCKS_PER_SEC/1000);
+    }
+
+    // print timing
+    if(par_rank() == 0)
+    {
+        std::cout<<"-------------------------------------------------------------"<<std::endl;
+        std::cout<<"| XTK TIMING INFO (note: Not all times displayed below)     |"<<std::endl;
+        std::cout<<"-------------------------------------------------------------"<<std::endl;
+        std::cout<<"Full XTK problem:    "<<tFullTime<<" ms."<<std::endl;
+        std::cout<<"Mesh Loading:        "<<tMeshLoadTime<<" ms."<<std::endl;
+        std::cout<<"Geometry Setup:      "<<tGeometryTime<<" ms."<<std::endl;
+        std::cout<<"Decomposition:       "<<tDecompTime<<" ms."<<std::endl;
+        std::cout<<"Sensitivity Compute: "<<tSensTime<<" ms."<<std::endl;
+        std::cout<<"Interface Unzip:     "<<tUnzipTime<<" ms."<<std::endl;
+        std::cout<<"Ghost Penalty:       "<<tGhostTime<<" ms."<<std::endl;
+        std::cout<<"Basis Enrichment:    "<<tEnrichmentTime<<" ms."<<std::endl;
+        std::cout<<"Mesh Output Time:    "<<tOutputTime<<" ms."<<std::endl;
+        std::cout<<"Write Obj Time:      "<<tWriteObjTime<<" ms."<<std::endl;
+        std::cout<<"Data Output Time:    "<<tWriteData<<" ms."<<std::endl;
+    }
+    delete tMeshData;
 }
 
 int

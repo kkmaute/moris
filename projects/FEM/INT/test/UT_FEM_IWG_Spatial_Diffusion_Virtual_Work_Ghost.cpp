@@ -20,24 +20,24 @@
 
 void tConstValFunction_UTVWGhost
 ( moris::Matrix< moris::DDRMat >                 & aPropMatrix,
-  moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
-  moris::fem::Field_Interpolator_Manager         * aFIManager )
+        moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
+        moris::fem::Field_Interpolator_Manager         * aFIManager )
 {
     aPropMatrix = aParameters( 0 );
 }
 
 void tFIValFunction_UTVWGhost
 ( moris::Matrix< moris::DDRMat >                 & aPropMatrix,
-  moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
-  moris::fem::Field_Interpolator_Manager         * aFIManager )
+        moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
+        moris::fem::Field_Interpolator_Manager         * aFIManager )
 {
     aPropMatrix = aParameters( 0 ) * aFIManager->get_field_interpolators_for_type( moris::MSI::Dof_Type::TEMP )->val();
 }
 
 void tFIDerFunction_UTVWGhost
 ( moris::Matrix< moris::DDRMat >                 & aPropMatrix,
-  moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
-  moris::fem::Field_Interpolator_Manager         * aFIManager )
+        moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
+        moris::fem::Field_Interpolator_Manager         * aFIManager )
 {
     aPropMatrix = aParameters( 0 ) * aFIManager->get_field_interpolators_for_type( moris::MSI::Dof_Type::TEMP )->N();
 }
@@ -51,10 +51,11 @@ using namespace fem;
 TEST_CASE( "IWG_Diff_VWGhost", "[moris],[fem],[IWG_Diff_VWGhost]" )
 {
     // define an epsilon environment
+    // FIXME
     real tEpsilon = 1.0E-3;
 
     // define a perturbation relative size
-    real tPerturbation = 1.0E-4;
+    real tPerturbation = 1.0E-6;
 
     // loop over the space dimension
     for( uint iSpaceDim = 2; iSpaceDim < 4; iSpaceDim++ )
@@ -79,41 +80,41 @@ TEST_CASE( "IWG_Diff_VWGhost", "[moris],[fem],[IWG_Diff_VWGhost]" )
         switch( iSpaceDim )
         {
             case( 2 ):
-            {
+                {
                 // set geometry type
                 tGeometryType = mtk::Geometry_Type::QUAD;
 
                 // fill space coeff xHat
                 tXHat = {{ 0.0, 0.0 },
-                         { 1.0, 0.0 },
-                         { 1.0, 1.0 },
-                         { 0.0, 1.0 }};
+                        { 1.0, 0.0 },
+                        { 1.0, 1.0 },
+                        { 0.0, 1.0 }};
 
-               // fill evaluation point xi, tau
-               tParamPoint = {{ 0.35}, {-0.25}, { 0.0 }};
+                // fill evaluation point xi, tau
+                tParamPoint = {{ 0.35}, {-0.25}, { 0.0 }};
 
-               // number of coefficients
-               tNumCoeffs = {{ 4 },{ 9 },{ 16 }};
+                // number of coefficients
+                tNumCoeffs = {{ 4 },{ 9 },{ 16 }};
 
-               // set the normal
-               tNormal = {{1.0},{0.0}};
+                // set the normal
+                tNormal = {{1.0},{0.0}};
 
-               break;
-            }
+                break;
+                }
             case( 3 ):
-            {
+                {
                 // set geometry type
                 tGeometryType = mtk::Geometry_Type::HEX;
 
                 // fill space coeff xHat
                 tXHat = {{ 0.0, 0.0, 0.0 },
-                         { 1.0, 0.0, 0.0 },
-                         { 1.0, 1.0, 0.0 },
-                         { 0.0, 1.0, 0.0 },
-                         { 0.0, 0.0, 1.0 },
-                         { 1.0, 0.0, 1.0 },
-                         { 1.0, 1.0, 1.0 },
-                         { 0.0, 1.0, 1.0 }};
+                        { 1.0, 0.0, 0.0 },
+                        { 1.0, 1.0, 0.0 },
+                        { 0.0, 1.0, 0.0 },
+                        { 0.0, 0.0, 1.0 },
+                        { 1.0, 0.0, 1.0 },
+                        { 1.0, 1.0, 1.0 },
+                        { 0.0, 1.0, 1.0 }};
 
                 // fill evaluation point xi, tau
                 tParamPoint = {{ 0.35}, {-0.25}, { 0.75}, { 0.0 }};
@@ -125,7 +126,7 @@ TEST_CASE( "IWG_Diff_VWGhost", "[moris],[fem],[IWG_Diff_VWGhost]" )
                 tNormal = {{1.0},{0.0},{0.0}};
 
                 break;
-            }
+                }
             default:
             {
                 MORIS_ERROR( false, " QUAD or HEX only." );
@@ -137,10 +138,10 @@ TEST_CASE( "IWG_Diff_VWGhost", "[moris],[fem],[IWG_Diff_VWGhost]" )
         //------------------------------------------------------------------------------
         // create a space geometry interpolation rule
         Interpolation_Rule tGIRule( tGeometryType,
-                                    Interpolation_Type::LAGRANGE,
-                                    mtk::Interpolation_Order::LINEAR,
-                                    Interpolation_Type::LAGRANGE,
-                                    mtk::Interpolation_Order::LINEAR );
+                Interpolation_Type::LAGRANGE,
+                mtk::Interpolation_Order::LINEAR,
+                Interpolation_Type::LAGRANGE,
+                mtk::Interpolation_Order::LINEAR );
 
         // create a space time geometry interpolator
         Geometry_Interpolator tGI = Geometry_Interpolator( tGIRule );
@@ -173,7 +174,7 @@ TEST_CASE( "IWG_Diff_VWGhost", "[moris],[fem],[IWG_Diff_VWGhost]" )
             switch( iInterpOrder )
             {
                 case ( 1 ):
-                {
+                    {
                     // set interpolation type
                     tInterpolationOrder = mtk::Interpolation_Order::LINEAR;
 
@@ -186,9 +187,9 @@ TEST_CASE( "IWG_Diff_VWGhost", "[moris],[fem],[IWG_Diff_VWGhost]" )
                     // create random coefficients for slave FI
                     tSlaveMatrix.randu( tNumCoeffs( 0 ), 1 );
                     break;
-                }
+                    }
                 case ( 2 ):
-                {
+                    {
                     // set interpolation type
                     tInterpolationOrder = mtk::Interpolation_Order::QUADRATIC;
 
@@ -201,9 +202,9 @@ TEST_CASE( "IWG_Diff_VWGhost", "[moris],[fem],[IWG_Diff_VWGhost]" )
                     // create random coefficients for slave FI
                     tSlaveMatrix.randu( tNumCoeffs( 1 ), 1 );
                     break;
-                }
+                    }
                 case ( 3 ):
-                {
+                    {
                     // set interpolation type
                     tInterpolationOrder = mtk::Interpolation_Order::CUBIC;
 
@@ -216,7 +217,7 @@ TEST_CASE( "IWG_Diff_VWGhost", "[moris],[fem],[IWG_Diff_VWGhost]" )
                     // create random coefficients for slave FI
                     tSlaveMatrix.randu( tNumCoeffs( 2 ), 1 );
                     break;
-                }
+                    }
                 default:
                 {
                     MORIS_ERROR( false, "LINEAR, QUADRATIC or CUBIC only.");
@@ -228,10 +229,10 @@ TEST_CASE( "IWG_Diff_VWGhost", "[moris],[fem],[IWG_Diff_VWGhost]" )
             //------------------------------------------------------------------------------
             //create a space time interpolation rule
             Interpolation_Rule tFIRule ( tGeometryType,
-                                         Interpolation_Type::LAGRANGE,
-                                         tInterpolationOrder,
-                                         Interpolation_Type::CONSTANT,
-                                         mtk::Interpolation_Order::CONSTANT );
+                    Interpolation_Type::LAGRANGE,
+                    tInterpolationOrder,
+                    Interpolation_Type::CONSTANT,
+                    mtk::Interpolation_Order::CONSTANT );
 
             // fill random master coefficients
             Matrix< DDRMat > tMasterDOFHat;
@@ -384,18 +385,19 @@ TEST_CASE( "IWG_Diff_VWGhost", "[moris],[fem],[IWG_Diff_VWGhost]" )
             Matrix< DDRMat > tJacobianFD;
 
             // check jacobian by FD
-            bool tCheckJacobian = tIWG->check_jacobian_double( tPerturbation,
-                                                               tEpsilon,
-                                                               1.0,
-                                                               tJacobian,
-                                                               tJacobianFD );
+            bool tCheckJacobian = tIWG->check_jacobian(
+                    tPerturbation,
+                    tEpsilon,
+                    1.0,
+                    tJacobian,
+                    tJacobianFD,
+                    true );
 
-//            // print for debug
-//            print( tJacobian,  "tJacobian");
-//            print( tJacobianFD,"tJacobianFD");
-
-//            // print the treated case
-//            std::cout<<"Case: Geometry "<<iSpaceDim<<" Order "<<iInterpOrder<<std::endl;
+            // print for debug
+            if( !tCheckJacobian )
+            {
+                std::cout<<"Case: Geometry "<<iSpaceDim<<" Order "<<iInterpOrder<<std::endl;
+            }
 
             // require check is true
             REQUIRE( tCheckJacobian );

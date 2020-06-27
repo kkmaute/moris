@@ -16,6 +16,8 @@
 #include "MTK_Tools.hpp"
 #include "cl_MTK_Enums.hpp"              //MTK/src
 #include "cl_MTK_Mesh_Manager.hpp"       //MTK/src
+#include "cl_MTK_Integration_Mesh.hpp"
+#include "cl_MTK_Interpolation_Mesh.hpp"
 
 #include "cl_FEM_Node_Base.hpp"          //FEM/INT/src
 #include "cl_FEM_Node.hpp"               //FEM/INT/src
@@ -41,7 +43,7 @@ namespace moris
         //------------------------------------------------------------------------------
         FEM_Model::FEM_Model(
                 mtk::Mesh_Manager *                 aMeshManager,
-                const moris_index                       & aMeshPairIndex,
+                const moris_index                 & aMeshPairIndex,
                 moris::Cell< fem::Set_User_Info > & aSetInfo )
         : mMeshManager( aMeshManager ),
           mMeshPairIndex( aMeshPairIndex )
@@ -52,6 +54,7 @@ namespace moris
             // get pointers to interpolation and integration meshes
             mtk::Interpolation_Mesh* tIPMesh = nullptr;
             mtk::Integration_Mesh*   tIGMesh = nullptr;
+
             mMeshManager->get_mesh_pair( mMeshPairIndex, tIPMesh, tIGMesh );
 
             // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -150,16 +153,16 @@ namespace moris
             // shrink list to fit size
             mFemClusters.shrink_to_fit();
 
-            if( par_rank() == 0)
-            {
-                // stop timer
-                real tElapsedTime = tTimer2.toc<moris::chronos::milliseconds>().wall;
+            // stop timer
+            real tElapsedTime = tTimer2.toc<moris::chronos::milliseconds>().wall;
 
-                // print output
-                MORIS_LOG_INFO( "FEM_Model: created %u FEM IP elements in %5.3f seconds.",
-                        ( unsigned int ) mFemClusters.size(),
-                        ( double ) tElapsedTime / 1000 );
-            }
+            uint tNumElements       = mFemClusters.size();
+            uint tGlobalNumElements = sum_all(tNumElements);
+
+            // print output
+            MORIS_LOG_INFO( "FEM_Model: created %u FEM IP elements in %5.3f seconds.",
+                    tGlobalNumElements ,
+                    (real) tElapsedTime / 1000.0 );
         }
 
         //------------------------------------------------------------------------------
@@ -217,16 +220,15 @@ namespace moris
                 mIPNodes( iNode ) = new fem::Node( &tIPMesh->get_mtk_vertex( iNode ) );
             }
 
-            if( par_rank() == 0)
-            {
-                // stop timer
-                real tElapsedTime = tTimer1.toc<moris::chronos::milliseconds>().wall;
+            // stop timer
+            real tElapsedTime = tTimer1.toc<moris::chronos::milliseconds>().wall;
 
-                // print output
-                MORIS_LOG_INFO( "FEM_Model: created %u FEM IP nodes in %5.3f seconds.",
-                        ( unsigned int ) tNumIPNodes,
-                        ( double ) tElapsedTime / 1000 );
-            }
+            uint tGlobalNumNodes = sum_all(tNumIPNodes);
+
+            // print output
+            MORIS_LOG_INFO( "FEM_Model: created %u FEM IP nodes in %5.3f seconds.",
+                    tGlobalNumNodes,
+                    ( double ) tElapsedTime / 1000 );
 
             // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
             // STEP 2: create fem sets
@@ -289,16 +291,16 @@ namespace moris
             // shrink to fit
             mFemClusters.shrink_to_fit();
 
-            if( par_rank() == 0)
-            {
-                // stop timer
-                real tElapsedTime = tTimer2.toc<moris::chronos::milliseconds>().wall;
+            // stop timer
+            tElapsedTime = tTimer2.toc<moris::chronos::milliseconds>().wall;
 
-                // print output
-                MORIS_LOG_INFO( "FEM_Model: created %u FEM IP elements in %5.3f seconds.",
-                        ( unsigned int ) mFemClusters.size(),
-                        ( double ) tElapsedTime / 1000 );
-            }
+            uint tNumElements       = mFemClusters.size();
+            uint tGlobalNumElements = sum_all(tNumElements);
+
+            // print output
+            MORIS_LOG_INFO( "FEM_Model: created %u FEM IP elements in %5.3f seconds.",
+                    tGlobalNumElements,
+                    ( double ) tElapsedTime / 1000.0 );
         }
 
         //------------------------------------------------------------------------------

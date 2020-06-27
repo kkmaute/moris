@@ -32,7 +32,6 @@ namespace moris
                 // local property enums
                 enum class IWG_Property_Type
                 {
-                    DENSITY,
                     GRAVITY,
                     THERMAL_EXPANSION,
                     REF_TEMP,
@@ -47,6 +46,7 @@ namespace moris
                 enum class IWG_Constitutive_Type
                 {
                         INCOMPRESSIBLE_FLUID,
+                        TURBULENCE_FLUID,
                         MAX_ENUM
                 };
 

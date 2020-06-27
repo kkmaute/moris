@@ -220,6 +220,15 @@ namespace moris
 
                 //------------------------------------------------------------------------------
                 /**
+                 * returns the space geometry type
+                 */
+                mtk::Geometry_Type get_space_geometry_type()
+                {
+                    return mGeometryType;
+                }
+
+                //------------------------------------------------------------------------------
+                /**
                  * set the space and time coefficients of the geometry field xHat, tHat
                  * @param[ in ] space coefficients
                  * @param[ in ] time coefficients

@@ -237,7 +237,16 @@ FEM Module description.
  
  /** @addtogroup FE_Cluster
     @ingroup FE_Module */
-       
+    
+ /** @addtogroup FE_IWG_Incompressible_NS
+    @ingroup FE_Module */
+    
+ /** @addtogroup FE_IWG_SA_Turbulence
+    @ingroup FE_Module */
+    
+ /** @addtogroup FE_IWG_Diffusion_Advection_Reaction
+    @ingroup FE_Module */
+    
 //------------------------------------------------------------------------------
 /** @defgroup XTKModule XFEM Tool Kit (XTK) Module
 The following modules introduce the XTK and its core functionalities.

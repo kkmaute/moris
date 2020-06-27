@@ -30,8 +30,7 @@ void Solver_Interface::build_graph( moris::sol::Dist_Matrix * aMat )
         }
     }
 
-    //    aMat->print();
-    // global assembly to switch entries to the right proceccor
+    // global assembly to communicate entries
     aMat->matrix_global_assembly();
 }
 
@@ -74,6 +73,7 @@ void Solver_Interface::fill_matrix_and_RHS(
 }
 
 //---------------------------------------------------------------------------------------------------------
+
 void Solver_Interface::assemble_RHS( moris::sol::Dist_Vector * aVectorRHS )
 {
     // Get local number of elements
@@ -114,6 +114,7 @@ void Solver_Interface::assemble_RHS( moris::sol::Dist_Vector * aVectorRHS )
 }
 
 //---------------------------------------------------------------------------------------------------------
+
 void Solver_Interface::assemble_jacobian( moris::sol::Dist_Matrix * aMat )
 {
     // Get local number of elements
@@ -150,6 +151,7 @@ void Solver_Interface::assemble_jacobian( moris::sol::Dist_Matrix * aMat )
 }
 
 //---------------------------------------------------------------------------------------------------------
+
 void Solver_Interface::fill_matrix_and_RHS( moris::sol::Dist_Matrix * aMat,
         moris::sol::Dist_Vector * aVectorRHS )
 {
@@ -193,16 +195,18 @@ void Solver_Interface::fill_matrix_and_RHS( moris::sol::Dist_Matrix * aMat,
         aMat->matrix_global_assembly();
         this->free_block_memory( Ii );
     }
+
     // global assembly to switch entries to the right processor
     aMat->matrix_global_assembly();
-//    aMat->print();
+    //    aMat->print();
 
     aVectorRHS->vector_global_asembly();
 }
 
-void Solver_Interface::get_adof_ids_based_on_criteria( moris::Cell< moris::Matrix< IdMat > > & aCriteriaIds,
+void Solver_Interface::get_adof_ids_based_on_criteria( 
+        moris::Cell< moris::Matrix< IdMat > > & aCriteriaIds,
         const moris::real                       aThreshold  )       // FIXME find better name
-                {
+{
     // Get number of Sets
     moris::uint tNumSets = this->get_num_my_blocks();
 
@@ -254,6 +258,4 @@ void Solver_Interface::get_adof_ids_based_on_criteria( moris::Cell< moris::Matri
         // resize cell to number of triggered equation objects
         aCriteriaIds.resize( tCounter );
     }
-                }
-
-
+}

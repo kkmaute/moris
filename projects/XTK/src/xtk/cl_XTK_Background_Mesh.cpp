@@ -14,8 +14,10 @@ namespace xtk
 // ----------------------------------------------------------------------------------
 // Constructor/Deconstructor Source code
 // ----------------------------------------------------------------------------------
-Background_Mesh::Background_Mesh(moris::mtk::Interpolation_Mesh* aMeshData):
-    mMeshData(aMeshData),
+
+    Background_Mesh::Background_Mesh(
+            moris::mtk::Interpolation_Mesh* aMeshData)
+    : mMeshData(aMeshData),
     mEntityLocaltoGlobalMap(4),
     mChildMtkCells(0),
     mXtkMtkVertices(0),
@@ -30,9 +32,11 @@ Background_Mesh::Background_Mesh(moris::mtk::Interpolation_Mesh* aMeshData):
 }
 
 // ----------------------------------------------------------------------------------
-Background_Mesh::Background_Mesh(moris::mtk::Interpolation_Mesh* aMeshData,
-                                 moris::ge::Geometry_Engine* aGeometryEngine):
-    mMeshData(aMeshData),
+
+    Background_Mesh::Background_Mesh(
+            moris::mtk::Interpolation_Mesh * aMeshData,
+            moris::ge::Geometry_Engine     * aGeometryEngine)
+    : mMeshData(aMeshData),
     mEntityLocaltoGlobalMap(4),
     mChildMtkCells(0),
     mXtkMtkVertices(0),
@@ -119,7 +123,7 @@ Background_Mesh::get_vertices_owner(moris::Matrix<moris::IndexMat> const & aVert
 }
 
 // ----------------------------------------------------------------------------------
-// ----------------------------------------------------------------------------------
+
 Cell<moris::mtk::Vertex const *>
 Background_Mesh::get_mtk_vertices(Matrix<IndexMat> const & aVertexIndices)
 {
@@ -147,7 +151,6 @@ Background_Mesh::get_mtk_vertex_xtk(moris::moris_index aVertexIndex)
 }
 // ----------------------------------------------------------------------------------
 
-// ----------------------------------------------------------------------------------
 moris::mtk::Cell &
 Background_Mesh::get_mtk_cell(moris::moris_index aCellIndex)
 {
@@ -347,7 +350,8 @@ associate_external_nodes_to_child_mesh(moris::moris_index                       
 moris::Matrix< moris::IndexMat >
 Background_Mesh::get_node_child_mesh_assocation( moris::moris_index aNodeIndex ) const
 {
-    MORIS_ASSERT(mExternalMeshData.is_external_entity(aNodeIndex,EntityRank::NODE),"Provided node index needs to be one created during the decomposition process");
+        MORIS_ASSERT(mExternalMeshData.is_external_entity(aNodeIndex,EntityRank::NODE),
+                "Provided node index needs to be one created during the decomposition process");
 
     // External index
     moris::size_t  tExtIndex = mExternalMeshData.get_external_entity_index(aNodeIndex,EntityRank::NODE);
@@ -372,7 +376,8 @@ Background_Mesh::get_node_child_mesh_assocation( moris::moris_index aNodeIndex )
 // ----------------------------------------------------------------------------------
 
 moris::size_t
-Background_Mesh::get_glb_entity_id_from_entity_loc_index(moris::size_t   aEntityIndex,
+    Background_Mesh::get_glb_entity_id_from_entity_loc_index(
+            moris::size_t   aEntityIndex,
                                                          enum EntityRank aEntityRank,
                                                          moris_index const & aMeshIndex ) const
 {
@@ -390,7 +395,8 @@ Background_Mesh::get_glb_entity_id_from_entity_loc_index(moris::size_t   aEntity
 
 // ----------------------------------------------------------------------------------
 moris::Matrix< moris::IdMat >
-Background_Mesh::get_glb_entity_id_from_entity_loc_index_range(moris::Matrix< moris::IndexMat > const & tEntityIndices,
+    Background_Mesh::get_glb_entity_id_from_entity_loc_index_range(
+            moris::Matrix< moris::IndexMat > const & tEntityIndices,
                                                                enum EntityRank aEntityRank) const
 {
     MORIS_ASSERT(moris::isvector(tEntityIndices),"Entity indices are not provided in a vector");
@@ -407,7 +413,8 @@ Background_Mesh::get_glb_entity_id_from_entity_loc_index_range(moris::Matrix< mo
 // ----------------------------------------------------------------------------------
 
 void
-Background_Mesh::convert_loc_entity_ind_to_glb_entity_ids(enum EntityRank aEntityRank,
+    Background_Mesh::convert_loc_entity_ind_to_glb_entity_ids(
+            enum EntityRank                    aEntityRank,
                                              moris::Matrix< moris::IndexMat > & aEntityIndices) const
     {
         moris::uint tNumRows = aEntityIndices.n_rows();
@@ -478,7 +485,8 @@ Background_Mesh::get_selected_node_coordinates_loc_inds(moris::Matrix< moris::In
     {
         if (mExternalMeshData.is_external_entity(aNodeIndices(n), tEntityRank))
         {
-            moris::Matrix< moris::DDRMat > const & tNodeCoords = mExternalMeshData.get_selected_node_coordinates_loc_inds_external_data(aNodeIndices(n));
+                moris::Matrix< moris::DDRMat > const & tNodeCoords =
+                        mExternalMeshData.get_selected_node_coordinates_loc_inds_external_data(aNodeIndices(n));
             tSelectedNodesCoords.set_row(n,tNodeCoords);
         }
 
@@ -517,7 +525,9 @@ Background_Mesh::get_local_to_global_map(enum EntityRank aEntityRank) const
 
     tNumNodes = tLocalToGlobalBM.numel() + tLocalToGlobalExt.numel();
     size_t tFirstExtNodeInd = tLocalToGlobalBM.numel();
-    MORIS_ERROR(tNumNodes = tLocalToGlobalBM.numel() + tLocalToGlobalExt.numel(),"Number of nodes returned does not match the number in the map");
+
+        MORIS_ERROR(tNumNodes = tLocalToGlobalBM.numel() + tLocalToGlobalExt.numel(),
+                "Number of nodes returned does not match the number in the map");
 
     // combine the two maps
     moris::Matrix<moris::IdMat> tLocalToGlobal(1,tNumNodes);
@@ -568,8 +578,9 @@ Background_Mesh::get_full_non_intersected_node_to_element_glob_ids() const
                                                                   moris::EntityRank::ELEMENT,
                                                                   moris::EntityRank::NODE);
 
-            moris::Matrix< moris::IdMat >tElementToNodeId
-                = moris::mtk::convert_entity_indices_to_ids(tElementToNodeInd,moris::EntityRank::NODE,mMeshData);
+                moris::Matrix< moris::IdMat >tElementToNodeId =
+                        moris::mtk::convert_entity_indices_to_ids(tElementToNodeInd,moris::EntityRank::NODE,mMeshData);
+
             tElementToNode.set_row(tCount,tElementToNodeId);
             tCount++;
         }
@@ -613,7 +624,9 @@ Background_Mesh::get_non_intersected_element_to_node_by_phase(moris::uint aNumPh
         {
 
             moris::moris_id tId = mMeshData->get_glb_entity_id_from_entity_loc_index(i,EntityRank::ELEMENT);
-            moris::Matrix< moris::IdMat >tElementToNodeId = mMeshData->get_entity_connected_to_entity_glob_ids(tId,EntityRank::ELEMENT,EntityRank::NODE);
+
+                moris::Matrix< moris::IdMat >tElementToNodeId =
+                        mMeshData->get_entity_connected_to_entity_glob_ids(tId,EntityRank::ELEMENT,EntityRank::NODE);
 
             moris::moris_index tPhaseIndex = this->get_element_phase_index(i);
 
@@ -648,8 +661,9 @@ Background_Mesh::get_all_non_intersected_elements() const
     {
         if(!this->entity_has_children(i,EntityRank::ELEMENT))
         {
+                moris::moris_id tElementToNodeId =
+                        mMeshData->get_glb_entity_id_from_entity_loc_index((moris::moris_index)i,moris::EntityRank::ELEMENT);
 
-            moris::moris_id tElementToNodeId = mMeshData->get_glb_entity_id_from_entity_loc_index((moris::moris_index)i,moris::EntityRank::ELEMENT);
             tElementIds(tCount) = tElementToNodeId;
             tCount++;
         }
@@ -679,7 +693,12 @@ Background_Mesh::get_all_non_intersected_elements_by_phase( uint aNumPhases ) co
         {
             moris::moris_index tPhaseInd = this->get_element_phase_index(iE);
             uint tCount = tPhaseCount(tPhaseInd);
-            tElementsByPhase(tPhaseInd)(tCount) = mMeshData->get_glb_entity_id_from_entity_loc_index((moris::moris_index)iE,moris::EntityRank::ELEMENT);
+
+                tElementsByPhase(tPhaseInd)(tCount) = mMeshData->
+                        get_glb_entity_id_from_entity_loc_index(
+                                (moris::moris_index)iE,
+                                moris::EntityRank::ELEMENT);
+
             tPhaseCount(tPhaseInd)++;
         }
     }
@@ -795,7 +814,8 @@ bool
 Background_Mesh::is_interface_node(moris::moris_index aNodeIndex,
                                    moris::size_t aGeomIndex) const
 {
-    MORIS_ASSERT(aNodeIndex<(moris::moris_index)mInterfaceNodeFlag.n_rows(),"Attempting to access interface node flag for node index out of bounds. Have you called allocate_space_in_interface_node_flags?");
+        MORIS_ASSERT(aNodeIndex<(moris::moris_index)mInterfaceNodeFlag.n_rows(),
+                "Attempting to access interface node flag for node index out of bounds. Have you called allocate_space_in_interface_node_flags?");
 
     if(mInterfaceNodeFlag(aNodeIndex,aGeomIndex) == 1)
     {
@@ -1011,13 +1031,15 @@ Background_Mesh::get_loc_entity_ind_from_entity_glb_id(moris_id        aEntityId
 // ----------------------------------------------------------------------------------
 
 void
-Background_Mesh::add_child_element_to_mtk_cells(moris::moris_index aElementIndex,
+    Background_Mesh::add_child_element_to_mtk_cells(
+            moris::moris_index aElementIndex,
                                                 moris::moris_index aElementId,
                                                 moris::moris_index aElementOwner,
                                                 moris::moris_index aCMElementIndex,
                                                 Child_Mesh*        aChildMeshPtr)
 {
-    mChildMtkCells.push_back(new Cell_XTK_CM(aElementId,
+        mChildMtkCells.push_back(new Cell_XTK_CM(
+                aElementId,
                                              aElementIndex,
                                              aElementOwner,
                                              aCMElementIndex,
@@ -1030,12 +1052,15 @@ Background_Mesh::add_child_element_to_mtk_cells(moris::moris_index aElementIndex
 
 }
 
+    //-------------------------------------------------------------------------------
+
 void
 Background_Mesh::add_new_cell_to_mesh(moris::mtk::Cell* aCell)
 {
     mChildMtkCells.push_back(aCell);
 
-    MORIS_ASSERT(mChildMtkCellMap.find(aCell->get_index()) == mChildMtkCellMap.end(),"Element index already has an mtk cell associated with it");
+        MORIS_ASSERT(mChildMtkCellMap.find(aCell->get_index()) == mChildMtkCellMap.end(),
+                "Element index already has an mtk cell associated with it");
 
     mChildMtkCellMap[aCell->get_index()] = mChildMtkCells.size()-1;
 
@@ -1047,10 +1072,11 @@ Background_Mesh::add_new_cell_to_mesh(moris::mtk::Cell* aCell)
 
 }
 
+    // ----------------------------------------------------------------------------------
 
-// ----------------------------------------------------------------------------------
 void
-Background_Mesh::add_cells_to_global_to_local_map(Matrix<IndexMat> const & aCellIndices,
+    Background_Mesh::add_cells_to_global_to_local_map(
+            Matrix<IndexMat> const & aCellIndices,
                                                   Matrix<IdMat>    const & aCellIds)
 {
 #ifdef DEBUG
@@ -1081,10 +1107,10 @@ Background_Mesh::add_cells_to_global_to_local_map(Matrix<IndexMat> const & aCell
 
         MORIS_ASSERT(mEntityLocaltoGlobalMap(3).numel() == tUniqueCellIds.numel(), "duplicate cell id detected" );
 #endif
+    }
 
+    // ----------------------------------------------------------------------------------
 
-}
-// ----------------------------------------------------------------------------------
 const moris::mtk::Cell*
 Background_Mesh::get_child_element_mtk_cell_ptr(moris::moris_index aElementIndex) const
 {
@@ -1160,6 +1186,8 @@ Background_Mesh::get_communication_table() const
     return mCommunicationMap;
 }
 
+    //-------------------------------------------------------------------------------
+
 void
 Background_Mesh::add_proc_to_comm_table(moris_index aProcRank)
 {
@@ -1172,8 +1200,8 @@ Background_Mesh::add_proc_to_comm_table(moris_index aProcRank)
 
     mCommunicationMap.resize(1,mCommunicationMap.numel()+1);
     mCommunicationMap(tIndex) = aProcRank;
+    }
 
-}
 // ----------------------------------------------------------------------------------
 
 moris::Matrix< moris::DDRMat >
@@ -1241,8 +1269,9 @@ Background_Mesh::setup_local_to_global_maps()
     {
         mEntityLocaltoGlobalMap(3)(iC) = mMeshData->get_glb_entity_id_from_entity_loc_index(iC,EntityRank::ELEMENT);
     }
+    }
 
-}
+    //-------------------------------------------------------------------------------
 
 void
 Background_Mesh::setup_comm_map()

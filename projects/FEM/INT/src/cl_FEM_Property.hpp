@@ -62,6 +62,9 @@ namespace moris
             // value function
             PropertyFunc mValFunction = nullptr;
 
+            // space derivative function
+            PropertyFunc mSpaceDerFunction = nullptr;
+
             // dof and dv derivative functions
             moris::Cell< PropertyFunc > mDofDerFunctions;
             moris::Cell< PropertyFunc > mDvDerFunctions;
@@ -70,6 +73,7 @@ namespace moris
             Matrix< DDRMat > mProp;
             moris::Cell< Matrix< DDRMat > > mPropDofDer;
             moris::Cell< Matrix< DDRMat > > mPropDvDer;
+            Matrix< DDRMat > mdPropdx;
 
             // property name
             std::string mName;
@@ -78,13 +82,15 @@ namespace moris
 
             // flag for evaluation
             bool mPropEval = true;
+            bool mdPropdxEval = true;
             moris::Cell< bool > mPropDofDerEval;
             moris::Cell< bool > mPropDvDerEval;
 
-            // flag for setting of mValFunction, mDofDerFunctions, mDvDerFunctions
-            bool mSetValFunction     = false;
-            bool mSetDofDerFunctions = false;
-            bool mSetDvDerFunctions  = false;
+            // flag for setting mValFunction, mSpaceDerFunction, mDofDerFunctions, mDvDerFunctions
+            bool mSetValFunction      = false;
+            bool mSetSpaceDerFunction = false;
+            bool mSetDofDerFunctions  = false;
+            bool mSetDvDerFunctions   = false;
 
 //------------------------------------------------------------------------------
         public :
@@ -172,6 +178,20 @@ namespace moris
                 mSetValFunction = true;
             };
 
+            //------------------------------------------------------------------------------
+            /**
+             * set space derivative function
+             * @param[ in ] aSpaceDerFunction function for dPropdx evaluation
+             */
+            void set_space_der_function( PropertyFunc aSpaceDerFunction )
+            {
+                // set the value function
+                mSpaceDerFunction = aSpaceDerFunction;
+
+                // set setting flag
+                mSetSpaceDerFunction = true;
+            };
+
 //------------------------------------------------------------------------------
             /**
              * get val function
@@ -229,19 +249,6 @@ namespace moris
             {
                 return mDvDerFunctions;
             };
-
-//------------------------------------------------------------------------------
-            /**
-             * set parameters, val, dof derivative and dv derivative functions
-             * @param[ in ] aParameters      list of parameters for property evaluation
-             * @param[ in ] aValFunction     function for property value
-             * @param[ in ] aDvDerFunctions  list function for property derivatives wrt dof
-             * @param[ in ] aDofDerFunctions list function for property derivatives wrt dv
-             */
-            void set_parameters_and_functions( moris::Cell< moris::Matrix< DDRMat > > aParameters,
-                                               PropertyFunc aValFunction,
-                                               moris::Cell< PropertyFunc > aDofDerFunctions,
-                                               moris::Cell< PropertyFunc > aDvDerFunctions );
 
 //------------------------------------------------------------------------------
             /**
@@ -373,6 +380,19 @@ namespace moris
              * @param[ in ] aDvType cell of dv type
              */
             void eval_dPropdDV( const moris::Cell< PDV_Type > aDvType );
+
+            //------------------------------------------------------------------------------
+            /**
+             * get property derivative wrt x
+             * @param[ out ] mdPropdx matrix with derivative wrt x
+             */
+            const Matrix< DDRMat > & dPropdx();
+
+            //------------------------------------------------------------------------------
+            /**
+             * evaluate property derivative wrt x
+             */
+            void eval_dPropdx();
 
 //------------------------------------------------------------------------------
             /**

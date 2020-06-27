@@ -13,43 +13,47 @@
 
 namespace moris
 {
-namespace hmr
-{
-
-class Interpolation_Mesh_HMR : public Mesh, public mtk::Interpolation_Mesh
-{
-public:
-    Interpolation_Mesh_HMR(      std::shared_ptr< Database >   aDatabase,
-                           const uint                        & aLagrangeMeshIndex) : Mesh( aDatabase,
-                                                                                           aLagrangeMeshIndex )
+    namespace hmr
     {
+        class Interpolation_Mesh_HMR : public Mesh, public mtk::Interpolation_Mesh
+        {
+            public:
 
+                Interpolation_Mesh_HMR(
+                        std::shared_ptr< Database >   aDatabase,
+                        const uint                  & aLagrangeMeshIndex)
+            : Mesh( aDatabase,
+                    aLagrangeMeshIndex )
+            {
+            }
+
+                Interpolation_Mesh_HMR(
+                        std::shared_ptr< Database >   aDatabase,
+                        const uint                  & aLagrangeOrder,
+                        const uint                  & aLagrangePattern )
+                : Mesh( aDatabase,
+                        aLagrangeOrder,
+                        aLagrangePattern )
+                {
+                }
+
+                Interpolation_Mesh_HMR(
+                        std::shared_ptr< Database >   aDatabase,
+                        const uint                  & aOrder,
+                        const uint                  & aLagrangePattern,
+                        const uint                  & aBsplinePattern)
+                : Mesh( aDatabase,
+                        aOrder,
+                        aLagrangePattern,
+                        aBsplinePattern )
+                {
+                }
+
+                ~Interpolation_Mesh_HMR()
+                {
+                    std::cout << "deleting Interpolation_Mesh_HMR" << std::endl;
+                }
+        };
     }
-
-    Interpolation_Mesh_HMR(      std::shared_ptr< Database >   aDatabase,
-                           const uint                        & aLagrangeOrder,
-                           const uint                        & aLagrangePattern ) : Mesh( aDatabase,
-                                                                                          aLagrangeOrder,
-                                                                                          aLagrangePattern )
-    {
-
-    }
-
-    Interpolation_Mesh_HMR(      std::shared_ptr< Database >   aDatabase,
-                           const uint                        & aOrder,
-                           const uint                        & aLagrangePattern,
-                           const uint                        & aBsplinePattern) : Mesh( aDatabase,
-                                                                                        aOrder,
-                                                                                        aLagrangePattern,
-                                                                                        aBsplinePattern )
-    {
-
-    }
-
-
-};
 }
-}
-
-
 #endif /* PROJECTS_HMR_SRC_CL_HMR_MESH_INTERPOLATION_HPP_ */

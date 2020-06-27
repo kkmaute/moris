@@ -118,7 +118,6 @@ namespace moris
             {
                 // get the number of time level for the dof type group
                 uint tNumTimeNodes = aModelSolverInterface->get_time_levels_for_type( mDofTypes( iDof )( 0 ) );
-                std::cout<<"Field_Interpolator_Manager::create_field_interpolators - Time Node: "<<tNumTimeNodes<<std::endl;
 
                 // get the set index for the dof type group
                 uint tDofIndex = mEquationSet->get_dof_index_for_type_1( mDofTypes( iDof )( 0 ), mIsMaster );
@@ -190,7 +189,7 @@ namespace moris
 
             // bool true if sideset or double sideset
             bool tIsSide = ( tElementType != fem::Element_Type::BULK ) &&
-                           ( tElementType != fem::Element_Type::TIME_SIDESET );
+                    ( tElementType != fem::Element_Type::TIME_SIDESET );
 
             // create geometry interpolation rule for IP elements
             Interpolation_Rule tIPGeometryInterpolationRule(

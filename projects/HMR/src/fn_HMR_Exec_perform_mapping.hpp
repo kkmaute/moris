@@ -31,37 +31,38 @@ namespace moris
 {
     namespace hmr
     {
-// -----------------------------------------------------------------------------
+        // -----------------------------------------------------------------------------
 
-    void check_for_forbidden_fields( Cell< std::shared_ptr< Field > > & aInputFields )
-    {
-        for( auto tField : aInputFields )
+        void check_for_forbidden_fields( Cell< std::shared_ptr< Field > > & aInputFields )
         {
-            bool tFieldIsForbidden = false;
+            for( auto tField : aInputFields )
+            {
+                bool tFieldIsForbidden = false;
 
-            const std::string & tLabel = tField->get_label();
+                const std::string & tLabel = tField->get_label();
 
-            /**
-             * the following fields can not be mapped, because their data
-             * can not be inquired using get_entity_field_value_real_scalar()
-             */
-            tFieldIsForbidden = tFieldIsForbidden || tLabel == "Element_Level";
-            tFieldIsForbidden = tFieldIsForbidden || tLabel == "Element_Owner";
-            tFieldIsForbidden = tFieldIsForbidden || tLabel == "Node_IDs";
+                /**
+                 * the following fields can not be mapped, because their data
+                 * can not be inquired using get_entity_field_value_real_scalar()
+                 */
+                tFieldIsForbidden = tFieldIsForbidden || tLabel == "Element_Level";
+                tFieldIsForbidden = tFieldIsForbidden || tLabel == "Element_Owner";
+                tFieldIsForbidden = tFieldIsForbidden || tLabel == "Node_IDs";
 
-            std::string tError = "Mapping of field " + tLabel + " is forbidden.";
+                std::string tError = "Mapping of field " + tLabel + " is forbidden.";
 
-            MORIS_ERROR( ! tFieldIsForbidden, tError.c_str() );
+                MORIS_ERROR( ! tFieldIsForbidden, tError.c_str() );
+            }
         }
-    }
 
-// -----------------------------------------------------------------------------
+        // -----------------------------------------------------------------------------
 
-        void perform_mapping( const Arguments                        & aArguments,
-                              const Paramfile                        & aParamfile,
-                                    HMR                              * aHMR,
-                                    Cell< std::shared_ptr< Field > > & aInputFields,
-                                    Cell< std::shared_ptr< Field > > & aOutputFields )
+        void perform_mapping(
+                const Arguments                  & aArguments,
+                const Paramfile                  & aParamfile,
+                HMR                              * aHMR,
+                Cell< std::shared_ptr< Field > > & aInputFields,
+                Cell< std::shared_ptr< Field > > & aOutputFields )
         {
             // make sure that we only map allowed fields
 
@@ -83,7 +84,7 @@ namespace moris
             // loop over all fields
             for( uint f=0; f<tNumberOfFields; ++f )
             {
-                MORIS_ASSERT(false, "potentialy problematic");
+                MORIS_ASSERT(false, "Potentially problematic");
                 tInputFieldOrders( tCount++ ) = aInputFields( f )->get_bspline_order();
                 tInputFieldOrders( tCount++ ) = aInputFields( f )->get_bspline_output_order();
                 tInputFieldOrders( tCount++ ) = aInputFields( f )->get_lagrange_order();
@@ -136,36 +137,47 @@ namespace moris
             {
                 //FIXME: CHANGE INTEGRATION MESHES TO DIRECTLY USE INTERPOLATION MESHES. (ELIMINATE DUPLICATE MESH CREATION)
                 // create interpolation mesh input
-                Interpolation_Mesh_HMR * tInputInterpMesh = aHMR->create_interpolation_mesh(tMeshOrders( m ), aHMR->get_parameters()->get_lagrange_input_pattern() );
+                Interpolation_Mesh_HMR * tInputInterpMesh = aHMR->create_interpolation_mesh(
+                        tMeshOrders( m ),
+                        aHMR->get_parameters()->get_lagrange_input_pattern() );
 
                 // add to vector of input interpolation meshes
                 tInputInterpMeshes.push_back( tInputInterpMesh );
 
                 // create integration mesh input
-                Integration_Mesh_HMR * tInputIntegMesh = aHMR->create_integration_mesh(tMeshOrders( m ), aHMR->get_parameters()->get_lagrange_input_pattern(), tInputInterpMesh );
+                Integration_Mesh_HMR * tInputIntegMesh = aHMR->create_integration_mesh(
+                        tMeshOrders( m ),
+                        aHMR->get_parameters()->get_lagrange_input_pattern(),
+                        tInputInterpMesh );
 
                 // add to vector of input integration meshes
                 tInputIntegMeshes.push_back( tInputIntegMesh );
 
                 // create interpolation mesh union
-                Interpolation_Mesh_HMR * tUnionInterpMesh = aHMR->create_interpolation_mesh(tMeshOrders( m ), aHMR->get_parameters()->get_union_pattern() ) ;
+                Interpolation_Mesh_HMR * tUnionInterpMesh = aHMR->create_interpolation_mesh(
+                        tMeshOrders( m ),
+                        aHMR->get_parameters()->get_union_pattern() ) ;
 
                 // add to vector of union interpolation meshes
                 tUnionInterpMeshes.push_back( tUnionInterpMesh );
 
                 // create integration mesh union
-                Integration_Mesh_HMR * tUnionIntegMesh = aHMR->create_integration_mesh(tMeshOrders( m ), aHMR->get_parameters()->get_union_pattern(), tUnionInterpMesh );
+                Integration_Mesh_HMR * tUnionIntegMesh = aHMR->create_integration_mesh(
+                        tMeshOrders( m ),
+                        aHMR->get_parameters()->get_union_pattern(),
+                        tUnionInterpMesh );
 
                 // add to vector of union interpolation meshes
                 tUnionIntegMeshes.push_back(tUnionIntegMesh);
 
                 // add pairs to mesh manager
-                moris::uint tMeshPairIndex = tMeshManager.register_mesh_pair(tUnionInterpMeshes(m),tUnionIntegMeshes(m));
+                moris::uint tMeshPairIndex = tMeshManager.register_mesh_pair(
+                        tUnionInterpMeshes(m),
+                        tUnionIntegMeshes(m));
 
                 // create mapper
                 tMappers( m ) = new mapper::Mapper( &tMeshManager,tMeshPairIndex, tMeshOrders( m ) );              //FIXME check tMeshOrders( m )
             }
-
 
             // - - - - - - - - - - - - - - - - - - - - - -
             // step 3: map and project fields
@@ -185,15 +197,15 @@ namespace moris
 
                 // get pointer to field on union mesh
                 std::shared_ptr< Field > tUnionField =  tUnionInterpMeshes( m )->create_field( tInputField->get_label(),
-                                                                                               tBSplineOrder );
+                        tBSplineOrder );
 
                 if( tLagrangeOrder == tBSplineOrder )
                 {
                     // interpolate field onto union mesh
                     aHMR->get_database()->interpolate_field( aHMR->get_parameters()->get_lagrange_input_pattern(),
-                                                             tInputField,
-                                                             aHMR->get_parameters()->get_union_pattern(),
-                                                             tUnionField );
+                            tInputField,
+                            aHMR->get_parameters()->get_union_pattern(),
+                            tUnionField );
 
                     // copy field id
                     tUnionField->set_id( tInputField->get_id() );
@@ -202,15 +214,15 @@ namespace moris
                 {
                     // first, project field on mesh with correct order
                     std::shared_ptr< Field > tTemporaryField = tInputInterpMeshes( m )->create_field( tInputField->get_label(),
-                                                                                                      tBSplineOrder );
+                            tBSplineOrder );
 
                     aHMR->get_database()->change_field_order( tInputField, tTemporaryField );
 
                     // now, interpolate this field onto the union
                     aHMR->get_database()->interpolate_field( aHMR->get_parameters()->get_lagrange_input_pattern(),
-                                                             tTemporaryField,
-                                                             aHMR->get_parameters()->get_union_pattern(),
-                                                             tUnionField );
+                            tTemporaryField,
+                            aHMR->get_parameters()->get_union_pattern(),
+                            tUnionField );
 
                     // copy field id
                     tUnionField->set_id( tInputField->get_id() );
@@ -221,22 +233,22 @@ namespace moris
 
                 // perform mapping
                 tMappers( m )->perform_mapping( tInputField->get_label(),
-                                                EntityRank::NODE,
-                                                tInputField->get_label(),             //FIXME should this be tUnionField
-                                                tUnionField->get_bspline_rank() );
+                        EntityRank::NODE,
+                        tInputField->get_label(),             //FIXME should this be tUnionField
+                        tUnionField->get_bspline_rank() );
 
                 // a small sanity test
                 MORIS_ASSERT( tUnionField->get_coefficients().length()
-                           == tUnionInterpMeshes( m )->get_num_entities( mtk::order_to_entity_rank( tBSplineOrder ) ),
-                                    "Number of B-Splines does not match" );
+                        == tUnionInterpMeshes( m )->get_num_entities( mtk::order_to_entity_rank( tBSplineOrder ) ),
+                        "Number of B-Splines does not match" );
 
                 // get pointer to output mesh
                 std::shared_ptr< Mesh >  tOutputMesh = aHMR->create_mesh( tLagrangeOrder,
-                                                                          aHMR->get_parameters()->get_lagrange_output_pattern() );
+                        aHMR->get_parameters()->get_lagrange_output_pattern() );
 
                 // create output field
                 std::shared_ptr< Field >  tOutputField = tOutputMesh->create_field( tInputField->get_label(),
-                                                                                    tBSplineOrder );
+                        tBSplineOrder );
 
                 std::cout<<tOutputField->get_coefficients().length()<<std::endl;
 
@@ -263,7 +275,9 @@ namespace moris
                     std::shared_ptr< Mesh > tLinearMesh = aHMR->create_mesh( 1 );
 
                     // create a linear field
-                    std::shared_ptr< Field > tLinearField = tLinearMesh->create_field( tOutputField->get_label(), tBSplineOrder );
+                    std::shared_ptr< Field > tLinearField = tLinearMesh->create_field(
+                            tOutputField->get_label(),
+                            tBSplineOrder );
 
                     // evaluate node values for linear field
                     tLinearField->evaluate_node_values( tOutputField->get_coefficients() );
@@ -276,7 +290,9 @@ namespace moris
                     std::shared_ptr< Mesh > tQuadraticMesh = aHMR->create_mesh( 2 );
 
                     // create a linear field
-                    std::shared_ptr< Field > tQuadraticField = tQuadraticMesh->create_field( tOutputField->get_label(), tBSplineOrder );
+                    std::shared_ptr< Field > tQuadraticField = tQuadraticMesh->create_field(
+                            tOutputField->get_label(),
+                            tBSplineOrder );
 
                     // evaluate node values for linear field
                     tQuadraticField->evaluate_node_values( tOutputField->get_coefficients() );
@@ -288,7 +304,7 @@ namespace moris
             // test if union mesh is to be dumped
             if ( aParamfile.get_union_mesh_path().size() > 0 )
             {
-                // grab basepath
+                // grab base path
                 std::string tBasepath = aParamfile.get_union_mesh_path().substr(
                         0,aParamfile.get_union_mesh_path().find_last_of(".") );
 
@@ -305,7 +321,7 @@ namespace moris
                         // get index of mesh
                         uint tMeshIndex = 0;
 
-                        // dump mesh (assume timestep to be zero )
+                        // dump mesh (assume time step to be zero )
                         aHMR->save_to_exodus( tMeshIndex, tMeshPath, aArguments.get_timestep() );
                     }
                 }
@@ -318,11 +334,9 @@ namespace moris
             }
         }
 
-// -----------------------------------------------------------------------------
+        // -----------------------------------------------------------------------------
 
     } /* namespace hmr */
 } /* namespace moris */
-
-
 
 #endif /* PROJECTS_HMR_SRC_FN_HMR_EXEC_PERFORM_MAPPING_HPP_ */

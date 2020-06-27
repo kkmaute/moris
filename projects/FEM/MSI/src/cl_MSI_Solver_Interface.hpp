@@ -34,13 +34,13 @@ namespace moris
         class MSI_Solver_Interface : public moris::Solver_Interface
         {
             private:
-                moris::MSI::Model_Solver_Interface * mMSI = nullptr;
+                moris::MSI::Model_Solver_Interface * mMSI    = nullptr;
                 moris::MSI::Dof_Manager            * mDofMgn = nullptr;
 
-                sol::Dist_Vector                   * mSolutionVector = nullptr;
-                sol::Dist_Vector                   * mPrevSolutionVector = nullptr;
+                sol::Dist_Vector                   * mSolutionVector            = nullptr;
+                sol::Dist_Vector                   * mPrevSolutionVector        = nullptr;
                 sol::Dist_Vector                   * mSensitivitySolutionVector = nullptr;
-                sol::Dist_Vector                   * mExactSolFromFile = nullptr;
+                sol::Dist_Vector                   * mExactSolFromFile          = nullptr;
                 Matrix< DDRMat>  mTime;
                 Matrix< DDRMat>  mPrevTime;
 
@@ -217,11 +217,10 @@ namespace moris
 
                 moris::uint get_max_num_global_dofs()
                 {
-                    moris::uint tNumMyDofs        = mDofMgn->get_num_owned_adofs();
-                    moris::uint tMaxNumGlobalDofs = mDofMgn->get_num_owned_adofs();
+                    moris::uint tNumMyDofs = mDofMgn->get_num_owned_adofs();
 
                     // sum up all distributed dofs
-                    sum_all( tNumMyDofs, tMaxNumGlobalDofs );
+                    moris::uint tMaxNumGlobalDofs = sum_all( tNumMyDofs );
 
                     return tMaxNumGlobalDofs;
                 };
