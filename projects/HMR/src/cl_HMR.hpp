@@ -35,7 +35,7 @@ namespace moris
         {
             public :
                 //! object containing user settings
-                Parameters *          mParameters;
+                Parameters * mParameters;
 
                 std::shared_ptr< Database > mDatabase;
 
@@ -116,8 +116,9 @@ namespace moris
                  *
                  * @param[in] aParameters  ref to container of user defined settings
                  */
-                HMR ( ParameterList & aParameterList,
-                      std::shared_ptr<moris::Library_IO> aLibrary = nullptr ) ;
+                HMR ( 
+                    ParameterList                       & aParameterList,
+                    std::shared_ptr<moris::Library_IO>    aLibrary = nullptr ) ;
 
                 // -----------------------------------------------------------------------------
 
@@ -140,7 +141,7 @@ namespace moris
                 /**
                  * default destructor of HMR
                  */
-                ~HMR ( ){};
+                ~HMR ();
 
                 // -----------------------------------------------------------------------------
                 /**
