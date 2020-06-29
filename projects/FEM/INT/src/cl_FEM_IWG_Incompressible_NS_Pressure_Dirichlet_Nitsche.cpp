@@ -102,7 +102,7 @@ namespace moris
             if ( tPropSelect == nullptr )
             {
                 // get spatial dimension
-                uint tSpaceDim = tVelocityFI->get_dof_type().size();
+                uint tSpaceDim = tVelocityFI->get_number_of_fields();
 
                 // set selection matrix as identity
                 eye( tSpaceDim, tSpaceDim, tM );
