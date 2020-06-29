@@ -836,7 +836,10 @@ namespace moris
                     tPdvTypes(tMeshSetIndices(tIndex)).push_back(tPdvTypeGroup);
                 }
             }
+
+            // Create PDV hosts
             this->create_ip_pdv_hosts(tPdvTypes);
+            this->create_ig_pdv_hosts();
 
             // Loop over properties to assign PDVs
             for (uint tPropertyIndex = 0; tPropertyIndex < mPropertyParameterLists.size(); tPropertyIndex++)
