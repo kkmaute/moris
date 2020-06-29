@@ -30,8 +30,6 @@ namespace xtk
     {
         Ghost_Setup_Data tGhostSetupData;
 
-        xtk::Enriched_Interpolation_Mesh & tEnrIpMesh  = mXTKModel->get_enriched_interp_mesh(0);
-
         //
         //        mtk::Mesh_Checker tMeshChecker(0,&mXTKModel->get_enriched_interp_mesh(0),&mXTKModel->get_enriched_integ_mesh(0));
         //        tMeshChecker.perform();
@@ -1019,8 +1017,8 @@ namespace xtk
                 std::shared_ptr<Side_Cluster>tMasterSideCluster = this->create_master_side_cluster(aGhostSetupData,tEnrIpCells,i,j,tSlaveSideCluster.get(),tCurrentIndex,tCurrentId);
 
                 // verify the subphase cluster
-                MORIS_ASSERT(tSlaveSideCluster->mInterpolationCell->get_bulkphase_index() == i,"Bulk phase mismatch on slave side of double side set cluster");
-                MORIS_ASSERT(tMasterSideCluster->mInterpolationCell->get_bulkphase_index() == i,"Bulk phase mismatch on master side of double side set cluster");
+                MORIS_ASSERT(tSlaveSideCluster->mInterpolationCell->get_bulkphase_index() == (moris_index)i,"Bulk phase mismatch on slave side of double side set cluster");
+                MORIS_ASSERT(tMasterSideCluster->mInterpolationCell->get_bulkphase_index() == (moris_index)i,"Bulk phase mismatch on master side of double side set cluster");
 
                 MORIS_ASSERT(tEnrInterpMesh.verify_basis_interpolating_into_cluster(*tSlaveSideCluster.get(),0),"Basis issue in cluster");
                 MORIS_ASSERT(tEnrInterpMesh.verify_basis_interpolating_into_cluster(*tMasterSideCluster.get(),0),"Basis issue in cluster");
