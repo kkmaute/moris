@@ -180,13 +180,13 @@ TEST_CASE( "IWG_Incompressible_NS_Pressure_Bulk", "[IWG_Incompressible_NS_Pressu
 
                 // fill space coeff xHat
                 tXHat = {{ 0.0, 0.0 },
-                         { 1.0, 0.0 },
-                         { 1.0, 1.0 },
-                         { 0.0, 1.0 }};
+                        { 1.0, 0.0 },
+                        { 1.0, 1.0 },
+                        { 0.0, 1.0 }};
 
-               // set velocity dof types
-               tVelDofTypes = { MSI::Dof_Type::VX, MSI::Dof_Type::VY };
-               break;
+                // set velocity dof types
+                tVelDofTypes = { MSI::Dof_Type::VX, MSI::Dof_Type::VY };
+                break;
             }
             case 3 :
             {
@@ -195,13 +195,13 @@ TEST_CASE( "IWG_Incompressible_NS_Pressure_Bulk", "[IWG_Incompressible_NS_Pressu
 
                 // fill space coeff xHat
                 tXHat = {{ 0.0, 0.0, 0.0 },
-                         { 1.0, 0.0, 0.0 },
-                         { 1.0, 1.0, 0.0 },
-                         { 0.0, 1.0, 0.0 },
-                         { 0.0, 0.0, 1.0 },
-                         { 1.0, 0.0, 1.0 },
-                         { 1.0, 1.0, 1.0 },
-                         { 0.0, 1.0, 1.0 }};
+                        { 1.0, 0.0, 0.0 },
+                        { 1.0, 1.0, 0.0 },
+                        { 0.0, 1.0, 0.0 },
+                        { 0.0, 0.0, 1.0 },
+                        { 1.0, 0.0, 1.0 },
+                        { 1.0, 1.0, 1.0 },
+                        { 0.0, 1.0, 1.0 }};
 
                 // set velocity dof types
                 tVelDofTypes = { MSI::Dof_Type::VX, MSI::Dof_Type::VY, MSI::Dof_Type::VZ };
@@ -220,10 +220,10 @@ TEST_CASE( "IWG_Incompressible_NS_Pressure_Bulk", "[IWG_Incompressible_NS_Pressu
         //------------------------------------------------------------------------------
         // create a space geometry interpolation rule
         Interpolation_Rule tGIRule( tGeometryType,
-                                    Interpolation_Type::LAGRANGE,
-                                    mtk::Interpolation_Order::LINEAR,
-                                    Interpolation_Type::LAGRANGE,
-                                    mtk::Interpolation_Order::LINEAR );
+                Interpolation_Type::LAGRANGE,
+                mtk::Interpolation_Order::LINEAR,
+                Interpolation_Type::LAGRANGE,
+                mtk::Interpolation_Order::LINEAR );
 
         // create a space time geometry interpolator
         Geometry_Interpolator tGI = Geometry_Interpolator( tGIRule );
@@ -280,10 +280,10 @@ TEST_CASE( "IWG_Incompressible_NS_Pressure_Bulk", "[IWG_Incompressible_NS_Pressu
 
             //create a space time interpolation rule
             Interpolation_Rule tFIRule ( tGeometryType,
-                                         Interpolation_Type::LAGRANGE,
-                                         tInterpolationOrder,
-                                         Interpolation_Type::LAGRANGE,
-                                         mtk::Interpolation_Order::LINEAR );
+                    Interpolation_Type::LAGRANGE,
+                    tInterpolationOrder,
+                    Interpolation_Type::LAGRANGE,
+                    mtk::Interpolation_Order::LINEAR );
 
             // fill coefficients for master FI
             Matrix< DDRMat > tMasterDOFHatVel;
