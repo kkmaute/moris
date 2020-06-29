@@ -218,7 +218,7 @@ TEST_CASE("MDL_FEM_Benchmark_Diffusion_1Mat","[MDL_FEM_Benchmark_Diffusion_1Mat]
         moris::ge::Geometry_Engine tGENGeometryEngine(tGeometry, tPhaseTable, 2);
 
         // Perform additional refinement
-        tGENGeometryEngine.perform_refinement(tHMR);
+        //tGENGeometryEngine.perform_refinement(tHMR);
 
         // Get interpolation mesh
         tHMR->finalize();
@@ -530,7 +530,7 @@ TEST_CASE("MDL_FEM_Benchmark_Diffusion_1Mat_Ghost","[MDL_FEM_Benchmark_Diffusion
         moris::ge::Geometry_Engine tGENGeometryEngine(tGeometry, tPhaseTable, 2);
 
         // Perform additional refinement
-        tGENGeometryEngine.perform_refinement(tHMR);
+        //tGENGeometryEngine.perform_refinement(tHMR);
 
         // Get interpolation mesh
         tHMR->finalize();
@@ -881,7 +881,7 @@ TEST_CASE("FEM Benchmark 2 - 2Mat","[MDL_FEM_Benchmark2_2Mat]")
         moris::ge::Geometry_Engine tGENGeometryEngine(tGeometry, tPhaseTable, 2);
 
         // Perform additional refinement
-        tGENGeometryEngine.perform_refinement(tHMR);
+        //tGENGeometryEngine.perform_refinement(tHMR);
 
         // Get interpolation mesh
         tHMR->finalize();
@@ -1243,7 +1243,7 @@ TEST_CASE("FEM Benchmark Diffusion Inclusion - 2Mat","[MDL_FEM_Benchmark_Diffusi
         moris::ge::Geometry_Engine tGENGeometryEngine(tGeometry, tPhaseTable, 2);
 
         // Perform additional refinement
-        tGENGeometryEngine.perform_refinement(tHMR);
+        //tGENGeometryEngine.perform_refinement(tHMR);
 
         // Get interpolation mesh
         tHMR->finalize();

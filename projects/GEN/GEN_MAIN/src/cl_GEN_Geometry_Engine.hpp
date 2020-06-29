@@ -1,5 +1,8 @@
-#ifndef PROJECTS_GEN_GEN_MAIN_SRC_GEOMENG_CL_Geometry_Engine_HPP_
-#define PROJECTS_GEN_GEN_MAIN_SRC_GEOMENG_CL_Geometry_Engine_HPP_
+#ifndef MORIS_CL_Geometry_Engine_HPP_
+#define MORIS_CL_Geometry_Engine_HPP_
+
+// WRK
+#include "../../../WRK/src/cl_WRK_Performer.hpp"
 
 // GEN
 #include "cl_GEN_Pending_Node.hpp"
@@ -27,11 +30,6 @@ namespace moris
 {
     //------------------------------------------------------------------------------------------------------------------
 
-    namespace hmr
-    {
-        class HMR;
-        class Mesh;
-    }
     namespace MSI
     {
         class Design_Variable_Interface;
@@ -46,7 +44,7 @@ namespace moris
         // GEOMETRY ENGINE
         //--------------------------------------------------------------------------------------------------------------
 
-        class Geometry_Engine
+        class Geometry_Engine : public wrk::Performer
         {
         private:
 
@@ -284,12 +282,42 @@ namespace moris
             void register_mesh(std::shared_ptr<mtk::Mesh_Manager> aMeshManager);
 
             /**
-             * Performs refinement on an HMR mesh
+             * Return the number of fields that can be used for refinement
              *
-             * @param aHMRPerformer Shared pointer to HMR
-             * @param aNumRefinements Number of refinements to perform, if not given will be taken from GEN parameters
+             * @return Number of fields for refinement
              */
-            void perform_refinement(std::shared_ptr<hmr::HMR >aHMRPerformer);
+            uint get_num_refinement_fields();
+
+            /**
+             * Gets a flag to determine if refinement should continue
+             *
+             * @param aFieldIndex The index of a field
+             * @param aRefinementIndex The current refinement step being performed
+             * @return If refinement is needed for this field
+             */
+            bool refinement_needed(uint aFieldIndex,
+                                   uint aRefinementIndex);
+
+            /**
+             * Returns fields so that HMR can perform refinement based on the data from this performer
+             *
+             * @param aFieldIndex Index of the field
+             * @param aNodeIndex Index of the node
+             * @param aCoordinates Coordinates of the node
+             */
+            real get_field_value(uint aFieldIndex,
+                                 uint aNodeIndex,
+                                 const Matrix<DDRMat>& aCoordinates);
+
+            /**
+             * Gets the index of an HMR user-defined refinement function for the given field index
+             *
+             * @param aFieldIndex Index of the field
+             * @param aRefinementIndex The current refinement step being performed
+             * @return User-defined function index, or -1 to use default refinement
+             */
+            sint get_refinement_function_index(uint aFieldIndex,
+                                               uint aRefinementIndex);
 
             /**
              * @brief assign the pdv type and property for each pdv host in a given set
@@ -348,4 +376,4 @@ namespace moris
     }
 }
 
-#endif /* PROJECTS_GEN_GEN_MAIN_SRC_GEOMENG_CL_Geometry_Engine_HPP_ */
+#endif /* MORIS_CL_Geometry_Engine_HPP_ */

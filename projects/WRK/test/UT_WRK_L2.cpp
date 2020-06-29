@@ -137,7 +137,7 @@ TEST_CASE("WRK L2 test","[WRK_L2_test]")
          tHMRPerformer->perform_initial_refinement( 0 );
 
          // HMR refined by GE
-         tGENPerformer->perform_refinement(tHMRPerformer);
+         //tGENPerformer->perform_refinement(tHMRPerformer);
 
          std::shared_ptr< mtk::Mesh_Manager > tMTKPerformer_HMR = std::make_shared< mtk::Mesh_Manager >();
          tHMRPerformer->set_performer( tMTKPerformer_HMR );

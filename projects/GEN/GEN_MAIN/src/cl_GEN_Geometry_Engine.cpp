@@ -1,3 +1,6 @@
+// WRK
+#include "../../../WRK/src/cl_WRK_Performer.cpp"
+
 // GEN
 #include "cl_GEN_Geometry_Engine.hpp"
 #include "fn_GEN_Matrix_Base_Utilities.hpp"
@@ -12,10 +15,6 @@
 #include "op_equal_equal.hpp"
 #include "op_times.hpp"
 #include "linalg_typedefs.hpp"
-
-// HMR
-#include "cl_HMR_Mesh.hpp"
-#include "cl_HMR.hpp"
 
 // MTK
 #include "cl_MTK_Integration_Mesh.hpp"
@@ -468,47 +467,34 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        void Geometry_Engine::perform_refinement(std::shared_ptr<hmr::HMR> aHMRPerformer)
+        uint Geometry_Engine::get_num_refinement_fields()
         {
-            // Create mesh
-            std::shared_ptr<hmr::Mesh> tMesh = aHMRPerformer->create_mesh(0);
+            return mGeometry.size();
+        }
 
-            // Set refinement index/flag
-            bool tPerformRefinement = true;
-            sint tRefinementIndex = 0;
+        //--------------------------------------------------------------------------------------------------------------
 
-            // Loop over set number of refinement levels
-            while (tPerformRefinement)
-            {
-                // Reset flag
-                tPerformRefinement = false;
+        bool Geometry_Engine::refinement_needed(uint aFieldIndex,
+                                                uint aRefinementIndex)
+        {
+            return ((sint)aRefinementIndex < mGeometry(aFieldIndex)->get_num_refinements());
+        }
 
-                // Loop over geometries
-                for (uint tGeometryIndex = 0; tGeometryIndex < mGeometry.size(); tGeometryIndex++)
-                {
-                    // Determine if refinement is needed
-                    if (tRefinementIndex < mGeometry(tGeometryIndex)->get_num_refinements())
-                    {
-                        // Get field and put on queue
-                        Matrix<DDRMat> tFieldValues(tMesh->get_num_nodes(), 1);
-                        for (uint tNodeIndex = 0; tNodeIndex < tMesh->get_num_nodes(); tNodeIndex++)
-                        {
-                            tFieldValues(tNodeIndex) = this->get_geometry_field_value(tNodeIndex, tMesh->get_node_coordinate(tNodeIndex), tGeometryIndex);
-                        }
+        //--------------------------------------------------------------------------------------------------------------
 
-                        // Put elements on queue and set flag for refinement
-                        aHMRPerformer->based_on_field_put_elements_on_queue(tFieldValues, 0, mGeometry(tGeometryIndex)->get_refinement_function_index());
-                        tPerformRefinement = true;
-                    }
-                }
+        real Geometry_Engine::get_field_value(uint aFieldIndex,
+                                              uint aNodeIndex,
+                                              const Matrix<DDRMat>& aCoordinates)
+        {
+            return mGeometry(aFieldIndex)->evaluate_field_value(aNodeIndex, aCoordinates);
+        }
 
-                // Perform refinement and update index
-                if (tPerformRefinement)
-                {
-                    aHMRPerformer->perform_refinement_based_on_working_pattern( 0, false );
-                    tRefinementIndex++;
-                }
-            }
+        //--------------------------------------------------------------------------------------------------------------
+
+        sint Geometry_Engine::get_refinement_function_index(uint aFieldIndex,
+                                                            uint aRefinementIndex)
+        {
+            return mGeometry(aFieldIndex)->get_refinement_function_index();
         }
 
         //--------------------------------------------------------------------------------------------------------------
