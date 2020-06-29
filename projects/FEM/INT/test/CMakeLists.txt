@@ -38,10 +38,10 @@ set(TEST_SOURCES
     UT_FEM_IWG_Diffusion_Phase_Change_Bulk.cpp
     UT_FEM_IWG_GGLS_Diffusion_Phase_Change.cpp
     UT_FEM_IWG_Advection_Bulk.cpp
-    UT_FEM_IWG_Spatial_Diffusion_Dirichlet.cpp
-    UT_FEM_IWG_Spatial_Diffusion_Interface.cpp
-    UT_FEM_IWG_Spatial_Diffusion_Ghost.cpp
-    UT_FEM_IWG_Spatial_Diffusion_Virtual_Work_Ghost.cpp
+    UT_FEM_IWG_Diffusion_Dirichlet.cpp
+    UT_FEM_IWG_Diffusion_Interface.cpp
+    UT_FEM_IWG_Diffusion_Ghost.cpp
+    UT_FEM_IWG_Diffusion_Virtual_Work_Ghost.cpp
     UT_FEM_IWG_Struc_Linear_Bulk.cpp
     UT_FEM_IWG_Struc_Linear_Pressure_Bulk.cpp
     UT_FEM_IWG_Struc_Linear_Dirichlet.cpp
@@ -65,6 +65,8 @@ set(TEST_SOURCES
     UT_FEM_Geometry_Interpolator.cpp
     FEM_Test_Proxy/cl_FEM_Design_Variable_Interface_Proxy.cpp
     FEM_Test_Proxy/cl_FEM_Inputs_for_NS_Incompressible_UT.cpp
+    FEM_Test_Proxy/cl_FEM_Inputs_for_Diffusion_UT.cpp
+    FEM_Test_Proxy/cl_FEM_Inputs_for_Elasticity_UT.cpp
     )
 
 # List test dependencies
