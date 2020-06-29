@@ -1471,3 +1471,7 @@ div.toc {
 .caption {
   font-size: 10px;
 }
+
+div.image img[src="basis_ip_integ.png"]{
+    width:500px;
+}

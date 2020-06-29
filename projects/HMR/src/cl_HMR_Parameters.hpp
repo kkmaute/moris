@@ -22,6 +22,7 @@
 #include "linalg_typedefs.hpp"
 
 #include "cl_XML_Parser.hpp"
+#include "fn_Exec_load_user_library.hpp"
 
 namespace moris
 {
@@ -141,6 +142,9 @@ namespace moris
            //! Renumber Lagrange Nodes
            bool mRenumberLagrangeNodes = false;
 
+           // HMR user defined refinement function
+           Cell<MORIS_USER_DEFINED_REFINEMENT_FUNCTION> mRefinementFunctions;
+
 //--------------------------------------------------------------------------------
         public:
 //--------------------------------------------------------------------------------
@@ -155,7 +159,8 @@ namespace moris
           /*
            * parameter list constructor
            */
-          Parameters( ParameterList & aParameterList );
+          Parameters( ParameterList & aParameterList,
+                      std::shared_ptr<moris::Library_IO> aLibrary );
 
 //--------------------------------------------------------------------------------
 
@@ -978,6 +983,19 @@ namespace moris
            {
                mRefinementInterrelation = aSwitch;
            }
+
+            /**
+             *
+             * @param aRefinementFunctions
+             */
+            void set_refinement_functions( Cell<MORIS_USER_DEFINED_REFINEMENT_FUNCTION> aRefinementFunctions );
+
+            /**
+             * Get a user-defined refinement function from the parameters
+             * @param aFunctionIndex
+             * @return
+             */
+            MORIS_USER_DEFINED_REFINEMENT_FUNCTION get_refinement_function( uint aFunctionIndex );
 
 //-------------------------------------------------------------------------------
         private:

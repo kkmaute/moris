@@ -365,22 +365,20 @@ namespace xtk
         moris::ge::Phase_Table tPhaseTable (1, moris::ge::Phase_Table_Structure::EXP_BASE_2);
         moris::ge::Geometry_Engine tGeometryEngine(tGeometry, tPhaseTable);
 
-        tGeometryEngine.mThresholdValue = 0.0;
-
-        /*
-         * Load Mesh which has 3 block sets. These blocks are named:
-         *  - top_bread
-         *  - meat
-         *  - bottom_bread
-         *
-         * Side Sets will eventually be named
-         *  - top_crust
-         *  - bottom_crust
-         */
-        std::string tPrefix;
-        tPrefix = moris::get_base_moris_dir();
-        std::string tMeshFileName = tPrefix + "/projects/XTK/test/test_exodus_files/sandwich.e";
-        moris::Cell<std::string> tFieldNames;
+    /*
+     * Load Mesh which has 3 block sets. These blocks are named:
+     *  - top_bread
+     *  - meat
+     *  - bottom_bread
+     *
+     * Side Sets will eventually be named
+     *  - top_crust
+     *  - bottom_crust
+     */
+    std::string tPrefix;
+    tPrefix = moris::get_base_moris_dir();
+    std::string tMeshFileName = tPrefix + "/projects/XTK/test/test_exodus_files/sandwich.e";
+    moris::Cell<std::string> tFieldNames;
 
         // add parallel fields to the mesh
         moris::mtk::Visualization_STK tVizTool;

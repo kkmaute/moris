@@ -36,8 +36,7 @@ LevelSetFunction_2( const moris::Matrix< moris::DDRMat > & aPoint )
 }
 
 int user_defined_refinement(       Element                  * aElement,
-                             const Cell< Matrix< DDRMat > > & aElementLocalValues,
-                                   ParameterList            & aParameters )
+                             const Matrix< DDRMat > & aElementLocalValues)
 {
     int aDoRefine = -1;
 
@@ -63,10 +62,10 @@ int user_defined_refinement(       Element                  * aElement,
     uint curlevel = aElement->get_level();
 
     // refinement strategy
-    if ( aElementLocalValues( 0 ).max() >= lsth - lsbwabs )
+    if ( aElementLocalValues.max() >= lsth - lsbwabs )
     {
         // for volume refinement
-        if ( aElementLocalValues( 0 ).min() >= lsth + lsbwabs )
+        if ( aElementLocalValues.min() >= lsth + lsbwabs )
         {
             if( curlevel < maxvolref && curlevel < maxlevel )
             {
@@ -119,7 +118,7 @@ TEST_CASE("HMR_User_Defined_Refinement", "[moris],[mesh],[hmr],[HMR_User_Defined
     //    gLogger.set_severity_level( 0 );
     // can only perform test for 1, 2 or 4 procs
     // do this test for 2 and 3 dimensions
-    if( par_size() ==0 )
+    if( par_size() == 1 )
     {
     for( moris::uint tDimension=2; tDimension<=2; ++tDimension )
     {
@@ -169,6 +168,8 @@ TEST_CASE("HMR_User_Defined_Refinement", "[moris],[mesh],[hmr],[HMR_User_Defined
 
             tParameters.set_lagrange_to_bspline_mesh( tLagrangeToBSplineMesh );
 
+            tParameters.set_refinement_functions( {&user_defined_refinement} );
+
     //------------------------------------------------------------------------------
     //  HMR Initialization
     //------------------------------------------------------------------------------
@@ -191,9 +192,7 @@ TEST_CASE("HMR_User_Defined_Refinement", "[moris],[mesh],[hmr],[HMR_User_Defined
 
             tField->evaluate_scalar_function( LevelSetFunction );
 
-            moris::Cell< std::shared_ptr< moris::hmr::Field > > tFields( 1, tField );
-
-            tHMR.user_defined_flagging( user_defined_refinement, tFields, tParam, 0 );
+            tHMR.based_on_field_put_elements_on_queue( tField->get_node_values(), 0, 0 );
 
             tHMR.perform_refinement_based_on_working_pattern( 0, true );
 
@@ -201,7 +200,7 @@ TEST_CASE("HMR_User_Defined_Refinement", "[moris],[mesh],[hmr],[HMR_User_Defined
             // Second refinement with field 2
             tField->evaluate_scalar_function( LevelSetFunction_2 );
 
-            tHMR.user_defined_flagging( user_defined_refinement, tFields, tParam, 0 );
+            tHMR.based_on_field_put_elements_on_queue( tField->get_node_values(), 0, 0 );
 
             tHMR.perform_refinement_based_on_working_pattern( 0, true );
 
@@ -216,7 +215,7 @@ TEST_CASE("HMR_User_Defined_Refinement", "[moris],[mesh],[hmr],[HMR_User_Defined
              uint tNumCoeffs = tMesh->get_num_coeffs( 0 );
 
              // perform test
-             REQUIRE( tNumElements == 619 );
+             REQUIRE( tNumElements == 1126 );
 //             REQUIRE( tNumNodes == 722 );
 //             REQUIRE( tNumCoeffs == 584 );
     }

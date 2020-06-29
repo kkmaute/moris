@@ -8,13 +8,13 @@ namespace moris
         //--------------------------------------------------------------------------------------------------------------
 
         Circle::Circle(Matrix<DDRMat>& aADVs,
-                       Matrix<DDUMat> aGeometryVariableIndices,
-                       Matrix<DDUMat> aADVIndices,
-                       Matrix<DDRMat> aConstantParameters)
-                : Field(aADVs,
-                        aGeometryVariableIndices,
-                        aADVIndices,
-                        aConstantParameters)
+                       Matrix<DDUMat>  aGeometryVariableIndices,
+                       Matrix<DDUMat>  aADVIndices,
+                       Matrix<DDRMat>  aConstantParameters,
+                       sint            aNumRefinements,
+                       sint            aRefinementFunctionIndex)
+                : Field(aADVs, aGeometryVariableIndices, aADVIndices, aConstantParameters),
+                  Geometry(aNumRefinements, aRefinementFunctionIndex)
         {
             MORIS_ERROR(aGeometryVariableIndices.length() + aConstantParameters.length() == 3,
                         "A circle geometry must be created with a total of exactly 3 adv and constant parameters");
@@ -22,8 +22,13 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        Circle::Circle(real aXCenter, real aYCenter, real aRadius)
-                : Field(Matrix<DDRMat>({{aXCenter, aYCenter, aRadius}}))
+        Circle::Circle(real aXCenter,
+                       real aYCenter,
+                       real aRadius,
+                       sint aNumRefinements,
+                       sint aRefinementFunctionIndex)
+                : Field(Matrix<DDRMat>({{aXCenter, aYCenter, aRadius}})),
+                  Geometry(aNumRefinements, aRefinementFunctionIndex)
         {
         }
 

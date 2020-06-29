@@ -12,6 +12,8 @@
 #include "cl_HMR_Element.hpp"
 #include "cl_HMR_Field_Param.hpp"
 #include "cl_HMR_Parameters.hpp"     //HMR/src
+#include "fn_Exec_load_user_library.hpp"
+
 namespace moris
 {
     namespace mtk
@@ -33,7 +35,7 @@ namespace moris
         {
             public :
                 //! object containing user settings
-                Parameters *          mParameters;
+                Parameters * mParameters;
 
                 std::shared_ptr< Database > mDatabase;
 
@@ -114,7 +116,9 @@ namespace moris
                  *
                  * @param[in] aParameters  ref to container of user defined settings
                  */
-                HMR ( ParameterList & aParameterList ) ;
+                HMR ( 
+                    ParameterList                       & aParameterList,
+                    std::shared_ptr<moris::Library_IO>    aLibrary = nullptr ) ;
 
                 // -----------------------------------------------------------------------------
 
@@ -137,7 +141,7 @@ namespace moris
                 /**
                  * default destructor of HMR
                  */
-                ~HMR ( ){};
+                ~HMR ();
 
                 // -----------------------------------------------------------------------------
                 /**
@@ -379,7 +383,8 @@ namespace moris
 
                 uint based_on_field_put_elements_on_queue(
                         const Matrix< DDRMat > & aFieldValues,
-                        const uint             & aLagrangeMeshIndex);
+                        uint                     aLagrangeMeshIndex,
+                        sint                     aFunctionIndex = -1);
 
                 // -----------------------------------------------------------------------------
 
@@ -487,31 +492,14 @@ namespace moris
 
                 // -----------------------------------------------------------------------------
 
-                void user_defined_flagging(
-                        int (*aFunction)
-                        (
-                                Element                          * aElement,
-                                const Cell< Matrix< DDRMat > >   & aElementLocalValues,
-                                ParameterList                    & aParameters
-                        ),
-                        Cell< std::shared_ptr< Field > > & aFields,
-                        ParameterList                    & aParameters,
-                        const uint                       & aPattern );
+        private:
 
-                // -----------------------------------------------------------------------------
+            void user_defined_flagging(
+                    Cell< hmr::Element * >   & aCells,
+                    Cell< hmr::Element * >   & aCandidates,
+                    const  Matrix< DDRMat >  & aVertexValues,
+                    uint                       aFunctionIndex);
 
-                void user_defined_flagging(
-                        int (*aFunction)
-                        (
-                                Element                          * aElement,
-                                const Cell< Matrix< DDRMat > >   & aElementLocalValues,
-                                ParameterList                    & aParameters
-                        ),
-                        Cell< Matrix< DDRMat > >         & aFields,
-                        ParameterList                    & aParameters,
-                        const uint                       & aPattern );
-
-                // -----------------------------------------------------------------------------
         }; /* HMR */
 
     } /* namespace hmr */
