@@ -67,10 +67,11 @@ namespace moris
 
         // -----------------------------------------------------------------------------
 
-        // alternative constuctor that uses parameter list
-        HMR::HMR ( ParameterList & aParameterList,
-                   std::shared_ptr<moris::Library_IO> aLibrary )
-                   : HMR( new Parameters( aParameterList, aLibrary ) )
+        // alternative constructor that uses parameter list
+        HMR::HMR ( 
+                ParameterList & aParameterList,
+                std::shared_ptr<moris::Library_IO> aLibrary )
+        : HMR( new Parameters( aParameterList, aLibrary ) )
         {
             mDatabase->set_parameter_owning_flag();
         }
@@ -126,6 +127,12 @@ namespace moris
 
         // -----------------------------------------------------------------------------
 
+        HMR::~HMR()
+        {
+        }
+
+        // -----------------------------------------------------------------------------
+
         void HMR::finalize()
         {
             // finish database
@@ -150,9 +157,8 @@ namespace moris
             moris::hmr::Integration_Mesh_HMR *   tIntegrationMesh =
                     this->create_integration_mesh( tLagrangeMeshIndex, tInterpolationMesh );
 
-            // FIXME: these meshes should be assigned to mesh manager but this leads currently to
-            //        segfault in destructor
-            mMTKPerformer->register_mesh_pair( tInterpolationMesh, tIntegrationMesh, false );
+            // register HMR interpolation and integration meshes
+            mMTKPerformer->register_mesh_pair( tInterpolationMesh, tIntegrationMesh, true );
         }
 
         // -----------------------------------------------------------------------------

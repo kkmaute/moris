@@ -1,0 +1,40 @@
+namespace moris {
+namespace mtk {
+
+#---------------------------------------------------------------------------
+/** @defgroup MTK_Overview Overview
+
+\anchor MTK1
+\image html  ./figures/basis_ip_integ.png "Figure 1: Left: Basis functions (green hexagons) with basis support (dashed green circle) relationship to interpolation mesh. Right: Integration mesh to interpolation mesh."
+
+The problem domain \f$\Omega\f$ is approximated by means of a computational mesh as\f$\Omega^h\f$. Interpolation of state variables and integration domains in\f$\Omega\f$ or on the boundary of\f$\Omega\f$, \f$\Gamma^h\f$ are defined on different meshes referred here-within as an interpolation mesh and an integration mesh.  Basis functions are defined separate from the interpolation mesh. Fields defined on the basis functions can be transformed to fields on the interpolation mesh. In Figure \ref MTK1 "1", the transformation between basis function and interpolation vertex is denoted as an arrow between the blue circle and green hexagons. Only interpolation vertices within the dashed green circle have a non-zero relationship with the center basis function. In the case of B-spline basis functions, the transformation is referred to as Lagrange extraction. The integration mesh is related to the interpolation mesh through either parametric coordinates or another transformation relationship. For a direct transformation between Lagrange integration and interpolation cells, high order integration cells are necessary to span the same space as the interpolation cell. For this reason, parametric coordinates are used to compute interpolated field values at a given point with the interpolation cell interpolation functions directly. In Figure \ref MTK1 "1", integration vertices are black circles and the light blue triangle is an integration cell. The relationship between the integration vertices and interpolation vertices are shown with red arrows.
+
+<table>
+<caption id="entity_def">Entity Table</caption>
+<tr><th>Entity   <th>Dimension
+<tr><td>Vertex   <td>0
+<tr><td>Edge     <td>1
+<tr><td>Face     <td>2
+<tr><td>Facet    <td>D-1
+<tr><td>Cell     <td>D
+</table>
+
+
+
+A mesh contains entities which can be a vertex, edge, face, facet or cell. The maximum topological dimension, D, usually corresponds to the spatial dimension of the domain. In standard mesh applications, a collection of cells is called a block set, a collection of facets is called a side set and a collection of vertices is called a vertex set. Another less common but powerful grouping is a collection of facet pairs which is called a double side set. We adopt another level of grouping, which stems from the interpolation and integration mesh separation, called clustering. A cell cluster is a collection of primary integration cells and void integration cells related to a single interpolation cell. The primary cells represent the domain within the physical domain where primary integration is performed and the void represents the non-physical part of the domain. A side cluster is a collection of facets of integration cells related to a single interpolation cell. A double side cluster is a set of facet pairs  of primary integration cells  where the facets in a pair belong to different facet clusters. With the notion of clustering, block sets are a collection of cell clusters, side sets are a collection of side clusters and double side sets are a collection of double side clusters. Vertex sets could be defined in a similar fashion but are not used within the current work. 
+
+
+
+
+As a conceptual example, consider the following integral, which is mapped to a parametric space and approximated numerically with Gaussian quadrature:
+\f[
+	q^{e} = \int_{\Omega^{h,e}} f(x) d\Omega = \int_{\Omega^{h,e}_\xi} N(\xi) \hat{\mathbf{f}} J d\Omega_\xi \approx \sum_{j = 1}^{n_{gp}} w_j J(\xi_j) f(\xi_j)
+\f]
+
+The first integral is expressed in the physical domain. The integration domain \f$\Omega^{h,e}\f$ is the volume of an integration cell, \f$f(x)=\mathbf{N}(x) \hat{\mathbf{f}}\f$ is a generic scalar valued function, \f$\mathbf{N}(x)\f$ are interpolation functions and \f$\hat{\mathbf{f}}\f$ are discrete values. The second integral is expressed in a parametric domain where \f$J = \frac{\partial x^e}{\partial \xi}\f$ is the Jacobian, and \f$\Omega^{h,e}_\xi\f$ is the parametric integration domain . The third integral is a numerical integration approximation of the integral where \f$n_{gp}\f$ is the number of quadrature points and \f$w_j\f$ are quadrature weights. The integration domains \f$\Omega^{h,e}\f$ and \f$\Omega^{h,e}_\xi\f$ are defined by cells in the integration mesh. \f$J\f$ is defined by the integration cells. \f$\mathbf{N}(x)\f$ is defined by the interpolation cells and \f$\hat{\mathbf{f}}\f$ is hosted at interpolation vertices. \f$w_j\f$ and \f$\xi_j\f$ are determined based on a quadrature table look up on the integration cell.
+
+*/
+
+#---------------------------------------------------------------------------
+}
+}

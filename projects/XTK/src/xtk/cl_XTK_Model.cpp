@@ -37,7 +37,6 @@ namespace xtk
     // ----------------------------------------------------------------------------------
     // Constructor/Deconstructor Source code
     // ----------------------------------------------------------------------------------
-
     Model::~Model()
     {
         if(mEnrichment != nullptr )
@@ -221,6 +220,7 @@ namespace xtk
                     }
                 }
             }
+
         }
 
         if(mParameterList.get<bool>("ghost_stab"))
@@ -310,6 +310,7 @@ namespace xtk
     {
         MORIS_ASSERT(this->has_parameter_list(),"Perform can only be called on a parameter list based XTK");
 
+
         moris::uint       tSpatialDimension = this->get_spatial_dim();
         enum CellTopology tBGCellTopo       = mBackgroundMesh.get_parent_cell_topology();
         std::string       tDecompStr        = mParameterList.get<std::string>("decomposition_type");
@@ -328,6 +329,7 @@ namespace xtk
         {
             MORIS_ERROR(0,"Invalid decomposition_type provided. Recognized Options: Conformal and Nonconformal");
         }
+
 
         if(tSpatialDimension == 2 )
         {
@@ -363,12 +365,12 @@ namespace xtk
         MORIS_ERROR(0,"Failed determining subdivision methods");
 
         return Cell<enum Subdivision_Method>(0);
+
     }
 
     // ----------------------------------------------------------------------------------
     // Decomposition Source code
     // ----------------------------------------------------------------------------------
-
     void
     Model::decompose(Cell<enum Subdivision_Method> aMethods)
     {
@@ -542,6 +544,7 @@ namespace xtk
 
                 // associate new nodes with geometry objects
                 create_new_node_association_with_geometry(tDecompData);
+
 
                 for(moris::size_t i = 0; i< tIntersectedCount; i++)
                 {
@@ -885,6 +888,7 @@ namespace xtk
 
                             // get the owning processor for an entity
                             moris::moris_index tOwningProc = tMeshData.get_entity_owner(tParentIndex, (enum EntityRank)tParentRank);
+
 
                             // Convert to global id using mesh
                             tEdgeNodes(0, 0) = mBackgroundMesh.get_glb_entity_id_from_entity_loc_index(tEdgeNodes(0, 0), EntityRank::NODE);
@@ -1810,9 +1814,9 @@ namespace xtk
 
     void
     Model::return_request_answers_reals(
-            moris_index          const & aMPITag,
+            moris_index const & aMPITag,
             Cell<Matrix<DDRMat>> const & aRequestAnswers,
-            Cell<uint>           const & aProcRanks)
+            Cell<uint>              const & aProcRanks)
     {
         // iterate through owned requests and send
         for(moris::uint i = 0; i < aProcRanks.size(); i++)
@@ -2141,7 +2145,6 @@ namespace xtk
                             "Request is made for child element ids on a parent cell not intersected");
 
                     moris_index tCMIndex = mBackgroundMesh.child_mesh_index(tParentCellIndex,EntityRank::ELEMENT);
-
                     Child_Mesh & tCM = mCutMesh.get_child_mesh(tCMIndex);
 
                     MORIS_ASSERT(par_rank() == mBackgroundMesh.get_mesh_data().get_entity_owner(tParentCellIndex,EntityRank::ELEMENT),
@@ -2173,7 +2176,7 @@ namespace xtk
             Cell<Matrix<IndexMat>>  const & aReceivedChildCellIdOffset,
             moris::moris_id               & aCellInd)
     {
-        Cell<Child_Mesh*> const & tNotOwnedChildMeshes = mCutMesh.get_not_owned_child_meshes();
+        Cell<Child_Mesh*> const & tNotOwnedChildMeshes     = mCutMesh.get_not_owned_child_meshes();
 
         // iterate through received data
         for(moris::uint i = 0; i < aChildMeshesInInNotOwned.size(); i++)
@@ -2715,6 +2718,7 @@ namespace xtk
                 aParentCellIds(i)(j)           = mBackgroundMesh.get_glb_entity_id_from_entity_loc_index(tCM->get_parent_element_index(),EntityRank::ELEMENT);
                 aChildCellIds(i)(j)            = tCellIds(tCMCellInd);
                 aNumChildCellsInSubphase(i)(j) = tSubphaseClusters(tSPIndex).numel();
+
             }
         }
     }
@@ -2836,7 +2840,6 @@ namespace xtk
     // ----------------------------------------------------------------------------------
     // Sensitivity Source code
     // ----------------------------------------------------------------------------------
-
     void
     Model::compute_sensitivity()
     {
@@ -2857,7 +2860,6 @@ namespace xtk
     // ----------------------------------------------------------------------------------
     // Unzipping Child Mesh Source code
     // ----------------------------------------------------------------------------------
-
     void
     Model::unzip_child_mesh()
     {
@@ -2952,11 +2954,11 @@ namespace xtk
 
             // unzip_child_mesh_index
             this->unzip_interface_internal_modify_child_mesh(iG,tInterfaceNodeInds,tNewUnzippedNodeInds,tNewUnzippedNodeIds);
+
         }
     }
 
     // ----------------------------------------------------------------------------------
-
     void
     Model::unzip_interface_internal_assign_node_identifiers(
             moris::uint                   aNumNodes,
@@ -2996,9 +2998,7 @@ namespace xtk
         mBackgroundMesh.update_first_available_index(tNodeIndexOffset,EntityRank::NODE);
 
     }
-
     // ----------------------------------------------------------------------------------
-
     void
     Model::unzip_interface_internal_modify_child_mesh(
             moris::uint                         aGeometryIndex,
@@ -3080,6 +3080,7 @@ namespace xtk
                     tInterfaceElementPairs,
                     tInterfaceSideOrdinals);
 
+
             tChildMesh.finalize_unzipping();
 
             tCMIndex++;
@@ -3095,6 +3096,7 @@ namespace xtk
             moris::moris_index                       aGeometryIndex,
             moris::Matrix< moris::IndexMat > const & aInterfaceElementPairs )
     {
+
         // specify which geometry sign gets to keep the nodes
         moris::moris_index tValWhichUsesUnzipped = 0;
 
@@ -3153,7 +3155,9 @@ namespace xtk
         }
 
         return tElementWhichKeepsUsesUnzippedNodes;
+
     }
+
 
     // ----------------------------------------------------------------------------------
     moris::Cell<moris::Cell< moris::moris_index >>
@@ -3183,9 +3187,7 @@ namespace xtk
 
         return tChildMeshInterfaceNodes;
     }
-
     // ----------------------------------------------------------------------------------
-
     void
     Model::unzip_interface_construct_interface_elements(moris::uint aGeometryIndex,
             moris::Matrix< moris::IndexMat > const & aElementPairs,
@@ -3212,9 +3214,7 @@ namespace xtk
             mCutMesh.add_interface_element(tInterfaceElement);
         }
     }
-
     // ----------------------------------------------------------------------------------
-
     void
     Model::unzip_interface_assign_element_identifiers()
     {
@@ -3233,12 +3233,14 @@ namespace xtk
         }
 
         mBackgroundMesh.update_first_available_index(tIndexOffset,EntityRank::ELEMENT);
+
     }
+
+
 
     // ----------------------------------------------------------------------------------
     // Enrichment Source code
     // ----------------------------------------------------------------------------------
-
     void
     Model::perform_basis_enrichment(
             enum EntityRank  const & aBasisRank,
@@ -3264,9 +3266,7 @@ namespace xtk
             std::cout<<"XTK: Basis enrichment performed on mesh index: "<< aMeshIndex<<std::endl;
         }
     }
-
     // ----------------------------------------------------------------------------------
-
     void
     Model::perform_basis_enrichment(
             enum EntityRank  const & aBasisRank,
@@ -3297,7 +3297,6 @@ namespace xtk
             std::cout<<std::endl;
         }
     }
-
     // ----------------------------------------------------------------------------------
 
     Enrichment const &
@@ -3319,9 +3318,6 @@ namespace xtk
 
         return *(mEnrichedInterpMesh(aIndex));
     }
-
-    // ----------------------------------------------------------------------------------
-
     Enriched_Integration_Mesh &
     Model::get_enriched_integ_mesh(moris::moris_index aIndex)
     {
@@ -3353,6 +3349,7 @@ namespace xtk
 
         // perform the enrichment
         mEnrichment->perform_enrichment();
+
     }
 
     // ----------------------------------------------------------------------------------
@@ -3361,7 +3358,6 @@ namespace xtk
     Model::construct_face_oriented_ghost_penalization_cells()
     {
         MORIS_ERROR(mDecomposed,"Mesh needs to be decomposed prior to calling ghost penalization");
-
         MORIS_ERROR(!mGhost,"Ghost penalization has already been called");
 
         std::clock_t start = std::clock();
@@ -3408,7 +3404,6 @@ namespace xtk
     // ----------------------------------------------------------------------------------
     // Tet 10 conversion Source code
     // ----------------------------------------------------------------------------------
-
     void
     Model::convert_mesh_tet4_to_tet10()
     {
@@ -3428,7 +3423,6 @@ namespace xtk
     // ----------------------------------------------------------------------------------
     // Export mesh Source code
     // ----------------------------------------------------------------------------------
-
     void
     Model::extract_surface_mesh_to_obj(
             std::string                      aOutputFile,
@@ -3447,12 +3441,12 @@ namespace xtk
             std::cout<<"XTK: OBJ File: "<<aOutputFile<<std::endl;
         }
     }
-
     //------------------------------------------------------------------------------
 
     void
     Model::construct_neighborhood()
     {
+
         mElementToElement.resize(this->get_num_elements_total());
 
         // add uncut neighborhood to connectivity
@@ -3491,10 +3485,10 @@ namespace xtk
         moris::mtk::Interpolation_Mesh & tInterpMesh = mBackgroundMesh.get_mesh_data();
 
         // allocate subphase to subphase connectivity
-        mSubphaseToSubPhase                 = moris::Cell<moris::Cell<moris::moris_index>>(mCutMesh.get_num_subphases());
-        mSubphaseToSubPhaseMySideOrds       = moris::Cell<moris::Cell<moris::moris_index>>(mCutMesh.get_num_subphases());
+        mSubphaseToSubPhase = moris::Cell<moris::Cell<moris::moris_index>>(mCutMesh.get_num_subphases());
+        mSubphaseToSubPhaseMySideOrds = moris::Cell<moris::Cell<moris::moris_index>>(mCutMesh.get_num_subphases());
         mSubphaseToSubPhaseNeighborSideOrds = moris::Cell<moris::Cell<moris::moris_index>>(mCutMesh.get_num_subphases());
-        mTransitionNeighborCellLocation     = moris::Cell<moris::Cell<moris::moris_index>>(mCutMesh.get_num_subphases());
+        mTransitionNeighborCellLocation = moris::Cell<moris::Cell<moris::moris_index>>(mCutMesh.get_num_subphases());
 
         // non unique temporary data
         moris::Cell<moris::Cell<moris::moris_index>> tNonUniqueSubphaseToSubphase(mCutMesh.get_num_subphases());
@@ -3526,7 +3520,7 @@ namespace xtk
                 moris_index tTransitionCellLocation = tCellToCellSideOrd(3,iN);
 
                 // neighbor cell
-                mtk::Cell const * tOtherCell = & tInterpMesh.get_mtk_cell(tCellToCellSideIndex(0,iN));
+                mtk::Cell const * tOtherCell =  & tInterpMesh.get_mtk_cell(tCellToCellSideIndex(0,iN));
 
                 // get the subphase indices attached to the facet which is connected to the current cell
                 Cell<moris::moris_index> tMyCellSubphaseIndices(0);
@@ -3604,7 +3598,7 @@ namespace xtk
     void
     Model::collect_subphases_attached_to_facet_on_cell(
             moris::moris_index         aCellIndex,
-            moris::moris_index         aFacetOrdinal,
+            moris::moris_index aFacetOrdinal,
             Cell<moris::moris_index> & aCellSubphaseIndices,
             Cell<moris::moris_index> & aCellSubphaseBulkIndices)
     {
@@ -3639,6 +3633,7 @@ namespace xtk
                 aCellSubphaseBulkIndices(i) = tCMSubphaseBulkIndices(tCellCMSubphaseIndices(i));
                 aCellSubphaseIndices(i) = tCMSubphaseIndices(tCellCMSubphaseIndices(i));
             }
+
         }
         else
         {
@@ -3672,7 +3667,7 @@ namespace xtk
         // Collect element to node of child mesh and create a full element to element graph for child mesh
         Matrix<IndexMat> tCMElementToNode = mCutMesh.get_full_element_to_node_loc_inds();
 
-        // generate connectivities (face then element conn) we do not keep faces around though
+        // generate connectivities (face then  element conn) we do not keep faces around though
         // face connectivity
         CellTopology tCellTopo = mCutMesh.get_child_element_topology();
         Matrix<IndexMat> tElementToFace;
@@ -3843,6 +3838,7 @@ namespace xtk
             std::cout<<std::endl;
         }
     }
+
 
     void
     Model::print_interface_vertices()
@@ -5188,15 +5184,16 @@ namespace xtk
             }
         }
 
+
         moris::moris_index tElemPhaseVal = mGeometryEngine->get_elem_phase_index(tNodalPhaseVals);
 
         return tElemPhaseVal;
     }
-
     void
     Model::print_decompsition_preamble(Cell<enum Subdivision_Method> aMethods)
     {
         // Only process with rank 0 prints the preamble
+
 
         if(moris::par_rank() == 0 && mVerbose)
         {
@@ -5211,6 +5208,7 @@ namespace xtk
             std::cout<<std::endl;
         }
     }
+
 
     //------------------------------------------------------------------------------
 
