@@ -80,7 +80,6 @@ namespace moris
 
             // Mesh
             std::shared_ptr<mtk::Mesh_Manager> mMeshManager;
-            bool mTypesSet      = false;
 
             Matrix<IndexMat> mInterfaceNodeIndices;
 
@@ -354,6 +353,11 @@ namespace moris
              * Assign PDV hosts based on properties constructed through parameter lists
              */
             void assign_pdv_hosts();
+
+            /**
+             * Resets the stored info specific to meshes
+             */
+            void reset();
 
         private:
 

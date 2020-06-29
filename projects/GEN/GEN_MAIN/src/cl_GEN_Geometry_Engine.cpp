@@ -870,5 +870,15 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
+        void Geometry_Engine::reset()
+        {
+            mGeometryObjectManager = Geometry_Object_Manager();
+            mPdvHostManager = Pdv_Host_Manager();
+            mInterfaceNodeIndices = Matrix<IndexMat>();
+            mActiveGeometryIndex = 0;
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
     }   // end ge namespace
 }   // end moris namespace
