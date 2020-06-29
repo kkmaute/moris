@@ -7,21 +7,21 @@
 
 #ifndef SRC_FEM_CL_FEM_GEOMETRY_INTERPOLATOR_HPP_
 #define SRC_FEM_CL_FEM_GEOMETRY_INTERPOLATOR_HPP_
-
-#include "typedefs.hpp" //MRS/COR/src
-
-#include "cl_MTK_Enums.hpp" //MTK/src
-
-#include "cl_FEM_Enums.hpp"              //FEM/INT/src
-#include "cl_FEM_Interpolation_Rule.hpp" //FEM/INT/src
-
+//MRS/COR/src
+#include "typedefs.hpp"
+//MTK/src
+#include "cl_MTK_Enums.hpp"
+//FEM/INT/src
+#include "cl_FEM_Enums.hpp"
+#include "cl_FEM_Interpolation_Rule.hpp"
+//LINALG/src
 #include "linalg_typedefs.hpp"
-#include "cl_Matrix.hpp" //LINALG/src
-#include "op_times.hpp"  //LINALG/src
-#include "op_plus.hpp"   //LINALG/src
-#include "op_minus.hpp"  //LINALG/src
-#include "fn_trans.hpp"  //LINALG/src
-#include "fn_det.hpp"    //LINALG/src
+#include "cl_Matrix.hpp"
+#include "op_times.hpp"
+#include "op_plus.hpp"
+#include "op_minus.hpp"
+#include "fn_trans.hpp"
+#include "fn_det.hpp"
 
 namespace moris
 {
