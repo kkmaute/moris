@@ -127,7 +127,7 @@ namespace xtk
             {
                 tNumNewInterpCellsOwned++;
                 tNonTrivialOwnedInterpCells.push_back(tOwnedInterpCells(i));
-                aGhostSetupData.mSubphaseIndexToInterpolationCellIndex(tSubphase) = tCurrentNewInterpCellIndex;
+                aGhostSetupData.mSubphaseIndexToInterpolationCellIndex(tSubphase) = tOwnedInterpCells(i)->get_index();
                 tCurrentNewInterpCellIndex++;
             }
             else
@@ -164,7 +164,7 @@ namespace xtk
                 {
                     tNumNewInterpCellsNotOwned++;
                     tNonTrivialNotOwnedInterpCells(iP).push_back(tNotOwnedInterpCells(iP)(iC));
-                    aGhostSetupData.mSubphaseIndexToInterpolationCellIndex(tSubphase) = tCurrentNewInterpCellIndex;
+                    aGhostSetupData.mSubphaseIndexToInterpolationCellIndex(tSubphase) = tNotOwnedInterpCells(iP)(iC)->get_index();
                     tCurrentNewInterpCellIndex++;
                 }
                 else
@@ -234,8 +234,7 @@ namespace xtk
     }
     // ----------------------------------------------------------------------------------
     void
-    Ghost_Stabilization::prepare_ip_cell_id_answers(
-            Cell<Matrix<IndexMat>>                 & aReceivedEnrCellIds,
+    Ghost_Stabilization::prepare_ip_cell_id_answers( Cell<Matrix<IndexMat>> & aReceivedEnrCellIds,
             Cell<moris_id>         & aNewInterpCellIds,
             Cell<Matrix<IndexMat>> & aEnrCellIds,
             std::unordered_map<moris_id, moris_id> & aBaseEnrIdToIndexInNonTrivialOwned)
@@ -1333,6 +1332,7 @@ namespace xtk
             {
                 aPermutedSlaveVertices   = {aSlaveVertices(0),aSlaveVertices(3), aSlaveVertices(2), aSlaveVertices(1)};
                 aPermutedAdjMastVertices = {aMasterVertices(0),aMasterVertices(3), aMasterVertices(2), aMasterVertices(1)};
+	    break;
             }
         }
     }
