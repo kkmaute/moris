@@ -445,14 +445,14 @@ namespace moris
             uint tFirstPdvHostIndex = 0;
             if (mIpPdvHosts.size() > 0)
             {
-                while (tTestSensitivities.numel() == 0)
+                while (tFirstPdvHostIndex < mIpPdvHosts.size() && (tTestSensitivities.numel() == 0))
                 {
                     mIpPdvHosts(tFirstPdvHostIndex++)->get_all_sensitivities(tTestSensitivities);
                 }
             }
             else if (mIgPdvHosts.size() > 0)
             {
-                while (tTestSensitivities.numel() == 0)
+                while (tFirstPdvHostIndex < mIgPdvHosts.size() && (tTestSensitivities.numel() == 0))
                 {
                     mIgPdvHosts(tFirstPdvHostIndex++)->get_all_sensitivities(tTestSensitivities);
                 }

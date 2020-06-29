@@ -132,7 +132,6 @@ set(LIB_SOURCES
 # List library dependencies
 set(LIB_DEPENDENCIES
 	${COM}-lib
-	${INT}-lib
 	${LINALG}-lib
 	${MAP}-lib
 	${SDF}-lib
