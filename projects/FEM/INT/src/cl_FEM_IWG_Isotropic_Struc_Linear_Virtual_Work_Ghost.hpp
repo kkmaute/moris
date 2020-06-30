@@ -46,7 +46,7 @@ namespace moris
 
                 enum class IWG_Stabilization_Type
                 {
-                        GHOST_VW_1,
+                        GHOST_VW,
                         MAX_ENUM
                 };
 

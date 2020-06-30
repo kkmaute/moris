@@ -98,6 +98,7 @@ namespace moris
                                 default:
                                 {
                                     MORIS_ERROR(false, "Only full and deviatoric tensors implemented for plane stress");
+                                    break;
                                 }
                             }
                             break;
@@ -119,6 +120,7 @@ namespace moris
                                 default:
                                 {
                                     MORIS_ERROR(false, "Only full and deviatoric tensors implemented for plane strain");
+                                    break;
                                 }
                             }
                             break;
@@ -126,6 +128,7 @@ namespace moris
                         default:
                         {
                             MORIS_ERROR(false, "Linear isotropic elasticity in 2d requires plane stress or plane strain models");
+                            break;
                         }
                     }
                     break;
@@ -151,13 +154,15 @@ namespace moris
                         default:
                         {
                             MORIS_ERROR(false, "Only full and deviatoric tensors implemented for plane strain");
+                            break;
                         }
                     }
                     break;
                 }
                 default:
                 {
-                    MORIS_ERROR(false, "Linear isotropic elasticity implemented only for 2d and 3d");
+                    MORIS_ERROR( false, "Linear isotropic elasticity implemented only for 2d and 3d" );
+                    break;
                 }
             }
         }
@@ -687,7 +692,7 @@ namespace moris
             mSpaceDim = aSpaceDim;
 
             // set function pointers
-            set_function_pointers();
+            this->set_function_pointers();
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -704,8 +709,7 @@ namespace moris
             }
             else
             {
-                MORIS_ASSERT(
-                        false,
+                MORIS_ASSERT( false,
                         "CM_Struc_Linear_Isotropic::set_model_type - Specified linear isotropic elasticity model type doesn't exist." );
             }
 

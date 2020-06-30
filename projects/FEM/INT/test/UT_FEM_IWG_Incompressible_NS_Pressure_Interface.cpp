@@ -255,7 +255,7 @@ TEST_CASE( "IWG_Incompressible_NS_Pressure_Interface_Symmetric_Nitsche",
                     tIntegrationOrder,
                     mtk::Geometry_Type::LINE,
                     Integration_Type::GAUSS,
-                    fem::Integration_Order::BAR_2 );
+                    fem::Integration_Order::BAR_1 );
 
             // create an integrator
             fem::Integrator tIntegrator( tIntegrationRule );
@@ -657,7 +657,7 @@ TEST_CASE( "IWG_Incompressible_NS_Pressure_Interface_Unsymmetric_Nitsche",
                     tIntegrationOrder,
                     mtk::Geometry_Type::LINE,
                     Integration_Type::GAUSS,
-                    fem::Integration_Order::BAR_2 );
+                    fem::Integration_Order::BAR_1 );
 
             // create an integrator
             fem::Integrator tIntegrator( tIntegrationRule );

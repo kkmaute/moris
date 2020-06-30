@@ -10,30 +10,29 @@
 #include "cl_FEM_Set.hpp"
 #undef protected
 #undef private
-
 //MTK/src
 #include "cl_MTK_Enums.hpp"
-//FEM/INT/src
+//FEM//INT/src
 #include "cl_FEM_Enums.hpp"
 #include "cl_FEM_IWG_Factory.hpp"
 #include "cl_FEM_CM_Factory.hpp"
 #include "cl_FEM_SP_Factory.hpp"
-#include "FEM_Test_Proxy/cl_FEM_Inputs_for_NS_Incompressible_UT.cpp"
-//LINALG
+#include "FEM_Test_Proxy/cl_FEM_Inputs_for_Diffusion_UT.cpp"
+//LINALG/src
 #include "op_equal_equal.hpp"
 #include "fn_norm.hpp"
 
 using namespace moris;
 using namespace fem;
-/*
-This UT tests the pressure ghost IWG for incompressible NS
-for QUAD, HEX geometry type
-for LINEAR, QUADRATIC and CUBIC interpolation order
-*/
-TEST_CASE( "IWG_Incompressible_NS_Pressure_Ghost", "[IWG_Incompressible_NS_Pressure_Ghost]" )
+
+// This UT tests the isotropic spatial diffusion ghost IWG
+// for QUAD, HEX geometry type
+// for LINEAR, QUADRATIC and CUBIC interpolation order
+TEST_CASE( "IWG_Diff_Ghost", "[moris],[fem],[IWG_Diff_Ghost]" )
 {
+    // FIXME
     // define an epsilon environment
-    real tEpsilon = 1E-6;
+    real tEpsilon = 1E-5;
 
     // define a perturbation relative size
     real tPerturbation = 1E-6;
@@ -61,46 +60,34 @@ TEST_CASE( "IWG_Incompressible_NS_Pressure_Ghost", "[IWG_Incompressible_NS_Press
     Matrix< DDRMat > tNumCoeffs = {{ 8, 18, 32 },{ 16, 54, 128 }};
 
     // dof type list
-    moris::Cell< MSI::Dof_Type > tVelDofTypes  = { MSI::Dof_Type::VX };
-    moris::Cell< MSI::Dof_Type > tPDofTypes    = { MSI::Dof_Type::P };
-    moris::Cell< moris::Cell< MSI::Dof_Type > > tDofTypes = { tVelDofTypes, tPDofTypes };
+    moris::Cell< MSI::Dof_Type > tTempDofTypes  = { MSI::Dof_Type::TEMP };
+    moris::Cell< moris::Cell< MSI::Dof_Type > > tDofTypes = { tTempDofTypes };
 
     // init IWG
     //------------------------------------------------------------------------------
     // create the properties
-    std::shared_ptr< fem::Property > tPropMasterViscosity = std::make_shared< fem::Property >();
-    tPropMasterViscosity->set_parameters( { {{ 1.0 }} } );
-    tPropMasterViscosity->set_val_function( tConstValFunc );
-//    tPropMasterViscosity->set_dof_type_list( { tVelDofTypes } );
-//    tPropMasterViscosity->set_val_function( tVXFIValFunc );
-//    tPropMasterViscosity->set_dof_derivative_functions( { tVXFIDerFunc } );
-
-    std::shared_ptr< fem::Property > tPropMasterDensity = std::make_shared< fem::Property >();
-    tPropMasterDensity->set_parameters( { {{ 1.0 }} } );
-    tPropMasterDensity->set_val_function( tConstValFunc );
-//    tPropMasterDensity->set_dof_type_list( { tVelDofTypes } );
-//    tPropMasterDensity->set_val_function( tVXFIValFunc );
-//    tPropMasterDensity->set_dof_derivative_functions( { tVXFIDerFunc } );
+    std::shared_ptr< fem::Property > tPropMasterConductivity = std::make_shared< fem::Property > ();
+    tPropMasterConductivity->set_parameters( { {{ 1.0 }} } );
+    tPropMasterConductivity->set_val_function( tConstValFunc_Diff );
+    //        tPropMasterConductivity->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
+    //        tPropMasterConductivity->set_val_function( tTEMPFIValFunc_Diff );
+    //        tPropMasterConductivity->set_dof_derivative_functions( { tTEMPFIDerFunc_Diff } );
 
     // define stabilization parameters
     fem::SP_Factory tSPFactory;
-
-    std::shared_ptr< fem::Stabilization_Parameter > tSPPressureGhost =
-            tSPFactory.create_SP( fem::Stabilization_Type::PRESSURE_GHOST );
-    tSPPressureGhost->set_dof_type_list( { tVelDofTypes }, mtk::Master_Slave::MASTER );
-    tSPPressureGhost->set_parameters( { {{ 1.0 }}, {{ 1.0 }} });
-    tSPPressureGhost->set_property( tPropMasterViscosity, "Viscosity", mtk::Master_Slave::MASTER );
-    tSPPressureGhost->set_property( tPropMasterDensity, "Density", mtk::Master_Slave::MASTER );
+    std::shared_ptr< fem::Stabilization_Parameter > tSP =
+            tSPFactory.create_SP( fem::Stabilization_Type::GHOST_DISPL );
+    tSP->set_parameters( { {{ 1.0 }} });
+    tSP->set_property( tPropMasterConductivity, "Material", mtk::Master_Slave::MASTER );
 
     // define the IWGs
     fem::IWG_Factory tIWGFactory;
-
     std::shared_ptr< fem::IWG > tIWG =
-            tIWGFactory.create_IWG( fem::IWG_Type::INCOMPRESSIBLE_NS_PRESSURE_GHOST );
-    tIWG->set_residual_dof_type( tPDofTypes );
+            tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_GHOST );
+    tIWG->set_stabilization_parameter( tSP, "GhostDispl" );
+    tIWG->set_residual_dof_type( tTempDofTypes );
     tIWG->set_dof_type_list( tDofTypes, mtk::Master_Slave::MASTER );
     tIWG->set_dof_type_list( tDofTypes, mtk::Master_Slave::SLAVE );
-    tIWG->set_stabilization_parameter( tSPPressureGhost, "PressureGhost" );
 
     // init set info
     //------------------------------------------------------------------------------
@@ -113,18 +100,15 @@ TEST_CASE( "IWG_Incompressible_NS_Pressure_Ghost", "[IWG_Incompressible_NS_Press
 
     // set size and populate the set dof type map
     tIWG->mSet->mUniqueDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
-    tIWG->mSet->mUniqueDofTypeMap( static_cast< int >( MSI::Dof_Type::VX ) ) = 0;
-    tIWG->mSet->mUniqueDofTypeMap( static_cast< int >( MSI::Dof_Type::P ) )  = 1;
+    tIWG->mSet->mUniqueDofTypeMap( static_cast< int >( MSI::Dof_Type::TEMP ) ) = 0;
 
     // set size and populate the set master dof type map
     tIWG->mSet->mMasterDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
-    tIWG->mSet->mMasterDofTypeMap( static_cast< int >( MSI::Dof_Type::VX ) ) = 0;
-    tIWG->mSet->mMasterDofTypeMap( static_cast< int >( MSI::Dof_Type::P ) )  = 1;
+    tIWG->mSet->mMasterDofTypeMap( static_cast< int >( MSI::Dof_Type::TEMP ) ) = 0;
 
     // set size and populate the set slave dof type map
     tIWG->mSet->mSlaveDofTypeMap .set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
-    tIWG->mSet->mSlaveDofTypeMap ( static_cast< int >( MSI::Dof_Type::VX ) ) = 0;
-    tIWG->mSet->mSlaveDofTypeMap ( static_cast< int >( MSI::Dof_Type::P ) )  = 1;
+    tIWG->mSet->mSlaveDofTypeMap ( static_cast< int >( MSI::Dof_Type::TEMP ) ) = 0;
 
     // loop on the space dimension
     for( uint iSpaceDim = 2; iSpaceDim < 4; iSpaceDim++ )
@@ -147,13 +131,10 @@ TEST_CASE( "IWG_Incompressible_NS_Pressure_Ghost", "[IWG_Incompressible_NS_Press
 
                 // fill space coeff xHat
                 tXHat = {{ 0.0, 0.0 },
-                         { 1.0, 0.0 },
-                         { 1.0, 1.0 },
-                         { 0.0, 1.0 }};
-
-               // set velocity dof types
-               tVelDofTypes = { MSI::Dof_Type::VX, MSI::Dof_Type::VY };
-               break;
+                        { 1.0, 0.0 },
+                        { 1.0, 1.0 },
+                        { 0.0, 1.0 }};
+                break;
             }
             case 3 :
             {
@@ -162,16 +143,13 @@ TEST_CASE( "IWG_Incompressible_NS_Pressure_Ghost", "[IWG_Incompressible_NS_Press
 
                 // fill space coeff xHat
                 tXHat = {{ 0.0, 0.0, 0.0 },
-                         { 1.0, 0.0, 0.0 },
-                         { 1.0, 1.0, 0.0 },
-                         { 0.0, 1.0, 0.0 },
-                         { 0.0, 0.0, 1.0 },
-                         { 1.0, 0.0, 1.0 },
-                         { 1.0, 1.0, 1.0 },
-                         { 0.0, 1.0, 1.0 }};
-
-                // set velocity dof types
-                tVelDofTypes = { MSI::Dof_Type::VX, MSI::Dof_Type::VY, MSI::Dof_Type::VZ };
+                        { 1.0, 0.0, 0.0 },
+                        { 1.0, 1.0, 0.0 },
+                        { 0.0, 1.0, 0.0 },
+                        { 0.0, 0.0, 1.0 },
+                        { 1.0, 0.0, 1.0 },
+                        { 1.0, 1.0, 1.0 },
+                        { 0.0, 1.0, 1.0 }};
                 break;
             }
             default:
@@ -185,10 +163,10 @@ TEST_CASE( "IWG_Incompressible_NS_Pressure_Ghost", "[IWG_Incompressible_NS_Press
         //------------------------------------------------------------------------------
         // create a space geometry interpolation rule
         Interpolation_Rule tGIRule( tGeometryType,
-                                    Interpolation_Type::LAGRANGE,
-                                    mtk::Interpolation_Order::LINEAR,
-                                    Interpolation_Type::LAGRANGE,
-                                    mtk::Interpolation_Order::LINEAR );
+                Interpolation_Type::LAGRANGE,
+                mtk::Interpolation_Order::LINEAR,
+                Interpolation_Type::LAGRANGE,
+                mtk::Interpolation_Order::LINEAR );
 
         // create a space time geometry interpolator
         Geometry_Interpolator tGI = Geometry_Interpolator( tGIRule );
@@ -198,9 +176,6 @@ TEST_CASE( "IWG_Incompressible_NS_Pressure_Ghost", "[IWG_Incompressible_NS_Press
 
         // set the coefficients xHat, tHat
         tGI.set_coeff( tXHat, tTHat );
-
-        // set space dimension to CM, SP
-        tSPPressureGhost->set_space_dim( iSpaceDim );
 
         // loop on the interpolation order
         for( uint iInterpOrder = 1; iInterpOrder < 4; iInterpOrder++ )
@@ -235,80 +210,52 @@ TEST_CASE( "IWG_Incompressible_NS_Pressure_Ghost", "[IWG_Incompressible_NS_Press
             uint tNumCoeff = tNumCoeffs( iSpaceDim - 2, iInterpOrder - 1 );
 
             // get number of dof per type
-            int tNumDofVel  = tNumCoeff * iSpaceDim;
-            int tNumDofP    = tNumCoeff;
+            int tNumDofTemp = tNumCoeff;
 
             //create a space time interpolation rule
             Interpolation_Rule tFIRule ( tGeometryType,
-                                         Interpolation_Type::LAGRANGE,
-                                         tInterpolationOrder,
-                                         Interpolation_Type::LAGRANGE,
-                                         mtk::Interpolation_Order::LINEAR );
+                    Interpolation_Type::LAGRANGE,
+                    tInterpolationOrder,
+                    Interpolation_Type::LAGRANGE,
+                    mtk::Interpolation_Order::LINEAR );
 
             // fill coefficients for master FI
-            Matrix< DDRMat > tMasterDOFHatVel;;
-            fill_uhat( tMasterDOFHatVel, iSpaceDim, iInterpOrder );
-            tMasterDOFHatVel( 3, 1 ) = 1000 * tMasterDOFHatVel( 3, 1 );
-            Matrix< DDRMat > tMasterDOFHatP;
-            fill_phat( tMasterDOFHatP, iSpaceDim, iInterpOrder );
+            Matrix< DDRMat > tMasterDOFHatTemp;
+            fill_that( tMasterDOFHatTemp, iSpaceDim, iInterpOrder );
 
             // create a cell of field interpolators for IWG
             Cell< Field_Interpolator* > tMasterFIs( tDofTypes.size() );
 
-            // create the field interpolator velocity
-            tMasterFIs( 0 ) = new Field_Interpolator( iSpaceDim, tFIRule, &tGI, tVelDofTypes );
-            tMasterFIs( 0 )->set_coeff( tMasterDOFHatVel );
-
-            // create the field interpolator pressure
-            tMasterFIs( 1 ) = new Field_Interpolator( 1, tFIRule, &tGI, tPDofTypes );
-            tMasterFIs( 1 )->set_coeff( tMasterDOFHatP );
+            // create the field interpolator temperature
+            tMasterFIs( 0 ) = new Field_Interpolator( 1, tFIRule, &tGI, tTempDofTypes );
+            tMasterFIs( 0 )->set_coeff( tMasterDOFHatTemp );
 
             // fill random coefficients for slave FI
-            Matrix< DDRMat > tSlaveDOFHatVel;
-            fill_uhat( tSlaveDOFHatVel, iSpaceDim, iInterpOrder );
-            Matrix< DDRMat > tSlaveDOFHatP;
-            fill_phat( tSlaveDOFHatP, iSpaceDim, iInterpOrder );
+            Matrix< DDRMat > tSlaveDOFHatTemp;
+            fill_that( tSlaveDOFHatTemp, iSpaceDim, iInterpOrder );
 
             // create a cell of field interpolators for IWG
             Cell< Field_Interpolator* > tSlaveFIs( tDofTypes.size() );
 
-            // create the field interpolator velocity
-            tSlaveFIs( 0 ) = new Field_Interpolator( iSpaceDim, tFIRule, &tGI, tVelDofTypes );
-            tSlaveFIs( 0 )->set_coeff( tSlaveDOFHatVel );
-
-            // create the field interpolator pressure
-            tSlaveFIs( 1 ) = new Field_Interpolator( 1, tFIRule, &tGI, tPDofTypes );
-            tSlaveFIs( 1 )->set_coeff( tSlaveDOFHatP );
+            // create the field interpolator temperature
+            tSlaveFIs( 0 ) = new Field_Interpolator( 1, tFIRule, &tGI, tTempDofTypes );
+            tSlaveFIs( 0 )->set_coeff( tSlaveDOFHatTemp );
 
             // set size and fill the set residual assembly map
-            tIWG->mSet->mResDofAssemblyMap.resize( 4 );
-            tIWG->mSet->mResDofAssemblyMap( 0 ) = { { 0, tNumDofVel-1 } };
-            tIWG->mSet->mResDofAssemblyMap( 1 ) = { { tNumDofVel, tNumDofP + tNumDofVel - 1 } };
-            tIWG->mSet->mResDofAssemblyMap( 2 ) = { { tNumDofP + tNumDofVel, ( 2 * tNumDofVel ) + tNumDofP - 1 } };
-            tIWG->mSet->mResDofAssemblyMap( 3 ) = { { ( 2 * tNumDofVel ) + tNumDofP, ( 2 * ( tNumDofP + tNumDofVel ) ) - 1 } };
+            tIWG->mSet->mResDofAssemblyMap.resize( 2 * tDofTypes.size() );
+            tIWG->mSet->mResDofAssemblyMap( 0 ) = { { 0, tNumDofTemp - 1 } };
+            tIWG->mSet->mResDofAssemblyMap( 1 ) = { { tNumDofTemp, 2 * tNumDofTemp - 1 } };
 
             // set size and fill the set jacobian assembly map
-            Matrix< DDSMat > tJacAssembly = {
-                    { 0, tNumDofVel-1 },
-                    { tNumDofVel, tNumDofVel + tNumDofP - 1 },
-                    { tNumDofVel + tNumDofP, ( 2 * tNumDofVel ) + tNumDofP - 1 },
-                    { 2 * tNumDofVel + tNumDofP, 2 * ( tNumDofVel + tNumDofP ) - 1 } };
-            tIWG->mSet->mJacDofAssemblyMap.resize( 4 );
+            Matrix< DDSMat > tJacAssembly = { { 0, tNumDofTemp-1 }, { tNumDofTemp, 2 * tNumDofTemp - 1 } };
+            tIWG->mSet->mJacDofAssemblyMap.resize( 2 * tDofTypes.size() );
             tIWG->mSet->mJacDofAssemblyMap( 0 ) = tJacAssembly;
             tIWG->mSet->mJacDofAssemblyMap( 1 ) = tJacAssembly;
-            tIWG->mSet->mJacDofAssemblyMap( 2 ) = tJacAssembly;
-            tIWG->mSet->mJacDofAssemblyMap( 3 ) = tJacAssembly;
 
             // set size and init the set residual and jacobian
             tIWG->mSet->mResidual.resize( 1 );
-            tIWG->mSet->mResidual( 0 ).set_size(
-                    2 * ( tNumDofVel + tNumDofP ),
-                    1,
-                    0.0 );
-            tIWG->mSet->mJacobian.set_size(
-                    2 * ( tNumDofVel + tNumDofP ),
-                    2 * ( tNumDofVel + tNumDofP ),
-                    0.0 );
+            tIWG->mSet->mResidual( 0 ).set_size( 2 * tNumDofTemp, 1, 0.0 );
+            tIWG->mSet->mJacobian.set_size( 2 * tNumDofTemp, 2 * tNumDofTemp, 0.0 );
 
             // build global dof type list
             tIWG->get_global_dof_type_list();
@@ -393,4 +340,4 @@ TEST_CASE( "IWG_Incompressible_NS_Pressure_Ghost", "[IWG_Incompressible_NS_Press
             tSlaveFIs.clear();
         }
     }
-}/*END_TEST_CASE*/
+}/* END_TEST_CASE */

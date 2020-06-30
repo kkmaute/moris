@@ -222,7 +222,7 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Interface", "[IWG_Spalart_Allmaras_T
                     tIntegrationOrder,
                     mtk::Geometry_Type::LINE,
                     Integration_Type::GAUSS,
-                    fem::Integration_Order::BAR_2 );
+                    fem::Integration_Order::BAR_1 );
 
             // create an integrator
             fem::Integrator tIntegrator( tIntegrationRule );

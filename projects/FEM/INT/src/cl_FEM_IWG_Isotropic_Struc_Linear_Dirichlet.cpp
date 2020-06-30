@@ -110,8 +110,8 @@ namespace moris
             Field_Interpolator * tFIDispl = mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );
 
             // get the selection matrix property
-            std::shared_ptr< Property > tPropSelect
-            = mMasterProp( static_cast< uint >( IWG_Property_Type::SELECT ) );
+            std::shared_ptr< Property > tPropSelect =
+                    mMasterProp( static_cast< uint >( IWG_Property_Type::SELECT ) );
 
             // set a default selection matrix if needed
             Matrix< DDRMat > tM;
@@ -176,7 +176,7 @@ namespace moris
             if ( tPropSelect == nullptr )
             {
                 // get spatial dimension
-                uint tSpaceDim = tFIDispl->get_dof_type().size();
+                uint tSpaceDim = tFIDispl->get_number_of_fields();
 
                 // set selection matrix as identity
                 eye( tSpaceDim, tSpaceDim, tM );
@@ -253,7 +253,7 @@ namespace moris
                     mSet->get_jacobian()(
                             { tMasterResStartIndex, tMasterResStopIndex },
                             { tMasterDepStartIndex, tMasterDepStopIndex } ) += aWStar * (
-                            trans( tFIDispl->N() ) * tM * tJump * tSPNitsche->dSPdMasterDOF( tDofType ) );
+                                    trans( tFIDispl->N() ) * tM * tJump * tSPNitsche->dSPdMasterDOF( tDofType ) );
                 }
             }
         }

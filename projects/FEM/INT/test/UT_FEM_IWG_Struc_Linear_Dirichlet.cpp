@@ -1,471 +1,644 @@
 #include <string>
 #include <catch.hpp>
-
 #include "assert.hpp"
 
 #define protected public
 #define private   public
-#include "cl_FEM_Field_Interpolator_Manager.hpp"                   //FEM//INT//src
-#include "cl_FEM_IWG.hpp"         //FEM/INT/src
-#include "cl_FEM_Set.hpp"         //FEM/INT/src
+//FEM//INT//src
+#include "cl_FEM_Field_Interpolator_Manager.hpp"
+#include "cl_FEM_IWG.hpp"
+#include "cl_FEM_Set.hpp"
 #undef protected
 #undef private
-
-#include "cl_MTK_Enums.hpp" //MTK/src
-#include "cl_FEM_Enums.hpp"                                     //FEM//INT/src
-#include "cl_FEM_Field_Interpolator.hpp"                        //FEM//INT//src
-#include "cl_FEM_Property.hpp"                                  //FEM//INT//src
-#include "cl_FEM_SP_Factory.hpp"                                //FEM//INT//src
-#include "cl_FEM_CM_Factory.hpp"                                //FEM//INT//src
-#include "cl_FEM_IWG_Factory.hpp"                               //FEM//INT//src
-#include "cl_FEM_IWG_Isotropic_Struc_Linear_Dirichlet.hpp"      //FEM//INT//src
-
+//MTK/src
+#include "cl_MTK_Enums.hpp"
+//FEM//INT/src
+#include "cl_FEM_Enums.hpp"
+#include "cl_FEM_Field_Interpolator.hpp"
+#include "cl_FEM_Property.hpp"
+#include "cl_FEM_SP_Factory.hpp"
+#include "cl_FEM_CM_Factory.hpp"
+#include "cl_FEM_IWG_Factory.hpp"
+#include "FEM_Test_Proxy/cl_FEM_Inputs_for_Elasticity_UT.cpp"
+//LINALG/src
 #include "op_equal_equal.hpp"
-
-void tConstValFunction_STRUCDIRICHLET
-( moris::Matrix< moris::DDRMat >                 & aPropMatrix,
-  moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
-  moris::fem::Field_Interpolator_Manager         * aFIManager )
-{
-    aPropMatrix = aParameters( 0 );
-}
-
-void tGeoValFunction_STRUCDIRICHLET
-( moris::Matrix< moris::DDRMat >                 & aPropMatrix,
-  moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
-  moris::fem::Field_Interpolator_Manager         * aFIManager )
-{
-    aPropMatrix = aParameters( 0 ) * aFIManager->get_IP_geometry_interpolator()->valx()( 0 );
-}
-
-void tFIValFunction_STRUCDIRICHLET
-( moris::Matrix< moris::DDRMat >                 & aPropMatrix,
-  moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
-  moris::fem::Field_Interpolator_Manager         * aFIManager )
-{
-    aPropMatrix = aParameters( 0 ) + aParameters( 1 )( 0, 0 ) * ( aParameters( 2 ) - aFIManager->get_field_interpolators_for_type( moris::MSI::Dof_Type::UX )->val() );
-}
-
-void tFIDerFunction_STRUCDIRICHLET
-( moris::Matrix< moris::DDRMat >                 & aPropMatrix,
-  moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
-  moris::fem::Field_Interpolator_Manager         * aFIManager )
-{
-    aPropMatrix = -1.0 * aParameters( 1 )( 0, 0 ) * aFIManager->get_field_interpolators_for_type( moris::MSI::Dof_Type::UX )->N();
-}
-void tMValFunction_STRUCDIRICHLET
-( moris::Matrix< moris::DDRMat >                 & aPropMatrix,
-  moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
-  moris::fem::Field_Interpolator_Manager         * aFIManager )
-{
-    aPropMatrix = {{ aParameters( 0 )( 0 ), 0.0 },
-            { 0.0, aParameters( 0 )( 1 ) }};
-}
-
-void tMValFunction_STRUCDIRICHLET_3D
-( moris::Matrix< moris::DDRMat >                 & aPropMatrix,
-  moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
-  moris::fem::Field_Interpolator_Manager         * aFIManager )
-{
-    aPropMatrix = {{ aParameters( 0 )( 0 ), 0.0, 0.0 },
-            { 0.0, aParameters( 0 )( 1 ), 0.0 },
-            { 0.0, 0.0, aParameters( 0 )( 2 ) }};
-}
+#include "fn_norm.hpp"
 
 using namespace moris;
 using namespace fem;
 
-TEST_CASE( "IWG_Struc_Dirichlet_Const_Prop", "[moris],[fem],[IWG_Struc_Dirichlet_Const_Prop]" )
+TEST_CASE( "IWG_Struc_Dirichlet_Symmetric_Nitsche",
+        "[moris],[fem],[IWG_Struc_Dirichlet_Symmetric_Nitsche]" )
 {
     // define an epsilon environment
-    real tEpsilon = 1E-6;
+    real tEpsilon = 1E-5;
 
     // define aperturbation relative size
     real tPerturbation = 1E-6;
 
-    // create a linear elasticity Dirichlet IWG
+    // init geometry inputs
     //------------------------------------------------------------------------------
+    // create geometry type
+    mtk::Geometry_Type tGeometryType = mtk::Geometry_Type::UNDEFINED;
 
+    // create list of interpolation orders
+    moris::Cell< mtk::Interpolation_Order > tInterpolationOrders = {
+            mtk::Interpolation_Order::LINEAR,
+            mtk::Interpolation_Order::QUADRATIC,
+            mtk::Interpolation_Order::CUBIC };
+
+    // create list of integration orders
+    moris::Cell< fem::Integration_Order > tIntegrationOrders = {
+            fem::Integration_Order::QUAD_2x2,
+            fem::Integration_Order::HEX_2x2x2 };
+
+    // create list with number of coeffs
+    Matrix< DDRMat > tNumCoeffs = {{ 8, 18, 32 },{ 16, 54, 128 }};
+
+    // dof type list
+    moris::Cell< MSI::Dof_Type > tDispDofTypes  = { MSI::Dof_Type::UX };
+    moris::Cell< moris::Cell< MSI::Dof_Type > > tDofTypes = { tDispDofTypes };
+
+    // init IWG
+    //------------------------------------------------------------------------------
     // create the properties
     std::shared_ptr< fem::Property > tPropMasterEMod = std::make_shared< fem::Property >();
     tPropMasterEMod->set_parameters( {{{ 10.0 }}} );
-    tPropMasterEMod->set_val_function( tConstValFunction_STRUCDIRICHLET );
+    tPropMasterEMod->set_val_function( tConstValFunc_Elast );
 
     std::shared_ptr< fem::Property > tPropMasterNu = std::make_shared< fem::Property >();
     tPropMasterNu->set_parameters( {{{ 0.3 }}} );
-    tPropMasterNu->set_val_function( tConstValFunction_STRUCDIRICHLET );
+    tPropMasterNu->set_val_function( tConstValFunc_Elast );
 
     std::shared_ptr< fem::Property > tPropMasterDirichlet = std::make_shared< fem::Property >();
-    tPropMasterDirichlet->set_parameters( {{{ 0.0 }, { 0.0 }}} );
-    tPropMasterDirichlet->set_val_function( tConstValFunction_STRUCDIRICHLET );
+    tPropMasterDirichlet->set_val_function( tConstValFunc_Elast );
+
+    std::shared_ptr< fem::Property > tPropMasterSelect = std::make_shared< fem::Property >();
+    tPropMasterSelect->set_val_function( tMValFunc_Elast );
 
     // define constitutive models
     fem::CM_Factory tCMFactory;
 
-    std::shared_ptr< fem::Constitutive_Model > tCMMasterStrucLinIso = tCMFactory.create_CM( fem::Constitutive_Type::STRUC_LIN_ISO );
-    tCMMasterStrucLinIso->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY }} );
+    std::shared_ptr< fem::Constitutive_Model > tCMMasterStrucLinIso =
+            tCMFactory.create_CM( fem::Constitutive_Type::STRUC_LIN_ISO );
+    tCMMasterStrucLinIso->set_dof_type_list( { tDispDofTypes } );
     tCMMasterStrucLinIso->set_property( tPropMasterEMod, "YoungsModulus" );
     tCMMasterStrucLinIso->set_property( tPropMasterNu, "PoissonRatio" );
-    tCMMasterStrucLinIso->set_space_dim( 2 );
-    tCMMasterStrucLinIso->set_model_type(fem::Model_Type::PLANE_STRESS);
 
     // define stabilization parameters
     fem::SP_Factory tSPFactory;
 
-    std::shared_ptr< fem::Stabilization_Parameter > tSPDirichletNitsche = tSPFactory.create_SP( fem::Stabilization_Type::DIRICHLET_NITSCHE );
-    tSPDirichletNitsche->set_parameters( { {{ 1.0 }} } );
+    std::shared_ptr< fem::Stabilization_Parameter > tSPDirichletNitsche =
+            tSPFactory.create_SP( fem::Stabilization_Type::DIRICHLET_NITSCHE );
+    tSPDirichletNitsche->set_parameters( { {{ 100.0 }} } );
     tSPDirichletNitsche->set_property( tPropMasterEMod, "Material", mtk::Master_Slave::MASTER );
 
     // define the IWGs
     fem::IWG_Factory tIWGFactory;
 
-    std::shared_ptr< fem::IWG > tIWG = tIWGFactory.create_IWG( fem::IWG_Type::STRUC_LINEAR_DIRICHLET_SYMMETRIC_NITSCHE );
+    std::shared_ptr< fem::IWG > tIWG =
+            tIWGFactory.create_IWG( fem::IWG_Type::STRUC_LINEAR_DIRICHLET_SYMMETRIC_NITSCHE );
     tIWG->set_residual_dof_type( { MSI::Dof_Type::UX, MSI::Dof_Type::UY } );
     tIWG->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY }} );
     tIWG->set_stabilization_parameter( tSPDirichletNitsche, "DirichletNitsche" );
     tIWG->set_constitutive_model( tCMMasterStrucLinIso, "ElastLinIso" );
     tIWG->set_property( tPropMasterDirichlet, "Dirichlet" );
+    tIWG->set_property( tPropMasterSelect, "Select" );
 
-    // create evaluation point xi, tau
+    // init set info
     //------------------------------------------------------------------------------
-    Matrix< DDRMat > tParamPoint = {{ 1.0}, {0.25}, { 0.0}};
-
-    // set the normal
-    Matrix< DDRMat > tNormal = {{1.0},{0.0}};
-    tIWG->set_normal( tNormal );
-
-    // space and time geometry interpolators
-    //------------------------------------------------------------------------------
-    // create a space geometry interpolation rule
-    Interpolation_Rule tGIRule( mtk::Geometry_Type::QUAD,
-                                Interpolation_Type::LAGRANGE,
-                                mtk::Interpolation_Order::LINEAR,
-                                Interpolation_Type::CONSTANT,
-                                mtk::Interpolation_Order::CONSTANT );
-
-    // create a space time geometry interpolator
-    Geometry_Interpolator tGI = Geometry_Interpolator( tGIRule );
-
-    // create space coeff xHat
-    Matrix< DDRMat > tXHat = {{ 0.0, 0.0 },
-                              { 1.0, 0.0 },
-                              { 1.0, 1.0 },
-                              { 0.0, 1.0}};
-
-    // create time coeff tHat
-    Matrix< DDRMat > tTHat = {{ 0.0 }};
-
-    // set the coefficients xHat, tHat
-    tGI.set_coeff( tXHat, tTHat );
-
-    // set the evaluation point
-    tGI.set_space_time( tParamPoint );
-
-    // field interpolators
-    //------------------------------------------------------------------------------
-    //create a space time interpolation rule
-    Interpolation_Rule tFIRule ( mtk::Geometry_Type::QUAD,
-                                 Interpolation_Type::LAGRANGE,
-                                 mtk::Interpolation_Order::LINEAR,
-                                 Interpolation_Type::CONSTANT,
-                                 mtk::Interpolation_Order::CONSTANT );
-
-    // create random coefficients
-    arma::Mat< double > tMatrix;
-    tMatrix.randu( 4, 2 );
-    Matrix< DDRMat > tDOFHat;
-    tDOFHat.matrix_data() = 10.0 * tMatrix;
-
-    // create a cell of field interpolators for IWG
-    Cell< Field_Interpolator* > tFIs( 1 );
-
-    // create the field interpolator
-    tFIs( 0 ) = new Field_Interpolator( 2, tFIRule, &tGI,{ {MSI::Dof_Type::UX, MSI::Dof_Type::UY } } );
-
-    // set the coefficients uHat
-    tFIs( 0 )->set_coeff( tDOFHat );
-
-    //set the evaluation point xi, tau
-    tFIs( 0 )->set_space_time( tParamPoint );
-
     // set a fem set pointer
     MSI::Equation_Set * tSet = new fem::Set();
     tIWG->set_set_pointer( static_cast< fem::Set* >( tSet ) );
 
     // set size for the set EqnObjDofTypeList
-    tIWG->mSet->mUniqueDofTypeList.resize( 4, MSI::Dof_Type::END_ENUM );
+    tIWG->mSet->mUniqueDofTypeList.resize( 100, MSI::Dof_Type::END_ENUM );
 
     // set size and populate the set dof type map
     tIWG->mSet->mUniqueDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
     tIWG->mSet->mUniqueDofTypeMap( static_cast< int >( MSI::Dof_Type::UX ) ) = 0;
 
     // set size and populate the set master dof type map
-    tIWG->mSet->mMasterDofTypeMap.set_size( static_cast< int >(MSI::Dof_Type::END_ENUM) + 1, 1, -1 );
+    tIWG->mSet->mMasterDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
     tIWG->mSet->mMasterDofTypeMap( static_cast< int >( MSI::Dof_Type::UX ) ) = 0;
 
-    // set size and fill the set residual assembly map
-    tIWG->mSet->mResDofAssemblyMap.resize( 1 );
-    tIWG->mSet->mResDofAssemblyMap( 0 ) = { { 0, 7 } };
+    // loop on the space dimension
+    for( uint iSpaceDim = 2; iSpaceDim < 4; iSpaceDim++ )
+    {
+        // set geometry inputs
+        //------------------------------------------------------------------------------
+        // switch on space dimension
+        switch( iSpaceDim )
+        {
+            case 2 :
+            {
+                // set geometry type
+                tGeometryType = mtk::Geometry_Type::QUAD;
+                break;
+            }
+            case 3 :
+            {
+                // set geometry type
+                tGeometryType = mtk::Geometry_Type::HEX;
+                break;
+            }
+            default:
+            {
+                MORIS_ERROR( false, " QUAD or HEX only." );
+                break;
+            }
+        }
 
-    // set size and fill the set jacobian assembly map
-    tIWG->mSet->mJacDofAssemblyMap.resize( 1 );
-    tIWG->mSet->mJacDofAssemblyMap( 0 ) = { { 0, 7 } };
+        // set normal
+        Matrix< DDRMat > tNormal( iSpaceDim, 1, 0.5 );
+        tNormal = tNormal / norm( tNormal );
+        tIWG->set_normal( tNormal );
 
-    // set size and init the set residual and jacobian
-    tIWG->mSet->mResidual.resize( 1 );
-    tIWG->mSet->mResidual( 0 ).set_size( 8, 1, 0.0 );
-    tIWG->mSet->mJacobian.set_size( 8, 8, 0.0 );
+        // set selection matrix parameters
+        tPropMasterSelect->set_parameters( { {{ static_cast< real >( iSpaceDim ) }} } );
 
-    // build global dof type list
-    tIWG->get_global_dof_type_list();
+        // Dirichlet BC
+        Matrix< DDRMat > tImposedDisp( iSpaceDim, 1, 0.5 );
+        tPropMasterDirichlet->set_parameters( { tImposedDisp } );
 
-    // populate the requested master dof type
-    tIWG->mRequestedMasterGlobalDofTypes = {{ MSI::Dof_Type::UX }};
+        // set space dimension to CM, SP
+        tCMMasterStrucLinIso->set_space_dim( iSpaceDim );
+        tCMMasterStrucLinIso->set_model_type( fem::Model_Type::PLANE_STRESS );
 
-    // create a field interpolator manager
-    moris::Cell< moris::Cell< enum MSI::Dof_Type > > tDummy;
-    Field_Interpolator_Manager tFIManager( tDummy, tSet );
+        // loop on the interpolation order
+        for( uint iInterpOrder = 1; iInterpOrder < 4; iInterpOrder++ )
+        {
+            // create an interpolation order
+            mtk::Interpolation_Order tGIInterpolationOrder = tInterpolationOrders( iInterpOrder - 1 );
 
-    // populate the field interpolator manager
-    tFIManager.mFI = tFIs;
-    tFIManager.mIPGeometryInterpolator = &tGI;
-    tFIManager.mIGGeometryInterpolator = &tGI;
+            // space and time geometry interpolators
+            //------------------------------------------------------------------------------
+            // create a space geometry interpolation rule
+            Interpolation_Rule tGIRule( tGeometryType,
+                    Interpolation_Type::LAGRANGE,
+                    tGIInterpolationOrder,
+                    Interpolation_Type::LAGRANGE,
+                    mtk::Interpolation_Order::LINEAR );
 
-    // set the interpolator manager to the set
-    tIWG->mSet->mMasterFIManager = &tFIManager;
+            // create a space time geometry interpolator
+            Geometry_Interpolator tGI = Geometry_Interpolator( tGIRule );
 
-    // set IWG field interpolator manager
-    tIWG->set_field_interpolator_manager( &tFIManager );
+            // create time coeff tHat
+            Matrix< DDRMat > tTHat = {{ 0.0 }, { 1.0 }};
 
-    // check evaluation of the residual for IWG Helmholtz Bulk ?
-    //------------------------------------------------------------------------------
-    // evaluate the residual
-    tIWG->compute_residual( 1.0 );
+            Matrix< DDRMat > tXHat;
+            fill_xhat_Elast( tXHat, iSpaceDim, iInterpOrder );
 
-    // check evaluation of the jacobian by FD
-    //------------------------------------------------------------------------------
-    // init the jacobian for IWG and FD evaluation
-    Matrix< DDRMat > tJacobians;
-    Matrix< DDRMat > tJacobiansFD;
+            // set the coefficients xHat, tHat
+            tGI.set_coeff( tXHat, tTHat );
 
-    // check jacobian by FD
-    bool tCheckJacobian = tIWG->check_jacobian( tPerturbation,
-                                                tEpsilon,
-                                                1.0,
-                                                tJacobians,
-                                                tJacobiansFD );
+            // integration points
+            //------------------------------------------------------------------------------
+            // get an integration order
+            fem::Integration_Order tIntegrationOrder = tIntegrationOrders( iSpaceDim - 2 );
 
-    // require check is true
-    REQUIRE( tCheckJacobian );
+            // create an integration rule
+            fem::Integration_Rule tIntegrationRule(
+                    tGeometryType,
+                    Integration_Type::GAUSS,
+                    tIntegrationOrder,
+                    mtk::Geometry_Type::LINE,
+                    Integration_Type::GAUSS,
+                    fem::Integration_Order::BAR_1 );
 
-    // clean up
-    tFIs.clear();
+            // create an integrator
+            fem::Integrator tIntegrator( tIntegrationRule );
 
+            // get integration points
+            Matrix< DDRMat > tIntegPoints;
+            tIntegrator.get_points( tIntegPoints );
+
+            // field interpolators
+            //------------------------------------------------------------------------------
+            // create an interpolation order
+            mtk::Interpolation_Order tInterpolationOrder = tInterpolationOrders( iInterpOrder - 1 );
+
+            // number of dof for interpolation order
+            uint tNumCoeff = tNumCoeffs( iSpaceDim - 2, iInterpOrder - 1 );
+
+            // get number of dof per type
+            int tNumDofDisp  = tNumCoeff * iSpaceDim;
+
+            //create a space time interpolation rule
+            Interpolation_Rule tFIRule ( tGeometryType,
+                    Interpolation_Type::LAGRANGE,
+                    tInterpolationOrder,
+                    Interpolation_Type::LAGRANGE,
+                    mtk::Interpolation_Order::LINEAR );
+
+            // fill coefficients for master FI
+            Matrix< DDRMat > tMasterDofHatDisp;
+            fill_uhat_Elast( tMasterDofHatDisp, iSpaceDim, iInterpOrder );
+
+            // create a cell of field interpolators for IWG
+            Cell< Field_Interpolator* > tMasterFIs( tDofTypes.size() );
+
+            // create the field interpolator velocity
+            tMasterFIs( 0 ) = new Field_Interpolator( iSpaceDim, tFIRule, &tGI, tDispDofTypes );
+            tMasterFIs( 0 )->set_coeff( tMasterDofHatDisp );
+
+            // set size and fill the set residual assembly map
+            tIWG->mSet->mResDofAssemblyMap.resize( tDofTypes.size() );
+            tIWG->mSet->mResDofAssemblyMap( 0 ) = { { 0, tNumDofDisp-1 } };
+
+            // set size and fill the set jacobian assembly map
+            Matrix< DDSMat > tJacAssembly = { { 0, tNumDofDisp - 1 } };
+            tIWG->mSet->mJacDofAssemblyMap.resize( tDofTypes.size() );
+            tIWG->mSet->mJacDofAssemblyMap( 0 ) = tJacAssembly;
+
+            // set size and init the set residual and jacobian
+            tIWG->mSet->mResidual.resize( 1 );
+            tIWG->mSet->mResidual( 0 ).set_size( tNumDofDisp, 1, 0.0 );
+            tIWG->mSet->mJacobian.set_size( tNumDofDisp, tNumDofDisp, 0.0 );
+
+            // build global dof type list
+            tIWG->get_global_dof_type_list();
+
+            // populate the requested master dof type
+            tIWG->mRequestedMasterGlobalDofTypes = tDofTypes;
+
+            // create a field interpolator manager
+            moris::Cell< moris::Cell< enum PDV_Type > > tDummyDv;
+            Field_Interpolator_Manager tFIManager( tDofTypes, tDummyDv, tSet );
+
+            // populate the field interpolator manager
+            tFIManager.mFI = tMasterFIs;
+            tFIManager.mIPGeometryInterpolator = &tGI;
+            tFIManager.mIGGeometryInterpolator = &tGI;
+
+            // set the interpolator manager to the set
+            tIWG->mSet->mMasterFIManager = &tFIManager;
+
+            // set IWG field interpolator manager
+            tIWG->set_field_interpolator_manager( &tFIManager );
+
+            // loop iver integration points
+            uint tNumGPs = tIntegPoints.n_cols();
+            for( uint iGP = 0; iGP < tNumGPs; iGP ++ )
+            {
+                // reset IWG evaluation flags
+                tIWG->reset_eval_flags();
+
+                // create evaluation point xi, tau
+                Matrix< DDRMat > tParamPoint = tIntegPoints.get_column( iGP );
+
+                // set integration point
+                tIWG->mSet->mMasterFIManager->set_space_time( tParamPoint );
+
+                // check evaluation of the residual for IWG
+                //------------------------------------------------------------------------------
+                // reset residual
+                tIWG->mSet->mResidual( 0 ).fill( 0.0 );
+
+                // compute residual
+                tIWG->compute_residual( 1.0 );
+
+                // check evaluation of the jacobian by FD
+                //------------------------------------------------------------------------------
+                // reset jacobian
+                tIWG->mSet->mJacobian.fill( 0.0 );
+
+                // init the jacobian for IWG and FD evaluation
+                Matrix< DDRMat > tJacobian;
+                Matrix< DDRMat > tJacobianFD;
+
+                // check jacobian by FD
+                bool tCheckJacobian = tIWG->check_jacobian(
+                        tPerturbation,
+                        tEpsilon,
+                        1.0,
+                        tJacobian,
+                        tJacobianFD,
+                        true );
+
+                // print for debug
+                if( !tCheckJacobian )
+                {
+                    std::cout<<"Case: Geometry "<<iSpaceDim<<" Order "<<iInterpOrder<<"iGP "<<iGP<<std::endl;
+                }
+
+                // require check is true
+                REQUIRE( tCheckJacobian );
+            }
+
+            // clean up
+            tMasterFIs.clear();
+        }
+    }
 }/* END_TEST_CASE */
 
-TEST_CASE( "IWG_Struc_Dirichlet_Mixed_Displacement", "[IWG_Struc_Dirichlet_Mixed]" )
+TEST_CASE( "IWG_Struc_Dirichlet_Unsymmetric_Nitsche",
+        "[moris],[fem],[IWG_Struc_Dirichlet_Unsymmetric_Nitsche]" )
 {
     // define an epsilon environment
-    real tEpsilon = 1E-6;
+    real tEpsilon = 1E-5;
 
     // define aperturbation relative size
     real tPerturbation = 1E-6;
 
-    // create a linear elasticity Dirichlet IWG
+    // init geometry inputs
     //------------------------------------------------------------------------------
+    // create geometry type
+    mtk::Geometry_Type tGeometryType = mtk::Geometry_Type::UNDEFINED;
 
+    // create list of interpolation orders
+    moris::Cell< mtk::Interpolation_Order > tInterpolationOrders = {
+            mtk::Interpolation_Order::LINEAR,
+            mtk::Interpolation_Order::QUADRATIC,
+            mtk::Interpolation_Order::CUBIC };
+
+    // create list of integration orders
+    moris::Cell< fem::Integration_Order > tIntegrationOrders = {
+            fem::Integration_Order::QUAD_2x2,
+            fem::Integration_Order::HEX_2x2x2 };
+
+    // create list with number of coeffs
+    Matrix< DDRMat > tNumCoeffs = {{ 8, 18, 32 },{ 16, 54, 128 }};
+
+    // dof type list
+    moris::Cell< MSI::Dof_Type > tDispDofTypes  = { MSI::Dof_Type::UX };
+    moris::Cell< moris::Cell< MSI::Dof_Type > > tDofTypes = { tDispDofTypes };
+
+    // init IWG
+    //------------------------------------------------------------------------------
     // create the properties
     std::shared_ptr< fem::Property > tPropMasterEMod = std::make_shared< fem::Property >();
     tPropMasterEMod->set_parameters( {{{ 10.0 }}} );
-    tPropMasterEMod->set_val_function( tConstValFunction_STRUCDIRICHLET );
+    tPropMasterEMod->set_val_function( tConstValFunc_Elast );
 
     std::shared_ptr< fem::Property > tPropMasterNu = std::make_shared< fem::Property >();
     tPropMasterNu->set_parameters( {{{ 0.3 }}} );
-    tPropMasterNu->set_val_function( tConstValFunction_STRUCDIRICHLET );
+    tPropMasterNu->set_val_function( tConstValFunc_Elast );
 
     std::shared_ptr< fem::Property > tPropMasterDirichlet = std::make_shared< fem::Property >();
-    tPropMasterDirichlet->set_parameters( {{{ 0.0 }, { 0.0 }}} );
-    tPropMasterDirichlet->set_val_function( tConstValFunction_STRUCDIRICHLET );
+    tPropMasterDirichlet->set_val_function( tConstValFunc_Elast );
+
+    std::shared_ptr< fem::Property > tPropMasterSelect = std::make_shared< fem::Property >();
+    tPropMasterSelect->set_val_function( tMValFunc_Elast );
 
     // define constitutive models
     fem::CM_Factory tCMFactory;
 
-    std::shared_ptr< fem::Constitutive_Model > tCMMasterStrucLinIso = tCMFactory.create_CM( fem::Constitutive_Type::STRUC_LIN_ISO );
-    tCMMasterStrucLinIso->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY }, {MSI::Dof_Type::P}} );
+    std::shared_ptr< fem::Constitutive_Model > tCMMasterStrucLinIso =
+            tCMFactory.create_CM( fem::Constitutive_Type::STRUC_LIN_ISO );
+    tCMMasterStrucLinIso->set_dof_type_list( { tDispDofTypes } );
     tCMMasterStrucLinIso->set_property( tPropMasterEMod, "YoungsModulus" );
     tCMMasterStrucLinIso->set_property( tPropMasterNu, "PoissonRatio" );
-    tCMMasterStrucLinIso->set_space_dim( 2 );
-    tCMMasterStrucLinIso->set_model_type(fem::Model_Type::PLANE_STRESS);
-    tCMMasterStrucLinIso->set_model_type(fem::Model_Type::DEVIATORIC);
 
     // define stabilization parameters
     fem::SP_Factory tSPFactory;
 
-    std::shared_ptr< fem::Stabilization_Parameter > tSPDirichletNitsche = tSPFactory.create_SP( fem::Stabilization_Type::DIRICHLET_NITSCHE );
-    tSPDirichletNitsche->set_parameters( { {{ 1.0 }} } );
+    std::shared_ptr< fem::Stabilization_Parameter > tSPDirichletNitsche =
+            tSPFactory.create_SP( fem::Stabilization_Type::DIRICHLET_NITSCHE );
+    tSPDirichletNitsche->set_parameters( { {{ 100.0 }} } );
     tSPDirichletNitsche->set_property( tPropMasterEMod, "Material", mtk::Master_Slave::MASTER );
 
     // define the IWGs
     fem::IWG_Factory tIWGFactory;
 
-    std::shared_ptr< fem::IWG > tIWG = tIWGFactory.create_IWG( fem::IWG_Type::STRUC_LINEAR_DIRICHLET_SYMMETRIC_NITSCHE );
+    std::shared_ptr< fem::IWG > tIWG =
+            tIWGFactory.create_IWG( fem::IWG_Type::STRUC_LINEAR_DIRICHLET_UNSYMMETRIC_NITSCHE );
     tIWG->set_residual_dof_type( { MSI::Dof_Type::UX, MSI::Dof_Type::UY } );
-    tIWG->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY }, {MSI::Dof_Type::P}} );
+    tIWG->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY }} );
     tIWG->set_stabilization_parameter( tSPDirichletNitsche, "DirichletNitsche" );
     tIWG->set_constitutive_model( tCMMasterStrucLinIso, "ElastLinIso" );
     tIWG->set_property( tPropMasterDirichlet, "Dirichlet" );
+    tIWG->set_property( tPropMasterSelect, "Select" );
 
-    // create evaluation point xi, tau
+    // init set info
     //------------------------------------------------------------------------------
-    Matrix< DDRMat > tParamPoint = {{ 1.0}, {0.25}, { 0.0}};
-
-    // set the normal
-    Matrix< DDRMat > tNormal = {{1.0},{0.0}};
-    tIWG->set_normal( tNormal );
-
-    // space and time geometry interpolators
-    //------------------------------------------------------------------------------
-    // create a space geometry interpolation rule
-    Interpolation_Rule tGIRule( mtk::Geometry_Type::QUAD,
-                                Interpolation_Type::LAGRANGE,
-                                mtk::Interpolation_Order::LINEAR,
-                                Interpolation_Type::CONSTANT,
-                                mtk::Interpolation_Order::CONSTANT );
-
-    // create a space time geometry interpolator
-    Geometry_Interpolator tGI = Geometry_Interpolator( tGIRule );
-
-    // create space coeff xHat
-    Matrix< DDRMat > tXHat = {{ 0.0, 0.0 },
-                              { 1.0, 0.0 },
-                              { 1.0, 1.0 },
-                              { 0.0, 1.0}};
-
-    // create time coeff tHat
-    Matrix< DDRMat > tTHat = {{ 0.0 }};
-
-    // set the coefficients xHat, tHat
-    tGI.set_coeff( tXHat, tTHat );
-
-    // set the evaluation point
-    tGI.set_space_time( tParamPoint );
-
-    // field interpolators
-    //------------------------------------------------------------------------------
-    //create a space time interpolation rule
-    Interpolation_Rule tFIRule ( mtk::Geometry_Type::QUAD,
-                                 Interpolation_Type::LAGRANGE,
-                                 mtk::Interpolation_Order::LINEAR,
-                                 Interpolation_Type::CONSTANT,
-                                 mtk::Interpolation_Order::CONSTANT );
-
-    // create random coefficients
-    arma::Mat< double > tMatrix;
-    tMatrix.randu( 4, 2 );
-    Matrix< DDRMat > tDOFHat;
-    tDOFHat.matrix_data() = 10.0 * tMatrix;
-
-    arma::Mat< double > tMatrixP;
-    tMatrixP.randu( 4, 1 );
-    Matrix< DDRMat > tDOFHatP;
-    tDOFHatP.matrix_data() = 10.0 * tMatrixP;
-
-    // create a cell of field interpolators for IWG
-    Cell< Field_Interpolator* > tFIs( 2 );
-
-    // create the field interpolator
-    tFIs( 0 ) = new Field_Interpolator( 2, tFIRule, &tGI,{ {MSI::Dof_Type::UX, MSI::Dof_Type::UY } } );
-    tFIs( 1 ) = new Field_Interpolator( 1, tFIRule, &tGI,{ {MSI::Dof_Type::P} } );
-
-    // set the coefficients uHat
-    tFIs( 0 )->set_coeff( tDOFHat );
-    tFIs( 1 )->set_coeff( tDOFHatP );
-
-    //set the evaluation point xi, tau
-    tFIs( 0 )->set_space_time( tParamPoint );
-    tFIs( 1 )->set_space_time( tParamPoint );
-
     // set a fem set pointer
     MSI::Equation_Set * tSet = new fem::Set();
     tIWG->set_set_pointer( static_cast< fem::Set* >( tSet ) );
 
     // set size for the set EqnObjDofTypeList
-    tIWG->mSet->mUniqueDofTypeList.resize( 200, MSI::Dof_Type::END_ENUM );
+    tIWG->mSet->mUniqueDofTypeList.resize( 100, MSI::Dof_Type::END_ENUM );
 
     // set size and populate the set dof type map
     tIWG->mSet->mUniqueDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
     tIWG->mSet->mUniqueDofTypeMap( static_cast< int >( MSI::Dof_Type::UX ) ) = 0;
-    tIWG->mSet->mUniqueDofTypeMap( static_cast< int >( MSI::Dof_Type::P ) ) = 1;
 
     // set size and populate the set master dof type map
-    tIWG->mSet->mMasterDofTypeMap.set_size( static_cast< int >(MSI::Dof_Type::END_ENUM) + 1, 1, -1 );
+    tIWG->mSet->mMasterDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
     tIWG->mSet->mMasterDofTypeMap( static_cast< int >( MSI::Dof_Type::UX ) ) = 0;
-    tIWG->mSet->mMasterDofTypeMap( static_cast< int >( MSI::Dof_Type::P ) ) = 1;
 
-    // set size and fill the set residual assembly map
-    tIWG->mSet->mResDofAssemblyMap.resize( 2 );
-    tIWG->mSet->mResDofAssemblyMap( 0 ) = { { 0, 7 } };
-    tIWG->mSet->mResDofAssemblyMap( 1 ) = { { 0, 0 } };
+    // loop on the space dimension
+    for( uint iSpaceDim = 2; iSpaceDim < 4; iSpaceDim++ )
+    {
+        // set geometry inputs
+        //------------------------------------------------------------------------------
+        // switch on space dimension
+        switch( iSpaceDim )
+        {
+            case 2 :
+            {
+                // set geometry type
+                tGeometryType = mtk::Geometry_Type::QUAD;
+                break;
+            }
+            case 3 :
+            {
+                // set geometry type
+                tGeometryType = mtk::Geometry_Type::HEX;
+                break;
+            }
+            default:
+            {
+                MORIS_ERROR( false, " QUAD or HEX only." );
+                break;
+            }
+        }
 
-    // set size and fill the set jacobian assembly map
-    tIWG->mSet->mJacDofAssemblyMap.resize( 2 );
-    tIWG->mSet->mJacDofAssemblyMap( 0 ) = { { 0, 7 }, { 8, 11 } };
-    tIWG->mSet->mJacDofAssemblyMap( 1 ) = { { 0, 0 }, {0, 0} };
+        // set normal
+        Matrix< DDRMat > tNormal( iSpaceDim, 1, 0.5 );
+        tNormal = tNormal / norm( tNormal );
+        tIWG->set_normal( tNormal );
 
-    // set size and init the set residual and jacobian
-    tIWG->mSet->mResidual.resize( 1 );
-    tIWG->mSet->mResidual( 0 ).set_size( 8, 1, 0.0 );
-    tIWG->mSet->mJacobian.set_size( 8, 12, 0.0 );
+        // set selection matrix parameters
+        tPropMasterSelect->set_parameters( { {{ static_cast< real >( iSpaceDim ) }} } );
 
-    // build global dof type list
-    tIWG->get_global_dof_type_list();
+        // Dirichlet BC
+        Matrix< DDRMat > tImposedDisp( iSpaceDim, 1, 0.5 );
+        tPropMasterDirichlet->set_parameters( { tImposedDisp } );
 
-    // populate the requested master dof type
-    tIWG->mRequestedMasterGlobalDofTypes = {{ MSI::Dof_Type::UX }, {MSI::Dof_Type::P}};
+        // set space dimension to CM, SP
+        tCMMasterStrucLinIso->set_space_dim( iSpaceDim );
+        tCMMasterStrucLinIso->set_model_type( fem::Model_Type::PLANE_STRESS );
 
-    // create a field interpolator manager
-    moris::Cell< moris::Cell< enum MSI::Dof_Type > > tDummy;
-    Field_Interpolator_Manager tFIManager( tDummy, tSet );
+        // loop on the interpolation order
+        for( uint iInterpOrder = 1; iInterpOrder < 4; iInterpOrder++ )
+        {
+            // create an interpolation order
+            mtk::Interpolation_Order tGIInterpolationOrder = tInterpolationOrders( iInterpOrder - 1 );
 
-    // populate the field interpolator manager
-    tFIManager.mFI = tFIs;
-    tFIManager.mIPGeometryInterpolator = &tGI;
-    tFIManager.mIGGeometryInterpolator = &tGI;
+            // space and time geometry interpolators
+            //------------------------------------------------------------------------------
+            // create a space geometry interpolation rule
+            Interpolation_Rule tGIRule( tGeometryType,
+                    Interpolation_Type::LAGRANGE,
+                    tGIInterpolationOrder,
+                    Interpolation_Type::LAGRANGE,
+                    mtk::Interpolation_Order::LINEAR );
 
-    // set the interpolator manager to the set
-    tIWG->mSet->mMasterFIManager = &tFIManager;
+            // create a space time geometry interpolator
+            Geometry_Interpolator tGI = Geometry_Interpolator( tGIRule );
 
-    // set IWG field interpolator manager
-    tIWG->set_field_interpolator_manager( &tFIManager );
+            // create time coeff tHat
+            Matrix< DDRMat > tTHat = {{ 0.0 }, { 1.0 }};
 
-    // check evaluation of the residual for IWG Helmholtz Bulk ?
-    //------------------------------------------------------------------------------
-    // evaluate the residual
-    tIWG->compute_residual( 1.0 );
+            Matrix< DDRMat > tXHat;
+            fill_xhat_Elast( tXHat, iSpaceDim, iInterpOrder );
 
-    // check evaluation of the jacobian by FD
-    //------------------------------------------------------------------------------
-    // init the jacobian for IWG and FD evaluation
-    // init the jacobian for IWG and FD evaluation
-    Matrix< DDRMat > tJacobians;
-    Matrix< DDRMat > tJacobiansFD;
+            // set the coefficients xHat, tHat
+            tGI.set_coeff( tXHat, tTHat );
 
-    // check jacobian by FD
-    bool tCheckJacobian = tIWG->check_jacobian( tPerturbation,
-                                                tEpsilon,
-                                                1.0,
-                                                tJacobians,
-                                                tJacobiansFD );
+            // integration points
+            //------------------------------------------------------------------------------
+            // get an integration order
+            fem::Integration_Order tIntegrationOrder = tIntegrationOrders( iSpaceDim - 2 );
 
-    // require check is true
-    REQUIRE( tCheckJacobian );
+            // create an integration rule
+            fem::Integration_Rule tIntegrationRule(
+                    tGeometryType,
+                    Integration_Type::GAUSS,
+                    tIntegrationOrder,
+                    mtk::Geometry_Type::LINE,
+                    Integration_Type::GAUSS,
+                    fem::Integration_Order::BAR_1 );
 
-    // clean up
-    tFIs.clear();
+            // create an integrator
+            fem::Integrator tIntegrator( tIntegrationRule );
 
+            // get integration points
+            Matrix< DDRMat > tIntegPoints;
+            tIntegrator.get_points( tIntegPoints );
+
+            // field interpolators
+            //------------------------------------------------------------------------------
+            // create an interpolation order
+            mtk::Interpolation_Order tInterpolationOrder = tInterpolationOrders( iInterpOrder - 1 );
+
+            // number of dof for interpolation order
+            uint tNumCoeff = tNumCoeffs( iSpaceDim - 2, iInterpOrder - 1 );
+
+            // get number of dof per type
+            int tNumDofDisp  = tNumCoeff * iSpaceDim;
+
+            //create a space time interpolation rule
+            Interpolation_Rule tFIRule ( tGeometryType,
+                    Interpolation_Type::LAGRANGE,
+                    tInterpolationOrder,
+                    Interpolation_Type::LAGRANGE,
+                    mtk::Interpolation_Order::LINEAR );
+
+            // fill coefficients for master FI
+            Matrix< DDRMat > tMasterDofHatDisp;
+            fill_uhat_Elast( tMasterDofHatDisp, iSpaceDim, iInterpOrder );
+
+            // create a cell of field interpolators for IWG
+            Cell< Field_Interpolator* > tMasterFIs( tDofTypes.size() );
+
+            // create the field interpolator velocity
+            tMasterFIs( 0 ) = new Field_Interpolator( iSpaceDim, tFIRule, &tGI, tDispDofTypes );
+            tMasterFIs( 0 )->set_coeff( tMasterDofHatDisp );
+
+            // set size and fill the set residual assembly map
+            tIWG->mSet->mResDofAssemblyMap.resize( tDofTypes.size() );
+            tIWG->mSet->mResDofAssemblyMap( 0 ) = { { 0, tNumDofDisp-1 } };
+
+            // set size and fill the set jacobian assembly map
+            Matrix< DDSMat > tJacAssembly = { { 0, tNumDofDisp - 1 } };
+            tIWG->mSet->mJacDofAssemblyMap.resize( tDofTypes.size() );
+            tIWG->mSet->mJacDofAssemblyMap( 0 ) = tJacAssembly;
+
+            // set size and init the set residual and jacobian
+            tIWG->mSet->mResidual.resize( 1 );
+            tIWG->mSet->mResidual( 0 ).set_size( tNumDofDisp, 1, 0.0 );
+            tIWG->mSet->mJacobian.set_size( tNumDofDisp, tNumDofDisp, 0.0 );
+
+            // build global dof type list
+            tIWG->get_global_dof_type_list();
+
+            // populate the requested master dof type
+            tIWG->mRequestedMasterGlobalDofTypes = tDofTypes;
+
+            // create a field interpolator manager
+            moris::Cell< moris::Cell< enum PDV_Type > > tDummyDv;
+            Field_Interpolator_Manager tFIManager( tDofTypes, tDummyDv, tSet );
+
+            // populate the field interpolator manager
+            tFIManager.mFI = tMasterFIs;
+            tFIManager.mIPGeometryInterpolator = &tGI;
+            tFIManager.mIGGeometryInterpolator = &tGI;
+
+            // set the interpolator manager to the set
+            tIWG->mSet->mMasterFIManager = &tFIManager;
+
+            // set IWG field interpolator manager
+            tIWG->set_field_interpolator_manager( &tFIManager );
+
+            // loop iver integration points
+            uint tNumGPs = tIntegPoints.n_cols();
+            for( uint iGP = 0; iGP < tNumGPs; iGP ++ )
+            {
+                // reset IWG evaluation flags
+                tIWG->reset_eval_flags();
+
+                // create evaluation point xi, tau
+                Matrix< DDRMat > tParamPoint = tIntegPoints.get_column( iGP );
+
+                // set integration point
+                tIWG->mSet->mMasterFIManager->set_space_time( tParamPoint );
+
+                // check evaluation of the residual for IWG
+                //------------------------------------------------------------------------------
+                // reset residual
+                tIWG->mSet->mResidual( 0 ).fill( 0.0 );
+
+                // compute residual
+                tIWG->compute_residual( 1.0 );
+
+                // check evaluation of the jacobian by FD
+                //------------------------------------------------------------------------------
+                // reset jacobian
+                tIWG->mSet->mJacobian.fill( 0.0 );
+
+                // init the jacobian for IWG and FD evaluation
+                Matrix< DDRMat > tJacobian;
+                Matrix< DDRMat > tJacobianFD;
+
+                // check jacobian by FD
+                bool tCheckJacobian = tIWG->check_jacobian(
+                        tPerturbation,
+                        tEpsilon,
+                        1.0,
+                        tJacobian,
+                        tJacobianFD,
+                        true );
+
+                // print for debug
+                if( !tCheckJacobian )
+                {
+                    std::cout<<"Case: Geometry "<<iSpaceDim<<" Order "<<iInterpOrder<<"iGP "<<iGP<<std::endl;
+                }
+
+                // require check is true
+                REQUIRE( tCheckJacobian );
+            }
+
+            // clean up
+            tMasterFIs.clear();
+        }
+    }
 }/* END_TEST_CASE */
 
-TEST_CASE( "IWG_Struc_Dirichlet_Geo_Prop", "[moris],[fem],[IWG_Struc_Dirichlet_Geo_Prop]" )
+TEST_CASE( "IWG_Struc_Dirichlet_Mixed_Displacement_Symmetric_Nitsche",
+        "[IWG_Struc_Dirichlet_Mixed_Displacement_Symmetric_Nitsche]" )
 {
     // define an epsilon environment
     real tEpsilon = 1E-6;
@@ -473,186 +646,319 @@ TEST_CASE( "IWG_Struc_Dirichlet_Geo_Prop", "[moris],[fem],[IWG_Struc_Dirichlet_G
     // define aperturbation relative size
     real tPerturbation = 1E-6;
 
-    // create a linear elasticity Dirichlet IWG
+    // init geometry inputs
     //------------------------------------------------------------------------------
+    // create geometry type
+    mtk::Geometry_Type tGeometryType = mtk::Geometry_Type::UNDEFINED;
 
+    // create list of interpolation orders
+    moris::Cell< mtk::Interpolation_Order > tInterpolationOrders = {
+            mtk::Interpolation_Order::LINEAR,
+            mtk::Interpolation_Order::QUADRATIC,
+            mtk::Interpolation_Order::CUBIC };
+
+    // create list of integration orders
+    moris::Cell< fem::Integration_Order > tIntegrationOrders = {
+            fem::Integration_Order::QUAD_2x2,
+            fem::Integration_Order::HEX_2x2x2 };
+
+    // create list with number of coeffs
+    Matrix< DDRMat > tNumCoeffs = {{ 8, 18, 32 },{ 16, 54, 128 }};
+
+    // dof type list
+    moris::Cell< MSI::Dof_Type > tDispDofTypes  = { MSI::Dof_Type::UX };
+    moris::Cell< MSI::Dof_Type > tPDofTypes     = { MSI::Dof_Type::P };
+    moris::Cell< moris::Cell< MSI::Dof_Type > > tDofTypes = { tDispDofTypes, tPDofTypes };
+
+    // init IWG
+    //------------------------------------------------------------------------------
     // create the properties
     std::shared_ptr< fem::Property > tPropMasterEMod = std::make_shared< fem::Property >();
     tPropMasterEMod->set_parameters( {{{ 10.0 }}} );
-    tPropMasterEMod->set_val_function( tGeoValFunction_STRUCDIRICHLET );
+    tPropMasterEMod->set_val_function( tConstValFunc_Elast );
 
     std::shared_ptr< fem::Property > tPropMasterNu = std::make_shared< fem::Property >();
     tPropMasterNu->set_parameters( {{{ 0.3 }}} );
-    tPropMasterNu->set_val_function( tConstValFunction_STRUCDIRICHLET );
+    tPropMasterNu->set_val_function( tConstValFunc_Elast );
 
     std::shared_ptr< fem::Property > tPropMasterDirichlet = std::make_shared< fem::Property >();
-    tPropMasterDirichlet->set_parameters( {{{ 0.0 }, { 0.0 }}} );
-    tPropMasterDirichlet->set_val_function( tGeoValFunction_STRUCDIRICHLET );
+    tPropMasterDirichlet->set_val_function( tConstValFunc_Elast );
+
+    std::shared_ptr< fem::Property > tPropMasterSelect = std::make_shared< fem::Property >();
+    tPropMasterSelect->set_val_function( tMValFunc_Elast );
 
     // define constitutive models
     fem::CM_Factory tCMFactory;
 
-    std::shared_ptr< fem::Constitutive_Model > tCMMasterStrucLinIso = tCMFactory.create_CM( fem::Constitutive_Type::STRUC_LIN_ISO );
-    tCMMasterStrucLinIso->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY }} );
+    std::shared_ptr< fem::Constitutive_Model > tCMMasterStrucLinIso =
+            tCMFactory.create_CM( fem::Constitutive_Type::STRUC_LIN_ISO );
+    tCMMasterStrucLinIso->set_dof_type_list( tDofTypes, { "Displacement", "Pressure" } );
     tCMMasterStrucLinIso->set_property( tPropMasterEMod, "YoungsModulus" );
     tCMMasterStrucLinIso->set_property( tPropMasterNu, "PoissonRatio" );
-    tCMMasterStrucLinIso->set_space_dim( 2 );
-    tCMMasterStrucLinIso->set_model_type(fem::Model_Type::PLANE_STRESS);
 
     // define stabilization parameters
     fem::SP_Factory tSPFactory;
 
-    std::shared_ptr< fem::Stabilization_Parameter > tSPDirichletNitsche = tSPFactory.create_SP( fem::Stabilization_Type::DIRICHLET_NITSCHE );
+    std::shared_ptr< fem::Stabilization_Parameter > tSPDirichletNitsche =
+            tSPFactory.create_SP( fem::Stabilization_Type::DIRICHLET_NITSCHE );
     tSPDirichletNitsche->set_parameters( { {{ 1.0 }} } );
     tSPDirichletNitsche->set_property( tPropMasterEMod, "Material", mtk::Master_Slave::MASTER );
 
     // define the IWGs
     fem::IWG_Factory tIWGFactory;
 
-    std::shared_ptr< fem::IWG > tIWG = tIWGFactory.create_IWG( fem::IWG_Type::STRUC_LINEAR_DIRICHLET_SYMMETRIC_NITSCHE );
-    tIWG->set_residual_dof_type( { MSI::Dof_Type::UX, MSI::Dof_Type::UY } );
-    tIWG->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY }}, mtk::Master_Slave::MASTER );
+    std::shared_ptr< fem::IWG > tIWG =
+            tIWGFactory.create_IWG( fem::IWG_Type::STRUC_LINEAR_DIRICHLET_SYMMETRIC_NITSCHE );
+    tIWG->set_residual_dof_type( tDispDofTypes );
+    tIWG->set_dof_type_list( tDofTypes );
     tIWG->set_stabilization_parameter( tSPDirichletNitsche, "DirichletNitsche" );
     tIWG->set_constitutive_model( tCMMasterStrucLinIso, "ElastLinIso" );
     tIWG->set_property( tPropMasterDirichlet, "Dirichlet" );
+    tIWG->set_property( tPropMasterSelect, "Select" );
 
-    // create evaluation point xi, tau
+    // init set info
     //------------------------------------------------------------------------------
-    Matrix< DDRMat > tParamPoint = {{ 1.0}, {0.25}, { 0.0}};
-
-    // set the normal
-    Matrix< DDRMat > tNormal = {{1.0},{0.0}};
-    tIWG->set_normal( tNormal );
-
-    // space and time geometry interpolators
-    //------------------------------------------------------------------------------
-    // create a space geometry interpolation rule
-    Interpolation_Rule tGIRule( mtk::Geometry_Type::QUAD,
-                                Interpolation_Type::LAGRANGE,
-                                mtk::Interpolation_Order::LINEAR,
-                                Interpolation_Type::CONSTANT,
-                                mtk::Interpolation_Order::CONSTANT );
-
-    // create a space time geometry interpolator
-    Geometry_Interpolator tGI = Geometry_Interpolator( tGIRule );
-
-    // create space coeff xHat
-    Matrix< DDRMat > tXHat = {{ 0.0, 0.0 },
-                              { 1.0, 0.0 },
-                              { 1.0, 1.0 },
-                              { 0.0, 1.0}};
-
-    // create time coeff tHat
-    Matrix< DDRMat > tTHat = {{ 0.0 }};
-
-    // set the coefficients xHat, tHat
-    tGI.set_coeff( tXHat, tTHat );
-
-    // set the evaluation point
-    tGI.set_space_time( tParamPoint );
-
-    // field interpolators
-    //------------------------------------------------------------------------------
-    //create a space time interpolation rule
-    Interpolation_Rule tFIRule ( mtk::Geometry_Type::QUAD,
-                                 Interpolation_Type::LAGRANGE,
-                                 mtk::Interpolation_Order::LINEAR,
-                                 Interpolation_Type::CONSTANT,
-                                 mtk::Interpolation_Order::CONSTANT );
-
-    // create random coefficients
-    arma::Mat< double > tMatrix;
-    tMatrix.randu( 4, 2 );
-    Matrix< DDRMat > tDOFHat;
-    tDOFHat.matrix_data() = 10.0 * tMatrix;
-
-    // create a cell of field interpolators for IWG
-    Cell< Field_Interpolator* > tFIs( 1 );
-
-    // create the field interpolator
-    tFIs( 0 ) = new Field_Interpolator( 2, tFIRule, &tGI,{ {MSI::Dof_Type::UX, MSI::Dof_Type::UY } } );
-
-    // set the coefficients uHat
-    tFIs( 0 )->set_coeff( tDOFHat );
-
-    //set the evaluation point xi, tau
-    tFIs( 0 )->set_space_time( tParamPoint );
-
     // set a fem set pointer
     MSI::Equation_Set * tSet = new fem::Set();
     tIWG->set_set_pointer( static_cast< fem::Set* >( tSet ) );
 
     // set size for the set EqnObjDofTypeList
-    tIWG->mSet->mUniqueDofTypeList.resize( 4, MSI::Dof_Type::END_ENUM );
+    tIWG->mSet->mUniqueDofTypeList.resize( 100, MSI::Dof_Type::END_ENUM );
 
     // set size and populate the set dof type map
     tIWG->mSet->mUniqueDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
-    tIWG->mSet->mUniqueDofTypeMap( static_cast< int >( MSI::Dof_Type::UX ) ) = 0;
+    tIWG->mSet->mUniqueDofTypeMap( static_cast< int >( MSI::Dof_Type::UX ) )        = 0;
+    tIWG->mSet->mUniqueDofTypeMap( static_cast< int >( MSI::Dof_Type::P ) )         = 1;
 
     // set size and populate the set master dof type map
-    tIWG->mSet->mMasterDofTypeMap.set_size( static_cast< int >(MSI::Dof_Type::END_ENUM) + 1, 1, -1 );
-    tIWG->mSet->mMasterDofTypeMap( static_cast< int >( MSI::Dof_Type::UX ) ) = 0;
+    tIWG->mSet->mMasterDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
+    tIWG->mSet->mMasterDofTypeMap( static_cast< int >( MSI::Dof_Type::UX ) )        = 0;
+    tIWG->mSet->mMasterDofTypeMap( static_cast< int >( MSI::Dof_Type::P ) )         = 1;
 
-    // set size and fill the set residual assembly map
-    tIWG->mSet->mResDofAssemblyMap.resize( 1 );
-    tIWG->mSet->mResDofAssemblyMap( 0 ) = { { 0, 7 } };
+    // loop on the space dimension
+    for( uint iSpaceDim = 2; iSpaceDim < 4; iSpaceDim++ )
+    {
+        // set selection matrix parameters
+        tPropMasterSelect->set_parameters( { {{ static_cast< real >( iSpaceDim ) }} } );
 
-    // set size and fill the set jacobian assembly map
-    tIWG->mSet->mJacDofAssemblyMap.resize( 1 );
-    tIWG->mSet->mJacDofAssemblyMap( 0 ) = { { 0, 7 } };
+        // Dirichlet BC
+        Matrix< DDRMat > tImposedDisp( iSpaceDim, 1, 0.5 );
+        tPropMasterDirichlet->set_parameters( { tImposedDisp } );
 
-    // set size and init the set residual and jacobian
-    tIWG->mSet->mResidual.resize( 1 );
-    tIWG->mSet->mResidual( 0 ).set_size( 8, 1, 0.0 );
-    tIWG->mSet->mJacobian.set_size( 8, 8, 0.0 );
+        // set normal
+        Matrix< DDRMat > tNormal( iSpaceDim, 1, 0.5 );
+        tNormal = tNormal / norm( tNormal );
+        tIWG->set_normal( tNormal );
 
-    // build global dof type list
-    tIWG->get_global_dof_type_list();
+        // set geometry inputs
+        //------------------------------------------------------------------------------
+        // switch on space dimension
+        switch( iSpaceDim )
+        {
+            case 2 :
+            {
+                // set geometry type
+                tGeometryType = mtk::Geometry_Type::QUAD;
+                break;
+            }
+            case 3 :
+            {
+                // set geometry type
+                tGeometryType = mtk::Geometry_Type::HEX;
+                break;
+            }
+            default:
+            {
+                MORIS_ERROR( false, " QUAD or HEX only." );
+                break;
+            }
+        }
 
-    // populate the requested master dof type
-    tIWG->mRequestedMasterGlobalDofTypes = {{ MSI::Dof_Type::UX }};
+        // set space dimension to CM, SP
+        tCMMasterStrucLinIso->set_space_dim( iSpaceDim );
+        tCMMasterStrucLinIso->set_model_type(fem::Model_Type::PLANE_STRESS);
+        tCMMasterStrucLinIso->set_model_type(fem::Model_Type::DEVIATORIC);
 
-    // create a field interpolator manager
-    moris::Cell< moris::Cell< enum MSI::Dof_Type > > tDummy;
-    Field_Interpolator_Manager tFIManager( tDummy, tSet );
+        // loop on the interpolation order
+        for( uint iInterpOrder = 1; iInterpOrder < 4; iInterpOrder++ )
+        {
+            // create an interpolation order
+            mtk::Interpolation_Order tGIInterpolationOrder = tInterpolationOrders( iInterpOrder - 1 );
 
-    // populate the field interpolator manager
-    tFIManager.mFI = tFIs;
-    tFIManager.mIPGeometryInterpolator = &tGI;
-    tFIManager.mIGGeometryInterpolator = &tGI;
+            // space and time geometry interpolators
+            //------------------------------------------------------------------------------
+            // create a space geometry interpolation rule
+            Interpolation_Rule tGIRule( tGeometryType,
+                    Interpolation_Type::LAGRANGE,
+                    tGIInterpolationOrder,
+                    Interpolation_Type::LAGRANGE,
+                    mtk::Interpolation_Order::LINEAR );
 
-    // set the interpolator manager to the set
-    tIWG->mSet->mMasterFIManager = &tFIManager;
+            // create a space time geometry interpolator
+            Geometry_Interpolator tGI = Geometry_Interpolator( tGIRule );
 
-    // set IWG field interpolator manager
-    tIWG->set_field_interpolator_manager( &tFIManager );
+            // create time coeff tHat
+            Matrix< DDRMat > tTHat = {{ 0.0 }, { 1.0 }};
 
-    // check evaluation of the residual for IWG Helmholtz Bulk ?
-    //------------------------------------------------------------------------------
-    // evaluate the residual
-    tIWG->compute_residual( 1.0 );
+            Matrix< DDRMat > tXHat;
+            fill_xhat_Elast( tXHat, iSpaceDim, iInterpOrder );
 
-    // check evaluation of the jacobian by FD
-    //------------------------------------------------------------------------------
-    // init the jacobian for IWG and FD evaluation
-    Matrix< DDRMat > tJacobians;
-    Matrix< DDRMat > tJacobiansFD;
+            // set the coefficients xHat, tHat
+            tGI.set_coeff( tXHat, tTHat );
 
-    // check jacobian by FD
-    bool tCheckJacobian = tIWG->check_jacobian( tPerturbation,
-                                                tEpsilon,
-                                                1.0,
-                                                tJacobians,
-                                                tJacobiansFD );
-    // require check is true
-    REQUIRE( tCheckJacobian );
+            // integration points
+            //------------------------------------------------------------------------------
+            // get an integration order
+            fem::Integration_Order tIntegrationOrder = tIntegrationOrders( iSpaceDim - 2 );
 
-    // clean up
-    tFIs.clear();
+            // create an integration rule
+            fem::Integration_Rule tIntegrationRule(
+                    tGeometryType,
+                    Integration_Type::GAUSS,
+                    tIntegrationOrder,
+                    mtk::Geometry_Type::LINE,
+                    Integration_Type::GAUSS,
+                    fem::Integration_Order::BAR_1 );
 
+            // create an integrator
+            fem::Integrator tIntegrator( tIntegrationRule );
+
+            // get integration points
+            Matrix< DDRMat > tIntegPoints;
+            tIntegrator.get_points( tIntegPoints );
+
+            // field interpolators
+            //------------------------------------------------------------------------------
+            // create an interpolation order
+            mtk::Interpolation_Order tInterpolationOrder = tInterpolationOrders( iInterpOrder - 1 );
+
+            // number of dof for interpolation order
+            uint tNumCoeff = tNumCoeffs( iSpaceDim - 2, iInterpOrder - 1 );
+
+            // get number of dof per type
+            int tNumDofDisp  = tNumCoeff * iSpaceDim;
+            int tNumDofP     = tNumCoeff;
+
+            //create a space time interpolation rule
+            Interpolation_Rule tFIRule ( tGeometryType,
+                    Interpolation_Type::LAGRANGE,
+                    tInterpolationOrder,
+                    Interpolation_Type::LAGRANGE,
+                    mtk::Interpolation_Order::LINEAR );
+
+            // fill coefficients for master FI
+            Matrix< DDRMat > tMasterDofHatDisp;
+            fill_uhat_Elast( tMasterDofHatDisp, iSpaceDim, iInterpOrder );
+            Matrix< DDRMat > tMasterDofHatP;
+            fill_phat_Elast( tMasterDofHatP, iSpaceDim, iInterpOrder );
+
+            // create a cell of field interpolators for IWG
+            Cell< Field_Interpolator* > tMasterFIs( tDofTypes.size() );
+
+            // create the field interpolator velocity
+            tMasterFIs( 0 ) = new Field_Interpolator( iSpaceDim, tFIRule, &tGI, tDispDofTypes );
+            tMasterFIs( 0 )->set_coeff( tMasterDofHatDisp );
+
+            // create the field interpolator pressure
+            tMasterFIs( 1 ) = new Field_Interpolator( 1, tFIRule, &tGI, tPDofTypes );
+            tMasterFIs( 1 )->set_coeff( tMasterDofHatP );
+
+            // set size and fill the set residual assembly map
+            tIWG->mSet->mResDofAssemblyMap.resize( tDofTypes.size() );
+            tIWG->mSet->mResDofAssemblyMap( 0 ) = { { 0, tNumDofDisp-1 } };
+            tIWG->mSet->mResDofAssemblyMap( 1 ) = { { tNumDofDisp, tNumDofDisp + tNumDofP - 1 } };
+
+            // set size and fill the set jacobian assembly map
+            Matrix< DDSMat > tJacAssembly = {
+                    { 0, tNumDofDisp - 1 },
+                    { tNumDofDisp, tNumDofDisp + tNumDofP - 1 } };
+            tIWG->mSet->mJacDofAssemblyMap.resize( tDofTypes.size() );
+            tIWG->mSet->mJacDofAssemblyMap( 0 ) = tJacAssembly;
+            tIWG->mSet->mJacDofAssemblyMap( 1 ) = tJacAssembly;
+
+            // set size and init the set residual and jacobian
+            tIWG->mSet->mResidual.resize( 1 );
+            tIWG->mSet->mResidual( 0 ).set_size( tNumDofDisp + tNumDofP, 1, 0.0 );
+            tIWG->mSet->mJacobian.set_size( tNumDofDisp + tNumDofP, tNumDofDisp + tNumDofP, 0.0 );
+
+            // build global dof type list
+            tIWG->get_global_dof_type_list();
+
+            // populate the requested master dof type
+            tIWG->mRequestedMasterGlobalDofTypes = tDofTypes;
+
+            // create a field interpolator manager
+            moris::Cell< moris::Cell< enum PDV_Type > > tDummyDv;
+            Field_Interpolator_Manager tFIManager( tDofTypes, tDummyDv, tSet );
+
+            // populate the field interpolator manager
+            tFIManager.mFI = tMasterFIs;
+            tFIManager.mIPGeometryInterpolator = &tGI;
+            tFIManager.mIGGeometryInterpolator = &tGI;
+
+            // set the interpolator manager to the set
+            tIWG->mSet->mMasterFIManager = &tFIManager;
+
+            // set IWG field interpolator manager
+            tIWG->set_field_interpolator_manager( &tFIManager );
+
+            // loop iver integration points
+            uint tNumGPs = tIntegPoints.n_cols();
+            for( uint iGP = 0; iGP < tNumGPs; iGP ++ )
+            {
+                // reset IWG evaluation flags
+                tIWG->reset_eval_flags();
+
+                // create evaluation point xi, tau
+                Matrix< DDRMat > tParamPoint = tIntegPoints.get_column( iGP );
+
+                // set integration point
+                tIWG->mSet->mMasterFIManager->set_space_time( tParamPoint );
+
+                // check evaluation of the residual for IWG
+                //------------------------------------------------------------------------------
+                // reset residual
+                tIWG->mSet->mResidual( 0 ).fill( 0.0 );
+
+                // compute residual
+                tIWG->compute_residual( 1.0 );
+
+                // check evaluation of the jacobian by FD
+                //------------------------------------------------------------------------------
+                // reset jacobian
+                tIWG->mSet->mJacobian.fill( 0.0 );
+
+                // init the jacobian for IWG and FD evaluation
+                Matrix< DDRMat > tJacobian;
+                Matrix< DDRMat > tJacobianFD;
+
+                // check jacobian by FD
+                bool tCheckJacobian = tIWG->check_jacobian(
+                        tPerturbation,
+                        tEpsilon,
+                        1.0,
+                        tJacobian,
+                        tJacobianFD,
+                        true );
+
+                // print for debug
+                if( !tCheckJacobian )
+                {
+                    std::cout<<"Case: Geometry "<<iSpaceDim<<" Order "<<iInterpOrder<<"iGP "<<iGP<<std::endl;
+                }
+
+                // require check is true
+                REQUIRE( tCheckJacobian );
+            }
+
+            // clean up
+            tMasterFIs.clear();
+        }
+    }
 }/* END_TEST_CASE */
 
-TEST_CASE( "IWG_Struc_Dirichlet_Dof_Prop", "[moris],[fem],[IWG_Struc_Dirichlet_Dof_Prop]" )
+TEST_CASE( "IWG_Struc_Dirichlet_Mixed_Displacement_Unsymmetric_Nitsche",
+        "[IWG_Struc_Dirichlet_Mixed_Displacement_Unsymmetric_Nitsche]" )
 {
     // define an epsilon environment
     real tEpsilon = 1E-6;
@@ -660,188 +966,319 @@ TEST_CASE( "IWG_Struc_Dirichlet_Dof_Prop", "[moris],[fem],[IWG_Struc_Dirichlet_D
     // define aperturbation relative size
     real tPerturbation = 1E-6;
 
-    // create a linear elasticity Dirichlet IWG
+    // init geometry inputs
     //------------------------------------------------------------------------------
+    // create geometry type
+    mtk::Geometry_Type tGeometryType = mtk::Geometry_Type::UNDEFINED;
 
+    // create list of interpolation orders
+    moris::Cell< mtk::Interpolation_Order > tInterpolationOrders = {
+            mtk::Interpolation_Order::LINEAR,
+            mtk::Interpolation_Order::QUADRATIC,
+            mtk::Interpolation_Order::CUBIC };
+
+    // create list of integration orders
+    moris::Cell< fem::Integration_Order > tIntegrationOrders = {
+            fem::Integration_Order::QUAD_2x2,
+            fem::Integration_Order::HEX_2x2x2 };
+
+    // create list with number of coeffs
+    Matrix< DDRMat > tNumCoeffs = {{ 8, 18, 32 },{ 16, 54, 128 }};
+
+    // dof type list
+    moris::Cell< MSI::Dof_Type > tDispDofTypes  = { MSI::Dof_Type::UX };
+    moris::Cell< MSI::Dof_Type > tPDofTypes     = { MSI::Dof_Type::P };
+    moris::Cell< moris::Cell< MSI::Dof_Type > > tDofTypes = { tDispDofTypes, tPDofTypes };
+
+    // init IWG
+    //------------------------------------------------------------------------------
     // create the properties
     std::shared_ptr< fem::Property > tPropMasterEMod = std::make_shared< fem::Property >();
     tPropMasterEMod->set_parameters( {{{ 10.0 }}} );
-    tPropMasterEMod->set_val_function( tConstValFunction_STRUCDIRICHLET );
+    tPropMasterEMod->set_val_function( tConstValFunc_Elast );
 
     std::shared_ptr< fem::Property > tPropMasterNu = std::make_shared< fem::Property >();
     tPropMasterNu->set_parameters( {{{ 0.3 }}} );
-    tPropMasterNu->set_val_function( tConstValFunction_STRUCDIRICHLET );
+    tPropMasterNu->set_val_function( tConstValFunc_Elast );
 
     std::shared_ptr< fem::Property > tPropMasterDirichlet = std::make_shared< fem::Property >();
-    tPropMasterDirichlet->set_parameters( { {{ 1.0 },{ 1.0 }}, {{ 1.0 }}, {{ 1.0 },{ 1.0 }} } );
-    tPropMasterDirichlet->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY }} );
-    tPropMasterDirichlet->set_val_function( tFIValFunction_STRUCDIRICHLET );
-    tPropMasterDirichlet->set_dof_derivative_functions( { tFIDerFunction_STRUCDIRICHLET } );
+    tPropMasterDirichlet->set_val_function( tConstValFunc_Elast );
+
+    std::shared_ptr< fem::Property > tPropMasterSelect = std::make_shared< fem::Property >();
+    tPropMasterSelect->set_val_function( tMValFunc_Elast );
 
     // define constitutive models
     fem::CM_Factory tCMFactory;
 
-    std::shared_ptr< fem::Constitutive_Model > tCMMasterStrucLinIso = tCMFactory.create_CM( fem::Constitutive_Type::STRUC_LIN_ISO );
-    tCMMasterStrucLinIso->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY }} );
+    std::shared_ptr< fem::Constitutive_Model > tCMMasterStrucLinIso =
+            tCMFactory.create_CM( fem::Constitutive_Type::STRUC_LIN_ISO );
+    tCMMasterStrucLinIso->set_dof_type_list( tDofTypes, { "Displacement", "Pressure" } );
     tCMMasterStrucLinIso->set_property( tPropMasterEMod, "YoungsModulus" );
     tCMMasterStrucLinIso->set_property( tPropMasterNu, "PoissonRatio" );
-    tCMMasterStrucLinIso->set_space_dim( 2 );
-    tCMMasterStrucLinIso->set_model_type(fem::Model_Type::PLANE_STRESS);
 
     // define stabilization parameters
     fem::SP_Factory tSPFactory;
 
-    std::shared_ptr< fem::Stabilization_Parameter > tSPDirichletNitsche = tSPFactory.create_SP( fem::Stabilization_Type::DIRICHLET_NITSCHE );
+    std::shared_ptr< fem::Stabilization_Parameter > tSPDirichletNitsche =
+            tSPFactory.create_SP( fem::Stabilization_Type::DIRICHLET_NITSCHE );
     tSPDirichletNitsche->set_parameters( { {{ 1.0 }} } );
     tSPDirichletNitsche->set_property( tPropMasterEMod, "Material", mtk::Master_Slave::MASTER );
 
     // define the IWGs
     fem::IWG_Factory tIWGFactory;
 
-    std::shared_ptr< fem::IWG > tIWG = tIWGFactory.create_IWG( fem::IWG_Type::STRUC_LINEAR_DIRICHLET_SYMMETRIC_NITSCHE );
-    tIWG->set_residual_dof_type( { MSI::Dof_Type::UX, MSI::Dof_Type::UY } );
-    tIWG->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY }}, mtk::Master_Slave::MASTER );
+    std::shared_ptr< fem::IWG > tIWG =
+            tIWGFactory.create_IWG( fem::IWG_Type::STRUC_LINEAR_DIRICHLET_UNSYMMETRIC_NITSCHE );
+    tIWG->set_residual_dof_type( tDispDofTypes );
+    tIWG->set_dof_type_list( tDofTypes );
     tIWG->set_stabilization_parameter( tSPDirichletNitsche, "DirichletNitsche" );
     tIWG->set_constitutive_model( tCMMasterStrucLinIso, "ElastLinIso" );
     tIWG->set_property( tPropMasterDirichlet, "Dirichlet" );
+    tIWG->set_property( tPropMasterSelect, "Select" );
 
-    // create evaluation point xi, tau
+    // init set info
     //------------------------------------------------------------------------------
-    Matrix< DDRMat > tParamPoint = {{ 1.0}, {0.25}, { 0.0}};
-
-    // set the normal
-    Matrix< DDRMat > tNormal = {{1.0},{0.0}};
-    tIWG->set_normal( tNormal );
-
-    // space and time geometry interpolators
-    //------------------------------------------------------------------------------
-    // create a space geometry interpolation rule
-    Interpolation_Rule tGIRule( mtk::Geometry_Type::QUAD,
-                                Interpolation_Type::LAGRANGE,
-                                mtk::Interpolation_Order::LINEAR,
-                                Interpolation_Type::CONSTANT,
-                                mtk::Interpolation_Order::CONSTANT );
-
-    // create a space time geometry interpolator
-    Geometry_Interpolator tGI = Geometry_Interpolator( tGIRule );
-
-    // create space coeff xHat
-    Matrix< DDRMat > tXHat = {{ 0.0, 0.0 },
-                              { 1.0, 0.0 },
-                              { 1.0, 1.0 },
-                              { 0.0, 1.0}};
-
-    // create time coeff tHat
-    Matrix< DDRMat > tTHat = {{ 0.0 }};
-
-    // set the coefficients xHat, tHat
-    tGI.set_coeff( tXHat, tTHat );
-
-    // set the evaluation point
-    tGI.set_space_time( tParamPoint );
-
-    // field interpolators
-    //------------------------------------------------------------------------------
-    //create a space time interpolation rule
-    Interpolation_Rule tFIRule ( mtk::Geometry_Type::QUAD,
-                                 Interpolation_Type::LAGRANGE,
-                                 mtk::Interpolation_Order::LINEAR,
-                                 Interpolation_Type::CONSTANT,
-                                 mtk::Interpolation_Order::CONSTANT );
-
-    // create random coefficients
-    arma::Mat< double > tMatrix;
-    tMatrix.randu( 4, 2 );
-    Matrix< DDRMat > tDOFHat;
-    tDOFHat.matrix_data() = 10.0 * tMatrix;
-
-    // create a cell of field interpolators for IWG
-    Cell< Field_Interpolator* > tFIs( 1 );
-
-    // create the field interpolator
-    tFIs( 0 ) = new Field_Interpolator( 2, tFIRule, &tGI,{ {MSI::Dof_Type::UX, MSI::Dof_Type::UY } } );
-
-    // set the coefficients uHat
-    tFIs( 0 )->set_coeff( tDOFHat );
-
-    //set the evaluation point xi, tau
-    tFIs( 0 )->set_space_time( tParamPoint );
-
     // set a fem set pointer
     MSI::Equation_Set * tSet = new fem::Set();
     tIWG->set_set_pointer( static_cast< fem::Set* >( tSet ) );
 
     // set size for the set EqnObjDofTypeList
-    tIWG->mSet->mUniqueDofTypeList.resize( 4, MSI::Dof_Type::END_ENUM );
+    tIWG->mSet->mUniqueDofTypeList.resize( 100, MSI::Dof_Type::END_ENUM );
 
     // set size and populate the set dof type map
     tIWG->mSet->mUniqueDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
-    tIWG->mSet->mUniqueDofTypeMap( static_cast< int >( MSI::Dof_Type::UX ) ) = 0;
+    tIWG->mSet->mUniqueDofTypeMap( static_cast< int >( MSI::Dof_Type::UX ) )        = 0;
+    tIWG->mSet->mUniqueDofTypeMap( static_cast< int >( MSI::Dof_Type::P ) )         = 1;
 
     // set size and populate the set master dof type map
-    tIWG->mSet->mMasterDofTypeMap.set_size( static_cast< int >(MSI::Dof_Type::END_ENUM) + 1, 1, -1 );
-    tIWG->mSet->mMasterDofTypeMap( static_cast< int >( MSI::Dof_Type::UX ) ) = 0;
+    tIWG->mSet->mMasterDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
+    tIWG->mSet->mMasterDofTypeMap( static_cast< int >( MSI::Dof_Type::UX ) )        = 0;
+    tIWG->mSet->mMasterDofTypeMap( static_cast< int >( MSI::Dof_Type::P ) )         = 1;
 
-    // set size and fill the set residual assembly map
-    tIWG->mSet->mResDofAssemblyMap.resize( 1 );
-    tIWG->mSet->mResDofAssemblyMap( 0 ) = { { 0, 7 } };
+    // loop on the space dimension
+    for( uint iSpaceDim = 2; iSpaceDim < 4; iSpaceDim++ )
+    {
+        // set selection matrix parameters
+        tPropMasterSelect->set_parameters( { {{ static_cast< real >( iSpaceDim ) }} } );
 
-    // set size and fill the set jacobian assembly map
-    tIWG->mSet->mJacDofAssemblyMap.resize( 1 );
-    tIWG->mSet->mJacDofAssemblyMap( 0 ) = { { 0, 7 } };
+        // Dirichlet BC
+        Matrix< DDRMat > tImposedDisp( iSpaceDim, 1, 0.5 );
+        tPropMasterDirichlet->set_parameters( { tImposedDisp } );
 
-    // set size and init the set residual and jacobian
-    tIWG->mSet->mResidual.resize( 1 );
-    tIWG->mSet->mResidual( 0 ).set_size( 8, 1, 0.0 );
-    tIWG->mSet->mJacobian.set_size( 8, 8, 0.0 );
+        // set normal
+        Matrix< DDRMat > tNormal( iSpaceDim, 1, 0.5 );
+        tNormal = tNormal / norm( tNormal );
+        tIWG->set_normal( tNormal );
 
-    // build global dof type list
-    tIWG->get_global_dof_type_list();
+        // set geometry inputs
+        //------------------------------------------------------------------------------
+        // switch on space dimension
+        switch( iSpaceDim )
+        {
+            case 2 :
+            {
+                // set geometry type
+                tGeometryType = mtk::Geometry_Type::QUAD;
+                break;
+            }
+            case 3 :
+            {
+                // set geometry type
+                tGeometryType = mtk::Geometry_Type::HEX;
+                break;
+            }
+            default:
+            {
+                MORIS_ERROR( false, " QUAD or HEX only." );
+                break;
+            }
+        }
 
-    // populate the requested master dof type
-    tIWG->mRequestedMasterGlobalDofTypes = {{ MSI::Dof_Type::UX }};
+        // set space dimension to CM, SP
+        tCMMasterStrucLinIso->set_space_dim( iSpaceDim );
+        tCMMasterStrucLinIso->set_model_type( fem::Model_Type::PLANE_STRESS );
+        tCMMasterStrucLinIso->set_model_type( fem::Model_Type::DEVIATORIC );
 
-    // create a field interpolator manager
-    moris::Cell< moris::Cell< enum MSI::Dof_Type > > tDummy;
-    Field_Interpolator_Manager tFIManager( tDummy, tSet );
+        // loop on the interpolation order
+        for( uint iInterpOrder = 1; iInterpOrder < 4; iInterpOrder++ )
+        {
+            // create an interpolation order
+            mtk::Interpolation_Order tGIInterpolationOrder = tInterpolationOrders( iInterpOrder - 1 );
 
-    // populate the field interpolator manager
-    tFIManager.mFI = tFIs;
-    tFIManager.mIPGeometryInterpolator = &tGI;
-    tFIManager.mIGGeometryInterpolator = &tGI;
+            // space and time geometry interpolators
+            //------------------------------------------------------------------------------
+            // create a space geometry interpolation rule
+            Interpolation_Rule tGIRule( tGeometryType,
+                    Interpolation_Type::LAGRANGE,
+                    tGIInterpolationOrder,
+                    Interpolation_Type::LAGRANGE,
+                    mtk::Interpolation_Order::LINEAR );
 
-    // set the interpolator manager to the set
-    tIWG->mSet->mMasterFIManager = &tFIManager;
+            // create a space time geometry interpolator
+            Geometry_Interpolator tGI = Geometry_Interpolator( tGIRule );
 
-    // set IWG field interpolator manager
-    tIWG->set_field_interpolator_manager( &tFIManager );
+            // create time coeff tHat
+            Matrix< DDRMat > tTHat = {{ 0.0 }, { 1.0 }};
 
-    // check evaluation of the residual for IWG Helmholtz Bulk ?
-    //------------------------------------------------------------------------------
-    // evaluate the residual
-    tIWG->compute_residual( 1.0 );
+            Matrix< DDRMat > tXHat;
+            fill_xhat_Elast( tXHat, iSpaceDim, iInterpOrder );
 
-    // check evaluation of the jacobian by FD
-    //------------------------------------------------------------------------------
-    // init the jacobian for IWG and FD evaluation
-    Matrix< DDRMat > tJacobians;
-    Matrix< DDRMat > tJacobiansFD;
+            // set the coefficients xHat, tHat
+            tGI.set_coeff( tXHat, tTHat );
 
-    // check jacobian by FD
-    bool tCheckJacobian = tIWG->check_jacobian( tPerturbation,
-                                                tEpsilon,
-                                                1.0,
-                                                tJacobians,
-                                                tJacobiansFD );
-    // require check is true
-    REQUIRE( tCheckJacobian );
+            // integration points
+            //------------------------------------------------------------------------------
+            // get an integration order
+            fem::Integration_Order tIntegrationOrder = tIntegrationOrders( iSpaceDim - 2 );
 
-    // clean up
-    tFIs.clear();
+            // create an integration rule
+            fem::Integration_Rule tIntegrationRule(
+                    tGeometryType,
+                    Integration_Type::GAUSS,
+                    tIntegrationOrder,
+                    mtk::Geometry_Type::LINE,
+                    Integration_Type::GAUSS,
+                    fem::Integration_Order::BAR_1 );
 
+            // create an integrator
+            fem::Integrator tIntegrator( tIntegrationRule );
+
+            // get integration points
+            Matrix< DDRMat > tIntegPoints;
+            tIntegrator.get_points( tIntegPoints );
+
+            // field interpolators
+            //------------------------------------------------------------------------------
+            // create an interpolation order
+            mtk::Interpolation_Order tInterpolationOrder = tInterpolationOrders( iInterpOrder - 1 );
+
+            // number of dof for interpolation order
+            uint tNumCoeff = tNumCoeffs( iSpaceDim - 2, iInterpOrder - 1 );
+
+            // get number of dof per type
+            int tNumDofDisp  = tNumCoeff * iSpaceDim;
+            int tNumDofP     = tNumCoeff;
+
+            //create a space time interpolation rule
+            Interpolation_Rule tFIRule ( tGeometryType,
+                    Interpolation_Type::LAGRANGE,
+                    tInterpolationOrder,
+                    Interpolation_Type::LAGRANGE,
+                    mtk::Interpolation_Order::LINEAR );
+
+            // fill coefficients for master FI
+            Matrix< DDRMat > tMasterDofHatDisp;
+            fill_uhat_Elast( tMasterDofHatDisp, iSpaceDim, iInterpOrder );
+            Matrix< DDRMat > tMasterDofHatP;
+            fill_phat_Elast( tMasterDofHatP, iSpaceDim, iInterpOrder );
+
+            // create a cell of field interpolators for IWG
+            Cell< Field_Interpolator* > tMasterFIs( tDofTypes.size() );
+
+            // create the field interpolator velocity
+            tMasterFIs( 0 ) = new Field_Interpolator( iSpaceDim, tFIRule, &tGI, tDispDofTypes );
+            tMasterFIs( 0 )->set_coeff( tMasterDofHatDisp );
+
+            // create the field interpolator pressure
+            tMasterFIs( 1 ) = new Field_Interpolator( 1, tFIRule, &tGI, tPDofTypes );
+            tMasterFIs( 1 )->set_coeff( tMasterDofHatP );
+
+            // set size and fill the set residual assembly map
+            tIWG->mSet->mResDofAssemblyMap.resize( tDofTypes.size() );
+            tIWG->mSet->mResDofAssemblyMap( 0 ) = { { 0, tNumDofDisp-1 } };
+            tIWG->mSet->mResDofAssemblyMap( 1 ) = { { tNumDofDisp, tNumDofDisp + tNumDofP - 1 } };
+
+            // set size and fill the set jacobian assembly map
+            Matrix< DDSMat > tJacAssembly = {
+                    { 0, tNumDofDisp - 1 },
+                    { tNumDofDisp, tNumDofDisp + tNumDofP - 1 } };
+            tIWG->mSet->mJacDofAssemblyMap.resize( tDofTypes.size() );
+            tIWG->mSet->mJacDofAssemblyMap( 0 ) = tJacAssembly;
+            tIWG->mSet->mJacDofAssemblyMap( 1 ) = tJacAssembly;
+
+            // set size and init the set residual and jacobian
+            tIWG->mSet->mResidual.resize( 1 );
+            tIWG->mSet->mResidual( 0 ).set_size( tNumDofDisp + tNumDofP, 1, 0.0 );
+            tIWG->mSet->mJacobian.set_size( tNumDofDisp + tNumDofP, tNumDofDisp + tNumDofP, 0.0 );
+
+            // build global dof type list
+            tIWG->get_global_dof_type_list();
+
+            // populate the requested master dof type
+            tIWG->mRequestedMasterGlobalDofTypes = tDofTypes;
+
+            // create a field interpolator manager
+            moris::Cell< moris::Cell< enum PDV_Type > > tDummyDv;
+            Field_Interpolator_Manager tFIManager( tDofTypes, tDummyDv, tSet );
+
+            // populate the field interpolator manager
+            tFIManager.mFI = tMasterFIs;
+            tFIManager.mIPGeometryInterpolator = &tGI;
+            tFIManager.mIGGeometryInterpolator = &tGI;
+
+            // set the interpolator manager to the set
+            tIWG->mSet->mMasterFIManager = &tFIManager;
+
+            // set IWG field interpolator manager
+            tIWG->set_field_interpolator_manager( &tFIManager );
+
+            // loop iver integration points
+            uint tNumGPs = tIntegPoints.n_cols();
+            for( uint iGP = 0; iGP < tNumGPs; iGP ++ )
+            {
+                // reset IWG evaluation flags
+                tIWG->reset_eval_flags();
+
+                // create evaluation point xi, tau
+                Matrix< DDRMat > tParamPoint = tIntegPoints.get_column( iGP );
+
+                // set integration point
+                tIWG->mSet->mMasterFIManager->set_space_time( tParamPoint );
+
+                // check evaluation of the residual for IWG
+                //------------------------------------------------------------------------------
+                // reset residual
+                tIWG->mSet->mResidual( 0 ).fill( 0.0 );
+
+                // compute residual
+                tIWG->compute_residual( 1.0 );
+
+                // check evaluation of the jacobian by FD
+                //------------------------------------------------------------------------------
+                // reset jacobian
+                tIWG->mSet->mJacobian.fill( 0.0 );
+
+                // init the jacobian for IWG and FD evaluation
+                Matrix< DDRMat > tJacobian;
+                Matrix< DDRMat > tJacobianFD;
+
+                // check jacobian by FD
+                bool tCheckJacobian = tIWG->check_jacobian(
+                        tPerturbation,
+                        tEpsilon,
+                        1.0,
+                        tJacobian,
+                        tJacobianFD,
+                        true );
+
+                // print for debug
+                if( !tCheckJacobian )
+                {
+                    std::cout<<"Case: Geometry "<<iSpaceDim<<" Order "<<iInterpOrder<<"iGP "<<iGP<<std::endl;
+                }
+
+                // require check is true
+                REQUIRE( tCheckJacobian );
+            }
+
+            // clean up
+            tMasterFIs.clear();
+        }
+    }
 }/* END_TEST_CASE */
 
-TEST_CASE( "IWG_Struc_Dirichlet_Select", "[moris],[fem],[IWG_Struc_Dirichlet_Select]" )
+TEST_CASE( "IWG_Struc_Thermo_Elastic_Dirichlet_Symmetric_Nitsche",
+        "[moris],[fem],[IWG_Struc_Thermo_Elastic_Dirichlet_Symmetric_Nitsche]" )
 {
     // define an epsilon environment
     real tEpsilon = 1E-6;
@@ -849,193 +1286,329 @@ TEST_CASE( "IWG_Struc_Dirichlet_Select", "[moris],[fem],[IWG_Struc_Dirichlet_Sel
     // define aperturbation relative size
     real tPerturbation = 1E-6;
 
-    // create a linear elasticity Dirichlet IWG
+    // init geometry inputs
     //------------------------------------------------------------------------------
+    // create geometry type
+    mtk::Geometry_Type tGeometryType = mtk::Geometry_Type::UNDEFINED;
 
+    // create list of interpolation orders
+    moris::Cell< mtk::Interpolation_Order > tInterpolationOrders = {
+            mtk::Interpolation_Order::LINEAR,
+            mtk::Interpolation_Order::QUADRATIC,
+            mtk::Interpolation_Order::CUBIC };
+
+    // create list of integration orders
+    moris::Cell< fem::Integration_Order > tIntegrationOrders = {
+            fem::Integration_Order::QUAD_2x2,
+            fem::Integration_Order::HEX_2x2x2 };
+
+    // create list with number of coeffs
+    Matrix< DDRMat > tNumCoeffs = {{ 8, 18, 32 },{ 16, 54, 128 }};
+
+    // dof type list
+    moris::Cell< MSI::Dof_Type > tDispDofTypes = { MSI::Dof_Type::UX };
+    moris::Cell< MSI::Dof_Type > tTempDofTypes = { MSI::Dof_Type::TEMP };
+    moris::Cell< moris::Cell< MSI::Dof_Type > > tDofTypes = { tDispDofTypes, tTempDofTypes };
+
+    // init IWG
+    //------------------------------------------------------------------------------
     // create the properties
     std::shared_ptr< fem::Property > tPropMasterEMod = std::make_shared< fem::Property >();
     tPropMasterEMod->set_parameters( {{{ 10.0 }}} );
-    tPropMasterEMod->set_val_function( tConstValFunction_STRUCDIRICHLET );
+    tPropMasterEMod->set_val_function( tConstValFunc_Elast );
 
     std::shared_ptr< fem::Property > tPropMasterNu = std::make_shared< fem::Property >();
     tPropMasterNu->set_parameters( {{{ 0.3 }}} );
-    tPropMasterNu->set_val_function( tConstValFunction_STRUCDIRICHLET );
+    tPropMasterNu->set_val_function( tConstValFunc_Elast );
 
     std::shared_ptr< fem::Property > tPropMasterDirichlet = std::make_shared< fem::Property >();
-    tPropMasterDirichlet->set_parameters( { {{ 1.0 }, { 1.0 }}, {{ 1.0 }}, {{ 1.0 }, { 1.0 }} } );
-    tPropMasterDirichlet->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY }} );
-    tPropMasterDirichlet->set_val_function( tFIValFunction_STRUCDIRICHLET );
-    tPropMasterDirichlet->set_dof_derivative_functions( { tFIDerFunction_STRUCDIRICHLET } );
+    tPropMasterDirichlet->set_val_function( tConstValFunc_Elast );
 
-    std::shared_ptr< fem::Property > tPropMasterDirichlet2 = std::make_shared< fem::Property >();
-    tPropMasterDirichlet2->set_parameters( { {{ 1.0, 0.0 }} } );
-    tPropMasterDirichlet2->set_val_function( tMValFunction_STRUCDIRICHLET );
+    std::shared_ptr< fem::Property > tPropMasterSelect = std::make_shared< fem::Property >();
+    tPropMasterSelect->set_val_function( tMValFunc_Elast );
+
+    std::shared_ptr< fem::Property > tPropMasterCTE = std::make_shared< fem::Property >();
+    tPropMasterCTE->set_parameters( {{{ 1.0 }}} );
+    tPropMasterCTE->set_val_function( tConstValFunc_Elast );
+
+    std::shared_ptr< fem::Property > tPropMasterTRef = std::make_shared< fem::Property >();
+    tPropMasterTRef->set_parameters( {{{ 1.25 }}} );
+    tPropMasterTRef->set_val_function( tConstValFunc_Elast );
 
     // define constitutive models
     fem::CM_Factory tCMFactory;
 
-    std::shared_ptr< fem::Constitutive_Model > tCMMasterStrucLinIso = tCMFactory.create_CM( fem::Constitutive_Type::STRUC_LIN_ISO );
-    tCMMasterStrucLinIso->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY }} );
+    std::shared_ptr< fem::Constitutive_Model > tCMMasterStrucLinIso =
+            tCMFactory.create_CM( fem::Constitutive_Type::STRUC_LIN_ISO );
+    tCMMasterStrucLinIso->set_dof_type_list( tDofTypes, { "Displacement", "Temperature" } );
     tCMMasterStrucLinIso->set_property( tPropMasterEMod, "YoungsModulus" );
     tCMMasterStrucLinIso->set_property( tPropMasterNu, "PoissonRatio" );
-    tCMMasterStrucLinIso->set_space_dim( 2 );
-    tCMMasterStrucLinIso->set_model_type(fem::Model_Type::PLANE_STRESS);
+    tCMMasterStrucLinIso->set_property( tPropMasterCTE, "CTE" );
+    tCMMasterStrucLinIso->set_property( tPropMasterTRef, "ReferenceTemperature" );
 
     // define stabilization parameters
     fem::SP_Factory tSPFactory;
 
-    std::shared_ptr< fem::Stabilization_Parameter > tSPDirichletNitsche = tSPFactory.create_SP( fem::Stabilization_Type::DIRICHLET_NITSCHE );
+    std::shared_ptr< fem::Stabilization_Parameter > tSPDirichletNitsche =
+            tSPFactory.create_SP( fem::Stabilization_Type::DIRICHLET_NITSCHE );
     tSPDirichletNitsche->set_parameters( { {{ 1.0 }} } );
     tSPDirichletNitsche->set_property( tPropMasterEMod, "Material", mtk::Master_Slave::MASTER );
 
     // define the IWGs
     fem::IWG_Factory tIWGFactory;
 
-    std::shared_ptr< fem::IWG > tIWG = tIWGFactory.create_IWG( fem::IWG_Type::STRUC_LINEAR_DIRICHLET_SYMMETRIC_NITSCHE );
-    tIWG->set_residual_dof_type( { MSI::Dof_Type::UX, MSI::Dof_Type::UY } );
-    tIWG->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY }}, mtk::Master_Slave::MASTER );
+    std::shared_ptr< fem::IWG > tIWG =
+            tIWGFactory.create_IWG( fem::IWG_Type::STRUC_LINEAR_DIRICHLET_SYMMETRIC_NITSCHE );
+    tIWG->set_residual_dof_type( tDispDofTypes );
+    tIWG->set_dof_type_list( tDofTypes );
     tIWG->set_stabilization_parameter( tSPDirichletNitsche, "DirichletNitsche" );
     tIWG->set_constitutive_model( tCMMasterStrucLinIso, "ElastLinIso" );
     tIWG->set_property( tPropMasterDirichlet, "Dirichlet" );
-    tIWG->set_property( tPropMasterDirichlet2, "Select" );
+    tIWG->set_property( tPropMasterSelect, "Select" );
 
-    // create evaluation point xi, tau
+    // init set info
     //------------------------------------------------------------------------------
-    Matrix< DDRMat > tParamPoint = {{ 1.0}, {0.25}, { 0.0}};
-
-    // set the normal
-    Matrix< DDRMat > tNormal = {{1.0},{0.0}};
-    tIWG->set_normal( tNormal );
-
-    // space and time geometry interpolators
-    //------------------------------------------------------------------------------
-    // create a space geometry interpolation rule
-    Interpolation_Rule tGIRule( mtk::Geometry_Type::QUAD,
-                                Interpolation_Type::LAGRANGE,
-                                mtk::Interpolation_Order::LINEAR,
-                                Interpolation_Type::CONSTANT,
-                                mtk::Interpolation_Order::CONSTANT );
-
-    // create a space time geometry interpolator
-    Geometry_Interpolator tGI = Geometry_Interpolator( tGIRule );
-
-    // create space coeff xHat
-    Matrix< DDRMat > tXHat = {{ 0.0, 0.0 },
-                              { 1.0, 0.0 },
-                              { 1.0, 1.0 },
-                              { 0.0, 1.0}};
-
-    // create time coeff tHat
-    Matrix< DDRMat > tTHat = {{ 0.0 }};
-
-    // set the coefficients xHat, tHat
-    tGI.set_coeff( tXHat, tTHat );
-
-    // set the evaluation point
-    tGI.set_space_time( tParamPoint );
-
-    // field interpolators
-    //------------------------------------------------------------------------------
-    //create a space time interpolation rule
-    Interpolation_Rule tFIRule ( mtk::Geometry_Type::QUAD,
-                                 Interpolation_Type::LAGRANGE,
-                                 mtk::Interpolation_Order::LINEAR,
-                                 Interpolation_Type::CONSTANT,
-                                 mtk::Interpolation_Order::CONSTANT );
-
-    // create random coefficients
-    arma::Mat< double > tMatrix;
-    tMatrix.randu( 4, 2 );
-    Matrix< DDRMat > tDOFHat;
-    tDOFHat.matrix_data() = 10.0 * tMatrix;
-
-    // create a cell of field interpolators for IWG
-    Cell< Field_Interpolator* > tFIs( 1 );
-
-    // create the field interpolator
-    tFIs( 0 ) = new Field_Interpolator( 2, tFIRule, &tGI,{ {MSI::Dof_Type::UX, MSI::Dof_Type::UY } } );
-
-    // set the coefficients uHat
-    tFIs( 0 )->set_coeff( tDOFHat );
-
-    //set the evaluation point xi, tau
-    tFIs( 0 )->set_space_time( tParamPoint );
-
     // set a fem set pointer
     MSI::Equation_Set * tSet = new fem::Set();
     tIWG->set_set_pointer( static_cast< fem::Set* >( tSet ) );
 
     // set size for the set EqnObjDofTypeList
-    tIWG->mSet->mUniqueDofTypeList.resize( 4, MSI::Dof_Type::END_ENUM );
+    tIWG->mSet->mUniqueDofTypeList.resize( 100, MSI::Dof_Type::END_ENUM );
 
     // set size and populate the set dof type map
     tIWG->mSet->mUniqueDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
-    tIWG->mSet->mUniqueDofTypeMap( static_cast< int >( MSI::Dof_Type::UX ) ) = 0;
+    tIWG->mSet->mUniqueDofTypeMap( static_cast< int >( MSI::Dof_Type::UX ) )   = 0;
+    tIWG->mSet->mUniqueDofTypeMap( static_cast< int >( MSI::Dof_Type::TEMP ) ) = 1;
 
     // set size and populate the set master dof type map
-    tIWG->mSet->mMasterDofTypeMap.set_size( static_cast< int >(MSI::Dof_Type::END_ENUM) + 1, 1, -1 );
-    tIWG->mSet->mMasterDofTypeMap( static_cast< int >( MSI::Dof_Type::UX ) ) = 0;
+    tIWG->mSet->mMasterDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
+    tIWG->mSet->mMasterDofTypeMap( static_cast< int >( MSI::Dof_Type::UX ) )   = 0;
+    tIWG->mSet->mMasterDofTypeMap( static_cast< int >( MSI::Dof_Type::TEMP ) ) = 1;
 
-    // set size and fill the set residual assembly map
-    tIWG->mSet->mResDofAssemblyMap.resize( 1 );
-    tIWG->mSet->mResDofAssemblyMap( 0 ) = { { 0, 7 } };
+    // loop on the space dimension
+    for( uint iSpaceDim = 2; iSpaceDim < 4; iSpaceDim++ )
+    {
+        // set selection matrix parameters
+        tPropMasterSelect->set_parameters( { {{ static_cast< real >( iSpaceDim ) }} } );
 
-    // set size and fill the set jacobian assembly map
-    tIWG->mSet->mJacDofAssemblyMap.resize( 1 );
-    tIWG->mSet->mJacDofAssemblyMap( 0 ) = { { 0, 7 } };
+        // Dirichlet BC
+        Matrix< DDRMat > tImposedDisp( iSpaceDim, 1, 0.5 );
+        tPropMasterDirichlet->set_parameters( { tImposedDisp } );
 
-    // set size and init the set residual and jacobian
-    tIWG->mSet->mResidual.resize( 1 );
-    tIWG->mSet->mResidual( 0 ).set_size( 8, 1, 0.0 );
-    tIWG->mSet->mJacobian.set_size( 8, 8, 0.0 );
+        // set normal
+        Matrix< DDRMat > tNormal( iSpaceDim, 1, 0.5 );
+        tNormal = tNormal / norm( tNormal );
+        tIWG->set_normal( tNormal );
 
-    // build global dof type list
-    tIWG->get_global_dof_type_list();
+        // set geometry inputs
+        //------------------------------------------------------------------------------
+        // switch on space dimension
+        switch( iSpaceDim )
+        {
+            case 2 :
+            {
+                // set geometry type
+                tGeometryType = mtk::Geometry_Type::QUAD;
+                break;
+            }
+            case 3 :
+            {
+                // set geometry type
+                tGeometryType = mtk::Geometry_Type::HEX;
+                break;
+            }
+            default:
+            {
+                MORIS_ERROR( false, " QUAD or HEX only." );
+                break;
+            }
+        }
 
-    // populate the requested master dof type
-    tIWG->mRequestedMasterGlobalDofTypes = {{ MSI::Dof_Type::UX }};
+        // set space dimension to CM, SP
+        tCMMasterStrucLinIso->set_space_dim( iSpaceDim );
+        tCMMasterStrucLinIso->set_model_type( fem::Model_Type::PLANE_STRESS );
+        tCMMasterStrucLinIso->set_model_type( fem::Model_Type::DEVIATORIC );
 
-    // create a field interpolator manager
-    moris::Cell< moris::Cell< enum MSI::Dof_Type > > tDummy;
-    Field_Interpolator_Manager tFIManager( tDummy, tSet );
+        // loop on the interpolation order
+        for( uint iInterpOrder = 1; iInterpOrder < 4; iInterpOrder++ )
+        {
+            // create an interpolation order
+            mtk::Interpolation_Order tGIInterpolationOrder = tInterpolationOrders( iInterpOrder - 1 );
 
-    // populate the field interpolator manager
-    tFIManager.mFI = tFIs;
-    tFIManager.mIPGeometryInterpolator = &tGI;
-    tFIManager.mIGGeometryInterpolator = &tGI;
+            // space and time geometry interpolators
+            //------------------------------------------------------------------------------
+            // create a space geometry interpolation rule
+            Interpolation_Rule tGIRule( tGeometryType,
+                    Interpolation_Type::LAGRANGE,
+                    tGIInterpolationOrder,
+                    Interpolation_Type::LAGRANGE,
+                    mtk::Interpolation_Order::LINEAR );
 
-    // set the interpolator manager to the set
-    tIWG->mSet->mMasterFIManager = &tFIManager;
+            // create a space time geometry interpolator
+            Geometry_Interpolator tGI = Geometry_Interpolator( tGIRule );
 
-    // set IWG field interpolator manager
-    tIWG->set_field_interpolator_manager( &tFIManager );
+            // create time coeff tHat
+            Matrix< DDRMat > tTHat = {{ 0.0 }, { 1.0 }};
 
-    // check evaluation of the residual for IWG Helmholtz Bulk ?
-    //------------------------------------------------------------------------------
-    // evaluate the residual
-    tIWG->compute_residual( 1.0 );
+            Matrix< DDRMat > tXHat;
+            fill_xhat_Elast( tXHat, iSpaceDim, iInterpOrder );
 
-    // check evaluation of the jacobian by FD
-    //------------------------------------------------------------------------------
-    // init the jacobian for IWG and FD evaluation
-    Matrix< DDRMat > tJacobians;
-    Matrix< DDRMat > tJacobiansFD;
+            // set the coefficients xHat, tHat
+            tGI.set_coeff( tXHat, tTHat );
 
-    // check jacobian by FD
-    bool tCheckJacobian = tIWG->check_jacobian( tPerturbation,
-                                                tEpsilon,
-                                                1.0,
-                                                tJacobians,
-                                                tJacobiansFD );
-    // require check is true
-    REQUIRE( tCheckJacobian );
+            // integration points
+            //------------------------------------------------------------------------------
+            // get an integration order
+            fem::Integration_Order tIntegrationOrder = tIntegrationOrders( iSpaceDim - 2 );
 
-    // clean up
-    tFIs.clear();
+            // create an integration rule
+            fem::Integration_Rule tIntegrationRule(
+                    tGeometryType,
+                    Integration_Type::GAUSS,
+                    tIntegrationOrder,
+                    mtk::Geometry_Type::LINE,
+                    Integration_Type::GAUSS,
+                    fem::Integration_Order::BAR_1 );
 
+            // create an integrator
+            fem::Integrator tIntegrator( tIntegrationRule );
+
+            // get integration points
+            Matrix< DDRMat > tIntegPoints;
+            tIntegrator.get_points( tIntegPoints );
+
+            // field interpolators
+            //------------------------------------------------------------------------------
+            // create an interpolation order
+            mtk::Interpolation_Order tInterpolationOrder = tInterpolationOrders( iInterpOrder - 1 );
+
+            // number of dof for interpolation order
+            uint tNumCoeff = tNumCoeffs( iSpaceDim - 2, iInterpOrder - 1 );
+
+            // get number of dof per type
+            int tNumDofDisp  = tNumCoeff * iSpaceDim;
+            int tNumDofTemp  = tNumCoeff;
+
+            //create a space time interpolation rule
+            Interpolation_Rule tFIRule ( tGeometryType,
+                    Interpolation_Type::LAGRANGE,
+                    tInterpolationOrder,
+                    Interpolation_Type::LAGRANGE,
+                    mtk::Interpolation_Order::LINEAR );
+
+            // fill coefficients for master FI
+            Matrix< DDRMat > tMasterDofHatDisp;
+            fill_uhat_Elast( tMasterDofHatDisp, iSpaceDim, iInterpOrder );
+            Matrix< DDRMat > tMasterDofHatTemp;
+            fill_phat_Elast( tMasterDofHatTemp, iSpaceDim, iInterpOrder );
+
+            // create a cell of field interpolators for IWG
+            Cell< Field_Interpolator* > tMasterFIs( tDofTypes.size() );
+
+            // create the field interpolator velocity
+            tMasterFIs( 0 ) = new Field_Interpolator( iSpaceDim, tFIRule, &tGI, tDispDofTypes );
+            tMasterFIs( 0 )->set_coeff( tMasterDofHatDisp );
+
+            // create the field interpolator pressure
+            tMasterFIs( 1 ) = new Field_Interpolator( 1, tFIRule, &tGI, tTempDofTypes );
+            tMasterFIs( 1 )->set_coeff( tMasterDofHatTemp );
+
+            // set size and fill the set residual assembly map
+            tIWG->mSet->mResDofAssemblyMap.resize( tDofTypes.size() );
+            tIWG->mSet->mResDofAssemblyMap( 0 ) = { { 0, tNumDofDisp-1 } };
+            tIWG->mSet->mResDofAssemblyMap( 1 ) = { { tNumDofDisp, tNumDofDisp + tNumDofTemp - 1 } };
+
+            // set size and fill the set jacobian assembly map
+            Matrix< DDSMat > tJacAssembly = {
+                    { 0, tNumDofDisp - 1 },
+                    { tNumDofDisp, tNumDofDisp + tNumDofTemp - 1 } };
+            tIWG->mSet->mJacDofAssemblyMap.resize( tDofTypes.size() );
+            tIWG->mSet->mJacDofAssemblyMap( 0 ) = tJacAssembly;
+            tIWG->mSet->mJacDofAssemblyMap( 1 ) = tJacAssembly;
+
+            // set size and init the set residual and jacobian
+            tIWG->mSet->mResidual.resize( 1 );
+            tIWG->mSet->mResidual( 0 ).set_size( tNumDofDisp + tNumDofTemp, 1, 0.0 );
+            tIWG->mSet->mJacobian.set_size( tNumDofDisp + tNumDofTemp, tNumDofDisp + tNumDofTemp, 0.0 );
+
+            // build global dof type list
+            tIWG->get_global_dof_type_list();
+
+            // populate the requested master dof type
+            tIWG->mRequestedMasterGlobalDofTypes = tDofTypes;
+
+            // create a field interpolator manager
+            moris::Cell< moris::Cell< enum PDV_Type > > tDummyDv;
+            Field_Interpolator_Manager tFIManager( tDofTypes, tDummyDv, tSet );
+
+            // populate the field interpolator manager
+            tFIManager.mFI = tMasterFIs;
+            tFIManager.mIPGeometryInterpolator = &tGI;
+            tFIManager.mIGGeometryInterpolator = &tGI;
+
+            // set the interpolator manager to the set
+            tIWG->mSet->mMasterFIManager = &tFIManager;
+
+            // set IWG field interpolator manager
+            tIWG->set_field_interpolator_manager( &tFIManager );
+
+            // loop iver integration points
+            uint tNumGPs = tIntegPoints.n_cols();
+            for( uint iGP = 0; iGP < tNumGPs; iGP ++ )
+            {
+                // reset IWG evaluation flags
+                tIWG->reset_eval_flags();
+
+                // create evaluation point xi, tau
+                Matrix< DDRMat > tParamPoint = tIntegPoints.get_column( iGP );
+
+                // set integration point
+                tIWG->mSet->mMasterFIManager->set_space_time( tParamPoint );
+
+                // check evaluation of the residual for IWG
+                //------------------------------------------------------------------------------
+                // reset residual
+                tIWG->mSet->mResidual( 0 ).fill( 0.0 );
+
+                // compute residual
+                tIWG->compute_residual( 1.0 );
+
+                // check evaluation of the jacobian by FD
+                //------------------------------------------------------------------------------
+                // reset jacobian
+                tIWG->mSet->mJacobian.fill( 0.0 );
+
+                // init the jacobian for IWG and FD evaluation
+                Matrix< DDRMat > tJacobian;
+                Matrix< DDRMat > tJacobianFD;
+
+                // check jacobian by FD
+                bool tCheckJacobian = tIWG->check_jacobian(
+                        tPerturbation,
+                        tEpsilon,
+                        1.0,
+                        tJacobian,
+                        tJacobianFD,
+                        true );
+
+                // print for debug
+                if( !tCheckJacobian )
+                {
+                    std::cout<<"Case: Geometry "<<iSpaceDim<<" Order "<<iInterpOrder<<"iGP "<<iGP<<std::endl;
+                }
+
+                // require check is true
+                REQUIRE( tCheckJacobian );
+            }
+
+            // clean up
+            tMasterFIs.clear();
+        }
+    }
 }/* END_TEST_CASE */
 
-TEST_CASE( "IWG_Struc_Dirichlet_Const_Prop_3D", "[moris],[fem],[IWG_Struc_Dirichlet_Const_Prop_3D]" )
+TEST_CASE( "IWG_Struc_Thermo_Elastic_Dirichlet_Unsymmetric_Nitsche",
+        "[moris],[fem],[IWG_Struc_Thermo_Elastic_Dirichlet_Unsymmetric_Nitsche]" )
 {
     // define an epsilon environment
     real tEpsilon = 1E-6;
@@ -1043,572 +1616,324 @@ TEST_CASE( "IWG_Struc_Dirichlet_Const_Prop_3D", "[moris],[fem],[IWG_Struc_Dirich
     // define aperturbation relative size
     real tPerturbation = 1E-6;
 
-    // create a linear elasticity Dirichlet IWG
+    // init geometry inputs
     //------------------------------------------------------------------------------
+    // create geometry type
+    mtk::Geometry_Type tGeometryType = mtk::Geometry_Type::UNDEFINED;
 
+    // create list of interpolation orders
+    moris::Cell< mtk::Interpolation_Order > tInterpolationOrders = {
+            mtk::Interpolation_Order::LINEAR,
+            mtk::Interpolation_Order::QUADRATIC,
+            mtk::Interpolation_Order::CUBIC };
+
+    // create list of integration orders
+    moris::Cell< fem::Integration_Order > tIntegrationOrders = {
+            fem::Integration_Order::QUAD_2x2,
+            fem::Integration_Order::HEX_2x2x2 };
+
+    // create list with number of coeffs
+    Matrix< DDRMat > tNumCoeffs = {{ 8, 18, 32 },{ 16, 54, 128 }};
+
+    // dof type list
+    moris::Cell< MSI::Dof_Type > tDispDofTypes = { MSI::Dof_Type::UX };
+    moris::Cell< MSI::Dof_Type > tTempDofTypes = { MSI::Dof_Type::TEMP };
+    moris::Cell< moris::Cell< MSI::Dof_Type > > tDofTypes = { tDispDofTypes, tTempDofTypes };
+
+    // init IWG
+    //------------------------------------------------------------------------------
     // create the properties
     std::shared_ptr< fem::Property > tPropMasterEMod = std::make_shared< fem::Property >();
     tPropMasterEMod->set_parameters( {{{ 10.0 }}} );
-    tPropMasterEMod->set_val_function( tConstValFunction_STRUCDIRICHLET );
+    tPropMasterEMod->set_val_function( tConstValFunc_Elast );
 
     std::shared_ptr< fem::Property > tPropMasterNu = std::make_shared< fem::Property >();
     tPropMasterNu->set_parameters( {{{ 0.3 }}} );
-    tPropMasterNu->set_val_function( tConstValFunction_STRUCDIRICHLET );
+    tPropMasterNu->set_val_function( tConstValFunc_Elast );
 
     std::shared_ptr< fem::Property > tPropMasterDirichlet = std::make_shared< fem::Property >();
-    tPropMasterDirichlet->set_parameters( {{{ 0.0 }, { 0.0 }, { 0.0 }}} );
-    tPropMasterDirichlet->set_val_function( tConstValFunction_STRUCDIRICHLET );
+    tPropMasterDirichlet->set_val_function( tConstValFunc_Elast );
+
+    std::shared_ptr< fem::Property > tPropMasterSelect = std::make_shared< fem::Property >();
+    tPropMasterSelect->set_val_function( tMValFunc_Elast );
+
+    std::shared_ptr< fem::Property > tPropMasterCTE = std::make_shared< fem::Property >();
+    tPropMasterCTE->set_parameters( {{{ 1.0 }}} );
+    tPropMasterCTE->set_val_function( tConstValFunc_Elast );
+
+    std::shared_ptr< fem::Property > tPropMasterTRef = std::make_shared< fem::Property >();
+    tPropMasterTRef->set_parameters( {{{ 1.25 }}} );
+    tPropMasterTRef->set_val_function( tConstValFunc_Elast );
 
     // define constitutive models
     fem::CM_Factory tCMFactory;
 
-    std::shared_ptr< fem::Constitutive_Model > tCMMasterStrucLinIso = tCMFactory.create_CM( fem::Constitutive_Type::STRUC_LIN_ISO );
-    tCMMasterStrucLinIso->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY, MSI::Dof_Type::UZ }} );
+    std::shared_ptr< fem::Constitutive_Model > tCMMasterStrucLinIso =
+            tCMFactory.create_CM( fem::Constitutive_Type::STRUC_LIN_ISO );
+    tCMMasterStrucLinIso->set_dof_type_list( tDofTypes, { "Displacement", "Temperature" } );
     tCMMasterStrucLinIso->set_property( tPropMasterEMod, "YoungsModulus" );
     tCMMasterStrucLinIso->set_property( tPropMasterNu, "PoissonRatio" );
-    tCMMasterStrucLinIso->set_space_dim( 3 );
+    tCMMasterStrucLinIso->set_property( tPropMasterCTE, "CTE" );
+    tCMMasterStrucLinIso->set_property( tPropMasterTRef, "ReferenceTemperature" );
 
     // define stabilization parameters
     fem::SP_Factory tSPFactory;
 
-    std::shared_ptr< fem::Stabilization_Parameter > tSPDirichletNitsche = tSPFactory.create_SP( fem::Stabilization_Type::DIRICHLET_NITSCHE );
+    std::shared_ptr< fem::Stabilization_Parameter > tSPDirichletNitsche =
+            tSPFactory.create_SP( fem::Stabilization_Type::DIRICHLET_NITSCHE );
     tSPDirichletNitsche->set_parameters( { {{ 1.0 }} } );
     tSPDirichletNitsche->set_property( tPropMasterEMod, "Material", mtk::Master_Slave::MASTER );
 
     // define the IWGs
     fem::IWG_Factory tIWGFactory;
 
-    std::shared_ptr< fem::IWG > tIWG = tIWGFactory.create_IWG( fem::IWG_Type::STRUC_LINEAR_DIRICHLET_SYMMETRIC_NITSCHE );
-    tIWG->set_residual_dof_type( { MSI::Dof_Type::UX, MSI::Dof_Type::UY, MSI::Dof_Type::UZ } );
-    tIWG->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY, MSI::Dof_Type::UZ }} );
+    std::shared_ptr< fem::IWG > tIWG =
+            tIWGFactory.create_IWG( fem::IWG_Type::STRUC_LINEAR_DIRICHLET_UNSYMMETRIC_NITSCHE );
+    tIWG->set_residual_dof_type( tDispDofTypes );
+    tIWG->set_dof_type_list( tDofTypes );
     tIWG->set_stabilization_parameter( tSPDirichletNitsche, "DirichletNitsche" );
     tIWG->set_constitutive_model( tCMMasterStrucLinIso, "ElastLinIso" );
     tIWG->set_property( tPropMasterDirichlet, "Dirichlet" );
+    tIWG->set_property( tPropMasterSelect, "Select" );
 
-    // create evaluation point xi, tau
+    // init set info
     //------------------------------------------------------------------------------
-    Matrix< DDRMat > tParamPoint = { { 1.0 }, { 0.25 }, { 0.0 }, { 0.0 } };
-
-    // set the normal
-    Matrix< DDRMat > tNormal = { {1.0}, {0.0}, {0.0} };
-    tIWG->set_normal( tNormal );
-
-    // space and time geometry interpolators
-    //------------------------------------------------------------------------------
-    // create a space geometry interpolation rule
-    Interpolation_Rule tGIRule( mtk::Geometry_Type::HEX,
-                                Interpolation_Type::LAGRANGE,
-                                mtk::Interpolation_Order::LINEAR,
-                                Interpolation_Type::CONSTANT,
-                                mtk::Interpolation_Order::CONSTANT );
-
-    // create a space time geometry interpolator
-    Geometry_Interpolator tGI = Geometry_Interpolator( tGIRule );
-
-    // create space coeff xHat
-    Matrix< DDRMat > tXHat = {{ 0.0, 0.0, 0.0 },
-                              { 1.0, 0.0, 0.0 },
-                              { 1.0, 1.0, 0.0 },
-                              { 0.0, 1.0, 0.0 },
-                              { 0.0, 0.0, 1.0 },
-                              { 1.0, 0.0, 1.0 },
-                              { 1.0, 1.0, 1.0 },
-                              { 0.0, 1.0, 1.0 }};
-
-    // create time coeff tHat
-    Matrix< DDRMat > tTHat = {{ 0.0 }};
-
-    // set the coefficients xHat, tHat
-    tGI.set_coeff( tXHat, tTHat );
-
-    // set the evaluation point
-    tGI.set_space_time( tParamPoint );
-
-    // field interpolators
-    //------------------------------------------------------------------------------
-    //create a space time interpolation rule
-    Interpolation_Rule tFIRule ( mtk::Geometry_Type::HEX,
-                                 Interpolation_Type::LAGRANGE,
-                                 mtk::Interpolation_Order::LINEAR,
-                                 Interpolation_Type::CONSTANT,
-                                 mtk::Interpolation_Order::CONSTANT );
-
-    // create random coefficients
-    arma::Mat< double > tMatrix;
-    tMatrix.randu( 8, 3 );
-    Matrix< DDRMat > tDOFHat;
-    tDOFHat.matrix_data() = 10.0 * tMatrix;
-
-    // create a cell of field interpolators for IWG
-    Cell< Field_Interpolator* > tFIs( 1 );
-
-    // create the field interpolator
-    tFIs( 0 ) = new Field_Interpolator( 3, tFIRule, &tGI,{ {MSI::Dof_Type::UX, MSI::Dof_Type::UY, MSI::Dof_Type::UZ } } );
-
-    // set the coefficients uHat
-    tFIs( 0 )->set_coeff( tDOFHat );
-
-    //set the evaluation point xi, tau
-    tFIs( 0 )->set_space_time( tParamPoint );
-
     // set a fem set pointer
     MSI::Equation_Set * tSet = new fem::Set();
     tIWG->set_set_pointer( static_cast< fem::Set* >( tSet ) );
 
     // set size for the set EqnObjDofTypeList
-    tIWG->mSet->mUniqueDofTypeList.resize( 4, MSI::Dof_Type::END_ENUM );
+    tIWG->mSet->mUniqueDofTypeList.resize( 100, MSI::Dof_Type::END_ENUM );
 
     // set size and populate the set dof type map
     tIWG->mSet->mUniqueDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
-    tIWG->mSet->mUniqueDofTypeMap( static_cast< int >( MSI::Dof_Type::UX ) ) = 0;
+    tIWG->mSet->mUniqueDofTypeMap( static_cast< int >( MSI::Dof_Type::UX ) )   = 0;
+    tIWG->mSet->mUniqueDofTypeMap( static_cast< int >( MSI::Dof_Type::TEMP ) ) = 1;
 
     // set size and populate the set master dof type map
-    tIWG->mSet->mMasterDofTypeMap.set_size( static_cast< int >(MSI::Dof_Type::END_ENUM) + 1, 1, -1 );
-    tIWG->mSet->mMasterDofTypeMap( static_cast< int >( MSI::Dof_Type::UX ) ) = 0;
+    tIWG->mSet->mMasterDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
+    tIWG->mSet->mMasterDofTypeMap( static_cast< int >( MSI::Dof_Type::UX ) )   = 0;
+    tIWG->mSet->mMasterDofTypeMap( static_cast< int >( MSI::Dof_Type::TEMP ) ) = 1;
 
-    // set size and fill the set residual assembly map
-    tIWG->mSet->mResDofAssemblyMap.resize( 1 );
-    tIWG->mSet->mResDofAssemblyMap( 0 ) = { { 0, 23 } };
+    // loop on the space dimension
+    for( uint iSpaceDim = 2; iSpaceDim < 4; iSpaceDim++ )
+    {
+        // set selection matrix parameters
+        tPropMasterSelect->set_parameters( { {{ static_cast< real >( iSpaceDim ) }} } );
 
-    // set size and fill the set jacobian assembly map
-    tIWG->mSet->mJacDofAssemblyMap.resize( 1 );
-    tIWG->mSet->mJacDofAssemblyMap( 0 ) = { { 0, 23 } };
+        // Dirichlet BC
+        Matrix< DDRMat > tImposedDisp( iSpaceDim, 1, 0.5 );
+        tPropMasterDirichlet->set_parameters( { tImposedDisp } );
 
-    // set size and init the set residual and jacobian
-    tIWG->mSet->mResidual.resize( 1 );
-    tIWG->mSet->mResidual( 0 ).set_size( 24, 1, 0.0 );
-    tIWG->mSet->mJacobian.set_size( 24, 24, 0.0 );
+        // set normal
+        Matrix< DDRMat > tNormal( iSpaceDim, 1, 0.5 );
+        tNormal = tNormal / norm( tNormal );
+        tIWG->set_normal( tNormal );
 
-    // build global dof type list
-    tIWG->get_global_dof_type_list();
+        // set geometry inputs
+        //------------------------------------------------------------------------------
+        // switch on space dimension
+        switch( iSpaceDim )
+        {
+            case 2 :
+            {
+                // set geometry type
+                tGeometryType = mtk::Geometry_Type::QUAD;
+                break;
+            }
+            case 3 :
+            {
+                // set geometry type
+                tGeometryType = mtk::Geometry_Type::HEX;
+                break;
+            }
+            default:
+            {
+                MORIS_ERROR( false, " QUAD or HEX only." );
+                break;
+            }
+        }
 
-    // populate the requested master dof type
-    tIWG->mRequestedMasterGlobalDofTypes = {{ MSI::Dof_Type::UX }};
+        // set space dimension to CM, SP
+        tCMMasterStrucLinIso->set_space_dim( iSpaceDim );
+        tCMMasterStrucLinIso->set_model_type( fem::Model_Type::PLANE_STRESS );
+        tCMMasterStrucLinIso->set_model_type( fem::Model_Type::DEVIATORIC );
 
-    // create a field interpolator manager
-    moris::Cell< moris::Cell< enum MSI::Dof_Type > > tDummy;
-    Field_Interpolator_Manager tFIManager( tDummy, tSet );
+        // loop on the interpolation order
+        for( uint iInterpOrder = 1; iInterpOrder < 4; iInterpOrder++ )
+        {
+            // create an interpolation order
+            mtk::Interpolation_Order tGIInterpolationOrder = tInterpolationOrders( iInterpOrder - 1 );
 
-    // populate the field interpolator manager
-    tFIManager.mFI = tFIs;
-    tFIManager.mIPGeometryInterpolator = &tGI;
-    tFIManager.mIGGeometryInterpolator = &tGI;
+            // space and time geometry interpolators
+            //------------------------------------------------------------------------------
+            // create a space geometry interpolation rule
+            Interpolation_Rule tGIRule( tGeometryType,
+                    Interpolation_Type::LAGRANGE,
+                    tGIInterpolationOrder,
+                    Interpolation_Type::LAGRANGE,
+                    mtk::Interpolation_Order::LINEAR );
 
-    // set the interpolator manager to the set
-    tIWG->mSet->mMasterFIManager = &tFIManager;
+            // create a space time geometry interpolator
+            Geometry_Interpolator tGI = Geometry_Interpolator( tGIRule );
 
-    // set IWG field interpolator manager
-    tIWG->set_field_interpolator_manager( &tFIManager );
+            // create time coeff tHat
+            Matrix< DDRMat > tTHat = {{ 0.0 }, { 1.0 }};
 
-    // check evaluation of the residual for IWG Helmholtz Bulk ?
-    //------------------------------------------------------------------------------
-    // evaluate the residual
-    tIWG->compute_residual( 1.0 );
+            Matrix< DDRMat > tXHat;
+            fill_xhat_Elast( tXHat, iSpaceDim, iInterpOrder );
 
-    // check evaluation of the jacobian by FD
-    //------------------------------------------------------------------------------
-    // init the jacobian for IWG and FD evaluation
-    Matrix< DDRMat > tJacobians;
-    Matrix< DDRMat > tJacobiansFD;
+            // set the coefficients xHat, tHat
+            tGI.set_coeff( tXHat, tTHat );
 
-    // check jacobian by FD
-    bool tCheckJacobian = tIWG->check_jacobian( tPerturbation,
-                                                tEpsilon,
-                                                1.0,
-                                                tJacobians,
-                                                tJacobiansFD );
+            // integration points
+            //------------------------------------------------------------------------------
+            // get an integration order
+            fem::Integration_Order tIntegrationOrder = tIntegrationOrders( iSpaceDim - 2 );
 
-    // require check is true
-    REQUIRE( tCheckJacobian );
+            // create an integration rule
+            fem::Integration_Rule tIntegrationRule(
+                    tGeometryType,
+                    Integration_Type::GAUSS,
+                    tIntegrationOrder,
+                    mtk::Geometry_Type::LINE,
+                    Integration_Type::GAUSS,
+                    fem::Integration_Order::BAR_1 );
 
-    // clean up
-    tFIs.clear();
+            // create an integrator
+            fem::Integrator tIntegrator( tIntegrationRule );
 
-}/* END_TEST_CASE */
+            // get integration points
+            Matrix< DDRMat > tIntegPoints;
+            tIntegrator.get_points( tIntegPoints );
 
-TEST_CASE( "IWG_Struc_Thermo_Elastic_Dirichlet", "[moris],[fem],[IWG_Thermo_Elastic_Dirichlet]" )
-{
-//    // create an IWG Struc linear Dirichlet
-//    IWG_Isotropic_STRUC_LINEAR_DIRICHLET_SYMMETRIC_NITSCHE tIWG;
-//
-//    // set residual dof type
-//    tIWG.set_residual_dof_type( { MSI::Dof_Type::UX, MSI::Dof_Type::UY } );
-//
-//    // set active dof type
-//    tIWG.set_dof_type_list( { { MSI::Dof_Type::UX, MSI::Dof_Type::UY },{ MSI::Dof_Type::TEMP } } );
-//
-//    // set active constitutive type
-////    tIWG.set_constitutive_type_list( { fem::Constitutive_Type::STRUC_LIN_ISO } );
-////
-////    // set active property type
-////    tIWG.set_property_type_list( { fem::Property_Type::STRUC_DIRICHLET } );
-//
-//    // create evaluation point xi, tau
-//    //------------------------------------------------------------------------------
-//    Matrix< DDRMat > tParamPoint = {{ 1.0}, {0.25}, { 0.0}};
-//
-//    // set the normal
-//    Matrix< DDRMat > tNormal = {{1.0},{0.0}};
-//    tIWG.set_normal( tNormal );
-//
-//    // space and time geometry interpolators
-//    //------------------------------------------------------------------------------
-//    // create a space geometry interpolation rule
-//    Interpolation_Rule tGIRule( mtk::Geometry_Type::QUAD,
-//            Interpolation_Type::LAGRANGE,
-//            mtk::Interpolation_Order::LINEAR,
-//            Interpolation_Type::CONSTANT,
-//            mtk::Interpolation_Order::CONSTANT );
-//
-//    // create a space time geometry interpolator
-//    Geometry_Interpolator* tGI = new Geometry_Interpolator( tGIRule );
-//
-//    // create space coeff xHat
-//    Matrix< DDRMat > tXHat = {{ 0.0, 0.0 },
-//                              { 1.0, 0.0 },
-//                              { 1.0, 1.0 },
-//                               { 0.0, 1.0} };
-//
-//    // create time coeff tHat
-//    Matrix< DDRMat > tTHat = {{ 0.0 }};
-//
-//    // set the coefficients xHat, tHat
-//    tGI->set_coeff( tXHat, tTHat );
-//
-//    // set the evaluation point
-//    tGI->set_space_time( tParamPoint );
-//
-//    // field interpolators
-//    //------------------------------------------------------------------------------
-//    //create a space time interpolation rule
-//    Interpolation_Rule tFIRule ( mtk::Geometry_Type::QUAD,
-//            Interpolation_Type::LAGRANGE,
-//            mtk::Interpolation_Order::LINEAR,
-//            Interpolation_Type::CONSTANT,
-//            mtk::Interpolation_Order::CONSTANT );
-//
-//    // create a cell of field interpolators for IWG
-//    Cell< Field_Interpolator* > tFIsU( tIWG.get_dof_type_list().size() );
-//
-//    //---------------------------------------------------------------------------
-//    // create coefficients
-//    Matrix< DDRMat > tDOFHatU( 8, 1 );
-//    tDOFHatU = { {{1.0},{1.0}}, {{1.0},{1.0}}, {{2.0},{2.0}}, {{2.0},{2.0}}};
-//
-//    // get the number of DOF
-//    uint tNumOfFields = tIWG.get_dof_type_list()( 0 ).size();
-//
-//    // create the field interpolator
-//    tFIsU( 0 ) = new Field_Interpolator( tNumOfFields,
-//                                        tFIRule,
-//                                        tGI,
-//                                        tIWG.get_dof_type_list()( 0 ) );
-//
-//    // set the coefficients uHat
-//    tFIsU( 0 )->set_coeff( tDOFHatU );
-//
-//    //set the evaluation point xi, tau
-//    tFIsU( 0 )->set_space_time( tParamPoint );
-//    //---------------------------------------------------------------------------
-//    // create coefficients
-//    Matrix< DDRMat > tDOFHatT( 4, 1 );
-//    tDOFHatT = { {2.0}, {2.0}, {1.0}, {1.0} };
-//
-//    Cell< Field_Interpolator* > tFIsT( 1 );
-//
-//    // get the number of DOF
-//    tNumOfFields = tIWG.get_dof_type_list()( 1 ).size();
-//
-//    // create the field interpolator
-//    tFIsT( 0 ) = new Field_Interpolator( tNumOfFields,
-//                                         tFIRule,
-//                                         tGI,
-//                                         tIWG.get_dof_type_list()( 1 ) );
-//
-//    // set the coefficients uHat
-//    tFIsT( 0 )->set_coeff( tDOFHatT );
-//
-//    //set the evaluation point xi, tau
-//    tFIsT( 0 )->set_space_time( tParamPoint );
-//
-//    tFIsU( 1 ) = tFIsT( 0 );
-//    //---------------------------------------------------------------------------
-//
-//    // define an epsilon environment
-//    double tEpsilon = 1E-5;
-//
-//    // define aperturbation relative size
-//    real tPerturbation = 1E-8;
-//
-//
-//    SECTION( "IWG_Struc_Dirichlet : check residual and jacobian with property dependent on TEMP" )
-//    {
-//        // create a cell of properties for IWG
-//        Cell< Property* > tIWGProps( 3 );
-//        Cell< Property* > tCMProps( 2 );
-//
-//        // create a property
-//        tIWGProps( 0 ) = new Property( fem::Property_Type::STRUC_DIRICHLET,
-//                Cell< Cell< MSI::Dof_Type > > ( 0 ),
-//                {{{ 0.0, 0.0 }}},
-//                tConstValFunction_STRUCDIRICHLET,
-//                Cell< PropertyFunc > ( 0 ),
-//                tGI );
-//
-//        tIWGProps( 1 ) = new Property( fem::Property_Type::YOUNGS_MODULUS,
-//                {{ MSI::Dof_Type::TEMP}},
-//                {{ { 1.0} }, { {1.0} }, { {1.0 } }},
-//                tFIValFunction_STRUCDIRICHLET,
-//                { tFIDerFunction_STRUCDIRICHLET },
-//                tGI );
-//
-//        tIWGProps( 2 ) = new Property( fem::Property_Type::POISSONS_RATIO,
-//                Cell< Cell< MSI::Dof_Type > > ( 0 ),
-//                {{{ 0.0 }}},
-//                tConstValFunction_STRUCDIRICHLET,
-//                Cell< PropertyFunc > ( 0 ),
-//                tGI );
-//
-//        tCMProps( 0 ) = tIWGProps( 1 );
-//        tCMProps( 1 ) = tIWGProps( 2 );
-//
-//        // set field interpolators
-//        tIWGProps( 1 )->set_dof_field_interpolators( tFIsT );
-//
-//        // constitutive models
-//        //------------------------------------------------------------------------------
-//        // create a cell of properties for IWG
-//        Cell< Constitutive_Model* > tCMs( tIWG.get_constitutive_type_list().size() );
-//
-//        // create a constitutive model factory
-//        fem::CM_Factory tCMFactory;
-//
-//        // create a constitutive model for each constitutive type
-//        for( uint iCM = 0; iCM < tIWG.get_constitutive_type_list().size(); iCM++ )
-//        {
-//            // create a property
-//            tCMs( iCM ) = tCMFactory.create_CM( tIWG.get_constitutive_type_list()( iCM ) );
-//
-//            // set space dim
-//            tCMs( iCM )->set_space_dim( 2 );
-//
-//            // set dof types
-//            tCMs( iCM )->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY }} );
-//
-//            // set property type
-//            tCMs( iCM )->set_property_type_list( { fem::Property_Type::YOUNGS_MODULUS, fem::Property_Type::POISSONS_RATIO } );
-//
-//            // set properties
-//            tCMs( iCM )->set_properties( tCMProps );
-//
-//            // set field interpolators
-//            tCMs( iCM )->set_dof_field_interpolators( tFIsU );
-//        }
-//
-//        // set IWG constitutive models
-//        tIWG.set_constitutive_models( tCMs );
-//
-//        // set IWG properties
-//        tIWG.set_properties( tIWGProps );
-//
-//        // set IWG field interpolators
-//        tIWG.set_dof_field_interpolators( tFIsU );
-//
-//        // check evaluation of the residual for IWG Helmholtz Bulk ?
-//        //------------------------------------------------------------------------------
-//        // evaluate the residual
-//        Cell< Matrix< DDRMat > > tResidual;
-//        tIWG.compute_residual( tResidual );
-//
-//        // check evaluation of the jacobian  by FD
-//        //------------------------------------------------------------------------------
-//        // evaluate the jacobian
-//        Cell< Cell< Matrix< DDRMat > > > tJacobians;
-//        tIWG.compute_jacobian( tJacobians );
-////        print( tJacobians( 0 )( 0 ),"tJacobians");
-//
-//        Cell< Cell< Matrix< DDRMat > > > tJacobiansFD;
-//        tIWG.compute_jacobian_FD( tJacobiansFD, tPerturbation );
-//
-////        print( tJacobiansFD( 0 )( 0 ),"tJacobiansFD");
-////        print( tJacobians( 0 )( 1 ),"tJacobians");
-////        print( tJacobiansFD( 0 )( 1 ),"tJacobiansFD");
-//
-//        //define a boolean for check
-//        bool tCheckJacobian = true;
-//
-//        for ( uint iJac = 0; iJac < tJacobians.size(); iJac++ )
-//        {
-//            for( uint jJac = 0; jJac < tJacobians( iJac ).size(); jJac++ )
-//            {
-//                for( uint iiJac = 0; iiJac < tJacobians( iJac )( jJac ).n_rows(); iiJac++ )
-//                {
-//                    for( uint jjJac = 0; jjJac < tJacobians( iJac )( jJac ).n_cols(); jjJac++ )
-//                    {
-//                        tCheckJacobian = tCheckJacobian && ( tJacobians( iJac )( jJac )( iiJac, jjJac ) - tJacobiansFD( iJac )( jJac )( iiJac, jjJac ) < tEpsilon );
-//                    }
-//                }
-//            }
-//        }
-//
-//        REQUIRE( tCheckJacobian );
-//
-//        for( Property* tProp : tIWGProps )
-//        {
-//            delete tProp;
-//        }
-//        tIWGProps.clear();
-//
-//
-//    }/* END_SECTION */
-//
-//    SECTION( "IWG_Struc_Dirichlet : check residual and jacobian with constitutive model dependent on TEMP" )
-//    {
-//        // create a cell of properties for IWG
-//        Cell< Property* > tIWGProps( 5 );
-//        Cell< Property* > tCMProps( 4 );
-//
-//        // create a property
-//        tIWGProps( 0 ) = new Property( fem::Property_Type::STRUC_DIRICHLET,
-//                Cell< Cell< MSI::Dof_Type > > ( 0 ),
-//                {{{ 0.0, 0.0 }}},
-//                tConstValFunction_STRUCDIRICHLET,
-//                Cell< PropertyFunc > ( 0 ),
-//                tGI );
-//
-//        tIWGProps( 1 ) = new Property( fem::Property_Type::YOUNGS_MODULUS,
-//                Cell< Cell< MSI::Dof_Type > > ( 0 ),
-//                {{{ 1.0 }}},
-//                tConstValFunction_STRUCDIRICHLET,
-//                Cell< PropertyFunc > ( 0 ),
-//                tGI );
-//
-//        tIWGProps( 2 ) = new Property( fem::Property_Type::POISSONS_RATIO,
-//                Cell< Cell< MSI::Dof_Type > > ( 0 ),
-//                {{{ 0.0 }}},
-//                tConstValFunction_STRUCDIRICHLET,
-//                Cell< PropertyFunc > ( 0 ),
-//                tGI );
-//
-//        tIWGProps( 3 ) = new Property( fem::Property_Type::CTE,
-//                Cell< Cell< MSI::Dof_Type > > ( 0 ),
-//                {{{ 1.0 }}},
-//                tConstValFunction_STRUCDIRICHLET,
-//                Cell< PropertyFunc > ( 0 ),
-//                tGI );
-//
-//        tIWGProps( 4 ) = new Property( fem::Property_Type::TREF,
-//                Cell< Cell< MSI::Dof_Type > > ( 0 ),
-//                {{{ 1.0 }}},
-//                tConstValFunction_STRUCDIRICHLET,
-//                Cell< PropertyFunc > ( 0 ),
-//                tGI );
-//
-//        tCMProps( 0 ) = tIWGProps( 1 );
-//        tCMProps( 1 ) = tIWGProps( 2 );
-//        tCMProps( 2 ) = tIWGProps( 3 );
-//        tCMProps( 3 ) = tIWGProps( 4 );
-//
-//        // set field interpolators
-////        tIWGProps( 1 )->set_dof_field_interpolators( tFIsT );
-//
-//        // constitutive models
-//        //------------------------------------------------------------------------------
-//        // create a cell of properties for IWG
-//        Cell< Constitutive_Model* > tCMs( tIWG.get_constitutive_type_list().size() );
-//
-//        // create a constitutive model factory
-//        fem::CM_Factory tCMFactory;
-//
-//        // create a constitutive model for each constitutive type
-//        for( uint iCM = 0; iCM < tIWG.get_constitutive_type_list().size(); iCM++ )
-//        {
-//            // create a property
-//            tCMs( iCM ) = tCMFactory.create_CM( tIWG.get_constitutive_type_list()( iCM ) );
-//
-//            // set space dim
-//            tCMs( iCM )->set_space_dim( 2 );
-//
-//            // set dof types
-//            tCMs( iCM )->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY },{MSI::Dof_Type::TEMP}} );
-//
-//            // set property type
-//            tCMs( iCM )->set_property_type_list( { fem::Property_Type::YOUNGS_MODULUS, fem::Property_Type::POISSONS_RATIO, fem::Property_Type::CTE, fem::Property_Type::TREF } );
-//
-//            // set properties
-//            tCMs( iCM )->set_properties( tCMProps );
-//
-//            // set field interpolators
-//            tCMs( iCM )->set_dof_field_interpolators( tFIsU );
-//        }
-//
-//        // set IWG constitutive models
-//        tIWG.set_constitutive_models( tCMs );
-//
-//        // set IWG properties
-//        tIWG.set_properties( tIWGProps );
-//
-//        // set IWG field interpolators
-//        tIWG.set_dof_field_interpolators( tFIsU );
-//
-//        // check evaluation of the residual for IWG Helmholtz Bulk ?
-//        //------------------------------------------------------------------------------
-//        // evaluate the residual
-//        Cell< Matrix< DDRMat > > tResidual;
-//        tIWG.compute_residual( tResidual );
-//
-//        // check evaluation of the jacobian  by FD
-//        //------------------------------------------------------------------------------
-//        // evaluate the jacobian
-//        Cell< Cell< Matrix< DDRMat > > > tJacobians;
-//        tIWG.compute_jacobian( tJacobians );
-////        print( tJacobians( 0 )( 0 ),"tJacobians");
-//
-//        Cell< Cell< Matrix< DDRMat > > > tJacobiansFD;
-//        tIWG.compute_jacobian_FD( tJacobiansFD, tPerturbation );
-//
-////        print( tJacobiansFD( 0 )( 0 ),"tJacobiansFD");
-////        print( tJacobians( 0 )( 1 ),"tJacobians");
-////        print( tJacobiansFD( 0 )( 1 ),"tJacobiansFD");
-//
-//        //define a boolean for check
-//        bool tCheckJacobian = true;
-//
-//        for ( uint iJac = 0; iJac < tJacobians.size(); iJac++ )
-//        {
-//            for( uint jJac = 0; jJac < tJacobians( iJac ).size(); jJac++ )
-//            {
-//                for( uint iiJac = 0; iiJac < tJacobians( iJac )( jJac ).n_rows(); iiJac++ )
-//                {
-//                    for( uint jjJac = 0; jjJac < tJacobians( iJac )( jJac ).n_cols(); jjJac++ )
-//                    {
-//                        tCheckJacobian = tCheckJacobian && ( tJacobians( iJac )( jJac )( iiJac, jjJac ) - tJacobiansFD( iJac )( jJac )( iiJac, jjJac ) < tEpsilon );
-//                    }
-//                }
-//            }
-//        }
-//
-//        REQUIRE( tCheckJacobian );
-//
-//        for( Property* tProp : tIWGProps )
-//        {
-//            delete tProp;
-//        }
-//        tIWGProps.clear();
-//
-//
-//    }/* END_SECTION */
-//
-//    // clean up
-//    for( Field_Interpolator* tFI : tFIsU )
-//    {
-//        delete tFI;
-//    }
-//
-//    tFIsU.clear();
-//    tFIsT.clear();
-//
-//    delete tGI;
-//
+            // field interpolators
+            //------------------------------------------------------------------------------
+            // create an interpolation order
+            mtk::Interpolation_Order tInterpolationOrder = tInterpolationOrders( iInterpOrder - 1 );
+
+            // number of dof for interpolation order
+            uint tNumCoeff = tNumCoeffs( iSpaceDim - 2, iInterpOrder - 1 );
+
+            // get number of dof per type
+            int tNumDofDisp  = tNumCoeff * iSpaceDim;
+            int tNumDofTemp  = tNumCoeff;
+
+            //create a space time interpolation rule
+            Interpolation_Rule tFIRule ( tGeometryType,
+                    Interpolation_Type::LAGRANGE,
+                    tInterpolationOrder,
+                    Interpolation_Type::LAGRANGE,
+                    mtk::Interpolation_Order::LINEAR );
+
+            // fill coefficients for master FI
+            Matrix< DDRMat > tMasterDofHatDisp;
+            fill_uhat_Elast( tMasterDofHatDisp, iSpaceDim, iInterpOrder );
+            Matrix< DDRMat > tMasterDofHatTemp;
+            fill_phat_Elast( tMasterDofHatTemp, iSpaceDim, iInterpOrder );
+
+            // create a cell of field interpolators for IWG
+            Cell< Field_Interpolator* > tMasterFIs( tDofTypes.size() );
+
+            // create the field interpolator velocity
+            tMasterFIs( 0 ) = new Field_Interpolator( iSpaceDim, tFIRule, &tGI, tDispDofTypes );
+            tMasterFIs( 0 )->set_coeff( tMasterDofHatDisp );
+
+            // create the field interpolator pressure
+            tMasterFIs( 1 ) = new Field_Interpolator( 1, tFIRule, &tGI, tTempDofTypes );
+            tMasterFIs( 1 )->set_coeff( tMasterDofHatTemp );
+
+            // set size and fill the set residual assembly map
+            tIWG->mSet->mResDofAssemblyMap.resize( tDofTypes.size() );
+            tIWG->mSet->mResDofAssemblyMap( 0 ) = { { 0, tNumDofDisp-1 } };
+            tIWG->mSet->mResDofAssemblyMap( 1 ) = { { tNumDofDisp, tNumDofDisp + tNumDofTemp - 1 } };
+
+            // set size and fill the set jacobian assembly map
+            Matrix< DDSMat > tJacAssembly = {
+                    { 0, tNumDofDisp - 1 },
+                    { tNumDofDisp, tNumDofDisp + tNumDofTemp - 1 } };
+            tIWG->mSet->mJacDofAssemblyMap.resize( tDofTypes.size() );
+            tIWG->mSet->mJacDofAssemblyMap( 0 ) = tJacAssembly;
+            tIWG->mSet->mJacDofAssemblyMap( 1 ) = tJacAssembly;
+
+            // set size and init the set residual and jacobian
+            tIWG->mSet->mResidual.resize( 1 );
+            tIWG->mSet->mResidual( 0 ).set_size( tNumDofDisp + tNumDofTemp, 1, 0.0 );
+            tIWG->mSet->mJacobian.set_size( tNumDofDisp + tNumDofTemp, tNumDofDisp + tNumDofTemp, 0.0 );
+
+            // build global dof type list
+            tIWG->get_global_dof_type_list();
+
+            // populate the requested master dof type
+            tIWG->mRequestedMasterGlobalDofTypes = tDofTypes;
+
+            // create a field interpolator manager
+            moris::Cell< moris::Cell< enum PDV_Type > > tDummyDv;
+            Field_Interpolator_Manager tFIManager( tDofTypes, tDummyDv, tSet );
+
+            // populate the field interpolator manager
+            tFIManager.mFI = tMasterFIs;
+            tFIManager.mIPGeometryInterpolator = &tGI;
+            tFIManager.mIGGeometryInterpolator = &tGI;
+
+            // set the interpolator manager to the set
+            tIWG->mSet->mMasterFIManager = &tFIManager;
+
+            // set IWG field interpolator manager
+            tIWG->set_field_interpolator_manager( &tFIManager );
+
+            // loop iver integration points
+            uint tNumGPs = tIntegPoints.n_cols();
+            for( uint iGP = 0; iGP < tNumGPs; iGP ++ )
+            {
+                // reset IWG evaluation flags
+                tIWG->reset_eval_flags();
+
+                // create evaluation point xi, tau
+                Matrix< DDRMat > tParamPoint = tIntegPoints.get_column( iGP );
+
+                // set integration point
+                tIWG->mSet->mMasterFIManager->set_space_time( tParamPoint );
+
+                // check evaluation of the residual for IWG
+                //------------------------------------------------------------------------------
+                // reset residual
+                tIWG->mSet->mResidual( 0 ).fill( 0.0 );
+
+                // compute residual
+                tIWG->compute_residual( 1.0 );
+
+                // check evaluation of the jacobian by FD
+                //------------------------------------------------------------------------------
+                // reset jacobian
+                tIWG->mSet->mJacobian.fill( 0.0 );
+
+                // init the jacobian for IWG and FD evaluation
+                Matrix< DDRMat > tJacobian;
+                Matrix< DDRMat > tJacobianFD;
+
+                // check jacobian by FD
+                bool tCheckJacobian = tIWG->check_jacobian(
+                        tPerturbation,
+                        tEpsilon,
+                        1.0,
+                        tJacobian,
+                        tJacobianFD,
+                        true );
+
+                // print for debug
+                if( !tCheckJacobian )
+                {
+                    std::cout<<"Case: Geometry "<<iSpaceDim<<" Order "<<iInterpOrder<<"iGP "<<iGP<<std::endl;
+                }
+
+                // require check is true
+                REQUIRE( tCheckJacobian );
+            }
+
+            // clean up
+            tMasterFIs.clear();
+        }
+    }
 }/* END_TEST_CASE */
 
