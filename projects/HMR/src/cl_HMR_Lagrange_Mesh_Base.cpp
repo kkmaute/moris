@@ -383,7 +383,6 @@ namespace moris
                         tElement->get_basis( k )->use_owned_and_shared();
                     }
 
-
                     // increment element counter including aura
                     ++mNumberOfElementsIncludingAura;
 

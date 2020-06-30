@@ -25,7 +25,7 @@ namespace moris
             mStabilizationParam.resize( static_cast< uint >( IWG_Stabilization_Type::MAX_ENUM ), nullptr );
 
             // populate the stabilization map
-            mStabilizationMap[ "GhostVWOrder1" ] = IWG_Stabilization_Type::GHOST_VW_1;
+            mStabilizationMap[ "GhostVW" ] = IWG_Stabilization_Type::GHOST_VW;
         }
 
         //------------------------------------------------------------------------------

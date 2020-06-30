@@ -526,6 +526,51 @@ namespace moris
 
         // -----------------------------------------------------------------------------
 
+        void Database::reset_refined_meshes()
+        {
+            // remember active pattern
+            auto tActivePattern = mBackgroundMesh->get_activation_pattern();
+
+            this->delete_side_sets();
+
+//            if( mParameters->get_number_of_dimensions() == 3 )
+//            {
+//                mBackgroundMesh->delete_faces();
+//                mBackgroundMesh->delete_edges();
+//            }
+//            else
+//            {
+//                mBackgroundMesh->delete_faces();
+//            }
+//
+//            mBackgroundMesh->reset_neigbors();
+
+
+            // reset other patterns
+            for( uint k=0; k<gNumberOfPatterns; ++ k )
+            {
+                mBackgroundMesh->reset_pattern( k );
+            }
+
+            // update neighborhood tables
+            mBackgroundMesh->update_database();
+
+            // reset active pattern
+            if ( mBackgroundMesh->get_activation_pattern() != tActivePattern )
+            {
+                mBackgroundMesh->set_activation_pattern( tActivePattern );
+            }
+
+            this->create_meshes();
+
+            // set flag for input t-matrices
+            mHaveInputTMatrix = false;
+
+            mFinalizedCalled = false;
+        }
+
+// -----------------------------------------------------------------------------
+
         void Database::create_communication_table()
         {
             moris_id tParSize = par_size();
@@ -1296,6 +1341,17 @@ namespace moris
         }
 
         // -----------------------------------------------------------------------------
+
+        /**
+         * creates the sidesets
+         */
+        void Database::delete_side_sets()
+        {
+            mOutputSideSets.clear();
+
+            mOutputSideSetMap.clear();
+        }
+// -----------------------------------------------------------------------------
 
         void Database::calculate_t_matrices_for_input()
         {

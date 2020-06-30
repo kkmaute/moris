@@ -365,10 +365,20 @@ namespace moris
 
                 // -----------------------------------------------------------------------------
 
+
+                /**
+                 * resets Lagrange and B-Spline meshes and the refinement pattern of the background mesh
+                 * Does not delete Background mesh elements. Resets teh finalize flag.
+                 */
+                void reset_refined_meshes();
+
+                // -----------------------------------------------------------------------------
+
                 /**
                  * needed for exodus output of cubic meshes, called by finalize
                  */
                 //            void add_extra_refinement_step_for_exodus();
+
 
                 // -----------------------------------------------------------------------------
 
@@ -502,7 +512,16 @@ namespace moris
 
                 void create_working_pattern_for_bspline_refinement();
 
+
                 // -----------------------------------------------------------------------------
+
+                /**
+                 * free side set memory space
+                 */
+                void delete_side_sets();
+
+                // -----------------------------------------------------------------------------
+
         };
     } /* namespace hmr */
 } /* namespace moris */

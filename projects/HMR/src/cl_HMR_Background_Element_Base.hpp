@@ -934,6 +934,13 @@ namespace moris
 //-------------------------------------------------------------------------------
 
             /**
+             * delete the faces of this element
+             */
+            virtual void delete_facets() = 0;
+
+//-------------------------------------------------------------------------------
+
+            /**
              * returns a face of the background element
              */
             virtual Background_Facet * get_facet( const uint & aIndex ) = 0;
@@ -965,6 +972,24 @@ namespace moris
              * create the edges of this element
              */
             virtual void create_edges() = 0;
+
+//-------------------------------------------------------------------------------
+
+            /**
+             * delete the edges of this element
+             */
+            virtual void delete_edges() = 0;
+
+//-------------------------------------------------------------------------------
+
+            virtual void init_edge_container() = 0;
+
+//-------------------------------------------------------------------------------
+
+            /**
+             * reset all neigbors to nullptr
+             */
+            virtual void reset_neigbors() = 0;
 
 //-------------------------------------------------------------------------------
             /**

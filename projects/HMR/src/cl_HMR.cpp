@@ -141,6 +141,14 @@ namespace moris
 
         // -----------------------------------------------------------------------------
 
+        void HMR::reset_HMR()
+        {
+            // finish database
+            mDatabase->reset_refined_meshes();
+        }
+
+        // -----------------------------------------------------------------------------
+
         void HMR::perform()
         {
             this->finalize();
@@ -299,7 +307,7 @@ namespace moris
 
             // add order to path
             std::string tFilePath =    aFilePath.substr(0,aFilePath.find_last_of(".")) // base path
-                                                              + "_" + std::to_string( tMesh->get_order() ) // rank of this processor
+                                                                      + "_" + std::to_string( tMesh->get_order() ) // rank of this processor
             +  aFilePath.substr( aFilePath.find_last_of("."), aFilePath.length() );
 
             // make path parallel
@@ -1210,30 +1218,30 @@ namespace moris
 
                 // check flag from user defined function
                 int tFlag = mParameters->get_refinement_function(aFunctionIndex)( aCandidates(e),
-                                                                                  tElementField);
-//                // chop flag if element is at max defined level
-//                if( tElement->get_level() > tMaxLevel )
-//                {
-//                    // an element above the max level can only be coarsened
-//                    tFlag = -1;
-//                }
-//                else if( tElement->get_level() == tMaxLevel)
-//                {
-//                    // an element on the max level can only be kept or coarsened
-//                    // but nor refined
-//                    tFlag = std::min( tFlag, 0 );
-//                }
+                        tElementField);
+                //                // chop flag if element is at max defined level
+                //                if( tElement->get_level() > tMaxLevel )
+                //                {
+                //                    // an element above the max level can only be coarsened
+                //                    tFlag = -1;
+                //                }
+                //                else if( tElement->get_level() == tMaxLevel)
+                //                {
+                //                    // an element on the max level can only be kept or coarsened
+                //                    // but nor refined
+                //                    tFlag = std::min( tFlag, 0 );
+                //                }
 
                 // perform flagging test
                 if( tFlag == 1 )
                 {
                     aCells.push_back(aCandidates(e));
                 }
-//                else if ( tFlag == 0 )
-//                {
-//                    // flag the parent of this element
-//                    mDatabase->flag_parent( e );
-//                }
+                //                else if ( tFlag == 0 )
+                //                {
+                //                    // flag the parent of this element
+                //                    mDatabase->flag_parent( e );
+                //                }
             }
         }
 
@@ -1410,15 +1418,15 @@ namespace moris
             if (aFunctionIndex < 0)
             {
                 this->find_cells_intersected_by_levelset( tRefinementList,
-                                                          tCandidates,
-                                                          aFieldValues );
+                        tCandidates,
+                        aFieldValues );
             }
             else
             {
                 this->user_defined_flagging(tRefinementList,
-                                            tCandidates,
-                                            aFieldValues,
-                                            uint(aFunctionIndex));
+                        tCandidates,
+                        aFieldValues,
+                        uint(aFunctionIndex));
             }
 
 

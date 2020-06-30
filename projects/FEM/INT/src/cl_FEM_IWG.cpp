@@ -1654,8 +1654,8 @@ namespace moris
                         if( aErrorPrint )
                         {
                             std::cout<<"iiJac "<<iiJac<<" - jjJac "<<jjJac<<"\n"<<std::flush;
-                            std::cout<<"aJacobian( iiJac, jjJac )   "<<aJacobian( iiJac, jjJac )<<"\n"<<std::flush;
-                            std::cout<<"aJacobianFD( iiJac, jjJac ) "<<aJacobianFD( iiJac, jjJac )<<"\n"<<std::flush;
+                            std::cout<<"aJacobian( iiJac, jjJac )   "<<std::setprecision( 12 )<<aJacobian( iiJac, jjJac )<<"\n"<<std::flush;
+                            std::cout<<"aJacobianFD( iiJac, jjJac ) "<<std::setprecision( 12 )<<aJacobianFD( iiJac, jjJac )<<"\n"<<std::flush;
                             std::cout<<"Absolute difference "<<tAbsolute<<"\n"<<std::flush;
                             std::cout<<"Relative difference "<<tRelative<<"\n"<<std::flush;
                         }

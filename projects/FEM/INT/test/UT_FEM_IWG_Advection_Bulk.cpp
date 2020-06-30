@@ -2,97 +2,107 @@
 #include <catch.hpp>
 #include <memory>
 #include "assert.hpp"
-
-#include "cl_MTK_Enums.hpp" //MTK/src
-#include "cl_FEM_Enums.hpp"                                //FEM//INT/src
-
+//MTK/src
+#include "cl_MTK_Enums.hpp"
+//LINALG/src
 #include "op_equal_equal.hpp"
 
 #define protected public
 #define private   public
-#include "cl_FEM_Field_Interpolator_Manager.hpp"                   //FEM//INT//src
-#include "cl_FEM_IWG.hpp"         //FEM/INT/src
-#include "cl_FEM_Set.hpp"         //FEM/INT/src
+//FEM//INT//src
+#include "cl_FEM_Field_Interpolator_Manager.hpp"
+#include "cl_FEM_IWG.hpp"
+#include "cl_FEM_Set.hpp"
 #undef protected
 #undef private
-
-#include "cl_FEM_Field_Interpolator.hpp"                   //FEM//INT//src
-#include "cl_FEM_Property.hpp"                   //FEM//INT//src
-#include "cl_FEM_CM_Factory.hpp"                   //FEM//INT//src
-#include "cl_FEM_SP_Factory.hpp"                   //FEM//INT//src
-#include "cl_FEM_IWG_Factory.hpp"                   //FEM//INT//src
-
-void tConstValFunction_Advection
-( moris::Matrix< moris::DDRMat >                 & aPropMatrix,
-  moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
-  moris::fem::Field_Interpolator_Manager         * aFIManager )
-{
-    aPropMatrix = aParameters( 0 );
-}
-
-void tFIValFunction_Advection
-( moris::Matrix< moris::DDRMat >                 & aPropMatrix,
-  moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
-  moris::fem::Field_Interpolator_Manager         * aFIManager )
-{
-    aPropMatrix = aParameters( 0 ) * aFIManager->get_field_interpolators_for_type( moris::MSI::Dof_Type::TEMP )->val();
-}
-
-void tFIDerFunction_Advection
-( moris::Matrix< moris::DDRMat >                 & aPropMatrix,
-  moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
-  moris::fem::Field_Interpolator_Manager         * aFIManager )
-{
-    aPropMatrix = aParameters( 0 ) * aFIManager->get_field_interpolators_for_type( moris::MSI::Dof_Type::TEMP )->N();
-}
+//FEM//INT//src
+#include "cl_FEM_Enums.hpp"
+#include "cl_FEM_Field_Interpolator.hpp"
+#include "cl_FEM_Property.hpp"
+#include "cl_FEM_CM_Factory.hpp"
+#include "cl_FEM_SP_Factory.hpp"
+#include "cl_FEM_IWG_Factory.hpp"
+#include "cl_FEM_Integrator.hpp"
+#include "FEM_Test_Proxy/cl_FEM_Inputs_for_NS_Incompressible_UT.cpp"
 
 using namespace moris;
 using namespace fem;
 
-TEST_CASE( "IWG_Advection_Bulk_2D", "[IWG_Advection_Bulk_2D]" )
+TEST_CASE( "IWG_Advection_Bulk", "[IWG_Advection_Bulk]" )
 {
     // define an epsilon environment
-    real tEpsilon = 1E-6;
+    real tEpsilon = 1E-5;
 
     // define a perturbation relative size
     real tPerturbation = 1E-6;
 
+    // init geometry inputs
+    //------------------------------------------------------------------------------
+    // create geometry type
+    mtk::Geometry_Type tGeometryType = mtk::Geometry_Type::UNDEFINED;
+
+    // create space coeff xHat
+    Matrix< DDRMat > tXHat;
+
+    // create list of interpolation orders
+    moris::Cell< mtk::Interpolation_Order > tInterpolationOrders = {
+            mtk::Interpolation_Order::LINEAR,
+            mtk::Interpolation_Order::QUADRATIC,
+            mtk::Interpolation_Order::CUBIC };
+
+    // create list of integration orders
+    moris::Cell< fem::Integration_Order > tIntegrationOrders = {
+            fem::Integration_Order::QUAD_2x2,
+            fem::Integration_Order::HEX_2x2x2 };
+
+    // create list with number of coeffs
+    Matrix< DDRMat > tNumCoeffs = {{ 8, 18, 32 },{ 16, 54, 128 }};
+
+    // dof type list
+    moris::Cell< MSI::Dof_Type > tVelDofTypes  = { MSI::Dof_Type::VX };
+    moris::Cell< MSI::Dof_Type > tTempDofTypes = { MSI::Dof_Type::TEMP };
+    moris::Cell< moris::Cell< MSI::Dof_Type > > tDofTypes = { tVelDofTypes, tTempDofTypes };
+
+    // init IWG
+    //------------------------------------------------------------------------------
     // create the properties
     std::shared_ptr< fem::Property > tPropHeatCapacity = std::make_shared< fem::Property >();
     tPropHeatCapacity->set_parameters( { {{ 2.0 }} } );
-    tPropHeatCapacity->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
-    tPropHeatCapacity->set_val_function( tFIValFunction_Advection );
-    tPropHeatCapacity->set_dof_derivative_functions( { tFIDerFunction_Advection } );
+    tPropHeatCapacity->set_val_function( tConstValFunc );
+    //    tPropHeatCapacity->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
+    //    tPropHeatCapacity->set_val_function( tTEMPFIValFunc );
+    //    tPropHeatCapacity->set_dof_derivative_functions( { tTEMPFIDerFunc } );
 
     std::shared_ptr< fem::Property > tPropDensity = std::make_shared< fem::Property >();
     tPropDensity->set_parameters( { {{ 10.0 }} } );
-    tPropDensity->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
-    tPropDensity->set_val_function( tFIValFunction_Advection );
-    tPropDensity->set_dof_derivative_functions( { tFIDerFunction_Advection } );
+    tPropDensity->set_val_function( tConstValFunc );
+    //    tPropDensity->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
+    //    tPropDensity->set_val_function( tTEMPFIValFunc );
+    //    tPropDensity->set_dof_derivative_functions( { tTEMPFIDerFunc } );
 
     std::shared_ptr< fem::Property > tPropConductivity = std::make_shared< fem::Property >();
     tPropConductivity->set_parameters( { {{ 5.0 }} } );
-    tPropConductivity->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
-    tPropConductivity->set_val_function( tFIValFunction_Advection );
-    tPropConductivity->set_dof_derivative_functions( { tFIDerFunction_Advection } );
+    tPropConductivity->set_val_function( tConstValFunc );
+    //    tPropConductivity->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
+    //    tPropConductivity->set_val_function( tTEMPFIValFunc );
+    //    tPropConductivity->set_dof_derivative_functions( { tTEMPFIDerFunc } );
 
     // define constitutive models
     fem::CM_Factory tCMFactory;
 
-    std::shared_ptr< fem::Constitutive_Model > tCMDiffusion = tCMFactory.create_CM( fem::Constitutive_Type::DIFF_LIN_ISO );
-    tCMDiffusion->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
+    std::shared_ptr< fem::Constitutive_Model > tCMDiffusion =
+            tCMFactory.create_CM( fem::Constitutive_Type::DIFF_LIN_ISO );
+    tCMDiffusion->set_dof_type_list( { tTempDofTypes } );
     tCMDiffusion->set_property( tPropConductivity, "Conductivity" );
     tCMDiffusion->set_property( tPropDensity, "Density" );
     tCMDiffusion->set_property( tPropHeatCapacity, "HeatCapacity" );
-    tCMDiffusion->set_space_dim( 2 );
-
 
     // define stabilization parameters
     fem::SP_Factory tSPFactory;
 
     std::shared_ptr< fem::Stabilization_Parameter > tSPSUPG
     = tSPFactory.create_SP( fem::Stabilization_Type::SUPG_ADVECTION );
-    tSPSUPG->set_dof_type_list( {{ MSI::Dof_Type::VX, MSI::Dof_Type::VY }} );
+    tSPSUPG->set_dof_type_list( { tVelDofTypes } );
     tSPSUPG->set_property( tPropConductivity, "Conductivity", mtk::Master_Slave::MASTER );
 
     // define the IWGs
@@ -100,76 +110,12 @@ TEST_CASE( "IWG_Advection_Bulk_2D", "[IWG_Advection_Bulk_2D]" )
 
     std::shared_ptr< fem::IWG > tIWG = tIWGFactory.create_IWG( fem::IWG_Type::ADVECTION_BULK );
     tIWG->set_residual_dof_type( { MSI::Dof_Type::TEMP } );
-    tIWG->set_dof_type_list( {{ MSI::Dof_Type::VX, MSI::Dof_Type::VY }, { MSI::Dof_Type::TEMP }}, mtk::Master_Slave::MASTER );
+    tIWG->set_dof_type_list( tDofTypes, mtk::Master_Slave::MASTER );
     tIWG->set_constitutive_model( tCMDiffusion, "Diffusion" );
     tIWG->set_stabilization_parameter( tSPSUPG, "SUPG" );
 
-    // create evaluation point xi, tau
+    // init set info
     //------------------------------------------------------------------------------
-    Matrix< DDRMat > tParamPoint = {{ 1.0 }, { 0.25 }, { 0.1 }};
-
-    // space and time geometry interpolators
-    //------------------------------------------------------------------------------
-    // create a space geometry interpolation rule
-    Interpolation_Rule tGIRule( mtk::Geometry_Type::QUAD,
-                                Interpolation_Type::LAGRANGE,
-                                mtk::Interpolation_Order::LINEAR,
-                                Interpolation_Type::LAGRANGE,
-                                mtk::Interpolation_Order::LINEAR );
-
-    // create a space time geometry interpolator
-    Geometry_Interpolator tGI = Geometry_Interpolator( tGIRule );
-
-    // create space coeff xHat
-    Matrix< DDRMat > tXHat = {{ 0.0, 0.0 },
-                              { 1.0, 0.0 },
-                              { 1.0, 1.0 },
-                              { 0.0, 1.0}};
-
-    // create time coeff tHat
-    Matrix< DDRMat > tTHat = {{ 0.0 }, {1.0 }};
-
-    // set the coefficients xHat, tHat
-    tGI.set_coeff( tXHat, tTHat );
-
-    // set the evaluation point
-    tGI.set_space_time( tParamPoint );
-
-    // field interpolators
-    //------------------------------------------------------------------------------
-    //create a space time interpolation rule
-    Interpolation_Rule tFIRule ( mtk::Geometry_Type::QUAD,
-                                 Interpolation_Type::LAGRANGE,
-                                 mtk::Interpolation_Order::LINEAR,
-                                 Interpolation_Type::LAGRANGE,
-                                 mtk::Interpolation_Order::LINEAR );
-
-    // create random coefficients
-    arma::Mat< double > tMatrix;
-    tMatrix.randu( 8, 2 );
-    Matrix< DDRMat > tDOFHat;
-    tDOFHat.matrix_data() = 10.0 * tMatrix;
-
-    arma::Mat< double > tMatrixT;
-    tMatrixT.randu( 8, 1 );
-    Matrix< DDRMat > tDOFHatT;
-    tDOFHatT.matrix_data() = 10.0 * tMatrixT;
-
-    // create a cell of field interpolators for IWG
-    Cell< Field_Interpolator* > tFIs( 2 );
-
-    // create the field interpolator
-    tFIs( 0 ) = new Field_Interpolator( 2, tFIRule, &tGI,{ {MSI::Dof_Type::VX, MSI::Dof_Type::VY } } );
-    tFIs( 1 ) = new Field_Interpolator( 1, tFIRule, &tGI,{ {MSI::Dof_Type::TEMP } } );
-
-    // set the coefficients uHat
-    tFIs( 0 )->set_coeff( tDOFHat );
-    tFIs( 1 )->set_coeff( tDOFHatT );
-
-    //set the evaluation point xi, tau
-    tFIs( 0 )->set_space_time( tParamPoint );
-    tFIs( 1 )->set_space_time( tParamPoint );
-
     // set a fem set pointer
     MSI::Equation_Set * tSet = new fem::Set();
     tIWG->set_set_pointer( static_cast< fem::Set* >( tSet ) );
@@ -179,283 +125,241 @@ TEST_CASE( "IWG_Advection_Bulk_2D", "[IWG_Advection_Bulk_2D]" )
 
     // set size and populate the set dof type map
     tIWG->mSet->mUniqueDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
-    tIWG->mSet->mUniqueDofTypeMap( static_cast< int >( MSI::Dof_Type::VX ) ) = 0;
+    tIWG->mSet->mUniqueDofTypeMap( static_cast< int >( MSI::Dof_Type::VX ) )   = 0;
     tIWG->mSet->mUniqueDofTypeMap( static_cast< int >( MSI::Dof_Type::TEMP ) ) = 1;
 
     // set size and populate the set master dof type map
     tIWG->mSet->mMasterDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
-    tIWG->mSet->mMasterDofTypeMap( static_cast< int >( MSI::Dof_Type::VX ) ) = 0;
+    tIWG->mSet->mMasterDofTypeMap( static_cast< int >( MSI::Dof_Type::VX ) )   = 0;
     tIWG->mSet->mMasterDofTypeMap( static_cast< int >( MSI::Dof_Type::TEMP ) ) = 1;
 
-    // set size and fill the set residual assembly map
-    tIWG->mSet->mResDofAssemblyMap.resize( 2 );
-    tIWG->mSet->mResDofAssemblyMap( 0 ) = { { 0, 15 } };
-    tIWG->mSet->mResDofAssemblyMap( 1 ) = { { 16, 23 } };
+    // loop on the space dimension
+    for( uint iSpaceDim = 2; iSpaceDim < 4; iSpaceDim++ )
+    {
+        // set geometry inputs
+        //------------------------------------------------------------------------------
+        // switch on space dimension
+        switch( iSpaceDim )
+        {
+            case 2 :
+            {
+                // set geometry type
+                tGeometryType = mtk::Geometry_Type::QUAD;
 
-    // set size and fill the set jacobian assembly map
-    tIWG->mSet->mJacDofAssemblyMap.resize( 2 );
-    tIWG->mSet->mJacDofAssemblyMap( 0 ) = { { 0, 15 }, { 16, 23 } };
-    tIWG->mSet->mJacDofAssemblyMap( 1 ) = { { 0, 15 }, { 16, 23 } };
+                // fill space coeff xHat
+                tXHat = {{ 0.0, 0.0 },
+                        { 1.0, 0.0 },
+                        { 1.0, 1.0 },
+                        { 0.0, 1.0 }};
 
-    // set size and init the set residual and jacobian
-    tIWG->mSet->mResidual.resize( 1 );
-    tIWG->mSet->mResidual( 0 ).set_size( 24, 1, 0.0 );
-    tIWG->mSet->mJacobian.set_size( 24, 24, 0.0 );
+                // set velocity dof types
+                tVelDofTypes = { MSI::Dof_Type::VX, MSI::Dof_Type::VY };
+                break;
+            }
+            case 3 :
+            {
+                // set geometry type
+                tGeometryType = mtk::Geometry_Type::HEX;
 
-    // build global dof type list
-    tIWG->get_global_dof_type_list();
+                // fill space coeff xHat
+                tXHat = {{ 0.0, 0.0, 0.0 },
+                        { 1.0, 0.0, 0.0 },
+                        { 1.0, 1.0, 0.0 },
+                        { 0.0, 1.0, 0.0 },
+                        { 0.0, 0.0, 1.0 },
+                        { 1.0, 0.0, 1.0 },
+                        { 1.0, 1.0, 1.0 },
+                        { 0.0, 1.0, 1.0 }};
 
-    // populate the requested master dof type
-    tIWG->mRequestedMasterGlobalDofTypes = { { MSI::Dof_Type::VX }, { MSI::Dof_Type::TEMP } };
+                // set velocity dof types
+                tVelDofTypes = { MSI::Dof_Type::VX, MSI::Dof_Type::VY, MSI::Dof_Type::VZ };
+                break;
+            }
+            default:
+            {
+                MORIS_ERROR( false, " QUAD or HEX only." );
+                break;
+            }
+        }
 
-    // create a field interpolator manager
-    moris::Cell< moris::Cell< enum MSI::Dof_Type > > tDummyDof;
-    moris::Cell< moris::Cell< enum PDV_Type > > tDummyDv;
-    Field_Interpolator_Manager tFIManager( tDummyDof, tDummyDv, tSet );
+        // space and time geometry interpolators
+        //------------------------------------------------------------------------------
+        // create a space geometry interpolation rule
+        Interpolation_Rule tGIRule( tGeometryType,
+                Interpolation_Type::LAGRANGE,
+                mtk::Interpolation_Order::LINEAR,
+                Interpolation_Type::LAGRANGE,
+                mtk::Interpolation_Order::LINEAR );
 
-    // populate the field interpolator manager
-    tFIManager.mFI = tFIs;
-    tFIManager.mIPGeometryInterpolator = &tGI;
-    tFIManager.mIGGeometryInterpolator = &tGI;
+        // create a space time geometry interpolator
+        Geometry_Interpolator tGI = Geometry_Interpolator( tGIRule );
 
-    // set the interpolator manager to the set
-    tIWG->mSet->mMasterFIManager = &tFIManager;
+        // create time coeff tHat
+        Matrix< DDRMat > tTHat = {{ 0.0 }, { 1.0 }};
 
-    // set IWG field interpolator manager
-    tIWG->set_field_interpolator_manager(&tFIManager);
+        // set the coefficients xHat, tHat
+        tGI.set_coeff( tXHat, tTHat );
 
-    // check evaluation of the residual for IWG
-    //------------------------------------------------------------------------------
-    // evaluate the residual
-    tIWG->compute_residual( 1.0 );
+        // set space dimension to CM, SP
+        tCMDiffusion->set_space_dim( iSpaceDim );
+        tSPSUPG->set_space_dim( iSpaceDim );
 
-    // check evaluation of the jacobian by FD
-    //------------------------------------------------------------------------------
-    // init the jacobian for IWG and FD evaluation
-    Matrix< DDRMat > tJacobian;
-    Matrix< DDRMat > tJacobianFD;
+        // loop on the interpolation order
+        for( uint iInterpOrder = 1; iInterpOrder < 4; iInterpOrder++ )
+        {
+            // integration points
+            //------------------------------------------------------------------------------
+            // get an integration order
+            fem::Integration_Order tIntegrationOrder   = tIntegrationOrders( iSpaceDim - 2 );
 
-    // check jacobian by FD
-    bool tCheckJacobian = tIWG->check_jacobian( tPerturbation,
-                                                tEpsilon,
-                                                1.0,
-                                                tJacobian,
-                                                tJacobianFD );
+            // create an integration rule
+            fem::Integration_Rule tIntegrationRule(
+                    tGeometryType,
+                    Integration_Type::GAUSS,
+                    tIntegrationOrder,
+                    mtk::Geometry_Type::LINE,
+                    Integration_Type::GAUSS,
+                    fem::Integration_Order::BAR_1 );
 
-//    // print for debug
-//    print( tJacobian({ 0, 7 }, { 0, 15 }), "tJacobian_TV" );
-//    print( tJacobianFD({ 0, 7 }, { 0, 15 }), "tJacobianFD_TV" );
-//    print( tJacobian({ 0, 7 }, { 16, 23 }), "tJacobian_TT" );
-//    print( tJacobianFD({ 0, 7 }, { 16, 23 }), "tJacobianFD_TT" );
+            // create an integrator
+            fem::Integrator tIntegrator( tIntegrationRule );
 
-    // require check is true
-    REQUIRE( tCheckJacobian );
+            // get integration points
+            Matrix< DDRMat > tIntegPoints;
+            tIntegrator.get_points( tIntegPoints );
 
-    // clean up
-    tFIs.clear();
+            // field interpolators
+            //------------------------------------------------------------------------------
+            // create an interpolation order
+            mtk::Interpolation_Order tInterpolationOrder = tInterpolationOrders( iInterpOrder - 1 );
 
-}/*END_TEST_CASE*/
+            // number of dof for interpolation order
+            uint tNumCoeff = tNumCoeffs( iSpaceDim - 2, iInterpOrder - 1 );
 
-TEST_CASE( "IWG_Advection_Bulk_3D", "[IWG_Advection_Bulk_3D]" )
-{
-    // define an epsilon environment
-    real tEpsilon = 1E-6;
+            // get number of dof per type
+            int tNumDofVel  = tNumCoeff * iSpaceDim;
+            int tNumDofTEMP = tNumCoeff;
 
-    // define a perturbation relative size
-    real tPerturbation = 1E-6;
+            //create a space time interpolation rule
+            Interpolation_Rule tFIRule ( tGeometryType,
+                    Interpolation_Type::LAGRANGE,
+                    tInterpolationOrder,
+                    Interpolation_Type::LAGRANGE,
+                    mtk::Interpolation_Order::LINEAR );
 
-    // create the properties
-    std::shared_ptr< fem::Property > tPropHeatCapacity = std::make_shared< fem::Property >();
-    tPropHeatCapacity->set_parameters( { {{ 2.0 }} } );
-    tPropHeatCapacity->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
-    tPropHeatCapacity->set_val_function( tFIValFunction_Advection );
-    tPropHeatCapacity->set_dof_derivative_functions( { tFIDerFunction_Advection } );
+            // fill coefficients for master FI
+            Matrix< DDRMat > tMasterDOFHatVel;
+            fill_uhat( tMasterDOFHatVel, iSpaceDim, iInterpOrder );
+            Matrix< DDRMat > tMasterDOFHatTEMP;
+            fill_phat( tMasterDOFHatTEMP, iSpaceDim, iInterpOrder );
 
-    std::shared_ptr< fem::Property > tPropDensity = std::make_shared< fem::Property >();
-    tPropDensity->set_parameters( { {{ 10.0 }} } );
-    tPropDensity->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
-    tPropDensity->set_val_function( tFIValFunction_Advection );
-    tPropDensity->set_dof_derivative_functions( { tFIDerFunction_Advection } );
+            // create a cell of field interpolators for IWG
+            Cell< Field_Interpolator* > tMasterFIs( tDofTypes.size() );
 
-    std::shared_ptr< fem::Property > tPropConductivity = std::make_shared< fem::Property >();
-    tPropConductivity->set_parameters( { {{ 5.0 }} } );
-    tPropConductivity->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
-    tPropConductivity->set_val_function( tFIValFunction_Advection );
-    tPropConductivity->set_dof_derivative_functions( { tFIDerFunction_Advection } );
+            // create the field interpolator velocity
+            tMasterFIs( 0 ) = new Field_Interpolator( iSpaceDim, tFIRule, &tGI, tVelDofTypes );
+            tMasterFIs( 0 )->set_coeff( tMasterDOFHatVel );
 
-    // define constitutive models
-    fem::CM_Factory tCMFactory;
+            // create the field interpolator temperature
+            tMasterFIs( 1 ) = new Field_Interpolator( 1, tFIRule, &tGI, tTempDofTypes );
+            tMasterFIs( 1 )->set_coeff( tMasterDOFHatTEMP );
 
-    std::shared_ptr< fem::Constitutive_Model > tCMDiffusion = tCMFactory.create_CM( fem::Constitutive_Type::DIFF_LIN_ISO );
-    tCMDiffusion->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
-    tCMDiffusion->set_property( tPropConductivity, "Conductivity" );
-    tCMDiffusion->set_property( tPropDensity, "Density" );
-    tCMDiffusion->set_property( tPropHeatCapacity, "HeatCapacity" );
-    tCMDiffusion->set_space_dim( 3 );
+            // set size and fill the set residual assembly map
+            tIWG->mSet->mResDofAssemblyMap.resize( tDofTypes.size() );
+            tIWG->mSet->mResDofAssemblyMap( 0 ) = { { 0, tNumDofVel-1 } };
+            tIWG->mSet->mResDofAssemblyMap( 1 ) = { { tNumDofVel, tNumDofVel + tNumDofTEMP - 1 } };
 
-    // define stabilization parameters
-    fem::SP_Factory tSPFactory;
+            // set size and fill the set jacobian assembly map
+            Matrix< DDSMat > tJacAssembly = {
+                    { 0, tNumDofVel - 1 },
+                    { tNumDofVel, tNumDofVel + tNumDofTEMP - 1 } };
+            tIWG->mSet->mJacDofAssemblyMap.resize( tDofTypes.size() );
+            tIWG->mSet->mJacDofAssemblyMap( 0 ) = tJacAssembly;
+            tIWG->mSet->mJacDofAssemblyMap( 1 ) = tJacAssembly;
 
-    std::shared_ptr< fem::Stabilization_Parameter > tSPSUPG
-    = tSPFactory.create_SP( fem::Stabilization_Type::SUPG_ADVECTION );
-    tSPSUPG->set_dof_type_list( {{ MSI::Dof_Type::VX, MSI::Dof_Type::VY, MSI::Dof_Type::VZ }} );
-    tSPSUPG->set_property( tPropConductivity, "Conductivity", mtk::Master_Slave::MASTER );
+            // set size and init the set residual and jacobian
+            tIWG->mSet->mResidual.resize( 1 );
+            tIWG->mSet->mResidual( 0 ).set_size(
+                    tNumDofVel + tNumDofTEMP,
+                    1,
+                    0.0 );
+            tIWG->mSet->mJacobian.set_size(
+                    tNumDofVel + tNumDofTEMP,
+                    tNumDofVel + tNumDofTEMP,
+                    0.0 );
 
-    // define the IWGs
-    fem::IWG_Factory tIWGFactory;
+            // build global dof type list
+            tIWG->get_global_dof_type_list();
 
-    std::shared_ptr< fem::IWG > tIWG = tIWGFactory.create_IWG( fem::IWG_Type::ADVECTION_BULK );
-    tIWG->set_residual_dof_type( { MSI::Dof_Type::TEMP } );
-    tIWG->set_dof_type_list( {{ MSI::Dof_Type::VX, MSI::Dof_Type::VY, MSI::Dof_Type::VZ }, { MSI::Dof_Type::TEMP }}, mtk::Master_Slave::MASTER );
-    tIWG->set_constitutive_model( tCMDiffusion, "Diffusion" );
-    tIWG->set_stabilization_parameter( tSPSUPG, "SUPG" );
+            // populate the requested master dof type
+            tIWG->mRequestedMasterGlobalDofTypes = tDofTypes;
 
-    // create evaluation point xi, tau
-    //------------------------------------------------------------------------------
-    Matrix< DDRMat > tParamPoint = {{ 1.0 }, { 0.25 }, { 0.75 }, { 0.1 }};
+            // create a field interpolator manager
+            moris::Cell< moris::Cell< enum PDV_Type > > tDummyDv;
+            Field_Interpolator_Manager tFIManager( tDofTypes, tDummyDv, tSet );
 
-    // space and time geometry interpolators
-    //------------------------------------------------------------------------------
-    // create a space geometry interpolation rule
-    Interpolation_Rule tGIRule( mtk::Geometry_Type::HEX,
-                                Interpolation_Type::LAGRANGE,
-                                mtk::Interpolation_Order::LINEAR,
-                                Interpolation_Type::LAGRANGE,
-                                mtk::Interpolation_Order::LINEAR );
+            // populate the field interpolator manager
+            tFIManager.mFI = tMasterFIs;
+            tFIManager.mIPGeometryInterpolator = &tGI;
+            tFIManager.mIGGeometryInterpolator = &tGI;
 
-    // create a space time geometry interpolator
-    Geometry_Interpolator tGI = Geometry_Interpolator( tGIRule );
+            // set the interpolator manager to the set
+            tIWG->mSet->mMasterFIManager = &tFIManager;
 
-    // create space coeff xHat
-    Matrix< DDRMat > tXHat = {{ 0.0, 0.0, 0.0 },
-                              { 1.0, 0.0, 0.0 },
-                              { 1.0, 1.0, 0.0 },
-                              { 0.0, 1.0, 0.0 },
-                              { 0.0, 0.0, 1.0 },
-                              { 1.0, 0.0, 1.0 },
-                              { 1.0, 1.0, 1.0 },
-                              { 0.0, 1.0, 1.0 }};
+            // set IWG field interpolator manager
+            tIWG->set_field_interpolator_manager( &tFIManager );
 
-    // create time coeff tHat
-    Matrix< DDRMat > tTHat = {{ 0.0 }, { 1.0 }};
+            // loop over integartion points
+            uint tNumGPs = tIntegPoints.n_cols();
+            for( uint iGP = 0; iGP < tNumGPs; iGP ++ )
+            {
+                // reset IWG evaluation flags
+                tIWG->reset_eval_flags();
 
-    // set the coefficients xHat, tHat
-    tGI.set_coeff( tXHat, tTHat );
+                // create evaluation point xi, tau
+                Matrix< DDRMat > tParamPoint = tIntegPoints.get_column( iGP );
 
-    // set the evaluation point
-    tGI.set_space_time( tParamPoint );
+                // set integration point
+                tIWG->mSet->mMasterFIManager->set_space_time( tParamPoint );
 
-    // field interpolators
-    //------------------------------------------------------------------------------
-    //create a space time interpolation rule
-    Interpolation_Rule tFIRule ( mtk::Geometry_Type::HEX,
-                                 Interpolation_Type::LAGRANGE,
-                                 mtk::Interpolation_Order::LINEAR,
-                                 Interpolation_Type::LAGRANGE,
-                                 mtk::Interpolation_Order::LINEAR );
+                // check evaluation of the residual for IWG
+                //------------------------------------------------------------------------------
+                // reset residual
+                tIWG->mSet->mResidual( 0 ).fill( 0.0 );
 
-    // create random coefficients
-    arma::Mat< double > tMatrix;
-    tMatrix.randu( 16, 3 );
-    Matrix< DDRMat > tDOFHat;
-    tDOFHat.matrix_data() = 10.0 * tMatrix;
+                // compute residual
+                tIWG->compute_residual( 1.0 );
 
-    arma::Mat< double > tMatrixT;
-    tMatrixT.randu( 16, 1 );
-    Matrix< DDRMat > tDOFHatT;
-    tDOFHatT.matrix_data() = 10.0 * tMatrixT;
+                // check evaluation of the jacobian by FD
+                //------------------------------------------------------------------------------
+                // reset jacobian
+                tIWG->mSet->mJacobian.fill( 0.0 );
 
-    // create a cell of field interpolators for IWG
-    Cell< Field_Interpolator* > tFIs( 2 );
+                // init the jacobian for IWG and FD evaluation
+                Matrix< DDRMat > tJacobian;
+                Matrix< DDRMat > tJacobianFD;
 
-    // create the field interpolator
-    tFIs( 0 ) = new Field_Interpolator( 3, tFIRule, &tGI,{ {MSI::Dof_Type::VX, MSI::Dof_Type::VY, MSI::Dof_Type::VZ } } );
-    tFIs( 1 ) = new Field_Interpolator( 1, tFIRule, &tGI,{ {MSI::Dof_Type::TEMP } } );
+                // check jacobian by FD
+                bool tCheckJacobian = tIWG->check_jacobian(
+                        tPerturbation,
+                        tEpsilon,
+                        1.0,
+                        tJacobian,
+                        tJacobianFD,
+                        true );
 
-    // set the coefficients uHat
-    tFIs( 0 )->set_coeff( tDOFHat );
-    tFIs( 1 )->set_coeff( tDOFHatT );
+                // print for debug
+                if( !tCheckJacobian )
+                {
+                    std::cout<<"Case: Geometry "<<iSpaceDim<<" Order "<<iInterpOrder<<"iGP "<<iGP<<std::endl;
+                }
 
-    //set the evaluation point xi, tau
-    tFIs( 0 )->set_space_time( tParamPoint );
-    tFIs( 1 )->set_space_time( tParamPoint );
+                // require check is true
+                REQUIRE( tCheckJacobian );
+            }
 
-    // set a fem set pointer
-    MSI::Equation_Set * tSet = new fem::Set();
-    tIWG->set_set_pointer( static_cast< fem::Set* >( tSet ) );
-
-    // set size for the set EqnObjDofTypeList
-    tIWG->mSet->mUniqueDofTypeList.resize( 100, MSI::Dof_Type::END_ENUM );
-
-    // set size and populate the set dof type map
-    tIWG->mSet->mUniqueDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
-    tIWG->mSet->mUniqueDofTypeMap( static_cast< int >( MSI::Dof_Type::VX ) ) = 0;
-    tIWG->mSet->mUniqueDofTypeMap( static_cast< int >( MSI::Dof_Type::TEMP ) ) = 1;
-
-    // set size and populate the set master dof type map
-    tIWG->mSet->mMasterDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
-    tIWG->mSet->mMasterDofTypeMap( static_cast< int >( MSI::Dof_Type::VX ) ) = 0;
-    tIWG->mSet->mMasterDofTypeMap( static_cast< int >( MSI::Dof_Type::TEMP ) ) = 1;
-
-    // set size and fill the set residual assembly map
-    tIWG->mSet->mResDofAssemblyMap.resize( 2 );
-    tIWG->mSet->mResDofAssemblyMap( 0 ) = { { 0, 47 } };
-    tIWG->mSet->mResDofAssemblyMap( 1 ) = { { 48, 63 } };
-
-    // set size and fill the set jacobian assembly map
-    tIWG->mSet->mJacDofAssemblyMap.resize( 2 );
-    tIWG->mSet->mJacDofAssemblyMap( 0 ) = { { 0, 47 }, { 48, 63 } };
-    tIWG->mSet->mJacDofAssemblyMap( 1 ) = { { 0, 47 }, { 48, 63 } };
-
-    // set size and init the set residual and jacobian
-    tIWG->mSet->mResidual.resize( 1 );
-    tIWG->mSet->mResidual( 0 ).set_size( 64, 1, 0.0 );
-    tIWG->mSet->mJacobian.set_size( 64, 64, 0.0 );
-
-    // build global dof type list
-    tIWG->get_global_dof_type_list();
-
-    // populate the requested master dof type
-    tIWG->mRequestedMasterGlobalDofTypes = { { MSI::Dof_Type::VX }, { MSI::Dof_Type::TEMP } };
-
-    // create a field interpolator manager
-    moris::Cell< moris::Cell< enum MSI::Dof_Type > > tDummyDof;
-    moris::Cell< moris::Cell< enum PDV_Type > > tDummyDv;
-    Field_Interpolator_Manager tFIManager( tDummyDof, tDummyDv, tSet );
-
-    // populate the field interpolator manager
-    tFIManager.mFI = tFIs;
-    tFIManager.mIPGeometryInterpolator = &tGI;
-    tFIManager.mIGGeometryInterpolator = &tGI;
-
-    // set the interpolator manager to the set
-    tIWG->mSet->mMasterFIManager = &tFIManager;
-
-    // set IWG field interpolator manager
-    tIWG->set_field_interpolator_manager(&tFIManager);
-
-    // check evaluation of the residual for IWG
-    //------------------------------------------------------------------------------
-    // evaluate the residual
-    tIWG->compute_residual( 1.0 );
-
-    // check evaluation of the jacobian by FD
-    //------------------------------------------------------------------------------
-    // init the jacobian for IWG and FD evaluation
-    Matrix< DDRMat > tJacobian;
-    Matrix< DDRMat > tJacobianFD;
-
-    // check jacobian by FD
-    bool tCheckJacobian = tIWG->check_jacobian( tPerturbation,
-                                                tEpsilon,
-                                                1.0,
-                                                tJacobian,
-                                                tJacobianFD );
-
-    // require check is true
-    REQUIRE( tCheckJacobian );
-
-    // clean up
-    tFIs.clear();
-
-}/*END_TEST_CASE*/
+            // clean up
+            tMasterFIs.clear();
+        }
+    }
+}
