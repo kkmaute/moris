@@ -561,8 +561,6 @@ namespace moris
                 mBackgroundMesh->set_activation_pattern( tActivePattern );
             }
 
-            //mBackgroundMesh->save_to_vtk( "Background_mesh111111111.vtk");
-
             this->create_meshes();
 
             // set flag for input t-matrices
