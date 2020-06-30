@@ -126,6 +126,14 @@ namespace moris
             mDatabase->finalize();
         }
 
+// -----------------------------------------------------------------------------
+
+        void HMR::reset_HMR()
+        {
+            // finish database
+            mDatabase->reset_refined_meshes();
+        }
+
         // -----------------------------------------------------------------------------
 
         void HMR::perform()

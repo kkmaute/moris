@@ -42,10 +42,10 @@ namespace moris
             moris_id mIndex;
 
             //! pointer to master element
-            Element * mMaster;
+            Element * mMaster = nullptr;
 
             //! pointer to slave element
-            Element * mSlave;
+            Element * mSlave = nullptr;
 
             uint mIndexOnMaster;
 

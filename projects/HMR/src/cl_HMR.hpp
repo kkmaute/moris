@@ -412,6 +412,14 @@ namespace moris
                 // -----------------------------------------------------------------------------
 
                 /**
+                 * resets HMR. deletes T-Matrices, faces and edges
+                 */
+
+                void reset_HMR();
+
+                // -----------------------------------------------------------------------------
+
+                /**
                  * performs HMR specific task. Right now only finalize. more will be added
                  */
                 void perform();

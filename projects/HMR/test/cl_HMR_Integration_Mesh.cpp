@@ -18,7 +18,13 @@ namespace moris
 moris::real
 LevelSetFunction( const moris::Matrix< moris::DDRMat > & aPoint )
 {
-    return norm( aPoint ) - 0.5;
+    return norm( aPoint ) - 0.9;
+}
+
+moris::real
+LevelSetFunction1( const moris::Matrix< moris::DDRMat > & aPoint )
+{
+    return norm( aPoint ) - 4.1;
 }
 TEST_CASE( "HMR Integration Mesh" , "[hmr],[IG_Mesh]")
 {
@@ -246,6 +252,95 @@ TEST_CASE( "HMR Integration Mesh bounding box" , "[hmr],[IG_Mesh_bounding_box]")
     CHECK( tCheck );
 
     delete tOutputInterpMesh;
+    }
+}
+
+TEST_CASE( "HMR delete mesh" , "[hmr],[IG_Mesh_delete_mesh]")
+{
+    if(par_size() == 1)
+    {
+        moris::uint tLagrangeMeshIndex = 0;
+        moris::uint tBSplineMeshIndex = 0;
+
+        moris::hmr::Parameters tParameters;
+
+        tParameters.set_number_of_elements_per_dimension( { {10}, {4}, {4} } );
+        tParameters.set_domain_dimensions({ {10}, {4}, {4} });
+        tParameters.set_domain_offset({ {-2.0}, {-2.0}, {-2.0} });
+        tParameters.set_bspline_truncation( true );
+        tParameters.set_side_sets({ {1}, {6}, {3}, {4}, {5}, {2} });
+
+        tParameters.set_output_meshes( { {0} } );
+
+        tParameters.set_lagrange_orders  ( { {1} });
+        tParameters.set_lagrange_patterns({ {0} });
+
+        tParameters.set_bspline_orders   ( { {1} } );
+        tParameters.set_bspline_patterns ( { {0} } );
+
+        tParameters.set_refinement_buffer( 1 );
+        tParameters.set_staircase_buffer( 1 );
+
+        Cell< Matrix< DDSMat > > tLagrangeToBSplineMesh( 1 );
+        tLagrangeToBSplineMesh( 0 ) = { {0} };
+
+        tParameters.set_lagrange_to_bspline_mesh( tLagrangeToBSplineMesh );
+
+        hmr::HMR tHMR( tParameters );
+
+        std::shared_ptr< moris::hmr::Mesh > tMesh = tHMR.create_mesh( tLagrangeMeshIndex );
+
+        // create field
+        std::shared_ptr< moris::hmr::Field > tField = tMesh->create_field( "Circle", tBSplineMeshIndex );
+
+        tField->evaluate_scalar_function( LevelSetFunction );
+
+        for( uint k=0; k<2; ++k )
+        {
+            tHMR.flag_surface_elements_on_working_pattern( tField );
+            tHMR.perform_refinement_based_on_working_pattern( 0 );
+
+            tField->evaluate_scalar_function( LevelSetFunction );
+        }
+
+        tHMR.finalize();
+
+        tHMR.save_to_exodus( 0, "delete_test_1.exo" );
+
+        // create pointer to output mesh
+        hmr::Interpolation_Mesh_HMR * tOutputInterpMesh = tHMR.create_interpolation_mesh( tLagrangeMeshIndex );
+
+        delete tOutputInterpMesh;
+
+        tHMR.reset_HMR();
+
+        std::shared_ptr< moris::hmr::Mesh > tMesh1 = tHMR.create_mesh( tLagrangeMeshIndex );
+
+        // create field
+        std::shared_ptr< moris::hmr::Field > tField1 = tMesh1->create_field( "Circle", tBSplineMeshIndex );
+
+        tField1->evaluate_scalar_function( LevelSetFunction1 );
+
+        for( uint k=0; k<2; ++k )
+        {
+            tHMR.flag_surface_elements_on_working_pattern( tField1 );
+            tHMR.perform_refinement_based_on_working_pattern( 0 );
+
+            tField1->evaluate_scalar_function( LevelSetFunction1 );
+        }
+
+        tHMR.finalize();
+
+        hmr::Interpolation_Mesh_HMR * tOutputInterpMesh1 = tHMR.create_interpolation_mesh( tLagrangeMeshIndex );
+
+       tHMR.save_to_exodus( 0, "delete_test_2.exo" );
+
+        delete tOutputInterpMesh1;
+
+
+
+
+
     }
 }
 

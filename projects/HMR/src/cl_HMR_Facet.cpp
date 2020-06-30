@@ -14,6 +14,8 @@ namespace moris
                       Background_Facet * aBackgroundFacet ) :  mFacet( aBackgroundFacet )
         {
             // set pointer to master element
+            MORIS_ASSERT( aBackgroundFacet->get_master() != nullptr, "Background master facet is nullptr");
+
             mMaster = aMesh->get_element_by_memory_index( aBackgroundFacet->get_master()->get_memory_index() );
 
             mIndexOnMaster = aBackgroundFacet->get_index_on_master();

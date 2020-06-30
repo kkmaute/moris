@@ -1922,6 +1922,7 @@ namespace moris
                     {
                         // padding elements are always refined
                         tElement->set_refined_flag( aPattern );
+                        //tElement->deactivate( aPattern );
                     }
                     else
                     {
@@ -2188,6 +2189,74 @@ namespace moris
             MORIS_LOG_INFO( "Creation %5.3f seconds.",
                     ( double ) tElapsedTime / 1000 );
             MORIS_LOG_INFO( " " );
+        }
+
+// -----------------------------------------------------------------------------
+
+        void Background_Mesh_Base::delete_faces()
+        {
+            // loop over all levels
+            for( uint l=0; l<=mMaxLevel; ++l )
+            {
+                // list of all elements on this level
+                Cell< Background_Element_Base* > tElementList;
+
+                // collect all elements on this level
+                this->collect_elements_on_level_including_aura( l, tElementList );
+
+                // loop over all elements
+                for( Background_Element_Base* tElement : tElementList )
+                {
+                    // create faces
+                    tElement->delete_facets();
+                }
+            }
+        }
+
+// -----------------------------------------------------------------------------
+
+        void Background_Mesh_Base::delete_edges()
+        {
+            // loop over all levels
+            for( uint l=0; l<=mMaxLevel; ++l )
+            {
+                // list of all elements on this level
+                Cell< Background_Element_Base* > tElementList;
+
+                // collect all elements on this level
+                this->collect_elements_on_level_including_aura( l, tElementList );
+
+                // loop over all elements
+                for( Background_Element_Base* tElement : tElementList )
+                {
+                    // create edges
+                    tElement->delete_edges();
+
+                    tElement->init_edge_container();
+                }
+            }
+        }
+
+// -----------------------------------------------------------------------------
+
+        void Background_Mesh_Base::reset_neigbors()
+        {
+            // loop over all levels
+            for( uint l=0; l<=mMaxLevel; ++l )
+            {
+                // list of all elements on this level
+                Cell< Background_Element_Base* > tElementList;
+
+                // collect all elements on this level
+                this->collect_elements_on_level_including_aura( l, tElementList );
+
+                // loop over all elements
+                for( Background_Element_Base* tElement : tElementList )
+                {
+                    // create edges
+                    tElement->reset_neigbors();
+                }
+            }
         }
 
 // -----------------------------------------------------------------------------
