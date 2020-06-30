@@ -104,6 +104,14 @@ namespace moris
 
                 //------------------------------------------------------------------------------
                 /**
+                 * get a property pointer
+                 * @param[ in ]  aPropertyType a string defining the property
+                 * @param[ out ] aProperty     a property pointer
+                 */
+                std::shared_ptr< Property > get_property( std::string aPropertyString );
+
+                //------------------------------------------------------------------------------
+                /**
                  * evaluates the constitutive model change rate of enthalpy
                  */
                 void eval_Hdot();

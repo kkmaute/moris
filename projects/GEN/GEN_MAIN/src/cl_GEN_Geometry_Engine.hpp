@@ -1,5 +1,8 @@
-#ifndef PROJECTS_GEN_GEN_MAIN_SRC_GEOMENG_CL_Geometry_Engine_HPP_
-#define PROJECTS_GEN_GEN_MAIN_SRC_GEOMENG_CL_Geometry_Engine_HPP_
+#ifndef MORIS_CL_Geometry_Engine_HPP_
+#define MORIS_CL_Geometry_Engine_HPP_
+
+// WRK
+#include "../../../WRK/src/cl_WRK_Performer.hpp"
 
 // GEN
 #include "cl_GEN_Pending_Node.hpp"
@@ -27,11 +30,6 @@ namespace moris
 {
     //------------------------------------------------------------------------------------------------------------------
 
-    namespace hmr
-    {
-        class HMR;
-        class Mesh;
-    }
     namespace MSI
     {
         class Design_Variable_Interface;
@@ -46,21 +44,16 @@ namespace moris
         // GEOMETRY ENGINE
         //--------------------------------------------------------------------------------------------------------------
 
-        class Geometry_Engine
+        class Geometry_Engine : public wrk::Performer
         {
-        public:
-            moris::uint mSpatialDim;
-            moris::real mThresholdValue;
-            moris::real mPerturbationValue;
-            bool mComputeDxDp = false; // FIXME change this?
-
         private:
 
-            // HMR refinements
-            uint mNumRefinements = 0;
+            // Level-set isocontour threshold
+            real mIsocontourThreshold;
+            real mPerturbationValue;
 
-            // HMR user defined refinement function
-            MORIS_USER_DEFINED_REFINEMENT_FUNCTION mUserDefinedFunc = nullptr;
+            // Spatial dimensions
+            uint mSpatialDim;
 
             // ADVs/IQIs
             Matrix<DDRMat> mADVs;
@@ -87,7 +80,6 @@ namespace moris
 
             // Mesh
             std::shared_ptr<mtk::Mesh_Manager> mMeshManager;
-            bool mTypesSet      = false;
 
             Matrix<IndexMat> mInterfaceNodeIndices;
 
@@ -110,10 +102,10 @@ namespace moris
              * @param[ in ] aSpatialDim spatial dimensions
              */
             Geometry_Engine(Cell< std::shared_ptr<Geometry> >   aGeometry,
-                                Phase_Table                     aPhaseTable,
-                                uint                            aSpatialDim = 3,
-                                real                            aThresholdValue = 0.0,
-                                real                            aPerturbationValue = 1E-6);
+                            Phase_Table                     aPhaseTable,
+                            uint                            aSpatialDim = 3,
+                            real                            aIsocontourThreshold = 0.0,
+                            real                            aPerturbationValue = 1E-6);
 
             /**
              * Destructor
@@ -225,36 +217,14 @@ namespace moris
              * Computes the intersection of an isocountour with an entity and returning the local coordinate relative to the parent
              * and the global coordinate if needed
              */
-            void get_intersection_location( real                    aIsocontourThreshold,
-                                            real                    aPerturbationThreshold,
-                                            const Matrix<DDRMat>&   aGlobalNodeCoordinates,
-                                            const Matrix<DDRMat>&   aEntityNodeVars,
-                                            const Matrix<IndexMat>& aEntityNodeIndices,
-                                            Matrix<DDRMat>&         aIntersectionLocalCoordinates,
-                                            Matrix<DDRMat>&         aIntersectionGlobalCoordinates,
-                                            bool                    aCheckLocalCoordinate = false,
-                                            bool                    aComputeGlobalCoordinate = false);
-
-            /**
-             * Computes dx/dp using finite differencing
-             */
-            void compute_dx_dp_finite_difference( moris::real                      const & aPerturbationVal,
-                                                  moris::Matrix< moris::DDRMat >   const & aGlobalNodeCoordinates,
-                                                  moris::Matrix< moris::DDRMat >   const & aEntityNodeCoordinates,
-                                                  moris::Matrix< moris::DDRMat >   const & aIntersectionLclCoordinate,
-                                                  moris::Matrix< moris::IndexMat > const & aEntityNodeIndices,
-                                                  moris::Matrix< moris::DDRMat >         & aEntityNodeVars,
-                                                  moris::Matrix< moris::DDRMat >         & aDxDp );
-
-            /**
-             * Computes dx/dp of an intersection
-             */
-            void compute_dx_dp_for_an_intersection( moris::Matrix< moris::IndexMat > const & aEntityNodeIndices,
-                                                    moris::Matrix< moris::DDRMat >   const & aGlobalNodeCoordinates,
-                                                    moris::Matrix< moris::DDRMat >   const & aIntersectionLclCoordinate,
-                                                    moris::Matrix< moris::DDRMat >         & aEntityNodeVars,
-                                                    moris::Matrix< moris::DDRMat >         & aDxDp,
-                                                    moris::Matrix< moris::IndexMat >       & aADVIndices );
+            void get_intersection_location(
+                    const Matrix<DDRMat>&   aGlobalNodeCoordinates,
+                    const Matrix<DDRMat>&   aEntityNodeVars,
+                    const Matrix<IndexMat>& aEntityNodeIndices,
+                    Matrix<DDRMat>&         aIntersectionLocalCoordinates,
+                    Matrix<DDRMat>&         aIntersectionGlobalCoordinates,
+                    bool                    aCheckLocalCoordinate = false,
+                    bool                    aComputeGlobalCoordinate = false);
 
             /**
              * @brief Get the total number of phases in the phase table
@@ -267,12 +237,6 @@ namespace moris
             moris::moris_index
             get_phase_sign_of_given_phase_and_geometry( moris::moris_index aPhaseIndex,
                                                         moris::moris_index aGeometryIndex );
-
-            /**
-             * @brief Get dxdp for a node
-             */
-            moris::Matrix< moris::DDRMat > const &
-            get_node_dx_dp(moris::size_t const & aNodeIndex) const;
 
             /**
               * For a given node index, return the phase index relative to each geometry (i.e. inside/outside indicator)
@@ -310,11 +274,6 @@ namespace moris
             void advance_geometry_index();
 
             /**
-             * Returns the number of advs
-             */
-            moris::size_t get_num_design_variables();
-
-            /**
              * Register an MTK mesh pair to the geometry engine
              *
              * @param aMeshManager MTK mesh manager with interpolation and integration meshes
@@ -322,28 +281,58 @@ namespace moris
             void register_mesh(std::shared_ptr<mtk::Mesh_Manager> aMeshManager);
 
             /**
-             * Performs refinement on an HMR mesh
+             * Return the number of fields that can be used for refinement
              *
-             * @param aHMRPerformer Shared pointer to HMR
-             * @param aNumRefinements Number of refinements to perform, if not given will be taken from GEN parameters
+             * @return Number of fields for refinement
              */
-            void perform_refinement(std::shared_ptr<hmr::HMR >aHMRPerformer, uint aNumRefinements = 0);
+            uint get_num_refinement_fields();
+
+            /**
+             * Gets a flag to determine if refinement should continue
+             *
+             * @param aFieldIndex The index of a field
+             * @param aRefinementIndex The current refinement step being performed
+             * @return If refinement is needed for this field
+             */
+            bool refinement_needed(uint aFieldIndex,
+                                   uint aRefinementIndex);
+
+            /**
+             * Returns fields so that HMR can perform refinement based on the data from this performer
+             *
+             * @param aFieldIndex Index of the field
+             * @param aNodeIndex Index of the node
+             * @param aCoordinates Coordinates of the node
+             */
+            real get_field_value(uint aFieldIndex,
+                                 uint aNodeIndex,
+                                 const Matrix<DDRMat>& aCoordinates);
+
+            /**
+             * Gets the index of an HMR user-defined refinement function for the given field index
+             *
+             * @param aFieldIndex Index of the field
+             * @param aRefinementIndex The current refinement step being performed
+             * @return User-defined function index, or -1 to use default refinement
+             */
+            sint get_refinement_function_index(uint aFieldIndex,
+                                               uint aRefinementIndex);
 
             /**
              * @brief assign the pdv type and property for each pdv host in a given set
              */
-            void assign_ip_hosts_by_set_name( std::string                     aSetName,
-                                              std::shared_ptr< Property > aPropertyPointer,
-                                              PDV_Type                     aPdvType,
-                                              moris_index                     aWhichMesh = 0 );
+            void assign_ip_hosts_by_set_name( std::string                 aSetName,
+                                              std::shared_ptr<Property> aPropertyPointer,
+                                              PDV_Type                    aPdvType,
+                                              moris_index                 aWhichMesh = 0 );
 
             /**
              * @brief assign the pdv type and property for each pdv host in a given set
              */
-            void assign_ip_hosts_by_set_index( moris_index                     aSetIndex,
-                                               std::shared_ptr< Property > aPropertyPointer,
-                                               PDV_Type                     aPdvType,
-                                               moris_index                     aWhichMesh = 0 );
+            void assign_ip_hosts_by_set_index( moris_index               aSetIndex,
+                                               std::shared_ptr<Property> aPropertyPointer,
+                                               PDV_Type                  aPdvType,
+                                               moris_index               aWhichMesh = 0 );
 
             /**
              * Create PDV_Type hosts with the specified PDV_Type types on the interpolation mesh
@@ -365,6 +354,11 @@ namespace moris
              */
             void assign_pdv_hosts();
 
+            /**
+             * Resets the stored info specific to meshes
+             */
+            void reset();
+
         private:
 
             /**
@@ -382,22 +376,8 @@ namespace moris
                                             moris::Matrix< moris::IndexMat >       & aNodeADVIndices,
                                             GEN_Geometry_Object                    & aGeometryObject );
 
-            /**
-             * Interpolate given level set values to a child node location
-             *
-             * @param aParentTopology
-             * @param aGeometryIndex
-             * @param aNodeLocalCoordinate
-             * @param aLevelSetValues
-             */
-            void interpolate_level_set_value_to_child_node_location( const xtk::Topology&        aParentTopology,
-                                                                           size_t                aGeometryIndex,
-                                                                     const Matrix<DDRMat>&       aNodeLocalCoordinate,
-                                                                     const Matrix<DDRMat>& aNodeGlobalCoordinates,
-                                                                           Matrix<DDRMat>&       aLevelSetValues );
-
         };
     }
 }
 
-#endif /* PROJECTS_GEN_GEN_MAIN_SRC_GEOMENG_CL_Geometry_Engine_HPP_ */
+#endif /* MORIS_CL_Geometry_Engine_HPP_ */

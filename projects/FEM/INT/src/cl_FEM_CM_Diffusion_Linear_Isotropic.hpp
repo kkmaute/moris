@@ -44,7 +44,7 @@ namespace moris
                 };
 
                 // Local string to property enum map
-                std::map< std::string, CM_Diffusion_Linear_Isotropic::Property_Type > mPropertyMap;
+                std::map< std::string, Property_Type > mPropertyMap;
 
                 //------------------------------------------------------------------------------
             public:
@@ -91,6 +91,14 @@ namespace moris
                 void set_property(
                         std::shared_ptr< fem::Property > aProperty,
                         std::string                      aPropertyString );
+
+                //--------------------------------------------------------------------------------------------------------------
+                /**
+                 * get a property pointer
+                 * @param[ in ]  aPropertyType a string defining the property
+                 * @param[ out ] aProperty     a property pointer
+                 */
+                std::shared_ptr< Property > get_property( std::string aPropertyString );
 
                 //------------------------------------------------------------------------------
                 /**

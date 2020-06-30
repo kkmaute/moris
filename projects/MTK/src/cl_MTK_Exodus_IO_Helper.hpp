@@ -21,17 +21,17 @@ namespace moris
         {
             private:
 
-                int  mErrFlag;
-                bool mVerbose;
+                int  mErrFlag = true;
+                bool mVerbose = false;
 
                 // general mesh info
-                int mNumDim;
-                int mNumNodes;
-                int mNumElem;
-                int mNumElemBlk;
-                int mNumNodeSets;
-                int mNumSideSets;
-                char * mTitle;
+                int mNumDim       = -1;
+                int mNumNodes     = -1;
+                int mNumElem      = -1;
+                int mNumElemBlk   = -1;
+                int mNumNodeSets  = -1;
+                int mNumSideSets  = -1;
+                char * mTitle     = nullptr;
 
                 // Coordinates
                 Matrix<DDRMat> mX;
@@ -39,28 +39,30 @@ namespace moris
                 Matrix<DDRMat> mZ;
 
                 // GLobal information
-                int mNumNodesGlobal;
-                int mNumElemsGlobal;
-                int mNumElemBlksGlobal;
-                int mNumNodeSetsGlobal;
-                int mNumSideSetsGlobal;
+                int mNumNodesGlobal    = -1;
+                int mNumElemsGlobal    = -1;
+                int mNumElemBlksGlobal = -1;
+                int mNumNodeSetsGlobal = -1;
+                int mNumSideSetsGlobal = -1;
 
                 std::vector<int> mGlobalElemBlkIds;
                 std::vector<int> mGlobalElemBlkCnts;
 
                 // Communication Map information
-                int mExoFileId;
-                int mNumInternalNodes;
-                int mNumBorderNodes;
-                int mNumExternalNodes;
-                int mNumInternalElems;
-                int mNumBorderElems;
-                int mNumNodeCmaps;
-                int mNumElemCmaps;
+                int mExoFileId         = -1;
+                int mNumInternalNodes  = -1;
+                int mNumBorderNodes    = -1;
+                int mNumExternalNodes  = -1;
+                int mNumInternalElems  = -1;
+                int mNumBorderElems    = -1;
+                int mNumNodeCmaps      = -1;
+                int mNumElemCmaps      = -1;
+
                 Matrix<IdMat> mNodeCmapIds;
                 Matrix<IdMat> mNodeCmapNodeCnts;
                 Matrix<IdMat> mElemCmapIds;
                 Matrix<IdMat> mElemCmapElemCnts;
+
                 moris::Cell<Matrix<IdMat>> mNodeCmapNodeIds;
                 moris::Cell<Matrix<IdMat>> mNodeCmapProcIds;
 
@@ -109,7 +111,11 @@ namespace moris
                 std::vector<Matrix<IndexMat>> mBlockSetFaceConn;
 
                 // Nodal Fields
-                int                         mNumNodalVars;
+                int                         mNumNodalVars  = -1;
+                int                         mNumTimeSteps  = -1;
+                int                         mTimeStepIndex = 0;
+                real                        mTimeValue     = -1.0;
+
                 std::vector<char>           mNodeFieldNamesMemory;
                 std::vector<char*>          mNodeFieldNamePtrs;
                 std::vector<Matrix<DDRMat>> mFieldsNodalVars;
@@ -145,11 +151,15 @@ namespace moris
 
                 void
                 get_elem_id_map();
+
                 void
                 get_set_information();
 
                 void
                 get_nodal_fields();
+
+                void
+                reload_nodal_fields();
 
                 void
                 copy_coordinates(int tNewExoFileId);
@@ -186,10 +196,131 @@ namespace moris
 
                 Exodus_IO_Helper(
                         const char * aExodusFile,
+                        const int    aTimeStepIndex = 0,
                         const bool   aVerbose = false);
 
                 ~Exodus_IO_Helper();
 
+                //------------------------------------------------------------------------------
+                /*
+                 * @brief returns number of dimension
+                 *
+                 */
+
+                int get_number_of_dimensions()
+                {
+                    return mNumDim;
+                }
+
+                //------------------------------------------------------------------------------
+                /*
+                 * @brief returns number of dimension
+                 *
+                 */
+
+                int get_number_of_nodes()
+                {
+                    return mNumNodes;
+                }
+
+                //------------------------------------------------------------------------------
+                /*
+                 * @brief returns number of elements
+                 *
+                 */
+
+                int get_number_of_elements()
+                {
+                    return mNumElem;
+                }
+
+                //------------------------------------------------------------------------------
+                /*
+                 * @brief returns number of elements
+                 *
+                 */
+
+                int get_number_of_blocks()
+                {
+                    return mNumElemBlk;
+                }
+
+                //------------------------------------------------------------------------------
+                /*
+                 * @brief returns number of node sets
+                 *
+                 */
+
+                int get_number_of_node_sets()
+                {
+                    return mNumNodeSets;
+                }
+
+                //------------------------------------------------------------------------------
+                /*
+                 * @brief returns number of node sets
+                 *
+                 */
+
+                int get_number_of_side_sets()
+                {
+                    return mNumSideSets;
+                }
+
+                //------------------------------------------------------------------------------
+                /*
+                 * @brief returns absolute time for currently loaded time step
+                 *
+                 */
+
+                real get_time_value()
+                {
+                    return mTimeValue;
+                }
+
+                //------------------------------------------------------------------------------
+                /*
+                 * @brief returns vector with coordinates of node, size: number of dimensions x 1
+                 *
+                 * @param[ in ] aNodeId   id of node
+                 */
+
+                moris::Matrix<DDRMat> get_nodal_coordinate( uint aNodeId );
+
+                //------------------------------------------------------------------------------
+                /*
+                 * @brief returns node index given a node Id
+                 *
+                 * @param[ in ] aNodeId   id of node
+                 */
+
+                uint
+                get_node_index_by_Id( uint aNodeId)
+                {
+                    // find index of node given its nodeId
+                    auto tItr = std::find(mNodeNumMap.data(),mNodeNumMap.data()+mNumNodes,aNodeId);
+
+                    // compute index
+                    uint tIndex = std::distance(mNodeNumMap.data(),tItr);
+
+                    // check that exactly one node index was found
+                    MORIS_ASSERT( tIndex < (uint) mNumNodes, "Node not found");
+
+                    return tIndex;
+                }
+
+                //------------------------------------------------------------------------------
+                /*
+                 * @brief returns nodal field value of node defined by its Id
+                 *
+                 * @param[ in ] aNodeId     id of node
+                 * @param[ in ] aFieldInd   index of field
+                 */
+
+                real
+                get_nodal_field_value( uint aNodeId, uint aFieldIndex, uint aTimeStepIndex);
+
+                //------------------------------------------------------------------------------
                 /*
                  * Create a new exodus file and the information for an element communication map
                  * Copy the exodus file in this Exodus_IO_Helper to a new one with the

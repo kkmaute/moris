@@ -90,8 +90,8 @@ namespace moris
             for ( uint iOrder = 1; iOrder <= mOrder; iOrder++ )
             {
                 // get the stabilization parameter
-                std::shared_ptr< Stabilization_Parameter > tSPPressure
-                = mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::PRESSURE_GHOST ) );
+                std::shared_ptr< Stabilization_Parameter > tSPPressure =
+                        mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::PRESSURE_GHOST ) );
 
                 // set the order for stabilization parameters
                 tSPPressure->set_interpolation_order( iOrder );
@@ -101,8 +101,8 @@ namespace moris
                 this->get_normal_matrix( tFlatNormal, iOrder );
 
                 // premultiply common terms
-                Matrix< DDRMat > tPreMultiply
-                = tSPPressure->val()( 0 ) * tFlatNormal * ( tFIMaster->gradx( iOrder ) - tFISlave->gradx( iOrder ) ) ;
+                Matrix< DDRMat > tPreMultiply =
+                        tSPPressure->val()( 0 ) * tFlatNormal * ( tFIMaster->gradx( iOrder ) - tFISlave->gradx( iOrder ) ) ;
                 tPreMultiply = reshape( tPreMultiply , tPreMultiply.numel(), 1 );
 
                 // get flattened directional derivatives for master and slave
@@ -112,12 +112,12 @@ namespace moris
                 this->compute_flat_dnNdxn( tSlavedNdxFlat, iOrder, mtk::Master_Slave::SLAVE );
 
                 // compute master residual
-                mSet->get_residual()( 0 )( { tMasterResStartIndex, tMasterResStopIndex }, { 0, 0 } )
-                                                += aWStar * ( tMasterdNdxFlat * tPreMultiply );
+                mSet->get_residual()( 0 )( { tMasterResStartIndex, tMasterResStopIndex }, { 0, 0 } ) += aWStar * (
+                        tMasterdNdxFlat * tPreMultiply );
 
                 // compute slave residual
-                mSet->get_residual()( 0 )( { tSlaveResStartIndex, tSlaveResStopIndex }, { 0, 0 } )
-                                                -= aWStar *( tSlavedNdxFlat * tPreMultiply );
+                mSet->get_residual()( 0 )( { tSlaveResStartIndex, tSlaveResStopIndex }, { 0, 0 } ) -= aWStar * (
+                        tSlavedNdxFlat * tPreMultiply );
             }
         }
 
@@ -174,8 +174,8 @@ namespace moris
             for ( uint iOrder = 1; iOrder <= mOrder; iOrder++ )
             {
                 // get the stabilization parameter
-                std::shared_ptr< Stabilization_Parameter > tSPPressure
-                = mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::PRESSURE_GHOST ) );
+                std::shared_ptr< Stabilization_Parameter > tSPPressure =
+                        mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::PRESSURE_GHOST ) );
 
                 // set the order for the stabilization parameter
                 tSPPressure->set_interpolation_order( iOrder );
@@ -209,33 +209,37 @@ namespace moris
                     if ( tDofType( 0 ) == mResidualDofType( 0 ) )
                     {
                         // dRM/dM
-                        mSet->get_jacobian()( { tMasterResStartIndex, tMasterResStopIndex },
-                                { tMasterDepStartIndex, tMasterDepStopIndex } )
-                                += aWStar * ( tMasterdNdxFlat * tSPPressure->val()( 0 ) * trans( tMasterdNdxFlat ) );
+                        mSet->get_jacobian()(
+                                { tMasterResStartIndex, tMasterResStopIndex },
+                                { tMasterDepStartIndex, tMasterDepStopIndex } ) += aWStar * (
+                                        tMasterdNdxFlat * tSPPressure->val()( 0 ) * trans( tMasterdNdxFlat ) );
 
                         // dRS/dM
-                        mSet->get_jacobian()( { tSlaveResStartIndex,  tSlaveResStopIndex },
-                                { tMasterDepStartIndex, tMasterDepStopIndex } )
-                                -= aWStar * ( tSlavedNdxFlat * tSPPressure->val()( 0 ) * trans( tMasterdNdxFlat ) );
+                        mSet->get_jacobian()(
+                                { tSlaveResStartIndex,  tSlaveResStopIndex },
+                                { tMasterDepStartIndex, tMasterDepStopIndex } ) -= aWStar * (
+                                        tSlavedNdxFlat * tSPPressure->val()( 0 ) * trans( tMasterdNdxFlat ) );
                     }
 
                     // if stabilization parameter dependency on the dof type
                     if ( tSPPressure->check_dof_dependency( tDofType ) )
                     {
                         // premultiply common terms
-                        Matrix< DDRMat > tPreMultiply
-                        = tFlatNormal * ( tFIMaster->gradx( iOrder ) - tFISlave->gradx( iOrder ) );
+                        Matrix< DDRMat > tPreMultiply =
+                                tFlatNormal * ( tFIMaster->gradx( iOrder ) - tFISlave->gradx( iOrder ) );
                         tPreMultiply = reshape( tPreMultiply , tPreMultiply.numel(), 1 );
                         tPreMultiply = tPreMultiply * tSPPressure->dSPdMasterDOF( tDofType );
 
                         // add contribution to jacobian
-                        mSet->get_jacobian()( { tMasterResStartIndex, tMasterResStopIndex },
-                                { tMasterDepStartIndex, tMasterDepStopIndex } )
-                                += aWStar * ( tMasterdNdxFlat * tPreMultiply );
+                        mSet->get_jacobian()(
+                                { tMasterResStartIndex, tMasterResStopIndex },
+                                { tMasterDepStartIndex, tMasterDepStopIndex } ) += aWStar * (
+                                        tMasterdNdxFlat * tPreMultiply );
 
-                        mSet->get_jacobian()( { tSlaveResStartIndex,  tSlaveResStopIndex },
-                                { tMasterDepStartIndex, tMasterDepStopIndex } )
-                                -= aWStar * ( tSlavedNdxFlat  * tPreMultiply );
+                        mSet->get_jacobian()(
+                                { tSlaveResStartIndex,  tSlaveResStopIndex },
+                                { tMasterDepStartIndex, tMasterDepStopIndex } ) -= aWStar * (
+                                        tSlavedNdxFlat  * tPreMultiply );
                     }
                 }
 
@@ -254,14 +258,16 @@ namespace moris
                     if ( tDofType( 0 ) == mResidualDofType( 0 ) )
                     {
                         // dRM/dS
-                        mSet->get_jacobian()( { tMasterResStartIndex, tMasterResStopIndex },
-                                { tSlaveDepStartIndex,  tSlaveDepStopIndex } )
-                                -= aWStar * ( tMasterdNdxFlat * tSPPressure->val()( 0 ) * trans( tSlavedNdxFlat ) );
+                        mSet->get_jacobian()(
+                                { tMasterResStartIndex, tMasterResStopIndex },
+                                { tSlaveDepStartIndex,  tSlaveDepStopIndex } ) -= aWStar * (
+                                        tMasterdNdxFlat * tSPPressure->val()( 0 ) * trans( tSlavedNdxFlat ) );
 
                         // dRS/dS
-                        mSet->get_jacobian()( { tSlaveResStartIndex, tSlaveResStopIndex },
-                                { tSlaveDepStartIndex, tSlaveDepStopIndex } )
-                                += aWStar * ( tSlavedNdxFlat * tSPPressure->val()( 0 ) * trans( tSlavedNdxFlat ) );
+                        mSet->get_jacobian()(
+                                { tSlaveResStartIndex, tSlaveResStopIndex },
+                                { tSlaveDepStartIndex, tSlaveDepStopIndex } ) += aWStar * (
+                                        tSlavedNdxFlat * tSPPressure->val()( 0 ) * trans( tSlavedNdxFlat ) );
                     }
                 }
             }
@@ -300,9 +306,9 @@ namespace moris
             this->get_normal_matrix( tFlatNormal, aOrder );
 
             // get the residual dof type FI (here pressure)
-            Field_Interpolator * tPressureFI
-            = this->get_field_interpolator_manager( aIsMaster )
-            ->get_field_interpolators_for_type( mResidualDofType( 0 ) );
+            Field_Interpolator * tPressureFI =
+                    this->get_field_interpolator_manager( aIsMaster )->
+                    get_field_interpolators_for_type( mResidualDofType( 0 ) );
 
             // get number of fields
             uint tNumFields = tPressureFI->get_number_of_fields();
@@ -319,9 +325,10 @@ namespace moris
             for( uint iField = 0; iField < tNumFields; iField++ )
             {
                 // fill block flat dnNdxn
-                aFlatdnNdxn({ iField * tNumRows, ( iField + 1 ) * tNumRows - 1 },
-                        { iField * tNumCols, ( iField + 1 ) * tNumCols - 1 } )
-                                                = tdnNdxn.matrix_data();
+                aFlatdnNdxn(
+                        { iField * tNumRows, ( iField + 1 ) * tNumRows - 1 },
+                        { iField * tNumCols, ( iField + 1 ) * tNumCols - 1 } ) =
+                                tdnNdxn.matrix_data();
             }
         }
 

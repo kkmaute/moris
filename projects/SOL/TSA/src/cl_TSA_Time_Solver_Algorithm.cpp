@@ -32,8 +32,12 @@ Time_Solver_Algorithm::Time_Solver_Algorithm( const enum sol::MapType aMapType )
     this->set_time_solver_parameters();
 }
 
-Time_Solver_Algorithm::Time_Solver_Algorithm( const ParameterList aParameterlist,
-                                              const enum sol::MapType aMapType ) : mParameterListTimeSolver( aParameterlist )
+//-------------------------------------------------------------------------------
+
+Time_Solver_Algorithm::Time_Solver_Algorithm(
+        const ParameterList aParameterlist,
+        const enum sol::MapType aMapType )
+: mParameterListTimeSolver( aParameterlist )
 {}
 
 //-------------------------------------------------------------------------------
@@ -43,7 +47,7 @@ Time_Solver_Algorithm::~Time_Solver_Algorithm()
     if ( mIsMasterTimeSolver )
     {
         delete( mFullVector );
-//        delete( mPrevFullVector );
+        // delete( mPrevFullVector );
     }
     delete( mPrevFullVector );                 // FIXME There's a delete somewhere in HMR which need this memory leak. has to be fixed
     delete( mFullMap );
@@ -61,9 +65,7 @@ moris::real Time_Solver_Algorithm::calculate_time_needed( const clock_t aTime )
 {
     moris::real tDeltaTime = (moris::real) ( clock() - aTime ) / CLOCKS_PER_SEC;
 
-    moris::real tDeltaTimeMax   = tDeltaTime;
-
-    max_all( tDeltaTime, tDeltaTimeMax );
+    moris::real tDeltaTimeMax = max_all( tDeltaTime );
 
     return tDeltaTimeMax;
 }
@@ -108,7 +110,7 @@ void Time_Solver_Algorithm::finalize()
         Matrix_Vector_Factory tMatFactory( mMyTimeSolver->get_solver_warehouse()->get_tpl_type() );
 
         mSolverInterface = mMyTimeSolver->get_solver_interface();
-//        mSolverInterface = mMyTimeSolver->get_solver_warehouse()->get_solver_interface();
+        //        mSolverInterface = mMyTimeSolver->get_solver_warehouse()->get_solver_interface();
 
         uint tNumRHMS = mSolverInterface->get_num_rhs();
 

@@ -92,6 +92,8 @@ namespace moris
         tParameterList.insert( "use_refinement_interrelation", 0 );
         tParameterList.insert( "renumber_lagrange_nodes", 0 );
 
+        tParameterList.insert( "refinement_function_names", "" );
+
         return tParameterList;
     }
 //------------------------------------------------------------------------------

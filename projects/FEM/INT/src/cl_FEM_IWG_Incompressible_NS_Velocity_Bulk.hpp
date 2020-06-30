@@ -32,7 +32,6 @@ namespace moris
                 // local property enums
                 enum class IWG_Property_Type
                 {
-                    DENSITY,
                     GRAVITY,
                     THERMAL_EXPANSION,
                     REF_TEMP,

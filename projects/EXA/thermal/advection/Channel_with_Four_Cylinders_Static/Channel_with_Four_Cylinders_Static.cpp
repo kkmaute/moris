@@ -110,7 +110,7 @@ namespace moris
         moris::real  tValue = tCylinderRadius -
                 std::pow(
                         std::pow( aCoordinates( 0 ) - 0.4, 2.0 ) +
-                        std::pow( aCoordinates( 1 ) - (0.2 - tCylinderOffset), 2.0 ), 0.5 );
+                                std::pow( aCoordinates( 1 ) - (0.2 - tCylinderOffset), 2.0 ), 0.5 );
 
         return std::abs(tValue) < tMinLSvalue ? tMinLSvalue : tValue;
     }
@@ -122,7 +122,7 @@ namespace moris
         moris::real tValue = tCylinderRadius -
                 std::pow(
                         std::pow( aCoordinates( 0 ) - 0.8, 2.0 ) +
-                        std::pow( aCoordinates( 1 ) - (0.2 + tCylinderOffset ), 2.0 ), 0.5 );
+                                std::pow( aCoordinates( 1 ) - (0.2 + tCylinderOffset ), 2.0 ), 0.5 );
 
         return std::abs(tValue) < tMinLSvalue ? tMinLSvalue : tValue;
     }
@@ -134,7 +134,7 @@ namespace moris
         moris::real tValue = tCylinderRadius -
                 std::pow(
                         std::pow( aCoordinates( 0 ) - 1.2, 2.0 ) +
-                        std::pow( aCoordinates( 1 ) - (0.2 - tCylinderOffset), 2.0 ), 0.5 );
+                                std::pow( aCoordinates( 1 ) - (0.2 - tCylinderOffset), 2.0 ), 0.5 );
 
         return std::abs(tValue) < tMinLSvalue ? tMinLSvalue : tValue;
     }
@@ -146,17 +146,9 @@ namespace moris
         moris::real tValue = tCylinderRadius -
                 std::pow(
                         std::pow( aCoordinates( 0 ) - 1.6, 2.0 ) +
-                        std::pow( aCoordinates( 1 ) - (0.2 + tCylinderOffset ), 2.0 ), 0.5 );
+                                std::pow( aCoordinates( 1 ) - (0.2 + tCylinderOffset ), 2.0 ), 0.5 );
 
         return std::abs(tValue) < tMinLSvalue ? tMinLSvalue : tValue;
-    }
-
-    moris::Matrix<DDRMat> Func_Dummy(
-            const moris::Matrix< DDRMat >     & aCoordinates,
-            const moris::Cell< moris::real* > & aGeometryParameters )
-    {
-        moris::Matrix< DDRMat > dummy;
-        return dummy;
     }
 
     void OPTParameterList( moris::Cell< moris::Cell< ParameterList > > & tParameterlist )
@@ -190,7 +182,7 @@ namespace moris
         tParameterlist( 0 )( 0 ).set( "lagrange_to_bspline", std::string("0") );
 
         tParameterlist( 0 )( 0 ).set( "truncate_bsplines",  1 );
-        tParameterlist( 0 )( 0 ).set( "refinement_buffer",  5 );
+        tParameterlist( 0 )( 0 ).set( "refinement_buffer",  3 );
         tParameterlist( 0 )( 0 ).set( "staircase_buffer",   5 );
         tParameterlist( 0 )( 0 ).set( "initial_refinement", 4 );
 
@@ -227,48 +219,31 @@ namespace moris
         tParameterlist( 1 ).resize( 8 );
 
         tParameterlist( 0 )( 0 ) = prm::create_gen_parameter_list();
-        tParameterlist( 0 )( 0 ).set( "HMR_refinements", 1 );
 
         // Geometry parameter lists
         tParameterlist( 1 )( 0 ) = prm::create_user_defined_geometry_parameter_list();
         tParameterlist( 1 )( 0 ).set( "field_function_name", "Func_Bottom_Plane");
-        tParameterlist( 1 )( 0 ).set( "sensitivity_function_name", "Func_Dummy");
-        tParameterlist( 1 )( 0 ).set( "constant_parameters", "");
 
         tParameterlist( 1 )( 1 ) = prm::create_user_defined_geometry_parameter_list();
         tParameterlist( 1 )( 1 ).set( "field_function_name", "Func_Top_Plane");
-        tParameterlist( 1 )( 1 ).set( "sensitivity_function_name", "Func_Dummy");
-        tParameterlist( 1 )( 1 ).set( "constant_parameters", "");
 
         tParameterlist( 1 )( 2 ) = prm::create_user_defined_geometry_parameter_list();
         tParameterlist( 1 )( 2 ).set( "field_function_name", "Func_Left_Plane");
-        tParameterlist( 1 )( 2 ).set( "sensitivity_function_name", "Func_Dummy");
-        tParameterlist( 1 )( 2 ).set( "constant_parameters", "");
 
         tParameterlist( 1 )( 3 ) = prm::create_user_defined_geometry_parameter_list();
         tParameterlist( 1 )( 3 ).set( "field_function_name", "Func_Right_Plane");
-        tParameterlist( 1 )( 3 ).set( "sensitivity_function_name", "Func_Dummy");
-        tParameterlist( 1 )( 3 ).set( "constant_parameters", "");
 
         tParameterlist( 1 )( 4 ) = prm::create_user_defined_geometry_parameter_list();
         tParameterlist( 1 )( 4 ).set( "field_function_name", "Func_Cylinder");
-        tParameterlist( 1 )( 4 ).set( "sensitivity_function_name", "Func_Dummy");
-        tParameterlist( 1 )( 4 ).set( "constant_parameters", "");
 
         tParameterlist( 1 )( 5 ) = prm::create_user_defined_geometry_parameter_list();
         tParameterlist( 1 )( 5 ).set( "field_function_name", "Func_Cylinder2");
-        tParameterlist( 1 )( 5 ).set( "sensitivity_function_name", "Func_Dummy");
-        tParameterlist( 1 )( 5 ).set( "constant_parameters", "");
 
         tParameterlist( 1 )( 6 ) = prm::create_user_defined_geometry_parameter_list();
         tParameterlist( 1 )( 6 ).set( "field_function_name", "Func_Cylinder3");
-        tParameterlist( 1 )( 6 ).set( "sensitivity_function_name", "Func_Dummy");
-        tParameterlist( 1 )( 6 ).set( "constant_parameters", "");
 
         tParameterlist( 1 )( 7 ) = prm::create_user_defined_geometry_parameter_list();
         tParameterlist( 1 )( 7 ).set( "field_function_name", "Func_Cylinder4");
-        tParameterlist( 1 )( 7 ).set( "sensitivity_function_name", "Func_Dummy");
-        tParameterlist( 1 )( 7 ).set( "constant_parameters", "");
 
     }
 
@@ -452,7 +427,6 @@ namespace moris
         tParameterList( 3 )( tIWGCounter ).set( "IWG_type",                   static_cast< uint >( fem::IWG_Type::INCOMPRESSIBLE_NS_VELOCITY_BULK ) );
         tParameterList( 3 )( tIWGCounter ).set( "dof_residual",               std::string("VX,VY") );
         tParameterList( 3 )( tIWGCounter ).set( "master_dof_dependencies",    std::string("VX,VY;P;TEMP") );
-        tParameterList( 3 )( tIWGCounter ).set( "master_properties",          std::string("PropDensity,Density") );
         tParameterList( 3 )( tIWGCounter ).set( "master_constitutive_models", std::string("CMFluid,IncompressibleFluid") );
         tParameterList( 3 )( tIWGCounter ).set( "stabilization_parameters",   std::string("SPIncFlow,IncompressibleFlow") );
         tParameterList( 3 )( tIWGCounter ).set( "mesh_set_names",             std::string("HMR_dummy_c_p160,HMR_dummy_n_p160") );
@@ -464,7 +438,6 @@ namespace moris
         tParameterList( 3 )( tIWGCounter ).set( "IWG_type",                   static_cast< uint >( fem::IWG_Type::INCOMPRESSIBLE_NS_PRESSURE_BULK ) );
         tParameterList( 3 )( tIWGCounter ).set( "dof_residual",               std::string("P") );
         tParameterList( 3 )( tIWGCounter ).set( "master_dof_dependencies",    std::string("VX,VY;P;TEMP") );
-        tParameterList( 3 )( tIWGCounter ).set( "master_properties",          std::string("PropDensity,Density") );
         tParameterList( 3 )( tIWGCounter ).set( "master_constitutive_models", std::string("CMFluid,IncompressibleFluid") );
         tParameterList( 3 )( tIWGCounter ).set( "stabilization_parameters",   std::string("SPIncFlow,IncompressibleFlow") );
         tParameterList( 3 )( tIWGCounter ).set( "mesh_set_names",             std::string("HMR_dummy_c_p160,HMR_dummy_n_p160") );

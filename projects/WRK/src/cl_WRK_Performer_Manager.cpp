@@ -29,82 +29,92 @@
 
 namespace moris
 {
-namespace wrk
-{
-//------------------------------------------------------------------------------
-Performer_Manager::Performer_Manager( std::shared_ptr< Library_IO > aLibrary ) :mLibrary(aLibrary)
-{
+    namespace wrk
+    {
+        //------------------------------------------------------------------------------
 
-}
+        Performer_Manager::Performer_Manager( std::shared_ptr< Library_IO > aLibrary )
+        : mLibrary(aLibrary)
+        {
+        }
 
-//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
 
-void Performer_Manager::initialize_performers()
-{
-    mHMRPerformer.resize( 1 );
-    mGENPerformer.resize( 1 );
-    mXTKPerformer.resize( 1 );
-    mMTKPerformer.resize( 2 );
-    mMDLPerformer.resize( 1 );
+        Performer_Manager::~Performer_Manager()
+        {
+        }
 
-    // load the HMR parameter list
-    std::string tHMRString = "HMRParameterList";
-    MORIS_PARAMETER_FUNCTION tHMRParameterListFunc = mLibrary->load_parameter_file( tHMRString );
-    moris::Cell< moris::Cell< ParameterList > > tHMRParameterList;
-    tHMRParameterListFunc( tHMRParameterList );
+        //------------------------------------------------------------------------------
 
-    std::string tGENString = "GENParameterList";
-    MORIS_PARAMETER_FUNCTION tGENParameterListFunc = mLibrary->load_parameter_file( tGENString );
-    moris::Cell< moris::Cell< ParameterList > > tGENParameterList;
-    tGENParameterListFunc( tGENParameterList );
+        void Performer_Manager::initialize_performers()
+        {
+            mHMRPerformer.resize( 1 );
+            mGENPerformer.resize( 1 );
+            mXTKPerformer.resize( 1 );
+            mMTKPerformer.resize( 2 );
+            mMDLPerformer.resize( 1 );
 
-    std::string tXTKString = "XTKParameterList";
-    MORIS_PARAMETER_FUNCTION tXTKParameterListFunc = mLibrary->load_parameter_file( tXTKString );
-    moris::Cell< moris::Cell< ParameterList > > tXTKParameterList;
-    tXTKParameterListFunc( tXTKParameterList );
+            // load the HMR parameter list
+            std::string tHMRString = "HMRParameterList";
+            MORIS_PARAMETER_FUNCTION tHMRParameterListFunc = mLibrary->load_parameter_file( tHMRString );
+            moris::Cell< moris::Cell< ParameterList > > tHMRParameterList;
+            tHMRParameterListFunc( tHMRParameterList );
 
-    // create HMR performer
-    mHMRPerformer( 0 ) = std::make_shared< hmr::HMR >( tHMRParameterList( 0 )( 0 ) );
+            std::string tGENString = "GENParameterList";
+            MORIS_PARAMETER_FUNCTION tGENParameterListFunc = mLibrary->load_parameter_file( tGENString );
+            moris::Cell< moris::Cell< ParameterList > > tGENParameterList;
+            tGENParameterListFunc( tGENParameterList );
 
-    // create MTK performer - will be used for HMR mesh
-    mMTKPerformer( 0 ) =std::make_shared< mtk::Mesh_Manager >();
+            // create HMR performer
+            mHMRPerformer( 0 ) = std::make_shared< hmr::HMR >( tHMRParameterList( 0 )( 0 ), mLibrary );
 
-    // Create GE performer
-    mGENPerformer( 0 ) = std::make_shared< ge::Geometry_Engine >( tGENParameterList, mLibrary );
+            // create MTK performer - will be used for HMR mesh
+            mMTKPerformer( 0 ) =std::make_shared< mtk::Mesh_Manager >();
 
-    // create MTK performer - will be used for XTK mesh
-    mMTKPerformer( 1 ) = std::make_shared< mtk::Mesh_Manager >();
+            // Create GE performer
+            mGENPerformer( 0 ) = std::make_shared< ge::Geometry_Engine >( tGENParameterList, mLibrary );
 
-    // create XTK performer
-    mXTKPerformer( 0 ) = std::make_shared< xtk::Model >( tXTKParameterList( 0 )( 0 ) );
+            // create MTK performer - will be used for XTK mesh
+            mMTKPerformer( 1 ) = std::make_shared< mtk::Mesh_Manager >();
 
-    // create MDL performer
-    mMDLPerformer( 0 ) = std::make_shared< mdl::Model >( mLibrary, 0 );
+            // create MDL performer
+            mMDLPerformer( 0 ) = std::make_shared< mdl::Model >( mLibrary, 0 );
+        }
 
-}
+        //------------------------------------------------------------------------------
 
-void Performer_Manager::set_performer_cooperations()
-{
-    //---------------------------------------------------------------------------------------
-    //                               Set performer to HMR
-    //---------------------------------------------------------------------------------------
-    mHMRPerformer( 0 )->set_performer( mMTKPerformer( 0 ) );
+        void Performer_Manager::set_performer_cooperations()
+        {
+            // Set performer to HMR
+            mHMRPerformer( 0 )->set_performer( mMTKPerformer( 0 ) );
 
-    //---------------------------------------------------------------------------------------
-    //                               Set performer to XTK
-    //---------------------------------------------------------------------------------------
-    mXTKPerformer( 0 )->set_geometry_engine( mGENPerformer( 0 ).get() );
-    mXTKPerformer( 0 )->set_input_performer( mMTKPerformer( 0 ) );
-    mXTKPerformer( 0 )->set_output_performer( mMTKPerformer( 1 ) );
+            // Set performer to MDL
+            mMDLPerformer( 0 )->set_performer( mMTKPerformer( 1 ) );
+        }
 
-    //---------------------------------------------------------------------------------------
-    //                               Set performer to MDL
-    //---------------------------------------------------------------------------------------
-    mMDLPerformer( 0 )->set_performer( mMTKPerformer( 1 ) );
+        //------------------------------------------------------------------------------
 
-}
+        void Performer_Manager::create_xtk()
+        {
+            // Read parameter list from shared object
+            MORIS_PARAMETER_FUNCTION tXTKParameterListFunc = mLibrary->load_parameter_file( "XTKParameterList" );
+            moris::Cell< moris::Cell< ParameterList > > tXTKParameterList;
+            tXTKParameterListFunc( tXTKParameterList );
 
-//------------------------------------------------------------------------------
+            // Create XTK
+            mXTKPerformer( 0 ) = std::make_shared< xtk::Model >( tXTKParameterList( 0 )( 0 ) );
+
+            // Reset output MTK performer
+            mMTKPerformer( 1 ) = std::make_shared< mtk::Mesh_Manager >();
+            mMDLPerformer( 0 )->set_performer( mMTKPerformer( 1 ) );
+
+            // Set performers
+            mXTKPerformer( 0 )->set_geometry_engine( mGENPerformer( 0 ).get() );
+            mXTKPerformer( 0 )->set_input_performer( mMTKPerformer( 0 ) );
+            mXTKPerformer( 0 )->set_output_performer( mMTKPerformer( 1 ) );
+        }
+
+        //------------------------------------------------------------------------------
 
     } /* namespace mdl */
 } /* namespace moris */

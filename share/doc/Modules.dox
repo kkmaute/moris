@@ -90,30 +90,6 @@ Some functionality might only live in @ref LinAlg so keep that in mind.
     
 /** @addtogroup SpAlgTrilinos
     @ingroup SpAlg */
-
-
-/** @defgroup OptModule Optimization Module
-    
-This module discusses MORIS's optimization package. The first submodule introduces the theoretical background of
-formulating an optimzation problem, and the second submodule introduces the current overall optimization framework of
-MORIS. The other submodules give detailed descriptions of the individual algorithms and their specific functionalities
-available in MORIS.
-*/
-    
-/** @addtogroup Background
-    @ingroup OptModule */
-    
-/** @addtogroup Framework
-    @ingroup OptModule */
-    
-/** @addtogroup GCMMA
-    @ingroup OptModule */
-    
-/** @addtogroup Sweep
-    @ingroup OptModule */
-    
-/** @addtogroup OptInp
-    @ingroup OptModule */
     
 //------------------------------------------------------------------------------
 
@@ -178,13 +154,16 @@ The core functionalities of HMR are
 
 /** @defgroup MTK_Module Mesh Tool Kit (MTK) Module
 
-The Mesh Toolkit (MTK) is the common API for all mesh implementations in MORIS such as STK, HMR, XTK. MTK is a virtual package that is not allowed to have any dependencies except for the MORIS core packages and LINALG.
+The Mesh Toolkit (MTK) is the common API for all mesh implementations in MORIS such as STK, HMR, XTK. 
 
 MTK entertains two different @ref MTK_Interfaces, which are both accessed through the mesh class.
 
 The first interface concept works on ID, index and entity rank based inquiries to the mesh object. It returns information in Moris matrices. 
 
 The second interface concept is object-based and provides pointers to Blocks, Cells and Vertices. Object attributes such as id, index, neighbors etc are obtained by asking the corresponding object.
+
+@addtogroup MTK_Overview
+@ingroup MTK_Module
 
 @addtogroup MTK_Interfaces
 @ingroup MTK_Module
@@ -234,7 +213,16 @@ FEM Module description.
  
  /** @addtogroup FE_Cluster
     @ingroup FE_Module */
-       
+    
+ /** @addtogroup FE_IWG_Incompressible_NS
+    @ingroup FE_Module */
+    
+ /** @addtogroup FE_IWG_SA_Turbulence
+    @ingroup FE_Module */
+    
+ /** @addtogroup FE_IWG_Diffusion_Advection_Reaction
+    @ingroup FE_Module */
+    
 //------------------------------------------------------------------------------
 /** @defgroup XTKModule XFEM Tool Kit (XTK) Module
 The following modules introduce the XTK and its core functionalities.
@@ -246,12 +234,12 @@ The following modules introduce the XTK and its core functionalities.
 /** @addtogroup XTKDecomp
     @ingroup XTKModule */
 
-/** @addtogroup XTKSensitivity
-    @ingroup XTKModule */
-    
 /** @addtogroup XTKEnrich
     @ingroup XTKModule */
-    
+
+/** @addtogroup XTKGhost
+    @ingroup XTKModule */    
+   
 /** @addtogroup XTKOutput
     @ingroup XTKModule */
 

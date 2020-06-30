@@ -20,24 +20,24 @@
 
 void tFIConstValFunction_UTDisplGhost
 ( moris::Matrix< moris::DDRMat >                 & aPropMatrix,
-  moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
-  moris::fem::Field_Interpolator_Manager         * aFIManager )
+        moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
+        moris::fem::Field_Interpolator_Manager         * aFIManager )
 {
     aPropMatrix = aParameters( 0 );
 }
 
 void tFIValFunction_UTDisplGhost
 ( moris::Matrix< moris::DDRMat >                 & aPropMatrix,
-  moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
-  moris::fem::Field_Interpolator_Manager         * aFIManager )
+        moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
+        moris::fem::Field_Interpolator_Manager         * aFIManager )
 {
     aPropMatrix = aParameters( 0 ) * sum( aFIManager->get_field_interpolators_for_type( moris::MSI::Dof_Type::UX )->val() );
 }
 
 void tFIDerFunction_UTDisplGhost
 ( moris::Matrix< moris::DDRMat >                 & aPropMatrix,
-  moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
-  moris::fem::Field_Interpolator_Manager         * aFIManager )
+        moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
+        moris::fem::Field_Interpolator_Manager         * aFIManager )
 {
     moris::Matrix< moris::DDRMat > tTemp = trans( aFIManager->get_field_interpolators_for_type( moris::MSI::Dof_Type::UX )->N() );
     moris::Matrix< moris::DDRMat > tReturn( tTemp.n_rows(), 1 );
@@ -57,10 +57,11 @@ using namespace fem;
 TEST_CASE( "IWG_Struc_Linear_Ghost", "[moris],[fem],[IWG_Struc_Linear_Ghost]" )
 {
     // define an epsilon environment
+    // FIXME
     real tEpsilon = 1E-3;
 
     // define a perturbation relative size
-    real tPerturbation = 1E-4;
+    real tPerturbation = 1E-6;
 
     // loop on the space dimension
     for( uint iSpaceDim = 2; iSpaceDim < 4; iSpaceDim++ )
@@ -88,44 +89,44 @@ TEST_CASE( "IWG_Struc_Linear_Ghost", "[moris],[fem],[IWG_Struc_Linear_Ghost]" )
         switch( iSpaceDim )
         {
             case( 2 ):
-            {
+                {
                 // set geometry type
                 tGeometryType = mtk::Geometry_Type::QUAD;
 
                 // fill space coeff xHat
                 tXHat = {{ 0.0, 0.0 },
-                         { 1.0, 0.0 },
-                         { 1.0, 1.0 },
-                         { 0.0, 1.0 }};
+                        { 1.0, 0.0 },
+                        { 1.0, 1.0 },
+                        { 0.0, 1.0 }};
 
-               // fill evaluation point xi, tau
-               tParamPoint = {{ 0.35}, {-0.25}, { 0.0 }};
+                // fill evaluation point xi, tau
+                tParamPoint = {{ 0.35}, {-0.25}, { 0.0 }};
 
-               // number of coefficients
-               tNumCoeffs = {{ 4 },{ 9 },{ 16 }};
+                // number of coefficients
+                tNumCoeffs = {{ 4 },{ 9 },{ 16 }};
 
-               // set the normal
-               tNormal = {{1.0},{0.0}};
+                // set the normal
+                tNormal = {{1.0},{0.0}};
 
-               // set dof type list
-               tDofTypes = { MSI::Dof_Type::UX, MSI::Dof_Type::UY };
+                // set dof type list
+                tDofTypes = { MSI::Dof_Type::UX, MSI::Dof_Type::UY };
 
-               break;
-            }
+                break;
+                }
             case( 3 ):
-            {
+                {
                 // set geometry type
                 tGeometryType = mtk::Geometry_Type::HEX;
 
                 // fill space coeff xHat
                 tXHat = {{ 0.0, 0.0, 0.0 },
-                         { 1.0, 0.0, 0.0 },
-                         { 1.0, 1.0, 0.0 },
-                         { 0.0, 1.0, 0.0 },
-                         { 0.0, 0.0, 1.0 },
-                         { 1.0, 0.0, 1.0 },
-                         { 1.0, 1.0, 1.0 },
-                         { 0.0, 1.0, 1.0 }};
+                        { 1.0, 0.0, 0.0 },
+                        { 1.0, 1.0, 0.0 },
+                        { 0.0, 1.0, 0.0 },
+                        { 0.0, 0.0, 1.0 },
+                        { 1.0, 0.0, 1.0 },
+                        { 1.0, 1.0, 1.0 },
+                        { 0.0, 1.0, 1.0 }};
 
                 // fill evaluation point xi, tau
                 tParamPoint = {{ 0.35}, {-0.25}, { 0.75}, { 0.0 }};
@@ -140,7 +141,7 @@ TEST_CASE( "IWG_Struc_Linear_Ghost", "[moris],[fem],[IWG_Struc_Linear_Ghost]" )
                 tDofTypes = { MSI::Dof_Type::UX, MSI::Dof_Type::UY, MSI::Dof_Type::UZ };
 
                 break;
-            }
+                }
             default:
             {
                 MORIS_ERROR( false, " QUAD or HEX only." );
@@ -152,10 +153,10 @@ TEST_CASE( "IWG_Struc_Linear_Ghost", "[moris],[fem],[IWG_Struc_Linear_Ghost]" )
         //------------------------------------------------------------------------------
         // create a space geometry interpolation rule
         Interpolation_Rule tGIRule( tGeometryType,
-                                    Interpolation_Type::LAGRANGE,
-                                    mtk::Interpolation_Order::LINEAR,
-                                    Interpolation_Type::LAGRANGE,
-                                    mtk::Interpolation_Order::LINEAR );
+                Interpolation_Type::LAGRANGE,
+                mtk::Interpolation_Order::LINEAR,
+                Interpolation_Type::LAGRANGE,
+                mtk::Interpolation_Order::LINEAR );
 
         // create a space time geometry interpolator
         Geometry_Interpolator tGI = Geometry_Interpolator( tGIRule );
@@ -188,7 +189,7 @@ TEST_CASE( "IWG_Struc_Linear_Ghost", "[moris],[fem],[IWG_Struc_Linear_Ghost]" )
             switch( iInterpOrder )
             {
                 case ( 1 ):
-                {
+                    {
                     // set interpolation type
                     tInterpolationOrder = mtk::Interpolation_Order::LINEAR;
 
@@ -201,9 +202,9 @@ TEST_CASE( "IWG_Struc_Linear_Ghost", "[moris],[fem],[IWG_Struc_Linear_Ghost]" )
                     // create random coefficients for slave FI
                     tSlaveMatrix.randu( tNumCoeffs( 0 ), iSpaceDim );
                     break;
-                }
+                    }
                 case ( 2 ):
-                {
+                    {
                     // set interpolation type
                     tInterpolationOrder = mtk::Interpolation_Order::QUADRATIC;
 
@@ -216,9 +217,9 @@ TEST_CASE( "IWG_Struc_Linear_Ghost", "[moris],[fem],[IWG_Struc_Linear_Ghost]" )
                     // create random coefficients for slave FI
                     tSlaveMatrix.randu( tNumCoeffs( 1 ), iSpaceDim );
                     break;
-                }
+                    }
                 case ( 3 ):
-                {
+                    {
                     // set interpolation type
                     tInterpolationOrder = mtk::Interpolation_Order::CUBIC;
 
@@ -231,7 +232,7 @@ TEST_CASE( "IWG_Struc_Linear_Ghost", "[moris],[fem],[IWG_Struc_Linear_Ghost]" )
                     // create random coefficients for slave FI
                     tSlaveMatrix.randu( tNumCoeffs( 2 ), iSpaceDim );
                     break;
-                }
+                    }
                 default:
                 {
                     MORIS_ERROR( false, "LINEAR, QUADRATIC or CUBIC only.");
@@ -241,10 +242,10 @@ TEST_CASE( "IWG_Struc_Linear_Ghost", "[moris],[fem],[IWG_Struc_Linear_Ghost]" )
 
             //create a space time interpolation rule
             Interpolation_Rule tFIRule ( tGeometryType,
-                                         Interpolation_Type::LAGRANGE,
-                                         tInterpolationOrder,
-                                         Interpolation_Type::CONSTANT,
-                                         mtk::Interpolation_Order::CONSTANT );
+                    Interpolation_Type::LAGRANGE,
+                    tInterpolationOrder,
+                    Interpolation_Type::CONSTANT,
+                    mtk::Interpolation_Order::CONSTANT );
 
             // fill random coefficients for master FI
             Matrix< DDRMat > tMasterDOFHat;
@@ -376,18 +377,19 @@ TEST_CASE( "IWG_Struc_Linear_Ghost", "[moris],[fem],[IWG_Struc_Linear_Ghost]" )
             Matrix< DDRMat > tJacobiansFD;
 
             // check jacobian by FD
-            bool tCheckJacobian = tIWG->check_jacobian_double( tPerturbation,
-                                                               tEpsilon,
-                                                               1.0,
-                                                               tJacobians,
-                                                               tJacobiansFD );
+            bool tCheckJacobian = tIWG->check_jacobian(
+                    tPerturbation,
+                    tEpsilon,
+                    1.0,
+                    tJacobians,
+                    tJacobiansFD,
+                    true );
 
-//            // print for debug
-//            print( tJacobians,"tJacobians");
-//            print( tJacobiansFD,"tJacobiansFD");
-//
-//            // print the treated case
-//            std::cout<<"Case: Geometry "<<iSpaceDim<<" Order "<<iInterpOrder<<std::endl;
+            // print for debug
+            if( !tCheckJacobian )
+            {
+                std::cout<<"Case: Geometry "<<iSpaceDim<<" Order "<<iInterpOrder<<std::endl;
+            }
 
             // require check is true
             REQUIRE( tCheckJacobian );

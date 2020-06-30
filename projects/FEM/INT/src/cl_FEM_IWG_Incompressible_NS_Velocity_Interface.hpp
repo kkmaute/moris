@@ -30,6 +30,9 @@ namespace moris
 
             public:
 
+                // sint for symmetric/unsymmetric Nitsche
+                sint mBeta;
+
                 enum class IWG_Constitutive_Type
                 {
                     FLUID_INCOMPRESSIBLE,
@@ -54,8 +57,9 @@ namespace moris
                 //------------------------------------------------------------------------------
                 /*
                  * constructor
+                 * @param[ in ] aBeta +1 or -1 for symmetric/skew symmetric Nitsche
                  */
-                IWG_Incompressible_NS_Velocity_Interface();
+                IWG_Incompressible_NS_Velocity_Interface( sint aBeta );
 
                 //------------------------------------------------------------------------------
                 /**

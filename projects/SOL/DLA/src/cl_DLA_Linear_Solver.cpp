@@ -23,8 +23,8 @@ Linear_Solver::Linear_Solver()
     // create solver object
     std::shared_ptr< Linear_Solver_Algorithm > tLinSolver = tSolFactory.create_solver( sol::SolverType::AMESOS_IMPL );
 
-//    tLinSolver->set_param("AZ_diagnostics") = AZ_none;
-//    tLinSolver->set_param("AZ_output") = AZ_none;
+    //    tLinSolver->set_param("AZ_diagnostics") = AZ_none;
+    //    tLinSolver->set_param("AZ_output") = AZ_none;
 
     mLinearSolverList.clear();
 
@@ -37,7 +37,8 @@ Linear_Solver::Linear_Solver()
 
 //--------------------------------------------------------------------------------------------------
 
-Linear_Solver::Linear_Solver( const moris::ParameterList aParameterlist ) : mParameterListLinearSolver( aParameterlist )
+Linear_Solver::Linear_Solver( const moris::ParameterList aParameterlist )
+: mParameterListLinearSolver( aParameterlist )
 {
     // create solver factory
     Solver_Factory  tSolFactory;
@@ -45,8 +46,8 @@ Linear_Solver::Linear_Solver( const moris::ParameterList aParameterlist ) : mPar
     // create solver object
     std::shared_ptr< Linear_Solver_Algorithm > tLinSolver = tSolFactory.create_solver( sol::SolverType::AMESOS_IMPL );
 
-//    tLinSolver->set_param("AZ_diagnostics") = AZ_none;
-//    tLinSolver->set_param("AZ_output") = AZ_none;
+    //    tLinSolver->set_param("AZ_diagnostics") = AZ_none;
+    //    tLinSolver->set_param("AZ_output") = AZ_none;
 
     mLinearSolverList.clear();
 
@@ -84,8 +85,9 @@ void Linear_Solver::set_linear_algorithm( std::shared_ptr< Linear_Solver_Algorit
 }
 
 //-------------------------------------------------------------------------------------------------------
-void Linear_Solver::set_linear_algorithm( const moris::uint                                aListEntry,
-                                                std::shared_ptr< Linear_Solver_Algorithm > aLinSolverAlgorithm )
+void Linear_Solver::set_linear_algorithm(
+        const moris::uint                          aListEntry,
+        std::shared_ptr< Linear_Solver_Algorithm > aLinSolverAlgorithm )
 {
     // Check if list is smaller than given entry
     if( mLinearSolverList.size() >= aListEntry )
@@ -98,8 +100,9 @@ void Linear_Solver::set_linear_algorithm( const moris::uint                     
 }
 
 //-------------------------------------------------------------------------------------------------------
-void Linear_Solver::solver_linear_system(       dla::Linear_Problem * aLinearProblem,
-                                          const moris::sint           aIter )
+void Linear_Solver::solver_linear_system(
+        dla::Linear_Problem  * aLinearProblem,
+        const moris::sint      aIter )
 {
     tic tTimer;
 
@@ -118,7 +121,7 @@ void Linear_Solver::solver_linear_system(       dla::Linear_Problem * aLinearPro
             Cell< moris::real > tSolVecNorm = aLinearProblem->get_free_solver_LHS()->vec_norm2();
 
             MORIS_LOG( " ... Previous linear solve failed. Trying restart %i of %i, using current solution with SolVecNorm = %5.15e as an initial guess. ",
-                                   tTryRestartOnFailIt, tMaxNumLinRestarts, tSolVecNorm( 0 ));
+                    tTryRestartOnFailIt, tMaxNumLinRestarts, tSolVecNorm( 0 ));
         }
 
         // Re-solve scaled linear system with current solution as an initial guess
@@ -140,22 +143,18 @@ void Linear_Solver::solver_linear_system(       dla::Linear_Problem * aLinearPro
 
     real tElapsedTime = tTimer.toc<moris::chronos::milliseconds>().wall;
 
-    if( par_rank() == 0)
-    {
-        MORIS_LOG_INFO( " Solve of linear system took %5.3f seconds.", ( double ) tElapsedTime / 1000);
-    }
+    MORIS_LOG_INFO( "Solve of linear system took %5.3f seconds.", ( double ) tElapsedTime / 1000);
 }
 
 //--------------------------------------------------------------------------------------------------------------------------
-    void Linear_Solver::set_linear_solver_manager_parameters()
-    {
-        // Maximal number of linear solver restarts on fail
-        mParameterListLinearSolver.insert( "DLA_max_lin_solver_restarts" , 0 );
+void Linear_Solver::set_linear_solver_manager_parameters()
+{
+    // Maximal number of linear solver restarts on fail
+    mParameterListLinearSolver.insert( "DLA_max_lin_solver_restarts" , 0 );
 
-        // Maximal number of linear solver restarts on fail
-        mParameterListLinearSolver.insert( "DLA_hard_break" , true );
+    // Maximal number of linear solver restarts on fail
+    mParameterListLinearSolver.insert( "DLA_hard_break" , true );
 
-        // Determines if lin solve should restart on fail
-        mParameterListLinearSolver.insert( "DLA_rebuild_lin_solver_on_fail" , false );
-    }
-
+    // Determines if lin solve should restart on fail
+    mParameterListLinearSolver.insert( "DLA_rebuild_lin_solver_on_fail" , false );
+}

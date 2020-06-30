@@ -1,8 +1,8 @@
 namespace moris {
 
-/** @defgroup Background Optimization Background
+/** \page opt_background Optimization Background
 
-@section FormOpt Formulating an Optimization Problem
+\section opt_formulation Formulating an Optimization Problem
 
 The most general form of an optimization problem involves minimizing an objective
 function \f$ f \f$ subject to equality constraints \f$ \mathbf h \f$ and inequality constraints \f$ \mathbf g \f$.
@@ -32,7 +32,7 @@ f & = & f \Big( \mathbf s, \mathbf q( \mathbf u, \mathbf s ) \Big) \\
 \mathbf g & = & \mathbf g \Big( \mathbf s, \mathbf q( \mathbf u, \mathbf s ) \Big) 
 \f}
 
-@section Sensitivity Sensitivity Analysis
+\section opt_sensitivity Sensitivity Analysis
 Most mathematical programming approaches to optimization require the gradients of the objectives and constraints with
 respect to the design variables \f$ \mathbf s \f$: \f$ \dfrac {df}{ d \mathbf s} \f$,
 \f$ \dfrac {d \mathbf g}{ d \mathbf s} \f$, and \f$ \dfrac {d \mathbf h}{ d \mathbf s} \f$. This is frequently referred

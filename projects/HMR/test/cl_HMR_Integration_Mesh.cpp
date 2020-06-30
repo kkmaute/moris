@@ -18,7 +18,7 @@ namespace moris
 moris::real
 LevelSetFunction( const moris::Matrix< moris::DDRMat > & aPoint )
 {
-    return norm( aPoint ) - 0.9;
+    return norm( aPoint ) - 0.5;
 }
 
 moris::real

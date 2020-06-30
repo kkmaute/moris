@@ -4,6 +4,8 @@
  *  Created on: May 5, 2018
  *      Author: messe
  */
+#include <memory>
+#include <mutex>
 
 // see http://pubs.opengroup.org/onlinepubs/7908799/xsh/dlfcn.h.html
 #include "cl_HMR.hpp" //HMR/src
@@ -56,16 +58,20 @@ namespace moris
 
         // -----------------------------------------------------------------------------
 
-        // alternative constuctor that converts ref to a pointer
-        HMR::HMR ( Parameters & aParameters ) : HMR( & aParameters )
+        // alternative constructor that converts ref to a pointer
+        HMR::HMR ( Parameters & aParameters )
+        : HMR( & aParameters )
         {
 
         }
 
         // -----------------------------------------------------------------------------
 
-        // alternative constuctor that uses parameter list
-        HMR::HMR ( ParameterList & aParameterList ) : HMR( new Parameters( aParameterList ) )
+        // alternative constructor that uses parameter list
+        HMR::HMR ( 
+                ParameterList & aParameterList,
+                std::shared_ptr<moris::Library_IO> aLibrary )
+        : HMR( new Parameters( aParameterList, aLibrary ) )
         {
             mDatabase->set_parameter_owning_flag();
         }
@@ -89,7 +95,8 @@ namespace moris
 
         // -----------------------------------------------------------------------------
 
-        HMR::HMR( const std::string & aInPath,
+        HMR::HMR(
+                const std::string & aInPath,
                 const std::string & aOutPath )
         {
             MORIS_ERROR( false,"HMR(); constructor not updated yet");
@@ -120,6 +127,12 @@ namespace moris
 
         // -----------------------------------------------------------------------------
 
+        HMR::~HMR()
+        {
+        }
+
+        // -----------------------------------------------------------------------------
+
         void HMR::finalize()
         {
             // finish database
@@ -146,17 +159,13 @@ namespace moris
 
             uint tLagrangeMeshIndex = OutputMeshIndex( 0, 0 );
 
-            //            this->calculate_bspline_coordinates( tLagrangeMeshIndex, 0 );
+            moris::hmr::Interpolation_Mesh_HMR * tInterpolationMesh =
+                    this->create_interpolation_mesh( tLagrangeMeshIndex );
 
-            //            this->save_to_exodus( 0, "./hmr_exo/benchmark01.e" );
+            moris::hmr::Integration_Mesh_HMR *   tIntegrationMesh =
+                    this->create_integration_mesh( tLagrangeMeshIndex, tInterpolationMesh );
 
-            moris::hmr::Interpolation_Mesh_HMR * tInterpolationMesh
-            = this->create_interpolation_mesh( tLagrangeMeshIndex );
-            moris::hmr::Integration_Mesh_HMR *   tIntegrationMesh
-            = this->create_integration_mesh( tLagrangeMeshIndex, tInterpolationMesh );
-
-            MORIS_ERROR( mMTKPerformer != nullptr, "HMR::perform(), MTK performer not set!" );
-
+            // register HMR interpolation and integration meshes
             mMTKPerformer->register_mesh_pair( tInterpolationMesh, tIntegrationMesh, true );
         }
 
@@ -199,7 +208,8 @@ namespace moris
 
         // -----------------------------------------------------------------------------
 
-        void HMR::save_last_step_to_exodus( const uint          aIndex,
+        void HMR::save_last_step_to_exodus(
+                const uint          aIndex,
                 const std::string & aPath,
                 const double        aTimeStep )
         {
@@ -215,12 +225,13 @@ namespace moris
 
         // -----------------------------------------------------------------------------
 
-        void HMR::save_to_exodus( const uint        & aMeshIndex,
+        void HMR::save_to_exodus(
+                const uint        & aMeshIndex,
                 const std::string & aPath,
-                const double aTimeStep  )
+                const double        aTimeStep  )
         {
-            STK * tSTK = mDatabase->get_lagrange_mesh_by_index( aMeshIndex )
-                                          ->create_stk_object( aTimeStep );
+            STK * tSTK = mDatabase->get_lagrange_mesh_by_index( aMeshIndex )->
+                    create_stk_object( aTimeStep );
 
             // save MTK to exodus
             tSTK->save_to_file( aPath );
@@ -231,7 +242,8 @@ namespace moris
 
         // -----------------------------------------------------------------------------
 
-        void HMR::save_to_hdf5( const std::string & aPath,
+        void HMR::save_to_hdf5(
+                const std::string & aPath,
                 const uint          aLagrangeMeshIndex )
         {
             // create file object
@@ -265,7 +277,8 @@ namespace moris
 
         // -----------------------------------------------------------------------------
 
-        void HMR::save_coeffs_to_hdf5_file( const std::string & aFilePath,
+        void HMR::save_coeffs_to_hdf5_file(
+                const std::string & aFilePath,
                 const uint        & aLagrangeMeshIndex )
         {
             // Get Lagrange mesh
@@ -294,7 +307,7 @@ namespace moris
 
             // add order to path
             std::string tFilePath =    aFilePath.substr(0,aFilePath.find_last_of(".")) // base path
-                                              + "_" + std::to_string( tMesh->get_order() ) // rank of this processor
+                                                              + "_" + std::to_string( tMesh->get_order() ) // rank of this processor
             +  aFilePath.substr( aFilePath.find_last_of("."), aFilePath.length() );
 
             // make path parallel
@@ -310,7 +323,8 @@ namespace moris
             herr_t tStatus;
 
             // save mesh order
-            save_scalar_to_hdf5_file( tFileID,
+            save_scalar_to_hdf5_file(
+                    tFileID,
                     "LagrangeOrder",
                     tMesh->get_order(),
                     tStatus );
@@ -328,7 +342,8 @@ namespace moris
             }
 
             // save ids to file
-            save_matrix_to_hdf5_file( tFileID,
+            save_matrix_to_hdf5_file(
+                    tFileID,
                     "NodeID",
                     tIDs,
                     tStatus );
@@ -352,8 +367,8 @@ namespace moris
                     // populate matrix
                     for( uint Ik = 0; Ik < tNumberOfNodes; ++Ik )
                     {
-                        tNumberOfCoeffs( Ik ) = tMesh->get_node_by_index( Ik )->get_interpolation( Im )
-                                                                                      ->get_number_of_coefficients();
+                        tNumberOfCoeffs( Ik ) = tMesh->get_node_by_index( Ik )->get_interpolation( Im )->
+                                get_number_of_coefficients();
                     }
 
                     // save number of coeffs to file
@@ -378,7 +393,7 @@ namespace moris
                         mtk::Vertex_Interpolation * tInterp = tMesh->get_node_by_index( Ik )->get_interpolation( Im );
 
                         tCoeffIDs( { Ik, Ik }, { 0, tMaxI - 1 } ) = trans(tInterp->get_ids().matrix_data());
-                        tWeights( { Ik, Ik }, { 0, tMaxI - 1 } ) = trans(tInterp->get_weights()->matrix_data());
+                        tWeights( { Ik, Ik }, { 0, tMaxI - 1 } )  = trans(tInterp->get_weights()->matrix_data());
 
                     }
 
@@ -386,7 +401,8 @@ namespace moris
                     tLabel = "BSplineIDs_" + std::to_string( Im );
 
                     // save ids to file
-                    save_matrix_to_hdf5_file( tFileID,
+                    save_matrix_to_hdf5_file(
+                            tFileID,
                             tLabel,
                             tCoeffIDs,
                             tStatus );
@@ -395,7 +411,8 @@ namespace moris
                     tLabel = "InterpolationWeights_" + std::to_string( Im );
 
                     // save weights to file
-                    save_matrix_to_hdf5_file( tFileID,
+                    save_matrix_to_hdf5_file(
+                            tFileID,
                             tLabel,
                             tWeights,
                             tStatus );
@@ -408,7 +425,8 @@ namespace moris
 
         // -----------------------------------------------------------------------------
 
-        void HMR::save_mesh_relations_to_hdf5_file( const std::string & aFilePath,
+        void HMR::save_mesh_relations_to_hdf5_file(
+                const std::string & aFilePath,
                 const uint        & aLagrangeMeshIndex,
                 const uint        & aBsplineMeshIndex )
         {
@@ -418,15 +436,16 @@ namespace moris
             BSpline_Mesh_Base * tMesh = tLagrangeMesh->get_bspline_mesh( aBsplineMeshIndex );
 
             // add order to path
-            std::string tFilePath =    aFilePath.substr(0,aFilePath.find_last_of("."))
-                                              + "_" + std::to_string( aBsplineMeshIndex )
-            +  aFilePath.substr( aFilePath.find_last_of("."), aFilePath.length() );
+            std::string tFilePath =    aFilePath.substr(0,aFilePath.find_last_of(".")) +
+                    "_" + std::to_string( aBsplineMeshIndex ) +
+                    aFilePath.substr( aFilePath.find_last_of("."), aFilePath.length() );
 
             // make path parallel
             tFilePath = parallelize_path( tFilePath );
 
             // Create a new file using default properties
-            hid_t tFileID = H5Fcreate( tFilePath.c_str(),
+            hid_t tFileID = H5Fcreate(
+                    tFilePath.c_str(),
                     H5F_ACC_TRUNC,
                     H5P_DEFAULT,
                     H5P_DEFAULT);
@@ -435,7 +454,8 @@ namespace moris
             herr_t tStatus;
 
             // save mesh order
-            save_scalar_to_hdf5_file( tFileID,
+            save_scalar_to_hdf5_file(
+                    tFileID,
                     "BSplineOrder",
                     tMesh->get_order(),
                     tStatus );
@@ -459,19 +479,22 @@ namespace moris
             }
 
             // save ids to file
-            save_matrix_to_hdf5_file( tFileID,
+            save_matrix_to_hdf5_file(
+                    tFileID,
                     "Basis_HMR_Domain_ID",
                     tHMRDomainIDs,
                     tStatus );
 
             // save ids to file
-            save_matrix_to_hdf5_file( tFileID,
+            save_matrix_to_hdf5_file(
+                    tFileID,
                     "Basis_HMR_ID",
                     tHMRIDs,
                     tStatus );
 
             // save ids to file
-            save_matrix_to_hdf5_file( tFileID,
+            save_matrix_to_hdf5_file(
+                    tFileID,
                     "Basis_HMR_Ind",
                     tHMRInds,
                     tStatus );
@@ -485,7 +508,8 @@ namespace moris
             }
 
             // save ids to file
-            save_matrix_to_hdf5_file( tFileID,
+            save_matrix_to_hdf5_file(
+                    tFileID,
                     "Basis_HMR_Level",
                     tHMRLevel,
                     tStatus );
@@ -511,13 +535,15 @@ namespace moris
                 moris_id tID= tMesh->get_basis_by_index( k )->get_id();
 
                 // save ids to file
-                save_matrix_to_hdf5_file( tFileID,
+                save_matrix_to_hdf5_file(
+                        tFileID,
                         "Children for Basis_HMR_Ind ID =" + std::to_string( tID ),
                         tIndices,
                         tStatus );
 
                 // save ids to file
-                save_matrix_to_hdf5_file( tFileID,
+                save_matrix_to_hdf5_file(
+                        tFileID,
                         "Children for Basis_HMR_Weights ID =" + std::to_string( tID ),
                         tWeights,
                         tStatus );
@@ -548,7 +574,8 @@ namespace moris
                 moris_id tID= tMesh->get_basis_by_index( k )->get_id();
 
                 // save ids to file
-                save_matrix_to_hdf5_file( tFileID,
+                save_matrix_to_hdf5_file(
+                        tFileID,
                         "Parents for Basis_HMR_Ind ID =" + std::to_string( tID ),
                         tIndices,
                         tStatus );
@@ -560,8 +587,9 @@ namespace moris
 
         // -----------------------------------------------------------------------------
 
-        void HMR::flag_elements_on_working_pattern(       Cell< hmr::Element* > & aElements,
-                const uint                    aMinRefinementLevel )
+        void HMR::flag_elements_on_working_pattern(
+                Cell< hmr::Element* > & aElements,
+                const uint              aMinRefinementLevel )
         {
             // get  working pattern
             uint tWorkingPattern = mParameters->get_working_pattern();
@@ -603,7 +631,8 @@ namespace moris
 
         // -----------------------------------------------------------------------------
 
-        void HMR::perform_refinement_based_on_working_pattern( const uint aPattern,
+        void HMR::perform_refinement_based_on_working_pattern(
+                const uint aPattern,
                 const bool aResetPattern )
         {
             if ( aResetPattern )
@@ -661,25 +690,30 @@ namespace moris
 
         std::shared_ptr< Mesh > HMR::create_mesh( const uint & aLagrangeIndex )
         {
-            return std::make_shared< Mesh >( mDatabase,
+            return std::make_shared< Mesh >(
+                    mDatabase,
                     aLagrangeIndex );
         }
 
         // -----------------------------------------------------------------------------
 
-        std::shared_ptr< Mesh > HMR::create_mesh( const uint & aLagrangeOrder,
+        std::shared_ptr< Mesh > HMR::create_mesh(
+                const uint & aLagrangeOrder,
                 const uint & aPattern )
         {
-            return std::make_shared< Mesh >( mDatabase,
+            return std::make_shared< Mesh >(
+                    mDatabase,
                     aLagrangeOrder,
                     aPattern );
         }
 
-        std::shared_ptr< Mesh > HMR::create_mesh( const uint & aLagrangeOrder,
+        std::shared_ptr< Mesh > HMR::create_mesh(
+                const uint & aLagrangeOrder,
                 const uint & aLagrangePattern,
                 const uint & aBsplinePattern )
         {
-            return std::make_shared< Mesh >( mDatabase,
+            return std::make_shared< Mesh >(
+                    mDatabase,
                     aLagrangeOrder,
                     aLagrangePattern,
                     aBsplinePattern );
@@ -690,8 +724,8 @@ namespace moris
             return new Interpolation_Mesh_HMR( mDatabase, aLagrangeMeshIndex );
         }
 
-
-        Interpolation_Mesh_HMR * HMR::create_interpolation_mesh( const uint & aLagrangeOrder,
+        Interpolation_Mesh_HMR * HMR::create_interpolation_mesh(
+                const uint & aLagrangeOrder,
                 const uint & aPattern )
         {
             return new Interpolation_Mesh_HMR( mDatabase,
@@ -699,11 +733,13 @@ namespace moris
                     aPattern );
         }
 
-        Interpolation_Mesh_HMR * HMR::create_interpolation_mesh( const uint & aOrder,
+        Interpolation_Mesh_HMR * HMR::create_interpolation_mesh(
+                const uint & aOrder,
                 const uint & aLagrangePattern,
                 const uint & aBsplinePattern)
         {
-            return new Interpolation_Mesh_HMR ( mDatabase,
+            return new Interpolation_Mesh_HMR (
+                    mDatabase,
                     aOrder,
                     aLagrangePattern,
                     aBsplinePattern);
@@ -711,11 +747,13 @@ namespace moris
 
         // -----------------------------------------------------------------------------
 
-        Integration_Mesh_HMR * HMR::create_integration_mesh( const uint &                   aLagrangeOrder,
-                const uint &                   aPattern,
+        Integration_Mesh_HMR * HMR::create_integration_mesh(
+                const uint             & aLagrangeOrder,
+                const uint             & aPattern,
                 Interpolation_Mesh_HMR * aInterpolationMesh)
         {
-            return new Integration_Mesh_HMR ( mDatabase,
+            return new Integration_Mesh_HMR (
+                    mDatabase,
                     aLagrangeOrder,
                     aPattern,
                     aInterpolationMesh);
@@ -723,28 +761,32 @@ namespace moris
 
         // -----------------------------------------------------------------------------
 
-        Integration_Mesh_HMR * HMR::create_integration_mesh( const uint &                   aLagrangeMeshIndex,
+        Integration_Mesh_HMR * HMR::create_integration_mesh(
+                const uint             & aLagrangeMeshIndex,
                 Interpolation_Mesh_HMR * aInterpolationMesh)
         {
-            return new Integration_Mesh_HMR ( mDatabase,
+            return new Integration_Mesh_HMR (
+                    mDatabase,
                     aLagrangeMeshIndex,
                     aInterpolationMesh);
         }
-
 
         // -----------------------------------------------------------------------------
 
         std::shared_ptr< Field > HMR::create_field( const std::string & aLabel )
         {
             MORIS_ERROR(false,"create_field() not changed yet" );
-            return this->create_field( aLabel,
+
+            return this->create_field(
+                    aLabel,
                     mParameters->get_lagrange_orders().max(),
                     mParameters->get_bspline_orders().max() );
         }
 
         // -----------------------------------------------------------------------------
 
-        std::shared_ptr< Field > HMR::create_field( const std::string & aLabel,
+        std::shared_ptr< Field > HMR::create_field(
+                const std::string & aLabel,
                 const uint        & aLagrangeIndex,
                 const uint        & aBSplineIndex )
         {
@@ -803,27 +845,30 @@ namespace moris
 
         // -----------------------------------------------------------------------------
 
-        void HMR::save_bsplines_to_vtk( const std::string & aFilePath,
+        void HMR::save_bsplines_to_vtk(
+                const std::string & aFilePath,
                 const uint        & aLagrangeMeshIndex,
                 const uint        & aBsplineMeshIndex  )
         {
             // dump mesh
-            mDatabase->get_lagrange_mesh_by_index( aLagrangeMeshIndex )
-                             ->get_bspline_mesh( aBsplineMeshIndex )->save_to_vtk( aFilePath );
+            mDatabase->get_lagrange_mesh_by_index( aLagrangeMeshIndex )->
+                    get_bspline_mesh( aBsplineMeshIndex )->save_to_vtk( aFilePath );
         }
 
         // -----------------------------------------------------------------------------
 
-        void HMR::calculate_bspline_coordinates( const uint        & aLagrangeMeshIndex,
+        void HMR::calculate_bspline_coordinates(
+                const uint        & aLagrangeMeshIndex,
                 const uint        & aBsplineMeshIndex  )
         {
-            mDatabase->get_lagrange_mesh_by_index( aLagrangeMeshIndex )
-                             ->get_bspline_mesh( aBsplineMeshIndex )->calculate_basis_coordinates();
+            mDatabase->get_lagrange_mesh_by_index( aLagrangeMeshIndex )->
+                    get_bspline_mesh( aBsplineMeshIndex )->calculate_basis_coordinates();
         }
 
         // -----------------------------------------------------------------------------
 
-        void HMR::save_faces_to_vtk( const std::string & aFilePath,
+        void HMR::save_faces_to_vtk(
+                const std::string & aFilePath,
                 const uint        & aLagrangeMeshIndex )
         {
             // dump mesh
@@ -832,10 +877,12 @@ namespace moris
 
         // -----------------------------------------------------------------------------
 
-        void HMR::save_edges_to_vtk( const std::string & aFilePath,
+        void HMR::save_edges_to_vtk(
+                const std::string & aFilePath,
                 const uint        & aLagrangeMeshIndex )
         {
-            MORIS_ERROR( mParameters->get_number_of_dimensions() == 3, "HMR::save_edges_to_vtk() can only be called for 3D meshes" );
+            MORIS_ERROR( mParameters->get_number_of_dimensions() == 3,
+                    "HMR::save_edges_to_vtk() can only be called for 3D meshes" );
 
             // dump mesh
             mDatabase->get_lagrange_mesh_by_index( aLagrangeMeshIndex )->save_edges_to_vtk( aFilePath );
@@ -843,7 +890,8 @@ namespace moris
 
         // ----------------------------------------------------------------------------
 
-        void HMR::save_mesh_to_vtk( const std::string & aFilePath,
+        void HMR::save_mesh_to_vtk(
+                const std::string & aFilePath,
                 const uint        & aLagrangeMeshIndex )
         {
             // dump mesh
@@ -852,7 +900,8 @@ namespace moris
 
         // ----------------------------------------------------------------------------
 
-        std::shared_ptr< Field > HMR::load_field_from_hdf5_file( const std::string & aLabel,
+        std::shared_ptr< Field > HMR::load_field_from_hdf5_file(
+                const std::string & aLabel,
                 const std::string & aFilePath,
                 const uint          aLagrangeIndex,
                 const uint          aBSpineIndex )
@@ -906,7 +955,8 @@ namespace moris
 
         // ----------------------------------------------------------------------------
 
-        std::shared_ptr< Field > HMR::load_field_from_exo_file( const std::string & aLabel,
+        std::shared_ptr< Field > HMR::load_field_from_exo_file(
+                const std::string & aLabel,
                 const std::string & aFilePath,
                 const uint          aLagrangeIndex,
                 const uint          aBSpineIndex )
@@ -945,7 +995,8 @@ namespace moris
             // allocate nodal field
             tValues.set_size( tNumberOfExodusNodes, 1 );
 
-            tValues = tMesh->get_entity_field_value_real_scalar( tIndices,
+            tValues = tMesh->get_entity_field_value_real_scalar(
+                    tIndices,
                     aLabel,
                     EntityRank::NODE );
 
@@ -996,7 +1047,7 @@ namespace moris
                 tValues( k ) = tValueMap.find( tHmrMesh->get_mtk_vertex( k ).get_id() );
 
                 MORIS_ERROR( tValues( k ) < MORIS_REAL_MAX,
-                        "Map did not cover component %i of vecto tValues: %e", k, tValues( k ));
+                        "Map did not cover component %i of vector tValues: %e", k, tValues( k ));
             }
 
             // finally, we set the order of the B-Spline coefficients
@@ -1011,7 +1062,8 @@ namespace moris
 
         // ----------------------------------------------------------------------------
 
-        std::shared_ptr< Field > HMR::load_field_from_file( const std::string & aLabel,
+        std::shared_ptr< Field > HMR::load_field_from_file(
+                const std::string & aLabel,
                 const std::string & aFilePath,
                 const uint          aLagrangeIndex,
                 const uint          aBSpineIndex )
@@ -1125,244 +1177,79 @@ namespace moris
         // ----------------------------------------------------------------------------
 
         void HMR::user_defined_flagging(
-                int ( *aFunction )
-                (
-                        Element                          * aElement,
-                        const Cell< Matrix< DDRMat > >   & aElementLocalValues,
-                        ParameterList                    & aParameters
-                ),
-                Cell< std::shared_ptr< Field > > & aFields,
-                ParameterList                    & aParameters,
-                const uint                       & aPattern )
+                Cell< hmr::Element * >   & aCells,
+                Cell< hmr::Element * >   & aCandidates,
+                const  Matrix< DDRMat >  & aVertexValues,
+                uint                       aFunctionIndex)
         {
-            // remember current active scheme
-            uint tActivePattern = mDatabase->get_activation_pattern();
-
-            // set activation pattern to input
-            if( tActivePattern != aPattern )
-            {
-                // set active pattern to input mesh
-                mDatabase->set_activation_pattern( aPattern );
-            }
-
-            // get number of fields
-            uint tNumberOfFields = aFields.size();
-
-            MORIS_ERROR( tNumberOfFields > 0, "No fields defined for refinement" );
-
-            // create empty cell of fields
-            Matrix< DDRMat> tEmpty;
-            Cell< Matrix< DDRMat> > tFields( tNumberOfFields, tEmpty );
 
             // get number of elements from input mesh
-            uint tNumberOfElements  = mDatabase->get_background_mesh()->get_number_of_active_elements_on_proc();
-
-            // loop over all fields
-            for( auto tField: aFields )
-            {
-                // test if field has node values
-                if( tField->get_node_values().length() == 0 )
-                {
-                    tField->evaluate_node_values();
-                }
-            }
-
-            // grab max level from settings
-            uint tMaxLevel = mParameters->get_max_refinement_level();
-
-            uint tLagrangeInputMeshIndex = mParameters->get_lagrange_input_mesh()(0);             //FIXME this works only for one input mesh
+            uint tNumberOfElements  = aCandidates.size();
 
             // loop over all elements
-            for( uint e=0; e<tNumberOfElements; ++e )
+            for( uint e = 0; e < tNumberOfElements; ++e )
             {
-                // get pointer to element
-                Element * tElement =  mMeshes( tLagrangeInputMeshIndex )->get_lagrange_mesh()->get_element( e );
-
-                // only consider element if level is below max specified level
-
-                // loop over all fields
-                for( uint f = 0; f<tNumberOfFields; ++f )
-                {
-                    // grab nodal values
-                    aFields( f )->get_element_local_node_values( e, tFields( f ) );
-                }
-
-                // check flag from user defined function
-                int tFlag = aFunction( tElement,
-                        tFields,
-                        aParameters );
-
-                // chop flag if element is at max defined level
-                if( tElement->get_level() > tMaxLevel )
-                {
-                    // an element above the max level can only be coarsened
-                    tFlag = -1;
-                }
-                else if( tElement->get_level() == tMaxLevel)
-                {
-                    // an element on the max level can only be kept or coarsened
-                    // but nor refined
-                    tFlag = std::min( tFlag, 0 );
-                }
-
-                // perform flagging test
-                if( tFlag == 1 )
-                {
-                    // flag this element and parents of neighbors
-                    mDatabase->flag_element( e );
-                }
-                else if ( tFlag == 0 )
-                {
-                    // flag the parent of this element
-                    mDatabase->flag_parent( e );
-                }
-            }
-
-            //            // get max level on this mesh
-            //            uint tMaxLevelOnMesh = mDatabase->get_background_mesh()->get_max_level();
-            //
-            //            if( mParameters->get_refinement_buffer() > 0 )
-            //            {
-            //                // get number of levels
-            //                for( uint tLevel=0; tLevel<=tMaxLevelOnMesh; ++tLevel )
-            //                {
-            //                    // create extra buffer
-            //                    mDatabase->create_extra_refinement_buffer_for_level( tLevel );
-            //                }
-            //            }
-
-            // reset activation pattern of database
-            if( tActivePattern != aPattern )
-            {
-                mDatabase->set_activation_pattern( tActivePattern );
-            }
-        }
-
-        // ----------------------------------------------------------------------------
-
-        void HMR::user_defined_flagging(
-                int ( *aFunction )
-                (
-                        Element                          * aElement,
-                        const Cell< Matrix< DDRMat > >   & aElementLocalValues,
-                        ParameterList                    & aParameters
-                ),
-                Cell< Matrix< DDRMat > >         & aFields,
-                ParameterList                    & aParameters,
-                const uint                       & aPattern )
-        {
-            // remember current active scheme
-            uint tActivePattern = mDatabase->get_activation_pattern();
-
-            // set activation pattern to input
-            if( tActivePattern != aPattern )
-            {
-                // set active pattern to input mesh
-                mDatabase->set_activation_pattern( aPattern );
-            }
-
-            // get number of fields
-            uint tNumberOfFields = aFields.size();
-
-            MORIS_ERROR( tNumberOfFields > 0, "No fields defined for refinement" );
-
-            // create empty cell of fields
-            Matrix< DDRMat> tEmpty;
-            Cell< Matrix< DDRMat> > tFields( tNumberOfFields, tEmpty );
-
-            // get number of elements from input mesh
-            uint tNumberOfElements  = mDatabase->get_background_mesh()->get_number_of_active_elements_on_proc();
-
-            // grab max level from settings
-            uint tMaxLevel = mParameters->get_max_refinement_level();
-
-            // check that at least one Lagrange input mesh is defined
-            MORIS_ASSERT(mParameters->get_lagrange_input_mesh().numel() > 0,
-                    "No Lagrange input mesh has been defined - one and only one needs to be specified\n");
-
-            // get index of Lagrange input mesh
-            uint tLagrangeInputMeshIndex = mParameters->get_lagrange_input_mesh()(0); //FIXME this works only for one input mesh
-
-            // loop over all elements
-            for( uint e=0; e<tNumberOfElements; ++e )
-            {
-                // get pointer to element
-                Element * tElement =  mMeshes( tLagrangeInputMeshIndex )->get_lagrange_mesh()->get_element( e );
 
                 // TODO comment these lines in toa ctivate refinement buffer.
                 // TODO it should just work. However it is not validated yet.
-//              // get max level on this mesh
-//              uint tMaxLevelOnMesh = mDatabase->get_background_mesh()->get_max_level();
-//
-//              if( mParameters->get_refinement_buffer() > 0 )
-//              {
-//                  // get number of levels
-//                  for( uint tLevel=0; tLevel<=tMaxLevelOnMesh; ++tLevel )
-//                  {
-//                      // create extra buffer
-//                      mDatabase->create_extra_refinement_buffer_for_level( tLevel );
-//                  }
-//              }
+                //              // get max level on this mesh
+                //              uint tMaxLevelOnMesh = mDatabase->get_background_mesh()->get_max_level();
+                //
+                //              if( mParameters->get_refinement_buffer() > 0 )
+                //              {
+                //                  // get number of levels
+                //                  for( uint tLevel=0; tLevel<=tMaxLevelOnMesh; ++tLevel )
+                //                  {
+                //                      // create extra buffer
+                //                      mDatabase->create_extra_refinement_buffer_for_level( tLevel );
+                //                  }
+                //              }
 
                 // only consider element if level is below max specified level
 
-                Matrix< IndexMat > tElementsInds = tElement->get_vertex_inds();
+                Matrix< IndexMat > tElementsInds = aCandidates(e)->get_vertex_inds();
 
-                // loop over all fields
-                for (uint k=0;k< tNumberOfFields;++k)
+                // loop over all nodes of an element
+                Matrix<DDRMat> tElementField(tElementsInds.numel(), 1 );
+                for( uint f = 0; f<tElementsInds.numel(); ++f )
                 {
-                    tFields( k ).set_size(tElementsInds.numel(), 1 );
-
-                    // loop over all nodes of an element
-                    for( uint f = 0; f<tElementsInds.numel(); ++f )
-                    {
-                        tFields( k )( f ) = aFields( k )( tElementsInds( f ) );
-                    }
+                    tElementField( f ) = aVertexValues( tElementsInds( f ) );
                 }
 
                 // check flag from user defined function
-                int tFlag = aFunction(
-                        tElement,
-                        tFields,
-                        aParameters );
-
-                // chop flag if element is at max defined level
-                if( tElement->get_level() > tMaxLevel )
-                {
-                    // an element above the max level can only be coarsened
-                    tFlag = -1;
-                }
-                else if( tElement->get_level() == tMaxLevel)
-                {
-                    // an element on the max level can only be kept or coarsened
-                    // but nor refined
-                    tFlag = std::min( tFlag, 0 );
-                }
+                int tFlag = mParameters->get_refinement_function(aFunctionIndex)( aCandidates(e),
+                                                                                  tElementField);
+//                // chop flag if element is at max defined level
+//                if( tElement->get_level() > tMaxLevel )
+//                {
+//                    // an element above the max level can only be coarsened
+//                    tFlag = -1;
+//                }
+//                else if( tElement->get_level() == tMaxLevel)
+//                {
+//                    // an element on the max level can only be kept or coarsened
+//                    // but nor refined
+//                    tFlag = std::min( tFlag, 0 );
+//                }
 
                 // perform flagging test
                 if( tFlag == 1 )
                 {
-                    // flag this element and parents of neighbors
-                    mDatabase->flag_element( e );
+                    aCells.push_back(aCandidates(e));
                 }
-                else if ( tFlag == 0 )
-                {
-                    // flag the parent of this element
-                    mDatabase->flag_parent( e );
-                }
-            }
-
-            // reset activation pattern of database
-            if( tActivePattern != aPattern )
-            {
-                mDatabase->set_activation_pattern( tActivePattern );
+//                else if ( tFlag == 0 )
+//                {
+//                    // flag the parent of this element
+//                    mDatabase->flag_parent( e );
+//                }
             }
         }
 
         // ----------------------------------------------------------------------------
 
-        void HMR::get_candidates_for_refinement(       Cell< hmr::Element* > & aCandidates,
-                const uint                    aLagrangeMeshIndex)
+        void HMR::get_candidates_for_refinement(
+                Cell< hmr::Element* > & aCandidates,
+                const uint              aLagrangeMeshIndex)
         {
             // reset candidate list
             aCandidates.clear();
@@ -1510,8 +1397,10 @@ namespace moris
 
         // -----------------------------------------------------------------------------
 
-        uint HMR::based_on_field_put_elements_on_queue( const Matrix< DDRMat > & aFieldValues,
-                const uint             & aLagrangeMeshIndex )
+        uint HMR::based_on_field_put_elements_on_queue(
+                const Matrix< DDRMat > & aFieldValues,
+                uint                     aLagrangeMeshIndex,
+                sint                     aFunctionIndex)
         {
             uint aElementCounter = 0;
 
@@ -1526,9 +1415,20 @@ namespace moris
                     aLagrangeMeshIndex);
 
             // call refinement manager and get intersected cells
-            this->find_cells_intersected_by_levelset( tRefinementList,
-                    tCandidates,
-                    aFieldValues );
+            if (aFunctionIndex < 0)
+            {
+                this->find_cells_intersected_by_levelset( tRefinementList,
+                                                          tCandidates,
+                                                          aFieldValues );
+            }
+            else
+            {
+                this->user_defined_flagging(tRefinementList,
+                                            tCandidates,
+                                            aFieldValues,
+                                            uint(aFunctionIndex));
+            }
+
 
             // add length of list to counter
             aElementCounter += tRefinementList.size();
@@ -1744,9 +1644,10 @@ namespace moris
         //        }
         // ----------------------------------------------------------------------------
 
-        void HMR::map_field_to_output(       std::shared_ptr< Field > aField,
-                const uint                     aMesh_Index,
-                const uint                     aBsplineMeshIndex)
+        void HMR::map_field_to_output(
+                std::shared_ptr< Field > aField,
+                const uint               aMesh_Index,
+                const uint               aBsplineMeshIndex)
         {
             // grab orders of meshes
             uint tSourceLagrangeOrder = aField->get_lagrange_order();
@@ -1765,90 +1666,95 @@ namespace moris
             // create union mesh
             Interpolation_Mesh_HMR * tUnionInterpolationMesh = this->create_interpolation_mesh( tOrder,
                     mParameters->get_union_pattern(),
-                    tTargetPattern );   // order, lagrange pattern, bspline pattern
+                    tTargetPattern );   // order, Lagrange pattern, bspline pattern
 
-                    // create union field
-                    std::shared_ptr< Field > tUnionField = tUnionInterpolationMesh->create_field( aField->get_label(),
-                            aBsplineMeshIndex );        //index to 0 so that we only need one mesh
+            // create union field
+            std::shared_ptr< Field > tUnionField = tUnionInterpolationMesh->create_field( aField->get_label(),
+                    aBsplineMeshIndex );        //index to 0 so that we only need one mesh
 
-                            // map source lagrange field to target lagrange field
-                    if( tSourceLagrangeOrder >= tTargetLagrangeOrder )
-                    {
-                        // interpolate field onto union mesh
-                        mDatabase->interpolate_field( aField->get_lagrange_pattern(),
-                                aField,
-                                mParameters->get_union_pattern(),
-                                tUnionField );
-                    }
-                    else
-                    {
-                        // mesh the input field is based on                                             //FIXME
-                        std::shared_ptr< Mesh > tInputMesh = this->create_mesh( tOrder,
-                                aField->get_lagrange_pattern(),
-                                aField->get_lagrange_pattern() );
+            // map source Lagrange field to target Lagrange field
+            if( tSourceLagrangeOrder >= tTargetLagrangeOrder )
+            {
+                // interpolate field onto union mesh
+                mDatabase->interpolate_field( aField->get_lagrange_pattern(),
+                        aField,
+                        mParameters->get_union_pattern(),
+                        tUnionField );
+            }
+            else
+            {
+                // mesh the input field is based on                                             //FIXME
+                std::shared_ptr< Mesh > tInputMesh = this->create_mesh(
+                        tOrder,
+                        aField->get_lagrange_pattern(),
+                        aField->get_lagrange_pattern() );
 
-                        // first, project field on mesh with correct order
-                        std::shared_ptr< Field > tTemporaryField = tInputMesh->create_field( aField->get_label(),
-                                0 );
+                // first, project field on mesh with correct order
+                std::shared_ptr< Field > tTemporaryField = tInputMesh->create_field( aField->get_label(),
+                        0 );
 
-                        mDatabase->change_field_order( aField, tTemporaryField );
+                mDatabase->change_field_order( aField, tTemporaryField );
 
-                        // now, interpolate this field onto the union
-                        mDatabase->interpolate_field( aField->get_lagrange_pattern(),
-                                tTemporaryField,
-                                mParameters->get_union_pattern(),
-                                tUnionField );
-                    }
+                // now, interpolate this field onto the union
+                mDatabase->interpolate_field(
+                        aField->get_lagrange_pattern(),
+                        tTemporaryField,
+                        mParameters->get_union_pattern(),
+                        tUnionField );
+            }
 
-                    // construct union integration mesh (note: this is not ever used but is needed for mesh manager)
-                    Integration_Mesh_HMR* tIntegrationUnionMesh = this->create_integration_mesh( tOrder, mParameters->get_union_pattern(), tUnionInterpolationMesh );
+            // construct union integration mesh (note: this is not ever used but is needed for mesh manager)
+            Integration_Mesh_HMR* tIntegrationUnionMesh = this->create_integration_mesh( tOrder, mParameters->get_union_pattern(), tUnionInterpolationMesh );
 
+            // Add union mesh to mesh manager
+            mtk::Mesh_Manager tMeshManager;
+            moris::uint tMeshPairIndex = tMeshManager.register_mesh_pair( tUnionInterpolationMesh, tIntegrationUnionMesh );
 
-                    // Add union mesh to mesh manager
-                    mtk::Mesh_Manager tMeshManager;
-                    moris::uint tMeshPairIndex = tMeshManager.register_mesh_pair( tUnionInterpolationMesh, tIntegrationUnionMesh );
+            // create mapper
+            mapper::Mapper tMapper(
+                    &tMeshManager,
+                    tMeshPairIndex,
+                    aBsplineMeshIndex );
 
-                    // create mapper
-                    mapper::Mapper tMapper( &tMeshManager,
-                            tMeshPairIndex,
-                            aBsplineMeshIndex );
+            // project field to union
+            tMapper.perform_mapping( aField->get_label(),
+                    EntityRank::NODE,
+                    aField->get_label(),
+                    tUnionField->get_bspline_rank() );
 
-                    // project field to union
-                    tMapper.perform_mapping( aField->get_label(),
-                            EntityRank::NODE,
-                            aField->get_label(),
-                            tUnionField->get_bspline_rank() );
+            // a small sanity test
+            //            MORIS_ASSERT( tUnionField->get_coefficients().length() == tUnionInterpolationMesh->get_num_coeffs( aBsplineMeshIndex ),
+            //                            "Number of B-Splines does not match" );
 
-                    // a small sanity test
-                    //            MORIS_ASSERT( tUnionField->get_coefficients().length() == tUnionInterpolationMesh->get_num_coeffs( aBsplineMeshIndex ),
-                    //                            "Number of B-Splines does not match" );
+            // get pointer to output mesh
+            std::shared_ptr< Mesh > tOutputMesh = this->create_mesh(
+                    tTargetLagrangeOrder,
+                    tTargetPattern );
 
-                    // get pointer to output mesh
-                    std::shared_ptr< Mesh > tOutputMesh = this->create_mesh( tTargetLagrangeOrder,
-                            tTargetPattern );
+            // create output field
+            std::shared_ptr< Field > tOutputField = tOutputMesh->create_field(
+                    aField->get_label(),
+                    aBsplineMeshIndex );     // BSplineIndex
 
-                    // create output field
-                    std::shared_ptr< Field > tOutputField = tOutputMesh->create_field( aField->get_label(),
-                            aBsplineMeshIndex );     // BSplineIndex
+            // move coefficients to output field
+            tOutputField->get_coefficients() = std::move( tUnionField->get_coefficients() );
 
-                            // move coefficients to output field
-                    tOutputField->get_coefficients() = std::move( tUnionField->get_coefficients() );
+            // allocate nodes for output
+            tOutputField->get_node_values().set_size( tOutputMesh->get_num_nodes(), 1 );
 
-                    // allocate nodes for output
-                    tOutputField->get_node_values().set_size( tOutputMesh->get_num_nodes(), 1 );
+            // evaluate nodes
+            tOutputField->evaluate_node_values();
 
-                    // evaluate nodes
-                    tOutputField->evaluate_node_values();
-
-                    // make this field point to the output mesh
-                    aField->change_mesh( tOutputField->get_mesh(),
-                            tOutputField->get_field_index() );
+            // make this field point to the output mesh
+            aField->change_mesh( tOutputField->get_mesh(),
+                    tOutputField->get_field_index() );
         }
 
         // ----------------------------------------------------------------------------
 
-        void HMR::map_field_to_output_union(       std::shared_ptr< Field > aField,
-                const uint                     aUnionOrder )
+        void HMR::map_field_to_output_union(
+                std::shared_ptr< Field > aField,
+                const uint               aUnionOrder )
         {
             // grab orders of meshes
             uint tLagrangeOrder = aField->get_lagrange_order();
@@ -1901,11 +1807,12 @@ namespace moris
 
         // ----------------------------------------------------------------------------
 
-        void HMR::find_cells_intersected_by_levelset(        Cell< hmr::Element * > & aCells,
-                Cell< hmr::Element * > & aCandidates,
-                const  Matrix< DDRMat >    & aVertexValues,
-                const  real                  aLowerBound,
-                const  real                  aUpperBound )
+        void HMR::find_cells_intersected_by_levelset(
+                Cell< hmr::Element * >   & aCells,
+                Cell< hmr::Element * >   & aCandidates,
+                const  Matrix< DDRMat >  & aVertexValues,
+                const  real                aLowerBound,
+                const  real                aUpperBound )
         {
             // make sure that input makes sense
             MORIS_ASSERT( aLowerBound <= aUpperBound,
@@ -1952,10 +1859,11 @@ namespace moris
             aCells.resize( tCount );
         }
 
-        void HMR::find_cells_within_levelset(        Cell< hmr::Element * > & aCells,
-                Cell< hmr::Element * > & aCandidates,
-                const  Matrix< DDRMat >       & aVertexValues,
-                const  uint                     aUpperBound )
+        void HMR::find_cells_within_levelset(
+                Cell< hmr::Element * >   & aCells,
+                Cell< hmr::Element * >   & aCandidates,
+                const  Matrix< DDRMat >  & aVertexValues,
+                const  uint                aUpperBound )
         {
             // make sure that the field is a scalar field
             MORIS_ASSERT( aVertexValues.n_cols() == 1, "find_cells_within_levelset() can only be performed on scalar fields" );

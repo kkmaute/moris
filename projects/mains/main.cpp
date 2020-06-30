@@ -34,7 +34,7 @@ int main( int argc, char * argv[] )
 
     // print git branch and hash
     git_info tGitInfo;
-    std::fprintf( stdout, "\n     GIT revision  : %s\n",  tGitInfo.get_git_branch().c_str() );
+    std::fprintf( stdout, "\n     GIT branch    : %s\n",  tGitInfo.get_git_branch().c_str() );
     std::fprintf( stdout,   "     GIT revision  : %s\n\n",tGitInfo.get_git_hash().c_str() );
 
     // call to performance manager main interface

@@ -19,43 +19,43 @@ namespace moris
     namespace hmr
     {
 
-//-------------------------------------------------------------------------------
+        //-------------------------------------------------------------------------------
 
-    Background_Mesh_Base::Background_Mesh_Base( const Parameters * aParameters ) :  mParameters( aParameters ),
-                                                                                    mNumberOfDimensions( aParameters->get_number_of_dimensions() ),
-                                                                                    mMaxPolynomial( aParameters->get_max_polynomial() ),
-                                                                                    mPaddingRefinement( ceil( 0.5*( real) aParameters->get_max_polynomial() ) ),
-                                                                                    mPaddingSize( aParameters->get_padding_size() ),
-                                                                                    mBufferSize( aParameters->get_staircase_buffer() ),
-                                                                                    mNumberOfChildrenPerElement( pow( 2, aParameters->get_number_of_dimensions() ) ),
-                                                                                    mMyRank( par_rank() )
-    {
-        // make sure that settings are OK
-        aParameters->check_sanity();
-
-        // initialize size of Aura Cells ( note this relates to processors not elements in aura )
-        uint tSize = pow( 3, aParameters->get_number_of_dimensions() );
-
-        // create empty matrix to initialize fixed size cell
-        Matrix< DDLUMat > tEmpty;
-
-        // resize aura cell and use empty matrix as default entry
-        mCoarsestAura.resize( tSize, tEmpty );
-
-        // resize inverse aura cell and use empty matrix as default entry
-        mCoarsestInverseAura.resize( tSize, tEmpty );
-
-        // reset elements per level table
-        for( uint l=0; l<gMaxNumberOfLevels; ++l )
+        Background_Mesh_Base::Background_Mesh_Base( const Parameters * aParameters ) :  mParameters( aParameters ),
+                mNumberOfDimensions( aParameters->get_number_of_dimensions() ),
+                mMaxPolynomial( aParameters->get_max_polynomial() ),
+                mPaddingRefinement( ceil( 0.5*( real) aParameters->get_max_polynomial() ) ),
+                mPaddingSize( aParameters->get_padding_size() ),
+                mBufferSize( aParameters->get_staircase_buffer() ),
+                mNumberOfChildrenPerElement( pow( 2, aParameters->get_number_of_dimensions() ) ),
+                mMyRank( par_rank() )
         {
-            mNumberOfElementsPerLevel[ l ] = 0;
+            // make sure that settings are OK
+            aParameters->check_sanity();
+
+            // initialize size of Aura Cells ( note this relates to processors not elements in aura )
+            uint tSize = pow( 3, aParameters->get_number_of_dimensions() );
+
+            // create empty matrix to initialize fixed size cell
+            Matrix< DDLUMat > tEmpty;
+
+            // resize aura cell and use empty matrix as default entry
+            mCoarsestAura.resize( tSize, tEmpty );
+
+            // resize inverse aura cell and use empty matrix as default entry
+            mCoarsestInverseAura.resize( tSize, tEmpty );
+
+            // reset elements per level table
+            for( uint l=0; l<gMaxNumberOfLevels; ++l )
+            {
+                mNumberOfElementsPerLevel[ l ] = 0;
+            }
+
+            // set number of neighbors per element
+            mNumberOfNeighborsPerElement = std::pow( 3, mNumberOfDimensions ) - 1;
         }
 
-        // set number of neighbors per element
-        mNumberOfNeighborsPerElement = std::pow( 3, mNumberOfDimensions ) - 1;
-    }
-
-//-------------------------------------------------------------------------------
+        //-------------------------------------------------------------------------------
 
         void Background_Mesh_Base::print_active_elements()
         {
@@ -88,7 +88,7 @@ namespace moris
         }
 
 
-//-------------------------------------------------------------------------------
+        //-------------------------------------------------------------------------------
 
         void Background_Mesh_Base::print_active_elements_including_aura()
         {
@@ -102,7 +102,7 @@ namespace moris
             for( luint k=0; k<tNumberOfActiveElements; ++k )
             {
                 Background_Element_Base*
-                    tElement = mActiveElementsIncludingAura( k );
+                tElement = mActiveElementsIncludingAura( k );
 
                 std::fprintf( stdout, "  el: %lu id: %lu a: %d  r: %d  o: %u\n",
                         k,
@@ -113,7 +113,7 @@ namespace moris
             }
         }
 
-//-------------------------------------------------------------------------------
+        //-------------------------------------------------------------------------------
 
         void Background_Mesh_Base::synchronize_coarsest_aura()
         {
@@ -152,8 +152,8 @@ namespace moris
 
                 // communicate ownership to neighbors
                 communicate_mats( mMyProcNeighbors,
-                                  tSendOwners,
-                                  tReceiveOwners );
+                        tSendOwners,
+                        tReceiveOwners );
 
                 // now test which elements are padding and active
 
@@ -182,7 +182,7 @@ namespace moris
             }
         }
 
-//-------------------------------------------------------------------------------
+        //-------------------------------------------------------------------------------
 
         void Background_Mesh_Base::get_active_elements_on_proc( Matrix< DDLUMat > & aElementIDs)
         {
@@ -198,12 +198,12 @@ namespace moris
             // loop over all active elements
             for( luint k=0; k<tNumberOfElements; ++k )
             {
-               // get ID of element
-               aElementIDs( k ) = mActiveElements( k )->get_hmr_id();
+                // get ID of element
+                aElementIDs( k ) = mActiveElements( k )->get_hmr_id();
             }
         }
 
-//-------------------------------------------------------------------------------
+        //-------------------------------------------------------------------------------
 
         void Background_Mesh_Base::get_active_elements_on_proc_including_aura(
                 Matrix< DDLUMat > & aElementIDs )
@@ -225,7 +225,7 @@ namespace moris
             }
         }
 
-//-------------------------------------------------------------------------------
+        //-------------------------------------------------------------------------------
 
         luint Background_Mesh_Base::count_active_elements() const
         {
@@ -244,7 +244,7 @@ namespace moris
             return aCount;
         }
 
-//-------------------------------------------------------------------------------
+        //-------------------------------------------------------------------------------
 
         luint Background_Mesh_Base::count_active_elements_including_aura() const
         {
@@ -263,7 +263,7 @@ namespace moris
             return aCount;
         }
 
-//-------------------------------------------------------------------------------
+        //-------------------------------------------------------------------------------
 
         luint Background_Mesh_Base::count_all_elements_including_aura() const
         {
@@ -282,7 +282,7 @@ namespace moris
             return aCount;
         }
 
-//-------------------------------------------------------------------------------
+        //-------------------------------------------------------------------------------
 
         void Background_Mesh_Base::collect_active_elements()
         {
@@ -331,7 +331,7 @@ namespace moris
                 }*/
         }
 
-//-------------------------------------------------------------------------------
+        //-------------------------------------------------------------------------------
 
         void Background_Mesh_Base::collect_active_elements_including_aura()
         {
@@ -356,7 +356,7 @@ namespace moris
             }
         }
 
-//-------------------------------------------------------------------------------
+        //-------------------------------------------------------------------------------
 
         void Background_Mesh_Base::synchronize_refinement_queue()
         {
@@ -392,7 +392,7 @@ namespace moris
                         for( luint e=0; e<tNumberOfCoarsestElementsOnInverseAura; ++e )
                         {
                             mCoarsestElementsIncludingAura( mCoarsestInverseAura( p )( e ) )
-                                ->get_number_of_active_descendants( mActivePattern, tNumberOfActiveElements );
+                                        ->get_number_of_active_descendants( mActivePattern, tNumberOfActiveElements );
                         }
 
                         // get number of elements on aura
@@ -402,7 +402,7 @@ namespace moris
                         for( luint e=0; e<tNumberOfCoarsestElementsOnAura; ++e )
                         {
                             mCoarsestElementsIncludingAura( mCoarsestAura( p )( e ) )
-                                ->get_number_of_active_descendants( mActivePattern, tNumberOfActiveElements );
+                                        ->get_number_of_active_descendants( mActivePattern, tNumberOfActiveElements );
                         }
 
                         // assign memory
@@ -415,14 +415,14 @@ namespace moris
                         for( luint e = 0; e < tNumberOfCoarsestElementsOnInverseAura; ++e )
                         {
                             mCoarsestElementsIncludingAura( mCoarsestInverseAura( p )( e ) )
-                                    ->collect_active_descendants( mActivePattern, tActiveElements, tCount );
+                                            ->collect_active_descendants( mActivePattern, tActiveElements, tCount );
                         }
 
                         // get active elements on aura
                         for( luint e = 0; e < tNumberOfCoarsestElementsOnAura; ++e )
                         {
                             mCoarsestElementsIncludingAura( mCoarsestAura( p )( e ) )
-                                    ->collect_active_descendants( mActivePattern, tActiveElements, tCount );
+                                            ->collect_active_descendants( mActivePattern, tActiveElements, tCount );
                         }
 
                         // initialize counter for elements
@@ -467,8 +467,8 @@ namespace moris
                                 if ( tElement->is_queued_for_refinement() )
                                 {
                                     tElement->endcode_pedigree_path( tAncestorListSend( p )( tElementCounter++ ),
-                                                                     tPedigreeListSend( p ),
-                                                                     tMemoryCounter );
+                                            tPedigreeListSend( p ),
+                                            tMemoryCounter );
                                 }
                             }
                         }
@@ -481,13 +481,13 @@ namespace moris
 
                 // communicate ancestor IDs
                 communicate_mats( mMyProcNeighbors,
-                                  tAncestorListSend,
-                                  tAncestorListReceive );
+                        tAncestorListSend,
+                        tAncestorListReceive );
 
                 // communicate pedigree list
                 communicate_mats( mMyProcNeighbors,
-                                  tPedigreeListSend,
-                                  tPedigreeListReceive );
+                        tPedigreeListSend,
+                        tPedigreeListReceive );
 
                 // loop over all received lists
                 for ( uint p=0; p<tNumberOfNeighbors; ++p )
@@ -503,8 +503,8 @@ namespace moris
                     {
                         // decode path and get pointer to element
                         Background_Element_Base* tElement = this->decode_pedigree_path( tAncestorListReceive( p )( k ),
-                                                                                        tPedigreeListReceive( p ),
-                                                                                        tMemoryCounter );
+                                tPedigreeListReceive( p ),
+                                tMemoryCounter );
 
                         // flag this element for refinement
                         tElement->put_on_refinement_queue();
@@ -513,7 +513,7 @@ namespace moris
             }
         }
 
-//-------------------------------------------------------------------------------
+        //-------------------------------------------------------------------------------
 
         bool Background_Mesh_Base::collect_refinement_queue()
         {
@@ -626,7 +626,7 @@ namespace moris
             }
         }
 
-//-------------------------------------------------------------------------------
+        //-------------------------------------------------------------------------------
 
         void Background_Mesh_Base::apply_refinement_queue_to_pattern( const uint aPattern )
         {
@@ -653,7 +653,7 @@ namespace moris
             }
         }
 
-//-------------------------------------------------------------------------------
+        //-------------------------------------------------------------------------------
 
         bool Background_Mesh_Base::perform_refinement( const uint aPattern )
         {
@@ -739,28 +739,28 @@ namespace moris
             }
 
 
-           // stop timer
-           real tElapsedTime = tTimer.toc<moris::chronos::milliseconds>().wall;
+            // stop timer
+            real tElapsedTime = tTimer.toc<moris::chronos::milliseconds>().wall;
 
-           // print output
-           if ( tNumberOfElements == 1)
-           {
-               MORIS_LOG_INFO( "%s Performed hierarchical mesh refinement.",
-                       proc_string().c_str());
-               MORIS_LOG_INFO( "Refined 1 element, took %5.3f seconds.",
-                       ( double ) tElapsedTime / 1000);
-               MORIS_LOG_INFO( " " );
-           }
-           else
-           {
-               MORIS_LOG_INFO("%s Performed hierarchical mesh refinement.",
-                       proc_string().c_str());
+            // print output
+            if ( tNumberOfElements == 1)
+            {
+                MORIS_LOG_INFO( "%s Performed hierarchical mesh refinement.",
+                        proc_string().c_str());
+                MORIS_LOG_INFO( "Refined 1 element, took %5.3f seconds.",
+                        ( double ) tElapsedTime / 1000);
+                MORIS_LOG_INFO( " " );
+            }
+            else
+            {
+                MORIS_LOG_INFO("%s Performed hierarchical mesh refinement.",
+                        proc_string().c_str());
 
-               MORIS_LOG_INFO("Refined %lu elements, took %5.3f seconds.",
-                       ( long unsigned int ) tNumberOfElements,
-                       ( double ) tElapsedTime / 1000);
-               MORIS_LOG_INFO( " " );
-           }
+                MORIS_LOG_INFO("Refined %lu elements, took %5.3f seconds.",
+                        ( long unsigned int ) tNumberOfElements,
+                        ( double ) tElapsedTime / 1000);
+                MORIS_LOG_INFO( " " );
+            }
 
 
             // update database
@@ -770,17 +770,17 @@ namespace moris
             return aFlag;
         }
 
-//-------------------------------------------------------------------------------
+        //-------------------------------------------------------------------------------
 
         uint Background_Mesh_Base::calc_child_index( const luint & aI )
         {
             return aI % 2;
         }
 
-//-------------------------------------------------------------------------------
+        //-------------------------------------------------------------------------------
 
         uint Background_Mesh_Base::calc_child_index( const luint & aI,
-                                                     const luint & aJ )
+                const luint & aJ )
         {
             uint tModI = aI % 2;
             uint tModJ = aJ % 2;
@@ -809,11 +809,11 @@ namespace moris
             }
         }
 
-//-------------------------------------------------------------------------------
+        //-------------------------------------------------------------------------------
 
         uint Background_Mesh_Base::calc_child_index( const luint & aI,
-                                                     const luint & aJ,
-                                                     const luint & aK )
+                const luint & aJ,
+                const luint & aK )
         {
             uint tModI = aI % 2;
             uint tModJ = aJ % 2;
@@ -871,7 +871,7 @@ namespace moris
             }
         }
 
-//--------------------------------------------------------------------------------
+        //--------------------------------------------------------------------------------
 
         luint Background_Mesh_Base::count_elements_on_level( const uint& aLevel )
         {
@@ -892,7 +892,7 @@ namespace moris
                 {
                     // call recursive function to count elements
                     mCoarsestElements( k )->count_elements_on_level( aLevel,
-                                                                     aCount );
+                            aCount );
                 }
             }
 
@@ -900,7 +900,7 @@ namespace moris
             return aCount;
         }
 
-//--------------------------------------------------------------------------------
+        //--------------------------------------------------------------------------------
 
         luint Background_Mesh_Base::count_elements_on_level_including_aura( const uint& aLevel )
         {
@@ -921,7 +921,7 @@ namespace moris
                 {
                     // call recursive function to count elements
                     mCoarsestElementsIncludingAura( k )->count_elements_on_level( aLevel,
-                                                                                  aCount );
+                            aCount );
                 }
             }
 
@@ -929,7 +929,7 @@ namespace moris
             return aCount;
         }
 
-//--------------------------------------------------------------------------------
+        //--------------------------------------------------------------------------------
 
         void Background_Mesh_Base::count_elements()          //FIXME see where this is called
         {
@@ -975,18 +975,16 @@ namespace moris
             }
 
             // Communicate mMaxLevel in case a processor has no flagged elements
-            moris::uint tMaxLevelResult = 0;
-
-            max_all( mMaxLevel, tMaxLevelResult );
+            moris::uint tMaxLevelResult = max_all( mMaxLevel );
 
             mMaxLevel = tMaxLevelResult;
         }
 
-//--------------------------------------------------------------------------------
+        //--------------------------------------------------------------------------------
 
         void Background_Mesh_Base::collect_elements_on_level(
-                            const uint                      & aLevel,
-                            Cell<Background_Element_Base*>  & aElementList )
+                const uint                      & aLevel,
+                Cell<Background_Element_Base*>  & aElementList )
         {
             // get number of elements from lookup table
             auto tNumberOfElements = mNumberOfElementsPerLevel[ aLevel ];
@@ -1009,16 +1007,16 @@ namespace moris
                 {
                     // call recursive function to collect elements
                     mCoarsestElements( k )->collect_elements_on_level( aLevel,
-                                                                       aElementList,
-                                                                       tCount );
+                            aElementList,
+                            tCount );
                 }
             }
         }
 
-//--------------------------------------------------------------------------------
+        //--------------------------------------------------------------------------------
 
         void Background_Mesh_Base::collect_elements_on_level_including_aura( const uint                              & aLevel,
-                                                                                   Cell< Background_Element_Base* >  & aElementList )
+                Cell< Background_Element_Base* >  & aElementList )
         {
             // get number of elements from lookup table
             auto tNumberOfElements = this->count_elements_on_level_including_aura( aLevel );
@@ -1041,13 +1039,13 @@ namespace moris
                 {
                     // call recursive function to collect elements
                     mCoarsestElementsIncludingAura( k )->collect_elements_on_level( aLevel,
-                                                                                    aElementList,
-                                                                                    tCount );
+                            aElementList,
+                            tCount );
                 }
             }
         }
 
-//--------------------------------------------------------------------------------
+        //--------------------------------------------------------------------------------
 
         void Background_Mesh_Base::collect_elements_on_level_within_proc_domain(
                 const uint                        & aLevel,
@@ -1074,13 +1072,13 @@ namespace moris
                 {
                     // call recursive function to collect elements
                     mCoarsestElements( k )->collect_elements_on_level( aLevel,
-                                                                       aElementList,
-                                                                       tCount );
+                            aElementList,
+                            tCount );
                 }
             }
         }
 
-//--------------------------------------------------------------------------------
+        //--------------------------------------------------------------------------------
 
         void Background_Mesh_Base::collect_all_elements( Cell< Background_Element_Base* > & aElementList )
         {
@@ -1112,7 +1110,7 @@ namespace moris
             }
         }
 
-//--------------------------------------------------------------------------------
+        //--------------------------------------------------------------------------------
 
         void Background_Mesh_Base::collect_neighbors()
         {
@@ -1158,7 +1156,7 @@ namespace moris
             MORIS_LOG_INFO( " " );
         }
 
-//--------------------------------------------------------------------------------
+        //--------------------------------------------------------------------------------
 
         void Background_Mesh_Base::update_element_indices()
         {
@@ -1211,11 +1209,11 @@ namespace moris
 
                 // calculate global index
                 tElement->set_domain_index( mActivePattern,
-                                            tIndex + tProcOffset( tOwner ) );
+                        tIndex + tProcOffset( tOwner ) );
             }
         }
 
-//--------------------------------------------------------------------------------
+        //--------------------------------------------------------------------------------
 
         void Background_Mesh_Base::synchronize_local_indices()
         {
@@ -1248,7 +1246,7 @@ namespace moris
                         for( luint e=0; e<tNumberOfCoarsestElementsOnInverseAura; ++e )
                         {
                             mCoarsestElementsIncludingAura( mCoarsestInverseAura( p )( e ) )
-                                ->get_number_of_active_descendants( mActivePattern, tNumberOfElementsOnInverseAura );
+                                        ->get_number_of_active_descendants( mActivePattern, tNumberOfElementsOnInverseAura );
                         }
 
                         // assign memory for cell of elements
@@ -1261,7 +1259,7 @@ namespace moris
                         for( luint e=0; e<tNumberOfCoarsestElementsOnInverseAura; ++e )
                         {
                             mCoarsestElementsIncludingAura( mCoarsestInverseAura( p )( e ) )
-                                    ->collect_active_descendants( mActivePattern, tElements, tCount );
+                                            ->collect_active_descendants( mActivePattern, tElements, tCount );
                         }
 
                         // assign matrix of indices to be sent
@@ -1278,8 +1276,8 @@ namespace moris
 
                 // communicate matrices
                 communicate_mats( mMyProcNeighbors,
-                                  tIndexListSend,
-                                  tIndexListReceive );
+                        tIndexListSend,
+                        tIndexListReceive );
 
                 // loop over all received lists
                 for ( uint p=0; p<tNumberOfNeighbors; ++p )
@@ -1302,12 +1300,12 @@ namespace moris
                         for( luint e=0; e<tNumberOfCoarsestElementsOnAura; ++e )
                         {
                             mCoarsestElementsIncludingAura( mCoarsestAura( p )( e ) )
-                                ->collect_active_descendants( mActivePattern, tElements, tCount );
+                                        ->collect_active_descendants( mActivePattern, tElements, tCount );
                         }
 
                         // make sure that number of elements is correct
                         MORIS_ERROR( tCount == tNumberOfElementsOnAura,
-                                      "synchronize_local_indices: Number of elements on aura does not match." );
+                                "synchronize_local_indices: Number of elements on aura does not match." );
 
                         // loop over all elements on aura
                         for ( luint k=0; k<tNumberOfElementsOnAura; ++k )
@@ -1320,11 +1318,11 @@ namespace moris
             }
         }
 
-//--------------------------------------------------------------------------------
+        //--------------------------------------------------------------------------------
 
         void Background_Mesh_Base::collect_active_elements_from_aura( const uint                             & aProcNeighbor,
-                                                                      const uint                             & aMode,
-                                                                            Cell< Background_Element_Base* > & aElementList )
+                const uint                             & aMode,
+                Cell< Background_Element_Base* > & aElementList )
         {
             // clear element list
             aElementList.clear();
@@ -1348,7 +1346,7 @@ namespace moris
                         {
                             // count children of this element
                             mCoarsestElementsIncludingAura( mCoarsestInverseAura( aProcNeighbor )( e ) )
-                                    ->get_number_of_active_descendants( mActivePattern, tCount );
+                                            ->get_number_of_active_descendants( mActivePattern, tCount );
                         }
                     }
                     if ( aMode == 0 || aMode == 2 )
@@ -1361,7 +1359,7 @@ namespace moris
                         {
                             // count children of this element
                             mCoarsestElementsIncludingAura( mCoarsestAura( aProcNeighbor )( e ) )
-                                    ->get_number_of_active_descendants( mActivePattern, tCount );
+                                            ->get_number_of_active_descendants( mActivePattern, tCount );
                         }
                     }
 
@@ -1381,7 +1379,7 @@ namespace moris
                         {
                             // count children of this element
                             mCoarsestElementsIncludingAura( mCoarsestInverseAura( aProcNeighbor )( e ) )
-                                    ->collect_active_descendants( mActivePattern, aElementList, tCount );
+                                            ->collect_active_descendants( mActivePattern, aElementList, tCount );
                         }
                     }
                     if ( aMode == 0 || aMode == 2 )
@@ -1394,18 +1392,18 @@ namespace moris
                         {
                             // count children of this element
                             mCoarsestElementsIncludingAura( mCoarsestAura( aProcNeighbor )( e ) )
-                                    ->collect_active_descendants( mActivePattern, aElementList, tCount );
+                                            ->collect_active_descendants( mActivePattern, aElementList, tCount );
                         }
                     }
                 }
             }
         }
 
-//--------------------------------------------------------------------------------
+        //--------------------------------------------------------------------------------
 
         void Background_Mesh_Base::create_staircase_buffer_for_element(       Background_Element_Base * aElement,
-                                                                              luint                   & aElementCounter,
-                                                                        const uint                    & aHalfBuffer )
+                luint                   & aElementCounter,
+                const uint                    & aHalfBuffer )
         {
             // cell containing neighbors of each parent
             Cell< Background_Element_Base* > tNeighbors;
@@ -1477,15 +1475,15 @@ namespace moris
 
                             // create staircase buffer for neighbor
                             this->create_staircase_buffer_for_element( tNeighbor,
-                                                                       aElementCounter,
-                                                                       aHalfBuffer );
+                                    aElementCounter,
+                                    aHalfBuffer );
                         }
                     }
                 }
             }
         }
 
-//--------------------------------------------------------------------------------
+        //--------------------------------------------------------------------------------
 
         void Background_Mesh_Base::create_staircase_buffer()
         {
@@ -1493,7 +1491,7 @@ namespace moris
             if ( mBufferSize > 0 )
             {
                 // update refinement queue
-//                this->collect_refinement_queue();
+                //                this->collect_refinement_queue();
 
                 // start timer
                 tic tTimer;
@@ -1508,8 +1506,8 @@ namespace moris
                 for ( auto tElement : mRefinementQueue )
                 {
                     this->create_staircase_buffer_for_element( tElement,
-                                                               tElementCounter,
-                                                               tHalfBuffer );
+                            tElementCounter,
+                            tHalfBuffer );
                 }
 
                 // stop timer
@@ -1541,7 +1539,7 @@ namespace moris
             }
         }
 
-//--------------------------------------------------------------------------------
+        //--------------------------------------------------------------------------------
 
         void Background_Mesh_Base::collect_coarsest_padding_elements()
         {
@@ -1580,7 +1578,7 @@ namespace moris
             }
         }
 
-//--------------------------------------------------------------------------------
+        //--------------------------------------------------------------------------------
 
         Background_Element_Base * Background_Mesh_Base::decode_pedigree_path(
                 const luint                & aAncestorID,
@@ -1645,13 +1643,13 @@ namespace moris
 
                     aElement = aElement->get_child( tChildIndex.to_ulong() );
                 }
-           }
+            }
 
             // return element
             return aElement;
         }
 
-//--------------------------------------------------------------------------------
+        //--------------------------------------------------------------------------------
 
         void Background_Mesh_Base::save_to_vtk( const std::string & aFilePath )
         {
@@ -1853,10 +1851,10 @@ namespace moris
                 }
                 tFile << std::endl;
 
-               // write memory index
+                // write memory index
                 tFile << "SCALARS ELEMENT_MEMORY_INDEX int" << std::endl;
                 tFile << "LOOKUP_TABLE default" << std::endl;
-               for( auto tElement: tAllElements )
+                for( auto tElement: tAllElements )
                 {
                     if ( ! tElement->has_children() )
                     {
@@ -1885,7 +1883,7 @@ namespace moris
             }
         }
 
-// -----------------------------------------------------------------------------
+        // -----------------------------------------------------------------------------
 
         void Background_Mesh_Base::reset_pattern( const uint & aPattern )
         {
@@ -1933,10 +1931,10 @@ namespace moris
             }
         }
 
-// -----------------------------------------------------------------------------
+        // -----------------------------------------------------------------------------
 
         void Background_Mesh_Base::clone_pattern( const uint & aSource,
-                                                  const uint & aTarget )
+                const uint & aTarget )
         {
             MORIS_ERROR( aSource < gNumberOfPatterns, "Source pattern invalid.");
             MORIS_ERROR( aTarget < gNumberOfPatterns, "Target pattern invalid.");
@@ -1988,11 +1986,11 @@ namespace moris
 
         }
 
-// -----------------------------------------------------------------------------
+        // -----------------------------------------------------------------------------
 
         void Background_Mesh_Base::unite_patterns( const uint & aSourceA,
-                                                   const uint & aSourceB,
-                                                   const uint & aTarget )
+                const uint & aSourceB,
+                const uint & aTarget )
         {
             MORIS_ERROR( aSourceA < gNumberOfPatterns, "Source pattern A invalid.");
             MORIS_ERROR( aSourceB < gNumberOfPatterns, "Source pattern B invalid.");
@@ -2034,7 +2032,7 @@ namespace moris
         // -----------------------------------------------------------------------------
 
         void Background_Mesh_Base::unite_patterns( const moris::Cell< uint > & aSourcePattern,
-                                                   const uint                  aTarget )
+                const uint                  aTarget )
         {
             for( uint Il = 0; Il < aSourcePattern.size(); ++Il )
             {
@@ -2079,10 +2077,10 @@ namespace moris
             }
         }
 
-// -----------------------------------------------------------------------------
+        // -----------------------------------------------------------------------------
 
         void Background_Mesh_Base::copy_pattern( const uint & aSource,
-                                                 const uint & aTarget )
+                const uint & aTarget )
         {
             if ( aSource != aTarget )
             {
@@ -2114,13 +2112,13 @@ namespace moris
             }
         }
 
-// -----------------------------------------------------------------------------
+        // -----------------------------------------------------------------------------
 
         void Background_Mesh_Base::create_facets()
         {
             tic tTimer;
-//            uint tPattern = mParameters->get_lagrange_output_pattern();
-//            this->set_activation_pattern( tPattern );
+            //            uint tPattern = mParameters->get_lagrange_output_pattern();
+            //            this->set_activation_pattern( tPattern );
 
             // loop over all levels
             for( uint l=0; l<=mMaxLevel; ++l )
@@ -2139,26 +2137,26 @@ namespace moris
                 }
             }
 
-           // stop timer
-           real tElapsedTime = tTimer.toc<moris::chronos::milliseconds>().wall;
+            // stop timer
+            real tElapsedTime = tTimer.toc<moris::chronos::milliseconds>().wall;
 
-           MORIS_LOG_INFO( "%s Created Faces on Background Mesh.",
-                   proc_string().c_str());
-           MORIS_LOG_INFO( "Creation %5.3f seconds.",
-                   ( double ) tElapsedTime / 1000 );
-           MORIS_LOG_INFO( " " );
+            MORIS_LOG_INFO( "%s Created Faces on Background Mesh.",
+                    proc_string().c_str());
+            MORIS_LOG_INFO( "Creation %5.3f seconds.",
+                    ( double ) tElapsedTime / 1000 );
+            MORIS_LOG_INFO( " " );
 
         }
 
-// -----------------------------------------------------------------------------
+        // -----------------------------------------------------------------------------
 
         void Background_Mesh_Base::create_faces_and_edges()
         {
             tic tTimer;
 
             // select output pattern
-//            uint tPattern = mParameters->get_lagrange_output_pattern();
-//            this->set_activation_pattern( tPattern );
+            //            uint tPattern = mParameters->get_lagrange_output_pattern();
+            //            this->set_activation_pattern( tPattern );
 
             // loop over all levels
             for( uint l=0; l<=mMaxLevel; ++l )
@@ -2191,7 +2189,7 @@ namespace moris
             MORIS_LOG_INFO( " " );
         }
 
-// -----------------------------------------------------------------------------
+        // -----------------------------------------------------------------------------
 
         void Background_Mesh_Base::delete_faces()
         {
@@ -2272,15 +2270,15 @@ namespace moris
             this->collect_neighbors();
         }
 
-// -----------------------------------------------------------------------------
+        // -----------------------------------------------------------------------------
 
         /**
          * Collect background elements on side set.
          * Side set numbers see Exodus II : A Finite Element Data Model, p. 13
          */
         void Background_Mesh_Base::collect_side_set_elements( const uint                              & aPattern,
-                                                              const uint                              & aSideOrdinal,
-                                                                    Cell< Background_Element_Base * > & aElements )
+                const uint                              & aSideOrdinal,
+                Cell< Background_Element_Base * > & aElements )
         {
             luint tElementCounter = 0;
 
@@ -2291,7 +2289,7 @@ namespace moris
             switch( aSideOrdinal )
             {
                 case( 1 ) :
-                {
+                    {
                     // loop over all coarsest elements
                     for( Background_Element_Base *  tElement : tCoarsestElements )
                     {
@@ -2316,14 +2314,14 @@ namespace moris
                         if( ! tElement->is_padding() )
                         {
                             tElement->collect_active_descendants_on_side_1( aPattern,
-                                                                            aElements,
-                                                                            tElementCounter );
+                                    aElements,
+                                    tElementCounter );
                         }
                     }
                     break;
-                }
+                    }
                 case( 2 ) :
-                {
+                    {
                     // loop over all coarsest elements
                     for( Background_Element_Base *  tElement : tCoarsestElements )
                     {
@@ -2348,14 +2346,14 @@ namespace moris
                         if( ! tElement->is_padding() )
                         {
                             tElement->collect_active_descendants_on_side_2( aPattern,
-                                                                            aElements,
-                                                                            tElementCounter );
+                                    aElements,
+                                    tElementCounter );
                         }
                     }
                     break;
-               }
-               case( 3 ) :
-               {
+                    }
+                case( 3 ) :
+                   {
                     // loop over all coarsest elements
                     for( Background_Element_Base *  tElement : tCoarsestElements )
                     {
@@ -2380,116 +2378,116 @@ namespace moris
                         if( ! tElement->is_padding() )
                         {
                             tElement->collect_active_descendants_on_side_3( aPattern,
-                                                                            aElements,
-                                                                            tElementCounter );
+                                    aElements,
+                                    tElementCounter );
                         }
                     }
                     break;
-               }
-               case( 4 ) :
-               {
-                   // loop over all coarsest elements
-                   for( Background_Element_Base *  tElement : tCoarsestElements )
-                   {
-                       // only count non padding elements
-                       if( ! tElement->is_padding() )
-                       {
-                           tElement->get_number_of_active_descendants_on_side_4(
-                                   aPattern, tElementCounter );
-                       }
                    }
-
-                   // allocate output matrix
-                   aElements.resize( tElementCounter, nullptr );
-
-                   // reset counter
-                   tElementCounter = 0;
-
-                   // loop over all coarsest elements
-                   for( Background_Element_Base *  tElement : tCoarsestElements )
+                case( 4 ) :
                    {
-                       // only add descendants of non padding elements
-                       if( ! tElement->is_padding() )
-                       {
-                           tElement->collect_active_descendants_on_side_4( aPattern,
-                                                                           aElements,
-                                                                           tElementCounter );
-                       }
+                    // loop over all coarsest elements
+                    for( Background_Element_Base *  tElement : tCoarsestElements )
+                    {
+                        // only count non padding elements
+                        if( ! tElement->is_padding() )
+                        {
+                            tElement->get_number_of_active_descendants_on_side_4(
+                                    aPattern, tElementCounter );
+                        }
+                    }
+
+                    // allocate output matrix
+                    aElements.resize( tElementCounter, nullptr );
+
+                    // reset counter
+                    tElementCounter = 0;
+
+                    // loop over all coarsest elements
+                    for( Background_Element_Base *  tElement : tCoarsestElements )
+                    {
+                        // only add descendants of non padding elements
+                        if( ! tElement->is_padding() )
+                        {
+                            tElement->collect_active_descendants_on_side_4( aPattern,
+                                    aElements,
+                                    tElementCounter );
+                        }
+                    }
+                    break;
                    }
-                   break;
-               }
-               case( 5 ) :
-               {
-                   // loop over all coarsest elements
-                   for( Background_Element_Base *  tElement : tCoarsestElements )
+                case( 5 ) :
                    {
-                       // only count non padding elements
-                       if( ! tElement->is_padding() )
-                       {
-                           tElement->get_number_of_active_descendants_on_side_5(
-                                   aPattern, tElementCounter );
-                       }
+                    // loop over all coarsest elements
+                    for( Background_Element_Base *  tElement : tCoarsestElements )
+                    {
+                        // only count non padding elements
+                        if( ! tElement->is_padding() )
+                        {
+                            tElement->get_number_of_active_descendants_on_side_5(
+                                    aPattern, tElementCounter );
+                        }
+                    }
+
+                    // allocate output matrix
+                    aElements.resize( tElementCounter, nullptr );
+
+                    // reset counter
+                    tElementCounter = 0;
+
+                    // loop over all coarsest elements
+                    for( Background_Element_Base *  tElement : tCoarsestElements )
+                    {
+                        // only add descendants of non padding elements
+                        if( ! tElement->is_padding() )
+                        {
+                            tElement->collect_active_descendants_on_side_5( aPattern,
+                                    aElements,
+                                    tElementCounter );
+                        }
+                    }
+                    break;
                    }
-
-                   // allocate output matrix
-                   aElements.resize( tElementCounter, nullptr );
-
-                   // reset counter
-                   tElementCounter = 0;
-
-                   // loop over all coarsest elements
-                   for( Background_Element_Base *  tElement : tCoarsestElements )
+                case( 6 ) :
                    {
-                       // only add descendants of non padding elements
-                       if( ! tElement->is_padding() )
-                       {
-                           tElement->collect_active_descendants_on_side_5( aPattern,
-                                                                           aElements,
-                                                                           tElementCounter );
-                       }
-                   }
-                   break;
-               }
-               case( 6 ) :
-               {
-                   // loop over all coarsest elements
-                   for( Background_Element_Base *  tElement : tCoarsestElements )
-                   {
-                       // only count non padding elements
-                       if( ! tElement->is_padding() )
-                       {
-                           tElement->get_number_of_active_descendants_on_side_6(
-                                   aPattern, tElementCounter );
-                       }
-                   }
+                    // loop over all coarsest elements
+                    for( Background_Element_Base *  tElement : tCoarsestElements )
+                    {
+                        // only count non padding elements
+                        if( ! tElement->is_padding() )
+                        {
+                            tElement->get_number_of_active_descendants_on_side_6(
+                                    aPattern, tElementCounter );
+                        }
+                    }
 
-                   // allocate output matrix
-                   aElements.resize( tElementCounter, nullptr );
+                    // allocate output matrix
+                    aElements.resize( tElementCounter, nullptr );
 
-                   // reset counter
-                   tElementCounter = 0;
+                    // reset counter
+                    tElementCounter = 0;
 
-                   // loop over all coarsest elements
-                   for( Background_Element_Base *  tElement : tCoarsestElements )
-                   {
-                       // only add descendants of non padding elements
-                       if( ! tElement->is_padding() )
-                       {
-                           tElement->collect_active_descendants_on_side_6( aPattern,
-                                                                           aElements,
-                                                                           tElementCounter );
-                       }
+                    // loop over all coarsest elements
+                    for( Background_Element_Base *  tElement : tCoarsestElements )
+                    {
+                        // only add descendants of non padding elements
+                        if( ! tElement->is_padding() )
+                        {
+                            tElement->collect_active_descendants_on_side_6( aPattern,
+                                    aElements,
+                                    tElementCounter );
+                        }
+                    }
+                    break;
                    }
-                   break;
-               }
-               default :
-               {
-                   MORIS_ERROR( false, "Invalid Side set ordinal.");
-               }
+                default :
+                {
+                    MORIS_ERROR( false, "Invalid Side set ordinal.");
+                }
             }
         }
 
-//-------------------------------------------------------------------------------
+        //-------------------------------------------------------------------------------
 
         void Background_Mesh_Base::reset_min_refinement_levels()
         {
@@ -2509,7 +2507,7 @@ namespace moris
             }
         }
 
-//-------------------------------------------------------------------------------
+        //-------------------------------------------------------------------------------
 
     } /* namespace hmr */
 } /* namespace moris */
