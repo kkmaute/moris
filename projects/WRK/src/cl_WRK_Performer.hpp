@@ -28,11 +28,11 @@ namespace moris
              * Gets a flag to determine if refinement should continue
              *
              * @param aFieldIndex The index of a field
-             * @param aRefinementNumber The current refinement step being performed
+             * @param aRefinementIndex The current refinement step being performed
              * @return If refinement is needed for this field
              */
             virtual bool refinement_needed(uint aFieldIndex,
-                                           uint aRefinementNumber);
+                                           uint aRefinementIndex);
 
             /**
              * Returns fields so that HMR can perform refinement based on the data from this performer
@@ -49,11 +49,11 @@ namespace moris
              * Gets the index of an HMR user-defined refinement function for the given field index
              *
              * @param aFieldIndex Index of the field
-             * @param aRefinementNumber The current refinement step being performed
+             * @param aRefinementIndex The current refinement step being performed
              * @return User-defined function index, or -1 to use default refinement
              */
             virtual sint get_refinement_function_index(uint aFieldIndex,
-                                                       uint aRefinementNumber);
+                                                       uint aRefinementIndex);
 
         };
     }

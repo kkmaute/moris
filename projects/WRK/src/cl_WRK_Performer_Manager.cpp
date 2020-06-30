@@ -96,10 +96,19 @@ namespace moris
 
         void Performer_Manager::create_xtk()
         {
+            // Read parameter list from shared object
             MORIS_PARAMETER_FUNCTION tXTKParameterListFunc = mLibrary->load_parameter_file( "XTKParameterList" );
             moris::Cell< moris::Cell< ParameterList > > tXTKParameterList;
             tXTKParameterListFunc( tXTKParameterList );
+
+            // Create XTK
             mXTKPerformer( 0 ) = std::make_shared< xtk::Model >( tXTKParameterList( 0 )( 0 ) );
+
+            // Reset output MTK performer
+            mMTKPerformer( 1 ) = std::make_shared< mtk::Mesh_Manager >();
+            mMDLPerformer( 0 )->set_performer( mMTKPerformer( 1 ) );
+
+            // Set performers
             mXTKPerformer( 0 )->set_geometry_engine( mGENPerformer( 0 ).get() );
             mXTKPerformer( 0 )->set_input_performer( mMTKPerformer( 0 ) );
             mXTKPerformer( 0 )->set_output_performer( mMTKPerformer( 1 ) );

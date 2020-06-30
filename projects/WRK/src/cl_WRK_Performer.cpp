@@ -21,7 +21,7 @@ namespace moris
         //--------------------------------------------------------------------------------------------------------------
 
         bool Performer::refinement_needed(uint aFieldIndex,
-                                          uint aRefinementNumber)
+                                          uint aRefinementIndex)
         {
             return false;
         }
@@ -38,7 +38,7 @@ namespace moris
         //--------------------------------------------------------------------------------------------------------------
 
         sint Performer::get_refinement_function_index(uint aFieldIndex,
-                                                      uint aRefinementNumber)
+                                                      uint aRefinementIndex)
         {
             return -1; // Default refinement
         }

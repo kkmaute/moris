@@ -969,10 +969,10 @@ namespace xtk
             // number of cells
             moris_index tNumCells = this->get_num_entities(EntityRank::ELEMENT);
 
-            MORIS_ASSERT(tNumCells == tEnrIpCells.size(),"Inconsistent num cells information.");
+            MORIS_ASSERT(tNumCells == (moris_index)tEnrIpCells.size(),"Inconsistent num cells information.");
 
             // create the enriched interpolation basis to interpolation cell interpolation
-            for(moris::size_t i = 0; i<tNumCells; i++)
+            for(moris_index i = 0; i<tNumCells; i++)
             {
                 moris::Cell< xtk::Interpolation_Vertex_Unzipped* > const & tVertices = tEnrIpCells(i)->get_xtk_interpolation_vertices();
 
@@ -1003,12 +1003,10 @@ namespace xtk
                 // iterate through enriched interpolation cells in the support
                 moris_index tNumSubphaseInSupport = tCellsInEnrSupports(i).size();
 
-                for(moris::uint iSP = 0; iSP < tNumSubphaseInSupport; iSP++)
+                for(moris_index iSP = 0; iSP < tNumSubphaseInSupport; iSP++)
                 {
                     Interpolation_Cell_Unzipped* tIpCell = tCellsInEnrSupports(i)(iSP);
 
-
-                    moris_index tSubphaseIndex = tIpCell->get_subphase_index();
                     moris_index tBulkPhase = tIpCell->get_bulkphase_index();
 
                     MORIS_ASSERT(tBulkPhase != MORIS_INDEX_MAX,"Bulk phase index not set.");
@@ -1046,7 +1044,7 @@ namespace xtk
         moris_index tNumCells = this->get_num_entities(EntityRank::ELEMENT);
 
         // create the enriched interpolation basis to interpolation cell interpolation
-        for(moris::size_t i = 0; i<tNumCells; i++)
+        for(moris_index i = 0; i<tNumCells; i++)
         {
             moris::Cell< xtk::Interpolation_Vertex_Unzipped* > const & tVertices = tEnrIpCells(i)->get_xtk_interpolation_vertices();
 
@@ -1096,10 +1094,10 @@ namespace xtk
             // number of cells
             moris_index tNumCells = this->get_num_entities(EntityRank::ELEMENT);
 
-            MORIS_ASSERT(tNumCells == tEnrIpCells.size(),"Inconsistent num cells information.");
+            MORIS_ASSERT(tNumCells == (moris_index)tEnrIpCells.size(),"Inconsistent num cells information.");
 
             // create the enriched interpolation basis to interpolation cell interpolation
-            for(moris::size_t i = 0; i<tNumCells; i++)
+            for(moris_index i = 0; i<tNumCells; i++)
             {
                 moris::Cell< xtk::Interpolation_Vertex_Unzipped* > const & tVertices = tEnrIpCells(i)->get_xtk_interpolation_vertices();
 
@@ -1128,12 +1126,10 @@ namespace xtk
 
                 moris_index tExpectedBulkPhase = MORIS_INDEX_MAX;
 
-                for(moris::uint iSP = 0; iSP < tNumSubphaseInSupport; iSP++)
+                for(moris_index iSP = 0; iSP < tNumSubphaseInSupport; iSP++)
                 {
                     Interpolation_Cell_Unzipped* tIpCell = tCellsInEnrSupports(i)(iSP);
 
-
-                    moris_index tSubphaseIndex = tIpCell->get_subphase_index();
                     moris_index tBulkPhase = tIpCell->get_bulkphase_index();
 
                     MORIS_ASSERT(tBulkPhase != MORIS_INDEX_MAX,"Bulk phase index not set.");
