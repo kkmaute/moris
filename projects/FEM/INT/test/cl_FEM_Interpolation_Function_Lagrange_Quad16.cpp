@@ -1,174 +1,238 @@
 #include <catch.hpp>
-
-#include "typedefs.hpp" //MRS/COR/src
+//MRS/COR/src
+#include "typedefs.hpp"
 #include "paths.hpp"
 #include "cl_Matrix.hpp"
+//LINALG/src
 #include "linalg_typedefs.hpp"
-#include "fn_save_matrix_to_binary_file.hpp" //LNA/src
-#include "fn_load_matrix_from_binary_file.hpp" //LNA/src
-#include "op_times.hpp" //LNA/src
-#include "op_minus.hpp" //LNA/src
-#include "fn_trans.hpp" //LNA/src
-#include "fn_sum.hpp" //LNA/src
+#include "fn_save_matrix_to_binary_file.hpp"
+#include "fn_load_matrix_from_binary_file.hpp"
+#include "op_times.hpp"
+#include "op_minus.hpp"
+#include "fn_trans.hpp"
+#include "fn_sum.hpp"
 #include "fn_norm.hpp"
+//FEM/INT/src
+#include "cl_FEM_Interpolation_Rule.hpp"
+#include "fn_FEM_Check.hpp"
 
-#include "cl_FEM_Interpolation_Rule.hpp" //FEM/INT/src
-//#include "cl_FEM_Interpolation_Function_Factory.hpp" //FEM/INT/src
 using namespace moris;
 using namespace fem;
 
 TEST_CASE( "Lagrange QUAD16", "[moris],[fem],[Quad16LagInterpolation]" )
 {
 
-//------------------------------------------------------------------------------
+    //------------------------------------------------------------------------------
 
-        // step 1: load MATLAB precomputed data from binary files
-        std::string tPrefix = moris::get_base_moris_dir();
-        tPrefix = tPrefix + "/projects/FEM/INT/test/data/" ;
+    // step 1: load MATLAB precomputed data from binary files
+    std::string tPrefix = moris::get_base_moris_dir();
+    tPrefix = tPrefix + "/projects/FEM/INT/test/data/" ;
 
-        // load point coordinates from file
-        Matrix< DDRMat > tXi;
-        load_matrix_from_binary_file( tXi,
-                tPrefix + "points_2d.bin" );
-
-
-        // load values from nodes from file
-        Matrix< DDRMat > tPhiHat;
-        load_matrix_from_binary_file( tPhiHat,
-                tPrefix + "lagrange_quad16_phihat.bin" );
+    // load point coordinates from file
+    Matrix< DDRMat > tXi;
+    load_matrix_from_binary_file( tXi,
+            tPrefix + "points_2d.bin" );
 
 
-        // load solutions for N*tPhiHat
-        Matrix< DDRMat > tPhi;
-           load_matrix_from_binary_file( tPhi,
-                   tPrefix + "lagrange_quad16_phi.bin" );
+    // load values from nodes from file
+    Matrix< DDRMat > tPhiHat;
+    load_matrix_from_binary_file( tPhiHat,
+            tPrefix + "lagrange_quad16_phihat.bin" );
 
-        // load solutions for dNdXi*tPhiHat
-        Matrix< DDRMat > tdPhidXi;
-        load_matrix_from_binary_file( tdPhidXi,
-                tPrefix + "lagrange_quad16_dphidxi.bin" );
 
-        // load solutions for d2NdXi2*tPhiHat
-        Matrix< DDRMat > td2PhidXi2;
-        load_matrix_from_binary_file( td2PhidXi2,
-                tPrefix + "lagrange_quad16_d2phidxi2.bin" );
+    // load solutions for N*tPhiHat
+    Matrix< DDRMat > tPhi;
+    load_matrix_from_binary_file( tPhi,
+            tPrefix + "lagrange_quad16_phi.bin" );
 
-//------------------------------------------------------------------------------
+    // load solutions for dNdXi*tPhiHat
+    Matrix< DDRMat > tdPhidXi;
+    load_matrix_from_binary_file( tdPhidXi,
+            tPrefix + "lagrange_quad16_dphidxi.bin" );
 
-        // step 2 create function and interpolation matrices
+    // load solutions for d2NdXi2*tPhiHat
+    Matrix< DDRMat > td2PhidXi2;
+    load_matrix_from_binary_file( td2PhidXi2,
+            tPrefix + "lagrange_quad16_d2phidxi2.bin" );
 
-        // create rule
-        Interpolation_Rule tRule(
-                mtk::Geometry_Type::QUAD,
-                Interpolation_Type::LAGRANGE,
-                mtk::Interpolation_Order::CUBIC,
-                Interpolation_Type::CONSTANT,
-                mtk::Interpolation_Order::CONSTANT );
+    //------------------------------------------------------------------------------
 
-        // create shape function object
-        auto tFunction = tRule.create_space_interpolation_function();
+    // step 2 create function and interpolation matrices
 
-        // create matrix that contains the shape function
-        Matrix< DDRMat > tN;
+    // create rule
+    Interpolation_Rule tRule(
+            mtk::Geometry_Type::QUAD,
+            Interpolation_Type::LAGRANGE,
+            mtk::Interpolation_Order::CUBIC,
+            Interpolation_Type::CONSTANT,
+            mtk::Interpolation_Order::CONSTANT );
 
-        // create matrix that contains the first derivative
-        Matrix< DDRMat > tdNdXi;
+    // create shape function object
+    auto tFunction = tRule.create_space_interpolation_function();
 
-        // create matrix that contains the second derivative
-        Matrix< DDRMat > td2NdXi2;
+    // create matrix that contains the shape function
+    Matrix< DDRMat > tN;
 
-//------------------------------------------------------------------------------
+    // create matrix that contains the first derivative
+    Matrix< DDRMat > tdNdXi;
 
-        // define an epsilon environment
-        double tEpsilon = 1E-12;
+    // create matrix that contains the second derivative
+    Matrix< DDRMat > td2NdXi2;
 
-        // get number of points to test
-        auto tNumberOfTestPoints = tXi.n_cols();
+    // create matrix that contains the third derivative
+    Matrix< DDRMat > td3NdXi3;
 
-//------------------------------------------------------------------------------
+    //------------------------------------------------------------------------------
 
-        SECTION( "QUAD16: test for unity" )
+    // define an epsilon environment
+    double tEpsilon = 1E-12;
+
+    // get number of points to test
+    auto tNumberOfTestPoints = tXi.n_cols();
+
+    //------------------------------------------------------------------------------
+
+    SECTION( "QUAD16: test for unity" )
+    {
+        bool tCheck = true;
+        for( uint k=0; k<tNumberOfTestPoints; ++k )
         {
-            bool tCheck = true;
-            for( uint k=0; k<tNumberOfTestPoints; ++k )
-            {
-                // evaluate shape function at point k
-                tFunction->eval_N( tXi.get_column(k ), tN );
+            // evaluate shape function at point k
+            tFunction->eval_N( tXi.get_column(k ), tN );
 
-                // test unity
-                tCheck = tCheck && ( std::abs( sum(tN) - 1.0 ) < tEpsilon );
-            }
-
-            REQUIRE( tCheck );
+            // test unity
+            tCheck = tCheck && ( std::abs( sum(tN) - 1.0 ) < tEpsilon );
         }
 
-//------------------------------------------------------------------------------
+        REQUIRE( tCheck );
+    }
 
-        SECTION( "QUAD16: test N" )
+    //------------------------------------------------------------------------------
+
+    SECTION( "QUAD16: test N" )
+    {
+        bool tCheck = true;
+        for( uint k=0; k<tNumberOfTestPoints; ++k )
         {
-            bool tCheck = true;
-            for( uint k=0; k<tNumberOfTestPoints; ++k )
-            {
-                // evaluate shape function at point k
-                tFunction->eval_N( tXi.get_column( k ), tN );
+            // evaluate shape function at point k
+            tFunction->eval_N( tXi.get_column( k ), tN );
 
-                // test evaluated value
-                Matrix< DDRMat > tError  = tN * tPhiHat ;
-                tError( 0 ) -= tPhi( k );
+            // test evaluated value
+            Matrix< DDRMat > tError  = tN * tPhiHat ;
+            tError( 0 ) -= tPhi( k );
 
-                // test error
-                tCheck = tCheck && ( norm(tError) < tEpsilon );
-            }
-
-            REQUIRE( tCheck );
+            // test error
+            tCheck = tCheck && ( norm(tError) < tEpsilon );
         }
 
-//------------------------------------------------------------------------------
+        REQUIRE( tCheck );
+    }
 
-        SECTION( "QUAD16: test dNdXi" )
+    //------------------------------------------------------------------------------
+
+    SECTION( "QUAD16: test dNdXi" )
+    {
+        bool tCheck = true;
+        for( uint k=0; k<tNumberOfTestPoints; ++k )
         {
-            bool tCheck = true;
-            for( uint k=0; k<tNumberOfTestPoints; ++k )
-            {
-                // evaluate shape function at point k
-                tFunction->eval_dNdXi( tXi.get_column(k ), tdNdXi );
+            // evaluate shape function at point k
+            tFunction->eval_dNdXi( tXi.get_column(k ), tdNdXi );
 
-                // test evaluated value
-                Matrix< DDRMat > tError = tdPhidXi.get_column( k );
-                tError = tError - tdNdXi*tPhiHat;
+            // test evaluated value
+            Matrix< DDRMat > tError = tdPhidXi.get_column( k );
+            tError = tError - tdNdXi*tPhiHat;
 
-                // test error
-                tCheck = tCheck && ( norm(tError) < tEpsilon );
-            }
-
-            REQUIRE( tCheck );
+            // test error
+            tCheck = tCheck && ( norm(tError) < tEpsilon );
         }
 
-//------------------------------------------------------------------------------
+        REQUIRE( tCheck );
+    }
 
-        SECTION( "QUAD16: test d2NdXi2" )
+    //------------------------------------------------------------------------------
+
+    SECTION( "QUAD16: test d2NdXi2" )
+    {
+        bool tCheck = true;
+        for( uint k=0; k<tNumberOfTestPoints; ++k )
         {
-            bool tCheck = true;
-            for( uint k=0; k<tNumberOfTestPoints; ++k )
-            {
-                // evaluate shape function at point k
-                tFunction->eval_d2NdXi2( tXi.get_column( k ), td2NdXi2 );
+            // evaluate shape function at point k
+            tFunction->eval_d2NdXi2( tXi.get_column( k ), td2NdXi2 );
 
-                // test evaluated valueN
-                Matrix< DDRMat > tError = td2PhidXi2.get_column( k );
-                tError = tError - td2NdXi2*tPhiHat;
+            // test evaluated valueN
+            Matrix< DDRMat > tError = td2PhidXi2.get_column( k );
+            tError = tError - td2NdXi2*tPhiHat;
 
-                // test error
-                tCheck = tCheck && ( norm(tError) < tEpsilon );
-            }
-
-            REQUIRE( tCheck );
+            // test error
+            tCheck = tCheck && ( norm(tError) < tEpsilon );
         }
 
-//------------------------------------------------------------------------------
+        REQUIRE( tCheck );
+    }
 
-        // tidy up
-        delete tFunction;
+    //------------------------------------------------------------------------------
 
-//------------------------------------------------------------------------------
+    SECTION( "QUAD16: test d3NdXi3" )
+    {
+        Matrix< DDRMat > td3NdXi3FD( 4, 16, 0.0 );
+
+        bool tCheck = true;
+        for( uint k=0; k<tNumberOfTestPoints; ++k )
+        {
+            // get evaluation point
+            Matrix< DDRMat > tEvalPoint = tXi.get_column( k );
+
+            // evaluate shape function at point k
+            tFunction->eval_d3NdXi3( tEvalPoint, td3NdXi3 );
+
+            for ( uint l=0; l<tEvalPoint.numel(); l++ )
+            {
+                // perturbation size
+                real tDeltaXi = 1e-6;
+
+                // perturbed evaluation point
+                Matrix< DDRMat > tPertEvalPoint = tEvalPoint;
+                tPertEvalPoint( l ) = tPertEvalPoint( l ) - tDeltaXi;
+
+                // evaluate td2NdXi2 at point k - delta xi
+                Matrix< DDRMat > td2NdXi2Minus;
+                tFunction->eval_d2NdXi2( tPertEvalPoint, td2NdXi2Minus );
+
+                // perturbed evaluation point
+                tPertEvalPoint = tEvalPoint;
+                tPertEvalPoint( l ) = tPertEvalPoint( l ) + tDeltaXi;
+
+                // evaluate td2NdXi2 at point k + delta xi
+                Matrix< DDRMat > td2NdXi2Plus;
+                tFunction->eval_d2NdXi2( tPertEvalPoint, td2NdXi2Plus );
+
+                // evaluate FD
+                Matrix< DDRMat > td3NdXi3FDTemp = ( td2NdXi2Plus - td2NdXi2Minus ) / ( 2.0 * tDeltaXi );
+
+                // evaluate td3NdXi3_FD
+                if( l == 0 )
+                {
+                    td3NdXi3FD.get_row( 0 ) = td3NdXi3FDTemp.get_row( 0 );
+                    td3NdXi3FD.get_row( 2 ) = td3NdXi3FDTemp.get_row( 2 );
+                    td3NdXi3FD.get_row( 3 ) = td3NdXi3FDTemp.get_row( 1 );
+                }
+                else
+                {
+                    td3NdXi3FD.get_row( 1 ) = td3NdXi3FDTemp.get_row( 1 );
+                }
+            }
+
+            // test error
+            tCheck = tCheck && fem::check( td3NdXi3, td3NdXi3FD, 1e-9 );
+        }
+
+        REQUIRE( tCheck );
+    }
+
+    //------------------------------------------------------------------------------
+
+    // tidy up
+    delete tFunction;
+
+    //------------------------------------------------------------------------------
 }
