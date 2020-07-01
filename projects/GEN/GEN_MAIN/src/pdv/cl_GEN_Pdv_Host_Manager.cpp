@@ -154,7 +154,7 @@ namespace moris
                                                 Cell<Matrix<DDSMat>>   & aIsActiveDv )
         {
             // get the number of node indices requested
-            uint tNumIndices = aNodeIndices.length();
+            uint tNumIndices = aNodeIndices.numel();
 
             // get the number of dv types requested
             uint tNumTypes = aPdvTypes.size();
@@ -168,7 +168,7 @@ namespace moris
             // loop over the requested dv types
             for ( uint iType = 0; iType < tNumTypes; iType++ )
             {
-                aIsActiveDv( iType ).resize( tNumTypes, 1 );
+                aIsActiveDv( iType ).resize( tNumIndices, 1 );
                 //aDvValues( iType ).resize( tNumTypes, 1 );
 
                 // loop over the node indices

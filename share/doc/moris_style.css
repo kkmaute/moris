@@ -1,3 +1,4 @@
+
 /* The standard CSS for doxygen 1.8.9.1 */
 
 body, table, div, p, dl {
@@ -1474,4 +1475,22 @@ div.toc {
 
 div.image img[src="basis_ip_integ.png"]{
     width:500px;
+}
+div.image img[src="ghost.png"]{
+    width:750px;
+}
+div.image img[src="ghost_close.png"]{
+    width:500px;
+}
+div.image img[src="ghost_rules.png"]{
+    width:500px;
+}
+div.image img[src="bulkphase.png"]{
+    width:300px;
+}
+div.image img[src="subphase_neighborhood.png"]{
+    width:300px;
+}
+div.image img[src="ghost_transition.png"]{
+    width:300px;
 }
