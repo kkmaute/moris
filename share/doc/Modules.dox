@@ -242,6 +242,9 @@ The following modules introduce the XTK and its core functionalities.
    
 /** @addtogroup XTKOutput
     @ingroup XTKModule */
+    
+/** @addtogroup XTKConcepts
+    @ingroup XTKModule */
 
 /** @addtogroup XTKTutorial
 	@ingroup XTKModule */
