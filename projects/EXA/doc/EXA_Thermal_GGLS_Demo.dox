@@ -1,0 +1,12 @@
+namespace moris {
+
+/** @defgroup EXA_THERMAL_STEFANS_PROBLEM Stefan's Problem for Linear Diffusion with Phase Change
+
+
+- taken from a COMSOL benchmark
+
+
+
+*/
+
+}

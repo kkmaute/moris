@@ -1,0 +1,10 @@
+namespace moris {
+
+/** @defgroup EXA_THERMAL_FICKIAN_PROBLEM Fickian Problem for linear diffusion
+
+
+
+
+*/
+
+}

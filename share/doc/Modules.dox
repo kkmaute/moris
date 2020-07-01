@@ -244,6 +244,35 @@ FEM Module description.
  /** @addtogroup FE_IWG_Diffusion_Advection_Reaction
     @ingroup FE_Module */
     
+/** @addtogroup FE_DIFFUSION
+    @ingroup FE_Module */
+  
+  
+    
+//------------------------------------------------------------------------------
+/** @defgroup EXA_Module Examples and Benchmarks
+EXA is a library of example and benchmark problems used for the validatation of various implementation aspects, 
+such as physics models, stabilization methods, meshing methods, etc.
+Further, the example problems are used as an extention to the unit tests, which generally do not require the interaction of multiple modules. 
+Values are for field and geometry values are compared to reference runs to ensure that results do not change. 
+As such, they should be run regularly and after major revisions to any module to catch possible errors. 
+
+How the examples should be created and used is explained in EXA_DEV_GUIDE.
+The examples are sorted by the implementation aspect they are supposed to validate (e.g. "Thermal" for testing the thermal diffusion model).
+
+
+*/
+
+/** @addtogroup EXA_DEV_GUIDE
+	@ingroup EXA_Module */
+	
+/** @addtogroup EXA_THERMAL_BENCHMARKS
+	@ingroup EXA_Module */
+
+/** @addtogroup EXA_FLUID_BENCHMARKS
+	@ingroup EXA_Module */
+    
+    
 //------------------------------------------------------------------------------
 /** @defgroup XTKModule XFEM Tool Kit (XTK) Module
 The following modules introduce the XTK and its core functionalities.

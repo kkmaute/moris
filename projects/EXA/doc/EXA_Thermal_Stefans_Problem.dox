@@ -1,0 +1,12 @@
+namespace moris {
+
+/** @defgroup   Fickian Diffusion Problem to Showcase the Effect of GGLS
+
+
+- taken from Ilinca's paper
+
+
+
+*/
+
+}
