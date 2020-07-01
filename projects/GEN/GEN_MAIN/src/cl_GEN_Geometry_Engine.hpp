@@ -69,6 +69,9 @@ namespace moris
             Cell<std::shared_ptr<Property>> mProperties;
             Cell<ParameterList> mPropertyParameterLists;
 
+            // Child nodes
+            Cell<std::shared_ptr<Child_Node>> mChildNodes;
+
             // Contains all the geometry objects
             Geometry_Object_Manager mGeometryObjectManager;
 

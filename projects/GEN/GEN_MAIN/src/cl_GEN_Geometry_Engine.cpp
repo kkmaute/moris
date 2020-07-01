@@ -223,12 +223,13 @@ namespace moris
                     tParentNodeIndices(tParentNode) = aParentTopo(tNode)->get_node_indices()(tParentNode);
                     tParentNodeCoordinates(tParentNode) = aGlobalNodeCoord.get_row(tParentNodeIndices(tParentNode));
                 }
-                Child_Node tChildNode(tParentNodeIndices, tParentNodeCoordinates, aParentTopo(tNode)->get_basis_function(), aParamCoordRelativeToParent(tNode));
+                mChildNodes.push_back(std::make_shared<Child_Node>(
+                        tParentNodeIndices, tParentNodeCoordinates, aParentTopo(tNode)->get_basis_function(), aParamCoordRelativeToParent(tNode)));
 
                 // Assign to geometries
                 for (uint tGeometryIndex = 0; tGeometryIndex < this->get_num_geometries(); tGeometryIndex++)
                 {
-                    mGeometry(tGeometryIndex)->add_child_node(aNewNodeIndices(tNode), tChildNode);
+                    mGeometry(tGeometryIndex)->add_child_node(aNewNodeIndices(tNode), mChildNodes(mChildNodes.size() - 1));
                 }
             }
 

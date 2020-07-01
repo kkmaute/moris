@@ -83,7 +83,7 @@ namespace moris
              * @param aNodeIndex Index of the child node
              * @param aChildNode Contains information about how the child node was created
              */
-            virtual void add_child_node(uint aNodeIndex, Child_Node aChildNode);
+            virtual void add_child_node(uint aNodeIndex, std::shared_ptr<Child_Node> aChildNode);
 
         private:
 
