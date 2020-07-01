@@ -376,7 +376,6 @@ namespace moris
                                             moris::Matrix< moris::IndexMat > const & aEntityNodeInds,
                                             moris::Matrix< moris::DDRMat >   const & aNodeCoords,
                                             moris::size_t                    const & aCheckType,
-                                            moris::Matrix< moris::IndexMat >       & aNodeADVIndices,
                                             GEN_Geometry_Object                    & aGeometryObject );
 
         };

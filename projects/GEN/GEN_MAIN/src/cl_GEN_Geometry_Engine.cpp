@@ -20,6 +20,9 @@
 #include "cl_MTK_Integration_Mesh.hpp"
 #include "cl_MTK_Interpolation_Mesh.hpp"
 
+// XTK
+#include "cl_XTK_Linear_Basis_Functions.hpp"
+
 // MRS/IOS
 #include "fn_Parsing_Tools.hpp"
 
@@ -282,13 +285,11 @@ namespace moris
 
                 //Populate the intersection flag of this element with a bool
                 moris::Matrix< moris::IndexMat > tRow = aNodetoEntityConn.get_row(i);
-                moris::Matrix< moris::IndexMat > tNodeADVIndices;
                 bool tIsIntersected = compute_intersection_info(
                         i,
                         tRow,
                         aNodeCoords,
                         aCheckType,
-                        tNodeADVIndices,
                         aGeometryObjects(tIntersectedCount) );
 
                 if (tIsIntersected)
@@ -324,6 +325,16 @@ namespace moris
             Interpolation::linear_interpolation_value(aEntityNodeVars,
                     mIsocontourThreshold,
                     aIntersectionLocalCoordinates);
+
+            // Child node
+            Cell<Matrix<DDRMat>> tParentNodeCoordinates(2, Matrix<DDRMat>(1, 2));
+            aGlobalNodeCoordinates.get_row(aEntityNodeIndices(0), tParentNodeCoordinates(0));
+            aGlobalNodeCoordinates.get_row(aEntityNodeIndices(1), tParentNodeCoordinates(1));
+            Matrix<DDUMat> tParentNodeIndices(2, 1);
+            tParentNodeIndices(0) = aEntityNodeIndices(0);
+            tParentNodeIndices(0) = aEntityNodeIndices(1);
+            mChildNodes.push_back(std::make_shared<Child_Node>(
+                    tParentNodeIndices, tParentNodeCoordinates, xtk::Linear_Basis_Function(), aEntityNodeVars, mIsocontourThreshold));
 
             // Perturb away from node if necessary
             if(aCheckLocalCoordinate)
@@ -505,7 +516,6 @@ namespace moris
                 moris::Matrix< moris::IndexMat > const & aEntityNodeInds,
                 moris::Matrix< moris::DDRMat >   const & aNodeCoords,
                 moris::size_t const                    & aCheckType,
-                moris::Matrix< moris::IndexMat >       & aNodeADVIndices,
                 GEN_Geometry_Object                    & aGeometryObject )
         {
             //Initialize
@@ -530,21 +540,16 @@ namespace moris
                 tEntityNodeVars(n) = this->get_geometry_field_value(
                         tNodeInd,
                         aNodeCoords.get_row(tNodeInd),
-                        mActiveGeometryIndex); //FIXME Wrong
+                        mActiveGeometryIndex);
             }
 
             //get the max and minimum level set value for the entity
             tMax = tEntityNodeVars.max(tMaxLocRow,tMaxLocCol);
             tMin = tEntityNodeVars.min(tMinLocRow,tMinLocCol);
 
-            //    If there is a sign change in element node variables return true, else return false
-
-            //TODO: intersection flag should not be a moris::real (needs to be a bool) split this function
-            moris::Matrix< moris::DDRMat > tIntersection(1, 2, 0.0);// Initialize as false
-
             moris::real tErrorFactor = 1;
-            // If the max is also the threshold value, figure out which node is on the interface
 
+            // All nodes are on interface
             if( moris::ge::approximate(tMin, mIsocontourThreshold, tErrorFactor) && moris::ge::approximate(tMax, mIsocontourThreshold,tErrorFactor))
             {
                 aGeometryObject.set_parent_entity_index(aEntityIndex);
@@ -552,6 +557,7 @@ namespace moris
                 tIsIntersected = true;
             }
 
+            // Max node is on interface
             else if (moris::ge::approximate(tMax,mIsocontourThreshold, tErrorFactor))
             {
                 aGeometryObject.set_parent_entity_index(aEntityIndex);
@@ -559,7 +565,7 @@ namespace moris
                 tIsIntersected = true;
             }
 
-            // If the min is also the threshold value, figure out which node is on the interface
+            // Min node is on interface
             else if (moris::ge::approximate(tMin,mIsocontourThreshold, tErrorFactor))
             {
                 aGeometryObject.set_parent_entity_index(aEntityIndex);
@@ -567,6 +573,7 @@ namespace moris
                 tIsIntersected = true;
             }
 
+            // Interface is somewhere inside of parent
             else if ((tMax > mIsocontourThreshold) &&
                      (tMin < mIsocontourThreshold))
             {
