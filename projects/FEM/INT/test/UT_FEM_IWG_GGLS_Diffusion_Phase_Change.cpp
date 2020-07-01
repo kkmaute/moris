@@ -156,7 +156,7 @@ namespace moris
             // define stabilization parameter ----------------------------------------------------------- //
             fem::SP_Factory tSPFactory;
 
-            std::shared_ptr< fem::Stabilization_Parameter > tSPGGLSParam = tSPFactory.create_SP( fem::Stabilization_Type::GGLS_DIFFUSION_PC );
+            std::shared_ptr< fem::Stabilization_Parameter > tSPGGLSParam = tSPFactory.create_SP( fem::Stabilization_Type::GGLS_DIFFUSION );
             tSPGGLSParam->set_dof_type_list( {{ MSI::Dof_Type::TEMP }}, mtk::Master_Slave::MASTER );
             tSPGGLSParam->set_parameters( { {{ 1.0 }} });
             tSPGGLSParam->set_property( tPropMasterConductivity, "Conductivity", mtk::Master_Slave::MASTER );

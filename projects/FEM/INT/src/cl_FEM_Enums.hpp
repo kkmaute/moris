@@ -185,7 +185,7 @@ namespace moris
         {
             UNDEFINED,
             DIRICHLET_NITSCHE,
-            GGLS_DIFFUSION_PC,
+            GGLS_DIFFUSION,
             GHOST_DISPL,
             GHOST_VW,
             NITSCHE_INTERFACE,
