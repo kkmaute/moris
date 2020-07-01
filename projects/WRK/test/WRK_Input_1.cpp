@@ -48,14 +48,6 @@ moris::real  Lvl_set_1( const moris::Matrix< DDRMat >    & aCoordinates,
      return 1.01;
 }
 
-
-moris::Matrix<DDRMat> Func_Dummy( const moris::Matrix< DDRMat >      & aCoordinates,
-                           const moris::Cell< moris::real* > & aGeometryParameters )
-{
-   moris::Matrix< DDRMat > dummy;
-   return dummy; 
-}
-
 void FEMParameterList( moris::Cell< moris::Cell< ParameterList > > & tParameterList )
 {
     // create a cell of cell of parameter list for fem
@@ -368,13 +360,11 @@ void GENParameterList( moris::Cell< moris::Cell< ParameterList > > & tParameterl
 
     // Main GEN parameter list
     tParameterlist( 0 )( 0 ) = prm::create_gen_parameter_list();
-    tParameterlist( 0 )( 0 ).set( "HMR_refinements", 2 );  
 
     // Geometry parameter lists
     tParameterlist( 1 )( 0 ) = prm::create_user_defined_geometry_parameter_list();
     tParameterlist( 1 )( 0 ).set( "field_function_name", "Lvl_set_1");
-    tParameterlist( 1 )( 0 ).set( "sensitivity_function_name", "Func_Dummy");
-    tParameterlist( 1 )( 0 ).set( "constant_parameters", "");
+    tParameterlist( 1 )( 0 ).set( "number_of_refinements", 2);
 }
 
 void OPTParameterList( moris::Cell< moris::Cell< ParameterList > > & tParameterlist )

@@ -47,8 +47,6 @@ TEST_CASE("Outputting XTK Model","[EXPORT]")
     moris::ge::Phase_Table tPhaseTable (1, moris::ge::Phase_Table_Structure::EXP_BASE_2);
     moris::ge::Geometry_Engine tGeometryEngine(tGeometry, tPhaseTable);
 
-    tGeometryEngine.mThresholdValue = 0.0;
-
     /*
      * Load Mesh which has 3 block sets. These blocks are named:
      *  - top_bread

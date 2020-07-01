@@ -74,14 +74,28 @@ namespace moris
             // Get constant parameters
             string_to_mat(aGeometryParameterList.get<std::string>("constant_parameters"), tConstantParameters);
 
+            // Get refinement info
+            sint tNumRefinements = aGeometryParameterList.get<sint>("number_of_refinements");
+            sint tRefinementFunctionIndex = aGeometryParameterList.get<sint>("refinement_function_index");
+
             // Build Geometry
             if (tGeometryType == "circle")
             {
-                return std::make_shared<Circle>(aADVs, tGeometryVariableIndices, tADVIndices, tConstantParameters);
+                return std::make_shared<Circle>(aADVs,
+                                                tGeometryVariableIndices,
+                                                tADVIndices,
+                                                tConstantParameters,
+                                                tNumRefinements,
+                                                tRefinementFunctionIndex);
             }
             else if (tGeometryType == "sphere")
             {
-                return std::make_shared<Sphere>(aADVs, tGeometryVariableIndices, tADVIndices, tConstantParameters);
+                return std::make_shared<Sphere>(aADVs,
+                                                tGeometryVariableIndices,
+                                                tADVIndices,
+                                                tConstantParameters,
+                                                tNumRefinements,
+                                                tRefinementFunctionIndex);
             }
             else if (tGeometryType == "user_defined")
             {
@@ -90,13 +104,17 @@ namespace moris
                 {
                     return std::make_shared<User_Defined_Geometry>(aADVs, tGeometryVariableIndices, tADVIndices, tConstantParameters,
                                                                    aLibrary->load_gen_field_function(aGeometryParameterList.get<std::string>("field_function_name")),
-                                                                   nullptr);
+                                                                   nullptr,
+                                                                   tNumRefinements,
+                                                                   tRefinementFunctionIndex);
                 }
                 else
                 {
                     return std::make_shared<User_Defined_Geometry>(aADVs, tGeometryVariableIndices, tADVIndices, tConstantParameters,
                                                                    aLibrary->load_gen_field_function(aGeometryParameterList.get<std::string>("field_function_name")),
-                                                                   aLibrary->load_gen_sensitivity_function(tSensitivityFunctionName));
+                                                                   aLibrary->load_gen_sensitivity_function(tSensitivityFunctionName),
+                                                                   tNumRefinements,
+                                                                   tRefinementFunctionIndex);
                 }
             }
             else

@@ -25,9 +25,9 @@ set(XTK_INCLUDES
 # Include depedency directories                                    
 foreach(XTK_INCLUDE ${XTK_INCLUDES})  
     include_directories(${MORIS_PACKAGE_DIR}/XTK/src/${XTK_INCLUDE}) 
-endforeach()   
+endforeach()
 
-set(GEN_INCLUDES        
+set(GEN_INCLUDES
     "additional"
     "geomeng"
     "geometry"
@@ -35,7 +35,7 @@ set(GEN_INCLUDES
     )
 
 # Include depedency directories
-foreach(GEN_INCLUDES ${GEN_INCLUDES})  
+foreach(GEN_INCLUDES ${GEN_INCLUDES})
     include_directories(${MORIS_PACKAGE_DIR}/GEN/GEN_MAIN/src/${GEN_INCLUDES})
 endforeach()
 
@@ -44,9 +44,11 @@ endforeach()
 
 # List library source files
 set(LIB_SOURCES
+    cl_WRK_Performer.cpp
     cl_WRK_Performer_Manager.cpp
     cl_WRK_Workflow.cpp
     fn_WRK_Workflow_Main_Interface.cpp
+    fn_WRK_perform_refinement.cpp
     )
 
 # List library dependencies
@@ -55,13 +57,9 @@ set(LIB_DEPENDENCIES
     ${INT}-lib 
     ${XTK}-lib
     ${HMR}-lib
-    #${GEN}-lib
     ${GEN_MAIN}-lib
     ${MDL}-lib
     ${OPT}-lib
-    #${SOL_CORE}-lib
-    #${NLA}-lib
-    #${TLA}-lib
      )
 
 # Set the output path for library

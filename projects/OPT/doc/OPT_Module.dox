@@ -1,0 +1,20 @@
+/** \page opt_module Optimization Module
+
+These pages discuss MORIS's optimization package. The first section goes over user documentation relevant for any user
+of OPT, while the second section gives a more in-depth description of the implementation, specific to developers. It is
+highly recommended that developers become familiar with the \ref opt_user "user" section before looking at the
+implementation details in the \ref opt_developer "developer" section.
+
+\section opt_user User
+- \subpage opt_background
+- \subpage opt_framework_user
+- Algorithms
+    - \subpage opt_gcmma
+    - \subpage opt_sqp
+    - \subpage opt_lbfgs
+    - \subpage opt_sweep
+
+\section opt_developer Developer
+- \subpage opt_algorithm_developer
+
+*/

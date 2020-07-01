@@ -41,8 +41,8 @@ TEST_CASE( "IWG_Incompressible_NS_Velocity_Bulk", "[IWG_Incompressible_NS_Veloci
     // create geometry type
     mtk::Geometry_Type tGeometryType = mtk::Geometry_Type::UNDEFINED;
 
-    // create space coeff xHat
-    Matrix< DDRMat > tXHat;
+//    // create space coeff xHat
+//    Matrix< DDRMat > tXHat;
 
     // create list of interpolation orders
     moris::Cell< mtk::Interpolation_Order > tInterpolationOrders = {
@@ -177,11 +177,11 @@ TEST_CASE( "IWG_Incompressible_NS_Velocity_Bulk", "[IWG_Incompressible_NS_Veloci
                 // set geometry type
                 tGeometryType = mtk::Geometry_Type::QUAD;
 
-                // fill space coeff xHat
-                tXHat = {{ 0.0, 0.0 },
-                         { 1.0, 0.0 },
-                         { 1.0, 1.0 },
-                         { 0.0, 1.0 }};
+//                // fill space coeff xHat
+//                tXHat = {{ 0.0, 0.0 },
+//                         { 1.0, 0.0 },
+//                         { 1.0, 1.0 },
+//                         { 0.0, 1.0 }};
 
                // set velocity dof types
                tVelDofTypes = { MSI::Dof_Type::VX, MSI::Dof_Type::VY };
@@ -192,15 +192,15 @@ TEST_CASE( "IWG_Incompressible_NS_Velocity_Bulk", "[IWG_Incompressible_NS_Veloci
                 // set geometry type
                 tGeometryType = mtk::Geometry_Type::HEX;
 
-                // fill space coeff xHat
-                tXHat = {{ 0.0, 0.0, 0.0 },
-                         { 1.0, 0.0, 0.0 },
-                         { 1.0, 1.0, 0.0 },
-                         { 0.0, 1.0, 0.0 },
-                         { 0.0, 0.0, 1.0 },
-                         { 1.0, 0.0, 1.0 },
-                         { 1.0, 1.0, 1.0 },
-                         { 0.0, 1.0, 1.0 }};
+//                // fill space coeff xHat
+//                tXHat = {{ 0.0, 0.0, 0.0 },
+//                         { 1.0, 0.0, 0.0 },
+//                         { 1.0, 1.0, 0.0 },
+//                         { 0.0, 1.0, 0.0 },
+//                         { 0.0, 0.0, 1.0 },
+//                         { 1.0, 0.0, 1.0 },
+//                         { 1.0, 1.0, 1.0 },
+//                         { 0.0, 1.0, 1.0 }};
 
                 // set velocity dof types
                 tVelDofTypes = { MSI::Dof_Type::VX, MSI::Dof_Type::VY, MSI::Dof_Type::VZ };
@@ -215,23 +215,23 @@ TEST_CASE( "IWG_Incompressible_NS_Velocity_Bulk", "[IWG_Incompressible_NS_Veloci
 
         Matrix< DDRMat > tGravity( iSpaceDim, 1, 10.0 );
 
-        // space and time geometry interpolators
-        //------------------------------------------------------------------------------
-        // create a space geometry interpolation rule
-        Interpolation_Rule tGIRule( tGeometryType,
-                                    Interpolation_Type::LAGRANGE,
-                                    mtk::Interpolation_Order::LINEAR,
-                                    Interpolation_Type::LAGRANGE,
-                                    mtk::Interpolation_Order::LINEAR );
-
-        // create a space time geometry interpolator
-        Geometry_Interpolator tGI = Geometry_Interpolator( tGIRule );
-
-        // create time coeff tHat
-        Matrix< DDRMat > tTHat = {{ 0.0 }, { 1.0 }};
-
-        // set the coefficients xHat, tHat
-        tGI.set_coeff( tXHat, tTHat );
+//        // space and time geometry interpolators
+//        //------------------------------------------------------------------------------
+//        // create a space geometry interpolation rule
+//        Interpolation_Rule tGIRule( tGeometryType,
+//                                    Interpolation_Type::LAGRANGE,
+//                                    mtk::Interpolation_Order::LINEAR,
+//                                    Interpolation_Type::LAGRANGE,
+//                                    mtk::Interpolation_Order::LINEAR );
+//
+//        // create a space time geometry interpolator
+//        Geometry_Interpolator tGI = Geometry_Interpolator( tGIRule );
+//
+//        // create time coeff tHat
+//        Matrix< DDRMat > tTHat = {{ 0.0 }, { 1.0 }};
+//
+//        // set the coefficients xHat, tHat
+//        tGI.set_coeff( tXHat, tTHat );
 
         // set space dimension to CM, SP
         tPropGravity->set_parameters( { tGravity } );
@@ -242,6 +242,30 @@ TEST_CASE( "IWG_Incompressible_NS_Velocity_Bulk", "[IWG_Incompressible_NS_Veloci
         // loop on the interpolation order
         for( uint iInterpOrder = 1; iInterpOrder < 4; iInterpOrder++ )
         {
+            // create an interpolation order
+            mtk::Interpolation_Order tGIInterpolationOrder = tInterpolationOrders( iInterpOrder - 1 );
+
+            // space and time geometry interpolators
+            //------------------------------------------------------------------------------
+            // create a space geometry interpolation rule
+            Interpolation_Rule tGIRule( tGeometryType,
+                    Interpolation_Type::LAGRANGE,
+                    tGIInterpolationOrder,
+                    Interpolation_Type::LAGRANGE,
+                    mtk::Interpolation_Order::LINEAR );
+
+            // create a space time geometry interpolator
+            Geometry_Interpolator tGI = Geometry_Interpolator( tGIRule );
+
+            // create time coeff tHat
+            Matrix< DDRMat > tTHat = {{ 0.0 }, { 1.0 }};
+
+            Matrix< DDRMat > tXHat;
+            fill_xhat( tXHat, iSpaceDim, iInterpOrder );
+
+            // set the coefficients xHat, tHat
+            tGI.set_coeff( tXHat, tTHat );
+
             // integration points
             //------------------------------------------------------------------------------
             // get an integration order
@@ -254,7 +278,7 @@ TEST_CASE( "IWG_Incompressible_NS_Velocity_Bulk", "[IWG_Incompressible_NS_Veloci
                     tIntegrationOrder,
                     mtk::Geometry_Type::LINE,
                     Integration_Type::GAUSS,
-                    fem::Integration_Order::BAR_2 );
+                    fem::Integration_Order::BAR_1 );
 
             // create an integrator
             fem::Integrator tIntegrator( tIntegrationRule );

@@ -78,8 +78,7 @@ namespace moris
 
     typedef sint  ( *MORIS_USER_DEFINED_REFINEMENT_FUNCTION ) (
             hmr::Element                   * aElement,
-            const Cell< Matrix< DDRMat > > & aElementLocalValues,
-            ParameterList                  & aParameters );
+            const Matrix< DDRMat > & aElementLocalValues);
 
     // -----------------------------------------------------------------------------
 

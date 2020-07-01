@@ -154,7 +154,7 @@ namespace moris
                                                 Cell<Matrix<DDSMat>>   & aIsActiveDv )
         {
             // get the number of node indices requested
-            uint tNumIndices = aNodeIndices.length();
+            uint tNumIndices = aNodeIndices.numel();
 
             // get the number of dv types requested
             uint tNumTypes = aPdvTypes.size();
@@ -168,7 +168,7 @@ namespace moris
             // loop over the requested dv types
             for ( uint iType = 0; iType < tNumTypes; iType++ )
             {
-                aIsActiveDv( iType ).resize( tNumTypes, 1 );
+                aIsActiveDv( iType ).resize( tNumIndices, 1 );
                 //aDvValues( iType ).resize( tNumTypes, 1 );
 
                 // loop over the node indices
@@ -259,8 +259,8 @@ namespace moris
         //--------------------------------------------------------------------------------------------------------------
 
         void Pdv_Host_Manager::create_ip_pdv_hosts(Cell<Matrix<DDSMat>>        aNodeIndicesPerSet,
-                                                   const Cell<Matrix<DDRMat>>& aNodeCoordinates,
-                                                   Cell<Cell<Cell<PDV_Type>>>         aPdvTypes)
+                                                   Cell<Matrix<DDRMat>>        aNodeCoordinates,
+                                                   Cell<Cell<Cell<PDV_Type>>>  aPdvTypes)
         {
             // Check that number of sets is consistent
             uint tNumSets = aPdvTypes.size();
@@ -329,7 +329,7 @@ namespace moris
         //--------------------------------------------------------------------------------------------------------------
 
         void Pdv_Host_Manager::create_ig_pdv_hosts(Cell<Matrix<DDSMat>>        aNodeIndicesPerSet,
-                                                   const Cell<Matrix<DDRMat>>& aNodeCoordinates,
+                                                   Cell<Matrix<DDRMat>>        aNodeCoordinates,
                                                    Cell<Cell<Cell<PDV_Type>>>  aPdvTypes,
                                                    Cell<Intersection_Info>     aIntersectionInfo)
         {
@@ -445,14 +445,14 @@ namespace moris
             uint tFirstPdvHostIndex = 0;
             if (mIpPdvHosts.size() > 0)
             {
-                while (tTestSensitivities.numel() == 0)
+                while (tFirstPdvHostIndex < mIpPdvHosts.size() && (tTestSensitivities.numel() == 0))
                 {
                     mIpPdvHosts(tFirstPdvHostIndex++)->get_all_sensitivities(tTestSensitivities);
                 }
             }
             else if (mIgPdvHosts.size() > 0)
             {
-                while (tTestSensitivities.numel() == 0)
+                while (tFirstPdvHostIndex < mIgPdvHosts.size() && (tTestSensitivities.numel() == 0))
                 {
                     mIgPdvHosts(tFirstPdvHostIndex++)->get_all_sensitivities(tTestSensitivities);
                 }

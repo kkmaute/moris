@@ -27,13 +27,17 @@ namespace moris
              * @param aConstantParameters The constant parameters not filled by ADVs
              * @param aFieldEvaluationFunction User-defined function for evaluating the geometry field
              * @param aSensitivityEvaluationFunction User-defined function for evaluating the field sensitivities
+             * @param aNumRefinements The number of refinement steps to use for this geometry
+             * @param aRefinementFunctionIndex The index of a user-defined refinement function (-1 = default refinement)
              */
-            User_Defined_Geometry(Matrix<DDRMat>& aADVs,
-                                  Matrix<DDUMat> aGeometryVariableIndices,
-                                  Matrix<DDUMat> aADVIndices,
-                                  Matrix<DDRMat> aConstantParameters,
-                                  MORIS_GEN_FIELD_FUNCTION aFieldEvaluationFunction,
-                                  MORIS_GEN_SENSITIVITY_FUNCTION aSensitivityEvaluationFunction = nullptr);
+            User_Defined_Geometry(Matrix<DDRMat>&                aADVs,
+                                  Matrix<DDUMat>                 aGeometryVariableIndices,
+                                  Matrix<DDUMat>                 aADVIndices,
+                                  Matrix<DDRMat>                 aConstantParameters,
+                                  MORIS_GEN_FIELD_FUNCTION       aFieldEvaluationFunction,
+                                  MORIS_GEN_SENSITIVITY_FUNCTION aSensitivityEvaluationFunction = nullptr,
+                                  sint                           aNumRefinements = 0,
+                                  sint                           aRefinementFunctionIndex = -1);
 
             /**
              * Constructor with only constant parameters
@@ -41,10 +45,14 @@ namespace moris
              * @param aConstantParameters The constant parameters not filled by ADVs
              * @param aFieldEvaluationFunction User-defined function for evaluating the geometry field
              * @param aSensitivityEvaluationFunction User-defined function for evaluating the field sensitivities
+             * @param aNumRefinements The number of refinement steps to use for this geometry
+             * @param aRefinementFunctionIndex The index of a user-defined refinement function (-1 = default refinement)
              */
-            User_Defined_Geometry(Matrix<DDRMat> aConstantParameters,
-                                  MORIS_GEN_FIELD_FUNCTION aFieldEvaluationFunction,
-                                  MORIS_GEN_SENSITIVITY_FUNCTION aSensitivityEvaluationFunction = nullptr);
+            User_Defined_Geometry(Matrix<DDRMat>                 aConstantParameters,
+                                  MORIS_GEN_FIELD_FUNCTION       aFieldEvaluationFunction,
+                                  MORIS_GEN_SENSITIVITY_FUNCTION aSensitivityEvaluationFunction = nullptr,
+                                  sint                           aNumRefinements = 0,
+                                  sint                           aRefinementFunctionIndex = -1);
 
             /**
              * Given a node coordinate, the geometry needs to return the distance to the nearest function.
@@ -71,7 +79,7 @@ namespace moris
              * @param aFieldEvaluationFunction User-defined function for evaluating the geometry field
              * @param aSensitivityEvaluationFunction User-defined function for evaluating the field sensitivities
              */
-            void set_user_defined_functions(MORIS_GEN_FIELD_FUNCTION aFieldEvaluationFunction,
+            void set_user_defined_functions(MORIS_GEN_FIELD_FUNCTION       aFieldEvaluationFunction,
                                             MORIS_GEN_SENSITIVITY_FUNCTION aSensitivityEvaluationFunction);
 
             /**

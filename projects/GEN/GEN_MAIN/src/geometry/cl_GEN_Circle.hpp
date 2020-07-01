@@ -19,11 +19,15 @@ namespace moris
              * @param aGeometryVariableIndices Indices of geometry variables to be filled by the ADVs
              * @param aADVIndices The indices of the ADV vector to fill in the geometry variables
              * @param aConstantParameters The constant parameters not filled by ADVs
+             * @param aNumRefinements The number of refinement steps to use for this geometry
+             * @param aRefinementFunctionIndex The index of a user-defined refinement function (-1 = default refinement)
              */
             Circle(Matrix<DDRMat>& aADVs,
-                   Matrix<DDUMat> aGeometryVariableIndices,
-                   Matrix<DDUMat> aADVIndices,
-                   Matrix<DDRMat> aConstantParameters);
+                   Matrix<DDUMat>  aGeometryVariableIndices,
+                   Matrix<DDUMat>  aADVIndices,
+                   Matrix<DDRMat>  aConstantParameters,
+                   sint            aNumRefinements = 0,
+                   sint            aRefinementFunctionIndex = -1);
 
             /**
              * Constructor with only constant parameters
@@ -31,8 +35,14 @@ namespace moris
              * @param aXCenter x-coordinate of the center of the circle
              * @param aYCenter y-coordiante of the center of the circle
              * @param aRadius radius of the circle
+             * @param aNumRefinements The number of refinement steps to use for this geometry
+             * @param aRefinementFunctionIndex The index of a user-defined refinement function (-1 = default refinement)
              */
-            Circle(real aXCenter, real aYCenter, real aRadius);
+            Circle(real aXCenter,
+                   real aYCenter,
+                   real aRadius,
+                   sint aNumRefinements = 0,
+                   sint aRefinementFunctionIndex = -1);
 
             /**
              * Given a node coordinate, the geometry needs to return the distance to the nearest function.

@@ -33,46 +33,63 @@ namespace moris
             bool mUseMatrixMarketFiles;                            // determines is matrix and RHS comes from MatrixMarket files
 
         public :
+
+            // ----------------------------------------------------------------------------------------------
+
             Solver_Interface_Proxy();
+
+            // ----------------------------------------------------------------------------------------------
 
             Solver_Interface_Proxy( uint aNumRHS );
 
             // ----------------------------------------------------------------------------------------------
+
             ~Solver_Interface_Proxy(){};
 
             // ----------------------------------------------------------------------------------------------
             // local dimension of the problem
+
             uint get_num_my_dofs()
             {
                 return mNumMyDofs;
             }
+
+            // ----------------------------------------------------------------------------------------------
 
             uint get_num_rhs()
             {
                 return mNumRHS;
             }
 
+            // ----------------------------------------------------------------------------------------------
+
             uint get_max_num_global_dofs()
             {
-                moris::uint tNumMyDofs        = mNumMyDofs;
-                moris::uint tMaxNumGlobalDofs = mNumMyDofs;
+                moris::uint tNumMyDofs = mNumMyDofs;
 
                 // sum up all distributed dofs
-                sum_all( tNumMyDofs, tMaxNumGlobalDofs );
+                moris::uint tMaxNumGlobalDofs = sum_all( tNumMyDofs );
 
                 return tMaxNumGlobalDofs;
             };
 
+            // ----------------------------------------------------------------------------------------------
+
             void free_block_memory( const uint aBlockInd ){};
+
+            // ----------------------------------------------------------------------------------------------
 
             void set_solution_vector( sol::Dist_Vector * aSolutionVector ){};
 
             // ----------------------------------------------------------------------------------------------
             // local-to-global map
+
             Matrix< DDSMat > get_my_local_global_map()
             {
                 return mMyGlobalElements;
             }
+
+            // ----------------------------------------------------------------------------------------------
 
             moris::Matrix< DDSMat > get_my_local_global_overlapping_map( )
             {
@@ -81,16 +98,21 @@ namespace moris
 
             // ----------------------------------------------------------------------------------------------
             // number of elements on proc
+
             uint get_num_my_blocks()
             {
                 return 1;
             }
+
+            // ----------------------------------------------------------------------------------------------
 
             // number of elements on proc
             uint get_num_my_elements()
             {
                 return mNumElements;
             }
+
+            // ----------------------------------------------------------------------------------------------
 
             // number of elements on proc
             uint get_num_equation_objects_on_set( uint aBlockInd )
@@ -99,12 +121,15 @@ namespace moris
             }
 
             // ----------------------------------------------------------------------------------------------
+
             void get_equation_object_operator(
                     const uint       & aMyElementInd,
                     Matrix< DDRMat > & aElementMatrix)
             {
                 aElementMatrix = mElementMatrixValues;
             };
+
+            // ----------------------------------------------------------------------------------------------
 
             void get_equation_object_operator(
                     const uint       & aMyBlockInd,
@@ -121,6 +146,8 @@ namespace moris
             {
                 aElementTopology = mEleDofConectivity.get_column( aMyElementInd );
             }
+
+            // ----------------------------------------------------------------------------------------------
 
             void  get_element_topology(
                     const uint       & aMyBlockInd,
@@ -132,6 +159,7 @@ namespace moris
             };
 
             // ----------------------------------------------------------------------------------------------
+
             Matrix< DDUMat > get_constrained_Ids()
             {
                 return mMyConstraintDofs;
@@ -149,6 +177,8 @@ namespace moris
                     aElementRHS( Ik ) = mMyRHSValues( Ik ).get_column( aMyElementInd );
                 }
             }
+
+            // ----------------------------------------------------------------------------------------------
 
             void get_equation_object_rhs(
                     const uint               & aMyBlockInd,
@@ -179,6 +209,8 @@ namespace moris
                     aElementRHS( Ik ) = mMyRHSValues( Ik ).get_column( aMyElementInd );
                 }
             }
+
+            // ----------------------------------------------------------------------------------------------
 
             void get_equation_object_operator_and_rhs(
                     const moris::uint        & aMyEquSetInd,

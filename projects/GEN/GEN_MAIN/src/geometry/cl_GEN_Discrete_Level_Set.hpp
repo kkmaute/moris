@@ -27,10 +27,14 @@ namespace moris
              *
              * @param aMeshWithLevelSetFields Mesh with the level set fields
              * @param aFieldNames Names of the fields
+             * @param aNumRefinements The number of refinement steps to use for this geometry
+             * @param aRefinementFunctionIndex The index of a user-defined refinement function (-1 = default refinement)
              */
             Discrete_Level_Set(moris::mtk::Interpolation_Mesh* aMeshWithLevelSetFields,
                                moris::Cell<std::string> const & aFieldNames,
-                               EntityRank aEntityRank = EntityRank::NODE);
+                               EntityRank aEntityRank = EntityRank::NODE,
+                               sint aNumRefinements = 0,
+                               sint aRefinementFunctionIndex = -1);
 
             /**
              * Given an index, the discrete geometry needs to return a field value.

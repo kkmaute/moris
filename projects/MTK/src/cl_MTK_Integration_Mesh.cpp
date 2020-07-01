@@ -136,7 +136,7 @@ namespace moris
 
             mListOfAllSets.append( mListofSideSets );
 
-            //FIXME implement cell tpopology for side set
+            //FIXME implement cell topology for side set
 
             mListOfAllSets.append( mListofDoubleSideSets );
 

@@ -11,24 +11,25 @@ namespace moris
 {
     namespace hmr
     {
-//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
 
-        Mesh_Base::Mesh_Base ( const Parameters           * aParameters,
-                                     Background_Mesh_Base * aBackgroundMesh,
-                               const uint                 & aOrder,
-                               const uint                 & aActivationPattern ) :
-                                             mParameters( aParameters ),
-                                             mBackgroundMesh( aBackgroundMesh ),
-                                             mOrder( aOrder ),
-                                             mNumberOfDimensions( mParameters->get_number_of_dimensions() ),
-                                             mNumberOfBasisPerElement( pow( aOrder+1, mParameters->get_number_of_dimensions() ) ),
-                                             mNumberOfNeighborsPerElement( pow( 3, mParameters->get_number_of_dimensions() ) - 1 ),
-                                             mActivationPattern( aActivationPattern )
+        Mesh_Base::Mesh_Base (
+                const Parameters           * aParameters,
+                Background_Mesh_Base       * aBackgroundMesh,
+                const uint                 & aOrder,
+                const uint                 & aActivationPattern )
+        : mParameters( aParameters ),
+          mBackgroundMesh( aBackgroundMesh ),
+          mOrder( aOrder ),
+          mNumberOfDimensions( mParameters->get_number_of_dimensions() ),
+          mNumberOfBasisPerElement( pow( aOrder+1, mParameters->get_number_of_dimensions() ) ),
+          mNumberOfNeighborsPerElement( pow( 3, mParameters->get_number_of_dimensions() ) - 1 ),
+          mActivationPattern( aActivationPattern )
         {
         }
-//------------------------------------------------------------------------------
-// protected:
-// -----------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
+        // protected:
+        // -----------------------------------------------------------------------------
 
         void Mesh_Base::delete_pointers()
         {
@@ -63,7 +64,7 @@ namespace moris
             mNumberOfElements = 0;
         }
 
-// -----------------------------------------------------------------------------
+        // -----------------------------------------------------------------------------
 
         void Mesh_Base::create_elements()
         {
@@ -88,7 +89,7 @@ namespace moris
             this->collect_coarsest_elements();
         }
 
-// -----------------------------------------------------------------------------
+        // -----------------------------------------------------------------------------
 
         /**
          * collects all coarsest elements on proc including aura
@@ -118,7 +119,7 @@ namespace moris
             }
         }
 
-// -----------------------------------------------------------------------------
+        // -----------------------------------------------------------------------------
 
         void Mesh_Base::unflag_all_basis()
         {
@@ -128,7 +129,7 @@ namespace moris
             }
         }
 
-// -----------------------------------------------------------------------------
+        // -----------------------------------------------------------------------------
 
         void Mesh_Base::unuse_all_basis()
         {
@@ -138,7 +139,7 @@ namespace moris
             }
         }
 
-// -----------------------------------------------------------------------------
+        // -----------------------------------------------------------------------------
 
         /**
          * sets the flag of all nodes on proc
@@ -151,7 +152,7 @@ namespace moris
             }
         }
 
-// -----------------------------------------------------------------------------
+        // -----------------------------------------------------------------------------
 
         /**
          * Determines which nodes are connected to which element.
@@ -211,7 +212,7 @@ namespace moris
             }
         }
 
-//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
 
         void Mesh_Base::guess_basis_ownership()
         {
@@ -252,7 +253,7 @@ namespace moris
             }
         }
 
-//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
 
         void Mesh_Base::confirm_basis_ownership()
         {
@@ -298,10 +299,10 @@ namespace moris
 
                         // calculate addresses of basis to ask for
                         this->encode_foreign_basis_path( tBasisInAura,
-                                                         tNeihgborRank,
-                                                         tSendAncestor( p ),
-                                                         tSendPedigree( p ),
-                                                         tSendBasisIndex( p ) );
+                                tNeihgborRank,
+                                tSendAncestor( p ),
+                                tSendPedigree( p ),
+                                tSendBasisIndex( p ) );
                     }
                 }
 
@@ -309,9 +310,10 @@ namespace moris
                 Cell< Matrix< DDUMat > > tReceiveBasisIndex;
 
                 // communicate basis indices
-                communicate_mats( tProcNeighbors,
-                                  tSendBasisIndex,
-                                  tReceiveBasisIndex );
+                communicate_mats(
+                        tProcNeighbors,
+                        tSendBasisIndex,
+                        tReceiveBasisIndex );
 
                 // free memory
                 tSendBasisIndex.clear();
@@ -320,9 +322,10 @@ namespace moris
                 Cell< Matrix< DDLUMat > > tReceiveAncestor;
 
                 // communicate ancestor list
-                communicate_mats( tProcNeighbors,
-                                  tSendAncestor,
-                                  tReceiveAncestor );
+                communicate_mats(
+                        tProcNeighbors,
+                        tSendAncestor,
+                        tReceiveAncestor );
 
                 // free memory
                 tSendAncestor.clear();
@@ -330,9 +333,10 @@ namespace moris
                 // communicate pedigree list
                 Cell< Matrix<  DDUMat > > tReceivePedigree;
 
-                communicate_mats( tProcNeighbors,
-                                  tSendPedigree,
-                                  tReceivePedigree );
+                communicate_mats(
+                        tProcNeighbors,
+                        tSendPedigree,
+                        tReceivePedigree );
 
                 // free memory
                 tSendPedigree.clear();
@@ -357,12 +361,14 @@ namespace moris
                     {
                         // pick requested element
                         Background_Element_Base*
-                        tElement = mBackgroundMesh->decode_pedigree_path( tReceiveAncestor( p )( k ),
-                                                                          tReceivePedigree( p ),
-                                                                          tMemoryCounter );
+                        tElement = mBackgroundMesh->decode_pedigree_path(
+                                tReceiveAncestor( p )( k ),
+                                tReceivePedigree( p ),
+                                tMemoryCounter );
 
                         // pick requested basis
-                        Basis * tBasis = mAllElementsOnProc( tElement->get_memory_index() )->get_basis( tReceiveBasisIndex( p )( k ) );
+                        Basis * tBasis = mAllElementsOnProc( tElement->get_memory_index() )->
+                                get_basis( tReceiveBasisIndex( p )( k ) );
 
                         // write basis owner into send array
                         tSendOwner( p )( k ) = tBasis->get_owner();
@@ -377,9 +383,10 @@ namespace moris
                 // communicate owners
                 Cell< Matrix<  DDUMat > > tReceiveOwner;
 
-                communicate_mats( tProcNeighbors,
-                                  tSendOwner,
-                                  tReceiveOwner );
+                communicate_mats(
+                        tProcNeighbors,
+                        tSendOwner,
+                        tReceiveOwner );
 
                 // free memory
                 tSendOwner.clear();
@@ -415,11 +422,12 @@ namespace moris
             }
         }
 
-// -----------------------------------------------------------------------------
+        // -----------------------------------------------------------------------------
 
-        void Mesh_Base::collect_basis_from_aura( const uint           & aProcNeighborIndex,
-                                                 const uint           & aMode,
-                                                       Cell< Basis* > & aBasisList )
+        void Mesh_Base::collect_basis_from_aura(
+                const uint      & aProcNeighborIndex,
+                const uint      & aMode,
+                Cell< Basis* >  & aBasisList )
         {
             // clear basis list
             aBasisList.clear();
@@ -432,8 +440,8 @@ namespace moris
 
                 // get element list from background mesh
                 mBackgroundMesh->collect_active_elements_from_aura( aProcNeighborIndex,
-                                                                    aMode,
-                                                                    tBackElements );
+                        aMode,
+                        tBackElements );
 
                 // initialize basis counter
                 luint tBasisCount = 0;
@@ -502,14 +510,15 @@ namespace moris
             }
         }
 
-// -----------------------------------------------------------------------------
+        // -----------------------------------------------------------------------------
 
         void
-        Mesh_Base::encode_foreign_basis_path(       Cell< Basis* >    & aBasis,
-                                              const moris_id          & aOwner,
-                                                    Matrix< DDLUMat > & aElementAncestors,
-                                                    Matrix< DDUMat >  & aElementPedigree,
-                                                    Matrix< DDUMat >  & aElementLocalIndex )
+        Mesh_Base::encode_foreign_basis_path(
+                Cell< Basis* >    & aBasis,
+                const moris_id    & aOwner,
+                Matrix< DDLUMat > & aElementAncestors,
+                Matrix< DDUMat >  & aElementPedigree,
+                Matrix< DDUMat >  & aElementLocalIndex )
         {
             // initialize counter
             luint tCount = 0;
@@ -542,8 +551,8 @@ namespace moris
                 if ( tBasis->get_owner() == aOwner )
                 {
                     this->get_reference_element_of_basis( tBasis,
-                                                          aElementAncestors( tCount ),
-                                                          aElementLocalIndex( tCount ) );
+                            aElementAncestors( tCount ),
+                            aElementLocalIndex( tCount ) );
 
                     // increment counter
                     ++tCount;
@@ -556,8 +565,9 @@ namespace moris
             // determine memory needs for pedigree list
             for( luint k=0; k<tCount; ++k )
             {
-                tMemoryCount += mAllElementsOnProc( aElementAncestors( k ) )->get_background_element()
-                                                                            ->get_length_of_pedigree_path();
+                tMemoryCount +=
+                        mAllElementsOnProc( aElementAncestors( k ) )->
+                        get_background_element()->get_length_of_pedigree_path();
             }
 
             // allocate pedigree path
@@ -570,21 +580,24 @@ namespace moris
             for( luint k = 0; k < tCount; ++k )
             {
                 // get pointer to element
-                Background_Element_Base* tElement = mAllElementsOnProc( aElementAncestors( k ) )->get_background_element();
+                Background_Element_Base* tElement =
+                        mAllElementsOnProc( aElementAncestors( k ) )->get_background_element();
 
                 // encode path and overwrite aElementAncestor with Ancestor Index
-                tElement->endcode_pedigree_path( aElementAncestors( k ),
-                                                 aElementPedigree,
-                                                 tMemoryCount );
+                tElement->endcode_pedigree_path(
+                        aElementAncestors( k ),
+                        aElementPedigree,
+                        tMemoryCount );
             }
         }
 
-//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
 
         void
-        Mesh_Base::get_reference_element_of_basis( Basis * aBasis,
-                                                   luint & aElementMemoryIndex,
-                                                   uint  & aElementLocalBasisIndex )
+        Mesh_Base::get_reference_element_of_basis(
+                Basis * aBasis,
+                luint & aElementMemoryIndex,
+                uint  & aElementLocalBasisIndex )
         {
             // copy owner of element into temporary variable
             moris_id tOwner = aBasis->get_owner();
@@ -642,11 +655,12 @@ namespace moris
             aElementMemoryIndex = tElement->get_background_element()->get_memory_index();
         }
 
-// -----------------------------------------------------------------------------
+        // -----------------------------------------------------------------------------
 
         void
-        Mesh_Base::get_basis_coords_of_element(       Matrix< DDRMat > & aBasisCoords,
-                                                const luint            & aElementIndex )
+        Mesh_Base::get_basis_coords_of_element(
+                Matrix< DDRMat >  & aBasisCoords,
+                const luint       & aElementIndex )
         {
             // set number of basis per element
             uint tNumberOfBasisPerElement;
@@ -660,13 +674,13 @@ namespace moris
             }
             else
             { */
-                // copy all basis
-                tNumberOfBasisPerElement = mNumberOfBasisPerElement;
+            // copy all basis
+            tNumberOfBasisPerElement = mNumberOfBasisPerElement;
             //}
 
             // set size of output matrix
             aBasisCoords.set_size( tNumberOfBasisPerElement,
-                                   mNumberOfDimensions );
+                    mNumberOfDimensions );
 
             // get pointer to element
             Element* tElement = this->get_element( aElementIndex );
@@ -688,7 +702,7 @@ namespace moris
             }
         }
 
-// -----------------------------------------------------------------------------
+        // -----------------------------------------------------------------------------
 
         /*uint
         Mesh_Base::get_number_of_serendipity_basis()
@@ -730,7 +744,7 @@ namespace moris
 
         } */
 
-// -----------------------------------------------------------------------------
+        // -----------------------------------------------------------------------------
 
         void
         Mesh_Base::update_element_indices()
@@ -763,7 +777,7 @@ namespace moris
             }
         }
 
-// -----------------------------------------------------------------------------
+        // -----------------------------------------------------------------------------
 
         moris::luint Mesh_Base::get_max_basis_hmr_id()
         {
@@ -773,14 +787,12 @@ namespace moris
                 tHMRID = std::max(  tHMRID, (luint)tBasis->get_hmr_id() );
             }
 
-            luint tHMRID_return = 0;
-
-            max_all( tHMRID, tHMRID_return );
+            luint tHMRID_return = max_all( tHMRID );
 
             return tHMRID_return;
         }
 
-// -----------------------------------------------------------------------------
+        // -----------------------------------------------------------------------------
 
         void Mesh_Base::sanity_check_for_ids_and_ownership()
         {
@@ -804,7 +816,7 @@ namespace moris
 
                 if ( tIter!=tIdMap.end()  )
                 {
-                	tId = tIter->second;
+                    tId = tIter->second;
                 }
 
                 auto tIterOwner = tOwnerMap.find(Ik);
@@ -823,29 +835,28 @@ namespace moris
 
                 for( int Ii = 0; Ii < tNumProcs; Ii++ )
                 {
-                	tReciveBufferOFFSET( Ii) = Ii;
+                    tReciveBufferOFFSET( Ii) = Ii;
                 }
 
-
                 MPI_Gatherv( &tId,
-                             1,
-                             MPI_UNSIGNED_LONG,
-                             (tReciveBuffer.data()).data(),
-                             (tReciveBufferNumber.data()).data(),
-                             (tReciveBufferOFFSET.data()).data(),
-                             MPI_UNSIGNED_LONG,
-                             0,
-                             MPI_COMM_WORLD );
+                        1,
+                        MPI_UNSIGNED_LONG,
+                        (tReciveBuffer.data()).data(),
+                        (tReciveBufferNumber.data()).data(),
+                        (tReciveBufferOFFSET.data()).data(),
+                        MPI_UNSIGNED_LONG,
+                        0,
+                        MPI_COMM_WORLD );
 
                 MPI_Gatherv( &tOwner,
-                             1,
-                             MPI_INT,
-                             (tReciveBufferOwner.data()).data(),
-                             (tReciveBufferNumber.data()).data(),
-                             (tReciveBufferOFFSET.data()).data(),
-                             MPI_INT,
-                             0,
-                             MPI_COMM_WORLD );
+                        1,
+                        MPI_INT,
+                        (tReciveBufferOwner.data()).data(),
+                        (tReciveBufferNumber.data()).data(),
+                        (tReciveBufferOFFSET.data()).data(),
+                        MPI_INT,
+                        0,
+                        MPI_COMM_WORLD );
 
                 if ( par_rank() == 0 )
                 {
@@ -878,9 +889,7 @@ namespace moris
 
                     tReciveBufferOwner.resize( pos );
 
-
                     MORIS_ERROR( tReciveBufferOwner.size() <= 2, " Basis has more than one owning processor" );
-
 
                     if( tReciveBufferOwner.size() == 2 )
                     {
@@ -893,7 +902,7 @@ namespace moris
             MORIS_LOG_ERROR("Basis Id and ownership sanity check passed.");
         }
 
-// -----------------------------------------------------------------------------
+        // -----------------------------------------------------------------------------
 
     } /* namespace hmr */
 } /* namespace moris */

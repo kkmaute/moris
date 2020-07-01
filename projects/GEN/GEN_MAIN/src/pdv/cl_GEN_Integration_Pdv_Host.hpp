@@ -24,7 +24,7 @@ namespace moris
         private :
             // Identifies the host node
             uint mNodeIndex;
-            const Matrix<DDRMat>& mCoordinates;
+            Matrix<DDRMat> mCoordinates;
 
             // PDV Information
             uint mStartingGlobalIndex;
@@ -39,7 +39,7 @@ namespace moris
              * @param aStartingGlobalIndex Global index to start assigning new PDV types
              */
             Integration_Pdv_Host(uint aNodeIndex,
-                                 const Matrix<DDRMat>& aCoordinates,
+                                 Matrix<DDRMat> aCoordinates,
                                  uint aStartingGlobalIndex,
                                  std::shared_ptr<Intersection> aIntersection = nullptr);
 

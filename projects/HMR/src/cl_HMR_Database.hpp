@@ -14,9 +14,9 @@
 #include "cl_HMR_Factory.hpp"        //HMR/src
 #include "cl_HMR_Lagrange_Mesh.hpp"  //HMR/src
 #include "cl_HMR_Parameters.hpp"     //HMR/src
-#include "cl_HMR_Side_Set.hpp"      //HMR/src
+#include "cl_HMR_Side_Set.hpp"       //HMR/src
 #include "cl_HMR_T_Matrix.hpp"       //HMR/src
-#include "cl_Cell.hpp"             //CON/src
+#include "cl_Cell.hpp"               //CON/src
 #include "cl_Map.hpp"
 
 #include "cl_MTK_Side_Sets_Info.hpp"
@@ -26,481 +26,502 @@ namespace moris
 {
     namespace hmr
     {
-// -----------------------------------------------------------------------------
+        // -----------------------------------------------------------------------------
 
         class Field;
 
-// -----------------------------------------------------------------------------
+        // -----------------------------------------------------------------------------
         class Database  : public std::enable_shared_from_this< Database >
         {
-// -----------------------------------------------------------------------------
-        private:
-// -----------------------------------------------------------------------------
-            //! object containing user settings
-            Parameters *                mParameters;
+            private:
 
-            //! pointer to background mesh
-            Background_Mesh_Base*       mBackgroundMesh;
+                //! object containing user settings
+                Parameters * mParameters = nullptr;
 
-            //! cell of pointers to B-Spline meshes
-            Cell< BSpline_Mesh_Base* >  mBSplineMeshes;
+                //! pointer to background mesh
+                Background_Mesh_Base * mBackgroundMesh = nullptr;
 
-            //! cell of pointers to Lagrange meshes
-            Cell< Lagrange_Mesh_Base* > mLagrangeMeshes;
+                //! cell of pointers to B-Spline meshes
+                Cell< BSpline_Mesh_Base* > mBSplineMeshes;
 
-            //! communication table for this mesh. Created during finalize.
-            Matrix< IdMat >             mCommunicationTable;
+                //! cell of pointers to Lagrange meshes
+                Cell< Lagrange_Mesh_Base* > mLagrangeMeshes;
 
-            //! flag telling if parameter pointer is suppposed to be deleted on destruction
-            bool                        mDeleteParametersOnDestruction = false;
+                //! communication table for this mesh. Created during finalize.
+                Matrix< IdMat > mCommunicationTable;
 
-            //! Side sets for input pattern
-            //Cell< Matrix< IdMat > >   mInputSideSets;
+                //! flag telling if parameter pointer is supposed to be deleted on destruction
+                bool mDeleteParametersOnDestruction = false;
 
-            //! Side sets for output pattern
-            Cell< Side_Set > mOutputSideSets;
+                //! Side sets for input pattern
+                //Cell< Matrix< IdMat > >   mInputSideSets;
 
-            map< std::string, moris_index > mOutputSideSetMap;
+                //! Side sets for output pattern
+                Cell< Side_Set > mOutputSideSets;
 
-            bool mHaveRefinedAtLeastOneElement = false;
+                map< std::string, moris_index > mOutputSideSetMap;
 
-            //! flag telling if T-Matrices for input mesh have been calculated
-            bool mHaveInputTMatrix = false;
+                bool mHaveRefinedAtLeastOneElement = false;
 
-            // ! checks if finalize was called. Finalize should only be called once at the end of HMR
-            bool mFinalizedCalled = false;
+                //! flag telling if T-Matrices for input mesh have been calculated
+                bool mHaveInputTMatrix = false;
 
-// -----------------------------------------------------------------------------
+                // ! checks if finalize was called. Finalize should only be called once at the end of HMR
+                bool mFinalizedCalled = false;
 
+            public:
+                // -----------------------------------------------------------------------------
 
+                /**
+                 * Database constructor
+                 */
+                Database( Parameters * aParameters );
 
-// -----------------------------------------------------------------------------
-        public:
-// -----------------------------------------------------------------------------
+                // -----------------------------------------------------------------------------
 
-            /**
-             * Database constructor
-             */
-            Database( Parameters * aParameters );
+                /**
+                 * alternative constructor which loads a mesh from a h5 file
+                 */
+                Database( const std::string & aPath );
 
-// -----------------------------------------------------------------------------
+                // -----------------------------------------------------------------------------
 
-            /**
-             * alternative constructor which loads a mesh from a h5 file
-             */
-            Database( const std::string & aPath );
+                /**
+                 * alternative constructor which loads two patterns
+                 */
+                Database(
+                        const std::string & aInputPath,
+                        const std::string & aOutputPath );
 
-// -----------------------------------------------------------------------------
+                // -----------------------------------------------------------------------------
 
-            /**
-             * alternative constructor which loads two patterns
-             */
-            Database( const std::string & aInputPath,
-                      const std::string & aOutputPath );
+                /**
+                 * destructor
+                 */
+                ~Database();
 
-// -----------------------------------------------------------------------------
+                // -----------------------------------------------------------------------------
 
-            /**
-             * destructor
-             */
-            ~Database();
+                void load_pattern_from_hdf5_file(
+                        const std::string & aPath,
+                        const bool          aMode  );
 
-// -----------------------------------------------------------------------------
+                // -----------------------------------------------------------------------------
 
-            void load_pattern_from_hdf5_file( const std::string & aPath,
-                                              const bool          aMode  );
+                /**
+                 * sets the flag that the parameter object must be deleted
+                 * by the destructor
+                 */
+                void set_parameter_owning_flag();
 
-// -----------------------------------------------------------------------------
+                // -----------------------------------------------------------------------------
 
-            /**
-             * sets the flag that the parameter object must be deleted
-             * by the destructor
-             */
-            void set_parameter_owning_flag();
+                /**
+                 * creates a union of two patterns
+                 */
+                void unite_patterns(
+                        const uint & aSourceA,
+                        const uint & aSourceB,
+                        const uint & aTarget );
 
-// -----------------------------------------------------------------------------
+                // -----------------------------------------------------------------------------
 
-            /**
-             * creates a union of two patterns
-             */
-            void unite_patterns( const uint & aSourceA,
-                                 const uint & aSourceB,
-                                 const uint & aTarget );
+                /**
+                 * copies a source pattern to a target pattern
+                 */
+                void copy_pattern(
+                        const uint & aSource,
+                        const uint & aTarget );
+                // -----------------------------------------------------------------------------
 
-// -----------------------------------------------------------------------------
+                /**
+                 * runs the refinement scheme
+                 *
+                 * returns true if at least one element has been refined
+                 */
+                void perform_refinement(
+                        const uint aActivePattern,
+                        const bool aResetPattern = true );
 
-            /**
-             * copies a source pattern to a target pattern
-             */
-            void copy_pattern( const uint & aSource,
-                               const uint & aTarget );
-// -----------------------------------------------------------------------------
+                // -----------------------------------------------------------------------------
 
-            /**
-             * runs the refinement scheme
-             *
-             * returns true if at least one element has been refined
-             */
-            void perform_refinement( const uint aActivePattern,
-                                     const bool aResetPattern = true );
+                /**
+                 * aTarget must be a refined variant of aSource
+                 */
+                void interpolate_field(
+                        const uint                   & aSourcePattern,
+                        const std::shared_ptr<Field>   aSource,
+                        const uint                   & aTargetPattern,
+                        std::shared_ptr<Field>         aTarget );
 
-// -----------------------------------------------------------------------------
+                // -----------------------------------------------------------------------------
 
-            /**
-             * aTarget must be a refined variant of aSource
-             */
-            void interpolate_field( const uint                   & aSourcePattern,
-                                    const std::shared_ptr<Field>   aSource,
-                                    const uint                   & aTargetPattern,
-                                          std::shared_ptr<Field>   aTarget );
+                void change_field_order(
+                        std::shared_ptr<Field> aSource,
+                        std::shared_ptr<Field> aTarget );
 
-// -----------------------------------------------------------------------------
+                // -----------------------------------------------------------------------------
 
-            void change_field_order( std::shared_ptr<Field> aSource,
-                                     std::shared_ptr<Field> aTarget );
+                /**
+                 * Returns the pointer to a T-Matrix object.
+                 * Needed by Field constructor.
+                 */
+                T_Matrix * get_t_matrix( const uint & aLagrangeMeshIndex );
 
-// -----------------------------------------------------------------------------
+                // -----------------------------------------------------------------------------
 
-            /**
-             * Returns the pointer to a T-Matrix object.
-             * Needed by Field constructor.
-             */
-            T_Matrix * get_t_matrix( const uint & aLagrangeMeshIndex );
+                /**
+                 * returns the pointer to a Lagrange mesh, needed by interface
+                 * constructor
+                 */
+                Lagrange_Mesh_Base * get_lagrange_mesh_by_index( const uint& aIndex )
+                {
+                    return mLagrangeMeshes( aIndex );
+                }
 
-// -----------------------------------------------------------------------------
+                void add_lagrange_mesh( Lagrange_Mesh_Base * aLagrangeMesh)
+                {
+                    mLagrangeMeshes.push_back( aLagrangeMesh );
+                }
 
-            /**
-             * returns the pointer to a Lagrange mesh, needed by interface
-             * constructor
-             */
-            Lagrange_Mesh_Base * get_lagrange_mesh_by_index( const uint& aIndex )
-            {
-                return mLagrangeMeshes( aIndex );
-            }
+                // -----------------------------------------------------------------------------
 
-            void add_lagrange_mesh( Lagrange_Mesh_Base * aLagrangeMesh)
-            {
-                 mLagrangeMeshes.push_back( aLagrangeMesh );
-            }
+                /**
+                 * returns the pointer to a Bspline mesh, needed by interface
+                 * constructor
+                 */
+                BSpline_Mesh_Base * get_bspline_mesh_by_index( const uint& aIndex )
+                {
+                    return mBSplineMeshes( aIndex );
+                }
 
-// -----------------------------------------------------------------------------
+                // -----------------------------------------------------------------------------
 
-            /**
-             * returns the pointer to a Bspline mesh, needed by interface
-             * constructor
-             */
-            BSpline_Mesh_Base * get_bspline_mesh_by_index( const uint& aIndex )
-            {
-                return mBSplineMeshes( aIndex );
-            }
+                Background_Mesh_Base * get_background_mesh();
 
-// -----------------------------------------------------------------------------
+                // -----------------------------------------------------------------------------
 
-            Background_Mesh_Base * get_background_mesh();
+                Matrix< DDUMat > create_output_pattern_list();
 
-// -----------------------------------------------------------------------------
+                // -----------------------------------------------------------------------------
 
-            Matrix< DDUMat > create_output_pattern_list();
-
-// -----------------------------------------------------------------------------
-
-            /**
-             * returns the number of ( active ) elements on this proc
-             */
-            auto get_number_of_elements_on_proc()
+                /**
+                 * returns the number of ( active ) elements on this proc
+                 */
+                auto get_number_of_elements_on_proc()
                 -> decltype( mBackgroundMesh->get_number_of_active_elements_on_proc() )
-            {
-                return mBackgroundMesh->get_number_of_active_elements_on_proc();
-            }
+                {
+                    return mBackgroundMesh->get_number_of_active_elements_on_proc();
+                }
 
-// -----------------------------------------------------------------------------
+                // -----------------------------------------------------------------------------
 
-            /**
-             * returns the number of ( active ) elements on this proc
-             */
-            auto get_number_of_padding_elements_on_proc()
+                /**
+                 * returns the number of ( active ) elements on this proc
+                 */
+                auto get_number_of_padding_elements_on_proc()
                 -> decltype( mBackgroundMesh->get_number_of_padding_elements_on_proc() )
-            {
-                return mBackgroundMesh->get_number_of_padding_elements_on_proc();
-            }
+                {
+                    return mBackgroundMesh->get_number_of_padding_elements_on_proc();
+                }
 
 
-// -----------------------------------------------------------------------------
+                // -----------------------------------------------------------------------------
 
-            /**
-             * returns the number of dimensions in space
-             */
-            auto get_number_of_dimensions() const
+                /**
+                 * returns the number of dimensions in space
+                 */
+                auto get_number_of_dimensions() const
                 -> decltype( mParameters->get_number_of_dimensions() )
-            {
-                return mParameters->get_number_of_dimensions();
-            }
+                {
+                    return mParameters->get_number_of_dimensions();
+                }
 
- // -----------------------------------------------------------------------------
+                // -----------------------------------------------------------------------------
 
-            /**
-             * returns the number of Lagrange meshes
-             */
-            uint get_number_of_lagrange_meshes() const
-            {
-                return mLagrangeMeshes.size();
-            }
+                /**
+                 * returns the number of Lagrange meshes
+                 */
+                uint get_number_of_lagrange_meshes() const
+                {
+                    return mLagrangeMeshes.size();
+                }
 
-// -----------------------------------------------------------------------------
+                // -----------------------------------------------------------------------------
 
-            /**
-             * returns the number of Bspline meshes
-             */
-            uint get_number_of_bspline_meshes() const
-            {
-                return mBSplineMeshes.size();
-            }
+                /**
+                 * returns the number of Bspline meshes
+                 */
+                uint get_number_of_bspline_meshes() const
+                {
+                    return mBSplineMeshes.size();
+                }
 
-// -----------------------------------------------------------------------------
+                // -----------------------------------------------------------------------------
 
-            /**
-             * set active pattern of background mesh
-             */
-            void set_activation_pattern( const uint & aPattern )
-            {
-                mBackgroundMesh->set_activation_pattern( aPattern );
-            }
+                /**
+                 * set active pattern of background mesh
+                 */
+                void set_activation_pattern( const uint & aPattern )
+                {
+                    mBackgroundMesh->set_activation_pattern( aPattern );
+                }
 
-// -----------------------------------------------------------------------------
+                // -----------------------------------------------------------------------------
 
-            /**
-             * returns the active pattern
-             */
-            auto get_activation_pattern() const
+                /**
+                 * returns the active pattern
+                 */
+                auto get_activation_pattern() const
                 -> decltype( mBackgroundMesh->get_activation_pattern() )
-            {
-                return  mBackgroundMesh->get_activation_pattern();
-            }
-
-// -----------------------------------------------------------------------------
-
-            /**
-             * function needed for tests etc
-             */
-            void flag_element( const luint & aIndex );
-
-// -----------------------------------------------------------------------------
-
-            void flag_parent( const luint & aIndex );
-
-// -----------------------------------------------------------------------------
-
-            void create_extra_refinement_buffer_for_level( const uint aLevel );
-
-// -----------------------------------------------------------------------------
-
-            /**
-             * returns the communication table that is needed by FEM
-             */
-            const Matrix< IdMat > & get_communication_table() const
-            {
-                return mCommunicationTable;
-            }
-
-// -----------------------------------------------------------------------------
-
-            /**
-             * returns the proc neighbors for this proc
-             */
-            Matrix< IdMat > get_proc_neighbors() const
-            {
-                Matrix< IdMat > tProcNeighbors = mBackgroundMesh->get_proc_neigbors();
-
-                uint tCounter = 0;
-                for( uint Ik = 0; Ik < tProcNeighbors.numel(); Ik++)
                 {
-                    if( tProcNeighbors( Ik ) != gNoProcNeighbor )
-                    {
-                        tCounter++;
-                    }
+                    return  mBackgroundMesh->get_activation_pattern();
                 }
 
-                Matrix< IdMat > tProcNeighborsActive( tCounter, 1, gNoProcNeighbor );
+                // -----------------------------------------------------------------------------
 
-                tCounter = 0;
-                for( uint Ik = 0; Ik < tProcNeighbors.numel(); Ik++)
+                /**
+                 * function needed for tests etc
+                 */
+                void flag_element( const luint & aIndex );
+
+                // -----------------------------------------------------------------------------
+
+                void flag_parent( const luint & aIndex );
+
+                // -----------------------------------------------------------------------------
+
+                void create_extra_refinement_buffer_for_level( const uint aLevel );
+
+                // -----------------------------------------------------------------------------
+
+                /**
+                 * returns the communication table that is needed by FEM
+                 */
+                const Matrix< IdMat > & get_communication_table() const
                 {
-                    if( tProcNeighbors( Ik ) != gNoProcNeighbor )
-                    {
-                        tProcNeighborsActive( tCounter++ ) = tProcNeighbors( Ik );
-                    }
+                    return mCommunicationTable;
                 }
 
-                return tProcNeighborsActive;
-            }
+                // -----------------------------------------------------------------------------
 
-// -----------------------------------------------------------------------------
+                /**
+                 * returns the proc neighbors for this proc
+                 */
+                Matrix< IdMat > get_proc_neighbors() const
+                {
+                    Matrix< IdMat > tProcNeighbors = mBackgroundMesh->get_proc_neigbors();
 
-            /**
-             * return pointer to parameter object ( const version )
-             */
-            Parameters * get_parameters()
-            {
-                return mParameters;
-            }
+                    uint tCounter = 0;
+                    for( uint Ik = 0; Ik < tProcNeighbors.numel(); Ik++)
+                    {
+                        if( tProcNeighbors( Ik ) != gNoProcNeighbor )
+                        {
+                            tCounter++;
+                        }
+                    }
 
-// -----------------------------------------------------------------------------
+                    Matrix< IdMat > tProcNeighborsActive( tCounter, 1, gNoProcNeighbor );
 
-            /**
-             * return pointer to parameter object ( const version )
-             */
-            const Parameters * get_parameters() const
-            {
-                return mParameters;
-            }
+                    tCounter = 0;
+                    for( uint Ik = 0; Ik < tProcNeighbors.numel(); Ik++)
+                    {
+                        if( tProcNeighbors( Ik ) != gNoProcNeighbor )
+                        {
+                            tProcNeighborsActive( tCounter++ ) = tProcNeighbors( Ik );
+                        }
+                    }
 
-// -----------------------------------------------------------------------------
+                    return tProcNeighborsActive;
+                }
 
-            /**
-             * populates the member variables of the relevant nodes
-             * with their T-Matrices
-             */
-            void finalize();
+                // -----------------------------------------------------------------------------
 
-// -----------------------------------------------------------------------------
+                /**
+                 * return pointer to parameter object ( const version )
+                 */
+                Parameters * get_parameters()
+                {
+                    return mParameters;
+                }
 
-            /**
-             * needed for exodus output of cubic meshes, called by finalize
-             */
-//            void add_extra_refinement_step_for_exodus();
+                // -----------------------------------------------------------------------------
 
-// -----------------------------------------------------------------------------
+                /**
+                 * return pointer to parameter object ( const version )
+                 */
+                const Parameters * get_parameters() const
+                {
+                    return mParameters;
+                }
 
-            /**
-             *  this function updates the meshes after an refinement step
-             */
-            void update_bspline_meshes();
+                // -----------------------------------------------------------------------------
 
-            void update_bspline_meshes( const uint & aPattern );
+                /**
+                 * populates the member variables of the relevant nodes
+                 * with their T-Matrices
+                 */
+                void finalize();
 
-            void update_lagrange_meshes();
+                // -----------------------------------------------------------------------------
 
-            void update_lagrange_meshes( const uint & aPattern );
 
-// -----------------------------------------------------------------------------
+                /**
+                 * resets Lagrange and B-Spline meshes and the refinement pattern of the background mesh
+                 * Does not delete Background mesh elements. Resets teh finalize flag.
+                 */
+                void reset_refined_meshes();
 
-            /**
-             *  test that all relevant entitiy IDs are set
-             */
-            void check_entity_ids();
+                // -----------------------------------------------------------------------------
 
-// -----------------------------------------------------------------------------
+                /**
+                 * needed for exodus output of cubic meshes, called by finalize
+                 */
+                //            void add_extra_refinement_step_for_exodus();
 
-            // tells if at least one element has been refined in this database
-            bool have_refined_at_least_one_element() const
-            {
-                return mHaveRefinedAtLeastOneElement;
-            }
 
-// -----------------------------------------------------------------------------
+                // -----------------------------------------------------------------------------
 
-            /**
-             * returns a sideset based on its label
-             */
-            const Side_Set & get_output_side_set( const std::string & aLabel ) const
-            {
-                return mOutputSideSets( mOutputSideSetMap.find( aLabel ) );
-            }
+                /**
+                 *  this function updates the meshes after an refinement step
+                 */
+                void update_bspline_meshes();
 
-// -----------------------------------------------------------------------------
-            /**
-             * returns list of all side sets
-             */
-            const Cell< Side_Set > & get_side_sets() const
-            {
-                return mOutputSideSets;
-            }
+                void update_bspline_meshes( const uint & aPattern );
 
-// -----------------------------------------------------------------------------
+                void update_lagrange_meshes();
 
-            void calculate_t_matrices_for_input();
+                void update_lagrange_meshes( const uint & aPattern );
 
-// -----------------------------------------------------------------------------
+                // -----------------------------------------------------------------------------
 
-            /**
-             * creates a union mesh of the input and the output patterns
-             */
-//            void create_union_pattern()
-//            {
-//                this->unite_patterns( mParameters->get_lagrange_input_pattern(),
-//                                      mParameters->get_lagrange_output_pattern(),
-//                                      mParameters->get_union_pattern() );
-//            }
+                /**
+                 *  test that all relevant entitiy IDs are set
+                 */
+                void check_entity_ids();
 
-// -----------------------------------------------------------------------------
+                // -----------------------------------------------------------------------------
 
-            void create_union_pattern( const uint aSourceA,
-                                       const uint aSourceB,
-                                       const uint aTarget )
-            {
-                this->unite_patterns( aSourceA,
-                                      aSourceB,
-                                      aTarget );
-            }
+                // tells if at least one element has been refined in this database
+                bool have_refined_at_least_one_element() const
+                {
+                    return mHaveRefinedAtLeastOneElement;
+                }
 
-// -----------------------------------------------------------------------------
+                // -----------------------------------------------------------------------------
 
-            bool is_finalized()
-            {
-                return mFinalizedCalled;
-            }
+                /**
+                 * returns a sideset based on its label
+                 */
+                const Side_Set & get_output_side_set( const std::string & aLabel ) const
+                {
+                    return mOutputSideSets( mOutputSideSetMap.find( aLabel ) );
+                }
 
-// -----------------------------------------------------------------------------
-        private:
-// -----------------------------------------------------------------------------
+                // -----------------------------------------------------------------------------
+                /**
+                 * returns list of all side sets
+                 */
+                const Cell< Side_Set > & get_side_sets() const
+                {
+                    return mOutputSideSets;
+                }
 
-            /**
-             * this function initializes the Lagrange and B-Spline Meshes
-             * is complete
-             *
-             * @return void
-             */
-            void create_meshes();
+                // -----------------------------------------------------------------------------
 
-// -----------------------------------------------------------------------------
+                void calculate_t_matrices_for_input();
 
-            /**
-             * checks if this mesh index belongs to an output mesh
-             */
-            bool is_output_mesh( const uint aMeshIndex );
+                // -----------------------------------------------------------------------------
 
-            bool is_lagrange_input_mesh( const uint aMeshIndex );
+                /**
+                 * creates a union mesh of the input and the output patterns
+                 */
+                //            void create_union_pattern()
+                //            {
+                //                this->unite_patterns( mParameters->get_lagrange_input_pattern(),
+                //                                      mParameters->get_lagrange_output_pattern(),
+                //                                      mParameters->get_union_pattern() );
+                //            }
 
-            bool is_bspline_input_mesh( const uint aMeshIndex );
+                // -----------------------------------------------------------------------------
 
-// -----------------------------------------------------------------------------
+                void create_union_pattern(
+                        const uint aSourceA,
+                        const uint aSourceB,
+                        const uint aTarget )
+                {
+                    this->unite_patterns( aSourceA,
+                            aSourceB,
+                            aTarget );
+                }
 
-            /**
-             * this function deletes the Lagrange and B-Spline meshes
-             * the function is called before create_meshes
-             */
-            void delete_meshes();
+                // -----------------------------------------------------------------------------
 
-// -----------------------------------------------------------------------------
+                bool is_finalized()
+                {
+                    return mFinalizedCalled;
+                }
 
-            /**
-             * creates the communication table and writes it into
-             * mCommunicationTable. Must be called after mesh has been finalized.
-             */
-            void create_communication_table();
+                // -----------------------------------------------------------------------------
+            private:
+                // -----------------------------------------------------------------------------
 
-// -----------------------------------------------------------------------------
+                /**
+                 * this function initializes the Lagrange and B-Spline Meshes
+                 * is complete
+                 *
+                 * @return void
+                 */
+                void create_meshes();
 
-            /**
-             * creates the sidesets
-             */
-            void create_side_sets();
+                // -----------------------------------------------------------------------------
 
-// -----------------------------------------------------------------------------
+                /**
+                 * checks if this mesh index belongs to an output mesh
+                 */
+                bool is_output_mesh( const uint aMeshIndex );
 
-            void create_working_pattern_for_bspline_refinement();
+                bool is_lagrange_input_mesh( const uint aMeshIndex );
 
-// -----------------------------------------------------------------------------
+                bool is_bspline_input_mesh( const uint aMeshIndex );
+
+                // -----------------------------------------------------------------------------
+
+                /**
+                 * this function deletes the Lagrange and B-Spline meshes
+                 * the function is called before create_meshes
+                 */
+                void delete_meshes();
+
+                // -----------------------------------------------------------------------------
+
+                /**
+                 * creates the communication table and writes it into
+                 * mCommunicationTable. Must be called after mesh has been finalized.
+                 */
+                void create_communication_table();
+
+                // -----------------------------------------------------------------------------
+
+                /**
+                 * creates the sidesets
+                 */
+                void create_side_sets();
+
+                // -----------------------------------------------------------------------------
+
+                void create_working_pattern_for_bspline_refinement();
+
+
+                // -----------------------------------------------------------------------------
+
+                /**
+                 * free side set memory space
+                 */
+                void delete_side_sets();
+
+                // -----------------------------------------------------------------------------
+
         };
     } /* namespace hmr */
 } /* namespace moris */

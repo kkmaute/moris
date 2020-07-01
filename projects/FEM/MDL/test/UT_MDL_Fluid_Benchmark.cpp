@@ -209,7 +209,7 @@ namespace moris
         moris::ge::Geometry_Engine tGENGeometryEngine(tGeometry, tPhaseTable, 2);
 
         // Perform additional refinement
-        tGENGeometryEngine.perform_refinement(tHMR);
+        //tGENGeometryEngine.perform_refinement(tHMR);
 
         // Get interpolation mesh
         tHMR->finalize();
@@ -573,7 +573,7 @@ TEST_CASE("MDL_Fluid_Benchmark_Immersed_Inlet_Pressure","[MDL_Fluid_Benchmark_Im
         moris::ge::Geometry_Engine tGENGeometryEngine(tGeometry, tPhaseTable, 2);
 
         // Perform additional refinement
-        tGENGeometryEngine.perform_refinement(tHMR);
+        //tGENGeometryEngine.perform_refinement(tHMR);
 
         // Get interpolation mesh
         tHMR->finalize();
@@ -2259,7 +2259,7 @@ TEST_CASE("MDL_Fluid_Benchmark_Radial_Couette_Flow","[MDL_Fluid_Benchmark_Radial
         moris::ge::Geometry_Engine tGENGeometryEngine(tGeometry, tPhaseTable, 2);
 
         // Perform additional refinement
-        tGENGeometryEngine.perform_refinement(tHMR);
+        //tGENGeometryEngine.perform_refinement(tHMR);
 
         // Get interpolation mesh
         tHMR->finalize();

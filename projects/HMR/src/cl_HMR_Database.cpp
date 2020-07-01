@@ -14,9 +14,10 @@ namespace moris
 {
     namespace hmr
     {
-// -----------------------------------------------------------------------------
+        // -----------------------------------------------------------------------------
 
-        Database::Database( Parameters * aParameters ) : mParameters( aParameters )
+        Database::Database( Parameters * aParameters )
+        : mParameters( aParameters )
         {
             // lock parameters ( number of elements per direction etc )
             aParameters->lock();
@@ -45,9 +46,10 @@ namespace moris
             this->create_meshes();
         }
 
-// -----------------------------------------------------------------------------
+        // -----------------------------------------------------------------------------
 
-        Database::Database( const std::string & aPath ) : mParameters( create_hmr_parameters_from_hdf5_file( aPath ) )
+        Database::Database( const std::string & aPath )
+        : mParameters( create_hmr_parameters_from_hdf5_file( aPath ) )
         {
             // create factory
             Factory tFactory;
@@ -70,10 +72,12 @@ namespace moris
             this->set_activation_pattern( mParameters->get_lagrange_input_pattern() );
         }
 
-// -----------------------------------------------------------------------------
+        // -----------------------------------------------------------------------------
 
-        Database::Database( const std::string & aInputPath,
-                            const std::string & aOutputPath ) : mParameters( create_hmr_parameters_from_hdf5_file( aOutputPath ) )
+        Database::Database(
+                const std::string & aInputPath,
+                const std::string & aOutputPath )
+        : mParameters( create_hmr_parameters_from_hdf5_file( aOutputPath ) )
         {
             MORIS_ERROR(false, " Database(); constructor not updated yet");
             // create factory
@@ -93,7 +97,7 @@ namespace moris
             this->load_pattern_from_hdf5_file( aOutputPath, true );
 
             // create union mesh
-//            this->create_union_pattern();  // FIXME
+            //            this->create_union_pattern();  // FIXME
 
             mHaveRefinedAtLeastOneElement = true;
 
@@ -104,7 +108,7 @@ namespace moris
             this->set_activation_pattern( mParameters->get_lagrange_output_pattern() );
         }
 
-// -----------------------------------------------------------------------------
+        // -----------------------------------------------------------------------------
 
         Database::~Database()
         {
@@ -112,19 +116,25 @@ namespace moris
             this->delete_meshes();
 
             // delete Background Mesh
-            delete mBackgroundMesh;
+            if ( mBackgroundMesh != nullptr )
+            {
+                delete mBackgroundMesh;
+                mBackgroundMesh = nullptr;
+            }
 
             // delete parameters
-            if ( mDeleteParametersOnDestruction )
+            if ( mDeleteParametersOnDestruction && mParameters != nullptr )
             {
                 delete mParameters;
+                mParameters = nullptr;
             }
         }
 
-// -----------------------------------------------------------------------------
+        // -----------------------------------------------------------------------------
 
-        void Database::load_pattern_from_hdf5_file( const std::string & aPath,
-                                                    const bool          aMode )
+        void Database::load_pattern_from_hdf5_file(
+                const std::string & aPath,
+                const bool          aMode )
         {
             // create file object
             File tHDF5;
@@ -139,7 +149,7 @@ namespace moris
             tHDF5.close();
         }
 
-// -----------------------------------------------------------------------------
+        // -----------------------------------------------------------------------------
 
         /**
          * sets the flag that the parameter object must be deleted
@@ -150,57 +160,57 @@ namespace moris
             mDeleteParametersOnDestruction = true;
         }
 
-// -----------------------------------------------------------------------------
+        // -----------------------------------------------------------------------------
 
-//        void Database::create_meshes()
-//        {
-//            // delete existing meshes
-//            this->delete_meshes();
-//
-//            // create factory object
-//            Factory tFactory;
-//
-//            // create BSpline meshes
-//            uint tNumberOfBSplineMeshes = mParameters->get_number_of_bspline_meshes();
-//
-//            // assign memory for B-Spline meshes
-//            mBSplineMeshes.resize ( tNumberOfBSplineMeshes, nullptr );
-//
-//            for( uint k=0; k<tNumberOfBSplineMeshes; ++k )
-//            {
-//                mBSplineMeshes( k ) = tFactory.create_bspline_mesh( mParameters,
-//                                                                    mBackgroundMesh,
-//                                                                    mParameters->get_bspline_pattern( k ),
-//                                                                    mParameters->get_bspline_order( k ) );
-//
-//                mBSplineMeshes( k )->set_index( k );
-//            }
-//
-//            // create Lagrange meshes
-//            uint tNumberOfLagrangeMeshes = mParameters->get_number_of_lagrange_meshes();
-//
-//            // assign memory for Lagrange meshes
-//            mLagrangeMeshes.resize ( tNumberOfLagrangeMeshes, nullptr );
-//
-//            for( uint k=0; k<tNumberOfLagrangeMeshes; ++k )
-//            {
-//                mLagrangeMeshes( k ) = tFactory.create_lagrange_mesh( mParameters,
-//                                                                      mBackgroundMesh,
-//                                                                      mBSplineMeshes,
-//                                                                      mParameters->get_lagrange_pattern( k ),
-//                                                                      mParameters->get_lagrange_order( k ) );
-//
-//                mLagrangeMeshes( k )->set_index( k );
-//
-//                // link to sideset if this is an output mesh
-//                if ( mLagrangeMeshes( k )->get_activation_pattern() == mParameters->get_lagrange_output_pattern() )
-//                {
-//                    mLagrangeMeshes( k )->set_side_sets( mOutputSideSets );
-//                }
-//            }
-//        }
+        //        void Database::create_meshes()
+        //        {
+        //            // delete existing meshes
+        //            this->delete_meshes();
+        //
+        //            // create factory object
+        //            Factory tFactory;
+        //
+        //            // create BSpline meshes
+        //            uint tNumberOfBSplineMeshes = mParameters->get_number_of_bspline_meshes();
+        //
+        //            // assign memory for B-Spline meshes
+        //            mBSplineMeshes.resize ( tNumberOfBSplineMeshes, nullptr );
+        //
+        //            for( uint k=0; k<tNumberOfBSplineMeshes; ++k )
+        //            {
+        //                mBSplineMeshes( k ) = tFactory.create_bspline_mesh( mParameters,
+        //                                                                    mBackgroundMesh,
+        //                                                                    mParameters->get_bspline_pattern( k ),
+        //                                                                    mParameters->get_bspline_order( k ) );
+        //
+        //                mBSplineMeshes( k )->set_index( k );
+        //            }
+        //
+        //            // create Lagrange meshes
+        //            uint tNumberOfLagrangeMeshes = mParameters->get_number_of_lagrange_meshes();
+        //
+        //            // assign memory for Lagrange meshes
+        //            mLagrangeMeshes.resize ( tNumberOfLagrangeMeshes, nullptr );
+        //
+        //            for( uint k=0; k<tNumberOfLagrangeMeshes; ++k )
+        //            {
+        //                mLagrangeMeshes( k ) = tFactory.create_lagrange_mesh( mParameters,
+        //                                                                      mBackgroundMesh,
+        //                                                                      mBSplineMeshes,
+        //                                                                      mParameters->get_lagrange_pattern( k ),
+        //                                                                      mParameters->get_lagrange_order( k ) );
+        //
+        //                mLagrangeMeshes( k )->set_index( k );
+        //
+        //                // link to sideset if this is an output mesh
+        //                if ( mLagrangeMeshes( k )->get_activation_pattern() == mParameters->get_lagrange_output_pattern() )
+        //                {
+        //                    mLagrangeMeshes( k )->set_side_sets( mOutputSideSets );
+        //                }
+        //            }
+        //        }
 
-// -----------------------------------------------------------------------------
+        // -----------------------------------------------------------------------------
 
         void Database::create_meshes()
         {
@@ -219,9 +229,9 @@ namespace moris
             for( uint k=0; k<tNumberOfBSplineMeshes; ++k )
             {
                 mBSplineMeshes( k ) = tFactory.create_bspline_mesh( mParameters,
-                                                                    mBackgroundMesh,
-                                                                    mParameters->get_bspline_pattern( k ),
-                                                                    mParameters->get_bspline_order( k ) );
+                        mBackgroundMesh,
+                        mParameters->get_bspline_pattern( k ),
+                        mParameters->get_bspline_order( k ) );
 
                 mBSplineMeshes( k )->set_index( k );
             }
@@ -250,23 +260,25 @@ namespace moris
                     }
                 }
 
-                mLagrangeMeshes( k ) = tFactory.create_lagrange_mesh( mParameters,
-                                                                      mBackgroundMesh,
-                                                                      tBsplineMeshes,
-                                                                      mParameters->get_lagrange_pattern( k ),
-                                                                      mParameters->get_lagrange_order( k ) );
+                mLagrangeMeshes( k ) = tFactory.create_lagrange_mesh(
+                        mParameters,
+                        mBackgroundMesh,
+                        tBsplineMeshes,
+                        mParameters->get_lagrange_pattern( k ),
+                        mParameters->get_lagrange_order( k ) );
 
                 mLagrangeMeshes( k )->set_index( k );
 
                 // link to sideset if this is an output mesh
                 if ( this->is_output_mesh( k ) )
                 {
-                    mLagrangeMeshes( k )->set_side_sets( mOutputSideSets );           //FIXME make mOutputSideSets more general. Set with mesh
+                    //FIXME make mOutputSideSets more general. Set with mesh
+                    mLagrangeMeshes( k )->set_side_sets( mOutputSideSets );
                 }
             }
         }
 
-// -----------------------------------------------------------------------------
+        // -----------------------------------------------------------------------------
 
         void Database::delete_meshes()
         {
@@ -277,15 +289,19 @@ namespace moris
                 delete tMesh;
             }
 
+            mBSplineMeshes.clear();
+
             // delete all pointers
             for( auto tMesh : mLagrangeMeshes )
             {
                 // delete this mesh
                 delete tMesh;
             }
+
+            mLagrangeMeshes.clear();
         }
 
-// -----------------------------------------------------------------------------
+        // -----------------------------------------------------------------------------
 
         bool Database::is_output_mesh( const uint aMeshIndex )
         {
@@ -295,17 +311,17 @@ namespace moris
 
             for( uint k=0; k<tOutputMeshes.numel(); ++k )
             {
-                 if( aMeshIndex == tOutputMeshes( k ) )
-                 {
-                     tIsOutputMesh = true;
-                     break;
-                 }
+                if( aMeshIndex == tOutputMeshes( k ) )
+                {
+                    tIsOutputMesh = true;
+                    break;
+                }
             }
 
             return tIsOutputMesh;
         }
 
-// -----------------------------------------------------------------------------
+        // -----------------------------------------------------------------------------
 
         bool Database::is_lagrange_input_mesh( const uint aMeshIndex )
         {
@@ -315,17 +331,17 @@ namespace moris
 
             for( uint k=0; k<tLagInputMeshes.numel(); ++k )
             {
-                 if( aMeshIndex == tLagInputMeshes( k ) )
-                 {
-                     tIsLagrangeInputMesh = true;
-                     break;
-                 }
+                if( aMeshIndex == tLagInputMeshes( k ) )
+                {
+                    tIsLagrangeInputMesh = true;
+                    break;
+                }
             }
 
             return tIsLagrangeInputMesh;
         }
 
-// -----------------------------------------------------------------------------
+        // -----------------------------------------------------------------------------
 
         bool Database::is_bspline_input_mesh( const uint aMeshIndex )
         {
@@ -335,17 +351,17 @@ namespace moris
 
             for( uint k=0; k<tBSInputMeshes.numel(); ++k )
             {
-                 if( aMeshIndex == tBSInputMeshes( k ) )
-                 {
-                     tIsBsplineInputMesh = true;
-                     break;
-                 }
+                if( aMeshIndex == tBSInputMeshes( k ) )
+                {
+                    tIsBsplineInputMesh = true;
+                    break;
+                }
             }
 
             return tIsBsplineInputMesh;
         }
 
-// -----------------------------------------------------------------------------
+        // -----------------------------------------------------------------------------
 
         void Database::update_bspline_meshes()
         {
@@ -363,7 +379,7 @@ namespace moris
             mBackgroundMesh->set_activation_pattern( tActivePattern );
         }
 
-// -----------------------------------------------------------------------------
+        // -----------------------------------------------------------------------------
 
         void Database::update_bspline_meshes( const uint & aPattern )
         {
@@ -384,7 +400,7 @@ namespace moris
             mBackgroundMesh->set_activation_pattern( tActivePattern );
         }
 
-// -----------------------------------------------------------------------------
+        // -----------------------------------------------------------------------------
 
         void Database::update_lagrange_meshes()
         {
@@ -403,7 +419,7 @@ namespace moris
             mBackgroundMesh->set_activation_pattern( tActivePattern );
         }
 
-// -----------------------------------------------------------------------------
+        // -----------------------------------------------------------------------------
 
         void Database::update_lagrange_meshes( const uint & aPattern )
         {
@@ -425,11 +441,12 @@ namespace moris
             mBackgroundMesh->set_activation_pattern( tActivePattern );
         }
 
-// -----------------------------------------------------------------------------
+        // -----------------------------------------------------------------------------
 
         void Database::finalize()
         {
-            MORIS_ERROR( !mFinalizedCalled, "Database::finalize(), Finalize was called earlier. You should only call it once." );
+            MORIS_ERROR( !mFinalizedCalled,
+                    "Database::finalize(), Finalize was called earlier. You should only call it once." );
 
             // remember active pattern
             auto tActivePattern = mBackgroundMesh->get_activation_pattern();
@@ -459,12 +476,12 @@ namespace moris
             for( Lagrange_Mesh_Base * tMesh: mLagrangeMeshes )
             {
                 // fixme: check effect of this flag
-//                if ( ( ! mHaveInputTMatrix || mParameters->get_lagrange_input_pattern() != tMesh->get_activation_pattern() ) )
-//                {
-                    tMesh->calculate_node_indices();
-                    tMesh->calculate_node_sharing();
-                    tMesh->calculate_t_matrices();
-//                }
+                //                if ( ( ! mHaveInputTMatrix || mParameters->get_lagrange_input_pattern() != tMesh->get_activation_pattern() ) )
+                //                {
+                tMesh->calculate_node_indices();
+                tMesh->calculate_node_sharing();
+                tMesh->calculate_t_matrices();
+                //                }
 
                 // only needed for output mesh
                 if( this->is_output_mesh( tMesh->get_index() ) )
@@ -507,6 +524,51 @@ namespace moris
             mFinalizedCalled = true;
         }
 
+        // -----------------------------------------------------------------------------
+
+        void Database::reset_refined_meshes()
+        {
+            // remember active pattern
+            auto tActivePattern = mBackgroundMesh->get_activation_pattern();
+
+            this->delete_side_sets();
+
+//            if( mParameters->get_number_of_dimensions() == 3 )
+//            {
+//                mBackgroundMesh->delete_faces();
+//                mBackgroundMesh->delete_edges();
+//            }
+//            else
+//            {
+//                mBackgroundMesh->delete_faces();
+//            }
+//
+//            mBackgroundMesh->reset_neigbors();
+
+
+            // reset other patterns
+            for( uint k=0; k<gNumberOfPatterns; ++ k )
+            {
+                mBackgroundMesh->reset_pattern( k );
+            }
+
+            // update neighborhood tables
+            mBackgroundMesh->update_database();
+
+            // reset active pattern
+            if ( mBackgroundMesh->get_activation_pattern() != tActivePattern )
+            {
+                mBackgroundMesh->set_activation_pattern( tActivePattern );
+            }
+
+            this->create_meshes();
+
+            // set flag for input t-matrices
+            mHaveInputTMatrix = false;
+
+            mFinalizedCalled = false;
+        }
+
 // -----------------------------------------------------------------------------
 
         void Database::create_communication_table()
@@ -519,7 +581,7 @@ namespace moris
                 // in a first step, we identify all processors this proc wants
                 // to talk to
 
-                // this is a Bool-like matrix
+                // this is a Boolean-like matrix
                 Matrix< IdMat > tColumn( tParSize, 1, 0 );
 
                 // test owners of B-Splines
@@ -654,26 +716,27 @@ namespace moris
             }
         }
 
-// -----------------------------------------------------------------------------
+        // -----------------------------------------------------------------------------
 
         Background_Mesh_Base * Database::get_background_mesh()
         {
             return mBackgroundMesh;
         }
 
-// -----------------------------------------------------------------------------
+        // -----------------------------------------------------------------------------
         /**
          * creates a union of two patterns
          */
-        void Database::unite_patterns( const uint & aSourceA,
-                                       const uint & aSourceB,
-                                       const uint & aTarget )
+        void Database::unite_patterns(
+                const uint & aSourceA,
+                const uint & aSourceB,
+                const uint & aTarget )
         {
             tic tTimer;
 
             mBackgroundMesh->unite_patterns( aSourceA,
-                                             aSourceB,
-                                             aTarget );
+                    aSourceB,
+                    aTarget );
 
             // stop timer
             real tElapsedTime = tTimer.toc<moris::chronos::milliseconds>().wall;
@@ -689,67 +752,68 @@ namespace moris
             MORIS_LOG_INFO( " " );
         }
 
-// -----------------------------------------------------------------------------
+        // -----------------------------------------------------------------------------
 
         /**
          * copies a source pattern to a target pattern
          */
         void Database::copy_pattern( const uint & aSource,
-                                     const uint & aTarget )
+                const uint & aTarget )
         {
             tic tTimer;
 
             mBackgroundMesh->copy_pattern( aSource,
-                                           aTarget );
+                    aTarget );
 
-           // stop timer
-           real tElapsedTime = tTimer.toc<moris::chronos::milliseconds>().wall;
+            // stop timer
+            real tElapsedTime = tTimer.toc<moris::chronos::milliseconds>().wall;
 
-           // print output
-           MORIS_LOG_INFO("%s Copied pattern %lu to %lu.",
-                   proc_string().c_str(),
-                   ( long unsigned int ) aSource,
-                   ( long unsigned int ) aTarget);
+            // print output
+            MORIS_LOG_INFO("%s Copied pattern %lu to %lu.",
+                    proc_string().c_str(),
+                    ( long unsigned int ) aSource,
+                    ( long unsigned int ) aTarget);
 
-           MORIS_LOG_INFO( "Calculation took %5.3f seconds.",
-                   ( double ) tElapsedTime / 1000);
-           MORIS_LOG_INFO( " " );
+            MORIS_LOG_INFO( "Calculation took %5.3f seconds.",
+                    ( double ) tElapsedTime / 1000);
+            MORIS_LOG_INFO( " " );
         }
 
-// -----------------------------------------------------------------------------
+        // -----------------------------------------------------------------------------
 
-//        void Database::add_extra_refinement_step_for_exodus()
-//        {
-//            // get refined pattern
-//            auto tPattern = mParameters->get_refined_output_pattern();
-//
-//            // create refined pattern
-//            mBackgroundMesh->copy_pattern( mParameters->get_lagrange_output_pattern(),
-//                                           tPattern );
-//
-//            // activate output pattern
-//            mBackgroundMesh->set_activation_pattern( tPattern );
-//
-//            // collect all active elements on background mesh
-//            mBackgroundMesh->collect_active_elements();
-//
-//            // get number of elements
-//            luint tNumberOfElements = mBackgroundMesh->get_number_of_active_elements_on_proc();
-//
-//            // flag all active elements
-//            for( luint e = 0; e < tNumberOfElements; ++e )
-//            {
-//                mBackgroundMesh->get_element( e )->put_on_refinement_queue();
-//            }
-//
-//            // perform refinement
-//            mBackgroundMesh->perform_refinement();
-//        }
+        //        void Database::add_extra_refinement_step_for_exodus()
+        //        {
+        //            // get refined pattern
+        //            auto tPattern = mParameters->get_refined_output_pattern();
+        //
+        //            // create refined pattern
+        //            mBackgroundMesh->copy_pattern( mParameters->get_lagrange_output_pattern(),
+        //                                           tPattern );
+        //
+        //            // activate output pattern
+        //            mBackgroundMesh->set_activation_pattern( tPattern );
+        //
+        //            // collect all active elements on background mesh
+        //            mBackgroundMesh->collect_active_elements();
+        //
+        //            // get number of elements
+        //            luint tNumberOfElements = mBackgroundMesh->get_number_of_active_elements_on_proc();
+        //
+        //            // flag all active elements
+        //            for( luint e = 0; e < tNumberOfElements; ++e )
+        //            {
+        //                mBackgroundMesh->get_element( e )->put_on_refinement_queue();
+        //            }
+        //
+        //            // perform refinement
+        //            mBackgroundMesh->perform_refinement();
+        //        }
 
-// -----------------------------------------------------------------------------
+        // -----------------------------------------------------------------------------
 
-        void Database::perform_refinement( const uint aActivePattern,
-                                           const bool aResetPattern )
+        void Database::perform_refinement(
+                const uint aActivePattern,
+                const bool aResetPattern )
         {
             // flag for output
             bool tFlag = mHaveRefinedAtLeastOneElement;
@@ -758,7 +822,7 @@ namespace moris
             uint tWorkingPattern = mParameters->get_working_pattern();
 
             // minimum refinement level. Is zero by default
-//            uint tMinLevel = mParameters->get_initial_refinement();     FIXME add min refinement level
+            //            uint tMinLevel = mParameters->get_initial_refinement();     FIXME add min refinement level
             uint tMinLevel = 0;
 
             uint tMaxAllowLevel = mParameters->get_max_refinement_level();
@@ -792,7 +856,7 @@ namespace moris
                     {
                         tElement->put_on_refinement_queue();
 
-                        // update minumum level of element
+                        // update minimum level of element
                         tElement->update_min_refimenent_level( tMinLevel );
                     }
                 }
@@ -842,21 +906,22 @@ namespace moris
             mHaveRefinedAtLeastOneElement = tFlag;
         }
 
-// -----------------------------------------------------------------------------
+        // -----------------------------------------------------------------------------
 
-        // interpolate field values from source lagrange to target lagrange mesh
-        void Database::interpolate_field( const uint                   & aSourcePattern,
-                                          const std::shared_ptr<Field>   aSource,
-                                          const uint                   & aTargetPattern,
-                                                std::shared_ptr<Field>   aTarget )
+        // interpolate field values from source Lagrange to target Lagrange mesh
+        void Database::interpolate_field(
+                const uint                   & aSourcePattern,
+                const std::shared_ptr<Field>   aSource,
+                const uint                   & aTargetPattern,
+                std::shared_ptr<Field>         aTarget )
         {
             // make sure that mesh orders match
             MORIS_ERROR( aSource->get_interpolation_order() == aTarget->get_interpolation_order(),
-                                       "Database::interpolate_field: Source and Target Field must have same interpolation order" );
+                    "Database::interpolate_field: Source and Target Field must have same interpolation order" );
 
             // make sure that both fields are scalar or of equal dimension
             MORIS_ERROR( aSource->get_number_of_dimensions() == aTarget->get_number_of_dimensions(),
-                                       "Database::interpolate_field: Source and Target Field must have same dimension" );
+                    "Database::interpolate_field: Source and Target Field must have same dimension" );
 
             // get interpolation order
             uint tOrder = mtk::interpolation_order_to_uint( aSource->get_interpolation_order() );
@@ -914,8 +979,9 @@ namespace moris
             // containers for source and target data
             Matrix< DDRMat > tElementSourceData( tNumberOfNodesPerElement, aSource->get_number_of_dimensions() );
 
-            T_Matrix * tTMatrix = new T_Matrix( mParameters,
-                                                tTargetMesh );
+            T_Matrix * tTMatrix = new T_Matrix(
+                    mParameters,
+                    tTargetMesh );
 
             // loop over all elements
             for( luint e=0; e<tNumberOfElements; ++e )
@@ -923,7 +989,7 @@ namespace moris
                 // get pointer to target element
                 auto tTargetElement = tTargetMesh->get_element( e );
 
-                // get backgrund element
+                // get background element
                 auto tBackgroundElement = tTargetElement->get_background_element();
 
                 // initialize refinement Matrix
@@ -975,10 +1041,11 @@ namespace moris
             delete( tTMatrix );
         }
 
-// -----------------------------------------------------------------------------
+        // -----------------------------------------------------------------------------
 
-        void Database::change_field_order( std::shared_ptr< Field > aSource,
-                                           std::shared_ptr< Field > aTarget )
+        void Database::change_field_order(
+                std::shared_ptr< Field > aSource,
+                std::shared_ptr< Field > aTarget )
         {
             // pointer to in mesh
             Lagrange_Mesh_Base * tSourceMesh = aSource->get_mesh();
@@ -988,7 +1055,7 @@ namespace moris
 
             // make sure that meshes are compatible
             MORIS_ASSERT( tSourceMesh->get_activation_pattern() == tTargetMesh->get_activation_pattern(),
-                          "incompatible meshes in change_field_order()" );
+                    "incompatible meshes in change_field_order()" );
 
             this->set_activation_pattern( tSourceMesh->get_activation_pattern() );
 
@@ -1009,7 +1076,7 @@ namespace moris
 
             // create t-matrix object
             T_Matrix * tTMatrix = new T_Matrix( mParameters,
-                                                tSourceMesh );
+                    tSourceMesh );
 
             uint tTargetMeshOrder = tTargetMesh->get_order();
             Matrix< DDRMat > tT = tTMatrix->get_change_order_matrix( tTargetMeshOrder );
@@ -1058,7 +1125,7 @@ namespace moris
             }
         }
 
-// -----------------------------------------------------------------------------
+        // -----------------------------------------------------------------------------
 
         void Database::check_entity_ids()
         {
@@ -1121,13 +1188,11 @@ namespace moris
                     {
                         moris_id tID = tMesh->get_node_by_index( k )->get_id();
 
-//                        std::cout<<tID<<std::endl;
-
                         MORIS_ERROR( 0 < tID && tID <= tMaxID, "Database::check_entity_ids(), Invalid Node ID" );
                     }
 
                     ++tCount;
-               }
+                }
 
                 // loop over all B-Spline meshes
                 for( BSpline_Mesh_Base* tMesh : mBSplineMeshes )
@@ -1155,7 +1220,7 @@ namespace moris
             }
         }
 
-// -----------------------------------------------------------------------------
+        // -----------------------------------------------------------------------------
 
         Matrix< DDUMat > Database::create_output_pattern_list()
         {
@@ -1181,14 +1246,11 @@ namespace moris
             return tUniquePatternList;
         }
 
-// -----------------------------------------------------------------------------
+        // -----------------------------------------------------------------------------
 
-        /**
-         * creates the sidesets
-         */
         void Database::create_side_sets()
         {
-            // matrix with sidesets
+            // matrix with side sets
             const Matrix< DDUMat > & tSideSets = mParameters->get_side_sets();
 
             moris_index tNumberOfSets = tSideSets.length();
@@ -1197,7 +1259,7 @@ namespace moris
             {
                 Side_Set tEmpty;
 
-                // allocate output sideset
+                // allocate output side set
                 mOutputSideSets.resize( tNumberOfSets, tEmpty );
 
                 // get pattern number
@@ -1215,21 +1277,23 @@ namespace moris
                 }
                 mOutputSideSetMap.clear();
 
-                // create sidesets for output mesh
+                // create side sets for output mesh
                 for( moris_index s=0; s<tNumberOfSets; ++s )
                 {
                     uint tSet = tSideSets( s );
 
                     // collect elements from background mesh
                     Cell< Background_Element_Base * > tBackElements;
-                    mBackgroundMesh->collect_side_set_elements( tPatternList( 0 ),
-                                                                tSet,
-                                                                tBackElements );
+
+                    mBackgroundMesh->collect_side_set_elements(
+                            tPatternList( 0 ),
+                            tSet,
+                            tBackElements );
 
                     // get number of elements
                     uint tNumberOfElements = tBackElements.size();
 
-                    // get ref to sideset
+                    // get ref to side set
                     Side_Set & tSideSet = mOutputSideSets( s );
 
                     // create name
@@ -1276,6 +1340,17 @@ namespace moris
             }
         }
 
+        // -----------------------------------------------------------------------------
+
+        /**
+         * creates the sidesets
+         */
+        void Database::delete_side_sets()
+        {
+            mOutputSideSets.clear();
+
+            mOutputSideSetMap.clear();
+        }
 // -----------------------------------------------------------------------------
 
         void Database::calculate_t_matrices_for_input()
@@ -1316,7 +1391,7 @@ namespace moris
             }
         }
 
-// -----------------------------------------------------------------------------
+        // -----------------------------------------------------------------------------
 
         void Database::create_working_pattern_for_bspline_refinement()
         {
@@ -1326,7 +1401,7 @@ namespace moris
 
             // get active elements
             MORIS_ASSERT( mBackgroundMesh->get_activation_pattern() == mParameters->get_lagrange_output_pattern(),
-                    "Need Lagrange output pattern active in order to create bspline working pattern" );
+                    "Need Lagrange output pattern active in order to create b-spline working pattern" );
 
             // get number of active elements
             uint tNumberOfElements = mBackgroundMesh->get_number_of_active_elements_on_proc();
@@ -1360,7 +1435,7 @@ namespace moris
             }
         }
 
-// ----------------------------------------------------------------------------
+        // ----------------------------------------------------------------------------
 
         void Database::flag_element( const luint & aIndex )
         {
@@ -1376,7 +1451,7 @@ namespace moris
             mBackgroundMesh->get_element( aIndex )->set_refined_flag( mParameters->get_working_pattern() );
         }
 
-// ----------------------------------------------------------------------------
+        // ----------------------------------------------------------------------------
 
         void Database::flag_parent( const luint & aIndex )
         {
@@ -1399,7 +1474,7 @@ namespace moris
             }
         }
 
-// ----------------------------------------------------------------------------
+        // ----------------------------------------------------------------------------
 
         void Database::create_extra_refinement_buffer_for_level( const uint aLevel )
         {
@@ -1497,6 +1572,6 @@ namespace moris
             }
         }
 
-// ----------------------------------------------------------------------------
+        // ----------------------------------------------------------------------------
     } /* namespace hmr */
 } /* namespace moris */

@@ -72,6 +72,8 @@ namespace xtk
         mEnrichedIntegMesh.clear();
     }
 
+    // ----------------------------------------------------------------------------------
+
     /*
      * using the general geometry engine
      */
@@ -94,11 +96,14 @@ namespace xtk
         // flag this as a non-parameter list based run
         mParameterList.insert("has_parameter_list", false);
 
-        mBackgroundMesh.initialize_interface_node_flags(mBackgroundMesh.get_num_entities(EntityRank::NODE),mGeometryEngine->get_num_geometries());
+        mBackgroundMesh.initialize_interface_node_flags(
+                mBackgroundMesh.get_num_entities(EntityRank::NODE),
+                mGeometryEngine->get_num_geometries());
     }
 
-    Model::Model(
-            moris::ParameterList const & aParameterList )
+    // ----------------------------------------------------------------------------------
+
+    Model::Model( moris::ParameterList const & aParameterList )
     : mSameMesh(false),
       mParameterList(aParameterList),
       mModelDimension(UINT_MAX),
@@ -112,11 +117,15 @@ namespace xtk
         mParameterList.insert("has_parameter_list", true);
     }
 
+    // ----------------------------------------------------------------------------------
+
     void
     Model::set_geometry_engine(moris::ge::Geometry_Engine* aGeometryEngine)
     {
         mGeometryEngine = aGeometryEngine;
     }
+
+    // ----------------------------------------------------------------------------------
 
     void
     Model::set_mtk_background_mesh(moris::mtk::Interpolation_Mesh* aMesh)
@@ -126,11 +135,15 @@ namespace xtk
         mInitializeCalled = true;
     }
 
+    // ----------------------------------------------------------------------------------
+
     void
     Model::set_input_performer( std::shared_ptr< mtk::Mesh_Manager > aMTKPerformer )
     {
         mMTKInputPerformer = aMTKPerformer;
     }
+
+    // ----------------------------------------------------------------------------------
 
     void
     Model::set_output_performer( std::shared_ptr< mtk::Mesh_Manager > aMTKPerformer )
@@ -138,21 +151,27 @@ namespace xtk
         mMTKOutputPerformer = aMTKPerformer;
     }
 
+    // ----------------------------------------------------------------------------------
+
     void
     Model::initialize( moris::mtk::Interpolation_Mesh* aMesh )
     {
         mSameMesh           = false;
         mModelDimension     = aMesh->get_spatial_dim();
-        mCutMesh            = Cut_Mesh(this,mModelDimension),
-                mEnrichment         = nullptr;
+        mCutMesh            = Cut_Mesh(this,mModelDimension);
+        mEnrichment         = nullptr;
         mGhostStabilization = nullptr;
         mEnrichedInterpMesh = Cell<Enriched_Interpolation_Mesh*>(0, nullptr);
         mEnrichedIntegMesh  = Cell<Enriched_Integration_Mesh*>(0, nullptr);
         mConvertedToTet10s  = false;
 
         mBackgroundMesh = Background_Mesh(aMesh,mGeometryEngine);
-        mBackgroundMesh.initialize_interface_node_flags(mBackgroundMesh.get_num_entities(EntityRank::NODE),mGeometryEngine->get_num_geometries());
+        mBackgroundMesh.initialize_interface_node_flags(
+                mBackgroundMesh.get_num_entities(EntityRank::NODE),
+                mGeometryEngine->get_num_geometries());
     }
+
+    // ----------------------------------------------------------------------------------
 
     void
     Model::perform()
@@ -201,7 +220,6 @@ namespace xtk
                     }
                 }
             }
-
         }
 
         if(mParameterList.get<bool>("ghost_stab"))
@@ -209,12 +227,12 @@ namespace xtk
             this->construct_face_oriented_ghost_penalization_cells();
 
             if( mParameterList.get<bool>("exodus_output_XTK_ghost_mesh") )
-
+            {
                 for(moris::moris_index i = 0; i < (moris_index)mGeometryEngine->get_num_bulk_phase(); i++)
                 {
                     mGhostStabilization->visualize_ghost_on_mesh(i);
                 }
-
+            }
         }
 
         if( mParameterList.get<bool>("multigrid") )
@@ -248,11 +266,15 @@ namespace xtk
         }
     }
 
+    // ----------------------------------------------------------------------------------
+
     bool
     Model::has_parameter_list()
     {
         return mParameterList.get<bool>("has_parameter_list");
     }
+
+    // ----------------------------------------------------------------------------------
 
     bool
     Model::valid_parameters()
@@ -280,11 +302,12 @@ namespace xtk
         return true;
     }
 
+    // ----------------------------------------------------------------------------------
+
     Cell<enum Subdivision_Method>
     Model::get_subdivision_methods()
     {
         MORIS_ASSERT(this->has_parameter_list(),"Perform can only be called on a parameter list based XTK");
-
 
         moris::uint       tSpatialDimension = this->get_spatial_dim();
         enum CellTopology tBGCellTopo       = mBackgroundMesh.get_parent_cell_topology();
@@ -304,7 +327,6 @@ namespace xtk
         {
             MORIS_ERROR(0,"Invalid decomposition_type provided. Recognized Options: Conformal and Nonconformal");
         }
-
 
         if(tSpatialDimension == 2 )
         {
@@ -340,7 +362,6 @@ namespace xtk
         MORIS_ERROR(0,"Failed determining subdivision methods");
 
         return Cell<enum Subdivision_Method>(0);
-
     }
 
     // ----------------------------------------------------------------------------------
@@ -390,8 +411,11 @@ namespace xtk
                 // print timing
                 if(moris::par_rank() == 0 && mVerbose)
                 {
-                    std::cout<<"XTK: Decomposition "<<get_enum_str(aMethods(iDecomp))<<" for geometry "<<iGeom<< " completed in " <<(std::clock() - start) / (double)(CLOCKS_PER_SEC)<<" s."<<std::endl;
-                    std::cout<<"XTK: Decomposition "<<get_enum_str(aMethods(iDecomp))<<" for geometry "<<iGeom<< " had "<<  tActiveChildMeshIndices.numel()<<" intersected background elements."<<std::endl;
+                    std::cout<<"XTK: Decomposition "<<get_enum_str(aMethods(iDecomp))<<
+                            " for geometry "<<iGeom<< " completed in " <<(std::clock() - start) / (double)(CLOCKS_PER_SEC)<<" s."<<std::endl;
+
+                    std::cout<<"XTK: Decomposition "<<get_enum_str(aMethods(iDecomp))<<
+                            " for geometry "<<iGeom<< " had "<<  tActiveChildMeshIndices.numel()<<" intersected background elements."<<std::endl;
                 }
             }
             // If it's not the last geometry tell the geometry engine we're moving on
@@ -411,6 +435,8 @@ namespace xtk
         }
     }
 
+    // ----------------------------------------------------------------------------------
+
     void
     Model::decompose_internal(
             enum Subdivision_Method    const & aSubdivisionMethod,
@@ -419,6 +445,7 @@ namespace xtk
             bool const &                       aFirstSubdivision,
             bool const &                       aSetIds)
     {
+        // FIXME" Keenan the code below needs to be modularized; each subdevision should be its own routine
         switch (aSubdivisionMethod)
         {
             case Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8:
@@ -629,7 +656,8 @@ namespace xtk
                             // Compute new node parametric coordinate with respect to the current parent element
                             tEdgeNodeParamCoordinates.set_row(0, tChildMesh.get_parametric_coordinates(tEdgeNodes(0)));
                             tEdgeNodeParamCoordinates.set_row(1, tChildMesh.get_parametric_coordinates(tEdgeNodes(1)));
-                            moris::Matrix< moris::DDRMat > tParametricCoordsRelativeToParentElem = Interpolation::linear_interpolation_location(tEdgeNodeParamCoordinates,tLocalCoordRelativeToEdge);
+                            moris::Matrix< moris::DDRMat > tParametricCoordsRelativeToParentElem =
+                                    Interpolation::linear_interpolation_location(tEdgeNodeParamCoordinates,tLocalCoordRelativeToEdge);
 
                             // Parent edge information
                             moris::size_t      tParentRank  = tEdgeParentRanks(0, tEdgeInd);
@@ -716,18 +744,18 @@ namespace xtk
                 {
                     mBackgroundMesh.mark_node_as_interface_node(tDecompData.tNewNodeIndex(i),tGeomIndex);
 
-                // determine if this vertex is on other interfaces
-                for(moris::uint j = 0; j < mGeometryEngine->get_num_geometries(); j++)
-                {
-                    moris::real const & tPhaseVal = mGeometryEngine->get_geometry_field_value(tDecompData.tNewNodeIndex(i),
-                                                                                              tDecompData.tNewNodeCoordinate(i),
-                                                                                              j);
-                    if(moris::equal_to(0.0,tPhaseVal))
+                    // determine if this vertex is on other interfaces
+                    for(moris::uint j = 0; j < mGeometryEngine->get_num_geometries(); j++)
                     {
-                        mBackgroundMesh.mark_node_as_interface_node(tDecompData.tNewNodeIndex(i),j);
+                        moris::real const & tPhaseVal = mGeometryEngine->get_geometry_field_value(tDecompData.tNewNodeIndex(i),
+                                tDecompData.tNewNodeCoordinate(i),
+                                j);
+                        if(moris::equal_to(0.0,tPhaseVal))
+                        {
+                            mBackgroundMesh.mark_node_as_interface_node(tDecompData.tNewNodeIndex(i),j);
+                        }
                     }
                 }
-            }
 
                 // Set Node Ids and tell the child mesh to update
                 for (moris::size_t j = 0; j < aActiveChildMeshIndices.n_cols(); j++)
@@ -846,7 +874,9 @@ namespace xtk
                             // Compute new node parametric coordinate with respect to the current parent element
                             tEdgeNodeParamCoordinates.set_row(0, tChildMesh.get_parametric_coordinates(tEdgeNodes(0)));
                             tEdgeNodeParamCoordinates.set_row(1, tChildMesh.get_parametric_coordinates(tEdgeNodes(1)));
-                            moris::Matrix< moris::DDRMat > tParametricCoordsRelativeToParentElem = Interpolation::linear_interpolation_location(tEdgeNodeParamCoordinates,tLocalCoordRelativeToEdge);
+
+                            moris::Matrix< moris::DDRMat > tParametricCoordsRelativeToParentElem =
+                                    Interpolation::linear_interpolation_location(tEdgeNodeParamCoordinates,tLocalCoordRelativeToEdge);
 
                             // Parent edge information
                             moris::size_t      tParentRank  = tEdgeParentRanks(0, tEdgeInd);
@@ -854,7 +884,6 @@ namespace xtk
 
                             // get the owning processor for an entity
                             moris::moris_index tOwningProc = tMeshData.get_entity_owner(tParentIndex, (enum EntityRank)tParentRank);
-
 
                             // Convert to global id using mesh
                             tEdgeNodes(0, 0) = mBackgroundMesh.get_glb_entity_id_from_entity_loc_index(tEdgeNodes(0, 0), EntityRank::NODE);
@@ -874,12 +903,18 @@ namespace xtk
                             // TODO: ADD OVERFLOW CHECK IN CANTOR PAIRING!!!!!!
                             moris::moris_index tSecondaryId = xtk::cantor_pairing(tEdgeNodes(0, 0),tEdgeNodes(0, 1));
                             moris_index tNewNodeIndexInSubdivision = MORIS_INDEX_MAX;
-                            bool tRequestExist = tDecompData.request_exists(tParentIndex,tSecondaryId,(enum EntityRank)tParentRank,tNewNodeIndexInSubdivision);
+
+                            bool tRequestExist = tDecompData.request_exists(
+                                    tParentIndex,
+                                    tSecondaryId,
+                                    (enum EntityRank)tParentRank,
+                                    tNewNodeIndexInSubdivision);
 
                             // location for this face in the map
                             if(!tRequestExist)
                             {
-                                tNewNodeIndexInSubdivision = tDecompData.register_new_request(tParentIndex,
+                                tNewNodeIndexInSubdivision = tDecompData.register_new_request(
+                                        tParentIndex,
                                         tSecondaryId,
                                         tOwningProc,
                                         (enum EntityRank)tParentRank,
@@ -932,8 +967,8 @@ namespace xtk
                     for(moris::uint j = 0; j < mGeometryEngine->get_num_geometries(); j++)
                     {
                         moris::real const & tPhaseVal = mGeometryEngine->get_geometry_field_value(tDecompData.tNewNodeIndex(i),
-                                                                                                  tDecompData.tNewNodeCoordinate(i),
-                                                                                                  j);
+                                tDecompData.tNewNodeCoordinate(i),
+                                j);
                         if(moris::equal_to(0.0,tPhaseVal))
                         {
                             mBackgroundMesh.mark_node_as_interface_node(tDecompData.tNewNodeIndex(i),j);
@@ -944,8 +979,11 @@ namespace xtk
                 // Set Node Ids and tell the child mesh to update
                 for (moris::size_t j = 0; j < aActiveChildMeshIndices.n_cols(); j++)
                 {
-                    moris::Matrix< moris::IndexMat > const & tNodeIndices = mCutMesh.get_node_indices(aActiveChildMeshIndices(0,j));
-                    moris::Matrix< moris::IdMat > tNodeIds = mBackgroundMesh.get_glb_entity_id_from_entity_loc_index_range(tNodeIndices, EntityRank::NODE);
+                    moris::Matrix< moris::IndexMat > const & tNodeIndices =
+                            mCutMesh.get_node_indices(aActiveChildMeshIndices(0,j));
+
+                    moris::Matrix< moris::IdMat > tNodeIds =
+                            mBackgroundMesh.get_glb_entity_id_from_entity_loc_index_range(tNodeIndices, EntityRank::NODE);
 
                     mCutMesh.set_node_ids(aActiveChildMeshIndices(0,j), tNodeIds);
                     mCutMesh.modify_templated_mesh(aActiveChildMeshIndices(0,j), TemplateType::CONFORMAL_TRI3);
@@ -960,6 +998,8 @@ namespace xtk
             }
         }
     }
+
+    // ----------------------------------------------------------------------------------
 
     void
     Model::decompose_internal_reg_sub_hex8_make_requests(
@@ -1008,7 +1048,11 @@ namespace xtk
                 moris::moris_index tElemInd = mCutMesh.get_parent_element_index(aActiveChildMeshIndices(0,i));
 
                 // Get local index of faces connected to element using local element index
-                moris::Matrix<moris::IndexMat> tFaceIndices = tXTKMeshData.get_entity_connected_to_entity_loc_inds(tElemInd, moris::EntityRank::ELEMENT, moris::EntityRank::FACE);
+                moris::Matrix<moris::IndexMat> tFaceIndices =
+                        tXTKMeshData.get_entity_connected_to_entity_loc_inds(
+                                tElemInd,
+                                moris::EntityRank::ELEMENT,
+                                moris::EntityRank::FACE);
 
                 // Loop over faces (6 in a hex 8) and set a node request.
                 // Request will return a pointer to where the created node index will be placed
@@ -1021,17 +1065,24 @@ namespace xtk
                     if(!tRequestExists)
                     {
                         // node indices attached to face fi
-                        moris::Matrix<moris::IndexMat> tFaceNodes = tXTKMeshData.get_entity_connected_to_entity_loc_inds(tFaceIndices(fi), moris::EntityRank::FACE, moris::EntityRank::NODE);
+                        moris::Matrix<moris::IndexMat> tFaceNodes = tXTKMeshData.get_entity_connected_to_entity_loc_inds(
+                                tFaceIndices(fi),
+                                moris::EntityRank::FACE,
+                                moris::EntityRank::NODE);
 
                         // face owner
                         moris::moris_index tOwningProc = tMeshData.get_entity_owner(tFaceIndices(fi), EntityRank::FACE);
 
                         // coordinates of nodes attached to the nodes of this face
-                        moris::Matrix<moris::DDRMat> tCoordinates = mBackgroundMesh.get_selected_node_coordinates_loc_inds(tFaceNodes);
+                        moris::Matrix<moris::DDRMat> tCoordinates =
+                                mBackgroundMesh.get_selected_node_coordinates_loc_inds(tFaceNodes);
 
                         // bilinearly interpolate to the center of this face fi
                         moris::Matrix<moris::DDRMat> tNewNodeCoordinates;
-                        xtk::Interpolation::bilinear_interpolation(tCoordinates, tParamCoordsRelativeToFace.get_row(fi),tNewNodeCoordinates);
+                        xtk::Interpolation::bilinear_interpolation(
+                                tCoordinates,
+                                tParamCoordsRelativeToFace.get_row(fi),
+                                tNewNodeCoordinates);
 
                         // location for this face in the map
                         moris_index tNewNodeIndexInSubdivision = tDecompData.register_new_request(
@@ -1058,7 +1109,11 @@ namespace xtk
                         moris::uint tNewNodeIndexInSubdivision = tRequestLoc;
 
                         // node indices attached to face fi
-                        moris::Matrix<moris::IndexMat> tFaceNodes = tXTKMeshData.get_entity_connected_to_entity_loc_inds(tFaceIndices(fi), moris::EntityRank::FACE, moris::EntityRank::NODE);
+                        moris::Matrix<moris::IndexMat> tFaceNodes =
+                                tXTKMeshData.get_entity_connected_to_entity_loc_inds(
+                                        tFaceIndices(fi),
+                                        moris::EntityRank::FACE,
+                                        moris::EntityRank::NODE);
 
                         // coordinates of nodes attached to the nodes of this face
                         moris::Matrix<moris::DDRMat> tCoordinates = mBackgroundMesh.get_selected_node_coordinates_loc_inds(tFaceNodes);
@@ -1077,7 +1132,11 @@ namespace xtk
 
                 // Place node at center of element
                 // get the nodes attached to the element
-                moris::Matrix<moris::IndexMat>tElementNodes = tXTKMeshData.get_entity_connected_to_entity_loc_inds(tElemInd, moris::EntityRank::ELEMENT, moris::EntityRank::NODE);
+                moris::Matrix<moris::IndexMat>tElementNodes =
+                        tXTKMeshData.get_entity_connected_to_entity_loc_inds(
+                                tElemInd,
+                                moris::EntityRank::ELEMENT,
+                                moris::EntityRank::NODE);
 
                 // coordinates of nodes attached to element
                 moris::Matrix<moris::DDRMat> tCoordinates = mBackgroundMesh.get_selected_node_coordinates_loc_inds(tElementNodes);
@@ -1093,7 +1152,8 @@ namespace xtk
                 // owner of element
                 moris::moris_index tOwningProc = tMeshData.get_entity_owner(tElemInd, EntityRank::ELEMENT);
 
-                MORIS_ASSERT(!tDecompData.request_exists(tElemInd,EntityRank::ELEMENT,tNewNodeIndexInSubdivision),"All element requests should be unique, therefore tNewRequest is expected to be true here");
+                MORIS_ASSERT(!tDecompData.request_exists(tElemInd,EntityRank::ELEMENT,tNewNodeIndexInSubdivision),
+                        "All element requests should be unique, therefore tNewRequest is expected to be true here");
 
                 tNewNodeIndexInSubdivision = tDecompData.register_new_request(
                         tElemInd,
@@ -1109,6 +1169,8 @@ namespace xtk
             }
         }
     }
+
+    // ----------------------------------------------------------------------------------
 
     void
     Model::decompose_internal_reg_sub_quad4_make_requests(
@@ -1142,10 +1204,15 @@ namespace xtk
 
                 // Place node at center of element
                 // get the nodes attached to the element
-                moris::Matrix<moris::IndexMat>tElementNodes = tXTKMeshData.get_entity_connected_to_entity_loc_inds(tElemInd, moris::EntityRank::ELEMENT, moris::EntityRank::NODE);
+                moris::Matrix<moris::IndexMat>tElementNodes =
+                        tXTKMeshData.get_entity_connected_to_entity_loc_inds(
+                                tElemInd,
+                                moris::EntityRank::ELEMENT,
+                                moris::EntityRank::NODE);
 
                 // coordinates of nodes attached to element
-                moris::Matrix<moris::DDRMat> tCoordinates = mBackgroundMesh.get_selected_node_coordinates_loc_inds(tElementNodes);
+                moris::Matrix<moris::DDRMat> tCoordinates =
+                        mBackgroundMesh.get_selected_node_coordinates_loc_inds(tElementNodes);
 
                 // trilinearly interpolate to the center of the element
                 moris::Matrix<moris::DDRMat> tNewNodeCoordinates;
@@ -1175,6 +1242,8 @@ namespace xtk
             }
         }
     }
+
+    // ----------------------------------------------------------------------------------
 
     void
     Model::decompose_internal_set_new_nodes_in_child_mesh_reg_sub(
@@ -1231,6 +1300,8 @@ namespace xtk
         }
     }
 
+    // ----------------------------------------------------------------------------------
+
     void
     Model::decompose_internal_set_new_nodes_in_child_mesh_nh(
             moris::Matrix< moris::IndexMat > & aActiveChildMeshIndices,
@@ -1276,6 +1347,8 @@ namespace xtk
 
             moris::size_t tDimParamCoord = 0;
 
+            // FIXME: Keenan - should be converted into switch statement if possible
+
             if(tBackgroundTopo == CellTopology::HEX8)
             {
                 tDimParamCoord =3;
@@ -1307,16 +1380,21 @@ namespace xtk
         }
     }
 
-void
-Model::create_new_node_association_with_geometry(Decomposition_Data & tDecompData)
-{
-    // create geometry objects for each node
-    mGeometryEngine->create_new_node_geometry_objects(tDecompData.tNewNodeIndex,
-                                                      tDecompData.mConformalDecomp,
-                                                      tDecompData.tNewNodeParentTopology,
-                                                      tDecompData.tParamCoordRelativeToParent,
-                                                      mBackgroundMesh.get_all_node_coordinates_loc_inds());
-}
+    // ----------------------------------------------------------------------------------
+
+    void
+    Model::create_new_node_association_with_geometry(Decomposition_Data & tDecompData)
+    {
+        // create geometry objects for each node
+        mGeometryEngine->create_new_node_geometry_objects(
+                tDecompData.tNewNodeIndex,
+                tDecompData.mConformalDecomp,
+                tDecompData.tNewNodeParentTopology,
+                tDecompData.tParamCoordRelativeToParent,
+                mBackgroundMesh.get_all_node_coordinates_loc_inds());
+    }
+
+    // ----------------------------------------------------------------------------------
 
     void
     Model::assign_node_requests_identifiers(
@@ -1384,9 +1462,11 @@ Model::create_new_node_association_with_geometry(Decomposition_Data & tDecompDat
         barrier();
     }
 
+    // ----------------------------------------------------------------------------------
 
     void
-    Model::sort_new_node_requests_by_owned_and_not_owned(Decomposition_Data                    & tDecompData,
+    Model::sort_new_node_requests_by_owned_and_not_owned(
+            Decomposition_Data                    & tDecompData,
             Cell<uint>                            & aOwnedRequests,
             Cell<Cell<uint>>                      & aNotOwnedRequests,
             Cell<uint>                            & aProcRanks,
@@ -1437,6 +1517,8 @@ Model::create_new_node_association_with_geometry(Decomposition_Data & tDecompDat
         }
     }
 
+    // ----------------------------------------------------------------------------------
+
     void
     Model::assign_owned_request_identifiers(
             Decomposition_Data & aDecompData,
@@ -1460,6 +1542,8 @@ Model::create_new_node_association_with_geometry(Decomposition_Data & tDecompDat
             aDecompData.mNumNewNodesWithIds++;
         }
     }
+
+    // ----------------------------------------------------------------------------------
 
     void
     Model::setup_outward_requests(
@@ -1512,6 +1596,8 @@ Model::create_new_node_association_with_geometry(Decomposition_Data & tDecompDat
         }
     }
 
+    // ----------------------------------------------------------------------------------
+
     bool
     Model::verify_successful_node_assignment(Decomposition_Data & aDecompData)
     {
@@ -1525,6 +1611,8 @@ Model::create_new_node_association_with_geometry(Decomposition_Data & tDecompDat
 
         return true;
     }
+
+    // ----------------------------------------------------------------------------------
 
     void
     Model::send_outward_requests(
@@ -1541,6 +1629,8 @@ Model::create_new_node_association_with_geometry(Decomposition_Data & tDecompDat
             tRequests(i) = nonblocking_send(aOutwardRequests(i),aOutwardRequests(i).n_rows(),aOutwardRequests(i).n_cols(),aProcRanks(i),aMPITag);
         }
     }
+
+    // ----------------------------------------------------------------------------------
 
     void
     Model::inward_receive_requests(
@@ -1565,6 +1655,8 @@ Model::create_new_node_association_with_geometry(Decomposition_Data & tDecompDat
         }
     }
 
+    // ----------------------------------------------------------------------------------
+
     void
     Model::inward_receive_request_answers(
             moris_index            const & aMPITag,
@@ -1586,6 +1678,8 @@ Model::create_new_node_association_with_geometry(Decomposition_Data & tDecompDat
             receive(aReceivedRequestAnswers(i),aNumRows, aProcRanks(i),aMPITag);
         }
     }
+
+    // ----------------------------------------------------------------------------------
 
     void
     Model::handle_received_request_answers(
@@ -1668,6 +1762,8 @@ Model::create_new_node_association_with_geometry(Decomposition_Data & tDecompDat
         }
     }
 
+    // ----------------------------------------------------------------------------------
+
     void
     Model::send_outward_requests_reals(
             moris_index const    & aMPITag,
@@ -1681,6 +1777,8 @@ Model::create_new_node_association_with_geometry(Decomposition_Data & tDecompDat
         }
     }
 
+    // ----------------------------------------------------------------------------------
+
     void
     Model::inward_receive_requests_reals(
             moris_index const &    aMPITag,
@@ -1688,32 +1786,32 @@ Model::create_new_node_association_with_geometry(Decomposition_Data & tDecompDat
             Cell<Matrix<DDRMat>> & aReceivedData,
             Cell<uint>           & aProcRanksReceivedFrom)
     {
+        moris::moris_index tParRank = par_rank();
+        moris::uint tCount = 0;
+        MPI_Status tStatus;
+        for(moris::uint i = 0; i<(moris::uint)par_size(); i++)
         {
-            moris::moris_index tParRank = par_rank();
-            moris::uint tCount = 0;
-            MPI_Status tStatus;
-            for(moris::uint i = 0; i<(moris::uint)par_size(); i++)
+            if((moris_index)i != tParRank)
             {
-                if((moris_index)i != tParRank)
+                // if there is a sent message from a processor go receive it
+                if(sent_message_exists(i,aMPITag,tStatus))
                 {
-                    // if there is a sent message from a processor go receive it
-                    if(sent_message_exists(i,aMPITag,tStatus))
-                    {
-                        aReceivedData.push_back(Matrix<DDRMat>(1,1));
-                        aProcRanksReceivedFrom.push_back(i);
-                        receive(aReceivedData(tCount),aNumRows, i,aMPITag);
-                        tCount++;
-                    }
+                    aReceivedData.push_back(Matrix<DDRMat>(1,1));
+                    aProcRanksReceivedFrom.push_back(i);
+                    receive(aReceivedData(tCount),aNumRows, i,aMPITag);
+                    tCount++;
                 }
             }
         }
     }
 
+    // ----------------------------------------------------------------------------------
+
     void
     Model::return_request_answers_reals(
-            moris_index const & aMPITag,
+            moris_index          const & aMPITag,
             Cell<Matrix<DDRMat>> const & aRequestAnswers,
-            Cell<uint>              const & aProcRanks)
+            Cell<uint>           const & aProcRanks)
     {
         // iterate through owned requests and send
         for(moris::uint i = 0; i < aProcRanks.size(); i++)
@@ -1721,6 +1819,8 @@ Model::create_new_node_association_with_geometry(Decomposition_Data & tDecompDat
             nonblocking_send(aRequestAnswers(i),aRequestAnswers(i).n_rows(),aRequestAnswers(i).n_cols(),aProcRanks(i),aMPITag);
         }
     }
+
+    // ----------------------------------------------------------------------------------
 
     void
     Model::inward_receive_request_answers_reals(
@@ -1735,6 +1835,8 @@ Model::create_new_node_association_with_geometry(Decomposition_Data & tDecompDat
             receive(aReceivedData(i),aNumRows, aProcRanks(i),aMPITag);
         }
     }
+
+    // ----------------------------------------------------------------------------------
 
     void
     Model::prepare_request_answers(
@@ -1797,6 +1899,8 @@ Model::create_new_node_association_with_geometry(Decomposition_Data & tDecompDat
         }
     }
 
+    // ----------------------------------------------------------------------------------
+
     void
     Model::return_request_answers(
             moris_index            const & aMPITag,
@@ -1812,6 +1916,8 @@ Model::create_new_node_association_with_geometry(Decomposition_Data & tDecompDat
             nonblocking_send(aRequestAnswers(i),aRequestAnswers(i).n_rows(),aRequestAnswers(i).n_cols(),tCommTable(i),aMPITag);
         }
     }
+
+    // ----------------------------------------------------------------------------------
 
     void
     Model::finalize_decomp_in_xtk_mesh(bool aSetPhase)
@@ -1854,6 +1960,8 @@ Model::create_new_node_association_with_geometry(Decomposition_Data & tDecompDat
         // setup global to local subphase map
         this->setup_glob_to_loc_subphase_map();
     }
+
+    // ----------------------------------------------------------------------------------
 
     void
     Model::assign_child_element_identifiers()
@@ -1928,8 +2036,11 @@ Model::create_new_node_association_with_geometry(Decomposition_Data & tDecompDat
         barrier();
     }
 
+    // ----------------------------------------------------------------------------------
+
     void
-    Model::prepare_child_element_identifier_requests(Cell<Cell<moris_id>>       & aNotOwnedChildMeshesToProcs,
+    Model::prepare_child_element_identifier_requests(
+            Cell<Cell<moris_id>>       & aNotOwnedChildMeshesToProcs,
             Cell<moris::Matrix<IdMat>> & aOwnedParentCellId,
             Cell<moris::Matrix<IdMat>> & aNumOwnedCellIdsOffsets,
             Cell<uint>                 & aProcRanks,
@@ -1995,12 +2106,15 @@ Model::create_new_node_association_with_geometry(Decomposition_Data & tDecompDat
         }
     }
 
+    // ----------------------------------------------------------------------------------
+
     void
     Model::prepare_child_cell_id_answers(Cell<Matrix<IndexMat>> & aReceivedParentCellIds,
             Cell<Matrix<IndexMat>> & aReceivedParentCellNumChildren,
             Cell<Matrix<IndexMat>> & aChildCellIdOffset)
     {
-        MORIS_ASSERT(aReceivedParentCellIds.size() == aReceivedParentCellNumChildren.size(),"Mismatch in received parent cell ids and received parent cell number of children");
+        MORIS_ASSERT(aReceivedParentCellIds.size() == aReceivedParentCellNumChildren.size(),
+                "Mismatch in received parent cell ids and received parent cell number of children");
 
         // allocate answer size
         aChildCellIdOffset.resize(aReceivedParentCellIds.size());
@@ -2022,14 +2136,19 @@ Model::create_new_node_association_with_geometry(Decomposition_Data & tDecompDat
                     moris_index tParentCellIndex = mBackgroundMesh.get_mesh_data().get_loc_entity_ind_from_entity_glb_id(tParentId,EntityRank::ELEMENT);
 
                     // get child mesh
-                    MORIS_ASSERT(mBackgroundMesh.entity_has_children(tParentCellIndex,EntityRank::ELEMENT),"Request is made for child element ids on a parent cell not intersected");
+                    MORIS_ASSERT(mBackgroundMesh.entity_has_children(tParentCellIndex,EntityRank::ELEMENT),
+                            "Request is made for child element ids on a parent cell not intersected");
+
                     moris_index tCMIndex = mBackgroundMesh.child_mesh_index(tParentCellIndex,EntityRank::ELEMENT);
+
                     Child_Mesh & tCM = mCutMesh.get_child_mesh(tCMIndex);
 
-                    MORIS_ASSERT(par_rank() == mBackgroundMesh.get_mesh_data().get_entity_owner(tParentCellIndex,EntityRank::ELEMENT),"I dont own this entity that had info requestsed.");
+                    MORIS_ASSERT(par_rank() == mBackgroundMesh.get_mesh_data().get_entity_owner(tParentCellIndex,EntityRank::ELEMENT),
+                            "I dont own this entity that had info requestsed.");
 
                     // place in return data
-                    MORIS_ASSERT(tCM.get_num_entities(EntityRank::ELEMENT) == (uint)aReceivedParentCellNumChildren(i)(j),"Number of child cells in child mesh do not match number on other processor");
+                    MORIS_ASSERT(tCM.get_num_entities(EntityRank::ELEMENT) == (uint)aReceivedParentCellNumChildren(i)(j),
+                            "Number of child cells in child mesh do not match number on other processor");
 
                     // since hmr ownership is not correct
                     if(tCM.get_element_ids().numel()>0)
@@ -2044,6 +2163,8 @@ Model::create_new_node_association_with_geometry(Decomposition_Data & tDecompDat
             }
         }
     }
+
+    // ----------------------------------------------------------------------------------
 
     void
     Model::handle_received_child_cell_id_request_answers(
@@ -2070,6 +2191,8 @@ Model::create_new_node_association_with_geometry(Decomposition_Data & tDecompDat
         }
     }
 
+    // ----------------------------------------------------------------------------------
+
     void
     Model::add_child_elements_to_local_to_global_map()
     {
@@ -2079,6 +2202,8 @@ Model::create_new_node_association_with_geometry(Decomposition_Data & tDecompDat
 
         mBackgroundMesh.add_cells_to_global_to_local_map(tChildElementInds,tChildElementIds);
     }
+
+    // ----------------------------------------------------------------------------------
 
     void
     Model::sort_children_meshes_into_groups()
@@ -2133,6 +2258,8 @@ Model::create_new_node_association_with_geometry(Decomposition_Data & tDecompDat
         mCutMesh.add_child_mesh_groups( tOwnedChildrenMeshes, tNotOwnedChildrenMeshes, tNotOwnedOwningProc);
     }
 
+    // ----------------------------------------------------------------------------------
+
     void
     Model::associate_nodes_created_during_decomp_to_child_meshes()
     {
@@ -2153,6 +2280,8 @@ Model::create_new_node_association_with_geometry(Decomposition_Data & tDecompDat
             mBackgroundMesh.associate_external_nodes_to_child_mesh(i,tNodeIndices);
         }
     }
+
+    // ----------------------------------------------------------------------------------
 
     void
     Model::set_element_phases()
@@ -2201,6 +2330,8 @@ Model::create_new_node_association_with_geometry(Decomposition_Data & tDecompDat
         }
     }
 
+    // ----------------------------------------------------------------------------------
+
     void Model::set_downward_inheritance()
     {
         moris::size_t tNumChildMesh = mCutMesh.get_num_child_meshes();
@@ -2213,6 +2344,8 @@ Model::create_new_node_association_with_geometry(Decomposition_Data & tDecompDat
 
         mBackgroundMesh.register_new_downward_inheritance(tXTKElementToCutMeshPairs);
     }
+
+    // ----------------------------------------------------------------------------------
 
     void  Model::run_first_cut_routine(
             enum TemplateType const &          aTemplateType,
@@ -2331,6 +2464,8 @@ Model::create_new_node_association_with_geometry(Decomposition_Data & tDecompDat
         }
     }
 
+    // ----------------------------------------------------------------------------------
+
     void
     Model::create_child_element_mtk_cells()
     {
@@ -2354,6 +2489,8 @@ Model::create_new_node_association_with_geometry(Decomposition_Data & tDecompDat
         }
     }
 
+    // ----------------------------------------------------------------------------------
+
     void
     Model::add_vertices_to_child_meshes()
     {
@@ -2367,6 +2504,8 @@ Model::create_new_node_association_with_geometry(Decomposition_Data & tDecompDat
         }
     }
 
+    // ----------------------------------------------------------------------------------
+
     void
     Model::setup_cell_glb_to_local_map()
     {
@@ -2377,6 +2516,8 @@ Model::create_new_node_association_with_geometry(Decomposition_Data & tDecompDat
             mCellGlbToLocalMap[tId] = (moris_index) i;
         }
     }
+
+    // ----------------------------------------------------------------------------------
 
     void
     Model::identify_local_subphase_clusters_in_child_meshes()
@@ -2408,6 +2549,8 @@ Model::create_new_node_association_with_geometry(Decomposition_Data & tDecompDat
         // tell the cut mesh to setup subphase to child mesh connectivity
         mCutMesh.setup_subphase_to_child_mesh_connectivity();
     }
+
+    // ----------------------------------------------------------------------------------
 
     void
     Model::assign_subphase_glob_ids()
@@ -2480,6 +2623,8 @@ Model::create_new_node_association_with_geometry(Decomposition_Data & tDecompDat
 
         barrier();
     }
+
+    // ----------------------------------------------------------------------------------
 
     void
     Model::prepare_subphase_identifier_requests(
@@ -2569,10 +2714,11 @@ Model::create_new_node_association_with_geometry(Decomposition_Data & tDecompDat
                 aParentCellIds(i)(j)           = mBackgroundMesh.get_glb_entity_id_from_entity_loc_index(tCM->get_parent_element_index(),EntityRank::ELEMENT);
                 aChildCellIds(i)(j)            = tCellIds(tCMCellInd);
                 aNumChildCellsInSubphase(i)(j) = tSubphaseClusters(tSPIndex).numel();
-
             }
         }
     }
+
+    // ----------------------------------------------------------------------------------
 
     void
     Model::prepare_subphase_id_answers(
@@ -2581,7 +2727,8 @@ Model::create_new_node_association_with_geometry(Decomposition_Data & tDecompDat
             Cell<Matrix<IndexMat>> & aReceivedNumChildCellsInSubphase,
             Cell<Matrix<IndexMat>> & aSubphaseIds)
     {
-        MORIS_ASSERT(aReceivedParentCellIds.size() == aFirstChildCellIds.size(),"Mismatch in received parent cell ids and received parent cell number of children");
+        MORIS_ASSERT(aReceivedParentCellIds.size() == aFirstChildCellIds.size(),
+                "Mismatch in received parent cell ids and received parent cell number of children");
 
         // allocate answer size
         aSubphaseIds.resize(aReceivedParentCellIds.size());
@@ -2644,6 +2791,8 @@ Model::create_new_node_association_with_geometry(Decomposition_Data & tDecompDat
         }
     }
 
+    // ----------------------------------------------------------------------------------
+
     void
     Model::handle_received_subphase_id_request_answers(
             Cell<Cell<moris_index>>    const & aChildMeshesInNotOwned,
@@ -2670,6 +2819,8 @@ Model::create_new_node_association_with_geometry(Decomposition_Data & tDecompDat
         }
     }
 
+    // ----------------------------------------------------------------------------------
+
     void
     Model::setup_glob_to_loc_subphase_map()
     {
@@ -2684,6 +2835,7 @@ Model::create_new_node_association_with_geometry(Decomposition_Data & tDecompDat
     // ----------------------------------------------------------------------------------
     // Sensitivity Source code
     // ----------------------------------------------------------------------------------
+
     void
     Model::compute_sensitivity()
     {
@@ -2704,6 +2856,7 @@ Model::create_new_node_association_with_geometry(Decomposition_Data & tDecompDat
     // ----------------------------------------------------------------------------------
     // Unzipping Child Mesh Source code
     // ----------------------------------------------------------------------------------
+
     void
     Model::unzip_child_mesh()
     {
@@ -2721,6 +2874,8 @@ Model::create_new_node_association_with_geometry(Decomposition_Data & tDecompDat
             std::cout<<"XTK: Child mesh unzipping completed in "<< (std::clock() - start) / (double)(CLOCKS_PER_SEC)<<" s."<<std::endl;
         }
     }
+
+    // ----------------------------------------------------------------------------------
 
     void
     Model::unzip_child_mesh_internal()
@@ -2753,6 +2908,8 @@ Model::create_new_node_association_with_geometry(Decomposition_Data & tDecompDat
             std::cout<<"XTK: Interface unzipping completed in "<< (std::clock() - start) / (double)(CLOCKS_PER_SEC)<<" s."<<std::endl;
         }
     }
+
+    // ----------------------------------------------------------------------------------
 
     void
     Model::unzip_interface_internal()
@@ -2794,19 +2951,23 @@ Model::create_new_node_association_with_geometry(Decomposition_Data & tDecompDat
 
             // unzip_child_mesh_index
             this->unzip_interface_internal_modify_child_mesh(iG,tInterfaceNodeInds,tNewUnzippedNodeInds,tNewUnzippedNodeIds);
-
         }
-
     }
+
     // ----------------------------------------------------------------------------------
+
     void
-    Model::unzip_interface_internal_assign_node_identifiers(moris::uint aNumNodes,
+    Model::unzip_interface_internal_assign_node_identifiers(
+            moris::uint                   aNumNodes,
             moris::Matrix<moris::IdMat> & aUnzippedNodeIndices,
             moris::Matrix<moris::IdMat> & aUnzippedNodeIds)
     {
         // Verify sizes
-        MORIS_ASSERT(aUnzippedNodeIndices.numel() == aNumNodes, "Size mismatch between aNumNodes and aUnzippedNodeIndices. Please pre-allocate these matrices ");
-        MORIS_ASSERT(aUnzippedNodeIds.numel() == aNumNodes, "Size mismatch between aNumNodes and aUnzippedNodeIds.  Please pre-allocate these matrices ");
+        MORIS_ASSERT(aUnzippedNodeIndices.numel() == aNumNodes,
+                "Size mismatch between aNumNodes and aUnzippedNodeIndices. Please pre-allocate these matrices ");
+
+        MORIS_ASSERT(aUnzippedNodeIds.numel() == aNumNodes,
+                "Size mismatch between aNumNodes and aUnzippedNodeIds.  Please pre-allocate these matrices ");
 
         // Ask the mesh for new node ids
         moris::moris_index tNodeIndexOffset = mBackgroundMesh.get_first_available_index(EntityRank::NODE);
@@ -2834,16 +2995,23 @@ Model::create_new_node_association_with_geometry(Decomposition_Data & tDecompDat
         mBackgroundMesh.update_first_available_index(tNodeIndexOffset,EntityRank::NODE);
 
     }
+
     // ----------------------------------------------------------------------------------
+
     void
-    Model::unzip_interface_internal_modify_child_mesh(moris::uint                         aGeometryIndex,
+    Model::unzip_interface_internal_modify_child_mesh(
+            moris::uint                         aGeometryIndex,
             moris::Matrix<moris::IdMat> const & aInterfaceNodeIndices,
             moris::Matrix<moris::IdMat> const & aUnzippedNodeIndices,
             moris::Matrix<moris::IdMat> const & aUnzippedNodeIds)
     {
 
         // from interface node indices, figure out which interface nodes live in which interface
-        moris::Cell<moris::Cell< moris::moris_index >> tChildMeshInterfaceNodes = unzip_interface_internal_collect_child_mesh_to_interface_node(aInterfaceNodeIndices,aUnzippedNodeIndices,aUnzippedNodeIds);
+        moris::Cell<moris::Cell< moris::moris_index >> tChildMeshInterfaceNodes =
+                unzip_interface_internal_collect_child_mesh_to_interface_node(
+                        aInterfaceNodeIndices,
+                        aUnzippedNodeIndices,
+                        aUnzippedNodeIds);
 
         // Flag indicating there is an interface without an element pair
         bool tNoPairFlag = false;
@@ -2889,7 +3057,8 @@ Model::create_new_node_association_with_geometry(Decomposition_Data & tDecompDat
 
             // TODO: Add method to resolve cross child mesh element pairs for when the interface coincides with a parent face
             // NOTE: By using the sign of the geometry value, it really shouldnt take a whole lot of work to accomodated
-            MORIS_ERROR(!tNoPairFlag," in unzip_interface_internal_modify_child_mesh, interface detected on a child mesh boundary. Currently, no method is implemented to resolve this");
+            MORIS_ERROR(!tNoPairFlag,
+                    " in unzip_interface_internal_modify_child_mesh, interface detected on a child mesh boundary. Currently, no method is implemented to resolve this");
 
             // Take the child mesh pairs and determine who gets which id
             // This output is either a 0 or 1, meaning the first or second element of the pair gets the unzipped nodes
@@ -2897,7 +3066,8 @@ Model::create_new_node_association_with_geometry(Decomposition_Data & tDecompDat
                     this->unzip_interface_internal_assign_which_element_uses_unzipped_nodes(aGeometryIndex,tInterfaceElementPairs);
 
             // Get the elements on the boundary
-            tChildMesh.unzip_child_mesh_interface(aGeometryIndex,
+            tChildMesh.unzip_child_mesh_interface(
+                    aGeometryIndex,
                     tInterfaceElementPairsCMIndex,
                     tElementWhichKeepsOriginalNodes,
                     tCMInterfaceNodeIndices,
@@ -2909,22 +3079,21 @@ Model::create_new_node_association_with_geometry(Decomposition_Data & tDecompDat
                     tInterfaceElementPairs,
                     tInterfaceSideOrdinals);
 
-
             tChildMesh.finalize_unzipping();
 
             tCMIndex++;
         }
 
         unzip_interface_assign_element_identifiers();
-
-
     }
+
     // ----------------------------------------------------------------------------------
+
     moris::Matrix< moris::IndexMat >
-    Model::unzip_interface_internal_assign_which_element_uses_unzipped_nodes( moris::moris_index aGeometryIndex,
+    Model::unzip_interface_internal_assign_which_element_uses_unzipped_nodes(
+            moris::moris_index                       aGeometryIndex,
             moris::Matrix< moris::IndexMat > const & aInterfaceElementPairs )
     {
-
         // specify which geometry sign gets to keep the nodes
         moris::moris_index tValWhichUsesUnzipped = 0;
 
@@ -2983,13 +3152,12 @@ Model::create_new_node_association_with_geometry(Decomposition_Data & tDecompDat
         }
 
         return tElementWhichKeepsUsesUnzippedNodes;
-
     }
-
 
     // ----------------------------------------------------------------------------------
     moris::Cell<moris::Cell< moris::moris_index >>
-    Model::unzip_interface_internal_collect_child_mesh_to_interface_node(moris::Matrix<moris::IdMat> const & aInterfaceNodeIndices,
+    Model::unzip_interface_internal_collect_child_mesh_to_interface_node(
+            moris::Matrix<moris::IdMat> const & aInterfaceNodeIndices,
             moris::Matrix<moris::IdMat> const & aUnzippedNodeIndices,
             moris::Matrix<moris::IdMat> const & aUnzippedNodeIds)
     {
@@ -3014,7 +3182,9 @@ Model::create_new_node_association_with_geometry(Decomposition_Data & tDecompDat
 
         return tChildMeshInterfaceNodes;
     }
+
     // ----------------------------------------------------------------------------------
+
     void
     Model::unzip_interface_construct_interface_elements(moris::uint aGeometryIndex,
             moris::Matrix< moris::IndexMat > const & aElementPairs,
@@ -3041,7 +3211,9 @@ Model::create_new_node_association_with_geometry(Decomposition_Data & tDecompDat
             mCutMesh.add_interface_element(tInterfaceElement);
         }
     }
+
     // ----------------------------------------------------------------------------------
+
     void
     Model::unzip_interface_assign_element_identifiers()
     {
@@ -3060,16 +3232,15 @@ Model::create_new_node_association_with_geometry(Decomposition_Data & tDecompDat
         }
 
         mBackgroundMesh.update_first_available_index(tIndexOffset,EntityRank::ELEMENT);
-
     }
-
-
 
     // ----------------------------------------------------------------------------------
     // Enrichment Source code
     // ----------------------------------------------------------------------------------
+
     void
-    Model::perform_basis_enrichment(enum EntityRank  const & aBasisRank,
+    Model::perform_basis_enrichment(
+            enum EntityRank  const & aBasisRank,
             moris_index      const & aMeshIndex)
     {
         // Start the clock
@@ -3092,9 +3263,12 @@ Model::create_new_node_association_with_geometry(Decomposition_Data & tDecompDat
             std::cout<<"XTK: Basis enrichment performed on mesh index: "<< aMeshIndex<<std::endl;
         }
     }
+
     // ----------------------------------------------------------------------------------
+
     void
-    Model::perform_basis_enrichment(enum EntityRank  const & aBasisRank,
+    Model::perform_basis_enrichment(
+            enum EntityRank  const & aBasisRank,
             Matrix<IndexMat> const & aMeshIndex)
     {
         // Start the clock
@@ -3122,34 +3296,50 @@ Model::create_new_node_association_with_geometry(Decomposition_Data & tDecompDat
             std::cout<<std::endl;
         }
     }
+
     // ----------------------------------------------------------------------------------
 
     Enrichment const &
     Model::get_basis_enrichment()
     {
-        MORIS_ASSERT(mEnriched,"Cannot get basis enrichment from an XTK model which has not called perform_basis_enrichment ");
+        MORIS_ASSERT(mEnriched,
+                "Cannot get basis enrichment from an XTK model which has not called perform_basis_enrichment ");
+
         return *mEnrichment;
     }
+
+    // ----------------------------------------------------------------------------------
+
     Enriched_Interpolation_Mesh &
     Model::get_enriched_interp_mesh(moris::moris_index aIndex)
     {
-        MORIS_ASSERT(mEnriched,"Cannot get enriched interpolation mesh from an XTK model which has not called perform_basis_enrichment ");
+        MORIS_ASSERT(mEnriched,
+                "Cannot get enriched interpolation mesh from an XTK model which has not called perform_basis_enrichment ");
+
         return *(mEnrichedInterpMesh(aIndex));
     }
+
+    // ----------------------------------------------------------------------------------
+
     Enriched_Integration_Mesh &
     Model::get_enriched_integ_mesh(moris::moris_index aIndex)
     {
-        MORIS_ASSERT(mEnriched,"Cannot get enriched integration mesh from an XTK model which has not called perform_basis_enrichment ");
+        MORIS_ASSERT(mEnriched,
+                "Cannot get enriched integration mesh from an XTK model which has not called perform_basis_enrichment ");
+
         return *(mEnrichedIntegMesh(aIndex));
     }
 
+    // ----------------------------------------------------------------------------------
 
     void
-    Model::perform_basis_enrichment_internal(enum EntityRank  const & aBasisRank,
+    Model::perform_basis_enrichment_internal(
+            enum EntityRank  const & aBasisRank,
             Matrix<IndexMat> const & aMeshIndex)
     {
         // initialize enrichment (ptr because of circular dependency)
-        mEnrichment = new Enrichment(Enrichment_Method::USE_INTERPOLATION_CELL_BASIS,
+        mEnrichment = new Enrichment(
+                Enrichment_Method::USE_INTERPOLATION_CELL_BASIS,
                 aBasisRank,
                 aMeshIndex,
                 mGeometryEngine->get_num_phases(),
@@ -3162,14 +3352,15 @@ Model::create_new_node_association_with_geometry(Decomposition_Data & tDecompDat
 
         // perform the enrichment
         mEnrichment->perform_enrichment();
-
     }
 
+    // ----------------------------------------------------------------------------------
 
     void
     Model::construct_face_oriented_ghost_penalization_cells()
     {
         MORIS_ERROR(mDecomposed,"Mesh needs to be decomposed prior to calling ghost penalization");
+
         MORIS_ERROR(!mGhost,"Ghost penalization has already been called");
 
         std::clock_t start = std::clock();
@@ -3186,12 +3377,16 @@ Model::create_new_node_association_with_geometry(Decomposition_Data & tDecompDat
         }
     }
 
+    // ----------------------------------------------------------------------------------
+
     Ghost_Stabilization &
     Model::get_ghost_stabilization(moris::moris_index  aIndex)
     {
         MORIS_ERROR(mGhost,"Ghost has not been constructed on this model.");
         return *mGhostStabilization;
     }
+
+    // ----------------------------------------------------------------------------------
 
     void Model::construct_multigrid()
     {
@@ -3212,6 +3407,7 @@ Model::create_new_node_association_with_geometry(Decomposition_Data & tDecompDat
     // ----------------------------------------------------------------------------------
     // Tet 10 conversion Source code
     // ----------------------------------------------------------------------------------
+
     void
     Model::convert_mesh_tet4_to_tet10()
     {
@@ -3231,8 +3427,10 @@ Model::create_new_node_association_with_geometry(Decomposition_Data & tDecompDat
     // ----------------------------------------------------------------------------------
     // Export mesh Source code
     // ----------------------------------------------------------------------------------
+
     void
-    Model::extract_surface_mesh_to_obj(std::string                      aOutputFile,
+    Model::extract_surface_mesh_to_obj(
+            std::string                      aOutputFile,
             size_t                           aPhaseIndex,
             moris::Cell<std::string> const & aBoundingSideSets)
     {
@@ -3248,12 +3446,12 @@ Model::create_new_node_association_with_geometry(Decomposition_Data & tDecompDat
             std::cout<<"XTK: OBJ File: "<<aOutputFile<<std::endl;
         }
     }
+
     //------------------------------------------------------------------------------
 
     void
     Model::construct_neighborhood()
     {
-
         mElementToElement.resize(this->get_num_elements_total());
 
         // add uncut neighborhood to connectivity
@@ -3265,7 +3463,7 @@ Model::create_new_node_association_with_geometry(Decomposition_Data & tDecompDat
         // to get the neighborhood correct
         if(mBackgroundMesh.get_mesh_data().get_mesh_type() == MeshType::HMR)
         {
-            construct_cut_mesh_simple_neighborhood();
+            construct_cut_mesh_simple_neighborhood();    //FIXME: Keenan - comments are missing for these steps
 
             construct_cut_mesh_to_uncut_mesh_neighborhood(tCutToUncutFace);
 
@@ -3283,6 +3481,7 @@ Model::create_new_node_association_with_geometry(Decomposition_Data & tDecompDat
         //    print_neighborhood();
     }
 
+    // ----------------------------------------------------------------------------------
 
     void
     Model::construct_subphase_neighborhood()
@@ -3291,10 +3490,10 @@ Model::create_new_node_association_with_geometry(Decomposition_Data & tDecompDat
         moris::mtk::Interpolation_Mesh & tInterpMesh = mBackgroundMesh.get_mesh_data();
 
         // allocate subphase to subphase connectivity
-        mSubphaseToSubPhase = moris::Cell<moris::Cell<moris::moris_index>>(mCutMesh.get_num_subphases());
-        mSubphaseToSubPhaseMySideOrds = moris::Cell<moris::Cell<moris::moris_index>>(mCutMesh.get_num_subphases());
+        mSubphaseToSubPhase                 = moris::Cell<moris::Cell<moris::moris_index>>(mCutMesh.get_num_subphases());
+        mSubphaseToSubPhaseMySideOrds       = moris::Cell<moris::Cell<moris::moris_index>>(mCutMesh.get_num_subphases());
         mSubphaseToSubPhaseNeighborSideOrds = moris::Cell<moris::Cell<moris::moris_index>>(mCutMesh.get_num_subphases());
-        mTransitionNeighborCellLocation = moris::Cell<moris::Cell<moris::moris_index>>(mCutMesh.get_num_subphases());
+        mTransitionNeighborCellLocation     = moris::Cell<moris::Cell<moris::moris_index>>(mCutMesh.get_num_subphases());
 
         // non unique temporary data
         moris::Cell<moris::Cell<moris::moris_index>> tNonUniqueSubphaseToSubphase(mCutMesh.get_num_subphases());
@@ -3326,7 +3525,7 @@ Model::create_new_node_association_with_geometry(Decomposition_Data & tDecompDat
                 moris_index tTransitionCellLocation = tCellToCellSideOrd(3,iN);
 
                 // neighbor cell
-                mtk::Cell const * tOtherCell =  & tInterpMesh.get_mtk_cell(tCellToCellSideIndex(0,iN));
+                mtk::Cell const * tOtherCell = & tInterpMesh.get_mtk_cell(tCellToCellSideIndex(0,iN));
 
                 // get the subphase indices attached to the facet which is connected to the current cell
                 Cell<moris::moris_index> tMyCellSubphaseIndices(0);
@@ -3399,9 +3598,12 @@ Model::create_new_node_association_with_geometry(Decomposition_Data & tDecompDat
         //   }
     }
 
+    // ----------------------------------------------------------------------------------
+
     void
-    Model::collect_subphases_attached_to_facet_on_cell(moris::moris_index aCellIndex,
-            moris::moris_index aFacetOrdinal,
+    Model::collect_subphases_attached_to_facet_on_cell(
+            moris::moris_index         aCellIndex,
+            moris::moris_index         aFacetOrdinal,
             Cell<moris::moris_index> & aCellSubphaseIndices,
             Cell<moris::moris_index> & aCellSubphaseBulkIndices)
     {
@@ -3412,7 +3614,10 @@ Model::create_new_node_association_with_geometry(Decomposition_Data & tDecompDat
             moris::moris_index tCMIndex = mBackgroundMesh.child_mesh_index(aCellIndex,EntityRank::ELEMENT);
             Child_Mesh const * tCMCell = & mCutMesh.get_child_mesh(tCMIndex);
 
-            Matrix<IndexMat> tCellFacets = mBackgroundMesh.get_mesh_data().get_entity_connected_to_entity_loc_inds(aCellIndex,EntityRank::ELEMENT,mBackgroundMesh.get_mesh_data().get_facet_rank());
+            Matrix<IndexMat> tCellFacets =
+                    mBackgroundMesh.get_mesh_data().get_entity_connected_to_entity_loc_inds(
+                            aCellIndex,EntityRank::ELEMENT,
+                            mBackgroundMesh.get_mesh_data().get_facet_rank());
 
             moris_index tFacetIndex = tCellFacets(aFacetOrdinal);
 
@@ -3433,7 +3638,6 @@ Model::create_new_node_association_with_geometry(Decomposition_Data & tDecompDat
                 aCellSubphaseBulkIndices(i) = tCMSubphaseBulkIndices(tCellCMSubphaseIndices(i));
                 aCellSubphaseIndices(i) = tCMSubphaseIndices(tCellCMSubphaseIndices(i));
             }
-
         }
         else
         {
@@ -3441,8 +3645,9 @@ Model::create_new_node_association_with_geometry(Decomposition_Data & tDecompDat
             aCellSubphaseBulkIndices = {{mBackgroundMesh.get_element_phase_index(aCellIndex)}};
             aCellSubphaseIndices     = {{aCellIndex}};
         }
-
     }
+
+    // ----------------------------------------------------------------------------------
 
     bool
     Model::subphase_is_in_child_mesh(moris_index aSubphaseIndex)
@@ -3466,7 +3671,7 @@ Model::create_new_node_association_with_geometry(Decomposition_Data & tDecompDat
         // Collect element to node of child mesh and create a full element to element graph for child mesh
         Matrix<IndexMat> tCMElementToNode = mCutMesh.get_full_element_to_node_loc_inds();
 
-        // generate connectivities (face then  element conn) we do not keep faces around though
+        // generate connectivities (face then element conn) we do not keep faces around though
         // face connectivity
         CellTopology tCellTopo = mCutMesh.get_child_element_topology();
         Matrix<IndexMat> tElementToFace;
@@ -3557,7 +3762,7 @@ Model::create_new_node_association_with_geometry(Decomposition_Data & tDecompDat
         // iterate through background cells
         for(moris::uint iC = 0; iC < tNumCells; iC++)
         {
-            // if i have no children
+            // if current cell has no children, i.e. is uncut
             if(!mBackgroundMesh.entity_has_children((moris_index)iC,EntityRank::ELEMENT))
             {
                 // get the neighbors
@@ -3566,15 +3771,17 @@ Model::create_new_node_association_with_geometry(Decomposition_Data & tDecompDat
                 // iterate through neighbors
                 for(moris::uint iN = 0; iN<tElementNeighors.n_cols(); iN++ )
                 {
-                    // if the neighbor has no children
+                    // if the neighbor has no children, i.e., is uncut
                     if(!mBackgroundMesh.entity_has_children(tElementNeighors(0,iN),EntityRank::ELEMENT))
                     {
+                        // add neighbor cell to list of neighbors for current cell
                         mElementToElement(iC).push_back(&mBackgroundMesh.get_mtk_cell(tElementNeighors(0,iN)));
                     }
 
                     // mark as a cut to uncut boundary
                     else
                     {
+                        // store
                         aCutToUncutFace.push_back( {(moris_index)iC , tElementNeighors(0,iN), tElementNeighors(1,iN)} );
                     }
                 }
@@ -3627,15 +3834,14 @@ Model::create_new_node_association_with_geometry(Decomposition_Data & tDecompDat
         {
             moris::mtk::Vertex & tVertex = mBackgroundMesh.get_mtk_vertex(i);
 
-        std::cout<<"Vertex Id: "<<std::setw(8)<<tVertex.get_id()<<" | ";
-        for(moris::uint j = 0; j < mGeometryEngine->get_num_geometries(); j++)
-        {
-            std::cout<<std::setw(12)<<mGeometryEngine->get_geometry_field_value(tVertex.get_index(), tVertex.get_coords(), j)<<" , ";
+            std::cout<<"Vertex Id: "<<std::setw(8)<<tVertex.get_id()<<" | ";
+            for(moris::uint j = 0; j < mGeometryEngine->get_num_geometries(); j++)
+            {
+                std::cout<<std::setw(12)<<mGeometryEngine->get_geometry_field_value(tVertex.get_index(), tVertex.get_coords(), j)<<" , ";
+            }
+            std::cout<<std::endl;
         }
-        std::cout<<std::endl;
     }
-}
-
 
     void
     Model::print_interface_vertices()
@@ -4568,6 +4774,8 @@ Model::create_new_node_association_with_geometry(Decomposition_Data & tDecompDat
         return tSideSets;
     }
 
+    // ----------------------------------------------------------------------------------
+
     void
     Model::propogate_background_side_set( std::string             const &             aSideSetName,
             moris::moris_index                          aNoChildIndex,
@@ -4707,6 +4915,8 @@ Model::create_new_node_association_with_geometry(Decomposition_Data & tDecompDat
 
 
     }
+
+    // ----------------------------------------------------------------------------------
 
     moris::Cell<std::string>
     Model::check_for_and_remove_internal_seacas_side_sets(moris::Cell<std::string> & aSideSetNames)
@@ -4927,14 +5137,14 @@ Model::create_new_node_association_with_geometry(Decomposition_Data & tDecompDat
     //------------------------------------------------------------------------------
 
 
-bool
-Model::output_node(moris::moris_index aNodeIndex,
-                   Output_Options const & aOutputOptions)
-{
-    bool tIsInterface = mBackgroundMesh.is_interface_node(aNodeIndex,0);
-    moris::size_t tPhaseIndex = 0;
-    mGeometryEngine->get_phase_index(aNodeIndex,
-                                     mBackgroundMesh.get_selected_node_coordinates_loc_inds({{aNodeIndex}}));
+    bool
+    Model::output_node(moris::moris_index aNodeIndex,
+            Output_Options const & aOutputOptions)
+    {
+        bool tIsInterface = mBackgroundMesh.is_interface_node(aNodeIndex,0);
+        moris::size_t tPhaseIndex = 0;
+        mGeometryEngine->get_phase_index(aNodeIndex,
+                mBackgroundMesh.get_selected_node_coordinates_loc_inds({{aNodeIndex}}));
 
         if(aOutputOptions.output_phase(tPhaseIndex) && !tIsInterface)
         {
@@ -4949,6 +5159,7 @@ Model::output_node(moris::moris_index aNodeIndex,
     }
 
     //------------------------------------------------------------------------------
+
     moris::size_t
     Model::determine_element_phase_index(moris::size_t aRowIndex,
             moris::Matrix< moris::IndexMat > const & aElementToNodeIndex)
@@ -4958,21 +5169,21 @@ Model::output_node(moris::moris_index aNodeIndex,
         moris::Matrix< moris::IndexMat > tNodalPhaseVals(1,tNumGeom,MORIS_INDEX_MAX);
 
 
-    for (moris::uint i = 0; i < tNumGeom; i++)
-    {
-        bool tFoundNonInterfaceNode = false;
-        for( moris::size_t j = 0; j<tNumNodesPerElem; j++)
+        for (moris::uint i = 0; i < tNumGeom; i++)
         {
-            if(!mBackgroundMesh.is_interface_node(aElementToNodeIndex(aRowIndex,j),i))
+            bool tFoundNonInterfaceNode = false;
+            for( moris::size_t j = 0; j<tNumNodesPerElem; j++)
             {
-                tNodalPhaseVals(0,i) = mGeometryEngine->
-                        get_node_phase_index_wrt_a_geometry((moris::uint)aElementToNodeIndex(aRowIndex, j),
-                                                            mBackgroundMesh.get_selected_node_coordinates_loc_inds({{ aElementToNodeIndex(aRowIndex,j) }}),
-                                                            i);
-                tFoundNonInterfaceNode = true;
-                break;
+                if(!mBackgroundMesh.is_interface_node(aElementToNodeIndex(aRowIndex,j),i))
+                {
+                    tNodalPhaseVals(0,i) = mGeometryEngine->
+                            get_node_phase_index_wrt_a_geometry((moris::uint)aElementToNodeIndex(aRowIndex, j),
+                                    mBackgroundMesh.get_selected_node_coordinates_loc_inds({{ aElementToNodeIndex(aRowIndex,j) }}),
+                                    i);
+                    tFoundNonInterfaceNode = true;
+                    break;
+                }
             }
-        }
 
             if(!tFoundNonInterfaceNode)
             {
@@ -4986,6 +5197,9 @@ Model::output_node(moris::moris_index aNodeIndex,
 
         return tElemPhaseVal;
     }
+
+    // ----------------------------------------------------------------------------------
+
     void
     Model::print_decompsition_preamble(Cell<enum Subdivision_Method> aMethods)
     {
@@ -5018,16 +5232,16 @@ Model::output_node(moris::moris_index aNodeIndex,
         // Allocate output data
         moris::Cell< moris::Matrix < moris::DDRMat > > tGeometryData(tNumGeometries, moris::Matrix<moris::DDRMat>(tNumNodes,1));
 
-    //Iterate through geometries
-    moris::Matrix< moris::DDRMat > tNodeCoords = mBackgroundMesh.get_selected_node_coordinates_loc_inds(aNodeIndsToOutput);
-    for(uint iG = 0; iG <tNumGeometries; iG++)
-    {
-        // Iterate through nodes
-        for(uint iN = 0; iN<tNumNodes; iN++)
+        //Iterate through geometries
+        moris::Matrix< moris::DDRMat > tNodeCoords = mBackgroundMesh.get_selected_node_coordinates_loc_inds(aNodeIndsToOutput);
+        for(uint iG = 0; iG <tNumGeometries; iG++)
         {
-            tGeometryData(iG)(iN) = mGeometryEngine->get_geometry_field_value(aNodeIndsToOutput(iN), tNodeCoords.get_row(iN), iG);
+            // Iterate through nodes
+            for(uint iN = 0; iN<tNumNodes; iN++)
+            {
+                tGeometryData(iG)(iN) = mGeometryEngine->get_geometry_field_value(aNodeIndsToOutput(iN), tNodeCoords.get_row(iN), iG);
+            }
         }
-    }
 
         return tGeometryData;
     }
@@ -5070,6 +5284,4 @@ Model::output_node(moris::moris_index aNodeIndex,
 
         return tGeometryFieldRank;
     }
-    //------------------------------------------------------------------------------
-
 }
