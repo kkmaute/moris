@@ -53,7 +53,7 @@ namespace moris
                 uint aSpatialDim = 2)
         {
             // real for check
-            real tEpsilonRel = 1.0E-6;
+            real tEpsilonRel = 2.0E-6;
 
             // initialize cell of checks
             moris::Cell<bool> tChecks( 6, false );
