@@ -816,8 +816,8 @@ namespace xtk
                 {
                     moris_index tLocalBasisIndex = aBasisIndexToBasisOwner(i)(j);
                     moris_index tGlobaId  = aReceivedEnrichedIds(i)(j);
-                    moris_index tSubphaseId     = aSubphaseIdInSupport(i)(j);
-                    moris_index tSubphaseIndex  = mXTKModelPtr->get_subphase_index(tSubphaseId);
+                    //moris_index tSubphaseId     = aSubphaseIdInSupport(i)(j);
+                    //moris_index tSubphaseIndex  = mXTKModelPtr->get_subphase_index(tSubphaseId);
 
 
                     MORIS_ASSERT(mEnrichmentData(aEnrichmentDataIndex).mEnrichedBasisIndexToId(tLocalBasisIndex) == MORIS_INDEX_MAX,

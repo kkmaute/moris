@@ -1194,7 +1194,7 @@ namespace xtk
             MORIS_ASSERT(tNumCells == (moris_index)tEnrIpCells.size(),"Inconsistent num cells information.");
 
             // create the enriched interpolation basis to interpolation cell interpolation
-            for(moris::size_t i = 0; i<tNumCells; i++)
+            for(moris::sint i = 0; i<tNumCells; i++)
             {
                 moris::Cell< xtk::Interpolation_Vertex_Unzipped* > const & tVertices = tEnrIpCells(i)->get_xtk_interpolation_vertices();
 
