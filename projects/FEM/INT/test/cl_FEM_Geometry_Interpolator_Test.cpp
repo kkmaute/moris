@@ -34,11 +34,12 @@ TEST_CASE( "Geometry_Interpolator", "[moris],[fem],[GeoInterpolator]" )
         tTauHat( 1 ) =  1.0;
 
         // create a space and time geometry interpolation rule
-        Interpolation_Rule tGeoInterpRule( mtk::Geometry_Type::LINE,
-                                           Interpolation_Type::LAGRANGE,
-                                           mtk::Interpolation_Order::LINEAR,
-                                           Interpolation_Type::LAGRANGE,
-                                           mtk::Interpolation_Order::LINEAR );
+        Interpolation_Rule tGeoInterpRule(
+                mtk::Geometry_Type::LINE,
+                Interpolation_Type::LAGRANGE,
+                mtk::Interpolation_Order::LINEAR,
+                Interpolation_Type::LAGRANGE,
+                mtk::Interpolation_Order::LINEAR );
 
         // create a space and time geometry interpolator
         Geometry_Interpolator tGeoInterpolator( tGeoInterpRule );
@@ -137,10 +138,10 @@ TEST_CASE( "Geometry_Interpolator", "[moris],[fem],[GeoInterpolator]" )
         Matrix< DDRMat > tSpaceKt, tSpaceLt;
         Matrix< DDRMat > td2NdXi2 = tGeoInterpolator.d2NdXi2();
         tGeoInterpolator.space_jacobian_and_matrices_for_second_derivatives( tSpaceJt,
-                                                                             tSpaceKt,
-                                                                             tSpaceLt,
-                                                                             tdNdXi,
-                                                                             td2NdXi2 );
+                tSpaceKt,
+                tSpaceLt,
+                tdNdXi,
+                td2NdXi2 );
         Matrix< DDRMat > tSpaceKtMatlab( 1, 1, 0.0 );
         Matrix< DDRMat > tSpaceLtMatlab( 1, 1, 4.0 );
 
@@ -168,10 +169,10 @@ TEST_CASE( "Geometry_Interpolator", "[moris],[fem],[GeoInterpolator]" )
         Matrix< DDRMat > tTimeKt, tTimeLt;
         Matrix< DDRMat > td2NdTau2 = tGeoInterpolator.d2NdTau2();
         tGeoInterpolator.time_jacobian_and_matrices_for_second_derivatives( tTimeJt,
-                                                                            tTimeKt,
-                                                                            tTimeLt,
-                                                                            tdNdTau,
-                                                                            td2NdTau2 );
+                tTimeKt,
+                tTimeLt,
+                tdNdTau,
+                td2NdTau2 );
         Matrix< DDRMat > tTimeKtMatlab( 1, 1, 0.0 );
         Matrix< DDRMat > tTimeLtMatlab( 1, 1, 6.25 );
 
@@ -201,7 +202,7 @@ TEST_CASE( "Geometry_Interpolator", "[moris],[fem],[GeoInterpolator]" )
         bool txCheckBool = true;
         for ( uint i = 0; i < tGeoInterpolator.get_number_of_space_dimensions(); i++)
         {
-           txCheckBool = txCheckBool && ( std::abs( txMatlab( i ) - tx( i ) ) < tEpsilon );
+            txCheckBool = txCheckBool && ( std::abs( txMatlab( i ) - tx( i ) ) < tEpsilon );
         }
         REQUIRE( txCheckBool );
 
@@ -246,10 +247,10 @@ TEST_CASE( "Geometry_Interpolator", "[moris],[fem],[GeoInterpolator]" )
 
         // create a space and time geometry interpolation rule
         Interpolation_Rule tGeoInterpRule( mtk::Geometry_Type::QUAD,
-                                           Interpolation_Type::LAGRANGE,
-                                           mtk::Interpolation_Order::LINEAR,
-                                           Interpolation_Type::LAGRANGE,
-                                           mtk::Interpolation_Order::LINEAR );
+                Interpolation_Type::LAGRANGE,
+                mtk::Interpolation_Order::LINEAR,
+                Interpolation_Type::LAGRANGE,
+                mtk::Interpolation_Order::LINEAR );
 
         // create a space and time geometry interpolator
         Geometry_Interpolator tGeoInterpolator( tGeoInterpRule, true );
@@ -322,7 +323,7 @@ TEST_CASE( "Geometry_Interpolator", "[moris],[fem],[GeoInterpolator]" )
         Matrix< DDRMat > tSpaceJt;
         tGeoInterpolator.space_jacobian( tSpaceJt );
         Matrix< DDRMat > tSpaceJtMatlab = {{ 1.593750000000000, 0.531250000000000 },
-                                           { 0.668750000000000, 1.456250000000000}};
+                { 0.668750000000000, 1.456250000000000}};
 
         bool tSpaceJCheck = true;
         for ( uint i = 0; i < tGeoInterpolator.get_number_of_space_dimensions(); i++)
@@ -354,19 +355,19 @@ TEST_CASE( "Geometry_Interpolator", "[moris],[fem],[GeoInterpolator]" )
         Matrix< DDRMat > tSpaceKt, tSpaceLt;
         Matrix< DDRMat > td2NdXi2 = tGeoInterpolator.d2NdXi2();
         tGeoInterpolator.space_jacobian_and_matrices_for_second_derivatives( tSpaceJt,
-                                                                             tSpaceKt,
-                                                                             tSpaceLt,
-                                                                             tdNdXi,
-                                                                             td2NdXi2 );
+                tSpaceKt,
+                tSpaceLt,
+                tdNdXi,
+                td2NdXi2 );
         Matrix< DDRMat > tSpaceKtMatlab = {
-        { 0.000000000000000,  0.000000000000000 },
-        { 0.000000000000000,  0.000000000000000 },
-        { 0.125000000000000, -0.125000000000000 }
+                { 0.000000000000000,  0.000000000000000 },
+                { 0.000000000000000,  0.000000000000000 },
+                { 0.125000000000000, -0.125000000000000 }
         };
         Matrix< DDRMat > tSpaceLtMatlab = {
-        { 2.540039062500000,   0.282226562500000,   1.693359375000000 },
-        { 0.447226562500000,   2.120664062500000,   1.947734375000000 },
-        { 1.065820312500000,   0.773632812500000,   2.676171875000000 }
+                { 2.540039062500000,   0.282226562500000,   1.693359375000000 },
+                { 0.447226562500000,   2.120664062500000,   1.947734375000000 },
+                { 1.065820312500000,   0.773632812500000,   2.676171875000000 }
         };
 
         bool tSpaceKCheck = true;
@@ -393,10 +394,10 @@ TEST_CASE( "Geometry_Interpolator", "[moris],[fem],[GeoInterpolator]" )
         Matrix< DDRMat > tTimeKt, tTimeLt;
         Matrix< DDRMat > td2NdTau2 = tGeoInterpolator.d2NdTau2();
         tGeoInterpolator.time_jacobian_and_matrices_for_second_derivatives( tTimeJt,
-                                                                            tTimeKt,
-                                                                            tTimeLt,
-                                                                            tdNdTau,
-                                                                            td2NdTau2 );
+                tTimeKt,
+                tTimeLt,
+                tdNdTau,
+                td2NdTau2 );
         Matrix< DDRMat > tTimeKtMatlab( 1, 1, 0.0 );
         Matrix< DDRMat > tTimeLtMatlab( 1, 1, 6.25 );
 
@@ -423,13 +424,13 @@ TEST_CASE( "Geometry_Interpolator", "[moris],[fem],[GeoInterpolator]" )
         // check space interpolation
         Matrix< DDRMat > tx = tGeoInterpolator.valx();
         Matrix< DDRMat > txMatlab = {
-        { 2.526562500000000,   1.935937500000000 },
+                { 2.526562500000000,   1.935937500000000 },
         };
 
         bool txCheckBool = true;
         for ( uint i = 0; i < tGeoInterpolator.get_number_of_space_dimensions(); i++)
         {
-           txCheckBool = txCheckBool && ( std::abs( txMatlab( i ) - tx( i ) ) < tEpsilon );
+            txCheckBool = txCheckBool && ( std::abs( txMatlab( i ) - tx( i ) ) < tEpsilon );
         }
         REQUIRE( txCheckBool );
 
@@ -457,24 +458,25 @@ TEST_CASE( "Geometry_Interpolator", "[moris],[fem],[GeoInterpolator]" )
             Matrix< DDRMat > tSpacePhysCoords;
             switch( tSpaceOrdinal )
             {
-                case( 0 ):
+                case 0 :
                     tSpaceParamCoords = {{ -1.0, -1.0 }, { 1.0, -1.0 }};
                     tSpacePhysCoords  = {{  0.0,  0.0 }, { 3.0,  1.25 }};
                     break;
-                case( 1 ):
+                case 1 :
                     tSpaceParamCoords = {{ 1.0, -1.0 }, { 1.0, 1.0 }};
                     tSpacePhysCoords  = {{ 3.0, 1.25 }, { 4.5, 4.0 }};
                     break;
-                case( 2 ):
+                case 2 :
                     tSpaceParamCoords = {{ 1.0, 1.0 }, { -1.0, 1.0 }};
                     tSpacePhysCoords  = {{ 4.5, 4.0 }, { 1.0, 3.25 }};
                     break;
-                case( 3 ):
+                case 3 :
                     tSpaceParamCoords = {{ -1.0, 1.0 }, { -1.0, -1.0 }};
                     tSpacePhysCoords  = {{ 1.0, 3.25 }, { 0.0, 0.0 }};
                     break;
                 default:
-                    MORIS_ASSERT( false, " wrong side ordinal "); break;
+                    MORIS_ASSERT( false, " wrong side ordinal ");
+                    break;
             }
         }
     }
@@ -517,14 +519,15 @@ TEST_CASE( "Geometry_Interpolator", "[moris],[fem],[GeoInterpolator]" )
         tTauHat( 1 ) =  1.0;
 
         // create a space and time geometry interpolation rule
-        Interpolation_Rule tGeomInterpRule( mtk::Geometry_Type::HEX,
-                                            Interpolation_Type::LAGRANGE,
-                                            mtk::Interpolation_Order::LINEAR,
-                                            Interpolation_Type::LAGRANGE,
-                                            mtk::Interpolation_Order::LINEAR );
+        Interpolation_Rule tGeomInterpRule(
+                mtk::Geometry_Type::HEX,
+                Interpolation_Type::LAGRANGE,
+                mtk::Interpolation_Order::LINEAR,
+                Interpolation_Type::LAGRANGE,
+                mtk::Interpolation_Order::LINEAR );
 
         // create a space and time geometry interpolator
-        Geometry_Interpolator tGeoInterpolator( tGeomInterpRule, true );
+        Geometry_Interpolator tGeoInterpolator( tGeomInterpRule );
 
         //set the coefficients xHat, tHat
         tGeoInterpolator.set_coeff( tXHat, tTHat );
@@ -593,9 +596,9 @@ TEST_CASE( "Geometry_Interpolator", "[moris],[fem],[GeoInterpolator]" )
         Matrix< DDRMat > tSpaceJt;
         tGeoInterpolator.space_jacobian( tSpaceJt );
         Matrix< DDRMat > tSpaceJtMatlab = {
-        { 1.593750000000000,   0.531250000000000,  -0.027187500000000},
-        { 0.668750000000000,   1.456250000000000,   0.429562500000000},
-        { 0.500000000000000,   0.500000000000000,   0.853906250000000}};
+                { 1.593750000000000,   0.531250000000000,  -0.027187500000000},
+                { 0.668750000000000,   1.456250000000000,   0.429562500000000},
+                { 0.500000000000000,   0.500000000000000,   0.853906250000000}};
 
         bool tSpaceJCheck = true;
         for ( uint i = 0; i < tGeoInterpolator.get_number_of_space_dimensions(); i++)
@@ -627,24 +630,24 @@ TEST_CASE( "Geometry_Interpolator", "[moris],[fem],[GeoInterpolator]" )
         Matrix< DDRMat > tSpaceKt, tSpaceLt;
         Matrix< DDRMat > td2NdXi2 = tGeoInterpolator.d2NdXi2();
         tGeoInterpolator.space_jacobian_and_matrices_for_second_derivatives( tSpaceJt,
-                                                                              tSpaceKt,
-                                                                              tSpaceLt,
-                                                                              tdNdXi,
-                                                                              td2NdXi2 );
+                tSpaceKt,
+                tSpaceLt,
+                tdNdXi,
+                td2NdXi2 );
         Matrix< DDRMat > tSpaceKtMatlab = {
-        { 0,                   0,                    0 },
-        { 0,                   0,                    0 },
-        { 0,                   0,                    0 },
-        { 0,                  -0.000000000000000,    0.246875000000000 },
-        { 0,                   0,                   -0.015625000000000 },
-        { 0.125000000000000,  -0.125000000000000,   -0.326250000000000}};
+                { 0,                   0,                    0 },
+                { 0,                   0,                    0 },
+                { 0,                   0,                    0 },
+                { 0,                  -0.000000000000000,    0.246875000000000 },
+                { 0,                   0,                   -0.015625000000000 },
+                { 0.125000000000000,  -0.125000000000000,   -0.326250000000000}};
         Matrix< DDRMat > tSpaceLtMatlab = {
-        { 2.540039062500000,   0.282226562500000,   0.000739160156250,  -0.028886718750000,  -0.086660156250000,   1.693359375000000 },
-        { 0.447226562500000,   2.120664062500000,   0.184523941406250,   1.251100781250000,   0.574539843750000,   1.947734375000001 },
-        { 0.250000000000000,   0.250000000000000,   0.729155883789063,   0.853906250000000,   0.853906250000000,   0.500000000000000 },
-        { 0.334375000000000,   0.728125000000000,   0.366806103515625,   1.458282226562500,   0.785831054687500,   1.062500000000000 },
-        { 0.796875000000000,   0.265625000000000,  -0.023215576171875,   0.440043945312500,   1.347319335937500,   1.062500000000000 },
-        { 1.065820312500000,   0.773632812500000,  -0.011678730468750,   0.188613281250000,   0.666433593750000,   2.676171875000000 }
+                { 2.540039062500000,   0.282226562500000,   0.000739160156250,  -0.028886718750000,  -0.086660156250000,   1.693359375000000 },
+                { 0.447226562500000,   2.120664062500000,   0.184523941406250,   1.251100781250000,   0.574539843750000,   1.947734375000001 },
+                { 0.250000000000000,   0.250000000000000,   0.729155883789063,   0.853906250000000,   0.853906250000000,   0.500000000000000 },
+                { 0.334375000000000,   0.728125000000000,   0.366806103515625,   1.458282226562500,   0.785831054687500,   1.062500000000000 },
+                { 0.796875000000000,   0.265625000000000,  -0.023215576171875,   0.440043945312500,   1.347319335937500,   1.062500000000000 },
+                { 1.065820312500000,   0.773632812500000,  -0.011678730468750,   0.188613281250000,   0.666433593750000,   2.676171875000000 }
         };
 
         bool tSpaceKCheck = true;
@@ -671,10 +674,10 @@ TEST_CASE( "Geometry_Interpolator", "[moris],[fem],[GeoInterpolator]" )
         Matrix< DDRMat > tTimeKt, tTimeLt;
         Matrix< DDRMat > td2NdTau2 = tGeoInterpolator.d2NdTau2();
         tGeoInterpolator.time_jacobian_and_matrices_for_second_derivatives( tTimeJt,
-                                                                             tTimeKt,
-                                                                             tTimeLt,
-                                                                             tdNdTau,
-                                                                             td2NdTau2 );
+                tTimeKt,
+                tTimeLt,
+                tdNdTau,
+                td2NdTau2 );
         Matrix< DDRMat > tTimeKtMatlab( 1, 1, 0.0 );
         Matrix< DDRMat > tTimeLtMatlab( 1, 1, 6.25 );
 
@@ -701,13 +704,13 @@ TEST_CASE( "Geometry_Interpolator", "[moris],[fem],[GeoInterpolator]" )
         // check space interpolation
         Matrix< DDRMat > tx = tGeoInterpolator.valx();
         Matrix< DDRMat > txMatlab = {
-        { 3.396562500000000,   2.805937500000000,   1.485796875000000 },
+                { 3.396562500000000,   2.805937500000000,   1.485796875000000 },
         };
 
         bool txCheckBool = true;
         for ( uint i = 0; i < tGeoInterpolator.get_number_of_space_dimensions(); i++)
         {
-           txCheckBool = txCheckBool && ( std::abs( txMatlab( i ) - tx( i ) ) < tEpsilon );
+            txCheckBool = txCheckBool && ( std::abs( txMatlab( i ) - tx( i ) ) < tEpsilon );
         }
         REQUIRE( txCheckBool );
 
@@ -735,37 +738,37 @@ TEST_CASE( "Geometry_Interpolator", "[moris],[fem],[GeoInterpolator]" )
             Matrix< DDRMat > tSpacePhysCoords;
             switch( tSpaceOrdinal )
             {
-                case( 0 ):
+                case 0 :
                 {
                     tSpaceParamCoords = {{ -1.0, -1.0, -1.0 }, { 1.0, -1.0, -1.0 }, { 1.0, -1.0, 1.0 }, { -1.0, -1.0, 1.0 }};
                     tSpacePhysCoords = {{ 0.0, 0.0, 0.0 }, { 3.0, 1.25, 0.0 }, { 4.0, 2.25, 1.5 }, { 1.0, 1.0, 1.0 }};
                     break;
                 }
-                case( 1 ):
+                case 1 :
                 {
                     tSpaceParamCoords = {{ 1.0, -1.0, -1.0 }, { 1.0, 1.0, -1.0 }, { 1.0, 1.0, 1.0 }, { 1.0, -1.0, 1.0 }};
                     tSpacePhysCoords  = {{ 3.0, 1.25, 0.0 }, { 4.5, 4.0, 0.0 }, { 5.5, 5.0, 2.0 }, { 4.0, 2.25, 1.5}};
                     break;
                 }
-                case( 2 ):
+                case 2 :
                 {
                     tSpaceParamCoords = {{ 1.0, 1.0, -1.0 }, { -1.0, 1.0, -1.0 }, { -1.0, 1.0, 1.0 }, { 1.0, 1.0, 1.0 }};
                     tSpacePhysCoords  = {{ 4.5, 4.0, 0.0 }, { 1.0, 3.25, 0.0 }, { 2.0, 4.25, 3.0 }, { 5.5, 5.0, 2.0 }};
                     break;
                 }
-                case( 3 ):
+                case 3 :
                 {
                     tSpaceParamCoords = {{ -1.0, -1.0, -1.0 }, { -1.0, -1.0, 1.0 }, { -1.0, 1.0, 1.0 }, { -1.0, 1.0, -1.0 }};
                     tSpacePhysCoords  = {{ 0.0, 0.0, 0.0 }, { 1.0, 1.0, 1.0 }, { 2.0, 4.25, 3.0 }, { 1.0, 3.25, 0.0 }};
                     break;
                 }
-                case( 4 ):
+                case 4 :
                 {
                     tSpaceParamCoords = {{ -1.0, -1.0, -1.0 }, { -1.0, 1.0, -1.0 }, { 1.0, 1.0, -1.0 }, { 1.0, -1.0, -1.0 }};
                     tSpacePhysCoords  = {{ 0.0, 0.0, 0.0 }, { 1.0, 3.25, 0.0 }, { 4.5, 4.0, 0.0 }, { 3.0, 1.25, 0.0 }};
                     break;
                 }
-                case( 5 ):
+                case 5 :
                 {
                     tSpaceParamCoords = {{ -1.0, -1.0, 1.0 }, { 1.0, -1.0, 1.0 }, { 1.0, 1.0, 1.0 }, { -1.0, 1.0, 1.0 }};
                     tSpacePhysCoords  = {{ 1.0, 1.0, 1.0 }, { 4.0, 2.25, 1.5 }, { 5.5, 5.0, 2.0 }, { 2.0, 4.25, 3.0 }};
@@ -779,7 +782,7 @@ TEST_CASE( "Geometry_Interpolator", "[moris],[fem],[GeoInterpolator]" )
         }
     }
 
-//------------------------------------------------------------------------------
+    //------------------------------------------------------------------------------
 }
 
 

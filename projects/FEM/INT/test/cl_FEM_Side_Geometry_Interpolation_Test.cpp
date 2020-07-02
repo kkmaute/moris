@@ -43,7 +43,7 @@ TEST_CASE("Side_Geometry_Interpolation : QUAD4 - QUAD9 - QUAD16", "[moris],[fem]
         // loop over the interpolation orders
         switch( iOrder )
         {
-            case ( 0 ):
+            case 0 :
             {
                 // define a QUAD4 in the physical space, i.e. space coordinates xHat
                 tSpaceInterpolationOrder = mtk::Interpolation_Order::LINEAR;
@@ -55,7 +55,7 @@ TEST_CASE("Side_Geometry_Interpolation : QUAD4 - QUAD9 - QUAD16", "[moris],[fem]
                 break;
             }
 
-            case ( 1 ):
+            case 1 :
             {
                 // define a QUAD9 in the physical space, i.e. space coordinates xHat
                 tSpaceInterpolationOrder = mtk::Interpolation_Order::QUADRATIC;
@@ -78,7 +78,7 @@ TEST_CASE("Side_Geometry_Interpolation : QUAD4 - QUAD9 - QUAD16", "[moris],[fem]
                 tSideNodes = { { 0, 1, 4 }, { 1, 2, 5 }, { 2, 3, 6 }, { 3, 0, 7 } };
                 break;
             }
-            case ( 2 ):
+            case 2 :
             {
                 // define a QUAD16 in the physical space, i.e. space coordinates xHat
                 tSpaceInterpolationOrder = mtk::Interpolation_Order::CUBIC;
@@ -122,7 +122,8 @@ TEST_CASE("Side_Geometry_Interpolation : QUAD4 - QUAD9 - QUAD16", "[moris],[fem]
         mtk::Geometry_Type tSideGeometryType = mtk::Geometry_Type::LINE;
 
         // create a space and time geometry interpolation rule
-        Interpolation_Rule tSideGeoInterpRule( tSideGeometryType,
+        Interpolation_Rule tSideGeoInterpRule(
+                tSideGeometryType,
                                                 Interpolation_Type::LAGRANGE,
                                                 tSpaceInterpolationOrder,
                                                 Interpolation_Type::LAGRANGE,
