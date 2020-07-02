@@ -884,7 +884,7 @@ namespace moris
         void Geometry_Engine::reset()
         {
             mGeometryObjectManager = Geometry_Object_Manager();
-            mPdvHostManager = Pdv_Host_Manager();
+            mPdvHostManager = Pdv_Host_Manager(mADVs.length());
             mInterfaceNodeIndices = Matrix<IndexMat>();
             mActiveGeometryIndex = 0;
         }

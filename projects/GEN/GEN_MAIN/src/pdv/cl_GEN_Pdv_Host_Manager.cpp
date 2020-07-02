@@ -8,7 +8,8 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        Pdv_Host_Manager::Pdv_Host_Manager()
+        Pdv_Host_Manager::Pdv_Host_Manager(uint aNumADVs)
+        : mNumADVs(aNumADVs)
         {
         }
 
@@ -437,27 +438,8 @@ namespace moris
 
         Matrix<DDRMat> Pdv_Host_Manager::compute_dpdv_dadv()
         {
-            // Information from each host
-            Matrix<DDRMat> tTotalAdvSensitivities(0, 0);
-            Matrix<DDRMat> tTestSensitivities(0, 0);
-
-            // Need to know the size of the sensitivities
-            uint tFirstPdvHostIndex = 0;
-            if (mIpPdvHosts.size() > 0)
-            {
-                while (tFirstPdvHostIndex < mIpPdvHosts.size() && (tTestSensitivities.numel() == 0))
-                {
-                    mIpPdvHosts(tFirstPdvHostIndex++)->get_all_sensitivities(tTestSensitivities);
-                }
-            }
-            if (mIgPdvHosts.size() > 0)
-            {
-                while (tFirstPdvHostIndex < mIgPdvHosts.size() && (tTestSensitivities.numel() == 0))
-                {
-                    mIgPdvHosts(tFirstPdvHostIndex++)->get_all_sensitivities(tTestSensitivities);
-                }
-            }
-            tTotalAdvSensitivities.resize(mGlobalPdvIndex, tTestSensitivities.n_cols());
+            // Total matrix dpdv/dadv
+            Matrix<DDRMat> tTotalAdvSensitivities(mGlobalPdvIndex, mNumADVs, 0.0);
 
             // Loop over PDV hosts
             for (uint tPdvHostIndex = 0; tPdvHostIndex < mIpPdvHosts.size(); tPdvHostIndex++)

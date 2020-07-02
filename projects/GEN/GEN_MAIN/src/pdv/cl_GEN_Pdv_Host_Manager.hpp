@@ -23,6 +23,10 @@ namespace moris
         class Pdv_Host_Manager : public MSI::Design_Variable_Interface
         {
         private:
+
+            // Number of ADVs
+            uint mNumADVs;
+
             // list of pdv hosts - interpolation nodes
             Cell<std::shared_ptr<Interpolation_Pdv_Host>> mIpPdvHosts;
             Cell<std::shared_ptr<Integration_Pdv_Host>> mIgPdvHosts;
@@ -53,7 +57,7 @@ namespace moris
             /**
              * Constructor
              */
-            Pdv_Host_Manager();
+            Pdv_Host_Manager(uint aNumADVs = 0);
             
             /**
              * Destructor
@@ -277,160 +281,6 @@ namespace moris
              * @return Intersection data structure with PDV hosts
              */
             std::shared_ptr<Intersection> convert_info_to_intersection(Intersection_Info aIntersectionInfo);
-
-//            /**
-//             * communicate dv types
-//             * @param aPdvTypeList a local list of dv types
-//             */
-//            void communicate_ip_dv_types(moris::Cell<PDV>& aPdvTypeList)
-//            {
-//                // get processor size
-//                int tSize = par_size();
-//
-//                // get number of local dv types
-//                moris::sint tNumLocalDvTypes = aPdvTypeList.size();
-//
-//                // variable for maximal possible global dv types ???
-//                moris::sint tNumMaxGlobalDvTypes;
-//
-//                // get number of global dv types
-//                sum_all(tNumLocalDvTypes, tNumMaxGlobalDvTypes);
-//
-//                if (par_rank() == 0)
-//                {
-//                    // set size of dv type list = number of global types
-//                    mIpPdvTypes.resize(tNumMaxGlobalDvTypes);
-//                }
-//
-//                // create list containing the number of local dv types
-//                moris::Cell <moris::sint> tNumLocalDvTypesList (tSize);
-//
-//                // insert number of local dv types into list containing the number of local dv types
-//                MPI_Allgather(&tNumLocalDvTypes, 1, MPI_UNSIGNED, (tNumLocalDvTypesList.data()).data(), 1, MPI_UNSIGNED,  MPI_COMM_WORLD);
-//
-//                // create list containing the offsets of the local dv types in relation to processor 0
-//                moris::Cell<moris::sint> tDofTypeOffset(tSize, 0);
-//
-//                // fill the list with the corresponding offsets
-//                for (int Ip = 1; Ip <tSize; ++Ip)
-//                {
-//                    tDofTypeOffset(Ip) = tDofTypeOffset(Ip-1) + tNumLocalDvTypesList(Ip-1);
-//                }
-//
-//                // assemble list containing all used dv types. Dv types are not unique
-//                MPI_Gatherv(((aPdvTypeList.data()).data()),
-//                               tNumLocalDvTypes,
-//                               MPI_UNSIGNED,
-//                               (mIpPdvTypes.data()).data(),
-//                               (tNumLocalDvTypesList.data()).data(),
-//                               (tDofTypeOffset.data()).data(),
-//                               MPI_UNSIGNED,
-//                               0,
-//                               MPI_COMM_WORLD);
-//
-//                // temporary variable for mIpPdvTypes size
-//                moris::uint tPdvTypeListSize;
-//
-//                if (par_rank() == 0)
-//                {
-//                    // sort this created list
-//                    std::sort((mIpPdvTypes.data()).data(), (mIpPdvTypes.data()).data() + mIpPdvTypes.size());
-//
-//                    // use std::unique and std::distance to create list containing all used dof types. This list is unique
-//                    auto last = std::unique((mIpPdvTypes.data()).data(), (mIpPdvTypes.data()).data() + mIpPdvTypes.size());
-//                    auto pos  = std::distance((mIpPdvTypes.data()).data(), last);
-//
-//                    mIpPdvTypes.resize(pos);
-//
-//                    tPdvTypeListSize = mIpPdvTypes.size();
-//                }
-//
-//                // bcast size of mIpPdvTypes on processor 0
-//                MPI_Bcast(& tPdvTypeListSize, 1, MPI_UNSIGNED, 0, MPI_COMM_WORLD);
-//
-//                // resize mIpPdvTypes on all processors
-//                mIpPdvTypes.resize(tPdvTypeListSize);
-//
-//                // bcast unique mIpPdvTypes to all processors
-//                MPI_Bcast((mIpPdvTypes.data()).data(), mIpPdvTypes.size(), MPI_UNSIGNED, 0, MPI_COMM_WORLD);
-//            }
-//        //------------------------------------------------------------------------------
-//            /**
-//             * communicate dv types
-//             * @param aPdvTypeList a local list of dv types
-//             */
-//            void communicate_ig_dv_types(moris::Cell<PDV>& aPdvTypeList)
-//            {
-//                // get processor size
-//                int tSize = par_size();
-//
-//                // get number of local dv types
-//                moris::sint tNumLocalDvTypes = aPdvTypeList.size();
-//
-//                // variable for maximal possible global dv types ???
-//                moris::sint tNumMaxGlobalDvTypes;
-//
-//                // get number of global dv types
-//                sum_all(tNumLocalDvTypes, tNumMaxGlobalDvTypes);
-//
-//                if (par_rank() == 0)
-//                {
-//                    // set size of dv type list = number of global types
-//                    mIgPdvTypes.resize(tNumMaxGlobalDvTypes);
-//                }
-//
-//                // create list containing the number of local dv types
-//                moris::Cell <moris::sint> tNumLocalDvTypesList (tSize);
-//
-//                // insert number of local dv types into list containing the number of local dv types
-//                MPI_Allgather(&tNumLocalDvTypes, 1, MPI_UNSIGNED, (tNumLocalDvTypesList.data()).data(), 1, MPI_UNSIGNED,  MPI_COMM_WORLD);
-//
-//                // create list containing the offsets of the local dv types in relation to processor 0
-//                moris::Cell<moris::sint> tDofTypeOffset(tSize, 0);
-//
-//                // fill the list with the corresponding offsets
-//                for (int Ip = 1; Ip <tSize; ++Ip)
-//                {
-//                    tDofTypeOffset(Ip) = tDofTypeOffset(Ip-1) + tNumLocalDvTypesList(Ip-1);
-//                }
-//
-//                // assemble list containing all used dv types. Dv types are not unique
-//                MPI_Gatherv(((aPdvTypeList.data()).data()),
-//                               tNumLocalDvTypes,
-//                               MPI_UNSIGNED,
-//                               (mIgPdvTypes.data()).data(),
-//                               (tNumLocalDvTypesList.data()).data(),
-//                               (tDofTypeOffset.data()).data(),
-//                               MPI_UNSIGNED,
-//                               0,
-//                               MPI_COMM_WORLD);
-//
-//                // temporary variable for mIpPdvTypes size
-//                moris::uint tPdvTypeListSize;
-//
-//                if (par_rank() == 0)
-//                {
-//                    // sort this created list
-//                    std::sort((mIgPdvTypes.data()).data(), (mIgPdvTypes.data()).data() + mIgPdvTypes.size());
-//
-//                    // use std::unique and std::distance to create list containing all used dof types. This list is unique
-//                    auto last = std::unique((mIgPdvTypes.data()).data(), (mIgPdvTypes.data()).data() + mIgPdvTypes.size());
-//                    auto pos  = std::distance((mIgPdvTypes.data()).data(), last);
-//
-//                    mIgPdvTypes.resize(pos);
-//
-//                    tPdvTypeListSize = mIgPdvTypes.size();
-//                }
-//
-//                // bcast size of mIgPdvTypes on processor 0
-//                MPI_Bcast(& tPdvTypeListSize, 1, MPI_UNSIGNED, 0, MPI_COMM_WORLD);
-//
-//                // resize mIgPdvTypes on all processors
-//                mIgPdvTypes.resize(tPdvTypeListSize);
-//
-//                // bcast unique mIgPdvTypes to all processors
-//                MPI_Bcast((mIgPdvTypes.data()).data(), mIgPdvTypes.size(), MPI_UNSIGNED, 0, MPI_COMM_WORLD);
-//            }
 
         };
     }   // end ge namespace
