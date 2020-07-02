@@ -264,6 +264,9 @@ namespace xtk
             writer.set_time(0.0);
             writer.close_file();
         }
+
+        // Communicate interface nodes
+        this->communicate_interface_nodes();
     }
 
     // ----------------------------------------------------------------------------------
@@ -2837,7 +2840,7 @@ namespace xtk
     // ----------------------------------------------------------------------------------
 
     void
-    Model::compute_sensitivity()
+    Model::communicate_interface_nodes()
     {
         // verify the state of the xtk model
         MORIS_ERROR(mDecomposed,"Prior to computing sensitivity, the decomposition process must be called");

@@ -450,7 +450,7 @@ namespace moris
                     mIpPdvHosts(tFirstPdvHostIndex++)->get_all_sensitivities(tTestSensitivities);
                 }
             }
-            else if (mIgPdvHosts.size() > 0)
+            if (mIgPdvHosts.size() > 0)
             {
                 while (tFirstPdvHostIndex < mIgPdvHosts.size() && (tTestSensitivities.numel() == 0))
                 {
