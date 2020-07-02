@@ -69,6 +69,9 @@ namespace moris
             Cell<std::shared_ptr<Property>> mProperties;
             Cell<ParameterList> mPropertyParameterLists;
 
+            // Child nodes
+            Cell<std::shared_ptr<Child_Node>> mChildNodes;
+
             // Contains all the geometry objects
             Geometry_Object_Manager mGeometryObjectManager;
 
@@ -373,7 +376,6 @@ namespace moris
                                             moris::Matrix< moris::IndexMat > const & aEntityNodeInds,
                                             moris::Matrix< moris::DDRMat >   const & aNodeCoords,
                                             moris::size_t                    const & aCheckType,
-                                            moris::Matrix< moris::IndexMat >       & aNodeADVIndices,
                                             GEN_Geometry_Object                    & aGeometryObject );
 
         };

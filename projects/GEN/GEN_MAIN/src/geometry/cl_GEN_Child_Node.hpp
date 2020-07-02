@@ -21,7 +21,7 @@ namespace moris
         public:
 
             /**
-             * Constructor
+             * Constructor (local coordinates given)
              *
              * @param aParentNodeIndices Node indices of the parent of this child node
              * @param aParentNodeCoordinates Coordinates of the parent of this child node
@@ -33,6 +33,21 @@ namespace moris
                        Cell<Matrix<DDRMat>>       aParentNodeCoordinates,
                        const xtk::Basis_Function& aBasisFunction,
                        Matrix<DDRMat>             aLocalCoordinates);
+
+            /**
+             * Constructor (local coordinates calculated)
+             *
+             * @param aParentNodeIndices Node indices of the parent of this child node
+             * @param aParentNodeCoordinates Coordinates of the parent of this child node
+             * @param aBasisFunction Basis function of the parent topology
+             * @param aIntersectionGeometry Geometry that intersects the parent to create this child
+             * @param aIsocontourThreshold Threshold for determining the intersection location of the child node
+             */
+            Child_Node(Matrix<DDUMat>             aParentNodeIndices,
+                       Cell<Matrix<DDRMat>>       aParentNodeCoordinates,
+                       const xtk::Basis_Function& aBasisFunction,
+                       Matrix<DDRMat>             aNodeFieldValues,
+                       real                       aIsocontourThreshold);
 
             /**
              * Get a geometry field value on the child node based on values from the parents

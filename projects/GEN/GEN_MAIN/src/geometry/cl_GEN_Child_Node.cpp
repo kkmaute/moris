@@ -13,10 +13,25 @@ namespace moris
                                Cell<Matrix<DDRMat>>       aParentNodeCoordinates,
                                const xtk::Basis_Function& aBasisFunction,
                                Matrix<DDRMat>             aLocalCoordinates)
-                                     : mParentNodeIndices(aParentNodeIndices),
-                                       mParentNodeCoordinates(aParentNodeCoordinates)
+                : mParentNodeIndices(aParentNodeIndices),
+                  mParentNodeCoordinates(aParentNodeCoordinates)
         {
             aBasisFunction.evaluate_basis_function(aLocalCoordinates, mBasisValues);
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
+        Child_Node::Child_Node(Matrix<DDUMat>             aParentNodeIndices,
+                               Cell<Matrix<DDRMat>>       aParentNodeCoordinates,
+                               const xtk::Basis_Function& aBasisFunction,
+                               Matrix<DDRMat>             aNodeFieldValues,
+                               real                       aIsocontourThreshold)
+                : Child_Node(aParentNodeIndices,
+                             aParentNodeCoordinates,
+                             aBasisFunction,
+                             Interpolation::linear_interpolation_value(aNodeFieldValues,
+                                                                       aIsocontourThreshold))
+        {
         }
 
         //--------------------------------------------------------------------------------------------------------------

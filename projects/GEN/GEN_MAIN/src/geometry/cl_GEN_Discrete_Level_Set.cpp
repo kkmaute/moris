@@ -35,7 +35,7 @@ namespace moris
                 MORIS_ASSERT((aEntityIndex - mNumOriginalNodes) < mChildNodes.size(),
                         "A discrete level set field value was requested from a node that this field doesn't know. "
                         "Perhaps a child node was not added to this field?");
-                return mChildNodes(aEntityIndex - mNumOriginalNodes).interpolate_geometry_field_value(this);
+                return mChildNodes(aEntityIndex - mNumOriginalNodes)->interpolate_geometry_field_value(this);
             }
         }
 
@@ -62,7 +62,7 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        void Discrete_Level_Set::add_child_node(uint aNodeIndex, Child_Node aChildNode)
+        void Discrete_Level_Set::add_child_node(uint aNodeIndex, std::shared_ptr<Child_Node> aChildNode)
         {
             mChildNodes.push_back(aChildNode);
         }

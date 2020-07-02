@@ -153,7 +153,6 @@ moris::Cell<bool> test_diffusion_constitutive_model(
             tCheckdStress = tCheckdStress &&
                     ( std::abs( ( tdFluxdDOF( iStress, jStress ) - tdFluxdDOF_FD( iStress, jStress ) ) /
                             tdFluxdDOF( iStress, jStress )) < tEpsilonRel  );
-
         }
     }
 

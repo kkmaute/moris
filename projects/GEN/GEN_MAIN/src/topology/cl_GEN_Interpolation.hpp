@@ -81,6 +81,15 @@ public:
         }
     }
 
+    template<typename Real, typename Real_Matrix>
+    static moris::Matrix< Real_Matrix > linear_interpolation_value(moris::Matrix< Real_Matrix > const & aInterpVars,
+                                                                   Real const & aValue)
+    {
+        Matrix<DDRMat> tLocalCoordinate(aInterpVars.n_cols(), 1);
+        linear_interpolation_value(aInterpVars, aValue, tLocalCoordinate);
+        return tLocalCoordinate;
+    }
+
     /**
      * Linear interpolation based on a local coordinate (aLclCoords) based on interpolation vars (aInterpVars)
      * Requires 1 local coordinate
