@@ -327,7 +327,7 @@ namespace moris
                     aIntersectionLocalCoordinates);
 
             // Child node
-            Cell<Matrix<DDRMat>> tParentNodeCoordinates(2, Matrix<DDRMat>(1, 2));
+            Cell<Matrix<DDRMat>> tParentNodeCoordinates(2, Matrix<DDRMat>(1, mSpatialDim));
             aGlobalNodeCoordinates.get_row(aEntityNodeIndices(0), tParentNodeCoordinates(0));
             aGlobalNodeCoordinates.get_row(aEntityNodeIndices(1), tParentNodeCoordinates(1));
             Matrix<DDUMat> tParentNodeIndices(2, 1);
