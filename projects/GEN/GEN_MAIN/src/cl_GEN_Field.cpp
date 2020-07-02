@@ -20,9 +20,11 @@ namespace moris
             MORIS_ERROR(aFieldVariableIndices.length() == aADVIndices.length(),
                         "ge::Field: Number of field variables indices must equal the number of ADV indices");
 
+            // Store number of ADVs
+            mNumADVs = aADVs.length();
+
             // Resize field variables
             uint tNumInputs = aFieldVariableIndices.length() + mConstantParameters.length();
-            mNumActiveVariables = tNumInputs;
             mFieldVariables.resize(tNumInputs);
 
             // Fill with pointers to ADVs
@@ -39,7 +41,6 @@ namespace moris
                 {
                     mFieldVariables(tVariableIndex) = &(mConstantParameters(tParameterIndex++));
                     mActiveVariables(tVariableIndex) = false;
-                    mNumActiveVariables--;
                 }
             }
         }
@@ -49,7 +50,7 @@ namespace moris
         Field::Field(Matrix<DDRMat> aConstantParameters)
                 : mConstantParameters(aConstantParameters),
                   mActiveVariables(aConstantParameters.length(), false),
-                  mNumActiveVariables(0)
+                  mNumADVs(0)
         {
             // Resize field variables
             uint tNumInputs = mConstantParameters.length();
@@ -71,30 +72,25 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        Matrix<DDUMat> Field::get_adv_indices()
-        {
-            return mADVIndices;
-        }
-
-        //--------------------------------------------------------------------------------------------------------------
-
         void Field::evaluate_sensitivity(      uint            aIndex,
                                          const Matrix<DDRMat>& aCoordinates,
                                                Matrix<DDRMat>& aSensitivities)
         {
+            // Resize sensitivities
+            aSensitivities.resize(1, mNumADVs);
+
             // Evaluate all sensitivities
-            this->evaluate_all_sensitivities(aIndex, aCoordinates, aSensitivities);
+            Matrix<DDRMat> tTempSensitivities;
+            this->evaluate_all_sensitivities(aIndex, aCoordinates, tTempSensitivities);
 
             // Return only what is needed
-            uint tVariableIndex = 0;
             for (uint tSensitivityIndex = 0; tSensitivityIndex < mActiveVariables.size(); tSensitivityIndex++)
             {
-                if (mActiveVariables(tVariableIndex))
+                if (mActiveVariables(tSensitivityIndex))
                 {
-                    aSensitivities(tVariableIndex++) = aSensitivities(tSensitivityIndex);
+                    aSensitivities(mADVIndices(tSensitivityIndex)) = tTempSensitivities(tSensitivityIndex);
                 }
             }
-            aSensitivities.resize(1, mNumActiveVariables);
         }
 
         //--------------------------------------------------------------------------------------------------------------
