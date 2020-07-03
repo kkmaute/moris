@@ -103,13 +103,12 @@ namespace xtk
             Cell<moris_index> mNullVertexInterpVerts;
     };
 
-
-
     class Model;
 
     class Enrichment
     {
         public:
+
             Enrichment(){};
 
             Enrichment(
@@ -151,7 +150,6 @@ namespace xtk
             Cell<moris::Matrix< moris::IndexMat >> const &
             get_element_enrichment_levels_in_basis_support(moris_index const & aEnrichmentDataIndex = 0) const;
 
-
             // ----------------------------------------------------------------------------------
             // Accessing enrichment data
             // ----------------------------------------------------------------------------------
@@ -189,7 +187,6 @@ namespace xtk
             write_cell_enrichment_to_fields(
                     Cell<std::string>  & aEnrichmentFieldStrs,
                     mtk::Mesh*           aMeshWithEnrFields) const;
-
 
         private:
 
@@ -250,7 +247,7 @@ namespace xtk
             void
             construct_subphase_in_support_map(
                     moris::Matrix< moris::IndexMat > const & aSubphaseClusterIndicesInSupport,
-                    IndexMap & aSubPhaseIndexToSupportIndex);
+                    IndexMap                               & aSubPhaseIndexToSupportIndex);
 
             // ----------------------------------------------------------------------------------
 
@@ -277,10 +274,10 @@ namespace xtk
             void
             unzip_subphase_bin_enrichment_into_element_enrichment(
                     moris_index const                      & aEnrichmentDataIndex,
-                    moris_index const & aBasisIndex,
+                    moris_index const                      & aBasisIndex,
                     moris::Matrix< moris::IndexMat > const & aParentElementsInSupport,
                     moris::Matrix< moris::IndexMat > const & aSubphasesInSupport,
-                    IndexMap &                               aSubPhaseIndexToSupportIndex,
+                    IndexMap                               & aSubPhaseIndexToSupportIndex,
                     moris::Matrix< moris::IndexMat > const & aPrunedSubPhaseToSubphase,
                     moris::Matrix< moris::IndexMat >       & aSubPhaseBinEnrichmentVals);
 
@@ -320,8 +317,8 @@ namespace xtk
             set_received_enriched_basis_ids(
                     moris_index                          const & aEnrichmentDataIndex,
                     Cell<moris::Matrix<moris::IndexMat>> const & aReceivedEnrichedIds,
-                    Cell<Cell<moris_index>> const & aBasisIndexToBasisOwner,
-                    Cell<Cell<moris_index>> const & aSubphaseIdInSupport);
+                    Cell<Cell<moris_index>>              const & aBasisIndexToBasisOwner,
+                    Cell<Cell<moris_index>>              const & aSubphaseIdInSupport);
 
             // ----------------------------------------------------------------------------------
 
@@ -340,15 +337,15 @@ namespace xtk
             bool
             subphase_is_in_support(
                     moris_index const & aEnrichmentDataIndex,
-                    moris_index aSubphaseIndex,
-                    moris_index aEnrichedBasisIndex);
+                    moris_index         aSubphaseIndex,
+                    moris_index         aEnrichedBasisIndex);
             // ----------------------------------------------------------------------------------
             void
             print_basis_support_debug(
                     moris_index                              aBasisIndex,
                     moris::Matrix< moris::IndexMat > const & aParentElementsInSupport,
                     moris::Matrix< moris::IndexMat > const & aSubphasesInSupport,
-                    IndexMap &                               aSubPhaseIndexToSupportIndex,
+                    IndexMap                               & aSubPhaseIndexToSupportIndex,
                     moris::Matrix< moris::IndexMat > const & aPrunedSubPhaseToSubphase,
                     moris::Matrix< moris::IndexMat >       & aSubPhaseBinEnrichmentVals);
 
@@ -374,10 +371,10 @@ namespace xtk
             void
             construct_enriched_vertex_interpolation(
                     moris_index                           const & aEnrichmentDataIndex,
-                    mtk::Vertex_Interpolation* aBaseVertexInterp,
-                    Cell<moris_index> const &  aSubPhaseBasisEnrLev,
-                    std::unordered_map<moris_id,moris_id> & aMapBasisIndexToLocInSubPhase,
-                    Vertex_Enrichment &        aVertexEnrichment);
+                    mtk::Vertex_Interpolation                   * aBaseVertexInterp,
+                    Cell<moris_index>                     const &  aSubPhaseBasisEnrLev,
+                    std::unordered_map<moris_id,moris_id>       & aMapBasisIndexToLocInSubPhase,
+                    Vertex_Enrichment                           & aVertexEnrichment);
             // ----------------------------------------------------------------------------------
             std::unordered_map<moris_id,moris_id>
             construct_subphase_basis_to_basis_map(Cell<moris_id> const & aSubPhaseBasisIndex);
@@ -387,7 +384,7 @@ namespace xtk
             moris::Cell<mtk::Vertex_Interpolation*>
             get_vertex_interpolations(
                     moris::mtk::Cell & aParentCell,
-                    const uint aMeshIndex ) const;
+                    const uint         aMeshIndex ) const;
 
     };
 }

@@ -37,6 +37,7 @@ namespace xtk
     // ----------------------------------------------------------------------------------
     // Constructor/Deconstructor Source code
     // ----------------------------------------------------------------------------------
+
     Model::~Model()
     {
         if(mEnrichment != nullptr )
@@ -367,6 +368,7 @@ namespace xtk
     // ----------------------------------------------------------------------------------
     // Decomposition Source code
     // ----------------------------------------------------------------------------------
+
     void
     Model::decompose(Cell<enum Subdivision_Method> aMethods)
     {
@@ -540,7 +542,6 @@ namespace xtk
 
                 // associate new nodes with geometry objects
                 create_new_node_association_with_geometry(tDecompData);
-
 
                 for(moris::size_t i = 0; i< tIntersectedCount; i++)
                 {
@@ -2172,7 +2173,7 @@ namespace xtk
             Cell<Matrix<IndexMat>>  const & aReceivedChildCellIdOffset,
             moris::moris_id               & aCellInd)
     {
-        Cell<Child_Mesh*> const & tNotOwnedChildMeshes     = mCutMesh.get_not_owned_child_meshes();
+        Cell<Child_Mesh*> const & tNotOwnedChildMeshes = mCutMesh.get_not_owned_child_meshes();
 
         // iterate through received data
         for(moris::uint i = 0; i < aChildMeshesInInNotOwned.size(); i++)
@@ -5192,7 +5193,6 @@ namespace xtk
             }
         }
 
-
         moris::moris_index tElemPhaseVal = mGeometryEngine->get_elem_phase_index(tNodalPhaseVals);
 
         return tElemPhaseVal;
@@ -5204,7 +5204,6 @@ namespace xtk
     Model::print_decompsition_preamble(Cell<enum Subdivision_Method> aMethods)
     {
         // Only process with rank 0 prints the preamble
-
 
         if(moris::par_rank() == 0 && mVerbose)
         {
