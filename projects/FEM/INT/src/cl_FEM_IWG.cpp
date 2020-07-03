@@ -1326,6 +1326,12 @@ namespace moris
                         // compute the perturbation absolute value
                         real tDeltaH = aPerturbation * tCoeff( iCoeffRow, iCoeffCol );
 
+                        // check that perturbation is not zero
+                        if( ( tDeltaH < 1e-12 ) && ( tDeltaH > - 1e-12 ) )
+                        {
+                            tDeltaH = aPerturbation;
+                        }
+
                         // loop over the points for FD
                         for( uint iPoint = 0; iPoint < tNumPoints; iPoint++ )
                         {
@@ -1422,6 +1428,12 @@ namespace moris
                         // compute the perturbation absolute value
                         real tDeltaH = aPerturbation * tCoeff( iCoeffRow, iCoeffCol );
 
+                        // check that perturbation is not zero
+                        if( ( tDeltaH < 1e-12 ) && ( tDeltaH > - 1e-12 ) )
+                        {
+                            tDeltaH = aPerturbation;
+                        }
+
                         // loop over the points for FD
                         for( uint iPoint = 0; iPoint < tNumPoints; iPoint++ )
                         {
@@ -1503,6 +1515,12 @@ namespace moris
                     {
                         // compute the perturbation absolute value
                         real tDeltaH = aPerturbation * tCoeff( iCoeffRow, iCoeffCol );
+
+                        // check that perturbation is not zero
+                        if( ( tDeltaH < 1e-12 ) && ( tDeltaH > - 1e-12 ) )
+                        {
+                            tDeltaH = aPerturbation;
+                        }
 
                         // loop over the points for FD
                         for( uint iPoint = 0; iPoint < tNumPoints; iPoint++ )

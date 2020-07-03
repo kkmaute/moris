@@ -533,17 +533,17 @@ namespace moris
 
             this->delete_side_sets();
 
-//            if( mParameters->get_number_of_dimensions() == 3 )
-//            {
-//                mBackgroundMesh->delete_faces();
-//                mBackgroundMesh->delete_edges();
-//            }
-//            else
-//            {
-//                mBackgroundMesh->delete_faces();
-//            }
-//
-//            mBackgroundMesh->reset_neigbors();
+            //            if( mParameters->get_number_of_dimensions() == 3 )
+            //            {
+            //                mBackgroundMesh->delete_faces();
+            //                mBackgroundMesh->delete_edges();
+            //            }
+            //            else
+            //            {
+            //                mBackgroundMesh->delete_faces();
+            //            }
+            //
+            //            mBackgroundMesh->reset_neigbors();
 
 
             // reset other patterns
@@ -569,7 +569,7 @@ namespace moris
             mFinalizedCalled = false;
         }
 
-// -----------------------------------------------------------------------------
+        // -----------------------------------------------------------------------------
 
         void Database::create_communication_table()
         {
@@ -1351,7 +1351,8 @@ namespace moris
 
             mOutputSideSetMap.clear();
         }
-// -----------------------------------------------------------------------------
+
+        // -----------------------------------------------------------------------------
 
         void Database::calculate_t_matrices_for_input()
         {

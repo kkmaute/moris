@@ -6,7 +6,11 @@ set(${WRK}_VERSION ${MORIS_VERSION})
 
 # List header files
 set(HEADERS
-     )
+    cl_WRK_Performer_Manager.hpp
+    cl_WRK_Performer.hpp
+    cl_WRK_Workflow.hpp
+    fn_WRK_perform_refinement.hpp
+    )
      
 set(XTK_INCLUDES
     "assert"
@@ -44,8 +48,8 @@ endforeach()
 
 # List library source files
 set(LIB_SOURCES
-    cl_WRK_Performer.cpp
     cl_WRK_Performer_Manager.cpp
+    cl_WRK_Performer.cpp
     cl_WRK_Workflow.cpp
     fn_WRK_Workflow_Main_Interface.cpp
     fn_WRK_perform_refinement.cpp

@@ -25,7 +25,7 @@ To ensure the non-negativity of \f$ \tilde{S} \f$
 \f[
 \tilde{S} = \left\{
 \begin{array}{ll}
-S + \overline{S} & \mbox{if}\ \overline{S} \leq -c_{v2} S \\
+S + \overline{S} & \mbox{if}\ \overline{S} \geq -c_{v2} S \\
 S + \frac{S \left( c_{v2}^2 S + c_{v3} \overline{S} \right)}{\left( c_{v3} - 2 c_{v2} \right) S - \overline{S}}& \mbox{if}\ \overline{S} < -c_{v2} S
 \end{array}
 \right.

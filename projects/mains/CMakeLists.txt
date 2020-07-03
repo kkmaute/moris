@@ -34,6 +34,7 @@ set(MAIN_DEPENDENCIES
     ${HMR}-lib
     ${COM}-lib
     ${IOS}-lib
+    ${GEN_MAIN}-lib
     ${WRK}-lib
     ${MORIS_PETSC_LIBS}
     ${MORIS_BOOST_LIBS}
@@ -99,7 +100,7 @@ SET(SO_INCLUDES
     ${MORIS_PACKAGE_DIR}/XTK/src/mesh
     ${MORIS_PACKAGE_DIR}/XTK/src/tools
     ${MORIS_PACKAGE_DIR}/XTK/src/topology
-    ${MORIS_PACKAGE_DIR}/XTK/src/xtk      
+    ${MORIS_PACKAGE_DIR}/XTK/src/xtk
     ${MORIS_PACKAGE_DIR}/PRM/src 
     ${MORIS_PACKAGE_DIR}/MRS/COR/src)
     

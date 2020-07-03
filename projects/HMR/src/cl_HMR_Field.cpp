@@ -24,16 +24,18 @@ namespace moris
 {
     namespace hmr
     {
-//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
 
-        Field::Field( const std::string                  & aLabel,
-                            std::shared_ptr< mtk::Mesh >   aMesh,
-                      const uint                         & aBSplineMeshIndex,
-                            std::shared_ptr< Database >    aDatabase,
-                            Lagrange_Mesh_Base *           aLagrangeMesh ) : mMesh( aMesh ),
-                                                                             mDatabase( aDatabase ),
-                                                                             mLagrangeMesh( aLagrangeMesh ),
-                                                                             mFieldIndex( aLagrangeMesh->create_real_scalar_field_data( aLabel ) )
+        Field::Field(
+                const std::string            & aLabel,
+                std::shared_ptr< mtk::Mesh >   aMesh,
+                const uint                   & aBSplineMeshIndex,
+                std::shared_ptr< Database >    aDatabase,
+                Lagrange_Mesh_Base *           aLagrangeMesh )
+        : mMesh( aMesh ),
+          mDatabase( aDatabase ),
+          mLagrangeMesh( aLagrangeMesh ),
+          mFieldIndex( aLagrangeMesh->create_real_scalar_field_data( aLabel ) )
         {
             this->set_label( aLabel );
             mInputBSplineIndex = aBSplineMeshIndex;         //FIXME Index not order
@@ -41,16 +43,18 @@ namespace moris
             // assume input and output order are the same
             mOutputBSplineOrder = mInputBSplineIndex;
 
-            //get lagrange mesh than bspline order
+            //get Lagrange mesh than bspline order
             uint tBSplineOrder = mLagrangeMesh->get_bspline_order( aBSplineMeshIndex );
 
             aLagrangeMesh->set_real_scalar_field_bspline_order( mFieldIndex, tBSplineOrder );
         }
-//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
 
-        Field::Field( const std::string             & aLabel,
-                            std::shared_ptr< Mesh >   aMesh,
-                      const std::string             & aHdf5FilePath  ) : mMesh( aMesh )
+        Field::Field(
+                const std::string       & aLabel,
+                std::shared_ptr< Mesh >   aMesh,
+                const std::string       & aHdf5FilePath  )
+        : mMesh( aMesh )
         {
             // link to database
             mDatabase = aMesh->get_database();
@@ -95,14 +99,14 @@ namespace moris
             this->evaluate_node_values();
         }
 
-//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
 
         Field::~Field()
         {
             mLagrangeMesh = nullptr;
         }
 
-//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
 
         // parameter copied from input settings
         void Field::set_min_surface_level( const uint & aLevel )
@@ -110,35 +114,35 @@ namespace moris
             mMinSurfaceLevel = aLevel;
         }
 
-//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
 
         void Field::set_min_volume_level( const uint & aLevel )
         {
             mMinVolumeLevel = aLevel;
         }
 
-//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
 
         void Field::set_max_surface_level( const uint & aLevel )
         {
             mMaxSurfaceLevel = aLevel;
         }
 
-//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
 
         void Field::set_max_volume_level( const uint & aLevel )
         {
             mMaxVolumeLevel = aLevel;
         }
 
-//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
 
         uint Field::get_min_surface_level() const
         {
             return mMinSurfaceLevel;
         }
 
-//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
 
         // parameter copied from input settings
         uint Field::get_min_volume_level() const
@@ -146,7 +150,7 @@ namespace moris
             return mMinVolumeLevel;
         }
 
-//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
 
         // parameter copied from input settings
         uint Field::get_max_surface_level() const
@@ -154,7 +158,7 @@ namespace moris
             return mMaxSurfaceLevel;
         }
 
-//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
 
         // parameter copied from input settings
         uint Field::get_max_volume_level() const
@@ -162,57 +166,58 @@ namespace moris
             return mMaxVolumeLevel;
         }
 
-//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
 
         const std::string & Field::get_label() const
         {
             return mLagrangeMesh->get_real_scalar_field_label( mFieldIndex );
         }
 
-//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
 
         void Field::set_label( const std::string & aLabel )
         {
             mLagrangeMesh->set_real_scalar_field_label( mFieldIndex, aLabel );
         }
 
-//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
 
         Matrix< DDRMat > & Field::get_node_values()
         {
             return mLagrangeMesh->get_real_scalar_field_data( mFieldIndex );
         }
 
-//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
 
         const Matrix< DDRMat > & Field::get_node_values() const
         {
             return mLagrangeMesh->get_real_scalar_field_data( mFieldIndex );
         }
 
-//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
 
         Matrix< DDRMat > & Field::get_coefficients()
         {
             return mLagrangeMesh->get_real_scalar_field_coeffs( mFieldIndex );
         }
 
-//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
 
         const Matrix< DDRMat > & Field::get_coefficients() const
         {
             return mLagrangeMesh->get_real_scalar_field_coeffs( mFieldIndex );
         }
 
-//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
 
         // change field to the mesh which is deliverd as an input
         void Field::change_mesh(       Lagrange_Mesh_Base * aMesh,
-                                 const uint                 aFieldIndex )
+                const uint                 aFieldIndex )
         {
             // set order of B-Spline
-            mLagrangeMesh->set_real_scalar_field_bspline_order( mFieldIndex,
-                                                                this->get_bspline_order() );
+            mLagrangeMesh->set_real_scalar_field_bspline_order(
+                    mFieldIndex,
+                    this->get_bspline_order() );
 
             // change mesh pointer
             mLagrangeMesh = aMesh;
@@ -220,10 +225,11 @@ namespace moris
             // change mesh index
             mFieldIndex   = aFieldIndex;
         }
-//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
 
-        void Field::get_element_local_node_values( const moris_index        aElementIndex,
-                                                         Matrix< DDRMat > & aValues )
+        void Field::get_element_local_node_values(
+                const moris_index    aElementIndex,
+                Matrix< DDRMat >   & aValues )
         {
             // get pointer to element
             Element * tElement = mLagrangeMesh->get_element( aElementIndex );
@@ -241,7 +247,7 @@ namespace moris
             }
         }
 
-//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
 
         void Field::evaluate_node_values( const Matrix< DDRMat > & aCoefficients )
         {
@@ -283,35 +289,35 @@ namespace moris
             }
         }
 
-//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
 
         void Field::evaluate_node_values()
         {
             this->evaluate_node_values( this->get_coefficients() );
         }
 
-//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
 
-//        void Field::evaluate_scalar_function( real (*aFunction)( const Matrix< DDRMat > & aPoint ) )
-//        {
-//            // get pointer to node values
-//            Matrix< DDRMat > & tNodeValues = this->get_node_values();
-//
-//            // get number of nodes on block
-//            uint tNumberOfVertices = mMesh->get_num_nodes();
-//
-//            // set size of node values
-//            tNodeValues.set_size( tNumberOfVertices, 1 );
-//
-//            // loop over all vertices
-//            for( uint k=0; k<tNumberOfVertices; ++k )
-//            {
-//                // evaluate function at vertex cooridinates
-//                tNodeValues( k ) = aFunction( mMesh->get_mtk_vertex( k ).get_coords() );
-//            }
-//        }
+        //        void Field::evaluate_scalar_function( real (*aFunction)( const Matrix< DDRMat > & aPoint ) )
+        //        {
+        //            // get pointer to node values
+        //            Matrix< DDRMat > & tNodeValues = this->get_node_values();
+        //
+        //            // get number of nodes on block
+        //            uint tNumberOfVertices = mMesh->get_num_nodes();
+        //
+        //            // set size of node values
+        //            tNodeValues.set_size( tNumberOfVertices, 1 );
+        //
+        //            // loop over all vertices
+        //            for( uint k=0; k<tNumberOfVertices; ++k )
+        //            {
+        //                // evaluate function at vertex cooridinates
+        //                tNodeValues( k ) = aFunction( mMesh->get_mtk_vertex( k ).get_coords() );
+        //            }
+        //        }
 
-//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
 
         void Field::put_scalar_values_on_field( const Matrix< DDRMat > & aValues )
         {
@@ -332,124 +338,127 @@ namespace moris
             }
         }
 
-//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
 
-        void Field::save_field_to_hdf5( const std::string & aFilePath,
-                                        const bool          aCreateNewFile )
+        void Field::save_field_to_hdf5(
+                const std::string & aFilePath,
+                const bool          aCreateNewFile )
         {
-           // test if file exists
-           std::string tFilePath = make_path_parallel( aFilePath );
+            // test if file exists
+            std::string tFilePath = make_path_parallel( aFilePath );
 
-           // test if file exists
-           std::ifstream tFile( tFilePath );
-           bool tFileExists;
-           if( tFile )
-           {
-               tFileExists = true;
-           }
-           else
-           {
-               tFileExists = false;
-           }
+            // test if file exists
+            std::ifstream tFile( tFilePath );
+            bool tFileExists;
+            if( tFile )
+            {
+                tFileExists = true;
+            }
+            else
+            {
+                tFileExists = false;
+            }
 
-           tFile.close();
+            tFile.close();
 
-           // delete file if it exists and user does not want to keep it
-           if( aCreateNewFile && tFileExists )
-           {
-               std::remove( tFilePath.c_str() );
-               tFileExists = false;
-           }
+            // delete file if it exists and user does not want to keep it
+            if( aCreateNewFile && tFileExists )
+            {
+                std::remove( tFilePath.c_str() );
+                tFileExists = false;
+            }
 
-           hid_t tFileID;
+            hid_t tFileID;
 
-           if( tFileExists )
-           {
-               tFileID = open_hdf5_file( aFilePath );
-           }
-           else
-           {
-               tFileID = create_hdf5_file( aFilePath );
-           }
+            if( tFileExists )
+            {
+                tFileID = open_hdf5_file( aFilePath );
+            }
+            else
+            {
+                tFileID = create_hdf5_file( aFilePath );
+            }
 
-           herr_t tStatus;
+            herr_t tStatus;
 
-           save_matrix_to_hdf5_file( tFileID,
-                                     this->get_label(),
-                                     this->get_coefficients(),
-                                     tStatus );
+            save_matrix_to_hdf5_file( tFileID,
+                    this->get_label(),
+                    this->get_coefficients(),
+                    tStatus );
 
-           // close file
-           tStatus = close_hdf5_file( tFileID );
+            // close file
+            tStatus = close_hdf5_file( tFileID );
         }
 
-//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
 
-        void Field::save_node_values_to_hdf5( const std::string & aFilePath,
-                                              const bool          aCreateNewFile )
+        void Field::save_node_values_to_hdf5(
+                const std::string & aFilePath,
+                const bool          aCreateNewFile )
         {
-           // test if file exists
-           std::string tFilePath = make_path_parallel( aFilePath );
+            // test if file exists
+            std::string tFilePath = make_path_parallel( aFilePath );
 
-           // test if file exists
-           std::ifstream tFile( tFilePath );
-           bool tFileExists;
-           if( tFile )
-           {
-               tFileExists = true;
-           }
-           else
-           {
-               tFileExists = false;
-           }
+            // test if file exists
+            std::ifstream tFile( tFilePath );
+            bool tFileExists;
+            if( tFile )
+            {
+                tFileExists = true;
+            }
+            else
+            {
+                tFileExists = false;
+            }
 
-           tFile.close();
+            tFile.close();
 
-           // delete file if it exists and user does not want to keep it
-           if( aCreateNewFile && tFileExists )
-           {
-               std::remove( tFilePath.c_str() );
-               tFileExists = false;
-           }
+            // delete file if it exists and user does not want to keep it
+            if( aCreateNewFile && tFileExists )
+            {
+                std::remove( tFilePath.c_str() );
+                tFileExists = false;
+            }
 
-           hid_t tFileID;
+            hid_t tFileID;
 
-           if( tFileExists )
-           {
-               tFileID = open_hdf5_file( aFilePath );
-           }
-           else
-           {
-               tFileID = create_hdf5_file( aFilePath );
-           }
+            if( tFileExists )
+            {
+                tFileID = open_hdf5_file( aFilePath );
+            }
+            else
+            {
+                tFileID = create_hdf5_file( aFilePath );
+            }
 
-           herr_t tStatus;
+            herr_t tStatus;
 
-           save_matrix_to_hdf5_file( tFileID,
-                                     this->get_label(),
-                                     this->get_node_values(),
-                                     tStatus );
+            save_matrix_to_hdf5_file( tFileID,
+                    this->get_label(),
+                    this->get_node_values(),
+                    tStatus );
 
-           // close file
-           tStatus = close_hdf5_file( tFileID );
+            // close file
+            tStatus = close_hdf5_file( tFileID );
         }
 
-//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
 
-        void Field::load_field_from_hdf5( const std::string & aFilePath,
-                                          const uint          aBSplineOrder )
+        void Field::load_field_from_hdf5(
+                const std::string & aFilePath,
+                const uint          aBSplineOrder )
         {
             hid_t tFile    = open_hdf5_file( aFilePath );
             herr_t tStatus = 0;
             load_matrix_from_hdf5_file( tFile,
-                                        this->get_label(),
-                                        this->get_coefficients(),
-                                        tStatus );
+                    this->get_label(),
+                    this->get_coefficients(),
+                    tStatus );
 
             tStatus = close_hdf5_file( tFile );
         }
 
-//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
 
         void Field::save_node_values_to_binary( const std::string & aFilePath )
         {
@@ -459,7 +468,7 @@ namespace moris
             save_matrix_to_binary_file( this->get_node_values(), tFilePath );
         }
 
-//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
 
         void Field::save_bspline_coeffs_to_binary( const std::string & aFilePath )
         {
@@ -469,43 +478,43 @@ namespace moris
             save_matrix_to_binary_file( this->get_coefficients(), tFilePath );
         }
 
-//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
 
         void Field::set_bspline_order( const uint & aOrder )
         {
             mLagrangeMesh->set_real_scalar_field_bspline_order( mFieldIndex, aOrder );
         }
 
-//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
 
         EntityRank Field::get_bspline_rank() const
         {
-//            switch( this->get_bspline_order() )
-//            {
-//                case( 1 ) :
-//                {
-//                    return EntityRank::BSPLINE;
-//                    break;
-//                }
-//                case( 2 ) :
-//                {
-//                    return EntityRank::BSPLINE_2;
-//                    break;
-//                }
-//                case( 3 ) :
-//                {
-//                    return EntityRank::BSPLINE_3;
-//                    break;
-//                }
-//                default :
-//                {
-//                    return EntityRank::INVALID;
-//                    break;
-//                }
-//            }
-        	return EntityRank::BSPLINE;
+            //            switch( this->get_bspline_order() )
+            //            {
+            //                case( 1 ) :
+            //                {
+            //                    return EntityRank::BSPLINE;
+            //                    break;
+            //                }
+            //                case( 2 ) :
+            //                {
+            //                    return EntityRank::BSPLINE_2;
+            //                    break;
+            //                }
+            //                case( 3 ) :
+            //                {
+            //                    return EntityRank::BSPLINE_3;
+            //                    break;
+            //                }
+            //                default :
+            //                {
+            //                    return EntityRank::INVALID;
+            //                    break;
+            //                }
+            //            }
+            return EntityRank::BSPLINE;
         }
 
-//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
     } /* namespace hmr */
 } /* namespace moris */

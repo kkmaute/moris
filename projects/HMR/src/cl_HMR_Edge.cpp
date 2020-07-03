@@ -6,63 +6,69 @@ namespace moris
 {
     namespace hmr
     {
-//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
 
         Edge::Edge( Mesh_Base       * aMesh,
-                    Background_Edge * aBackgroundEdge )
+                Background_Edge * aBackgroundEdge )
         {
             this->find_master( aMesh, aBackgroundEdge );
         }
 
-//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
 
         moris_id Edge::get_id() const
         {
+            MORIS_ASSERT( mID != gNoID,"Edge ID not initialized");
+
             return mID;
         }
 
-//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
 
         moris_id Edge::get_index() const
         {
+            MORIS_ASSERT( mID != gNoIndex,"Edge index not initialized");
+
             return mIndex;
         }
 
-//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
 
         void Edge::set_index( const moris_index & aIndex )
         {
             mIndex = aIndex;
         }
-//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
 
         void Edge::set_id( const moris_id & aID )
         {
             mID = aID;
         }
 
-//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
 
         moris_id Edge::get_owner() const
         {
+            MORIS_ASSERT( mOwner != gNoID,"Edge ownership not initialized");
+
             return mOwner;
         }
 
-//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
 
         void Edge::set_owner( const moris_id & aOwner )
         {
             mOwner = aOwner;
         }
 
-//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
 
         moris::Cell< mtk::Vertex * > Edge::get_vertex_pointers() const
         {
             return moris::Cell< mtk::Vertex* >(0);
         }
 
-//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
 
         Matrix< IdMat > Edge::get_vertex_ids() const
         {
@@ -83,7 +89,7 @@ namespace moris
             return aIDs;
         }
 
-//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
 
         Matrix< IndexMat > Edge::get_vertex_inds() const
         {
@@ -104,7 +110,7 @@ namespace moris
             return aIndices;
         }
 
-//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
 
         Matrix< DDRMat > Edge::get_vertex_coords() const
         {
@@ -127,17 +133,17 @@ namespace moris
             return aCoords;
         }
 
-//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
 
         mtk::Geometry_Type Edge::get_geometry_type() const
         {
             return mtk::Geometry_Type::LINE;
         }
 
-//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
 
         void Edge::find_master( Mesh_Base       * aMesh,
-                                Background_Edge * aBackgroundEdge )
+                Background_Edge * aBackgroundEdge )
         {
             // master is element with lowest id and active
 
@@ -155,12 +161,12 @@ namespace moris
 
             for( uint k=0; k<tNumberOfElements; ++k )
             {
-               // get element
-               Background_Element_Base * tElement = aBackgroundEdge->get_element( k );
-               if( ! tElement->is_deactive( tPattern ) && ! tElement->is_padding() )
-               {
-                   ++tCount;
-               }
+                // get element
+                Background_Element_Base * tElement = aBackgroundEdge->get_element( k );
+                if( ! tElement->is_deactive( tPattern ) && ! tElement->is_padding() )
+                {
+                    ++tCount;
+                }
             }
 
             // allocate memory for element cells
@@ -173,16 +179,16 @@ namespace moris
             tCount = 0;
             for( uint k=0; k<tNumberOfElements; ++k )
             {
-               // get element
-               Background_Element_Base * tElement = aBackgroundEdge->get_element( k );
-               if( ! tElement->is_deactive( tPattern ) && ! tElement->is_padding() )
-               {
-                   mElements( tCount )
-                           = aMesh->get_element_by_memory_index(
-                                   tElement->get_memory_index() );
-                   mIndicesInElements( tCount++ )
-                       = aBackgroundEdge->get_index_on_element( k );
-               }
+                // get element
+                Background_Element_Base * tElement = aBackgroundEdge->get_element( k );
+                if( ! tElement->is_deactive( tPattern ) && ! tElement->is_padding() )
+                {
+                    mElements( tCount )
+                                   = aMesh->get_element_by_memory_index(
+                                           tElement->get_memory_index() );
+                    mIndicesInElements( tCount++ )
+                    = aBackgroundEdge->get_index_on_element( k );
+                }
             }
 
             // find master
@@ -221,7 +227,7 @@ namespace moris
             // set owner of this edge
             mOwner = mElements( mIndexOfMaster )->get_owner();
         }
-//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
 
         bool Edge::is_active() const
         {
@@ -240,41 +246,41 @@ namespace moris
             return aActive;
         }
 
-//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
 
         uint Edge::get_number_of_elements() const
         {
             return mElements.size();
         }
 
-//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
 
         Element * Edge::get_element( const uint & aIndex )
         {
             return mElements( aIndex );
         }
 
-//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
 
         uint Edge::get_index_on_element(  const uint & aIndex ) const
         {
             return mIndicesInElements( aIndex );
         }
 
-//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
 
         Element * Edge::get_hmr_master()
         {
             return mElements( mIndexOfMaster );
         }
 
-//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
 
         uint Edge::get_index_on_master() const
         {
             return  mIndicesInElements( mIndexOfMaster );
         }
 
-//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
     } /* namespace hmr */
 } /* namespace moris */

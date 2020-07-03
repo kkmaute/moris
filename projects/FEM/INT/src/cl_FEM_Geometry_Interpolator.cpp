@@ -12,6 +12,7 @@ namespace moris
     namespace fem
     {
         //------------------------------------------------------------------------------
+
         Geometry_Interpolator::Geometry_Interpolator(
                 const Interpolation_Rule & aInterpolationRule,
                 const bool                 aSpaceSideset,
@@ -63,51 +64,74 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+
+        void Geometry_Interpolator::reset_eval_flags()
+        {
+            // reset bool for evaluation
+            mNXiEval      = true;
+            mdNdXiEval    = true;
+            md2NdXi2Eval  = true;
+            md3NdXi3Eval  = true;
+            mNTauEval     = true;
+            mdNdTauEval   = true;
+            md2NdTau2Eval = true;
+            md3NdTau3Eval = true;
+        }
+
+        //------------------------------------------------------------------------------
+
         void Geometry_Interpolator::set_coeff(
                 const Matrix< DDRMat > & aXHat,
                 const Matrix< DDRMat > & aTHat )
         {
             // check the space coefficients input size
             // fixme can not check the number of cols for aXHat and aTHat
-            MORIS_ASSERT( aXHat.n_rows() == mNumSpaceBases , " Geometry_Interpolator::set_coeff - Wrong input size (aXHat). ");
+            MORIS_ASSERT( aXHat.n_rows() == mNumSpaceBases ,
+                    " Geometry_Interpolator::set_coeff - Wrong input size (aXHat). ");
 
             // set the space coefficients
             mXHat = aXHat;
 
             //check the time coefficients input size
-            MORIS_ASSERT( aTHat.n_rows() == mNumTimeBases, " Geometry_Interpolator::set_coeff - Wrong input size (aTHat). ");
+            MORIS_ASSERT( aTHat.n_rows() == mNumTimeBases,
+                    " Geometry_Interpolator::set_coeff - Wrong input size (aTHat). ");
 
             // set the time coefficients
             mTHat = aTHat;
         }
 
         //------------------------------------------------------------------------------
+
         void Geometry_Interpolator::set_space_coeff( const Matrix< DDRMat > & aXHat )
         {
             //check the space coefficients input size
             // fixme can not check the number of cols for aXHat
-            MORIS_ASSERT( aXHat.n_rows() == mNumSpaceBases, " Geometry_Interpolator::set_space_coeff - Wrong input size (aXHat). ");
+            MORIS_ASSERT( aXHat.n_rows() == mNumSpaceBases,
+                    " Geometry_Interpolator::set_space_coeff - Wrong input size (aXHat). ");
 
             // set the space coefficients
             mXHat = aXHat;
         }
 
         //------------------------------------------------------------------------------
+
         void Geometry_Interpolator::set_time_coeff( const Matrix< DDRMat > & aTHat )
         {
             //check the time coefficients input size
             // fixme can not check the number of cols for aTHat
-            MORIS_ASSERT( aTHat.n_rows() == mNumTimeBases, " Geometry_Interpolator::set_time_coeff - Wrong input size (aTHat). ");
+            MORIS_ASSERT( aTHat.n_rows() == mNumTimeBases,
+                    " Geometry_Interpolator::set_time_coeff - Wrong input size (aTHat). ");
 
             // set the time coefficients
             mTHat = aTHat;
         }
 
         //------------------------------------------------------------------------------
+
         void Geometry_Interpolator::set_param_coeff()
         {
             // default implementation
-            //set space and time param coords
+            // set space and time param coords
             mSpaceInterpolation->get_param_coords( mXiHat );
             mXiHat = trans( mXiHat );
 
@@ -115,34 +139,42 @@ namespace moris
             mTauHat = trans( mTauHat );
         }
 
-        void Geometry_Interpolator::set_param_coeff( const Matrix< DDRMat > & aXiHat,
+        //------------------------------------------------------------------------------
+
+        void Geometry_Interpolator::set_param_coeff(
+                const Matrix< DDRMat > & aXiHat,
                 const Matrix< DDRMat > & aTauHat )
         {
             //check the space param coefficients input size
-            MORIS_ASSERT( aXiHat.n_rows() == mNumSpaceBases, " Geometry_Interpolator::set_space_param_coeff - Wrong input size (aXiHat). ");
+            MORIS_ASSERT( aXiHat.n_rows() == mNumSpaceBases,
+                    " Geometry_Interpolator::set_space_param_coeff - Wrong input size (aXiHat). ");
 
             // set the space coefficients
             mXiHat = aXiHat;
 
             //check the time param coefficients input size
-            MORIS_ASSERT( aTauHat.n_rows() == mNumTimeBases, " Geometry_Interpolator::set_time_coeff - Wrong input size (aTauHat). ");
+            MORIS_ASSERT( aTauHat.n_rows() == mNumTimeBases,
+                    " Geometry_Interpolator::set_time_coeff - Wrong input size (aTauHat). ");
 
             // set the time coefficients
             mTauHat = aTauHat;
         }
 
         //------------------------------------------------------------------------------
+
         void Geometry_Interpolator::set_space_param_coeff( const Matrix< DDRMat > & aXiHat )
         {
             //check the space param coefficients input size
             // fixme can not check the number of cols for aXiHat
-            MORIS_ASSERT( aXiHat.n_rows() == mNumSpaceBases, " Geometry_Interpolator::set_space_param_coeff - Wrong input size (aXiHat). ");
+            MORIS_ASSERT( aXiHat.n_rows() == mNumSpaceBases,
+                    " Geometry_Interpolator::set_space_param_coeff - Wrong input size (aXiHat). ");
 
             // set the space coefficients
             mXiHat = aXiHat;
         }
 
         //------------------------------------------------------------------------------
+
         void Geometry_Interpolator::set_time_param_coeff( const Matrix< DDRMat > & aTauHat )
         {
             //check the time param coefficients input size
@@ -155,6 +187,7 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+
         void Geometry_Interpolator::set_space_time( const Matrix< DDRMat > & aParamPoint )
         {
             // check input size aParamPoint
@@ -173,16 +206,11 @@ namespace moris
             mXiLocal.matrix_data()  = aParamPoint( { 0, mNumSpaceParamDim-1 }, { 0, 0 } );
             mTauLocal.matrix_data() = aParamPoint( mNumSpaceParamDim );
 
-            // set bool for evaluation
-            mNXiEval      = true;
-            mdNdXiEval    = true;
-            md2NdXi2Eval  = true;
-            md3NdXi3Eval  = true;
-            mNTauEval     = true;
-            mdNdTauEval   = true;
-            md2NdTau2Eval = true;
-            md3NdTau3Eval = true;
+            // reset bool for evaluation
+            this->reset_eval_flags();
         }
+
+        //------------------------------------------------------------------------------
 
         void Geometry_Interpolator::set_space( const Matrix< DDRMat > & aSpaceParamPoint )
         {
@@ -201,12 +229,11 @@ namespace moris
             // set input values
             mXiLocal  = aSpaceParamPoint;
 
-            // set bool for evaluation
-            mNXiEval      = true;
-            mdNdXiEval    = true;
-            md2NdXi2Eval  = true;
-            md3NdXi3Eval  = true;
+            // reset bool for evaluation
+            this->reset_eval_flags();
         }
+
+        //------------------------------------------------------------------------------
 
         void Geometry_Interpolator::set_time( const Matrix< DDRMat > & aTimeParamPoint )
         {
@@ -225,12 +252,11 @@ namespace moris
             // set input values
             mTauLocal  = aTimeParamPoint;
 
-            // set bool for evaluation
-            mNTauEval     = true;
-            mdNdTauEval   = true;
-            md2NdTau2Eval = true;
-            md3NdTau3Eval = true;
+            // reset bool for evaluation
+            this->reset_eval_flags();
         }
+
+        //------------------------------------------------------------------------------
 
         real Geometry_Interpolator::get_time_step()
         {
@@ -242,6 +268,7 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+
         Matrix< DDRMat > Geometry_Interpolator::extract_space_side_space_param_coeff(
                 moris_index              aSpaceOrdinal,
                 mtk::Interpolation_Order aInterpolationOrder )
@@ -285,8 +312,8 @@ namespace moris
             }
 
             // get the vertices per side map
-            moris::Cell< moris::Cell < moris_index > >tVerticesPerFace
-            = this->get_face_vertices_ordinals( tNumSpaceBases );
+            moris::Cell< moris::Cell < moris_index > >tVerticesPerFace =
+                    this->get_face_vertices_ordinals( tNumSpaceBases );
 
             // check if the space ordinal is appropriate
             MORIS_ASSERT( aSpaceOrdinal < static_cast< moris_index > ( tVerticesPerFace.size() ) ,
@@ -295,7 +322,7 @@ namespace moris
             // get space side vertices ordinals
             moris::Cell< moris::moris_index > tVerticesOrdinals = tVerticesPerFace( aSpaceOrdinal );
 
-            // initialize the time sideset parametric coordinates matrix
+            // initialize the time side set parametric coordinates matrix
             uint tNumOfVertices = tVerticesOrdinals.size();
 
             // init the matrix with the face param coords
@@ -314,10 +341,13 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
-        Matrix< DDRMat > Geometry_Interpolator::extract_space_param_coeff( mtk::Interpolation_Order aInterpolationOrder )
+
+        Matrix< DDRMat > Geometry_Interpolator::extract_space_param_coeff(
+                mtk::Interpolation_Order aInterpolationOrder )
         {
             // get the interpolation order of the IP cell
-            mtk::Interpolation_Order tIPInterpolationOrder = mSpaceInterpolation->get_interpolation_order();
+            mtk::Interpolation_Order tIPInterpolationOrder =
+                    mSpaceInterpolation->get_interpolation_order();
 
             Matrix< DDRMat > tXi;
             if( tIPInterpolationOrder == aInterpolationOrder )
@@ -329,14 +359,16 @@ namespace moris
             else
             {
                 // create an interpolation rule for the iG cell
-                Interpolation_Rule tIGInterpolationRule( mGeometryType,
+                Interpolation_Rule tIGInterpolationRule(
+                        mGeometryType,
                         Interpolation_Type::LAGRANGE,
                         aInterpolationOrder,
                         Interpolation_Type::LAGRANGE,
                         mTimeInterpolation->get_interpolation_order() );
 
                 // create an Interpolation function for the IG cell
-                Interpolation_Function_Base * tIGSpaceInterpolation = tIGInterpolationRule.create_space_interpolation_function();
+                Interpolation_Function_Base * tIGSpaceInterpolation =
+                        tIGInterpolationRule.create_space_interpolation_function();
 
                 // get the parametric coordinated of the parent for extraction
                 tIGSpaceInterpolation->get_param_coords( tXi );
@@ -349,6 +381,7 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+
         const Matrix< DDRMat > & Geometry_Interpolator::NXi()
         {
             // if shape functions need to be evaluated
@@ -365,16 +398,20 @@ namespace moris
             return mNXi;
         }
 
+        //------------------------------------------------------------------------------
+
         void Geometry_Interpolator::eval_NXi()
         {
             // check that mXiLocal is set
-            MORIS_ASSERT( mXiLocal.numel() > 0, "Geometry_Interpolator::eval_NXi - mXiLocal is not set." );
+            MORIS_ASSERT( mXiLocal.numel() > 0,
+                    "Geometry_Interpolator::eval_NXi - mXiLocal is not set." );
 
             // pass data through interpolation function
             mSpaceInterpolation->eval_N( mXiLocal, mNXi );
         }
 
         //------------------------------------------------------------------------------
+
         const Matrix< DDRMat > & Geometry_Interpolator::NTau()
         {
             // if shape functions need to be evaluated
@@ -391,16 +428,20 @@ namespace moris
             return mNTau;
         }
 
+        //------------------------------------------------------------------------------
+
         void Geometry_Interpolator::eval_NTau()
         {
             // check that mXiLocal is set
-            MORIS_ASSERT( mTauLocal.numel() > 0, "Geometry_Interpolator::eval_NTau - mTauLocal is not set." );
+            MORIS_ASSERT( mTauLocal.numel() > 0,
+                    "Geometry_Interpolator::eval_NTau - mTauLocal is not set." );
 
             // pass data through interpolation function
             mTimeInterpolation->eval_N( mTauLocal, mNTau );
         }
 
         //------------------------------------------------------------------------------
+
         const Matrix< DDRMat > & Geometry_Interpolator::dNdXi()
         {
             // if shape functions need to be evaluated
@@ -417,16 +458,20 @@ namespace moris
             return mdNdXi;
         }
 
+        //------------------------------------------------------------------------------
+
         void Geometry_Interpolator::eval_dNdXi()
         {
             // check that mXiLocal is set
-            MORIS_ASSERT( mXiLocal.numel() > 0, "Geometry_Interpolator::eval_dNdXi - mXiLocal is not set." );
+            MORIS_ASSERT( mXiLocal.numel() > 0,
+                    "Geometry_Interpolator::eval_dNdXi - mXiLocal is not set." );
 
             // pass data through interpolation function
             mSpaceInterpolation->eval_dNdXi( mXiLocal, mdNdXi );
         }
 
         //------------------------------------------------------------------------------
+
         const Matrix< DDRMat > & Geometry_Interpolator::dNdTau()
         {
             // if shape functions need to be evaluated
@@ -443,16 +488,20 @@ namespace moris
             return mdNdTau;
         }
 
+        //------------------------------------------------------------------------------
+
         void Geometry_Interpolator::eval_dNdTau()
         {
             // check that mXiLocal is set
-            MORIS_ASSERT( mTauLocal.numel() > 0, "Geometry_Interpolator::eval_dNdTau - mTauLocal is not set." );
+            MORIS_ASSERT( mTauLocal.numel() > 0,
+                    "Geometry_Interpolator::eval_dNdTau - mTauLocal is not set." );
 
             // pass data through interpolation function
             mTimeInterpolation->eval_dNdXi( mTauLocal, mdNdTau );
         }
 
         //------------------------------------------------------------------------------
+
         const Matrix< DDRMat > & Geometry_Interpolator::d2NdXi2()
         {
             // if shape functions need to be evaluated
@@ -469,16 +518,20 @@ namespace moris
             return md2NdXi2;
         }
 
+        //------------------------------------------------------------------------------
+
         void Geometry_Interpolator::eval_d2NdXi2()
         {
             // check that mXiLocal is set
-            MORIS_ASSERT( mXiLocal.numel() > 0, "Geometry_Interpolator::eval_d2NdXi2 - mXiLocal is not set." );
+            MORIS_ASSERT( mXiLocal.numel() > 0,
+                    "Geometry_Interpolator::eval_d2NdXi2 - mXiLocal is not set." );
 
             // pass data through interpolation function
             mSpaceInterpolation->eval_d2NdXi2( mXiLocal, md2NdXi2 );
         }
 
         //------------------------------------------------------------------------------
+
         const Matrix< DDRMat > & Geometry_Interpolator::d3NdXi3()
         {
             // if shape functions need to be evaluated
@@ -495,16 +548,20 @@ namespace moris
             return md3NdXi3;
         }
 
+        //------------------------------------------------------------------------------
+
         void Geometry_Interpolator::eval_d3NdXi3()
         {
             // check that mXiLocal is set
-            MORIS_ASSERT( mXiLocal.numel() > 0, "Geometry_Interpolator::eval_d3NdXi3 - mXiLocal is not set." );
+            MORIS_ASSERT( mXiLocal.numel() > 0,
+                    "Geometry_Interpolator::eval_d3NdXi3 - mXiLocal is not set." );
 
             // pass data through interpolation function
             mSpaceInterpolation->eval_d3NdXi3( mXiLocal, md3NdXi3 );
         }
 
         //------------------------------------------------------------------------------
+
         const Matrix< DDRMat > & Geometry_Interpolator::d2NdTau2()
         {
             // if shape functions need to be evaluated
@@ -521,164 +578,175 @@ namespace moris
             return md2NdTau2;
         }
 
+        //------------------------------------------------------------------------------
+
         void Geometry_Interpolator::eval_d2NdTau2()
         {
             // check that mXiLocal is set
-            MORIS_ASSERT( mTauLocal.numel() > 0, "Geometry_Interpolator::eval_d2NdTau2 - mTauLocal is not set." );
+            MORIS_ASSERT( mTauLocal.numel() > 0,
+                    "Geometry_Interpolator::eval_d2NdTau2 - mTauLocal is not set." );
 
             // pass data through interpolation function
             mTimeInterpolation->eval_d2NdXi2( mTauLocal, md2NdTau2 );
         }
+
         //------------------------------------------------------------------------------
+
         void Geometry_Interpolator::space_jacobian( Matrix< DDRMat > & aJt )
         {
             // check that mXHat is set
-            MORIS_ASSERT( mXHat.numel()>0, "Geometry_Interpolator::space_jacobian - mXHat is not set." );
+            MORIS_ASSERT( mXHat.numel()>0,
+                    "Geometry_Interpolator::space_jacobian - mXHat is not set." );
 
             // compute the Jacobian
             aJt = this->dNdXi() * mXHat;
         }
 
         //------------------------------------------------------------------------------
+
         void Geometry_Interpolator::second_space_jacobian( Matrix< DDRMat > & aJ2bt )
         {
             // check that mXHat is set
-            MORIS_ASSERT( mXHat.numel()>0, "Geometry_Interpolator::second_space_jacobian - mXHat is not set." );
+            MORIS_ASSERT( mXHat.numel()>0,
+                    "Geometry_Interpolator::second_space_jacobian - mXHat is not set." );
 
             // compute the second order Jacobian
             aJ2bt = this->d2NdXi2() * mXHat;
         }
 
         //------------------------------------------------------------------------------
+
         void Geometry_Interpolator::third_space_jacobian( Matrix< DDRMat > & aJ3ct )
         {
             // check that mXHat is set
-            MORIS_ASSERT( mXHat.numel()>0, "Geometry_Interpolator::third_space_jacobian - mXHat is not set." );
+            MORIS_ASSERT( mXHat.numel()>0,
+                    "Geometry_Interpolator::third_space_jacobian - mXHat is not set." );
 
             // compute the third order Jacobian
             aJ3ct = this->d3NdXi3() * mXHat;
         }
 
         //------------------------------------------------------------------------------
+
         void Geometry_Interpolator::time_jacobian( Matrix< DDRMat > & aJt )
         {
             // check that mTHat is set
-            MORIS_ASSERT( mTHat.numel()>0, "Geometry_Interpolator::time_jacobian - mTHat is not set." );
+            MORIS_ASSERT( mTHat.numel()>0,
+                    "Geometry_Interpolator::time_jacobian - mTHat is not set." );
 
             // compute the Jacobian
             aJt = this->dNdTau() * mTHat;
         }
 
         //------------------------------------------------------------------------------
+
         real Geometry_Interpolator::det_J()
         {
             // get the space jacobian
             Matrix< DDRMat > tSpaceJt;
             this->space_jacobian( tSpaceJt );
 
-            // switch Geometry_Type
-            real detJSpace = -1.0;
-            if( mSpaceSideset )
-            {
-                switch( mGeometryType )
-                {
-                    case mtk::Geometry_Type::LINE :
-                    {
-                        detJSpace = norm( tSpaceJt );
-                        break;
-                    }
-                    case mtk::Geometry_Type::TRI :
-                    {
-                        detJSpace = norm( cross( tSpaceJt.get_row( 0 ) - tSpaceJt.get_row( 2 ),
-                                tSpaceJt.get_row( 1 ) - tSpaceJt.get_row( 2 ) ) ) / 2.0;
-                        break;
-                    }
-                    case mtk::Geometry_Type::QUAD :
-                    {
-                        detJSpace = norm( cross( tSpaceJt.get_row( 0 ), tSpaceJt.get_row( 1 ) ) );
-                        break;
-                    }
-                    default :
-                    {
-                        MORIS_ERROR( false, "Geometry_Interpolator::det_J - unknown or not implemented geometry type ");
-                        break;
-                    }
-                }
-            }
-            else
-            {
-                switch( mGeometryType )
-                {
-                    case mtk::Geometry_Type::LINE :
-                    case mtk::Geometry_Type::QUAD :
-                    case mtk::Geometry_Type::HEX :
-                    {
-                        detJSpace = det( tSpaceJt );
-                        break;
-                    }
-
-                    case mtk::Geometry_Type::TRI :
-                    {
-                        Matrix< DDRMat > tSpaceJt2( mNumSpaceParamDim, mNumSpaceParamDim, 1.0 );
-                        tSpaceJt2({ 1, mNumSpaceParamDim-1 },{ 0, mNumSpaceParamDim-1 }) = trans( tSpaceJt );
-                        detJSpace = det( tSpaceJt2 ) / 2.0;
-                        break;
-                    }
-
-                    case mtk::Geometry_Type::TET :
-                    {
-                        Matrix< DDRMat > tSpaceJt2( mNumSpaceParamDim, mNumSpaceParamDim, 1.0 );
-                        tSpaceJt2({ 1, mNumSpaceParamDim-1 },{ 0, mNumSpaceParamDim-1 }) = trans( tSpaceJt );
-                        detJSpace = det( tSpaceJt2 ) / 6.0;
-                        break;
-                    }
-
-                    default :
-                    {
-                        MORIS_ERROR( false, "Geometry_Interpolator::det_J - unknown or not implemented space geometry type ");
-                        break;
-                    }
-                }
-            }
-
             // get the time Jacobian
             Matrix< DDRMat > tTimeJt;
             this->time_jacobian( tTimeJt );
 
-            // switch Geometry_Type
-            real detJTime = -1.0;
-            switch ( mTimeGeometryType )
-            {
-                case mtk::Geometry_Type::POINT :
-                {
-                    detJTime = 1.0;
-                    break;
-                }
-                case mtk::Geometry_Type::LINE :
-                {
-                    detJTime = det( tTimeJt );
-                    break;
-                }
-                default:
-                {
-                    MORIS_ERROR( false, "Geometry_Interpolator::det_J - unknown or not implemented time geometry type ");
-                    break;
-                }
-            }
+            // compute detJ for space
+            real detJSpace = ( this->*mSpaceDetJFunc )( tSpaceJt );
+
+            // compute detJ for time
+            real detJTime  = ( this->*mTimeDetJFunc )( tTimeJt );
 
             // compute the determinant of the space time Jacobian
             return detJSpace * detJTime;
-
         }
 
         //------------------------------------------------------------------------------
+
+        real Geometry_Interpolator::eval_space_detJ_side_line(
+                Matrix< DDRMat > & aSpaceJt )
+        {
+            return norm( aSpaceJt );
+        }
+
+        //------------------------------------------------------------------------------
+
+        real Geometry_Interpolator::eval_space_detJ_side_tri(
+                Matrix< DDRMat > & aSpaceJt )
+        {
+            return norm( cross(
+                    aSpaceJt.get_row( 0 ) - aSpaceJt.get_row( 2 ),
+                    aSpaceJt.get_row( 1 ) - aSpaceJt.get_row( 2 ) ) ) / 2.0;
+        }
+
+        //------------------------------------------------------------------------------
+
+        real Geometry_Interpolator::eval_space_detJ_side_quad(
+                Matrix< DDRMat > & aSpaceJt )
+        {
+            return norm( cross( aSpaceJt.get_row( 0 ), aSpaceJt.get_row( 1 ) ) );
+        }
+
+        //------------------------------------------------------------------------------
+
+        real Geometry_Interpolator::eval_space_detJ_bulk_line_quad_hex(
+                Matrix< DDRMat > & aSpaceJt )
+        {
+            return det( aSpaceJt );
+        }
+
+        //------------------------------------------------------------------------------
+
+        real Geometry_Interpolator::eval_space_detJ_bulk_tri(
+                Matrix< DDRMat > & aSpaceJt )
+        {
+            Matrix< DDRMat > tSpaceJt2( mNumSpaceParamDim, mNumSpaceParamDim, 1.0 );
+
+            tSpaceJt2( { 1, mNumSpaceParamDim - 1 },{ 0, mNumSpaceParamDim - 1 } ) =
+                    trans( aSpaceJt );
+
+            return det( tSpaceJt2 ) / 2.0;
+        }
+
+        //------------------------------------------------------------------------------
+
+        real Geometry_Interpolator::eval_space_detJ_bulk_tet(
+                Matrix< DDRMat > & aSpaceJt )
+        {
+            Matrix< DDRMat > tSpaceJt2( mNumSpaceParamDim, mNumSpaceParamDim, 1.0 );
+
+            tSpaceJt2( { 1, mNumSpaceParamDim - 1 }, { 0, mNumSpaceParamDim - 1 } ) =
+                    trans( aSpaceJt );
+
+            return det( tSpaceJt2 ) / 6.0;
+        }
+
+        //------------------------------------------------------------------------------
+
+        real Geometry_Interpolator::eval_time_detJ_side(
+                Matrix< DDRMat > & aTimeJt )
+        {
+            return 1.0;
+        }
+
+        //------------------------------------------------------------------------------
+
+        real Geometry_Interpolator::eval_time_detJ_bulk(
+                Matrix< DDRMat > & aTimeJt )
+        {
+            return det( aTimeJt );
+        }
+
+        //------------------------------------------------------------------------------
+
         void Geometry_Interpolator::get_normal( Matrix< DDRMat > & aNormal )
         {
             // check that there is a side interpolation
-            MORIS_ASSERT( mSpaceSideset, "Geometry_Interpolator::normal - not a side." );
+            MORIS_ASSERT( mSpaceSideset,
+                    "Geometry_Interpolator::normal - not a side." );
 
             // check that mXiLocal is set
-            MORIS_ASSERT( mXiLocal.numel() > 0, "Geometry_Interpolator::normal - mXiLocal is not set." );
+            MORIS_ASSERT( mXiLocal.numel() > 0,
+                    "Geometry_Interpolator::normal - mXiLocal is not set." );
 
             // evaluate side space interpolation shape functions first parametric derivatives at aParamPoint
             Matrix< DDRMat > tdNSpacedXi;
@@ -687,79 +755,94 @@ namespace moris
             // evaluation of tangent vectors to the space side in the physical space
             Matrix< DDRMat > tRealTangents = trans( tdNSpacedXi * mXHat );
 
-            // switch on geometry type
-            switch ( mGeometryType )
-            {
-                case mtk::Geometry_Type::LINE :
-                {
-                    // computing the normal from the real tangent vectors
-                    aNormal = {{  tRealTangents( 1 ) },
-                            { -tRealTangents( 0 ) }};
-                    aNormal = aNormal / norm( aNormal );
-                    break;
-                }
-
-                case mtk::Geometry_Type::QUAD :
-                {
-                    // compute the normal from the real tangent vectors
-                    aNormal = cross( tRealTangents.get_column( 0 ), tRealTangents.get_column( 1 ) );
-                    aNormal = aNormal / norm( aNormal );
-                    break;
-                }
-
-                case mtk::Geometry_Type::TRI :
-                {
-                    // computing the normal from the tangent vector in the physical space
-                    aNormal = cross( tRealTangents.get_column( 0 ) - tRealTangents.get_column( 2 ),
-                            tRealTangents.get_column( 1 ) - tRealTangents.get_column( 2 ) );
-                    aNormal = aNormal / norm( aNormal );
-                    break;
-                }
-
-                default:
-                {
-                    MORIS_ERROR( false, "Geometry_Interpolator::get_normal - wrong geometry type or geometry type not implemented");
-                    break;
-                }
-            }
+            // computing the normal from the real tangent vectors
+            ( this->*mNormalFunc )( tRealTangents, aNormal );
         }
 
         //------------------------------------------------------------------------------
+
+        void Geometry_Interpolator::eval_normal_side_line(
+                Matrix< DDRMat > & aRealTangents,
+                Matrix< DDRMat > & aNormal )
+        {
+            aNormal = {
+                    {   aRealTangents( 1 ) },
+                    { - aRealTangents( 0 ) }};
+
+            aNormal = aNormal / norm( aNormal );
+        }
+
+        //------------------------------------------------------------------------------
+
+        void Geometry_Interpolator::eval_normal_side_quad(
+                Matrix< DDRMat > & aRealTangents,
+                Matrix< DDRMat > & aNormal )
+        {
+            aNormal = cross( aRealTangents.get_column( 0 ), aRealTangents.get_column( 1 ) );
+            aNormal = aNormal / norm( aNormal );
+        }
+
+        //------------------------------------------------------------------------------
+
+        void Geometry_Interpolator::eval_normal_side_tri(
+                Matrix< DDRMat > & aRealTangents,
+                Matrix< DDRMat > & aNormal )
+        {
+            aNormal = cross(
+                    aRealTangents.get_column( 0 ) - aRealTangents.get_column( 2 ),
+                    aRealTangents.get_column( 1 ) - aRealTangents.get_column( 2 ) );
+            aNormal = aNormal / norm( aNormal );
+        }
+
+        //------------------------------------------------------------------------------
+
         Matrix< DDRMat > Geometry_Interpolator::valx()
         {
             // check that mTHat is set
-            MORIS_ASSERT( mXHat.numel() > 0, "Geometry_Interpolator::valx - mXHat is not set." );
+            MORIS_ASSERT( mXHat.numel() > 0,
+                    "Geometry_Interpolator::valx - mXHat is not set." );
 
             //evaluate the field
             return this->NXi() * mXHat ;
         }
 
         //------------------------------------------------------------------------------
+
         Matrix< DDRMat > Geometry_Interpolator::valt()
         {
             // check that mTHat is set
-            MORIS_ASSERT( mTHat.numel()>0, "Geometry_Interpolator::valt - mTHat is not set." );
+            MORIS_ASSERT( mTHat.numel()>0,
+                    "Geometry_Interpolator::valt - mTHat is not set." );
 
             //evaluate the field
             return this->NTau() * mTHat;
         }
 
         //------------------------------------------------------------------------------
-        void Geometry_Interpolator::map_integration_point( Matrix< DDRMat > & aGlobalParamPoint )
+
+        void Geometry_Interpolator::map_integration_point(
+                Matrix< DDRMat > & aGlobalParamPoint )
         {
             // check that mXiHat and mTauHat are set
-            MORIS_ASSERT( mXiHat.numel()>0, "Geometry_Interpolator::map_integration_point - mXiHat is not set." );
-            MORIS_ASSERT( mTauHat.numel()>0, "Geometry_Interpolator::map_integration_point - mTauHat is not set." );
+            MORIS_ASSERT( mXiHat.numel() > 0,
+                    "Geometry_Interpolator::map_integration_point - mXiHat is not set." );
+            MORIS_ASSERT( mTauHat.numel() > 0,
+                    "Geometry_Interpolator::map_integration_point - mTauHat is not set." );
 
             // evaluate the coords of the mapped param point
             uint tNumSpaceCoords = mXiHat.n_cols();
 
             aGlobalParamPoint.set_size( tNumSpaceCoords + 1, 1 );
-            aGlobalParamPoint( {0, tNumSpaceCoords-1 }, {0,0} )            = trans( this->NXi()  * mXiHat );
-            aGlobalParamPoint( {tNumSpaceCoords, tNumSpaceCoords}, {0,0} ) = trans( this->NTau() * mTauHat ) ;
+
+            aGlobalParamPoint( { 0, tNumSpaceCoords - 1 }, { 0, 0 } ) =
+                    trans( this->NXi()  * mXiHat );
+
+            aGlobalParamPoint( { tNumSpaceCoords, tNumSpaceCoords }, { 0, 0 } ) =
+                    trans( this->NTau() * mTauHat ) ;
         }
 
         //------------------------------------------------------------------------------
+
         void Geometry_Interpolator::update_local_coordinates(
                 Matrix< DDRMat > & aPhysCoordinates,
                 Matrix< DDRMat > & aParamCoordinates )
@@ -768,9 +851,22 @@ namespace moris
             // std::cout<<"Geometry_Interpolator::update_local_coordinates - Force 10 iterations"<<std::endl;
             uint tMaxIter = 10;
 
-            // newton loop
-            for( uint iIter = 0; iIter < tMaxIter; iIter++ )
+            // init previous param coords
+            Matrix< DDRMat > tPreviousParamCoordinates(
+                    aParamCoordinates.n_rows(),
+                    aParamCoordinates.n_cols(),
+                    10.0 );
+
+            // Newton loop
+            for( uint iIter = 0; iIter <= tMaxIter; iIter++ )
             {
+                // break update
+                real tError = norm( tPreviousParamCoordinates - aParamCoordinates );
+                if( tError < 1e-12 )
+                {
+                    break;
+                }
+
                 // compute NXi
                 Matrix< DDRMat > tNXi;
                 mSpaceInterpolation->eval_N( aParamCoordinates, tNXi );
@@ -787,20 +883,29 @@ namespace moris
 
                 // solve
                 aParamCoordinates.matrix_data() += trans( solve( tJ, tR ) );
+
+                // update previous coords
+                tPreviousParamCoordinates = aParamCoordinates;
+
+                if( iIter == tMaxIter )
+                {
+                    MORIS_LOG_INFO("Geometry_Interpolator::update_local_coordinates - No convergence.");
+                }
             }
         }
 
         //------------------------------------------------------------------------------
 
         void Geometry_Interpolator::space_jacobian_and_matrices_for_second_derivatives(
-                Matrix< DDRMat > & aJt,
-                Matrix< DDRMat > & aKt,
-                Matrix< DDRMat > & aLt,
+                Matrix< DDRMat >       & aJt,
+                Matrix< DDRMat >       & aKt,
+                Matrix< DDRMat >       & aLt,
                 const Matrix< DDRMat > & adNdXi,
                 const Matrix< DDRMat > & ad2NdXi2 )
         {
             // check that mXHat is set
-            MORIS_ASSERT( mXHat.numel()>0, "Geometry_Interpolator::space_jacobian_and_matrices_for_second_derivatives - mXHat is not set." );
+            MORIS_ASSERT( mXHat.numel() > 0,
+                    "Geometry_Interpolator::space_jacobian_and_matrices_for_second_derivatives - mXHat is not set." );
 
             // evaluate transposed of geometry Jacobian
             this->space_jacobian( aJt );
@@ -817,17 +922,18 @@ namespace moris
         //------------------------------------------------------------------------------
 
         void Geometry_Interpolator::space_jacobian_and_matrices_for_third_derivatives(
-                Matrix< DDRMat > & aJt,   // contains first geometric derivs
-                Matrix< DDRMat > & aJ2bt, // contains second geometric derivs = second help matrix for 2nd field derivs
-                Matrix< DDRMat > & aJ3at, // first help matrix for 3rd field derivs
-                Matrix< DDRMat > & aJ3bt, // second help matrix for 3rd field derivs
-                Matrix< DDRMat > & aJ3ct, // third help matrix for 3rd field derivs
+                Matrix< DDRMat >       & aJt,   // contains first geometric derivs
+                Matrix< DDRMat >       & aJ2bt, // contains second geometric derivs = second help matrix for 2nd field derivs
+                Matrix< DDRMat >       & aJ3at, // first help matrix for 3rd field derivs
+                Matrix< DDRMat >       & aJ3bt, // second help matrix for 3rd field derivs
+                Matrix< DDRMat >       & aJ3ct, // third help matrix for 3rd field derivs
                 const Matrix< DDRMat > & adNdXi,
                 const Matrix< DDRMat > & ad2NdXi2,
                 const Matrix< DDRMat > & ad3NdXi3 )
         {
             // check that mXHat is set
-            MORIS_ASSERT( mXHat.numel()>0, "Geometry_Interpolator::space_jacobian_and_matrices_for_third_derivatives - mXHat is not set." );
+            MORIS_ASSERT( mXHat.numel() > 0,
+                    "Geometry_Interpolator::space_jacobian_and_matrices_for_third_derivatives - mXHat is not set." );
 
             // evaluate geometry Jacobians
             this->space_jacobian( aJt );
@@ -842,20 +948,20 @@ namespace moris
                     aJ3ct,
                     ad3NdXi3,
                     mXHat );
-
         }
 
         //------------------------------------------------------------------------------
 
         void Geometry_Interpolator::time_jacobian_and_matrices_for_second_derivatives(
-                Matrix< DDRMat > & aJt,
-                Matrix< DDRMat > & aKt,
-                Matrix< DDRMat > & aLt,
+                Matrix< DDRMat >       & aJt,
+                Matrix< DDRMat >       & aKt,
+                Matrix< DDRMat >       & aLt,
                 const Matrix< DDRMat > & adNdTau,
                 const Matrix< DDRMat > & ad2NdTau2 )
         {
             // check that mTHat is set
-            MORIS_ASSERT( mTHat.numel()>0, "Geometry_Interpolator::time_jacobian_and_matrices_for_second_derivatives - mTHat is not set." );
+            MORIS_ASSERT( mTHat.numel() > 0,
+                    "Geometry_Interpolator::time_jacobian_and_matrices_for_second_derivatives - mTHat is not set." );
 
             // evaluate transposed of geometry Jacobian
             this->time_jacobian( aJt );
@@ -870,10 +976,11 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+
         void Geometry_Interpolator::eval_matrices_for_second_derivative_1d(
                 const Matrix< DDRMat > & aJt,
-                Matrix< DDRMat > & aKt,
-                Matrix< DDRMat > & aLt,
+                Matrix< DDRMat >       & aKt,
+                Matrix< DDRMat >       & aLt,
                 const Matrix< DDRMat > & ad2NdXi2,
                 const Matrix< DDRMat > & aXHat )
         {
@@ -886,12 +993,13 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+
         void Geometry_Interpolator::eval_matrices_for_third_derivative_1d(
                 const Matrix< DDRMat > & aJt,
                 const Matrix< DDRMat > & aJ2bt,
-                Matrix< DDRMat > & aJ3at,
-                Matrix< DDRMat > & aJ3bt,
-                Matrix< DDRMat > & aJ3ct,
+                Matrix< DDRMat >       & aJ3at,
+                Matrix< DDRMat >       & aJ3bt,
+                Matrix< DDRMat >       & aJ3ct,
                 const Matrix< DDRMat > & ad3NdXi3,
                 const Matrix< DDRMat > & aXHat )
         {
@@ -908,10 +1016,11 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+
         void Geometry_Interpolator::eval_matrices_for_second_derivative_2d(
                 const Matrix< DDRMat > & aJt,
-                Matrix< DDRMat > & aKt,
-                Matrix< DDRMat > & aLt,
+                Matrix< DDRMat >       & aKt,
+                Matrix< DDRMat >       & aLt,
                 const Matrix< DDRMat > & ad2NdXi2,
                 const Matrix< DDRMat > & aXHat )
         {
@@ -930,16 +1039,17 @@ namespace moris
 
             aLt( 0, 2 ) = 2.0 * aJt( 0, 0 ) * aJt( 0, 1 );
             aLt( 1, 2 ) = 2.0 * aJt( 1, 0 ) * aJt( 1, 1 );
-            aLt( 2, 2 ) = aJt( 0, 0 ) * aJt( 1, 1 ) +  aJt( 0, 1 ) * aJt( 1, 0 );
+            aLt( 2, 2 ) = aJt( 0, 0 ) * aJt( 1, 1 ) + aJt( 0, 1 ) * aJt( 1, 0 );
         }
 
         //------------------------------------------------------------------------------
+
         void Geometry_Interpolator::eval_matrices_for_third_derivative_2d(
                 const Matrix< DDRMat > & aJt,
                 const Matrix< DDRMat > & aJ2bt,
-                Matrix< DDRMat > & aJ3at,
-                Matrix< DDRMat > & aJ3bt,
-                Matrix< DDRMat > & aJ3ct,
+                Matrix< DDRMat >       & aJ3at,
+                Matrix< DDRMat >       & aJ3bt,
+                Matrix< DDRMat >       & aJ3ct,
                 const Matrix< DDRMat > & ad3NdXi3,
                 const Matrix< DDRMat > & aXHat )
         {
@@ -1012,20 +1122,23 @@ namespace moris
             }
 
             // Block (4) ------------------------------------------------
-            aJ3bt( 2, 2 ) =  2 * aJ2bt( 2, 0 ) * aJt( 0, 1 )  +  2 * aJ2bt( 2, 1 ) * aJt( 0, 0 )
-                                       + aJ2bt( 0, 1 ) * aJt( 1, 0 )  +  aJ2bt( 0, 0 ) * aJt( 1, 1 );
-            aJ3bt( 3, 2 ) =  2 * aJ2bt( 2, 0 ) * aJt( 1, 1 )  +  2 * aJ2bt( 2, 1 ) * aJt( 1, 0 )
-                                       + aJ2bt( 1, 1 ) * aJt( 0, 0 )  +  aJ2bt( 1, 0 ) * aJt( 0, 1 );
+            aJ3bt( 2, 2 ) =
+                    2 * aJ2bt( 2, 0 ) * aJt( 0, 1 )  +  2 * aJ2bt( 2, 1 ) * aJt( 0, 0 ) +
+                    1 * aJ2bt( 0, 1 ) * aJt( 1, 0 )  +  1 * aJ2bt( 0, 0 ) * aJt( 1, 1 );
+            aJ3bt( 3, 2 ) =
+                    2 * aJ2bt( 2, 0 ) * aJt( 1, 1 )  +  2 * aJ2bt( 2, 1 ) * aJt( 1, 0 ) +
+                    1 * aJ2bt( 1, 1 ) * aJt( 0, 0 )  +  1 * aJ2bt( 1, 0 ) * aJt( 0, 1 );
 
             // third help matrix
             aJ3ct = ad3NdXi3 * aXHat;
         }
 
         //------------------------------------------------------------------------------
+
         void Geometry_Interpolator::eval_matrices_for_second_derivative_3d(
                 const Matrix< DDRMat > & aJt,
-                Matrix< DDRMat > & aKt,
-                Matrix< DDRMat > & aLt,
+                Matrix< DDRMat >       & aKt,
+                Matrix< DDRMat >       & aLt,
                 const Matrix< DDRMat > & ad2NdXi2,
                 const Matrix< DDRMat > & aXHat )
         {
@@ -1067,12 +1180,13 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+
         void Geometry_Interpolator::eval_matrices_for_third_derivative_3d(
                 const Matrix< DDRMat > & aJt,
                 const Matrix< DDRMat > & aJ2bt,
-                Matrix< DDRMat > & aJ3at,
-                Matrix< DDRMat > & aJ3bt,
-                Matrix< DDRMat > & aJ3ct,
+                Matrix< DDRMat >       & aJ3at,
+                Matrix< DDRMat >       & aJ3bt,
+                Matrix< DDRMat >       & aJ3ct,
                 const Matrix< DDRMat > & ad3NdXi3,
                 const Matrix< DDRMat > & aXHat )
         {
@@ -1188,24 +1302,30 @@ namespace moris
 
 
             // Block (6) ------------------------------------------------
-            aJ3at( 3, 9 ) =   2 * aJt( 0, 0 ) * aJt( 0, 1 ) * aJt( 1, 2 )
-                                    + 2 * aJt( 0, 0 ) * aJt( 1, 1 ) * aJt( 0, 2 )
-                                    + 2 * aJt( 1, 0 ) * aJt( 0, 1 ) * aJt( 0, 2 );
-            aJ3at( 4, 9 ) =   2 * aJt( 0, 0 ) * aJt( 0, 1 ) * aJt( 2, 2 )
-                                    + 2 * aJt( 0, 0 ) * aJt( 2, 1 ) * aJt( 0, 2 )
-                                    + 2 * aJt( 2, 0 ) * aJt( 0, 1 ) * aJt( 0, 2 );
-            aJ3at( 5, 9 ) =   2 * aJt( 1, 0 ) * aJt( 1, 1 ) * aJt( 0, 2 )
-                                    + 2 * aJt( 1, 0 ) * aJt( 0, 1 ) * aJt( 1, 2 )
-                                    + 2 * aJt( 0, 0 ) * aJt( 1, 1 ) * aJt( 1, 2 );
-            aJ3at( 6, 9 ) =   2 * aJt( 1, 0 ) * aJt( 1, 1 ) * aJt( 2, 2 )
-                                    + 2 * aJt( 1, 0 ) * aJt( 2, 1 ) * aJt( 1, 2 )
-                                    + 2 * aJt( 2, 0 ) * aJt( 1, 1 ) * aJt( 1, 2 );
-            aJ3at( 7, 9 ) =   2 * aJt( 2, 0 ) * aJt( 2, 1 ) * aJt( 0, 2 )
-                                    + 2 * aJt( 2, 0 ) * aJt( 0, 1 ) * aJt( 2, 2 )
-                                    + 2 * aJt( 0, 0 ) * aJt( 2, 1 ) * aJt( 2, 2 );
-            aJ3at( 8, 9 ) =   2 * aJt( 2, 0 ) * aJt( 2, 1 ) * aJt( 1, 2 )
-                                    + 2 * aJt( 2, 0 ) * aJt( 1, 1 ) * aJt( 2, 2 )
-                                    + 2 * aJt( 1, 0 ) * aJt( 2, 1 ) * aJt( 2, 2 );
+            aJ3at( 3, 9 ) =
+                    2 * aJt( 0, 0 ) * aJt( 0, 1 ) * aJt( 1, 2 ) +
+                    2 * aJt( 0, 0 ) * aJt( 1, 1 ) * aJt( 0, 2 ) +
+                    2 * aJt( 1, 0 ) * aJt( 0, 1 ) * aJt( 0, 2 );
+            aJ3at( 4, 9 ) =
+                    2 * aJt( 0, 0 ) * aJt( 0, 1 ) * aJt( 2, 2 ) +
+                    2 * aJt( 0, 0 ) * aJt( 2, 1 ) * aJt( 0, 2 ) +
+                    2 * aJt( 2, 0 ) * aJt( 0, 1 ) * aJt( 0, 2 );
+            aJ3at( 5, 9 ) =
+                    2 * aJt( 1, 0 ) * aJt( 1, 1 ) * aJt( 0, 2 ) +
+                    2 * aJt( 1, 0 ) * aJt( 0, 1 ) * aJt( 1, 2 ) +
+                    2 * aJt( 0, 0 ) * aJt( 1, 1 ) * aJt( 1, 2 );
+            aJ3at( 6, 9 ) =
+                    2 * aJt( 1, 0 ) * aJt( 1, 1 ) * aJt( 2, 2 ) +
+                    2 * aJt( 1, 0 ) * aJt( 2, 1 ) * aJt( 1, 2 ) +
+                    2 * aJt( 2, 0 ) * aJt( 1, 1 ) * aJt( 1, 2 );
+            aJ3at( 7, 9 ) =
+                    2 * aJt( 2, 0 ) * aJt( 2, 1 ) * aJt( 0, 2 ) +
+                    2 * aJt( 2, 0 ) * aJt( 0, 1 ) * aJt( 2, 2 ) +
+                    2 * aJt( 0, 0 ) * aJt( 2, 1 ) * aJt( 2, 2 );
+            aJ3at( 8, 9 ) =
+                    2 * aJt( 2, 0 ) * aJt( 2, 1 ) * aJt( 1, 2 ) +
+                    2 * aJt( 2, 0 ) * aJt( 1, 1 ) * aJt( 2, 2 ) +
+                    2 * aJt( 1, 0 ) * aJt( 2, 1 ) * aJt( 2, 2 );
 
             // Block (7) ------------------------------------------------
             for( uint j=0; j<3; ++j )
@@ -1214,37 +1334,44 @@ namespace moris
             }
 
             // Block (8) ------------------------------------------------
-            aJ3at( 9, 3 ) = aJt( 0, 0 ) * aJt( 1, 0 ) * aJt( 2, 1 )
-                                  + aJt( 0, 0 ) * aJt( 1, 1 ) * aJt( 2, 0 )
-                                  + aJt( 0, 1 ) * aJt( 1, 0 ) * aJt( 2, 0 );
+            aJ3at( 9, 3 ) =
+                    aJt( 0, 0 ) * aJt( 1, 0 ) * aJt( 2, 1 ) +
+                    aJt( 0, 0 ) * aJt( 1, 1 ) * aJt( 2, 0 ) +
+                    aJt( 0, 1 ) * aJt( 1, 0 ) * aJt( 2, 0 ) ;
 
-            aJ3at( 9, 4 ) = aJt( 0, 0 ) * aJt( 1, 0 ) * aJt( 2, 2 )
-                                  + aJt( 0, 0 ) * aJt( 1, 2 ) * aJt( 2, 0 )
-                                  + aJt( 0, 2 ) * aJt( 1, 0 ) * aJt( 2, 0 );
+            aJ3at( 9, 4 ) =
+                    aJt( 0, 0 ) * aJt( 1, 0 ) * aJt( 2, 2 ) +
+                    aJt( 0, 0 ) * aJt( 1, 2 ) * aJt( 2, 0 ) +
+                    aJt( 0, 2 ) * aJt( 1, 0 ) * aJt( 2, 0 );
 
-            aJ3at( 9, 5 ) = aJt( 0, 1 ) * aJt( 1, 1 ) * aJt( 2, 0 )
-                                  + aJt( 0, 1 ) * aJt( 1, 0 ) * aJt( 2, 1 )
-                                  + aJt( 0, 0 ) * aJt( 1, 1 ) * aJt( 2, 1 );
+            aJ3at( 9, 5 ) =
+                    aJt( 0, 1 ) * aJt( 1, 1 ) * aJt( 2, 0 ) +
+                    aJt( 0, 1 ) * aJt( 1, 0 ) * aJt( 2, 1 ) +
+                    aJt( 0, 0 ) * aJt( 1, 1 ) * aJt( 2, 1 );
 
-            aJ3at( 9, 6 ) = aJt( 0, 1 ) * aJt( 1, 1 ) * aJt( 2, 2 )
-                                  + aJt( 0, 1 ) * aJt( 1, 2 ) * aJt( 2, 1 )
-                                  + aJt( 0, 2 ) * aJt( 1, 1 ) * aJt( 2, 1 );
+            aJ3at( 9, 6 ) =
+                    aJt( 0, 1 ) * aJt( 1, 1 ) * aJt( 2, 2 ) +
+                    aJt( 0, 1 ) * aJt( 1, 2 ) * aJt( 2, 1 ) +
+                    aJt( 0, 2 ) * aJt( 1, 1 ) * aJt( 2, 1 );
 
-            aJ3at( 9, 7 ) = aJt( 0, 2 ) * aJt( 1, 2 ) * aJt( 2, 0 )
-                                  + aJt( 0, 2 ) * aJt( 1, 0 ) * aJt( 2, 2 )
-                                  + aJt( 0, 0 ) * aJt( 1, 2 ) * aJt( 2, 2 );
+            aJ3at( 9, 7 ) =
+                    aJt( 0, 2 ) * aJt( 1, 2 ) * aJt( 2, 0 ) +
+                    aJt( 0, 2 ) * aJt( 1, 0 ) * aJt( 2, 2 ) +
+                    aJt( 0, 0 ) * aJt( 1, 2 ) * aJt( 2, 2 );
 
-            aJ3at( 9, 8 ) = aJt( 0, 2 ) * aJt( 1, 2 ) * aJt( 2, 1 )
-                                  + aJt( 0, 2 ) * aJt( 1, 1 ) * aJt( 2, 2 )
-                                  + aJt( 0, 1 ) * aJt( 1, 2 ) * aJt( 2, 2 );
+            aJ3at( 9, 8 ) =
+                    aJt( 0, 2 ) * aJt( 1, 2 ) * aJt( 2, 1 ) +
+                    aJt( 0, 2 ) * aJt( 1, 1 ) * aJt( 2, 2 ) +
+                    aJt( 0, 1 ) * aJt( 1, 2 ) * aJt( 2, 2 );
 
             // Block (9) ------------------------------------------------
-            aJ3at( 9, 9 ) = aJt( 0, 0 ) * aJt( 1, 1 ) * aJt( 2, 2 )
-                                  + aJt( 0, 2 ) * aJt( 1, 1 ) * aJt( 2, 0 )
-                                  + aJt( 0, 1 ) * aJt( 1, 2 ) * aJt( 2, 0 )
-                                  + aJt( 0, 0 ) * aJt( 1, 2 ) * aJt( 2, 1 )
-                                  + aJt( 0, 2 ) * aJt( 1, 0 ) * aJt( 2, 1 )
-                                  + aJt( 0, 1 ) * aJt( 1, 0 ) * aJt( 2, 2 );
+            aJ3at( 9, 9 ) =
+                    aJt( 0, 0 ) * aJt( 1, 1 ) * aJt( 2, 2 ) +
+                    aJt( 0, 2 ) * aJt( 1, 1 ) * aJt( 2, 0 ) +
+                    aJt( 0, 1 ) * aJt( 1, 2 ) * aJt( 2, 0 ) +
+                    aJt( 0, 0 ) * aJt( 1, 2 ) * aJt( 2, 1 ) +
+                    aJt( 0, 2 ) * aJt( 1, 0 ) * aJt( 2, 1 ) +
+                    aJt( 0, 1 ) * aJt( 1, 0 ) * aJt( 2, 2 );
 
             // second help matrix
             aJ3bt.set_size( 10, 6 );
@@ -1272,26 +1399,35 @@ namespace moris
             }
 
             // Block (2) ------------------------------------------------
-            aJ3bt( 0, 5 ) = 3 * aJ2bt( 0, 0 ) * aJt( 0, 1 )
-                                  + 3 * aJ2bt( 0, 1 ) * aJt( 0, 0 );
-            aJ3bt( 1, 5 ) = 3 * aJ2bt( 1, 0 ) * aJt( 1, 1 )
-                                  + 3 * aJ2bt( 1, 1 ) * aJt( 1, 0 );
-            aJ3bt( 2, 5 ) = 3 * aJ2bt( 2, 0 ) * aJt( 2, 1 )
-                                  + 3 * aJ2bt( 2, 1 ) * aJt( 2, 0 );
+            aJ3bt( 0, 5 ) =
+                    3 * aJ2bt( 0, 0 ) * aJt( 0, 1 ) +
+                    3 * aJ2bt( 0, 1 ) * aJt( 0, 0 );
+            aJ3bt( 1, 5 ) =
+                    3 * aJ2bt( 1, 0 ) * aJt( 1, 1 ) +
+                    3 * aJ2bt( 1, 1 ) * aJt( 1, 0 );
+            aJ3bt( 2, 5 ) =
+                    3 * aJ2bt( 2, 0 ) * aJt( 2, 1 ) +
+                    3 * aJ2bt( 2, 1 ) * aJt( 2, 0 );
 
-            aJ3bt( 0, 3 ) = 3 * aJ2bt( 0, 1 ) * aJt( 0, 2 )
-                                  + 3 * aJ2bt( 0, 2 ) * aJt( 0, 1 );
-            aJ3bt( 1, 3 ) = 3 * aJ2bt( 1, 1 ) * aJt( 1, 2 )
-                                  + 3 * aJ2bt( 1, 2 ) * aJt( 1, 1 );
-            aJ3bt( 2, 3 ) = 3 * aJ2bt( 2, 1 ) * aJt( 2, 2 )
-                                  + 3 * aJ2bt( 2, 2 ) * aJt( 2, 1 );
+            aJ3bt( 0, 3 ) =
+                    3 * aJ2bt( 0, 1 ) * aJt( 0, 2 ) +
+                    3 * aJ2bt( 0, 2 ) * aJt( 0, 1 );
+            aJ3bt( 1, 3 ) =
+                    3 * aJ2bt( 1, 1 ) * aJt( 1, 2 ) +
+                    3 * aJ2bt( 1, 2 ) * aJt( 1, 1 );
+            aJ3bt( 2, 3 ) =
+                    3 * aJ2bt( 2, 1 ) * aJt( 2, 2 ) +
+                    3 * aJ2bt( 2, 2 ) * aJt( 2, 1 );
 
-            aJ3bt( 0, 4 ) = 3 * aJ2bt( 0, 0 ) * aJt( 0, 2 )
-                                  + 3 * aJ2bt( 0, 2 ) * aJt( 0, 0 );
-            aJ3bt( 1, 4 ) = 3 * aJ2bt( 1, 0 ) * aJt( 1, 2 )
-                                  + 3 * aJ2bt( 1, 2 ) * aJt( 1, 0 );
-            aJ3bt( 2, 4 ) = 3 * aJ2bt( 2, 0 ) * aJt( 2, 2 )
-                                  + 3 * aJ2bt( 2, 2 ) * aJt( 2, 0 );
+            aJ3bt( 0, 4 ) =
+                    3 * aJ2bt( 0, 0 ) * aJt( 0, 2 ) +
+                    3 * aJ2bt( 0, 2 ) * aJt( 0, 0 );
+            aJ3bt( 1, 4 ) =
+                    3 * aJ2bt( 1, 0 ) * aJt( 1, 2 ) +
+                    3 * aJ2bt( 1, 2 ) * aJt( 1, 0 );
+            aJ3bt( 2, 4 ) =
+                    3 * aJ2bt( 2, 0 ) * aJt( 2, 2 ) +
+                    3 * aJ2bt( 2, 2 ) * aJt( 2, 0 );
 
             // Block (3) ------------------------------------------------
             for( uint j=0; j<3; ++j )
@@ -1329,27 +1465,30 @@ namespace moris
             // Block (5) ------------------------------------------------
             for( uint j=0; j<3; ++j )
             {
-                aJ3bt( 9, j ) = aJ2bt( 4, j ) * aJt( 1, j )
-                                      + aJ2bt( 3, j ) * aJt( 0, j )
-                                      + aJ2bt( 5, j ) * aJt( 2, j );
+                aJ3bt( 9, j ) =
+                        aJ2bt( 4, j ) * aJt( 1, j ) +
+                        aJ2bt( 3, j ) * aJt( 0, j ) +
+                        aJ2bt( 5, j ) * aJt( 2, j );
             }
 
             // Block (6) ------------------------------------------------
-            aJ3bt( 9, 5 ) = aJ2bt( 5, 0 ) * aJt( 2, 1 ) + aJ2bt( 5, 1 ) * aJt( 2, 0 )
-                                  + aJ2bt( 3, 0 ) * aJt( 0, 1 ) + aJ2bt( 3, 1 ) * aJt( 0, 0 )
-                                  + aJ2bt( 4, 0 ) * aJt( 1, 1 ) + aJ2bt( 4, 1 ) * aJt( 1, 0 );
+            aJ3bt( 9, 5 ) =
+                    aJ2bt( 5, 0 ) * aJt( 2, 1 ) + aJ2bt( 5, 1 ) * aJt( 2, 0 ) +
+                    aJ2bt( 3, 0 ) * aJt( 0, 1 ) + aJ2bt( 3, 1 ) * aJt( 0, 0 ) +
+                    aJ2bt( 4, 0 ) * aJt( 1, 1 ) + aJ2bt( 4, 1 ) * aJt( 1, 0 );
 
-            aJ3bt( 9, 3 ) = aJ2bt( 5, 1 ) * aJt( 2, 2 ) + aJ2bt( 5, 2 ) * aJt( 2, 1 )
-                                  + aJ2bt( 3, 1 ) * aJt( 0, 2 ) + aJ2bt( 3, 2 ) * aJt( 0, 1 )
-                                  + aJ2bt( 4, 1 ) * aJt( 1, 2 ) + aJ2bt( 4, 2 ) * aJt( 1, 1 );
+            aJ3bt( 9, 3 ) =
+                    aJ2bt( 5, 1 ) * aJt( 2, 2 ) + aJ2bt( 5, 2 ) * aJt( 2, 1 ) +
+                    aJ2bt( 3, 1 ) * aJt( 0, 2 ) + aJ2bt( 3, 2 ) * aJt( 0, 1 ) +
+                    aJ2bt( 4, 1 ) * aJt( 1, 2 ) + aJ2bt( 4, 2 ) * aJt( 1, 1 );
 
-            aJ3bt( 9, 4 ) = aJ2bt( 5, 0 ) * aJt( 2, 2 ) + aJ2bt( 5, 2 ) * aJt( 2, 0 )
-                                  + aJ2bt( 3, 0 ) * aJt( 0, 2 ) + aJ2bt( 3, 2 ) * aJt( 0, 0 )
-                                  + aJ2bt( 4, 0 ) * aJt( 1, 2 ) + aJ2bt( 4, 2 ) * aJt( 1, 0 );
+            aJ3bt( 9, 4 ) =
+                    aJ2bt( 5, 0 ) * aJt( 2, 2 ) + aJ2bt( 5, 2 ) * aJt( 2, 0 ) +
+                    aJ2bt( 3, 0 ) * aJt( 0, 2 ) + aJ2bt( 3, 2 ) * aJt( 0, 0 ) +
+                    aJ2bt( 4, 0 ) * aJt( 1, 2 ) + aJ2bt( 4, 2 ) * aJt( 1, 0 );
 
             // third help matrix
             aJ3ct = ad3NdXi3 * aXHat;
-
         }
 
         //------------------------------------------------------------------------------
@@ -1410,10 +1549,94 @@ namespace moris
                     break;
                 }
             }
+
+            // switch on geometry type
+            if( mSpaceSideset )
+            {
+                switch( mGeometryType )
+                {
+                    case mtk::Geometry_Type::LINE :
+                    {
+                        mSpaceDetJFunc = &Geometry_Interpolator::eval_space_detJ_side_line;
+                        mNormalFunc    = &Geometry_Interpolator::eval_normal_side_line;
+                        break;
+                    }
+                    case mtk::Geometry_Type::TRI :
+                    {
+                        mSpaceDetJFunc = &Geometry_Interpolator::eval_space_detJ_side_tri;
+                        mNormalFunc    = &Geometry_Interpolator::eval_normal_side_tri;
+                        break;
+                    }
+                    case mtk::Geometry_Type::QUAD :
+                    {
+                        mSpaceDetJFunc = &Geometry_Interpolator::eval_space_detJ_side_quad;
+                        mNormalFunc    = &Geometry_Interpolator::eval_normal_side_quad;
+                        break;
+                    }
+                    default :
+                    {
+                        MORIS_ERROR( false, "Geometry_Interpolator::set_function_pointers - unknown or not implemented side space geometry type ");
+                        break;
+                    }
+                }
+            }
+            else
+            {
+                switch( mGeometryType )
+                {
+                    case mtk::Geometry_Type::LINE :
+                    case mtk::Geometry_Type::QUAD :
+                    case mtk::Geometry_Type::HEX :
+                    {
+                        mSpaceDetJFunc = &Geometry_Interpolator::eval_space_detJ_bulk_line_quad_hex;
+                        break;
+                    }
+
+                    case mtk::Geometry_Type::TRI :
+                    {
+                        mSpaceDetJFunc = &Geometry_Interpolator::eval_space_detJ_bulk_tri;
+                        break;
+                    }
+
+                    case mtk::Geometry_Type::TET :
+                    {
+                        mSpaceDetJFunc = &Geometry_Interpolator::eval_space_detJ_bulk_tet;
+                        break;
+                    }
+
+                    default :
+                    {
+                        MORIS_ERROR( false, "Geometry_Interpolator::set_function_pointers - unknown or not implemented space geometry type ");
+                        break;
+                    }
+                }
+            }
+
+            // switch Geometry_Type
+            switch ( mTimeGeometryType )
+            {
+                case mtk::Geometry_Type::POINT :
+                {
+                    mTimeDetJFunc = &Geometry_Interpolator::eval_time_detJ_side;
+                    break;
+                }
+                case mtk::Geometry_Type::LINE :
+                {
+                    mTimeDetJFunc = &Geometry_Interpolator::eval_time_detJ_bulk;
+                    break;
+                }
+                default:
+                {
+                    MORIS_ERROR( false, "Geometry_Interpolator::set_function_pointers - unknown or not implemented time geometry type ");
+                    break;
+                }
+            }
         }
 
         //------------------------------------------------------------------------------
-        moris::Cell< moris::Cell < moris_index > > Geometry_Interpolator::get_face_vertices_ordinals( uint aNumSpaceBases )
+
+        moris::Cell< moris::Cell < moris_index > > Geometry_Interpolator::get_face_vertices_ordinals(
+                uint aNumSpaceBases )
         {
             // init the vertices per facet
             moris::Cell< moris::Cell < moris_index > > tVerticesPerFace;
@@ -1449,25 +1672,29 @@ namespace moris
                     switch ( aNumSpaceBases )
                     {
                         case 4 :
-                            tVerticesPerFace = { { 0, 1 },
+                            tVerticesPerFace = {
+                                    { 0, 1 },
                                     { 1, 2 },
                                     { 2, 3 },
                                     { 3, 0 } };
                             break;
                         case 8 :
-                            tVerticesPerFace = { { 0, 1, 4 },
+                            tVerticesPerFace = {
+                                    { 0, 1, 4 },
                                     { 1, 2, 5 },
                                     { 2, 3, 6 },
                                     { 3, 0, 7 } };
                             break;
                         case 9 :
-                            tVerticesPerFace = { { 0, 1, 4 },
+                            tVerticesPerFace = {
+                                    { 0, 1, 4 },
                                     { 1, 2, 5 },
                                     { 2, 3, 6 },
                                     { 3, 0, 7 } };
                             break;
                         case 16 :
-                            tVerticesPerFace = { { 0, 1,  4,  5 },
+                            tVerticesPerFace = {
+                                    { 0, 1,  4,  5 },
                                     { 1, 2,  6,  7 },
                                     { 2, 3,  8,  9 },
                                     { 3, 0, 10, 11 } };
@@ -1484,7 +1711,8 @@ namespace moris
                     switch( aNumSpaceBases )
                     {
                         case 8 :
-                            tVerticesPerFace = { { 0, 1, 5, 4 },
+                            tVerticesPerFace = {
+                                    { 0, 1, 5, 4 },
                                     { 1, 2, 6, 5 },
                                     { 2, 3, 7, 6 },
                                     { 0, 4, 7, 3 },
@@ -1492,7 +1720,8 @@ namespace moris
                                     { 4, 5, 6, 7 } };
                             break;
                         case 20 :
-                            tVerticesPerFace = { { 0, 1, 5, 4,  8, 13, 16, 12 },
+                            tVerticesPerFace = {
+                                    { 0, 1, 5, 4,  8, 13, 16, 12 },
                                     { 1, 2, 6, 5,  9, 14, 17, 13 },
                                     { 2, 3, 7, 6, 10, 15, 18, 14 },
                                     { 0, 4, 7, 3, 12, 19, 15, 11 },
@@ -1500,7 +1729,8 @@ namespace moris
                                     { 4, 5, 6, 7, 16, 17, 18, 19 } };
                             break;
                         case 27 :
-                            tVerticesPerFace = { { 0, 1, 5, 4,  8, 13, 16, 12, 23 },
+                            tVerticesPerFace = {
+                                    { 0, 1, 5, 4,  8, 13, 16, 12, 23 },
                                     { 1, 2, 6, 5,  9, 14, 17, 13, 24 },
                                     { 2, 3, 7, 6, 10, 15, 18, 14, 26 },
                                     { 0, 4, 7, 3, 12, 19, 15, 11, 23 },
@@ -1508,7 +1738,8 @@ namespace moris
                                     { 4, 5, 6, 7, 16, 17, 18, 19, 22 } };
                             break;
                         case 64 :
-                            tVerticesPerFace = { { 0, 1, 5, 4,  8,  9, 16, 17, 25, 24, 13, 12, 36, 37, 38, 39 },
+                            tVerticesPerFace = {
+                                    { 0, 1, 5, 4,  8,  9, 16, 17, 25, 24, 13, 12, 36, 37, 38, 39 },
                                     { 1, 2, 6, 5, 14, 15, 20, 21, 29, 28, 17, 16, 44, 45, 46, 47 },
                                     { 2, 3, 7, 6, 18, 19, 22, 23, 31, 30, 21, 20, 48, 49, 50, 51 },
                                     { 0, 4, 7, 3, 12, 13, 26, 27, 23, 22, 11, 10, 40, 41, 42, 43 },
@@ -1527,17 +1758,20 @@ namespace moris
                     switch( aNumSpaceBases )
                     {
                         case 3 :
-                            tVerticesPerFace = { { 0, 1 },
+                            tVerticesPerFace = {
+                                    { 0, 1 },
                                     { 1, 2 },
                                     { 2, 0 }};
                             break;
                         case 6 :
-                            tVerticesPerFace = { { 0, 1, 3 },
+                            tVerticesPerFace = {
+                                    { 0, 1, 3 },
                                     { 1, 2, 4 },
                                     { 2, 0, 5 }};
                             break;
                         case 10 :
-                            tVerticesPerFace = { { 0, 1, 3, 4 },
+                            tVerticesPerFace = {
+                                    { 0, 1, 3, 4 },
                                     { 1, 2, 5, 6 },
                                     { 2, 0, 7, 8 }};
                             break;
@@ -1553,19 +1787,22 @@ namespace moris
                     switch( aNumSpaceBases )
                     {
                         case 4 :
-                            tVerticesPerFace = {{ 0, 1, 3 },
+                            tVerticesPerFace = {
+                                    { 0, 1, 3 },
                                     { 1, 2, 3 },
                                     { 0, 3, 2 },
                                     { 0, 2, 1 }};
                             break;
                         case 10 :
-                            tVerticesPerFace = {{ 0, 1, 3, 4, 8, 7 },
+                            tVerticesPerFace = {
+                                    { 0, 1, 3, 4, 8, 7 },
                                     { 1, 2, 3, 5, 9, 8 },
                                     { 0, 3, 2, 7, 9, 6 },
                                     { 0, 2, 1, 6, 5, 4 }};
                             break;
                         case 20 :
-                            tVerticesPerFace = {{ 0, 1, 3,  4,  5, 12, 13, 11, 10, 17 },
+                            tVerticesPerFace = {
+                                    { 0, 1, 3,  4,  5, 12, 13, 11, 10, 17 },
                                     { 1, 2, 3,  6,  7, 14, 15, 13, 12, 18 },
                                     { 0, 3, 2, 10, 11, 15, 14,  9,  8, 19 },
                                     { 0, 2, 1,  8,  9,  7,  6,  5,  4, 16 }};
