@@ -1830,8 +1830,8 @@ namespace moris
                     }
                 }
 
-                // increment faced ID
-                tFacet->set_id( tFacet->get_id() + 1 );
+                // increment facet ID
+                tFacet->increment_id();
             }
 
             // insert facet containers
