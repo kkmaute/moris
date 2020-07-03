@@ -21,185 +21,193 @@ namespace moris
     namespace hmr
     {
 
-    class Mesh_Base;
-// ----------------------------------------------------------------------------
+        class Mesh_Base;
+        // ----------------------------------------------------------------------------
 
         class Edge : public mtk::Edge
         {
-            //! id of this edge
-            moris_id    mID;
+                //! id of this edge
+                moris_id mID = gNoID;
 
-            //! index of this edge
-            moris_index mIndex;
+                //! index of this edge
+                moris_index mIndex = gNoIndex;
 
-            //! pointer with indices in elements
-            Matrix< DDUMat > mIndicesInElements;
+                //! pointer with indices in elements
+                Matrix< DDUMat > mIndicesInElements;
 
-            //! owner of this edge
-            moris_id mOwner;
+                //! owner of this edge
+                moris_id mOwner = gNoID;
 
-// ----------------------------------------------------------------------------
-        protected:
-// ----------------------------------------------------------------------------
+                // ----------------------------------------------------------------------------
 
-            //! index on master
-            uint      mIndexOfMaster;
+            protected:
 
-            //! pointer with elements
-            moris::Cell< Element * > mElements;
+                // ----------------------------------------------------------------------------
 
-// ----------------------------------------------------------------------------
-        public:
-// ----------------------------------------------------------------------------
+                //! index on master
+                uint      mIndexOfMaster;
 
-            /**
-             * constructor
-             */
-            Edge( hmr::Mesh_Base       * aMesh,
-                  Background_Edge * aBackgroundEdge );
+                //! pointer with elements
+                moris::Cell< Element * > mElements;
 
-// ----------------------------------------------------------------------------
+                // ----------------------------------------------------------------------------
 
-            /**
-             * trivial destructor
-             */
-            virtual ~Edge(){};
+            public:
 
-// ----------------------------------------------------------------------------
+                // ----------------------------------------------------------------------------
 
-            /**
-             * returns the domain wide id of the edge
-             *
-             * @return moris_id ID
-             */
-            moris_id get_id() const;
+                /**
+                 * constructor
+                 */
+                Edge(
+                        hmr::Mesh_Base  * aMesh,
+                        Background_Edge * aBackgroundEdge );
 
-// ----------------------------------------------------------------------------
+                // ----------------------------------------------------------------------------
 
-            /**
-             * returns the local index of the edge
-             *
-             * @return moris_index ID
-             */
-            moris_index get_index() const;
+                /**
+                 * trivial destructor
+                 */
+                virtual ~Edge(){};
 
-// ----------------------------------------------------------------------------
+                // ----------------------------------------------------------------------------
 
-            /**
-             * tells how many vertices are connected to this edge
-             */
-            virtual uint get_number_of_vertices() const = 0;
+                /**
+                 * returns the domain wide id of the edge
+                 *
+                 * @return moris_id ID
+                 */
+                moris_id get_id() const;
 
-// ----------------------------------------------------------------------------
+                // ----------------------------------------------------------------------------
 
-            /**
-             * returns the proc id of the owner of this edge
-             * ( this information is needed for STK )
-             */
-            moris_id get_owner() const;
+                /**
+                 * returns the local index of the edge
+                 *
+                 * @return moris_index ID
+                 */
+                moris_index get_index() const;
 
-// ----------------------------------------------------------------------------
+                // ----------------------------------------------------------------------------
 
-            /**
-             * explicitly sets the owner of the edge
-             */
-            void set_owner( const moris_id & aOwner );
+                /**
+                 * tells how many vertices are connected to this edge
+                 */
+                virtual uint get_number_of_vertices() const = 0;
 
-// ----------------------------------------------------------------------------
+                // ----------------------------------------------------------------------------
 
-            /**
-             * fills a moris::cell with pointers to connected vertices
-             */
-            moris::Cell< mtk::Vertex* > get_vertex_pointers() const;
+                /**
+                 * returns the proc id of the owner of this edge
+                 * ( this information is needed for STK )
+                 */
+                moris_id get_owner() const;
 
-// ----------------------------------------------------------------------------
+                // ----------------------------------------------------------------------------
 
-            /**
-             * returns a Mat with IDs of connected vertices
-             */
-            Matrix< IdMat > get_vertex_ids() const;
+                /**
+                 * explicitly sets the owner of the edge
+                 */
+                void set_owner( const moris_id & aOwner );
 
-// ----------------------------------------------------------------------------
+                // ----------------------------------------------------------------------------
 
-            /**
-             * returns a Mat with indices of connected vertices
-             */
-            virtual Matrix< IndexMat > get_vertex_inds() const;
+                /**
+                 * fills a moris::cell with pointers to connected vertices
+                 */
+                moris::Cell< mtk::Vertex* > get_vertex_pointers() const;
 
-// ----------------------------------------------------------------------------
+                // ----------------------------------------------------------------------------
 
-            /**
-             * returns a Mat of dimension
-             * < number of vertices * number of dimensions >
-             */
-            Matrix< DDRMat > get_vertex_coords() const;
+                /**
+                 * returns a Mat with IDs of connected vertices
+                 */
+                Matrix< IdMat > get_vertex_ids() const;
 
-// ----------------------------------------------------------------------------
+                // ----------------------------------------------------------------------------
 
-            /**
-             * an edge is always a line
-             */
-            mtk::Geometry_Type get_geometry_type() const;
+                /**
+                 * returns a Mat with indices of connected vertices
+                 */
+                virtual Matrix< IndexMat > get_vertex_inds() const;
 
-// ----------------------------------------------------------------------------
+                // ----------------------------------------------------------------------------
 
-            virtual mtk::Interpolation_Order get_interpolation_order() const = 0;
+                /**
+                 * returns a Mat of dimension
+                 * < number of vertices * number of dimensions >
+                 */
+                Matrix< DDRMat > get_vertex_coords() const;
 
-// ----------------------------------------------------------------------------
+                // ----------------------------------------------------------------------------
 
-            void set_index( const moris_index & aIndex );
+                /**
+                 * an edge is always a line
+                 */
+                mtk::Geometry_Type get_geometry_type() const;
 
-// ----------------------------------------------------------------------------
+                // ----------------------------------------------------------------------------
 
-            void set_id( const moris_id & aID );
+                virtual mtk::Interpolation_Order get_interpolation_order() const = 0;
 
-// ----------------------------------------------------------------------------
+                // ----------------------------------------------------------------------------
 
-            uint get_number_of_elements() const;
+                void set_index( const moris_index & aIndex );
 
-// ----------------------------------------------------------------------------
+                // ----------------------------------------------------------------------------
 
-            Element * get_element( const uint & aIndex );
+                void set_id( const moris_id & aID );
 
-// ----------------------------------------------------------------------------
+                // ----------------------------------------------------------------------------
 
-            uint get_index_on_element(  const uint & aIndex ) const;
+                uint get_number_of_elements() const;
 
-// ----------------------------------------------------------------------------
+                // ----------------------------------------------------------------------------
 
-            Element * get_hmr_master();
+                Element * get_element( const uint & aIndex );
 
-// ----------------------------------------------------------------------------
+                // ----------------------------------------------------------------------------
 
-            uint get_index_on_master() const;
+                uint get_index_on_element(  const uint & aIndex ) const;
 
-// ----------------------------------------------------------------------------
+                // ----------------------------------------------------------------------------
 
-            virtual const Basis * get_basis( const uint aIndex ) const = 0;
+                Element * get_hmr_master();
 
-// ----------------------------------------------------------------------------
+                // ----------------------------------------------------------------------------
 
-            virtual Basis * get_basis( const uint aIndex )  = 0;
+                uint get_index_on_master() const;
 
-// ----------------------------------------------------------------------------
+                // ----------------------------------------------------------------------------
 
-            bool is_active() const;
+                virtual const Basis * get_basis( const uint aIndex ) const = 0;
 
-// ----------------------------------------------------------------------------
-        private:
-// ----------------------------------------------------------------------------
+                // ----------------------------------------------------------------------------
 
-            void find_master( Mesh_Base       * aMesh,
-                              Background_Edge * aBackgroundEdge );
+                virtual Basis * get_basis( const uint aIndex )  = 0;
 
-// ----------------------------------------------------------------------------
+                // ----------------------------------------------------------------------------
 
-            virtual void copy_vertex_pointers() = 0;
+                bool is_active() const;
 
-// ----------------------------------------------------------------------------
+                // ----------------------------------------------------------------------------
+
+            private:
+
+                // ----------------------------------------------------------------------------
+
+                void find_master(
+                        Mesh_Base       * aMesh,
+                        Background_Edge * aBackgroundEdge );
+
+                // ----------------------------------------------------------------------------
+
+                virtual void copy_vertex_pointers() = 0;
+
+                // ----------------------------------------------------------------------------
         };
 
-// ----------------------------------------------------------------------------
+        // ----------------------------------------------------------------------------
     } /* namespace hmr */
 } /* namespace moris */
 
