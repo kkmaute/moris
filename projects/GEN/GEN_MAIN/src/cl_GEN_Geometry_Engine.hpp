@@ -357,11 +357,6 @@ namespace moris
              */
             void assign_pdv_hosts();
 
-            /**
-             * Resets the stored info specific to meshes
-             */
-            void reset();
-
         private:
 
             /**

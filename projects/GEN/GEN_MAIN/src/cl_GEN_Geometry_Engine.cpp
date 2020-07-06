@@ -131,6 +131,10 @@ namespace moris
         void Geometry_Engine::set_advs(Matrix<DDRMat> aNewADVs)
         {
             mADVs = aNewADVs;
+            mGeometryObjectManager = Geometry_Object_Manager();
+            mPdvHostManager = Pdv_Host_Manager(mADVs.length());
+            mInterfaceNodeIndices = Matrix<IndexMat>();
+            mActiveGeometryIndex = 0;
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -877,16 +881,6 @@ namespace moris
                     MORIS_ERROR(false, "Assignment of PDVs is only supported with an interpolation mesh right now.");
                 }
             }
-        }
-
-        //--------------------------------------------------------------------------------------------------------------
-
-        void Geometry_Engine::reset()
-        {
-            mGeometryObjectManager = Geometry_Object_Manager();
-            mPdvHostManager = Pdv_Host_Manager(mADVs.length());
-            mInterfaceNodeIndices = Matrix<IndexMat>();
-            mActiveGeometryIndex = 0;
         }
 
         //--------------------------------------------------------------------------------------------------------------
