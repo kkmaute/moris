@@ -20,8 +20,6 @@
 
 #include "AztecOO.h"
 
-
-
 #ifdef  __cplusplus
 extern "C"
 {
@@ -475,9 +473,9 @@ namespace moris
         tParameterlist( 0 )( 0 ).set( "File_Name"     , std::pair< std::string, std::string >( "./", "Channel_with_Four_Cylinders_Static_Temp_Only.exo" ) );
         tParameterlist( 0 )( 0 ).set( "Mesh_Type"     , static_cast< uint >( vis::VIS_Mesh_Type::STANDARD ) );
         tParameterlist( 0 )( 0 ).set( "Set_Names"     , std::string( "HMR_dummy_n_p160,HMR_dummy_c_p160" ) );
-        tParameterlist( 0 )( 0 ).set( "Field_Names"   , std::string( "TEMP" ) );
-        tParameterlist( 0 )( 0 ).set( "Field_Type"    , std::string( "NODAL,NODAL,NODAL,NODAL" ) );
-        tParameterlist( 0 )( 0 ).set( "Output_Type"   , std::string( "TEMP" ) );
+        tParameterlist( 0 )( 0 ).set( "Field_Names"   , std::string( "TEMP,IQIBulkTEMP" ) );
+        tParameterlist( 0 )( 0 ).set( "Field_Type"    , std::string( "NODAL,GLOBAL" ) );
+        tParameterlist( 0 )( 0 ).set( "Output_Type"   , std::string( "TEMP,TEMP" ) );
         tParameterlist( 0 )( 0 ).set( "Save_Frequency", 1 );
     }
 
