@@ -13,41 +13,25 @@ namespace moris
 
         class Child_Node
         {
-        private:
+
+        protected:
             Matrix<DDUMat>       mParentNodeIndices;
             Cell<Matrix<DDRMat>> mParentNodeCoordinates;
-            Matrix<DDRMat>       mBasisValues;
+            Matrix<DDRMat> mBasisValues;
 
         public:
-
             /**
-             * Constructor (local coordinates given)
+             * Constructor
              *
              * @param aParentNodeIndices Node indices of the parent of this child node
              * @param aParentNodeCoordinates Coordinates of the parent of this child node
              * @param aBasisFunction Basis function of the parent topology
-             * @param aIntersectionGeometry Geometry that intersects the parent to create this child
-             * @param aIsocontourThreshold Threshold for determining the intersection location of the child node
+             * @param aLocalCoordinates Local coordinate of this child inside of the parent element
              */
             Child_Node(Matrix<DDUMat>             aParentNodeIndices,
                        Cell<Matrix<DDRMat>>       aParentNodeCoordinates,
                        const xtk::Basis_Function& aBasisFunction,
                        Matrix<DDRMat>             aLocalCoordinates);
-
-            /**
-             * Constructor (local coordinates calculated)
-             *
-             * @param aParentNodeIndices Node indices of the parent of this child node
-             * @param aParentNodeCoordinates Coordinates of the parent of this child node
-             * @param aBasisFunction Basis function of the parent topology
-             * @param aIntersectionGeometry Geometry that intersects the parent to create this child
-             * @param aIsocontourThreshold Threshold for determining the intersection location of the child node
-             */
-            Child_Node(Matrix<DDUMat>             aParentNodeIndices,
-                       Cell<Matrix<DDRMat>>       aParentNodeCoordinates,
-                       const xtk::Basis_Function& aBasisFunction,
-                       Matrix<DDRMat>             aNodeFieldValues,
-                       real                       aIsocontourThreshold);
 
             /**
              * Get a geometry field value on the child node based on values from the parents

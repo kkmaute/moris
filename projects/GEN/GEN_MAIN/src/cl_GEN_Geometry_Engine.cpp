@@ -8,6 +8,7 @@
 #include "fn_GEN_create_properties.hpp"
 #include "cl_GEN_Interpolation.hpp"
 #include "cl_GEN_Child_Node.hpp"
+#include "cl_GEN_Intersection_Node.hpp"
 
 // LINALG
 #include "cl_Matrix.hpp"
@@ -19,9 +20,6 @@
 // MTK
 #include "cl_MTK_Integration_Mesh.hpp"
 #include "cl_MTK_Interpolation_Mesh.hpp"
-
-// XTK
-#include "cl_XTK_Linear_Basis_Functions.hpp"
 
 // MRS/IOS
 #include "fn_Parsing_Tools.hpp"
@@ -327,8 +325,8 @@ namespace moris
 
             // compute the local coordinate where the intersection occurs
             Interpolation::linear_interpolation_value(aEntityNodeVars,
-                    mIsocontourThreshold,
-                    aIntersectionLocalCoordinates);
+                                                      mIsocontourThreshold,
+                                                      aIntersectionLocalCoordinates);
 
             // Child node
             Cell<Matrix<DDRMat>> tParentNodeCoordinates(2, Matrix<DDRMat>(1, mSpatialDim));
@@ -336,12 +334,12 @@ namespace moris
             aGlobalNodeCoordinates.get_row(aEntityNodeIndices(1), tParentNodeCoordinates(1));
             Matrix<DDUMat> tParentNodeIndices(2, 1);
             tParentNodeIndices(0) = aEntityNodeIndices(0);
-            tParentNodeIndices(0) = aEntityNodeIndices(1);
-            mChildNodes.push_back(std::make_shared<Child_Node>(
-                    tParentNodeIndices, tParentNodeCoordinates, xtk::Linear_Basis_Function(), aEntityNodeVars, mIsocontourThreshold));
+            tParentNodeIndices(1) = aEntityNodeIndices(1);
+            mChildNodes.push_back(std::make_shared<Intersection_Node>(
+                    tParentNodeIndices, tParentNodeCoordinates, mGeometry(mActiveGeometryIndex), mIsocontourThreshold));
 
             // Perturb away from node if necessary
-            if(aCheckLocalCoordinate)
+            if (aCheckLocalCoordinate)
             {
                 if (aIntersectionLocalCoordinates(0, 0) >= 1 - mPerturbationValue)
                 {
