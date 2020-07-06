@@ -88,12 +88,18 @@ namespace moris
                     tFieldTypeMap );
             tOutputData.mFieldType  = tFieldTypes;
 
+            // check that length of Field_Names and Field_Type are consistent
+            MORIS_ERROR( tFieldNames.size() == tFieldTypes.size(),"Output_Manager::set_outputs - Number of Field Names and Field Types differ.");
+
             moris::Cell< enum vis::Output_Type > tOutputTypes;
             moris::map< std::string, enum vis::Output_Type > tOutputTypeMap = get_vis_output_type_map();
             string_to_cell( aParamterelist.get< std::string >( "Output_Type" ) ,
                     tOutputTypes,
                     tOutputTypeMap );
             tOutputData.mOutputType = tOutputTypes;
+
+            // check that length of Field_Names and Field_Type are consistent
+            MORIS_ERROR( tFieldNames.size() == tOutputTypes.size(),"Output_Manager::set_outputs - Number of Field Names and Output Types differ.");
 
             // resize list of output data objects
             sint tSize = mOutputData.size();
@@ -477,6 +483,5 @@ namespace moris
         }
 
         //-----------------------------------------------------------------------------------------------------------
-
     }
 }

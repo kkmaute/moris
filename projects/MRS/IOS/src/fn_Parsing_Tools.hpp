@@ -820,15 +820,26 @@ namespace moris
                 {
                     std::string tStringMat = tString.substr( 0, tPos );
 
+                    // check that output type is member of map
+                    MORIS_ERROR( aMap.key_exists(tStringMat),
+                            "fn_Parsing_Tools::string_to_cell - key does not exist: %s",tString.c_str() );
+
                     // copy value into output matrix
                     T tComponent = aMap.find( tStringMat );
+
                     aCell( tCount++ ) = tComponent;
+
                     tString =  tString.substr( tPos+1, tString.size() );
                 }
                 else
                 {
+                    // check that output type is member of map
+                    MORIS_ERROR( aMap.key_exists(tString),
+                            "fn_Parsing_Tools::string_to_cell - key does not exist: %s",tString.c_str() );
+
                     // copy value into output matrix
                     T tComponent = aMap.find( tString );
+
                     aCell( tCount++ ) = tComponent;
                 }
             }
@@ -896,7 +907,6 @@ namespace moris
         string_to_cell(aString, tCell);
         return tCell;
     }
-
 
     // -----------------------------------------------------------------------------
 
