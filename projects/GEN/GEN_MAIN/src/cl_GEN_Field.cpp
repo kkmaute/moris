@@ -77,7 +77,7 @@ namespace moris
                                                Matrix<DDRMat>& aSensitivities)
         {
             // Resize sensitivities
-            aSensitivities.resize(1, mNumADVs);
+            aSensitivities.set_size(1, mNumADVs, 0.0);
 
             // Evaluate all sensitivities
             Matrix<DDRMat> tTempSensitivities;

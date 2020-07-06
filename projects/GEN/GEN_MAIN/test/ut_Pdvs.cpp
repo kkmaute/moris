@@ -143,7 +143,7 @@ namespace moris
         TEST_CASE("PDV sensitivities test", "[GE], [sensitivity]")
         {
             // Create PDV_Type host manager
-            Pdv_Host_Manager tPdvHostManager;
+            Pdv_Host_Manager tPdvHostManager(tNumADVs);
 
             // Create discrete property
             ParameterList tParameterList = moris::prm::create_gen_property_parameter_list();;
