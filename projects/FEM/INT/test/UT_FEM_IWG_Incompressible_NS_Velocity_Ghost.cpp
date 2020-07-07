@@ -566,7 +566,7 @@ TEST_CASE( "IWG_Incompressible_NS_Convective_Ghost", "[IWG_Incompressible_NS_Con
                                          mtk::Interpolation_Order::LINEAR );
 
             // fill coefficients for master FI
-            Matrix< DDRMat > tMasterDOFHatVel;;
+            Matrix< DDRMat > tMasterDOFHatVel;
             fill_uhat( tMasterDOFHatVel, iSpaceDim, iInterpOrder );
 
             // create a cell of field interpolators for IWG
@@ -579,6 +579,7 @@ TEST_CASE( "IWG_Incompressible_NS_Convective_Ghost", "[IWG_Incompressible_NS_Con
             // fill coefficients for slave FI
             Matrix< DDRMat > tSlaveDOFHatVel;
             fill_uhat( tSlaveDOFHatVel, iSpaceDim, iInterpOrder );
+            tSlaveDOFHatVel = 2 * tSlaveDOFHatVel;
 
             // create a cell of field interpolators for IWG
             Cell< Field_Interpolator* > tSlaveFIs( tDofTypes.size() );
