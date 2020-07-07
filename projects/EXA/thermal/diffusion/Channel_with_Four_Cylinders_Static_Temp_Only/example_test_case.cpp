@@ -51,18 +51,25 @@ TEST_CASE("Channel_with_Four_Cylinders_Static",
 
     REQUIRE( tRelDiffNorm <  1.0e-8 );
 
-    // define reference temperature at node 488 in first time step (temperature is 3rd nodal field, first time step has index 0)
-    // std::cout << std::scientific << std::setprecision(15) << tExoIO.get_nodal_field_value( 488, 2, 0 ) << std::endl;
-    real tReferenceTemperature = 9.343574182982935e+04;
-    
-    real tRelDifference = std::abs( ( tExoIO.get_nodal_field_value( 488, 2, 0 ) - tReferenceTemperature ) / tReferenceTemperature );
-    REQUIRE(  tRelDifference < 1.0e-8);
-
-    // check time value for time step index 0, i.e. time step considered above
+    // check time value for time step index 0
     // std::cout << std::scientific << std::setprecision(15) << tExoIO.get_time_value() << std::endl;
     real tReferenceTime = 1.000000000000000e+00;
 
     real tRelTimeDifference = std::abs( ( tExoIO.get_time_value( ) - tReferenceTime) / tReferenceTime );
 
     REQUIRE( tRelTimeDifference <  1.0e-8 );
+
+    // check temperature at node 488 in first time step (temperature is 3rd nodal field, first time step has index 0)
+    // std::cout << std::scientific << std::setprecision(15) << tExoIO.get_nodal_field_value( 488, 2, 0 ) << std::endl;
+    real tReferenceTemperature = 9.343574182982935e+04;
+
+    real tRelTempDifference = std::abs( ( tExoIO.get_nodal_field_value( 488, 2, 0 ) - tReferenceTemperature ) / tReferenceTemperature );
+    REQUIRE(  tRelTempDifference < 1.0e-8);
+
+    // check IQI of first time step (only 1 IQI is defined, first time step has index 0)
+    // std::cout << std::scientific << std::setprecision(15) << tExoIO.get_global_variable(0, 0 ) << std::endl;
+    real tReferenceIQI = 8.068274679000535e+04;
+
+    real tRelIQIDifference = std::abs( ( tExoIO.get_global_variable(0, 0 ) - tReferenceIQI ) / tReferenceIQI );
+    REQUIRE(  tRelIQIDifference < 1.0e-8);
 }

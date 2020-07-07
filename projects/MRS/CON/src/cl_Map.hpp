@@ -8,6 +8,7 @@
 
 // MORIS library header files.
 #include "typedefs.hpp" // COR/src
+#include "assert.hpp"
 
 namespace moris
 {
@@ -105,10 +106,7 @@ namespace moris
         {
             auto tIterator = mMap.find(aK);
 
-            if ( tIterator == mMap.end() )
-            {
-                throw std::logic_error( "Key not found" );
-            }
+            MORIS_ERROR( tIterator != mMap.end(), "moris::map.find - Key not found" );
 
             return tIterator->second;
         }
