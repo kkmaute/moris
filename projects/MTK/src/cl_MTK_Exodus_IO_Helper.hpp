@@ -21,8 +21,9 @@ namespace moris
         {
             private:
 
-                int  mErrFlag = true;
-                bool mVerbose = false;
+                int  mErrFlag     = true;
+                bool mVerbose     = false;
+                bool mBuildGlobal = false;
 
                 // general mesh info
                 int mNumDim       = -1;
@@ -209,7 +210,8 @@ namespace moris
                 Exodus_IO_Helper(
                         const char * aExodusFile,
                         const int    aTimeStepIndex = 0,
-                        const bool   aVerbose = false);
+                        const bool   aBuildGlobal   = false,
+                        const bool   aVerbose       = false);
 
                 ~Exodus_IO_Helper();
 
