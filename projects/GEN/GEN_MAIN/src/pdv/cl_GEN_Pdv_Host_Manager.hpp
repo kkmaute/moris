@@ -3,7 +3,7 @@
 
 #include "cl_MSI_Design_Variable_Interface.hpp"
 #include "cl_GEN_Interpolation_Pdv_Host.hpp"
-#include "cl_GEN_Integration_Pdv_Host.hpp"
+#include "cl_GEN_Intersection_Node.hpp"
 #include "cl_GEN_Pdv_Enums.hpp"
 #include "cl_Matrix.hpp"
 
@@ -11,14 +11,6 @@ namespace moris
 {
     namespace ge
     {
-
-        // Intersection info data structure, becomes intersection data using integration PDV hosts
-        struct Intersection_Info
-        {
-            std::shared_ptr<Geometry> mGeometry;
-            uint mNodeIndex;
-            Matrix<IndexMat> mParentNodeIndices;
-        };
 
         class Pdv_Host_Manager : public MSI::Design_Variable_Interface
         {
@@ -29,7 +21,7 @@ namespace moris
 
             // list of pdv hosts - interpolation nodes
             Cell<std::shared_ptr<Interpolation_Pdv_Host>> mIpPdvHosts;
-            Cell<std::shared_ptr<Integration_Pdv_Host>> mIgPdvHosts;
+            Cell<std::shared_ptr<Intersection_Node>> mIntersectionNodes;
             
             // Groups of PDV types used per set
             Cell<Cell<Cell<PDV_Type>>> mIpPdvTypes;
@@ -221,10 +213,8 @@ namespace moris
              * @param aNodeCoordinates The node coordinates indexed by node
              * @param aPdvTypes The PDV types per set, grouped
              */
-            void create_ig_pdv_hosts(Cell<Matrix<DDSMat>>        aNodeIndicesPerSet,
-                                     Cell<Matrix<DDRMat>>        aNodeCoordinates,
-                                     Cell<Cell<Cell<PDV_Type>>>  aPdvTypes,
-                                     Cell<Intersection_Info>     aIntersectionInfo = Cell<Intersection_Info>(0));
+            void create_ig_pdv_hosts(Cell<Cell<Cell<PDV_Type>>>               aPdvTypes,
+                                     Cell<std::shared_ptr<Intersection_Node>> aIntersectionNodes);
             
             /**
              * Set the requested interpolation node PDV types for sensitivities
@@ -273,14 +263,6 @@ namespace moris
              * @return Matrix of pdv/adv sensitivities
              */
             Matrix<DDRMat> compute_dpdv_dadv();
-
-            /**
-             * Converts intersection information from that provided by the geometry engine to that needed by the PDV host
-             *
-             * @param aIntersectionInfo Intersection information with node indices
-             * @return Intersection data structure with PDV hosts
-             */
-            std::shared_ptr<Intersection> convert_info_to_intersection(Intersection_Info aIntersectionInfo);
 
         };
     }   // end ge namespace

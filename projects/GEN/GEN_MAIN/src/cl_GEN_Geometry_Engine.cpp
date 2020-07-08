@@ -129,7 +129,6 @@ namespace moris
         void Geometry_Engine::set_advs(Matrix<DDRMat> aNewADVs)
         {
             mADVs = aNewADVs;
-            mGeometryObjectManager = Geometry_Object_Manager();
             mPdvHostManager = Pdv_Host_Manager(mADVs.length());
             mInterfaceNodeIndices = Matrix<IndexMat>();
             mActiveGeometryIndex = 0;
@@ -196,29 +195,13 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        void Geometry_Engine::create_new_node_geometry_objects(
+        void Geometry_Engine::create_new_child_nodes(
                 const Cell<moris_index>&    aNewNodeIndices,
-                bool                        aStoreParentTopo,
                 const Cell<xtk::Topology*>& aParentTopo,
                 const Cell<Matrix<DDRMat>>& aParamCoordRelativeToParent,
                 const Matrix<DDRMat>&       aGlobalNodeCoord )
         {
-            // Allocate space
-            moris::size_t tNumNewNodes = aNewNodeIndices.size();
-            Cell<GEN_Geometry_Object> tGeometryObjects(tNumNewNodes);
-
-            moris::Matrix< moris::IndexMat > tNodeIndices(1,tNumNewNodes);
-            for (moris::size_t i = 0; i<tNumNewNodes; i++)
-            {
-                tGeometryObjects(i).mGeometryIndex = mActiveGeometryIndex;
-                tNodeIndices(0, i) = aNewNodeIndices(i);
-                if (aStoreParentTopo)
-                {
-                    tGeometryObjects(i).set_parent_entity_topology(aParentTopo(i)->copy());
-                }
-            }
-
-            for (uint tNode = 0; tNode < tNumNewNodes; tNode++ )
+            for (uint tNode = 0; tNode < aNewNodeIndices.size(); tNode++ )
             {
                 // Create child node
                 Matrix<DDUMat> tParentNodeIndices(aParentTopo(tNode)->get_node_indices().length(), 1);
@@ -228,41 +211,15 @@ namespace moris
                     tParentNodeIndices(tParentNode) = aParentTopo(tNode)->get_node_indices()(tParentNode);
                     tParentNodeCoordinates(tParentNode) = aGlobalNodeCoord.get_row(tParentNodeIndices(tParentNode));
                 }
-                mChildNodes.push_back(std::make_shared<Child_Node>(
-                        tParentNodeIndices, tParentNodeCoordinates, aParentTopo(tNode)->get_basis_function(), aParamCoordRelativeToParent(tNode)));
+                std::shared_ptr<Child_Node> tChildNode = std::make_shared<Child_Node>(
+                        tParentNodeIndices, tParentNodeCoordinates, aParentTopo(tNode)->get_basis_function(), aParamCoordRelativeToParent(tNode));
 
                 // Assign to geometries
                 for (uint tGeometryIndex = 0; tGeometryIndex < this->get_num_geometries(); tGeometryIndex++)
                 {
-                    mGeometry(tGeometryIndex)->add_child_node(aNewNodeIndices(tNode), mChildNodes(mChildNodes.size() - 1));
+                    mGeometry(tGeometryIndex)->add_child_node(aNewNodeIndices(tNode), tChildNode);
                 }
             }
-
-            if (tNumNewNodes != 0)
-            {
-                mGeometryObjectManager.store_geometry_objects(tNodeIndices, tGeometryObjects);
-            }
-        }
-
-        //--------------------------------------------------------------------------------------------------------------
-
-        void Geometry_Engine::link_new_nodes_to_existing_geometry_objects(
-                Matrix< IndexMat > const & aNodesIndicesWithGeomObj,
-                Matrix< IndexMat > const & aNodesIndicesToLink )
-        {
-            // Assert lengths match
-            MORIS_ASSERT(aNodesIndicesWithGeomObj.numel() == aNodesIndicesToLink.numel(),
-                    "Length of nodes with geometry objects does not match length of list with node indices to link  ");
-
-            // Number of nodes to link
-            uint tNumNodes = aNodesIndicesWithGeomObj.numel();
-
-            // Iterate through nodes and create the link
-            for(uint i = 0; i <tNumNodes; i++)
-            {
-                mGeometryObjectManager.link_to_node_to_another_nodes_geometry_object(aNodesIndicesWithGeomObj(i),aNodesIndicesToLink(i));
-            }
-
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -296,6 +253,7 @@ namespace moris
 
                 if (tIsIntersected)
                 {
+                    mInterfaceParentNodes.push_back(tRow);
                     tIntersectedCount++;
                 }
             }
@@ -318,54 +276,55 @@ namespace moris
                 const Matrix<DDRMat>&   aEntityNodeVars,
                 const Matrix<IndexMat>& aEntityNodeIndices,
                 Matrix<DDRMat>&         aIntersectionLocalCoordinates,
-                Matrix<DDRMat>&         aIntersectionGlobalCoordinates,
-                bool                    aCheckLocalCoordinate,
-                bool                    aComputeGlobalCoordinate)
+                Matrix<DDRMat>&         aIntersectionGlobalCoordinates)
         {
 
             // compute the local coordinate where the intersection occurs
-            Interpolation::linear_interpolation_value(aEntityNodeVars,
-                                                      mIsocontourThreshold,
+            Interpolation::linear_interpolation_value(aEntityNodeVars, mIsocontourThreshold,
                                                       aIntersectionLocalCoordinates);
 
-            // Child node
-            Cell<Matrix<DDRMat>> tParentNodeCoordinates(2, Matrix<DDRMat>(1, mSpatialDim));
-            aGlobalNodeCoordinates.get_row(aEntityNodeIndices(0), tParentNodeCoordinates(0));
-            aGlobalNodeCoordinates.get_row(aEntityNodeIndices(1), tParentNodeCoordinates(1));
-            Matrix<DDUMat> tParentNodeIndices(2, 1);
-            tParentNodeIndices(0) = aEntityNodeIndices(0);
-            tParentNodeIndices(1) = aEntityNodeIndices(1);
-            mChildNodes.push_back(std::make_shared<Intersection_Node>(
-                    tParentNodeIndices, tParentNodeCoordinates, mGeometry(mActiveGeometryIndex), mIsocontourThreshold));
+            // Determine if new node
+            bool tNewNode = true;
+            for (uint tParentIndex = 0; tParentIndex < mInterfaceParentNodes.size(); tParentIndex++)
+            {
+                tNewNode = tNewNode and (mInterfaceParentNodes(
+                        tParentIndex).min() != aEntityNodeIndices.min() or mInterfaceParentNodes(
+                        tParentIndex).max() != aEntityNodeIndices.max());
+            }
+
+            // Intersection node
+            if (tNewNode)
+            {
+                Cell <Matrix<DDRMat>> tParentNodeCoordinates(2, Matrix<DDRMat>(1, mSpatialDim));
+                aGlobalNodeCoordinates.get_row(aEntityNodeIndices(0), tParentNodeCoordinates(0));
+                aGlobalNodeCoordinates.get_row(aEntityNodeIndices(1), tParentNodeCoordinates(1));
+                Matrix <DDUMat> tParentNodeIndices(2, 1);
+                tParentNodeIndices(0) = aEntityNodeIndices(0);
+                tParentNodeIndices(1) = aEntityNodeIndices(1);
+                mIntersectionNodes.push_back(
+                        std::make_shared<Intersection_Node>(tParentNodeIndices, tParentNodeCoordinates,
+                                                            mGeometry(mActiveGeometryIndex), mIsocontourThreshold));
+            }
 
             // Perturb away from node if necessary
-            if (aCheckLocalCoordinate)
+            if (aIntersectionLocalCoordinates(0, 0) >= 1 - mPerturbationValue)
             {
-                if (aIntersectionLocalCoordinates(0, 0) >= 1 - mPerturbationValue)
-                {
-                    aIntersectionLocalCoordinates(0, 0) = aIntersectionLocalCoordinates(0, 0) - mPerturbationValue;
-                }
-
-                if (aIntersectionLocalCoordinates(0, 0) <= -1 + mPerturbationValue)
-                {
-                    aIntersectionLocalCoordinates(0, 0) = aIntersectionLocalCoordinates(0, 0) + mPerturbationValue;
-                }
+                aIntersectionLocalCoordinates(0, 0) = aIntersectionLocalCoordinates(0, 0) - mPerturbationValue;
             }
 
-            // Compute the global coordinate only if you plan to use it
-            if (aComputeGlobalCoordinate)
+            if (aIntersectionLocalCoordinates(0, 0) <= -1 + mPerturbationValue)
             {
-                // Place only the entity coordinates in a matrix
-                moris::Matrix< moris::DDRMat > tEntityCoordinates(2,mSpatialDim);
-                replace_row(aEntityNodeIndices(0,0), aGlobalNodeCoordinates,0,tEntityCoordinates);
-                replace_row(aEntityNodeIndices(0,1), aGlobalNodeCoordinates,1,tEntityCoordinates);
-
-                // compute the global coordinate
-                Interpolation::linear_interpolation_location(
-                        tEntityCoordinates,
-                        aIntersectionLocalCoordinates,
-                        aIntersectionGlobalCoordinates);
+                aIntersectionLocalCoordinates(0, 0) = aIntersectionLocalCoordinates(0, 0) + mPerturbationValue;
             }
+
+            // Place only the entity coordinates in a matrix
+            moris::Matrix<moris::DDRMat> tEntityCoordinates(2, mSpatialDim);
+            replace_row(aEntityNodeIndices(0, 0), aGlobalNodeCoordinates, 0, tEntityCoordinates);
+            replace_row(aEntityNodeIndices(0, 1), aGlobalNodeCoordinates, 1, tEntityCoordinates);
+
+            // compute the global coordinate
+            Interpolation::linear_interpolation_location(tEntityCoordinates, aIntersectionLocalCoordinates,
+                                                         aIntersectionGlobalCoordinates);
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -500,6 +459,7 @@ namespace moris
                                               uint aNodeIndex,
                                               const Matrix<DDRMat>& aCoordinates)
         {
+            // TODO can return property field too
             return mGeometry(aFieldIndex)->evaluate_field_value(aNodeIndex, aCoordinates);
         }
 
@@ -580,7 +540,6 @@ namespace moris
                      (tMin < mIsocontourThreshold))
             {
                 aGeometryObject.set_parent_entity_index(aEntityIndex);
-                aGeometryObject.mark_nodes_as_not_on_interface();
                 tIsIntersected = true;
                 if(aCheckType == 1)
                 {
@@ -591,9 +550,7 @@ namespace moris
                                               tEntityNodeVars,
                                               aEntityNodeInds,
                                               tIntersectLocalCoordinate,
-                                              tIntersectGlobalCoordinate,
-                                              true,
-                                              true);
+                                              tIntersectGlobalCoordinate);
 
                     aGeometryObject.set_interface_loc_coord(tIntersectLocalCoordinate(0));
                     aGeometryObject.set_interface_glb_coord(tIntersectGlobalCoordinate);
@@ -746,9 +703,6 @@ namespace moris
             // Get information from integration mesh
             mtk::Integration_Mesh* tIntegrationMesh = mMeshManager->get_integration_mesh(aMeshIndex);
             uint tNumSets = tIntegrationMesh->get_num_sets();
-            uint tNumNodes = tIntegrationMesh->get_num_nodes();
-            Cell<Matrix<DDSMat>> tNodeIndicesPerSet(tNumSets);
-            Cell<Matrix<DDRMat>> tNodeCoordinates(tNumNodes);
 
             // Cell of IG PDV_Type types
             Cell<PDV_Type> tCoordinatePdvs(mSpatialDim);
@@ -778,36 +732,21 @@ namespace moris
             Cell<Cell<Cell<PDV_Type>>> tPdvTypes(tNumSets);
             for (uint tMeshSetIndex = 0; tMeshSetIndex < tNumSets; tMeshSetIndex++)
             {
-                // Node indices per set
-                tNodeIndicesPerSet(tMeshSetIndex) = tIntegrationMesh->get_set_by_index(tMeshSetIndex)->get_vertices_inds_on_block(false);
-
                 // PDV_Type types per set
                 tPdvTypes(tMeshSetIndex).resize(1);
                 tPdvTypes(tMeshSetIndex)(0) = tCoordinatePdvs;
             }
 
-            // Get node coordinates
-            for (uint tNodeIndex = 0; tNodeIndex < tNumNodes; tNodeIndex++)
-            {
-                tNodeCoordinates(tNodeIndex) = tIntegrationMesh->get_node_coordinate(tNodeIndex);
-            }
-
-            // Get intersection dependencies
-            Cell<Intersection_Info> tIntersectionInfo(mInterfaceNodeIndices.length());
-            for (uint tNodeIndex = 0; tNodeIndex < mInterfaceNodeIndices.length(); tNodeIndex++)
-            {
-                // Get geometry object TODO will be removed in future
-                GEN_Geometry_Object* tGeometryObject = mGeometryObjectManager.get_geometry_object( mInterfaceNodeIndices(tNodeIndex));
-                xtk::Topology const & tParentEdge = tGeometryObject->get_parent_entity_topology();
-
-                // Set info
-                tIntersectionInfo(tNodeIndex).mGeometry = this->mGeometry(tGeometryObject->mGeometryIndex);
-                tIntersectionInfo(tNodeIndex).mNodeIndex = mInterfaceNodeIndices(tNodeIndex);
-                tIntersectionInfo(tNodeIndex).mParentNodeIndices = tParentEdge.get_node_indices();;
-            }
-
             // Create hosts
-            mPdvHostManager.create_ig_pdv_hosts(tNodeIndicesPerSet, tNodeCoordinates, tPdvTypes, tIntersectionInfo);
+            if (mInterfaceNodeIndices.length() > 0)
+            {
+                Cell<std::shared_ptr<Intersection_Node>> tIntersectionNodes(mInterfaceNodeIndices(mInterfaceNodeIndices.length() - 1) + 1);
+                for (uint tInterfaceNode = 0; tInterfaceNode < mInterfaceNodeIndices.length(); tInterfaceNode++)
+                {
+                    tIntersectionNodes(mInterfaceNodeIndices(tInterfaceNode)) = mIntersectionNodes(tInterfaceNode);
+                }
+                mPdvHostManager.create_ig_pdv_hosts(tPdvTypes, tIntersectionNodes);
+            }
         }
 
         //--------------------------------------------------------------------------------------------------------------

@@ -1389,9 +1389,8 @@ namespace xtk
     Model::create_new_node_association_with_geometry(Decomposition_Data & tDecompData)
     {
         // create geometry objects for each node
-        mGeometryEngine->create_new_node_geometry_objects(
+        mGeometryEngine->create_new_child_nodes(
                 tDecompData.tNewNodeIndex,
-                tDecompData.mConformalDecomp,
                 tDecompData.tNewNodeParentTopology,
                 tDecompData.tParamCoordRelativeToParent,
                 mBackgroundMesh.get_all_node_coordinates_loc_inds());
@@ -2948,9 +2947,6 @@ namespace xtk
 
             // Mark the newly created nodes as interface nodes
             mBackgroundMesh.mark_nodes_as_interface_node_loc_inds(tNewUnzippedNodeInds,iG);
-
-            // Link the new nodes to the geometry object of the node they were copied to
-            mGeometryEngine->link_new_nodes_to_existing_geometry_objects(tInterfaceNodeInds,tNewUnzippedNodeInds);
 
             // unzip_child_mesh_index
             this->unzip_interface_internal_modify_child_mesh(iG,tInterfaceNodeInds,tNewUnzippedNodeInds,tNewUnzippedNodeIds);
