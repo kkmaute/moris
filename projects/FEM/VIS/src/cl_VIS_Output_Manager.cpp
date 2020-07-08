@@ -119,9 +119,9 @@ namespace moris
         //-----------------------------------------------------------------------------------------------------------
 
         void Output_Manager::create_visualization_mesh(
-                const uint                aVisMeshIndex,
+                const uint          aVisMeshIndex,
                 mtk::Mesh_Manager * aMesh,
-                const uint                aMeshPairIndex)
+                const uint          aMeshPairIndex)
         {
             MORIS_ERROR( mOutputData( aVisMeshIndex ).mMeshIndex == ( sint )aVisMeshIndex,
                     "create_visualization_meshes(), Visualization mesh not set" );
@@ -212,7 +212,7 @@ namespace moris
             this->add_global_fields( aVisMeshIndex );
 
             // write standard outputs like IDs and Indices to file
-            //this->write_mesh_indices( aVisMeshIndex );
+            this->write_mesh_indices( aVisMeshIndex );
 
             // reset field write counter
             mOutputData( aVisMeshIndex ).mFieldWriteCounter=0;
@@ -250,12 +250,15 @@ namespace moris
 
         void Output_Manager::add_elemetal_fields( const uint aVisMeshIndex )
         {
-            moris::Cell<std::string> tElementalFieldNames( 2 + mOutputData( aVisMeshIndex ).mFieldNames.size() );
+            // allocate cell for storing elemental field names; 3 default fields are added
+            moris::Cell<std::string> tElementalFieldNames( 3 + mOutputData( aVisMeshIndex ).mFieldNames.size() );
 
             tElementalFieldNames( 0 ) = "Mesh_Id";
             tElementalFieldNames( 1 ) = "Mesh_Index";
+            tElementalFieldNames( 2 ) = "Proc_Index";
 
-            uint tCounter = 2;
+            // set field counter to 3 to account for default fields
+            uint tCounter = 3;
 
             // loop over field names and check if fields are elemental fields
             for( uint Ik = 0; Ik < mOutputData( aVisMeshIndex ).mFieldNames.size(); Ik++ )
@@ -266,8 +269,10 @@ namespace moris
                 }
             }
 
+            // trim cell of element field names
             tElementalFieldNames.resize( tCounter );
 
+            // write field names to file
             mWriter( aVisMeshIndex )->set_elemental_fields( tElementalFieldNames );
         }
 
@@ -330,6 +335,12 @@ namespace moris
                 // get number of cells on set
                 uint tNumCells = tSet->get_num_cells_on_set( tOnlyPrimaryCells );
 
+                // check whether number of cells > 0; otherwise skip remainder
+                if (tNumCells == 0)
+                {
+                    continue;
+                }
+
                 // get cell indices on set
                 moris::Matrix< DDSMat > tCellIndex = tSet->get_cell_inds_on_block( tOnlyPrimaryCells );
 
@@ -345,10 +356,11 @@ namespace moris
                     tCellAsseblyMap( tCellIndex( Ik ) ) = Ik;
                 }
 
-                // create cell of inde and id field
-                moris::Cell< Matrix< DDRMat > > tIdIndex( 2 );
+                // create cell of index, id field, and proc indices
+                moris::Cell< Matrix< DDRMat > > tIdIndex( 3 );
                 tIdIndex( 0 ).set_size( tCellIndex.numel(), 1 );
                 tIdIndex( 1 ).set_size( tCellIndex.numel(), 1 );
+                tIdIndex( 2 ).set_size( tCellIndex.numel(), 1 );
 
                 // get clusters from vis set
                 moris::Cell< mtk::Cluster const* > tMeshClusterList = tSet->get_clusters_on_set();
@@ -357,7 +369,8 @@ namespace moris
                 for( uint Ik = 0; Ik < tMeshClusterList.size(); Ik++ )
                 {
                     // get primary cells
-                    const moris::Cell<moris::mtk::Cell const *> & tPrimaryCells = tMeshClusterList( Ik )->get_primary_cells_in_cluster();
+                    const moris::Cell<moris::mtk::Cell const *> & tPrimaryCells =
+                            tMeshClusterList( Ik )->get_primary_cells_in_cluster();
 
                     // loop over primary cells
                     for( uint Ia = 0; Ia < tPrimaryCells.size(); Ia++ )
@@ -365,12 +378,15 @@ namespace moris
                         // get index of vis cell
                         moris_index tIndex = tPrimaryCells( Ia )->get_index();
 
-                        moris_id tMeshId =  reinterpret_cast< const vis::Cell_Visualization* >( tPrimaryCells( Ia ) )->get_mesh_cell_id();
+                        moris_id tMeshId =
+                                reinterpret_cast< const vis::Cell_Visualization* >( tPrimaryCells( Ia ) )->get_mesh_cell_id();
 
-                        moris_index tMeshIndex = reinterpret_cast< const vis::Cell_Visualization* >( tPrimaryCells( Ia ) )->get_mesh_cell_index();
+                        moris_index tMeshIndex =
+                                reinterpret_cast< const vis::Cell_Visualization* >( tPrimaryCells( Ia ) )->get_mesh_cell_index();
 
                         tIdIndex( 0 )( tCellAsseblyMap( tIndex ) ) = tMeshId;
                         tIdIndex( 1 )( tCellAsseblyMap( tIndex ) ) = tMeshIndex;
+                        tIdIndex( 2 )( tCellAsseblyMap( tIndex ) ) = par_rank();
                     }
 
                     const moris::Cell<moris::mtk::Cell const *> & tVoidCells = tMeshClusterList( Ik )->get_void_cells_in_cluster();
@@ -379,17 +395,21 @@ namespace moris
                     {
                         moris_index tIndex = tVoidCells( Ia )->get_index();
 
-                        moris_id tMeshId = reinterpret_cast< const vis::Cell_Visualization* >( tVoidCells( Ia ) )->get_mesh_cell_id();
+                        moris_id tMeshId =
+                                reinterpret_cast< const vis::Cell_Visualization* >( tVoidCells( Ia ) )->get_mesh_cell_id();
 
-                        moris_index tMeshIndex = reinterpret_cast< const vis::Cell_Visualization* >( tVoidCells( Ia ) )->get_mesh_cell_index();
+                        moris_index tMeshIndex =
+                                reinterpret_cast< const vis::Cell_Visualization* >( tVoidCells( Ia ) )->get_mesh_cell_index();
 
                         tIdIndex( 0 )( tCellAsseblyMap( tIndex ) ) = tMeshId;
                         tIdIndex( 1 )( tCellAsseblyMap( tIndex ) ) = tMeshIndex;
+                        tIdIndex( 2 )( tCellAsseblyMap( tIndex ) ) = par_rank();
                     }
                 }
 
-                mWriter( aVisMeshIndex )->write_elemental_field( tSet->get_set_name() , "Mesh_Id", tIdIndex( 0 ) );
+                mWriter( aVisMeshIndex )->write_elemental_field( tSet->get_set_name() , "Mesh_Id",    tIdIndex( 0 ) );
                 mWriter( aVisMeshIndex )->write_elemental_field( tSet->get_set_name() , "Mesh_Index", tIdIndex( 1 ) );
+                mWriter( aVisMeshIndex )->write_elemental_field( tSet->get_set_name() , "Proc_Index", tIdIndex( 2 ) );
             }
         }
 
@@ -415,8 +435,8 @@ namespace moris
             // get integration mesh
             mtk::Interpolation_Mesh* tInterpolationMesh = nullptr;
             mtk::Integration_Mesh*   tIntegrationMesh   = nullptr;
-            mMTKMesh->get_mesh_pair( mMTKMeshPairIndex, tInterpolationMesh, tIntegrationMesh );
 
+            mMTKMesh->get_mesh_pair( mMTKMeshPairIndex, tInterpolationMesh, tIntegrationMesh );
 
             // loop over all fields of this output object
             for( uint Ik = 0; Ik < mOutputData( aVisMeshIndex ).mFieldNames.size(); Ik++ )
@@ -451,7 +471,10 @@ namespace moris
 
                         if( mOutputData( aVisMeshIndex ).mFieldType( Ik ) == Field_Type::ELEMENTAL )
                         {
-                            mWriter( aVisMeshIndex )->write_elemental_field( mOutputData( aVisMeshIndex ).mSetNames( Ii ), tFieldName, tElementValues );
+                            mWriter( aVisMeshIndex )->write_elemental_field(
+                                    mOutputData( aVisMeshIndex ).mSetNames( Ii ),
+                                    tFieldName,
+                                    tElementValues );
                         }
                     }
                 }
@@ -462,7 +485,7 @@ namespace moris
                         mWriter( aVisMeshIndex )->write_nodal_field( tFieldName, tNodalValues );
                         break;
                     case Field_Type::GLOBAL:
-                        mWriter( aVisMeshIndex )->write_global_variable( tFieldName, tGlobalValue );
+                        mWriter( aVisMeshIndex )->write_global_variable( tFieldName, sum_all(tGlobalValue) );
                         break;
                     case Field_Type::ELEMENTAL:
                         // do nothing here - case is handled above
