@@ -50,7 +50,7 @@ namespace moris
 
             // Level-set isocontour threshold
             real mIsocontourThreshold;
-            real mPerturbationValue;
+            real mErrorFactor;
 
             // Spatial dimensions
             uint mSpatialDim;
@@ -91,7 +91,7 @@ namespace moris
              * @param aParameterLists GEN parameter lists (see fn_PRM_GEN_Parameters.hpp)
              * @param aLibrary Library used for pulling user-defined functions
              */
-            Geometry_Engine(Cell<Cell<ParameterList>> aParameterLists,
+            Geometry_Engine(Cell< Cell<ParameterList> >        aParameterLists,
                             std::shared_ptr<moris::Library_IO> aLibrary = nullptr);
 
             /**
@@ -101,11 +101,11 @@ namespace moris
              * @param[ in ] aPhaseTable phase table
              * @param[ in ] aSpatialDim spatial dimensions
              */
-            Geometry_Engine(Cell< std::shared_ptr<Geometry> >   aGeometry,
-                            Phase_Table                     aPhaseTable,
-                            uint                            aSpatialDim = 3,
-                            real                            aIsocontourThreshold = 0.0,
-                            real                            aPerturbationValue = 1E-6);
+            Geometry_Engine(Cell< std::shared_ptr<Geometry> > aGeometry,
+                            Phase_Table                       aPhaseTable,
+                            uint                              aSpatialDim = 3,
+                            real                              aIsocontourThreshold = 0.0,
+                            real                              aErrorFactor = 1E-8);
 
             /**
              * Destructor
@@ -332,6 +332,14 @@ namespace moris
             void assign_pdv_hosts();
 
         private:
+
+            /**
+             * Approximate comparison to see if a node is on the interface
+             *
+             * @param aFieldValue Geometry field value
+             * @return If the value is determined to be on the interface with the geometry engine's error factor
+             */
+            bool on_interface(real aFieldValue);
 
             /**
              * Compute_intersection_info, calculates the relevant intersection information placed in the geometry object
