@@ -6,7 +6,8 @@ namespace moris {
 
 The most general form of an optimization problem involves minimizing an objective
 function \f$ f \f$ subject to equality constraints \f$ \mathbf h \f$ and inequality constraints \f$ \mathbf g \f$.
-The objective and the constraints, depend on the optimization variables \f$ \mathbf s \f$ which are restricted
+The objective and the constraints, depend on the optimization variables \f$ \mathbf s \f$. Currently, MORIS is restricted 
+to nonlinear programs, i.e. the optimization variables are real and continuous. The optimization variables are restricted
 by lower and upper bounds \f$ \underline{\mathbf s} \f$  and \f$ \overline{\mathbf s} \f$  respectively.
 
 \f{eqnarray*}{

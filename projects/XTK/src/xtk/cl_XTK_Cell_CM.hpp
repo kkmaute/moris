@@ -236,6 +236,7 @@ public:
     //------------------------------------------------------------------------------
 
 private:
+
     moris::moris_id       mElementId;
     moris::moris_index    mElementIndex;
     moris::moris_index    mElementOwner;
@@ -250,7 +251,5 @@ private:
 //------------------------------------------------------------------------------
 } /* namespace mtk */
 //------------------------------------------------------------------------------
-
-
 
 #endif /* PROJECTS_XTK_SRC_XTK_CL_MTK_CELL_XTK_IMPL_HPP_ */

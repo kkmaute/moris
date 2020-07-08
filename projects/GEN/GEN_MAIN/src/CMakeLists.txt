@@ -89,6 +89,10 @@ set(XTK_INCLUDES
 foreach(XTK_INCLUDE ${XTK_INCLUDES})
     include_directories(${MORIS_PACKAGE_DIR}/XTK/src/${XTK_INCLUDE})
 endforeach()
+
+# Include WRK directory
+include_directories(${MORIS_PACKAGE_DIR}/WRK/src)
+
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Geometry Engine Library
 

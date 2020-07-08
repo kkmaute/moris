@@ -65,7 +65,10 @@ namespace moris
                  * @param debug Causes certain messages to print for debugging use.
                  * @param verbose Causes all error messages to print when true, otherwise no error messages will print.
                  */
-                void set_error_options(bool abort, bool debug, bool verbose);
+                void set_error_options(
+                        bool abort,
+                        bool debug,
+                        bool verbose);
 
                 /**
                  *  Opens an Exodus file and stores the ID for future operations
@@ -73,7 +76,10 @@ namespace moris
                  *  @param aExodusFileName Name of the Exodus file.
                  *  @param aVersion Version of the database. Current version is 4.72 as of programming.
                  */
-                void open_file(std::string & aExodusFileName, bool aReadOnly = true, float aVersion = 4.72);
+                void open_file(
+                        std::string & aExodusFileName,
+                        bool          aReadOnly = true,
+                        float         aVersion  = 4.72);
 
                 /**
                  * Closes the open Exodus database *and* renames it to the permanent file name stored under mPermFileName. This
@@ -87,7 +93,9 @@ namespace moris
                  * @param aFileName The name of the final file
                  * @param aFilePath The path the temporary and final file
                  */
-                void write_mesh(std::string aFilePath, const std::string& aFileName);
+                void write_mesh(
+                        std::string         aFilePath,
+                        const std::string & aFileName);
 
                 /**
                  * Save temporary to permanent Exodus file.
@@ -101,7 +109,10 @@ namespace moris
                  * @param aFilePath The path the temporary and final file
                  * @param aCoordinates The coordinates of the points to be written
                  */
-                void write_points(std::string aFilePath, const std::string& aFileName, Matrix<DDRMat> aCoordinates);
+                void write_points(
+                        std::string         aFilePath,
+                        const std::string & aFileName,
+                        Matrix<DDRMat>      aCoordinates);
 
                 /**
                  * Sets the number of variables to be written for point data (no mesh)
@@ -144,7 +155,8 @@ namespace moris
                  *  @param aFieldName The name of the field being written
                  *  @param aFieldValues Matrix of values to write for this field.
                  */
-                void write_point_field(       std::string                    aFieldName,
+                void write_point_field(
+                        std::string                          aFieldName,
                         const moris::Matrix<moris::DDRMat> & aFieldValues);
 
                 /**
@@ -153,7 +165,8 @@ namespace moris
                  *  @param aFieldName The name of the field being written
                  *  @param aFieldValues Matrix of values to write for this field.
                  */
-                void write_nodal_field(       std::string                    aFieldName,
+                void write_nodal_field(
+                        std::string                          aFieldName,
                         const moris::Matrix<moris::DDRMat> & aFieldValues);
 
                 /**
@@ -163,8 +176,9 @@ namespace moris
                  *  @param aFieldName The name of the field being written
                  *  @param aFieldValues Matrix of values to write
                  */
-                void write_elemental_field(       std::string                    aBlockName,
-                        std::string                    aFieldName,
+                void write_elemental_field(
+                        std::string                          aBlockName,
+                        std::string                          aFieldName,
                         const moris::Matrix<moris::DDRMat> & aFieldValues);
 
                 /**
@@ -173,7 +187,8 @@ namespace moris
                  *  @param aVariableName The name of the variable being written
                  *  @param aVariableValue The value of the global variable
                  */
-                void write_global_variable(       std::string   aVariableName,
+                void write_global_variable(
+                        std::string         aVariableName,
                         const moris::real & aVariableValue);
 
             private:
@@ -184,7 +199,9 @@ namespace moris
                  * @param aFileName The name of the final file
                  * @param aFilePath The path the temporary and final file
                  */
-                void create_file(std::string aFilePath, const std::string& aFileName);
+                void create_file(
+                        std::string         aFilePath,
+                        const std::string & aFileName);
 
                 /**
                  * Creates an Exodus database and initializes it at the given file path and string using an MTK mesh
@@ -192,7 +209,9 @@ namespace moris
                  * @param aFileName The name of the final file
                  * @param aFilePath The path the temporary and final file
                  */
-                void create_init_mesh_file(std::string aFilePath, const std::string& aFileName);
+                void create_init_mesh_file(
+                        std::string         aFilePath,
+                        const std::string & aFileName);
 
                 /**
                  * Writes the coordinates of the nodes in the MTK mesh to Exodus.
@@ -231,7 +250,6 @@ namespace moris
                  * @return The number of nodes per element of this topology.
                  */
                 int get_nodes_per_element(CellTopology aCellTopology);
-
         };
     }
 }

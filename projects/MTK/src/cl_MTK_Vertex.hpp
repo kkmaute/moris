@@ -20,131 +20,137 @@ namespace moris
 {
     namespace mtk
     {
-//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
         class Vertex
         {
-        protected :
+            protected :
 
-//------------------------------------------------------------------------------
-        public:
-//------------------------------------------------------------------------------
+                //------------------------------------------------------------------------------
+            public:
+                //------------------------------------------------------------------------------
 
-            /**
-             * trivial constructor
-             */
-            Vertex(){};
+                /**
+                 * trivial constructor
+                 */
+                Vertex(){};
 
-//------------------------------------------------------------------------------
+                //------------------------------------------------------------------------------
 
-            /**
-             * Destructor, virtual
-             */
-            virtual
-            ~Vertex(){};
+                /**
+                 * Destructor, virtual
+                 */
+                virtual
+                ~Vertex(){};
 
-//------------------------------------------------------------------------------
+                //------------------------------------------------------------------------------
 
-            /**
-             * returns a moris::Matrix with node coordinates
-             */
-            virtual Matrix< DDRMat >
-            get_coords() const
-            {
-                MORIS_ERROR( false,"Function not implemented in base vertex");
-                return Matrix < DDRMat >(0,0);
-            }
+                /**
+                 * returns a moris::Matrix with node coordinates
+                 */
+                virtual Matrix< DDRMat >
+                get_coords() const
+                {
+                    MORIS_ERROR( false,"Function not implemented in base vertex");
+                    return Matrix < DDRMat >(0,0);
+                }
 
-//------------------------------------------------------------------------------
+                //------------------------------------------------------------------------------
 
-            /**
-             * returns the domain wide id of this vertex
-             */
-            virtual moris_id
-            get_id() const
-            {
-                MORIS_ERROR( false,"Function not implemented in base vertex");
-                return gNoID;
-            }
+                /**
+                 * returns the domain wide id of this vertex
+                 */
+                virtual moris_id
+                get_id() const
+                {
+                    MORIS_ERROR( false,"Function not implemented in base vertex");
 
-//------------------------------------------------------------------------------
+                    return gNoID;
+                }
 
-            /**
-             * returns the processor unique index of this vertex
-             */
-            virtual moris_index
-            get_index() const
-            {
-                MORIS_ERROR( false,"Function not implemented in base vertex" );
-                return gNoIndex;
-            }
+                //------------------------------------------------------------------------------
 
-//------------------------------------------------------------------------------
+                /**
+                 * returns the processor unique index of this vertex
+                 */
+                virtual moris_index
+                get_index() const
+                {
+                    MORIS_ERROR( false,"Function not implemented in base vertex" );
 
-            // fixme: change this into moris_id
-            virtual moris_index
-            get_owner() const
-            {
-                MORIS_ERROR( false,"Function not implemented in base vertex" );
-                return 0;
-            }
+                    return gNoIndex;
+                }
 
-//------------------------------------------------------------------------------
+                //------------------------------------------------------------------------------
 
-            virtual Vertex_Interpolation * get_interpolation( const uint aBSplineMeshIndex )
-            {
-                MORIS_ERROR( false,"Function not implemented in base vertex" );
-                return nullptr;
-            }
+                // fixme: change this into moris_id
+                virtual moris_index
+                get_owner() const
+                {
+                    MORIS_ERROR( false,"Function not implemented in base vertex" );
 
-//------------------------------------------------------------------------------
+                    return 0;
+                }
 
-            virtual const Vertex_Interpolation * get_interpolation( const uint aBSplineMeshIndex ) const
-            {
-                MORIS_ERROR( false,"Function not implemented in base vertex" );
-                return nullptr;
-            }
+                //------------------------------------------------------------------------------
+
+                virtual Vertex_Interpolation * get_interpolation( const uint aBSplineMeshIndex )
+                {
+                    MORIS_ERROR( false,"Function not implemented in base vertex" );
+
+                    return nullptr;
+                }
+
+                //------------------------------------------------------------------------------
+
+                virtual const Vertex_Interpolation * get_interpolation( const uint aBSplineMeshIndex ) const
+                {
+                    MORIS_ERROR( false,"Function not implemented in base vertex" );
+
+                    return nullptr;
+                }
 
 
-            virtual bool has_interpolation( const uint aBSplineMeshIndex )
-            {
-                MORIS_ERROR( false,"Function not implemented in base vertex" );
-                return false;
-            }
+                virtual bool has_interpolation( const uint aBSplineMeshIndex )
+                {
+                    MORIS_ERROR( false,"Function not implemented in base vertex" );
 
-//------------------------------------------------------------------------------
+                    return false;
+                }
 
-            virtual uint
-            get_level() const
-            {
-                return 0;
-            }
+                //------------------------------------------------------------------------------
 
-//------------------------------------------------------------------------------
+                virtual uint
+                get_level() const
+                {
+                    return 0;
+                }
 
-            virtual void
-            flag()
-            {
-                MORIS_ERROR( false,"Function not implemented in base vertex" );
-            }
+                //------------------------------------------------------------------------------
 
-//------------------------------------------------------------------------------
+                virtual void
+                flag()
+                {
+                    MORIS_ERROR( false,"Function not implemented in base vertex" );
+                }
 
-            virtual void
-            unflag()
-            {
-                MORIS_ERROR( false,"Function not implemented in base vertex" );
-            }
+                //------------------------------------------------------------------------------
 
-//------------------------------------------------------------------------------
+                virtual void
+                unflag()
+                {
+                    MORIS_ERROR( false,"Function not implemented in base vertex" );
+                }
 
-            bool
-            is_flagged() const
-            {
-                MORIS_ERROR( false,"Function not implemented in base vertex" );
-                return false;
-            }
+                //------------------------------------------------------------------------------
+
+                bool
+                is_flagged() const
+                {
+                    MORIS_ERROR( false,"Function not implemented in base vertex" );
+                    return false;
+                }
         };
-//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
     } /* namespace mtk */
 
     // operators for printing
@@ -165,8 +171,6 @@ namespace moris
 
         return os;
     }
-
-
 
 } /* namespace moris */
 //------------------------------------------------------------------------------

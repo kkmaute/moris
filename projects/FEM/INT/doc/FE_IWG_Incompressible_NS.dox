@@ -153,8 +153,8 @@ Face-oriented ghost stabilization for Incompressible Navier-Stokes
 \gamma_{p}^{GP} & = & \alpha_{p}^{GP} \left( \frac{\mu}{h} + \frac{\rho ||\mathbf{u}||_{\infty}}{6} + \frac{\rho h}{12 \theta \Delta t}  \right)^{-1} h^{2i}\\
 
 \mathbf{R}_{u}^{GP} & = & 
-\sum_{F} \int_{F} \gamma_{u}^{GP} [[ \frac{\partial \mathbf{v}}{\partial \mathbf{x}} \cdot \mathbf{n} ]] 
-: [[ \frac{\partial \mathbf{u}}{\partial \mathbf{x}} \cdot \mathbf{n} ]]\ d\Gamma\\ 
+\sum_{F} \int_{F} \gamma_{u}^{GP} [[ \frac{\partial \mathbf{v}}{\partial \mathbf{x}} ]] 
+: [[ \frac{\partial \mathbf{u}}{\partial \mathbf{x}} ]]\ d\Gamma\\ 
 
 \gamma_{u}^{GP} & = & \alpha_{u}^{GP} \rho |\mathbf{u} \cdot \mathbf{n}| h^2\\
 

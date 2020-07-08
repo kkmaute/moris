@@ -7,19 +7,22 @@ namespace moris {
 This section contains all coding style guidelines related to the MORIS project. 
 They are organized by @ref GenRules, @ref CodingVars, @ref CodingClasses, @ref CodingFunctions,
 @ref FileNaming, and @ref CodingMisc.
-<BR><BR><BR>
+
+To support a uniform and consistent formating, enable the moris formatting style in eclipse. Make sure that repeatedly applying eclipse's formatter
+does not change the code. 
+<BR>
 
 
 @section GenRules General Rules
 
 Special emphasis is given to the following cardinal rules: 
 - Each statement shall always be in a <b>  separate line </b>, however small it may appear.
-- There are <b> no double blank lines </b>
+- There are <b> no double blank lines. </b>
 - There is an <b> 80 character line length limit </b>
 - <b> Do not use </b> functions like <b> alloca </b>, <b> inline </b> or any <b> Real pointers</b>. Use moris::Mat instead.
-- A single file should  <b> not exceed 500 lines of code</b>
 - Use functions as much as possible. Not only to <b> avoid duplicate code </b> , but also to  <b> increase readability and modularity  </b> of the code.
 - Moris ID type: Moris_ID
+- To aid in implicit conversion issues, always wite real numbers as follows: \f$ 5.0 \f$ (instead of just \f$ 5\f$).
 
 Every line of code should have a comment proceeding it, such that one can read the comments only and understand the code. 
 Those comments should contain additional information about the operation which follows (e.g. references to books, papers). <br> 
@@ -29,13 +32,14 @@ For example: <br>
 @code{.cpp}
         // Compute first and second order ghost penalty contributions using a displacement gradient based formulation.
         // C.f. Burman and Hansbo 2011, Fictitious domain methods using cut elements: III. A stabilized Nitsche method for Stokes’ problem
+        
         this->compute_ghost_pen_disp_grad();
 @endcode
 
 In general, all comments should be written in <b> doxygen format</b>. For a quick introduction in doxygen commenting, the reader is referred to 
 <a href="https://www.stack.nl/~dimitri/doxygen/manual/docblocks.html ">here</a>.
 Also make sure to <b>spell-check comments</b>. Names like <b>Euler, Lagrange, Gauss, Voigt, ... </b> are always capitalized!
-<BR><BR><BR>
+<BR>
 
 
 @section CodingVars Variables
@@ -115,7 +119,7 @@ uint &tAnIntByReference    // BAD!
 uint* tAnIntPointer        // GOOD!
 uint& tAnIntByReference    // GOOD!
 @endcode
-<BR><BR><BR>
+<BR>
 
 
 @section CodingClasses Classes
@@ -142,12 +146,13 @@ Classes should list their member functions and variables in the following order:
 - public
 - protected
 - private
-<BR><BR><BR>
+<BR>
 
 @section CodingFunctions Functions
 The following guidelines apply to functions. 
 
-Functions should always be separated by a blank line, a <b> line of dashes </b> and another blank line. The total number of characters in the separator line is 80.
+Functions should always be separated by a blank line, a <b> line of dashes </b> and another blank line. 
+The total number of characters in the separator line is 80.
 @code{.cpp}
 void
 function_one(
@@ -345,17 +350,40 @@ tB = 4.0 * tB4; // operators do not need to be aligned
 tAdv = tB + tA;
 @endcode
 
+If a statement is broken up into several lines, the operator should be placed at the end of the leading line 
+and not at the beginning of the followiing line. The same applies to brackets.
+@code{.cpp}
+tA =              // GOOD 
+    tA + tB +     // GOOD 
+    tC + tD; 
+    
+tA               // BAD 
+   = tA + tB     // BAD 
+   + tC + tD; 
+@endcode
+
 @subsection IfElseStatements If Else Statements
-Curly brackets need to be used for every if, else and else if statement. For example,
+Curly brackets need to be used for every if, else and else if statement. There should be no blank line after and before curly brackets. 
+If case of nested statement, there should be no blank line between lines of of closing curly brackets.
+For example,
 
 @code{.cpp}
 if ( tA > tB )
 {
-    // lines of code
+    if ( tB > tA )
+    {
+        // lines of code      // GOOD
+    }                         // GOOD
 }
 else if ( !( tA == tC ) && ( tD != tE ) )
 {
-    // lines of code
+    if ( tB > tA )
+    {
+                         // BAD
+         // lines of code
+                         // BAD
+    }
+                         // BAD
 }
 else
 {
@@ -365,17 +393,17 @@ else
 
 @subsection SwitchStatements Switch Statements
 A switch statement must always contain a default branch which handles 
-unexpected cases. By default a proper 
+unexpected cases. The case-statement should not contain parenthesis. In the default case, no break statement should be used.
 
 @code{.cpp}
 switch ( VariableName )
 {
-case ACASE:
+case ACASE:                               // GOOD
 {
     // lines of code
     break;
 }
-case ANOTHERCASE:
+case (ANOTHERCASE):                       // BAD
 {
     // lines of code
     break;
@@ -390,7 +418,7 @@ default: // this is necessary
 
 @subsection Checks Checks in the code
 In general, as many checks as possible need to be added by the developper for things that could potentially go wrong. 
-For example, whenever a division is performed, make sure to theck if the divisor is (numerically) zero. 
+For example, whenever a division is performed, make sure to check if the divisor is (numerically) zero. 
 <br>
 This is done by using the equal_to function.
 <br>

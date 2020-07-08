@@ -5,8 +5,6 @@
  *      Author: doble
  */
 
-
-
 #include "cl_XTK_Enriched_Interpolation_Mesh.hpp"
 #include "cl_Map.hpp"
 
@@ -71,21 +69,21 @@ namespace xtk
 
     uint
     Enriched_Interpolation_Mesh::get_num_entities(
-            enum EntityRank aEntityRank,
+            enum EntityRank   aEntityRank,
             const moris_index aIndex ) const
     {
         switch(aEntityRank)
         {
-            case(EntityRank::NODE):
-                        {
+            case EntityRank::NODE:
+            {
                 return mEnrichedInterpVerts.size();
                 break;
-                        }
-            case(EntityRank::ELEMENT):
-                        {
+            }
+            case EntityRank::ELEMENT:
+            {
                 return mEnrichedInterpCells.size();
                 break;
-                        }
+            }
             default:
                 MORIS_ERROR(0,"Only support get num entities for nodes and elements currently");
                 return 0;
@@ -126,6 +124,7 @@ namespace xtk
     Enriched_Interpolation_Mesh::get_elements_connected_to_element_and_face_ind_loc_inds(moris_index aElementIndex) const
     {
         MORIS_ERROR(0,"XTK ENRICHED MESH ERROR: get_elements_connected_to_element_and_face_ind_loc_inds no implemented");
+
         return Matrix<IndexMat>(0,0);
     }
 
@@ -140,6 +139,7 @@ namespace xtk
         {
             tVertices(i) = & mEnrichedInterpVerts(i);
         }
+
         return tVertices;
     }
 
@@ -183,6 +183,7 @@ namespace xtk
         }
 
         MORIS_ASSERT(tIter!=  mGlobaltoLobalMaps(tMapIndex).end(),"Id does not appear in map");
+
         return tIter->second;
     }
 
@@ -214,6 +215,7 @@ namespace xtk
     Enriched_Interpolation_Mesh::get_node_coordinate( moris_index aNodeIndex ) const
     {
         mtk::Vertex const & tVertex = get_mtk_vertex(aNodeIndex);
+
         return tVertex.get_coords();
     }
 
@@ -331,7 +333,7 @@ namespace xtk
     Matrix<IndexMat> const &
     Enriched_Interpolation_Mesh::get_enriched_coefficients_at_background_coefficient(
             moris_index const & aMeshIndex,
-            moris_index aBackgroundCoeffIndex) const
+            moris_index         aBackgroundCoeffIndex) const
     {
         moris_index tLocalMeshIndex = this->get_local_mesh_index(aMeshIndex);
 
@@ -356,6 +358,7 @@ namespace xtk
     Enriched_Interpolation_Mesh::get_enriched_coefficient_local_to_global_map(moris_index const & aMeshIndex) const
     {
         moris_index tLocalMeshIndex = this->get_local_mesh_index(aMeshIndex);
+
         return mEnrichCoeffLocToGlob(tLocalMeshIndex);
     }
 
@@ -433,17 +436,16 @@ namespace xtk
         // are the same. If not we always construct a new interpolation vertex here
         if(aBaseInterpVertex->has_interpolation(aMeshIndex+1))
         {
-
-        // iterate through the enriched vertices related to the base vertex and see if any are equal
-        for(moris::uint i = 0; i < tNumVertsEnrOnBaseVert; i++)
-        {
-            moris_index tVertEnrIndex = mBaseInterpVertToVertEnrichmentIndex(tLocalMeshIndex)(tBaseVertIndex)(i);
-
-            if(aVertexEnrichment == *mInterpVertEnrichment(tLocalMeshIndex)(tVertEnrIndex))
+            // iterate through the enriched vertices related to the base vertex and see if any are equal
+            for(moris::uint i = 0; i < tNumVertsEnrOnBaseVert; i++)
             {
-                return tVertEnrIndex;
+                moris_index tVertEnrIndex = mBaseInterpVertToVertEnrichmentIndex(tLocalMeshIndex)(tBaseVertIndex)(i);
+
+                if(aVertexEnrichment == *mInterpVertEnrichment(tLocalMeshIndex)(tVertEnrIndex))
+                {
+                    return tVertEnrIndex;
+                }
             }
-        }
         }
 
         // if we make it through the loop without finding an enrichment vertex
@@ -484,7 +486,7 @@ namespace xtk
     moris_index
     Enriched_Interpolation_Mesh::get_vertex_related_to_vertex_enrichment(
             moris_index const & aMeshIndex,
-            moris_index aVertexEnrichmentIndex) const
+            moris_index         aVertexEnrichmentIndex) const
     {
         moris_index tLocalMeshIndex = this->get_local_mesh_index(aMeshIndex);
 
@@ -500,7 +502,9 @@ namespace xtk
     Enriched_Interpolation_Mesh::get_local_mesh_index(moris_index const & aMeshIndex) const
     {
         auto tIter = mMeshIndexToLocMeshIndex.find(aMeshIndex);
+
         MORIS_ASSERT(tIter != mMeshIndexToLocMeshIndex.end(),"Mesh index not in map");
+
         return tIter->second;
     }
 
@@ -520,6 +524,7 @@ namespace xtk
             moris_index const & aBasisId)
     {
         moris_index tMeshIndex = this->get_local_mesh_index(aMeshIndex);
+
         if(mGlobaltoLocalBasisMaps(tMeshIndex).find(aBasisId) == mGlobaltoLocalBasisMaps(tMeshIndex).end())
         {
             return false;
@@ -568,10 +573,12 @@ namespace xtk
         uint tNumBaseCells = aBaseCells.size();
 
         moris::Cell<Interpolation_Cell_Unzipped const*> tEnrichedCells;
+
         for(moris::uint  i = 0 ; i <tNumBaseCells; i++)
         {
             tEnrichedCells.append(this->get_enriched_cells_from_base_cell(aBaseCells(i)));
         }
+
         return tEnrichedCells;
     }
 
@@ -607,7 +614,7 @@ namespace xtk
     moris_index
     Enriched_Interpolation_Mesh::get_basis_owner(
             moris_index aBasisIndex,
-                                                 moris_index aMeshIndex)
+            moris_index aMeshIndex)
     {
         moris_index tLocMesh = this->get_local_mesh_index(aMeshIndex);
 
@@ -618,7 +625,7 @@ namespace xtk
 
     moris_index
     Enriched_Interpolation_Mesh::get_basis_bulk_phase(moris_index const & aBasisIndex,
-                                                      moris_index const & aMeshIndex) const
+            moris_index const & aMeshIndex) const
     {
         moris_index tLocMesh = this->get_local_mesh_index(aMeshIndex);
 
@@ -648,6 +655,7 @@ namespace xtk
         aOwnedInterpCells.resize(0);
         aOwnedInterpCells.reserve(tEnrInterpCells.size());
         aNotOwnedInterpCells.resize(0);
+
         // proc rank
         moris_index tParRank = par_rank();
 
@@ -711,6 +719,7 @@ namespace xtk
             moris_index const & aBasisId) const
     {
         moris_index tLocalMeshIndex = this->get_local_mesh_index(aMeshIndex);
+
         auto tIter = mGlobaltoLocalBasisMaps(tLocalMeshIndex).find(aBasisId);
 
         MORIS_ASSERT(tIter != mGlobaltoLocalBasisMaps(tLocalMeshIndex).end(),
@@ -730,6 +739,7 @@ namespace xtk
                 "Base Cell index is out of bounds. This index is related to the non-enriched interpolation mesh. Make sure enriched cell is not passed into this function");
 
         uint tNumEnrichedCells = mBaseCelltoEnrichedCell(tBaseIndex).size();
+
         moris::Cell<Interpolation_Cell_Unzipped const*> tEnrichedCellPtrs(tNumEnrichedCells);
 
         for(moris::uint i = 0; i<tNumEnrichedCells; i++)
@@ -757,7 +767,9 @@ namespace xtk
     {
         moris::uint tNRow = aIndices.n_rows();
         moris::uint tNCol = aIndices.n_cols();
+
         Matrix<IdMat> tIds(tNRow,tNCol);
+
         for(moris::uint i = 0; i < tNRow; i++)
         {
             for(moris::uint j = 0; j<tNCol; j++)
@@ -765,6 +777,7 @@ namespace xtk
                 tIds(i,j) = this->get_glb_entity_id_from_entity_loc_index(aIndices(i,j),aEntityRank);
             }
         }
+
         return tIds;
     }
 
@@ -777,7 +790,9 @@ namespace xtk
     {
         moris::uint tNRow = aIds.n_rows();
         moris::uint tNCol = aIds.n_cols();
+
         Matrix<IdMat> tIndices(tNRow,tNCol);
+
         for(moris::uint i = 0; i < tNRow; i++)
         {
             for(moris::uint j = 0; j<tNCol; j++)
@@ -798,7 +813,6 @@ namespace xtk
             Matrix<IdMat>          & aEnrichedIds) const
     {
         moris_index tLocalMeshIndex = this->get_local_mesh_index(aMeshIndex);
-
 
         aEnrichedIds.resize(aEnrichedIndices.n_rows(),aEnrichedIndices.n_cols());
 
@@ -848,7 +862,9 @@ namespace xtk
     void Enriched_Interpolation_Mesh::print_enriched_cells() const
     {
         moris::uint tNumCells = this->get_num_entities(EntityRank::ELEMENT);
+
         std::cout<<"\nEnriched Interpolation Cells:"<<std::endl;
+
         for(moris::uint i =0; i <tNumCells; i++)
         {
             std::cout<<"   "<<*mEnrichedInterpCells(i);
@@ -873,7 +889,6 @@ namespace xtk
             std::cout<<"    Vertex Index: "<<std::setw(9)<<i<< " | Vertex Id: "<<
                     std::setw(9) <<mLocalToGlobalMaps(tMapIndex)(i)<<std::endl;
         }
-    
     }
 
     // ----------------------------------------------------------------------------
@@ -924,7 +939,9 @@ namespace xtk
     void Enriched_Interpolation_Mesh::print_vertex_interpolation() const
     {
         moris::uint tNumVerts = this->get_num_entities(EntityRank::NODE);
+
         std::cout<<"\nVertex Interpolation:"<<std::endl;
+
         for(moris::moris_index i =0; i <(moris_index)tNumVerts; i++)
         {
             Interpolation_Vertex_Unzipped const & tVertex = this->get_xtk_interp_vertex(i);
@@ -940,13 +957,17 @@ namespace xtk
     Enriched_Interpolation_Mesh::print_basis_information() const
     {
         std::cout<<"\nBasis Information on proc "<<par_rank()<<":"<<std::endl;
+
         for(moris::moris_index iM = 0 ; iM < (moris_index)mMeshIndices.numel(); iM++)
         {
             std::cout<<" Mesh Index: "<<mMeshIndices(iM)<<std::endl;
+
             for(moris::moris_index i =0; i <(moris_index)mEnrichCoeffLocToGlob(iM).numel(); i++)
             {
                 moris_id tId = mEnrichCoeffLocToGlob(iM)(i);
+
                 moris_index tIndex = this->get_enr_basis_index_from_enr_basis_id(mMeshIndices(iM),tId);
+
                 std::cout<<"    Basis Id: "<<std::setw(9)<<tId<< " | Basis Index: "<<std::setw(9)<<tIndex<<std::endl;
             }
         }
@@ -956,8 +977,8 @@ namespace xtk
 
     bool
     Enriched_Interpolation_Mesh::verify_basis_interpolating_into_cluster(mtk::Cluster const & aCluster,
-                                                                         moris_index  const & aMeshIndex,
-                                                                         const mtk::Master_Slave aIsMaster)
+            moris_index  const & aMeshIndex,
+            const mtk::Master_Slave aIsMaster)
     {
         //
         bool tDiagnosticFlag = true;
@@ -982,11 +1003,11 @@ namespace xtk
             if(!tVertexPointers(i)->has_interpolation(aMeshIndex))
             {
                 std::cout<<" Id = "<<tVertexPointers(i)->get_id()
-                        <<" | back vertex id = "<<mEnrichedInterpVerts(tVertexPointers(i)->get_index()).get_id()
-                        <<" | owner = "<<tVertexPointers(i)->get_owner()
-                        <<" | my rank = "<<par_rank()
-                        <<" | IP Cell Owner = "<<tEnrichedIpCell->get_owner()
-                        <<" | IP Cell ID = "<<tEnrichedIpCell->get_id()<<std::endl;
+                                <<" | back vertex id = "<<mEnrichedInterpVerts(tVertexPointers(i)->get_index()).get_id()
+                                <<" | owner = "<<tVertexPointers(i)->get_owner()
+                                <<" | my rank = "<<par_rank()
+                                <<" | IP Cell Owner = "<<tEnrichedIpCell->get_owner()
+                                <<" | IP Cell ID = "<<tEnrichedIpCell->get_id()<<std::endl;
             }
 
             MORIS_ASSERT(tVertexPointers(i)->has_interpolation(aMeshIndex),"Vertex does not have interpolation.");
@@ -1000,7 +1021,7 @@ namespace xtk
             if(tBasisIds.numel() == 0)
             {
                 std::cout<<"Vertex id = "<<tVertexPointers(i)->get_id()
-                <<" | back vertex id = "<<mEnrichedInterpVerts(tVertexPointers(i)->get_index()).get_id()<<std::endl;
+                        <<" | back vertex id = "<<mEnrichedInterpVerts(tVertexPointers(i)->get_index()).get_id()<<std::endl;
                 MORIS_ASSERT(0,"Interpolation Vertex in cluster does not have at least 1 basis interpolating into it");
                 tDiagnosticFlag = false;
             }
@@ -1011,12 +1032,12 @@ namespace xtk
                 if(this->get_basis_bulk_phase(tBasisIndices(iB),aMeshIndex) != tBulkPhase)
                 {
                     std::cout<<"Vertex id = "<<tVertexPointers(i)->get_id()
-                            <<" | back vertex id = "<<mEnrichedInterpVerts(tVertexPointers(i)->get_index()).get_id()
-                            <<" | tBasisIds(iB) = "<<tBasisIds(iB)
-                            <<" | MeshBP"<<this->get_basis_bulk_phase(tBasisIndices(iB),aMeshIndex)
-                            <<" | tBulkPhase = "<<tBulkPhase<<std::endl;
-                MORIS_ASSERT(0,"Basis in cluster does not interpolate into same bulk phase as interpolation cell");
-                tDiagnosticFlag = false;
+                                    <<" | back vertex id = "<<mEnrichedInterpVerts(tVertexPointers(i)->get_index()).get_id()
+                                    <<" | tBasisIds(iB) = "<<tBasisIds(iB)
+                                    <<" | MeshBP"<<this->get_basis_bulk_phase(tBasisIndices(iB),aMeshIndex)
+                                    <<" | tBulkPhase = "<<tBulkPhase<<std::endl;
+                    MORIS_ASSERT(0,"Basis in cluster does not interpolate into same bulk phase as interpolation cell");
+                    tDiagnosticFlag = false;
                 }
             }
         }
@@ -1030,7 +1051,6 @@ namespace xtk
     void
     Enriched_Interpolation_Mesh::finalize_setup()
     {
-
         this->setup_local_to_global_maps();
         this->setup_not_owned_vertices();
         this->setup_vertex_to_bulk_phase();
@@ -1157,11 +1177,11 @@ namespace xtk
                     if(mVertexBulkPhase(tVertexIndex) != tEnrIpCells(i)->get_bulkphase_index())
                     {
 
-                    std::cout<< " Vert Id = "<< tVertices(iV)->get_id()
-                             <<" | Vert Owner = "<< tVertices(iV)->get_owner()
-                             <<" | mVertexBulkPhase(tVertexIndex) = "<<mVertexBulkPhase(tVertexIndex)
-                             <<" | tEnrIpCells(i)->get_bulkphase_index() ="<<tEnrIpCells(i)->get_bulkphase_index()
-                             <<std::endl;
+                        std::cout<< " Vert Id = "<< tVertices(iV)->get_id()
+                                     <<" | Vert Owner = "<< tVertices(iV)->get_owner()
+                                     <<" | mVertexBulkPhase(tVertexIndex) = "<<mVertexBulkPhase(tVertexIndex)
+                                     <<" | tEnrIpCells(i)->get_bulkphase_index() ="<<tEnrIpCells(i)->get_bulkphase_index()
+                                     <<std::endl;
                     }
                     MORIS_ASSERT(mVertexBulkPhase(tVertexIndex) == tEnrIpCells(i)->get_bulkphase_index(),"Inconsistent vertex bulk phase");
                 }
@@ -1262,9 +1282,10 @@ namespace xtk
         mGlobaltoLobalMaps = Cell<std::unordered_map<moris_id,moris_index>>(4);
 
         this->setup_cell_maps();
+
         this->setup_basis_maps();
 
-//        this->assign_ip_vertex_ids();
+        //        this->assign_ip_vertex_ids();
 
         this->setup_vertex_maps();
     }
@@ -1386,7 +1407,6 @@ namespace xtk
         // access the communication
         Matrix<IdMat> tCommTable = this->get_communication_table();
 
-
         // Par rank
         moris::moris_index tParRank = par_rank();
 
@@ -1439,9 +1459,6 @@ namespace xtk
                 }
             }
         }
-
-
-
     }
 
     // ----------------------------------------------------------------------------
@@ -1596,7 +1613,6 @@ namespace xtk
         // size data
         mEnrichCoeffOwnership.resize(mMeshIndices.numel());
 
-
         // iterate through meshes
         for(moris::uint iM = 0; iM < mMeshIndices.numel(); iM++)
         {
@@ -1604,12 +1620,10 @@ namespace xtk
 
             mEnrichCoeffOwnership(iM).fill(MORIS_INDEX_MAX);
 
-
             // iterate through basis functions
             for(moris::uint iB = 0; iB < mCoeffToEnrichCoeffs(iM).size(); iB++)
             {
                 moris_index tOwner = mXTKModel->get_background_mesh().get_mesh_data().get_entity_owner((moris_index)iB,mBasisRank, mMeshIndices(iM));
-
 
                 for(moris::uint iEB = 0; iEB < mCoeffToEnrichCoeffs(iM)(iB).numel(); iEB++)
                 {
@@ -1641,6 +1655,7 @@ namespace xtk
         for(moris::uint i =0; i <tNumNodes; i++)
         {
             mLocalToGlobalMaps(0)(mEnrichedInterpVerts(i).get_index()) = mEnrichedInterpVerts(i).get_id();
+
             MORIS_ASSERT(mEnrichedInterpVerts(i).get_index() == (moris_index)i,"Index alignment issue in vertices");
 
             MORIS_ASSERT(mGlobaltoLobalMaps(0).find(mEnrichedInterpVerts(i).get_id()) == mGlobaltoLobalMaps(0).end(),
@@ -1683,7 +1698,7 @@ namespace xtk
 
         mLocalToGlobalMaps(3) = Matrix<IdMat>(tNumCells,1);
 
-//        mGlobaltoLobalMaps(3).clear();
+        //        mGlobaltoLobalMaps(3).clear();
 
         for(moris::uint i =0; i <tNumCells; i++)
         {

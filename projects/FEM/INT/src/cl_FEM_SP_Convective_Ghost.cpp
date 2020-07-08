@@ -109,8 +109,11 @@ namespace moris
                     mMasterProp( static_cast< uint >( Property_Type::DENSITY ) );
 
             // get absolute value of u.n
-            Matrix< DDRMat > tAbs = trans( tVelocityFI->val() ) * mNormal;
-            real tAbsReal = std::abs( tAbs( 0 ) );
+            //            Matrix< DDRMat > tAbs = trans( tVelocityFI->val() ) * mNormal;
+            //            real tAbsReal = std::abs( tAbs( 0 ) );
+            real tEpsilon = 1e-12;
+            Matrix< DDRMat > tNormalDispl = trans( tVelocityFI->val() ) * mNormal;
+            real tAbsReal = std::sqrt( tNormalDispl( 0 ) * tNormalDispl( 0 ) + std::pow( tEpsilon, 2.0 ) ) - tEpsilon;
 
             // compute stabilization parameter value
             mPPVal = mParameters( 0 ) * tDensityProp->val()( 0 ) * tAbsReal * std::pow( mElementSize, 2.0 );
@@ -137,8 +140,11 @@ namespace moris
                     mMasterFIManager->get_field_interpolators_for_type( mMasterDofVelocity );
 
             // get absolute value of u.n
-            Matrix< DDRMat > tAbs = trans( tVelocityFI->val() ) * mNormal;
-            real tAbsReal = std::abs( tAbs( 0 ) );
+            //            Matrix< DDRMat > tAbs = trans( tVelocityFI->val() ) * mNormal;
+            //            real tAbsReal = std::abs( tAbs( 0 ) );
+            real tEpsilon = 1e-12;
+            Matrix< DDRMat > tNormalDispl = trans( tVelocityFI->val() ) * mNormal;
+            real tAbsReal = std::sqrt( tNormalDispl( 0 ) * tNormalDispl( 0 ) + std::pow( tEpsilon, 2.0 ) ) - tEpsilon;
 
             // get the density property
             std::shared_ptr< Property > tDensityProp =
@@ -147,17 +153,23 @@ namespace moris
             // if velocity dof
             if( aDofTypes( 0 ) == mMasterDofVelocity )
             {
-                // get the sign of u.n
-                real tSign = 1.0;
-                if ( tAbs( 0 ) < 0.0 )
-                {
-                    tSign = -1.0;
-                }
+                //                // get the sign of u.n
+                //                real tSign = 1.0;
+                //                if ( tAbs( 0 ) < 0.0 )
+                //                {
+                //                    tSign = -1.0;
+                //                }
+                //
+                //                // compute contribution from velocity
+                //                mdPPdMasterDof( tDofIndex ).matrix_data() +=
+                //                        mParameters( 0 ) * std::pow( mElementSize, 2.0 ) * tDensityProp->val()( 0 ) *
+                //                        tSign * trans( mNormal ) * tVelocityFI->N();
 
                 // compute contribution from velocity
                 mdPPdMasterDof( tDofIndex ).matrix_data() +=
                         mParameters( 0 ) * std::pow( mElementSize, 2.0 ) * tDensityProp->val()( 0 ) *
-                        tSign * trans( mNormal ) * tVelocityFI->N();
+                        tNormalDispl( 0 ) * trans( mNormal ) * tVelocityFI->N() /
+                        ( tAbsReal + tEpsilon );
             }
 
             // if density depends on dof

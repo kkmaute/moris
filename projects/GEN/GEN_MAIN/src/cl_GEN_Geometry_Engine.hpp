@@ -2,7 +2,7 @@
 #define MORIS_CL_Geometry_Engine_HPP_
 
 // WRK
-#include "../../../WRK/src/cl_WRK_Performer.hpp"
+#include "cl_WRK_Performer.hpp"
 
 // GEN
 #include "cl_GEN_Pending_Node.hpp"

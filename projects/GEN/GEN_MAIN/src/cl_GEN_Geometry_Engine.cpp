@@ -1,6 +1,3 @@
-// WRK
-#include "../../../WRK/src/cl_WRK_Performer.cpp"
-
 // GEN
 #include "cl_GEN_Geometry_Engine.hpp"
 #include "fn_GEN_Matrix_Base_Utilities.hpp"

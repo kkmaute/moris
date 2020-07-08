@@ -22,10 +22,11 @@ namespace moris
         {
 //------------------------------------------------------------------------------
         public:
-            moris::moris_id          mId;
-            moris::moris_id          mIndex;
-            moris::moris_id          mOwner;
-            moris::uint              mNumVerts;
+            moris::moris_id          mId       = gNoID;
+            moris::moris_index       mIndex    = gNoIndex;
+            moris::moris_id          mOwner    = gNoID;
+            //moris::uint              mNumVerts = MORIS_UNIT_MAX;
+
             moris::Cell< Vertex* >   mVertices;
             moris::uint              mSpatialDim   = 3;
             enum Geometry_Type       mGeometryType = Geometry_Type::UNDEFINED;
@@ -50,6 +51,8 @@ namespace moris
             moris_id
             get_id() const
             {
+                MORIS_ASSERT( mId != gNoID,"Cell ID not initialized");
+
                 return mId;
             }
 
@@ -63,6 +66,8 @@ namespace moris
             moris_index
             get_index() const
             {
+                MORIS_ASSERT( mIndex != gNoIndex,"Cell index not initialized");
+
                 return mIndex;
             }
 
@@ -86,6 +91,8 @@ namespace moris
             moris_id
             get_owner() const
             {
+                MORIS_ASSERT( mOwner != gNoID,"Cell ownership not initialized");
+
                 return mOwner;
             }
 

@@ -13,6 +13,7 @@ namespace moris
     {
 
         //------------------------------------------------------------------------------
+
         IWG_Incompressible_NS_Viscous_Velocity_Ghost::IWG_Incompressible_NS_Viscous_Velocity_Ghost()
         {
             // set size for the stabilization parameter pointer cell
@@ -24,6 +25,7 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+
         void IWG_Incompressible_NS_Viscous_Velocity_Ghost::set_stabilization_parameter(
                 std::shared_ptr< Stabilization_Parameter > aStabilizationParameter,
                 std::string                                aStabilizationString )
@@ -39,6 +41,7 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+
         void IWG_Incompressible_NS_Viscous_Velocity_Ghost::compute_residual( real aWStar )
         {
             // check master field interpolators
@@ -83,7 +86,6 @@ namespace moris
                 default:
                 {
                     MORIS_ERROR( false, "IWG_Incompressible_NS_Viscous_Velocity_Ghost::compute_residual - order not supported");
-                    break;
                 }
             }
 
@@ -137,6 +139,7 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+
         void IWG_Incompressible_NS_Viscous_Velocity_Ghost::compute_jacobian( real aWStar )
         {
 #ifdef DEBUG
@@ -191,7 +194,6 @@ namespace moris
                 default:
                 {
                     MORIS_ERROR( false, "IWG_Incompressible_NS_Viscous_Velocity_Ghost::compute_residual - order not supported");
-                    break;
                 }
             }
 
@@ -328,6 +330,7 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+
         void IWG_Incompressible_NS_Viscous_Velocity_Ghost::compute_jacobian_and_residual( real aWStar )
         {
 #ifdef DEBUG
@@ -339,6 +342,7 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+
         void IWG_Incompressible_NS_Viscous_Velocity_Ghost::compute_dRdp( real aWStar )
         {
 #ifdef DEBUG
@@ -350,6 +354,7 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+
         void IWG_Incompressible_NS_Viscous_Velocity_Ghost::compute_flat_dnNdxn(
                 Matrix< DDRMat >  & aFlatdnNdxn,
                 uint                aOrder,
@@ -413,7 +418,6 @@ namespace moris
                         default:
                         {
                             MORIS_ERROR( false, "IWG_Incompressible_NS_Viscous_Velocity_Ghost::get_normal_matrix - Spatial dimensions can only be 2, 3." );
-                            break;
                         }
                     }
                     break;
@@ -461,7 +465,6 @@ namespace moris
                         default:
                         {
                             MORIS_ERROR( false, "IWG_Incompressible_NS_Viscous_Velocity_Ghost::get_normal_matrix - Spatial dimensions can only be 2, 3." );
-                            break;
                         }
                     }
                     break;
@@ -524,7 +527,6 @@ namespace moris
                         default:
                         {
                             MORIS_ERROR( false, "IWG_Incompressible_NS_Viscous_Velocity_Ghost::get_normal_matrix - Spatial dimensions can only be 2, 3." );
-                            break;
                         }
                     }
                     break;
@@ -533,7 +535,6 @@ namespace moris
                 default:
                 {
                     MORIS_ERROR( false, "IWG_Incompressible_NS_Viscous_Velocity_Ghost::get_normal_matrix - order not supported." );
-                    break;
                 }
             }
         }

@@ -21,8 +21,9 @@ namespace moris
         {
             private:
 
-                int  mErrFlag = true;
-                bool mVerbose = false;
+                int  mErrFlag     = true;
+                bool mVerbose     = false;
+                bool mBuildGlobal = false;
 
                 // general mesh info
                 int mNumDim       = -1;
@@ -110,15 +111,22 @@ namespace moris
                 std::vector<Matrix<IndexMat>> mBlockSetEdgeConn;
                 std::vector<Matrix<IndexMat>> mBlockSetFaceConn;
 
-                // Nodal Fields
-                int                         mNumNodalVars  = -1;
+                // Timing information
                 int                         mNumTimeSteps  = -1;
                 int                         mTimeStepIndex = 0;
                 real                        mTimeValue     = -1.0;
 
+                // Nodal Fields
+                int                         mNumNodalVars = -1;
                 std::vector<char>           mNodeFieldNamesMemory;
                 std::vector<char*>          mNodeFieldNamePtrs;
                 std::vector<Matrix<DDRMat>> mFieldsNodalVars;
+
+                // Global Variables
+                int                         mNumGlobalVars = -1;
+                std::vector<char>           mGlobalVariableNamesMemory;
+                std::vector<char*>          mGlobalVariableNamePtrs;
+                Matrix<DDRMat>              mGlobalVariables;
 
                 void
                 get_init_mesh_data();
@@ -162,6 +170,12 @@ namespace moris
                 reload_nodal_fields();
 
                 void
+                get_global_variables();
+
+                void
+                reload_global_variables();
+
+                void
                 copy_coordinates(int tNewExoFileId);
 
                 void
@@ -169,7 +183,6 @@ namespace moris
 
                 void
                 copy_side_sets(int aNewExoFileId);
-
 
                 void
                 copy_block_sets(int aNewExoFileId);
@@ -197,7 +210,8 @@ namespace moris
                 Exodus_IO_Helper(
                         const char * aExodusFile,
                         const int    aTimeStepIndex = 0,
-                        const bool   aVerbose = false);
+                        const bool   aBuildGlobal   = false,
+                        const bool   aVerbose       = false);
 
                 ~Exodus_IO_Helper();
 
@@ -295,19 +309,7 @@ namespace moris
                  */
 
                 uint
-                get_node_index_by_Id( uint aNodeId)
-                {
-                    // find index of node given its nodeId
-                    auto tItr = std::find(mNodeNumMap.data(),mNodeNumMap.data()+mNumNodes,aNodeId);
-
-                    // compute index
-                    uint tIndex = std::distance(mNodeNumMap.data(),tItr);
-
-                    // check that exactly one node index was found
-                    MORIS_ASSERT( tIndex < (uint) mNumNodes, "Node not found");
-
-                    return tIndex;
-                }
+                get_node_index_by_Id( uint aNodeId);
 
                 //------------------------------------------------------------------------------
                 /*
@@ -319,6 +321,26 @@ namespace moris
 
                 real
                 get_nodal_field_value( uint aNodeId, uint aFieldIndex, uint aTimeStepIndex);
+
+                //------------------------------------------------------------------------------
+                /*
+                 * @brief returns value of global variable for given a variable inex
+                 *
+                 * @param[ in ] aNodeId   id of node
+                 */
+
+                real
+                get_global_variable( uint aGlobalVariableIndex, uint aTimeStepIndex );
+
+                //------------------------------------------------------------------------------
+                /*
+                 * @brief returns name of global variable for given a variable inex
+                 *
+                 * @param[ in ] aNodeId   id of node
+                 */
+
+                const char*
+                get_global_variable_name( uint aGlobalVariableIndex );
 
                 //------------------------------------------------------------------------------
                 /*

@@ -1129,7 +1129,6 @@ namespace moris
                     {
                         return mMesh->get_element( aEntityIndex )->get_id();
                     }
-
                     break;
                 }
                 case EntityRank::BSPLINE:
@@ -1148,7 +1147,6 @@ namespace moris
                 {
                     MORIS_ERROR( false, "unknown entity rank");
                     return 0;
-                    break;
                 }
             }
         }
@@ -1221,12 +1219,10 @@ namespace moris
                     return tGlobalMaxId;
                     break;
                 }
-
                 default :
                 {
                     MORIS_ERROR( false, "unknown entity rank");
                     return 0;
-                    break;
                 }
             }
         }
@@ -1771,9 +1767,9 @@ namespace moris
 
             uint tCounter = 0;
 
-            setup_entity_global_to_local_map(EntityRank::NODE, tCounter );
-            setup_entity_global_to_local_map(EntityRank::EDGE, tCounter );
-            setup_entity_global_to_local_map(EntityRank::FACE, tCounter );
+            setup_entity_global_to_local_map(EntityRank::NODE,    tCounter );
+            setup_entity_global_to_local_map(EntityRank::EDGE,    tCounter );
+            setup_entity_global_to_local_map(EntityRank::FACE,    tCounter );
             setup_entity_global_to_local_map(EntityRank::ELEMENT, tCounter );
 
             for( uint Ik = 0; Ik < mMesh->get_number_of_bspline_meshes(); Ik++ )
@@ -1788,7 +1784,6 @@ namespace moris
                     setup_entity_global_to_local_map( EntityRank::NODE, tCounter );
                 }
             }
-
         }
 
         //-------------------------------------------------------------------------------
@@ -1800,16 +1795,19 @@ namespace moris
         {
             uint tNumEntities = this->get_num_entities( aEntityRank, aIndex );
 
-            moris_id tCount = 0;
+            moris_index tCount = 0;
 
             for( uint i = 0; i < tNumEntities; i++ )
             {
-                moris_id tEntityId = this->get_glb_entity_id_from_entity_loc_index( i,
+                moris_id tEntityId = this->get_glb_entity_id_from_entity_loc_index(
+                        i,
                         aEntityRank,
                         aIndex);
 
-                // MORIS_ASSERT(mEntityGlobaltoLocalMap((uint)aEntityRank).find(tEntityId) == mEntityGlobaltoLocalMap((uint)aEntityRank).end(),"Id already in the map.");   FIXME KEENAN
+                // MORIS_ASSERT(mEntityGlobaltoLocalMap(aCounter).find(tEntityId) == mEntityGlobaltoLocalMap(aCounter).end(),"ID already exists.");
 
+                MORIS_ASSERT( tEntityId >= 0,"EntityID received is smaller than 0.");
+                
                 mEntityGlobaltoLocalMap( aCounter )[ tEntityId ] = tCount;
 
                 tCount++;

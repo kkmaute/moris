@@ -1,6 +1,8 @@
 #include "catch.hpp"
-#include "cl_FEM_Geometry_Interpolator.hpp" //FEM/INT/sr
-#include "cl_FEM_Integrator.hpp" //FEM/INT/sr
+//FEM/INT/src
+#include "cl_FEM_Geometry_Interpolator.hpp"
+#include "cl_FEM_Integrator.hpp"
+//LINALG/src
 #include "fn_norm.hpp"
 #include "fn_cross.hpp"
 #include "op_div.hpp"
@@ -8,7 +10,9 @@
 using namespace moris;
 using namespace fem;
 
-TEST_CASE( "Interpolation mesh QUAD4 - Integration mesh QUAD4 ", "[moris],[fem],[IntegMeshQUAD4]" )
+// Testing the integration rule on the side
+TEST_CASE( "Interpolation mesh QUAD4 - Integration mesh QUAD4 ",
+        "[moris],[fem],[IntegMeshQUAD4]" )
 {
     // define an epsilon environment
     real tEpsilon = 1E-12;
@@ -16,25 +20,21 @@ TEST_CASE( "Interpolation mesh QUAD4 - Integration mesh QUAD4 ", "[moris],[fem],
     // define an interpolation mesh
     //------------------------------------------------------------------------------
     // define a QUAD4 space element, i.e. space coordinates xHat
-    Matrix< DDRMat > tXHatIP = {{ 0.0, 0.0 },
-                                { 1.0, 0.0 },
-                                { 1.0, 1.0 },
-                                { 0.0, 1.0 } };
+    Matrix< DDRMat > tXHatIP = {{ 0.0, 0.0 },{ 1.0, 0.0 },{ 1.0, 1.0 },{ 0.0, 1.0 } };
 
     // define a line time element, i.e. time coordinates tHat
-    Matrix< DDRMat > tTHatIP = {{ 0.0 },
-                                { 1.0 },
-                                { 0.5 }};
+    Matrix< DDRMat > tTHatIP = {{ 0.0 },{ 1.0 },{ 0.5 }};
 
     // create a space and time geometry interpolation rule
-    Interpolation_Rule tGeoInterpIPRule( mtk::Geometry_Type::QUAD,
-                                         Interpolation_Type::LAGRANGE,
-                                         mtk::Interpolation_Order::LINEAR,
-                                         Interpolation_Type::LAGRANGE,
-                                         mtk::Interpolation_Order::QUADRATIC );
+    Interpolation_Rule tGeoInterpIPRule(
+            mtk::Geometry_Type::QUAD,
+            Interpolation_Type::LAGRANGE,
+            mtk::Interpolation_Order::LINEAR,
+            Interpolation_Type::LAGRANGE,
+            mtk::Interpolation_Order::QUADRATIC );
 
     // create a space and time geometry interpolator
-    Geometry_Interpolator tGeoInterpIP( tGeoInterpIPRule, true );
+    Geometry_Interpolator tGeoInterpIP( tGeoInterpIPRule );
 
     //set the coefficients xHat, tHat
     tGeoInterpIP.set_space_coeff( tXHatIP );
@@ -47,56 +47,38 @@ TEST_CASE( "Interpolation mesh QUAD4 - Integration mesh QUAD4 ", "[moris],[fem],
     mtk::Geometry_Type tSideGeoTypeIG = mtk::Geometry_Type::LINE;
 
     // define a QUAD4 integration element, i.e. space param coordinates xiHat
-    Matrix< DDRMat > tXiHatIG = {{ -1.0, -1.0 },
-                                 {  1.0, -1.0 },
-                                 {  1.0,  1.0 },
-                                 { -1.0,  1.0 }};
+    Matrix< DDRMat > tXiHatIG = {{ -1.0, -1.0 },{  1.0, -1.0 },{  1.0,  1.0 },{ -1.0,  1.0 }};
 
     // the QUAD4 integration element in space physical coordinates xHat
-    Matrix< DDRMat > tXHatIG = {{ 0.0, 0.0 },
-                                { 1.0, 0.0 },
-                                { 1.0, 1.0 },
-                                { 0.0, 1.0 }};
+    Matrix< DDRMat > tXHatIG = {{ 0.0, 0.0 },{ 1.0, 0.0 },{ 1.0, 1.0 },{ 0.0, 1.0 }};
 
-    Matrix< DDRMat > tTHatIG = {{ 0.0 },
-                                { 1.0 }};
-
-    // integration mesh interpolation rule
-    Interpolation_Rule tGeoInterpIGRule( tGeoTypeIG,
-                                         Interpolation_Type::LAGRANGE,
-                                         mtk::Interpolation_Order::LINEAR,
-                                         Interpolation_Type::LAGRANGE,
-                                         mtk::Interpolation_Order::LINEAR );
-
-    // create a space and time geometry interpolator fot the integration element
-    Geometry_Interpolator tGeoInterpIG( tGeoInterpIGRule, true );
-
-    //set the coefficients xHat, tHat
-    tGeoInterpIG.set_space_coeff( tXHatIG );
-    tGeoInterpIG.set_time_coeff(  tTHatIG );
+    Matrix< DDRMat > tTHatIG = {{ 0.0 },{ 1.0 }};
 
     // interpolation rule for the side
-    Interpolation_Rule tSideInterpIGRule( tSideGeoTypeIG,
-                                          Interpolation_Type::LAGRANGE,
-                                          mtk::Interpolation_Order::LINEAR,
-                                          Interpolation_Type::LAGRANGE,
-                                          mtk::Interpolation_Order::LINEAR );
+    Interpolation_Rule tSideInterpIGRule(
+            tSideGeoTypeIG,
+            Interpolation_Type::LAGRANGE,
+            mtk::Interpolation_Order::LINEAR,
+            Interpolation_Type::LAGRANGE,
+            mtk::Interpolation_Order::LINEAR );
 
     // create a side space interpolation function
-    Interpolation_Function_Base* tSideSpaceInterp = tSideInterpIGRule.create_space_interpolation_function();
+    Interpolation_Function_Base* tSideSpaceInterp =
+            tSideInterpIGRule.create_space_interpolation_function();
 
     // create a integration rule for the side
-    Integration_Rule tSideIntegRule( tSideGeoTypeIG,
-                                     Integration_Type::GAUSS,
-                                     Integration_Order::BAR_2,
-                                     Integration_Type::GAUSS,
-                                     Integration_Order::BAR_3 );
+    Integration_Rule tSideIntegRule(
+            tSideGeoTypeIG,
+            Integration_Type::GAUSS,
+            Integration_Order::BAR_2,
+            Integration_Type::GAUSS,
+            Integration_Order::BAR_3 );
 
     // create a side integrator
     Integrator tSideIntegrator( tSideIntegRule );
 
     // get number of integration points, integration points and weights
-    uint             tNumOfIntegPoints = tSideIntegrator.get_number_of_points();
+    uint tNumOfIntegPoints = tSideIntegrator.get_number_of_points();
     Matrix< DDRMat > tIntegPoints;
     tSideIntegrator.get_points( tIntegPoints );
     Matrix< DDRMat > tIntegWeights;
@@ -158,16 +140,16 @@ TEST_CASE( "Interpolation mesh QUAD4 - Integration mesh QUAD4 ", "[moris],[fem],
             Matrix< DDRMat > tRefIntegPointI( 3, 1, 0.0 );
             switch ( tSideOrdinal )
             {
-                case ( 0 ):
+                case 0 :
                     tRefIntegPointI = { {tIntegPointI( 0 )}, {-1.0}, {tIntegPointI( 1 )} };
                     break;
-                case ( 1 ):
+                case 1 :
                     tRefIntegPointI = { {1.0}, {tIntegPointI( 0 )}, {tIntegPointI( 1 )} };
                     break;
-                case ( 2 ):
+                case 2 :
                     tRefIntegPointI = { {-tIntegPointI( 0 )}, {1.0}, {tIntegPointI( 1 )} };
                     break;
-                case ( 3 ):
+                case 3 :
                     tRefIntegPointI = { {-1.0}, {-tIntegPointI( 0 )}, {tIntegPointI( 1 )} };
                     break;
                 default:
@@ -188,7 +170,7 @@ TEST_CASE( "Interpolation mesh QUAD4 - Integration mesh QUAD4 ", "[moris],[fem],
             // check the integration point in the IP parametric space
             for( uint iCoords = 0; iCoords < 3; iCoords++ )
             {
-                tIntegPointCheck = tIntegPointCheck && ( std::abs( tRefIntegPointI( iCoords) - tRefIntegPointI2( iCoords) ) < tEpsilon );
+                tIntegPointCheck = tIntegPointCheck && ( std::abs( tRefIntegPointI( iCoords ) - tRefIntegPointI2( iCoords ) ) < tEpsilon );
             }
             //REQUIRE( tIntegPointCheck );
 
@@ -211,7 +193,8 @@ TEST_CASE( "Interpolation mesh QUAD4 - Integration mesh QUAD4 ", "[moris],[fem],
     delete tSideSpaceInterp;
 }
 
-TEST_CASE( "Interpolation mesh TRI3 - Integration mesh TRI3 ", "[moris],[fem],[IntegMeshTRI3]" )
+TEST_CASE( "Interpolation mesh TRI3 - Integration mesh TRI3 ",
+        "[moris],[fem],[IntegMeshTRI3]" )
 {
     // define an epsilon environment
     real tEpsilon = 1E-12;
@@ -219,24 +202,24 @@ TEST_CASE( "Interpolation mesh TRI3 - Integration mesh TRI3 ", "[moris],[fem],[I
     // define an interpolation mesh
     //------------------------------------------------------------------------------
     // define a TRI3 space element, i.e. space coordinates xHat
-    Matrix< DDRMat > tXHatIP = {{ 0.0, 0.0 },
-                                { 1.0, 0.0 },
-                                { 0.0, 1.0 } };
+    Matrix< DDRMat > tXHatIP = {
+            { 0.0, 0.0 },
+            { 1.0, 0.0 },
+            { 0.0, 1.0 } };
 
     // define a line time element, i.e. time coordinates tHat
-    Matrix< DDRMat > tTHatIP = {{ 0.0 },
-                                { 1.0 },
-                                { 0.5 }};
+    Matrix< DDRMat > tTHatIP = {{ 0.0 },{ 1.0 },{ 0.5 }};
 
     // create a space and time geometry interpolation rule
-    Interpolation_Rule tGeoInterpIPRule( mtk::Geometry_Type::TRI,
-                                         Interpolation_Type::LAGRANGE,
-                                         mtk::Interpolation_Order::LINEAR,
-                                         Interpolation_Type::LAGRANGE,
-                                         mtk::Interpolation_Order::QUADRATIC );
+    Interpolation_Rule tGeoInterpIPRule(
+            mtk::Geometry_Type::TRI,
+            Interpolation_Type::LAGRANGE,
+            mtk::Interpolation_Order::LINEAR,
+            Interpolation_Type::LAGRANGE,
+            mtk::Interpolation_Order::QUADRATIC );
 
     // create a space and time geometry interpolator
-    Geometry_Interpolator tGeoInterpIP( tGeoInterpIPRule, true );
+    Geometry_Interpolator tGeoInterpIP( tGeoInterpIPRule );
 
     //set the coefficients xHat, tHat
     tGeoInterpIP.set_space_coeff( tXHatIP );
@@ -249,54 +232,43 @@ TEST_CASE( "Interpolation mesh TRI3 - Integration mesh TRI3 ", "[moris],[fem],[I
     mtk::Geometry_Type tSideGeoTypeIG = mtk::Geometry_Type::LINE;
 
     // define a TRI3 integration element, i.e. space param coordinates xiHat
-    Matrix< DDRMat > tXiHatIG = {{ 1.0, 0.0, 0.0 },
-                                 { 0.0, 1.0, 0.0 },
-                                 { 0.0, 0.0, 1.0 }};
+    Matrix< DDRMat > tXiHatIG = {
+            { 1.0, 0.0, 0.0 },
+            { 0.0, 1.0, 0.0 },
+            { 0.0, 0.0, 1.0 }};
 
     // the QUAD4 integration element in space physical coordinates xHat
-    Matrix< DDRMat > tXHatIG = {{ 0.0, 0.0 },
-                                { 1.0, 0.0 },
-                                { 0.0, 1.0 }};
+    Matrix< DDRMat > tXHatIG = {
+            { 0.0, 0.0 },
+            { 1.0, 0.0 },
+            { 0.0, 1.0 }};
 
-    Matrix< DDRMat > tTHatIG = {{ 0.0 },
-                                { 1.0 }};
-
-    // integration mesh interpolation rule
-    Interpolation_Rule tGeoInterpIGRule( tGeoTypeIG,
-                                         Interpolation_Type::LAGRANGE,
-                                         mtk::Interpolation_Order::LINEAR,
-                                         Interpolation_Type::LAGRANGE,
-                                         mtk::Interpolation_Order::LINEAR );
-
-    // create a space and time geometry interpolator fot the integration element
-    Geometry_Interpolator tGeoInterpIG( tGeoInterpIGRule, true );
-
-    //set the coefficients xHat, tHat
-    tGeoInterpIG.set_space_coeff( tXHatIG );
-    tGeoInterpIG.set_time_coeff(  tTHatIG );
+    Matrix< DDRMat > tTHatIG = {{ 0.0 },{ 1.0 }};
 
     // interpolation rule for the side
-    Interpolation_Rule tSideInterpIGRule( tSideGeoTypeIG,
-                                          Interpolation_Type::LAGRANGE,
-                                          mtk::Interpolation_Order::LINEAR,
-                                          Interpolation_Type::LAGRANGE,
-                                          mtk::Interpolation_Order::LINEAR );
+    Interpolation_Rule tSideInterpIGRule(
+            tSideGeoTypeIG,
+            Interpolation_Type::LAGRANGE,
+            mtk::Interpolation_Order::LINEAR,
+            Interpolation_Type::LAGRANGE,
+            mtk::Interpolation_Order::LINEAR );
 
     // create a side space interpolation function
     Interpolation_Function_Base* tSideSpaceInterp = tSideInterpIGRule.create_space_interpolation_function();
 
     // create a integration rule for the side
-    Integration_Rule tSideIntegRule( tSideGeoTypeIG,
-                                     Integration_Type::GAUSS,
-                                     Integration_Order::BAR_3,
-                                     Integration_Type::GAUSS,
-                                     Integration_Order::BAR_3 );
+    Integration_Rule tSideIntegRule(
+            tSideGeoTypeIG,
+            Integration_Type::GAUSS,
+            Integration_Order::BAR_3,
+            Integration_Type::GAUSS,
+            Integration_Order::BAR_3 );
 
     // create a side integrator
     Integrator tSideIntegrator( tSideIntegRule );
 
     // get number of integration points, integration points and weights
-    uint             tNumOfIntegPoints = tSideIntegrator.get_number_of_points();
+    uint tNumOfIntegPoints = tSideIntegrator.get_number_of_points();
     Matrix< DDRMat > tIntegPoints;
     tSideIntegrator.get_points( tIntegPoints );
     Matrix< DDRMat > tIntegWeights;
@@ -358,13 +330,13 @@ TEST_CASE( "Interpolation mesh TRI3 - Integration mesh TRI3 ", "[moris],[fem],[I
             Matrix< DDRMat > tRefIntegPointI( 4, 1, 0.0 );
             switch ( tSideOrdinal )
             {
-                case ( 0 ):
+                case 0 :
                     tRefIntegPointI = { {1.0 + (-1.0 -tIntegPointI( 0 ))/2.0}, {-(-1.0 -tIntegPointI( 0 ))/2.0}, {0.0}, {tIntegPointI( 1 )} };
                     break;
-                case ( 1 ):
+                case 1 :
                     tRefIntegPointI = { {0.0}, {1.0 + (-1.0 -tIntegPointI( 0 ))/2.0}, {-(-1.0 -tIntegPointI( 0 ))/2.0}, {tIntegPointI( 1 )} };
                     break;
-                case ( 2 ):
+                case 2 :
                     tRefIntegPointI = { {-(-1.0 -tIntegPointI( 0 ))/2.0}, {0.0}, {1.0 + (-1.0 -tIntegPointI( 0 ))/2.0}, {tIntegPointI( 1 )} };
                     break;
                 default:
@@ -409,7 +381,8 @@ TEST_CASE( "Interpolation mesh TRI3 - Integration mesh TRI3 ", "[moris],[fem],[I
     delete tSideSpaceInterp;
 }
 
-TEST_CASE( "Interpolation mesh TET4 - Integration mesh TET4 ", "[moris],[fem],[IntegMeshTET4]" )
+TEST_CASE( "Interpolation mesh TET4 - Integration mesh TET4 ",
+        "[moris],[fem],[IntegMeshTET4]" )
 {
     // define an epsilon environment
     real tEpsilon = 1E-12;
@@ -417,25 +390,27 @@ TEST_CASE( "Interpolation mesh TET4 - Integration mesh TET4 ", "[moris],[fem],[I
     // define an interpolation mesh
     //------------------------------------------------------------------------------
     // define a HEX8 space element, i.e. space coordinates xHat
-    Matrix< DDRMat > tXHatIP = {{ 0.0, 0.0, 0.0 },
-                                { 1.0, 0.0, 0.0 },
-                                { 0.0, 1.0, 0.0 },
-                                { 0.0, 0.0, 1.0 }};
+    Matrix< DDRMat > tXHatIP = {
+            { 0.0, 0.0, 0.0 },
+            { 1.0, 0.0, 0.0 },
+            { 0.0, 1.0, 0.0 },
+            { 0.0, 0.0, 1.0 }};
 
     // define a line time element, i.e. time coordinates tHat
     Matrix< DDRMat > tTHatIP = {{ 0.0 },
-                                { 1.0 },
-                                { 0.5 }};
+            { 1.0 },
+            { 0.5 }};
 
     // create a space and time geometry interpolation rule
-    Interpolation_Rule tGeoInterpIPRule( mtk::Geometry_Type::TET,
-                                         Interpolation_Type::LAGRANGE,
-                                         mtk::Interpolation_Order::LINEAR,
-                                         Interpolation_Type::LAGRANGE,
-                                         mtk::Interpolation_Order::QUADRATIC );
+    Interpolation_Rule tGeoInterpIPRule(
+            mtk::Geometry_Type::TET,
+            Interpolation_Type::LAGRANGE,
+            mtk::Interpolation_Order::LINEAR,
+            Interpolation_Type::LAGRANGE,
+            mtk::Interpolation_Order::QUADRATIC );
 
     // create a space and time geometry interpolator
-    Geometry_Interpolator tGeoInterpIP( tGeoInterpIPRule, true );
+    Geometry_Interpolator tGeoInterpIP( tGeoInterpIPRule );
 
     //set the coefficients xHat, tHat
     tGeoInterpIP.set_space_coeff( tXHatIP );
@@ -448,56 +423,45 @@ TEST_CASE( "Interpolation mesh TET4 - Integration mesh TET4 ", "[moris],[fem],[I
     mtk::Geometry_Type tSideGeoTypeIG = mtk::Geometry_Type::TRI;
 
     // define a TET4 integration element, i.e. space param coordinates xiHat
-    Matrix< DDRMat > tXiHatIG = {{ 1.0, 0.0, 0.0, 0.0 },
-                                 { 0.0, 1.0, 0.0, 0.0 },
-                                 { 0.0, 0.0, 1.0, 0.0 },
-                                 { 0.0, 0.0, 0.0, 1.0 } };
+    Matrix< DDRMat > tXiHatIG = {
+            { 1.0, 0.0, 0.0, 0.0 },
+            { 0.0, 1.0, 0.0, 0.0 },
+            { 0.0, 0.0, 1.0, 0.0 },
+            { 0.0, 0.0, 0.0, 1.0 } };
 
     // the HEX8 integration element in space physical coordinates xHat
-    Matrix< DDRMat > tXHatIG = {{ 0.0, 0.0, 0.0 },
-                                { 1.0, 0.0, 0.0 },
-                                { 0.0, 1.0, 0.0 },
-                                { 0.0, 0.0, 1.0 }};
+    Matrix< DDRMat > tXHatIG = {
+            { 0.0, 0.0, 0.0 },
+            { 1.0, 0.0, 0.0 },
+            { 0.0, 1.0, 0.0 },
+            { 0.0, 0.0, 1.0 }};
 
-    Matrix< DDRMat > tTHatIG = {{ 0.0 },
-                                { 1.0 }};
-
-    // integration mesh interpolation rule
-    Interpolation_Rule tGeoInterpIGRule( tGeoTypeIG,
-                                         Interpolation_Type::LAGRANGE,
-                                         mtk::Interpolation_Order::LINEAR,
-                                         Interpolation_Type::LAGRANGE,
-                                         mtk::Interpolation_Order::LINEAR );
-
-    // create a space and time geometry interpolator fot the integration element
-    Geometry_Interpolator tGeoInterpIG( tGeoInterpIGRule, true );
-
-    //set the coefficients xHat, tHat
-    tGeoInterpIG.set_space_coeff( tXHatIG );
-    tGeoInterpIG.set_time_coeff(  tTHatIG );
+    Matrix< DDRMat > tTHatIG = {{ 0.0 },{ 1.0 }};
 
     // interpolation rule for the side
-    Interpolation_Rule tSideInterpIGRule( tSideGeoTypeIG,
-                                          Interpolation_Type::LAGRANGE,
-                                          mtk::Interpolation_Order::LINEAR,
-                                          Interpolation_Type::LAGRANGE,
-                                          mtk::Interpolation_Order::LINEAR );
+    Interpolation_Rule tSideInterpIGRule(
+            tSideGeoTypeIG,
+            Interpolation_Type::LAGRANGE,
+            mtk::Interpolation_Order::LINEAR,
+            Interpolation_Type::LAGRANGE,
+            mtk::Interpolation_Order::LINEAR );
 
     // create a side space interpolation function
     Interpolation_Function_Base* tSideSpaceInterp = tSideInterpIGRule.create_space_interpolation_function();
 
     // create a integration rule
-    Integration_Rule tSideIntegRule( tSideGeoTypeIG,
-                                     Integration_Type::GAUSS,
-                                     Integration_Order::TRI_3,
-                                     Integration_Type::GAUSS,
-                                     Integration_Order::BAR_3 );
+    Integration_Rule tSideIntegRule(
+            tSideGeoTypeIG,
+            Integration_Type::GAUSS,
+            Integration_Order::TRI_3,
+            Integration_Type::GAUSS,
+            Integration_Order::BAR_3 );
 
     // create a side integrator
     Integrator tSideIntegrator( tSideIntegRule );
 
     //get number of integration points, integration points and weights
-    uint             tNumOfIntegPoints = tSideIntegrator.get_number_of_points();
+    uint tNumOfIntegPoints = tSideIntegrator.get_number_of_points();
     Matrix< DDRMat > tIntegPoints;
     tSideIntegrator.get_points( tIntegPoints );
     Matrix< DDRMat > tIntegWeights;
@@ -560,16 +524,16 @@ TEST_CASE( "Interpolation mesh TET4 - Integration mesh TET4 ", "[moris],[fem],[I
             Matrix< DDRMat > tRefIntegPointI( 5, 1, 0.0 );
             switch ( tSideOrdinal )
             {
-                case ( 0 ):
+                case 0 :
                     tRefIntegPointI = { {tIntegPointI( 0 )}, {tIntegPointI( 1 )}, {0.0}, {tIntegPointI( 2 )}, {tIntegPointI( 3 )} };
                     break;
-                case ( 1 ):
+                case 1 :
                     tRefIntegPointI = { {0.0}, {tIntegPointI( 0 )}, {tIntegPointI( 1 )}, {tIntegPointI( 2 )}, {tIntegPointI( 3 )} };
                     break;
-                case ( 2 ):
+                case 2 :
                     tRefIntegPointI = { {tIntegPointI( 0 )}, {0.0}, {tIntegPointI( 2 )}, {tIntegPointI( 1 )}, {tIntegPointI( 3 )} };
                     break;
-                case ( 3 ):
+                case 3 :
                     tRefIntegPointI = { {tIntegPointI( 0 )}, {tIntegPointI( 2 )}, {tIntegPointI( 1 )}, {0.0}, {tIntegPointI( 3 )} };
                     break;
                 default:
@@ -614,7 +578,8 @@ TEST_CASE( "Interpolation mesh TET4 - Integration mesh TET4 ", "[moris],[fem],[I
     delete tSideSpaceInterp;
 }
 
-TEST_CASE( "Interpolation mesh HEX8 - Integration mesh HEX8 ", "[moris],[fem],[IntegMeshHEX8]" )
+TEST_CASE( "Interpolation mesh HEX8 - Integration mesh HEX8 ",
+        "[moris],[fem],[IntegMeshHEX8]" )
 {
     // define an epsilon environment
     real tEpsilon = 1E-12;
@@ -622,29 +587,29 @@ TEST_CASE( "Interpolation mesh HEX8 - Integration mesh HEX8 ", "[moris],[fem],[I
     // define an interpolation mesh
     //------------------------------------------------------------------------------
     // define a HEX8 space element, i.e. space coordinates xHat
-    Matrix< DDRMat > tXHatIP = {{ 0.0, 0.0, 0.0 },
-                                { 1.0, 0.0, 0.0 },
-                                { 1.0, 1.0, 0.0 },
-                                { 0.0, 1.0, 0.0 },
-                                { 0.0, 0.0, 1.0 },
-                                { 1.0, 0.0, 1.0 },
-                                { 1.0, 1.0, 1.0 },
-                                { 0.0, 1.0, 1.0 }};
+    Matrix< DDRMat > tXHatIP = {
+            { 0.0, 0.0, 0.0 },
+            { 1.0, 0.0, 0.0 },
+            { 1.0, 1.0, 0.0 },
+            { 0.0, 1.0, 0.0 },
+            { 0.0, 0.0, 1.0 },
+            { 1.0, 0.0, 1.0 },
+            { 1.0, 1.0, 1.0 },
+            { 0.0, 1.0, 1.0 }};
 
     // define a line time element, i.e. time coordinates tHat
-    Matrix< DDRMat > tTHatIP = {{ 0.0 },
-                                { 1.0 },
-                                { 0.5 }};
+    Matrix< DDRMat > tTHatIP = {{ 0.0 },{ 1.0 },{ 0.5 }};
 
     // create a space and time geometry interpolation rule
-    Interpolation_Rule tGeoInterpIPRule( mtk::Geometry_Type::HEX,
-                                         Interpolation_Type::LAGRANGE,
-                                         mtk::Interpolation_Order::LINEAR,
-                                         Interpolation_Type::LAGRANGE,
-                                         mtk::Interpolation_Order::QUADRATIC );
+    Interpolation_Rule tGeoInterpIPRule(
+            mtk::Geometry_Type::HEX,
+            Interpolation_Type::LAGRANGE,
+            mtk::Interpolation_Order::LINEAR,
+            Interpolation_Type::LAGRANGE,
+            mtk::Interpolation_Order::QUADRATIC );
 
     // create a space and time geometry interpolator
-    Geometry_Interpolator tGeoInterpIP( tGeoInterpIPRule, true );
+    Geometry_Interpolator tGeoInterpIP( tGeoInterpIPRule );
 
     //set the coefficients xHat, tHat
     tGeoInterpIP.set_space_coeff( tXHatIP );
@@ -657,64 +622,54 @@ TEST_CASE( "Interpolation mesh HEX8 - Integration mesh HEX8 ", "[moris],[fem],[I
     mtk::Geometry_Type tSideGeoTypeIG = mtk::Geometry_Type::QUAD;
 
     // define a HEX8 integration element, i.e. space param coordinates xiHat
-    Matrix< DDRMat > tXiHatIG = {{ -1.0, -1.0, -1.0 },
-                                 {  1.0, -1.0, -1.0 },
-                                 {  1.0,  1.0, -1.0 },
-                                 { -1.0,  1.0, -1.0 },
-                                 { -1.0, -1.0,  1.0 },
-                                 {  1.0, -1.0,  1.0 },
-                                 {  1.0,  1.0,  1.0 },
-                                 { -1.0,  1.0,  1.0 }};
+    Matrix< DDRMat > tXiHatIG = {
+            { -1.0, -1.0, -1.0 },
+            {  1.0, -1.0, -1.0 },
+            {  1.0,  1.0, -1.0 },
+            { -1.0,  1.0, -1.0 },
+            { -1.0, -1.0,  1.0 },
+            {  1.0, -1.0,  1.0 },
+            {  1.0,  1.0,  1.0 },
+            { -1.0,  1.0,  1.0 }};
 
     // the HEX8 integration element in space physical coordinates xHat
-    Matrix< DDRMat > tXHatIG = {{ 0.0, 0.0, 0.0 },
-                                { 1.0, 0.0, 0.0 },
-                                { 1.0, 1.0, 0.0 },
-                                { 0.0, 1.0, 0.0 },
-                                { 0.0, 0.0, 1.0 },
-                                { 1.0, 0.0, 1.0 },
-                                { 1.0, 1.0, 1.0 },
-                                { 0.0, 1.0, 1.0 }};
+    Matrix< DDRMat > tXHatIG = {
+            { 0.0, 0.0, 0.0 },
+            { 1.0, 0.0, 0.0 },
+            { 1.0, 1.0, 0.0 },
+            { 0.0, 1.0, 0.0 },
+            { 0.0, 0.0, 1.0 },
+            { 1.0, 0.0, 1.0 },
+            { 1.0, 1.0, 1.0 },
+            { 0.0, 1.0, 1.0 }};
 
-    Matrix< DDRMat > tTHatIG = {{ 0.0 },
-                                { 1.0 }};
-
-    // integration mesh interpolation rule
-    Interpolation_Rule tGeoInterpIGRule( tGeoTypeIG,
-                                         Interpolation_Type::LAGRANGE,
-                                         mtk::Interpolation_Order::LINEAR,
-                                         Interpolation_Type::LAGRANGE,
-                                         mtk::Interpolation_Order::LINEAR );
-
-    // create a space and time geometry interpolator fot the integration element
-    Geometry_Interpolator tGeoInterpIG( tGeoInterpIGRule, true );
-
-    //set the coefficients xHat, tHat
-    tGeoInterpIG.set_space_coeff( tXHatIG );
-    tGeoInterpIG.set_time_coeff(  tTHatIG );
+    Matrix< DDRMat > tTHatIG = {{ 0.0 },{ 1.0 }};
 
     // interpolation rule for the side
-    Interpolation_Rule tSideInterpIGRule( tSideGeoTypeIG,
-                                          Interpolation_Type::LAGRANGE,
-                                          mtk::Interpolation_Order::LINEAR,
-                                          Interpolation_Type::LAGRANGE,
-                                          mtk::Interpolation_Order::LINEAR );
+    Interpolation_Rule tSideInterpIGRule(
+            tSideGeoTypeIG,
+            Interpolation_Type::LAGRANGE,
+            mtk::Interpolation_Order::LINEAR,
+            Interpolation_Type::LAGRANGE,
+            mtk::Interpolation_Order::LINEAR );
 
     // create a side space interpolation function
-    Interpolation_Function_Base* tSideSpaceInterp = tSideInterpIGRule.create_space_interpolation_function();
+    Interpolation_Function_Base* tSideSpaceInterp =
+            tSideInterpIGRule.create_space_interpolation_function();
 
     // create a integration rule
-    Integration_Rule tSideIntegRule( tSideGeoTypeIG,
-                                     Integration_Type::GAUSS,
-                                     Integration_Order::QUAD_2x2,
-                                     Integration_Type::GAUSS,
-                                     Integration_Order::BAR_1 );
+    Integration_Rule tSideIntegRule(
+            tSideGeoTypeIG,
+            Integration_Type::GAUSS,
+            Integration_Order::QUAD_2x2,
+            Integration_Type::GAUSS,
+            Integration_Order::BAR_1 );
 
     // create a side integrator
     Integrator tSideIntegrator( tSideIntegRule );
 
     //get number of integration points, integration points and weights
-    uint             tNumOfIntegPoints = tSideIntegrator.get_number_of_points();
+    uint tNumOfIntegPoints = tSideIntegrator.get_number_of_points();
     Matrix< DDRMat > tIntegPoints;
     tSideIntegrator.get_points( tIntegPoints );
     Matrix< DDRMat > tIntegWeights;
@@ -735,8 +690,8 @@ TEST_CASE( "Interpolation mesh HEX8 - Integration mesh HEX8 ", "[moris],[fem],[I
 
         // get the node ids associated to the side ordinal
         Matrix< DDSMat > tElementNodes = { { 0, 1, 5, 4 }, { 1, 2, 6, 5 },
-                                           { 2, 3, 7, 6 }, { 0, 4, 7, 3 },
-                                           { 0, 3, 2, 1 }, { 4, 5, 6, 7 } };
+                { 2, 3, 7, 6 }, { 0, 4, 7, 3 },
+                { 0, 3, 2, 1 }, { 4, 5, 6, 7 } };
         Matrix< DDSMat > tSideNodes = tElementNodes.get_row( tSideOrdinal );
 
         // phys coords
@@ -779,22 +734,22 @@ TEST_CASE( "Interpolation mesh HEX8 - Integration mesh HEX8 ", "[moris],[fem],[I
             Matrix< DDRMat > tRefIntegPointI( 4, 1, 0.0 );
             switch ( tSideOrdinal )
             {
-                case ( 0 ):
+                case 0 :
                     tRefIntegPointI = { {tIntegPointI( 0 )}, {-1.0},  {tIntegPointI( 1 )}, {tIntegPointI( 2 )} };
                     break;
-                case ( 1 ):
+                case 1 :
                     tRefIntegPointI = { {1.0}, {tIntegPointI( 0 )}, {tIntegPointI( 1 )}, {tIntegPointI( 2 )} };
                     break;
-                case ( 2 ):
+                case 2 :
                     tRefIntegPointI = { {-tIntegPointI( 0 )}, {1.0}, {tIntegPointI( 1 )}, {tIntegPointI( 2 )} };
                     break;
-                case ( 3 ):
+                case 3 :
                     tRefIntegPointI = { {-1.0}, {tIntegPointI( 1 )}, {tIntegPointI( 0 )}, {tIntegPointI( 2 )} };
                     break;
-                case ( 4 ):
+                case 4 :
                     tRefIntegPointI = { {tIntegPointI( 1 )}, {tIntegPointI( 0 )}, {-1.0}, {tIntegPointI( 2 )} };
                     break;
-                case ( 5 ):
+                case 5 :
                     tRefIntegPointI = { {tIntegPointI( 0 )}, {tIntegPointI( 1 )}, {1.0}, {tIntegPointI( 2 )} };
                     break;
                 default:

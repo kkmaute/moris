@@ -227,7 +227,7 @@ namespace moris
                     "Field_Interpolator_Manager::create_geometry_interpolators - geometry interpolators already initialized");
 
             // create a geometry interpolator for IP cells
-            mIPGeometryInterpolator = new Geometry_Interpolator( tIPGeometryInterpolationRule, tIsSide, tIsTimeSide );
+            mIPGeometryInterpolator = new Geometry_Interpolator( tIPGeometryInterpolationRule, false, false );
 
             // create a geometry interpolator for IG cells
             mIGGeometryInterpolator = new Geometry_Interpolator( tIGGeometryInterpolationRule, tIsSide, tIsTimeSide );
