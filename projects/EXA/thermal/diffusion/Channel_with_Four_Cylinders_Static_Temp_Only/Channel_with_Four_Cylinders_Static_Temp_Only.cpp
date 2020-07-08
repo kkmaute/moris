@@ -20,6 +20,8 @@
 
 #include "AztecOO.h"
 
+extern uint gInterpolationOrder;
+
 #ifdef  __cplusplus
 extern "C"
 {
@@ -168,30 +170,28 @@ namespace moris
 
         tParameterlist( 0 )( 0 ) = prm::create_hmr_parameter_list();
 
-        tParameterlist( 0 )( 0 ).set( "number_of_elements_per_dimension", std::string("22,11"));
+        tParameterlist( 0 )( 0 ).set( "number_of_elements_per_dimension", std::string("176,88"));
         tParameterlist( 0 )( 0 ).set( "domain_dimensions",                std::string("4,2"));
         tParameterlist( 0 )( 0 ).set( "domain_offset",                    std::string("-1.24,-0.86"));
         tParameterlist( 0 )( 0 ).set( "domain_sidesets",                  std::string("1,2,3,4"));
         tParameterlist( 0 )( 0 ).set( "lagrange_output_meshes",           std::string("0"));
 
-        tParameterlist( 0 )( 0 ).set( "lagrange_orders",  std::string("1" ));
+        tParameterlist( 0 )( 0 ).set( "lagrange_orders",  std::to_string(gInterpolationOrder));
         tParameterlist( 0 )( 0 ).set( "lagrange_pattern", std::string("0" ));
-        tParameterlist( 0 )( 0 ).set( "bspline_orders",   std::string("1" ));
+        tParameterlist( 0 )( 0 ).set( "bspline_orders",   std::to_string(gInterpolationOrder));
         tParameterlist( 0 )( 0 ).set( "bspline_pattern",  std::string("0" ));
 
         tParameterlist( 0 )( 0 ).set( "lagrange_to_bspline", std::string("0") );
 
         tParameterlist( 0 )( 0 ).set( "truncate_bsplines",  1 );
-        tParameterlist( 0 )( 0 ).set( "refinement_buffer",  0 );
-        tParameterlist( 0 )( 0 ).set( "staircase_buffer",   0 );
-        tParameterlist( 0 )( 0 ).set( "initial_refinement", 2 ); //4
+        tParameterlist( 0 )( 0 ).set( "refinement_buffer",  1 );
+        tParameterlist( 0 )( 0 ).set( "staircase_buffer",   1 );
+        tParameterlist( 0 )( 0 ).set( "initial_refinement", 0 );
 
         tParameterlist( 0 )( 0 ).set( "use_number_aura",    1 );
 
         tParameterlist( 0 )( 0 ).set( "use_multigrid",  0 );
         tParameterlist( 0 )( 0 ).set( "severity_level", 0 );
-
-        tParameterlist( 0 )( 0 ).set( "adaptive_refinement_level", 1 );
     }
 
     void XTKParameterList( moris::Cell< moris::Cell< ParameterList > > & tParameterlist )
@@ -224,28 +224,35 @@ namespace moris
         // Geometry parameter lists
         tParameterlist( 1 )( 0 ) = prm::create_user_defined_geometry_parameter_list();
         tParameterlist( 1 )( 0 ).set( "field_function_name", "Func_Bottom_Plane");
+        tParameterlist( 1 )( 0 ).set( "number_of_refinements", 1);
 
         tParameterlist( 1 )( 1 ) = prm::create_user_defined_geometry_parameter_list();
         tParameterlist( 1 )( 1 ).set( "field_function_name", "Func_Top_Plane");
+        tParameterlist( 1 )( 1 ).set( "number_of_refinements", 1);
 
         tParameterlist( 1 )( 2 ) = prm::create_user_defined_geometry_parameter_list();
         tParameterlist( 1 )( 2 ).set( "field_function_name", "Func_Left_Plane");
+        tParameterlist( 1 )( 2 ).set( "number_of_refinements", 0);
 
         tParameterlist( 1 )( 3 ) = prm::create_user_defined_geometry_parameter_list();
         tParameterlist( 1 )( 3 ).set( "field_function_name", "Func_Right_Plane");
+        tParameterlist( 1 )( 3 ).set( "number_of_refinements", 0);
 
         tParameterlist( 1 )( 4 ) = prm::create_user_defined_geometry_parameter_list();
         tParameterlist( 1 )( 4 ).set( "field_function_name", "Func_Cylinder");
+        tParameterlist( 1 )( 4 ).set( "number_of_refinements", 1);
 
         tParameterlist( 1 )( 5 ) = prm::create_user_defined_geometry_parameter_list();
         tParameterlist( 1 )( 5 ).set( "field_function_name", "Func_Cylinder2");
+        tParameterlist( 1 )( 5 ).set( "number_of_refinements", 1);
 
         tParameterlist( 1 )( 6 ) = prm::create_user_defined_geometry_parameter_list();
         tParameterlist( 1 )( 6 ).set( "field_function_name", "Func_Cylinder3");
+        tParameterlist( 1 )( 6 ).set( "number_of_refinements", 1);
 
         tParameterlist( 1 )( 7 ) = prm::create_user_defined_geometry_parameter_list();
         tParameterlist( 1 )( 7 ).set( "field_function_name", "Func_Cylinder4");
-
+        tParameterlist( 1 )( 7 ).set( "number_of_refinements", 1);
     }
 
     void FEMParameterList( moris::Cell< moris::Cell< ParameterList > > & tParameterList )
