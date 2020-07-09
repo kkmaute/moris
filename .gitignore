@@ -8,9 +8,13 @@ LDLIBS.txt
 # Only commit the source code
 *build*/
 build/
+build_dbg/
+build_opt/
+
 # no build links either
 *build*@
 build@
+
 # created if built in wrong directory
 CMakeCache.txt
 
@@ -22,7 +26,6 @@ CMakeCache.txt
 *.hdf5
 *.h5
 *.e
-*.txt
 
 # Used by individual developers
 #mains/
