@@ -321,8 +321,9 @@ namespace moris
             moris::Cell<std::string> tGlobalVariableNames(2);
             tGlobalVariableNames(0) = "mass";
             tGlobalVariableNames(1) = "time";
-            moris::real tMass = 99;
-            moris::real tTime = 1;
+            moris::Matrix<DDRMat> tGlobalVariableValues(2,1);
+            tGlobalVariableValues(0) = 99;
+            tGlobalVariableValues(1) = 1;
 
             // Write the fields
             writer.set_nodal_fields(tNodalFieldNames);
@@ -334,8 +335,7 @@ namespace moris
             writer.write_nodal_field("uz", zField);
             writer.write_elemental_field("Omega_0_tets", "pressure", tetField);
             writer.write_elemental_field("Omega_0_hex", "pressure", hexField);
-            writer.write_global_variable("mass", tMass);
-            writer.write_global_variable("time", tTime);
+            writer.write_global_variables(tGlobalVariableNames, tGlobalVariableValues);
             writer.close_file();
 
             delete tIntegMeshData;
