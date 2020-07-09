@@ -1,5 +1,5 @@
-set(EXAMPLE_MAIN Main_<Example Name>)
-set(EXAMPLE_FILE <Example Name>)
+set(EXAMPLE_MAIN Main_Couette_Flow_Static)
+set(EXAMPLE_FILE Couette_Flow_Static)
 set(EXAMPLE_PROCS 1 2)
 
 # List source files
@@ -44,7 +44,6 @@ add_executable(${EXAMPLE_MAIN} ${EXAMPLE_SOURCES})
 target_link_libraries(${EXAMPLE_MAIN} PRIVATE ${EXAMPLE_DEPENDENCIES})
 set_target_properties(${EXAMPLE_MAIN} PROPERTIES OUTPUT_NAME ${EXAMPLE_MAIN}${EXE_EXT})
 
-# create dynamically linked .so files
 set(SO_TPLS
 "trilinos"
 ${ARMADILLO_EIGEN}
@@ -86,6 +85,7 @@ foreach(TPL ${SO_TPLS})
     list(APPEND SO_INCLUDES ${MORIS_${TPL}_INCLUDE_DIRS})
 endforeach()
 
+# create dynamically linked .so files
 dynamic_link_input(${EXAMPLE_FILE} ${EXAMPLE_FILE} ${EXAMPLE_FILE}.cpp ${SO_INCLUDES})
 
 # Add parallel tests
