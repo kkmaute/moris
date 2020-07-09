@@ -8,7 +8,8 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        Pdv_Host_Manager::Pdv_Host_Manager()
+        Pdv_Host_Manager::Pdv_Host_Manager(uint aNumADVs)
+        : mNumADVs(aNumADVs)
         {
         }
 
@@ -60,9 +61,9 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        void Pdv_Host_Manager::get_ip_pdv_value(const Matrix<IndexMat>&   aNodeIndices,
-                                                const Cell<PDV_Type>&       aPdvTypes,
-                                                Cell<Matrix<DDRMat>>&     aDvValues)
+        void Pdv_Host_Manager::get_ip_pdv_value(const Matrix<IndexMat>& aNodeIndices,
+                                                const Cell<PDV_Type>&   aPdvTypes,
+                                                Cell<Matrix<DDRMat>>&   aDvValues)
         {
             // get the number of node indices requested
             uint tNumIndices = aNodeIndices.length();
@@ -87,10 +88,10 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        void Pdv_Host_Manager::get_ip_pdv_value(const Matrix<IndexMat>&   aNodeIndices,
-                                                const Cell<PDV_Type>&       aPdvTypes,
-                                                Cell<Matrix<DDRMat>>&     aDvValues,
-                                                Cell<Matrix<DDSMat>>&     aIsActiveDv)
+        void Pdv_Host_Manager::get_ip_pdv_value(const Matrix<IndexMat>& aNodeIndices,
+                                                const Cell<PDV_Type>&   aPdvTypes,
+                                                Cell<Matrix<DDRMat>>&   aDvValues,
+                                                Cell<Matrix<DDSMat>>&   aIsActiveDv)
         {
             // get the number of node indices requested
             uint tNumIndices = aNodeIndices.length();
@@ -121,9 +122,9 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        void Pdv_Host_Manager::get_ig_pdv_value(const Matrix<IndexMat>&   aNodeIndices,
-                                                const Cell<PDV_Type>&       aPdvTypes,
-                                                Cell<Matrix<DDRMat>>&     aDvValues)
+        void Pdv_Host_Manager::get_ig_pdv_value(const Matrix<IndexMat>& aNodeIndices,
+                                                const Cell<PDV_Type>&   aPdvTypes,
+                                                Cell<Matrix<DDRMat>>&   aDvValues)
         {
             // get the number of node indices requested
             uint tNumIndices = aNodeIndices.length();
@@ -140,18 +141,22 @@ namespace moris
                 // loop over the requested dv types
                 for (uint iType = 0; iType < tNumTypes; iType++)
                 {
-                    aDvValues(iType).resize(tNumIndices, 1);
-                    aDvValues(iType)(iInd) = mIgPdvHosts(aNodeIndices(iInd))->get_pdv_value(aPdvTypes(iType));
+                    if (mIntersectionNodes(aNodeIndices(iInd)))
+                    {
+                        aDvValues(iType).resize(tNumIndices, 1);
+                        aDvValues(iType)(iInd) =
+                                mIntersectionNodes(aNodeIndices(iInd))->get_coordinate_value(static_cast<uint>(aPdvTypes(iType)));
+                    }
                 }
             }
         }
 
         //--------------------------------------------------------------------------------------------------------------
 
-        void Pdv_Host_Manager::get_ig_pdv_value(const Matrix<IndexMat> & aNodeIndices,
-                                                const Cell<PDV_Type>   & aPdvTypes,
-                                                Cell<Matrix<DDRMat>>   & aDvValues,
-                                                Cell<Matrix<DDSMat>>   & aIsActiveDv )
+        void Pdv_Host_Manager::get_ig_pdv_value(const Matrix<IndexMat>& aNodeIndices,
+                                                const Cell<PDV_Type>&   aPdvTypes,
+                                                Cell<Matrix<DDRMat>>&   aDvValues,
+                                                Cell<Matrix<DDSMat>>&   aIsActiveDv )
         {
             // get the number of node indices requested
             uint tNumIndices = aNodeIndices.numel();
@@ -159,23 +164,23 @@ namespace moris
             // get the number of dv types requested
             uint tNumTypes = aPdvTypes.size();
 
-            // set size for list of dv values
-            //aDvValues.resize( tNumTypes );
-
             // set size for list of active flags
-            aIsActiveDv.resize( tNumTypes );
+            aIsActiveDv.resize(tNumTypes);
 
             // loop over the requested dv types
             for ( uint iType = 0; iType < tNumTypes; iType++ )
             {
-                aIsActiveDv( iType ).resize( tNumIndices, 1 );
-                //aDvValues( iType ).resize( tNumTypes, 1 );
+                aIsActiveDv(iType).set_size(tNumIndices, 1);
 
                 // loop over the node indices
                 for ( uint iInd = 0; iInd < tNumIndices; iInd++ )
                 {
-                    aIsActiveDv( iType )( iInd ) = mIgPdvHosts( aNodeIndices( iInd ) )->is_active_type( aPdvTypes( iType ) );
-                    aDvValues( iType )( iInd )   = mIgPdvHosts( aNodeIndices( iInd ) )->get_pdv_value( aPdvTypes( iType ) );
+                    if (mIntersectionNodes(aNodeIndices(iInd)))
+                    {
+                        aIsActiveDv(iType)(iInd) = 1;
+                        aDvValues(iType)(iInd) =
+                                mIntersectionNodes(aNodeIndices(iInd))->get_coordinate_value(static_cast<uint>(aPdvTypes(iType)));
+                    }
                 }
             }
         }
@@ -189,9 +194,9 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        void Pdv_Host_Manager::get_ip_dv_ids_for_type_and_ind(const Matrix<IndexMat>&    aNodeIndices,
-                                                              const Cell<PDV_Type>&         aPdvTypes,
-                                                              Cell<Matrix<IdMat>>&        aDvIds)
+        void Pdv_Host_Manager::get_ip_dv_ids_for_type_and_ind(const Matrix<IndexMat>& aNodeIndices,
+                                                              const Cell<PDV_Type>&   aPdvTypes,
+                                                              Cell<Matrix<IdMat>>&    aDvIds)
         {
             // get the number of node indices requested
             uint tNumIndices = aNodeIndices.length();
@@ -216,9 +221,9 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        void Pdv_Host_Manager::get_ig_dv_ids_for_type_and_ind(const Matrix<IndexMat>&    aNodeIndices,
-                                                              const Cell<PDV_Type>&         aPdvTypes,
-                                                              Cell<Matrix<IdMat>>&        aDvIds)
+        void Pdv_Host_Manager::get_ig_dv_ids_for_type_and_ind(const Matrix<IndexMat>& aNodeIndices,
+                                                              const Cell<PDV_Type>&   aPdvTypes,
+                                                              Cell<Matrix<IdMat>>&    aDvIds)
         {
             // get the number of node indices requested
             uint tNumIndices = aNodeIndices.numel();
@@ -237,7 +242,7 @@ namespace moris
                 // loop over the node indices
                 for ( uint iInd = 0; iInd < tNumIndices; iInd++ )
                 {
-                    aDvIds( iType )( iInd ) = mIgPdvHosts( aNodeIndices( iInd ) )->get_global_index_for_pdv_type( aPdvTypes( iType ) );
+                    aDvIds(iType)(iInd) = mIntersectionNodes(aNodeIndices(iInd))->get_starting_pdv_index() + static_cast<uint>(aPdvTypes(iType));
                 }
             }
         }
@@ -258,9 +263,9 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        void Pdv_Host_Manager::create_ip_pdv_hosts(Cell<Matrix<DDSMat>>        aNodeIndicesPerSet,
-                                                   Cell<Matrix<DDRMat>>        aNodeCoordinates,
-                                                   Cell<Cell<Cell<PDV_Type>>>  aPdvTypes)
+        void Pdv_Host_Manager::create_ip_pdv_hosts(Cell<Matrix<DDSMat>>       aNodeIndicesPerSet,
+                                                   Cell<Matrix<DDRMat>>       aNodeCoordinates,
+                                                   Cell<Cell<Cell<PDV_Type>>> aPdvTypes)
         {
             // Check that number of sets is consistent
             uint tNumSets = aPdvTypes.size();
@@ -328,24 +333,20 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        void Pdv_Host_Manager::create_ig_pdv_hosts(Cell<Matrix<DDSMat>>        aNodeIndicesPerSet,
-                                                   Cell<Matrix<DDRMat>>        aNodeCoordinates,
-                                                   Cell<Cell<Cell<PDV_Type>>>  aPdvTypes,
-                                                   Cell<Intersection_Info>     aIntersectionInfo)
+        void Pdv_Host_Manager::create_ig_pdv_hosts(Cell<Cell<Cell<PDV_Type>>>               aPdvTypes,
+                                                   Cell<std::shared_ptr<Intersection_Node>> aIntersectionNodes)
         {
             // Check that number of sets is consistent
             uint tNumSets = aPdvTypes.size();
-            MORIS_ERROR(tNumSets == aNodeIndicesPerSet.size(),
-            "Information passed to Pdv_Host_Manager.create_ig_pdv_hosts() does not have a consistent number of sets!");
 
             // Set PDV types
             mIgPdvTypes = aPdvTypes;
             mUniqueIgPdvTypes.resize(tNumSets);
 
             // Initialize PDV hosts
-            mIgPdvHosts.resize(aNodeCoordinates.size(), nullptr);
+            mIntersectionNodes = aIntersectionNodes;
 
-            // Create PDV hosts
+            // Unique PDV types
             for (uint tMeshSetIndex = 0; tMeshSetIndex < tNumSets; tMeshSetIndex++)
             {
                 // Get number of unique PDVs
@@ -365,36 +366,30 @@ namespace moris
                         mUniqueIgPdvTypes(tMeshSetIndex)(tUniquePdvIndex++) = mIgPdvTypes(tMeshSetIndex)(tGroupIndex)(tPdvIndex);
                     }
                 }
-
-                // Create PDV hosts
-                for (uint tNodeIndexOnSet = 0; tNodeIndexOnSet < aNodeIndicesPerSet(tMeshSetIndex).length(); tNodeIndexOnSet++)
-                {
-                    // Create new host if not created already
-                    uint tNumAddedPdvs = tNumUniquePdvs;
-                    if (mIgPdvHosts(aNodeIndicesPerSet(tMeshSetIndex)(tNodeIndexOnSet)) == nullptr)
-                    {
-                        mIgPdvHosts(aNodeIndicesPerSet(tMeshSetIndex)(tNodeIndexOnSet))
-                        = std::make_shared<Integration_Pdv_Host>(aNodeIndicesPerSet(tMeshSetIndex)(tNodeIndexOnSet),
-                                                                 aNodeCoordinates(aNodeIndicesPerSet(tMeshSetIndex)(tNodeIndexOnSet)),
-                                                                 mGlobalPdvIndex);
-                        // Resize global map
-                        mGlobalPdvTypeMap.resize(mGlobalPdvTypeMap.length() + tNumAddedPdvs, 1);
-
-                        // Update global PDV indices
-                        for (uint tPdvIndex = 0; tPdvIndex < tNumAddedPdvs; tPdvIndex++)
-                        {
-                            mGlobalPdvTypeMap(mGlobalPdvIndex) = mGlobalPdvIndex;
-                            mGlobalPdvIndex++;
-                        }
-                    }
-                }
             }
 
-            // Set intersection info
-            for (uint tIntersectionIndex = 0; tIntersectionIndex < aIntersectionInfo.size(); tIntersectionIndex++)
+            // Assign PDV indices
+            for (uint tNodeIndex = 0; tNodeIndex < aIntersectionNodes.size(); tNodeIndex++)
             {
-                mIgPdvHosts(aIntersectionInfo(tIntersectionIndex).mNodeIndex)->set_as_intersection(
-                        this->convert_info_to_intersection(aIntersectionInfo(tIntersectionIndex)));
+                // Determine if node is intersection
+                if (mIntersectionNodes(tNodeIndex))
+                {
+                    // Number of PDVs being added FIXME may not be true in the future, check for this
+                    uint tNumAddedPdvs = aPdvTypes(0)(0).size();
+
+                    // Set global index
+                    mIntersectionNodes(tNodeIndex)->set_starting_pdv_index(mGlobalPdvIndex);
+
+                    // Resize global map
+                    mGlobalPdvTypeMap.resize(mGlobalPdvTypeMap.length() + tNumAddedPdvs, 1);
+
+                    // Update global index
+                    for (uint tPdvIndex = 0; tPdvIndex < tNumAddedPdvs; tPdvIndex++)
+                    {
+                        mGlobalPdvTypeMap(mGlobalPdvIndex) = mGlobalPdvIndex;
+                        mGlobalPdvIndex++;
+                    }
+                }
             }
         }
 
@@ -437,27 +432,8 @@ namespace moris
 
         Matrix<DDRMat> Pdv_Host_Manager::compute_dpdv_dadv()
         {
-            // Information from each host
-            Matrix<DDRMat> tTotalAdvSensitivities(0, 0);
-            Matrix<DDRMat> tTestSensitivities(0, 0);
-
-            // Need to know the size of the sensitivities
-            uint tFirstPdvHostIndex = 0;
-            if (mIpPdvHosts.size() > 0)
-            {
-                while (tFirstPdvHostIndex < mIpPdvHosts.size() && (tTestSensitivities.numel() == 0))
-                {
-                    mIpPdvHosts(tFirstPdvHostIndex++)->get_all_sensitivities(tTestSensitivities);
-                }
-            }
-            else if (mIgPdvHosts.size() > 0)
-            {
-                while (tFirstPdvHostIndex < mIgPdvHosts.size() && (tTestSensitivities.numel() == 0))
-                {
-                    mIgPdvHosts(tFirstPdvHostIndex++)->get_all_sensitivities(tTestSensitivities);
-                }
-            }
-            tTotalAdvSensitivities.resize(mGlobalPdvIndex, tTestSensitivities.n_cols());
+            // Total matrix dpdv/dadv
+            Matrix<DDRMat> tTotalAdvSensitivities(mGlobalPdvIndex, mNumADVs, 0.0);
 
             // Loop over PDV hosts
             for (uint tPdvHostIndex = 0; tPdvHostIndex < mIpPdvHosts.size(); tPdvHostIndex++)
@@ -473,42 +449,23 @@ namespace moris
                     tTotalAdvSensitivities.set_row(tHostPdvIndices(tRowIndex), tHostAdvSensitivities.get_row(tRowIndex));
                 }
             }
-            for (uint tPdvHostIndex = 0; tPdvHostIndex < mIgPdvHosts.size(); tPdvHostIndex++)
+            for (uint tIntersectionIndex = 0; tIntersectionIndex < mIntersectionNodes.size(); tIntersectionIndex++)
             {
-                // Get sensitivities
-                Matrix<DDRMat> tHostAdvSensitivities(0, 0);
-                mIgPdvHosts(tPdvHostIndex)->get_all_sensitivities(tHostAdvSensitivities);
-                uint tStartingGlobalIndex = mIgPdvHosts(tPdvHostIndex)->get_starting_global_index();
-
-                // Add to total matrix
-                for (uint tRowIndex = 0; tRowIndex < tHostAdvSensitivities.n_rows(); tRowIndex++)
+                if (mIntersectionNodes(tIntersectionIndex))
                 {
-                    tTotalAdvSensitivities.set_row(tStartingGlobalIndex + tRowIndex, tHostAdvSensitivities.get_row(tRowIndex));
+                    // Get sensitivities
+                    Matrix<DDRMat> tHostAdvSensitivities(0, 0);
+                    mIntersectionNodes(tIntersectionIndex)->get_all_sensitivities(tHostAdvSensitivities);
+                    uint tStartingGlobalIndex = mIntersectionNodes(tIntersectionIndex)->get_starting_pdv_index();
+
+                    // Add to total matrix
+                    for (uint tRowIndex = 0; tRowIndex < tHostAdvSensitivities.n_rows(); tRowIndex++)
+                    {
+                        tTotalAdvSensitivities.set_row(tStartingGlobalIndex + tRowIndex, tHostAdvSensitivities.get_row(tRowIndex));
+                    }
                 }
             }
             return tTotalAdvSensitivities;
         }
-
-        //--------------------------------------------------------------------------------------------------------------
-
-        std::shared_ptr<Intersection> Pdv_Host_Manager::convert_info_to_intersection(Intersection_Info aIntersectionInfo)
-        {
-            std::shared_ptr<Intersection> tIntersection = std::make_shared<Intersection>();
-
-            // Copy over geometry
-            tIntersection->mGeometry = aIntersectionInfo.mGeometry;
-
-            // Nodes
-            tIntersection->mNodes.resize(aIntersectionInfo.mParentNodeIndices.length());
-            for (uint tNodeIndex = 0; tNodeIndex < aIntersectionInfo.mParentNodeIndices.length(); tNodeIndex++)
-            {
-                tIntersection->mNodes(tNodeIndex) = mIgPdvHosts(aIntersectionInfo.mParentNodeIndices(tNodeIndex));
-            }
-
-            return tIntersection;
-        }
-
-        //--------------------------------------------------------------------------------------------------------------
-
     }
 }

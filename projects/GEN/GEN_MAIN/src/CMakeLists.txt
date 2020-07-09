@@ -34,11 +34,10 @@ set(HEADERS
 
 	pdv/cl_GEN_Pdv_Host_Manager.hpp
 	pdv/cl_GEN_Interpolation_Pdv_Host.hpp
-	pdv/cl_GEN_Integration_Pdv_Host.cpp
 	pdv/cl_GEN_Pdv.hpp
 	pdv/cl_GEN_Pdv_Value.hpp
 	pdv/cl_GEN_Pdv_Property.hpp
-	pdv/cl_GEN_Pdv_Intersection.hpp
+	pdv/cl_GEN_Intersection_Node.hpp
 
 	geometry/cl_GEN_Geometry.hpp
 	geometry/cl_GEN_Circle.hpp
@@ -110,11 +109,10 @@ set(LIB_SOURCES
 
 	pdv/cl_GEN_Pdv_Host_Manager.cpp
 	pdv/cl_GEN_Interpolation_Pdv_Host.cpp
-	pdv/cl_GEN_Integration_Pdv_Host.cpp
 	pdv/cl_GEN_Pdv.cpp
 	pdv/cl_GEN_Pdv_Value.cpp
 	pdv/cl_GEN_Pdv_Property.cpp
-	pdv/cl_GEN_Pdv_Intersection.cpp
+	pdv/cl_GEN_Intersection_Node.cpp
 
 	geometry/cl_GEN_Geometry.cpp
 	geometry/cl_GEN_Circle.cpp

@@ -623,12 +623,12 @@ endif()
 
 if(BUILD_MAIN)
     include(${MORIS_DEPENDS_DIR}/main_includes.cmake)
+else()
+    set(MORIS_USE_EXAMPLES OFF CACHE BOOL "Build the examples." FORCE)
 endif()
 
 if(BUILD_ALL)
     include(${MORIS_CMAKE_DIR}/utilities/build_all_exe.cmake)
-else()
-    set(MORIS_USE_EXAMPLES OFF CACHE BOOL "Build the examples." FORCE)
 endif()
 
 if(BUILD_NONE)

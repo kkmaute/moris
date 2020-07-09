@@ -160,7 +160,7 @@ namespace xtk
              * Compute sensitivity. Must be called after decompose.
              */
             void
-            compute_sensitivity();
+            communicate_interface_nodes();
 
             /*!
              * Perform generalized heaviside  enrichment.

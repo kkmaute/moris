@@ -11,8 +11,8 @@ namespace moris
 {
     namespace fem
     {
-
         //------------------------------------------------------------------------------
+
         Element_Bulk::Element_Bulk(
                 mtk::Cell const    * aCell,
                 Set                * aSet,
@@ -22,9 +22,11 @@ namespace moris
         {}
 
         //------------------------------------------------------------------------------
+
         Element_Bulk::~Element_Bulk(){}
 
         //------------------------------------------------------------------------------
+
         void Element_Bulk::init_ig_geometry_interpolator()
         {
             // get geometry interpolator
@@ -41,6 +43,7 @@ namespace moris
         }
 
         //----------------------------------------------------------------------
+
         void Element_Bulk::init_ig_geometry_interpolator_with_pdv( moris::Cell< Matrix< DDSMat > > & aIsActiveDv )
         {
             // get the vertices indices
@@ -90,6 +93,7 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+
         void Element_Bulk::compute_residual()
         {
             // set the ig geometry interpolator physical/param space and time coefficients
@@ -131,6 +135,7 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+
         void Element_Bulk::compute_jacobian()
         {
             // set the ig geometry interpolator physical/param space and time coefficients
@@ -170,6 +175,7 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+
         void Element_Bulk::compute_jacobian_and_residual()
         {
             // set the ig geometry interpolator physical/param space and time coefficients
@@ -180,6 +186,7 @@ namespace moris
 
             // loop over integration points
             uint tNumIntegPoints = mSet->get_number_of_integration_points();
+
             for( uint iGP = 0; iGP < tNumIntegPoints; iGP++ )
             {
                 // get the ith integration point in the IG param space
@@ -211,6 +218,7 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+
         void Element_Bulk::compute_dRdp()
         {
             // get the vertices indices
@@ -268,6 +276,7 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+
         void Element_Bulk::compute_QI()
         {
             // set the ig geometry interpolator physical/param space and time coefficients
@@ -306,6 +315,7 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+
         void Element_Bulk::compute_dQIdp_explicit()
         {
             // get the vertices indices
@@ -360,6 +370,7 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+
         void Element_Bulk::compute_dQIdu()
         {
             // set the ig geometry interpolator physical/param space and time coefficients
@@ -395,7 +406,9 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
-        void Element_Bulk::compute_quantity_of_interest_global( const uint aMeshIndex,
+
+        void Element_Bulk::compute_quantity_of_interest_global(
+                const uint             aMeshIndex,
                 enum  vis::Output_Type aOutputType )
         {
             // set the ig geometry interpolator physical/param space and time coefficients
@@ -428,7 +441,9 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
-        void Element_Bulk::compute_quantity_of_interest_nodal( const uint aMeshIndex,
+
+        void Element_Bulk::compute_quantity_of_interest_nodal(
+                const uint aMeshIndex,
                 enum vis::Output_Type aOutputType )
         {
             // set the ig geometry interpolator physical/param space and time coefficients
@@ -444,6 +459,7 @@ namespace moris
                 // get the ith vertex coordinates in the IP param space
                 Matrix< DDRMat > tGlobalIntegPoint =
                         mCluster->get_primary_cell_local_coords_on_side_wrt_interp_cell( mCellIndexInCluster ).get_row( iVertex );
+
                 tGlobalIntegPoint.resize( 1, tGlobalIntegPoint.numel() + 1 );
                 tGlobalIntegPoint( tGlobalIntegPoint.numel() - 1 ) = mCluster->mInterpolationElement->get_time()( 0 );
                 tGlobalIntegPoint = trans( tGlobalIntegPoint );
@@ -467,7 +483,9 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
-        void Element_Bulk::compute_quantity_of_interest_elemental( const uint aMeshIndex,
+
+        void Element_Bulk::compute_quantity_of_interest_elemental(
+                const uint aMeshIndex,
                 enum vis::Output_Type aOutputType )
         {
             // set the ig geometry interpolator physical/param space and time coefficients

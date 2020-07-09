@@ -239,7 +239,7 @@ void run_xtk_problem(XTK_Problem_Params & aXTKProblemParams)
     if(aXTKProblemParams.mComputeSens)
     {
         tOpTimer = std::clock();
-        tXTKModel.compute_sensitivity();
+        tXTKModel.communicate_interface_nodes();
         tSensTime = (std::clock() - tOpTimer)/(CLOCKS_PER_SEC/1000);
     }
 

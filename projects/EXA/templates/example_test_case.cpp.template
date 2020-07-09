@@ -8,6 +8,14 @@
 
 //---------------------------------------------------------------
 
+// global variable for interpolation order
+uint gInterpolationOrder;
+
+// flag to print reference values
+bool gPrintReferenceValues = false;
+
+//---------------------------------------------------------------
+
 int fn_WRK_Workflow_Main_Interface( int argc, char * argv[] );
 
 //---------------------------------------------------------------
@@ -19,13 +27,31 @@ TEST_CASE("Channel_with_Four_Cylinders_Transient",
     int argc = 2;
 
     char tString1[] = "";
-    char tString2[] = "./bin/Channel_with_Four_Cylinders_Transient.so";
+    char tString2[] = "./bin/<Example Name>.so";
 
     char * argv[2] = {tString1,tString2};
 
     // call to performance manager main interface
     int tRet = fn_WRK_Workflow_Main_Interface( argc, argv );
 
-    // catch test statements should follow
-    REQUIRE( tRet ==  0 );
+    // check results
+    switch ( par_size() )
+    {
+        case 1:
+        {
+            check_linear_results_serial();
+            break;
+        }
+        case 4:
+        {
+            if (par_rank() == 1)
+            {
+                check_linear_results_parallel();
+            }
+            break;
+        }
+        default:
+        {
+            MORIS_ERROR(false,"Example problem not configured for %d processors.",par_size());
+        }
 }
