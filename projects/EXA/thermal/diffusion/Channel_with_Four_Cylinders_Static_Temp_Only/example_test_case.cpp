@@ -148,7 +148,7 @@ void check_linear_results_parallel()
 //---------------------------------------------------------------
 
 TEST_CASE("Channel_with_Four_Cylinders_Static_Linear",
-        "[moris],[example],[thermal],[advection]")
+        "[moris],[example],[thermal],[diffusion]")
 {
     // define command line call
     int argc = 2;
@@ -178,7 +178,7 @@ TEST_CASE("Channel_with_Four_Cylinders_Static_Linear",
 //---------------------------------------------------------------
 
 TEST_CASE("Channel_with_Four_Cylinders_Static_Quadratic",
-        "[moris],[example],[thermal],[advection]")
+        "[moris],[example],[thermal],[diffusion]")
 {
     // quadratic case currently not working
     if (false)
