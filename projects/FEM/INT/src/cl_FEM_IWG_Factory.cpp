@@ -38,6 +38,7 @@
 #include "cl_FEM_IWG_Incompressible_NS_Pressure_Bulk.hpp"
 #include "cl_FEM_IWG_Incompressible_NS_Viscous_Velocity_Ghost.hpp"
 #include "cl_FEM_IWG_Incompressible_NS_Convective_Velocity_Ghost.hpp"
+#include "cl_FEM_IWG_Incompressible_NS_Convective_Normal_Velocity_Ghost.hpp"
 #include "cl_FEM_IWG_Incompressible_NS_Pressure_Ghost.hpp"
 #include "cl_FEM_IWG_Incompressible_NS_Velocity_Dirichlet_Nitsche.hpp"
 #include "cl_FEM_IWG_Incompressible_NS_Pressure_Dirichlet_Nitsche.hpp"
@@ -72,17 +73,17 @@ namespace moris
                 case IWG_Type::HJTEST :
                     return std::make_shared< IWG_Hamilton_Jacobi_Bulk_Test >();
 
-//                case IWG_Type::HELMHOLTZ :
-//                    return std::make_shared< IWG_Helmholtz_Bulk >();
-//
-//                case IWG_Type::HJ :
-//                    return std::make_shared< IWG_Hamilton_Jacobi_Bulk2 >();
-//
-//                case IWG_Type::LSNORMAL :
-//                    return std::make_shared< IWG_LSNormal_Bulk >();
-//
-//                case IWG_Type::OLSSON :
-//                    return std::make_shared< IWG_Olsson_CLS_Bulk >();
+                    //                case IWG_Type::HELMHOLTZ :
+                    //                    return std::make_shared< IWG_Helmholtz_Bulk >();
+                    //
+                    //                case IWG_Type::HJ :
+                    //                    return std::make_shared< IWG_Hamilton_Jacobi_Bulk2 >();
+                    //
+                    //                case IWG_Type::LSNORMAL :
+                    //                    return std::make_shared< IWG_LSNormal_Bulk >();
+                    //
+                    //                case IWG_Type::OLSSON :
+                    //                    return std::make_shared< IWG_Olsson_CLS_Bulk >();
 
                 case IWG_Type::SPATIALDIFF_BULK :
                     return std::make_shared< IWG_Diffusion_Bulk >();
@@ -149,6 +150,9 @@ namespace moris
 
                 case IWG_Type::INCOMPRESSIBLE_NS_CONVECTIVE_VELOCITY_GHOST :
                     return std::make_shared< IWG_Incompressible_NS_Convective_Velocity_Ghost >();
+
+                case IWG_Type::INCOMPRESSIBLE_NS_CONVECTIVE_NORMAL_VELOCITY_GHOST :
+                    return std::make_shared< IWG_Incompressible_NS_Convective_Normal_Velocity_Ghost >();
 
                 case IWG_Type::INCOMPRESSIBLE_NS_PRESSURE_GHOST :
                     return std::make_shared< IWG_Incompressible_NS_Pressure_Ghost >();

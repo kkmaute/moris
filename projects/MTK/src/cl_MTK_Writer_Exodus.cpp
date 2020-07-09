@@ -115,6 +115,7 @@ namespace moris
             // Initialize database
             int tNumDimensions = aCoordinates.n_cols();
             int tNumPoints = aCoordinates.n_rows();
+
             ex_put_init(mExoid, "MTK", tNumDimensions, tNumPoints, int(1), int(1), int(0), int(0));
 
             // Set the point coordinates
@@ -124,6 +125,7 @@ namespace moris
 
             // Set up coordinate and node map arrays based on the number of vertices
             MORIS_ERROR(aCoordinates.n_rows() > 0, "Points need to be given to create a point field");
+
             moris::Matrix<moris::IdMat> tNodeMap(aCoordinates.n_rows(), 1, 0);
 
             // Coordinate arrays
@@ -163,6 +165,7 @@ namespace moris
             // Create point elements
             Matrix<IndexMat> tConnectivityArray(tNumPoints, 1);
             Matrix<IndexMat> tElementIdMap(tNumPoints, 1);
+
             for (int tNodeIndex = 0; tNodeIndex < tNumPoints; tNodeIndex++)
             {
                 tConnectivityArray(tNodeIndex) = tNodeIndex + 1;
@@ -268,7 +271,12 @@ namespace moris
             int tCPUWordSize = sizeof(moris::real), tIOWordSize = 0;
             float tVersion;
 
-            mExoid = ex_open(mTempFileName.c_str(), EX_WRITE, &tCPUWordSize, &tIOWordSize, &tVersion);
+            mExoid = ex_open(
+                    mTempFileName.c_str(),
+                    EX_WRITE,
+                    &tCPUWordSize,
+                    &tIOWordSize,
+                    &tVersion);
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -291,7 +299,10 @@ namespace moris
                     " is not a point field name on this mesh!").c_str());
 
             // Write the field
-            ex_put_var(mExoid, mTimeStep, EX_NODAL, tFieldIndex + 1, 0, aFieldValues.numel(), aFieldValues.data());
+            int tErrMsg = ex_put_var(mExoid, mTimeStep, EX_NODAL, tFieldIndex + 1, 1, aFieldValues.numel(), aFieldValues.data());
+
+            MORIS_ERROR(tErrMsg==0,"Point field %s could not be written to exodus file.",aFieldName.c_str());
+
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -311,8 +322,13 @@ namespace moris
                     " field was attempted to be written with " + std::to_string(aFieldValues.numel()) + " values, but there are " +
                     std::to_string(mMesh->get_num_nodes()) + " nodes in this mesh.").c_str());
 
+            // Ensure that time step is larger than or equal 1
+            int tTimeStep = mTimeStep > 1 ? mTimeStep : 1;
+
             // Write the field
-            ex_put_var(mExoid, mTimeStep, EX_NODAL, tFieldIndex + 1, 0, aFieldValues.numel(), aFieldValues.data());
+            int tErrMsg = ex_put_var(mExoid, tTimeStep, EX_NODAL, tFieldIndex + 1, 1, aFieldValues.numel(), aFieldValues.data());
+
+            MORIS_ERROR(tErrMsg==0,"Nodal field %s could not be written to exodus file.",aFieldName.c_str());
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -322,16 +338,21 @@ namespace moris
                 std::string                          aFieldName,
                 const moris::Matrix<moris::DDRMat> & aFieldValues)
         {
+            MORIS_ERROR(mBlockNamesMap.size() == mBlockNamesMap.size(), aBlockName.append(
+                    " is not a block name on this mesh!").c_str());
+
             // Block name to index
             int tBlockIndex = mBlockNamesMap[aBlockName];
 
-            MORIS_ASSERT(mBlockNamesMap.size() == mBlockNamesMap.size(), aBlockName.append(
-                    " is not a block name on this mesh!").c_str());
+            // Check that block index is valid
+            int tNumBlocks = ex_inquire_int(mExoid, EX_INQ_ELEM_BLK);
+
+            MORIS_ERROR(tNumBlocks > tBlockIndex,"Index of block set is larger than number of blocks");
 
             // Field name to index
             int tFieldIndex = mElementalFieldNamesMap[aFieldName];
 
-            MORIS_ASSERT(mElementalFieldNamesMap.size() == mElementalFieldNamesMap.size(), aFieldName.append(
+            MORIS_ERROR(mElementalFieldNamesMap.size() == mElementalFieldNamesMap.size(), aFieldName.append(
                     " is not an elemental field name on this mesh!").c_str());
 
             // Check number of field values = number of elements
@@ -340,9 +361,27 @@ namespace moris
                     std::to_string(mMesh->get_set_cells(aBlockName).size()) + " elements in block " + aBlockName +
                     ".").c_str());
 
+            // Check that number of field values = number of element stored in mesh
+            ex_block tBlockInfo;
+            tBlockInfo.id   = tBlockIndex + 1;
+            tBlockInfo.type = EX_ELEM_BLOCK;
+
+            ex_get_block_param(
+                    mExoid,
+                    &tBlockInfo);
+
+            MORIS_ERROR(tBlockInfo.num_entry == (int) aFieldValues.numel(),
+                    "Number of entries in field does not match number of elements stored in mesh for current block.");
+
+            // Ensure that time step is larger than or equal 1
+            int tTimeStep = mTimeStep > 1 ? mTimeStep : 1;
+
             // Write the field
-            ex_put_var(mExoid, mTimeStep, EX_ELEM_BLOCK, tFieldIndex + 1, tBlockIndex + 1, aFieldValues.numel(),
-                    aFieldValues.data());
+            int tErrMsg = ex_put_var(mExoid, tTimeStep , EX_ELEM_BLOCK, tFieldIndex + 1, tBlockIndex + 1,
+                    aFieldValues.numel(), aFieldValues.data());
+
+            MORIS_ERROR(tErrMsg==0,"Elemental field %s could not be written for element block %s to exodus file.",
+                    aFieldName.c_str(),aBlockName.c_str());
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -358,7 +397,10 @@ namespace moris
                     " is not a global variable name on this mesh!").c_str());
 
             // Write the variable
-            ex_put_var(mExoid, (int) mTimeStep, EX_GLOBAL, tVariableIndex + 1, 0, 1, &aVariableValue);
+            int tErrMsg = ex_put_var(mExoid, (int) mTimeStep, EX_GLOBAL, tVariableIndex + 1, 1, 1, &aVariableValue);
+
+            MORIS_ERROR(tErrMsg==0,"Global variable %s could not be written to exodus file.",
+                    aVariableName.c_str());
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -496,6 +538,7 @@ namespace moris
             {
                 moris::Matrix<moris::IndexMat> tNodeIndices = mMesh->get_set_entity_loc_inds(moris::EntityRank::NODE,
                         tNodeSetNames(tNodeSetIndex));
+
                 ex_put_set_param(mExoid, EX_NODE_SET, tNodeSetIndex + 1, tNodeIndices.numel(), 0);
                 ex_put_set(mExoid, EX_NODE_SET, tNodeSetIndex + 1, tNodeIndices.data(), nullptr);
             }

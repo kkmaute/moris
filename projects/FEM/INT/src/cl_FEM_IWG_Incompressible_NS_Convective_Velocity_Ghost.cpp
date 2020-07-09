@@ -11,6 +11,7 @@ namespace moris
     {
 
         //------------------------------------------------------------------------------
+
         IWG_Incompressible_NS_Convective_Velocity_Ghost::IWG_Incompressible_NS_Convective_Velocity_Ghost()
         {
             // set size for the stabilization parameter pointer cell
@@ -21,6 +22,7 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+
         void IWG_Incompressible_NS_Convective_Velocity_Ghost::set_stabilization_parameter(
                 std::shared_ptr< Stabilization_Parameter > aStabilizationParameter,
                 std::string                                aStabilizationString )
@@ -36,6 +38,7 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+
         void IWG_Incompressible_NS_Convective_Velocity_Ghost::compute_residual( real aWStar )
         {
             // check master field interpolators
@@ -63,9 +66,6 @@ namespace moris
             std::shared_ptr< Stabilization_Parameter > tSPConvective =
                     mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::CONVECTIVE_GHOST ) );
 
-            // FIXME set normal for stabilization parameter
-            tSPConvective->set_normal( mNormal );
-
             // get flattened derivatives dnNdxn for master and slave
             Matrix< DDRMat > tMasterdNdx;
             this->compute_dnNdxn( tMasterdNdx, mtk::Master_Slave::MASTER );
@@ -86,6 +86,7 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+
         void IWG_Incompressible_NS_Convective_Velocity_Ghost::compute_jacobian( real aWStar )
         {
 #ifdef DEBUG
@@ -110,11 +111,8 @@ namespace moris
             Field_Interpolator * tFISlave  = mSlaveFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );
 
             // get the convective stabilization parameter
-            std::shared_ptr< Stabilization_Parameter > tSPConvective
-            = mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::CONVECTIVE_GHOST ) );
-
-            // FIXME set normal for stabilization parameter
-            tSPConvective->set_normal( mNormal );
+            std::shared_ptr< Stabilization_Parameter > tSPConvective =
+                    mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::CONVECTIVE_GHOST ) );
 
             // get flattened derivatives dnNdxn for master and slave
             Matrix< DDRMat > tMasterdNdx;
@@ -204,6 +202,7 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+
         void IWG_Incompressible_NS_Convective_Velocity_Ghost::compute_jacobian_and_residual( real aWStar )
         {
 #ifdef DEBUG
@@ -215,6 +214,7 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+
         void IWG_Incompressible_NS_Convective_Velocity_Ghost::compute_dRdp( real aWStar )
         {
 #ifdef DEBUG
@@ -226,6 +226,7 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+
         void IWG_Incompressible_NS_Convective_Velocity_Ghost::compute_dnNdxn(
                 Matrix< DDRMat >  & adNdx,
                 mtk::Master_Slave   aIsMaster )
@@ -246,7 +247,7 @@ namespace moris
             {
                 // fill the matrix for each dimension
                 adNdx(
-                        { iField * tNumRow, ( iField + 1 ) * tNumRow -1 },
+                        { iField * tNumRow, ( iField + 1 ) * tNumRow - 1 },
                         { iField * tNumCol, ( iField + 1 ) * tNumCol - 1 } ) =
                                 tFIVelocity->dnNdxn( 1 ).matrix_data();
             }

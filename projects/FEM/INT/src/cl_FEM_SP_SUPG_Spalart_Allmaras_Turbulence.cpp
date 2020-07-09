@@ -157,7 +157,7 @@ namespace moris
             real tFw = this->compute_fw();
 
             // evaluate s = - cb1 * ( 1 -ft2 ) * stilde + ( cw1 * fw - cb1 * ft2 / kappa^2 ) * vtilde / d^2
-            real tS = - mCb1 * ( 1 - tFt2 ) * tSTilde +
+            real tS = mCb1 * ( 1 - tFt2 ) * tSTilde -
                     ( mCw1 * tFw - mCb1 * tFt2 / std::pow( mKappa, 2.0 ) ) *
                     tViscosityFI->val()( 0 ) / std::pow( tPropWallDistance->val()( 0 ), 2.0 );
 
@@ -238,7 +238,7 @@ namespace moris
             real tFw = this->compute_fw();
 
             // evaluate s = - cb1 * ( 1 -ft2 ) * stilde + ( cw1 * fw - cb1 * ft2 / kappa^2 ) * vtilde / d^2
-            real tS = - mCb1 * ( 1 - tFt2 ) * tSTilde +
+            real tS = mCb1 * ( 1 - tFt2 ) * tSTilde -
                     ( mCw1 * tFw - mCb1 * tFt2 / std::pow( mKappa, 2.0 ) ) *
                     tViscosityFI->val()( 0 ) / std::pow( tPropWallDistance->val()( 0 ), 2.0 );
 
@@ -267,7 +267,7 @@ namespace moris
                         4.0 * tViscosityFI->N() / ( std::pow( mElementSize, 2.0 ) * mSigma );
 
                 // evaluate dsdu
-                tdtauSdu.matrix_data() +=
+                tdtauSdu.matrix_data() -=
                         ( mCw1 * tFw - mCb1 * tFt2 / std::pow( mKappa, 2.0 ) ) * tViscosityFI->N() / std::pow( tPropWallDistance->val()( 0 ), 2.0 );
             }
 
@@ -280,7 +280,7 @@ namespace moris
 
             // add contribution from s
             tdtauSdu.matrix_data() +=
-                    mCb1 * ( tSTilde * tdft2du - ( 1 - tFt2 ) * tdstildedu ) +
+                     mCb1 * ( - tSTilde * tdft2du + ( 1 - tFt2 ) * tdstildedu ) -
                     ( mCw1 * tdfwdu - mCb1 * tdft2du / std::pow( mKappa, 2 ) ) *
                     tViscosityFI->val()( 0 ) / std::pow( tPropWallDistance->val()( 0 ), 2.0 );
 
@@ -535,7 +535,8 @@ namespace moris
             this->compute_dchidu( aDofTypes, tdchidu );
 
             // compute adfv1du
-            adfv1du = 3.0 * std::pow( mCv1, 3.0 ) * std::pow( tChi, 2.0 ) * tdchidu / std::pow( std::pow( tChi, 3.0 ) + std::pow( mCv1, 3.0 ), 2.0 );
+            adfv1du = 3.0 * std::pow( mCv1, 3.0 ) * std::pow( tChi, 2.0 ) * tdchidu /
+                    std::pow( std::pow( tChi, 3.0 ) + std::pow( mCv1, 3.0 ), 2.0 );
         }
 
         //------------------------------------------------------------------------------
@@ -591,7 +592,8 @@ namespace moris
             real tFv2 = this->compute_fv2();
 
             // compute s
-            real tS = tFv2 * tFIViscosity->val()( 0 ) / std::pow( mKappa * tPropWallDistance->val()( 0 ), 2.0 );
+            real tS = tFv2 * tFIViscosity->val()( 0 ) /
+                    std::pow( mKappa * tPropWallDistance->val()( 0 ), 2.0 );
 
             return tS;
         }
@@ -820,7 +822,7 @@ namespace moris
             // compute r
             real tR = this->compute_r();
 
-            // if r > 10
+            // if r < 10
             if( tR < 10.0 )
             {
                 // get the residual dof FI (here viscosity)

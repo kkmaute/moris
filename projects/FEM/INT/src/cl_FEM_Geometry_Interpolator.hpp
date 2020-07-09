@@ -7,6 +7,7 @@
 
 #ifndef SRC_FEM_CL_FEM_GEOMETRY_INTERPOLATOR_HPP_
 #define SRC_FEM_CL_FEM_GEOMETRY_INTERPOLATOR_HPP_
+
 //MRS/COR/src
 #include "typedefs.hpp"
 //MTK/src
@@ -95,7 +96,20 @@ namespace moris
                 Matrix< DDRMat > md2NdTau2;
                 Matrix< DDRMat > md3NdTau3;
 
-                // pointer to function for second derivative
+                // pointer to function for space detJ
+                real ( Geometry_Interpolator:: * mSpaceDetJFunc )(
+                        Matrix< DDRMat > & aSpaceJt ) = nullptr;
+
+                // pointer to function for time detJ
+                real (  Geometry_Interpolator:: * mTimeDetJFunc )(
+                        Matrix< DDRMat > & aTimeJt ) = nullptr;
+
+                // pointer to function for normal
+                void (  Geometry_Interpolator:: * mNormalFunc )(
+                        Matrix< DDRMat > & aTangent,
+                        Matrix< DDRMat > & aNormal ) = nullptr;
+
+                // pointer to function for space second derivative
                 void ( * mSecondDerivativeMatricesSpace )(
                         const Matrix< DDRMat > & aJt,
                         Matrix< DDRMat > & aKt,
@@ -103,7 +117,7 @@ namespace moris
                         const Matrix< DDRMat > & ad2NdXi2,
                         const Matrix< DDRMat > & aXHat );
 
-                // pointer to function for third derivatives
+                // pointer to function for space third derivatives
                 void ( * mThirdDerivativeMatricesSpace )(
                         const Matrix< DDRMat > & aJt,
                         const Matrix< DDRMat > & aJ2bt,
@@ -113,7 +127,7 @@ namespace moris
                         const Matrix< DDRMat > & ad3NdXi3,
                         const Matrix< DDRMat > & aXHat );
 
-
+                // pointer to function for time second derivative
                 void ( * mSecondDerivativeMatricesTime )(
                         const Matrix< DDRMat > & aJt,
                         Matrix< DDRMat > & aKt,
@@ -145,6 +159,12 @@ namespace moris
                  * destructor
                  */
                 ~Geometry_Interpolator();
+
+                //------------------------------------------------------------------------------
+                /**
+                 * reset evaluation flags
+                 */
+                void reset_eval_flags();
 
                 //------------------------------------------------------------------------------
                 /**
@@ -609,6 +629,39 @@ namespace moris
                  * sets the function pointers for 2D and 3D. Called during construction.
                  */
                 void set_function_pointers();
+
+                //------------------------------------------------------------------------------
+                /**
+                 * evaluate space detJ
+                 */
+                real eval_space_detJ_side_line( Matrix< DDRMat > & aSpaceJt );
+                real eval_space_detJ_side_tri( Matrix< DDRMat > & aSpaceJt );
+                real eval_space_detJ_side_quad( Matrix< DDRMat > & aSpaceJt );
+
+                real eval_space_detJ_bulk_line_quad_hex( Matrix< DDRMat > & aSpaceJt );
+                real eval_space_detJ_bulk_tri( Matrix< DDRMat > & aSpaceJt );
+                real eval_space_detJ_bulk_tet( Matrix< DDRMat > & aSpaceJt );
+
+                //------------------------------------------------------------------------------
+                /**
+                 * evaluate time detJ
+                 */
+                real eval_time_detJ_side( Matrix< DDRMat > & aTimeJt );
+                real eval_time_detJ_bulk( Matrix< DDRMat > & aTimeJt );
+
+                //------------------------------------------------------------------------------
+                /**
+                 * evaluate normal to side
+                 */
+                void eval_normal_side_line(
+                        Matrix< DDRMat > & aRealTangents,
+                        Matrix< DDRMat > & aNormal );
+                void eval_normal_side_quad(
+                        Matrix< DDRMat > & aRealTangents,
+                        Matrix< DDRMat > & aNormal );
+                void eval_normal_side_tri(
+                        Matrix< DDRMat > & aRealTangents,
+                        Matrix< DDRMat > & aNormal );
 
                 //------------------------------------------------------------------------------
                 /**

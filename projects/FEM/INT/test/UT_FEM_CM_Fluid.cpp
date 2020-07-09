@@ -47,9 +47,9 @@ TEST_CASE( "CM_Fluid", "[CM_Fluid]" )
             mtk::Interpolation_Order::CUBIC };
 
     // create list of integration orders
-        moris::Cell< fem::Integration_Order > tIntegrationOrders = {
-                 fem::Integration_Order::QUAD_2x2,
-                 fem::Integration_Order::HEX_2x2x2 };
+    moris::Cell< fem::Integration_Order > tIntegrationOrders = {
+            fem::Integration_Order::QUAD_2x2,
+            fem::Integration_Order::HEX_2x2x2 };
 
     // create list with number of coeffs
     Matrix< DDRMat > tNumCoeffs = {{ 8, 18, 32 },{ 16, 54, 128 }};
@@ -162,7 +162,8 @@ TEST_CASE( "CM_Fluid", "[CM_Fluid]" )
         // space and time geometry interpolators
         //------------------------------------------------------------------------------
         // create a space geometry interpolation rule
-        Interpolation_Rule tGIRule( tGeometryType,
+        Interpolation_Rule tGIRule(
+                tGeometryType,
                 Interpolation_Type::LAGRANGE,
                 mtk::Interpolation_Order::LINEAR,
                 Interpolation_Type::LAGRANGE,

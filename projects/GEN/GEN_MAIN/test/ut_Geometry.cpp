@@ -65,17 +65,17 @@ namespace moris
             // Check sensitivity values
             Matrix<DDRMat> tSensitivities;
             tCircle1->evaluate_sensitivity(0, tCoordinates0, tSensitivities);
-            check_approx(tSensitivities, {{0.0, 1.0, -1.0}});
+            check_approx(tSensitivities, {{0.0, 1.0, 0.0, -1.0, 0.0}});
             tCircle2->evaluate_sensitivity(0, tCoordinates0, tSensitivities);
-            check_approx(tSensitivities, {{0.0, 1.0, -1.0}});
+            check_approx(tSensitivities, {{0.0, 0.0, 1.0, 0.0, -1.0}});
             tCircle1->evaluate_sensitivity(0, tCoordinates1, tSensitivities);
-            check_approx(tSensitivities, {{-1.0, 0.0, -1.0}});
+            check_approx(tSensitivities, {{-1.0, 0.0, 0.0, -1.0, 0.0}});
             tCircle2->evaluate_sensitivity(0, tCoordinates1, tSensitivities);
-            check_approx(tSensitivities, {{-sqrt(2.0) / 2.0, sqrt(2.0) / 2.0, -1.0}});
+            check_approx(tSensitivities, {{-sqrt(2.0) / 2.0, 0.0, sqrt(2.0) / 2.0, 0.0, -1.0}});
             tCircle1->evaluate_sensitivity(0, tCoordinates2, tSensitivities);
-            check_approx(tSensitivities, {{-2.0 / sqrt(5.0), -1.0 / sqrt(5.0), -1.0}});
+            check_approx(tSensitivities, {{-2.0 / sqrt(5.0), -1.0 / sqrt(5.0), 0.0, -1.0, 0.0}});
             tCircle2->evaluate_sensitivity(0, tCoordinates2, tSensitivities);
-            check_approx(tSensitivities, {{-1.0, 0.0, -1.0}});
+            check_approx(tSensitivities, {{-1.0, 0.0, 0.0, 0.0, -1.0}});
 
             // Change ADVs and coordinates
             tADVs(0) = 1.0;
@@ -98,17 +98,17 @@ namespace moris
 
             // Check sensitivity values
             tCircle1->evaluate_sensitivity(0, tCoordinates0, tSensitivities);
-            check_approx(tSensitivities, {{0.0, 1.0, -1.0}});
+            check_approx(tSensitivities, {{0.0, 1.0, 0.0, -1.0, 0.0}});
             tCircle2->evaluate_sensitivity(0, tCoordinates0, tSensitivities);
-            check_approx(tSensitivities, {{0.0, 1.0, -1.0}});
+            check_approx(tSensitivities, {{0.0, 0.0, 1.0, 0.0, -1.0}});
             tCircle1->evaluate_sensitivity(0, tCoordinates1, tSensitivities);
-            check_approx(tSensitivities, {{-1.0, 0.0, -1.0}});
+            check_approx(tSensitivities, {{-1.0, 0.0, 0.0, -1.0, 0.0}});
             tCircle2->evaluate_sensitivity(0, tCoordinates1, tSensitivities);
-            check_approx(tSensitivities, {{-2.0 / sqrt(5.0), 1.0 / sqrt(5.0), -1.0}});
+            check_approx(tSensitivities, {{-2.0 / sqrt(5.0), 0.0, 1.0 / sqrt(5.0), 0.0, -1.0}});
             tCircle1->evaluate_sensitivity(0, tCoordinates2, tSensitivities);
-            check_approx(tSensitivities, {{-3.0 / sqrt(10.0), -1.0 / sqrt(10.0), -1.0}});
+            check_approx(tSensitivities, {{-3.0 / sqrt(10.0), -1.0 / sqrt(10.0), 0.0, -1.0, 0.0}});
             tCircle2->evaluate_sensitivity(0, tCoordinates2, tSensitivities);
-            check_approx(tSensitivities, {{-1.0, 0.0, -1.0}});
+            check_approx(tSensitivities, {{-1.0, 0.0, 0.0, 0.0, -1.0}});
         }
 
         TEST_CASE("Sphere Test", "[GE], [GE_SPHERE]")
@@ -169,7 +169,7 @@ namespace moris
         TEST_CASE("User-Defined Geometry Test", "[GE], [GE_USER_DEFINED_GEOMETRY]")
         {
             // Create user-defined geometry
-            Matrix<DDRMat> tADVs(2, 1, -1.0);
+            Matrix<DDRMat> tADVs(2, 1);
             tADVs(0) = -1.0;
             tADVs(1) = 0.5;
 

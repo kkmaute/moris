@@ -156,7 +156,7 @@ namespace moris
 //            tGlbCoords(1) = tNewNodeCoords.get_row(1);
 //
 //            // Create geometry objects
-//            tGeometryEngine.create_new_node_geometry_objects( tIndices, true, tTopCell, tLocalCoords, tGlbCoords );
+//            tGeometryEngine.create_new_child_nodes( tIndices, true, tTopCell, tLocalCoords, tGlbCoords );
 //
 //            // Create PDVs on integration mesh
 //            tGeometryEngine.create_ig_pdv_hosts();
@@ -248,6 +248,7 @@ namespace moris
 
                 moris::ge::Phase_Table tPhaseTable (1, moris::ge::Phase_Table_Structure::EXP_BASE_2);
                 moris::ge::Geometry_Engine tGeometryEngine(tGeometry, tPhaseTable, 2);
+                tGeometryEngine.set_advs({{0.0, 0.0, 0.0}});
 
                 xtk::Model tXTKModel(2, tInterpolationMesh, &tGeometryEngine);
                 tXTKModel.mVerbose = false;

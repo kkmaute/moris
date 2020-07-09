@@ -48,7 +48,9 @@ namespace xtk
         setup_local_to_global_maps();
         setup_comm_map();
     }
+
     // ----------------------------------------------------------------------------------
+
     Background_Mesh::~Background_Mesh()
     {
         for( auto i:mChildMtkCells)
@@ -207,7 +209,6 @@ namespace xtk
         return mExternalMeshData.get_first_available_index_external_data(aEntityRank);
     }
 
-
     // ----------------------------------------------------------------------------------
 
     void
@@ -225,7 +226,6 @@ namespace xtk
             Cell<moris_index>                    const & aNewNodeOwningProc,
             Cell<moris::Matrix< moris::DDRMat >> const & aNewNodeCoordinates)
     {
-
         // number of nodes prior to creating new ones
         moris::uint tNumExistingNodes = get_num_entities(EntityRank::NODE);
 
@@ -253,7 +253,6 @@ namespace xtk
             MORIS_ASSERT(mVertexGlbToLocalMap.find(aNewNodeIds(i)) == mVertexGlbToLocalMap.end(),"Vertex already in map");
             mVertexGlbToLocalMap[aNewNodeIds(i)] = aNewNodeIndices(i);
         }
-
     }
 
     // ----------------------------------------------------------------------------------
@@ -487,7 +486,6 @@ namespace xtk
     moris::Matrix< moris::DDRMat >
     Background_Mesh::get_selected_node_coordinates_loc_inds(moris::Matrix< moris::IndexMat > const & aNodeIndices) const
     {
-
         MORIS_ERROR(moris::isvector(aNodeIndices),"Provided Node indices need to be a vector");
         // TODO: Add external entity check to see if xtk has the coordinate field or stk has it
         // Number of spatial dimensions
@@ -531,7 +529,6 @@ namespace xtk
     Background_Mesh::get_local_to_global_map(enum EntityRank aEntityRank) const
     {
         MORIS_ERROR(aEntityRank==EntityRank::NODE," This function is only implemented for node maps");
-
 
         moris::uint tNumNodes = mMeshData->get_num_entities(EntityRank::NODE);
 
@@ -606,6 +603,7 @@ namespace xtk
                 tCount++;
             }
         }
+
         tElementToNode.resize(tCount,tNumNodesPerElem);
         return tElementToNode;
     }
@@ -643,14 +641,12 @@ namespace xtk
         {
             if(!this->entity_has_children(i,EntityRank::ELEMENT))
             {
-
                 moris::moris_id tId = mMeshData->get_glb_entity_id_from_entity_loc_index(i,EntityRank::ELEMENT);
 
                 moris::Matrix< moris::IdMat >tElementToNodeId =
                         mMeshData->get_entity_connected_to_entity_glob_ids(tId,EntityRank::ELEMENT,EntityRank::NODE);
 
                 moris::moris_index tPhaseIndex = this->get_element_phase_index(i);
-
 
                 for(moris::uint  j = 0 ; j < tNumNodesPerElem; j++ )
                 {
@@ -689,6 +685,7 @@ namespace xtk
                 tCount++;
             }
         }
+
         tElementIds.resize(tCount,1);
         return tElementIds;
     }
@@ -984,7 +981,6 @@ namespace xtk
             }
             std::cout<<std::endl;
         }
-
     }
 
     // ----------------------------------------------------------------------------------
@@ -999,9 +995,7 @@ namespace xtk
         {
             std::cout<<std::setw(8)<<it.first<<"|"<<std::setw(8)<<it.second<<std::endl;
         }
-
     }
-
 
     // ----------------------------------------------------------------------------------
 
@@ -1082,7 +1076,6 @@ namespace xtk
         MORIS_ASSERT(mChildMtkCellMap.find(aElementIndex) == mChildMtkCellMap.end(),"Element index already has an mtk cell associated with it");
 
         mChildMtkCellMap[aElementIndex] = mChildMtkCells.size()-1;
-
     }
 
     //-------------------------------------------------------------------------------
@@ -1393,7 +1386,4 @@ namespace xtk
     }
 
     // ----------------------------------------------------------------------------------
-
 }
-
-

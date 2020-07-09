@@ -37,6 +37,7 @@ namespace xtk
     // ----------------------------------------------------------------------------------
     // Constructor/Deconstructor Source code
     // ----------------------------------------------------------------------------------
+
     Model::~Model()
     {
         if(mEnrichment != nullptr )
@@ -264,6 +265,9 @@ namespace xtk
             writer.set_time(0.0);
             writer.close_file();
         }
+
+        // Communicate interface nodes
+        this->communicate_interface_nodes();
     }
 
     // ----------------------------------------------------------------------------------
@@ -367,6 +371,7 @@ namespace xtk
     // ----------------------------------------------------------------------------------
     // Decomposition Source code
     // ----------------------------------------------------------------------------------
+
     void
     Model::decompose(Cell<enum Subdivision_Method> aMethods)
     {
@@ -546,7 +551,6 @@ namespace xtk
 
                 // associate new nodes with geometry objects
                 create_new_node_association_with_geometry(tDecompData);
-
 
                 for(moris::size_t i = 0; i< tIntersectedCount; i++)
                 {
@@ -1392,9 +1396,8 @@ namespace xtk
     Model::create_new_node_association_with_geometry(Decomposition_Data & tDecompData)
     {
         // create geometry objects for each node
-        mGeometryEngine->create_new_node_geometry_objects(
+        mGeometryEngine->create_new_child_nodes(
                 tDecompData.tNewNodeIndex,
-                tDecompData.mConformalDecomp,
                 tDecompData.tNewNodeParentTopology,
                 tDecompData.tParamCoordRelativeToParent,
                 mBackgroundMesh.get_all_node_coordinates_loc_inds());
@@ -2178,7 +2181,7 @@ namespace xtk
             Cell<Matrix<IndexMat>>  const & aReceivedChildCellIdOffset,
             moris::moris_id               & aCellInd)
     {
-        Cell<Child_Mesh*> const & tNotOwnedChildMeshes     = mCutMesh.get_not_owned_child_meshes();
+        Cell<Child_Mesh*> const & tNotOwnedChildMeshes = mCutMesh.get_not_owned_child_meshes();
 
         // iterate through received data
         for(moris::uint i = 0; i < aChildMeshesInInNotOwned.size(); i++)
@@ -2843,7 +2846,7 @@ namespace xtk
     // ----------------------------------------------------------------------------------
 
     void
-    Model::compute_sensitivity()
+    Model::communicate_interface_nodes()
     {
         // verify the state of the xtk model
         MORIS_ERROR(mDecomposed,"Prior to computing sensitivity, the decomposition process must be called");
@@ -2951,9 +2954,6 @@ namespace xtk
 
             // Mark the newly created nodes as interface nodes
             mBackgroundMesh.mark_nodes_as_interface_node_loc_inds(tNewUnzippedNodeInds,iG);
-
-            // Link the new nodes to the geometry object of the node they were copied to
-            mGeometryEngine->link_new_nodes_to_existing_geometry_objects(tInterfaceNodeInds,tNewUnzippedNodeInds);
 
             // unzip_child_mesh_index
             this->unzip_interface_internal_modify_child_mesh(iG,tInterfaceNodeInds,tNewUnzippedNodeInds,tNewUnzippedNodeIds);
@@ -5205,7 +5205,6 @@ namespace xtk
             }
         }
 
-
         moris::moris_index tElemPhaseVal = mGeometryEngine->get_elem_phase_index(tNodalPhaseVals);
 
         return tElemPhaseVal;
@@ -5217,7 +5216,6 @@ namespace xtk
     Model::print_decompsition_preamble(Cell<enum Subdivision_Method> aMethods)
     {
         // Only process with rank 0 prints the preamble
-
 
         if(moris::par_rank() == 0 && mVerbose)
         {

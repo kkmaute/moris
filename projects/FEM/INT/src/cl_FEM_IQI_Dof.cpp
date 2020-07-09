@@ -13,16 +13,18 @@ namespace moris
     namespace fem
     {
         //------------------------------------------------------------------------------
+
         IQI_Dof::IQI_Dof(){}
 
         //------------------------------------------------------------------------------
+
         void IQI_Dof::compute_QI( Matrix< DDRMat > & aQI )
         {
             // get field interpolator for a given dof type
-            Field_Interpolator * tFI
-            = mMasterFIManager->get_field_interpolators_for_type( mMasterDofTypes( 0 )( 0 ) );
+            Field_Interpolator * tFI =
+                    mMasterFIManager->get_field_interpolators_for_type( mMasterDofTypes( 0 )( 0 ) );
 
-            // check if dof indx was set (for the case of vectorial field)
+            // check if dof index was set (for the case of vector field)
             if( mMasterDofTypes( 0 ).size() > 1 )
             {
                 MORIS_ERROR( mIQITypeIndex != -1, "IQI_Dof::compute_QI - mIQITypeIndex not set." );
@@ -37,6 +39,7 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+
         void IQI_Dof::compute_dQIdu( Matrix< DDRMat > & adQIdDof )
         {
             MORIS_ERROR( false, "IQI_Dof::compute_dQIdu - not implemented." );
@@ -45,6 +48,3 @@ namespace moris
         //------------------------------------------------------------------------------
     }/* end_namespace_fem */
 }/* end_namespace_moris */
-
-
-

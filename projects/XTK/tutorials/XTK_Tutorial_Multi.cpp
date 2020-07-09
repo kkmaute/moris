@@ -303,7 +303,7 @@ main( int    argc,
      * tXTKModel.compute_interface_sensitivity();
      * \endcode
      */
-//      tXTKModel.compute_sensitivity();
+//      tXTKModel.communicate_interface_nodes();
 
       /*!
        * \subsection unzip 4.) Interface unzipping

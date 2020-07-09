@@ -118,8 +118,6 @@ namespace moris
                     + trans( tFIViscosity->N() ) * ( mCw1 * tFw - mCb1 * tFt2 / std::pow( mKappa, 2.0 ) ) * std::pow( tFIViscosity->val()( 0 ) / tPropWallDistance->val()( 0 ), 2.0 )
             + trans( tFIViscosity->dnNdxn( 1 ) ) * ( tFIViscosity->val()( 0 ) + tPropViscosity->val()( 0 ) ) * tFIViscosity->gradx( 1 ) / mSigma
             + trans( tFIViscosity->dnNdxn( 1 ) ) * ( tFIVelocity->val() - mCb2 * tFIViscosity->gradx( 1 ) / mSigma ) * tSPSUPG->val()( 0 ) * tR( 0 ) );
-
-//            print( mSet->get_residual()( 0 )( { tMasterResStartIndex, tMasterResStopIndex }, { 0, 0 } ),"Res Bulk" );
         }
 
         //------------------------------------------------------------------------------
@@ -190,10 +188,10 @@ namespace moris
                     mSet->get_jacobian()(
                             { tMasterResStartIndex, tMasterResStopIndex },
                             { tMasterDepStartIndex, tMasterDepStopIndex } ) += aWStar * (
-                            trans( tFIViscosity->N() ) * tFIViscosity->dnNdtn( 1 )
-                            + trans( tFIViscosity->N() ) * trans( tFIVelocity->val() - 2.0 * mCb2 * tFIViscosity->gradx( 1 ) / mSigma ) * tFIViscosity->dnNdxn( 1 )
-                            - trans( tFIViscosity->N() ) * mCb1 * ( 1 - tFt2 ) * tSTilde * tFIViscosity->N()
-                            + trans( tFIViscosity->N() ) * ( mCw1 * tFw - mCb1 * tFt2 / std::pow( mKappa, 2.0 ) ) * 2.0 * tFIViscosity->val() * tFIViscosity->N() / std::pow( tPropWallDistance->val()( 0 ), 2.0 )
+                                    trans( tFIViscosity->N() ) * tFIViscosity->dnNdtn( 1 )
+                                    + trans( tFIViscosity->N() ) * trans( tFIVelocity->val() - 2.0 * mCb2 * tFIViscosity->gradx( 1 ) / mSigma ) * tFIViscosity->dnNdxn( 1 )
+                                    - trans( tFIViscosity->N() ) * mCb1 * ( 1 - tFt2 ) * tSTilde * tFIViscosity->N()
+                                    + trans( tFIViscosity->N() ) * ( mCw1 * tFw - mCb1 * tFt2 / std::pow( mKappa, 2.0 ) ) * 2.0 * tFIViscosity->val() * tFIViscosity->N() / std::pow( tPropWallDistance->val()( 0 ), 2.0 )
                     + trans( tFIViscosity->dnNdxn( 1 ) ) * tFIViscosity->gradx( 1 ) * tFIViscosity->N() / mSigma
                     + trans( tFIViscosity->dnNdxn( 1 ) ) * ( tFIViscosity->val()( 0 ) + tPropViscosity->val()( 0 ) ) * tFIViscosity->dnNdxn( 1 ) / mSigma
                     - trans( tFIViscosity->dnNdxn( 1 ) ) * ( mCb2 * tFIViscosity->dnNdxn( 1 ) / mSigma ) * tSPSUPG->val()( 0 ) * tR( 0 ) );
@@ -257,9 +255,9 @@ namespace moris
                                 - trans( tFIViscosity->N() ) * mCb1 * ( 1 - tFt2 ) * tFIViscosity->val() * tdSTildedu
                                 + trans( tFIViscosity->N() ) * ( mCw1 * tdfwdu - mCb1 * tdft2du / std::pow( mKappa, 2.0 ) ) *
                                 std::pow( tFIViscosity->val()( 0 ) / tPropWallDistance->val()( 0 ), 2.0 )
-                                + trans( tFIViscosity->dnNdxn( 1 ) ) *
-                                ( tFIVelocity->val() - mCb2 * tFIViscosity->gradx( 1 ) / mSigma ) *
-                                tSPSUPG->val()( 0 ) * tJ );
+                + trans( tFIViscosity->dnNdxn( 1 ) ) *
+                ( tFIVelocity->val() - mCb2 * tFIViscosity->gradx( 1 ) / mSigma ) *
+                tSPSUPG->val()( 0 ) * tJ );
             }
         }
 
@@ -455,17 +453,19 @@ namespace moris
                 }
 
                 // add contribution to derivative
-                adDivFluxdu.matrix_data() += 2.0 * trans( tFIViscosity->gradx( 1 ) ) * tFIViscosity->dnNdxn( 1 )
-                                                           +  sum( tFIViscosity->gradx( 2 )( { 0, tSpaceDim - 1 }, { 0, 0 } ) ) * tFIViscosity->N()
-                                                           + ( tPropViscosity->val()( 0 ) + tFIViscosity->val()( 0 ) ) * td2Ndx2;
+                adDivFluxdu.matrix_data() +=
+                        2.0 * trans( tFIViscosity->gradx( 1 ) ) * tFIViscosity->dnNdxn( 1 ) +
+                        sum( tFIViscosity->gradx( 2 )( { 0, tSpaceDim - 1 }, { 0, 0 } ) ) * tFIViscosity->N() +
+                        ( tPropViscosity->val()( 0 ) + tFIViscosity->val()( 0 ) ) * td2Ndx2;
             }
 
             // if viscosity property depends on dof type
             if( tPropViscosity->check_dof_dependency( aDofTypes ) )
             {
                 // add contribution to derivative
-                adDivFluxdu.matrix_data()
-                                += sum( tFIViscosity->gradx( 2 )( { 0, tSpaceDim-1 }, { 0, 0 } ) ) * tPropViscosity->dPropdDOF( aDofTypes );
+                adDivFluxdu.matrix_data() +=
+                        sum( tFIViscosity->gradx( 2 )( { 0, tSpaceDim-1 }, { 0, 0 } ) ) *
+                        tPropViscosity->dPropdDOF( aDofTypes );
             }
         }
 
@@ -482,8 +482,8 @@ namespace moris
             // switch on space dim
             switch ( tFIVelocity->get_number_of_fields() )
             {
-                case ( 2 ):
-                        {
+                case 2 :
+                {
                     // init aWij = [ w11 w12 w21 w22]
                     aWij.set_size( 4, 1, 0.0 );
 
@@ -491,9 +491,9 @@ namespace moris
                     aWij( 1 ) = 0.5 * ( tGradVelocity( 1, 0 ) - tGradVelocity( 0, 1 ) );
                     aWij( 2 ) = 0.5 * ( tGradVelocity( 0, 1 ) - tGradVelocity( 1, 0 ) );
                     break;
-                        }
-                case ( 3 ):
-                        {
+                }
+                case 3 :
+                {
                     // init aWij = [ w11 w12 w13 w21 w22 w23 w31 w32 w33 ]
                     aWij.set_size( 9, 1, 0.0 );
 
@@ -505,7 +505,7 @@ namespace moris
                     aWij( 6 ) = 0.5 * ( tGradVelocity( 0, 2 ) - tGradVelocity( 2, 0 ) );
                     aWij( 7 ) = 0.5 * ( tGradVelocity( 1, 2 ) - tGradVelocity( 2, 1 ) );
                     break;
-                        }
+                }
                 default:
                     MORIS_ERROR( false, "IWG_Spalart_Allmaras_Turbulence_Bulk::compute_wij - space dim can only be 2 or 3" );
                     break;
@@ -518,14 +518,19 @@ namespace moris
                 Matrix< DDRMat >             & adwijdu )
         {
             // get the der FI
-            Field_Interpolator * tFIDer = mMasterFIManager->get_field_interpolators_for_type( aDofTypes( 0 ) );
-            Field_Interpolator * tFIVelocity = mMasterFIManager->get_field_interpolators_for_type( MSI::Dof_Type::VX );
+            Field_Interpolator * tFIDer =
+                    mMasterFIManager->get_field_interpolators_for_type( aDofTypes( 0 ) );
+
+            // get the velocity FI
+            // FIXME protect dof type
+            Field_Interpolator * tFIVelocity =
+                    mMasterFIManager->get_field_interpolators_for_type( MSI::Dof_Type::VX );
 
             // switch on space dim
             switch ( tFIVelocity->get_number_of_fields() )
             {
-                case ( 2 ):
-                        {
+                case 2 :
+                {
                     // init aWij = [ w11 w12 w21 w22]
                     adwijdu.set_size( 4, tFIDer->get_number_of_space_time_coefficients(), 0.0 );
 
@@ -544,9 +549,9 @@ namespace moris
                         adwijdu( { 2, 2 }, { tNumBases, 2 * tNumBases - 1 } ) =   0.5 * tdNdxVelocity.get_row( 0 );
                     }
                     break;
-                        }
-                case ( 3 ):
-                        {
+                }
+                case 3 :
+                {
                     // init aWij = [ w11 w12 w13 w21 w22 w23 w31 w32 w33 ]
                     adwijdu.set_size( 9, tFIDer->get_number_of_space_time_coefficients(), 0.0 );
 
@@ -578,7 +583,7 @@ namespace moris
                         adwijdu( { 7, 7 }, { 2 * tNumBases, 3 * tNumBases - 1 } ) =   0.5 * tdNdxVelocity.get_row( 1 );
                     }
                     break;
-                        }
+                }
                 default:
                     MORIS_ERROR( false, "IWG_Spalart_Allmaras_Turbulence_Bulk::compute_dwijdu - space dim can only be 2 or 3" );
                     break;
@@ -710,7 +715,8 @@ namespace moris
             this->compute_dchidu( aDofTypes, tdchidu );
 
             // compute adfv1du
-            adfv1du = 3.0 * std::pow( mCv1, 3.0 ) * std::pow( tChi, 2.0 ) * tdchidu / std::pow( std::pow( tChi, 3.0 ) + std::pow( mCv1, 3.0 ), 2.0 );
+            adfv1du = 3.0 * std::pow( mCv1, 3.0 ) * std::pow( tChi, 2.0 ) * tdchidu /
+                    std::pow( std::pow( tChi, 3.0 ) + std::pow( mCv1, 3.0 ), 2.0 );
         }
 
         //------------------------------------------------------------------------------
@@ -748,7 +754,8 @@ namespace moris
             this->compute_dfv1du( aDofTypes, tdfv1du );
 
             // compute adfv2du
-            adfv2du = ( std::pow( tChi, 2.0 ) * tdfv1du - tdchidu ) / ( std::pow( 1.0 + tChi * tFv1, 2.0 ) );
+            adfv2du = ( std::pow( tChi, 2.0 ) * tdfv1du - tdchidu ) /
+                    ( std::pow( 1.0 + tChi * tFv1, 2.0 ) );
         }
 
         //------------------------------------------------------------------------------
@@ -766,7 +773,8 @@ namespace moris
             real tFv2 = this->compute_fv2();
 
             // compute s
-            real tS = tFv2 * tFIViscosity->val()( 0 ) / std::pow( mKappa * tPropWallDistance->val()( 0 ), 2.0 );
+            real tS = tFv2 * tFIViscosity->val()( 0 ) /
+                    std::pow( mKappa * tPropWallDistance->val()( 0 ), 2.0 );
 
             return tS;
         }
@@ -777,7 +785,8 @@ namespace moris
                 Matrix< DDRMat >             & adsdu )
         {
             // get the derivative dof FIs
-            Field_Interpolator * tFIDer = mMasterFIManager->get_field_interpolators_for_type( aDofTypes( 0 ) );
+            Field_Interpolator * tFIDer =
+                    mMasterFIManager->get_field_interpolators_for_type( aDofTypes( 0 ) );
 
             // init adSTildedu
             adsdu.set_size( 1, tFIDer->get_number_of_space_time_coefficients(), 0.0 );
@@ -797,15 +806,18 @@ namespace moris
             Matrix< DDRMat > tdfv2du;
             this->compute_dfv2du( aDofTypes, tdfv2du );
 
-            // compute dstildedu
-            adsdu.matrix_data() += tFIViscosity->val() * tdfv2du / std::pow( mKappa * tPropWallDistance->val()( 0 ), 2.0 );
+            // compute dsdu
+            adsdu.matrix_data() +=
+                    tFIViscosity->val() * tdfv2du /
+                    std::pow( mKappa * tPropWallDistance->val()( 0 ), 2.0 );
 
             // if dof type is residual dof type
             if( aDofTypes( 0 ) == mResidualDofType( 0 ) )
             {
                 // add contribution
                 adsdu.matrix_data() +=
-                        tFv2 * tFIDer->N() / std::pow( mKappa * tPropWallDistance->val()( 0 ), 2.0 );
+                        tFv2 * tFIViscosity->N() /
+                        std::pow( mKappa * tPropWallDistance->val()( 0 ), 2.0 );
             }
         }
 
@@ -854,7 +866,7 @@ namespace moris
             adsmoddu = ( ( tdsbardu * ( std::pow( mCv2, 2 ) * tSBar + mCv3 * tS ) +
                     tSBar * ( std::pow( mCv2, 2 ) * tdsbardu + mCv3 * tdsdu ) ) * tSModDeno -
                     tSModNum * ( ( mCv3 - 2.0 * mCv2 ) * tdsbardu - tdsdu ) ) /
-                    std::pow( tSModDeno, 2 );
+                            std::pow( tSModDeno, 2 );
         }
 
         //------------------------------------------------------------------------------
@@ -882,6 +894,11 @@ namespace moris
 
             // return STilde
             return tSTilde;
+
+            if( tSTilde < 0.0 )
+            {
+                std::cout<<"Negative stilde "<<tSTilde<<std::endl;
+            }
         }
 
         //------------------------------------------------------------------------------
@@ -995,7 +1012,7 @@ namespace moris
             // compute r
             real tR = this->compute_r();
 
-            // if r > 10
+            // if r < 10
             if( tR < 10.0 )
             {
                 // get the residual dof FI (here viscosity)
@@ -1084,7 +1101,8 @@ namespace moris
             real tFw = this->compute_fw();
 
             // init adfwdu
-            adfwdu = ( tFw * std::pow( mCw3, 6.0 ) * tdgdu ) / ( tG * ( std::pow( tG, 6.0 ) + std::pow( mCw3, 6.0 ) ) );
+            adfwdu = ( tFw * std::pow( mCw3, 6.0 ) * tdgdu ) /
+                    ( tG * ( std::pow( tG, 6.0 ) + std::pow( mCw3, 6.0 ) ) );
         }
 
         //------------------------------------------------------------------------------

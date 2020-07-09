@@ -1,6 +1,5 @@
 #include "cl_GEN_Child_Node.hpp"
 #include "cl_GEN_Geometry.hpp"
-#include "cl_GEN_Interpolation.hpp"
 
 namespace moris
 {
@@ -17,21 +16,6 @@ namespace moris
                   mParentNodeCoordinates(aParentNodeCoordinates)
         {
             aBasisFunction.evaluate_basis_function(aLocalCoordinates, mBasisValues);
-        }
-
-        //--------------------------------------------------------------------------------------------------------------
-
-        Child_Node::Child_Node(Matrix<DDUMat>             aParentNodeIndices,
-                               Cell<Matrix<DDRMat>>       aParentNodeCoordinates,
-                               const xtk::Basis_Function& aBasisFunction,
-                               Matrix<DDRMat>             aNodeFieldValues,
-                               real                       aIsocontourThreshold)
-                : Child_Node(aParentNodeIndices,
-                             aParentNodeCoordinates,
-                             aBasisFunction,
-                             Interpolation::linear_interpolation_value(aNodeFieldValues,
-                                                                       aIsocontourThreshold))
-        {
         }
 
         //--------------------------------------------------------------------------------------------------------------

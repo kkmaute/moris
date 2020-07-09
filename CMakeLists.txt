@@ -155,7 +155,7 @@ option(MORIS_USE_VALGRIND
 option(MORIS_USE_MATRIX_FILL
     "Fill matrices by default with NANs or MaxValues." OFF )
     
-option(USE_XTK "Have XTK Library" ON)	
+option(MORIS_USE_XTK "Have XTK Library" ON)	
 
 option(MORIS_HAVE_SYMBOLIC
     "Use symbolic information in executable." OFF )
@@ -172,13 +172,13 @@ option(MORIS_USE_MKL
 option(MORIS_USE_LAPACK
     "Use the LAPACK and LAPACK as the linear algebra packages." OFF )
 
-option(HAVE_GCMMA
+option(MORIS_HAVE_GCMMA
     "Build MORIS with support for GCMMA." ON )
 
-option(HAVE_SNOPT
+option(MORIS_HAVE_SNOPT
     "Build MORIS with support for SNOPT." ON )
     
-option(HAVE_LBFGS
+option(MORIS_HAVE_LBFGS
     "Build MORIS with support for LBFGS." ON )
     
 # option(HAVE_PERF_MAT
@@ -207,7 +207,7 @@ option(MORIS_HAVE_PARALLEL_TESTS
 option(MORIS_PERFORM_CHECK
     "Use performance check." ON )
     
-option(USE_TACC "USE TACC" OFF)
+option(MORIS_USE_TACC "USE TACC" OFF)
 
 # -------------------------------------------------------------------------
 # Package Options
@@ -300,7 +300,7 @@ set(MORIS_C_LINK_EXECUTABLE ${MORIS_C_COMPILER} )
 
 # Set default C++ compiler
 if (NOT MORIS_CXX_COMPILER )
-    if (USE_TACC ) 
+    if (MORIS_USE_TACC ) 
         set(MORIS_CXX_COMPILER "mpicxx" )
     else()
         set(MORIS_CXX_COMPILER "mpic++")
@@ -316,7 +316,7 @@ include(CheckCXXCompilerFlag)
 
 set(CMAKE_EXE_LINKER_FLAGS "-Wl,--allow-multiple-definition")
 
-if (USE_TACC)
+if (MORIS_USE_TACC)
     # openmp should be taken out when we can figure this out
     list(APPEND MORIS_BASE_LIBS "-lifcore -lifcoremt  -lgfortran -lrt -ldl -lssl -lcrypto")
 #     list(APPEND MORIS_BASE_LIBS "-lgfortran -lrt -ldl")
@@ -339,6 +339,7 @@ if (MORIS_HAVE_DEBUG)
 endif()
 
 if (MORIS_HAVE_SYMBOLIC)
+    set(CMAKE_BUILD_TYPE "Debug" CACHE STRING "Build type Debug" FORCE)
     check_cxx_compiler_flag(-Og HAVE_DEBUG)
     if (HAVE_DEBUG)
         set(MORIS_CXX_FLAGS "${MORIS_CXX_FLAGS} -Og")
@@ -359,9 +360,10 @@ if (MORIS_HAVE_SYMBOLIC)
         set(MORIS_CXX_FLAGS "${MORIS_CXX_FLAGS} -ggdb")
     endif()
 else()    
+    set(CMAKE_BUILD_TYPE "Release" CACHE STRING "Build type Release" FORCE)
     check_cxx_compiler_flag(-O3 HAVE_O3_OPTIMISATION)
     if (HAVE_O3_OPTIMISATION)
-        if (USE_TACC)
+        if (MORIS_USE_TACC)
 	        set(MORIS_CXX_FLAGS "${MORIS_CXX_FLAGS} -O3 -march=core-avx2")
         else()
             set(MORIS_CXX_FLAGS "${MORIS_CXX_FLAGS} -O3 -m64")
@@ -462,7 +464,7 @@ find_package(Threads)
 # -------------------------------------------------------------------------
 # GPERFTOOLS : Make sure that paths are set correctly.
 # -------------------------------------------------------------------------
-option(USE_GPERFTOOLS "Use Google Profiling tools (check paths in CMakeLists.txt)." OFF)
+option(MORIS_USE_GPERFTOOLS "Use Google Profiling tools (check paths in CMakeLists.txt)." OFF)
 if (USE_GPERFTOOLS)
     set( MORIS_CXX_FLAGS "${MORIS_CXX_FLAGS} -I/usr/include/gperftools/ -fno-builtin-malloc -fno-builtin-calloc -fno-builtin-realloc -fno-builtin-free" )
 
@@ -472,7 +474,7 @@ endif()
 # -------------------------------------------------------------------------
 # SACADO : Make sure that paths are set correctly.
 # -------------------------------------------------------------------------
-option(USE_SACADO "UseSacado (check paths in CMakeLists.txt)." OFF)
+option(MORIS_USE_SACADO "UseSacado (check paths in CMakeLists.txt)." OFF)
 if (USE_SACADO)
     set( MORIS_CXX_FLAGS "${MORIS_CXX_FLAGS} -I$ENV{HOME}/codes/Sacado/Trilinos-master/packages/sacado/src" )
     set( MORIS_CXX_FLAGS "${MORIS_CXX_FLAGS} -I$ENV{HOME}/codes/Sacado/Trilinos-master/packages/sacado/src/mpl" )
@@ -484,7 +486,7 @@ endif() #> clean this up eventually
 # -------------------------------------------------------------------------
 # XTK --------------------------------------------------------------------------
 # -------------------------------------------------------------------------   
-if (USE_XTK)
+if (MORIS_USE_XTK)
     list(APPEND MORIS_INCDIRS "$ENV{HOME}/codes/xtk/include") #> ask if this is separate from the files in MORIS/src/xtk
     list(APPEND MORIS_INCDIRS "$ENV{HOME}/codes/xtk/src")
     list(APPEND MORIS_DEFINITIONS "-DUSE_XTK")
@@ -624,6 +626,8 @@ endif()
 
 if(BUILD_MAIN)
     include(${MORIS_DEPENDS_DIR}/main_includes.cmake)
+else()
+    set(MORIS_USE_EXAMPLES OFF CACHE BOOL "Build the examples." FORCE)
 endif()
 
 if(BUILD_ALL)

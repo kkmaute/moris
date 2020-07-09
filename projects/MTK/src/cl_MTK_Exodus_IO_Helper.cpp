@@ -10,9 +10,12 @@ namespace moris
         Exodus_IO_Helper::Exodus_IO_Helper(
                 const char * aExodusFile,
                 const int    aTimeStepIndex,
+                const bool   aBuildGlobal,
                 const bool   aVerbose)
         {
             mVerbose       = aVerbose;
+            mBuildGlobal   = aBuildGlobal;
+
             mTimeStepIndex = aTimeStepIndex;
 
             mTitle = new char[MAX_LINE_LENGTH+1];
@@ -47,6 +50,7 @@ namespace moris
             get_elem_id_map();
             get_set_information();
             get_nodal_fields();
+            get_global_variables();
         }
 
         // ---------------------------------------------------------------------------------------------
@@ -268,7 +272,7 @@ namespace moris
         void
         Exodus_IO_Helper::get_load_bal_parameters()
         {
-            if (par_size() > 1 )
+            if (par_size() > 1 && mBuildGlobal)
             {
                 mErrFlag =ex_get_loadbal_param(
                         mExoFileId,
@@ -307,7 +311,7 @@ namespace moris
         void
         Exodus_IO_Helper::get_cmap_params()
         {
-            if (par_size() > 1 )
+            if (par_size() > 1 && mBuildGlobal)
             {
                 // Allocate space based on information from load balance parameter calls
                 mNodeCmapIds.resize(1,mNumNodeCmaps);
@@ -341,7 +345,7 @@ namespace moris
         void
         Exodus_IO_Helper::get_node_cmap()
         {
-            if (par_size() > 1 )
+            if (par_size() > 1 && mBuildGlobal)
             {
                 mNodeCmapNodeIds.resize(mNumNodeCmaps);
                 mNodeCmapProcIds.resize(mNumNodeCmaps);
@@ -379,7 +383,7 @@ namespace moris
         void
         Exodus_IO_Helper::get_init_global()
         {
-            if (par_size() > 1 )
+            if (par_size() > 1 && mBuildGlobal)
             {
                 mErrFlag =ex_get_init_global(
                         mExoFileId,
@@ -409,7 +413,7 @@ namespace moris
         void
         Exodus_IO_Helper::get_eb_info_global()
         {
-            if (par_size() > 1 )
+            if (par_size() > 1 && mBuildGlobal)
             {
                 mGlobalElemBlkIds.resize(mNumElemBlksGlobal);
                 mGlobalElemBlkCnts.resize(mNumElemBlksGlobal);
@@ -471,7 +475,7 @@ namespace moris
         void
         Exodus_IO_Helper::get_ns_param_global()
         {
-            if (par_size() > 1 )
+            if (par_size() > 1 && mBuildGlobal)
             {
                 if (mNumNodeSetsGlobal > 0)
                 {
@@ -508,7 +512,7 @@ namespace moris
         void
         Exodus_IO_Helper::get_node_map()
         {
-            if (par_size() > 1 )
+            if (par_size() > 1 && mBuildGlobal)
             {
                 mNodeMapi.resize(mNumInternalNodes,1);
                 mNodeMapb.resize(mNumBorderNodes,1);
@@ -844,6 +848,78 @@ namespace moris
         // ---------------------------------------------------------------------------------------------
 
         void
+        Exodus_IO_Helper::get_global_variables()
+        {
+            mErrFlag = ex_get_variable_param(
+                    mExoFileId,
+                    EX_GLOBAL,
+                    &mNumGlobalVars);
+
+            MORIS_ASSERT(!mErrFlag,"ex_get_variable_param failed");
+
+            // get number of time steps stored in exodus file
+            mNumTimeSteps = ex_inquire_int(mExoFileId, EX_INQ_TIME);
+
+            MORIS_ASSERT(mNumTimeSteps >= 0,"ex_inquire_int with EX_INQ_TIME failed.");
+
+            if(mVerbose)
+            {
+                MORIS_LOG_INFO( " [%d] number of global variables = %d",par_rank(),mNumGlobalVars);
+                MORIS_LOG_INFO( " [%d] number of time steps       = %d",par_rank(),mNumTimeSteps);
+            }
+
+            if(mNumGlobalVars == 0)
+            {
+                return ;
+            }
+
+            setup_names(
+                    mNumGlobalVars,
+                    mGlobalVariableNamesMemory,
+                    mGlobalVariableNamePtrs);
+
+            mErrFlag = ex_get_variable_names(
+                    mExoFileId,
+                    EX_GLOBAL,
+                    mNumGlobalVars,
+                    mGlobalVariableNamePtrs.data());
+
+            MORIS_ASSERT(!mErrFlag,"ex_get_variable_names failed");
+
+            mGlobalVariables.resize(mNumGlobalVars,1);
+
+            // read read global variables
+            this->reload_global_variables();
+        }
+
+        // ---------------------------------------------------------------------------------------------
+
+        void
+        Exodus_IO_Helper::reload_global_variables()
+        {
+            MORIS_ERROR( mTimeStepIndex < mNumTimeSteps, "Requested time step does not exist." );
+
+            mErrFlag = ex_get_var(
+                    mExoFileId,
+                    mTimeStepIndex + 1,
+                    EX_GLOBAL, 1,
+                    0,
+                    mNumGlobalVars,
+                    mGlobalVariables.data());
+
+            MORIS_ASSERT(!mErrFlag,"ex_get_var failed");
+
+            mErrFlag = ex_get_time(
+                    mExoFileId,
+                    mTimeStepIndex + 1,
+                    &mTimeValue );
+
+            MORIS_ASSERT(!mErrFlag,"ex_get_time failed");
+        }
+
+        // ---------------------------------------------------------------------------------------------
+
+        void
         Exodus_IO_Helper::copy_coordinates(int tNewExoFileId)
         {
             const char *tmp[3] = {"x", "y", "z"};
@@ -1021,8 +1097,11 @@ namespace moris
         {
             int nprocs = par_size();
             int rank = par_rank();
-            int  i1, iTemp1;
-            int  iMaxDigit = 0, iMyDigit = 0;
+            int i1 = 0;
+            int iTemp1 = 0;
+            int iMaxDigit = 0;
+            int iMyDigit = 0;
+
             char cTemp[128];
 
             output[0] = '\0';
@@ -1133,6 +1212,53 @@ namespace moris
             }
 
             return mFieldsNodalVars[aFieldIndex](tIndex);
+        }
+
+        //------------------------------------------------------------------------------
+
+        real
+        Exodus_IO_Helper::get_global_variable( uint aGlobalVariableIndex, uint aTimeStepIndex )
+        {
+            // check that field exists
+            MORIS_ERROR( aGlobalVariableIndex < (uint) mNumGlobalVars, "Global variable index out of bounds.");
+
+            // check if loaded time step is requested time step; if not load new time step
+            if ( aTimeStepIndex != (uint) mTimeStepIndex )
+            {
+                mTimeStepIndex = aTimeStepIndex;
+
+                this->reload_global_variables();
+            }
+
+            return mGlobalVariables(aGlobalVariableIndex);
+        }
+
+        //------------------------------------------------------------------------------
+
+        const char*
+        Exodus_IO_Helper::get_global_variable_name( uint aGlobalVariableIndex )
+        {
+            // check that field exists
+            MORIS_ERROR( aGlobalVariableIndex < (uint) mNumGlobalVars, "Global variable index out of bounds.");
+
+            return mGlobalVariableNamePtrs[aGlobalVariableIndex];
+        }
+
+        //------------------------------------------------------------------------------
+
+        uint
+        Exodus_IO_Helper::get_node_index_by_Id( uint aNodeId)
+        {
+            // find index of node given its nodeId
+            auto tItr = std::find(mNodeNumMap.data(),mNodeNumMap.data()+mNumNodes,aNodeId);
+
+            // compute index
+            uint tIndex = std::distance(mNodeNumMap.data(),tItr);
+
+            // check that exactly one node index was found
+            MORIS_ASSERT( tIndex < (uint) mNumNodes, "Node not found");
+
+            return tIndex;
         }
     }
 }

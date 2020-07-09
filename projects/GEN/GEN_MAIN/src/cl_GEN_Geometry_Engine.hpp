@@ -2,7 +2,7 @@
 #define MORIS_CL_Geometry_Engine_HPP_
 
 // WRK
-#include "../../../WRK/src/cl_WRK_Performer.hpp"
+#include "cl_WRK_Performer.hpp"
 
 // GEN
 #include "cl_GEN_Pending_Node.hpp"
@@ -50,7 +50,7 @@ namespace moris
 
             // Level-set isocontour threshold
             real mIsocontourThreshold;
-            real mPerturbationValue;
+            real mErrorFactor;
 
             // Spatial dimensions
             uint mSpatialDim;
@@ -69,14 +69,9 @@ namespace moris
             Cell<std::shared_ptr<Property>> mProperties;
             Cell<ParameterList> mPropertyParameterLists;
 
-            // Child nodes
-            Cell<std::shared_ptr<Child_Node>> mChildNodes;
-
-            // Contains all the geometry objects
-            Geometry_Object_Manager mGeometryObjectManager;
-
             // Contains all the pdv hosts
             Pdv_Host_Manager mPdvHostManager;
+            Cell<std::shared_ptr<Intersection_Node>> mIntersectionNodes;
 
             // Phase Table
             Phase_Table mPhaseTable;
@@ -84,7 +79,9 @@ namespace moris
             // Mesh
             std::shared_ptr<mtk::Mesh_Manager> mMeshManager;
 
+            // Temporary FIXME
             Matrix<IndexMat> mInterfaceNodeIndices;
+            Cell<Matrix<IndexMat>> mInterfaceParentNodes;
 
         public:
 
@@ -94,7 +91,7 @@ namespace moris
              * @param aParameterLists GEN parameter lists (see fn_PRM_GEN_Parameters.hpp)
              * @param aLibrary Library used for pulling user-defined functions
              */
-            Geometry_Engine(Cell<Cell<ParameterList>> aParameterLists,
+            Geometry_Engine(Cell< Cell<ParameterList> >        aParameterLists,
                             std::shared_ptr<moris::Library_IO> aLibrary = nullptr);
 
             /**
@@ -104,11 +101,11 @@ namespace moris
              * @param[ in ] aPhaseTable phase table
              * @param[ in ] aSpatialDim spatial dimensions
              */
-            Geometry_Engine(Cell< std::shared_ptr<Geometry> >   aGeometry,
-                            Phase_Table                     aPhaseTable,
-                            uint                            aSpatialDim = 3,
-                            real                            aIsocontourThreshold = 0.0,
-                            real                            aPerturbationValue = 1E-6);
+            Geometry_Engine(Cell< std::shared_ptr<Geometry> > aGeometry,
+                            Phase_Table                       aPhaseTable,
+                            uint                              aSpatialDim = 3,
+                            real                              aIsocontourThreshold = 0.0,
+                            real                              aErrorFactor = 1E-8);
 
             /**
              * Destructor
@@ -179,20 +176,10 @@ namespace moris
              * create new node geometry objects
              * @param[ in ] aNodeCoords node coordinates
              */
-            void create_new_node_geometry_objects( const Cell<moris_index>&    aNewNodeIndices,
-                                                   bool                        aStoreParentTopo,
+            void create_new_child_nodes( const Cell<moris_index>&    aNewNodeIndices,
                                                    const Cell<xtk::Topology*>& aParentTopo,
                                                    const Cell<Matrix<DDRMat>>& aParamCoordRelativeToParent,
                                                    const Matrix<DDRMat>&       aGlobalNodeCoord );
-
-            /**
-             * @brief Links new nodes with an existing geometry object. This is used for unzipped interfaces
-             * where more than one node is at the same location
-             * @param[in] aNodesIndicesWithGeomObj - Node indices which already have a geometry object
-             * @param[in] aNodesIndicesToLink - Node indices to link to the corresponding nodes in aNodesIndicesWithGeomObj
-             */
-            void link_new_nodes_to_existing_geometry_objects( Matrix< IndexMat > const & aNodesIndicesWithGeomObj,
-                                                              Matrix< IndexMat > const & aNodesIndicesToLink );
 
             /**
              * @brief is_intersected checks to see if an entity provided to it intersects a geometry field. Intersects in this context
@@ -215,19 +202,6 @@ namespace moris
              * @param aInterfaceNodeIndices Interface node indices
              */
             void set_interface_nodes( Matrix< IndexMat > const & aInterfaceNodeIndices);
-
-            /**
-             * Computes the intersection of an isocountour with an entity and returning the local coordinate relative to the parent
-             * and the global coordinate if needed
-             */
-            void get_intersection_location(
-                    const Matrix<DDRMat>&   aGlobalNodeCoordinates,
-                    const Matrix<DDRMat>&   aEntityNodeVars,
-                    const Matrix<IndexMat>& aEntityNodeIndices,
-                    Matrix<DDRMat>&         aIntersectionLocalCoordinates,
-                    Matrix<DDRMat>&         aIntersectionGlobalCoordinates,
-                    bool                    aCheckLocalCoordinate = false,
-                    bool                    aComputeGlobalCoordinate = false);
 
             /**
              * @brief Get the total number of phases in the phase table
@@ -357,12 +331,15 @@ namespace moris
              */
             void assign_pdv_hosts();
 
-            /**
-             * Resets the stored info specific to meshes
-             */
-            void reset();
-
         private:
+
+            /**
+             * Approximate comparison to see if a node is on the interface
+             *
+             * @param aFieldValue Geometry field value
+             * @return If the value is determined to be on the interface with the geometry engine's error factor
+             */
+            bool on_interface(real aFieldValue);
 
             /**
              * Compute_intersection_info, calculates the relevant intersection information placed in the geometry object
@@ -377,6 +354,17 @@ namespace moris
                                             moris::Matrix< moris::DDRMat >   const & aNodeCoords,
                                             moris::size_t                    const & aCheckType,
                                             GEN_Geometry_Object                    & aGeometryObject );
+
+            /**
+             * Computes the intersection of an isocountour with an entity and returning the local coordinate relative to the parent
+             * and the global coordinate if needed
+             */
+            void get_intersection_location(
+                    const Matrix<DDRMat>&   aGlobalNodeCoordinates,
+                    const Matrix<DDRMat>&   aEntityNodeVars,
+                    const Matrix<IndexMat>& aEntityNodeIndices,
+                    Matrix<DDRMat>&         aIntersectionLocalCoordinates,
+                    Matrix<DDRMat>&         aIntersectionGlobalCoordinates);
 
         };
     }
