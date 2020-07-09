@@ -38,6 +38,9 @@ namespace moris
                 // default dof type
                 MSI::Dof_Type mMasterDofVelocity = MSI::Dof_Type::VX;
 
+                //
+                real mEpsilon = 1e-6;
+
             public:
 
                 // property type for the SP
