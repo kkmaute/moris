@@ -1,5 +1,5 @@
-set(EXAMPLE_MAIN Main_<Example Name>)
-set(EXAMPLE_FILE <Example Name>)
+set(EXAMPLE_MAIN Main_Channel_2D_Static)
+set(EXAMPLE_FILE Channel_2D_Static)
 set(EXAMPLE_PROCS 1 2)
 
 # List source files

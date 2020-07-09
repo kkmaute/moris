@@ -20,7 +20,7 @@
 
 #include "AztecOO.h"
 
-static const bool isGhost = true;
+extern uint gInterpolationOrder;
 
 #ifdef  __cplusplus
 extern "C"
@@ -29,6 +29,8 @@ extern "C"
 //------------------------------------------------------------------------------
 namespace moris
 {
+    bool isGhost = true;
+
     // Minimum value to be returned by level set function
     moris::real tMinLSvalue      = 1.0e-6;
 
@@ -110,7 +112,7 @@ namespace moris
         moris::real  tValue = tCylinderRadius -
                 std::pow(
                         std::pow( aCoordinates( 0 ) - 0.4, 2.0 ) +
-                                std::pow( aCoordinates( 1 ) - (0.2 - tCylinderOffset), 2.0 ), 0.5 );
+                        std::pow( aCoordinates( 1 ) - (0.2 - tCylinderOffset), 2.0 ), 0.5 );
 
         return std::abs(tValue) < tMinLSvalue ? tMinLSvalue : tValue;
     }
@@ -122,7 +124,7 @@ namespace moris
         moris::real tValue = tCylinderRadius -
                 std::pow(
                         std::pow( aCoordinates( 0 ) - 0.8, 2.0 ) +
-                                std::pow( aCoordinates( 1 ) - (0.2 + tCylinderOffset ), 2.0 ), 0.5 );
+                        std::pow( aCoordinates( 1 ) - (0.2 + tCylinderOffset ), 2.0 ), 0.5 );
 
         return std::abs(tValue) < tMinLSvalue ? tMinLSvalue : tValue;
     }
@@ -134,7 +136,7 @@ namespace moris
         moris::real tValue = tCylinderRadius -
                 std::pow(
                         std::pow( aCoordinates( 0 ) - 1.2, 2.0 ) +
-                                std::pow( aCoordinates( 1 ) - (0.2 - tCylinderOffset), 2.0 ), 0.5 );
+                        std::pow( aCoordinates( 1 ) - (0.2 - tCylinderOffset), 2.0 ), 0.5 );
 
         return std::abs(tValue) < tMinLSvalue ? tMinLSvalue : tValue;
     }
@@ -146,7 +148,7 @@ namespace moris
         moris::real tValue = tCylinderRadius -
                 std::pow(
                         std::pow( aCoordinates( 0 ) - 1.6, 2.0 ) +
-                                std::pow( aCoordinates( 1 ) - (0.2 + tCylinderOffset ), 2.0 ), 0.5 );
+                        std::pow( aCoordinates( 1 ) - (0.2 + tCylinderOffset ), 2.0 ), 0.5 );
 
         return std::abs(tValue) < tMinLSvalue ? tMinLSvalue : tValue;
     }
@@ -168,30 +170,28 @@ namespace moris
 
         tParameterlist( 0 )( 0 ) = prm::create_hmr_parameter_list();
 
-        tParameterlist( 0 )( 0 ).set( "number_of_elements_per_dimension", std::string("22,11"));
+        tParameterlist( 0 )( 0 ).set( "number_of_elements_per_dimension", std::string("176,88"));
         tParameterlist( 0 )( 0 ).set( "domain_dimensions",                std::string("4,2"));
         tParameterlist( 0 )( 0 ).set( "domain_offset",                    std::string("-1.24,-0.86"));
         tParameterlist( 0 )( 0 ).set( "domain_sidesets",                  std::string("1,2,3,4"));
         tParameterlist( 0 )( 0 ).set( "lagrange_output_meshes",           std::string("0"));
 
-        tParameterlist( 0 )( 0 ).set( "lagrange_orders",  std::string("1" ));
+        tParameterlist( 0 )( 0 ).set( "lagrange_orders",  std::to_string(gInterpolationOrder));
         tParameterlist( 0 )( 0 ).set( "lagrange_pattern", std::string("0" ));
-        tParameterlist( 0 )( 0 ).set( "bspline_orders",   std::string("1" ));
+        tParameterlist( 0 )( 0 ).set( "bspline_orders",   std::to_string(gInterpolationOrder));
         tParameterlist( 0 )( 0 ).set( "bspline_pattern",  std::string("0" ));
 
         tParameterlist( 0 )( 0 ).set( "lagrange_to_bspline", std::string("0") );
 
         tParameterlist( 0 )( 0 ).set( "truncate_bsplines",  1 );
-        tParameterlist( 0 )( 0 ).set( "refinement_buffer",  3 );
-        tParameterlist( 0 )( 0 ).set( "staircase_buffer",   5 );
-        tParameterlist( 0 )( 0 ).set( "initial_refinement", 4 );
+        tParameterlist( 0 )( 0 ).set( "refinement_buffer",  1 );
+        tParameterlist( 0 )( 0 ).set( "staircase_buffer",   1 );
+        tParameterlist( 0 )( 0 ).set( "initial_refinement", 1 );
 
         tParameterlist( 0 )( 0 ).set( "use_number_aura",    1 );
 
         tParameterlist( 0 )( 0 ).set( "use_multigrid",  0 );
         tParameterlist( 0 )( 0 ).set( "severity_level", 0 );
-
-        tParameterlist( 0 )( 0 ).set( "adaptive_refinement_level", 1 );
     }
 
     void XTKParameterList( moris::Cell< moris::Cell< ParameterList > > & tParameterlist )
@@ -200,16 +200,17 @@ namespace moris
         tParameterlist( 0 ).resize( 1 );
 
         tParameterlist( 0 )( 0 ) = prm::create_xtk_parameter_list();
-        tParameterlist( 0 )( 0 ).set( "decompose",                true );
-        tParameterlist( 0 )( 0 ).set( "decomposition_type",       std::string("conformal") );
-        tParameterlist( 0 )( 0 ).set( "enrich",                   true );
-        tParameterlist( 0 )( 0 ).set( "basis_rank",               std::string("bspline") );
-        tParameterlist( 0 )( 0 ).set( "enrich_mesh_indices",      std::string("0") );
-        tParameterlist( 0 )( 0 ).set( "ghost_stab",               isGhost );
-        tParameterlist( 0 )( 0 ).set( "multigrid",                false );
-        tParameterlist( 0 )( 0 ).set( "verbose",                  true );
-        tParameterlist( 0 )( 0 ).set( "print_enriched_ig_mesh",   false );
-        tParameterlist( 0 )( 0 ).set( "exodus_output_XTK_ig_mesh",false );
+        tParameterlist( 0 )( 0 ).set( "decompose",                   true );
+        tParameterlist( 0 )( 0 ).set( "decomposition_type",          std::string("conformal") );
+        tParameterlist( 0 )( 0 ).set( "enrich",                      true );
+        tParameterlist( 0 )( 0 ).set( "basis_rank",                  std::string("bspline") );
+        tParameterlist( 0 )( 0 ).set( "enrich_mesh_indices",         std::string("0") );
+        tParameterlist( 0 )( 0 ).set( "ghost_stab",                  isGhost );
+        tParameterlist( 0 )( 0 ).set( "multigrid",                   false );
+        tParameterlist( 0 )( 0 ).set( "verbose",                     true );
+        tParameterlist( 0 )( 0 ).set( "print_enriched_ig_mesh",      false );
+        tParameterlist( 0 )( 0 ).set( "exodus_output_XTK_ghost_mesh",false );
+        tParameterlist( 0 )( 0 ).set( "exodus_output_XTK_ig_mesh",   false );
     }
 
     void GENParameterList( moris::Cell< moris::Cell< ParameterList > > & tParameterlist )
@@ -223,28 +224,35 @@ namespace moris
         // Geometry parameter lists
         tParameterlist( 1 )( 0 ) = prm::create_user_defined_geometry_parameter_list();
         tParameterlist( 1 )( 0 ).set( "field_function_name", "Func_Bottom_Plane");
+        tParameterlist( 1 )( 0 ).set( "number_of_refinements", 1);
 
         tParameterlist( 1 )( 1 ) = prm::create_user_defined_geometry_parameter_list();
         tParameterlist( 1 )( 1 ).set( "field_function_name", "Func_Top_Plane");
+        tParameterlist( 1 )( 1 ).set( "number_of_refinements", 1);
 
         tParameterlist( 1 )( 2 ) = prm::create_user_defined_geometry_parameter_list();
         tParameterlist( 1 )( 2 ).set( "field_function_name", "Func_Left_Plane");
+        tParameterlist( 1 )( 2 ).set( "number_of_refinements", 0);
 
         tParameterlist( 1 )( 3 ) = prm::create_user_defined_geometry_parameter_list();
         tParameterlist( 1 )( 3 ).set( "field_function_name", "Func_Right_Plane");
+        tParameterlist( 1 )( 3 ).set( "number_of_refinements", 0);
 
         tParameterlist( 1 )( 4 ) = prm::create_user_defined_geometry_parameter_list();
         tParameterlist( 1 )( 4 ).set( "field_function_name", "Func_Cylinder");
+        tParameterlist( 1 )( 4 ).set( "number_of_refinements", 1);
 
         tParameterlist( 1 )( 5 ) = prm::create_user_defined_geometry_parameter_list();
         tParameterlist( 1 )( 5 ).set( "field_function_name", "Func_Cylinder2");
+        tParameterlist( 1 )( 5 ).set( "number_of_refinements", 1);
 
         tParameterlist( 1 )( 6 ) = prm::create_user_defined_geometry_parameter_list();
         tParameterlist( 1 )( 6 ).set( "field_function_name", "Func_Cylinder3");
+        tParameterlist( 1 )( 6 ).set( "number_of_refinements", 1);
 
         tParameterlist( 1 )( 7 ) = prm::create_user_defined_geometry_parameter_list();
         tParameterlist( 1 )( 7 ).set( "field_function_name", "Func_Cylinder4");
-
+        tParameterlist( 1 )( 7 ).set( "number_of_refinements", 1);
     }
 
     void FEMParameterList( moris::Cell< moris::Cell< ParameterList > > & tParameterList )
@@ -638,7 +646,7 @@ namespace moris
         tParameterList( 4 )( tIQICounter ).set( "mesh_set_names",             std::string("HMR_dummy_n_p160,HMR_dummy_c_p160") );
         tIQICounter++;
 
-        // create parameter list for IQI 3
+        // create parameter list for IQI 4
         tParameterList( 4 ).push_back( prm::create_IQI_parameter_list() );
         tParameterList( 4 )( tIQICounter ).set( "IQI_name",                   std::string("IQIBulkTEMP") );
         tParameterList( 4 )( tIQICounter ).set( "IQI_type",                   static_cast< uint >( fem::IQI_Type::DOF ) );
@@ -672,10 +680,10 @@ namespace moris
         tParameterlist( 4 )( 0 ) = moris::prm::create_time_solver_algorithm_parameter_list();
 
         tParameterlist( 5 )( 0 ) = moris::prm::create_time_solver_parameter_list();
-        tParameterlist( 5 )( 0 ).set("TSA_DofTypes"       , std::string("VX,VY;P;TEMP") );
-        tParameterlist( 5 )( 0 ).set("TSA_Initialize_Sol_Vec" , std::string("VX,1.5;VY,0.0;P,0.0;TEMP,0.0") );
-        tParameterlist( 5 )( 0 ).set("TSA_Output_Indices" , std::string("0") );
-        tParameterlist( 5 )( 0 ).set("TSA_Output_Crteria" , std::string("Output_Criterion") );
+        tParameterlist( 5 )( 0 ).set("TSA_DofTypes"           , std::string("VX,VY,P,TEMP") );
+        tParameterlist( 5 )( 0 ).set("TSA_Initialize_Sol_Vec" , std::string("VX,1.0;VY,0.0;P,0.0;TEMP,0.0") );
+        tParameterlist( 5 )( 0 ).set("TSA_Output_Indices"     , std::string("0") );
+        tParameterlist( 5 )( 0 ).set("TSA_Output_Crteria"     , std::string("Output_Criterion") );
 
         tParameterlist( 6 )( 0 ) = moris::prm::create_solver_warehouse_parameterlist();
     }
@@ -697,9 +705,15 @@ namespace moris
         tParameterlist( 0 )( 0 ).set( "File_Name"     , std::pair< std::string, std::string >( "./", "Channel_with_Four_Cylinders_Static.exo" ) );
         tParameterlist( 0 )( 0 ).set( "Mesh_Type"     , static_cast< uint >( vis::VIS_Mesh_Type::STANDARD ) );
         tParameterlist( 0 )( 0 ).set( "Set_Names"     , std::string( "HMR_dummy_n_p160,HMR_dummy_c_p160" ) );
-        tParameterlist( 0 )( 0 ).set( "Field_Names"   , std::string( "VX,VY,P,TEMP" ) );
-        tParameterlist( 0 )( 0 ).set( "Field_Type"    , std::string( "NODAL,NODAL,NODAL,NODAL" ) );
-        tParameterlist( 0 )( 0 ).set( "Output_Type"   , std::string( "VX,VY,P,TEMP" ) );
+
+        tParameterlist( 0 )( 0 ).set( "Field_Names"   , std::string( "VX,VY,P,TEMP,IQIBulkVX" ) );
+        tParameterlist( 0 )( 0 ).set( "Field_Type"    , std::string( "NODAL,NODAL,NODAL,NODAL,GLOBAL" ) );
+        tParameterlist( 0 )( 0 ).set( "Output_Type"   , std::string( "VX,VY,P,TEMP,VX" ) );
+
+        // tParameterlist( 0 )( 0 ).set( "Field_Names"   , std::string( "VX,VY,P,TEMP,IQIBulkVX,IQIBulkVY,IQIBulkP,IQIBulkTEMP" ) );
+        // tParameterlist( 0 )( 0 ).set( "Field_Type"    , std::string( "NODAL,NODAL,NODAL,NODAL,GLOBAL,GLOBAL,GLOBAL,GLOBAL" ) );
+        // tParameterlist( 0 )( 0 ).set( "Output_Type"   , std::string( "VX,VY,P,TEMP,VX,VY,P,TEMP" ) );
+
         tParameterlist( 0 )( 0 ).set( "Save_Frequency", 1 );
     }
 

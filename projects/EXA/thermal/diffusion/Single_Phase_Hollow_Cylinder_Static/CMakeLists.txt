@@ -1,6 +1,6 @@
-set(EXAMPLE_MAIN Main_<Example Name>)
-set(EXAMPLE_FILE <Example Name>)
-set(EXAMPLE_PROCS 1 2)
+set(EXAMPLE_MAIN Main_Single_Phase_Hollow_Cylinder_Static)
+set(EXAMPLE_FILE Single_Phase_Hollow_Cylinder_Static)
+set(EXAMPLE_PROCS 1)
 
 # List source files
 set(EXAMPLE_SOURCES

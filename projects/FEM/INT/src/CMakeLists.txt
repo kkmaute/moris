@@ -39,6 +39,7 @@ set(HEADERS
     cl_FEM_IWG_Incompressible_NS_Pressure_Bulk.hpp
     cl_FEM_IWG_Incompressible_NS_Viscous_Velocity_Ghost.hpp
     cl_FEM_IWG_Incompressible_NS_Convective_Velocity_Ghost.hpp
+    cl_FEM_IWG_Incompressible_NS_Convective_Normal_Velocity_Ghost.hpp
     cl_FEM_IWG_Incompressible_NS_Pressure_Ghost.hpp
     cl_FEM_IWG_Incompressible_NS_Velocity_Dirichlet_Nitsche.hpp
     cl_FEM_IWG_Incompressible_NS_Pressure_Dirichlet_Nitsche.hpp
@@ -203,6 +204,7 @@ set(LIB_SOURCES
     cl_FEM_IWG_Incompressible_NS_Pressure_Bulk.cpp
     cl_FEM_IWG_Incompressible_NS_Viscous_Velocity_Ghost.cpp
     cl_FEM_IWG_Incompressible_NS_Convective_Velocity_Ghost.cpp
+    cl_FEM_IWG_Incompressible_NS_Convective_Normal_Velocity_Ghost.cpp
     cl_FEM_IWG_Incompressible_NS_Pressure_Ghost.cpp
     cl_FEM_IWG_Incompressible_NS_Velocity_Dirichlet_Nitsche.cpp
     cl_FEM_IWG_Incompressible_NS_Pressure_Dirichlet_Nitsche.cpp

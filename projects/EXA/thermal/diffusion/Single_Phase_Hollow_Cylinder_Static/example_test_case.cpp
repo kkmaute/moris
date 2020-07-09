@@ -20,38 +20,17 @@ int fn_WRK_Workflow_Main_Interface( int argc, char * argv[] );
 
 //---------------------------------------------------------------
 
-TEST_CASE("Channel_with_Four_Cylinders_Transient",
-        "[moris],[example],[thermal],[advection]")
+TEST_CASE("Single_Phase_Hollow_Cylinder_Static",
+        "[moris],[example],[thermal],[diffusion]")
 {
     // define command line call
     int argc = 2;
 
     char tString1[] = "";
-    char tString2[] = "./bin/<Example Name>.so";
+    char tString2[] = "./Single_Phase_Hollow_Cylinder_Static.so";
 
     char * argv[2] = {tString1,tString2};
 
     // call to performance manager main interface
     int tRet = fn_WRK_Workflow_Main_Interface( argc, argv );
-
-    // check results
-    switch ( par_size() )
-    {
-        case 1:
-        {
-            check_linear_results_serial();
-            break;
-        }
-        case 4:
-        {
-            if (par_rank() == 1)
-            {
-                check_linear_results_parallel();
-            }
-            break;
-        }
-        default:
-        {
-            MORIS_ERROR(false,"Example problem not configured for %d processors.",par_size());
-        }
 }
