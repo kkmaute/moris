@@ -404,14 +404,14 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        void Pdv_Host_Manager::set_ip_requested_dv_types(Cell<PDV_Type>& aPdvTypes)
+        void Pdv_Host_Manager::set_ip_requested_pdv_types(Cell<PDV_Type> aPdvTypes)
         {
             mRequestedIpPdvTypes = aPdvTypes;
         }
 
         //--------------------------------------------------------------------------------------------------------------
 
-        void Pdv_Host_Manager::set_ig_requested_dv_types(Cell<PDV_Type>& aPdvTypes)
+        void Pdv_Host_Manager::set_ig_requested_pdv_types(Cell<PDV_Type> aPdvTypes)
         {
             mRequestedIgPdvTypes = aPdvTypes;
         }

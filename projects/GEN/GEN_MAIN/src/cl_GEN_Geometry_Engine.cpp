@@ -79,6 +79,7 @@ namespace moris
                 for (uint tGeometryIndex = 0; tGeometryIndex < aParameterLists(1).size(); tGeometryIndex++)
                 {
                     mGeometry(tGeometryIndex) = create_geometry(aParameterLists(1)(tGeometryIndex), mADVs, aLibrary);
+                    mShapeSensitivities = (mShapeSensitivities or mGeometry(tGeometryIndex)->depends_on_advs());
                 }
             }
 
@@ -94,7 +95,7 @@ namespace moris
             {
                 tRequestedPdvTypes(tPdvTypeIndex) = tPdvTypeMap[tRequestedPdvNames(tPdvTypeIndex)];
             }
-            mPdvHostManager.set_ip_requested_dv_types(tRequestedPdvTypes);
+            mPdvHostManager.set_ip_requested_pdv_types(tRequestedPdvTypes);
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -594,6 +595,7 @@ namespace moris
                     tIntersectionNodes(mInterfaceNodeIndices(tInterfaceNode)) = mIntersectionNodes(tInterfaceNode);
                 }
                 mPdvHostManager.create_ig_pdv_hosts(tPdvTypes, tIntersectionNodes);
+                mPdvHostManager.set_ig_requested_pdv_types(tCoordinatePdvs);
             }
         }
 
@@ -636,7 +638,10 @@ namespace moris
 
             // Create PDV hosts
             this->create_ip_pdv_hosts(tPdvTypes);
-            this->create_ig_pdv_hosts();
+            if (mShapeSensitivities)
+            {
+                this->create_ig_pdv_hosts();
+            }
 
             // Loop over properties to assign PDVs
             for (uint tPropertyIndex = 0; tPropertyIndex < mPropertyParameterLists.size(); tPropertyIndex++)
