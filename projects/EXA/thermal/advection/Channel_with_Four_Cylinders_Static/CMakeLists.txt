@@ -1,5 +1,6 @@
 set(EXAMPLE_MAIN Main_Channel_with_Four_Cylinders_Static)
 set(EXAMPLE_FILE Channel_with_Four_Cylinders_Static)
+set(EXAMPLE_PROCS 1 4)
 
 # List source files
 set(EXAMPLE_SOURCES
@@ -89,7 +90,9 @@ dynamic_link_input(${EXAMPLE_FILE} ${EXAMPLE_FILE} ${EXAMPLE_FILE}.cpp ${SO_INCL
 
 # Add parallel tests
 if(MORIS_HAVE_PARALLEL_TESTS)
-    add_test(NAME ${EXAMPLE_FILE}
-    WORKING_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}
-    COMMAND ${MORIS_EXECUTE_COMMAND} -n 1 ${VALGRIND} ${VALGRIND_OPTIONS} $<TARGET_FILE:${EXAMPLE_MAIN}>)
+    foreach(PROCS ${EXAMPLE_PROCS})
+        add_test(NAME ${EXAMPLE_FILE}-${PROCS}-procs
+                 WORKING_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}
+                 COMMAND ${MORIS_EXECUTE_COMMAND} -n ${PROCS} ${VALGRIND} ${VALGRIND_OPTIONS} $<TARGET_FILE:${EXAMPLE_MAIN}>)
+    endforeach()
 endif()
