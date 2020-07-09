@@ -11,16 +11,6 @@ namespace moris
 {
     namespace ge
     {
-    //------------------------------------------------------------------------------
-    void GEN_Geometry_Object::set_phase_val_row( moris::moris_index aPhaseValRowIndex )
-    {
-        mPhaseValIndex = aPhaseValRowIndex;
-    }
-
-    moris::moris_index GEN_Geometry_Object::get_phase_val_row() const
-    {
-        return mPhaseValIndex;
-    }
 
     //------------------------------------------------------------------------------
     void GEN_Geometry_Object::set_parent_entity_index( moris::moris_index aEntityIndex )
@@ -55,29 +45,6 @@ namespace moris
     {
         return mInterfaceGlbCoords;
     }
-    //------------------------------------------------------------------------------
-
-    void GEN_Geometry_Object::set_sensitivity_dx_dp( moris::Matrix< moris::DDRMat > const & aSensitivitydxdp )
-    {
-        mSensitivityDxDp = aSensitivitydxdp.copy();
-    }
-
-    moris::Matrix< moris::DDRMat > const & GEN_Geometry_Object::get_sensitivity_dx_dp() const
-    {
-        return mSensitivityDxDp;
-    }
-    //------------------------------------------------------------------------------
-
-    void GEN_Geometry_Object::set_node_adv_indices( moris::Matrix< moris::IndexMat > const & aNodeADVIndices )
-    {
-        mNodeADVIndices = aNodeADVIndices.copy();
-    }
-
-    moris::Matrix< moris::IndexMat > const & GEN_Geometry_Object::get_node_adv_indices() const
-    {
-        return mNodeADVIndices;
-    }
-    //------------------------------------------------------------------------------
 
     void GEN_Geometry_Object::mark_all_nodes_as_on_interface( )
     {
@@ -88,15 +55,9 @@ namespace moris
 
     void GEN_Geometry_Object::mark_node_as_on_interface( moris::moris_index aNodeOrdinal )
     {
-        mNodesOnInterface.push_back(aNodeOrdinal);
         mHasParentNodesOnInterface = true;
     }
-    //------------------------------------------------------------------------------
 
-    void GEN_Geometry_Object::mark_nodes_as_not_on_interface( )
-    {
-        mHasParentNodesOnInterface = false;
-    }
     //------------------------------------------------------------------------------
 
     bool GEN_Geometry_Object::all_parent_nodes_on_interface( )
@@ -109,24 +70,6 @@ namespace moris
     {
         return mHasParentNodesOnInterface;
     }
-    //------------------------------------------------------------------------------
-
-    void GEN_Geometry_Object::set_parent_entity_topology( std::shared_ptr<xtk::Topology> tParentTopo )
-    {
-        MORIS_ASSERT(mParentTopology == nullptr,
-                     "Geometry object parent entity topology has already been set");
-        mParentTopology = tParentTopo;
-    }
-    //------------------------------------------------------------------------------
-
-    xtk::Topology const & GEN_Geometry_Object::get_parent_entity_topology( )
-    {
-        MORIS_ASSERT( mParentTopology != nullptr,
-                     "Geometry object parent entity topology has not been set, either this is not an interface geometry object or set_parent_entity_topology was not called" );
-
-        return (*mParentTopology);
-    }
-
     //------------------------------------------------------------------------------
 
     }   // end ge namespace

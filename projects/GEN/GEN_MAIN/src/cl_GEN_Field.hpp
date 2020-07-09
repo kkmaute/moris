@@ -17,7 +17,7 @@ namespace moris
             Matrix<DDUMat> mADVIndices;
             Matrix<DDRMat> mConstantParameters;
             Cell<bool> mActiveVariables;
-            uint mNumActiveVariables;
+            uint mNumADVs;
 
         protected:
 
@@ -42,19 +42,12 @@ namespace moris
             Field(Matrix<DDRMat> aConstantParameters);
 
         public:
-	
-	Field(){};
+
+            Field(){};
             /**
              * Destructor
              */
             ~Field();
-
-            /**
-             * Get the indices of the ADVs which this field depends on
-             *
-             * @return Vector of ADV indices
-             */
-            Matrix<DDUMat> get_adv_indices();
 
             /**
              * Given a node index or coordinate, returns the field value

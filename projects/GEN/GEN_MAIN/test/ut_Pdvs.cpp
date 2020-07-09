@@ -12,7 +12,7 @@ namespace moris
         //--------------------------------------------------------------------------------------------------------------
 
         // Dummy values so I don't need to create a model for the sensitivity test
-        uint tNumADVs = 42;
+        uint tNumADVs = 16;
         Matrix<DDRMat> tDiqiDpdv(2, tNumADVs, 1.0);
         Matrix<DDRMat> Pdv_Host_Manager::compute_diqi_dadv()
         {
@@ -77,64 +77,64 @@ namespace moris
                 }
             }
 
-            // ----------------- Integration PDVs ---------------------- //
-            // Node indices per set
-            Cell<Matrix<DDSMat>> tIgNodeIndicesPerSet(3);
-            tIgNodeIndicesPerSet(0).resize(4, 1);
-            tIgNodeIndicesPerSet(1).resize(3, 1);
-            tIgNodeIndicesPerSet(2).resize(3, 1);
-            tIgNodeIndicesPerSet(0) = {{0, 1, 2, 3}};
-            tIgNodeIndicesPerSet(1) = {{0, 4, 5}};
-            tIgNodeIndicesPerSet(2) = {{1, 2, 6, 7}};
+//            // ----------------- Integration PDVs ---------------------- //
+//            // Node indices per set
+//            Cell<Matrix<DDSMat>> tIgNodeIndicesPerSet(3);
+//            tIgNodeIndicesPerSet(0).resize(4, 1);
+//            tIgNodeIndicesPerSet(1).resize(3, 1);
+//            tIgNodeIndicesPerSet(2).resize(3, 1);
+//            tIgNodeIndicesPerSet(0) = {{0, 1, 2, 3}};
+//            tIgNodeIndicesPerSet(1) = {{0, 4, 5}};
+//            tIgNodeIndicesPerSet(2) = {{1, 2, 6, 7}};
+//
+//            // IG PDV_Type types
+//            Cell<PDV_Type> tCoordinatePdvs(3);
+//            tCoordinatePdvs(0) = PDV_Type::X_COORDINATE;
+//            tCoordinatePdvs(1) = PDV_Type::Y_COORDINATE;
+//            tCoordinatePdvs(2) = PDV_Type::Z_COORDINATE;
+//
+//            // PDV_Type types per set
+//            Cell<Cell<Cell<PDV_Type>>> tIgPdvTypes(3);
+//            for (uint tMeshSetIndex = 0; tMeshSetIndex < 3; tMeshSetIndex++)
+//            {
+//                tIgPdvTypes(tMeshSetIndex).resize(1);
+//                tIgPdvTypes(tMeshSetIndex)(0) = tCoordinatePdvs;
+//            }
+//
+//            // Coordinates
+//            Matrix<F31RMat> tCoordinates(3, 1);
+//            Cell<Matrix<F31RMat>> tAllNodeCoordinates(8);
+//            for (uint tNodeIndex = 0; tNodeIndex < 8; tNodeIndex++)
+//            {
+//                for (uint tDimension = 0; tDimension < 3; tDimension++)
+//                {
+//                    tCoordinates(tDimension) = real(tNodeIndex * tDimension);
+//                }
+//                tAllNodeCoordinates(tNodeIndex) = tCoordinates;
+//            }
 
-            // IG PDV_Type types
-            Cell<PDV_Type> tCoordinatePdvs(3);
-            tCoordinatePdvs(0) = PDV_Type::X_COORDINATE;
-            tCoordinatePdvs(1) = PDV_Type::Y_COORDINATE;
-            tCoordinatePdvs(2) = PDV_Type::Z_COORDINATE;
-
-            // PDV_Type types per set
-            Cell<Cell<Cell<PDV_Type>>> tIgPdvTypes(3);
-            for (uint tMeshSetIndex = 0; tMeshSetIndex < 3; tMeshSetIndex++)
-            {
-                tIgPdvTypes(tMeshSetIndex).resize(1);
-                tIgPdvTypes(tMeshSetIndex)(0) = tCoordinatePdvs;
-            }
-
-            // Coordinates
-            Matrix<F31RMat> tCoordinates(3, 1);
-            Cell<Matrix<F31RMat>> tAllNodeCoordinates(8);
-            for (uint tNodeIndex = 0; tNodeIndex < 8; tNodeIndex++)
-            {
-                for (uint tDimension = 0; tDimension < 3; tDimension++)
-                {
-                    tCoordinates(tDimension) = real(tNodeIndex * tDimension);
-                }
-                tAllNodeCoordinates(tNodeIndex) = tCoordinates;
-            }
-
-            // Create PDV_Type hosts
-            tPdvHostManager.create_ig_pdv_hosts(tIgNodeIndicesPerSet, tAllNodeCoordinates, tIgPdvTypes);
-
-            // Check PDVs
-            for (uint tMeshSetIndex = 0; tMeshSetIndex < 3; tMeshSetIndex++)
-            {
-                tPdvValues.clear();
-                tPdvHostManager.get_ig_pdv_value(tIgNodeIndicesPerSet(tMeshSetIndex), tIgPdvTypes(tMeshSetIndex)(0), tPdvValues);
-                for (uint tNodeIndex = 0; tNodeIndex < tIgNodeIndicesPerSet(tMeshSetIndex).length(); tNodeIndex++)
-                {
-                    for (uint tDimension = 0; tDimension < 3; tDimension++)
-                    {
-                        CHECK(tPdvValues(tDimension)(tNodeIndex) == Approx(real(tIgNodeIndicesPerSet(tMeshSetIndex)(tNodeIndex) * tDimension)));
-                    }
-                }
-            }
-
+//            // Create PDV_Type hosts
+//            tPdvHostManager.create_ig_pdv_hosts(tIgNodeIndicesPerSet, tAllNodeCoordinates, tIgPdvTypes);
+//
+//            // Check PDVs
+//            for (uint tMeshSetIndex = 0; tMeshSetIndex < 3; tMeshSetIndex++)
+//            {
+//                tPdvValues.clear();
+//                tPdvHostManager.get_ig_pdv_value(tIgNodeIndicesPerSet(tMeshSetIndex), tIgPdvTypes(tMeshSetIndex)(0), tPdvValues);
+//                for (uint tNodeIndex = 0; tNodeIndex < tIgNodeIndicesPerSet(tMeshSetIndex).length(); tNodeIndex++)
+//                {
+//                    for (uint tDimension = 0; tDimension < 3; tDimension++)
+//                    {
+//                        CHECK(tPdvValues(tDimension)(tNodeIndex) == Approx(real(tIgNodeIndicesPerSet(tMeshSetIndex)(tNodeIndex) * tDimension)));
+//                    }
+//                }
+//            }
+//
             // ------------------- Check global map ----------------------- //
             const Matrix<DDSMat> & tLocalGlobalMap = tPdvHostManager.get_my_local_global_map();
 
-            REQUIRE(tLocalGlobalMap.length() == 38);
-            for (int tGlobalPdvIndex = 0; tGlobalPdvIndex < 38; tGlobalPdvIndex++)
+            REQUIRE(tLocalGlobalMap.length() == 14);
+            for (int tGlobalPdvIndex = 0; tGlobalPdvIndex < 14; tGlobalPdvIndex++)
             {
                 CHECK(tLocalGlobalMap(tGlobalPdvIndex) == tGlobalPdvIndex);
             }
@@ -143,7 +143,7 @@ namespace moris
         TEST_CASE("PDV sensitivities test", "[GE], [sensitivity]")
         {
             // Create PDV_Type host manager
-            Pdv_Host_Manager tPdvHostManager;
+            Pdv_Host_Manager tPdvHostManager(tNumADVs);
 
             // Create discrete property
             ParameterList tParameterList = moris::prm::create_gen_property_parameter_list();;

@@ -19,8 +19,8 @@ namespace moris
             ParameterList tParameterList;
 
             // Level-set parameters
-            tParameterList.insert("isocontour_threshold", 0.0);
-            tParameterList.insert("perturbation_value", 1E-6);
+            tParameterList.insert("isocontour_threshold", 0.0); // Level-set isocontour level
+            tParameterList.insert("isocontour_error_factor", 1E-8); // Error factor for determining interface nodes
 
             // ADVs/IQIs
             tParameterList.insert("initial_advs", "");       // Initial ADVs, string converted into vector
