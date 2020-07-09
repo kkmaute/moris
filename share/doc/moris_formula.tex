@@ -1,2 +1,25 @@
-% optimization problem
-\newcommand{\optvar}{\mathbf{s}}
+
+\newcommand{\pfrac}[2]{\frac{\partial #1}{\partial #2}}
+\newcommand{\squaredpfrac}[2]{ \left( \frac{\partial #1}{\partial #2} \right) ^2}
+\newcommand{\cuedpfrac}[2]{ \left( \frac{\partial #1}{\partial #2} \right) ^3}
+\newcommand{\psquaredfrac}[2]{ \frac{\partial^2 #1}{\partial #2^2} }
+\newcommand{\pcuedfrac}[2]{ \frac{\partial^3 #1}{\partial #2^3} }
+\newcommand{\ppfrac}[3]{ \frac{\partial^2 #1}{\partial #2 \partial #3} }
+\newcommand{\ppcuedfrac}[3]{ \frac{\partial^3 #1}{\partial #2 \partial #3} }
+\newcommand{\pppfrac}[4]{ \frac{\partial^3 #1}{\partial #2 \partial #3 \partial #4}}
+
+
+\newcommand{\bm}[1]{\mathbf{#1}}
+\newcommand{\vec}[1]{\mathbf{#1}}
+\newcommand{\transvec}[1]{\mathbf{#1}^T}
+
+
+\newcommand{\Density}{\rho}
+
+
+\newcommand{\optvar}{\bm{s}}
+
+
+\newcommand{\ThermConduc}{\kappa}
+\newcommand{\HeatCap}{c_p}
+\newcommand{\LatHeat}{L_H}
