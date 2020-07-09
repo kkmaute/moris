@@ -50,9 +50,9 @@ void check_linear_results(moris::mtk::Exodus_IO_Helper & aExoIO,uint aNodeId)
 
         // value of IQI at reference time step
         std::cout << "IQI - VX   value: " << std::scientific << std::setprecision(15) << aExoIO.get_global_variable(0, 0 ) << std::endl;
-        //std::cout << "IQI - VY   value: " << std::scientific << std::setprecision(15) << aExoIO.get_global_variable(1, 0 ) << std::endl;
-        //std::cout << "IQI - P    value: " << std::scientific << std::setprecision(15) << aExoIO.get_global_variable(2, 0 ) << std::endl;
-        //std::cout << "IQI - TEMP value: " << std::scientific << std::setprecision(15) << aExoIO.get_global_variable(3, 0 ) << std::endl;
+        std::cout << "IQI - VY   value: " << std::scientific << std::setprecision(15) << aExoIO.get_global_variable(1, 0 ) << std::endl;
+        std::cout << "IQI - P    value: " << std::scientific << std::setprecision(15) << aExoIO.get_global_variable(2, 0 ) << std::endl;
+        std::cout << "IQI - TEMP value: " << std::scientific << std::setprecision(15) << aExoIO.get_global_variable(3, 0 ) << std::endl;
 
         return;
     }
@@ -91,19 +91,20 @@ void check_linear_results(moris::mtk::Exodus_IO_Helper & aExoIO,uint aNodeId)
 
     // check IQIs of first time step (only 1 IQI is defined, first time step has index 0)
     real tReferenceIQI_VelX =  6.736192625623286e-01;
-    //real tReferenceIQI_VelY = 8.324911657639191e+04;
-    //real tReferenceIQI_Pres = 8.324911657639191e+04;
-    //real tReferenceIQI_Temp = 8.324911657639191e+04;
+    real tReferenceIQI_VelY = -1.396889030305290e-02;
+    real tReferenceIQI_Pres =  3.194274688223597e-01;
+    real tReferenceIQI_Temp =  1.853046110935463e+01;
 
     real tRelIQIDifference_VelX = std::abs( ( aExoIO.get_global_variable(0, 0 ) - tReferenceIQI_VelX ) / tReferenceIQI_VelX );
-    //real tRelIQIDifference_VelY = std::abs( ( aExoIO.get_global_variable(1, 0 ) - tReferenceIQI_VelY ) / tReferenceIQI_VelY );
-    //real tRelIQIDifference_Pres = std::abs( ( aExoIO.get_global_variable(2, 0 ) - tReferenceIQI_Pres ) / tReferenceIQI_Pres );
-    //real tRelIQIDifference_Temp = std::abs( ( aExoIO.get_global_variable(3, 0 ) - tReferenceIQI_Temp ) / tReferenceIQI_Temp );
+    real tRelIQIDifference_VelY = std::abs( ( aExoIO.get_global_variable(1, 0 ) - tReferenceIQI_VelY ) / tReferenceIQI_VelY );
+    real tRelIQIDifference_Pres = std::abs( ( aExoIO.get_global_variable(2, 0 ) - tReferenceIQI_Pres ) / tReferenceIQI_Pres );
+    real tRelIQIDifference_Temp = std::abs( ( aExoIO.get_global_variable(3, 0 ) - tReferenceIQI_Temp ) / tReferenceIQI_Temp );
 
+    //FIXME: difference between parallel and serial run requires loose tolerance
     REQUIRE(  tRelIQIDifference_VelX < 1.0e-2);
-    //REQUIRE(  tRelIQIDifference_VelY < 1.0e-4);
-    //REQUIRE(  tRelIQIDifference_Pres < 1.0e-4);
-    //REQUIRE(  tRelIQIDifference_Temp < 1.0e-4);
+    REQUIRE(  tRelIQIDifference_VelY < 1.0e-2);
+    REQUIRE(  tRelIQIDifference_Pres < 1.0e-2);
+    REQUIRE(  tRelIQIDifference_Temp < 1.0e-2);
 }
 
 //---------------------------------------------------------------

@@ -438,8 +438,16 @@ namespace moris
 
             mMTKMesh->get_mesh_pair( mMTKMeshPairIndex, tInterpolationMesh, tIntegrationMesh );
 
+            // number of fields in vis mesh
+            uint tNumFields = mOutputData( aVisMeshIndex ).mFieldNames.size();
+
+            // allocate vectors for names and values of global variables
+            moris::Cell<std::string> tGlobalVariableNames(tNumFields);
+            moris::Matrix<DDRMat>    tGlobalVarialbeValues(tNumFields,1,MORIS_REAL_MAX);
+            uint tGlobalVariablesCounter = 0;
+
             // loop over all fields of this output object
-            for( uint Ik = 0; Ik < mOutputData( aVisMeshIndex ).mFieldNames.size(); Ik++ )
+            for( uint Ik = 0; Ik < tNumFields; Ik++ )
             {
                 // get field name
                 std::string tFieldName = mOutputData( aVisMeshIndex ).mFieldNames( Ik );
@@ -485,7 +493,9 @@ namespace moris
                         mWriter( aVisMeshIndex )->write_nodal_field( tFieldName, tNodalValues );
                         break;
                     case Field_Type::GLOBAL:
-                        mWriter( aVisMeshIndex )->write_global_variable( tFieldName, sum_all(tGlobalValue) );
+                        tGlobalVariableNames( tGlobalVariablesCounter )  = tFieldName;
+                        tGlobalVarialbeValues(tGlobalVariablesCounter,0) = sum_all(tGlobalValue);
+                        tGlobalVariablesCounter++;
                         break;
                     case Field_Type::ELEMENTAL:
                         // do nothing here - case is handled above
@@ -493,6 +503,16 @@ namespace moris
                     default:
                         MORIS_ERROR(false,"undefined FieldType option\n");
                 }
+            }
+
+            // write global variables
+            if ( tGlobalVariablesCounter > 0 )
+            {
+                // trim list of global variable names as correct size needed by writing routine
+                tGlobalVariableNames.resize(tGlobalVariablesCounter);
+
+                // write global variables
+                mWriter( aVisMeshIndex )->write_global_variables( tGlobalVariableNames, tGlobalVarialbeValues );
             }
 
             // check if a copy of the current mesh file should be created

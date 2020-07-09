@@ -1,6 +1,7 @@
 # Eclipse file
 .cproject
 .project
+.settings
 
 # Sometimes generated when debugging
 LDLIBS.txt
@@ -10,10 +11,13 @@ LDLIBS.txt
 build/
 build_dbg/
 build_opt/
+tmp/
 
 # no build links either
 *build*@
 build@
+build_dgb@
+build_opt@
 
 # created if built in wrong directory
 CMakeCache.txt
@@ -28,7 +32,6 @@ CMakeCache.txt
 *.e
 
 # Used by individual developers
-#mains/
 /CMakeFiles/clion-environment.txt
 /CMakeFiles/clion-log.txt
 .idea
