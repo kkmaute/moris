@@ -285,6 +285,9 @@ protected:
     // Sub phase index to Cell Cluster Index (these only include the standard cluster i.e. non-ghost clusters.)
     moris::Matrix<moris::IndexMat> mSubphaseIndexToClusterIndex;
 
+    // a connectivity pointer used by all transition cells
+    moris::mtk::Cell_Info* mCellInfo;
+
     //------------------------------------------------------------------------------
     // Parallel functions
     //------------------------------------------------------------------------------

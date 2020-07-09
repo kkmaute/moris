@@ -33,7 +33,13 @@ public:
     //------------------------------------ these will be deleted/modified later ----------------------------------------
     virtual real evaluate_field_value(const moris::Matrix<moris::DDRMat> &aCoordinates)
     {
-        return 0;
+        return this->evaluate_field_value_with_coordinate(0,aCoordinates);
+    }
+
+    real
+    operator()(const moris::Matrix<moris::DDRMat> & aCoordinates)
+    {
+        return this->evaluate_field_value_with_coordinate(0,aCoordinates);
     }
 
     void evaluate_all_sensitivities(const moris::Matrix<moris::DDRMat> &aCoordinates, Matrix<DDRMat>& aSensitivities)

@@ -13,6 +13,7 @@
 #include "cl_MTK_Side_Set.hpp"
 #include "cl_MTK_Double_Side_Set.hpp"
 #include "cl_MTK_Cell_Info_Hex8.hpp"
+#include "cl_MTK_Cell_Info_Quad4.hpp"
 #include "fn_isempty.hpp"
 
 #include <memory>
@@ -26,7 +27,8 @@ namespace xtk
       mMeshIndexInModel(aInterpIndex),
       mCellClusters(0,nullptr),
       mFields(0),
-      mFieldLabelToIndex(2)
+      mFieldLabelToIndex(2),
+      mCellInfo(nullptr)
     {
         this->setup_cell_clusters();
         this->setup_blockset_with_cell_clusters();
@@ -35,6 +37,16 @@ namespace xtk
         this->setup_interface_side_sets();
         this->setup_color_to_set();
         this->collect_all_sets();
+
+        if(this->get_spatial_dim() == 2)
+        {
+            mCellInfo = new moris::mtk::Cell_Info_Quad4();
+        }
+        else if (this->get_spatial_dim() == 3)
+        {
+            mCellInfo = new moris::mtk::Cell_Info_Hex8();
+        }
+
     }
 
     //------------------------------------------------------------------------------

@@ -411,6 +411,8 @@ namespace xtk
                 // print timing
                 if(moris::par_rank() == 0 && mVerbose)
                 {
+                    std::clock_t tEndTime = std::clock();
+
                     std::cout<<"XTK: Decomposition "<<get_enum_str(aMethods(iDecomp))<<
                             " for geometry "<<iGeom<< " completed in " <<(std::clock() - start) / (double)(CLOCKS_PER_SEC)<<" s."<<std::endl;
 
@@ -431,7 +433,11 @@ namespace xtk
 
         if(moris::par_rank() == 0 && mVerbose)
         {
-            std::cout<<"XTK: Decomposition completed in " <<(std::clock() - tTotalTime) / (double)(CLOCKS_PER_SEC)<<" s."<<std::endl;
+
+            std::clock_t tEndTime = std::clock();
+            this->add_timing_data(tEndTime - tTotalTime,"Full Decomp","Overall");
+            std::cout<<"XTK: Decomposition completed in " <<(tEndTime - tTotalTime) / (double)(CLOCKS_PER_SEC)<<" s."<<std::endl;
+
         }
     }
 
@@ -3259,6 +3265,8 @@ namespace xtk
 
         if(moris::par_rank() == 0 && mVerbose)
         {
+            std::clock_t tEndTime = std::clock();
+            this->add_timing_data(tEndTime - start,"Full Basis Enrichment","Overall");
             std::cout<<"XTK: Basis enrichment computation completed in " <<(std::clock() - start) / (double)(CLOCKS_PER_SEC)<<" s."<<std::endl;
             std::cout<<"XTK: Basis enrichment performed on mesh index: "<< aMeshIndex<<std::endl;
         }
@@ -3287,6 +3295,9 @@ namespace xtk
 
         if(moris::par_rank() == 0 && mVerbose)
         {
+            std::clock_t tEndTime = std::clock();
+            this->add_timing_data(tEndTime - start,"Basis Enrichment","Overall");
+
             std::cout<<"XTK: Basis enrichment computation completed in " <<(std::clock() - start) / (double)(CLOCKS_PER_SEC)<<" s."<<std::endl;
             std::cout<<"XTK: Basis enrichment performed on meshes:";
             for(moris::uint i = 0; i < aMeshIndex.numel(); i++)
@@ -3373,6 +3384,8 @@ namespace xtk
 
         if(moris::par_rank() == 0  && mVerbose)
         {
+            std::clock_t tEndTime = std::clock();
+            this->add_timing_data(tEndTime - start,"Ghost","Overall");
             std::cout<<"XTK: Ghost stabilization setup completed in "<< (std::clock() - start) / (double)(CLOCKS_PER_SEC)<<" s."<<std::endl;
         }
     }
@@ -5284,4 +5297,186 @@ namespace xtk
 
         return tGeometryFieldRank;
     }
+    //------------------------------------------------------------------------------
+    Matrix<DDRMat>
+    Model::get_timing_data() const
+    {
+        Matrix<DDRMat> tTimingMat(mTimingData.size(),1);
+        for(moris::uint i = 0; i < mTimingData.size(); i++)
+        {
+            tTimingMat(i) = mTimingData(i);
+        }
+
+        return tTimingMat;
+    }
+
+    //------------------------------------------------------------------------------
+    Cell<std::string>
+    Model::get_timing_labels() const
+    {
+        return mTimingLabels;
+    }
+    //------------------------------------------------------------------------------
+    void
+    Model::print_timing_data() const
+    {
+        if(par_rank() == 0)
+        {
+            std::cout<<"XTK Timing Data:"<<std::endl;
+            for(moris::uint i = 0; i < mTimingData.size(); i++)
+            {
+                std::cout<<std::setw(36)<<mTimingLabels(i)<<": "<<std::setw(8)<< std::scientific<<mTimingData(i)<<std::endl;
+            }
+        }
+    }
+    //------------------------------------------------------------------------------
+    void
+    Model::save_timing_to_hdf5( const std::string & aFilePath ) const
+    {
+        if(par_rank() == 0)
+        {
+            // timing data
+            Matrix<DDRMat>    tTimingData   = this->get_timing_data();
+            Cell<std::string> tTimingLabels = this->get_timing_labels();
+
+
+            // Create a new file using default properties
+            hid_t tFileID = H5Fcreate(
+                    aFilePath.c_str(),
+                    H5F_ACC_TRUNC,
+                    H5P_DEFAULT,
+                    H5P_DEFAULT);
+
+            // error handler
+            herr_t tStatus;
+
+            // save some generic data about this run
+            // number of procs
+             save_scalar_to_hdf5_file(
+                     tFileID,
+                     "par_size",
+                     par_size(),
+                     tStatus );
+
+            // iterate through timing labels and save to the file
+            for(moris::uint iL = 0; iL < tTimingLabels.size(); iL++)
+            {
+                std::string tLabel = "Label_" + std::to_string(iL);
+
+                // save label of this timing data
+                save_string_to_hdf5_file(
+                        tFileID,
+                        tLabel,
+                        tTimingLabels(iL),
+                        tStatus );
+            }
+
+            // save matrix of timing data to file
+            save_matrix_to_hdf5_file(
+                    tFileID,
+                    "Timing Data",
+                    tTimingData,
+                    tStatus );
+
+
+            // Close file
+            close_hdf5_file(tFileID);
+
+
+        }
+    }
+
+    //------------------------------------------------------------------------------
+
+    void
+    Model::save_model_statistics_to_file( const std::string & aFilePath )
+    {
+        MORIS_ERROR(mDecomposed,"save_model_statistics_to_file() requires model to be at least decomposed");
+
+        // collect global data
+
+        // save the number of intersected background elements
+         moris::uint tNumOwnedChildMeshes = this->get_cut_mesh().get_owned_child_meshes().size();
+         moris::uint tGlobalChildMeshes = sum_all(tNumOwnedChildMeshes);
+
+
+        if(par_rank() == 0)
+        {
+            // Create a new file using default properties
+            hid_t tFileID = H5Fcreate(
+                    aFilePath.c_str(),
+                    H5F_ACC_TRUNC,
+                    H5P_DEFAULT,
+                    H5P_DEFAULT);
+
+            // error handler
+            herr_t tStatus;
+
+            // save the number of background cells
+             save_scalar_to_hdf5_file(
+                     tFileID,
+                     "num background cells",
+                     mBackgroundMesh.get_num_entities_background(EntityRank::ELEMENT),
+                     tStatus );
+
+             save_scalar_to_hdf5_file(
+                     tFileID,
+                     "num intersect",
+                     tGlobalChildMeshes,
+                     tStatus );
+
+             // save the number of sub-phases
+              save_scalar_to_hdf5_file(
+                      tFileID,
+                      "num subphase",
+                      this->get_cut_mesh().get_num_subphases(),
+                      tStatus );
+
+              // save the number of bulk-phases
+              save_scalar_to_hdf5_file(
+                      tFileID,
+                      "num bulkphase",
+                      this->get_geom_engine()->get_num_phases(),
+                      tStatus );
+
+              // save the number of geometries
+              save_scalar_to_hdf5_file(
+                      tFileID,
+                      "num geometries",
+                      this->get_geom_engine()->get_num_geometries(),
+                      tStatus );
+
+              if(mEnriched)
+              {
+                  // add enrichment specific information
+                  // - number of enriched basis functions
+                  // - ratio between
+              }
+
+              if(mGhost)
+              {
+                  // add ghost specific information
+                  // - number of ghost facets
+                  // - number of transition facets
+              }
+
+
+
+            // Close file
+            close_hdf5_file(tFileID);
+        }
+    }
+
+    //------------------------------------------------------------------------------
+
+    void
+    Model::add_timing_data(
+            real        const & aTime,
+            std::string const & aLabel,
+            std::string const & aCategory)
+    {
+        mTimingData.push_back(aTime);
+        mTimingLabels.push_back(aLabel);
+    }
+
 }

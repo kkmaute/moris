@@ -979,6 +979,8 @@ namespace xtk
         //iterate through vertex pointers
         for(moris::uint i = 0; i < tVertexPointers.size(); i++)
         {
+
+            //todo:remove
             if(!tVertexPointers(i)->has_interpolation(aMeshIndex))
             {
                 std::cout<<" Id = "<<tVertexPointers(i)->get_id()
@@ -996,6 +998,7 @@ namespace xtk
             // get the basis indices
             Matrix<IndexMat> tBasisIndices = tVertexInterp->get_indices();
             Matrix<IndexMat> tBasisIds = tVertexInterp->get_ids();
+
 
             if(tBasisIds.numel() == 0)
             {

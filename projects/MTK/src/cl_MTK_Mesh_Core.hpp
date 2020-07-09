@@ -1010,7 +1010,7 @@ namespace moris
                 }
 
                 //------------------------------------------------------------------------------
-                //FIXME: IMPLEMENT THIS FUNCTION IN STK
+
                 virtual const Matrix< DDRMat > &
                 get_t_matrix_of_node_loc_ind(
                         const moris_index aNodeIndex,
@@ -1020,7 +1020,6 @@ namespace moris
                     return mDummyMatrix;
                 }
 
-                //FIXME: IMPLEMENT THIS FUNCTION IN XTK
                 virtual Matrix< IndexMat >
                 get_bspline_inds_of_node_loc_ind(
                         const moris_index aNodeIndex,
@@ -1063,8 +1062,6 @@ namespace moris
                     MORIS_ERROR( false ,"get_order_of_field() not implemented" );
                     return 0;
                 }
-
-                // fixme: move these functions to integration base class
 
                 /*
                  * Returns all the set names ordered by set index for a provided entity rank
@@ -1272,13 +1269,6 @@ namespace moris
                     }
                 }
 
-                //    virtual
-                //    void get_nodes_indices_in_bounding_box( const moris::Matrix< DDRMat >   & aPoint,
-                //                                            const moris::Matrix< DDRMat >   & aBoundingBoxSize,
-                //                                                  moris::Matrix< IndexMat > & aNodeIndices )
-                //    {
-                //         MORIS_ERROR(false, "get_nodes_indices_in_bounding_box(), not implemented for this mesh");
-                //    }
 
                 //------------------------------------------------------------------------------
                 //##############################################
