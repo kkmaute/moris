@@ -165,13 +165,25 @@ TEST_CASE("Channel_with_Four_Cylinders_Static_Linear",
     fn_WRK_Workflow_Main_Interface( argc, argv );
 
     // check results
-    if (par_size() == 1 )
+    switch ( par_size() )
     {
-        check_linear_results_serial();
-    }
-    if (par_size() == 2 && par_rank() == 1)
-    {
-        check_linear_results_parallel();
+        case 1:
+        {
+            check_linear_results_serial();
+            break;
+        }
+        case 2:
+        {
+            if (par_rank() == 1)
+            {
+                check_linear_results_parallel();
+            }
+            break;
+        }
+        default:
+        {
+            MORIS_ERROR(false,"Example problem not configured for %d processors.",par_size());
+        }
     }
 }
 
@@ -198,13 +210,25 @@ TEST_CASE("Channel_with_Four_Cylinders_Static_Quadratic",
         fn_WRK_Workflow_Main_Interface( argc, argv );
 
         // check results
-        if (par_size() == 1 )
+        switch ( par_size() )
         {
-            // check_quadratic_results_serial();
-        }
-        if (par_size() == 2 && par_rank() == 1)
-        {
-            // check_quadratic_results_parallel();
+            case 1:
+            {
+                // check_quadratic_results_serial();
+                break;
+            }
+            case 4:
+            {
+                if (par_rank() == 1)
+                {
+                    // check_quadratic_results_parallel();
+                }
+                break;
+            }
+            default:
+            {
+                MORIS_ERROR(false,"Example problem not configured for %d processors.",par_size());
+            }
         }
     }
 }
