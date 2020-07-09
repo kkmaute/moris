@@ -706,13 +706,9 @@ namespace moris
         tParameterlist( 0 )( 0 ).set( "Mesh_Type"     , static_cast< uint >( vis::VIS_Mesh_Type::STANDARD ) );
         tParameterlist( 0 )( 0 ).set( "Set_Names"     , std::string( "HMR_dummy_n_p160,HMR_dummy_c_p160" ) );
 
-        tParameterlist( 0 )( 0 ).set( "Field_Names"   , std::string( "VX,VY,P,TEMP,IQIBulkVX" ) );
-        tParameterlist( 0 )( 0 ).set( "Field_Type"    , std::string( "NODAL,NODAL,NODAL,NODAL,GLOBAL" ) );
-        tParameterlist( 0 )( 0 ).set( "Output_Type"   , std::string( "VX,VY,P,TEMP,VX" ) );
-
-        // tParameterlist( 0 )( 0 ).set( "Field_Names"   , std::string( "VX,VY,P,TEMP,IQIBulkVX,IQIBulkVY,IQIBulkP,IQIBulkTEMP" ) );
-        // tParameterlist( 0 )( 0 ).set( "Field_Type"    , std::string( "NODAL,NODAL,NODAL,NODAL,GLOBAL,GLOBAL,GLOBAL,GLOBAL" ) );
-        // tParameterlist( 0 )( 0 ).set( "Output_Type"   , std::string( "VX,VY,P,TEMP,VX,VY,P,TEMP" ) );
+         tParameterlist( 0 )( 0 ).set( "Field_Names"   , std::string( "VX,VY,P,TEMP,IQIBulkVX,IQIBulkVY,IQIBulkP,IQIBulkTEMP" ) );
+         tParameterlist( 0 )( 0 ).set( "Field_Type"    , std::string( "NODAL,NODAL,NODAL,NODAL,GLOBAL,GLOBAL,GLOBAL,GLOBAL" ) );
+         tParameterlist( 0 )( 0 ).set( "Output_Type"   , std::string( "VX,VY,P,TEMP,VX,VY,P,TEMP" ) );
 
         tParameterlist( 0 )( 0 ).set( "Save_Frequency", 1 );
     }

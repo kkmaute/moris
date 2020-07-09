@@ -301,8 +301,8 @@ namespace moris
             // Write the field
             int tErrMsg = ex_put_var(mExoid, mTimeStep, EX_NODAL, tFieldIndex + 1, 1, aFieldValues.numel(), aFieldValues.data());
 
+            // Check for error
             MORIS_ERROR(tErrMsg==0,"Point field %s could not be written to exodus file.",aFieldName.c_str());
-
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -328,6 +328,7 @@ namespace moris
             // Write the field
             int tErrMsg = ex_put_var(mExoid, tTimeStep, EX_NODAL, tFieldIndex + 1, 1, aFieldValues.numel(), aFieldValues.data());
 
+            // Check for error
             MORIS_ERROR(tErrMsg==0,"Nodal field %s could not be written to exodus file.",aFieldName.c_str());
         }
 
@@ -380,27 +381,44 @@ namespace moris
             int tErrMsg = ex_put_var(mExoid, tTimeStep , EX_ELEM_BLOCK, tFieldIndex + 1, tBlockIndex + 1,
                     aFieldValues.numel(), aFieldValues.data());
 
+            // Check for error
             MORIS_ERROR(tErrMsg==0,"Elemental field %s could not be written for element block %s to exodus file.",
                     aFieldName.c_str(),aBlockName.c_str());
         }
 
         //--------------------------------------------------------------------------------------------------------------
 
-        void Writer_Exodus::write_global_variable(
-                std::string         aVariableName,
-                const moris::real & aVariableValue)
+        void Writer_Exodus::write_global_variables(
+                moris::Cell<std::string>    & aVariableNames,
+                const moris::Matrix<DDRMat> & aVariableValues)
         {
-            // Variable name to index
-            int tVariableIndex = mGlobalVariableNamesMap[aVariableName];
+            // number of global variables
+            uint tNumVarialbes = aVariableNames.size();
 
-            MORIS_ASSERT(mGlobalVariableNamesMap.size() == mGlobalVariableNamesMap.size(), aVariableName.append(
-                    " is not a global variable name on this mesh!").c_str());
+            // check that number of variables names is not larger than number of values
+            MORIS_ASSERT(tNumVarialbes <= aVariableValues.numel(),
+                    "Number of global variables names larger than number of values.");
 
-            // Write the variable
-            int tErrMsg = ex_put_var(mExoid, (int) mTimeStep, EX_GLOBAL, tVariableIndex + 1, 1, 1, &aVariableValue);
+            // allocated vector of sorted global variables
+            moris::Matrix<DDRMat> tSortedValues(tNumVarialbes,1);
 
-            MORIS_ERROR(tErrMsg==0,"Global variable %s could not be written to exodus file.",
-                    aVariableName.c_str());
+            for (uint ig=0;ig<tNumVarialbes;++ig)
+            {
+                // Variable name to index
+               uint tVariableIndex = mGlobalVariableNamesMap[ aVariableNames(ig) ];
+
+               // check that index is valid
+               MORIS_ASSERT(tVariableIndex < tNumVarialbes,"Global variable index too large.");
+
+               // store global variable in sorted list
+               tSortedValues(tVariableIndex) =  aVariableValues(ig);
+            }
+
+            // Write the variables
+            int tErrMsg = ex_put_var(mExoid, mTimeStep, EX_GLOBAL, 1, 0, tNumVarialbes, tSortedValues.data());
+
+            // check for error
+            MORIS_ERROR(tErrMsg==0,"Global variables could not be written to exodus file.");
         }
 
         //--------------------------------------------------------------------------------------------------------------
