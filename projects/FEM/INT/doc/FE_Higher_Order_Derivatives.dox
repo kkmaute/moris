@@ -11,46 +11,47 @@ To compute a gradient of a field interpolated with shape functions, the derivati
 physical coordinates \f$ \bm{x} = (x,y,z) = (x_1,x_2,x_3) \f$ are needed. 
 The transformation theorem states:
 
-\f{equation}{\label{eqn:transformation_theorem}
+\f[ \begin{equation}\label{eqn:transformation_theorem}
 	\pfrac{N_j}{x_i} = \sum_{k=1}^{d_s} \pfrac{N_j}{\xi_k} \pfrac{\xi_k}{x_i}
-\f}
+\end{equation} \f]
 
 and vise versa:
 
-\f{equation}{\label{eqn:transformation_theorem_invers}
+\f[ \begin{equation}\label{eqn:transformation_theorem_invers}
 	\pfrac{N_j}{\xi_i} = \sum_{k=1}^{d_s} \pfrac{N_j}{x_k} \pfrac{x_k}{\xi_i}
-\f} 
+\end{equation} \f]
 
 The matrix \f$ \pfrac{\bm{\xi}}{\bm{x}} \f$ needed to evaluate \f$ B_{ij} = \pfrac{N_j}{x_i} \f$ 
 can not be directly constructed, however the inverse  \f$ \bm{J} = \pfrac{\bm{x}}{\bm{\xi}} \f$ can. 
 The geometry, too, is interpolated using shape functions \f$ \tilde{\bm{N}}(\xi) \f$ and the nodal coordinates 
 \f$ \bm{\hat{x}}^{(k)} \f$ of each node \f$ (k) \f$:
 
-\f{equation}{ \label{eqn:geometry_interpolation}
+\f[ \begin{equation} \label{eqn:geometry_interpolation}
 	\bm{x}(\bm{\xi}) = \tilde{N}_k(\bm{\xi}) \ \bm{\hat{x}}^{(k)}
-\f}
+\end{equation} \f]
  
 This equation can be differentiated with respect to \f$ \bm{\xi} \f$ to yield an expression for \f$ \bm{J} \f$:
 
-\f{equation}{\label{eqn:1st_geometric_derivatives}
+\f[ \begin{equation}\label{eqn:1st_geometric_derivatives}
 	J_{ij} = \pfrac{x_j}{\xi_i} = \pfrac{\tilde{N}_k}{\xi_i} \ \hat{x}_j^{(k)}
-\f} 
+\end{equation} \f] 
 Then:
+
 \f{eqnarray}{\label{eqn:jacobian_applied}
 	\pfrac{N_k}{x_i} &= J_{ij}^{-1} \ \pfrac{N_k}{\xi_j} \\
 	\bm{B} &= \left( \bm{J} \right)^{-1} \ \bm{B}^{(\xi)}
 \f}
 
 
-## Higher Order Derivatives}
+## Higher Order Derivatives
 
 Schwarz's theorem states that partial derivatives are commutative. 
-\f{equation}{\label{eqn:schwarz_theorem}
+\f[ \begin{equation}\label{eqn:schwarz_theorem}
 	\pfrac{}{x} \left( \pfrac{N}{y} \right) = \pfrac{}{y} \left( \pfrac{N}{x} \right) = \ppfrac{N}{x}{y} = \ppfrac{N}{y}{x}
-\f}
+\end{equation} \f]
 
 Therefore, all \f$ 2^{nd} \f$ and \f$ 3^{rd} \f$ order shape function derivatives can be condensed into a rather small set of possible derivatives:
-\f{equation}{\label{eqn:B2}
+\f[ \begin{equation}\label{eqn:B2}
 	\bm{B}^{(2)} = \bm{B}^{(\bm{xx})} =
 	\left[ \begin{array}{lll} 
 		\psquaredfrac{N_1}{x} &
@@ -77,9 +78,9 @@ Therefore, all \f$ 2^{nd} \f$ and \f$ 3^{rd} \f$ order shape function derivative
 		\cdots &
 		\ppfrac{N_{n_s}}{x}{y}
 	\end{array} \right]	
-\f}
+\end{equation} \f]
 
-\f{equation}{\label{eqn:B3}
+\f[ \begin{equation}\label{eqn:B3}
 \bm{B}^{(3)} = \bm{B}^{(\bm{xxx})} =
 	\left[ \begin{array}{lll} 
 		\pcuedfrac{N_1}{x} &
@@ -122,7 +123,7 @@ Therefore, all \f$ 2^{nd} \f$ and \f$ 3^{rd} \f$ order shape function derivative
 		\cdots &
 		\pppfrac{N_{n_s}}{x}{y}{z}
 	\end{array} \right]	
-\f} 
+\end{equation} \f] 
 
 The shape function derivatives \f$ \bm{B}^{(\bm{\xi\xi})} \f$ and \f$ \bm{B}^{(\bm{\xi\xi\xi})} \f$ with respect to 
 \f$ \bm{\xi} = (\xi,\eta,\zeta) \f$  are ordered analogous to this.
@@ -130,44 +131,44 @@ The shape function derivatives \f$ \bm{B}^{(\bm{\xi\xi})} \f$ and \f$ \bm{B}^{(\
 To obtain \f$ \bm{B}^{(2)} \f$, \f$ \bm{B}^{(\xi)} \f$ is again differentiated with respect to \f$ \xi \f$ using 
 \eqref{eqn:transformation_theorem_invers} to get \f$ \bm{B}^{(\bm{\xi\xi})} \f$. This yields the following equation:
 
-\f{equation}{\label{eqn:2nd_derivative_xi}
+\f[ \begin{equation}\label{eqn:2nd_derivative_xi}
 	\bm{B}^{(\xi\xi)} = 
 	\overline{\bm{J}}_a \ \bm{B}^{(2)} 
 	+ \overline{\bm{J}}_b \ \bm{B}
-\f}
+\end{equation} \f]
 
 where \f$ \overline{\bm{J}}_a \f$ contains only first order derivatives already contained in \f$ \bm{J} \f$ and 
 \f$ \overline{\bm{J}}_b \f$ contains second order derivatives which can be evaluated as stated in \eqref{eqn:2nd_geometric_derivatives}. 
 
-\f{equation}{\label{eqn:2nd_geometric_derivatives}
+\f[ \begin{equation}\label{eqn:2nd_geometric_derivatives}
 	\left( \overline{J}_{b} \right)_{ij}  
 	= \widetilde{B}^{(\xi\xi)}_{ik} \ \hat{x}_j^{(k)}
-\f}
+\end{equation} \f]
 
 The formulations for \f$ \overline{\bm{J}}_a \f$ and \f$ \overline{\bm{J}}_b \f$ are defined in equations \eqref{eqn:J_bar_a} 
 and \eqref{eqn:J_bar_b} for 3D, and \eqref{eqn:J_bar_a_2D} and \eqref{eqn:J_bar_b_2D} for 2D.
 Finally, by performing some algebraic operations, \f$ \bm{B}^{(2)} \f$, as stated in [Wall1999], can be obtained as follows.
 
-\f{equation}{\label{eqn:2nd_derivative}
+\f[ \begin{equation}\label{eqn:2nd_derivative}
 	\bm{B}^{(2)} = 
 	\left(
 	\overline{\bm{J}}_a
 	\right)^{-1} \left[
 	\bm{B}^{(\xi\xi)} - \overline{\bm{J}}_b \ \bm{B}
 	\right]
-\f}
+\end{equation} \f]
 
 ## Third Order Derivatives
 The procedure to obtain the second order derivatives is repeated to obtain third order derivatives.
 
 \f$ \bm{B}^{(\xi\xi)} \f$ is differentiated with respect to \f$ \xi \f$ using \f$ \ref{eqn:transformation_theorem_invers} \f$ to get 
 \f$ \bm{B}^{(\xi\xi\xi)} \f$. This yields the following equation:
-\f{equation}{\label{eqn:3rd_derivative_xi}
+\f[ \begin{equation}\label{eqn:3rd_derivative_xi}
 	\bm{B}^{(\xi\xi\xi)} = 
 		\overline{\overline{\bm{J}}}_a \ \bm{B}^{(3)} 
 		+ \overline{\overline{\bm{J}}}_b \ \bm{B}^{(2)}
 		+ \overline{\overline{\bm{J}}}_c \ \bm{B}
-\f}
+\end{equation} \f]
 
 where \f$ \overline{\overline{\bm{J}}}_a \f$ contains only first order derivatives already contained in 
 \f$ \bm{J} \f$, \f$ \overline{\overline{\bm{J}}}_b \f$ contains only first and second order derivatives already contained in 
@@ -177,14 +178,14 @@ which can be evaluated as stated in \f$ \eqref{eqn:3rd_geometric_derivatives} \f
 \eqref{eqn:J_bar_bar_a}, \eqref{eqn:J_bar_bar_b}, and \eqref{eqn:J_bar_bar_c} for 3D and equations \eqref{eqn:J_bar_bar_a_2D}, 
 \eqref{eqn:J_bar_bar_b_2D}, and \eqref{eqn:J_bar_bar_c_2D} for 2D.
 
-\f{equation}{\label{eqn:3rd_geometric_derivatives}
+\f[ \begin{equation}\label{eqn:3rd_geometric_derivatives}
 \left( \overline{\overline{J}}_{c} \right)_{ij}  
 = \widetilde{B}^{(\xi\xi\xi)}_{ik} \ \hat{x}_j^{(k)}
-\f}
+\end{equation} \f]
 
 Performing some algebraic operations, \f$ \bm{B}^{(3)} \f$ can then be obtained as follows:
 
-\f{equation}{\label{eqn:3rd_derivative}
+\f[ \begin{equation}\label{eqn:3rd_derivative}
 	\bm{B}^{(3)} = 
 	\left(
 		\overline{\overline{\bm{J}}}_a
@@ -192,14 +193,14 @@ Performing some algebraic operations, \f$ \bm{B}^{(3)} \f$ can then be obtained 
 		\bm{B}^{(\xi\xi\xi)} - \overline{\overline{\bm{J}}}_b \ \bm{B}^{(2)}
 		- \overline{\overline{\bm{J}}}_c \ \bm{B}
 	\right]
-\f}
+\end{equation} \f]
 
 
 ### Geometric Jacobians for 3rd Order Shape Function Derivatives
 
 For 3D the geometric Jacobians needed for third order derivatives are given on the following pages.
 
-\f{equation}{\label{eqn:J_bar_bar_a}
+\f[ \begin{equation}\label{eqn:J_bar_bar_a}
 
 \overline{\overline{\bm{J}}}_a = 
 
@@ -290,9 +291,9 @@ For 3D the geometric Jacobians needed for third order derivatives are given on t
 \\
 \end{array} 
 \right]
-\f}
+\end{equation} \f]
 
-\f{equation}{
+\f[ \begin{equation}
 \left[ 
 \begin{array}{l ll ll} 
 \cdots &
@@ -359,9 +360,9 @@ For 3D the geometric Jacobians needed for third order derivatives are given on t
 \cdots
 \end{array} 
 \right]
-\f}
+\end{equation} \f]
 
-\f{equation}{
+\f[ \begin{equation}
 \left[ 
 \begin{array}{l l} 
 \cdots &
@@ -405,10 +406,10 @@ For 3D the geometric Jacobians needed for third order derivatives are given on t
 \end{array} 
 \right]
 
-\f}	
+\end{equation} \f]	
 
 
-\f{equation}{\label{eqn:J_bar_bar_b}
+\f[ \begin{equation}\label{eqn:J_bar_bar_b}
 
 \overline{\overline{\bm{J}}}_b = 
 
@@ -465,9 +466,9 @@ For 3D the geometric Jacobians needed for third order derivatives are given on t
 \cdots
 \end{array} 
 \right]
-\f}
+\end{equation} \f]
 
-\f{equation}{
+\f[ \begin{equation}
 \left[ 
 \begin{array}{lll} 
 \cdots &
@@ -542,11 +543,11 @@ For 3D the geometric Jacobians needed for third order derivatives are given on t
 +\ppfrac{y}{\xi}{\zeta} \pfrac{x}{\eta} + \ppfrac{x}{\eta}{\zeta} \pfrac{y}{\xi} + \ppfrac{x}{\xi}{\eta} \pfrac{y}{\zeta} 
 \end{array} 
 \right]
-\f}
+\end{equation} \f]
 
 
 
-\f{equation}{\label{eqn:J_bar_bar_c}
+\f[ \begin{equation}\label{eqn:J_bar_bar_c}
 
 \overline{\overline{\bm{J}}}_c = 
 
@@ -593,12 +594,12 @@ For 3D the geometric Jacobians needed for third order derivatives are given on t
 \pppfrac{z}{\xi}{\eta}{\zeta} 
 \end{array} 
 \right]
-\f}	
+\end{equation} \f]	
 
 
 
 
-\f{equation}{\label{eqn:J_bar_a}
+\f[ \begin{equation}\label{eqn:J_bar_a}
 
 \overline{\mathbf{J}}_a = 
 
@@ -647,11 +648,11 @@ For 3D the geometric Jacobians needed for third order derivatives are given on t
 \pfrac{x}{\xi} \pfrac{y}{\eta} + \pfrac{y}{\xi} \pfrac{x}{\eta} 
 \end{array} 
 \right]
-\f}
+\end{equation} \f]
 
 
 
-\f{equation}{\label{eqn:J_bar_b}
+\f[ \begin{equation}\label{eqn:J_bar_b}
 
 \overline{\mathbf{J}}_b = 
 
@@ -682,13 +683,13 @@ For 3D the geometric Jacobians needed for third order derivatives are given on t
 \ppfrac{z}{\xi}{\eta}
 \end{array} 
 \right]
-\f}
+\end{equation} \f]
 
 <p>   </p>
 
 For 2D the geometric Jacobians needed for third derivatives are defined as follows:
 
-\f{equation}{\label{eqn:J_bar_bar_a_2D}
+\f[ \begin{equation}\label{eqn:J_bar_bar_a_2D}
 
 \overline{\overline{\bm{J}}}_a = 
 
@@ -715,11 +716,11 @@ For 2D the geometric Jacobians needed for third derivatives are defined as follo
 \squaredpfrac{y}{\eta} \pfrac{x}{\xi} + 2 \pfrac{y}{\xi} \pfrac{x}{\eta} \pfrac{y}{\eta}
 \end{array} 
 \right]
-\f}
+\end{equation} \f]
 
 
 
-\f{equation}{\label{eqn:J_bar_bar_b_2D}
+\f[ \begin{equation}\label{eqn:J_bar_bar_b_2D}
 
 \overline{\overline{\bm{J}}}_b = 
 
@@ -744,11 +745,11 @@ For 2D the geometric Jacobians needed for third derivatives are defined as follo
 \psquaredfrac{x}{\eta} \pfrac{y}{\xi} + \psquaredfrac{y}{\eta} \pfrac{x}{\xi} 
 \end{array} 
 \right]
-\f}
+\end{equation} \f]
 
 
 
-\f{equation}{\label{eqn:J_bar_bar_c_2D}
+\f[ \begin{equation}\label{eqn:J_bar_bar_c_2D}
 
 \overline{\overline{\bm{J}}}_c = 
 
@@ -767,11 +768,11 @@ For 2D the geometric Jacobians needed for third derivatives are defined as follo
 \ppcuedfrac{y}{\xi}{\eta^2}
 \end{array} 
 \right]
-\f}
+\end{equation} \f]
 
 
 
-\f{equation}{\label{eqn:J_bar_a_2D}
+\f[ \begin{equation}\label{eqn:J_bar_a_2D}
 
 \overline{\bm{J}}_a = 
 
@@ -790,11 +791,11 @@ For 2D the geometric Jacobians needed for third derivatives are defined as follo
 \pfrac{x}{\xi} \pfrac{y}{\eta} + \pfrac{y}{\xi} \pfrac{x}{\eta}
 \end{array} 
 \right]
-\f} 
+\end{equation} \f] 
 
 
 
-\f{equation}{\label{eqn:J_bar_b_2D}
+\f[ \begin{equation}\label{eqn:J_bar_b_2D}
 
 \overline{\bm{J}}_b = 
 
@@ -810,7 +811,7 @@ For 2D the geometric Jacobians needed for third derivatives are defined as follo
 \ppfrac{y}{\xi}{\eta}
 \end{array} 
 \right]
-\f}
+\end{equation} \f]
 
 
 
