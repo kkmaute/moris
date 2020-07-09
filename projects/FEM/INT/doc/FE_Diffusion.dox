@@ -4,9 +4,11 @@ namespace fem {
 /** @defgroup FE_DIFFUSION Thermal Diffusion Model
 
 The diffusion model build into MORIS supports both linear diffusion and and linear diffusion with phase change using a so-called phase-field model. 
-The differences between the two is the constitutive model used. 
+The difference between the two is the constitutive model used. 
 Additionally, the diffusion model supports stabilization using the gradient Galerkin least squares (GGLS) method. 
 The first sections of this documentation article will discuss the implementation and theoretical background. A short user guide is given at the end.
+
+NOTE: currently, the implementation with phase change only allows for constant values for the thermal conductivity \f$ \kappa \f$
 
 # Governing Equations
 
@@ -15,30 +17,29 @@ To model the temperature field in the phase change material, the general equatio
 \f[ \dot{H}(T) = \nabla \cdot (\kappa \nabla T) \f]
 
 Here, \f$ \dot{H} = \frac{\partial H}{\partial t} \f$ denotes the rate of change of enthalpy, \f$ \kappa \f$ the thermal conductivity, 
-and \f$ \nabla \cdot (\mathbf{\cdot}) \f$ and \f$ \nabla (\mathbf{\cdot}) \f$ are the divergence and gradient operators.
+and \f$ \nabla \cdot (\bm{\cdot}) \f$ and \f$ \nabla (\bm{\cdot}) \f$ are the divergence and gradient operators.
 The resulting weak form states as follows:
 
 \f[ 
 \int_{\Omega} w \dot{H}(T) \ d\Omega + \int_{\Omega} \nabla w \ \kappa \ \nabla T \ d\Omega 
-= \int_{\partial \Omega} w (\mathbf{q} \cdot \mathbf{n}) \ d\Gamma + \int_{\Omega} w Q \ d\Omega
+= \int_{\partial \Omega} w (\bm{q} \cdot \bm{n}) \ d\Gamma + \int_{\Omega} w Q \ d\Omega
 \f]
 
-
-
+where \f$ Q \f$ denotes a volumetric body load, and \f$ \bm{q} \cdot \bm{n} \f$ the heat flux normal to the boundary surface.
 
 
 # Constitutive Models
 
 There are two constitutive models for thermal diffusion, one for the simple isotropic diffusion (CM_Diffusion_Linear_Isotropic), 
 and one for isotropic diffusion with a phase change using a phase-field model (CM_Diffusion_Linear_Isotropic_Phase_Change). 
-The only that changes for the second one is the computation of the enthalpy and its derivatives. 
-Hence, the second CM is a child class of the first one where only the methods for computing these derivatives are changed.
+The only thing that changes for the second one is the computation of the enthalpy and its derivatives. 
+Hence, the second CM is implemented as a child class of the first one, where only the methods for computing these derivatives are changed.
 
 ## Isotropic Diffusion
 
 The flux is defined as:
 
-\f[ \mathbf{q} = \kappa \nabla T \f]
+\f[ \bm{q} = \kappa \nabla T \f]
 
 
 The Entropy is defined as:
@@ -47,20 +48,19 @@ The Entropy is defined as:
 
 Hence, the change rate can simply be computed as
 
-\f[ \dot{H}(T) = \rho c_p \frac{\partial T}{\partial t} \f]
+\f[ \dot{H}(T) = \rho c_p \pfrac{T}{t} \f]
 
-The class is CM_Diffusion_Linear_Isotropic corresponding to the enum Constitutive_Type::DIFF_LIN_ISO.
+The class this constitutive model is implemented in is CM_Diffusion_Linear_Isotropic corresponding to the enum Constitutive_Type::DIFF_LIN_ISO .
 
 ## Isotropic Diffusion with Phase Change
 
-The class containing this CM is CM_Diffusion_Linear_Isotropic_Phase_Change corresponding to the enum Constitutive_Type::DIFF_LIN_ISO_PC.
+The class containing this CM is CM_Diffusion_Linear_Isotropic_Phase_Change corresponding to the enum Constitutive_Type::DIFF_LIN_ISO_PC .
 
-To describe the phase state in a PCM a so-called phase-field model has been adapted. 
 Rather than treating the solid and the liquid phase as different materials and resolving the material interface between them, 
-a phase-state function (PSF) \f$ f(T)) \f$ (sometimes also called a phase-field function) is introduced, 
+a phase-state function (PSF) \f$ f(T) \f$ (sometimes also called a phase-field function) is introduced, 
 resolving the current phase state of the phase change material (PCM) as a function of the temperature \f$ T \f$. 
 The PSF describes the fraction of the material that has transitioned through the phase change by returning a value \f$ 0 \leq f(T) \leq 1 \f$, 
-where 0 indicates a fully solid phase, and 1 a fully liquid phase.
+where 0 indicates the material being in its lower phase state, and 1 indicates that the material is in its upper phase state.
 The general phase state function is than defined as:
 
 \f[
@@ -72,10 +72,11 @@ f(T) =
 \end{cases}
 \f]
 
-The phase state at a point in space \f$ \mathbf{x} \f$ is then resolved using the temperature at that point \f$ T = T(\mathbf{x}) \f$. 
+Here, \f$ T_l \f$ and \f$ T_u \f$ are used to describe the lower and upper temperature boundary of the phase change regime.
+The phase state at a point in space \f$ \bm{x} \f$ can then be resolved using the temperature at that point \f$ T = T(\bm{x}) \f$. 
 Using this information, the definition of the enthalpy is expanded to:
 
-\f[ H(T) = \int_{T_{ref}}^{T}  \rho \left( f(T) + L_H f(T) \right)  dT \f]
+\f[ H(T) = \int_{T_{ref}}^{T}  \rho \left( c_p + L_H f(T) \right)  dT \f]
 
 As this term's value drastically changes wherever \f$ T_l < T < T_u \f$, a strong non-linearity is introduced into the governing equations.
 Differentiating with respect to the temperature using the chain rule, 
@@ -93,29 +94,33 @@ There are several different PSFs a user can choose from. As both the constitutiv
 need access to the PSFs and their derivatives, they are define in a separate file: fn_FEM_CM_Phase_State_Functions.hpp.
 The different derivatives can be computed by passing in the phase change constant \f$ k_{PC} \f$, the melt temperature \f$ T_m \f$, 
 an integer indicating which PSF to use, and a pointer to the field interpolator used, 
-from which the temperature at the current point \f$ \mathbf{x} \f$ can be retrieved.
+from which the temperature at the current point \f$ \bm{x} \f$ can be retrieved.
 
 The following PSFs have been implemented (given are the function values for \f$ T_l < T < T_u \f$)
-	-1 linear:				\f$  f(T) = \frac{T - T_l}{T_u - T_l} \f$ , where \f$ T_l = T_m - \frac{k_{PC}}{2} \f$ and \f$ T_u = T_m + \frac{k_{PC}}{2} \f$
-	-2 cubic:				\f$  f(T) = \frac{2T^3 - 3(T_l+T_u)T^2 + 6 T_l T_u T}{(T_l - T_u)^3}  \f$ , where \f$ T_l = T_m - \frac{k_{PC}}{2} \f$ and \f$ T_u = T_m + \frac{k_{PC}}{2} \f$
-	-3 logistic / sigmoid:	\f$  f(T) = \frac{1}{1+exp(-k_{PC}(T-T_m))} \f$
+-# linear:				\f$  f(T) = \frac{T - T_l}{T_u - T_l} \f$ , where \f$ T_l = T_m - \frac{k_{PC}}{2} \f$ and \f$ T_u = T_m + \frac{k_{PC}}{2} \f$
+-# cubic:				\f$  f(T) = \frac{2T^3 - 3(T_l+T_u)T^2 + 6 T_l T_u T}{(T_l - T_u)^3}  \f$ , where \f$ T_l = T_m - \frac{k_{PC}}{2} \f$ and \f$ T_u = T_m + \frac{k_{PC}}{2} \f$
+-# logistic / sigmoid:	\f$  f(T) = \frac{1}{1+exp(-k_{PC}(T-T_m))} \f$
 
 
 # GGLS - stabilization
 
-The design problem posed has very high heat loads leading to steep temperature gradients. 
-Additionally, the effective material properties may strongly vary in space. For example, 
-the effective capacity changes drastically at the interface between melting and non-melting PCM.
-This, in turn, causes instabilities in the form of temperature oscillations. To mitigate this issue, 
-a gradient \textsc{Galerkin} least squares (GGLS) stabilization is added to the weak form of the governing equations. 
+The so-called Gradient Galerkin Least Squares (GGLS) stabilization method has been implemented for the thermal diffusion model.
+It is used to mitigate instabilities in the form of temperature oscillations. These might be observed if the thermal problem posed leads to 
+steep temperature gradients or a coarse mesh is used. This, in turn, can be due to high heat loads or when using the phase 
+change model as the effective heat capacity changes drastically at the interface between melting and non-melting PCM.
 
-The GGLS formulation is a residual based method that adds numerical dissipation in areas of high temperature gradients 
-by introducing an artificial conductivity \f$ \kappa_a \f$ . To this end, the strong form of the gradient of the residual 
-is multiplied with the modified test function \f$ \tilde{w} \f$:
+The GGLS method is a residual based stabilization method that adds numerical dissipation in areas of high temperature gradients 
+by introducing an artificial conductivity \f$ \kappa_a \f$. Adopting the formulation from Ilinca's 2002 paper, to obtain the the GGLS-residual, 
+the strong form of the gradient of the residual of the governing equation is multiplied with the modified test function \f$ \tilde{w} \f$:
 
-\f[ \tilde{w} = w + \kappa_a \nabla w  \f]
+\f[ \tilde{w} = \kappa_a \nabla w  \f]
 
-where the computation of the artificial conductivity has been adapted from \textsc{Ilinca} 2002 and modified to contain the latent heat in the capacitance term as follows:
+Note: this is a departure from the original GGLS formulation as proposed by Franca in 1988. Here, the test function is replaced with the 
+gradient of the strong form of the residual multiplied with the artificial conductivity. The simplified formulation from above has shown to be 
+effective. Hence, it was adopted.
+
+The computation of the artificial conductivity has been also been adapted from [Ilinca 2002] and modified to contain the latent heat 
+in the capacitance term as follows:
 
 \f[ 
 \begin{split}
@@ -127,10 +132,45 @@ where the computation of the artificial conductivity has been adapted from \text
 
 This leads to the following residual term being added to the weak form: 
 
-\f[	R_{GGLS} = \int_{\Omega} \nabla w \kappa_a  \nabla \left[ \dot{H}(T) - \nabla \cdot (\kappa \nabla T) - \nabla Q  \right] \ d\Omega \f]
+\f[	
+R_{GGLS} = \int_{\Omega} \nabla w \kappa_a  \nabla \left[ \dot{H}(T) - \nabla \cdot (\kappa \nabla T) - \nabla Q  \right] \ d\Omega 
+\f]
 
-Note, that the second part of this term contains 3rd order spatial derivatives in the form of the gradient of the divergence of the flux.
+Note, that the second part of this term contains mixed space time derivatives and 3rd order spatial derivatives in the form of the gradient 
+of the divergence of the flux.
 
+### Implementation of Grad-Div-Flux
+
+To compute the gradient of the divergence of the flux, as contained in the GGLS stabilization term, a help matrix is constructed 
+and multiplied with the array of third order derivatives of the shape functions as obtained from the field interpolator.
+This reads as follows for 3D:
+
+\f[	
+\nabla (\nabla \cdot (\kappa \nabla T) ) =
+
+\left[ \begin{array}{lll lll} 
+\kappa & 0 & 0 & 0 & 0 & \kappa & 0 & \kappa & 0 & 0 \\
+0 & \kappa & 0 & \kappa & 0 & 0 & 0 & 0 & \kappa & 0 \\
+0 & 0 & \kappa & 0 & \kappa & 0 & \kappa & 0 & 0 & 0 \\
+\end{array} \right] \ 
+\bm{B}^{\bm{xxx}}
+\f]
+
+and for 2D:
+
+\f[	
+\nabla (\nabla \cdot (\kappa \nabla T) ) =
+
+\left[ \begin{array}{lll lll} 
+\kappa & 0 & 0 & \kappa \\
+0 & \kappa & \kappa & 0 \\
+\end{array} \right] \ 
+\bm{B}^{\bm{xxx}}
+\f]
+
+For further information on the arrangement of the third order derivatives, visit the documentation page for the shape function derivatives: 
+
+Note: the implementation of this term has not been adapted to support a temperature dependent thermal conductivity \f$ \kappa(T) \f$, yet.
 
 # IWGs
 
@@ -141,7 +181,7 @@ IWG_Diffusion_Bulk, corresponding to the enum IWG\_Type::SPATIALDIFF_BULK.
 The following bulk integral is evaluated to obtain the residual contribution:
 
 \f[ 
-\mathbf{R}_{Bulk} =  \int_{\Omega} w \dot{H}(T) \ d\Omega 
+\bm{R}_{Bulk} =  \int_{\Omega} w \dot{H}(T) \ d\Omega 
                    + \int_{\Omega} \nabla w \ \kappa \ \nabla T \ d\Omega 
                    + \int_{\Omega} \nabla w \kappa_a  \nabla \left[ \dot{H}(T) - \nabla \cdot (\kappa \nabla T) - \nabla Q \right] \ d\Omega 
 \f]
@@ -153,7 +193,7 @@ IWG_Diffusion_Neumann, corresponding to the enums IWG\_Type::SPATIALDIFF_NEUMANN
 
 The following boudary integral is evaluated to obtain the residual contribution:
 
-\f[ \mathbf{R}_{N} = \int_{\Gamma_N} w (\mathbf{q} \cdot \mathbf{n}) \ d\Gamma \f]
+\f[ \bm{R}_{N} = \int_{\Gamma_N} w (\bm{q} \cdot \bm{n}) \ d\Gamma \f]
 
 The IWG can be defined using both CMs, with and without phase change, as it is not dependent on the definition of the enthalpy.
 
@@ -203,7 +243,7 @@ In the bulk IWG:
 
 
 Tips for running simulations with the phase change model:
-- since the enthalpy change rate and gradients can get quiet large in the region of phase transition, it makes sense to scale down the capacitance term (i.e. \f$ \rho \f$, \f$ c_p \f$, and \f$ L_H \f$, and scale up \f$ \kappa \f$, \f$ \mathbf{q} \f$, and \f$ Q \f$ accordingly)
+- since the enthalpy change rate and gradients can get quiet large in the region of phase transition, it makes sense to scale down the capacitance term (i.e. \f$ \rho \f$, \f$ c_p \f$, and \f$ L_H \f$, and scale up \f$ \kappa \f$, \f$ \bm{q} \f$, and \f$ Q \f$ accordingly)
 - the element size in time direction is crucial for stability, if elements "melt" to quickly temperature over- and under-shoots will occur resulting in oscillations in the solution 
 - the cubic phase change function has proven to be the "best behaved" one: the linear one results in instabilities for everything except for very small time step sizes, while the logistic one produces much higher gradients
 
