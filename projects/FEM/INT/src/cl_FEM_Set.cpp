@@ -1307,7 +1307,7 @@ namespace moris
                         if( tDofIndex_2 != -1 )
                         {
                             uint tNumCoeff_2 = mMasterFIManager->get_field_interpolators_for_type(  tSecundaryDofTypes( Ii )( 0 ) )
-                                                                                                                                                                                                                                                                           ->get_number_of_space_time_coefficients();
+                                                                                                                                                                                                                                                                                   ->get_number_of_space_time_coefficients();
 
                             mJacDofAssemblyMap( tDofIndex )( tDofIndex_2, 0 ) = tCounter_2;
                             mJacDofAssemblyMap( tDofIndex )( tDofIndex_2, 1 ) = tCounter_2 + tNumCoeff_2 - 1;
@@ -1323,7 +1323,7 @@ namespace moris
                         if( tDofIndex_2 != -1 )
                         {
                             uint tNumCoeff_2 = mSlaveFIManager->get_field_interpolators_for_type(  tSecundaryDofTypes( Ii )( 0 ) )
-                                                                                                                                                                                                                                                                          ->get_number_of_space_time_coefficients();
+                                                                                                                                                                                                                                                                                  ->get_number_of_space_time_coefficients();
 
                             mJacDofAssemblyMap( tDofIndex )( tDofIndex_2, 0 ) = tCounter_2;
                             mJacDofAssemblyMap( tDofIndex )( tDofIndex_2, 1 ) = tCounter_2 + tNumCoeff_2 - 1;
@@ -1444,21 +1444,28 @@ namespace moris
         }
 
         //--------------------------------------------------------------------------
+
         void Set::create_geo_pdv_assembly_map( std::shared_ptr< fem::Cluster > aFemCluster )
         {
-            // clean up the map
-            mPdvGeoAssemblyMap.clear();
+            // get the design variable interface
+            MSI::Design_Variable_Interface * tDVInterface =
+                    mEquationModel->get_design_variable_interface();
 
             // get the geo dv types requested by the opt
             moris::Cell < enum PDV_Type > tRequestedDvTypes;
-            mEquationModel->get_design_variable_interface()->
-                    get_ig_unique_dv_types_for_set(
+            tDVInterface->get_ig_unique_dv_types_for_set(
                     mMeshSet->get_set_index(),
                     tRequestedDvTypes );
 
             // get node indices on cluster
             moris::Matrix< moris::IndexMat > tNodeIndicesOnCluster;
             aFemCluster->get_vertex_indices_in_cluster_for_sensitivity( tNodeIndicesOnCluster );
+
+            // clean up assembly map
+            mPdvGeoAssemblyMap.clear();
+
+            // clean up assembly vector
+            Matrix< DDSMat > tPdvGeoAssemblyVectorTemp( tNodeIndicesOnCluster.numel(), 1, -1 );
 
             // init active geo pdv counter
             uint tActiveGeoPdvCounter = 0;
@@ -1486,7 +1493,7 @@ namespace moris
                     moris::Cell< moris::Matrix< DDRMat > > tPdvValue( 1 );
                     tPdvValue( 0 ).set_size( 1, 1 );
                     moris::Cell< moris::Matrix< DDSMat > > tIsActivePdv;
-                    mEquationModel->get_design_variable_interface()->get_ig_pdv_value(
+                    tDVInterface->get_ig_pdv_value(
                             tNodeIndexMat,
                             tGeoPdvMat,
                             tPdvValue,
@@ -1501,11 +1508,30 @@ namespace moris
                         // fill the map
                         mPdvGeoAssemblyMap[ tKeyPair ] = tActiveGeoPdvCounter;
 
+                        // get the id associated to the pdv
+                        moris::Cell< moris::Matrix< DDSMat > > tPdvId;
+                        tDVInterface->get_ig_dv_ids_for_type_and_ind(
+                                tNodeIndexMat,
+                                tGeoPdvMat,
+                                tPdvId );
+
+                        // fill the global assembly vector
+                        tPdvGeoAssemblyVectorTemp( tActiveGeoPdvCounter ) = tPdvId( 0 )( 0 );
+
                         // update active geo pdv counter
                         tActiveGeoPdvCounter++;
                     }
                 }
             }
+
+            mPdvGeoAssemblyVector.set_size( 0, 0 );
+            if( tActiveGeoPdvCounter > 0 )
+            {
+                // fill assembly vector
+                mPdvGeoAssemblyVector.set_size( tActiveGeoPdvCounter, 1, -1 );
+                mPdvGeoAssemblyVector = tPdvGeoAssemblyVectorTemp( { 0, tActiveGeoPdvCounter - 1 }, { 0, 0 } );
+            }
+            print( mPdvGeoAssemblyVector, "mPdvGeoAssemblyVector in FEM set" );
         }
 
         //------------------------------------------------------------------------------
@@ -1625,7 +1651,7 @@ namespace moris
                     {
                         // update number of dof coefficients
                         tNumCols += mMasterFIManager->get_field_interpolators_for_type(tRequestedDofTypes(Ik))
-                                                                                                                                                                                                                                                                ->get_number_of_space_time_coefficients();
+                                                                                                                                                                                                                                                                        ->get_number_of_space_time_coefficients();
                     }
 
                     // get the set index for the slave dof type
@@ -1636,7 +1662,7 @@ namespace moris
                     {
                         // update number of dof coefficients
                         tNumCols += mSlaveFIManager->get_field_interpolators_for_type(tRequestedDofTypes(Ik))
-                                                                                                                                                                                                                                                               ->get_number_of_space_time_coefficients();
+                                                                                                                                                                                                                                                                       ->get_number_of_space_time_coefficients();
                     }
                 }
 
@@ -1671,7 +1697,7 @@ namespace moris
                             {
                                 // update number of dof coefficients
                                 tNumRows += mMasterFIManager->get_field_interpolators_for_type( tSecDofTypesI( Ik ) )
-                                                                                                                                                                                                                                                                        ->get_number_of_space_time_coefficients();
+                                                                                                                                                                                                                                                                                ->get_number_of_space_time_coefficients();
                             }
 
                             // get the set index for the slave dof type
@@ -1682,7 +1708,7 @@ namespace moris
                             {
                                 // update number of dof coefficients
                                 tNumRows += mSlaveFIManager->get_field_interpolators_for_type( tSecDofTypesI( Ik ) )
-                                                                                                                                                                                                                                                                       ->get_number_of_space_time_coefficients();
+                                                                                                                                                                                                                                                                               ->get_number_of_space_time_coefficients();
                             }
                         }
                     }
@@ -1726,7 +1752,7 @@ namespace moris
                     {
                         // update number of dof coefficients
                         tNumCoeff += mMasterFIManager->get_field_interpolators_for_type( tRequestedDofTypes( Ik ) )
-                                                                                                                                                                                                                                                                 ->get_number_of_space_time_coefficients();
+                                                                                                                                                                                                                                                                         ->get_number_of_space_time_coefficients();
                     }
 
                     // get the set index for the slave dof type
@@ -1738,7 +1764,7 @@ namespace moris
                     {
                         // update number of dof coefficients
                         tNumCoeff += mSlaveFIManager->get_field_interpolators_for_type( tRequestedDofTypes( Ik ) )
-                                                                                                                                                                                                                                                                ->get_number_of_space_time_coefficients();
+                                                                                                                                                                                                                                                                        ->get_number_of_space_time_coefficients();
                     }
                 }
 
@@ -2054,7 +2080,7 @@ namespace moris
                 {
                     // update number of dof coefficients
                     tNumRows += mMasterFIManager->get_field_interpolators_for_type( tRequestedDofTypes( Ik ) )
-                                                        ->get_number_of_space_time_coefficients();
+                                                                ->get_number_of_space_time_coefficients();
                 }
 
                 // get the set index for the slave dof type
@@ -2066,7 +2092,7 @@ namespace moris
                 {
                     // update number of dof coefficients
                     tNumRows += mSlaveFIManager->get_field_interpolators_for_type( tRequestedDofTypes( Ik ) )
-                                                       ->get_number_of_space_time_coefficients();
+                                                               ->get_number_of_space_time_coefficients();
                 }
             }
 
@@ -2508,14 +2534,14 @@ namespace moris
             aMatPdvType = mMasterDvTypes;
 
             //std::cout<<"Set::get_ip_dv_types_for_set - should come from design variable interface"<<std::endl;
-//            // get design variable interface
-//            MSI::Design_Variable_Interface * tPdvInterface =
-//                    mEquationModel->get_design_variable_interface();
-//
-//            // get ip pdv types for set
-//            tPdvInterface->get_ip_dv_types_for_set(
-//                    mMeshSet->get_set_index(),
-//                    aMatPdvType );
+            //            // get design variable interface
+            //            MSI::Design_Variable_Interface * tPdvInterface =
+            //                    mEquationModel->get_design_variable_interface();
+            //
+            //            // get ip pdv types for set
+            //            tPdvInterface->get_ip_dv_types_for_set(
+            //                    mMeshSet->get_set_index(),
+            //                    aMatPdvType );
         }
 
 

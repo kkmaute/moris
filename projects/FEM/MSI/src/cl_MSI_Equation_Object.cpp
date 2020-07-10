@@ -26,6 +26,7 @@ namespace moris
         }
 
         //-------------------------------------------------------------------------------------------------
+
         moris::uint Equation_Object::get_max_pdof_hosts_ind()
         {
             auto tMaxPdofHostsInd = mNodeObj( 0 )( 0 )->get_index();
@@ -42,6 +43,7 @@ namespace moris
         }
 
         //-------------------------------------------------------------------------------------------------
+
         void Equation_Object::create_my_pdof_hosts(
                 const moris::uint                  aNumUsedDofTypes,
                 const Matrix< DDSMat >           & aPdofTypeMap,
@@ -94,6 +96,7 @@ namespace moris
         }
 
         //-------------------------------------------------------------------------------------------------
+
         void Equation_Object::create_my_pdof_list()
         {
             moris::uint tNumMyFreePdofs = 0;
@@ -179,6 +182,7 @@ namespace moris
         }
 
         //-------------------------------------------------------------------------------------------------
+
         void Equation_Object::create_my_list_of_adof_ids()
         {
             {
@@ -260,6 +264,7 @@ namespace moris
         }
 
         //-------------------------------------------------------------------------------------------------
+
         void Equation_Object::set_unique_adof_map()
         {
             // Loop over all unique adofs of this equation object
@@ -437,12 +442,14 @@ namespace moris
         }
 
         //-------------------------------------------------------------------------------------------------
+
         moris_index Equation_Object::get_node_index( const moris_index aElementLocalNodeIndex ) const
         {
             return mNodeObj( 0 )( aElementLocalNodeIndex )->get_index();
         }
 
         //-------------------------------------------------------------------------------------------------
+
         void Equation_Object::get_equation_obj_dof_ids( Matrix< DDSMat > & aEqnObjAdofId )
         {
             Cell < enum MSI::Dof_Type >  tRequestedDofTypes =  mEquationSet->get_model_solver_interface()->
