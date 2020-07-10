@@ -133,6 +133,7 @@ set(HEADERS
     cl_FEM_IQI_Strain_Energy.hpp
     cl_FEM_IQI_Stress.hpp
     cl_FEM_IQI_Dof.hpp
+    cl_FEM_IQI_Max_Dof.hpp
     cl_FEM_IQI_Property.hpp
     cl_FEM_IQI_L2_Error_Analytic.hpp
     cl_FEM_IQI_H1_Error_Analytic.hpp
@@ -141,6 +142,7 @@ set(HEADERS
     cl_FEM_IQI_K1_SENT.hpp
     cl_FEM_IQI_Volume_Fraction.hpp
     cl_FEM_IQI_2D_Drag_Lift_Coefficient.hpp
+    cl_FEM_IQI_Latent_Heat_Absorption.hpp
     cl_FEM_Stabilization_Parameter.hpp
     cl_FEM_SP_Factory.hpp
     cl_FEM_SP_Dirichlet_Nitsche.hpp
@@ -272,6 +274,7 @@ set(LIB_SOURCES
     cl_FEM_IQI_Strain_Energy.cpp
     cl_FEM_IQI_Stress.cpp
     cl_FEM_IQI_Dof.cpp
+    cl_FEM_IQI_Max_Dof.cpp
     cl_FEM_IQI_Property.cpp
     cl_FEM_IQI_L2_Error_Analytic.cpp
     cl_FEM_IQI_H1_Error_Analytic.cpp
@@ -281,6 +284,7 @@ set(LIB_SOURCES
     cl_FEM_IQI_2D_Drag_Lift_Coefficient.cpp
     cl_FEM_IQI_Volume_Fraction.cpp
     cl_FEM_IQI_2D_Drag_Lift_Coefficient.cpp
+    cl_FEM_IQI_Latent_Heat_Absorption.cpp
     cl_FEM_Interpolation_Element.cpp
     cl_FEM_Model.cpp
     )

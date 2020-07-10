@@ -143,6 +143,7 @@ namespace moris
             STRAIN_ENERGY,
             VOLUME_FRACTION,
             DOF,
+            MAX_DOF,
             PROPERTY,
             L2_ERROR_ANALYTIC,
             H1_ERROR_ANALYTIC,
@@ -153,6 +154,7 @@ namespace moris
             STRESS,
             LIFT_COEFF,
             DRAG_COEFF,
+            LATENT_HEAT_ABSORPTION,
             END_IQI_TYPE
         };
 

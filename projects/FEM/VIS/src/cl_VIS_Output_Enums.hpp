@@ -36,6 +36,7 @@ namespace vis
         VZ,     //< Z-Velocity
         P,
         DOF, // Dof
+        MAX_DOF,
         Analytic, // Analytic
         L2_ERROR_ANALYTIC, // L2 error for dof
         H1_ERROR_ANALYTIC, // H1 error for dof
@@ -45,6 +46,7 @@ namespace vis
         K1_SENT,     // 1st stress intensity factor for the case of a single edge notch tension analysis
         DRAG_COEFF,
         LIFT_COEFF,
+        LATENT_HEAT_ABSORPTION,
         VISCOSITY,
         END_ENUM//
     };
@@ -73,6 +75,7 @@ namespace vis
         tVisOutputTypeMap["VZ"]                = vis::Output_Type::VZ;
         tVisOutputTypeMap["P"]                 = vis::Output_Type::P;
         tVisOutputTypeMap["DOF"]               = vis::Output_Type::DOF;
+        tVisOutputTypeMap["MAX_DOF"]               = vis::Output_Type::MAX_DOF;
         tVisOutputTypeMap["L2_ERROR_ANALYTIC"] = vis::Output_Type::L2_ERROR_ANALYTIC;
         tVisOutputTypeMap["H1_ERROR_ANALYTIC"] = vis::Output_Type::H1_ERROR_ANALYTIC;
         tVisOutputTypeMap["H1_SEMI_ERROR"]     = vis::Output_Type::H1_SEMI_ERROR;
@@ -81,8 +84,9 @@ namespace vis
         tVisOutputTypeMap["K1_SENT"]           = vis::Output_Type::K1_SENT;
         tVisOutputTypeMap["DRAG_COEFF"]        = vis::Output_Type::DRAG_COEFF;
         tVisOutputTypeMap["LIFT_COEFF"]        = vis::Output_Type::LIFT_COEFF;
-        tVisOutputTypeMap["VISCOSITY"]        = vis::Output_Type::VISCOSITY;
-        tVisOutputTypeMap["END_ENUM"]          = vis::Output_Type::END_ENUM;
+        tVisOutputTypeMap["LATENT_HEAT_ABSORPTION"] = vis::Output_Type::LATENT_HEAT_ABSORPTION;
+        tVisOutputTypeMap["VISCOSITY"]              = vis::Output_Type::VISCOSITY;
+        tVisOutputTypeMap["END_ENUM"]               = vis::Output_Type::END_ENUM;
 
         return tVisOutputTypeMap;
     }
