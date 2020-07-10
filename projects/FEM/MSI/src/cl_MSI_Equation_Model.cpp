@@ -20,7 +20,27 @@ namespace moris
 {
     namespace MSI
     {
-//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
+
+        moris::sint Equation_Model::get_num_rhs( )
+        {
+            if( !mIsForwardAnalysis )
+            {
+                mNumSensitivityAnalysisRHS = this->get_requested_IQI_names().size();
+
+                MORIS_ASSERT( mNumSensitivityAnalysisRHS > 0,
+                        "MSI::Equation_Model::get_num_rhs(), num rhs not set for sensitivity analysis");
+
+                return mNumSensitivityAnalysisRHS;
+            }
+            else
+            {
+                return 1;
+            }
+        }
+
+        //------------------------------------------------------------------------------
+
         moris::Cell< moris::Matrix< DDRMat > > Equation_Model::compute_IQIs()
         {
             // Get local number of elements
@@ -56,18 +76,18 @@ namespace moris
                             tGloablIQIVal( Ij )( 0 ) += mFemSets( Ii )->get_QI()( Ij )( 0 );
                         }
                     }
-
                     //this->free_block_memory( Ii );
                 }
             }
             return tGloablIQIVal;
         }
 
-//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
+
         void Equation_Model::compute_implicit_dQIdp()
         {
-//            mSolutionVector->print();
-//             mSensitivitySolutionVector->print();
+            //            mSolutionVector->print();
+            //             mSensitivitySolutionVector->print();
 
             // create map object
             moris::Matrix_Vector_Factory tMatFactory( sol::MapType::Epetra );
@@ -104,7 +124,8 @@ namespace moris
             //mImplicitdQidu->print();
         }
 
-//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
+
         void Equation_Model::compute_explicit_dQIdp()
         {
 
@@ -143,7 +164,7 @@ namespace moris
             mExplicitdQidu->vector_global_asembly();
         }
 
-//-------------------------------------------------------------------------------------------------
+        //-------------------------------------------------------------------------------------------------
 
         sol::Dist_Vector * Equation_Model::get_dQidu()
         {
@@ -156,8 +177,8 @@ namespace moris
 
             mQidu->vec_put_scalar( 0.0 );
 
-//            mExplicitdQidu->print();
-//            mImplicitdQidu->print();
+            //            mExplicitdQidu->print();
+            //            mImplicitdQidu->print();
 
             mQidu->vec_plus_vec( 1.0, *mExplicitdQidu, 1.0 );
             mQidu->vec_plus_vec( 1.0, *mImplicitdQidu, 1.0 );
@@ -167,7 +188,7 @@ namespace moris
             return mQidu;
         }
 
-//-------------------------------------------------------------------------------------------------
+        //-------------------------------------------------------------------------------------------------
 
     }/* end_namespace_msi */
 }/* end_namespace_moris */
