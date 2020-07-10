@@ -1726,11 +1726,7 @@ namespace moris
             Matrix< DDRMat > tParamCoeff = tIGGI->get_space_param_coeff();
             Matrix< DDRMat > tEvaluationPoint;
             tIGGI->get_space_time( tEvaluationPoint );
-
-//            print( aIsActive, "aISActive" );
-//            print( tIPGI->get_space_coeff(),"IP space coeff");
-//            print( tCoeff, "tCoeff" );
-//            print( tParamCoeff, "tParamCoeff" );
+            real tGPWeight = aWStar / tIGGI->det_J();
 
             // loop over the spatial directions
             for( uint iCoeffCol = 0; iCoeffCol< tDerNumDimensions; iCoeffCol++ )
@@ -1767,8 +1763,6 @@ namespace moris
                             Matrix< DDRMat > tParamCoeffPert = tParamCoeff;
                             tParamCoeffPert.get_row( iCoeffRow ) = tXiCoords.matrix_data();
                             tIGGI->set_space_param_coeff( tParamCoeffPert );
-//                            print( tCoeffPert, "tCoeffPert" );
-//                            print( tParamCoeffPert, "tParamCoeffPert" );
 
                             // set evaluation point for interpolators (FIs and GIs)
                             mSet->get_field_interpolator_manager()->set_space_time_from_local_IG_point( tEvaluationPoint );
@@ -1778,7 +1772,8 @@ namespace moris
 
                             // reset and evaluate the residual plus
                             mSet->get_residual()( 0 ).fill( 0.0 );
-                            this->compute_residual( aWStar );
+                            real tWStarPert = tGPWeight * tIGGI->det_J();
+                            this->compute_residual( tWStarPert );
 
                             // evaluate dRdpGeo
                             mSet->get_drdpgeo()(
@@ -1853,6 +1848,7 @@ namespace moris
                 Matrix< DDRMat > tParamCoeff = tMasterIGGI->get_space_param_coeff();
                 Matrix< DDRMat > tEvaluationPoint;
                 tMasterIGGI->get_space_time( tEvaluationPoint );
+                real tGPWeight = aWStar / tMasterIGGI->det_J();
 
                 // loop over the spatial directions
                 for( uint iCoeffCol = 0; iCoeffCol< tDerNumDimensions; iCoeffCol++ )
@@ -1898,7 +1894,8 @@ namespace moris
 
                                 // reset and evaluate the residual plus
                                 mSet->get_residual()( 0 ).fill( 0.0 );
-                                this->compute_residual( aWStar );
+                                real tWStarPert = tGPWeight * tMasterIGGI->det_J();
+                                this->compute_residual( tWStarPert );
 
                                 // evaluate dMasterRdpGeo
                                 mSet->get_drdpgeo()(
@@ -1937,6 +1934,7 @@ namespace moris
                 Matrix< DDRMat > tParamCoeff = tSlaveIGGI->get_space_param_coeff();
                 Matrix< DDRMat > tEvaluationPoint;
                 tSlaveIGGI->get_space_time( tEvaluationPoint );
+                real tGPWeight = aWStar / tMasterIGGI->det_J();
 
                 // loop over the spatial directions
                 for( uint iCoeffCol = 0; iCoeffCol< tDerNumDimensions; iCoeffCol++ )
@@ -1982,7 +1980,8 @@ namespace moris
 
                                 // reset and evaluate the residual plus
                                 mSet->get_residual()( 0 ).fill( 0.0 );
-                                this->compute_residual( aWStar );
+                                real tWStarPert = tGPWeight * tSlaveIGGI->det_J();
+                                this->compute_residual( tWStarPert );
 
                                 // evaluate dMasterRdpGeo
                                 mSet->get_drdpgeo()(
@@ -2012,6 +2011,7 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+
         void IWG::compute_dRdp_FD_material(
                 moris::real        aWStar,
                 moris::real        aPerturbation,
@@ -2109,6 +2109,7 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+
         void IWG::compute_dRdp_FD_material_double(
                 moris::real        aWStar,
                 moris::real        aPerturbation,

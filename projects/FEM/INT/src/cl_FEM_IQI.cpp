@@ -117,22 +117,19 @@ namespace moris
         {
             switch ( aIsMaster )
             {
-                case ( mtk::Master_Slave::MASTER ) :
-                    {
+                case mtk::Master_Slave::MASTER :
+                {
                     mMasterFIManager = aFieldInterpolatorManager;
                     break;
-                    }
-
-                case ( mtk::Master_Slave::SLAVE ) :
-                    {
+                }
+                case mtk::Master_Slave::SLAVE :
+                {
                     mSlaveFIManager = aFieldInterpolatorManager;
                     break;
-                    }
-
+                }
                 default :
                 {
                     MORIS_ERROR( false, "IWG::set_field_interpolator_manager - can only be master or slave");
-                    break;
                 }
             }
 
@@ -216,7 +213,6 @@ namespace moris
                 default :
                 {
                     MORIS_ERROR( false, "IQI::set_dof_type_list - can only be MASTER or SLAVE.");
-                    break;
                 }
             }
         }
@@ -755,8 +751,8 @@ namespace moris
                 if ( tProperty != nullptr )
                 {
                     // get dof types for property
-                    moris::Cell< moris::Cell< MSI::Dof_Type > > tActiveDofTypes
-                    = tProperty->get_dof_type_list();
+                    moris::Cell< moris::Cell< MSI::Dof_Type > > tActiveDofTypes =
+                            tProperty->get_dof_type_list();
 
                     // loop on property dof type
                     for ( uint iDof = 0; iDof < tActiveDofTypes.size(); iDof++ )
@@ -776,8 +772,8 @@ namespace moris
                     }
 
                     // get dv types for property
-                    moris::Cell< moris::Cell< PDV_Type > > tActiveDvTypes
-                    = tProperty->get_dv_type_list();
+                    moris::Cell< moris::Cell< PDV_Type > > tActiveDvTypes =
+                            tProperty->get_dv_type_list();
 
                     // loop on property dv type
                     for ( uint iDv = 0; iDv < tActiveDvTypes.size(); iDv++ )
@@ -804,8 +800,8 @@ namespace moris
                 if ( tCM != nullptr )
                 {
                     // get dof types for constitutive model
-                    moris::Cell< moris::Cell< MSI::Dof_Type > > tActiveDofTypes
-                    = tCM->get_global_dof_type_list();
+                    moris::Cell< moris::Cell< MSI::Dof_Type > > tActiveDofTypes =
+                            tCM->get_global_dof_type_list();
 
                     // loop on property dof type
                     for ( uint iDof = 0; iDof < tActiveDofTypes.size(); iDof++ )
@@ -825,8 +821,8 @@ namespace moris
                     }
 
                     // get dv types for constitutive model
-                    moris::Cell< moris::Cell< PDV_Type > > tActiveDvTypes
-                    = tCM->get_global_dv_type_list();
+                    moris::Cell< moris::Cell< PDV_Type > > tActiveDvTypes =
+                            tCM->get_global_dv_type_list();
 
                     // loop on property dv type
                     for ( uint iDv = 0; iDv < tActiveDvTypes.size(); iDv++ )
@@ -853,8 +849,8 @@ namespace moris
                 if ( tSP != nullptr )
                 {
                     // get dof types for constitutive model
-                    moris::Cell< moris::Cell< MSI::Dof_Type > > tActiveDofTypes
-                    = tSP->get_global_dof_type_list( mtk::Master_Slave::MASTER );
+                    moris::Cell< moris::Cell< MSI::Dof_Type > > tActiveDofTypes =
+                            tSP->get_global_dof_type_list( mtk::Master_Slave::MASTER );
 
                     // loop on property dof type
                     for ( uint iDof = 0; iDof < tActiveDofTypes.size(); iDof++ )
@@ -874,8 +870,8 @@ namespace moris
                     }
 
                     // get dv types for constitutive model
-                    moris::Cell< moris::Cell< PDV_Type > > tActiveDvTypes
-                    = tSP->get_global_dv_type_list( mtk::Master_Slave::MASTER );
+                    moris::Cell< moris::Cell< PDV_Type > > tActiveDvTypes =
+                            tSP->get_global_dv_type_list( mtk::Master_Slave::MASTER );
 
                     // loop on property dv type
                     for ( uint iDv = 0; iDv < tActiveDvTypes.size(); iDv++ )
@@ -941,8 +937,8 @@ namespace moris
                 if ( tProperty != nullptr )
                 {
                     // get dof types for property
-                    moris::Cell< moris::Cell< MSI::Dof_Type > > tActiveDofTypes
-                    = tProperty->get_dof_type_list();
+                    moris::Cell< moris::Cell< MSI::Dof_Type > > tActiveDofTypes =
+                            tProperty->get_dof_type_list();
 
                     // loop on property dof type
                     for ( uint iDof = 0; iDof < tActiveDofTypes.size(); iDof++ )
@@ -962,8 +958,8 @@ namespace moris
                     }
 
                     // get dv types for property
-                    moris::Cell< moris::Cell< PDV_Type > > tActiveDvTypes
-                    = tProperty->get_dv_type_list();
+                    moris::Cell< moris::Cell< PDV_Type > > tActiveDvTypes =
+                            tProperty->get_dv_type_list();
 
                     // loop on property dv type
                     for ( uint iDv = 0; iDv < tActiveDvTypes.size(); iDv++ )
@@ -990,8 +986,8 @@ namespace moris
                 if ( tCM != nullptr )
                 {
                     // get dof types for constitutive model
-                    moris::Cell< moris::Cell< MSI::Dof_Type > > tActiveDofTypes
-                    = tCM->get_global_dof_type_list();
+                    moris::Cell< moris::Cell< MSI::Dof_Type > > tActiveDofTypes =
+                            tCM->get_global_dof_type_list();
 
                     // loop on property dof type
                     for ( uint iDof = 0; iDof < tActiveDofTypes.size(); iDof++ )
@@ -1011,8 +1007,8 @@ namespace moris
                     }
 
                     // get dv types for constitutive model
-                    moris::Cell< moris::Cell< PDV_Type > > tActiveDvTypes
-                    = tCM->get_global_dv_type_list();
+                    moris::Cell< moris::Cell< PDV_Type > > tActiveDvTypes =
+                            tCM->get_global_dv_type_list();
 
                     // loop on property dv type
                     for ( uint iDv = 0; iDv < tActiveDvTypes.size(); iDv++ )
@@ -1039,8 +1035,8 @@ namespace moris
                 if ( tSP != nullptr )
                 {
                     // get dof types for constitutive model
-                    moris::Cell< moris::Cell< MSI::Dof_Type > > tActiveDofTypes
-                    = tSP->get_global_dof_type_list( mtk::Master_Slave::SLAVE );
+                    moris::Cell< moris::Cell< MSI::Dof_Type > > tActiveDofTypes =
+                            tSP->get_global_dof_type_list( mtk::Master_Slave::SLAVE );
 
                     // loop on property dof type
                     for ( uint iDof = 0; iDof < tActiveDofTypes.size(); iDof++ )
@@ -1060,8 +1056,8 @@ namespace moris
                     }
 
                     // get dv types for stabilization parameter
-                    moris::Cell< moris::Cell< PDV_Type > > tActiveDvTypes
-                    = tSP->get_global_dv_type_list( mtk::Master_Slave::SLAVE );
+                    moris::Cell< moris::Cell< PDV_Type > > tActiveDvTypes =
+                            tSP->get_global_dv_type_list( mtk::Master_Slave::SLAVE );
 
                     // loop on property dv type
                     for ( uint iDv = 0; iDv < tActiveDvTypes.size(); iDv++ )
@@ -1431,44 +1427,6 @@ namespace moris
                                     mSet->get_QI()( tIQIAssemblyIndex )( 0 ) /
                                     ( tFDScheme( 2 )( 0 ) * tDeltaH );
                         }
-
-//                        // perturbation of the pdv coefficent
-//                        Matrix< DDRMat > tCoeffPert = tCoeff;
-//                        tCoeffPert( iCoeffRow, iCoeffCol ) += aPerturbation * tCoeff( iCoeffRow, iCoeffCol );
-//
-//                        // setting the perturbed coefficients
-//                        tFI->set_coeff( tCoeffPert );
-//
-//                        // reset properties, CM and SP for IWG
-//                        this->reset_eval_flags();
-//
-//                        // evaluate the QI
-//                        mSet->get_QI()( tIQIAssemblyIndex ).fill( 0.0 );
-//                        this->compute_QI( aWStar );
-//                        Matrix< DDRMat > tQIValPlus = mSet->get_QI()( tIQIAssemblyIndex );
-//
-//                        // perturbation of the coefficent
-//                        tCoeffPert = tCoeff;
-//                        tCoeffPert( iCoeffRow, iCoeffCol ) -= aPerturbation * tCoeff( iCoeffRow, iCoeffCol );
-//
-//                        // setting the perturbed coefficients
-//                        tFI->set_coeff( tCoeffPert );
-//
-//                        // reset properties, CM and SP for IWG
-//                        this->reset_eval_flags();
-//
-//                        // evaluate the QI
-//                        mSet->get_QI()( tIQIAssemblyIndex ).fill( 0.0 );
-//                        this->compute_QI( aWStar );
-//                        Matrix< DDRMat > tQIValMinus = mSet->get_QI()( tIQIAssemblyIndex );
-//
-//                        // get the pdv index for assembly
-//                        uint tPdvAssemblyIndex = mSet->get_mat_pdv_assembly_map()( iFI )( 0, 0 ) + tPdvCoeffCounter;
-//
-//                        // evaluate dQIqp
-//                        mSet->get_dqidpmat()( tIQIAssemblyIndex )( tPdvAssemblyIndex ) +=
-//                                ( tQIValPlus( 0 ) - tQIValMinus( 0 ) ) / ( 2.0 * aPerturbation * tCoeff( iCoeffRow, iCoeffCol ) );
-
                         // update the pdv coefficient counter
                         tPdvCoeffCounter++;
                     }
@@ -1512,6 +1470,7 @@ namespace moris
             Matrix< DDRMat > tParamCoeff = tIGGI->get_space_param_coeff();
             Matrix< DDRMat > tEvaluationPoint;
             tIGGI->get_space_time( tEvaluationPoint );
+            real tGPWeight = aWStar / tIGGI->det_J();
 
             // loop over the spatial directions
             for( uint iCoeffCol = 0; iCoeffCol< tDerNumDimensions; iCoeffCol++ )
@@ -1561,7 +1520,8 @@ namespace moris
                             mSet->get_QI()( tIQIAssemblyIndex ).fill( 0.0 );
 
                             // compute the QI
-                            this->compute_QI( aWStar );
+                            real tWStarPert = tGPWeight * tIGGI->det_J();
+                            this->compute_QI( tWStarPert );
 
                             // evaluate dQIdpGeo
                             mSet->get_dqidpgeo()( tIQIAssemblyIndex )( tPdvAssemblyIndex ) +=
@@ -1569,67 +1529,6 @@ namespace moris
                                             mSet->get_QI()( tIQIAssemblyIndex )( 0 ) /
                                             ( tFDScheme( 2 )( 0 ) * tDeltaH );
                         }
-
-//                        // perturbation of the coefficent
-//                        Matrix< DDRMat > tCoeffPert = tCoeff;
-//                        tCoeffPert( iCoeffRow, iCoeffCol ) += aPerturbation * tCoeff( iCoeffRow, iCoeffCol );
-//
-//                        // setting the perturbed coefficients
-//                        tIGGI->set_space_coeff( tCoeffPert );
-//
-//                        // update local coordinates
-//                        Matrix< DDRMat > tXCoords  = tCoeffPert.get_row( iCoeffRow );
-//                        Matrix< DDRMat > tXiCoords = tParamCoeff.get_row( iCoeffRow );
-//                        tIPGI->update_local_coordinates( tXCoords, tXiCoords );
-//                        Matrix< DDRMat > tParamCoeffPert = tParamCoeff;
-//                        tParamCoeffPert.get_row( iCoeffRow ) = tXiCoords.matrix_data();
-//                        tIGGI->set_space_param_coeff( tParamCoeffPert );
-//
-//                        // set evaluation point for interpolators (FIs and GIs)
-//                        mSet->get_field_interpolator_manager()->set_space_time_from_local_IG_point( tEvaluationPoint );
-//
-//                        // reset properties, CM and SP for IWG
-//                        this->reset_eval_flags();
-//
-//                        // evaluate the QI
-//                        mSet->get_QI()( tIQIAssemblyIndex ).fill( 0.0 );
-//                        this->compute_QI( aWStar );
-//                        Matrix< DDRMat > tQIValPlus = mSet->get_QI()( tIQIAssemblyIndex );
-//
-//                        // perturbation of the coefficient
-//                        tCoeffPert = tCoeff;
-//                        tCoeffPert( iCoeffRow, iCoeffCol ) -= aPerturbation * tCoeff( iCoeffRow, iCoeffCol );
-//
-//                        // setting the perturbed coefficients
-//                        tIGGI->set_space_coeff( tCoeffPert );
-//
-//                        // update local coordinates
-//                        tXCoords  = tCoeffPert.get_row( iCoeffRow );
-//                        tXiCoords = tParamCoeff.get_row( iCoeffRow );
-//                        tIPGI->update_local_coordinates( tXCoords, tXiCoords );
-//                        tParamCoeffPert = tParamCoeff;
-//                        tParamCoeffPert.get_row( iCoeffRow ) = tXiCoords.matrix_data();
-//                        tIGGI->set_space_param_coeff( tParamCoeffPert );
-//
-//                        // set evaluation point for interpolators (FIs and GIs)
-//                        mSet->get_field_interpolator_manager()->set_space_time_from_local_IG_point( tEvaluationPoint );
-//
-//                        // reset properties, CM and SP for IWG
-//                        this->reset_eval_flags();
-//
-//                        // evaluate the QI
-//                        mSet->get_QI()( tIQIAssemblyIndex ).fill( 0.0 );
-//                        this->compute_QI( aWStar );
-//                        Matrix< DDRMat > tQIValMinus = mSet->get_QI()( tIQIAssemblyIndex );
-//
-//                        // get the geometry pdv assembly index
-//                        std::pair< moris_index, PDV_Type > tKeyPair =
-//                                std::make_pair( aVertexIndices( iCoeffRow ), tRequestedGeoPdvType( iCoeffCol ) );
-//                        uint tPdvAssemblyIndex = mSet->get_geo_pdv_assembly_map()[ tKeyPair ];
-//
-//                        // evaluate dqidpdv
-//                        mSet->get_dqidpgeo()( tIQIAssemblyIndex )( tPdvAssemblyIndex ) +=
-//                                ( tQIValPlus( 0 ) - tQIValMinus( 0 ) ) / ( 2.0 * aPerturbation * tCoeff( iCoeffRow, iCoeffCol ) );
                     }
                 }
                 // reset the coefficients values
@@ -1637,8 +1536,6 @@ namespace moris
                 tIGGI->set_space_param_coeff( tParamCoeff );
                 mSet->get_field_interpolator_manager()->set_space_time_from_local_IG_point( tEvaluationPoint );
             }
-//            std::cout<<"Here"<<std::endl;
-//            print( mSet->get_dqidpgeo()( tIQIAssemblyIndex )," mSet->get_dqidpgeo()( tIQIAssemblyIndex )");
         }
 
         //------------------------------------------------------------------------------
