@@ -96,9 +96,9 @@ namespace moris
             uint tNumRHMS = this->get_num_rhs();
 
             // full vector and prev full vector
-            mImplicitdQidu = tMatFactory.create_vector( mdQiduMap, tNumRHMS );
+            mImplicitdQidp = tMatFactory.create_vector( mdQiduMap, tNumRHMS );
 
-            mImplicitdQidu->vec_put_scalar( 0.0 );
+            mImplicitdQidp->vec_put_scalar( 0.0 );
 
             // Get local number of elements
             moris::uint tNumSets = mFemSets.size();
@@ -119,17 +119,15 @@ namespace moris
             }
 
             // global assembly to switch entries to the right processor
-            mImplicitdQidu->vector_global_asembly();
+            mImplicitdQidp->vector_global_asembly();
 
-            //mImplicitdQidu->print();
+            //mImplicitdQidp->print();
         }
 
         //------------------------------------------------------------------------------
 
         void Equation_Model::compute_explicit_dQIdp()
         {
-
-
             // create map object
             moris::Matrix_Vector_Factory tMatFactory( sol::MapType::Epetra );
             // FIXME create map only once. eiteher implicit or explicit
@@ -138,9 +136,9 @@ namespace moris
             uint tNumRHMS = this->get_num_rhs();
 
             // full vector and prev full vector
-            mExplicitdQidu = tMatFactory.create_vector( mdQiduMap, tNumRHMS );
+            mExplicitdQidp = tMatFactory.create_vector( mdQiduMap, tNumRHMS );
 
-            mExplicitdQidu->vec_put_scalar( 0.0 );
+            mExplicitdQidp->vec_put_scalar( 0.0 );
 
             // Get local number of elements
             moris::uint tNumSets = mFemSets.size();
@@ -161,7 +159,7 @@ namespace moris
             }
 
             // global assembly to switch entries to the right processor
-            mExplicitdQidu->vector_global_asembly();
+            mExplicitdQidp->vector_global_asembly();
         }
 
         //-------------------------------------------------------------------------------------------------
@@ -177,11 +175,11 @@ namespace moris
 
             mQidu->vec_put_scalar( 0.0 );
 
-            //            mExplicitdQidu->print();
-            //            mImplicitdQidu->print();
+            //            mExplicitdQidp->print();
+            //            mImplicitdQidp->print();
 
-            mQidu->vec_plus_vec( 1.0, *mExplicitdQidu, 1.0 );
-            mQidu->vec_plus_vec( 1.0, *mImplicitdQidu, 1.0 );
+            mQidu->vec_plus_vec( 1.0, *mExplicitdQidp, 1.0 );
+            mQidu->vec_plus_vec( 1.0, *mImplicitdQidp, 1.0 );
 
             //mQidu->print();
 
