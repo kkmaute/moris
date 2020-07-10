@@ -53,8 +53,8 @@ namespace moris
 
                 sol::Dist_Map * mdQiduMap = nullptr;
 
-                sol::Dist_Vector * mImplicitdQidu = nullptr;
-                sol::Dist_Vector * mExplicitdQidu = nullptr;
+                sol::Dist_Vector * mImplicitdQidp = nullptr;
+                sol::Dist_Vector * mExplicitdQidp = nullptr;
                 sol::Dist_Vector * mQidu = nullptr;
 
                 // matrices for current and previous time slabs
@@ -193,9 +193,9 @@ namespace moris
                  * returns the implicit dQidu
                  * @param[ out ] mImplicitdQidu returns a pointer to dQidu
                  */
-                sol::Dist_Vector * get_implicit_dQidu()
+                sol::Dist_Vector * get_implicit_dQidp()
                 {
-                    return mImplicitdQidu;
+                    return mImplicitdQidp;
                 }
 
                 //------------------------------------------------------------------------------
@@ -203,9 +203,9 @@ namespace moris
                  * returns the explicit dQidu
                  * @param[ out ] mExplicitdQidu returns a pointer to dQidu
                  */
-                sol::Dist_Vector * get_explicit_dQidu()
+                sol::Dist_Vector * get_explicit_dQidp()
                 {
-                    return mExplicitdQidu;
+                    return mExplicitdQidp;
                 }
 
                 //------------------------------------------------------------------------------
