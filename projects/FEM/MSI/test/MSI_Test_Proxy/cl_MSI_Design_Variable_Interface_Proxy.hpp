@@ -98,21 +98,27 @@ public :
     }
 
 // ----------------------------------------------------------------------------------------------
+
     ~Design_Variable_Interface_Proxy(){};
 
 //------------------------------------------------------------------------------
+
     void get_ip_unique_dv_types_for_set( const moris::moris_index    aIntegrationMeshSetIndex,
                                                Cell< enum PDV_Type > & aDvTypes )
     {
         aDvTypes = { PDV_Type::DENSITY };
     };
+
 //------------------------------------------------------------------------------
+
     void get_ig_unique_dv_types_for_set( const moris::moris_index    aIntegrationMeshSetIndex,
                                                Cell< enum PDV_Type > & aDvTypes )
     {
         aDvTypes = { PDV_Type::X_COORDINATE, PDV_Type::Y_COORDINATE };
     };
+
 //------------------------------------------------------------------------------
+
     void get_ip_dv_types_for_set( const moris::moris_index          aIntegrationMeshSetIndex,
                                         Cell< Cell< enum PDV_Type >> & aDvTypes )
     {
@@ -120,12 +126,14 @@ public :
     };
 
 //------------------------------------------------------------------------------
+
     void get_ig_dv_types_for_set( const moris::moris_index          aIntegrationMeshSetIndex,
                                         Cell< Cell< enum PDV_Type >> & aDvTypes )
     {
         aDvTypes = {{ PDV_Type::X_COORDINATE, PDV_Type::Y_COORDINATE }};
     };
 //------------------------------------------------------------------------------
+
     void get_ip_pdv_value( const moris::Matrix< IndexMat >      & aNodeIndices,
                            const Cell< enum PDV_Type >            & aDvTypes,
                                  Cell<moris::Matrix< DDRMat > > & aDvValues,
@@ -152,7 +160,9 @@ public :
             }
         }
     }
+
 //------------------------------------------------------------------------------
+
     void get_ig_pdv_value( const moris::Matrix< IndexMat >      & aNodeIndices,
                            const Cell< enum PDV_Type >            & aDvTypes,
                                  Cell<moris::Matrix< DDRMat > > & aDvValues,
@@ -180,7 +190,9 @@ public :
             }
         }
     }
+
 //------------------------------------------------------------------------------
+
     void get_ip_pdv_value( const moris::Matrix< IndexMat >      & aNodeIndices,
                            const Cell< enum PDV_Type >            & aDvTypes,
                                  Cell<moris::Matrix< DDRMat > > & aDvValues )
@@ -206,6 +218,7 @@ public :
         }
     }
 //------------------------------------------------------------------------------
+
     void get_ig_pdv_value( const moris::Matrix< IndexMat >      & aNodeIndices,
                            const Cell< enum PDV_Type >            & aDvTypes,
                                  Cell<moris::Matrix< DDRMat > > & aDvValues )
@@ -230,7 +243,9 @@ public :
             }
         }
     }
+
 //------------------------------------------------------------------------------
+
     void reshape_pdv_values( const moris::Cell< moris::Matrix< DDRMat > > & aPdvValues,
                                    moris::Matrix< DDRMat >                & aReshapedPdvValues )
     {
@@ -252,12 +267,14 @@ public :
     }
 
 //------------------------------------------------------------------------------
+
     const moris::Matrix< DDSMat > & get_my_local_global_map()
     {
         return mMap;
     }
 
 //------------------------------------------------------------------------------
+
     void get_ip_dv_ids_for_type_and_ind( const Matrix<IndexMat> & aNodeIndices,
                                          const Cell< enum PDV_Type >               & aDvTypes,
                                                Cell<moris::Matrix< IdMat > >     & aDvIds )
@@ -275,27 +292,40 @@ public :
         }
     }
 //------------------------------------------------------------------------------
+
     void get_ig_dv_ids_for_type_and_ind( const Matrix<IndexMat>               & aNodeIndices,
                                          const Cell< enum PDV_Type >          & aDvTypes,
                                                Cell< moris::Matrix< IdMat > > & aDvIds )
     {
-        MORIS_ERROR( false, "Design_Variable_Interface_Proxy::get_ig_dv_ids_for_type_and_ind() - not implemented in the child class" );
+        aDvIds.resize( aDvTypes.size() );
+
+        for ( uint Ik = 0; Ik < aDvTypes.size(); Ik++ )
+        {
+            aDvIds( Ik ).set_size( aNodeIndices.length(), 1, MORIS_UINT_MAX );
+
+            for ( uint Ii = 0; Ii < aNodeIndices.length(); Ii++ )
+            {
+                aDvIds( Ik )( Ii ) = mDvIds( Ik )( aNodeIndices( Ii ) );
+            }
+        }
     }
 
 //------------------------------------------------------------------------------
+
     void get_ip_requested_dv_types( Cell< enum PDV_Type > & aDvTypes )
     {
         aDvTypes = {{ PDV_Type::DENSITY }};
-//        MORIS_ERROR( false, "Design_Variable_Interface_Proxy::get_ip_requested_dv_types() - not implemented in the child class" );
     }
 
 //------------------------------------------------------------------------------
+
     void get_ig_requested_dv_types( Cell< enum PDV_Type > & aDvTypes )
     {
         MORIS_ERROR( false, "Design_Variable_Interface_Proxy::get_ig_requested_dv_types() - not implemented in the child class" );
     }
 
     //------------------------------------------------------------------------------
+
     void set_requested_IQIs( const moris::Cell< std::string> & aRequestedIQINames );
 };
 }
