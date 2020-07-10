@@ -246,12 +246,15 @@ namespace moris
             // loop over the requested dv types
             for ( uint tPdvTypeIndex = 0; tPdvTypeIndex < tNumTypes; tPdvTypeIndex++ )
             {
-                aDvIds( tPdvTypeIndex ).resize( tNumIndices, 1 );
+                aDvIds(tPdvTypeIndex).set_size(tNumIndices, 1, -1);
 
                 // loop over the node indices
                 for ( uint tNode = 0; tNode < tNumIndices; tNode++ )
                 {
-                    aDvIds(tPdvTypeIndex)(tNode) = mIntersectionNodes(aNodeIndices(tNode))->get_starting_pdv_index() + static_cast<uint>(aPdvTypes(tPdvTypeIndex));
+                    if (mIntersectionNodes(aNodeIndices(tNode)))
+                    {
+                        aDvIds(tPdvTypeIndex)(tNode) = mIntersectionNodes(aNodeIndices(tNode))->get_starting_pdv_index() + static_cast<uint>(aPdvTypes(tPdvTypeIndex));
+                    }
                 }
             }
         }
