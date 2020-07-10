@@ -56,40 +56,49 @@ namespace moris
             moris::Cell < enum PDV_Type > tGeoPdvType;
             mSet->get_ig_unique_dv_types_for_set( tGeoPdvType );
 
-            // get space dimension
-            uint tSpaceDim = tXYZValues.n_cols();
-
-            // reshape the XYZ values into a cell of vectors
-            moris::Cell< Matrix< DDRMat > > tPdvValueList( tSpaceDim );
-            for( uint iSpaceDim = 0; iSpaceDim < tSpaceDim; iSpaceDim++ )
+            // Determine if there are IG PDVs
+            if (tGeoPdvType.size())
             {
-                tPdvValueList( iSpaceDim ) = tXYZValues.get_column( iSpaceDim );
+                // get space dimension
+                uint tSpaceDim = tXYZValues.n_cols();
+
+                // reshape the XYZ values into a cell of vectors
+                moris::Cell< Matrix< DDRMat > > tPdvValueList( tSpaceDim );
+                for( uint iSpaceDim = 0; iSpaceDim < tSpaceDim; iSpaceDim++ )
+                {
+                    tPdvValueList( iSpaceDim ) = tXYZValues.get_column( iSpaceDim );
+                }
+
+                // get the pdv values from the MSI/GEN interface
+                mSet->get_equation_model()->get_design_variable_interface()->get_ig_pdv_value(
+                        tVertexIndices,
+                        tGeoPdvType,
+                        tPdvValueList,
+                        aIsActiveDv );
+
+                // reshape the cell of vectors tPdvValueList into a matrix tPdvValues
+                Matrix< DDRMat > tPdvValues;
+                mSet->get_equation_model()->get_design_variable_interface()->reshape_pdv_values(
+                        tPdvValueList,
+                        tPdvValues );
+
+                // get the IG geometry interpolator
+                Geometry_Interpolator * tIGGI =
+                        mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator();
+
+                // set the geometry interpolator physical space and time coefficients for integration cell
+                tIGGI->set_space_coeff( tPdvValues );
+                tIGGI->set_time_coeff ( mCluster->mInterpolationElement->get_time() );
+
+                // set the geometry interpolator param space and time coefficients for integration cell
+                tIGGI->set_space_param_coeff( mCluster->get_primary_cell_local_coords_on_side_wrt_interp_cell( mCellIndexInCluster) );
+                tIGGI->set_time_param_coeff( {{ -1.0 }, { 1.0 }} ); // FIXME
+            }
+            else // there are no PDVs, get info from mesh
+            {
+                this->init_ig_geometry_interpolator();
             }
 
-            // get the pdv values from the MSI/GEN interface
-            mSet->get_equation_model()->get_design_variable_interface()->get_ig_pdv_value(
-                    tVertexIndices,
-                    tGeoPdvType,
-                    tPdvValueList,
-                    aIsActiveDv );
-
-            // reshape the cell of vectors tPdvValueList into a matrix tPdvValues
-            Matrix< DDRMat > tPdvValues;
-            mSet->get_equation_model()->get_design_variable_interface()->reshape_pdv_values(
-                    tPdvValueList,
-                    tPdvValues );
-
-            // get the IG geometry interpolator
-            Geometry_Interpolator * tIGGI =
-                    mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator();
-
-            // set the geometry interpolator physical space and time coefficients for integration cell
-            tIGGI->set_space_coeff( tPdvValues );
-            tIGGI->set_time_coeff ( mCluster->mInterpolationElement->get_time() );
-
-            // set the geometry interpolator param space and time coefficients for integration cell
-            tIGGI->set_space_param_coeff( mCluster->get_primary_cell_local_coords_on_side_wrt_interp_cell( mCellIndexInCluster) );
-            tIGGI->set_time_param_coeff( {{ -1.0 }, { 1.0 }} ); // FIXME
         }
 
         //------------------------------------------------------------------------------
