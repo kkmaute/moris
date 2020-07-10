@@ -595,7 +595,6 @@ namespace moris
             // Create hosts
             if (mInterfaceNodeIndices.length() > 0)
             {
-                std::cout << "Interface nodes: " << mIntersectionNodes.size() << ", " << mInterfaceNodeIndices.length() << std::endl;
                 Cell<std::shared_ptr<Intersection_Node>> tIntersectionNodes(mInterfaceNodeIndices(mInterfaceNodeIndices.length() - 1) + 1);
                 for (uint tInterfaceNode = 0; tInterfaceNode < mInterfaceNodeIndices.length(); tInterfaceNode++)
                 {
