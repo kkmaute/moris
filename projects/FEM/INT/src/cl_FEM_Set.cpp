@@ -1448,6 +1448,7 @@ namespace moris
         {
             // clean up the map
             mPdvGeoAssemblyMap.clear();
+            //mPdvGeoAssemblyVector.clear();
 
             // get the geo dv types requested by the opt
             moris::Cell < enum PDV_Type > tRequestedDvTypes;
@@ -1492,6 +1493,13 @@ namespace moris
                             tPdvValue,
                             tIsActivePdv );
 
+//                    // get the id associated to the pdv
+//                    moris::Cell< moris::Matrix< DDSMat > > tPdvId;
+//                    mEquationModel->get_design_variable_interface()->get_ig_dv_ids_for_type_and_ind(
+//                            tNodeIndexMat,
+//                            tGeoPdvMat,
+//                            tPdvId );
+
                     // create key pair
                     std::pair< moris_index, PDV_Type > tKeyPair = std::make_pair( tNodeIndex, tGeoPdvType );
 
@@ -1500,6 +1508,9 @@ namespace moris
                     {
                         // fill the map
                         mPdvGeoAssemblyMap[ tKeyPair ] = tActiveGeoPdvCounter;
+
+                        // fill the global assembly vector
+                        //mPdvGeoAssemblyVector.push_back( tPdvId( 0 )( 0 ) );
 
                         // update active geo pdv counter
                         tActiveGeoPdvCounter++;
