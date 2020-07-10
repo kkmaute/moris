@@ -19,7 +19,7 @@ TEST_CASE("Comsol_conform",
     int argc = 2;
 
     char tString1[] = "";
-    char tString2[] = "./bin/Comsol_conform.so";
+    char tString2[] = "./Comsol_conform.so";
 
     char * argv[2] = {tString1,tString2};
 

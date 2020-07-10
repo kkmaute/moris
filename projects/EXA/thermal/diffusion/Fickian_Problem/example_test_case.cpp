@@ -19,7 +19,7 @@ TEST_CASE("Fickian_Problem",
     int argc = 2;
 
     char tString1[] = "";
-    char tString2[] = "./bin/Fick_Problem.so";
+    char tString2[] = "./Fick_Problem.so";
 
     char * argv[2] = {tString1,tString2};
 

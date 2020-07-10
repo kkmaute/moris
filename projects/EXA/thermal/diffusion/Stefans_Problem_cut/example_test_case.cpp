@@ -19,7 +19,7 @@ TEST_CASE("Comsol_cut_mesh",
     int argc = 2;
 
     char tString1[] = "";
-    char tString2[] = "./bin/Comsol_cut_mesh.so";
+    char tString2[] = "./Comsol_cut_mesh.so";
 
     char * argv[2] = {tString1,tString2};
 
