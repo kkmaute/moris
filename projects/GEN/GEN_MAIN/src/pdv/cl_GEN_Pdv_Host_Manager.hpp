@@ -55,6 +55,11 @@ namespace moris
              * Destructor
              */
             ~Pdv_Host_Manager();
+
+            /**
+             * Resets the stored information about PDV hosts
+             */
+            void reset();
             
             /**
              * Get dv types for set

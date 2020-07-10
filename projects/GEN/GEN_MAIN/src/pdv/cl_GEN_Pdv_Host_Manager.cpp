@@ -21,6 +21,16 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
+        void Pdv_Host_Manager::reset()
+        {
+            mIpPdvHosts.resize(0);
+            mIntersectionNodes.resize(0);
+            mGlobalPdvTypeMap.resize(0, 0);
+            mGlobalPdvIndex = 0;
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
         void Pdv_Host_Manager::get_ip_dv_types_for_set(const moris::moris_index aIPMeshSetIndex, Cell<Cell<PDV_Type>>& aPdvTypes)
         {
             if (mIpPdvTypes.size() > 0)
