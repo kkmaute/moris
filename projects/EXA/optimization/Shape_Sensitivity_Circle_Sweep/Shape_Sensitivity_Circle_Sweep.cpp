@@ -192,7 +192,6 @@ namespace moris
         tParameterlist( 0 )( 0 ).set("lower_bounds"      , "0.0, 0.0, 0.0");
         tParameterlist( 0 )( 0 ).set("upper_bounds"      , "2.0, 1.0, 0.5");
         tParameterlist( 0 )( 0 ).set("IQI_types"         , "IQIBulkStrainEnergy,IQIBulkVolume");
-        tParameterlist( 0 )( 0 ).set("PDV_types"         , "X_COORDINATE,Y_COORDINATE");
 
         // Geometry parameter lists
         tParameterlist(1)(0) = prm::create_geometry_parameter_list();
@@ -289,7 +288,7 @@ namespace moris
         tParameterList( 3 )( tIWGCounter ).set( "dof_residual",               std::string("UX,UY") );
         tParameterList( 3 )( tIWGCounter ).set( "master_dof_dependencies",    std::string("UX,UY") );
         tParameterList( 3 )( tIWGCounter ).set( "master_constitutive_models", std::string("CMStrucLinIso1,ElastLinIso") );
-        tParameterList( 3 )( tIWGCounter ).set( "mesh_set_names",             std::string("HMR_dummy_n_p1") );
+        tParameterList( 3 )( tIWGCounter ).set( "mesh_set_names",             std::string("HMR_dummy_n_p1,HMR_dummy_c_p1") );
         tIWGCounter++;
 
         // create parameter list for IWG 2
@@ -325,7 +324,7 @@ namespace moris
         tParameterList( 4 )( tIQICounter ).set( "IQI_output_type",            static_cast< uint >( vis::Output_Type::UX ) );
         tParameterList( 4 )( tIQICounter ).set( "master_dof_dependencies",    std::string("UX,UY") );
         tParameterList( 4 )( tIQICounter ).set( "vectorial_field_index",      0 );
-        tParameterList( 4 )( tIQICounter ).set( "mesh_set_names",             std::string("HMR_dummy_n_p1") );
+        tParameterList( 4 )( tIQICounter ).set( "mesh_set_names",             std::string("HMR_dummy_n_p1,HMR_dummy_c_p1") );
         tIQICounter++;
 
         // create parameter list for IQI 4
@@ -334,7 +333,7 @@ namespace moris
         tParameterList( 4 )( tIQICounter ).set( "IQI_type",                   static_cast< uint >( fem::IQI_Type::STRAIN_ENERGY ) );
         tParameterList( 4 )( tIQICounter ).set( "master_dof_dependencies",    std::string("UX,UY") );
         tParameterList( 4 )( tIQICounter ).set( "master_constitutive_models", std::string("CMStrucLinIso1,Elast") );
-        tParameterList( 4 )( tIQICounter ).set( "mesh_set_names",             std::string("HMR_dummy_n_p1") );
+        tParameterList( 4 )( tIQICounter ).set( "mesh_set_names",             std::string("HMR_dummy_n_p1,HMR_dummy_c_p1") );
         tIQICounter++;
 
         // create parameter list for IQI 4
@@ -343,7 +342,7 @@ namespace moris
         tParameterList( 4 )( tIQICounter ).set( "IQI_type",                   static_cast< uint >( fem::IQI_Type::VOLUME ) );
         tParameterList( 4 )( tIQICounter ).set( "IQI_output_type",            static_cast< uint >( vis::Output_Type::VOLUME ) );
         tParameterList( 4 )( tIQICounter ).set( "master_properties",          std::string("PropDensity,Density") );
-        tParameterList( 4 )( tIQICounter ).set( "mesh_set_names",             std::string("HMR_dummy_n_p1") );
+        tParameterList( 4 )( tIQICounter ).set( "mesh_set_names",             std::string("HMR_dummy_n_p1,HMR_dummy_c_p1") );
         tIQICounter++;
     }
 

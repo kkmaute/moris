@@ -78,6 +78,13 @@ namespace moris
              */
             virtual void add_child_node(uint aNodeIndex, std::shared_ptr<Child_Node> aChildNode);
 
+            /**
+             * If this field depends on ADVs
+             *
+             * @return if this geometry has ADV indices
+             */
+            bool depends_on_advs();
+
         private:
 
             /**

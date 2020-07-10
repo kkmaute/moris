@@ -60,6 +60,7 @@ namespace moris
             Matrix<DDRMat> mLowerBounds;
             Matrix<DDRMat> mUpperBounds;
             Cell<std::string> mRequestedIQIs;
+            bool mShapeSensitivities = false;
 
             // Geometry
             moris::size_t mActiveGeometryIndex = 0;
