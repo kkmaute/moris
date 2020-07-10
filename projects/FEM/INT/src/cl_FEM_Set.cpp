@@ -1531,7 +1531,7 @@ namespace moris
                 mPdvGeoAssemblyVector.set_size( tActiveGeoPdvCounter, 1, -1 );
                 mPdvGeoAssemblyVector = tPdvGeoAssemblyVectorTemp( { 0, tActiveGeoPdvCounter - 1 }, { 0, 0 } );
             }
-            print( mPdvGeoAssemblyVector, "mPdvGeoAssemblyVector in FEM set" );
+            //print( mPdvGeoAssemblyVector, "mPdvGeoAssemblyVector in FEM set" );
         }
 
         //------------------------------------------------------------------------------

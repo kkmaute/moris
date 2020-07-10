@@ -518,14 +518,11 @@ namespace moris
 //            print( tdQIdpGeo, "tdQIdpGeo" );
 
             // loop over the ig pdv
-            for( uint Ik = 0; Ik < tLocalToGlobalIds2.numel(); Ik++ )
+            for( uint Ik = 0; Ik < mSet->mdQIdp( 1 ).size(); Ik++ )
             {
-                // get the id for geo pdv assembly
-                Matrix< DDSMat > tLocalToGlobalIds2Temp = { { tLocalToGlobalIds2( Ik ) } };
-
                 // assemble explicit dQIdpGeo into multivector
                 mEquationSet->get_equation_model()->get_explicit_dQidu()->sum_into_global_values(
-                        tLocalToGlobalIds2Temp,
+                        tLocalToGlobalIds2,
                         mSet->mdQIdp( 1 )( Ik ),
                         Ik );
             }
