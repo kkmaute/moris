@@ -1739,6 +1739,12 @@ namespace moris
                         // compute the perturbation value
                         real tDeltaH = aPerturbation * tCoeff( iCoeffRow, iCoeffCol );
 
+                        // check that perturbation is not zero
+                        if( ( tDeltaH < 1e-12 ) && ( tDeltaH > - 1e-12 ) )
+                        {
+                            tDeltaH = aPerturbation;
+                        }
+
                         // get the geometry pdv assembly index
                         std::pair< moris_index, PDV_Type > tKeyPair =
                                 std::make_pair( aVertexIndices( iCoeffRow ), tRequestedGeoPdvType( iCoeffCol ) );
@@ -1861,6 +1867,12 @@ namespace moris
                             // compute the perturbation value
                             real tDeltaH = aPerturbation * tCoeff( iCoeffRow, iCoeffCol );
 
+                            // check that perturbation is not zero
+                            if( ( tDeltaH < 1e-12 ) && ( tDeltaH > - 1e-12 ) )
+                            {
+                                tDeltaH = aPerturbation;
+                            }
+
                             // get the geometry pdv assembly index
                             std::pair< moris_index, PDV_Type > tKeyPair =
                                     std::make_pair( aMasterVertexIndices( iCoeffRow ), tRequestedGeoPdvType( iCoeffCol ) );
@@ -1946,6 +1958,12 @@ namespace moris
                         {
                             // compute the perturbation value
                             real tDeltaH = aPerturbation * tCoeff( iCoeffRow, iCoeffCol );
+
+                            // check that perturbation is not zero
+                            if( ( tDeltaH < 1e-12 ) && ( tDeltaH > - 1e-12 ) )
+                            {
+                                tDeltaH = aPerturbation;
+                            }
 
                             // get the geometry pdv assembly index
                             std::pair< moris_index, PDV_Type > tKeyPair =
@@ -2067,6 +2085,12 @@ namespace moris
                         // compute the perturbation absolute value
                         real tDeltaH = aPerturbation * tCoeff( iCoeffRow, iCoeffCol );
 
+                        // check that perturbation is not zero
+                        if( ( tDeltaH < 1e-12 ) && ( tDeltaH > - 1e-12 ) )
+                        {
+                            tDeltaH = aPerturbation;
+                        }
+
                         // get mat pdv index
                         uint tPdvIndex = mSet->get_mat_pdv_assembly_map()( tDvDepIndex )( 0, 0 ) + tCoeffCounter;
 
@@ -2168,6 +2192,12 @@ namespace moris
                         // compute the perturbation absolute value
                         real tDeltaH = aPerturbation * tCoeff( iCoeffRow, iCoeffCol );
 
+                        // check that perturbation is not zero
+                        if( ( tDeltaH < 1e-12 ) && ( tDeltaH > - 1e-12 ) )
+                        {
+                            tDeltaH = aPerturbation;
+                        }
+
                         // get mat pdv index
                         uint tPdvIndex = mSet->get_mat_pdv_assembly_map()( tDvDepIndex )( 0, 0 ) + tCoeffCounter;
 
@@ -2246,6 +2276,12 @@ namespace moris
                     {
                         // compute the perturbation absolute value
                         real tDeltaH = aPerturbation * tCoeff( iCoeffRow, iCoeffCol );
+
+                        // check that perturbation is not zero
+                        if( ( tDeltaH < 1e-12 ) && ( tDeltaH > - 1e-12 ) )
+                        {
+                            tDeltaH = aPerturbation;
+                        }
 
                         // get mat pdv index
                         uint tPdvIndex = mSet->get_mat_pdv_assembly_map()( tDvDepIndex )( 0, 0 ) + tCoeffCounter;
