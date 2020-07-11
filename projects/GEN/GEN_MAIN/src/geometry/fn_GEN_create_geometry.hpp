@@ -1,7 +1,3 @@
-//
-// Created by christopherson on 4/13/20.
-//
-
 #ifndef MORIS_FN_CREATE_GEOMETRY_HPP
 #define MORIS_FN_CREATE_GEOMETRY_HPP
 

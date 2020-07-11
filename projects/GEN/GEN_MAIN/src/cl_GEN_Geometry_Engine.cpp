@@ -39,6 +39,7 @@ namespace moris
                 mLowerBounds((uint)aParameterLists(0)(0).get<sint>("advs_size"), 1, aParameterLists(0)(0).get<real>("lower_bounds_fill")),
                 mUpperBounds((uint)aParameterLists(0)(0).get<sint>("advs_size"), 1, aParameterLists(0)(0).get<real>("upper_bounds_fill")),
                 mRequestedIQIs(string_to_cell<std::string>(aParameterLists(0)(0).get<std::string>("IQI_types"))),
+                mPdvHostManager(std::max(mADVs.length(), string_to_mat<DDRMat>(aParameterLists(0)(0).get<std::string>("initial_advs")).length())),
 
                 // Phase table
                 mPhaseTable(string_to_mat<IndexMat>(aParameterLists(0)(0).get<std::string>("phase_table")).numel()
@@ -104,13 +105,16 @@ namespace moris
                 Cell<std::shared_ptr<Geometry>> aGeometry,
                 Phase_Table                     aPhaseTable,
                 uint                            aSpatialDim,
+                Matrix<DDRMat>                  aADVs,
                 real                            aIsocontourThreshold,
                 real                            aErrorFactor)
                 : mIsocontourThreshold(aIsocontourThreshold),
                   mErrorFactor(aErrorFactor),
                   mSpatialDim(aSpatialDim),
+                  mADVs(aADVs),
                   mActiveGeometryIndex(0),
                   mGeometry(aGeometry),
+                  mPdvHostManager(mADVs.length()),
                   mPhaseTable(aPhaseTable)
         {
         }
@@ -126,8 +130,10 @@ namespace moris
         void Geometry_Engine::set_advs(Matrix<DDRMat> aNewADVs)
         {
             mADVs = aNewADVs;
-            mPdvHostManager = Pdv_Host_Manager(mADVs.length());
-            mInterfaceNodeIndices = Matrix<IndexMat>();
+            mPdvHostManager.reset();
+            mIntersectionNodes.resize(0);
+            mInterfaceParentNodes.resize(0);
+            mInterfaceNodeIndices.resize(0, 0);
             mActiveGeometryIndex = 0;
         }
 

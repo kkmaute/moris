@@ -234,6 +234,7 @@ namespace moris
                         mProblem->set_finite_differencing(tFiniteDifferenceType,
                                                                     tFiniteDifferenceEpsilons.get_column(tEpsilonIndex));
                         this->evaluate_objective_gradients(tEvaluationName);
+                        this->evaluate_constraint_gradients(tEvaluationName);
                     }
                 }
             }
