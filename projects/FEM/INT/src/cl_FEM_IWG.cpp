@@ -15,6 +15,7 @@ namespace moris
     {
 
         //------------------------------------------------------------------------------
+
         void IWG::print_names()
         {
             std::cout<<"----------"<<std::endl;
@@ -64,6 +65,7 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+
         void IWG::reset_eval_flags()
         {
             // reset properties
@@ -109,6 +111,7 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+
         void IWG::set_field_interpolator_manager(
                 Field_Interpolator_Manager * aFieldInterpolatorManager,
                 mtk::Master_Slave            aIsMaster )
@@ -175,6 +178,7 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+
         Field_Interpolator_Manager * IWG::get_field_interpolator_manager(
                 mtk::Master_Slave aIsMaster )
         {
@@ -193,6 +197,7 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+
         void IWG::set_field_interpolator_manager_previous_time(
                 Field_Interpolator_Manager * aFieldInterpolatorManager,
                 mtk::Master_Slave            aIsMaster )
@@ -208,12 +213,12 @@ namespace moris
                 default :
                 {
                     MORIS_ERROR( false, "IWG::set_field_interpolator_manager - can only be master");
-                    break;
                 }
             }
         }
 
         //------------------------------------------------------------------------------
+
         void IWG::set_normal( Matrix< DDRMat > & aNormal )
         {
             mNormal = aNormal;
@@ -229,6 +234,7 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+
         void IWG::set_dof_type_list(
                 const moris::Cell< moris::Cell< MSI::Dof_Type > > & aDofTypes,
                 mtk::Master_Slave                                   aIsMaster )
@@ -248,12 +254,12 @@ namespace moris
                 default :
                 {
                     MORIS_ERROR( false, "IWG::set_dof_type_list - can only be MASTER or SLAVE.");
-                    break;
                 }
             }
         }
 
         //------------------------------------------------------------------------------
+
         const moris::Cell< moris::Cell< MSI::Dof_Type > > & IWG::get_dof_type_list(
                 mtk::Master_Slave aIsMaster ) const
         {
@@ -265,26 +271,24 @@ namespace moris
                 {
                     // return master global dof type list
                     return mMasterDofTypes;
-                    break;
                 }
                 // if slave
                 case mtk::Master_Slave::SLAVE :
                 {
                     // return slave global dof type list
                     return mSlaveDofTypes;
-                    break;
                 }
                 // if none
                 default:
                 {
                     MORIS_ASSERT( false, "IWG::get_dof_type_list - can only be master or slave." );
                     return mMasterDofTypes;
-                    break;
                 }
             }
         }
 
         //------------------------------------------------------------------------------
+
         void IWG::set_dv_type_list(
                 const moris::Cell< moris::Cell< PDV_Type > > & aDvTypes,
                 mtk::Master_Slave                              aIsMaster )
@@ -304,12 +308,12 @@ namespace moris
                 default :
                 {
                     MORIS_ERROR( false, "IWG::set_dv_type_list - can only be MASTER or SLAVE.");
-                    break;
                 }
             }
         }
 
         //------------------------------------------------------------------------------
+
         const moris::Cell< moris::Cell< PDV_Type > > & IWG::get_dv_type_list(
                 mtk::Master_Slave aIsMaster ) const
         {
@@ -321,26 +325,24 @@ namespace moris
                 {
                     // return master global dof type list
                     return mMasterDvTypes;
-                    break;
                 }
                 // if slave
                 case mtk::Master_Slave::SLAVE :
                 {
                     // return slave global dof type list
                     return mSlaveDvTypes;
-                    break;
                 }
                 // if none
                 default:
                 {
                     MORIS_ASSERT( false, "IWG::get_dv_type_list - can only be master or slave." );
                     return mMasterDvTypes;
-                    break;
                 }
             }
         }
 
         //------------------------------------------------------------------------------
+
         moris::Cell< std::shared_ptr< Property > > & IWG::get_properties(
                 mtk::Master_Slave aIsMaster )
         {
@@ -369,6 +371,7 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+
         moris::Cell< std::shared_ptr< Constitutive_Model > > & IWG::get_constitutive_models(
                 mtk::Master_Slave aIsMaster )
         {
@@ -397,6 +400,7 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+
         void IWG::get_non_unique_dof_and_dv_types(
                 moris::Cell< moris::Cell< MSI::Dof_Type > > & aDofTypes,
                 moris::Cell< moris::Cell< PDV_Type > >      & aDvTypes )
@@ -659,6 +663,7 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+
         void IWG::build_global_dof_and_dv_type_list()
         {
             // MASTER-------------------------------------------------------
@@ -1132,6 +1137,7 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+
         void IWG::check_field_interpolators( mtk::Master_Slave aIsMaster )
         {
             switch ( aIsMaster )
@@ -1185,14 +1191,14 @@ namespace moris
                 default :
                 {
                     MORIS_ERROR( false, "IWG::check_field_interpolators - can only be master or slave." );
-                    break;
                 }
             }
         }
 
         //------------------------------------------------------------------------------
-        moris::Cell< moris::Cell< MSI::Dof_Type > > &
-        IWG::get_global_dof_type_list( mtk::Master_Slave aIsMaster )
+
+        moris::Cell< moris::Cell< MSI::Dof_Type > > & IWG::get_global_dof_type_list(
+                mtk::Master_Slave aIsMaster )
         {
             // if the global list was not yet built
             if( mGlobalDofBuild )
@@ -1227,14 +1233,13 @@ namespace moris
                 {
                     MORIS_ASSERT( false, "IWG::get_global_dof_type_list - can only be master or slave." );
                     return mMasterGlobalDofTypes;
-                    break;
                 }
             }
         }
 
         //------------------------------------------------------------------------------
-        moris::Cell< moris::Cell< PDV_Type > > &
-        IWG::get_global_dv_type_list( mtk::Master_Slave aIsMaster )
+        moris::Cell< moris::Cell< PDV_Type > > & IWG::get_global_dv_type_list(
+                mtk::Master_Slave aIsMaster )
         {
             // if the global list was not yet built
             if( mGlobalDvBuild )
@@ -1255,26 +1260,24 @@ namespace moris
                 {
                     // return master global dof type list
                     return mMasterGlobalDvTypes;
-                    break;
                 }
                 // if slave
                 case mtk::Master_Slave::SLAVE :
                 {
                     // return slave global dof type list
                     return mSlaveGlobalDvTypes;
-                    break;
                 }
                 // if none
                 default:
                 {
                     MORIS_ASSERT( false, "IWG::get_global_dv_type_list - can only be master or slave." );
                     return mMasterGlobalDvTypes;
-                    break;
                 }
             }
         }
 
         //------------------------------------------------------------------------------
+
         void IWG::compute_jacobian_FD(
                 real                aWStar,
                 real                aPerturbation,
@@ -1372,6 +1375,7 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+
         void IWG::compute_jacobian_FD_double(
                 real                aWStar,
                 real                aPerturbation,
@@ -1569,6 +1573,7 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+
         bool IWG::check_jacobian(
                 real               aPerturbation,
                 real               aEpsilon,
@@ -1686,6 +1691,7 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+
         void IWG::compute_dRdp_FD_geometry(
                 moris::real                       aWStar,
                 moris::real                       aPerturbation,
@@ -1720,6 +1726,7 @@ namespace moris
             Matrix< DDRMat > tParamCoeff = tIGGI->get_space_param_coeff();
             Matrix< DDRMat > tEvaluationPoint;
             tIGGI->get_space_time( tEvaluationPoint );
+            real tGPWeight = aWStar / tIGGI->det_J();
 
             // loop over the spatial directions
             for( uint iCoeffCol = 0; iCoeffCol< tDerNumDimensions; iCoeffCol++ )
@@ -1731,6 +1738,12 @@ namespace moris
                     {
                         // compute the perturbation value
                         real tDeltaH = aPerturbation * tCoeff( iCoeffRow, iCoeffCol );
+
+                        // check that perturbation is not zero
+                        if( ( tDeltaH < 1e-12 ) && ( tDeltaH > - 1e-12 ) )
+                        {
+                            tDeltaH = aPerturbation;
+                        }
 
                         // get the geometry pdv assembly index
                         std::pair< moris_index, PDV_Type > tKeyPair =
@@ -1765,7 +1778,8 @@ namespace moris
 
                             // reset and evaluate the residual plus
                             mSet->get_residual()( 0 ).fill( 0.0 );
-                            this->compute_residual( aWStar );
+                            real tWStarPert = tGPWeight * tIGGI->det_J();
+                            this->compute_residual( tWStarPert );
 
                             // evaluate dRdpGeo
                             mSet->get_drdpgeo()(
@@ -1840,6 +1854,7 @@ namespace moris
                 Matrix< DDRMat > tParamCoeff = tMasterIGGI->get_space_param_coeff();
                 Matrix< DDRMat > tEvaluationPoint;
                 tMasterIGGI->get_space_time( tEvaluationPoint );
+                real tGPWeight = aWStar / tMasterIGGI->det_J();
 
                 // loop over the spatial directions
                 for( uint iCoeffCol = 0; iCoeffCol< tDerNumDimensions; iCoeffCol++ )
@@ -1851,6 +1866,12 @@ namespace moris
                         {
                             // compute the perturbation value
                             real tDeltaH = aPerturbation * tCoeff( iCoeffRow, iCoeffCol );
+
+                            // check that perturbation is not zero
+                            if( ( tDeltaH < 1e-12 ) && ( tDeltaH > - 1e-12 ) )
+                            {
+                                tDeltaH = aPerturbation;
+                            }
 
                             // get the geometry pdv assembly index
                             std::pair< moris_index, PDV_Type > tKeyPair =
@@ -1885,7 +1906,8 @@ namespace moris
 
                                 // reset and evaluate the residual plus
                                 mSet->get_residual()( 0 ).fill( 0.0 );
-                                this->compute_residual( aWStar );
+                                real tWStarPert = tGPWeight * tMasterIGGI->det_J();
+                                this->compute_residual( tWStarPert );
 
                                 // evaluate dMasterRdpGeo
                                 mSet->get_drdpgeo()(
@@ -1924,6 +1946,7 @@ namespace moris
                 Matrix< DDRMat > tParamCoeff = tSlaveIGGI->get_space_param_coeff();
                 Matrix< DDRMat > tEvaluationPoint;
                 tSlaveIGGI->get_space_time( tEvaluationPoint );
+                real tGPWeight = aWStar / tMasterIGGI->det_J();
 
                 // loop over the spatial directions
                 for( uint iCoeffCol = 0; iCoeffCol< tDerNumDimensions; iCoeffCol++ )
@@ -1935,6 +1958,12 @@ namespace moris
                         {
                             // compute the perturbation value
                             real tDeltaH = aPerturbation * tCoeff( iCoeffRow, iCoeffCol );
+
+                            // check that perturbation is not zero
+                            if( ( tDeltaH < 1e-12 ) && ( tDeltaH > - 1e-12 ) )
+                            {
+                                tDeltaH = aPerturbation;
+                            }
 
                             // get the geometry pdv assembly index
                             std::pair< moris_index, PDV_Type > tKeyPair =
@@ -1969,7 +1998,8 @@ namespace moris
 
                                 // reset and evaluate the residual plus
                                 mSet->get_residual()( 0 ).fill( 0.0 );
-                                this->compute_residual( aWStar );
+                                real tWStarPert = tGPWeight * tSlaveIGGI->det_J();
+                                this->compute_residual( tWStarPert );
 
                                 // evaluate dMasterRdpGeo
                                 mSet->get_drdpgeo()(
@@ -1999,6 +2029,7 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+
         void IWG::compute_dRdp_FD_material(
                 moris::real        aWStar,
                 moris::real        aPerturbation,
@@ -2054,6 +2085,12 @@ namespace moris
                         // compute the perturbation absolute value
                         real tDeltaH = aPerturbation * tCoeff( iCoeffRow, iCoeffCol );
 
+                        // check that perturbation is not zero
+                        if( ( tDeltaH < 1e-12 ) && ( tDeltaH > - 1e-12 ) )
+                        {
+                            tDeltaH = aPerturbation;
+                        }
+
                         // get mat pdv index
                         uint tPdvIndex = mSet->get_mat_pdv_assembly_map()( tDvDepIndex )( 0, 0 ) + tCoeffCounter;
 
@@ -2096,6 +2133,7 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+
         void IWG::compute_dRdp_FD_material_double(
                 moris::real        aWStar,
                 moris::real        aPerturbation,
@@ -2153,6 +2191,12 @@ namespace moris
                     {
                         // compute the perturbation absolute value
                         real tDeltaH = aPerturbation * tCoeff( iCoeffRow, iCoeffCol );
+
+                        // check that perturbation is not zero
+                        if( ( tDeltaH < 1e-12 ) && ( tDeltaH > - 1e-12 ) )
+                        {
+                            tDeltaH = aPerturbation;
+                        }
 
                         // get mat pdv index
                         uint tPdvIndex = mSet->get_mat_pdv_assembly_map()( tDvDepIndex )( 0, 0 ) + tCoeffCounter;
@@ -2232,6 +2276,12 @@ namespace moris
                     {
                         // compute the perturbation absolute value
                         real tDeltaH = aPerturbation * tCoeff( iCoeffRow, iCoeffCol );
+
+                        // check that perturbation is not zero
+                        if( ( tDeltaH < 1e-12 ) && ( tDeltaH > - 1e-12 ) )
+                        {
+                            tDeltaH = aPerturbation;
+                        }
 
                         // get mat pdv index
                         uint tPdvIndex = mSet->get_mat_pdv_assembly_map()( tDvDepIndex )( 0, 0 ) + tCoeffCounter;

@@ -14,6 +14,7 @@ namespace moris
     namespace fem
     {
         //------------------------------------------------------------------------------
+
         void IQI::print_names()
         {
             std::cout<<"----------"<<std::endl;
@@ -63,6 +64,7 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+
         void IQI::reset_eval_flags()
         {
             // reset properties
@@ -108,27 +110,26 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
-        void IQI::set_field_interpolator_manager( Field_Interpolator_Manager * aFieldInterpolatorManager,
+
+        void IQI::set_field_interpolator_manager(
+                Field_Interpolator_Manager * aFieldInterpolatorManager,
                 mtk::Master_Slave            aIsMaster )
         {
             switch ( aIsMaster )
             {
-                case ( mtk::Master_Slave::MASTER ) :
-                    {
+                case mtk::Master_Slave::MASTER :
+                {
                     mMasterFIManager = aFieldInterpolatorManager;
                     break;
-                    }
-
-                case ( mtk::Master_Slave::SLAVE ) :
-                    {
+                }
+                case mtk::Master_Slave::SLAVE :
+                {
                     mSlaveFIManager = aFieldInterpolatorManager;
                     break;
-                    }
-
+                }
                 default :
                 {
                     MORIS_ERROR( false, "IWG::set_field_interpolator_manager - can only be master or slave");
-                    break;
                 }
             }
 
@@ -173,6 +174,7 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+
         Field_Interpolator_Manager * IQI::get_field_interpolator_manager(
                 mtk::Master_Slave aIsMaster )
         {
@@ -191,6 +193,7 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+
         void IQI::set_dof_type_list(
                 const moris::Cell< moris::Cell< MSI::Dof_Type > > & aDofTypes,
                 mtk::Master_Slave                                   aIsMaster )
@@ -210,12 +213,12 @@ namespace moris
                 default :
                 {
                     MORIS_ERROR( false, "IQI::set_dof_type_list - can only be MASTER or SLAVE.");
-                    break;
                 }
             }
         }
 
         //------------------------------------------------------------------------------
+
         moris::Cell< moris::Cell< MSI::Dof_Type > > & IQI::get_dof_type_list(
                 mtk::Master_Slave aIsMaster )
         {
@@ -282,6 +285,7 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+
         void IQI::set_dv_type_list(
                 const moris::Cell< moris::Cell< PDV_Type > > & aDvTypes,
                 mtk::Master_Slave                              aIsMaster )
@@ -307,6 +311,7 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+
         moris::Cell< moris::Cell< PDV_Type > > & IQI::get_dv_type_list(
                 mtk::Master_Slave aIsMaster )
         {
@@ -335,6 +340,7 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+
         moris::Cell< moris::Cell< PDV_Type > > & IQI::get_global_dv_type_list(
                 mtk::Master_Slave aIsMaster )
         {
@@ -374,6 +380,7 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+
         moris::Cell< std::shared_ptr< fem::Property > > & IQI::get_properties(
                 mtk::Master_Slave aIsMaster )
         {
@@ -402,6 +409,7 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+
         moris::Cell< std::shared_ptr< fem::Constitutive_Model > > & IQI::get_constitutive_models(
                 mtk::Master_Slave aIsMaster )
         {
@@ -430,6 +438,7 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+
         void IQI::get_non_unique_dof_and_dv_types(
                 moris::Cell< moris::Cell< MSI::Dof_Type > > & aDofTypes,
                 moris::Cell< moris::Cell< PDV_Type > >      & aDvTypes )
@@ -693,6 +702,7 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+
         void IQI::build_global_dof_and_dv_type_lists()
         {
             // MASTER-------------------------------------------------------
@@ -741,8 +751,8 @@ namespace moris
                 if ( tProperty != nullptr )
                 {
                     // get dof types for property
-                    moris::Cell< moris::Cell< MSI::Dof_Type > > tActiveDofTypes
-                    = tProperty->get_dof_type_list();
+                    moris::Cell< moris::Cell< MSI::Dof_Type > > tActiveDofTypes =
+                            tProperty->get_dof_type_list();
 
                     // loop on property dof type
                     for ( uint iDof = 0; iDof < tActiveDofTypes.size(); iDof++ )
@@ -762,8 +772,8 @@ namespace moris
                     }
 
                     // get dv types for property
-                    moris::Cell< moris::Cell< PDV_Type > > tActiveDvTypes
-                    = tProperty->get_dv_type_list();
+                    moris::Cell< moris::Cell< PDV_Type > > tActiveDvTypes =
+                            tProperty->get_dv_type_list();
 
                     // loop on property dv type
                     for ( uint iDv = 0; iDv < tActiveDvTypes.size(); iDv++ )
@@ -790,8 +800,8 @@ namespace moris
                 if ( tCM != nullptr )
                 {
                     // get dof types for constitutive model
-                    moris::Cell< moris::Cell< MSI::Dof_Type > > tActiveDofTypes
-                    = tCM->get_global_dof_type_list();
+                    moris::Cell< moris::Cell< MSI::Dof_Type > > tActiveDofTypes =
+                            tCM->get_global_dof_type_list();
 
                     // loop on property dof type
                     for ( uint iDof = 0; iDof < tActiveDofTypes.size(); iDof++ )
@@ -811,8 +821,8 @@ namespace moris
                     }
 
                     // get dv types for constitutive model
-                    moris::Cell< moris::Cell< PDV_Type > > tActiveDvTypes
-                    = tCM->get_global_dv_type_list();
+                    moris::Cell< moris::Cell< PDV_Type > > tActiveDvTypes =
+                            tCM->get_global_dv_type_list();
 
                     // loop on property dv type
                     for ( uint iDv = 0; iDv < tActiveDvTypes.size(); iDv++ )
@@ -839,8 +849,8 @@ namespace moris
                 if ( tSP != nullptr )
                 {
                     // get dof types for constitutive model
-                    moris::Cell< moris::Cell< MSI::Dof_Type > > tActiveDofTypes
-                    = tSP->get_global_dof_type_list( mtk::Master_Slave::MASTER );
+                    moris::Cell< moris::Cell< MSI::Dof_Type > > tActiveDofTypes =
+                            tSP->get_global_dof_type_list( mtk::Master_Slave::MASTER );
 
                     // loop on property dof type
                     for ( uint iDof = 0; iDof < tActiveDofTypes.size(); iDof++ )
@@ -860,8 +870,8 @@ namespace moris
                     }
 
                     // get dv types for constitutive model
-                    moris::Cell< moris::Cell< PDV_Type > > tActiveDvTypes
-                    = tSP->get_global_dv_type_list( mtk::Master_Slave::MASTER );
+                    moris::Cell< moris::Cell< PDV_Type > > tActiveDvTypes =
+                            tSP->get_global_dv_type_list( mtk::Master_Slave::MASTER );
 
                     // loop on property dv type
                     for ( uint iDv = 0; iDv < tActiveDvTypes.size(); iDv++ )
@@ -927,8 +937,8 @@ namespace moris
                 if ( tProperty != nullptr )
                 {
                     // get dof types for property
-                    moris::Cell< moris::Cell< MSI::Dof_Type > > tActiveDofTypes
-                    = tProperty->get_dof_type_list();
+                    moris::Cell< moris::Cell< MSI::Dof_Type > > tActiveDofTypes =
+                            tProperty->get_dof_type_list();
 
                     // loop on property dof type
                     for ( uint iDof = 0; iDof < tActiveDofTypes.size(); iDof++ )
@@ -948,8 +958,8 @@ namespace moris
                     }
 
                     // get dv types for property
-                    moris::Cell< moris::Cell< PDV_Type > > tActiveDvTypes
-                    = tProperty->get_dv_type_list();
+                    moris::Cell< moris::Cell< PDV_Type > > tActiveDvTypes =
+                            tProperty->get_dv_type_list();
 
                     // loop on property dv type
                     for ( uint iDv = 0; iDv < tActiveDvTypes.size(); iDv++ )
@@ -976,8 +986,8 @@ namespace moris
                 if ( tCM != nullptr )
                 {
                     // get dof types for constitutive model
-                    moris::Cell< moris::Cell< MSI::Dof_Type > > tActiveDofTypes
-                    = tCM->get_global_dof_type_list();
+                    moris::Cell< moris::Cell< MSI::Dof_Type > > tActiveDofTypes =
+                            tCM->get_global_dof_type_list();
 
                     // loop on property dof type
                     for ( uint iDof = 0; iDof < tActiveDofTypes.size(); iDof++ )
@@ -997,8 +1007,8 @@ namespace moris
                     }
 
                     // get dv types for constitutive model
-                    moris::Cell< moris::Cell< PDV_Type > > tActiveDvTypes
-                    = tCM->get_global_dv_type_list();
+                    moris::Cell< moris::Cell< PDV_Type > > tActiveDvTypes =
+                            tCM->get_global_dv_type_list();
 
                     // loop on property dv type
                     for ( uint iDv = 0; iDv < tActiveDvTypes.size(); iDv++ )
@@ -1025,8 +1035,8 @@ namespace moris
                 if ( tSP != nullptr )
                 {
                     // get dof types for constitutive model
-                    moris::Cell< moris::Cell< MSI::Dof_Type > > tActiveDofTypes
-                    = tSP->get_global_dof_type_list( mtk::Master_Slave::SLAVE );
+                    moris::Cell< moris::Cell< MSI::Dof_Type > > tActiveDofTypes =
+                            tSP->get_global_dof_type_list( mtk::Master_Slave::SLAVE );
 
                     // loop on property dof type
                     for ( uint iDof = 0; iDof < tActiveDofTypes.size(); iDof++ )
@@ -1046,8 +1056,8 @@ namespace moris
                     }
 
                     // get dv types for stabilization parameter
-                    moris::Cell< moris::Cell< PDV_Type > > tActiveDvTypes
-                    = tSP->get_global_dv_type_list( mtk::Master_Slave::SLAVE );
+                    moris::Cell< moris::Cell< PDV_Type > > tActiveDvTypes =
+                            tSP->get_global_dv_type_list( mtk::Master_Slave::SLAVE );
 
                     // loop on property dv type
                     for ( uint iDv = 0; iDv < tActiveDvTypes.size(); iDv++ )
@@ -1074,6 +1084,7 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+
         void IQI::build_requested_dof_type_lists()
         {
             // clear the dof lists
@@ -1121,6 +1132,7 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+
         // FIXME
         moris::Cell < enum MSI::Dof_Type > IQI::get_requested_dof_types()
         {
@@ -1136,6 +1148,7 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+
         void IQI::compute_dQIdu_FD(
                 real               aWStar,
                 real               aPerturbation,
@@ -1186,6 +1199,12 @@ namespace moris
                         // compute the perturbation absolute value
                         real tDeltaH = aPerturbation * tCoeff( iCoeffRow, iCoeffCol );
 
+                        // check that perturbation is not zero
+                        if( ( tDeltaH < 1e-12 ) && ( tDeltaH > - 1e-12 ) )
+                        {
+                            tDeltaH = aPerturbation;
+                        }
+
                         // loop over the points for FD
                         for( uint iPoint = 0; iPoint < tNumPoints; iPoint++ )
                         {
@@ -1213,41 +1232,6 @@ namespace moris
                                     mSet->get_QI()( tQIIndex ) /
                                     ( tFDScheme( 2 )( 0 ) * tDeltaH );
                         }
-
-//                        // perturbation of the coefficent
-//                        Matrix< DDRMat > tCoeffPert = tCoeff;
-//                        tCoeffPert( iCoeffRow, iCoeffCol ) += aPerturbation * tCoeffPert( iCoeffRow, iCoeffCol );
-//
-//                        // setting the perturbed coefficients
-//                        tFI->set_coeff( tCoeffPert );
-//
-//                        // reset properties, CM and SP for IWG
-//                        this->reset_eval_flags();
-//
-//                        // evaluate the residual
-//                        mSet->get_QI()( tQIIndex ).fill( 0.0 );
-//                        this->compute_QI( aWStar );
-//                        Matrix< DDRMat > tQI_Plus = mSet->get_QI()( tQIIndex );
-//
-//                        // perturbation of the coefficent
-//                        tCoeffPert = tCoeff;
-//                        tCoeffPert( iCoeffRow, iCoeffCol ) -= aPerturbation * tCoeffPert( iCoeffRow, iCoeffCol );
-//
-//                        // setting the perturbed coefficients
-//                        tFI->set_coeff( tCoeffPert );
-//
-//                        // reset properties, CM and SP for IWG
-//                        this->reset_eval_flags();
-//
-//                        // evaluate the residual
-//                        mSet->get_QI()( tQIIndex ).fill( 0.0 );
-//                        this->compute_QI( aWStar );
-//                        Matrix< DDRMat > tQI_Minus = mSet->get_QI()( tQIIndex );
-//
-//                        // evaluate Jacobian
-//                        adQIduFD( tDofCounter ) =
-//                                ( tQI_Plus( 0 ) - tQI_Minus( 0 ) ) / ( 2.0 * aPerturbation * tCoeff( iCoeffRow, iCoeffCol ) );
-
                         // update dof counter
                         tDofCounter++;
                     }
@@ -1289,6 +1273,12 @@ namespace moris
                         // compute the perturbation absolute value
                         real tDeltaH = aPerturbation * tCoeff( iCoeffRow, iCoeffCol );
 
+                        // check that perturbation is not zero
+                        if( ( tDeltaH < 1e-12 ) && ( tDeltaH > - 1e-12 ) )
+                        {
+                            tDeltaH = aPerturbation;
+                        }
+
                         // loop over the points for FD
                         for( uint iPoint = 0; iPoint < tNumPoints; iPoint++ )
                         {
@@ -1316,41 +1306,6 @@ namespace moris
                                     mSet->get_QI()( tQIIndex ) /
                                     ( tFDScheme( 2 )( 0 ) * tDeltaH );
                         }
-
-//                        // perturbation of the coefficent
-//                        Matrix< DDRMat > tCoeffPert = tCoeff;
-//                        tCoeffPert( iCoeffRow, iCoeffCol ) += aPerturbation * tCoeffPert( iCoeffRow, iCoeffCol );
-//
-//                        // setting the perturbed coefficients
-//                        tFI->set_coeff( tCoeffPert );
-//
-//                        // reset properties, CM and SP for IWG
-//                        this->reset_eval_flags();
-//
-//                        // evaluate the residual
-//                        mSet->get_residual()( tQIIndex ).fill( 0.0 );
-//                        this->compute_QI( aWStar );
-//                        Matrix< DDRMat > tQI_Plus = mSet->get_QI()( tQIIndex );
-//
-//                        // perturbation of the coefficent
-//                        tCoeffPert = tCoeff;
-//                        tCoeffPert( iCoeffRow, iCoeffCol ) -= aPerturbation * tCoeffPert( iCoeffRow, iCoeffCol );
-//
-//                        // setting the perturbed coefficients
-//                        tFI->set_coeff( tCoeffPert );
-//
-//                        // reset properties, CM and SP for IWG
-//                        this->reset_eval_flags();
-//
-//                        // evaluate the residual
-//                        mSet->get_QI()( tQIIndex ).fill( 0.0 );
-//                        this->compute_QI( aWStar );
-//
-//                        Matrix< DDRMat > tQI_Minus = mSet->get_QI()( tQIIndex );
-//
-//                        // evaluate Jacobian
-//                        adQIduFD( tDofCounter ) = ( tQI_Plus( 0 ) - tQI_Minus( 0 ) )/ ( 2.0 * aPerturbation * tCoeff( iCoeffRow, iCoeffCol ) );
-
                         // update dof counter
                         tDofCounter++;
                     }
@@ -1361,6 +1316,7 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+
         bool IQI::check_dQIdu_FD(
                 real              aWStar,
                 real              aPerturbation,
@@ -1406,6 +1362,7 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+
         void IQI::compute_dQIdp_FD_material(
                 moris::real aWStar,
                 moris::real aPerturbation,
@@ -1452,6 +1409,12 @@ namespace moris
                         // compute the perturbation absolute value
                         real tDeltaH = aPerturbation * tCoeff( iCoeffRow, iCoeffCol );
 
+                        // check that perturbation is not zero
+                        if( ( tDeltaH < 1e-12 ) && ( tDeltaH > - 1e-12 ) )
+                        {
+                            tDeltaH = aPerturbation;
+                        }
+
                         // loop over the points for FD
                         for( uint iPoint = 0; iPoint < tNumPoints; iPoint++ )
                         {
@@ -1482,44 +1445,6 @@ namespace moris
                                     mSet->get_QI()( tIQIAssemblyIndex )( 0 ) /
                                     ( tFDScheme( 2 )( 0 ) * tDeltaH );
                         }
-
-//                        // perturbation of the pdv coefficent
-//                        Matrix< DDRMat > tCoeffPert = tCoeff;
-//                        tCoeffPert( iCoeffRow, iCoeffCol ) += aPerturbation * tCoeff( iCoeffRow, iCoeffCol );
-//
-//                        // setting the perturbed coefficients
-//                        tFI->set_coeff( tCoeffPert );
-//
-//                        // reset properties, CM and SP for IWG
-//                        this->reset_eval_flags();
-//
-//                        // evaluate the QI
-//                        mSet->get_QI()( tIQIAssemblyIndex ).fill( 0.0 );
-//                        this->compute_QI( aWStar );
-//                        Matrix< DDRMat > tQIValPlus = mSet->get_QI()( tIQIAssemblyIndex );
-//
-//                        // perturbation of the coefficent
-//                        tCoeffPert = tCoeff;
-//                        tCoeffPert( iCoeffRow, iCoeffCol ) -= aPerturbation * tCoeff( iCoeffRow, iCoeffCol );
-//
-//                        // setting the perturbed coefficients
-//                        tFI->set_coeff( tCoeffPert );
-//
-//                        // reset properties, CM and SP for IWG
-//                        this->reset_eval_flags();
-//
-//                        // evaluate the QI
-//                        mSet->get_QI()( tIQIAssemblyIndex ).fill( 0.0 );
-//                        this->compute_QI( aWStar );
-//                        Matrix< DDRMat > tQIValMinus = mSet->get_QI()( tIQIAssemblyIndex );
-//
-//                        // get the pdv index for assembly
-//                        uint tPdvAssemblyIndex = mSet->get_mat_pdv_assembly_map()( iFI )( 0, 0 ) + tPdvCoeffCounter;
-//
-//                        // evaluate dQIqp
-//                        mSet->get_dqidpmat()( tIQIAssemblyIndex )( tPdvAssemblyIndex ) +=
-//                                ( tQIValPlus( 0 ) - tQIValMinus( 0 ) ) / ( 2.0 * aPerturbation * tCoeff( iCoeffRow, iCoeffCol ) );
-
                         // update the pdv coefficient counter
                         tPdvCoeffCounter++;
                     }
@@ -1530,6 +1455,7 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+
         void IQI::compute_dQIdp_FD_geometry(
                 moris::real                       aWStar,
                 moris::real                       aPerturbation,
@@ -1562,6 +1488,7 @@ namespace moris
             Matrix< DDRMat > tParamCoeff = tIGGI->get_space_param_coeff();
             Matrix< DDRMat > tEvaluationPoint;
             tIGGI->get_space_time( tEvaluationPoint );
+            real tGPWeight = aWStar / tIGGI->det_J();
 
             // loop over the spatial directions
             for( uint iCoeffCol = 0; iCoeffCol< tDerNumDimensions; iCoeffCol++ )
@@ -1569,10 +1496,17 @@ namespace moris
                 // loop over the IG nodes
                 for( uint iCoeffRow = 0; iCoeffRow< tDerNumBases; iCoeffRow++ )
                 {
+                    // if pdv is active
                     if ( aIsActive( iCoeffCol )( iCoeffRow ) == 1 )
                     {
                         // compute the perturbation value
                         real tDeltaH = aPerturbation * tCoeff( iCoeffRow, iCoeffCol );
+
+                        // check that perturbation is not zero
+                        if( ( tDeltaH < 1e-12 ) && ( tDeltaH > - 1e-12 ) )
+                        {
+                            tDeltaH = aPerturbation;
+                        }
 
                         // get the geometry pdv assembly index
                         std::pair< moris_index, PDV_Type > tKeyPair =
@@ -1600,7 +1534,8 @@ namespace moris
                             tIGGI->set_space_param_coeff( tParamCoeffPert );
 
                             // set evaluation point for interpolators (FIs and GIs)
-                            mSet->get_field_interpolator_manager()->set_space_time_from_local_IG_point( tEvaluationPoint );
+                            mSet->get_field_interpolator_manager()->
+                                    set_space_time_from_local_IG_point( tEvaluationPoint );
 
                             // reset properties, CM and SP for IWG
                             this->reset_eval_flags();
@@ -1609,7 +1544,8 @@ namespace moris
                             mSet->get_QI()( tIQIAssemblyIndex ).fill( 0.0 );
 
                             // compute the QI
-                            this->compute_QI( aWStar );
+                            real tWStarPert = tGPWeight * tIGGI->det_J();
+                            this->compute_QI( tWStarPert );
 
                             // evaluate dQIdpGeo
                             mSet->get_dqidpgeo()( tIQIAssemblyIndex )( tPdvAssemblyIndex ) +=
@@ -1617,67 +1553,6 @@ namespace moris
                                             mSet->get_QI()( tIQIAssemblyIndex )( 0 ) /
                                             ( tFDScheme( 2 )( 0 ) * tDeltaH );
                         }
-
-//                        // perturbation of the coefficent
-//                        Matrix< DDRMat > tCoeffPert = tCoeff;
-//                        tCoeffPert( iCoeffRow, iCoeffCol ) += aPerturbation * tCoeff( iCoeffRow, iCoeffCol );
-//
-//                        // setting the perturbed coefficients
-//                        tIGGI->set_space_coeff( tCoeffPert );
-//
-//                        // update local coordinates
-//                        Matrix< DDRMat > tXCoords  = tCoeffPert.get_row( iCoeffRow );
-//                        Matrix< DDRMat > tXiCoords = tParamCoeff.get_row( iCoeffRow );
-//                        tIPGI->update_local_coordinates( tXCoords, tXiCoords );
-//                        Matrix< DDRMat > tParamCoeffPert = tParamCoeff;
-//                        tParamCoeffPert.get_row( iCoeffRow ) = tXiCoords.matrix_data();
-//                        tIGGI->set_space_param_coeff( tParamCoeffPert );
-//
-//                        // set evaluation point for interpolators (FIs and GIs)
-//                        mSet->get_field_interpolator_manager()->set_space_time_from_local_IG_point( tEvaluationPoint );
-//
-//                        // reset properties, CM and SP for IWG
-//                        this->reset_eval_flags();
-//
-//                        // evaluate the QI
-//                        mSet->get_QI()( tIQIAssemblyIndex ).fill( 0.0 );
-//                        this->compute_QI( aWStar );
-//                        Matrix< DDRMat > tQIValPlus = mSet->get_QI()( tIQIAssemblyIndex );
-//
-//                        // perturbation of the coefficient
-//                        tCoeffPert = tCoeff;
-//                        tCoeffPert( iCoeffRow, iCoeffCol ) -= aPerturbation * tCoeff( iCoeffRow, iCoeffCol );
-//
-//                        // setting the perturbed coefficients
-//                        tIGGI->set_space_coeff( tCoeffPert );
-//
-//                        // update local coordinates
-//                        tXCoords  = tCoeffPert.get_row( iCoeffRow );
-//                        tXiCoords = tParamCoeff.get_row( iCoeffRow );
-//                        tIPGI->update_local_coordinates( tXCoords, tXiCoords );
-//                        tParamCoeffPert = tParamCoeff;
-//                        tParamCoeffPert.get_row( iCoeffRow ) = tXiCoords.matrix_data();
-//                        tIGGI->set_space_param_coeff( tParamCoeffPert );
-//
-//                        // set evaluation point for interpolators (FIs and GIs)
-//                        mSet->get_field_interpolator_manager()->set_space_time_from_local_IG_point( tEvaluationPoint );
-//
-//                        // reset properties, CM and SP for IWG
-//                        this->reset_eval_flags();
-//
-//                        // evaluate the QI
-//                        mSet->get_QI()( tIQIAssemblyIndex ).fill( 0.0 );
-//                        this->compute_QI( aWStar );
-//                        Matrix< DDRMat > tQIValMinus = mSet->get_QI()( tIQIAssemblyIndex );
-//
-//                        // get the geometry pdv assembly index
-//                        std::pair< moris_index, PDV_Type > tKeyPair =
-//                                std::make_pair( aVertexIndices( iCoeffRow ), tRequestedGeoPdvType( iCoeffCol ) );
-//                        uint tPdvAssemblyIndex = mSet->get_geo_pdv_assembly_map()[ tKeyPair ];
-//
-//                        // evaluate dqidpdv
-//                        mSet->get_dqidpgeo()( tIQIAssemblyIndex )( tPdvAssemblyIndex ) +=
-//                                ( tQIValPlus( 0 ) - tQIValMinus( 0 ) ) / ( 2.0 * aPerturbation * tCoeff( iCoeffRow, iCoeffCol ) );
                     }
                 }
                 // reset the coefficients values

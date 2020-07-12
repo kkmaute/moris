@@ -1,12 +1,9 @@
-//
-// Created by christopherson on 4/13/20.
-//
-
 #include "fn_GEN_create_geometry.hpp"
 #include "fn_Parsing_Tools.hpp"
 
 #include "cl_GEN_Circle.hpp"
 #include "cl_GEN_Sphere.hpp"
+#include "cl_GEN_Plane.hpp"
 #include "cl_GEN_User_Defined_Geometry.hpp"
 
 namespace moris
@@ -96,6 +93,15 @@ namespace moris
                                                 tConstantParameters,
                                                 tNumRefinements,
                                                 tRefinementFunctionIndex);
+            }
+            else if (tGeometryType == "plane")
+            {
+                return std::make_shared<Plane>(aADVs,
+                                               tGeometryVariableIndices,
+                                               tADVIndices,
+                                               tConstantParameters,
+                                               tNumRefinements,
+                                               tRefinementFunctionIndex);
             }
             else if (tGeometryType == "user_defined")
             {

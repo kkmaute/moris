@@ -31,6 +31,9 @@ namespace moris
 
         class Field_Interpolator
         {
+                // tolerance for check
+                real mEpsilon = 1e-12;
+
                 // how many fields are to be interpolated
                 const uint mNumberOfFields;
 

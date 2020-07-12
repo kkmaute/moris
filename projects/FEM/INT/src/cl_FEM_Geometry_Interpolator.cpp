@@ -198,7 +198,7 @@ namespace moris
             // fixme what about TRI and TET
             for ( uint Ik = 0; Ik < mNumSpaceParamDim + mNumTimeDim; Ik++ )
             {
-                MORIS_ASSERT( ( ( aParamPoint( Ik ) <= 1.0 + 1E-12 ) && ( aParamPoint( Ik ) >= -1.0 - 1E-12 ) ),
+                MORIS_ASSERT( ( ( aParamPoint( Ik ) <= 1.0 + mEpsilon ) && ( aParamPoint( Ik ) >= -1.0 - mEpsilon ) ),
                         "Geometry_Interpolator::set_space_time - Wrong input value ( aParamPoint ).");
             }
 
@@ -222,7 +222,7 @@ namespace moris
             // fixme what about TRI and TET
             for ( uint Ik = 0; Ik < mNumSpaceParamDim; Ik++ )
             {
-                MORIS_ASSERT( ( ( aSpaceParamPoint( Ik ) <= 1.0 + 1E-12 ) && ( aSpaceParamPoint( Ik ) >= -1.0 - 1E-12 ) ),
+                MORIS_ASSERT( ( ( aSpaceParamPoint( Ik ) <= 1.0 + mEpsilon ) && ( aSpaceParamPoint( Ik ) >= -1.0 - mEpsilon ) ),
                         "Geometry_Interpolator::set_space - Wrong input value ( aSpaceParamPoint ).");
             }
 
@@ -245,7 +245,7 @@ namespace moris
             // fixme what about TRI and TET
             for ( uint Ik = 0; Ik < mNumTimeDim; Ik++ )
             {
-                MORIS_ASSERT( ( ( aTimeParamPoint( Ik ) <= 1.0 + 1E-12 ) && ( aTimeParamPoint( Ik ) >= -1.0 - 1E-12 ) ),
+                MORIS_ASSERT( ( ( aTimeParamPoint( Ik ) <= 1.0 + mEpsilon ) && ( aTimeParamPoint( Ik ) >= -1.0 - mEpsilon ) ),
                         "Geometry_Interpolator::set_time - Wrong input value ( aTimeParamPoint ).");
             }
 
@@ -848,7 +848,6 @@ namespace moris
                 Matrix< DDRMat > & aParamCoordinates )
         {
             // set max iteration
-            // std::cout<<"Geometry_Interpolator::update_local_coordinates - Force 10 iterations"<<std::endl;
             uint tMaxIter = 10;
 
             // init previous param coords
@@ -1546,7 +1545,6 @@ namespace moris
                 default :
                 {
                     MORIS_ERROR( false, " Geometry_Interpolator::set_function_pointers - unknown number of dimensions. " );
-                    break;
                 }
             }
 
@@ -1576,7 +1574,6 @@ namespace moris
                     default :
                     {
                         MORIS_ERROR( false, "Geometry_Interpolator::set_function_pointers - unknown or not implemented side space geometry type ");
-                        break;
                     }
                 }
             }
@@ -1607,7 +1604,6 @@ namespace moris
                     default :
                     {
                         MORIS_ERROR( false, "Geometry_Interpolator::set_function_pointers - unknown or not implemented space geometry type ");
-                        break;
                     }
                 }
             }
@@ -1628,7 +1624,6 @@ namespace moris
                 default:
                 {
                     MORIS_ERROR( false, "Geometry_Interpolator::set_function_pointers - unknown or not implemented time geometry type ");
-                    break;
                 }
             }
         }
@@ -1662,7 +1657,6 @@ namespace moris
                             break;
                         default:
                             MORIS_ERROR( false, "Geometry_Interpolator::get_face_vertices_ordinals - LINE order not implemented " );
-                            break;
                     }
                     break;
                 }
@@ -1701,7 +1695,6 @@ namespace moris
                             break;
                         default:
                             MORIS_ERROR( false, "Geometry_Interpolator::get_face_vertices_ordinals - QUAD order not implemented " );
-                            break;
                     }
                     break;
                 }
@@ -1748,7 +1741,6 @@ namespace moris
                             break;
                         default:
                             MORIS_ERROR( false, "Geometry_Interpolator::get_face_vertices_ordinals - HEX order not implemented " );
-                            break;
                     }
                     break;
                 }
@@ -1777,7 +1769,6 @@ namespace moris
                             break;
                         default:
                             MORIS_ERROR( false, "Geometry_Interpolator::get_face_vertices_ordinals - TRI order not implemented " );
-                            break;
                     }
                     break;
                 }
@@ -1809,7 +1800,6 @@ namespace moris
                             break;
                         default:
                             MORIS_ERROR( false, "Geometry_Interpolator::get_face_vertices_ordinals - TET order not implemented " );
-                            break;
                     }
                     break;
                 }
@@ -1817,7 +1807,6 @@ namespace moris
                 default:
                 {
                     MORIS_ERROR( false, "Geometry_Interpolator::get_space_sideset_param_coeff - undefined geometry type " );
-                    break;
                 }
             }
             return tVerticesPerFace;

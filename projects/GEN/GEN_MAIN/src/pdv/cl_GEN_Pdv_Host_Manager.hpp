@@ -55,6 +55,11 @@ namespace moris
              * Destructor
              */
             ~Pdv_Host_Manager();
+
+            /**
+             * Resets the stored information about PDV hosts
+             */
+            void reset();
             
             /**
              * Get dv types for set
@@ -221,14 +226,14 @@ namespace moris
              *
              * @param aPdvTypes the pdv types which will be requested by MDL
              */
-            void set_ip_requested_dv_types(Cell<PDV_Type>& aPdvTypes);
+            void set_ip_requested_pdv_types(Cell<PDV_Type> aPdvTypes);
 
             /**
              * Set the requested integration node PDV types for sensitivities
              *
              * @param aPdvTypes the pdv types which will be requested by MDL
              */
-            void set_ig_requested_dv_types(Cell<PDV_Type>& aPdvTypes);
+            void set_ig_requested_pdv_types(Cell<PDV_Type> aPdvTypes);
 
             /**
              * Create PDV on interpolation mesh node with real value

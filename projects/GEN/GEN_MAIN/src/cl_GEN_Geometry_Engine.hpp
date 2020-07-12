@@ -60,6 +60,7 @@ namespace moris
             Matrix<DDRMat> mLowerBounds;
             Matrix<DDRMat> mUpperBounds;
             Cell<std::string> mRequestedIQIs;
+            bool mShapeSensitivities = false;
 
             // Geometry
             moris::size_t mActiveGeometryIndex = 0;
@@ -104,6 +105,7 @@ namespace moris
             Geometry_Engine(Cell< std::shared_ptr<Geometry> > aGeometry,
                             Phase_Table                       aPhaseTable,
                             uint                              aSpatialDim = 3,
+                            Matrix<DDRMat>                    aADVs = {{}},
                             real                              aIsocontourThreshold = 0.0,
                             real                              aErrorFactor = 1E-8);
 

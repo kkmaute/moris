@@ -21,6 +21,16 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
+        void Pdv_Host_Manager::reset()
+        {
+            mIpPdvHosts.resize(0);
+            mIntersectionNodes.resize(0);
+            mGlobalPdvTypeMap.resize(0, 0);
+            mGlobalPdvIndex = 0;
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
         void Pdv_Host_Manager::get_ip_dv_types_for_set(const moris::moris_index aIPMeshSetIndex, Cell<Cell<PDV_Type>>& aPdvTypes)
         {
             if (mIpPdvTypes.size() > 0)
@@ -246,12 +256,15 @@ namespace moris
             // loop over the requested dv types
             for ( uint tPdvTypeIndex = 0; tPdvTypeIndex < tNumTypes; tPdvTypeIndex++ )
             {
-                aDvIds( tPdvTypeIndex ).resize( tNumIndices, 1 );
+                aDvIds(tPdvTypeIndex).set_size(tNumIndices, 1, -1);
 
                 // loop over the node indices
                 for ( uint tNode = 0; tNode < tNumIndices; tNode++ )
                 {
-                    aDvIds(tPdvTypeIndex)(tNode) = mIntersectionNodes(aNodeIndices(tNode))->get_starting_pdv_index() + static_cast<uint>(aPdvTypes(tPdvTypeIndex));
+                    if (mIntersectionNodes(aNodeIndices(tNode)))
+                    {
+                        aDvIds(tPdvTypeIndex)(tNode) = mIntersectionNodes(aNodeIndices(tNode))->get_starting_pdv_index() + static_cast<uint>(aPdvTypes(tPdvTypeIndex));
+                    }
                 }
             }
         }
@@ -404,14 +417,14 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        void Pdv_Host_Manager::set_ip_requested_dv_types(Cell<PDV_Type>& aPdvTypes)
+        void Pdv_Host_Manager::set_ip_requested_pdv_types(Cell<PDV_Type> aPdvTypes)
         {
             mRequestedIpPdvTypes = aPdvTypes;
         }
 
         //--------------------------------------------------------------------------------------------------------------
 
-        void Pdv_Host_Manager::set_ig_requested_dv_types(Cell<PDV_Type>& aPdvTypes)
+        void Pdv_Host_Manager::set_ig_requested_pdv_types(Cell<PDV_Type> aPdvTypes)
         {
             mRequestedIgPdvTypes = aPdvTypes;
         }
