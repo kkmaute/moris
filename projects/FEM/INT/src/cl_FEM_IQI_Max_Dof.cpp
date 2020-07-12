@@ -14,15 +14,19 @@ namespace moris
     {
         //------------------------------------------------------------------------------
 
-        IQI_Max_Dof::IQI_Max_Dof(){}
+        IQI_Max_Dof::IQI_Max_Dof()
+        {
+            //FIXME: there's currently no way to set parameters in the input file
+            moris::Cell< Matrix< DDRMat > > tParameters = { {{0.0}}, {{40.0}} };
+            this->set_parameters(tParameters);
+        }
 
         //------------------------------------------------------------------------------
 
         void IQI_Max_Dof::compute_QI( Matrix< DDRMat > & aQI )
         {
-            // FIXME: convert these values to parameters
-            real tReferenceValue = 0.0;
-            real tExponent = 10.0;
+            real tReferenceValue = mParameters( 0 )( 0, 0 );
+            real tExponent = mParameters( 1 )( 0, 0 );
 
             // get field interpolator for a given dof type
             Field_Interpolator * tFI =
@@ -46,9 +50,8 @@ namespace moris
 
         void IQI_Max_Dof::compute_QI( moris::real aWStar )
         {
-            // FIXME: convert these values to parameters
-            real tReferenceValue = 0.0;
-            real tExponent = 10.0;
+            real tReferenceValue = mParameters( 0 )( 0, 0 );
+            real tExponent = mParameters( 1 )( 0, 0 );
 
             // get index for QI
             sint tQIIndex = mSet->get_QI_assembly_index( mName );
