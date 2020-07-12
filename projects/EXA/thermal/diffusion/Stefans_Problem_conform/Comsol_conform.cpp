@@ -42,7 +42,7 @@ namespace moris
     moris::real tTmax = 480.0;
 
     // ramp up of Dirichlet BC (number of time slabs to ramp up the value on the BC)
-    moris::real tRampUp = 5.0;
+    moris::real tRampUp = 6.0;
 
 
     // Constant function for properties
@@ -351,7 +351,8 @@ namespace moris
         tParameterList( 3 )( tIWGCounter ).set( "IWG_type",                   static_cast< uint >( fem::IWG_Type::TIME_CONTINUITY_DOF ) );
         tParameterList( 3 )( tIWGCounter ).set( "dof_residual",               std::string("TEMP") );
         tParameterList( 3 )( tIWGCounter ).set( "master_dof_dependencies",    std::string("TEMP") );
-        tParameterList( 3 )( tIWGCounter ).set( "master_properties",          std::string("PropWeightCurrent,WeightCurrent;") +
+        tParameterList( 3 )( tIWGCounter ).set( "master_properties",
+                std::string("PropWeightCurrent,WeightCurrent;") +
                 std::string("PropWeightPrevious,WeightPrevious;") +
                 std::string("PropInitialCondition,InitialCondition") );
         tParameterList( 3 )( tIWGCounter ).set( "mesh_set_names",             std::string("HMR_dummy_n_p1") );
@@ -362,13 +363,38 @@ namespace moris
         // init IQI counter
         uint tIQICounter = 0;
 
-        // create parameter list for IQI 4
+        // Temperature IQI
         tParameterList( 4 ).push_back( prm::create_IQI_parameter_list() );
         tParameterList( 4 )( tIQICounter ).set( "IQI_name",                   std::string("IQIBulkTEMP") );
         tParameterList( 4 )( tIQICounter ).set( "IQI_type",                   static_cast< uint >( fem::IQI_Type::DOF ) );
         tParameterList( 4 )( tIQICounter ).set( "IQI_output_type",            static_cast< uint >( vis::Output_Type::TEMP ) );
         tParameterList( 4 )( tIQICounter ).set( "master_dof_dependencies",    std::string("TEMP") );
         tParameterList( 4 )( tIQICounter ).set( "vectorial_field_index",      0 );
+        tParameterList( 4 )( tIQICounter ).set( "mesh_set_names",             std::string("HMR_dummy_n_p1") );
+        tIQICounter++;
+
+        // Max Temperature IQI
+        tParameterList( 4 ).push_back( prm::create_IQI_parameter_list() );
+        tParameterList( 4 )( tIQICounter ).set( "IQI_name",                   std::string("IQIMaxTemp") );
+        tParameterList( 4 )( tIQICounter ).set( "IQI_type",                   static_cast< uint >( fem::IQI_Type::MAX_DOF ) );
+        tParameterList( 4 )( tIQICounter ).set( "IQI_output_type",            static_cast< uint >( vis::Output_Type::MAX_DOF ) );
+        tParameterList( 4 )( tIQICounter ).set( "master_dof_dependencies",    std::string("TEMP") );
+        tParameterList( 4 )( tIQICounter ).set( "vectorial_field_index",      0 );
+        tParameterList( 4 )( tIQICounter ).set( "mesh_set_names",             std::string("HMR_dummy_n_p1") );
+        tIQICounter++;
+
+        // Latent Heat IQI
+        tParameterList( 4 ).push_back( prm::create_IQI_parameter_list() );
+        tParameterList( 4 )( tIQICounter ).set( "IQI_name",                   std::string("IQILatentHeatAbsorption") );
+        tParameterList( 4 )( tIQICounter ).set( "IQI_type",                   static_cast< uint >( fem::IQI_Type::LATENT_HEAT_ABSORPTION ) );
+        tParameterList( 4 )( tIQICounter ).set( "IQI_output_type",            static_cast< uint >( vis::Output_Type::LATENT_HEAT_ABSORPTION ) );
+        tParameterList( 4 )( tIQICounter ).set( "master_dof_dependencies",    std::string("TEMP") );
+        tParameterList( 4 )( tIQICounter ).set( "master_properties",
+                std::string("PropDensity,Density;") +
+                std::string("PropLatentHeat,LatentHeat;") +
+                std::string("PropPCTemp,PCTemp;") +
+                std::string("PropPhaseState,PhaseStateFunction;") +
+                std::string("PropPCconst,PhaseChangeConst") );
         tParameterList( 4 )( tIQICounter ).set( "mesh_set_names",             std::string("HMR_dummy_n_p1") );
         tIQICounter++;
     }
@@ -388,7 +414,7 @@ namespace moris
         tParameterlist( 2 )( 0 ) = moris::prm::create_nonlinear_algorithm_parameter_list();
         tParameterlist( 2 )( 0 ).set("NLA_rel_res_norm_drop", 5e-05 );
         tParameterlist( 2 )( 0 ).set("NLA_relaxation_parameter", 0.9 );
-        tParameterlist( 2 )( 0 ).set("NLA_max_iter", 15 );
+        tParameterlist( 2 )( 0 ).set("NLA_max_iter", 20 );
 
         tParameterlist( 3 )( 0 ) = moris::prm::create_nonlinear_solver_parameter_list();
         tParameterlist( 3 )( 0 ).set("NLA_DofTypes"      , std::string("TEMP") );
@@ -424,9 +450,9 @@ namespace moris
         tParameterlist( 0 )( 0 ).set( "File_Name"  , std::pair< std::string, std::string >( "./", "Comsol_conform.exo" ) );
         tParameterlist( 0 )( 0 ).set( "Mesh_Type"  , static_cast< uint >( vis::VIS_Mesh_Type::STANDARD ) );
         tParameterlist( 0 )( 0 ).set( "Set_Names"  , std::string( "HMR_dummy_n_p1" ) );
-        tParameterlist( 0 )( 0 ).set( "Field_Names", std::string( "TEMP" ) );
-        tParameterlist( 0 )( 0 ).set( "Field_Type" , std::string( "NODAL" ) );
-        tParameterlist( 0 )( 0 ).set( "Output_Type", std::string( "TEMP" ) );
+        tParameterlist( 0 )( 0 ).set( "Field_Names", std::string( "TEMP,LATENT_HEAT_ABSORPTION,MAX_DOF" ) );
+        tParameterlist( 0 )( 0 ).set( "Field_Type" , std::string( "NODAL,GLOBAL,GLOBAL" ) );
+        tParameterlist( 0 )( 0 ).set( "Output_Type", std::string( "TEMP,LATENT_HEAT_ABSORPTION,MAX_DOF" ) );
     }
 
     //------------------------------------------------------------------------------
