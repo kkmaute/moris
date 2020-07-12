@@ -1,10 +1,16 @@
 namespace moris {
 
-/** @defgroup EXA_THERMAL_STEFANS_PROBLEM Stefan's Problem for Linear Diffusion with Phase Change
+/** @defgroup EXA_THERMAL_GGLS_DEMO Fickian Problem for Demonstrating Gradient Galerkin Least Squares Stabilization
 
+# Problem Description
 
-- taken from a COMSOL benchmark
+# Problem Setup
 
+# Analytical Solution
+
+# Literature
+
+# Developer Notes
 
 
 */

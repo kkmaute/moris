@@ -1,6 +1,6 @@
 namespace moris {
 
-/** @defgroup EXA_THERMAL_FICKIAN_PROBLEM Fickian Problem for linear diffusion
+/** @defgroup EXA_THERMAL_FICKIAN_PROBLEM Fickian Problem for Linear Diffusion
 
 # Problem Description
 A Fickian problem is a transient diffusion problem following Fick's second law. A thermal diffusion using the general heat equation classifies as such a problem.
