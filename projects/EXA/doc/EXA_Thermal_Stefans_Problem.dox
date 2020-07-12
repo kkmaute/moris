@@ -2,10 +2,83 @@ namespace moris {
 
 /** @defgroup   Fickian Diffusion Problem to Showcase the Effect of GGLS
 
+# Problem Description
+A Stefan's problem is a transient diffusion IBV problem with moving interfaces. A thermal diffusion problem with phase change classifies as such a problem.
+The analytical solution to a 1D homogenous thermal diffusion problem consisting of a semi-infinite bar with an initial temperature and a prescribed temparature on one of its sides, is known. 
+The Example is adapted from a COMSOL multi-physics benchmark (citation is below).
 
-- taken from Ilinca's paper
+This Problem is set up to ensure that the numerical results for the thermal diffusion model with phase change match the analytical solution to a satisfiing degree of accuracy. 
+Further, this example is split into two parts: one using a conformal mesh, and one using a cut mesh.
 
+# Problem Setup
+The domain size for this problem is \f$ \Delta x = 0.28, \ \Delta y = 0.0005 \f$.
+The conformal 2D mesh consists of 500x1 elements (\f$ h = 5.6e-4 \f$). The cut mesh uses a background mesh with the same element size and no refinement, i.e. the domain is simply translated 
+by a fraction of an element size in \f$ x \f$- and \f$ y \f$- directions on the same background mesh.
+The initial temperature is \f$ T_0 = 313 \f$, and a Temperature of \f$ T_{w} = 350 \f$ is imposed on one ends of the bar. All other boundaries are adiabatic.
+For the example a timeframe of \f$ t_{max} = 480 \f$, split up into \f$ 10 \f$ time slabs, is used.
 
+The following material parameters are used:
+- Density: \f$ \rho = 0.75 \f$
+- Heat Capacity: \f$ c_p = 2.4 \f$
+- Conductivity: \f$ \kappa = 2.1 \cdot 10^{-7} \f$
+- Latent Heat: \f$ L_H = 175.0 \f$
+- Melt Temperature: \f$ T_m = 314.5 \f$
+- Melting Range: \f$ \Delta T_m = 3.0 \f$
+
+Both Ghost and GGLS stabilization are applied to the problem.
+
+# Analytical Solution
+The described Stefan's problem has a analytical solution involving the error function which is defined as:
+
+\f[
+erf(z) = \frac{2}{\sqrt{\pi}} \int_{s=0}^z e^{-s^2} ds
+\f]
+
+The thermal diffusivity is defined as
+
+\f[
+\alpha = \frac{\kappa}{\rho c_p}
+\f]
+
+and the dimensionless distance as
+
+\f[
+\eta(x,t) = \frac{x}{2 \sqrt{\alpha t}}
+\f]
+
+To obtain the solution at a point \f$ x \f$ (measured from the finite end of the bar) and a time \f$ t \f$, given the initial temperature \f$ T_0 \f$ and the imposed 
+wall temperature \f$ T_w \f$, the following solution process can be used.
+First, compute the Stefan's number which is defined as 
+
+\f[
+Ste = \frac{c_p}{L_H}(T_w - T_m)
+\f]
+
+Next, solve the following expression for \f$ \beta \f$ (needs to be done numerically, hence "semi-analytical" solution):
+
+\f[
+\beta e^{\beta^2} \cdot \int_{s=0}^{\beta} e^{-s^2} \ ds = \frac{Ste}{2}
+\f]
+
+Using the solution for \f$ \beta \f$, the temperature at a given point, can be computed using:
+
+\f[
+T(x,t) = T_w + (T_m - T_w) \ \frac{erf(\eta(x,t))}{erf(\beta(Ste)}
+\f]
+
+A matlab script for computing the solution is included in git.
+
+# Literature
+The example has been adapted from the following COMSOL multi-physics benchmark which can be found here:
+https://cds.comsol.com/paper/download/62472/groulx_paper.pdf?__gda__=1594578635_47bed4a3560f8eb7f1503fb91ad113f2&fileExt=.pdf 
+and here:
+https://www.comsol.com/paper/stefan-s-problem-validation-of-a-one-dimensional-solid-liquid-phase-change-heat--7907
+
+# Developer Notes
+Since imposing the Dirichlet BC from the first timestep onwards leads to instabilities, it is ramped up over the first six time steps. 
+As the number of timesteps is so small, the results of the example as run here, are only of limited meaning.
+The Comsol benchmark uses a time frame of 57600 with a time step size of \f$ \< 350 \f$.
+The material parameters used are scaled, but not changed.  
 
 */
 
