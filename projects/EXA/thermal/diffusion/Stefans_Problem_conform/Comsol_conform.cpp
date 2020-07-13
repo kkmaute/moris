@@ -450,9 +450,9 @@ namespace moris
         tParameterlist( 0 )( 0 ).set( "File_Name"  , std::pair< std::string, std::string >( "./", "Comsol_conform.exo" ) );
         tParameterlist( 0 )( 0 ).set( "Mesh_Type"  , static_cast< uint >( vis::VIS_Mesh_Type::STANDARD ) );
         tParameterlist( 0 )( 0 ).set( "Set_Names"  , std::string( "HMR_dummy_n_p1" ) );
-        tParameterlist( 0 )( 0 ).set( "Field_Names", std::string( "TEMP,LATENT_HEAT_ABSORPTION,MAX_DOF" ) );
+        tParameterlist( 0 )( 0 ).set( "Field_Names", std::string( "TEMP,MAX_DOF,LATENT_HEAT_ABSORPTION" ) );
         tParameterlist( 0 )( 0 ).set( "Field_Type" , std::string( "NODAL,GLOBAL,GLOBAL" ) );
-        tParameterlist( 0 )( 0 ).set( "Output_Type", std::string( "TEMP,LATENT_HEAT_ABSORPTION,MAX_DOF" ) );
+        tParameterlist( 0 )( 0 ).set( "Output_Type", std::string( "TEMP,MAX_DOF,LATENT_HEAT_ABSORPTION" ) );
     }
 
     //------------------------------------------------------------------------------
