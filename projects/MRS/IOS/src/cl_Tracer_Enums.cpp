@@ -188,6 +188,7 @@ const std::string get_enum_str(enum OutputSpecifier aOutputSpecifier)
     case OutputSpecifier::InfoText:     return "InfoText";
     case OutputSpecifier::DebugText:    return "DebugText";
     case OutputSpecifier::Warning:      return "Warning";
+    case OutputSpecifier::ADVvector:    return "ADVvector";
 
 
     default:
@@ -214,6 +215,7 @@ enum OutputSpecifier get_output_spec_enum_from_str(std::string aEnumString)
     else if (aEnumString == "InfoText")     return OutputSpecifier::InfoText;
     else if (aEnumString == "DebugText")    return OutputSpecifier::DebugText;
     else if (aEnumString == "Warning")      return OutputSpecifier::Warning;
+    else if (aEnumString == "ADVvector")    return OutputSpecifier::ADVvector;
 
     else
     {

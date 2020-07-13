@@ -91,7 +91,8 @@ enum class OutputSpecifier {
     FreeText,
     InfoText,
     DebugText,
-    Warning
+    Warning,
+    ADVvector
 };
 
 // copy string
