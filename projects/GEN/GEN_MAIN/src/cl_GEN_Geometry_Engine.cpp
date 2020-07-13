@@ -6,18 +6,11 @@
 #include "cl_GEN_Child_Node.hpp"
 #include "cl_GEN_Intersection_Node.hpp"
 
-// LINALG
-#include "cl_Matrix.hpp"
-#include "fn_trans.hpp"
-#include "op_equal_equal.hpp"
-#include "op_times.hpp"
-#include "linalg_typedefs.hpp"
-
 // MTK
 #include "cl_MTK_Integration_Mesh.hpp"
 #include "cl_MTK_Interpolation_Mesh.hpp"
 
-// MRS/IOS
+// MRS
 #include "fn_Parsing_Tools.hpp"
 
 namespace moris
@@ -555,6 +548,11 @@ namespace moris
 
         void Geometry_Engine::create_ig_pdv_hosts(moris_index aMeshIndex)
         {
+            // Check interface nodes
+            std::cout << mIntersectionNodes.size() << ", " << mInterfaceNodeIndices.length() << std::endl;
+            MORIS_ERROR(mIntersectionNodes.size() == mInterfaceNodeIndices.length(),
+                    "Number of interface nodes must match number of intersection nodes in the geometry engine");
+
             // Get information from integration mesh
             mtk::Integration_Mesh* tIntegrationMesh = mMeshManager->get_integration_mesh(aMeshIndex);
             uint tNumSets = tIntegrationMesh->get_num_sets();
@@ -579,7 +577,7 @@ namespace moris
                 }
                 default:
                 {
-                    MORIS_ERROR( false, "Geometry_Engine::initialize_integ_pdv_host_list() - Geometry Engine only works for 2D and 3D models." );
+                    MORIS_ERROR( false, "Geometry Engine only works for 2D and 3D models." );
                 }
             }
 
@@ -683,7 +681,7 @@ namespace moris
 
         bool Geometry_Engine::on_interface(real aFieldValue)
         {
-            return (std::abs(aFieldValue - mIsocontourThreshold) <= mErrorFactor);
+            return (std::abs(aFieldValue - mIsocontourThreshold) < mErrorFactor);
         }
 
         //--------------------------------------------------------------------------------------------------------------
