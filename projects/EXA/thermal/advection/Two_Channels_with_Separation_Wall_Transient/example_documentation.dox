@@ -1,6 +1,6 @@
 namespace moris {
 
-/** \page EXA_THERMAL_GGLS_DEMO Fickian Problem for Demonstrating Gradient Galerkin Least Squares Stabilization
+/** \page EXA_THERMAL_ADVECTION_TWO_CHANNELS Two Channels with Separation Wall Transient 
 
 # Problem Description
 

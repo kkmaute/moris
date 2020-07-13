@@ -1,17 +1,12 @@
 namespace moris {
 
-/** \page EXA_THERMAL_GGLS_DEMO Fickian Problem for Demonstrating Gradient Galerkin Least Squares Stabilization
+/** \page EXA_Single_Phase_Hollow_Cylinder_Static Single Phase Hollow Cylinder Static
 
 # Problem Description
-
 # Problem Setup
-
 # Analytical Solution
-
 # Literature
-
 # Developer Notes
-
 
 */
 
