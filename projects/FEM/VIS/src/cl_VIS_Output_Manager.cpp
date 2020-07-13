@@ -504,8 +504,6 @@ namespace moris
                         MORIS_ERROR(false,"undefined FieldType option\n");
                 }
 
-                std::cout << "Global Value = " << tGlobalValue << " .\n" << std::flush;
-
             }
 
             // write global variables
