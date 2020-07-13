@@ -260,7 +260,7 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        void Geometry_Engine::set_interface_nodes( Matrix< IndexMat > const & aInterfaceNodeIndices)
+        void Geometry_Engine::set_interface_nodes(const Matrix<IndexMat>& aInterfaceNodeIndices)
         {
             mInterfaceNodeIndices = aInterfaceNodeIndices;
         }
@@ -549,7 +549,6 @@ namespace moris
         void Geometry_Engine::create_ig_pdv_hosts(moris_index aMeshIndex)
         {
             // Check interface nodes
-            std::cout << mIntersectionNodes.size() << ", " << mInterfaceNodeIndices.length() << std::endl;
             MORIS_ERROR(mIntersectionNodes.size() == mInterfaceNodeIndices.length(),
                     "Number of interface nodes must match number of intersection nodes in the geometry engine");
 
