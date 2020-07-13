@@ -154,13 +154,13 @@ namespace moris
             // Check input
             if (aEpsilons.numel() == 1)
             {
-                aEpsilons.resize(this->get_num_advs(), 1);
-                for (uint tIndex = 1; tIndex < this->get_num_advs(); tIndex++)
+                aEpsilons.resize(mADVs.length(), 1);
+                for (uint tIndex = 1; tIndex < mADVs.length(); tIndex++)
                 {
                     aEpsilons(tIndex) = aEpsilons(0);
                 }
             }
-            MORIS_ERROR(aEpsilons.numel() == this->get_num_advs(), "OPT_Problem: Number of elements in finite_difference_epsilons must match the number of ADVs.");
+            MORIS_ERROR(aEpsilons.numel() == mADVs.length(), "OPT_Problem: Number of elements in finite_difference_epsilons must match the number of ADVs.");
 
             // Assign epsilons
             mFiniteDifferenceEpsilons = aEpsilons;
@@ -239,11 +239,11 @@ namespace moris
         {
             // Set perturbed ADVs and objectives
             Matrix<DDRMat> tOriginalADVs = mADVs;
-            mObjectiveGradient.set_size(1, this->get_num_advs());
+            mObjectiveGradient.set_size(1, mADVs.length());
             real tObjectivePerturbed;
 
             // FD each ADV
-            for (uint tADVIndex = 0; tADVIndex < this->get_num_advs(); tADVIndex++) 
+            for (uint tADVIndex = 0; tADVIndex < mADVs.length(); tADVIndex++) 
             {
                 // Perturb
                 mADVs(tADVIndex) += mFiniteDifferenceEpsilons(tADVIndex);
@@ -265,11 +265,11 @@ namespace moris
         {
             // Set perturbed ADVs and constraints
             Matrix<DDRMat> tOriginalADVs = mADVs;
-            mConstraintGradient.set_size(this->get_num_constraints(), this->get_num_advs());
+            mConstraintGradient.set_size(mConstraints.length(), mADVs.length());
             Matrix<DDRMat> tConstraintsPerturbed;
 
             // FD each ADV
-            for (uint tADVIndex = 0; tADVIndex < this->get_num_advs(); tADVIndex++)
+            for (uint tADVIndex = 0; tADVIndex < mADVs.length(); tADVIndex++)
             {
                 // Perturb
                 mADVs(tADVIndex) += mFiniteDifferenceEpsilons(tADVIndex);
@@ -277,7 +277,7 @@ namespace moris
                 tConstraintsPerturbed = this->compute_constraints();
 
                 // Biased finite difference
-                for (uint tConstraintIndex = 0; tConstraintIndex < this->get_num_constraints(); tConstraintIndex++)
+                for (uint tConstraintIndex = 0; tConstraintIndex < mConstraints.length(); tConstraintIndex++)
                 {
                     mConstraintGradient(tConstraintIndex, tADVIndex)
                             = (tConstraintsPerturbed(tConstraintIndex) - mConstraints(tConstraintIndex)) / mFiniteDifferenceEpsilons(tADVIndex);
@@ -294,12 +294,12 @@ namespace moris
         {
             // Set perturbed ADVs and objectives
             Matrix<DDRMat> tOriginalADVs = mADVs;
-            mObjectiveGradient.set_size(1, this->get_num_advs());
+            mObjectiveGradient.set_size(1, mADVs.length());
             real tObjectivePlus;
             real tObjectiveMinus;
 
             // FD each ADV
-            for (uint tADVIndex = 0; tADVIndex < this->get_num_advs(); tADVIndex++)
+            for (uint tADVIndex = 0; tADVIndex < mADVs.length(); tADVIndex++)
             {
                 // Perturb forwards
                 mADVs(tADVIndex) += mFiniteDifferenceEpsilons(tADVIndex);
@@ -326,12 +326,12 @@ namespace moris
         {
             // Set perturbed ADVs and constraints
             Matrix<DDRMat> tOriginalADVs = mADVs;
-            mConstraintGradient.set_size(this->get_num_constraints(), this->get_num_advs());
+            mConstraintGradient.set_size(mConstraints.length(), mADVs.length());
             Matrix<DDRMat> tConstraintsPlus;
             Matrix<DDRMat> tConstraintsMinus;
 
             // FD each ADV
-            for (uint tADVIndex = 0; tADVIndex < this->get_num_advs(); tADVIndex++)
+            for (uint tADVIndex = 0; tADVIndex < mADVs.length(); tADVIndex++)
             {
                 // Perturb forwards
                 mADVs(tADVIndex) += mFiniteDifferenceEpsilons(tADVIndex);
@@ -344,7 +344,7 @@ namespace moris
                 tConstraintsMinus = this->compute_constraints();
 
                 // Central difference
-                for (uint tConstraintIndex = 0; tConstraintIndex < this->get_num_constraints(); tConstraintIndex++)
+                for (uint tConstraintIndex = 0; tConstraintIndex < mConstraints.length(); tConstraintIndex++)
                 {
                     mConstraintGradient(tConstraintIndex, tADVIndex)
                     = (tConstraintsPlus(tConstraintIndex) - tConstraintsMinus(tConstraintIndex)) / (2 * mFiniteDifferenceEpsilons(tADVIndex));
