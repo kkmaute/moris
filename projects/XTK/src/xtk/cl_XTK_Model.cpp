@@ -2853,7 +2853,7 @@ namespace xtk
         for (uint tGeometryIndex = 1; tGeometryIndex < mGeometryEngine->get_num_geometries(); tGeometryIndex++)
         {
             Matrix<IndexMat> tInterfaceNodes = mBackgroundMesh.get_interface_nodes_loc_inds(tGeometryIndex);
-            tAllInterfaceNodes.resize(tTotalNode + tInterfaceNodes.length(), 1);
+            tAllInterfaceNodes.resize(1, tTotalNode + tInterfaceNodes.length());
             for (uint tNode = 0; tNode < tInterfaceNodes.length(); tNode++)
             {
                 tAllInterfaceNodes(tTotalNode++) = tInterfaceNodes(tNode);
