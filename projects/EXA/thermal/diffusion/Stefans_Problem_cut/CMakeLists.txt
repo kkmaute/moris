@@ -1,5 +1,5 @@
-set(EXAMPLE_MAIN Main_Comsol_cut_mesh)
-set(EXAMPLE_FILE Comsol_cut_mesh)
+set(EXAMPLE_MAIN Main_Comsol_cut)
+set(EXAMPLE_FILE Comsol_cut)
 
 # List source files
 set(EXAMPLE_SOURCES
