@@ -24,6 +24,11 @@
 #ifdef  __cplusplus
 extern "C"
 {
+
+// global variables
+extern uint gInterpolationOrder;
+extern bool gPrintReferenceValues;
+
 #endif
 //------------------------------------------------------------------------------
 namespace moris
@@ -112,9 +117,33 @@ namespace moris
         tParameterlist( 0 )( 0 ).set( "domain_sidesets",                  std::string("1,2,3,4"));
         tParameterlist( 0 )( 0 ).set( "lagrange_output_meshes",           std::string("0"));
 
-        tParameterlist( 0 )( 0 ).set( "lagrange_orders",  std::string( "1" ));
+        if (gPrintReferenceValues == true)
+            std::cout << "Interpolation Order: " << gInterpolationOrder << " \n" << std::flush;
+
+        // FIXME: Global variables seem to be not passed in correctly
+        gInterpolationOrder = 1;
+
+        switch ( gInterpolationOrder )
+        {
+            case 1:
+            {
+                tParameterlist( 0 )( 0 ).set( "lagrange_orders",  std::string( "1" ));
+                tParameterlist( 0 )( 0 ).set( "bspline_orders",   std::string( "1" ));
+                break;
+            }
+            case 2:
+            {
+                tParameterlist( 0 )( 0 ).set( "lagrange_orders",  std::string( "2" ));
+                tParameterlist( 0 )( 0 ).set( "bspline_orders",   std::string( "2" ));
+                break;
+            }
+            default:
+            {
+                MORIS_ERROR(false,"Input File: This 2D Example can only be run with Linear or Quadratic",par_size());
+            }
+        }
+
         tParameterlist( 0 )( 0 ).set( "lagrange_pattern", std::string( "0" ));
-        tParameterlist( 0 )( 0 ).set( "bspline_orders",   std::string( "1" ));
         tParameterlist( 0 )( 0 ).set( "bspline_pattern",  std::string( "0" ));
 
         tParameterlist( 0 )( 0 ).set( "lagrange_to_bspline", std::string("0") );
@@ -450,9 +479,9 @@ namespace moris
         tParameterlist( 0 )( 0 ).set( "File_Name"  , std::pair< std::string, std::string >( "./", "Comsol_conform.exo" ) );
         tParameterlist( 0 )( 0 ).set( "Mesh_Type"  , static_cast< uint >( vis::VIS_Mesh_Type::STANDARD ) );
         tParameterlist( 0 )( 0 ).set( "Set_Names"  , std::string( "HMR_dummy_n_p1" ) );
-        tParameterlist( 0 )( 0 ).set( "Field_Names", std::string( "TEMP,LATENT_HEAT_ABSORPTION,MAX_DOF" ) );
+        tParameterlist( 0 )( 0 ).set( "Field_Names", std::string( "TEMP,MAX_DOF,LATENT_HEAT_ABSORPTION" ) );
         tParameterlist( 0 )( 0 ).set( "Field_Type" , std::string( "NODAL,GLOBAL,GLOBAL" ) );
-        tParameterlist( 0 )( 0 ).set( "Output_Type", std::string( "TEMP,LATENT_HEAT_ABSORPTION,MAX_DOF" ) );
+        tParameterlist( 0 )( 0 ).set( "Output_Type", std::string( "TEMP,MAX_DOF,LATENT_HEAT_ABSORPTION" ) );
     }
 
     //------------------------------------------------------------------------------

@@ -245,18 +245,17 @@ How the examples should be created and used is explained in EXA_DEV_GUIDE.
 The examples are sorted by the implementation aspect they are supposed to validate (e.g. "Thermal" for testing the thermal diffusion model).
 */
 
-
 /** @addtogroup EXA_DEV_GUIDE
-	@ingroup EXA_Module */
-	
+    @ingroup EXA_Module */
+
 /** @addtogroup EXA_THERMAL
-	@ingroup EXA_Module */
+    @ingroup EXA_Module */
 
 /** @addtogroup EXA_FLUID
-	@ingroup EXA_Module */
-	
+    @ingroup EXA_Module */
+
 /** @addtogroup EXA_OPTIMIZATION
-	@ingroup EXA_Module */
+    @ingroup EXA_Module */
     
     
 //------------------------------------------------------------------------------

@@ -1,17 +1,12 @@
 namespace moris {
 
-/** \page EXA_THERMAL_GGLS_DEMO Fickian Problem for Demonstrating Gradient Galerkin Least Squares Stabilization
+/** \page EXA_<Example Name> <Example Name>
 
 # Problem Description
-
 # Problem Setup
-
 # Analytical Solution
-
 # Literature
-
 # Developer Notes
-
 
 */
 

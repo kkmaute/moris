@@ -1,6 +1,6 @@
 namespace moris {
 
-/** @defgroup EXA_THERMAL_STEFANS_PROBLEM Stefan's Problem for Diffusion with Phase Change
+/** \page EXA_THERMAL_STEFANS_PROBLEM Stefan's Problem for Diffusion with Phase Change
 
 # Problem Description
 A Stefan's problem is a transient diffusion IBV problem with moving interfaces. A thermal diffusion problem with phase change classifies as such a problem.
