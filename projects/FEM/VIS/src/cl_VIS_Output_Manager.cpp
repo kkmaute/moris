@@ -487,15 +487,18 @@ namespace moris
                     }
                 }
 
+                real tTotalGlobalValue;
                 switch ( mOutputData( aVisMeshIndex ).mFieldType( Ik ) )
                 {
                     case Field_Type::NODAL:
                         mWriter( aVisMeshIndex )->write_nodal_field( tFieldName, tNodalValues );
                         break;
                     case Field_Type::GLOBAL:
+                        tTotalGlobalValue = sum_all(tGlobalValue);
                         tGlobalVariableNames( tGlobalVariablesCounter )  = tFieldName;
-                        tGlobalVarialbeValues(tGlobalVariablesCounter,0) = sum_all(tGlobalValue);
+                        tGlobalVarialbeValues(tGlobalVariablesCounter,0) = tTotalGlobalValue;
                         tGlobalVariablesCounter++;
+                        MORIS_LOG_INFO ("Global Variable: %s = %e",tFieldName.c_str(),tTotalGlobalValue);
                         break;
                     case Field_Type::ELEMENTAL:
                         // do nothing here - case is handled above
