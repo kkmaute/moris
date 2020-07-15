@@ -14,6 +14,7 @@ namespace moris
     {
 
         //------------------------------------------------------------------------------
+
         IWG_Incompressible_NS_Velocity_Dirichlet_Nitsche::IWG_Incompressible_NS_Velocity_Dirichlet_Nitsche( sint aBeta )
         {
             // set sign for symmetric/unsymmetric Nitsche
@@ -42,6 +43,7 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+
         void IWG_Incompressible_NS_Velocity_Dirichlet_Nitsche::set_property(
                 std::shared_ptr< Property > aProperty,
                 std::string                 aPropertyString,
@@ -62,6 +64,7 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+
         void IWG_Incompressible_NS_Velocity_Dirichlet_Nitsche::set_constitutive_model(
                 std::shared_ptr< Constitutive_Model > aConstitutiveModel,
                 std::string                           aConstitutiveString,
@@ -82,6 +85,7 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+
         void IWG_Incompressible_NS_Velocity_Dirichlet_Nitsche::set_stabilization_parameter(
                 std::shared_ptr< Stabilization_Parameter > aStabilizationParameter,
                 std::string                                aStabilizationString )
@@ -97,6 +101,7 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+
         void IWG_Incompressible_NS_Velocity_Dirichlet_Nitsche::compute_residual( real aWStar )
         {
             // check master field interpolators
@@ -186,6 +191,7 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+
         void IWG_Incompressible_NS_Velocity_Dirichlet_Nitsche::compute_jacobian( real aWStar )
         {
 #ifdef DEBUG
@@ -374,6 +380,7 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+
         void IWG_Incompressible_NS_Velocity_Dirichlet_Nitsche::compute_jacobian_and_residual( real aWStar )
         {
 #ifdef DEBUG
@@ -385,6 +392,7 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+
         void IWG_Incompressible_NS_Velocity_Dirichlet_Nitsche::compute_dRdp( real aWStar )
         {
 #ifdef DEBUG
