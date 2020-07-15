@@ -1,0 +1,28 @@
+namespace moris {
+namespace fem {
+
+/** \page FE_SP_Incompressible_NS Stabilization Parameter for SUPG stabilization in Incompressible Navier-Stokes
+
+The SUPG stabilization parameters are given as:
+\f[
+\begin{array}{lll}
+\tau_{M} & = &
+\frac{1}{\sqrt{ (\frac{2 \rho}{\Delta t})^2 
++ (\rho \mathbf{u}) \cdot \mathbf{G} \cdot (\rho \mathbf{u}) 
++ C_I (\mu)^2 \mathbf{G} : \mathbf{G}}}\\
+
+\tau_{C} & = & \frac{1}{\tau_{M} tr(\mathbf{G})}, 
+\quad G_{ij} = \sum_d \frac{\partial \xi_d}{\partial x_i} \frac{\partial \xi_d}{\partial x_j}\\
+\end{array}
+\f]
+
+where
+- \f$ G_{ij} = \sum_d \frac{\partial \xi_d}{\partial x_i} \frac{\partial \xi_d}{\partial x_j} \f$.
+
+The stabilization parameter \f$ \tau_{M}, \tau_{C} \f$ are implemented in
+SP_Incompressible_Flow, corresponding to the enum SP_Type::INCOMPRESSIBLE_FLOW.
+
+*/
+
+}
+}

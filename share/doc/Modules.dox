@@ -186,9 +186,6 @@ The second interface concept is object-based and provides pointers to Blocks, Ce
 FEM Module description.
 */
 
-/** @addtogroup FE_Dirichlet_BCs
-	@ingroup FE_Module */
-
 /** @addtogroup FE_Model
     @ingroup FE_Module */
     
@@ -212,26 +209,36 @@ FEM Module description.
     
 /** @addtogroup FE_IWG
     @ingroup FE_Module */
+    
+/** @addtogroup FE_IQI
+    @ingroup FE_Module */
+    
+/** @addtogroup FE_SP
+    @ingroup FE_Module */
+    
+/** @addtogroup FE_CM
+    @ingroup FE_Module */
+    
+/** @addtogroup FE_Property
+    @ingroup FE_Module */
  
- /** @addtogroup FE_Cluster
+/** @addtogroup FE_Cluster
     @ingroup FE_Module */
     
- /** @addtogroup FE_IWG_Incompressible_NS
+/** @addtogroup FE_Equations_Incompressible_Navier_Stokes
     @ingroup FE_Module */
     
- /** @addtogroup FE_IWG_SA_Turbulence
+/** @addtogroup FE_Equations_Spalart_Allmaras_Turbulence
     @ingroup FE_Module */
     
- /** @addtogroup FE_IWG_Diffusion_Advection_Reaction
+/** @addtogroup FE_Equations_Diffusion_Advection_Reaction
     @ingroup FE_Module */
     
-/** @addtogroup FE_DIFFUSION
+/** @addtogroup FE_Equations_Navier_Stokes_Korteweg
     @ingroup FE_Module */
     
-/** @addtogroup FE_NS_Korteweg_Equations
+/** @addtogroup FE_Dirichlet_BCs
     @ingroup FE_Module */
-  
-  
     
 //------------------------------------------------------------------------------
 /** @defgroup EXA_Module Examples and Benchmarks
