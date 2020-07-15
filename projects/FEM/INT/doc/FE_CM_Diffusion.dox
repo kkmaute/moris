@@ -1,9 +1,9 @@
 namespace moris {
 namespace fem {
 
-/** @defgroup FE_DIFFUSION Thermal Diffusion Model
+/** \page FE_CM_Diffusion Thermal Diffusion Constitutive Model
 
-The diffusion model build into MORIS supports both linear diffusion and and linear diffusion with phase change using a so-called phase-field model. 
+The diffusion model build into MORIS supports both linear diffusion and linear diffusion with phase change using a so-called phase-field model. 
 The difference between the two is the constitutive model used. 
 Additionally, the diffusion model supports stabilization using the gradient Galerkin least squares (GGLS) method. 
 The first sections of this documentation article will discuss the implementation and theoretical background. A short user guide is given at the end.

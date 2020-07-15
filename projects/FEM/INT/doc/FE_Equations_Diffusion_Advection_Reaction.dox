@@ -1,7 +1,7 @@
 namespace moris {
 namespace fem {
 
-/** @defgroup FE_IWG_Diffusion_Advection_Reaction IWGs for Diffusion-Advection-Reaction 
+/** @defgroup FE_Equations_Diffusion_Advection_Reaction Diffusion-Advection-Reaction Equations
 
 \f[
 \begin{array}{lll}
@@ -26,6 +26,7 @@ where \f$
  \tau_1  = \frac{h}{2\ || \mathbf{u} ||}, \quad
  \tau_2  = \Delta t / 2, \quad
  \tau_3  = \frac{h^2}{4 \kappa} \f$
+ - ... are described in \ref FE_CM_Diffusion
 
 */
 

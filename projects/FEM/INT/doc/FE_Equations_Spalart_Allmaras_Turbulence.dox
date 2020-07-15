@@ -1,7 +1,7 @@
 namespace moris {
 namespace fem {
 
-/** @defgroup FE_IWG_SA_Turbulence IWGs for Spalart-Allmaras Turbulence Model 
+/** @defgroup FE_Equations_Spalart_Allmaras_Turbulence Spalart-Allmaras Turbulence Model Equations
 
 The strong form of the Spalart-Allmaras turbulence equation is given as:
 \f[

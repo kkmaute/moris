@@ -1,34 +1,30 @@
 namespace moris {
 namespace fem {
 
-/** @defgroup FE_IWG_Incompressible_NS IWGs for Incompressible Navier-Stokes 
+/** @defgroup FE_Equations_Incompressible_Navier_Stokes Incompressible Navier-Stokes Equations
 
 The strong form of the Navier-Stokes equations is given as:
 \f[
 \begin{array}{l}
+\displaystyle
 \rho \frac{\partial \mathbf{u}}{\partial t} 
 + \rho \mathbf{u} \cdot \nabla \mathbf{u} 
 = \nabla \cdot \left[ \boldsymbol{\sigma}(\mathbf{u}, p) 
 + \boldsymbol{\sigma}_t( \mathbf{u}, \tilde{\nu}) \right] 
-+ \rho \mathbf{g}\\
++ \rho \mathbf{g}\\\\[15pt]
 
+\displaystyle
 \nabla \cdot \mathbf{u} = 0
 \end{array}
 \f]
 
 where 
-\f$ \mathbf{u} \f$ is the fluid velocity, 
-\f$ p \f$ is the fluid pressure, 
-\f$ \tilde{\nu} \f$ is the modified dynamic viscosity, 
-\f$ \rho \f$ is the fluid density, 
-\f$ \mu \f$ is the fluid kinematic viscosity, 
-\f$ \mu_t \f$ is the fluid turbulence kinematic viscosity, 
-\f$ \boldsymbol{\sigma}(\mathbf{u}, p) \f$ is the stress 
-and is given as \f$ \sigma_{ij} = -p \delta_{ij} + 2 \mu \epsilon_{ij}( \mathbf{u} ) \f$,
-\f$ \boldsymbol{\sigma}_t(\mathbf{u}, \tilde{\nu}) \f$ is the Reynolds stress 
-and is given as \f$ \sigma_{t,ij} = 2 \mu_t \epsilon_{ij}( \mathbf{u} ) \f$,
-\f$ \boldsymbol{\epsilon}(\mathbf{u}) \f$ is the strain 
-and is given as \f$ \epsilon( \mathbf{u} ) = \frac{1}{2} \left( \nabla \mathbf{u} + \nabla \mathbf{u}^T \right) \f$.
+- \f$ \mathbf{u} \f$ is the fluid velocity, 
+- \f$ p \f$ is the fluid pressure, 
+- \f$ \tilde{\nu} \f$ is the modified dynamic viscosity, 
+- \f$ \rho \f$ is the fluid density, 
+- \f$ \boldsymbol{\sigma}(\mathbf{u}, p) \f$ is the stress and is described in \ref FE_CM_Fluid,
+- \f$ \boldsymbol{\sigma}_t(\mathbf{u}, \tilde{\nu}) \f$ is the Reynolds stress and is described in \ref FE_CM_Fluid_Turbulence.
 
 The weak form of the Navier-Stokes equations (bulk part) is given as:
 \f[
@@ -38,10 +34,11 @@ The weak form of the Navier-Stokes equations (bulk part) is given as:
 + \left( \mathbf{v},\ \rho \mathbf{u} \cdot \nabla \mathbf{u} \right)_{\Omega}
 - \left( \boldsymbol{\varepsilon}( \mathbf{v} ),\ \boldsymbol{\sigma}( \mathbf{u}, p) \right)_{\Omega}
 - \left( \boldsymbol{\varepsilon}( \mathbf{v} ),\ \boldsymbol{\sigma}_t( \mathbf{u}, \tilde{\nu}) \right)_{\Omega}
--  \left( \mathbf{v},\ \rho \mathbf{g}\right)_{\Omega}
-- \left( \mathbf{v},\ \mathbf{h}\right)_{\Gamma_N}\\
+- \left( \mathbf{v},\ \rho \mathbf{g}\right)_{\Omega}
+- \left( \mathbf{v},\ \mathbf{h}\right)_{\Gamma_N}\\[15pt]
 
-\mathbf{R}_{p} & = & \left( q,\ \nabla \cdot \mathbf{u} \right)_{\Omega}\\
+\mathbf{R}_{p} & = & \displaystyle
+\left( q,\ \nabla \cdot \mathbf{u} \right)_{\Omega}
 \end{array}
 \f]
 
@@ -53,42 +50,35 @@ They are stabilized using SUPG/PSPG:
 
 \f[
 \begin{array}{lll}
-\mathbf{R}_{u}^{SUPG} & = &
+\mathbf{R}_{u}^{SUPG} & = & \displaystyle
 \left( \rho \mathbf{u} \cdot \nabla\mathbf{v},\ \tau_{M} \mathbf{r}_{M}\right)_{\Omega}
-+ \left( \nabla \cdot \mathbf{v},\ \tau_{C} \mathbf{r}_{C} \right)_{\Omega}\\
++ \left( \nabla \cdot \mathbf{v},\ \tau_{C} \mathbf{r}_{C} \right)_{\Omega}\\[15pt]
 
-\mathbf{R}_{p}^{PSPG} & = & \left( \nabla q,\ \tau_{M} \mathbf{r}_{M} \right)_{\Omega}\\
+\mathbf{R}_{p}^{PSPG} & = & \displaystyle
+\left( \nabla q,\ \tau_{M} \mathbf{r}_{M} \right)_{\Omega}
 \end{array}
 \f]
 where 
 
 \f[
 \begin{array}{lll}
-\mathbf{r}_{M} & = & 
+\mathbf{r}_{M} & = & \displaystyle
 \rho \frac{\partial \mathbf{u}}{\partial t} 
 + \rho \mathbf{u} \cdot \nabla \mathbf{u} 
 - \nabla \cdot \left[ \boldsymbol{\sigma}(\mathbf{u}, p) 
 + \boldsymbol{\sigma}_t( \mathbf{u}, \tilde{\nu}) \right] 
-- \rho \mathbf{g}\\
+- \rho \mathbf{g}\\[15pt]
 
-\mathbf{r}_{C} & = & \nabla \cdot \mathbf{u}\\
+\mathbf{r}_{C} & = & \displaystyle
+\nabla \cdot \mathbf{u}
 
-\tau_{M} & = &
-\frac{1}{\sqrt{ (\frac{2 \rho}{\Delta t})^2 + (\rho \mathbf{u}) \cdot \mathbf{G} \cdot (\rho \mathbf{u}) + C_I (\mu)^2 \mathbf{G} : \mathbf{G}}}\\
-
-\tau_{C} & = & \frac{1}{\tau_{M} tr(\mathbf{G})}, 
-\quad G_{ij} = \sum_d \frac{\partial \xi_d}{\partial x_i} \frac{\partial \xi_d}{\partial x_j}\\
 \end{array}
 \f]
-The velocity bulk part of the residual \f$ \mathbf{R}_{u} \f$ is implemented in 
-IWG_Incompressible_NS_Velocity_Bulk,
+The velocity bulk part of the residual \f$ \mathbf{R}_{u} \f$ is implemented in IWG_Incompressible_NS_Velocity_Bulk,
 corresponding to the enum IWG\_Type::INCOMPRESSIBLE_NS_VELOCITY_BULK.
-The pressure bulk part of the residual \f$ \mathbf{R}_{p} \f$ is implemented in 
-IWG_Incompressible_NS_Pressure_Bulk,
+The pressure bulk part of the residual \f$ \mathbf{R}_{p} \f$ is implemented in IWG_Incompressible_NS_Pressure_Bulk,
 corresponding to the enum IWG\_Type::INCOMPRESSIBLE_NS_PRESSURE_BULK.
-The stabilization parameter \f$ \tau_{M}, \tau_{C} \f$ are implemented in
-SP_Incompressible_Flow, corresponding to the enum SP_Type::INCOMPRESSIBLE_FLOW.
-
+The stabilization parameter \f$ \tau_{M}, \tau_{C} \f$ are described in \ref SP_SUPG_Incompressible_NS.
 
 Dirichlet boundary conditions are imposed weakly via Nitsche's formulation as:
 \f[
@@ -97,13 +87,10 @@ Dirichlet boundary conditions are imposed weakly via Nitsche's formulation as:
 - \left( \mathbf{v},\ \boldsymbol{\sigma}(\mathbf{u}, p) \cdot \mathbf{n} \right)_{\Gamma_D}
 - \beta \left( 2 \mu \boldsymbol{\varepsilon}(\mathbf{v}) \cdot \mathbf{n},\ \mathbf{u} - \overline{\mathbf{u}} \right)_{\Gamma_D}
 - \beta \left( 2 \mu_t(\tilde{\nu}) \boldsymbol{\varepsilon}(\mathbf{v}) \cdot \mathbf{n},\ \mathbf{u} - \overline{\mathbf{u}} \right)_{\Gamma_D}
-+ \left( \gamma_N\ \mathbf{v},\ \mathbf{u} - \overline{\mathbf{u}} \right)_{\Gamma_D}\\
++ \left( \gamma_N\ \mathbf{v},\ \mathbf{u} - \overline{\mathbf{u}} \right)_{\Gamma_D}\\[15pt]
 
 \mathbf{R}_{p}^{D} & = & \displaystyle
-- \beta\ \left( -q \cdot \mathbf{n},\ \mathbf{u} - \overline{\mathbf{u}} \right)_{\Gamma_D},\\
-
- \gamma_N & = & \displaystyle 
- \alpha_N \left( \frac{\mu}{h} + \frac{\rho || \mathbf{u} ||_{\infty}}{6} + \frac{\rho h}{12 \theta \Delta t} \right)
+- \beta\ \left( -q \cdot \mathbf{n},\ \mathbf{u} - \overline{\mathbf{u}} \right)_{\Gamma_D},
 \end{array}
 \f]
 
@@ -116,8 +103,7 @@ The pressure bulk part of the residual \f$ \mathbf{R}_{p}^{D} \f$ is implemented
 IWG_Incompressible_NS_Pressure_Dirichlet_Nitsche,
 corresponding to the enums IWG\_Type::INCOMPRESSIBLE_NS_PRESSURE_DIRICHLET_SYMMETRIC_NITSCHE 
 and IWG\_Type::INCOMPRESSIBLE_NS_PRESSURE_DIRICHLET_UNSYMMETRIC_NITSCHE.
-The stabilization parameter \f$ \gamma_N \f$ are implemented in
-SP_Velocity_Dirichlet_Nitsche, corresponding to the enum SP_Type::VELOCITY_DIRICHLET_NITSCHE.
+The stabilization parameter \f$ \gamma_N \f$ is described in \ref FE_SP_Velocity_Dirichlet_Nitsche.
 
 Fluid/fluid interface conditions are also imposed weakly via Nitsche's formulation:
 \f[
@@ -126,43 +112,36 @@ Fluid/fluid interface conditions are also imposed weakly via Nitsche's formulati
 - \left( [[\mathbf{v}]],\ \{\boldsymbol{\sigma}(\mathbf{u}, p) \cdot \mathbf{n} \} \right)_{\Gamma_{ifc}}
 - \beta \left( \{2 \mu \boldsymbol{\varepsilon}(\mathbf{v}) \cdot \mathbf{n} \},\ [[\mathbf{u}]] \right)_{\Gamma_{ifc}}
 - \beta \left( \{2 \mu_t(\tilde{\nu}) \boldsymbol{\varepsilon}(\mathbf{v}) \cdot \mathbf{n} \},\ [[\mathbf{u}]] \right)_{\Gamma_{ifc}}
-+ \left( \gamma_N\ [[\mathbf{v}]],\ [[\mathbf{u}]] \right)_{\Gamma_{ifc}}\\
++ \left( \gamma_N\ [[\mathbf{v}]],\ [[\mathbf{u}]] \right)_{\Gamma_{ifc}}\\[15pt]
 
 \mathbf{R}_{p}^{\Gamma_{ifc}} & = & \displaystyle
-- \beta \left( \{ -q \cdot \mathbf{n} \},\ [[\mathbf{u}]] \right)_{\Gamma_{ifc}},\\
+- \beta \left( \{ -q \cdot \mathbf{n} \},\ [[\mathbf{u}]] \right)_{\Gamma_{ifc}},
 
- \gamma_N & = & \displaystyle 
- \alpha_N \left( \right)
 \end{array}
 \f]
+where 
+- \f$ \gamma_N \f$ is described in ...
+- 
 
 
 Face-oriented ghost stabilization for Incompressible Navier-Stokes
 \f[
 \begin{array}{lll}
-\mathbf{R}_{\mu}^{GP} & = & 
+\mathbf{R}_{\mu}^{GP} & = & \displaystyle
 \sum_{F} \sum_{i} \int_{F} \gamma_{\mu}^{GP} [[ \frac{\partial^i \mathbf{v}}{\partial \mathbf{x}^i} \cdot \mathbf{n} ]] 
-: [[ \frac{\partial^i \mathbf{u}}{\partial \mathbf{x}^i} \cdot \mathbf{n} ]]\ d\Gamma\\
+: [[ \frac{\partial^i \mathbf{u}}{\partial \mathbf{x}^i} \cdot \mathbf{n} ]]\ d\Gamma\\[15pt]
 
-\gamma_{\mu}^{GP} & = & \alpha_{\mu}^{GP} \mu h^{2(i-1)+1}\\
-
-\mathbf{R}_{p}^{GP} & = & 
+\mathbf{R}_{p}^{GP} & = & \displaystyle
 \sum_{F} \sum_{i} \int_{F} \gamma_{p}^{GP} [[ \frac{\partial^i q}{\partial \mathbf{x}^i} \cdot \mathbf{n} ]] 
-: [[ \frac{\partial^i p}{\partial \mathbf{x}^i} \cdot \mathbf{n} ]]\ d\Gamma\\ 
+: [[ \frac{\partial^i p}{\partial \mathbf{x}^i} \cdot \mathbf{n} ]]\ d\Gamma\\[15pt]
 
-\gamma_{p}^{GP} & = & \alpha_{p}^{GP} \left( \frac{\mu}{h} + \frac{\rho ||\mathbf{u}||_{\infty}}{6} + \frac{\rho h}{12 \theta \Delta t}  \right)^{-1} h^{2i}\\
-
-\mathbf{R}_{u}^{GP} & = & 
+\mathbf{R}_{u}^{GP} & = & \displaystyle
 \sum_{F} \int_{F} \gamma_{u}^{GP} [[ \frac{\partial \mathbf{v}}{\partial \mathbf{x}} ]] 
-: [[ \frac{\partial \mathbf{u}}{\partial \mathbf{x}} ]]\ d\Gamma\\ 
+: [[ \frac{\partial \mathbf{u}}{\partial \mathbf{x}} ]]\ d\Gamma\\[15pt]
 
-\gamma_{u}^{GP} & = & \alpha_{u}^{GP} \rho |\mathbf{u} \cdot \mathbf{n}| h^2\\
-
-\mathbf{R}_{t}^{GP} & = & 
+\mathbf{R}_{t}^{GP} & = & \displaystyle
 \sum_{F} \sum_{i} \int_{F} \gamma_{t}^{GP} [[ \frac{\partial^i q}{\partial \mathbf{x}^i} \cdot \mathbf{n} ]] 
 : [[ \frac{\partial^i p}{\partial \mathbf{x}^i} \cdot \mathbf{n} ]]\ d\Gamma\\
-
-\gamma_{t}^{GP} & = & \alpha_{t}^{GP} \frac{\rho}{\theta \Delta t} h^{2(i-1)+3}
 
 \end{array}
 \f]
@@ -170,26 +149,23 @@ Face-oriented ghost stabilization for Incompressible Navier-Stokes
 The viscous ghost part of the residual \f$ \mathbf{R}_{\mu}^{GP} \f$ is implemented in 
 IWG_Incompressible_NS_Viscous_Velocity_Ghost,
 corresponding to the enums IWG\_Type::INCOMPRESSIBLE_NS_VISCOUS_VELOCITY_GHOST.
-The stabilization parameter \f$ \gamma_{\mu}^{GP} \f$ is implemented in
-SP_Viscous_Ghost, corresponding to the enum SP_Type::VISCOUS_GHOST.
+The stabilization parameter \f$ \gamma_{\mu}^{GP} \f$ is described in \ref FE_SP_Viscous_Ghost.
 
 The pressure ghost part of the residual \f$ \mathbf{R}_{p}^{GP} \f$ is implemented in 
 IWG_Incompressible_NS_Pressure_Ghost,
 corresponding to the enums IWG\_Type::INCOMPRESSIBLE_NS_PRESSURE_GHOST.
-The stabilization parameter \f$ \gamma_{\mu}^{GP} \f$ is implemented in
-SP_Pressure_Ghost, corresponding to the enum SP_Type::PRESSURE_GHOST.
+The stabilization parameter \f$ \gamma_{\mu}^{GP} \f$ is described in \ref FE_SP_Pressure_Ghost.
 
 The convective ghost part of the residual \f$ \mathbf{R}_{u}^{GP} \f$ is implemented in 
 IWG_Incompressible_NS_Convective_Velocity_Ghost,
 corresponding to the enums IWG\_Type::INCOMPRESSIBLE_NS_CONVECTIVE_VELOCITY_GHOST.
-The stabilization parameter \f$ \gamma_{u}^{GP} \f$ is implemented in
-SP_Convective_Ghost, corresponding to the enum SP_Type::CONVECTIVE_GHOST.
+The stabilization parameter \f$ \gamma_{u}^{GP} \f$ is described in 
+\ref FE_SP_Convective_Ghost.
 
 The time ghost part of the residual \f$ \mathbf{R}_{t}^{GP} \f$ is implemented in 
 IWG_Incompressible_NS_Viscous_Velocity_Ghost,
 corresponding to the enums IWG\_Type::INCOMPRESSIBLE_NS_VISCOUS_VELOCITY_GHOST.
-The stabilization parameter \f$ \gamma_{t}^{GP} \f$ is implemented in
-SP_Time_Velocity_Ghost, corresponding to the enum SP_Type::TIME_VELOCITY_GHOST.
+The stabilization parameter \f$ \gamma_{t}^{GP} \f$ is described in \ref FE_SP_Time_Velocity_Ghost.
 
 */
 

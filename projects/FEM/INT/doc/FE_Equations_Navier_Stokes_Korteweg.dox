@@ -1,7 +1,7 @@
 namespace moris {
 namespace fem {
 
-/** @defgroup FE_NS_Korteweg_Equations Navier-Stokes-Korteweg Equations
+/** @defgroup FE_Equations_Navier_Stokes_Korteweg Navier-Stokes-Korteweg Equations
 
 The quick brown fox jumps over the lazy dog.
 

@@ -1,7 +1,7 @@
 namespace moris {
 namespace fem {
 
-/** @defgroup FE_IWG Integrant of Weak Form of Governing Equations (IWG)
+/** @defgroup FE_IWG Integrand of Weak Form of Governing Equations (IWG)
 
 The integrand of the weak form of the governing equations (IGW) for at a given point in space is time depends on the physics and stabilization techniques. It is largely (but not completely independent of the interpolation of fields defined and integration scheme defined in the element object.
 The integrand depends on the field value and its spatial and temporal derivatives.
@@ -15,13 +15,15 @@ The IWG computes the contribution to the residual re and its derivatives with re
     \frac{\partial  \mathbf{r_e} }{\partial \mathbf{u}^{\prime\prime}} , \,
     \cdots , \,
     \frac{\partial  \mathbf{r_e} }{\partial \mathbf{\dot u}} , \,
-     \frac{\partial  \mathbf{r_e} }{\partial \mathbf{\ddot u}} , \,
-     \cdots , \,
-      \frac{\partial  \mathbf{r_e} }{\partial \mathbf{\dot u}^{\prime}} , \,
-      \cdots
+    \frac{\partial  \mathbf{r_e} }{\partial \mathbf{\ddot u}} , \,
+    \cdots , \,
+    \frac{\partial  \mathbf{r_e} }{\partial \mathbf{\dot u}^{\prime}} , \,
+    \cdots
 \f]
 
 Each IWG requires a specific set of field derivatives and provides an associated set of derivatives of the integrand with respect to the field and it derivatives. 
+
+
 */
 
 }
