@@ -24,11 +24,15 @@
 #ifdef  __cplusplus
 extern "C"
 {
+
+// global variables
+extern uint gInterpolationOrder;
+extern bool gPrintReferenceValues;
+
 #endif
 //------------------------------------------------------------------------------
 namespace moris
 {
-
     // Geometry Parameters
     moris::real tPlaneBottom     = 0.0; /* y bottom plane (m) */
     moris::real tPlaneTop        = 1.0; /* y top plane    (m) */
@@ -36,7 +40,7 @@ namespace moris
     moris::real tPlaneRight      = 1.0; /* x right plane  (m) */
 
     moris::sint tStep = 20;
-    moris::real tTmax = 960.0;
+    moris::real tTmax = 2000.0;
     moris::real tDirichletRampUp = 3.0;
 
 
@@ -104,9 +108,33 @@ namespace moris
         tParameterlist( 0 )( 0 ).set( "domain_sidesets",                  std::string("1,2,3,4"));
         tParameterlist( 0 )( 0 ).set( "lagrange_output_meshes",           std::string("0"));
 
-        tParameterlist( 0 )( 0 ).set( "lagrange_orders",  std::string( "1" ));
+        if (gPrintReferenceValues == true)
+            std::cout << "Interpolation Order: " << gInterpolationOrder << " \n" << std::flush;
+
+        // FIXME: Global variables seem to be not passed in correctly
+        gInterpolationOrder = 1;
+
+        switch ( gInterpolationOrder )
+        {
+            case 1:
+            {
+                tParameterlist( 0 )( 0 ).set( "lagrange_orders",  std::string( "1" ));
+                tParameterlist( 0 )( 0 ).set( "bspline_orders",   std::string( "1" ));
+                break;
+            }
+            case 2:
+            {
+                tParameterlist( 0 )( 0 ).set( "lagrange_orders",  std::string( "2" ));
+                tParameterlist( 0 )( 0 ).set( "bspline_orders",   std::string( "2" ));
+                break;
+            }
+            default:
+            {
+                MORIS_ERROR(false,"Input File: This 2D Example can only be run with Linear or Quadratic",par_size());
+            }
+        }
+
         tParameterlist( 0 )( 0 ).set( "lagrange_pattern", std::string( "0" ));
-        tParameterlist( 0 )( 0 ).set( "bspline_orders",   std::string( "1" ));
         tParameterlist( 0 )( 0 ).set( "bspline_pattern",  std::string( "0" ));
 
         tParameterlist( 0 )( 0 ).set( "lagrange_to_bspline", std::string("0") );

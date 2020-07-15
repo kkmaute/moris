@@ -1570,7 +1570,7 @@ namespace moris
             mPdvGeoAssemblyMap.clear();
 
             // clean up assembly vector
-            Matrix< DDSMat > tPdvGeoAssemblyVectorTemp( tNodeIndicesOnCluster.numel(), 1, -1 );
+            Matrix< DDSMat > tPdvGeoAssemblyVectorTemp( tNodeIndicesOnCluster.numel() * tRequestedDvTypes.size(), 1, -1 );
 
             // init active geo pdv counter
             uint tActiveGeoPdvCounter = 0;

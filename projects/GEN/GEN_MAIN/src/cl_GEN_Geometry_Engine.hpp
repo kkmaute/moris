@@ -107,7 +107,7 @@ namespace moris
                             uint                              aSpatialDim = 3,
                             Matrix<DDRMat>                    aADVs = {{}},
                             real                              aIsocontourThreshold = 0.0,
-                            real                              aErrorFactor = 1E-8);
+                            real                              aErrorFactor = 0.0);
 
             /**
              * Destructor
