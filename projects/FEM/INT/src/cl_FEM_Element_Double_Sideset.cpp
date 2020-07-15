@@ -12,6 +12,7 @@ namespace moris
     {
 
         //------------------------------------------------------------------------------
+
         Element_Double_Sideset::Element_Double_Sideset(
                 mtk::Cell const  * aMasterIGCell,
                 mtk::Cell const  * aSlaveIGCell,
@@ -27,20 +28,24 @@ namespace moris
         {}
 
         //------------------------------------------------------------------------------
+
         Element_Double_Sideset::~Element_Double_Sideset(){}
 
         //------------------------------------------------------------------------------
+
         void Element_Double_Sideset::init_ig_geometry_interpolator(
                 uint aMasterSideOrdinal,
                 uint aSlaveSideOrdinal )
         {
             // get master IG geometry interpolator
             Geometry_Interpolator * tMasterIGGI =
-                    mSet->get_field_interpolator_manager( mtk::Master_Slave::MASTER )->get_IG_geometry_interpolator();
+                    mSet->get_field_interpolator_manager( mtk::Master_Slave::MASTER )->
+                    get_IG_geometry_interpolator();
 
             // get slave IG geometry interpolator
             Geometry_Interpolator * tSlaveIGGI =
-                    mSet->get_field_interpolator_manager( mtk::Master_Slave::SLAVE )->get_IG_geometry_interpolator();
+                    mSet->get_field_interpolator_manager( mtk::Master_Slave::SLAVE )->
+                    get_IG_geometry_interpolator();
 
             // set the geometry interpolator physical space and time coefficients for master integration cell
             tMasterIGGI->set_space_coeff( mMasterCell->get_cell_physical_coords_on_side_ordinal( aMasterSideOrdinal ) );
@@ -127,11 +132,13 @@ namespace moris
 
             // get master IG geometry interpolator
             Geometry_Interpolator * tMasterIGGI =
-                    mSet->get_field_interpolator_manager( mtk::Master_Slave::MASTER )->get_IG_geometry_interpolator();
+                    mSet->get_field_interpolator_manager( mtk::Master_Slave::MASTER )->
+                    get_IG_geometry_interpolator();
 
             // get slave IG geometry interpolator
             Geometry_Interpolator * tSlaveIGGI =
-                    mSet->get_field_interpolator_manager( mtk::Master_Slave::SLAVE )->get_IG_geometry_interpolator();
+                    mSet->get_field_interpolator_manager( mtk::Master_Slave::SLAVE )->
+                    get_IG_geometry_interpolator();
 
             // set the geometry interpolator physical space and time coefficients for master integration cell
             tMasterIGGI->set_space_coeff( tMasterPdvValues );
@@ -159,6 +166,7 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+
         void Element_Double_Sideset::compute_residual()
         {
             // get treated side ordinal on the master and on the slave
@@ -170,7 +178,8 @@ namespace moris
 
             // get first corresponding node from master to slave
             moris::mtk::Vertex const * tSlaveNode =
-                    mCluster->get_left_vertex_pair( mMasterCell->get_vertices_on_side_ordinal( tMasterSideOrd )( 0 ) );
+                    mCluster->get_left_vertex_pair(
+                            mMasterCell->get_vertices_on_side_ordinal( tMasterSideOrd )( 0 ) );
 
             moris_index tSlaveNodeOrdOnSide =
                     mCluster->get_right_vertex_ordinal_on_facet( mCellIndexInCluster, tSlaveNode );
@@ -192,8 +201,8 @@ namespace moris
 
                 // get local integration point for the slave integration cell
                 Matrix< DDRMat > tSlaveLocalIntegPoint = tMasterLocalIntegPoint;
-                tSlaveLocalIntegPoint({0,tSlaveLocalIntegPoint.numel()-2},{0,0})
-                = tR * tMasterLocalIntegPoint({0,tSlaveLocalIntegPoint.numel()-2},{0,0}); //fixme better way?
+                tSlaveLocalIntegPoint({0,tSlaveLocalIntegPoint.numel()-2},{0,0}) =
+                        tR * tMasterLocalIntegPoint({0,tSlaveLocalIntegPoint.numel()-2},{0,0}); //fixme better way?
 
                 // set evaluation point for master and slave interpolators
                 mSet->get_field_interpolator_manager( mtk::Master_Slave::MASTER )->
@@ -239,7 +248,8 @@ namespace moris
 
             // get first corresponding node from master to slave
             moris::mtk::Vertex const * tSlaveNode =
-                    mCluster->get_left_vertex_pair( mMasterCell->get_vertices_on_side_ordinal( tMasterSideOrd )( 0 ) );
+                    mCluster->get_left_vertex_pair(
+                            mMasterCell->get_vertices_on_side_ordinal( tMasterSideOrd )( 0 ) );
 
             moris_index tSlaveNodeOrdOnSide =
                     mCluster->get_right_vertex_ordinal_on_facet(mCellIndexInCluster,tSlaveNode);
@@ -359,6 +369,7 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+
         void Element_Double_Sideset::compute_dRdp()
         {
             // get treated side ordinal on the master and on the slave
@@ -377,7 +388,8 @@ namespace moris
 
             // get first corresponding node from master to slave
             moris::mtk::Vertex const * tSlaveNode =
-                    mCluster->get_left_vertex_pair( mMasterCell->get_vertices_on_side_ordinal( tMasterSideOrd )( 0 ) );
+                    mCluster->get_left_vertex_pair(
+                            mMasterCell->get_vertices_on_side_ordinal( tMasterSideOrd )( 0 ) );
 
             moris_index tSlaveNodeOrdOnSide =
                     mCluster->get_right_vertex_ordinal_on_facet(mCellIndexInCluster,tSlaveNode );
@@ -387,8 +399,10 @@ namespace moris
             rotation_matrix( mSet->get_IG_geometry_type(), tSlaveNodeOrdOnSide, tR );
 
             // get the vertices indices
-            Matrix< IndexMat > tMasterVertexIndices = mMasterCell->get_vertices_ind_on_side_ordinal( tMasterSideOrd );
-            Matrix< IndexMat > tSlaveVertexIndices  = mSlaveCell->get_vertices_ind_on_side_ordinal( tSlaveSideOrd );
+            Matrix< IndexMat > tMasterVertexIndices =
+                    mMasterCell->get_vertices_ind_on_side_ordinal( tMasterSideOrd );
+            Matrix< IndexMat > tSlaveVertexIndices  =
+                    mSlaveCell->get_vertices_ind_on_side_ordinal( tSlaveSideOrd );
 
             // get number of IWGs
             uint tNumIWGs = mSet->get_number_of_requested_IWGs();
@@ -447,6 +461,7 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+
         real Element_Double_Sideset::compute_volume( mtk::Master_Slave aIsMaster )
         {
             // get treated side ordinal on the master and on the slave

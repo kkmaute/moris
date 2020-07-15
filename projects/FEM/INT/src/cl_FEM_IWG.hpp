@@ -452,6 +452,7 @@ namespace moris
                  * wrt the material design variables by finite difference
                  * @param[ in ] aWStar        weight associated to evaluation point
                  * @param[ in ] aPerturbation real for dv perturbation
+                 * @param[ in ] aFDSchemeType enum for FD scheme
                  */
                 void compute_dRdp_FD_material(
                         moris::real        aWStar,
@@ -471,6 +472,7 @@ namespace moris
                  * @param[ in ] aPerturbation  real for dv perturbation
                  * @param[ in ] aIsActive      cell of vectors for active dv
                  * @param[ in ] aVertexIndices vertices indices
+                 * @param[ in ] aFDSchemeType  enum for FD scheme
                  */
                 void compute_dRdp_FD_geometry(
                         moris::real                       aWStar,

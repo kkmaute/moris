@@ -10,6 +10,7 @@ namespace moris
     {
 
         //------------------------------------------------------------------------------
+
         Element_Sideset::Element_Sideset(
                 mtk::Cell const    * aCell,
                 Set                * aSet,
@@ -19,9 +20,11 @@ namespace moris
         {}
 
         //------------------------------------------------------------------------------
+
         Element_Sideset::~Element_Sideset(){}
 
         //------------------------------------------------------------------------------
+
         void Element_Sideset::init_ig_geometry_interpolator( uint aSideOrdinal )
         {
             // get IG geometry interpolator
@@ -37,6 +40,7 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+
         void Element_Sideset::init_ig_geometry_interpolator_with_pdv(
                 uint                              aSideOrdinal,
                 moris::Cell< Matrix< DDSMat > > & aIsActiveDv )
@@ -95,6 +99,7 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+
         void Element_Sideset::compute_residual()
         {
             // get treated side ordinal
@@ -131,7 +136,8 @@ namespace moris
                     mSet->get_requested_IWGs()( iIWG )->reset_eval_flags();
 
                     // FIXME
-                    mSet->get_requested_IWGs()( iIWG )->set_nodal_weak_bcs( mCluster->mInterpolationElement->get_weak_bcs() );
+                    mSet->get_requested_IWGs()( iIWG )->set_nodal_weak_bcs(
+                            mCluster->mInterpolationElement->get_weak_bcs() );
 
                     // set the normal for the IWG
                     mSet->get_requested_IWGs()( iIWG )->set_normal( tNormal );
@@ -147,6 +153,7 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+
         void Element_Sideset::compute_jacobian()
         {
             // get treated side ordinal
@@ -195,6 +202,7 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+
         void Element_Sideset::compute_jacobian_and_residual()
         {
             // get treated side ordinal
@@ -245,6 +253,7 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+
         void Element_Sideset::compute_dRdp()
         {
             // get treated side ordinal
@@ -308,6 +317,7 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+
         void Element_Sideset::compute_QI()
         {
             // get treated side ordinal
@@ -346,6 +356,7 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+
         void Element_Sideset::compute_dQIdp_explicit()
         {
             // get treated side ordinal
@@ -405,6 +416,7 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+
         void Element_Sideset::compute_quantity_of_interest_global(
                 const uint             aMeshIndex,
                 enum  vis::Output_Type aOutputType )
@@ -442,6 +454,7 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+
         void Element_Sideset::compute_quantity_of_interest_nodal(
                 const uint             aMeshIndex,
                 enum  vis::Output_Type aOutputType )
@@ -484,6 +497,7 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+
         void Element_Sideset::compute_quantity_of_interest_elemental(
                 const uint             aMeshIndex,
                 enum  vis::Output_Type aOutputType )
@@ -522,6 +536,7 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+
         real Element_Sideset::compute_volume( mtk::Master_Slave aIsMaster )
         {
             // get treated side ordinal

@@ -14,6 +14,7 @@ namespace moris
     namespace fem
     {
         //------------------------------------------------------------------------------
+
         Constitutive_Model::Constitutive_Model()
         {
             // FIXME for now only 1st order allowed
@@ -29,6 +30,7 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+
         void Constitutive_Model::reset_eval_flags()
         {
             // reset the value flag
@@ -84,7 +86,9 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
-        void Constitutive_Model::set_dof_type_list( moris::Cell< moris::Cell< MSI::Dof_Type > > aDofTypes )
+
+        void Constitutive_Model::set_dof_type_list(
+                moris::Cell< moris::Cell< MSI::Dof_Type > > aDofTypes )
         {
             // set the dof types
             mDofTypes = aDofTypes;
@@ -94,6 +98,7 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+
         void Constitutive_Model::build_dof_type_map()
         {
             // get number of dof types
@@ -119,6 +124,7 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+
         void Constitutive_Model::build_global_dof_type_list()
         {
             // get number of dof types
@@ -221,6 +227,7 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+
         const moris::Cell< moris::Cell< MSI::Dof_Type > > & Constitutive_Model::get_global_dof_type_list()
         {
             if( mGlobalDofBuild )
@@ -245,6 +252,7 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+
         void Constitutive_Model::build_global_dof_type_map()
         {
             if( mGlobalDofBuild )
@@ -279,6 +287,7 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+
         const Matrix< DDSMat > & Constitutive_Model::get_global_dof_type_map()
         {
             if( mGlobalDofMapBuild )
@@ -294,7 +303,9 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
-        bool Constitutive_Model::check_dof_dependency( const moris::Cell< MSI::Dof_Type > & aDofType )
+
+        bool Constitutive_Model::check_dof_dependency(
+                const moris::Cell< MSI::Dof_Type > & aDofType )
         {
             // set bool for dependency
             bool tDofDependency = false;
@@ -313,7 +324,9 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
-        void Constitutive_Model::set_dv_type_list( moris::Cell< moris::Cell< PDV_Type > > aDvTypes )
+
+        void Constitutive_Model::set_dv_type_list(
+                moris::Cell< moris::Cell< PDV_Type > > aDvTypes )
         {
             // set the dv types
             mDvTypes = aDvTypes;
@@ -323,6 +336,7 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+
         void Constitutive_Model::build_dv_type_map()
         {
             // get number of dv types
@@ -348,6 +362,7 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+
         void Constitutive_Model::build_global_dv_type_list()
         {
             // get number of dv types
@@ -437,6 +452,7 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+
         const moris::Cell< moris::Cell< PDV_Type > > & Constitutive_Model::get_global_dv_type_list()
         {
             if( mGlobalDvBuild )
@@ -455,6 +471,7 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+
         void Constitutive_Model::build_global_dv_type_map()
         {
             // get number of global dv types
@@ -480,7 +497,9 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
-        bool Constitutive_Model::check_dv_dependency( const moris::Cell< PDV_Type > & aDvType )
+
+        bool Constitutive_Model::check_dv_dependency(
+                const moris::Cell< PDV_Type > & aDvType )
         {
             // set bool for dependency
             bool tDvDependency = false;
@@ -499,7 +518,9 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
-        void Constitutive_Model::set_field_interpolator_manager( Field_Interpolator_Manager * aFieldInterpolatorManager )
+
+        void Constitutive_Model::set_field_interpolator_manager(
+                Field_Interpolator_Manager * aFieldInterpolatorManager )
         {
             // set the field interpolator manager for the constitutive model
             mFIManager = aFieldInterpolatorManager;
@@ -516,7 +537,9 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
-        void Constitutive_Model::get_non_unique_dof_types( moris::Cell< MSI::Dof_Type > & aDofTypes )
+
+        void Constitutive_Model::get_non_unique_dof_types(
+                moris::Cell< MSI::Dof_Type > & aDofTypes )
         {
             // initialize dof counter
             uint tCounter = 0;
@@ -574,6 +597,7 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+
         void Constitutive_Model::get_non_unique_dof_and_dv_types(
                 moris::Cell< MSI::Dof_Type > & aDofTypes,
                 moris::Cell< PDV_Type >        & aDvTypes )
@@ -650,6 +674,7 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+
         void Constitutive_Model::eval_dFluxdDOF_FD(
                 const moris::Cell< MSI::Dof_Type > & aDofTypes,
                 Matrix< DDRMat >                   & adFluxdDOF_FD,
@@ -723,6 +748,7 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+
         void Constitutive_Model::eval_dtractiondu_FD(
                 const moris::Cell< MSI::Dof_Type > & aDofTypes,
                 Matrix< DDRMat >                   & adtractiondu_FD,
@@ -786,40 +812,6 @@ namespace moris
                                 tFDScheme( 1 )( iPoint ) * this->traction( aNormal ) /
                                 ( tFDScheme( 2 )( 0 ) * tDeltaH );
                     }
-
-//                    // perturbation of the coefficient
-//                    Matrix< DDRMat > tCoeffPert = tCoeff;
-//                    tCoeffPert( iCoeffRow, iCoeffCol ) +=
-//                            aPerturbation * tCoeffPert( iCoeffRow, iCoeffCol );
-//
-//                    // setting the perturbed coefficients
-//                    tFIDerivative->set_coeff( tCoeffPert );
-//
-//                    // reset constitutive model eval flag
-//                    this->reset_eval_flags();
-//
-//                    // evaluate the residual
-//                    Matrix< DDRMat > tTractionPlus = this->traction( aNormal );
-//
-//                    // perturbation of the coefficient
-//                    tCoeffPert = tCoeff;
-//                    tCoeffPert( iCoeffRow, iCoeffCol ) -=
-//                            aPerturbation * tCoeffPert( iCoeffRow, iCoeffCol );
-//
-//                    // setting the perturbed coefficients
-//                    tFIDerivative->set_coeff( tCoeffPert );
-//
-//                    // reset constitutive model eval flags
-//                    this->reset_eval_flags();
-//
-//                    // evaluate the residual
-//                    Matrix< DDRMat > tTractionMinus = this->traction( aNormal );
-//
-//                    // evaluate Jacobian
-//                    adtractiondu_FD.get_column( tDofCounter ) =
-//                            ( tTractionPlus - tTractionMinus ) /
-//                            ( 2.0 * aPerturbation * tCoeff( iCoeffRow, iCoeffCol ) );
-
                     // update dof counter
                     tDofCounter++;
                 }
@@ -832,6 +824,7 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+
         void Constitutive_Model::eval_dtesttractiondu_FD(
                 const moris::Cell< MSI::Dof_Type > & aDofTypes,
                 const moris::Cell< MSI::Dof_Type > & aTestDofTypes,
@@ -898,10 +891,10 @@ namespace moris
 
                         // assemble the jacobian
                         mdTestTractiondDof( tTestDofIndex )( tDofIndex ).get_column( tDofCounter ) +=
-                                tFDScheme( 1 )( iPoint ) * trans( trans( aJump ) * this->testTraction( aNormal, aTestDofTypes ) ) /
+                                tFDScheme( 1 )( iPoint ) *
+                                trans( trans( aJump ) * this->testTraction( aNormal, aTestDofTypes ) ) /
                                 ( tFDScheme( 2 )( 0 ) * tDeltaH );
                     }
-
                     // update dof counter
                     tDofCounter++;
                 }
@@ -976,7 +969,6 @@ namespace moris
                                 tFDScheme( 1 )( iPoint ) * this->divflux() /
                                 ( tFDScheme( 2 )( 0 ) * tDeltaH );
                     }
-
                     // update dof counter
                     tDofCounter++;
                 }
@@ -989,6 +981,7 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+
         void Constitutive_Model::eval_ddivstraindu_FD(
                 const moris::Cell< MSI::Dof_Type > & aDofTypes,
                 Matrix< DDRMat >                   & addivstraindu_FD,
@@ -1051,7 +1044,6 @@ namespace moris
                                 tFDScheme( 1 )( iPoint ) * this->divstrain() /
                                 ( tFDScheme( 2 )( 0 ) * tDeltaH );
                     }
-
                     // update dof counter
                     tDofCounter++;
                 }
@@ -1064,6 +1056,7 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+
         void Constitutive_Model::eval_dHdotdDOF_FD(
                 const moris::Cell< MSI::Dof_Type > & aDofTypes,
                 Matrix< DDRMat >                   & adHdotdDOF_FD,
@@ -1125,7 +1118,6 @@ namespace moris
                                 tFDScheme( 1 )( iPoint ) * this->Hdot() /
                                 ( tFDScheme( 2 )( 0 ) * tDeltaH );
                     }
-
                     // update dof counter
                     tDofCounter++;
                 }
@@ -1138,6 +1130,7 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+
         void Constitutive_Model::eval_dGradHdDOF_FD(
                 const moris::Cell< MSI::Dof_Type > & aDofTypes,
                 Matrix< DDRMat >                   & adGradHdDOF_FD,
@@ -1199,7 +1192,6 @@ namespace moris
                                 tFDScheme( 1 )( iPoint ) * this->gradH() /
                                 ( tFDScheme( 2 )( 0 ) * tDeltaH );
                     }
-
                     // update dof counter
                     tDofCounter++;
                 }
@@ -1212,6 +1204,7 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+
         void Constitutive_Model::eval_dGradHdotdDOF_FD(
                 const moris::Cell< MSI::Dof_Type > & aDofTypes,
                 Matrix< DDRMat >                   & adGradHdotdDOF_FD,
@@ -1286,6 +1279,7 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+
         void Constitutive_Model::eval_dGradDivFluxdDOF_FD(
                 const moris::Cell< MSI::Dof_Type > & aDofTypes,
                 Matrix< DDRMat >                   & adGradDivFluxdDOF_FD,
@@ -1360,6 +1354,7 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+
         void Constitutive_Model::eval_dStraindDOF_FD(
                 const moris::Cell< MSI::Dof_Type > & aDofTypes,
                 Matrix< DDRMat >                   & adStraindDOF_FD,
@@ -1434,6 +1429,7 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+
         void Constitutive_Model::eval_dFluxdDV_FD(
                 const moris::Cell< PDV_Type > & aDvTypes,
                 Matrix< DDRMat >              & adFluxdDV_FD,
@@ -1507,6 +1503,7 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+
         void Constitutive_Model::eval_dStraindDV_FD(
                 const moris::Cell< PDV_Type > & aDvTypes,
                 Matrix< DDRMat >              & adStraindDV_FD,
@@ -1580,6 +1577,7 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+
         const Matrix< DDRMat > & Constitutive_Model::flux()
         {
             // if the flux was not evaluated
@@ -1596,6 +1594,7 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+
         const Matrix< DDRMat > & Constitutive_Model::divflux()
         {
             // if the divergence of the flux was not evaluated
@@ -1612,6 +1611,7 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+
         const Matrix< DDRMat > & Constitutive_Model::Hdot()
         {
             // if the flux was not evaluated
@@ -1628,6 +1628,7 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+
         const Matrix< DDRMat > & Constitutive_Model::gradHdot()
         {
             // if the flux was not evaluated
@@ -1644,6 +1645,7 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+
         const Matrix< DDRMat > & Constitutive_Model::gradH()
         {
             // if the flux was not evaluated
@@ -1661,6 +1663,7 @@ namespace moris
 
 
         //------------------------------------------------------------------------------
+
         const Matrix< DDRMat > & Constitutive_Model::graddivflux()
         {
             // if the flux was not evaluated
@@ -1677,7 +1680,9 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
-        const Matrix< DDRMat > & Constitutive_Model::ddivfluxdu( const moris::Cell< MSI::Dof_Type > & aDofType )
+
+        const Matrix< DDRMat > & Constitutive_Model::ddivfluxdu(
+                const moris::Cell< MSI::Dof_Type > & aDofType )
         {
             // if aDofType is not an active dof type for the CM
             MORIS_ERROR(
@@ -1701,7 +1706,9 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
-        const Matrix< DDRMat > & Constitutive_Model::traction( const Matrix< DDRMat > & aNormal )
+
+        const Matrix< DDRMat > & Constitutive_Model::traction(
+                const Matrix< DDRMat > & aNormal )
         {
             // if the traction was not evaluated
             if( mTractionEval )
@@ -1717,6 +1724,7 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+
         const Matrix< DDRMat > & Constitutive_Model::testTraction(
                 const Matrix< DDRMat >             & aNormal,
                 const moris::Cell< MSI::Dof_Type > & aTestDofTypes )
@@ -1738,6 +1746,7 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+
         const Matrix< DDRMat > & Constitutive_Model::strain()
         {
             // if the strain was not evaluated
@@ -1754,6 +1763,7 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+
         const Matrix< DDRMat > & Constitutive_Model::divstrain()
         {
             // if the divergence of the strain was not evaluated
@@ -1770,7 +1780,9 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
-        const Matrix< DDRMat > & Constitutive_Model::ddivstraindu( const moris::Cell< MSI::Dof_Type > & aDofType )
+
+        const Matrix< DDRMat > & Constitutive_Model::ddivstraindu(
+                const moris::Cell< MSI::Dof_Type > & aDofType )
         {
             // if aDofType is not an active dof type for the CM
             MORIS_ERROR(
@@ -1794,6 +1806,7 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+
         const Matrix< DDRMat > & Constitutive_Model::testStrain()
         {
             // if the test strain was not evaluated
@@ -1810,6 +1823,7 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+
         const Matrix< DDRMat > & Constitutive_Model::constitutive()
         {
             // if the constitutive matrix was not evaluated
@@ -1826,6 +1840,7 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+
         const Matrix< DDRMat > & Constitutive_Model::dfluxdx( uint aOrder )
         {
             MORIS_ERROR(
@@ -1847,7 +1862,9 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
-        const Matrix< DDRMat > & Constitutive_Model::dFluxdDOF( const moris::Cell< MSI::Dof_Type > & aDofType )
+
+        const Matrix< DDRMat > & Constitutive_Model::dFluxdDOF(
+                const moris::Cell< MSI::Dof_Type > & aDofType )
         {
             // if aDofType is not an active dof type for the CM
             MORIS_ERROR(
@@ -1872,7 +1889,9 @@ namespace moris
         }
 
         //-----------------------------------------------------------------------------
-        const Matrix< DDRMat > & Constitutive_Model::dHdotdDOF( const moris::Cell< MSI::Dof_Type > & aDofType)
+
+        const Matrix< DDRMat > & Constitutive_Model::dHdotdDOF(
+                const moris::Cell< MSI::Dof_Type > & aDofType)
         {
             // if aDofType is not an active dof type for the CM
             MORIS_ERROR(
@@ -1897,7 +1916,9 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
-        const Matrix< DDRMat > & Constitutive_Model::dGradHdDOF( const moris::Cell< MSI::Dof_Type > & aDofType)
+
+        const Matrix< DDRMat > & Constitutive_Model::dGradHdDOF(
+                const moris::Cell< MSI::Dof_Type > & aDofType)
         {
             // if aDofType is not an active dof type for the CM
             MORIS_ERROR(
@@ -1922,7 +1943,9 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
-        const Matrix< DDRMat > & Constitutive_Model::dGradHdotdDOF( const moris::Cell< MSI::Dof_Type > & aDofType)
+
+        const Matrix< DDRMat > & Constitutive_Model::dGradHdotdDOF(
+                const moris::Cell< MSI::Dof_Type > & aDofType)
         {
             // if aDofType is not an active dof type for the CM
             MORIS_ERROR(
@@ -1947,7 +1970,9 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
-        const Matrix< DDRMat > & Constitutive_Model::dGradDivFluxdDOF( const moris::Cell< MSI::Dof_Type > & aDofType)
+
+        const Matrix< DDRMat > & Constitutive_Model::dGradDivFluxdDOF(
+                const moris::Cell< MSI::Dof_Type > & aDofType)
         {
             // if aDofType is not an active dof type for the CM
             MORIS_ERROR(
@@ -1972,6 +1997,7 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+
         const Matrix< DDRMat > & Constitutive_Model::dTractiondDOF(
                 const moris::Cell< MSI::Dof_Type > & aDofType,
                 const Matrix< DDRMat >             & aNormal )
@@ -1999,6 +2025,7 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+
         const Matrix< DDRMat > & Constitutive_Model::dTestTractiondDOF(
                 const moris::Cell< MSI::Dof_Type > & aDofType,
                 const Matrix< DDRMat >             & aNormal,
@@ -2063,6 +2090,7 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+
         const Matrix< DDRMat > & Constitutive_Model::dstraindx( uint aOrder )
         {
             MORIS_ERROR(
@@ -2084,7 +2112,9 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
-        const Matrix< DDRMat > & Constitutive_Model::dStraindDOF( const moris::Cell< MSI::Dof_Type > & aDofType )
+
+        const Matrix< DDRMat > & Constitutive_Model::dStraindDOF(
+                const moris::Cell< MSI::Dof_Type > & aDofType )
         {
             // if aDofType is not an active dof type for the property
             MORIS_ERROR(
@@ -2109,7 +2139,9 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
-        const Matrix< DDRMat > & Constitutive_Model::dConstdDOF( const moris::Cell< MSI::Dof_Type > & aDofType )
+
+        const Matrix< DDRMat > & Constitutive_Model::dConstdDOF(
+                const moris::Cell< MSI::Dof_Type > & aDofType )
         {
             // if aDofType is not an active dof type for the property
             MORIS_ERROR(
@@ -2134,7 +2166,9 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
-        const Matrix< DDRMat > & Constitutive_Model::dFluxdDV( const moris::Cell< PDV_Type > & aDvType )
+
+        const Matrix< DDRMat > & Constitutive_Model::dFluxdDV(
+                const moris::Cell< PDV_Type > & aDvType )
         {
             // if aDvType is not an active dv type
             MORIS_ERROR(
@@ -2159,7 +2193,9 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
-        const Matrix< DDRMat > & Constitutive_Model::dStraindDV( const moris::Cell< PDV_Type > & aDvType )
+
+        const Matrix< DDRMat > & Constitutive_Model::dStraindDV(
+                const moris::Cell< PDV_Type > & aDvType )
         {
             // if aDvType is not an active dv type for the property
             MORIS_ERROR(
@@ -2184,7 +2220,9 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
-        const Matrix< DDRMat > & Constitutive_Model::dConstdDV( const moris::Cell< PDV_Type > & aDvType )
+
+        const Matrix< DDRMat > & Constitutive_Model::dConstdDV(
+                const moris::Cell< PDV_Type > & aDvType )
         {
             // if aDvType is not an active dv type for the property
             MORIS_ERROR(

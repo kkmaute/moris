@@ -163,7 +163,7 @@ namespace moris
                 Set()
                 {
                     mIsEmptySet = true;    //FIXME this flag is a hack. find better solution
-                };
+                }
 
                 //------------------------------------------------------------------------------
                 /**
@@ -204,9 +204,9 @@ namespace moris
                  * @param[ in ] aVisMeshSet a mesh set pointer for visualization
                  */
                 void set_visualization_set(
-                        const uint              aMeshIndex,
+                        const uint        aMeshIndex,
                         moris::mtk::Set * aVisMeshSet,
-                        const bool              aOnlyPrimayCells);
+                        const bool        aOnlyPrimayCells );
 
                 //------------------------------------------------------------------------------
                 /**
@@ -494,21 +494,8 @@ namespace moris
                  * @param[ in ]  aIsMaster an enum for master or slave
                  * @param[ out ] mFIManger a field interpolator manager pointer
                  */
-                Field_Interpolator_Manager * get_field_interpolator_manager( mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER )
-                {
-                    switch ( aIsMaster )
-                    {
-                        case mtk::Master_Slave::MASTER :
-                            return mMasterFIManager;
-
-                        case mtk::Master_Slave::SLAVE :
-                            return mSlaveFIManager;
-
-                        default :
-                            MORIS_ERROR( false, "Set::get_field_interpolator_manager - can only be master or slave.");
-                            return mMasterFIManager;
-                    }
-                };
+                Field_Interpolator_Manager * get_field_interpolator_manager(
+                        mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER );
 
                 //------------------------------------------------------------------------------
                 /**
@@ -516,18 +503,8 @@ namespace moris
                  * @param[ in ]  aIsMaster an enum for master or slave
                  * @param[ out ] mFIManger a field interpolator manager pointer
                  */
-                Field_Interpolator_Manager * get_field_interpolator_manager_previous_time( mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER )
-                {
-                    switch ( aIsMaster )
-                    {
-                        case mtk::Master_Slave::MASTER :
-                            return mMasterPreviousFIManager;
-
-                        default :
-                            MORIS_ERROR( false, "Set::get_field_interpolator_manager - can only be master.");
-                            return mMasterPreviousFIManager;
-                    }
-                };
+                Field_Interpolator_Manager * get_field_interpolator_manager_previous_time(
+                        mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER );
 
                 //------------------------------------------------------------------------------
                 /**
@@ -556,7 +533,8 @@ namespace moris
                  * auto detect time interpolation scheme
                  * @param[ in ] aNumVertices number of vertices for a line
                  */
-                fem::Interpolation_Type get_auto_time_interpolation_type( const moris::uint aNumVertices );
+                fem::Interpolation_Type get_auto_time_interpolation_type(
+                        const moris::uint aNumVertices );
 
                 //------------------------------------------------------------------------------
                 /**

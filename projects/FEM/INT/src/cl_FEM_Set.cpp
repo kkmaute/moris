@@ -160,7 +160,8 @@ namespace moris
             // create an integration rule
             Integration_Rule tIntegrationRule = Integration_Rule( mIGGeometryType,
                     Integration_Type::GAUSS,
-                    this->get_auto_integration_order( mIGGeometryType,
+                    this->get_auto_integration_order(
+                            mIGGeometryType,
                             mIPSpaceInterpolationOrder ),
                             tTimeGeometryType,
                             Integration_Type::GAUSS,
@@ -845,6 +846,39 @@ namespace moris
 
                 // create the field interpolators on the master FI manager
                 mMasterPreviousFIManager->create_field_interpolators( aModelSolverInterface );
+            }
+        }
+
+        //------------------------------------------------------------------------------
+        Field_Interpolator_Manager * Set::get_field_interpolator_manager(
+                mtk::Master_Slave aIsMaster )
+        {
+            switch ( aIsMaster )
+            {
+                case mtk::Master_Slave::MASTER :
+                    return mMasterFIManager;
+
+                case mtk::Master_Slave::SLAVE :
+                    return mSlaveFIManager;
+
+                default :
+                    MORIS_ERROR( false, "Set::get_field_interpolator_manager - can only be master or slave.");
+                    return mMasterFIManager;
+            }
+        }
+
+        //------------------------------------------------------------------------------
+        Field_Interpolator_Manager * Set::get_field_interpolator_manager_previous_time(
+                mtk::Master_Slave aIsMaster )
+        {
+            switch ( aIsMaster )
+            {
+                case mtk::Master_Slave::MASTER :
+                    return mMasterPreviousFIManager;
+
+                default :
+                    MORIS_ERROR( false, "Set::get_field_interpolator_manager - can only be master.");
+                    return mMasterPreviousFIManager;
             }
         }
 
@@ -2365,13 +2399,13 @@ namespace moris
                     switch( aInterpolationOrder )
                     {
                         case mtk::Interpolation_Order::LINEAR:
-                            return fem::Integration_Order::BAR_1;
+                            return fem::Integration_Order::BAR_3;
 
                         case mtk::Interpolation_Order::QUADRATIC:
-                            return fem::Integration_Order::BAR_2;
+                            return fem::Integration_Order::BAR_3;
 
                         case mtk::Interpolation_Order::CUBIC:
-                            return fem::Integration_Order::BAR_3;
+                            return fem::Integration_Order::BAR_4;
 
                         default:
                             MORIS_ERROR( false, "Set::get_auto_integration_order - Unknown or unsupported interpolation order.");
@@ -2431,12 +2465,12 @@ namespace moris
                     switch( aInterpolationOrder )
                     {
                         case mtk::Interpolation_Order::LINEAR:
-                            return fem::Integration_Order::TRI_3;
-
-                        case  mtk::Interpolation_Order::QUADRATIC:
                             return fem::Integration_Order::TRI_6;
 
-                        case  mtk::Interpolation_Order::CUBIC:
+                        case mtk::Interpolation_Order::QUADRATIC:
+                            return fem::Integration_Order::TRI_6;
+
+                        case mtk::Interpolation_Order::CUBIC:
                             return fem::Integration_Order::TRI_7;
 
                         default:
@@ -2456,7 +2490,7 @@ namespace moris
                         case mtk::Interpolation_Order::QUADRATIC:
                             return fem::Integration_Order::TET_11;
 
-                        case  mtk::Interpolation_Order::CUBIC:
+                        case mtk::Interpolation_Order::CUBIC:
                             return fem::Integration_Order::TET_15;
 
                         default:
@@ -2477,7 +2511,7 @@ namespace moris
         void Set::set_visualization_set(
                 const uint         aMeshIndex,
                 moris::mtk::Set  * aVisMeshSet,
-                const bool         aOnlyPrimayCells)
+                const bool         aOnlyPrimayCells )
         {
             uint tNumClustersOnSets = aVisMeshSet->get_num_clusters_on_set();
 
