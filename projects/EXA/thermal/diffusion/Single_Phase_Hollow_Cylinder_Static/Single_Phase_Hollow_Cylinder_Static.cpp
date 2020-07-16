@@ -21,6 +21,8 @@
 
 #include "AztecOO.h"
 
+extern uint gInterpolationOrder;
+
 #ifdef  __cplusplus
 extern "C"
 {
@@ -152,9 +154,9 @@ extern "C"
             tParameterlist( 0 )( 0 ).set( "domain_sidesets",                  std::string("1,2,3,4") );
             tParameterlist( 0 )( 0 ).set( "lagrange_output_meshes",           std::string("0") );
 
-            tParameterlist( 0 )( 0 ).set( "lagrange_orders",  std::string("1") );
+            tParameterlist( 0 )( 0 ).set( "lagrange_orders",  std::to_string(gInterpolationOrder) );
             tParameterlist( 0 )( 0 ).set( "lagrange_pattern", std::string("0") );
-            tParameterlist( 0 )( 0 ).set( "bspline_orders",   std::string("1") );
+            tParameterlist( 0 )( 0 ).set( "bspline_orders",   std::to_string(gInterpolationOrder) );
             tParameterlist( 0 )( 0 ).set( "bspline_pattern",  std::string("0") );
 
             tParameterlist( 0 )( 0 ).set( "lagrange_to_bspline", std::string("0") );
