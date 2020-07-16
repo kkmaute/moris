@@ -105,23 +105,20 @@ namespace moris
             }
             else if (tGeometryType == "user_defined")
             {
+                // Get sensitivity function if needed
                 std::string tSensitivityFunctionName = aGeometryParameterList.get<std::string>("sensitivity_function_name");
-                if (tSensitivityFunctionName == "")
-                {
-                    return std::make_shared<User_Defined_Geometry>(aADVs, tGeometryVariableIndices, tADVIndices, tConstantParameters,
-                                                                   aLibrary->load_gen_field_function(aGeometryParameterList.get<std::string>("field_function_name")),
-                                                                   nullptr,
-                                                                   tNumRefinements,
-                                                                   tRefinementFunctionIndex);
-                }
-                else
-                {
-                    return std::make_shared<User_Defined_Geometry>(aADVs, tGeometryVariableIndices, tADVIndices, tConstantParameters,
-                                                                   aLibrary->load_gen_field_function(aGeometryParameterList.get<std::string>("field_function_name")),
-                                                                   aLibrary->load_gen_sensitivity_function(tSensitivityFunctionName),
-                                                                   tNumRefinements,
-                                                                   tRefinementFunctionIndex);
-                }
+                MORIS_GEN_SENSITIVITY_FUNCTION tSensitivityFunction =
+                        (tSensitivityFunctionName == "" ? aLibrary->load_gen_sensitivity_function(tSensitivityFunctionName) : nullptr);
+
+                // Create user-defined geometry
+                return std::make_shared<User_Defined_Geometry>(aADVs,
+                                                               tGeometryVariableIndices,
+                                                               tADVIndices,
+                                                               tConstantParameters,
+                                                               aLibrary->load_gen_field_function(aGeometryParameterList.get<std::string>("field_function_name")),
+                                                               tSensitivityFunction,
+                                                               tNumRefinements,
+                                                               tRefinementFunctionIndex);
             }
             else
             {
