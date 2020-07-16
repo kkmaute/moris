@@ -1,11 +1,8 @@
-#ifndef MORIS_OPTIMIZATION_CL_OPTALGSQP_HPP_
-#define MORIS_OPTIMIZATION_CL_OPTALGSQP_HPP_
+#ifndef MORIS_CL_OPT_ALGORITHM_SQP_HPP_
+#define MORIS_CL_OPT_ALGORITHM_SQP_HPP_
 
-// MORIS project header files.
 #include "core.hpp"
-#include "cl_OPT_Algorithm.hpp" // Base class // OPT/src
-
-//----------------------------------------------------------------------
+#include "cl_OPT_Algorithm.hpp"
 
 namespace moris
 {
@@ -41,7 +38,7 @@ namespace moris
             /**
              * Constructor
              */
-            Algorithm_SQP();
+            Algorithm_SQP(ParameterList aParameterList);
 
             /**
              * Destructor
@@ -87,7 +84,7 @@ namespace moris
              */
             void func_grad( int n, double* x, int needG );
         };
-    }  // namespace opt
-}      // namespace moris
+    }
+}
 
-#endif /* MORIS_OPTIMIZATION_CL_OPTALGSQP_HPP_ */
+#endif /* MORIS_CL_OPT_ALGORITHM_SQP_HPP_ */

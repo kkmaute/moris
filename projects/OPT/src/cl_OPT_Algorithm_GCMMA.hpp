@@ -1,10 +1,9 @@
-#ifndef MORIS_OPTIMIZATION_CL_OPT_ALG_GCMMA_HPP_
-#define MORIS_OPTIMIZATION_CL_OPT_ALG_GCMMA_HPP_
+#ifndef MORIS_CL_OPT_ALGORITHM_GCMMA_HPP_
+#define MORIS_CL_OPT_ALGORITHM_GCMMA_HPP_
 
-// MORIS project header files.
 #include "core.hpp"
-#include "cl_OPT_Algorithm.hpp" // Base class // OPT/src
-#include "cl_Param_List.hpp" // CON/src
+#include "cl_OPT_Algorithm.hpp"
+#include "cl_Param_List.hpp"
 #include "cl_OPT_Problem.hpp"
 
 class OptAlgGCMMA : public moris::opt::Algorithm
@@ -40,7 +39,7 @@ class OptAlgGCMMA : public moris::opt::Algorithm
         /**
          * Constructor
          */
-        OptAlgGCMMA();
+        OptAlgGCMMA(moris::ParameterList aParameterList);
 
         /**
          * Destructor
@@ -71,4 +70,4 @@ class OptAlgGCMMA : public moris::opt::Algorithm
         void printresult( );
 };
 
-#endif /* MORIS_OPTIMIZATION_CL_OPT_ALG_GCMMA_HPP_ */
+#endif /* MORIS_CL_OPT_ALGORITHM_GCMMA_HPP_ */

@@ -1,16 +1,14 @@
-// Project header files
-#include "cl_OPT_Algorithm_Sweep.hpp" // OPT/src
+#include "cl_OPT_Algorithm_Sweep.hpp"
 #include "fn_Parsing_Tools.hpp"
 #include "fn_sum.hpp"
 #include "HDF5_Tools.hpp"
-
-// ---------------------------------------------------------------------------------------------------------------------
 
 namespace moris
 {
     namespace opt
     {
-        Algorithm_Sweep::Algorithm_Sweep() : Algorithm()
+        Algorithm_Sweep::Algorithm_Sweep(ParameterList aParameterList)
+                : Algorithm(aParameterList)
         {
         }
 

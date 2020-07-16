@@ -1,9 +1,7 @@
-// Project header files
 #include "cl_OPT_Manager.hpp"
 #include "fn_OPT_create_problem.hpp"
 #include "fn_OPT_create_interface.hpp"
-
-// -----------------------------------------------------------------------------
+#include "fn_OPT_create_algorithm.hpp"
 
 namespace moris
 {
@@ -19,8 +17,7 @@ namespace moris
             uint tNumAlgorithms = aParameterLists(2).size();
             for (uint tAlgorithmIndex = 0; tAlgorithmIndex < tNumAlgorithms; tAlgorithmIndex++)
             {
-                Algorithm_API tNewAlgorithm(aParameterLists(2)(tAlgorithmIndex));
-                mAlgorithms.push_back(tNewAlgorithm);
+                mAlgorithms.push_back( create_algorithm(aParameterLists(2)(tAlgorithmIndex)) );
             }
         }
 
@@ -40,7 +37,7 @@ namespace moris
             for (uint i = 0; i < mAlgorithms.size(); i++)
             {
                 // solve the optimization problem based on the algorithm cell
-                mAlgorithms(i).solve(mProblem);
+                mAlgorithms(i)->solve(mProblem);
 
                 // scale the solution of the optimization problem
                 mProblem->scale_solution();

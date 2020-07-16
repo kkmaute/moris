@@ -1,7 +1,3 @@
-//
-// Created by christopherson on 3/18/20.
-//
-
 #ifndef MORIS_CL_OPT_PROBLEM_USER_DEFINED_HPP
 #define MORIS_CL_OPT_PROBLEM_USER_DEFINED_HPP
 
@@ -90,4 +86,4 @@ namespace moris
     }
 }
 
-#endif //MORIS_CL_OPT_PROBLEM_USER_DEFINED_HPP
+#endif // MORIS_CL_OPT_PROBLEM_USER_DEFINED_HPP

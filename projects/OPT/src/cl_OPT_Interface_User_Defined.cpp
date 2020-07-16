@@ -1,7 +1,3 @@
-//
-// Created by christopherson on 3/16/20.
-//
-
 #include "cl_OPT_Interface_User_Defined.hpp"
 #include "fn_Exec_load_user_library.hpp"
 
@@ -11,7 +7,8 @@ namespace moris
     {
         //--------------------------------------------------------------------------------------------------------------
 
-        Interface_User_Defined::Interface_User_Defined(ParameterList aParameterList) : mLibrary(aParameterList.get<std::string>("library"))
+        Interface_User_Defined::Interface_User_Defined(ParameterList aParameterList)
+                : mLibrary(aParameterList.get<std::string>("library"))
         {
             // Set user-defined functions
             initialize_user_defined = mLibrary.load_criteria_initialize_function("initialize");
@@ -21,7 +18,9 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        void Interface_User_Defined::initialize(Matrix<DDRMat>& aADVs, Matrix<DDRMat>& aLowerBounds, Matrix<DDRMat>& aUpperBounds)
+        void Interface_User_Defined::initialize(Matrix<DDRMat>& aADVs,
+                                                Matrix<DDRMat>& aLowerBounds,
+                                                Matrix<DDRMat>& aUpperBounds)
         {
             initialize_user_defined(aADVs, aLowerBounds, aUpperBounds);
         }
@@ -43,5 +42,5 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-    }   // namespace opt
-}   // namespace moris
+    }
+}

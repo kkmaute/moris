@@ -2,10 +2,10 @@
 #define MORIS_CL_OPT_MANAGER_HPP_
 
 #include "cl_Cell.hpp"
-#include "cl_OPT_Algorithm_API.hpp"
+#include "cl_Param_List.hpp"
+#include "cl_OPT_Algorithm.hpp"
 #include "cl_OPT_Problem.hpp"
 #include "cl_OPT_Criteria_Interface.hpp"
-#include "cl_Param_List.hpp"
 
 namespace moris
 {
@@ -14,7 +14,7 @@ namespace moris
         class Manager
         {
         private:
-            Cell< Algorithm_API > mAlgorithms; // Cell of pointers of optimization algorithms
+            Cell< std::shared_ptr<Algorithm> > mAlgorithms; // Cell of pointers of optimization algorithms
             std::shared_ptr<Problem> mProblem;
 
         public:

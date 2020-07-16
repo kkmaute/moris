@@ -1,15 +1,17 @@
-//Third pary header files
+// MORIS
+#include "cl_OPT_Algorithm_GCMMA.hpp"
+
+// Third party header files
 #include "optalggcmmacall.hpp"
 #include "mma.hpp"
-
-// MORIS project header files
-#include "cl_OPT_Algorithm_GCMMA.hpp" // OPT/src
 
 // -----------------------------------------------------------------------------
 using namespace moris;
 
 
-OptAlgGCMMA::OptAlgGCMMA() : Algorithm(), mResFlag(0)
+OptAlgGCMMA::OptAlgGCMMA(ParameterList aParameterList)
+        : Algorithm(aParameterList),
+          mResFlag(0)
 {
 }
 
@@ -24,8 +26,6 @@ OptAlgGCMMA::~OptAlgGCMMA()
 void OptAlgGCMMA::solve(std::shared_ptr<moris::opt::Problem> aOptProb )
 {
     mProblem = aOptProb; // set the member variable mProblem to aOptProb
-
-    Algorithm::initialize(); // initialize the base class member variables
 
     // extract the underlying types of the algorithm parameters and assign
     // to variables that are used to create an object of type MMAgc solver

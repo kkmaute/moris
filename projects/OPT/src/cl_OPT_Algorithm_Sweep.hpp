@@ -1,9 +1,8 @@
-#ifndef MORIS_OPTIMIZATION_CL_OPTALGSWEEP_HPP_
-#define MORIS_OPTIMIZATION_CL_OPTALGSWEEP_HPP_
+#ifndef MORIS_CL_OPT_ALGORITHM_SWEEP_HPP_
+#define MORIS_CL_OPT_ALGORITHM_SWEEP_HPP_
 
-// MORIS project header files.
 #include "core.hpp"
-#include "cl_OPT_Algorithm.hpp" // Base class // OPT/src
+#include "cl_OPT_Algorithm.hpp"
 #include "HDF5_Tools.hpp"
 
 namespace moris
@@ -17,7 +16,7 @@ namespace moris
             /**
              * Constructor
              */
-            Algorithm_Sweep();
+            Algorithm_Sweep(ParameterList aParameterList);
 
             /**
              * Destructor
@@ -80,8 +79,8 @@ namespace moris
             void output_variables(Matrix<DDRMat> aVariables, std::string aFullEvaluationName);
 
         };
-    }  // namespace opt
-}      // namespace moris
+    }
+}
 
-#endif /* MORIS_OPTIMIZATION_CL_OPTALGSWEEP_HPP_ */
+#endif /* MORIS_CL_OPT_ALGORITHM_SWEEP_HPP_ */
 

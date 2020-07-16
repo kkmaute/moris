@@ -1,7 +1,3 @@
-//
-// Created by christopherson on 3/18/20.
-//
-
 #include "cl_OPT_Problem_User_Defined.hpp"
 
 namespace moris

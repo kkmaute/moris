@@ -1,5 +1,4 @@
-// Project header files
-#include "cl_OPT_Algorithm_LBFGS.hpp" // OPT/src
+#include "cl_OPT_Algorithm_LBFGS.hpp"
 
 #ifdef FORT_NO_
 #define _FORTRAN(a) a
@@ -25,7 +24,9 @@ namespace moris
 {
     namespace opt
     {
-        Algorithm_LBFGS::Algorithm_LBFGS() : Algorithm(), mOptIter(0)
+        Algorithm_LBFGS::Algorithm_LBFGS(ParameterList aParameterList)
+                : Algorithm(aParameterList),
+                  mOptIter(0)
         {
         }
 
@@ -40,8 +41,6 @@ namespace moris
         void Algorithm_LBFGS::solve(std::shared_ptr<Problem> aOptProb )
         {
             mProblem = aOptProb;  // set the member variable mProblem to aOptProb
-
-            Algorithm::initialize(); // initialize the base class member variables
 
             // extract the underlying types of the algorithm parameters and assign
             // to parameters used by the L-BFGS-B algorithm

@@ -1,10 +1,8 @@
-#ifndef MORIS_OPTIMIZATION_CL_OPTALG_HPP_
-#define MORIS_OPTIMIZATION_CL_OPTALG_HPP_
+#ifndef MORIS_CL_OPT_ALGORITHM_HPP_
+#define MORIS_CL_OPT_ALGORITHM_HPP_
 
-// MORIS project header files.
-#include "core.hpp"
-#include "cl_Param_List.hpp" // CON/src
-#include "cl_OPT_Problem.hpp" // OPT/src
+#include "cl_Param_List.hpp"
+#include "cl_OPT_Problem.hpp"
 
 namespace moris
 {
@@ -23,7 +21,7 @@ namespace moris
             /**
              * Constructor
              */
-            Algorithm();
+            Algorithm(ParameterList aParameterList);
 
             /**
              * @brief virtual copy constructor through cloning
@@ -43,24 +41,8 @@ namespace moris
              *            data regarding ADVs, the objective and constraints
              */
             virtual void solve(std::shared_ptr<Problem> aOptProb) = 0;
-
-            /**
-             * @brief Initialize the member variables
-             */
-            void initialize();
-
-            /**
-             * @brief Accessor to set a value in the parameter list of Algorithm
-             *
-             * @param[in] aKey Key corresponding to the mapped value that
-             *            needs to be accessed
-             */
-            ParameterListTypes& set_param( char const* aKey)
-            {
-                return mParameterList(aKey);
-            }
         };
-    }  // namespace opt
-}      // namespace moris
+    }
+}
 
-#endif /* MORIS_OPTIMIZATION_CL_OPTALG_HPP_ */
+#endif /* MORIS_CL_OPT_ALGORITHM_HPP_ */

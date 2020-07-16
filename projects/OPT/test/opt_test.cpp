@@ -1,15 +1,14 @@
-// Third-party header files.
 #include <catch.hpp>
 
-// MORIS project header files.
 #include "cl_PRM_OPT_Parameters.hpp"
 #include "cl_OPT_Manager.hpp"
 #include "cl_OPT_Criteria_Interface.hpp"
 #include "cl_OPT_Interface_User_Defined.hpp"
 #include "fn_OPT_create_interface.hpp"
-#include "../src/cl_OPT_Interface_User_Defined.hpp"
+#include "cl_OPT_Interface_User_Defined.hpp"
 #include "cl_Communication_Tools.hpp"
 #include "paths.hpp"
+
 namespace moris
 {
     namespace opt
@@ -198,6 +197,6 @@ namespace moris
 
             // ---------------------------------------------------------------------------------------------------------
 
-        } // test case "[optimization]"
-    } // namespace opt
-} // namespace moris
+        }
+    }
+}

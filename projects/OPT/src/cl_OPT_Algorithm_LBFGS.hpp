@@ -1,9 +1,8 @@
-#ifndef MORIS_OPTIMIZATION_CL_OPTALGLBFGS_HPP_
-#define MORIS_OPTIMIZATION_CL_OPTALGLBFGS_HPP_
+#ifndef MORIS_CL_OPT_ALGORITHM_LBFGS_HPP_
+#define MORIS_CL_OPT_ALGORITHM_LBFGS_HPP_
 
-// MORIS project header files.
 #include "core.hpp"
-#include "cl_OPT_Algorithm.hpp" // Base class // OPT/src
+#include "cl_OPT_Algorithm.hpp"
 
 namespace moris
 {
@@ -21,7 +20,7 @@ namespace moris
             /**
              * Constructor
              */
-            Algorithm_LBFGS();
+            Algorithm_LBFGS(ParameterList aParameterList);
 
             /**
              * Destructor
@@ -78,7 +77,7 @@ namespace moris
              */
             void printresult();
         };
-    } // namespace opt
-}     // namespace moris
+    }
+}
 
-#endif /* MORIS_OPTIMIZATION_CL_OPTALGLBFGS_HPP_ */
+#endif /* MORIS_CL_OPT_ALGORITHM_LBFGS_HPP_ */

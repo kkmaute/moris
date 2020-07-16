@@ -1,6 +1,4 @@
-// Project header files
-#include "cl_OPT_Algorithm_SQP.hpp" // OPT/src
-extern moris::Logger gLogger;
+#include "cl_OPT_Algorithm_SQP.hpp"
 
 #ifdef FORT_NO_
 #define _FORTRAN(a) a
@@ -75,13 +73,15 @@ void OptAlgSQP_usrfun(
         int* needG, int* lenG, double* G,
         char* cu, int* lencu, int* iu, int* leniu, double* ru, int* lenru);
 
-// -----------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------------------------------
 
 namespace moris
 {
     namespace opt
     {
-        Algorithm_SQP::Algorithm_SQP() : Algorithm(), mOptIter(0)
+        Algorithm_SQP::Algorithm_SQP(ParameterList aParameterList)
+                : Algorithm(aParameterList),
+                  mOptIter(0)
         {
             // Not sure what these are triggering
             mMinWLen = 500;
@@ -91,13 +91,13 @@ namespace moris
 
         }
 
-        //----------------------------------------------------------------------
+        //--------------------------------------------------------------------------------------------------------------
 
         Algorithm_SQP::~Algorithm_SQP()
         {
         }
 
-        //----------------------------------------------------------------------
+        //--------------------------------------------------------------------------------------------------------------
 
         void Algorithm_SQP::set_params(char* cw, int lencw, int* iw, int leniw, double* rw, int lenrw)
         {
@@ -164,13 +164,11 @@ namespace moris
             }
         }
 
-        //----------------------------------------------------------------------
+        //--------------------------------------------------------------------------------------------------------------
 
         void Algorithm_SQP::solve(std::shared_ptr<Problem> aOptProb )
         {
             mProblem = aOptProb; // set the member variable mProblem to aOptProb
-
-            Algorithm::initialize(); // initialize the base class member variables
 
             int inform = 0;
             int iPrint = 0;
@@ -327,7 +325,7 @@ namespace moris
             free(rw);
         }
 
-        //----------------------------------------------------------------------
+        //--------------------------------------------------------------------------------------------------------------
 
         void Algorithm_SQP::func_grad(int n, double* x, int needG )
         {
@@ -353,7 +351,7 @@ namespace moris
     }
 }
 
-//----------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 void OptAlgSQP_usrfun(
         int* Status, int* n, double* x,
