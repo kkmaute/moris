@@ -1,5 +1,68 @@
 /** \page opt_sqp Sequential Quadratic Programming (SQP)
 
-WORK IN PROGRESS
+SQP is a class of methods which solves the optimization problem by iterating based on a quadratic model of the objective
+and linearized constraints at each evaluation point. If the problem is unconstrained, this reduces to Newton's method.
+
+MORIS uses SNOPT for its SQP algorithm, and all of the parameter names used by MORIS are the same as those used by
+SNOPT. For further reference about SNOPT, please see the <a href="sndoc7.pdf" target="_blank"><b>user guide</b></a>.
+
+\param "Major print level" [1]: Controls the amount of output to print each major iteration. Possible options are
+    specified as a binary number of the form XXXXXX (please see SNOPT documentation).
+\param "Minor print level" [1]: Controls the amount of output during the QP subproblems. Possible options are 0 (no
+    output), >=1 (single line summary), and >=10 (basis factorization statistics).
+\param "Print file"        [0]: Change to >0 to print output to file.
+\param "Summary file"      [0]: Change to >0 to print summary to file.
+\param "Print frequency"   [100]: Every nth minor iteration output is printed to file.
+\param "Log frequency"     [100]: Related to print frequency (to log file).
+\param "Summary frequency" [100]: Every nth minor iteration the summary is printed to file.
+\param "Timing level"      [3]: Prints CPU times.
+
+\param "Major iterations limit"      [1000]: Number of allowed major iterations.
+\param "Minor iterations limit"      [500]: Number of allowed minor iterations per major iteration.
+\param "Iterations limit"            [10000]: Number of total minor iterations allowed over all major iterations.
+\param "Major step limit"            [2.0]: Limits the change in variables during the linesearch.
+\param "Superbasics limit"           [500]: Places a limit on the storage of superbasic variables.
+\param "New superbasics limit"       [99]: Controls early termination of QPs.
+\param "linesearch type"             ["Derivative linesearch"]: Other option is "Nonderivative linesearch"
+\param "Linesearch tolerance"        [0.9]: Controls accuracy of linesearch.
+\param "Function precision"          [3E-13]: Relative accuracy with which nonlinear functions are computed.
+\param "Difference interval"         [5.5E-7]: Sets the interval for forward differencing.
+\param "Central difference interval" [6.7E-5]: Sets the interval for central differencing.
+\param "Proximal point method"       [1]: Specifies how to satisfy linear constraints near initial guess. 
+    Options are 1 or 2.
+\param "Violation limit"             [10.0]: Limit on maximum constraint violation after linesearch.
+\param "Unbounded step size"         [1.0E18]: Determines unboundedness of linesearch step size.
+\param "Unbounded objective value"   [1.0E15]: Determines unboundedness of objective.
+\param "Infinite bound size"         [1.0E20]: Any upper bound greater than this value is regarded as infinity.
+
+\param "Elastic weight"   [2.0E4]: Weighting of infeasibilities in the objective of the QP subproblem.
+\param "Partial price"    [1]: Reduces the work required for each "pricing" operation.
+\param "Pivot tolerance"  [3.7E-11]: Guards the basis matrix from becoming singular.
+
+\param "hessian_type"      ["Hessian Full memory"]: Method for storing and updating the Hessian. Set to
+    "Hessian Limited memory" for variables > 75.
+\param "Hessian frequency" [999999]: For full memory Hessian
+\param "Hessian updates"   [20]: For limited memory Hessian
+
+\param "Expand frequency"        [10000]: Frequency of anti-cycling procedure
+\param "Factorization frequency" [50]:    Frequency of basis updates
+
+\param "LU factor tolerance"      [10.0]: Limits size of multipliers in L
+\param "LU update tolerance"      [10.0]: Limits size of multipliers in L during updates
+\param "LU density tolerance"     [0.6 ]: Handles sparsity of LU factorization
+\param "LU singularity tolerance" [2E-6]: Handles guard against singularity during factorization
+\param "lu_pivoting_type"         ["LU Partial Pivoting"]: Related to LU factorization. Other options are
+    "LU Rook Pivoting" or "LU Complete Pivoting" ( both more costly and stable).
+
+\param "Major optimality tolerance"  [1E-6]: Tolerance for major iterations
+\param "Minor optimality tolerance"  [5E-7]: Tolerance for minor iterations
+\param "Major feasibility tolerance" [1E-6]: Feasibility with respect to nonlinear constraints
+\param "Feasibility tolerance"       [1E-6]: See minor feasibility tolerance (deprecated)
+\param "Minor feasibility tolerance" [1E-6]: Feasibility with respect to linear constraints
+
+\param "Verify level" [0]: Flag to perform finite difference check on derivatives (default false)
+
+\param "Scale option"    [1]:   Flag for scaling of constraints and variables (default true)
+\param "Scale tolerance" [0.9]: Affects effectiveness with which constraint matrix is scaled
 
 */

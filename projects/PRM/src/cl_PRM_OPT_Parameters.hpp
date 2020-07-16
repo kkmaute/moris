@@ -94,12 +94,6 @@ namespace moris
 
             tParameterList.insert( "algorithm", "sqp"); // Algorithm name, don't change
 
-            //******************************************************************
-            // assign default parameter values - PLEASE REFER to documentation
-            // at '.../MTPLS/Snopt/doc/snopt.pdf' for CLEAR UNDERSTANDING of the
-            // parameters encountered in this algorithm.
-            //******************************************************************
-
             // Printing
             tParameterList.insert( "Major print level", 1 );   // Controls the amount of output to print each major iteration.
             tParameterList.insert( "Minor print level", 1 );   // Controls the amount of output during the QP subproblems.
@@ -113,6 +107,7 @@ namespace moris
             // SQP method
             tParameterList.insert( "Major iterations limit", 1000 );                    // number of allowed major iterations
             tParameterList.insert( "Minor iterations limit", 500 );                     // number of allowed minor iterations
+            tParameterList.insert( "Iterations limit", 10000 );                         // number of total minor iterations allowed over all major iterations
             tParameterList.insert( "Major step limit"      , 2.0 );                     // limits the change in variable during linesearch
             tParameterList.insert( "Superbasics limit"     , 500 );                     // places a limit on the storage of superbasic variables
             tParameterList.insert( "New superbasics limit" , 99 );                      // controls early termination of QPs
@@ -120,8 +115,8 @@ namespace moris
                                                                                         // "Nonderivative linesearch"
             tParameterList.insert( "Linesearch tolerance"       , 0.9 );                // controls accuracy of linesearch
             tParameterList.insert( "Function precision"         , 3e-13 );              // relative accuracy with which nonlinear functions are computed
-            tParameterList.insert( "Difference interval"        , 5.5e-7 );             // determines accuracy of gradients using forward differencing
-            tParameterList.insert( "Central difference interval", 6.7e-5 );             // determines accuracy of gradients using central differencing
+            tParameterList.insert( "Difference interval"        , 5.5e-7 );             // sets the interval for forward differencing
+            tParameterList.insert( "Central difference interval", 6.7e-5 );             // sets the interval for central differencing
             tParameterList.insert( "Proximal point method"      , 1 );                  // satisfies linear constraints near initial guess
             tParameterList.insert( "Violation limit"            , 10.0 );               // limit on maximum constraint violation after linesearch
             tParameterList.insert( "Unbounded step size"        , 1.0e18 );             // determines unboundedness of linesearch step size
@@ -129,7 +124,6 @@ namespace moris
             tParameterList.insert( "Infinite bound size", 1.0e+20 );                    // any upper bound greater than this value is regarded as infinity
 
             // QP subproblems
-            tParameterList.insert( "Iterations limit", 10000 );   // sum of allowed minor iterations over all major iterations
             tParameterList.insert( "Elastic weight"  , 2.0e+4 );  // weighting of infeasibilities in the objective of the QP subproblem
             tParameterList.insert( "Partial price"   , 1 );       // reduces the work required for each "pricing" operation
             tParameterList.insert( "Pivot tolerance" , 3.7e-11 ); // guards the basis matrix from becoming singular
@@ -156,9 +150,9 @@ namespace moris
             // Convergence Tolerances
             tParameterList.insert( "Major optimality tolerance" , 1e-6 ); // target accuracy of the dual variable
             tParameterList.insert( "Minor optimality tolerance" , 5e-7 ); // Also related to target accuracy of the dual variable
-            tParameterList.insert( "Major feasibility tolerance", 1e-6 ); // target nonlinear constraint violation
-            tParameterList.insert( "Feasibility tolerance"      , 1e-6 ); // Related to minor feasibility tolerance
-            tParameterList.insert( "Minor feasibility tolerance", 1e-6 ); // for satisfying the QP bounds
+            tParameterList.insert( "Major feasibility tolerance", 1e-6 ); // feasibility with respect to nonlinear constraints
+            tParameterList.insert( "Feasibility tolerance"      , 1e-6 ); // See minor feasibility tolerance (deprecated)
+            tParameterList.insert( "Minor feasibility tolerance", 1e-6 ); // feasibility with respect to linear constraints
 
             // Derivative checking
             tParameterList.insert( "Verify level", 0 ); // Finite difference check on derivatives computed by user-provided routines

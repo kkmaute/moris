@@ -6,7 +6,7 @@ This variant extends the original MMA functionality and guarantees convergence t
 The default parameters used in a GCMMA algorithm are created using \ref moris::prm::create_gcmma_parameter_list().
 These parameters are:
 
-\parm max_its [100]: The maximum number of iterations that GCMMA will perform.
+\param max_its [100]: The maximum number of iterations that GCMMA will perform.
 \param max_inner_its [0]: The maximum number of inner iterations GCMMA will perform per optimization iteration.
 \param norm_drop [1E-4]: Relative change in the objective used as a convergence criteria.
 \param asymp_adapt0 [0.5]: Initial asymptote adaptation factor.

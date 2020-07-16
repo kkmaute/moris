@@ -10,8 +10,8 @@ implementation details in the \ref opt_developer "developer" section.
 - \subpage opt_framework_user
 - Algorithms
     - \subpage opt_gcmma
-    - \subpage opt_sqp
     - \subpage opt_lbfgs
+    - \subpage opt_sqp
     - \subpage opt_sweep
 
 \section opt_developer Developer
