@@ -5,23 +5,22 @@
 #include "optalggcmmacall.hpp"
 #include "mma.hpp"
 
-// -----------------------------------------------------------------------------
 using namespace moris;
 
+//----------------------------------------------------------------------------------------------------------------------
 
 OptAlgGCMMA::OptAlgGCMMA(ParameterList aParameterList)
-        : Algorithm(aParameterList),
-          mResFlag(0)
+        : Algorithm(aParameterList)
 {
 }
 
-// -----------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 OptAlgGCMMA::~OptAlgGCMMA()
 {
 }
 
-// -----------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 void OptAlgGCMMA::solve(std::shared_ptr<moris::opt::Problem> aOptProb )
 {
@@ -62,7 +61,7 @@ void OptAlgGCMMA::solve(std::shared_ptr<moris::opt::Problem> aOptProb )
     mmaAlg.cleanup(); // free the memory created by GCMMA
 }
 
-// -----------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 void OptAlgGCMMA::printresult()
 {
@@ -72,22 +71,22 @@ void OptAlgGCMMA::printresult()
 
         switch ( mResFlag )
         {
-        case 0:
-            std::fprintf( stdout, "\n" );
-            std::fprintf( stdout, "THE ALGORITHM HAS CONVERGED.\n" );
-            break;
-        case 1:
-            std::fprintf( stdout, "\n" );
-            std::fprintf( stdout, "THE ALGORITHM HAS BEEN STOPPED AFTER MAXIT ITERATIONS.\n" );
-            break;
-        default:
-            std::fprintf( stdout, "\n" );
-            std::fprintf( stdout, "Error Message not specified.\n" );
+            case 0:
+                std::fprintf( stdout, "\n" );
+                std::fprintf( stdout, "THE ALGORITHM HAS CONVERGED.\n" );
+                break;
+            case 1:
+                std::fprintf( stdout, "\n" );
+                std::fprintf( stdout, "THE ALGORITHM HAS BEEN STOPPED AFTER MAXIT ITERATIONS.\n" );
+                break;
+            default:
+                std::fprintf( stdout, "\n" );
+                std::fprintf( stdout, "Error Message not specified.\n" );
         }
     }
 }
 
-// -----------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 void opt_alg_gcmma_func_wrap(
         OptAlgGCMMA* aOptAlgGCMMA,
@@ -112,7 +111,7 @@ void opt_alg_gcmma_func_wrap(
     std::copy(tConval, tConval + aOptAlgGCMMA->mProblem->get_num_constraints(), aConval );
 }
 
-// -----------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 void opt_alg_gcmma_grad_wrap(
         OptAlgGCMMA* aOptAlgGCMMA,
@@ -151,3 +150,4 @@ void opt_alg_gcmma_grad_wrap(
     }
 }
 
+//----------------------------------------------------------------------------------------------------------------------

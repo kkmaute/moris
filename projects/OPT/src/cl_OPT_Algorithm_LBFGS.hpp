@@ -12,7 +12,7 @@ namespace moris
         {
         private:
 
-            uint mOptIter; // optimization iteration counter
+            uint mOptIter = 0; // optimization iteration counter
             uint mResFlag; // Flag from L-BFGS describing result of optimization algorithm
 
         public:
@@ -26,15 +26,6 @@ namespace moris
              * Destructor
              */
             ~Algorithm_LBFGS();
-
-            /**
-             * @brief copy constructor through cloning
-             */
-            Algorithm*
-            clone() const
-            {
-                return new Algorithm_LBFGS(*this );
-            }
 
             /**
              * @brief MORIS interface for solving of optimization problem using

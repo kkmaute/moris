@@ -18,17 +18,16 @@ namespace moris
                     char* cu, int* lencu, int* iu, int* leniu, double* ru, int* lenru );
 
         private:
-
-            uint mOptIter; // optimization iteration counter
+            uint mOptIter = 0; // optimization iteration counter
 
             const int    MAXINT    = std::numeric_limits<int>::max();     // (int) (std::pow( 2, 63 )) - 1;
             const double MAXDOUBLE = std::numeric_limits<double>::max();  //        std::pow( 2, 63 )  - 1;
 
             // declare algorithm specific parameters
-            int    mMinWLen;
-            double mObjAdd;
-            int    mObjRow;
-            char*  mProb;
+            int    mMinWLen = 500;
+            double mObjAdd = 0.0;
+            int    mObjRow = 1;
+            char*  mProb = (char*)"fem ";
 
         public:
 
@@ -41,15 +40,6 @@ namespace moris
              * Destructor
              */
             ~Algorithm_SQP();
-
-            /**
-             * @brief copy constructor through cloning
-             */
-            Algorithm*
-            clone() const
-            {
-                return new Algorithm_SQP(*this );
-            }
 
             /**
              * @brief Set the default parameter values

@@ -7,6 +7,9 @@ namespace moris
 {
     namespace opt
     {
+
+        // -------------------------------------------------------------------------------------------------------------
+
         Algorithm_Sweep::Algorithm_Sweep(ParameterList aParameterList)
                 : Algorithm(aParameterList)
         {
@@ -152,7 +155,6 @@ namespace moris
             {
                 MORIS_ERROR(tEvaluationPoints.n_rows() == tNumADVs, "Number of rows in custom_adv_evaluations must match the number of ADVs.");
             }
-
 
             // Open file and write ADVs/epsilons
             mFileID = create_hdf5_file(mParameterList.get<std::string>("hdf5_path"));

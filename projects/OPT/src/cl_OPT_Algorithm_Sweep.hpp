@@ -24,14 +24,6 @@ namespace moris
             ~Algorithm_Sweep();
 
             /**
-             * @brief copy constructor through cloning
-             */
-            Algorithm* clone() const
-            {
-                return new Algorithm_Sweep(*this );
-            }
-
-            /**
              * @brief MORIS interface for solving of optimization problem using
              *        GCMMA
              *
@@ -42,7 +34,6 @@ namespace moris
 
         private:
             bool mSave; // If saving the results of the sweep to an hdf5 file
-            bool mPrint; // If printing the results of the sweep to the screen with moris::print
             bool mUpdateObjectives; // whether or not to compute new objectives when requested
             bool mUpdateConstraints; // whether or not to compute new constraints when requested
             bool mUpdateObjectiveGradients; // "                 " objective gradients

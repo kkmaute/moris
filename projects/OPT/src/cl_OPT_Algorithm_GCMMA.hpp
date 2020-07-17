@@ -10,7 +10,7 @@ class OptAlgGCMMA : public moris::opt::Algorithm
 {
 
     private:
-        moris::uint mResFlag; // Flag from GCMMA describing result of optimization algorithm
+        moris::uint mResFlag = 0; // Flag from GCMMA describing result of optimization algorithm
 
         /**
          * @brief External function call for computing objective and constraints, to
@@ -45,15 +45,6 @@ class OptAlgGCMMA : public moris::opt::Algorithm
          * Destructor
          */
         ~OptAlgGCMMA();
-
-        /**
-         * @brief copy constructor through cloning
-         */
-        moris::opt::Algorithm*
-        clone() const
-        {
-            return new OptAlgGCMMA(*this );
-        }
 
         /**
          * @brief MORIS interface for solving of optimization problem using

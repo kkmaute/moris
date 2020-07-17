@@ -74,15 +74,8 @@ namespace moris
     namespace opt
     {
         Algorithm_SQP::Algorithm_SQP(ParameterList aParameterList)
-                : Algorithm(aParameterList),
-                  mOptIter(0)
+                : Algorithm(aParameterList)
         {
-            // Not sure what these are triggering
-            mMinWLen = 500;
-            mObjAdd  = 0.0;
-            mObjRow  = 1;
-            mProb    = (char*)"fem ";
-
         }
 
         //--------------------------------------------------------------------------------------------------------------
