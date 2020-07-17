@@ -33,12 +33,18 @@ namespace moris
             void solve(std::shared_ptr<Problem> aOptProb );
 
         private:
-            bool mSave; // If saving the results of the sweep to an hdf5 file
+            bool mIncludeBounds; // whether or not to include upper/lower bounds in the sweep
             bool mUpdateObjectives; // whether or not to compute new objectives when requested
             bool mUpdateConstraints; // whether or not to compute new constraints when requested
             bool mUpdateObjectiveGradients; // "                 " objective gradients
             bool mUpdateConstraintGradients; // "                 " constraint gradients
+            bool mSave; // If saving the results of the sweep to an hdf5 file
+            bool mPrint; // If printing the results of the sweep to the screen
             hid_t mFileID; // Fild id for hdf5 file
+            std::string mFiniteDifferenceType; // Finite difference type
+            Matrix<DDRMat> mFiniteDifferenceEpsilons; // Finite difference epsilons
+            Matrix<DDUMat> mNumEvaluations; // Number of evaluations per ADV
+            Matrix<DDRMat> mEvaluationPoints; // Final evaluation points
 
             /**
              * Outputs the optimization problem at the current ADVs (objective and constraints)

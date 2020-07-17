@@ -7,8 +7,7 @@ namespace moris
 
         // -------------------------------------------------------------------------------------------------------------
 
-        Algorithm::Algorithm(ParameterList aParameterList) :
-                mParameterList(aParameterList)
+        Algorithm::Algorithm()
         {
         }
 

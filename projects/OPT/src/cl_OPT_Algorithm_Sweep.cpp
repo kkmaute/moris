@@ -11,7 +11,18 @@ namespace moris
         // -------------------------------------------------------------------------------------------------------------
 
         Algorithm_Sweep::Algorithm_Sweep(ParameterList aParameterList)
-                : Algorithm(aParameterList)
+                : mIncludeBounds(aParameterList.get<bool>("include_bounds")),
+                  mUpdateObjectives(aParameterList.get<bool>("evaluate_objectives")),
+                  mUpdateConstraints(aParameterList.get<bool>("evaluate_constraints")),
+                  mUpdateObjectiveGradients(aParameterList.get<bool>("evaluate_objective_gradients")),
+                  mUpdateConstraintGradients(aParameterList.get<bool>("evaluate_constraint_gradients")),
+                  mSave(aParameterList.get<bool>("save")),
+                  mPrint(aParameterList.get<bool>("print")),
+                  mFileID(create_hdf5_file(aParameterList.get<std::string>("hdf5_path"))),
+                  mFiniteDifferenceType(aParameterList.get<std::string>("finite_difference_type")),
+                  mFiniteDifferenceEpsilons(string_to_mat<DDRMat>(aParameterList.get<std::string>("finite_difference_epsilons"))),
+                  mNumEvaluations(string_to_mat<DDUMat>(aParameterList.get<std::string>("num_evaluations_per_adv"))),
+                  mEvaluationPoints(string_to_mat<DDRMat>(aParameterList.get<std::string>("custom_adv_evaluations")))
         {
         }
 
@@ -30,16 +41,6 @@ namespace moris
             //----------------------------------------------------------------------------------------------------------
             mProblem = aOptProb; // set the member variable mProblem to aOptProb
 
-            // Extract basic sweep parameters
-            bool tIncludeBounds = mParameterList.get<bool>("include_bounds");
-            mUpdateObjectives = mParameterList.get<bool>("evaluate_objectives");
-            mUpdateConstraints = mParameterList.get<bool>("evaluate_constraints");
-            mUpdateObjectiveGradients = mParameterList.get<bool>("evaluate_objective_gradients");
-            mUpdateConstraintGradients = mParameterList.get<bool>("evaluate_constraint_gradients");
-            mSave = mParameterList.get<bool>("save");
-            mPrint = mParameterList.get<bool>("print");
-            std::string tFiniteDifferenceType = mParameterList.get<std::string>("finite_difference_type");
-
             // Set initial compute flags
             mProblem->mUpdateObjectives = this->mUpdateObjectives;
             mProblem->mUpdateConstraints = this->mUpdateConstraints;
@@ -50,49 +51,37 @@ namespace moris
             uint tNumADVs = mProblem->get_num_advs();
 
             // Finite differencing
-            Matrix<DDRMat> tFiniteDifferenceEpsilons(1, 1);
-            string_to_mat(mParameterList.get<std::string>("finite_difference_epsilons"), tFiniteDifferenceEpsilons);
-            if (tFiniteDifferenceEpsilons.numel() == 0)
+            if (mFiniteDifferenceEpsilons.numel() != 0)
             {
-                tFiniteDifferenceEpsilons.set_size(1, 1, 0);
-            }
-            else
-            {
-                if (tFiniteDifferenceEpsilons.n_rows() == 1)
+                if (mFiniteDifferenceEpsilons.n_rows() == 1)
                 {
-                    uint tNumEvals = tFiniteDifferenceEpsilons.n_cols();
-                    tFiniteDifferenceEpsilons.resize(tNumADVs, tNumEvals);
+                    uint tNumEvals = mFiniteDifferenceEpsilons.n_cols();
+                    mFiniteDifferenceEpsilons.resize(tNumADVs, tNumEvals);
                     for (uint tIndex = 1; tIndex < tNumADVs; tIndex++)
                     {
-                        tFiniteDifferenceEpsilons({tIndex, tIndex}, {0, tNumEvals - 1}) = tFiniteDifferenceEpsilons({0, 0}, {0, tNumEvals - 1});
+                        mFiniteDifferenceEpsilons({tIndex, tIndex}, {0, tNumEvals - 1}) = mFiniteDifferenceEpsilons({0, 0}, {0, tNumEvals - 1});
                     }
                 }
-                MORIS_ERROR(tFiniteDifferenceEpsilons.n_rows() == tNumADVs, 
+                MORIS_ERROR(mFiniteDifferenceEpsilons.n_rows() == tNumADVs, 
                         "OPT_Algorithm_Sweep: Number of rows in finite_difference_epsilons must match the number of ADVs.");
             }
-            uint tTotalEpsilons = tFiniteDifferenceEpsilons.n_cols();
+            uint tTotalEpsilons = mFiniteDifferenceEpsilons.n_cols();
 
             //----------------------------------------------------------------------------------------------------------
             // Set up evaluation points
             //----------------------------------------------------------------------------------------------------------
-            Matrix<DDRMat> tEvaluationPoints(1, 1);
-            string_to_mat(mParameterList.get<std::string>("custom_adv_evaluations"), tEvaluationPoints);
-            uint tTotalEvaluations = tEvaluationPoints.n_cols();
-            if (tEvaluationPoints.numel() == 0)
+            uint tTotalEvaluations = mEvaluationPoints.n_cols();
+            if (mEvaluationPoints.numel() == 0)
             {
-                // Set up based on number of evaluations per adv
-                Matrix<DDSMat> tNumEvaluations(1, 1);
-                std::string tStringEvaluations = mParameterList.get<std::string>("num_evaluations_per_adv");
-                string_to_mat(tStringEvaluations, tNumEvaluations);
-                
                 // Check user input
-                if (tNumEvaluations.numel() == 1) // check for global number of evaluations
+                if (mNumEvaluations.numel() == 1) // check for global number of evaluations
                 {
-                    tNumEvaluations.set_size(tNumADVs, 1, tNumEvaluations(0));
+                    mNumEvaluations.set_size(tNumADVs, 1, mNumEvaluations(0));
                 }
                 else // check for number of evaluations given per ADV
                 {
-                    MORIS_ERROR(tNumEvaluations.numel() == tNumADVs, "Must give single number of evaluations for all ADVs or one per ADV, or provide custom evaluation points");
+                    MORIS_ERROR(mNumEvaluations.numel() == tNumADVs, 
+                            "Must give single number of evaluations for all ADVs or one per ADV, or provide custom evaluation points");
                 }
                 
                 // Check lower and upper bounds for equality
@@ -102,28 +91,28 @@ namespace moris
                 {
                     if (tLowerBounds(tADVIndex) == tUpperBounds(tADVIndex))
                     {
-                        tNumEvaluations(tADVIndex) = 1;
+                        mNumEvaluations(tADVIndex) = 1;
                     }
                 }
 
                 // Change lower bounds for sweep based on parameter and initialize ADvs
-                if (!tIncludeBounds)
+                if (!mIncludeBounds)
                 {
                     for (uint tADVIndex = 0; tADVIndex < tNumADVs; tADVIndex++)
                     {
-                        tLowerBounds(tADVIndex) += (tUpperBounds(tADVIndex) - tLowerBounds(tADVIndex)) / (tNumEvaluations(tADVIndex) + 1);
+                        tLowerBounds(tADVIndex) += (tUpperBounds(tADVIndex) - tLowerBounds(tADVIndex)) / (mNumEvaluations(tADVIndex) + 1);
                     }
                 }
                 
                 // Set up evaluations
                 tTotalEvaluations = 1;
-                for (uint ind = 0; ind < tNumEvaluations.numel(); ind++)
+                for (uint ind = 0; ind < mNumEvaluations.numel(); ind++)
                 {
-                    tTotalEvaluations *= tNumEvaluations(ind);
+                    tTotalEvaluations *= mNumEvaluations(ind);
                 }
-                tEvaluationPoints.set_size(tNumADVs, tTotalEvaluations);
+                mEvaluationPoints.set_size(tNumADVs, tTotalEvaluations);
                 Matrix<DDRMat> tADVs = tLowerBounds;
-                Matrix<DDSMat> tCurrentEvaluations(tNumADVs, 1, 0);
+                Matrix<DDUMat> tCurrentEvaluations(tNumADVs, 1, 0);
 
                 // Construct evaluation points
                 for (uint tEvaluationIndex = 0; tEvaluationIndex < tTotalEvaluations; tEvaluationIndex++)
@@ -131,21 +120,21 @@ namespace moris
                     // Assign ADVs
                     for (uint tADVIndex = 0; tADVIndex < tNumADVs; tADVIndex++)
                     {
-                        tEvaluationPoints(tADVIndex, tEvaluationIndex) = tADVs(tADVIndex);
+                        mEvaluationPoints(tADVIndex, tEvaluationIndex) = tADVs(tADVIndex);
                     }
 
                     // Update ADVs
-                    tADVs(0) += (tUpperBounds(0) - tLowerBounds(0)) / (tNumEvaluations(0) + 1 - (2 * tIncludeBounds));
+                    tADVs(0) += (tUpperBounds(0) - tLowerBounds(0)) / (mNumEvaluations(0) + 1 - (2 * mIncludeBounds));
                     tCurrentEvaluations(0) += 1;
                     for (uint tADVIndex = 0; tADVIndex < tNumADVs - 1; tADVIndex++)
                     {
-                        if (tCurrentEvaluations(tADVIndex) == tNumEvaluations(tADVIndex))
+                        if (tCurrentEvaluations(tADVIndex) == mNumEvaluations(tADVIndex))
                         {
                             // Reset this ADV to the lower bound and incremement next ADV
                             tADVs(tADVIndex) = tLowerBounds(tADVIndex);
                             tCurrentEvaluations(tADVIndex) = 0;
 
-                            tADVs(tADVIndex + 1) += (tUpperBounds(tADVIndex) - tLowerBounds(tADVIndex)) / (tNumEvaluations(tADVIndex) + 1 - (2 * tIncludeBounds));
+                            tADVs(tADVIndex + 1) += (tUpperBounds(tADVIndex) - tLowerBounds(tADVIndex)) / (mNumEvaluations(tADVIndex) + 1 - (2 * mIncludeBounds));
                             tCurrentEvaluations(tADVIndex + 1) += 1;
                         }
                     }
@@ -153,23 +142,22 @@ namespace moris
             }
             else
             {
-                MORIS_ERROR(tEvaluationPoints.n_rows() == tNumADVs, "Number of rows in custom_adv_evaluations must match the number of ADVs.");
+                MORIS_ERROR(mEvaluationPoints.n_rows() == tNumADVs, "Number of rows in custom_adv_evaluations must match the number of ADVs.");
             }
 
             // Open file and write ADVs/epsilons
-            mFileID = create_hdf5_file(mParameterList.get<std::string>("hdf5_path"));
             herr_t tStatus = 0;
             if (mSave)
             {
-                moris::save_matrix_to_hdf5_file(mFileID, "adv_evaluations", tEvaluationPoints, tStatus);
-                moris::save_matrix_to_hdf5_file(mFileID, "epsilons", tFiniteDifferenceEpsilons, tStatus);
+                moris::save_matrix_to_hdf5_file(mFileID, "adv_evaluations", mEvaluationPoints, tStatus);
+                moris::save_matrix_to_hdf5_file(mFileID, "epsilons", mFiniteDifferenceEpsilons, tStatus);
             }
 
             // Print ADVs/epsilons to be evaluated
             if (mPrint)
             {
-                moris::print(tEvaluationPoints, "adv_evaluations");
-                moris::print(tFiniteDifferenceEpsilons, "epsilons");
+                moris::print(mEvaluationPoints, "adv_evaluations");
+                moris::print(mFiniteDifferenceEpsilons, "epsilons");
             }
 
             //----------------------------------------------------------------------------------------------------------
@@ -183,7 +171,7 @@ namespace moris
             for (uint tEvaluationIndex = 0; tEvaluationIndex < tTotalEvaluations; tEvaluationIndex++)
             {
                 // Set new ADVs
-                mProblem->set_advs(tEvaluationPoints.get_column(tEvaluationIndex));
+                mProblem->set_advs(mEvaluationPoints.get_column(tEvaluationIndex));
 
                 // Set evaluation name
                 tEvaluationName = " eval_" + std::to_string(tEvaluationIndex + 1) + "-" + std::to_string(tTotalEvaluations);
@@ -192,7 +180,7 @@ namespace moris
                 this->output_objectives_constraints(tEvaluationName);
 
                 // Get analytical gradients if requested
-                if (tFiniteDifferenceType == "none" || tFiniteDifferenceType == "all")
+                if (mFiniteDifferenceType == "none" || mFiniteDifferenceType == "all")
                 {
                     mProblem->set_finite_differencing("none");
                     this->evaluate_objective_gradients(tEvaluationName + " analytical");
@@ -205,21 +193,21 @@ namespace moris
 
                     // Reset evaluation name with epsilon data
                     tEvaluationName = " eval_" + std::to_string(tEvaluationIndex + 1) + "-" + std::to_string(tTotalEvaluations);
-                    if (tFiniteDifferenceType != "none")
+                    if (mFiniteDifferenceType != "none")
                     {
                         tEvaluationName += " epsilon_" + std::to_string(tEpsilonIndex + 1) + "-" + std::to_string(tTotalEpsilons);
                     }
 
                     // Compute and/or save gradients based on finite differencing requested
-                    if (tFiniteDifferenceType == "all")
+                    if (mFiniteDifferenceType == "all")
                     {
                         // Forward
-                        mProblem->set_finite_differencing("forward", tFiniteDifferenceEpsilons.get_column(tEpsilonIndex));
+                        mProblem->set_finite_differencing("forward", mFiniteDifferenceEpsilons.get_column(tEpsilonIndex));
                         Matrix<DDRMat> tForwardObjectiveGradient = this->evaluate_objective_gradients(tEvaluationName + " fd_forward");
                         Matrix<DDRMat> tForwardConstraintGradient = this->evaluate_constraint_gradients(tEvaluationName + " fd_forward");
 
                         // Backward
-                        mProblem->set_finite_differencing("backward", tFiniteDifferenceEpsilons.get_column(tEpsilonIndex));
+                        mProblem->set_finite_differencing("backward", mFiniteDifferenceEpsilons.get_column(tEpsilonIndex));
                         Matrix<DDRMat> tBackwardObjectiveGradient = this->evaluate_objective_gradients(tEvaluationName + " fd_backward");
                         Matrix<DDRMat> tBackwardConstraintGradient = this->evaluate_constraint_gradients(tEvaluationName + " fd_backward");
 
@@ -229,10 +217,10 @@ namespace moris
                         this->output_variables((tForwardConstraintGradient + tBackwardConstraintGradient) / 2,
                                                "constraint_gradients" + tEvaluationName + " fd_central");
                     }
-                    else if (tFiniteDifferenceType != "none")
+                    else if (mFiniteDifferenceType != "none")
                     {
-                        mProblem->set_finite_differencing(tFiniteDifferenceType,
-                                                                    tFiniteDifferenceEpsilons.get_column(tEpsilonIndex));
+                        mProblem->set_finite_differencing(mFiniteDifferenceType,
+                                                                    mFiniteDifferenceEpsilons.get_column(tEpsilonIndex));
                         this->evaluate_objective_gradients(tEvaluationName);
                         this->evaluate_constraint_gradients(tEvaluationName);
                     }

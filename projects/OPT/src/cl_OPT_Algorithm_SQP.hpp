@@ -28,6 +28,12 @@ namespace moris
             double mObjAdd = 0.0;
             int    mObjRow = 1;
             char*  mProb = (char*)"fem ";
+            int  mLenCW  = mMinWLen;
+            char* mCW    = static_cast<char*>  (malloc(mLenCW*8*sizeof(char)));
+            int  mLenIW  = mMinWLen;
+            int* mIW     = static_cast<int*>   (malloc(mLenIW*sizeof(int)));
+            int  mLenRW  = mMinWLen;
+            double* mRW  = static_cast<double*>(malloc(mLenRW*sizeof(double)));
 
         public:
 

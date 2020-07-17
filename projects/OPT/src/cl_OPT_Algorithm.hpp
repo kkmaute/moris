@@ -13,15 +13,13 @@ namespace moris
         protected:
             std::shared_ptr<moris::opt::Problem> mProblem;
             Matrix< DDSMat > mActive; // flag for active/inactive constraints
-            ParameterList mParameterList;
-            bool mPrint = false;
 
         public:
 
             /**
              * Constructor
              */
-            Algorithm(ParameterList aParameterList);
+            Algorithm();
 
             /**
              * Destructor

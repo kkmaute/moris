@@ -63,7 +63,7 @@ namespace moris
             tParameterList.insert( "max_inner_its", 0    );  // Maximum inner iterations per every optimization iteration
             tParameterList.insert( "norm_drop"    , 1e-4 );  // Relative change in objective convergence criteria
             tParameterList.insert( "asymp_adapt0" , 0.5  );  // Initial asymptote adaptation factor
-            tParameterList.insert( "asymp_adapt"  , 0.7  );  // Shrinking asymptote adaptation factor
+            tParameterList.insert( "asymp_adaptb"  , 0.7  );  // Shrinking asymptote adaptation factor
             tParameterList.insert( "asymp_adaptc" , 1.2  );  // Expanding asymptote adaptation factor
             tParameterList.insert( "step_size"    , 0.01 );  // GCMMA step size
             tParameterList.insert( "penalty"      , 100.0);  // GCMMA constraint penalty

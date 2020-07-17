@@ -14,6 +14,10 @@ namespace moris
 
             uint mOptIter = 0; // optimization iteration counter
             uint mResFlag; // Flag from L-BFGS describing result of optimization algorithm
+            sint mMaxIt; // Maximum number of optimization iterations
+            int mNumCorrections; // Number of limited memory corrections
+            double mNormDrop; // Convergence criteria based on norm
+            double mGradTolerance; // Convergence criteria based on projected gradients
 
         public:
 

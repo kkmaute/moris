@@ -12,26 +12,26 @@ extern "C"
 {
 // SNOPT (a Fortran implementation of SQP) function declarations
 void sninit_(
-        int* iPrint, int* iSumm, char* cw, int* lencw,
+        int* tPrint, int* tSumm, char* cw, int* lencw,
         int* iw, int* leniw, double* rw, int* lenrw);
 
 void snset_(
-        char* buffer, int* iPrint, int* iSumm, int* iExit,
+        char* buffer, int* tPrint, int* tSumm, int* tExit,
         char* cw, int* lencw, int* iw, int* leniw, double* rw, int* lenrw,
         short buflen);
 
 void snseti_(
-        char* buffer, int* ivalue, int* iPrint, int* iSumm, int* iExit,
+        char* buffer, int* ivalue, int* tPrint, int* tSumm, int* tExit,
         char* cw, int* lencw, int* iw, int* leniw, double* rw, int* lenrw,
         short buflen);
 
 void sngeti_(
-        char* buffer, int* ivalue, int* iExit,
+        char* buffer, int* ivalue, int* tExit,
         char* cw, int* lencw, int* iw, int* leniw, double* rw, int* lenrw,
         short buflen);
 
 void snsetr_(
-        char* buffer, double* rvalue, int* iPrint, int* iSumm, int* iExit,
+        char* buffer, double* rvalue, int* tPrint, int* tSumm, int* tExit,
         char* cw, int* lencw, int* iw, int* leniw, double* rw, int* lenrw,
         short buflen);
 
@@ -44,7 +44,7 @@ void snopta_(
         double* Flow, double* Fupp, char* Fnames,
         double* x, int* xstate, double* xmul,
         double* F, int* Fstate, double* Fmul,
-        int* inform, int* mincw, int* miniw, int* minrw,
+        int* tInform, int* mincw, int* miniw, int* minrw,
         int* nS, int* nInf, double* sInf,
         char* cu, int* lencu, int* iu, int* leniu,
         double* ru, int* lenru,
@@ -74,8 +74,68 @@ namespace moris
     namespace opt
     {
         Algorithm_SQP::Algorithm_SQP(ParameterList aParameterList)
-                : Algorithm(aParameterList)
         {
+            // Initialize
+            int tPrint = 0;
+            int tSumm  = 0;
+            int tExit  = 0;
+
+            // Remove algorithm name from the parameter list
+            aParameterList.erase("algorithm");
+
+            // loop over all entries in the parameter list
+            for ( auto it = aParameterList.begin(); it != aParameterList.end(); ++it )
+            {
+                sint tParamType = aParameterList.which( it->first ); // get the underlying parameter type
+
+                // call Fortran rubroutine based on parameter type
+                switch ( tParamType )
+                {
+                    case 1: // set integer parameters
+                    {
+                        char* paramname = (char*)it->first.c_str();
+                        int tParamVal   = aParameterList.get< sint >( paramname );
+                        short paramlen  = strlen( paramname );
+
+                        snseti_( paramname, &tParamVal, &tPrint, &tSumm, &tExit,
+                                 mCW, &mLenCW, mIW, &mLenIW, mRW, &mLenRW, paramlen );
+
+                        break;
+                    }
+
+                    case 2: // set double parameters
+                    {
+                        char* paramname  = (char*)it->first.c_str();
+                        double tParamVal = aParameterList.get< real >( paramname );
+                        short paramlen   = strlen( paramname );
+
+                        snsetr_( paramname, &tParamVal, &tPrint, &tSumm, &tExit,
+                                 mCW, &mLenCW, mIW, &mLenIW, mRW, &mLenRW, paramlen );
+                        break;
+                    }
+
+                    case 4: // set string parameters to char
+                    {
+                        char* paramname = (char*)it->first.c_str();
+                        char* tParamVal = (char*)( aParameterList.get< std::string >( paramname ) ).c_str();
+                        short paramlen  = strlen( tParamVal ) ;
+
+                        snset_( tParamVal, &tPrint, &tSumm, &tExit,
+                                mCW, &mLenCW, mIW, &mLenIW, mRW, &mLenRW, paramlen );
+                        break;
+                    }
+
+                    default:
+                        MORIS_LOG_ERROR ( "No matching function call for underlying type.");
+                        assert::error( "In cl_Algorithm_SQP.cpp" );
+                }
+
+                if( tExit != 0 )
+                {
+                    MORIS_LOG_ERROR ( "When calling SNOPT Fortran subroutine, unable to set parameter :  %-5i", it->first.c_str());
+                    assert::error( "In cl_Algorithm_SQP.cpp" );
+                }
+            }
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -86,92 +146,16 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        void Algorithm_SQP::set_params(char* cw, int lencw, int* iw, int leniw, double* rw, int lenrw)
-        {
-            // Initialize
-            int iPrint = 0;
-            int iSumm  = 0;
-            int iExit  = 0;
-
-            // Remove algorithm name from the parameter list
-            mParameterList.erase("algorithm");
-
-            // loop over all entries in the parameter list
-            for ( auto it = mParameterList.begin(); it != mParameterList.end(); ++it )
-            {
-                sint tParamType = mParameterList.which( it->first ); // get the underlying parameter type
-
-                // call Fortran rubroutine based on parameter type
-                switch ( tParamType )
-                {
-                    case 1: // set integer parameters
-                    {
-                        char* paramname = (char*)it->first.c_str();
-                        int tParamVal   = mParameterList.get< sint >( paramname );
-                        short paramlen  = strlen( paramname );
-
-                        snseti_( paramname, &tParamVal, &iPrint, &iSumm, &iExit,
-                                cw, &lencw, iw, &leniw, rw, &lenrw, paramlen );
-
-                        break;
-                    }
-
-                    case 2: // set double parameters
-                    {
-                        char* paramname  = (char*)it->first.c_str();
-                        double tParamVal = mParameterList.get< real >( paramname );
-                        short paramlen   = strlen( paramname );
-
-                        snsetr_( paramname, &tParamVal, &iPrint, &iSumm, &iExit,
-                                cw, &lencw, iw, &leniw, rw, &lenrw, paramlen );
-                        break;
-                    }
-
-                    case 4: // set string parameters to char
-                    {
-                        char* paramname = (char*)it->first.c_str();
-                        char* tParamVal = (char*)( mParameterList.get< std::string >( paramname ) ).c_str();
-                        short paramlen  = strlen( tParamVal ) ;
-
-                        snset_( tParamVal, &iPrint, &iSumm, &iExit,
-                                cw, &lencw, iw, &leniw, rw, &lenrw, paramlen );
-                        break;
-                    }
-
-                    default:
-                        MORIS_LOG_ERROR ( "No matching function call for underlying type.");
-                        assert::error( "In cl_Algorithm_SQP.cpp" );
-                }
-
-                if( iExit != 0 )
-                {
-                    MORIS_LOG_ERROR ( "When calling SNOPT Fortran subroutine, unable to set parameter :  %-5i", it->first.c_str());
-                    assert::error( "In cl_Algorithm_SQP.cpp" );
-                }
-            }
-        }
-
-        //--------------------------------------------------------------------------------------------------------------
-
         void Algorithm_SQP::solve(std::shared_ptr<Problem> aOptProb )
         {
             mProblem = aOptProb; // set the member variable mProblem to aOptProb
 
-            int inform = 0;
-            int iPrint = 0;
-            int iSumm  = 0;
-
-            int  lencw  = mMinWLen;
-            char* cw    = static_cast<char*>  (malloc(lencw*8*sizeof(char)));
-
-            int  leniw  = mMinWLen;
-            int* iw     = static_cast<int*>   (malloc(leniw*sizeof(int)));
-
-            int  lenrw  = mMinWLen;
-            double* rw  = static_cast<double*>(malloc(lenrw*sizeof(double)));
+            int tInform = 0;
+            int tPrint = 0;
+            int tSumm  = 0;
 
             // initialize
-            sninit_(&iPrint, &iSumm, cw, &lencw, iw, &leniw, rw, &lenrw);
+            sninit_(&tPrint, &tSumm, mCW, &mLenCW, mIW, &mLenIW, mRW, &mLenRW);
 
             const int nvar  = mProblem->get_num_advs();    // number of abstract variables
             const int m_con = mProblem->get_num_constraints();    // total number of constraints
@@ -228,30 +212,30 @@ namespace moris
             std::fill(xstate, xstate+n, 0);
 
             // set parameters
-            set_params(cw, lencw, iw, leniw, rw, lenrw);
+            //set_params(cw, mLenCW, mIW, mLenIW, mRW, mLenRW);
 
             // get parameter values that have been changed internally
             {
                 char* paramname = (char*)"Print file";
 
                 short paramlen  = strlen(paramname);
-                sngeti_(paramname, &iPrint, &inform,
-                        cw, &lencw, iw, &leniw, rw, &lenrw, paramlen);
+                sngeti_(paramname, &tPrint, &tInform,
+                        mCW, &mLenCW, mIW, &mLenIW, mRW, &mLenRW, paramlen);
             }
 
             {
                 char* paramname = (char*)"Summary file";
                 short paramlen  = strlen(paramname);
-                sngeti_(paramname, &iSumm, &inform,
-                        cw, &lencw, iw, &leniw, rw, &lenrw, paramlen);
+                sngeti_(paramname, &tSumm, &tInform,
+                        mCW, &mLenCW, mIW, &mLenIW, mRW, &mLenRW, paramlen);
             }
             // estimate workspace sizes
             snmema_(&nF, &n, &nxname, &nFname, &neA, &neG,
-                    &lencw, &leniw, &lenrw, cw, &mMinWLen, iw, &mMinWLen, rw, &mMinWLen);
+                    &mLenCW, &mLenIW, &mLenRW, mCW, &mMinWLen, mIW, &mMinWLen, mRW, &mMinWLen);
 
-            cw = static_cast<char*>  (realloc(cw, lencw*8*sizeof(char)));
-            iw = static_cast<int*>   (realloc(iw, leniw*sizeof(int)));
-            rw = static_cast<double*>(realloc(rw, lenrw*sizeof(double)));
+            mCW = static_cast<char*>  (realloc(mCW, mLenCW*8*sizeof(char)));
+            mIW = static_cast<int*>   (realloc(mIW, mLenIW*sizeof(int)));
+            mRW = static_cast<double*>(realloc(mRW, mLenRW*sizeof(double)));
 
             int mincw, miniw, minrw, nS, nInf;
             double sInf;
@@ -266,18 +250,18 @@ namespace moris
             char* cu = reinterpret_cast<char*>(this);
 
             // calculate required memory
-            double rmem = sizeof(double)*(lenrw+2*n+4*nF) + sizeof(int)*(nF+n+leniw+lenG) + sizeof(char)*(lencw*8);
+            double rmem = sizeof(double)*(mLenRW+2*n+4*nF) + sizeof(int)*(nF+n+mLenIW+lenG) + sizeof(char)*(mLenCW*8);
 
-            if( iPrint > 0 )
+            if( tPrint > 0 )
                 fprintf(stderr," ... Allocating memory for SNOPT: %8.2f Mb.\n",rmem/1024.0/1024.0);
 
             // initialize with resized work arrays
-            sninit_(&iPrint, &iSumm, cw, &lencw, iw, &leniw, rw, &lenrw);
+            sninit_(&tPrint, &tSumm, mCW, &mLenCW, mIW, &mLenIW, mRW, &mLenRW);
 
             // set parameters
-            set_params(cw, lencw, iw, leniw, rw, lenrw);
+            //set_params(cw, mLenCW, mIW, mLenIW, mRW, mLenRW);
 
-            // solve mProblem
+            // solve problem
             snopta_(&Start,
                     &nF, &n, &nxname, &nFname,
                     &mObjAdd, &mObjRow, mProb,
@@ -289,10 +273,10 @@ namespace moris
                     Flow, Fupp, Fnames,
                     x, xstate, xmul,
                     F, Fstate, Fmul,
-                    &inform, &mincw, &miniw, &minrw,
+                    &tInform, &mincw, &miniw, &minrw,
                     &nS, &nInf, &sInf,
                     cu, &lencu, iu, &leniu, ru, &lenru,
-                    cw, &lencw, iw, &leniw, rw, &lenrw,
+                    mCW, &mLenCW, mIW, &mLenIW, mRW, &mLenRW,
                     strlen(mProb));
 
             aOptProb = mProblem; // update aOptProb
@@ -307,9 +291,9 @@ namespace moris
             free(Fupp);
             free(iGfun);
             free(jGvar);
-            free(cw);
-            free(iw);
-            free(rw);
+            free(mCW);
+            free(mIW);
+            free(mRW);
         }
 
         //--------------------------------------------------------------------------------------------------------------
