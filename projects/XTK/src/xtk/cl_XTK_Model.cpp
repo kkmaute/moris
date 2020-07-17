@@ -255,6 +255,9 @@ namespace xtk
 
         if( mParameterList.get<bool>("exodus_output_XTK_ig_mesh") )
         {
+            std::clock_t tStart = std::clock();
+
+
             tEnrIntegMesh.deactivate_empty_sets();
 
             // Write mesh
@@ -264,6 +267,11 @@ namespace xtk
             // Write the fields
             writer.set_time(0.0);
             writer.close_file();
+
+            std::clock_t tEndTime = std::clock();
+
+            std::cout<<"XTK: Write integration mesh to exodus file completed in " <<(std::clock() - tStart) / (double)(CLOCKS_PER_SEC)<<" s."<<std::endl;
+
         }
 
         // Communicate interface nodes
