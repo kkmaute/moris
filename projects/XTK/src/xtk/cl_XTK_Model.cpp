@@ -419,12 +419,13 @@ namespace xtk
                     std::clock_t tEndTime = std::clock();
 
                     std::cout<<"XTK: Decomposition "<<get_enum_str(aMethods(iDecomp))<<
-                            " for geometry "<<iGeom<< " completed in " <<(std::clock() - start) / (double)(CLOCKS_PER_SEC)<<" s."<<std::endl;
+                            " for geometry "<<iGeom<< " completed in " <<(tEndTime - start) / (double)(CLOCKS_PER_SEC)<<" s."<<std::endl;
 
                     std::cout<<"XTK: Decomposition "<<get_enum_str(aMethods(iDecomp))<<
                             " for geometry "<<iGeom<< " had "<<  tActiveChildMeshIndices.numel()<<" intersected background elements."<<std::endl;
                 }
             }
+
             // If it's not the last geometry tell the geometry engine we're moving on
             if(iGeom!= tNumGeometries-1)
             {
@@ -438,11 +439,9 @@ namespace xtk
 
         if(moris::par_rank() == 0 && mVerbose)
         {
-
             std::clock_t tEndTime = std::clock();
             this->add_timing_data(tEndTime - tTotalTime,"Full Decomp","Overall");
             std::cout<<"XTK: Decomposition completed in " <<(tEndTime - tTotalTime) / (double)(CLOCKS_PER_SEC)<<" s."<<std::endl;
-
         }
     }
 
@@ -840,7 +839,6 @@ namespace xtk
 
                 for (moris::size_t j = 0; j < aActiveChildMeshIndices.n_cols(); j++)
                 {
-
                     // Initialize geometry objects
                     Cell<moris::ge::GEN_Geometry_Object> tGeoObjects;
 
@@ -3684,6 +3682,8 @@ namespace xtk
         return false;
     }
 
+    // ----------------------------------------------------------------------------------
+
     void
     Model::construct_cut_mesh_simple_neighborhood()
     {
@@ -3733,12 +3733,15 @@ namespace xtk
         delete tCellInfo;
     }
 
+    // ----------------------------------------------------------------------------------
+
     void
     Model::construct_complex_neighborhood()
     {
 
     }
 
+    // ----------------------------------------------------------------------------------
 
     void
     Model::construct_cut_mesh_to_uncut_mesh_neighborhood(moris::Cell<moris::Cell<moris_index>> & aCutToUncutFace)
@@ -3771,6 +3774,8 @@ namespace xtk
             }
         }
     }
+
+    // ----------------------------------------------------------------------------------
 
     void
     Model::construct_uncut_neighborhood(moris::Cell<moris::Cell<moris_index>> & aCutToUncutFace)
@@ -3808,6 +3813,8 @@ namespace xtk
         }
     }
 
+    // ----------------------------------------------------------------------------------
+
     void
     Model::print_neighborhood()
     {
@@ -3825,6 +3832,7 @@ namespace xtk
         }
     }
 
+    // ----------------------------------------------------------------------------------
 
     void
     Model::print_cells()
@@ -3846,6 +3854,8 @@ namespace xtk
         }
     }
 
+    // ----------------------------------------------------------------------------------
+
     void
     Model::print_vertex_geometry()
     {
@@ -3862,6 +3872,8 @@ namespace xtk
         }
     }
 
+    // ----------------------------------------------------------------------------------
+
     void
     Model::print_interface_vertices()
     {
@@ -3876,7 +3888,6 @@ namespace xtk
         {
             std::cout<<std::setw(6)<<iC<<" | ";
 
-
             for(moris::uint iN = 0; iN< mSubphaseToSubPhase(iC).size(); iN++)
             {
                 std::cout<<std::setw(6)<<mSubphaseToSubPhase(iC)(iN);
@@ -3889,7 +3900,6 @@ namespace xtk
         {
             std::cout<<std::setw(6)<<iC<<" | ";
 
-
             for(moris::uint iN = 0; iN< mSubphaseToSubPhaseMySideOrds(iC).size(); iN++)
             {
                 std::cout<<std::setw(6)<<mSubphaseToSubPhaseMySideOrds(iC)(iN);
@@ -3897,12 +3907,12 @@ namespace xtk
             std::cout<<std::endl;
         }
 
+        // ----------------------------------------------------------------------------------
 
         std::cout<<"Subphases Neighbor Side Ordinals"<<std::endl;
         for(moris::uint iC = 0; iC<mSubphaseToSubPhaseNeighborSideOrds.size(); iC++ )
         {
             std::cout<<std::setw(6)<<iC<<" | ";
-
 
             for(moris::uint iN = 0; iN< mSubphaseToSubPhaseNeighborSideOrds(iC).size(); iN++)
             {
@@ -3917,7 +3927,6 @@ namespace xtk
             for(moris::uint iC = 0; iC<mTransitionNeighborCellLocation.size(); iC++ )
             {
                 std::cout<<std::setw(6)<<iC<<" | ";
-
 
                 for(moris::uint iN = 0; iN< mTransitionNeighborCellLocation(iC).size(); iN++)
                 {
@@ -3976,7 +3985,6 @@ namespace xtk
         // interface sides
         moris::Matrix<moris::IdMat> tInterfaceElemIndandSideOrd = mCutMesh.pack_interface_sides(0,aPhaseIndex,1);
 
-
         // tri 3s
         moris::Matrix<moris::IdMat> tTri3ElemToNode(tNumChildCells + tInterfaceElemIndandSideOrd.n_rows() + tNumNoChildCells*4,3);
 
@@ -3990,7 +3998,6 @@ namespace xtk
         for(moris::uint  i = 0; i<6; i++)
         {
             moris::uint tChildInd = 2*i+1;
-
 
             // iterate through cells in this side set
             for(moris::uint  j = 0; j <tElementIndAndSideOrds(tChildInd).n_rows(); j++)
@@ -4120,7 +4127,6 @@ namespace xtk
             tChildFaceElementIds(i) = (moris_id)i+1;
         }
 
-
         // Interface elements
         moris::mtk::MtkBlockSetInfo tTri3Block;
         tTri3Block.mCellIdsInSet = &tChildFaceElementIds;
@@ -4194,6 +4200,8 @@ namespace xtk
         tOFS.close();
     }
 
+    // ----------------------------------------------------------------------------------
+
     moris::mtk::Integration_Mesh*
     Model::get_output_mesh(Output_Options const & aOutputOptions)
 
@@ -4234,7 +4242,9 @@ namespace xtk
     {
         return this->get_num_elements_total() - mCutMesh.get_num_child_meshes();
     }
+
     //------------------------------------------------------------------------------
+
     moris_index
     Model::get_cell_xtk_index(moris_id aCellId)
     {
@@ -4242,7 +4252,9 @@ namespace xtk
         MORIS_ASSERT(tIter != mCellGlbToLocalMap.end(),"Id not in map");
         return tIter->second;
     }
+
     //------------------------------------------------------------------------------
+
     moris::Matrix<moris::IndexMat>
     Model::get_element_to_subphase()
     {
@@ -4275,12 +4287,15 @@ namespace xtk
         }
     }
 
+    // ----------------------------------------------------------------------------------
+
     moris_index
     Model::get_subphase_index(moris_id aSubphaseId)
     {
-
         auto tIter = mGlobalToLocalSubphaseMap.find(aSubphaseId);
+
         MORIS_ASSERT(tIter != mGlobalToLocalSubphaseMap.end(),"Subphase id not in map");
+
         return tIter->second;
     }
 
@@ -4316,7 +4331,6 @@ namespace xtk
         // All node coordinates
         moris::Matrix<moris::DDRMat> tNodeCoordinates = mBackgroundMesh.get_selected_node_coordinates_loc_inds(tOutputtedNodeInds);
 
-
         // Number of bulk phases
         uint tNumBulkPhases = mGeometryEngine->get_num_phases();
 
@@ -4327,10 +4341,10 @@ namespace xtk
         Cell<moris::Matrix<moris::IdMat>> tCombinedElementsByPhase(tNoChildElementsByPhase.size());
         if(!aOutputOptions.mSeparateInterfaceBlock)
         {
-            MORIS_ASSERT(mBackgroundMesh.get_parent_cell_topology() == CellTopology::TET4," Combining the interface block w/ non-interface block only valid on tet background mesh");
+            MORIS_ASSERT(mBackgroundMesh.get_parent_cell_topology() == CellTopology::TET4,
+                    " Combining the interface block w/ non-interface block only valid on tet background mesh");
 
             tCombinedElementsByPhase = combine_interface_and_non_interface_blocks(tChildElementsByPhase,tNoChildElementsByPhase);
-
         }
 
         // Interface nodes
@@ -4380,7 +4394,6 @@ namespace xtk
             add_field_for_mesh_input(&tExternalRealVertexScalarFields(i),tFieldsInfo);
         }
 
-
         // sensitivity fields
         moris::Cell<moris::Matrix<DDRMat>> adxdpData;
         moris::Cell<std::string>           adxdpNames;
@@ -4405,7 +4418,8 @@ namespace xtk
         moris::uint tNumBlocksPerPhase = 2;
         if(!aOutputOptions.mSeparateInterfaceBlock)
         {
-            MORIS_ASSERT(mBackgroundMesh.get_parent_cell_topology() == CellTopology::TET4," Combining the interface block w/ non-interface block only valid on tet background mesh");
+            MORIS_ASSERT(mBackgroundMesh.get_parent_cell_topology() == CellTopology::TET4,
+                    " Combining the interface block w/ non-interface block only valid on tet background mesh");
             tNumBlocksPerPhase = 1;
         }
 
@@ -4478,11 +4492,9 @@ namespace xtk
             }
         }
 
-
         moris::Cell<moris::mtk::MtkNodeSetInfo> tInterfaceNodeSets(tInterfaceNodes.size());
         if(aOutputOptions.mHaveInterface)
         {
-
 
             for(uint i = 0; i<tInterfaceNodes.size(); i++)
             {
@@ -4602,12 +4614,10 @@ namespace xtk
             tFieldsInfo.combine_fields_info(*tParFields);
         }
 
-
         if(moris::par_rank() == 0 && mVerbose)
         {
             std::cout<<"XTK: Mesh data setup completed in " <<(std::clock() - start) / (double)(CLOCKS_PER_SEC)<<" s."<<std::endl;
         }
-
 
         start = std::clock();
 
@@ -4636,14 +4646,14 @@ namespace xtk
         }
 
         return tMeshData;
-
     }
 
     //------------------------------------------------------------------------------
 
     moris::Matrix<moris::IndexMat>
-    Model::get_node_map_restricted_to_output_phases(Output_Options const & aOutputOptions,
-            moris::Matrix<moris::IndexMat> & aOutputtedNodeInds)
+    Model::get_node_map_restricted_to_output_phases(
+            Output_Options                 const & aOutputOptions,
+            moris::Matrix<moris::IndexMat>       & aOutputtedNodeInds)
     {
         moris::Matrix<moris::IndexMat> tNodeMap = mBackgroundMesh.get_local_to_global_map(EntityRank::NODE);
 
@@ -4680,20 +4690,20 @@ namespace xtk
                 }
             }
 
-
             tRestrictedNodeMap.resize(1,tCount);
             aOutputtedNodeInds.resize(1,tCount);
 
             return tRestrictedNodeMap;
         }
-
     }
 
     //------------------------------------------------------------------------------
+
     void
-    Model::setup_interface_single_side_sets(Output_Options const & aOutputOptions,
+    Model::setup_interface_single_side_sets(
+            Output_Options              const & aOutputOptions,
             Cell<moris::Matrix<moris::IdMat>> & aCellIdsAndSideOrds,
-            Cell<std::string> &                 aInterfaceSetNames)
+            Cell<std::string>                 & aInterfaceSetNames)
     {
         std::string tSetNameBase = "iside_";
 
@@ -4718,8 +4728,9 @@ namespace xtk
     //------------------------------------------------------------------------------
 
     moris::Cell<moris::mtk::MtkNodeSetInfo>
-    Model::propogate_background_node_sets(moris::Cell<moris::Matrix<IndexMat>> & aNodeSetData,
-            Output_Options const & aOutputOptions)
+    Model::propogate_background_node_sets(
+            moris::Cell<moris::Matrix<IndexMat>>       & aNodeSetData,
+            Output_Options                       const & aOutputOptions)
     {
         // access background mesh data
         moris::mtk::Mesh & tMeshData = mBackgroundMesh.get_mesh_data();
@@ -4748,17 +4759,15 @@ namespace xtk
                 }
             }
 
-
             aNodeSetData(i).resize(tCount,1);
 
             mBackgroundMesh.convert_loc_entity_ind_to_glb_entity_ids(EntityRank::NODE,aNodeSetData(i));
 
             tNodeSetInfo(i).mNodeIds = &aNodeSetData(i);
             tNodeSetInfo(i).mNodeSetName = tSetNames(i);
-
         }
-        return tNodeSetInfo;
 
+        return tNodeSetInfo;
     }
 
     //------------------------------------------------------------------------------
@@ -4780,15 +4789,20 @@ namespace xtk
         moris::Cell<moris::mtk::MtkSideSetInfo> tSideSets(2*tSetNames.size());
         aSideSetElemIdsAndOrds = moris::Cell<moris::Matrix<IndexMat>>(2*tSetNames.size());
 
-
         for(moris::uint i = 0; i <tSetNames.size(); i++)
         {
             moris::uint tNoChildInd = 2*i;
             moris::uint tChildInd = 2*i+1;
 
-            this->propogate_background_side_set(tSetNames(i),tNoChildInd,tChildInd,aSideSetElemIdsAndOrds,tSideSets,aOutputOptions,false);
+            this->propogate_background_side_set(
+                    tSetNames(i),
+                    tNoChildInd,
+                    tChildInd,
+                    aSideSetElemIdsAndOrds,
+                    tSideSets,
+                    aOutputOptions,
+                    false);
         }
-
 
         return tSideSets;
     }
@@ -4796,15 +4810,15 @@ namespace xtk
     // ----------------------------------------------------------------------------------
 
     void
-    Model::propogate_background_side_set( std::string             const &             aSideSetName,
+    Model::propogate_background_side_set( 
+            std::string                         const & aSideSetName,
             moris::moris_index                          aNoChildIndex,
             moris::moris_index                          aChildIndex,
             moris::Cell<moris::Matrix<IndexMat>>      & aElementIdsAndSideOrd,
             moris::Cell<moris::mtk::MtkSideSetInfo>   & aSideSetData,
-            Output_Options          const             & aOutputOptions,
+            Output_Options                      const & aOutputOptions,
             bool                                        aOutputIndices)
     {
-
         // access background mesh data
         moris::mtk::Mesh & tMeshData = mBackgroundMesh.get_mesh_data();
 
@@ -4820,8 +4834,7 @@ namespace xtk
         moris::moris_index tChildMeshIndex = 0;
         moris::moris_id    tElementId      = 0;
         moris::moris_index tMyProcRank     = par_rank();
-        bool        tHasChildren = false;
-
+        bool tHasChildren                  = false;
 
         // get cells and sides in side set
         moris::Cell< mtk::Cell const * > tCellsInSideSet;
@@ -4913,10 +4926,8 @@ namespace xtk
                             tCount(0)++;
                         }
                     }
-
                 }
             }
-
         }
 
         // resize data
@@ -4931,8 +4942,6 @@ namespace xtk
         aSideSetData(aChildIndex).mElemIdsAndSideOrds   = &aElementIdsAndSideOrd(aChildIndex);
         aSideSetData(aChildIndex).mSideSetName          = aSideSetName + "_i";
         aSideSetData(aChildIndex).mSideTopology         = CellTopology::TRI3;
-
-
     }
 
     // ----------------------------------------------------------------------------------
@@ -4999,7 +5008,8 @@ namespace xtk
     //------------------------------------------------------------------------------
 
     Cell<moris::Matrix<moris::IdMat>>
-    Model::combine_interface_and_non_interface_blocks(Cell<moris::Matrix<moris::IdMat>> & aChildElementsByPhase,
+    Model::combine_interface_and_non_interface_blocks(
+            Cell<moris::Matrix<moris::IdMat>> & aChildElementsByPhase,
             Cell<moris::Matrix<moris::IdMat>> & aNoChildElementsByPhase)
     {
         moris::uint tNumPhase = aChildElementsByPhase.size();
@@ -5042,9 +5052,10 @@ namespace xtk
     //------------------------------------------------------------------------------
 
     void
-    Model::setup_cell_clusters_for_output(moris::mtk::Cell_Cluster_Input & aCellClusterInput,
-            Output_Options const & aOutputOptions,
-            moris::Cell<Matrix<IdMat>> & aCellIds)
+    Model::setup_cell_clusters_for_output(
+            moris::mtk::Cell_Cluster_Input       & aCellClusterInput,
+            Output_Options                 const & aOutputOptions,
+            moris::Cell<Matrix<IdMat>>           & aCellIds)
     {
         // iterate through child meshes and construct cells
         uint tNumChildMeshes = mCutMesh.get_num_child_meshes();
@@ -5080,13 +5091,18 @@ namespace xtk
             moris::mtk::Cell* tInterpCell = &mBackgroundMesh.get_mesh_data().get_mtk_cell(tParentCellIndex);
 
             // add to cluster
-            aCellClusterInput.add_cluster_data(tInterpCell,&aCellIds(tPrimaryCellIndex),&aCellIds(tVoidCellIndex),&tChildMesh.get_node_ids(),&tChildMesh.get_parametric_coordinates());
-
+            aCellClusterInput.add_cluster_data(
+                    tInterpCell,
+                    &aCellIds(tPrimaryCellIndex),
+                    &aCellIds(tVoidCellIndex),
+                    &tChildMesh.get_node_ids(),
+                    &tChildMesh.get_parametric_coordinates());
         }
     }
 
     void
-    Model::setup_interface_side_cluster(std::string                      aInterfaceSideLabelBase,
+    Model::setup_interface_side_cluster(
+            std::string                      aInterfaceSideLabelBase,
             moris::mtk::Side_Cluster_Input & aSideClusterInput,
             Output_Options           const & aOutputOptions,
             moris::Cell<Matrix<IdMat>>     & aCellIdsandSideOrds,
@@ -5116,7 +5132,6 @@ namespace xtk
 
                     // add to data which will stay in scope
                     aCellIdsandSideOrds.push_back(tInterfaceElementIdsAndSideOrd);
-
                 }
             }
         }
@@ -5155,9 +5170,9 @@ namespace xtk
     }
     //------------------------------------------------------------------------------
 
-
     bool
-    Model::output_node(moris::moris_index aNodeIndex,
+    Model::output_node(
+            moris::moris_index     aNodeIndex,
             Output_Options const & aOutputOptions)
     {
         bool tIsInterface = mBackgroundMesh.is_interface_node(aNodeIndex,0);
@@ -5180,7 +5195,8 @@ namespace xtk
     //------------------------------------------------------------------------------
 
     moris::size_t
-    Model::determine_element_phase_index(moris::size_t aRowIndex,
+    Model::determine_element_phase_index(
+            moris::size_t                            aRowIndex,
             moris::Matrix< moris::IndexMat > const & aElementToNodeIndex)
     {
         moris::size_t tNumGeom = mGeometryEngine->get_num_geometries();
@@ -5199,8 +5215,6 @@ namespace xtk
         {
             bool tFoundNonInterfaceNode = false;
 
-            moris_index tGeometricIndex = 0;
-
             for( moris::size_t j = 0; j<tNumNodesPerElem; j++)
             {
                 if(!mBackgroundMesh.is_interface_node(aElementToNodeIndex(aRowIndex,j),i))
@@ -5211,18 +5225,15 @@ namespace xtk
                                     i);
                     tFoundNonInterfaceNode = true;
                     tPhaseVotes(tPhaseIndex)++;
-
                 }
             }
 
-
             // take the phase with the maximum number of votes
-            moris_index tMaxVotes = tPhaseVotes.max(tMaxRow,tMaxCol);
+            tPhaseVotes.max(tMaxRow,tMaxCol);
             tNodalPhaseVals(0,i) = tMaxCol;
 
             // reset
             tPhaseVotes.fill(0);
-
 
             MORIS_ERROR(tFoundNonInterfaceNode,"Did not find a non-interface node for this element");
         }
@@ -5260,7 +5271,6 @@ namespace xtk
     {
         uint tNumGeometries = mGeometryEngine->get_num_geometries();
         uint tNumNodes      = aNodeIndsToOutput.numel();
-
 
         // Allocate output data
         moris::Cell< moris::Matrix < moris::DDRMat > > tGeometryData(tNumGeometries, moris::Matrix<moris::DDRMat>(tNumNodes,1));
@@ -5317,7 +5327,9 @@ namespace xtk
 
         return tGeometryFieldRank;
     }
+
     //------------------------------------------------------------------------------
+
     Matrix<DDRMat>
     Model::get_timing_data() const
     {
@@ -5331,12 +5343,15 @@ namespace xtk
     }
 
     //------------------------------------------------------------------------------
+
     Cell<std::string>
     Model::get_timing_labels() const
     {
         return mTimingLabels;
     }
+
     //------------------------------------------------------------------------------
+
     void
     Model::print_timing_data() const
     {
@@ -5349,7 +5364,9 @@ namespace xtk
             }
         }
     }
+
     //------------------------------------------------------------------------------
+
     void
     Model::save_timing_to_hdf5( const std::string & aFilePath ) const
     {
@@ -5358,7 +5375,6 @@ namespace xtk
             // timing data
             Matrix<DDRMat>    tTimingData   = this->get_timing_data();
             Cell<std::string> tTimingLabels = this->get_timing_labels();
-
 
             // Create a new file using default properties
             hid_t tFileID = H5Fcreate(
@@ -5372,11 +5388,11 @@ namespace xtk
 
             // save some generic data about this run
             // number of procs
-             save_scalar_to_hdf5_file(
-                     tFileID,
-                     "par_size",
-                     par_size(),
-                     tStatus );
+            save_scalar_to_hdf5_file(
+                    tFileID,
+                    "par_size",
+                    par_size(),
+                    tStatus );
 
             // iterate through timing labels and save to the file
             for(moris::uint iL = 0; iL < tTimingLabels.size(); iL++)
@@ -5398,11 +5414,8 @@ namespace xtk
                     tTimingData,
                     tStatus );
 
-
             // Close file
             close_hdf5_file(tFileID);
-
-
         }
     }
 
@@ -5416,9 +5429,8 @@ namespace xtk
         // collect global data
 
         // save the number of intersected background elements
-         moris::uint tNumOwnedChildMeshes = this->get_cut_mesh().get_owned_child_meshes().size();
-         moris::uint tGlobalChildMeshes = sum_all(tNumOwnedChildMeshes);
-
+        moris::uint tNumOwnedChildMeshes = this->get_cut_mesh().get_owned_child_meshes().size();
+        moris::uint tGlobalChildMeshes = sum_all(tNumOwnedChildMeshes);
 
         if(par_rank() == 0)
         {
@@ -5433,54 +5445,52 @@ namespace xtk
             herr_t tStatus;
 
             // save the number of background cells
-             save_scalar_to_hdf5_file(
-                     tFileID,
-                     "num background cells",
-                     mBackgroundMesh.get_num_entities_background(EntityRank::ELEMENT),
-                     tStatus );
+            save_scalar_to_hdf5_file(
+                    tFileID,
+                    "num background cells",
+                    mBackgroundMesh.get_num_entities_background(EntityRank::ELEMENT),
+                    tStatus );
 
-             save_scalar_to_hdf5_file(
-                     tFileID,
-                     "num intersect",
-                     tGlobalChildMeshes,
-                     tStatus );
+            save_scalar_to_hdf5_file(
+                    tFileID,
+                    "num intersect",
+                    tGlobalChildMeshes,
+                    tStatus );
 
-             // save the number of sub-phases
-              save_scalar_to_hdf5_file(
-                      tFileID,
-                      "num subphase",
-                      this->get_cut_mesh().get_num_subphases(),
-                      tStatus );
+            // save the number of sub-phases
+            save_scalar_to_hdf5_file(
+                    tFileID,
+                    "num subphase",
+                    this->get_cut_mesh().get_num_subphases(),
+                    tStatus );
 
-              // save the number of bulk-phases
-              save_scalar_to_hdf5_file(
-                      tFileID,
-                      "num bulkphase",
-                      this->get_geom_engine()->get_num_phases(),
-                      tStatus );
+            // save the number of bulk-phases
+            save_scalar_to_hdf5_file(
+                    tFileID,
+                    "num bulkphase",
+                    this->get_geom_engine()->get_num_phases(),
+                    tStatus );
 
-              // save the number of geometries
-              save_scalar_to_hdf5_file(
-                      tFileID,
-                      "num geometries",
-                      this->get_geom_engine()->get_num_geometries(),
-                      tStatus );
+            // save the number of geometries
+            save_scalar_to_hdf5_file(
+                    tFileID,
+                    "num geometries",
+                    this->get_geom_engine()->get_num_geometries(),
+                    tStatus );
 
-              if(mEnriched)
-              {
-                  // add enrichment specific information
-                  // - number of enriched basis functions
-                  // - ratio between
-              }
+            if(mEnriched)
+            {
+                // add enrichment specific information
+                // - number of enriched basis functions
+                // - ratio between
+            }
 
-              if(mGhost)
-              {
-                  // add ghost specific information
-                  // - number of ghost facets
-                  // - number of transition facets
-              }
-
-
+            if(mGhost)
+            {
+                // add ghost specific information
+                // - number of ghost facets
+                // - number of transition facets
+            }
 
             // Close file
             close_hdf5_file(tFileID);
