@@ -10,6 +10,13 @@ namespace moris
     {
         class Algorithm_SQP : public Algorithm
         {
+        public:
+            friend void sqp_user_function(
+                    int* Status, int* n, double* x,
+                    int* needf, int* nF, double* f,
+                    int* needG, int* lenG, double* G,
+                    char* cu, int* lencu, int* iu, int* leniu, double* ru, int* lenru );
+
         private:
 
             uint mOptIter; // optimization iteration counter
@@ -22,16 +29,6 @@ namespace moris
             double mObjAdd;
             int    mObjRow;
             char*  mProb;
-
-            /**
-             * @brief External function call for computing objective, constraints, and
-             *        their sensitivities, to interface with SNOPT library
-             */
-            friend void OptalgSQP_usrfun(
-                    int* Status, int* n, double* x,
-                    int* needf, int* nF, double* f,
-                    int* needG, int* lenG, double* G,
-                    char* cu, int* lencu, int* iu, int* leniu, double* ru, int* lenru);
 
         public:
 
@@ -84,6 +81,16 @@ namespace moris
              */
             void func_grad( int n, double* x, int needG );
         };
+
+        /**
+         * External function call for computing objective, constraints, and their sensitivities, to interface with
+         * SNOPT library.
+         */
+        void sqp_user_function(
+                int* Status, int* n, double* x,
+                int* needf, int* nF, double* f,
+                int* needG, int* lenG, double* G,
+                char* cu, int* lencu, int* iu, int* leniu, double* ru, int* lenru);
     }
 }
 

@@ -10,13 +10,13 @@ namespace moris
     {
         class Algorithm
         {
-        public:
+        protected:
             std::shared_ptr<moris::opt::Problem> mProblem; // Object of type optimization problem
             Matrix< DDSMat > mActive; // flag for active/inactive constraints
             ParameterList mParameterList; // The Algorithm specific parameter list
+            bool mPrint = false;
 
         public:
-            bool mPrint = false;
 
             /**
              * Constructor

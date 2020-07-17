@@ -67,12 +67,6 @@ void snlog_(
         char* cw, int* lencw, int* iw, int* leniw, double* rw, int* lenrw);
 }
 
-void OptAlgSQP_usrfun(
-        int* Status, int* n, double* x,
-        int* needf, int* nF, double* f,
-        int* needG, int* lenG, double* G,
-        char* cu, int* lencu, int* iu, int* leniu, double* ru, int* lenru);
-
 // ---------------------------------------------------------------------------------------------------------------------
 
 namespace moris
@@ -294,7 +288,7 @@ namespace moris
             snopta_(&Start,
                     &nF, &n, &nxname, &nFname,
                     &mObjAdd, &mObjRow, mProb,
-                    reinterpret_cast<void (*)()>(OptAlgSQP_usrfun),
+                    reinterpret_cast<void (*)()>(sqp_user_function),
                     reinterpret_cast<void (*)()>(snlog_),
                     &iAfun, &jAvar, &lenA, &neA, &A,
                     iGfun, jGvar, &lenG, &neG,
@@ -348,50 +342,53 @@ namespace moris
                 ++mOptIter;
             }
         }
-    }
-}
 
-//----------------------------------------------------------------------------------------------------------------------
+        //--------------------------------------------------------------------------------------------------------------
 
-void OptAlgSQP_usrfun(
-        int* Status, int* n, double* x,
-        int* needf, int* nF, double* f,
-        int* needG, int* lenG, double* G,
-        char* cu, int* lencu, int* iu, int* leniu, double* ru, int* lenru )
-{
-    moris::opt::Algorithm_SQP* tOptAlgSQP = reinterpret_cast< moris::opt::Algorithm_SQP* >(cu);
-    tOptAlgSQP->func_grad(*n, x, *needG);
-    *Status = 0;
-
-    if(*needf)
-    {
-        f[0] = tOptAlgSQP->mProblem->get_objectives()(0); // obtain the objective
-
-        // obtain the vector of constraints
-        moris::Matrix< moris::DDRMat > tConVal = tOptAlgSQP->mProblem->get_constraints();
-
-        // Convert constraints to a pointer from moris::mat
-        for ( moris::uint i=0; i < tConVal.n_rows(); ++i )
+        void sqp_user_function(
+                int* Status, int* n, double* x,
+                int* needf, int* nF, double* f,
+                int* needG, int* lenG, double* G,
+                char* cu, int* lencu, int* iu, int* leniu, double* ru, int* lenru )
         {
-            // tConVal is of type MORIS matrix
-            f[1+i] = -tConVal(i,0);  // Need a negative sign such that the definition of constraints is consistent in the input file
-        }
-    }
+            moris::opt::Algorithm_SQP* tOptAlgSQP = reinterpret_cast< moris::opt::Algorithm_SQP* >(cu);
+            tOptAlgSQP->func_grad(*n, x, *needG);
+            *Status = 0;
 
-    if(*needG)
-    {
-        // get the gradient of objective and constraints
-        moris::Matrix< moris::DDRMat > tGradObj = tOptAlgSQP->mProblem->get_objective_gradients();
-        moris::Matrix< moris::DDRMat > tGradCon = tOptAlgSQP->mProblem->get_constraint_gradients();
-
-        for( int i = 0, cur_nz = 0; i < *n; ++i )
-        {
-            G[cur_nz++] = tGradObj(i);
-
-            for( int j = 1; j < *nF; ++j, ++cur_nz )
+            if(*needf)
             {
-                G[cur_nz] = -tGradCon(j-1, i); // Need a negative sign such that the definition of constraints is consistent in the input file
+                f[0] = tOptAlgSQP->mProblem->get_objectives()(0); // obtain the objective
+
+                // obtain the vector of constraints
+                moris::Matrix< moris::DDRMat > tConVal = tOptAlgSQP->mProblem->get_constraints();
+
+                // Convert constraints to a pointer from moris::mat
+                for ( moris::uint i=0; i < tConVal.n_rows(); ++i )
+                {
+                    // tConVal is of type MORIS matrix
+                    f[1+i] = -tConVal(i,0);  // Need a negative sign such that the definition of constraints is consistent in the input file
+                }
+            }
+
+            if(*needG)
+            {
+                // get the gradient of objective and constraints
+                moris::Matrix< moris::DDRMat > tGradObj = tOptAlgSQP->mProblem->get_objective_gradients();
+                moris::Matrix< moris::DDRMat > tGradCon = tOptAlgSQP->mProblem->get_constraint_gradients();
+
+                for( int i = 0, cur_nz = 0; i < *n; ++i )
+                {
+                    G[cur_nz++] = tGradObj(i);
+
+                    for( int j = 1; j < *nF; ++j, ++cur_nz )
+                    {
+                        G[cur_nz] = -tGradCon(j-1, i); // Need a negative sign such that the definition of constraints is consistent in the input file
+                    }
+                }
             }
         }
+
+        //--------------------------------------------------------------------------------------------------------------
+
     }
 }
