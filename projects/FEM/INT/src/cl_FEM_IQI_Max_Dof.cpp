@@ -16,21 +16,31 @@ namespace moris
 
         IQI_Max_Dof::IQI_Max_Dof()
         {
-            //FIXME: there's currently no way to set parameters in the input file
-            moris::Cell< Matrix< DDRMat > > tParameters = { {{0.0}}, {{40.0}} };
-            this->set_parameters(tParameters);
+            // set IQI type
+            mIQIType = vis::Output_Type::MAX_DOF;
+
+            // set FEM IQI type
+            mFEMIQIType = fem::IQI_Type::MAX_DOF;
+
+            // set the property pointer cell size
+            mMasterProp.resize( static_cast< uint >( IQI_Property_Type::MAX_ENUM ), nullptr );
+
+            // populate the property map
+            mPropertyMap[ "ReferenceValue" ]    = IQI_Property_Type::REFERENCE_VALUE;
+            mPropertyMap[ "Exponent" ]          = IQI_Property_Type::EXPONENT;
         }
 
         //------------------------------------------------------------------------------
 
         void IQI_Max_Dof::compute_QI( Matrix< DDRMat > & aQI )
         {
-            real tReferenceValue = mParameters( 0 )( 0, 0 );
-            real tExponent = mParameters( 1 )( 0, 0 );
-
             // get field interpolator for a given dof type
             Field_Interpolator * tFI =
                     mMasterFIManager->get_field_interpolators_for_type( mMasterDofTypes( 0 )( 0 ) );
+
+            // get property values
+            real tRefValue = mMasterProp( static_cast< uint >( IQI_Property_Type::REFERENCE_VALUE ) )->val()( 0 );
+            real tExponent = mMasterProp( static_cast< uint >( IQI_Property_Type::EXPONENT ) )->val()( 0 );
 
             // check if dof index was set (for the case of vector field)
             if( mMasterDofTypes( 0 ).size() > 1 )
@@ -43,16 +53,13 @@ namespace moris
             }
 
             // evaluate the QI
-            aQI = {{ std::pow( tFI->val()( mIQITypeIndex ) - tReferenceValue, tExponent ) }};
+            aQI = {{ std::pow( tFI->val()( mIQITypeIndex ) - tRefValue, tExponent ) }};
         }
 
         //------------------------------------------------------------------------------
 
         void IQI_Max_Dof::compute_QI( moris::real aWStar )
         {
-            real tReferenceValue = mParameters( 0 )( 0, 0 );
-            real tExponent = mParameters( 1 )( 0, 0 );
-
             // get index for QI
             sint tQIIndex = mSet->get_QI_assembly_index( mName );
 
@@ -60,6 +67,10 @@ namespace moris
             Field_Interpolator * tFI =
                     mMasterFIManager->get_field_interpolators_for_type( mMasterDofTypes( 0 )( 0 ) );
 
+            // get property values
+            real tRefValue = mMasterProp( static_cast< uint >( IQI_Property_Type::REFERENCE_VALUE ) )->val()( 0 );
+            real tExponent = mMasterProp( static_cast< uint >( IQI_Property_Type::EXPONENT ) )->val()( 0 );
+
             // check if dof index was set (for the case of vector field)
             if( mMasterDofTypes( 0 ).size() > 1 )
             {
@@ -71,7 +82,7 @@ namespace moris
             }
 
             // evaluate the QI
-            mSet->get_QI()( tQIIndex ).matrix_data() += { aWStar *  std::pow( tFI->val()( mIQITypeIndex ) - tReferenceValue, tExponent ) };
+            mSet->get_QI()( tQIIndex ).matrix_data() += { aWStar *  std::pow( tFI->val()( mIQITypeIndex ) - tRefValue, tExponent ) };
         }
 
         //------------------------------------------------------------------------------

@@ -27,6 +27,18 @@ namespace moris
         class IQI_Max_Dof : public IQI
         {
 
+                //------------------------------------------------------------------------------
+
+                enum class IQI_Property_Type
+                {
+                        REFERENCE_VALUE,
+                        EXPONENT,
+                        MAX_ENUM
+                };
+
+                // Local string to property enum map
+                std::map< std::string, IQI_Property_Type > mPropertyMap;
+
             public:
                 //------------------------------------------------------------------------------
                 /*
