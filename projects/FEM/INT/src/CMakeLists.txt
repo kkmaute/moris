@@ -32,6 +32,8 @@ set(HEADERS
     cl_FEM_IWG_Advection_Bulk.hpp
     cl_FEM_IWG_Diffusion_Dirichlet_Nitsche.hpp
     cl_FEM_IWG_Diffusion_Neumann.hpp
+    cl_FEM_IWG_Diffusion_Robin.hpp
+    cl_FEM_IWG_Diffusion_Radiation.hpp
     cl_FEM_IWG_Diffusion_Interface.hpp
     cl_FEM_IWG_Diffusion_Ghost.hpp
     cl_FEM_IWG_Diffusion_Virtual_Work_Ghost.hpp
@@ -199,6 +201,8 @@ set(LIB_SOURCES
     cl_FEM_IWG_Advection_Bulk.cpp
     cl_FEM_IWG_Diffusion_Dirichlet_Nitsche.cpp
     cl_FEM_IWG_Diffusion_Neumann.cpp
+    cl_FEM_IWG_Diffusion_Robin.cpp
+    cl_FEM_IWG_Diffusion_Radiation.cpp
     cl_FEM_IWG_Diffusion_Interface.cpp
     cl_FEM_IWG_Diffusion_Ghost.cpp
     cl_FEM_IWG_Diffusion_Virtual_Work_Ghost.cpp

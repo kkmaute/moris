@@ -97,6 +97,12 @@ namespace moris
                 case IWG_Type::SPATIALDIFF_NEUMANN :
                     return std::make_shared< IWG_Diffusion_Neumann >();
 
+                case IWG_Type::SPATIALDIFF_ROBIN :
+                    return std::make_shared< IWG_Diffusion_Neumann >();
+
+                case IWG_Type::SPATIALDIFF_RADIATION :
+                    return std::make_shared< IWG_Diffusion_Neumann >();
+
                 case IWG_Type::SPATIALDIFF_INTERFACE :
                     return std::make_shared< IWG_Diffusion_Interface >();
 
