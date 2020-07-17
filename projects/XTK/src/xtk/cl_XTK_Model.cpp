@@ -257,7 +257,6 @@ namespace xtk
         {
             std::clock_t tStart = std::clock();
 
-
             tEnrIntegMesh.deactivate_empty_sets();
 
             // Write mesh
@@ -268,10 +267,7 @@ namespace xtk
             writer.set_time(0.0);
             writer.close_file();
 
-            std::clock_t tEndTime = std::clock();
-
             std::cout<<"XTK: Write integration mesh to exodus file completed in " <<(std::clock() - tStart) / (double)(CLOCKS_PER_SEC)<<" s."<<std::endl;
-
         }
 
         // Communicate interface nodes
@@ -3173,6 +3169,7 @@ namespace xtk
     }
 
     // ----------------------------------------------------------------------------------
+
     moris::Cell<moris::Cell< moris::moris_index >>
     Model::unzip_interface_internal_collect_child_mesh_to_interface_node(
             moris::Matrix<moris::IdMat> const & aInterfaceNodeIndices,
@@ -3858,6 +3855,7 @@ namespace xtk
             {
                 std::cout<<std::setw(8)<<tVertices(j)->get_id();
             }
+
             std::cout<<std::endl;
         }
     }
@@ -3887,6 +3885,9 @@ namespace xtk
     {
         mBackgroundMesh.print_interface_node_flags();
     }
+
+    //------------------------------------------------------------------------------
+
     void
     Model::print_subphase_neighborhood()
     {
@@ -3914,8 +3915,6 @@ namespace xtk
             }
             std::cout<<std::endl;
         }
-
-        // ----------------------------------------------------------------------------------
 
         std::cout<<"Subphases Neighbor Side Ordinals"<<std::endl;
         for(moris::uint iC = 0; iC<mSubphaseToSubPhaseNeighborSideOrds.size(); iC++ )
@@ -3948,11 +3947,13 @@ namespace xtk
     //------------------------------------------------------------------------------
 
     void
-    Model::extract_surface_mesh_to_obj_internal(std::string                      aOutputFile,
+    Model::extract_surface_mesh_to_obj_internal(
+            std::string                      aOutputFile,
             size_t                           aPhaseIndex,
             moris::Cell<std::string> const & aBoundingSideSets)
     {
-        MORIS_ERROR(aBoundingSideSets.size() == 6," There needs to be 6 side sets which skin the mesh to extract the surface");
+        MORIS_ERROR(aBoundingSideSets.size() == 6,
+                " There needs to be 6 side sets which skin the mesh to extract the surface");
 
         // allocate side set data
         moris::Cell<moris::Matrix<IndexMat>> tElementIndAndSideOrds(2*6);
@@ -4244,6 +4245,8 @@ namespace xtk
 
         return mBackgroundMesh.get_num_entities(EntityRank::ELEMENT);
     }
+
+    //------------------------------------------------------------------------------
 
     moris::uint
     Model::get_num_elements_unzipped()
@@ -4672,7 +4675,6 @@ namespace xtk
         // if we are returning all phases there is no reason to restrict the map
         if(aOutputOptions.output_all_phases())
         {
-
             for(moris::uint i = 0; i <tNumNodes; i++)
             {
                 aOutputtedNodeInds(i) = mBackgroundMesh.get_loc_entity_ind_from_entity_glb_id(tNodeMap(i),EntityRank::NODE);
@@ -4680,7 +4682,6 @@ namespace xtk
 
             return tNodeMap;
         }
-
         else
         {
             moris::Matrix<moris::IndexMat> tRestrictedNodeMap(tNodeMap.n_rows(),tNodeMap.n_cols());
@@ -4879,7 +4880,8 @@ namespace xtk
 
                     Child_Mesh const & tChildMesh = mCutMesh.get_child_mesh(tChildMeshIndex);
 
-                    tChildMesh.get_child_elements_connected_to_parent_facet(tSideIndex,
+                    tChildMesh.get_child_elements_connected_to_parent_facet(
+                            tSideIndex,
                             tChildElemsIdsOnFace,
                             tChildElemsCMIndOnFace,
                             tChildElemOnFaceOrdinal);
@@ -4912,10 +4914,8 @@ namespace xtk
                         }
                     }
                 }
-
                 else
                 {
-
                     tFaceOrdinal = tSideSetOrdinals(iSide);
                     tElementId   = tCellsInSideSet(iSide)->get_id();
 
@@ -5009,8 +5009,8 @@ namespace xtk
                 aSideSetNames.data().erase(iSet--);
             }
         }
-        return aSideSetNames;
 
+        return aSideSetNames;
     }
 
     //------------------------------------------------------------------------------
@@ -5036,7 +5036,6 @@ namespace xtk
         }
 
         return tCombinedElementsByPhase;
-
     }
 
     //------------------------------------------------------------------------------
@@ -5108,6 +5107,8 @@ namespace xtk
         }
     }
 
+    //------------------------------------------------------------------------------
+
     void
     Model::setup_interface_side_cluster(
             std::string                      aInterfaceSideLabelBase,
@@ -5176,6 +5177,7 @@ namespace xtk
             }
         }
     }
+
     //------------------------------------------------------------------------------
 
     bool
