@@ -2318,7 +2318,7 @@ namespace xtk
 
                 for( moris::size_t j = 0; j<tNumElem; j++)
                 {
-                    moris::size_t tElemPhaseIndex = determine_element_phase_index(j,tElemToNode);
+                    moris::size_t tElemPhaseIndex = this->determine_element_phase_index(j,tElemToNode);
                     mBackgroundMesh.set_element_phase_index(tElemInds(0,j),tElemPhaseIndex);
                     tChildMesh.set_element_phase_index(j,tElemPhaseIndex);
                 }
@@ -2329,10 +2329,10 @@ namespace xtk
 
                 if(iscol(tElementNodes))
                 {
-                    tElementNodes = trans(tElementNodes);
+                    tElementNodes = moris::trans(tElementNodes);
                 }
 
-                moris::size_t tElemPhaseIndex = determine_element_phase_index(0,tElementNodes);
+                moris::size_t tElemPhaseIndex = this->determine_element_phase_index(0,tElementNodes);
 
                 mBackgroundMesh.set_element_phase_index(i,tElemPhaseIndex);
             }
@@ -5181,28 +5181,44 @@ namespace xtk
         moris::size_t tNumNodesPerElem = aElementToNodeIndex.n_cols();
         moris::Matrix< moris::IndexMat > tNodalPhaseVals(1,tNumGeom,MORIS_INDEX_MAX);
 
+        // allocate phase on or off value (either 0 or 1)
+        Matrix<IndexMat> tPhaseVotes(1,2);
+        tPhaseVotes.fill(0);
+
+        // maximum row index and column index
+        uint tMaxRow = 0;
+        uint tMaxCol = 0;
 
         for (moris::uint i = 0; i < tNumGeom; i++)
         {
             bool tFoundNonInterfaceNode = false;
+
+            moris_index tGeometricIndex = 0;
+
             for( moris::size_t j = 0; j<tNumNodesPerElem; j++)
             {
                 if(!mBackgroundMesh.is_interface_node(aElementToNodeIndex(aRowIndex,j),i))
                 {
-                    tNodalPhaseVals(0,i) = mGeometryEngine->
+                    moris_index tPhaseIndex = mGeometryEngine->
                             get_node_phase_index_wrt_a_geometry((moris::uint)aElementToNodeIndex(aRowIndex, j),
                                     mBackgroundMesh.get_selected_node_coordinates_loc_inds({{ aElementToNodeIndex(aRowIndex,j) }}),
                                     i);
                     tFoundNonInterfaceNode = true;
-                    break;
+                    tPhaseVotes(tPhaseIndex)++;
+
                 }
             }
 
-            if(!tFoundNonInterfaceNode)
-            {
-                std::cout<<"Did not find a non-interface node for this element"<<std::endl;
-                tNodalPhaseVals(0,i) = 1001;
-            }
+
+            // take the phase with the maximum number of votes
+            moris_index tMaxVotes = tPhaseVotes.max(tMaxRow,tMaxCol);
+            tNodalPhaseVals(0,i) = tMaxCol;
+
+            // reset
+            tPhaseVotes.fill(0);
+
+
+            MORIS_ERROR(tFoundNonInterfaceNode,"Did not find a non-interface node for this element");
         }
 
         moris::moris_index tElemPhaseVal = mGeometryEngine->get_elem_phase_index(tNodalPhaseVals);
