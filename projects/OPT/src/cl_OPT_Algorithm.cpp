@@ -4,6 +4,9 @@ namespace moris
 {
     namespace opt
     {
+
+        // -------------------------------------------------------------------------------------------------------------
+
         Algorithm::Algorithm(ParameterList aParameterList) :
                 mParameterList(aParameterList)
         {

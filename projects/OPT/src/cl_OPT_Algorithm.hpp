@@ -24,12 +24,6 @@ namespace moris
             Algorithm(ParameterList aParameterList);
 
             /**
-             * @brief virtual copy constructor through cloning
-             */
-            virtual Algorithm*
-            clone() const = 0;
-
-            /**
              * Destructor
              */
             virtual ~Algorithm();
