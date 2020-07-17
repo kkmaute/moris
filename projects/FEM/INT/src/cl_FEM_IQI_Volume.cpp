@@ -14,6 +14,7 @@ namespace moris
     {
 
         //------------------------------------------------------------------------------
+
         void IQI_Volume::compute_QI( Matrix< DDRMat > & aQI )
         {
             // get density property
@@ -70,6 +71,7 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+
         void IQI_Volume::set_property(
                 std::shared_ptr< Property > aProperty,
                 std::string                 aPropertyString,
@@ -88,9 +90,41 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+
         void IQI_Volume::compute_dQIdu( real aWStar )
         {
-            // Empty member function
+            // get the column index to assemble in residual
+            sint tQIIndex = mSet->get_QI_assembly_index( mName );
+
+            // get density property
+            std::shared_ptr< Property > tPropDensity =
+                    mMasterProp( static_cast< uint >( IQI_Property_Type::DENSITY ) );
+
+            // get the requested dof types
+            moris::Cell < enum MSI::Dof_Type > tRequestedDofTypes =
+                    this->get_requested_dof_types();
+
+            // compute dQIdDof for indirect dof dependencies
+            for( uint iDof = 0; iDof < tRequestedDofTypes.size(); iDof++ )
+            {
+                // get treated dof type
+                MSI::Dof_Type tDofType = tRequestedDofTypes( iDof );
+
+                // get the set index for dof type
+                sint tDofIndex = mSet->get_dof_index_for_type( tDofType, mtk::Master_Slave::MASTER );
+
+                // get start and end indices for assembly
+                uint tStartRow = mSet->get_res_dof_assembly_map()( tDofIndex )( 0, 0 );
+                uint tEndRow   = mSet->get_res_dof_assembly_map()( tDofIndex )( 0, 1 );
+
+                // if constitutive model has dependency on the dof type
+                if ( tPropDensity != nullptr && tPropDensity->check_dof_dependency( { tDofType } ) )
+                {
+                    // compute dQIdDof
+                    mSet->get_residual()( tQIIndex )( { tStartRow, tEndRow }, { 0, 0 } ) +=
+                            aWStar * tPropDensity->dPropdDOF( { tDofType } );
+                }
+            }
         }
 
         //------------------------------------------------------------------------------

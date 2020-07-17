@@ -184,7 +184,6 @@ The second interface concept is object-based and provides pointers to Blocks, Ce
 //------------------------------------------------------------------------------
 /** @defgroup FE_Module Finite Element Module
 FEM Module description.
-
 */
 
 /** @addtogroup FE_Dirichlet_BCs
@@ -208,6 +207,9 @@ FEM Module description.
 /** @addtogroup FE_Field_Interpolator
     @ingroup FE_Module */ 
     
+/** @addtogroup FE_Higher_Order_Derivatives
+    @ingroup FE_Module */ 
+    
 /** @addtogroup FE_IWG
     @ingroup FE_Module */
  
@@ -222,6 +224,39 @@ FEM Module description.
     
  /** @addtogroup FE_IWG_Diffusion_Advection_Reaction
     @ingroup FE_Module */
+    
+/** @addtogroup FE_DIFFUSION
+    @ingroup FE_Module */
+    
+/** @addtogroup FE_NS_Korteweg_Equations
+    @ingroup FE_Module */
+  
+  
+    
+//------------------------------------------------------------------------------
+/** @defgroup EXA_Module Examples and Benchmarks
+EXA is a library of example and benchmark problems used for the validatation of various implementation aspects, 
+such as physics models, stabilization methods, meshing methods, etc.
+Further, the example problems are used as an extention to the unit tests, which generally do not require the interaction of multiple modules. 
+Values are for field and geometry values are compared to reference runs to ensure that results do not change. 
+As such, they should be run regularly and after major revisions to any module to catch possible errors. 
+
+How the examples should be created and used is explained in EXA_DEV_GUIDE.
+The examples are sorted by the implementation aspect they are supposed to validate (e.g. "Thermal" for testing the thermal diffusion model).
+*/
+
+/** @addtogroup EXA_DEV_GUIDE
+    @ingroup EXA_Module */
+
+/** @addtogroup EXA_THERMAL
+    @ingroup EXA_Module */
+
+/** @addtogroup EXA_FLUID
+    @ingroup EXA_Module */
+
+/** @addtogroup EXA_OPTIMIZATION
+    @ingroup EXA_Module */
+    
     
 //------------------------------------------------------------------------------
 /** @defgroup XTKModule XFEM Tool Kit (XTK) Module

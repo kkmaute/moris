@@ -141,21 +141,20 @@ namespace moris
                     case mtk::Geometry_Type::LINE :
                     case mtk::Geometry_Type::QUAD :
                     case mtk::Geometry_Type::HEX :
-                        MORIS_ASSERT( ( ( aParamPoint( Ik ) <= 1.0 + 1E-12 ) && ( aParamPoint( Ik ) >= -1.0 - 1E-12 ) ),
+                        MORIS_ASSERT( ( ( aParamPoint( Ik ) <= 1.0 + mEpsilon ) && ( aParamPoint( Ik ) >= -1.0 - mEpsilon ) ),
                                 "Field_Interpolator::set_space_time - Wrong input value ( aParamPoint )." );
                         break;
 
                     case mtk::Geometry_Type::TRI :
                     case mtk::Geometry_Type::TET :
-                        MORIS_ASSERT( ( ( aParamPoint( Ik ) <= 1.0 + 1E-12 ) && ( aParamPoint( Ik ) >= 0.0 - 1E-12 ) ),
+                        MORIS_ASSERT( ( ( aParamPoint( Ik ) <= 1.0 + mEpsilon ) && ( aParamPoint( Ik ) >= 0.0 - mEpsilon ) ),
                                 "Field_Interpolator::set_space_time - Wrong input value ( aParamPoint )." );
                         break;
                     default :
                         MORIS_ERROR( false, "Field_Interpolator::set_space_time - unknown geometry type." );
-                        break;
                 }
             }
-            MORIS_ASSERT( ( ( aParamPoint( mNSpaceParamDim ) <= 1.0 + 1E-12 ) && ( aParamPoint( mNSpaceParamDim ) >= -1.0 - 1E-12 ) ),
+            MORIS_ASSERT( ( ( aParamPoint( mNSpaceParamDim ) <= 1.0 + mEpsilon ) && ( aParamPoint( mNSpaceParamDim ) >= -1.0 - mEpsilon ) ),
                     "Field_Interpolator::set_space_time - Wrong input value ( aParamPoint )." );
 
             // set input values
@@ -301,7 +300,6 @@ namespace moris
                 default :
                     MORIS_ERROR( false, " Field_Interpolator::dnNdxn - Derivative order not implemented. " );
                     return mdNdx;
-                    break;
             }
         }
 
@@ -474,7 +472,6 @@ namespace moris
                 default :
                     MORIS_ERROR( false, "Field_Interpolator::dnNdtn - Derivative order not implemented." );
                     return mdNdt;
-                    break;
             }
         }
 

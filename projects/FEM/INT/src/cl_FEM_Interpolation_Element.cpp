@@ -175,8 +175,8 @@ namespace moris
             for( uint iDv = 0; iDv < tMasterNumDvTypes; iDv++ )
             {
                 // get the dv type group
-                moris::Cell< PDV_Type > tDvTypeGroup
-                = mSet->get_dv_type_list()( iDv );
+                moris::Cell< PDV_Type > tDvTypeGroup =
+                        mSet->get_dv_type_list()( iDv );
 
                 // get the pdv values for the ith dv type group
                 Cell< Matrix< DDRMat > > tCoeff_Original;
@@ -203,8 +203,8 @@ namespace moris
             for( uint iDv = 0; iDv < tSlaveNumDvTypes; iDv++ )
             {
                 // get the dv type group
-                moris::Cell< PDV_Type > tDvTypeGroup
-                = mSet->get_dv_type_list( mtk::Master_Slave::SLAVE )( iDv );
+                moris::Cell< PDV_Type > tDvTypeGroup =
+                        mSet->get_dv_type_list( mtk::Master_Slave::SLAVE )( iDv );
 
                 // get the pdv values for the ith dv type group
                 Cell< Matrix< DDRMat > > tCoeff_Original;
@@ -286,27 +286,6 @@ namespace moris
 
             // ask cluster to compute jacobian
             mFemCluster( 0 )->compute_jacobian();
-
-            //            // check that jacobian is finite
-            //            // FIXME
-            //            bool tIsFinite = true;
-            //            uint tNumRows = mSet->get_jacobian().n_rows();
-            //            uint tNumCols = mSet->get_jacobian().n_cols();
-            //            for( uint iRow = 0; iRow < tNumRows; iRow++ )
-            //            {
-            //                for( uint iCol = 0; iCol < tNumCols; iCol++ )
-            //                {
-            //                    Matrix< DDRMat> tValue = {{mSet->get_jacobian()( iRow, iCol )}};
-            //                    if( !isfinite( tValue ) )
-            //                    {
-            //                        tIsFinite = false;
-            //                    }
-            //                }
-            //            }
-            //            if( !tIsFinite )
-            //            {
-            //                std::cout<<"Interpolation_Element::compute_jacobian - non finite values in jacobian."<<std::endl;
-            //            }
         }
 
         //------------------------------------------------------------------------------
@@ -449,7 +428,7 @@ namespace moris
                 this->compute_previous_pdof_values();
             }
 
-            // initialize geo pdv assembly map FIXME put this back in  after it is fixed in GE
+            // initialize geo pdv assembly map FIXME put this back in after it is fixed in GE
             mSet->create_geo_pdv_assembly_map( mFemCluster( 0 ) );
 
             // initialize dRdp
@@ -468,18 +447,16 @@ namespace moris
             // ask cluster to compute jacobian
             mFemCluster( 0 )->compute_dQIdp_explicit();
 
+            // get the design variable interface
+            MSI::Design_Variable_Interface * tDVInterface =
+                    mEquationSet->get_equation_model()->get_design_variable_interface();
+
+            // Assembly for the IP pdv
             //----------------------------------------------------------------------------------------
 
+            // get the requested IP pdv types
             Cell< enum PDV_Type > tRequestedIPDvTypes;
-            Cell< enum PDV_Type > tRequestedIGDvTypes;
-
-            mEquationSet->get_equation_model()->
-                    get_design_variable_interface()->
-                    get_ip_requested_dv_types( tRequestedIPDvTypes );
-
-            mEquationSet->get_equation_model()->
-                    get_design_variable_interface()->
-                    get_ig_requested_dv_types( tRequestedIGDvTypes );
+            tDVInterface->get_ip_requested_dv_types( tRequestedIPDvTypes );
 
             for( uint Ik = 0; Ik < mSet->mdQIdp( 0 ).size(); Ik++ )
             {
@@ -496,13 +473,10 @@ namespace moris
 
                     // get dv ids for this type and node indices
                     moris::Cell< moris::Matrix< IdMat > > tTypeListOfLocalToGlobalIds;
-
-                    mEquationSet->get_equation_model()->
-                            get_design_variable_interface()->
-                            get_ip_dv_ids_for_type_and_ind(
-                                    tVerticesInds,
-                                    tRequestedIPDvTypes,
-                                    tTypeListOfLocalToGlobalIds );
+                    tDVInterface->get_ip_dv_ids_for_type_and_ind(
+                            tVerticesInds,
+                            tRequestedIPDvTypes,
+                            tTypeListOfLocalToGlobalIds );
 
                     // FIXME reorder the dv ids. this could be done in GEN directly
                     moris::uint tCounter = 0;
@@ -524,60 +498,27 @@ namespace moris
                         tCounter += tTypeListOfLocalToGlobalIds( Ii ).numel();
                     }
 
-                    mEquationSet->get_equation_model()->
-                            get_explicit_dQidu()->
-                            sum_into_global_values( tLocalToGlobalIds,
-                                    mSet->mdQIdp( 0 )( Ik ),
-                                    Ik );
+                    mEquationSet->get_equation_model()->get_explicit_dQidp()->sum_into_global_values(
+                            tLocalToGlobalIds,
+                            mSet->mdQIdp( 0 )( Ik ),
+                            Ik );
                 }
             }
 
+            // Assembly for the IG pdv
+            //----------------------------------------------------------------------------------------
+
+            // get the assembly vector
+            Matrix< DDSMat > tLocalToGlobalIds2 = mEquationSet->get_geo_pdv_assembly_vector();
+
+            // loop over the ig pdv
             for( uint Ik = 0; Ik < mSet->mdQIdp( 1 ).size(); Ik++ )
             {
-                if( !mFemCluster( 0 )->get_mesh_cluster()->is_trivial() )
-                {
-                    // get vertices from cell
-                    Matrix< IndexMat > tVerticesInds = mFemCluster( 0 )->get_mesh_cluster()->
-                            get_vertex_indices_in_cluster();
-
-                    // get dv ids for this type and node indices
-                    moris::Cell< moris::Matrix< IdMat > > tTypeListOfLocalToGlobalIds;
-
-                    mEquationSet->get_equation_model()->
-                            get_design_variable_interface()->
-                            get_ig_dv_ids_for_type_and_ind(
-                                    tVerticesInds,
-                                    tRequestedIGDvTypes,
-                                    tTypeListOfLocalToGlobalIds );
-
-                    // FIXME reorder the dv ids. this could be done in GEN directly
-                    moris::uint tCounter = 0;
-
-                    for( uint Ii = 0; Ii < tTypeListOfLocalToGlobalIds.size(); Ii++ )
-                    {
-                        tCounter += tTypeListOfLocalToGlobalIds( Ii ).numel();
-                    }
-
-                    moris::Matrix< IdMat > tLocalToGlobalIds( tCounter, 1, moris::gNoIndex );
-
-                    tCounter = 0;
-
-                    for( uint Ii = 0; Ii < tTypeListOfLocalToGlobalIds.size(); Ii++ )
-                    {
-                        tLocalToGlobalIds( { tCounter, tTypeListOfLocalToGlobalIds( Ii ).numel() -1 },{ 0, 0 } ) =
-                                tTypeListOfLocalToGlobalIds( Ii ).matrix_data();
-
-                        tCounter += tTypeListOfLocalToGlobalIds( Ii ).numel();
-                    }
-
-                    // assemble explicit dQidp into multivector
-                    mEquationSet->get_equation_model()->
-                            get_explicit_dQidu()->
-                            sum_into_global_values(
-                                    tLocalToGlobalIds,
-                                    mSet->mdQIdp( 1 )( Ik ),
-                                    Ik );
-                }
+                // assemble explicit dQIdpGeo into multivector
+                mEquationSet->get_equation_model()->get_explicit_dQidp()->sum_into_global_values(
+                        tLocalToGlobalIds2,
+                        mSet->mdQIdp( 1 )( Ik ),
+                        Ik );
             }
         }
 
@@ -617,15 +558,10 @@ namespace moris
 
             // get requested dv types from GE
             Cell< enum PDV_Type > tRequestedIPDvTypes;
-            Cell< enum PDV_Type > tRequestedIGDvTypes;
 
             mEquationSet->get_equation_model()->
                     get_design_variable_interface()->
                     get_ip_requested_dv_types( tRequestedIPDvTypes );
-
-            mEquationSet->get_equation_model()->
-                    get_design_variable_interface()->
-                    get_ig_requested_dv_types( tRequestedIGDvTypes );
 
             // loop over the number of adjont vectors for this equation object
             for( uint Ik = 0; Ik < mAdjointPdofValues.size(); Ik++ )
@@ -673,59 +609,37 @@ namespace moris
                     }
 
                     // assemble imlicid dQidp into multivector
-                    mEquationSet->get_equation_model()->get_implicit_dQidu()->sum_into_global_values(
+                    mEquationSet->get_equation_model()->get_implicit_dQidp()->sum_into_global_values(
                             tLocalToGlobalIds,
                             tLocalIPdQiDp,
                             Ik );
                 }
             }
 
-            for( uint Ik = 0; Ik < mAdjointPdofValues.size(); Ik++ )
+            // Assembly for the IG pdv
+            //----------------------------------------------------------------------------------------
+
+            // get the assembly vector
+            Matrix< DDSMat > tLocalToGlobalIds2 = mEquationSet->get_geo_pdv_assembly_vector();
+
+            if( tLocalToGlobalIds2.numel() > 0 )
             {
-                // post multiplication of adjoint values time dRdp
-                moris::Matrix< DDRMat > tLocalIGdQiDp = -1.0 * trans( mAdjointPdofValues( Ik ) ) * tdRdp( 1 );
-
-                moris::Cell< moris::Matrix< IdMat > > tTypeListOfLocalToGlobalIds;
-
-                // get vertices from cell
-                Matrix< IndexMat > tVerticesInds = mFemCluster( 0 )->get_mesh_cluster()->
-                        get_primary_vertices_inds_in_cluster();
-
-                mEquationSet->get_equation_model()->
-                        get_design_variable_interface()->
-                        get_ig_dv_ids_for_type_and_ind( tVerticesInds,
-                                tRequestedIGDvTypes,
-                                tTypeListOfLocalToGlobalIds );   //FIXME add type and nodei inds
-
-                // FIXME reorder the dv ids. this could be done in GEN directly
-                moris::uint tCounter = 0;
-
-                for( uint Ii = 0; Ii < tTypeListOfLocalToGlobalIds.size(); Ii++ )
+                for( uint Ik = 0; Ik < mAdjointPdofValues.size(); Ik++ )
                 {
-                    tCounter += tTypeListOfLocalToGlobalIds( Ii ).numel();
+                    // post multiplication of adjoint values time dRdp
+                    moris::Matrix< DDRMat > tLocalIGdQiDp = -1.0 * trans( mAdjointPdofValues( Ik ) ) * tdRdp( 1 );
+
+                    // assemble imlicid dQidp into multivector
+                    mEquationSet->get_equation_model()->get_implicit_dQidp()->sum_into_global_values(
+                            tLocalToGlobalIds2,
+                            tLocalIGdQiDp,
+                            Ik );
                 }
-
-                moris::Matrix< IdMat > tLocalToGlobalIds( tCounter, 1, moris::gNoIndex );
-
-                tCounter = 0;
-
-                for( uint Ii = 0; Ii < tTypeListOfLocalToGlobalIds.size(); Ii++ )
-                {
-                    tLocalToGlobalIds( { tCounter, tTypeListOfLocalToGlobalIds( Ii ).numel() -1 },{ 0, 0 } ) =
-                            tTypeListOfLocalToGlobalIds( Ii ).matrix_data();
-
-                    tCounter += tTypeListOfLocalToGlobalIds( Ii ).numel();
-                }
-
-                // assemble imlicid dQidp into multivector
-                mEquationSet->get_equation_model()->get_implicit_dQidu()->sum_into_global_values(
-                        tLocalToGlobalIds,
-                        tLocalIGdQiDp,
-                        Ik );
             }
         }
 
         //------------------------------------------------------------------------------
+
         void Interpolation_Element::compute_dQIdu()
         {
             // compute pdof values
@@ -754,6 +668,7 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+
         void Interpolation_Element::compute_QI()
         {
             // compute pdof values
@@ -784,8 +699,8 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
-        void
-        Interpolation_Element::compute_quantity_of_interest(
+
+        void Interpolation_Element::compute_quantity_of_interest(
                 const uint            aMeshIndex,
                 enum vis::Output_Type aOutputType,
                 enum vis::Field_Type  aFieldType )
@@ -866,6 +781,7 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+
         real Interpolation_Element::compute_volume()
         {
             // set the field interpolators coefficients

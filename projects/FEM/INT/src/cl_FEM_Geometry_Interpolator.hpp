@@ -34,6 +34,9 @@ namespace moris
          */
         class Geometry_Interpolator
         {
+                // tolerance for check
+                real mEpsilon = 1e-12;
+
                 // pointer to space interpolation function object
                 Interpolation_Function_Base * mSpaceInterpolation = nullptr;
 

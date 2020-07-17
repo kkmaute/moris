@@ -55,12 +55,17 @@ namespace moris
              * Destructor
              */
             ~Pdv_Host_Manager();
+
+            /**
+             * Resets the stored information about PDV hosts
+             */
+            void reset();
             
             /**
              * Get dv types for set
              *
              * @param aIPMeshSetIndex integration mesh index
-             * @param aPdvTypes        list of groups of dv types to fill
+             * @param aPdvTypes       list of groups of dv types to fill
              */
             void get_ip_dv_types_for_set(const moris_index aIGMeshSetIndex, Cell<Cell<PDV_Type>>& aPdvTypes);
             
@@ -68,7 +73,7 @@ namespace moris
              * Get dv types for set
              *
              * @param aIGMeshSetIndex integration mesh index
-             * @param aPdvTypes        list of groups of dv types to fill
+             * @param aPdvTypes       list of groups of dv types to fill
              */
             void get_ig_dv_types_for_set(const moris_index aIGMeshSetIndex, Cell<Cell<PDV_Type>>& aPdvTypes);
             
@@ -76,7 +81,7 @@ namespace moris
              * Get unique dv types for set
              *
              * @param aIPMeshSetIndex integration mesh index
-             * @param aPdvTypes        list dv types to fill
+             * @param aPdvTypes       list dv types to fill
              */
             void get_ip_unique_dv_types_for_set(const moris_index aIGMeshSetIndex, Cell<PDV_Type>& aPdvTypes);
             
@@ -84,7 +89,7 @@ namespace moris
              * Get unique dv types for set
              *
              * @param aIGMeshSetIndex integration mesh index
-             * @param aPdvTypes        list dv types to fill
+             * @param aPdvTypes       list dv types to fill
              */
             void get_ig_unique_dv_types_for_set(const moris_index aIGMeshSetIndex, Cell<PDV_Type>& aPdvTypes);
             
@@ -92,49 +97,49 @@ namespace moris
              * Get pdv values for requested vertex indices and dv types
              *
              * @param aNodeIndices list of node indices
-             * @param aPdvTypes     list of dv types
+             * @param aPdvTypes    list of dv types
              * @param aDvValues    list of returned dv values (DvType)(vertexIndex)
              */
-            void get_ip_pdv_value(const Matrix<IndexMat>&   aNodeIndices,
-                                  const Cell<PDV_Type>&       aPdvTypes,
-                                  Cell<Matrix<DDRMat>>&     aDvValues);
+            void get_ip_pdv_value(const Matrix<IndexMat>& aNodeIndices,
+                                  const Cell<PDV_Type>&   aPdvTypes,
+                                  Cell<Matrix<DDRMat>>&   aDvValues);
             
             /**
              * Get pdv values for requested vertex indices and dv types
              *
              * @param aNodeIndices list of node indices
-             * @param aPdvTypes     list of dv types
+             * @param aPdvTypes    list of dv types
              * @param aDvValues    list of returned dv values (DvType)(vertexIndex)
              * @param aIsActive    list of if design variable is active (vertexIndex)(DvType)
              */
-            void get_ip_pdv_value(const Matrix<IndexMat>&   aNodeIndices,
-                                  const Cell<PDV_Type>&       aPdvTypes,
-                                  Cell<Matrix<DDRMat>>&     aDvValues,
-                                  Cell<Matrix<DDSMat>>&     aIsActiveDv);
+            void get_ip_pdv_value(const Matrix<IndexMat>& aNodeIndices,
+                                  const Cell<PDV_Type>&   aPdvTypes,
+                                  Cell<Matrix<DDRMat>>&   aDvValues,
+                                  Cell<Matrix<DDSMat>>&   aIsActiveDv);
             
             /**
              * Get pdv values for requested vertex indices and dv types
              *
              * @param aNodeIndices list of node indices
-             * @param aPdvTypes     list of dv types
+             * @param aPdvTypes    list of dv types
              * @param aDvValues    list of dv values (DvType)(vertexIndex)
              */
-            void get_ig_pdv_value(const Matrix<IndexMat>&   aNodeIndices,
-                                  const Cell<PDV_Type>&       aPdvTypes,
-                                  Cell<Matrix<DDRMat>>&     aDvValues);
+            void get_ig_pdv_value(const Matrix<IndexMat>& aNodeIndices,
+                                  const Cell<PDV_Type>&   aPdvTypes,
+                                  Cell<Matrix<DDRMat>>&   aDvValues);
             
             /**
              * Get pdv values for requested vertex indices and dv types
              *
              * @param aNodeIndices list of node indices
-             * @param aPdvTypes     list of dv types
+             * @param aPdvTypes    list of dv types
              * @param aDvValues    list of dv values (DvType)(vertexIndex)
              * @param aIsActive    list of active design variables (vertexIndex)(DvType)
              */
-            void get_ig_pdv_value(const Matrix<IndexMat>&   aNodeIndices,
-                                  const Cell<PDV_Type>&       aPdvTypes,
-                                  Cell<Matrix<DDRMat>>&     aDvValues,
-                                  Cell<Matrix<DDSMat>>&     aIsActiveDv);
+            void get_ig_pdv_value(const Matrix<IndexMat>& aNodeIndices,
+                                  const Cell<PDV_Type>&   aPdvTypes,
+                                  Cell<Matrix<DDRMat>>&   aDvValues,
+                                  Cell<Matrix<DDSMat>>&   aIsActiveDv);
             
             /**
              * Get the local to global pdv type map
@@ -146,24 +151,24 @@ namespace moris
             /**
              * Return local to global DV type map
              *
-             * @param aNodeIndex   List of vertex indices
-             * @param aPdvType        List of Dv types
-             * @param aDvIds         List of Dv Ids
+             * @param aNodeIndex List of vertex indices
+             * @param aPdvType   List of Dv types
+             * @param aDvIds     List of Dv Ids
              */
-            void get_ip_dv_ids_for_type_and_ind(const Matrix<IndexMat>&    aNodeIndices,
-                                                const Cell<PDV_Type>&         aPdvTypes,
-                                                Cell<Matrix<IdMat>>&        aDvIds);
+            void get_ip_dv_ids_for_type_and_ind(const Matrix<IndexMat>& aNodeIndices,
+                                                const Cell<PDV_Type>&   aPdvTypes,
+                                                Cell<Matrix<IdMat>>&    aDvIds);
             
             /**
              * Get local to global DV type map
              *
-             * @param aNodeIndex   List of vertex indices
-             * @param aPdvType        List of Dv types
-             * @param aDvIds         List of Dv Ids
+             * @param aNodeIndex List of vertex indices
+             * @param aPdvType   List of Dv types
+             * @param aDvIds     List of Dv Ids
              */
-            void get_ig_dv_ids_for_type_and_ind(const Matrix<IndexMat>&    aNodeIndices,
-                                                const Cell<PDV_Type>&         aPdvTypes,
-                                                Cell<Matrix<IdMat>>&        aDvIds);
+            void get_ig_dv_ids_for_type_and_ind(const Matrix<IndexMat>& aNodeIndices,
+                                                const Cell<PDV_Type>&   aPdvTypes,
+                                                Cell<Matrix<IdMat>>&    aDvIds);
 
             /**
              * Get requested pdv types on interpolation mesh nodes for sensitivity analysis
@@ -221,14 +226,14 @@ namespace moris
              *
              * @param aPdvTypes the pdv types which will be requested by MDL
              */
-            void set_ip_requested_dv_types(Cell<PDV_Type>& aPdvTypes);
+            void set_ip_requested_pdv_types(Cell<PDV_Type> aPdvTypes);
 
             /**
              * Set the requested integration node PDV types for sensitivities
              *
              * @param aPdvTypes the pdv types which will be requested by MDL
              */
-            void set_ig_requested_dv_types(Cell<PDV_Type>& aPdvTypes);
+            void set_ig_requested_pdv_types(Cell<PDV_Type> aPdvTypes);
 
             /**
              * Create PDV on interpolation mesh node with real value

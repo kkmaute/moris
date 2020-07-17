@@ -6,18 +6,11 @@
 #include "cl_GEN_Child_Node.hpp"
 #include "cl_GEN_Intersection_Node.hpp"
 
-// LINALG
-#include "cl_Matrix.hpp"
-#include "fn_trans.hpp"
-#include "op_equal_equal.hpp"
-#include "op_times.hpp"
-#include "linalg_typedefs.hpp"
-
 // MTK
 #include "cl_MTK_Integration_Mesh.hpp"
 #include "cl_MTK_Interpolation_Mesh.hpp"
 
-// MRS/IOS
+// MRS
 #include "fn_Parsing_Tools.hpp"
 
 namespace moris
@@ -39,6 +32,7 @@ namespace moris
                 mLowerBounds((uint)aParameterLists(0)(0).get<sint>("advs_size"), 1, aParameterLists(0)(0).get<real>("lower_bounds_fill")),
                 mUpperBounds((uint)aParameterLists(0)(0).get<sint>("advs_size"), 1, aParameterLists(0)(0).get<real>("upper_bounds_fill")),
                 mRequestedIQIs(string_to_cell<std::string>(aParameterLists(0)(0).get<std::string>("IQI_types"))),
+                mPdvHostManager(std::max(mADVs.length(), string_to_mat<DDRMat>(aParameterLists(0)(0).get<std::string>("initial_advs")).length())),
 
                 // Phase table
                 mPhaseTable(string_to_mat<IndexMat>(aParameterLists(0)(0).get<std::string>("phase_table")).numel()
@@ -79,6 +73,7 @@ namespace moris
                 for (uint tGeometryIndex = 0; tGeometryIndex < aParameterLists(1).size(); tGeometryIndex++)
                 {
                     mGeometry(tGeometryIndex) = create_geometry(aParameterLists(1)(tGeometryIndex), mADVs, aLibrary);
+                    mShapeSensitivities = (mShapeSensitivities or mGeometry(tGeometryIndex)->depends_on_advs());
                 }
             }
 
@@ -94,7 +89,7 @@ namespace moris
             {
                 tRequestedPdvTypes(tPdvTypeIndex) = tPdvTypeMap[tRequestedPdvNames(tPdvTypeIndex)];
             }
-            mPdvHostManager.set_ip_requested_dv_types(tRequestedPdvTypes);
+            mPdvHostManager.set_ip_requested_pdv_types(tRequestedPdvTypes);
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -103,13 +98,16 @@ namespace moris
                 Cell<std::shared_ptr<Geometry>> aGeometry,
                 Phase_Table                     aPhaseTable,
                 uint                            aSpatialDim,
+                Matrix<DDRMat>                  aADVs,
                 real                            aIsocontourThreshold,
                 real                            aErrorFactor)
                 : mIsocontourThreshold(aIsocontourThreshold),
                   mErrorFactor(aErrorFactor),
                   mSpatialDim(aSpatialDim),
+                  mADVs(aADVs),
                   mActiveGeometryIndex(0),
                   mGeometry(aGeometry),
+                  mPdvHostManager(mADVs.length()),
                   mPhaseTable(aPhaseTable)
         {
         }
@@ -125,8 +123,10 @@ namespace moris
         void Geometry_Engine::set_advs(Matrix<DDRMat> aNewADVs)
         {
             mADVs = aNewADVs;
-            mPdvHostManager = Pdv_Host_Manager(mADVs.length());
-            mInterfaceNodeIndices = Matrix<IndexMat>();
+            mPdvHostManager.reset();
+            mIntersectionNodes.resize(0);
+            mInterfaceParentNodes.resize(0);
+            mInterfaceNodeIndices.resize(0, 0);
             mActiveGeometryIndex = 0;
         }
 
@@ -260,7 +260,7 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        void Geometry_Engine::set_interface_nodes( Matrix< IndexMat > const & aInterfaceNodeIndices)
+        void Geometry_Engine::set_interface_nodes(const Matrix<IndexMat>& aInterfaceNodeIndices)
         {
             mInterfaceNodeIndices = aInterfaceNodeIndices;
         }
@@ -548,6 +548,10 @@ namespace moris
 
         void Geometry_Engine::create_ig_pdv_hosts(moris_index aMeshIndex)
         {
+            // Check interface nodes
+            MORIS_ERROR(mIntersectionNodes.size() == mInterfaceNodeIndices.length(),
+                    "Number of interface nodes must match number of intersection nodes in the geometry engine");
+
             // Get information from integration mesh
             mtk::Integration_Mesh* tIntegrationMesh = mMeshManager->get_integration_mesh(aMeshIndex);
             uint tNumSets = tIntegrationMesh->get_num_sets();
@@ -572,7 +576,7 @@ namespace moris
                 }
                 default:
                 {
-                    MORIS_ERROR( false, "Geometry_Engine::initialize_integ_pdv_host_list() - Geometry Engine only works for 2D and 3D models." );
+                    MORIS_ERROR( false, "Geometry Engine only works for 2D and 3D models." );
                 }
             }
 
@@ -594,6 +598,7 @@ namespace moris
                     tIntersectionNodes(mInterfaceNodeIndices(tInterfaceNode)) = mIntersectionNodes(tInterfaceNode);
                 }
                 mPdvHostManager.create_ig_pdv_hosts(tPdvTypes, tIntersectionNodes);
+                mPdvHostManager.set_ig_requested_pdv_types(tCoordinatePdvs);
             }
         }
 
@@ -636,7 +641,10 @@ namespace moris
 
             // Create PDV hosts
             this->create_ip_pdv_hosts(tPdvTypes);
-            this->create_ig_pdv_hosts();
+            if (mShapeSensitivities)
+            {
+                this->create_ig_pdv_hosts();
+            }
 
             // Loop over properties to assign PDVs
             for (uint tPropertyIndex = 0; tPropertyIndex < mPropertyParameterLists.size(); tPropertyIndex++)
@@ -672,7 +680,7 @@ namespace moris
 
         bool Geometry_Engine::on_interface(real aFieldValue)
         {
-            return (std::abs(aFieldValue - mIsocontourThreshold) <= mErrorFactor);
+            return (std::abs(aFieldValue - mIsocontourThreshold) < mErrorFactor);
         }
 
         //--------------------------------------------------------------------------------------------------------------

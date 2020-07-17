@@ -23,12 +23,14 @@
 
 namespace moris
 {
-    // -------------------------------------------------------------------------------------------------- //
+    // -----------------------------------------------------------------------------
+
     // log with specified output type
     //template <class T>
     //void Logger::log_specific(enum OutputSpecifier aOutputSpecifier, T aOutputValue)
 
-    // -------------------------------------------------------------------------------------------------- //
+    // -----------------------------------------------------------------------------
+
     // initialize Logger based arguments inputed by user
     void Logger::initialize( int  & argc, char * argv[] )
     {
@@ -77,12 +79,10 @@ namespace moris
         }
     }
 
+    // -----------------------------------------------------------------------------
+    // FUNCTIONS ENABLING TRACING AND CLOCK LOGGING --------------------------------
+    // -----------------------------------------------------------------------------
 
-    // -------------------------------------------------------------------------------------------------- //
-    // FUNCTIONS ENABLING TRACING AND CLOCK LOGGING ----------------------------------------------------- //
-    // -------------------------------------------------------------------------------------------------- //
-
-    // -------------------------------------------------------------------------------------------------- //
     // sign in
     void Logger::sign_in(
             enum EntityBase aEntityBase,
@@ -102,31 +102,31 @@ namespace moris
         // log to console - only processor 0 prints message
         if ( logger_par_rank() == 0 )
         {
-            if (mSeverityLevel < 2)
+            if (mSeverityLevel < 1)
             {
                 // switch based on OutputFormat provided
                 if ((mDirectOutputFormat == 3) || (mDirectOutputFormat == 2))
                 {
                     std::cout << print_empty_line(mGlobalClock.mIndentationLevel - 1)
-                                              << "__Start: " << get_enum_str(aEntityBase)
-                                              << " - " << get_enum_str(aEntityType)
-                                              << " - " << get_enum_str(aEntityAction)
-                                              << " \n";
+                                                      << "__Start: " << get_enum_str(aEntityBase)
+                                                      << " - " << get_enum_str(aEntityType)
+                                                      << " - " << get_enum_str(aEntityAction)
+                                                      << " \n";
                     std::cout << print_empty_line(mGlobalClock.mIndentationLevel) << " \n";
                 }
                 else
                 {
                     std::cout << "Signing in: " << get_enum_str(aEntityBase)
-                                << " - " << get_enum_str(aEntityType)
-                                << " - " << get_enum_str(aEntityAction)
-                                << " \n";
+                                        << " - " << get_enum_str(aEntityType)
+                                        << " - " << get_enum_str(aEntityAction)
+                                        << " \n";
                 }
             }
         }
     }
 
+    // -----------------------------------------------------------------------------
 
-    // -------------------------------------------------------------------------------------------------- //
     // signing out
     void Logger::sign_out()
     {
@@ -141,15 +141,15 @@ namespace moris
         // log to console - only processor 0 prints message
         if ( logger_par_rank() == 0 )
         {
-            if (mSeverityLevel < 2)
+            if (mSeverityLevel < 1)
             {
                 // switch based on OutputFormat provided
                 if ((mDirectOutputFormat == 3) || (mDirectOutputFormat == 2))
                 {
                     std::cout << print_empty_line(mGlobalClock.mIndentationLevel)
-                                              << "_ElapsedTime = "
-                                              << ( (moris::real) std::clock() - mGlobalClock.mTimeStamps(mGlobalClock.mIndentationLevel) ) / CLOCKS_PER_SEC
-                                              << " \n";
+                                                      << "_ElapsedTime = "
+                                                      << ( (moris::real) std::clock() - mGlobalClock.mTimeStamps(mGlobalClock.mIndentationLevel) ) / CLOCKS_PER_SEC
+                                                      << " \n";
                     std::cout << print_empty_line(mGlobalClock.mIndentationLevel - 1) << " \n";
                 }
                 else
@@ -163,24 +163,26 @@ namespace moris
         mGlobalClock.sign_out();
     }
 
-    // -------------------------------------------------------------------------------------------------- //
+    // -----------------------------------------------------------------------------
+
     // logging operation using Clock Info, Output value is allowed to be any common number type
     //void Logger::log_to_file(enum OutputSpecifier aOutputSpecifier, T aOutputValue)
 
+    // -----------------------------------------------------------------------------
 
-    // -------------------------------------------------------------------------------------------------- //
     // logging operation using Clock Info, using multiple output values
     template <class T1, class T2>
-    void Logger::log2_to_file(enum OutputSpecifier aOutputSpecifier1, T1 aOutputValue1,
+    void Logger::log2_to_file(
+            enum OutputSpecifier aOutputSpecifier1, T1 aOutputValue1,
             enum OutputSpecifier aOutputSpecifier2, T2 aOutputValue2)
     {
             this->log_to_file(aOutputSpecifier1, aOutputValue1);
             this->log_to_file(aOutputSpecifier2, aOutputValue2);
     }
 
-
     template <class T1, class T2, class T3>
-    void Logger::log3_to_file(enum OutputSpecifier aOutputSpecifier1, T1 aOutputValue1,
+    void Logger::log3_to_file(
+            enum OutputSpecifier aOutputSpecifier1, T1 aOutputValue1,
             enum OutputSpecifier aOutputSpecifier2, T2 aOutputValue2,
             enum OutputSpecifier aOutputSpecifier3, T3 aOutputValue3)
     {
@@ -189,8 +191,8 @@ namespace moris
             this->log_to_file(aOutputSpecifier3, aOutputValue3);
     }
 
+    // -----------------------------------------------------------------------------
 
-    // -------------------------------------------------------------------------------------------------- //
     // logging operations for specific types of output texts
 
     void Logger::log_to_file(std::string aOutputString)
@@ -214,15 +216,13 @@ namespace moris
         this->log_to_file(OutputSpecifier::Error, aOutputString);
     }
 
-    // -------------------------------------------------------------------------------------------------- //
-    // FORMATTING TOOLS FOR OUTPUT ---------------------------------------------------------------------- //
-    // -------------------------------------------------------------------------------------------------- //
+    // -----------------------------------------------------------------------------
+    // FORMATTING TOOLS FOR OUTPUT -------------------------------------------------
+    // -----------------------------------------------------------------------------
 
-    // -------------------------------------------------------------------------------------------------- //
     // print header
     void Logger::print_header()
     {
-
         mStream << LOGGER_HEADER_BEGIN;
 
         // get date and time at runtime
@@ -240,14 +240,12 @@ namespace moris
         mStream << "Date of execution: " << ctime(&tTimeStamp) ;
         mStream << "Severity Level: " << mSeverityLevel << " \n";
 
-
         // print user information
         mStream << "\n--- HOST ---\n";
         mStream << "User: " << std::getenv( "USER" ) << "\n";
         mStream << "Host: " << std::getenv( "HOSTNAME" ) << "\n";
         mStream << "Operating System: " << std::getenv( "OSTYPE" ) << "\n";
         mStream << "Host Type: " << std::getenv( "HOSTTYPE" ) << "\n";
-
 
         // print build info
         mStream << "\n--- BUILD ---\n";
@@ -264,7 +262,6 @@ namespace moris
 #endif
 
         mStream << "Matrix Library: ";
-
 #ifdef MORIS_USE_ARMA
         mStream << "ARMA \n";
 #endif
@@ -280,8 +277,8 @@ namespace moris
         mStream << "---------------------------------------------------------------------------------------------------------\n";
     }
 
+    // -----------------------------------------------------------------------------
 
-    // -------------------------------------------------------------------------------------------------- //
     // prints empty line with vertical markers according to indentation level
     std::string Logger::print_empty_line(uint aIndentationLevel)
     {

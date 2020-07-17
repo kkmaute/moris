@@ -14,6 +14,7 @@
 #include "cl_FEM_IQI_Stress.hpp"
 #include "cl_FEM_IQI_Analytic.hpp"
 #include "cl_FEM_IQI_Dof.hpp"
+#include "cl_FEM_IQI_Max_Dof.hpp"
 #include "cl_FEM_IQI_Property.hpp"
 #include "cl_FEM_IQI_L2_Error_Analytic.hpp"
 #include "cl_FEM_IQI_H1_Error_Analytic.hpp"
@@ -22,6 +23,8 @@
 #include "cl_FEM_IQI_K1_SENT.hpp"
 #include "cl_FEM_IQI_Volume_Fraction.hpp"
 #include "cl_FEM_IQI_2D_Drag_Lift_Coefficient.hpp"
+#include "cl_FEM_IQI_Latent_Heat_Absorption.hpp"
+
 namespace moris
 {
     namespace fem
@@ -33,6 +36,9 @@ namespace moris
             {
                 case IQI_Type::DOF :
                     return std::make_shared< IQI_Dof >();
+
+                case IQI_Type::MAX_DOF :
+                    return std::make_shared< IQI_Max_Dof >();
 
                 case IQI_Type::PROPERTY :
                     return std::make_shared< IQI_Property >();
@@ -72,6 +78,9 @@ namespace moris
 
                 case IQI_Type::LIFT_COEFF :
                     return std::make_shared< IQI_Drag_Lift_Coefficient >( -1 );
+
+                case IQI_Type::LATENT_HEAT_ABSORPTION :
+                    return std::make_shared< IQI_Latent_Heat_Absorption >();
 
                 default:
                     MORIS_ERROR( false, " IQI_Factory::create_IQI - No IQI type specified. " );

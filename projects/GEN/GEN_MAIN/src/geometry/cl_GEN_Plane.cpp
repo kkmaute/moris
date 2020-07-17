@@ -84,20 +84,23 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        moris::real Plane::eval_field_2d(Matrix<DDRMat> const & aCoordinates)
+        moris::real Plane::eval_field_2d(const Matrix<DDRMat>& aCoordinates)
         {
+            // Get variables
             real tXCenter = *(mFieldVariables(0));
             real tYCenter = *(mFieldVariables(1));
             real tXNormal = *(mFieldVariables(2));
             real tYNormal = *(mFieldVariables(3));
 
+            // Evaluate field value
             return tXNormal * (aCoordinates(0) - tXCenter) + tYNormal * (aCoordinates(1) - tYCenter);
         }
 
         //--------------------------------------------------------------------------------------------------------------
         
-        moris::real Plane::eval_field_3d(Matrix<DDRMat> const & aCoordinates)
+        moris::real Plane::eval_field_3d(const Matrix<DDRMat>& aCoordinates)
         {
+            // Get variables
             real tXCenter = *(mFieldVariables(0));
             real tYCenter = *(mFieldVariables(1));
             real tZCenter = *(mFieldVariables(2));
@@ -105,14 +108,26 @@ namespace moris
             real tYNormal = *(mFieldVariables(4));
             real tZNormal = *(mFieldVariables(5));
 
+            // Evaluate field value
             return tXNormal * (aCoordinates(0) - tXCenter) + tYNormal * (aCoordinates(1) - tYCenter) + tZNormal * (aCoordinates(2) - tZCenter);
         }
 
         //--------------------------------------------------------------------------------------------------------------
 
-        void Plane::eval_sensitivity_2d(Matrix<DDRMat> const & aCoordinates, Matrix<DDRMat>& aSensitivities)
+        void Plane::eval_sensitivity_2d(const Matrix<DDRMat>& aCoordinates, Matrix<DDRMat>& aSensitivities)
         {
-            MORIS_ERROR(false, "Sensitivities not implemented for 2d plane.");
+            // Get variables
+            real tXCenter = *(mFieldVariables(0));
+            real tYCenter = *(mFieldVariables(1));
+            real tXNormal = *(mFieldVariables(2));
+            real tYNormal = *(mFieldVariables(3));
+
+            // Evaluate sensitivities
+            aSensitivities.set_size(1, 4);
+            aSensitivities(0) = -tXNormal;
+            aSensitivities(1) = -tYNormal;
+            aSensitivities(2) = aCoordinates(0) - tXCenter;
+            aSensitivities(3) = aCoordinates(1) - tYCenter;
         }
 
         //--------------------------------------------------------------------------------------------------------------

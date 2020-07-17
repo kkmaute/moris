@@ -247,7 +247,7 @@ namespace moris
                                                                    Matrix<DDRMat>(0, 0));
 
                 moris::ge::Phase_Table tPhaseTable (1, moris::ge::Phase_Table_Structure::EXP_BASE_2);
-                moris::ge::Geometry_Engine tGeometryEngine(tGeometry, tPhaseTable, 2);
+                moris::ge::Geometry_Engine tGeometryEngine(tGeometry, tPhaseTable, 2, tADVs);
                 tGeometryEngine.set_advs({{0.0, 0.0, 0.0}});
 
                 xtk::Model tXTKModel(2, tInterpolationMesh, &tGeometryEngine);

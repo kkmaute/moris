@@ -9,8 +9,14 @@
 #        3 - basename of input file (without .cpp)
 #        4 - run prefix, e.g., valgrind
 
+rm -f "$3".so
+
 if [ $1 = "opt" -o  $1 = "dbg" ];then
     moris_create_shared_object.sh $1 $3
+    
+    if [ ! -f "$3".so ];then
+        exit
+    fi
     moris_run.sh $1 $2 $3 $4
 else
     echo ""

@@ -1,0 +1,31 @@
+namespace moris {
+
+/** @defgroup EXA_DEV_GUIDE Guide on how to set up examples
+
+# Creating an example
+
+## Folder Structure
+
+## Include Input file with CATCH
+
+## Creating Checks
+
+
+
+# Documentation of Examples
+
+All examples and benchmarks used in moris should be documented in doxygen. The following structure was adapted from the ABAQUS Benchmarks Manual 
+(https://classes.engineering.wustl.edu/2009/spring/mase5513/abaqus/docs/v6.6/books/bmk/default.htm?startat=ch01s04.html) 
+and should generally be followed: 
+
+-# Problem Description: Brief description of the problem. State what the purpose of this example is (e.g. test specific physics or meshing feature, or the interaction of the two)
+-# Problem Setup: All the numbers go here (mesh size, material parameters, etc.)
+-# Analytical Solution: If there's an analytic solution to the problem, give it here.
+-# Results: If there are any specific results to be expected (e.g. eigenfrequency should always be overestimated compared to analytical solution), this should go here.
+-# Literature: If the example is taken from literature as a specific benchmark or as an analytic problem, list the links and citation here. 
+-# Developer Notes: Modifications compared to literature, missing features of the example, or observations that should not be forgotten for later, should go here 
+
+
+*/
+
+}

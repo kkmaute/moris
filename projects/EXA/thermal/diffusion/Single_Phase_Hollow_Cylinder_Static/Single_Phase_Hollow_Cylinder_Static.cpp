@@ -21,6 +21,8 @@
 
 #include "AztecOO.h"
 
+extern uint gInterpolationOrder;
+
 #ifdef  __cplusplus
 extern "C"
 {
@@ -152,9 +154,9 @@ extern "C"
             tParameterlist( 0 )( 0 ).set( "domain_sidesets",                  std::string("1,2,3,4") );
             tParameterlist( 0 )( 0 ).set( "lagrange_output_meshes",           std::string("0") );
 
-            tParameterlist( 0 )( 0 ).set( "lagrange_orders",  std::string("1") );
+            tParameterlist( 0 )( 0 ).set( "lagrange_orders",  std::to_string(gInterpolationOrder) );
             tParameterlist( 0 )( 0 ).set( "lagrange_pattern", std::string("0") );
-            tParameterlist( 0 )( 0 ).set( "bspline_orders",   std::string("1") );
+            tParameterlist( 0 )( 0 ).set( "bspline_orders",   std::to_string(gInterpolationOrder) );
             tParameterlist( 0 )( 0 ).set( "bspline_pattern",  std::string("0") );
 
             tParameterlist( 0 )( 0 ).set( "lagrange_to_bspline", std::string("0") );
@@ -385,6 +387,22 @@ extern "C"
             tParameterList( 4 )( tIQICounter ).set( "master_properties",          std::string("PropAnalyticdTempdx,H1Check") );
             tParameterList( 4 )( tIQICounter ).set( "mesh_set_names",             tSolid );
             tIQICounter++;
+
+            tParameterList( 4 ).push_back( prm::create_IQI_parameter_list() );
+            tParameterList( 4 )( tIQICounter ).set( "IQI_name",                   std::string("IQIMaxTEMP") );
+            tParameterList( 4 )( tIQICounter ).set( "IQI_type",                   static_cast< uint >( fem::IQI_Type::MAX_DOF ) );
+            tParameterList( 4 )( tIQICounter ).set( "IQI_output_type",            static_cast< uint >( vis::Output_Type::MAX_DOF ) );
+            tParameterList( 4 )( tIQICounter ).set( "master_dof_dependencies",    std::string("TEMP") );
+            tParameterList( 4 )( tIQICounter ).set( "mesh_set_names",             tSolid );
+            tIQICounter++;
+
+            tParameterList( 4 ).push_back( prm::create_IQI_parameter_list() );
+            tParameterList( 4 )( tIQICounter ).set( "IQI_name",                   std::string("IQIVolume") );
+            tParameterList( 4 )( tIQICounter ).set( "IQI_type",                   static_cast< uint >( fem::IQI_Type::VOLUME ) );
+            tParameterList( 4 )( tIQICounter ).set( "IQI_output_type",            static_cast< uint >( vis::Output_Type::VOLUME ) );
+            tParameterList( 4 )( tIQICounter ).set( "master_dof_dependencies",    std::string("TEMP") );
+            tParameterList( 4 )( tIQICounter ).set( "mesh_set_names",             tSolid );
+            tIQICounter++;
         }
 
         void SOLParameterList( moris::Cell< moris::Cell< ParameterList > > & tParameterlist )
@@ -433,9 +451,9 @@ extern "C"
             tParameterlist( 0 )( 0 ).set( "File_Name"  , std::pair< std::string, std::string >( "./", "Single_Phase_Hollow_Cylinder_Static.exo") );
             tParameterlist( 0 )( 0 ).set( "Mesh_Type"  , static_cast< uint >( vis::VIS_Mesh_Type::STANDARD ) );
             tParameterlist( 0 )( 0 ).set( "Set_Names"  , std::string("HMR_dummy_n_p2,HMR_dummy_c_p2") );
-            tParameterlist( 0 )( 0 ).set( "Field_Names", std::string("TEMP,TEMP_ANALYTIC,L2_ERROR_ANALYTIC,H1_ERROR_ANALYTIC") );
-            tParameterlist( 0 )( 0 ).set( "Field_Type" , std::string("NODAL,NODAL,GLOBAL,GLOBAL") );
-            tParameterlist( 0 )( 0 ).set( "Output_Type", std::string("TEMP,PROPERTY,L2_ERROR_ANALYTIC,H1_ERROR_ANALYTIC") );
+            tParameterlist( 0 )( 0 ).set( "Field_Names", std::string("TEMP,TEMP_ANALYTIC,L2_ERROR_ANALYTIC,H1_ERROR_ANALYTIC,MAX_DOF,VOLUME") );
+            tParameterlist( 0 )( 0 ).set( "Field_Type" , std::string("NODAL,NODAL,GLOBAL,GLOBAL,GLOBAL,GLOBAL") );
+            tParameterlist( 0 )( 0 ).set( "Output_Type", std::string("TEMP,PROPERTY,L2_ERROR_ANALYTIC,H1_ERROR_ANALYTIC,MAX_DOF,VOLUME") );
             tParameterlist( 0 )( 0 ).set( "Save_Frequency", 1 );
         }
 

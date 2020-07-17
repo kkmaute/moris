@@ -182,14 +182,14 @@ namespace moris
                         const moris::Matrix<moris::DDRMat> & aFieldValues);
 
                 /**
-                 *  Writes a global variable at the current time step.
+                 *  Writes all global variables at the current time step.
                  *
-                 *  @param aVariableName The name of the variable being written
-                 *  @param aVariableValue The value of the global variable
+                 *  @param aVariableNames  cell of names of the variable being written
+                 *  @param aVariableValues vector of values of the global variables
                  */
-                void write_global_variable(
-                        std::string         aVariableName,
-                        const moris::real & aVariableValue);
+                void write_global_variables(
+                         moris::Cell<std::string>    & aVariableNames,
+                         const moris::Matrix<DDRMat> & aVariableValues);
 
             private:
 

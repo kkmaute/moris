@@ -1,0 +1,61 @@
+namespace moris {
+
+/** \page EXA_THERMAL_FICKIAN_PROBLEM Fickian Problem for Linear Diffusion
+
+# Problem Description
+A Fickian problem is a transient diffusion problem following Fick's second law. A thermal diffusion using the general heat equation classifies as such a problem.
+The analytical solution to a 1D-problem consisting of a semi-infinite bar with an initial temperature and a prescribed temparature on one of its sides, is known. 
+
+This Problem is set up to ensure that the numerical results for the thermal diffusion model match the analytical solution to a satisfiing degree of accuracy.
+
+# Problem Setup
+The mesh is a conformal 2D mesh with 300x1 elements is used. The length of the bar is \f$ 0.168 \f$. 
+The initial temperature is \f$ T_0 = 313 \f$, and a Temperature of \f$ T_{w} = 350 \f$ is imposed on one ends of the bar. All other boundaries are adiabatic.
+For the example a timeframe of \f$ t_{max} = 960 \f$, split up into \f$ 20 \f$ time slabs, is used.
+
+The following material parameters are used:
+- Density: \f$ \rho = 0.75 \f$
+- Heat Capacity: \f$ c_p = 2.4 \f$
+- Conductivity: \f$ \kappa = 2.1 \cdot 10^{-7} \f$
+
+Both Ghost and GGLS stabilization are applied to the problem.
+
+# Analytical Solution
+The described Fickian problem has an exact solution which involves the error function which is defined as:
+
+\f[
+erf(z) = \frac{2}{\sqrt{\pi}} \int_{s=0}^z e^{-s^2} ds
+\f]
+
+The thermal diffusivity is defined as
+
+\f[
+\alpha = \frac{\kappa}{\rho c_p}
+\f]
+
+and the dimensionless distance
+
+\f[
+\eta(x,t) = \frac{x}{2 \sqrt{\alpha t}}
+\f]
+
+The solution at a point \f$ x \f$ (measured from the finite end of the bar) and a time \f$ t \f$, given the initial temperature \f$ T_0 \f$ and the imposed 
+wall temperature \f$ T_w \f$ can be stated as:
+
+\f[
+T(x,t) = T_w + (T_0 - T_w) \ erf(\eta(x,t))
+\f]
+
+A matlab script for computing the solution is included in git.
+
+# Literature
+The analtical solution to this Fickian problem is discussed in:
+https://link.springer.com/content/pdf/bbm%3A978-1-4020-7860-6%2F1.pdf 
+
+# Developer Notes
+Since imposing the Dirichlet BC from the first timestep onwards leads to instabilities, it is ramped up over the first three time steps.
+
+
+*/
+
+}

@@ -2854,12 +2854,18 @@ namespace xtk
         MORIS_ERROR(!mSensitivity,"Calling compute interface sensitivity twice is not supported");
 
         // Set interface nodes to GE
-        uint tNumGeoms = mGeometryEngine->get_num_geometries();
-        for (uint iGeo = 0; iGeo < tNumGeoms; iGeo++)
+        Matrix<IndexMat> tAllInterfaceNodes = mBackgroundMesh.get_interface_nodes_loc_inds(0);
+        uint tTotalNode = tAllInterfaceNodes.length();
+        for (uint tGeometryIndex = 1; tGeometryIndex < mGeometryEngine->get_num_geometries(); tGeometryIndex++)
         {
-            moris::Matrix<moris::IndexMat> tInterfaceNodes = mBackgroundMesh.get_interface_nodes_loc_inds(iGeo);
-            mGeometryEngine->set_interface_nodes(tInterfaceNodes);
+            Matrix<IndexMat> tInterfaceNodes = mBackgroundMesh.get_interface_nodes_loc_inds(tGeometryIndex);
+            tAllInterfaceNodes.resize(1, tTotalNode + tInterfaceNodes.length());
+            for (uint tNode = 0; tNode < tInterfaceNodes.length(); tNode++)
+            {
+                tAllInterfaceNodes(tTotalNode++) = tInterfaceNodes(tNode);
+            }
         }
+        mGeometryEngine->set_interface_nodes(tAllInterfaceNodes);
     }
 
     // ----------------------------------------------------------------------------------

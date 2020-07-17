@@ -1,0 +1,821 @@
+namespace moris {
+namespace fem {
+
+/** @defgroup FE_Higher_Order_Derivatives Shape Function Derivatives
+
+
+# Derivation of Shape Function Derivatives with Respect to Physical Coordinates
+
+## First Order Derivatives
+To compute a gradient of a field interpolated with shape functions, the derivatives of these shape functions with respect to the 
+physical coordinates \f$ \bm{x} = (x,y,z) = (x_1,x_2,x_3) \f$ are needed. 
+The transformation theorem states:
+
+\f[ \begin{equation}\label{eqn:transformation_theorem}
+	\pfrac{N_j}{x_i} = \sum_{k=1}^{d_s} \pfrac{N_j}{\xi_k} \pfrac{\xi_k}{x_i}
+\end{equation} \f]
+
+and vise versa:
+
+\f[ \begin{equation}\label{eqn:transformation_theorem_invers}
+	\pfrac{N_j}{\xi_i} = \sum_{k=1}^{d_s} \pfrac{N_j}{x_k} \pfrac{x_k}{\xi_i}
+\end{equation} \f]
+
+The matrix \f$ \pfrac{\bm{\xi}}{\bm{x}} \f$ needed to evaluate \f$ B_{ij} = \pfrac{N_j}{x_i} \f$ 
+can not be directly constructed, however the inverse  \f$ \bm{J} = \pfrac{\bm{x}}{\bm{\xi}} \f$ can. 
+The geometry, too, is interpolated using shape functions \f$ \tilde{\bm{N}}(\xi) \f$ and the nodal coordinates 
+\f$ \bm{\hat{x}}^{(k)} \f$ of each node \f$ (k) \f$:
+
+\f[ \begin{equation} \label{eqn:geometry_interpolation}
+	\bm{x}(\bm{\xi}) = \tilde{N}_k(\bm{\xi}) \ \bm{\hat{x}}^{(k)}
+\end{equation} \f]
+ 
+This equation can be differentiated with respect to \f$ \bm{\xi} \f$ to yield an expression for \f$ \bm{J} \f$:
+
+\f[ \begin{equation}\label{eqn:1st_geometric_derivatives}
+	J_{ij} = \pfrac{x_j}{\xi_i} = \pfrac{\tilde{N}_k}{\xi_i} \ \hat{x}_j^{(k)}
+\end{equation} \f] 
+Then:
+
+\f{eqnarray}{\label{eqn:jacobian_applied}
+	\pfrac{N_k}{x_i} &= J_{ij}^{-1} \ \pfrac{N_k}{\xi_j} \\
+	\bm{B} &= \left( \bm{J} \right)^{-1} \ \bm{B}^{(\xi)}
+\f}
+
+
+## Higher Order Derivatives
+
+Schwarz's theorem states that partial derivatives are commutative. 
+\f[ \begin{equation}\label{eqn:schwarz_theorem}
+	\pfrac{}{x} \left( \pfrac{N}{y} \right) = \pfrac{}{y} \left( \pfrac{N}{x} \right) = \ppfrac{N}{x}{y} = \ppfrac{N}{y}{x}
+\end{equation} \f]
+
+Therefore, all \f$ 2^{nd} \f$ and \f$ 3^{rd} \f$ order shape function derivatives can be condensed into a rather small set of possible derivatives:
+\f[ \begin{equation}\label{eqn:B2}
+	\bm{B}^{(2)} = \bm{B}^{(\bm{xx})} =
+	\left[ \begin{array}{lll} 
+		\psquaredfrac{N_1}{x} &
+		\cdots &
+		\psquaredfrac{N_{n_s}}{x}
+		\\
+		\psquaredfrac{N_1}{y} &
+		\cdots &
+		\psquaredfrac{N_{n_s}}{y}
+		\\
+		\psquaredfrac{N_1}{z} &
+		\cdots &
+		\psquaredfrac{N_{n_s}}{z}
+		\\
+		\ppfrac{N_1}{y}{z} &
+		\cdots &
+		\ppfrac{N_{n_s}}{y}{z}
+		\\
+		\ppfrac{N_1}{x}{z} &
+		\cdots &
+		\ppfrac{N_{n_s}}{x}{z}
+		\\
+		\ppfrac{N_1}{x}{y} &
+		\cdots &
+		\ppfrac{N_{n_s}}{x}{y}
+	\end{array} \right]	
+\end{equation} \f]
+
+\f[ \begin{equation}\label{eqn:B3}
+\bm{B}^{(3)} = \bm{B}^{(\bm{xxx})} =
+	\left[ \begin{array}{lll} 
+		\pcuedfrac{N_1}{x} &
+		\cdots &
+		\pcuedfrac{N_{n_s}}{x}
+		\\
+		\pcuedfrac{N_1}{y} &
+		\cdots &
+		\pcuedfrac{N_{n_s}}{y}
+		\\
+		\pcuedfrac{N_1}{z} &
+		\cdots &
+		\pcuedfrac{N_{n_s}}{z}
+		\\
+		\ppcuedfrac{N_1}{x^2}{y} &
+		\cdots &
+		\ppcuedfrac{N_{n_s}}{x^2}{y}
+		\\ 
+		\ppcuedfrac{N_1}{x^2}{z} &
+		\cdots &
+		\ppcuedfrac{N_{n_s}}{x^2}{z}
+		\\ 
+		\ppcuedfrac{N_1}{x}{y^2} &
+		\cdots &
+		\ppcuedfrac{N_{n_s}}{x}{y^2}
+		\\ 
+		\ppcuedfrac{N_1}{y^2}{z} &
+		\cdots &
+		\ppcuedfrac{N_{n_s}}{y^2}{z}
+		\\ 
+		\ppcuedfrac{N_1}{x}{z^2} &
+		\cdots &
+		\ppcuedfrac{N_{n_s}}{x}{z^2}
+		\\ 
+		\ppcuedfrac{N_1}{y}{z^2} &
+		\cdots &
+		\ppcuedfrac{N_{n_s}}{y}{z^2}
+		\\ 
+		\pppfrac{N_1}{x}{y}{z} &
+		\cdots &
+		\pppfrac{N_{n_s}}{x}{y}{z}
+	\end{array} \right]	
+\end{equation} \f] 
+
+The shape function derivatives \f$ \bm{B}^{(\bm{\xi\xi})} \f$ and \f$ \bm{B}^{(\bm{\xi\xi\xi})} \f$ with respect to 
+\f$ \bm{\xi} = (\xi,\eta,\zeta) \f$  are ordered analogous to this.
+
+To obtain \f$ \bm{B}^{(2)} \f$, \f$ \bm{B}^{(\xi)} \f$ is again differentiated with respect to \f$ \xi \f$ using 
+\eqref{eqn:transformation_theorem_invers} to get \f$ \bm{B}^{(\bm{\xi\xi})} \f$. This yields the following equation:
+
+\f[ \begin{equation}\label{eqn:2nd_derivative_xi}
+	\bm{B}^{(\xi\xi)} = 
+	\overline{\bm{J}}_a \ \bm{B}^{(2)} 
+	+ \overline{\bm{J}}_b \ \bm{B}
+\end{equation} \f]
+
+where \f$ \overline{\bm{J}}_a \f$ contains only first order derivatives already contained in \f$ \bm{J} \f$ and 
+\f$ \overline{\bm{J}}_b \f$ contains second order derivatives which can be evaluated as stated in \eqref{eqn:2nd_geometric_derivatives}. 
+
+\f[ \begin{equation}\label{eqn:2nd_geometric_derivatives}
+	\left( \overline{J}_{b} \right)_{ij}  
+	= \widetilde{B}^{(\xi\xi)}_{ik} \ \hat{x}_j^{(k)}
+\end{equation} \f]
+
+The formulations for \f$ \overline{\bm{J}}_a \f$ and \f$ \overline{\bm{J}}_b \f$ are defined in equations \eqref{eqn:J_bar_a} 
+and \eqref{eqn:J_bar_b} for 3D, and \eqref{eqn:J_bar_a_2D} and \eqref{eqn:J_bar_b_2D} for 2D.
+Finally, by performing some algebraic operations, \f$ \bm{B}^{(2)} \f$, as stated in [Wall1999], can be obtained as follows.
+
+\f[ \begin{equation}\label{eqn:2nd_derivative}
+	\bm{B}^{(2)} = 
+	\left(
+	\overline{\bm{J}}_a
+	\right)^{-1} \left[
+	\bm{B}^{(\xi\xi)} - \overline{\bm{J}}_b \ \bm{B}
+	\right]
+\end{equation} \f]
+
+## Third Order Derivatives
+The procedure to obtain the second order derivatives is repeated to obtain third order derivatives.
+
+\f$ \bm{B}^{(\xi\xi)} \f$ is differentiated with respect to \f$ \xi \f$ using \f$ \ref{eqn:transformation_theorem_invers} \f$ to get 
+\f$ \bm{B}^{(\xi\xi\xi)} \f$. This yields the following equation:
+\f[ \begin{equation}\label{eqn:3rd_derivative_xi}
+	\bm{B}^{(\xi\xi\xi)} = 
+		\overline{\overline{\bm{J}}}_a \ \bm{B}^{(3)} 
+		+ \overline{\overline{\bm{J}}}_b \ \bm{B}^{(2)}
+		+ \overline{\overline{\bm{J}}}_c \ \bm{B}
+\end{equation} \f]
+
+where \f$ \overline{\overline{\bm{J}}}_a \f$ contains only first order derivatives already contained in 
+\f$ \bm{J} \f$, \f$ \overline{\overline{\bm{J}}}_b \f$ contains only first and second order derivatives already contained in 
+\f$ \bm{J} \f$ and \f$ \overline{\bm{J}}_b \f$, and \f$ \overline{\overline{\bm{J}}}_c \f$ contains third order derivatives 
+which can be evaluated as stated in \f$ \eqref{eqn:3rd_geometric_derivatives} \f$. The formulations for \f$ \overline{\overline{\bm{J}}}_a \f$, 
+\f$ \overline{\overline{\bm{J}}}_b \f$ and \f$ \overline{\overline{\bm{J}}}_c \f$ are given equations 
+\eqref{eqn:J_bar_bar_a}, \eqref{eqn:J_bar_bar_b}, and \eqref{eqn:J_bar_bar_c} for 3D and equations \eqref{eqn:J_bar_bar_a_2D}, 
+\eqref{eqn:J_bar_bar_b_2D}, and \eqref{eqn:J_bar_bar_c_2D} for 2D.
+
+\f[ \begin{equation}\label{eqn:3rd_geometric_derivatives}
+\left( \overline{\overline{J}}_{c} \right)_{ij}  
+= \widetilde{B}^{(\xi\xi\xi)}_{ik} \ \hat{x}_j^{(k)}
+\end{equation} \f]
+
+Performing some algebraic operations, \f$ \bm{B}^{(3)} \f$ can then be obtained as follows:
+
+\f[ \begin{equation}\label{eqn:3rd_derivative}
+	\bm{B}^{(3)} = 
+	\left(
+		\overline{\overline{\bm{J}}}_a
+	\right)^{-1} \left[
+		\bm{B}^{(\xi\xi\xi)} - \overline{\overline{\bm{J}}}_b \ \bm{B}^{(2)}
+		- \overline{\overline{\bm{J}}}_c \ \bm{B}
+	\right]
+\end{equation} \f]
+
+
+### Geometric Jacobians for 3rd Order Shape Function Derivatives
+
+For 3D the geometric Jacobians needed for third order derivatives are given on the following pages.
+
+\f[ \begin{equation}\label{eqn:J_bar_bar_a}
+
+\overline{\overline{\bm{J}}}_a = 
+
+\left[ 
+\begin{array}{lll lll l} 
+\cuedpfrac{x}{\xi} & 
+\cuedpfrac{y}{\xi} &
+\cuedpfrac{z}{\xi} &
+3 \squaredpfrac{x}{\xi} \pfrac{y}{\xi} & 
+3 \squaredpfrac{x}{\xi} \pfrac{z}{\xi} &
+3 \squaredpfrac{y}{\xi} \pfrac{x}{\xi} &
+\cdots
+\\
+\cuedpfrac{x}{\eta} & 
+\cuedpfrac{y}{\eta} &
+\cuedpfrac{z}{\eta} &
+3 \squaredpfrac{x}{\eta} \pfrac{y}{\eta} & 
+3 \squaredpfrac{x}{\eta} \pfrac{z}{\eta} &
+3 \squaredpfrac{y}{\eta} \pfrac{x}{\eta} &
+\cdots
+\\
+\cuedpfrac{x}{\zeta} & 
+\cuedpfrac{y}{\zeta} &
+\cuedpfrac{z}{\zeta} &
+3 \squaredpfrac{x}{\zeta} \pfrac{y}{\zeta} & 
+3 \squaredpfrac{x}{\zeta} \pfrac{z}{\zeta} &
+3 \squaredpfrac{y}{\zeta} \pfrac{x}{\zeta} &
+\cdots
+\\
+\squaredpfrac{x}{\xi} \pfrac{x}{\eta} &
+\squaredpfrac{y}{\xi} \pfrac{y}{\eta} &
+\squaredpfrac{z}{\xi} \pfrac{z}{\eta} &
+\squaredpfrac{x}{\xi} \pfrac{y}{\eta} + 2 \pfrac{x}{\xi} \pfrac{x}{\eta} \pfrac{y}{\xi} &
+\squaredpfrac{x}{\xi} \pfrac{z}{\eta} + 2 \pfrac{x}{\xi} \pfrac{x}{\eta} \pfrac{z}{\xi} &
+\squaredpfrac{y}{\xi} \pfrac{x}{\eta} + 2 \pfrac{y}{\xi} \pfrac{y}{\eta} \pfrac{x}{\xi} &
+\cdots
+\\
+\squaredpfrac{x}{\xi} \pfrac{x}{\zeta} &
+\squaredpfrac{y}{\xi} \pfrac{y}{\zeta} &
+\squaredpfrac{z}{\xi} \pfrac{z}{\zeta} &
+\squaredpfrac{x}{\xi} \pfrac{y}{\zeta} + 2 \pfrac{x}{\xi} \pfrac{x}{\zeta} \pfrac{y}{\xi} &
+\squaredpfrac{x}{\xi} \pfrac{z}{\zeta} + 2 \pfrac{x}{\xi} \pfrac{x}{\zeta} \pfrac{z}{\xi} &
+\squaredpfrac{y}{\xi} \pfrac{x}{\zeta} + 2 \pfrac{y}{\xi} \pfrac{y}{\zeta} \pfrac{x}{\xi} &
+\cdots
+\\
+\squaredpfrac{x}{\eta} \pfrac{x}{\xi} &
+\squaredpfrac{y}{\eta} \pfrac{y}{\xi} &
+\squaredpfrac{z}{\eta} \pfrac{z}{\xi} &
+\squaredpfrac{x}{\eta} \pfrac{y}{\xi} + 2 \pfrac{x}{\eta} \pfrac{x}{\xi} \pfrac{y}{\eta} &
+\squaredpfrac{x}{\eta} \pfrac{z}{\xi} + 2 \pfrac{x}{\eta} \pfrac{x}{\xi} \pfrac{z}{\eta} &
+\squaredpfrac{y}{\eta} \pfrac{x}{\xi} + 2 \pfrac{y}{\eta} \pfrac{y}{\xi} \pfrac{x}{\eta} &
+\cdots
+\\
+\squaredpfrac{x}{\eta} \pfrac{x}{\zeta} &
+\squaredpfrac{y}{\eta} \pfrac{y}{\zeta} &
+\squaredpfrac{z}{\eta} \pfrac{z}{\zeta} &
+\squaredpfrac{x}{\eta} \pfrac{y}{\zeta} + 2 \pfrac{x}{\eta} \pfrac{x}{\zeta} \pfrac{y}{\eta} &
+\squaredpfrac{x}{\eta} \pfrac{z}{\zeta} + 2 \pfrac{x}{\eta} \pfrac{x}{\zeta} \pfrac{z}{\eta} &
+\squaredpfrac{y}{\eta} \pfrac{x}{\zeta} + 2 \pfrac{y}{\eta} \pfrac{y}{\zeta} \pfrac{x}{\eta} &
+\cdots
+\\
+\squaredpfrac{x}{\zeta} \pfrac{x}{\xi} &
+\squaredpfrac{y}{\zeta} \pfrac{y}{\xi} &
+\squaredpfrac{z}{\zeta} \pfrac{z}{\xi} &
+\squaredpfrac{x}{\zeta} \pfrac{y}{\xi} + 2 \pfrac{x}{\zeta} \pfrac{x}{\xi} \pfrac{y}{\zeta} & 
+\squaredpfrac{x}{\zeta} \pfrac{z}{\xi} + 2 \pfrac{x}{\zeta} \pfrac{x}{\xi} \pfrac{z}{\zeta} &
+\squaredpfrac{y}{\zeta} \pfrac{x}{\xi} + 2 \pfrac{y}{\zeta} \pfrac{y}{\xi} \pfrac{x}{\zeta} &
+\cdots
+\\
+\squaredpfrac{x}{\zeta} \pfrac{x}{\eta} &
+\squaredpfrac{y}{\zeta} \pfrac{y}{\eta} &
+\squaredpfrac{z}{\zeta} \pfrac{z}{\eta} &
+\squaredpfrac{x}{\zeta} \pfrac{y}{\eta} + 2 \pfrac{x}{\zeta} \pfrac{x}{\eta} \pfrac{y}{\zeta} &
+\squaredpfrac{x}{\zeta} \pfrac{z}{\eta} + 2 \pfrac{x}{\zeta} \pfrac{x}{\eta} \pfrac{z}{\zeta} &
+\squaredpfrac{y}{\zeta} \pfrac{x}{\eta} + 2 \pfrac{y}{\zeta} \pfrac{y}{\eta} \pfrac{x}{\zeta} &
+\cdots
+\\
+\pfrac{x}{\xi} \pfrac{x}{\eta} \pfrac{x}{\zeta} & 
+\pfrac{y}{\xi} \pfrac{y}{\eta} \pfrac{y}{\zeta} & 
+\pfrac{z}{\xi} \pfrac{z}{\eta} \pfrac{z}{\zeta} &
+\pfrac{x}{\xi} \pfrac{x}{\eta} \pfrac{y}{\zeta} + \pfrac{x}{\xi} \pfrac{y}{\eta} \pfrac{x}{\zeta} 
++ \pfrac{y}{\xi} \pfrac{x}{\eta} \pfrac{x}{\zeta} &
+\pfrac{x}{\xi} \pfrac{x}{\eta} \pfrac{z}{\zeta} + \pfrac{x}{\xi} \pfrac{z}{\eta} \pfrac{x}{\zeta} 
++ \pfrac{z}{\xi} \pfrac{x}{\eta} \pfrac{x}{\zeta} &
+\pfrac{y}{\xi} \pfrac{y}{\eta} \pfrac{x}{\zeta} + \pfrac{y}{\xi} \pfrac{x}{\eta} \pfrac{y}{\zeta} 
++ \pfrac{x}{\xi} \pfrac{y}{\eta} \pfrac{y}{\zeta} &
+\cdots
+\\
+\end{array} 
+\right]
+\end{equation} \f]
+
+\f[ \begin{equation}
+\left[ 
+\begin{array}{l ll ll} 
+\cdots &
+3 \squaredpfrac{y}{\xi} \pfrac{z}{\xi} &
+3 \squaredpfrac{z}{\xi} \pfrac{x}{\xi} &
+3 \squaredpfrac{z}{\xi} \pfrac{y}{\xi} &
+\cdots
+\\
+\cdots &
+3 \squaredpfrac{y}{\eta} \pfrac{z}{\eta} &
+3 \squaredpfrac{z}{\eta} \pfrac{x}{\eta} &
+3 \squaredpfrac{z}{\eta} \pfrac{y}{\eta} &
+\cdots
+\\
+\cdots &
+3 \squaredpfrac{y}{\zeta} \pfrac{z}{\zeta} &
+3 \squaredpfrac{z}{\zeta} \pfrac{x}{\zeta} &
+3 \squaredpfrac{z}{\zeta} \pfrac{y}{\zeta} &
+\cdots
+\\
+\cdots &
+\squaredpfrac{y}{\xi} \pfrac{z}{\eta} + 2 \pfrac{y}{\xi} \pfrac{y}{\eta} \pfrac{z}{\xi} &
+\squaredpfrac{z}{\xi} \pfrac{x}{\eta} + 2 \pfrac{z}{\xi} \pfrac{z}{\eta} \pfrac{x}{\xi} &
+\squaredpfrac{z}{\xi} \pfrac{y}{\eta} + 2 \pfrac{z}{\xi} \pfrac{z}{\eta} \pfrac{y}{\xi} &
+\cdots
+\\
+\cdots &
+\squaredpfrac{y}{\xi} \pfrac{z}{\zeta} + 2 \pfrac{y}{\xi} \pfrac{y}{\zeta} \pfrac{z}{\xi} &
+\squaredpfrac{z}{\xi} \pfrac{x}{\zeta} + 2 \pfrac{z}{\xi} \pfrac{z}{\zeta} \pfrac{x}{\xi} &
+\squaredpfrac{z}{\xi} \pfrac{y}{\zeta} + 2 \pfrac{z}{\xi} \pfrac{z}{\zeta} \pfrac{y}{\xi} &
+\cdots
+\\
+\cdots &
+\squaredpfrac{y}{\eta} \pfrac{z}{\xi} + 2 \pfrac{y}{\eta} \pfrac{y}{\xi} \pfrac{z}{\eta} &
+\squaredpfrac{z}{\eta} \pfrac{x}{\xi} + 2 \pfrac{z}{\eta} \pfrac{z}{\xi} \pfrac{x}{\eta} &
+\squaredpfrac{z}{\eta} \pfrac{y}{\xi} + 2 \pfrac{z}{\eta} \pfrac{z}{\xi} \pfrac{y}{\eta} &
+\cdots
+\\
+\cdots &
+\squaredpfrac{y}{\eta} \pfrac{z}{\zeta} + 2 \pfrac{y}{\eta} \pfrac{y}{\zeta} \pfrac{z}{\eta} &
+\squaredpfrac{z}{\eta} \pfrac{x}{\zeta} + 2 \pfrac{z}{\eta} \pfrac{z}{\zeta} \pfrac{x}{\eta} &
+\squaredpfrac{z}{\eta} \pfrac{y}{\zeta} + 2 \pfrac{z}{\eta} \pfrac{z}{\zeta} \pfrac{y}{\eta} &
+\cdots
+\\
+\cdots &
+\squaredpfrac{y}{\zeta} \pfrac{z}{\xi} + 2 \pfrac{y}{\zeta} \pfrac{y}{\xi} \pfrac{z}{\zeta} &
+\squaredpfrac{z}{\zeta} \pfrac{x}{\xi} + 2 \pfrac{z}{\zeta} \pfrac{z}{\xi} \pfrac{x}{\zeta} &
+\squaredpfrac{z}{\zeta} \pfrac{y}{\xi} + 2 \pfrac{z}{\zeta} \pfrac{z}{\xi} \pfrac{y}{\zeta} &
+\cdots
+\\
+\cdots &
+\squaredpfrac{y}{\zeta} \pfrac{z}{\eta} + 2 \pfrac{y}{\zeta} \pfrac{y}{\eta} \pfrac{z}{\zeta} &
+\squaredpfrac{z}{\zeta} \pfrac{x}{\eta} + 2 \pfrac{z}{\zeta} \pfrac{z}{\eta} \pfrac{x}{\zeta} &
+\squaredpfrac{z}{\zeta} \pfrac{y}{\eta} + 2 \pfrac{z}{\zeta} \pfrac{z}{\eta} \pfrac{y}{\zeta} &
+\cdots
+\\
+\cdots &
+\pfrac{y}{\xi} \pfrac{y}{\eta} \pfrac{z}{\zeta} + \pfrac{y}{\xi} \pfrac{z}{\eta} \pfrac{y}{\zeta} 
++ \pfrac{z}{\xi} \pfrac{y}{\eta} \pfrac{y}{\zeta} &
+\pfrac{z}{\xi} \pfrac{z}{\eta} \pfrac{x}{\zeta} + \pfrac{z}{\xi} \pfrac{x}{\eta} \pfrac{z}{\zeta} 
++ \pfrac{x}{\xi} \pfrac{z}{\eta} \pfrac{z}{\zeta} &
+\pfrac{z}{\xi} \pfrac{z}{\eta} \pfrac{y}{\zeta} + \pfrac{z}{\xi} \pfrac{y}{\eta} \pfrac{z}{\zeta} 
++ \pfrac{y}{\xi} \pfrac{z}{\eta} \pfrac{z}{\zeta} &
+\cdots
+\end{array} 
+\right]
+\end{equation} \f]
+
+\f[ \begin{equation}
+\left[ 
+\begin{array}{l l} 
+\cdots &
+6 \pfrac{x}{\xi} \pfrac{y}{\xi} \pfrac{z}{\xi}
+\\
+\cdots &
+6 \pfrac{x}{\eta} \pfrac{y}{\eta} \pfrac{z}{\eta}
+\\
+\cdots &
+6 \pfrac{x}{\zeta} \pfrac{y}{\zeta} \pfrac{z}{\zeta} 
+\\
+\cdots &
+2 \pfrac{x}{\xi} \pfrac{y}{\xi} \pfrac{z}{\eta} + 2 \pfrac{x}{\xi} \pfrac{y}{\eta} \pfrac{z}{\xi} 
++ 2 \pfrac{x}{\eta} \pfrac{y}{\xi} \pfrac{z}{\xi}
+\\
+\cdots &
+2 \pfrac{x}{\xi} \pfrac{y}{\xi} \pfrac{z}{\zeta} + 2 \pfrac{x}{\xi} \pfrac{y}{\zeta} \pfrac{z}{\xi} 
++ 2 \pfrac{x}{\zeta} \pfrac{y}{\xi} \pfrac{z}{\xi}
+\\
+\cdots &
+2 \pfrac{x}{\eta} \pfrac{y}{\eta} \pfrac{z}{\xi} + 2 \pfrac{x}{\eta} \pfrac{y}{\xi} \pfrac{z}{\eta} 
++ 2 \pfrac{x}{\xi} \pfrac{y}{\eta} \pfrac{z}{\eta}
+\\
+\cdots &
+2 \pfrac{x}{\eta} \pfrac{y}{\eta} \pfrac{z}{\zeta} + 2 \pfrac{x}{\eta} \pfrac{y}{\zeta} \pfrac{z}{\eta} 
++ 2 \pfrac{x}{\zeta} \pfrac{y}{\eta} \pfrac{z}{\eta}
+\\
+\cdots &
+2 \pfrac{x}{\zeta} \pfrac{y}{\zeta} \pfrac{z}{\xi} + 2 \pfrac{x}{\zeta} \pfrac{y}{\xi} \pfrac{z}{\zeta} 
++ 2 \pfrac{x}{\xi} \pfrac{y}{\zeta} \pfrac{z}{\zeta}
+\\
+\cdots &
+2 \pfrac{x}{\zeta} \pfrac{y}{\zeta} \pfrac{z}{\eta} + 2 \pfrac{x}{\zeta} \pfrac{y}{\eta} \pfrac{z}{\zeta} 
++ 2 \pfrac{x}{\eta} \pfrac{y}{\zeta} \pfrac{z}{\zeta}
+\\
+\cdots &
+\pfrac{x}{\xi} \pfrac{y}{\eta} \pfrac{z}{\zeta} + \pfrac{z}{\xi} \pfrac{y}{\eta} \pfrac{x}{\zeta} 
++ \pfrac{y}{\xi} \pfrac{z}{\eta} \pfrac{x}{\zeta} + 	
+\pfrac{x}{\xi} \pfrac{z}{\eta} \pfrac{y}{\zeta} + \pfrac{z}{\xi} \pfrac{x}{\eta} \pfrac{z}{\zeta} 
++ \pfrac{y}{\xi} \pfrac{x}{\eta} \pfrac{z}{\zeta}
+\end{array} 
+\right]
+
+\end{equation} \f]	
+
+
+\f[ \begin{equation}\label{eqn:J_bar_bar_b}
+
+\overline{\overline{\bm{J}}}_b = 
+
+\left[ 
+\begin{array}{lll} 
+3 \psquaredfrac{x}{\xi} \pfrac{x}{\xi} &
+3 \psquaredfrac{y}{\xi} \pfrac{y}{\xi} &
+3 \psquaredfrac{z}{\xi} \pfrac{z}{\xi} &
+\cdots
+\\
+3 \psquaredfrac{x}{\eta} \pfrac{x}{\eta} &
+3 \psquaredfrac{y}{\eta} \pfrac{y}{\eta} &
+3 \psquaredfrac{z}{\eta} \pfrac{z}{\eta} &
+\cdots
+\\
+3 \psquaredfrac{x}{\zeta} \pfrac{x}{\zeta} &
+3 \psquaredfrac{y}{\zeta} \pfrac{y}{\zeta} &
+3 \psquaredfrac{z}{\zeta} \pfrac{z}{\zeta} &
+\cdots
+\\
+2 \ppfrac{x}{\xi}{\eta} \pfrac{x}{\xi} + \psquaredfrac{x}{\xi} \pfrac{x}{\eta} &
+2 \ppfrac{y}{\xi}{\eta} \pfrac{y}{\xi} + \psquaredfrac{y}{\xi} \pfrac{y}{\eta} &
+2 \ppfrac{z}{\xi}{\eta} \pfrac{z}{\xi} + \psquaredfrac{z}{\xi} \pfrac{z}{\eta} &
+\cdots
+\\
+2 \ppfrac{x}{\xi}{\zeta} \pfrac{x}{\xi} + \psquaredfrac{x}{\xi} \pfrac{x}{\zeta} &
+2 \ppfrac{y}{\xi}{\zeta} \pfrac{y}{\xi} + \psquaredfrac{y}{\xi} \pfrac{y}{\zeta} &
+2 \ppfrac{z}{\xi}{\zeta} \pfrac{z}{\xi} + \psquaredfrac{z}{\xi} \pfrac{z}{\zeta} &
+\cdots
+\\
+2 \ppfrac{x}{\xi}{\eta} \pfrac{x}{\eta} + \psquaredfrac{x}{\eta} \pfrac{x}{\xi} &
+2 \ppfrac{y}{\xi}{\eta} \pfrac{y}{\eta} + \psquaredfrac{y}{\eta} \pfrac{y}{\xi} &
+2 \ppfrac{z}{\xi}{\eta} \pfrac{z}{\eta} + \psquaredfrac{z}{\eta} \pfrac{z}{\xi} &
+\cdots
+\\
+2 \ppfrac{x}{\eta}{\zeta} \pfrac{x}{\eta} + \psquaredfrac{x}{\eta} \pfrac{x}{\zeta} &
+2 \ppfrac{y}{\eta}{\zeta} \pfrac{y}{\eta} + \psquaredfrac{y}{\eta} \pfrac{y}{\zeta} &
+2 \ppfrac{z}{\eta}{\zeta} \pfrac{z}{\eta} + \psquaredfrac{z}{\eta} \pfrac{z}{\zeta} &
+\cdots
+\\
+2 \ppfrac{x}{\xi}{\zeta} \pfrac{x}{\zeta} + \psquaredfrac{x}{\zeta} \pfrac{x}{\xi} &
+2 \ppfrac{y}{\xi}{\zeta} \pfrac{y}{\zeta} + \psquaredfrac{y}{\zeta} \pfrac{y}{\xi} &
+2 \ppfrac{z}{\xi}{\zeta} \pfrac{z}{\zeta} + \psquaredfrac{z}{\zeta} \pfrac{z}{\xi} &
+\cdots
+\\
+2 \ppfrac{x}{\eta}{\zeta} \pfrac{x}{\zeta} + \psquaredfrac{x}{\zeta} \pfrac{x}{\eta} &
+2 \ppfrac{y}{\eta}{\zeta} \pfrac{y}{\zeta} + \psquaredfrac{y}{\zeta} \pfrac{y}{\eta} &
+2 \ppfrac{z}{\eta}{\zeta} \pfrac{z}{\zeta} + \psquaredfrac{z}{\zeta} \pfrac{z}{\eta} &
+\cdots
+\\
+\ppfrac{x}{\xi}{\zeta} \pfrac{x}{\eta} + \ppfrac{x}{\eta}{\zeta} \pfrac{x}{\xi} + \ppfrac{x}{\xi}{\eta} \pfrac{x}{\zeta} &
+\ppfrac{y}{\xi}{\zeta} \pfrac{y}{\eta} + \ppfrac{y}{\eta}{\zeta} \pfrac{y}{\xi} + \ppfrac{y}{\xi}{\eta} \pfrac{y}{\zeta} &
+\ppfrac{z}{\xi}{\zeta} \pfrac{z}{\eta} + \ppfrac{z}{\eta}{\zeta} \pfrac{z}{\xi} + \ppfrac{z}{\xi}{\eta} \pfrac{z}{\zeta} &
+\cdots
+\end{array} 
+\right]
+\end{equation} \f]
+
+\f[ \begin{equation}
+\left[ 
+\begin{array}{lll} 
+\cdots &
+3 \psquaredfrac{y}{\xi} \pfrac{z}{\xi} + 3 \psquaredfrac{z}{\xi} \pfrac{y}{\xi} &
+3 \psquaredfrac{x}{\xi} \pfrac{z}{\xi} + 3 \psquaredfrac{z}{\xi} \pfrac{x}{\xi} &
+3 \psquaredfrac{x}{\xi} \pfrac{y}{\xi} + 3 \psquaredfrac{y}{\xi} \pfrac{x}{\xi}
+\\
+\cdots &
+3 \psquaredfrac{y}{\eta} \pfrac{z}{\eta} + 3 \psquaredfrac{z}{\eta} \pfrac{y}{\eta} &
+3 \psquaredfrac{x}{\eta} \pfrac{z}{\eta} + 3 \psquaredfrac{z}{\eta} \pfrac{x}{\eta} &
+3 \psquaredfrac{x}{\eta} \pfrac{y}{\eta} + 3 \psquaredfrac{y}{\eta} \pfrac{x}{\eta}
+\\
+\cdots &
+3 \psquaredfrac{y}{\zeta} \pfrac{z}{\zeta} + 3 \psquaredfrac{z}{\zeta} \pfrac{y}{\zeta} &
+3 \psquaredfrac{x}{\zeta} \pfrac{z}{\zeta} + 3 \psquaredfrac{z}{\zeta} \pfrac{x}{\zeta} &
+3 \psquaredfrac{x}{\zeta} \pfrac{y}{\zeta} + 3 \psquaredfrac{y}{\zeta} \pfrac{x}{\zeta}
+\\
+\cdots &
+2 \ppfrac{y}{\xi}{\eta} \pfrac{z}{\xi} + 2 \ppfrac{z}{\xi}{\eta} \pfrac{y}{\xi} + 
+\psquaredfrac{z}{\xi} \pfrac{y}{\eta} + \psquaredfrac{y}{\xi} \pfrac{z}{\eta} &
+2 \ppfrac{x}{\xi}{\eta} \pfrac{z}{\xi} + 2 \ppfrac{z}{\xi}{\eta} \pfrac{x}{\xi} + 
+\psquaredfrac{z}{\xi} \pfrac{x}{\eta} + \psquaredfrac{x}{\xi} \pfrac{z}{\eta} &
+2 \ppfrac{x}{\xi}{\eta} \pfrac{y}{\xi} + 2 \ppfrac{y}{\xi}{\eta} \pfrac{x}{\xi} + 
+\psquaredfrac{y}{\xi} \pfrac{x}{\eta} + \psquaredfrac{x}{\xi} \pfrac{y}{\eta} &
+\\
+\cdots &
+2 \ppfrac{y}{\xi}{\zeta} \pfrac{z}{\xi} + 2 \ppfrac{z}{\xi}{\zeta} \pfrac{y}{\xi} + 
+\psquaredfrac{z}{\xi} \pfrac{y}{\zeta} + \psquaredfrac{y}{\xi} \pfrac{z}{\eta} &
+2 \ppfrac{x}{\xi}{\zeta} \pfrac{z}{\xi} + 2 \ppfrac{z}{\xi}{\zeta} \pfrac{x}{\xi} + 
+\psquaredfrac{z}{\xi} \pfrac{x}{\zeta} + \psquaredfrac{x}{\xi} \pfrac{z}{\eta} &
+2 \ppfrac{x}{\xi}{\zeta} \pfrac{y}{\xi} + 2 \ppfrac{y}{\xi}{\zeta} \pfrac{x}{\xi} + 
+\psquaredfrac{y}{\xi} \pfrac{x}{\zeta} + \psquaredfrac{x}{\xi} \pfrac{y}{\eta}  
+\\
+\cdots &
+2 \ppfrac{y}{\xi}{\eta} \pfrac{z}{\eta} + 2 \ppfrac{z}{\xi}{\eta} \pfrac{y}{\eta} + 
+\psquaredfrac{z}{\eta} \pfrac{y}{\xi} + \psquaredfrac{y}{\xi} \pfrac{z}{\eta} &
+2 \ppfrac{x}{\xi}{\eta} \pfrac{z}{\eta} + 2 \ppfrac{z}{\xi}{\eta} \pfrac{x}{\eta} + 
+\psquaredfrac{z}{\eta} \pfrac{x}{\xi} + \psquaredfrac{x}{\xi} \pfrac{z}{\eta} &
+2 \ppfrac{x}{\xi}{\eta} \pfrac{y}{\eta} + 2 \ppfrac{y}{\xi}{\eta} \pfrac{x}{\eta} + 
+\psquaredfrac{y}{\eta} \pfrac{x}{\xi} + \psquaredfrac{x}{\xi} \pfrac{y}{\eta}
+\\
+\cdots &
+2 \ppfrac{y}{\eta}{\zeta} \pfrac{z}{\eta} + 2 \ppfrac{z}{\eta}{\zeta} \pfrac{y}{\eta} + 
+\psquaredfrac{z}{\eta} \pfrac{y}{\zeta} + \psquaredfrac{y}{\xi} \pfrac{z}{\eta} &
+2 \ppfrac{x}{\eta}{\zeta} \pfrac{z}{\eta} + 2 \ppfrac{z}{\eta}{\zeta} \pfrac{x}{\eta} + 
+\psquaredfrac{z}{\eta} \pfrac{x}{\zeta} + \psquaredfrac{x}{\xi} \pfrac{z}{\eta} &
+2 \ppfrac{x}{\eta}{\zeta} \pfrac{y}{\eta} + 2 \ppfrac{y}{\eta}{\zeta} \pfrac{x}{\eta} + 
+\psquaredfrac{y}{\eta} \pfrac{x}{\zeta} + \psquaredfrac{x}{\xi} \pfrac{y}{\eta}
+\\
+\cdots &
+2 \ppfrac{y}{\xi}{\zeta} \pfrac{z}{\zeta} + 2 \ppfrac{z}{\xi}{\zeta} \pfrac{y}{\zeta} + 
+\psquaredfrac{z}{\zeta} \pfrac{y}{\xi} + \psquaredfrac{y}{\xi} \pfrac{z}{\eta} &
+2 \ppfrac{x}{\xi}{\zeta} \pfrac{z}{\zeta} + 2 \ppfrac{z}{\xi}{\zeta} \pfrac{x}{\zeta} + 
+\psquaredfrac{z}{\zeta} \pfrac{x}{\xi} + \psquaredfrac{x}{\xi} \pfrac{z}{\eta} &
+2 \ppfrac{x}{\xi}{\zeta} \pfrac{y}{\zeta} + 2 \ppfrac{y}{\xi}{\zeta} \pfrac{x}{\zeta} + 
+\psquaredfrac{y}{\zeta} \pfrac{x}{\xi} + \psquaredfrac{x}{\xi} \pfrac{y}{\eta} 
+\\
+\cdots &
+2 \ppfrac{y}{\eta}{\zeta} \pfrac{z}{\zeta} + 2 \ppfrac{z}{\eta}{\zeta} \pfrac{y}{\zeta} + 
+\psquaredfrac{z}{\zeta} \pfrac{y}{\eta} + \psquaredfrac{y}{\xi} \pfrac{z}{\eta} &
+2 \ppfrac{x}{\eta}{\zeta} \pfrac{z}{\zeta} + 2 \ppfrac{z}{\eta}{\zeta} \pfrac{x}{\zeta} + 
+\psquaredfrac{z}{\zeta} \pfrac{x}{\eta} + \psquaredfrac{x}{\xi} \pfrac{z}{\eta} &
+2 \ppfrac{x}{\eta}{\zeta} \pfrac{y}{\zeta} + 2 \ppfrac{y}{\eta}{\zeta} \pfrac{x}{\zeta} + 
+\psquaredfrac{y}{\zeta} \pfrac{x}{\eta} + \psquaredfrac{x}{\xi} \pfrac{y}{\eta} 
+\\
+\cdots &
+\ppfrac{y}{\xi}{\zeta} \pfrac{z}{\eta} + \ppfrac{z}{\eta}{\zeta} \pfrac{y}{\xi} + \ppfrac{z}{\xi}{\eta} \pfrac{y}{\zeta} 
++\ppfrac{z}{\xi}{\zeta} \pfrac{y}{\eta} + \ppfrac{y}{\eta}{\zeta} \pfrac{z}{\xi} + \ppfrac{y}{\xi}{\eta} \pfrac{z}{\zeta} &
+\ppfrac{x}{\xi}{\zeta} \pfrac{z}{\eta} + \ppfrac{z}{\eta}{\zeta} \pfrac{x}{\xi} + \ppfrac{z}{\xi}{\eta} \pfrac{x}{\zeta} 
++\ppfrac{z}{\xi}{\zeta} \pfrac{x}{\eta} + \ppfrac{x}{\eta}{\zeta} \pfrac{z}{\xi} + \ppfrac{x}{\xi}{\eta} \pfrac{z}{\zeta} &
+\ppfrac{x}{\xi}{\zeta} \pfrac{y}{\eta} + \ppfrac{y}{\eta}{\zeta} \pfrac{x}{\xi} + \ppfrac{y}{\xi}{\eta} \pfrac{x}{\zeta} 
++\ppfrac{y}{\xi}{\zeta} \pfrac{x}{\eta} + \ppfrac{x}{\eta}{\zeta} \pfrac{y}{\xi} + \ppfrac{x}{\xi}{\eta} \pfrac{y}{\zeta} 
+\end{array} 
+\right]
+\end{equation} \f]
+
+
+
+\f[ \begin{equation}\label{eqn:J_bar_bar_c}
+
+\overline{\overline{\bm{J}}}_c = 
+
+\left[ 
+\begin{array}{lll}
+\pcuedfrac{x}{\xi} &
+\pcuedfrac{y}{\xi} &
+\pcuedfrac{z}{\xi}
+\\
+\pcuedfrac{x}{\eta} &
+\pcuedfrac{y}{\eta} &
+\pcuedfrac{z}{\eta}
+\\
+\pcuedfrac{x}{\zeta} &
+\pcuedfrac{y}{\zeta} &
+\pcuedfrac{z}{\zeta}
+\\
+\ppcuedfrac{x}{\xi^2}{\eta} &
+\ppcuedfrac{y}{\xi^2}{\eta} &
+\ppcuedfrac{z}{\xi^2}{\eta}
+\\
+\ppcuedfrac{x}{\xi^2}{\zeta} &
+\ppcuedfrac{y}{\xi^2}{\zeta} &
+\ppcuedfrac{z}{\xi^2}{\zeta}
+\\
+\ppcuedfrac{x}{\xi}{\eta^2} &
+\ppcuedfrac{y}{\xi}{\eta^2} &
+\ppcuedfrac{z}{\xi}{\eta^2}
+\\
+\ppcuedfrac{x}{\eta^2}{\zeta} &
+\ppcuedfrac{y}{\eta^2}{\zeta} &
+\ppcuedfrac{z}{\eta^2}{\zeta}
+\\
+\ppcuedfrac{x}{\xi}{\zeta^2} &
+\ppcuedfrac{y}{\xi}{\zeta^2} &
+\ppcuedfrac{z}{\xi}{\zeta^2}
+\\
+\ppcuedfrac{x}{\eta}{\zeta^2} &
+\ppcuedfrac{y}{\eta}{\zeta^2} &
+\ppcuedfrac{z}{\eta}{\zeta^2}
+\\
+\pppfrac{x}{\xi}{\eta}{\zeta} &
+\pppfrac{y}{\xi}{\eta}{\zeta} &
+\pppfrac{z}{\xi}{\eta}{\zeta} 
+\end{array} 
+\right]
+\end{equation} \f]	
+
+
+
+
+\f[ \begin{equation}\label{eqn:J_bar_a}
+
+\overline{\mathbf{J}}_a = 
+
+\left[ 
+\begin{array}{lll lll}
+\squaredpfrac{x}{\xi} &
+\squaredpfrac{y}{\xi} &
+\squaredpfrac{z}{\xi} &
+2 \pfrac{y}{\xi} \pfrac{z}{\xi} &
+2 \pfrac{x}{\xi} \pfrac{z}{\xi} &
+2 \pfrac{x}{\xi} \pfrac{y}{\xi} 
+\\
+\squaredpfrac{x}{\eta} &
+\squaredpfrac{y}{\eta} &
+\squaredpfrac{z}{\eta} &
+2 \pfrac{y}{\eta} \pfrac{z}{\eta} &
+2 \pfrac{x}{\eta} \pfrac{z}{\eta} &
+2 \pfrac{x}{\eta} \pfrac{y}{\eta} 
+\\
+\squaredpfrac{x}{\zeta} &
+\squaredpfrac{y}{\zeta} &
+\squaredpfrac{z}{\zeta} &
+2 \pfrac{y}{\zeta} \pfrac{z}{\zeta} &
+2 \pfrac{x}{\zeta} \pfrac{z}{\zeta} &
+2 \pfrac{x}{\zeta} \pfrac{y}{\zeta} 
+\\
+\pfrac{x}{\eta} \pfrac{x}{\zeta} &
+\pfrac{y}{\eta} \pfrac{y}{\zeta} &
+\pfrac{z}{\eta} \pfrac{z}{\zeta} &
+\pfrac{y}{\eta} \pfrac{z}{\zeta} + \pfrac{z}{\eta} \pfrac{y}{\zeta} &
+\pfrac{x}{\eta} \pfrac{z}{\zeta} + \pfrac{z}{\eta} \pfrac{x}{\zeta} &
+\pfrac{x}{\eta} \pfrac{y}{\zeta} + \pfrac{y}{\eta} \pfrac{x}{\zeta} 
+\\
+\pfrac{x}{\xi} \pfrac{x}{\zeta} &
+\pfrac{y}{\xi} \pfrac{y}{\zeta} &
+\pfrac{z}{\xi} \pfrac{z}{\zeta} &
+\pfrac{y}{\xi} \pfrac{z}{\zeta} + \pfrac{z}{\xi} \pfrac{y}{\zeta} &
+\pfrac{x}{\xi} \pfrac{z}{\zeta} + \pfrac{z}{\xi} \pfrac{x}{\zeta} &
+\pfrac{x}{\xi} \pfrac{y}{\zeta} + \pfrac{y}{\xi} \pfrac{x}{\zeta} 
+\\
+\pfrac{x}{\xi} \pfrac{x}{\eta} &
+\pfrac{y}{\xi} \pfrac{y}{\eta} &
+\pfrac{z}{\xi} \pfrac{z}{\eta} &
+\pfrac{y}{\xi} \pfrac{z}{\eta} + \pfrac{z}{\xi} \pfrac{y}{\eta} &
+\pfrac{x}{\xi} \pfrac{z}{\eta} + \pfrac{z}{\xi} \pfrac{x}{\eta} &
+\pfrac{x}{\xi} \pfrac{y}{\eta} + \pfrac{y}{\xi} \pfrac{x}{\eta} 
+\end{array} 
+\right]
+\end{equation} \f]
+
+
+
+\f[ \begin{equation}\label{eqn:J_bar_b}
+
+\overline{\mathbf{J}}_b = 
+
+\left[ 
+\begin{array}{lll lll}
+\psquaredfrac{x}{\xi} &
+\psquaredfrac{y}{\xi} &
+\psquaredfrac{z}{\xi} 
+\\
+\psquaredfrac{x}{\eta} &
+\psquaredfrac{y}{\eta} &
+\psquaredfrac{z}{\eta} 
+\\ 
+\psquaredfrac{x}{\zeta} &
+\psquaredfrac{y}{\zeta} &
+\psquaredfrac{z}{\zeta}
+\\ 
+\ppfrac{x}{\eta}{\zeta} &
+\ppfrac{y}{\eta}{\zeta} &
+\ppfrac{z}{\eta}{\zeta}
+\\
+\ppfrac{x}{\xi}{\zeta} &
+\ppfrac{y}{\xi}{\zeta} &
+\ppfrac{z}{\xi}{\zeta}
+\\
+\ppfrac{x}{\xi}{\eta} &
+\ppfrac{y}{\xi}{\eta} &
+\ppfrac{z}{\xi}{\eta}
+\end{array} 
+\right]
+\end{equation} \f]
+
+<p>   </p>
+
+For 2D the geometric Jacobians needed for third derivatives are defined as follows:
+
+\f[ \begin{equation}\label{eqn:J_bar_bar_a_2D}
+
+\overline{\overline{\bm{J}}}_a = 
+
+\left[ 
+\begin{array}{ll ll}
+\cuedpfrac{x}{\xi} &
+\cuedpfrac{y}{\xi} &
+3 \squaredpfrac{x}{\xi} \pfrac{y}{\xi} &
+3 \squaredpfrac{y}{\xi} \pfrac{x}{\xi} 
+\\
+\cuedpfrac{x}{\eta} &
+\cuedpfrac{y}{\eta} &
+3 \squaredpfrac{x}{\eta} \pfrac{y}{\eta} &
+3 \squaredpfrac{y}{\eta} \pfrac{x}{\eta} 
+\\
+\squaredpfrac{x}{\xi} \pfrac{x}{\eta} &
+\squaredpfrac{y}{\xi} \pfrac{y}{\eta} &
+\squaredpfrac{x}{\xi} \pfrac{y}{\eta} + 2 \pfrac{x}{\xi} \pfrac{y}{\xi} \pfrac{x}{\eta} &
+\squaredpfrac{y}{\xi} \pfrac{x}{\eta} + 2 \pfrac{x}{\xi} \pfrac{y}{\xi} \pfrac{y}{\eta} 
+\\
+\squaredpfrac{x}{\eta} \pfrac{x}{\xi} &
+\squaredpfrac{y}{\eta} \pfrac{y}{\xi} &
+\squaredpfrac{x}{\eta} \pfrac{y}{\xi} + 2 \pfrac{x}{\xi} \pfrac{x}{\eta} \pfrac{y}{\eta}  &
+\squaredpfrac{y}{\eta} \pfrac{x}{\xi} + 2 \pfrac{y}{\xi} \pfrac{x}{\eta} \pfrac{y}{\eta}
+\end{array} 
+\right]
+\end{equation} \f]
+
+
+
+\f[ \begin{equation}\label{eqn:J_bar_bar_b_2D}
+
+\overline{\overline{\bm{J}}}_b = 
+
+\left[ 
+\begin{array}{ll l}
+3 \psquaredfrac{x}{\xi} \pfrac{x}{\xi} &
+3 \psquaredfrac{y}{\xi} \pfrac{y}{\xi} &
+3 \psquaredfrac{x}{\xi} \pfrac{y}{\xi} + 3 \psquaredfrac{y}{\xi} \pfrac{x}{\xi} 
+\\
+3 \psquaredfrac{x}{\eta} \pfrac{x}{\eta} &
+3 \psquaredfrac{y}{\eta} \pfrac{y}{\eta} &
+3 \psquaredfrac{x}{\eta} \pfrac{y}{\eta} + 3 \psquaredfrac{y}{\eta} \pfrac{x}{\eta} 
+\\
+2 \ppfrac{x}{\xi}{\eta} \pfrac{x}{\xi} + \psquaredfrac{x}{\xi} \pfrac{x}{\eta} &
+2 \ppfrac{y}{\xi}{\eta} \pfrac{y}{\xi} + \psquaredfrac{y}{\xi} \pfrac{y}{\eta} &
+2 \ppfrac{x}{\xi}{\eta} \pfrac{y}{\xi} + 2 \ppfrac{y}{\xi}{\eta} \pfrac{x}{\xi} +
+\psquaredfrac{x}{\xi} \pfrac{y}{\eta} + \psquaredfrac{y}{\xi} \pfrac{x}{\eta}
+\\
+\psquaredfrac{x}{\eta} \pfrac{x}{\xi} + 2 \ppfrac{x}{\xi}{\eta} \pfrac{x}{\eta} &
+\psquaredfrac{y}{\eta} \pfrac{y}{\xi} + 2 \ppfrac{y}{\xi}{\eta} \pfrac{y}{\eta} &
+2 \ppfrac{x}{\xi}{\eta} \pfrac{y}{\eta} + 2 \ppfrac{y}{\xi}{\eta} \pfrac{x}{\eta} +
+\psquaredfrac{x}{\eta} \pfrac{y}{\xi} + \psquaredfrac{y}{\eta} \pfrac{x}{\xi} 
+\end{array} 
+\right]
+\end{equation} \f]
+
+
+
+\f[ \begin{equation}\label{eqn:J_bar_bar_c_2D}
+
+\overline{\overline{\bm{J}}}_c = 
+
+\left[ 
+\begin{array}{ll}
+\pcuedfrac{x}{\xi} &
+\pcuedfrac{y}{\xi}
+\\
+\pcuedfrac{x}{\eta} &
+\pcuedfrac{y}{\eta} 
+\\
+\ppcuedfrac{x}{\xi^2}{\eta} &
+\ppcuedfrac{y}{\xi^2}{\eta}
+\\
+\ppcuedfrac{x}{\xi}{\eta^2} &
+\ppcuedfrac{y}{\xi}{\eta^2}
+\end{array} 
+\right]
+\end{equation} \f]
+
+
+
+\f[ \begin{equation}\label{eqn:J_bar_a_2D}
+
+\overline{\bm{J}}_a = 
+
+\left[ 
+\begin{array}{lll} 
+\squaredpfrac{x}{\xi} &
+\squaredpfrac{y}{\xi} &
+2 \pfrac{x}{\xi} \pfrac{y}{\xi} 
+\\
+\squaredpfrac{x}{\eta} &
+\squaredpfrac{y}{\eta} &
+2 \pfrac{x}{\eta} \pfrac{y}{\eta}
+\\
+\pfrac{x}{\xi} \pfrac{x}{\eta} &
+\pfrac{y}{\xi} \pfrac{y}{\eta} &
+\pfrac{x}{\xi} \pfrac{y}{\eta} + \pfrac{y}{\xi} \pfrac{x}{\eta}
+\end{array} 
+\right]
+\end{equation} \f] 
+
+
+
+\f[ \begin{equation}\label{eqn:J_bar_b_2D}
+
+\overline{\bm{J}}_b = 
+
+\left[ 
+\begin{array}{ll}
+\psquaredfrac{x}{\xi} &
+\psquaredfrac{y}{\xi}  
+\\
+\psquaredfrac{x}{\eta} &
+\psquaredfrac{y}{\eta}
+\\
+\ppfrac{x}{\xi}{\eta} &
+\ppfrac{y}{\xi}{\eta}
+\end{array} 
+\right]
+\end{equation} \f]
+
+
+
+*/
+
+}
+}

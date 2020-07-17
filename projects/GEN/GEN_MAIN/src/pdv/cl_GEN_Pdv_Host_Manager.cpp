@@ -21,6 +21,16 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
+        void Pdv_Host_Manager::reset()
+        {
+            mIpPdvHosts.resize(0);
+            mIntersectionNodes.resize(0);
+            mGlobalPdvTypeMap.resize(0, 0);
+            mGlobalPdvIndex = 0;
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
         void Pdv_Host_Manager::get_ip_dv_types_for_set(const moris::moris_index aIPMeshSetIndex, Cell<Cell<PDV_Type>>& aPdvTypes)
         {
             if (mIpPdvTypes.size() > 0)
@@ -65,23 +75,26 @@ namespace moris
                                                 const Cell<PDV_Type>&   aPdvTypes,
                                                 Cell<Matrix<DDRMat>>&   aDvValues)
         {
-            // get the number of node indices requested
+            // Get the number of node indices requested
             uint tNumIndices = aNodeIndices.length();
 
-            // get the number of dv types requested
+            // Get the number of dv types requested
             uint tNumTypes = aPdvTypes.size();
 
-            // set size for list of dv values
+            // Cell size
             aDvValues.resize(tNumTypes);
 
             // loop over the node indices
-            for (uint iInd = 0; iInd < tNumIndices; iInd++)
+            for (uint tPdvTypeIndex = 0; tPdvTypeIndex < tNumTypes; tPdvTypeIndex++)
             {
+                // Matrix size
+                aDvValues(tPdvTypeIndex).set_size(tNumIndices, 1);
+
                 // loop over the requested dv types
-                for (uint iType = 0; iType < tNumTypes; iType++)
+                for (uint tNodeIndex = 0; tNodeIndex < tNumIndices; tNodeIndex++)
                 {
-                    aDvValues(iType).resize(tNumIndices, 1);
-                    aDvValues(iType)(iInd) = mIpPdvHosts(aNodeIndices(iInd))->get_pdv_value(aPdvTypes(iType));
+                    aDvValues(tPdvTypeIndex)(tNodeIndex) =
+                            mIpPdvHosts(aNodeIndices(tNodeIndex))->get_pdv_value(aPdvTypes(tPdvTypeIndex));
                 }
             }
         }
@@ -93,29 +106,30 @@ namespace moris
                                                 Cell<Matrix<DDRMat>>&   aDvValues,
                                                 Cell<Matrix<DDSMat>>&   aIsActiveDv)
         {
-            // get the number of node indices requested
+            // Get the number of node indices requested
             uint tNumIndices = aNodeIndices.length();
 
-            // get the number of dv types requested
+            // Get the number of dv types requested
             uint tNumTypes = aPdvTypes.size();
 
-            // set size for list of dv values
-            aDvValues.resize( tNumTypes );
+            // Cell size
+            aDvValues.resize(tNumTypes);
+            aIsActiveDv.resize(tNumTypes);
 
-            // set size for list of active flags
-            aIsActiveDv.resize( tNumTypes );
-
-            // loop over the requested dv types
-            for ( uint iType = 0; iType < tNumTypes; iType++ )
+            // loop over the node indices
+            for (uint tPdvTypeIndex = 0; tPdvTypeIndex < tNumTypes; tPdvTypeIndex++)
             {
-                aDvValues( iType ).resize( tNumIndices, 1 );
-                aIsActiveDv( iType ).resize( tNumIndices, 1 );
+                // Matrix size
+                aDvValues(tPdvTypeIndex).set_size(tNumIndices, 1);
+                aIsActiveDv(tPdvTypeIndex).set_size(tNumIndices, 1);
 
-                // loop over the node indices
-                for ( uint iInd = 0; iInd < tNumIndices; iInd++ )
+                // loop over the requested dv types
+                for (uint tNodeIndex = 0; tNodeIndex < tNumIndices; tNodeIndex++)
                 {
-                    aDvValues( iType )( iInd )   = mIpPdvHosts( aNodeIndices( iInd ) )->get_pdv_value( aPdvTypes( iType ) );
-                    aIsActiveDv( iType )( iInd ) = mIpPdvHosts( aNodeIndices( iInd ) )->is_active_type( aPdvTypes( iType ) );
+                    aDvValues(tPdvTypeIndex)(tNodeIndex) =
+                            mIpPdvHosts(aNodeIndices(tNodeIndex))->get_pdv_value(aPdvTypes(tPdvTypeIndex));
+                    aIsActiveDv(tPdvTypeIndex)(tNodeIndex) =
+                            mIpPdvHosts(aNodeIndices(tNodeIndex))->is_active_type(aPdvTypes(tPdvTypeIndex));
                 }
             }
         }
@@ -126,26 +140,28 @@ namespace moris
                                                 const Cell<PDV_Type>&   aPdvTypes,
                                                 Cell<Matrix<DDRMat>>&   aDvValues)
         {
-            // get the number of node indices requested
+            // Get the number of node indices requested
             uint tNumIndices = aNodeIndices.length();
 
-            // get the number of dv types requested
+            // Get the number of dv types requested
             uint tNumTypes = aPdvTypes.size();
 
-            // set size for list of dv values
+            // Cell size
             aDvValues.resize(tNumTypes);
 
             // loop over the node indices
-            for (uint iInd = 0; iInd < tNumIndices; iInd++)
+            for (uint tPdvTypeIndex = 0; tPdvTypeIndex < tNumTypes; tPdvTypeIndex++)
             {
+                // Matrix size
+                aDvValues(tPdvTypeIndex).set_size(tNumIndices, 1);
+
                 // loop over the requested dv types
-                for (uint iType = 0; iType < tNumTypes; iType++)
+                for (uint tNode = 0; tNode < tNumIndices; tNode++)
                 {
-                    if (mIntersectionNodes(aNodeIndices(iInd)))
+                    if (mIntersectionNodes(aNodeIndices(tNode)))
                     {
-                        aDvValues(iType).resize(tNumIndices, 1);
-                        aDvValues(iType)(iInd) =
-                                mIntersectionNodes(aNodeIndices(iInd))->get_coordinate_value(static_cast<uint>(aPdvTypes(iType)));
+                        aDvValues(tPdvTypeIndex)(tNode) =
+                                mIntersectionNodes(aNodeIndices(tNode))->get_coordinate_value(static_cast<uint>(aPdvTypes(tPdvTypeIndex)));
                     }
                 }
             }
@@ -158,28 +174,31 @@ namespace moris
                                                 Cell<Matrix<DDRMat>>&   aDvValues,
                                                 Cell<Matrix<DDSMat>>&   aIsActiveDv )
         {
-            // get the number of node indices requested
-            uint tNumIndices = aNodeIndices.numel();
+            // Get the number of node indices requested
+            uint tNumIndices = aNodeIndices.length();
 
-            // get the number of dv types requested
+            // Get the number of dv types requested
             uint tNumTypes = aPdvTypes.size();
 
-            // set size for list of active flags
+            // Cell size
+            aDvValues.resize(tNumTypes);
             aIsActiveDv.resize(tNumTypes);
 
-            // loop over the requested dv types
-            for ( uint iType = 0; iType < tNumTypes; iType++ )
+            // loop over the node indices
+            for (uint tPdvTypeIndex = 0; tPdvTypeIndex < tNumTypes; tPdvTypeIndex++)
             {
-                aIsActiveDv(iType).set_size(tNumIndices, 1);
+                // Matrix size
+                aDvValues(tPdvTypeIndex).set_size(tNumIndices, 1);
+                aIsActiveDv(tPdvTypeIndex).set_size(tNumIndices, 1, 0);
 
-                // loop over the node indices
-                for ( uint iInd = 0; iInd < tNumIndices; iInd++ )
+                // loop over the requested dv types
+                for (uint tNode = 0; tNode < tNumIndices; tNode++)
                 {
-                    if (mIntersectionNodes(aNodeIndices(iInd)))
+                    if (mIntersectionNodes(aNodeIndices(tNode)))
                     {
-                        aIsActiveDv(iType)(iInd) = 1;
-                        aDvValues(iType)(iInd) =
-                                mIntersectionNodes(aNodeIndices(iInd))->get_coordinate_value(static_cast<uint>(aPdvTypes(iType)));
+                        aDvValues(tPdvTypeIndex)(tNode) =
+                                mIntersectionNodes(aNodeIndices(tNode))->get_coordinate_value(static_cast<uint>(aPdvTypes(tPdvTypeIndex)));
+                        aIsActiveDv(tPdvTypeIndex)(tNode) = 1;
                     }
                 }
             }
@@ -208,13 +227,13 @@ namespace moris
             aDvIds.resize(tNumTypes);
 
             // loop over the node indices
-            for (uint iInd = 0; iInd < tNumIndices; iInd++)
+            for (uint tNode = 0; tNode < tNumIndices; tNode++)
             {
                 // loop over the requested dv types
-                for (uint iType = 0; iType < tNumTypes; iType++)
+                for (uint tPdvTypeIndex = 0; tPdvTypeIndex < tNumTypes; tPdvTypeIndex++)
                 {
-                    aDvIds(iType).resize(tNumIndices, 1);
-                    aDvIds(iType)(iInd) = mIpPdvHosts(aNodeIndices(iInd))->get_global_index_for_pdv_type(aPdvTypes(iType));
+                    aDvIds(tPdvTypeIndex).resize(tNumIndices, 1);
+                    aDvIds(tPdvTypeIndex)(tNode) = mIpPdvHosts(aNodeIndices(tNode))->get_global_index_for_pdv_type(aPdvTypes(tPdvTypeIndex));
                 }
             }
         }
@@ -235,14 +254,17 @@ namespace moris
             aDvIds.resize( tNumTypes );
 
             // loop over the requested dv types
-            for ( uint iType = 0; iType < tNumTypes; iType++ )
+            for ( uint tPdvTypeIndex = 0; tPdvTypeIndex < tNumTypes; tPdvTypeIndex++ )
             {
-                aDvIds( iType ).resize( tNumIndices, 1 );
+                aDvIds(tPdvTypeIndex).set_size(tNumIndices, 1, -1);
 
                 // loop over the node indices
-                for ( uint iInd = 0; iInd < tNumIndices; iInd++ )
+                for ( uint tNode = 0; tNode < tNumIndices; tNode++ )
                 {
-                    aDvIds(iType)(iInd) = mIntersectionNodes(aNodeIndices(iInd))->get_starting_pdv_index() + static_cast<uint>(aPdvTypes(iType));
+                    if (mIntersectionNodes(aNodeIndices(tNode)))
+                    {
+                        aDvIds(tPdvTypeIndex)(tNode) = mIntersectionNodes(aNodeIndices(tNode))->get_starting_pdv_index() + static_cast<uint>(aPdvTypes(tPdvTypeIndex));
+                    }
                 }
             }
         }
@@ -395,14 +417,14 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        void Pdv_Host_Manager::set_ip_requested_dv_types(Cell<PDV_Type>& aPdvTypes)
+        void Pdv_Host_Manager::set_ip_requested_pdv_types(Cell<PDV_Type> aPdvTypes)
         {
             mRequestedIpPdvTypes = aPdvTypes;
         }
 
         //--------------------------------------------------------------------------------------------------------------
 
-        void Pdv_Host_Manager::set_ig_requested_dv_types(Cell<PDV_Type>& aPdvTypes)
+        void Pdv_Host_Manager::set_ig_requested_pdv_types(Cell<PDV_Type> aPdvTypes)
         {
             mRequestedIgPdvTypes = aPdvTypes;
         }
