@@ -2,12 +2,14 @@
 
 #include "cl_PRM_OPT_Parameters.hpp"
 #include "cl_OPT_Manager.hpp"
-#include "cl_OPT_Criteria_Interface.hpp"
-#include "cl_OPT_Interface_User_Defined.hpp"
 #include "fn_OPT_create_interface.hpp"
+#include "cl_OPT_Problem_User_Defined.hpp"
 #include "cl_OPT_Interface_User_Defined.hpp"
 #include "cl_Communication_Tools.hpp"
 #include "paths.hpp"
+
+#include "fn_OPT_Rosenbrock.hpp"
+#include "fn_OPT_Test_Interface.hpp"
 
 namespace moris
 {
@@ -20,25 +22,33 @@ namespace moris
 
             SECTION("GCMMA")
             {
-                // moris root
-                std::string tMorisRoot = moris::get_base_moris_dir();
-
                 // Set up default parameter lists
-                moris::Cell<moris::Cell<ParameterList>> tParameterLists(3);
-                tParameterLists(0).resize(1);
-                tParameterLists(1).resize(1);
-                tParameterLists(2).resize(1);
-                tParameterLists(0)(0) = moris::prm::create_opt_problem_parameter_list();
-                tParameterLists(1)(0) = moris::prm::create_opt_interface_parameter_list();
-                tParameterLists(2)(0) = moris::prm::create_gcmma_parameter_list();
+                ParameterList tProblemParameterList = moris::prm::create_opt_problem_parameter_list();
+                ParameterList tAlgorithmParameterList = moris::prm::create_gcmma_parameter_list();
 
                 // Change parameters
-                tParameterLists(0)(0).set("finite_difference_type", "central");
-                tParameterLists(0)(0).set("library", tMorisRoot + "projects/OPT/test/data/Rosenbrock.so");
-                tParameterLists(1)(0).set("library", tMorisRoot + "projects/OPT/test/data/Rosenbrock.so");
+                tProblemParameterList.set("finite_difference_type", "central");
+
+                // Create interface
+                std::shared_ptr<Criteria_Interface> tInterface = std::make_shared<Interface_User_Defined>(
+                        &initialize_rosenbrock,
+                        &get_criteria_rosenbrock,
+                        &get_dcriteria_dadv_rosenbrock);
+
+                // Create Problem
+                std::shared_ptr<Problem> tProblem = std::make_shared<Problem_User_Defined>(
+                        tProblemParameterList,
+                        tInterface,
+                        &get_constraint_types_rosenbrock,
+                        &compute_objectives_rosenbrock,
+                        &compute_constraints_rosenbrock,
+                        &compute_dobjective_dadv_rosenbrock,
+                        &compute_dobjective_dcriteria_rosenbrock,
+                        &compute_dconstraint_dadv_rosenbrock,
+                        &compute_dconstraint_dcriteria_rosenbrock);
 
                 // Create manager
-                moris::opt::Manager tManager(tParameterLists);
+                moris::opt::Manager tManager({tAlgorithmParameterList}, tProblem);
 
                 // Solve optimization problem
                 tManager.perform();
@@ -52,25 +62,31 @@ namespace moris
 
             SECTION("SQP")
             {
-                // moris root
-                std::string tMorisRoot = moris::get_base_moris_dir();
-
                 // Set up default parameter lists
-                moris::Cell<moris::Cell<ParameterList>> tParameterLists(3);
-                tParameterLists(0).resize(1);
-                tParameterLists(1).resize(1);
-                tParameterLists(2).resize(1);
-                tParameterLists(0)(0) = moris::prm::create_opt_problem_parameter_list();
-                tParameterLists(1)(0) = moris::prm::create_opt_interface_parameter_list();
-                tParameterLists(2)(0) = moris::prm::create_sqp_parameter_list();
-
-                // Change parameters
-                tParameterLists(0)(0).set("library", tMorisRoot + "projects/OPT/test/data/Rosenbrock.so");
-                tParameterLists(1)(0).set("library", tMorisRoot + "projects/OPT/test/data/Rosenbrock.so");
-
+                ParameterList tProblemParameterList = moris::prm::create_opt_problem_parameter_list();
+                ParameterList tAlgorithmParameterList = moris::prm::create_sqp_parameter_list();
+            
+                // Create interface
+                std::shared_ptr<Criteria_Interface> tInterface = std::make_shared<Interface_User_Defined>(
+                        &initialize_rosenbrock,
+                        &get_criteria_rosenbrock,
+                        &get_dcriteria_dadv_rosenbrock);
+            
+                // Create Problem
+                std::shared_ptr<Problem> tProblem = std::make_shared<Problem_User_Defined>(
+                        tProblemParameterList,
+                        tInterface,
+                        &get_constraint_types_rosenbrock,
+                        &compute_objectives_rosenbrock,
+                        &compute_constraints_rosenbrock,
+                        &compute_dobjective_dadv_rosenbrock,
+                        &compute_dobjective_dcriteria_rosenbrock,
+                        &compute_dconstraint_dadv_rosenbrock,
+                        &compute_dconstraint_dcriteria_rosenbrock);
+            
                 // Create manager
-                moris::opt::Manager tManager(tParameterLists);
-
+                moris::opt::Manager tManager({tAlgorithmParameterList}, tProblem);
+            
                 // Solve optimization problem
                 tManager.perform();
 
@@ -83,101 +99,95 @@ namespace moris
 
             //    SECTION("LBFGS")
             //    {
-            //
-            //        // Create test interface
-            //        moris::opt::Interface_Rosenbrock tInterface;
-            //
-            //        // Create problem, assign interface
-            //        moris::opt::Problem_Rosenbrock tManager(&tInterface);
-            //        tManager.mConstrained = false;
-            //
-            //        // Create algorithm and set parameters
-            //        opt::Algorithm_API tAlgBFGS("LBFGS");
-            //
-            //        // Assign algorithm to cell for manager
-            //        moris::Cell< opt::Algorithm_API > tAlgorithms(1, tAlgBFGS);
-            //
-            //        // Create manager, assign cell of algorithms and problem
-            //        moris::opt::Manager tManager(tAlgorithms, &tManager);
-            //
-            //        // Solve optimization problem
-            //        tManager.perform();
-            //
-            //        moris::print(tManager.get_advs(), "advs");
-            //        moris::print(tManager.get_objectives(), "objective");
-            //
-            //
             //    }
 
             // ---------------------------------------------------------------------------------------------------------
 
-            SECTION( "sweep" )
+            SECTION("Sweep")
             {
-                // moris root
-                std::string tMorisRoot = moris::get_base_moris_dir();
+                // MORIS output
                 std::string tMorisOutput = std::getenv("MORISOUTPUT");
-
+                
                 // Set up default parameter lists
-                moris::Cell<moris::Cell<ParameterList>> tParameterLists(3);
-                tParameterLists(0).resize(1);
-                tParameterLists(1).resize(1);
-                tParameterLists(2).resize(1);
-                tParameterLists(0)(0) = moris::prm::create_opt_problem_parameter_list();
-                tParameterLists(1)(0) = moris::prm::create_opt_interface_parameter_list();
-                tParameterLists(2)(0) = moris::prm::create_sweep_parameter_list();
+                ParameterList tProblemParameterList = moris::prm::create_opt_problem_parameter_list();
+                ParameterList tAlgorithmParameterList = moris::prm::create_sweep_parameter_list();
 
                 // Change parameters
-                tParameterLists(0)(0).set("library", tMorisRoot + "projects/OPT/test/data/Rosenbrock.so");
-                tParameterLists(1)(0).set("library", tMorisRoot + "projects/OPT/test/data/Rosenbrock.so");
-                tParameterLists(2)(0).set("hdf5_path", tMorisOutput + "sweep.hdf5");
-                tParameterLists(2)(0).set("num_evaluations_per_adv", "3, 2");
-                tParameterLists(2)(0).set("finite_difference_type", "all");
-                tParameterLists(2)(0).set("finite_difference_epsilons", "0.001, 0.01; 0.00001, 0.00001");
-
+                tAlgorithmParameterList.set("hdf5_path", tMorisOutput + "sweep.hdf5");
+                tAlgorithmParameterList.set("num_evaluations_per_adv", "3, 2");
+                tAlgorithmParameterList.set("finite_difference_type", "all");
+                tAlgorithmParameterList.set("finite_difference_epsilons", "0.001, 0.01; 0.00001, 0.00001");
+                
+                // Create interface
+                std::shared_ptr<Criteria_Interface> tInterface = std::make_shared<Interface_User_Defined>(
+                        &initialize_rosenbrock,
+                        &get_criteria_rosenbrock,
+                        &get_dcriteria_dadv_rosenbrock);
+                
+                // Create Problem
+                std::shared_ptr<Problem> tProblem = std::make_shared<Problem_User_Defined>(
+                        tProblemParameterList,
+                        tInterface,
+                        &get_constraint_types_rosenbrock,
+                        &compute_objectives_rosenbrock,
+                        &compute_constraints_rosenbrock,
+                        &compute_dobjective_dadv_rosenbrock,
+                        &compute_dobjective_dcriteria_rosenbrock,
+                        &compute_dconstraint_dadv_rosenbrock,
+                        &compute_dconstraint_dcriteria_rosenbrock);
+                
                 // Create manager
-                moris::opt::Manager tManager(tParameterLists);
-
+                moris::opt::Manager tManager({tAlgorithmParameterList}, tProblem);
+                
                 // Solve optimization problem
                 tManager.perform();
             }
 
             // ---------------------------------------------------------------------------------------------------------
 
-            SECTION( "interface" )
+            SECTION("Interface")
             {
                 if (par_size() == 4 or par_size() == 8)
                 {
-                    // moris root
-                    std::string tMorisRoot = moris::get_base_moris_dir();
+                    // Create interfaces
+                    Cell<std::shared_ptr<Criteria_Interface>> tInterfaces(4);
+                    tInterfaces(0) = std::make_shared<Interface_User_Defined>(
+                            &initialize_test_1,
+                            &get_criteria_test,
+                            &get_dcriteria_dadv_test);
+                    tInterfaces(1) = std::make_shared<Interface_User_Defined>(
+                            &initialize_test_2,
+                            &get_criteria_test,
+                            &get_dcriteria_dadv_test);
+                    tInterfaces(2) = std::make_shared<Interface_User_Defined>(
+                            &initialize_test_3,
+                            &get_criteria_test,
+                            &get_dcriteria_dadv_test);
+                    tInterfaces(3) = std::make_shared<Interface_User_Defined>(
+                            &initialize_test_4,
+                            &get_criteria_test,
+                            &get_dcriteria_dadv_test);
 
-                    // Set up default interface parameter lists
-                    moris::Cell<ParameterList> tParameterLists(5);
-                    tParameterLists(0) = moris::prm::create_opt_interface_manager_parameter_list();
-                    tParameterLists(1) = moris::prm::create_opt_interface_parameter_list();
-                    tParameterLists(2) = moris::prm::create_opt_interface_parameter_list();
-                    tParameterLists(3) = moris::prm::create_opt_interface_parameter_list();
-                    tParameterLists(4) = moris::prm::create_opt_interface_parameter_list();
+                    // Interface manager parameter list
+                    ParameterList tInterfaceManagerParameterList = moris::prm::create_opt_interface_manager_parameter_list();
 
                     // Set manager parameters
-                    tParameterLists(0).set("parallel", true);
-                    tParameterLists(0).set("shared_advs", false);
+                    tInterfaceManagerParameterList.set("parallel", true);
+                    tInterfaceManagerParameterList.set("shared_advs", false);
                     if (par_size() == 4)
                     {
-                        tParameterLists(0).set("num_processors_per_interface", "1, 1, 1, 1");
+                        tInterfaceManagerParameterList.set("num_processors_per_interface", "1, 1, 1, 1");
                     }
                     else
                     {
-                        tParameterLists(0).set("num_processors_per_interface", "1, 2, 3, 2");
+                        tInterfaceManagerParameterList.set("num_processors_per_interface", "1, 2, 3, 2");
                     }
 
-                    // Add individual user-defined dummy interfaces
-                    tParameterLists(1).set("library", tMorisRoot + "projects/OPT/test/data/Interface_1.so");
-                    tParameterLists(2).set("library", tMorisRoot + "projects/OPT/test/data/Interface_2.so");
-                    tParameterLists(3).set("library", tMorisRoot + "projects/OPT/test/data/Interface_3.so");
-                    tParameterLists(4).set("library", tMorisRoot + "projects/OPT/test/data/Interface_4.so");
+                    // Create manager
+                    std::shared_ptr<Criteria_Interface> tInterface = create_interface({tInterfaceManagerParameterList},
+                                                                                      tInterfaces);
 
-                    // Create interface
-                    std::shared_ptr<Criteria_Interface> tInterface = create_interface(tParameterLists);
+                    // Test manager in parallel
                     Matrix<DDRMat> tADVs;
                     Matrix<DDRMat> tLowerBounds;
                     Matrix<DDRMat> tUpperBounds;

@@ -13,31 +13,48 @@ namespace moris
         {
         private:
             Matrix<DDRMat> mADVs;
-            moris::Library_IO mLibrary;
+            std::shared_ptr<Library_IO> mLibrary;
 
         public:
 
             /**
              * Constructor
+             *
+             * @param aParameterList Parameter list containing parameters for a user-defined interface.
              */
             Interface_User_Defined(ParameterList aParameterList);
 
             /**
+             * Alternate constructor where the user-defined functions are provided directly. Used in the OPT tests.
+             *
+             * @param aInitializationFunction Function for initializing ADVs and lower/upper bounds.
+             * @param aCriteriaEvaluationFunction Function for evaluating the criteria vector.
+             * @param aCriteriaGradientFunction Function for evaluating the gradient of the criteria vector wrt ADVs.
+             */
+            Interface_User_Defined(MORIS_CRITERIA_INITIALIZE_FUNCTION aInitializationFunction,
+                                   MORIS_CRITERIA_FUNCTION aCriteriaEvaluationFunction,
+                                   MORIS_CRITERIA_FUNCTION aCriteriaGradientFunction);
+
+            /**
              * Initializes the vectors of ADV values, lower bounds, and upper bounds
+             *
+             * @param aADVs Initial ADVs to be filled.
+             * @param aLowerBounds Lower ADV bounds to be filled.
+             * @param aUpperBounds Upper ADV bounds to be filled.
              */
             void initialize(Matrix<DDRMat>& aADVs,
                             Matrix<DDRMat>& aLowerBounds,
                             Matrix<DDRMat>& aUpperBounds);
 
             /**
-             * Gets the criteria values
+             * Gets the criteria values.
              *
              * @return vector of criteria
              */
             Matrix<DDRMat> perform(Matrix<DDRMat> aNewADVs);
 
             /**
-             * Gets the derivative of the criteria with respect to the advs
+             * Gets the derivative of the criteria with respect to the advs.
              *
              * @return matrix d(criteria)_i/d(adv)_j
              */

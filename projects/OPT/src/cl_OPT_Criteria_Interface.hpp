@@ -32,6 +32,10 @@ namespace moris
 
             /**
              * Initializes the vectors of ADV values, lower bounds, and upper bounds
+             *
+             * @param aADVs Initial ADVs to be filled.
+             * @param aLowerBounds Lower ADV bounds to be filled.
+             * @param aUpperBounds Upper ADV bounds to be filled.
              */
             virtual void initialize(Matrix<DDRMat>& aADVs,
                                     Matrix<DDRMat>& aLowerBounds,
