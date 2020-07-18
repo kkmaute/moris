@@ -143,8 +143,8 @@ void check_linear_results_serial()
     else
     {
         REQUIRE( tNumDims  ==  2   );
-        REQUIRE( tNumNodes ==  6033 );
-        REQUIRE( tNumElems ==  6033 );
+        REQUIRE( tNumNodes ==  6030 );
+        REQUIRE( tNumElems ==  6030 );
     }
 
     // check results
