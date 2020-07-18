@@ -32,6 +32,27 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
+        void IQI_Max_Dof::set_property(
+                std::shared_ptr< Property > aProperty,
+                std::string                 aPropertyString,
+                mtk::Master_Slave           aIsMaster)
+        {
+            // check that aPropertyString makes sense
+            if ( mPropertyMap.find( aPropertyString ) == mPropertyMap.end() )
+            {
+                std::string tErrMsg =
+                        std::string( "CM_Diffusion_Linear_Isotropic_Phase_Change::set_property - Unknown aPropertyString : ") +
+                        aPropertyString;
+
+                MORIS_ERROR( false , tErrMsg.c_str() );
+            }
+
+            // set the property in the property cell
+            mMasterProp( static_cast< uint >( mPropertyMap[ aPropertyString ] ) ) = aProperty;
+        }
+
+        //------------------------------------------------------------------------------
+
         void IQI_Max_Dof::compute_QI( Matrix< DDRMat > & aQI )
         {
             // get field interpolator for a given dof type

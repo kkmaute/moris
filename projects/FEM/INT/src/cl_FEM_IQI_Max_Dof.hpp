@@ -54,6 +54,18 @@ namespace moris
 
                 //------------------------------------------------------------------------------
                 /**
+                 * set property
+                 * @param[ in ] aProperty       a property pointer
+                 * @param[ in ] aPropertyString a string describing the property
+                 * @param[ in ] aIsMaster       enum master or slave
+                 */
+                void set_property(
+                        std::shared_ptr< Property > aProperty,
+                        std::string                 aPropertyString,
+                        mtk::Master_Slave           aIsMaster = mtk::Master_Slave::MASTER );
+
+                //------------------------------------------------------------------------------
+                /**
                  * compute the quantity of interest
                  * @param[ in ] aQI quantity of interest matrix to fill
                  */
