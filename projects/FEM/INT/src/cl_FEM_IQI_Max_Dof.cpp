@@ -74,7 +74,7 @@ namespace moris
             }
 
             // evaluate the QI
-            aQI = {{ std::pow( tFI->val()( mIQITypeIndex ) - tRefValue, tExponent ) }};
+            aQI = {{ std::pow( 1/tRefValue * tFI->val()( mIQITypeIndex ) - 1.0, tExponent ) }};
         }
 
         //------------------------------------------------------------------------------
@@ -103,7 +103,7 @@ namespace moris
             }
 
             // evaluate the QI
-            mSet->get_QI()( tQIIndex ).matrix_data() += { aWStar *  std::pow( tFI->val()( mIQITypeIndex ) - tRefValue, tExponent ) };
+            mSet->get_QI()( tQIIndex ).matrix_data() += { aWStar *  std::pow( 1/tRefValue * tFI->val()( mIQITypeIndex ) - 1.0, tExponent ) };
         }
 
         //------------------------------------------------------------------------------

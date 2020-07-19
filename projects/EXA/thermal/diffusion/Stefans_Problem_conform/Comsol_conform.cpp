@@ -293,7 +293,7 @@ namespace moris
 
         tParameterList( 0 ).push_back( prm::create_property_parameter_list() );
         tParameterList( 0 )( tPropCounter ).set( "property_name",            std::string("PropMaxTempReference") );
-        tParameterList( 0 )( tPropCounter ).set( "function_parameters",      std::string("0.0") );
+        tParameterList( 0 )( tPropCounter ).set( "function_parameters",      std::string("313.0") );
         tParameterList( 0 )( tPropCounter ).set( "value_function",           std::string("Func_Const") );
         tPropCounter++;
 
