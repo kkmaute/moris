@@ -2740,7 +2740,7 @@ Child_Mesh::modify_child_mesh_internal(enum TemplateType aTemplate)
             }
             else
             {
-                std::cout << "Invalid connectivity for nodal hierarchy template, (should be 3 or 4 nodes)\n";
+                std::cout << "Invalid connectivity for nodal hierarchy template, (should be 1,2,3 or 4 nodes)\n";
             }
         }
 

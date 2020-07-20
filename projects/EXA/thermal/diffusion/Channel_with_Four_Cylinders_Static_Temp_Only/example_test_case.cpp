@@ -72,7 +72,7 @@ void check_linear_results(moris::mtk::Exodus_IO_Helper & aExoIO,uint aNodeId)
     REQUIRE(  tRelTempDifference < 1.0e-4);
 
     // check IQI of first time step (only 1 IQI is defined, first time step has index 0)
-    real tReferenceIQI = 8.324911657639191e+04;
+    real tReferenceIQI = 8.324886503174731e+04;
 
     real tRelIQIDifference = std::abs( ( aExoIO.get_global_variable(0, 0 ) - tReferenceIQI ) / tReferenceIQI );
 
@@ -101,8 +101,8 @@ void check_linear_results_serial()
     else
     {
         REQUIRE( tNumDims  ==  2    );
-        REQUIRE( tNumNodes ==  5572 );
-        REQUIRE( tNumElems ==  5426 );
+        REQUIRE( tNumNodes ==  5570 );
+        REQUIRE( tNumElems ==  5424 );
     }
 
     // check results

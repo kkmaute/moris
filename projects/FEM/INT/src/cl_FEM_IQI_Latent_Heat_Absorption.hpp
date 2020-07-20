@@ -26,6 +26,7 @@ namespace moris
 
         class IQI_Latent_Heat_Absorption : public IQI
         {
+
                 //------------------------------------------------------------------------------
 
                 enum class IQI_Property_Type

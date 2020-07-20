@@ -18,6 +18,8 @@
 #include "cl_FEM_IWG_Diffusion_Bulk.hpp"
 #include "cl_FEM_IWG_Diffusion_Dirichlet_Nitsche.hpp"
 #include "cl_FEM_IWG_Diffusion_Neumann.hpp"
+#include "cl_FEM_IWG_Diffusion_Robin.hpp"
+#include "cl_FEM_IWG_Diffusion_Radiation.hpp"
 #include "cl_FEM_IWG_Diffusion_Interface.hpp"
 #include "cl_FEM_IWG_Diffusion_Ghost.hpp"
 #include "cl_FEM_IWG_Diffusion_Virtual_Work_Ghost.hpp"
@@ -96,6 +98,12 @@ namespace moris
 
                 case IWG_Type::SPATIALDIFF_NEUMANN :
                     return std::make_shared< IWG_Diffusion_Neumann >();
+
+                case IWG_Type::SPATIALDIFF_ROBIN :
+                    return std::make_shared< IWG_Diffusion_Robin >();
+
+                case IWG_Type::SPATIALDIFF_RADIATION :
+                    return std::make_shared< IWG_Diffusion_Radiation >();
 
                 case IWG_Type::SPATIALDIFF_INTERFACE :
                     return std::make_shared< IWG_Diffusion_Interface >();

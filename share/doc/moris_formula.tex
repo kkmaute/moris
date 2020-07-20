@@ -15,13 +15,13 @@
 \newcommand{\log}[1]{\ log \left( #1 \right) }
 
 \newcommand{\bm}[1]{\mathbf{#1}}
-\newcommand{\vec}[1]{\mathbf{#1}}
-\newcommand{\mat}[1]{\mathbf{#1}}
+\newcommand{\vec}[1]{\bm{#1}}
+\newcommand{\mat}[1]{\bm{#1}}
 
 \newcommand{\trans}[1]{#1^T}
 \newcommand{\grad}[1]{\vec{\nabla} #1}
 \newcommand{\div}[1]{\vec{\nabla} \cdot #1}
-\newcommand{\curl}[2]{\vec{\nabla} \times #1}
+\newcommand{\curl}[1]{\vec{\nabla} \times #1}
 \newcommand{\laplacian}[1]{\vec{\nabla}^2 #1}
 
 \newcommand{\IdentityMat}{\mat{I}}
@@ -30,6 +30,10 @@
 \newcommand{\space}{\vec{x}}
 \newcommand{\ElementSize}{h}
 \newcommand{\ElemSize}{\ElementSize}
+\newcommand{\Residual}{R}
+\newcommand{\Res}{\Residual}
+\newcommand{\ResidualVector}{\vec{\Residual}}
+\newcommand{\ResVec}{\ResidualVector}
 
 \newcommand{\TestFunction}{w}
 \newcommand{\TestFunc}{\TestFunction}
@@ -41,8 +45,14 @@
 \newcommand{\TimeDomain}{\Omega_{\time}}
 
 \newcommand{\DomainBoundary}{\partial \Omega}
+\newcommand{\SpaceDomainBoundary}{\DomainBoundary_{\space}}
+\newcommand{\TimeDomainBoundary}{\DomainBoundary_{\time}}
 \newcommand{\BoundarySegment}{\Gamma}
 \newcommand{\BoundSeg}{\BoundarySegment}
+\newcommand{\SpaceBoundarySegment}{\BoundSeg_{\space}}
+\newcommand{\SpaceBoundSeg}{\SpaceBoundarySegment}
+\newcommand{\TimeBoundarySegment}{\BoundSeg_{\time}}
+\newcommand{\TimeBoundSeg}{\TimeBoundarySegment}
 \newcommand{\SurfaceNormal}{\vec{n}}
 \newcommand{\SurfNorm}{\SurfaceNormal}
 
@@ -58,6 +68,15 @@
 \newcommand{\enthalpy}{H}
 \newcommand{\HeatFlux}{\vec{q}}
 \newcommand{\BodyLoad}{Q}
+\newcommand{\ConvectionCoefficient}{\alpha_c}
+\newcommand{\ConvecCoeff}{\ConvectionCoefficient}
+\newcommand{\emissivity}{\varepsilon}
+\newcommand{\AmbientTemperature}{T_{inf}}
+\newcommand{\AmbTemp}{\AmbientTemperature}
+\newcommand{\AbsoluteZero}{T_{A0}}
+\newcommand{\AbsZero}{\AbsoluteZero}
+\newcommand{\StefanBoltzmannConstant}{\sigma_{SB}}
+\newcommand{\SBconst}{\StefanBoltzmannConstant}
 
 \newcommand{\PCTemperature}{T_m}
 \newcommand{\PCTemp}{\PCTemperature}
@@ -73,9 +92,11 @@
 
 \newcommand{\velocity}{\vec{u}}
 \newcommand{\pressure}{p}
-\newcommand{\ViscousStress}{\tau}
+\newcommand{\ViscousStress}{\mat{\tau}}
 \newcommand{\DynamicViscosity}{\mu}
 \newcommand{\KinematicViscosity}{\nu}
+
+\newcommand{\BodyForce}{\vec{b}}
 
 \newcommand{\InnerEnergy}{e}
 \newcommand{\TotalEnergy}{\varepsilon}

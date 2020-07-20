@@ -9,6 +9,7 @@
 #include "cl_Mesh_Enums.hpp"
 #include "cl_GEN_Sphere_Box.hpp"
 #include "cl_Cell.hpp"
+#include "cl_Communication_Tools.hpp"
 
 namespace xtk
 {
@@ -80,12 +81,21 @@ Hole_Seeder::seed_field()
     }
 
     // figure out bounding box
-    moris::real tMaxX = tCoordsX.max();
-    moris::real tMinX = tCoordsX.min();
-    moris::real tMaxY = tCoordsY.max();
-    moris::real tMinY = tCoordsY.min();
-    moris::real tMaxZ = tCoordsZ.max();
-    moris::real tMinZ = tCoordsZ.min();
+    moris::real tLocMaxX = tCoordsX.max();
+    moris::real tLocMinX = tCoordsX.min();
+    moris::real tLocMaxY = tCoordsY.max();
+    moris::real tLocMinY = tCoordsY.min();
+    moris::real tLocMaxZ = tCoordsZ.max();
+    moris::real tLocMinZ = tCoordsZ.min();
+
+    // global  bounding box
+    moris::real tMaxX = moris::max_all(tLocMaxX);
+    moris::real tMinX = moris::min_all(tLocMinX);
+    moris::real tMaxY = moris::max_all(tLocMaxY);
+    moris::real tMinY = moris::min_all(tLocMinY);
+    moris::real tMaxZ = moris::max_all(tLocMaxZ);
+    moris::real tMinZ = moris::min_all(tLocMinZ);
+
 
     moris::real lx = tMaxX-tMinX;
     moris::real ly = tMaxY-tMinY;
@@ -134,10 +144,10 @@ Hole_Seeder::seed_field()
         }
     }
     // construct spheres
-    moris::Cell<std::shared_ptr<moris::ge::Sphere_Box>> tSpheres(tNumSpheres);
+    mSpheres.resize(tNumSpheres);
     for(moris::uint i = 0; i <tNumSpheres; i++)
     {
-        tSpheres(i) = std::make_shared<moris::ge::Sphere_Box>(mRadiusX,mRadiusY,mRadiusZ,tCenters(i)(0),tCenters(i)(1),tCenters(i)(2),mNexp);
+        mSpheres(i) = std::make_shared<moris::ge::Sphere_Box>(mRadiusX,mRadiusY,mRadiusZ,tCenters(i)(0),tCenters(i)(1),tCenters(i)(2),mNexp);
     }
 
     // iterate through node to compute a level set value at each node
@@ -150,7 +160,7 @@ Hole_Seeder::seed_field()
         // iterate through all spheres
         for(moris::uint iSphere =0; iSphere<tNumSpheres; iSphere++)
         {
-            tSphereLSV(i)(iSphere) = tSpheres(iSphere)->evaluate_field_value_with_coordinate(i,tCoords);
+            tSphereLSV(i)(iSphere) = mSpheres(iSphere)->evaluate_field_value_with_coordinate(i,tCoords);
         }
 
         mSeededField(i) = tSphereLSV(i).min();
@@ -177,6 +187,12 @@ moris::Matrix<moris::DDRMat> const &
 Hole_Seeder::get_seeded_field()
 {
     return mSeededField;
+}
+
+moris::Cell<std::shared_ptr<moris::ge::Sphere_Box>> &
+Hole_Seeder::get_seeded_geometies()
+{
+    return mSpheres;
 }
 
 }

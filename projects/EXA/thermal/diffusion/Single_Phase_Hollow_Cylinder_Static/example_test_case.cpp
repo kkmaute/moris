@@ -9,7 +9,7 @@
 //---------------------------------------------------------------
 
 // global variable for interpolation order
-uint gInterpolationOrder;
+uint gInterpolationOrder = 1;
 
 // flag to print reference values
 bool gPrintReferenceValues = false;

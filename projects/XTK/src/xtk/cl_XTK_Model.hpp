@@ -142,6 +142,38 @@ namespace xtk
              */
             void decompose(Cell<enum Subdivision_Method> aMethods);
 
+
+            /*!
+             * get the timing data
+             */
+            Matrix<DDRMat>
+            get_timing_data() const;
+
+            /*!
+             * Return the label for the timing
+             */
+            Cell<std::string>
+            get_timing_labels() const;
+
+            /*
+             * Takes the timing data and places it into an HDF5 file
+             */
+            void
+            save_timing_to_hdf5( const std::string & aFilePath ) const;
+
+            /*
+             * Save model statistics to file
+             */
+            void
+            save_model_statistics_to_file( const std::string & aFilePath );
+
+            /*!
+             * Cleanly print XTK timing data to the log
+             */
+            void
+            print_timing_data() const;
+
+
             /*!
              * Uses sub-phase information within a child mesh to construct one interpolation element for each sub-phase cluster
              */
@@ -412,6 +444,15 @@ namespace xtk
 
             bool mInitializeCalled = false;
 
+            // timing information
+            // the time
+            Cell<real>        mTimingData;
+
+            // the label of the time
+            Cell<std::string> mTimingLabels;
+
+            // category that the timing is in (i.e. decomp, enrich, ghost, overall)
+            Cell<std::string> mTimingCategory;
 
             // Private Functions
         private:
@@ -562,10 +603,16 @@ namespace xtk
                      Cell<uint>              const & aProcRanks);
 
              void
-             inward_receive_request_answers_reals(moris_index            const & aMPITag,
+             inward_receive_request_answers_reals(
+                     moris_index            const & aMPITag,
                      moris::uint            const & aNumRows,
                      Cell<uint>             const & aProcRanks,
                      Cell<Matrix<DDRMat>> &       aReceivedData);
+
+             void
+             add_timing_data(real        const & aTime,
+                             std::string const & aLabel,
+                             std::string const & aCategory);
 
         private:
 

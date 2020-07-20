@@ -48,7 +48,7 @@ The Entropy is defined as:
 
 Hence, the change rate can simply be computed as
 
-\f[ \dot{\enthalpy}(\temp) = \density \HeatCap \pfrac{\Temp}{\time} \f]
+\f[ \dot{\enthalpy}(\temp) = \density \HeatCap \pfrac{\temp}{\time} \f]
 
 The class this constitutive model is implemented in is CM_Diffusion_Linear_Isotropic corresponding to the enum Constitutive_Type::DIFF_LIN_ISO .
 
@@ -175,8 +175,7 @@ Note: the implementation of this term has not been adapted to support a temperat
 # IWGs
 
 ## Bulk
-The IWG for the bulk is implemented in 
-IWG_Diffusion_Bulk, corresponding to the enum IWG\_Type::SPATIALDIFF\_BULK.
+The IWG for the bulk is implemented in IWG_Diffusion_Bulk, corresponding to the enum IWG\_Type::SPATIALDIFF\_BULK.
 
 The following bulk integral is evaluated to obtain the residual contribution:
 
@@ -188,14 +187,61 @@ The following bulk integral is evaluated to obtain the residual contribution:
 
 
 ## Von-Neumann BC
-The IWG for the \textsc{Neumann} boundary is implemented in 
-IWG_Diffusion_Neumann, corresponding to the enums IWG\_Type::SPATIALDIFF_NEUMANN.
+The IWG for the Neumann boundary is implemented in 
+IWG_Diffusion_Neumann, corresponding to the enum IWG\_Type::SPATIALDIFF\_NEUMANN.
 
 The following boudary integral is evaluated to obtain the residual contribution:
 
 \f[ \bm{R}_{N} = \int_{\Gamma_N} w (\HeatFlux \cdot \SurfaceNormal) \ d\BoundarySegment \f]
 
-The IWG can be defined using both CMs, with and without phase change, as it is not dependent on the definition of the enthalpy.
+The IWG doesn't require the definition of a constitutive model. Only the incident heat flux must be prescribed as a property. 
+A system egoistic view is used for the flux, i.e. a positive heat flux \f$ \HeatFlux \cdot \SurfaceNormal \f$ heats up the system/element.
+
+## Robin BC
+The IWG for the Robin boundary is implemented in 
+IWG_Diffusion_Robin, corresponding to the enum IWG\_Type::SPATIALDIFF\_ROBIN.
+
+Generally speaking, a Robin BC is a boundary condition that depends on both the field value (i.e. temperature) and its gradient (i.e. the flux).
+It is implemented for the general empirical law of surface convection.
+The following boudary integral is evaluated to obtain the residual contribution:
+
+\f[ \ResidualVector_{R} = \int_{\Gamma_R} \TestFunction \ConvectionCoefficient (\temp - \AmbientTemperature) \ d\BoundarySegment \f]
+
+Note, that unlike with the Neumann BC, a positive heat flux 
+\f$ \HeatFlux \cdot \SurfaceNormal = \ConvectionCoefficient (\temp - \AmbientTemperature) \f$ 
+is considered outward pointing in the implementation (the system is loosing energy), rather than the system egoistic view used for the 
+Neumann BC.
+
+The IWG doesn't require the definition of a constitutive model. However, it requires the user to input the convection coefficient 
+\f$ \ConvectionCoefficient \f$ and the ambient temperature \f$ \AmbientTemperature \f$.
+
+
+## Radiation BC
+The IWG for the Radiation boundary condition is implemented in 
+IWG_Diffusion_Radiation, corresponding to the enum IWG\_Type::SPATIALDIFF\_RADIATION.
+
+The Radiation BC is technically a Robin BC. However, the implementation was kept separate to keep it simple.
+It is implemented for the Stefan-Boltzmann law of black body radiation. The IWG only considers incident radiation from the sourrounding, 
+infinite space. Due to this, the model is only accurate for the outer surface of a convex body.
+The following boudary integral is evaluated to obtain the residual contribution:
+
+\f[ 
+\ResidualVector_{R} = \int_{\Gamma_R} \TestFunction \emissivity \StefanBoltzmannConstant 
+\left( (\temp - \AbsoluteZero)^4 - (\AmbientTemperature - \AbsoluteZero)^4 \right) 
+\ d\BoundarySegment 
+\f]
+
+where \f$ \StefanBoltzmannConstant \f$ denotes the Stefan-Boltzmann constant for black body radiation, and \f$ \emissivity \f$ denotes 
+the emissivity of the material used. 
+
+Note, that unlike with the Neumann BC, a positive heat flux 
+\f$ \HeatFlux \cdot \SurfaceNormal = \emissivity \StefanBoltzmannConstant 
+\left( (\temp - \AbsoluteZero)^4 - (\AmbientTemperature - \AbsoluteZero)^4 \right)  \f$ 
+is considered outward pointing in the implementation (the system is loosing energy), rather than the system egoistic view used for the 
+Neumann BC.
+
+The IWG doesn't require the definition of a constitutive model. However, it requires the user to input the emissivity 
+\f$ \emissivity \f$, the ambient temperature \f$ \AmbientTemperature \f$, and the point of absolute zero \f$ \AbsoluteZero \f$.
 
 ## Dirichlet BC
 The IWG for the \textsc{Dirichlet} boundary is implemented in 
