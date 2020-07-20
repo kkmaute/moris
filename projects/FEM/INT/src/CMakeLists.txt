@@ -82,6 +82,8 @@ set(HEADERS
     cl_FEM_Integration_Coeffs_Tri_1.hpp
     cl_FEM_Integration_Coeffs_Tri_3.hpp
     cl_FEM_Integration_Coeffs_Tri_6.hpp
+    cl_FEM_Integration_Coeffs_Tri_7.hpp
+    cl_FEM_Integration_Coeffs_Tri_12.hpp
     cl_FEM_Integration_Coeffs_Tet_1.hpp
     cl_FEM_Integration_Coeffs_Tet_4.hpp
     cl_FEM_Integration_Coeffs_Tet_5.hpp
@@ -143,6 +145,7 @@ set(HEADERS
     cl_FEM_IQI_Volume_Fraction.hpp
     cl_FEM_IQI_2D_Drag_Lift_Coefficient.hpp
     cl_FEM_IQI_Latent_Heat_Absorption.hpp
+    cl_FEM_IQI_Turbulent_Kinematic_Viscosity.hpp
     cl_FEM_Stabilization_Parameter.hpp
     cl_FEM_SP_Factory.hpp
     cl_FEM_SP_Dirichlet_Nitsche.hpp
@@ -285,6 +288,7 @@ set(LIB_SOURCES
     cl_FEM_IQI_Volume_Fraction.cpp
     cl_FEM_IQI_2D_Drag_Lift_Coefficient.cpp
     cl_FEM_IQI_Latent_Heat_Absorption.cpp
+    cl_FEM_IQI_Turbulent_Kinematic_Viscosity.cpp
     cl_FEM_Interpolation_Element.cpp
     cl_FEM_Model.cpp
     )
