@@ -59,6 +59,10 @@ namespace moris
             uint tSlaveResStartIndex = mSet->get_res_dof_assembly_map()( tSlaveDofIndex )( 0, 0 );
             uint tSlaveResStopIndex  = mSet->get_res_dof_assembly_map()( tSlaveDofIndex )( 0, 1 );
 
+//            // FIXME to remove
+//            Matrix< DDRMat > tPrev1 = mSet->get_residual()( 0 )({ tMasterResStartIndex, tMasterResStopIndex },{ 0, 0 } );
+//            Matrix< DDRMat > tPrev2 = mSet->get_residual()( 0 )({ tSlaveResStartIndex, tSlaveResStopIndex },{ 0, 0 } );
+
             // get the master field interpolator for the residual dof type
             Field_Interpolator * tFIMaster = mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );
 
@@ -136,6 +140,17 @@ namespace moris
                 mSet->get_residual()( 0 )( { tSlaveResStartIndex, tSlaveResStopIndex }, { 0, 0 } ) -= aWStar * (
                         tSlavedNdxFlat * tPreMultiply );
             }
+
+//            std::cout<<"9 "<<
+//                    mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator()->valx()( 0 )<<" "<<
+//                    mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator()->valx()( 1 )<<" "<<
+//                    mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator()->valt()( 0 )<<" "<<
+//                    norm(  mSet->get_residual()( 0 )( { tMasterResStartIndex, tMasterResStopIndex }, { 0, 0 } ) - tPrev1 )<<std::endl;
+//            std::cout<<"90 "<<
+//                    mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator()->valx()( 0 )<<" "<<
+//                    mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator()->valx()( 1 )<<" "<<
+//                    mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator()->valt()( 0 )<<" "<<
+//                    norm(  mSet->get_residual()( 0 )( { tSlaveResStartIndex, tSlaveResStopIndex }, { 0, 0 } ) - tPrev2 )<<std::endl;
         }
 
         //------------------------------------------------------------------------------
@@ -156,6 +171,11 @@ namespace moris
             uint tSlaveDofIndex      = mSet->get_dof_index_for_type( mResidualDofType( 0 ), mtk::Master_Slave::SLAVE );
             uint tSlaveResStartIndex = mSet->get_res_dof_assembly_map()( tSlaveDofIndex )( 0, 0 );
             uint tSlaveResStopIndex  = mSet->get_res_dof_assembly_map()( tSlaveDofIndex )( 0, 1 );
+
+//            // FIXME to remove
+//            uint tEndIndex = mSet->get_jacobian().n_cols() - 1;
+//            Matrix< DDRMat > tPrev1 = mSet->get_jacobian()({ tMasterResStartIndex, tMasterResStopIndex },{ 0, tEndIndex } );
+//            Matrix< DDRMat > tPrev2 = mSet->get_jacobian()({ tSlaveResStartIndex, tSlaveResStopIndex },{ 0, tEndIndex } );
 
             // get the master field interpolator for residual dof type
             Field_Interpolator * tFIMaster =
@@ -327,6 +347,27 @@ namespace moris
                     }
                 }
             }
+
+//            std::cout<<"91 "<<
+//                    mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator()->valx()( 0 )<<" "<<
+//                    mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator()->valx()( 1 )<< " "<<
+//                    mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator()->valt()( 0 )<< " "<<
+//                    max(max( mSet->get_jacobian()({ tMasterResStartIndex, tMasterResStopIndex },{ 0, tEndIndex } ) - tPrev1 ) )<<std::endl;
+//            std::cout<<"92 "<<
+//                    mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator()->valx()( 0 )<<" "<<
+//                    mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator()->valx()( 1 )<< " "<<
+//                    mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator()->valt()( 0 )<< " "<<
+//                    min( min( mSet->get_jacobian()({ tMasterResStartIndex, tMasterResStopIndex },{ 0, tEndIndex } ) - tPrev1 ) )<<std::endl;
+//            std::cout<<"93 "<<
+//                    mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator()->valx()( 0 )<<" "<<
+//                    mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator()->valx()( 1 )<< " "<<
+//                    mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator()->valt()( 0 )<< " "<<
+//                    max(max( mSet->get_jacobian()({ tSlaveResStartIndex, tSlaveResStopIndex },{ 0, tEndIndex } ) - tPrev2 ) )<<std::endl;
+//            std::cout<<"94 "<<
+//                    mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator()->valx()( 0 )<<" "<<
+//                    mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator()->valx()( 1 )<< " "<<
+//                    mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator()->valt()( 0 )<< " "<<
+//                    min( min( mSet->get_jacobian()({ tSlaveResStartIndex, tSlaveResStopIndex },{ 0, tEndIndex } ) - tPrev2 ) )<<std::endl;
         }
 
         //------------------------------------------------------------------------------

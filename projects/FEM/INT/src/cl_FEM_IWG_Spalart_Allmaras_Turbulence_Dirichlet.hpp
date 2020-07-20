@@ -37,6 +37,7 @@ namespace moris
                     DIRICHLET,
                     VISCOSITY,
                     SELECT,
+                    UPWIND,
                     MAX_ENUM
                 };
 
