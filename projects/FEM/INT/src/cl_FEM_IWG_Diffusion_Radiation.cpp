@@ -61,7 +61,7 @@ namespace moris
             Field_Interpolator * tFI = mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );
 
             // get indices for SP, CM, properties
-            uint tEmissivityIndex = static_cast< uint >( IWG_Property_Type::HEAT_TRANSFER_COEFFICIENT );
+            uint tEmissivityIndex = static_cast< uint >( IWG_Property_Type::EMISIVITY );
             uint tAmbTempIndex = static_cast< uint >( IWG_Property_Type::AMBIENT_TEMP );
             uint tZeroTempIndex = static_cast< uint >( IWG_Property_Type::ABSOLUTE_ZERO );
 
@@ -95,7 +95,7 @@ namespace moris
             Field_Interpolator * tFI = mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );
 
             // get indices for SP, CM, properties
-            uint tEmissivityIndex = static_cast< uint >( IWG_Property_Type::HEAT_TRANSFER_COEFFICIENT );
+            uint tEmissivityIndex = static_cast< uint >( IWG_Property_Type::EMISIVITY );
             uint tAmbTempIndex = static_cast< uint >( IWG_Property_Type::AMBIENT_TEMP );
             uint tZeroTempIndex = static_cast< uint >( IWG_Property_Type::ABSOLUTE_ZERO );
 
@@ -129,7 +129,7 @@ namespace moris
                 }
 
                 // if dependency of heat transfer coefficient on dof type
-                if ( mMasterProp( tCoefficientIndex )->check_dof_dependency( tDepDofType ) )
+                if ( mMasterProp( tEmissivityIndex )->check_dof_dependency( tDepDofType ) )
                 {
                     // add contribution to jacobian
                     mSet->get_jacobian()(
@@ -137,7 +137,7 @@ namespace moris
                             { tDepStartIndex, tDepStopIndex } ) +=
                                     aWStar * mStefanBolzmannConst *
                                     ( std::pow( tT - tT0 , 4.0 ) - std::pow( tTinf - tT0 , 4.0 ) ) *
-                                    trans( tFI->N() ) * mMasterProp( tCoefficientIndex )->dPropdDOF( tDepDofType );
+                                    trans( tFI->N() ) * mMasterProp( tEmissivityIndex )->dPropdDOF( tDepDofType );
                 }
             }
         }
