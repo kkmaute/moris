@@ -29,6 +29,24 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+        void IQI_Strain_Energy::set_constitutive_model(
+                std::shared_ptr< Constitutive_Model > aConstitutiveModel,
+                std::string                           aConstitutiveString,
+                mtk::Master_Slave                     aIsMaster )
+        {
+            // check that aConstitutiveString makes sense
+            MORIS_ERROR( mConstitutiveMap.find( aConstitutiveString ) != mConstitutiveMap.end(),
+                    "IQI_Strain_Energy::set_constitutive_model - Unknown aConstitutiveString." );
+
+            // check no slave allowed
+            MORIS_ERROR( aIsMaster == mtk::Master_Slave::MASTER,
+                    "IQI_Strain_Energy::set_constitutive_model - No slave allowed." );
+
+            // set the constitutive model in the constitutive model cell
+            this->get_constitutive_models( aIsMaster )( static_cast< uint >( mConstitutiveMap[ aConstitutiveString ] ) ) = aConstitutiveModel;
+        }
+
+        //------------------------------------------------------------------------------
         void IQI_Strain_Energy::compute_QI( Matrix< DDRMat > & aQI )
         {
             // get indices for properties, CM and SP
