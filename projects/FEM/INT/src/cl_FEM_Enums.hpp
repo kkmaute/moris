@@ -52,6 +52,7 @@ namespace moris
             TRI_3,
             TRI_6,
             TRI_7,
+            TRI_12,
             HEX_1x1x1,
             HEX_2x2x2,
             HEX_3x3x3,
@@ -155,6 +156,7 @@ namespace moris
             LIFT_COEFF,
             DRAG_COEFF,
             LATENT_HEAT_ABSORPTION,
+            TURBULENT_KINEMATIC_VISCOSITY,
             END_IQI_TYPE
         };
 
