@@ -19,7 +19,7 @@ namespace moris
             mMasterProp.resize( static_cast< uint >( IWG_Property_Type::MAX_ENUM ), nullptr );
 
             // populate the property map
-            mPropertyMap[ "Emissivity" ] = IWG_Property_Type::EMISIVITY;
+            mPropertyMap[ "Emissivity" ] = IWG_Property_Type::EMISSIVITY;
             mPropertyMap[ "AmbientTemperature" ] = IWG_Property_Type::AMBIENT_TEMP;
             mPropertyMap[ "AbsoluteZero" ] = IWG_Property_Type::ABSOLUTE_ZERO;
         }
@@ -61,7 +61,7 @@ namespace moris
             Field_Interpolator * tFI = mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );
 
             // get indices for SP, CM, properties
-            uint tEmissivityIndex = static_cast< uint >( IWG_Property_Type::EMISIVITY );
+            uint tEmissivityIndex = static_cast< uint >( IWG_Property_Type::EMISSIVITY );
             uint tAmbTempIndex = static_cast< uint >( IWG_Property_Type::AMBIENT_TEMP );
             uint tZeroTempIndex = static_cast< uint >( IWG_Property_Type::ABSOLUTE_ZERO );
 
@@ -74,7 +74,7 @@ namespace moris
             // compute the residual
             // N * a * (T - T_ref)
             mSet->get_residual()( 0 )( { tResStartIndex, tResStopIndex }, { 0, 0 } ) +=
-                    aWStar * mStefanBolzmannConst * tAlpha * ( std::pow( tT - tT0 , 4.0 ) - std::pow( tTinf - tT0 , 4.0 ) ) *
+                    aWStar * mStefanBoltzmannConst * tAlpha * ( std::pow( tT - tT0 , 4.0 ) - std::pow( tTinf - tT0 , 4.0 ) ) *
                     trans( tFI->N() );
         }
 
@@ -95,7 +95,7 @@ namespace moris
             Field_Interpolator * tFI = mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );
 
             // get indices for SP, CM, properties
-            uint tEmissivityIndex = static_cast< uint >( IWG_Property_Type::EMISIVITY );
+            uint tEmissivityIndex = static_cast< uint >( IWG_Property_Type::EMISSIVITY );
             uint tAmbTempIndex = static_cast< uint >( IWG_Property_Type::AMBIENT_TEMP );
             uint tZeroTempIndex = static_cast< uint >( IWG_Property_Type::ABSOLUTE_ZERO );
 
@@ -122,7 +122,7 @@ namespace moris
                     mSet->get_jacobian()(
                             { tResStartIndex, tResStopIndex },
                             { tDepStartIndex, tDepStopIndex } ) +=
-                                    aWStar * tAlpha * mStefanBolzmannConst *
+                                    aWStar * tAlpha * mStefanBoltzmannConst *
                                     ( 4.0 * std::pow( tT , 3.0 ) - 12.0 * tT0 * std::pow( tT , 2.0 ) +
                                             2.0 * tT * std::pow( tT0 , 2.0 ) + 4.0 * std::pow( tT0 , 3.0 ) ) *
                                             trans( tFI->N() ) * tFI->N();
@@ -135,7 +135,7 @@ namespace moris
                     mSet->get_jacobian()(
                             { tResStartIndex, tResStopIndex },
                             { tDepStartIndex, tDepStopIndex } ) +=
-                                    aWStar * mStefanBolzmannConst *
+                                    aWStar * mStefanBoltzmannConst *
                                     ( std::pow( tT - tT0 , 4.0 ) - std::pow( tTinf - tT0 , 4.0 ) ) *
                                     trans( tFI->N() ) * mMasterProp( tEmissivityIndex )->dPropdDOF( tDepDofType );
                 }
