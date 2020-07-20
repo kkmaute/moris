@@ -27,11 +27,16 @@ namespace moris
 
         class IWG_Diffusion_Radiation : public IWG
         {
+            private:
+
+                // Stefan-Bolzmann constant for black body radiation
+                const real mStefanBolzmannConst = 5.670374419e-08;
+
                 //------------------------------------------------------------------------------
             public:
                 enum class IWG_Property_Type
                 {
-                    HEAT_TRANSFER_COEFFICIENT,
+                    EMISIVITY,
                     AMBIENT_TEMP,
                     ABSOLUTE_ZERO,
                     MAX_ENUM
