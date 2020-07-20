@@ -99,6 +99,17 @@ workdir=`pwd`
 
 rm -f $cppfile.so
 
+if [ -f $MORISROOT/projects/mains/input_file.locked ];then
+    echo ""
+    echo " error - file $MORISROOT/projects/mains/input_file.locked exits "
+    echo " this may indicate that a build process is currently running"
+    echo " if this is not the case, remove the file manually"
+    echo ""
+    exit
+fi
+
+touch $MORISROOT/projects/mains/input_file.locked
+
 mv "$MORISROOT/projects/mains/input_file.cpp" "$TMPDIR/."
 
 ln -s "$workdir/$cppfile.cpp" "$MORISROOT/projects/mains/input_file.cpp"
@@ -136,3 +147,5 @@ else
     echo " keep soft link from $cppfile.cpp to input_file.cpp"
     echo ""
 fi
+
+rm -f $MORISROOT/projects/mains/input_file.locked
