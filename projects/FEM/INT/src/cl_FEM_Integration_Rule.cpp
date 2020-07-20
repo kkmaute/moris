@@ -1,5 +1,4 @@
-
-#include "cl_FEM_Integration_Rule.hpp"            //FEM/INT/src
+#include "cl_FEM_Integration_Rule.hpp"
 #include "cl_FEM_Integration_Coeffs.hpp"          //FEM/INT/src
 #include "cl_FEM_Integration_Coeffs_Point.hpp"    //FEM/INT/src
 #include "cl_FEM_Integration_Coeffs_Bar_1.hpp"    //FEM/INT/src
@@ -7,7 +6,6 @@
 #include "cl_FEM_Integration_Coeffs_Bar_3.hpp"    //FEM/INT/src
 #include "cl_FEM_Integration_Coeffs_Bar_4.hpp"    //FEM/INT/src
 #include "cl_FEM_Integration_Coeffs_Bar_5.hpp"    //FEM/INT/src
-#include "cl_FEM_Integration_Coeffs_Quad_5x5.hpp" //FEM/INT/src
 #include "cl_FEM_Integration_Coeffs_Quad_2x2.hpp" //FEM/INT/src
 #include "cl_FEM_Integration_Coeffs_Quad_3x3.hpp" //FEM/INT/src
 #include "cl_FEM_Integration_Coeffs_Quad_4x4.hpp" //FEM/INT/src
@@ -15,6 +13,8 @@
 #include "cl_FEM_Integration_Coeffs_Tri_1.hpp"
 #include "cl_FEM_Integration_Coeffs_Tri_3.hpp"
 #include "cl_FEM_Integration_Coeffs_Tri_6.hpp"
+#include "cl_FEM_Integration_Coeffs_Tri_7.hpp"
+#include "cl_FEM_Integration_Coeffs_Tri_12.hpp"
 #include "cl_FEM_Integration_Coeffs_Tet_1.hpp"
 #include "cl_FEM_Integration_Coeffs_Tet_4.hpp"
 #include "cl_FEM_Integration_Coeffs_Tet_5.hpp"
@@ -262,6 +262,16 @@ namespace moris
                     return new Integration_Coeffs<
                             Integration_Type::GAUSS,
                             Integration_Order::TRI_6 >();
+
+                case Integration_Order::TRI_7 :
+                    return new Integration_Coeffs<
+                            Integration_Type::GAUSS,
+                            Integration_Order::TRI_7 >();
+
+                case Integration_Order::TRI_12 :
+                    return new Integration_Coeffs<
+                            Integration_Type::GAUSS,
+                            Integration_Order::TRI_12 >();
 
                 default :
                     MORIS_ERROR( false, " Integration_Rule::create_coeffs_gauss_tri - integration order not implemented/allowed for tri.");
