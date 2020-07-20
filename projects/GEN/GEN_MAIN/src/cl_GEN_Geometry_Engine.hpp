@@ -48,9 +48,10 @@ namespace moris
         {
         private:
 
-            // Level-set isocontour threshold
+            // Level-set
             real mIsocontourThreshold;
             real mErrorFactor;
+            std::string mLevelSetFile = "";
 
             // Spatial dimensions
             uint mSpatialDim;
@@ -332,6 +333,11 @@ namespace moris
              * Assign PDV hosts based on properties constructed through parameter lists
              */
             void assign_pdv_hosts();
+
+            /**
+             * Saves the current level-set field data based on the currently stored interpolation mesh
+             */
+            void save_level_set_data();
 
         private:
 

@@ -26,6 +26,7 @@ namespace moris
                 // Level-set options
                 mIsocontourThreshold(aParameterLists(0)(0).get<real>("isocontour_threshold")),
                 mErrorFactor(aParameterLists(0)(0).get<real>("isocontour_error_factor")),
+                mLevelSetFile(aParameterLists(0)(0).get<std::string>("level_set_file")),
 
                 // ADVs/IQIs
                 mADVs((uint)aParameterLists(0)(0).get<sint>("advs_size"), 1, aParameterLists(0)(0).get<real>("initial_advs_fill")),
@@ -678,6 +679,51 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
+        void Geometry_Engine::save_level_set_data()
+        {
+            if (mLevelSetFile != "")
+            {
+                // Get all node coordinates
+                mtk::Interpolation_Mesh* tInterpolationMesh = mMeshManager->get_interpolation_mesh(0);
+                Cell<Matrix<DDRMat>> tNodeCoordinates(tInterpolationMesh->get_num_nodes());
+                for (uint tNodeIndex = 0; tNodeIndex < tInterpolationMesh->get_num_nodes(); tNodeIndex++)
+                {
+                    tNodeCoordinates(tNodeIndex) = tInterpolationMesh->get_node_coordinate(tNodeIndex);
+                }
+
+                // Loop over geometries
+                for (uint tGeometryIndex = 0; tGeometryIndex < mGeometry.size(); tGeometryIndex++)
+                {
+                    // Create file
+                    std::ofstream tOutFile(mLevelSetFile + "_" + std::to_string(tGeometryIndex) + ".txt");
+
+                    // Write to file
+                    for (uint tNodeIndex = 0; tNodeIndex < tInterpolationMesh->get_num_nodes(); tNodeIndex++)
+                    {
+                        // Coordinates
+                        for (uint tDimension = 0; tDimension < mSpatialDim; tDimension++)
+                        {
+                            tOutFile << tNodeCoordinates(tNodeIndex)(tDimension) << ", ";
+                        }
+
+                        // Fill unused dimensions with zeros
+                        for (uint tDimension = mSpatialDim; tDimension < 3; tDimension++)
+                        {
+                            tOutFile << 0.0 << ", ";
+                        }
+
+                        // Level-set field
+                        tOutFile << mGeometry(tGeometryIndex)->evaluate_field_value(tNodeIndex, tNodeCoordinates(tNodeIndex)) << std::endl;
+                    }
+
+                    // Close file
+                    tOutFile.close();
+                }
+            }
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
         bool Geometry_Engine::on_interface(real aFieldValue)
         {
             return (std::abs(aFieldValue - mIsocontourThreshold) < mErrorFactor);
@@ -822,5 +868,5 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-    }   // end ge namespace
-}   // end moris namespace
+    }
+}

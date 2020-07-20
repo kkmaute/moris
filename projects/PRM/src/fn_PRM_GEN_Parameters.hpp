@@ -21,6 +21,7 @@ namespace moris
             // Level-set parameters
             tParameterList.insert("isocontour_threshold", 0.0); // Level-set isocontour level
             tParameterList.insert("isocontour_error_factor", 0.0); // Error factor for determining interface nodes
+            tParameterList.insert("level_set_file", ""); // Base file name (without extension) for saving level-set data
 
             // ADVs/IQIs
             tParameterList.insert("initial_advs", "");       // Initial ADVs, string converted into vector
@@ -119,7 +120,8 @@ namespace moris
 
             return tParameterList;
         }
-    } // end prm namespace
-} // end moris namespace
+
+    }
+}
 
 #endif /* MORIS_CL_PRM_GEN_PARAMETERS_HPP_ */
