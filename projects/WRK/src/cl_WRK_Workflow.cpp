@@ -56,15 +56,13 @@ namespace moris
             mPerformerManager->create_xtk();
 
             // Register Mesh to Ge
-            mPerformerManager->mGENPerformer( 0 )->register_mesh( mPerformerManager->mMTKPerformer( 0 ) );
-            mPerformerManager->mGENPerformer( 0 )->save_level_set_data();
+            mPerformerManager->mGENPerformer( 0 )->compute_level_set_data(mPerformerManager->mMTKPerformer( 0 )->get_interpolation_mesh(0));
 
             // XTK perform - decompose - enrich - ghost - multigrid
             mPerformerManager->mXTKPerformer( 0 )->perform();
 
             // Assign PDVs
-            mPerformerManager->mGENPerformer( 0 )->register_mesh( mPerformerManager->mMTKPerformer( 1 ) );
-            mPerformerManager->mGENPerformer( 0 )->assign_pdv_hosts();
+            mPerformerManager->mGENPerformer( 0 )->create_pdvs( mPerformerManager->mMTKPerformer( 1 ) );
 
             // Stage 3: MDL perform ---------------------------------------------------------------------
 

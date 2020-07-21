@@ -17,6 +17,7 @@
 #include "cl_GEN_Pdv_Enums.hpp"
 
 // MTK
+#include "cl_MTK_Mesh_Core.hpp"
 #include "cl_MTK_Cluster.hpp"
 #include "cl_MTK_Mesh_Manager.hpp"
 #include "cl_Mesh_Enums.hpp"
@@ -39,10 +40,6 @@ namespace moris
 
     namespace ge
     {
-
-        //--------------------------------------------------------------------------------------------------------------
-        // GEOMETRY ENGINE
-        //--------------------------------------------------------------------------------------------------------------
 
         class Geometry_Engine : public wrk::Performer
         {
@@ -77,9 +74,6 @@ namespace moris
 
             // Phase Table
             Phase_Table mPhaseTable;
-
-            // Mesh
-            std::shared_ptr<mtk::Mesh_Manager> mMeshManager;
 
             // Temporary FIXME
             Matrix<IndexMat> mInterfaceNodeIndices;
@@ -214,8 +208,7 @@ namespace moris
             /**
              * @brief Get the 0 or 1 value associated with a given phase and geometry index
              */
-            moris::moris_index
-            get_phase_sign_of_given_phase_and_geometry( moris::moris_index aPhaseIndex,
+            moris::moris_index get_phase_sign_of_given_phase_and_geometry( moris::moris_index aPhaseIndex,
                                                         moris::moris_index aGeometryIndex );
 
             /**
@@ -252,13 +245,6 @@ namespace moris
              * @brief Advance the active geometry index
              */
             void advance_geometry_index();
-
-            /**
-             * Register an MTK mesh pair to the geometry engine
-             *
-             * @param aMeshManager MTK mesh manager with interpolation and integration meshes
-             */
-            void register_mesh(std::shared_ptr<mtk::Mesh_Manager> aMeshManager);
 
             /**
              * Return the number of fields that can be used for refinement
@@ -299,45 +285,18 @@ namespace moris
                                                uint aRefinementIndex);
 
             /**
-             * @brief assign the pdv type and property for each pdv host in a given set
-             */
-            void assign_ip_hosts_by_set_name( std::string                 aSetName,
-                                              std::shared_ptr<Property> aPropertyPointer,
-                                              PDV_Type                    aPdvType,
-                                              moris_index                 aWhichMesh = 0 );
-
-            /**
-             * @brief assign the pdv type and property for each pdv host in a given set
-             */
-            void assign_ip_hosts_by_set_index( moris_index               aSetIndex,
-                                               std::shared_ptr<Property> aPropertyPointer,
-                                               PDV_Type                  aPdvType,
-                                               moris_index               aWhichMesh = 0 );
-
-            /**
-             * Create PDV_Type hosts with the specified PDV_Type types on the interpolation mesh
+             * Computes and saves the current level-set field data based on the given interpolation mesh
              *
-             * @param aPdvTypes PDV_Type types; set->group->individual
-             * @param aMeshIndex Interpolation mesh index
+             * @param aMesh
              */
-            void create_ip_pdv_hosts(Cell<Cell<Cell<PDV_Type>>> aPdvTypes, moris_index aMeshIndex = 0);
-
-            /**
-             * Create PDV_Type hosts with PDVs for each of the spatial dimensions on the integration mesh
-             *
-             * @param aMeshIndex Integration mesh index
-             */
-            void create_ig_pdv_hosts(moris_index aMeshIndex = 0);
+            void compute_level_set_data(mtk::Mesh* aMesh);
 
             /**
              * Assign PDV hosts based on properties constructed through parameter lists
+             *
+             * @param aMeshManager Mesh manager
              */
-            void assign_pdv_hosts();
-
-            /**
-             * Saves the current level-set field data based on the currently stored interpolation mesh
-             */
-            void save_level_set_data();
+            void create_pdvs(std::shared_ptr<mtk::Mesh_Manager> aMeshManager);
 
         private:
 
@@ -373,6 +332,31 @@ namespace moris
                     const Matrix<IndexMat>& aEntityNodeIndices,
                     Matrix<DDRMat>&         aIntersectionLocalCoordinates,
                     Matrix<DDRMat>&         aIntersectionGlobalCoordinates);
+
+            /**
+             * Create PDV_Type hosts with the specified PDV_Type types on the interpolation mesh
+             *
+             * @param aPdvTypes PDV_Type types; set->group->individual
+             * @param aMeshIndex Interpolation mesh index
+             */
+            void create_ip_pdv_hosts(mtk::Interpolation_Mesh* aInterpolationMesh, // FIXME private
+                                     mtk::Integration_Mesh* aIntegrationMesh,
+                                     Cell<Cell<Cell<PDV_Type>>> aPdvTypes);
+
+            /**
+             * Create PDV_Type hosts with PDVs for each of the spatial dimensions on the integration mesh
+             *
+             * @param aMeshIndex Integration mesh index
+             */
+            void create_ig_pdv_hosts(mtk::Integration_Mesh* aIntegrationMesh); // FIXME private
+
+            /**
+             * @brief assign the pdv type and property for each pdv host in a given set
+             */
+            void assign_property_to_pdv_hosts(std::shared_ptr<Property> aPropertyPointer,
+                                              PDV_Type                  aPdvType,
+                                              mtk::Integration_Mesh*    aIntegrationMesh,
+                                              Matrix<DDUMat>            aSetIndices);
 
         };
     }

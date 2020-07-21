@@ -150,7 +150,7 @@ TEST_CASE("WRK L2 test","[WRK_L2_test]")
          //---------------------------------------------------------------------------------------
 
          // Register Mesh to Ge
-         tGENPerformer->register_mesh( tMTKPerformer_HMR );
+         tGENPerformer->compute_level_set_data( tMTKPerformer_HMR->get_interpolation_mesh(0) );
 
          // create MTK performer - will be used for XTK mesh
          std::shared_ptr< mtk::Mesh_Manager > tMTKPerformer_XTK = std::make_shared< mtk::Mesh_Manager >();

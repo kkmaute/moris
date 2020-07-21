@@ -265,7 +265,6 @@ namespace moris
                 // place the pair in mesh manager
                 std::shared_ptr<mtk::Mesh_Manager> tMeshManager = std::make_shared<mtk::Mesh_Manager>();
                 tMeshManager->register_mesh_pair( &tEnrInterpMesh, &tEnrIntegMesh);
-                tGeometryEngine.register_mesh(tMeshManager);
 
                 // Calculate sensitivities on interface
                 Matrix<IndexMat> tInterfaceNodes = tXTKModel.get_background_mesh().get_interface_nodes_loc_inds(0);
@@ -277,7 +276,7 @@ namespace moris
                 tGeometryEngine.set_interface_nodes(tInterfaceNodes);
 
                 // Create PDVs on integration mesh
-                tGeometryEngine.create_ig_pdv_hosts();
+                tGeometryEngine.create_pdvs(tMeshManager);
 
                 // Make sure PDVs contain sensitivity information
                 Pdv_Host_Manager *tPdvHostManager = dynamic_cast<Pdv_Host_Manager*>(tGeometryEngine.get_design_variable_interface());
