@@ -135,8 +135,8 @@ void check_linear_results_parallel()
     else
     {
         REQUIRE( tNumDims  ==  2    );
-        REQUIRE( tNumNodes ==  3652 );
-        REQUIRE( tNumElems ==  3551 );
+        REQUIRE( tNumNodes ==  3650 );
+        REQUIRE( tNumElems ==  3549 );
     }
 
     // check results

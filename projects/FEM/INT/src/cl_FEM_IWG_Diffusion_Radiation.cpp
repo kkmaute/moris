@@ -19,7 +19,7 @@ namespace moris
             mMasterProp.resize( static_cast< uint >( IWG_Property_Type::MAX_ENUM ), nullptr );
 
             // populate the property map
-            mPropertyMap[ "HeatTransferCoefficient" ] = IWG_Property_Type::HEAT_TRANSFER_COEFFICIENT;
+            mPropertyMap[ "Emissivity" ] = IWG_Property_Type::EMISSIVITY;
             mPropertyMap[ "AmbientTemperature" ] = IWG_Property_Type::AMBIENT_TEMP;
             mPropertyMap[ "AbsoluteZero" ] = IWG_Property_Type::ABSOLUTE_ZERO;
         }
@@ -61,7 +61,7 @@ namespace moris
             Field_Interpolator * tFI = mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );
 
             // get indices for SP, CM, properties
-            uint tCoefficientIndex = static_cast< uint >( IWG_Property_Type::HEAT_TRANSFER_COEFFICIENT );
+            uint tEmissivityIndex = static_cast< uint >( IWG_Property_Type::EMISSIVITY );
             uint tAmbTempIndex = static_cast< uint >( IWG_Property_Type::AMBIENT_TEMP );
             uint tZeroTempIndex = static_cast< uint >( IWG_Property_Type::ABSOLUTE_ZERO );
 
@@ -69,12 +69,12 @@ namespace moris
             real tT0 = mMasterProp( tZeroTempIndex )->val()( 0 );
             real tTinf = mMasterProp( tAmbTempIndex )->val()( 0 );
             real tT = tFI->val()( 0 );
-            real tAlpha = mMasterProp( tCoefficientIndex )->val()( 0 );
+            real tAlpha = mMasterProp( tEmissivityIndex )->val()( 0 );
 
             // compute the residual
             // N * a * (T - T_ref)
             mSet->get_residual()( 0 )( { tResStartIndex, tResStopIndex }, { 0, 0 } ) +=
-                    aWStar * tAlpha * ( std::pow( tT - tT0 , 4.0 ) - std::pow( tTinf - tT0 , 4.0 ) ) *
+                    aWStar * mStefanBoltzmannConst * tAlpha * ( std::pow( tT - tT0 , 4.0 ) - std::pow( tTinf - tT0 , 4.0 ) ) *
                     trans( tFI->N() );
         }
 
@@ -95,7 +95,7 @@ namespace moris
             Field_Interpolator * tFI = mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );
 
             // get indices for SP, CM, properties
-            uint tCoefficientIndex = static_cast< uint >( IWG_Property_Type::HEAT_TRANSFER_COEFFICIENT );
+            uint tEmissivityIndex = static_cast< uint >( IWG_Property_Type::EMISSIVITY );
             uint tAmbTempIndex = static_cast< uint >( IWG_Property_Type::AMBIENT_TEMP );
             uint tZeroTempIndex = static_cast< uint >( IWG_Property_Type::ABSOLUTE_ZERO );
 
@@ -103,7 +103,7 @@ namespace moris
             real tT0 = mMasterProp( tZeroTempIndex )->val()( 0 );
             real tTinf = mMasterProp( tAmbTempIndex )->val()( 0 );
             real tT = tFI->val()( 0 );
-            real tAlpha = mMasterProp( tCoefficientIndex )->val()( 0 );
+            real tAlpha = mMasterProp( tEmissivityIndex )->val()( 0 );
 
             // compute the jacobian for dof dependencies
             for( uint iDOF = 0; iDOF < mRequestedMasterGlobalDofTypes.size(); iDOF++ )
@@ -122,22 +122,22 @@ namespace moris
                     mSet->get_jacobian()(
                             { tResStartIndex, tResStopIndex },
                             { tDepStartIndex, tDepStopIndex } ) +=
-                                    aWStar * tAlpha *
+                                    aWStar * tAlpha * mStefanBoltzmannConst *
                                     ( 4.0 * std::pow( tT , 3.0 ) - 12.0 * tT0 * std::pow( tT , 2.0 ) +
                                             2.0 * tT * std::pow( tT0 , 2.0 ) + 4.0 * std::pow( tT0 , 3.0 ) ) *
                                             trans( tFI->N() ) * tFI->N();
                 }
 
                 // if dependency of heat transfer coefficient on dof type
-                if ( mMasterProp( tCoefficientIndex )->check_dof_dependency( tDepDofType ) )
+                if ( mMasterProp( tEmissivityIndex )->check_dof_dependency( tDepDofType ) )
                 {
                     // add contribution to jacobian
                     mSet->get_jacobian()(
                             { tResStartIndex, tResStopIndex },
                             { tDepStartIndex, tDepStopIndex } ) +=
-                                    aWStar *
+                                    aWStar * mStefanBoltzmannConst *
                                     ( std::pow( tT - tT0 , 4.0 ) - std::pow( tTinf - tT0 , 4.0 ) ) *
-                                    trans( tFI->N() ) * mMasterProp( tCoefficientIndex )->dPropdDOF( tDepDofType );
+                                    trans( tFI->N() ) * mMasterProp( tEmissivityIndex )->dPropdDOF( tDepDofType );
                 }
             }
         }

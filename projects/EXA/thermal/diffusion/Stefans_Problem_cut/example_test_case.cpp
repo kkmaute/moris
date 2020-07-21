@@ -169,6 +169,8 @@ void check_quadratic_results_serial()
 
     if (gPrintReferenceValues)
     {
+
+
         std::cout << "Number of dimensions: " << tNumDims  << std::endl;
         std::cout << "Number of nodes     : " << tNumNodes << std::endl;
         std::cout << "Number of elements  : " << tNumElems << std::endl;
