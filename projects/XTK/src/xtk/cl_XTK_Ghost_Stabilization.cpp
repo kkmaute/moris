@@ -363,7 +363,7 @@ namespace xtk
         for(moris::uint i = 0; i < tNumSubphases; i++)
         {
             // get my enriched Ip cell (ghost one)
-            Interpolation_Cell_Unzipped* tMyEnrichedIpCell = tEnrIpCells((moris_index)i);
+//            Interpolation_Cell_Unzipped* tMyEnrichedIpCell = tEnrIpCells((moris_index)i);
 
             // only continue into the neighbors if I do not own this cell/subphase
 //            if(tParRank != tMyEnrichedIpCell->get_owner())
@@ -536,12 +536,6 @@ namespace xtk
 
                     tNotOwnedIPVertIndsToProcs(tProcIndexInData->second).push_back(tVertexPointers(iV)->get_index());
                     tNotOwnedBGIPVertsIdsToProcs(tProcIndexInData->second).push_back(tVertexPointers(iV)->get_base_vertex()->get_id());
-
-                    if(tVertexPointers(iV)->get_base_vertex()->get_id() == 6601)
-                    {
-                        std::cout<<"Requesting interpolation of 6601"<<std::endl;
-                    }
-
                     tNotOwnedIpCellIdToProcs(tProcIndexInData->second).push_back(tEnrIpCell->get_id());
                     tNotOwnedIpCellBulkPhase(tProcIndexInData->second).push_back(tEnrIpCell->get_bulkphase_index());
                 }
