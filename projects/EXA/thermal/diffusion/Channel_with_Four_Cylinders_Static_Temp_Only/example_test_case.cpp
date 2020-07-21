@@ -101,8 +101,8 @@ void check_linear_results_serial()
     else
     {
         REQUIRE( tNumDims  ==  2    );
-        REQUIRE( tNumNodes ==  5572 );
-        REQUIRE( tNumElems ==  5426 );
+        REQUIRE( tNumNodes ==  5570 );
+        REQUIRE( tNumElems ==  5424 );
     }
 
     // check results
@@ -135,8 +135,8 @@ void check_linear_results_parallel()
     else
     {
         REQUIRE( tNumDims  ==  2    );
-        REQUIRE( tNumNodes ==  3652 );
-        REQUIRE( tNumElems ==  3551 );
+        REQUIRE( tNumNodes ==  3650 );
+        REQUIRE( tNumElems ==  3549 );
     }
 
     // check results
