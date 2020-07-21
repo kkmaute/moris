@@ -8,6 +8,7 @@
 #define PROJECTS_XTK_SRC_XTK_CL_XTK_ENRICHED_INTEGRATION_MESH_HPP_
 
 #include "cl_MTK_Integration_Mesh.hpp"
+#include "cl_MTK_Vertex.hpp"
 #include "typedefs.hpp"
 #include "cl_Matrix.hpp"
 #include "cl_Cell.hpp"
@@ -250,6 +251,12 @@ protected:
     // Cell Clusters
     moris::Cell< std::shared_ptr<xtk::Cell_Cluster> > mCellClusters;
 
+    // Vertex Set
+    std::unordered_map<std::string, moris_index>  mVertexSetLabelToOrd;
+    moris::Cell<std::string>                      mVertexSetNames;
+    moris::Cell<moris::Cell<moris::mtk::Vertex*>> mVerticesInVertexSet;
+    moris::Cell<moris::Matrix<IndexMat>>          mVertexSetColors;
+
     // Block sets containing Cell Clusters
     std::unordered_map<std::string, moris_index>        mBlockSetLabelToOrd;
     moris::Cell<std::string>                            mBlockSetNames;
@@ -278,6 +285,7 @@ protected:
     moris::Cell<moris::Matrix<IndexMat>>                mSlaveDoubleSideSetColor;
     moris::Cell<moris::Cell<moris_index>>               mColorMasterDoubleSideSet; /*transpose of mMasterDoubleSideSetColor*/
     moris::Cell<moris::Cell<moris_index>>               mColorSlaveDoubleSideSet; /*transpose of mSlaveDoubleSideSetColor*/
+
     // Fields
     moris::Cell<xtk::Field> mFields;   /*Structure Node (0), Cell(1)*/
     moris::Cell<std::unordered_map<std::string, moris_index>> mFieldLabelToIndex;
@@ -337,6 +345,10 @@ private:
     //------------------------------------------------------------------------------
     moris::Cell<std::string>
     split_set_name_by_child_no_child(std::string aBaseName);
+
+    //------------------------------------------------------------------------------
+    Cell<moris_index>
+    register_vertex_set_names(moris::Cell<std::string> const & aVertexSetNames);
     //------------------------------------------------------------------------------
     Cell<moris_index>
     register_block_set_names_with_cell_topo(moris::Cell<std::string> const & aBlockSetNames,
@@ -369,6 +381,21 @@ private:
     //------------------------------------------------------------------------------
     void
     create_interface_side_sets_and_clusters();
+
+    //------------------------------------------------------------------------------
+    void
+    setup_interface_vertex_sets();
+
+    //------------------------------------------------------------------------------
+    Cell<moris_index>
+    declare_interface_vertex_sets();
+    //------------------------------------------------------------------------------
+    void
+    create_interface_vertex_sets(Cell<moris_index> const & aInterfaceVertexSetOrds);
+    //------------------------------------------------------------------------------
+    void
+    set_vertex_set_color(moris_index     const & aVertexSetIndex,
+                        Matrix<IndexMat> const & aVertexSetColors);
     //------------------------------------------------------------------------------
     void
     construct_color_to_set_relationship(moris::Cell<moris::Matrix<IndexMat>> const & aSetColors,

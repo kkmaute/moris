@@ -694,7 +694,7 @@ namespace xtk
                             // Intersected edge is an existing  edge
                             // Make request in edge requests
                             // This does not require a supplemental identifier
-                            // TODO: ADD OVERFLOW CHECK IN CANTOR PAIRING!!!!!!
+                            // TODO: ADD OVERFLOW CHECK IN CANTOR PAIRING
                             moris::moris_index tSecondaryId = xtk::cantor_pairing(tEdgeNodes(0, 0),tEdgeNodes(0, 1));
                             moris_index tNewNodeIndexInSubdivision = MORIS_INDEX_MAX;
                             bool tRequestExist = tDecompData.request_exists(tParentIndex,tSecondaryId,(enum EntityRank)tParentRank,tNewNodeIndexInSubdivision);
@@ -707,7 +707,7 @@ namespace xtk
                                         tOwningProc,
                                         (enum EntityRank)tParentRank,
                                         tGlobalCoord,
-                                        new Edge_Topology(tEdgeToNode.get_row(tEdgeInd)), /*Note: this is deleted in the decomp data deconstructor*/
+                                        new Edge_Topology(tEdgeToNode.get_row(tEdgeInd)), /*this is deleted in the decomp data deconstructor*/
                                         tLocalCoordRelativeToEdge.get_row(0));
                             }
 
@@ -757,13 +757,21 @@ namespace xtk
                 {
                     mBackgroundMesh.mark_node_as_interface_node(tDecompData.tNewNodeIndex(i),tGeomIndex);
 
+                    // figure out if the new node is on any other interface by looking at the parent nodes of the edge
+                    Topology * tEdgeTopo = tDecompData.tNewNodeParentTopology(i);
+
+                    // get the vertex indices on the edge
+                    moris::Matrix< moris::IndexMat > const & tVerticesOnParentEdge = tEdgeTopo->get_node_indices();
+
+                    // make sure it is an edge with 2 vertices
+                    MORIS_ASSERT(tEdgeTopo->get_topology_type() == Topology_Type::EDGE,"Parent topology needs to be an edge.");
+                    MORIS_ASSERT(tVerticesOnParentEdge.numel()  == 2,"Parent edge needs to have two vertices.");
+
                     // determine if this vertex is on other interfaces
                     for(moris::uint j = 0; j < mGeometryEngine->get_num_geometries(); j++)
                     {
-                        moris::real const & tPhaseVal = mGeometryEngine->get_geometry_field_value(tDecompData.tNewNodeIndex(i),
-                                tDecompData.tNewNodeCoordinate(i),
-                                j);
-                        if(moris::equal_to(0.0,tPhaseVal))
+
+                        if(mBackgroundMesh.is_interface_node(tVerticesOnParentEdge(0),j) and mBackgroundMesh.is_interface_node(tVerticesOnParentEdge(1),j) )
                         {
                             mBackgroundMesh.mark_node_as_interface_node(tDecompData.tNewNodeIndex(i),j);
                         }
@@ -975,18 +983,29 @@ namespace xtk
                     // this node is always on the geometry interface of current so mark this
                     mBackgroundMesh.mark_node_as_interface_node(tDecompData.tNewNodeIndex(i),tGeomIndex);
 
+
+                    // figure out if the new node is on any other interface by looking at the parent nodes of the edge
+                    Topology * tEdgeTopo = tDecompData.tNewNodeParentTopology(i);
+
+                    // get the vertex indices on the edge
+                    moris::Matrix< moris::IndexMat > const & tVerticesOnParentEdge = tEdgeTopo->get_node_indices();
+
+                    // make sure it is an edge with 2 vertices
+                    MORIS_ASSERT(tEdgeTopo->get_topology_type() == Topology_Type::EDGE,"Parent topology needs to be an edge.");
+                    MORIS_ASSERT(tVerticesOnParentEdge.numel()  == 2,"Parent edge needs to have two vertices.");
+
                     // determine if this vertex is on other interfaces
-                    for(moris::uint j = 0; j < mGeometryEngine->get_num_geometries(); j++)
+                    for(moris::uint j = 0; j < mGeometryEngine->get_active_geometry_index(); j++)
                     {
-                        moris::real const & tPhaseVal = mGeometryEngine->get_geometry_field_value(tDecompData.tNewNodeIndex(i),
-                                tDecompData.tNewNodeCoordinate(i),
-                                j);
-                        if(moris::equal_to(0.0,tPhaseVal))
+
+                        if(mBackgroundMesh.is_interface_node(tVerticesOnParentEdge(0),j) and mBackgroundMesh.is_interface_node(tVerticesOnParentEdge(1),j) )
                         {
                             mBackgroundMesh.mark_node_as_interface_node(tDecompData.tNewNodeIndex(i),j);
                         }
                     }
                 }
+
+
 
                 // Set Node Ids and tell the child mesh to update
                 for (moris::size_t j = 0; j < aActiveChildMeshIndices.n_cols(); j++)
@@ -5227,6 +5246,7 @@ namespace xtk
 
             for( moris::size_t j = 0; j<tNumNodesPerElem; j++)
             {
+                Matrix<DDRMat> tCoord= mBackgroundMesh.get_selected_node_coordinates_loc_inds({{ aElementToNodeIndex(aRowIndex,j) }});
                 if(!mBackgroundMesh.is_interface_node(aElementToNodeIndex(aRowIndex,j),i))
                 {
                     moris_index tPhaseIndex = mGeometryEngine->
@@ -5235,12 +5255,27 @@ namespace xtk
                                     i);
                     tFoundNonInterfaceNode = true;
                     tPhaseVotes(tPhaseIndex)++;
+
+
                 }
+
+
             }
 
             // take the phase with the maximum number of votes
             tPhaseVotes.max(tMaxRow,tMaxCol);
             tNodalPhaseVals(0,i) = tMaxCol;
+
+//            if(tPhaseVotes(0) == tPhaseVotes(1))
+//            {
+//                std::cout<<"Parity Vote"<<std::endl;
+//                std::cout<<"iGeom = "<<i<<std::endl;
+//                std::cout<<"tMaxRow = "<<tMaxRow<<std::endl;
+//                std::cout<<"tMaxCol = "<<tMaxCol<<std::endl;
+//                std::cout<<"tPhaseVotes(0)  = "<<tPhaseVotes(0) <<std::endl;
+//                std::cout<<"tPhaseVotes(1)  = "<<tPhaseVotes(1) <<std::endl;
+//                throw;
+//            }
 
             // reset
             tPhaseVotes.fill(0);
