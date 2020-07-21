@@ -366,8 +366,8 @@ namespace xtk
             Interpolation_Cell_Unzipped* tMyEnrichedIpCell = tEnrIpCells((moris_index)i);
 
             // only continue into the neighbors if I do not own this cell/subphase
-            if(tParRank != tMyEnrichedIpCell->get_owner())
-            {
+//            if(tParRank != tMyEnrichedIpCell->get_owner())
+//            {
                 // iterate through subphase neighbors
                 for(moris::uint j = 0; j < tSubphaseToSubphase(i).size(); j++)
                 {
@@ -383,7 +383,7 @@ namespace xtk
                         }
                     }
                 }
-            }
+//            }
         }
 
         // iterate through interpolation cells that are in the aura and collect vertex interpolation that are not owned
@@ -536,6 +536,12 @@ namespace xtk
 
                     tNotOwnedIPVertIndsToProcs(tProcIndexInData->second).push_back(tVertexPointers(iV)->get_index());
                     tNotOwnedBGIPVertsIdsToProcs(tProcIndexInData->second).push_back(tVertexPointers(iV)->get_base_vertex()->get_id());
+
+                    if(tVertexPointers(iV)->get_base_vertex()->get_id() == 6601)
+                    {
+                        std::cout<<"Requesting interpolation of 6601"<<std::endl;
+                    }
+
                     tNotOwnedIpCellIdToProcs(tProcIndexInData->second).push_back(tEnrIpCell->get_id());
                     tNotOwnedIpCellBulkPhase(tProcIndexInData->second).push_back(tEnrIpCell->get_bulkphase_index());
                 }
