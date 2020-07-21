@@ -1010,24 +1010,21 @@ namespace moris
                 }
 
                 //------------------------------------------------------------------------------
-                //FIXME: IMPLEMENT THIS FUNCTION IN STK
                 virtual const Matrix< DDRMat > &
                 get_t_matrix_of_node_loc_ind(
                         const moris_index aNodeIndex,
                         const EntityRank  aBSplineRank )
                 {
-                    MORIS_ERROR(0,"Entered virtual function in Mesh base class, (function is not implemented)");
+                    mDummyMatrix.set_size(1, 1, 1.0);
                     return mDummyMatrix;
                 }
 
-                //FIXME: IMPLEMENT THIS FUNCTION IN XTK
                 virtual Matrix< IndexMat >
                 get_bspline_inds_of_node_loc_ind(
                         const moris_index aNodeIndex,
                         const EntityRank  aBSplineRank )
                 {
-                    MORIS_ERROR(0,"Entered virtual function in Mesh base class, (function is not implemented)");
-                    return Matrix<IndexMat>(0,0);
+                    return {{aNodeIndex}};
                 }
 
                 /*
