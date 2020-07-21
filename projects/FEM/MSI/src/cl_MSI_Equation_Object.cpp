@@ -554,6 +554,39 @@ namespace moris
 
         //-------------------------------------------------------------------------------------------------
 
+        void Equation_Object::get_equation_obj_off_diagonal_residual( Cell< Matrix< DDRMat > > & aEqnObjRHS )
+        {
+            //        Cell< Matrix< DDRMat > > & tElementalResidual = mEquationSet->get_residual();
+            uint tNumRHS = mEquationSet->mEquationModel->get_num_rhs();
+
+            Cell< Matrix< DDRMat > > tElementalResidual( tNumRHS );
+
+            // FIXME this is a hack and will be changed in the next days
+            if( !mEquationSet->mEquationModel->get_is_forward_analysis() )
+            {
+                this->compute_jacobian();
+
+                this->compute_my_previous_adjoint_values();
+
+                for ( uint Ik = 0; Ik<tNumRHS; Ik++ )
+                {
+                    tElementalResidual( Ik ) = trans( mEquationSet->get_jacobian() ) * mPreviousAdjointPdofValues( Ik );
+                }
+            }
+
+            Matrix< DDRMat > tTMatrix;
+            this->build_PADofMap_1( tTMatrix );
+
+            aEqnObjRHS.resize( tNumRHS );
+
+            for( uint Ik = 0; Ik < tNumRHS; Ik++)
+            {
+                aEqnObjRHS( Ik ) = trans( tTMatrix ) * tElementalResidual( Ik );
+            }
+        }
+
+        //-------------------------------------------------------------------------------------------------
+
         void Equation_Object::get_egn_obj_jacobian_and_residual(
                 Matrix< DDRMat > & aEqnObjMatrix,
                 Cell< Matrix< DDRMat > > & aEqnObjRHS )
@@ -832,6 +865,33 @@ namespace moris
             for( uint Ik = 0; Ik < tMyValues.size(); Ik++ )
             {
                 mAdjointPdofValues( Ik ) = tTMatrix * tMyValues( Ik );
+            }
+
+            this->set_vector_entry_number_of_pdof();             // FIXME should not be in MSI. Should be in FEM
+        }
+
+        //-------------------------------------------------------------------------------------------------
+
+        void Equation_Object::compute_my_previous_adjoint_values( )
+        {
+            Matrix< DDRMat > tTMatrix;
+
+            // build T-matrix
+            this->build_PADofMap( tTMatrix );
+
+            moris::Cell< Matrix< DDRMat > > tMyValues;
+
+            // Extract this equation objects adof values from solution vector
+            mEquationSet->mEquationModel
+            ->get_previous_adjoint_solution_vector()
+            ->extract_my_values( tTMatrix.n_cols(), mUniqueAdofList, 0, tMyValues );
+
+            mPreviousAdjointPdofValues.resize( tMyValues.size() );
+
+            // multiply t_matrix with adof values to get pdof values
+            for( uint Ik = 0; Ik < tMyValues.size(); Ik++ )
+            {
+                mPreviousAdjointPdofValues( Ik ) = tTMatrix * tMyValues( Ik );
             }
 
             this->set_vector_entry_number_of_pdof();             // FIXME should not be in MSI. Should be in FEM
