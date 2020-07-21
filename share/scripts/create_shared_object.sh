@@ -99,14 +99,21 @@ workdir=`pwd`
 
 rm -f $cppfile.so
 
-if [ -f $MORISROOT/projects/mains/input_file.locked ];then
+while [ -f $MORISROOT/projects/mains/input_file.locked ];do
     echo ""
-    echo " error - file $MORISROOT/projects/mains/input_file.locked exits "
-    echo " this may indicate that a build process is currently running"
-    echo " if this is not the case, remove the file manually"
+    echo "Warning: lock file $MORISROOT/projects/mains/input_file.locked exits. "
     echo ""
-    exit
-fi
+    echo "This may indicate that a build process is currently running."
+    echo "This process is waiting until lock is released."
+    echo "If you are sure that there is no other build process is running, "
+    echo "kill this process, remove the lock file manually using the following command:"
+    echo ""
+    echo "rm $MORISROOT/projects/mains/input_file.locked"
+    echo ""
+    echo "and restart this build process."
+    echo ""
+    sleep 5
+done
 
 touch $MORISROOT/projects/mains/input_file.locked
 
