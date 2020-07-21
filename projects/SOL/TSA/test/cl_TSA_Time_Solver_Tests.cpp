@@ -27,45 +27,47 @@
 
 namespace moris
 {
-namespace tsa
-{
-    TEST_CASE("TimeSolverRest","[TSA],[TimeSolver]")
+    namespace tsa
     {
-        if ( par_size() == 1 )
-        {
-        Time_Solver_Algorithm * tTimesolver = new Monolithic_Time_Solver();
+        TEST_CASE("TimeSolverRest","[TSA],[TimeSolver]")
+            {
+            if ( par_size() == 1 )
+            {
+                std::shared_ptr< Time_Solver_Algorithm > tTimesolverAlgorithm = std::make_shared< Monolithic_Time_Solver >();
 
-        // Create solver interface
-        Solver_Interface * tSolverInput = new TSA_Solver_Interface_Proxy();
+                // Create solver interface
+                Solver_Interface * tSolverInput = new TSA_Solver_Interface_Proxy();
 
-        // Create solver database
-        sol::SOL_Warehouse tSolverWarehouse( tSolverInput );
+                NLA::Nonlinear_Solver tNonlinearSolverManager( NLA::NonlinearSolverType::NEWTON_SOLVER );
 
-        NLA::Nonlinear_Solver tNonlinearSolverManager( NLA::NonlinearSolverType::NEWTON_SOLVER );
+                moris::Cell< enum MSI::Dof_Type > tDofTypes( 1 );
+                tDofTypes( 0 ) = MSI::Dof_Type::TEMP;
+                tNonlinearSolverManager.set_dof_type_list( tDofTypes );
 
-        moris::Cell< enum MSI::Dof_Type > tDofTypes( 1 );
-        tDofTypes( 0 ) = MSI::Dof_Type::TEMP;
-        tNonlinearSolverManager.set_dof_type_list( tDofTypes );
+                tTimesolverAlgorithm->set_nonlinear_solver( & tNonlinearSolverManager );
 
-        tNonlinearSolverManager.set_solver_warehouse( & tSolverWarehouse );
+                tTimesolverAlgorithm->set_param("TSA_Num_Time_Steps")   = 1000;
+                tTimesolverAlgorithm->set_param("TSA_Time_Frame")       = 10.0;
 
-        tTimesolver->set_solver_warehouse( &tSolverWarehouse );
+                Time_Solver tTimeSolver;
 
-        tTimesolver->set_nonlinear_solver( & tNonlinearSolverManager );
+                tTimeSolver.set_time_solver_algorithm( tTimesolverAlgorithm );
 
-        tTimesolver->set_param("TSA_Num_Time_Steps")   = 1000;
-        tTimesolver->set_param("TSA_Time_Frame")       = 10.0;
+                sol::SOL_Warehouse tSolverWarehouse( tSolverInput );
 
-        Time_Solver tEmptyTimeSolver;
-        tTimesolver->mMyTimeSolver = &tEmptyTimeSolver;
+                tNonlinearSolverManager.set_solver_warehouse( &tSolverWarehouse );
+                tTimeSolver.set_solver_warehouse( &tSolverWarehouse );
 
-        tTimesolver -> solve();
+                tTimeSolver.set_dof_type_list( tDofTypes );
 
-        Matrix< DDRMat > tSol;
-        tTimesolver ->get_full_solution( tSol );
+                tTimeSolver.solve();
 
-        CHECK( equal_to( tSol( 0, 0 ), -8.869937049794211e-01, 1.0e+08 ) );
-        }
+                Matrix< DDRMat > tSol;
+                tTimeSolver.get_full_solution( tSol );
+
+                CHECK( equal_to( tSol( 0, 0 ), -8.869937049794211e-01, 1.0e+08 ) );
+            }
+            }
     }
-}}
+}
 
