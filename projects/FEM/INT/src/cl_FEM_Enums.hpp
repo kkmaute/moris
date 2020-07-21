@@ -94,6 +94,8 @@ namespace moris
             SPATIALDIFF_DIRICHLET_SYMMETRIC_NITSCHE, // spatial diffusion Dirichlet (Nitsche)
             SPATIALDIFF_DIRICHLET_UNSYMMETRIC_NITSCHE,
             SPATIALDIFF_NEUMANN,   // spatial diffusion Neumann
+            SPATIALDIFF_ROBIN,   // spatial diffusion Robin (Convection)
+            SPATIALDIFF_RADIATION,   // spatial diffusion Radiation BC
             SPATIALDIFF_INTERFACE, // spatial diffusion Nitsche interface condition
             SPATIALDIFF_GHOST,     // spatial diffusion ghost
             SPATIALDIFF_GGLS_PC,   // spatial diffusion GGLS stabilization term for phase change

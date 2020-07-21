@@ -191,6 +191,9 @@ void check_quadratic_results_serial()
 TEST_CASE("Fickian_Problem_Linear",
         "[moris],[example],[thermal],[diffusion]")
 {
+    // temporary
+    gLogger.initialize( "Log.log" );
+
     // define command line call
     int argc = 2;
 
