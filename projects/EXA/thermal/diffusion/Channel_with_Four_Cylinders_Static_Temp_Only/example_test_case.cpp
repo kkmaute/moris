@@ -49,7 +49,7 @@ void check_linear_results(moris::mtk::Exodus_IO_Helper & aExoIO,uint aNodeId)
     }
 
     // define reference coordinates for node aNodeId
-    Matrix< DDRMat > tReferenceCoordinate = { {+8.736363636363635e-01},{+2.081818181818181e-01} };
+    Matrix< DDRMat > tReferenceCoordinate = { {+7.600000000000002e-01},{+2.422727272727273e-01} };
 
     // check nodal coordinates
     real tRelDiffNorm = moris::norm( aExoIO.get_nodal_coordinate( aNodeId ) - tReferenceCoordinate )/ moris::norm(tReferenceCoordinate);
@@ -64,7 +64,7 @@ void check_linear_results(moris::mtk::Exodus_IO_Helper & aExoIO,uint aNodeId)
     REQUIRE( tRelTimeDifference <  1.0e-8 );
 
     // check temperature at node aNodeId in first time step (temperature is 3rd nodal field, first time step has index 0)
-    real tReferenceTemperature = 9.764734706017323e+04;
+    real tReferenceTemperature = 8.670906164633136e+04;
 
     real tRelTempDifference = std::abs( ( aExoIO.get_nodal_field_value( aNodeId, 2, 0 ) - tReferenceTemperature ) / tReferenceTemperature );
 
@@ -72,7 +72,7 @@ void check_linear_results(moris::mtk::Exodus_IO_Helper & aExoIO,uint aNodeId)
     REQUIRE(  tRelTempDifference < 1.0e-4);
 
     // check IQI of first time step (only 1 IQI is defined, first time step has index 0)
-    real tReferenceIQI = 8.324886503174731e+04;
+    real tReferenceIQI = 8.324886510380027e+04;
 
     real tRelIQIDifference = std::abs( ( aExoIO.get_global_variable(0, 0 ) - tReferenceIQI ) / tReferenceIQI );
 
@@ -101,12 +101,12 @@ void check_linear_results_serial()
     else
     {
         REQUIRE( tNumDims  ==  2    );
-        REQUIRE( tNumNodes ==  5570 );
-        REQUIRE( tNumElems ==  5424 );
+        REQUIRE( tNumNodes ==  5864 );
+        REQUIRE( tNumElems ==  5754 );
     }
 
     // check results
-    uint tNodeId = 1489;
+    uint tNodeId = 1798;
 
     check_linear_results(tExoIO,tNodeId);
 }
@@ -140,7 +140,7 @@ void check_linear_results_parallel()
     }
 
     // check results
-    uint tNodeId = 924;
+    uint tNodeId = 1081;
 
     check_linear_results(tExoIO,tNodeId);
 }

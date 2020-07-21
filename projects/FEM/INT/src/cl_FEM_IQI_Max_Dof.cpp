@@ -59,6 +59,12 @@ namespace moris
             Field_Interpolator * tFI =
                     mMasterFIManager->get_field_interpolators_for_type( mMasterDofTypes( 0 )( 0 ) );
 
+            MORIS_ERROR(mMasterProp( static_cast< uint >( IQI_Property_Type::REFERENCE_VALUE ) ) != nullptr,
+                    "IQI_Max_Dof - no reference value set");
+
+            MORIS_ERROR(mMasterProp( static_cast< uint >( IQI_Property_Type::EXPONENT ) ) != nullptr,
+                    "IQI_Max_Dof - no exponent set");
+
             // get property values
             real tRefValue = mMasterProp( static_cast< uint >( IQI_Property_Type::REFERENCE_VALUE ) )->val()( 0 );
             real tExponent = mMasterProp( static_cast< uint >( IQI_Property_Type::EXPONENT ) )->val()( 0 );
