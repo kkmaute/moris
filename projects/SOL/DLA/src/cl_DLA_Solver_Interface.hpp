@@ -50,6 +50,8 @@ namespace moris
             moris::Cell< Matrix< DDRMat > >                mMat6;
             moris::Cell< moris::Cell< Matrix< DDSMat > > > mMat4;
 
+            bool mIsForwardAnalysis = true;
+
         public:
             /** Destructor */
             virtual ~Solver_Interface(){};
@@ -62,12 +64,45 @@ namespace moris
                 }
             };
 
+            //------------------------------------------------------------------------------
+            /**
+             * indicated that this equation model is used for the sensitivity analysis
+             */
+            void set_is_sensitivity_analysis()
+            {
+                mIsForwardAnalysis = false;
+            };
+
+            //------------------------------------------------------------------------------
+            /**
+             * indicated that this equation model is used for the forward analysis
+             */
+            void set_is_forward_analysis()
+            {
+                mIsForwardAnalysis = true;
+            };
+
+            //------------------------------------------------------------------------------
+            /**
+             * returns if this is the a forward analysis
+             * @param[ out ] mIsForwardAnalysis
+             */
+            bool get_is_forward_analysis()
+            {
+                return mIsForwardAnalysis;
+            };
+
             virtual void set_solution_vector( sol::Dist_Vector * aSolutionVector )
             {
                 MORIS_ERROR( false, "Solver_Interface::set_solution_vector: not set.");
             };
 
             virtual void set_adjoint_solution_vector( sol::Dist_Vector * aSolutionVector )
+            {
+                MORIS_ERROR( false, "Solver_Interface::set_adjoint_solution_vector: not set.");
+            };
+
+            virtual void set_previous_adjoint_solution_vector( sol::Dist_Vector * aSolutionVector )
             {
                 MORIS_ERROR( false, "Solver_Interface::set_adjoint_solution_vector: not set.");
             };
@@ -94,16 +129,12 @@ namespace moris
                 MORIS_ERROR( false, "Solver_Interface::set_previous_time: not set.");
             };
 
-            virtual void perform_mapping(  )
-            {
-                MORIS_ERROR( false, "Solver_Interface::perform_mapping: not implemented.");
-            };
-
             virtual void free_block_memory( const uint aBlockInd )         =0;
 
             virtual void initialize_set(
                     const uint aBlockInd,
-                    const bool aIsResidual )
+                    const bool aIsResidual,
+                    const bool aIsAdjointOffDiagonalTimeContribution = false)
             {  };
 
             virtual void set_requested_dof_types( const moris::Cell< enum MSI::Dof_Type > aListOfDofTypes )
@@ -199,6 +230,15 @@ namespace moris
                     const moris::uint              & aMyBlockInd,
                     const moris::uint              & aMyElementInd,
                     Cell< Matrix< DDRMat > >       & aElementRHS ) = 0;
+
+            //fixme move that into get_equation_object_rhs()
+            virtual void get_equation_object_off_diag_rhs(
+                    const moris::uint              & aMyBlockInd,
+                    const moris::uint              & aMyElementInd,
+                    Cell< Matrix< DDRMat > >       & aElementRHS )
+            {
+                MORIS_ERROR( false, "not implemented");
+            };
 
             virtual void get_equation_object_operator_and_rhs(
                     const moris::uint              & aMyElementInd,
@@ -315,6 +355,9 @@ namespace moris
 
             //---------------------------------------------------------------------------------------------------------
             void assemble_RHS( moris::sol::Dist_Vector * aVectorRHS );
+
+            //FIXME first draft. change this after diagonal jac gets moved into solver
+            void assemble_additional_DqDs_RHS_contribution( moris::sol::Dist_Vector * aVectorRHS );
 
             //---------------------------------------------------------------------------------------------------------
             void get_adof_ids_based_on_criteria( moris::Cell< moris::Matrix< IdMat > > & aCriteriaIds,
