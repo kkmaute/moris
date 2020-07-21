@@ -47,13 +47,6 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        bool Mesh_Field_Geometry::sensitivities_available()
-        {
-            return false;
-        }
-
-        //--------------------------------------------------------------------------------------------------------------
-
         void Mesh_Field_Geometry::add_child_node(uint aNodeIndex, std::shared_ptr<Child_Node> aChildNode)
         {
             mChildNodes.push_back(aChildNode);
