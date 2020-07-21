@@ -71,8 +71,16 @@ namespace moris
 
      void MSI_Solver_Interface::set_adjoint_solution_vector( sol::Dist_Vector * aSolutionVector )
      {
-         mSensitivitySolutionVector = aSolutionVector;
-         mMSI->mEquationModel->set_adjoint_solution_vector( mSensitivitySolutionVector );
+         mAdjointSolutionVector = aSolutionVector;
+         mMSI->mEquationModel->set_adjoint_solution_vector( mAdjointSolutionVector );
+     }
+
+//------------------------------------------------------------------------------
+
+     void MSI_Solver_Interface::set_previous_adjoint_solution_vector( sol::Dist_Vector * aSolutionVector )
+     {
+         mPreviousAdjointSolutionVector = aSolutionVector;
+         mMSI->mEquationModel->set_previous_adjoint_solution_vector( mPreviousAdjointSolutionVector );
      }
 
 //------------------------------------------------------------------------------
@@ -110,6 +118,28 @@ namespace moris
     moris::uint MSI_Solver_Interface::get_num_rhs()
     {
         return mMSI->get_equation_model()->get_num_rhs();
+    }
+    //-------------------------------------------------------------------------------------------------------
+
+    void MSI_Solver_Interface::initialize_set(
+            const uint aMyEquSetInd,
+            const bool aIsResidual,
+            const bool aIsAdjointOffDiagonalTimeContribution )
+    {
+        mMSI->get_equation_model()->
+                set_is_adjoint_off_diagonal_time_contribution( aIsAdjointOffDiagonalTimeContribution );
+
+        mMSI->get_equation_set( aMyEquSetInd )->initialize_set( aIsResidual );
+    }
+
+    //-------------------------------------------------------------------------------------------------------
+
+    void MSI_Solver_Interface::free_block_memory( const uint aMyEquSetInd )
+    {
+        mMSI->get_equation_model()->
+                set_is_adjoint_off_diagonal_time_contribution( false );
+
+        mMSI->get_equation_set( aMyEquSetInd )->free_matrix_memory();
     }
 
 //-------------------------------------------------------------------------------------------------------

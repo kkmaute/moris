@@ -153,10 +153,6 @@ namespace moris
                     return mMyGlobalElementsOverlapping;
                 };
 
-                moris::Matrix< DDSMat > & get_time_level_Ids_minus();
-
-                moris::Matrix< DDSMat > & get_time_level_Ids_plus() ;
-
                 // ----------------------------------------------------------------------------------------------
                 // number of elements on proc
                 uint get_num_my_elements()
@@ -167,8 +163,6 @@ namespace moris
                 uint get_num_my_blocks(){return 1; };
 
                 uint get_num_equation_objects_on_set( uint aBlockInd){return mNumElements=1; };
-
-                void perform_mapping();
 
                 // ----------------------------------------------------------------------------------------------
 

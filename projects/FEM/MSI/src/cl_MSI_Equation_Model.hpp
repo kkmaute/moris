@@ -49,7 +49,8 @@ namespace moris
                 // distributed solution vectors for current and previous time slabs
                 sol::Dist_Vector * mSolutionVector     = nullptr;
                 sol::Dist_Vector * mPrevSolutionVector = nullptr;
-                sol::Dist_Vector * mSensitivitySolutionVector = nullptr;
+                sol::Dist_Vector * mAdjointSolutionVector = nullptr;
+                sol::Dist_Vector * mPreviousAdjointSolutionVector = nullptr;
 
                 sol::Dist_Map * mdQiduMap = nullptr;
 
@@ -64,6 +65,7 @@ namespace moris
                 MSI::Design_Variable_Interface * mDesignVariableInterface = nullptr;
 
                 bool mIsForwardAnalysis = true;
+                bool mISOffDiagonalTimeContribution = false;
 
                 moris::sint mNumSensitivityAnalysisRHS = -1;
 
@@ -175,7 +177,17 @@ namespace moris
                  */
                 void set_adjoint_solution_vector( sol::Dist_Vector * aSolutionVector )
                 {
-                    mSensitivitySolutionVector = aSolutionVector;
+                    mAdjointSolutionVector = aSolutionVector;
+                }
+
+                //------------------------------------------------------------------------------
+                /**
+                 * set previous adjoint solution vector
+                 * @param[ in ] aSensitivitySolutionVector distributed solution vector for sensitivity
+                 */
+                void set_previous_adjoint_solution_vector( sol::Dist_Vector * aSolutionVector )
+                {
+                    mPreviousAdjointSolutionVector = aSolutionVector;
                 }
 
                 //------------------------------------------------------------------------------
@@ -185,7 +197,17 @@ namespace moris
                  */
                 sol::Dist_Vector * get_adjoint_solution_vector()
                 {
-                    return mSensitivitySolutionVector;
+                    return mAdjointSolutionVector;
+                }
+
+                //------------------------------------------------------------------------------
+                /**
+                 * get previous adjoint solution vector
+                 * @param[ out ] aSolutionVector previous adjoint distributed solution vector
+                 */
+                sol::Dist_Vector * get_previous_adjoint_solution_vector()
+                {
+                    return mPreviousAdjointSolutionVector;
                 }
 
                 //------------------------------------------------------------------------------
@@ -322,6 +344,25 @@ namespace moris
                 bool get_is_forward_analysis()
                 {
                     return mIsForwardAnalysis;
+                };
+
+                //------------------------------------------------------------------------------
+                /**
+                 * indicated that
+                 */
+                void set_is_adjoint_off_diagonal_time_contribution( const bool aIsOffDiagonalTimeContribution )
+                {
+                    mISOffDiagonalTimeContribution = aIsOffDiagonalTimeContribution;
+                };
+
+                //------------------------------------------------------------------------------
+                /**
+                 * returns if this
+                 * @param[ out ] mIsForwardAnalysis
+                 */
+                bool get_is_adjoint_off_diagonal_time_contribution()
+                {
+                    return mISOffDiagonalTimeContribution;
                 };
 
                 //------------------------------------------------------------------------------

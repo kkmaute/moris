@@ -62,6 +62,9 @@ namespace moris
             // assemble RHS
             mSolverInterface->assemble_RHS( mVectorRHS );
 
+            mSolverInterface->assemble_additional_DqDs_RHS_contribution( mVectorRHS );
+
+
             real tElapsedTime = tTimer.toc<moris::chronos::milliseconds>().wall;
             MORIS_LOG_INFO( " Assembly of residual on processor %u took %5.3f seconds.", ( uint ) par_rank(), ( double ) tElapsedTime / 1000);
 

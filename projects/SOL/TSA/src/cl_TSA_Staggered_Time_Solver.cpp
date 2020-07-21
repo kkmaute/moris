@@ -16,7 +16,7 @@ using namespace moris;
 using namespace tsa;
 //-------------------------------------------------------------------------------
 
-void Staggered_Time_Solver::solve_staggered_time_system()
+void Staggered_Time_Solver::solve_staggered_time_system( moris::Cell< sol::Dist_Vector * > & aFullVector )
 {
     this->finalize();
 
@@ -35,14 +35,15 @@ void Staggered_Time_Solver::solve_staggered_time_system()
         // Loop over all time systems
         for (uint Ik = 0 ; Ik < tNumTimeSystems; Ik++)
         {
-            mMyTimeSolver->get_sub_time_solver( Ik )->solve( mFullVector );
+            mMyTimeSolver->get_sub_time_solver( Ik )->solve( aFullVector );
 
-             //mTimeSolverList( Ik )->solve( mFullVector );
         } // end loop over all time sub-systems
 
         tMaxNewTime = this->calculate_time_needed( tLoopStartTime );
 
         std::cout<< "Time spend on time system: " << tMaxNewTime <<std::endl;
+
+        mMyTimeSolver->prepare_sol_vec_for_next_time_step();
 
 //                bool tHartBreak = false;
 //
@@ -70,18 +71,8 @@ void Staggered_Time_Solver::solve_staggered_time_system()
 
 //-------------------------------------------------------------------------------
 
-void Staggered_Time_Solver::solve( sol::Dist_Vector * aFullVector )
+void Staggered_Time_Solver::solve( moris::Cell< sol::Dist_Vector * > & aFullVector )
  {
-     mFullVector = aFullVector;
-
-     this->solve_staggered_time_system();
+     this->solve_staggered_time_system( aFullVector );
  }
 
- //-------------------------------------------------------------------------------
-
- void Staggered_Time_Solver::solve()
- {
-     mIsMasterTimeSolver =  true;
-
-     this->solve_staggered_time_system();
- }

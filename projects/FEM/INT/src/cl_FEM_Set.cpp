@@ -1652,17 +1652,48 @@ namespace moris
             // reserve max size for requested IWG list
             mRequestedIWGs.reserve( mIWGs.size() );
 
-            // loop over the requested dof types
-            for( MSI::Dof_Type tDofType : tRequestedDofTypes )
+            if( mEquationModel->get_is_forward_analysis( ))
             {
-                // loop over the IWG in set IWG list
-                for( uint iIWG = 0; iIWG < mIWGs.size(); iIWG++ )
+                // loop over the requested dof types
+                for( MSI::Dof_Type tDofType : tRequestedDofTypes )
                 {
-                    // if the IWG residual dof type is requested
-                    if( mIWGs( iIWG )->get_residual_dof_type()( 0 ) == tDofType )
+                    // loop over the IWG in set IWG list
+                    for( uint iIWG = 0; iIWG < mIWGs.size(); iIWG++ )
                     {
-                        // add the IWg to the requested IWG list
-                        mRequestedIWGs.push_back( mIWGs( iIWG ) );
+                        // if the IWG residual dof type is requested
+                        if( mIWGs( iIWG )->get_residual_dof_type()( 0 ) == tDofType )
+                        {
+                            // add the IWg to the requested IWG list
+                            mRequestedIWGs.push_back( mIWGs( iIWG ) );
+                        }
+                    }
+                }
+            }
+            else
+            {
+                // loop over the requested dof types
+                for( MSI::Dof_Type tDofType : tRequestedDofTypes )
+                {
+                    // loop over the IWG in set IWG list
+                    for( uint iIWG = 0; iIWG < mIWGs.size(); iIWG++ )
+                    {
+                        // if the IWG residual dof type is requested
+                        if( mIWGs( iIWG )->get_residual_dof_type()( 0 ) == tDofType )
+                        {
+                            if( mEquationModel->get_is_adjoint_off_diagonal_time_contribution() )
+                            {
+                                if( mIWGs( iIWG )->get_IWG_type() == moris::fem::IWG_Type::TIME_CONTINUITY_DOF  )
+                                {
+                                    // add the IWg to the requested IWG list
+                                    mRequestedIWGs.push_back( mIWGs( iIWG ) );
+                                }
+                            }
+                            else
+                            {
+                                // add the IWg to the requested IWG list
+                                mRequestedIWGs.push_back( mIWGs( iIWG ) );
+                            }
+                        }
                     }
                 }
             }

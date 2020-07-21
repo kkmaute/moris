@@ -1,6 +1,6 @@
 set(EXAMPLE_MAIN Main_Channel_with_Four_Cylinders_Static_Temp_Only)
 set(EXAMPLE_FILE Channel_with_Four_Cylinders_Static_Temp_Only)
-set(EXAMPLE_PROCS 1 2)
+set(EXAMPLE_PROCS 1)
 
 # List source files
 set(EXAMPLE_SOURCES

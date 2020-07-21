@@ -23,7 +23,9 @@ namespace tsa
     {
     private:
 
-        void solve_monolytic_time_system();
+        void solve_monolytic_time_system( moris::Cell< sol::Dist_Vector * > & aFullVector );
+
+        void solve_implicit_DqDs( moris::Cell< sol::Dist_Vector * > & aFullAdjointVector );
 
         moris::real mLambdaInc = 0;
 
@@ -56,15 +58,7 @@ namespace tsa
          *
          * @param[in] aFullVector     Solution Vector
          */
-        void solve( sol::Dist_Vector * aFullVector );
-
-        //-------------------------------------------------------------------------------
-        /**
-         * @brief Solve call
-         *
-         * @param[in] aFullVector
-         */
-        void solve();
+        void solve( moris::Cell< sol::Dist_Vector * > & aFullVector );
 
         //-------------------------------------------------------------------------------
 

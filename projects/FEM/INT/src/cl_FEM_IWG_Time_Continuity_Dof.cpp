@@ -2,6 +2,7 @@
 #include "cl_FEM_IWG_Time_Continuity_Dof.hpp"
 #include "cl_FEM_Set.hpp"
 #include "cl_FEM_Field_Interpolator_Manager.hpp"
+#include "cl_FEM_Enums.hpp"
 //LINALG/src
 #include "fn_trans.hpp"
 
@@ -13,6 +14,8 @@ namespace moris
 //------------------------------------------------------------------------------
         IWG_Time_Continuity_Dof::IWG_Time_Continuity_Dof()
         {
+            mIWGType = moris::fem::IWG_Type::TIME_CONTINUITY_DOF;
+
             // set size for the property pointer cell
             mMasterProp.resize( static_cast< uint >( IWG_Property_Type::MAX_ENUM ), nullptr );
 

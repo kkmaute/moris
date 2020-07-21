@@ -42,15 +42,12 @@ void TSA_Solver_Interface_Proxy::get_equation_object_rhs(
         Cell< Matrix< DDRMat > > & aElementRHS )
 {
     mSolutionVector->extract_copy( mMySolVec );
-    Matrix< DDRMat > tMat;
-    Matrix< DDSMat > tMatRows1 = this->get_time_level_Ids_minus();
-    Matrix< DDSMat > tMatRows2 = this->get_time_level_Ids_plus();
 
     mDeltaT = mT( 1, 0 ) - mT( 0, 0 );
 
     aElementRHS.resize(1);
     aElementRHS(0).resize(1,1);
-    aElementRHS(0)(0,0)= ( mk + 1/(  mDeltaT ) ) * mMySolVec( 0,0 ) - mMySolVecPrev( 1, 0 )/( mDeltaT ) - mk * std::cos( mT( 1, 0 ) );
+    aElementRHS(0)(0,0)= ( mk + 1/(  mDeltaT ) ) * mMySolVec( 0,0 ) - mMySolVecPrev( 0, 0 )/( mDeltaT ) - mk * std::cos( mT( 1, 0 ) );
 }
 
 // ----------------------------------------------------------------------------------------------
@@ -62,46 +59,11 @@ void TSA_Solver_Interface_Proxy::get_equation_object_rhs(
 {
     mSolutionVector->extract_copy( mMySolVec );
 
-    Matrix< DDRMat > tMat;
-    Matrix< DDSMat > tMatRows1 = this->get_time_level_Ids_minus();
-    Matrix< DDSMat > tMatRows2 = this->get_time_level_Ids_plus();
-
     mDeltaT = mT( 1, 0 ) - mT( 0, 0 );
 
     aElementRHS.resize(1);
     aElementRHS(0).resize(1,1);
-    aElementRHS(0)(0,0)= ( mk + 1/(  mDeltaT ) ) * mMySolVec( 0,0 ) - mMySolVecPrev( 1, 0 )/( mDeltaT ) - mk * std::cos( mT( 1, 0 ) );
-}
-
-// ----------------------------------------------------------------------------------------------
-
-moris::Matrix< DDSMat > & TSA_Solver_Interface_Proxy::get_time_level_Ids_minus()
-{
-    mTimeLevelIdsMinus.set_size( 1, 1, 0 );
-    return mTimeLevelIdsMinus;
-}
-
-// ----------------------------------------------------------------------------------------------
-
-moris::Matrix< DDSMat > & TSA_Solver_Interface_Proxy::get_time_level_Ids_plus()
-{
-    mTimeLevelIdsPlus.set_size( 1, 1 , 1 );
-    return mTimeLevelIdsPlus;
-}
-
-// ----------------------------------------------------------------------------------------------
-
-void TSA_Solver_Interface_Proxy::perform_mapping()
-{
-    moris::Cell< Matrix< DDRMat > > tMat;
-    Matrix< DDSMat > tMatRows1 = this->get_time_level_Ids_minus();
-    Matrix< DDSMat > tMatRows2 = this->get_time_level_Ids_plus();
-
-    mSolutionVectorPrev->extract_my_values( 1, tMatRows1, 0 , tMat );
-
-    mSolutionVectorPrev->sum_into_global_values( tMatRows2, tMat( 0 ) );
-
-    mSolutionVectorPrev->vector_global_asembly();
+    aElementRHS(0)(0,0)= ( mk + 1/(  mDeltaT ) ) * mMySolVec( 0,0 ) - mMySolVecPrev( 0, 0 )/( mDeltaT ) - mk * std::cos( mT( 1, 0 ) );
 }
 
 // ----------------------------------------------------------------------------------------------
@@ -140,15 +102,11 @@ void TSA_Solver_Interface_Proxy::get_equation_object_operator_and_rhs(
 {
     mSolutionVector->extract_copy( mMySolVec );
 
-    Matrix< DDRMat > tMat;
-    Matrix< DDSMat > tMatRows1 = this->get_time_level_Ids_minus();
-    Matrix< DDSMat > tMatRows2 = this->get_time_level_Ids_plus();
-
     mDeltaT = mT( 1, 0 ) - mT( 0, 0 );
 
     aElementRHS.resize(1);
     aElementRHS(0).resize(1,1);
-    aElementRHS(0)(0,0)= ( mk + 1/(  mDeltaT ) ) * mMySolVec( 0,0 ) - mMySolVecPrev( 1, 0 )/( mDeltaT ) - mk * std::cos( mT( 1, 0 ) );
+    aElementRHS(0)(0,0)= ( mk + 1/(  mDeltaT ) ) * mMySolVec( 0,0 ) - mMySolVecPrev( 0, 0 )/( mDeltaT ) - mk * std::cos( mT( 1, 0 ) );
 
     aElementMatrix.resize(1, 1);
     aElementMatrix(0,0)=( mk + 1/( mDeltaT) );
@@ -165,15 +123,11 @@ void TSA_Solver_Interface_Proxy::get_equation_object_operator_and_rhs(
 {
     mSolutionVector->extract_copy( mMySolVec );
 
-    Matrix< DDRMat > tMat;
-    Matrix< DDSMat > tMatRows1 = this->get_time_level_Ids_minus();
-    Matrix< DDSMat > tMatRows2 = this->get_time_level_Ids_plus();
-
     mDeltaT = mT( 1, 0 ) - mT( 0, 0 );
 
     aElementRHS.resize(1);
     aElementRHS(0).resize(1,1);
-    aElementRHS(0)(0,0)= ( mk + 1/(  mDeltaT ) ) * mMySolVec( 0,0 ) - mMySolVecPrev( 1, 0 )/( mDeltaT ) - mk * std::cos( mT( 1, 0 ) );
+    aElementRHS(0)(0,0)= ( mk + 1/(  mDeltaT ) ) * mMySolVec( 0,0 ) - mMySolVecPrev( 0, 0 )/( mDeltaT ) - mk * std::cos( mT( 1, 0 ) );
 
     aElementMatrix.resize(1, 1);
     aElementMatrix(0,0)=( mk + 1/( mDeltaT) );

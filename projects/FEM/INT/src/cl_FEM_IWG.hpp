@@ -95,6 +95,9 @@ namespace moris
                 // string for IWG name
                 std::string mName;
 
+                //! string for IWG name
+                enum moris::fem::IWG_Type mIWGType = moris::fem::IWG_Type::UNDEFINED;
+
                 //------------------------------------------------------------------------------
             public :
 
@@ -129,6 +132,17 @@ namespace moris
                 {
                     return mName;
                 }
+
+                //------------------------------------------------------------------------------
+                /**
+                 * get IWG type
+                 * param[ out ] mIWGType an enum of the IWG type. type only implemented for TIME_CONTINUITY_DOF. All others return UNDEFINED.
+                 *              If needed you can implement the type for the others. Just folow the TIME_CONTINUITY_DOF
+                 */
+                enum moris::fem::IWG_Type get_IWG_type()
+                {
+                    return mIWGType;
+                };
 
                 //------------------------------------------------------------------------------
                 /**

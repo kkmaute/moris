@@ -45,7 +45,7 @@ namespace moris
             real evaluate_field_value(uint aEntityIndex);
 
             /**
-             * Given an index, returns sensitivites of the geometry with respect to input parameters
+             * Given an index, returns sensitivities of the geometry with respect to input parameters
              *
              * @param aEntityIndex the index of the field value
              * @param aSensitivities Matrix of sensitivities to be returned
