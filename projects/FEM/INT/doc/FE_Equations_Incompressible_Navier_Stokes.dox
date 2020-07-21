@@ -85,6 +85,7 @@ Dirichlet boundary conditions are imposed weakly via Nitsche's formulation as:
 \begin{array}{lll}
 \mathbf{R}_{u}^{D} & = & \displaystyle
 - \left( \mathbf{v},\ \boldsymbol{\sigma}(\mathbf{u}, p) \cdot \mathbf{n} \right)_{\Gamma_D}
+- \left( \mathbf{v},\ \boldsymbol{\sigma}_t(\mathbf{u}, \tilde{\nu}) \cdot \mathbf{n} \right)_{\Gamma_D}
 - \beta \left( 2 \mu \boldsymbol{\varepsilon}(\mathbf{v}) \cdot \mathbf{n},\ \mathbf{u} - \overline{\mathbf{u}} \right)_{\Gamma_D}
 - \beta \left( 2 \mu_t(\tilde{\nu}) \boldsymbol{\varepsilon}(\mathbf{v}) \cdot \mathbf{n},\ \mathbf{u} - \overline{\mathbf{u}} \right)_{\Gamma_D}
 + \left( \gamma_N\ \mathbf{v},\ \mathbf{u} - \overline{\mathbf{u}} \right)_{\Gamma_D}\\[15pt]
@@ -94,7 +95,9 @@ Dirichlet boundary conditions are imposed weakly via Nitsche's formulation as:
 \end{array}
 \f]
 
-where \f$ \beta = -1 \f$ for symmetric version and \f$ \beta = 1 \f$ for skew symmetric version.
+where 
+- \f$ \beta = -1 \f$ for symmetric version and \f$ \beta = 1 \f$ for skew symmetric version.
+
 The velocity side part of the residual \f$ \mathbf{R}_{u}^{D} \f$ is implemented in 
 IWG_Incompressible_NS_Velocity_Dirichlet_Nitsche,
 corresponding to the enums IWG\_Type::INCOMPRESSIBLE_NS_VELOCITY_DIRICHLET_SYMMETRIC_NITSCHE 
