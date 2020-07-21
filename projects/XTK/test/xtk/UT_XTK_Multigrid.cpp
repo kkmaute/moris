@@ -26,7 +26,7 @@
 #include "cl_XTK_Matrix_Base_Utilities.hpp"
 #include "linalg_typedefs.hpp"
 
-#include "geometry/cl_Discrete_Level_Set.hpp"
+#include "geometry/cl_Mesh_Field_Geometry.hpp"
 #include "geometry/cl_Plane.hpp"
 #include "cl_MGE_Geometry_Engine.hpp"
 
@@ -144,7 +144,7 @@ namespace xtk
 
             moris::mtk::Mesh* tMeshData   = moris::mtk::create_mesh( MeshType::STK, "xtk_test_sphere1.exo" );
             std::string tLSFName            = "Circle";
-            xtk::Discrete_Level_Set tLevelSetMesh(tMeshData,{tLSFName});
+            xtk::Mesh_Field_Geometry tLevelSetMesh(tMeshData,{tLSFName});
 
             // Tell the geometry engine about the discrete field mesh and how to interpret phases
             Phase_Table tPhaseTable (1,  Phase_Table_Structure::EXP_BASE_2);

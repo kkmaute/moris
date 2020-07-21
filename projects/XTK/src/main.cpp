@@ -30,7 +30,6 @@
 #include "fn_compute_xtk_model_volumes.hpp"
 #include "fn_compute_interface_surface_area.hpp"
 
-#include "cl_GEN_Geometry.hpp"
 #include "cl_GEN_Plane.hpp"
 #include "cl_GEN_Sphere.hpp"
 #include "cl_GEN_Sphere_Box.hpp"

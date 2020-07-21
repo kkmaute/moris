@@ -1,5 +1,5 @@
-#ifndef MORIS_CL_GEN_DISCRETE_LEVEL_SET_HPP
-#define MORIS_CL_GEN_DISCRETE_LEVEL_SET_HPP
+#ifndef MORIS_CL_GEN_MESH_FIELD_GEOMETRY_HPP
+#define MORIS_CL_GEN_MESH_FIELD_GEOMETRY_HPP
 
 #include "cl_GEN_Geometry.hpp"
 #include "cl_GEN_Field_Discrete.hpp"
@@ -11,12 +11,11 @@ namespace moris
 {
     namespace ge
     {
-        class Discrete_Level_Set: public Geometry, public Field_Discrete
+        class Mesh_Field_Geometry: public Geometry, public Field_Discrete
         {
         private:
-            size_t mActiveFieldIndex = 0;
-            Cell<std::string> mFieldNames;
-            moris::mtk::Interpolation_Mesh* mMesh;
+            std::string mFieldName;
+            mtk::Interpolation_Mesh* mMesh;
             EntityRank mEntityRank;
             uint mNumOriginalNodes;
             Cell<std::shared_ptr<Child_Node>> mChildNodes;
@@ -30,34 +29,27 @@ namespace moris
              * @param aNumRefinements The number of refinement steps to use for this geometry
              * @param aRefinementFunctionIndex The index of a user-defined refinement function (-1 = default refinement)
              */
-            Discrete_Level_Set(moris::mtk::Interpolation_Mesh* aMeshWithLevelSetFields,
-                               moris::Cell<std::string> const & aFieldNames,
-                               EntityRank aEntityRank = EntityRank::NODE,
-                               sint aNumRefinements = 0,
-                               sint aRefinementFunctionIndex = -1);
+            Mesh_Field_Geometry(mtk::Interpolation_Mesh* aMeshWithLevelSetFields,
+                                std::string aFieldName,
+                                EntityRank aEntityRank = EntityRank::NODE,
+                                sint aNumRefinements = 0,
+                                sint aRefinementFunctionIndex = -1);
 
             /**
              * Given an index, the discrete geometry needs to return a field value.
              *
-             * @param aEntityIndex the index of the field value
+             * @param aNodeIndex Node index for field evaluation
              * @return field value at the specified index
              */
-            real evaluate_field_value(uint aEntityIndex);
+            real evaluate_field_value(uint aNodeIndex);
 
             /**
              * Given an index, returns sensitivites of the geometry with respect to input parameters
              *
-             * @param aEntityIndex the index of the field value
+             * @param aNodeIndex Node index for field evaluation
              * @param aSensitivities Matrix of sensitivities to be returned
              */
-            void evaluate_all_sensitivities(uint aEntityIndex, Matrix<DDRMat>& aSensitivities);
-
-            /**
-             * Sets the active field to the given value
-             *
-             * @param aActiveFieldIndex The index of the desired field to become active
-             */
-            void set_active_field(size_t aActiveFieldIndex);
+            void evaluate_all_sensitivities(uint aNodeIndex, Matrix<DDRMat>& aSensitivities);
 
             /**
              * Lets the geometry engine know if sensitivities are available, otherwise it will perform finite
@@ -79,4 +71,4 @@ namespace moris
     }
 }
 
-#endif /* MORIS_CL_GEN_DISCRETE_LEVEL_SET_HPP */
+#endif /* MORIS_CL_GEN_MESH_FIELD_GEOMETRY_HPP */

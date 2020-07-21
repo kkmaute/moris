@@ -24,7 +24,7 @@
 // XTKL: Geometry
 #include "cl_MGE_Geometry_Engine.hpp"
 #include "cl_Sphere.hpp"
-#include "geometry/cl_Discrete_Level_Set.hpp"
+#include "geometry/cl_Mesh_Field_Geometry.hpp"
 
 
 // XTKL: Linear Algebra Includes
@@ -332,7 +332,7 @@ TEST_CASE("3 Subphase","[3_subphase_ff]")
         std::string tMeshInputFile = tPrefix + "/flood_fill_multisubphase_input.e";
         tMeshData->write_output_mesh(tMeshInputFile,tScalarFields,{},{},{},{});
 
-        Discrete_Level_Set tDiscreteMesh(tMeshData,tScalarFields);
+        Mesh_Field_Geometry tDiscreteMesh(tMeshData,tScalarFields);
 
 
         Phase_Table tPhaseTable (1,  Phase_Table_Structure::EXP_BASE_2);
