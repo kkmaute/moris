@@ -339,7 +339,7 @@ namespace moris
              * @param aPdvTypes PDV_Type types; set->group->individual
              * @param aMeshIndex Interpolation mesh index
              */
-            void create_ip_pdv_hosts(mtk::Interpolation_Mesh* aInterpolationMesh, // FIXME private
+            void create_ip_pdv_hosts(mtk::Interpolation_Mesh* aInterpolationMesh,
                                      mtk::Integration_Mesh* aIntegrationMesh,
                                      Cell<Cell<Cell<PDV_Type>>> aPdvTypes);
 
@@ -348,7 +348,7 @@ namespace moris
              *
              * @param aMeshIndex Integration mesh index
              */
-            void create_ig_pdv_hosts(mtk::Integration_Mesh* aIntegrationMesh); // FIXME private
+            void create_ig_pdv_hosts(mtk::Integration_Mesh* aIntegrationMesh);
 
             /**
              * @brief assign the pdv type and property for each pdv host in a given set
