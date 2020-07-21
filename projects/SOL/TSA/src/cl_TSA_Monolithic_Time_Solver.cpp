@@ -23,74 +23,59 @@ using namespace moris;
 using namespace tsa;
 //-------------------------------------------------------------------------------
 
-void Monolithic_Time_Solver::solve_monolytic_time_system()
+void Monolithic_Time_Solver::solve_monolytic_time_system( moris::Cell< sol::Dist_Vector * > & aFullVector )
 {
     // trace this solve
     Tracer tTracer(EntityBase::TimeSolver, EntityType::Monolythic, EntityAction::Solve);
 
     this->finalize();
 
-    moris::real tTime_Scalar = 0;
+    moris::real tTime_Scalar = 0.0;
     sint tTimeSteps = mParameterListTimeSolver.get< moris::sint >( "TSA_Num_Time_Steps" );
     moris::real tTimeFrame = mParameterListTimeSolver.get< moris::real >( "TSA_Time_Frame" );
     moris::real tTimeIncrements = tTimeFrame / tTimeSteps;
 
     bool tMaxTimeIterationReached = false;
 
-    // initialize time for time slab
-    Matrix< DDRMat > tTime( 2, 1, tTime_Scalar );
+    // get list of time frames
+    moris::Cell< Matrix< DDRMat > > & tTimeFrames = mMyTimeSolver->get_time_frames();
+
+    Matrix< DDRMat > tTimeInitial( 2, 1, 0.0 );
+    tTimeFrames.push_back( tTimeInitial );
 
     for ( sint Ik = 0; Ik < tTimeSteps; Ik++ )
     {
+        // get solvec and prev solvec indec
+        uint tSolVecIndex = Ik + 1;
+        uint tPrevSolVecIndex = Ik;
+
+        // initialize time for time slab
+        Matrix< DDRMat > tTime( 2, 1, tTime_Scalar );
+        tTime_Scalar += tTimeIncrements;
+        tTime( 1, 0 ) = tTime_Scalar;
+
+        tTimeFrames.push_back( tTime );
 
         // log number of time steps
         MORIS_LOG_SPEC( OutputSpecifier::Iteration, (Ik+1) );
 
+        mSolverInterface->set_solution_vector( aFullVector( tSolVecIndex ) );
+        mSolverInterface->set_solution_vector_prev_time_step( aFullVector( tPrevSolVecIndex ) );
+
         // set time for previous time slab
-        mSolverInterface->set_previous_time( tTime );
-
-        bool tBreaker = false;
-        //Matrix< DDRMat > tTime( 2, 1, tTime_Scalar );
-
-        if ( mNonlinearSolver->get_nonlin_solver_type() == NLA::NonlinearSolverType::ARC_LENGTH_SOLVER )
-        {
-            mNonlinearSolver->set_time_solver_type( this );
-
-            // update time increment (lambda) via the arc length function
-            tTime( 0, 0 ) = tTime( 1, 0 );
-            tTime( 1, 0 ) = mLambdaInc;
-
-            if ( mLambdaInc >= 1)
-            {
-                mLambdaInc = 1.0;
-                tBreaker = true;
-            }
-
-        }
-        else
-        {
-            tTime_Scalar += tTimeIncrements;
-            tTime( 0, 0 ) = tTime( 1, 0 );
-            tTime( 1, 0 ) = tTime_Scalar;
-        }
+        mSolverInterface->set_previous_time( tTimeFrames( tPrevSolVecIndex ) );
+        // set time for current time slab
+        mSolverInterface->set_time( tTimeFrames( tSolVecIndex ) );
 
         std::string tOrnament = "\n================================================================================\n";
         std::string tTimeInfo = "Time Slab = " + std::to_string(Ik+1) +
-                "   Start | End Time = " + std::to_string(tTime(0,0)) +  " | " + std::to_string(tTime(1,0));
+                "   Start | End Time = " + std::to_string(tTimeFrames( tSolVecIndex )(0,0)) +  " | " + std::to_string(tTimeFrames( tSolVecIndex )(1,0));
 
         MORIS_LOG_INFO ((tOrnament+tTimeInfo+tOrnament).c_str());
 
-        // set time for current time slab
-        mSolverInterface->set_time( tTime );
-
-        // set solution vector for previous time slab
-        mSolverInterface->set_solution_vector_prev_time_step( mPrevFullVector );
-
         mNonlinearSolver->set_time_step_iter( Ik );
 
-        mNonlinearSolver->solve( mFullVector );
-
-        mPrevFullVector->vec_plus_vec( 1.0, *mFullVector, 0.0 );
+        mNonlinearSolver->solve( aFullVector( tSolVecIndex ) );
 
         if( Ik == tTimeSteps-1 )
         {
@@ -100,32 +85,75 @@ void Monolithic_Time_Solver::solve_monolytic_time_system()
         // input second time slap value for output
         mMyTimeSolver->check_for_outputs( tTime( 1 ), tMaxTimeIterationReached );
 
-        if (tBreaker)
-        {
-            MORIS_ASSERT( false, "solve_monolytic_time_system(): lambda value greater than 1 detected...exiting monolithic time loop " );
-            break;
-        }
-
-        mSolverInterface->perform_mapping();
+        mMyTimeSolver->prepare_sol_vec_for_next_time_step();
     }
 }
 
 //-------------------------------------------------------------------------------
 
-void Monolithic_Time_Solver::solve( sol::Dist_Vector * aFullVector )
+void Monolithic_Time_Solver::solve_implicit_DqDs( moris::Cell< sol::Dist_Vector * > & aFullAdjointVector )
 {
-    mFullVector = aFullVector;
+    // trace this solve
+    Tracer tTracer(EntityBase::TimeSolver, EntityType::Monolythic, EntityAction::Solve);
 
-    this->solve_monolytic_time_system();
+    sint tTimeSteps = mParameterListTimeSolver.get< moris::sint >( "TSA_Num_Time_Steps" );
+
+    // initialize time for time slab
+    moris::Cell< Matrix< DDRMat > > & tTimeFrames = mMyTimeSolver->get_time_frames();
+
+    sint tStopTimeStepIndex = 0; // Only consider last time step
+
+    moris::Cell< sol::Dist_Vector * > & tSolVec = mMyTimeSolver->get_solution_vectors();
+
+    // Loop over all time iterations backwards
+    for ( sint Ik = tTimeSteps; Ik > tStopTimeStepIndex; --Ik )
+    {
+        // get solvec and prev solvec indec
+        uint tSolVecIndex = Ik;
+        uint tPrevSolVecIndex = Ik-1;
+
+        // log number of time steps
+        MORIS_LOG_SPEC( OutputSpecifier::Iteration, (Ik+1) );
+
+        mSolverInterface->set_solution_vector( tSolVec( tSolVecIndex ) );
+        mSolverInterface->set_solution_vector_prev_time_step( tSolVec( tPrevSolVecIndex ) );
+
+        mSolverInterface->set_adjoint_solution_vector( aFullAdjointVector( 0 ) );
+        mSolverInterface->set_previous_adjoint_solution_vector( aFullAdjointVector( 1 ) );
+
+        // set time for current time slab ( since off-diagonal is computed on same time level for implicit DqDs)
+        mSolverInterface->set_previous_time( tTimeFrames( tPrevSolVecIndex ) );
+        // set time for current time slab
+        mSolverInterface->set_time( tTimeFrames( tSolVecIndex ) );
+
+
+        std::string tOrnament = "\n================================================================================\n";
+               std::string tTimeInfo = "Time Slab = " + std::to_string(Ik+1) +
+                       "   Start | End Time = " + std::to_string(tTimeFrames( tSolVecIndex )(0,0)) +  " | " + std::to_string(tTimeFrames( tSolVecIndex )(1,0));
+
+        MORIS_LOG_INFO ((tOrnament+tTimeInfo+tOrnament).c_str());
+
+        mNonlinearSolver->set_time_step_iter( Ik );
+
+        mNonlinearSolver->solve( aFullAdjointVector( 0 ) );
+
+        aFullAdjointVector( 1 )->vec_plus_vec( 1.0, *(aFullAdjointVector( 0 )), 0.0 );
+
+    }
 }
 
 //-------------------------------------------------------------------------------
 
-void Monolithic_Time_Solver::solve()
+void Monolithic_Time_Solver::solve( moris::Cell< sol::Dist_Vector * > & aFullVector )
 {
-    mIsMasterTimeSolver =  true;
-
-    this->solve_monolytic_time_system();
+    if( mMyTimeSolver->get_is_forward_analysis() )
+    {
+        this->solve_monolytic_time_system( aFullVector );
+    }
+    else
+    {
+        this->solve_implicit_DqDs( aFullVector );
+    }
 }
 
 //-------------------------------------------------------------------------------

@@ -44,19 +44,18 @@ Time_Solver_Algorithm::Time_Solver_Algorithm(
 
 Time_Solver_Algorithm::~Time_Solver_Algorithm()
 {
-    if ( mIsMasterTimeSolver )
-    {
-        delete( mFullVector );
-        // delete( mPrevFullVector );
-    }
-    delete( mPrevFullVector );                 // FIXME There's a delete somewhere in HMR which need this memory leak. has to be fixed
-    delete( mFullMap );
+    this->delete_pointers();
 }
+
 //-------------------------------------------------------------------------------
 
-void Time_Solver_Algorithm::get_full_solution( moris::Matrix< DDRMat > & LHSValues )
+void Time_Solver_Algorithm::delete_pointers()
 {
-    mFullVector->extract_copy( LHSValues );
+    if( mFullMap != nullptr )
+    {
+        delete( mFullMap );
+        mFullMap = nullptr;
+    }
 }
 
 //-------------------------------------------------------------------------------
@@ -72,54 +71,16 @@ moris::real Time_Solver_Algorithm::calculate_time_needed( const clock_t aTime )
 
 //-------------------------------------------------------------------------------
 
-//void Time_Solver_Algorithm::set_dof_type_list( const moris::Cell< enum MSI::Dof_Type > aStaggeredDofTypeList,
-//                                               const moris::sint                       aLevel )
-//{
-//    mMyDofTypeList.push_back( aStaggeredDofTypeList );
-//}
-
-//-------------------------------------------------------------------------------
-
 void Time_Solver_Algorithm::finalize()
 {
-    if ( mIsMasterTimeSolver )
-    {
-        // create map object
-        Matrix_Vector_Factory tMatFactory( mSolverWarehouse->get_tpl_type() );
+    this->delete_pointers();
 
-        mSolverInterface = mSolverWarehouse->get_solver_interface();
+    // create map object
+    Matrix_Vector_Factory tMatFactory( mMyTimeSolver->get_solver_warehouse()->get_tpl_type() );
 
-        uint tNumRHMS = mSolverInterface->get_num_rhs();
+    mSolverInterface = mMyTimeSolver->get_solver_interface();
 
-        MORIS_LOG_INFO( "Creating main time solver system with %-5i dofs.", mSolverInterface->get_my_local_global_overlapping_map().numel() );
-
-        mFullMap = tMatFactory.create_map( mSolverInterface->get_my_local_global_overlapping_map() );
-
-        // full vector and prev full vector
-        mFullVector = tMatFactory.create_vector( mSolverInterface, mFullMap, tNumRHMS );
-
-        mSolverInterface->set_solution_vector( mFullVector );
-
-        mFullVector->vec_put_scalar( 0.0 );
-
-        mPrevFullVector = tMatFactory.create_vector( mSolverInterface, mFullMap, tNumRHMS );
-    }
-    else
-    {
-        // create map object
-        Matrix_Vector_Factory tMatFactory( mMyTimeSolver->get_solver_warehouse()->get_tpl_type() );
-
-        mSolverInterface = mMyTimeSolver->get_solver_interface();
-        //        mSolverInterface = mMyTimeSolver->get_solver_warehouse()->get_solver_interface();
-
-        uint tNumRHMS = mSolverInterface->get_num_rhs();
-
-        mFullMap = tMatFactory.create_map( mSolverInterface->get_my_local_global_overlapping_map() );
-
-        mPrevFullVector = tMatFactory.create_vector( mSolverInterface, mFullMap, tNumRHMS );
-    }
-
-    mPrevFullVector->vec_put_scalar( 0.0 );
+    mFullMap = tMatFactory.create_map( mSolverInterface->get_my_local_global_overlapping_map() );
 }
 
 //-------------------------------------------------------------------------------

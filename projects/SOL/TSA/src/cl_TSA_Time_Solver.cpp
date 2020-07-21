@@ -96,17 +96,21 @@ void Time_Solver::delete_pointers()
             mFullMap = nullptr;
         }
 
-        if ( mFullVector != nullptr )
+        for( auto tFullSolVec : mFullVector)
         {
-            delete( mFullVector );
-            mFullVector = nullptr;
+            delete( tFullSolVec );
         }
 
-        if ( mFullVectorSensitivity != nullptr )
+        mFullVector.clear();
+
+        for( auto tFullSolVec : mFullVectorSensitivity)
         {
-            delete( mFullVectorSensitivity );
-            mFullVectorSensitivity = nullptr;
+            delete( tFullSolVec );
         }
+
+        mFullVectorSensitivity.clear();
+
+        mTimeFrames.clear();
     }
 }
 
@@ -286,7 +290,7 @@ void Time_Solver::check_for_outputs(
 
 //-------------------------------------------------------------------------------------------------------
 
-void Time_Solver::solve( sol::Dist_Vector * aFullVector )
+void Time_Solver::solve( moris::Cell< sol::Dist_Vector * > & aFullVector )
 {
     moris::Cell< enum MSI::Dof_Type > tDofTypeUnion = this->get_dof_type_union();
 
@@ -296,7 +300,7 @@ void Time_Solver::solve( sol::Dist_Vector * aFullVector )
 
     mTimeSolverAlgorithmList( 0 )->set_time_solver( this );
 
-    mTimeSolverAlgorithmList( 0 )->solve( mFullVector );
+    mTimeSolverAlgorithmList( 0 )->solve( aFullVector );
 
     //this->check_for_outputs();
 }
@@ -305,27 +309,41 @@ void Time_Solver::solve( sol::Dist_Vector * aFullVector )
 
 void Time_Solver::solve()
 {
+    // flags if thats the master time solver and if this is a forward solve
     mIsMasterTimeSolver = true;
     mIsForwardSolve = true;
 
+    // delete pointers
     this->delete_pointers();
 
     // get solver interface
     mSolverInterface = mSolverWarehouse->get_solver_interface();
 
+    mSolverInterface->set_is_forward_analysis();
+
     // create map object
     Matrix_Vector_Factory tMatFactory( mSolverWarehouse->get_tpl_type() );
 
+    // build full overlapping map
     mFullMap = tMatFactory.create_map( mSolverInterface->get_my_local_global_overlapping_map() );
 
+    // get number of RHS
     uint tNumRHMS = mSolverInterface->get_num_rhs();
 
+    // set size for full solution vector on timestep 0 and previous solution vector on timestep -1.
+    mFullVector.resize( 2, nullptr);
+
     // full vector and prev full vector
-    mFullVector = tMatFactory.create_vector( mSolverInterface, mFullMap, tNumRHMS );
+    mFullVector( 0 ) = tMatFactory.create_vector( mSolverInterface, mFullMap, tNumRHMS );
+    mFullVector( 1 ) = tMatFactory.create_vector( mSolverInterface, mFullMap, tNumRHMS );
 
-    mSolverInterface->set_solution_vector( mFullVector );
+    // set time level 0 sol vec to interface
+    mSolverInterface->set_solution_vector( mFullVector( 1 ));
+    mSolverInterface->set_solution_vector_prev_time_step( mFullVector( 0 ) );
 
+    // initialize solution vector and prev solution vector
     this->initialize_sol_vec();
+    this->initialize_prev_sol_vec();
 
     moris::Cell< enum MSI::Dof_Type > tDofTypeUnion = this->get_dof_type_union();
 
@@ -347,12 +365,18 @@ void Time_Solver::solve_sensitivity()
 
     uint tNumRHMS = mSolverInterface->get_num_rhs();
 
+    mSolverInterface->set_is_sensitivity_analysis();
+
     // full vector and previous full vector
-    mFullVectorSensitivity = tMatFactory.create_vector( mSolverInterface, mFullMap, tNumRHMS );
+    mFullVectorSensitivity.resize( 2, nullptr );
+    mFullVectorSensitivity( 0 ) = tMatFactory.create_vector( mSolverInterface, mFullMap, tNumRHMS );
+    mFullVectorSensitivity( 1 ) = tMatFactory.create_vector( mSolverInterface, mFullMap, tNumRHMS );
 
-    mSolverInterface->set_adjoint_solution_vector( mFullVectorSensitivity );
+    mFullVectorSensitivity( 0 )->vec_put_scalar( 1.0 );
+    mFullVectorSensitivity( 1 )->vec_put_scalar( 1.0 );
 
-    mFullVectorSensitivity->vec_put_scalar( 1.0 );
+    mSolverInterface->set_adjoint_solution_vector( mFullVectorSensitivity( 0 ) );
+    mSolverInterface->set_previous_adjoint_solution_vector( mFullVectorSensitivity( 1 ) );
 
     moris::Cell< enum MSI::Dof_Type > tDofTypeUnion = this->get_dof_type_union();
 
@@ -377,7 +401,7 @@ void Time_Solver::initialize_sol_vec()
     map< std::string, enum MSI::Dof_Type > tDofTypeMap = MSI::get_msi_dof_type_map();
 
     // initialize solution vector with zero
-    mFullVector->vec_put_scalar( 0.0 );
+    mFullVector( 1 )->vec_put_scalar( 0.0 );
 
     if( tDofTypeAndValuePair.size() > 0 )
     {
@@ -433,11 +457,44 @@ void Time_Solver::initialize_sol_vec()
             }
         }
 
-        mFullVector->import_local_to_global( *tFreeVector );
+        mFullVector( 1 )->import_local_to_global( *tFreeVector );
 
         delete( tFreeVector );
         delete( tFeeMap );
     }
+}
+
+//--------------------------------------------------------------------------------------------------------------------------
+
+void Time_Solver::initialize_prev_sol_vec()
+{
+    // initialize prev solution vector with zero( time level -1 )
+    mFullVector( 0 )->vec_put_scalar( 0.0 );
+}
+
+//--------------------------------------------------------------------------------------------------------------------------
+
+void Time_Solver::prepare_sol_vec_for_next_time_step()
+{
+    if( mIsMasterTimeSolver )
+    {
+        // get num RHS
+        uint tNumRHMS = mSolverInterface->get_num_rhs();
+
+        // create map object
+        Matrix_Vector_Factory tMatFactory( mSolverWarehouse->get_tpl_type() );
+
+        // full vector and prev full vector
+        sol::Dist_Vector * tFullVector = tMatFactory.create_vector( mSolverInterface, mFullMap, tNumRHMS );
+
+        mFullVector.push_back( tFullVector );
+
+        uint tNumSolVec = mFullVector.size();
+
+        mFullVector( tNumSolVec-1 )->vec_plus_vec( 1.0, *(mFullVector( tNumSolVec-2 )), 0.0 );
+//        mFullVector( tNumSolVec-1 )->vec_put_scalar( 0.0 );
+    }
+
 }
 
 //--------------------------------------------------------------------------------------------------------------------------
@@ -477,5 +534,11 @@ void Time_Solver::set_time_solver_parameters()
 
 void Time_Solver::get_full_solution( moris::Matrix< DDRMat > & LHSValues )
 {
-    mFullVector->extract_copy( LHSValues );
+    // get index of last solution vector
+    uint tNumSolVec = mFullVector.size() -2;
+
+    // extract solution values
+    mFullVector( tNumSolVec )->extract_copy( LHSValues );
+
+    print(LHSValues, "LHSValues");
 }

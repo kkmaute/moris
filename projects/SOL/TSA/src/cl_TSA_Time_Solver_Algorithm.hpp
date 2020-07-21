@@ -51,12 +51,6 @@ namespace tsa
 
         Time_Solver * mMyTimeSolver;
 
-        //! Full Vector
-        sol::Dist_Vector * mFullVector = nullptr;
-
-        //! Full Vector
-        sol::Dist_Vector * mPrevFullVector = nullptr;
-
         moris::uint mCallCounter = 0;
 
         NLA::Nonlinear_Solver * mNonlinearSolver = nullptr;
@@ -99,12 +93,8 @@ namespace tsa
         virtual ~Time_Solver_Algorithm();
 
         //-------------------------------------------------------------------------------
-        /**
-         * @brief Solve call
-         *
-         * @param[in] aFullVector
-         */
-        virtual void solve(){};
+
+        void delete_pointers();
 
         //-------------------------------------------------------------------------------
         /**
@@ -112,7 +102,7 @@ namespace tsa
          *
          * @param[in] aFullVector     Solution Vector
          */
-        virtual void solve( sol::Dist_Vector * aFullVector ){};
+        virtual void solve( moris::Cell< sol::Dist_Vector * > & aFullVector ){};
 
         //-------------------------------------------------------------------------------
         /**
@@ -131,14 +121,6 @@ namespace tsa
         {
             mSolverWarehouse = aSolverWarehouse;
         };
-
-        //-------------------------------------------------------------------------------
-        /**
-         * @brief Get solution vector from algorithm
-         *
-         * @param[in] aLHSValues     Solution Vector
-         */
-        void get_full_solution( moris::Matrix< DDRMat > & aLHSValues );
 
         //-------------------------------------------------------------------------------
         /**
