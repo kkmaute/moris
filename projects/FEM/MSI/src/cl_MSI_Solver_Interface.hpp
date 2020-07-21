@@ -39,7 +39,8 @@ namespace moris
 
                 sol::Dist_Vector                   * mSolutionVector            = nullptr;
                 sol::Dist_Vector                   * mPrevSolutionVector        = nullptr;
-                sol::Dist_Vector                   * mSensitivitySolutionVector = nullptr;
+                sol::Dist_Vector                   * mAdjointSolutionVector     = nullptr;
+                sol::Dist_Vector                   * mPreviousAdjointSolutionVector = nullptr;
                 sol::Dist_Vector                   * mExactSolFromFile          = nullptr;
                 Matrix< DDRMat>  mTime;
                 Matrix< DDRMat>  mPrevTime;
@@ -83,6 +84,10 @@ namespace moris
 
                 //------------------------------------------------------------------------------
 
+                void set_previous_adjoint_solution_vector( sol::Dist_Vector * aSolutionVector );
+
+                //------------------------------------------------------------------------------
+
                 void set_model( mdl::Model * aModel )
                 {
                     mModel = aModel;
@@ -110,23 +115,14 @@ namespace moris
 
                 //------------------------------------------------------------------------------
 
-                void perform_mapping(){};
-
-                //------------------------------------------------------------------------------
-
-                void free_block_memory( const uint aMyEquSetInd )
-                {
-                    mMSI->get_equation_set( aMyEquSetInd )->free_matrix_memory();
-                };
+                void free_block_memory( const uint aMyEquSetInd );
 
                 //------------------------------------------------------------------------------
 
                 void initialize_set(
                         const uint aMyEquSetInd,
-                        const bool aIsResidual )
-                {
-                    mMSI->get_equation_set( aMyEquSetInd )->initialize_set( aIsResidual );
-                };
+                        const bool aIsResidual,
+                        const bool aIsAdjointOffDiagonalTimeContribution = false );
 
                 //------------------------------------------------------------------------------
 
@@ -320,6 +316,18 @@ namespace moris
                     mMSI->get_equation_set( aMyEquSetInd )->
                             get_equation_object_list()( aMyElementInd )->
                             get_equation_obj_residual( aElementRHS );
+                };
+
+                //------------------------------------------------------------------------------
+
+                void get_equation_object_off_diag_rhs(
+                        const moris::uint              & aMyEquSetInd,
+                        const moris::uint              & aMyElementInd,
+                        Cell< Matrix< DDRMat > >       & aElementRHS )
+                {
+                    mMSI->get_equation_set( aMyEquSetInd )->
+                            get_equation_object_list()( aMyElementInd )->
+                            get_equation_obj_off_diagonal_residual( aElementRHS );
                 };
 
                 //------------------------------------------------------------------------------
