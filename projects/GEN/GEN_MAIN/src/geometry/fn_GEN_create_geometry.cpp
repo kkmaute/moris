@@ -108,7 +108,7 @@ namespace moris
                 // Get sensitivity function if needed
                 std::string tSensitivityFunctionName = aGeometryParameterList.get<std::string>("sensitivity_function_name");
                 MORIS_GEN_SENSITIVITY_FUNCTION tSensitivityFunction =
-                        (tSensitivityFunctionName == "" ? aLibrary->load_gen_sensitivity_function(tSensitivityFunctionName) : nullptr);
+                        (tSensitivityFunctionName == "" ? nullptr : aLibrary->load_gen_sensitivity_function(tSensitivityFunctionName));
 
                 // Create user-defined geometry
                 return std::make_shared<User_Defined_Geometry>(aADVs,
