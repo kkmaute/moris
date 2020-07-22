@@ -352,6 +352,7 @@ namespace xtk
         // this is needed for communication routine
         moris::Cell<mtk::Cell const *> tGhostIpCellConnectedToVertex;
 
+
         this->get_ip_vertices_in_ghost_sets(aGhostSetupData, tGhostVerticesWithInterpolation, tGhostVerticesWithoutInterpolation, tGhostIpCellConnectedToVertex );
 
         // sort the ghost vertices without interpolation by proc
@@ -601,10 +602,7 @@ namespace xtk
             tNotOwnedIPVertIndsToProcs(tProcIndexInData->second).push_back(tXTKIpVert->get_index());
             tNotOwnedBGIPVertsIdsToProcs(tProcIndexInData->second).push_back(tXTKIpVert->get_base_vertex()->get_id());
 
-            if(tXTKIpVert->get_base_vertex()->get_id() == 6601)
-            {
-                std::cout<<"Requesting interpolation of 6601"<<std::endl;
-            }
+
 
             tNotOwnedIpCellIdToProcs(tProcIndexInData->second).push_back(tEnrIpCell->get_id());
             tNotOwnedIpCellBulkPhase(tProcIndexInData->second).push_back(tEnrIpCell->get_bulkphase_index());
