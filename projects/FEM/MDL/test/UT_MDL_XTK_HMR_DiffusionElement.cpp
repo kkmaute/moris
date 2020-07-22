@@ -236,7 +236,7 @@ TEST_CASE("HMR Interpolation STK Cut Diffusion Model Lag Order 2","[XTK_HMR_STK_
 
         // Tell the geometry engine about the discrete field mesh and how to interpret phases
         moris::ge::Phase_Table tPhaseTable (1, moris::ge::Phase_Table_Structure::EXP_BASE_2);
-        moris::ge::Geometry_Engine tGeometryEngine(tGeometryVector,tPhaseTable);
+        moris::ge::Geometry_Engine tGeometryEngine(tGeometryVector,tPhaseTable,tInterpMesh);
 
         // Tell the XTK model that it should decompose with a C_HIERARCHY_TET4, on the same mesh that the level set field is defined on.
         size_t tModelDimension = 3;
@@ -492,7 +492,7 @@ TEST_CASE("HMR Interpolation XTK Cut Diffusion Model Lag Order 2","[XTK_HMR_DIFF
 
         // Tell the geometry engine about the discrete field mesh and how to interpret phases
         moris::ge::Phase_Table tPhaseTable (1, moris::ge::Phase_Table_Structure::EXP_BASE_2);
-        moris::ge::Geometry_Engine tGeometryEngine(tGeometryVector,tPhaseTable);
+        moris::ge::Geometry_Engine tGeometryEngine(tGeometryVector,tPhaseTable,tInterpMesh);
 
         // Tell the XTK model that it should decompose with a C_HIERARCHY_TET4, on the same mesh that the level set field is defined on.
         size_t tModelDimension = 3;
@@ -781,7 +781,7 @@ TEST_CASE("HMR Interpolation XTK Cut Diffusion Model Multigrid","[XTK_HMR_DIFF_M
 
         // Tell the geometry engine about the discrete field mesh and how to interpret phases
         moris::ge::Phase_Table tPhaseTable (1, moris::ge::Phase_Table_Structure::EXP_BASE_2);
-        moris::ge::Geometry_Engine tGeometryEngine(tGeometryVector,tPhaseTable);
+        moris::ge::Geometry_Engine tGeometryEngine(tGeometryVector,tPhaseTable,tInterpMesh);
 
         // Tell the XTK model that it should decompose with a C_HIERARCHY_TET4, on the same mesh that the level set field is defined on.
         size_t tModelDimension = 3;
@@ -1086,7 +1086,7 @@ TEST_CASE(" XTK Diffusion  Multigrid","[XTK_DIFF_MULTIGRID]")
 
         // Tell the geometry engine about the discrete field mesh and how to interpret phases
         moris::ge::Phase_Table tPhaseTable (1, moris::ge::Phase_Table_Structure::EXP_BASE_2);
-        moris::ge::Geometry_Engine tGeometryEngine(tGeometryVector,tPhaseTable);
+        moris::ge::Geometry_Engine tGeometryEngine(tGeometryVector,tPhaseTable,tInterpMesh);
 
         // Tell the XTK model that it should decompose with a C_HIERARCHY_TET4, on the same mesh that the level set field is defined on.
         size_t tModelDimension = 3;

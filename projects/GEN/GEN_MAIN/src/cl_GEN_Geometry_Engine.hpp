@@ -61,7 +61,7 @@ namespace moris
             bool mShapeSensitivities = false;
 
             // Geometry
-            moris::size_t mActiveGeometryIndex = 0;
+            size_t mActiveGeometryIndex = 0;
             Cell<std::shared_ptr<Geometry>> mGeometry;
 
             // Property
@@ -87,19 +87,22 @@ namespace moris
              * @param aParameterLists GEN parameter lists (see fn_PRM_GEN_Parameters.hpp)
              * @param aLibrary Library used for pulling user-defined functions
              */
-            Geometry_Engine(Cell< Cell<ParameterList> >        aParameterLists,
-                            std::shared_ptr<moris::Library_IO> aLibrary = nullptr);
+            Geometry_Engine(Cell< Cell<ParameterList> > aParameterLists,
+                            std::shared_ptr<Library_IO> aLibrary = nullptr);
 
             /**
-             * Constructor using externally created geometries and phase table
+             * Constructor using externally-created geometry and phase table
              *
-             * @param[ in ] aGeometry cell of shared Geometry pointers
-             * @param[ in ] aPhaseTable phase table
-             * @param[ in ] aSpatialDim spatial dimensions
+             * @param aGeometry Geometry instances to use
+             * @param aPhaseTable Phase table for determining bulk phases
+             * @param aMesh Mesh for computing level-set values
+             * @param aADVs ADV vector
+             * @param aIsocontourThreshold Threshold for setting the level-set isocontour
+             * @param aErrorFactor Error factor for determining if a node is on an interface
              */
             Geometry_Engine(Cell< std::shared_ptr<Geometry> > aGeometry,
                             Phase_Table                       aPhaseTable,
-                            uint                              aSpatialDim = 3,
+                            mtk::Mesh*                        aMesh,
                             Matrix<DDRMat>                    aADVs = {{}},
                             real                              aIsocontourThreshold = 0.0,
                             real                              aErrorFactor = 0.0);
@@ -188,9 +191,9 @@ namespace moris
              *                                   0 - No information on interface required
              *                                   1 - information on interface required
              */
-            void is_intersected( moris::Matrix< moris::DDRMat > const &   aNodeCoords,
-                                 moris::Matrix< moris::IndexMat > const & aNodetoEntityConn,
-                                 moris::size_t                            aCheckType,
+            void is_intersected( Matrix< DDRMat > const &   aNodeCoords,
+                                 Matrix< IndexMat > const & aNodetoEntityConn,
+                                 size_t                            aCheckType,
                                  Cell<GEN_Geometry_Object> &              aGeometryObjects );
 
             /**
@@ -203,13 +206,13 @@ namespace moris
             /**
              * @brief Get the total number of phases in the phase table
              */
-            moris::size_t get_num_phases();
+            size_t get_num_phases();
 
             /**
              * @brief Get the 0 or 1 value associated with a given phase and geometry index
              */
-            moris::moris_index get_phase_sign_of_given_phase_and_geometry( moris::moris_index aPhaseIndex,
-                                                        moris::moris_index aGeometryIndex );
+            moris_index get_phase_sign_of_given_phase_and_geometry( moris_index aPhaseIndex,
+                                                        moris_index aGeometryIndex );
 
             /**
               * For a given node index, return the phase index relative to each geometry (i.e. inside/outside indicator)
@@ -219,7 +222,7 @@ namespace moris
             /**
              * @brief Provided the inside and out phase values for an entity, return the phase index
              */
-            moris_index get_elem_phase_index(moris::Matrix< moris::IndexMat > const & aElemOnOff);
+            moris_index get_elem_phase_index(Matrix< IndexMat > const & aElemOnOff);
 
             /**
              * @brief Returns whether a node is inside or outside wrt to a given geometry index
@@ -229,17 +232,17 @@ namespace moris
             /**
              * @brief Returns the number of geometries
              */
-            moris::size_t get_num_geometries();
+            size_t get_num_geometries();
 
             /**
              * @brief Returns the number of phases
              */
-            moris::size_t get_num_bulk_phase();
+            size_t get_num_bulk_phase();
 
             /**
              * @brief Returns the active geometry index
              */
-            moris::size_t get_active_geometry_index();
+            size_t get_active_geometry_index();
 
             /**
              * @brief Advance the active geometry index
@@ -316,10 +319,10 @@ namespace moris
              * @param[in]  aCheckType      - if a entity local location is necessary 1, else 0.
              * @param[out] Returns an intersection flag and local coordinates if aCheckType 1 in cell 1 and node sensitivity information in cell 2 if intersection point located
              **/
-            bool compute_intersection_info( moris::moris_index               const & aEntityIndex,
-                                            moris::Matrix< moris::IndexMat > const & aEntityNodeInds,
-                                            moris::Matrix< moris::DDRMat >   const & aNodeCoords,
-                                            moris::size_t                    const & aCheckType,
+            bool compute_intersection_info( moris_index               const & aEntityIndex,
+                                            Matrix< IndexMat > const & aEntityNodeInds,
+                                            Matrix< DDRMat >   const & aNodeCoords,
+                                            size_t                    const & aCheckType,
                                             GEN_Geometry_Object                    & aGeometryObject );
 
             /**

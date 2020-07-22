@@ -97,9 +97,6 @@ TEST_CASE("XTK Cut Diffusion Model","[XTK_DIFF]")
         Cell<std::shared_ptr<moris::ge::Geometry>> tGeometry(1);
         tGeometry(0) = std::make_shared<moris::ge::Plane>(tCenters(0), tCenters(1), tCenters(2), tNormals(0), tNormals(1), tNormals(2));
 
-        moris::ge::Phase_Table tPhaseTable (1,  "exp_base_2");
-        moris::ge::Geometry_Engine tGeometryEngine(tGeometry, tPhaseTable);
-
         // Initialize field information container
         mtk::MtkFieldsInfo tFieldsInfo;
 
@@ -110,6 +107,9 @@ TEST_CASE("XTK Cut Diffusion Model","[XTK_DIFF]")
         // Create Mesh --------------------------------------------------------------------
         std::string tMeshFileName = "generated:1x1x4|sideset:z";
         moris::mtk::Interpolation_Mesh* tInterpMesh1 = moris::mtk::create_interpolation_mesh( MeshType::STK, tMeshFileName, &tMeshData );
+
+        moris::ge::Phase_Table tPhaseTable (1,  "exp_base_2");
+        moris::ge::Geometry_Engine tGeometryEngine(tGeometry, tPhaseTable, tInterpMesh1);
 
         // Setup XTK Model ----------------------------------------------------------------
         size_t tModelDimension = 3;
@@ -373,9 +373,6 @@ TEST_CASE("XTK STK Cut Diffusion Model","[XTK_STK_DIFF]")
         moris::Cell<std::shared_ptr<moris::ge::Geometry>> tGeometryVector(1);
         tGeometryVector(0) = std::make_shared<moris::ge::Plane>(tCenter(0), tCenter(1), tCenter(2), tNorms(0), tNorms(1), tNorms(2));
 
-        ge::Phase_Table tPhaseTable (1,  ge::Phase_Table_Structure::EXP_BASE_2);
-        ge::Geometry_Engine tGeometryEngine(tGeometryVector, tPhaseTable);
-
         // Initialize field information container
         mtk::MtkFieldsInfo tFieldsInfo;
 
@@ -386,6 +383,9 @@ TEST_CASE("XTK STK Cut Diffusion Model","[XTK_STK_DIFF]")
         // Create Mesh --------------------------------------------------------------------
         std::string tMeshFileName = "generated:1x1x4|sideset:z";
         moris::mtk::Interpolation_Mesh* tInterpMesh1 = moris::mtk::create_interpolation_mesh( MeshType::STK, tMeshFileName, &tMeshData );
+
+        ge::Phase_Table tPhaseTable (1,  ge::Phase_Table_Structure::EXP_BASE_2);
+        ge::Geometry_Engine tGeometryEngine(tGeometryVector, tPhaseTable, tInterpMesh1);
 
         // Setup XTK Model ----------------------------------------------------------------
         size_t tModelDimension = 3;
