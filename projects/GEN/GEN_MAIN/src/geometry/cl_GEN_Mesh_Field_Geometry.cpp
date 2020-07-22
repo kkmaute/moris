@@ -7,11 +7,11 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        Mesh_Field_Geometry::Mesh_Field_Geometry(moris::mtk::Interpolation_Mesh* aMesh,
+        Mesh_Field_Geometry::Mesh_Field_Geometry(mtk::Mesh*  aMesh,
                                                  std::string aFieldName,
-                                                 EntityRank aEntityRank,
-                                                 sint aNumRefinements,
-                                                 sint aRefinementFunctionIndex)
+                                                 EntityRank  aEntityRank,
+                                                 sint        aNumRefinements,
+                                                 sint        aRefinementFunctionIndex)
                 : Field(Matrix<DDRMat>(1, 1, 0.0)),
                   Geometry(aNumRefinements, aRefinementFunctionIndex),
                   mFieldName(aFieldName),

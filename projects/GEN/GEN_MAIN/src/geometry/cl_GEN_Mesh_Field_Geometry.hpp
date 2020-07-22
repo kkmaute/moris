@@ -3,7 +3,7 @@
 
 #include "cl_GEN_Geometry.hpp"
 #include "cl_GEN_Field_Discrete.hpp"
-#include "cl_MTK_Interpolation_Mesh.hpp"
+#include "cl_MTK_Mesh_Core.hpp"
 #include "cl_Matrix.hpp"
 #include "cl_Cell.hpp"
 
@@ -13,9 +13,10 @@ namespace moris
     {
         class Mesh_Field_Geometry: public Geometry, public Field_Discrete
         {
+
         private:
             std::string mFieldName;
-            mtk::Interpolation_Mesh* mMesh;
+            mtk::Mesh* mMesh;
             EntityRank mEntityRank;
             uint mNumOriginalNodes;
             Cell<std::shared_ptr<Child_Node>> mChildNodes;
@@ -24,16 +25,16 @@ namespace moris
             /**
              * Constructor
              *
-             * @param aMeshWithLevelSetFields Mesh with the level set fields
+             * @param aMesh Mesh with the level set fields
              * @param aFieldNames Names of the fields
              * @param aNumRefinements The number of refinement steps to use for this geometry
              * @param aRefinementFunctionIndex The index of a user-defined refinement function (-1 = default refinement)
              */
-            Mesh_Field_Geometry(mtk::Interpolation_Mesh* aMeshWithLevelSetFields,
+            Mesh_Field_Geometry(mtk::Mesh*  aMesh,
                                 std::string aFieldName,
-                                EntityRank aEntityRank = EntityRank::NODE,
-                                sint aNumRefinements = 0,
-                                sint aRefinementFunctionIndex = -1);
+                                EntityRank  aEntityRank = EntityRank::NODE,
+                                sint        aNumRefinements = 0,
+                                sint        aRefinementFunctionIndex = -1);
 
             /**
              * Given an index, the discrete geometry needs to return a field value.
@@ -50,14 +51,6 @@ namespace moris
              * @param aSensitivities Matrix of sensitivities to be returned
              */
             void evaluate_all_sensitivities(uint aNodeIndex, Matrix<DDRMat>& aSensitivities);
-
-            /**
-             * Lets the geometry engine know if sensitivities are available, otherwise it will perform finite
-             * differencing instead for intersection locations
-             *
-             * @return If sensitivities are implemented or not (false for discrete level set)
-             */
-            bool sensitivities_available();
 
             /**
              * Add a new child node for evaluation
