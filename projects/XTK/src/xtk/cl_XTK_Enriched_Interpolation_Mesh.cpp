@@ -1009,13 +1009,12 @@ namespace xtk
                                 <<" | owner = "<<tVertexPointers(i)->get_owner()
                                 <<" | my rank = "<<par_rank()
                                 <<" | IP Cell Owner = "<<tEnrichedIpCell->get_owner()
-                                <<" | IP Cell ID = "<<tEnrichedIpCell->get_id()
-                                <<" | IP Cell Owner = "<<tEnrichedIpCell->get_owner()<<std::endl;
+                                <<" | IP Cell ID = "<<tEnrichedIpCell->get_id()<<std::endl;
 
                 moris::print(tVertexPointers(i)->get_coords(),"Coordinate of vertex");
             }
 
-            MORIS_ASSERT(tVertexPointers(i)->has_interpolation(aMeshIndex),"Vertex does not have interpolation.");
+//            MORIS_ASSERT(tVertexPointers(i)->has_interpolation(aMeshIndex),"Vertex does not have interpolation.");
 
             mtk::Vertex_Interpolation * tVertexInterp = tVertexPointers(i)->get_interpolation(aMeshIndex);
 
