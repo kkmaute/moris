@@ -177,9 +177,9 @@ namespace moris
              * @param[ in ] aNodeCoords node coordinates
              */
             void create_new_child_nodes( const Cell<moris_index>&    aNewNodeIndices,
-                                                   const Cell<xtk::Topology*>& aParentTopo,
-                                                   const Cell<Matrix<DDRMat>>& aParamCoordRelativeToParent,
-                                                   const Matrix<DDRMat>&       aGlobalNodeCoord );
+                                         const Cell<xtk::Topology*>& aParentTopo,
+                                         const Cell<Matrix<DDRMat>>& aParamCoordRelativeToParent,
+                                         const Matrix<DDRMat>&       aGlobalNodeCoord );
 
             /**
              * @brief is_intersected checks to see if an entity provided to it intersects a geometry field. Intersects in this context
@@ -191,17 +191,17 @@ namespace moris
              *                                   0 - No information on interface required
              *                                   1 - information on interface required
              */
-            void is_intersected( Matrix< DDRMat > const &   aNodeCoords,
-                                 Matrix< IndexMat > const & aNodetoEntityConn,
-                                 size_t                            aCheckType,
-                                 Cell<GEN_Geometry_Object> &              aGeometryObjects );
+            void is_intersected(const Matrix<DDRMat>&      aNodeCoords,
+                                const Matrix<IndexMat>&    aNodetoEntityConn,
+                                size_t                     aCheckType,
+                                Cell<GEN_Geometry_Object>& aGeometryObjects);
 
             /**
              * Sets the indices for the nodes on the interface
              *
              * @param aInterfaceNodeIndices Interface node indices
              */
-            void set_interface_nodes( Matrix< IndexMat > const & aInterfaceNodeIndices);
+            void set_interface_nodes(const Matrix<IndexMat>& aInterfaceNodeIndices);
 
             /**
              * @brief Get the total number of phases in the phase table
@@ -319,11 +319,11 @@ namespace moris
              * @param[in]  aCheckType      - if a entity local location is necessary 1, else 0.
              * @param[out] Returns an intersection flag and local coordinates if aCheckType 1 in cell 1 and node sensitivity information in cell 2 if intersection point located
              **/
-            bool compute_intersection_info( moris_index               const & aEntityIndex,
-                                            Matrix< IndexMat > const & aEntityNodeInds,
-                                            Matrix< DDRMat >   const & aNodeCoords,
-                                            size_t                    const & aCheckType,
-                                            GEN_Geometry_Object                    & aGeometryObject );
+            bool compute_intersection_info(moris_index             aEntityIndex,
+                                           const Matrix<IndexMat>& aEntityNodeInds,
+                                           const Matrix<DDRMat>&   aNodeCoords,
+                                           size_t                  aCheckType,
+                                           GEN_Geometry_Object&    aGeometryObject);
 
             /**
              * Computes the intersection of an isocountour with an entity and returning the local coordinate relative to the parent

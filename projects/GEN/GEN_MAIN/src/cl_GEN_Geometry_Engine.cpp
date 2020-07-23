@@ -130,7 +130,10 @@ namespace moris
 
         void Geometry_Engine::set_advs(Matrix<DDRMat> aNewADVs)
         {
+            // Set new ADVs
             mADVs = aNewADVs;
+
+            // Reset info related to the mesh
             mPdvHostManager.reset();
             mIntersectionNodes.resize(0);
             mInterfaceParentNodes.resize(0);
@@ -228,11 +231,10 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        void Geometry_Engine::is_intersected(
-                Matrix< DDRMat > const   & aNodeCoords,
-                Matrix< IndexMat > const & aNodetoEntityConn,
-                size_t                            aCheckType,
-                Cell< GEN_Geometry_Object >            & aGeometryObjects )
+        void Geometry_Engine::is_intersected(const Matrix<DDRMat>&      aNodeCoords,
+                                             const Matrix<IndexMat>&    aNodetoEntityConn,
+                                             size_t                     aCheckType,
+                                             Cell<GEN_Geometry_Object>& aGeometryObjects)
         {
             //Get information for loops
             size_t tNumEntities = aNodetoEntityConn.n_rows(); // Number of entities provided to the geometry engine
@@ -480,6 +482,19 @@ namespace moris
             // Register spatial dimension
             mSpatialDim = aMesh->get_spatial_dim();
 
+            // Create B-spline level sets
+//            for (uint tLevelSetIndex = 0; tLevelSetIndex < mNumLevelSets; tLevelSetIndex++)
+//            {
+//                Matrix<DDUMat> tGeometryVariableIndices;
+//                Matrix<DDUMat> tADVIndices;
+//                Matrix<DDRMat> tConstantParameters;
+//                mGeometry.push_back(std::make_shared<Level_Set>(mADVs,
+//                                                                tGeometryVariableIndices,
+//                                                                tADVIndices,
+//                                                                tConstantParameters,
+//                                                                aMesh);)
+//            }
+
             // Save level set data
             if (mLevelSetFile != "")
             {
@@ -532,12 +547,11 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
         
-        bool Geometry_Engine::compute_intersection_info(
-                moris_index               const & aEntityIndex,
-                Matrix< IndexMat > const & aEntityNodeInds,
-                Matrix< DDRMat >   const & aNodeCoords,
-                size_t const                    & aCheckType,
-                GEN_Geometry_Object                    & aGeometryObject )
+        bool Geometry_Engine::compute_intersection_info(moris_index             aEntityIndex,
+                                                        const Matrix<IndexMat>& aEntityNodeInds,
+                                                        const Matrix<DDRMat>&   aNodeCoords,
+                                                        size_t                  aCheckType,
+                                                        GEN_Geometry_Object&    aGeometryObject)
         {
             //Initialize
             bool tIsIntersected = false;

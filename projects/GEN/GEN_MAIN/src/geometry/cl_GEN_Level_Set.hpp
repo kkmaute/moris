@@ -30,7 +30,7 @@ namespace moris
                       Matrix<DDUMat>  aGeometryVariableIndices,
                       Matrix<DDUMat>  aADVIndices,
                       Matrix<DDRMat>  aConstantParameters,
-                      mtk::Mesh*      aMesh
+                      mtk::Mesh*      aMesh,
                       sint            aNumRefinements = 0,
                       sint            aRefinementFunctionIndex = -1);
 
