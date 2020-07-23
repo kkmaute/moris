@@ -89,37 +89,6 @@ void NLA_Solver_Interface_Proxy::set_solution_vector_prev_time_step( sol::Dist_V
 
 // ----------------------------------------------------------------------------------------------
 
-moris::Matrix< DDSMat > & NLA_Solver_Interface_Proxy::get_time_level_Ids_minus()
-{
-    mTimeLevelIdsMinus.set_size( 1, 1, 0 );
-    return mTimeLevelIdsMinus;
-}
-
-// ----------------------------------------------------------------------------------------------
-
-moris::Matrix< DDSMat > & NLA_Solver_Interface_Proxy::get_time_level_Ids_plus()
-{
-    mTimeLevelIdsPlus.set_size( 1, 1 , 1 );
-    return mTimeLevelIdsPlus;
-}
-
-// ----------------------------------------------------------------------------------------------
-
-void NLA_Solver_Interface_Proxy::perform_mapping()
-{
-    moris::Cell< Matrix< DDRMat > > tMat;
-    Matrix< DDSMat > tMatRows1 = this->get_time_level_Ids_minus();
-    Matrix< DDSMat > tMatRows2 = this->get_time_level_Ids_plus();
-
-    mSolutionVectorPrev->extract_my_values( 1, tMatRows1, 0 , tMat );
-
-    mSolutionVectorPrev->sum_into_global_values( tMatRows2, tMat( 0 ) );
-
-    mSolutionVectorPrev->vector_global_asembly();
-}
-
-// ----------------------------------------------------------------------------------------------
-
 void NLA_Solver_Interface_Proxy::get_equation_object_rhs(
         const uint                     & aMyElementInd,
         Cell< Matrix< DDRMat > > & aElementRHS )

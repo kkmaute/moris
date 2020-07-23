@@ -94,10 +94,6 @@ namespace moris
 
                 void set_solution_vector_prev_time_step( sol::Dist_Vector * aSolutionVector );
 
-                // ----------------------------------------------------------------------------
-
-                void perform_mapping();
-
                 // ----------------------------------------------------------------------------------------------
 
                 void set_solution_vector( sol::Dist_Vector * aSolutionVector );
@@ -143,14 +139,6 @@ namespace moris
 
                     return tMaxNumGlobalDofs;
                 };
-
-                // ----------------------------------------------------------------------------
-
-                moris::Matrix< DDSMat > & get_time_level_Ids_minus();
-
-                // ----------------------------------------------------------------------------
-
-                moris::Matrix< DDSMat > & get_time_level_Ids_plus();
 
                 // ----------------------------------------------------------------------------------------------
 

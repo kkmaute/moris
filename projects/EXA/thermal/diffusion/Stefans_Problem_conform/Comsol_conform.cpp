@@ -291,6 +291,18 @@ namespace moris
         tParameterList( 0 )( tPropCounter ).set( "value_function",           std::string("Func_Initial_Condition") );
         tPropCounter++;
 
+        tParameterList( 0 ).push_back( prm::create_property_parameter_list() );
+        tParameterList( 0 )( tPropCounter ).set( "property_name",            std::string("PropMaxTempReference") );
+        tParameterList( 0 )( tPropCounter ).set( "function_parameters",      std::string("313.0") );
+        tParameterList( 0 )( tPropCounter ).set( "value_function",           std::string("Func_Const") );
+        tPropCounter++;
+
+        tParameterList( 0 ).push_back( prm::create_property_parameter_list() );
+        tParameterList( 0 )( tPropCounter ).set( "property_name",            std::string("PropMaxTempExponent") );
+        tParameterList( 0 )( tPropCounter ).set( "function_parameters",      std::string("30.0") );
+        tParameterList( 0 )( tPropCounter ).set( "value_function",           std::string("Func_Const") );
+        tPropCounter++;
+
         //------------------------------------------------------------------------------
 
         // init CM counter
@@ -404,11 +416,13 @@ namespace moris
 
         // Max Temperature IQI
         tParameterList( 4 ).push_back( prm::create_IQI_parameter_list() );
-        tParameterList( 4 )( tIQICounter ).set( "IQI_name",                   std::string("IQIMaxTemp") );
+        tParameterList( 4 )( tIQICounter ).set( "IQI_name",                   std::string("IQIMaxTEMP") );
         tParameterList( 4 )( tIQICounter ).set( "IQI_type",                   static_cast< uint >( fem::IQI_Type::MAX_DOF ) );
         tParameterList( 4 )( tIQICounter ).set( "IQI_output_type",            static_cast< uint >( vis::Output_Type::MAX_DOF ) );
         tParameterList( 4 )( tIQICounter ).set( "master_dof_dependencies",    std::string("TEMP") );
-        tParameterList( 4 )( tIQICounter ).set( "vectorial_field_index",      0 );
+        tParameterList( 4 )( tIQICounter ).set( "master_properties",
+                std::string("PropMaxTempReference,ReferenceValue;") +
+                std::string("PropMaxTempExponent,Exponent") );
         tParameterList( 4 )( tIQICounter ).set( "mesh_set_names",             std::string("HMR_dummy_n_p1") );
         tIQICounter++;
 

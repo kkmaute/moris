@@ -84,24 +84,27 @@ namespace xtk
              * interpolation information needs to be communicated. This function handles that.
              */
             void
-            identify_and_setup_aura_vertices_in_ghost();
+            identify_and_setup_aura_vertices_in_ghost(Ghost_Setup_Data &  aGhostSetupData);
+
             // ----------------------------------------------------------------------------------
-            /*!
-             * Prepare requests for t-matrices in the ghost.
-             * @param[in]  aNotOwnedIpCellsInGhost List of ip cells that have nodes on the aura and are in ghost
-             * @param[out] aNotOwnedIPVertsToProcs - Vertices that need to have t-matrix communicated
-             * @param[out] aProcRanks - process ranks
-             * @param[out] aProcRankToDataIndex - proc rank in comm to index in aProcRanks
-             */
+            void
+            get_ip_vertices_in_ghost_sets(
+                    Ghost_Setup_Data                & aGhostSetupData,
+                    moris::Cell<mtk::Vertex*>       & aGhostVerticesWithInterpolation,
+                    moris::Cell<mtk::Vertex*>       & aGhostVerticesWithoutInterpolation,
+                    moris::Cell<mtk::Cell  const *> & aGhostIpCellConnectedToVertex);
+
+            // ----------------------------------------------------------------------------------
             void
             prepare_interpolation_vertex_t_matrix_requests(
-                    std::unordered_map<moris_index,bool> const & aNotOwnedIpCellsInGhost,
-                    Cell<Matrix<IndexMat>>                     & aNotOwnedIPVertIndsToProcs,
-                    Cell<Matrix<IndexMat>>                     & aNotOwnedBGIPVertsIdsToProcs,
-                    Cell<Matrix<IndexMat>>                     & aNotOwnedIpCellIdToProcs,
-                    Cell<Matrix<IndexMat>>                     & aNotOwnedEnrichedCellBulkPhaseToProcs,
-                    Cell<uint>                                 & aProcRanks,
-                    std::unordered_map<moris_id,moris_id>      & aProcRankToDataIndex);
+                    moris::Cell<mtk::Vertex*>             & aGhostVerticesWithoutInterpolation,
+                    moris::Cell<mtk::Cell  const *>       & aGhostIpCellConnectedToVertex,
+                    Cell<Matrix<IndexMat>>                & aNotOwnedIPVertIndsToProcs,
+                    Cell<Matrix<IndexMat>>                & aNotOwnedBGIPVertsIdsToProcs,
+                    Cell<Matrix<IndexMat>>                & aNotOwnedIpCellIdToProcs,
+                    Cell<Matrix<IndexMat>>                & aNotOwnedEnrichedCellBulkPhaseToProcs,
+                    Cell<uint>                            & aProcRanks,
+                    std::unordered_map<moris_id,moris_id> & aProcRankToDataIndex);
             // ----------------------------------------------------------------------------------
             /*
              * Using a background vertex id, and a enriched interpolation cell id

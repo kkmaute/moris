@@ -78,6 +78,9 @@ namespace moris
                 //! adjoint pdof values
                 moris::Cell< Matrix< DDRMat > > mAdjointPdofValues;
 
+                //! adjoint pdof values
+                moris::Cell< Matrix< DDRMat > > mPreviousAdjointPdofValues;
+
                 moris::uint mEqnObjInd;
 
                 //            Matrix< DDRMat > mTime;
@@ -230,6 +233,14 @@ namespace moris
                 //-------------------------------------------------------------------------------------------------
 
                 /**
+                 * @brief Compute function for the previous adjoint values
+                 *
+                 */
+                void compute_my_previous_adjoint_values( );
+
+                //-------------------------------------------------------------------------------------------------
+
+                /**
                  * @brief Get function for the pdof values of this particular equation object.
                  * get_my_pdof_values() has to be called first to initialize.
                  * @param[ in ] aPdofValues             All pdof values of this equation object
@@ -260,6 +271,8 @@ namespace moris
                 //-------------------------------------------------------------------------------------------------
 
                 void get_equation_obj_residual( Cell< Matrix< DDRMat > > & aEqnObjRHS );
+
+                void get_equation_obj_off_diagonal_residual( Cell< Matrix< DDRMat > > & aEqnObjRHS );
 
                 //-------------------------------------------------------------------------------------------------
 

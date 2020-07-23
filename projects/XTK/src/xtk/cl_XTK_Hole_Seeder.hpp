@@ -10,6 +10,14 @@
 
 #include "cl_MTK_Mesh_Core.hpp"
 #include "cl_Matrix.hpp"
+namespace moris
+{
+    namespace ge
+    {
+        class Sphere_Box;
+    }
+}
+
 namespace xtk
 {
 
@@ -53,6 +61,9 @@ public:
     moris::Matrix<moris::DDRMat> const &
     get_seeded_field();
 
+    moris::Cell<std::shared_ptr<moris::ge::Sphere_Box>> &
+    get_seeded_geometies();
+
 private:
     moris::mtk::Mesh* mMTKMesh;
     moris::real mRadiusX;
@@ -63,6 +74,8 @@ private:
     moris::uint mNumSpheresInY;
     moris::uint mNumSpheresInZ;
     moris::Matrix<moris::DDRMat> mSeededField;
+    moris::Cell<std::shared_ptr<moris::ge::Sphere_Box>> mSpheres;
+
 };
 
 }

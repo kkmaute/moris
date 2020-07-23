@@ -81,53 +81,6 @@ void TSA_Solver_Interface_Proxy_II::get_equation_object_rhs(
 
 // ----------------------------------------------------------------------------------------------
 
-moris::Matrix< DDSMat > & TSA_Solver_Interface_Proxy_II::get_time_level_Ids_minus()
-{
-    if( mListOfDofTypes( 0 ) == MSI::Dof_Type::TEMP)
-    {
-        mTimeLevelIdsMinus.set_size( 1, 1, 0 );
-    }
-    else if( mListOfDofTypes( 0 ) == MSI::Dof_Type::UX)
-    {
-        mTimeLevelIdsMinus.set_size( 1, 1, 1 );
-    }
-
-    return mTimeLevelIdsMinus;
-}
-
-// ----------------------------------------------------------------------------------------------
-
-moris::Matrix< DDSMat > & TSA_Solver_Interface_Proxy_II::get_time_level_Ids_plus()
-{
-    if( mListOfDofTypes( 0 ) == MSI::Dof_Type::TEMP)
-    {
-        mTimeLevelIdsPlus.set_size( 1, 1, 2 );
-    }
-    else if( mListOfDofTypes( 0 ) == MSI::Dof_Type::UX)
-    {
-        mTimeLevelIdsPlus.set_size( 1, 1, 3 );
-    }
-
-    return mTimeLevelIdsPlus;
-}
-
-// ----------------------------------------------------------------------------------------------
-
-void TSA_Solver_Interface_Proxy_II::perform_mapping()
-{
-    moris::Cell< Matrix< DDRMat > > tMat;
-    Matrix< DDSMat > tMatRows1 = this->get_time_level_Ids_minus();
-    Matrix< DDSMat > tMatRows2 = this->get_time_level_Ids_plus();
-
-    mSolutionVectorPrev->extract_my_values( 1, tMatRows1, 0 , tMat );
-
-    mSolutionVectorPrev->sum_into_global_values( tMatRows2, tMat( 0 ) );
-
-    mSolutionVectorPrev->vector_global_asembly();
-}
-
-// ----------------------------------------------------------------------------------------------
-
 void TSA_Solver_Interface_Proxy_II::get_equation_object_operator(
         const uint       & aMyElementInd,
         Matrix< DDRMat > & aElementMatrix)

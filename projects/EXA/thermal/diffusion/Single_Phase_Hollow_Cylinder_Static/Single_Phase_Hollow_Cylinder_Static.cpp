@@ -21,6 +21,8 @@
 
 #include "AztecOO.h"
 
+extern uint gInterpolationOrder;
+
 #ifdef  __cplusplus
 extern "C"
 {
@@ -152,9 +154,9 @@ extern "C"
             tParameterlist( 0 )( 0 ).set( "domain_sidesets",                  std::string("1,2,3,4") );
             tParameterlist( 0 )( 0 ).set( "lagrange_output_meshes",           std::string("0") );
 
-            tParameterlist( 0 )( 0 ).set( "lagrange_orders",  std::string("1") );
+            tParameterlist( 0 )( 0 ).set( "lagrange_orders",  std::to_string(gInterpolationOrder) );
             tParameterlist( 0 )( 0 ).set( "lagrange_pattern", std::string("0") );
-            tParameterlist( 0 )( 0 ).set( "bspline_orders",   std::string("1") );
+            tParameterlist( 0 )( 0 ).set( "bspline_orders",   std::to_string(gInterpolationOrder) );
             tParameterlist( 0 )( 0 ).set( "bspline_pattern",  std::string("0") );
 
             tParameterlist( 0 )( 0 ).set( "lagrange_to_bspline", std::string("0") );
@@ -254,6 +256,20 @@ extern "C"
             tParameterList( 0 ).push_back( prm::create_property_parameter_list() );
             tParameterList( 0 )( tPropCounter ).set( "property_name",            std::string("PropAnalyticdTempdx") );
             tParameterList( 0 )( tPropCounter ).set( "value_function",           std::string("AnalyticdTemperaturedxFunc") );
+            tPropCounter++;
+
+            // create parameter list for property 6
+            tParameterList( 0 ).push_back( prm::create_property_parameter_list() );
+            tParameterList( 0 )( tPropCounter ).set( "property_name",            std::string("PropMaxTempReference") );
+            tParameterList( 0 )( tPropCounter ).set( "function_parameters",      std::string("5.0") );
+            tParameterList( 0 )( tPropCounter ).set( "value_function",           std::string("Func_Const") );
+            tPropCounter++;
+
+            // create parameter list for property 7
+            tParameterList( 0 ).push_back( prm::create_property_parameter_list() );
+            tParameterList( 0 )( tPropCounter ).set( "property_name",            std::string("PropMaxTempExponent") );
+            tParameterList( 0 )( tPropCounter ).set( "function_parameters",      std::string("30.0") );
+            tParameterList( 0 )( tPropCounter ).set( "value_function",           std::string("Func_Const") );
             tPropCounter++;
 
             //------------------------------------------------------------------------------
@@ -391,6 +407,9 @@ extern "C"
             tParameterList( 4 )( tIQICounter ).set( "IQI_type",                   static_cast< uint >( fem::IQI_Type::MAX_DOF ) );
             tParameterList( 4 )( tIQICounter ).set( "IQI_output_type",            static_cast< uint >( vis::Output_Type::MAX_DOF ) );
             tParameterList( 4 )( tIQICounter ).set( "master_dof_dependencies",    std::string("TEMP") );
+            tParameterList( 4 )( tIQICounter ).set( "master_properties",
+                    std::string("PropMaxTempReference,ReferenceValue;") +
+                    std::string("PropMaxTempExponent,Exponent") );
             tParameterList( 4 )( tIQICounter ).set( "mesh_set_names",             tSolid );
             tIQICounter++;
 

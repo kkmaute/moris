@@ -143,8 +143,8 @@ void check_linear_results_serial()
     else
     {
         REQUIRE( tNumDims  ==  2   );
-        REQUIRE( tNumNodes ==  6033 );
-        REQUIRE( tNumElems ==  6033 );
+        REQUIRE( tNumNodes ==  6030 );
+        REQUIRE( tNumElems ==  6030 );
     }
 
     // check results
@@ -169,6 +169,8 @@ void check_quadratic_results_serial()
 
     if (gPrintReferenceValues)
     {
+
+
         std::cout << "Number of dimensions: " << tNumDims  << std::endl;
         std::cout << "Number of nodes     : " << tNumNodes << std::endl;
         std::cout << "Number of elements  : " << tNumElems << std::endl;

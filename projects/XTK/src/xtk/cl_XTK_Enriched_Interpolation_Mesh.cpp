@@ -1000,6 +1000,8 @@ namespace xtk
         //iterate through vertex pointers
         for(moris::uint i = 0; i < tVertexPointers.size(); i++)
         {
+
+            //todo:remove
             if(!tVertexPointers(i)->has_interpolation(aMeshIndex))
             {
                 std::cout<<" Id = "<<tVertexPointers(i)->get_id()
@@ -1008,15 +1010,18 @@ namespace xtk
                                 <<" | my rank = "<<par_rank()
                                 <<" | IP Cell Owner = "<<tEnrichedIpCell->get_owner()
                                 <<" | IP Cell ID = "<<tEnrichedIpCell->get_id()<<std::endl;
+
+                moris::print(tVertexPointers(i)->get_coords(),"Coordinate of vertex");
             }
 
-            MORIS_ASSERT(tVertexPointers(i)->has_interpolation(aMeshIndex),"Vertex does not have interpolation.");
+//            MORIS_ASSERT(tVertexPointers(i)->has_interpolation(aMeshIndex),"Vertex does not have interpolation.");
 
             mtk::Vertex_Interpolation * tVertexInterp = tVertexPointers(i)->get_interpolation(aMeshIndex);
 
             // get the basis indices
             Matrix<IndexMat> tBasisIndices = tVertexInterp->get_indices();
             Matrix<IndexMat> tBasisIds = tVertexInterp->get_ids();
+
 
             if(tBasisIds.numel() == 0)
             {

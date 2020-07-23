@@ -193,6 +193,9 @@ option(MORIS_HAVE_LBFGS
 option(MORIS_USE_TESTS
     "Compile unit tests." ON )
     
+option(MORIS_USE_PERF_TESTS, 
+		" Build the performance tests" OFF)
+    
     
 option(MORIS_USE_EXAMPLES
      "Build the examples." ON)

@@ -442,8 +442,17 @@ namespace moris
             // Make file name parallel, if necessary
             if (moris::par_size() > 1)
             {
-                mTempFileName += "." + std::to_string(moris::par_size()) + "." + std::to_string(moris::par_rank());
-                mPermFileName += "." + std::to_string(moris::par_size()) + "." + std::to_string(moris::par_rank());
+
+                // make sure they have the same number of leading zeros
+                std::string tParSizeBaseStr =  std::to_string(moris::par_size());
+
+                std::string tParRankBaseStr =  std::to_string(moris::par_rank());
+                std::string tParRankStr = std::string( tParSizeBaseStr.length() - tParRankBaseStr.length(), '0').append( tParRankBaseStr );
+
+
+
+                mTempFileName += "." + tParSizeBaseStr + "." + tParRankStr;
+                mPermFileName += "." + tParSizeBaseStr + "." + tParRankStr;
             }
 
             // Create the database

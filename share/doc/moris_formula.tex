@@ -1,4 +1,3 @@
-
 \newcommand{\pfrac}[2]{\frac{\partial #1}{\partial #2}}
 \newcommand{\squaredpfrac}[2]{ \left( \frac{\partial #1}{\partial #2} \right) ^2}
 \newcommand{\cuedpfrac}[2]{ \left( \frac{\partial #1}{\partial #2} \right) ^3}
@@ -8,18 +7,119 @@
 \newcommand{\ppcuedfrac}[3]{ \frac{\partial^3 #1}{\partial #2 \partial #3} }
 \newcommand{\pppfrac}[4]{ \frac{\partial^3 #1}{\partial #2 \partial #3 \partial #4}}
 
+\newcommand{\ln}[1]{\ ln \left( #1 \right) }
+\newcommand{\log}[1]{\ log \left( #1 \right) }
+
+\newcommand{\time}{t}
+\newcommand{\space}{\vec{x}}
 
 \newcommand{\bm}[1]{\mathbf{#1}}
-\newcommand{\vec}[1]{\mathbf{#1}}
-\newcommand{\transvec}[1]{\mathbf{#1}^T}
+\newcommand{\vec}[1]{\bm{#1}}
+\newcommand{\mat}[1]{\bm{#1}}
 
+\newcommand{\trans}[1]{#1^T}
+\newcommand{\abs}[1]{  \left\vert #1 \right\vert }
+\newcommand{\jump}[1]{ \left[ \!\! \left[ #1 \right] \!\! \right] }
+\newcommand{\norm}[1]{ \left\vert \! \left\vert #1 \right\vert \! \right\vert }
 
-\newcommand{\Density}{\rho}
+\newcommand{\grad}[1]{\vec{\nabla} #1}
+\newcommand{\div}[1]{\vec{\nabla} \cdot #1}
+\newcommand{\curl}[1]{\vec{\nabla} \times #1}
+\newcommand{\laplacian}[1]{\vec{\nabla}^2 #1}
 
+\newcommand{\IdentityMat}{\mat{I}}
 
-\newcommand{\optvar}{\bm{s}}
+\newcommand{\optvar}{\vec{s}}
 
+\newcommand{\Res}{\Residual}
+\newcommand{\ResidualVector}{\vec{\Residual}}
+\newcommand{\ResVec}{\ResidualVector}
+\newcommand{\Residual}{R}
 
-\newcommand{\ThermConduc}{\kappa}
+\newcommand{\TestFunction}{w}
+\newcommand{\TestFunc}{\TestFunction}
+\newcommand{\TestFunctionVector}{\vec{\TestFunction}}
+\newcommand{\TestFuncVec}{\TestFunctionVector}
+
+\newcommand{\domain}{\Omega}
+\newcommand{\SpaceDomain}{\Omega_{\space}}
+\newcommand{\TimeDomain}{\Omega_{\time}}
+
+\newcommand{\DomainBoundary}{\partial \Omega}
+\newcommand{\SpaceDomainBoundary}{\DomainBoundary_{\space}}
+\newcommand{\TimeDomainBoundary}{\DomainBoundary_{\time}}
+\newcommand{\BoundarySegment}{\Gamma}
+\newcommand{\BoundSeg}{\BoundarySegment}
+\newcommand{\SpaceBoundarySegment}{\BoundSeg_{\space}}
+\newcommand{\SpaceBoundSeg}{\SpaceBoundarySegment}
+\newcommand{\TimeBoundarySegment}{\BoundSeg_{\time}}
+\newcommand{\TimeBoundSeg}{\TimeBoundarySegment}
+\newcommand{\SurfaceNormal}{\vec{n}}
+\newcommand{\SurfNorm}{\SurfaceNormal}
+
+\newcommand{\ElementSize}{h}
+\newcommand{\ElemSize}{\ElementSize}
+
+\newcommand{\temperature}{T}
+\newcommand{\temp}{\temperature}
+\newcommand{\PrescribedTemperature}{\bar{\temp}}
+\newcommand{\HeatFlux}{q}
+\newcommand{\BodyLoad}{Q}
+\newcommand{\AmbientTemperature}{T_{inf}}
+\newcommand{\AmbTemp}{\AmbientTemperature}
+\newcommand{\enthalpy}{H}
+
+\newcommand{\density}{\rho}
+\newcommand{\ThermConduct}{\kappa}
+\newcommand{\ThermalConductivity}{\kappa}
 \newcommand{\HeatCap}{c_p}
+\newcommand{\HeatCapacity}{\HeatCap}
 \newcommand{\LatHeat}{L_H}
+\newcommand{\LatentHeat}{\LatHeat}
+\newcommand{\ConvectionCoefficient}{\alpha_c}
+\newcommand{\ConvecCoeff}{\ConvectionCoefficient}
+\newcommand{\emissivity}{\varepsilon}
+\newcommand{\AbsoluteZero}{T_{A0}}
+\newcommand{\AbsZero}{\AbsoluteZero}
+\newcommand{\StefanBoltzmannConstant}{\sigma_{SB}}
+\newcommand{\SBconst}{\StefanBoltzmannConstant}
+
+\newcommand{\PCTemperature}{T_m}
+\newcommand{\PCTemp}{\PCTemperature}
+\newcommand{\UpperPCTemp}{T_u}
+\newcommand{\LowerPCTemp}{T_l}
+\newcommand{\PCTempRange}{\Delta \PCTemp}
+\newcommand{\PCconstant}{k_{PC}}
+\newcommand{\PCconst}{\PCconstant}
+\newcommand{\GGLSParameter}{\kappa_a}
+\newcommand{\GGLSParam}{\GGLSParameter}
+\newcommand{\PhaseStateFunction}{f}
+\newcommand{\PSF}{\PhaseStateFunction}
+
+\newcommand{\velocity}{\vec{u}}
+\newcommand{\pressure}{p}
+\newcommand{\ViscousStress}{\mat{\tau}}
+
+\newcommand{\BodyForce}{\vec{b}}
+
+\newcommand{\DynamicViscosity}{\mu}
+\newcommand{\KinematicViscosity}{\nu}
+\newcommand{\KortewegStress}{\mat{\varsigma}}
+
+\newcommand{\InnerEnergy}{e}
+\newcommand{\TotalEnergy}{\varepsilon}
+\newcommand{\HelmholtzFreeEnergyDensity}{\Psi}
+\newcommand{\LocHelmholtzFreeEnergyDensity}{\Psi_{loc}}
+\newcommand{\capillarity}{K}
+\newcommand{\InterstitialWorkFlux}{\vec{\Pi}}
+
+\newcommand{\GasConst}{R}
+\newcommand{\GasConstant}{\GasConst}
+\newcommand{\IdealGasConstant}{\GasConst}
+\newcommand{\IsobarHeatCap}{c_p}
+\newcommand{\IsochorHeatCap}{c_v}
+
+\newcommand{\VdWconstA}{a}
+\newcommand{\VdWconstB}{b}
+\newcommand{\VdWconstC}{c}
+\newcommand{\VdWconstD}{d}

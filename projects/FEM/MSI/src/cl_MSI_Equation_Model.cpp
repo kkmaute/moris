@@ -86,9 +86,6 @@ namespace moris
 
         void Equation_Model::compute_implicit_dQIdp()
         {
-            //            mSolutionVector->print();
-            //             mSensitivitySolutionVector->print();
-
             // create map object
             moris::Matrix_Vector_Factory tMatFactory( sol::MapType::Epetra );
             mdQiduMap = tMatFactory.create_map( mDesignVariableInterface->get_my_local_global_map() );

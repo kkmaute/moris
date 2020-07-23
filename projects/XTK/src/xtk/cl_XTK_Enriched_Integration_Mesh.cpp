@@ -11,8 +11,10 @@
 #include "cl_XTK_Cell_Cluster.hpp"
 #include "cl_XTK_Side_Cluster.hpp"
 #include "cl_MTK_Side_Set.hpp"
+#include "cl_MTK_Vertex.hpp"
 #include "cl_MTK_Double_Side_Set.hpp"
 #include "cl_MTK_Cell_Info_Hex8.hpp"
+#include "cl_MTK_Cell_Info_Quad4.hpp"
 #include "fn_isempty.hpp"
 
 #include <memory>
@@ -26,15 +28,27 @@ namespace xtk
       mMeshIndexInModel(aInterpIndex),
       mCellClusters(0,nullptr),
       mFields(0),
-      mFieldLabelToIndex(2)
+      mFieldLabelToIndex(2),
+      mCellInfo(nullptr)
     {
         this->setup_cell_clusters();
         this->setup_blockset_with_cell_clusters();
         this->setup_side_set_clusters();
         this->setup_double_side_set_clusters();
         this->setup_interface_side_sets();
+        this->setup_interface_vertex_sets();
         this->setup_color_to_set();
         this->collect_all_sets();
+
+        if(this->get_spatial_dim() == 2)
+        {
+            mCellInfo = new moris::mtk::Cell_Info_Quad4();
+        }
+        else if (this->get_spatial_dim() == 3)
+        {
+            mCellInfo = new moris::mtk::Cell_Info_Hex8();
+        }
+
     }
 
     //------------------------------------------------------------------------------
@@ -1976,6 +1990,33 @@ namespace xtk
     }
 
     //------------------------------------------------------------------------------
+    Cell<moris_index>
+    Enriched_Integration_Mesh::register_vertex_set_names(moris::Cell<std::string> const & aVertexSetNames)
+    {
+        uint tNumSetsToRegister = aVertexSetNames.size();
+
+        // block set ords
+        Cell<moris_index> tVertexSetOrds(tNumSetsToRegister);
+
+        // iterate and add sets
+        for(moris::uint i = 0; i < tNumSetsToRegister; i++)
+        {
+            tVertexSetOrds(i) = mVertexSetNames.size();
+
+            mVertexSetNames.push_back(aVertexSetNames(i));
+            MORIS_ASSERT(mVertexSetLabelToOrd.find(aVertexSetNames(i)) ==  mVertexSetLabelToOrd.end(),
+                    "Duplicate vertex set in mesh");
+
+            mSideSideSetLabelToOrd[aVertexSetNames(i)] = tVertexSetOrds(i) ;
+        }
+
+        mVerticesInVertexSet.resize(mVerticesInVertexSet.size() + tNumSetsToRegister);
+        mVertexSetColors.resize(mVertexSetColors.size() + tNumSetsToRegister);
+
+        return tVertexSetOrds;
+    }
+
+    //------------------------------------------------------------------------------
 
     Cell<moris_index>
     Enriched_Integration_Mesh::register_block_set_names_with_cell_topo(
@@ -2228,6 +2269,95 @@ namespace xtk
             mSideSets(tISideIndexMasterToSlave).push_back( mDoubleSideSingleSideClusters(tMasterIndex) );
             mSideSets(tISideIndexSlaveToMaster).push_back( mDoubleSideSingleSideClusters(tSlaveIndex) );
         }
+    }
+
+    //------------------------------------------------------------------------------
+
+    void
+    Enriched_Integration_Mesh::setup_interface_vertex_sets()
+    {
+        Cell<moris_index> InterfaceVertexSetOrds = this->declare_interface_vertex_sets();
+
+        this->create_interface_vertex_sets(InterfaceVertexSetOrds);
+    }
+
+    //------------------------------------------------------------------------------
+
+    Cell<moris_index>
+    Enriched_Integration_Mesh::declare_interface_vertex_sets()
+    {
+        // number of geometries in the mesh
+        moris::uint tNumGeometries = mModel->get_geom_engine()->get_num_geometries();
+
+        // allocate a cell of strings
+        moris::Cell<std::string> tInterfaceVertexSetNames(tNumGeometries);
+
+        // base set name (interface vertex geometry #)
+        std::string tSetNameBase = "iv_g_";
+
+        for(moris::uint i = 0; i < tNumGeometries; i++)
+        {
+            // add the vertex set to the cell
+            tInterfaceVertexSetNames.push_back(std::string(tSetNameBase + std::to_string(i)));
+        }
+
+        // register vertex sets
+        Cell<moris_index> tVertexSetOrds = this->register_vertex_set_names(tInterfaceVertexSetNames);
+
+        // make the geometric index the color
+        for(moris::uint i = 0 ; i < tNumGeometries; i++)
+        {
+            // the color of the interface ndoe sets is the geometric index
+            this->set_vertex_set_color(tVertexSetOrds(i),Matrix<IndexMat>({{(moris_index)i}}));
+        }
+
+        return tVertexSetOrds;
+
+    }
+
+    //------------------------------------------------------------------------------
+
+    void
+    Enriched_Integration_Mesh::create_interface_vertex_sets(Cell<moris_index> const & aInterfaceVertexSetOrds)
+    {
+        // number of geometries in the mesh
+        moris::uint tNumGeometries = mModel->get_geom_engine()->get_num_geometries();
+
+        // place vertices in the side sets
+        for(moris::uint i = 0; i < tNumGeometries; i++)
+        {
+            // matrix of interface vertex on geometry i
+            moris::Matrix< moris::IndexMat > tInterfaceVertices = mModel->get_background_mesh().get_interface_nodes_loc_inds((moris_index) i);
+
+            // interface vertex set ordinal
+            moris_index tSetOrd = aInterfaceVertexSetOrds(i);
+
+            //iterate through the vertices and grab their mtk vertex from the mesh
+            for(moris::uint j = 0 ; j < tInterfaceVertices.numel(); j++)
+            {
+//                moris::mtk::Vertex* tVertex = &this->get_mtk_vertex(tInterfaceVertices(j));
+
+                mVerticesInVertexSet(tSetOrd).push_back(&this->get_mtk_vertex(tInterfaceVertices(j)));
+            }
+        }
+
+//        for(moris::uint i =  mListofSideSets.size(); i < mSideSets.size(); i++)
+//        {
+//            this->commit_side_set(i);
+//        }
+    }
+
+    //------------------------------------------------------------------------------
+
+    void
+    Enriched_Integration_Mesh::set_vertex_set_color(
+            moris_index      const & aVertexSetIndex,
+            Matrix<IndexMat> const & aVertexSetColors)
+    {
+        MORIS_ASSERT(moris::isempty(mVertexSetColors(aVertexSetIndex)),
+                "Attempting to overwrite colors of a side set");
+
+        mVertexSetColors(aVertexSetIndex) = aVertexSetColors;
     }
 
     //------------------------------------------------------------------------------

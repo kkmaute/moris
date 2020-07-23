@@ -115,6 +115,50 @@ void Solver_Interface::assemble_RHS( moris::sol::Dist_Vector * aVectorRHS )
 
 //---------------------------------------------------------------------------------------------------------
 
+void Solver_Interface::assemble_additional_DqDs_RHS_contribution( moris::sol::Dist_Vector * aVectorRHS )
+{
+    if( !this->get_is_forward_analysis() )
+    {
+        // Get local number of elements
+        moris::uint tNumBlocks = this->get_num_my_blocks();
+
+        moris::uint tNumRHS = this->get_num_rhs();
+
+        // Loop over all local elements to build matrix graph
+        for ( moris::uint Ii=0; Ii < tNumBlocks; Ii++ )
+        {
+            moris::uint tNumEquationObjectOnSet = this->get_num_equation_objects_on_set( Ii );
+
+            this->initialize_set( Ii, false, true);                     // FIXME FIXME shoudl be true. this is a brutal hack and will be changed in a few days
+
+            for ( moris::uint Ik=0; Ik < tNumEquationObjectOnSet; Ik++ )
+            {
+                Matrix< DDSMat > tElementTopology;
+                this->get_element_topology(Ii, Ik, tElementTopology );
+
+                Cell< Matrix< DDRMat > > tElementRHS;
+                this->get_equation_object_off_diag_rhs( Ii, Ik, tElementRHS );
+
+                for ( moris::uint Ia=0; Ia < tNumRHS; Ia++ )
+                {
+                    // Fill elementRHS in distributed RHS
+                    aVectorRHS->sum_into_global_values(
+                            tElementTopology,
+                            tElementRHS( Ia ),
+                            Ia );
+                }
+            }
+
+            this->free_block_memory( Ii );
+        }
+
+        // global assembly to switch entries to the right processor
+        aVectorRHS->vector_global_asembly();
+    }
+}
+
+//---------------------------------------------------------------------------------------------------------
+
 void Solver_Interface::assemble_jacobian( moris::sol::Dist_Matrix * aMat )
 {
     // Get local number of elements

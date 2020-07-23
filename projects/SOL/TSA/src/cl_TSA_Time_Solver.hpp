@@ -52,8 +52,10 @@ namespace tsa
         //! List with time sub solvers
         moris::Cell< Time_Solver * > mTimeSubSolverList;
 
-        sol::Dist_Vector * mFullVector = nullptr;
-        sol::Dist_Vector * mFullVectorSensitivity = nullptr;
+        moris::Cell< sol::Dist_Vector * > mFullVector;
+        moris::Cell< sol::Dist_Vector * > mFullVectorSensitivity;
+
+        moris::Cell< moris::Matrix< DDRMat > > mTimeFrames;
 
         sol::Dist_Map * mFullMap = nullptr;
 
@@ -143,6 +145,46 @@ namespace tsa
          */
         void set_dof_type_list( const moris::Cell< enum MSI::Dof_Type > aDofTypeList,
                                 const moris::sint                       aLevel =  0 );
+
+        //--------------------------------------------------------------------------------------------------
+
+        /**
+         * @brief Accessor function to determine if this time solver is the master time solver
+         */
+        bool get_is_master_time_solver()
+        {
+            return mIsMasterTimeSolver;
+        };
+
+        //--------------------------------------------------------------------------------------------------
+
+        /**
+         * @brief Accessor function to determine if this is forward or sensitivity analysis
+         */
+        bool get_is_forward_analysis()
+        {
+            return mIsForwardSolve;
+        };
+
+        //--------------------------------------------------------------------------------------------------
+
+        /**
+         * @brief Accessor function to the time frames
+         */
+        moris::Cell< Matrix< DDRMat > > & get_time_frames()
+        {
+            return mTimeFrames;
+        };
+
+        //--------------------------------------------------------------------------------------------------
+
+        /**
+         * @brief Accessor function to the solution vectos
+         */
+        moris::Cell< sol::Dist_Vector * > & get_solution_vectors()
+        {
+            return mFullVector;
+        };
 
         //--------------------------------------------------------------------------------------------------
 
@@ -268,7 +310,7 @@ namespace tsa
 
         //--------------------------------------------------------------------------------------------------
 
-        void solve( sol::Dist_Vector * aFullVector);
+        void solve( moris::Cell< sol::Dist_Vector * > & aFullVector);
 
         //--------------------------------------------------------------------------------------------------
 
@@ -279,6 +321,18 @@ namespace tsa
          * @brief initialize initial guess with parameter list input
          */
         void initialize_sol_vec();
+
+        //--------------------------------------------------------------------------------------------------
+        /**
+         * @brief initialize initial prev solution vector
+         */
+        void initialize_prev_sol_vec();
+
+        //--------------------------------------------------------------------------------------------------
+        /**
+         * @brief create new sol vec for next time step
+         */
+        void prepare_sol_vec_for_next_time_step();
 
         //--------------------------------------------------------------------------------------------------
         /**

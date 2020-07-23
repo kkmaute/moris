@@ -3,11 +3,47 @@ namespace moris {
 /** \page EXA_Thermal_Diffusion_Channel_with_Four_Cylinders_Static_Temp_Only Channel with Four Cylinders Static Temperature only
 
 # Problem Description
+This example is a diffusion-only version of the advective problems \ref EXA_THERMAL_ADVECTION_CHANNEL_WITH_FOUR_CYLINDERS_STATIC and 
+\ref EXA_THERMAL_ADVECTION_CHANNEL_WITH_FOUR_CYLINDERS_TRANSIENT advection problems. It is meant to provide an easy setup for 
+debugging the advections problems. The basic features of the example are summarized in the table below.
+
+<table>
+<caption id="example_features">Main Features of Example</caption>
+<tr><th>Feature</th>                        <th> Value</th>               <th> Comment</th></tr>
+<tr><td>Dimensionalty</td>                  <td> 2D</td>                  <td> </td></tr>
+<tr><td>Geometry model</td>                 <td> level set</td>           <td> </td> geometric primitives: 4 planes, 4 circles</tr>
+<tr><td>Physics</td>                        <td> linear diffusion</td>    <td> static </td></tr>
+<tr><td>Dirichlet boundary conditions</td>  <td> Nitsche</td>             <td> </td></tr>
+<tr><td>Dirichlet boundary conditions</td>  <td> simple</td>              <td> </td></tr>
+<tr><td>Discretization</td>                 <td> first, second order</td> <td> </td></tr>
+<tr><td>Refinement</td>                     <td> 1 level</td>             <td> along internal and external boundaries</td></tr>
+<tr><td>Parallel</td>                       <td> 1 and 4 subdomains</td>  <td> </td></tr>
+</table>
+
 # Problem Setup
-# Analytical Solution
+The computational dommain is defined by a \f$ 4 \times 2\f$ rectangles in which a \f$ 2.2 \times 0.41 \f$ rectangular physical domain is embedded. 
+Four circles representing void are placed within the physical domain. A uniform temperature 
+\f$ \PrescribedTemperature = 0 \f$ is prescribed at the left edge. A heat flux of \f$ \HeatFlux = 2.0 \f$ is imposed along the circular curves. 
+The coarses background mesh has \f$ 176 \times 88 \f$ elements. The mesh is refined once along the circles and the domain edges.
+
+<table>
+<caption id="material_properties">Material Properties</caption>
+<tr><th>Property</th>      <th> Value </th></tr>
+<tr><td>Density</td>       <td> \f$ 1.0 \f$</td></tr>
+<tr><td>Heat capacity</td> <td> \f$ 1.0 \f$</td></tr>
+<tr><td>Conductivity</td>  <td> \f$ 0.00005 \f$</td></tr>
+</table>
+
+# Reference Solution
+
+An analtyical solution does not exist. Mesh, temperaure and temperature IQI are used as reference values.
+
 # Literature
+
+No literature on this example available.
+
 # Developer Notes
 
-*/
 
+*/
 }

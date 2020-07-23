@@ -134,12 +134,6 @@ namespace moris
                     return mMyGlobalElementsOverlapping;
                 };
 
-                moris::Matrix< DDSMat > & get_time_level_Ids_minus();
-
-                moris::Matrix< DDSMat > & get_time_level_Ids_plus() ;
-
-                void perform_mapping();
-
                 // ----------------------------------------------------------------------------------------------
                 // number of elements on processor
                 uint get_num_my_elements()

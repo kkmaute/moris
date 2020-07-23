@@ -232,11 +232,11 @@ namespace moris
 
         tParameterlist( 1 )( 2 ) = prm::create_user_defined_geometry_parameter_list();
         tParameterlist( 1 )( 2 ).set( "field_function_name", "Func_Left_Plane");
-        tParameterlist( 1 )( 2 ).set( "number_of_refinements", 0);
+        tParameterlist( 1 )( 2 ).set( "number_of_refinements", 1);
 
         tParameterlist( 1 )( 3 ) = prm::create_user_defined_geometry_parameter_list();
         tParameterlist( 1 )( 3 ).set( "field_function_name", "Func_Right_Plane");
-        tParameterlist( 1 )( 3 ).set( "number_of_refinements", 0);
+        tParameterlist( 1 )( 3 ).set( "number_of_refinements", 1);
 
         tParameterlist( 1 )( 4 ) = prm::create_user_defined_geometry_parameter_list();
         tParameterlist( 1 )( 4 ).set( "field_function_name", "Func_Cylinder");
@@ -268,13 +268,6 @@ namespace moris
 
         // create parameter list for property 1
         tParameterList( 0 ).push_back( prm::create_property_parameter_list() );
-        tParameterList( 0 )( tPropCounter ).set( "property_name",            std::string("PropViscosity") );
-        tParameterList( 0 )( tPropCounter ).set( "function_parameters",      std::string("0.001") );
-        tParameterList( 0 )( tPropCounter ).set( "value_function",           std::string("Func_Const") );
-        tPropCounter++;
-
-        // create parameter list for property 2
-        tParameterList( 0 ).push_back( prm::create_property_parameter_list() );
         tParameterList( 0 )( tPropCounter ).set( "property_name",            std::string("PropDensity") );
         tParameterList( 0 )( tPropCounter ).set( "function_parameters",      std::string("1.0") );
         tParameterList( 0 )( tPropCounter ).set( "value_function",           std::string("Func_Const") );
@@ -284,20 +277,6 @@ namespace moris
         tParameterList( 0 ).push_back( prm::create_property_parameter_list() );
         tParameterList( 0 )( tPropCounter ).set( "property_name",            std::string("PropCapacity") );
         tParameterList( 0 )( tPropCounter ).set( "function_parameters",      std::string("1.0") );
-        tParameterList( 0 )( tPropCounter ).set( "value_function",           std::string("Func_Const") );
-        tPropCounter++;
-
-        // create parameter list for property 3
-        tParameterList( 0 ).push_back( prm::create_property_parameter_list() );
-        tParameterList( 0 )( tPropCounter ).set( "property_name",            std::string("PropDirichletInletU") );
-        tParameterList( 0 )( tPropCounter ).set( "function_parameters",      std::string("1.5") );
-        tParameterList( 0 )( tPropCounter ).set( "value_function",           std::string("Func_Inlet_U") );
-        tPropCounter++;
-
-        // create parameter list for property 4
-        tParameterList( 0 ).push_back( prm::create_property_parameter_list() );
-        tParameterList( 0 )( tPropCounter ).set( "property_name",            std::string("PropDirichletZeroU") );
-        tParameterList( 0 )( tPropCounter ).set( "function_parameters",      std::string("0.0;0.0") );
         tParameterList( 0 )( tPropCounter ).set( "value_function",           std::string("Func_Const") );
         tPropCounter++;
 
