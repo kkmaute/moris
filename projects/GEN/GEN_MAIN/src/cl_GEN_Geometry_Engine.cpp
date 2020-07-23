@@ -731,8 +731,10 @@ namespace moris
         void Geometry_Engine::create_ig_pdv_hosts(mtk::Integration_Mesh* aIntegrationMesh)
         {
             // Check interface nodes
-            MORIS_ERROR(mIntersectionNodes.size() == mInterfaceNodeIndices.length(),
-                        "Number of interface nodes must match number of intersection nodes in the geometry engine");
+            MORIS_ERROR(mInterfaceNodeIndices.length() == mIntersectionNodes.size(),
+                        ("Number of interface nodes in XTK (" + std::to_string(mInterfaceNodeIndices.length()) +
+                        ") must match number of intersection nodes in the geometry engine (" +
+                        std::to_string(mIntersectionNodes.size()) + ").").c_str());
 
             // Get information from integration mesh
             uint tNumSets = aIntegrationMesh->get_num_sets();

@@ -12,8 +12,8 @@ namespace moris
         //--------------------------------------------------------------------------------------------------------------
 
         // Dummy values so I don't need to create a model for the sensitivity test
-        uint tNumADVs = 16;
-        Matrix<DDRMat> tDiqiDpdv(2, tNumADVs, 1.0);
+        uint tNumADVs = 36;
+        Matrix<DDRMat> tDiqiDpdv(1, tNumADVs, 1.0);
         Matrix<DDRMat> Pdv_Host_Manager::compute_diqi_dadv()
         {
             return tDiqiDpdv * this->compute_dpdv_dadv();

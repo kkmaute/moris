@@ -59,7 +59,7 @@ namespace moris
         void Level_Set::evaluate_all_sensitivities(uint aNodeIndex, Matrix<DDRMat>& aSensitivities)
         {
             // Initialize
-            aSensitivities.set_size(1, mFieldVariables.size());
+            aSensitivities.set_size(1, mFieldVariables.size(), 0.0);
 
             // If node is on original interpolation mesh
             if (aNodeIndex < mNumOriginalNodes)
