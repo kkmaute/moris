@@ -292,7 +292,7 @@ namespace moris
              *
              * @param aMesh
              */
-            void compute_level_set_data(mtk::Mesh* aMesh);
+            void compute_level_set_data(mtk::Mesh* aMesh, const Matrix<DDRMat>& aLevelSetADVs = {{}});
 
             /**
              * Assign PDV hosts based on properties constructed through parameter lists

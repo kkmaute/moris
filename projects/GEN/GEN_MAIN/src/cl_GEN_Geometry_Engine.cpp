@@ -477,7 +477,7 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        void Geometry_Engine::compute_level_set_data(mtk::Mesh* aMesh)
+        void Geometry_Engine::compute_level_set_data(mtk::Mesh* aMesh, const Matrix<DDRMat>& aLevelSetADVs)
         {
             // Register spatial dimension
             mSpatialDim = aMesh->get_spatial_dim();
