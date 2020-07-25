@@ -397,54 +397,50 @@ TEST_CASE("Channel_with_Four_Cylinders_Static_Linear",
 TEST_CASE("Channel_with_Four_Cylinders_Static_Quadratic",
         "[moris],[example],[thermal],[diffusion]")
 {
-    // quadratic case currently not working
-    if (true)
+    // define command line call
+    int argc = 2;
+
+    char tString1[] = "";
+    char tString2[] = "./Channel_with_Four_Cylinders_Static_Temp_Only.so";
+
+    char * argv[2] = {tString1,tString2};
+
+    // set interpolation order
+    gInterpolationOrder = 2;
+
+    MORIS_LOG_INFO("");
+    MORIS_LOG_INFO("Executing Channel_with_Four_Cylinders_Static_Temp_Only: Interpolation order 2 - %i Processors.",par_size());
+    MORIS_LOG_INFO("");
+
+    // call to performance manager main interface
+    fn_WRK_Workflow_Main_Interface( argc, argv );
+
+    // check results
+    switch ( par_size() )
     {
-        // define command line call
-        int argc = 2;
-
-        char tString1[] = "";
-        char tString2[] = "./Channel_with_Four_Cylinders_Static_Temp_Only.so";
-
-        char * argv[2] = {tString1,tString2};
-
-        // set interpolation order
-        gInterpolationOrder = 2;
-
-        MORIS_LOG_INFO("");
-        MORIS_LOG_INFO("Executing Channel_with_Four_Cylinders_Static_Temp_Only: Interpolation order 2 - %i Processors.",par_size());
-        MORIS_LOG_INFO("");
-
-        // call to performance manager main interface
-        fn_WRK_Workflow_Main_Interface( argc, argv );
-
-        // check results
-        switch ( par_size() )
+        case 1:
         {
-            case 1:
+            check_quadratic_results_serial();
+            break;
+        }
+        case 2:
+        {
+            if (par_rank() == 1)
             {
-                check_quadratic_results_serial();
-                break;
-            }
-            case 2:
-            {
-                if (par_rank() == 1)
-                {
-                    // set screen output processor
-                    gLogger.set_screen_output_rank(1);
+                // set screen output processor
+                gLogger.set_screen_output_rank(1);
 
-                    // perform check
-                    check_quadratic_results_parallel();
+                // perform check
+                check_quadratic_results_parallel();
 
-                    // set screen output processor
-                    gLogger.set_screen_output_rank(0);
-                }
-                break;
+                // set screen output processor
+                gLogger.set_screen_output_rank(0);
             }
-            default:
-            {
-                MORIS_ERROR(false,"Example problem not configured for %d processors.",par_size());
-            }
+            break;
+        }
+        default:
+        {
+            MORIS_ERROR(false,"Example problem not configured for %d processors.",par_size());
         }
     }
 }
