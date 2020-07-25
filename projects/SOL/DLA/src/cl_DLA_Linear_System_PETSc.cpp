@@ -100,18 +100,23 @@ Linear_System_PETSc::Linear_System_PETSc(       Solver_Interface * aInput,
 
 Linear_System_PETSc::~Linear_System_PETSc()
 {
-    delete( mMat );
-    delete( mVectorRHS );
-    delete( mFreeVectorLHS );
-    delete( mFullVectorLHS );
-    if( mMap != nullptr )
-    {
-        delete( mMap );
-    }
-    if( mMapFree != nullptr )
-    {
-        delete( mMapFree );
-    }
+    delete mMat;
+    mMat=nullptr;
+
+    delete mVectorRHS;
+    mVectorRHS=nullptr;
+
+    delete mFreeVectorLHS;
+    mFreeVectorLHS=nullptr;
+
+    delete mFullVectorLHS;
+    mFullVectorLHS=nullptr;
+
+    delete mMap;
+    mMap=nullptr;
+
+    delete mMapFree;
+    mMapFree=nullptr;
 
 //    mSolverInterface->delete_multigrid();
 
