@@ -411,9 +411,21 @@ endif()
 #                      Strict aliasing means that pointer arguments in a function are assumed to not alias.
 #                      For example, the following code would not compile: foo * a; bar * b; b = (foo *) a;
 #                      Because the pointers point to fundamentally different types.
-check_cxx_compiler_flag("-Wall -Werror -Wno-long-long -pedantic-errors -Wno-error=maybe-uninitialized" HAVE_PEDANTIC )
+check_cxx_compiler_flag("-Wall -Werror" HAVE_PEDANTIC )
 if (HAVE_PEDANTIC)
-    set(MORIS_CXX_FLAGS "${MORIS_CXX_FLAGS} -Wall -Werror -Wno-long-long -pedantic-errors -Wno-error=maybe-uninitialized" )
+    set(MORIS_CXX_FLAGS "${MORIS_CXX_FLAGS} -Wall -Werror" )
+endif()
+check_cxx_compiler_flag("-Wno-long-long" HAVE_PEDANTIC )
+if (HAVE_PEDANTIC)
+    set(MORIS_CXX_FLAGS "${MORIS_CXX_FLAGS} -Wno-long-long" )
+endif()
+check_cxx_compiler_flag("-pedantic-errors" HAVE_PEDANTIC )
+if (HAVE_PEDANTIC)
+    set(MORIS_CXX_FLAGS "${MORIS_CXX_FLAGS} -pedantic-errors" )
+endif()
+check_cxx_compiler_flag("-Wno-error=maybe-uninitialized" HAVE_PEDANTIC )
+if (HAVE_PEDANTIC)
+    set(MORIS_CXX_FLAGS "${MORIS_CXX_FLAGS} -Wno-error=maybe-uninitialized" )
 endif()
 
 # Check for C++11 or C++0x support.
