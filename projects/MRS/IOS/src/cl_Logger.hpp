@@ -33,7 +33,16 @@ namespace moris
 
             // Output File
             std::ofstream mStream;
+
+            /**
+             * @brief Flag to control output of logger information to file
+             */
             bool mWriteToAscii = false;
+
+            /**
+             * @brief Variable to control with processor write logger information to screen
+             */
+            int  mOutputRank = 0;
 
             // decide which outputs get written
             moris::sint mSeverityLevel = LOGGER_DEFAULT_SEVERITY_LEVEL;
@@ -150,14 +159,21 @@ namespace moris
 
             //------------------------------------------------------------------------------
 
+            void set_screen_output_rank( const moris::sint aOutputRank )
+            {
+                mOutputRank = aOutputRank;
+            };
+
+            //------------------------------------------------------------------------------
+
             template< typename ... Args >
             void log_section( const Args ... aArgs )
             {
                 // MORIS_ASSERT(mStream.is_open(),"Logger error, the output file stream ofstream is not open);
                 std::string tString = print_log( aArgs ... );
 
-                // only processor 0 prints message
-                if ( logger_par_rank() == 0 )
+                // only processor mOutputRank prints message
+                if ( logger_par_rank() == mOutputRank )
                 {
                     if (mDirectOutputFormat == 1)
                     {
@@ -185,8 +201,8 @@ namespace moris
             {
                 std::string tString = print_log( aArgs ... );
 
-                // only processor 0 prints message
-                if (logger_par_rank() == 0 )
+                // only processor mOutputRank prints message
+                if (logger_par_rank() == mOutputRank )
                 {
                     // switch based on OutputFormat provided
                     if (mDirectOutputFormat == 3)
@@ -212,8 +228,8 @@ namespace moris
             {
                 std::string tString = print_log( aArgs ... );
 
-                // only processor 0 prints message
-                if (logger_par_rank() == 0 )
+                // only processor mOutputRank prints message
+                if (logger_par_rank() == mOutputRank )
                 {
                     // switch based on OutputFormat provided
                     if (mDirectOutputFormat == 3)
@@ -242,8 +258,8 @@ namespace moris
 
                 std::string tString = print_log( aArgs ... );
 
-                // only processor 0 prints message
-                if (logger_par_rank() == 0 )
+                // only processor mOutputRank prints message
+                if (logger_par_rank() == mOutputRank )
                 {
                     // switch based on OutputFormat provided
                     if ((mDirectOutputFormat == 3) || (mDirectOutputFormat == 2))
@@ -272,8 +288,8 @@ namespace moris
 
                 std::string tString = print_log( aArgs ... );
 
-                // only processor 0 prints message
-                if (logger_par_rank() == 0 )
+                // only processor mOutputRank prints message
+                if (logger_par_rank() == mOutputRank )
                 {
                     // switch based on OutputFormat provided
                     if ((mDirectOutputFormat == 3) || (mDirectOutputFormat == 2))
@@ -330,7 +346,7 @@ namespace moris
                     T                    aOutputValue)
             {
                     // only processor 0 prints message
-                    if (logger_par_rank() == 0 )
+                    if (logger_par_rank() == mOutputRank )
                     {
                         // switch based on OutputFormat provided
                         if ((mDirectOutputFormat == 3) || (mDirectOutputFormat == 2))
