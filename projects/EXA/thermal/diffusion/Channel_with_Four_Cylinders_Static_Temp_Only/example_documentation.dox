@@ -11,20 +11,25 @@ debugging the advections problems. The basic features of the example are summari
 <caption id="example_features">Main Features of Example</caption>
 <tr><th>Feature</th>                        <th> Value</th>               <th> Comment</th></tr>
 <tr><td>Dimensionalty</td>                  <td> 2D</td>                  <td> </td></tr>
-<tr><td>Geometry model</td>                 <td> level set</td>           <td> </td> geometric primitives: 4 planes, 4 circles</tr>
+<tr><td>Geometry model</td>                 <td> level set</td>           <td> geometric primitives: 4 planes, 4 circles</tr>
+<tr><td>Material/Phases</td>                <td> two including void</td>  <td> </td> </tr>
 <tr><td>Physics</td>                        <td> linear diffusion</td>    <td> static </td></tr>
 <tr><td>Dirichlet boundary conditions</td>  <td> Nitsche</td>             <td> </td></tr>
 <tr><td>Dirichlet boundary conditions</td>  <td> simple</td>              <td> </td></tr>
-<tr><td>Discretization</td>                 <td> first, second order</td> <td> </td></tr>
+<tr><td>Interface conditions</td>           <td> none</td>                <td> </td></tr>
+<tr><td>Discretization</td>                 <td> first, second order</td> <td> </td> </tr>
 <tr><td>Refinement</td>                     <td> 1 level</td>             <td> along internal and external boundaries</td></tr>
 <tr><td>Parallel</td>                       <td> 1 and 4 subdomains</td>  <td> </td></tr>
 </table>
 
 # Problem Setup
-The computational dommain is defined by a \f$ 4 \times 2\f$ rectangles in which a \f$ 2.2 \times 0.41 \f$ rectangular physical domain is embedded. 
-Four circles representing void are placed within the physical domain. A uniform temperature 
-\f$ \PrescribedTemperature = 0 \f$ is prescribed at the left edge. A heat flux of \f$ \HeatFlux = 2.0 \f$ is imposed along the circular curves. 
-The coarses background mesh has \f$ 176 \times 88 \f$ elements. The mesh is refined once along the circles and the domain edges.
+The computational dommain is defined by a \f$ 4 \times 2\f$ rectangles in which a \f$ 2.2 \times 0.41 \f$ rectangular physical domain is embedded; see figure below.
+Four circles representing void are placed within the physical domain. A uniform temperature \f$ \PrescribedTemperature = 0 \f$ is prescribed at 
+the left edge of the physical domain. Adiabatic boundary conditions are imposed along all other external boundaries. A heat flux of 
+\f$ \HeatFlux = 2.0 \f$ is imposed along the circular curves. The coarses background mesh has \f$ 176 \times 88 \f$ elements. 
+The mesh is refined once along the circles and the domain edges.
+
+<div style="text-align: left; margin: 10px 0px 10px 0px"><img src="domain.png" width="30%" /> <p>Computational and Physcial Domain</p></div>
 
 <table>
 <caption id="material_properties">Material Properties</caption>
@@ -44,6 +49,6 @@ No literature on this example available.
 
 # Developer Notes
 
-
+Use global variables to turn on/off ghost stabilization and to change geometry.
 */
 }
