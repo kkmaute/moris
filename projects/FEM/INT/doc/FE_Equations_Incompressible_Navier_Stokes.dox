@@ -46,6 +46,7 @@ where
 \f$ \mathbf{v} \f$ is the test velocity, 
 \f$ q \f$ is the test pressure.
 
+\section Stabilization SUPG/PSPG Stabilization
 They are stabilized using SUPG/PSPG:
 
 \f[
@@ -80,6 +81,7 @@ The pressure bulk part of the residual \f$ \mathbf{R}_{p} \f$ is implemented in 
 corresponding to the enum IWG\_Type::INCOMPRESSIBLE_NS_PRESSURE_BULK.
 The stabilization parameter \f$ \tau_{M}, \tau_{C} \f$ are described in \ref SP_SUPG_Incompressible_NS.
 
+\section Dirichlet_BC Dirichlet Boundary Conditions via Nitsche's Formulation
 Dirichlet boundary conditions are imposed weakly via Nitsche's formulation as:
 \f[
 \begin{array}{lll}
@@ -88,6 +90,7 @@ Dirichlet boundary conditions are imposed weakly via Nitsche's formulation as:
 - \left( \mathbf{v},\ \boldsymbol{\sigma}_t(\mathbf{u}, \tilde{\nu}) \cdot \mathbf{n} \right)_{\Gamma_D}
 - \beta \left( 2 \mu \boldsymbol{\varepsilon}(\mathbf{v}) \cdot \mathbf{n},\ \mathbf{u} - \overline{\mathbf{u}} \right)_{\Gamma_D}
 - \beta \left( 2 \mu_t(\tilde{\nu}) \boldsymbol{\varepsilon}(\mathbf{v}) \cdot \mathbf{n},\ \mathbf{u} - \overline{\mathbf{u}} \right)_{\Gamma_D}
+- \gamma_{up} \left( \mathbf{v}, ( \mathbf{u} \cdot \mathbf{n} ) ( \mathbf{u} - \overline{\mathbf{u}} ) \right)_{\Gamma_D}
 + \left( \gamma_N\ \mathbf{v},\ \mathbf{u} - \overline{\mathbf{u}} \right)_{\Gamma_D}\\[15pt]
 
 \mathbf{R}_{p}^{D} & = & \displaystyle
@@ -126,7 +129,7 @@ where
 - \f$ \gamma_N \f$ is described in ...
 - 
 
-
+\section Ghost Face-oriented Ghost Stabilization
 Face-oriented ghost stabilization for Incompressible Navier-Stokes
 \f[
 \begin{array}{lll}
@@ -143,8 +146,8 @@ Face-oriented ghost stabilization for Incompressible Navier-Stokes
 : [[ \frac{\partial \mathbf{u}}{\partial \mathbf{x}} ]]\ d\Gamma\\[15pt]
 
 \mathbf{R}_{t}^{GP} & = & \displaystyle
-\sum_{F} \sum_{i} \int_{F} \gamma_{t}^{GP} [[ \frac{\partial^i q}{\partial \mathbf{x}^i} \cdot \mathbf{n} ]] 
-: [[ \frac{\partial^i p}{\partial \mathbf{x}^i} \cdot \mathbf{n} ]]\ d\Gamma\\
+\sum_{F} \sum_{i} \int_{F} \gamma_{t}^{GP} [[ \frac{\partial^i \mathbf{v}}{\partial \mathbf{x}^i} \cdot \mathbf{n} ]] 
+: [[ \frac{\partial^i \mathbf{u}}{\partial \mathbf{x}^i} \cdot \mathbf{n} ]]\ d\Gamma\\
 
 \end{array}
 \f]
