@@ -6,6 +6,7 @@
 #include "fn_trans.hpp"
 #include "fn_eye.hpp"
 #include "fn_norm.hpp"
+#include "fn_dot.hpp"
 
 namespace moris
 {
@@ -13,6 +14,7 @@ namespace moris
     {
 
         //------------------------------------------------------------------------------
+
         IWG_Spalart_Allmaras_Turbulence_Dirichlet::IWG_Spalart_Allmaras_Turbulence_Dirichlet( sint aBeta )
         {
             // set mBeta for symmetric/unsymmetric Nitsche
@@ -35,6 +37,7 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+
         void IWG_Spalart_Allmaras_Turbulence_Dirichlet::set_property(
                 std::shared_ptr< Property > aProperty,
                 std::string                 aPropertyString,
@@ -55,6 +58,7 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+
         void IWG_Spalart_Allmaras_Turbulence_Dirichlet::set_stabilization_parameter(
                 std::shared_ptr< Stabilization_Parameter > aStabilizationParameter,
                 std::string                                aStabilizationString )
@@ -70,6 +74,7 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+
         void IWG_Spalart_Allmaras_Turbulence_Dirichlet::compute_residual( real aWStar )
         {
             // check master field interpolators
@@ -82,10 +87,7 @@ namespace moris
             uint tMasterResStartIndex = mSet->get_res_dof_assembly_map()( tMasterDofIndex )( 0, 0 );
             uint tMasterResStopIndex  = mSet->get_res_dof_assembly_map()( tMasterDofIndex )( 0, 1 );
 
-//            // FIXME to remove
-//            Matrix< DDRMat > tPrev = mSet->get_residual()( 0 )({ tMasterResStartIndex, tMasterResStopIndex },{ 0, 0 } );
-
-            // get the residual dof FI (here viscosity)
+            // get the residual viscosity FI
             Field_Interpolator * tFIViscosity =
                     mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );
 
@@ -132,11 +134,12 @@ namespace moris
             this->compute_testtraction( mResidualDofType, tTestTraction );
 
             // compute the residual weak form
-            mSet->get_residual()( 0 )( { tMasterResStartIndex, tMasterResStopIndex }, { 0, 0 } ) +=
-                    aWStar * (
-                            - trans( tFIViscosity->N() ) * tM * tTraction
-                            + mBeta * trans( tTestTraction ) * tM * tJump
-                            + tSPNitsche->val()( 0 ) * trans( tFIViscosity->N() ) * tM * tJump );
+            mSet->get_residual()( 0 )(
+                    { tMasterResStartIndex, tMasterResStopIndex },
+                    { 0, 0 } ) += aWStar * (
+                            - trans( tFIViscosity->N() ) * tM * tTraction +
+                            mBeta * trans( tTestTraction ) * tM * tJump +
+                            tSPNitsche->val()( 0 ) * trans( tFIViscosity->N() ) * tM * tJump );
 
             // get the upwind property
             std::shared_ptr< Property > tPropUpwind =
@@ -145,20 +148,21 @@ namespace moris
             // upwind term
             if ( tPropUpwind )
             {
+                // compute modified velocity
+                Matrix< DDRMat > tModVelocity =
+                        tFIVelocity->val() - mCb2 * tFIViscosity->gradx( 1 ) / mSigma;
+
+                // add upwind contribution to residual
                 mSet->get_residual()( 0 )(
                         { tMasterResStartIndex, tMasterResStopIndex },
-                        { 0, 0 } ) -=
-                                aWStar * tPropUpwind->val()( 0 ) * trans( tFIViscosity->N() ) * trans ( mNormal ) * tFIVelocity->val() * tM * tJump;
+                        { 0, 0 } ) -= aWStar * (
+                                tPropUpwind->val()( 0 ) * trans( tFIViscosity->N() ) *
+                                dot( tModVelocity, mNormal ) * tM * tJump );
             }
-
-//            std::cout<<"6 "<<
-//                    mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator()->valx()( 0 )<<" "<<
-//                    mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator()->valx()( 1 )<< " "<<
-//                    mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator()->valt()( 0 )<< " "<<
-//                    norm( mSet->get_residual()( 0 )({ tMasterResStartIndex, tMasterResStopIndex },{ 0, 0 } ) - tPrev )<<std::endl;
         }
 
         //------------------------------------------------------------------------------
+
         void IWG_Spalart_Allmaras_Turbulence_Dirichlet::compute_jacobian( real aWStar )
         {
 #ifdef DEBUG
@@ -170,10 +174,6 @@ namespace moris
             uint tMasterDofIndex      = mSet->get_dof_index_for_type( mResidualDofType( 0 ), mtk::Master_Slave::MASTER );
             uint tMasterResStartIndex = mSet->get_res_dof_assembly_map()( tMasterDofIndex )( 0, 0 );
             uint tMasterResStopIndex  = mSet->get_res_dof_assembly_map()( tMasterDofIndex )( 0, 1 );
-
-//            // FIXME to remove
-//            uint tEndIndex = mSet->get_jacobian().n_cols() - 1;
-//            Matrix< DDRMat > tPrev = mSet->get_jacobian()({ tMasterResStartIndex, tMasterResStopIndex },{ 0, tEndIndex } );
 
             // get the residual dof FI (here viscosity)
             Field_Interpolator * tFIViscosity =
@@ -238,8 +238,8 @@ namespace moris
                     mSet->get_jacobian()(
                             { tMasterResStartIndex, tMasterResStopIndex },
                             { tMasterDepStartIndex, tMasterDepStopIndex } ) += aWStar * (
-                                    + mBeta * trans( tTestTraction ) * tM * tFIViscosity->N()
-                                    + tSPNitsche->val()( 0 ) * trans( tFIViscosity->N() ) * tM * tFIViscosity->N() );
+                                    mBeta * trans( tTestTraction ) * tM * tFIViscosity->N() +
+                                    tSPNitsche->val()( 0 ) * trans( tFIViscosity->N() ) * tM * tFIViscosity->N() );
                 }
 
                 // if imposed viscosity depends on dof type
@@ -249,7 +249,7 @@ namespace moris
                     mSet->get_jacobian()(
                             { tMasterResStartIndex, tMasterResStopIndex },
                             { tMasterDepStartIndex, tMasterDepStopIndex } ) -= aWStar * (
-                                    + mBeta * trans( tTestTraction ) * tM * tPropDirichlet->dPropdDOF( tDofType )
+                                    mBeta * trans( tTestTraction ) * tM * tPropDirichlet->dPropdDOF( tDofType )
                                     + tSPNitsche->val()( 0 ) * trans( tFIViscosity->N() ) * tM * tPropDirichlet->dPropdDOF( tDofType ) );
                 }
 
@@ -269,7 +269,7 @@ namespace moris
 
                 // compute the test traction
                 Matrix< DDRMat > tdtesttractiondu;
-                this->compute_dtesttractiondu( mResidualDofType, tDofType, tdtesttractiondu );
+                this->compute_dtesttractiondu_FD( tDofType, mResidualDofType, tdtesttractiondu );
 
                 // add contribution to jacobian
                 mSet->get_jacobian()(
@@ -285,14 +285,21 @@ namespace moris
                 // upwind term
                 if ( tPropUpwind )
                 {
+                    // compute modified velocity
+                    Matrix< DDRMat > tModVelocity =
+                            tFIVelocity->val() - mCb2 * tFIViscosity->gradx( 1 ) / mSigma;
+
                     // if dof type is residual dof type
                     if ( tDofType( 0 ) == mResidualDofType( 0 ) )
                     {
+                        // compute dModVelocitydModViscosity
+                        Matrix< DDRMat > tModVelocityDer = - mCb2 * tFIViscosity->dnNdxn( 1 ) / mSigma;
+
                         mSet->get_jacobian()(
                                 { tMasterResStartIndex, tMasterResStopIndex },
                                 { tMasterDepStartIndex, tMasterDepStopIndex } ) -= aWStar * (
-                                        tPropUpwind->val()( 0 ) * trans( tFIViscosity->N() ) *
-                                        trans ( mNormal ) * tFIVelocity->val() * tM * tFIViscosity->N() );
+                                        tPropUpwind->val()( 0 ) * trans( tFIViscosity->N() ) * dot( tModVelocity, mNormal ) * tM * tFIViscosity->N() +
+                                        tPropUpwind->val()( 0 ) * trans( tFIViscosity->N() ) * tM * tJump * trans( mNormal ) * tModVelocityDer );
                     }
 
                     // if dof type is residual dof type
@@ -312,7 +319,7 @@ namespace moris
                                 { tMasterResStartIndex, tMasterResStopIndex },
                                 { tMasterDepStartIndex, tMasterDepStopIndex } ) += aWStar * (
                                         tPropUpwind->val()( 0 ) * trans( tFIViscosity->N() ) *
-                                        trans( mNormal ) * tFIVelocity->val() * tM * tPropDirichlet->dPropdDOF( tDofType ) );
+                                        dot( tModVelocity, mNormal ) * tM * tPropDirichlet->dPropdDOF( tDofType ) );
                     }
 
                     // if upwind parameter depends on the dof type
@@ -322,21 +329,11 @@ namespace moris
                         mSet->get_jacobian()(
                                 { tMasterResStartIndex, tMasterResStopIndex },
                                 { tMasterDepStartIndex, tMasterDepStopIndex } ) -= aWStar * (
-                                        trans( tFIViscosity->N() ) * mNormal * trans( tFIVelocity->val() ) * tM * tJump * tPropUpwind->dPropdDOF( tDofType ));
+                                        trans( tFIViscosity->N() ) * dot( tModVelocity, mNormal ) * tM * tJump *
+                                        tPropUpwind->dPropdDOF( tDofType ) );
                     }
                 }
             }
-
-//            std::cout<<"61 "<<
-//                    mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator()->valx()( 0 )<<" "<<
-//                    mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator()->valx()( 1 )<< " "<<
-//                    mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator()->valt()( 0 )<< " "<<
-//                    max(max( mSet->get_jacobian()({ tMasterResStartIndex, tMasterResStopIndex },{ 0, tEndIndex } ) - tPrev ) )<<std::endl;
-//            std::cout<<"62 "<<
-//                    mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator()->valx()( 0 )<<" "<<
-//                    mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator()->valx()( 1 )<< " "<<
-//                    mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator()->valt()( 0 )<< " "<<
-//                    min( min( mSet->get_jacobian()({ tMasterResStartIndex, tMasterResStopIndex },{ 0, tEndIndex } ) - tPrev ) )<<std::endl;
         }
 
         //------------------------------------------------------------------------------
@@ -362,29 +359,143 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
-        void IWG_Spalart_Allmaras_Turbulence_Dirichlet::compute_traction( Matrix< DDRMat > & aTraction )
+
+        real IWG_Spalart_Allmaras_Turbulence_Dirichlet::compute_diffusion_coefficient()
+        {
+            // init diffusion coeff
+            real tDiffusionTerm = 0.0;
+
+            // get the viscosity FI
+            Field_Interpolator * tFIModViscosity =
+                    mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );
+
+            // get the wall distance property
+            std::shared_ptr< Property > tPropKinViscosity =
+                    mMasterProp( static_cast< uint >( IWG_Property_Type::VISCOSITY ) );
+
+            // get the viscosity value
+            real tModViscosity = tFIModViscosity->val()( 0 );
+
+            // get the fluid kinematic viscosity value
+            real tKinViscosity = tPropKinViscosity->val()( 0 );
+
+            // if viscosity is positive or zero
+            if( tModViscosity >= 0.0 )
+            {
+                // compute diffusion term
+                tDiffusionTerm = ( tKinViscosity + tModViscosity ) / mSigma;
+            }
+            // if viscosity is negative
+            else
+            {
+                // compute fn
+                real tFn = this->compute_fn();
+
+                // compute diffusion term
+                tDiffusionTerm = ( tKinViscosity + tModViscosity * tFn ) / mSigma;
+            }
+
+            return tDiffusionTerm;
+        }
+
+        //------------------------------------------------------------------------------
+
+        void IWG_Spalart_Allmaras_Turbulence_Dirichlet::compute_ddiffusiondu(
+                const moris::Cell< MSI::Dof_Type > & aDofTypes,
+                Matrix< DDRMat >                   & addiffusiondu )
+        {
+            // get derivative dof type
+            MSI::Dof_Type tDerDofType = aDofTypes( 0 );
+
+            // get the derivative dof FI
+            Field_Interpolator * tFIDer =
+                    mMasterFIManager->get_field_interpolators_for_type( tDerDofType );
+
+            // init ddiffusiondu
+            addiffusiondu.set_size( 1, tFIDer->get_number_of_space_time_coefficients(), 0.0 );
+
+            // get the viscosity FI
+            Field_Interpolator * tFIModViscosity =
+                    mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );
+
+            // get the fluid  kinematic viscosity property
+            std::shared_ptr< Property > tPropKinViscosity =
+                    mMasterProp( static_cast< uint >( IWG_Property_Type::VISCOSITY ) );
+
+            // get the viscosity value
+            real tModViscosity = tFIModViscosity->val()( 0 );
+
+            // if viscosity is positive or zero
+            if( tModViscosity >= 0.0 )
+            {
+                // if derivative dof type is viscosity
+                if( tDerDofType == mResidualDofType( 0 ) )
+                {
+                    // add contribution to ddiffusiondu
+                    addiffusiondu.matrix_data() += tFIModViscosity->N() / mSigma;
+                }
+
+                // if kinematic viscosity depends on derivative dof type
+                if( tPropKinViscosity->check_dof_dependency( aDofTypes ) )
+                {
+                    // add contribution to ddiffusiondu
+                    addiffusiondu.matrix_data() += tPropKinViscosity->dPropdDOF( aDofTypes ) / mSigma;
+                }
+            }
+            // if viscosity is negative
+            else
+            {
+                // compute fn
+                real tFn = this->compute_fn();
+
+                // compute dfndu
+                Matrix< DDRMat > tdfndu;
+                this->compute_dfndu( aDofTypes, tdfndu );
+
+                // if derivative dof type is viscosity
+                if( tDerDofType == mResidualDofType( 0 ) )
+                {
+                    // add contribution to ddiffusiondu
+                    addiffusiondu.matrix_data() += tFn * tFIModViscosity->N() / mSigma;
+                }
+
+                // if kinematic viscosity depends on derivative dof type
+                if( tPropKinViscosity->check_dof_dependency( aDofTypes ) )
+                {
+                    // add contribution to ddiffusiondu
+                    addiffusiondu.matrix_data() += tPropKinViscosity->dPropdDOF( aDofTypes ) / mSigma;
+                }
+
+                // add contribution from fn to ddiffusiondu
+                addiffusiondu.matrix_data() += tModViscosity * tdfndu / mSigma;
+            }
+        }
+
+        //------------------------------------------------------------------------------
+
+        void IWG_Spalart_Allmaras_Turbulence_Dirichlet::compute_traction(
+                Matrix< DDRMat > & aTraction )
         {
             // get the residual dof FI (here viscosity)
             Field_Interpolator * tFIViscosity =
                     mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );
 
-            // get the viscosity property
-            std::shared_ptr< Property > tPropViscosity =
-                    mMasterProp( static_cast< uint >( IWG_Property_Type::VISCOSITY ) );
+            // compute the diffusion coefficient
+            real tDiffusionCoeff = this->compute_diffusion_coefficient();
 
             // compute the traction
-            aTraction =
-                    ( tFIViscosity->val()( 0 ) + tPropViscosity->val()( 0 ) ) *
-                    trans ( tFIViscosity->gradx( 1 ) ) * mNormal / mSigma;
+            aTraction = tDiffusionCoeff * trans ( tFIViscosity->gradx( 1 ) ) * mNormal;
         }
 
         //------------------------------------------------------------------------------
+
         void IWG_Spalart_Allmaras_Turbulence_Dirichlet::compute_dtractiondu(
-                Cell< MSI::Dof_Type > & aDofTypes,
+                const Cell< MSI::Dof_Type > & aDofTypes,
                 Matrix< DDRMat >      & adtractiondu )
         {
             // get the der FI
-            Field_Interpolator * tFIDer = mMasterFIManager->get_field_interpolators_for_type( aDofTypes( 0 ) );
+            Field_Interpolator * tFIDer =
+                    mMasterFIManager->get_field_interpolators_for_type( aDofTypes( 0 ) );
 
             // init the derivative of the divergence of the flux
             adtractiondu.set_size( 1, tFIDer->get_number_of_space_time_coefficients(), 0.0 );
@@ -393,35 +504,31 @@ namespace moris
             Field_Interpolator * tFIViscosity =
                     mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );
 
-            // get the viscosity property
-            std::shared_ptr< Property > tPropViscosity =
-                    mMasterProp( static_cast< uint >( IWG_Property_Type::VISCOSITY ) );
+            // compute the diffusion coefficient
+            real tDiffusionCoeff = this->compute_diffusion_coefficient();
 
             // if derivative dof type is residual dof type
             if( aDofTypes( 0 ) == mResidualDofType( 0 ) )
             {
                 // add contribution to dtractiondu
                 adtractiondu.matrix_data() +=
-                        trans( mNormal ) * tFIViscosity->gradx( 1 ) * tFIViscosity->N() +
-                        ( tFIViscosity->val()( 0 ) + tPropViscosity->val()( 0 ) ) * trans( mNormal ) * tFIViscosity->dnNdxn( 1 );
+                        tDiffusionCoeff * trans( mNormal ) * tFIViscosity->dnNdxn( 1 );
             }
 
-            // if viscosity property depends on derivative dof type
-            if( tPropViscosity->check_dof_dependency( aDofTypes ) )
-            {
-                // add contribution to dtractiondu
-                adtractiondu.matrix_data() +=
-                        trans( mNormal ) * tFIViscosity->gradx( 1 ) * tPropViscosity->dPropdDOF( aDofTypes );
-            }
+            // compute ddiffusiondu
+            Matrix< DDRMat > tddiffusiondu;
+            this->compute_ddiffusiondu( aDofTypes, tddiffusiondu );
 
-            // scale dtractiondu with sigma
-            adtractiondu = adtractiondu / mSigma;
+            // add contribution to dtractiondu
+            adtractiondu.matrix_data() +=
+                    trans( mNormal ) * tFIViscosity->gradx( 1 ) * tddiffusiondu;
         }
 
         //------------------------------------------------------------------------------
+
         void IWG_Spalart_Allmaras_Turbulence_Dirichlet::compute_testtraction(
-                moris::Cell< MSI::Dof_Type > & aTestDofTypes,
-                Matrix< DDRMat >             & aTestTraction )
+                const moris::Cell< MSI::Dof_Type > & aTestDofTypes,
+                Matrix< DDRMat >                   & aTestTraction )
         {
             // get the der FI
             Field_Interpolator * tFITest =
@@ -434,50 +541,44 @@ namespace moris
             Field_Interpolator * tFIViscosity =
                     mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );
 
-            // get the viscosity property
-            std::shared_ptr< Property > tPropViscosity =
-                    mMasterProp( static_cast< uint >( IWG_Property_Type::VISCOSITY ) );
+            // compute the diffusion coefficient
+            real tDiffusionCoeff = this->compute_diffusion_coefficient();
 
             // if derivative dof type is residual dof type
             if( aTestDofTypes( 0 ) == mResidualDofType( 0 ) )
             {
                 // add contribution to dtractiondu
                 aTestTraction.matrix_data() +=
-                        trans( mNormal ) * tFIViscosity->gradx( 1 ) * tFIViscosity->N() +
-                        ( tFIViscosity->val()( 0 ) + tPropViscosity->val()( 0 ) ) * trans( mNormal ) * tFIViscosity->dnNdxn( 1 );
+                        tDiffusionCoeff * trans( mNormal ) * tFIViscosity->dnNdxn( 1 );
             }
 
-            // if viscosity property depends on derivative dof type
-            if( tPropViscosity->check_dof_dependency( aTestDofTypes ) )
-            {
-                // add contribution to dtractiondu
-                aTestTraction.matrix_data() +=
-                        trans( mNormal ) * tFIViscosity->gradx( 1 ) * tPropViscosity->dPropdDOF( aTestDofTypes );
-            }
+            // compute ddiffusiondu
+            Matrix< DDRMat > tddiffusiondu;
+            this->compute_ddiffusiondu( aTestDofTypes, tddiffusiondu );
 
-            // scale testtraction with sigma
-            aTestTraction = aTestTraction / mSigma;
+            // add contribution of diffusion to dtractiondu
+            aTestTraction.matrix_data() +=
+                    trans( mNormal ) * tFIViscosity->gradx( 1 ) * tddiffusiondu;
         }
 
         //------------------------------------------------------------------------------
+
         void IWG_Spalart_Allmaras_Turbulence_Dirichlet::compute_dtesttractiondu(
-                moris::Cell< MSI::Dof_Type> & aTestDofTypes,
-                moris::Cell< MSI::Dof_Type> & aDofTypes,
+                const moris::Cell< MSI::Dof_Type> & aTestDofTypes,
+                const moris::Cell< MSI::Dof_Type> & aDofTypes,
                 Matrix< DDRMat >            & adtesttractiondu )
         {
             // get the derivative dof type FI
-            Field_Interpolator * tFIDer = mMasterFIManager->get_field_interpolators_for_type( aDofTypes( 0 ) );
+            Field_Interpolator * tFIDer =
+                    mMasterFIManager->get_field_interpolators_for_type( aDofTypes( 0 ) );
 
             // get the test dof type FI
-            Field_Interpolator * tFITest = mMasterFIManager->get_field_interpolators_for_type( aTestDofTypes( 0 ) );
+            Field_Interpolator * tFITest =
+                    mMasterFIManager->get_field_interpolators_for_type( aTestDofTypes( 0 ) );
 
             // get the residual dof FI (here viscosity)
             Field_Interpolator * tFIViscosity =
                     mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );
-
-            // get the viscosity property
-            std::shared_ptr< Property > tPropViscosity =
-                    mMasterProp( static_cast< uint >( IWG_Property_Type::VISCOSITY ) );
 
             // init the derivative of the divergence of the flux
             adtesttractiondu.set_size(
@@ -491,32 +592,188 @@ namespace moris
                 // if derivative dof type is residual dof type
                 if( aDofTypes( 0 ) == mResidualDofType( 0 ) )
                 {
-                    adtesttractiondu.matrix_data() +=
-                            trans( tFIViscosity->N() ) * trans( mNormal ) * tFIViscosity->dnNdxn( 1 )
-                            + trans( tFIViscosity->dnNdxn( 1 ) ) * mNormal * tFIViscosity->N() ;
+                    // compute ddiffusiondutest
+                    Matrix< DDRMat > tddiffusiondutest;
+                    this->compute_ddiffusiondu( aTestDofTypes, tddiffusiondutest );
 
-                    // if viscosity property depends on test dof type
-                    if( tPropViscosity->check_dof_dependency( aTestDofTypes ) )
-                    {
-                        adtesttractiondu.matrix_data() +=
-                                trans( tPropViscosity->dPropdDOF( aTestDofTypes ) ) * trans( mNormal ) * tFIViscosity->dnNdxn( 1 );
-                    }
+                    adtesttractiondu.matrix_data() +=
+                            trans( tddiffusiondutest ) * trans( mNormal ) * tFIViscosity->dnNdxn( 1 );
+                            //+ trans( tFIViscosity->dnNdxn( 1 ) ) * mNormal * tFIViscosity->N() ;
                 }
 
-                // is viscosity property depends on derivative dof type
-                if( tPropViscosity->check_dof_dependency( aDofTypes ) )
-                {
-                    adtesttractiondu.matrix_data() +=
-                            trans( tFIViscosity->dnNdxn( 1 ) ) * mNormal * tPropViscosity->dPropdDOF( aDofTypes );
-                }
+                // compute ddiffusiondu
+                Matrix< DDRMat > tddiffusiondu;
+                this->compute_ddiffusiondu( aDofTypes, tddiffusiondu );
+
+                adtesttractiondu.matrix_data() +=
+                        trans( tFIViscosity->dnNdxn( 1 ) ) * mNormal * tddiffusiondu;
+
+                // FIXME assumed that second order derivative of diffusion coeff is zero
             }
             else
             {
                 MORIS_ERROR( false, "IWG_Spalart_Allmaras_Turbulence_Dirichlet::compute_dtesttractiondu - only implemented for residaul dof type as test dof type" );;
             }
+        }
 
-            // scale dtesttractiondu with sigma
-            adtesttractiondu = adtesttractiondu / mSigma;
+        //------------------------------------------------------------------------------
+
+        void IWG_Spalart_Allmaras_Turbulence_Dirichlet::compute_dtesttractiondu_FD(
+                const moris::Cell< MSI::Dof_Type > & aDofTypes,
+                const moris::Cell< MSI::Dof_Type > & aTestDofTypes,
+                Matrix< DDRMat >                   & adtesttractiondu_FD,
+                real                                 aPerturbation,
+                fem::FDScheme_Type                   aFDSchemeType )
+        {
+            // get the FD scheme info
+            moris::Cell< moris::Cell< real > > tFDScheme;
+            fd_scheme( aFDSchemeType, tFDScheme );
+            uint tNumPoints = tFDScheme( 0 ).size();
+
+            // get the field interpolator for type
+            Field_Interpolator* tFIDerivative =
+                    mMasterFIManager->get_field_interpolators_for_type( aDofTypes( 0 ) );
+
+            // get number of coefficients, fields and bases for the considered FI
+            uint tDerNumDof    = tFIDerivative->get_number_of_space_time_coefficients();
+            uint tDerNumBases  = tFIDerivative->get_number_of_space_time_bases();
+            uint tDerNumFields = tFIDerivative->get_number_of_fields();
+
+            // set size for derivative
+            Matrix< DDRMat > tTestTractionForSize;
+            this->compute_testtraction( aTestDofTypes, tTestTractionForSize );
+            uint tNumRow = tTestTractionForSize.n_cols();
+            adtesttractiondu_FD.set_size( tNumRow, tDerNumDof, 0.0 );
+
+            // coefficients for dof type wrt which derivative is computed
+            Matrix< DDRMat > tCoeff = tFIDerivative->get_coeff();
+
+            // initialize dof counter
+            uint tDofCounter = 0;
+
+            // loop over coefficients columns
+            for( uint iCoeffCol = 0; iCoeffCol < tDerNumFields; iCoeffCol++ )
+            {
+                // loop over coefficients rows
+                for( uint iCoeffRow = 0; iCoeffRow < tDerNumBases; iCoeffRow++ )
+                {
+                    // compute the perturbation absolute value
+                    real tDeltaH = aPerturbation * tCoeff( iCoeffRow, iCoeffCol );
+
+                    // loop over the points for FD
+                    for( uint iPoint = 0; iPoint < tNumPoints; iPoint++ )
+                    {
+                        // reset the perturbed coefficents
+                        Matrix< DDRMat > tCoeffPert = tCoeff;
+
+                        // pertub the coefficent
+                        tCoeffPert( iCoeffRow, iCoeffCol ) += tFDScheme( 0 )( iPoint ) * tDeltaH;
+
+                        // set the perturbed coefficients to FI
+                        tFIDerivative->set_coeff( tCoeffPert );
+
+                        // reset properties
+                        this->reset_eval_flags();
+
+                        // compute test traction
+                        Matrix< DDRMat > tTestTraction;
+                        this->compute_testtraction( aTestDofTypes, tTestTraction );
+
+                        // assemble the jacobian
+                        adtesttractiondu_FD.get_column( tDofCounter ) +=
+                                tFDScheme( 1 )( iPoint ) *
+                                trans( tTestTraction ) /
+                                ( tFDScheme( 2 )( 0 ) * tDeltaH );
+                    }
+                    // update dof counter
+                    tDofCounter++;
+                }
+            }
+            // reset the coefficients values
+            tFIDerivative->set_coeff( tCoeff );
+        }
+
+        //------------------------------------------------------------------------------
+
+        real IWG_Spalart_Allmaras_Turbulence_Dirichlet::compute_fn()
+        {
+            // compute chi, chi³
+            real tChi  = this->compute_chi();
+            real tChi3 = std::pow( tChi, 3 );
+
+            // compute fn
+            return ( mCn1 + tChi3 ) / ( mCn1 - tChi3 );
+        }
+
+        //------------------------------------------------------------------------------
+
+        void IWG_Spalart_Allmaras_Turbulence_Dirichlet::compute_dfndu(
+                const moris::Cell< MSI::Dof_Type > & aDofTypes,
+                Matrix< DDRMat >                   & adfndu )
+        {
+            // compute chi, chi², chi³
+            real tChi = this->compute_chi();
+            real tChi2 = std::pow( tChi, 2 );
+            real tChi3 = std::pow( tChi, 3 );
+
+            // compute dchidu
+            Matrix< DDRMat > tdchidu;
+            this->compute_dchidu( aDofTypes, tdchidu );
+
+            // compute adfndu
+            adfndu = 6.0 * mCn1 * tChi2 * tdchidu / std::pow( mCn1 - tChi3, 2 );
+        }
+
+        //------------------------------------------------------------------------------
+
+        real IWG_Spalart_Allmaras_Turbulence_Dirichlet::compute_chi()
+        {
+            // get the residual dof FI (here viscosity)
+            Field_Interpolator * tFIViscosity =
+                    mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );
+
+            // get the density and gravity properties
+            std::shared_ptr< Property > tPropViscosity =
+                    mMasterProp( static_cast< uint >( IWG_Property_Type::VISCOSITY ) );
+
+            // compute chi
+            return tFIViscosity->val()( 0 ) / tPropViscosity->val()( 0 );
+        }
+
+        //------------------------------------------------------------------------------
+
+        void IWG_Spalart_Allmaras_Turbulence_Dirichlet::compute_dchidu(
+                const moris::Cell< MSI::Dof_Type > & aDofTypes,
+                Matrix< DDRMat >             & adchidu )
+        {
+            // get the derivative dof FIs
+            Field_Interpolator * tDerFI =
+                    mMasterFIManager->get_field_interpolators_for_type( aDofTypes( 0 ) );
+
+            // init adchidu
+            adchidu.set_size( 1, tDerFI->get_number_of_space_time_coefficients(), 0.0 );
+
+            // get the residual dof FI (here viscosity)
+            Field_Interpolator * tFIViscosity =
+                    mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );
+
+            // get the density and gravity properties
+            std::shared_ptr< Property > tPropViscosity =
+                    mMasterProp( static_cast< uint >( IWG_Property_Type::VISCOSITY ) );
+
+            // compute chi
+            real tChi = tFIViscosity->val()( 0 ) / tPropViscosity->val()( 0 );
+
+            // if residual dof type (here viscosity)
+            if( aDofTypes( 0 ) == mResidualDofType( 0 ) )
+            {
+                adchidu.matrix_data() += tDerFI->N() / tPropViscosity->val()( 0 );
+            }
+
+            if( tPropViscosity->check_dof_dependency( aDofTypes ) )
+            {
+                adchidu.matrix_data() -= tChi * tPropViscosity->dPropdDOF( aDofTypes ) / tPropViscosity->val()( 0 );
+            }
         }
 
         //------------------------------------------------------------------------------
