@@ -812,7 +812,8 @@ TEST_CASE("MDL FEM Benchmark Diff Ghost","[MDL_FEM_Benchmark_Diff_Ghost]")
        tSPSlaveWeightInterface->set_property( tPropConductivity1, "Material", mtk::Master_Slave::MASTER );
        tSPSlaveWeightInterface->set_property( tPropConductivity2, "Material", mtk::Master_Slave::SLAVE );
 
-       std::shared_ptr< fem::Stabilization_Parameter > tSPGhost = tSPFactory.create_SP( fem::Stabilization_Type::GHOST_DISPL );
+       std::shared_ptr< fem::Stabilization_Parameter > tSPGhost =
+               tSPFactory.create_SP( fem::Stabilization_Type::GHOST_DISPL );
        tSPGhost->set_parameters( {{{ 0.1 }} });
        tSPGhost->set_property( tPropConductivity1, "Material", mtk::Master_Slave::MASTER );
 
@@ -854,11 +855,11 @@ TEST_CASE("MDL FEM Benchmark Diff Ghost","[MDL_FEM_Benchmark_Diff_Ghost]")
        tIWGInterface->set_constitutive_model( tCMDiffLinIso2, "Diffusion", mtk::Master_Slave::SLAVE );
 
        // Ghost stabilization
-       std::shared_ptr< fem::IWG > tIWGGhost = tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_GHOST );
+       std::shared_ptr< fem::IWG > tIWGGhost = tIWGFactory.create_IWG( fem::IWG_Type::GHOST_NORMAL_FIELD );
        tIWGGhost->set_residual_dof_type( { MSI::Dof_Type::TEMP } );
        tIWGGhost->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
        tIWGGhost->set_dof_type_list( {{ MSI::Dof_Type::TEMP }}, mtk::Master_Slave::SLAVE );
-       tIWGGhost->set_stabilization_parameter( tSPGhost, "GhostDispl" );
+       tIWGGhost->set_stabilization_parameter( tSPGhost, "GhostSP" );
 
        // create the IQIs
        fem::IQI_Factory tIQIFactory;
@@ -1722,7 +1723,8 @@ TEST_CASE("MDL FEM Benchmark Elast Ghost","[MDL_FEM_Benchmark_Elast_Ghost]")
        tSPSlaveWeightInterface->set_property( tPropEMod1, "Material", mtk::Master_Slave::MASTER );
        tSPSlaveWeightInterface->set_property( tPropEMod2, "Material", mtk::Master_Slave::SLAVE );
 
-       std::shared_ptr< fem::Stabilization_Parameter > tSPGhost = tSPFactory.create_SP( fem::Stabilization_Type::GHOST_DISPL );
+       std::shared_ptr< fem::Stabilization_Parameter > tSPGhost =
+               tSPFactory.create_SP( fem::Stabilization_Type::GHOST_DISPL );
        tSPGhost->set_parameters( {{{ 0.01 }} });
        tSPGhost->set_property( tPropEMod1, "Material", mtk::Master_Slave::MASTER );
 
@@ -1762,11 +1764,11 @@ TEST_CASE("MDL FEM Benchmark Elast Ghost","[MDL_FEM_Benchmark_Elast_Ghost]")
        tIWGInterface->set_constitutive_model( tCMStrucLinIso2, "ElastLinIso", mtk::Master_Slave::SLAVE );
 
        // Ghost stabilization
-       std::shared_ptr< fem::IWG > tIWGGhost = tIWGFactory.create_IWG( fem::IWG_Type::STRUC_LINEAR_GHOST );
+       std::shared_ptr< fem::IWG > tIWGGhost = tIWGFactory.create_IWG( fem::IWG_Type::GHOST_NORMAL_FIELD );
        tIWGGhost->set_residual_dof_type( tResDofTypes );
        tIWGGhost->set_dof_type_list( { tResDofTypes } );
        tIWGGhost->set_dof_type_list( { tResDofTypes }, mtk::Master_Slave::SLAVE );
-       tIWGGhost->set_stabilization_parameter( tSPGhost, "GhostDispl" );
+       tIWGGhost->set_stabilization_parameter( tSPGhost, "GhostSP" );
 
        // create the IQIs
        fem::IQI_Factory tIQIFactory;

@@ -333,11 +333,11 @@ void tConstValFunction_MDLCUT
             tIWGNeumann->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
             tIWGNeumann->set_property( tPropNeumann, "Neumann", mtk::Master_Slave::MASTER );
 
-            std::shared_ptr< fem::IWG > tIWGGhost = tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_GHOST );
+            std::shared_ptr< fem::IWG > tIWGGhost = tIWGFactory.create_IWG( fem::IWG_Type::GHOST_NORMAL_FIELD );
             tIWGGhost->set_residual_dof_type( { MSI::Dof_Type::TEMP } );
             tIWGGhost->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
             tIWGGhost->set_dof_type_list( {{ MSI::Dof_Type::TEMP }}, mtk::Master_Slave::SLAVE );
-            tIWGGhost->set_stabilization_parameter( tSPGhost, "GhostDispl" );
+            tIWGGhost->set_stabilization_parameter( tSPGhost, "GhostSP" );
 
 //            uint iInterpOrder = 1;
 //            if ( iInterpOrder > 0 )
