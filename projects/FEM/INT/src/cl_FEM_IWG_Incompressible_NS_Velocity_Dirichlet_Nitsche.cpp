@@ -7,6 +7,7 @@
 #include "fn_trans.hpp"
 #include "fn_norm.hpp"
 #include "fn_eye.hpp"
+#include "fn_dot.hpp"
 
 namespace moris
 {
@@ -114,9 +115,6 @@ namespace moris
             uint tMasterResStartIndex = mSet->get_res_dof_assembly_map()( tMasterDofIndex )( 0, 0 );
             uint tMasterResStopIndex  = mSet->get_res_dof_assembly_map()( tMasterDofIndex )( 0, 1 );
 
-//            // FIXME to remove
-//            Matrix< DDRMat > tPrev = mSet->get_residual()( 0 )({ tMasterResStartIndex, tMasterResStopIndex },{ 0, 0 } );
-
             // get the master field interpolator for the residual dof type
             Field_Interpolator * tFIVelocity =
                     mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );
@@ -166,19 +164,19 @@ namespace moris
             // compute master residual
             mSet->get_residual()( 0 )(
                     { tMasterResStartIndex, tMasterResStopIndex },
-                    { 0, 0 } ) +=
-                            aWStar * (
+                    { 0, 0 } ) += aWStar * (
                                     - trans( tFIVelocity->N() ) * tM * tCMFluid->traction( mNormal )
                                     - mBeta * trans( tCMFluid->testTraction( mNormal, mResidualDofType ) ) * tM * tVelocityJump
                                     + tSPNitsche->val()( 0 ) * trans( tFIVelocity->N() ) * tM * tVelocityJump );
 
-            // upwind term
-            if (tPropUpwind)
+            // if upwind
+            if ( tPropUpwind )
             {
                 mSet->get_residual()( 0 )(
                         { tMasterResStartIndex, tMasterResStopIndex },
-                        { 0, 0 } ) -=
-                                aWStar * tPropUpwind->val()( 0 ) * trans( tFIVelocity->N() ) * mNormal * trans( tFIVelocity->val() ) * tM * tVelocityJump;
+                        { 0, 0 } ) -= aWStar * (
+                                tPropUpwind->val()( 0 ) * trans( tFIVelocity->N() ) *
+                                dot( tFIVelocity->val(), mNormal ) * tM * tVelocityJump );
             }
 
             // if turbulence
@@ -186,17 +184,11 @@ namespace moris
             {
                 mSet->get_residual()( 0 )(
                         { tMasterResStartIndex, tMasterResStopIndex },
-                        { 0, 0 } ) +=
-                                aWStar * (
-                                        - trans( tFIVelocity->N() ) * tM * tCMTurbulence->traction( mNormal )
-                                        - mBeta * trans( tCMTurbulence->testTraction( mNormal, mResidualDofType ) ) * tM * tVelocityJump );
+                        { 0, 0 } ) -= aWStar * (
+                                trans( tFIVelocity->N() ) * tM * tCMTurbulence->traction( mNormal ) +
+                                mBeta * trans( tCMTurbulence->testTraction( mNormal, mResidualDofType ) ) *
+                                tM * tVelocityJump );
             }
-
-//            std::cout<<"4 "<<
-//                    mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator()->valx()( 0 )<<" "<<
-//                    mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator()->valx()( 1 )<< " "<<
-//                    mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator()->valt()( 0 )<< " "<<
-//                    norm( mSet->get_residual()( 0 )({ tMasterResStartIndex, tMasterResStopIndex },{ 0, 0 } ) - tPrev )<<std::endl;
         }
 
         //------------------------------------------------------------------------------
@@ -212,10 +204,6 @@ namespace moris
             uint tMasterDofIndex      = mSet->get_dof_index_for_type( mResidualDofType( 0 ), mtk::Master_Slave::MASTER );
             uint tMasterResStartIndex = mSet->get_res_dof_assembly_map()( tMasterDofIndex )( 0, 0 );
             uint tMasterResStopIndex  = mSet->get_res_dof_assembly_map()( tMasterDofIndex )( 0, 1 );
-
-//            // FIXME to remove
-//            uint tEndIndex = mSet->get_jacobian().n_cols() - 1;
-//            Matrix< DDRMat > tPrev = mSet->get_jacobian()({ tMasterResStartIndex, tMasterResStopIndex },{ 0, tEndIndex } );
 
             // get the master field interpolator for residual dof type
             Field_Interpolator * tFIVelocity =
@@ -283,8 +271,7 @@ namespace moris
                     // compute jacobian direct dependencies
                     mSet->get_jacobian()(
                             { tMasterResStartIndex, tMasterResStopIndex },
-                            { tMasterDepStartIndex, tMasterDepStopIndex } )
-                            += aWStar * (
+                            { tMasterDepStartIndex, tMasterDepStopIndex } ) += aWStar * (
                                     - mBeta * trans( tCMFluid->testTraction( mNormal, mResidualDofType ) ) * tM * tFIVelocity->N()
                                     + tSPNitsche->val()( 0 )  * trans( tFIVelocity->N() ) * tM * tFIVelocity->N() );
                 }
@@ -295,8 +282,7 @@ namespace moris
                     // add contribution from property to jacobian
                     mSet->get_jacobian()(
                             { tMasterResStartIndex, tMasterResStopIndex },
-                            { tMasterDepStartIndex, tMasterDepStopIndex } )
-                            -= aWStar * (
+                            { tMasterDepStartIndex, tMasterDepStopIndex } ) -= aWStar * (
                                     - mBeta * trans( tCMFluid->testTraction( mNormal, mResidualDofType ) ) * tM * tPropVelocity->dPropdDOF( tDofType )
                                     + tSPNitsche->val()( 0 ) * trans( tFIVelocity->N() ) * tM * tPropVelocity->dPropdDOF( tDofType ) );
                 }
@@ -322,8 +308,8 @@ namespace moris
                                     trans( tFIVelocity->N() ) * tM * tVelocityJump * tSPNitsche->dSPdMasterDOF( tDofType ) );
                 }
 
-                // upwind term
-                if (tPropUpwind)
+                // if upwind
+                if ( tPropUpwind )
                 {
                     // if dof type is residual dof type
                     if ( tDofType( 0 ) == mResidualDofType( 0 ) )
@@ -331,8 +317,8 @@ namespace moris
                         mSet->get_jacobian()(
                                 { tMasterResStartIndex, tMasterResStopIndex },
                                 { tMasterDepStartIndex, tMasterDepStopIndex } ) -= aWStar * (
-                                        tPropUpwind->val()( 0 ) * trans( tFIVelocity->N() ) * mNormal * trans( tFIVelocity->val() ) * tM * tFIVelocity->N() +
-                                        tPropUpwind->val()( 0 ) * trans( tFIVelocity->N() ) * mNormal * trans( tM * tFIVelocity->val() ) * tFIVelocity->N() );
+                                        tPropUpwind->val()( 0 ) * trans( tFIVelocity->N() ) * dot( tFIVelocity->val(), mNormal ) * tM * tFIVelocity->N() +
+                                        tPropUpwind->val()( 0 ) * trans( tFIVelocity->N() ) * tM * tVelocityJump * ( trans( mNormal ) * tFIVelocity->N() ) );
                     }
 
                     // if imposed velocity depends on dof type
@@ -341,7 +327,8 @@ namespace moris
                         mSet->get_jacobian()(
                                 { tMasterResStartIndex, tMasterResStopIndex },
                                 { tMasterDepStartIndex, tMasterDepStopIndex } ) += aWStar * (
-                                        tPropUpwind->val()( 0 ) * trans( tFIVelocity->N() ) * mNormal * trans( tFIVelocity->val() ) * tM * tPropVelocity->dPropdDOF( tDofType ));
+                                        tPropUpwind->val()( 0 ) * trans( tFIVelocity->N() ) * dot( tFIVelocity->val(), mNormal ) *
+                                        tM * tPropVelocity->dPropdDOF( tDofType ));
                     }
 
                     // if upwind parameter depends on the dof type
@@ -351,7 +338,8 @@ namespace moris
                         mSet->get_jacobian()(
                                 { tMasterResStartIndex, tMasterResStopIndex },
                                 { tMasterDepStartIndex, tMasterDepStopIndex } ) -= aWStar * (
-                                        trans( tFIVelocity->N() ) * mNormal * trans( tFIVelocity->val() ) * tM * tVelocityJump * tPropUpwind->dPropdDOF( tDofType ));
+                                        trans( tFIVelocity->N() ) * dot( tFIVelocity->val(), mNormal ) *
+                                        tM * tVelocityJump * tPropUpwind->dPropdDOF( tDofType ) );
                     }
                 }
 
@@ -365,7 +353,8 @@ namespace moris
                         mSet->get_jacobian()(
                                 { tMasterResStartIndex, tMasterResStopIndex },
                                 { tMasterDepStartIndex, tMasterDepStopIndex } ) += aWStar * (
-                                       - mBeta * trans( tCMTurbulence->testTraction( mNormal, mResidualDofType ) ) * tM * tFIVelocity->N() );
+                                       - mBeta * trans( tCMTurbulence->testTraction( mNormal, mResidualDofType ) ) *
+                                       tM * tFIVelocity->N() );
                     }
 
                     // if imposed velocity depends on dof type
@@ -375,7 +364,8 @@ namespace moris
                         mSet->get_jacobian()(
                                 { tMasterResStartIndex, tMasterResStopIndex },
                                 { tMasterDepStartIndex, tMasterDepStopIndex } ) -= aWStar * (
-                                       - mBeta * trans( tCMTurbulence->testTraction( mNormal, mResidualDofType ) ) * tM * tPropVelocity->dPropdDOF( tDofType ) );
+                                       - mBeta * trans( tCMTurbulence->testTraction( mNormal, mResidualDofType ) ) *
+                                       tM * tPropVelocity->dPropdDOF( tDofType ) );
                     }
 
                     // if turbulence depends on dof type
@@ -384,23 +374,12 @@ namespace moris
                         // add contribution from CM to jacobian
                         mSet->get_jacobian()(
                                 { tMasterResStartIndex, tMasterResStopIndex },
-                                { tMasterDepStartIndex, tMasterDepStopIndex } ) += aWStar * (
-                                        - trans( tFIVelocity->N() ) * tM * tCMTurbulence->dTractiondDOF( tDofType, mNormal )
-                                        - mBeta * tCMTurbulence->dTestTractiondDOF( tDofType, mNormal, tM * tVelocityJump, mResidualDofType ) );
+                                { tMasterDepStartIndex, tMasterDepStopIndex } ) -= aWStar * (
+                                        trans( tFIVelocity->N() ) * tM * tCMTurbulence->dTractiondDOF( tDofType, mNormal ) +
+                                        mBeta * tCMTurbulence->dTestTractiondDOF( tDofType, mNormal, tM * tVelocityJump, mResidualDofType ) );
                     }
                 }
             }
-
-//            std::cout<<"41 "<<
-//                    mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator()->valx()( 0 )<<" "<<
-//                    mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator()->valx()( 1 )<< " "<<
-//                    mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator()->valt()( 0 )<< " "<<
-//                    max(max( mSet->get_jacobian()({ tMasterResStartIndex, tMasterResStopIndex },{ 0, tEndIndex } ) - tPrev ) )<<std::endl;
-//            std::cout<<"42 "<<
-//                    mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator()->valx()( 0 )<<" "<<
-//                    mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator()->valx()( 1 )<< " "<<
-//                    mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator()->valt()( 0 )<< " "<<
-//                    min( min( mSet->get_jacobian()({ tMasterResStartIndex, tMasterResStopIndex },{ 0, tEndIndex } ) - tPrev ) )<<std::endl;
         }
 
         //------------------------------------------------------------------------------
