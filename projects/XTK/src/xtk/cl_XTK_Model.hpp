@@ -479,17 +479,40 @@ namespace xtk
              * formulates node requests in the geometry objects. Dependent on the type of decomposition
              * @param[in] aReqType- specifies which template mesh is going to be used later on
              */
-            void decompose_internal(enum Subdivision_Method    const & aSubdivisionMethod,
+            void decompose_internal(
+                    enum Subdivision_Method    const & aSubdivisionMethod,
                     moris::uint                        aGeomIndex,
                     moris::Matrix< moris::IndexMat > & aActiveChildMeshIndices,
-                    bool const & aFirstSubdivision = true,
-                    bool const & aSetIds = false);
+                    bool                       const & aFirstSubdivision   = true,
+                    bool                       const & aSetIds = false);
+
+
+            /*!
+             * Regular subdivision for a 3D mesh
+             */
+            void
+            decompose_internal_reg_sub_hex8(
+                    moris::uint                        aGeomIndex,
+                    moris::Matrix< moris::IndexMat > & aActiveChildMeshIndices,
+                    bool                       const & aFirstSubdivision,
+                    bool                       const & aSetIds );
 
 
             void
             decompose_internal_reg_sub_hex8_make_requests(moris::Matrix< moris::IndexMat > & aActiveChildMeshIndices,
                     moris::Matrix< moris::IndexMat > & tNewPairBool,
                     Decomposition_Data 			   & tDecompData);
+
+
+            /*!
+             * Regular subdivision for a 2D mesh
+             */
+            void
+            decompose_internal_reg_sub_quad4(
+                    moris::uint                        aGeomIndex,
+                    moris::Matrix< moris::IndexMat > & aActiveChildMeshIndices,
+                    bool                       const & aFirstSubdivision,
+                    bool                       const & aSetIds );
 
             void
             decompose_internal_reg_sub_quad4_make_requests(moris::Matrix< moris::IndexMat > & aActiveChildMeshIndices,
@@ -804,9 +827,8 @@ namespace xtk
                */
 
               void
-              run_first_cut_routine(enum TemplateType const &          aTemplateType,
+              run_first_cut_routine(
                       moris::uint                        aGeomIndex,
-                      moris::size_t const &              aNumNodesPerElement,
                       moris::Matrix< moris::IndexMat > & aActiveChildMeshIndices,
                       moris::Matrix< moris::IndexMat > & aNewPairBool);
 
