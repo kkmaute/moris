@@ -29,13 +29,13 @@ namespace moris
             private:
 
                 // viscosity dof type (default)
-                MSI::Dof_Type mDofViscosity = MSI::Dof_Type::VISCOSITY;
+                MSI::Dof_Type mMasterDofViscosity = MSI::Dof_Type::VISCOSITY;
 
-                // property type for CM
+                // property type for IQI
                 enum class Property_Type
                 {
                     DYNAMIC_VISCOSITY, // fluid dynamic viscosity
-                    DENSITY,   // fluid density
+                    DENSITY,           // fluid density
                     MAX_ENUM
                 };
 
@@ -67,8 +67,9 @@ namespace moris
                  * @param[ in ] aDofStrings list of names for group of dof types
                  */
                 void set_dof_type_list(
-                        moris::Cell< moris::Cell< MSI::Dof_Type > > aDofTypes,
-                        moris::Cell< std::string >                  aDofStrings );
+                        moris::Cell< moris::Cell< MSI::Dof_Type > > & aDofTypes,
+                        moris::Cell< std::string >                  & aDofStrings,
+                        mtk::Master_Slave                             aIsMaster = mtk::Master_Slave::MASTER );
 
                 //------------------------------------------------------------------------------
                 /**
@@ -109,21 +110,37 @@ namespace moris
             private:
 
                 //------------------------------------------------------------------------------
-
+                /**
+                 * compute fv1 = chi³ / ( chi³ + cv1³)
+                 * @param[ out ] fv1
+                 */
                 real compute_fv1();
 
                 //------------------------------------------------------------------------------
-
+                /**
+                 * compute the derivative of fv1 wrt to a dof type
+                 * @param[ in ] aDofTypes  a list of dof type wrt which
+                 *                         the derivative is requested
+                 * @param[ in ] adfv1du    a matrix to fill with dfv1du
+                 */
                 void compute_dfv1du(
                         const moris::Cell< MSI::Dof_Type > & aDofTypes,
                         Matrix< DDRMat >                   & adfv1du );
 
                 //------------------------------------------------------------------------------
-
+                /**
+                 * compute chi = viscosityDof / viscosityProp
+                 * @param[ out ] chi
+                 */
                 real compute_chi();
 
                 //------------------------------------------------------------------------------
-
+                /**
+                 * compute the derivative of chi wrt to a dof type
+                 * @param[ in ] aDofTypes  a list of dof type wrt which
+                 *                         the derivative is requested
+                 * @param[ in ] adchidu    a matrix to fill with dchidu
+                 */
                 void compute_dchidu(
                         const moris::Cell< MSI::Dof_Type > & aDofTypes,
                         Matrix< DDRMat >                   & adchidu );

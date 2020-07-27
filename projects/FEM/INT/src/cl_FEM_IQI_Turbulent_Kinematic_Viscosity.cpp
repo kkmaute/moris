@@ -14,6 +14,7 @@ namespace moris
     namespace fem
     {
         //------------------------------------------------------------------------------
+
         IQI_Turbulent_Kinematic_Viscosity::IQI_Turbulent_Kinematic_Viscosity()
         {
             // set IQI type
@@ -31,34 +32,55 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+
         void IQI_Turbulent_Kinematic_Viscosity::set_dof_type_list(
-                moris::Cell< moris::Cell< MSI::Dof_Type > > aDofTypes,
-                moris::Cell< std::string >                  aDofStrings )
+                moris::Cell< moris::Cell< MSI::Dof_Type > > & aDofTypes,
+                moris::Cell< std::string >                  & aDofStrings,
+                mtk::Master_Slave                             aIsMaster )
         {
-            // set dof type list
-            IQI::set_dof_type_list( aDofTypes );
-
-            // loop over the provided dof type
-            for( uint iDof = 0; iDof < aDofTypes.size(); iDof++ )
+            // switch on master slave
+            switch ( aIsMaster )
             {
-                // get dof type string
-                std::string tDofString = aDofStrings( iDof );
-
-                // get dof type
-                MSI::Dof_Type tDofType = aDofTypes( iDof )( 0 );
-
-                // switch on dof type string
-                if( tDofString == "Viscosity" )
+                case mtk::Master_Slave::MASTER :
                 {
-                    mDofViscosity = tDofType;
+                    // set dof type list
+                    mMasterDofTypes = aDofTypes;
+
+                    // loop on dof type
+                    for( uint iDof = 0; iDof < aDofTypes.size(); iDof++ )
+                    {
+                        // get dof string
+                        std::string tDofString = aDofStrings( iDof );
+
+                        // get dof type
+                        MSI::Dof_Type tDofType = aDofTypes( iDof )( 0 );
+
+                        // if viscosity
+                        if( tDofString == "Viscosity" )
+                        {
+                            mMasterDofViscosity = tDofType;
+                        }
+                        else
+                        {
+                            // create error message
+                            std::string tErrMsg =
+                                    std::string( "IQI_Turbulent_Kinematic_Viscosity::set_dof_type_list - Unknown aDofString : ") +
+                                    tDofString;
+                            MORIS_ERROR( false , tErrMsg.c_str() );
+                        }
+                    }
+                    break;
                 }
-                else
+
+                case mtk::Master_Slave::SLAVE :
                 {
-                    std::string tErrMsg =
-                            std::string( "IQI_Turbulent_Kinematic_Viscosity::set_dof_type_list - Unknown aDofString : ") +
-                            tDofString;
-                    MORIS_ERROR( false , tErrMsg.c_str() );
+                    // set dof type list
+                    mSlaveDofTypes = aDofTypes;
+                    break;
                 }
+
+                default:
+                    MORIS_ERROR( false, "IQI_Turbulent_Kinematic_Viscosity::set_dof_type_list - unknown master slave type." );
             }
         }
 
@@ -89,9 +111,9 @@ namespace moris
         {
             // get field interpolator for modified viscosity
             Field_Interpolator * tFIModViscosity =
-                    mMasterFIManager->get_field_interpolators_for_type( mDofViscosity );
+                    mMasterFIManager->get_field_interpolators_for_type( mMasterDofViscosity );
 
-            // get the density and gravity properties
+            // get the density property
             std::shared_ptr< Property > tPropDensity =
                     mMasterProp( static_cast< uint >( Property_Type::DENSITY ) );
 
@@ -106,14 +128,14 @@ namespace moris
 
         void IQI_Turbulent_Kinematic_Viscosity::compute_QI( moris::real aWStar )
         {
-            MORIS_ERROR( false, "not implemented");
+            MORIS_ERROR( false, "IQI_Turbulent_Kinematic_Viscosity - not implemented");
         }
 
         //------------------------------------------------------------------------------
 
         void IQI_Turbulent_Kinematic_Viscosity::compute_dQIdu( real aWStar )
         {
-            MORIS_ERROR( false, "not implemented");
+            MORIS_ERROR( false, "IQI_Turbulent_Kinematic_Viscosity - not implemented");
         }
 
         //------------------------------------------------------------------------------
@@ -165,7 +187,7 @@ namespace moris
         {
             // get the modified viscosity dof FI
             Field_Interpolator * tFIViscosity =
-                    mMasterFIManager->get_field_interpolators_for_type( mDofViscosity );
+                    mMasterFIManager->get_field_interpolators_for_type( mMasterDofViscosity );
 
             // get the density and gravity properties
             std::shared_ptr< Property > tPropDynViscosity =
@@ -189,14 +211,14 @@ namespace moris
 
             // get the residual dof FI (here viscosity)
             Field_Interpolator * tFIModViscosity =
-                    mMasterFIManager->get_field_interpolators_for_type( mDofViscosity );
+                    mMasterFIManager->get_field_interpolators_for_type( mMasterDofViscosity );
 
             // get the density and gravity properties
             std::shared_ptr< Property > tPropDynViscosity =
                     mMasterProp( static_cast< uint >( Property_Type::DYNAMIC_VISCOSITY ) );
 
             // if dof type is viscosity
-            if( aDofTypes( 0 ) == mDofViscosity )
+            if( aDofTypes( 0 ) == mMasterDofViscosity )
             {
                 adchidu.matrix_data() += tDerFI->N() / tPropDynViscosity->val()( 0 );
             }
@@ -209,7 +231,6 @@ namespace moris
                         std::pow( tPropDynViscosity->val()( 0 ), 2 );
             }
         }
-
 
         //------------------------------------------------------------------------------
     }/* end_namespace_fem */
