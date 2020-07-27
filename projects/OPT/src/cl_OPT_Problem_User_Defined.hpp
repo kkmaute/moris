@@ -1,7 +1,3 @@
-//
-// Created by christopherson on 3/18/20.
-//
-
 #ifndef MORIS_CL_OPT_PROBLEM_USER_DEFINED_HPP
 #define MORIS_CL_OPT_PROBLEM_USER_DEFINED_HPP
 
@@ -23,9 +19,33 @@ namespace moris
              * Constructor
              *
              * @param aParameterList parameter list for this problem specifying the needed library
-             * @param aInterface Interface class written for other module (e.g. GEN)
+             * @param aInterface Interface class written for other module
              */
-            Problem_User_Defined(ParameterList aParameterList, std::shared_ptr<Criteria_Interface> aInterface);
+            Problem_User_Defined(ParameterList aParameterList,
+                                 std::shared_ptr<Criteria_Interface> aInterface);
+
+            /**
+             * Alternate constructor where the user-defined functions are provided directly. Used for OPT tests.
+             *
+             * @param aParameterList Parameter list for the base Problem class
+             * @param aInterface Interface class written for other module
+             * @param aConstraintTypesFunction Function for getting constraint types
+             * @param aObjectiveFunction Objective function
+             * @param aConstraintFunction Constraint function
+             * @param aObjectiveADVGradientFunction
+             * @param aObjectiveCriteriaGradientFunction
+             * @param aConstraintADVGradientFunction
+             * @param aConstraintCriteriaGradientFunction
+             */
+            Problem_User_Defined(ParameterList                       aParameterList,
+                                 std::shared_ptr<Criteria_Interface> aInterface,
+                                 MORIS_CONSTRAINT_TYPES_FUNCTION     aConstraintTypesFunction,
+                                 MORIS_OBJECTIVE_CONSTRAINT_FUNCTION aObjectiveFunction,
+                                 MORIS_OBJECTIVE_CONSTRAINT_FUNCTION aConstraintFunction,
+                                 MORIS_OBJECTIVE_CONSTRAINT_FUNCTION aObjectiveADVGradientFunction,
+                                 MORIS_OBJECTIVE_CONSTRAINT_FUNCTION aObjectiveCriteriaGradientFunction,
+                                 MORIS_OBJECTIVE_CONSTRAINT_FUNCTION aConstraintADVGradientFunction,
+                                 MORIS_OBJECTIVE_CONSTRAINT_FUNCTION aConstraintCriteriaGradientFunction);
 
             /**
              * Gets the constraint types
@@ -90,4 +110,4 @@ namespace moris
     }
 }
 
-#endif //MORIS_CL_OPT_PROBLEM_USER_DEFINED_HPP
+#endif // MORIS_CL_OPT_PROBLEM_USER_DEFINED_HPP

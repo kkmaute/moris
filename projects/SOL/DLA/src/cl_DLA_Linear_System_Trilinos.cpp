@@ -103,14 +103,20 @@ Linear_System_Trilinos::Linear_System_Trilinos( Solver_Interface * aInput,
 
 Linear_System_Trilinos::~Linear_System_Trilinos()
 {
-    if ( mMat != nullptr )
-    {
-        delete( mMat );
-    }
-    delete( mVectorRHS );
-    delete( mFreeVectorLHS );
-    delete( mFullVectorLHS );
-    delete( mMap );
+    delete mMat;
+    mMat=nullptr;
+
+    delete mVectorRHS;
+    mVectorRHS=nullptr;
+
+    delete mFreeVectorLHS;
+    mFreeVectorLHS=nullptr;
+
+    delete mFullVectorLHS;
+    mFullVectorLHS=nullptr;
+
+    delete mMap;
+    mMap=nullptr;
 }
 
 //------------------------------------------------------------------------------------------

@@ -1,5 +1,4 @@
-// Project header files
-#include "cl_OPT_Algorithm_LBFGS.hpp" // OPT/src
+#include "cl_OPT_Algorithm_LBFGS.hpp"
 
 #ifdef FORT_NO_
 #define _FORTRAN(a) a
@@ -14,41 +13,39 @@ extern "C"
     // L-BFGS-B (a Fortran implementation of BFGS) function declaration
     void setulb_(
             int* n, int* m, double* x, double* l, double* u, int* nbd,
-            double* f, double* g, double* factr, double* pgtol,
+            double* f, double* g, double* mNormDrop, double* mGradTolerance,
             double* wa, int* iwa, char* task, int* iprint, char* csave,
             bool* lsave, int* isave, double* dsave);
 }
 
-// -----------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 namespace moris
 {
     namespace opt
     {
-        Algorithm_LBFGS::Algorithm_LBFGS() : Algorithm(), mOptIter(0)
+
+        //--------------------------------------------------------------------------------------------------------------
+
+        Algorithm_LBFGS::Algorithm_LBFGS(ParameterList aParameterList)
+                : mMaxIt(aParameterList.get< sint >( "max_its" )),
+                  mNumCorrections(aParameterList.get< sint >( "num_corr" )),
+                  mNormDrop(aParameterList.get< real >( "norm_drop" )),
+                  mGradTolerance(aParameterList.get< real >( "grad_tol" ))
         {
         }
 
-        // ---------------------------------------------------------------------
+        //--------------------------------------------------------------------------------------------------------------
 
         Algorithm_LBFGS::~Algorithm_LBFGS()
         {
         }
 
-        //----------------------------------------------------------------------
+        //--------------------------------------------------------------------------------------------------------------
 
         void Algorithm_LBFGS::solve(std::shared_ptr<Problem> aOptProb )
         {
             mProblem = aOptProb;  // set the member variable mProblem to aOptProb
-
-            Algorithm::initialize(); // initialize the base class member variables
-
-            // extract the underlying types of the algorithm parameters and assign
-            // to parameters used by the L-BFGS-B algorithm
-            sint tMaxIt  = mParameterList.get< sint >( "max_its" );
-            int m        = mParameterList.get< sint >( "num_corr" );
-            double factr = mParameterList.get< real >( "norm_drop" );
-            double pgtol = mParameterList.get< real >( "grad_tol" );
 
             int n = mProblem->get_num_advs(); // number of design variables
 
@@ -65,7 +62,7 @@ namespace moris
             // initialize and allocate memory for algorithm inputs/outputs
             double f       = 0;
             double* g      = new double[n];
-            double* wa     = new double[(2*m + 5)*n + 11*m*m + 8*m];
+            double* wa     = new double[(2*mNumCorrections + 5)*n + 11*mNumCorrections*mNumCorrections + 8*mNumCorrections];
             int* iwa       = new int[3 * n];
             int iprint     = -1;      // Prevents the algorithm from printing anything
             char task[61]  = "START"; // starts the algorithm
@@ -76,8 +73,8 @@ namespace moris
             double* dsave  = new double[29];
 
             // Function call to LBFGS Fortran subroutine
-            setulb_( &n, &m, x, l, u, nbd,
-                     &f, g, &factr, &pgtol,
+            setulb_( &n, &mNumCorrections, x, l, u, nbd,
+                     &f, g, &mNormDrop, &mGradTolerance,
                      wa, iwa, task, &iprint, csave,
                      lsave, isave, dsave );
 
@@ -94,8 +91,8 @@ namespace moris
                     this->grad( x, g );
                 }
 
-                setulb_( &n, &m, x, l, u, nbd,
-                         &f, g, &factr, &pgtol,
+                setulb_( &n, &mNumCorrections, x, l, u, nbd,
+                         &f, g, &mNormDrop, &mGradTolerance,
                          wa, iwa, task, &iprint, csave,
                          lsave, isave, dsave );
 
@@ -107,7 +104,7 @@ namespace moris
                 }
 
                 // exit loop if maximum iterations have been achieved
-                if ( isave[29] == tMaxIt ) break;
+                if ( isave[29] == mMaxIt ) break;
             }
 
             printresult(); // print the result of the optimization algorithm
@@ -122,7 +119,7 @@ namespace moris
             delete[] dsave;
         }
 
-        //----------------------------------------------------------------------
+        //--------------------------------------------------------------------------------------------------------------
 
         void Algorithm_LBFGS::func(int aIter, double* aAdv, double& aObjval )
         {
@@ -137,7 +134,7 @@ namespace moris
             aObjval = mProblem->get_objectives()(0);
         }
 
-        //----------------------------------------------------------------------
+        //--------------------------------------------------------------------------------------------------------------
 
         void Algorithm_LBFGS::grad(double* aAdv, double* aD_Obj )
         {
@@ -148,7 +145,7 @@ namespace moris
             std::copy(tD_Obj, tD_Obj + mProblem->get_num_advs(), aD_Obj);
         }
 
-        //----------------------------------------------------------------------
+        //--------------------------------------------------------------------------------------------------------------
 
         void Algorithm_LBFGS::printresult( )
         {
@@ -156,5 +153,7 @@ namespace moris
 
             // THIS IS A PLACEHOLDER
         }
+
+        //--------------------------------------------------------------------------------------------------------------
     }
 }

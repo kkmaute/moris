@@ -41,9 +41,10 @@ set(HEADERS
 
 	geometry/cl_GEN_Geometry.hpp
 	geometry/cl_GEN_Circle.hpp
-	geometry/cl_GEN_Discrete_Level_Set.hpp
+	geometry/cl_GEN_Mesh_Field_Geometry.hpp
 	geometry/cl_GEN_Sphere.hpp
 	geometry/cl_GEN_User_Defined_Geometry.hpp
+	geometry/cl_GEN_Level_Set.hpp
 #	geometry/fn_bounding_box.hpp
 	geometry/fn_GEN_create_geometry.hpp
 	geometry/cl_GEN_Child_Node.hpp
@@ -118,8 +119,9 @@ set(LIB_SOURCES
 	geometry/cl_GEN_Circle.cpp
 	geometry/cl_GEN_Sphere.cpp
 	geometry/cl_GEN_Plane.cpp
-	geometry/cl_GEN_Discrete_Level_Set.cpp
+	geometry/cl_GEN_Mesh_Field_Geometry.cpp
 	geometry/cl_GEN_User_Defined_Geometry.cpp
+	geometry/cl_GEN_Level_Set.cpp
 	geometry/fn_GEN_create_geometry.cpp
 	geometry/cl_GEN_Child_Node.cpp
 	

@@ -18,8 +18,6 @@ Map_Epetra::Map_Epetra(
         const Matrix< DDUMat > & aMyConstraintDofs )
 : sol::Dist_Map()
 {
-    delete( mEpetraMap );
-
     // Minimum index value used for arrays that use this map. Typically 0 for C/C++ and 1 for Fortran.
     moris::uint tIndexBase = 0;
 
@@ -36,14 +34,11 @@ Map_Epetra::Map_Epetra(
     mEpetraMap = new Epetra_Map( -1, tMyGlobalConstraintDofs.n_rows(), tMyGlobalConstraintDofs.data() , tIndexBase, *mEpetraComm.get_epetra_comm() );
 }
 
-
 // ----------------------------------------------------------------------------------------------------------------------
 
 Map_Epetra::Map_Epetra( const Matrix< DDSMat > & aMyGlobalIds )
 : sol::Dist_Map()
 {
-    delete( mEpetraMap );
-
     // Minimum index value used for arrays that use this map. Typically 0 for C/C++ and 1 for Fortran.
     moris::uint tIndexBase = 0;
 
@@ -55,10 +50,11 @@ Map_Epetra::Map_Epetra( const Matrix< DDSMat > & aMyGlobalIds )
 
 Map_Epetra::~Map_Epetra()
 {
-    delete( mEpetraMap );
+    delete mEpetraMap;
 }
 
 // ----------------------------------------------------------------------------------------------------------------------
+
 void Map_Epetra::translator(
         const moris::uint      & aMaxDofsId,
         const moris::uint      & aNumMyDofs,
@@ -90,7 +86,9 @@ void Map_Epetra::translator(
 
     aMyGlobalConstraintDofs.resize( tCount, 1 );
 }
+
 // ----------------------------------------------------------------------------------------------------------------------
+
 moris::sint Map_Epetra::return_local_ind_of_global_Id( moris::uint aGlobalId ) const
 {
     MORIS_ERROR( mEpetraMap != NULL, "Map_Epetra::return_local_ind_of_global_Id(), Map does not exist");

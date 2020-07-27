@@ -1,7 +1,3 @@
-//
-// Created by christopherson on 1/16/20.
-//
-
 #ifndef MORIS_CL_OPT_CRITERIA_INTERFACE_HPP
 #define MORIS_CL_OPT_CRITERIA_INTERFACE_HPP
 
@@ -36,8 +32,14 @@ namespace moris
 
             /**
              * Initializes the vectors of ADV values, lower bounds, and upper bounds
+             *
+             * @param aADVs Initial ADVs to be filled.
+             * @param aLowerBounds Lower ADV bounds to be filled.
+             * @param aUpperBounds Upper ADV bounds to be filled.
              */
-            virtual void initialize(Matrix<DDRMat>& aADVs, Matrix<DDRMat>& aLowerBounds, Matrix<DDRMat>& aUpperBounds) = 0;
+            virtual void initialize(Matrix<DDRMat>& aADVs,
+                                    Matrix<DDRMat>& aLowerBounds,
+                                    Matrix<DDRMat>& aUpperBounds) = 0;
 
             /**
              * Gets the criteria values given a new set of ADVs
@@ -70,7 +72,7 @@ namespace moris
             virtual Matrix<DDRMat> compute_dcriteria_dadv() = 0;
 
         };
-    }   // namespace opt
-}   // namespace moris
+    }
+}
 
 #endif //MORIS_CL_OPT_CRITERIA_INTERFACE_HPP

@@ -13,6 +13,8 @@ set(BUILD_CON ON CACHE BOOL "Build the containers executable." FORCE)
 
 set(BUILD_DLA ON CACHE BOOL "Build the distributed linear algebra executable." FORCE)
 
+set(BUILD_EXA ON CACHE BOOL "Build examples." FORCE)
+
 set(BUILD_EXC ON CACHE BOOL "Build the exceptions executable." FORCE)
 
 set(BUILD_FEM ON CACHE BOOL "Build the FEM executable." FORCE)
@@ -58,7 +60,6 @@ set(BUILD_XTK ON CACHE BOOL "Build the XTK executable." FORCE)
 set(BUILD_WRK ON CACHE BOOL "Build the workflow executable." FORCE)
 
 set(BUILD_MAIN ON CACHE BOOL "Build main executable." FORCE)
-
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Turn off BUILD_ALL

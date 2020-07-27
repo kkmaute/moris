@@ -290,8 +290,8 @@ TEST_CASE("XTK HMR 4 Material Bar Intersected By Plane and Hole","[XTK_HMR_PLANE
 
          size_t tModelDimension = 2;
          moris::ge::Phase_Table     tPhaseTable (tGeometryVector.size(), moris::ge::Phase_Table_Structure::EXP_BASE_2);
-         moris::ge::Geometry_Engine tGeometryEngine(tGeometryVector,tPhaseTable,tModelDimension);
-         xtk::Model           tXTKModel(tModelDimension,tInterpMesh,&tGeometryEngine);
+         moris::ge::Geometry_Engine tGeometryEngine(tGeometryVector, tPhaseTable, tInterpMesh);
+         xtk::Model           tXTKModel(tModelDimension, tInterpMesh, &tGeometryEngine);
          tXTKModel.mVerbose = false;
 
         Cell<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_QUAD4, Subdivision_Method::C_TRI3};
@@ -758,7 +758,7 @@ TEST_CASE("XTK HMR 4 Material Bar Intersected By Plane and Hole 3D","[XTK_HMR_PL
 
          size_t tModelDimension = 3;
          moris::ge::Phase_Table     tPhaseTable (tGeometryVector.size(), moris::ge::Phase_Table_Structure::EXP_BASE_2);
-         moris::ge::Geometry_Engine tGeometryEngine(tGeometryVector,tPhaseTable,tModelDimension);
+         moris::ge::Geometry_Engine tGeometryEngine(tGeometryVector, tPhaseTable, tInterpMesh);
          xtk::Model           tXTKModel(tModelDimension,tInterpMesh,&tGeometryEngine);
          tXTKModel.mVerbose = false;
 

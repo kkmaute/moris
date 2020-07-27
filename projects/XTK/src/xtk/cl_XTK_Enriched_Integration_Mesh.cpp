@@ -48,13 +48,14 @@ namespace xtk
         {
             mCellInfo = new moris::mtk::Cell_Info_Hex8();
         }
-
     }
 
     //------------------------------------------------------------------------------
 
     Enriched_Integration_Mesh::~Enriched_Integration_Mesh()
     {
+        delete mCellInfo;
+
         for(auto p : mListofBlocks)
         {
             delete p;
@@ -80,7 +81,6 @@ namespace xtk
         mDoubleSideClusters.clear();
 
         mDoubleSideSingleSideClusters.clear();
-
     }
 
     //------------------------------------------------------------------------------
@@ -2335,16 +2335,16 @@ namespace xtk
             //iterate through the vertices and grab their mtk vertex from the mesh
             for(moris::uint j = 0 ; j < tInterfaceVertices.numel(); j++)
             {
-//                moris::mtk::Vertex* tVertex = &this->get_mtk_vertex(tInterfaceVertices(j));
+                //                moris::mtk::Vertex* tVertex = &this->get_mtk_vertex(tInterfaceVertices(j));
 
                 mVerticesInVertexSet(tSetOrd).push_back(&this->get_mtk_vertex(tInterfaceVertices(j)));
             }
         }
 
-//        for(moris::uint i =  mListofSideSets.size(); i < mSideSets.size(); i++)
-//        {
-//            this->commit_side_set(i);
-//        }
+        //        for(moris::uint i =  mListofSideSets.size(); i < mSideSets.size(); i++)
+        //        {
+        //            this->commit_side_set(i);
+        //        }
     }
 
     //------------------------------------------------------------------------------

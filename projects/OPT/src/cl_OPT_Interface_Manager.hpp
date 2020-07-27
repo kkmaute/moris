@@ -1,7 +1,3 @@
-//
-// Created by christopherson on 3/20/20.
-//
-
 #ifndef MORIS_CL_OPT_INTERFACE_MANAGER_HPP
 #define MORIS_CL_OPT_INTERFACE_MANAGER_HPP
 
@@ -30,7 +26,8 @@ namespace moris
             /**
              * Constructor
              */
-            Interface_Manager(ParameterList aParameterList, Cell<std::shared_ptr<Criteria_Interface>> aInterfaces);
+            Interface_Manager(ParameterList aParameterList,
+                              Cell<std::shared_ptr<Criteria_Interface>> aInterfaces);
 
             /**
              * Destructor
@@ -47,7 +44,9 @@ namespace moris
             /**
              * Initializes the vectors of ADV values, lower bounds, and upper bounds
              */
-            void initialize(Matrix<DDRMat>& aADVs, Matrix<DDRMat>& aLowerBounds, Matrix<DDRMat>& aUpperBounds);
+            void initialize(Matrix<DDRMat>& aADVs,
+                            Matrix<DDRMat>& aLowerBounds,
+                            Matrix<DDRMat>& aUpperBounds);
 
             /**
              * Gets the criteria values
@@ -66,10 +65,11 @@ namespace moris
             /**
              * Gets the local advs based on whether or not they are shared
              */
-            Matrix<DDRMat> get_local_advs(Matrix<DDRMat> aGlobalADVs, uint tInterfaceIndex);
+            Matrix<DDRMat> get_local_advs(Matrix<DDRMat> aGlobalADVs,
+                                          uint tInterfaceIndex);
 
         };
-    }   // namespace opt
-}   // namespace moris
+    }
+}
 
 #endif //MORIS_CL_OPT_INTERFACE_MANAGER_HPP

@@ -27,7 +27,7 @@ namespace xtk
 
     Enriched_Interpolation_Mesh::~Enriched_Interpolation_Mesh()
     {
-        if( mCellInfo!= nullptr ) { delete mCellInfo; }
+        delete mCellInfo;
 
         for(moris::uint i = 0; i < mInterpVertEnrichment.size(); i++)
         {
@@ -1005,16 +1005,16 @@ namespace xtk
             if(!tVertexPointers(i)->has_interpolation(aMeshIndex))
             {
                 std::cout<<" Id = "<<tVertexPointers(i)->get_id()
-                                <<" | back vertex id = "<<mEnrichedInterpVerts(tVertexPointers(i)->get_index()).get_id()
-                                <<" | owner = "<<tVertexPointers(i)->get_owner()
-                                <<" | my rank = "<<par_rank()
-                                <<" | IP Cell Owner = "<<tEnrichedIpCell->get_owner()
-                                <<" | IP Cell ID = "<<tEnrichedIpCell->get_id()<<std::endl;
+                                        <<" | back vertex id = "<<mEnrichedInterpVerts(tVertexPointers(i)->get_index()).get_id()
+                                        <<" | owner = "<<tVertexPointers(i)->get_owner()
+                                        <<" | my rank = "<<par_rank()
+                                        <<" | IP Cell Owner = "<<tEnrichedIpCell->get_owner()
+                                        <<" | IP Cell ID = "<<tEnrichedIpCell->get_id()<<std::endl;
 
                 moris::print(tVertexPointers(i)->get_coords(),"Coordinate of vertex");
             }
 
-//            MORIS_ASSERT(tVertexPointers(i)->has_interpolation(aMeshIndex),"Vertex does not have interpolation.");
+            //            MORIS_ASSERT(tVertexPointers(i)->has_interpolation(aMeshIndex),"Vertex does not have interpolation.");
 
             mtk::Vertex_Interpolation * tVertexInterp = tVertexPointers(i)->get_interpolation(aMeshIndex);
 
@@ -1026,7 +1026,7 @@ namespace xtk
             if(tBasisIds.numel() == 0)
             {
                 std::cout<<"Vertex id = "<<tVertexPointers(i)->get_id()
-                        <<" | back vertex id = "<<mEnrichedInterpVerts(tVertexPointers(i)->get_index()).get_id()<<std::endl;
+                                <<" | back vertex id = "<<mEnrichedInterpVerts(tVertexPointers(i)->get_index()).get_id()<<std::endl;
                 MORIS_ASSERT(0,"Interpolation Vertex in cluster does not have at least 1 basis interpolating into it");
                 tDiagnosticFlag = false;
             }
@@ -1037,10 +1037,10 @@ namespace xtk
                 if(this->get_basis_bulk_phase(tBasisIndices(iB),aMeshIndex) != tBulkPhase)
                 {
                     std::cout<<"Vertex id = "<<tVertexPointers(i)->get_id()
-                                    <<" | back vertex id = "<<mEnrichedInterpVerts(tVertexPointers(i)->get_index()).get_id()
-                                    <<" | tBasisIds(iB) = "<<tBasisIds(iB)
-                                    <<" | MeshBP"<<this->get_basis_bulk_phase(tBasisIndices(iB),aMeshIndex)
-                                    <<" | tBulkPhase = "<<tBulkPhase<<std::endl;
+                                            <<" | back vertex id = "<<mEnrichedInterpVerts(tVertexPointers(i)->get_index()).get_id()
+                                            <<" | tBasisIds(iB) = "<<tBasisIds(iB)
+                                            <<" | MeshBP"<<this->get_basis_bulk_phase(tBasisIndices(iB),aMeshIndex)
+                                            <<" | tBulkPhase = "<<tBulkPhase<<std::endl;
                     MORIS_ASSERT(0,"Basis in cluster does not interpolate into same bulk phase as interpolation cell");
                     tDiagnosticFlag = false;
                 }
@@ -1183,10 +1183,10 @@ namespace xtk
                     {
 
                         std::cout<< " Vert Id = "<< tVertices(iV)->get_id()
-                                     <<" | Vert Owner = "<< tVertices(iV)->get_owner()
-                                     <<" | mVertexBulkPhase(tVertexIndex) = "<<mVertexBulkPhase(tVertexIndex)
-                                     <<" | tEnrIpCells(i)->get_bulkphase_index() ="<<tEnrIpCells(i)->get_bulkphase_index()
-                                     <<std::endl;
+                                             <<" | Vert Owner = "<< tVertices(iV)->get_owner()
+                                             <<" | mVertexBulkPhase(tVertexIndex) = "<<mVertexBulkPhase(tVertexIndex)
+                                             <<" | tEnrIpCells(i)->get_bulkphase_index() ="<<tEnrIpCells(i)->get_bulkphase_index()
+                                             <<std::endl;
                     }
                     MORIS_ASSERT(mVertexBulkPhase(tVertexIndex) == tEnrIpCells(i)->get_bulkphase_index(),"Inconsistent vertex bulk phase");
                 }

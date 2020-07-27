@@ -1,7 +1,3 @@
-//
-// Created by christopherson on 5/21/20.
-//
-
 #include "cl_OPT_Criteria_Interface.hpp"
 
 namespace moris

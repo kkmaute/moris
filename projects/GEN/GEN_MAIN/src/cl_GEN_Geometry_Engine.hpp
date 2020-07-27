@@ -17,6 +17,7 @@
 #include "cl_GEN_Pdv_Enums.hpp"
 
 // MTK
+#include "cl_MTK_Mesh_Core.hpp"
 #include "cl_MTK_Cluster.hpp"
 #include "cl_MTK_Mesh_Manager.hpp"
 #include "cl_Mesh_Enums.hpp"
@@ -40,17 +41,14 @@ namespace moris
     namespace ge
     {
 
-        //--------------------------------------------------------------------------------------------------------------
-        // GEOMETRY ENGINE
-        //--------------------------------------------------------------------------------------------------------------
-
         class Geometry_Engine : public wrk::Performer
         {
         private:
 
-            // Level-set isocontour threshold
+            // Level-set
             real mIsocontourThreshold;
             real mErrorFactor;
+            std::string mLevelSetFile = "";
 
             // Spatial dimensions
             uint mSpatialDim;
@@ -63,7 +61,7 @@ namespace moris
             bool mShapeSensitivities = false;
 
             // Geometry
-            moris::size_t mActiveGeometryIndex = 0;
+            size_t mActiveGeometryIndex = 0;
             Cell<std::shared_ptr<Geometry>> mGeometry;
 
             // Property
@@ -77,9 +75,6 @@ namespace moris
             // Phase Table
             Phase_Table mPhaseTable;
 
-            // Mesh
-            std::shared_ptr<mtk::Mesh_Manager> mMeshManager;
-
             // Temporary FIXME
             Matrix<IndexMat> mInterfaceNodeIndices;
             Cell<Matrix<IndexMat>> mInterfaceParentNodes;
@@ -92,19 +87,22 @@ namespace moris
              * @param aParameterLists GEN parameter lists (see fn_PRM_GEN_Parameters.hpp)
              * @param aLibrary Library used for pulling user-defined functions
              */
-            Geometry_Engine(Cell< Cell<ParameterList> >        aParameterLists,
-                            std::shared_ptr<moris::Library_IO> aLibrary = nullptr);
+            Geometry_Engine(Cell< Cell<ParameterList> > aParameterLists,
+                            std::shared_ptr<Library_IO> aLibrary = nullptr);
 
             /**
-             * Constructor using externally created geometries and phase table
+             * Constructor using externally-created geometry and phase table
              *
-             * @param[ in ] aGeometry cell of shared Geometry pointers
-             * @param[ in ] aPhaseTable phase table
-             * @param[ in ] aSpatialDim spatial dimensions
+             * @param aGeometry Geometry instances to use
+             * @param aPhaseTable Phase table for determining bulk phases
+             * @param aMesh Mesh for computing level-set values
+             * @param aADVs ADV vector
+             * @param aIsocontourThreshold Threshold for setting the level-set isocontour
+             * @param aErrorFactor Error factor for determining if a node is on an interface
              */
             Geometry_Engine(Cell< std::shared_ptr<Geometry> > aGeometry,
                             Phase_Table                       aPhaseTable,
-                            uint                              aSpatialDim = 3,
+                            mtk::Mesh*                        aMesh,
                             Matrix<DDRMat>                    aADVs = {{}},
                             real                              aIsocontourThreshold = 0.0,
                             real                              aErrorFactor = 0.0);
@@ -179,9 +177,9 @@ namespace moris
              * @param[ in ] aNodeCoords node coordinates
              */
             void create_new_child_nodes( const Cell<moris_index>&    aNewNodeIndices,
-                                                   const Cell<xtk::Topology*>& aParentTopo,
-                                                   const Cell<Matrix<DDRMat>>& aParamCoordRelativeToParent,
-                                                   const Matrix<DDRMat>&       aGlobalNodeCoord );
+                                         const Cell<xtk::Topology*>& aParentTopo,
+                                         const Cell<Matrix<DDRMat>>& aParamCoordRelativeToParent,
+                                         const Matrix<DDRMat>&       aGlobalNodeCoord );
 
             /**
              * @brief is_intersected checks to see if an entity provided to it intersects a geometry field. Intersects in this context
@@ -193,29 +191,28 @@ namespace moris
              *                                   0 - No information on interface required
              *                                   1 - information on interface required
              */
-            void is_intersected( moris::Matrix< moris::DDRMat > const &   aNodeCoords,
-                                 moris::Matrix< moris::IndexMat > const & aNodetoEntityConn,
-                                 moris::size_t                            aCheckType,
-                                 Cell<GEN_Geometry_Object> &              aGeometryObjects );
+            void is_intersected(const Matrix<DDRMat>&      aNodeCoords,
+                                const Matrix<IndexMat>&    aNodetoEntityConn,
+                                size_t                     aCheckType,
+                                Cell<GEN_Geometry_Object>& aGeometryObjects);
 
             /**
              * Sets the indices for the nodes on the interface
              *
              * @param aInterfaceNodeIndices Interface node indices
              */
-            void set_interface_nodes( Matrix< IndexMat > const & aInterfaceNodeIndices);
+            void set_interface_nodes(const Matrix<IndexMat>& aInterfaceNodeIndices);
 
             /**
              * @brief Get the total number of phases in the phase table
              */
-            moris::size_t get_num_phases();
+            size_t get_num_phases();
 
             /**
              * @brief Get the 0 or 1 value associated with a given phase and geometry index
              */
-            moris::moris_index
-            get_phase_sign_of_given_phase_and_geometry( moris::moris_index aPhaseIndex,
-                                                        moris::moris_index aGeometryIndex );
+            moris_index get_phase_sign_of_given_phase_and_geometry( moris_index aPhaseIndex,
+                                                        moris_index aGeometryIndex );
 
             /**
               * For a given node index, return the phase index relative to each geometry (i.e. inside/outside indicator)
@@ -225,7 +222,7 @@ namespace moris
             /**
              * @brief Provided the inside and out phase values for an entity, return the phase index
              */
-            moris_index get_elem_phase_index(moris::Matrix< moris::IndexMat > const & aElemOnOff);
+            moris_index get_elem_phase_index(Matrix< IndexMat > const & aElemOnOff);
 
             /**
              * @brief Returns whether a node is inside or outside wrt to a given geometry index
@@ -235,29 +232,22 @@ namespace moris
             /**
              * @brief Returns the number of geometries
              */
-            moris::size_t get_num_geometries();
+            size_t get_num_geometries();
 
             /**
              * @brief Returns the number of phases
              */
-            moris::size_t get_num_bulk_phase();
+            size_t get_num_bulk_phase();
 
             /**
              * @brief Returns the active geometry index
              */
-            moris::size_t get_active_geometry_index();
+            size_t get_active_geometry_index();
 
             /**
              * @brief Advance the active geometry index
              */
             void advance_geometry_index();
-
-            /**
-             * Register an MTK mesh pair to the geometry engine
-             *
-             * @param aMeshManager MTK mesh manager with interpolation and integration meshes
-             */
-            void register_mesh(std::shared_ptr<mtk::Mesh_Manager> aMeshManager);
 
             /**
              * Return the number of fields that can be used for refinement
@@ -298,40 +288,18 @@ namespace moris
                                                uint aRefinementIndex);
 
             /**
-             * @brief assign the pdv type and property for each pdv host in a given set
-             */
-            void assign_ip_hosts_by_set_name( std::string                 aSetName,
-                                              std::shared_ptr<Property> aPropertyPointer,
-                                              PDV_Type                    aPdvType,
-                                              moris_index                 aWhichMesh = 0 );
-
-            /**
-             * @brief assign the pdv type and property for each pdv host in a given set
-             */
-            void assign_ip_hosts_by_set_index( moris_index               aSetIndex,
-                                               std::shared_ptr<Property> aPropertyPointer,
-                                               PDV_Type                  aPdvType,
-                                               moris_index               aWhichMesh = 0 );
-
-            /**
-             * Create PDV_Type hosts with the specified PDV_Type types on the interpolation mesh
+             * Computes and saves the current level-set field data based on the given interpolation mesh
              *
-             * @param aPdvTypes PDV_Type types; set->group->individual
-             * @param aMeshIndex Interpolation mesh index
+             * @param aMesh
              */
-            void create_ip_pdv_hosts(Cell<Cell<Cell<PDV_Type>>> aPdvTypes, moris_index aMeshIndex = 0);
-
-            /**
-             * Create PDV_Type hosts with PDVs for each of the spatial dimensions on the integration mesh
-             *
-             * @param aMeshIndex Integration mesh index
-             */
-            void create_ig_pdv_hosts(moris_index aMeshIndex = 0);
+            void compute_level_set_data(mtk::Mesh* aMesh);
 
             /**
              * Assign PDV hosts based on properties constructed through parameter lists
+             *
+             * @param aMeshManager Mesh manager
              */
-            void assign_pdv_hosts();
+            void create_pdvs(std::shared_ptr<mtk::Mesh_Manager> aMeshManager);
 
         private:
 
@@ -351,11 +319,11 @@ namespace moris
              * @param[in]  aCheckType      - if a entity local location is necessary 1, else 0.
              * @param[out] Returns an intersection flag and local coordinates if aCheckType 1 in cell 1 and node sensitivity information in cell 2 if intersection point located
              **/
-            bool compute_intersection_info( moris::moris_index               const & aEntityIndex,
-                                            moris::Matrix< moris::IndexMat > const & aEntityNodeInds,
-                                            moris::Matrix< moris::DDRMat >   const & aNodeCoords,
-                                            moris::size_t                    const & aCheckType,
-                                            GEN_Geometry_Object                    & aGeometryObject );
+            bool compute_intersection_info(moris_index             aEntityIndex,
+                                           const Matrix<IndexMat>& aEntityNodeInds,
+                                           const Matrix<DDRMat>&   aNodeCoords,
+                                           size_t                  aCheckType,
+                                           GEN_Geometry_Object&    aGeometryObject);
 
             /**
              * Computes the intersection of an isocountour with an entity and returning the local coordinate relative to the parent
@@ -367,6 +335,31 @@ namespace moris
                     const Matrix<IndexMat>& aEntityNodeIndices,
                     Matrix<DDRMat>&         aIntersectionLocalCoordinates,
                     Matrix<DDRMat>&         aIntersectionGlobalCoordinates);
+
+            /**
+             * Create PDV_Type hosts with the specified PDV_Type types on the interpolation mesh
+             *
+             * @param aPdvTypes PDV_Type types; set->group->individual
+             * @param aMeshIndex Interpolation mesh index
+             */
+            void create_ip_pdv_hosts(mtk::Interpolation_Mesh* aInterpolationMesh,
+                                     mtk::Integration_Mesh* aIntegrationMesh,
+                                     Cell<Cell<Cell<PDV_Type>>> aPdvTypes);
+
+            /**
+             * Create PDV_Type hosts with PDVs for each of the spatial dimensions on the integration mesh
+             *
+             * @param aMeshIndex Integration mesh index
+             */
+            void create_ig_pdv_hosts(mtk::Integration_Mesh* aIntegrationMesh);
+
+            /**
+             * @brief assign the pdv type and property for each pdv host in a given set
+             */
+            void assign_property_to_pdv_hosts(std::shared_ptr<Property> aPropertyPointer,
+                                              PDV_Type                  aPdvType,
+                                              mtk::Integration_Mesh*    aIntegrationMesh,
+                                              Matrix<DDUMat>            aSetIndices);
 
         };
     }

@@ -28,11 +28,8 @@ using namespace dla;
 
 void Nonlinear_Algorithm::set_linear_solver( dla::Linear_Solver * aLinSolver  )
 {
-    // Check if nullptr. If not delete liner solver manager
-    if( mLinSolverManager != nullptr )
-    {
-        delete( mLinSolverManager );
-    }
+    // Delete liner solver manager
+    delete mLinSolverManager;
 
     // Set liner solver manager
     mLinSolverManager = aLinSolver;

@@ -17,15 +17,19 @@ namespace moris
 {
     namespace ge
     {
+
+        //--------------------------------------------------------------------------------------------------------------
+        // PUBLIC
         //--------------------------------------------------------------------------------------------------------------
 
         Geometry_Engine::Geometry_Engine(
                 Cell<Cell<ParameterList>> aParameterLists,
-                std::shared_ptr<moris::Library_IO> aLibrary):
+                std::shared_ptr<Library_IO> aLibrary):
 
                 // Level-set options
                 mIsocontourThreshold(aParameterLists(0)(0).get<real>("isocontour_threshold")),
                 mErrorFactor(aParameterLists(0)(0).get<real>("isocontour_error_factor")),
+                mLevelSetFile(aParameterLists(0)(0).get<std::string>("level_set_file")),
 
                 // ADVs/IQIs
                 mADVs((uint)aParameterLists(0)(0).get<sint>("advs_size"), 1, aParameterLists(0)(0).get<real>("initial_advs_fill")),
@@ -84,7 +88,7 @@ namespace moris
             // Set requested PDVs
             Cell<std::string> tRequestedPdvNames = string_to_cell<std::string>(aParameterLists(0)(0).get<std::string>("PDV_types"));
             Cell<PDV_Type> tRequestedPdvTypes(tRequestedPdvNames.size());
-            moris::map<std::string, PDV_Type> tPdvTypeMap = get_pdv_type_map();
+            map<std::string, PDV_Type> tPdvTypeMap = get_pdv_type_map();
             for (uint tPdvTypeIndex = 0; tPdvTypeIndex < tRequestedPdvTypes.size(); tPdvTypeIndex++)
             {
                 tRequestedPdvTypes(tPdvTypeIndex) = tPdvTypeMap[tRequestedPdvNames(tPdvTypeIndex)];
@@ -95,21 +99,25 @@ namespace moris
         //--------------------------------------------------------------------------------------------------------------
 
         Geometry_Engine::Geometry_Engine(
-                Cell<std::shared_ptr<Geometry>> aGeometry,
-                Phase_Table                     aPhaseTable,
-                uint                            aSpatialDim,
-                Matrix<DDRMat>                  aADVs,
-                real                            aIsocontourThreshold,
-                real                            aErrorFactor)
+                Cell< std::shared_ptr<Geometry> > aGeometry,
+                Phase_Table                       aPhaseTable,
+                mtk::Mesh*                        aMesh,
+                Matrix<DDRMat>                    aADVs,
+                real                              aIsocontourThreshold,
+                real                              aErrorFactor)
                 : mIsocontourThreshold(aIsocontourThreshold),
                   mErrorFactor(aErrorFactor),
-                  mSpatialDim(aSpatialDim),
                   mADVs(aADVs),
                   mActiveGeometryIndex(0),
                   mGeometry(aGeometry),
                   mPdvHostManager(mADVs.length()),
                   mPhaseTable(aPhaseTable)
         {
+            for (uint tGeometryIndex = 0; tGeometryIndex < mGeometry.size(); tGeometryIndex++)
+            {
+                mShapeSensitivities = (mShapeSensitivities or mGeometry(tGeometryIndex)->depends_on_advs());
+            }
+            this->compute_level_set_data(aMesh);
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -122,7 +130,10 @@ namespace moris
 
         void Geometry_Engine::set_advs(Matrix<DDRMat> aNewADVs)
         {
+            // Set new ADVs
             mADVs = aNewADVs;
+
+            // Reset info related to the mesh
             mPdvHostManager.reset();
             mIntersectionNodes.resize(0);
             mInterfaceParentNodes.resize(0);
@@ -220,26 +231,25 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        void Geometry_Engine::is_intersected(
-                moris::Matrix< moris::DDRMat > const   & aNodeCoords,
-                moris::Matrix< moris::IndexMat > const & aNodetoEntityConn,
-                moris::size_t                            aCheckType,
-                Cell< GEN_Geometry_Object >            & aGeometryObjects )
+        void Geometry_Engine::is_intersected(const Matrix<DDRMat>&      aNodeCoords,
+                                             const Matrix<IndexMat>&    aNodetoEntityConn,
+                                             size_t                     aCheckType,
+                                             Cell<GEN_Geometry_Object>& aGeometryObjects)
         {
             //Get information for loops
-            moris::size_t tNumEntities = aNodetoEntityConn.n_rows(); // Number of entities provided to the geometry engine
+            size_t tNumEntities = aNodetoEntityConn.n_rows(); // Number of entities provided to the geometry engine
 
             //Initialize
-            moris::size_t tIntersectedCount = 0;    // Intersected element counter
+            size_t tIntersectedCount = 0;    // Intersected element counter
             aGeometryObjects.clear();
             aGeometryObjects.resize(tNumEntities,GEN_Geometry_Object());
 
             //Loop over elements and determine if the element has an intersection
-            for(moris::moris_index i = 0; i < (moris::moris_index)tNumEntities; i++)
+            for(moris_index i = 0; i < (moris_index)tNumEntities; i++)
             {
 
                 //Populate the intersection flag of this element with a bool
-                moris::Matrix< moris::IndexMat > tRow = aNodetoEntityConn.get_row(i);
+                Matrix< IndexMat > tRow = aNodetoEntityConn.get_row(i);
                 bool tIsIntersected = compute_intersection_info(
                         i,
                         tRow,
@@ -267,17 +277,17 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        moris::size_t Geometry_Engine::get_num_phases()
+        size_t Geometry_Engine::get_num_phases()
         {
             return mPhaseTable.get_num_phases();
         }
 
         //--------------------------------------------------------------------------------------------------------------
 
-        moris::moris_index
-        Geometry_Engine::get_phase_sign_of_given_phase_and_geometry(
-                moris::moris_index aPhaseIndex,
-                moris::moris_index aGeometryIndex )
+
+        moris_index Geometry_Engine::get_phase_sign_of_given_phase_and_geometry(
+                moris_index aPhaseIndex,
+                moris_index aGeometryIndex )
         {
             return mPhaseTable.get_phase_sign_of_given_phase_and_geometry( aPhaseIndex,aGeometryIndex );
         }
@@ -289,8 +299,8 @@ namespace moris
                 const Matrix<DDRMat> & aCoordinates)
         {
             // 0 for neg 1 for pos
-            moris::real tNodePhaseValue = 0;
-            moris::Matrix< moris::IndexMat > tPhaseOnOff(1, this->get_num_geometries());
+            real tNodePhaseValue = 0;
+            Matrix< IndexMat > tPhaseOnOff(1, this->get_num_geometries());
 
             for (uint tGeometryIndex = 0; tGeometryIndex < mGeometry.size(); tGeometryIndex++)
             {
@@ -312,7 +322,7 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        moris_index Geometry_Engine::get_elem_phase_index(moris::Matrix< moris::IndexMat > const & aElemOnOff)
+        moris_index Geometry_Engine::get_elem_phase_index(Matrix< IndexMat > const & aElemOnOff)
         {
             return mPhaseTable.get_phase_index(aElemOnOff);
         }
@@ -329,7 +339,7 @@ namespace moris
                     aCoordinates,
                     aGeometryIndex);
 
-            moris::size_t tPhaseOnOff = 1;
+            size_t tPhaseOnOff = 1;
             if (tNodePhaseValue < mIsocontourThreshold)
             {
                 tPhaseOnOff = 0;
@@ -340,21 +350,21 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        moris::size_t Geometry_Engine::get_num_geometries()
+        size_t Geometry_Engine::get_num_geometries()
         {
             return mGeometry.size();
         }
 
         //--------------------------------------------------------------------------------------------------------------
 
-        moris::size_t Geometry_Engine::get_num_bulk_phase()
+        size_t Geometry_Engine::get_num_bulk_phase()
         {
             return mPhaseTable.get_num_phases();
         }
 
         //--------------------------------------------------------------------------------------------------------------
 
-        moris::size_t Geometry_Engine::get_active_geometry_index()
+        size_t Geometry_Engine::get_active_geometry_index()
         {
             return mActiveGeometryIndex;
         }
@@ -366,14 +376,6 @@ namespace moris
             MORIS_ASSERT(mActiveGeometryIndex < mGeometry.size(),
                     "Trying to advance past the number of geometries in the geometry engine");
             mActiveGeometryIndex += 1;
-        }
-
-        //--------------------------------------------------------------------------------------------------------------
-
-        void Geometry_Engine::register_mesh(std::shared_ptr<mtk::Mesh_Manager> aMeshManager)
-        {
-            mMeshManager = aMeshManager;
-            mSpatialDim = mMeshManager->get_interpolation_mesh(0)->get_spatial_dim();
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -411,210 +413,17 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        void Geometry_Engine::assign_ip_hosts_by_set_name(
-                std::string                 aSetName,
-                std::shared_ptr< Property > aPropertyPointer,
-                PDV_Type                    aPdvType,
-                moris_index                 aWhichMesh)
-        {
-            // get the mesh set from name
-            moris::mtk::Set* tSetPointer = mMeshManager->get_integration_mesh( aWhichMesh )->get_set_by_name( aSetName );
-
-            // get the list of cluster on mesh set
-            moris::Cell< mtk::Cluster const * > tClusterPointers = tSetPointer->get_clusters_on_set();
-
-            // get number of clusters on mesh set
-            uint tNumClusters = tClusterPointers.size();
-
-            // loop over the clusters on mesh set
-            for(uint iClust=0; iClust<tNumClusters; iClust++)
-            {
-                // get the IP cell from cluster
-                moris::mtk::Cell const & tIPCell = tClusterPointers(iClust)->get_interpolation_cell();
-
-                // get the vertices from IP cell
-                moris::Cell< moris::mtk::Vertex * > tVertices = tIPCell.get_vertex_pointers();
-
-                // get the number of vertices on IP cell
-                uint tNumVerts = tVertices.size();
-
-                // loop over vertices on IP cell
-                for(uint iVert = 0; iVert < tNumVerts; iVert++)
-                {
-                    // get the vertex index
-                    moris_index tVertIndex = tVertices(iVert)->get_index();
-
-                    // ask pdv host manager to assign to vertex a pdv type and a property
-                    mPdvHostManager.create_ip_pdv(
-                            uint(tVertIndex),
-                            aPdvType,
-                            aPropertyPointer);
-                }
-            }
-        }
-
-        //--------------------------------------------------------------------------------------------------------------
-
-        void Geometry_Engine::assign_ip_hosts_by_set_index(
-                moris_index                 aSetIndex,
-                std::shared_ptr< Property > aPropertyPointer,
-                PDV_Type                    aPdvType,
-                moris_index                 aWhichMesh)
-        {
-            // get the mesh set from index
-            moris::mtk::Set* tSetPointer = mMeshManager->get_integration_mesh( aWhichMesh )->get_set_by_index( aSetIndex );
-
-            // get the list of cluster on mesh set
-            moris::Cell< mtk::Cluster const * > tClusterPointers = tSetPointer->get_clusters_on_set();
-
-            // get number of clusters on mesh set
-            uint tNumClusters = tClusterPointers.size();
-
-            // loop over the clusters on mesh set
-            for(uint iClust=0; iClust<tNumClusters; iClust++)
-            {
-                // get the IP cell from cluster
-                moris::mtk::Cell const & tIPCell = tClusterPointers(iClust)->get_interpolation_cell();
-
-                // get the vertices from IP cell
-                moris::Cell< moris::mtk::Vertex * > tVertices = tIPCell.get_vertex_pointers();
-
-                // get the number of vertices on IP cell
-                uint tNumVerts = tVertices.size();
-
-                // loop over vertices on IP cell
-                for(uint iVert = 0; iVert < tNumVerts; iVert++)
-                {
-                    // get the vertex index
-                    moris_index tVertIndex = tVertices(iVert)->get_index();
-
-                    // ask pdv host manager to assign to vertex a pdv type and a property
-                    mPdvHostManager.create_ip_pdv( uint(tVertIndex), aPdvType, aPropertyPointer );
-                }
-            }
-        }
-
-        //--------------------------------------------------------------------------------------------------------------
-
-        void Geometry_Engine::create_ip_pdv_hosts(Cell<Cell<Cell<PDV_Type>>> aPdvTypes, moris_index aMeshIndex)
-        {
-            // Get information from integration mesh
-            mtk::Integration_Mesh* tIntegrationMesh = mMeshManager->get_integration_mesh(aMeshIndex);
-            //uint tNumSets = tInterpolationMesh->get_num_sets(); FIXME
-            uint tNumSets = aPdvTypes.size();
-            uint tNumNodes = mMeshManager->get_interpolation_mesh(aMeshIndex)->get_num_nodes();
-            Cell<Matrix<DDSMat>> tNodeIndicesPerSet(tNumSets);
-            Cell<Matrix<DDRMat>> tNodeCoordinates(tNumNodes);
-
-            // Loop through sets
-            Cell<Cell<Cell<PDV_Type>>> tPdvTypes(tNumSets);
-            mtk::Set* tSet;
-            const mtk::Cluster* tCluster;
-            uint tCurrentNode;
-            Matrix<IndexMat> tNodeIndicesInCluster;
-            for (uint tMeshSetIndex = 0; tMeshSetIndex < tNumSets; tMeshSetIndex++)
-            {
-                tCurrentNode = 0;
-                tSet = tIntegrationMesh->get_set_by_index(tMeshSetIndex);
-
-                // Clusters per set
-                for (uint tClusterIndex = 0; tClusterIndex < tSet->get_num_clusters_on_set(); tClusterIndex++)
-                {
-                    tCluster = tSet->get_clusters_by_index(tClusterIndex);
-
-                    // Indices on cluster
-                    tNodeIndicesInCluster = tCluster->get_interpolation_cell().get_vertex_inds();
-                    tNodeIndicesPerSet(tMeshSetIndex).resize(tNodeIndicesPerSet(tMeshSetIndex).length() + tNodeIndicesInCluster.length(), 1);
-
-                    for (uint tNodeInCluster = 0; tNodeInCluster < tNodeIndicesInCluster.length(); tNodeInCluster++)
-                    {
-                        tNodeIndicesPerSet(tMeshSetIndex)(tCurrentNode++) = tNodeIndicesInCluster(tNodeInCluster);
-                    }
-                }
-            }
-
-            mtk::Interpolation_Mesh * tInterpolationMesh = mMeshManager->get_interpolation_mesh(aMeshIndex);
-            // Get node coordinates
-            for (uint tNodeIndex = 0; tNodeIndex < tNumNodes; tNodeIndex++)
-            {
-                tNodeCoordinates(tNodeIndex) = tInterpolationMesh->get_node_coordinate(tNodeIndex);
-            }
-
-            // Create hosts
-            mPdvHostManager.create_ip_pdv_hosts(tNodeIndicesPerSet, tNodeCoordinates, aPdvTypes);
-        }
-
-        //--------------------------------------------------------------------------------------------------------------
-
-        void Geometry_Engine::create_ig_pdv_hosts(moris_index aMeshIndex)
-        {
-            // Check interface nodes
-            MORIS_ERROR(mIntersectionNodes.size() == mInterfaceNodeIndices.length(),
-                    "Number of interface nodes must match number of intersection nodes in the geometry engine");
-
-            // Get information from integration mesh
-            mtk::Integration_Mesh* tIntegrationMesh = mMeshManager->get_integration_mesh(aMeshIndex);
-            uint tNumSets = tIntegrationMesh->get_num_sets();
-
-            // Cell of IG PDV_Type types
-            Cell<PDV_Type> tCoordinatePdvs(mSpatialDim);
-
-            switch(mSpatialDim)
-            {
-                case(2):
-                {
-                    tCoordinatePdvs(0) = PDV_Type::X_COORDINATE;
-                    tCoordinatePdvs(1) = PDV_Type::Y_COORDINATE;
-                    break;
-                }
-                case(3):
-                {
-                    tCoordinatePdvs(0) = PDV_Type::X_COORDINATE;
-                    tCoordinatePdvs(1) = PDV_Type::Y_COORDINATE;
-                    tCoordinatePdvs(2) = PDV_Type::Z_COORDINATE;
-                    break;
-                }
-                default:
-                {
-                    MORIS_ERROR( false, "Geometry Engine only works for 2D and 3D models." );
-                }
-            }
-
-            // Loop through sets
-            Cell<Cell<Cell<PDV_Type>>> tPdvTypes(tNumSets);
-            for (uint tMeshSetIndex = 0; tMeshSetIndex < tNumSets; tMeshSetIndex++)
-            {
-                // PDV_Type types per set
-                tPdvTypes(tMeshSetIndex).resize(1);
-                tPdvTypes(tMeshSetIndex)(0) = tCoordinatePdvs;
-            }
-
-            // Create hosts
-            if (mInterfaceNodeIndices.length() > 0)
-            {
-                Cell<std::shared_ptr<Intersection_Node>> tIntersectionNodes(mInterfaceNodeIndices(mInterfaceNodeIndices.length() - 1) + 1);
-                for (uint tInterfaceNode = 0; tInterfaceNode < mInterfaceNodeIndices.length(); tInterfaceNode++)
-                {
-                    tIntersectionNodes(mInterfaceNodeIndices(tInterfaceNode)) = mIntersectionNodes(tInterfaceNode);
-                }
-                mPdvHostManager.create_ig_pdv_hosts(tPdvTypes, tIntersectionNodes);
-                mPdvHostManager.set_ig_requested_pdv_types(tCoordinatePdvs);
-            }
-        }
-
-        //--------------------------------------------------------------------------------------------------------------
-
-        void Geometry_Engine::assign_pdv_hosts()
+        void Geometry_Engine::create_pdvs(std::shared_ptr<mtk::Mesh_Manager> aMeshManager)
         {
             // Initialize
-            mtk::Integration_Mesh* tIntegrationMesh = mMeshManager->get_integration_mesh(0);
+            mtk::Integration_Mesh* tIntegrationMesh = aMeshManager->get_integration_mesh(0);
             Cell<Cell<Cell<PDV_Type>>> tPdvTypes(tIntegrationMesh->get_num_sets());
             Cell<PDV_Type> tPdvTypeGroup(1);
             Cell<std::string> tMeshSetNames(0);
             Matrix<DDUMat> tMeshSetIndices(0, 0);
 
             // PDV type map
-            moris::map< std::string, PDV_Type > tPdvTypeMap = get_pdv_type_map();
+            map< std::string, PDV_Type > tPdvTypeMap = get_pdv_type_map();
 
             // Loop over properties to create PDVs
             for (uint tPropertyIndex = 0; tPropertyIndex < mPropertyParameterLists.size(); tPropertyIndex++)
@@ -640,10 +449,10 @@ namespace moris
             }
 
             // Create PDV hosts
-            this->create_ip_pdv_hosts(tPdvTypes);
+            this->create_ip_pdv_hosts(aMeshManager->get_interpolation_mesh(0), tIntegrationMesh, tPdvTypes);
             if (mShapeSensitivities)
             {
-                this->create_ig_pdv_hosts();
+                this->create_ig_pdv_hosts(tIntegrationMesh);
             }
 
             // Loop over properties to assign PDVs
@@ -657,17 +466,7 @@ namespace moris
                 // Assign PDVs
                 if (mPropertyParameterLists(tPropertyIndex).get<std::string>("pdv_mesh_type") == "interpolation")
                 {
-                    // Set names
-                    for (uint tNameIndex = 0; tNameIndex < tMeshSetNames.size(); tNameIndex++)
-                    {
-                        this->assign_ip_hosts_by_set_name(tMeshSetNames(tNameIndex), mProperties(tPropertyIndex), tPdvTypeGroup(0));
-                    }
-
-                    // Set indices
-                    for (uint tIndex = 0; tIndex < tMeshSetIndices.length(); tIndex++)
-                    {
-                        this->assign_ip_hosts_by_set_index(tMeshSetIndices(tIndex), mProperties(tPropertyIndex), tPdvTypeGroup(0));
-                    }
+                    this->assign_property_to_pdv_hosts(mProperties(tPropertyIndex), tPdvTypeGroup(0), tIntegrationMesh, tMeshSetIndices);
                 }
                 else
                 {
@@ -678,6 +477,69 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
+        void Geometry_Engine::compute_level_set_data(mtk::Mesh* aMesh)
+        {
+            // Register spatial dimension
+            mSpatialDim = aMesh->get_spatial_dim();
+
+            // Create B-spline level sets
+//            for (uint tLevelSetIndex = 0; tLevelSetIndex < mNumLevelSets; tLevelSetIndex++)
+//            {
+//                Matrix<DDUMat> tGeometryVariableIndices;
+//                Matrix<DDUMat> tADVIndices;
+//                Matrix<DDRMat> tConstantParameters;
+//                mGeometry.push_back(std::make_shared<Level_Set>(mADVs,
+//                                                                tGeometryVariableIndices,
+//                                                                tADVIndices,
+//                                                                tConstantParameters,
+//                                                                aMesh);)
+//            }
+
+            // Save level set data
+            if (mLevelSetFile != "")
+            {
+                // Get all node coordinates
+                Cell<Matrix<DDRMat>> tNodeCoordinates(aMesh->get_num_nodes());
+                for (uint tNodeIndex = 0; tNodeIndex < aMesh->get_num_nodes(); tNodeIndex++)
+                {
+                    tNodeCoordinates(tNodeIndex) = aMesh->get_node_coordinate(tNodeIndex);
+                }
+
+                // Loop over geometries
+                for (uint tGeometryIndex = 0; tGeometryIndex < mGeometry.size(); tGeometryIndex++)
+                {
+                    // Create file
+                    std::ofstream tOutFile(mLevelSetFile + "_" + std::to_string(tGeometryIndex) + ".txt");
+
+                    // Write to file
+                    for (uint tNodeIndex = 0; tNodeIndex < aMesh->get_num_nodes(); tNodeIndex++)
+                    {
+                        // Coordinates
+                        for (uint tDimension = 0; tDimension < mSpatialDim; tDimension++)
+                        {
+                            tOutFile << tNodeCoordinates(tNodeIndex)(tDimension) << ", ";
+                        }
+
+                        // Fill unused dimensions with zeros
+                        for (uint tDimension = mSpatialDim; tDimension < 3; tDimension++)
+                        {
+                            tOutFile << 0.0 << ", ";
+                        }
+
+                        // Level-set field
+                        tOutFile << mGeometry(tGeometryIndex)->evaluate_field_value(tNodeIndex, tNodeCoordinates(tNodeIndex)) << std::endl;
+                    }
+
+                    // Close file
+                    tOutFile.close();
+                }
+            }
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+        // PRIVATE
+        //--------------------------------------------------------------------------------------------------------------
+
         bool Geometry_Engine::on_interface(real aFieldValue)
         {
             return (std::abs(aFieldValue - mIsocontourThreshold) < mErrorFactor);
@@ -685,29 +547,28 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
         
-        bool Geometry_Engine::compute_intersection_info(
-                moris::moris_index               const & aEntityIndex,
-                moris::Matrix< moris::IndexMat > const & aEntityNodeInds,
-                moris::Matrix< moris::DDRMat >   const & aNodeCoords,
-                moris::size_t const                    & aCheckType,
-                GEN_Geometry_Object                    & aGeometryObject )
+        bool Geometry_Engine::compute_intersection_info(moris_index             aEntityIndex,
+                                                        const Matrix<IndexMat>& aEntityNodeInds,
+                                                        const Matrix<DDRMat>&   aNodeCoords,
+                                                        size_t                  aCheckType,
+                                                        GEN_Geometry_Object&    aGeometryObject)
         {
             //Initialize
             bool tIsIntersected = false;
         
-            moris::real tMax = 0;
-            moris::real tMin = 0;
-            moris::uint tMaxLocRow = 0;
-            moris::uint tMaxLocCol = 0;
-            moris::uint tMinLocRow = 0;
-            moris::uint tMinLocCol = 0;
+            real tMax = 0;
+            real tMin = 0;
+            uint tMaxLocRow = 0;
+            uint tMaxLocCol = 0;
+            uint tMinLocRow = 0;
+            uint tMinLocCol = 0;
         
-            moris::size_t tNodeInd  = 0;
-            moris::size_t tNumNodes = aEntityNodeInds.numel();
-            moris::Matrix< moris::DDRMat > tEntityNodeVars(tNumNodes, 1);
+            size_t tNodeInd  = 0;
+            size_t tNumNodes = aEntityNodeInds.numel();
+            Matrix< DDRMat > tEntityNodeVars(tNumNodes, 1);
         
             // Loop through nodes and get level set values from pre-computed values in aNodeVars or in the level set mesh
-            for(moris::size_t n = 0; n < tNumNodes; n++)
+            for(size_t n = 0; n < tNumNodes; n++)
             {
                 tNodeInd = aEntityNodeInds(n);
         
@@ -752,8 +613,8 @@ namespace moris
                 tIsIntersected = true;
                 if(aCheckType == 1)
                 {
-                    moris::Matrix< moris::DDRMat > tIntersectLocalCoordinate(1,1);
-                    moris::Matrix< moris::DDRMat > tIntersectGlobalCoordinate(1,mSpatialDim);
+                    Matrix< DDRMat > tIntersectLocalCoordinate(1,1);
+                    Matrix< DDRMat > tIntersectGlobalCoordinate(1,mSpatialDim);
         
                     get_intersection_location(aNodeCoords,
                                               tEntityNodeVars,
@@ -808,7 +669,7 @@ namespace moris
             }
         
             // Place only the entity coordinates in a matrix
-            moris::Matrix<moris::DDRMat> tEntityCoordinates(2, mSpatialDim);
+            Matrix<DDRMat> tEntityCoordinates(2, mSpatialDim);
             for (size_t i = 0; i < mSpatialDim; i++)
             {
                 tEntityCoordinates(0, i) = aGlobalNodeCoordinates(aEntityNodeIndices(0), i);
@@ -822,5 +683,150 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-    }   // end ge namespace
-}   // end moris namespace
+        void Geometry_Engine::create_ip_pdv_hosts(mtk::Interpolation_Mesh* aInterpolationMesh,
+                                                  mtk::Integration_Mesh* aIntegrationMesh,
+                                                  Cell<Cell<Cell<PDV_Type>>> aPdvTypes)
+        {
+            // Get information from integration mesh
+            //uint tNumSets = tInterpolationMesh->get_num_sets(); FIXME
+            uint tNumSets = aPdvTypes.size();
+            uint tNumNodes = aInterpolationMesh->get_num_nodes();
+            Cell<Matrix<DDSMat>> tNodeIndicesPerSet(tNumSets);
+            Cell<Matrix<DDRMat>> tNodeCoordinates(tNumNodes);
+
+            // Loop through sets
+            for (uint tMeshSetIndex = 0; tMeshSetIndex < tNumSets; tMeshSetIndex++)
+            {
+                uint tCurrentNode = 0;
+                mtk::Set* tSet = aIntegrationMesh->get_set_by_index(tMeshSetIndex);
+
+                // Clusters per set
+                for (uint tClusterIndex = 0; tClusterIndex < tSet->get_num_clusters_on_set(); tClusterIndex++)
+                {
+                    const mtk::Cluster* tCluster = tSet->get_clusters_by_index(tClusterIndex);
+
+                    // Indices on cluster
+                    Matrix<IndexMat> tNodeIndicesInCluster = tCluster->get_interpolation_cell().get_vertex_inds();
+                    tNodeIndicesPerSet(tMeshSetIndex).resize(tNodeIndicesPerSet(tMeshSetIndex).length() + tNodeIndicesInCluster.length(), 1);
+
+                    for (uint tNodeInCluster = 0; tNodeInCluster < tNodeIndicesInCluster.length(); tNodeInCluster++)
+                    {
+                        tNodeIndicesPerSet(tMeshSetIndex)(tCurrentNode++) = tNodeIndicesInCluster(tNodeInCluster);
+                    }
+                }
+            }
+
+            // Get node coordinates
+            for (uint tNodeIndex = 0; tNodeIndex < tNumNodes; tNodeIndex++)
+            {
+                tNodeCoordinates(tNodeIndex) = aInterpolationMesh->get_node_coordinate(tNodeIndex);
+            }
+
+            // Create hosts
+            mPdvHostManager.create_ip_pdv_hosts(tNodeIndicesPerSet, tNodeCoordinates, aPdvTypes);
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
+        void Geometry_Engine::create_ig_pdv_hosts(mtk::Integration_Mesh* aIntegrationMesh)
+        {
+            // Check interface nodes
+            MORIS_ERROR(mIntersectionNodes.size() == mInterfaceNodeIndices.length(),
+                        "Number of interface nodes must match number of intersection nodes in the geometry engine");
+
+            // Get information from integration mesh
+            uint tNumSets = aIntegrationMesh->get_num_sets();
+
+            // Cell of IG PDV_Type types
+            Cell<PDV_Type> tCoordinatePdvs(mSpatialDim);
+
+            switch(mSpatialDim)
+            {
+                case(2):
+                {
+                    tCoordinatePdvs(0) = PDV_Type::X_COORDINATE;
+                    tCoordinatePdvs(1) = PDV_Type::Y_COORDINATE;
+                    break;
+                }
+                case(3):
+                {
+                    tCoordinatePdvs(0) = PDV_Type::X_COORDINATE;
+                    tCoordinatePdvs(1) = PDV_Type::Y_COORDINATE;
+                    tCoordinatePdvs(2) = PDV_Type::Z_COORDINATE;
+                    break;
+                }
+                default:
+                {
+                    MORIS_ERROR( false, "Geometry Engine only works for 2D and 3D models." );
+                }
+            }
+
+            // Loop through sets
+            Cell<Cell<Cell<PDV_Type>>> tPdvTypes(tNumSets);
+            for (uint tMeshSetIndex = 0; tMeshSetIndex < tNumSets; tMeshSetIndex++)
+            {
+                // PDV_Type types per set
+                tPdvTypes(tMeshSetIndex).resize(1);
+                tPdvTypes(tMeshSetIndex)(0) = tCoordinatePdvs;
+            }
+
+            // Create hosts
+            if (mInterfaceNodeIndices.length() > 0)
+            {
+                Cell<std::shared_ptr<Intersection_Node>> tIntersectionNodes(mInterfaceNodeIndices(mInterfaceNodeIndices.length() - 1) + 1);
+                for (uint tInterfaceNode = 0; tInterfaceNode < mInterfaceNodeIndices.length(); tInterfaceNode++)
+                {
+                    tIntersectionNodes(mInterfaceNodeIndices(tInterfaceNode)) = mIntersectionNodes(tInterfaceNode);
+                }
+                mPdvHostManager.create_ig_pdv_hosts(tPdvTypes, tIntersectionNodes);
+                mPdvHostManager.set_ig_requested_pdv_types(tCoordinatePdvs);
+            }
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
+        void Geometry_Engine::assign_property_to_pdv_hosts(std::shared_ptr<Property> aPropertyPointer,
+                                                           PDV_Type                  aPdvType,
+                                                           mtk::Integration_Mesh*    aIntegrationMesh,
+                                                           Matrix<DDUMat>            aSetIndices)
+        {
+            for (uint tSet = 0; tSet < aSetIndices.length(); tSet++)
+            {
+                // get the mesh set from index
+                mtk::Set* tSetPointer = aIntegrationMesh->get_set_by_index( aSetIndices(tSet) );
+
+                // get the list of cluster on mesh set
+                Cell< mtk::Cluster const * > tClusterPointers = tSetPointer->get_clusters_on_set();
+
+                // get number of clusters on mesh set
+                uint tNumClusters = tClusterPointers.size();
+
+                // loop over the clusters on mesh set
+                for(uint iClust=0; iClust<tNumClusters; iClust++)
+                {
+                    // get the IP cell from cluster
+                    mtk::Cell const & tIPCell = tClusterPointers(iClust)->get_interpolation_cell();
+
+                    // get the vertices from IP cell
+                    Cell< mtk::Vertex * > tVertices = tIPCell.get_vertex_pointers();
+
+                    // get the number of vertices on IP cell
+                    uint tNumVerts = tVertices.size();
+
+                    // loop over vertices on IP cell
+                    for(uint iVert = 0; iVert < tNumVerts; iVert++)
+                    {
+                        // get the vertex index
+                        moris_index tVertIndex = tVertices(iVert)->get_index();
+
+                        // ask pdv host manager to assign to vertex a pdv type and a property
+                        mPdvHostManager.create_ip_pdv( uint(tVertIndex), aPdvType, aPropertyPointer );
+                    }
+                }
+            }
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
+    }
+}

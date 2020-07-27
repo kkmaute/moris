@@ -1,7 +1,3 @@
-//
-// Created by christopherson on 3/4/20.
-//
-
 #include "fn_OPT_create_problem.hpp"
 #include "cl_OPT_Problem_User_Defined.hpp"
 

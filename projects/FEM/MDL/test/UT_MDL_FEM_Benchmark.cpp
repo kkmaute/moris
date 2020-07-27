@@ -409,7 +409,7 @@ TEST_CASE("MDL FEM Benchmark Diff Interface","[MDL_FEM_Benchmark_Diff_Interface]
 
         size_t tModelDimension = 3;
         moris::ge::Phase_Table  tPhaseTable( tGeometryVector.size(), moris::ge::Phase_Table_Structure::EXP_BASE_2 );
-        moris::ge::Geometry_Engine  tGeometryEngine( tGeometryVector,tPhaseTable,tModelDimension );
+        moris::ge::Geometry_Engine  tGeometryEngine( tGeometryVector, tPhaseTable, tInterpMesh );
 
         xtk::Model tXTKModel( tModelDimension,tInterpMesh,&tGeometryEngine );
         tXTKModel.mVerbose = false;
@@ -730,7 +730,7 @@ TEST_CASE("MDL FEM Benchmark Diff Ghost","[MDL_FEM_Benchmark_Diff_Ghost]")
 
         size_t tModelDimension = 3;
         moris::ge::Phase_Table  tPhaseTable( tGeometryVector.size(), moris::ge::Phase_Table_Structure::EXP_BASE_2 );
-        moris::ge::Geometry_Engine  tGeometryEngine( tGeometryVector,tPhaseTable,tModelDimension );
+        moris::ge::Geometry_Engine  tGeometryEngine( tGeometryVector, tPhaseTable, tInterpMesh );
 
         xtk::Model tXTKModel( tModelDimension,tInterpMesh,&tGeometryEngine );
         tXTKModel.mVerbose = false;
@@ -1300,9 +1300,9 @@ TEST_CASE("MDL FEM Benchmark Elast Interface","[MDL_FEM_Benchmark_Elast_Interfac
 
         size_t tModelDimension = 3;
         moris::ge::Phase_Table  tPhaseTable( tGeometryVector.size(), moris::ge::Phase_Table_Structure::EXP_BASE_2 );
-        moris::ge::Geometry_Engine  tGeometryEngine( tGeometryVector,tPhaseTable,tModelDimension );
+        moris::ge::Geometry_Engine  tGeometryEngine( tGeometryVector, tPhaseTable, tInterpMesh );
 
-        xtk::Model tXTKModel( tModelDimension,tInterpMesh,&tGeometryEngine );
+        xtk::Model tXTKModel( tModelDimension, tInterpMesh, &tGeometryEngine );
         tXTKModel.mVerbose = false;
 
         //Specify decomposition Method and Cut Mesh ---------------------------------------
@@ -1633,9 +1633,9 @@ TEST_CASE("MDL FEM Benchmark Elast Ghost","[MDL_FEM_Benchmark_Elast_Ghost]")
 
         size_t tModelDimension = 3;
         moris::ge::Phase_Table  tPhaseTable( tGeometryVector.size(), moris::ge::Phase_Table_Structure::EXP_BASE_2 );
-        moris::ge::Geometry_Engine  tGeometryEngine( tGeometryVector,tPhaseTable,tModelDimension );
+        moris::ge::Geometry_Engine  tGeometryEngine( tGeometryVector, tPhaseTable, tInterpMesh );
 
-        xtk::Model tXTKModel( tModelDimension,tInterpMesh,&tGeometryEngine );
+        xtk::Model tXTKModel( tModelDimension, tInterpMesh, &tGeometryEngine );
         tXTKModel.mVerbose = false;
 
         //Specify decomposition Method and Cut Mesh ---------------------------------------

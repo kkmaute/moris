@@ -131,13 +131,13 @@ TEST_CASE("2D XTK WITH HMR","[XTK_HMR_2D]")
 
             size_t tModelDimension = 2;
             moris::ge::Phase_Table tPhaseTable (1, moris::ge::Phase_Table_Structure::EXP_BASE_2);
-            moris::ge::Geometry_Engine tGeometryEngine(tGeometryVector,tPhaseTable,tModelDimension);
-            Model tXTKModel(tModelDimension,tInterpMesh,&tGeometryEngine);
+            moris::ge::Geometry_Engine tGeometryEngine(tGeometryVector, tPhaseTable, tInterpMesh);
+            Model tXTKModel(tModelDimension, tInterpMesh, &tGeometryEngine);
             tXTKModel.mVerbose  =  false;
 
-        //Specify decomposition Method and Cut Mesh ---------------------------------------
-        Cell<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_QUAD4, Subdivision_Method::C_TRI3};
-        tXTKModel.decompose(tDecompositionMethods);
+            //Specify decomposition Method and Cut Mesh ---------------------------------------
+            Cell<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_QUAD4, Subdivision_Method::C_TRI3};
+            tXTKModel.decompose(tDecompositionMethods);
 
             tXTKModel.perform_basis_enrichment(EntityRank::BSPLINE,0);
 
@@ -237,8 +237,8 @@ TEST_CASE("2D XTK WITH HMR WEIRD INTERSECTION","[XTK_HMR_2D_WI]")
 
          size_t tModelDimension = 2;
          moris::ge::Phase_Table tPhaseTable (1, moris::ge::Phase_Table_Structure::EXP_BASE_2);
-         moris::ge::Geometry_Engine tGeometryEngine(tGeometry,tPhaseTable,tModelDimension);
-         Model tXTKModel(tModelDimension,tInterpMesh,&tGeometryEngine);
+         moris::ge::Geometry_Engine tGeometryEngine(tGeometry, tPhaseTable, tInterpMesh);
+         Model tXTKModel(tModelDimension, tInterpMesh, &tGeometryEngine);
          tXTKModel.mVerbose  =  false;
 
         //Specify decomposition Method and Cut Mesh ---------------------------------------

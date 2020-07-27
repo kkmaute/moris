@@ -1,7 +1,3 @@
-//
-// Created by christopherson on 3/4/20.
-//
-
 #ifndef MORIS_FN_OPT_CREATE_INTERFACE_HPP
 #define MORIS_FN_OPT_CREATE_INTERFACE_HPP
 
@@ -13,10 +9,10 @@ namespace moris
     namespace opt
     {
         /**
-         * Creates an instance of an Interface class or Interface_Manager and returns a shared pointer to it
+         * Creates an instance of an Interface class or Interface_Manager and returns a shared pointer to it.
          *
-         * @param aParameterLists Cell<moris::ParameterList> parameter lists for individual interfaces
-         * @return std::shared_ptr<Interface>
+         * @param aParameterLists Parameter lists for individual interfaces
+         * @return Interface class (can be manager)
          */
         std::shared_ptr<Criteria_Interface> create_interface(
                 Cell<ParameterList> aParameterLists,
@@ -25,8 +21,8 @@ namespace moris
         /**
          * Creates an instance of the specified Interface class and returns a shared pointer to it
          *
-         * @param aParameterList moris::ParameterList a single interface parameter list
-         * @return std::shared_ptr<Interface>
+         * @param aParameterList A single interface parameter list
+         * @return Interface class
          */
         std::shared_ptr<Criteria_Interface> create_interface(ParameterList aParameterList);
 

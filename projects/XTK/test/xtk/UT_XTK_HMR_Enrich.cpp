@@ -92,67 +92,67 @@ TEST_CASE("2D XTK WITH HMR No truncation enrichment","[XTK_HMR_ENR_2D]")
     {
         std::string tFieldName = "Cylinder";
 
-         moris::uint tLagrangeMeshIndex = 0;
-         moris::uint tBSplineMeshIndex = 0;
+        moris::uint tLagrangeMeshIndex = 0;
+        moris::uint tBSplineMeshIndex = 0;
 
-         moris::hmr::Parameters tParameters;
+        moris::hmr::Parameters tParameters;
 
-         tParameters.set_number_of_elements_per_dimension( { {3}, {3}} );
-         tParameters.set_domain_dimensions({ {2}, {2} });
-         tParameters.set_domain_offset({ {-1.0}, {-1.0} });
-         tParameters.set_bspline_truncation( true );
+        tParameters.set_number_of_elements_per_dimension( { {3}, {3}} );
+        tParameters.set_domain_dimensions({ {2}, {2} });
+        tParameters.set_domain_offset({ {-1.0}, {-1.0} });
+        tParameters.set_bspline_truncation( true );
 
-         tParameters.set_output_meshes( { {0} } );
+        tParameters.set_output_meshes( { {0} } );
 
-         tParameters.set_lagrange_orders  ( { {2} });
-         tParameters.set_lagrange_patterns({ {0} });
+        tParameters.set_lagrange_orders  ( { {2} });
+        tParameters.set_lagrange_patterns({ {0} });
 
-         tParameters.set_bspline_orders   ( { {3} } );
-         tParameters.set_bspline_patterns ( { {0} } );
+        tParameters.set_bspline_orders   ( { {3} } );
+        tParameters.set_bspline_patterns ( { {0} } );
 
-         tParameters.set_side_sets({{1},{2},{3},{4} });
+        tParameters.set_side_sets({{1},{2},{3},{4} });
 
-         tParameters.set_union_pattern( 2 );
-         tParameters.set_working_pattern( 3 );
+        tParameters.set_union_pattern( 2 );
+        tParameters.set_working_pattern( 3 );
 
-         tParameters.set_refinement_buffer( 1 );
-         tParameters.set_staircase_buffer( 1 );
+        tParameters.set_refinement_buffer( 1 );
+        tParameters.set_staircase_buffer( 1 );
 
-         Cell< Matrix< DDSMat > > tLagrangeToBSplineMesh( 1 );
-         tLagrangeToBSplineMesh( 0 ) = { {0} };
+        Cell< Matrix< DDSMat > > tLagrangeToBSplineMesh( 1 );
+        tLagrangeToBSplineMesh( 0 ) = { {0} };
 
-         tParameters.set_lagrange_to_bspline_mesh( tLagrangeToBSplineMesh );
+        tParameters.set_lagrange_to_bspline_mesh( tLagrangeToBSplineMesh );
 
-         hmr::HMR tHMR( tParameters );
+        hmr::HMR tHMR( tParameters );
 
-         std::shared_ptr< moris::hmr::Mesh > tMesh = tHMR.create_mesh( tLagrangeMeshIndex );
+        std::shared_ptr< moris::hmr::Mesh > tMesh = tHMR.create_mesh( tLagrangeMeshIndex );
 
-         // create field
-         std::shared_ptr< moris::hmr::Field > tField = tMesh->create_field( tFieldName, tLagrangeMeshIndex );
+        // create field
+        std::shared_ptr< moris::hmr::Field > tField = tMesh->create_field( tFieldName, tLagrangeMeshIndex );
 
-         tField->evaluate_scalar_function( MultiCircle );
+        tField->evaluate_scalar_function( MultiCircle );
 
-         for( uint k=0; k<2; ++k )
-         {
-             tHMR.flag_surface_elements_on_working_pattern( tField );
-             tHMR.perform_refinement_based_on_working_pattern( 0 );
-             tField->evaluate_scalar_function( MultiCircle );
-         }
+        for( uint k=0; k<2; ++k )
+        {
+            tHMR.flag_surface_elements_on_working_pattern( tField );
+            tHMR.perform_refinement_based_on_working_pattern( 0 );
+            tField->evaluate_scalar_function( MultiCircle );
+        }
 
-         tHMR.finalize();
+        tHMR.finalize();
 
-         tHMR.save_to_exodus( 0, "./xtk_exo/xtk_hmr_2d_enr_ip.e" );
+        tHMR.save_to_exodus( 0, "./xtk_exo/xtk_hmr_2d_enr_ip.e" );
 
-         hmr::Interpolation_Mesh_HMR * tInterpMesh = tHMR.create_interpolation_mesh( tLagrangeMeshIndex  );
+        hmr::Interpolation_Mesh_HMR * tInterpMesh = tHMR.create_interpolation_mesh( tLagrangeMeshIndex  );
 
         moris::Cell< std::shared_ptr<moris::ge::Geometry> > tGeometryVector(1);
         tGeometryVector(0) = std::make_shared<moris::ge::User_Defined_Geometry>(Matrix<DDRMat>(0, 0), &(MultiCircleGeometry));
 
-         size_t tModelDimension = 2;
-         moris::ge::Phase_Table tPhaseTable (1, moris::ge::Phase_Table_Structure::EXP_BASE_2);
-         moris::ge::Geometry_Engine tGeometryEngine(tGeometryVector,tPhaseTable,tModelDimension);
-         Model tXTKModel(tModelDimension,tInterpMesh,&tGeometryEngine);
-         tXTKModel.mVerbose  =  false;
+        size_t tModelDimension = 2;
+        moris::ge::Phase_Table tPhaseTable (1, moris::ge::Phase_Table_Structure::EXP_BASE_2);
+        moris::ge::Geometry_Engine tGeometryEngine(tGeometryVector, tPhaseTable, tInterpMesh);
+        Model tXTKModel(tModelDimension, tInterpMesh, &tGeometryEngine);
+        tXTKModel.mVerbose  =  false;
 
         //Specify decomposition Method and Cut Mesh ---------------------------------------
         Cell<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_QUAD4, Subdivision_Method::C_TRI3};
@@ -217,80 +217,80 @@ TEST_CASE("2D XTK WITH HMR Multi-Mat","[XTK_HMR_MULTI_2D]")
     {
         std::string tFieldName = "Geometry";
 
-         moris::uint tLagrangeMeshIndex = 0;
-         moris::uint tBSplineMeshIndex = 0;
+        moris::uint tLagrangeMeshIndex = 0;
+        moris::uint tBSplineMeshIndex = 0;
 
-         moris::hmr::Parameters tParameters;
+        moris::hmr::Parameters tParameters;
 
-         tParameters.set_number_of_elements_per_dimension( { {3}, {1}} );
-         tParameters.set_domain_dimensions({ {6}, {2} });
-         tParameters.set_domain_offset({ {-3.0}, {-1.0} });
-         tParameters.set_bspline_truncation( true );
+        tParameters.set_number_of_elements_per_dimension( { {3}, {1}} );
+        tParameters.set_domain_dimensions({ {6}, {2} });
+        tParameters.set_domain_offset({ {-3.0}, {-1.0} });
+        tParameters.set_bspline_truncation( true );
 
-         tParameters.set_output_meshes( { {0} } );
+        tParameters.set_output_meshes( { {0} } );
 
-         tParameters.set_lagrange_orders  ( { {2} });
-         tParameters.set_lagrange_patterns({ {0} });
+        tParameters.set_lagrange_orders  ( { {2} });
+        tParameters.set_lagrange_patterns({ {0} });
 
-         tParameters.set_bspline_orders   ( { {3} } );
-         tParameters.set_bspline_patterns ( { {0} } );
+        tParameters.set_bspline_orders   ( { {3} } );
+        tParameters.set_bspline_patterns ( { {0} } );
 
-         tParameters.set_side_sets({{1},{2},{3},{4} });
-         tParameters.set_max_refinement_level( 2 );
-         tParameters.set_union_pattern( 2 );
-         tParameters.set_working_pattern( 3 );
+        tParameters.set_side_sets({{1},{2},{3},{4} });
+        tParameters.set_max_refinement_level( 2 );
+        tParameters.set_union_pattern( 2 );
+        tParameters.set_working_pattern( 3 );
 
-         tParameters.set_refinement_buffer( 2 );
-         tParameters.set_staircase_buffer( 2 );
+        tParameters.set_refinement_buffer( 2 );
+        tParameters.set_staircase_buffer( 2 );
 
-         Cell< Matrix< DDSMat > > tLagrangeToBSplineMesh( 1 );
-         tLagrangeToBSplineMesh( 0 ) = { {0} };
+        Cell< Matrix< DDSMat > > tLagrangeToBSplineMesh( 1 );
+        tLagrangeToBSplineMesh( 0 ) = { {0} };
 
-         tParameters.set_lagrange_to_bspline_mesh( tLagrangeToBSplineMesh );
+        tParameters.set_lagrange_to_bspline_mesh( tLagrangeToBSplineMesh );
 
-         hmr::HMR tHMR( tParameters );
+        hmr::HMR tHMR( tParameters );
 
-         std::shared_ptr< moris::hmr::Mesh > tMesh = tHMR.create_mesh( tLagrangeMeshIndex );
+        std::shared_ptr< moris::hmr::Mesh > tMesh = tHMR.create_mesh( tLagrangeMeshIndex );
 
-         // create field
-         std::shared_ptr< moris::hmr::Field > tPlaneField  = tMesh->create_field( tFieldName, tLagrangeMeshIndex );
+        // create field
+        std::shared_ptr< moris::hmr::Field > tPlaneField  = tMesh->create_field( tFieldName, tLagrangeMeshIndex );
 
-         tPlaneField->evaluate_scalar_function( PlaneMultiMat );
+        tPlaneField->evaluate_scalar_function( PlaneMultiMat );
 
-         for( uint k=0; k<2; ++k )
-         {
-             tHMR.flag_surface_elements_on_working_pattern( tPlaneField );
-             tHMR.perform_refinement_based_on_working_pattern( 0 );
-             tPlaneField->evaluate_scalar_function( PlaneMultiMat );
-         }
+        for( uint k=0; k<2; ++k )
+        {
+            tHMR.flag_surface_elements_on_working_pattern( tPlaneField );
+            tHMR.perform_refinement_based_on_working_pattern( 0 );
+            tPlaneField->evaluate_scalar_function( PlaneMultiMat );
+        }
 
-         std::shared_ptr< moris::hmr::Field > tCircleField = tMesh->create_field( tFieldName, tLagrangeMeshIndex );
-         tCircleField->evaluate_scalar_function( CircleMultiMat );
-         for( uint k=0; k<2; ++k )
-         {
-             tHMR.flag_surface_elements_on_working_pattern( tCircleField );
-             tHMR.perform_refinement_based_on_working_pattern( 0 );
-             tCircleField->evaluate_scalar_function( CircleMultiMat );
+        std::shared_ptr< moris::hmr::Field > tCircleField = tMesh->create_field( tFieldName, tLagrangeMeshIndex );
+        tCircleField->evaluate_scalar_function( CircleMultiMat );
+        for( uint k=0; k<2; ++k )
+        {
+            tHMR.flag_surface_elements_on_working_pattern( tCircleField );
+            tHMR.perform_refinement_based_on_working_pattern( 0 );
+            tCircleField->evaluate_scalar_function( CircleMultiMat );
 
-         }
+        }
 
-         tPlaneField->evaluate_scalar_function( PlaneMultiMat );
-         tCircleField->evaluate_scalar_function( CircleMultiMat );
-         tHMR.finalize();
+        tPlaneField->evaluate_scalar_function( PlaneMultiMat );
+        tCircleField->evaluate_scalar_function( CircleMultiMat );
+        tHMR.finalize();
 
-         tHMR.save_to_exodus( 0, "./xtk_exo/xtk_hmr_2d_enr_ip2.e" );
+        tHMR.save_to_exodus( 0, "./xtk_exo/xtk_hmr_2d_enr_ip2.e" );
 
-         hmr::Interpolation_Mesh_HMR * tInterpMesh = tHMR.create_interpolation_mesh( tLagrangeMeshIndex  );
+        hmr::Interpolation_Mesh_HMR * tInterpMesh = tHMR.create_interpolation_mesh( tLagrangeMeshIndex  );
 
         moris::Cell< std::shared_ptr<moris::ge::Geometry> > tGeometryVector(2);
         tGeometryVector(0) = std::make_shared<moris::ge::Circle>(0.01, 0.01, 0.61);
         tGeometryVector(1) = std::make_shared<moris::ge::Plane>(0.01, 0.01, 1.0, 0.0);
 
-         size_t tModelDimension = 2;
-         moris::ge::Phase_Table tPhaseTable (2, moris::ge::Phase_Table_Structure::EXP_BASE_2);
-         moris::ge::Geometry_Engine tGeometryEngine(tGeometryVector,tPhaseTable,tModelDimension);
-         Model tXTKModel(tModelDimension,tInterpMesh,&tGeometryEngine);
-         tXTKModel.mVerbose  =  false;
+        size_t tModelDimension = 2;
+        moris::ge::Phase_Table tPhaseTable (2, moris::ge::Phase_Table_Structure::EXP_BASE_2);
+        moris::ge::Geometry_Engine tGeometryEngine(tGeometryVector, tPhaseTable, tInterpMesh);
+        Model tXTKModel(tModelDimension,tInterpMesh,&tGeometryEngine);
+        tXTKModel.mVerbose  =  false;
 
         //Specify decomposition Method and Cut Mesh ---------------------------------------
         Cell<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_QUAD4, Subdivision_Method::C_TRI3};
@@ -333,75 +333,75 @@ TEST_CASE("2D XTK WITH HMR Multiple Order Enrichment","[XTK_HMR_ENR_2D_MO]")
     {
         std::string tFieldName = "Geometry";
 
-         moris::uint tLagrangeMeshIndex = 0;
-         moris::uint tBSplineMeshIndex = 0;
+        moris::uint tLagrangeMeshIndex = 0;
+        moris::uint tBSplineMeshIndex = 0;
 
-         ParameterList tParameters = prm::create_hmr_parameter_list();
+        ParameterList tParameters = prm::create_hmr_parameter_list();
 
-         tParameters.set( "number_of_elements_per_dimension", std::string("3, 1"));
-         tParameters.set( "domain_dimensions",                std::string("6,2"));
-         tParameters.set( "domain_offset",                    std::string("-3,-1") );
-         tParameters.set( "domain_sidesets",                  std::string("1,2,3,4"));
-         tParameters.set( "lagrange_output_meshes",           std::string("0") );
-         tParameters.set( "lagrange_orders",                  std::string("2"));
-         tParameters.set( "lagrange_pattern",                 std::string("0") );
-         tParameters.set( "bspline_orders",                   std::string("1,2"));
-         tParameters.set( "bspline_pattern",                 std::string("0,0"));
-         tParameters.set( "lagrange_to_bspline",              std::string("0,1") );
-         tParameters.set( "max_refinement_level",             3);
-         tParameters.set( "truncate_bsplines", 1 );
-         tParameters.set( "refinement_buffer", 2 );
-         tParameters.set( "staircase_buffer", 2 );
-         tParameters.set( "initial_refinement", 0 );
+        tParameters.set( "number_of_elements_per_dimension", std::string("3, 1"));
+        tParameters.set( "domain_dimensions",                std::string("6,2"));
+        tParameters.set( "domain_offset",                    std::string("-3,-1") );
+        tParameters.set( "domain_sidesets",                  std::string("1,2,3,4"));
+        tParameters.set( "lagrange_output_meshes",           std::string("0") );
+        tParameters.set( "lagrange_orders",                  std::string("2"));
+        tParameters.set( "lagrange_pattern",                 std::string("0") );
+        tParameters.set( "bspline_orders",                   std::string("1,2"));
+        tParameters.set( "bspline_pattern",                 std::string("0,0"));
+        tParameters.set( "lagrange_to_bspline",              std::string("0,1") );
+        tParameters.set( "max_refinement_level",             3);
+        tParameters.set( "truncate_bsplines", 1 );
+        tParameters.set( "refinement_buffer", 2 );
+        tParameters.set( "staircase_buffer", 2 );
+        tParameters.set( "initial_refinement", 0 );
 
-         tParameters.set( "use_multigrid", 0 );
-         tParameters.set( "severity_level", 2 );
-         tParameters.set( "use_number_aura", 1);
+        tParameters.set( "use_multigrid", 0 );
+        tParameters.set( "severity_level", 2 );
+        tParameters.set( "use_number_aura", 1);
 
 
-         hmr::HMR tHMR( tParameters );
+        hmr::HMR tHMR( tParameters );
 
-         std::shared_ptr< moris::hmr::Mesh > tMesh = tHMR.create_mesh( tLagrangeMeshIndex );
+        std::shared_ptr< moris::hmr::Mesh > tMesh = tHMR.create_mesh( tLagrangeMeshIndex );
 
-         // create field
-         std::shared_ptr< moris::hmr::Field > tPlaneField  = tMesh->create_field( tFieldName, tLagrangeMeshIndex );
+        // create field
+        std::shared_ptr< moris::hmr::Field > tPlaneField  = tMesh->create_field( tFieldName, tLagrangeMeshIndex );
 
-         tPlaneField->evaluate_scalar_function( PlaneMultiMat );
+        tPlaneField->evaluate_scalar_function( PlaneMultiMat );
 
-         for( uint k=0; k<2; ++k )
-         {
-             tHMR.flag_surface_elements_on_working_pattern( tPlaneField );
-             tHMR.perform_refinement_based_on_working_pattern( 0 );
-             tPlaneField->evaluate_scalar_function( PlaneMultiMat );
-         }
+        for( uint k=0; k<2; ++k )
+        {
+            tHMR.flag_surface_elements_on_working_pattern( tPlaneField );
+            tHMR.perform_refinement_based_on_working_pattern( 0 );
+            tPlaneField->evaluate_scalar_function( PlaneMultiMat );
+        }
 
-         std::shared_ptr< moris::hmr::Field > tCircleField = tMesh->create_field( tFieldName, tLagrangeMeshIndex );
-         tCircleField->evaluate_scalar_function( CircleMultiMat );
-         for( uint k=0; k<2; ++k )
-         {
-             tHMR.flag_surface_elements_on_working_pattern( tCircleField );
-             tHMR.perform_refinement_based_on_working_pattern( 0 );
-             tCircleField->evaluate_scalar_function( CircleMultiMat );
+        std::shared_ptr< moris::hmr::Field > tCircleField = tMesh->create_field( tFieldName, tLagrangeMeshIndex );
+        tCircleField->evaluate_scalar_function( CircleMultiMat );
+        for( uint k=0; k<2; ++k )
+        {
+            tHMR.flag_surface_elements_on_working_pattern( tCircleField );
+            tHMR.perform_refinement_based_on_working_pattern( 0 );
+            tCircleField->evaluate_scalar_function( CircleMultiMat );
 
-         }
+        }
 
-         tPlaneField->evaluate_scalar_function( PlaneMultiMat );
-         tCircleField->evaluate_scalar_function( CircleMultiMat );
-         tHMR.finalize();
+        tPlaneField->evaluate_scalar_function( PlaneMultiMat );
+        tCircleField->evaluate_scalar_function( CircleMultiMat );
+        tHMR.finalize();
 
-         tHMR.save_to_exodus( 0, "./xtk_exo/xtk_hmr_2d_enr_ip2.e" );
+        tHMR.save_to_exodus( 0, "./xtk_exo/xtk_hmr_2d_enr_ip2.e" );
 
-         hmr::Interpolation_Mesh_HMR * tInterpMesh = tHMR.create_interpolation_mesh( tLagrangeMeshIndex  );
+        hmr::Interpolation_Mesh_HMR * tInterpMesh = tHMR.create_interpolation_mesh( tLagrangeMeshIndex  );
 
         moris::Cell< std::shared_ptr<moris::ge::Geometry> > tGeometryVector(2);
         tGeometryVector(0) = std::make_shared<moris::ge::Circle>(0.01, 0.01, 0.61);
         tGeometryVector(1) = std::make_shared<moris::ge::Plane>(0.01, 0.01, 1.0, 0.0);
 
-         size_t tModelDimension = 2;
-         moris::ge::Phase_Table tPhaseTable (2, moris::ge::Phase_Table_Structure::EXP_BASE_2);
-         moris::ge::Geometry_Engine tGeometryEngine(tGeometryVector,tPhaseTable,tModelDimension);
-         Model tXTKModel(tModelDimension,tInterpMesh,&tGeometryEngine);
-         tXTKModel.mVerbose  =  false;
+        size_t tModelDimension = 2;
+        moris::ge::Phase_Table tPhaseTable (2, moris::ge::Phase_Table_Structure::EXP_BASE_2);
+        moris::ge::Geometry_Engine tGeometryEngine(tGeometryVector, tPhaseTable, tInterpMesh);
+        Model tXTKModel(tModelDimension, tInterpMesh, &tGeometryEngine);
+        tXTKModel.mVerbose  =  false;
 
         //Specify decomposition Method and Cut Mesh ---------------------------------------
         Cell<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_QUAD4, Subdivision_Method::C_TRI3};

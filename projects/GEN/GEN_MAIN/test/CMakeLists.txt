@@ -5,7 +5,6 @@
 set(TEST_SOURCES
 	test_main.cpp
 
-	ut_Parameter_Sweep.cpp
 	ut_Pdvs.cpp
 	ut_Bounding_Box.cpp
 	ut_Geometry.cpp

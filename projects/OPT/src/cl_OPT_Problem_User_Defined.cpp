@@ -1,7 +1,3 @@
-//
-// Created by christopherson on 3/18/20.
-//
-
 #include "cl_OPT_Problem_User_Defined.hpp"
 
 namespace moris
@@ -10,8 +6,10 @@ namespace moris
     {
 
         //--------------------------------------------------------------------------------------------------------------
-        Problem_User_Defined::Problem_User_Defined(ParameterList aParameterList, std::shared_ptr<Criteria_Interface> aInterface)
-        : Problem(aParameterList, aInterface)
+
+        Problem_User_Defined::Problem_User_Defined(ParameterList aParameterList,
+                                                   std::shared_ptr<Criteria_Interface> aInterface)
+                : Problem(aParameterList, aInterface)
         {
             // Load library
             moris::Library_IO tLibrary(aParameterList.get<std::string>("library"));
@@ -24,6 +22,28 @@ namespace moris
             compute_dobjective_dcriteria_user_defined = tLibrary.load_objective_constraint_function("compute_dobjective_dcriteria");
             compute_dconstraint_dadv_user_defined = tLibrary.load_objective_constraint_function("compute_dconstraint_dadv");
             compute_dconstraint_dcriteria_user_defined = tLibrary.load_objective_constraint_function("compute_dconstraint_dcriteria");
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
+        Problem_User_Defined::Problem_User_Defined(ParameterList                       aParameterList,
+                                                   std::shared_ptr<Criteria_Interface> aInterface,
+                                                   MORIS_CONSTRAINT_TYPES_FUNCTION     aConstraintTypesFunction,
+                                                   MORIS_OBJECTIVE_CONSTRAINT_FUNCTION aObjectiveFunction,
+                                                   MORIS_OBJECTIVE_CONSTRAINT_FUNCTION aConstraintFunction,
+                                                   MORIS_OBJECTIVE_CONSTRAINT_FUNCTION aObjectiveADVGradientFunction,
+                                                   MORIS_OBJECTIVE_CONSTRAINT_FUNCTION aObjectiveCriteriaGradientFunction,
+                                                   MORIS_OBJECTIVE_CONSTRAINT_FUNCTION aConstraintADVGradientFunction,
+                                                   MORIS_OBJECTIVE_CONSTRAINT_FUNCTION aConstraintCriteriaGradientFunction)
+                : Problem(aParameterList, aInterface),
+                  get_constraint_types_user_defined(aConstraintTypesFunction),
+                  compute_objectives_user_defined(aObjectiveFunction),
+                  compute_constraints_user_defined(aConstraintFunction),
+                  compute_dobjective_dadv_user_defined(aObjectiveADVGradientFunction),
+                  compute_dobjective_dcriteria_user_defined(aObjectiveCriteriaGradientFunction),
+                  compute_dconstraint_dadv_user_defined(aConstraintADVGradientFunction),
+                  compute_dconstraint_dcriteria_user_defined(aConstraintCriteriaGradientFunction)
+        {
         }
 
         //--------------------------------------------------------------------------------------------------------------

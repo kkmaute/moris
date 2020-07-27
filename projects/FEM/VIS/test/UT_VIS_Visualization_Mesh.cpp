@@ -124,7 +124,7 @@ TEST_CASE("Visualization Mesh Output","[VIS],[Vizualization_Mesh_Output]")
 
                 size_t tModelDimension = 2;
                 moris::ge::Phase_Table tPhaseTable (1, moris::ge::Phase_Table_Structure::EXP_BASE_2);
-                moris::ge::Geometry_Engine tGeometryEngine(tGeometryVector,tPhaseTable,tModelDimension);
+                moris::ge::Geometry_Engine tGeometryEngine(tGeometryVector,tPhaseTable,tInterpMesh);
 
                 xtk::Model tXTKModel(tModelDimension,tInterpMesh,&tGeometryEngine);
                 tXTKModel.mVerbose = false;

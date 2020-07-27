@@ -139,10 +139,7 @@ namespace moris
         {
             for( auto tMesh : mDummyBSplineMeshes )
             {
-                if (tMesh != nullptr)
-                {
-                    delete tMesh;
-                }
+                delete tMesh;
             }
 
             mDummyBSplineMeshes.clear();

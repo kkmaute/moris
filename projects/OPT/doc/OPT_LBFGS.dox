@@ -1,5 +1,6 @@
 /** \page opt_lbfgs Limited-Memory Broyden-Fletcher-Goldfarb-Shanno (LBFGS)
 
-WORK IN PROGRESS
+\warning MORIS will eventually be capable of handling LBFGS as a possible optimization algorithm. However, there are
+issues with the current implementation due to discrepancies with respect to a previous version of the external package.
 
 */

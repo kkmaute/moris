@@ -7,6 +7,7 @@
 #include "cl_GEN_Circle.hpp"
 #include "cl_GEN_Geometry_Engine.hpp"
 #include "cl_GEN_Pdv_Host_Manager.hpp"
+#include "cl_GEN_Level_Set.hpp"
 #include "cl_MTK_Mesh_Manager.hpp"
 #include "cl_Mesh_Factory.hpp"
 #include "cl_XTK_Edge_Topology.hpp"
@@ -214,9 +215,9 @@ namespace moris
                 tParameters.set( "domain_sidesets", std::string("1,2,3,4") );
                 tParameters.set( "lagrange_output_meshes", std::string("0") );
 
-                tParameters.set( "lagrange_orders", std::string("1") );
+                tParameters.set( "lagrange_orders", std::string("2") );
                 tParameters.set( "lagrange_pattern", std::string("0") );
-                tParameters.set( "bspline_orders", std::string("1") );
+                tParameters.set( "bspline_orders", std::string("2") );
                 tParameters.set( "bspline_pattern", std::string("0") );
 
                 tParameters.set( "lagrange_to_bspline", std::string("0") );
@@ -240,14 +241,24 @@ namespace moris
                 // Create circle geometry
                 real tRadius = 0.4501;
                 Matrix<DDRMat> tADVs = {{0.0, 0.0, tRadius}};
+//                        -1.0, -1.0, -1.0, -1.0,
+//                        -1.0, -1.0, 1.0, 0.0,
+//                        -0.5, 0.5, 1.0, 1.0,
+//                        1.0, 1.0, 1.0, 1.0}};
                 Cell<std::shared_ptr<moris::ge::Geometry>> tGeometry(1);
                 tGeometry(0) = std::make_shared<moris::ge::Circle>(tADVs,
                                                                    Matrix<DDUMat>({{0, 1, 2}}),
                                                                    Matrix<DDUMat>({{0, 1, 2}}),
                                                                    Matrix<DDRMat>(0, 0));
 
+//                tGeometry(0) = std::make_shared<Level_Set>(tADVs,
+//                                    Matrix<DDUMat>({{0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15}}),
+//                                    Matrix<DDUMat>({{3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18}}),
+//                                    Matrix<DDRMat>(0, 0),
+//                                    tInterpolationMesh);
+
                 moris::ge::Phase_Table tPhaseTable (1, moris::ge::Phase_Table_Structure::EXP_BASE_2);
-                moris::ge::Geometry_Engine tGeometryEngine(tGeometry, tPhaseTable, 2, tADVs);
+                moris::ge::Geometry_Engine tGeometryEngine(tGeometry, tPhaseTable, tInterpolationMesh, tADVs);
                 tGeometryEngine.set_advs({{0.0, 0.0, 0.0}});
 
                 xtk::Model tXTKModel(2, tInterpolationMesh, &tGeometryEngine);
@@ -262,22 +273,21 @@ namespace moris
                 xtk::Enriched_Interpolation_Mesh &tEnrInterpMesh = tXTKModel.get_enriched_interp_mesh();
                 xtk::Enriched_Integration_Mesh &tEnrIntegMesh = tXTKModel.get_enriched_integ_mesh();
 
+                // Write mesh
+//                moris::mtk::Writer_Exodus writer( &tEnrIntegMesh );
+//                writer.write_mesh("", "./xtk_temp_2.exo");
+//                writer.close_file();
+
                 // place the pair in mesh manager
                 std::shared_ptr<mtk::Mesh_Manager> tMeshManager = std::make_shared<mtk::Mesh_Manager>();
                 tMeshManager->register_mesh_pair( &tEnrInterpMesh, &tEnrIntegMesh);
-                tGeometryEngine.register_mesh(tMeshManager);
 
                 // Calculate sensitivities on interface
                 Matrix<IndexMat> tInterfaceNodes = tXTKModel.get_background_mesh().get_interface_nodes_loc_inds(0);
-                Matrix<DDRMat> tCoordinates(tEnrIntegMesh.get_num_nodes(), 2);
-                for (uint tNodeIndex = 0; tNodeIndex < tEnrIntegMesh.get_num_nodes(); tNodeIndex++)
-                {
-                    tCoordinates.set_row(tNodeIndex, tEnrIntegMesh.get_node_coordinate(tNodeIndex));
-                }
                 tGeometryEngine.set_interface_nodes(tInterfaceNodes);
 
                 // Create PDVs on integration mesh
-                tGeometryEngine.create_ig_pdv_hosts();
+                tGeometryEngine.create_pdvs(tMeshManager);
 
                 // Make sure PDVs contain sensitivity information
                 Pdv_Host_Manager *tPdvHostManager = dynamic_cast<Pdv_Host_Manager*>(tGeometryEngine.get_design_variable_interface());

@@ -34,11 +34,20 @@ namespace moris
                        Matrix<DDRMat>             aLocalCoordinates);
 
             /**
-             * Get a geometry field value on the child node based on values from the parents
+             * Get the geometry field value on the child node based on values from its parents
              *
              * @param aGeometry Geometry pointer, called from inside a geometry
+             * @return Field value
              */
             virtual real interpolate_geometry_field_value(Geometry* aGeometry);
+
+            /**
+             * Get a geometry sensitivity on the child node based on its parents
+             *
+             * @param aGeometry Geometry pointer, called from inside a geometry
+             * @param aSensitivities Field sensitivities
+             */
+            virtual void interpolate_geometry_sensitivity(Geometry* aGeometry, Matrix<DDRMat>& aSensitivities);
         };
     }
 }

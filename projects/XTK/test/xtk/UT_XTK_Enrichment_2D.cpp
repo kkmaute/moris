@@ -31,11 +31,6 @@
 #include "fn_sort.hpp"
 #include "op_equal_equal.hpp"
 
-
-//#include "geometry/cl_Discrete_Level_Set.hpp"
-//#include "geometry/cl_Plane.hpp"
-//#include "cl_MGE_Geometry_Engine.hpp"
-
 #include "cl_XTK_Model.hpp"
 #include "cl_XTK_Enums.hpp"
 #include "cl_XTK_Cut_Mesh.hpp"
@@ -46,8 +41,7 @@
 #include "cl_XTK_Interpolation_Cell_Unzipped.hpp"
 #include "cl_XTK_Cell_Cluster.hpp"
 
-#include "cl_GEN_Discrete_Level_Set.hpp"
-#include "cl_GEN_Geometry.hpp"
+#include "cl_GEN_Mesh_Field_Geometry.hpp"
 #include "cl_GEN_Plane.hpp"
 
 namespace xtk
@@ -111,10 +105,10 @@ TEST_CASE("2 Element Enrichment 2D","[ENRICH_1E_2D]")
         tMeshData->add_mesh_field_real_scalar_data_loc_inds(tLSFName, moris::EntityRank::NODE, tLevelsetVal);
 
         Cell<std::shared_ptr<ge::Geometry>> tGeometry(1);
-        tGeometry(0) = std::make_shared<moris::ge::Discrete_Level_Set>(tMeshData, Cell<std::string>(1, tLSFName));
+        tGeometry(0) = std::make_shared<moris::ge::Mesh_Field_Geometry>(tMeshData, tLSFName);
 
         moris::ge::Phase_Table tPhaseTable (1, moris::ge::Phase_Table_Structure::EXP_BASE_2);
-        moris::ge::Geometry_Engine tGeometryEngine(tGeometry, tPhaseTable,2);
+        moris::ge::Geometry_Engine tGeometryEngine(tGeometry, tPhaseTable, tMeshData);
 
         // Setup XTK Model -----------------------------
         size_t tModelDimension = 2;

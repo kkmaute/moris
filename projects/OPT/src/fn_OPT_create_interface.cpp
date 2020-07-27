@@ -1,7 +1,3 @@
-//
-// Created by christopherson on 3/4/20.
-//
-
 #include "fn_OPT_create_interface.hpp"
 #include "cl_OPT_Interface_User_Defined.hpp"
 #include "cl_OPT_Interface_Manager.hpp"

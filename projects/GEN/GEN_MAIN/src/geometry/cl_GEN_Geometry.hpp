@@ -24,14 +24,6 @@ namespace moris
             Geometry(sint aNumRefinements, sint aRefinementFunctionIndex);
 
             /**
-             * Lets the geometry engine know if sensitivities are available, otherwise it will perform finite
-             * differencing instead for intersection locations
-             *
-             * @return If sensitivities are implemented or not (true in base class)
-             */
-            virtual bool sensitivities_available();
-
-            /**
              * This function will return true when called less than the number of refinements set for this geometry,
              * and false otherwise. This is to determine for a given refinement call if this geometry needs refinement.
              *

@@ -7,7 +7,6 @@ set(${OPT}_VERSION ${MORIS_VERSION})
 # List header files
 set(HEADERS
 	cl_OPT_Algorithm.hpp
-	cl_OPT_Algorithm_API.hpp
 	cl_OPT_Algorithm_GCMMA.hpp
 	cl_OPT_Algorithm_LBFGS.hpp
 	cl_OPT_Algorithm_SQP.hpp
@@ -19,7 +18,8 @@ set(HEADERS
 	cl_OPT_Problem_user_Defined.hpp
 	cl_OPT_Interface_User_Defined.hpp
 	fn_OPT_create_problem.hpp
-	fn_OPT_create_interface.hpp)
+	fn_OPT_create_interface.hpp
+	fn_OPT_create_algorithm.hpp)
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Optimization Library
@@ -27,7 +27,6 @@ set(HEADERS
 # List source files
 set(LIB_SOURCES
 	cl_OPT_Algorithm.cpp
-	cl_OPT_Algorithm_API.cpp
 	cl_OPT_Algorithm_GCMMA.cpp
 	cl_OPT_Algorithm_LBFGS.cpp
 	cl_OPT_Algorithm_SQP.cpp
@@ -39,7 +38,8 @@ set(LIB_SOURCES
 	cl_OPT_Problem_User_Defined.cpp
 	cl_OPT_Interface_User_Defined.cpp
 	fn_OPT_create_problem.cpp
-	fn_OPT_create_interface.cpp)
+	fn_OPT_create_interface.cpp
+	fn_OPT_create_algorithm.cpp)
 
 # List library dependencies
 set(LIB_DEPENDENCIES

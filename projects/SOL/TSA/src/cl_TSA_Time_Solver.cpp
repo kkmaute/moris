@@ -90,22 +90,19 @@ void Time_Solver::delete_pointers()
 {
     if( mIsMasterTimeSolver )
     {
-        if ( mFullMap != nullptr )
-        {
-            delete( mFullMap );
-            mFullMap = nullptr;
-        }
+        delete mFullMap;
+        mFullMap = nullptr;
 
         for( auto tFullSolVec : mFullVector)
         {
-            delete( tFullSolVec );
+            delete tFullSolVec;
         }
 
         mFullVector.clear();
 
         for( auto tFullSolVec : mFullVectorSensitivity)
         {
-            delete( tFullSolVec );
+            delete tFullSolVec;
         }
 
         mFullVectorSensitivity.clear();
@@ -492,7 +489,7 @@ void Time_Solver::prepare_sol_vec_for_next_time_step()
         uint tNumSolVec = mFullVector.size();
 
         mFullVector( tNumSolVec-1 )->vec_plus_vec( 1.0, *(mFullVector( tNumSolVec-2 )), 0.0 );
-//        mFullVector( tNumSolVec-1 )->vec_put_scalar( 0.0 );
+        //        mFullVector( tNumSolVec-1 )->vec_put_scalar( 0.0 );
     }
 
 }
