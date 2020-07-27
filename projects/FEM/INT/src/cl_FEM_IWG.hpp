@@ -92,6 +92,9 @@ namespace moris
                 // stabilization parameters
                 moris::Cell< std::shared_ptr< fem::Stabilization_Parameter > > mStabilizationParam;
 
+                // interpolation order for IWG
+                uint mOrder = 1;
+
                 // string for IWG name
                 std::string mName;
 
@@ -224,6 +227,15 @@ namespace moris
 
                 //------------------------------------------------------------------------------
                 /**
+                 * get flattened normal matrix
+                 * @param[ in ] aNormal normal vector
+                 */
+                void get_flat_normal_matrix(
+                        Matrix< DDRMat > & aFlatNormal,
+                        uint               aOrder );
+
+                //------------------------------------------------------------------------------
+                /**
                  * set residual dof type
                  * @param[ in ] aResidualdofType a cell of residual dof types
                  */
@@ -241,6 +253,12 @@ namespace moris
                 {
                     return mResidualDofType;
                 };
+
+                //------------------------------------------------------------------------------
+                /**
+                 * set interpolation order for the residual dof type
+                 */
+                void set_interpolation_order();
 
                 //------------------------------------------------------------------------------
                 /**
