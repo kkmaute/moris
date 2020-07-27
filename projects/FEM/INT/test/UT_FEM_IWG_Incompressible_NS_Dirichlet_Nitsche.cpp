@@ -81,6 +81,10 @@ TEST_CASE( "IWG_Incompressible_NS_Dirichlet_Velocity_Symmetric_Nitsche",
     //tPropDensity->set_val_function( tPFIValFunc );
     //tPropDensity->set_dof_derivative_functions( { tPFIDerFunc } );
 
+    std::shared_ptr< fem::Property > tPropUpwind = std::make_shared< fem::Property >();
+    tPropUpwind->set_parameters( { {{ 1.0 }} } );
+    tPropUpwind->set_val_function( tConstValFunc );
+
     std::shared_ptr< fem::Property > tPropVelocity = std::make_shared< fem::Property >();
     tPropVelocity->set_val_function( tConstValFunc );
 
@@ -117,6 +121,7 @@ TEST_CASE( "IWG_Incompressible_NS_Dirichlet_Velocity_Symmetric_Nitsche",
     tIWGVelocity->set_residual_dof_type( tVelDofTypes );
     tIWGVelocity->set_dof_type_list( { tVelDofTypes, tPDofTypes, tVisDofTypes }, mtk::Master_Slave::MASTER );
     tIWGVelocity->set_property( tPropVelocity, "Dirichlet" );
+    tIWGVelocity->set_property( tPropUpwind, "Upwind" );
     tIWGVelocity->set_constitutive_model( tCMMasterIncFluid, "IncompressibleFluid" );
     tIWGVelocity->set_constitutive_model( tCMMasterTurbulence, "TurbulenceFluid" );
     tIWGVelocity->set_stabilization_parameter( tSPNitsche, "DirichletNitsche" );
@@ -224,6 +229,7 @@ TEST_CASE( "IWG_Incompressible_NS_Dirichlet_Velocity_Symmetric_Nitsche",
         tPropVelocity->set_parameters( { tVelocity } );
         tCMMasterIncFluid->set_space_dim( iSpaceDim );
         tCMMasterTurbulence->set_space_dim( iSpaceDim );
+        tSPNitsche->set_space_dim( iSpaceDim );
 
         // set the normal
         tIWGVelocity->set_normal( tNormal );
@@ -440,6 +446,10 @@ TEST_CASE( "IWG_Incompressible_NS_Dirichlet_Velocity_Unsymmetric_Nitsche", "[IWG
     //tPropDensity->set_val_function( tPFIValFunc );
     //tPropDensity->set_dof_derivative_functions( { tPFIDerFunc } );
 
+    std::shared_ptr< fem::Property > tPropUpwind = std::make_shared< fem::Property >();
+    tPropUpwind->set_parameters( { {{ 1.0 }} } );
+    tPropUpwind->set_val_function( tConstValFunc );
+
     std::shared_ptr< fem::Property > tPropVelocity = std::make_shared< fem::Property >();
     tPropVelocity->set_val_function( tConstValFunc );
     //tPropVelocity->set_dof_type_list( { tPDofTypes } );
@@ -479,6 +489,7 @@ TEST_CASE( "IWG_Incompressible_NS_Dirichlet_Velocity_Unsymmetric_Nitsche", "[IWG
     tIWGVelocity->set_residual_dof_type( tVelDofTypes );
     tIWGVelocity->set_dof_type_list( { tVelDofTypes, tPDofTypes, tVisDofTypes }, mtk::Master_Slave::MASTER );
     tIWGVelocity->set_property( tPropVelocity, "Dirichlet" );
+    tIWGVelocity->set_property( tPropUpwind, "Upwind" );
     tIWGVelocity->set_constitutive_model( tCMMasterIncFluid, "IncompressibleFluid" );
     tIWGVelocity->set_constitutive_model( tCMMasterTurbulence, "TurbulenceFluid" );
     tIWGVelocity->set_stabilization_parameter( tSPNitsche, "DirichletNitsche" );
@@ -580,6 +591,7 @@ TEST_CASE( "IWG_Incompressible_NS_Dirichlet_Velocity_Unsymmetric_Nitsche", "[IWG
         tPropVelocity->set_parameters( { tVelocity } );
         tCMMasterIncFluid->set_space_dim( iSpaceDim );
         tCMMasterTurbulence->set_space_dim( iSpaceDim );
+        tSPNitsche->set_space_dim( iSpaceDim );
 
         // set the normal
         tIWGVelocity->set_normal( tNormal );
