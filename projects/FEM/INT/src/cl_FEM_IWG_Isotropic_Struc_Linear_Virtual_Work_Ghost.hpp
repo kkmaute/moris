@@ -28,12 +28,8 @@ namespace moris
         class IWG_Isotropic_Struc_Linear_Virtual_Work_Ghost : public IWG
         {
 
-            protected:
-                // order of Shape functions
-                uint mOrder;
-
                 //------------------------------------------------------------------------------
-            public:
+            private:
 
                 enum class IWG_Constitutive_Type
                 {
@@ -53,6 +49,7 @@ namespace moris
                 // Local string to constitutive enum map
                 std::map< std::string, IWG_Stabilization_Type > mStabilizationMap;
 
+            public:
                 //------------------------------------------------------------------------------
                 /*
                  *  constructor

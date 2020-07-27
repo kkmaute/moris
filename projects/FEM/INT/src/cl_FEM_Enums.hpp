@@ -98,7 +98,6 @@ namespace moris
             SPATIALDIFF_ROBIN,   // spatial diffusion Robin (Convection)
             SPATIALDIFF_RADIATION,   // spatial diffusion Radiation BC
             SPATIALDIFF_INTERFACE, // spatial diffusion Nitsche interface condition
-            SPATIALDIFF_GHOST,     // spatial diffusion ghost
             SPATIALDIFF_GGLS_PC,   // spatial diffusion GGLS stabilization term for phase change
             SPATIALDIFF_VW_GHOST,  // spatial diffusion virtual work ghost
             STRUC_LINEAR_BULK,     // linear elasticity bulk
@@ -106,17 +105,13 @@ namespace moris
             STRUC_LINEAR_DIRICHLET_UNSYMMETRIC_NITSCHE,// linear elasticity Dirichlet (Nitsche)
             STRUC_LINEAR_NEUMANN,  // linear elasticity Neumann
             STRUC_LINEAR_INTERFACE,// linear elasticity Nitsche interface condition
-            STRUC_LINEAR_GHOST,    // linear elasticity Ghost field based
             STRUC_LINEAR_VW_GHOST, // linear elasticity Ghost flux based
             STRUC_LINEAR_PRESSURE_BULK, //linear elasticity bulk mixed formulation
             STRUC_LINEAR_PRESSURE_DIRICHLET_SYMMETRIC_NITSCHE, // linear elasticity Dirichlet mixed formulation (Nitsche)
             STRUC_LINEAR_PRESSURE_DIRICHLET_UNSYMMETRIC_NITSCHE,
             INCOMPRESSIBLE_NS_VELOCITY_BULK,
             INCOMPRESSIBLE_NS_PRESSURE_BULK,
-            INCOMPRESSIBLE_NS_VISCOUS_VELOCITY_GHOST,
             INCOMPRESSIBLE_NS_CONVECTIVE_VELOCITY_GHOST,
-            INCOMPRESSIBLE_NS_CONVECTIVE_NORMAL_VELOCITY_GHOST,
-            INCOMPRESSIBLE_NS_PRESSURE_GHOST,
             INCOMPRESSIBLE_NS_VELOCITY_DIRICHLET_SYMMETRIC_NITSCHE,
             INCOMPRESSIBLE_NS_VELOCITY_DIRICHLET_UNSYMMETRIC_NITSCHE,
             INCOMPRESSIBLE_NS_PRESSURE_DIRICHLET_SYMMETRIC_NITSCHE,
@@ -135,6 +130,7 @@ namespace moris
             STRUC_LINEAR_CONTACT_SYMMETRIC_NITSCHE,
             STRUC_LINEAR_CONTACT_UNSYMMETRIC_NITSCHE,
             STRUC_LINEAR_CONTACT_PENALTY,
+            GHOST_NORMAL_FIELD,
             END_IWG_TYPE
         };
 
@@ -194,6 +190,7 @@ namespace moris
             DIRICHLET_NITSCHE,
             GGLS_DIFFUSION,
             GHOST_DISPL,
+            GHOST_NORMAL_FIELD,
             GHOST_VW,
             NITSCHE_INTERFACE,
             MASTER_WEIGHT_INTERFACE,
