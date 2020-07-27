@@ -39,10 +39,8 @@ namespace moris
             mPerformerManager->mHMRPerformer( 0 )->perform();
 
             // Stage 2: Initialize Level set field in GEN -----------------------------------------------
-            Matrix<DDRMat> tL2Solution(0, 0); // TODO
             mPerformerManager->mGENPerformer( 0 )->compute_level_set_data(
-                    mPerformerManager->mMTKPerformer( 0 )->get_interpolation_mesh(0),
-                    tL2Solution);
+                    mPerformerManager->mMTKPerformer( 0 )->get_interpolation_mesh(0));
 
             // Get ADVs
             aADVs        = mPerformerManager->mGENPerformer( 0 )->get_advs();

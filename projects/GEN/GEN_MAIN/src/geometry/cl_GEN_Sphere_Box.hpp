@@ -19,7 +19,7 @@ public:
                 moris::real aZCenter,
                 moris::real aNexp)
                 : Field(Matrix<DDRMat>({{aXCenter, aYCenter, aZCenter, aNexp}})),
-                  Geometry(0, -1)
+                  Geometry(0, -1, -1, -1.0, 1.0)
     {
         mSX = aSX;
         mSY = aSY;

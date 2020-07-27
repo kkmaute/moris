@@ -18,7 +18,7 @@ namespace moris
         {
             // Check that the number of field variables indices equals the number of ADV indices, resize field variables
             MORIS_ERROR(aFieldVariableIndices.length() == aADVIndices.length(),
-                        "ge::Field: Number of field variables indices must equal the number of ADV indices");
+                        "Number of field variables indices must equal the number of ADV indices in a GEN field.");
 
             // Store number of ADVs
             mNumADVs = aADVs.length();
@@ -42,6 +42,26 @@ namespace moris
                     mFieldVariables(tVariableIndex) = &(mConstantParameters(tParameterIndex++));
                     mActiveVariables(tVariableIndex) = false;
                 }
+            }
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+        
+        Field::Field(Matrix<DDRMat>& aADVs,
+                     uint aNumFieldVariables)
+                : mActiveVariables(aNumFieldVariables, true),
+                  mNumADVs(aADVs.length() + aNumFieldVariables)
+        {
+            // Resize ADVs/variables
+            uint tNumOriginalADVs = aADVs.length();
+            aADVs.resize(tNumOriginalADVs + aNumFieldVariables, 1);
+            mADVIndices.resize(aNumFieldVariables, 1);
+            mFieldVariables.resize(aNumFieldVariables);
+
+            // Set variables from ADVs
+            for (uint tVariableIndex = 0; tVariableIndex < aNumFieldVariables; tVariableIndex++)
+            {
+                mFieldVariables(tVariableIndex) = &(aADVs(tNumOriginalADVs + tVariableIndex));
             }
         }
 

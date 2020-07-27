@@ -21,13 +21,19 @@ namespace moris
              * @param aConstantParameters The constant parameters not filled by ADVs
              * @param aNumRefinements The number of refinement steps to use for this geometry
              * @param aRefinementFunctionIndex The index of a user-defined refinement function (-1 = default refinement)
+             * @param aBSplineMeshIndex The index of a B-spline mesh for level set discretization (-1 = no B-splines)
+             * @param aLevelSetLowerBound The lower bound for a B-spline level set field describing this geometry
+             * @param aLevelSetUpperBound The upper bound for a B-spline level set field describing this geometry
              */
             Circle(Matrix<DDRMat>& aADVs,
                    Matrix<DDUMat>  aGeometryVariableIndices,
                    Matrix<DDUMat>  aADVIndices,
                    Matrix<DDRMat>  aConstantParameters,
                    sint            aNumRefinements = 0,
-                   sint            aRefinementFunctionIndex = -1);
+                   sint            aRefinementFunctionIndex = -1,
+                   sint            aBSplineMeshIndex = -1,
+                   real            aLevelSetLowerBound = -1.0,
+                   real            aLevelSetUpperBound = 1.0);
 
             /**
              * Constructor with only constant parameters
@@ -37,12 +43,18 @@ namespace moris
              * @param aRadius radius of the circle
              * @param aNumRefinements The number of refinement steps to use for this geometry
              * @param aRefinementFunctionIndex The index of a user-defined refinement function (-1 = default refinement)
+             * @param aBSplineMeshIndex The index of a B-spline mesh for level set discretization (-1 = no B-splines)
+             * @param aLevelSetLowerBound The lower bound for a B-spline level set field describing this geometry
+             * @param aLevelSetUpperBound The upper bound for a B-spline level set field describing this geometry
              */
             Circle(real aXCenter,
                    real aYCenter,
                    real aRadius,
                    sint aNumRefinements = 0,
-                   sint aRefinementFunctionIndex = -1);
+                   sint aRefinementFunctionIndex = -1,
+                   sint aBSplineMeshIndex = -1,
+                   real aLevelSetLowerBound = -1.0,
+                   real aLevelSetUpperBound = 1.0);
 
             /**
              * Given a node coordinate, the geometry needs to return the distance to the nearest function.

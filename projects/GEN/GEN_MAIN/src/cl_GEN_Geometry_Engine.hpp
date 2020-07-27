@@ -5,15 +5,11 @@
 #include "cl_WRK_Performer.hpp"
 
 // GEN
-#include "cl_GEN_Pending_Node.hpp"
-#include "cl_GEN_Phase_Table.hpp"
-
-#include "cl_GEN_Geometry_Object.hpp"
-#include "cl_GEN_Geometry_Object_Manager.hpp"
-
-#include "pdv/cl_GEN_Pdv_Host_Manager.hpp"
 #include "cl_GEN_Geometry.hpp"
 #include "cl_GEN_Property.hpp"
+#include "cl_GEN_Phase_Table.hpp"
+#include "cl_GEN_Geometry_Object.hpp"
+#include "pdv/cl_GEN_Pdv_Host_Manager.hpp"
 #include "cl_GEN_Pdv_Enums.hpp"
 
 // MTK
@@ -48,6 +44,7 @@ namespace moris
             // Level-set
             real mIsocontourThreshold;
             real mErrorFactor;
+            Matrix<DDUMat> mBSplineMeshIndices;
             std::string mLevelSetFile = "";
 
             // Spatial dimensions
@@ -68,7 +65,7 @@ namespace moris
             Cell<std::shared_ptr<Property>> mProperties;
             Cell<ParameterList> mPropertyParameterLists;
 
-            // Contains all the pdv hosts
+            // PDVs
             Pdv_Host_Manager mPdvHostManager;
             Cell<std::shared_ptr<Intersection_Node>> mIntersectionNodes;
 
@@ -292,7 +289,7 @@ namespace moris
              *
              * @param aMesh
              */
-            void compute_level_set_data(mtk::Mesh* aMesh, const Matrix<DDRMat>& aLevelSetADVs = {{}});
+            void compute_level_set_data(mtk::Mesh* aMesh);
 
             /**
              * Assign PDV hosts based on properties constructed through parameter lists

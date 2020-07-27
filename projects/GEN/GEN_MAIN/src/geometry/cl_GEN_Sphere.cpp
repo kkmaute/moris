@@ -12,9 +12,16 @@ namespace moris
                        Matrix<DDUMat>  aADVIndices,
                        Matrix<DDRMat>  aConstantParameters,
                        sint            aNumRefinements,
-                       sint            aRefinementFunctionIndex)
+                       sint            aRefinementFunctionIndex,
+                       sint            aBSplineMeshIndex,
+                       real            aLevelSetLowerBound,
+                       real            aLevelSetUpperBound)
                 : Field(aADVs, aGeometryVariableIndices, aADVIndices, aConstantParameters),
-                  Geometry(aNumRefinements, aRefinementFunctionIndex)
+                  Geometry(aNumRefinements,
+                           aRefinementFunctionIndex,
+                           aBSplineMeshIndex,
+                           aLevelSetLowerBound,
+                           aLevelSetUpperBound)
         {
             MORIS_ERROR(aGeometryVariableIndices.length() + aConstantParameters.length() == 4,
                         "A sphere geometry must be created with a total of exactly 4 adv and constant parameters");
@@ -27,9 +34,16 @@ namespace moris
                        real aZCenter,
                        real aRadius,
                        sint aNumRefinements,
-                       sint aRefinementFunctionIndex)
+                       sint aRefinementFunctionIndex,
+                       sint aBSplineMeshIndex,
+                       real aLevelSetLowerBound,
+                       real aLevelSetUpperBound)
                 : Field(Matrix<DDRMat>({{aXCenter, aYCenter, aZCenter, aRadius}})),
-                  Geometry(aNumRefinements, aRefinementFunctionIndex)
+                  Geometry(aNumRefinements,
+                           aRefinementFunctionIndex,
+                           aBSplineMeshIndex,
+                           aLevelSetLowerBound,
+                           aLevelSetUpperBound)
         {
         }
 

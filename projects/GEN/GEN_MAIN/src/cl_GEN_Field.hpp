@@ -22,9 +22,9 @@ namespace moris
         protected:
 
             /**
-             * Constructor, sets the pointers to advs and constant parameters for evaluations
+             * Constructor, sets the pointers to ADVs and constant parameters for evaluations
              *
-             * @param aADVs Reference to the full advs
+             * @param aADVs Reference to the full ADVs
              * @param aFieldVariableIndices Indices of geometry variables to be filled by the ADVs
              * @param aADVIndices The indices of the ADV vector to fill in the geometry variables
              * @param aConstantParameters The constant parameters not filled by ADVs
@@ -33,6 +33,16 @@ namespace moris
                   Matrix<DDUMat> aFieldVariableIndices,
                   Matrix<DDUMat> aADVIndices,
                   Matrix<DDRMat> aConstantParameters);
+
+            /**
+             * Constructor for creating new ADVs for all variables on this field. These values must be filled by a
+             * child constructor.
+             *
+             * @param aADVs Reference to the full ADVs
+             * @param aNumGeometryVariables The number of geometry variables
+             */
+            Field(Matrix<DDRMat>& aADVs,
+                  uint aNumFieldVariables);
 
             /**
              * Constructor for only constant parameters

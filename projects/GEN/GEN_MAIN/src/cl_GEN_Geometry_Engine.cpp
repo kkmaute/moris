@@ -1,6 +1,7 @@
 // GEN
 #include "cl_GEN_Geometry_Engine.hpp"
 #include "fn_GEN_create_geometry.hpp"
+#include "cl_GEN_Level_Set.hpp"
 #include "fn_GEN_create_properties.hpp"
 #include "cl_GEN_Interpolation.hpp"
 #include "cl_GEN_Child_Node.hpp"
@@ -477,23 +478,39 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        void Geometry_Engine::compute_level_set_data(mtk::Mesh* aMesh, const Matrix<DDRMat>& aLevelSetADVs)
+        void Geometry_Engine::compute_level_set_data(mtk::Mesh* aMesh)
         {
             // Register spatial dimension
             mSpatialDim = aMesh->get_spatial_dim();
 
             // Create B-spline level sets
-//            for (uint tLevelSetIndex = 0; tLevelSetIndex < mNumLevelSets; tLevelSetIndex++)
-//            {
-//                Matrix<DDUMat> tGeometryVariableIndices;
-//                Matrix<DDUMat> tADVIndices;
-//                Matrix<DDRMat> tConstantParameters;
-//                mGeometry.push_back(std::make_shared<Level_Set>(mADVs,
-//                                                                tGeometryVariableIndices,
-//                                                                tADVIndices,
-//                                                                tConstantParameters,
-//                                                                aMesh);)
-//            }
+            for (uint tGeometryIndex = 0; tGeometryIndex < mGeometry.size(); tGeometryIndex++)
+            {
+                // Determine if level set needs to be created
+                if (mGeometry(tGeometryIndex)->conversion_to_level_set())
+                {
+                    // Current ADVs
+                    uint tNumOriginalADVs = mADVs.length();
+
+                    // Create level set
+                    mGeometry(tGeometryIndex) = std::make_shared<Level_Set>(mADVs,
+                                                                            aMesh,
+                                                                            mGeometry(tGeometryIndex));
+
+                    // Resize bounds
+                    mLowerBounds.resize(mADVs.length(), 1);
+                    mUpperBounds.resize(mADVs.length(), 1);
+
+                    // Assign bounds
+                    real tLevelSetLowerBound = mGeometry(tGeometryIndex)->get_level_set_lower_bound();
+                    real tLevelSetUpperBound = mGeometry(tGeometryIndex)->get_level_set_upper_bound();
+                    for (uint tADVIndex = tNumOriginalADVs; tADVIndex < mADVs.length(); tADVIndex++)
+                    {
+                        mLowerBounds(tADVIndex) = tLevelSetLowerBound;
+                        mUpperBounds(tADVIndex) = tLevelSetUpperBound;
+                    }
+                }
+            }
 
             // Save level set data
             if (mLevelSetFile != "")

@@ -14,9 +14,16 @@ namespace moris
                                                      MORIS_GEN_FIELD_FUNCTION       aFieldEvaluationFunction,
                                                      MORIS_GEN_SENSITIVITY_FUNCTION aSensitivityEvaluationFunction,
                                                      sint                           aNumRefinements,
-                                                     sint                           aRefinementFunctionIndex)
+                                                     sint                           aRefinementFunctionIndex,
+                                                     sint                           aBSplineMeshIndex,
+                                                     real                           aLevelSetLowerBound,
+                                                     real                           aLevelSetUpperBound)
                 : Field(aADVs, aGeometryVariableIndices, aADVIndices, aConstantParameters),
-                  Geometry(aNumRefinements, aRefinementFunctionIndex)
+                  Geometry(aNumRefinements,
+                           aRefinementFunctionIndex,
+                           aBSplineMeshIndex,
+                           aLevelSetLowerBound,
+                           aLevelSetUpperBound)
         {
             this->set_user_defined_functions(aFieldEvaluationFunction, aSensitivityEvaluationFunction);
         }
@@ -27,9 +34,16 @@ namespace moris
                                                      MORIS_GEN_FIELD_FUNCTION       aFieldEvaluationFunction,
                                                      MORIS_GEN_SENSITIVITY_FUNCTION aSensitivityEvaluationFunction,
                                                      sint                           aNumRefinements,
-                                                     sint                           aRefinementFunctionIndex)
+                                                     sint                           aRefinementFunctionIndex,
+                                                     sint                           aBSplineMeshIndex,
+                                                     real                           aLevelSetLowerBound,
+                                                     real                           aLevelSetUpperBound)
                 : Field(aConstantParameters),
-                  Geometry(aNumRefinements, aRefinementFunctionIndex)
+                  Geometry(aNumRefinements,
+                           aRefinementFunctionIndex,
+                           aBSplineMeshIndex,
+                           aLevelSetLowerBound,
+                           aLevelSetUpperBound)
         {
             this->set_user_defined_functions(aFieldEvaluationFunction, aSensitivityEvaluationFunction);
         }

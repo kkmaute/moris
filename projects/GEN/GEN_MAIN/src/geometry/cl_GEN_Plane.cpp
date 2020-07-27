@@ -16,9 +16,16 @@ namespace moris
                      Matrix<DDUMat>  aADVIndices,
                      Matrix<DDRMat>  aConstantParameters,
                      sint            aNumRefinements,
-                     sint            aRefinementFunctionIndex)
+                     sint            aRefinementFunctionIndex,
+                     sint            aBSplineMeshIndex,
+                     real            aLevelSetLowerBound,
+                     real            aLevelSetUpperBound)
                 : Field(aADVs, aGeometryVariableIndices, aADVIndices, aConstantParameters),
-                  Geometry(aNumRefinements, aRefinementFunctionIndex)
+                  Geometry(aNumRefinements,
+                           aRefinementFunctionIndex,
+                           aBSplineMeshIndex,
+                           aLevelSetLowerBound,
+                           aLevelSetUpperBound)
         {
             if (mFieldVariables.size() == 4)
             {
@@ -45,9 +52,16 @@ namespace moris
                      real aYNormal,
                      real aZNormal,
                      sint aNumRefinements,
-                     sint aRefinementFunctionIndex)
+                     sint aRefinementFunctionIndex,
+                     sint aBSplineMeshIndex,
+                     real aLevelSetLowerBound,
+                     real aLevelSetUpperBound)
                 : Field(Matrix<DDRMat>({{aXCenter, aYCenter, aZCenter, aXNormal, aYNormal, aZNormal}})),
-                  Geometry(aNumRefinements, aRefinementFunctionIndex)
+                  Geometry(aNumRefinements,
+                           aRefinementFunctionIndex,
+                           aBSplineMeshIndex,
+                           aLevelSetLowerBound,
+                           aLevelSetUpperBound)
         {
             m_eval_field = &Plane::eval_field_3d;
             m_eval_sensitivity = &Plane::eval_sensitivity_3d;
@@ -60,9 +74,16 @@ namespace moris
                      real aXNormal,
                      real aYNormal,
                      sint aNumRefinements,
-                     sint aRefinementFunctionIndex)
+                     sint aRefinementFunctionIndex,
+                     sint aBSplineMeshIndex,
+                     real aLevelSetLowerBound,
+                     real aLevelSetUpperBound)
                 : Field(Matrix<DDRMat>({{aXCenter, aYCenter, aXNormal, aYNormal}})),
-                  Geometry(aNumRefinements, aRefinementFunctionIndex)
+                  Geometry(aNumRefinements,
+                           aRefinementFunctionIndex,
+                           aBSplineMeshIndex,
+                           aLevelSetLowerBound,
+                           aLevelSetUpperBound)
         {
             m_eval_field = &Plane::eval_field_2d;
             m_eval_sensitivity = &Plane::eval_sensitivity_2d;
