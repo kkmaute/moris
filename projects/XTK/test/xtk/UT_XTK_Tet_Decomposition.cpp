@@ -28,7 +28,7 @@
 #include "linalg_typedefs.hpp"
 
 
-#include "geometry/cl_Discrete_Level_Set.hpp"
+#include "geometry/cl_Mesh_Field_Geometry.hpp"
 #include "geometry/cl_Multi_Cylinder.hpp"
 #include "cl_Sphere.hpp"
 #include "cl_MGE_Geometry_Engine.hpp"
@@ -209,7 +209,7 @@ TEST_CASE("Tet background mesh discrete cylinder","[TET_START_CYLINDER_DISCRETE]
     // Discretize the cylinder on the mesh field "lsf"
     Cell<std::string> tScalarFieldNames = {"lsf"};
     Cell<xtk::Geometry<real, size_t, moris::DDRMat, moris::DDSTMat>*> tLevelSetFunctions = {&tMultiCylinder};
-    Discrete_Level_Set tLevelSetMesh(tLevelSetFunctions,tMeshFileName,tScalarFieldNames,tMeshBuilder);
+    Mesh_Field_Geometry tLevelSetMesh(tLevelSetFunctions,tMeshFileName,tScalarFieldNames,tMeshBuilder);
 
 
     // Tell the geometry engine about the discrete field mesh and how to interpret phases

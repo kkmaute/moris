@@ -142,7 +142,7 @@ main(
 
     // Tell the geometry engine about the discrete field mesh and how to interpret phases
     moris::ge::Phase_Table tPhaseTable (1, moris::ge::Phase_Table_Structure::EXP_BASE_2);
-    moris::ge::Geometry_Engine tGeometryEngine(tGeometryVector,tPhaseTable);
+    moris::ge::Geometry_Engine tGeometryEngine(tGeometryVector,tPhaseTable,tInterpMesh);
 
     // Tell the XTK model that it should decompose with a C_HIERARCHY_TET4, on the same mesh that the level set field is defined on.
     size_t tModelDimension = 3;

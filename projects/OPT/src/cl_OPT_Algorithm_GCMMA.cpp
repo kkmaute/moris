@@ -1,42 +1,37 @@
-//Third pary header files
+// MORIS
+#include "cl_OPT_Algorithm_GCMMA.hpp"
+
+// Third party header files
 #include "optalggcmmacall.hpp"
 #include "mma.hpp"
 
-// MORIS project header files
-#include "cl_OPT_Algorithm_GCMMA.hpp" // OPT/src
-
-// -----------------------------------------------------------------------------
 using namespace moris;
 
+//----------------------------------------------------------------------------------------------------------------------
 
-OptAlgGCMMA::OptAlgGCMMA() : Algorithm(), mResFlag(0)
+OptAlgGCMMA::OptAlgGCMMA(ParameterList aParameterList)
+        : mMaxIterations(aParameterList.get< moris::sint >( "max_its" )),
+          mMaxInnerIterations(aParameterList.get< moris::sint >( "max_inner_its" )),
+          mNormDrop(aParameterList.get< moris::real >( "norm_drop" )),
+          mAsympAdapt0(aParameterList.get< moris::real >( "asymp_adapt0" )),
+          mAsympShrink(aParameterList.get< moris::real >( "asymp_adaptb" )),
+          mAsympExpand(aParameterList.get< moris::real >( "asymp_adaptc" )),
+          mStepSize(aParameterList.get< moris::real >( "step_size" )),
+          mPenalty(aParameterList.get< moris::real >( "penalty" ))
 {
 }
 
-// -----------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 OptAlgGCMMA::~OptAlgGCMMA()
 {
 }
 
-// -----------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 void OptAlgGCMMA::solve(std::shared_ptr<moris::opt::Problem> aOptProb )
 {
     mProblem = aOptProb; // set the member variable mProblem to aOptProb
-
-    Algorithm::initialize(); // initialize the base class member variables
-
-    // extract the underlying types of the algorithm parameters and assign
-    // to variables that are used to create an object of type MMAgc solver
-    moris::sint tMaxIt = mParameterList.get< moris::sint >( "max_its" );
-    moris::sint tItsub = mParameterList.get< moris::sint >( "max_inner_its" );
-    moris::real tAcc   = mParameterList.get< moris::real >( "norm_drop" );
-    moris::real tSa    = mParameterList.get< moris::real >( "asymp_adapt0" );
-    moris::real tSb    = mParameterList.get< moris::real >( "asymp_adapt" );
-    moris::real tSc    = mParameterList.get< moris::real >( "asymp_adaptc" );
-    moris::real tDstep = mParameterList.get< moris::real >( "step_size" );
-    moris::real tPenal = mParameterList.get< moris::real >( "penalty" );
 
     // Note that these pointers are deleted by the the Arma and Eigen
     // libraries themselves.
@@ -49,9 +44,9 @@ void OptAlgGCMMA::solve(std::shared_ptr<moris::opt::Problem> aOptProb )
     // create an object of type MMAgc solver
     MMAgc mmaAlg(this,
                  tAdv, tUpperBounds, tLowerBounds,
-                 mProblem->get_num_advs(), mProblem->get_num_constraints(), tMaxIt, tItsub,
-                 tAcc, tSa, tSb, tSc,
-                 tDstep, tPenal, NULL, mPrint );
+                 mProblem->get_num_advs(), mProblem->get_num_constraints(), mMaxIterations, mMaxInnerIterations,
+                 mNormDrop, mAsympAdapt0, mAsympShrink, mAsympExpand,
+                 mStepSize, mPenalty, NULL, mPrint );
 
     mResFlag = mmaAlg.solve(); // call the the gcmma solve
 
@@ -62,7 +57,7 @@ void OptAlgGCMMA::solve(std::shared_ptr<moris::opt::Problem> aOptProb )
     mmaAlg.cleanup(); // free the memory created by GCMMA
 }
 
-// -----------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 void OptAlgGCMMA::printresult()
 {
@@ -72,22 +67,22 @@ void OptAlgGCMMA::printresult()
 
         switch ( mResFlag )
         {
-        case 0:
-            std::fprintf( stdout, "\n" );
-            std::fprintf( stdout, "THE ALGORITHM HAS CONVERGED.\n" );
-            break;
-        case 1:
-            std::fprintf( stdout, "\n" );
-            std::fprintf( stdout, "THE ALGORITHM HAS BEEN STOPPED AFTER MAXIT ITERATIONS.\n" );
-            break;
-        default:
-            std::fprintf( stdout, "\n" );
-            std::fprintf( stdout, "Error Message not specified.\n" );
+            case 0:
+                std::fprintf( stdout, "\n" );
+                std::fprintf( stdout, "THE ALGORITHM HAS CONVERGED.\n" );
+                break;
+            case 1:
+                std::fprintf( stdout, "\n" );
+                std::fprintf( stdout, "THE ALGORITHM HAS BEEN STOPPED AFTER MAXIT ITERATIONS.\n" );
+                break;
+            default:
+                std::fprintf( stdout, "\n" );
+                std::fprintf( stdout, "Error Message not specified.\n" );
         }
     }
 }
 
-// -----------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 void opt_alg_gcmma_func_wrap(
         OptAlgGCMMA* aOptAlgGCMMA,
@@ -112,7 +107,7 @@ void opt_alg_gcmma_func_wrap(
     std::copy(tConval, tConval + aOptAlgGCMMA->mProblem->get_num_constraints(), aConval );
 }
 
-// -----------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 void opt_alg_gcmma_grad_wrap(
         OptAlgGCMMA* aOptAlgGCMMA,
@@ -151,3 +146,4 @@ void opt_alg_gcmma_grad_wrap(
     }
 }
 
+//----------------------------------------------------------------------------------------------------------------------

@@ -228,7 +228,7 @@ TEST_CASE("2D XTK HMR Incompressible","[XTK_HMR_I_2D]")
         tGeometry(0) = std::make_shared<moris::ge::Circle>(0.0, 0.0, 0.4501);
 
         moris::ge::Phase_Table tPhaseTable (1, moris::ge::Phase_Table_Structure::EXP_BASE_2);
-        moris::ge::Geometry_Engine tGeometryEngine(tGeometry, tPhaseTable, 2);
+        moris::ge::Geometry_Engine tGeometryEngine(tGeometry, tPhaseTable, tInterpolationMesh);
 
         xtk::Model tXTKModel(2, tInterpolationMesh, &tGeometryEngine);
         tXTKModel.mVerbose = false;

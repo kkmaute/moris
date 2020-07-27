@@ -30,7 +30,6 @@
 #include "fn_compute_xtk_model_volumes.hpp"
 #include "fn_compute_interface_surface_area.hpp"
 
-#include "cl_GEN_Geometry.hpp"
 #include "cl_GEN_Plane.hpp"
 #include "cl_GEN_Sphere.hpp"
 #include "cl_GEN_Sphere_Box.hpp"
@@ -223,8 +222,7 @@ void run_xtk_problem(XTK_Problem_Params & aXTKProblemParams)
     //TODO: support multiple geometries, and different phase tables
     //          Phase_Table tPhaseTable (1,  Phase_Table_Structure::EXP_BASE_2);
     moris::ge::Phase_Table tPhaseTable (1,  "exp_base_2");
-    //          Geometry_Engine tGeometryEngine(*tGeometry,tPhaseTable);
-    moris::ge::Geometry_Engine tGeometryEngine(tGeometry, tPhaseTable);
+    moris::ge::Geometry_Engine tGeometryEngine(tGeometry, tPhaseTable, tMeshData);
 
     // setup the XTK model
     Model tXTKModel(3,tMeshData,&tGeometryEngine);

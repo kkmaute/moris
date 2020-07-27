@@ -9,7 +9,6 @@
 
 #include "cl_MTK_Cell_Cluster.hpp"
 #include "cl_XTK_Cut_Mesh.hpp"
-//#include "geometry/cl_Discrete_Level_Set.hpp"
 
 #include "cl_XTK_Model.hpp"
 #include "cl_XTK_Enums.hpp"
@@ -21,8 +20,7 @@
 #include "cl_MTK_Mesh_Data_STK.hpp"
 #include "cl_MTK_Mesh_Core_STK.hpp"
 
-#include "cl_GEN_Discrete_Level_Set.hpp"
-#include "cl_GEN_Geometry.hpp"
+#include "cl_GEN_Mesh_Field_Geometry.hpp"
 
 namespace xtk
 {
@@ -99,10 +97,10 @@ TEST_CASE("XTK Cell Clusters","[MTK_CLUSTER_XTK]")
 
         // geometry
         Cell<std::shared_ptr<ge::Geometry>> tGeometry(1);
-        tGeometry(0) = std::make_shared<moris::ge::Discrete_Level_Set>(tMeshData, Cell<std::string>(1, tLSFName));
+        tGeometry(0) = std::make_shared<moris::ge::Mesh_Field_Geometry>(tMeshData, tLSFName);
 
         moris::ge::Phase_Table tPhaseTable (1, moris::ge::Phase_Table_Structure::EXP_BASE_2);
-        moris::ge::Geometry_Engine tGeometryEngine(tGeometry, tPhaseTable, 3);
+        moris::ge::Geometry_Engine tGeometryEngine(tGeometry, tPhaseTable, tMeshData);
 
         /*
          * Setup XTK Model and tell it how to cut

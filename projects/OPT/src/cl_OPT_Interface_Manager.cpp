@@ -1,7 +1,3 @@
-//
-// Created by christopherson on 3/20/20.
-//
-
 #include "cl_OPT_Interface_Manager.hpp"
 #include "fn_sum.hpp"
 #include "fn_Parsing_Tools.hpp"
@@ -14,7 +10,9 @@ namespace moris
 
         // -------------------------------------------------------------------------------------------------------------
 
-        Interface_Manager::Interface_Manager(ParameterList aParameterList, Cell<std::shared_ptr<Criteria_Interface>> aInterfaces) : mInterfaces(aInterfaces)
+        Interface_Manager::Interface_Manager(ParameterList aParameterList,
+                                             Cell<std::shared_ptr<Criteria_Interface>> aInterfaces)
+                : mInterfaces(aInterfaces)
         {
             // Set number of interfaces
             mNumInterfaces = aInterfaces.size();
@@ -39,7 +37,9 @@ namespace moris
 
         // -------------------------------------------------------------------------------------------------------------
 
-        void Interface_Manager::initialize(Matrix<DDRMat>& aGlobalADVs, Matrix<DDRMat>& aGlobalLowerBounds, Matrix<DDRMat>& aGlobalUpperBounds)
+        void Interface_Manager::initialize(Matrix<DDRMat>& aGlobalADVs,
+                                           Matrix<DDRMat>& aGlobalLowerBounds,
+                                           Matrix<DDRMat>& aGlobalUpperBounds)
         {
             // Set up ADVs
             mInterfaces(0)->initialize(aGlobalADVs, aGlobalLowerBounds, aGlobalUpperBounds);
@@ -341,5 +341,5 @@ namespace moris
 
         // -------------------------------------------------------------------------------------------------------------
 
-    }   // namespace opt
-}   // namespace moris
+    }
+}

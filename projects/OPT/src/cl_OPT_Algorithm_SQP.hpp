@@ -1,11 +1,8 @@
-#ifndef MORIS_OPTIMIZATION_CL_OPTALGSQP_HPP_
-#define MORIS_OPTIMIZATION_CL_OPTALGSQP_HPP_
+#ifndef MORIS_CL_OPT_ALGORITHM_SQP_HPP_
+#define MORIS_CL_OPT_ALGORITHM_SQP_HPP_
 
-// MORIS project header files.
 #include "core.hpp"
-#include "cl_OPT_Algorithm.hpp" // Base class // OPT/src
-
-//----------------------------------------------------------------------
+#include "cl_OPT_Algorithm.hpp"
 
 namespace moris
 {
@@ -13,49 +10,42 @@ namespace moris
     {
         class Algorithm_SQP : public Algorithm
         {
-        private:
+        public:
+            friend void sqp_user_function(
+                    int* Status, int* n, double* x,
+                    int* needf, int* nF, double* f,
+                    int* needG, int* lenG, double* G,
+                    char* cu, int* lencu, int* iu, int* leniu, double* ru, int* lenru );
 
-            uint mOptIter; // optimization iteration counter
+        private:
+            uint mOptIter = 0; // optimization iteration counter
 
             const int    MAXINT    = std::numeric_limits<int>::max();     // (int) (std::pow( 2, 63 )) - 1;
             const double MAXDOUBLE = std::numeric_limits<double>::max();  //        std::pow( 2, 63 )  - 1;
 
             // declare algorithm specific parameters
-            int    mMinWLen;
-            double mObjAdd;
-            int    mObjRow;
-            char*  mProb;
-
-            /**
-             * @brief External function call for computing objective, constraints, and
-             *        their sensitivities, to interface with SNOPT library
-             */
-            friend void OptalgSQP_usrfun(
-                    int* Status, int* n, double* x,
-                    int* needf, int* nF, double* f,
-                    int* needG, int* lenG, double* G,
-                    char* cu, int* lencu, int* iu, int* leniu, double* ru, int* lenru);
+            int    mMinWLen = 500;
+            double mObjAdd = 0.0;
+            int    mObjRow = 1;
+            char*  mProb = (char*)"fem ";
+            int  mLenCW  = mMinWLen;
+            char* mCW    = static_cast<char*>  (malloc(mLenCW*8*sizeof(char)));
+            int  mLenIW  = mMinWLen;
+            int* mIW     = static_cast<int*>   (malloc(mLenIW*sizeof(int)));
+            int  mLenRW  = mMinWLen;
+            double* mRW  = static_cast<double*>(malloc(mLenRW*sizeof(double)));
 
         public:
 
             /**
              * Constructor
              */
-            Algorithm_SQP();
+            Algorithm_SQP(ParameterList aParameterList);
 
             /**
              * Destructor
              */
             ~Algorithm_SQP();
-
-            /**
-             * @brief copy constructor through cloning
-             */
-            Algorithm*
-            clone() const
-            {
-                return new Algorithm_SQP(*this );
-            }
 
             /**
              * @brief Set the default parameter values
@@ -87,7 +77,17 @@ namespace moris
              */
             void func_grad( int n, double* x, int needG );
         };
-    }  // namespace opt
-}      // namespace moris
 
-#endif /* MORIS_OPTIMIZATION_CL_OPTALGSQP_HPP_ */
+        /**
+         * External function call for computing objective, constraints, and their sensitivities, to interface with
+         * SNOPT library.
+         */
+        void sqp_user_function(
+                int* Status, int* n, double* x,
+                int* needf, int* nF, double* f,
+                int* needG, int* lenG, double* G,
+                char* cu, int* lencu, int* iu, int* leniu, double* ru, int* lenru);
+    }
+}
+
+#endif /* MORIS_CL_OPT_ALGORITHM_SQP_HPP_ */

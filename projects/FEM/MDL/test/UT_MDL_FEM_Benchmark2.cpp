@@ -214,8 +214,6 @@ TEST_CASE("MDL_FEM_Benchmark_Diffusion_1Mat","[MDL_FEM_Benchmark_Diffusion_1Mat]
         Cell<std::shared_ptr<moris::ge::Geometry>> tGeometry(2);
         tGeometry(0) = std::make_shared<moris::ge::Circle>(tCenterPoint(0), tCenterPoint(1), tROuter);
         tGeometry(1) = std::make_shared<moris::ge::Circle>(tCenterPoint(0), tCenterPoint(1), tRInner);
-        moris::ge::Phase_Table tPhaseTable (1, moris::ge::Phase_Table_Structure::EXP_BASE_2);
-        moris::ge::Geometry_Engine tGENGeometryEngine(tGeometry, tPhaseTable, 2);
 
         // Perform additional refinement
         //tGENGeometryEngine.perform_refinement(tHMR);
@@ -224,19 +222,22 @@ TEST_CASE("MDL_FEM_Benchmark_Diffusion_1Mat","[MDL_FEM_Benchmark_Diffusion_1Mat]
         tHMR->finalize();
         moris::hmr::Interpolation_Mesh_HMR * tInterpolationMesh = tHMR->create_interpolation_mesh(tLagrangeMeshIndex);
 
+        moris::ge::Phase_Table tPhaseTable (1, moris::ge::Phase_Table_Structure::EXP_BASE_2);
+        moris::ge::Geometry_Engine tGENGeometryEngine(tGeometry, tPhaseTable, tInterpolationMesh);
+
         //-----------------------------------------------------------------------------------------------
 
         Cell<std::shared_ptr<moris::ge::Geometry>> tGeometry0(2);
         tGeometry0(0) = std::make_shared<moris::ge::Circle>(tCenterPoint(0), tCenterPoint(1), tROuter);
         tGeometry0(1) = std::make_shared<moris::ge::Circle>(tCenterPoint(0), tCenterPoint(1), tRInner);
 
-          size_t tModelDimension = 2;
-          moris::ge::Phase_Table         tPhaseTable0( 2, moris::ge::Phase_Table_Structure::EXP_BASE_2 );
-          moris::ge::Geometry_Engine     tGENGeometryEngine0( tGeometry0, tPhaseTable0, tModelDimension );
+        size_t tModelDimension = 2;
+        moris::ge::Phase_Table         tPhaseTable0( 2, moris::ge::Phase_Table_Structure::EXP_BASE_2 );
+        moris::ge::Geometry_Engine     tGENGeometryEngine0( tGeometry0, tPhaseTable0, tInterpolationMesh );
 
-          // --------------------------------------------------------------------------------------
-          xtk::Model tXTKModel(tModelDimension,tInterpolationMesh,&tGENGeometryEngine0);
-          tXTKModel.mVerbose = true;
+        // --------------------------------------------------------------------------------------
+        xtk::Model tXTKModel(tModelDimension,tInterpolationMesh,&tGENGeometryEngine0);
+        tXTKModel.mVerbose = true;
 
         //Specify decomposition Method and Cut Mesh ---------------------------------------
         Cell<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_QUAD4, Subdivision_Method::C_TRI3};
@@ -526,8 +527,6 @@ TEST_CASE("MDL_FEM_Benchmark_Diffusion_1Mat_Ghost","[MDL_FEM_Benchmark_Diffusion
         Cell<std::shared_ptr<moris::ge::Geometry>> tGeometry(2);
         tGeometry(0) = std::make_shared<moris::ge::Circle>(tCenterPoint(0), tCenterPoint(1), tROuter);
         tGeometry(1) = std::make_shared<moris::ge::Circle>(tCenterPoint(0), tCenterPoint(1), tRInner);
-        moris::ge::Phase_Table tPhaseTable (1, moris::ge::Phase_Table_Structure::EXP_BASE_2);
-        moris::ge::Geometry_Engine tGENGeometryEngine(tGeometry, tPhaseTable, 2);
 
         // Perform additional refinement
         //tGENGeometryEngine.perform_refinement(tHMR);
@@ -535,6 +534,9 @@ TEST_CASE("MDL_FEM_Benchmark_Diffusion_1Mat_Ghost","[MDL_FEM_Benchmark_Diffusion
         // Get interpolation mesh
         tHMR->finalize();
         moris::hmr::Interpolation_Mesh_HMR * tInterpolationMesh = tHMR->create_interpolation_mesh(tLagrangeMeshIndex);
+
+        moris::ge::Phase_Table tPhaseTable (1, moris::ge::Phase_Table_Structure::EXP_BASE_2);
+        moris::ge::Geometry_Engine tGENGeometryEngine(tGeometry, tPhaseTable, tInterpolationMesh);
 
         //-----------------------------------------------------------------------------------------------
 
@@ -544,11 +546,11 @@ TEST_CASE("MDL_FEM_Benchmark_Diffusion_1Mat_Ghost","[MDL_FEM_Benchmark_Diffusion
 
         size_t tModelDimension = 2;
         moris::ge::Phase_Table         tPhaseTable0( tGeometry0.size(), moris::ge::Phase_Table_Structure::EXP_BASE_2 );
-        moris::ge::Geometry_Engine     tGENGeometryEngine0( tGeometry0, tPhaseTable0, tModelDimension );
+        moris::ge::Geometry_Engine     tGENGeometryEngine0( tGeometry0, tPhaseTable0, tInterpolationMesh );
 
-          // --------------------------------------------------------------------------------------
-          xtk::Model tXTKModel(tModelDimension,tInterpolationMesh,&tGENGeometryEngine0);
-          tXTKModel.mVerbose = true;
+        // --------------------------------------------------------------------------------------
+        xtk::Model tXTKModel(tModelDimension,tInterpolationMesh,&tGENGeometryEngine0);
+        tXTKModel.mVerbose = true;
 
         //Specify decomposition Method and Cut Mesh ---------------------------------------
         Cell<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_QUAD4, Subdivision_Method::C_TRI3};
@@ -867,15 +869,15 @@ TEST_CASE("FEM Benchmark 2 - 2Mat","[MDL_FEM_Benchmark2_2Mat]")
         tGeometry(1) = std::make_shared<moris::ge::Circle>(tCenterPoint(0), tCenterPoint(1), tRMiddle);
         tGeometry(2) = std::make_shared<moris::ge::Circle>(tCenterPoint(0), tCenterPoint(1), tRInner);
 
-        moris::ge::Phase_Table tPhaseTable (3, moris::ge::Phase_Table_Structure::EXP_BASE_2);
-        moris::ge::Geometry_Engine tGENGeometryEngine(tGeometry, tPhaseTable, 2);
-
         // Perform additional refinement
         //tGENGeometryEngine.perform_refinement(tHMR);
 
         // Get interpolation mesh
         tHMR->finalize();
         moris::hmr::Interpolation_Mesh_HMR * tInterpolationMesh = tHMR->create_interpolation_mesh(tLagrangeMeshIndex);
+
+        moris::ge::Phase_Table tPhaseTable (3, moris::ge::Phase_Table_Structure::EXP_BASE_2);
+        moris::ge::Geometry_Engine tGENGeometryEngine(tGeometry, tPhaseTable, tInterpolationMesh);
 
         // --------------------------------------------------------------------------------------
         xtk::Model tXTKModel( 2, tInterpolationMesh, &tGENGeometryEngine );
@@ -1229,15 +1231,15 @@ TEST_CASE("FEM Benchmark Diffusion Inclusion - 2Mat","[MDL_FEM_Benchmark_Diffusi
         tGeometry(1) = std::make_shared<moris::ge::Circle>(tCenterPoint(0), tCenterPoint(1), tRMiddle);
         tGeometry(2) = std::make_shared<moris::ge::Circle>(tCenterPoint(0), tCenterPoint(1), tRInner);
 
-        moris::ge::Phase_Table tPhaseTable (3, moris::ge::Phase_Table_Structure::EXP_BASE_2);
-        moris::ge::Geometry_Engine tGENGeometryEngine(tGeometry, tPhaseTable, 2);
-
         // Perform additional refinement
         //tGENGeometryEngine.perform_refinement(tHMR);
 
         // Get interpolation mesh
         tHMR->finalize();
         moris::hmr::Interpolation_Mesh_HMR * tInterpolationMesh = tHMR->create_interpolation_mesh(tLagrangeMeshIndex);
+
+        moris::ge::Phase_Table tPhaseTable (3, moris::ge::Phase_Table_Structure::EXP_BASE_2);
+        moris::ge::Geometry_Engine tGENGeometryEngine(tGeometry, tPhaseTable, tInterpolationMesh);
 
         // --------------------------------------------------------------------------------------
         xtk::Model tXTKModel( 2, tInterpolationMesh, &tGENGeometryEngine );

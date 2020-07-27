@@ -1,9 +1,8 @@
-#ifndef MORIS_OPTIMIZATION_CL_OPTALGSWEEP_HPP_
-#define MORIS_OPTIMIZATION_CL_OPTALGSWEEP_HPP_
+#ifndef MORIS_CL_OPT_ALGORITHM_SWEEP_HPP_
+#define MORIS_CL_OPT_ALGORITHM_SWEEP_HPP_
 
-// MORIS project header files.
 #include "core.hpp"
-#include "cl_OPT_Algorithm.hpp" // Base class // OPT/src
+#include "cl_OPT_Algorithm.hpp"
 #include "HDF5_Tools.hpp"
 
 namespace moris
@@ -17,20 +16,12 @@ namespace moris
             /**
              * Constructor
              */
-            Algorithm_Sweep();
+            Algorithm_Sweep(ParameterList aParameterList);
 
             /**
              * Destructor
              */
             ~Algorithm_Sweep();
-
-            /**
-             * @brief copy constructor through cloning
-             */
-            Algorithm* clone() const
-            {
-                return new Algorithm_Sweep(*this );
-            }
 
             /**
              * @brief MORIS interface for solving of optimization problem using
@@ -42,13 +33,18 @@ namespace moris
             void solve(std::shared_ptr<Problem> aOptProb );
 
         private:
-            bool mSave; // If saving the results of the sweep to an hdf5 file
-            bool mPrint; // If printing the results of the sweep to the screen with moris::print
+            bool mIncludeBounds; // whether or not to include upper/lower bounds in the sweep
             bool mUpdateObjectives; // whether or not to compute new objectives when requested
             bool mUpdateConstraints; // whether or not to compute new constraints when requested
             bool mUpdateObjectiveGradients; // "                 " objective gradients
             bool mUpdateConstraintGradients; // "                 " constraint gradients
+            bool mSave; // If saving the results of the sweep to an hdf5 file
+            bool mPrint; // If printing the results of the sweep to the screen
             hid_t mFileID; // Fild id for hdf5 file
+            std::string mFiniteDifferenceType; // Finite difference type
+            Matrix<DDRMat> mFiniteDifferenceEpsilons; // Finite difference epsilons
+            Matrix<DDUMat> mNumEvaluations; // Number of evaluations per ADV
+            Matrix<DDRMat> mEvaluationPoints; // Final evaluation points
 
             /**
              * Outputs the optimization problem at the current ADVs (objective and constraints)
@@ -80,8 +76,8 @@ namespace moris
             void output_variables(Matrix<DDRMat> aVariables, std::string aFullEvaluationName);
 
         };
-    }  // namespace opt
-}      // namespace moris
+    }
+}
 
-#endif /* MORIS_OPTIMIZATION_CL_OPTALGSWEEP_HPP_ */
+#endif /* MORIS_CL_OPT_ALGORITHM_SWEEP_HPP_ */
 

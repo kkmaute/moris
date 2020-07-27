@@ -59,12 +59,12 @@ namespace xtk
             Cell<std::shared_ptr<moris::ge::Geometry>> tGeometry(1);
             tGeometry(0) = std::make_shared<moris::ge::Sphere>(tXCenter, tYCenter, tZCenter, tRadius);
 
-            moris::ge::Phase_Table tPhaseTable (1, moris::ge::Phase_Table_Structure::EXP_BASE_2);
-            moris::ge::Geometry_Engine tGeometryEngine(tGeometry, tPhaseTable);
-
             // Create Mesh ---------------------------------
             std::string tMeshFileName = "generated:1x1x1";
             moris::mtk::Interpolation_Mesh* tMeshData = moris::mtk::create_interpolation_mesh( MeshType::STK, tMeshFileName, NULL );
+
+            moris::ge::Phase_Table tPhaseTable (1, moris::ge::Phase_Table_Structure::EXP_BASE_2);
+            moris::ge::Geometry_Engine tGeometryEngine(tGeometry, tPhaseTable, tMeshData);
 
             // Setup XTK Model -----------------------------
             size_t tModelDimension = 3;
@@ -189,14 +189,14 @@ namespace xtk
             Cell<std::shared_ptr<moris::ge::Geometry>> tGeometry(1);
             tGeometry(0) = std::make_shared<moris::ge::Sphere>(tXCenter, tYCenter, tZCenter, tRadius);
 
-            moris::ge::Phase_Table tPhaseTable (1, moris::ge::Phase_Table_Structure::EXP_BASE_2);
-            moris::ge::Geometry_Engine tGeometryEngine(tGeometry, tPhaseTable);
-
             // Create Mesh --------------------------------------------------------------------
             std::string tMeshFileName = "generated:1x1x4";
             moris::mtk::Interpolation_Mesh* tMeshData = moris::mtk::create_interpolation_mesh( MeshType::STK, tMeshFileName, NULL );
             std::string tBMOutputFile ="./xtk_exo/xtk_test_output_conformal_bm.e";
             tMeshData->create_output_mesh(tBMOutputFile);
+
+            moris::ge::Phase_Table tPhaseTable (1, moris::ge::Phase_Table_Structure::EXP_BASE_2);
+            moris::ge::Geometry_Engine tGeometryEngine(tGeometry, tPhaseTable, tMeshData);
 
             // Setup XTK Model ----------------------------------------------------------------
             size_t tModelDimension = 3;
@@ -362,9 +362,6 @@ namespace xtk
         Cell<std::shared_ptr<moris::ge::Geometry>> tGeometry(1);
         tGeometry(0) = std::make_shared<moris::ge::Sphere>(tXCenter, tYCenter, tZCenter, tRadius);
 
-        moris::ge::Phase_Table tPhaseTable (1, moris::ge::Phase_Table_Structure::EXP_BASE_2);
-        moris::ge::Geometry_Engine tGeometryEngine(tGeometry, tPhaseTable);
-
     /*
      * Load Mesh which has 3 block sets. These blocks are named:
      *  - top_bread
@@ -390,6 +387,9 @@ namespace xtk
 
         // fill in the parallel fields
         moris::mtk::Interpolation_Mesh* tMeshData = moris::mtk::create_interpolation_mesh( MeshType::STK, tMeshFileName,  &tMeshDataInput  );
+
+        moris::ge::Phase_Table tPhaseTable (1, moris::ge::Phase_Table_Structure::EXP_BASE_2);
+        moris::ge::Geometry_Engine tGeometryEngine(tGeometry, tPhaseTable, tMeshData);
 
         tVizTool.populate_parallel_cell_fields_on_mesh(tMeshData);
 

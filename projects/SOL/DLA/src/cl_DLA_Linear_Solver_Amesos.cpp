@@ -14,13 +14,17 @@
 using namespace moris;
 using namespace dla;
 
+//-----------------------------------------------------------------------------
+
 Linear_Solver_Amesos::Linear_Solver_Amesos(
         const moris::ParameterList aParameterlist ) 
-        : Linear_Solver_Algorithm( aParameterlist )
+: Linear_Solver_Algorithm( aParameterlist )
 {
     // boolean for symbolic factorization after first solve
     mIsPastFirstSolve = false;
 }
+
+//-----------------------------------------------------------------------------
 
 Linear_Solver_Amesos::Linear_Solver_Amesos( Linear_Problem * aLinearSystem )
 {
@@ -31,13 +35,15 @@ Linear_Solver_Amesos::Linear_Solver_Amesos( Linear_Problem * aLinearSystem )
     this->set_solver_parameters();
 }
 
+//-----------------------------------------------------------------------------
+
 Linear_Solver_Amesos::~Linear_Solver_Amesos()
 {
-    if (mAmesosSolver != nullptr)
-    {
-        delete mAmesosSolver;
-    }
+    delete mAmesosSolver;
+    mAmesosSolver=nullptr;
 }
+
+//-----------------------------------------------------------------------------
 
 void Linear_Solver_Amesos::set_solver_parameters()
 {
@@ -57,6 +63,8 @@ void Linear_Solver_Amesos::set_solver_parameters()
     // options are true, false
     //    mParameterList.insert( "symbolic_factorization" , false );
 }
+
+//-----------------------------------------------------------------------------
 
 moris::sint Linear_Solver_Amesos::solve_linear_system()
 {
@@ -104,6 +112,8 @@ moris::sint Linear_Solver_Amesos::solve_linear_system()
 
     return error;
 }
+
+//-----------------------------------------------------------------------------
 
 moris::sint Linear_Solver_Amesos::solve_linear_system(
         Linear_Problem * aLinearSystem,
@@ -166,6 +176,8 @@ moris::sint Linear_Solver_Amesos::solve_linear_system(
 
     return error;
 }
+
+//-----------------------------------------------------------------------------
 
 void Linear_Solver_Amesos::set_solver_internal_parameters()
 {

@@ -29,10 +29,6 @@
 #include "cl_XTK_Matrix_Base_Utilities.hpp"
 #include "linalg_typedefs.hpp"
 
-
-//#include "geometry/cl_Discrete_Level_Set.hpp"
-//#include "geometry/cl_Plane.hpp"
-//#include "cl_MGE_Geometry_Engine.hpp"
 #include "cl_XTK_Model.hpp"
 #include "cl_XTK_Enums.hpp"
 #include "cl_XTK_Cut_Mesh.hpp"
@@ -40,8 +36,7 @@
 #include "cl_XTK_Enriched_Interpolation_Mesh.hpp"
 #include "cl_XTK_Enriched_Integration_Mesh.hpp"
 
-#include "cl_GEN_Discrete_Level_Set.hpp"
-#include "cl_GEN_Geometry.hpp"
+#include "cl_GEN_Mesh_Field_Geometry.hpp"
 #include "cl_GEN_Plane.hpp"
 
 namespace xtk
@@ -97,10 +92,10 @@ TEST_CASE("Enrichment Example 1","[ENRICH_1]")
         tMeshData->create_output_mesh(tMeshOutputFile2);
 
         moris::Cell<std::shared_ptr<moris::ge::Geometry>> tGeometry(1);
-        tGeometry(0) = std::make_shared<moris::ge::Discrete_Level_Set>(tMeshData, Cell<std::string>(1, tLSFName));
+        tGeometry(0) = std::make_shared<moris::ge::Mesh_Field_Geometry>(tMeshData, tLSFName);
 
         moris::ge::Phase_Table     tPhaseTable (1, moris::ge::Phase_Table_Structure::EXP_BASE_2);
-        moris::ge::Geometry_Engine tGeometryEngine(tGeometry, tPhaseTable);
+        moris::ge::Geometry_Engine tGeometryEngine(tGeometry, tPhaseTable, tMeshData);
 
         /*
          * Setup XTK Model and tell it how to cut
@@ -226,10 +221,10 @@ TEST_CASE("8 Element 10 enrichment Levels","[ENRICH_10_EL_CLUSTER]")
         tMeshData->create_output_mesh(tMeshOutputFile2);
 
         moris::Cell<std::shared_ptr<moris::ge::Geometry>> tGeometry(1);
-        tGeometry(0) = std::make_shared<moris::ge::Discrete_Level_Set>(tMeshData, Cell<std::string>(1, tLSFName));
+        tGeometry(0) = std::make_shared<moris::ge::Mesh_Field_Geometry>(tMeshData, tLSFName);
 
         moris::ge::Phase_Table     tPhaseTable (1, moris::ge::Phase_Table_Structure::EXP_BASE_2);
-        moris::ge::Geometry_Engine tGeometryEngine(tGeometry, tPhaseTable);
+        moris::ge::Geometry_Engine tGeometryEngine(tGeometry, tPhaseTable, tMeshData);
 
         /*
          * Setup XTK Model and tell it how to cut

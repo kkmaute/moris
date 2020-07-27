@@ -61,12 +61,11 @@ Linear_Solver_Aztec::Linear_Solver_Aztec(  Linear_Problem * aLinearSystem ) : mM
 //----------------------------------------------------------------------------------------
 Linear_Solver_Aztec::~Linear_Solver_Aztec()
 {
-    delete( mMlPrec );
+    delete mMlPrec;
+    mMlPrec=nullptr;
 
-    if( mAztecSolver != nullptr )
-    {
-        delete mAztecSolver;
-    }
+    delete mAztecSolver;
+    mAztecSolver=nullptr;
 }
 
 //----------------------------------------------------------------------------------------

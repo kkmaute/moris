@@ -55,9 +55,6 @@ namespace moris
 
         void Intersection_Node::get_all_sensitivities(Matrix<DDRMat>& aSensitivities)
         {
-            MORIS_ERROR(mInterfaceGeometry->sensitivities_available(),
-                        "Sensitivities of an intersection not implemented if a geometry does not have its sensitivities available.");
-
             // Geometry field sensitivities
             Matrix<DDRMat> tFieldSensitivityNode1(0, 0);
             Matrix<DDRMat> tFieldSensitivityNode2(0, 0);

@@ -58,10 +58,7 @@ namespace moris
 
             void delete_multigrid()
             {
-                if ( mGeoMultigrid != nullptr )
-                {
-                    delete(mGeoMultigrid);
-                }
+                delete(mGeoMultigrid);
             };
 
             //------------------------------------------------------------------------------
@@ -382,8 +379,6 @@ namespace moris
             {
                 MORIS_ERROR(false, "Solver_Interface::set_requested_IQI_type(), not implemented for base class");
             };
-
-
     };
 }
 

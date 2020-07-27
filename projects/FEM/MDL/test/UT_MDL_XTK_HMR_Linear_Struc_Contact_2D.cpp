@@ -272,7 +272,7 @@ TEST_CASE("2D Linear Stuct Contract","[XTK_HMR_LS_Contact_2D]")
 
         size_t tModelDimension = 2;
         moris::ge::Phase_Table tPhaseTable (tGeometryVector.size(), moris::ge::Phase_Table_Structure::EXP_BASE_2);
-        moris::ge::Geometry_Engine tGeometryEngine(tGeometryVector,tPhaseTable,tModelDimension);
+        moris::ge::Geometry_Engine tGeometryEngine(tGeometryVector,tPhaseTable,tInterpolationMesh);
         xtk::Model tXTKModel(tModelDimension,tInterpolationMesh,&tGeometryEngine);
         tXTKModel.mVerbose = false;
 

@@ -104,7 +104,6 @@ namespace moris
                     //                    MORIS_ASSERT( tSlaveIndex != -1,
                     //                                  "Equation_Set::get_dof_index_for_type - slave dof type not assigned in map." );
 
-
                     if ( tSlaveIndex == -1 )
                     {
                         return tSlaveIndex;

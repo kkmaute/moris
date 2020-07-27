@@ -1,5 +1,4 @@
-// Project header files
-#include "cl_OPT_Problem.hpp" // OPT/src
+#include "cl_OPT_Problem.hpp"
 #include "op_plus.hpp"
 #include "fn_norm.hpp"
 #include "fn_Parsing_Tools.hpp"

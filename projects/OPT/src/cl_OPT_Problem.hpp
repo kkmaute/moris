@@ -1,7 +1,6 @@
-#ifndef MORIS_OPTIMIZATION_CL_OPTPROB_HPP_
-#define MORIS_OPTIMIZATION_CL_OPTPROB_HPP_
+#ifndef MORIS_CL_OPT_PROBLEM_HPP_
+#define MORIS_CL_OPT_PROBLEM_HPP_
 
-// MORIS project header files.
 #include "core.hpp"
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
@@ -279,4 +278,4 @@ namespace moris
     }
 }
 
-#endif /* MORIS_OPTIMIZATION_CL_OPTPROB_HPP_ */
+#endif /* MORIS_CL_OPT_PROBLEM_HPP_ */

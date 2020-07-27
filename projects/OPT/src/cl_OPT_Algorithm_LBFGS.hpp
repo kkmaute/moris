@@ -1,9 +1,8 @@
-#ifndef MORIS_OPTIMIZATION_CL_OPTALGLBFGS_HPP_
-#define MORIS_OPTIMIZATION_CL_OPTALGLBFGS_HPP_
+#ifndef MORIS_CL_OPT_ALGORITHM_LBFGS_HPP_
+#define MORIS_CL_OPT_ALGORITHM_LBFGS_HPP_
 
-// MORIS project header files.
 #include "core.hpp"
-#include "cl_OPT_Algorithm.hpp" // Base class // OPT/src
+#include "cl_OPT_Algorithm.hpp"
 
 namespace moris
 {
@@ -13,29 +12,24 @@ namespace moris
         {
         private:
 
-            uint mOptIter; // optimization iteration counter
+            uint mOptIter = 0; // optimization iteration counter
             uint mResFlag; // Flag from L-BFGS describing result of optimization algorithm
+            sint mMaxIt; // Maximum number of optimization iterations
+            int mNumCorrections; // Number of limited memory corrections
+            double mNormDrop; // Convergence criteria based on norm
+            double mGradTolerance; // Convergence criteria based on projected gradients
 
         public:
 
             /**
              * Constructor
              */
-            Algorithm_LBFGS();
+            Algorithm_LBFGS(ParameterList aParameterList);
 
             /**
              * Destructor
              */
             ~Algorithm_LBFGS();
-
-            /**
-             * @brief copy constructor through cloning
-             */
-            Algorithm*
-            clone() const
-            {
-                return new Algorithm_LBFGS(*this );
-            }
 
             /**
              * @brief MORIS interface for solving of optimization problem using
@@ -78,7 +72,7 @@ namespace moris
              */
             void printresult();
         };
-    } // namespace opt
-}     // namespace moris
+    }
+}
 
-#endif /* MORIS_OPTIMIZATION_CL_OPTALGLBFGS_HPP_ */
+#endif /* MORIS_CL_OPT_ALGORITHM_LBFGS_HPP_ */

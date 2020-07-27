@@ -211,6 +211,8 @@ doing preliminary studies or debugging a problem setup.
 
 The algorithm types that OPT supports are:
     - \ref opt_gcmma
+    - \ref opt_lbfgs
+    - \ref opt_sqp
     - \ref opt_sweep
 
 \note Adding a new algorithm to MORIS is a much more involves process than adding a new problem or interface type.

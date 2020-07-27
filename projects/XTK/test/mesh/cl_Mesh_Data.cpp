@@ -464,7 +464,7 @@ TEST_CASE("Discretizing level set field onto a fine mesh and transferring to a c
 //    real tZCenter = 10.0;
 //    Analytic_Level_Set_Sphere<real, size_t, xtk::moris::DDRMat, xtk::moris::DDSTMat> tLevelsetSphere1(tRadius, tXCenter, tYCenter, tZCenter);
 //    Cell<Geometry<real, size_t, xtk::moris::DDRMat, xtk::moris::DDSTMat>*> tLevelSetFunctions = {&tLevelsetSphere1};
-//    Discrete_Level_Set<real,size_t, xtk::moris::DDRMat, xtk::moris::DDSTMat> tLevelSetMeshManager(tMatrixFactory,tLevelSetFunctions,tFineMeshInput,tScalarFieldNames,tMeshBuilder);
+//    Mesh_Field_Geometry<real,size_t, xtk::moris::DDRMat, xtk::moris::DDSTMat> tLevelSetMeshManager(tMatrixFactory,tLevelSetFunctions,tFineMeshInput,tScalarFieldNames,tMeshBuilder);
 //
 //    // Build a coarse mesh which the levelset mesh will be transfered to-----
 //    std::shared_ptr<mesh::Mesh_Data<real, size_t,xtk::moris::DDRMat, xtk::moris::DDSTMat>> tCoarseMesh = tMeshBuilder.build_mesh_from_string(tMatrixFactory,tCoarseMeshInput,tScalarFieldNames,false);
