@@ -305,7 +305,6 @@ namespace moris
                 default :
                 {
                     MORIS_ERROR( false, "IQI::set_dv_type_list - can only be MASTER or SLAVE.");
-                    break;
                 }
             }
         }
