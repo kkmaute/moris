@@ -10,6 +10,7 @@ namespace moris
     {
 
         //------------------------------------------------------------------------------
+        
         SP_Velocity_Dirichlet_Nitsche::SP_Velocity_Dirichlet_Nitsche()
         {
             // set the property pointer cell size
@@ -21,6 +22,7 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+
         void SP_Velocity_Dirichlet_Nitsche::reset_cluster_measures()
         {
             // evaluate element size from the cluster
@@ -30,6 +32,7 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+
         void SP_Velocity_Dirichlet_Nitsche::set_dof_type_list(
                 moris::Cell< moris::Cell< MSI::Dof_Type > > & aDofTypes,
                 moris::Cell< std::string >                  & aDofStrings,
@@ -78,11 +81,11 @@ namespace moris
 
                 default:
                     MORIS_ERROR( false, "SP_Velocity_Dirichlet_Nitsche::set_dof_type_list - unknown master slave type." );
-                    break;
             }
         }
 
         //------------------------------------------------------------------------------
+
         void SP_Velocity_Dirichlet_Nitsche::set_property(
                 std::shared_ptr< Property > aProperty,
                 std::string                 aPropertyString,
@@ -99,10 +102,11 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+
         void SP_Velocity_Dirichlet_Nitsche::eval_SP()
         {
             // get the velocity FI
-            Field_Interpolator * tVelocityFI =
+            Field_Interpolator * tFIVelocity =
                     mMasterFIManager->get_field_interpolators_for_type( mMasterDofVelocity );
 
             // get the viscosity and density property
@@ -112,10 +116,10 @@ namespace moris
                     mMasterProp( static_cast< uint >( Property_Type::DENSITY ) );
 
             // compute infinity norm of u
-            real tInfinityNorm = std::abs( tVelocityFI->val()( 0 ) );
-            for( uint iDim = 0; iDim < tVelocityFI->val().numel(); iDim++ )
+            real tInfinityNorm = std::abs( tFIVelocity->val()( 0 ) );
+            for( uint iDim = 0; iDim < mSpaceDim; iDim++ )
             {
-                real tAbsVelocity = std::abs( tVelocityFI->val()( iDim ) );
+                real tAbsVelocity = std::abs( tFIVelocity->val()( iDim ) );
                 if ( tInfinityNorm < tAbsVelocity )
                 {
                     tInfinityNorm = tAbsVelocity;
@@ -133,6 +137,7 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+
         void SP_Velocity_Dirichlet_Nitsche::eval_dSPdMasterDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes )
         {
             // get the dof type index
@@ -147,7 +152,7 @@ namespace moris
 
             // get the velocity field interpolator
             Field_Interpolator * tVelocityFI =
-                                mMasterFIManager->get_field_interpolators_for_type( mMasterDofVelocity );
+                    mMasterFIManager->get_field_interpolators_for_type( mMasterDofVelocity );
 
             // get the viscosity property
             std::shared_ptr< Property > tPropViscosity =
