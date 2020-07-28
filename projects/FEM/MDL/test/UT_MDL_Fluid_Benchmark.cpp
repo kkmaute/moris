@@ -289,6 +289,7 @@ namespace moris
         tSPNitsche->set_property( tPropFluidDensity, "Density", mtk::Master_Slave::MASTER );
         tSPNitsche->set_property( tPropFluidViscosity, "Viscosity", mtk::Master_Slave::MASTER );
         tSPNitsche->set_parameters( { {{ tGammaNitsche }}, {{1.0}} } );
+        tSPNitsche->set_space_dim( 2 );
 
         std::shared_ptr< fem::Stabilization_Parameter > tSPViscousGhost
                 = tSPFactory.create_SP( fem::Stabilization_Type::VISCOUS_GHOST );
@@ -653,6 +654,7 @@ TEST_CASE("MDL_Fluid_Benchmark_Immersed_Inlet_Pressure","[MDL_Fluid_Benchmark_Im
         tSPNitsche->set_property( tPropFluidDensity, "Density", mtk::Master_Slave::MASTER );
         tSPNitsche->set_property( tPropFluidViscosity, "Viscosity", mtk::Master_Slave::MASTER );
         tSPNitsche->set_parameters( { {{ tGammaNitsche }}, {{1.0}} } );
+        tSPNitsche->set_space_dim( 2 );
 
         std::shared_ptr< fem::Stabilization_Parameter > tSPViscousGhost =
                 tSPFactory.create_SP( fem::Stabilization_Type::VISCOUS_GHOST );
@@ -2340,17 +2342,20 @@ TEST_CASE("MDL_Fluid_Benchmark_Radial_Couette_Flow","[MDL_Fluid_Benchmark_Radial
         tSPNitsche->set_property( tPropFluidDensity, "Density", mtk::Master_Slave::MASTER );
         tSPNitsche->set_property( tPropFluidViscosity, "Viscosity", mtk::Master_Slave::MASTER );
         tSPNitsche->set_parameters( { {{ tGammaNitsche }}, {{1.0}} } );
+        tSPNitsche->set_space_dim( 2 );
 
         std::shared_ptr< fem::Stabilization_Parameter > tSPViscousGhost
         = tSPFactory.create_SP( fem::Stabilization_Type::VISCOUS_GHOST );
         tSPViscousGhost->set_parameters( {{{ tGammaGPmu }} });
         tSPViscousGhost->set_property( tPropFluidViscosity, "Viscosity", mtk::Master_Slave::MASTER );
+        tSPViscousGhost->set_space_dim( 2 );
 
         std::shared_ptr< fem::Stabilization_Parameter > tSPConvectiveGhost
         = tSPFactory.create_SP( fem::Stabilization_Type::CONVECTIVE_GHOST );
         tSPConvectiveGhost->set_dof_type_list( {{ MSI::Dof_Type::VX, MSI::Dof_Type::VY }}, mtk::Master_Slave::MASTER );
         tSPConvectiveGhost->set_parameters( {{{ tGammaGPu }} });
         tSPConvectiveGhost->set_property( tPropFluidDensity, "Density", mtk::Master_Slave::MASTER );
+        tSPConvectiveGhost->set_space_dim( 2 );
 
         std::shared_ptr< fem::Stabilization_Parameter > tSPPressureGhost
         = tSPFactory.create_SP( fem::Stabilization_Type::PRESSURE_GHOST );
@@ -2358,6 +2363,7 @@ TEST_CASE("MDL_Fluid_Benchmark_Radial_Couette_Flow","[MDL_Fluid_Benchmark_Radial
         tSPPressureGhost->set_parameters( { {{ tGammaGPp }}, {{ 1.0 }} });
         tSPPressureGhost->set_property( tPropFluidViscosity, "Viscosity", mtk::Master_Slave::MASTER );
         tSPPressureGhost->set_property( tPropFluidDensity, "Density", mtk::Master_Slave::MASTER );
+        tSPPressureGhost->set_space_dim( 2 );
 
         // define the IWGs
         fem::IWG_Factory tIWGFactory;
