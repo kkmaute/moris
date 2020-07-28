@@ -825,7 +825,7 @@ namespace moris
         void CM_Fluid_Turbulence::compute_dviscositytdx( Matrix< DDRMat > & adviscositytdx )
         {
             // set matrix size
-            adviscositytdx.set_size( 1, mSpaceDim, 0.0 );
+            adviscositytdx.set_size( mSpaceDim, 1, 0.0 );
 
             // get the viscosity dof type FI
             Field_Interpolator * tFIModViscosity =
