@@ -269,7 +269,9 @@ namespace xtk
         {
             case EntityRank::NODE:
             {
-                return moris::Cell<std::string>(0);;
+                moris::print(mVertexSetNames,"mVertexSetNames");
+
+                return mVertexSetNames;
                 break;
             }
             case EntityRank::EDGE:
@@ -309,7 +311,18 @@ namespace xtk
         {
             case EntityRank::NODE:
             {
-                return Matrix< IndexMat >(0,0);
+                // get the vertex set index
+                auto tSetIndex = mVertexSetLabelToOrd.find(aSetName);
+
+
+                moris::Cell<moris::mtk::Vertex*> tVerticesInSet = mVerticesInVertexSet(tSetIndex->second);
+                Matrix<IndexMat> tVerticesInSetMat(1,tVerticesInSet.size());
+                for(moris::uint i = 0; i < tVerticesInSet.size(); i++)
+                {
+                    tVerticesInSetMat(i) = tVerticesInSet(i)->get_index();
+                }
+
+                return tVerticesInSetMat;
                 break;
             }
             case EntityRank::EDGE:
@@ -1995,6 +2008,7 @@ namespace xtk
     {
         uint tNumSetsToRegister = aVertexSetNames.size();
 
+
         // block set ords
         Cell<moris_index> tVertexSetOrds(tNumSetsToRegister);
 
@@ -2007,7 +2021,7 @@ namespace xtk
             MORIS_ASSERT(mVertexSetLabelToOrd.find(aVertexSetNames(i)) ==  mVertexSetLabelToOrd.end(),
                     "Duplicate vertex set in mesh");
 
-            mSideSideSetLabelToOrd[aVertexSetNames(i)] = tVertexSetOrds(i) ;
+            mVertexSetLabelToOrd[aVertexSetNames(i)] = tVertexSetOrds(i) ;
         }
 
         mVerticesInVertexSet.resize(mVerticesInVertexSet.size() + tNumSetsToRegister);
@@ -2298,7 +2312,7 @@ namespace xtk
         for(moris::uint i = 0; i < tNumGeometries; i++)
         {
             // add the vertex set to the cell
-            tInterfaceVertexSetNames.push_back(std::string(tSetNameBase + std::to_string(i)));
+            tInterfaceVertexSetNames(i) = std::string(tSetNameBase + std::to_string(i));
         }
 
         // register vertex sets
@@ -2339,6 +2353,9 @@ namespace xtk
 
                 mVerticesInVertexSet(tSetOrd).push_back(&this->get_mtk_vertex(tInterfaceVertices(j)));
             }
+
+            std::cout<<"i = "<<i<<std::endl;
+            std::cout<<"mVerticesInVertexSet(tSetOrd).size() = "<<mVerticesInVertexSet(tSetOrd).size()<<std::endl;
         }
 
         //        for(moris::uint i =  mListofSideSets.size(); i < mSideSets.size(); i++)
