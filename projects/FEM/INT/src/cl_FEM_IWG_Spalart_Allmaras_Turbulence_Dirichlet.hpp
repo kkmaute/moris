@@ -228,13 +228,13 @@ namespace moris
                 /**
                  * compute the derivative of the test traction
                  * = delta ( ( v + vtilde ) * grad vtilde  / mSigma )
-                 * @param[ in ] aTestDofTypes    group of test dof types
                  * @param[ in ] aDofTypes        group of derivative dof types
+                 * @param[ in ] aTestDofTypes    group of test dof types
                  * @param[ in ] adtesttractiondu a matrix to fill with test traction
                  */
                 void compute_dtesttractiondu(
-                        const moris::Cell< MSI::Dof_Type> & aTestDofTypes,
                         const moris::Cell< MSI::Dof_Type> & aDofTypes,
+                        const moris::Cell< MSI::Dof_Type> & aTestDofTypes,
                         Matrix< DDRMat >                  & adtesttractiondu );
 
                 void compute_dtesttractiondu_FD(

@@ -267,9 +267,9 @@ namespace moris
                 Matrix< DDRMat > tdtractiondu;
                 this->compute_dtractiondu( tDofType, tdtractiondu );
 
-                // compute the test traction
+                // compute the test traction derivative
                 Matrix< DDRMat > tdtesttractiondu;
-                this->compute_dtesttractiondu_FD( tDofType, mResidualDofType, tdtesttractiondu );
+                this->compute_dtesttractiondu( tDofType, mResidualDofType, tdtesttractiondu );
 
                 // add contribution to jacobian
                 mSet->get_jacobian()(
@@ -564,9 +564,9 @@ namespace moris
         //------------------------------------------------------------------------------
 
         void IWG_Spalart_Allmaras_Turbulence_Dirichlet::compute_dtesttractiondu(
-                const moris::Cell< MSI::Dof_Type> & aTestDofTypes,
                 const moris::Cell< MSI::Dof_Type> & aDofTypes,
-                Matrix< DDRMat >            & adtesttractiondu )
+                const moris::Cell< MSI::Dof_Type> & aTestDofTypes,
+                Matrix< DDRMat >                  & adtesttractiondu )
         {
             // get the derivative dof type FI
             Field_Interpolator * tFIDer =
@@ -576,18 +576,20 @@ namespace moris
             Field_Interpolator * tFITest =
                     mMasterFIManager->get_field_interpolators_for_type( aTestDofTypes( 0 ) );
 
-            // get the residual dof FI (here viscosity)
-            Field_Interpolator * tFIViscosity =
-                    mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );
-
-            // init the derivative of the divergence of the flux
+            // init the derivative of the test traction
             adtesttractiondu.set_size(
                     tFITest->get_number_of_space_time_coefficients(),
                     tFIDer->get_number_of_space_time_coefficients(),
                     0.0 );
 
-            // if derivative dof type is residual dof type
-            if( aTestDofTypes( 0 ) == mResidualDofType( 0 ) )
+            // get the modified viscosity dof FI
+            Field_Interpolator * tFIModViscosity =
+                    mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );
+
+            // get modified viscosity value
+            real tModViscosity = tFIModViscosity->val()( 0 );
+
+            if( ( tModViscosity >= 0.0 ) && ( aTestDofTypes( 0 ) == mResidualDofType( 0 ) ) )
             {
                 // if derivative dof type is residual dof type
                 if( aDofTypes( 0 ) == mResidualDofType( 0 ) )
@@ -596,23 +598,25 @@ namespace moris
                     Matrix< DDRMat > tddiffusiondutest;
                     this->compute_ddiffusiondu( aTestDofTypes, tddiffusiondutest );
 
+                    // add contribution
                     adtesttractiondu.matrix_data() +=
-                            trans( tddiffusiondutest ) * trans( mNormal ) * tFIViscosity->dnNdxn( 1 );
-                            //+ trans( tFIViscosity->dnNdxn( 1 ) ) * mNormal * tFIViscosity->N() ;
+                            trans( tddiffusiondutest ) * trans( mNormal ) * tFIModViscosity->dnNdxn( 1 );
                 }
 
                 // compute ddiffusiondu
                 Matrix< DDRMat > tddiffusiondu;
                 this->compute_ddiffusiondu( aDofTypes, tddiffusiondu );
 
+                // add contribution
                 adtesttractiondu.matrix_data() +=
-                        trans( tFIViscosity->dnNdxn( 1 ) ) * mNormal * tddiffusiondu;
+                        trans( tFIModViscosity->dnNdxn( 1 ) ) * mNormal * tddiffusiondu;
 
                 // FIXME assumed that second order derivative of diffusion coeff is zero
             }
             else
             {
-                MORIS_ERROR( false, "IWG_Spalart_Allmaras_Turbulence_Dirichlet::compute_dtesttractiondu - only implemented for residaul dof type as test dof type" );;
+                // FIXME compute the test traction derivative by FD
+                this->compute_dtesttractiondu_FD( aDofTypes, aTestDofTypes, adtesttractiondu );
             }
         }
 
@@ -659,6 +663,12 @@ namespace moris
                 {
                     // compute the perturbation absolute value
                     real tDeltaH = aPerturbation * tCoeff( iCoeffRow, iCoeffCol );
+
+                    // check that perturbation is not zero
+                    if( ( tDeltaH < 1e-12 ) && ( tDeltaH > - 1e-12 ) )
+                    {
+                        tDeltaH = aPerturbation;
+                    }
 
                     // loop over the points for FD
                     for( uint iPoint = 0; iPoint < tNumPoints; iPoint++ )
