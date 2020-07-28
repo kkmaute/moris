@@ -1462,11 +1462,6 @@ namespace moris
                 Matrix< IndexMat >              & aVertexIndices,
                 fem::FDScheme_Type                aFDSchemeType )
         {
-            // get the FD scheme info
-            moris::Cell< moris::Cell< real > > tFDScheme;
-            fd_scheme( aFDSchemeType, tFDScheme );
-            uint tNumPoints = tFDScheme( 0 ).size();
-
             // get requested geometry pdv types
             moris::Cell< PDV_Type > tRequestedGeoPdvType;
             mSet->get_ig_unique_dv_types_for_set( tRequestedGeoPdvType );
@@ -1489,6 +1484,10 @@ namespace moris
             tIGGI->get_space_time( tEvaluationPoint );
             real tGPWeight = aWStar / tIGGI->det_J();
 
+            // IP element max/min
+            Matrix< DDRMat > tMaxIP = max( tIPGI->get_space_coeff().matrix_data() );
+            Matrix< DDRMat > tMinIP = min( tIPGI->get_space_coeff().matrix_data() );
+
             // loop over the spatial directions
             for( uint iCoeffCol = 0; iCoeffCol< tDerNumDimensions; iCoeffCol++ )
             {
@@ -1506,6 +1505,22 @@ namespace moris
                         {
                             tDeltaH = aPerturbation;
                         }
+
+                        // check point location
+                        moris::Cell< moris::Cell< real > > tFDScheme;
+                        if( tCoeff( iCoeffRow, iCoeffCol ) + tDeltaH > tMaxIP( iCoeffCol ) )
+                        {
+                            fd_scheme( fem::FDScheme_Type::POINT_1_BACKWARD, tFDScheme );
+                        }
+                        else if( tCoeff( iCoeffRow, iCoeffCol ) - tDeltaH < tMinIP( iCoeffCol ) )
+                        {
+                            fd_scheme( fem::FDScheme_Type::POINT_1_FORWARD, tFDScheme );
+                        }
+                        else
+                        {
+                            fd_scheme( fem::FDScheme_Type::POINT_3_CENTRAL, tFDScheme );
+                        }
+                        uint tNumPoints = tFDScheme( 0 ).size();
 
                         // get the geometry pdv assembly index
                         std::pair< moris_index, PDV_Type > tKeyPair =
@@ -1548,9 +1563,9 @@ namespace moris
 
                             // evaluate dQIdpGeo
                             mSet->get_dqidpgeo()( tIQIAssemblyIndex )( tPdvAssemblyIndex ) +=
-                                            tFDScheme( 1 )( iPoint ) *
-                                            mSet->get_QI()( tIQIAssemblyIndex )( 0 ) /
-                                            ( tFDScheme( 2 )( 0 ) * tDeltaH );
+                                    tFDScheme( 1 )( iPoint ) *
+                                    mSet->get_QI()( tIQIAssemblyIndex )( 0 ) /
+                                    ( tFDScheme( 2 )( 0 ) * tDeltaH );
                         }
                     }
                 }
