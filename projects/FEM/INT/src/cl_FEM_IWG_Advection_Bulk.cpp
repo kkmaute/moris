@@ -104,7 +104,7 @@ namespace moris
                     { tMasterResStartIndex, tMasterResStopIndex },
                     { 0, 0 } ) +=
                             aWStar * (
-                                    trans( tFITemp->N() ) * trans( tFIVelocity->val() ) * tCMDiffusion->gradH() +
+                                    trans( tFITemp->N() ) * trans( tFIVelocity->val() ) * tCMDiffusion->gradEnergy() +
                                     tSPSUPG->val()( 0 ) * trans( tFITemp->dnNdxn( 1 ) ) * tFIVelocity->val() * tRT( 0, 0 ) );
         }
 
@@ -173,7 +173,7 @@ namespace moris
                             { tMasterResStartIndex, tMasterResStopIndex },
                             { tMasterDepStartIndex, tMasterDepStopIndex } ) +=
                                     aWStar * (
-                                            trans( tFITemp->N() ) * trans( tCMDiffusion->gradH() ) * tFIVelocity->N() +
+                                            trans( tFITemp->N() ) * trans( tCMDiffusion->gradEnergy() ) * tFIVelocity->N() +
                                             tSPSUPG->val()( 0 ) * trans( tFITemp->dnNdxn( 1 ) ) * tFIVelocity->N() * tRT( 0, 0 )  );
                 }
 
@@ -224,7 +224,7 @@ namespace moris
             std::shared_ptr< Constitutive_Model > tCMDiffusion =
                     mMasterCM( static_cast< uint >( IWG_Constitutive_Type::DIFFUSION ) );
 
-            aRT = tCMDiffusion->Hdot() + trans( tFIVelocity->val() ) * tCMDiffusion->gradH() - tCMDiffusion->divflux();
+            aRT = tCMDiffusion->EnergyDot() + trans( tFIVelocity->val() ) * tCMDiffusion->gradEnergy() - tCMDiffusion->divflux();
         }
 
         //------------------------------------------------------------------------------
@@ -251,7 +251,7 @@ namespace moris
             {
                 // compute contribution to jacobian strong form
                 aJT.matrix_data() =
-                        tCMDiffusion->dHdotdDOF( aDofTypes ).matrix_data() +
+                        tCMDiffusion->dEnergyDotdDOF( aDofTypes ).matrix_data() +
                         trans( tFIVelocity->val() ) * tCMDiffusion->dGradHdDOF(aDofTypes) -
                         tCMDiffusion->ddivfluxdu( aDofTypes ).matrix_data();
             }
@@ -260,7 +260,7 @@ namespace moris
             if( aDofTypes( 0 ) == MSI::Dof_Type::VX )
             {
                 aJT.matrix_data() +=
-                        trans( tCMDiffusion->gradH() ) * tFIVelocity->N() ;
+                        trans( tCMDiffusion->gradEnergy() ) * tFIVelocity->N() ;
             }
         }
 

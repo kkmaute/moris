@@ -236,36 +236,36 @@ moris::Cell<bool> test_diffusion_constitutive_model(
     Matrix< DDRMat > tTestStrain = tCMMasterDiffLinIso->testStrain();
     //print( tTestStrain, "tTestStrain");
 
-    // check Hdot ------------------------------------------------------------------
+    // check EnergyDot ------------------------------------------------------------------
     //------------------------------------------------------------------------------
 
     // evaluate the constitutive model flux derivative
-    Matrix< DDRMat > tdHdotdDOF = tCMMasterDiffLinIso->dHdotdDOF( { MSI::Dof_Type::TEMP } );
+    Matrix< DDRMat > tdEnergyDotdDOF = tCMMasterDiffLinIso->dEnergyDotdDOF( { MSI::Dof_Type::TEMP } );
     //print( tdFluxdDOF, "tdFluxdDOF");
 
     // evaluate the constitutive model stress derivative by FD
-    Matrix< DDRMat > tdHdotdDOF_FD;
-    tCMMasterDiffLinIso->eval_dHdotdDOF_FD( { MSI::Dof_Type::TEMP }, tdHdotdDOF_FD, 1E-6 );
+    Matrix< DDRMat > tdEnergyDotdDOF_FD;
+    tCMMasterDiffLinIso->eval_dEnergyDotdDOF_FD( { MSI::Dof_Type::TEMP }, tdEnergyDotdDOF_FD, 1E-6 );
 
     //check stress derivative
-    bool tCheckHdot = true;
-    for ( uint iStress = 0; iStress < tdHdotdDOF.n_rows(); iStress++ )
+    bool tCheckEnergyDot = true;
+    for ( uint iStress = 0; iStress < tdEnergyDotdDOF.n_rows(); iStress++ )
     {
-        for( uint jStress = 0; jStress < tdHdotdDOF.n_cols(); jStress++ )
+        for( uint jStress = 0; jStress < tdEnergyDotdDOF.n_cols(); jStress++ )
         {
-            tCheckHdot = tCheckHdot &&
-                    ( std::abs( ( tdHdotdDOF( iStress, jStress ) - tdHdotdDOF_FD( iStress, jStress ) ) /
-                            tdHdotdDOF( iStress, jStress ) ) < tEpsilonRel );
+            tCheckEnergyDot = tCheckEnergyDot &&
+                    ( std::abs( ( tdEnergyDotdDOF( iStress, jStress ) - tdEnergyDotdDOF_FD( iStress, jStress ) ) /
+                            tdEnergyDotdDOF( iStress, jStress ) ) < tEpsilonRel );
         }
     }
-    //REQUIRE( tCheckHdot );
-    tChecks(2) = tCheckHdot;
+    //REQUIRE( tCheckEnergyDot );
+    tChecks(2) = tCheckEnergyDot;
 
     // debug
-    //moris::print(tdHdotdDOF, "tdHdotdDOF");
-    //moris::print(tdHdotdDOF_FD, "tdHdotdDOF_FD");
+    //moris::print(tdEnergyDotdDOF, "tdEnergyDotdDOF");
+    //moris::print(tdEnergyDotdDOF_FD, "tdEnergyDotdDOF_FD");
 
-    // check gradH -----------------------------------------------------------------
+    // check gradEnergy -----------------------------------------------------------------
     //------------------------------------------------------------------------------
 
     // evaluate the constitutive model flux derivative
@@ -274,7 +274,7 @@ moris::Cell<bool> test_diffusion_constitutive_model(
 
     // evaluate the constitutive model stress derivative by FD
     Matrix< DDRMat > tdGradHdDOF_FD;
-    tCMMasterDiffLinIso->eval_dGradHdDOF_FD( { MSI::Dof_Type::TEMP }, tdGradHdDOF_FD, 1E-6 );
+    tCMMasterDiffLinIso->eval_dGradEnergydDOF_FD( { MSI::Dof_Type::TEMP }, tdGradHdDOF_FD, 1E-6 );
 
     //check stress derivative
     bool tCheckGradH = true;
@@ -295,34 +295,34 @@ moris::Cell<bool> test_diffusion_constitutive_model(
     //moris::print(tdGradHdDOF_FD, "tdGradHdDOF_FD");
 
 
-    // check gradHdot --------------------------------------------------------------
+    // check gradEnergyDot --------------------------------------------------------------
     //------------------------------------------------------------------------------
 
     // evaluate the constitutive model flux derivative
-    Matrix< DDRMat > tdGradHdotdDOF = tCMMasterDiffLinIso->dGradHdotdDOF( { MSI::Dof_Type::TEMP } );
+    Matrix< DDRMat > tdGradEnergyDotdDOF = tCMMasterDiffLinIso->dGradEnergyDotdDOF( { MSI::Dof_Type::TEMP } );
     //print( tdFluxdDOF, "tdFluxdDOF");
 
     // evaluate the constitutive model stress derivative by FD
-    Matrix< DDRMat > tdGradHdotdDOF_FD;
-    tCMMasterDiffLinIso->eval_dGradHdotdDOF_FD( { MSI::Dof_Type::TEMP }, tdGradHdotdDOF_FD, 1E-6 );
+    Matrix< DDRMat > tdGradEnergyDotdDOF_FD;
+    tCMMasterDiffLinIso->eval_dGradEnergyDotdDOF_FD( { MSI::Dof_Type::TEMP }, tdGradEnergyDotdDOF_FD, 1E-6 );
 
     //check stress derivative
-    bool tCheckGradHdot = true;
-    for ( uint iStress = 0; iStress < tdGradHdotdDOF.n_rows(); iStress++ )
+    bool tCheckGradEnergyDot = true;
+    for ( uint iStress = 0; iStress < tdGradEnergyDotdDOF.n_rows(); iStress++ )
     {
-        for( uint jStress = 0; jStress < tdGradHdotdDOF.n_cols(); jStress++ )
+        for( uint jStress = 0; jStress < tdGradEnergyDotdDOF.n_cols(); jStress++ )
         {
-            tCheckGradHdot = tCheckGradHdot &&
-                    ( std::abs( ( tdGradHdotdDOF( iStress, jStress ) - tdGradHdotdDOF_FD( iStress, jStress ) ) /
-                            tdGradHdotdDOF( iStress, jStress ) ) < tEpsilonRel );
+            tCheckGradEnergyDot = tCheckGradEnergyDot &&
+                    ( std::abs( ( tdGradEnergyDotdDOF( iStress, jStress ) - tdGradEnergyDotdDOF_FD( iStress, jStress ) ) /
+                            tdGradEnergyDotdDOF( iStress, jStress ) ) < tEpsilonRel );
         }
     }
-    //REQUIRE( tCheckGradHdot );
-    tChecks(4) = tCheckGradHdot;
+    //REQUIRE( tCheckGradEnergyDot );
+    tChecks(4) = tCheckGradEnergyDot;
 
     // debug
-    //moris::print(tdGradHdotdDOF, "tdGradHdotdDOF");
-    //moris::print(tdGradHdotdDOF_FD, "tdGradHdotdDOF_FD");
+    //moris::print(tdGradEnergyDotdDOF, "tdGradEnergyDotdDOF");
+    //moris::print(tdGradEnergyDotdDOF_FD, "tdGradEnergyDotdDOF_FD");
 
 
     // check graddivflux -----------------------------------------------------------
@@ -413,15 +413,15 @@ TEST_CASE( "CM_Diff_Lin_Iso_QUAD4", "[moris],[fem],[CM_Diff_Lin_Iso_QUAD4]" )
     // checks
     bool tCheckdStress     = tChecks(0);
     bool tCheckdStrain     = tChecks(1);
-    bool tCheckHdot        = tChecks(2);
+    bool tCheckEnergyDot        = tChecks(2);
     bool tCheckGradH       = tChecks(3);
-    bool tCheckGradHdot    = tChecks(4);
+    bool tCheckGradEnergyDot    = tChecks(4);
     bool tCheckGradDivFlux = tChecks(5);
     REQUIRE( tCheckdStress );
     REQUIRE( tCheckdStrain );
-    REQUIRE( tCheckHdot );
+    REQUIRE( tCheckEnergyDot );
     REQUIRE( tCheckGradH );
-    REQUIRE( tCheckGradHdot );
+    REQUIRE( tCheckGradEnergyDot );
     REQUIRE( tCheckGradDivFlux );
 
 }
@@ -486,15 +486,15 @@ TEST_CASE( "CM_Diff_Lin_Iso_HEX27", "[moris],[fem],[CM_Diff_Lin_Iso_HEX27]" )
     // checks
     bool tCheckdStress     = tChecks(0);
     bool tCheckdStrain     = tChecks(1);
-    bool tCheckHdot        = tChecks(2);
+    bool tCheckEnergyDot        = tChecks(2);
     bool tCheckGradH       = tChecks(3);
-    bool tCheckGradHdot    = tChecks(4);
+    bool tCheckGradEnergyDot    = tChecks(4);
     bool tCheckGradDivFlux = tChecks(5);
     REQUIRE( tCheckdStress );
     REQUIRE( tCheckdStrain );
-    REQUIRE( tCheckHdot );
+    REQUIRE( tCheckEnergyDot );
     REQUIRE( tCheckGradH );
-    REQUIRE( tCheckGradHdot );
+    REQUIRE( tCheckGradEnergyDot );
     REQUIRE( tCheckGradDivFlux );
 
 
@@ -568,15 +568,15 @@ TEST_CASE( "CM_Diff_Lin_Iso_QUAD16", "[moris],[fem],[CM_Diff_Lin_Iso_QUAD16]" )
     // checks
     bool tCheckdStress     = tChecks(0);
     bool tCheckdStrain     = tChecks(1);
-    bool tCheckHdot        = tChecks(2);
+    bool tCheckEnergyDot        = tChecks(2);
     bool tCheckGradH       = tChecks(3);
-    bool tCheckGradHdot    = tChecks(4);
+    bool tCheckGradEnergyDot    = tChecks(4);
     bool tCheckGradDivFlux = tChecks(5);
     REQUIRE( tCheckdStress );
     REQUIRE( tCheckdStrain );
-    REQUIRE( tCheckHdot );
+    REQUIRE( tCheckEnergyDot );
     REQUIRE( tCheckGradH );
-    REQUIRE( tCheckGradHdot );
+    REQUIRE( tCheckGradEnergyDot );
     REQUIRE( tCheckGradDivFlux );
 }
 
