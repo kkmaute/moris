@@ -206,30 +206,30 @@ moris::Cell<bool> test_phase_change_constitutive_model(
     //------------------------------------------------------------------------------
 
     // evaluate the constitutive model flux derivative
-    Matrix< DDRMat > tdGradHdDOF = tCMMasterDiffLinIsoPC->dGradHdDOF( { MSI::Dof_Type::TEMP } );
+    Matrix< DDRMat > tdGradEnergydDOF = tCMMasterDiffLinIsoPC->dGradEnergydDOF( { MSI::Dof_Type::TEMP } );
     //print( tdFluxdDOF, "tdFluxdDOF");
 
     // evaluate the constitutive model stress derivative by FD
-    Matrix< DDRMat > tdGradHdDOF_FD;
-    tCMMasterDiffLinIsoPC->eval_dGradEnergydDOF_FD( { MSI::Dof_Type::TEMP }, tdGradHdDOF_FD, 1E-6 );
+    Matrix< DDRMat > tdGradEnergydDOF_FD;
+    tCMMasterDiffLinIsoPC->eval_dGradEnergydDOF_FD( { MSI::Dof_Type::TEMP }, tdGradEnergydDOF_FD, 1E-6 );
 
     //check stress derivative
     bool tCheckGradH = true;
-    for ( uint iStress = 0; iStress < tdGradHdDOF.n_rows(); iStress++ )
+    for ( uint iStress = 0; iStress < tdGradEnergydDOF.n_rows(); iStress++ )
     {
-        for( uint jStress = 0; jStress < tdGradHdDOF.n_cols(); jStress++ )
+        for( uint jStress = 0; jStress < tdGradEnergydDOF.n_cols(); jStress++ )
         {
             tCheckGradH = tCheckGradH &&
-                    ( std::abs( tdGradHdDOF( iStress, jStress ) - tdGradHdDOF_FD( iStress, jStress ) ) <
-                            tEpsilonRel * std::abs(tdGradHdDOF( iStress, jStress )) );
+                    ( std::abs( tdGradEnergydDOF( iStress, jStress ) - tdGradEnergydDOF_FD( iStress, jStress ) ) <
+                            tEpsilonRel * std::abs(tdGradEnergydDOF( iStress, jStress )) );
         }
     }
     //REQUIRE( tCheckGradH );
     tChecks(1) = tCheckGradH;
 
     // debug
-    //moris::print(tdGradHdDOF, "tdGradHdDOF");
-    //moris::print(tdGradHdDOF_FD, "tdGradHdDOF_FD");
+    //moris::print(tdGradEnergydDOF, "tdGradEnergydDOF");
+    //moris::print(tdGradEnergydDOF_FD, "tdGradEnergydDOF_FD");
 
 
     // check gradEnergyDot --------------------------------------------------------------

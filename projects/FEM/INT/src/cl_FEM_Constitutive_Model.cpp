@@ -40,6 +40,7 @@ namespace moris
             mDivStrainEval    = true;
             mTestStrainEval   = true;
             mConstEval        = true;
+            mEnergyEval         = true;
             mEnergyDotEval         = true;
             mGradEnergyEval        = true;
             mGradEnergyDotEval     = true;
@@ -48,6 +49,7 @@ namespace moris
             // reset the dof derivative flag
             uint tNumDofTypes = mGlobalDofTypes.size();
             mdFluxdDofEval.assign( tNumDofTypes, true );
+            mEnergyDofEval.assign( tNumDofTypes, true );
             mEnergyDotDofEval.assign( tNumDofTypes, true );
             mGradEnergyDofEval.assign( tNumDofTypes, true );
             mGradEnergyDotDofEval.assign( tNumDofTypes, true );
@@ -184,6 +186,7 @@ namespace moris
             uint tNumDirectDofTypes = mDofTypes.size();
 
             // set flag for evaluation
+            mEnergyDofEval.resize( tNumGlobalDofTypes, true );
             mEnergyDotDofEval.resize( tNumGlobalDofTypes, true );
             mGradEnergyDotDofEval.resize( tNumGlobalDofTypes, true );
             mGradEnergyDofEval.resize( tNumGlobalDofTypes, true );
@@ -202,6 +205,7 @@ namespace moris
             mdConstdDofEval.resize( tNumGlobalDofTypes, true );
 
             // set storage for evaluation
+            mEnergyDof.resize( tNumGlobalDofTypes );
             mEnergyDotDof.resize( tNumGlobalDofTypes );
             mGradEnergyDotDof.resize( tNumGlobalDofTypes );
             mGradEnergyDof.resize( tNumGlobalDofTypes );
@@ -1140,7 +1144,7 @@ namespace moris
         //------------------------------------------------------------------------------
         void Constitutive_Model::eval_dGradEnergydDOF_FD(
                 const moris::Cell< MSI::Dof_Type > & aDofTypes,
-                Matrix< DDRMat >                   & adGradHdDOF_FD,
+                Matrix< DDRMat >                   & adGradEnergydDOF_FD,
                 real                                 aPerturbation,
                 fem::FDScheme_Type                   aFDSchemeType )
         {
@@ -1208,7 +1212,7 @@ namespace moris
             tFI->set_coeff( tCoeff );
 
             // FIXME
-            adGradHdDOF_FD = mGradEnergyDof( tDofIndex );
+            adGradEnergydDOF_FD = mGradEnergyDof( tDofIndex );
         }
 
         //------------------------------------------------------------------------------
@@ -1897,12 +1901,12 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
-        const Matrix< DDRMat > & Constitutive_Model::dGradHdDOF( const moris::Cell< MSI::Dof_Type > & aDofType)
+        const Matrix< DDRMat > & Constitutive_Model::dGradEnergydDOF( const moris::Cell< MSI::Dof_Type > & aDofType)
         {
             // if aDofType is not an active dof type for the CM
             MORIS_ERROR(
                     this->check_dof_dependency( aDofType ),
-                    "Constitutive_Model::dGradHdDOF - no dependency on this dof type." );
+                    "Constitutive_Model::dGradEnergydDOF - no dependency on this dof type." );
 
             // get the dof index
             uint tDofIndex = mGlobalDofTypeMap( static_cast< uint >( aDofType( 0 ) ) );
@@ -1927,7 +1931,7 @@ namespace moris
             // if aDofType is not an active dof type for the CM
             MORIS_ERROR(
                     this->check_dof_dependency( aDofType ),
-                    "Constitutive_Model::dGradHdDOF - no dependency on this dof type." );
+                    "Constitutive_Model::dGradEnergydDOF - no dependency on this dof type." );
 
             // get the dof index
             uint tDofIndex = mGlobalDofTypeMap( static_cast< uint >( aDofType( 0 ) ) );

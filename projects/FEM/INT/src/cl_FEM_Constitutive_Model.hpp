@@ -83,6 +83,7 @@ namespace moris
                 // storage for evaluation
                 Matrix< DDRMat > mFlux;
                 Matrix< DDRMat > mDivFlux;
+                Matrix< DDRMat > mEnergy;
                 Matrix< DDRMat > mGradEnergy;
                 Matrix< DDRMat > mEnergyDot;
                 Matrix< DDRMat > mGradEnergyDot;
@@ -90,8 +91,9 @@ namespace moris
                 moris::Cell< Matrix< DDRMat > > mGradDivFluxDof;
                 moris::Cell< Matrix< DDRMat > > mGradEnergyDotDof;
                 moris::Cell< Matrix< DDRMat > > mGradEnergyDof;
-                moris::Cell< Matrix< DDRMat > > mdFluxdDof;
                 moris::Cell< Matrix< DDRMat > > mEnergyDotDof;
+                moris::Cell< Matrix< DDRMat > > mEnergyDof;
+                moris::Cell< Matrix< DDRMat > > mdFluxdDof;
                 moris::Cell< Matrix< DDRMat > > mdFluxdDv;
                 moris::Cell< Matrix< DDRMat > > mdFluxdx;
                 moris::Cell< Matrix< DDRMat > > mddivfluxdu;
@@ -131,10 +133,12 @@ namespace moris
                 // flag for evaluation
                 bool mFluxEval = true;
                 bool mDivFluxEval = true;
+                bool mEnergyEval = true;
                 bool mEnergyDotEval = true;
                 bool mGradEnergyDotEval = true;
                 bool mGradEnergyEval = true;
                 bool mGradDivFluxEval = true;
+                moris::Cell< bool > mEnergyDofEval;
                 moris::Cell< bool > mEnergyDotDofEval;
                 moris::Cell< bool > mGradEnergyDotDofEval;
                 moris::Cell< bool > mGradEnergyDofEval;
@@ -694,7 +698,22 @@ namespace moris
 
                 //------------------------------------------------------------------------------
                 /**
-                 * evaluates the constitutive model change rate of enthalpy
+                 * evaluates the constitutive model energy
+                 */
+                virtual void eval_Energy()
+                {
+                    MORIS_ASSERT(false, "eval_Energy: not implemented in base class.");
+                };
+
+                /**
+                 * get the constitutive model change rate of energy
+                 * @param[ out ] mEnergyDot change rate of energy
+                 */
+                const Matrix< DDRMat > & Energy();
+
+                //------------------------------------------------------------------------------
+                /**
+                 * evaluates the constitutive model change rate of energy
                  */
                 virtual void eval_EnergyDot()
                 {
@@ -754,6 +773,24 @@ namespace moris
 
                 //------------------------------------------------------------------------------
                 /**
+                 * evaluate the constitutive model energy change rate wrt to a dof type
+                 * @param[ in ] aDofTypes a dof type wrt which the derivative is evaluated
+                 * dEnergyDotdDOF ( 1 x numDerDof )
+                 */
+                virtual void eval_dEnergydDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes )
+                {
+                    MORIS_ASSERT(false, "eval_dEnergydDOF: not implemented in base class.");
+                };
+
+                /**
+                 * get the energy change rate wrt dof
+                 * @param[ in ]  aDofType        group of dof type
+                 * @param[ out ] mEnergyDotDofDer derivative of the traction wrt dof
+                 */
+                const Matrix< DDRMat > & dEnergydDOF( const moris::Cell< MSI::Dof_Type > & aDofType);
+
+                //------------------------------------------------------------------------------
+                /**
                  * evaluate the constitutive model enthalpy change rate wrt to a dof type
                  * @param[ in ] aDofTypes a dof type wrt which the derivative is evaluated
                  * dEnergyDotdDOF ( 1 x numDerDof )
@@ -786,7 +823,7 @@ namespace moris
                  * @param[ in ]  aDofType        group of dof type
                  * @param[ out ] mGradEnergyDer derivative of the gradient of enthalpy wrt dof
                  */
-                const Matrix< DDRMat > & dGradHdDOF( const moris::Cell< MSI::Dof_Type > & aDofType);
+                const Matrix< DDRMat > & dGradEnergydDOF( const moris::Cell< MSI::Dof_Type > & aDofType);
 
                 //------------------------------------------------------------------------------
                 /**
@@ -1102,12 +1139,12 @@ namespace moris
                 /**
                  * evaluate the gradient of enthalpy wrt dof using finite differences
                  * @param[ in ] aDofTypes       a dof type wrt which the derivative is evaluated
-                 * @param[ in ] adGradHdDOF_FD  a matrix to fill with derivative evaluation
+                 * @param[ in ] adGradEnergydDOF_FD  a matrix to fill with derivative evaluation
                  * @param[ in ] aPerturbation   real to perturb for FD
                  */
                 void eval_dGradEnergydDOF_FD(
                         const moris::Cell< MSI::Dof_Type > & aDofTypes,
-                        Matrix< DDRMat >                   & adGradHdDOF_FD,
+                        Matrix< DDRMat >                   & adGradEnergydDOF_FD,
                         real                                 aPerturbation,
                         fem::FDScheme_Type                   aFDSchemeType = fem::FDScheme_Type::POINT_5);
 

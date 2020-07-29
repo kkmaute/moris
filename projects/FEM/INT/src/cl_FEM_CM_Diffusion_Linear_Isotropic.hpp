@@ -208,7 +208,7 @@ namespace moris
                 /**
                  * evaluate the constitutive model gradient of enthalpy wrt to a dof type
                  * @param[ in ] aDofTypes a dof type wrt which the derivative is evaluated
-                 * dGradHdDOF ( mSpaceDim x numDerDof )
+                 * dGradEnergydDOF ( mSpaceDim x numDerDof )
                  */
                 virtual void eval_dGradEnergydDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes );
 

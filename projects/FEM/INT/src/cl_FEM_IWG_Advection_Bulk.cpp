@@ -161,7 +161,7 @@ namespace moris
                     mSet->get_jacobian()(
                             { tMasterResStartIndex, tMasterResStopIndex },
                             { tMasterDepStartIndex, tMasterDepStopIndex } ) +=
-                                    aWStar * trans( tFITemp->N() ) * trans( tFIVelocity->val() ) * tCMDiffusion->dGradHdDOF( tDofType );
+                                    aWStar * trans( tFITemp->N() ) * trans( tFIVelocity->val() ) * tCMDiffusion->dGradEnergydDOF( tDofType );
                 }
 
                 // if velocity dof type
@@ -252,7 +252,7 @@ namespace moris
                 // compute contribution to jacobian strong form
                 aJT.matrix_data() =
                         tCMDiffusion->dEnergyDotdDOF( aDofTypes ).matrix_data() +
-                        trans( tFIVelocity->val() ) * tCMDiffusion->dGradHdDOF(aDofTypes) -
+                        trans( tFIVelocity->val() ) * tCMDiffusion->dGradEnergydDOF(aDofTypes) -
                         tCMDiffusion->ddivfluxdu( aDofTypes ).matrix_data();
             }
 
