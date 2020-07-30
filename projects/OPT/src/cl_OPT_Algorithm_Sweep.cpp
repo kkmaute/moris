@@ -85,10 +85,19 @@ namespace moris
                 }
                 
                 // Check lower and upper bounds for equality
+                Matrix<DDRMat> tADVs = mProblem->get_advs();
                 Matrix<DDRMat> tLowerBounds = mProblem->get_lower_bounds();
                 Matrix<DDRMat> tUpperBounds = mProblem->get_upper_bounds();
                 for (uint tADVIndex = 0; tADVIndex < tNumADVs; tADVIndex++)
                 {
+                    // If 1 evaluation, set lower and upper bounds to be equal
+                    if (mNumEvaluations(tADVIndex) == 1)
+                    {
+                        tLowerBounds(tADVIndex) = tADVs(tADVIndex);
+                        tUpperBounds(tADVIndex) = tADVs(tADVIndex);
+                    }
+
+                    // If lower and upper bounds are equal, set 1 evaluation
                     if (tLowerBounds(tADVIndex) == tUpperBounds(tADVIndex))
                     {
                         mNumEvaluations(tADVIndex) = 1;
@@ -111,7 +120,7 @@ namespace moris
                     tTotalEvaluations *= mNumEvaluations(ind);
                 }
                 mEvaluationPoints.set_size(tNumADVs, tTotalEvaluations);
-                Matrix<DDRMat> tADVs = tLowerBounds;
+                tADVs = tLowerBounds;
                 Matrix<DDUMat> tCurrentEvaluations(tNumADVs, 1, 0);
 
                 // Construct evaluation points

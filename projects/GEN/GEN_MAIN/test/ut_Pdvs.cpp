@@ -2,7 +2,7 @@
 #include "cl_Matrix.hpp"
 #include "cl_GEN_Pdv_Host_Manager.hpp"
 #include "fn_PRM_GEN_Parameters.hpp"
-#include "fn_GEN_create_property.hpp"
+#include "fn_GEN_create_properties.hpp"
 
 namespace moris
 {
@@ -143,7 +143,8 @@ namespace moris
         TEST_CASE("PDV sensitivities test", "[GEN], [sensitivity]")
         {
             // Create PDV_Type host manager
-            Pdv_Host_Manager tPdvHostManager(tNumADVs);
+            Pdv_Host_Manager tPdvHostManager;
+            tPdvHostManager.set_num_advs(tNumADVs);
 
             // Create discrete property
             ParameterList tParameterList = moris::prm::create_gen_property_parameter_list();;

@@ -34,9 +34,10 @@ namespace moris
         //--------------------------------------------------------------------------------------------------------------
 
         Level_Set::Level_Set(Matrix<DDRMat>&           aADVs,
+                             uint                      aADVIndex,
                              mtk::Mesh*                aMesh,
                              std::shared_ptr<Geometry> aGeometry)
-                : Field(aADVs, aMesh->get_num_coeffs(aGeometry->get_bspline_mesh_index())),
+                : Field(aADVs, aADVIndex, aMesh->get_num_coeffs(aGeometry->get_bspline_mesh_index())),
                   Geometry(aGeometry->get_num_refinements(),
                            aGeometry->get_refinement_function_index(),
                            aGeometry->get_bspline_mesh_index(),
@@ -50,10 +51,9 @@ namespace moris
                     "GEN level sets are currently only supported for linear B-splines.");
 
             // Assign ADVs
-            uint tADVIndex = aADVs.length() - mNumOriginalNodes;
             for (uint tNodeIndex = 0; tNodeIndex < mNumOriginalNodes; tNodeIndex++)
             {
-                aADVs(tADVIndex++) = aGeometry->evaluate_field_value(tNodeIndex, mMesh->get_node_coordinate(tNodeIndex));
+                aADVs(aADVIndex++) = aGeometry->evaluate_field_value(tNodeIndex, mMesh->get_node_coordinate(tNodeIndex));
             }
         }
 

@@ -1,12 +1,5 @@
-/*
- * cl_GEN_Sphere.hpp
- *
- *  Created on: Jun 21, 2017
- *      Author: ktdoble
- */
-
-#ifndef PROJECTS_GEN_SRC_NEW_GEOMETRY_CL_GEN_SPHERE_HPP_
-#define PROJECTS_GEN_SRC_NEW_GEOMETRY_CL_GEN_SPHERE_HPP_
+#ifndef MORIS_CL_GEN_SPHERE_HPP_
+#define MORIS_CL_GEN_SPHERE_HPP_
 
 #include <cmath>
 
@@ -87,4 +80,4 @@ namespace moris
     }
 }
 
-#endif /* PROJECTS_GEN_SRC_NEW_GEOMETRY_CL_GEN_SPHERE_HPP_ */
+#endif /* MORIS_CL_GEN_SPHERE_HPP_ */

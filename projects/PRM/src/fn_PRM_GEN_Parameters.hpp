@@ -56,7 +56,10 @@ namespace moris
             tParameterList.insert("adv_indices", "");               // ADVs used to fill in variables
             tParameterList.insert("constant_parameters", "");       // Remaining geometry parameters that are constant
             tParameterList.insert("number_of_refinements", 0);      // Number of refinement steps using HMR
-            tParameterList.insert("refinement_function_index", -1); // User-defined refinement function (-1 = none)
+            tParameterList.insert("refinement_function_index", -1); // Index of user-defined refinement function (-1 = none)
+            tParameterList.insert("bspline_mesh_index", -1);        // Index of B-spline mesh to create level set field on (-1 = none)
+            tParameterList.insert("level_set_lower_bound", -1.0);   // Lower bound of level set field (if bspline_mesh_index >= 0)
+            tParameterList.insert("level_set_upper_bound", 1.0);    // Upper bound of level set field (if bspline_mesh_index >= 0)
 
             return tParameterList;
         }

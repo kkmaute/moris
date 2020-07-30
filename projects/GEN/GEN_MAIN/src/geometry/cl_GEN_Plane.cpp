@@ -39,7 +39,7 @@ namespace moris
             }
             else
             {
-                MORIS_ERROR(false, "Incorrect number of parameters passed for construction of a ge::Plane");
+                MORIS_ERROR(false, "Incorrect number of parameters passed for construction of a GEN Plane");
             }
         }
 

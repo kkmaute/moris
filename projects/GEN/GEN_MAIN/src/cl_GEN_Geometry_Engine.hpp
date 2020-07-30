@@ -57,9 +57,13 @@ namespace moris
             Cell<std::string> mRequestedIQIs;
             bool mShapeSensitivities = false;
 
+            // Library
+            std::shared_ptr<Library_IO> mLibrary;
+
             // Geometry
             size_t mActiveGeometryIndex = 0;
-            Cell<std::shared_ptr<Geometry>> mGeometry;
+            Cell<std::shared_ptr<Geometry>> mGeometries;
+            Cell<ParameterList> mGeometryParameterLists;
 
             // Property
             Cell<std::shared_ptr<Property>> mProperties;

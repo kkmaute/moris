@@ -1,7 +1,7 @@
 #include "catch.hpp"
 #include "cl_Matrix.hpp"
 #include "cl_GEN_Geometry_Engine.hpp"
-#include "fn_GEN_create_geometry.hpp"
+#include "fn_GEN_create_geometries.hpp"
 #include "fn_PRM_GEN_Parameters.hpp"
 #include "fn_Exec_load_user_library.hpp"
 #include "cl_GEN_User_Defined_Geometry.hpp"
@@ -11,10 +11,6 @@
 #include "cl_HMR_Mesh.hpp"
 #include "cl_HMR_Mesh_Interpolation.hpp"
 #include "cl_PRM_HMR_Parameters.hpp"
-#include "cl_MTK_Writer_Exodus.hpp"
-#include "cl_XTK_Model.hpp"
-#include "cl_XTK_Enriched_Integration_Mesh.hpp"
-#include "cl_XTK_Enriched_Interpolation_Mesh.hpp"
 
 namespace moris
 {
@@ -222,22 +218,6 @@ namespace moris
                 Phase_Table tPhaseTable (1, Phase_Table_Structure::EXP_BASE_2);
                 Geometry_Engine tGeometryEngine(tGeometry, tPhaseTable, tInterpolationMesh);
 
-                xtk::Model tXTKModel(2, tInterpolationMesh, &tGeometryEngine);
-                tXTKModel.mVerbose = false;
-
-                //Specify decomposition Method and Cut Mesh ---------------------------------------
-                Cell<Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_QUAD4, Subdivision_Method::C_TRI3};
-                tXTKModel.decompose(tDecompositionMethods);
-
-                tXTKModel.perform_basis_enrichment( EntityRank::NODE, 0 );
-
-                xtk::Enriched_Interpolation_Mesh &tEnrInterpMesh = tXTKModel.get_enriched_interp_mesh();
-                xtk::Enriched_Integration_Mesh &tEnrIntegMesh = tXTKModel.get_enriched_integ_mesh();
-
-                // Write mesh
-//                mtk::Writer_Exodus writer( &tEnrIntegMesh );
-//                writer.write_mesh("", "./xtk_temp_circle.exo");
-//                writer.close_file();
             }
         }
 

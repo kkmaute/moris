@@ -39,9 +39,11 @@ namespace moris
              * child constructor.
              *
              * @param aADVs Reference to the full ADVs
+             * @param aADVIndex Index of the ADVs where this field will start using field variables
              * @param aNumGeometryVariables The number of geometry variables
              */
             Field(Matrix<DDRMat>& aADVs,
+                  uint aADVIndex,
                   uint aNumFieldVariables);
 
             /**
@@ -53,7 +55,6 @@ namespace moris
 
         public:
 
-            Field(){};
             /**
              * Destructor
              */

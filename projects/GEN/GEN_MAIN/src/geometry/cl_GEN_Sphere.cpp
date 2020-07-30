@@ -24,7 +24,7 @@ namespace moris
                            aLevelSetUpperBound)
         {
             MORIS_ERROR(aGeometryVariableIndices.length() + aConstantParameters.length() == 4,
-                        "A sphere geometry must be created with a total of exactly 4 adv and constant parameters");
+                        "A GEN Sphere must be created with a total of exactly 4 variables (ADVs + constant parameters)");
         }
 
         //--------------------------------------------------------------------------------------------------------------

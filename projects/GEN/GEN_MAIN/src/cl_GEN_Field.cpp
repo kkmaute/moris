@@ -48,20 +48,25 @@ namespace moris
         //--------------------------------------------------------------------------------------------------------------
         
         Field::Field(Matrix<DDRMat>& aADVs,
+                     uint aADVIndex,
                      uint aNumFieldVariables)
                 : mActiveVariables(aNumFieldVariables, true),
-                  mNumADVs(aADVs.length() + aNumFieldVariables)
+                  mNumADVs(aADVs.length())
         {
+            // Check for ADV size
+            MORIS_ERROR((aADVIndex + aNumFieldVariables) <= aADVs.length(),
+                        "GEN field constructor with number of field variables given can only be called with an "
+                        "ADV vector that has already been resized to an adequate length.");
+
             // Resize ADVs/variables
-            uint tNumOriginalADVs = aADVs.length();
-            aADVs.resize(tNumOriginalADVs + aNumFieldVariables, 1);
             mADVIndices.resize(aNumFieldVariables, 1);
             mFieldVariables.resize(aNumFieldVariables);
 
             // Set variables from ADVs
             for (uint tVariableIndex = 0; tVariableIndex < aNumFieldVariables; tVariableIndex++)
             {
-                mFieldVariables(tVariableIndex) = &(aADVs(tNumOriginalADVs + tVariableIndex));
+                mADVIndices(tVariableIndex) = aADVIndex + tVariableIndex;
+                mFieldVariables(tVariableIndex) = &(aADVs(aADVIndex + tVariableIndex));
             }
         }
 
@@ -87,7 +92,6 @@ namespace moris
 
         Field::~Field()
         {
-
         }
 
         //--------------------------------------------------------------------------------------------------------------

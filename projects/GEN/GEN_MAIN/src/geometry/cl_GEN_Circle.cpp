@@ -24,7 +24,7 @@ namespace moris
                            aLevelSetUpperBound)
         {
             MORIS_ERROR(aGeometryVariableIndices.length() + aConstantParameters.length() == 3,
-                        "A circle geometry must be created with a total of exactly 3 adv and constant parameters");
+                        "A GEN Circle must be created with a total of exactly 3 variables (ADVs + constant parameters)");
         }
 
         //--------------------------------------------------------------------------------------------------------------
