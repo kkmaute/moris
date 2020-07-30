@@ -18,7 +18,7 @@ namespace moris
         class Set;
         //------------------------------------------------------------------------------
         /**
-         * \brief Element_Sideset class
+         * \brief Element_Double_Sideset class
          */
         class Element_Double_Sideset : public Element
         {
@@ -28,17 +28,18 @@ namespace moris
                 //------------------------------------------------------------------------------
                 /**
                  * constructor
-                 * @param[ in ]     pointer to mesh cell
-                 * @param[ in ]     pointer to element block
-                 * @param[ in ]     pointer to cluster
-                 *
+                 * @param[ in ] aLeftIGCell         pointer to mesh cell for master element
+                 * @param[ in ] aRightIGCell        pointer to mesh cell for slave element
+                 * @param[ in ] aSet                pointer to FEM set to which the elements belong
+                 * @param[ in ] aCluster            pointer to FEM cluster to which the elements belong
+                 * @param[ in ] aCellIndexInCluster index of the element in the cluster
                  */
                 Element_Double_Sideset(
-                        mtk::Cell const  * aLeftIGCell,
-                        mtk::Cell const  * aRightIGCell,
-                        Set              * aSet,
-                        Cluster          * aCluster,
-                        moris::moris_index aCellIndexInCluster);
+                        mtk::Cell const    * aLeftIGCell,
+                        mtk::Cell const    * aRightIGCell,
+                        Set                * aSet,
+                        Cluster            * aCluster,
+                        moris::moris_index   aCellIndexInCluster );
 
                 //------------------------------------------------------------------------------
                 /**
@@ -81,12 +82,15 @@ namespace moris
 
                 //------------------------------------------------------------------------------
                 /**
-                 * initialize integration geometry interpolator
+                 * initialize the geometry interpolator for the IG master and slave element
+                 * @param[ in ] aMasterSideOrdinal side ordinal for the master element
+                 * @param[ in ] aSlaveSideOrdinal  side ordinal for the slave element
+                 * @param[ in ] aMasterIsActiveDv  list of if design variable is active
+                 *                                 (vertexIndex)(DvType) for master element
+                 * @param[ in ] aSlaveIsActiveDv   list of if design variable is active
+                 *                                 (vertexIndex)(DvType) for slave element
                  */
                 void init_ig_geometry_interpolator(
-                        uint aMasterSideOrdinal,
-                        uint aSlaveSideOrdinal );
-                void init_ig_geometry_interpolator_with_pdv(
                         uint aMasterSideOrdinal,
                         uint aSlaveSideOrdinal,
                         moris::Cell< Matrix< DDSMat > > & aMasterIsActiveDv,

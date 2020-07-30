@@ -25,48 +25,45 @@ namespace moris
 
         Element_Bulk::~Element_Bulk(){}
 
-        //------------------------------------------------------------------------------
+        //----------------------------------------------------------------------
 
-        void Element_Bulk::init_ig_geometry_interpolator()
+        void Element_Bulk::init_ig_geometry_interpolator(
+                moris::Cell< Matrix< DDSMat > > & aIsActiveDv )
         {
-            // get geometry interpolator
+            // get geometry interpolator for IG element
             Geometry_Interpolator * tIGGI =
                     mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator();
 
-            // set the geometry interpolator physical space and time coefficients for integration cell
-            tIGGI->set_space_coeff( mMasterCell->get_vertex_coords() );
-            tIGGI->set_time_coeff( mCluster->mInterpolationElement->get_time() );
-
-            // set the geometry interpolator param space and time coefficients for integration cell
-            tIGGI->set_space_param_coeff( mCluster->get_primary_cell_local_coords_on_side_wrt_interp_cell( mCellIndexInCluster ) );
-            tIGGI->set_time_param_coeff( { { -1.0 }, { 1.0 } } );
-        }
-
-        //----------------------------------------------------------------------
-
-        void Element_Bulk::init_ig_geometry_interpolator_with_pdv( moris::Cell< Matrix< DDSMat > > & aIsActiveDv )
-        {
-            // get the vertices indices
+            // get the vertices indices for IG element
             Matrix< IndexMat > tVertexIndices = mMasterCell->get_vertex_inds();
 
-            // get the geometry XYZ values
-            Matrix< DDRMat > tXYZValues = mMasterCell->get_vertex_coords();
+            // get master physical space and time coordinates for IG element
+            Matrix< DDRMat > tIGPhysSpaceCoords =
+                    mMasterCell->get_vertex_coords();
+            Matrix< DDRMat > tIGPhysTimeCoords =
+                    mCluster->mInterpolationElement->get_time();
+
+            // get master parametric space and time coordinates for IG element
+            Matrix< DDRMat > tIGParamSpaceCoords =
+                    mCluster->get_primary_cell_local_coords_on_side_wrt_interp_cell( mCellIndexInCluster );
+            // FIXME not true if time is not linear
+            Matrix< DDRMat > tIGParamTimeCoords = { { -1.0 }, { 1.0 } };
 
             // get the requested geo pdv types
             moris::Cell < enum PDV_Type > tGeoPdvType;
             mSet->get_ig_unique_dv_types_for_set( tGeoPdvType );
 
             // Determine if there are IG PDVs
-            if (tGeoPdvType.size())
+            if ( tGeoPdvType.size() )
             {
                 // get space dimension
-                uint tSpaceDim = tXYZValues.n_cols();
+                uint tSpaceDim = tIGPhysSpaceCoords.n_cols();
 
                 // reshape the XYZ values into a cell of vectors
                 moris::Cell< Matrix< DDRMat > > tPdvValueList( tSpaceDim );
                 for( uint iSpaceDim = 0; iSpaceDim < tSpaceDim; iSpaceDim++ )
                 {
-                    tPdvValueList( iSpaceDim ) = tXYZValues.get_column( iSpaceDim );
+                    tPdvValueList( iSpaceDim ) = tIGPhysSpaceCoords.get_column( iSpaceDim );
                 }
 
                 // get the pdv values from the MSI/GEN interface
@@ -76,37 +73,29 @@ namespace moris
                         tPdvValueList,
                         aIsActiveDv );
 
-                // reshape the cell of vectors tPdvValueList into a matrix tPdvValues
-                Matrix< DDRMat > tPdvValues;
+                // reshape the cell of vectors tPdvValueList into a matrix tIGPhysSpaceCoords
+                tIGPhysSpaceCoords.set_size( 0, 0 );
                 mSet->get_equation_model()->get_design_variable_interface()->reshape_pdv_values(
                         tPdvValueList,
-                        tPdvValues );
-
-                // get the IG geometry interpolator
-                Geometry_Interpolator * tIGGI =
-                        mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator();
-
-                // set the geometry interpolator physical space and time coefficients for integration cell
-                tIGGI->set_space_coeff( tPdvValues );
-                tIGGI->set_time_coeff ( mCluster->mInterpolationElement->get_time() );
-
-                // set the geometry interpolator param space and time coefficients for integration cell
-                tIGGI->set_space_param_coeff( mCluster->get_primary_cell_local_coords_on_side_wrt_interp_cell( mCellIndexInCluster) );
-                tIGGI->set_time_param_coeff( {{ -1.0 }, { 1.0 }} ); // FIXME
-            }
-            else // there are no PDVs, get info from mesh
-            {
-                this->init_ig_geometry_interpolator();
+                        tIGPhysSpaceCoords );
             }
 
+            // set physical space and time coefficients for IG element GI
+            tIGGI->set_space_coeff( tIGPhysSpaceCoords );
+            tIGGI->set_time_coeff(  tIGPhysTimeCoords );
+
+            // set parametric space and time coefficients for IG element GI
+            tIGGI->set_space_param_coeff( tIGParamSpaceCoords );
+            tIGGI->set_time_param_coeff(  tIGParamTimeCoords );
         }
 
         //------------------------------------------------------------------------------
 
         void Element_Bulk::compute_residual()
         {
-            // set the ig geometry interpolator physical/param space and time coefficients
-            this->init_ig_geometry_interpolator();
+            // set physical and parametric space and time coefficients for IG element
+            moris::Cell< Matrix< DDSMat > > tIsActiveDv;
+            this->init_ig_geometry_interpolator( tIsActiveDv );
 
             // get number of IWGs
             uint tNumIWGs = mSet->get_number_of_requested_IWGs();
@@ -147,8 +136,9 @@ namespace moris
 
         void Element_Bulk::compute_jacobian()
         {
-            // set the ig geometry interpolator physical/param space and time coefficients
-            this->init_ig_geometry_interpolator();
+            // set physical and parametric space and time coefficients for IG element
+            moris::Cell< Matrix< DDSMat > > tIsActiveDv;
+            this->init_ig_geometry_interpolator( tIsActiveDv );
 
             // get number of IWGs
             uint tNumIWGs = mSet->get_number_of_requested_IWGs();
@@ -187,8 +177,9 @@ namespace moris
 
         void Element_Bulk::compute_jacobian_and_residual()
         {
-            // set the ig geometry interpolator physical/param space and time coefficients
-            this->init_ig_geometry_interpolator();
+            // set physical and parametric space and time coefficients for IG element
+            moris::Cell< Matrix< DDSMat > > tIsActiveDv;
+            this->init_ig_geometry_interpolator( tIsActiveDv );
 
             // get number of IWGs
             uint tNumIWGs = mSet->get_number_of_requested_IWGs();
@@ -233,9 +224,9 @@ namespace moris
             // get the vertices indices
             Matrix< IndexMat > tVertexIndices = mMasterCell->get_vertex_inds();
 
-            // set the IG geometry interpolator physical/param space and time coefficients
+            // set physical and parametric space and time coefficients for IG element
             moris::Cell< Matrix< DDSMat > > tIsActiveDv;
-            this->init_ig_geometry_interpolator_with_pdv( tIsActiveDv );
+            this->init_ig_geometry_interpolator( tIsActiveDv );
 
             // get number of IWGs
             uint tNumIWGs = mSet->get_number_of_requested_IWGs();
@@ -288,8 +279,9 @@ namespace moris
 
         void Element_Bulk::compute_QI()
         {
-            // set the ig geometry interpolator physical/param space and time coefficients
-            this->init_ig_geometry_interpolator();
+            // set physical and parametric space and time coefficients for IG element
+            moris::Cell< Matrix< DDSMat > > tIsActiveDv;
+            this->init_ig_geometry_interpolator( tIsActiveDv );
 
             // get number of IQIs
             uint tNumIQIs = mSet->get_number_of_requested_IQIs();
@@ -330,9 +322,9 @@ namespace moris
             // get the vertices indices
             Matrix< IndexMat > tVertexIndices = mMasterCell->get_vertex_inds();
 
-            // set the IG geometry interpolator physical/param space and time coefficients
+            // set physical and parametric space and time coefficients for IG element
             moris::Cell< Matrix< DDSMat > > tIsActiveDv;
-            this->init_ig_geometry_interpolator_with_pdv( tIsActiveDv );
+            this->init_ig_geometry_interpolator( tIsActiveDv );
 
             // get number of IWGs
             uint tNumIQIs = mSet->get_number_of_requested_IQIs();
@@ -382,8 +374,9 @@ namespace moris
 
         void Element_Bulk::compute_dQIdu()
         {
-            // set the ig geometry interpolator physical/param space and time coefficients
-            this->init_ig_geometry_interpolator();
+            // set physical and parametric space and time coefficients for IG element
+            moris::Cell< Matrix< DDSMat > > tIsActiveDv;
+            this->init_ig_geometry_interpolator( tIsActiveDv );
 
             // get number of IQIs
             uint tNumIQIs = mSet->get_number_of_requested_IQIs();
@@ -420,8 +413,9 @@ namespace moris
                 const uint             aMeshIndex,
                 enum  vis::Output_Type aOutputType )
         {
-            // set the ig geometry interpolator physical/param space and time coefficients
-            this->init_ig_geometry_interpolator();
+            // set physical and parametric space and time coefficients for IG element
+            moris::Cell< Matrix< DDSMat > > tIsActiveDv;
+            this->init_ig_geometry_interpolator( tIsActiveDv );
 
             // loop over integration points
             uint tNumIntegPoints = mSet->get_number_of_integration_points();
@@ -455,8 +449,9 @@ namespace moris
                 const uint aMeshIndex,
                 enum vis::Output_Type aOutputType )
         {
-            // set the ig geometry interpolator physical/param space and time coefficients
-            this->init_ig_geometry_interpolator();
+            // set physical and parametric space and time coefficients for IG element
+            moris::Cell< Matrix< DDSMat > > tIsActiveDv;
+            this->init_ig_geometry_interpolator( tIsActiveDv );
 
             // get the vertices
             moris::Cell< mtk::Vertex * > tVertices = mMasterCell->get_vertex_pointers();
@@ -497,8 +492,9 @@ namespace moris
                 const uint aMeshIndex,
                 enum vis::Output_Type aOutputType )
         {
-            // set the ig geometry interpolator physical/param space and time coefficients
-            this->init_ig_geometry_interpolator();
+            // set physical and parametric space and time coefficients for IG element
+            moris::Cell< Matrix< DDSMat > > tIsActiveDv;
+            this->init_ig_geometry_interpolator( tIsActiveDv );
 
             // loop over integration points
             uint tNumIntegPoints = mSet->get_number_of_integration_points();
@@ -523,15 +519,17 @@ namespace moris
 
                 // FIXME assemble on the set here or inside the compute QI?
                 ( *mSet->mSetElementalValues )( mSet->mCellAssemblyMap( aMeshIndex )( mMasterCell->get_index() ), 0 )
-                                += tQIValue( 0 ) * tWStar / tNumIntegPoints;
+                                                                                                                                += tQIValue( 0 ) * tWStar / tNumIntegPoints;
             }
         }
 
         //------------------------------------------------------------------------------
+
         real Element_Bulk::compute_volume( mtk::Master_Slave aIsMaster )
         {
-            // set the ig geometry interpolator physical/param space and time coefficients
-            this->init_ig_geometry_interpolator();
+            // set physical and parametric space and time coefficients for IG element
+            moris::Cell< Matrix< DDSMat > > tIsActiveDv;
+            this->init_ig_geometry_interpolator( tIsActiveDv );
 
             //get number of integration points
             uint tNumOfIntegPoints = mSet->get_number_of_integration_points();
@@ -556,122 +554,6 @@ namespace moris
             // return the volume value
             return tVolume;
         }
-
-        //------------------------------------------------------------------------------
-
-        //        real Element::compute_integration_error(
-        //                real (*aFunction)( const Matrix< DDRMat > & aPoint ) )
-        //        {
-        //            // create field interpolation rule
-        //            Interpolation_Rule tFieldInterpolationRule( this->get_geometry_type(),
-        //                                                        Interpolation_Type::LAGRANGE,
-        //                                                        this->get_interpolation_order() );
-        //            // <- add second type in order
-        //            //    to interpolate in space and time
-        //
-        //            // create geometry interpolation rule
-        //            Interpolation_Rule tGeometryInterpolationRule( this->get_geometry_type(),
-        //                                                           Interpolation_Type::LAGRANGE,
-        //                                                           this->get_interpolation_order() );
-        //
-        //            // create integration rule
-        //            Integration_Rule tIntegration_Rule( this->get_geometry_type(),
-        //                                                Integration_Type::GAUSS,
-        //                                                this->get_auto_integration_order() );
-        //
-        //            // set number of fields
-        //            uint tNumberOfFields = 1;
-        //
-        //            // create interpolator
-        //            Interpolator tInterpolator( this->get_node_coords(),
-        //                                        tNumberOfFields,
-        //                                        tFieldInterpolationRule,
-        //                                        tGeometryInterpolationRule,
-        //                                        tIntegration_Rule );
-        //
-        //            // get number of points
-        //            auto tNumberOfIntegrationPoints
-        //                = tInterpolator.get_number_of_integration_points();
-        //
-        //            real aError = 0.0;
-        //
-        //            mIWG->create_matrices( &tInterpolator );
-        //
-        //            for( uint k=0; k<tNumberOfIntegrationPoints; ++k )
-        //            {
-        //                 //evaluate shape function at given integration point
-        //                aError += mIWG->compute_integration_error( mPdofValues,
-        //                                                           aFunction,
-        //                                                           k )
-        //                        * tInterpolator.get_det_J( k )
-        //                        * tInterpolator.get_integration_weight( k );
-        //            }
-        //
-        //            //std::cout << "Element error " << aError << std::endl;
-        //            mIWG->delete_matrices();
-        //
-        //            return aError;
-        //        }
-
-        //------------------------------------------------------------------------------
-
-        //        real Element::compute_element_average_of_scalar_field()
-        //        {
-        //
-        //            // create field interpolation rule
-        //            Interpolation_Rule tFieldInterpolationRule( this->get_geometry_type(),
-        //                                                        Interpolation_Type::LAGRANGE,
-        //                                                        this->get_interpolation_order() );
-        //            // <- add second type in order
-        //            //    to interpolate in space and time
-        //
-        //            // create geometry interpolation rule
-        //            Interpolation_Rule tGeometryInterpolationRule( this->get_geometry_type(),
-        //                                                           Interpolation_Type::LAGRANGE,
-        //                                                           mtk::Interpolation_Order::LINEAR );
-        //
-        //            // create integration rule
-        //            Integration_Rule tIntegration_Rule( this->get_geometry_type(),
-        //                                                Integration_Type::GAUSS,
-        //                                                this->get_auto_integration_order() );
-        //
-        //            // set number of fields
-        //            uint tNumberOfFields = 1;
-        //
-        //            // create interpolator
-        //            Interpolator tInterpolator( this->get_node_coords(),
-        //                                        tNumberOfFields,
-        //                                        tFieldInterpolationRule,
-        //                                        tGeometryInterpolationRule,
-        //                                        tIntegration_Rule );
-        //
-        //            // get number of points
-        //            auto tNumberOfIntegrationPoints
-        //                = tInterpolator.get_number_of_integration_points();
-        //
-        //            mIWG->create_matrices( &tInterpolator );
-        //
-        //            real aValue  = 0.0;Cell< Field_Interpolator* > tFieldInterpolators
-        //            real tWeight = 0.0;
-        //
-        //            for( uint k=0; k<tNumberOfIntegrationPoints; ++k )
-        //            {
-        //                real tScale = tInterpolator.get_integration_weight( k )
-        //                            * tInterpolator.get_det_J( k );
-        //
-        //                aValue += mIWG->interpolate_scalar_at_point( mNodalWeakBCs, k )
-        //                        * tScale;
-        //
-        //                tWeight += tScale;
-        //
-        //            }
-        //
-        //            // close IWG object
-        //            mIWG->delete_matrices();
-        //
-        //            return aValue / tWeight;
-        //
-        //        }
 
         //------------------------------------------------------------------------------
 

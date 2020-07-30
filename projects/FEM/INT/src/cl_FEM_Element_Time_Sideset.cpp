@@ -9,6 +9,7 @@ namespace moris
     {
 
         //------------------------------------------------------------------------------
+
         Element_Time_Sideset::Element_Time_Sideset(
                 mtk::Cell const  * aCell,
                 Set              * aElementBlock,
@@ -18,10 +19,13 @@ namespace moris
         {}
 
         //------------------------------------------------------------------------------
+
         Element_Time_Sideset::~Element_Time_Sideset(){}
 
         //------------------------------------------------------------------------------
-        void Element_Time_Sideset::init_ig_geometry_interpolator()
+
+        void Element_Time_Sideset::init_ig_geometry_interpolator(
+                moris::Cell< Matrix< DDSMat > > & aIsActiveDv )
         {
             // get geometry interpolator
             Geometry_Interpolator * tIGGI =
@@ -29,28 +33,53 @@ namespace moris
             Geometry_Interpolator * tPreviousIGGI =
                     mSet->get_field_interpolator_manager_previous_time()->get_IG_geometry_interpolator();
 
-            // set the geometry interpolator physical space and time coefficients for integration cell
-            tIGGI->set_space_coeff( mMasterCell->get_vertex_coords());
-            tIGGI->set_time_coeff( {{ mCluster->mInterpolationElement->get_time()( 0 ) }} );
+            // get physical space and current and previous time coordinates for IG element
+            Matrix< DDRMat > tIGPhysSpaceCoords = mMasterCell->get_vertex_coords();
+            Matrix< DDRMat > tIGPhysTimeCoords( 1, 1,
+                    mCluster->mInterpolationElement->get_time()( 0 ) );
+            Matrix< DDRMat > tIGPhysPreviousTimeCoords( 1, 1,
+                    mCluster->mInterpolationElement->get_previous_time()( 1 ) );
 
-            // set the geometry interpolator physical space and time coefficients for integration cell
-            tPreviousIGGI->set_space_coeff( mMasterCell->get_vertex_coords());
-            tPreviousIGGI->set_time_coeff( {{ mCluster->mInterpolationElement->get_previous_time()( 1 ) }} );
+            // get master parametric space and current and previous time coordinates for IG element
+            Matrix< DDRMat > tIGParamSpaceCoords =
+                    mCluster->get_primary_cell_local_coords_on_side_wrt_interp_cell( mCellIndexInCluster );
+            Matrix< DDRMat > tIGParamTimeCoords( 1, 1, -1.0 );
+            Matrix< DDRMat > tIGParamPreviousTimeCoords( 1, 1, 1.0 );
 
-            // set the geometry interpolator param space and time coefficients for integration cell
-            tIGGI->set_space_param_coeff( mCluster->get_primary_cell_local_coords_on_side_wrt_interp_cell( mCellIndexInCluster) );
-            tIGGI->set_time_param_coeff( {{ -1.0 }} );
+            // get the requested geo pdv types
+            moris::Cell < enum PDV_Type > tGeoPdvType;
+            mSet->get_ig_unique_dv_types_for_set( tGeoPdvType );
 
-            // set the geometry interpolator param space and time coefficients for integration cell
-            tPreviousIGGI->set_space_param_coeff( mCluster->get_primary_cell_local_coords_on_side_wrt_interp_cell( mCellIndexInCluster) );
-            tPreviousIGGI->set_time_param_coeff( {{ 1.0 }} );
+            // determine if there are IG pdvs
+            if ( tGeoPdvType.size() )
+            {
+                MORIS_ERROR( false, "init_ig_geometry_interpolator - pdv not handle so far on time sideset" );
+            }
+
+            // set physical space and current time coefficients for IG element GI
+            tIGGI->set_space_coeff( tIGPhysSpaceCoords );
+            tIGGI->set_time_coeff(  tIGPhysTimeCoords );
+
+            // set physical space and previous time coefficients for IG element GI
+            tPreviousIGGI->set_space_coeff( tIGPhysSpaceCoords );
+            tPreviousIGGI->set_time_coeff(  tIGPhysPreviousTimeCoords );
+
+            // set parametric space and current time coefficients for IG element GI
+            tIGGI->set_space_param_coeff( tIGParamSpaceCoords );
+            tIGGI->set_time_param_coeff(  tIGParamTimeCoords );
+
+            // set parametric space and previous time coefficients for IG element GI
+            tPreviousIGGI->set_space_param_coeff( tIGParamSpaceCoords );
+            tPreviousIGGI->set_time_param_coeff(  tIGParamPreviousTimeCoords );
         }
 
         //------------------------------------------------------------------------------
+
         void Element_Time_Sideset::compute_residual()
         {
-            // set the integration cell geometry interpolator
-            this->init_ig_geometry_interpolator();
+            // set physical and parametric space and time coefficients for IG element
+            moris::Cell< Matrix< DDSMat > > tIsActiveDv;
+            this->init_ig_geometry_interpolator( tIsActiveDv );
 
             // get number of IWGs
             uint tNumIWGs = mSet->get_number_of_requested_IWGs();
@@ -89,10 +118,12 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+
         void Element_Time_Sideset::compute_jacobian()
         {
-            // set the integration cell geometry interpolator
-            this->init_ig_geometry_interpolator();
+            // set physical and parametric space and time coefficients for IG element
+            moris::Cell< Matrix< DDSMat > > tIsActiveDv;
+            this->init_ig_geometry_interpolator( tIsActiveDv );
 
             // get number of IWGs
             uint tNumIWGs = mSet->get_number_of_requested_IWGs();
@@ -127,10 +158,12 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+
         void Element_Time_Sideset::compute_jacobian_and_residual()
         {
-            // set the integration cell geometry interpolator
-            this->init_ig_geometry_interpolator();
+            // set physical and parametric space and time coefficients for IG element
+            moris::Cell< Matrix< DDSMat > > tIsActiveDv;
+            this->init_ig_geometry_interpolator( tIsActiveDv );
 
             // get number of IWGs
             uint tNumIWGs = mSet->get_number_of_requested_IWGs();
