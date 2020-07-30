@@ -16,6 +16,7 @@ namespace moris
     {
 
         //------------------------------------------------------------------------------
+
         Cluster::Cluster(
                 const Element_Type         aElementType,
                 const mtk::Cluster        * aMeshCluster,
@@ -106,6 +107,7 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+
         Cluster::~Cluster()
         {
             for( auto tElements : mElements )
@@ -116,6 +118,7 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+
         moris::Matrix< moris::DDRMat > Cluster::get_vertices_local_coordinates_wrt_interp_cell()
         {
             // check that side cluster
@@ -148,51 +151,55 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+
         void Cluster::get_vertex_indices_in_cluster_for_sensitivity(
                 moris::Matrix< moris::IndexMat > & aVerticesIndices )
         {
             // if mesh cluster is not trivial
-            if( !mMeshCluster->is_trivial() )
+            if( !mMeshCluster->is_trivial( mtk::Master_Slave::MASTER ) )
             {
-                // switch on set type
-                switch ( mElementType )
+                // get vertices indices on cluster
+                aVerticesIndices = mMeshCluster->get_vertex_indices_in_cluster();
+
+                // FIXME! Mesh should return this
+                if( mElementType == fem::Element_Type::DOUBLE_SIDESET )
                 {
-                    case fem::Element_Type::BULK:
-                    case fem::Element_Type::SIDESET:
+                    aVerticesIndices.set_size( 1, 0 );
+                    uint tVertexCounter = 0;
+
+                    // loop over the IG cells
+                    for( moris::uint iIGCell = 0; iIGCell < mMasterIntegrationCells.size(); iIGCell++)
                     {
-                        aVerticesIndices = mMeshCluster->get_vertex_indices_in_cluster();
-                        break;
-                    }
-                    case fem::Element_Type::DOUBLE_SIDESET:
-                    {
-                        moris::Matrix< moris::IndexMat > tMasterVerticesIndices =
-                                reinterpret_cast< const mtk::Double_Side_Cluster* >( mMeshCluster )->get_left_vertex_indices_in_cluster();
-                        moris::Matrix< moris::IndexMat > tSlaveVerticesIndices =
-                                reinterpret_cast< const mtk::Double_Side_Cluster* >( mMeshCluster )->get_right_vertex_indices_in_cluster();
+                        Matrix< IndexMat > tMasterVertexIndices =
+                                mMasterIntegrationCells( iIGCell )->
+                                get_vertices_ind_on_side_ordinal( mMasterListOfSideOrdinals( iIGCell ) );
 
-                        uint tNumMaster = tMasterVerticesIndices.numel();
-                        uint tNumSlave  = tSlaveVerticesIndices.numel();
-
-                        aVerticesIndices.set_size( 1, tNumMaster + tNumSlave );
-
-                        for ( uint iMasterVertex = 0; iMasterVertex < tNumMaster; iMasterVertex++ )
+                        for(moris::uint iVertex = 0; iVertex < tMasterVertexIndices.numel(); iVertex++ )
                         {
-                            aVerticesIndices( iMasterVertex ) = tMasterVerticesIndices( iMasterVertex );
+                            tVertexCounter += 1;
+                            aVerticesIndices.resize( 1, tVertexCounter );
+                            // get the vertex index
+                            aVerticesIndices( tVertexCounter - 1 ) = tMasterVertexIndices( iVertex );
                         }
 
-                        for( uint iSlaveVertex = 0; iSlaveVertex < tNumSlave; iSlaveVertex++ )
+                        Matrix< IndexMat > tSlaveVertexIndices  =
+                                mSlaveIntegrationCells( iIGCell )->
+                                get_vertices_ind_on_side_ordinal( mSlaveListOfSideOrdinals( iIGCell ) );
+
+                        for(moris::uint iVertex = 0; iVertex < tSlaveVertexIndices.numel(); iVertex++ )
                         {
-                            aVerticesIndices( tNumMaster + iSlaveVertex ) = tSlaveVerticesIndices( iSlaveVertex );
+                            tVertexCounter += 1;
+                            aVerticesIndices.resize( 1, tVertexCounter );
+                            // get the vertex index
+                            aVerticesIndices( tVertexCounter - 1 ) = tSlaveVertexIndices( iVertex );
                         }
-                        break;
                     }
-                    default:
-                        MORIS_ERROR( false, "Cluster::get_vertex_indices_in_cluster_for_sensitivity - not implemented or undefined set type" );
                 }
             }
         }
 
         //------------------------------------------------------------------------------
+
         moris::Cell< moris_index > Cluster::get_vertex_indices_in_cluster()
         {
             // check that side cluster
@@ -293,6 +300,7 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+
         moris::Matrix< moris::DDRMat > Cluster::get_primary_cell_local_coords_on_side_wrt_interp_cell(
                 moris::moris_index aPrimaryCellIndexInCluster )
         {
@@ -332,12 +340,12 @@ namespace moris
             // init normal
             Matrix < DDRMat > tNormal;
 
-//            // if interpolation cell is linear
-//            if( mSet->get_IG_space_interpolation_order() == mtk::Interpolation_Order::LINEAR )
-//            {
-//                // get normal from the mesh
-//                tNormal = aCell->compute_outward_side_normal( aSideOrdinal );
-//            }
+            //            // if interpolation cell is linear
+            //            if( mSet->get_IG_space_interpolation_order() == mtk::Interpolation_Order::LINEAR )
+            //            {
+            //                // get normal from the mesh
+            //                tNormal = aCell->compute_outward_side_normal( aSideOrdinal );
+            //            }
             //            // if integration cell is higher order
             //            else
             //            {
@@ -366,6 +374,7 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+
         moris::moris_index Cluster::get_right_vertex_ordinal_on_facet(
                 moris_index                aCellIndexInCluster,
                 moris::mtk::Vertex const * aVertex )
@@ -583,7 +592,6 @@ namespace moris
                     MORIS_ERROR( false, "Cluster::compute_cluster_cell_length_measure - space dimension can only be 1, 2, or 3. ");
                     return 0.0;
             }
-
         }
 
 
