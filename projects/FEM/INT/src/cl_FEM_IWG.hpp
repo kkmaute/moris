@@ -227,15 +227,6 @@ namespace moris
 
                 //------------------------------------------------------------------------------
                 /**
-                 * get flattened normal matrix
-                 * @param[ in ] aNormal normal vector
-                 */
-                void get_flat_normal_matrix(
-                        Matrix< DDRMat > & aFlatNormal,
-                        uint               aOrder );
-
-                //------------------------------------------------------------------------------
-                /**
                  * set residual dof type
                  * @param[ in ] aResidualdofType a cell of residual dof types
                  */
