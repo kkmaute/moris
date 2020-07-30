@@ -441,6 +441,9 @@ namespace moris
                     // reset IWG
                     mSet->get_requested_IWGs()( iIWG )->reset_eval_flags();
 
+                    // set the normal for the IWG
+                    mSet->get_requested_IWGs()( iIWG )->set_normal( tNormal );
+
                     // set a perturbation size
                     real tPerturbation = 1E-6;
 
