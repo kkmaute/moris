@@ -113,9 +113,9 @@ Finally the Cauchy stress tensor is computed as
 where Stokes' assumption \f$ \KinematicViscosity = - \frac{2}{3} \DynamicViscosity \f$ is used.
 
 To use this constitutive model, the following three properties need to be defined:
--# the isobaric heat capacity \f$ \IsobarHeatCap \f$ (Keyword: "")
--# the gas constant \f$ \GasConst \f$, and (Keyword: "")
--# the dynamic viscosity \f$ \DynamicViscosity \f$ of the fluid used (Keyword: "")
+-# the isobaric heat capacity \f$ \IsobarHeatCap \f$ (Keyword: "IsobaricHeatCapacity")
+-# the specific gas constant \f$ \GasConst \f$, and (Keyword: "SpecificGasConstant")
+-# the dynamic viscosity \f$ \DynamicViscosity \f$ of the fluid used (Keyword: "DynamicViscosity")
 
 
 ## Thermal Van-der-Waals (Korteweg) Model
@@ -207,7 +207,7 @@ Finally the Cauchy stress tensor is computed as
 where \f$ \KortewegStress \f$ is called the Korteweg stress. 
 Again, Stokes' assumption \f$ \KinematicViscosity = - \frac{2}{3} \DynamicViscosity \f$ is used.
 
-To use this constitutive model, the following three properties need to be defined:
+To use this constitutive model, the following six properties need to be defined:
 -# the isochoric heat capacity \f$ \IsochorHeatCap \f$ (Keyword: "IsochoricHeatCapacity")
 -# the first Van-der-Waals constant \f$ \VdWconstA \f$ (Keyword: "FirstVdWconstant")
 -# the second Van-der-Waals constant \f$ \VdWconstB \f$ (Keyword: "SecondVdWconstant")
@@ -233,24 +233,27 @@ Mass Conservation:
 - \int_{\domain} \grad{\TestFunction} \cdot (\density \velocity) \ d\domain 
 = \Residual_1 \ShouldEqual 0 \ \ \ in  \ \domain
 \f]
+where the density is used for the test functions \f$ \TestFunction = \TestFunc_{\density} \f$.
 
 Momentum Equation:
 \f[
-\int_{\domain} \TestFunction \cdot \left( \dot{\density} \velocity + \density \dot{\velocity} \right) \ d\domain 
-- \int_{\domain} \left( \density \velocity \otimes \velocity \right) \DoubleDot \grad{\TestFunction} \ d\domain 
-+ \int_{\domain} \CauchyStress \DoubleDot \grad{\TestFunction} \ d\domain 
-- \int_{\domain} \TestFunction \cdot \density \BodyForce \ d\domain
+\int_{\domain} \TestFunctionVector \cdot \left( \dot{\density} \velocity + \density \dot{\velocity} \right) \ d\domain 
+- \int_{\domain} \left( \density \velocity \otimes \velocity \right) \DoubleDot \grad{\TestFunctionVector} \ d\domain 
++ \int_{\domain} \CauchyStress \DoubleDot \grad{\TestFunctionVector} \ d\domain 
+- \int_{\domain} \TestFunctionVector \cdot \density \BodyForce \ d\domain
 = \Residual_2 \ShouldEqual 0 \ \ \ in  \ \domain 
 \f]
+where the velocity is used for the test functions \f$ \TestFunctionVector = \trans{(\TestFunc_{ux}, \TestFunc_{uz}, \TestFunc_{uz})} \f$.
 
 Energy Equation:
 \f[
 \int_{\domain} \TestFunction \dot{\TotalEnergyDensity} \ d\domain 
-+ \int_{\domain} \left[ \CauchyStress \velocity - \TotalEnergyDensity \velocity 
-                       - \HeatFlux \right] \DoubleDot \grad{\TestFunction} \ d\domain 
-+ \int_{\domain} \TestFunction \left[ \density \BodyForce \dot \velocity + \BodyLoad \right] \ d\domain 
++ \int_{\domain} \grad{\TestFunction} \cdot \left[ \CauchyStress \velocity - \TotalEnergyDensity \velocity 
+                       - \HeatFlux \right] \ d\domain 
++ \int_{\domain} \TestFunction \left[ \density \BodyForce \cdot \velocity + \BodyLoad \right] \ d\domain 
 = \Residual_3 \ShouldEqual 0 \ \ \ in  \ \domain
 \f]
+where the temperature is used for the test functions \f$ \TestFunction = \TestFunc_{\temp} \f$.
 
 To use this Bulk IWG, the following two properties need to be defined:
 -# the body force vector \f$ \BodyForce \f$ (unit: force per unit mass) (Keyword: "BodyForce")
@@ -271,26 +274,4 @@ To use this Bulk IWG, the following two properties need to be defined:
 */
 
 }
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 }
