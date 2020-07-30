@@ -528,6 +528,14 @@ namespace moris
                         moris::real        aPerturbation,
                         fem::FDScheme_Type aFDSchemeType = fem::FDScheme_Type::POINT_3_CENTRAL );
 
+                void compute_dQIdp_FD_material_double(
+                        moris::real        aWStar,
+                        moris::real        aPerturbation,
+                        fem::FDScheme_Type aFDSchemeType = fem::FDScheme_Type::POINT_3_CENTRAL )
+                {
+                    MORIS_ERROR( false, "IQI::compute_dQIdp_FD_material_double - not implemented yet");
+                }
+
                 //------------------------------------------------------------------------------
                 /**
                  * evaluate the derivative of the quantity of interest
@@ -544,6 +552,18 @@ namespace moris
                         moris::Cell< Matrix< DDSMat > > & aIsActive,
                         Matrix< IndexMat >              & aVertexIndices,
                         fem::FDScheme_Type                aFDSchemeType = fem::FDScheme_Type::POINT_3_CENTRAL );
+
+                void compute_dQIdp_FD_geometry_double(
+                        moris::real                       aWStar,
+                        moris::real                       aPerturbation,
+                        moris::Cell< Matrix< DDSMat > > & aMasterIsActive,
+                        Matrix< IndexMat >              & aMasterVertexIndices,
+                        moris::Cell< Matrix< DDSMat > > & aSlaveIsActive,
+                        Matrix< IndexMat >              & aSlaveVertexIndices,
+                        fem::FDScheme_Type                aFDSchemeType = fem::FDScheme_Type::POINT_3_CENTRAL )
+                {
+                    MORIS_ERROR( false, "IQI::compute_dQIdp_FD_geometry_double - not implemented yet");
+                }
 
                 //------------------------------------------------------------------------------
         };
