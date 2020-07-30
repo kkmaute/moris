@@ -1,11 +1,11 @@
 #include <iostream>
-
-#include "cl_FEM_Element_Bulk.hpp" //FEM/INT/src
-#include "cl_FEM_Field_Interpolator_Manager.hpp" //FEM/INT/src
-#include "cl_FEM_Set.hpp"   //FEM/INT/src
-
-#include "cl_MSI_Design_Variable_Interface.hpp"   //FEM/INT/src
-#include "cl_MSI_Equation_Model.hpp"   //FEM/INT/src
+//FEM/INT/src
+#include "cl_FEM_Element_Bulk.hpp"
+#include "cl_FEM_Field_Interpolator_Manager.hpp"
+#include "cl_FEM_Set.hpp"
+//FEM/MSI/src
+#include "cl_MSI_Design_Variable_Interface.hpp"
+#include "cl_MSI_Equation_Model.hpp"
 
 namespace moris
 {
@@ -33,9 +33,6 @@ namespace moris
             // get geometry interpolator for IG element
             Geometry_Interpolator * tIGGI =
                     mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator();
-
-            // get the vertices indices for IG element
-            Matrix< IndexMat > tVertexIndices = mMasterCell->get_vertex_inds();
 
             // get master physical space and time coordinates for IG element
             Matrix< DDRMat > tIGPhysSpaceCoords =
@@ -65,6 +62,9 @@ namespace moris
                 {
                     tPdvValueList( iSpaceDim ) = tIGPhysSpaceCoords.get_column( iSpaceDim );
                 }
+
+                // get the vertices indices for IG element
+                Matrix< IndexMat > tVertexIndices = mMasterCell->get_vertex_inds();
 
                 // get the pdv values from the MSI/GEN interface
                 mSet->get_equation_model()->get_design_variable_interface()->get_ig_pdv_value(
@@ -519,7 +519,7 @@ namespace moris
 
                 // FIXME assemble on the set here or inside the compute QI?
                 ( *mSet->mSetElementalValues )( mSet->mCellAssemblyMap( aMeshIndex )( mMasterCell->get_index() ), 0 )
-                                                                                                                                += tQIValue( 0 ) * tWStar / tNumIntegPoints;
+                                                                                                                                        += tQIValue( 0 ) * tWStar / tNumIntegPoints;
             }
         }
 
