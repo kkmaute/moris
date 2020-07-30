@@ -36,6 +36,7 @@ namespace moris
             mDivFluxEval      = true;
             mTractionEval     = true;
             mTestTractionEval.assign( mDofTypes.size(), true );
+            mStressEval       = true;
             mStrainEval       = true;
             mDivStrainEval    = true;
             mTestStrainEval   = true;
@@ -60,6 +61,7 @@ namespace moris
             {
                 mdTestTractiondDofEval( iDirectDof ).assign( tNumDofTypes, true );
             }
+            mdStressdDofEval.assign( tNumDofTypes, true );
             mdStraindDofEval.assign( tNumDofTypes, true );
             mddivstrainduEval.assign( tNumDofTypes, true );
             mdConstdDofEval.assign( tNumDofTypes, true );
@@ -200,6 +202,7 @@ namespace moris
             {
                 mdTestTractiondDofEval( iDirectDof ).assign( tNumGlobalDofTypes, true );
             }
+            mdStressdDofEval.resize( tNumGlobalDofTypes, true );
             mdStraindDofEval.resize( tNumGlobalDofTypes, true );
             mddivstrainduEval.resize( tNumGlobalDofTypes, true );
             mdConstdDofEval.resize( tNumGlobalDofTypes, true );
@@ -219,6 +222,7 @@ namespace moris
             {
                 mdTestTractiondDof( iDirectDof ).resize( tNumGlobalDofTypes );
             }
+            mdStressdDof.resize( tNumGlobalDofTypes );
             mdStraindDof.resize( tNumGlobalDofTypes );
             mddivstraindu.resize( tNumGlobalDofTypes );
             mdConstdDof.resize( tNumGlobalDofTypes );
@@ -1742,6 +1746,22 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+        const Matrix< DDRMat > & Constitutive_Model::stress()
+        {
+            // if the strain was not evaluated
+            if( mStressEval )
+            {
+                // evaluate the strain
+                this->eval_stress();
+
+                // set bool for evaluation
+                mStressEval = false;
+            }
+            // return the strain value
+            return mStress;
+        }
+
+        //------------------------------------------------------------------------------
         const Matrix< DDRMat > & Constitutive_Model::strain()
         {
             // if the strain was not evaluated
@@ -2085,6 +2105,31 @@ namespace moris
 
             // return the derivative
             return mdStraindx( aOrder - 1 );
+        }
+
+        //------------------------------------------------------------------------------
+        const Matrix< DDRMat > & Constitutive_Model::dStressdDOF( const moris::Cell< MSI::Dof_Type > & aDofType )
+        {
+            // if aDofType is not an active dof type for the property
+            MORIS_ERROR(
+                    this->check_dof_dependency( aDofType ),
+                    "Constitutive_Model::dStressdDOF - no dependency in this dof type." );
+
+            // get the dof index
+            uint tDofIndex = mGlobalDofTypeMap( static_cast< uint >( aDofType( 0 ) ) );
+
+            // if the derivative has not been evaluated yet
+            if( mdStressdDofEval( tDofIndex ) )
+            {
+                // evaluate the derivative
+                this->eval_dStressdDOF( aDofType );
+
+                // set bool for evaluation
+                mdStressdDofEval( tDofIndex ) = false;
+            }
+
+            // return the derivative
+            return mdStressdDof( tDofIndex );
         }
 
         //------------------------------------------------------------------------------
