@@ -71,6 +71,12 @@ namespace moris
 
                 //------------------------------------------------------------------------------
                 /**
+                 * compute dRdp
+                 */
+                void compute_dRdp();
+
+                //------------------------------------------------------------------------------
+                /**
                  * compute volume over the element
                  */
                 real compute_volume( mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER )

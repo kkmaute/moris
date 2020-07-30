@@ -1,7 +1,11 @@
 #include <iostream>
+//FEM/INT/src
 #include "cl_FEM_Element_Time_Boundary.hpp"
 #include "cl_FEM_Field_Interpolator_Manager.hpp"
 #include "cl_FEM_Set.hpp"
+//FEM/MSI/src
+#include "cl_MSI_Equation_Model.hpp"
+#include "cl_MSI_Design_Variable_Interface.hpp"
 
 namespace moris
 {
@@ -52,7 +56,31 @@ namespace moris
             // determine if there are IG pdvs
             if ( tGeoPdvType.size() )
             {
-                MORIS_ERROR( false, "init_ig_geometry_interpolator - pdv not handle so far on time boundary" );
+                // get space dimension
+                uint tSpaceDim = tIGPhysSpaceCoords.n_cols();
+
+                // reshape the XYZ values into a cell of vectors
+                moris::Cell< Matrix< DDRMat > > tPdvValueList( tSpaceDim );
+                for( uint iSpaceDim = 0; iSpaceDim < tSpaceDim; iSpaceDim++ )
+                {
+                    tPdvValueList( iSpaceDim ) = tIGPhysSpaceCoords.get_column( iSpaceDim );
+                }
+
+                // get the vertices indices for IG element
+                Matrix< IndexMat > tVertexIndices = mMasterCell->get_vertex_inds();
+
+                // get the pdv values from the MSI/GEN interface
+                mSet->get_equation_model()->get_design_variable_interface()->get_ig_pdv_value(
+                        tVertexIndices,
+                        tGeoPdvType,
+                        tPdvValueList,
+                        aIsActiveDv );
+
+                // reshape the cell of vectors tPdvValueList into a matrix tIGPhysSpaceCoords
+                tIGPhysSpaceCoords.set_size( 0, 0 );
+                mSet->get_equation_model()->get_design_variable_interface()->reshape_pdv_values(
+                        tPdvValueList,
+                        tIGPhysSpaceCoords );
             }
 
             // set physical space and current time coefficients for IG element GI
@@ -202,6 +230,69 @@ namespace moris
 
                         // compute jacobian at evaluation point
                         mSet->get_requested_IWGs()( iIWG )->compute_jacobian( tWStar );
+                    }
+                }
+            }
+        }
+
+        //------------------------------------------------------------------------------
+
+        void Element_Time_Boundary::compute_dRdp()
+        {
+            // loop over time boundaries
+            for ( uint iTimeBoundary = 0; iTimeBoundary < 2; iTimeBoundary++ )
+            {
+                // get param space time
+                real tTimeParamCoeff = 2.0 * iTimeBoundary - 1.0;
+
+                // get the vertices indices
+                Matrix< IndexMat > tVertexIndices = mMasterCell->get_vertex_inds();
+
+                // set physical and parametric space and time coefficients for IG element
+                moris::Cell< Matrix< DDSMat > > tIsActiveDv;
+                this->init_ig_geometry_interpolator( iTimeBoundary, tIsActiveDv );
+
+                // get number of IWGs
+                uint tNumIWGs = mSet->get_number_of_requested_IWGs();
+
+                // loop over integration points
+                uint tNumIntegPoints = mSet->get_number_of_integration_points();
+                for( uint iGP = 0; iGP < tNumIntegPoints; iGP++ )
+                {
+                    // get integration point location in the reference surface
+                    Matrix< DDRMat > tLocalIntegPoint = mSet->get_integration_points().get_column( iGP );
+
+                    // set evaluation point for interpolators (FIs and GIs)
+                    mSet->get_field_interpolator_manager()->
+                            set_space_time_from_local_IG_point( tLocalIntegPoint );
+
+                    // compute integration point weight
+                    real tWStar = tTimeParamCoeff * mSet->get_integration_weights()( iGP ) *
+                            mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator()->det_J();
+
+                    // loop over the IWGs
+                    for( uint iIWG = 0; iIWG < tNumIWGs; iIWG++ )
+                    {
+                        // reset IWG
+                        mSet->get_requested_IWGs()( iIWG )->reset_eval_flags();
+
+                        // set a perturbation size
+                        real tPerturbation = 1E-6;
+
+                        // compute dRdpMat at evaluation point
+                        mSet->get_requested_IWGs()( iIWG )->compute_dRdp_FD_material(
+                                tWStar,
+                                tPerturbation );
+
+                        // compute dRdpGeo at evaluation point
+                        if( tIsActiveDv.size() != 0 )
+                        {
+                            mSet->get_requested_IWGs()( iIWG )->compute_dRdp_FD_geometry(
+                                    tWStar,
+                                    tPerturbation,
+                                    tIsActiveDv,
+                                    tVertexIndices );
+                        }
                     }
                 }
             }
