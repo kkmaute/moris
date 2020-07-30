@@ -253,6 +253,155 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+        void IWG_Ghost_Normal_Field::get_flat_normal_matrix(
+                Matrix< DDRMat > & aFlatNormal,
+                uint               aOrder )
+        {
+            // get spatial dimensions
+            uint tSpaceDim = mNormal.numel();
+
+            // switch on the ghost order
+            switch( aOrder )
+            {
+                case 1 :
+                {
+                    switch ( tSpaceDim )
+                    {
+                        case 2 :
+                        {
+                            aFlatNormal = trans( mNormal );
+                            break;
+                        }
+                        case 3 :
+                        {
+                            aFlatNormal = trans( mNormal );
+                            break;
+                        }
+                        default:
+                        {
+                            MORIS_ERROR( false, "IWG_Ghost_Normal_Field::get_flat_normal_matrix - Spatial dimensions can only be 2, 3." );
+                        }
+                    }
+                    break;
+                }
+
+                case 2 :
+                {
+                    switch ( tSpaceDim )
+                    {
+                        case 2 :
+                        {
+                            // set the normal matrix size
+                            aFlatNormal.set_size( 2, 3, 0.0 );
+
+                            // fill the normal matrix
+                            aFlatNormal( 0, 0 ) = mNormal( 0 );
+                            aFlatNormal( 1, 1 ) = mNormal( 1 );
+
+                            aFlatNormal( 0, 2 ) = mNormal( 1 );
+                            aFlatNormal( 1, 2 ) = mNormal( 0 );
+
+                            break;
+                        }
+                        case 3 :
+                        {
+                            // set the normal matrix size
+                            aFlatNormal.set_size( 3, 6, 0.0 );
+
+                            // fill the normal matrix
+                            aFlatNormal( 0, 0 ) = mNormal( 0 );
+                            aFlatNormal( 1, 1 ) = mNormal( 1 );
+                            aFlatNormal( 2, 2 ) = mNormal( 2 );
+
+                            aFlatNormal( 1, 3 ) = mNormal( 2 );
+                            aFlatNormal( 2, 3 ) = mNormal( 1 );
+
+                            aFlatNormal( 0, 4 ) = mNormal( 2 );
+                            aFlatNormal( 2, 4 ) = mNormal( 0 );
+
+                            aFlatNormal( 0, 5 ) = mNormal( 1 );
+                            aFlatNormal( 1, 5 ) = mNormal( 0 );
+
+                            break;
+                        }
+                        default:
+                        {
+                            MORIS_ERROR( false, "IWG_Ghost_Normal_Field::get_flat_normal_matrix - Spatial dimensions can only be 2, 3." );
+                        }
+                    }
+                    break;
+                }
+
+                case 3 :
+                {
+                    switch ( tSpaceDim )
+                    {
+                        case 2 :
+                        {
+                            // set the normal matrix size
+                            aFlatNormal.set_size( 3, 4, 0.0 );
+
+                            aFlatNormal( 0, 0 ) = mNormal( 0 );
+                            aFlatNormal( 1, 1 ) = mNormal( 1 );
+
+                            aFlatNormal( 0, 2 ) = mNormal( 1 );
+                            aFlatNormal( 1, 3 ) = mNormal( 0 );
+
+                            real tSqrtOf2 = std::sqrt( 2 );
+
+                            aFlatNormal( 2, 2 ) = tSqrtOf2 * mNormal( 0 );
+                            aFlatNormal( 2, 3 ) = tSqrtOf2 * mNormal( 1 );
+                            break;
+                        }
+                        case 3 :
+                        {
+                            // set the normal matrix size
+                            aFlatNormal.set_size( 6, 10, 0.0 );
+
+                            aFlatNormal( 0, 0 ) = mNormal( 0 );
+                            aFlatNormal( 1, 1 ) = mNormal( 1 );
+                            aFlatNormal( 2, 2 ) = mNormal( 2 );
+
+                            aFlatNormal( 0, 3 ) = mNormal( 1 );
+                            aFlatNormal( 0, 4 ) = mNormal( 2 );
+
+                            aFlatNormal( 1, 5 ) = mNormal( 0 );
+                            aFlatNormal( 1, 6 ) = mNormal( 2 );
+
+                            aFlatNormal( 2, 7 ) = mNormal( 0 );
+                            aFlatNormal( 2, 8 ) = mNormal( 1 );
+
+                            real tSqrtOf2 = std::sqrt( 2 );
+
+                            aFlatNormal( 3, 3 ) = tSqrtOf2 * mNormal( 0 );
+                            aFlatNormal( 3, 5 ) = tSqrtOf2 * mNormal( 1 );
+                            aFlatNormal( 3, 9 ) = tSqrtOf2 * mNormal( 2 );
+
+                            aFlatNormal( 4, 6 ) = tSqrtOf2 * mNormal( 1 );
+                            aFlatNormal( 4, 8 ) = tSqrtOf2 * mNormal( 2 );
+                            aFlatNormal( 4, 9 ) = tSqrtOf2 * mNormal( 0 );
+
+                            aFlatNormal( 5, 4 ) = tSqrtOf2 * mNormal( 0 );
+                            aFlatNormal( 5, 7 ) = tSqrtOf2 * mNormal( 2 );
+                            aFlatNormal( 5, 9 ) = tSqrtOf2 * mNormal( 1 );
+                            break;
+                        }
+                        default:
+                        {
+                            MORIS_ERROR( false, "IWG_Ghost_Normal_Field::get_flat_normal_matrix - Spatial dimensions can only be 2, 3." );
+                        }
+                    }
+                    break;
+                }
+
+                default:
+                {
+                    MORIS_ERROR( false, "IWG_Ghost_Normal_Field::get_flat_normal_matrix - order not supported." );
+                }
+            }
+        }
+
+        //------------------------------------------------------------------------------
 
         void IWG_Ghost_Normal_Field::compute_flat_dnNdxn(
                 Matrix< DDRMat >  & aFlatdnNdxn,

@@ -93,6 +93,15 @@ namespace moris
                 //------------------------------------------------------------------------------
 
             private:
+                //------------------------------------------------------------------------------
+                /**
+                 * get flattened normal matrix
+                 * @param[ in ] aNormal flat normal matrix to fill
+                 * @param[ in ] aOrder  interpolation order
+                 */
+                void get_flat_normal_matrix(
+                        Matrix< DDRMat > & aFlatNormal,
+                        uint               aOrder );
 
                 //------------------------------------------------------------------------------
                 /**
