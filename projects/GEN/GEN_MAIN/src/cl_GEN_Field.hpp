@@ -91,6 +91,11 @@ namespace moris
         public:
 
             /**
+             * Default constructor
+             */
+            Field(){};
+
+            /**
              * Destructor
              */
             ~Field();
