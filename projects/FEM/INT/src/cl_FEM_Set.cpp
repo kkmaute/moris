@@ -2430,7 +2430,7 @@ namespace moris
                     switch( aInterpolationOrder )
                     {
                         case mtk::Interpolation_Order::LINEAR:
-                            return fem::Integration_Order::BAR_3;
+                            return fem::Integration_Order::BAR_1;
 
                         case mtk::Interpolation_Order::QUADRATIC:
                             return fem::Integration_Order::BAR_3;
