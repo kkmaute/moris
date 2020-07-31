@@ -37,6 +37,7 @@ namespace vis
         P,
         DOF, // Dof
         MAX_DOF,
+		MAX_STRESS,
         Analytic, // Analytic
         L2_ERROR_ANALYTIC, // L2 error for dof
         H1_ERROR_ANALYTIC, // H1 error for dof

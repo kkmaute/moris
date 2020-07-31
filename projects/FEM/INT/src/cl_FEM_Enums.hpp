@@ -146,6 +146,7 @@ namespace moris
             VOLUME_FRACTION,
             DOF,
             MAX_DOF,
+			MAX_STRESS,
             PROPERTY,
             L2_ERROR_ANALYTIC,
             H1_ERROR_ANALYTIC,
