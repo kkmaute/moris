@@ -2,7 +2,7 @@
 #include "cl_Matrix.hpp"
 #include "cl_GEN_Pdv_Host_Manager.hpp"
 #include "fn_PRM_GEN_Parameters.hpp"
-#include "fn_GEN_create_property.hpp"
+#include "fn_GEN_create_properties.hpp"
 
 namespace moris
 {
@@ -12,8 +12,8 @@ namespace moris
         //--------------------------------------------------------------------------------------------------------------
 
         // Dummy values so I don't need to create a model for the sensitivity test
-        uint tNumADVs = 16;
-        Matrix<DDRMat> tDiqiDpdv(2, tNumADVs, 1.0);
+        uint tNumADVs = 36;
+        Matrix<DDRMat> tDiqiDpdv(1, tNumADVs, 1.0);
         Matrix<DDRMat> Pdv_Host_Manager::compute_diqi_dadv()
         {
             return tDiqiDpdv * this->compute_dpdv_dadv();
@@ -21,7 +21,7 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        TEST_CASE("PDV creation through host manager", "[GE], [PDV]")
+        TEST_CASE("PDV creation through host manager", "[GEN], [PDV]")
         {
             // Create PDV_Type host manager
             Pdv_Host_Manager tPdvHostManager;
@@ -140,10 +140,11 @@ namespace moris
             }
         }
 
-        TEST_CASE("PDV sensitivities test", "[GE], [sensitivity]")
+        TEST_CASE("PDV sensitivities test", "[GEN], [sensitivity]")
         {
             // Create PDV_Type host manager
-            Pdv_Host_Manager tPdvHostManager(tNumADVs);
+            Pdv_Host_Manager tPdvHostManager;
+            tPdvHostManager.set_num_advs(tNumADVs);
 
             // Create discrete property
             ParameterList tParameterList = moris::prm::create_gen_property_parameter_list();;

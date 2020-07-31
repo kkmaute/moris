@@ -26,9 +26,6 @@ namespace moris
                 Matrix<DDRMat>& aLowerBounds,
                 Matrix<DDRMat>& aUpperBounds)
         {
-            aADVs        = mPerformerManager->mGENPerformer( 0 )->get_advs();
-            aLowerBounds = mPerformerManager->mGENPerformer( 0 )->get_lower_bounds();
-            aUpperBounds = mPerformerManager->mGENPerformer( 0 )->get_upper_bounds();
 
             // Stage 1: HMR refinement -------------------------------------------------------------------
 
@@ -40,6 +37,15 @@ namespace moris
 
             // HMR finalize
             mPerformerManager->mHMRPerformer( 0 )->perform();
+
+            // Stage 2: Initialize Level set field in GEN -----------------------------------------------
+            mPerformerManager->mGENPerformer( 0 )->compute_level_set_data(
+                    mPerformerManager->mMTKPerformer( 0 )->get_interpolation_mesh(0));
+
+            // Get ADVs
+            aADVs        = mPerformerManager->mGENPerformer( 0 )->get_advs();
+            aLowerBounds = mPerformerManager->mGENPerformer( 0 )->get_lower_bounds();
+            aUpperBounds = mPerformerManager->mGENPerformer( 0 )->get_upper_bounds();
 
         }
 

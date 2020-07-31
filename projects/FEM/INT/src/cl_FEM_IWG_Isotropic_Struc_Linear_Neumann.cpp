@@ -19,7 +19,8 @@ namespace moris
             mMasterProp.resize( static_cast< uint >( IWG_Property_Type::MAX_ENUM ), nullptr );
 
             // populate the property map
-            mPropertyMap[ "Neumann" ] = IWG_Property_Type::NEUMANN;
+            mPropertyMap[ "Traction" ] = IWG_Property_Type::TRACTION;
+            mPropertyMap[ "Pressure" ] = IWG_Property_Type::PRESSURE;
         }
 
         //------------------------------------------------------------------------------
@@ -60,13 +61,26 @@ namespace moris
             Field_Interpolator * tFI =
                     mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );
 
-            // get load property
-            std::shared_ptr< Property > tPropNeumann =
-                    mMasterProp( static_cast< uint >( IWG_Property_Type::NEUMANN ) );
+            // get traction load property
+            std::shared_ptr< Property > tPropTraction =
+                    mMasterProp( static_cast< uint >( IWG_Property_Type::TRACTION ) );
+
+            // get traction load property
+            std::shared_ptr< Property > tPropPressure =
+                    mMasterProp( static_cast< uint >( IWG_Property_Type::PRESSURE ) );
 
             // compute the residual
-            mSet->get_residual()( 0 )( { tMasterResStartIndex, tMasterResStopIndex }, { 0, 0 } ) -= aWStar * (
-                    trans( tFI->N() ) * tPropNeumann->val() );
+            if (tPropTraction != nullptr)
+            {
+                mSet->get_residual()( 0 )( { tMasterResStartIndex, tMasterResStopIndex }, { 0, 0 } ) -= aWStar * (
+                        trans( tFI->N() ) * tPropTraction->val() );
+            }
+
+            if (tPropPressure != nullptr)
+            {
+                mSet->get_residual()( 0 )( { tMasterResStartIndex, tMasterResStopIndex }, { 0, 0 } ) -= aWStar * (
+                        trans( tFI->N() ) * mNormal *  tPropPressure->val());
+            }
         }
 
         //------------------------------------------------------------------------------
@@ -86,11 +100,15 @@ namespace moris
             Field_Interpolator * tFI =
                     mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );
 
-            // get load property
-            std::shared_ptr< Property > tPropNeumann =
-                    mMasterProp( static_cast< uint >( IWG_Property_Type::NEUMANN ) );
+            // get traction load property
+            std::shared_ptr< Property > tPropTraction =
+                    mMasterProp( static_cast< uint >( IWG_Property_Type::TRACTION ) );
 
-            // compute the jacobian for indirect IWG dof dependencies through properties
+            // get traction load property
+            std::shared_ptr< Property > tPropPressure =
+                    mMasterProp( static_cast< uint >( IWG_Property_Type::PRESSURE ) );
+
+            // compute the Jacobian for indirect IWG dof dependencies through properties
             for( uint iDOF = 0; iDOF < mRequestedMasterGlobalDofTypes.size(); iDOF++ )
             {
                 // get dof type
@@ -101,14 +119,30 @@ namespace moris
                 uint tMasterDepStartIndex = mSet->get_jac_dof_assembly_map()( tMasterDofIndex )( tDofDepIndex, 0 );
                 uint tMasterDepStopIndex  = mSet->get_jac_dof_assembly_map()( tMasterDofIndex )( tDofDepIndex, 1 );
 
-                // if dependency in the dof type
-                if ( tPropNeumann->check_dof_dependency( tDofType ) )
+                // if traction load depends on the dof type
+                if ( tPropTraction != nullptr )
                 {
-                    // add contribution to jacobian
-                    mSet->get_jacobian()(
-                            { tMasterResStartIndex, tMasterResStopIndex },
-                            { tMasterDepStartIndex, tMasterDepStopIndex } ) -= aWStar * (
-                                    trans( tFI->N() ) * tPropNeumann->dPropdDOF( tDofType ) );
+                    if ( tPropTraction->check_dof_dependency( tDofType ) )
+                    {
+                        // add contribution to Jacobian
+                        mSet->get_jacobian()(
+                                { tMasterResStartIndex, tMasterResStopIndex },
+                                { tMasterDepStartIndex, tMasterDepStopIndex } ) -= aWStar * (
+                                        trans( tFI->N() ) * tPropTraction->dPropdDOF( tDofType ) );
+                    }
+                }
+
+                // if pressure depends on the dof type
+                if ( tPropPressure != nullptr )
+                {
+                    if ( tPropPressure->check_dof_dependency( tDofType ) )
+                    {
+                        // add contribution to Jacobian
+                        mSet->get_jacobian()(
+                                { tMasterResStartIndex, tMasterResStopIndex },
+                                { tMasterDepStartIndex, tMasterDepStopIndex } ) -= aWStar * (
+                                        trans( tFI->N() ) * mNormal * tPropPressure->dPropdDOF( tDofType ) );
+                    }
                 }
             }
         }

@@ -12,8 +12,7 @@ namespace moris
                                                  EntityRank  aEntityRank,
                                                  sint        aNumRefinements,
                                                  sint        aRefinementFunctionIndex)
-                : Field(Matrix<DDRMat>(1, 1, 0.0)),
-                  Geometry(aNumRefinements, aRefinementFunctionIndex),
+                : Field(Matrix<DDRMat>(1, 1, 0.0), aNumRefinements, aRefinementFunctionIndex, -1, -1.0, 1.0),
                   mFieldName(aFieldName),
                   mMesh(aMesh),
                   mEntityRank(aEntityRank),

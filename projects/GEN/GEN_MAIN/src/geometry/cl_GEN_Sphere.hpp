@@ -1,12 +1,5 @@
-/*
- * cl_GEN_Sphere.hpp
- *
- *  Created on: Jun 21, 2017
- *      Author: ktdoble
- */
-
-#ifndef PROJECTS_GEN_SRC_NEW_GEOMETRY_CL_GEN_SPHERE_HPP_
-#define PROJECTS_GEN_SRC_NEW_GEOMETRY_CL_GEN_SPHERE_HPP_
+#ifndef MORIS_CL_GEN_SPHERE_HPP_
+#define MORIS_CL_GEN_SPHERE_HPP_
 
 #include <cmath>
 
@@ -30,13 +23,19 @@ namespace moris
              * @param aConstantParameters The constant parameters not filled by ADVs
              * @param aNumRefinements The number of refinement steps to use for this geometry
              * @param aRefinementFunctionIndex The index of a user-defined refinement function (-1 = default refinement)
+             * @param aBSplineMeshIndex The index of a B-spline mesh for level set discretization (-1 = no B-splines)
+             * @param aBSplineLowerBound The lower bound for the B-spline coefficients describing this field
+             * @param aBSplineUpperBound The upper bound for the B-spline coefficients describing this field
              */
             Sphere(Matrix<DDRMat>& aADVs,
                    Matrix<DDUMat>  aGeometryVariableIndices,
                    Matrix<DDUMat>  aADVIndices,
                    Matrix<DDRMat>  aConstantParameters,
                    sint            aNumRefinements = 0,
-                   sint            aRefinementFunctionIndex = -1);
+                   sint            aRefinementFunctionIndex = -1,
+                   sint            aBSplineMeshIndex = -1,
+                   real            aBSplineLowerBound = -1.0,
+                   real            aBSplineUpperBound = 1.0);
 
             /**
              * Constructor with only constant parameters
@@ -47,13 +46,19 @@ namespace moris
              * @param aRadius radius of the sphere
              * @param aNumRefinements The number of refinement steps to use for this geometry
              * @param aRefinementFunctionIndex The index of a user-defined refinement function (-1 = default refinement)
+             * @param aBSplineMeshIndex The index of a B-spline mesh for level set discretization (-1 = no B-splines)
+             * @param aBSplineLowerBound The lower bound for the B-spline coefficients describing this field
+             * @param aBSplineUpperBound The upper bound for the B-spline coefficients describing this field
              */
             Sphere(real aXCenter,
                    real aYCenter,
                    real aZCenter,
                    real aRadius,
                    sint aNumRefinements = 0,
-                   sint aRefinementFunctionIndex = -1);
+                   sint aRefinementFunctionIndex = -1,
+                   sint aBSplineMeshIndex = -1,
+                   real aBSplineLowerBound = -1.0,
+                   real aBSplineUpperBound = 1.0);
 
             /**
              * Given a node coordinate, this returns the distance to the nearest portion of the sphere's surface
@@ -75,4 +80,4 @@ namespace moris
     }
 }
 
-#endif /* PROJECTS_GEN_SRC_NEW_GEOMETRY_CL_GEN_SPHERE_HPP_ */
+#endif /* MORIS_CL_GEN_SPHERE_HPP_ */
