@@ -5,15 +5,11 @@
 #include "cl_WRK_Performer.hpp"
 
 // GEN
-#include "cl_GEN_Pending_Node.hpp"
-#include "cl_GEN_Phase_Table.hpp"
-
-#include "cl_GEN_Geometry_Object.hpp"
-#include "cl_GEN_Geometry_Object_Manager.hpp"
-
-#include "pdv/cl_GEN_Pdv_Host_Manager.hpp"
 #include "cl_GEN_Geometry.hpp"
 #include "cl_GEN_Property.hpp"
+#include "cl_GEN_Phase_Table.hpp"
+#include "cl_GEN_Geometry_Object.hpp"
+#include "pdv/cl_GEN_Pdv_Host_Manager.hpp"
 #include "cl_GEN_Pdv_Enums.hpp"
 
 // MTK
@@ -48,6 +44,7 @@ namespace moris
             // Level-set
             real mIsocontourThreshold;
             real mErrorFactor;
+            Matrix<DDUMat> mBSplineMeshIndices;
             std::string mLevelSetFile = "";
 
             // Spatial dimensions
@@ -60,15 +57,19 @@ namespace moris
             Cell<std::string> mRequestedIQIs;
             bool mShapeSensitivities = false;
 
+            // Library
+            std::shared_ptr<Library_IO> mLibrary;
+
             // Geometry
             size_t mActiveGeometryIndex = 0;
-            Cell<std::shared_ptr<Geometry>> mGeometry;
+            Cell<std::shared_ptr<Geometry>> mGeometries;
+            Cell<ParameterList> mGeometryParameterLists;
 
             // Property
             Cell<std::shared_ptr<Property>> mProperties;
             Cell<ParameterList> mPropertyParameterLists;
 
-            // Contains all the pdv hosts
+            // PDVs
             Pdv_Host_Manager mPdvHostManager;
             Cell<std::shared_ptr<Intersection_Node>> mIntersectionNodes;
 

@@ -6,7 +6,6 @@ set(TEST_SOURCES
 	test_main.cpp
 
 	ut_Pdvs.cpp
-	ut_Bounding_Box.cpp
 	ut_Geometry.cpp
 	ut_Property.cpp
 	ut_Intersection.cpp

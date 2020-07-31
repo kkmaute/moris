@@ -10,15 +10,25 @@ namespace moris
         Field::Field(Matrix<DDRMat>& aADVs,
                      Matrix<DDUMat> aFieldVariableIndices,
                      Matrix<DDUMat> aADVIndices,
-                     Matrix<DDRMat> aConstantParameters)
+                     Matrix<DDRMat> aConstantParameters,
+                     sint aNumRefinements,
+                     sint aRefinementFunctionIndex,
+                     sint aBSplineMeshIndex,
+                     real aBSplineLowerBound,
+                     real aBSplineUpperBound)
                 : mADVIndices(aADVIndices),
                   mConstantParameters(aConstantParameters),
-                  mActiveVariables(aFieldVariableIndices.length() + mConstantParameters.length(), true)
+                  mActiveVariables(aFieldVariableIndices.length() + mConstantParameters.length(), true),
+                  mNumRefinements(aNumRefinements),
+                  mRefinementFunctionIndex(aRefinementFunctionIndex),
+                  mBSplineMeshIndex(aBSplineMeshIndex),
+                  mBSplineLowerBound(aBSplineLowerBound),
+                  mBSplineUpperBound(aBSplineUpperBound)
 
         {
             // Check that the number of field variables indices equals the number of ADV indices, resize field variables
             MORIS_ERROR(aFieldVariableIndices.length() == aADVIndices.length(),
-                        "ge::Field: Number of field variables indices must equal the number of ADV indices");
+                        "Number of field variables indices must equal the number of ADV indices in a GEN field.");
 
             // Store number of ADVs
             mNumADVs = aADVs.length();
@@ -46,11 +56,56 @@ namespace moris
         }
 
         //--------------------------------------------------------------------------------------------------------------
+        
+        Field::Field(Matrix<DDRMat>& aADVs,
+                     uint aADVIndex,
+                     uint aNumFieldVariables,
+                     sint aNumRefinements,
+                     sint aRefinementFunctionIndex,
+                     sint aBSplineMeshIndex,
+                     real aBSplineLowerBound,
+                     real aBSplineUpperBound)
+                : mActiveVariables(aNumFieldVariables, true),
+                  mNumADVs(aADVs.length()),
+                  mNumRefinements(aNumRefinements),
+                  mRefinementFunctionIndex(aRefinementFunctionIndex),
+                  mBSplineMeshIndex(aBSplineMeshIndex),
+                  mBSplineLowerBound(aBSplineLowerBound),
+                  mBSplineUpperBound(aBSplineUpperBound)
+        {
+            // Check for ADV size
+            MORIS_ERROR((aADVIndex + aNumFieldVariables) <= aADVs.length(),
+                        "GEN field constructor with number of field variables given can only be called with an "
+                        "ADV vector that has already been resized to an adequate length.");
 
-        Field::Field(Matrix<DDRMat> aConstantParameters)
+            // Resize ADVs/variables
+            mADVIndices.resize(aNumFieldVariables, 1);
+            mFieldVariables.resize(aNumFieldVariables);
+
+            // Set variables from ADVs
+            for (uint tVariableIndex = 0; tVariableIndex < aNumFieldVariables; tVariableIndex++)
+            {
+                mADVIndices(tVariableIndex) = aADVIndex + tVariableIndex;
+                mFieldVariables(tVariableIndex) = &(aADVs(aADVIndex + tVariableIndex));
+            }
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
+        Field::Field(Matrix<DDRMat> aConstantParameters,
+                     sint aNumRefinements,
+                     sint aRefinementFunctionIndex,
+                     sint aBSplineMeshIndex,
+                     real aBSplineLowerBound,
+                     real aBSplineUpperBound)
                 : mConstantParameters(aConstantParameters),
                   mActiveVariables(aConstantParameters.length(), false),
-                  mNumADVs(0)
+                  mNumADVs(0),
+                  mNumRefinements(aNumRefinements),
+                  mRefinementFunctionIndex(aRefinementFunctionIndex),
+                  mBSplineMeshIndex(aBSplineMeshIndex),
+                  mBSplineLowerBound(aBSplineLowerBound),
+                  mBSplineUpperBound(aBSplineUpperBound)
         {
             // Resize field variables
             uint tNumInputs = mConstantParameters.length();
@@ -67,7 +122,6 @@ namespace moris
 
         Field::~Field()
         {
-
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -104,6 +158,48 @@ namespace moris
         bool Field::depends_on_advs()
         {
             return mADVIndices.length();
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
+        sint Field::get_num_refinements()
+        {
+            return mNumRefinements;
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
+        sint Field::get_refinement_function_index()
+        {
+            return mRefinementFunctionIndex;
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
+        sint Field::get_bspline_mesh_index()
+        {
+            return mBSplineMeshIndex;
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
+        real Field::get_bspline_lower_bound()
+        {
+            return mBSplineLowerBound;
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
+        real Field::get_bspline_upper_bound()
+        {
+            return mBSplineUpperBound;
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
+        bool Field::conversion_to_bsplines()
+        {
+            return (mBSplineMeshIndex >= 0);
         }
 
         //--------------------------------------------------------------------------------------------------------------

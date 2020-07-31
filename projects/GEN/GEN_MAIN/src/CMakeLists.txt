@@ -46,13 +46,12 @@ set(HEADERS
 	geometry/cl_GEN_User_Defined_Geometry.hpp
 	geometry/cl_GEN_Level_Set.hpp
 #	geometry/fn_bounding_box.hpp
-	geometry/fn_GEN_create_geometry.hpp
+	geometry/fn_GEN_create_geometries.hpp
 	geometry/cl_GEN_Child_Node.hpp
 	
 	property/cl_GEN_Property.hpp
 	property/cl_GEN_Discrete_Property.hpp
 	property/cl_GEN_User_Defined_Property.hpp
-	property/fn_GEN_create_property.hpp
 	property/fn_GEN_create_properties.hpp
 	
     )
@@ -122,13 +121,12 @@ set(LIB_SOURCES
 	geometry/cl_GEN_Mesh_Field_Geometry.cpp
 	geometry/cl_GEN_User_Defined_Geometry.cpp
 	geometry/cl_GEN_Level_Set.cpp
-	geometry/fn_GEN_create_geometry.cpp
+	geometry/fn_GEN_create_geometries.cpp
 	geometry/cl_GEN_Child_Node.cpp
 	
 	property/cl_GEN_Property.cpp
 	property/cl_GEN_Discrete_Property.cpp
 	property/cl_GEN_User_Defined_Property.cpp
-	property/fn_GEN_create_property.cpp
 	property/fn_GEN_create_properties.cpp
 	
     )
