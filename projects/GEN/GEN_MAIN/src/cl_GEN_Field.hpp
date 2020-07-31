@@ -25,6 +25,11 @@ namespace moris
             real mBSplineUpperBound;
 
         protected:
+		
+		    /**
+             * Default constructor
+             */
+            Field(){};
 
             /**
              * Constructor, sets the pointers to ADVs and constant parameters for evaluations
@@ -89,11 +94,6 @@ namespace moris
                   real aBSplineUpperBound);
 
         public:
-
-            /**
-             * Default constructor
-             */
-            Field(){};
 
             /**
              * Destructor
