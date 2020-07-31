@@ -559,22 +559,22 @@ namespace moris
             // create IWG for 2 material - ghost
             tParameterList( 3 ).push_back( prm::create_IWG_parameter_list() );
             tParameterList( 3 )( tIWGCounter ).set( "IWG_name",                   std::string("IWGGP1Temp") );
-            tParameterList( 3 )( tIWGCounter ).set( "IWG_type",                   static_cast< uint >( fem::IWG_Type::SPATIALDIFF_GHOST ) );
+            tParameterList( 3 )( tIWGCounter ).set( "IWG_type",                   static_cast< uint >( fem::IWG_Type::GHOST_NORMAL_FIELD ) );
             tParameterList( 3 )( tIWGCounter ).set( "dof_residual",               std::string("TEMP") );
             tParameterList( 3 )( tIWGCounter ).set( "master_dof_dependencies",    std::string("TEMP") );
             tParameterList( 3 )( tIWGCounter ).set( "slave_dof_dependencies",     std::string("TEMP") );
-            tParameterList( 3 )( tIWGCounter ).set( "stabilization_parameters",   std::string("SPGPTemp1,GhostDispl") );
+            tParameterList( 3 )( tIWGCounter ).set( "stabilization_parameters",   std::string("SPGPTemp1,GhostSP") );
             tParameterList( 3 )( tIWGCounter ).set( "mesh_set_names",             tPhase1Ghost );
             tIWGCounter++;
 
             // create IWG for 2 material - ghost
             tParameterList( 3 ).push_back( prm::create_IWG_parameter_list() );
             tParameterList( 3 )( tIWGCounter ).set( "IWG_name",                   std::string("IWGGP1Temp") );
-            tParameterList( 3 )( tIWGCounter ).set( "IWG_type",                   static_cast< uint >( fem::IWG_Type::SPATIALDIFF_GHOST ) );
+            tParameterList( 3 )( tIWGCounter ).set( "IWG_type",                   static_cast< uint >( fem::IWG_Type::GHOST_NORMAL_FIELD ) );
             tParameterList( 3 )( tIWGCounter ).set( "dof_residual",               std::string("TEMP") );
             tParameterList( 3 )( tIWGCounter ).set( "master_dof_dependencies",    std::string("TEMP") );
             tParameterList( 3 )( tIWGCounter ).set( "slave_dof_dependencies",     std::string("TEMP") );
-            tParameterList( 3 )( tIWGCounter ).set( "stabilization_parameters",   std::string("SPGPTemp2,GhostDispl") );
+            tParameterList( 3 )( tIWGCounter ).set( "stabilization_parameters",   std::string("SPGPTemp2,GhostSP") );
             tParameterList( 3 )( tIWGCounter ).set( "mesh_set_names",             tPhase2Ghost );
             tIWGCounter++;
         }
