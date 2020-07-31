@@ -32,7 +32,8 @@ namespace moris
 
                 enum class IWG_Property_Type
                 {
-                    NEUMANN,
+                    TRACTION,
+                    PRESSURE,
                     MAX_ENUM
                 };
 
