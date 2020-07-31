@@ -73,6 +73,15 @@ namespace moris
 
                 //------------------------------------------------------------------------------
                 /**
+                 * compute dQIdp
+                 */
+                void compute_dQIdp_explicit()
+                {
+                    MORIS_ERROR( false, "Element_Double_Sideset::compute_dQIdp_explicit - not implemented.");
+                }
+
+                //------------------------------------------------------------------------------
+                /**
                  * compute volume over the element
                  */
                 real compute_volume( mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER );
