@@ -15,6 +15,7 @@
 #include "cl_FEM_IQI_Analytic.hpp"
 #include "cl_FEM_IQI_Dof.hpp"
 #include "cl_FEM_IQI_Max_Dof.hpp"
+#include "cl_FEM_IQI_Max_Von_Mises_Stress.hpp"
 #include "cl_FEM_IQI_Property.hpp"
 #include "cl_FEM_IQI_L2_Error_Analytic.hpp"
 #include "cl_FEM_IQI_H1_Error_Analytic.hpp"

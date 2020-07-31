@@ -21,7 +21,7 @@ namespace moris
             mIQIType = vis::Output_Type::MAX_STRESS;
 
             // set FEM IQI type
-            mFEMIQIType = fem::IQI_Type::MAX_STRESS;
+            mFEMIQIType = fem::IQI_Type::MAX_VON_MISES_STRESS;
 
             // set the property pointer cell size
             mMasterProp.resize( static_cast< uint >( IQI_Property_Type::MAX_ENUM ), nullptr );
