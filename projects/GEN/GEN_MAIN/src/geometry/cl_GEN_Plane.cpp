@@ -18,14 +18,17 @@ namespace moris
                      sint            aNumRefinements,
                      sint            aRefinementFunctionIndex,
                      sint            aBSplineMeshIndex,
-                     real            aLevelSetLowerBound,
-                     real            aLevelSetUpperBound)
-                : Field(aADVs, aGeometryVariableIndices, aADVIndices, aConstantParameters),
-                  Geometry(aNumRefinements,
-                           aRefinementFunctionIndex,
-                           aBSplineMeshIndex,
-                           aLevelSetLowerBound,
-                           aLevelSetUpperBound)
+                     real            aBSplineLowerBound,
+                     real            aBSplineUpperBound)
+                : Field(aADVs,
+                        aGeometryVariableIndices,
+                        aADVIndices,
+                        aConstantParameters,
+                        aNumRefinements,
+                        aRefinementFunctionIndex,
+                        aBSplineMeshIndex,
+                        aBSplineLowerBound,
+                        aBSplineUpperBound)
         {
             if (mFieldVariables.size() == 4)
             {
@@ -54,14 +57,14 @@ namespace moris
                      sint aNumRefinements,
                      sint aRefinementFunctionIndex,
                      sint aBSplineMeshIndex,
-                     real aLevelSetLowerBound,
-                     real aLevelSetUpperBound)
-                : Field(Matrix<DDRMat>({{aXCenter, aYCenter, aZCenter, aXNormal, aYNormal, aZNormal}})),
-                  Geometry(aNumRefinements,
-                           aRefinementFunctionIndex,
-                           aBSplineMeshIndex,
-                           aLevelSetLowerBound,
-                           aLevelSetUpperBound)
+                     real aBSplineLowerBound,
+                     real aBSplineUpperBound)
+                : Field(Matrix<DDRMat>({{aXCenter, aYCenter, aZCenter, aXNormal, aYNormal, aZNormal}}),
+                        aNumRefinements,
+                        aRefinementFunctionIndex,
+                        aBSplineMeshIndex,
+                        aBSplineLowerBound,
+                        aBSplineUpperBound)
         {
             m_eval_field = &Plane::eval_field_3d;
             m_eval_sensitivity = &Plane::eval_sensitivity_3d;
@@ -76,14 +79,14 @@ namespace moris
                      sint aNumRefinements,
                      sint aRefinementFunctionIndex,
                      sint aBSplineMeshIndex,
-                     real aLevelSetLowerBound,
-                     real aLevelSetUpperBound)
-                : Field(Matrix<DDRMat>({{aXCenter, aYCenter, aXNormal, aYNormal}})),
-                  Geometry(aNumRefinements,
-                           aRefinementFunctionIndex,
-                           aBSplineMeshIndex,
-                           aLevelSetLowerBound,
-                           aLevelSetUpperBound)
+                     real aBSplineLowerBound,
+                     real aBSplineUpperBound)
+                : Field(Matrix<DDRMat>({{aXCenter, aYCenter, aXNormal, aYNormal}}),
+                        aNumRefinements,
+                        aRefinementFunctionIndex,
+                        aBSplineMeshIndex,
+                        aBSplineLowerBound,
+                        aBSplineUpperBound)
         {
             m_eval_field = &Plane::eval_field_2d;
             m_eval_sensitivity = &Plane::eval_sensitivity_2d;

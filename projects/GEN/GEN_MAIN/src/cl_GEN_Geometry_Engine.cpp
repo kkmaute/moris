@@ -497,20 +497,20 @@ namespace moris
 
             // Check all input geometries for ADVs and level set conversion (if not from parameter list) for more resizing
             bool tDependOnADVs = false;
-            bool tLevelSetConversion = false;
+            bool tBSplineConversion = false;
             for (uint tGeometryIndex = 0; tGeometryIndex < mGeometries.size(); tGeometryIndex++)
             {
                 tDependOnADVs = (tDependOnADVs or mGeometries(tGeometryIndex)->depends_on_advs());
-                tLevelSetConversion = (tLevelSetConversion or mGeometries(tGeometryIndex)->conversion_to_level_set());
+                tBSplineConversion = (tBSplineConversion or mGeometries(tGeometryIndex)->conversion_to_bsplines());
 
                 // If level set will be created
-                if (mGeometries(tGeometryIndex)->conversion_to_level_set())
+                if (mGeometries(tGeometryIndex)->conversion_to_bsplines())
                 {
                     // Resize
                     mADVs.resize(mADVs.length() + aMesh->get_num_coeffs(mGeometries(tGeometryIndex)->get_bspline_mesh_index()), 1);
                 }
             }
-            MORIS_ERROR((not tDependOnADVs) or (not tLevelSetConversion),
+            MORIS_ERROR((not tDependOnADVs) or (not tBSplineConversion),
                         "If the geometry engine is given geometries which have already been created, they cannot both depend "
                         "on ADVs and be converted into a level set. Instead, please create the level set beforehand.");
 
@@ -535,7 +535,7 @@ namespace moris
                 mShapeSensitivities = (mShapeSensitivities or mGeometries(tGeometryIndex)->depends_on_advs());
 
                 // Convert to level set if needed
-                if (mGeometries(tGeometryIndex)->conversion_to_level_set())
+                if (mGeometries(tGeometryIndex)->conversion_to_bsplines())
                 {
                     // Always have shape sensitivities if level set
                     mShapeSensitivities = true;
@@ -545,12 +545,12 @@ namespace moris
 
                     // Assign bounds
                     uint tNumCoeffs = aMesh->get_num_coeffs(mGeometries(tGeometryIndex)->get_bspline_mesh_index());
-                    real tLevelSetLowerBound = mGeometries(tGeometryIndex)->get_level_set_lower_bound();
-                    real tLevelSetUpperBound = mGeometries(tGeometryIndex)->get_level_set_upper_bound();
+                    real tBSplineLowerBound = mGeometries(tGeometryIndex)->get_bspline_lower_bound();
+                    real tBSplineUpperBound = mGeometries(tGeometryIndex)->get_bspline_upper_bound();
                     for (uint tADVIndex = tNumFilledADVs; tADVIndex < tNumFilledADVs + tNumCoeffs; tADVIndex++)
                     {
-                        mLowerBounds(tADVIndex) = tLevelSetLowerBound;
-                        mUpperBounds(tADVIndex) = tLevelSetUpperBound;
+                        mLowerBounds(tADVIndex) = tBSplineLowerBound;
+                        mUpperBounds(tADVIndex) = tBSplineUpperBound;
                     }
 
                     // Update filled ADVs

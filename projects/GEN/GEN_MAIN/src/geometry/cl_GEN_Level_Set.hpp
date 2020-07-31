@@ -38,8 +38,8 @@ namespace moris
                       sint            aNumRefinements = 0,
                       sint            aRefinementFunctionIndex = -1,
                       uint            aBSplineMeshIndex = 0,
-                      real            aLevelSetLowerBound = -1.0,
-                      real            aLevelSetUpperBound = 1.0);
+                      real            aBSplineLowerBound = -1.0,
+                      real            aBSplineUpperBound = 1.0);
 
             /**
              * Constructor where ADVs are added based on an input field and the B-spline mesh.
@@ -83,7 +83,7 @@ namespace moris
              *
              * @return false
              */
-            bool conversion_to_level_set();
+            bool conversion_to_bsplines();
 
         };
     }

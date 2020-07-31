@@ -25,8 +25,8 @@ namespace moris
              * @param aNumRefinements The number of refinement steps to use for this geometry
              * @param aRefinementFunctionIndex The index of a user-defined refinement function (-1 = default refinement)
              * @param aBSplineMeshIndex The index of a B-spline mesh for level set discretization (-1 = no B-splines)
-             * @param aLevelSetLowerBound The lower bound for a B-spline level set field describing this geometry
-             * @param aLevelSetUpperBound The upper bound for a B-spline level set field describing this geometry
+             * @param aBSplineLowerBound The lower bound for the B-spline coefficients describing this field
+             * @param aBSplineUpperBound The upper bound for the B-spline coefficients describing this field
              */
             Plane(Matrix<DDRMat>& aADVs,
                   Matrix<DDUMat>  aGeometryVariableIndices,
@@ -35,8 +35,8 @@ namespace moris
                   sint            aNumRefinements = 0,
                   sint            aRefinementFunctionIndex = -1,
                   sint            aBSplineMeshIndex = -1,
-                  real            aLevelSetLowerBound = -1.0,
-                  real            aLevelSetUpperBound = 1.0);
+                  real            aBSplineLowerBound = -1.0,
+                  real            aBSplineUpperBound = 1.0);
 
             /**
              * Constructor with only constant parameters, 3D
@@ -50,8 +50,8 @@ namespace moris
              * @param aNumRefinements The number of refinement steps to use for this geometry
              * @param aRefinementFunctionIndex The index of a user-defined refinement function (-1 = default refinement)
              * @param aBSplineMeshIndex The index of a B-spline mesh for level set discretization (-1 = no B-splines)
-             * @param aLevelSetLowerBound The lower bound for a B-spline level set field describing this geometry
-             * @param aLevelSetUpperBound The upper bound for a B-spline level set field describing this geometry
+             * @param aBSplineLowerBound The lower bound for the B-spline coefficients describing this field
+             * @param aBSplineUpperBound The upper bound for the B-spline coefficients describing this field
              */
             Plane(real aXCenter,
                   real aYCenter,
@@ -62,8 +62,8 @@ namespace moris
                   sint aNumRefinements = 0,
                   sint aRefinementFunctionIndex = -1,
                   sint aBSplineMeshIndex = -1,
-                  real aLevelSetLowerBound = -1.0,
-                  real aLevelSetUpperBound = 1.0);
+                  real aBSplineLowerBound = -1.0,
+                  real aBSplineUpperBound = 1.0);
 
             /**
              * Constructor with only constant parameters, 2D
@@ -83,8 +83,8 @@ namespace moris
                   sint aNumRefinements = 0,
                   sint aRefinementFunctionIndex = -1,
                   sint aBSplineMeshIndex = -1,
-                  real aLevelSetLowerBound = -1.0,
-                  real aLevelSetUpperBound = 1.0);
+                  real aBSplineLowerBound = -1.0,
+                  real aBSplineUpperBound = 1.0);
 
             /**
              * Given a node coordinate, the geometry needs to return the distance to the nearest function.

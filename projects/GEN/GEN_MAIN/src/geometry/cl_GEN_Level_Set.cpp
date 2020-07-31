@@ -15,14 +15,17 @@ namespace moris
                              sint            aNumRefinements,
                              sint            aRefinementFunctionIndex,
                              uint            aBSplineMeshIndex,
-                             real            aLevelSetLowerBound,
-                             real            aLevelSetUpperBound)
-                : Field(aADVs, aGeometryVariableIndices, aADVIndices, aConstantParameters),
-                  Geometry(aNumRefinements,
-                           aRefinementFunctionIndex,
-                           (sint)aBSplineMeshIndex,
-                           aLevelSetLowerBound,
-                           aLevelSetUpperBound),
+                             real            aBSplineLowerBound,
+                             real            aBSplineUpperBound)
+                : Field(aADVs,
+                        aGeometryVariableIndices,
+                        aADVIndices,
+                        aConstantParameters,
+                        aNumRefinements,
+                        aRefinementFunctionIndex,
+                        aBSplineMeshIndex,
+                        aBSplineLowerBound,
+                        aBSplineUpperBound),
                   mMesh(aMesh),
                   mNumOriginalNodes(aMesh->get_num_nodes())
         {
@@ -37,12 +40,14 @@ namespace moris
                              uint                      aADVIndex,
                              mtk::Mesh*                aMesh,
                              std::shared_ptr<Geometry> aGeometry)
-                : Field(aADVs, aADVIndex, aMesh->get_num_coeffs(aGeometry->get_bspline_mesh_index())),
-                  Geometry(aGeometry->get_num_refinements(),
-                           aGeometry->get_refinement_function_index(),
-                           aGeometry->get_bspline_mesh_index(),
-                           aGeometry->get_level_set_lower_bound(),
-                           aGeometry->get_level_set_upper_bound()),
+                : Field(aADVs,
+                        aADVIndex,
+                        aMesh->get_num_coeffs(aGeometry->get_bspline_mesh_index()),
+                        aGeometry->get_num_refinements(),
+                        aGeometry->get_refinement_function_index(),
+                        aGeometry->get_bspline_mesh_index(),
+                        aGeometry->get_bspline_lower_bound(),
+                        aGeometry->get_bspline_upper_bound()),
                   mMesh(aMesh),
                   mNumOriginalNodes(aMesh->get_num_nodes())
         {
@@ -125,7 +130,7 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        bool Level_Set::conversion_to_level_set()
+        bool Level_Set::conversion_to_bsplines()
         {
             return false;
         }

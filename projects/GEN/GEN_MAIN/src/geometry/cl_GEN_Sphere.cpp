@@ -14,14 +14,17 @@ namespace moris
                        sint            aNumRefinements,
                        sint            aRefinementFunctionIndex,
                        sint            aBSplineMeshIndex,
-                       real            aLevelSetLowerBound,
-                       real            aLevelSetUpperBound)
-                : Field(aADVs, aGeometryVariableIndices, aADVIndices, aConstantParameters),
-                  Geometry(aNumRefinements,
-                           aRefinementFunctionIndex,
-                           aBSplineMeshIndex,
-                           aLevelSetLowerBound,
-                           aLevelSetUpperBound)
+                       real            aBSplineLowerBound,
+                       real            aBSplineUpperBound)
+                : Field(aADVs,
+                        aGeometryVariableIndices,
+                        aADVIndices,
+                        aConstantParameters,
+                        aNumRefinements,
+                        aRefinementFunctionIndex,
+                        aBSplineMeshIndex,
+                        aBSplineLowerBound,
+                        aBSplineUpperBound)
         {
             MORIS_ERROR(aGeometryVariableIndices.length() + aConstantParameters.length() == 4,
                         "A GEN Sphere must be created with a total of exactly 4 variables (ADVs + constant parameters)");
@@ -36,14 +39,14 @@ namespace moris
                        sint aNumRefinements,
                        sint aRefinementFunctionIndex,
                        sint aBSplineMeshIndex,
-                       real aLevelSetLowerBound,
-                       real aLevelSetUpperBound)
-                : Field(Matrix<DDRMat>({{aXCenter, aYCenter, aZCenter, aRadius}})),
-                  Geometry(aNumRefinements,
-                           aRefinementFunctionIndex,
-                           aBSplineMeshIndex,
-                           aLevelSetLowerBound,
-                           aLevelSetUpperBound)
+                       real aBSplineLowerBound,
+                       real aBSplineUpperBound)
+                : Field(Matrix<DDRMat>({{aXCenter, aYCenter, aZCenter, aRadius}}),
+                        aNumRefinements,
+                        aRefinementFunctionIndex,
+                        aBSplineMeshIndex,
+                        aBSplineLowerBound,
+                        aBSplineUpperBound)
         {
         }
 
