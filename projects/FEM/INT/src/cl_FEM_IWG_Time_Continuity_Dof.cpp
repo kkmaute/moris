@@ -11,7 +11,8 @@ namespace moris
     namespace fem
     {
 
-//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
+
         IWG_Time_Continuity_Dof::IWG_Time_Continuity_Dof()
         {
             mIWGType = moris::fem::IWG_Type::TIME_CONTINUITY_DOF;
@@ -23,10 +24,10 @@ namespace moris
             mPropertyMap[ "WeightCurrent" ]  = IWG_Property_Type::WEIGHT_CURRENT;
             mPropertyMap[ "WeightPrevious" ] = IWG_Property_Type::WEIGHT_PREVIOUS;
             mPropertyMap[ "InitialCondition" ] = IWG_Property_Type::INITIAL_CONDITION;
-
         }
 
-//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
+
         void IWG_Time_Continuity_Dof::compute_residual( real aWStar )
         {
             // check master field interpolators
@@ -38,9 +39,6 @@ namespace moris
             uint tMasterDofIndex      = mSet->get_dof_index_for_type( mResidualDofType( 0 ), mtk::Master_Slave::MASTER );
             uint tMasterResStartIndex = mSet->get_res_dof_assembly_map()( tMasterDofIndex )( 0, 0 );
             uint tMasterResStopIndex  = mSet->get_res_dof_assembly_map()( tMasterDofIndex )( 0, 1 );
-
-//            // FIXME to remove
-//            Matrix< DDRMat > tPrev = mSet->get_residual()( 0 )({ tMasterResStartIndex, tMasterResStopIndex },{ 0, 0 } );
 
             // get residual dof type field interpolator for current time step
             Field_Interpolator * tFICurrent =
@@ -62,7 +60,7 @@ namespace moris
             std::shared_ptr< Property > tPropInitialCondition =
                     mMasterProp( static_cast< uint >( IWG_Property_Type::INITIAL_CONDITION ) );
 
-              // compute the residual
+            // compute the residual
             if( mMasterFIManager->get_IP_geometry_interpolator()->valt()( 0 ) == 0.0 )
             {
                 // compute the jump
@@ -85,27 +83,10 @@ namespace moris
                 mSet->get_residual()( 0 )( { tMasterResStartIndex, tMasterResStopIndex }, { 0, 0 } ) += aWStar * (
                         trans( tFICurrent->N() ) * tJump );
             }
-
-//            if( mResidualDofType( 0 ) == MSI::Dof_Type::VX )
-//            {
-//                std::cout<<"7 "<<
-//                        mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator()->valx()( 0 )<<" "<<
-//                        mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator()->valx()( 1 )<< " "<<
-//                        mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator()->valt()( 0 )<< " "<<
-//                        norm( mSet->get_residual()( 0 )({ tMasterResStartIndex, tMasterResStopIndex },{ 0, 0 } ) - tPrev )<<std::endl;
-//
-//            }
-//            else if( mResidualDofType( 0 ) == MSI::Dof_Type::VISCOSITY )
-//            {
-//                std::cout<<"8 "<<
-//                        mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator()->valx()( 0 )<<" "<<
-//                        mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator()->valx()( 1 )<< " "<<
-//                        mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator()->valt()( 0 )<< " "<<
-//                        norm( mSet->get_residual()( 0 )({ tMasterResStartIndex, tMasterResStopIndex },{ 0, 0 } ) - tPrev )<<std::endl;
-//            }
         }
 
-//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
+
         void IWG_Time_Continuity_Dof::compute_jacobian( real aWStar )
         {
 #ifdef DEBUG
@@ -117,10 +98,6 @@ namespace moris
             uint tMasterDofIndex      = mSet->get_dof_index_for_type( mResidualDofType( 0 ), mtk::Master_Slave::MASTER );
             uint tMasterResStartIndex = mSet->get_res_dof_assembly_map()( tMasterDofIndex )( 0, 0 );
             uint tMasterResStopIndex  = mSet->get_res_dof_assembly_map()( tMasterDofIndex )( 0, 1 );
-
-//            // FIXME to remove
-//            uint tEndIndex = mSet->get_jacobian().n_cols() - 1;
-//            Matrix< DDRMat > tPrev = mSet->get_jacobian()({ tMasterResStartIndex, tMasterResStopIndex },{ 0, tEndIndex } );
 
             // get residual dof type field interpolator for current time step
             Field_Interpolator * tFICurrent =
@@ -180,47 +157,22 @@ namespace moris
                 // FIXME no derivative wrt previous dof type
                 // FIXME no derivative with the previous weight
             }
-
-//            if( mResidualDofType( 0 ) == MSI::Dof_Type::VX )
-//            {
-//                std::cout<<"71 "<<
-//                        mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator()->valx()( 0 )<<" "<<
-//                        mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator()->valx()( 1 )<< " "<<
-//                        mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator()->valt()( 0 )<< " "<<
-//                        max(max( mSet->get_jacobian()({ tMasterResStartIndex, tMasterResStopIndex },{ 0, tEndIndex } ) - tPrev ) )<<std::endl;
-//                std::cout<<"72 "<<
-//                        mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator()->valx()( 0 )<<" "<<
-//                        mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator()->valx()( 1 )<< " "<<
-//                        mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator()->valt()( 0 )<< " "<<
-//                        min( min( mSet->get_jacobian()({ tMasterResStartIndex, tMasterResStopIndex },{ 0, tEndIndex } ) - tPrev ) )<<std::endl;
-//            }
-//            else if( mResidualDofType( 0 ) == MSI::Dof_Type::VISCOSITY )
-//            {
-//                std::cout<<"81 "<<
-//                        mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator()->valx()( 0 )<<" "<<
-//                        mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator()->valx()( 1 )<< " "<<
-//                        mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator()->valt()( 0 )<< " "<<
-//                        max(max( mSet->get_jacobian()({ tMasterResStartIndex, tMasterResStopIndex },{ 0, tEndIndex } ) - tPrev ) )<<std::endl;
-//                std::cout<<"82 "<<
-//                        mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator()->valx()( 0 )<<" "<<
-//                        mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator()->valx()( 1 )<< " "<<
-//                        mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator()->valt()( 0 )<< " "<<
-//                        min( min( mSet->get_jacobian()({ tMasterResStartIndex, tMasterResStopIndex },{ 0, tEndIndex } ) - tPrev ) )<<std::endl;
-//            }
         }
 
-//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
+
         void IWG_Time_Continuity_Dof::compute_jacobian_and_residual( real aWStar )
         {
             MORIS_ERROR( false, "IWG_Time_Continuity_Dof::compute_jacobian_and_residual - Not implemented." );
         }
 
-//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
+
         void IWG_Time_Continuity_Dof::compute_dRdp( real aWStar )
         {
             MORIS_ERROR( false, "IWG_Time_Continuity_Dof::compute_dRdp - Not implemented." );
         }
 
-//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
     } /* namespace fem */
 } /* namespace moris */
