@@ -88,12 +88,14 @@ namespace moris
                   real aBSplineLowerBound,
                   real aBSplineUpperBound);
 
-        public:
-
             /**
              * Default constructor
+             *
+             * @error This only exists so the Blanca compiler does not complain, <b>DO NOT USE</b>.
              */
-            Field(){};
+            Field();
+
+        public:
 
             /**
              * Destructor

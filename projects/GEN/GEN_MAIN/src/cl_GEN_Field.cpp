@@ -120,6 +120,14 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
+        Field::Field()
+        {
+            MORIS_ERROR(false, "The default constructor of a GEN Field should never be used. It only exists because "
+                               "the compiler on Blanca is stupid.");
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
         Field::~Field()
         {
         }
