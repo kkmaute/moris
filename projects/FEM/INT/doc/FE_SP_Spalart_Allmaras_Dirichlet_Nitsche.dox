@@ -1,0 +1,24 @@
+namespace moris {
+namespace fem {
+
+/** \page FE_SP_Spalart_Allmaras_Dirichlet_Nitsche Stabilization Parameter for Dirichlet on Modified Viscosity via Nitsche
+
+The Nitsche stabilization parameter used to imposed Dirichlet boundary conditions 
+on the modified viscosity in the Spalart-Allmaras turbulence model is given as:
+\f[
+\gamma_N = \alpha_N \left( 
+\frac{K}{h}
+\right)
+\f]
+where
+- \f$ \alpha_N \f$ is a scalar constant ranging in \f$ [ 50 ... 100 ] \f$,
+- \f$ h \f$ is the element size along the considered facet,
+- \f$ K \f$ is the diffusion coefficient, as defined in \ref FE_Equations_Spalart_Allmaras_Turbulence.
+
+The stabilization parameter \f$ \gamma_N \f$ is implemented in SP_Velocity_Dirichlet_Nitsche 
+and is build using the enum SP_Type::TURBULENCE_DIRICHLET_NITSCHE.
+
+*/
+
+}
+}

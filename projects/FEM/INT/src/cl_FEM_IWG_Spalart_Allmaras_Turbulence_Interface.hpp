@@ -27,7 +27,10 @@ namespace moris
         {
 
                 //------------------------------------------------------------------------------
-            public:
+            private:
+
+                // sint for symmetric/unsymmetric Nitsche formulation
+                sint mBeta = -1.0;
 
                 // local property enums
                 enum class IWG_Property_Type
@@ -51,9 +54,23 @@ namespace moris
                 // local string to constitutive enum map
                 std::map< std::string, IWG_Stabilization_Type > mStabilizationMap;
 
-                // FIXME temp all the constants
+                // Spalart Allmaras model constants
+                real mCb1 = 0.1355;
+                real mCb2 = 0.6220;
                 real mSigma = 2.0/3.0;
+                real mKappa = 0.41;
+                real mCw1 = mCb1 / std::pow( mKappa, 2.0 ) + ( 1.0 + mCb2 ) / mSigma;
+                real mCw2 = 0.3;
+                real mCw3 = 2.0;
+                real mCt3 = 1.2;
+                real mCt4 = 0.5;
+                real mCv1 = 7.1;
+                real mCv2 = 0.7;
+                real mCv3 = 0.9;
+                real mRLim = 10.0;
+                real mCn1 = 16.0;
 
+            public:
                 //------------------------------------------------------------------------------
                 /*
                  *  constructor
@@ -118,51 +135,122 @@ namespace moris
 
             private:
 
+            private:
                 //------------------------------------------------------------------------------
                 /**
-                 * compute the traction = ( v + vtilde ) * grad vtilde
-                 * @param[ in ] aTraction a matrix to fill with traction
+                 * compute diffusion coefficient
+                 * Diff = kinViscosity + modViscosity
+                 * if modViscosity >= 0
+                 * Diff = kinViscosity + modViscosity * fn
+                 * if modViscosity <  0
                  */
-                void compute_traction(
-                        Matrix< DDRMat > & aTraction,
-                        mtk::Master_Slave  aIsMaster = mtk::Master_Slave::MASTER );
+                real compute_diffusion_coefficient(
+                        mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER );
 
                 //------------------------------------------------------------------------------
                 /**
-                 * compute the derivative of the traction = ( v + vtilde ) * grad vtilde
+                 * compute the derivative of the diffusion coefficient
+                 * @param[ in ] aDofTypes     a list of dof type wrt which
+                 *                            the derivative is requested
+                 * @param[ in ] addiffusiondu a matrix to fill with ddiffusiondu
+                 */
+                void compute_ddiffusiondu(
+                        const moris::Cell< MSI::Dof_Type > & aDofTypes,
+                        Matrix< DDRMat >                   & addiffusiondu,
+                        mtk::Master_Slave                    aIsMaster = mtk::Master_Slave::MASTER );
+
+                //------------------------------------------------------------------------------
+                /**
+                 * compute fn
+                 * fn = ( cn1 + chi³ ) / ( cn1 - chi³)
+                 */
+                real compute_fn( mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER );
+
+                //------------------------------------------------------------------------------
+                /**
+                 * compute the derivative of fn wrt to a dof type
+                 * @param[ in ] aDofTypes  a list of dof type wrt which
+                 *                         the derivative is requested
+                 * @param[ in ] adfndu     a matrix to fill with dfndu
+                 */
+                void compute_dfndu(
+                        const moris::Cell< MSI::Dof_Type > & aDofTypes,
+                        Matrix< DDRMat >                   & adfndu,
+                        mtk::Master_Slave                    aIsMaster = mtk::Master_Slave::MASTER );
+
+                //------------------------------------------------------------------------------
+                /**
+                 * compute chi = viscosityDof / viscosityPtop
+                 * @param[ out ] chi
+                 */
+                real compute_chi( mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER );
+
+                //------------------------------------------------------------------------------
+                /**
+                 * compute the derivative of chi wrt to a dof type
+                 * @param[ in ] aDofTypes  a list of dof type wrt which
+                 *                         the derivative is requested
+                 * @param[ in ] adchidu    a matrix to fill with dchidu
+                 */
+                void compute_dchidu(
+                        const moris::Cell< MSI::Dof_Type > & aDofTypes,
+                        Matrix< DDRMat >                   & adchidu,
+                        mtk::Master_Slave                    aIsMaster = mtk::Master_Slave::MASTER );
+
+                //------------------------------------------------------------------------------
+                /**
+                 * compute the traction = ( v + vtilde ) * grad vtilde / mSigma
+                 * @param[ in ] aTraction a matrix to fill with traction
+                 */
+                void compute_traction(
+                        Matrix< DDRMat >  & aTraction,
+                        mtk::Master_Slave   aIsMaster = mtk::Master_Slave::MASTER );
+
+                //------------------------------------------------------------------------------
+                /**
+                 * compute the derivative of the traction = ( v + vtilde ) * grad vtilde / mSigma
                  * wrt dof type aDofTypes
                  * @param[ in ] aDofTypes    group of dervative dof types
                  * @param[ in ] adtractiondu a matrix to fill with dtractiondu
                  */
                 void compute_dtractiondu(
-                        moris::Cell< MSI::Dof_Type > & aDofTypes,
-                        Matrix< DDRMat >             & adtractiondu,
-                        mtk::Master_Slave              aIsMaster = mtk::Master_Slave::MASTER );
+                        const moris::Cell< MSI::Dof_Type > & aDofTypes,
+                        Matrix< DDRMat >                   & adtractiondu,
+                        mtk::Master_Slave                    aIsMaster = mtk::Master_Slave::MASTER );
 
                 //------------------------------------------------------------------------------
                 /**
-                 * compute the test traction = delta ( ( v + vtilde ) * grad vtilde )
+                 * compute the test traction
+                 *  = delta ( ( v + vtilde ) * grad vtilde  / mSigma )
                  * @param[ in ] aTestDofTypes group of test dof types
                  * @param[ in ] aTestTraction a matrix to fill with test traction
                  */
                 void compute_testtraction(
-                        moris::Cell< MSI::Dof_Type> & aTestDofTypes,
-                        Matrix< DDRMat >            & aTestTraction,
-                        mtk::Master_Slave             aIsMaster = mtk::Master_Slave::MASTER );
+                        const moris::Cell< MSI::Dof_Type > & aTestDofTypes,
+                        Matrix< DDRMat >                   & aTestTraction,
+                        mtk::Master_Slave                    aIsMaster = mtk::Master_Slave::MASTER );
 
                 //------------------------------------------------------------------------------
                 /**
                  * compute the derivative of the test traction
-                 * = delta ( ( v + vtilde ) * grad vtilde )
-                 * @param[ in ] aTestDofTypes    group of test dof types
+                 * = delta ( ( v + vtilde ) * grad vtilde  / mSigma )
                  * @param[ in ] aDofTypes        group of derivative dof types
+                 * @param[ in ] aTestDofTypes    group of test dof types
                  * @param[ in ] adtesttractiondu a matrix to fill with test traction
                  */
                 void compute_dtesttractiondu(
-                        moris::Cell< MSI::Dof_Type> & aTestDofTypes,
-                        moris::Cell< MSI::Dof_Type> & aDofTypes,
-                        Matrix< DDRMat >            & adtesttractiondu,
-                        mtk::Master_Slave             aIsMaster = mtk::Master_Slave::MASTER );
+                        const moris::Cell< MSI::Dof_Type> & aDofTypes,
+                        const moris::Cell< MSI::Dof_Type> & aTestDofTypes,
+                        Matrix< DDRMat >                  & adtesttractiondu,
+                        mtk::Master_Slave                   aIsMaster = mtk::Master_Slave::MASTER );
+
+                void compute_dtesttractiondu_FD(
+                        const moris::Cell< MSI::Dof_Type > & aDofTypes,
+                        const moris::Cell< MSI::Dof_Type > & aTestDofTypes,
+                        Matrix< DDRMat >                   & adtesttractiondu_FD,
+                        mtk::Master_Slave                    aIsMaster = mtk::Master_Slave::MASTER,
+                        real                                 aPerturbation = 1e-6,
+                        fem::FDScheme_Type                   aFDSchemeType = fem::FDScheme_Type::POINT_3_CENTRAL );
 
         };
         //------------------------------------------------------------------------------

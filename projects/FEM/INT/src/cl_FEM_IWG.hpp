@@ -92,6 +92,9 @@ namespace moris
                 // stabilization parameters
                 moris::Cell< std::shared_ptr< fem::Stabilization_Parameter > > mStabilizationParam;
 
+                // interpolation order for IWG
+                uint mOrder = 1;
+
                 // string for IWG name
                 std::string mName;
 
@@ -241,6 +244,12 @@ namespace moris
                 {
                     return mResidualDofType;
                 };
+
+                //------------------------------------------------------------------------------
+                /**
+                 * set interpolation order for the residual dof type
+                 */
+                void set_interpolation_order();
 
                 //------------------------------------------------------------------------------
                 /**
@@ -466,6 +475,7 @@ namespace moris
                  * wrt the material design variables by finite difference
                  * @param[ in ] aWStar        weight associated to evaluation point
                  * @param[ in ] aPerturbation real for dv perturbation
+                 * @param[ in ] aFDSchemeType enum for FD scheme
                  */
                 void compute_dRdp_FD_material(
                         moris::real        aWStar,
@@ -485,6 +495,7 @@ namespace moris
                  * @param[ in ] aPerturbation  real for dv perturbation
                  * @param[ in ] aIsActive      cell of vectors for active dv
                  * @param[ in ] aVertexIndices vertices indices
+                 * @param[ in ] aFDSchemeType  enum for FD scheme
                  */
                 void compute_dRdp_FD_geometry(
                         moris::real                       aWStar,

@@ -83,8 +83,8 @@ TEST_CASE( "IWG_Diff_Ghost", "[moris],[fem],[IWG_Diff_Ghost]" )
     // define the IWGs
     fem::IWG_Factory tIWGFactory;
     std::shared_ptr< fem::IWG > tIWG =
-            tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_GHOST );
-    tIWG->set_stabilization_parameter( tSP, "GhostDispl" );
+            tIWGFactory.create_IWG( fem::IWG_Type::GHOST_NORMAL_FIELD );
+    tIWG->set_stabilization_parameter( tSP, "GhostSP" );
     tIWG->set_residual_dof_type( tTempDofTypes );
     tIWG->set_dof_type_list( tDofTypes, mtk::Master_Slave::MASTER );
     tIWG->set_dof_type_list( tDofTypes, mtk::Master_Slave::SLAVE );

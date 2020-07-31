@@ -223,9 +223,9 @@ TEST_CASE("2D XTK WITH HMR SYMM BCs","[XTK_HMR_2D_Symm_BCs]")
         tPropDirichletUX_ss2_select->set_val_function( tMValFunction );
 //        tPropDirichletUX->set_dof_type( MSI::Dof_Type::UX );
 
-        std::shared_ptr< fem::Property > tPropNeumann = std::make_shared< fem::Property >();
-        tPropNeumann->set_parameters( {{{ 0.0 } , { 10.0 }}} );
-        tPropNeumann->set_val_function( tConstValFunction );
+        std::shared_ptr< fem::Property > tPropTraction = std::make_shared< fem::Property >();
+        tPropTraction->set_parameters( {{{ 0.0 } , { 10.0 }}} );
+        tPropTraction->set_val_function( tConstValFunction );
 
         // define constitutive models
         fem::CM_Factory tCMFactory;
@@ -270,7 +270,7 @@ TEST_CASE("2D XTK WITH HMR SYMM BCs","[XTK_HMR_2D_Symm_BCs]")
         std::shared_ptr< fem::IWG > tIWGNeumann = tIWGFactory.create_IWG( fem::IWG_Type::STRUC_LINEAR_NEUMANN );
         tIWGNeumann->set_residual_dof_type( { MSI::Dof_Type::UX, MSI::Dof_Type::UY } );
         tIWGNeumann->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY }} );
-        tIWGNeumann->set_property( tPropNeumann, "Neumann", mtk::Master_Slave::MASTER );
+        tIWGNeumann->set_property( tPropTraction, "Traction", mtk::Master_Slave::MASTER );
 
         // create a list of active block-sets
         std::string tInterfaceSideSetName = tEnrIntegMesh.get_interface_side_set_name( 0, 0, 1 );

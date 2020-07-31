@@ -136,26 +136,40 @@ namespace moris
             // check input values are between -1 and 1
             for ( uint Ik = 0; Ik < mNSpaceParamDim; Ik++ )
             {
+                real tTreatedValue = aParamPoint( Ik );
                 switch( mGeometryInterpolator->get_space_geometry_type() )
                 {
                     case mtk::Geometry_Type::LINE :
                     case mtk::Geometry_Type::QUAD :
                     case mtk::Geometry_Type::HEX :
-                        MORIS_ASSERT( ( ( aParamPoint( Ik ) <= 1.0 + mEpsilon ) && ( aParamPoint( Ik ) >= -1.0 - mEpsilon ) ),
-                                "Field_Interpolator::set_space_time - Wrong input value ( aParamPoint )." );
+                    {
+                        std::string tErrorString =
+                                "Field_Interpolator::set_space_time - Wrong input value space line/quad/hex ( aParamPoint ) "
+                                + std::to_string( tTreatedValue );
+                        MORIS_ASSERT( ( ( tTreatedValue <= 1.0 + mEpsilon ) && ( tTreatedValue >= -1.0 - mEpsilon ) ),
+                                tErrorString.c_str() );
                         break;
+                    }
 
                     case mtk::Geometry_Type::TRI :
                     case mtk::Geometry_Type::TET :
-                        MORIS_ASSERT( ( ( aParamPoint( Ik ) <= 1.0 + mEpsilon ) && ( aParamPoint( Ik ) >= 0.0 - mEpsilon ) ),
-                                "Field_Interpolator::set_space_time - Wrong input value ( aParamPoint )." );
+                    {
+                        std::string tErrorString =
+                                "Field_Interpolator::set_space_time - Wrong input value space tri/tet ( aParamPoint ) "
+                                + std::to_string( tTreatedValue );
+                        MORIS_ASSERT( ( ( tTreatedValue <= 1.0 + mEpsilon ) && ( tTreatedValue >= 0.0 - mEpsilon ) ),
+                                tErrorString.c_str() );
                         break;
+                    }
+
                     default :
                         MORIS_ERROR( false, "Field_Interpolator::set_space_time - unknown geometry type." );
                 }
             }
+            std::string tErrorString =
+                    "Field_Interpolator::set_space_time - Wrong input value time line ( aParamPoint ) ";
             MORIS_ASSERT( ( ( aParamPoint( mNSpaceParamDim ) <= 1.0 + mEpsilon ) && ( aParamPoint( mNSpaceParamDim ) >= -1.0 - mEpsilon ) ),
-                    "Field_Interpolator::set_space_time - Wrong input value ( aParamPoint )." );
+                    tErrorString.c_str() );
 
             // set input values
             mXi.matrix_data()  = aParamPoint( { 0, mNSpaceParamDim-1 }, { 0, 0 } );

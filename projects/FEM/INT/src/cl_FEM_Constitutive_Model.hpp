@@ -1055,8 +1055,8 @@ namespace moris
                         const moris::Cell< MSI::Dof_Type > & aTestDofTypes,
                         Matrix< DDRMat >                   & adtesttractiondu_FD,
                         real                                 aPerturbation,
-                        Matrix< DDRMat >                   & aNormal,
-                        Matrix< DDRMat >                   & aJump,
+                        const Matrix< DDRMat >             & aNormal,
+                        const Matrix< DDRMat >             & aJump,
                         fem::FDScheme_Type                   aFDSchemeType = fem::FDScheme_Type::POINT_5 );
 
                 //------------------------------------------------------------------------------

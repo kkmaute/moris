@@ -900,11 +900,11 @@ TEST_CASE("2D Linear Stuct Thick Walled Pressure Vessel","[XTK_HMR_LS_PV]")
                 tIWGNeumann->set_property( tPropNeumann, "Neumann", mtk::Master_Slave::MASTER );
 
                 // GHOST STABILIZATION SETUP
-                std::shared_ptr< fem::IWG > tIWGGhost = tIWGFactory.create_IWG( fem::IWG_Type::STRUC_LINEAR_GHOST );
+                std::shared_ptr< fem::IWG > tIWGGhost = tIWGFactory.create_IWG( fem::IWG_Type::GHOST_NORMAL_FIELD );
                 tIWGGhost->set_residual_dof_type( tDofTypes );
                 tIWGGhost->set_dof_type_list( { tDofTypes } );
                 tIWGGhost->set_dof_type_list( { tDofTypes }, mtk::Master_Slave::SLAVE );
-                tIWGGhost->set_stabilization_parameter( tSPGhost, "GhostDispl" );
+                tIWGGhost->set_stabilization_parameter( tSPGhost, "GhostSP" );
 
                 // define set info
                 fem::Set_User_Info tSetBulk1;

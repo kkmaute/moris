@@ -439,6 +439,37 @@ public:
         return this->get_right_side_cluster().get_vertex_indices_in_cluster();
     }
 
+    virtual
+    moris::Matrix<moris::IndexMat>
+    get_vertex_indices_in_cluster() const
+    {
+
+        // number of cells in cluster
+        moris::uint tLeftNumVertices = mLeftSideCluster->get_num_vertices_in_cluster();
+        moris::uint tRightNumVertices = mRightSideCluster->get_num_vertices_in_cluster();
+
+        // cell access
+        moris::Cell<moris::mtk::Vertex const *> const & tLeftVertices =
+                mLeftSideCluster->get_vertices_in_cluster();
+        moris::Cell<moris::mtk::Vertex const *> const & tRightVertices =
+                mRightSideCluster->get_vertices_in_cluster();
+
+        // initialize output
+        moris::Matrix<moris::IndexMat> tVertexIndices(1,tLeftNumVertices+tRightNumVertices);
+
+        // get cell indices and store
+        for(moris::uint i = 0 ; i < tLeftNumVertices; i++)
+        {
+            tVertexIndices(i) = tLeftVertices(i)->get_index();
+        }
+        for(moris::uint i = 0 ; i < tRightNumVertices; i++)
+        {
+            tVertexIndices(tLeftNumVertices + i) = tRightVertices(i)->get_index();
+        }
+
+        return tVertexIndices;
+    }
+
     //##############################################
     // Local Coordinate Access
     //##############################################

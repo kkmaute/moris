@@ -49,6 +49,7 @@ namespace vis
         LIFT_COEFF,
         LATENT_HEAT_ABSORPTION,
         VISCOSITY,
+        TURBULENT_KINEMATIC_VISCOSITY,
         END_ENUM//
     };
 
@@ -87,6 +88,7 @@ namespace vis
         tVisOutputTypeMap["LIFT_COEFF"]        = vis::Output_Type::LIFT_COEFF;
         tVisOutputTypeMap["LATENT_HEAT_ABSORPTION"] = vis::Output_Type::LATENT_HEAT_ABSORPTION;
         tVisOutputTypeMap["VISCOSITY"]              = vis::Output_Type::VISCOSITY;
+        tVisOutputTypeMap["TURBULENT_KINEMATIC_VISCOSITY"] = vis::Output_Type::TURBULENT_KINEMATIC_VISCOSITY;
         tVisOutputTypeMap["END_ENUM"]               = vis::Output_Type::END_ENUM;
 
         return tVisOutputTypeMap;

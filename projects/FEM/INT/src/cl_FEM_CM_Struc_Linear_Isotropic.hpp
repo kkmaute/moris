@@ -32,11 +32,11 @@ namespace moris
                 // property type for CM
                 enum class Property_Type
                 {
-                    EMOD,
-                    NU,
-                    CTE,
-                    TEMP_REF,
-                    MAX_ENUM
+                        EMOD,
+                        NU,
+                        CTE,
+                        TEMP_REF,
+                        MAX_ENUM
                 };
 
                 // Local string to property enum map
@@ -44,16 +44,23 @@ namespace moris
 
                 // function pointers
                 void ( CM_Struc_Linear_Isotropic:: * m_eval_strain )() = nullptr;
+
                 void ( CM_Struc_Linear_Isotropic:: * m_eval_teststrain )() = nullptr;
-                void ( CM_Struc_Linear_Isotropic:: * m_flatten_normal )( const Matrix< DDRMat > & aNormal,
-                        Matrix< DDRMat > & aFlatNormal ) = nullptr;
+
+                void ( CM_Struc_Linear_Isotropic:: * m_flatten_normal )(
+                        const Matrix< DDRMat > & aNormal,
+                        Matrix< DDRMat >       & aFlatNormal ) = nullptr;
+
                 void ( CM_Struc_Linear_Isotropic:: * mConstFunc )( moris::real,
                         moris::real ) = &CM_Struc_Linear_Isotropic::full_3d;
-                void ( CM_Struc_Linear_Isotropic:: * m_eval_inv_bulk_modulus )( moris::real   aNu,
+
+                void ( CM_Struc_Linear_Isotropic:: * m_eval_inv_bulk_modulus )(
+                        moris::real   aNu,
                         moris::real   aEMod,
                         moris::real & aInvBulkModulus ) = &CM_Struc_Linear_Isotropic::eval_inv_bulk_modulus_generic;
 
                 Model_Type mPlaneType  = Model_Type::PLANE_STRESS; // Plane stress or plane strain, only used in 2d
+
                 Model_Type mTensorType = Model_Type::FULL; // Hydrostatic or deviatoric (default: full tensor)
 
                 //--------------------------------------------------------------------------------------------------------------
@@ -204,6 +211,7 @@ namespace moris
                 {
                     ( this->*m_eval_strain )();
                 }
+
                 void eval_strain_2d();
                 void eval_strain_3d();
 
@@ -279,16 +287,18 @@ namespace moris
                  */
                 void flatten_normal(
                         const Matrix< DDRMat > & aNormal,
-                        Matrix< DDRMat > & aFlatNormal )
+                        Matrix< DDRMat >       & aFlatNormal )
                 {
                     ( this->*m_flatten_normal )( aNormal, aFlatNormal );
                 }
+
                 void flatten_normal_2d(
                         const Matrix< DDRMat > & aNormal,
-                        Matrix< DDRMat > & aFlatNormal );
+                        Matrix< DDRMat >       & aFlatNormal );
+
                 void flatten_normal_3d(
                         const Matrix< DDRMat > & aNormal,
-                        Matrix< DDRMat > & aFlatNormal );
+                        Matrix< DDRMat >       & aFlatNormal );
 
                 //--------------------------------------------------------------------------------------------------------------
                 /**

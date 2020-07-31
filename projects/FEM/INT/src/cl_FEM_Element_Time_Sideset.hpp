@@ -71,6 +71,21 @@ namespace moris
 
                 //------------------------------------------------------------------------------
                 /**
+                 * compute dRdp
+                 */
+                void compute_dRdp();
+
+                //------------------------------------------------------------------------------
+                /**
+                 * compute dQIdp
+                 */
+                void compute_dQIdp_explicit()
+                {
+                    MORIS_ERROR( false, "Element_Time_Sideset::compute_dQIdp_explicit - not implemented" );
+                }
+
+                //------------------------------------------------------------------------------
+                /**
                  * compute volume over the element
                  */
                 real compute_volume( mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER )
@@ -83,9 +98,12 @@ namespace moris
             private:
                 //------------------------------------------------------------------------------
                 /**
-                 * initialize integration geometry interpolator
+                 * initialize the geometry interpolator for the IG element
+                 * @param[ in ] aIsActiveDv  list of if design variable is active
+                 *                           (vertexIndex)(DvType) for master element
                  */
-                void init_ig_geometry_interpolator();
+                void init_ig_geometry_interpolator(
+                        moris::Cell< Matrix< DDSMat > > & aIsActiveDv );
 
                 //------------------------------------------------------------------------------
         };

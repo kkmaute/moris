@@ -1,0 +1,22 @@
+namespace moris {
+namespace fem {
+
+/** \page FE_SP_Time_Velocity_Ghost Stabilization Parameter for Time Velocity Ghost
+
+The viscous ghost stabilization parameter is given as:
+\f[
+\gamma_{t}^{GP} = \alpha_{t}^{GP} \frac{\rho}{\theta \Delta t} h^{2(i-1)+3}
+\f]
+where
+- \f$ \alpha_{t}^{GP} \f$ is a scalar constant ranging in \f$ [ 0.001 0.005 ] \f$,
+- \f$ \mu \f$ is the fluid viscosity,
+- \f$ \Delta t \f$ is the time step,
+- \f$ \theta \f$ is a scalar dependent on the time solving scheme,
+- \f$ h \f$ is the element size along the considered facet.
+
+The stabilization parameter \f$ \gamma_{t}^{GP} \f$ is implemented in SP_Time_Velocity_Ghost 
+and is build using the enum SP_Type::TIME_VELOCITY_GHOST.
+*/
+
+}
+}

@@ -1,0 +1,21 @@
+namespace moris {
+namespace fem {
+
+/** \page FE_SP_Ghost_Field Stabilization Parameter for Ghost on Field
+
+The standard ghost stabilization parameter is given as:
+\f[
+\gamma_{\kappa}^{GP} = \alpha_^{GP} \kappa h^{2(i-1)+1}
+\f]
+where
+- \f$ \alpha_^{GP} \f$ is a scalar constant ranging in \f$ [ 0.001 ... 0.01 ] \f$,
+- \f$ \kappa \f$ is a material property,
+- \f$ h \f$ is the element size along the considered facet,
+- \f$ i \f$ is the interpolation order used for the considered field whose gradient are penalized.
+
+The stabilization parameter \f$ \gamma_{\kappa}^{GP} \f$ is implemented in SP_Ghost_Field 
+and is build using the enum SP_Type::GHOST_FIELD.
+*/
+
+}
+}

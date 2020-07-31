@@ -78,7 +78,6 @@ namespace moris
 
                 default:
                     MORIS_ERROR( false, "SP_Pressure_Ghost::set_dof_type_list - unknown master slave type." );
-                    break;
             }
         }
 

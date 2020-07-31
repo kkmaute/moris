@@ -47,12 +47,12 @@ set(TEST_SOURCES
     UT_FEM_IWG_Struc_Linear_Dirichlet.cpp
     UT_FEM_IWG_Struc_Linear_Pressure_Dirichlet.cpp
     UT_FEM_IWG_Struc_Linear_Interface.cpp
-    UT_FEM_IWG_Struc_Linear_Ghost.cpp
+    #UT_FEM_IWG_Struc_Linear_Ghost.cpp
     UT_FEM_IWG_Struc_Linear_Virtual_Work_Ghost.cpp
     UT_FEM_IWG_Incompressible_NS_Velocity_Bulk.cpp
     UT_FEM_IWG_Incompressible_NS_Pressure_Bulk.cpp
-    UT_FEM_IWG_Incompressible_NS_Velocity_Ghost.cpp
-    UT_FEM_IWG_Incompressible_NS_Pressure_Ghost.cpp
+    #UT_FEM_IWG_Incompressible_NS_Velocity_Ghost.cpp
+    #UT_FEM_IWG_Incompressible_NS_Pressure_Ghost.cpp
     UT_FEM_IWG_Incompressible_NS_Dirichlet_Nitsche.cpp
     UT_FEM_IWG_Incompressible_NS_Velocity_Interface.cpp
     UT_FEM_IWG_Incompressible_NS_Pressure_Interface.cpp

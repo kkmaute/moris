@@ -108,6 +108,7 @@ namespace moris
                 // parameters
                 moris::Cell< Matrix< DDRMat > > mParameters;
 
+                // IQI name
                 std::string mName;
 
                 //------------------------------------------------------------------------------
@@ -263,13 +264,28 @@ namespace moris
 
                 //------------------------------------------------------------------------------
                 /**
-                 * set dof types
-                 * @param[ in ] aDofTypes a cell of cell of dof types
+                 * set dof type list for IQI
+                 * @param[ in ] aDofTypes a cell of group of dof types
                  * @param[ in ] aIsMaster enum for master or slave
                  */
                 void set_dof_type_list(
                         const moris::Cell< moris::Cell< MSI::Dof_Type > > & aDofTypes,
                         mtk::Master_Slave                                   aIsMaster = mtk::Master_Slave::MASTER );
+
+                //------------------------------------------------------------------------------
+                /**
+                 * set dof types
+                 * @param[ in ] aDofTypes   list of group of dof types
+                 * @param[ in ] aDofStrings list of strings describing the group dof types
+                 * @param[ in ] aIsMaster   enum for master or slave
+                 */
+                virtual void set_dof_type_list(
+                        moris::Cell< moris::Cell< MSI::Dof_Type > > & aDofTypes,
+                        moris::Cell< std::string >                  & aDofStrings,
+                        mtk::Master_Slave                             aIsMaster = mtk::Master_Slave::MASTER )
+                {
+                    MORIS_ERROR( false, "IQI::set_dof_type_list - not implemented for base class." );
+                }
 
                 //------------------------------------------------------------------------------
                 /**
@@ -512,6 +528,14 @@ namespace moris
                         moris::real        aPerturbation,
                         fem::FDScheme_Type aFDSchemeType = fem::FDScheme_Type::POINT_3_CENTRAL );
 
+                void compute_dQIdp_FD_material_double(
+                        moris::real        aWStar,
+                        moris::real        aPerturbation,
+                        fem::FDScheme_Type aFDSchemeType = fem::FDScheme_Type::POINT_3_CENTRAL )
+                {
+                    MORIS_ERROR( false, "IQI::compute_dQIdp_FD_material_double - not implemented yet");
+                }
+
                 //------------------------------------------------------------------------------
                 /**
                  * evaluate the derivative of the quantity of interest
@@ -528,6 +552,18 @@ namespace moris
                         moris::Cell< Matrix< DDSMat > > & aIsActive,
                         Matrix< IndexMat >              & aVertexIndices,
                         fem::FDScheme_Type                aFDSchemeType = fem::FDScheme_Type::POINT_3_CENTRAL );
+
+                void compute_dQIdp_FD_geometry_double(
+                        moris::real                       aWStar,
+                        moris::real                       aPerturbation,
+                        moris::Cell< Matrix< DDSMat > > & aMasterIsActive,
+                        Matrix< IndexMat >              & aMasterVertexIndices,
+                        moris::Cell< Matrix< DDSMat > > & aSlaveIsActive,
+                        Matrix< IndexMat >              & aSlaveVertexIndices,
+                        fem::FDScheme_Type                aFDSchemeType = fem::FDScheme_Type::POINT_3_CENTRAL )
+                {
+                    MORIS_ERROR( false, "IQI::compute_dQIdp_FD_geometry_double - not implemented yet");
+                }
 
                 //------------------------------------------------------------------------------
         };

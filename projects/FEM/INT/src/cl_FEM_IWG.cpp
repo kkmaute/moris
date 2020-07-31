@@ -133,7 +133,6 @@ namespace moris
                 default :
                 {
                     MORIS_ERROR( false, "IWG::set_field_interpolator_manager - can only be master or slave");
-                    break;
                 }
             }
 
@@ -229,6 +228,41 @@ namespace moris
                 if( tSP != nullptr )
                 {
                     tSP->set_normal( mNormal );
+                }
+            }
+        }
+
+        //------------------------------------------------------------------------------
+
+        void IWG::set_interpolation_order()
+        {
+            // get residual dof type interpolation order
+            mtk::Interpolation_Order tInterpOrder =
+                    mSet->get_field_interpolator_manager()->
+                    get_field_interpolators_for_type( mResidualDofType( 0 ) )->
+                    get_space_interpolation_order();
+
+            // set the interpolation order for IWG
+            switch ( tInterpOrder )
+            {
+                case mtk::Interpolation_Order::LINEAR :
+                {
+                    mOrder = 1;
+                    break;
+                }
+                case mtk::Interpolation_Order::QUADRATIC :
+                {
+                    mOrder = 2;
+                    break;
+                }
+                case mtk::Interpolation_Order::CUBIC :
+                {
+                    mOrder = 3;
+                    break;
+                }
+                default:
+                {
+                    MORIS_ERROR( false, "IWG::set_interpolation_order - order not supported");
                 }
             }
         }
@@ -1699,11 +1733,6 @@ namespace moris
                 Matrix< IndexMat >              & aVertexIndices,
                 fem::FDScheme_Type                aFDSchemeType )
         {
-            // get the FD scheme info
-            moris::Cell< moris::Cell< real > > tFDScheme;
-            fd_scheme( aFDSchemeType, tFDScheme );
-            uint tNumPoints = tFDScheme( 0 ).size();
-
             // get requested geometry pdv types
             moris::Cell< PDV_Type > tRequestedGeoPdvType;
             mSet->get_ig_unique_dv_types_for_set( tRequestedGeoPdvType );
@@ -1728,6 +1757,10 @@ namespace moris
             tIGGI->get_space_time( tEvaluationPoint );
             real tGPWeight = aWStar / tIGGI->det_J();
 
+            // IP element max/min
+            Matrix< DDRMat > tMaxIP = max( tIPGI->get_space_coeff().matrix_data() );
+            Matrix< DDRMat > tMinIP = min( tIPGI->get_space_coeff().matrix_data() );
+
             // loop over the spatial directions
             for( uint iCoeffCol = 0; iCoeffCol< tDerNumDimensions; iCoeffCol++ )
             {
@@ -1744,6 +1777,22 @@ namespace moris
                         {
                             tDeltaH = aPerturbation;
                         }
+
+                        // check point location
+                        moris::Cell< moris::Cell< real > > tFDScheme;
+                        if( tCoeff( iCoeffRow, iCoeffCol ) + tDeltaH > tMaxIP( iCoeffCol ) )
+                        {
+                            fd_scheme( fem::FDScheme_Type::POINT_1_BACKWARD, tFDScheme );
+                        }
+                        else if( tCoeff( iCoeffRow, iCoeffCol ) - tDeltaH < tMinIP( iCoeffCol ) )
+                        {
+                            fd_scheme( fem::FDScheme_Type::POINT_1_FORWARD, tFDScheme );
+                        }
+                        else
+                        {
+                            fd_scheme( fem::FDScheme_Type::POINT_3_CENTRAL, tFDScheme );
+                        }
+                        uint tNumPoints = tFDScheme( 0 ).size();
 
                         // get the geometry pdv assembly index
                         std::pair< moris_index, PDV_Type > tKeyPair =
@@ -1799,6 +1848,7 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+
         void IWG::compute_dRdp_FD_geometry_double(
                 moris::real                       aWStar,
                 moris::real                       aPerturbation,
@@ -1808,11 +1858,6 @@ namespace moris
                 Matrix< IndexMat >              & aSlaveVertexIndices,
                 fem::FDScheme_Type                aFDSchemeType )
         {
-            // get the FD scheme info
-            moris::Cell< moris::Cell< real > > tFDScheme;
-            fd_scheme( aFDSchemeType, tFDScheme );
-            uint tNumPoints = tFDScheme( 0 ).size();
-
             // get requested geometry pdv types
             moris::Cell< PDV_Type > tRequestedGeoPdvType;
             mSet->get_ig_unique_dv_types_for_set( tRequestedGeoPdvType );
@@ -1828,6 +1873,12 @@ namespace moris
                     mSet->get_field_interpolator_manager( mtk::Master_Slave::SLAVE )->get_IG_geometry_interpolator();
             Geometry_Interpolator * tSlaveIPGI =
                     mSet->get_field_interpolator_manager( mtk::Master_Slave::SLAVE )->get_IP_geometry_interpolator();
+
+            // IP element max/min
+            Matrix< DDRMat > tMasterMaxIP = max( tMasterIPGI->get_space_coeff().matrix_data() );
+            Matrix< DDRMat > tMasterMinIP = min( tMasterIPGI->get_space_coeff().matrix_data() );
+            Matrix< DDRMat > tSlaveMaxIP = max( tSlaveIPGI->get_space_coeff().matrix_data() );
+            Matrix< DDRMat > tSlaveMinIP = min( tSlaveIPGI->get_space_coeff().matrix_data() );
 
             // get the master residual dof type index in the set
             uint tMasterResDofIndex = mSet->get_dof_index_for_type(
@@ -1872,6 +1923,22 @@ namespace moris
                             {
                                 tDeltaH = aPerturbation;
                             }
+
+                            // check point location
+                            moris::Cell< moris::Cell< real > > tFDScheme;
+                            if( tCoeff( iCoeffRow, iCoeffCol ) + tDeltaH > tMasterMaxIP( iCoeffCol ) )
+                            {
+                                fd_scheme( fem::FDScheme_Type::POINT_1_BACKWARD, tFDScheme );
+                            }
+                            else if( tCoeff( iCoeffRow, iCoeffCol ) - tDeltaH < tMasterMinIP( iCoeffCol ) )
+                            {
+                                fd_scheme( fem::FDScheme_Type::POINT_1_FORWARD, tFDScheme );
+                            }
+                            else
+                            {
+                                fd_scheme( fem::FDScheme_Type::POINT_3_CENTRAL, tFDScheme );
+                            }
+                            uint tNumPoints = tFDScheme( 0 ).size();
 
                             // get the geometry pdv assembly index
                             std::pair< moris_index, PDV_Type > tKeyPair =
@@ -1964,6 +2031,22 @@ namespace moris
                             {
                                 tDeltaH = aPerturbation;
                             }
+
+                            // check point location
+                            moris::Cell< moris::Cell< real > > tFDScheme;
+                            if( tCoeff( iCoeffRow, iCoeffCol ) + tDeltaH > tSlaveMaxIP( iCoeffCol ) )
+                            {
+                                fd_scheme( fem::FDScheme_Type::POINT_1_BACKWARD, tFDScheme );
+                            }
+                            else if( tCoeff( iCoeffRow, iCoeffCol ) - tDeltaH < tSlaveMinIP( iCoeffCol ) )
+                            {
+                                fd_scheme( fem::FDScheme_Type::POINT_1_FORWARD, tFDScheme );
+                            }
+                            else
+                            {
+                                fd_scheme( fem::FDScheme_Type::POINT_3_CENTRAL, tFDScheme );
+                            }
+                            uint tNumPoints = tFDScheme( 0 ).size();
 
                             // get the geometry pdv assembly index
                             std::pair< moris_index, PDV_Type > tKeyPair =

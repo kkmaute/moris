@@ -111,7 +111,7 @@ namespace moris
         return tDConstraintDCriteria;
     }
 
-    void Func_Neumann_U( moris::Matrix< moris::DDRMat >                 & aPropMatrix,
+    void Func_Traction_U( moris::Matrix< moris::DDRMat >                 & aPropMatrix,
                          moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
                          moris::fem::Field_Interpolator_Manager         * aFIManager )
     {
@@ -248,9 +248,9 @@ namespace moris
 
         // create parameter list for property 10
         tParameterList( 0 ).push_back( prm::create_property_parameter_list() );
-        tParameterList( 0 )( tPropCounter ).set( "property_name",            "PropNeumann");
+        tParameterList( 0 )( tPropCounter ).set( "property_name",            "PropTraction");
         tParameterList( 0 )( tPropCounter ).set( "function_parameters",      "1.0");
-        tParameterList( 0 )( tPropCounter ).set( "value_function",           "Func_Neumann_U");
+        tParameterList( 0 )( tPropCounter ).set( "value_function",           "Func_Traction_U");
         tPropCounter++;
 
         // create parameter list for property 7
@@ -312,11 +312,11 @@ namespace moris
 
         // create parameter list for IWG 3
         tParameterList( 3 ).push_back( prm::create_IWG_parameter_list() );
-        tParameterList( 3 )( tIWGCounter ).set( "IWG_name",                   "IWGNeumannFlux");
+        tParameterList( 3 )( tIWGCounter ).set( "IWG_name",                   "IWGTraction");
         tParameterList( 3 )( tIWGCounter ).set( "IWG_type",                   static_cast< uint >( fem::IWG_Type::STRUC_LINEAR_NEUMANN ) );
         tParameterList( 3 )( tIWGCounter ).set( "dof_residual",               "UX,UY");
         tParameterList( 3 )( tIWGCounter ).set( "master_dof_dependencies",    "UX,UY");
-        tParameterList( 3 )( tIWGCounter ).set( "master_properties",          "PropNeumann,Neumann");
+        tParameterList( 3 )( tIWGCounter ).set( "master_properties",          "PropTraction,Traction");
         tParameterList( 3 )( tIWGCounter ).set( "mesh_set_names",             "SideSet_2_n_p3");
         tIWGCounter++;
 
