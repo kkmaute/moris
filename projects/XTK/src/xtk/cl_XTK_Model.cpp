@@ -40,34 +40,22 @@ namespace xtk
 
     Model::~Model()
     {
-        if(mEnrichment != nullptr )
-        {
-            delete mEnrichment;
-            mEnrichment = nullptr;
-        }
+        delete mEnrichment;
+        mEnrichment = nullptr;
 
-        if(mGhostStabilization != nullptr )
-        {
-            delete mGhostStabilization;
-            mGhostStabilization = nullptr;
-        }
+        delete mGhostStabilization;
+        mGhostStabilization = nullptr;
 
         for(auto tIt:mEnrichedInterpMesh)
         {
-            if(tIt !=nullptr)
-            {
-                delete tIt;
-            }
+            delete tIt;
         }
 
         mEnrichedInterpMesh.clear();
 
         for(auto tIt:mEnrichedIntegMesh)
         {
-            if(tIt !=nullptr)
-            {
-                delete tIt;
-            }
+            delete tIt;
         }
 
         mEnrichedIntegMesh.clear();
@@ -5266,16 +5254,16 @@ namespace xtk
             tPhaseVotes.max(tMaxRow,tMaxCol);
             tNodalPhaseVals(0,i) = tMaxCol;
 
-//            if(tPhaseVotes(0) == tPhaseVotes(1))
-//            {
-//                std::cout<<"Parity Vote"<<std::endl;
-//                std::cout<<"iGeom = "<<i<<std::endl;
-//                std::cout<<"tMaxRow = "<<tMaxRow<<std::endl;
-//                std::cout<<"tMaxCol = "<<tMaxCol<<std::endl;
-//                std::cout<<"tPhaseVotes(0)  = "<<tPhaseVotes(0) <<std::endl;
-//                std::cout<<"tPhaseVotes(1)  = "<<tPhaseVotes(1) <<std::endl;
-//                throw;
-//            }
+            //            if(tPhaseVotes(0) == tPhaseVotes(1))
+            //            {
+            //                std::cout<<"Parity Vote"<<std::endl;
+            //                std::cout<<"iGeom = "<<i<<std::endl;
+            //                std::cout<<"tMaxRow = "<<tMaxRow<<std::endl;
+            //                std::cout<<"tMaxCol = "<<tMaxCol<<std::endl;
+            //                std::cout<<"tPhaseVotes(0)  = "<<tPhaseVotes(0) <<std::endl;
+            //                std::cout<<"tPhaseVotes(1)  = "<<tPhaseVotes(1) <<std::endl;
+            //                throw;
+            //            }
 
             // reset
             tPhaseVotes.fill(0);

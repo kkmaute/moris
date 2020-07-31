@@ -116,14 +116,11 @@ namespace moris
             this->delete_meshes();
 
             // delete Background Mesh
-            if ( mBackgroundMesh != nullptr )
-            {
-                delete mBackgroundMesh;
-                mBackgroundMesh = nullptr;
-            }
+            delete mBackgroundMesh;
+            mBackgroundMesh = nullptr;
 
             // delete parameters
-            if ( mDeleteParametersOnDestruction && mParameters != nullptr )
+            if ( mDeleteParametersOnDestruction )
             {
                 delete mParameters;
                 mParameters = nullptr;

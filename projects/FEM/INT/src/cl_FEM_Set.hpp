@@ -104,7 +104,7 @@ namespace moris
                 moris::map< std::string, moris_index > mIQINameToIndexMap;
 
                 // enum for element type
-                enum fem::Element_Type mElementType;
+                enum fem::Element_Type mElementType = fem::Element_Type::UNDEFINED;
 
                 // integration points
                 Matrix< DDRMat > mIntegPoints;
@@ -162,7 +162,7 @@ namespace moris
                  */
                 Set()
                 {
-                    mIsEmptySet = true;    //FIXME this flag is a hack. find better solution
+                    mIsEmptySet  = true;                          //FIXME this flag is a hack. find better solution
                 };
 
                 //------------------------------------------------------------------------------

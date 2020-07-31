@@ -51,11 +51,8 @@ Time_Solver_Algorithm::~Time_Solver_Algorithm()
 
 void Time_Solver_Algorithm::delete_pointers()
 {
-    if( mFullMap != nullptr )
-    {
-        delete( mFullMap );
-        mFullMap = nullptr;
-    }
+    delete mFullMap;
+    mFullMap = nullptr;
 }
 
 //-------------------------------------------------------------------------------

@@ -228,7 +228,7 @@ FEM Module description.
 /** @addtogroup FE_DIFFUSION
     @ingroup FE_Module */
     
-/** @addtogroup FE_NS_Korteweg_Equations
+/** @addtogroup FE_Compressible_NS
     @ingroup FE_Module */
   
   

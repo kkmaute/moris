@@ -99,8 +99,8 @@ namespace moris
             this->log_to_file( OutputSpecifier::SignIn, 1.0);
         }
 
-        // log to console - only processor 0 prints message
-        if ( logger_par_rank() == 0 )
+        // log to console - only processor mOutputRank prints message
+        if ( logger_par_rank() == mOutputRank )
         {
             if (mSeverityLevel < 1)
             {
@@ -138,8 +138,8 @@ namespace moris
                     ( (moris::real) std::clock() - mGlobalClock.mTimeStamps(mGlobalClock.mIndentationLevel) ) / CLOCKS_PER_SEC );
         }
 
-        // log to console - only processor 0 prints message
-        if ( logger_par_rank() == 0 )
+        // log to console - only processor mOutputRank prints message
+        if ( logger_par_rank() == mOutputRank )
         {
             if (mSeverityLevel < 1)
             {

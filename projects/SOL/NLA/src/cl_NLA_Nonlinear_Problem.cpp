@@ -26,23 +26,25 @@ using namespace moris;
 using namespace NLA;
 using namespace dla;
 
-Nonlinear_Problem::Nonlinear_Problem(       sol::SOL_Warehouse * aNonlinDatabase,
-                                            Solver_Interface   * aSolverInterface,
-                                            sol::Dist_Vector   * aFullVector,
-                                      const moris::sint          aNonlinearSolverManagerIndex,
-                                      const bool                 aBuildLinerSystemFlag,
-                                      const enum sol::MapType    aMapType) :     mFullVector( aFullVector ),
-                                                                                 mBuildLinerSystemFlag( aBuildLinerSystemFlag ),
-                                                                                 mMapType( aMapType ),
-                                                                                 mNonlinearSolverManagerIndex( aNonlinearSolverManagerIndex )
+Nonlinear_Problem::Nonlinear_Problem(
+        sol::SOL_Warehouse       * aNonlinDatabase,
+        Solver_Interface         * aSolverInterface,
+        sol::Dist_Vector         * aFullVector,
+        const moris::sint          aNonlinearSolverManagerIndex,
+        const bool                 aBuildLinerSystemFlag,
+        const enum sol::MapType    aMapType)
+: mFullVector( aFullVector ),
+  mBuildLinerSystemFlag( aBuildLinerSystemFlag ),
+  mMapType( aMapType ),
+  mNonlinearSolverManagerIndex( aNonlinearSolverManagerIndex )
 {
     mSolverInterface = aSolverInterface;
 
-//    if( mMapType == sol::MapType::Petsc )
-//    {
-//        // Initialize petsc solvers
-//        PetscInitializeNoArguments();
-//    }
+    //    if( mMapType == sol::MapType::Petsc )
+    //    {
+    //        // Initialize petsc solvers
+    //        PetscInitializeNoArguments();
+    //    }
 
     moris::Cell< enum MSI::Dof_Type > tRequesedDofTypes = mSolverInterface->get_requested_dof_types();
 
@@ -64,19 +66,24 @@ Nonlinear_Problem::Nonlinear_Problem(       sol::SOL_Warehouse * aNonlinDatabase
         // create solver factory
         Solver_Factory  tSolFactory;
 
-        mLinearProblem = tSolFactory.create_linear_system( aSolverInterface,
-                                                           mMap,
-                                                           mMapFull,
-                                                           mMapType );
+        mLinearProblem = tSolFactory.create_linear_system(
+                aSolverInterface,
+                mMap,
+                mMapFull,
+                mMapType );
     }
 }
 
-Nonlinear_Problem::Nonlinear_Problem(       Solver_Interface * aSolverInterface,
-                                      const moris::sint        aNonlinearSolverManagerIndex,
-                                      const bool               aBuildLinerSystemFlag,
-                                      const enum sol::MapType  aMapType ) :     mBuildLinerSystemFlag( aBuildLinerSystemFlag ),
-                                                                                mMapType( aMapType ),
-                                                                                mNonlinearSolverManagerIndex( aNonlinearSolverManagerIndex )
+//-----------------------------------------------------------------------------
+
+Nonlinear_Problem::Nonlinear_Problem(
+        Solver_Interface       * aSolverInterface,
+        const moris::sint        aNonlinearSolverManagerIndex,
+        const bool               aBuildLinerSystemFlag,
+        const enum sol::MapType  aMapType )
+: mBuildLinerSystemFlag( aBuildLinerSystemFlag ),
+  mMapType( aMapType ),
+  mNonlinearSolverManagerIndex( aNonlinearSolverManagerIndex )
 {
     mSolverInterface = aSolverInterface;
 
@@ -94,13 +101,16 @@ Nonlinear_Problem::Nonlinear_Problem(       Solver_Interface * aSolverInterface,
     uint tNumRHMS = aSolverInterface->get_num_rhs();
 
     // full vector
-    mFullVector = tMatFactory.create_vector( aSolverInterface, mMap, tNumRHMS );
+    mFullVector = tMatFactory.create_vector(
+            aSolverInterface,
+            mMap,
+            tNumRHMS );
 
     mSolverInterface->set_solution_vector( mFullVector );
 
-//    mDummyFullVector = tMatFactory.create_vector( aSolverInterface, mMap, tNumRHMS );       // FIXME delete
-//    mDummyFullVector->vec_put_scalar( 0.0 );
-//    aSolverInterface->set_solution_vector_prev_time_step(mDummyFullVector);
+    //    mDummyFullVector = tMatFactory.create_vector( aSolverInterface, mMap, tNumRHMS );       // FIXME delete
+    //    mDummyFullVector->vec_put_scalar( 0.0 );
+    //    aSolverInterface->set_solution_vector_prev_time_step(mDummyFullVector);
 
     mFullVector->vec_put_scalar( 0.0 );
 
@@ -122,28 +132,27 @@ Nonlinear_Problem::Nonlinear_Problem(       Solver_Interface * aSolverInterface,
     mIsMasterSystem = true;
 }
 
+//-----------------------------------------------------------------------------
+
 void Nonlinear_Problem::set_interface( Solver_Interface * aSolverInterface )
 {
 }
+
+//-----------------------------------------------------------------------------
 
 Nonlinear_Problem::~Nonlinear_Problem()
 {
     this->delete_pointers();
 
-    if( mMap != nullptr )
-    {
-        delete( mMap );
-    }
+    delete mMap;
+    mMap=nullptr;
 
-    if( mMapFull != nullptr )
-    {
-        delete( mMapFull );
-    }
+    delete mMapFull;
+    mMapFull=nullptr;
 
     if( mIsMasterSystem )
     {
-        delete( mFullVector );
-//        delete( mDummyFullVector );
+        delete mFullVector;
     }
 
     if(mIsMasterSystem)
@@ -157,26 +166,26 @@ Nonlinear_Problem::~Nonlinear_Problem()
     }
 }
 
+//-----------------------------------------------------------------------------
+
 void Nonlinear_Problem::delete_pointers()
 {
-    if( mLinearProblem != nullptr )
-    {
-        delete( mLinearProblem );
-
-        mLinearProblem = nullptr;
-    }
+    delete( mLinearProblem );
+    mLinearProblem = nullptr;
 }
 
+//-----------------------------------------------------------------------------
+
 void Nonlinear_Problem::build_linearized_problem( const bool & aRebuildJacobian,
-                                                  const bool & aCombinedResJacAssebly,
-                                                  const sint aNonLinearIt )
+        const bool & aCombinedResJacAssebly,
+        const sint aNonLinearIt )
 {
     Tracer tTracer(EntityBase::NonLinearProblem, EntityType::NoType, EntityAction::Build);
 
     // Set VectorFreeSol and LHS
     mLinearProblem->set_free_solver_LHS( mFullVector );
 
-//    this->print_sol_vec( aNonLinearIt );
+    //    this->print_sol_vec( aNonLinearIt );
 
     if( aCombinedResJacAssebly )
     {
@@ -193,9 +202,12 @@ void Nonlinear_Problem::build_linearized_problem( const bool & aRebuildJacobian,
     }
 }
 
-void Nonlinear_Problem::build_linearized_problem( const bool & aRebuildJacobian,
-                                                  const sint aNonLinearIt,
-                                                  const sint aRestart )
+//-----------------------------------------------------------------------------
+
+void Nonlinear_Problem::build_linearized_problem(
+        const bool & aRebuildJacobian,
+        const sint   aNonLinearIt,
+        const sint   aRestart )
 {
     Tracer tTracer(EntityBase::NonLinearProblem, EntityType::NoType, EntityAction::Build);
 
@@ -218,18 +230,29 @@ void Nonlinear_Problem::build_linearized_problem( const bool & aRebuildJacobian,
     mLinearProblem->assemble_residual();
 }
 
+//-----------------------------------------------------------------------------
+
 sol::Dist_Vector * Nonlinear_Problem::get_full_vector()
 {
     return mFullVector;
 }
 
-void Nonlinear_Problem::extract_my_values( const moris::uint                            & aNumIndices,
-                                           const moris::Matrix< DDSMat >                & aGlobalBlockRows,
-                                           const moris::uint                            & aBlockRowOffsets,
-                                                 moris::Cell< moris::Matrix< DDRMat > > & LHSValues )
+//-----------------------------------------------------------------------------
+
+void Nonlinear_Problem::extract_my_values(
+        const moris::uint                            & aNumIndices,
+        const moris::Matrix< DDSMat >                & aGlobalBlockRows,
+        const moris::uint                            & aBlockRowOffsets,
+        moris::Cell< moris::Matrix< DDRMat > >       & LHSValues )
 {
-    mFullVector->extract_my_values( aNumIndices, aGlobalBlockRows, aBlockRowOffsets, LHSValues );
+    mFullVector->extract_my_values(
+            aNumIndices,
+            aGlobalBlockRows,
+            aBlockRowOffsets,
+            LHSValues );
 }
+
+//-----------------------------------------------------------------------------
 
 void Nonlinear_Problem::print_sol_vec( const sint aNonLinearIt )
 {
@@ -243,6 +266,8 @@ void Nonlinear_Problem::print_sol_vec( const sint aNonLinearIt )
 
     mFullVector->save_vector_to_HDF5( SolVector );
 }
+
+//-----------------------------------------------------------------------------
 
 void Nonlinear_Problem::restart_from_sol_vec( const sint aRestart )
 {
@@ -259,7 +284,7 @@ void Nonlinear_Problem::restart_from_sol_vec( const sint aRestart )
 
 //--------------------------------------------------------------------------------------------------
 void Nonlinear_Problem::set_time_value( const moris::real & aLambda,
-                                              moris::uint   aPos )
+        moris::uint   aPos )
 {
     mSolverInterface->set_time_value( aLambda, aPos );
 }

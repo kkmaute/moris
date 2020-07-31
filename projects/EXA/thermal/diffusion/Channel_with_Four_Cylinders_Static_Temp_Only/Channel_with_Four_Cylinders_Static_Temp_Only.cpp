@@ -32,13 +32,14 @@ namespace moris
     bool isGhost = true;
 
     // Minimum value to be returned by level set function
-    moris::real tMinLSvalue      = 1.0e-6;
+    moris::real tMinLSvalue = 1.0e-6;
 
     // Geometry Parameters
     moris::real tPlaneBottom     = 0.0;                /* y bottom plane (m) */
     moris::real tPlaneTop        = 0.41;               /* y top plane    (m) */
     moris::real tPlaneLeft       = 0.0;                /* x left plane   (m) */
     moris::real tPlaneRight      = 2.2;                /* x right plane  (m) */
+
     moris::real tCylinderCenterX = 0.2;
     moris::real tCylinderCenterY = 0.2;
     moris::real tCylinderRadius  = 0.05;
@@ -184,7 +185,7 @@ namespace moris
         tParameterlist( 0 )( 0 ).set( "lagrange_to_bspline", std::string("0") );
 
         tParameterlist( 0 )( 0 ).set( "truncate_bsplines",  1 );
-        tParameterlist( 0 )( 0 ).set( "refinement_buffer",  1 );
+        tParameterlist( 0 )( 0 ).set( "refinement_buffer",  (int) gInterpolationOrder );
         tParameterlist( 0 )( 0 ).set( "staircase_buffer",   1 );
         tParameterlist( 0 )( 0 ).set( "initial_refinement", 0 );
 
