@@ -607,25 +607,15 @@ TEST_CASE("MDL_FEM_Benchmark_Diffusion_1Mat_Ghost","[MDL_FEM_Benchmark_Diffusion
         // --------------------------------------------------------------------------------------
         fem::SP_Factory tSPFactory;
 
-        std::shared_ptr< fem::Stabilization_Parameter > tSPDirichletNitsche = tSPFactory.create_SP( fem::Stabilization_Type::DIRICHLET_NITSCHE );
+        std::shared_ptr< fem::Stabilization_Parameter > tSPDirichletNitsche =
+                tSPFactory.create_SP( fem::Stabilization_Type::DIRICHLET_NITSCHE );
         tSPDirichletNitsche->set_parameters( { {{ tDBCGamma }} } );
         tSPDirichletNitsche->set_property( tPropKappaA, "Material", mtk::Master_Slave::MASTER );
 
-        std::shared_ptr< fem::Stabilization_Parameter > tSPDisplGhost = tSPFactory.create_SP( fem::Stabilization_Type::GHOST_DISPL );
+        std::shared_ptr< fem::Stabilization_Parameter > tSPDisplGhost =
+                tSPFactory.create_SP( fem::Stabilization_Type::GHOST_DISPL );
         tSPDisplGhost->set_parameters( {{{ tGammaDisplGhost }} });
         tSPDisplGhost->set_property( tPropKappaA, "Material", mtk::Master_Slave::MASTER );
-
-//        std::shared_ptr< fem::Stabilization_Parameter > tSPDisplGhost1 = tSPFactory.create_SP( fem::Stabilization_Type::GHOST_DISPL );
-//        tSPDisplGhost1->set_parameters( {{{ tGammaDisplGhost }}, {{ 1.0 }} });
-//        tSPDisplGhost1->set_property( tPropKappaA, "Material", mtk::Master_Slave::MASTER );
-//
-//        std::shared_ptr< fem::Stabilization_Parameter > tSPDisplGhost2 = tSPFactory.create_SP( fem::Stabilization_Type::GHOST_DISPL );
-//        tSPDisplGhost2->set_parameters( {{{ tGammaDisplGhost }}, {{ 2.0 }} });
-//        tSPDisplGhost2->set_property( tPropKappaA, "Material", mtk::Master_Slave::MASTER );
-//
-//        std::shared_ptr< fem::Stabilization_Parameter > tSPDisplGhost3 = tSPFactory.create_SP( fem::Stabilization_Type::GHOST_DISPL );
-//        tSPDisplGhost3->set_parameters( {{{ tGammaDisplGhost }}, {{ 3.0 }} });
-//        tSPDisplGhost3->set_property( tPropKappaA, "Material", mtk::Master_Slave::MASTER );
 
         // create the IWGs
         // --------------------------------------------------------------------------------------
@@ -648,11 +638,11 @@ TEST_CASE("MDL_FEM_Benchmark_Diffusion_1Mat_Ghost","[MDL_FEM_Benchmark_Diffusion
         tIWGNeumann->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
         tIWGNeumann->set_property( tPropNeumann, "Neumann", mtk::Master_Slave::MASTER );
 
-        std::shared_ptr< fem::IWG > tIWGGhost = tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_GHOST );
+        std::shared_ptr< fem::IWG > tIWGGhost = tIWGFactory.create_IWG( fem::IWG_Type::GHOST_NORMAL_FIELD );
         tIWGGhost->set_residual_dof_type( { MSI::Dof_Type::TEMP } );
         tIWGGhost->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
         tIWGGhost->set_dof_type_list( {{ MSI::Dof_Type::TEMP }}, mtk::Master_Slave::SLAVE );
-        tIWGGhost->set_stabilization_parameter( tSPDisplGhost, "GhostDispl" );
+        tIWGGhost->set_stabilization_parameter( tSPDisplGhost, "GhostSP" );
 
         // create the IQIs
         // --------------------------------------------------------------------------------------

@@ -1,7 +1,3 @@
-//
-// Created by christopherson on 5/19/20.
-//
-
 #include "cl_GEN_Discrete_Property.hpp"
 
 namespace moris
@@ -12,13 +8,23 @@ namespace moris
         //--------------------------------------------------------------------------------------------------------------
 
         Discrete_Property::Discrete_Property(Matrix<DDRMat>& aADVs,
-                                             Matrix<DDUMat> aPropertyVariableIndices,
-                                             Matrix<DDUMat> aADVIndices,
-                                             Matrix<DDRMat> aConstantParameters)
+                                             Matrix<DDUMat>  aPropertyVariableIndices,
+                                             Matrix<DDUMat>  aADVIndices,
+                                             Matrix<DDRMat>  aConstantParameters,
+                                             sint            aNumRefinements,
+                                             sint            aRefinementFunctionIndex,
+                                             sint            aBSplineMeshIndex,
+                                             real            aBSplineLowerBound,
+                                             real            aBSplineUpperBound)
                                              : Field(aADVs,
                                                      aPropertyVariableIndices,
                                                      aADVIndices,
-                                                     aConstantParameters)
+                                                     aConstantParameters,
+                                                     aNumRefinements,
+                                                     aRefinementFunctionIndex,
+                                                     aBSplineMeshIndex,
+                                                     aBSplineLowerBound,
+                                                     aBSplineUpperBound)
         {
         }
 

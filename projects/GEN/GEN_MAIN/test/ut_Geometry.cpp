@@ -1,10 +1,16 @@
 #include "catch.hpp"
 #include "cl_Matrix.hpp"
 #include "cl_GEN_Geometry_Engine.hpp"
-#include "fn_GEN_create_geometry.hpp"
+#include "fn_GEN_create_geometries.hpp"
 #include "fn_PRM_GEN_Parameters.hpp"
 #include "fn_Exec_load_user_library.hpp"
 #include "cl_GEN_User_Defined_Geometry.hpp"
+#include "cl_GEN_Circle.hpp" // TODO
+
+#include "cl_HMR.hpp"
+#include "cl_HMR_Mesh.hpp"
+#include "cl_HMR_Mesh_Interpolation.hpp"
+#include "cl_PRM_HMR_Parameters.hpp"
 
 namespace moris
 {
@@ -12,8 +18,8 @@ namespace moris
     //------------------------------------------------------------------------------------------------------------------
 
     // Dummy user-defined geometry
-    real user_defined_geometry_field(const moris::Matrix<DDRMat>& aCoordinates,
-                                     const moris::Cell<real*>&    aParameters);
+    real user_defined_geometry_field(const Matrix<DDRMat>& aCoordinates,
+                                     const Cell<real*>&    aParameters);
 
     void user_defined_geometry_sensitivity(const Matrix<DDRMat>& aCoordinates,
                                            const Cell<real*>&    aParameters,
@@ -26,7 +32,7 @@ namespace moris
 
     namespace ge
     {
-        TEST_CASE("Circle Test", "[GE], [GE_CIRCLE]")
+        TEST_CASE("Circle Test", "[GEN], [GEN_CIRCLE]")
         {
             // Set up geometry
             ParameterList tCircle1ParameterList = prm::create_geometry_parameter_list();
@@ -111,7 +117,9 @@ namespace moris
             check_approx(tSensitivities, {{-1.0, 0.0, 0.0, 0.0, -1.0}});
         }
 
-        TEST_CASE("Sphere Test", "[GE], [GE_SPHERE]")
+        //--------------------------------------------------------------------------------------------------------------
+
+        TEST_CASE("Sphere Test", "[GEN], [GEN_SPHERE]")
         {
             // Set up geometry
             ParameterList tSphereParameterList = prm::create_geometry_parameter_list();
@@ -166,7 +174,56 @@ namespace moris
             check_approx(tSensitivities, {{-2.0 / 3.0, 2.0 / 3.0, -1.0 / 3.0, -1.0}});
         }
 
-        TEST_CASE("User-Defined Geometry Test", "[GE], [GE_USER_DEFINED_GEOMETRY]")
+        //--------------------------------------------------------------------------------------------------------------
+
+        TEST_CASE("Level Set Geometry Test", "[GEN], [GEN_LEVEL_SET_GEOMETRY]")
+        {
+            if (par_size() == 1)
+            {
+                ParameterList tParameters = prm::create_hmr_parameter_list();
+
+                tParameters.set( "number_of_elements_per_dimension", std::string("2, 2"));
+                tParameters.set( "domain_dimensions", std::string("2, 2") );
+                tParameters.set( "domain_offset", std::string("-1.0, -1.0") );
+                tParameters.set( "domain_sidesets", std::string("1,2,3,4") );
+                tParameters.set( "lagrange_output_meshes", std::string("0") );
+
+                tParameters.set( "lagrange_orders", std::string("1") );
+                tParameters.set( "lagrange_pattern", std::string("0") );
+                tParameters.set( "bspline_orders", std::string("1") );
+                tParameters.set( "bspline_pattern", std::string("0") );
+
+                tParameters.set( "lagrange_to_bspline", std::string("0") );
+
+                tParameters.set( "truncate_bsplines", 1 );
+                tParameters.set( "refinement_buffer", 3 );
+                tParameters.set( "staircase_buffer", 3 );
+                tParameters.set( "initial_refinement", 0 );
+
+                tParameters.set( "use_multigrid", 0 );
+                tParameters.set( "severity_level", 2 );
+
+                hmr::HMR tHMR( tParameters );
+
+                // initial refinement
+                tHMR.perform_initial_refinement( 0 );
+                tHMR.finalize();
+
+                hmr::Interpolation_Mesh_HMR* tInterpolationMesh = tHMR.create_interpolation_mesh(0);
+
+                // Create circle geometry
+                Cell<std::shared_ptr<Geometry>> tGeometry(1);
+                tGeometry(0) = std::make_shared<Circle>(0.0, 0.0, 0.25, 0, -1, 0);
+
+                Phase_Table tPhaseTable (1, Phase_Table_Structure::EXP_BASE_2);
+                Geometry_Engine tGeometryEngine(tGeometry, tPhaseTable, tInterpolationMesh);
+
+            }
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
+        TEST_CASE("User-Defined Geometry Test", "[GEN], [GEN_USER_DEFINED_GEOMETRY]")
         {
             // Create user-defined geometry
             Matrix<DDRMat> tADVs(2, 1);
@@ -214,8 +271,8 @@ namespace moris
 
     //------------------------------------------------------------------------------------------------------------------
 
-    real user_defined_geometry_field(const moris::Matrix<DDRMat>& aCoordinates,
-                                     const moris::Cell<real*>&    aParameters)
+    real user_defined_geometry_field(const Matrix<DDRMat>& aCoordinates,
+                                     const Cell<real*>&    aParameters)
     {
         return aCoordinates(0) * pow(*aParameters(0), 2) + aCoordinates(1) * pow(*aParameters(1), 3);
     }

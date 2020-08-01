@@ -266,9 +266,9 @@ TEST_CASE("2D XTK WITH HMR Struc Interface 2D","[XTK_HMR_Struc_Interface_2D]")
         tPropDirichlet2->set_parameters( { {{ 1.0, 1.0 }} } );
         tPropDirichlet2->set_val_function( tMValFunction );
 
-        std::shared_ptr< fem::Property > tPropNeumann = std::make_shared< fem::Property >();
-        tPropNeumann->set_parameters( {{{ 1.0 } , { 0.0 }}} );
-        tPropNeumann->set_val_function( tConstValFunction );
+        std::shared_ptr< fem::Property > tPropTraction = std::make_shared< fem::Property >();
+        tPropTraction->set_parameters( {{{ 1.0 } , { 0.0 }}} );
+        tPropTraction->set_val_function( tConstValFunction );
 
         // define constitutive models
         fem::CM_Factory tCMFactory;
@@ -330,7 +330,7 @@ TEST_CASE("2D XTK WITH HMR Struc Interface 2D","[XTK_HMR_Struc_Interface_2D]")
         std::shared_ptr< fem::IWG > tIWGNeumann = tIWGFactory.create_IWG( fem::IWG_Type::STRUC_LINEAR_NEUMANN );
         tIWGNeumann->set_residual_dof_type( { MSI::Dof_Type::UX, MSI::Dof_Type::UY } );
         tIWGNeumann->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY }} );
-        tIWGNeumann->set_property( tPropNeumann, "Neumann", mtk::Master_Slave::MASTER );
+        tIWGNeumann->set_property( tPropTraction, "Traction", mtk::Master_Slave::MASTER );
 
         std::shared_ptr< fem::IWG > tIWGInterface = tIWGFactory.create_IWG( fem::IWG_Type::STRUC_LINEAR_INTERFACE );
         tIWGInterface->set_residual_dof_type( { MSI::Dof_Type::UX, MSI::Dof_Type::UY } );
@@ -860,9 +860,9 @@ TEST_CASE("2D XTK WITH HMR Struc 2D first","[XTK_HMR_Struc_2D_01]")
         tPropDirichlet2->set_parameters( { {{ 1.0, 1.0 }} } );
         tPropDirichlet2->set_val_function( tMValFunction );
 
-        std::shared_ptr< fem::Property > tPropNeumann = std::make_shared< fem::Property >();
-        tPropNeumann->set_parameters( {{{ 1000.0 } , { 100.0 }}} );
-        tPropNeumann->set_val_function( tConstValFunction );
+        std::shared_ptr< fem::Property > tPropTraction = std::make_shared< fem::Property >();
+        tPropTraction->set_parameters( {{{ 1000.0 } , { 100.0 }}} );
+        tPropTraction->set_val_function( tConstValFunction );
 
         // define constitutive models
         fem::CM_Factory tCMFactory;
@@ -934,7 +934,7 @@ TEST_CASE("2D XTK WITH HMR Struc 2D first","[XTK_HMR_Struc_2D_01]")
         std::shared_ptr< fem::IWG > tIWGNeumann = tIWGFactory.create_IWG( fem::IWG_Type::STRUC_LINEAR_NEUMANN );
         tIWGNeumann->set_residual_dof_type( { MSI::Dof_Type::UX, MSI::Dof_Type::UY } );
         tIWGNeumann->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY }} );
-        tIWGNeumann->set_property( tPropNeumann, "Neumann", mtk::Master_Slave::MASTER );
+        tIWGNeumann->set_property( tPropTraction, "Traction", mtk::Master_Slave::MASTER );
 
         std::shared_ptr< fem::IWG > tIWGInterface = tIWGFactory.create_IWG( fem::IWG_Type::STRUC_LINEAR_INTERFACE );
         tIWGInterface->set_residual_dof_type( { MSI::Dof_Type::UX, MSI::Dof_Type::UY } );
@@ -1165,9 +1165,9 @@ TEST_CASE("2D XTK WITH HMR Struc 2D second","[XTK_HMR_Struc_2D_02]")
         tPropDirichlet2->set_parameters( { {{ 1.0 }, { 1.0 }} } );
         tPropDirichlet2->set_val_function( tMValFunction );
 
-        std::shared_ptr< fem::Property > tPropNeumann = std::make_shared< fem::Property >();
-        tPropNeumann->set_parameters( {{{ 1000.0 } , { 100.0 }}} );
-        tPropNeumann->set_val_function( tConstValFunction );
+        std::shared_ptr< fem::Property > tPropTraction = std::make_shared< fem::Property >();
+        tPropTraction->set_parameters( {{{ 1000.0 } , { 100.0 }}} );
+        tPropTraction->set_val_function( tConstValFunction );
 
 //        std::shared_ptr< fem::Property > tPropDirichletUX = std::make_shared< fem::Property >();
 //        tPropDirichletUX->set_parameters( { {{ 0.0 }} } );
@@ -1214,7 +1214,7 @@ TEST_CASE("2D XTK WITH HMR Struc 2D second","[XTK_HMR_Struc_2D_02]")
         std::shared_ptr< fem::IWG > tIWGNeumann = tIWGFactory.create_IWG( fem::IWG_Type::STRUC_LINEAR_NEUMANN );
         tIWGNeumann->set_residual_dof_type( { MSI::Dof_Type::UX, MSI::Dof_Type::UY } );
         tIWGNeumann->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY }} );
-        tIWGNeumann->set_property( tPropNeumann, "Neumann", mtk::Master_Slave::MASTER );
+        tIWGNeumann->set_property( tPropTraction, "Traction", mtk::Master_Slave::MASTER );
 
         // create a list of active block-sets
         std::string tInterfaceSideSetName = tEnrIntegMesh.get_interface_side_set_name( 0, 0, 1 );

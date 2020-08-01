@@ -40,7 +40,7 @@ namespace moris
                 MSI::Dof_Type mMasterDofViscosity = MSI::Dof_Type::VISCOSITY;
                 MSI::Dof_Type mMasterDofVelocity  = MSI::Dof_Type::VX;
 
-                // FIXME temp all the constants
+                // Spalart-Allmaras model constants
                 real mCb1 = 0.1355;
                 real mCb2 = 0.6220;
                 real mSigma = 2.0/3.0;
@@ -53,11 +53,13 @@ namespace moris
                 real mCv1 = 7.1;
                 real mCv2 = 0.7;
                 real mCv3 = 0.9;
+                real mRLim = 10.0;
+                real mCn1 = 16.0;
 
             public :
 
                 // property type for the SP
-                enum class Property_Type
+                enum class SP_Property_Type
                 {
                     VISCOSITY, // fluid viscosity
                     WALL_DISTANCE,
@@ -65,7 +67,7 @@ namespace moris
                 };
 
                 // local string to property enum map
-                std::map< std::string, Property_Type > mPropertyMap;
+                std::map< std::string, SP_Property_Type > mPropertyMap;
 
                 /*
                  * Rem: mParameters( 0 ) -
@@ -159,6 +161,87 @@ namespace moris
 
                 //------------------------------------------------------------------------------
             private:
+                //------------------------------------------------------------------------------
+                /**
+                 * compute production term
+                 * P = cb1 * ( 1 - ft2 ) * STilde * modViscosity
+                 * if modViscosity >= 0
+                 * P = cb1 * ( 1 - ct3 ) * S * modViscosity
+                 * if modViscosity <  0
+                 */
+                real compute_production_coefficient();
+
+                //------------------------------------------------------------------------------
+                /**
+                 * compute the derivative of the production term
+                 * @param[ in ] aDofTypes      a list of dof type wrt which
+                 *                             the derivative is requested
+                 * @param[ in ] adproductiondu a matrix to fill with dproductiondu
+                 */
+                void compute_dproductiondu(
+                        const moris::Cell< MSI::Dof_Type > & aDofTypes,
+                        Matrix< DDRMat >                   & adproductiondu );
+
+                //------------------------------------------------------------------------------
+                /**
+                 * compute wall destruction term
+                 * D = ( cw1 * fw - cb1 * ft2 / kappa² ) * ( modViscosity / wallD )²
+                 * if modViscosity >= 0
+                 * D = - cw1 * ( modViscosity / wallD )²
+                 * if modViscosity <  0
+                 */
+                real compute_wall_destruction_coefficient();
+
+                //------------------------------------------------------------------------------
+                /**
+                 * compute the derivative of the wall destruction term
+                 * @param[ in ] aDofTypes           a list of dof type wrt which
+                 *                                  the derivative is requested
+                 * @param[ in ] adwalldestructiondu a matrix to fill with dwalldestructiondu
+                 */
+                void compute_dwalldestructiondu(
+                        const moris::Cell< MSI::Dof_Type > & aDofTypes,
+                        Matrix< DDRMat >                   & adwalldestructiondu );
+
+                //------------------------------------------------------------------------------
+                /**
+                 * compute diffusion coefficient
+                 * Diff = kinViscosity + modViscosity
+                 * if modViscosity >= 0
+                 * Diff = kinViscosity + modViscosity * fn
+                 * if modViscosity <  0
+                 */
+                real compute_diffusion_coefficient();
+
+                //------------------------------------------------------------------------------
+                /**
+                 * compute the derivative of the diffusion coefficient
+                 * @param[ in ] aDofTypes     a list of dof type wrt which
+                 *                            the derivative is requested
+                 * @param[ in ] addiffusiondu a matrix to fill with ddiffusiondu
+                 */
+                void compute_ddiffusiondu(
+                        const moris::Cell< MSI::Dof_Type > & aDofTypes,
+                        Matrix< DDRMat >                   & addiffusiondu );
+
+                //------------------------------------------------------------------------------
+                /**
+                 * compute fn
+                 * fn = ( cn1 + chi³ ) / ( cn1 - chi³)
+                 */
+                real compute_fn();
+
+                //------------------------------------------------------------------------------
+                /**
+                 * compute the derivative of fn wrt to a dof type
+                 * @param[ in ] aDofTypes  a list of dof type wrt which
+                 *                         the derivative is requested
+                 * @param[ in ] adfndu     a matrix to fill with dfndu
+                 */
+                void compute_dfndu(
+                        const moris::Cell< MSI::Dof_Type > & aDofTypes,
+                        Matrix< DDRMat >                   & adfndu );
+
                 //------------------------------------------------------------------------------
                 /**
                  * compute Wij = 0.5 * ( dui/dxj - duj/dxi )

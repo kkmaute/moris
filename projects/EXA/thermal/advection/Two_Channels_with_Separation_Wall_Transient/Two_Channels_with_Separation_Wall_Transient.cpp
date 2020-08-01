@@ -620,55 +620,55 @@ extern "C"
             // ghost viscous IWG
             tParameterList( 3 ).push_back( prm::create_IWG_parameter_list() );
             tParameterList( 3 )( tIWGCounter ).set( "IWG_name",                   std::string("IWGGPViscous") );
-            tParameterList( 3 )( tIWGCounter ).set( "IWG_type",                   static_cast< uint >( fem::IWG_Type::INCOMPRESSIBLE_NS_VISCOUS_VELOCITY_GHOST ) );
+            tParameterList( 3 )( tIWGCounter ).set( "IWG_type",                   static_cast< uint >( fem::IWG_Type::GHOST_NORMAL_FIELD ) );
             tParameterList( 3 )( tIWGCounter ).set( "dof_residual",               std::string("VX,VY") );
             tParameterList( 3 )( tIWGCounter ).set( "master_dof_dependencies",    std::string("VX,VY;P;TEMP") );
             tParameterList( 3 )( tIWGCounter ).set( "slave_dof_dependencies",     std::string("VX,VY;P;TEMP") );
-            tParameterList( 3 )( tIWGCounter ).set( "stabilization_parameters",   std::string("SPGPViscous,ViscousGhost") );
+            tParameterList( 3 )( tIWGCounter ).set( "stabilization_parameters",   std::string("SPGPViscous,GhostSP") );
             tParameterList( 3 )( tIWGCounter ).set( "mesh_set_names",             std::string("ghost_p34,ghost_p46") );
             tIWGCounter++;
 
             // ghost convective IWG
             tParameterList( 3 ).push_back( prm::create_IWG_parameter_list() );
             tParameterList( 3 )( tIWGCounter ).set( "IWG_name",                   std::string("IWGGPConvective") );
-            tParameterList( 3 )( tIWGCounter ).set( "IWG_type",                   static_cast< uint >( fem::IWG_Type::INCOMPRESSIBLE_NS_CONVECTIVE_VELOCITY_GHOST ) );
+            tParameterList( 3 )( tIWGCounter ).set( "IWG_type",                   static_cast< uint >( fem::IWG_Type::GHOST_NORMAL_FIELD ) );
             tParameterList( 3 )( tIWGCounter ).set( "dof_residual",               std::string("VX,VY") );
             tParameterList( 3 )( tIWGCounter ).set( "master_dof_dependencies",    std::string("VX,VY;P;TEMP") );
             tParameterList( 3 )( tIWGCounter ).set( "slave_dof_dependencies",     std::string("VX,VY;P;TEMP") );
-            tParameterList( 3 )( tIWGCounter ).set( "stabilization_parameters",   std::string("SPGPVelocity,ConvectiveGhost") );
+            tParameterList( 3 )( tIWGCounter ).set( "stabilization_parameters",   std::string("SPGPVelocity,GhostSP") );
             tParameterList( 3 )( tIWGCounter ).set( "mesh_set_names",             std::string("ghost_p34,ghost_p46") );
             tIWGCounter++;
 
             // ghost pressure IWG
             tParameterList( 3 ).push_back( prm::create_IWG_parameter_list() );
             tParameterList( 3 )( tIWGCounter ).set( "IWG_name",                   std::string("IWGGPPressure") );
-            tParameterList( 3 )( tIWGCounter ).set( "IWG_type",                   static_cast< uint >( fem::IWG_Type::INCOMPRESSIBLE_NS_PRESSURE_GHOST ) );
+            tParameterList( 3 )( tIWGCounter ).set( "IWG_type",                   static_cast< uint >( fem::IWG_Type::GHOST_NORMAL_FIELD ) );
             tParameterList( 3 )( tIWGCounter ).set( "dof_residual",               std::string("P") );
             tParameterList( 3 )( tIWGCounter ).set( "master_dof_dependencies",    std::string("VX,VY;P;TEMP") );
             tParameterList( 3 )( tIWGCounter ).set( "slave_dof_dependencies",     std::string("VX,VY;P;TEMP") );
-            tParameterList( 3 )( tIWGCounter ).set( "stabilization_parameters",   std::string("SPGPPressure,PressureGhost") );
+            tParameterList( 3 )( tIWGCounter ).set( "stabilization_parameters",   std::string("SPGPPressure,GhostSP") );
             tParameterList( 3 )( tIWGCounter ).set( "mesh_set_names",             std::string("ghost_p34,ghost_p46") );
             tIWGCounter++;
 
             // ghost fluid temperature IWG
             tParameterList( 3 ).push_back( prm::create_IWG_parameter_list() );
             tParameterList( 3 )( tIWGCounter ).set( "IWG_name",                   std::string("IWGGPFluidTemp") );
-            tParameterList( 3 )( tIWGCounter ).set( "IWG_type",                   static_cast< uint >( fem::IWG_Type::SPATIALDIFF_GHOST ) );
+            tParameterList( 3 )( tIWGCounter ).set( "IWG_type",                   static_cast< uint >( fem::IWG_Type::GHOST_NORMAL_FIELD ) );
             tParameterList( 3 )( tIWGCounter ).set( "dof_residual",               std::string("TEMP") );
             tParameterList( 3 )( tIWGCounter ).set( "master_dof_dependencies",    std::string("VX,VY;P;TEMP") );
             tParameterList( 3 )( tIWGCounter ).set( "slave_dof_dependencies",     std::string("VX,VY;P;TEMP") );
-            tParameterList( 3 )( tIWGCounter ).set( "stabilization_parameters",   std::string("SPGPFluidTemp,GhostDispl") );
+            tParameterList( 3 )( tIWGCounter ).set( "stabilization_parameters",   std::string("SPGPFluidTemp,GhostSP") );
             tParameterList( 3 )( tIWGCounter ).set( "mesh_set_names",             std::string("ghost_p34,ghost_p46") );
             tIWGCounter++;
 
             // ghost solid temperature IWG
             tParameterList( 3 ).push_back( prm::create_IWG_parameter_list() );
             tParameterList( 3 )( tIWGCounter ).set( "IWG_name",                   std::string("IWGGPSolidTemp") );
-            tParameterList( 3 )( tIWGCounter ).set( "IWG_type",                   static_cast< uint >( fem::IWG_Type::SPATIALDIFF_GHOST ) );
+            tParameterList( 3 )( tIWGCounter ).set( "IWG_type",                   static_cast< uint >( fem::IWG_Type::GHOST_NORMAL_FIELD ) );
             tParameterList( 3 )( tIWGCounter ).set( "dof_residual",               std::string("TEMP") );
             tParameterList( 3 )( tIWGCounter ).set( "master_dof_dependencies",    std::string("VX,VY;P;TEMP") );
             tParameterList( 3 )( tIWGCounter ).set( "slave_dof_dependencies",     std::string("VX,VY;P;TEMP") );
-            tParameterList( 3 )( tIWGCounter ).set( "stabilization_parameters",   std::string("SPGPSolidTemp,GhostDispl") );
+            tParameterList( 3 )( tIWGCounter ).set( "stabilization_parameters",   std::string("SPGPSolidTemp,GhostSP") );
             tParameterList( 3 )( tIWGCounter ).set( "mesh_set_names",             std::string("ghost_p42") );
             tIWGCounter++;
 

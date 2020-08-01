@@ -19,12 +19,16 @@ namespace moris
 
         public:
             /**
-             * Constructor
+             * Constructor where ADVs are given directly.
              *
-             * @param aMeshWithLevelSetFields Mesh with the level set fields
-             * @param aFieldNames Names of the fields
+             * @param aADVs Reference to the full advs
+             * @param aGeometryVariableIndices Indices of geometry variables to be filled by the ADVs
+             * @param aADVIndices The indices of the ADV vector to fill in the geometry variables
+             * @param aConstantParameters The constant parameters not filled by ADVs
+             * @param aMesh The mesh pointer where the B-spline information can be obtained
              * @param aNumRefinements The number of refinement steps to use for this geometry
              * @param aRefinementFunctionIndex The index of a user-defined refinement function (-1 = default refinement)
+             * @param aBSplineMeshIndex The index of a B-spline mesh for level set discretization
              */
             Level_Set(Matrix<DDRMat>& aADVs,
                       Matrix<DDUMat>  aGeometryVariableIndices,
@@ -32,7 +36,23 @@ namespace moris
                       Matrix<DDRMat>  aConstantParameters,
                       mtk::Mesh*      aMesh,
                       sint            aNumRefinements = 0,
-                      sint            aRefinementFunctionIndex = -1);
+                      sint            aRefinementFunctionIndex = -1,
+                      uint            aBSplineMeshIndex = 0,
+                      real            aBSplineLowerBound = -1.0,
+                      real            aBSplineUpperBound = 1.0);
+
+            /**
+             * Constructor where ADVs are added based on an input field and the B-spline mesh.
+             *
+             * @param aADVs Reference to the full ADVs
+             * @param aADVIndex Starting index for assigning ADVs
+             * @param aMesh The mesh pointer where the B-spline information can be obtained
+             * @param aGeometry Geometry for initializing the B-spline level set discretization
+             */
+            Level_Set(Matrix<DDRMat>&           aADVs,
+                      uint                      aADVIndex,
+                      mtk::Mesh*                aMesh,
+                      std::shared_ptr<Geometry> aGeometry);
 
             /**
              * Given an index, the discrete geometry needs to return a field value.
@@ -57,6 +77,13 @@ namespace moris
              * @param aChildNode Contains information about how the child node was created
              */
             void add_child_node(uint aNodeIndex, std::shared_ptr<Child_Node> aChildNode);
+
+            /**
+             * Function for determining if this geometry is to be used for seeding a B-spline level set field.
+             *
+             * @return false
+             */
+            bool conversion_to_bsplines();
 
         };
     }

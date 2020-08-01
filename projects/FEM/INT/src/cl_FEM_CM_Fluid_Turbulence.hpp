@@ -25,7 +25,7 @@ namespace moris
             private:
 
                 // default dof type
-                MSI::Dof_Type mDofVelocity = MSI::Dof_Type::VX;
+                MSI::Dof_Type mDofVelocity  = MSI::Dof_Type::VX;
                 MSI::Dof_Type mDofViscosity = MSI::Dof_Type::VISCOSITY;
 
                 // property type for CM
@@ -50,7 +50,7 @@ namespace moris
                         const Matrix< DDRMat > & aNormal,
                         Matrix< DDRMat > & aFlatNormal ) = nullptr;
 
-                // FIXME temp all the constants
+                // Spalart Allmaras model constants
                 real mCv1 = 7.1;
 
                 //--------------------------------------------------------------------------------------------------------------
@@ -327,7 +327,7 @@ namespace moris
 
                 //------------------------------------------------------------------------------
                 /**
-                 * compute chi = viscosityDof / viscosityPtop
+                 * compute chi = viscosityDof / viscosityProp
                  * @param[ out ] chi
                  */
                 real compute_chi();

@@ -1,4 +1,6 @@
 add_subdirectory(Channel_with_Four_Cylinders_Static_Temp_Only)
+add_subdirectory(Heated_Sphere)
+add_subdirectory(Two_Material_Bar)
 add_subdirectory(Single_Phase_Hollow_Cylinder_Static)
 add_subdirectory(Fickian_Problem)
 add_subdirectory(Stefans_Problem_conform)

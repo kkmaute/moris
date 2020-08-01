@@ -1,0 +1,11 @@
+namespace moris {
+namespace fem {
+
+/** @defgroup FE_IQI Integrand of Quantity of Interest (IQI)
+
+The integrand of a quantity of interest (IQI)...
+
+*/
+
+}
+}

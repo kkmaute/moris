@@ -298,7 +298,8 @@ namespace moris
                         mTimeInterpolation->get_interpolation_order() );
 
                 // create an Interpolation function for the IG cell
-                Interpolation_Function_Base * tIGSpaceInterpolation = tIGInterpolationRule.create_space_interpolation_function();
+                Interpolation_Function_Base * tIGSpaceInterpolation =
+                        tIGInterpolationRule.create_space_interpolation_function();
 
                 // get the parametric coordinated of the parent for extraction
                 tIGSpaceInterpolation->get_param_coords( tXiForExtraction );
@@ -658,6 +659,32 @@ namespace moris
 
             // compute the determinant of the space time Jacobian
             return detJSpace * detJTime;
+        }
+
+        real Geometry_Interpolator::space_det_J()
+        {
+            // get the space jacobian
+            Matrix< DDRMat > tSpaceJt;
+            this->space_jacobian( tSpaceJt );
+
+            // compute detJ for space
+            real detJSpace = ( this->*mSpaceDetJFunc )( tSpaceJt );
+
+            // compute the determinant of the space time Jacobian
+            return detJSpace;
+        }
+
+        real Geometry_Interpolator::time_det_J()
+        {
+            // get the time Jacobian
+            Matrix< DDRMat > tTimeJt;
+            this->time_jacobian( tTimeJt );
+
+            // compute detJ for time
+            real detJTime  = ( this->*mTimeDetJFunc )( tTimeJt );
+
+            // compute the determinant of the space time Jacobian
+            return detJTime;
         }
 
         //------------------------------------------------------------------------------
@@ -1723,7 +1750,7 @@ namespace moris
                             break;
                         case 27 :
                             tVerticesPerFace = {
-                                    { 0, 1, 5, 4,  8, 13, 16, 12, 23 },
+                                    { 0, 1, 5, 4,  8, 13, 16, 12, 25 },
                                     { 1, 2, 6, 5,  9, 14, 17, 13, 24 },
                                     { 2, 3, 7, 6, 10, 15, 18, 14, 26 },
                                     { 0, 4, 7, 3, 12, 19, 15, 11, 23 },

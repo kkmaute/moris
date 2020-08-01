@@ -8,8 +8,7 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        Pdv_Host_Manager::Pdv_Host_Manager(uint aNumADVs)
-        : mNumADVs(aNumADVs)
+        Pdv_Host_Manager::Pdv_Host_Manager()
         {
         }
 
@@ -17,6 +16,14 @@ namespace moris
 
         Pdv_Host_Manager::~Pdv_Host_Manager()
         {
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
+        void Pdv_Host_Manager::set_num_advs(uint aNumADVs)
+        {
+            mNumADVs = aNumADVs;
+            mNumADVsSet = true;
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -454,6 +461,9 @@ namespace moris
 
         Matrix<DDRMat> Pdv_Host_Manager::compute_dpdv_dadv()
         {
+            // Check for ADVs
+            MORIS_ERROR(mNumADVsSet, "PDV Host Manager must have the number of ADVs set before computing sensitivities.");
+
             // Total matrix dpdv/dadv
             Matrix<DDRMat> tTotalAdvSensitivities(mGlobalPdvIndex, mNumADVs, 0.0);
 

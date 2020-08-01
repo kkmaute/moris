@@ -21,7 +21,6 @@
 #include "cl_FEM_IWG_Diffusion_Robin.hpp"
 #include "cl_FEM_IWG_Diffusion_Radiation.hpp"
 #include "cl_FEM_IWG_Diffusion_Interface.hpp"
-#include "cl_FEM_IWG_Diffusion_Ghost.hpp"
 #include "cl_FEM_IWG_Diffusion_Virtual_Work_Ghost.hpp"
 //Advection
 #include "cl_FEM_IWG_Advection_Bulk.hpp"
@@ -30,7 +29,6 @@
 #include "cl_FEM_IWG_Isotropic_Struc_Linear_Dirichlet.hpp"
 #include "cl_FEM_IWG_Isotropic_Struc_Linear_Neumann.hpp"
 #include "cl_FEM_IWG_Isotropic_Struc_Linear_Interface.hpp"
-#include "cl_FEM_IWG_Isotropic_Struc_Linear_Ghost.hpp"
 #include "cl_FEM_IWG_Isotropic_Struc_Linear_Virtual_Work_Ghost.hpp"
 //Incompressible solid
 #include "cl_FEM_IWG_Isotropic_Struc_Linear_Pressure_Bulk.hpp"
@@ -38,10 +36,7 @@
 //Incompressible fluid
 #include "cl_FEM_IWG_Incompressible_NS_Velocity_Bulk.hpp"
 #include "cl_FEM_IWG_Incompressible_NS_Pressure_Bulk.hpp"
-#include "cl_FEM_IWG_Incompressible_NS_Viscous_Velocity_Ghost.hpp"
 #include "cl_FEM_IWG_Incompressible_NS_Convective_Velocity_Ghost.hpp"
-#include "cl_FEM_IWG_Incompressible_NS_Convective_Normal_Velocity_Ghost.hpp"
-#include "cl_FEM_IWG_Incompressible_NS_Pressure_Ghost.hpp"
 #include "cl_FEM_IWG_Incompressible_NS_Velocity_Dirichlet_Nitsche.hpp"
 #include "cl_FEM_IWG_Incompressible_NS_Pressure_Dirichlet_Nitsche.hpp"
 #include "cl_FEM_IWG_Incompressible_NS_Pressure_Neumann.hpp"
@@ -62,6 +57,8 @@
 //Contact
 #include "cl_FEM_IWG_Isotropic_Struc_Linear_Contact_Penalty.hpp"
 #include "cl_FEM_IWG_Isotropic_Struc_Linear_Contact_Nitsche.hpp"
+//Ghost
+#include "cl_FEM_IWG_Ghost_Normal_Field.hpp"
 
 namespace moris
 {
@@ -112,9 +109,6 @@ namespace moris
                 case IWG_Type::SPATIALDIFF_INTERFACE :
                     return std::make_shared< IWG_Diffusion_Interface >();
 
-                case IWG_Type::SPATIALDIFF_GHOST :
-                    return std::make_shared< IWG_Diffusion_Ghost >();
-
                 case IWG_Type::SPATIALDIFF_VW_GHOST :
                     return std::make_shared< IWG_Diffusion_Virtual_Work_Ghost >();
 
@@ -136,9 +130,6 @@ namespace moris
                 case IWG_Type::STRUC_LINEAR_NEUMANN :
                     return std::make_shared< IWG_Isotropic_Struc_Linear_Neumann >();
 
-                case IWG_Type::STRUC_LINEAR_GHOST :
-                    return std::make_shared< IWG_Isotropic_Struc_Linear_Ghost >();
-
                 case IWG_Type::STRUC_LINEAR_VW_GHOST :
                     return std::make_shared< IWG_Isotropic_Struc_Linear_Virtual_Work_Ghost >();
 
@@ -157,17 +148,8 @@ namespace moris
                 case IWG_Type::INCOMPRESSIBLE_NS_PRESSURE_BULK :
                     return std::make_shared< IWG_Incompressible_NS_Pressure_Bulk >();
 
-                case IWG_Type::INCOMPRESSIBLE_NS_VISCOUS_VELOCITY_GHOST :
-                    return std::make_shared< IWG_Incompressible_NS_Viscous_Velocity_Ghost >();
-
                 case IWG_Type::INCOMPRESSIBLE_NS_CONVECTIVE_VELOCITY_GHOST :
                     return std::make_shared< IWG_Incompressible_NS_Convective_Velocity_Ghost >();
-
-                case IWG_Type::INCOMPRESSIBLE_NS_CONVECTIVE_NORMAL_VELOCITY_GHOST :
-                    return std::make_shared< IWG_Incompressible_NS_Convective_Normal_Velocity_Ghost >();
-
-                case IWG_Type::INCOMPRESSIBLE_NS_PRESSURE_GHOST :
-                    return std::make_shared< IWG_Incompressible_NS_Pressure_Ghost >();
 
                 case IWG_Type::INCOMPRESSIBLE_NS_VELOCITY_DIRICHLET_SYMMETRIC_NITSCHE :
                     return std::make_shared< IWG_Incompressible_NS_Velocity_Dirichlet_Nitsche >( -1 );
@@ -231,6 +213,9 @@ namespace moris
 
                 case IWG_Type::STRUC_LINEAR_CONTACT_PENALTY :
                     return std::make_shared< IWG_Isotropic_Struc_Linear_Contact_Penalty >();
+
+                case IWG_Type::GHOST_NORMAL_FIELD :
+                    return std::make_shared< IWG_Ghost_Normal_Field >();
 
                 default:
                     MORIS_ERROR( false, " IWG_Factory::create_IWGs - IWG type specified is not defined. " );

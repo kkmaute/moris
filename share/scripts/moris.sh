@@ -15,6 +15,9 @@ if [ $1 = "opt" -o  $1 = "dbg" ];then
     moris_create_shared_object.sh $1 $3
     
     if [ ! -f "$3".so ];then
+        echo ""
+        echo " compilation failed"
+        echo ""
         exit
     fi
     moris_run.sh $1 $2 $3 $4

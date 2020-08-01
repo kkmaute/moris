@@ -25,6 +25,7 @@
 #include "cl_FEM_IQI_Volume_Fraction.hpp"
 #include "cl_FEM_IQI_2D_Drag_Lift_Coefficient.hpp"
 #include "cl_FEM_IQI_Latent_Heat_Absorption.hpp"
+#include "cl_FEM_IQI_Turbulent_Kinematic_Viscosity.hpp"
 
 namespace moris
 {
@@ -82,6 +83,9 @@ namespace moris
 
                 case IQI_Type::LIFT_COEFF :
                     return std::make_shared< IQI_Drag_Lift_Coefficient >( -1 );
+
+                case IQI_Type::TURBULENT_KINEMATIC_VISCOSITY :
+                    return std::make_shared< IQI_Turbulent_Kinematic_Viscosity >();
 
                 case IQI_Type::LATENT_HEAT_ABSORPTION :
                     return std::make_shared< IQI_Latent_Heat_Absorption >();

@@ -1,0 +1,22 @@
+namespace moris {
+namespace fem {
+
+/** \page FE_SP_Convective_Ghost Stabilization Parameter for Convective Ghost
+
+The convective ghost stabilization parameter is given as:
+\f[
+\gamma_{u}^{GP} = \alpha_{u}^{GP} \rho |\mathbf{u} \cdot \mathbf{n}| h^2
+\f]
+where
+- \f$ \alpha_{u}^{GP} \f$ is a scalar constant ranging in \f$ [ 0.001 0.005 ] \f$,
+- \f$ rho \f$ is the fluid density,
+- \f$ \mathbf{u} \f$ is the fluid velocity,
+- \f$ \mathbf{n} \f$ is the outward normal to the considered facet ,
+- \f$ h \f$ is the element size along the considered facet.
+
+The stabilization parameter \f$ \gamma_{u}^{GP} \f$ is implemented in SP_Convective_Ghost and is build using the enum SP_Type::CONVECTIVE_GHOST.
+
+*/
+
+}
+}

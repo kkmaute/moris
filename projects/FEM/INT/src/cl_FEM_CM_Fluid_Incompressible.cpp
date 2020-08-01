@@ -1,6 +1,7 @@
 
 #include "cl_FEM_CM_Fluid_Incompressible.hpp"
 #include "cl_FEM_Field_Interpolator_Manager.hpp"
+#include "cl_FEM_Set.hpp"
 
 #include "fn_trans.hpp"
 #include "fn_norm.hpp"
@@ -13,6 +14,7 @@ namespace moris
     {
 
         //--------------------------------------------------------------------------------------------------------------
+        
         CM_Fluid_Incompressible::CM_Fluid_Incompressible()
         {
             // set the property pointer cell size
@@ -24,6 +26,7 @@ namespace moris
         }
 
         //--------------------------------------------------------------------------------------------------------------
+        
         void CM_Fluid_Incompressible::set_function_pointers()
         {
             switch ( mSpaceDim )
@@ -51,12 +54,12 @@ namespace moris
                 default :
                 {
                     MORIS_ERROR( false, "CM_Fluid_Incompressible::set_function_pointers - only works for 2d and 3d." );
-                    break;
                 }
             }
         }
 
         //------------------------------------------------------------------------------
+       
         void CM_Fluid_Incompressible::set_dof_type_list(
                 moris::Cell< moris::Cell< MSI::Dof_Type > > aDofTypes,
                 moris::Cell< std::string >                  aDofStrings )
@@ -93,6 +96,7 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+        
         void CM_Fluid_Incompressible::set_property(
                 std::shared_ptr< fem::Property > aProperty,
                 std::string                      aPropertyString )
@@ -112,6 +116,7 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+        
         std::shared_ptr< Property > CM_Fluid_Incompressible::get_property(
                 std::string aPropertyString )
         {
@@ -130,6 +135,7 @@ namespace moris
         }
 
         //--------------------------------------------------------------------------------------------------------------
+        
         void CM_Fluid_Incompressible::eval_flux()
         {
             // get the pressure FI
@@ -152,6 +158,7 @@ namespace moris
         }
 
         //--------------------------------------------------------------------------------------------------------------
+        
         void CM_Fluid_Incompressible::eval_divflux()
         {
             // get the pressure FI
@@ -167,6 +174,7 @@ namespace moris
         }
 
         //--------------------------------------------------------------------------------------------------------------
+        
         void CM_Fluid_Incompressible::eval_ddivfluxdu( const moris::Cell< MSI::Dof_Type > & aDofTypes )
         {
             // get the dof type index
@@ -210,6 +218,7 @@ namespace moris
         }
 
         //--------------------------------------------------------------------------------------------------------------
+        
         void CM_Fluid_Incompressible::eval_dfluxdx( uint aOrder )
         {
             // only 1st order supported
@@ -234,6 +243,7 @@ namespace moris
         }
 
         //--------------------------------------------------------------------------------------------------------------
+        
         void CM_Fluid_Incompressible::eval_traction( const Matrix< DDRMat > & aNormal )
         {
             // flatten the normal
@@ -245,6 +255,7 @@ namespace moris
         }
 
         //--------------------------------------------------------------------------------------------------------------
+        
         void CM_Fluid_Incompressible::eval_testTraction(
                 const Matrix< DDRMat >             & aNormal,
                 const moris::Cell< MSI::Dof_Type > & aTestDofTypes )
@@ -257,8 +268,8 @@ namespace moris
             this->flatten_normal( aNormal, tFlatNormal );
 
             // get the viscosity property
-            std::shared_ptr< Property > tViscosityProp
-            = mProperties( static_cast< uint >( CM_Property_Type::VISCOSITY ) );
+            std::shared_ptr< Property > tViscosityProp = 
+            mProperties( static_cast< uint >( CM_Property_Type::VISCOSITY ) );
 
             // if test traction wrt velocity
             if( aTestDofTypes( 0 ) == mDofVelocity )
@@ -276,6 +287,7 @@ namespace moris
         }
 
         //--------------------------------------------------------------------------------------------------------------
+        
         void CM_Fluid_Incompressible::eval_strain_2d()
         {
             // get the velocity spatial gradient from velocity FI
@@ -306,6 +318,7 @@ namespace moris
         }
 
         //--------------------------------------------------------------------------------------------------------------
+        
         void CM_Fluid_Incompressible::eval_divstrain_2d()
         {
             // set size for div strain
@@ -342,6 +355,7 @@ namespace moris
         }
 
         //--------------------------------------------------------------------------------------------------------------
+        
         void CM_Fluid_Incompressible::eval_ddivstraindu_2d( const moris::Cell< MSI::Dof_Type > & aDofTypes )
         {
             // get the dof type index
@@ -408,6 +422,7 @@ namespace moris
         }
 
         //--------------------------------------------------------------------------------------------------------------
+        
         void CM_Fluid_Incompressible::eval_dstraindx_2d( uint aOrder )
         {
             switch ( aOrder )
@@ -473,6 +488,7 @@ namespace moris
         }
 
         //--------------------------------------------------------------------------------------------------------------
+        
         void CM_Fluid_Incompressible::eval_teststrain_2d()
         {
             // compute displacement gradient
@@ -518,6 +534,7 @@ namespace moris
         }
 
         //--------------------------------------------------------------------------------------------------------------
+        
         void CM_Fluid_Incompressible::eval_dFluxdDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes )
         {
             // get the dof type index
@@ -541,7 +558,8 @@ namespace moris
             if( aDofTypes( 0 ) == mDofVelocity )
             {
                 // build dfluxdv
-                mdFluxdDof( tDofIndex ).matrix_data() += 2.0 * tViscosityProp->val()( 0 ) * this->dStraindDOF( aDofTypes );
+                mdFluxdDof( tDofIndex ).matrix_data() +=
+                        2.0 * tViscosityProp->val()( 0 ) * this->dStraindDOF( aDofTypes );
             }
 
             // if pressure dof
@@ -563,11 +581,13 @@ namespace moris
             if ( tViscosityProp->check_dof_dependency( aDofTypes ) )
             {
                 // compute derivative with indirect dependency through properties
-                mdFluxdDof( tDofIndex ).matrix_data() += 2.0 * this->strain() * tViscosityProp->dPropdDOF( aDofTypes );
+                mdFluxdDof( tDofIndex ).matrix_data() +=
+                        2.0 * this->strain() * tViscosityProp->dPropdDOF( aDofTypes );
             }
         }
 
         //--------------------------------------------------------------------------------------------------------------
+        
         void CM_Fluid_Incompressible::eval_dTractiondDOF(
                 const moris::Cell< MSI::Dof_Type > & aDofTypes,
                 const Matrix< DDRMat >             & aNormal )
@@ -587,6 +607,7 @@ namespace moris
         }
 
         //--------------------------------------------------------------------------------------------------------------
+        
         void CM_Fluid_Incompressible::eval_dTestTractiondDOF(
                 const moris::Cell< MSI::Dof_Type > & aDofTypes,
                 const Matrix< DDRMat >             & aNormal,
@@ -634,6 +655,7 @@ namespace moris
         }
 
         //--------------------------------------------------------------------------------------------------------------
+        
         void CM_Fluid_Incompressible::eval_dStraindDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes )
         {
             // get the dof type as a uint
@@ -657,8 +679,10 @@ namespace moris
         }
 
         //--------------------------------------------------------------------------------------------------------------
-        void CM_Fluid_Incompressible::flatten_normal_2d( const Matrix< DDRMat > & aNormal,
-                Matrix< DDRMat > & aFlatNormal )
+        
+        void CM_Fluid_Incompressible::flatten_normal_2d(
+                const Matrix< DDRMat > & aNormal,
+                Matrix< DDRMat >       & aFlatNormal )
         {
             aFlatNormal.set_size( 2, 3, 0.0 );
             aFlatNormal( 0, 0 ) = aNormal( 0, 0 );
@@ -667,8 +691,9 @@ namespace moris
             aFlatNormal( 1, 2 ) = aNormal( 0, 0 );
         }
 
-        void CM_Fluid_Incompressible::flatten_normal_3d( const Matrix< DDRMat > & aNormal,
-                Matrix< DDRMat > & aFlatNormal )
+        void CM_Fluid_Incompressible::flatten_normal_3d(
+                const Matrix< DDRMat > & aNormal,
+                Matrix< DDRMat >       & aFlatNormal )
         {
             aFlatNormal.set_size( 3, 6, 0.0 );
             aFlatNormal( 0, 0 ) = aNormal( 0, 0 );

@@ -1,7 +1,3 @@
-//
-// Created by christopherson on 5/18/20.
-//
-
 #include "cl_GEN_User_Defined_Property.hpp"
 
 namespace moris
@@ -17,12 +13,21 @@ namespace moris
                                                      Matrix<DDRMat> aConstantParameters,
                                                      Cell<std::shared_ptr<Property>> aPropertyDependencies,
                                                      MORIS_GEN_FIELD_FUNCTION aFieldEvaluationFunction,
-                                                     MORIS_GEN_SENSITIVITY_FUNCTION aSensitivityEvaluationFunction)
-                                                     : Field(aADVs,
-                                                       aPropertyVariableIndices,
-                                                       aADVIndices,
-                                                       aConstantParameters),
-                                                     Property(aPropertyDependencies)
+                                                     MORIS_GEN_SENSITIVITY_FUNCTION aSensitivityEvaluationFunction,
+                                                     sint aNumRefinements,
+                                                     sint aRefinementFunctionIndex,
+                                                     sint aBSplineMeshIndex,
+                                                     real aBSplineLowerBound,
+                                                     real aBSplineUpperBound)
+                : Field(aADVs,
+                        aPropertyVariableIndices,
+                        aADVIndices,
+                        aConstantParameters,
+                        aNumRefinements,
+                        aRefinementFunctionIndex,
+                        aBSplineMeshIndex,
+                        aBSplineLowerBound,
+                        aBSplineUpperBound)
         {
             evaluate_field_value_user_defined = aFieldEvaluationFunction;
             evaluate_sensitivity_user_defined = aSensitivityEvaluationFunction;

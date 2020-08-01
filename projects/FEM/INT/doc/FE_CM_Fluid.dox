@@ -1,0 +1,19 @@
+namespace moris {
+namespace fem {
+
+/** \page FE_CM_Fluid Fluid Constitutive Model
+
+The stress
+\f$ \sigma_{ij} = -p \delta_{ij} + 2 \mu \epsilon_{ij}( \mathbf{u} ) \f$
+
+where
+- \f$ \mu \f$ is the fluid kinematic viscosity.
+
+The strain 
+\f$ \epsilon( \mathbf{u} ) = \frac{1}{2} \left( \nabla \mathbf{u} + \nabla \mathbf{u}^T \right) \f$
+
+
+*/
+
+}
+}

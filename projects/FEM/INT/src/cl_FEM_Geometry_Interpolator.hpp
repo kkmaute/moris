@@ -520,6 +520,8 @@ namespace moris
                  * at given space and time evaluation point
                  */
                 real det_J();
+                real space_det_J();
+                real time_det_J();
 
                 //------------------------------------------------------------------------------
                 /**
