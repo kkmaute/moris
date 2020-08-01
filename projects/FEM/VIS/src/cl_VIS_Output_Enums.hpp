@@ -17,6 +17,7 @@ namespace vis
     {
         UNDEFINED, //< Undefined
         STRAIN_ENERGY,
+	STRESS,
         VOLUME,
         SIGY,   //< Y-stress
         VOLUME_FRACTION,
@@ -59,6 +60,7 @@ namespace vis
 
         tVisOutputTypeMap["UNDEFINED"]              = vis::Output_Type::UNDEFINED;
         tVisOutputTypeMap["STRAIN_ENERGY"]          = vis::Output_Type::STRAIN_ENERGY;
+        tVisOutputTypeMap["STRESS"]                 = vis::Output_Type::STRESS;
         tVisOutputTypeMap["VOLUME"]                 = vis::Output_Type::VOLUME;
         tVisOutputTypeMap["VOLUME_FRACTION"]        = vis::Output_Type::VOLUME_FRACTION;
         tVisOutputTypeMap["UX"]                     = vis::Output_Type::UX;
