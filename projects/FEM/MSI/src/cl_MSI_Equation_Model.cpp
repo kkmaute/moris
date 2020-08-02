@@ -127,32 +127,41 @@ namespace moris
         {
             // create map object
             moris::Matrix_Vector_Factory tMatFactory( sol::MapType::Epetra );
-            // FIXME create map only once. eiteher implicit or explicit
+
+            // FIXME create map only once. either implicit or explicit
             mdQiduMap = tMatFactory.create_map( mDesignVariableInterface->get_my_local_global_map() );
 
+            // get the number of rhs
             uint tNumRHMS = this->get_num_rhs();
 
-            // full vector and prev full vector
+            // create full vector for dQIdp explicit
             mExplicitdQidp = tMatFactory.create_vector( mdQiduMap, tNumRHMS );
-
             mExplicitdQidp->vec_put_scalar( 0.0 );
 
-            // Get local number of elements
+            // get local number of equation sets
             moris::uint tNumSets = mFemSets.size();
 
-            // Loop over all local elements to build matrix graph
-            for ( moris::uint Ii=0; Ii < tNumSets; Ii++ )
+            // loop over the local equation sets
+            for ( moris::uint iSet = 0; iSet < tNumSets; iSet++ )
             {
-                moris::uint tNumEquationObjectOnSet = mFemSets( Ii )->get_num_equation_objects();
+                // get number of equation object on the treated equation set
+                moris::uint tNumEquationObjectOnSet =
+                        mFemSets( iSet )->get_num_equation_objects();
 
-                mFemSets( Ii )->initialize_set( true );
+                // initialize the treated equation set
+                mFemSets( iSet )->initialize_set( true );
 
-                for ( moris::uint Ik=0; Ik < tNumEquationObjectOnSet; Ik++ )
+                // loop over the equation objects
+                for ( moris::uint iEqObj = 0; iEqObj < tNumEquationObjectOnSet; iEqObj++ )
                 {
-                    mFemSets( Ii )->get_equation_object_list()( Ik )->compute_dQIdp_explicit();
+                    // if some IQI are requested on the treated equation set
+                    if( mFemSets( iSet )->get_number_of_requested_IQIs() > 0 )
+                    {
+                        // compute dQIdp explicit
+                        mFemSets( iSet )->get_equation_object_list()( iEqObj )->compute_dQIdp_explicit();
+                    }
                 }
-
-                //this->free_block_memory( Ii );
+                //this->free_block_memory( iSet );
             }
 
             // global assembly to switch entries to the right processor
@@ -163,8 +172,10 @@ namespace moris
 
         sol::Dist_Vector * Equation_Model::get_dQidu()
         {
+            // create map object
             moris::Matrix_Vector_Factory tMatFactory( sol::MapType::Epetra );
 
+            // get
             uint tNumRHMS = this->get_num_rhs();
 
             // full vector and prev full vector
