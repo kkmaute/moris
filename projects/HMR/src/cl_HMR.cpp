@@ -1707,12 +1707,12 @@ namespace moris
             Integration_Mesh_HMR* tIntegrationUnionMesh = this->create_integration_mesh( tOrder, mParameters->get_union_pattern(), tUnionInterpolationMesh );
 
             // Add union mesh to mesh manager
-            mtk::Mesh_Manager tMeshManager;
-            moris::uint tMeshPairIndex = tMeshManager.register_mesh_pair( tUnionInterpolationMesh, tIntegrationUnionMesh );
+            std::shared_ptr<mtk::Mesh_Manager> tMeshManager = std::make_shared<mtk::Mesh_Manager>();
+            moris::uint tMeshPairIndex = tMeshManager->register_mesh_pair( tUnionInterpolationMesh, tIntegrationUnionMesh );
 
             // create mapper
             mapper::Mapper tMapper(
-                    &tMeshManager,
+                    tMeshManager,
                     tMeshPairIndex,
                     aBsplineMeshIndex );
 
