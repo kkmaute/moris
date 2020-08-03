@@ -84,7 +84,6 @@ namespace moris
                 default:
                 {
                     MORIS_ERROR( false, " fd_scheme - unknown fd scheme type ");
-                    break;
                 }
             }
         }

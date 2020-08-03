@@ -43,14 +43,16 @@ namespace moris
                 // local stabilization enums
                 enum class IWG_Stabilization_Type
                 {
-                    SUPG,
-                    MAX_ENUM
+                        SUPG,
+                        MAX_ENUM
                 };
 
                 // local string to constitutive enum map
                 std::map< std::string, IWG_Stabilization_Type > mStabilizationMap;
 
-                // FIXME temp all the constants
+            private :
+
+                // Spalart Allmaras model constants
                 real mCb1 = 0.1355;
                 real mCb2 = 0.6220;
                 real mSigma = 2.0/3.0;
@@ -63,7 +65,10 @@ namespace moris
                 real mCv1 = 7.1;
                 real mCv2 = 0.7;
                 real mCv3 = 0.9;
+                real mRLim = 10.0;
+                real mCn1 = 16.0;
 
+            public:
                 //------------------------------------------------------------------------------
                 /*
                  *  constructor
@@ -142,8 +147,89 @@ namespace moris
                  * @param[ in ] aJ        a matrix to fill with dRdDof
                  */
                 void compute_jacobian_strong_form(
-                        moris::Cell< MSI::Dof_Type > & aDofTypes,
-                        Matrix< DDRMat >             & aJ );
+                        const moris::Cell< MSI::Dof_Type > & aDofTypes,
+                        Matrix< DDRMat >                   & aJ );
+
+                //------------------------------------------------------------------------------
+                /**
+                 * compute production term
+                 * P = cb1 * ( 1 - ft2 ) * STilde * modViscosity
+                 * if modViscosity >= 0
+                 * P = cb1 * ( 1 - ct3 ) * S * modViscosity
+                 * if modViscosity <  0
+                 */
+                real compute_production_term();
+
+                //------------------------------------------------------------------------------
+                /**
+                 * compute the derivative of the production term
+                 * @param[ in ] aDofTypes      a list of dof type wrt which
+                 *                             the derivative is requested
+                 * @param[ in ] adproductiondu a matrix to fill with dproductiondu
+                 */
+                void compute_dproductiondu(
+                        const moris::Cell< MSI::Dof_Type > & aDofTypes,
+                        Matrix< DDRMat >                   & adproductiondu );
+
+                //------------------------------------------------------------------------------
+                /**
+                 * compute wall destruction term
+                 * D = ( cw1 * fw - cb1 * ft2 / kappa² ) * ( modViscosity / wallD )²
+                 * if modViscosity >= 0
+                 * D = - cw1 * ( modViscosity / wallD )²
+                 * if modViscosity <  0
+                 */
+                real compute_wall_destruction_term();
+
+                //------------------------------------------------------------------------------
+                /**
+                 * compute the derivative of the wall destruction term
+                 * @param[ in ] aDofTypes           a list of dof type wrt which
+                 *                                  the derivative is requested
+                 * @param[ in ] adwalldestructiondu a matrix to fill with dwalldestructiondu
+                 */
+                void compute_dwalldestructiondu(
+                        const moris::Cell< MSI::Dof_Type > & aDofTypes,
+                        Matrix< DDRMat >                   & adwalldestructiondu );
+
+                //------------------------------------------------------------------------------
+                /**
+                 * compute diffusion coefficient
+                 * Diff = kinViscosity + modViscosity
+                 * if modViscosity >= 0
+                 * Diff = kinViscosity + modViscosity * fn
+                 * if modViscosity <  0
+                 */
+                real compute_diffusion_coefficient();
+
+                //------------------------------------------------------------------------------
+                /**
+                 * compute the derivative of the diffusion coefficient
+                 * @param[ in ] aDofTypes     a list of dof type wrt which
+                 *                            the derivative is requested
+                 * @param[ in ] addiffusiondu a matrix to fill with ddiffusiondu
+                 */
+                void compute_ddiffusiondu(
+                        const moris::Cell< MSI::Dof_Type > & aDofTypes,
+                        Matrix< DDRMat >                   & addiffusiondu );
+
+                //------------------------------------------------------------------------------
+                /**
+                 * compute fn
+                 * fn = ( cn1 + chi³ ) / ( cn1 - chi³)
+                 */
+                real compute_fn();
+
+                //------------------------------------------------------------------------------
+                /**
+                 * compute the derivative of fn wrt to a dof type
+                 * @param[ in ] aDofTypes  a list of dof type wrt which
+                 *                         the derivative is requested
+                 * @param[ in ] adfndu     a matrix to fill with dfndu
+                 */
+                void compute_dfndu(
+                        const moris::Cell< MSI::Dof_Type > & aDofTypes,
+                        Matrix< DDRMat >                   & adfndu );
 
                 //------------------------------------------------------------------------------
                 /**
@@ -160,8 +246,8 @@ namespace moris
                  * @param[ in ] adwijdu    a matrix to fill with dwijdu
                  */
                 void compute_ddivfluxdu(
-                        moris::Cell< MSI::Dof_Type > & aDofTypes,
-                        Matrix< DDRMat >             & adDivFluxdu );
+                        const moris::Cell< MSI::Dof_Type > & aDofTypes,
+                        Matrix< DDRMat >                   & adDivFluxdu );
 
                 //------------------------------------------------------------------------------
                 /**
@@ -178,8 +264,8 @@ namespace moris
                  * @param[ in ] adwijdu    a matrix to fill with dwijdu
                  */
                 void compute_dwijdu(
-                        moris::Cell< MSI::Dof_Type > & aDofTypes,
-                        Matrix< DDRMat >             & adwijdu );
+                        const  moris::Cell< MSI::Dof_Type > & aDofTypes,
+                        Matrix< DDRMat >                    & adwijdu );
 
                 //------------------------------------------------------------------------------
                 /**
@@ -196,8 +282,8 @@ namespace moris
                  * @param[ in ] adchidu    a matrix to fill with dchidu
                  */
                 void compute_dchidu(
-                        moris::Cell< MSI::Dof_Type > & aDofTypes,
-                        Matrix< DDRMat >             & adchidu );
+                        const moris::Cell< MSI::Dof_Type > & aDofTypes,
+                        Matrix< DDRMat >                   & adchidu );
 
                 //------------------------------------------------------------------------------
                 /**
@@ -214,8 +300,8 @@ namespace moris
                  * @param[ in ] adfv1du    a matrix to fill with dfv1du
                  */
                 void compute_dfv1du(
-                        moris::Cell< MSI::Dof_Type > & aDofTypes,
-                        Matrix< DDRMat >             & adfv1du );
+                        const moris::Cell< MSI::Dof_Type > & aDofTypes,
+                        Matrix< DDRMat >                   & adfv1du );
 
                 //------------------------------------------------------------------------------
                 /**
@@ -232,8 +318,8 @@ namespace moris
                  * @param[ in ] adfv2du    a matrix to fill with dfv2du
                  */
                 void compute_dfv2du(
-                        moris::Cell< MSI::Dof_Type > & aDofTypes,
-                        Matrix< DDRMat >             & adfv2du );
+                        const moris::Cell< MSI::Dof_Type > & aDofTypes,
+                        Matrix< DDRMat >                   & adfv2du );
 
                 //------------------------------------------------------------------------------
                 /**
@@ -250,8 +336,8 @@ namespace moris
                  * @param[ in ] adSBardu a matrix to fill with dSBardu
                  */
                 void compute_dsbardu(
-                        moris::Cell< MSI::Dof_Type > & aDofTypes,
-                        Matrix< DDRMat >             & adsbardu );
+                        const moris::Cell< MSI::Dof_Type > & aDofTypes,
+                        Matrix< DDRMat >                   & adsbardu );
 
                 //------------------------------------------------------------------------------
                 /**
@@ -268,8 +354,8 @@ namespace moris
                  * @param[ in ] adSdu a matrix to fill with dSdu
                  */
                 void compute_dsdu(
-                        moris::Cell< MSI::Dof_Type > & aDofTypes,
-                        Matrix< DDRMat >             & adsdu );
+                        const moris::Cell< MSI::Dof_Type > & aDofTypes,
+                        Matrix< DDRMat >                   & adsdu );
 
                 //------------------------------------------------------------------------------
                 /**
@@ -286,8 +372,8 @@ namespace moris
                  * @param[ in ] adSmoddu a matrix to fill with dSmoddu
                  */
                 void compute_dsmoddu(
-                        moris::Cell< MSI::Dof_Type > & aDofTypes,
-                        Matrix< DDRMat >             & adsmoddu );
+                        const moris::Cell< MSI::Dof_Type > & aDofTypes,
+                        Matrix< DDRMat >                   & adsmoddu );
 
                 //------------------------------------------------------------------------------
                 /**
@@ -304,8 +390,8 @@ namespace moris
                  * @param[ in ] adSTildedu a matrix to fill with dSTildedu
                  */
                 void compute_dstildedu(
-                        moris::Cell< MSI::Dof_Type > & aDofTypes,
-                        Matrix< DDRMat >             & adstildedu );
+                        const moris::Cell< MSI::Dof_Type > & aDofTypes,
+                        Matrix< DDRMat >                   & adstildedu );
 
                 //------------------------------------------------------------------------------
                 /**
@@ -322,8 +408,8 @@ namespace moris
                  * @param[ in ] adft2du a matrix to fill with dft2du
                  */
                 void compute_dft2du(
-                        moris::Cell< MSI::Dof_Type > & aDofTypes,
-                        Matrix< DDRMat >          & adft2du );
+                        const moris::Cell< MSI::Dof_Type > & aDofTypes,
+                        Matrix< DDRMat >                   & adft2du );
 
                 //------------------------------------------------------------------------------
                 /**
@@ -340,8 +426,8 @@ namespace moris
                  * @param[ in ] adrdu a matrix to fill with drdu
                  */
                 void compute_drdu(
-                        moris::Cell< MSI::Dof_Type > & aDofTypes,
-                        Matrix< DDRMat >             & adrdu );
+                        const moris::Cell< MSI::Dof_Type > & aDofTypes,
+                        Matrix< DDRMat >                   & adrdu );
 
                 //------------------------------------------------------------------------------
                 /**
@@ -358,8 +444,8 @@ namespace moris
                  * @param[ in ] adgdu a matrix to fill with dgdu
                  */
                 void compute_dgdu(
-                        moris::Cell< MSI::Dof_Type > & aDofTypes,
-                        Matrix< DDRMat >             & adgdu );
+                        const moris::Cell< MSI::Dof_Type > & aDofTypes,
+                        Matrix< DDRMat >                   & adgdu );
 
                 //------------------------------------------------------------------------------
                 /**
@@ -378,8 +464,8 @@ namespace moris
                  * @param[ in ] adfwdu a matrix to fill with dfwdu
                  */
                 void compute_dfwdu(
-                        moris::Cell< MSI::Dof_Type > & aDofTypes,
-                        Matrix< DDRMat >             & adfwdu );
+                        const moris::Cell< MSI::Dof_Type > & aDofTypes,
+                        Matrix< DDRMat >                   & adfwdu );
 
                 //------------------------------------------------------------------------------
         };

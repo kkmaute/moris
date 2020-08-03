@@ -1,0 +1,17 @@
+namespace moris {
+namespace fem {
+
+/** \page FE_CM_Fluid_Turbulence Fluid Turbulence Constitutive Model
+
+The stress
+\f$ \sigma_{t,ij} = 2 \mu_t \epsilon_{ij}( \mathbf{u} ) \f$
+where
+- \f$ \mu_t \f$ is the fluid turbulence kinematic viscosity.
+
+The strain 
+\f$ \epsilon( \mathbf{u} ) = \frac{1}{2} \left( \nabla \mathbf{u} + \nabla \mathbf{u}^T \right) \f$
+
+*/
+
+}
+}

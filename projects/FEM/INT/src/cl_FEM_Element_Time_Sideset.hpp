@@ -53,21 +53,45 @@ namespace moris
 
                 //------------------------------------------------------------------------------
                 /**
-                 * compute jacobian over the element
-                 */
-                void compute_jacobian();
-
-                //------------------------------------------------------------------------------
-                /**
                  * compute residual over the element
                  */
                 void compute_residual();
 
                 //------------------------------------------------------------------------------
                 /**
+                 * compute jacobian over the element
+                 */
+                void compute_jacobian();
+
+                //------------------------------------------------------------------------------
+                /**
                  * compute jacobian and residual over the element
                  */
                 void compute_jacobian_and_residual();
+
+                //------------------------------------------------------------------------------
+                /**
+                 * compute dRdp
+                 */
+                void compute_dRdp();
+
+                //------------------------------------------------------------------------------
+                /**
+                 * compute QId
+                 */
+                void compute_QI();
+
+                //------------------------------------------------------------------------------
+                /**
+                 * compute dQIdu
+                 */
+                void compute_dQIdu();
+
+                //------------------------------------------------------------------------------
+                /**
+                 * compute dQIdp
+                 */
+                void compute_dQIdp_explicit();
 
                 //------------------------------------------------------------------------------
                 /**
@@ -83,9 +107,12 @@ namespace moris
             private:
                 //------------------------------------------------------------------------------
                 /**
-                 * initialize integration geometry interpolator
+                 * initialize the geometry interpolator for the IG element
+                 * @param[ in ] aIsActiveDv  list of if design variable is active
+                 *                           (vertexIndex)(DvType) for master element
                  */
-                void init_ig_geometry_interpolator();
+                void init_ig_geometry_interpolator(
+                        moris::Cell< Matrix< DDSMat > > & aIsActiveDv );
 
                 //------------------------------------------------------------------------------
         };

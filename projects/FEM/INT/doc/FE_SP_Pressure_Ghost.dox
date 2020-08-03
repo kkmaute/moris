@@ -1,0 +1,30 @@
+namespace moris {
+namespace fem {
+
+/** \page FE_SP_Pressure_Ghost Stabilization Parameter for Pressure Ghost
+
+The pressure ghost stabilization parameter is given as:
+\f[
+\gamma_{p}^{GP} = \alpha_{p}^{GP} \left( 
+\frac{ \mu }{ h } 
++ \frac{ \rho ||\mathbf{u}||_{\infty} }{ 6 } 
++ \frac{ \rho h }{ 12 \theta \Delta t }  
+\right)^{-1} h^{2i}\\
+\f]
+where
+- \f$ \alpha_{p}^{GP} \f$ is a scalar constant ranging in \f$ [ 0.01 0.05 ] \f$,
+- \f$ \rho \f$ is the fluid density,
+- \f$ \mathbf{u} \f$ is the fluid velocity,
+- \f$ || \bullet ||_{\infty} \f$ is the infinity norm,
+- \f$ \Delta t \f$ is the time step,
+- \f$ \theta \f$ is a scalar dependent on the time solving scheme,
+- \f$ h \f$ is the element size along the considered facet,
+- \f$ i \f$ is the interpolation order used for the velocity field.
+
+The stabilization parameter \f$ \gamma_{p}^{GP} \f$ is implemented in SP_Pressure_Ghost 
+and is build using the enum SP_Type::PRESSURE_GHOST.
+
+*/
+
+}
+}

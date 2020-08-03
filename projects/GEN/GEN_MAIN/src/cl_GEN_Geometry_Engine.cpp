@@ -1,6 +1,7 @@
 // GEN
 #include "cl_GEN_Geometry_Engine.hpp"
-#include "fn_GEN_create_geometry.hpp"
+#include "fn_GEN_create_geometries.hpp"
+#include "cl_GEN_Level_Set.hpp"
 #include "fn_GEN_create_properties.hpp"
 #include "cl_GEN_Interpolation.hpp"
 #include "cl_GEN_Child_Node.hpp"
@@ -36,7 +37,9 @@ namespace moris
                 mLowerBounds((uint)aParameterLists(0)(0).get<sint>("advs_size"), 1, aParameterLists(0)(0).get<real>("lower_bounds_fill")),
                 mUpperBounds((uint)aParameterLists(0)(0).get<sint>("advs_size"), 1, aParameterLists(0)(0).get<real>("upper_bounds_fill")),
                 mRequestedIQIs(string_to_cell<std::string>(aParameterLists(0)(0).get<std::string>("IQI_types"))),
-                mPdvHostManager(std::max(mADVs.length(), string_to_mat<DDRMat>(aParameterLists(0)(0).get<std::string>("initial_advs")).length())),
+
+                // Library
+                mLibrary(aLibrary),
 
                 // Phase table
                 mPhaseTable(string_to_mat<IndexMat>(aParameterLists(0)(0).get<std::string>("phase_table")).numel()
@@ -70,20 +73,13 @@ namespace moris
                 mUpperBounds(tADVIndex) = tUpperBounds(tADVIndex);
             }
 
-            // Build geometry (just analytic for right now)
-            if (aParameterLists(1).size() > 0)
-            {
-                mGeometry.resize(aParameterLists(1).size());
-                for (uint tGeometryIndex = 0; tGeometryIndex < aParameterLists(1).size(); tGeometryIndex++)
-                {
-                    mGeometry(tGeometryIndex) = create_geometry(aParameterLists(1)(tGeometryIndex), mADVs, aLibrary);
-                    mShapeSensitivities = (mShapeSensitivities or mGeometry(tGeometryIndex)->depends_on_advs());
-                }
-            }
-
-            // Create properties
-            mProperties = create_properties(aParameterLists(2), mADVs, aLibrary);
+            // Store parameter lists for geometries and properties
+            mGeometryParameterLists = aParameterLists(1);
             mPropertyParameterLists = aParameterLists(2);
+
+            // Build fields temporarily for refinement
+            mGeometries = create_geometries(mGeometryParameterLists, mADVs, mLibrary);
+            mProperties = create_properties(mPropertyParameterLists, mADVs, mLibrary);
 
             // Set requested PDVs
             Cell<std::string> tRequestedPdvNames = string_to_cell<std::string>(aParameterLists(0)(0).get<std::string>("PDV_types"));
@@ -109,13 +105,12 @@ namespace moris
                   mErrorFactor(aErrorFactor),
                   mADVs(aADVs),
                   mActiveGeometryIndex(0),
-                  mGeometry(aGeometry),
-                  mPdvHostManager(mADVs.length()),
+                  mGeometries(aGeometry),
                   mPhaseTable(aPhaseTable)
         {
-            for (uint tGeometryIndex = 0; tGeometryIndex < mGeometry.size(); tGeometryIndex++)
+            for (uint tGeometryIndex = 0; tGeometryIndex < mGeometries.size(); tGeometryIndex++)
             {
-                mShapeSensitivities = (mShapeSensitivities or mGeometry(tGeometryIndex)->depends_on_advs());
+                mShapeSensitivities = (mShapeSensitivities or mGeometries(tGeometryIndex)->depends_on_advs());
             }
             this->compute_level_set_data(aMesh);
         }
@@ -197,7 +192,7 @@ namespace moris
                 const Matrix<DDRMat> & aCoordinates,
                 uint                   aGeometryIndex)
         {
-            return mGeometry(aGeometryIndex)->evaluate_field_value(aNodeIndex, aCoordinates);
+            return mGeometries(aGeometryIndex)->evaluate_field_value(aNodeIndex, aCoordinates);
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -224,17 +219,18 @@ namespace moris
                 // Assign to geometries
                 for (uint tGeometryIndex = 0; tGeometryIndex < this->get_num_geometries(); tGeometryIndex++)
                 {
-                    mGeometry(tGeometryIndex)->add_child_node(aNewNodeIndices(tNode), tChildNode);
+                    mGeometries(tGeometryIndex)->add_child_node(aNewNodeIndices(tNode), tChildNode);
                 }
             }
         }
 
         //--------------------------------------------------------------------------------------------------------------
 
-        void Geometry_Engine::is_intersected(const Matrix<DDRMat>&      aNodeCoords,
-                                             const Matrix<IndexMat>&    aNodetoEntityConn,
-                                             size_t                     aCheckType,
-                                             Cell<GEN_Geometry_Object>& aGeometryObjects)
+        void Geometry_Engine::is_intersected(
+                const Matrix<DDRMat>&      aNodeCoords,
+                const Matrix<IndexMat>&    aNodetoEntityConn,
+                size_t                     aCheckType,
+                Cell<GEN_Geometry_Object>& aGeometryObjects)
         {
             //Get information for loops
             size_t tNumEntities = aNodetoEntityConn.n_rows(); // Number of entities provided to the geometry engine
@@ -302,7 +298,7 @@ namespace moris
             real tNodePhaseValue = 0;
             Matrix< IndexMat > tPhaseOnOff(1, this->get_num_geometries());
 
-            for (uint tGeometryIndex = 0; tGeometryIndex < mGeometry.size(); tGeometryIndex++)
+            for (uint tGeometryIndex = 0; tGeometryIndex < mGeometries.size(); tGeometryIndex++)
             {
                 tNodePhaseValue = this->get_geometry_field_value(aNodeIndex, aCoordinates, tGeometryIndex);
 
@@ -311,12 +307,12 @@ namespace moris
                 {
                     tPhaseOnOff(0, tGeometryIndex) = 0;
                 }
-
                 else
                 {
                     tPhaseOnOff(0, tGeometryIndex) = 1;
                 }
             }
+
             return mPhaseTable.get_phase_index(tPhaseOnOff);
         }
 
@@ -340,6 +336,7 @@ namespace moris
                     aGeometryIndex);
 
             size_t tPhaseOnOff = 1;
+
             if (tNodePhaseValue < mIsocontourThreshold)
             {
                 tPhaseOnOff = 0;
@@ -352,7 +349,7 @@ namespace moris
 
         size_t Geometry_Engine::get_num_geometries()
         {
-            return mGeometry.size();
+            return mGeometries.size();
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -373,7 +370,7 @@ namespace moris
 
         void Geometry_Engine::advance_geometry_index()
         {
-            MORIS_ASSERT(mActiveGeometryIndex < mGeometry.size(),
+            MORIS_ASSERT(mActiveGeometryIndex < mGeometries.size(),
                     "Trying to advance past the number of geometries in the geometry engine");
             mActiveGeometryIndex += 1;
         }
@@ -382,33 +379,36 @@ namespace moris
 
         uint Geometry_Engine::get_num_refinement_fields()
         {
-            return mGeometry.size();
+            return mGeometries.size();
         }
 
         //--------------------------------------------------------------------------------------------------------------
 
-        bool Geometry_Engine::refinement_needed(uint aFieldIndex,
-                                                uint aRefinementIndex)
+        bool Geometry_Engine::refinement_needed(
+                uint aFieldIndex,
+                uint aRefinementIndex)
         {
-            return ((sint)aRefinementIndex < mGeometry(aFieldIndex)->get_num_refinements());
+            return ((sint)aRefinementIndex < mGeometries(aFieldIndex)->get_num_refinements());
         }
 
         //--------------------------------------------------------------------------------------------------------------
 
-        real Geometry_Engine::get_field_value(uint aFieldIndex,
-                                              uint aNodeIndex,
-                                              const Matrix<DDRMat>& aCoordinates)
+        real Geometry_Engine::get_field_value(
+                uint                  aFieldIndex,
+                uint                  aNodeIndex,
+                const Matrix<DDRMat>& aCoordinates)
         {
             // TODO can return property field too
-            return mGeometry(aFieldIndex)->evaluate_field_value(aNodeIndex, aCoordinates);
+            return mGeometries(aFieldIndex)->evaluate_field_value(aNodeIndex, aCoordinates);
         }
 
         //--------------------------------------------------------------------------------------------------------------
 
-        sint Geometry_Engine::get_refinement_function_index(uint aFieldIndex,
-                                                            uint aRefinementIndex)
+        sint Geometry_Engine::get_refinement_function_index(
+                uint aFieldIndex,
+                uint aRefinementIndex)
         {
-            return mGeometry(aFieldIndex)->get_refinement_function_index();
+            return mGeometries(aFieldIndex)->get_refinement_function_index();
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -417,9 +417,11 @@ namespace moris
         {
             // Initialize
             mtk::Integration_Mesh* tIntegrationMesh = aMeshManager->get_integration_mesh(0);
+
             Cell<Cell<Cell<PDV_Type>>> tPdvTypes(tIntegrationMesh->get_num_sets());
             Cell<PDV_Type> tPdvTypeGroup(1);
             Cell<std::string> tMeshSetNames(0);
+
             Matrix<DDUMat> tMeshSetIndices(0, 0);
 
             // PDV type map
@@ -430,12 +432,14 @@ namespace moris
             {
                 // PDV type and mesh set names/indices from parameter list
                 tPdvTypeGroup(0) = tPdvTypeMap[mPropertyParameterLists(tPropertyIndex).get<std::string>("pdv_type")];
+
                 string_to_cell(mPropertyParameterLists(tPropertyIndex).get<std::string>("pdv_mesh_set_names"), tMeshSetNames);
                 string_to_mat(mPropertyParameterLists(tPropertyIndex).get<std::string>("pdv_mesh_set_indices"), tMeshSetIndices);
 
                 // Convert mesh set names to indices
                 uint tNumSetIndices = tMeshSetIndices.length();
                 tMeshSetIndices.resize(tNumSetIndices + tMeshSetNames.size(), 1);
+
                 for (uint tIndex = tNumSetIndices; tIndex < tMeshSetIndices.length(); tIndex++)
                 {
                     tMeshSetIndices(tIndex) = tIntegrationMesh->get_set_index_by_name(tMeshSetNames(tIndex - tNumSetIndices));
@@ -449,7 +453,11 @@ namespace moris
             }
 
             // Create PDV hosts
-            this->create_ip_pdv_hosts(aMeshManager->get_interpolation_mesh(0), tIntegrationMesh, tPdvTypes);
+            this->create_ip_pdv_hosts(
+                    aMeshManager->get_interpolation_mesh(0),
+                    tIntegrationMesh,
+                    tPdvTypes);
+
             if (mShapeSensitivities)
             {
                 this->create_ig_pdv_hosts(tIntegrationMesh);
@@ -473,6 +481,9 @@ namespace moris
                     MORIS_ERROR(false, "Assignment of PDVs is only supported with an interpolation mesh right now.");
                 }
             }
+
+            // Get rid of parameter lists
+            mPropertyParameterLists.resize(0);
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -482,18 +493,83 @@ namespace moris
             // Register spatial dimension
             mSpatialDim = aMesh->get_spatial_dim();
 
-            // Create B-spline level sets
-//            for (uint tLevelSetIndex = 0; tLevelSetIndex < mNumLevelSets; tLevelSetIndex++)
-//            {
-//                Matrix<DDUMat> tGeometryVariableIndices;
-//                Matrix<DDUMat> tADVIndices;
-//                Matrix<DDRMat> tConstantParameters;
-//                mGeometry.push_back(std::make_shared<Level_Set>(mADVs,
-//                                                                tGeometryVariableIndices,
-//                                                                tADVIndices,
-//                                                                tConstantParameters,
-//                                                                aMesh);)
-//            }
+            // Number of filled ADVs
+            uint tNumFilledADVs = mADVs.length();
+
+            // Loop over all geometries and properties to resize ADVs (TODO)
+            for (uint tGeometryIndex = 0; tGeometryIndex < mGeometryParameterLists.size(); tGeometryIndex++)
+            {
+                // Determine if level set will be created
+                sint tBSplineMeshIndex = mGeometryParameterLists(tGeometryIndex).get<sint>("bspline_mesh_index");
+                if (tBSplineMeshIndex >= 0)
+                {
+                    // Resize
+                    mADVs.resize(mADVs.length() + aMesh->get_num_coeffs(tBSplineMeshIndex), 1);
+                }
+            }
+
+            // Check all input geometries for ADVs and level set conversion (if not from parameter list) for more resizing
+            bool tDependOnADVs = false;
+            bool tBSplineConversion = false;
+            for (uint tGeometryIndex = 0; tGeometryIndex < mGeometries.size(); tGeometryIndex++)
+            {
+                tDependOnADVs = (tDependOnADVs or mGeometries(tGeometryIndex)->depends_on_advs());
+                tBSplineConversion = (tBSplineConversion or mGeometries(tGeometryIndex)->conversion_to_bsplines());
+
+                // If level set will be created
+                if (mGeometries(tGeometryIndex)->conversion_to_bsplines())
+                {
+                    // Resize
+                    mADVs.resize(mADVs.length() + aMesh->get_num_coeffs(mGeometries(tGeometryIndex)->get_bspline_mesh_index()), 1);
+                }
+            }
+            MORIS_ERROR((not tDependOnADVs) or (not tBSplineConversion),
+                        "If the geometry engine is given geometries which have already been created, they cannot both depend "
+                        "on ADVs and be converted into a level set. Instead, please create the level set beforehand.");
+
+            // Set number of ADVs after level set creation
+            mLowerBounds.resize(mADVs.length(), 1);
+            mUpperBounds.resize(mADVs.length(), 1);
+            mPdvHostManager.set_num_advs(mADVs.length());
+
+            // Build geometries and properties
+            if (mGeometryParameterLists.size() > 0)
+            {
+                mGeometries = create_geometries(mGeometryParameterLists, mADVs, mLibrary);
+                mProperties = create_properties(mPropertyParameterLists, mADVs, mLibrary);
+                mGeometryParameterLists.resize(0);
+                // TODO have properties store all data so parameter lists can be deleted too
+            }
+
+            // Determine if conversion to level sets are needed and if shape sensitivities are needed
+            for (uint tGeometryIndex = 0; tGeometryIndex < mGeometries.size(); tGeometryIndex++)
+            {
+                // Shape sensitivities logic in case of no level sets
+                mShapeSensitivities = (mShapeSensitivities or mGeometries(tGeometryIndex)->depends_on_advs());
+
+                // Convert to level set if needed
+                if (mGeometries(tGeometryIndex)->conversion_to_bsplines())
+                {
+                    // Always have shape sensitivities if level set
+                    mShapeSensitivities = true;
+
+                    // Create level set
+                    mGeometries(tGeometryIndex) = std::make_shared<Level_Set>(mADVs, tNumFilledADVs, aMesh, mGeometries(tGeometryIndex));
+
+                    // Assign bounds
+                    uint tNumCoeffs = aMesh->get_num_coeffs(mGeometries(tGeometryIndex)->get_bspline_mesh_index());
+                    real tBSplineLowerBound = mGeometries(tGeometryIndex)->get_bspline_lower_bound();
+                    real tBSplineUpperBound = mGeometries(tGeometryIndex)->get_bspline_upper_bound();
+                    for (uint tADVIndex = tNumFilledADVs; tADVIndex < tNumFilledADVs + tNumCoeffs; tADVIndex++)
+                    {
+                        mLowerBounds(tADVIndex) = tBSplineLowerBound;
+                        mUpperBounds(tADVIndex) = tBSplineUpperBound;
+                    }
+
+                    // Update filled ADVs
+                    tNumFilledADVs = tNumFilledADVs + tNumCoeffs;
+                }
+            }
 
             // Save level set data
             if (mLevelSetFile != "")
@@ -506,7 +582,7 @@ namespace moris
                 }
 
                 // Loop over geometries
-                for (uint tGeometryIndex = 0; tGeometryIndex < mGeometry.size(); tGeometryIndex++)
+                for (uint tGeometryIndex = 0; tGeometryIndex < mGeometries.size(); tGeometryIndex++)
                 {
                     // Create file
                     std::ofstream tOutFile(mLevelSetFile + "_" + std::to_string(tGeometryIndex) + ".txt");
@@ -527,7 +603,7 @@ namespace moris
                         }
 
                         // Level-set field
-                        tOutFile << mGeometry(tGeometryIndex)->evaluate_field_value(tNodeIndex, tNodeCoordinates(tNodeIndex)) << std::endl;
+                        tOutFile << mGeometries(tGeometryIndex)->evaluate_field_value(tNodeIndex, tNodeCoordinates(tNodeIndex)) << std::endl;
                     }
 
                     // Close file
@@ -546,42 +622,43 @@ namespace moris
         }
 
         //--------------------------------------------------------------------------------------------------------------
-        
-        bool Geometry_Engine::compute_intersection_info(moris_index             aEntityIndex,
-                                                        const Matrix<IndexMat>& aEntityNodeInds,
-                                                        const Matrix<DDRMat>&   aNodeCoords,
-                                                        size_t                  aCheckType,
-                                                        GEN_Geometry_Object&    aGeometryObject)
+
+        bool Geometry_Engine::compute_intersection_info(
+                moris_index             aEntityIndex,
+                const Matrix<IndexMat>& aEntityNodeInds,
+                const Matrix<DDRMat>&   aNodeCoords,
+                size_t                  aCheckType,
+                GEN_Geometry_Object&    aGeometryObject)
         {
             //Initialize
             bool tIsIntersected = false;
-        
+
             real tMax = 0;
             real tMin = 0;
             uint tMaxLocRow = 0;
             uint tMaxLocCol = 0;
             uint tMinLocRow = 0;
             uint tMinLocCol = 0;
-        
+
             size_t tNodeInd  = 0;
             size_t tNumNodes = aEntityNodeInds.numel();
             Matrix< DDRMat > tEntityNodeVars(tNumNodes, 1);
-        
+
             // Loop through nodes and get level set values from pre-computed values in aNodeVars or in the level set mesh
             for(size_t n = 0; n < tNumNodes; n++)
             {
                 tNodeInd = aEntityNodeInds(n);
-        
+
                 tEntityNodeVars(n) = this->get_geometry_field_value(
                         tNodeInd,
                         aNodeCoords.get_row(tNodeInd),
                         mActiveGeometryIndex);
             }
-        
+
             //get the max and minimum level set value for the entity
             tMax = tEntityNodeVars.max(tMaxLocRow,tMaxLocCol);
             tMin = tEntityNodeVars.min(tMinLocRow,tMinLocCol);
-        
+
             // All nodes are on interface
             if (this->on_interface(tMin) and this->on_interface(tMax))
             {
@@ -589,24 +666,24 @@ namespace moris
                 aGeometryObject.mark_all_nodes_as_on_interface();
                 tIsIntersected = true;
             }
-        
-                // Max node is on interface
+
+            // Max node is on interface
             else if (this->on_interface(tMax))
             {
                 aGeometryObject.set_parent_entity_index(aEntityIndex);
                 aGeometryObject.mark_node_as_on_interface(tMaxLocRow);
                 tIsIntersected = true;
             }
-        
-                // Min node is on interface
+
+            // Min node is on interface
             else if (this->on_interface(tMin))
             {
                 aGeometryObject.set_parent_entity_index(aEntityIndex);
                 aGeometryObject.mark_node_as_on_interface(tMinLocRow);
                 tIsIntersected = true;
             }
-        
-                // Interface is somewhere inside of parent
+
+            // Interface is somewhere inside of parent
             else if ((tMax > mIsocontourThreshold) and (tMin < mIsocontourThreshold))
             {
                 aGeometryObject.set_parent_entity_index(aEntityIndex);
@@ -615,24 +692,23 @@ namespace moris
                 {
                     Matrix< DDRMat > tIntersectLocalCoordinate(1,1);
                     Matrix< DDRMat > tIntersectGlobalCoordinate(1,mSpatialDim);
-        
+
                     get_intersection_location(aNodeCoords,
-                                              tEntityNodeVars,
-                                              aEntityNodeInds,
-                                              tIntersectLocalCoordinate,
-                                              tIntersectGlobalCoordinate);
-        
+                            tEntityNodeVars,
+                            aEntityNodeInds,
+                            tIntersectLocalCoordinate,
+                            tIntersectGlobalCoordinate);
+
                     aGeometryObject.set_interface_loc_coord(tIntersectLocalCoordinate(0));
                     aGeometryObject.set_interface_glb_coord(tIntersectGlobalCoordinate);
                 }
             }
-        
+
             return tIsIntersected;
-        
         }
 
         //--------------------------------------------------------------------------------------------------------------
-        
+
         void Geometry_Engine::get_intersection_location(
                 const Matrix<DDRMat>&   aGlobalNodeCoordinates,
                 const Matrix<DDRMat>&   aEntityNodeVars,
@@ -640,11 +716,18 @@ namespace moris
                 Matrix<DDRMat>&         aIntersectionLocalCoordinates,
                 Matrix<DDRMat>&         aIntersectionGlobalCoordinates)
         {
-        
             // compute the local coordinate where the intersection occurs
-            Interpolation::linear_interpolation_value(aEntityNodeVars, mIsocontourThreshold,
-                                                      aIntersectionLocalCoordinates);
-        
+            Interpolation::linear_interpolation_value(
+                    aEntityNodeVars,
+                    mIsocontourThreshold,
+                    aIntersectionLocalCoordinates);
+
+            // check for proximity to node and correct if too close
+            const real tEpsilon = 0.0;
+
+            aIntersectionLocalCoordinates(0) = std::max( aIntersectionLocalCoordinates(0), -1.0+tEpsilon);
+            aIntersectionLocalCoordinates(0) = std::min( aIntersectionLocalCoordinates(0),  1.0-tEpsilon);
+
             // Determine if new node
             bool tNewNode = true;
             for (uint tParentIndex = 0; tParentIndex < mInterfaceParentNodes.size(); tParentIndex++)
@@ -653,44 +736,56 @@ namespace moris
                         tParentIndex).min() != aEntityNodeIndices.min() or mInterfaceParentNodes(
                         tParentIndex).max() != aEntityNodeIndices.max());
             }
-        
+
             // Intersection node
             if (tNewNode)
             {
                 Cell <Matrix<DDRMat>> tParentNodeCoordinates(2, Matrix<DDRMat>(1, mSpatialDim));
+
                 aGlobalNodeCoordinates.get_row(aEntityNodeIndices(0), tParentNodeCoordinates(0));
                 aGlobalNodeCoordinates.get_row(aEntityNodeIndices(1), tParentNodeCoordinates(1));
+
                 Matrix <DDUMat> tParentNodeIndices(2, 1);
+
                 tParentNodeIndices(0) = aEntityNodeIndices(0);
                 tParentNodeIndices(1) = aEntityNodeIndices(1);
+
                 mIntersectionNodes.push_back(
-                        std::make_shared<Intersection_Node>(tParentNodeIndices, tParentNodeCoordinates,
-                                                            mGeometry(mActiveGeometryIndex), mIsocontourThreshold));
+                        std::make_shared<Intersection_Node>(
+                                 tParentNodeIndices, 
+                                 tParentNodeCoordinates,
+                                 mGeometries(mActiveGeometryIndex), 
+                                 mIsocontourThreshold));
             }
-        
+
             // Place only the entity coordinates in a matrix
             Matrix<DDRMat> tEntityCoordinates(2, mSpatialDim);
+
             for (size_t i = 0; i < mSpatialDim; i++)
             {
                 tEntityCoordinates(0, i) = aGlobalNodeCoordinates(aEntityNodeIndices(0), i);
                 tEntityCoordinates(1, i) = aGlobalNodeCoordinates(aEntityNodeIndices(1), i);
             }
-        
+
             // compute the global coordinate
-            Interpolation::linear_interpolation_location(tEntityCoordinates, aIntersectionLocalCoordinates,
-                                                         aIntersectionGlobalCoordinates);
+            Interpolation::linear_interpolation_location(
+                    tEntityCoordinates,
+                    aIntersectionLocalCoordinates,
+                    aIntersectionGlobalCoordinates);
         }
 
         //--------------------------------------------------------------------------------------------------------------
 
-        void Geometry_Engine::create_ip_pdv_hosts(mtk::Interpolation_Mesh* aInterpolationMesh,
-                                                  mtk::Integration_Mesh* aIntegrationMesh,
-                                                  Cell<Cell<Cell<PDV_Type>>> aPdvTypes)
+        void Geometry_Engine::create_ip_pdv_hosts(
+                mtk::Interpolation_Mesh     * aInterpolationMesh,
+                mtk::Integration_Mesh       * aIntegrationMesh,
+                Cell<Cell<Cell<PDV_Type>>>    aPdvTypes)
         {
             // Get information from integration mesh
             //uint tNumSets = tInterpolationMesh->get_num_sets(); FIXME
-            uint tNumSets = aPdvTypes.size();
+            uint tNumSets  = aPdvTypes.size();
             uint tNumNodes = aInterpolationMesh->get_num_nodes();
+
             Cell<Matrix<DDSMat>> tNodeIndicesPerSet(tNumSets);
             Cell<Matrix<DDRMat>> tNodeCoordinates(tNumNodes);
 
@@ -731,8 +826,10 @@ namespace moris
         void Geometry_Engine::create_ig_pdv_hosts(mtk::Integration_Mesh* aIntegrationMesh)
         {
             // Check interface nodes
-            MORIS_ERROR(mIntersectionNodes.size() == mInterfaceNodeIndices.length(),
-                        "Number of interface nodes must match number of intersection nodes in the geometry engine");
+            MORIS_ERROR(mInterfaceNodeIndices.length() == mIntersectionNodes.size(),
+                        ("Number of interface nodes in XTK (" + std::to_string(mInterfaceNodeIndices.length()) +
+                        ") must match number of intersection nodes in the geometry engine (" +
+                        std::to_string(mIntersectionNodes.size()) + ").").c_str());
 
             // Get information from integration mesh
             uint tNumSets = aIntegrationMesh->get_num_sets();
@@ -742,13 +839,13 @@ namespace moris
 
             switch(mSpatialDim)
             {
-                case(2):
+                case 2:
                 {
                     tCoordinatePdvs(0) = PDV_Type::X_COORDINATE;
                     tCoordinatePdvs(1) = PDV_Type::Y_COORDINATE;
                     break;
                 }
-                case(3):
+                case 3:
                 {
                     tCoordinatePdvs(0) = PDV_Type::X_COORDINATE;
                     tCoordinatePdvs(1) = PDV_Type::Y_COORDINATE;
@@ -774,10 +871,12 @@ namespace moris
             if (mInterfaceNodeIndices.length() > 0)
             {
                 Cell<std::shared_ptr<Intersection_Node>> tIntersectionNodes(mInterfaceNodeIndices(mInterfaceNodeIndices.length() - 1) + 1);
+
                 for (uint tInterfaceNode = 0; tInterfaceNode < mInterfaceNodeIndices.length(); tInterfaceNode++)
                 {
                     tIntersectionNodes(mInterfaceNodeIndices(tInterfaceNode)) = mIntersectionNodes(tInterfaceNode);
                 }
+
                 mPdvHostManager.create_ig_pdv_hosts(tPdvTypes, tIntersectionNodes);
                 mPdvHostManager.set_ig_requested_pdv_types(tCoordinatePdvs);
             }
@@ -785,10 +884,11 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        void Geometry_Engine::assign_property_to_pdv_hosts(std::shared_ptr<Property> aPropertyPointer,
-                                                           PDV_Type                  aPdvType,
-                                                           mtk::Integration_Mesh*    aIntegrationMesh,
-                                                           Matrix<DDUMat>            aSetIndices)
+        void Geometry_Engine::assign_property_to_pdv_hosts(
+                std::shared_ptr<Property> aPropertyPointer,
+                PDV_Type                  aPdvType,
+                mtk::Integration_Mesh*    aIntegrationMesh,
+                Matrix<DDUMat>            aSetIndices)
         {
             for (uint tSet = 0; tSet < aSetIndices.length(); tSet++)
             {

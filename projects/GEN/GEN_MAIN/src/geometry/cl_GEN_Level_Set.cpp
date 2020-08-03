@@ -13,14 +13,53 @@ namespace moris
                              Matrix<DDRMat>  aConstantParameters,
                              mtk::Mesh*      aMesh,
                              sint            aNumRefinements,
-                             sint            aRefinementFunctionIndex)
-                : Field(aADVs, aGeometryVariableIndices, aADVIndices, aConstantParameters),
-                  Geometry(aNumRefinements, aRefinementFunctionIndex),
+                             sint            aRefinementFunctionIndex,
+                             uint            aBSplineMeshIndex,
+                             real            aBSplineLowerBound,
+                             real            aBSplineUpperBound)
+                : Field(aADVs,
+                        aGeometryVariableIndices,
+                        aADVIndices,
+                        aConstantParameters,
+                        aNumRefinements,
+                        aRefinementFunctionIndex,
+                        aBSplineMeshIndex,
+                        aBSplineLowerBound,
+                        aBSplineUpperBound),
                   mMesh(aMesh),
                   mNumOriginalNodes(aMesh->get_num_nodes())
         {
-            MORIS_ASSERT(mFieldVariables.size() == mMesh->get_num_coeffs(0), "There must be a field variable for each "
-                                                                             "B-spline coefficient in a level set geometry.");
+            // Check that number of variables equals the number of B-spline coefficients
+            MORIS_ASSERT(mFieldVariables.size() == mMesh->get_num_coeffs(aBSplineMeshIndex),
+                    "There must be a field variable for each B-spline coefficient in a level set geometry.");
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
+        Level_Set::Level_Set(Matrix<DDRMat>&           aADVs,
+                             uint                      aADVIndex,
+                             mtk::Mesh*                aMesh,
+                             std::shared_ptr<Geometry> aGeometry)
+                : Field(aADVs,
+                        aADVIndex,
+                        aMesh->get_num_coeffs(aGeometry->get_bspline_mesh_index()),
+                        aGeometry->get_num_refinements(),
+                        aGeometry->get_refinement_function_index(),
+                        aGeometry->get_bspline_mesh_index(),
+                        aGeometry->get_bspline_lower_bound(),
+                        aGeometry->get_bspline_upper_bound()),
+                  mMesh(aMesh),
+                  mNumOriginalNodes(aMesh->get_num_nodes())
+        {
+            // Check for linear B-splines
+            MORIS_ERROR(mNumOriginalNodes == mMesh->get_num_coeffs(this->get_bspline_mesh_index()),
+                    "GEN level sets are currently only supported for linear B-splines.");
+
+            // Assign ADVs
+            for (uint tNodeIndex = 0; tNodeIndex < mNumOriginalNodes; tNodeIndex++)
+            {
+                aADVs(aADVIndex++) = aGeometry->evaluate_field_value(tNodeIndex, mMesh->get_node_coordinate(tNodeIndex));
+            }
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -59,7 +98,7 @@ namespace moris
         void Level_Set::evaluate_all_sensitivities(uint aNodeIndex, Matrix<DDRMat>& aSensitivities)
         {
             // Initialize
-            aSensitivities.set_size(1, mFieldVariables.size());
+            aSensitivities.set_size(1, mFieldVariables.size(), 0.0);
 
             // If node is on original interpolation mesh
             if (aNodeIndex < mNumOriginalNodes)
@@ -87,6 +126,13 @@ namespace moris
         void Level_Set::add_child_node(uint aNodeIndex, std::shared_ptr<Child_Node> aChildNode)
         {
             mChildNodes.push_back(aChildNode);
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
+        bool Level_Set::conversion_to_bsplines()
+        {
+            return false;
         }
 
         //--------------------------------------------------------------------------------------------------------------

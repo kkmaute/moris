@@ -347,9 +347,9 @@ TEST_CASE("2D Linear Stuct Contract","[XTK_HMR_LS_Contact_2D]")
         tPropDirichlet2->set_parameters( { {{ 1.0, 1.0 }} } );
         tPropDirichlet2->set_val_function( tMValFunctionContact );
 
-        std::shared_ptr< fem::Property > tPropNeumann = std::make_shared< fem::Property >();
-        tPropNeumann->set_parameters( {{{ tForce*std::sin(tAngle) } , { tForce*std::cos(tAngle) }}} );
-        tPropNeumann->set_val_function( ConstFunctionVal );
+        std::shared_ptr< fem::Property > tPropTraction = std::make_shared< fem::Property >();
+        tPropTraction->set_parameters( {{{ tForce*std::sin(tAngle) } , { tForce*std::cos(tAngle) }}} );
+        tPropTraction->set_val_function( ConstFunctionVal );
 
         // define constitutive models
         fem::CM_Factory tCMFactory;
@@ -411,7 +411,7 @@ TEST_CASE("2D Linear Stuct Contract","[XTK_HMR_LS_Contact_2D]")
         std::shared_ptr< fem::IWG > tIWGNeumann = tIWGFactory.create_IWG( fem::IWG_Type::STRUC_LINEAR_NEUMANN );
         tIWGNeumann->set_residual_dof_type( { MSI::Dof_Type::UX, MSI::Dof_Type::UY } );
         tIWGNeumann->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY }} );
-        tIWGNeumann->set_property( tPropNeumann, "Neumann", mtk::Master_Slave::MASTER );
+        tIWGNeumann->set_property( tPropTraction, "Traction", mtk::Master_Slave::MASTER );
 
         std::shared_ptr< fem::IWG > tIWGInterface = tIWGFactory.create_IWG( fem::IWG_Type::STRUC_LINEAR_INTERFACE );
         tIWGInterface->set_residual_dof_type( { MSI::Dof_Type::UX, MSI::Dof_Type::UY } );

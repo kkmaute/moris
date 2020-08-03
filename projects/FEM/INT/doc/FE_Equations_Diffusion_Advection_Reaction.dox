@@ -1,0 +1,34 @@
+namespace moris {
+namespace fem {
+
+/** @defgroup FE_Equations_Diffusion_Advection_Reaction Diffusion-Advection-Reaction Equations
+
+\f[
+\begin{array}{lll}
+\mathbf{R}_{T} & = & \displaystyle
+  \bigg( d,\ \rho c_p \frac{\partial \mathbf{T}}{\partial t} \bigg)_{\Omega}
++ \bigg( d,\ \rho c_p \mathbf{u} \cdot \nabla T \bigg)_{\Omega}
+- \bigg( \nabla d,\ \kappa\ \nabla T \bigg)_{\Omega}
+- \bigg( d,\ \mathbf{b}\bigg)_{\Omega}
+- \bigg( d,\ \mathbf{q}\bigg)_{\Gamma_N}\\[15pt]
+
+\mathbf{R}_{T}^{SUPG} & = & \displaystyle
+ \bigg( \frac{1}{\rho\ c_p} \mathbf{u} \nabla d,\ \tau_{T} r_T \bigg)_{\Omega}\\[15pt]
+ 
+ r_T & = & \displaystyle \rho\ c_p\ \bigg( \frac{\partial T}{\partial t} + \mathbf{u}\ \nabla T \bigg) - \nabla \cdot ( \kappa \nabla T ) \\[15pt] 
+ 
+ \tau_T & = & \displaystyle \bigg( \frac{1}{\tau_1^2} + \frac{1}{\tau_2^2} + \frac{1}{\tau_3^2} \bigg)^{-1/2} 
+\end{array}
+\f]
+
+where \f$ 
+ h  =  2\ || \mathbf{u} ||\ \bigg( \sum_a l \mathbf{u} \nabla N_a l \bigg)^{-1}, \quad
+ \tau_1  = \frac{h}{2\ || \mathbf{u} ||}, \quad
+ \tau_2  = \Delta t / 2, \quad
+ \tau_3  = \frac{h^2}{4 \kappa} \f$
+ - ... are described in \ref FE_CM_Diffusion
+
+*/
+
+}
+}

@@ -1,3 +1,8 @@
+\newcommand{\AAAAA}{-----------------------------------------------------------------}
+\newcommand{\AAAAA}{----- OPERATORS AND OPERATIONS ----------------------------------}
+\newcommand{\AAAAA}{-----------------------------------------------------------------}
+
+\newcommand{\AAAAA}{----------------------- Quick Way of writing partial Derivatives }
 \newcommand{\pfrac}[2]{\frac{\partial #1}{\partial #2}}
 \newcommand{\squaredpfrac}[2]{ \left( \frac{\partial #1}{\partial #2} \right) ^2}
 \newcommand{\cuedpfrac}[2]{ \left( \frac{\partial #1}{\partial #2} \right) ^3}
@@ -7,47 +12,65 @@
 \newcommand{\ppcuedfrac}[3]{ \frac{\partial^3 #1}{\partial #2 \partial #3} }
 \newcommand{\pppfrac}[4]{ \frac{\partial^3 #1}{\partial #2 \partial #3 \partial #4}}
 
+\newcommand{\AAAAA}{------------------------------------------ Common Math Functions }
 \newcommand{\ln}[1]{\ ln \left( #1 \right) }
 \newcommand{\log}[1]{\ log \left( #1 \right) }
 
-\newcommand{\time}{t}
-\newcommand{\space}{\vec{x}}
-
-\newcommand{\bm}[1]{\mathbf{#1}}
-\newcommand{\vec}[1]{\bm{#1}}
-\newcommand{\mat}[1]{\bm{#1}}
-
-\newcommand{\trans}[1]{#1^T}
+\newcommand{\AAAAA}{------------------------------------------------- Math Operators }
 \newcommand{\abs}[1]{  \left\vert #1 \right\vert }
 \newcommand{\jump}[1]{ \left[ \!\! \left[ #1 \right] \!\! \right] }
 \newcommand{\norm}[1]{ \left\vert \! \left\vert #1 \right\vert \! \right\vert }
 
+\newcommand{\AAAAA}{--------------------------------------------------- Math Symbols }
+\newcommand{\ShouldEqual}{\thinspace \stackrel{!}{=} \thinspace}
+
+\newcommand{\AAAAA}{---------------------------------------------- Tensor Formatting }
+\newcommand{\bm}[1]{\mathbf{#1}}
+\newcommand{\vec}[1]{\bm{#1}}
+\newcommand{\mat}[1]{\bm{#1}}
+
+\newcommand{\AAAAA}{----------------------------------------------- Tensor Operators }
+\newcommand{\trans}[1]{#1^T}
 \newcommand{\grad}[1]{\vec{\nabla} #1}
 \newcommand{\div}[1]{\vec{\nabla} \cdot #1}
 \newcommand{\curl}[1]{\vec{\nabla} \times #1}
 \newcommand{\laplacian}[1]{\vec{\nabla}^2 #1}
-
 \newcommand{\IdentityMat}{\mat{I}}
+\newcommand{\DoubleDot}{\thinspace \bm{:} \thinspace}
 
-\newcommand{\optvar}{\vec{s}}
 
+\newcommand{\AAAAA}{-----------------------------------------------------------------}
+\newcommand{\AAAAA}{----- VARIABLES -------------------------------------------------}
+\newcommand{\AAAAA}{-----------------------------------------------------------------}
+
+\newcommand{\AAAAA}{------------------------------------------ Most Common Variables }
+\newcommand{\time}{t}
+\newcommand{\space}{\vec{x}}
+\newcommand{\density}{\rho}
+\newcommand{\temperature}{T}
+\newcommand{\temp}{\temperature}
+\newcommand{\velocity}{\vec{u}}
+\newcommand{\pressure}{p}
+
+\newcommand{\AAAAA}{-------------------------- Variables for Discretized Formulation }
+\newcommand{\Residual}{R}
 \newcommand{\Res}{\Residual}
 \newcommand{\ResidualVector}{\vec{\Residual}}
 \newcommand{\ResVec}{\ResidualVector}
-\newcommand{\Residual}{R}
-
 \newcommand{\TestFunction}{w}
 \newcommand{\TestFunc}{\TestFunction}
 \newcommand{\TestFunctionVector}{\vec{\TestFunction}}
 \newcommand{\TestFuncVec}{\TestFunctionVector}
 
+\newcommand{\AAAAA}{---------------------- Variables Describing Computational Domain }
 \newcommand{\domain}{\Omega}
 \newcommand{\SpaceDomain}{\Omega_{\space}}
 \newcommand{\TimeDomain}{\Omega_{\time}}
-
-\newcommand{\DomainBoundary}{\partial \Omega}
+\newcommand{\DomainBoundary}{\partial \domain}
 \newcommand{\SpaceDomainBoundary}{\DomainBoundary_{\space}}
+\newcommand{\SpaceBoundary}{\SpaceDomainBoundary}
 \newcommand{\TimeDomainBoundary}{\DomainBoundary_{\time}}
+\newcommand{\TimeBoundary}{\TimeDomainBoundary}
 \newcommand{\BoundarySegment}{\Gamma}
 \newcommand{\BoundSeg}{\BoundarySegment}
 \newcommand{\SpaceBoundarySegment}{\BoundSeg_{\space}}
@@ -56,20 +79,41 @@
 \newcommand{\TimeBoundSeg}{\TimeBoundarySegment}
 \newcommand{\SurfaceNormal}{\vec{n}}
 \newcommand{\SurfNorm}{\SurfaceNormal}
-
 \newcommand{\ElementSize}{h}
 \newcommand{\ElemSize}{\ElementSize}
 
-\newcommand{\temperature}{T}
-\newcommand{\temp}{\temperature}
+\newcommand{\AAAAA}{-------------------------------- Topology and Shape Optimization }
+\newcommand{\OptimizationVariables}{\vec{s}}
+\newcommand{\optvar}{\OptimizationVariables}
+\newcommand{\DesignCriteria}{q}
+\newcommand{\ObjectiveFunction}{z}
+\newcommand{\ConstraintFunction}[1]{g_{#1}}
+
+\newcommand{\AAAAA}{------------------------------------------------ Solid Mechanics }
+\newcommand{\displacement}{\vec{u}}
+\newcommand{\displ}{\displacement}
+\newcommand{\strain}{\mat{\varepsilon}}
+\newcommand{\traction}{\vec{t}}
+\newcommand{\BodyForce}{\vec{b}}
+\newcommand{\FieldForce}{\BodyForce}
+\newcommand{\CauchyStress}{\mat{\sigma}}
+\newcommand{\stress}{\CauchyStress}
+\newcommand{\DeformationGradient}{\mat{F}}
+\newcommand{\RightCauchyGreenTensor}{\mat{C}}
+\newcommand{\LeftCauchyGreenTensor}{\mat{b}}
+\newcommand{\GreenLagrangeStrain}{\mat{E}}
+\newcommand{\EulerAlmansiStrain}{\mat{A}}
+\newcommand{\VelocityGradient}{\mat{L}}
+\newcommand{\DeformationVelocityGradient}{\mat{D}}
+\newcommand{\FirstPiolaKirchhoffStress}{\mat{P}}
+\newcommand{\SecondPiolaKirchhoffStress}{\mat{S}}
+
+\newcommand{\AAAAA}{------------------------------------------------- Heat Transport }
 \newcommand{\PrescribedTemperature}{\bar{\temp}}
 \newcommand{\HeatFlux}{q}
 \newcommand{\BodyLoad}{Q}
-\newcommand{\AmbientTemperature}{T_{inf}}
+\newcommand{\AmbientTemperature}{\temp_{inf}}
 \newcommand{\AmbTemp}{\AmbientTemperature}
-\newcommand{\enthalpy}{H}
-
-\newcommand{\density}{\rho}
 \newcommand{\ThermConduct}{\kappa}
 \newcommand{\ThermalConductivity}{\kappa}
 \newcommand{\HeatCap}{c_p}
@@ -79,11 +123,12 @@
 \newcommand{\ConvectionCoefficient}{\alpha_c}
 \newcommand{\ConvecCoeff}{\ConvectionCoefficient}
 \newcommand{\emissivity}{\varepsilon}
-\newcommand{\AbsoluteZero}{T_{A0}}
+\newcommand{\AbsoluteZero}{\temp_{A0}}
 \newcommand{\AbsZero}{\AbsoluteZero}
 \newcommand{\StefanBoltzmannConstant}{\sigma_{SB}}
 \newcommand{\SBconst}{\StefanBoltzmannConstant}
 
+\newcommand{\AAAAA}{------------------------------------------- Thermal Phase Change }
 \newcommand{\PCTemperature}{T_m}
 \newcommand{\PCTemp}{\PCTemperature}
 \newcommand{\UpperPCTemp}{T_u}
@@ -96,30 +141,51 @@
 \newcommand{\PhaseStateFunction}{f}
 \newcommand{\PSF}{\PhaseStateFunction}
 
-\newcommand{\velocity}{\vec{u}}
-\newcommand{\pressure}{p}
-\newcommand{\ViscousStress}{\mat{\tau}}
-
-\newcommand{\BodyForce}{\vec{b}}
-
-\newcommand{\DynamicViscosity}{\mu}
-\newcommand{\KinematicViscosity}{\nu}
-\newcommand{\KortewegStress}{\mat{\varsigma}}
-
-\newcommand{\InnerEnergy}{e}
-\newcommand{\TotalEnergy}{\varepsilon}
+\newcommand{\AAAAA}{--------------------------------------- Thermodynamic Quantities }
+\newcommand{\InnerEnergy}{E}
+\newcommand{\SpecificInnerEnergy}{e}
+\newcommand{\SpecInnerEnergy}{\SpecificInnerEnergy}
+\newcommand{\TotalEnergyDensity}{\varepsilon} 
+\newcommand{\HelmholtzFreeEnergy}{F}
+\newcommand{\SpecificHelmholtzFreeEnergy}{f}
+\newcommand{\SpecHelmholtzFreeEnergy}{\SpecificHelmholtzFreeEnergy}
 \newcommand{\HelmholtzFreeEnergyDensity}{\Psi}
-\newcommand{\LocHelmholtzFreeEnergyDensity}{\Psi_{loc}}
-\newcommand{\capillarity}{K}
-\newcommand{\InterstitialWorkFlux}{\vec{\Pi}}
+\newcommand{\LocalHelmholtzFreeEnergyDensity}{\Psi_{loc}}
+\newcommand{\SpecificEntropy}{s}
+\newcommand{\SpecEntropy}{\SpecificEntropy}
+\newcommand{\SpecificVolume}{v}
+\newcommand{\SpecVolume}{\SpecificVolume}
+\newcommand{\enthalpy}{H}
+\newcommand{\SpecificEnthalpy}{h}
+\newcommand{\SpecEnthalpy}{\SpecificEnthalpy}
+\newcommand{\GibbsFreeEnergy}{G}
+\newcommand{\SpecificGibbsFreeEnergy}{g}
+\newcommand{\SpecGibbsFreeEnergy}{\SpecificGibbsFreeEnergy}
+\newcommand{\work}{W_{TD}}
+\newcommand{\SpecificWork}{w_{TD}}
+\newcommand{\SpecWork}{\SpecificWork}
+\newcommand{\IsobaricHeatCapacity}{c_p}
+\newcommand{\IsobarHeatCap}{\IsobaricHeatCapacity}
+\newcommand{\IsochoricHeatCapacity}{c_v}
+\newcommand{\IsochorHeatCap}{\IsochoricHeatCapacity}
 
-\newcommand{\GasConst}{R}
-\newcommand{\GasConstant}{\GasConst}
-\newcommand{\IdealGasConstant}{\GasConst}
-\newcommand{\IsobarHeatCap}{c_p}
-\newcommand{\IsochorHeatCap}{c_v}
-
+\newcommand{\AAAAA}{---------------------------------------- Thermodynamic Constants }
+\newcommand{\SpecificGasConstant}{R}
+\newcommand{\GasConst}{\SpecificGasConstant}
+\newcommand{\UniversalGasConstant}{\mathfrak{\SpecificGasConstant}}
+\newcommand{\MolarMass}{M}
 \newcommand{\VdWconstA}{a}
 \newcommand{\VdWconstB}{b}
 \newcommand{\VdWconstC}{c}
 \newcommand{\VdWconstD}{d}
+\newcommand{\ReferenceTemperature}{\temp_{ref}}
+\newcommand{\RefTemp}{\ReferenceTemperature}
+
+\newcommand{\AAAAA}{------------------------------------------------- Fluid Dynamics }
+\newcommand{\ViscousStress}{\mat{\tau}} 
+\newcommand{\DynamicViscosity}{\mu}
+\newcommand{\KinematicViscosity}{\nu}
+
+\newcommand{\KortewegStress}{\mat{\varsigma}}
+\newcommand{\capillarity}{K}
+\newcommand{\InterstitialWorkFlux}{\vec{\Pi}}

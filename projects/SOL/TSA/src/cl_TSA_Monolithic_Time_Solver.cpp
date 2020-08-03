@@ -68,7 +68,7 @@ void Monolithic_Time_Solver::solve_monolytic_time_system( moris::Cell< sol::Dist
         mSolverInterface->set_time( tTimeFrames( tSolVecIndex ) );
 
         std::string tOrnament = "\n================================================================================\n";
-        std::string tTimeInfo = "Time Slab = " + std::to_string(Ik+1) +
+        std::string tTimeInfo = "Forward Solve Time Slab = " + std::to_string(Ik+1) +
                 "   Start | End Time = " + std::to_string(tTimeFrames( tSolVecIndex )(0,0)) +  " | " + std::to_string(tTimeFrames( tSolVecIndex )(1,0));
 
         MORIS_LOG_INFO ((tOrnament+tTimeInfo+tOrnament).c_str());
@@ -128,7 +128,7 @@ void Monolithic_Time_Solver::solve_implicit_DqDs( moris::Cell< sol::Dist_Vector 
 
 
         std::string tOrnament = "\n================================================================================\n";
-               std::string tTimeInfo = "Time Slab = " + std::to_string(Ik+1) +
+               std::string tTimeInfo = "Adjoint Solve Time Slab = " + std::to_string(Ik) +
                        "   Start | End Time = " + std::to_string(tTimeFrames( tSolVecIndex )(0,0)) +  " | " + std::to_string(tTimeFrames( tSolVecIndex )(1,0));
 
         MORIS_LOG_INFO ((tOrnament+tTimeInfo+tOrnament).c_str());

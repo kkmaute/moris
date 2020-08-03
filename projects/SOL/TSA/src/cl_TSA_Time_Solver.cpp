@@ -369,8 +369,8 @@ void Time_Solver::solve_sensitivity()
     mFullVectorSensitivity( 0 ) = tMatFactory.create_vector( mSolverInterface, mFullMap, tNumRHMS );
     mFullVectorSensitivity( 1 ) = tMatFactory.create_vector( mSolverInterface, mFullMap, tNumRHMS );
 
-    mFullVectorSensitivity( 0 )->vec_put_scalar( 1.0 );
-    mFullVectorSensitivity( 1 )->vec_put_scalar( 1.0 );
+    mFullVectorSensitivity( 0 )->vec_put_scalar( 0.0 );
+    mFullVectorSensitivity( 1 )->vec_put_scalar( 0.0 );
 
     mSolverInterface->set_adjoint_solution_vector( mFullVectorSensitivity( 0 ) );
     mSolverInterface->set_previous_adjoint_solution_vector( mFullVectorSensitivity( 1 ) );

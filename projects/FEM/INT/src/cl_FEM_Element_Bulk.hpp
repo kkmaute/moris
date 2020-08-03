@@ -126,21 +126,15 @@ namespace moris
                 real compute_volume( mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER );
 
                 //------------------------------------------------------------------------------
-
-                //        real compute_integration_error( real (*aFunction)( const Matrix< DDRMat > & aPoint ) );
-
-                //------------------------------------------------------------------------------
-
-                //        real compute_element_average_of_scalar_field();
-
-                //------------------------------------------------------------------------------
             protected:
                 //------------------------------------------------------------------------------
                 /**
-                 * initialize integration geometry interpolator
+                 * initialize the geometry interpolator for the IG element
+                 * @param[ in ] aIsActiveDv list of if design variable is active
+                 *                          (vertexIndex)(DvType) for master element
                  */
-                void init_ig_geometry_interpolator();
-                void init_ig_geometry_interpolator_with_pdv( moris::Cell< Matrix< DDSMat > > & aIsActiveDv );
+                void init_ig_geometry_interpolator(
+                        moris::Cell< Matrix< DDSMat > > & aIsActiveDv );
         };
 
         //------------------------------------------------------------------------------

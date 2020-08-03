@@ -72,6 +72,30 @@ namespace moris
 
                 //------------------------------------------------------------------------------
                 /**
+                 * compute dRdp
+                 */
+                void compute_dRdp();
+
+                //------------------------------------------------------------------------------
+                /**
+                 * compute QId
+                 */
+                void compute_QI();
+
+                //------------------------------------------------------------------------------
+                /**
+                 * compute dQIdu
+                 */
+                void compute_dQIdu();
+
+                //------------------------------------------------------------------------------
+                /**
+                 * compute dQIdp
+                 */
+                void compute_dQIdp_explicit();
+
+                //------------------------------------------------------------------------------
+                /**
                  * compute volume over the element
                  */
                 real compute_volume( mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER )
@@ -85,9 +109,14 @@ namespace moris
 
                 //------------------------------------------------------------------------------
                 /**
-                 * initialize integration geometry interpolator
+                 * initialize the geometry interpolator for the IG element
+                 * @param[ in ] aTimeOrdinal time ordinal for the IG element
+                 * @param[ in ] aIsActiveDv  list of if design variable is active
+                 *                           (vertexIndex)(DvType) for master element
                  */
-                void init_ig_geometry_interpolator( uint aTimeOrdinal );
+                void init_ig_geometry_interpolator(
+                        uint                              aTimeOrdinal,
+                        moris::Cell< Matrix< DDSMat > > & aIsActiveDv );
 
                 //------------------------------------------------------------------------------
         };

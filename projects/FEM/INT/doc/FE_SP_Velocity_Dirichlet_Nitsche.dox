@@ -1,0 +1,30 @@
+namespace moris {
+namespace fem {
+
+/** \page FE_SP_Velocity_Dirichlet_Nitsche Stabilization Parameter for Dirichlet on Velocity via Nitsche
+
+The Nitsche stabilization parameter is given as:
+\f[
+\gamma_N = \alpha_N \left( 
+\frac{\mu}{h} 
++ \frac{\rho || \mathbf{u} ||_{\infty}}{ 6 } 
++ \frac{\rho h}{12 \theta \Delta t} 
+\right)
+\f]
+where
+- \f$ \alpha_N \f$ is a scalar constant ranging in \f$ [ 50 100 ] \f$,
+- \f$ h \f$ is the element size along the considered facet,
+- \f$ \mu \f$ is the fluid viscosity,
+- \f$ rho \f$ is the fluid density,
+- \f$ \mathbf{u} \f$ is the fluid velocity,
+- \f$ || \bullet ||_{\infty} \f$ is the infinity norm,
+- \f$ \Delta t \f$ is the time step,
+- \f$ \theta \f$ is a scalar dependent on the time solving scheme.
+
+The stabilization parameter \f$ \gamma_N \f$ is implemented in SP_Velocity_Dirichlet_Nitsche 
+and is build using the enum SP_Type::VELOCITY_DIRICHLET_NITSCHE.
+
+*/
+
+}
+}

@@ -1,0 +1,296 @@
+namespace moris {
+namespace fem {
+
+/** @defgroup FE_Compressible_NS Compressible Navier-Stokes Equations.
+
+Compressible Navier-Stokes equations with ideal and Van-der-Waals (Korteweg) fluid constitutive models.
+
+# Introduction
+The compressible Navier-Stokes have been implemented along side two constitutive models to describe the flow of a 
+compressible flow at low Reynolds numbers (FEM discretization is instable at higher Reynolds numbers).
+The primitive variables \f$ \density \f$, \f$ \velocity \f$, and \f$ \temp \f$, are used as the field variables. 
+Two constitutive models have been implemented along side of it: a simple ideal gas model, and a Van-der-Waals fluid model.
+Using the latter results in the so-called thermal Navier-Stokes-Korteweg equations, which can be used to describe the flow 
+of a single component fluid material with multiple states of mater (e.g. water and vapor). This physics has been 
+implemented in an effort to solve a problem with boiling phase change material for energy storage.
+
+NOTE: The constitutive models assume that all temperatures are given as absolute temperatures, i.e. in Kelvin.
+ 
+-------------------------------------------------------------------------------------------------------------------------- 
+# Governing Equations
+
+The set of governing equations in their strong form for the space time domain 
+\f$ \domain = \SpaceDomain \times \TimeDomain \f$ are:
+
+Conservation of mass:
+\f[
+\pfrac{\density}{\time} + \div{(\density \velocity)} 
+= \Residual_1 \ShouldEqual 0 \ \ \ in  \ \domain
+\f]
+
+Conservation of momentum:
+\f[
+\pfrac{(\density \velocity)}{\time} + \div{(\density \velocity \otimes \velocity)} 
+- \div{\CauchyStress} - \density \BodyForce
+= \Residual_2 \ShouldEqual 0 \ \ \ in  \ \domain
+\f]
+
+Conservation of Energy:
+\f[
+\pfrac{\TotalEnergyDensity}{\time} 
++ \div{(\TotalEnergyDensity)} 
+- \div{\CauchyStress} 
++ \div{\HeatFlux} 
+- \density \BodyForce \cdot \velocity 
+- \BodyLoad
+= \Residual_3 \ShouldEqual 0 \ \ \ in  \ \domain
+\f]
+
+The initial conditions are defined as follows:
+
+\f[
+\begin{split}
+\density(\space,\time=0) = \density_0(\space) \ \ \ on \ \SpaceDomain   \\
+\velocity(\space,\time=0) = \velocity_0(\space) \ \ \ on \ \SpaceDomain \\
+\temp(\space,\time=0) = \temp_0(\space) \ \ \ on \ \SpaceDomain
+\end{split}
+\f]
+
+with the boundary conditions being:
+
+\f[
+\grad{\density} \cdot \SurfaceNormal = 0 \ \ \ on \ \SpaceBoundary
+\f]
+
+ What else ???????????????????????
+
+--------------------------------------------------------------------------------------------------------------------------
+# Constitutive Models
+
+## Ideal Gas Model
+Using the ideal gas equation, the pressure \f$ \pressure \f$ can be computed as
+
+\f[
+\pressure(\density,\temp) = \density \GasConst \temperature 
+\f]
+
+where \f$ \GasConst \f$ is the specific gas constant as usually used for engineering applications. 
+It can be computed using the universal gas constant and the molar mass of the fluid using the expression
+
+\f[
+\GasConst = \frac{\UniversalGasConstant}{\MolarMass}
+\f]
+
+The total energy density is computed as follows 
+
+\f[
+\TotalEnergyDensity = \density \left( \SpecificInnerEnergy + \frac{\abs{\velocity}^2}{2} \right)
+\f]
+
+where the specific inner energy is
+
+\f[
+\SpecificInnerEnergy = ( \IsobarHeatCap - \GasConst ) \temperature
+\f]
+
+The thermal flux is defined as
+
+\f[
+\HeatFlux = - \ThermalConductivity \grad{\temp}
+\f]
+
+Finally the Cauchy stress tensor is computed as
+
+\f[
+\CauchyStress 
+= \ViscousStress - \pressure \IdentityMat 
+= \left[ 
+\DynamicViscosity \left( \grad{\velocity} + \trans{\grad{\velocity}} \right) 
++ \KinematicViscosity (\div{\velocity}) \IdentityMat
+\right] - \pressure \IdentityMat
+\f]
+
+where Stokes' assumption \f$ \KinematicViscosity = - \frac{2}{3} \DynamicViscosity \f$ is used.
+
+To use this constitutive model, the following three properties need to be defined:
+-# the isobaric heat capacity \f$ \IsobarHeatCap \f$ (Keyword: "")
+-# the gas constant \f$ \GasConst \f$, and (Keyword: "")
+-# the dynamic viscosity \f$ \DynamicViscosity \f$ of the fluid used (Keyword: "")
+
+
+## Thermal Van-der-Waals (Korteweg) Model
+
+A Van-der-Waals (VdW) fluid model was adapted to model the thermal fluid. The fluid model has been adapted from Keunsoo 
+Park's 2017 paper.This fluid model is based on the assumption that the thermodynamic potential of the Helmholtz free 
+energy is minimized everywhere. The local Helmholtz free energy density based on the VdW equation of state is given as
+
+\f[
+\LocalHelmholtzFreeEnergyDensity(\density,\temp) = 
+- \VdWconstA \density 
++ \GasConst \temp \ln{\frac{\density}{\VdWconstB - \density}}
+- \IsochorHeatCap \temp \ln{\frac{\temp}{\RefTemp}}
+- \IsochorHeatCap \temp
+\f]
+
+This potential has two minima ("wells") close to the critical point, i.e. the point of phase change. 
+This leads to two stable states, one in each phase. An unmodified implementation of this formulation of the free energy 
+would require the tracking and treatment of the resulting sharp interface between the two phases, to obtain a stable 
+formulation.For this implementation, however, a phase field (PF) approach -- like the one for the thermal diffusion model 
+with phase change -- was choosen. To smear out the interface of the two phase regions, the local Helmholtz free energy 
+density is augmented with a regularization term involving the capillarity coefficient \f$ \capillarity \f$ and the 
+gradient of the order parameter. Since the density contains the information needed to determine the phase state, it is 
+used as the order parameter, avoiding the need to separatly compute the order parameter.
+This then leads to the following formulation for the total Helmholtz free energy density, which is then minimized.
+
+\f[
+\HelmholtzFreeEnergyDensity(\density,\temp) = \LocalHelmholtzFreeEnergyDensity(\density,\temp) 
++ \frac{\capillarity}{2 \density} \abs{\grad{\density}}^2
+\f]
+
+Using the Van-der-Waals equation of state, the thermodynamic pressure \f$ \pressure \f$ is defined as
+
+\f[
+\pressure(\density,\temp) = 
+\GasConst \VdWconstB \frac{\density \temp}{\VdWconstB - \density} 
+- \VdWconstA \density^2
+\f]
+
+
+where \f$ \GasConst \f$ is the specific gas constant as usually used for engineering applications. 
+It can be computed using the universal gas constant and the molar mass using the expression
+
+\f[
+\GasConst = \frac{\UniversalGasConstant}{\MolarMass}
+\f]
+
+The total energy density is computed as follows 
+
+\f[
+\TotalEnergyDensity = \density \left( \SpecificInnerEnergy + \frac{\abs{\velocity}^2}{2} \right)
+\f]
+
+where the specific inner energy is
+
+\f[
+\SpecificInnerEnergy = \IsochorHeatCap \temp - \VdWconstA \density
+\f]
+
+The thermal flux is defined as
+
+\f[
+\HeatFlux 
+= - \ThermalConductivity \grad{\temp} + \InterstitialWorkFlux 
+=  - \ThermalConductivity \grad{\temp} 
+   + \left[ \capillarity \density  \left( \div{\velocity} \right) \grad{\density} \right]
+\f]
+
+where \f$ \InterstitialWorkFlux \f$ is called the interstitial working flux which accounts for the compressibility 
+effects introduced by the phase change.
+
+
+Finally the Cauchy stress tensor is computed as
+
+\f[
+\CauchyStress 
+= \ViscousStress + \KortewegStress - \pressure \IdentityMat 
+= \left[ 
+\DynamicViscosity \left( \grad{\velocity} + \trans{\grad{\velocity}} \right) 
++ \KinematicViscosity (\div{\velocity}) \IdentityMat
+\right] + \left[ 
+\left( \capillarity \density \laplacian{\density} 
++ \frac{\capillarity \abs{\grad{\density}}^2}{2} \right) \IdentityMat 
+- \capillarity \grad{\density} \otimes \grad{\density} 
+\right] 
+- \pressure \IdentityMat
+\f]
+
+where \f$ \KortewegStress \f$ is called the Korteweg stress. 
+Again, Stokes' assumption \f$ \KinematicViscosity = - \frac{2}{3} \DynamicViscosity \f$ is used.
+
+To use this constitutive model, the following three properties need to be defined:
+-# the isochoric heat capacity \f$ \IsochorHeatCap \f$ (Keyword: "IsochoricHeatCapacity")
+-# the first Van-der-Waals constant \f$ \VdWconstA \f$ (Keyword: "FirstVdWconstant")
+-# the second Van-der-Waals constant \f$ \VdWconstB \f$ (Keyword: "SecondVdWconstant")
+-# the capillarity coefficient \f$ \capillarity \f$ (Keyword: "Capillarity")
+-# the specific gas constant \f$ \GasConst \f$, and (Keyword: "SpecificGasConstant")
+-# the dynamic viscosity \f$ \DynamicViscosity \f$ of the fluid used (Keyword: "DynamicViscosity")
+
+
+
+--------------------------------------------------------------------------------------------------------------------------
+# Stabilization
+
+For this physics model, no stabilization has been implemented, yet.
+
+--------------------------------------------------------------------------------------------------------------------------
+# Bulk IWGs
+
+After deriving the weak form, the following weak form of the governing equations for the bulk is obtained.
+
+Mass Conservation:
+\f[
+\int_{\domain} \TestFunction \dot{\density} \ d\domain 
+- \int_{\domain} \grad{\TestFunction} \cdot (\density \velocity) \ d\domain 
+= \Residual_1 \ShouldEqual 0 \ \ \ in  \ \domain
+\f]
+
+Momentum Equation:
+\f[
+\int_{\domain} \TestFunction \cdot \left( \dot{\density} \velocity + \density \dot{\velocity} \right) \ d\domain 
+- \int_{\domain} \left( \density \velocity \otimes \velocity \right) \DoubleDot \grad{\TestFunction} \ d\domain 
++ \int_{\domain} \CauchyStress \DoubleDot \grad{\TestFunction} \ d\domain 
+- \int_{\domain} \TestFunction \cdot \density \BodyForce \ d\domain
+= \Residual_2 \ShouldEqual 0 \ \ \ in  \ \domain 
+\f]
+
+Energy Equation:
+\f[
+\int_{\domain} \TestFunction \dot{\TotalEnergyDensity} \ d\domain 
++ \int_{\domain} \left[ \CauchyStress \velocity - \TotalEnergyDensity \velocity 
+                       - \HeatFlux \right] \DoubleDot \grad{\TestFunction} \ d\domain 
++ \int_{\domain} \TestFunction \left[ \density \BodyForce \dot \velocity + \BodyLoad \right] \ d\domain 
+= \Residual_3 \ShouldEqual 0 \ \ \ in  \ \domain
+\f]
+
+To use this Bulk IWG, the following two properties need to be defined:
+-# the body force vector \f$ \BodyForce \f$ (unit: force per unit mass) (Keyword: "BodyForce")
+-# the volumetric heat load \f$ \BodyLoad \f$ (unit: power per unit volume) (Keyword: "BodyLoad")
+
+--------------------------------------------------------------------------------------------------------------------------
+# Boudary IWGs
+
+## Traction BC (Prescribe Pressure and stresses)
+
+## No-Slip BC (Prescribe Velocity)
+
+## Thermal Neummann BC (Prescribe Heat Flux)
+
+## Thermal Dirichlet BC (Prescribe Temperature)
+
+
+*/
+
+}
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+}

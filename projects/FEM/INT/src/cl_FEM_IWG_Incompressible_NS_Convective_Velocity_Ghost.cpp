@@ -4,6 +4,7 @@
 #include "cl_FEM_IWG_Incompressible_NS_Convective_Velocity_Ghost.hpp"
 //LINALG/src
 #include "fn_trans.hpp"
+#include "fn_norm.hpp"
 
 namespace moris
 {
@@ -55,6 +56,10 @@ namespace moris
             uint tSlaveDofIndex      = mSet->get_dof_index_for_type( mResidualDofType( 0 ), mtk::Master_Slave::SLAVE );
             uint tSlaveResStartIndex = mSet->get_res_dof_assembly_map()( tSlaveDofIndex )( 0, 0 );
             uint tSlaveResStopIndex  = mSet->get_res_dof_assembly_map()( tSlaveDofIndex )( 0, 1 );
+
+//            // FIXME to remove
+//            Matrix< DDRMat > tPrev1 = mSet->get_residual()( 0 )({ tMasterResStartIndex, tMasterResStopIndex },{ 0, 0 } );
+//            Matrix< DDRMat > tPrev2 = mSet->get_residual()( 0 )({ tSlaveResStartIndex, tSlaveResStopIndex },{ 0, 0 } );
 
             // get the master field interpolator for the residual dof type
             Field_Interpolator * tFIMaster = mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );

@@ -1,0 +1,21 @@
+namespace moris {
+namespace fem {
+
+/** \page FE_SP_Viscous_Ghost Stabilization Parameter for Viscous Ghost
+
+The viscous ghost stabilization parameter is given as:
+\f[
+\gamma_{\mu}^{GP} = \alpha_{\mu}^{GP} \mu h^{2(i-1)+1}
+\f]
+where
+- \f$ \alpha_{\mu}^{GP} \f$ is a scalar constant ranging in \f$ [ 0.001 0.005 ] \f$,
+- \f$ \mu \f$ is the fluid viscosity,
+- \f$ h \f$ is the element size along the considered facet,
+- \f$ i \f$ is the interpolation order used for the velocity field.
+
+The stabilization parameter \f$ \gamma_{\mu}^{GP} \f$ is implemented in SP_Viscous_Ghost 
+and is build using the enum SP_Type::VISCOUS_GHOST.
+*/
+
+}
+}

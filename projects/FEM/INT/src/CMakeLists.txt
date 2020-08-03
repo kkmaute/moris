@@ -24,7 +24,6 @@ set(HEADERS
     cl_FEM_IWG_Isotropic_Struc_Linear_Dirichlet.hpp
     cl_FEM_IWG_Isotropic_Struc_Linear_Neumann.hpp
     cl_FEM_IWG_Isotropic_Struc_Linear_Interface.hpp
-    cl_FEM_IWG_Isotropic_Struc_Linear_Ghost.hpp
     cl_FEM_IWG_Isotropic_Struc_Linear_Pressure_Bulk.hpp
     cl_FEM_IWG_Isotropic_Struc_Linear_Pressure_Dirichlet.hpp
     cl_FEM_IWG_Isotropic_Struc_Linear_Interface.hpp
@@ -35,14 +34,10 @@ set(HEADERS
     cl_FEM_IWG_Diffusion_Robin.hpp
     cl_FEM_IWG_Diffusion_Radiation.hpp
     cl_FEM_IWG_Diffusion_Interface.hpp
-    cl_FEM_IWG_Diffusion_Ghost.hpp
     cl_FEM_IWG_Diffusion_Virtual_Work_Ghost.hpp
     cl_FEM_IWG_Incompressible_NS_Velocity_Bulk.hpp
     cl_FEM_IWG_Incompressible_NS_Pressure_Bulk.hpp
-    cl_FEM_IWG_Incompressible_NS_Viscous_Velocity_Ghost.hpp
     cl_FEM_IWG_Incompressible_NS_Convective_Velocity_Ghost.hpp
-    cl_FEM_IWG_Incompressible_NS_Convective_Normal_Velocity_Ghost.hpp
-    cl_FEM_IWG_Incompressible_NS_Pressure_Ghost.hpp
     cl_FEM_IWG_Incompressible_NS_Velocity_Dirichlet_Nitsche.hpp
     cl_FEM_IWG_Incompressible_NS_Pressure_Dirichlet_Nitsche.hpp
     cl_FEM_IWG_Incompressible_NS_Pressure_Neumann.hpp
@@ -55,6 +50,7 @@ set(HEADERS
     cl_FEM_IWG_Time_Continuity_Dof.hpp
     cl_FEM_IWG_Isotropic_Struc_Linear_Contact_Penalty.hpp
     cl_FEM_IWG_Isotropic_Struc_Linear_Contact_Nitsche.hpp
+    cl_FEM_IWG_Ghost_Normal_Field.hpp
     #cl_FEM_IWG_Helmholtz_Bulk.hpp
     #cl_FEM_IWG_Helmholtz_Bulk2.hpp
     #cl_FEM_IWG_Helmholtz_Interface.hpp
@@ -84,6 +80,8 @@ set(HEADERS
     cl_FEM_Integration_Coeffs_Tri_1.hpp
     cl_FEM_Integration_Coeffs_Tri_3.hpp
     cl_FEM_Integration_Coeffs_Tri_6.hpp
+    cl_FEM_Integration_Coeffs_Tri_7.hpp
+    cl_FEM_Integration_Coeffs_Tri_12.hpp
     cl_FEM_Integration_Coeffs_Tet_1.hpp
     cl_FEM_Integration_Coeffs_Tet_4.hpp
     cl_FEM_Integration_Coeffs_Tet_5.hpp
@@ -136,6 +134,7 @@ set(HEADERS
     cl_FEM_IQI_Stress.hpp
     cl_FEM_IQI_Dof.hpp
     cl_FEM_IQI_Max_Dof.hpp
+	cl_FEM_IQI_Max_Von_Mises_Stress.hpp
     cl_FEM_IQI_Property.hpp
     cl_FEM_IQI_L2_Error_Analytic.hpp
     cl_FEM_IQI_H1_Error_Analytic.hpp
@@ -145,6 +144,7 @@ set(HEADERS
     cl_FEM_IQI_Volume_Fraction.hpp
     cl_FEM_IQI_2D_Drag_Lift_Coefficient.hpp
     cl_FEM_IQI_Latent_Heat_Absorption.hpp
+    cl_FEM_IQI_Turbulent_Kinematic_Viscosity.hpp
     cl_FEM_Stabilization_Parameter.hpp
     cl_FEM_SP_Factory.hpp
     cl_FEM_SP_Dirichlet_Nitsche.hpp
@@ -193,7 +193,6 @@ set(LIB_SOURCES
     cl_FEM_IWG_Isotropic_Struc_Linear_Dirichlet.cpp
     cl_FEM_IWG_Isotropic_Struc_Linear_Neumann.cpp
     cl_FEM_IWG_Isotropic_Struc_Linear_Interface.cpp
-    cl_FEM_IWG_Isotropic_Struc_Linear_Ghost.cpp
     cl_FEM_IWG_Isotropic_Struc_Linear_Virtual_Work_Ghost.cpp
     cl_FEM_IWG_Isotropic_Struc_Linear_Pressure_Bulk.cpp
     cl_FEM_IWG_Isotropic_Struc_Linear_Pressure_Dirichlet.cpp
@@ -204,14 +203,10 @@ set(LIB_SOURCES
     cl_FEM_IWG_Diffusion_Robin.cpp
     cl_FEM_IWG_Diffusion_Radiation.cpp
     cl_FEM_IWG_Diffusion_Interface.cpp
-    cl_FEM_IWG_Diffusion_Ghost.cpp
     cl_FEM_IWG_Diffusion_Virtual_Work_Ghost.cpp
     cl_FEM_IWG_Incompressible_NS_Velocity_Bulk.cpp
     cl_FEM_IWG_Incompressible_NS_Pressure_Bulk.cpp
-    cl_FEM_IWG_Incompressible_NS_Viscous_Velocity_Ghost.cpp
     cl_FEM_IWG_Incompressible_NS_Convective_Velocity_Ghost.cpp
-    cl_FEM_IWG_Incompressible_NS_Convective_Normal_Velocity_Ghost.cpp
-    cl_FEM_IWG_Incompressible_NS_Pressure_Ghost.cpp
     cl_FEM_IWG_Incompressible_NS_Velocity_Dirichlet_Nitsche.cpp
     cl_FEM_IWG_Incompressible_NS_Pressure_Dirichlet_Nitsche.cpp
     cl_FEM_IWG_Incompressible_NS_Pressure_Neumann.cpp
@@ -224,6 +219,7 @@ set(LIB_SOURCES
     cl_FEM_IWG_Time_Continuity_Dof.cpp
     cl_FEM_IWG_Isotropic_Struc_Linear_Contact_Penalty.cpp
     cl_FEM_IWG_Isotropic_Struc_Linear_Contact_Nitsche.cpp
+    cl_FEM_IWG_Ghost_Normal_Field.cpp
     #cl_FEM_IWG_Helmholtz_Bulk.cpp
     #cl_FEM_IWG_Helmholtz_Bulk2.cpp
     #cl_FEM_IWG_Helmholtz_Interface.cpp
@@ -279,6 +275,7 @@ set(LIB_SOURCES
     cl_FEM_IQI_Stress.cpp
     cl_FEM_IQI_Dof.cpp
     cl_FEM_IQI_Max_Dof.cpp
+	cl_FEM_IQI_Max_Von_Mises_Stress.cpp
     cl_FEM_IQI_Property.cpp
     cl_FEM_IQI_L2_Error_Analytic.cpp
     cl_FEM_IQI_H1_Error_Analytic.cpp
@@ -289,6 +286,7 @@ set(LIB_SOURCES
     cl_FEM_IQI_Volume_Fraction.cpp
     cl_FEM_IQI_2D_Drag_Lift_Coefficient.cpp
     cl_FEM_IQI_Latent_Heat_Absorption.cpp
+    cl_FEM_IQI_Turbulent_Kinematic_Viscosity.cpp
     cl_FEM_Interpolation_Element.cpp
     cl_FEM_Model.cpp
     )

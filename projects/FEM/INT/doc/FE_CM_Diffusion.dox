@@ -1,0 +1,302 @@
+namespace moris {
+namespace fem {
+
+/** \page FE_CM_Diffusion Thermal Diffusion Constitutive Model
+
+The diffusion model build into MORIS supports both linear diffusion and linear diffusion with phase change using a so-called phase-field model. 
+The difference between the two is the constitutive model used. 
+Additionally, the diffusion model supports stabilization using the gradient Galerkin least squares (GGLS) method. 
+The first sections of this documentation article will discuss the implementation and theoretical background. A short user guide is given at the end.
+
+NOTE: currently, the implementation with phase change only allows for constant values for the thermal conductivity \f$ \ThermConduct \f$
+
+# Governing Equations
+
+To model the temperature field in the phase change material, the general equation for diffusive heat transport was used:
+
+\f[ \dot{\enthalpy}(\temp) = \div{(\ThermConduct \nabla T)} \f]
+
+Here, \f$ \dot{\enthalpy} = \frac{\partial \enthalpy}{\partial \time} \f$ denotes the rate of change of enthalpy, \f$ \ThermConduct \f$ the thermal conductivity, 
+and \f$ \nabla \cdot (\bm{\cdot}) \f$ and \f$ \nabla (\bm{\cdot}) \f$ are the divergence and gradient operators.
+The resulting weak form states as follows:
+
+\f[ 
+\int_{\domain} \TestFunc \dot{\enthalpy}(\temp) \ d\domain + \int_{\domain} \grad{\TestFunc} \cdot (\ThermConduct \grad{\temp}) \ d\domain 
+= \int_{\DomainBoundary} \TestFunc (\HeatFlux \cdot \SurfaceNormal) \ d\BoundarySegment + \int_{\domain} \TestFunc \BodyLoad \ d\domain
+\f]
+
+where \f$ \BodyLoad \f$ denotes a volumetric body load, and \f$ \HeatFlux \cdot \bm{n} \f$ the heat flux normal to the boundary surface.
+
+
+# Constitutive Models
+
+There are two constitutive models for thermal diffusion, one for the simple isotropic diffusion (CM_Diffusion_Linear_Isotropic), 
+and one for isotropic diffusion with a phase change using a phase-field model (CM_Diffusion_Linear_Isotropi\HeatCaphase_Change). 
+The only thing that changes for the second one is the computation of the enthalpy and its derivatives. 
+Hence, the second CM is implemented as a child class of the first one, where only the methods for computing these derivatives are changed.
+
+## Isotropic Diffusion
+
+The flux is defined as:
+
+\f[ \HeatFlux = \ThermConduct \grad{\temp} \f]
+
+
+The Entropy is defined as:
+
+\f[ \enthalpy(\temp) = \int_{\temp_{ref}}^{\temp}  \density \HeatCap   d\temp \f]
+
+Hence, the change rate can simply be computed as
+
+\f[ \dot{\enthalpy}(\temp) = \density \HeatCap \pfrac{\temp}{\time} \f]
+
+The class this constitutive model is implemented in is CM_Diffusion_Linear_Isotropic corresponding to the enum Constitutive_Type::DIFF_LIN_ISO .
+
+## Isotropic Diffusion with Phase Change
+
+The class containing this CM is CM_Diffusion_Linear_Isotropic_Phase_Change corresponding to the enum Constitutive_Type::DIFF_LIN_ISO_PC .
+
+Rather than treating the solid and the liquid phase as different materials and resolving the material interface between them, 
+a phase-state function (PSF) \f$ \PSF(\temp) \f$ (sometimes also called a phase-field function) is introduced, 
+resolving the current phase state of the phase change material (PCM) as a function of the temperature \f$ T \f$. 
+The PSF describes the fraction of the material that has transitioned through the phase change by returning a value \f$ 0 \leq \PSF(\temp) \leq 1 \f$, 
+where 0 indicates the material being in its lower phase state, and 1 indicates that the material is in its upper phase state.
+The general phase state function is than defined as:
+
+\f[
+\PSF(\temp) = 
+\begin{cases}
+0 \ \ \ \ \ \ \  for  \ \temp \leq \LowerPCTemp \\
+]0,1[ \ \ \ for \ \LowerPCTemp < \temp < \UpperPCTemp \\
+1 \ \ \ \ \ \ \  for  \ \temp \geq \UpperPCTemp
+\end{cases}
+\f]
+
+Here, \f$ \LowerPCTemp \f$ and \f$ \UpperPCTemp \f$ are used to describe the lower and upper temperature boundary of the phase change regime.
+The phase state at a point in space \f$ \space \f$ can then be resolved using the temperature at that point \f$ \temp = \temp(\space) \f$. 
+Using this information, the definition of the enthalpy is expanded to:
+
+\f[ \enthalpy(T) = \int_{\temp_{ref}}^{\temp}  \density \left( \HeatCap + \LatHeat \PSF(\temp) \right)  d\temp \f]
+
+As this term's value drastically changes wherever \f$ \LowerPCTemp < \temp < \UpperPCTemp \f$, a strong non-linearity is introduced into the governing equations.
+Differentiating with respect to the temperature using the chain rule, 
+the rate of change of the enthalpy \f$ \dot{\enthalpy} \f$ can then be computed as follows.
+
+\f[ \dot{\enthalpy}(\temp) = \density \left( \HeatCap + \LatHeat \frac{\partial \PSF(\temp)}{\partial \temp} \right) \frac{\partial \temp}{\partial \time} \f]
+
+The derivative of the phase-state function \f$ \frac{\partial \PSF(\temp)}{\partial \temp} \f$ is needed. Within the phase change temperature range, 
+the above term usually dominates the residual equation. 
+Hence, the derivative of the phase-state function chosen also has a significant impact on the order of magnitude of the \f$ \dot{\enthalpy} \f$ term. 
+
+
+### Phase-State Functions (PSFs)
+There are several different PSFs a user can choose from. As both the constitutive model and the stabilization parameter 
+need access to the PSFs and their derivatives, they are define in a separate file: fn_FEM_CM_Phase_State_Functions.hpp.
+The different derivatives can be computed by passing in the phase change constant \f$ \PCconst \f$, the melt temperature \f$ \PCTemp \f$, 
+an integer indicating which PSF to use, and a pointer to the field interpolator used, 
+from which the temperature at the current point \f$ \space \f$ can be retrieved.
+
+The following PSFs have been implemented (given are the function values for \f$ \LowerPCTemp < T < \UpperPCTemp \f$)
+-# linear:				\f$  \PSF(\temp) = \frac{\temp - \LowerPCTemp}{\UpperPCTemp - \LowerPCTemp} \f$ , where \f$ \LowerPCTemp = T_m - \frac{\PCconst}{2} \f$ and \f$ \UpperPCTemp = T_m + \frac{\PCconst}{2} \f$
+-# cubic:				\f$  \PSF(\temp) = \frac{2\temp^3 - 3(\LowerPCTemp+\UpperPCTemp)T^2 + 6 \LowerPCTemp \UpperPCTemp T}{(\LowerPCTemp - \UpperPCTemp)^3}  \f$ , where \f$ \LowerPCTemp = \PCTemp - \frac{\PCconst}{2} \f$ and \f$ \UpperPCTemp = T_m + \frac{\PCconst}{2} \f$
+-# logistic / sigmoid:	\f$  \PSF(\temp) = \frac{1}{1+exp(- \PCconst (\temperature - \PCTemp))} \f$
+
+
+# GGLS - stabilization
+
+The so-called Gradient Galerkin Least Squares (GGLS) stabilization method has been implemented for the thermal diffusion model.
+It is used to mitigate instabilities in the form of temperature oscillations. These might be observed if the thermal problem posed leads to 
+steep temperature gradients or a coarse mesh is used. This, in turn, can be due to high heat loads or when using the phase 
+change model as the effective heat capacity changes drastically at the interface between melting and non-melting PCM.
+
+The GGLS method is a residual based stabilization method that adds numerical dissipation in areas of high temperature gradients 
+by introducing an artificial conductivity \f$ \GGLSParam \f$. Adopting the formulation from Ilinca's 2002 paper, to obtain the the GGLS-residual, 
+the strong form of the gradient of the residual of the governing equation is multiplied with the modified test function \f$ \tilde{w} \f$:
+
+\f[ \tilde{w} = \GGLSParameter \grad{\TestFunc}  \f]
+
+Note: this is a departure from the original GGLS formulation as proposed by Franca in 1988. Here, the test function is replaced with the 
+gradient of the strong form of the residual multiplied with the artificial conductivity. The simplified formulation from above has shown to be 
+effective. Hence, it was adopted.
+
+The computation of the artificial conductivity has been also been adapted from [Ilinca 2002] and modified to contain the latent heat 
+in the capacitance term as follows:
+
+\f[ 
+\begin{split}
+	\ThermConduct_a &= \frac{\ElementSize^2}{6} \bar{\xi} \\
+	\bar{\xi} &= \frac{ cosh \left( \sqrt{6 \alpha} \right) + 2 }{ cosh \left( \sqrt{6 \alpha} \right) - 1 } - \frac{1}{\alpha} \\
+	\alpha &= \frac{\density \left( \HeatCap + \LatHeat \frac{\partial f}{\partial \temp} \right) h^2 }{6 \ThermConduct \Delta t}
+\end{split}
+\f]
+
+This leads to the following residual term being added to the weak form: 
+
+\f[	
+R_{GGLS} = \int_{\domain} \grad{\TestFunc} \GGLSParameter  \grad{ \left[ \dot{\enthalpy}(T) - \nabla \cdot \HeatFlux - \nabla Q  \right] } \ d\domain 
+\f]
+
+Note, that the second part of this term contains mixed space time derivatives and 3rd order spatial derivatives in the form of the gradient 
+of the divergence of the flux.
+
+### Implementation of Grad-Div-Flux
+
+To compute the gradient of the divergence of the flux, as contained in the GGLS stabilization term, a help matrix is constructed 
+and multiplied with the array of third order derivatives of the shape functions as obtained from the field interpolator.
+This reads as follows for 3D:
+
+\f[	
+\nabla (\nabla \cdot (\ThermConduct \grad{\temperature}) ) =
+
+\left[ \begin{array}{lll lll} 
+\ThermConduct & 0 & 0 & 0 & 0 & \ThermConduct & 0 & \ThermConduct & 0 & 0 \\
+0 & \ThermConduct & 0 & \ThermConduct & 0 & 0 & 0 & 0 & \ThermConduct & 0 \\
+0 & 0 & \ThermConduct & 0 & \ThermConduct & 0 & \ThermConduct & 0 & 0 & 0 \\
+\end{array} \right] \ 
+\bm{B}^{\bm{xxx}}
+\f]
+
+and for 2D:
+
+\f[	
+\nabla (\nabla \cdot (\ThermConduct \nabla T) ) =
+
+\left[ \begin{array}{lll lll} 
+\ThermConduct & 0 & 0 & \ThermConduct \\
+0 & \ThermConduct & \ThermConduct & 0 \\
+\end{array} \right] \ 
+\bm{B}^{\bm{xxx}}
+\f]
+
+For further information on the arrangement of the third order derivatives, visit the documentation page for the shape function derivatives: 
+
+Note: the implementation of this term has not been adapted to support a temperature dependent thermal conductivity \f$ \ThermConduct(T) \f$, yet.
+
+# IWGs
+
+## Bulk
+The IWG for the bulk is implemented in IWG_Diffusion_Bulk, corresponding to the enum IWG\_Type::SPATIALDIFF\_BULK.
+
+The following bulk integral is evaluated to obtain the residual contribution:
+
+\f[ 
+\bm{R}_{Bulk} =  \int_{\domain} w \dot{\enthalpy}(T) \ d\domain 
+                   + \int_{\domain} \grad{\TestFunc} \ \ThermConduct \ \nabla \temp \ d\domain 
+                   + \int_{\domain} \grad{\TestFunc} \GGLSParameter  \grad{ \left[ \dot{\enthalpy}(\temp) - \div{\HeatFlux} - \grad{Q} \right] } \ d\domain 
+\f]
+
+
+## Von-Neumann BC
+The IWG for the Neumann boundary is implemented in 
+IWG_Diffusion_Neumann, corresponding to the enum IWG\_Type::SPATIALDIFF\_NEUMANN.
+
+The following boudary integral is evaluated to obtain the residual contribution:
+
+\f[ \bm{R}_{N} = \int_{\Gamma_N} w (\HeatFlux \cdot \SurfaceNormal) \ d\BoundarySegment \f]
+
+The IWG doesn't require the definition of a constitutive model. Only the incident heat flux must be prescribed as a property. 
+A system egoistic view is used for the flux, i.e. a positive heat flux \f$ \HeatFlux \cdot \SurfaceNormal \f$ heats up the system/element.
+
+## Robin BC
+The IWG for the Robin boundary is implemented in 
+IWG_Diffusion_Robin, corresponding to the enum IWG\_Type::SPATIALDIFF\_ROBIN.
+
+Generally speaking, a Robin BC is a boundary condition that depends on both the field value (i.e. temperature) and its gradient (i.e. the flux).
+It is implemented for the general empirical law of surface convection.
+The following boudary integral is evaluated to obtain the residual contribution:
+
+\f[ \ResidualVector_{R} = \int_{\Gamma_R} \TestFunction \ConvectionCoefficient (\temp - \AmbientTemperature) \ d\BoundarySegment \f]
+
+Note, that unlike with the Neumann BC, a positive heat flux 
+\f$ \HeatFlux \cdot \SurfaceNormal = \ConvectionCoefficient (\temp - \AmbientTemperature) \f$ 
+is considered outward pointing in the implementation (the system is loosing energy), rather than the system egoistic view used for the 
+Neumann BC.
+
+The IWG doesn't require the definition of a constitutive model. However, it requires the user to input the convection coefficient 
+\f$ \ConvectionCoefficient \f$ and the ambient temperature \f$ \AmbientTemperature \f$.
+
+
+## Radiation BC
+The IWG for the Radiation boundary condition is implemented in 
+IWG_Diffusion_Radiation, corresponding to the enum IWG\_Type::SPATIALDIFF\_RADIATION.
+
+The Radiation BC is technically a Robin BC. However, the implementation was kept separate to keep it simple.
+It is implemented for the Stefan-Boltzmann law of black body radiation. The IWG only considers incident radiation from the sourrounding, 
+infinite space. Due to this, the model is only accurate for the outer surface of a convex body.
+The following boudary integral is evaluated to obtain the residual contribution:
+
+\f[ 
+\ResidualVector_{R} = \int_{\Gamma_R} \TestFunction \emissivity \StefanBoltzmannConstant 
+\left( (\temp - \AbsoluteZero)^4 - (\AmbientTemperature - \AbsoluteZero)^4 \right) 
+\ d\BoundarySegment 
+\f]
+
+where \f$ \StefanBoltzmannConstant \f$ denotes the Stefan-Boltzmann constant for black body radiation, and \f$ \emissivity \f$ denotes 
+the emissivity of the material used. 
+
+Note, that unlike with the Neumann BC, a positive heat flux 
+\f$ \HeatFlux \cdot \SurfaceNormal = \emissivity \StefanBoltzmannConstant 
+\left( (\temp - \AbsoluteZero)^4 - (\AmbientTemperature - \AbsoluteZero)^4 \right)  \f$ 
+is considered outward pointing in the implementation (the system is loosing energy), rather than the system egoistic view used for the 
+Neumann BC.
+
+The IWG doesn't require the definition of a constitutive model. However, it requires the user to input the emissivity 
+\f$ \emissivity \f$, the ambient temperature \f$ \AmbientTemperature \f$, and the point of absolute zero \f$ \AbsoluteZero \f$.
+
+## Dirichlet BC
+The IWG for the \textsc{Dirichlet} boundary is implemented in 
+IWG_Diffusion_Dirichlet_Nitsche, corresponding to the enums IWG\_Type::SPATIALDIFF\_DIRICHLET\_SYMMETRIC\_NITSCHE 
+and IWG\_Type::SPATIALDIFF\_DIRICHLET\_UNSYMMETRIC\_NITSCHE.
+The IWG can be defined using both CMs, with and without phase change, as it is not dependent on the definition of the enthalpy.
+
+## Robin BC
+To model heat transfer over a boundary due to convection or radiation, a temperature dependent heat flux is imposed.
+
+This has not been implemented, yet.
+
+
+# Benchmarks/Examples
+
+There are three benchmark problems used to validate and test the diffusion model:
+
+- A Fickian Problem: This simple 1D-bar type problem is used to test the general isotropic diffusion model by comparing numerical and analytical solutions.
+- A Stefan's Problem: Adopted from a COMSOL benchmark, this 1D "melting bar" problem is to test validate the phase change constitutive model.
+- GGLS Demo-Problem: Adopted from Ilinca's 2002 paper, this 1D-bar problem is used to validated the effect of the GGLS
+
+For details, please click the link to the respective doxygen pages.
+
+
+
+
+# User Guide
+
+To set up a problem using the diffusion model, the following keywords are used for parameter input.
+
+In the constitutive models and the stabilization parameter:
+- "Conductivity"       -> \f$ \ThermConduct \f$
+- "Density"            -> \f$ \density \f$
+- "HeatCapacity"       -> \f$ \HeatCap \f$
+- "LatentHeat"         -> \f$ \LatHeat \f$
+- "PCTemp"             -> \f$ \PCTemp \f$
+- "PhaseStateFunction" -> Integer selecting the PSF to be used according to the above list 
+- "PhaseChangeConst"   -> \f$ \PCTempRange \f$ for PSFs 1 and 2, the logistic parameter \f$ \PCconst \f$ for PSF 3
+
+
+In the bulk IWG:
+- "Load"      -> Body Load \f$ \BodyLoad \f$
+- "Diffusion" -> Assign either one of the two diffusion constitutive models
+- "GGLSParam" -> Assign the stabilization parameter
+
+
+Tips for running simulations with the phase change model:
+- since the enthalpy change rate and gradients can get quiet large in the region of phase transition, it makes sense to scale down the capacitance term (i.e. \f$ \density \f$, \f$ \HeatCap \f$, and \f$ \LatHeat \f$, and scale up \f$ \ThermConduct \f$, \f$ \HeatFlux \f$, and \f$ Q \f$ accordingly)
+- the element size in time direction is crucial for stability, if elements "melt" to quickly temperature over- and under-shoots will occur resulting in oscillations in the solution 
+- the cubic phase change function has proven to be the "best behaved" one: the linear one results in instabilities for everything except for very small time step sizes, while the logistic one produces much higher gradients
+
+
+
+
+*/
+
+}
+}

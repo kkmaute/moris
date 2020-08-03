@@ -176,9 +176,9 @@ TEST_CASE("MDL FEM Benchmark Diff Block","[MDL_FEM_Benchmark_Diff_Block]")
        tPropDirichlet->set_parameters( { {{ 0.0 }} } );
        tPropDirichlet->set_val_function( tPropValConstFunc_MDLFEMBench );
 
-       std::shared_ptr< fem::Property > tPropNeumann = std::make_shared< fem::Property >();
-       tPropNeumann->set_parameters( { {{ 20.0 }} } );
-       tPropNeumann->set_val_function( tPropValConstFunc_MDLFEMBench );
+       std::shared_ptr< fem::Property > tPropFlux = std::make_shared< fem::Property >();
+       tPropFlux->set_parameters( { {{ 20.0 }} } );
+       tPropFlux->set_val_function( tPropValConstFunc_MDLFEMBench );
 
        std::shared_ptr< fem::Property > tPropTempLoad1 = std::make_shared< fem::Property >();
        tPropTempLoad1->set_parameters( { {{ 0.0 }} } );
@@ -220,7 +220,7 @@ TEST_CASE("MDL FEM Benchmark Diff Block","[MDL_FEM_Benchmark_Diff_Block]")
        std::shared_ptr< fem::IWG > tIWGNeumann = tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_NEUMANN );
        tIWGNeumann->set_residual_dof_type( { MSI::Dof_Type::TEMP } );
        tIWGNeumann->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
-       tIWGNeumann->set_property( tPropNeumann, "Neumann", mtk::Master_Slave::MASTER );
+       tIWGNeumann->set_property( tPropFlux, "Neumann", mtk::Master_Slave::MASTER );
 
        // define the IQIs
        fem::IQI_Factory tIQIFactory;
@@ -443,9 +443,9 @@ TEST_CASE("MDL FEM Benchmark Diff Interface","[MDL_FEM_Benchmark_Diff_Interface]
        tPropDirichlet->set_parameters( { {{ 0.0 }} } );
        tPropDirichlet->set_val_function( tPropValConstFunc_MDLFEMBench );
 
-       std::shared_ptr< fem::Property > tPropNeumann = std::make_shared< fem::Property >();
-       tPropNeumann->set_parameters( { {{ 20.0 }} } );
-       tPropNeumann->set_val_function( tPropValConstFunc_MDLFEMBench );
+       std::shared_ptr< fem::Property > tPropFlux = std::make_shared< fem::Property >();
+       tPropFlux->set_parameters( { {{ 20.0 }} } );
+       tPropFlux->set_val_function( tPropValConstFunc_MDLFEMBench );
 
        std::shared_ptr< fem::Property > tPropTempLoad1 = std::make_shared< fem::Property >();
        tPropTempLoad1->set_parameters( { {{ 0.0 }} } );
@@ -512,7 +512,7 @@ TEST_CASE("MDL FEM Benchmark Diff Interface","[MDL_FEM_Benchmark_Diff_Interface]
        std::shared_ptr< fem::IWG > tIWGNeumann = tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_NEUMANN );
        tIWGNeumann->set_residual_dof_type( { MSI::Dof_Type::TEMP } );
        tIWGNeumann->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
-       tIWGNeumann->set_property( tPropNeumann, "Neumann", mtk::Master_Slave::MASTER );
+       tIWGNeumann->set_property( tPropFlux, "Neumann", mtk::Master_Slave::MASTER );
 
        std::shared_ptr< fem::IWG > tIWGInterface = tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_INTERFACE );
        tIWGInterface->set_residual_dof_type( { MSI::Dof_Type::TEMP } );
@@ -812,7 +812,8 @@ TEST_CASE("MDL FEM Benchmark Diff Ghost","[MDL_FEM_Benchmark_Diff_Ghost]")
        tSPSlaveWeightInterface->set_property( tPropConductivity1, "Material", mtk::Master_Slave::MASTER );
        tSPSlaveWeightInterface->set_property( tPropConductivity2, "Material", mtk::Master_Slave::SLAVE );
 
-       std::shared_ptr< fem::Stabilization_Parameter > tSPGhost = tSPFactory.create_SP( fem::Stabilization_Type::GHOST_DISPL );
+       std::shared_ptr< fem::Stabilization_Parameter > tSPGhost =
+               tSPFactory.create_SP( fem::Stabilization_Type::GHOST_DISPL );
        tSPGhost->set_parameters( {{{ 0.1 }} });
        tSPGhost->set_property( tPropConductivity1, "Material", mtk::Master_Slave::MASTER );
 
@@ -854,11 +855,11 @@ TEST_CASE("MDL FEM Benchmark Diff Ghost","[MDL_FEM_Benchmark_Diff_Ghost]")
        tIWGInterface->set_constitutive_model( tCMDiffLinIso2, "Diffusion", mtk::Master_Slave::SLAVE );
 
        // Ghost stabilization
-       std::shared_ptr< fem::IWG > tIWGGhost = tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_GHOST );
+       std::shared_ptr< fem::IWG > tIWGGhost = tIWGFactory.create_IWG( fem::IWG_Type::GHOST_NORMAL_FIELD );
        tIWGGhost->set_residual_dof_type( { MSI::Dof_Type::TEMP } );
        tIWGGhost->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
        tIWGGhost->set_dof_type_list( {{ MSI::Dof_Type::TEMP }}, mtk::Master_Slave::SLAVE );
-       tIWGGhost->set_stabilization_parameter( tSPGhost, "GhostDispl" );
+       tIWGGhost->set_stabilization_parameter( tSPGhost, "GhostSP" );
 
        // create the IQIs
        fem::IQI_Factory tIQIFactory;
@@ -1065,9 +1066,9 @@ TEST_CASE("MDL FEM Benchmark Elast Block","[MDL_FEM_Benchmark_Elast_Block]")
        tPropDirichlet->set_parameters( { {{ 0.0 }, { 0.0 }, { 0.0 }} } );
        tPropDirichlet->set_val_function( tPropValConstFunc_MDLFEMBench );
 
-       std::shared_ptr< fem::Property > tPropNeumann = std::make_shared< fem::Property >();
-       tPropNeumann->set_parameters( {{{ 1.0 }, { 0.0 }, { 0.0 }}} );
-       tPropNeumann->set_val_function( tPropValConstFunc_MDLFEMBench );
+       std::shared_ptr< fem::Property > tPropTraction = std::make_shared< fem::Property >();
+       tPropTraction->set_parameters( {{{ 1.0 }, { 0.0 }, { 0.0 }}} );
+       tPropTraction->set_val_function( tPropValConstFunc_MDLFEMBench );
 
        // working do types
        moris::Cell< moris::MSI::Dof_Type > tResDofTypes = { MSI::Dof_Type::UX, MSI::Dof_Type::UY, MSI::Dof_Type::UZ };
@@ -1107,7 +1108,7 @@ TEST_CASE("MDL FEM Benchmark Elast Block","[MDL_FEM_Benchmark_Elast_Block]")
        std::shared_ptr< fem::IWG > tIWGNeumann = tIWGFactory.create_IWG( fem::IWG_Type::STRUC_LINEAR_NEUMANN );
        tIWGNeumann->set_residual_dof_type( tResDofTypes );
        tIWGNeumann->set_dof_type_list( { tResDofTypes } );
-       tIWGNeumann->set_property( tPropNeumann, "Neumann", mtk::Master_Slave::MASTER );
+       tIWGNeumann->set_property( tPropTraction, "Traction", mtk::Master_Slave::MASTER );
 
        // create the IQIs
        fem::IQI_Factory tIQIFactory;
@@ -1342,9 +1343,9 @@ TEST_CASE("MDL FEM Benchmark Elast Interface","[MDL_FEM_Benchmark_Elast_Interfac
        tPropDirichlet->set_parameters( { {{ 0.0 }, { 0.0 }, { 0.0 }} } );
        tPropDirichlet->set_val_function( tPropValConstFunc_MDLFEMBench );
 
-       std::shared_ptr< fem::Property > tPropNeumann = std::make_shared< fem::Property >();
-       tPropNeumann->set_parameters( {{{ 1.0 }, { 0.0 }, { 0.0 }}} );
-       tPropNeumann->set_val_function( tPropValConstFunc_MDLFEMBench );
+       std::shared_ptr< fem::Property > tPropTraction = std::make_shared< fem::Property >();
+       tPropTraction->set_parameters( {{{ 1.0 }, { 0.0 }, { 0.0 }}} );
+       tPropTraction->set_val_function( tPropValConstFunc_MDLFEMBench );
 
        // working do types
        moris::Cell< moris::MSI::Dof_Type > tResDofTypes = { MSI::Dof_Type::UX, MSI::Dof_Type::UY, MSI::Dof_Type::UZ };
@@ -1408,7 +1409,7 @@ TEST_CASE("MDL FEM Benchmark Elast Interface","[MDL_FEM_Benchmark_Elast_Interfac
        std::shared_ptr< fem::IWG > tIWGNeumann = tIWGFactory.create_IWG( fem::IWG_Type::STRUC_LINEAR_NEUMANN );
        tIWGNeumann->set_residual_dof_type( tResDofTypes );
        tIWGNeumann->set_dof_type_list( { tResDofTypes } );
-       tIWGNeumann->set_property( tPropNeumann, "Neumann", mtk::Master_Slave::MASTER );
+       tIWGNeumann->set_property( tPropTraction, "Traction", mtk::Master_Slave::MASTER );
 
        std::shared_ptr< fem::IWG > tIWGInterface = tIWGFactory.create_IWG( fem::IWG_Type::STRUC_LINEAR_INTERFACE );
        tIWGInterface->set_residual_dof_type( tResDofTypes );
@@ -1679,9 +1680,9 @@ TEST_CASE("MDL FEM Benchmark Elast Ghost","[MDL_FEM_Benchmark_Elast_Ghost]")
        tPropDirichlet->set_parameters( { {{ 0.0 }, { 0.0 }, { 0.0 }} } );
        tPropDirichlet->set_val_function( tPropValConstFunc_MDLFEMBench );
 
-       std::shared_ptr< fem::Property > tPropNeumann = std::make_shared< fem::Property >();
-       tPropNeumann->set_parameters( {{{ 1.0 }, { 0.0 }, { 0.0 }}} );
-       tPropNeumann->set_val_function( tPropValConstFunc_MDLFEMBench );
+       std::shared_ptr< fem::Property > tPropTraction = std::make_shared< fem::Property >();
+       tPropTraction->set_parameters( {{{ 1.0 }, { 0.0 }, { 0.0 }}} );
+       tPropTraction->set_val_function( tPropValConstFunc_MDLFEMBench );
 
        // working do types
        moris::Cell< moris::MSI::Dof_Type > tResDofTypes = { MSI::Dof_Type::UX, MSI::Dof_Type::UY, MSI::Dof_Type::UZ };
@@ -1722,7 +1723,8 @@ TEST_CASE("MDL FEM Benchmark Elast Ghost","[MDL_FEM_Benchmark_Elast_Ghost]")
        tSPSlaveWeightInterface->set_property( tPropEMod1, "Material", mtk::Master_Slave::MASTER );
        tSPSlaveWeightInterface->set_property( tPropEMod2, "Material", mtk::Master_Slave::SLAVE );
 
-       std::shared_ptr< fem::Stabilization_Parameter > tSPGhost = tSPFactory.create_SP( fem::Stabilization_Type::GHOST_DISPL );
+       std::shared_ptr< fem::Stabilization_Parameter > tSPGhost =
+               tSPFactory.create_SP( fem::Stabilization_Type::GHOST_DISPL );
        tSPGhost->set_parameters( {{{ 0.01 }} });
        tSPGhost->set_property( tPropEMod1, "Material", mtk::Master_Slave::MASTER );
 
@@ -1749,7 +1751,7 @@ TEST_CASE("MDL FEM Benchmark Elast Ghost","[MDL_FEM_Benchmark_Elast_Ghost]")
        std::shared_ptr< fem::IWG > tIWGNeumann = tIWGFactory.create_IWG( fem::IWG_Type::STRUC_LINEAR_NEUMANN );
        tIWGNeumann->set_residual_dof_type( tResDofTypes );
        tIWGNeumann->set_dof_type_list( { tResDofTypes } );
-       tIWGNeumann->set_property( tPropNeumann, "Neumann", mtk::Master_Slave::MASTER );
+       tIWGNeumann->set_property( tPropTraction, "Traction", mtk::Master_Slave::MASTER );
 
        std::shared_ptr< fem::IWG > tIWGInterface = tIWGFactory.create_IWG( fem::IWG_Type::STRUC_LINEAR_INTERFACE );
        tIWGInterface->set_residual_dof_type( tResDofTypes );
@@ -1762,11 +1764,11 @@ TEST_CASE("MDL FEM Benchmark Elast Ghost","[MDL_FEM_Benchmark_Elast_Ghost]")
        tIWGInterface->set_constitutive_model( tCMStrucLinIso2, "ElastLinIso", mtk::Master_Slave::SLAVE );
 
        // Ghost stabilization
-       std::shared_ptr< fem::IWG > tIWGGhost = tIWGFactory.create_IWG( fem::IWG_Type::STRUC_LINEAR_GHOST );
+       std::shared_ptr< fem::IWG > tIWGGhost = tIWGFactory.create_IWG( fem::IWG_Type::GHOST_NORMAL_FIELD );
        tIWGGhost->set_residual_dof_type( tResDofTypes );
        tIWGGhost->set_dof_type_list( { tResDofTypes } );
        tIWGGhost->set_dof_type_list( { tResDofTypes }, mtk::Master_Slave::SLAVE );
-       tIWGGhost->set_stabilization_parameter( tSPGhost, "GhostDispl" );
+       tIWGGhost->set_stabilization_parameter( tSPGhost, "GhostSP" );
 
        // create the IQIs
        fem::IQI_Factory tIQIFactory;

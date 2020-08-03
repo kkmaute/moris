@@ -407,8 +407,6 @@ namespace moris
                     moris::sint tDofTypeIndex = mEquationSet->get_model_solver_interface()->
                             get_dof_manager()->get_pdof_index_for_type( tRequestedDofTypes( Ik ) );
 
-                    MORIS_ASSERT( tDofTypeIndex != -1,"build_PADofMap_1(), Index for this dof type does not exist in map");
-
                     tNumColCounter += tPADofMapList( Ii )( tDofTypeIndex ).n_cols();
                     tNumRowCounter += tPADofMapList( Ii )( tDofTypeIndex ).n_rows();
                 }

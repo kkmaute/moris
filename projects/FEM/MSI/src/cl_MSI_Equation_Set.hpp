@@ -180,8 +180,8 @@ namespace moris
                  * @param[ out ] sint     consecutive index for dof type
                  */
                 sint get_dof_index_for_type(
-                        enum MSI::Dof_Type     aDofType,
-                        mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER );
+                        enum MSI::Dof_Type aDofType,
+                        mtk::Master_Slave  aIsMaster = mtk::Master_Slave::MASTER );
 
                 //------------------------------------------------------------------------------
                 /**
@@ -298,7 +298,7 @@ namespace moris
                 moris::Cell< moris::Matrix< DDSMat > > & get_res_dof_assembly_map()
                 {
                     return mResDofAssemblyMap;
-                }
+                };
 
                 //-------------------------------------------------------------------------------------------------
                 /**
@@ -423,6 +423,17 @@ namespace moris
                 moris::Cell< Matrix< DDRMat > > & get_dqidpgeo()
                 {
                     return mdQIdp( 1 );
+                }
+
+                //-----------------------------------------------------------------------------------------
+                /**
+                 * get number of requested IQI for SA on set
+                 * @param[ out ] uint number of requested IQI for SA on set
+                 */
+                virtual uint get_number_of_requested_IQIs()
+                {
+                    MORIS_ERROR( false, "not implemented for base class.");
+                    return 0;
                 }
 
                 //-------------------------------------------------------------------------------------------------
