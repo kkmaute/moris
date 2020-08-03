@@ -144,24 +144,27 @@ namespace moris
             // loop over the local equation sets
             for ( moris::uint iSet = 0; iSet < tNumSets; iSet++ )
             {
-                // get number of equation object on the treated equation set
-                moris::uint tNumEquationObjectOnSet =
-                        mFemSets( iSet )->get_num_equation_objects();
-
-                // initialize the treated equation set
-                mFemSets( iSet )->initialize_set( true );
-
-                // loop over the equation objects
-                for ( moris::uint iEqObj = 0; iEqObj < tNumEquationObjectOnSet; iEqObj++ )
+                if( mFemSets( iSet )->get_element_type() == fem::Element_Type::BULK )
                 {
-                    // if some IQI are requested on the treated equation set
-                    if( mFemSets( iSet )->get_number_of_requested_IQIs() > 0 )
+                    // get number of equation object on the treated equation set
+                    moris::uint tNumEquationObjectOnSet =
+                            mFemSets( iSet )->get_num_equation_objects();
+
+                    // initialize the treated equation set
+                    mFemSets( iSet )->initialize_set( true );
+
+                    // loop over the equation objects
+                    for ( moris::uint iEqObj = 0; iEqObj < tNumEquationObjectOnSet; iEqObj++ )
                     {
-                        // compute dQIdp explicit
-                        mFemSets( iSet )->get_equation_object_list()( iEqObj )->compute_dQIdp_explicit();
+                        // if some IQI are requested on the treated equation set
+                        if( mFemSets( iSet )->get_number_of_requested_IQIs() > 0 )
+                        {
+                            // compute dQIdp explicit
+                            mFemSets( iSet )->get_equation_object_list()( iEqObj )->compute_dQIdp_explicit();
+                        }
                     }
+                    //this->free_block_memory( iSet );
                 }
-                //this->free_block_memory( iSet );
             }
 
             // global assembly to switch entries to the right processor
