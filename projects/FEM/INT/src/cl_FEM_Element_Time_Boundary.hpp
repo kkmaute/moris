@@ -78,12 +78,21 @@ namespace moris
 
                 //------------------------------------------------------------------------------
                 /**
+                 * compute QId
+                 */
+                void compute_QI();
+
+                //------------------------------------------------------------------------------
+                /**
+                 * compute dQIdu
+                 */
+                void compute_dQIdu();
+
+                //------------------------------------------------------------------------------
+                /**
                  * compute dQIdp
                  */
-                void compute_dQIdp_explicit()
-                {
-                    MORIS_ERROR( false, "Element_Time_Boundary::compute_dQIdp_explicit - not implemented" );
-                }
+                void compute_dQIdp_explicit();
 
                 //------------------------------------------------------------------------------
                 /**

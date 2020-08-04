@@ -53,15 +53,15 @@ namespace moris
 
                 //------------------------------------------------------------------------------
                 /**
-                 * compute jacobian over the element
-                 */
-                void compute_jacobian();
-
-                //------------------------------------------------------------------------------
-                /**
                  * compute residual over the element
                  */
                 void compute_residual();
+
+                //------------------------------------------------------------------------------
+                /**
+                 * compute jacobian over the element
+                 */
+                void compute_jacobian();
 
                 //------------------------------------------------------------------------------
                 /**
@@ -77,12 +77,21 @@ namespace moris
 
                 //------------------------------------------------------------------------------
                 /**
+                 * compute QId
+                 */
+                void compute_QI();
+
+                //------------------------------------------------------------------------------
+                /**
+                 * compute dQIdu
+                 */
+                void compute_dQIdu();
+
+                //------------------------------------------------------------------------------
+                /**
                  * compute dQIdp
                  */
-                void compute_dQIdp_explicit()
-                {
-                    MORIS_ERROR( false, "Element_Time_Sideset::compute_dQIdp_explicit - not implemented" );
-                }
+                void compute_dQIdp_explicit();
 
                 //------------------------------------------------------------------------------
                 /**
