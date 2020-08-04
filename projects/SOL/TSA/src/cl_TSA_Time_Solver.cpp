@@ -536,6 +536,4 @@ void Time_Solver::get_full_solution( moris::Matrix< DDRMat > & LHSValues )
 
     // extract solution values
     mFullVector( tNumSolVec )->extract_copy( LHSValues );
-
-    print(LHSValues, "LHSValues");
 }
