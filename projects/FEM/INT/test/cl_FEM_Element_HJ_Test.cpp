@@ -6,7 +6,7 @@
 //#include "cl_MTK_Enums.hpp"
 //#include "cl_MTK_Mesh.hpp"
 //
-//#include "cl_Mesh_Factory.hpp"
+//#include "cl_MTK_Mesh_Factory.hpp"
 //#include "cl_MTK_Mesh_Tools.hpp"
 //#include "cl_MTK_Mesh_Data_Input.hpp"
 //#include "cl_MTK_Scalar_Field_Info.hpp"
@@ -80,7 +80,7 @@
 //                tMeshData.LocaltoGlobalElemMap(0) = & aElemLocalToGlobal;
 //                tMeshData.LocaltoGlobalNodeMap    = & aNodeLocalToGlobal;
 //
-//                mtk::Mesh* tMesh = create_mesh( MeshType::STK, tMeshData );
+//                mtk::Mesh* tMesh = create_interpolation_mesh( MeshType::STK, tMeshData );
 //
 //                //1) Create the fem nodes ------------------------------------------------------
 //                std::cout<<" Create the fem nodes "<<std::endl;

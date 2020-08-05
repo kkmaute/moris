@@ -392,7 +392,6 @@ namespace moris
 
             // set weak bcs from field
             mModel->set_weak_bcs( aSourceField );
-            std::cout << "made it here" << std::endl;
 
             this->map_node_to_bspline(aBSplineRank, aTargetField);
         }

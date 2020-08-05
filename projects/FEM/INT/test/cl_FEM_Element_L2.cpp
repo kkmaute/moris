@@ -6,7 +6,7 @@
 #include "cl_MTK_Enums.hpp"
 #include "cl_MTK_Mesh.hpp"
 
-#include "cl_Mesh_Factory.hpp"
+#include "cl_MTK_Mesh_Factory.hpp"
 #include "cl_MTK_Mesh_Tools.hpp"
 #include "cl_MTK_Mesh_Data_Input.hpp"
 #include "cl_MTK_Scalar_Field_Info.hpp"
@@ -104,7 +104,7 @@ LevelSetFrontFunction( const moris::Matrix< moris::DDRMat > & aPoint )
 //                tMeshData.LocaltoGlobalElemMap(0) = & aElemLocalToGlobalQuad;
 //                tMeshData.LocaltoGlobalNodeMap    = & aNodeLocalToGlobal;
 //
-//                mtk::Mesh* tMesh = create_mesh( MeshType::STK, tMeshData );
+//                mtk::Mesh* tMesh = create_interpolation_mesh( MeshType::STK, tMeshData );
 //
 //                //1) Create the fem nodes ------------------------------------------------------
 //                std::cout<<" Create the fem nodes "<<std::endl;
@@ -358,8 +358,8 @@ LevelSetFrontFunction( const moris::Matrix< moris::DDRMat > & aPoint )
 //                tMeshData.FieldsInfo = &tFieldsInfo;
 //
 //                // create the mesh
-//                //mtk::Mesh* tMesh_2 = create_mesh( MeshType::STK, fileName2, &tMeshData );
-//                mtk::Mesh* tMeshForOutput = create_mesh( MeshType::STK, tMeshData );
+//                //mtk::Mesh* tMesh_2 = create_interpolation_mesh( MeshType::STK, fileName2, &tMeshData );
+//                mtk::Mesh* tMeshForOutput = create_interpolation_mesh( MeshType::STK, tMeshData );
 //
 //                // add field to the mesh
 //                tMeshForOutput->add_mesh_field_real_scalar_data_loc_inds( tBCVXFieldName, EntityRank::NODE, tNodalValues );
@@ -462,7 +462,7 @@ LevelSetFrontFunction( const moris::Matrix< moris::DDRMat > & aPoint )
 //                tMeshData.LocaltoGlobalElemMap(0) = & aElemLocalToGlobalQuad;
 //                tMeshData.LocaltoGlobalNodeMap    = & aNodeLocalToGlobal;
 //
-//                mtk::Mesh* tMesh = create_mesh( MeshType::STK, tMeshData );
+//                mtk::Mesh* tMesh = create_interpolation_mesh( MeshType::STK, tMeshData );
 //
 //                //1) Create the fem nodes ------------------------------------------------------
 //                std::cout<<" Create the fem nodes "<<std::endl;
@@ -712,7 +712,7 @@ LevelSetFrontFunction( const moris::Matrix< moris::DDRMat > & aPoint )
 //                tMeshData.FieldsInfo = &tFieldsInfo;
 //
 //                // create the mesh
-//                mtk::Mesh* tMeshForOutput = create_mesh( MeshType::STK, tMeshData );
+//                mtk::Mesh* tMeshForOutput = create_interpolation_mesh( MeshType::STK, tMeshData );
 //
 //                // add field to the mesh
 //                tMeshForOutput->add_mesh_field_real_scalar_data_loc_inds( tBCVXFieldName, EntityRank::NODE, tNodalValues );
@@ -759,7 +759,7 @@ LevelSetFrontFunction( const moris::Matrix< moris::DDRMat > & aPoint )
 //                //------------------------------------------------------------------------------
 //                //const std::string tMeshName = "generated:2x2x2|sideset:xXyYzZ";
 //                const std::string tMeshName = "generated:2x2x2";
-//                mtk::Mesh* tMesh = mtk::create_mesh( MeshType::STK, tMeshName, NULL );
+//                mtk::Mesh* tMesh = mtk::create_interpolation_mesh( MeshType::STK, tMeshName, NULL );
 //
 //                // nodal weak bc
 ////                Matrix< DDRMat > tNodalValues = {{ 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 4.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0,
@@ -1016,7 +1016,7 @@ LevelSetFrontFunction( const moris::Matrix< moris::DDRMat > & aPoint )
 //                tMeshData.FieldsInfo = &tFieldsInfo;
 //
 //                // create the mesh
-//                mtk::Mesh* tMeshForOutput = create_mesh( MeshType::STK, tMeshName, &tMeshData );
+//                mtk::Mesh* tMeshForOutput = create_interpolation_mesh( MeshType::STK, tMeshName, &tMeshData );
 //
 //                // add field to the mesh
 //                tMeshForOutput->add_mesh_field_real_scalar_data_loc_inds( tBCVXFieldName, EntityRank::NODE, tNodalValues );
@@ -1303,7 +1303,7 @@ LevelSetFrontFunction( const moris::Matrix< moris::DDRMat > & aPoint )
 //           // Declare some supplementary fields
 //           aMeshData.FieldsInfo = &tFieldsInfo;
 //
-//           mtk::Mesh* tMesh = create_mesh( MeshType::STK, aMeshData );
+//           mtk::Mesh* tMesh = create_interpolation_mesh( MeshType::STK, aMeshData );
 //
 //           tMesh->add_mesh_field_real_scalar_data_loc_inds(tNodeFieldName, EntityRank::NODE, tNodeLSFieldData);
 //           tMesh->add_mesh_field_real_scalar_data_loc_inds(tElementFieldName, EntityRank::ELEMENT, tElementLSFieldData);

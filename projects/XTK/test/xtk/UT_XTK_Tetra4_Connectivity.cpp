@@ -17,7 +17,7 @@
 // For outputting
 #include "cl_MTK_Mesh.hpp" // MTK/src
 #include "cl_MTK_Mesh_Data_Input.hpp"
-#include "cl_Mesh_Factory.hpp"
+#include "cl_MTK_Mesh_Factory.hpp"
 
 
 #include "cl_XTK_Tetra4_Connectivity.hpp"
@@ -99,7 +99,7 @@ TEST_CASE("Test Tetra 4 connectivity","[TETRA_4_CONN]")
     aMeshData.LocaltoGlobalNodeMap    = &tNodeIds;
     aMeshData.CreateAllEdgesAndFaces  = false;
 
-    moris::mtk::Mesh* tMesh = create_mesh( MeshType::STK, aMeshData );
+    moris::mtk::Mesh* tMesh = create_interpolation_mesh( MeshType::STK, aMeshData );
     std::string tMeshOutputFile = "./Tetra4_Conn.e";
     tMesh->create_output_mesh(tMeshOutputFile);
 

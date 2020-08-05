@@ -36,7 +36,7 @@
 #include "cl_MTK_Mesh.hpp"
 #include "cl_MTK_Mapper.hpp"
 #include "cl_MTK_Mesh_Manager.hpp"
-#include "cl_Mesh_Factory.hpp"
+#include "cl_MTK_Mesh_Factory.hpp"
 
 #include "HDF5_Tools.hpp"
 #include "cl_HMR_Field.hpp"          //HMR/src
@@ -753,7 +753,6 @@ namespace moris
                 Interpolation_Mesh_HMR * aInterpolationMesh)
         {
             return new Integration_Mesh_HMR (
-                    mDatabase,
                     aLagrangeOrder,
                     aPattern,
                     aInterpolationMesh);
@@ -766,7 +765,6 @@ namespace moris
                 Interpolation_Mesh_HMR * aInterpolationMesh)
         {
             return new Integration_Mesh_HMR (
-                    mDatabase,
                     aLagrangeMeshIndex,
                     aInterpolationMesh);
         }
@@ -962,7 +960,7 @@ namespace moris
                 const uint          aBSpineIndex )
         {
             // create mesh object
-            mtk::Mesh * tMesh = mtk::create_mesh( MeshType::STK, aFilePath, nullptr, false );
+            mtk::Mesh * tMesh = mtk::create_interpolation_mesh( MeshType::STK, aFilePath, nullptr, false );
 
             std::shared_ptr< moris::hmr::Mesh > tHmrMesh = this->create_mesh( aLagrangeIndex );
 

@@ -7,7 +7,7 @@ set(${MTK}_VERSION ${MORIS_VERSION})
 # List header files
 set(HEADERS
 cl_Mesh_Enums.hpp
-cl_Mesh_Factory.hpp
+cl_MTK_Mesh_Factory.hpp
 cl_MTK_Block_Sets_Info.hpp
 cl_MTK_Block.hpp
 cl_MTK_Cell_Cluster_Input.hpp
@@ -67,6 +67,7 @@ stk_impl/cl_MTK_Vertex_STK.hpp )
 
 # List library source files
 set( LIB_SOURCES
+cl_MTK_Mesh_Factory.cpp
 stk_impl/cl_MTK_Mesh_Core_STK.cpp
 stk_impl/cl_MTK_Integration_Mesh_STK.cpp
 stk_impl/cl_MTK_Interpolation_Mesh_STK.cpp
@@ -95,6 +96,7 @@ cl_MTK_Mesh_Manager.cpp)
 set(LIB_DEPENDENCIES
 	${COM}-lib
 	${LINALG}-lib
+	${HMR}-lib
     )
 
 # Set the output path for library

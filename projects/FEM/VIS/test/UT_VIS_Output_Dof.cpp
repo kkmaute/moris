@@ -34,7 +34,7 @@
 #include "cl_HMR_Lagrange_Mesh_Base.hpp" //HMR/src
 #include "cl_HMR_Parameters.hpp" //HMR/src
 
-#include "cl_Mesh_Factory.hpp"
+#include "cl_MTK_Mesh_Factory.hpp"
 #include "cl_MTK_Mesh_Tools.hpp"
 #include "cl_MTK_Mesh_Data_Input.hpp"
 #include "cl_MTK_Scalar_Field_Info.hpp"

@@ -17,7 +17,7 @@
 #include "fn_norm.hpp"
 #include "fn_all_true.hpp"
 
-#include "cl_Mesh_Factory.hpp"
+#include "cl_MTK_Mesh_Factory.hpp"
 
 // SDF
 #include "cl_SDF_Mesh.hpp"
@@ -46,7 +46,7 @@ TEST_CASE(
         sdf::Object tObject( tObjectPath );
 
         // load MTK mesh from file
-        mtk::Mesh * tInput = mtk::create_mesh( MeshType::STK, tMeshPath , nullptr);
+        mtk::Mesh * tInput = mtk::create_interpolation_mesh( MeshType::STK, tMeshPath , nullptr);
 
         // create SDF wrapper for mesh
         sdf::Mesh tMesh( tInput );

@@ -30,7 +30,7 @@ namespace xtk
 //
 //        // Create Mesh --------------------------------------------------------------------
 //        std::string tMeshFileName = "generated:2x2x2";
-//        moris::mtk::Mesh* tMeshData = moris::mtk::create_mesh( MeshType::STK, tMeshFileName );
+//        moris::mtk::Mesh* tMeshData = moris::mtk::create_interpolation_mesh( MeshType::STK, tMeshFileName );
 //
 //        // Setup XTK Model ----------------------------------------------------------------
 //        size_t tModelDimension = 3;

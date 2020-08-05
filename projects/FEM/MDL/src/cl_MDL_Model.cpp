@@ -57,9 +57,7 @@ namespace moris
         // STEP 0: initialize
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
         // get pointers to interpolation and integration mesh
-        mtk::Interpolation_Mesh* tInterpolationMesh = nullptr;
-        mtk::Integration_Mesh*   tIntegrationMesh   = nullptr;
-        mMeshManager->get_mesh_pair( mMeshPairIndex, tInterpolationMesh, tIntegrationMesh );
+        mtk::Interpolation_Mesh* tInterpolationMesh = mMeshManager->get_interpolation_mesh( mMeshPairIndex );
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
         // STEP 1: create the FEM model
@@ -215,9 +213,7 @@ namespace moris
             tic tTimer2;
 
             // Get pointers to interpolation and integration mesh
-            mtk::Interpolation_Mesh* tInterpolationMesh = nullptr;
-            mtk::Integration_Mesh*   tIntegrationMesh   = nullptr;
-            mMeshManager->get_mesh_pair( mMeshPairIndex, tInterpolationMesh, tIntegrationMesh );
+            mtk::Interpolation_Mesh* tInterpolationMesh = mMeshManager->get_interpolation_mesh( mMeshPairIndex );
 
             // create the MSI parameter list
             moris::ParameterList tMSIParameters = prm::create_msi_parameter_list();
@@ -315,9 +311,7 @@ namespace moris
             tic tTimer2;
 
             // get pointers to interpolation and integration mesh
-            mtk::Interpolation_Mesh* tInterpolationMesh = nullptr;
-            mtk::Integration_Mesh*   tIntegrationMesh   = nullptr;
-            mMeshManager->get_mesh_pair( mMeshPairIndex, tInterpolationMesh, tIntegrationMesh );
+            mtk::Interpolation_Mesh* tInterpolationMesh = mMeshManager->get_interpolation_mesh( mMeshPairIndex );
 
             // Does not work with STK
             MORIS_ERROR( tInterpolationMesh->get_mesh_type() != MeshType::STK, "Does not work for STK");
