@@ -182,25 +182,23 @@ namespace moris
             {
                 ParameterList tParameters = prm::create_hmr_parameter_list();
 
-                tParameters.set( "number_of_elements_per_dimension", std::string("2, 2"));
-                tParameters.set( "domain_dimensions", std::string("2, 2") );
-                tParameters.set( "domain_offset", std::string("-1.0, -1.0") );
-                tParameters.set( "domain_sidesets", std::string("1,2,3,4") );
-                tParameters.set( "lagrange_output_meshes", std::string("0") );
+                tParameters.set( "number_of_elements_per_dimension", "2, 2");
+                tParameters.set( "domain_dimensions", "2, 2");
+                tParameters.set( "domain_offset", "-1.0, -1.0");
+                tParameters.set( "domain_sidesets", "1,2,3,4");
+                tParameters.set( "lagrange_output_meshes", "0");
 
-                tParameters.set( "lagrange_orders", std::string("1") );
-                tParameters.set( "lagrange_pattern", std::string("0") );
-                tParameters.set( "bspline_orders", std::string("1") );
-                tParameters.set( "bspline_pattern", std::string("0") );
-
-                tParameters.set( "lagrange_to_bspline", std::string("0") );
-
+                tParameters.set( "lagrange_orders", "1");
+                tParameters.set( "lagrange_pattern", "0");
+                tParameters.set( "bspline_orders", "2");
+                tParameters.set( "bspline_pattern", "0");
+                
+                tParameters.set( "lagrange_to_bspline", "0");
+                
                 tParameters.set( "truncate_bsplines", 1 );
                 tParameters.set( "refinement_buffer", 3 );
                 tParameters.set( "staircase_buffer", 3 );
-                tParameters.set( "initial_refinement", 0 );
 
-                tParameters.set( "use_multigrid", 0 );
                 tParameters.set( "severity_level", 2 );
 
                 hmr::HMR tHMR( tParameters );
@@ -209,14 +207,28 @@ namespace moris
                 tHMR.perform_initial_refinement( 0 );
                 tHMR.finalize();
 
+                // Get interpolation mesh
                 hmr::Interpolation_Mesh_HMR* tInterpolationMesh = tHMR.create_interpolation_mesh(0);
 
                 // Create circle geometry
+                real tRadius = 0.5;
                 Cell<std::shared_ptr<Geometry>> tGeometry(1);
-                tGeometry(0) = std::make_shared<Circle>(0.0, 0.0, 0.25, 0, -1, 0);
+                tGeometry(0) = std::make_shared<Circle>(0.0, 0.0, tRadius, 0, -1, 0);
 
+                // Create geometry engine
                 Phase_Table tPhaseTable (1, Phase_Table_Structure::EXP_BASE_2);
                 Geometry_Engine tGeometryEngine(tGeometry, tPhaseTable, tInterpolationMesh);
+
+                // Check values
+                for (uint tNodeIndex = 0; tNodeIndex < tInterpolationMesh->get_num_nodes(); tNodeIndex++)
+                {
+                    Matrix<DDRMat> tNodeCoord = tInterpolationMesh->get_node_coordinate(tNodeIndex);
+                    CHECK( tGeometryEngine.get_geometry_field_value(tNodeIndex, {{}}, 0) ==
+                        Approx(sqrt(pow(tNodeCoord(0), 2) + pow(tNodeCoord(1), 2)) - tRadius) );
+                }
+
+                // Clean up
+                delete tInterpolationMesh;
 
             }
         }

@@ -95,12 +95,12 @@ namespace moris
         //--------------------------------------------------------------------------------------------------------------
 
         Geometry_Engine::Geometry_Engine(
-                Cell< std::shared_ptr<Geometry> > aGeometry,
-                Phase_Table                       aPhaseTable,
-                mtk::Mesh*                        aMesh,
-                Matrix<DDRMat>                    aADVs,
-                real                              aIsocontourThreshold,
-                real                              aErrorFactor)
+                Cell< std::shared_ptr<Geometry> >  aGeometry,
+                Phase_Table                        aPhaseTable,
+                mtk::Interpolation_Mesh*           aMesh,
+                Matrix<DDRMat>                     aADVs,
+                real                               aIsocontourThreshold,
+                real                               aErrorFactor)
                 : mIsocontourThreshold(aIsocontourThreshold),
                   mErrorFactor(aErrorFactor),
                   mADVs(aADVs),
@@ -488,7 +488,7 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        void Geometry_Engine::compute_level_set_data(mtk::Mesh* aMesh)
+        void Geometry_Engine::compute_level_set_data(mtk::Interpolation_Mesh* aMesh)
         {
             // Register spatial dimension
             mSpatialDim = aMesh->get_spatial_dim();
@@ -554,7 +554,10 @@ namespace moris
                     mShapeSensitivities = true;
 
                     // Create level set
-                    mGeometries(tGeometryIndex) = std::make_shared<Level_Set>(mADVs, tNumFilledADVs, aMesh, mGeometries(tGeometryIndex));
+                    mGeometries(tGeometryIndex) = std::make_shared<Level_Set>(mADVs,
+                                                                              tNumFilledADVs,
+                                                                              aMesh,
+                                                                              mGeometries(tGeometryIndex));
 
                     // Assign bounds
                     uint tNumCoeffs = aMesh->get_num_coeffs(mGeometries(tGeometryIndex)->get_bspline_mesh_index());

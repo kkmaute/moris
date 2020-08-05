@@ -4,11 +4,13 @@
 #include "cl_GEN_Geometry.hpp"
 #include "cl_GEN_Field_Discrete.hpp"
 #include "cl_MTK_Mesh_Core.hpp"
+#include "cl_MTK_Interpolation_Mesh.hpp"
 
 namespace moris
 {
     namespace ge
     {
+
         class Level_Set : public Geometry, public Field_Discrete
         {
 
@@ -28,7 +30,8 @@ namespace moris
              * @param aMesh The mesh pointer where the B-spline information can be obtained
              * @param aNumRefinements The number of refinement steps to use for this geometry
              * @param aRefinementFunctionIndex The index of a user-defined refinement function (-1 = default refinement)
-             * @param aBSplineMeshIndex The index of a B-spline mesh for level set discretization
+             * @param aBSplineLowerBound The lower bound for the B-spline coefficients describing this field
+             * @param aBSplineUpperBound The upper bound for the B-spline coefficients describing this field
              */
             Level_Set(Matrix<DDRMat>& aADVs,
                       Matrix<DDUMat>  aGeometryVariableIndices,
@@ -51,7 +54,7 @@ namespace moris
              */
             Level_Set(Matrix<DDRMat>&           aADVs,
                       uint                      aADVIndex,
-                      mtk::Mesh*                aMesh,
+                      mtk::Interpolation_Mesh*  aMesh,
                       std::shared_ptr<Geometry> aGeometry);
 
             /**

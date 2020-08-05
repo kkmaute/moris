@@ -103,7 +103,7 @@ namespace moris
              */
             Geometry_Engine(Cell< std::shared_ptr<Geometry> > aGeometry,
                             Phase_Table                       aPhaseTable,
-                            mtk::Mesh*                        aMesh,
+                            mtk::Interpolation_Mesh*          aMesh,
                             Matrix<DDRMat>                    aADVs = {{}},
                             real                              aIsocontourThreshold = 0.0,
                             real                              aErrorFactor = 0.0);
@@ -289,11 +289,11 @@ namespace moris
                                                uint aRefinementIndex);
 
             /**
-             * Computes and saves the current level-set field data based on the given interpolation mesh
+             * Computes and saves the current level-set field data based on the given interpolation mesh.
              *
-             * @param aMesh
+             * @param aMesh Mesh for computing level set data
              */
-            void compute_level_set_data(mtk::Mesh* aMesh);
+            void compute_level_set_data(mtk::Interpolation_Mesh* aMesh);
 
             /**
              * Assign PDV hosts based on properties constructed through parameter lists
