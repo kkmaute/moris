@@ -78,5 +78,3 @@ namespace moris
 }
 
 #endif /* MORIS_CL_GEN_CIRCLE_HPP */
-
-
