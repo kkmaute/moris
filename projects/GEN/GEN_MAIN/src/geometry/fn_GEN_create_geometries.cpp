@@ -2,6 +2,7 @@
 #include "fn_Parsing_Tools.hpp"
 
 #include "cl_GEN_Circle.hpp"
+#include "cl_GEN_Superellipse.hpp"
 #include "cl_GEN_Sphere.hpp"
 #include "cl_GEN_Plane.hpp"
 #include "cl_GEN_User_Defined_Geometry.hpp"
@@ -63,39 +64,55 @@ namespace moris
             // Build Geometry
             if (tGeometryType == "circle")
             {
-                return std::make_shared<Circle>(aADVs,
-                                                tGeometryVariableIndices,
-                                                tADVIndices,
-                                                tConstantParameters,
-                                                tNumRefinements,
-                                                tRefinementFunctionIndex,
-                                                tBSplineMeshIndex,
-                                                tLevelSetLowerBound,
-                                                tLevelSetUpperBound);
+                return std::make_shared<Circle>(
+                        aADVs,
+                        tGeometryVariableIndices,
+                        tADVIndices,
+                        tConstantParameters,
+                        tNumRefinements,
+                        tRefinementFunctionIndex,
+                        tBSplineMeshIndex,
+                        tLevelSetLowerBound,
+                        tLevelSetUpperBound);
+            }
+            else if (tGeometryType == "superellipse")
+            {
+                return std::make_shared<Superellipse>(
+                        aADVs,
+                        tGeometryVariableIndices,
+                        tADVIndices,
+                        tConstantParameters,
+                        tNumRefinements,
+                        tRefinementFunctionIndex,
+                        tBSplineMeshIndex,
+                        tLevelSetLowerBound,
+                        tLevelSetUpperBound);
             }
             else if (tGeometryType == "sphere")
             {
-                return std::make_shared<Sphere>(aADVs,
-                                                tGeometryVariableIndices,
-                                                tADVIndices,
-                                                tConstantParameters,
-                                                tNumRefinements,
-                                                tRefinementFunctionIndex,
-                                                tBSplineMeshIndex,
-                                                tLevelSetLowerBound,
-                                                tLevelSetUpperBound);
+                return std::make_shared<Sphere>(
+                        aADVs,
+                        tGeometryVariableIndices,
+                        tADVIndices,
+                        tConstantParameters,
+                        tNumRefinements,
+                        tRefinementFunctionIndex,
+                        tBSplineMeshIndex,
+                        tLevelSetLowerBound,
+                        tLevelSetUpperBound);
             }
             else if (tGeometryType == "plane")
             {
-                return std::make_shared<Plane>(aADVs,
-                                               tGeometryVariableIndices,
-                                               tADVIndices,
-                                               tConstantParameters,
-                                               tNumRefinements,
-                                               tRefinementFunctionIndex,
-                                               tBSplineMeshIndex,
-                                               tLevelSetLowerBound,
-                                               tLevelSetUpperBound);
+                return std::make_shared<Plane>(
+                        aADVs,
+                        tGeometryVariableIndices,
+                        tADVIndices,
+                        tConstantParameters,
+                        tNumRefinements,
+                        tRefinementFunctionIndex,
+                        tBSplineMeshIndex,
+                        tLevelSetLowerBound,
+                        tLevelSetUpperBound);
             }
             else if (tGeometryType == "user_defined")
             {
@@ -108,17 +125,18 @@ namespace moris
                         (tSensitivityFunctionName == "" ? nullptr : aLibrary->load_gen_sensitivity_function(tSensitivityFunctionName));
 
                 // Create user-defined geometry
-                return std::make_shared<User_Defined_Geometry>(aADVs,
-                                                               tGeometryVariableIndices,
-                                                               tADVIndices,
-                                                               tConstantParameters,
-                                                               aLibrary->load_gen_field_function(aGeometryParameterList.get<std::string>("field_function_name")),
-                                                               tSensitivityFunction,
-                                                               tNumRefinements,
-                                                               tRefinementFunctionIndex,
-                                                               tBSplineMeshIndex,
-                                                               tLevelSetLowerBound,
-                                                               tLevelSetUpperBound);
+                return std::make_shared<User_Defined_Geometry>(
+                        aADVs,
+                        tGeometryVariableIndices,
+                        tADVIndices,
+                        tConstantParameters,
+                        aLibrary->load_gen_field_function(aGeometryParameterList.get<std::string>("field_function_name")),
+                        tSensitivityFunction,
+                        tNumRefinements,
+                        tRefinementFunctionIndex,
+                        tBSplineMeshIndex,
+                        tLevelSetLowerBound,
+                        tLevelSetUpperBound);
             }
             else
             {

@@ -32,6 +32,7 @@ namespace moris
 
     namespace ge
     {
+
         TEST_CASE("Circle Test", "[GEN], [GEN_CIRCLE]")
         {
             // Set up geometry
@@ -46,19 +47,14 @@ namespace moris
             tCircle2ParameterList.set("adv_indices", "0, 2, 4");
 
             // Create circles
-            Matrix<DDRMat> tADVs(5, 1);
-            tADVs(0) = 0.0;
-            tADVs(1) = 1.0;
-            tADVs(2) = 2.0;
-            tADVs(3) = 1.0;
-            tADVs(4) = 2.0;
+            Matrix<DDRMat> tADVs = {{0.0, 1.0, 2.0, 1.0, 2.0}};
             std::shared_ptr<Geometry> tCircle1 = create_geometry(tCircle1ParameterList, tADVs);
             std::shared_ptr<Geometry> tCircle2 = create_geometry(tCircle2ParameterList, tADVs);
 
             // Set coordinates for checking
-            Matrix<DDRMat> tCoordinates0(1, 2, 0.0);
-            Matrix<DDRMat> tCoordinates1(1, 2, 1.0);
-            Matrix<DDRMat> tCoordinates2(1, 2, 2.0);
+            Matrix<DDRMat> tCoordinates0 = {{0.0, 0.0}};
+            Matrix<DDRMat> tCoordinates1 = {{1.0, 1.0}};
+            Matrix<DDRMat> tCoordinates2 = {{2.0, 2.0}};
 
             // Check field values
             CHECK(tCircle1->evaluate_field_value(0, tCoordinates0) == Approx(0.0));
@@ -117,6 +113,57 @@ namespace moris
             check_approx(tSensitivities, {{-1.0, 0.0, 0.0, 0.0, -1.0}});
         }
 
+        TEST_CASE("Superellipse Test", "[GEN], [GEN_SUPERELLIPSE]")
+        {
+            // Set up geometry
+            ParameterList tSuperellipseParameterList = prm::create_geometry_parameter_list();
+            tSuperellipseParameterList.set("type", "superellipse");
+            tSuperellipseParameterList.set("geometry_variable_indices", "all");
+            tSuperellipseParameterList.set("adv_indices", "all");
+
+            // Create circles
+            Matrix<DDRMat> tADVs = {{3.0, 4.0, 1.0, 2.0, 3.0}};
+            std::shared_ptr<Geometry> tSuperellipse = create_geometry(tSuperellipseParameterList, tADVs);
+
+            // Set coordinates for checking
+            Matrix<DDRMat> tCoordinates0 = {{2.0, 2.0}};
+            Matrix<DDRMat> tCoordinates1 = {{3.0, 3.0}};
+            Matrix<DDRMat> tCoordinates2 = {{4.0, 4.0}};
+
+            // Check field values
+            CHECK(tSuperellipse->evaluate_field_value(0, tCoordinates0) == Approx(pow(2.0, 1.0/3.0) - 1.0));
+            CHECK(tSuperellipse->evaluate_field_value(0, tCoordinates1) == Approx(-0.5));
+            CHECK(tSuperellipse->evaluate_field_value(0, tCoordinates2) == Approx(0.0));
+
+            // Check sensitivity values
+            Matrix<DDRMat> tSensitivities;
+            tSuperellipse->evaluate_sensitivity(0, tCoordinates0, tSensitivities);
+            check_approx(tSensitivities, {{pow(2.0, -2.0 / 3.0), pow(2.0, -5.0 / 3.0), -pow(2.0, -2.0 / 3.0), -pow(2.0, -5.0 / 3.0), -0.0970335}});
+            tSuperellipse->evaluate_sensitivity(0, tCoordinates1, tSensitivities);
+            check_approx(tSensitivities, {{0.0, 0.5, 0.0, -0.25, 0.0}});
+            tSuperellipse->evaluate_sensitivity(0, tCoordinates2, tSensitivities);
+            check_approx(tSensitivities, {{-1.0, 0.0, -1.0, 0.0, 0.0}});
+
+            // Change ADVs and coordinates
+            tADVs = {{2.0, 1.0, 4.0, 3.0, 4.0}};
+            tCoordinates0 = {{-2.0, 1.0}};
+            tCoordinates1 = {{0.0, 2.5}};
+            tCoordinates2 = {{2.0, 5.0}};
+
+            // Check field values
+            CHECK(tSuperellipse->evaluate_field_value(0, tCoordinates0) == Approx(0.0));
+            CHECK(tSuperellipse->evaluate_field_value(0, tCoordinates1) == Approx(pow(2.0, -0.75) - 1.0));
+            CHECK(tSuperellipse->evaluate_field_value(0, tCoordinates2) == Approx(1.0 / 3.0));
+
+            // Check sensitivity values
+            tSuperellipse->evaluate_sensitivity(0, tCoordinates0, tSensitivities);
+            check_approx(tSensitivities, {{0.25, 0.0, -0.25, 0.0, 0.0}});
+            tSuperellipse->evaluate_sensitivity(0, tCoordinates1, tSensitivities);
+            check_approx(tSensitivities, {{pow(2.0, 0.25) / 8.0, -pow(2.0, -0.75) / 3.0, -pow(2.0, -0.75) / 8.0, -pow(2.0, -0.75) / 6.0, -0.0257572}});
+            tSuperellipse->evaluate_sensitivity(0, tCoordinates2, tSensitivities);
+            check_approx(tSensitivities, {{0.0, -1.0 / 3.0, 0.0, -4.0 / 9.0, 0.0}});
+        }
+
         //--------------------------------------------------------------------------------------------------------------
 
         TEST_CASE("Sphere Test", "[GEN], [GEN_SPHERE]")
@@ -128,17 +175,13 @@ namespace moris
             tSphereParameterList.set("adv_indices", "all");
 
             // Create sphere
-            Matrix<DDRMat> tADVs(4, 1);
-            tADVs(0) = -1.0;
-            tADVs(1) = 0.0;
-            tADVs(2) = 1.0;
-            tADVs(3) = 2.0;
+            Matrix<DDRMat> tADVs = {{-1.0, 0.0, 1.0, 2.0}};
             std::shared_ptr<Geometry> tSphere = create_geometry(tSphereParameterList, tADVs);
 
             // Set coordinates for checking
-            Matrix<DDRMat> tCoordinates0(1, 3, 0.0);
-            Matrix<DDRMat> tCoordinates1(1, 3, 1.0);
-            Matrix<DDRMat> tCoordinates2(1, 3, 2.0);
+            Matrix<DDRMat> tCoordinates0 = {{0.0, 0.0, 0.0}};
+            Matrix<DDRMat> tCoordinates1 = {{1.0, 1.0, 1.0}};
+            Matrix<DDRMat> tCoordinates2 = {{2.0, 2.0, 2.0}};
 
             // Check field values
             CHECK(tSphere->evaluate_field_value(0, tCoordinates0) == Approx(sqrt(2.0) - 2.0));
@@ -155,10 +198,9 @@ namespace moris
             check_approx(tSensitivities, {{-3.0 / sqrt(14.0), -sqrt(2.0 / 7.0), -1.0 / sqrt(14.0), -1.0}});
 
             // Change ADVs and coordinates
-            tADVs(0) = 0.0;
-            tADVs(3) = 1.0;
-            tCoordinates1(2) = -1.0;
-            tCoordinates2(1) = -2.0;
+            tADVs = {{0.0, 0.0, 1.0, 1.0}};
+            tCoordinates1 = {{1.0, 1.0, -1.0}};
+            tCoordinates2 = {{2.0, -2.0, 2.0}};
 
             // Check field values
             CHECK(tSphere->evaluate_field_value(0, tCoordinates0) == Approx(0.0));
@@ -238,9 +280,7 @@ namespace moris
         TEST_CASE("User-Defined Geometry Test", "[GEN], [GEN_USER_DEFINED_GEOMETRY]")
         {
             // Create user-defined geometry
-            Matrix<DDRMat> tADVs(2, 1);
-            tADVs(0) = -1.0;
-            tADVs(1) = 0.5;
+            Matrix<DDRMat> tADVs = {{-1.0, 0.5}};
 
             std::shared_ptr<Geometry> tGeometry = std::make_shared<User_Defined_Geometry>(tADVs,
                                                                                           Matrix<DDUMat>({{1, 0}}),
@@ -250,8 +290,8 @@ namespace moris
                                                                                           &user_defined_geometry_sensitivity);
 
             // Set coordinates for checking
-            Matrix<DDRMat> tCoordinates1(1, 2, 1.0);
-            Matrix<DDRMat> tCoordinates2(1, 2, 2.0);
+            Matrix<DDRMat> tCoordinates1 = {{1.0, 1.0}};
+            Matrix<DDRMat> tCoordinates2 = {{2.0, 2.0}};
 
             // Check field values
             CHECK(tGeometry->evaluate_field_value(0, tCoordinates1) == Approx(-0.75));
@@ -265,9 +305,9 @@ namespace moris
             check_approx(tSensitivities, {{2.0, 6.0}});
 
             // Change ADVs and coordinates
-            tADVs(0) = 2.0;
-            tCoordinates1(0) = 0.0;
-            tCoordinates2(1) = -1.0;
+            tADVs = {{2.0, 0.5}};
+            tCoordinates1 = {{0.0, 1.0}};
+            tCoordinates2 = {{2.0, -1.0}};
 
             // Check field values
             CHECK(tGeometry->evaluate_field_value(0, tCoordinates1) == Approx(8.0));
@@ -306,6 +346,10 @@ namespace moris
         for (uint tIndex = 0; tIndex < aMat1.length(); tIndex++)
         {
             CHECK(aMat1(tIndex) == Approx(aMat2(tIndex)));
+            if (aMat1(tIndex) != Approx(aMat2(tIndex)))
+            {
+                std::cout << aMat1(tIndex) << ", " << aMat2(tIndex) << std::endl;
+            }
         }
     }
 
