@@ -72,9 +72,10 @@ namespace moris
 
             // Calculate sensitivities
             aSensitivities.set_size(1, 3);
-            real tDenominator = sqrt(pow(aCoordinates(0) - tXCenter, 2) + pow(aCoordinates(1) - tYCenter, 2));
-            aSensitivities(0) = tDenominator ? (tXCenter - aCoordinates(0)) / tDenominator : tDenominator;
-            aSensitivities(1) = tDenominator ? (tYCenter - aCoordinates(1)) / tDenominator : tDenominator;
+            real tConstant = sqrt(pow(aCoordinates(0) - tXCenter, 2) + pow(aCoordinates(1) - tYCenter, 2));
+            tConstant = tConstant ? 1 / tConstant : 0.0;
+            aSensitivities(0) = tConstant * (tXCenter - aCoordinates(0));
+            aSensitivities(1) = tConstant * (tYCenter - aCoordinates(1));
             aSensitivities(2) = -1.0;
         }
 

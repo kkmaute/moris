@@ -83,19 +83,20 @@ namespace moris
             real tExponent = *(mFieldVariables(4));
 
             // Constant in all calculations
-            real tConstant = pow(pow(std::abs(aCoordinates(0) - tXCenter) / tXSemidiameter, tExponent)
-                    + pow(std::abs(aCoordinates(1) - tYCenter) / tYSemidiameter, tExponent), -1.0 + (1.0 / tExponent));
+            real tConstant = pow(std::abs(aCoordinates(0) - tXCenter) / tXSemidiameter, tExponent)
+                    + pow(std::abs(aCoordinates(1) - tYCenter) / tYSemidiameter, tExponent);
+            tConstant = tConstant ? pow(tConstant, -1.0 + (1.0 / tExponent)) : 0.0;
 
             // Calculate sensitivities
             aSensitivities.set_size(1, 5);
-            aSensitivities(0) = -pow(1.0 / tXSemidiameter, tExponent) * (aCoordinates(0) - tXCenter)
-                    * pow(std::abs(tXCenter - aCoordinates(0)), tExponent - 2.0) * tConstant;
-            aSensitivities(1) = -pow(1.0 / tYSemidiameter, tExponent) * (aCoordinates(1) - tYCenter)
-                    * pow(std::abs(tYCenter - aCoordinates(1)), tExponent - 2.0) * tConstant;
-            aSensitivities(2) = -pow(1.0 / tXSemidiameter, tExponent + 1.0)
-                    * pow(std::abs(tXCenter - aCoordinates(0)), tExponent) * tConstant;
-            aSensitivities(3) = -pow(1.0 / tYSemidiameter, tExponent + 1.0)
-                    * pow(std::abs(tYCenter - aCoordinates(1)), tExponent) * tConstant;
+            aSensitivities(0) = -tConstant * pow(1.0 / tXSemidiameter, tExponent) * (aCoordinates(0) - tXCenter)
+                    * pow(std::abs(tXCenter - aCoordinates(0)), tExponent - 2.0);
+            aSensitivities(1) = -tConstant * pow(1.0 / tYSemidiameter, tExponent) * (aCoordinates(1) - tYCenter)
+                    * pow(std::abs(tYCenter - aCoordinates(1)), tExponent - 2.0);
+            aSensitivities(2) = -tConstant * pow(1.0 / tXSemidiameter, tExponent + 1.0)
+                    * pow(std::abs(tXCenter - aCoordinates(0)), tExponent);
+            aSensitivities(3) = -tConstant * pow(1.0 / tYSemidiameter, tExponent + 1.0)
+                    * pow(std::abs(tYCenter - aCoordinates(1)), tExponent);
 
             // TODO? this uses FD only because the analytical function is super complicated for the exponent derivative
             aSensitivities(4) = (pow(pow(std::abs(aCoordinates(0) - tXCenter) / tXSemidiameter, tExponent + mEpsilon)
