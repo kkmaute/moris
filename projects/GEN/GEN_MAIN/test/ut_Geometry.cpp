@@ -5,7 +5,6 @@
 #include "fn_PRM_GEN_Parameters.hpp"
 #include "fn_Exec_load_user_library.hpp"
 #include "cl_GEN_User_Defined_Geometry.hpp"
-#include "cl_GEN_Circle.hpp" // TODO
 
 #include "cl_HMR.hpp"
 #include "cl_HMR_Mesh.hpp"
@@ -312,10 +311,15 @@ namespace moris
                 // Get interpolation mesh
                 hmr::Interpolation_Mesh_HMR* tInterpolationMesh = tHMR.create_interpolation_mesh(0);
 
-                // Create circle geometry
+                // Set up geometry
                 real tRadius = 0.5;
+                ParameterList tCircleParameterList = prm::create_geometry_parameter_list();
+                tCircleParameterList.set("type", "circle");
+                tCircleParameterList.set("constant_parameters", "0.0, 0.0, " + std::to_string(tRadius));
+                tCircleParameterList.set("bspline_mesh_index", 0);
                 Cell<std::shared_ptr<Geometry>> tGeometry(1);
-                tGeometry(0) = std::make_shared<Circle>(0.0, 0.0, tRadius, 0, -1, 0);
+                Matrix<DDRMat> tADVs(0, 0);
+                tGeometry(0) = create_geometry(tCircleParameterList, tADVs);
 
                 // Create geometry engine
                 Phase_Table tPhaseTable (1, Phase_Table_Structure::EXP_BASE_2);
