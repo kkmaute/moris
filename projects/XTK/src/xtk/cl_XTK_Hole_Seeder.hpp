@@ -14,7 +14,7 @@ namespace moris
 {
     namespace ge
     {
-        class Sphere_Box;
+        class Superellipsoid;
     }
 }
 
@@ -61,7 +61,7 @@ public:
     moris::Matrix<moris::DDRMat> const &
     get_seeded_field();
 
-    moris::Cell<std::shared_ptr<moris::ge::Sphere_Box>> &
+    moris::Cell<std::shared_ptr<moris::ge::Superellipsoid>> &
     get_seeded_geometies();
 
 private:
@@ -74,7 +74,7 @@ private:
     moris::uint mNumSpheresInY;
     moris::uint mNumSpheresInZ;
     moris::Matrix<moris::DDRMat> mSeededField;
-    moris::Cell<std::shared_ptr<moris::ge::Sphere_Box>> mSpheres;
+    moris::Cell<std::shared_ptr<moris::ge::Superellipsoid>> mSpheres;
 
 };
 
