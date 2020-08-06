@@ -138,7 +138,8 @@ namespace moris
             // Check sensitivity values
             Matrix<DDRMat> tSensitivities;
             tSuperellipse->evaluate_sensitivity(0, tCoordinates0, tSensitivities);
-            check_approx(tSensitivities, {{pow(2.0, -2.0 / 3.0), pow(2.0, -5.0 / 3.0), -pow(2.0, -2.0 / 3.0), -pow(2.0, -5.0 / 3.0), -0.0970335}});
+            check_approx(tSensitivities, {{pow(2.0, -2.0 / 3.0), pow(2.0, -5.0 / 3.0),
+                    -pow(2.0, -2.0 / 3.0), -pow(2.0, -5.0 / 3.0), -0.0970335}});
             tSuperellipse->evaluate_sensitivity(0, tCoordinates1, tSensitivities);
             check_approx(tSensitivities, {{0.0, 0.5, 0.0, -0.25, 0.0}});
             tSuperellipse->evaluate_sensitivity(0, tCoordinates2, tSensitivities);
@@ -159,7 +160,8 @@ namespace moris
             tSuperellipse->evaluate_sensitivity(0, tCoordinates0, tSensitivities);
             check_approx(tSensitivities, {{0.25, 0.0, -0.25, 0.0, 0.0}});
             tSuperellipse->evaluate_sensitivity(0, tCoordinates1, tSensitivities);
-            check_approx(tSensitivities, {{pow(2.0, 0.25) / 8.0, -pow(2.0, -0.75) / 3.0, -pow(2.0, -0.75) / 8.0, -pow(2.0, -0.75) / 6.0, -0.0257572}});
+            check_approx(tSensitivities, {{pow(2.0, 0.25) / 8.0, -pow(2.0, -0.75) / 3.0,
+                    -pow(2.0, -0.75) / 8.0, -pow(2.0, -0.75) / 6.0, -0.0257572}});
             tSuperellipse->evaluate_sensitivity(0, tCoordinates2, tSensitivities);
             check_approx(tSensitivities, {{0.0, -1.0 / 3.0, 0.0, -4.0 / 9.0, 0.0}});
         }
@@ -214,6 +216,64 @@ namespace moris
             check_approx(tSensitivities, {{-1.0 / sqrt(6.0), -1.0 / sqrt(6.0), sqrt(2.0 / 3.0), -1.0}});
             tSphere->evaluate_sensitivity(0, tCoordinates2, tSensitivities);
             check_approx(tSensitivities, {{-2.0 / 3.0, 2.0 / 3.0, -1.0 / 3.0, -1.0}});
+        }
+
+        TEST_CASE("Superellipsoid Test", "[GEN], [GEN_SUPERELLIPSOID]")
+        {
+            // Set up geometry
+            ParameterList tSuperellipsoidParameterList = prm::create_geometry_parameter_list();
+            tSuperellipsoidParameterList.set("type", "superellipsoid");
+            tSuperellipsoidParameterList.set("geometry_variable_indices", "all");
+            tSuperellipsoidParameterList.set("adv_indices", "all");
+
+            // Create circles
+            Matrix<DDRMat> tADVs = {{3.0, 4.0, 5.0, 1.0, 2.0, 4.0, 3.0}};
+            std::shared_ptr<Geometry> tSuperellipsoid = create_geometry(tSuperellipsoidParameterList, tADVs);
+
+            // Set coordinates for checking
+            Matrix<DDRMat> tCoordinates0 = {{2.0, 2.0, 5.0}};
+            Matrix<DDRMat> tCoordinates1 = {{3.0, 3.0, 5.0}};
+            Matrix<DDRMat> tCoordinates2 = {{4.0, 4.0, 5.0}};
+
+            // Check field values
+            CHECK(tSuperellipsoid->evaluate_field_value(0, tCoordinates0) == Approx(pow(2.0, 1.0/3.0) - 1.0));
+            CHECK(tSuperellipsoid->evaluate_field_value(0, tCoordinates1) == Approx(-0.5));
+            CHECK(tSuperellipsoid->evaluate_field_value(0, tCoordinates2) == Approx(0.0));
+
+            // Check sensitivity values
+            Matrix<DDRMat> tSensitivities;
+            tSuperellipsoid->evaluate_sensitivity(0, tCoordinates0, tSensitivities);
+            check_approx(tSensitivities, {{pow(2.0, -2.0 / 3.0), pow(2.0, -5.0 / 3.0), 0.0,
+                    -pow(2.0, -2.0 / 3.0), -pow(2.0, -5.0 / 3.0), 0.0, -0.0970335}});
+            tSuperellipsoid->evaluate_sensitivity(0, tCoordinates1, tSensitivities);
+            check_approx(tSensitivities, {{0.0, 0.5, 0.0, 0.0, -0.25, 0.0, 0.0}});
+            tSuperellipsoid->evaluate_sensitivity(0, tCoordinates2, tSensitivities);
+            check_approx(tSensitivities, {{-1.0, 0.0, 0.0, -1.0, 0.0, 0.0, 0.0}});
+
+            // Change ADVs and coordinates
+//            tADVs = {{2.0, 1.0, 4.0, 3.0, 4.0}};
+//            tCoordinates0 = {{-2.0, 1.0}};
+//            tCoordinates1 = {{0.0, 2.5}};
+//            tCoordinates2 = {{2.0, 5.0}};
+
+            tADVs = {{2.0, 1.0, 0.0, 5.0, 4.0, 3.0, 4.0}};
+            tCoordinates0 = {{2.0, -3.0, 0.0}};
+            tCoordinates1 = {{2.0, -1.0, 1.5}};
+            tCoordinates2 = {{2.0, 1.0, 4.0}};
+
+            // Check field values
+            CHECK(tSuperellipsoid->evaluate_field_value(0, tCoordinates0) == Approx(0.0));
+            CHECK(tSuperellipsoid->evaluate_field_value(0, tCoordinates1) == Approx(pow(2.0, -0.75) - 1.0));
+            CHECK(tSuperellipsoid->evaluate_field_value(0, tCoordinates2) == Approx(1.0 / 3.0));
+
+            // Check sensitivity values
+            tSuperellipsoid->evaluate_sensitivity(0, tCoordinates0, tSensitivities);
+            check_approx(tSensitivities, {{0.0, 0.25, 0.0, 0.0, -0.25, 0.0, 0.0}});
+            tSuperellipsoid->evaluate_sensitivity(0, tCoordinates1, tSensitivities);
+            check_approx(tSensitivities, {{0.0, pow(2.0, 0.25) / 8.0, -pow(2.0, -0.75) / 3.0,
+                    0.0, -pow(2.0, -0.75) / 8.0, -pow(2.0, -0.75) / 6.0, -0.0257572}});
+            tSuperellipsoid->evaluate_sensitivity(0, tCoordinates2, tSensitivities);
+            check_approx(tSensitivities, {{0.0, 0.0, -1.0 / 3.0, 0.0, 0.0, -4.0 / 9.0, 0.0}});
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -346,10 +406,6 @@ namespace moris
         for (uint tIndex = 0; tIndex < aMat1.length(); tIndex++)
         {
             CHECK(aMat1(tIndex) == Approx(aMat2(tIndex)));
-            if (aMat1(tIndex) != Approx(aMat2(tIndex)))
-            {
-                std::cout << aMat1(tIndex) << ", " << aMat2(tIndex) << std::endl;
-            }
         }
     }
 

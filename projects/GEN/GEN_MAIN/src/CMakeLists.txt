@@ -42,6 +42,7 @@ set(HEADERS
 	geometry/cl_GEN_Geometry.hpp
 	geometry/cl_GEN_Circle.hpp
 	geometry/cl_GEN_Superellipse.hpp
+	geometry/cl_GEN_Superellipsoid.hpp
 	geometry/cl_GEN_Mesh_Field_Geometry.hpp
 	geometry/cl_GEN_Sphere.hpp
 	geometry/cl_GEN_User_Defined_Geometry.hpp
@@ -118,6 +119,7 @@ set(LIB_SOURCES
 	geometry/cl_GEN_Circle.cpp
 	geometry/cl_GEN_Superellipse.cpp
 	geometry/cl_GEN_Sphere.cpp
+	geometry/cl_GEN_Superellipsoid.cpp
 	geometry/cl_GEN_Plane.cpp
 	geometry/cl_GEN_Mesh_Field_Geometry.cpp
 	geometry/cl_GEN_User_Defined_Geometry.cpp

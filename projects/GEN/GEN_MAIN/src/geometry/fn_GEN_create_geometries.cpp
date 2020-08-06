@@ -4,6 +4,7 @@
 #include "cl_GEN_Circle.hpp"
 #include "cl_GEN_Superellipse.hpp"
 #include "cl_GEN_Sphere.hpp"
+#include "cl_GEN_Superellipsoid.hpp"
 #include "cl_GEN_Plane.hpp"
 #include "cl_GEN_User_Defined_Geometry.hpp"
 #include "cl_GEN_Level_Set.hpp"
@@ -91,6 +92,19 @@ namespace moris
             else if (tGeometryType == "sphere")
             {
                 return std::make_shared<Sphere>(
+                        aADVs,
+                        tGeometryVariableIndices,
+                        tADVIndices,
+                        tConstantParameters,
+                        tNumRefinements,
+                        tRefinementFunctionIndex,
+                        tBSplineMeshIndex,
+                        tLevelSetLowerBound,
+                        tLevelSetUpperBound);
+            }
+            else if (tGeometryType == "superellipsoid")
+            {
+                return std::make_shared<Superellipsoid>(
                         aADVs,
                         tGeometryVariableIndices,
                         tADVIndices,

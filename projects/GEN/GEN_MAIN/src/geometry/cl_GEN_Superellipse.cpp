@@ -29,7 +29,7 @@ namespace moris
             MORIS_ERROR(aGeometryVariableIndices.length() + aConstantParameters.length() == 5,
                         "A GEN Superellipse must be created with a total of exactly 5 variables (ADVs + constant parameters).");
             MORIS_ERROR(*(mFieldVariables(2)) > 0 and *(mFieldVariables(3)) > 0,
-                    "A GEN Superellipse must be created with positive semidiameters.");
+                        "A GEN Superellipse must be created with positive semidiameters.");
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -68,7 +68,7 @@ namespace moris
 
             // Evaluate field
             return pow(pow(std::abs(aCoordinates(0) - tXCenter) / tXSemidiameter, tExponent)
-                               + pow(std::abs(aCoordinates(1) - tYCenter) / tYSemidiameter, tExponent), 1.0 / tExponent) - 1.0;
+                     + pow(std::abs(aCoordinates(1) - tYCenter) / tYSemidiameter, tExponent), 1.0 / tExponent) - 1.0;
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -84,7 +84,7 @@ namespace moris
 
             // Constant in all calculations
             real tConstant = pow(std::abs(aCoordinates(0) - tXCenter) / tXSemidiameter, tExponent)
-                    + pow(std::abs(aCoordinates(1) - tYCenter) / tYSemidiameter, tExponent);
+                           + pow(std::abs(aCoordinates(1) - tYCenter) / tYSemidiameter, tExponent);
             tConstant = tConstant ? pow(tConstant, -1.0 + (1.0 / tExponent)) : 0.0;
 
             // Calculate sensitivities
@@ -100,10 +100,10 @@ namespace moris
 
             // TODO? this uses FD only because the analytical function is super complicated for the exponent derivative
             aSensitivities(4) = (pow(pow(std::abs(aCoordinates(0) - tXCenter) / tXSemidiameter, tExponent + mEpsilon)
-                    + pow(std::abs(aCoordinates(1) - tYCenter) / tYSemidiameter, tExponent + mEpsilon), 1.0 / (tExponent + mEpsilon))
-                    - pow(pow(std::abs(aCoordinates(0) - tXCenter) / tXSemidiameter, tExponent - mEpsilon)
-                    + pow(std::abs(aCoordinates(1) - tYCenter) / tYSemidiameter, tExponent - mEpsilon), 1.0 / (tExponent - mEpsilon)))
-                    / (2.0 * mEpsilon);
+                                   + pow(std::abs(aCoordinates(1) - tYCenter) / tYSemidiameter, tExponent + mEpsilon), 1.0 / (tExponent + mEpsilon))
+                               - pow(pow(std::abs(aCoordinates(0) - tXCenter) / tXSemidiameter, tExponent - mEpsilon)
+                                   + pow(std::abs(aCoordinates(1) - tYCenter) / tYSemidiameter, tExponent - mEpsilon), 1.0 / (tExponent - mEpsilon)))
+                               / (2.0 * mEpsilon);
         }
 
         //--------------------------------------------------------------------------------------------------------------
