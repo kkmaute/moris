@@ -16,7 +16,7 @@ namespace moris
         public:
 
             /**
-             * Constructor for property, needs to know about other properties that it depends on
+             * Constructor for property, needs to know about other properties that it depends on.
              *
              * @param aPropertyDependencies This property's dependencies
              */

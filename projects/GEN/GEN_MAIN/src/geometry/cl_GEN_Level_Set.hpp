@@ -58,18 +58,19 @@ namespace moris
                       std::shared_ptr<Geometry> aGeometry);
 
             /**
-             * Given an index, the discrete geometry needs to return a field value.
+             * Given a node index, returns the field value.
              *
-             * @param aNodeIndex Node index for field evaluation
-             * @return field value at the specified index
+             * @param aNodeIndex Node index
+             * @return Distance to this geometry
              */
             real evaluate_field_value(uint aNodeIndex);
 
             /**
-             * Given an index, returns sensitivites of the geometry with respect to input parameters
+             * Given a node index, evaluates the sensitivity of the geometry field with respect to all of the
+             * geometry variables.
              *
-             * @param aNodeIndex Node index for field evaluation
-             * @param aSensitivities Matrix of sensitivities to be returned
+             * @param aNodeIndex Node index
+             * @param aSensitivities Vector of sensitivities
              */
             void evaluate_all_sensitivities(uint aNodeIndex, Matrix<DDRMat>& aSensitivities);
 

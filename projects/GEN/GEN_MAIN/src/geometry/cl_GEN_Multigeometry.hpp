@@ -37,11 +37,11 @@ namespace moris
             /**
              * Given a node index or coordinate, returns a matrix of relevant sensitivities
              *
-             * @param aIndex Node index
+             * @param aNodeIndex Node index
              * @param aCoordinates Vector of coordinate values
              * @param aSensitivity Matrix of sensitivities
              */
-            void evaluate_sensitivity(uint                  aIndex,
+            void evaluate_sensitivity(uint                  aNodeIndex,
                                       const Matrix<DDRMat>& aCoordinates,
                                       Matrix<DDRMat>&       aSensitivities);
 
