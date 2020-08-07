@@ -59,6 +59,17 @@ namespace moris
         mMSI->mEquationModel->set_solution_vector( mSolutionVector );
     }
 
+    void MSI_Solver_Interface::postmultiply_implicit_dQds()
+    {
+        mMSI->mEquationModel->compute_explicit_dQIdp();
+        mMSI->mEquationModel->compute_implicit_dQIdp();
+    }
+
+    void MSI_Solver_Interface::compute_IQI()
+    {
+        mMSI->mEquationModel->compute_IQIs();
+    }
+
 //------------------------------------------------------------------------------
 
     void MSI_Solver_Interface::set_solution_vector_prev_time_step( sol::Dist_Vector * aSolutionVector )
