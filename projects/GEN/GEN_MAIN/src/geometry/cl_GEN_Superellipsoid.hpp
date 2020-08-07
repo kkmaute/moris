@@ -41,10 +41,12 @@ namespace moris
             /**
              * Constructor with only constant parameters
              *
-             * @param aXCenter x-coordinate of the center of the superellipse
-             * @param aYCenter y-coordiante of the center of the superellipse
+             * @param aXCenter x-coordinate of the center of the superellipsoid
+             * @param aYCenter y-coordiante of the center of the superellipsoid
+             * @param aZCenter z-coordinate of the center of the superellipsoid
              * @param aXSemidiameter Superellipsoid semi-diameter in the x direction
              * @param aYSemidiameter Superellipsoid semi-diameter in the y direction
+             * @param aZSemidiameter Superellipsoid semi-diameter in the z direction
              * @param aExponent Superellipsoid exponent
              * @param aNumRefinements The number of refinement steps to use for this geometry
              * @param aRefinementFunctionIndex The index of a user-defined refinement function (-1 = default refinement)

@@ -9,6 +9,7 @@
 #include "cl_GEN_User_Defined_Geometry.hpp"
 #include "cl_GEN_Level_Set.hpp"
 #include "cl_GEN_Multigeometry.hpp"
+#include "cl_GEN_Swiss_Cheese_Slice.hpp"
 
 namespace moris
 {
@@ -82,11 +83,17 @@ namespace moris
             // Geometry inputs
             Matrix<DDUMat> tGeometryVariableIndices(0, 0);
             Matrix<DDUMat> tADVIndices(0, 0);
-            set_geometry_variable_inputs(aGeometryParameterList, aADVs.length(), tGeometryVariableIndices, tADVIndices);
+            Matrix<DDRMat> tConstantParameters(0, 0);
 
-            // Get constant parameters
-            Matrix<DDRMat> tConstantParameters =
-                    string_to_mat<DDRMat>(aGeometryParameterList.get<std::string>("constant_parameters"));
+            // If not a swiss cheese, get ADV inputs
+            if (tGeometryType.compare(0, 12, "swiss_cheese"))
+            {
+                // ADV parameters
+                set_geometry_variable_inputs(aGeometryParameterList, aADVs.length(), tGeometryVariableIndices, tADVIndices);
+
+                // Constant parameters
+                tConstantParameters = string_to_mat<DDRMat>(aGeometryParameterList.get<std::string>("constant_parameters"));
+            }
 
             // Get refinement info
             sint tNumRefinements = aGeometryParameterList.get<sint>("number_of_refinements");
@@ -186,6 +193,59 @@ namespace moris
                         tBSplineMeshIndex,
                         tBSplineLowerBound,
                         tBSplineUpperBound);
+            }
+            else if (tGeometryType == "swiss_cheese_slice")
+            {
+                // Check for definition
+                uint tNumXHoles = (uint)aGeometryParameterList.get<sint>("number_of_x_holes");
+                uint tNumYHoles = (uint)aGeometryParameterList.get<sint>("number_of_y_holes");
+                real tTargetXSpacing = aGeometryParameterList.get<real>("target_x_spacing");
+                real tTargetYSpacing = aGeometryParameterList.get<real>("target_y_spacing");
+
+                MORIS_ERROR((tNumXHoles > 1 and tNumYHoles > 1) or (tTargetXSpacing and tTargetYSpacing),
+                        "In a swiss cheese parameter list, you must specify either a number of holes > 1 or a target "
+                        "spacing in each direction.");
+
+                if (tNumXHoles)
+                {
+                    return std::make_shared<Swiss_Cheese_Slice>(
+                            aGeometryParameterList.get<real>("left_bound"),
+                            aGeometryParameterList.get<real>("right_bound"),
+                            aGeometryParameterList.get<real>("bottom_bound"),
+                            aGeometryParameterList.get<real>("top_bound"),
+                            tNumXHoles,
+                            tNumYHoles,
+                            aGeometryParameterList.get<real>("hole_x_semidiameter"),
+                            aGeometryParameterList.get<real>("hole_y_semidiameter"),
+                            aGeometryParameterList.get<real>("superellipse_exponent"),
+                            aGeometryParameterList.get<real>("row_offset"),
+                            tNumRefinements,
+                            tRefinementFunctionIndex,
+                            tBSplineMeshIndex,
+                            tBSplineLowerBound,
+                            tBSplineUpperBound);
+                }
+                else
+                {
+                    return std::make_shared<Swiss_Cheese_Slice>(
+                            aGeometryParameterList.get<real>("left_bound"),
+                            aGeometryParameterList.get<real>("right_bound"),
+                            aGeometryParameterList.get<real>("bottom_bound"),
+                            aGeometryParameterList.get<real>("top_bound"),
+                            tTargetXSpacing,
+                            tTargetYSpacing,
+                            aGeometryParameterList.get<real>("hole_x_semidiameter"),
+                            aGeometryParameterList.get<real>("hole_y_semidiameter"),
+                            aGeometryParameterList.get<real>("superellipse_exponent"),
+                            aGeometryParameterList.get<real>("row_offset"),
+                            aGeometryParameterList.get<bool>("allow_less_than_target_spacing"),
+                            tNumRefinements,
+                            tRefinementFunctionIndex,
+                            tBSplineMeshIndex,
+                            tBSplineLowerBound,
+                            tBSplineUpperBound);
+                }
+
             }
             else
             {

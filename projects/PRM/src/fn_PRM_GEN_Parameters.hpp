@@ -83,6 +83,46 @@ namespace moris
         }
 
         /**
+         * Creates a parameter list that will be used to create a swiss cheese slice. The parameters here are different
+         * than those of a typical geometry.
+         *
+         * @return Swiss cheese slice parameter list
+         */
+        ParameterList create_swiss_cheese_slice_parameter_list()
+        {
+            ParameterList tParameterList;
+
+            tParameterList.insert("type", "swiss_cheese_slice");    // Type (name) of geometry, do not change
+
+            // Must change
+            tParameterList.insert("left_bound", 0.0);               // Left-most hole center
+            tParameterList.insert("right_bound", 0.0);              // Right-most hole center
+            tParameterList.insert("bottom_bound", 0.0);             // Bottom
+            tParameterList.insert("top_bound", 0.0);                // Top-most hole center
+            tParameterList.insert("hole_x_semidiameter", 0.0);      // Superellipse semi-diameter in the x direction
+            tParameterList.insert("hole_y_semidiameter", 0.0);      // Superellipse semi-diameter in the y direction
+
+            // One of two options for hole spacing
+            tParameterList.insert("number_of_x_holes", 0);          // Number of holes in the x direction
+            tParameterList.insert("number_of_y_holes", 0);          // Number of holes in the y direction
+            tParameterList.insert("target_x_spacing", 0.0);         // Targeted spacing between hole centers in the x direction
+            tParameterList.insert("target_y_spacing", 0.0);         // Targeted spacing between hole centers in the y direction
+            tParameterList.insert("allow_less_than_target_spacing", true);
+
+            // Optional
+            tParameterList.insert("superellipse_exponent", 2.0);    // Superellipse exponent
+            tParameterList.insert("row_offset", 0.0);               // Offset to be applied on subsequent rows
+            tParameterList.insert("number_of_refinements", 0);      // Number of refinement steps using HMR
+            tParameterList.insert("refinement_function_index", -1); // Index of user-defined refinement function (-1 = none)
+            tParameterList.insert("bspline_mesh_index", -1);        // Index of B-spline mesh to create level set field on (-1 = none)
+            tParameterList.insert("bspline_lower_bound", -1.0);     // Lower bound of level set field (if bspline_mesh_index >= 0)
+            tParameterList.insert("bspline_upper_bound", 1.0);      // Upper bound of level set field (if bspline_mesh_index >= 0)
+            tParameterList.insert("multigeometry_id", "");          // ID of a multigeometry to be added to ("" = none)
+
+            return tParameterList;
+        }
+
+        /**
          * Creates a parameter list that can create a property field. Any number of these can be added to the third cell
          * (index 2) of the parameter lists for GEN.
          *

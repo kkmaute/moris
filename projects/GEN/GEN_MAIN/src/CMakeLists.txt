@@ -48,6 +48,7 @@ set(HEADERS
 	geometry/cl_GEN_User_Defined_Geometry.hpp
 	geometry/cl_GEN_Level_Set.hpp
 	geometry/cl_GEN_Multigeometry.hpp
+	geometry/cl_GEN_Swiss_Cheese_Slice.hpp
 	geometry/fn_GEN_create_geometries.hpp
 	geometry/cl_GEN_Child_Node.hpp
 	
@@ -126,6 +127,7 @@ set(LIB_SOURCES
 	geometry/cl_GEN_User_Defined_Geometry.cpp
 	geometry/cl_GEN_Level_Set.cpp
 	geometry/cl_GEN_Multigeometry.cpp
+	geometry/cl_GEN_Swiss_Cheese_Slice.cpp
 	geometry/fn_GEN_create_geometries.cpp
 	geometry/cl_GEN_Child_Node.cpp
 	

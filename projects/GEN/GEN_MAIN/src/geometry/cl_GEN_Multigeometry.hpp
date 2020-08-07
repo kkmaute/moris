@@ -23,7 +23,7 @@ namespace moris
              * @param aID Name ID for this multigeometry
              */
             Multigeometry(Cell<std::shared_ptr<Geometry>> aGeometries,
-                          std::string aID);
+                          std::string aID = "");
 
             /**
              * Given a node coordinate, the geometry needs to return the distance to the nearest function.

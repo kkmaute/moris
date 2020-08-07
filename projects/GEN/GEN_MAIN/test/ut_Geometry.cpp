@@ -32,6 +32,14 @@ namespace moris
     namespace ge
     {
 
+        // Check for ellipse location in a swiss cheese
+        void check_swiss_cheese(std::shared_ptr<Geometry> aSwissCheese,
+                                real aXCenter,
+                                real aYCenter,
+                                real aXSemidiameter,
+                                real aYSemidiameter,
+                                bool aCheck = true);
+
         TEST_CASE("Circle Test", "[GEN], [GEN_CIRCLE]")
         {
             // Set up geometry
@@ -250,11 +258,6 @@ namespace moris
             check_approx(tSensitivities, {{-1.0, 0.0, 0.0, -1.0, 0.0, 0.0, 0.0}});
 
             // Change ADVs and coordinates
-//            tADVs = {{2.0, 1.0, 4.0, 3.0, 4.0}};
-//            tCoordinates0 = {{-2.0, 1.0}};
-//            tCoordinates1 = {{0.0, 2.5}};
-//            tCoordinates2 = {{2.0, 5.0}};
-
             tADVs = {{2.0, 1.0, 0.0, 5.0, 4.0, 3.0, 4.0}};
             tCoordinates0 = {{2.0, -3.0, 0.0}};
             tCoordinates1 = {{2.0, -1.0, 1.5}};
@@ -452,6 +455,155 @@ namespace moris
             check_approx(tSensitivities, {{-2.0 / sqrt(5.0), 0.0, 1.0 / sqrt(5.0), 0.0, -1.0}});
             tMultigeometry->evaluate_sensitivity(0, tCoordinates2, tSensitivities);
             check_approx(tSensitivities, {{-1.0, 0.0, 0.0, 0.0, -1.0}});
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
+        TEST_CASE("Swiss Cheese Slice Test", "[GEN], [GEN_SWISS_CHEESE_SLICE]")
+        {
+            // Set up geometry
+            ParameterList tSwissCheeseParameterList = prm::create_swiss_cheese_slice_parameter_list();
+            tSwissCheeseParameterList.set("left_bound", -2.0);
+            tSwissCheeseParameterList.set("right_bound", 2.0);
+            tSwissCheeseParameterList.set("bottom_bound", -1.0);
+            tSwissCheeseParameterList.set("top_bound", 1.0);
+            tSwissCheeseParameterList.set("hole_x_semidiameter", 0.2);
+            tSwissCheeseParameterList.set("hole_y_semidiameter", 0.1);
+            tSwissCheeseParameterList.set("number_of_x_holes", 3);
+            tSwissCheeseParameterList.set("number_of_y_holes", 5);
+
+            // Create swiss cheese
+            Matrix<DDRMat> tADVs = {{}};
+            std::shared_ptr<Geometry> tSwissCheese = create_geometry(tSwissCheeseParameterList, tADVs);
+
+            // Check holes
+            check_swiss_cheese(tSwissCheese, -2.0, -1.0, 0.2, 0.1);
+            check_swiss_cheese(tSwissCheese, -2.0, -0.5, 0.2, 0.1);
+            check_swiss_cheese(tSwissCheese, -2.0, 0.0, 0.2, 0.1);
+            check_swiss_cheese(tSwissCheese, -2.0, -0.5, 0.2, 0.1);
+            check_swiss_cheese(tSwissCheese, -2.0, 1.0, 0.2, 0.1);
+            check_swiss_cheese(tSwissCheese, -1.0, -1.0, 0.2, 0.1, false);
+            check_swiss_cheese(tSwissCheese, -1.0, -0.5, 0.2, 0.1, false);
+            check_swiss_cheese(tSwissCheese, -1.0, 0.0, 0.2, 0.1, false);
+            check_swiss_cheese(tSwissCheese, -1.0, -0.5, 0.2, 0.1, false);
+            check_swiss_cheese(tSwissCheese, -1.0, 1.0, 0.2, 0.1, false);
+            check_swiss_cheese(tSwissCheese, 0.0, -1.0, 0.2, 0.1);
+            check_swiss_cheese(tSwissCheese, 0.0, -0.5, 0.2, 0.1);
+            check_swiss_cheese(tSwissCheese, 0.0, 0.0, 0.2, 0.1);
+            check_swiss_cheese(tSwissCheese, 0.0, -0.5, 0.2, 0.1);
+            check_swiss_cheese(tSwissCheese, 0.0, 1.0, 0.2, 0.1);
+            check_swiss_cheese(tSwissCheese, 1.0, -1.0, 0.2, 0.1, false);
+            check_swiss_cheese(tSwissCheese, 1.0, -0.5, 0.2, 0.1, false);
+            check_swiss_cheese(tSwissCheese, 1.0, 0.0, 0.2, 0.1, false);
+            check_swiss_cheese(tSwissCheese, 1.0, -0.5, 0.2, 0.1, false);
+            check_swiss_cheese(tSwissCheese, 1.0, 1.0, 0.2, 0.1, false);
+            check_swiss_cheese(tSwissCheese, 2.0, -1.0, 0.2, 0.1);
+            check_swiss_cheese(tSwissCheese, 2.0, -0.5, 0.2, 0.1);
+            check_swiss_cheese(tSwissCheese, 2.0, 0.0, 0.2, 0.1);
+            check_swiss_cheese(tSwissCheese, 2.0, -0.5, 0.2, 0.1);
+            check_swiss_cheese(tSwissCheese, 2.0, 1.0, 0.2, 0.1);
+            check_swiss_cheese(tSwissCheese, 3.0, -1.0, 0.2, 0.1, false);
+            check_swiss_cheese(tSwissCheese, 3.0, -0.5, 0.2, 0.1, false);
+            check_swiss_cheese(tSwissCheese, 3.0, 0.0, 0.2, 0.1, false);
+            check_swiss_cheese(tSwissCheese, 3.0, -0.5, 0.2, 0.1, false);
+            check_swiss_cheese(tSwissCheese, 3.0, 1.0, 0.2, 0.1, false);
+
+            // Create swiss cheese
+            tSwissCheeseParameterList.set("number_of_x_holes", 0);
+            tSwissCheeseParameterList.set("number_of_y_holes", 0);
+            tSwissCheeseParameterList.set("hole_x_semidiameter", 0.1);
+            tSwissCheeseParameterList.set("hole_y_semidiameter", 0.2);
+            tSwissCheeseParameterList.set("target_x_spacing", 2.1);
+            tSwissCheeseParameterList.set("target_y_spacing", 0.55);
+            tSwissCheeseParameterList.set("row_offset", 1.0);
+            tSwissCheese = create_geometry(tSwissCheeseParameterList, tADVs);
+            
+            // Check holes
+            check_swiss_cheese(tSwissCheese, -2.0, -1.0, 0.1, 0.2);
+            check_swiss_cheese(tSwissCheese, -2.0, -0.5, 0.1, 0.2, false);
+            check_swiss_cheese(tSwissCheese, -2.0, 0.0, 0.1, 0.2);
+            check_swiss_cheese(tSwissCheese, -2.0, -0.5, 0.1, 0.2, false);
+            check_swiss_cheese(tSwissCheese, -2.0, 1.0, 0.1, 0.2);
+            check_swiss_cheese(tSwissCheese, -1.0, -1.0, 0.1, 0.2, false);
+            check_swiss_cheese(tSwissCheese, -1.0, -0.5, 0.1, 0.2);
+            check_swiss_cheese(tSwissCheese, -1.0, 0.0, 0.1, 0.2, false);
+            check_swiss_cheese(tSwissCheese, -1.0, -0.5, 0.1, 0.2);
+            check_swiss_cheese(tSwissCheese, -1.0, 1.0, 0.1, 0.2, false);
+            check_swiss_cheese(tSwissCheese, 0.0, -1.0, 0.1, 0.2);
+            check_swiss_cheese(tSwissCheese, 0.0, -0.5, 0.1, 0.2, false);
+            check_swiss_cheese(tSwissCheese, 0.0, 0.0, 0.1, 0.2);
+            check_swiss_cheese(tSwissCheese, 0.0, -0.5, 0.1, 0.2, false);
+            check_swiss_cheese(tSwissCheese, 0.0, 1.0, 0.1, 0.2);
+            check_swiss_cheese(tSwissCheese, 1.0, -1.0, 0.1, 0.2, false);
+            check_swiss_cheese(tSwissCheese, 1.0, -0.5, 0.1, 0.2);
+            check_swiss_cheese(tSwissCheese, 1.0, 0.0, 0.1, 0.2, false);
+            check_swiss_cheese(tSwissCheese, 1.0, -0.5, 0.1, 0.2);
+            check_swiss_cheese(tSwissCheese, 1.0, 1.0, 0.1, 0.2, false);
+            check_swiss_cheese(tSwissCheese, 2.0, -1.0, 0.1, 0.2);
+            check_swiss_cheese(tSwissCheese, 2.0, -0.5, 0.1, 0.2, false);
+            check_swiss_cheese(tSwissCheese, 2.0, 0.0, 0.1, 0.2);
+            check_swiss_cheese(tSwissCheese, 2.0, -0.5, 0.1, 0.2, false);
+            check_swiss_cheese(tSwissCheese, 2.0, 1.0, 0.1, 0.2);
+            check_swiss_cheese(tSwissCheese, 3.0, -1.0, 0.1, 0.2, false);
+            check_swiss_cheese(tSwissCheese, 3.0, -0.5, 0.1, 0.2);
+            check_swiss_cheese(tSwissCheese, 3.0, 0.0, 0.1, 0.2, false);
+            check_swiss_cheese(tSwissCheese, 3.0, -0.5, 0.1, 0.2);
+            check_swiss_cheese(tSwissCheese, 3.0, 1.0, 0.1, 0.2, false);
+            
+            // Create swiss cheese
+            tSwissCheeseParameterList.set("hole_x_semidiameter", 0.45);
+            tSwissCheeseParameterList.set("hole_y_semidiameter", 0.45);
+            tSwissCheeseParameterList.set("target_y_spacing", 1.1);
+            tSwissCheeseParameterList.set("allow_less_than_target_spacing", false);
+            tSwissCheeseParameterList.set("row_offset", 0.0);
+            tSwissCheese = create_geometry(tSwissCheeseParameterList, tADVs);
+            
+            // Check holes
+            check_swiss_cheese(tSwissCheese, -2.0, -1.0, 0.45, 0.45);
+            check_swiss_cheese(tSwissCheese, -2.0, -0.5, 0.45, 0.45, false);
+            check_swiss_cheese(tSwissCheese, -2.0, 0.0, 0.45, 0.45, false);
+            check_swiss_cheese(tSwissCheese, -2.0, -0.5, 0.45, 0.45, false);
+            check_swiss_cheese(tSwissCheese, -2.0, 1.0, 0.45, 0.45);
+            check_swiss_cheese(tSwissCheese, -1.0, -1.0, 0.45, 0.45, false);
+            check_swiss_cheese(tSwissCheese, -1.0, -0.5, 0.45, 0.45, false);
+            check_swiss_cheese(tSwissCheese, -1.0, 0.0, 0.45, 0.45, false);
+            check_swiss_cheese(tSwissCheese, -1.0, -0.5, 0.45, 0.45, false);
+            check_swiss_cheese(tSwissCheese, -1.0, 1.0, 0.45, 0.45, false);
+            check_swiss_cheese(tSwissCheese, 0.0, -1.0, 0.45, 0.45, false);
+            check_swiss_cheese(tSwissCheese, 0.0, -0.5, 0.45, 0.45, false);
+            check_swiss_cheese(tSwissCheese, 0.0, 0.0, 0.45, 0.45, false);
+            check_swiss_cheese(tSwissCheese, 0.0, -0.5, 0.45, 0.45, false);
+            check_swiss_cheese(tSwissCheese, 0.0, 1.0, 0.45, 0.45, false);
+            check_swiss_cheese(tSwissCheese, 1.0, -1.0, 0.45, 0.45, false);
+            check_swiss_cheese(tSwissCheese, 1.0, -0.5, 0.45, 0.45, false);
+            check_swiss_cheese(tSwissCheese, 1.0, 0.0, 0.45, 0.45, false);
+            check_swiss_cheese(tSwissCheese, 1.0, -0.5, 0.45, 0.45, false);
+            check_swiss_cheese(tSwissCheese, 1.0, 1.0, 0.45, 0.45, false);
+            check_swiss_cheese(tSwissCheese, 2.0, -1.0, 0.45, 0.45);
+            check_swiss_cheese(tSwissCheese, 2.0, -0.5, 0.45, 0.45, false);
+            check_swiss_cheese(tSwissCheese, 2.0, 0.0, 0.45, 0.45, false);
+            check_swiss_cheese(tSwissCheese, 2.0, -0.5, 0.45, 0.45, false);
+            check_swiss_cheese(tSwissCheese, 2.0, 1.0, 0.45, 0.45);
+            check_swiss_cheese(tSwissCheese, 3.0, -1.0, 0.45, 0.45, false);
+            check_swiss_cheese(tSwissCheese, 3.0, -0.5, 0.45, 0.45, false);
+            check_swiss_cheese(tSwissCheese, 3.0, 0.0, 0.45, 0.45, false);
+            check_swiss_cheese(tSwissCheese, 3.0, -0.5, 0.45, 0.45, false);
+            check_swiss_cheese(tSwissCheese, 3.0, 1.0, 0.45, 0.45, false);
+        }
+
+        //------------------------------------------------------------------------------------------------------------------
+
+        void check_swiss_cheese(std::shared_ptr<Geometry> aSwissCheese,
+                                real aXCenter,
+                                real aYCenter,
+                                real aXSemidiameter,
+                                real aYSemidiameter,
+                                bool aCheck)
+        {
+            CHECK((aSwissCheese->evaluate_field_value(0, {{aXCenter + aXSemidiameter, aYCenter}}) == Approx(0.0)) == aCheck);
+            CHECK((aSwissCheese->evaluate_field_value(0, {{aXCenter, aYCenter + aYSemidiameter}}) == Approx(0.0)) == aCheck);
+            CHECK((aSwissCheese->evaluate_field_value(0, {{aXCenter - aXSemidiameter, aYCenter}}) == Approx(0.0)) == aCheck);
+            CHECK((aSwissCheese->evaluate_field_value(0, {{aXCenter, aYCenter - aYSemidiameter}}) == Approx(0.0)) == aCheck);
         }
     }
 
