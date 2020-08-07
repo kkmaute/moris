@@ -77,12 +77,12 @@ namespace moris
             mPerformerManager->mMDLPerformer( 0 )->set_design_variable_interface(
                     mPerformerManager->mGENPerformer( 0 )->get_design_variable_interface() );
 
+            mPerformerManager->mGENPerformer( 0 )->communicate_requested_IQIs();
+
             // Build MDL components and solve
             mPerformerManager->mMDLPerformer( 0 )->perform();
 
-            mPerformerManager->mGENPerformer( 0 )->communicate_requested_IQIs();
-
-            moris::Cell< moris::Matrix< DDRMat > > tVal = mPerformerManager->mMDLPerformer( 0 )->perform_post_processing();
+            moris::Cell< moris::Matrix< DDRMat > > tVal = mPerformerManager->mMDLPerformer( 0 )->get_IQI_values();
 
             moris::Matrix< DDRMat > tMat( tVal.size(), 1, 0.0 );
 
