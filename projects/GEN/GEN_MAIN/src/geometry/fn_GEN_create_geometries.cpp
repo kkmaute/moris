@@ -8,6 +8,7 @@
 #include "cl_GEN_Plane.hpp"
 #include "cl_GEN_User_Defined_Geometry.hpp"
 #include "cl_GEN_Level_Set.hpp"
+#include "cl_GEN_Multigeometry.hpp"
 
 namespace moris
 {
@@ -22,13 +23,47 @@ namespace moris
                 std::shared_ptr<Library_IO> aLibrary)
         {
             // Create geometry cell
-            Cell<std::shared_ptr<Geometry>> tGeometries(aGeometryParameterLists.size());
+            Cell<std::shared_ptr<Geometry>> tGeometries(0);
+            Cell<std::shared_ptr<Multigeometry>> tMultigeometries(0);
 
             // Create individual geometries
             for (uint tGeometryIndex = 0; tGeometryIndex < aGeometryParameterLists.size(); tGeometryIndex++)
             {
-                // Use parameter list to create geometry
-                tGeometries(tGeometryIndex) = create_geometry(aGeometryParameterLists(tGeometryIndex), aADVs, aLibrary);
+                // Create geometry
+                std::shared_ptr<Geometry> tGeometry = create_geometry(aGeometryParameterLists(tGeometryIndex), aADVs, aLibrary);
+
+                // Determine if to add to multigeometry
+                std::string tMultigeometryID = aGeometryParameterLists(tGeometryIndex).get<std::string>("multigeometry_id");
+                if (tMultigeometryID != "")
+                {
+                    // Loop to see if this multigeometry ID exists already
+                    bool tMultigeometryFound = false;
+                    for (uint tMultigeometryIndex = 0; tMultigeometryIndex < tMultigeometries.size(); tMultigeometryIndex++)
+                    {
+                        if (tMultigeometries(tMultigeometryIndex)->get_id() == tMultigeometryID)
+                        {
+                            tMultigeometryFound = true;
+                            tMultigeometries(tMultigeometryIndex)->add_geometry(tGeometry);
+                            break;
+                        }
+                    }
+
+                    // Create new multigeometry with this ID
+                    if (not tMultigeometryFound)
+                    {
+                        tMultigeometries.push_back(std::make_shared<Multigeometry>(Cell<std::shared_ptr<Geometry>>(1, tGeometry), tMultigeometryID));
+                    }
+                }
+                else
+                {
+                    tGeometries.push_back(tGeometry);
+                }
+            }
+
+            // Add multigeometries at the end
+            for (uint tMultigeometryIndex = 0; tMultigeometryIndex < tMultigeometries.size(); tMultigeometryIndex++)
+            {
+                tGeometries.push_back(tMultigeometries(tMultigeometryIndex));
             }
 
             return tGeometries;
@@ -59,8 +94,8 @@ namespace moris
 
             // Get level set info
             sint tBSplineMeshIndex = aGeometryParameterList.get<sint>("bspline_mesh_index");
-            real tLevelSetLowerBound = aGeometryParameterList.get<real>("level_set_lower_bound");
-            real tLevelSetUpperBound = aGeometryParameterList.get<real>("level_set_upper_bound");
+            real tBSplineLowerBound = aGeometryParameterList.get<real>("bspline_lower_bound");
+            real tBSplineUpperBound = aGeometryParameterList.get<real>("bspline_upper_bound");
 
             // Build Geometry
             if (tGeometryType == "circle")
@@ -73,8 +108,8 @@ namespace moris
                         tNumRefinements,
                         tRefinementFunctionIndex,
                         tBSplineMeshIndex,
-                        tLevelSetLowerBound,
-                        tLevelSetUpperBound);
+                        tBSplineLowerBound,
+                        tBSplineUpperBound);
             }
             else if (tGeometryType == "superellipse")
             {
@@ -86,8 +121,8 @@ namespace moris
                         tNumRefinements,
                         tRefinementFunctionIndex,
                         tBSplineMeshIndex,
-                        tLevelSetLowerBound,
-                        tLevelSetUpperBound);
+                        tBSplineLowerBound,
+                        tBSplineUpperBound);
             }
             else if (tGeometryType == "sphere")
             {
@@ -99,8 +134,8 @@ namespace moris
                         tNumRefinements,
                         tRefinementFunctionIndex,
                         tBSplineMeshIndex,
-                        tLevelSetLowerBound,
-                        tLevelSetUpperBound);
+                        tBSplineLowerBound,
+                        tBSplineUpperBound);
             }
             else if (tGeometryType == "superellipsoid")
             {
@@ -112,8 +147,8 @@ namespace moris
                         tNumRefinements,
                         tRefinementFunctionIndex,
                         tBSplineMeshIndex,
-                        tLevelSetLowerBound,
-                        tLevelSetUpperBound);
+                        tBSplineLowerBound,
+                        tBSplineUpperBound);
             }
             else if (tGeometryType == "plane")
             {
@@ -125,8 +160,8 @@ namespace moris
                         tNumRefinements,
                         tRefinementFunctionIndex,
                         tBSplineMeshIndex,
-                        tLevelSetLowerBound,
-                        tLevelSetUpperBound);
+                        tBSplineLowerBound,
+                        tBSplineUpperBound);
             }
             else if (tGeometryType == "user_defined")
             {
@@ -149,8 +184,8 @@ namespace moris
                         tNumRefinements,
                         tRefinementFunctionIndex,
                         tBSplineMeshIndex,
-                        tLevelSetLowerBound,
-                        tLevelSetUpperBound);
+                        tBSplineLowerBound,
+                        tBSplineUpperBound);
             }
             else
             {

@@ -134,16 +134,16 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        void Field::evaluate_sensitivity(      uint            aIndex,
+        void Field::evaluate_sensitivity(uint                  aNodeIndex,
                                          const Matrix<DDRMat>& aCoordinates,
-                                               Matrix<DDRMat>& aSensitivities)
+                                         Matrix<DDRMat>&       aSensitivities)
         {
             // Resize sensitivities
             aSensitivities.set_size(1, mNumADVs, 0.0);
 
             // Evaluate all sensitivities
             Matrix<DDRMat> tTempSensitivities;
-            this->evaluate_all_sensitivities(aIndex, aCoordinates, tTempSensitivities);
+            this->evaluate_all_sensitivities(aNodeIndex, aCoordinates, tTempSensitivities);
 
             // Return only what is needed
             for (uint tSensitivityIndex = 0; tSensitivityIndex < mActiveVariables.size(); tSensitivityIndex++)

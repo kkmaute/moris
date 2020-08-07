@@ -383,6 +383,76 @@ namespace moris
             tGeometry->evaluate_sensitivity(0, tCoordinates2, tSensitivities);
             check_approx(tSensitivities, {{2.0, -12.0}});
         }
+
+        //--------------------------------------------------------------------------------------------------------------
+
+        TEST_CASE("Multigeometry Test", "[GEN], [GEN_MULTIGEOMETRY]")
+        {
+            // Set up geometry
+            Cell<ParameterList> tCircleParameterLists(2);
+            tCircleParameterLists(0) = prm::create_geometry_parameter_list();
+            tCircleParameterLists(0).set("type", "circle");
+            tCircleParameterLists(0).set("geometry_variable_indices", "all");
+            tCircleParameterLists(0).set("adv_indices", "0, 1, 3");
+            tCircleParameterLists(0).set("multigeometry_id", "circles");
+
+            tCircleParameterLists(1) = prm::create_geometry_parameter_list();
+            tCircleParameterLists(1).set("type", "circle");
+            tCircleParameterLists(1).set("geometry_variable_indices", "all");
+            tCircleParameterLists(1).set("adv_indices", "0, 2, 4");
+            tCircleParameterLists(1).set("multigeometry_id", "circles");
+
+            // Create multigeometry
+            Matrix<DDRMat> tADVs = {{0.0, 1.0, 2.0, 1.0, 2.0}};
+            Cell<std::shared_ptr<Geometry>> tGeometries = create_geometries(tCircleParameterLists, tADVs);
+
+            // Should be only one total geometry
+            REQUIRE(tGeometries.size() == 1);
+            std::shared_ptr<Geometry> tMultigeometry = tGeometries(0);
+
+            // Set coordinates for checking
+            Matrix<DDRMat> tCoordinates0 = {{0.0, 0.0}};
+            Matrix<DDRMat> tCoordinates1 = {{1.0, 1.0}};
+            Matrix<DDRMat> tCoordinates2 = {{2.0, 2.0}};
+
+            // Check field values
+            CHECK(tMultigeometry->evaluate_field_value(0, tCoordinates0) == Approx(0.0));
+            CHECK(tMultigeometry->evaluate_field_value(0, tCoordinates1) == Approx(sqrt(2.0) - 2.0));
+            CHECK(tMultigeometry->evaluate_field_value(0, tCoordinates2) == Approx(0.0));
+
+            // Check sensitivity values
+            Matrix<DDRMat> tSensitivities;
+            tMultigeometry->evaluate_sensitivity(0, tCoordinates0, tSensitivities);
+            check_approx(tSensitivities, {{0.0, 1.0, 0.0, -1.0, 0.0}});
+            tMultigeometry->evaluate_sensitivity(0, tCoordinates1, tSensitivities);
+            check_approx(tSensitivities, {{-sqrt(2.0) / 2.0, 0.0, sqrt(2.0) / 2.0, 0.0, -1.0}});
+            tMultigeometry->evaluate_sensitivity(0, tCoordinates2, tSensitivities);
+            check_approx(tSensitivities, {{-1.0, 0.0, 0.0, 0.0, -1.0}});
+
+            // Change ADVs and coordinates
+            tADVs(0) = 1.0;
+            tADVs(3) = 2.0;
+            tADVs(4) = 3.0;
+            tCoordinates0(0) = 1.0;
+            tCoordinates0(1) = -1.0;
+            tCoordinates1(0) = 3.0;
+            tCoordinates1(1) = 1.0;
+            tCoordinates2(0) = 4.0;
+            tCoordinates2(1) = 2.0;
+
+            // Check field values
+            CHECK(tMultigeometry->evaluate_field_value(0, tCoordinates0) == Approx(0.0));
+            CHECK(tMultigeometry->evaluate_field_value(0, tCoordinates1) == Approx(sqrt(5.0) - 3.0));
+            CHECK(tMultigeometry->evaluate_field_value(0, tCoordinates2) == Approx(0.0));
+
+            // Check sensitivity values
+            tMultigeometry->evaluate_sensitivity(0, tCoordinates0, tSensitivities);
+            check_approx(tSensitivities, {{0.0, 1.0, 0.0, -1.0, 0.0}});
+            tMultigeometry->evaluate_sensitivity(0, tCoordinates1, tSensitivities);
+            check_approx(tSensitivities, {{-2.0 / sqrt(5.0), 0.0, 1.0 / sqrt(5.0), 0.0, -1.0}});
+            tMultigeometry->evaluate_sensitivity(0, tCoordinates2, tSensitivities);
+            check_approx(tSensitivities, {{-1.0, 0.0, 0.0, 0.0, -1.0}});
+        }
     }
 
     //------------------------------------------------------------------------------------------------------------------

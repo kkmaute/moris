@@ -105,11 +105,11 @@ namespace moris
             /**
              * Given a node index or coordinate, returns the field value
              *
-             * @param aIndex Node index
+             * @param aINodendex Node index
              * @param aCoordinates Vector of coordinate values
              * @return Field value
              */
-            virtual real evaluate_field_value(      uint            aIndex,
+            virtual real evaluate_field_value(uint                  aNodeIndex,
                                               const Matrix<DDRMat>& aCoordinates) = 0;
 
             /**
@@ -119,9 +119,9 @@ namespace moris
              * @param aCoordinates Vector of coordinate values
              * @param aSensitivity Matrix of sensitivities
              */
-            void evaluate_sensitivity(      uint            aIndex,
-                                      const Matrix<DDRMat>& aCoordinates,
-                                            Matrix<DDRMat>& aSensitivities);
+            virtual void evaluate_sensitivity(uint                  aIndex,
+                                              const Matrix<DDRMat>& aCoordinates,
+                                              Matrix<DDRMat>&       aSensitivities);
 
             /**
              * Add a new child node for evaluation, implemented for discrete fields
@@ -186,12 +186,13 @@ namespace moris
             /**
              * Given a node coordinate @param aCoordinates, the function returns a matrix of all sensitivities
              *
+             * @param aNodeIndex Node index
              * @param aCoordinates Vector of coordinate values
              * @param aSensitivity Matrix of sensitivities
              */
-            virtual void evaluate_all_sensitivities(      uint            aIndex,
+            virtual void evaluate_all_sensitivities(uint                  aNodeIndex,
                                                     const Matrix<DDRMat>& aCoordinates,
-                                                          Matrix<DDRMat>& aSensitivities) = 0;
+                                                    Matrix<DDRMat>&       aSensitivities) = 0;
 
         };
     }
