@@ -414,14 +414,16 @@ namespace moris
         {
             mEquationModel->set_is_forward_analysis();
 
+            mEquationModel->initialize_IQIs();
+
             mSolverWarehouse->get_main_time_solver()->solve();
         }
 
 //------------------------------------------------------------------------------
 
-        moris::Cell< moris::Matrix< DDRMat > > Model::perform_post_processing()
+        moris::Cell< moris::Matrix< DDRMat > > Model::get_IQI_values()
         {
-            return mEquationModel->compute_IQIs();
+            return mEquationModel->get_IQI_values();
         }
 
 //------------------------------------------------------------------------------
@@ -429,11 +431,9 @@ namespace moris
         {
             mEquationModel->set_is_sensitivity_analysis();
 
+            mEquationModel->initialize_explicit_and_implicit_dQIdp();
+
             mSolverWarehouse->get_main_time_solver()->solve_sensitivity();
-
-            mEquationModel->compute_implicit_dQIdp();
-
-            mEquationModel->compute_explicit_dQIdp();
         }
 
 //------------------------------------------------------------------------------

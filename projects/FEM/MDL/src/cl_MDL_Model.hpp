@@ -175,7 +175,7 @@ class Library_IO;
 
 //------------------------------------------------------------------------------
 
-            moris::Cell< moris::Matrix< DDRMat > > perform_post_processing();
+           moris::Cell< moris::Matrix< DDRMat > > get_IQI_values();
 
 //------------------------------------------------------------------------------
 
