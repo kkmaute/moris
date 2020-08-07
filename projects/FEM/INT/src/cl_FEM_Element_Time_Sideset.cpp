@@ -179,8 +179,15 @@ namespace moris
                     // reset IWG
                     mSet->get_requested_IWGs()( iIWG )->reset_eval_flags();
 
-                    // compute jacobian at evaluation point
-                    mSet->get_requested_IWGs()( iIWG )->compute_jacobian( tWStar );
+                    if( mSet->mEquationModel->get_is_adjoint_off_diagonal_time_contribution() )
+                    {
+                        mSet->get_requested_IWGs()( iIWG )->compute_jacobian_previous( tWStar );
+                    }
+                    else
+                    {
+                        // compute jacobian at evaluation point
+                        mSet->get_requested_IWGs()( iIWG )->compute_jacobian( tWStar );
+                    }
                 }
             }
         }

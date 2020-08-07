@@ -208,8 +208,8 @@ namespace moris
             uint tNumDofDependencies = mRequestedMasterGlobalDofTypes.size();
 
             // FIXME if not first time step
-            if( mMasterFIManager->get_IP_geometry_interpolator()->valt()( 0 ) > 0.0 )
-            {
+            //if( mMasterFIManager->get_IP_geometry_interpolator()->valt()( 0 ) > 0.0 )
+            //{
                 // loop over master dof type dependencies
                 for( uint iDOF = 0; iDOF < tNumDofDependencies; iDOF++ )
                 {
@@ -241,7 +241,7 @@ namespace moris
                                 { tMasterDepStartIndex, tMasterDepStopIndex } ) -= aWStar * (
                                         trans( tFICurrent->N() ) * tFIPrevious->val() * tPropWeightPrevious->dPropdDOF( tDofType ) );
                     }
-                }
+                //}
             }
         }
 
