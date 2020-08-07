@@ -1880,6 +1880,7 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+
         void Set::initialize_mResidual()
         {
             // if residual not initialized before
@@ -1996,8 +1997,8 @@ namespace moris
                 // set size for dQIdp
                 mdQIdp.resize( 2 );
 
-                // get the number of requested IQIs
-                uint tNumRequestedIQIs = this->get_number_of_requested_IQIs();
+                // get the number of requested IQIs on the model
+                uint tNumRequestedIQIs = this->get_equation_model()->get_requested_IQI_names().size();
 
                 // set size for dQIdp
                 mdQIdp( 0 ).resize( tNumRequestedIQIs );
@@ -2006,6 +2007,7 @@ namespace moris
                 moris::Cell< moris::Cell < enum PDV_Type > > tRequestedDvTypes;
                 this->get_ip_dv_types_for_set( tRequestedDvTypes );
 
+                // get the number of requested pdv types
                 uint tNumRequestedPdvTypes = tRequestedDvTypes.size();
 
                 // init pdv coefficient counter
@@ -2068,7 +2070,7 @@ namespace moris
         void Set::initialize_mdQIdpGeo( std::shared_ptr< fem::Cluster > aFemCluster )
         {
             // get the number of requested IQIs
-            uint tNumRequestedIQIs = this->get_number_of_requested_IQIs();
+            uint tNumRequestedIQIs = this->get_equation_model()->get_requested_IQI_names().size();
 
             // set size for dQIdp
             mdQIdp( 1 ).resize( tNumRequestedIQIs );
@@ -2297,7 +2299,6 @@ namespace moris
                     }
                 }
             }
-
             // set size for dRdpgeo
             mdRdp( 1 ).set_size( tNumRows, tActiveGeoPdvCounter, 0.0 );
         }
@@ -2672,6 +2673,7 @@ namespace moris
             MSI::Design_Variable_Interface * tPdvInterface =
                     mEquationModel->get_design_variable_interface();
 
+            // if the pdv interface is set
             if( tPdvInterface )
             {
                 // get ig unique pdv types for set

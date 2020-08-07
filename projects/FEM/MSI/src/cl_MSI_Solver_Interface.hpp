@@ -93,6 +93,10 @@ namespace moris
                     mModel = aModel;
                 }
 
+                void postmultiply_implicit_dQds();
+
+                void compute_IQI();
+
                 //------------------------------------------------------------------------------
 
                 void get_exact_solution_from_hdf5_and_calculate_error( const char* aFilename );

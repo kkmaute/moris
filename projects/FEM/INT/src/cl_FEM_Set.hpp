@@ -133,8 +133,10 @@ namespace moris
                 friend class Cluster;
                 friend class Element_Bulk;
                 friend class Element_Sideset;
+                friend class Element_Time_Sideset;
                 friend class Element_Double_Sideset;
                 friend class Element_Time_Continuity;
+                friend class Element_Time_Boundary;
                 friend class Element;
                 friend class Field_Interpolator_Manager;
                 friend class Interpolation_Element;
@@ -323,14 +325,14 @@ namespace moris
 
                 //------------------------------------------------------------------------------
                 /**
-                 * create requested IQI list
+                 * create local requested IQIs for sensitivity analysis
                  */
                 void create_requested_IQI_list();
 
                 //------------------------------------------------------------------------------
                 /**
-                 * get requested IQIs
-                 * param[ out ] mRequestedIQIs cell of IQIs pointers
+                 * get local requested IQIs for sensitivity analysis
+                 * @param[ out ] mRequestedIQIs cell of IQIs pointers
                  */
                 moris::Cell< std::shared_ptr< IQI > > & get_requested_IQIs()
                 {
@@ -339,7 +341,8 @@ namespace moris
 
                 //------------------------------------------------------------------------------
                 /**
-                 * get number of requested IQIs
+                 * get number of local requested IQIs for sensitivity analysis
+                 * @param[ out ] uint number of local requested IQIs for SA
                  */
                 uint get_number_of_requested_IQIs()
                 {

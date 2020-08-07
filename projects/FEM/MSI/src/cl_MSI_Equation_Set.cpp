@@ -354,6 +354,19 @@ namespace moris
                 mResidualExist = false;
             }
 
+            if ( mQIExist )
+            {
+//                // resize each matrix to 0x0
+//                for( auto & tQI : mQI )
+//                {
+//                    tQI.resize( 0, 0 );
+//                }
+//                mQI.clear();
+
+                // reset the exist flag
+                mQIExist = false;
+            }
+
             // free additional memory
             this->free_memory();
         }
@@ -372,19 +385,26 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+
         void Equation_Set::create_requested_IQI_type_map()
         {
-            const moris::Cell< std::string > & tIQINames = mEquationModel->get_requested_IQI_names();
+            // get requested IQI names from the model
+            const moris::Cell< std::string > & tIQINames =
+                    mEquationModel->get_requested_IQI_names();
 
+            // clear the requested IQI assembly map
             mRequestedIQINamesAssemblyMap.clear();
 
+            // loop over the requested IQI names
             for( uint Ik = 0; Ik < tIQINames.size(); Ik++ )
             {
+                // fill the IQI assmebly map
                 mRequestedIQINamesAssemblyMap[ tIQINames( Ik ) ] = Ik;
             }
         }
 
         //------------------------------------------------------------------------------
+
         moris::Cell < enum PDV_Type > Equation_Set::get_requested_dv_types()
         {
             moris::Cell< enum PDV_Type > tDvTypes;
@@ -393,7 +413,7 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
-        // FIXME this migh be too slow.
+        // FIXME this might be too slow.
         moris_index Equation_Set::get_QI_assembly_index( const std::string & aIQIName )
         {
             return mRequestedIQINamesAssemblyMap.find( aIQIName );

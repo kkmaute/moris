@@ -17,6 +17,7 @@ namespace vis
     {
         UNDEFINED, //< Undefined
         STRAIN_ENERGY,
+		STRESS,
         VOLUME,
         SIGY,   //< Y-stress
         VOLUME_FRACTION,
@@ -59,6 +60,7 @@ namespace vis
 
         tVisOutputTypeMap["UNDEFINED"]         = vis::Output_Type::UNDEFINED;
         tVisOutputTypeMap["STRAIN_ENERGY"]     = vis::Output_Type::STRAIN_ENERGY;
+		tVisOutputTypeMap["STRESS"]     = vis::Output_Type::STRESS;
         tVisOutputTypeMap["VOLUME"]            = vis::Output_Type::VOLUME;
         tVisOutputTypeMap["VOLUME_FRACTION"]   = vis::Output_Type::VOLUME_FRACTION;
         tVisOutputTypeMap["UX"]                = vis::Output_Type::UX;
@@ -78,6 +80,7 @@ namespace vis
         tVisOutputTypeMap["P"]                 = vis::Output_Type::P;
         tVisOutputTypeMap["DOF"]               = vis::Output_Type::DOF;
         tVisOutputTypeMap["MAX_DOF"]               = vis::Output_Type::MAX_DOF;
+		tVisOutputTypeMap["MAX_STRESS"]               = vis::Output_Type::MAX_STRESS;
         tVisOutputTypeMap["L2_ERROR_ANALYTIC"] = vis::Output_Type::L2_ERROR_ANALYTIC;
         tVisOutputTypeMap["H1_ERROR_ANALYTIC"] = vis::Output_Type::H1_ERROR_ANALYTIC;
         tVisOutputTypeMap["H1_SEMI_ERROR"]     = vis::Output_Type::H1_SEMI_ERROR;

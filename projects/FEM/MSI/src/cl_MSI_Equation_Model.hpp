@@ -54,6 +54,8 @@ namespace moris
 
                 sol::Dist_Map * mdQiduMap = nullptr;
 
+                moris::Cell< moris::Matrix< DDRMat > > mGloablIQIVal;
+
                 sol::Dist_Vector * mImplicitdQidp = nullptr;
                 sol::Dist_Vector * mExplicitdQidp = nullptr;
                 sol::Dist_Vector * mQidu = nullptr;
@@ -366,6 +368,8 @@ namespace moris
                 };
 
                 //------------------------------------------------------------------------------
+
+                void initialize_explicit_and_implicit_dQIdp();
                 /**
                  * compute implicit dQidp
                  */
@@ -378,10 +382,17 @@ namespace moris
                 void compute_explicit_dQIdp();
 
                 //------------------------------------------------------------------------------
+
+                void initialize_IQIs();
                 /**
                  * compute explicit dQidp
                  */
-                moris::Cell< moris::Matrix< DDRMat > > compute_IQIs();
+                void compute_IQIs();
+
+                moris::Cell< moris::Matrix< DDRMat > > get_IQI_values()
+                {
+                    return mGloablIQIVal;
+                };
 
                 //------------------------------------------------------------------------------
         };
