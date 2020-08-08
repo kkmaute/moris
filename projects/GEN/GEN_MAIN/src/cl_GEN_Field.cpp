@@ -120,22 +120,30 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
+        Field::Field()
+        {
+            MORIS_ERROR(false, "The default constructor of a GEN Field should never be used. It only exists because "
+                               "the compiler on Blanca is stupid.");
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
         Field::~Field()
         {
         }
 
         //--------------------------------------------------------------------------------------------------------------
 
-        void Field::evaluate_sensitivity(      uint            aIndex,
+        void Field::evaluate_sensitivity(uint                  aNodeIndex,
                                          const Matrix<DDRMat>& aCoordinates,
-                                               Matrix<DDRMat>& aSensitivities)
+                                         Matrix<DDRMat>&       aSensitivities)
         {
             // Resize sensitivities
             aSensitivities.set_size(1, mNumADVs, 0.0);
 
             // Evaluate all sensitivities
             Matrix<DDRMat> tTempSensitivities;
-            this->evaluate_all_sensitivities(aIndex, aCoordinates, tTempSensitivities);
+            this->evaluate_all_sensitivities(aNodeIndex, aCoordinates, tTempSensitivities);
 
             // Return only what is needed
             for (uint tSensitivityIndex = 0; tSensitivityIndex < mActiveVariables.size(); tSensitivityIndex++)

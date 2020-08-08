@@ -68,7 +68,7 @@ TEST_CASE("2 Nonintersecting geometries","[2_Phase],[NO_OVER]")
     //
     //    // Create Mesh ---------------------------------
     //    std::string tMeshFileName = "generated:10x10x10";
-    //    moris::mtk::Mesh* tMeshData = moris::mtk::create_mesh( MeshType::STK, tMeshFileName );
+    //    moris::mtk::Mesh* tMeshData = moris::mtk::create_interpolation_mesh( MeshType::STK, tMeshFileName );
     //
     //    // Setup XTK Model -----------------------------
     //    size_t tModelDimension = 3;

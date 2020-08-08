@@ -62,7 +62,8 @@ namespace moris
             mPerformerManager->create_xtk();
 
             // Register Mesh to Ge
-            mPerformerManager->mGENPerformer( 0 )->compute_level_set_data(mPerformerManager->mMTKPerformer( 0 )->get_interpolation_mesh(0));
+            mPerformerManager->mGENPerformer( 0 )->compute_level_set_data(
+                    mPerformerManager->mMTKPerformer( 0 )->get_interpolation_mesh( 0 ));
 
             // XTK perform - decompose - enrich - ghost - multigrid
             mPerformerManager->mXTKPerformer( 0 )->perform();

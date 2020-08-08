@@ -30,7 +30,7 @@ moris::Logger       gLogger;
  * 3.) The mesh (via MTK)
  */
 #include "cl_MTK_Mesh.hpp"
-#include "cl_Mesh_Factory.hpp"
+#include "cl_MTK_Mesh_Factory.hpp"
 
 
 /*
@@ -95,7 +95,7 @@ main( int    argc,
      * Load the mesh into the MTK library which provides an API to mesh functions. Allowing, for
      * many libraries to become the background mesh for XTK.
      * \code{.cpp}
-     *  moris::mtk::Mesh* tMeshData = moris::mtk::create_mesh( MeshType::STK, tMeshFileName );
+     *  moris::mtk::Mesh* tMeshData = moris::mtk::create_interpolation_mesh( MeshType::STK, tMeshFileName );
      * \endcode
      *
      * In this example a mesh file called sandwich.e which has multiple block sets, side sets and node sets is used.

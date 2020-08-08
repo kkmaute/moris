@@ -87,19 +87,19 @@ namespace moris
                   real aBSplineUpperBound = 1.0);
 
             /**
-             * Given a node coordinate, the geometry needs to return the distance to the nearest function.
+             * Given a node coordinate, returns the field value.
              *
-             * @param aCoordinates vector of coordinate values
-             * @return distance to nearest function
+             * @param aCoordinates Coordinate values
+             * @return Distance to this geometry
              */
             real evaluate_field_value(const Matrix<DDRMat>& aCoordinates);
 
             /**
-             * Given a node coordinate @param aCoordinates, the function returns a matrix of sensitivities of the
-             * geometry location with respect to the ADVs
+             * Given a node coordinate, evaluates the sensitivity of the geometry field with respect to all of the
+             * geometry variables.
              *
-             * @param aCoordinates Vector of coordinate values
-             * @param aSensitivities Matrix of sensitivities
+             * @param aCoordinates Coordinate values
+             * @param aSensitivities Vector of sensitivities
              */
             void evaluate_all_sensitivities(const Matrix<DDRMat>& aCoordinates, Matrix<DDRMat>& aSensitivities);
 

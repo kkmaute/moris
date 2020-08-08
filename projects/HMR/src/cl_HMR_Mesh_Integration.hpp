@@ -43,11 +43,10 @@ namespace moris
             public:
 
                 Integration_Mesh_HMR(
-                        std::shared_ptr< Database >   aDatabase,
                         const uint                  & aLagrangeOrder,
                         const uint                  & aLagrangePattern,
                         Interpolation_Mesh_HMR      * aInterpolationMesh )
-            : Mesh( aDatabase,
+            : Mesh( aInterpolationMesh->get_database(),
                     aLagrangeOrder,
                     aLagrangePattern )
             {
@@ -58,10 +57,10 @@ namespace moris
                     //        }
             }
 
-                Integration_Mesh_HMR(std::shared_ptr< Database >   aDatabase,
+                Integration_Mesh_HMR(
                         const uint                               & aLagrangeMeshIndex,
                         Interpolation_Mesh_HMR                   * aInterpolationMesh  )
-                : Mesh( aDatabase,
+                : Mesh( aInterpolationMesh->get_database(),
                         aLagrangeMeshIndex )
                 {
                     this->setup_cell_clusters( aInterpolationMesh );

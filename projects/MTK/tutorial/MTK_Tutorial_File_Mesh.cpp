@@ -18,7 +18,7 @@ moris::Logger       gLogger;
  */
 #include "cl_MTK_Mesh.hpp" // MTK/src
 #include "cl_MTK_Mesh_Data_Input.hpp"
-#include "cl_Mesh_Factory.hpp"
+#include "cl_MTK_Mesh_Factory.hpp"
 
 
 // Set namespaces to use
@@ -81,7 +81,7 @@ main( int    argc,
      * Load the file and the mesh fields to declare into the MTK data structure
      * using the mesh factory
      */
-    moris::mtk::Mesh* tBackgroundMesh = moris::mtk::create_mesh( MeshType::STK, tMeshFileName, NULL );
+    moris::mtk::Mesh* tBackgroundMesh = moris::mtk::create_interpolation_mesh( MeshType::STK, tMeshFileName, NULL );
 
 
 

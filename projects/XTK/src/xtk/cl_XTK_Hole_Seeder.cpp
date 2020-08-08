@@ -7,7 +7,7 @@
 
 #include "cl_XTK_Hole_Seeder.hpp"
 #include "cl_Mesh_Enums.hpp"
-#include "cl_GEN_Sphere_Box.hpp"
+#include "cl_GEN_Superellipsoid.hpp"
 #include "cl_Cell.hpp"
 #include "cl_Communication_Tools.hpp"
 
@@ -147,7 +147,7 @@ Hole_Seeder::seed_field()
     mSpheres.resize(tNumSpheres);
     for(moris::uint i = 0; i <tNumSpheres; i++)
     {
-        mSpheres(i) = std::make_shared<moris::ge::Sphere_Box>(mRadiusX,mRadiusY,mRadiusZ,tCenters(i)(0),tCenters(i)(1),tCenters(i)(2),mNexp);
+        mSpheres(i) = std::make_shared<moris::ge::Superellipsoid>(tCenters(i)(0),tCenters(i)(1),tCenters(i)(2),mRadiusX,mRadiusY,mRadiusZ,mNexp);
     }
 
     // iterate through node to compute a level set value at each node
@@ -160,7 +160,7 @@ Hole_Seeder::seed_field()
         // iterate through all spheres
         for(moris::uint iSphere =0; iSphere<tNumSpheres; iSphere++)
         {
-            tSphereLSV(i)(iSphere) = mSpheres(iSphere)->evaluate_field_value_with_coordinate(i,tCoords);
+            tSphereLSV(i)(iSphere) = mSpheres(iSphere)->evaluate_field_value(tCoords.get_row(i));
         }
 
         mSeededField(i) = tSphereLSV(i).min();
@@ -189,7 +189,7 @@ Hole_Seeder::get_seeded_field()
     return mSeededField;
 }
 
-moris::Cell<std::shared_ptr<moris::ge::Sphere_Box>> &
+moris::Cell<std::shared_ptr<moris::ge::Superellipsoid>> &
 Hole_Seeder::get_seeded_geometies()
 {
     return mSpheres;

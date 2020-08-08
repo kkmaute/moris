@@ -10,8 +10,8 @@
 #include "cl_Communication_Tools.hpp"
 
 // base class
-#include"cl_Mesh_Factory.hpp"
-#include"cl_MTK_Cell.hpp"
+#include "cl_MTK_Mesh_Factory.hpp"
+#include "cl_MTK_Cell.hpp"
 #include "cl_MTK_Mesh_Core_STK.hpp"
 #include "cl_MTK_Cell_STK.hpp"
 #include "cl_Mesh_Enums.hpp"
@@ -187,7 +187,7 @@ TEST_CASE("MTK Cell Tet","[MTK],[MTK_CELL_TET]")
         aMeshData.NodeCoords              = &tNodeCoords;
         aMeshData.LocaltoGlobalElemMap(0) = &aElemLocaltoGlobal;
 
-        Mesh* tMesh1  = create_mesh( MeshType::STK, aMeshData );
+        Mesh* tMesh1  = create_interpolation_mesh( MeshType::STK, aMeshData );
 
 
 

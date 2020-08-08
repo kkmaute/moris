@@ -42,8 +42,7 @@ namespace moris
 
     namespace mtk
     {
-        class Interpolation_Mesh;
-        class Integration_Mesh;
+        class Mesh;
         class Mesh_Manager;
     }
 
@@ -55,21 +54,17 @@ namespace moris
      class Mapper
      {
          // Source meshes
-         mtk::Interpolation_Mesh* mSourceInterpMesh;
-         mtk::Integration_Mesh*   mSourceIntegMesh;
+         moris::mtk::Mesh* mSourceMesh;
 
          // Target meshes
-         mtk::Interpolation_Mesh* mTargetInterpMesh;
-         mtk::Integration_Mesh*   mTargetIntegMesh;
-
+         moris::mtk::Mesh* mTargetMesh;
 
          // Mesh manager- needed for FEM Model
-         moris::moris_index             mSourceMeshPairIndex;
-         moris::moris_index             mTargetMeshPairIndex;
-         mtk::Mesh_Manager            * mMeshManager;
+         moris::moris_index             mMeshPairIndex;
+         std::shared_ptr<mtk::Mesh_Manager> mMeshManager;
 //         fem::IWG_L2                  * mIWG;
          mdl::Model                   * mModel;
-         const uint                     mBSplineOrder;
+         const uint                     mBSplineMeshIndex;
 
 //         moris::Cell< Node* >                  mNodes;
 
@@ -84,7 +79,7 @@ namespace moris
          /**
           * constructor with only one mesh
           */
-         Mapper( mtk::Mesh_Manager* aMesh,
+         Mapper( std::shared_ptr<mtk::Mesh_Manager> aMeshManager,
                  const moris_index aMeshPairIndex,
                  const uint aBSplineMeshIndex = 0 );
 
@@ -102,11 +97,16 @@ namespace moris
                                const std::string      & aTargetLabel,
                                const enum EntityRank    aTargetEntityRank );
 
+         void perform_mapping( const Matrix<DDRMat>& aSourceField,
+                               const enum EntityRank aSourceEntityRank,
+                               Matrix<DDRMat>&       aTargetField,
+                               const enum EntityRank aTargetEntityRank );
+
 //------------------------------------------------------------------------------
 
          void perform_filter( const std::string      & aSourceLabel,
                               const real             & aFilterRadius,
-                                    Matrix< DDRMat > & aValues );
+                              Matrix< DDRMat > & aValues );
 
 //------------------------------------------------------------------------------
 
@@ -128,10 +128,17 @@ namespace moris
      private:
 //------------------------------------------------------------------------------
 
+         void map_node_to_bspline( const enum EntityRank aBSplineRank,
+                                      Matrix<DDRMat>& aSolution );
+
          void map_node_to_bspline_same_mesh(
                  const moris_index        aSourceIndex,
                  const moris_index        aTargetIndex,
                  const enum EntityRank    aBSplineRank );
+
+         void map_node_to_bspline_from_field( const Matrix<DDRMat>& aSourceField,
+                                              Matrix<DDRMat>&       aTargetField,
+                                              const enum EntityRank aBSplineRank );
 
 ////------------------------------------------------------------------------------
 //

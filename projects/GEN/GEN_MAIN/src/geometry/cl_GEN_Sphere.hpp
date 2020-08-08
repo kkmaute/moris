@@ -61,20 +61,21 @@ namespace moris
                    real aBSplineUpperBound = 1.0);
 
             /**
-             * Given a node coordinate, this returns the distance to the nearest portion of the sphere's surface
+             * Given a node coordinate, returns the field value.
              *
-             * @param aCoordinates vector of coordinate values
-             * @return distance to the sphere
+             * @param aCoordinates Coordinate values
+             * @return Distance to this geometry
              */
-            real evaluate_field_value(const moris::Matrix<moris::DDRMat>& aCoordinates);
+            real evaluate_field_value(const Matrix<DDRMat>& aCoordinates);
 
             /**
-             * Given a node coordinate, returns a matrix of all sensitivities with respect to the sphere parameters
+             * Given a node coordinate, evaluates the sensitivity of the geometry field with respect to all of the
+             * geometry variables.
              *
-             * @param aCoordinates Vector of coordinate values
-             * @param aSensitivities Matrix of sensitivities
+             * @param aCoordinates Coordinate values
+             * @param aSensitivities Vector of sensitivities
              */
-            void evaluate_all_sensitivities(const moris::Matrix<moris::DDRMat>& aCoordinates, Matrix<DDRMat>& aSensitivities);
+            void evaluate_all_sensitivities(const Matrix<DDRMat>& aCoordinates, Matrix<DDRMat>& aSensitivities);
 
         };
     }

@@ -36,7 +36,7 @@
 #include "cl_MTK_Mesh.hpp"
 #include "cl_MTK_Mapper.hpp"
 #include "cl_MTK_Mesh_Manager.hpp"
-#include "cl_Mesh_Factory.hpp"
+#include "cl_MTK_Mesh_Factory.hpp"
 
 #include "HDF5_Tools.hpp"
 #include "cl_HMR_Field.hpp"          //HMR/src
@@ -753,7 +753,6 @@ namespace moris
                 Interpolation_Mesh_HMR * aInterpolationMesh)
         {
             return new Integration_Mesh_HMR (
-                    mDatabase,
                     aLagrangeOrder,
                     aPattern,
                     aInterpolationMesh);
@@ -766,7 +765,6 @@ namespace moris
                 Interpolation_Mesh_HMR * aInterpolationMesh)
         {
             return new Integration_Mesh_HMR (
-                    mDatabase,
                     aLagrangeMeshIndex,
                     aInterpolationMesh);
         }
@@ -962,7 +960,7 @@ namespace moris
                 const uint          aBSpineIndex )
         {
             // create mesh object
-            mtk::Mesh * tMesh = mtk::create_mesh( MeshType::STK, aFilePath, nullptr, false );
+            mtk::Mesh * tMesh = mtk::create_interpolation_mesh( MeshType::STK, aFilePath, nullptr, false );
 
             std::shared_ptr< moris::hmr::Mesh > tHmrMesh = this->create_mesh( aLagrangeIndex );
 
@@ -1707,12 +1705,12 @@ namespace moris
             Integration_Mesh_HMR* tIntegrationUnionMesh = this->create_integration_mesh( tOrder, mParameters->get_union_pattern(), tUnionInterpolationMesh );
 
             // Add union mesh to mesh manager
-            mtk::Mesh_Manager tMeshManager;
-            moris::uint tMeshPairIndex = tMeshManager.register_mesh_pair( tUnionInterpolationMesh, tIntegrationUnionMesh );
+            std::shared_ptr<mtk::Mesh_Manager> tMeshManager = std::make_shared<mtk::Mesh_Manager>();
+            moris::uint tMeshPairIndex = tMeshManager->register_mesh_pair( tUnionInterpolationMesh, tIntegrationUnionMesh );
 
             // create mapper
             mapper::Mapper tMapper(
-                    &tMeshManager,
+                    tMeshManager,
                     tMeshPairIndex,
                     aBsplineMeshIndex );
 
