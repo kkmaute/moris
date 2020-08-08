@@ -1620,6 +1620,23 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
+        const Matrix< DDRMat > & Constitutive_Model::Energy()
+        {
+            // if the flux was not evaluated
+            if( mEnergyEval)
+            {
+                // evaluate the flux
+                this->eval_Energy();
+
+                // set bool for evaluation
+                mEnergyEval = false;
+            }
+            // return the flux value
+            return mEnergy;
+        }
+
+        //------------------------------------------------------------------------------
+
         const Matrix< DDRMat > & Constitutive_Model::EnergyDot()
         {
             // if the flux was not evaluated
@@ -1908,6 +1925,32 @@ namespace moris
 
             // return the derivative
             return mdFluxdDof( tDofIndex );
+        }
+
+        //-----------------------------------------------------------------------------
+        const Matrix< DDRMat > & Constitutive_Model::dEnergydDOF(
+                const moris::Cell< MSI::Dof_Type > & aDofType)
+        {
+            // if aDofType is not an active dof type for the CM
+            MORIS_ERROR(
+                    this->check_dof_dependency( aDofType ),
+                    "Constitutive_Model::dEnergydDOF - no dependency in this dof type." );
+
+            // get the dof index
+            uint tDofIndex = mGlobalDofTypeMap( static_cast< uint >( aDofType( 0 ) ) );
+
+            // if the derivative has not been evaluated yet
+            if( mEnergyDofEval( tDofIndex ) )
+            {
+                // evaluate the derivative
+                this->eval_dEnergydDOF( aDofType );
+
+                // set bool for evaluation
+                mEnergyDofEval( tDofIndex ) = false;
+            }
+
+            // return the derivative
+            return mEnergyDof( tDofIndex );
         }
 
         //-----------------------------------------------------------------------------
