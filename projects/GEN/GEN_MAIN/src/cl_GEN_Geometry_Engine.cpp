@@ -41,10 +41,16 @@ namespace moris
                 // Library
                 mLibrary(aLibrary),
 
+                // Geometries and properties
+                mGeometries(create_geometries(aParameterLists(1), mADVs, mLibrary)),
+                mGeometryParameterLists(aParameterLists(1)),
+                mProperties(create_properties(aParameterLists(2), mADVs, mLibrary)),
+                mPropertyParameterLists(aParameterLists(2)),
+
                 // Phase table
                 mPhaseTable(string_to_mat<IndexMat>(aParameterLists(0)(0).get<std::string>("phase_table")).numel()
                       ? Phase_Table(string_to_mat<IndexMat>(aParameterLists(0)(0).get<std::string>("phase_table")), aParameterLists(0)(0).get<std::string>("phase_table_structure"))
-                      : Phase_Table(aParameterLists(1).size(), aParameterLists(0)(0).get<std::string>("phase_table_structure")))
+                      : Phase_Table(mGeometries.size(), aParameterLists(0)(0).get<std::string>("phase_table_structure")))
         {
             // Explicit ADVs and bounds
             Matrix<DDRMat> tInitialADVs = string_to_mat<DDRMat>(aParameterLists(0)(0).get<std::string>("initial_advs"));
@@ -72,14 +78,6 @@ namespace moris
             {
                 mUpperBounds(tADVIndex) = tUpperBounds(tADVIndex);
             }
-
-            // Store parameter lists for geometries and properties
-            mGeometryParameterLists = aParameterLists(1);
-            mPropertyParameterLists = aParameterLists(2);
-
-            // Build fields temporarily for refinement
-            mGeometries = create_geometries(mGeometryParameterLists, mADVs, mLibrary);
-            mProperties = create_properties(mPropertyParameterLists, mADVs, mLibrary);
 
             // Set requested PDVs
             Cell<std::string> tRequestedPdvNames = string_to_cell<std::string>(aParameterLists(0)(0).get<std::string>("PDV_types"));
