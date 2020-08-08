@@ -666,7 +666,7 @@ namespace moris
         }
 
         //--------------------------------------------------------------------------------------------------------------
-        void unfold_2d(
+        void CM_Fluid_Compressible_Ideal::unfold_2d(
                 const Matrix< DDRMat > & aFlattenedTensor,
                 Matrix< DDRMat > & aExpandedTensor)
         {
@@ -675,7 +675,7 @@ namespace moris
                     { aFlattenedTensor( 2 ), aFlattenedTensor( 1 ) } };
         }
 
-        void unfold_3d(
+        void CM_Fluid_Compressible_Ideal::unfold_3d(
                 const Matrix< DDRMat > & aFlattenedTensor,
                 Matrix< DDRMat > & aExpandedTensor)
         {

@@ -6,6 +6,8 @@
 #include "cl_FEM_CM_Struc_Linear_Isotropic.hpp"
 #include "cl_FEM_CM_Fluid_Incompressible.hpp"
 #include "cl_FEM_CM_Fluid_Turbulence.hpp"
+#include "cl_FEM_CM_Fluid_Compressible_Ideal.hpp"
+#include "cl_FEM_CM_Fluid_Compressible_VanDerWaals.hpp"
 
 namespace moris
 {
@@ -31,6 +33,12 @@ namespace moris
 
                 case Constitutive_Type::FLUID_TURBULENCE :
                     return std::make_shared< CM_Fluid_Turbulence >();
+
+                case Constitutive_Type::FLUID_COMPRESSIBLE_IDEAL :
+                    return std::make_shared< CM_Fluid_Compressible_Ideal >();
+
+                case Constitutive_Type::FLUID_COMPRESSIBLE_VDW :
+                    return std::make_shared< CM_Fluid_Compressible_VdW >();
 
                 default:
                     MORIS_ERROR( false, " CM_Factory::create_CM - No constitutive type specified. " );
