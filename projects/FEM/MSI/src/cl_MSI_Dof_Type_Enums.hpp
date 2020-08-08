@@ -30,6 +30,7 @@ namespace moris
                 VY,     //< Y-Velocity
                 VZ,     //< Z-Velocity
                 P,      //< Pressure
+                RHO,    //< Density
                 VISCOSITY,
                 UNDEFINED, //< Undefined
                 END_ENUM//
@@ -56,6 +57,7 @@ namespace moris
             tMSIDofTypeMap["VY"]          = MSI::Dof_Type::VY;
             tMSIDofTypeMap["VZ"]          = MSI::Dof_Type::VZ;
             tMSIDofTypeMap["P"]           = MSI::Dof_Type::P;
+            tMSIDofTypeMap["RHO"]         = MSI::Dof_Type::RHO;
             tMSIDofTypeMap["VISCOSITY"]   = MSI::Dof_Type::VISCOSITY;
             tMSIDofTypeMap["UNDEFINED"]   = MSI::Dof_Type::UNDEFINED;
 
