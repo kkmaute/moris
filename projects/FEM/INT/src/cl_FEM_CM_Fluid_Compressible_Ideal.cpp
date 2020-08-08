@@ -351,7 +351,7 @@ namespace moris
             Matrix< DDRMat > tIsochoricHeatCapacity = get_property( "IsochoricHeatCapacity" )->val();
 
             // compute total energy density
-            mEnergy =
+            mEnergyDot =
                     tIsochoricHeatCapacity * tFIDensity->val() * tFITemp->gradt( 1 ) +
                     tIsochoricHeatCapacity * tFITemp->val() * tFIDensity->gradt( 1 ) +
                     0.5 * trans( tFIVelocity->val() ) * tFIVelocity->val() * tFIDensity->gradt( 1 ) +
@@ -377,7 +377,7 @@ namespace moris
             Matrix< DDRMat > tIsochoricHeatCapacity = get_property( "IsochoricHeatCapacity" )->val();
 
             // initialize the matrix
-            mEnergyDof( tDofIndex ).set_size( 1,
+            mEnergyDotDof( tDofIndex ).set_size( 1,
                     mFIManager->get_field_interpolators_for_type( aDofTypes( 0 ) )->
                     get_number_of_space_time_coefficients(), 0.0 );
 
