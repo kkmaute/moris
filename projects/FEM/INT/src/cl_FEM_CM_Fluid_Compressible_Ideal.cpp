@@ -40,17 +40,19 @@ namespace moris
             {
                 case ( 2 ):
                         {
-                    m_eval_strain         = &CM_Fluid_Compressible_Ideal::eval_strain_2d;
-                    m_eval_teststrain     = &CM_Fluid_Compressible_Ideal::eval_teststrain_2d;
-                    m_eval_velocitymatrix = &CM_Fluid_Compressible_Ideal::eval_velocitymatrix_2d;
+                    m_eval_strain            = &CM_Fluid_Compressible_Ideal::eval_strain_2d;
+                    m_eval_teststrain        = &CM_Fluid_Compressible_Ideal::eval_teststrain_2d;
+                    m_eval_velocitymatrix    = &CM_Fluid_Compressible_Ideal::eval_velocitymatrix_2d;
+                    m_unfold_tensor          = &CM_Fluid_Compressible_Ideal::unfold_2d;
                     mFlatIdentity = { { 1.0 }, { 1.0 }, { 0.0 } };
                     break;
                         }
                 case ( 3 ):
                         {
-                    m_eval_strain         = &CM_Fluid_Compressible_Ideal::eval_strain_3d;
-                    m_eval_teststrain     = &CM_Fluid_Compressible_Ideal::eval_teststrain_3d;
-                    m_eval_velocitymatrix = &CM_Fluid_Compressible_Ideal::eval_velocitymatrix_3d;
+                    m_eval_strain            = &CM_Fluid_Compressible_Ideal::eval_strain_3d;
+                    m_eval_teststrain        = &CM_Fluid_Compressible_Ideal::eval_teststrain_3d;
+                    m_eval_velocitymatrix    = &CM_Fluid_Compressible_Ideal::eval_velocitymatrix_3d;
+                    m_unfold_tensor          = &CM_Fluid_Compressible_Ideal::unfold_3d;
                     mFlatIdentity = { { 1.0 }, { 1.0 }, { 1.0 }, { 0.0 }, { 0.0 }, { 0.0 } };
                     break;
                         }
@@ -232,7 +234,7 @@ namespace moris
             // get the temperature FI
             Field_Interpolator * tTempFI =  mFIManager->get_field_interpolators_for_type( mDofTemperature );
 
-            // get the viscosity property
+            // get the thermal conductivity property
             std::shared_ptr< Property > tThermalConductivity = get_property( "ThermalConductivity" );
 
             // compute thermal flux q = - k * grad(T)
@@ -260,15 +262,15 @@ namespace moris
             {
                 // compute derivative with direct dependency
                 mThermalFluxDof.matrix_data() +=
-                        tPropThermalConductivity->val()( 0 ) * tFITemp->dnNdxn( 1 );
+                        -1.0 * tPropThermalConductivity->val()( 0 ) * tFITemp->dnNdxn( 1 );
             }
 
             // if indirect dependency of conductivity on the dof type
-            if ( mProperties( static_cast< uint >( CM_Property_Type::THERMAL_CONDUCTIVITY ) )->check_dof_dependency( aDofTypes ) )
+            if ( tPropThermalConductivity->check_dof_dependency( aDofTypes ) )
             {
                 // compute derivative with indirect dependency through properties
                 mThermalFluxDof.matrix_data() +=
-                        tFITemp->gradx( 1 ) * tPropThermalConductivity->dPropdDOF( aDofTypes );
+                        -1.0 * tFITemp->gradx( 1 ) * tPropThermalConductivity->dPropdDOF( aDofTypes );
             }
         }
 
@@ -389,7 +391,7 @@ namespace moris
                         tIsochoricHeatCapacity * tFITemp->val() * tFIDensity->dnNdtn( 1 ) +
                         tIsochoricHeatCapacity * tFITemp->gradt( 1 ) * tFIDensity->N() +
                         0.5 * trans( tFIVelocity->val() ) * tFIVelocity->val() * tFIDensity->dnNdtn( 1 ) +
-                        tFIDensity->N() * trans( tFIVelocity->val() ) * tFIVelocity->gradt( 1 ) ;
+                        trans( tFIVelocity->val() ) * tFIVelocity->gradt( 1 ) * tFIDensity->N() ;
             }
 
             // direct dependency on the velocity dof type
@@ -398,7 +400,7 @@ namespace moris
                 // compute contribution
                 mEnergyDotDof( tDofIndex ).matrix_data() +=
                         tFIDensity->gradt( 1 ) * trans( tFIVelocity->val() ) * tFIVelocity->N()   +
-                        tFIDensity->val() * trans( tFIVelocity->N() )   * tFIVelocity->gradt( 1 )  +
+                        tFIDensity->val() * trans( tFIVelocity->gradt( 1 ) ) * tFIVelocity->N()  +
                         tFIDensity->val() * trans( tFIVelocity->val() ) * tFIVelocity->dnNdtn( 1 ) ;
             }
 
@@ -422,13 +424,10 @@ namespace moris
             // get the viscosity
             std::shared_ptr< Property > tPropDynamicViscosity = get_property( "DynamicViscosity" );
 
-            // evaluate pressure
-            Matrix< DDRMat > tPressure = pressure();
-
             // compute Stress
             mStress = 2.0 * tPropDynamicViscosity->val() *
                     ( this->strain() -  ( 1 / 3 ) * tFIVelocity->div() * mFlatIdentity  ) -
-                    tPressure * mFlatIdentity ;
+                    this->pressure() * mFlatIdentity ;
         }
 
         //--------------------------------------------------------------------------------------------------------------
