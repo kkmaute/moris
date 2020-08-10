@@ -24,7 +24,7 @@ namespace moris
                                               {aInterfaceGeometry->evaluate_field_value(aParentNodeIndices(1), aParentNodeCoordinates(1))}}),
                                      aIsocontourThreshold)),
                   mInterfaceGeometry(aInterfaceGeometry),
-                  mCoordinates((mBasisValues(0) * aParentNodeCoordinates(0)) + (mBasisValues(1) * aParentNodeCoordinates(1)))
+                  mGlobalCoordinates((mBasisValues(0) * aParentNodeCoordinates(0)) + (mBasisValues(1) * aParentNodeCoordinates(1)))
         {
         }
 
@@ -48,7 +48,14 @@ namespace moris
 
         real Intersection_Node::get_coordinate_value(uint aCoordinateIndex)
         {
-            return mCoordinates(aCoordinateIndex);
+            return mGlobalCoordinates(aCoordinateIndex);
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
+        Matrix<DDRMat> Intersection_Node::get_global_coordinates()
+        {
+            return mGlobalCoordinates;
         }
 
         //--------------------------------------------------------------------------------------------------------------

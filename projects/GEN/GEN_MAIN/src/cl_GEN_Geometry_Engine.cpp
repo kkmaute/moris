@@ -605,7 +605,7 @@ namespace moris
 
         bool Geometry_Engine::compute_intersection_info(
                 moris_index             aEntityIndex,
-                const Matrix<IndexMat>& aEntityNodeInds,
+                const Matrix<IndexMat>& aEntityNodeIndices,
                 const Matrix<DDRMat>&   aNodeCoords,
                 size_t                  aCheckType,
                 GEN_Geometry_Object&    aGeometryObject)
@@ -621,13 +621,13 @@ namespace moris
             uint tMinLocCol = 0;
 
             size_t tNodeInd  = 0;
-            size_t tNumNodes = aEntityNodeInds.numel();
+            size_t tNumNodes = aEntityNodeIndices.numel();
             Matrix< DDRMat > tEntityNodeVars(tNumNodes, 1);
 
             // Loop through nodes and get level set values from pre-computed values in aNodeVars or in the level set mesh
             for(size_t n = 0; n < tNumNodes; n++)
             {
-                tNodeInd = aEntityNodeInds(n);
+                tNodeInd = aEntityNodeIndices(n);
 
                 tEntityNodeVars(n) = this->get_geometry_field_value(
                         tNodeInd,
@@ -668,19 +668,34 @@ namespace moris
             {
                 aGeometryObject.set_parent_entity_index(aEntityIndex);
                 tIsIntersected = true;
-                if(aCheckType == 1)
+
+                // Determine if new node
+                bool tNewNode = true;
+                if (aEntityNodeIndices.n_cols() == 2)
                 {
-                    Matrix< DDRMat > tIntersectLocalCoordinate(1,1);
-                    Matrix< DDRMat > tIntersectGlobalCoordinate(1,mSpatialDim);
+                    for (uint tParentIndex = 0; tParentIndex < mInterfaceParentNodes.size(); tParentIndex++)
+                    {
+                        tNewNode = tNewNode and (mInterfaceParentNodes(tParentIndex).min() != aEntityNodeIndices.min()
+                                or mInterfaceParentNodes(tParentIndex).max() != aEntityNodeIndices.max());
+                    }
+                }
 
-                    get_intersection_location(aNodeCoords,
-                            tEntityNodeVars,
-                            aEntityNodeInds,
-                            tIntersectLocalCoordinate,
-                            tIntersectGlobalCoordinate);
+                if (tNewNode)
+                {
+                    if(aCheckType == 1)
+                    {
+                        Matrix< DDRMat > tIntersectLocalCoordinate(1,1);
+                        Matrix< DDRMat > tIntersectGlobalCoordinate(1,mSpatialDim);
 
-                    aGeometryObject.set_interface_loc_coord(tIntersectLocalCoordinate(0));
-                    aGeometryObject.set_interface_glb_coord(tIntersectGlobalCoordinate);
+                        get_intersection_location(aNodeCoords,
+                                                  tEntityNodeVars,
+                                                  aEntityNodeIndices,
+                                                  tIntersectLocalCoordinate,
+                                                  tIntersectGlobalCoordinate);
+
+                        aGeometryObject.set_interface_loc_coord(tIntersectLocalCoordinate(0));
+                        aGeometryObject.set_interface_glb_coord(tIntersectGlobalCoordinate);
+                    }
                 }
             }
 
@@ -696,62 +711,27 @@ namespace moris
                 Matrix<DDRMat>&         aIntersectionLocalCoordinates,
                 Matrix<DDRMat>&         aIntersectionGlobalCoordinates)
         {
-            // compute the local coordinate where the intersection occurs
-            Interpolation::linear_interpolation_value(
-                    aEntityNodeVars,
-                    mIsocontourThreshold,
-                    aIntersectionLocalCoordinates);
-
-            // check for proximity to node and correct if too close
-            const real tEpsilon = 0.0;
-
-            aIntersectionLocalCoordinates(0) = std::max( aIntersectionLocalCoordinates(0), -1.0+tEpsilon);
-            aIntersectionLocalCoordinates(0) = std::min( aIntersectionLocalCoordinates(0),  1.0-tEpsilon);
-
-            // Determine if new node
-            bool tNewNode = true;
-            for (uint tParentIndex = 0; tParentIndex < mInterfaceParentNodes.size(); tParentIndex++)
-            {
-                tNewNode = tNewNode and (mInterfaceParentNodes(
-                        tParentIndex).min() != aEntityNodeIndices.min() or mInterfaceParentNodes(
-                        tParentIndex).max() != aEntityNodeIndices.max());
-            }
-
             // Intersection node
-            if (tNewNode)
-            {
-                Cell <Matrix<DDRMat>> tParentNodeCoordinates(2, Matrix<DDRMat>(1, mSpatialDim));
+            Cell <Matrix<DDRMat>> tParentNodeCoordinates(2, Matrix<DDRMat>(1, mSpatialDim));
 
-                aGlobalNodeCoordinates.get_row(aEntityNodeIndices(0), tParentNodeCoordinates(0));
-                aGlobalNodeCoordinates.get_row(aEntityNodeIndices(1), tParentNodeCoordinates(1));
+            aGlobalNodeCoordinates.get_row(aEntityNodeIndices(0), tParentNodeCoordinates(0));
+            aGlobalNodeCoordinates.get_row(aEntityNodeIndices(1), tParentNodeCoordinates(1));
 
-                Matrix <DDUMat> tParentNodeIndices(2, 1);
+            Matrix <DDUMat> tParentNodeIndices(2, 1);
 
-                tParentNodeIndices(0) = aEntityNodeIndices(0);
-                tParentNodeIndices(1) = aEntityNodeIndices(1);
+            tParentNodeIndices(0) = aEntityNodeIndices(0);
+            tParentNodeIndices(1) = aEntityNodeIndices(1);
 
-                mIntersectionNodes.push_back(
-                        std::make_shared<Intersection_Node>(
-                                 tParentNodeIndices, 
-                                 tParentNodeCoordinates,
-                                 mGeometries(mActiveGeometryIndex), 
-                                 mIsocontourThreshold));
-            }
+            mIntersectionNodes.push_back(
+                    std::make_shared<Intersection_Node>(
+                             tParentNodeIndices,
+                             tParentNodeCoordinates,
+                             mGeometries(mActiveGeometryIndex),
+                             mIsocontourThreshold));
 
-            // Place only the entity coordinates in a matrix
-            Matrix<DDRMat> tEntityCoordinates(2, mSpatialDim);
-
-            for (size_t i = 0; i < mSpatialDim; i++)
-            {
-                tEntityCoordinates(0, i) = aGlobalNodeCoordinates(aEntityNodeIndices(0), i);
-                tEntityCoordinates(1, i) = aGlobalNodeCoordinates(aEntityNodeIndices(1), i);
-            }
-
-            // compute the global coordinate
-            Interpolation::linear_interpolation_location(
-                    tEntityCoordinates,
-                    aIntersectionLocalCoordinates,
-                    aIntersectionGlobalCoordinates);
+            // Return local and global coordinates
+            aIntersectionLocalCoordinates = mIntersectionNodes(mIntersectionNodes.size() - 1)->get_local_coordinates();
+            aIntersectionGlobalCoordinates = mIntersectionNodes(mIntersectionNodes.size() - 1)->get_global_coordinates();
         }
 
         //--------------------------------------------------------------------------------------------------------------

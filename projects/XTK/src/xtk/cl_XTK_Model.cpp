@@ -2867,11 +2867,27 @@ namespace xtk
         uint tTotalNode = tAllInterfaceNodes.length();
         for (uint tGeometryIndex = 1; tGeometryIndex < mGeometryEngine->get_num_geometries(); tGeometryIndex++)
         {
+            // Get interface nodes
             Matrix<IndexMat> tInterfaceNodes = mBackgroundMesh.get_interface_nodes_loc_inds(tGeometryIndex);
             tAllInterfaceNodes.resize(1, tTotalNode + tInterfaceNodes.length());
+
             for (uint tNode = 0; tNode < tInterfaceNodes.length(); tNode++)
             {
-                tAllInterfaceNodes(tTotalNode++) = tInterfaceNodes(tNode);
+                // Check with existing nodes and assign
+                bool tNew = true;
+                for (uint tAllNode = 0; tAllNode < tTotalNode; tAllNode++)
+                {
+                    if (tAllInterfaceNodes(tAllNode) == tInterfaceNodes(tNode))
+                    {
+                        tNew = false;
+                        tAllInterfaceNodes.resize(1, tAllInterfaceNodes.length() - 1);
+                        break;
+                    }
+                }
+                if (tNew)
+                {
+                    tAllInterfaceNodes(tTotalNode++) = tInterfaceNodes(tNode);
+                }
             }
         }
         mGeometryEngine->set_interface_nodes(tAllInterfaceNodes);

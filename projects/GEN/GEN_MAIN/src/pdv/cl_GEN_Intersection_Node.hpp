@@ -13,7 +13,7 @@ namespace moris
         private:
             std::shared_ptr<Geometry> mInterfaceGeometry;
             Cell<std::shared_ptr<Intersection_Node>> mNodeDependencies;
-            Matrix<DDRMat> mCoordinates;
+            Matrix<DDRMat> mGlobalCoordinates;
             uint mStartingPdvIndex;
             bool mPdvIndexSet = false;
 
@@ -52,6 +52,13 @@ namespace moris
              * @return Coordinate value
              */
             real get_coordinate_value(uint aCoordinateIndex);
+
+            /**
+             * Gets all global coordinate values for this intersection node.
+             *
+             * @return Global coordinates
+             */
+            Matrix<DDRMat> get_global_coordinates();
 
             /**
              * Gets all of the sensitivity vectors for each coordinate

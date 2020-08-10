@@ -13,9 +13,26 @@ namespace moris
                                const xtk::Basis_Function& aBasisFunction,
                                Matrix<DDRMat>             aLocalCoordinates)
                 : mParentNodeIndices(aParentNodeIndices),
-                  mParentNodeCoordinates(aParentNodeCoordinates)
+                  mParentNodeCoordinates(aParentNodeCoordinates),
+                  mLocalCoordinates(aLocalCoordinates)
         {
-            aBasisFunction.evaluate_basis_function(aLocalCoordinates, mBasisValues);
+            // Shift local coordinates
+            real tEpsilon = 1E-12;
+            for (uint tDimension = 0; tDimension < mLocalCoordinates.length(); tDimension++)
+            {
+                mLocalCoordinates(tDimension) = std::min(mLocalCoordinates(tDimension), 1.0 - tEpsilon);
+                mLocalCoordinates(tDimension) = std::max(mLocalCoordinates(tDimension), tEpsilon - 1.0);
+            }
+
+            // Evaluate basis function
+            aBasisFunction.evaluate_basis_function(mLocalCoordinates, mBasisValues);
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
+        Matrix<DDRMat> Child_Node::get_local_coordinates()
+        {
+            return mLocalCoordinates;
         }
 
         //--------------------------------------------------------------------------------------------------------------
