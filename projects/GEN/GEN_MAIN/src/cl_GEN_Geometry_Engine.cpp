@@ -33,9 +33,15 @@ namespace moris
                 mLevelSetFile(aParameterLists(0)(0).get<std::string>("level_set_file")),
 
                 // ADVs/IQIs
-                mADVs((uint)aParameterLists(0)(0).get<sint>("advs_size"), 1, aParameterLists(0)(0).get<real>("initial_advs_fill")),
-                mLowerBounds((uint)aParameterLists(0)(0).get<sint>("advs_size"), 1, aParameterLists(0)(0).get<real>("lower_bounds_fill")),
-                mUpperBounds((uint)aParameterLists(0)(0).get<sint>("advs_size"), 1, aParameterLists(0)(0).get<real>("upper_bounds_fill")),
+                mADVs(aParameterLists(0)(0).get<sint>("advs_size")
+                        ? Matrix<DDRMat>((uint)aParameterLists(0)(0).get<sint>("advs_size"), 1, aParameterLists(0)(0).get<real>("initial_advs_fill"))
+                        : string_to_mat<DDRMat>(aParameterLists(0)(0).get<std::string>("initial_advs"))),
+                mLowerBounds(aParameterLists(0)(0).get<sint>("advs_size")
+                        ? Matrix<DDRMat>((uint)aParameterLists(0)(0).get<sint>("advs_size"), 1, aParameterLists(0)(0).get<real>("lower_bounds_fill"))
+                        : string_to_mat<DDRMat>(aParameterLists(0)(0).get<std::string>("lower_bounds"))),
+                mUpperBounds(aParameterLists(0)(0).get<sint>("advs_size")
+                        ? Matrix<DDRMat>((uint)aParameterLists(0)(0).get<sint>("advs_size"), 1, aParameterLists(0)(0).get<real>("upper_bounds_fill"))
+                        : string_to_mat<DDRMat>(aParameterLists(0)(0).get<std::string>("upper_bounds"))),
                 mRequestedIQIs(string_to_cell<std::string>(aParameterLists(0)(0).get<std::string>("IQI_types"))),
 
                 // Library
@@ -52,33 +58,6 @@ namespace moris
                       ? Phase_Table(string_to_mat<IndexMat>(aParameterLists(0)(0).get<std::string>("phase_table")), aParameterLists(0)(0).get<std::string>("phase_table_structure"))
                       : Phase_Table(mGeometries.size(), aParameterLists(0)(0).get<std::string>("phase_table_structure")))
         {
-            // Explicit ADVs and bounds
-            Matrix<DDRMat> tInitialADVs = string_to_mat<DDRMat>(aParameterLists(0)(0).get<std::string>("initial_advs"));
-            Matrix<DDRMat> tLowerBounds = string_to_mat<DDRMat>(aParameterLists(0)(0).get<std::string>("lower_bounds"));
-            Matrix<DDRMat> tUpperBounds = string_to_mat<DDRMat>(aParameterLists(0)(0).get<std::string>("upper_bounds"));
-
-            // Resize if needed
-            if (tInitialADVs.length() > mADVs.length())
-            {
-                mADVs.resize(tInitialADVs.length(), 1);
-                mLowerBounds.resize(tInitialADVs.length(), 1);
-                mUpperBounds.resize(tInitialADVs.length(), 1);
-            }
-
-            // Copy over values
-            for (uint tADVIndex = 0; tADVIndex < tInitialADVs.length(); tADVIndex++)
-            {
-                mADVs(tADVIndex) = tInitialADVs(tADVIndex);
-            }
-            for (uint tADVIndex = 0; tADVIndex < tLowerBounds.length(); tADVIndex++)
-            {
-                mLowerBounds(tADVIndex) = tLowerBounds(tADVIndex);
-            }
-            for (uint tADVIndex = 0; tADVIndex < tUpperBounds.length(); tADVIndex++)
-            {
-                mUpperBounds(tADVIndex) = tUpperBounds(tADVIndex);
-            }
-
             // Set requested PDVs
             Cell<std::string> tRequestedPdvNames = string_to_cell<std::string>(aParameterLists(0)(0).get<std::string>("PDV_types"));
             Cell<PDV_Type> tRequestedPdvTypes(tRequestedPdvNames.size());
