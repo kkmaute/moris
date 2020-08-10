@@ -116,7 +116,7 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        void CM_Diffusion_Linear_Isotropic::eval_Hdot()
+        void CM_Diffusion_Linear_Isotropic::eval_EnergyDot()
         {
             // get properties
             std::shared_ptr< Property > tPropDensity = mProperties( static_cast< uint >( Property_Type::DENSITY ) );
@@ -125,19 +125,19 @@ namespace moris
             if (tPropDensity != nullptr && tPropHeatCap != nullptr)
             {
                 // compute rate of enthalpy
-                mHdot = tPropDensity->val()( 0 ) *  tPropHeatCap->val()( 0 ) *
+                mEnergyDot = tPropDensity->val()( 0 ) *  tPropHeatCap->val()( 0 ) *
                         mFIManager->get_field_interpolators_for_type( mTempDof )->gradt( 1 );
             }
             else
             {
-                // if no capacity or density is given, set Hdot to zero
-                mHdot = 0.0 * mFIManager->get_field_interpolators_for_type( mTempDof )->gradt( 1 );
+                // if no capacity or density is given, set EnergyDot to zero
+                mEnergyDot = 0.0 * mFIManager->get_field_interpolators_for_type( mTempDof )->gradt( 1 );
             }
         }
 
         //------------------------------------------------------------------------------
 
-        void CM_Diffusion_Linear_Isotropic::eval_gradH()
+        void CM_Diffusion_Linear_Isotropic::eval_gradEnergy()
         {
             // get properties
             std::shared_ptr< Property > tPropDensity = mProperties( static_cast< uint >( Property_Type::DENSITY ) );
@@ -146,19 +146,19 @@ namespace moris
             if (tPropDensity != nullptr && tPropHeatCap != nullptr)
             {
                 // compute rate of gradient of enthalpy
-                mGradH = tPropDensity->val()( 0 ) *  tPropHeatCap->val()( 0 ) *
+                mGradEnergy = tPropDensity->val()( 0 ) *  tPropHeatCap->val()( 0 ) *
                         mFIManager->get_field_interpolators_for_type( mTempDof )->gradx( 1 );
             }
             else
             {
-                // if no capacity or density is given, set gradH to zero
-                mGradH = 0.0 * mFIManager->get_field_interpolators_for_type( mTempDof )->gradx( 1 );
+                // if no capacity or density is given, set gradEnergy to zero
+                mGradEnergy = 0.0 * mFIManager->get_field_interpolators_for_type( mTempDof )->gradx( 1 );
             }
         }
 
         //------------------------------------------------------------------------------
 
-        void CM_Diffusion_Linear_Isotropic::eval_gradHdot()
+        void CM_Diffusion_Linear_Isotropic::eval_gradEnergyDot()
         {
             // get properties
             std::shared_ptr< Property > tPropDensity = mProperties( static_cast< uint >( Property_Type::DENSITY ) );
@@ -167,13 +167,13 @@ namespace moris
             if (tPropDensity != nullptr && tPropHeatCap != nullptr)
             {
                 // compute rate of gradient of enthalpy
-                mGradHdot = tPropDensity->val()( 0 ) *  tPropHeatCap->val()( 0 ) *
+                mGradEnergyDot = tPropDensity->val()( 0 ) *  tPropHeatCap->val()( 0 ) *
                         mFIManager->get_field_interpolators_for_type( mTempDof )->gradxt();
             }
             else
             {
-                // if no capacity or density is given, set gradHdot to zero
-                mGradHdot = 0.0 * mFIManager->get_field_interpolators_for_type( mTempDof )->gradxt();;
+                // if no capacity or density is given, set gradEnergyDot to zero
+                mGradEnergyDot = 0.0 * mFIManager->get_field_interpolators_for_type( mTempDof )->gradxt();;
             }
         }
 
@@ -346,7 +346,7 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        void CM_Diffusion_Linear_Isotropic::eval_dHdotdDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes )
+        void CM_Diffusion_Linear_Isotropic::eval_dEnergyDotdDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes )
         {
             // get properties
             std::shared_ptr< Property > tPropDensity = mProperties( static_cast< uint >( Property_Type::DENSITY ) );
@@ -362,7 +362,7 @@ namespace moris
             Field_Interpolator * tFI = mFIManager->get_field_interpolators_for_type( aDofTypes( 0 ) );
 
             // initialize the matrix
-            mHdotDof( tDofIndex ).set_size( 1, tFI->get_number_of_space_time_coefficients(), 0.0 );
+            mEnergyDotDof( tDofIndex ).set_size( 1, tFI->get_number_of_space_time_coefficients(), 0.0 );
 
             // check if density and heat capacity are set
             if (tPropDensity == nullptr || tPropHeatCap == nullptr)
@@ -378,7 +378,7 @@ namespace moris
             if( aDofTypes( 0 ) == mTempDof )
             {
                 // compute derivative with direct dependency
-                mHdotDof( tDofIndex ).matrix_data() +=
+                mEnergyDotDof( tDofIndex ).matrix_data() +=
                         tPropDensity->val()( 0 ) *
                         tPropHeatCap->val()( 0 ) *
                         tFITemp->dnNdtn(1);
@@ -388,7 +388,7 @@ namespace moris
             if ( tPropDensity->check_dof_dependency( aDofTypes ) )
             {
                 // compute derivative with indirect dependency through properties
-                mHdotDof( tDofIndex ).matrix_data() +=
+                mEnergyDotDof( tDofIndex ).matrix_data() +=
                         tPropHeatCap->val()( 0 ) *
                         tFITemp->gradt(1) *
                         tPropDensity->dPropdDOF( aDofTypes );
@@ -398,7 +398,7 @@ namespace moris
             if ( tPropHeatCap->check_dof_dependency( aDofTypes ) )
             {
                 // compute derivative with indirect dependency through properties
-                mHdotDof( tDofIndex ).matrix_data() +=
+                mEnergyDotDof( tDofIndex ).matrix_data() +=
                         tPropDensity->val()( 0 ) *
                         tFITemp->gradt(1) *
                         tPropHeatCap->dPropdDOF( aDofTypes );
@@ -407,7 +407,7 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        void CM_Diffusion_Linear_Isotropic::eval_dGradHdDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes )
+        void CM_Diffusion_Linear_Isotropic::eval_dGradEnergydDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes )
         {
             // get properties
             std::shared_ptr< Property > tPropDensity = mProperties( static_cast< uint >( Property_Type::DENSITY ) );
@@ -423,7 +423,7 @@ namespace moris
             Field_Interpolator * tFI = mFIManager->get_field_interpolators_for_type( aDofTypes( 0 ) );
 
             // initialize the matrix
-            mGradHDof( tDofIndex ).set_size( mSpaceDim, tFI->get_number_of_space_time_coefficients(), 0.0 );
+            mGradEnergyDof( tDofIndex ).set_size( mSpaceDim, tFI->get_number_of_space_time_coefficients(), 0.0 );
 
             // check if density and heat capacity are set
             if ( tPropDensity == nullptr || tPropHeatCap == nullptr )
@@ -439,7 +439,7 @@ namespace moris
             if( aDofTypes( 0 ) == mTempDof )
             {
                 // compute derivative with direct dependency
-                mGradHDof( tDofIndex ).matrix_data() +=
+                mGradEnergyDof( tDofIndex ).matrix_data() +=
                         tPropDensity->val()( 0 ) *
                         tPropHeatCap->val()( 0 ) *
                         tFITemp->dnNdxn(1);
@@ -449,7 +449,7 @@ namespace moris
             if ( tPropDensity->check_dof_dependency( aDofTypes ) )
             {
                 // compute derivative with indirect dependency through properties
-                mGradHDof( tDofIndex ).matrix_data() +=
+                mGradEnergyDof( tDofIndex ).matrix_data() +=
                         tPropHeatCap->val()( 0 ) *
                         tFITemp->gradx(1) *
                         tPropDensity->dPropdDOF( aDofTypes );
@@ -459,7 +459,7 @@ namespace moris
             if ( tPropHeatCap->check_dof_dependency( aDofTypes ) )
             {
                 // compute derivative with indirect dependency through properties
-                mGradHDof( tDofIndex ).matrix_data() +=
+                mGradEnergyDof( tDofIndex ).matrix_data() +=
                         tPropDensity->val()( 0 ) *
                         tFITemp->gradx(1) *
                         tPropHeatCap->dPropdDOF( aDofTypes );
@@ -468,7 +468,7 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        void CM_Diffusion_Linear_Isotropic::eval_dGradHdotdDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes )
+        void CM_Diffusion_Linear_Isotropic::eval_dGradEnergyDotdDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes )
         {
             // get properties
             std::shared_ptr< Property > tPropDensity = mProperties( static_cast< uint >( Property_Type::DENSITY ) );
@@ -484,7 +484,7 @@ namespace moris
             Field_Interpolator * tFI = mFIManager->get_field_interpolators_for_type( aDofTypes( 0 ) );
 
             // initialize the matrix
-            mGradHdotDof( tDofIndex ).set_size( mSpaceDim, tFI->get_number_of_space_time_coefficients(), 0.0 );
+            mGradEnergyDotDof( tDofIndex ).set_size( mSpaceDim, tFI->get_number_of_space_time_coefficients(), 0.0 );
 
             // check if density and heat capacity are set
             if ( tPropDensity == nullptr || tPropHeatCap == nullptr )
@@ -500,7 +500,7 @@ namespace moris
             if( aDofTypes( 0 ) == mTempDof )
             {
                 // compute derivative with direct dependency
-                mGradHdotDof( tDofIndex ).matrix_data() +=
+                mGradEnergyDotDof( tDofIndex ).matrix_data() +=
                         tPropDensity->val()( 0 ) *
                         tPropHeatCap->val()( 0 ) *
                         tFITemp->d2Ndxt();
@@ -510,7 +510,7 @@ namespace moris
             if ( tPropDensity->check_dof_dependency( aDofTypes ) )
             {
                 // compute derivative with indirect dependency through properties
-                mGradHdotDof( tDofIndex ).matrix_data() +=
+                mGradEnergyDotDof( tDofIndex ).matrix_data() +=
                         tPropHeatCap->val()( 0 ) *
                         tFITemp->gradxt() *
                         tPropDensity->dPropdDOF( aDofTypes );
@@ -520,7 +520,7 @@ namespace moris
             if ( tPropHeatCap->check_dof_dependency( aDofTypes ) )
             {
                 // compute derivative with indirect dependency through properties
-                mGradHdotDof( tDofIndex ).matrix_data() +=
+                mGradEnergyDotDof( tDofIndex ).matrix_data() +=
                         tPropDensity->val()( 0 ) *
                         tFITemp->gradxt() *
                         tPropHeatCap->dPropdDOF( aDofTypes );

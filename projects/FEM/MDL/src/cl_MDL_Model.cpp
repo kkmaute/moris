@@ -57,9 +57,7 @@ namespace moris
         // STEP 0: initialize
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
         // get pointers to interpolation and integration mesh
-        mtk::Interpolation_Mesh* tInterpolationMesh = nullptr;
-        mtk::Integration_Mesh*   tIntegrationMesh   = nullptr;
-        mMeshManager->get_mesh_pair( mMeshPairIndex, tInterpolationMesh, tIntegrationMesh );
+        mtk::Interpolation_Mesh* tInterpolationMesh = mMeshManager->get_interpolation_mesh( mMeshPairIndex );
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
         // STEP 1: create the FEM model
@@ -215,9 +213,7 @@ namespace moris
             tic tTimer2;
 
             // Get pointers to interpolation and integration mesh
-            mtk::Interpolation_Mesh* tInterpolationMesh = nullptr;
-            mtk::Integration_Mesh*   tIntegrationMesh   = nullptr;
-            mMeshManager->get_mesh_pair( mMeshPairIndex, tInterpolationMesh, tIntegrationMesh );
+            mtk::Interpolation_Mesh* tInterpolationMesh = mMeshManager->get_interpolation_mesh( mMeshPairIndex );
 
             // create the MSI parameter list
             moris::ParameterList tMSIParameters = prm::create_msi_parameter_list();
@@ -315,9 +311,7 @@ namespace moris
             tic tTimer2;
 
             // get pointers to interpolation and integration mesh
-            mtk::Interpolation_Mesh* tInterpolationMesh = nullptr;
-            mtk::Integration_Mesh*   tIntegrationMesh   = nullptr;
-            mMeshManager->get_mesh_pair( mMeshPairIndex, tInterpolationMesh, tIntegrationMesh );
+            mtk::Interpolation_Mesh* tInterpolationMesh = mMeshManager->get_interpolation_mesh( mMeshPairIndex );
 
             // Does not work with STK
             MORIS_ERROR( tInterpolationMesh->get_mesh_type() != MeshType::STK, "Does not work for STK");
@@ -414,14 +408,16 @@ namespace moris
         {
             mEquationModel->set_is_forward_analysis();
 
+            mEquationModel->initialize_IQIs();
+
             mSolverWarehouse->get_main_time_solver()->solve();
         }
 
 //------------------------------------------------------------------------------
 
-        moris::Cell< moris::Matrix< DDRMat > > Model::perform_post_processing()
+        moris::Cell< moris::Matrix< DDRMat > > Model::get_IQI_values()
         {
-            return mEquationModel->compute_IQIs();
+            return mEquationModel->get_IQI_values();
         }
 
 //------------------------------------------------------------------------------
@@ -429,11 +425,9 @@ namespace moris
         {
             mEquationModel->set_is_sensitivity_analysis();
 
+            mEquationModel->initialize_explicit_and_implicit_dQIdp();
+
             mSolverWarehouse->get_main_time_solver()->solve_sensitivity();
-
-            mEquationModel->compute_implicit_dQIdp();
-
-            mEquationModel->compute_explicit_dQIdp();
         }
 
 //------------------------------------------------------------------------------

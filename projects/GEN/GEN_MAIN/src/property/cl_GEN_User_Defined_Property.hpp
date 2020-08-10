@@ -44,17 +44,19 @@ namespace moris
                                   real aBSplineUpperBound = 1.0);
 
             /**
-             * Evaluate the property field based on the given coordinates
+             * Given a node coordinate, returns the field value.
              *
              * @param aCoordinates Coordinate values
+             * @return Property value
              */
             real evaluate_field_value(const Matrix<DDRMat>& aCoordinates);
 
             /**
-             * Evaluate the sensitivities of the property value with respect to all internal variables
+             * Given a node coordinate, evaluates the sensitivity of the proeprty field with respect to all of the
+             * property variables.
              *
              * @param aCoordinates Coordinate values
-             * @param aSensitivities Sensitivity matrix to fill
+             * @param aSensitivities Vector of sensitivities
              */
             void evaluate_all_sensitivities(const Matrix<DDRMat>& aCoordinates, Matrix<DDRMat>& aSensitivities);
 

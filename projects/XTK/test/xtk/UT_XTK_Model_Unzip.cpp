@@ -195,7 +195,7 @@ TEST_CASE("XTK Model Unzip Interface","[unzip_xtk]")
 ////        tMeshDataInput.LocaltoGlobalElemMap    = &aElemLocaltoGlobal;
 //        tMeshDataInput.LocaltoGlobalNodeMap    = &tLocalToGlobalNodeMap;
 //        tMeshDataInput.SetsInfo                = &tMtkMeshSets;
-//        moris::mtk::Mesh* tMeshDataInt = moris::mtk::create_mesh( MeshType::STK, tMeshDataInput );
+//        moris::mtk::Mesh* tMeshDataInt = moris::mtk::create_interpolation_mesh( MeshType::STK, tMeshDataInput );
 //        std::string tMeshOutputFile = tPrefix + "/xtk_test_unzip_int.e";
 //        tMeshDataInt->create_output_mesh(tMeshOutputFile);
 //

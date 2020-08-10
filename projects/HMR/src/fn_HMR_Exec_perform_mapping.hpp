@@ -126,7 +126,7 @@ namespace moris
             // - - - - - - - - - - - - - - - - - - - - - -
             // step 2: create union meshes and mappers
             // - - - - - - - - - - - - - - - - - - - - - -
-            mtk::Mesh_Manager tMeshManager;
+            std::shared_ptr<mtk::Mesh_Manager> tMeshManager = std::make_shared<mtk::Mesh_Manager>();
             Cell< Interpolation_Mesh_HMR * > tUnionInterpMeshes;
             Cell< Integration_Mesh_HMR * >   tUnionIntegMeshes;
             Cell< Interpolation_Mesh_HMR * > tInputInterpMeshes;
@@ -171,12 +171,12 @@ namespace moris
                 tUnionIntegMeshes.push_back(tUnionIntegMesh);
 
                 // add pairs to mesh manager
-                moris::uint tMeshPairIndex = tMeshManager.register_mesh_pair(
+                moris::uint tMeshPairIndex = tMeshManager->register_mesh_pair(
                         tUnionInterpMeshes(m),
                         tUnionIntegMeshes(m));
 
                 // create mapper
-                tMappers( m ) = new mapper::Mapper( &tMeshManager,tMeshPairIndex, tMeshOrders( m ) );              //FIXME check tMeshOrders( m )
+                tMappers( m ) = new mapper::Mapper( tMeshManager,tMeshPairIndex, tMeshOrders( m ) );              //FIXME check tMeshOrders( m )
             }
 
             // - - - - - - - - - - - - - - - - - - - - - -

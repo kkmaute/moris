@@ -234,14 +234,10 @@ FEM Module description.
 /** @addtogroup FE_Equations_Diffusion_Advection_Reaction
     @ingroup FE_Module */
     
-/** @addtogroup FE_Equations_Navier_Stokes_Korteweg
-    @ingroup FE_Module */
-    
-<<<<<<< HEAD
 /** @addtogroup FE_Dirichlet_BCs
-=======
+    @ingroup FE_Module */
+
 /** @addtogroup FE_Compressible_NS
->>>>>>> 64dead4c3ae8b5fa339d467d4b49356b505df43e
     @ingroup FE_Module */
     
 //------------------------------------------------------------------------------

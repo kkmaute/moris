@@ -83,15 +83,17 @@ namespace moris
                 // storage for evaluation
                 Matrix< DDRMat > mFlux;
                 Matrix< DDRMat > mDivFlux;
-                Matrix< DDRMat > mGradH;
-                Matrix< DDRMat > mHdot;
-                Matrix< DDRMat > mGradHdot;
+                Matrix< DDRMat > mEnergy;
+                Matrix< DDRMat > mGradEnergy;
+                Matrix< DDRMat > mEnergyDot;
+                Matrix< DDRMat > mGradEnergyDot;
                 Matrix< DDRMat > mGradDivFlux;
                 moris::Cell< Matrix< DDRMat > > mGradDivFluxDof;
-                moris::Cell< Matrix< DDRMat > > mGradHdotDof;
-                moris::Cell< Matrix< DDRMat > > mGradHDof;
+                moris::Cell< Matrix< DDRMat > > mGradEnergyDotDof;
+                moris::Cell< Matrix< DDRMat > > mGradEnergyDof;
+                moris::Cell< Matrix< DDRMat > > mEnergyDotDof;
+                moris::Cell< Matrix< DDRMat > > mEnergyDof;
                 moris::Cell< Matrix< DDRMat > > mdFluxdDof;
-                moris::Cell< Matrix< DDRMat > > mHdotDof;
                 moris::Cell< Matrix< DDRMat > > mdFluxdDv;
                 moris::Cell< Matrix< DDRMat > > mdFluxdx;
                 moris::Cell< Matrix< DDRMat > > mddivfluxdu;
@@ -104,8 +106,10 @@ namespace moris
                 moris::Cell< moris::Cell< Matrix< DDRMat > > > mdTestTractiondDof;
                 moris::Cell< moris::Cell< Matrix< DDRMat > > > mdTestTractiondDv;
 
+                Matrix< DDRMat > mStress;
                 Matrix< DDRMat > mStrain;
                 Matrix< DDRMat > mDivStrain;
+                moris::Cell< Matrix< DDRMat > > mdStressdDof;
                 moris::Cell< Matrix< DDRMat > > mdStraindDof;
                 moris::Cell< Matrix< DDRMat > > mdStraindDv;
                 moris::Cell< Matrix< DDRMat > > mdStraindx;
@@ -131,13 +135,15 @@ namespace moris
                 // flag for evaluation
                 bool mFluxEval = true;
                 bool mDivFluxEval = true;
-                bool mHdotEval = true;
-                bool mGradHdotEval = true;
-                bool mGradHEval = true;
+                bool mEnergyEval = true;
+                bool mEnergyDotEval = true;
+                bool mGradEnergyDotEval = true;
+                bool mGradEnergyEval = true;
                 bool mGradDivFluxEval = true;
-                moris::Cell< bool > mHdotDofEval;
-                moris::Cell< bool > mGradHdotDofEval;
-                moris::Cell< bool > mGradHDofEval;
+                moris::Cell< bool > mEnergyDofEval;
+                moris::Cell< bool > mEnergyDotDofEval;
+                moris::Cell< bool > mGradEnergyDotDofEval;
+                moris::Cell< bool > mGradEnergyDofEval;
                 moris::Cell< bool > mGradDivFluxDofEval;
                 moris::Cell< bool > mdFluxdDofEval;
                 moris::Cell< bool > mdFluxdDvEval;
@@ -152,8 +158,10 @@ namespace moris
                 moris::Cell< moris::Cell< bool > > mdTestTractiondDofEval;
                 moris::Cell< moris::Cell< bool > > mdTestTractiondDvEval;
 
+                bool mStressEval = true;
                 bool mStrainEval = true;
                 bool mDivStrainEval = true;
+                moris::Cell< bool > mdStressdDofEval;
                 moris::Cell< bool > mdStraindDofEval;
                 moris::Cell< bool > mdStraindDvEval;
                 moris::Cell< bool > mdStraindxEval;
@@ -489,13 +497,6 @@ namespace moris
 
                 //------------------------------------------------------------------------------
                 /**
-                 * get the constitutive model flux
-                 * @param[ out ] mFlux constitutive model flux
-                 */
-                const Matrix< DDRMat > & flux();
-
-                //------------------------------------------------------------------------------
-                /**
                  * evaluate the constitutive model flux
                  */
                 virtual void eval_flux()
@@ -503,12 +504,11 @@ namespace moris
                     MORIS_ERROR( false, " Constitutive_Model::eval_flux - This function does nothing. " );
                 }
 
-                //------------------------------------------------------------------------------
                 /**
-                 * get the divergence of the flux
-                 * @param[ out ] mDivFlux divergence of the flux
+                 * get the constitutive model flux
+                 * @param[ out ] mFlux constitutive model flux
                  */
-                const Matrix< DDRMat > & divflux();
+                const Matrix< DDRMat > & flux();
 
                 //------------------------------------------------------------------------------
                 /**
@@ -519,13 +519,11 @@ namespace moris
                     MORIS_ERROR( false, " Constitutive_Model::eval_divflux - This function does nothing. " );
                 }
 
-                //------------------------------------------------------------------------------
                 /**
-                 * get the derivative of the divergence of the flux wrt to dof type
-                 * @param[ out ] mddivfluxdu derivative of the divergence of the flux
-                 *                           wrt to dof type
+                 * get the divergence of the flux
+                 * @param[ out ] mDivFlux divergence of the flux
                  */
-                const Matrix< DDRMat > & ddivfluxdu( const moris::Cell< MSI::Dof_Type > & aDofType );
+                const Matrix< DDRMat > & divflux();
 
                 //------------------------------------------------------------------------------
                 /**
@@ -536,13 +534,12 @@ namespace moris
                     MORIS_ERROR( false, " Constitutive_Model::eval_ddivfluxdu - This function does nothing. " );
                 }
 
-                //------------------------------------------------------------------------------
                 /**
-                 * get the constitutive model traction
-                 * @param[ in ]  aNormal   normal
-                 * @param[ out ] mTraction constitutive model traction
+                 * get the derivative of the divergence of the flux wrt to dof type
+                 * @param[ out ] mddivfluxdu derivative of the divergence of the flux
+                 *                           wrt to dof type
                  */
-                const Matrix< DDRMat > & traction( const Matrix< DDRMat > & aNormal );
+                const Matrix< DDRMat > & ddivfluxdu( const moris::Cell< MSI::Dof_Type > & aDofType );
 
                 //------------------------------------------------------------------------------
                 /**
@@ -554,15 +551,12 @@ namespace moris
                     MORIS_ERROR( false, " Constitutive_Model::eval_traction - This function does nothing. " );
                 }
 
-                //------------------------------------------------------------------------------
                 /**
-                 * get the constitutive model test traction
-                 * @param[ in ]  aNormal       normal
-                 * @param[ out ] mTestTraction constitutive model test traction
+                 * get the constitutive model traction
+                 * @param[ in ]  aNormal   normal
+                 * @param[ out ] mTraction constitutive model traction
                  */
-                const Matrix< DDRMat > & testTraction(
-                        const Matrix< DDRMat >             & aNormal,
-                        const moris::Cell< MSI::Dof_Type > & aTestDofTypes );
+                const Matrix< DDRMat > & traction( const Matrix< DDRMat > & aNormal );
 
                 //------------------------------------------------------------------------------
                 /**
@@ -576,12 +570,29 @@ namespace moris
                     MORIS_ERROR( false, " Constitutive_Model::eval_testTraction - This function does nothing. " );
                 }
 
+                /**
+                 * get the constitutive model test traction
+                 * @param[ in ]  aNormal       normal
+                 * @param[ out ] mTestTraction constitutive model test traction
+                 */
+                const Matrix< DDRMat > & testTraction(
+                        const Matrix< DDRMat >             & aNormal,
+                        const moris::Cell< MSI::Dof_Type > & aTestDofTypes );
+
                 //------------------------------------------------------------------------------
                 /**
-                 * get the constitutive model strain
-                 * @param[ out ] mStrain constitutive model strain
+                 * evaluate the constitutive model stress
                  */
-                const Matrix< DDRMat > & strain();
+                virtual void eval_stress()
+                {
+                    MORIS_ERROR( false, " Constitutive_Model::eval_stress - This function does nothing. " );
+                }
+
+                /**
+                 * get the constitutive model stress
+                 * @param[ out ] mStress constitutive model stress
+                 */
+                const Matrix< DDRMat > & stress();
 
                 //------------------------------------------------------------------------------
                 /**
@@ -592,12 +603,11 @@ namespace moris
                     MORIS_ERROR( false, " Constitutive_Model::eval_strain - This function does nothing. " );
                 }
 
-                //------------------------------------------------------------------------------
                 /**
-                 * get the divergence of the strain
-                 * @param[ out ] mDivFlux divergence of the strain
+                 * get the constitutive model strain
+                 * @param[ out ] mStrain constitutive model strain
                  */
-                const Matrix< DDRMat > & divstrain();
+                const Matrix< DDRMat > & strain();
 
                 //------------------------------------------------------------------------------
                 /**
@@ -608,13 +618,11 @@ namespace moris
                     MORIS_ERROR( false, " Constitutive_Model::eval_divstrain - This function does nothing. " );
                 }
 
-                //------------------------------------------------------------------------------
                 /**
-                 * get the derivative of the divergence of the strain wrt to dof type
-                 * @param[ out ] mddivstraindu derivative of the divergence of the strain
-                 *                             wrt to dof type
+                 * get the divergence of the strain
+                 * @param[ out ] mDivFlux divergence of the strain
                  */
-                const Matrix< DDRMat > & ddivstraindu( const moris::Cell< MSI::Dof_Type > & aDofType );
+                const Matrix< DDRMat > & divstrain();
 
                 //------------------------------------------------------------------------------
                 /**
@@ -625,12 +633,12 @@ namespace moris
                     MORIS_ERROR( false, " Constitutive_Model::eval_ddivstraindu - This function does nothing. " );
                 }
 
-                //------------------------------------------------------------------------------
                 /**
-                 * get the constitutive model test strain
-                 * @param[ out ] mTestStrain constitutive model test strain
+                 * get the derivative of the divergence of the strain wrt to dof type
+                 * @param[ out ] mddivstraindu derivative of the divergence of the strain
+                 *                             wrt to dof type
                  */
-                const Matrix< DDRMat > & testStrain();
+                const Matrix< DDRMat > & ddivstraindu( const moris::Cell< MSI::Dof_Type > & aDofType );
 
                 //------------------------------------------------------------------------------
                 /**
@@ -641,12 +649,11 @@ namespace moris
                     MORIS_ERROR( false, " Constitutive_Model::eval_testStrain - This function does nothing. " );
                 }
 
-                //------------------------------------------------------------------------------
                 /**
-                 * get the constitutive model constitutive matrix
-                 * @param[ out ] mConst constitutive matrix
+                 * get the constitutive model test strain
+                 * @param[ out ] mTestStrain constitutive model test strain
                  */
-                const Matrix< DDRMat > & constitutive();
+                const Matrix< DDRMat > & testStrain();
 
                 //------------------------------------------------------------------------------
                 /**
@@ -657,12 +664,11 @@ namespace moris
                     MORIS_ERROR( false, " Constitutive_Model::eval_const - This function does nothing. " );
                 }
 
-                //------------------------------------------------------------------------------
                 /**
-                 * get the derivative of the flux wrt space
-                 * @param[ in ] aOrder order of the derivative
+                 * get the constitutive model constitutive matrix
+                 * @param[ out ] mConst constitutive matrix
                  */
-                const Matrix< DDRMat > & dfluxdx( uint aOrder );
+                const Matrix< DDRMat > & constitutive();
 
                 //------------------------------------------------------------------------------
                 /**
@@ -674,13 +680,11 @@ namespace moris
                     MORIS_ERROR( false, " Constitutive_Model::eval_dfluxdx - This function does nothing. " );
                 }
 
-                //------------------------------------------------------------------------------
                 /**
-                 * get the derivative of the flux wrt dof
-                 * @param[ in ] aDofTypes  a dof type wrt which the derivative is evaluated
-                 * @param[ out ] mFluxDofDer derivative of the flux wrt dof
+                 * get the derivative of the flux wrt space
+                 * @param[ in ] aOrder order of the derivative
                  */
-                const Matrix< DDRMat > & dFluxdDOF( const moris::Cell< MSI::Dof_Type > & aDofType );
+                const Matrix< DDRMat > & dfluxdx( uint aOrder );
 
                 //------------------------------------------------------------------------------
                 /**
@@ -692,50 +696,72 @@ namespace moris
                     MORIS_ERROR( false, " Constitutive_Model::eval_dFluxdDOF - This function does nothing. " );
                 }
 
+                /**
+                 * get the derivative of the flux wrt dof
+                 * @param[ in ] aDofTypes  a dof type wrt which the derivative is evaluated
+                 * @param[ out ] mFluxDofDer derivative of the flux wrt dof
+                 */
+                const Matrix< DDRMat > & dFluxdDOF( const moris::Cell< MSI::Dof_Type > & aDofType );
+
                 //------------------------------------------------------------------------------
                 /**
-                 * evaluates the constitutive model change rate of enthalpy
+                 * evaluates the constitutive model energy
                  */
-                virtual void eval_Hdot()
+                virtual void eval_Energy()
                 {
-                    MORIS_ASSERT(false, "eval_Hdot: not implemented in base class.");
+                    MORIS_ASSERT(false, "eval_Energy: not implemented in base class.");
+                };
+
+                /**
+                 * get the constitutive model change rate of energy
+                 * @param[ out ] mEnergyDot change rate of energy
+                 */
+                const Matrix< DDRMat > & Energy();
+
+                //------------------------------------------------------------------------------
+                /**
+                 * evaluates the constitutive model change rate of energy
+                 */
+                virtual void eval_EnergyDot()
+                {
+                    MORIS_ASSERT(false, "eval_EnergyDot: not implemented in base class.");
                 };
 
                 /**
                  * get the constitutive model change rate of enthalpy
-                 * @param[ out ] mHdot change rate of enthalpy
+                 * @param[ out ] mEnergyDot change rate of enthalpy
                  */
-                const Matrix< DDRMat > & Hdot();
+                const Matrix< DDRMat > & EnergyDot();
 
                 //------------------------------------------------------------------------------
                 /**
                  * evaluates the constitutive model spatial gradient of enthalpy
                  */
-                virtual void eval_gradH()
+                virtual void eval_gradEnergy()
                 {
-                    MORIS_ASSERT(false, "eval_gradH: not implemented in base class.");
+                    MORIS_ASSERT(false, "eval_gradEnergy: not implemented in base class.");
                 };
 
                 /**
                  * get the constitutive model spatial gradient of enthalpy
-                 * @param[ out ] mGradH gradient of enthalpy
+                 * @param[ out ] mGradEnergy gradient of enthalpy
                  */
-                const Matrix< DDRMat > & gradH();
+                const Matrix< DDRMat > & gradEnergy();
 
                 //------------------------------------------------------------------------------
                 /**
                  * evaluates the constitutive model change rate of spatial gradient of enthalpy (needed for GGLS-stabilization)
                  */
-                virtual void eval_gradHdot()
+                virtual void eval_gradEnergyDot()
                 {
-                    MORIS_ASSERT(false, "eval_gradHdot: not implemented in base class.");
+                    MORIS_ASSERT(false, "eval_gradEnergyDot: not implemented in base class.");
                 };
 
                 /**
                  * get the constitutive model change rate of spatial gradient of enthalpy (needed for GGLS-stabilization)
-                 * @param[ out ] mGradHdot gradient of change rate of enthalpy
+                 * @param[ out ] mGradEnergyDot gradient of change rate of enthalpy
                  */
-                const Matrix< DDRMat > & gradHdot();
+                const Matrix< DDRMat > & gradEnergyDot();
 
                 //------------------------------------------------------------------------------
                 /**
@@ -754,57 +780,75 @@ namespace moris
 
                 //------------------------------------------------------------------------------
                 /**
+                 * evaluate the constitutive model energy change rate wrt to a dof type
+                 * @param[ in ] aDofTypes a dof type wrt which the derivative is evaluated
+                 * dEnergyDotdDOF ( 1 x numDerDof )
+                 */
+                virtual void eval_dEnergydDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes )
+                {
+                    MORIS_ASSERT(false, "eval_dEnergydDOF: not implemented in base class.");
+                };
+
+                /**
+                 * get the energy change rate wrt dof
+                 * @param[ in ]  aDofType        group of dof type
+                 * @param[ out ] mEnergyDotDofDer derivative of the traction wrt dof
+                 */
+                const Matrix< DDRMat > & dEnergydDOF( const moris::Cell< MSI::Dof_Type > & aDofType);
+
+                //------------------------------------------------------------------------------
+                /**
                  * evaluate the constitutive model enthalpy change rate wrt to a dof type
                  * @param[ in ] aDofTypes a dof type wrt which the derivative is evaluated
-                 * dHdotdDOF ( 1 x numDerDof )
+                 * dEnergyDotdDOF ( 1 x numDerDof )
                  */
-                virtual void eval_dHdotdDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes )
+                virtual void eval_dEnergyDotdDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes )
                 {
-                    MORIS_ASSERT(false, "eval_dHdotdDOF: not implemented in base class.");
+                    MORIS_ASSERT(false, "eval_dEnergyDotdDOF: not implemented in base class.");
                 };
 
                 /**
                  * get the enthalpy change rate wrt dof
                  * @param[ in ]  aDofType        group of dof type
-                 * @param[ out ] mHdotDofDer derivative of the traction wrt dof
+                 * @param[ out ] mEnergyDotDofDer derivative of the traction wrt dof
                  */
-                const Matrix< DDRMat > & dHdotdDOF( const moris::Cell< MSI::Dof_Type > & aDofType);
+                const Matrix< DDRMat > & dEnergyDotdDOF( const moris::Cell< MSI::Dof_Type > & aDofType);
 
                 //------------------------------------------------------------------------------
                 /**
                  * evaluate the constitutive model gradient of enthalpy wrt to a dof type
                  * @param[ in ] aDofTypes a dof type wrt which the derivative is evaluated
-                 * dgradHdDOF ( mSpaceDim x numDerDof )
+                 * dgradEnergydDOF ( mSpaceDim x numDerDof )
                  */
-                virtual void eval_dGradHdDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes )
+                virtual void eval_dGradEnergydDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes )
                 {
-                    MORIS_ASSERT(false, "eval_dGradHdDOF: not implemented in base class.");
+                    MORIS_ASSERT(false, "eval_dGradEnergydDOF: not implemented in base class.");
                 };
 
                 /**
                  * get the gradient of enthalpy wrt dof
                  * @param[ in ]  aDofType        group of dof type
-                 * @param[ out ] mGradHDer derivative of the gradient of enthalpy wrt dof
+                 * @param[ out ] mGradEnergyDer derivative of the gradient of enthalpy wrt dof
                  */
-                const Matrix< DDRMat > & dGradHdDOF( const moris::Cell< MSI::Dof_Type > & aDofType);
+                const Matrix< DDRMat > & dGradEnergydDOF( const moris::Cell< MSI::Dof_Type > & aDofType);
 
                 //------------------------------------------------------------------------------
                 /**
                  * evaluate the constitutive model gradient of enthalpy change rate wrt to a dof type
                  * @param[ in ] aDofTypes a dof type wrt which the derivative is evaluated
-                 * dgradHdotdDOF ( mSpaceDim x numDerDof )
+                 * dgradEnergyDotdDOF ( mSpaceDim x numDerDof )
                  */
-                virtual void eval_dGradHdotdDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes )
+                virtual void eval_dGradEnergyDotdDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes )
                 {
-                    MORIS_ASSERT(false, "eval_dGradHdotdDOF: not implemented in base class.");
+                    MORIS_ASSERT(false, "eval_dGradEnergyDotdDOF: not implemented in base class.");
                 };
 
                 /**
                  * get the gradient of enthalpy change rate wrt dof
                  * @param[ in ]  aDofType        group of dof type
-                 * @param[ out ] mGradHdotDer derivative of the traction wrt dof
+                 * @param[ out ] mGradEnergyDotDer derivative of the traction wrt dof
                  */
-                const Matrix< DDRMat > & dGradHdotdDOF( const moris::Cell< MSI::Dof_Type > & aDofType);
+                const Matrix< DDRMat > & dGradEnergyDotdDOF( const moris::Cell< MSI::Dof_Type > & aDofType);
 
                 //------------------------------------------------------------------------------
                 /**
@@ -820,20 +864,9 @@ namespace moris
                 /**
                  * get the gradient of enthalpy change rate wrt dof
                  * @param[ in ]  aDofType        group of dof type
-                 * @param[ out ] mGradHdotDer derivative of the traction wrt dof
+                 * @param[ out ] mGradEnergyDotDer derivative of the traction wrt dof
                  */
                 const Matrix< DDRMat > & dGradDivFluxdDOF( const moris::Cell< MSI::Dof_Type > & aDofType);
-
-                //------------------------------------------------------------------------------
-                /**
-                 * get the derivative of the traction wrt dof
-                 * @param[ in ]  aDofType        group of dof type
-                 * @param[ in ]  aNormal         normal
-                 * @param[ out ] mTractionDofDer derivative of the traction wrt dof
-                 */
-                const Matrix< DDRMat > & dTractiondDOF(
-                        const moris::Cell< MSI::Dof_Type > & aDofType,
-                        const Matrix< DDRMat >             & aNormal );
 
                 //------------------------------------------------------------------------------
                 /**
@@ -848,17 +881,15 @@ namespace moris
                     MORIS_ERROR( false, " Constitutive_Model::eval_dTractiondDOF - This function does nothing. " );
                 }
 
-                //------------------------------------------------------------------------------
                 /**
-                 * get the derivative of the test traction wrt dof
-                 * @param[ in ]  aDofType           group of dof type
-                 * @param[ in ]  aNormal            normal
-                 * @param[ out ] mdTestTractiondDof derivative of the traction wrt dof
+                 * get the derivative of the traction wrt dof
+                 * @param[ in ]  aDofType        group of dof type
+                 * @param[ in ]  aNormal         normal
+                 * @param[ out ] mTractionDofDer derivative of the traction wrt dof
                  */
-                const Matrix< DDRMat > & dTestTractiondDOF(
+                const Matrix< DDRMat > & dTractiondDOF(
                         const moris::Cell< MSI::Dof_Type > & aDofType,
-                        const Matrix< DDRMat >             & aNormal,
-                        const moris::Cell< MSI::Dof_Type > & aTestDofTypes );
+                        const Matrix< DDRMat >             & aNormal );
 
                 //------------------------------------------------------------------------------
                 /**
@@ -874,9 +905,7 @@ namespace moris
                     MORIS_ERROR( false, " Constitutive_Model::eval_dTestTractiondDOF - This function does nothing. " );
                 }
 
-                //------------------------------------------------------------------------------
                 /**
-                 * FIXME this is not a test traction, used for elast lin iso!!!!
                  * get the derivative of the test traction wrt dof
                  * @param[ in ]  aDofType           group of dof type
                  * @param[ in ]  aNormal            normal
@@ -885,7 +914,6 @@ namespace moris
                 const Matrix< DDRMat > & dTestTractiondDOF(
                         const moris::Cell< MSI::Dof_Type > & aDofType,
                         const Matrix< DDRMat >             & aNormal,
-                        const Matrix< DDRMat >             & aJump,
                         const moris::Cell< MSI::Dof_Type > & aTestDofTypes );
 
                 //------------------------------------------------------------------------------
@@ -904,12 +932,18 @@ namespace moris
                     MORIS_ERROR( false, " Constitutive_Model::eval_dTestTractiondDOF - This function does nothing. " );
                 }
 
-                //------------------------------------------------------------------------------
                 /**
-                 * get the derivative of the strain wrt space
-                 * @param[ in ] aOrder order of the derivative
+                 * FIXME this is not a test traction, used for elast lin iso!!!!
+                 * get the derivative of the test traction wrt dof
+                 * @param[ in ]  aDofType           group of dof type
+                 * @param[ in ]  aNormal            normal
+                 * @param[ out ] mdTestTractiondDof derivative of the traction wrt dof
                  */
-                const Matrix< DDRMat > & dstraindx( uint aOrder );
+                const Matrix< DDRMat > & dTestTractiondDOF(
+                        const moris::Cell< MSI::Dof_Type > & aDofType,
+                        const Matrix< DDRMat >             & aNormal,
+                        const Matrix< DDRMat >             & aJump,
+                        const moris::Cell< MSI::Dof_Type > & aTestDofTypes );
 
                 //------------------------------------------------------------------------------
                 /**
@@ -921,13 +955,29 @@ namespace moris
                     MORIS_ERROR( false, " Constitutive_Model::eval_dstraindx - This function does nothing. " );
                 }
 
+                /**
+                 * get the derivative of the strain wrt space
+                 * @param[ in ] aOrder order of the derivative
+                 */
+                const Matrix< DDRMat > & dstraindx( uint aOrder );
+
                 //------------------------------------------------------------------------------
                 /**
-                 * get the derivative of the strain wrt dof
-                 * @param[ in ] aDofTypes      a dof type wrt which the derivative is evaluated
-                 * @param[ out ] mdStraindDof derivative of the strain wrt dof
+                 * evaluate the constitutive model stress derivative wrt to a dof type
+                 * @param[ in ] aDofTypes a dof type wrt which the derivative is evaluated
                  */
-                const Matrix< DDRMat > & dStraindDOF( const moris::Cell< MSI::Dof_Type > & aDofType );
+                virtual void eval_dStressdDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes )
+                {
+                    MORIS_ERROR( false, " Constitutive_Model::eval_dStressdDOF - This function does nothing. " );
+                }
+
+                /**
+                 * get the derivative of the stress wrt dof
+                 * @param[ in ] aDofTypes      a dof type wrt which the derivative is evaluated
+                 * @param[ out ] mdStressdDof derivative of the stress wrt dof
+                 */
+                const Matrix< DDRMat > & dStressdDOF( const moris::Cell< MSI::Dof_Type > & aDofType );
+
 
                 //------------------------------------------------------------------------------
                 /**
@@ -939,13 +989,12 @@ namespace moris
                     MORIS_ERROR( false, " Constitutive_Model::eval_dStraindDOF - This function does nothing. " );
                 }
 
-                //------------------------------------------------------------------------------
                 /**
-                 * get the derivative of the constitutive matrix wrt dof
-                 * @param[ in ] aDofTypes    a dof type wrt which the derivative is evaluated
-                 * @param[ out ] mdConstdDof derivative of the constitutive matrix wrt dof
+                 * get the derivative of the strain wrt dof
+                 * @param[ in ] aDofTypes      a dof type wrt which the derivative is evaluated
+                 * @param[ out ] mdStraindDof derivative of the strain wrt dof
                  */
-                const Matrix< DDRMat > & dConstdDOF( const moris::Cell< MSI::Dof_Type > & aDofType );
+                const Matrix< DDRMat > & dStraindDOF( const moris::Cell< MSI::Dof_Type > & aDofType );
 
                 //------------------------------------------------------------------------------
                 /**
@@ -957,13 +1006,12 @@ namespace moris
                     MORIS_ERROR( false, " Constitutive_Model::eval_dConstdDOF - This function does nothing. " );
                 }
 
-                //------------------------------------------------------------------------------
                 /**
-                 * get the derivative of the flux wrt dv
-                 * @param[ in ]  aDvTypes  a dv type wrt which the derivative is evaluated
-                 * @param[ out ] mdFluxdDv derivative of the flux wrt dv
+                 * get the derivative of the constitutive matrix wrt dof
+                 * @param[ in ] aDofTypes    a dof type wrt which the derivative is evaluated
+                 * @param[ out ] mdConstdDof derivative of the constitutive matrix wrt dof
                  */
-                const Matrix< DDRMat > & dFluxdDV( const moris::Cell< PDV_Type > & aDvType );
+                const Matrix< DDRMat > & dConstdDOF( const moris::Cell< MSI::Dof_Type > & aDofType );
 
                 //------------------------------------------------------------------------------
                 /**
@@ -975,13 +1023,12 @@ namespace moris
                     MORIS_ERROR( false, " Constitutive_Model::eval_dFluxdDV - This function does nothing. " );
                 }
 
-                //------------------------------------------------------------------------------
                 /**
-                 * get the derivative of the strain wrt dv
-                 * @param[ in ]  aDvTypes    a dv type wrt which the derivative is evaluated
-                 * @param[ out ] mdStraindDv derivative of the strain wrt dv
+                 * get the derivative of the flux wrt dv
+                 * @param[ in ]  aDvTypes  a dv type wrt which the derivative is evaluated
+                 * @param[ out ] mdFluxdDv derivative of the flux wrt dv
                  */
-                const Matrix< DDRMat > & dStraindDV( const moris::Cell< PDV_Type > & aDvType );
+                const Matrix< DDRMat > & dFluxdDV( const moris::Cell< PDV_Type > & aDvType );
 
                 //------------------------------------------------------------------------------
                 /**
@@ -993,13 +1040,12 @@ namespace moris
                     MORIS_ERROR( false, " Constitutive_Model::eval_dStraindDV - This function does nothing. " );
                 }
 
-                //------------------------------------------------------------------------------
                 /**
-                 * get the derivative of the constitutive matrix wrt dv
-                 * @param[ in ]  aDvTypes   a dv type wrt which the derivative is evaluated
-                 * @param[ out ] mdConstdDv derivative of the constitutive matrix wrt dv
+                 * get the derivative of the strain wrt dv
+                 * @param[ in ]  aDvTypes    a dv type wrt which the derivative is evaluated
+                 * @param[ out ] mdStraindDv derivative of the strain wrt dv
                  */
-                const Matrix< DDRMat > & dConstdDV( const moris::Cell< PDV_Type > & aDvType );
+                const Matrix< DDRMat > & dStraindDV( const moris::Cell< PDV_Type > & aDvType );
 
                 //------------------------------------------------------------------------------
                 /**
@@ -1010,6 +1056,13 @@ namespace moris
                 {
                     MORIS_ERROR( false, " Constitutive_Model::eval_dConstdDV - This function does nothing. " );
                 }
+
+                /**
+                 * get the derivative of the constitutive matrix wrt dv
+                 * @param[ in ]  aDvTypes   a dv type wrt which the derivative is evaluated
+                 * @param[ out ] mdConstdDv derivative of the constitutive matrix wrt dv
+                 */
+                const Matrix< DDRMat > & dConstdDV( const moris::Cell< PDV_Type > & aDvType );
 
                 //------------------------------------------------------------------------------
                 /**
@@ -1092,9 +1145,9 @@ namespace moris
                  * @param[ in ] adFluxdDOF_FD a matrix to fill with derivative evaluation
                  * @param[ in ] aPerturbation   real to perturb for FD
                  */
-                void eval_dHdotdDOF_FD(
+                void eval_dEnergyDotdDOF_FD(
                         const moris::Cell< MSI::Dof_Type > & aDofTypes,
-                        Matrix< DDRMat >                   & adHdotdDOF_FD,
+                        Matrix< DDRMat >                   & adEnergyDotdDOF_FD,
                         real                                 aPerturbation,
                         fem::FDScheme_Type                   aFDSchemeType = fem::FDScheme_Type::POINT_5 );
 
@@ -1102,12 +1155,12 @@ namespace moris
                 /**
                  * evaluate the gradient of enthalpy wrt dof using finite differences
                  * @param[ in ] aDofTypes       a dof type wrt which the derivative is evaluated
-                 * @param[ in ] adGradHdDOF_FD  a matrix to fill with derivative evaluation
+                 * @param[ in ] adGradEnergydDOF_FD  a matrix to fill with derivative evaluation
                  * @param[ in ] aPerturbation   real to perturb for FD
                  */
-                void eval_dGradHdDOF_FD(
+                void eval_dGradEnergydDOF_FD(
                         const moris::Cell< MSI::Dof_Type > & aDofTypes,
-                        Matrix< DDRMat >                   & adGradHdDOF_FD,
+                        Matrix< DDRMat >                   & adGradEnergydDOF_FD,
                         real                                 aPerturbation,
                         fem::FDScheme_Type                   aFDSchemeType = fem::FDScheme_Type::POINT_5);
 
@@ -1115,12 +1168,12 @@ namespace moris
                 /**
                  * evaluate the gradient of enthalpy change rate wrt dof using finite differences
                  * @param[ in ] aDofTypes          a dof type wrt which the derivative is evaluated
-                 * @param[ in ] adGradHdotdDOF_FD  a matrix to fill with derivative evaluation
+                 * @param[ in ] adGradEnergyDotdDOF_FD  a matrix to fill with derivative evaluation
                  * @param[ in ] aPerturbation      real to perturb for FD
                  */
-                void eval_dGradHdotdDOF_FD(
+                void eval_dGradEnergyDotdDOF_FD(
                         const moris::Cell< MSI::Dof_Type > & aDofTypes,
-                        Matrix< DDRMat >                   & adGradHdotdDOF_FD,
+                        Matrix< DDRMat >                   & adGradEnergyDotdDOF_FD,
                         real                                 aPerturbation,
                         fem::FDScheme_Type                   aFDSchemeType = fem::FDScheme_Type::POINT_5 );
 

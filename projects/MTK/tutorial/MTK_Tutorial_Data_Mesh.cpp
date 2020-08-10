@@ -18,7 +18,7 @@ moris::Logger       gLogger;
  */
 #include "cl_MTK_Mesh.hpp" // MTK/src
 #include "cl_MTK_Mesh_Data_Input.hpp"
-#include "cl_Mesh_Factory.hpp"
+#include "cl_MTK_Mesh_Factory.hpp"
 #include "cl_MTK_Scalar_Field_Info.hpp"
 
 
@@ -375,7 +375,7 @@ main( int    argc,
       *       aMeshData.FieldsInfo              = &tFieldsInfo;
       *
       *       // Create mesh from data with the factory
-      *       moris::mtk::Mesh* tMesh = create_mesh( MeshType::STK, aMeshData );
+      *       moris::mtk::Mesh* tMesh = create_interpolation_mesh( MeshType::STK, aMeshData );
       *  \endcode
       *
       */
@@ -393,7 +393,7 @@ main( int    argc,
      aMeshData.FieldsInfo              = &tFieldsInfo;
 
      // Create mesh from data with the factory
-     moris::mtk::Mesh* tMesh = create_mesh( MeshType::STK, aMeshData );
+     moris::mtk::Mesh* tMesh = create_interpolation_mesh( MeshType::STK, aMeshData );
 
 
      /*!

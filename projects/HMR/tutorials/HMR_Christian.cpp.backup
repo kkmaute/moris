@@ -25,7 +25,7 @@
 #include "cl_Mesh_Enums.hpp"
 #include "cl_MTK_Mesh.hpp"
 #include "cl_MTK_Mapper.hpp"
-#include "cl_Mesh_Factory.hpp"
+#include "cl_MTK_Mesh_Factory.hpp"
 
 //------------------------------------------------------------------------------
 
@@ -104,7 +104,7 @@ main(
        *       MTK does not support this out of the box.
        *       Need to discuss with keenan
        */
-      mtk::Mesh * tMesh = mtk::create_mesh( MeshType::STK, tMeshPath, nullptr);
+      mtk::Mesh * tMesh = mtk::create_interpolation_mesh( MeshType::STK, tMeshPath, nullptr);
 
       uint tNumberOfElements
           =  tHMR.get_database()->get_background_mesh()->get_number_of_active_elements_on_proc();

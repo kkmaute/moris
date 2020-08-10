@@ -89,6 +89,16 @@ namespace moris
                 return mIsForwardAnalysis;
             };
 
+            virtual void postmultiply_implicit_dQds()
+            {
+                MORIS_ERROR( false, "Solver_Interface::postmultiply_implicit_dQds: not set.");
+            };
+
+            virtual void compute_IQI()
+            {
+                MORIS_ERROR( false, "Solver_Interface::compute_IQI: not set.");
+            };
+
             virtual void set_solution_vector( sol::Dist_Vector * aSolutionVector )
             {
                 MORIS_ERROR( false, "Solver_Interface::set_solution_vector: not set.");

@@ -7,7 +7,7 @@
 
 #include "catch.hpp"
 
-#include "cl_Mesh_Factory.hpp"
+#include "cl_MTK_Mesh_Factory.hpp"
 #include "cl_MTK_Integration_Mesh.hpp"
 #include "cl_MTK_Interpolation_Mesh.hpp"
 #include "cl_MTK_Visualization_STK.hpp"
@@ -31,7 +31,7 @@ TEST_CASE("MTK Vertex Communication Tables","[VERTEX_COMM_TABLES]")
     tMeshData.FieldsInfo = tFieldsInfo;
 
     // Create MORIS mesh using MTK database
-    moris::mtk::Mesh* tMesh = mtk::create_mesh( MeshType::STK, tMeshFile, &tMeshData );
+    moris::mtk::Mesh* tMesh = mtk::create_interpolation_mesh( MeshType::STK, tMeshFile, &tMeshData );
 
     // fill in the parallel fields
     tVizTool.populate_parallel_cell_fields_on_mesh(tMesh);

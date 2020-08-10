@@ -12,7 +12,7 @@
 #include "algorithms.hpp"
 #include "cl_MTK_Mesh.hpp" // MTK/src
 #include "cl_MTK_Mesh_Data_Input.hpp"
-#include "cl_Mesh_Factory.hpp"
+#include "cl_MTK_Mesh_Factory.hpp"
 #include "cl_MTK_Mesh_Tools.hpp"
 
 #include "cl_Communication_Tools.hpp" // COM/src
@@ -81,7 +81,7 @@ TEST_CASE( "Creating a 2D mesh from data in serial", "[Mesh_from_data_1]" )
             aMeshData.NodeCoords = &aCoords;
             aMeshData.LocaltoGlobalElemMap(0) = &aElemLocaltoGlobal;
 
-            Mesh* tMesh2D_QUADs  = create_mesh( MeshType::STK, aMeshData );
+            Mesh* tMesh2D_QUADs  = create_interpolation_mesh( MeshType::STK, aMeshData );
 
             // =============================
             // Testing basic functionalities
@@ -139,7 +139,7 @@ TEST_CASE( "Creating a 3D 2 element mesh from data in serial using non-consecuti
                 aMeshData.LocaltoGlobalElemMap(0) = &aElemLocaltoGlobalNC;
                 aMeshData.LocaltoGlobalNodeMap    = &aNodeLocaltoGlobalNC;
 
-                moris::mtk::Mesh* tMesh3D_HEXs = create_mesh( MeshType::STK, aMeshData );
+                moris::mtk::Mesh* tMesh3D_HEXs = create_interpolation_mesh( MeshType::STK, aMeshData );
 
                 // =============================
                 // Testing basic functionalities
@@ -264,7 +264,7 @@ TEST_CASE( "with 2 block sets, 1 node set, and 1 side set","[Mesh_with_blocks]" 
         aMeshData.LocaltoGlobalElemMap(0) = &aElemLocaltoGlobal;
         aMeshData.LocaltoGlobalNodeMap    = &aNodeLocaltoGlobal;
 
-        moris::mtk::Mesh* tMesh = create_mesh( MeshType::STK, aMeshData );
+        moris::mtk::Mesh* tMesh = create_interpolation_mesh( MeshType::STK, aMeshData );
 
         // ========================
         // Testing sets information
@@ -393,7 +393,7 @@ TEST_CASE("parallel 4 element mesh","[PAR_MTK_FROM_DATA]")
             aMeshData.LocaltoGlobalNodeMap    = &aNodeLocaltoGlobalNC;
             aMeshData.NodeProcsShared         = &aNodeSharedProcs;
 
-            moris::mtk::Mesh* tParMesh = create_mesh( MeshType::STK, aMeshData );
+            moris::mtk::Mesh* tParMesh = create_interpolation_mesh( MeshType::STK, aMeshData );
             tParMesh->create_output_mesh(tMeshOutputFile);
 
             delete tParMesh;
@@ -436,7 +436,7 @@ TEST_CASE("parallel 4 element mesh","[PAR_MTK_FROM_DATA]")
             aMeshData.LocaltoGlobalNodeMap    = &aNodeLocaltoGlobalNC;
             aMeshData.NodeProcsShared         = &aNodeSharedProcs;
 
-            moris::mtk::Mesh* tParMesh = create_mesh( MeshType::STK, aMeshData );
+            moris::mtk::Mesh* tParMesh = create_interpolation_mesh( MeshType::STK, aMeshData );
             tParMesh->create_output_mesh(tMeshOutputFile);
             delete tParMesh;
         }
@@ -477,7 +477,7 @@ TEST_CASE("parallel 4 element mesh","[PAR_MTK_FROM_DATA]")
             aMeshData.LocaltoGlobalNodeMap    = &aNodeLocaltoGlobalNC;
             aMeshData.NodeProcsShared         = &aNodeSharedProcs;
 
-            moris::mtk::Mesh* tParMesh = create_mesh( MeshType::STK, aMeshData );
+            moris::mtk::Mesh* tParMesh = create_interpolation_mesh( MeshType::STK, aMeshData );
             tParMesh->create_output_mesh(tMeshOutputFile);
             delete tParMesh;
         }
@@ -519,7 +519,7 @@ TEST_CASE("parallel 4 element mesh","[PAR_MTK_FROM_DATA]")
             aMeshData.LocaltoGlobalNodeMap    = &aNodeLocaltoGlobalNC;
             aMeshData.NodeProcsShared         = &aNodeSharedProcs;
 
-            moris::mtk::Mesh* tParMesh = create_mesh( MeshType::STK, aMeshData );
+            moris::mtk::Mesh* tParMesh = create_interpolation_mesh( MeshType::STK, aMeshData );
             tParMesh->create_output_mesh(tMeshOutputFile);
             delete tParMesh;
         }

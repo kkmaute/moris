@@ -22,7 +22,7 @@
 #include "linalg_typedefs.hpp"
 #include "fn_save_matrix_to_binary_file.hpp"
 
-#include "cl_Mesh_Factory.hpp"
+#include "cl_MTK_Mesh_Factory.hpp"
 
 #include "SDF_Tools.hpp"
 
@@ -187,7 +187,7 @@ perform_calculation(
     tic tTimer1;
 
     // step 2: create mesh objects
-    mtk::Mesh * tMtkMesh = mtk::create_mesh(
+    mtk::Mesh * tMtkMesh = mtk::create_interpolation_mesh(
             MeshType::STK,
             aArguments.get_input_mesh_path(),
             nullptr,

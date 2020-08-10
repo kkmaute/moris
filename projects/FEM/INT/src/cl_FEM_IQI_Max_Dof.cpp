@@ -41,7 +41,7 @@ namespace moris
             if ( mPropertyMap.find( aPropertyString ) == mPropertyMap.end() )
             {
                 std::string tErrMsg =
-                        std::string( "CM_Diffusion_Linear_Isotropic_Phase_Change::set_property - Unknown aPropertyString : ") +
+                        std::string( "IQI_Max_Dof::set_property - Unknown aPropertyString : ") +
                         aPropertyString;
 
                 MORIS_ERROR( false , tErrMsg.c_str() );

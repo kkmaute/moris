@@ -82,6 +82,8 @@ void Monolithic_Time_Solver::solve_monolytic_time_system( moris::Cell< sol::Dist
             tMaxTimeIterationReached = true;
         }
 
+        mSolverInterface->compute_IQI();
+
         // input second time slap value for output
         mMyTimeSolver->check_for_outputs( tTime( 1 ), tMaxTimeIterationReached );
 
@@ -123,7 +125,6 @@ void Monolithic_Time_Solver::solve_implicit_DqDs( moris::Cell< sol::Dist_Vector 
 
         // set time for current time slab ( since off-diagonal is computed on same time level for implicit DqDs)
         mSolverInterface->set_previous_time( tTimeFrames( tPrevSolVecIndex ) );
-        // set time for current time slab
         mSolverInterface->set_time( tTimeFrames( tSolVecIndex ) );
 
 
@@ -137,8 +138,9 @@ void Monolithic_Time_Solver::solve_implicit_DqDs( moris::Cell< sol::Dist_Vector 
 
         mNonlinearSolver->solve( aFullAdjointVector( 0 ) );
 
-        aFullAdjointVector( 1 )->vec_plus_vec( 1.0, *(aFullAdjointVector( 0 )), 0.0 );
+        mSolverInterface->postmultiply_implicit_dQds();
 
+        aFullAdjointVector( 1 )->vec_plus_vec( 1.0, *(aFullAdjointVector( 0 )), 0.0 );
     }
 }
 

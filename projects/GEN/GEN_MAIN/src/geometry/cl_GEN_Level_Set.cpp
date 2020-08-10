@@ -1,4 +1,8 @@
 #include "cl_GEN_Level_Set.hpp"
+#include "cl_MTK_Mesh_Manager.hpp"
+#include "cl_MTK_Integration_Mesh.hpp"
+#include "cl_MTK_Mesh_Factory.hpp"
+#include "cl_MTK_Mapper.hpp"
 
 namespace moris
 {
@@ -27,7 +31,7 @@ namespace moris
                         aBSplineLowerBound,
                         aBSplineUpperBound),
                   mMesh(aMesh),
-                  mNumOriginalNodes(aMesh->get_num_nodes())
+                  mNumOriginalNodes(mMesh->get_num_nodes())
         {
             // Check that number of variables equals the number of B-spline coefficients
             MORIS_ASSERT(mFieldVariables.size() == mMesh->get_num_coeffs(aBSplineMeshIndex),
@@ -38,7 +42,7 @@ namespace moris
 
         Level_Set::Level_Set(Matrix<DDRMat>&           aADVs,
                              uint                      aADVIndex,
-                             mtk::Mesh*                aMesh,
+                             mtk::Interpolation_Mesh*  aMesh,
                              std::shared_ptr<Geometry> aGeometry)
                 : Field(aADVs,
                         aADVIndex,
@@ -49,16 +53,43 @@ namespace moris
                         aGeometry->get_bspline_lower_bound(),
                         aGeometry->get_bspline_upper_bound()),
                   mMesh(aMesh),
-                  mNumOriginalNodes(aMesh->get_num_nodes())
+                  mNumOriginalNodes(mMesh->get_num_nodes())
         {
-            // Check for linear B-splines
-            MORIS_ERROR(mNumOriginalNodes == mMesh->get_num_coeffs(this->get_bspline_mesh_index()),
-                    "GEN level sets are currently only supported for linear B-splines.");
-
-            // Assign ADVs
-            for (uint tNodeIndex = 0; tNodeIndex < mNumOriginalNodes; tNodeIndex++)
+            // Check for L2 needed
+            if (mNumOriginalNodes != mMesh->get_num_coeffs(this->get_bspline_mesh_index()))
             {
-                aADVs(aADVIndex++) = aGeometry->evaluate_field_value(tNodeIndex, mMesh->get_node_coordinate(tNodeIndex));
+                // Set values ons source field
+                Matrix<DDRMat> tSourceField(mNumOriginalNodes, 1);
+                for (uint tNodeIndex = 0; tNodeIndex < mNumOriginalNodes; tNodeIndex++)
+                {
+                    tSourceField(tNodeIndex) = aGeometry->evaluate_field_value(tNodeIndex, mMesh->get_node_coordinate(tNodeIndex));
+                }
+
+                // Create mesh manager
+                std::shared_ptr<mtk::Mesh_Manager> tMeshManager = std::make_shared<mtk::Mesh_Manager>();
+                tMeshManager->register_mesh_pair(aMesh, create_integration_mesh_from_interpolation_mesh(MeshType::HMR, aMesh));
+
+                // Use mapper
+                mapper::Mapper tMapper(tMeshManager, 0, (uint)this->get_bspline_mesh_index());
+                Matrix<DDRMat> tTargetField(0, 0);
+                tMapper.perform_mapping(tSourceField,
+                                        EntityRank::NODE,
+                                        tTargetField,
+                                        EntityRank::BSPLINE);
+
+                // Assign ADVs
+                for (uint tBSplineIndex = 0; tBSplineIndex < mMesh->get_num_coeffs(this->get_bspline_mesh_index()); tBSplineIndex++)
+                {
+                    aADVs(aADVIndex++) = tTargetField(tBSplineIndex);
+                }
+            }
+            else // Nodal values, no L2
+            {
+                // Assign ADVs directly
+                for (uint tNodeIndex = 0; tNodeIndex < mNumOriginalNodes; tNodeIndex++)
+                {
+                    aADVs(aADVIndex++) = aGeometry->evaluate_field_value(tNodeIndex, mMesh->get_node_coordinate(tNodeIndex));
+                }
             }
         }
 

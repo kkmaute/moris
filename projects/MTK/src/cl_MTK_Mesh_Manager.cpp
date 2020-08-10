@@ -59,7 +59,7 @@ namespace moris
             MORIS_ASSERT(
                     aPairIndex < (moris::moris_index) mInterpolationMesh.size() &&
                     aPairIndex < (moris::moris_index) mIntegrationMesh.size(),
-                    "Mesh_Manager::get_integration_mesh: requested mesh does not exist.");
+                    "Mesh_Manager::get_mesh_pair: requested mesh pair does not exist.");
 
             aInterpMesh      = mInterpolationMesh(aPairIndex);
             aIntegrationMesh = mIntegrationMesh(aPairIndex);
@@ -69,7 +69,7 @@ namespace moris
         Mesh_Manager::get_interpolation_mesh(moris::moris_index aMeshIndex)
         {
             MORIS_ASSERT( aMeshIndex < (moris::moris_index) mInterpolationMesh.size(),
-                    "Mesh_Manager::get_integration_mesh: requested mesh does not exist.");
+                    "Mesh_Manager::get_interpolation_mesh: requested mesh does not exist.");
 
             return mInterpolationMesh(aMeshIndex);
         }
