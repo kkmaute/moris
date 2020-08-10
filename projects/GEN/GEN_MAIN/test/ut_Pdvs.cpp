@@ -140,7 +140,7 @@ namespace moris
             }
         }
 
-        TEST_CASE("PDV sensitivities test", "[GEN], [sensitivity]")
+        TEST_CASE("PDV sensitivities test", "[GEN], [PDV], [sensitivity], [PDV sensitivity]")
         {
             // Create PDV_Type host manager
             Pdv_Host_Manager tPdvHostManager;

@@ -29,7 +29,7 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        TEST_CASE("Full Interface Sensitivity Test", "[GEN], [INTERSECTION_SENSITIVITY]")
+        TEST_CASE("Interface sensitivity test", "[GEN], [interface], [sensitivity], [interface sensitivity]")
         {
             if (par_size() == 1)
             {

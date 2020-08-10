@@ -40,7 +40,7 @@ namespace moris
                                 real aYSemidiameter,
                                 bool aCheck = true);
 
-        TEST_CASE("Circle Test", "[GEN], [GEN_CIRCLE]")
+        TEST_CASE("Circle test", "[GEN], [geometry], [circle]")
         {
             // Set up geometry
             ParameterList tCircle1ParameterList = prm::create_geometry_parameter_list();
@@ -120,7 +120,7 @@ namespace moris
             check_approx(tSensitivities, {{-1.0, 0.0, 0.0, 0.0, -1.0}});
         }
 
-        TEST_CASE("Superellipse Test", "[GEN], [GEN_SUPERELLIPSE]")
+        TEST_CASE("Superellipse test", "[GEN], [geometry], [superellipse]")
         {
             // Set up geometry
             ParameterList tSuperellipseParameterList = prm::create_geometry_parameter_list();
@@ -175,7 +175,7 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        TEST_CASE("Sphere Test", "[GEN], [GEN_SPHERE]")
+        TEST_CASE("Sphere test", "[GEN], [geometry], [sphere]")
         {
             // Set up geometry
             ParameterList tSphereParameterList = prm::create_geometry_parameter_list();
@@ -225,7 +225,7 @@ namespace moris
             check_approx(tSensitivities, {{-2.0 / 3.0, 2.0 / 3.0, -1.0 / 3.0, -1.0}});
         }
 
-        TEST_CASE("Superellipsoid Test", "[GEN], [GEN_SUPERELLIPSOID]")
+        TEST_CASE("Superellipsoid test", "[GEN], [geometry], [superellipsoid]")
         {
             // Set up geometry
             ParameterList tSuperellipsoidParameterList = prm::create_geometry_parameter_list();
@@ -280,7 +280,7 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        TEST_CASE("Level Set Geometry Test", "[GEN], [GEN_LEVEL_SET_GEOMETRY]")
+        TEST_CASE("Level set geometry test", "[GEN], [geometry], [level set geometry]")
         {
             if (par_size() == 1)
             {
@@ -344,7 +344,7 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        TEST_CASE("User-Defined Geometry Test", "[GEN], [GEN_USER_DEFINED_GEOMETRY]")
+        TEST_CASE("User-defined geometry test", "[GEN], [geometry], [user-defined geometry]")
         {
             // Create user-defined geometry
             Matrix<DDRMat> tADVs = {{-1.0, 0.5}};
@@ -389,7 +389,7 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        TEST_CASE("Multigeometry Test", "[GEN], [GEN_MULTIGEOMETRY]")
+        TEST_CASE("Multigeometry test", "[GEN], [geometry], [multigeometry]")
         {
             // Set up geometry
             Cell<ParameterList> tCircleParameterLists(2);
@@ -459,7 +459,7 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        TEST_CASE("Swiss Cheese Slice Test", "[GEN], [GEN_SWISS_CHEESE_SLICE]")
+        TEST_CASE("Swiss cheese slice test", "[GEN], [geometry], [swiss cheese slice]")
         {
             // Set up geometry
             ParameterList tSwissCheeseParameterList = prm::create_swiss_cheese_slice_parameter_list();
