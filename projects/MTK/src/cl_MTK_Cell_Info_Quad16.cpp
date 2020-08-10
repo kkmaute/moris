@@ -36,7 +36,7 @@ namespace moris
         uint
         Cell_Info_Quad16::get_num_verts() const
         {
-            return 9;
+            return 16;
         }
         // ----------------------------------------------------------------------------------
         uint
@@ -154,6 +154,39 @@ namespace moris
                 }
             }
         }
+
+        // ----------------------------------------------------------------------------------
+
+        Matrix<DDRMat>
+        Cell_Info_Quad16::get_vertex_loc_coord(moris_index aVertexOrdinal) const
+        {
+            switch (aVertexOrdinal)
+            {
+                case  0:{ return {{-1.000000000000000e+00,  -1.000000000000000e+00}}; break;}
+                case  1:{ return {{+1.000000000000000e+00,  -1.000000000000000e+00}}; break;}
+                case  2:{ return {{+1.000000000000000e+00,  +1.000000000000000e+00}}; break;}
+                case  3:{ return {{-1.000000000000000e+00,  +1.000000000000000e+00}}; break;}
+                case  4:{ return {{-3.333333333333334e-01,  -1.000000000000000e+00}}; break;}
+                case  5:{ return {{+3.333333333333333e-01,  -1.000000000000000e+00}}; break;}
+                case  6:{ return {{+1.000000000000000e+00,  -3.333333333333334e-01}}; break;}
+                case  7:{ return {{+1.000000000000000e+00,  +3.333333333333333e-01}}; break;}
+                case  8:{ return {{+3.333333333333333e-01,  +1.000000000000000e+00}}; break;}
+                case  9:{ return {{-3.333333333333334e-01,  +1.000000000000000e+00}}; break;}
+                case 10:{ return {{-1.000000000000000e+00,  +3.333333333333333e-01}}; break;}
+                case 11:{ return {{-1.000000000000000e+00,  -3.333333333333334e-01}}; break;}
+                case 12:{ return {{-3.333333333333334e-01,  -3.333333333333334e-01}}; break;}
+                case 13:{ return {{+3.333333333333333e-01,  -3.333333333333334e-01}}; break;}
+                case 14:{ return {{+3.333333333333333e-01,  +3.333333333333333e-01}}; break;}
+                case 15:{ return {{-3.333333333333334e-01,  +3.333333333333333e-01}}; break;}
+                default:
+                {
+                    MORIS_ERROR(0,"Invalid vertex ordinal specified");
+                    return moris::Matrix<moris::DDRMat>(0,0);
+                    break;
+                }
+            }
+        }
+
         // ----------------------------------------------------------------------------------
         Matrix<DDRMat>
         Cell_Info_Quad16::get_loc_coord_on_side_ordinal(moris::uint aSideOrdinal) const

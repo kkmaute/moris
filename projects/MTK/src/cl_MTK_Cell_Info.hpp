@@ -108,6 +108,15 @@ namespace moris
                 // ---------------------------------------------------------------------------------
                 virtual
                 Matrix<DDRMat>
+                get_vertex_loc_coord(moris_index aVertexOrdinal) const
+                {
+                    MORIS_ERROR(0,"get_loc_coord_on_side_ordinal not implemented for given cell info type");
+                    return Matrix<DDRMat>(0,0);
+                }
+
+                // ---------------------------------------------------------------------------------
+                virtual
+                Matrix<DDRMat>
                 get_loc_coord_on_side_ordinal(moris::uint aSideOrdinal) const
                 {
                     MORIS_ERROR(0,"get_loc_coord_on_side_ordinal not implemented for given cell info type");

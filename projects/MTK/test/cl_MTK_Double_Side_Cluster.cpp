@@ -195,19 +195,19 @@ TEST_CASE( "MTK Double Side Cluster", "[MTK_Double_Side_Cluster]" )
         moris::Matrix<moris::IdMat> tDummyVerts(0,0);
         moris::Matrix<moris::DDRMat> tDummyCoords(0,0);
 
-        // left side cluster
-        moris_id         tLeftGhostInterpCellId   = 3;
-        moris_index      tLeftGhostInterpCellInd  = tInterpMesh1->get_loc_entity_ind_from_entity_glb_id(tLeftGhostInterpCellId,EntityRank::ELEMENT);
-        moris::mtk::Cell* tLeftInterpCell         = &tInterpMesh1->get_mtk_cell(tLeftGhostInterpCellInd);
-        Matrix<IndexMat> tLeftGhostCellIdAndOrd   = {{3,5}};
-        bool             tLeftTrivial = true;
+        // master side cluster
+        moris_id         tMasterGhostInterpCellId   = 3;
+        moris_index      tMasterGhostInterpCellInd  = tInterpMesh1->get_loc_entity_ind_from_entity_glb_id(tMasterGhostInterpCellId,EntityRank::ELEMENT);
+        moris::mtk::Cell* tMasterInterpCell         = &tInterpMesh1->get_mtk_cell(tMasterGhostInterpCellInd);
+        Matrix<IndexMat> tMasterGhostCellIdAndOrd   = {{3,5}};
+        bool             tMasterTrivial = true;
 
         // right side cluster
-        moris_id         tRightGhostInterpCellId   = 4;
-        moris_index      tRightGhostInterpCellInd  = tInterpMesh1->get_loc_entity_ind_from_entity_glb_id(tLeftGhostInterpCellId,EntityRank::ELEMENT);
-        moris::mtk::Cell* tRightInterpCell         = &tInterpMesh1->get_mtk_cell(tLeftGhostInterpCellInd);
-        Matrix<IndexMat> tRightGhostCellIdAndOrd = {{4,4}};
-        bool             tRightTrivial = true;
+        moris_id         tSlaveGhostInterpCellId   = 4;
+        moris_index      tSlaveGhostInterpCellInd  = tInterpMesh1->get_loc_entity_ind_from_entity_glb_id(tMasterGhostInterpCellId,EntityRank::ELEMENT);
+        moris::mtk::Cell* tSlaveInterpCell         = &tInterpMesh1->get_mtk_cell(tMasterGhostInterpCellInd);
+        Matrix<IndexMat> tSlaveGhostCellIdAndOrd = {{4,4}};
+        bool             tSlaveTrivial = true;
 
         // Vertex pairing
         Matrix<IdMat> tVertexPair = {{13,13},
@@ -215,8 +215,8 @@ TEST_CASE( "MTK Double Side Cluster", "[MTK_Double_Side_Cluster]" )
                                      {15,15},
                                      {16,16}};
 
-        tDoubleSideClusterInput.add_cluster_data(tOrd,tLeftTrivial,tLeftInterpCell,&tLeftGhostCellIdAndOrd,&tDummyVerts,&tDummyCoords,
-                                                 tRightTrivial,tRightInterpCell,&tRightGhostCellIdAndOrd,&tDummyVerts,&tDummyCoords, &tVertexPair);
+        tDoubleSideClusterInput.add_cluster_data(tOrd,tMasterTrivial,tMasterInterpCell,&tMasterGhostCellIdAndOrd,&tDummyVerts,&tDummyCoords,
+                                                 tSlaveTrivial,tSlaveInterpCell,&tSlaveGhostCellIdAndOrd,&tDummyVerts,&tDummyCoords, &tVertexPair);
 
         tMeshDataInput.DoubleSideClusterInput = &tDoubleSideClusterInput;
 
@@ -237,32 +237,76 @@ TEST_CASE( "MTK Double Side Cluster", "[MTK_Double_Side_Cluster]" )
 
         CHECK(tGhostDoubleSide.size() == 1);
 
-//        Side_Cluster const & tLeftCluster = tGhostDoubleSide(0).get_left_side_cluster();
+//        Side_Cluster const & tMasterCluster = tGhostDoubleSide(0).get_master_side_cluster();
 
         CHECK(tGhostDoubleSide(0)->is_trivial( mtk::Master_Slave::MASTER ));
-        CHECK(tGhostDoubleSide(0)->get_interpolation_cell( mtk::Master_Slave::MASTER ).get_id() == tLeftInterpCell->get_id());
+        CHECK(tGhostDoubleSide(0)->get_interpolation_cell( mtk::Master_Slave::MASTER ).get_id() == tMasterInterpCell->get_id());
 
-        moris::Matrix<moris::IndexMat> tLeftCellSideOrds = tGhostDoubleSide(0)->get_cell_side_ordinals( mtk::Master_Slave::MASTER );
-        CHECK(tLeftCellSideOrds.numel() == 1);
-        CHECK(tLeftCellSideOrds(0) == 5);
+        moris::Matrix<moris::IndexMat> tMasterCellSideOrds = tGhostDoubleSide(0)->get_cell_side_ordinals( mtk::Master_Slave::MASTER );
+        CHECK(tMasterCellSideOrds.numel() == 1);
+        CHECK(tMasterCellSideOrds(0) == 5);
 
-//        Side_Cluster const & tRightCluster = tGhostDoubleSide(0).get_right_side_cluster();
+//        Side_Cluster const & tSlaveCluster = tGhostDoubleSide(0).get_right_side_cluster();
         CHECK(tGhostDoubleSide(0)->is_trivial( mtk::Master_Slave::SLAVE ));
-        CHECK(tGhostDoubleSide(0)->get_interpolation_cell( mtk::Master_Slave::SLAVE ).get_id() == tRightInterpCell->get_id());
+        CHECK(tGhostDoubleSide(0)->get_interpolation_cell( mtk::Master_Slave::SLAVE ).get_id() == tSlaveInterpCell->get_id());
 
-        moris::Matrix<moris::IndexMat> tRightCellSideOrds = tGhostDoubleSide(0)->get_cell_side_ordinals( mtk::Master_Slave::SLAVE );
-        CHECK(tRightCellSideOrds.numel() == 1);
-        CHECK(tRightCellSideOrds(0) == 4);
+        moris::Matrix<moris::IndexMat> tSlaveCellSideOrds = tGhostDoubleSide(0)->get_cell_side_ordinals( mtk::Master_Slave::SLAVE );
+        CHECK(tSlaveCellSideOrds.numel() == 1);
+        CHECK(tSlaveCellSideOrds(0) == 4);
 
         // iterate through pairs and chekc ids of vertices (should be the same in this case)
-        moris::Cell<moris::mtk::Vertex const *> tLeftVerts = tGhostDoubleSide(0)->get_vertices_in_cluster( mtk::Master_Slave::MASTER );
-        for(moris::uint  i = 0; i < tLeftVerts.size(); i++)
+        moris::Cell<moris::mtk::Vertex const *> tMasterVerts = tGhostDoubleSide(0)->get_vertices_in_cluster( mtk::Master_Slave::MASTER );
+        for(moris::uint  i = 0; i < tMasterVerts.size(); i++)
         {
-            moris::mtk::Vertex const * tRightVertex = tGhostDoubleSide(0)->get_left_vertex_pair(tLeftVerts(i));
+            moris::mtk::Vertex const * tSlaveVertex = tGhostDoubleSide(0)->get_master_vertex_pair(tMasterVerts(i));
 
-            CHECK(tRightVertex->get_id() == tLeftVerts(i)->get_id());
+            CHECK(tSlaveVertex->get_id() == tMasterVerts(i)->get_id());
         }
 
+        //get_master_side_cluster() const;
+        //get_slave_side_cluster() const;
+        //get_master_side_cluster();
+        //get_slave_side_cluster();
+        //get_cluster(
+        //get_master_vertex_pair(moris::mtk::Vertex const * aMasterVertex) const;
+        //get_vertex_cluster_index(
+        //get_interpolation_cell( const mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER ) const;
+        //get_master_interpolation_cell() const;
+        //get_slave_interpolation_cell() const;
+        //get_primary_cells_in_cluster( const mtk::Master_Slave aIsMaster ) const;
+        //get_master_integration_cells() const;
+        //get_slave_integration_cells() const;
+        //get_cell_side_ordinals( const mtk::Master_Slave aIsMaster ) const;
+        //get_cell_side_ordinal(
+        //get_master_integration_cell_side_ordinals() const;
+        //get_master_cell_side_ordinal(moris::moris_index aMasterCellIndexInCluster) const;
+        //get_slave_integration_cell_side_ordinals() const;
+        //get_slave_cell_side_ordinal(moris::moris_index aSlaveCellIndexInCluster) const;
+        //get_vertices_in_cluster( const mtk::Master_Slave aIsMaster ) const;
+        //get_master_vertices_in_cluster() const;
+        //get_slave_vertices_in_cluster() const;
+        //get_slave_vertex_ord_on_facet( moris_index  aCellClusterIndex,
+        //get_master_vertex_indices_in_cluster() const;
+        //get_slave_vertex_indices_in_cluster() const;
+        //get_vertex_indices_in_cluster() const;
+        //get_vertices_local_coordinates_wrt_interp_cell( const mtk::Master_Slave aIsMaster ) const;
+        //get_master_vertices_local_coordinates_wrt_interp_cell() const;
+        //get_slave_vertices_local_coordinates_wrt_interp_cell() const;
+        //get_vertex_local_coordinate_wrt_interp_cell( moris::mtk::Vertex const * aVertex,
+        //get_master_vertex_local_coordinate_wrt_interp_cell( moris::mtk::Vertex const * aVertex ) const;
+        //get_slave_vertex_local_coordinate_wrt_interp_cell( moris::mtk::Vertex const * aVertex ) const;
+        //get_cell_local_coords_on_side_wrt_interp_cell(moris::moris_index aClusterLocalIndex,
+        //get_master_cell_local_coords_on_side_wrt_interp_cell(moris::moris_index aMasterClusterLocalIndex) const;
+        //get_slave_cell_local_coords_on_side_wrt_interp_cell(moris::moris_index aSlaveClusterLocalIndex) const;
+        //get_dim_of_param_coord( const mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER ) const;
+        //compute_cluster_cell_measure(const mtk::Primary_Void aPrimaryOrVoid = mtk::Primary_Void::PRIMARY,
+        //compute_cluster_cell_side_measure(const mtk::Primary_Void aPrimaryOrVoid = mtk::Primary_Void::PRIMARY,
+        //get_master_dim_of_param_coord() const;
+        //get_slave_dim_of_param_coord() const;
+        //get_master_num_sides() const;
+        //get_slave_num_sides() const;
+        //get_master_num_vertices_in_cluster() const;
+        //get_slave_num_vertices_in_cluster() const;
 
 
         // cleanup

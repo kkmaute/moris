@@ -17,6 +17,12 @@ set(TEST_SOURCES
 	cl_MTK_Cell_Cluster.cpp
 	cl_MTK_Double_Side_Cluster.cpp
 	cl_MTK_Writer_Exodus_Test.cpp
+	UT_MTK_Cell_Info_Hex27.cpp
+	UT_MTK_Cell_Info_Hex64.cpp
+	UT_MTK_Cell_Info_Hex8.cpp
+	UT_MTK_Cell_Info_Quad4.cpp
+	UT_MTK_Cell_Info_Quad9.cpp
+	UT_MTK_Cell_Info_Quad16.cpp
 	UT_MTK_Connectivity.cpp
 	UT_MTK_Mesh_Comm_Maps.cpp)
 

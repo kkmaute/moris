@@ -131,6 +131,9 @@ Cell_Info_Quad4::get_node_map_outward_normal(moris::uint aSideOrdinal) const
         }
     }
 }
+
+// ----------------------------------------------------------------------------------
+
 moris::uint
 Cell_Info_Quad4::get_adjacent_side_ordinal(moris::uint aSideOrdinal) const
 {
@@ -149,7 +152,27 @@ Cell_Info_Quad4::get_adjacent_side_ordinal(moris::uint aSideOrdinal) const
     }
 }
 
+Matrix<DDRMat>
+Cell_Info_Quad4::get_vertex_loc_coord(moris_index aVertexOrdinal) const
+{
+    switch (aVertexOrdinal)
+    {
+        case 0: { return {{-1.000000000000000e+00,  -1.000000000000000e+00}}; break; }
+        case 1: { return {{+1.000000000000000e+00,  -1.000000000000000e+00}}; break; }
+        case 2: { return {{+1.000000000000000e+00,  +1.000000000000000e+00}}; break; }
+        case 3: { return {{-1.000000000000000e+00,  +1.000000000000000e+00}}; break; }
+        default:
+        {
+            MORIS_ERROR(0,"Invalid vertex ordinal specified");
+            return moris::Matrix<moris::DDRMat>(0,0);
+            break;
+        }
+    }
+}
+
+
 // ----------------------------------------------------------------------------------
+
 moris::real
 Cell_Info_Quad4::compute_cell_size( moris::mtk::Cell const * aCell ) const
 {

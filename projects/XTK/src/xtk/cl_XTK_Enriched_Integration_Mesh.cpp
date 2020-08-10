@@ -269,8 +269,6 @@ namespace xtk
         {
             case EntityRank::NODE:
             {
-                moris::print(mVertexSetNames,"mVertexSetNames");
-
                 return mVertexSetNames;
                 break;
             }
@@ -2353,15 +2351,8 @@ namespace xtk
 
                 mVerticesInVertexSet(tSetOrd).push_back(&this->get_mtk_vertex(tInterfaceVertices(j)));
             }
-
-            std::cout<<"i = "<<i<<std::endl;
-            std::cout<<"mVerticesInVertexSet(tSetOrd).size() = "<<mVerticesInVertexSet(tSetOrd).size()<<std::endl;
         }
 
-        //        for(moris::uint i =  mListofSideSets.size(); i < mSideSets.size(); i++)
-        //        {
-        //            this->commit_side_set(i);
-        //        }
     }
 
     //------------------------------------------------------------------------------

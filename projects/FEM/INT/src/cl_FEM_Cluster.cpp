@@ -370,7 +370,7 @@ namespace moris
                     "Cluster::get_left_vertex_pair - empty cluster.");
 
             // get the paired vertex on the right
-            return mMeshCluster->get_left_vertex_pair( aLeftVertex );
+            return mMeshCluster->get_master_vertex_pair( aLeftVertex );
         }
 
         //------------------------------------------------------------------------------
@@ -388,7 +388,7 @@ namespace moris
                     "Cluster::get_right_vertex_ordinal_on_facet - empty cluster.");
 
             // return the index of the paired vertex on the right
-            return mMeshCluster->get_right_vertex_ord_on_facet(aCellIndexInCluster, aVertex);
+            return mMeshCluster->get_slave_vertex_ord_on_facet(aCellIndexInCluster, aVertex);
         }
 
         //------------------------------------------------------------------------------

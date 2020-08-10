@@ -89,7 +89,8 @@ cl_MTK_Cell_Info_Tri3.cpp
 cl_MTK_Cell_Info_Quad4.cpp
 cl_MTK_Cell_Info_Quad9.cpp
 cl_MTK_Cell_Info_Quad16.cpp
-cl_MTK_Mesh_Manager.cpp)
+cl_MTK_Mesh_Manager.cpp
+cl_MTK_Double_Side_Cluster.cpp)
 
 # List library dependencies
 set(LIB_DEPENDENCIES

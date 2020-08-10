@@ -90,7 +90,6 @@ TEST_CASE("Cell Cluster Proxy","[MTK_CLUSTER_PROXY]")
         tVertices(i).mVertexInd   = (moris_index) i;
         tVertices(i).mVertexCoord = tNodeCoordinates.get_row(i);
     }
-    moris::print(tVertices,"tVertices");
 
     // setup cells and cell cluster
     moris::Cell<Cell_Proxy> tPrimaryCells(tCellIdsPhase0.numel());

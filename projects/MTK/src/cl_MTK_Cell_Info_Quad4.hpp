@@ -68,6 +68,9 @@ public:
     moris::uint
     get_adjacent_side_ordinal(moris::uint aSideOrdinal) const;
     // ----------------------------------------------------------------------------------
+    Matrix<DDRMat>
+    get_vertex_loc_coord(moris_index aVertexOrdinal) const;
+    // ----------------------------------------------------------------------------------
     moris::real
     compute_cell_size( moris::mtk::Cell const * aCell ) const;
     // ----------------------------------------------------------------------------------

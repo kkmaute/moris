@@ -138,12 +138,12 @@ Cell_Info_Hex27::get_adjacent_side_ordinal(moris::uint aSideOrdinal) const
 {
     switch (aSideOrdinal)
     {
-        case(0):{ return 2; break; }
-        case(1):{ return 3; break; }
-        case(2):{ return 0; break; }
-        case(3):{ return 1; break; }
-        case(4):{ return 5; break; }
-        case(5):{ return 4; break; }
+        case 0:{ return 2; break; }
+        case 1:{ return 3; break; }
+        case 2:{ return 0; break; }
+        case 3:{ return 1; break; }
+        case 4:{ return 5; break; }
+        case 5:{ return 4; break; }
         default:
         {
             MORIS_ERROR(0,"Invalid side ordinal specified");
@@ -152,6 +152,48 @@ Cell_Info_Hex27::get_adjacent_side_ordinal(moris::uint aSideOrdinal) const
         }
     }
 }
+
+Matrix<DDRMat>
+Cell_Info_Hex27::get_vertex_loc_coord(moris_index aVertexOrdinal) const
+{
+    switch (aVertexOrdinal)
+    {
+        case  0: { return {{ -1.0, -1.0, -1.0 }}; break; }
+        case  1: { return {{ +1.0, -1.0, -1.0 }}; break; }
+        case  2: { return {{ +1.0, +1.0, -1.0 }}; break; }
+        case  3: { return {{ -1.0, +1.0, -1.0 }}; break; }
+        case  4: { return {{ -1.0, -1.0, +1.0 }}; break; }
+        case  5: { return {{ +1.0, -1.0, +1.0 }}; break; }
+        case  6: { return {{ +1.0, +1.0, +1.0 }}; break; }
+        case  7: { return {{ -1.0, +1.0, +1.0 }}; break; }
+        case  8: { return {{ +0.0, -1.0, -1.0 }}; break; }
+        case  9: { return {{ +1.0,  0.0, -1.0 }}; break; }
+        case 10: { return {{  0.0, +1.0, -1.0 }}; break; }
+        case 11: { return {{ -1.0,  0.0, -1.0 }}; break; }
+        case 12: { return {{ -1.0, -1.0,  0.0 }}; break; }
+        case 13: { return {{ +1.0, -1.0,  0.0 }}; break; }
+        case 14: { return {{ +1.0, +1.0,  0.0 }}; break; }
+        case 15: { return {{ -1.0, +1.0,  0.0 }}; break; }
+        case 16: { return {{  0.0, -1.0, +1.0 }}; break; }
+        case 17: { return {{ +1.0,  0.0, +1.0 }}; break; }
+        case 18: { return {{  0.0, +1.0, +1.0 }}; break; }
+        case 19: { return {{ -1.0,  0.0, +1.0 }}; break; }
+        case 20: { return {{  0.0,  0.0,  0.0 }}; break; }
+        case 21: { return {{  0.0,  0.0, -1.0 }}; break; }
+        case 22: { return {{  0.0,  0.0, +1.0 }}; break; }
+        case 23: { return {{ -1.0,  0.0,  0.0 }}; break; }
+        case 24: { return {{ +1.0,  0.0,  0.0 }}; break; }
+        case 25: { return {{  0.0, -1.0,  0.0 }}; break; }
+        case 26: { return {{  0.0, +1.0,  0.0 }}; break; }
+        default:
+        {
+            MORIS_ERROR(0,"Invalid vertex ordinal specified");
+            return moris::Matrix<moris::DDRMat>(0,0);
+            break;
+        }
+    }
+}
+
 // ----------------------------------------------------------------------------------
 inline
 moris::Matrix<moris::IndexMat>

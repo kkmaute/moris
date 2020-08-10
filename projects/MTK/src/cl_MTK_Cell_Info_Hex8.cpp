@@ -110,13 +110,41 @@ Cell_Info_Hex8::get_node_to_facet_map(moris::uint aSideOrdinal) const
 {
     return this->get_node_to_face_map(aSideOrdinal);
 }
+
 // ----------------------------------------------------------------------------------
+
 moris::Matrix<moris::IndexMat>
 Cell_Info_Hex8::get_geometric_node_to_facet_map() const
 {
     return this->get_node_to_face_map();
 }
+
 // ----------------------------------------------------------------------------------
+
+Matrix<DDRMat>
+Cell_Info_Hex8::get_vertex_loc_coord(moris_index const & aVertexOrdinal) const
+{
+    switch (aVertexOrdinal)
+    {
+        case  0: { return {{ -1.0, -1.0, -1.0 }}; break; }
+        case  1: { return {{ +1.0, -1.0, -1.0 }}; break; }
+        case  2: { return {{ +1.0, +1.0, -1.0 }}; break; }
+        case  3: { return {{ -1.0, +1.0, -1.0 }}; break; }
+        case  4: { return {{ -1.0, -1.0, +1.0 }}; break; }
+        case  5: { return {{ +1.0, -1.0, +1.0 }}; break; }
+        case  6: { return {{ +1.0, +1.0, +1.0 }}; break; }
+        case  7: { return {{ -1.0, +1.0, +1.0 }}; break; }
+        default:
+        {
+            MORIS_ERROR(0,"Invalid vertex ordinal specified");
+            return moris::Matrix<moris::DDRMat>(0,0);
+            break;
+        }
+    }
+}
+
+// ----------------------------------------------------------------------------------
+
 moris::Matrix<moris::IndexMat>
 Cell_Info_Hex8::get_geometric_node_to_facet_map(moris::uint aSideOrdinal) const
 {

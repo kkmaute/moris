@@ -69,6 +69,9 @@ public:
     get_adjacent_side_ordinal(moris::uint aSideOrdinal) const;
     // ----------------------------------------------------------------------------------
     Matrix<DDRMat>
+    get_vertex_loc_coord(moris_index aVertexOrdinal) const;
+    // ----------------------------------------------------------------------------------
+    Matrix<DDRMat>
     get_loc_coord_on_side_ordinal(moris::uint aSideOrdinal) const;
     // ----------------------------------------------------------------------------------
     moris::real

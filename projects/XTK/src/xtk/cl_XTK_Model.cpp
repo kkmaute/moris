@@ -2410,24 +2410,22 @@ namespace xtk
 
         MORIS_ERROR(tNumElements > 0,"Empty mesh passed to XTK");
 
+        // get the linear background cell indo
+        mtk::Cell_Info_Factory tCellInfoFactory;
+
+        moris::mtk::Cell_Info* tGeometricCellInfo = tCellInfoFactory.create_cell_info(mBackgroundMesh.get_parent_cell_topology());
+
 
         // collect a vector of node to element connectivity for the entire mesh
-        moris::uint tNumNodesPerElem = 0;
-        moris::Matrix< moris::IndexMat > tElementToNodeConnInd;
-        moris::Matrix< moris::IndexMat > tElementToNodeVector;
+        moris::uint tNumNodesPerElem = tGeometricCellInfo->get_num_verts();
+        moris::Matrix< moris::IndexMat > tElementToNodeConnInd(tNumElements,tNumNodesPerElem);
+        moris::Matrix< moris::IndexMat > tElementToNodeVector(1,tNumNodesPerElem);
 
 
         for (moris::size_t i = 0; i < tNumElements; i++)
         {
 
             tElementToNodeVector = tXTKMeshData.get_entity_connected_to_entity_loc_inds(i, moris::EntityRank::ELEMENT, moris::EntityRank::NODE);
-
-            // size now that i know the num nodes per element
-            if( i == 0 )
-            {
-                tNumNodesPerElem = tElementToNodeVector.numel();
-                tElementToNodeConnInd.resize(tNumElements,tNumNodesPerElem);
-            }
 
             for(moris::uint j = 0; j < tNumNodesPerElem; j++)
             {
@@ -2550,6 +2548,8 @@ namespace xtk
                 tChildMesh.add_new_geometry_interface(aGeomIndex);
             }
         }
+
+        delete tGeometricCellInfo;
     }
 
     // ----------------------------------------------------------------------------------
