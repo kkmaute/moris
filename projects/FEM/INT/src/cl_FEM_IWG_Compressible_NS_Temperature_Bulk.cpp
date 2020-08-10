@@ -174,12 +174,16 @@ namespace moris
                 uint tMasterDepStartIndex = mSet->get_jac_dof_assembly_map()( tMasterDofIndex )( tDofDepIndex, 0 );
                 uint tMasterDepStopIndex  = mSet->get_jac_dof_assembly_map()( tMasterDofIndex )( tDofDepIndex, 1 );
 
-                // add contribution
-                mSet->get_jacobian()(
-                        { tMasterResStartIndex, tMasterResStopIndex },
-                        { tMasterDepStartIndex, tMasterDepStopIndex } ) += aWStar * (
-                                trans( tFITemp->N() ) * tCMFluid->dEnergyDotdDOF( tDofType ) -
-                                trans( tFITemp->dnNdxn( 1 ) ) * tCMFluid->dFluxdDOF( tDofType ) );
+                // if fluid CM depends on dof type
+                if ( tCMFluid->check_dof_dependency( tDofType ) )
+                {
+                    // add contribution
+                    mSet->get_jacobian()(
+                            { tMasterResStartIndex, tMasterResStopIndex },
+                            { tMasterDepStartIndex, tMasterDepStopIndex } ) += aWStar * (
+                                    trans( tFITemp->N() ) * tCMFluid->dEnergyDotdDOF( tDofType ) -
+                                    trans( tFITemp->dnNdxn( 1 ) ) * tCMFluid->dFluxdDOF( tDofType ) );
+                }
 
                 // if a body force is present
                 if ( tPropBodyForce != nullptr )
