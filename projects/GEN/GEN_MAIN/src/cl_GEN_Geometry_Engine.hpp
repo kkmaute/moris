@@ -162,6 +162,15 @@ namespace moris
             MSI::Design_Variable_Interface* get_design_variable_interface();
 
             /**
+             * Determines if the element consisting of the given node coordinates is intersected.
+             *
+             * @param aNodeIndices Node indices
+             * @param aNodeCoordinates Node coordinates
+             * @return If the element is intersected
+             */
+            bool is_intersected(const Matrix<IndexMat>& aNodeIndices, const Matrix<DDRMat>& aNodeCoordinates);
+
+            /**
              * Gets all of the geometry field values at the specified coordinates
              *
              * @param aNodeIndices Node indices on the mesh

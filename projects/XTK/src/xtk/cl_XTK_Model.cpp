@@ -2375,56 +2375,60 @@ namespace xtk
         // Note this method is independent of node ids for this reason Background_Mesh is not given the node Ids during this subdivision
         moris::mtk::Mesh & tXTKMeshData = mBackgroundMesh.get_mesh_data();
 
-        // Package up node to element connectivity
-        moris::moris_index tParentElementIndex = MORIS_INDEX_MAX;
+        // Ensure size is zero
+        aActiveChildMeshIndices.set_size(0, 0);
+        aNewPairBool.set_size(0, 0);
+
+        // Number of elements
         moris::size_t tNumElements = mBackgroundMesh.get_num_entities(EntityRank::ELEMENT);
 
-        moris::Matrix< moris::IndexMat > tElementToNodeConnInd (tNumElements, aNumNodesPerElement);
-        moris::Matrix< moris::IndexMat > tElementToNodeVector (1, aNumNodesPerElement);
-
-        for (moris::size_t i = 0; i < tNumElements; i++)
-        {
-            tElementToNodeVector = tXTKMeshData.get_entity_connected_to_entity_loc_inds(i, moris::EntityRank::ELEMENT, moris::EntityRank::NODE);
-
-            for(moris::uint j = 0; j < aNumNodesPerElement; j++)
-            {
-                tElementToNodeConnInd(i,j) = tElementToNodeVector(j);
-            }
-        }
-
-        // Get the Node Coordinates
-        moris::Matrix< moris::DDRMat > tAllNodeCoords = mBackgroundMesh.get_all_node_coordinates_loc_inds();
-
-        // Intersected elements are flagged via the Geometry_Engine
-        Cell<moris::ge::GEN_Geometry_Object> tGeoObjects;
-        mGeometryEngine->is_intersected(tAllNodeCoords, tElementToNodeConnInd, 0,tGeoObjects);
-
-        // Count number intersected
-        moris::size_t tIntersectedCount = tGeoObjects.size();
-
-        // Loop over and determine how many new meshes that need to be registered (Avoids dynamic allocation in the child mesh)
-        // Also register active mesh pairs
-        Cell<std::pair<moris::moris_index,moris::moris_index>> tNewChildElementPair;
-        aNewPairBool = moris::Matrix< moris::IndexMat >(1,tIntersectedCount,0);
-        tNewChildElementPair.reserve(tIntersectedCount);
-
+        // New child meshes
         moris::size_t tNumNewChildMeshes = 0;
         moris::moris_index tNewIndex = 0;
-        aActiveChildMeshIndices.resize(1,tIntersectedCount);
-        for (moris::size_t j = 0; j < tIntersectedCount; j++)
+        Matrix<IndexMat> tIntersectedElementIndices(0, 0);
+        Cell<std::pair<moris::moris_index, moris::moris_index>> tNewChildElementPair(0);
+        Matrix<IndexMat> tElementNodeIndices(tNumElements, aNumNodesPerElement);
+
+        // Loop over elements to check for intersections
+        for (size_t tParentElementIndex = 0; tParentElementIndex < tNumElements; tParentElementIndex++)
         {
-            tParentElementIndex = tGeoObjects(j).get_parent_entity_index();
-            if(!mBackgroundMesh.entity_has_children(tParentElementIndex,EntityRank::ELEMENT))
+            Matrix<IndexMat> tElementNodeIndicesTemp = tXTKMeshData.get_entity_connected_to_entity_loc_inds(
+                    tParentElementIndex,
+                    moris::EntityRank::ELEMENT,
+                    moris::EntityRank::NODE);
+
+            for (moris::uint j = 0; j < aNumNodesPerElement; j++)
             {
-                tNewIndex = tNumNewChildMeshes+mCutMesh.get_num_child_meshes();
-                tNewChildElementPair.push_back( std::pair<moris::moris_index,moris::moris_index>(tParentElementIndex, tNewIndex));
-                aActiveChildMeshIndices(0,j) = tNewIndex;
-                tNumNewChildMeshes++;
+                tElementNodeIndices(tParentElementIndex, j) = tElementNodeIndicesTemp(j);
             }
-            else
+
+            // Intersected elements are flagged via the Geometry_Engine
+            if (mGeometryEngine->is_intersected(
+                    tElementNodeIndicesTemp,
+                    mBackgroundMesh.get_selected_node_coordinates_loc_inds(tElementNodeIndicesTemp)))
             {
-                aActiveChildMeshIndices(0,j) = mBackgroundMesh.child_mesh_index(tParentElementIndex,EntityRank::ELEMENT);
-                aNewPairBool(0,j) = 1;
+                // Resize
+                tIntersectedElementIndices.resize(1, tIntersectedElementIndices.n_cols() + 1);
+                aActiveChildMeshIndices.resize(1, aActiveChildMeshIndices.n_cols() + 1);
+                aNewPairBool.resize(1, aNewPairBool.n_cols() + 1);
+
+                // Element index
+                tIntersectedElementIndices(tIntersectedElementIndices.n_cols() - 1) = tParentElementIndex;
+
+                // Determine how many meshes need to be registered
+                if (not mBackgroundMesh.entity_has_children(tParentElementIndex, EntityRank::ELEMENT))
+                {
+                    tNewIndex = tNumNewChildMeshes + mCutMesh.get_num_child_meshes();
+                    tNewChildElementPair.push_back(std::pair<moris::moris_index, moris::moris_index>(tParentElementIndex, tNewIndex));
+                    aActiveChildMeshIndices(aActiveChildMeshIndices.n_cols() - 1) = tNewIndex;
+                    aNewPairBool(aNewPairBool.n_cols() - 1) = 0;
+                    tNumNewChildMeshes++;
+                }
+                else
+                {
+                    aActiveChildMeshIndices(aActiveChildMeshIndices.n_cols() - 1) = mBackgroundMesh.child_mesh_index(tParentElementIndex, EntityRank::ELEMENT);
+                    aNewPairBool(aNewPairBool.n_cols() - 1) = 1;
+                }
             }
         }
 
@@ -2435,33 +2439,35 @@ namespace xtk
         mCutMesh.inititalize_new_child_meshes(tNumNewChildMeshes, mModelDimension);
 
         moris::Matrix< moris::IndexMat > tPlaceHolder(1, 1);
-        for (moris::size_t j = 0; j < tIntersectedCount; j++)
+        for (moris::size_t j = 0; j < tIntersectedElementIndices.length(); j++)
         {
-            if(aNewPairBool(0,j) == 0)
+            if (aNewPairBool(j) == 0)
             {
-                tParentElementIndex = tGeoObjects(j).get_parent_entity_index();
-
                 // Get information to provide ancestry
                 // This could be replaced with a proper topology implementation that knows faces, edges based on parent element nodes
-                Matrix< IndexMat > tNodetoElemConnVec = tElementToNodeConnInd.get_row(tParentElementIndex);
-                Matrix< IndexMat > tEdgetoElemConnInd = tXTKMeshData.get_entity_connected_to_entity_loc_inds(tParentElementIndex, moris::EntityRank::ELEMENT, moris::EntityRank::EDGE);
-                Matrix< IndexMat > tFacetoElemConnInd = tXTKMeshData.get_entity_connected_to_entity_loc_inds(tParentElementIndex, moris::EntityRank::ELEMENT, moris::EntityRank::FACE);
-                Matrix< IndexMat > tElementMat        = {{tParentElementIndex}};
+                Matrix< IndexMat > tNodetoElemConnVec = tElementNodeIndices.get_row(tIntersectedElementIndices(j));
+                Matrix< IndexMat > tEdgetoElemConnInd = tXTKMeshData.get_entity_connected_to_entity_loc_inds(
+                        tIntersectedElementIndices(j),
+                        moris::EntityRank::ELEMENT,
+                        moris::EntityRank::EDGE);
+                Matrix< IndexMat > tFacetoElemConnInd = tXTKMeshData.get_entity_connected_to_entity_loc_inds(
+                        tIntersectedElementIndices(j),
+                        moris::EntityRank::ELEMENT,
+                        moris::EntityRank::FACE);
 
-                // Set parent element, nodes, and entity ancestry
-                moris::Matrix< moris::IndexMat > tElemToNodeIndices(tNodetoElemConnVec);
+                Matrix< IndexMat > tElementMat = {{tIntersectedElementIndices(j)}};
 
                 Cell<moris::Matrix< moris::IndexMat >> tAncestorInformation = {tPlaceHolder, tEdgetoElemConnInd, tFacetoElemConnInd, tElementMat};
-                mCutMesh.initialize_new_mesh_from_parent_element(aActiveChildMeshIndices(0,j), aTemplateType, tNodetoElemConnVec, tAncestorInformation);
+                mCutMesh.initialize_new_mesh_from_parent_element(aActiveChildMeshIndices(j), aTemplateType, tNodetoElemConnVec, tAncestorInformation);
 
                 // add node ids
-                mBackgroundMesh.convert_loc_entity_ind_to_glb_entity_ids(EntityRank::NODE,tNodetoElemConnVec);
+                mBackgroundMesh.convert_loc_entity_ind_to_glb_entity_ids(EntityRank::NODE, tNodetoElemConnVec);
 
                 // get child mesh
-                moris::moris_index tCMIndex = mBackgroundMesh.child_mesh_index(tParentElementIndex,EntityRank::ELEMENT);
-
-                // get child mesh
+                moris::moris_index tCMIndex = mBackgroundMesh.child_mesh_index(tIntersectedElementIndices(j), EntityRank::ELEMENT);
                 Child_Mesh & tChildMesh = mCutMesh.get_child_mesh(tCMIndex);
+
+                // add geometry interface
                 tChildMesh.add_new_geometry_interface(aGeomIndex);
 
                 // add node ids
@@ -2469,14 +2475,11 @@ namespace xtk
             }
             else
             {
-                // get parent element index
-                tParentElementIndex = tGeoObjects(j).get_parent_entity_index();
-
                 // get child mesh
-                moris::moris_index tCMIndex = mBackgroundMesh.child_mesh_index(tParentElementIndex,EntityRank::ELEMENT);
-
-                // get child mesh
+                moris::moris_index tCMIndex = mBackgroundMesh.child_mesh_index(tIntersectedElementIndices(j), EntityRank::ELEMENT);
                 Child_Mesh & tChildMesh = mCutMesh.get_child_mesh(tCMIndex);
+
+                // add geometry interface
                 tChildMesh.add_new_geometry_interface(aGeomIndex);
             }
         }

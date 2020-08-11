@@ -174,6 +174,35 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
+        bool Geometry_Engine::is_intersected(const Matrix<IndexMat>& aNodeIndices, const Matrix<DDRMat>& aNodeCoordinates)
+        {
+            // Check input
+            MORIS_ASSERT(aNodeIndices.length() == aNodeCoordinates.n_rows(),
+                    "Geometry engine must be provided the same number of node indices as node coordinates for "
+                    "determining if an element is intersected or not.");
+            MORIS_ASSERT(aNodeIndices.length() > 0,
+                    "Geometry engine must be provided at least 1 node to determine if an element is intersected or not.");
+
+            // Initialize by evaluating the first node
+            real tMin = mGeometries(mActiveGeometryIndex)->evaluate_field_value(aNodeIndices(0), aNodeCoordinates.get_row(0));
+            real tMax = tMin;
+
+            // Evaluate the rest of the nodes
+            for (uint tNodeCount = 0; tNodeCount < aNodeIndices.length(); tNodeCount++)
+            {
+                real tEval = mGeometries(mActiveGeometryIndex)->evaluate_field_value(
+                        aNodeIndices(tNodeCount),
+                        aNodeCoordinates.get_row(tNodeCount));
+                tMin = std::min(tMin, tEval);
+                tMax = std::max(tMax, tEval);
+            }
+
+            // Return result
+            return (tMax >= mIsocontourThreshold and tMin <= mIsocontourThreshold);
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
         void Geometry_Engine::create_new_child_nodes(
                 const Cell<moris_index>&    aNewNodeIndices,
                 const Cell<xtk::Topology*>& aParentTopo,
