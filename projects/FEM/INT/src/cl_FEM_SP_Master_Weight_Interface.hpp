@@ -35,7 +35,6 @@ namespace moris
                 // Cluster measures for the SP
                 real mMasterVolume     = 0.5; // volume on master
                 real mSlaveVolume      = 0.5; // volume on slave
-                real mInterfaceSurface = 1.0; // surface on master/slave interface
 
                 //------------------------------------------------------------------------------
             public:
