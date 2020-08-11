@@ -515,6 +515,7 @@ namespace moris
                  * @param[ out ] aIntegrationOrder   an integration order
                  */
                 fem::Integration_Order get_auto_integration_order(
+                        const fem::Element_Type        aElementType,
                         const mtk::Geometry_Type       aGeometryType,
                         const mtk::Interpolation_Order aInterpolationOrder );
 
