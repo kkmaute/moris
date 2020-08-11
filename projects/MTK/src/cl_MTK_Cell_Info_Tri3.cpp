@@ -54,6 +54,12 @@ Cell_Info_Tri3::get_num_verts_per_facet() const
     return 2;
 }
 // ----------------------------------------------------------------------------------
+uint
+Cell_Info_Tri3::get_loc_coord_dim() const
+{
+    return 3;
+}
+// ----------------------------------------------------------------------------------
 moris::Matrix<moris::IndexMat>
 Cell_Info_Tri3::get_node_to_face_map() const
 {

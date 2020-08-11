@@ -45,6 +45,15 @@ Cell_Info_Hex64::get_num_verts_per_facet() const
 {
     return 16;
 }
+
+// ----------------------------------------------------------------------------------
+
+uint
+Cell_Info_Hex64::get_loc_coord_dim() const
+{
+    return 3;
+}
+
 //-----------------------------------------------------------------------------
 moris::Matrix<moris::IndexMat>
 Cell_Info_Hex64::get_node_to_face_map() const

@@ -51,6 +51,12 @@ namespace moris
             return 3;
         }
         // ----------------------------------------------------------------------------------
+        uint
+        Cell_Info_Quad16::get_loc_coord_dim() const
+        {
+            return 2;
+        }
+        // ----------------------------------------------------------------------------------
         moris::Matrix<moris::IndexMat>
         Cell_Info_Quad16::get_node_to_face_map() const
         {
