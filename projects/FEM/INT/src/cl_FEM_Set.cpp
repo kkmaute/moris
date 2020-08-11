@@ -2505,7 +2505,7 @@ namespace moris
                             switch( aInterpolationOrder )
                             {
                                 case mtk::Interpolation_Order::LINEAR:
-                                    return fem::Integration_Order::TRI_7;
+                                    return fem::Integration_Order::TRI_3;
 
                                 case mtk::Interpolation_Order::QUADRATIC:
                                     return fem::Integration_Order::TRI_6;
@@ -2556,7 +2556,7 @@ namespace moris
                             switch( aInterpolationOrder )
                             {
                                 case mtk::Interpolation_Order::LINEAR:
-                                    return fem::Integration_Order::BAR_3;
+                                    return fem::Integration_Order::BAR_1;
 
                                 case mtk::Interpolation_Order::QUADRATIC:
                                     return fem::Integration_Order::BAR_3;
@@ -2599,7 +2599,7 @@ namespace moris
                             switch( aInterpolationOrder )
                             {
                                 case mtk::Interpolation_Order::LINEAR:
-                                    return fem::Integration_Order::TRI_7;
+                                    return fem::Integration_Order::TRI_3;
 
                                 case mtk::Interpolation_Order::QUADRATIC:
                                     return fem::Integration_Order::TRI_6;
@@ -2625,118 +2625,6 @@ namespace moris
                     MORIS_ERROR( false, "Set::get_auto_integration_order - unknown set type.");
                     return fem::Integration_Order::UNDEFINED;
             }
-            //            switch( aGeometryType )
-            //            {
-            //                case mtk::Geometry_Type::LINE:
-            //                {
-            //                    switch( aInterpolationOrder )
-            //                    {
-            //                        case mtk::Interpolation_Order::LINEAR:
-            //                            return fem::Integration_Order::BAR_3;
-            //
-            //                        case mtk::Interpolation_Order::QUADRATIC:
-            //                            return fem::Integration_Order::BAR_3;
-            //
-            //                        case mtk::Interpolation_Order::CUBIC:
-            //                            return fem::Integration_Order::BAR_4;
-            //
-            //                        default:
-            //                            MORIS_ERROR( false, "Set::get_auto_integration_order - Unknown or unsupported interpolation order.");
-            //                            return fem::Integration_Order::UNDEFINED;
-            //                    }
-            //                    break;
-            //                }
-            //
-            //                case mtk::Geometry_Type::QUAD :
-            //                {
-            //                    switch( aInterpolationOrder )
-            //                    {
-            //                        case mtk::Interpolation_Order::LINEAR:
-            //                            return fem::Integration_Order::QUAD_2x2;
-            //
-            //                        case mtk::Interpolation_Order::SERENDIPITY:
-            //                            return fem::Integration_Order::QUAD_3x3;
-            //
-            //                        case mtk::Interpolation_Order::QUADRATIC:
-            //                            return fem::Integration_Order::QUAD_3x3;
-            //
-            //                        case mtk::Interpolation_Order::CUBIC:
-            //                            return fem::Integration_Order::QUAD_4x4;
-            //
-            //                        default:
-            //                            MORIS_ERROR( false, "Set::get_auto_integration_order - Unknown or unsupported interpolation order.");
-            //                            return fem::Integration_Order::UNDEFINED;
-            //                    }
-            //                    break;
-            //                }
-            //
-            //                case mtk::Geometry_Type::HEX:
-            //                {
-            //                    switch( aInterpolationOrder )
-            //                    {
-            //                        case mtk::Interpolation_Order::LINEAR:
-            //                            return fem::Integration_Order::HEX_2x2x2;
-            //
-            //                        case mtk::Interpolation_Order::SERENDIPITY:
-            //                            return fem::Integration_Order::HEX_3x3x3;
-            //
-            //                        case mtk::Interpolation_Order::QUADRATIC:
-            //                            return fem::Integration_Order::HEX_3x3x3;
-            //
-            //                        case mtk::Interpolation_Order::CUBIC:
-            //                            return fem::Integration_Order::HEX_4x4x4;
-            //
-            //                        default:
-            //                            MORIS_ERROR( false, "Set::get_auto_integration_order - Unknown or unsupported interpolation order.");
-            //                            return fem::Integration_Order::UNDEFINED;
-            //                    }
-            //                    break;
-            //                }
-            //
-            //                case mtk::Geometry_Type::TRI:
-            //                {
-            //                    switch( aInterpolationOrder )
-            //                    {
-            //                        case mtk::Interpolation_Order::LINEAR:
-            //                            return fem::Integration_Order::TRI_7;
-            //
-            //                        case mtk::Interpolation_Order::QUADRATIC:
-            //                            return fem::Integration_Order::TRI_6;
-            //
-            //                        case mtk::Interpolation_Order::CUBIC:
-            //                            return fem::Integration_Order::TRI_7;
-            //
-            //                        default:
-            //                            MORIS_ERROR( false, "Set::get_auto_integration_order - Unknown or unsupported interpolation order.");
-            //                            return fem::Integration_Order::UNDEFINED;
-            //                    }
-            //                    break;
-            //                }
-            //
-            //                case mtk::Geometry_Type::TET:
-            //                {
-            //                    switch( aInterpolationOrder )
-            //                    {
-            //                        case mtk::Interpolation_Order::LINEAR:
-            //                            return fem::Integration_Order::TET_4;
-            //
-            //                        case mtk::Interpolation_Order::QUADRATIC:
-            //                            return fem::Integration_Order::TET_11;
-            //
-            //                        case mtk::Interpolation_Order::CUBIC:
-            //                            return fem::Integration_Order::TET_15;
-            //
-            //                        default:
-            //                            MORIS_ERROR( false, "Set::get_auto_integration_order - Unknown or unsupported interpolation order.");
-            //                            return fem::Integration_Order::UNDEFINED;
-            //                    }
-            //                    break;
-            //                }
-            //
-            //                default :
-            //                    MORIS_ERROR( false, " Set::get_auto_integration_order - Unknown or unsupported geometry type. ");
-            //                    return Integration_Order::UNDEFINED;
-            //            }
         }
 
         //------------------------------------------------------------------------------
