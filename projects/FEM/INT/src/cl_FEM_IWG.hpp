@@ -420,6 +420,11 @@ namespace moris
                  */
                 virtual void compute_jacobian( real aWStar ) = 0;
 
+                virtual void compute_jacobian_previous( real aWStar )
+                {
+                    MORIS_ERROR(false, "compute_jacobian_previous() not implemented");
+                };
+
                 //------------------------------------------------------------------------------
                 /**
                  * evaluate the Jacobian by finite difference

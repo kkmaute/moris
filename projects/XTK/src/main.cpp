@@ -32,7 +32,7 @@
 
 #include "cl_GEN_Plane.hpp"
 #include "cl_GEN_Sphere.hpp"
-#include "cl_GEN_Sphere_Box.hpp"
+#include "cl_GEN_Superellipsoid.hpp"
 
 // select namespaces
 using namespace moris;
@@ -120,41 +120,6 @@ geometry_parse_factory(XTK_Problem_Params & aXTKProblemParams)
         tNormals(2) = aXTKProblemParams.mRealGeomParams(tPos);
 
         tGeometry = new moris::ge::Plane(tCenters(0), tCenters(1), tCenters(2), tNormals(0), tNormals(1), tNormals(2));
-    }
-
-    else if (aXTKProblemParams.mGeometryName == "sphere_box")
-    {
-
-        std::string tStr = "sx";
-        moris_index tPos = get_index_in_cell(aXTKProblemParams.mRealGeomLabels,tStr);
-        moris::real tSx =aXTKProblemParams.mRealGeomParams(tPos);
-
-        tStr = "sy";
-        tPos = get_index_in_cell(aXTKProblemParams.mRealGeomLabels,tStr);
-        moris::real tSy = aXTKProblemParams.mRealGeomParams(tPos);
-
-        tStr = "sz";
-        tPos = get_index_in_cell(aXTKProblemParams.mRealGeomLabels,tStr);
-        moris::real tSz =aXTKProblemParams.mRealGeomParams(tPos);
-
-        tStr = "xc";
-        tPos = get_index_in_cell(aXTKProblemParams.mRealGeomLabels,tStr);
-        moris::real tXc = aXTKProblemParams.mRealGeomParams(tPos);
-
-        tStr = "yc";
-        tPos = get_index_in_cell(aXTKProblemParams.mRealGeomLabels,tStr);
-        moris::real tYc = aXTKProblemParams.mRealGeomParams(tPos);
-
-        tStr = "zc";
-        tPos = get_index_in_cell(aXTKProblemParams.mRealGeomLabels,tStr);
-        moris::real tZc = aXTKProblemParams.mRealGeomParams(tPos);
-
-        // exponent
-        tStr = "n";
-        tPos = get_index_in_cell(aXTKProblemParams.mRealGeomLabels,tStr);
-        moris::real tNexp = aXTKProblemParams.mRealGeomParams(tPos);
-
-        tGeometry = new moris::ge::Sphere_Box( tSx, tSy, tSz, tXc, tYc,tZc, tNexp);
     }
 
     return tGeometry;

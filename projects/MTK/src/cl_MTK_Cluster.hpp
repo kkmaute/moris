@@ -112,18 +112,18 @@ public:
 
     virtual
     moris::mtk::Vertex const *
-    get_left_vertex_pair(moris::mtk::Vertex const * aLeftVertex) const
+    get_master_vertex_pair(moris::mtk::Vertex const * aMasterVertex) const
     {
-        MORIS_ERROR(false, "get_left_vertex_pair(): not implemented for this cluster type");
+        MORIS_ERROR(false, "get_master_vertex_pair(): not implemented for this cluster type");
         return nullptr;
     }
 
     virtual
     moris_index
-    get_right_vertex_ord_on_facet( moris_index  aCellClusterIndex,
-                                   moris::mtk::Vertex const * aRightVertex) const
+    get_slave_vertex_ord_on_facet( moris_index  aCellClusterIndex,
+                                   moris::mtk::Vertex const * aSlaveVertex) const
     {
-        MORIS_ERROR(false, "get_right_vertex_ord_on_facet(): not implemented for this cluster type");
+        MORIS_ERROR(false, "get_slave_vertex_ord_on_facet(): not implemented for this cluster type");
         return 0;
     }
 
@@ -145,7 +145,7 @@ public:
 
     virtual
     moris::Matrix<moris::DDRMat>
-    get_cell_local_coords_on_side_wrt_interp_cell(moris::moris_index aLeftClusterLocalIndex,
+    get_cell_local_coords_on_side_wrt_interp_cell(moris::moris_index aMasterClusterLocalIndex,
             const mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER ) const
     {
         MORIS_ERROR(false, "get_cell_local_coords_on_side_wrt_interp_cell(): not implemented for this cluster type");

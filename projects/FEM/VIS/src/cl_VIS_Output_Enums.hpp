@@ -17,7 +17,7 @@ namespace vis
     {
         UNDEFINED, //< Undefined
         STRAIN_ENERGY,
-		STRESS,
+	STRESS,
         VOLUME,
         SIGY,   //< Y-stress
         VOLUME_FRACTION,
@@ -38,7 +38,7 @@ namespace vis
         P,
         DOF, // Dof
         MAX_DOF,
-		MAX_STRESS,
+        MAX_STRESS,
         Analytic, // Analytic
         L2_ERROR_ANALYTIC, // L2 error for dof
         H1_ERROR_ANALYTIC, // H1 error for dof
@@ -58,37 +58,37 @@ namespace vis
     {
         moris::map< std::string, enum vis::Output_Type > tVisOutputTypeMap;
 
-        tVisOutputTypeMap["UNDEFINED"]         = vis::Output_Type::UNDEFINED;
-        tVisOutputTypeMap["STRAIN_ENERGY"]     = vis::Output_Type::STRAIN_ENERGY;
-		tVisOutputTypeMap["STRESS"]     = vis::Output_Type::STRESS;
-        tVisOutputTypeMap["VOLUME"]            = vis::Output_Type::VOLUME;
-        tVisOutputTypeMap["VOLUME_FRACTION"]   = vis::Output_Type::VOLUME_FRACTION;
-        tVisOutputTypeMap["UX"]                = vis::Output_Type::UX;
-        tVisOutputTypeMap["UY"]                = vis::Output_Type::UY;
-        tVisOutputTypeMap["UZ"]                = vis::Output_Type::UZ;
-        tVisOutputTypeMap["TEMP"]              = vis::Output_Type::TEMP;
-        tVisOutputTypeMap["L2"]                = vis::Output_Type::L2;
-        tVisOutputTypeMap["MAPPING_DOF"]       = vis::Output_Type::MAPPING_DOF;
-        tVisOutputTypeMap["LS1"]               = vis::Output_Type::LS1;
-        tVisOutputTypeMap["LS2"]               = vis::Output_Type::LS2;
-        tVisOutputTypeMap["NLSX"]              = vis::Output_Type::NLSX;
-        tVisOutputTypeMap["NLSY"]              = vis::Output_Type::NLSY;
-        tVisOutputTypeMap["NLSZ"]              = vis::Output_Type::NLSZ;
-        tVisOutputTypeMap["VX"]                = vis::Output_Type::VX;
-        tVisOutputTypeMap["VY"]                = vis::Output_Type::VY;
-        tVisOutputTypeMap["VZ"]                = vis::Output_Type::VZ;
-        tVisOutputTypeMap["P"]                 = vis::Output_Type::P;
-        tVisOutputTypeMap["DOF"]               = vis::Output_Type::DOF;
-        tVisOutputTypeMap["MAX_DOF"]               = vis::Output_Type::MAX_DOF;
-		tVisOutputTypeMap["MAX_STRESS"]               = vis::Output_Type::MAX_STRESS;
-        tVisOutputTypeMap["L2_ERROR_ANALYTIC"] = vis::Output_Type::L2_ERROR_ANALYTIC;
-        tVisOutputTypeMap["H1_ERROR_ANALYTIC"] = vis::Output_Type::H1_ERROR_ANALYTIC;
-        tVisOutputTypeMap["H1_SEMI_ERROR"]     = vis::Output_Type::H1_SEMI_ERROR;
-        tVisOutputTypeMap["PROPERTY"]          = vis::Output_Type::PROPERTY;
-        tVisOutputTypeMap["J_INTEGRAL"]        = vis::Output_Type::J_INTEGRAL;
-        tVisOutputTypeMap["K1_SENT"]           = vis::Output_Type::K1_SENT;
-        tVisOutputTypeMap["DRAG_COEFF"]        = vis::Output_Type::DRAG_COEFF;
-        tVisOutputTypeMap["LIFT_COEFF"]        = vis::Output_Type::LIFT_COEFF;
+        tVisOutputTypeMap["UNDEFINED"]              = vis::Output_Type::UNDEFINED;
+        tVisOutputTypeMap["STRAIN_ENERGY"]          = vis::Output_Type::STRAIN_ENERGY;
+        tVisOutputTypeMap["STRESS"]                 = vis::Output_Type::STRESS;
+        tVisOutputTypeMap["VOLUME"]                 = vis::Output_Type::VOLUME;
+        tVisOutputTypeMap["VOLUME_FRACTION"]        = vis::Output_Type::VOLUME_FRACTION;
+        tVisOutputTypeMap["UX"]                     = vis::Output_Type::UX;
+        tVisOutputTypeMap["UY"]                     = vis::Output_Type::UY;
+        tVisOutputTypeMap["UZ"]                     = vis::Output_Type::UZ;
+        tVisOutputTypeMap["TEMP"]                   = vis::Output_Type::TEMP;
+        tVisOutputTypeMap["L2"]                     = vis::Output_Type::L2;
+        tVisOutputTypeMap["MAPPING_DOF"]            = vis::Output_Type::MAPPING_DOF;
+        tVisOutputTypeMap["LS1"]                    = vis::Output_Type::LS1;
+        tVisOutputTypeMap["LS2"]                    = vis::Output_Type::LS2;
+        tVisOutputTypeMap["NLSX"]                   = vis::Output_Type::NLSX;
+        tVisOutputTypeMap["NLSY"]                   = vis::Output_Type::NLSY;
+        tVisOutputTypeMap["NLSZ"]                   = vis::Output_Type::NLSZ;
+        tVisOutputTypeMap["VX"]                     = vis::Output_Type::VX;
+        tVisOutputTypeMap["VY"]                     = vis::Output_Type::VY;
+        tVisOutputTypeMap["VZ"]                     = vis::Output_Type::VZ;
+        tVisOutputTypeMap["P"]                      = vis::Output_Type::P;
+        tVisOutputTypeMap["DOF"]                    = vis::Output_Type::DOF;
+        tVisOutputTypeMap["MAX_DOF"]                = vis::Output_Type::MAX_DOF;
+        tVisOutputTypeMap["MAX_STRESS"]             = vis::Output_Type::MAX_STRESS;
+        tVisOutputTypeMap["L2_ERROR_ANALYTIC"]      = vis::Output_Type::L2_ERROR_ANALYTIC;
+        tVisOutputTypeMap["H1_ERROR_ANALYTIC"]      = vis::Output_Type::H1_ERROR_ANALYTIC;
+        tVisOutputTypeMap["H1_SEMI_ERROR"]          = vis::Output_Type::H1_SEMI_ERROR;
+        tVisOutputTypeMap["PROPERTY"]               = vis::Output_Type::PROPERTY;
+        tVisOutputTypeMap["J_INTEGRAL"]             = vis::Output_Type::J_INTEGRAL;
+        tVisOutputTypeMap["K1_SENT"]                = vis::Output_Type::K1_SENT;
+        tVisOutputTypeMap["DRAG_COEFF"]             = vis::Output_Type::DRAG_COEFF;
+        tVisOutputTypeMap["LIFT_COEFF"]             = vis::Output_Type::LIFT_COEFF;
         tVisOutputTypeMap["LATENT_HEAT_ABSORPTION"] = vis::Output_Type::LATENT_HEAT_ABSORPTION;
         tVisOutputTypeMap["VISCOSITY"]              = vis::Output_Type::VISCOSITY;
         tVisOutputTypeMap["TURBULENT_KINEMATIC_VISCOSITY"] = vis::Output_Type::TURBULENT_KINEMATIC_VISCOSITY;

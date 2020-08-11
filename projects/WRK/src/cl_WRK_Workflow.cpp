@@ -62,7 +62,8 @@ namespace moris
             mPerformerManager->create_xtk();
 
             // Register Mesh to Ge
-            mPerformerManager->mGENPerformer( 0 )->compute_level_set_data(mPerformerManager->mMTKPerformer( 0 )->get_interpolation_mesh(0));
+            mPerformerManager->mGENPerformer( 0 )->compute_level_set_data(
+                    mPerformerManager->mMTKPerformer( 0 )->get_interpolation_mesh( 0 ));
 
             // XTK perform - decompose - enrich - ghost - multigrid
             mPerformerManager->mXTKPerformer( 0 )->perform();
@@ -77,12 +78,12 @@ namespace moris
             mPerformerManager->mMDLPerformer( 0 )->set_design_variable_interface(
                     mPerformerManager->mGENPerformer( 0 )->get_design_variable_interface() );
 
+            mPerformerManager->mGENPerformer( 0 )->communicate_requested_IQIs();
+
             // Build MDL components and solve
             mPerformerManager->mMDLPerformer( 0 )->perform();
 
-            mPerformerManager->mGENPerformer( 0 )->communicate_requested_IQIs();
-
-            moris::Cell< moris::Matrix< DDRMat > > tVal = mPerformerManager->mMDLPerformer( 0 )->perform_post_processing();
+            moris::Cell< moris::Matrix< DDRMat > > tVal = mPerformerManager->mMDLPerformer( 0 )->get_IQI_values();
 
             moris::Matrix< DDRMat > tMat( tVal.size(), 1, 0.0 );
 

@@ -92,7 +92,7 @@ main(
 
 
     // Load up mesh
-    moris::mtk::Mesh* tMeshData   = moris::mtk::create_mesh( MeshType::STK, tMeshInputFileName,&tSuppMeshData ,false );
+    moris::mtk::Mesh* tMeshData   = moris::mtk::create_interpolation_mesh( MeshType::STK, tMeshInputFileName,&tSuppMeshData ,false );
     tMeshData->mVerbose = true;
 
     // construct hole seeder

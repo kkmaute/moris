@@ -48,6 +48,12 @@ Cell_Info_Tet4::get_num_verts_per_facet() const
     return 3;
 }
 // ----------------------------------------------------------------------------------
+uint
+Cell_Info_Tet4::get_loc_coord_dim() const
+{
+    return 4;
+}
+// ----------------------------------------------------------------------------------
 moris::Matrix<moris::IndexMat>
 Cell_Info_Tet4::get_node_to_face_map() const
 {

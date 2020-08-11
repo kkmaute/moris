@@ -12,7 +12,7 @@
 #include "cl_Logger.hpp"
 #include "cl_MTK_Mesh.hpp"
 #include "cl_MTK_Mesh_Data_Input.hpp"
-#include "cl_Mesh_Factory.hpp"
+#include "cl_MTK_Mesh_Factory.hpp"
 #include "cl_MTK_Scalar_Field_Info.hpp"
 #include "cl_MTK_Mesh_Core.hpp"
 
@@ -109,7 +109,7 @@ Mesh* generate_single_element_hex8()
     aMeshData.FieldsInfo = &tFieldsInfo;
 
     // Create mtk mesh
-    return create_mesh(MeshType::STK, aMeshData);
+    return create_interpolation_mesh(MeshType::STK, aMeshData);
 }
 
 Mesh* generate_single_element_tet4()
@@ -184,7 +184,7 @@ Mesh* generate_single_element_tet4()
 	aMeshData.FieldsInfo = &tFieldsInfo;
 
 	// Create mtk mesh
-	return create_mesh(MeshType::STK, aMeshData);
+	return create_interpolation_mesh(MeshType::STK, aMeshData);
 }
 
 Mesh* generate_single_element_quad4()
@@ -259,7 +259,7 @@ Mesh* generate_single_element_quad4()
 	aMeshData.FieldsInfo = &tFieldsInfo;
 
 	// Create mtk mesh
-	return create_mesh(MeshType::STK, aMeshData);
+	return create_interpolation_mesh(MeshType::STK, aMeshData);
 }
 
 Mesh* generate_single_element_tri3()
@@ -333,7 +333,7 @@ Mesh* generate_single_element_tri3()
 	aMeshData.FieldsInfo = &tFieldsInfo;
 
 	// Create mtk mesh
-	return create_mesh(MeshType::STK, aMeshData);
+	return create_interpolation_mesh(MeshType::STK, aMeshData);
 }
 
 void check_normals(Mesh* aMesh, std::shared_ptr<Cell_Info> aConnectivity, Matrix< DDRMat >* aExpectedNormals, uint aNumFaces)

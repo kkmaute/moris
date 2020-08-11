@@ -354,6 +354,19 @@ namespace moris
                 mResidualExist = false;
             }
 
+            if ( mQIExist )
+            {
+//                // resize each matrix to 0x0
+//                for( auto & tQI : mQI )
+//                {
+//                    tQI.resize( 0, 0 );
+//                }
+//                mQI.clear();
+
+                // reset the exist flag
+                mQIExist = false;
+            }
+
             // free additional memory
             this->free_memory();
         }

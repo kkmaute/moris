@@ -75,6 +75,8 @@ namespace moris
                     mT = aTime;
                 }
 
+                void compute_IQI(){};
+
                 void set_previous_time( const Matrix< DDRMat> & aTime )
                 {
                     mPreviousT = aTime;

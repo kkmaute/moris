@@ -31,7 +31,6 @@ xtk/UT_XTK_Performance.cpp
 	xtk/UT_XTK_Model_Export.cpp
 	#xtk/UT_XTK_Model_Extract_Surf_Mesh.cpp
 	xtk/UT_XTK_Model_Mesh_Clusters.cpp
-	#xtk/UT_AD_Scratch.cpp
 	)
 	
 if(BUILD_HMR)

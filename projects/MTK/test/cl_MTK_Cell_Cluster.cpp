@@ -18,7 +18,7 @@
 #include "cl_MTK_Interpolation_Mesh.hpp"
 #include "cl_MTK_Integration_Mesh.hpp"
 #include "cl_MTK_Mesh_Tools.hpp"
-#include "cl_Mesh_Factory.hpp"
+#include "cl_MTK_Mesh_Factory.hpp"
 #include "cl_Mesh_Enums.hpp"
 #include "fn_all_true.hpp"
 #include "op_equal_equal.hpp"
@@ -90,7 +90,6 @@ TEST_CASE("Cell Cluster Proxy","[MTK_CLUSTER_PROXY]")
         tVertices(i).mVertexInd   = (moris_index) i;
         tVertices(i).mVertexCoord = tNodeCoordinates.get_row(i);
     }
-    moris::print(tVertices,"tVertices");
 
     // setup cells and cell cluster
     moris::Cell<Cell_Proxy> tPrimaryCells(tCellIdsPhase0.numel());

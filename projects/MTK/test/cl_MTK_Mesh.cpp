@@ -10,7 +10,7 @@
 #include "paths.hpp"
 
 // MTK includes
-#include "cl_Mesh_Factory.hpp"
+#include "cl_MTK_Mesh_Factory.hpp"
 #include "cl_MTK_Mesh_Tools.hpp"
 #include "cl_MTK_Mesh_Data_Input.hpp"
 #include "cl_MTK_Scalar_Field_Info.hpp"
@@ -44,7 +44,7 @@ TEST_CASE("Reading 3D mesh from ExodusII file", "[moris],[mesh],[cl_Mesh],[Mesh]
             const std::string fileName =tPrefix + "Cube8Elems.g";    // 8 elements, 27 nodes
 
             // Create MORIS mesh using MTK database
-            Mesh* Mesh1 = create_mesh( MeshType::STK, fileName, NULL );
+            Mesh* Mesh1 = create_interpolation_mesh( MeshType::STK, fileName, NULL );
 
             uint NumElements = Mesh1->get_num_entities(EntityRank::ELEMENT);
             uint NumNodes    = Mesh1->get_num_entities(EntityRank::NODE);
@@ -107,7 +107,7 @@ TEST_CASE( "Creating 8x8x8 3D mesh generated from a string","[MTK_MESH_1]")
         //const std::string fileName2 = "generated:8x8x8|sideset:xXyYzZ";    // 512 elements, 729 nodes, 1944 edges, 1728 faces
 
         // Create MORIS mesh using MTK database
-        Mesh* tMesh3D_HEXs = create_mesh( MeshType::STK, fileName2, NULL, true );
+        Mesh* tMesh3D_HEXs = create_interpolation_mesh( MeshType::STK, fileName2, NULL, true );
 
         uint NumElements2      = tMesh3D_HEXs->get_num_elems();
         uint NumNodes2         = tMesh3D_HEXs->get_num_nodes();
@@ -369,7 +369,7 @@ TEST_CASE( "Testing a side set on an 8x8x8 generated mesh","[MTK_MESH_1_SIDE_SET
         const std::string fileName2 = "generated:8x8x8|sideset:xXyYzZ";    // 512 elements, 729 nodes, 1944 edges, 1728 faces
 
         // Create MORIS mesh using MTK database
-        Mesh* tMeshWithSideSets = create_mesh( MeshType::STK, fileName2, NULL );
+        Mesh* tMeshWithSideSets = create_interpolation_mesh( MeshType::STK, fileName2, NULL );
         tMeshWithSideSets->mVerbose = false;
 
         moris::Cell<std::string> tGoldSideSetNames = {{"surface_1"},
@@ -445,7 +445,7 @@ TEST_CASE("Parallel Generated Mesh","[MTK_2PROC]")
         std::string fileName2 = "generated:1x1x2|sideset:XYZ|nodeset:X";
         std::string tFileOutput = "./mtk_2_proc_test.exo";
         // Create MORIS mesh using MTK database
-        Mesh* tParMesh = create_mesh( MeshType::STK, fileName2 );
+        Mesh* tParMesh = create_interpolation_mesh( MeshType::STK, fileName2 );
 
         // Each processor has the full mesh because of the aura
         if(par_rank() == 0)
@@ -504,7 +504,7 @@ TEST_CASE("MTK Mesh from file via STK, with a fields not on the file declared","
     tMeshData.FieldsInfo = &tFieldsInfo;
 
     // Create MORIS mesh using MTK database
-    Mesh* Mesh1 = create_mesh( MeshType::STK, fileName, &tMeshData );
+    Mesh* Mesh1 = create_interpolation_mesh( MeshType::STK, fileName, &tMeshData );
 
     // add the field data for node field 1
     Matrix< DDRMat > tFieldData1(Mesh1->get_num_entities(EntityRank::NODE),1);

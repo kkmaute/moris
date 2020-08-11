@@ -15,720 +15,468 @@
 
 namespace moris
 {
-namespace mtk
-{
-class Double_Side_Cluster : public Cluster
-{
-    /*
-     * An assumption here is made that the first side appearing in the left side cluster is paired
-     * with the first side appearing in the right side cluster.
-     */
-    moris::mtk::Side_Cluster * mLeftSideCluster;
-    moris::mtk::Side_Cluster * mRightSideCluster;
-
-    /*!
-     * A one way pairing from left vertices to right vertices
-     */
-    moris::Cell<moris::mtk::Vertex const *> mLeftToRightVertexPairs;
-
-    moris::Cell<moris::mtk::Cell const *>   mDummCellCell;
-    moris::mtk::Cell*                       mDummyCell;
-    moris::Cell<moris::mtk::Vertex const *> mDummyVertexCell;
-    moris::Matrix<moris::DDRMat>            mDummyDDRMat;
-
-
-public:
-    Double_Side_Cluster():
-    mLeftSideCluster(nullptr),
-    mRightSideCluster(nullptr){};
-
-    virtual
-    ~Double_Side_Cluster(){};
-
-    Double_Side_Cluster(moris::mtk::Side_Cluster *                      aLeftSideCluster,
-                        moris::mtk::Side_Cluster *                      aRightSideCluster,
-                        moris::Cell<moris::mtk::Vertex const *> const & aLeftToRightVertexPair):
-        mLeftSideCluster(aLeftSideCluster),
-        mRightSideCluster(aRightSideCluster)
+    namespace mtk
     {
-        MORIS_ASSERT(this->get_left_num_sides() == this->get_right_num_sides(),"Number of sides in left cluster do not match the number in right cluster");
-
-        if(!this->is_left_trivial())
+        class Double_Side_Cluster : public Cluster
         {
-            MORIS_ASSERT(this->get_left_num_vertices_in_cluster() == this->get_right_num_vertices_in_cluster(),"Number of vertices mismatch in double cluster");
+                /*
+                 * An assumption here is made that the first side appearing in the master side cluster is paired
+                 * with the first side appearing in the slave side cluster.
+                 */
+
+                // Master side cluster
+                moris::mtk::Side_Cluster * mMasterSideCluster;
+
+                // Slave side cluster
+                moris::mtk::Side_Cluster * mSlaveSideCluster;
+
+
+                /*!
+                 * A one way pairing from master vertices to slave vertices
+                 */
+                moris::Cell<moris::mtk::Vertex const *> mMasterToSlaveVertexPairs;
+
+
+                //Variables for trivial cases
+                moris::Cell<moris::mtk::Cell const *>   mDummCellCell;
+                moris::mtk::Cell*                       mDummyCell;
+                moris::Cell<moris::mtk::Vertex const *> mDummyVertexCell;
+                moris::Matrix<moris::DDRMat>            mDummyDDRMat;
+
+
+            public:
+                // ----------------------------------------------------------------------------------
+
+                /**
+                 * Default constructor, both master and slave side clusters are intialized
+                 * as nullptr.
+                 */
+                Double_Side_Cluster();
+
+                // ----------------------------------------------------------------------------------
+
+
+                /**
+                 * Default virtual destructor
+                 */
+                virtual
+                ~Double_Side_Cluster(){};
+
+                // ----------------------------------------------------------------------------------
+
+                /**
+                 * Constructor which should be used if to construct operational double side cluster
+                 * @param[in] aMasterSideCluster Master side cluster
+                 * @param[in] aSlaveSideCluster Slave side cluster
+                 * @param[in] aMasterToSlaveVertexPair) Vertices on the sides of the clusters
+                 */
+                Double_Side_Cluster(
+                        moris::mtk::Side_Cluster *                      aMasterSideCluster,
+                        moris::mtk::Side_Cluster *                      aSlaveSideCluster,
+                        moris::Cell<moris::mtk::Vertex const *> const & aMasterToSlaveVertexPair);
+
+                //##############################################
+                // Side Cluster traits access
+                //##############################################
+
+                /*!
+                 * Ask a cluster in the double side cluster whether it is trivial or not. A trivial
+                 * cluster has a 1-to-1 relationship between integration entities and interpolation entities.
+                 * This does not mean there is the same id for each entity.
+                 * @param[in] aIsMaster enum specifying which cluster the question is for
+                 * @return True if trivial cluster
+                 */
+                //virtual
+                bool
+                is_trivial( const mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER ) const;
+
+                /*!
+                 * @return true if master cluster is trivial
+                 */
+                bool
+                is_master_trivial() const;
+
+                /*!
+                 * @return true if slave cluster is trivial
+                 */
+                bool
+                is_slave_trivial() const;
+
+                //##############################################
+                // Single Side Cluster Access
+                //##############################################
+
+                /*!
+                 * @return const master side cluster
+                 */
+                moris::mtk::Side_Cluster const &
+                get_master_side_cluster() const;
+
+                //----------------------------------------------------------------
+
+                /*!
+                 * @return const slave side cluster
+                 */
+                moris::mtk::Side_Cluster const &
+                get_slave_side_cluster() const;
+
+                //----------------------------------------------------------------
+
+                /*!
+                 * @return  master side cluster
+                 */
+                moris::mtk::Side_Cluster &
+                get_master_side_cluster();
+
+                //----------------------------------------------------------------
+
+                /*!
+                 * @return master side cluster in this double sided side cluster
+                 */
+                moris::mtk::Side_Cluster &
+                get_slave_side_cluster();
+
+                //----------------------------------------------------------------
+
+
+                moris::mtk::Side_Cluster const &
+                get_cluster(
+                        const mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER ) const;
+
+
+                //##############################################
+                // Vertex Pair Access
+                //##############################################
+                /*!
+                 * @param[in] aMasterVertex A vertex on the master side of double side cluster
+                 * @return Corresponding slave vertex
+                 */
+                moris::mtk::Vertex const *
+                get_master_vertex_pair(moris::mtk::Vertex const * aMasterVertex) const;
+
+
+                //----------------------------------------------------------------
+
+                //##############################################
+                // Cell Side Ordinals/Vertex Access
+                //##############################################
+
+                /*
+                 * @param[in] aVertex Vertex in mesh
+                 * @param[in] aIsMaster Master/Slave selector enum
+                 * @return Vertex local cluster index wrt master/slave
+                 */
+                moris_index
+                get_vertex_cluster_index(
+                        const Vertex *          aVertex,
+                        const mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER ) const;
+
+                //----------------------------------------------------------------
+
+                /*
+                 * @param[in] aIsMaster Master/Slave selector enum
+                 * @return Interpolation cell of the side cluster.
+                 */
+                moris::mtk::Cell const &
+                get_interpolation_cell( const mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER ) const;
+
+
+                /*!
+                 * @return Interpolation cell of master side cluster
+                 */
+                moris::mtk::Cell const &
+                get_master_interpolation_cell() const;
+                //----------------------------------------------------------------
+
+                /*!
+                 * @return Interpolation cell of slave side cluster
+                 */
+                moris::mtk::Cell const &
+                get_slave_interpolation_cell() const;
+
+                //----------------------------------------------------------------
+
+                /*!
+                 * @param[in] aIsMaster Master/Slave selector enum
+                 * @return Primary integration cells in the side cluster
+                 */
+                moris::Cell<mtk::Cell const *> const &
+                get_primary_cells_in_cluster( const mtk::Master_Slave aIsMaster ) const;
+
+                /*!
+                 * @return Primary integration cells in the master side cluster
+                 */
+                moris::Cell<mtk::Cell const *> const &
+                get_master_integration_cells() const;
+
+                //----------------------------------------------------------------
+
+                /*!
+                 * @return Primary integration cells in the master side cluster
+                 */
+                moris::Cell<mtk::Cell const *> const &
+                get_slave_integration_cells() const;
+
+                //----------------------------------------------------------------
+                /*
+                 * @param[in] aIsMaster Master/Slave selector enum
+                 * @return All integration cell side ordinals
+                 */
+                moris::Matrix<moris::IndexMat>
+                get_cell_side_ordinals( const mtk::Master_Slave aIsMaster ) const;
+
+                //----------------------------------------------------------------
+                /*
+                 *
+                 */
+                moris_index
+                get_cell_side_ordinal(
+                        moris::moris_index aCellIndexInCluster,
+                        const mtk::Master_Slave aIsMaster ) const;
+
+                /*!
+                 * @return all integration cell side ordinals on master side of the
+                 * double sided side cluster
+                 */
+                moris::Matrix<moris::IndexMat>
+                get_master_integration_cell_side_ordinals() const;
+
+                //----------------------------------------------------------------
+
+                /*!
+                 * @return all integration cell side ordinals on master side of the
+                 * double sided side cluster
+                 */
+                moris_index
+                get_master_cell_side_ordinal(moris::moris_index aMasterCellIndexInCluster) const;
+                //----------------------------------------------------------------
+
+                /*!
+                 * @return all integration cell side ordinals on slave side of the
+                 * double sided side cluster
+                 */
+                moris::Matrix<moris::IndexMat>
+                get_slave_integration_cell_side_ordinals() const;
+
+                //----------------------------------------------------------------
+
+                /*!
+                 * Single side ordinal version of above
+                 */
+
+                moris_index
+                get_slave_cell_side_ordinal(moris::moris_index aSlaveCellIndexInCluster) const;
+
+                //----------------------------------------------------------------
+
+                /*!
+                 * @return all the master vertices in this cluster
+                 */
+                moris::Cell<moris::mtk::Vertex const *> const &
+                get_vertices_in_cluster( const mtk::Master_Slave aIsMaster ) const;
+
+
+
+                moris::Cell<moris::mtk::Vertex const *> const &
+                get_master_vertices_in_cluster() const;
+
+                //----------------------------------------------------------------
+
+                /*!
+                 * Returns all the slave vertices in this cluster
+                 */
+
+                moris::Cell<moris::mtk::Vertex const *> const &
+                get_slave_vertices_in_cluster() const;
+
+                //----------------------------------------------------------------
+
+                moris_index
+                get_slave_vertex_ord_on_facet( moris_index  aCellClusterIndex,
+                        moris::mtk::Vertex const * aSlaveVertex) const;
+
+                //----------------------------------------------------------------
+
+                moris::Matrix<moris::IndexMat>
+                get_master_vertex_indices_in_cluster() const;
+
+                //----------------------------------------------------------------
+
+                moris::Matrix<moris::IndexMat>
+                get_slave_vertex_indices_in_cluster() const;
+
+                //----------------------------------------------------------------
+
+                //virtual
+                moris::Matrix<moris::IndexMat>
+                get_vertex_indices_in_cluster() const;
+
+                //----------------------------------------------------------------
+
+                //##############################################
+                // Local Coordinate Access
+                //##############################################
+
+
+                //----------------------------------------------------------------
+
+                /*
+                 * Access the full array of local coordinates on the master
+                 */
+
+                moris::Matrix<moris::DDRMat> const &
+                get_vertices_local_coordinates_wrt_interp_cell( const mtk::Master_Slave aIsMaster ) const;
+
+                //----------------------------------------------------------------
+
+                moris::Matrix<moris::DDRMat> const &
+                get_master_vertices_local_coordinates_wrt_interp_cell() const;
+
+                //----------------------------------------------------------------
+
+                /*
+                 * Access the full array of local coordinates on the slave
+                 */
+                moris::Matrix<moris::DDRMat> const &
+                get_slave_vertices_local_coordinates_wrt_interp_cell() const;
+
+                //----------------------------------------------------------------
+
+                moris::Matrix<moris::DDRMat>
+                get_vertex_local_coordinate_wrt_interp_cell( moris::mtk::Vertex const * aVertex,
+                        const mtk::Master_Slave aIsMaster ) const;
+                //----------------------------------------------------------------
+
+                /*
+                 * Access a single local coordinate of a vertex on the master
+                 */
+                moris::Matrix<moris::DDRMat>
+                get_master_vertex_local_coordinate_wrt_interp_cell( moris::mtk::Vertex const * aVertex ) const;
+
+                //----------------------------------------------------------------
+
+                /*
+                 * Access a single local coordinate of a vertex on the slave
+                 */
+                moris::Matrix<moris::DDRMat>
+                get_slave_vertex_local_coordinate_wrt_interp_cell( moris::mtk::Vertex const * aVertex ) const;
+
+                //----------------------------------------------------------------
+
+                moris::Matrix<moris::DDRMat>
+                get_cell_local_coords_on_side_wrt_interp_cell(moris::moris_index aClusterLocalIndex,
+                        const mtk::Master_Slave aIsMaster ) const;
+
+                //----------------------------------------------------------------
+
+                /*!
+                 * Access an integration cells parametric coordinates on a side master side
+                 * @param[in] - Local integration cell index with respect to the cluster (not proc local index)
+                 */
+                moris::Matrix<moris::DDRMat>
+                get_master_cell_local_coords_on_side_wrt_interp_cell(moris::moris_index aMasterClusterLocalIndex) const;
+
+                //----------------------------------------------------------------
+
+                /*!
+                 * Access an integration cells parametric coordinates on a side slave side
+                 * @param[in] - Local integration cell index with respect to the cluster (not proc local index)
+                 */
+                moris::Matrix<moris::DDRMat>
+                get_slave_cell_local_coords_on_side_wrt_interp_cell(moris::moris_index aSlaveClusterLocalIndex) const;
+
+                //----------------------------------------------------------------
+
+                //##############################################
+                // Size Access
+                //##############################################
+                /*!
+                 * Size of the xsi vector of master
+                 */
+                moris_index
+                get_dim_of_param_coord( const mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER ) const;
+
+                //----------------------------------------------------------------
+
+                moris::real
+                compute_cluster_cell_measure(const mtk::Primary_Void aPrimaryOrVoid = mtk::Primary_Void::PRIMARY,
+                        const mtk::Master_Slave aIsMaster      = mtk::Master_Slave::MASTER) const;
+
+                //----------------------------------------------------------------
+
+                moris::real
+                compute_cluster_cell_side_measure(const mtk::Primary_Void aPrimaryOrVoid = mtk::Primary_Void::PRIMARY,
+                        const mtk::Master_Slave aIsMaster      = mtk::Master_Slave::MASTER) const;
+
+                //----------------------------------------------------------------
+
+                moris_index
+                get_master_dim_of_param_coord() const;
+
+                //----------------------------------------------------------------
+
+                /*!
+                 * Size of the xsi vector of slave
+                 */
+                moris_index
+                get_slave_dim_of_param_coord() const;
+                //----------------------------------------------------------------
+
+                moris::uint
+                get_master_num_sides() const;
+
+                //----------------------------------------------------------------
+
+                moris::uint
+                get_slave_num_sides() const;
+
+                //----------------------------------------------------------------
+
+                moris::uint
+                get_master_num_vertices_in_cluster() const;
+
+                //----------------------------------------------------------------
+
+                moris::uint
+                get_slave_num_vertices_in_cluster() const;
+
+
+
+        };
+
+        inline
+        std::ostream &
+        operator<<(std::ostream & os, const Double_Side_Cluster & dt)
+        {
+            os<<"\n  Master Interpolation Cell: "<<std::setw(9)<<dt.get_master_side_cluster().get_interpolation_cell().get_id();
+            os<<" | Slave Interpolation Cell: "<<std::setw(9)<<dt.get_slave_side_cluster().get_interpolation_cell().get_id();
+
+
+            moris::Cell<mtk::Cell const *> const & tMasterIGCells =dt.get_master_side_cluster().get_primary_cells_in_cluster( );
+            moris::Matrix<moris::IndexMat>         tMasterIGCellSideOrds = dt.get_master_side_cluster().get_cell_side_ordinals();
+            moris::Cell<mtk::Cell const *> const & tSlaveIGCells = dt.get_slave_side_cluster().get_primary_cells_in_cluster( );
+            moris::Matrix<moris::IndexMat>         tSlaveIGCellSideOrds = dt.get_slave_side_cluster().get_cell_side_ordinals();
+
+            os<<"   Cell Pairs: "<<std::endl;
+
+            for(moris::uint  i = 0; i < tMasterIGCells.size(); i++)
+            {
+                std::cout<<"  Master Cell ID/Ord: "<<std::setw(9)<<tMasterIGCells(i)->get_id()<<std::setw(9)<<tMasterIGCellSideOrds(i);
+                std::cout<<"  Slave Cell ID/Ord: "<<std::setw(9)<<tSlaveIGCells(i)->get_id()<<std::setw(9)<<tSlaveIGCellSideOrds(i)<<std::endl;
+            }
+            return os;
         }
 
-        mLeftToRightVertexPairs.append(aLeftToRightVertexPair);
-    };
-
-    //##############################################
-    // Side Cluster traits access
-    //##############################################
-
-    /*!
-     * Indicates there is a 1 to 1 relationship between
-     * integration cell and interpolation cells in this cluster
-     * on the left
-     *
-     */
-
-    virtual bool is_trivial( const mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER ) const
-    {
-        if ( aIsMaster == mtk::Master_Slave::MASTER )
+        inline
+        std::ostream &
+        operator<<(std::ostream & os, Double_Side_Cluster const * const & dt)
         {
-            return this->get_left_side_cluster().is_trivial();
-        }
-        else if( aIsMaster == mtk::Master_Slave::SLAVE )
-        {
-            return this->get_right_side_cluster().is_trivial();
-        }
-        else
-        {
-            MORIS_ERROR(false, "is_trivial(): can only be MASTER or SLAVE");
-            return false;
-        }
-    }
+            os<<*dt;
 
-    bool
-    is_left_trivial() const
-    {
-        return this->get_left_side_cluster().is_trivial();
-    }
-
-    /*!
-     * Indicates there is a 1 to 1 relationship between
-     * integration cell and interpolation cells in this cluster
-     * on the right
-     *
-     */
-    bool
-    is_right_trivial() const
-    {
-        return this->get_right_side_cluster().is_trivial();
-    }
-
-    //##############################################
-    // Single Side Cluster Access
-    // (Pure )
-    //##############################################
-
-    /*!
-     * Returns the left side cluster
-     */
-    moris::mtk::Side_Cluster const &
-    get_left_side_cluster() const
-    {
-        return *mLeftSideCluster;
-    }
-
-    //----------------------------------------------------------------
-
-    /*!
-     * Returns the left side cluster in this double sided side cluster
-     */
-    moris::mtk::Side_Cluster const &
-    get_right_side_cluster() const
-    {
-        return *mRightSideCluster;
-    }
-
-    /*!
-     * Returns the left side cluster
-     */
-    moris::mtk::Side_Cluster &
-    get_left_side_cluster()
-    {
-        return *mLeftSideCluster;
-    }
-
-    //----------------------------------------------------------------
-
-    /*!
-     * Returns the left side cluster in this double sided side cluster
-     */
-    moris::mtk::Side_Cluster &
-    get_right_side_cluster()
-    {
-        return *mRightSideCluster;
-    }
-
-    moris::mtk::Side_Cluster const &
-    get_cluster(const mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER ) const
-    {
-        if(aIsMaster == mtk::Master_Slave::MASTER)
-        {
-            return this->get_left_side_cluster();
-        }
-        else
-        {
-            return this->get_right_side_cluster();
-        }
-    }
-
-
-    //##############################################
-    // Vertex Pair Access
-    //##############################################
-    /*!
-     * Provided a vertex in the left cluster, returns the corresponding
-     * vertex in the right cluster.
-     */
-    moris::mtk::Vertex const *
-    get_left_vertex_pair(moris::mtk::Vertex const * aLeftVertex) const
-    {
-        moris_index tLeftClusterIndex = this->get_left_side_cluster().get_vertex_cluster_index(aLeftVertex);
-
-        MORIS_ASSERT(tLeftClusterIndex < (moris_index)mLeftToRightVertexPairs.size(),"Vertex index out of bounds in pairing.");
-
-        return mLeftToRightVertexPairs(tLeftClusterIndex);
-    }
-
-
-
-    //----------------------------------------------------------------
-
-    //##############################################
-    // Cell Side Ordinals/Vertex Access
-    //##############################################
-
-    moris_index
-    get_vertex_cluster_index( const Vertex * aVertex,
-            const mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER ) const
-    {
-        if ( aIsMaster == mtk::Master_Slave::MASTER )
-        {
-            return this->get_left_side_cluster().get_vertex_cluster_index( aVertex );
-        }
-        else if( aIsMaster == mtk::Master_Slave::SLAVE )
-        {
-            return this->get_right_side_cluster().get_vertex_cluster_index( aVertex );
-        }
-        else
-        {
-            MORIS_ERROR(false, "get_vertex_cluster_index(): can only be MASTER and SLAVE");
-            return 0;
-        }
-    }
-
-    moris::mtk::Cell const &
-    get_interpolation_cell( const mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER ) const
-    {
-        if ( aIsMaster == mtk::Master_Slave::MASTER )
-        {
-            return this->get_left_side_cluster().get_interpolation_cell();
-        }
-        else if( aIsMaster == mtk::Master_Slave::SLAVE )
-        {
-            return this->get_right_side_cluster().get_interpolation_cell();
-        }
-        else
-        {
-            MORIS_ERROR(false, "get_interpolation_cell(): can only be 0 and 1");
-            return *mDummyCell;
-        }
-    }
-
-    /*!
-     * Get left interpolation cell interpolating into the left side of the double
-     * sided side set
-     */
-    moris::mtk::Cell const &
-    get_left_interpolation_cell() const
-    {
-        return this->get_left_side_cluster().get_interpolation_cell();
-    }
-
-    //----------------------------------------------------------------
-
-    /*!
-     * Get right interpolation cell interpolating into the right side of the double
-     * sided side set
-     */
-    moris::mtk::Cell const &
-    get_right_interpolation_cell() const
-    {
-        return this->get_right_side_cluster().get_interpolation_cell();
-    }
-
-    //----------------------------------------------------------------
-
-    moris::Cell<mtk::Cell const *> const &
-    get_primary_cells_in_cluster( const mtk::Master_Slave aIsMaster ) const
-    {
-        if ( aIsMaster == mtk::Master_Slave::MASTER )
-        {
-            return this->get_left_side_cluster().get_cells_in_side_cluster();
-        }
-        else if( aIsMaster ==  mtk::Master_Slave::SLAVE )
-        {
-            return this->get_right_side_cluster().get_cells_in_side_cluster();
-        }
-        else
-        {
-            MORIS_ERROR(false, "get_primary_cells_in_cluster(): can only be MASTER and SLAVE");
-            return mDummCellCell;
-        }
-    }
-
-    /*!
-     * Get all integration cells on the left side of the side set
-     * in this double sided cluster
-     */
-    moris::Cell<mtk::Cell const *> const &
-    get_left_integration_cells() const
-    {
-        return this->get_left_side_cluster().get_cells_in_side_cluster();
-    }
-
-    //----------------------------------------------------------------
-
-    /*!
-     * Get all integration cells on the right side of the side set
-     * in this double sided cluster
-     */
-    moris::Cell<mtk::Cell const *> const &
-    get_right_integration_cells() const
-    {
-        return this->get_right_side_cluster().get_cells_in_side_cluster();
-    }
-
-    //----------------------------------------------------------------
-
-    moris::Matrix<moris::IndexMat>
-    get_cell_side_ordinals( const mtk::Master_Slave aIsMaster ) const
-    {
-        if ( aIsMaster == mtk::Master_Slave::MASTER )
-        {
-            return this->get_left_side_cluster().get_cell_side_ordinals();
-        }
-        else if( aIsMaster == mtk::Master_Slave::SLAVE )
-        {
-            return this->get_right_side_cluster().get_cell_side_ordinals();
-        }
-        else
-        {
-            MORIS_ERROR(false, "get_cell_side_ordinals(): can only be MASTER and SLAVE");
-            return moris::Matrix<moris::IndexMat>(0,0);
-        }
-    }
-
-    //----------------------------------------------------------------
-
-    moris_index
-    get_cell_side_ordinal(moris::moris_index aCellIndexInCluster,
-            const mtk::Master_Slave aIsMaster ) const
-    {
-        if ( aIsMaster == mtk::Master_Slave::MASTER )
-        {
-            return this->get_left_side_cluster().get_cell_side_ordinal(aCellIndexInCluster);
-        }
-        else if( aIsMaster == mtk::Master_Slave::SLAVE )
-        {
-            return this->get_right_side_cluster().get_cell_side_ordinal(aCellIndexInCluster);
-        }
-        else
-        {
-            MORIS_ERROR(false, "get_cell_side_ordinal(): can only be MASTER and SLAVE");
-            return 0;
-        }
-    }
-
-    /*!
-     * Return all integration cell side ordinals on left side of the
-     * double sided side cluster
-     */
-    moris::Matrix<moris::IndexMat>
-    get_left_integration_cell_side_ordinals() const
-    {
-        return this->get_left_side_cluster().get_cell_side_ordinals();
-    }
-
-    //----------------------------------------------------------------
-
-    /*!
-     * Single side ordinal version of above
-     */
-    moris_index
-    get_left_cell_side_ordinal(moris::moris_index aLeftCellIndexInCluster) const
-    {
-        return this->get_left_side_cluster().get_cell_side_ordinal(aLeftCellIndexInCluster);
-    }
-
-    //----------------------------------------------------------------
-
-    /*!
-     * Return all integration cell side ordinals on right side of the
-     * double sided side cluster
-     */
-
-    moris::Matrix<moris::IndexMat>
-    get_right_integration_cell_side_ordinals() const
-    {
-        return this->get_right_side_cluster().get_cell_side_ordinals();
-    }
-
-    //----------------------------------------------------------------
-
-    /*!
-     * Single side ordinal version of above
-     */
-
-    moris_index
-    get_right_cell_side_ordinal(moris::moris_index aRightCellIndexInCluster) const
-    {
-        return this->get_right_side_cluster().get_cell_side_ordinal(aRightCellIndexInCluster);
-    }
-    //----------------------------------------------------------------
-
-    /*!
-     * Returns all the left vertices in this cluster
-     */
-
-    moris::Cell<moris::mtk::Vertex const *> const &
-    get_vertices_in_cluster( const mtk::Master_Slave aIsMaster ) const
-    {
-        if ( aIsMaster == mtk::Master_Slave::MASTER )
-        {
-            return this->get_left_side_cluster().get_vertices_in_cluster();
-        }
-        else if( aIsMaster == mtk::Master_Slave::SLAVE )
-        {
-            return this->get_right_side_cluster().get_vertices_in_cluster();
-        }
-        else
-        {
-            MORIS_ERROR(false, "get_vertices_in_cluster(): can only be MASTER and SLAVE");
-            return mDummyVertexCell;
-        }
-    }
-
-    moris::Cell<moris::mtk::Vertex const *> const &
-    get_left_vertices_in_cluster() const
-    {
-        return this->get_left_side_cluster().get_vertices_in_cluster();
-    }
-
-    //----------------------------------------------------------------
-
-    /*!
-     * Returns all the right vertices in this cluster
-     */
-
-    moris::Cell<moris::mtk::Vertex const *> const &
-    get_right_vertices_in_cluster() const
-    {
-         return this->get_right_side_cluster().get_vertices_in_cluster();
-    }
-
-    moris_index
-    get_right_vertex_ord_on_facet( moris_index  aCellClusterIndex,
-                                   moris::mtk::Vertex const * aRightVertex) const
-    {
-        return mRightSideCluster->get_vertex_ordinal_on_facet(aCellClusterIndex,aRightVertex);
-    }
-
-    moris::Matrix<moris::IndexMat>
-    get_left_vertex_indices_in_cluster() const
-    {
-        return this->get_left_side_cluster().get_vertex_indices_in_cluster();
-    }
-
-    moris::Matrix<moris::IndexMat>
-    get_right_vertex_indices_in_cluster() const
-    {
-        return this->get_right_side_cluster().get_vertex_indices_in_cluster();
-    }
-
-    virtual
-    moris::Matrix<moris::IndexMat>
-    get_vertex_indices_in_cluster() const
-    {
-
-        // number of cells in cluster
-        moris::uint tLeftNumVertices = mLeftSideCluster->get_num_vertices_in_cluster();
-        moris::uint tRightNumVertices = mRightSideCluster->get_num_vertices_in_cluster();
-
-        // cell access
-        moris::Cell<moris::mtk::Vertex const *> const & tLeftVertices =
-                mLeftSideCluster->get_vertices_in_cluster();
-        moris::Cell<moris::mtk::Vertex const *> const & tRightVertices =
-                mRightSideCluster->get_vertices_in_cluster();
-
-        // initialize output
-        moris::Matrix<moris::IndexMat> tVertexIndices(1,tLeftNumVertices+tRightNumVertices);
-
-        // get cell indices and store
-        for(moris::uint i = 0 ; i < tLeftNumVertices; i++)
-        {
-            tVertexIndices(i) = tLeftVertices(i)->get_index();
-        }
-        for(moris::uint i = 0 ; i < tRightNumVertices; i++)
-        {
-            tVertexIndices(tLeftNumVertices + i) = tRightVertices(i)->get_index();
+            return os;
         }
 
-        return tVertexIndices;
     }
-
-    //##############################################
-    // Local Coordinate Access
-    //##############################################
-
-    /*
-     * Access the full array of local coordinates on the left
-     */
-
-    moris::Matrix<moris::DDRMat> const &
-    get_vertices_local_coordinates_wrt_interp_cell( const mtk::Master_Slave aIsMaster ) const
-    {
-        if ( aIsMaster == mtk::Master_Slave::MASTER )
-        {
-            return this->get_left_side_cluster().get_vertices_local_coordinates_wrt_interp_cell();
-        }
-        else if( aIsMaster == mtk::Master_Slave::SLAVE )
-        {
-            return this->get_right_side_cluster().get_vertices_local_coordinates_wrt_interp_cell();
-        }
-        else
-        {
-            MORIS_ERROR(false, "get_vertices_local_coordinates_wrt_interp_cell(): can only be MASTER and SLAVE");
-            return mDummyDDRMat;
-        }
-    }
-
-    moris::Matrix<moris::DDRMat> const &
-    get_left_vertices_local_coordinates_wrt_interp_cell() const
-    {
-        return this->get_left_side_cluster().get_vertices_local_coordinates_wrt_interp_cell();
-    }
-
-    //----------------------------------------------------------------
-
-    /*
-     * Access the full array of local coordinates on the right
-     */
-    moris::Matrix<moris::DDRMat> const &
-    get_right_vertices_local_coordinates_wrt_interp_cell() const
-    {
-        return this->get_right_side_cluster().get_vertices_local_coordinates_wrt_interp_cell();
-    }
-
-    //----------------------------------------------------------------
-
-    moris::Matrix<moris::DDRMat>
-    get_vertex_local_coordinate_wrt_interp_cell( moris::mtk::Vertex const * aVertex,
-            const mtk::Master_Slave aIsMaster ) const
-    {
-        if ( aIsMaster == mtk::Master_Slave::MASTER )
-        {
-            return this->get_left_side_cluster().get_vertex_local_coordinate_wrt_interp_cell(aVertex);
-        }
-        else if( aIsMaster == mtk::Master_Slave::SLAVE )
-        {
-            return this->get_right_side_cluster().get_vertex_local_coordinate_wrt_interp_cell(aVertex);
-        }
-        else
-        {
-            MORIS_ERROR(false, "get_vertex_local_coordinate_wrt_interp_cell(): can only be MASTER and SLAVE");
-            return moris::Matrix<moris::DDRMat>(0,0);
-        }
-    }
-
-    /*
-     * Access a single local coordinate of a vertex on the left
-     */
-    moris::Matrix<moris::DDRMat>
-    get_left_vertex_local_coordinate_wrt_interp_cell( moris::mtk::Vertex const * aVertex ) const
-    {
-        return this->get_left_side_cluster().get_vertex_local_coordinate_wrt_interp_cell(aVertex);
-    }
-
-    //----------------------------------------------------------------
-
-    /*
-     * Access a single local coordinate of a vertex on the right
-     */
-    moris::Matrix<moris::DDRMat>
-    get_right_vertex_local_coordinate_wrt_interp_cell( moris::mtk::Vertex const * aVertex ) const
-    {
-        return this->get_right_side_cluster().get_vertex_local_coordinate_wrt_interp_cell(aVertex);
-    }
-
-    //----------------------------------------------------------------
-
-    moris::Matrix<moris::DDRMat>
-    get_cell_local_coords_on_side_wrt_interp_cell(moris::moris_index aClusterLocalIndex,
-            const mtk::Master_Slave aIsMaster ) const
-    {
-        if ( aIsMaster == mtk::Master_Slave::MASTER )
-        {
-            return this->get_left_side_cluster().get_cell_local_coords_on_side_wrt_interp_cell(aClusterLocalIndex);
-        }
-        else if( aIsMaster == mtk::Master_Slave::SLAVE )
-        {
-            return this->get_right_side_cluster().get_cell_local_coords_on_side_wrt_interp_cell(aClusterLocalIndex);
-        }
-        else
-        {
-            MORIS_ERROR(false, "get_cell_local_coords_on_side_wrt_interp_cell(): can only be MASTER and SLAVE");
-            return moris::Matrix<moris::DDRMat>(0,0);
-        }
-    }
-
-    /*!
-     * Access an integration cells parametric coordinates on a side left side
-     * @param[in] - Local integration cell index with respect to the cluster (not proc local index)
-     */
-    moris::Matrix<moris::DDRMat>
-    get_left_cell_local_coords_on_side_wrt_interp_cell(moris::moris_index aLeftClusterLocalIndex) const
-    {
-        return this->get_left_side_cluster().get_cell_local_coords_on_side_wrt_interp_cell(aLeftClusterLocalIndex);
-    }
-
-    //----------------------------------------------------------------
-
-    /*!
-     * Access an integration cells parametric coordinates on a side right side
-     * @param[in] - Local integration cell index with respect to the cluster (not proc local index)
-     */
-    moris::Matrix<moris::DDRMat>
-    get_right_cell_local_coords_on_side_wrt_interp_cell(moris::moris_index aRightClusterLocalIndex) const
-    {
-        return this->get_right_side_cluster().get_cell_local_coords_on_side_wrt_interp_cell(aRightClusterLocalIndex);
-    }
-
-
-    //----------------------------------------------------------------
-
-    //##############################################
-    // Size Access
-    //##############################################
-    /*!
-     * Size of the xsi vector of left
-     */
-    moris_index
-    get_dim_of_param_coord( const mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER ) const
-    {
-        if ( aIsMaster == mtk::Master_Slave::MASTER )
-        {
-            return this->get_left_side_cluster().get_dim_of_param_coord();
-        }
-        else if( aIsMaster == mtk::Master_Slave::SLAVE )
-        {
-            return this->get_right_side_cluster().get_dim_of_param_coord();
-        }
-        else
-        {
-            MORIS_ERROR(false, "get_dim_of_param_coord(): can only be MASTER and SLAVE");
-            return 0;
-        }
-    }
-
-    moris::real
-    compute_cluster_cell_measure(const mtk::Primary_Void aPrimaryOrVoid = mtk::Primary_Void::PRIMARY,
-                                 const mtk::Master_Slave aIsMaster      = mtk::Master_Slave::MASTER) const
-    {
-        moris::mtk::Side_Cluster const & tCluster = this->get_cluster(aIsMaster);
-        return tCluster.compute_cluster_cell_measure(aPrimaryOrVoid,aIsMaster);
-    }
-
-    moris::real
-    compute_cluster_cell_side_measure(const mtk::Primary_Void aPrimaryOrVoid = mtk::Primary_Void::PRIMARY,
-                                      const mtk::Master_Slave aIsMaster      = mtk::Master_Slave::MASTER) const
-    {
-        moris::mtk::Side_Cluster const & tCluster = this->get_cluster(aIsMaster);
-        return tCluster.compute_cluster_cell_side_measure(aPrimaryOrVoid,aIsMaster);
-    }
-
-    moris_index
-    get_left_dim_of_param_coord() const
-    {
-        return this->get_left_side_cluster().get_dim_of_param_coord();
-    }
-
-    //----------------------------------------------------------------
-
-    /*!
-     * Size of the xsi vector of right
-     */
-    moris_index
-    get_right_dim_of_param_coord() const
-    {
-        return this->get_right_side_cluster().get_dim_of_param_coord();
-    }
-
-    //----------------------------------------------------------------
-
-
-    moris::uint
-    get_left_num_sides() const
-    {
-        return this->get_left_side_cluster().get_num_sides_in_cluster();
-    }
-
-    //----------------------------------------------------------------
-
-
-    moris::uint
-    get_right_num_sides() const
-    {
-        return this->get_right_side_cluster().get_num_sides_in_cluster();
-    }
-
-    //----------------------------------------------------------------
-
-
-    moris::uint
-    get_left_num_vertices_in_cluster() const
-    {
-        return this->get_left_side_cluster().get_num_vertices_in_cluster();
-    }
-
-    //----------------------------------------------------------------
-
-    moris::uint
-    get_right_num_vertices_in_cluster() const
-    {
-        return this->get_right_side_cluster().get_num_vertices_in_cluster();
-    }
-
-
-
-};
-
-inline
-std::ostream &
-operator<<(std::ostream & os, const Double_Side_Cluster & dt)
-{
-    os<<"\n  Master Interpolation Cell: "<<std::setw(9)<<dt.get_left_side_cluster().get_interpolation_cell().get_id();
-    os<<" | Slave Interpolation Cell: "<<std::setw(9)<<dt.get_right_side_cluster().get_interpolation_cell().get_id();
-
-
-    moris::Cell<mtk::Cell const *> const & tLeftIGCells =dt.get_left_side_cluster().get_primary_cells_in_cluster( );
-    moris::Matrix<moris::IndexMat>         tLeftIGCellSideOrds = dt.get_left_side_cluster().get_cell_side_ordinals();
-    moris::Cell<mtk::Cell const *> const & tRightIGCells = dt.get_right_side_cluster().get_primary_cells_in_cluster( );
-    moris::Matrix<moris::IndexMat>         tRightIGCellSideOrds = dt.get_right_side_cluster().get_cell_side_ordinals();
-
-    os<<"   Cell Pairs: "<<std::endl;
-
-    for(moris::uint  i = 0; i < tLeftIGCells.size(); i++)
-    {
-        std::cout<<"  Master Cell ID/Ord: "<<std::setw(9)<<tLeftIGCells(i)->get_id()<<std::setw(9)<<tLeftIGCellSideOrds(i);
-        std::cout<<"  Slave Cell ID/Ord: "<<std::setw(9)<<tRightIGCells(i)->get_id()<<std::setw(9)<<tRightIGCellSideOrds(i)<<std::endl;
-    }
-    return os;
-}
-
-inline
-std::ostream &
-operator<<(std::ostream & os, Double_Side_Cluster const * const & dt)
-{
-    os<<*dt;
-
-    return os;
-}
-
-}
 }
 
 #endif /* PROJECTS_MTK_SRC_CL_MTK_DOUBLE_SIDE_CLUSTER_HPP_ */

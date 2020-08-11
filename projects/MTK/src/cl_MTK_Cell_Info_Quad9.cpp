@@ -52,6 +52,12 @@ namespace moris
             return 3;
         }
         // ----------------------------------------------------------------------------------
+        uint
+        Cell_Info_Quad9::get_loc_coord_dim() const
+        {
+            return 2;
+        }
+        // ----------------------------------------------------------------------------------
         moris::Matrix<moris::IndexMat>
         Cell_Info_Quad9::get_node_to_face_map() const
         {
@@ -148,6 +154,30 @@ namespace moris
                 {
                     MORIS_ERROR(0,"Invalid side ordinal specified");
                     return MORIS_UINT_MAX;
+                    break;
+                }
+            }
+        }
+        // ----------------------------------------------------------------------------------
+
+        Matrix<DDRMat>
+        Cell_Info_Quad9::get_vertex_loc_coord(moris_index aVertexOrdinal) const
+        {
+            switch (aVertexOrdinal)
+            {
+                case 0: { return {{-1.000000000000000e+00,  -1.000000000000000e+00}}; break; }
+                case 1: { return {{+1.000000000000000e+00,  -1.000000000000000e+00}}; break; }
+                case 2: { return {{+1.000000000000000e+00,  +1.000000000000000e+00}}; break; }
+                case 3: { return {{-1.000000000000000e+00,  +1.000000000000000e+00}}; break; }
+                case 4: { return {{ 0.000000000000000e+00,  -1.000000000000000e+00}}; break; }
+                case 5: { return {{+1.000000000000000e+00,   0.000000000000000e+00}}; break; }
+                case 6: { return {{ 0.000000000000000e+00,  +1.000000000000000e+00}}; break; }
+                case 7: { return {{-1.000000000000000e+00,   0.000000000000000e+00}}; break; }
+                case 8: { return {{ 0.000000000000000e+00,   0.000000000000000e+00}}; break; }
+                default:
+                {
+                    MORIS_ERROR(0,"Invalid vertex ordinal specified");
+                    return moris::Matrix<moris::DDRMat>(0,0);
                     break;
                 }
             }

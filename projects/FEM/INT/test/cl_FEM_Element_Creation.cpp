@@ -6,7 +6,7 @@
 #include "cl_MTK_Enums.hpp"
 #include "cl_MTK_Mesh.hpp"
 
-#include "cl_Mesh_Factory.hpp"
+#include "cl_MTK_Mesh_Factory.hpp"
 #include "cl_MTK_Mesh_Tools.hpp"
 #include "cl_MTK_Mesh_Data_Input.hpp"
 #include "cl_MTK_Scalar_Field_Info.hpp"
@@ -76,7 +76,7 @@ namespace moris
            aMeshData.LocaltoGlobalElemMap(0) = & aElemLocalToGlobalQuad;
            aMeshData.LocaltoGlobalNodeMap    = & aNodeLocalToGlobal;
 
-           mtk::Mesh* tMesh2D_Quad4 = create_mesh( MeshType::STK, aMeshData );
+           mtk::Mesh* tMesh2D_Quad4 = create_interpolation_mesh( MeshType::STK, aMeshData );
 
             //1) Create the fem nodes -----------------------------------------------------
            std::cout<<" Create the fem nodes "<<std::endl;
