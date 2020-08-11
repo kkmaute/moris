@@ -72,16 +72,16 @@ namespace moris
 
         }
 
-        // ---------------------------------------------------------------------------------
-        Matrix<DDRMat>
-        Cell_Info::get_loc_coord_on_side_ordinal(moris::uint aSideOrdinal) const
-        {
-            // number of vertices
-            moris::uint tNumVertsPerFacet = this->get_num_verts_per_facet();
-
-
-            Matrix<DDRMat> tLocCoords(tNumVertsPerFacet,t)
-        }
+//        // ---------------------------------------------------------------------------------
+//        Matrix<DDRMat>
+//        Cell_Info::get_loc_coord_on_side_ordinal( moris::uint aSideOrdinal ) const
+//        {
+//            // number of vertices
+//            moris::uint tNumVertsPerFacet = this->get_num_verts_per_facet();
+//
+//
+//            Matrix<DDRMat> tLocCoords(tNumVertsPerFacet,t)
+//        }
 
         // ---------------------------------------------------------------------------------
 
