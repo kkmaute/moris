@@ -21,7 +21,9 @@ namespace moris
     namespace MSI
     {
 
-        Equation_Object::Equation_Object( const moris::Cell < moris::Cell< fem::Node_Base * > > & aNodeObjs ) : mNodeObj( aNodeObjs )
+        Equation_Object::Equation_Object(
+                const moris::Cell < moris::Cell< fem::Node_Base * > > & aNodeObjs )
+        : mNodeObj( aNodeObjs )
         {
         }
 
@@ -535,7 +537,7 @@ namespace moris
 
                 for ( uint Ik = 0; Ik<tElementalResidual.size(); Ik++ )
                 {
-                    tElementalResidual( Ik ) = trans( mEquationSet->get_jacobian() ) * mAdjointPdofValues( Ik )- tElementalResidual( Ik );
+                    tElementalResidual( Ik ) = trans( mEquationSet->get_jacobian() ) * mAdjointPdofValues( Ik ) - tElementalResidual( Ik );
                 }
             }
 
@@ -554,33 +556,43 @@ namespace moris
 
         //-------------------------------------------------------------------------------------------------
 
-        void Equation_Object::get_equation_obj_off_diagonal_residual( Cell< Matrix< DDRMat > > & aEqnObjRHS )
+        void Equation_Object::get_equation_obj_off_diagonal_residual(
+                Cell< Matrix< DDRMat > > & aEqnObjRHS )
         {
-            //        Cell< Matrix< DDRMat > > & tElementalResidual = mEquationSet->get_residual();
+            // get number of rhs
             uint tNumRHS = mEquationSet->mEquationModel->get_num_rhs();
 
+            // init elemental residual list
             Cell< Matrix< DDRMat > > tElementalResidual( tNumRHS );
 
             // FIXME this is a hack and will be changed in the next days
+            // if forward analysis
             if( !mEquationSet->mEquationModel->get_is_forward_analysis() )
             {
+                // compute jacobian
                 this->compute_jacobian();
 
+                // compute previous adjoint values
                 this->compute_my_previous_adjoint_values();
 
-                for ( uint Ik = 0; Ik<tNumRHS; Ik++ )
+                // loop over the rhs
+                for ( uint Ik = 0; Ik < tNumRHS; Ik++ )
                 {
                     tElementalResidual( Ik ) = trans( mEquationSet->get_jacobian() ) * mPreviousAdjointPdofValues( Ik );
                 }
             }
 
+            // get the T matrix for eq obj
             Matrix< DDRMat > tTMatrix;
             this->build_PADofMap_1( tTMatrix );
 
+            // init
             aEqnObjRHS.resize( tNumRHS );
 
+            // loop over rhs
             for( uint Ik = 0; Ik < tNumRHS; Ik++)
             {
+                // project
                 aEqnObjRHS( Ik ) = trans( tTMatrix ) * tElementalResidual( Ik );
             }
         }
@@ -882,9 +894,9 @@ namespace moris
             moris::Cell< Matrix< DDRMat > > tMyValues;
 
             // Extract this equation objects adof values from solution vector
-            mEquationSet->mEquationModel
-            ->get_previous_adjoint_solution_vector()
-            ->extract_my_values( tTMatrix.n_cols(), mUniqueAdofList, 0, tMyValues );
+            mEquationSet->mEquationModel->
+            get_previous_adjoint_solution_vector()->
+            extract_my_values( tTMatrix.n_cols(), mUniqueAdofList, 0, tMyValues );
 
             mPreviousAdjointPdofValues.resize( tMyValues.size() );
 
