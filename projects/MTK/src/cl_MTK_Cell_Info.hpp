@@ -221,6 +221,14 @@ namespace moris
 
                 // ---------------------------------------------------------------------------------
                 /*!
+                * @param[out] Parametric coordinate of the all the cell's vertices
+                */
+                virtual
+                void
+                get_loc_coords_of_cell(Matrix<DDRMat> & aXi) const;
+
+                // ---------------------------------------------------------------------------------
+                /*!
                  * Compute the volume of 3D cell or the surface area of 2d cell
                  * @return Cell size
                  */

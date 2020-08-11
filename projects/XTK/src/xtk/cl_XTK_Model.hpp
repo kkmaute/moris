@@ -93,8 +93,9 @@ namespace xtk
             Model(){};
 
             //--------------------------------------------------------------------------------
-            /**
-             * Primary constructor
+            /*!
+             * @brief Constructor for standalone use of XTK
+             *
              */
             Model(uint aModelDimension,
                     moris::mtk::Interpolation_Mesh* aMeshData,
@@ -103,6 +104,9 @@ namespace xtk
 
             //--------------------------------------------------------------------------------
 
+            /*!
+             * @brief Parameter list based XTK initialization
+             */
             Model(moris::ParameterList const & aParameterList);
 
             // Indicates the background mesh and the geometry are the same thing
@@ -121,22 +125,33 @@ namespace xtk
             set_geometry_engine(moris::ge::Geometry_Engine* aGeometryEngine);
 
             //--------------------------------------------------------------------------------
-
+            /*!
+             * @brief Set the pointer to the background interpolation mesh
+             */
             void
             set_mtk_background_mesh(moris::mtk::Interpolation_Mesh* aMesh);
 
             //--------------------------------------------------------------------------------
 
+            /*!
+             * @brief Set the pointer to the output performer
+             */
             void
             set_output_performer( std::shared_ptr< mtk::Mesh_Manager > aMTKPerformer );
 
             //--------------------------------------------------------------------------------
 
+            /*!
+             * @brief Set the pointer to the input performer
+             */
             void
             set_input_performer( std::shared_ptr< mtk::Mesh_Manager > aMTKPerformer );
 
             //--------------------------------------------------------------------------------
 
+            /*!
+             * @brief Initialize data using the interpolation mesh
+             */
             void
             initialize( moris::mtk::Interpolation_Mesh* aMesh );
 
@@ -145,15 +160,16 @@ namespace xtk
             // Operations
             //--------------------------------------------------------------------------------
             /*!
-             * All operation perform call
+             * @brief Workflow based perform call. Uses parameter list to decide operations to
+             * perform
              */
             void
             perform();
 
             //--------------------------------------------------------------------------------
             /*!
-             * Decomposes a mesh to conform to a geometry
-             * @param[in] aMethods - specify which type of subdivision method to use (this could be changed to command line parsing or XML reading)
+             * Decomposes a mesh to conform to a geometric interface
+             * @param[in] aMethods Subdivision Methods
              */
             void decompose(Cell<enum Subdivision_Method> aMethods);
 
@@ -235,7 +251,9 @@ namespace xtk
             // ----------------------------------------------------------------------------------
 
             /*!
-             *
+             * @brief Perform basis enrichment
+             * @param[in] aBasisRank Entity rank of basis functions
+             * @param[in] aMeshIndex Mesh index
              */
             void
             perform_basis_enrichment(
@@ -245,36 +263,44 @@ namespace xtk
             // ----------------------------------------------------------------------------------
 
             /*!
-             * returns the basis enrichment class constructed from call to perform basis enrichment
+             * @return Basis enrichment
              */
             Enrichment const &
             get_basis_enrichment();
 
             // ----------------------------------------------------------------------------------
-
+            /*!
+             * @param[in] aIndex Interpolation Index
+             * @return Enriched interpolation mesh
+             */
             Enriched_Interpolation_Mesh &
             get_enriched_interp_mesh(moris::moris_index aIndex = 0);
 
             // ----------------------------------------------------------------------------------
-
+            /*!
+             * @param[in] aIndex Interpolation Index
+             * @return Enriched integration mesh
+             */
             Enriched_Integration_Mesh &
             get_enriched_integ_mesh(moris::moris_index  aIndex = 0);
 
 
             // ----------------------------------------------------------------------------------
             /*!
-             * Constructs the face oriented ghost penalization
+             * @brief Constructs the face oriented ghost penalization
              */
             void
             construct_face_oriented_ghost_penalization_cells();
 
             // ----------------------------------------------------------------------------------
-
+            /*!
+             * @return Ghost stabilization
+             */
             Ghost_Stabilization &
             get_ghost_stabilization(moris::moris_index  aIndex = 0);
 
             // ----------------------------------------------------------------------------------
-
+            //FIXME: REMOVE
             /*!
              * Convert Tet4 elements to Tet10 Elements
              */
@@ -284,34 +310,44 @@ namespace xtk
             // ----------------------------------------------------------------------------------
 
             /*!
-             * Construct multigrid information
+             * @brief Construct multigrid information
              */
             void construct_multigrid();
 
             //--------------------------------------------------------------------------------
             // Member data access functions
             //--------------------------------------------------------------------------------
-
+            /*!
+             * @return Cut mesh (collection of child meshes)
+             */
             Cut_Mesh &
             get_cut_mesh();
 
             // ----------------------------------------------------------------------------------
-
+            /*!
+             * @return Const cut mesh (collection of child meshes)
+             */
             Cut_Mesh const &
             get_cut_mesh() const;
 
             // ----------------------------------------------------------------------------------
-
+            /*!
+             * @return Background mesh
+             */
             Background_Mesh &
             get_background_mesh();
 
             // ----------------------------------------------------------------------------------
-
+            /*!
+             * @return Constant background mesh
+             */
             Background_Mesh const &
             get_background_mesh() const;
 
             // ----------------------------------------------------------------------------------
-
+            /*!
+             * @return Geometry engine pointer
+             */
             moris::ge::Geometry_Engine*
             get_geom_engine();
 
@@ -319,7 +355,8 @@ namespace xtk
             // Outputting functions
             //-----------------------------------------------------------------------------------
             /*!
-             * Outputs the Mesh to a mesh data which can then be written to exodus files as desired.
+             * @brief Outputs the Mesh to a mesh data which can then be written to exodus files as desired.
+             * @param[in] aOutputOptions Mesh output options
              */
             moris::mtk::Integration_Mesh*
             get_output_mesh(Output_Options const & aOutputOptions = Output_Options());
@@ -347,36 +384,52 @@ namespace xtk
             //--------------------------------------------------------------------------------
             // Cell Neighborhood creation and access
             //--------------------------------------------------------------------------------
+            /*!
+             * @brief constructs the cell neighborhood
+             */
             void
             construct_neighborhood();
 
             //-----------------------------------------------------------------------------------
-
+            /*!
+             * @brief constructs subphase neighborhood
+             */
             void
             construct_subphase_neighborhood();
 
             //-----------------------------------------------------------------------------------
-
+            /*!
+             * @brief constructs the simple cell neighborhood between intersected background cells
+             */
             void
             construct_cut_mesh_simple_neighborhood();
 
             //-----------------------------------------------------------------------------------
 
+            /*!
+             * @brief construct neighborhood from cut to uncut cells
+             */
             void
             construct_cut_mesh_to_uncut_mesh_neighborhood(moris::Cell<moris::Cell<moris_index>> & aCutToUncutFace);
 
             //-----------------------------------------------------------------------------------
-
+            /*!
+             * @briefHanging node considerations for cell neighborhood
+             */
             void
             construct_complex_neighborhood();
 
             //-----------------------------------------------------------------------------------
-
+            /*!
+             * @briefConstruct neighborhood between uncut cells
+             */
             void
             construct_uncut_neighborhood(moris::Cell<moris::Cell<moris_index>> & aCutToUncutFace);
 
             //-----------------------------------------------------------------------------------
-
+            /*!
+             *@brief Delete cell neighborhood data
+             */
             void
             delete_neighborhood();
 
@@ -384,7 +437,7 @@ namespace xtk
             // Data access functions
             //--------------------------------------------------------------------------------
 
-            /*
+            /*!
              * get spatial dimension of model
              */
             moris::uint

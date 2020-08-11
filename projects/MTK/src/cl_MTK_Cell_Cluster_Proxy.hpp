@@ -56,7 +56,7 @@ public:
         return mVerticesInCluster;
     }
 
-    moris::Matrix<moris::DDRMat> const &
+    moris::Matrix<moris::DDRMat>
     get_vertices_local_coordinates_wrt_interp_cell( const mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER ) const
     {
         return mVertexParamCoords;

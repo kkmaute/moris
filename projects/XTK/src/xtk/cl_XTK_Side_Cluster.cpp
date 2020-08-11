@@ -9,6 +9,7 @@
 #include "cl_MTK_Cell_Cluster.hpp"
 #include "cl_XTK_Interpolation_Cell_Unzipped.hpp"
 #include "cl_XTK_Child_Mesh.hpp"
+#include "assert.hpp"
 
 namespace xtk
 {
@@ -61,14 +62,28 @@ namespace xtk
         return mVerticesInCluster;
     }
     //----------------------------------------------------------------
-    moris::Matrix<moris::DDRMat> const &
+    moris::Matrix<moris::DDRMat>
     Side_Cluster::get_vertices_local_coordinates_wrt_interp_cell( const mtk::Master_Slave aIsMaster )  const
     {
-        MORIS_ERROR(!mTrivial,"Accessing local coordinates on a trivial cell cluster is not allowed");
-
         if(mChildMesh != nullptr)
         {
             return mChildMesh->get_parametric_coordinates();
+        }
+        else if(mTrivial)
+        {
+            // get the interpolation cell's connectivity information
+            moris::mtk::Cell_Info const * tCellInfo = mInterpolationCell->get_connectivity();
+
+            // side ordinal on interpolation cell
+            moris::uint tSideOrd = (uint) mIntegrationCellSideOrdinals(0);
+
+            // local coordinate matrix
+            Matrix<DDRMat> tXi;
+
+            // get the local coordinates on the side ordinal
+            tCellInfo->get_loc_coord_on_side_ordinal(tSideOrd,tXi);
+
+            return tXi;
         }
         else
         {
@@ -80,11 +95,25 @@ namespace xtk
     Side_Cluster::get_vertex_local_coordinate_wrt_interp_cell( moris::mtk::Vertex const * aVertex,
             const mtk::Master_Slave aIsMaster ) const
     {
-        MORIS_ERROR(!mTrivial,"Accessing local coordinates on a trivial cell cluster is not allowed");
-
         if(mChildMesh != nullptr)
         {
             return mChildMesh->get_parametric_coordinates(aVertex->get_index());
+        }
+        else if(mTrivial)
+        {
+            // Cluster index is also the ordinal in trivial cluster
+            moris_index tVertexOrdinal = this->get_vertex_cluster_index(aVertex);
+
+            // get the interpolation cell's connectivity information
+            moris::mtk::Cell_Info const * tCellInfo = mInterpolationCell->get_connectivity();
+
+            // side ordinal on interpolation cell
+            moris::uint tSideOrd = (uint) mIntegrationCellSideOrdinals(0);
+
+            // get the local coordinates on the side ordinal
+            Matrix<DDRMat> tXi  = tCellInfo->get_vertex_loc_coord(tVertexOrdinal);
+
+            return tXi;
         }
         else
         {

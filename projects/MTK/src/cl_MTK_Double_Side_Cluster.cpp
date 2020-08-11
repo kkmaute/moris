@@ -20,6 +20,10 @@ namespace moris
 
         //----------------------------------------------------------------------------------
 
+        Double_Side_Cluster::~Double_Side_Cluster(){};
+
+        //----------------------------------------------------------------------------------
+
         Double_Side_Cluster::Double_Side_Cluster(
                 moris::mtk::Side_Cluster *                      aMasterSideCluster,
                 moris::mtk::Side_Cluster *                      aSlaveSideCluster,
@@ -388,7 +392,7 @@ namespace moris
             moris::uint tMasterNumVertices = mMasterSideCluster->get_num_vertices_in_cluster();
             moris::uint tSlaveNumVertices = mSlaveSideCluster->get_num_vertices_in_cluster();
 
-            // cell access
+            // access the vertices in a side cluster
             moris::Cell<moris::mtk::Vertex const *> const & tMasterVertices =
                     mMasterSideCluster->get_vertices_in_cluster();
             moris::Cell<moris::mtk::Vertex const *> const & tSlaveVertices =
@@ -413,7 +417,7 @@ namespace moris
 
         //----------------------------------------------------------------------------------
 
-        moris::Matrix<moris::DDRMat> const &
+        moris::Matrix<moris::DDRMat>
         Double_Side_Cluster::get_vertices_local_coordinates_wrt_interp_cell( const mtk::Master_Slave aIsMaster ) const
         {
             if ( aIsMaster == mtk::Master_Slave::MASTER )
@@ -434,7 +438,7 @@ namespace moris
 
         //----------------------------------------------------------------------------------
 
-        moris::Matrix<moris::DDRMat> const &
+        moris::Matrix<moris::DDRMat>
         Double_Side_Cluster::get_master_vertices_local_coordinates_wrt_interp_cell() const
         {
             return this->get_master_side_cluster().get_vertices_local_coordinates_wrt_interp_cell();
@@ -442,7 +446,7 @@ namespace moris
 
         //----------------------------------------------------------------------------------
 
-        moris::Matrix<moris::DDRMat> const &
+        moris::Matrix<moris::DDRMat>
         Double_Side_Cluster::get_slave_vertices_local_coordinates_wrt_interp_cell() const
         {
             return this->get_slave_side_cluster().get_vertices_local_coordinates_wrt_interp_cell();
