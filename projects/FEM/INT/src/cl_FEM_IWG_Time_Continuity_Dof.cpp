@@ -75,34 +75,34 @@ namespace moris
             std::shared_ptr< Property > tPropWeightPrevious =
                     mMasterProp( static_cast< uint >( IWG_Property_Type::WEIGHT_PREVIOUS ) );
 
-            // get previous weight property
-            std::shared_ptr< Property > tPropInitialCondition =
-                    mMasterProp( static_cast< uint >( IWG_Property_Type::INITIAL_CONDITION ) );
+            // FIXME set initial time
+            real tInitTime = 0.0;
 
-            // FIXME if first time step
-            if( mMasterFIManager->get_IP_geometry_interpolator()->valt()( 0 ) == 0.0 )
+            // init jump in time
+            Matrix< DDRMat > tJump = tPropWeightCurrent->val()( 0 ) * tFICurrent->val();
+
+            // if not the first time step
+            if( mMasterFIManager->get_IP_geometry_interpolator()->valt()( 0 ) > tInitTime )
             {
                 // compute the jump
-                Matrix< DDRMat > tJump =
-                        tPropWeightCurrent->val()( 0 ) * tFICurrent->val() -
-                        tPropWeightPrevious->val()( 0 ) * tPropInitialCondition->val();
-
-                // add contribution to residual
-                mSet->get_residual()( 0 )( { tMasterResStartIndex, tMasterResStopIndex }, { 0, 0 } ) += aWStar * (
-                        trans( tFICurrent->N() ) * tJump );
+                tJump.matrix_data() -= tPropWeightPrevious->val()( 0 ) * tFIPrevious->val();
             }
-            // if not first time step
+            // if first time step
             else
             {
-                // compute the jump
-                Matrix< DDRMat > tJump =
-                        tPropWeightCurrent->val()( 0 ) * tFICurrent->val() -
-                        tPropWeightPrevious->val()( 0 ) * tFIPrevious->val();
+                // get previous weight property
+                std::shared_ptr< Property > tPropInitialCondition =
+                        mMasterProp( static_cast< uint >( IWG_Property_Type::INITIAL_CONDITION ) );
 
-                // add contribution to residual
-                mSet->get_residual()( 0 )( { tMasterResStartIndex, tMasterResStopIndex }, { 0, 0 } ) += aWStar * (
-                        trans( tFICurrent->N() ) * tJump );
+                // compute the jump
+                tJump.matrix_data() -= tPropWeightPrevious->val()( 0 ) * tPropInitialCondition->val();
             }
+
+            // add contribution to residual
+            mSet->get_residual()( 0 )(
+                    { tMasterResStartIndex, tMasterResStopIndex },
+                    { 0, 0 } ) += aWStar * (
+                            trans( tFICurrent->N() ) * tJump );
         }
 
         //------------------------------------------------------------------------------
