@@ -30,7 +30,8 @@ namespace moris
                 //------------------------------------------------------------------------------
             public:
 
-                real mBeta = 1.0;
+                // sint for symmetric/unsymmetric Nitsche formulation
+                sint mBeta = 1.0;
 
                 // local property enums
                 enum class IWG_Property_Type

@@ -335,7 +335,7 @@ namespace moris
         tIWGInletVelocity->set_stabilization_parameter( tSPNitsche, "DirichletNitsche" );
 
         std::shared_ptr< fem::IWG > tIWGInletPressure
-                = tIWGFactory.create_IWG( fem::IWG_Type::INCOMPRESSIBLE_NS_PRESSURE_DIRICHLET_SYMMETRIC_NITSCHE );
+                = tIWGFactory.create_IWG( fem::IWG_Type::INCOMPRESSIBLE_NS_PRESSURE_DIRICHLET_UNSYMMETRIC_NITSCHE );
         tIWGInletPressure->set_residual_dof_type( { MSI::Dof_Type::P } );
         tIWGInletPressure->set_dof_type_list( {{ MSI::Dof_Type::VX, MSI::Dof_Type::VY }, { MSI::Dof_Type::P }}, mtk::Master_Slave::MASTER );
         tIWGInletPressure->set_property( tPropInletVelocity, "Dirichlet" );
@@ -350,7 +350,7 @@ namespace moris
         tIWGFSVelocity->set_stabilization_parameter( tSPNitsche, "DirichletNitsche" );
 
         std::shared_ptr< fem::IWG > tIWGFSPressure
-                = tIWGFactory.create_IWG( fem::IWG_Type::INCOMPRESSIBLE_NS_PRESSURE_DIRICHLET_SYMMETRIC_NITSCHE );
+                = tIWGFactory.create_IWG( fem::IWG_Type::INCOMPRESSIBLE_NS_PRESSURE_DIRICHLET_UNSYMMETRIC_NITSCHE );
         tIWGFSPressure->set_residual_dof_type( { MSI::Dof_Type::P } );
         tIWGFSPressure->set_dof_type_list( {{ MSI::Dof_Type::VX, MSI::Dof_Type::VY }, { MSI::Dof_Type::P }}, mtk::Master_Slave::MASTER );
         tIWGFSPressure->set_property( tPropFSVelocity, "Dirichlet" );
@@ -706,7 +706,7 @@ TEST_CASE("MDL_Fluid_Benchmark_Immersed_Inlet_Pressure","[MDL_Fluid_Benchmark_Im
         tIWGFSVelocity->set_stabilization_parameter( tSPNitsche, "DirichletNitsche" );
 
         std::shared_ptr< fem::IWG > tIWGFSPressure
-                = tIWGFactory.create_IWG( fem::IWG_Type::INCOMPRESSIBLE_NS_PRESSURE_DIRICHLET_SYMMETRIC_NITSCHE );
+                = tIWGFactory.create_IWG( fem::IWG_Type::INCOMPRESSIBLE_NS_PRESSURE_DIRICHLET_UNSYMMETRIC_NITSCHE );
         tIWGFSPressure->set_residual_dof_type( { MSI::Dof_Type::P } );
         tIWGFSPressure->set_dof_type_list( {{ MSI::Dof_Type::VX, MSI::Dof_Type::VY }, { MSI::Dof_Type::P }}, mtk::Master_Slave::MASTER );
         tIWGFSPressure->set_property( tPropFSVelocity, "Dirichlet" );
@@ -2262,7 +2262,8 @@ TEST_CASE("MDL_Fluid_Benchmark_Radial_Couette_Flow","[MDL_Fluid_Benchmark_Radial
 
         // Get interpolation mesh
         tHMR->finalize();
-        moris::hmr::Interpolation_Mesh_HMR * tInterpolationMesh = tHMR->create_interpolation_mesh(tLagrangeMeshIndex);
+        moris::hmr::Interpolation_Mesh_HMR * tInterpolationMesh =
+                tHMR->create_interpolation_mesh(tLagrangeMeshIndex);
 
         moris::ge::Phase_Table tPhaseTable (2, moris::ge::Phase_Table_Structure::EXP_BASE_2);
         moris::ge::Geometry_Engine tGENGeometryEngine(tGeometry, tPhaseTable, tInterpolationMesh);
@@ -2318,8 +2319,8 @@ TEST_CASE("MDL_Fluid_Benchmark_Radial_Couette_Flow","[MDL_Fluid_Benchmark_Radial
         // create constitutive models
         fem::CM_Factory tCMFactory;
 
-        std::shared_ptr< fem::Constitutive_Model > tCMFluid
-        = tCMFactory.create_CM( fem::Constitutive_Type::FLUID_INCOMPRESSIBLE );
+        std::shared_ptr< fem::Constitutive_Model > tCMFluid =
+                tCMFactory.create_CM( fem::Constitutive_Type::FLUID_INCOMPRESSIBLE );
         tCMFluid->set_dof_type_list( {{ MSI::Dof_Type::VX, MSI::Dof_Type::VY }, { MSI::Dof_Type::P }} );
         tCMFluid->set_property( tPropFluidViscosity, "Viscosity" );
         tCMFluid->set_property( tPropFluidDensity, "Density" );
@@ -2328,37 +2329,37 @@ TEST_CASE("MDL_Fluid_Benchmark_Radial_Couette_Flow","[MDL_Fluid_Benchmark_Radial
         // define stabilization parameters
         fem::SP_Factory tSPFactory;
 
-        std::shared_ptr< fem::Stabilization_Parameter > tSPIncFlow
-        = tSPFactory.create_SP( fem::Stabilization_Type::INCOMPRESSIBLE_FLOW );
+        std::shared_ptr< fem::Stabilization_Parameter > tSPIncFlow =
+                tSPFactory.create_SP( fem::Stabilization_Type::INCOMPRESSIBLE_FLOW );
         tSPIncFlow->set_dof_type_list( {{ MSI::Dof_Type::VX, MSI::Dof_Type::VY }, { MSI::Dof_Type::P }}, mtk::Master_Slave::MASTER );
         tSPIncFlow->set_property( tPropFluidDensity, "Density", mtk::Master_Slave::MASTER );
         tSPIncFlow->set_property( tPropFluidViscosity, "Viscosity", mtk::Master_Slave::MASTER );
         tSPIncFlow->set_parameters( { {{ 36.0 }} } );
         tSPIncFlow->set_space_dim( 2 );
 
-        std::shared_ptr< fem::Stabilization_Parameter > tSPNitsche
-        = tSPFactory.create_SP( fem::Stabilization_Type::VELOCITY_DIRICHLET_NITSCHE );
+        std::shared_ptr< fem::Stabilization_Parameter > tSPNitsche =
+                tSPFactory.create_SP( fem::Stabilization_Type::VELOCITY_DIRICHLET_NITSCHE );
         tSPNitsche->set_dof_type_list( {{ MSI::Dof_Type::VX, MSI::Dof_Type::VY }}, mtk::Master_Slave::MASTER );
         tSPNitsche->set_property( tPropFluidDensity, "Density", mtk::Master_Slave::MASTER );
         tSPNitsche->set_property( tPropFluidViscosity, "Viscosity", mtk::Master_Slave::MASTER );
         tSPNitsche->set_parameters( { {{ tGammaNitsche }}, {{1.0}} } );
         tSPNitsche->set_space_dim( 2 );
 
-        std::shared_ptr< fem::Stabilization_Parameter > tSPViscousGhost
-        = tSPFactory.create_SP( fem::Stabilization_Type::VISCOUS_GHOST );
+        std::shared_ptr< fem::Stabilization_Parameter > tSPViscousGhost =
+                tSPFactory.create_SP( fem::Stabilization_Type::VISCOUS_GHOST );
         tSPViscousGhost->set_parameters( {{{ tGammaGPmu }} });
         tSPViscousGhost->set_property( tPropFluidViscosity, "Viscosity", mtk::Master_Slave::MASTER );
         tSPViscousGhost->set_space_dim( 2 );
 
-        std::shared_ptr< fem::Stabilization_Parameter > tSPConvectiveGhost
-        = tSPFactory.create_SP( fem::Stabilization_Type::CONVECTIVE_GHOST );
+        std::shared_ptr< fem::Stabilization_Parameter > tSPConvectiveGhost =
+                tSPFactory.create_SP( fem::Stabilization_Type::CONVECTIVE_GHOST );
         tSPConvectiveGhost->set_dof_type_list( {{ MSI::Dof_Type::VX, MSI::Dof_Type::VY }}, mtk::Master_Slave::MASTER );
         tSPConvectiveGhost->set_parameters( {{{ tGammaGPu }} });
         tSPConvectiveGhost->set_property( tPropFluidDensity, "Density", mtk::Master_Slave::MASTER );
         tSPConvectiveGhost->set_space_dim( 2 );
 
-        std::shared_ptr< fem::Stabilization_Parameter > tSPPressureGhost
-        = tSPFactory.create_SP( fem::Stabilization_Type::PRESSURE_GHOST );
+        std::shared_ptr< fem::Stabilization_Parameter > tSPPressureGhost =
+                tSPFactory.create_SP( fem::Stabilization_Type::PRESSURE_GHOST );
         tSPPressureGhost->set_dof_type_list( {{ MSI::Dof_Type::VX, MSI::Dof_Type::VY }}, mtk::Master_Slave::MASTER );
         tSPPressureGhost->set_parameters( { {{ tGammaGPp }}, {{ 1.0 }} });
         tSPPressureGhost->set_property( tPropFluidViscosity, "Viscosity", mtk::Master_Slave::MASTER );
@@ -2368,51 +2369,51 @@ TEST_CASE("MDL_Fluid_Benchmark_Radial_Couette_Flow","[MDL_Fluid_Benchmark_Radial
         // define the IWGs
         fem::IWG_Factory tIWGFactory;
 
-        std::shared_ptr< fem::IWG > tIWGVelocityBulk
-        = tIWGFactory.create_IWG( fem::IWG_Type::INCOMPRESSIBLE_NS_VELOCITY_BULK );
+        std::shared_ptr< fem::IWG > tIWGVelocityBulk =
+                tIWGFactory.create_IWG( fem::IWG_Type::INCOMPRESSIBLE_NS_VELOCITY_BULK );
         tIWGVelocityBulk->set_residual_dof_type( { MSI::Dof_Type::VX } );
         tIWGVelocityBulk->set_dof_type_list( {{ MSI::Dof_Type::VX, MSI::Dof_Type::VY }, { MSI::Dof_Type::P }}, mtk::Master_Slave::MASTER );
         tIWGVelocityBulk->set_constitutive_model( tCMFluid, "IncompressibleFluid" );
         tIWGVelocityBulk->set_stabilization_parameter( tSPIncFlow, "IncompressibleFlow" );
 
-        std::shared_ptr< fem::IWG > tIWGPressureBulk
-        = tIWGFactory.create_IWG( fem::IWG_Type::INCOMPRESSIBLE_NS_PRESSURE_BULK );
+        std::shared_ptr< fem::IWG > tIWGPressureBulk =
+                tIWGFactory.create_IWG( fem::IWG_Type::INCOMPRESSIBLE_NS_PRESSURE_BULK );
         tIWGPressureBulk->set_residual_dof_type( { MSI::Dof_Type::P } );
         tIWGPressureBulk->set_dof_type_list( {{ MSI::Dof_Type::VX, MSI::Dof_Type::VY }, { MSI::Dof_Type::P }}, mtk::Master_Slave::MASTER );
         tIWGPressureBulk->set_constitutive_model( tCMFluid, "IncompressibleFluid" );
         tIWGPressureBulk->set_stabilization_parameter( tSPIncFlow, "IncompressibleFlow" );
 
-        std::shared_ptr< fem::IWG > tIWGDirichletVelocity
-        = tIWGFactory.create_IWG( fem::IWG_Type::INCOMPRESSIBLE_NS_VELOCITY_DIRICHLET_SYMMETRIC_NITSCHE );
+        std::shared_ptr< fem::IWG > tIWGDirichletVelocity =
+                tIWGFactory.create_IWG( fem::IWG_Type::INCOMPRESSIBLE_NS_VELOCITY_DIRICHLET_UNSYMMETRIC_NITSCHE );
         tIWGDirichletVelocity->set_residual_dof_type( { MSI::Dof_Type::VX } );
         tIWGDirichletVelocity->set_dof_type_list( {{ MSI::Dof_Type::VX, MSI::Dof_Type::VY }, { MSI::Dof_Type::P }}, mtk::Master_Slave::MASTER );
         tIWGDirichletVelocity->set_property( tPropImposedVelocity, "Dirichlet" );
         tIWGDirichletVelocity->set_constitutive_model( tCMFluid, "IncompressibleFluid" );
         tIWGDirichletVelocity->set_stabilization_parameter( tSPNitsche, "DirichletNitsche" );
 
-        std::shared_ptr< fem::IWG > tIWGDirichletPressure
-        = tIWGFactory.create_IWG( fem::IWG_Type::INCOMPRESSIBLE_NS_PRESSURE_DIRICHLET_SYMMETRIC_NITSCHE );
+        std::shared_ptr< fem::IWG > tIWGDirichletPressure =
+                tIWGFactory.create_IWG( fem::IWG_Type::INCOMPRESSIBLE_NS_PRESSURE_DIRICHLET_UNSYMMETRIC_NITSCHE );
         tIWGDirichletPressure->set_residual_dof_type( { MSI::Dof_Type::P } );
         tIWGDirichletPressure->set_dof_type_list( {{ MSI::Dof_Type::VX, MSI::Dof_Type::VY }, { MSI::Dof_Type::P }}, mtk::Master_Slave::MASTER );
         tIWGDirichletPressure->set_property( tPropImposedVelocity, "Dirichlet" );
         tIWGDirichletPressure->set_constitutive_model( tCMFluid, "IncompressibleFluid" );
 
-        std::shared_ptr< fem::IWG > tIWGGPViscous
-        = tIWGFactory.create_IWG( fem::IWG_Type::GHOST_NORMAL_FIELD );
+        std::shared_ptr< fem::IWG > tIWGGPViscous =
+                tIWGFactory.create_IWG( fem::IWG_Type::GHOST_NORMAL_FIELD );
         tIWGGPViscous->set_residual_dof_type( { MSI::Dof_Type::VX, MSI::Dof_Type::VY } );
         tIWGGPViscous->set_dof_type_list( { { MSI::Dof_Type::VX, MSI::Dof_Type::VY }, { MSI::Dof_Type::P } }, mtk::Master_Slave::MASTER );
         tIWGGPViscous->set_dof_type_list( { { MSI::Dof_Type::VX, MSI::Dof_Type::VY }, { MSI::Dof_Type::P } }, mtk::Master_Slave::SLAVE );
         tIWGGPViscous->set_stabilization_parameter( tSPViscousGhost, "GhostSP" );
 
-        std::shared_ptr< fem::IWG > tIWGGPConvective
-        = tIWGFactory.create_IWG( fem::IWG_Type::GHOST_NORMAL_FIELD );
+        std::shared_ptr< fem::IWG > tIWGGPConvective =
+                tIWGFactory.create_IWG( fem::IWG_Type::GHOST_NORMAL_FIELD );
         tIWGGPConvective->set_residual_dof_type( { MSI::Dof_Type::VX, MSI::Dof_Type::VY } );
         tIWGGPConvective->set_dof_type_list( { { MSI::Dof_Type::VX, MSI::Dof_Type::VY }, { MSI::Dof_Type::P } }, mtk::Master_Slave::MASTER );
         tIWGGPConvective->set_dof_type_list( { { MSI::Dof_Type::VX, MSI::Dof_Type::VY }, { MSI::Dof_Type::P } }, mtk::Master_Slave::SLAVE );
         tIWGGPConvective->set_stabilization_parameter( tSPConvectiveGhost, "GhostSP" );
 
-        std::shared_ptr< fem::IWG > tIWGGPPressure
-        = tIWGFactory.create_IWG( fem::IWG_Type::GHOST_NORMAL_FIELD );
+        std::shared_ptr< fem::IWG > tIWGGPPressure =
+                tIWGFactory.create_IWG( fem::IWG_Type::GHOST_NORMAL_FIELD );
         tIWGGPPressure->set_residual_dof_type( { MSI::Dof_Type::P } );
         tIWGGPPressure->set_dof_type_list( { { MSI::Dof_Type::VX, MSI::Dof_Type::VY }, { MSI::Dof_Type::P } }, mtk::Master_Slave::MASTER );
         tIWGGPPressure->set_dof_type_list( { { MSI::Dof_Type::VX, MSI::Dof_Type::VY }, { MSI::Dof_Type::P } }, mtk::Master_Slave::SLAVE );
