@@ -602,7 +602,6 @@ namespace xtk
                 moris::Matrix< moris::DDRMat > tEdgeNodeParamCoordinates(2,tDimParamCoord); // parametric coordinate of end nodes wrt parent element
 
                 // Check type specified as conformal (could change this to enum)
-                moris::size_t tCheckType = 1;
                 moris::Matrix< moris::DDRMat > tNodeCoords = mBackgroundMesh.get_all_node_coordinates_loc_inds();
 
                 // get the underlying background mesh data
@@ -624,7 +623,7 @@ namespace xtk
                     moris::Matrix< moris::IndexMat > const & tEdgeToNode = tChildMesh.get_edge_to_node();
 
                     // Ask geometry engine which edges are intersected (Simple mesh local indexed edges)
-                    mGeometryEngine->is_intersected(tNodeCoords, tEdgeToNode, tCheckType, tGeoObjects);
+                    mGeometryEngine->is_intersected(tNodeCoords, tEdgeToNode, tGeoObjects);
 
                     // Initialize node index pointers based on number of intersected edges and parametric coordinates
                     uint tNumNewNodes = 0;
@@ -827,7 +826,6 @@ namespace xtk
                 moris::Matrix< moris::DDRMat > tEdgeNodeParamCoordinates(2,tDimParamCoord); // parametric coordinate of end nodes wrt parent element
 
                 // Check type specified as conformal (could change this to enum)
-                moris::size_t tCheckType = 1;
                 moris::Matrix< moris::DDRMat > tNodeCoords = mBackgroundMesh.get_all_node_coordinates_loc_inds();
 
                 // get the underlying background mesh data
@@ -849,7 +847,7 @@ namespace xtk
                     moris::Matrix< moris::IndexMat > const & tEdgeToNode = tChildMesh.get_edge_to_node();
 
                     // Ask geometry engine which edges are intersected (Simple mesh local indexed edges)
-                    mGeometryEngine->is_intersected(tNodeCoords, tEdgeToNode, tCheckType, tGeoObjects);
+                    mGeometryEngine->is_intersected(tNodeCoords, tEdgeToNode, tGeoObjects);
 
                     // Initialize node index pointers based on number of intersected edges and parametric coordinates
                     uint tNumNewNodes = 0;

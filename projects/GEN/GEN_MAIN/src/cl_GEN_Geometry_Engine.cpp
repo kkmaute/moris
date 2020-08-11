@@ -235,7 +235,6 @@ namespace moris
         void Geometry_Engine::is_intersected(
                 const Matrix<DDRMat>&      aNodeCoords,
                 const Matrix<IndexMat>&    aNodetoEntityConn,
-                size_t                     aCheckType,
                 Cell<GEN_Geometry_Object>& aGeometryObjects)
         {
             //Get information for loops
@@ -256,7 +255,6 @@ namespace moris
                         i,
                         tRow,
                         aNodeCoords,
-                        aCheckType,
                         aGeometryObjects(tIntersectedCount) );
 
                 if (tIsIntersected)
@@ -636,7 +634,6 @@ namespace moris
                 moris_index             aEntityIndex,
                 const Matrix<IndexMat>& aEntityNodeIndices,
                 const Matrix<DDRMat>&   aNodeCoords,
-                size_t                  aCheckType,
                 GEN_Geometry_Object&    aGeometryObject)
         {
             //Initialize
@@ -711,20 +708,17 @@ namespace moris
 
                 if (tNewNode)
                 {
-                    if(aCheckType == 1)
-                    {
-                        Matrix< DDRMat > tIntersectLocalCoordinate(1,1);
-                        Matrix< DDRMat > tIntersectGlobalCoordinate(1,mSpatialDim);
+                    Matrix< DDRMat > tIntersectLocalCoordinate(1,1);
+                    Matrix< DDRMat > tIntersectGlobalCoordinate(1,mSpatialDim);
 
-                        get_intersection_location(aNodeCoords,
-                                                  tEntityNodeVars,
-                                                  aEntityNodeIndices,
-                                                  tIntersectLocalCoordinate,
-                                                  tIntersectGlobalCoordinate);
+                    get_intersection_location(aNodeCoords,
+                                              tEntityNodeVars,
+                                              aEntityNodeIndices,
+                                              tIntersectLocalCoordinate,
+                                              tIntersectGlobalCoordinate);
 
-                        aGeometryObject.set_interface_loc_coord(tIntersectLocalCoordinate(0));
-                        aGeometryObject.set_interface_glb_coord(tIntersectGlobalCoordinate);
-                    }
+                    aGeometryObject.set_interface_loc_coord(tIntersectLocalCoordinate(0));
+                    aGeometryObject.set_interface_glb_coord(tIntersectGlobalCoordinate);
                 }
             }
 

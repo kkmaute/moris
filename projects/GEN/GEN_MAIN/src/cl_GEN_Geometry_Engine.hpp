@@ -203,7 +203,6 @@ namespace moris
              */
             void is_intersected(const Matrix<DDRMat>&      aNodeCoords,
                                 const Matrix<IndexMat>&    aNodetoEntityConn,
-                                size_t                     aCheckType,
                                 Cell<GEN_Geometry_Object>& aGeometryObjects);
 
             /**
@@ -332,7 +331,6 @@ namespace moris
             bool compute_intersection_info(moris_index             aEntityIndex,
                                            const Matrix<IndexMat>& aEntityNodeInds,
                                            const Matrix<DDRMat>&   aNodeCoords,
-                                           size_t                  aCheckType,
                                            GEN_Geometry_Object&    aGeometryObject);
 
             /**
