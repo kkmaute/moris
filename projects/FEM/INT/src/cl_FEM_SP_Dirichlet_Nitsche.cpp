@@ -1,12 +1,11 @@
-
-#include "cl_FEM_SP_Dirichlet_Nitsche.hpp" //FEM/INT/src
-#include "cl_FEM_Cluster.hpp"              //FEM/INT/src
-#include "cl_FEM_Field_Interpolator_Manager.hpp"              //FEM/INT/src
-
+//FEM/INT/src
+#include "cl_FEM_SP_Dirichlet_Nitsche.hpp"
+#include "cl_FEM_Cluster.hpp"
+#include "cl_FEM_Field_Interpolator_Manager.hpp"
+//LINALG/src
 #include "fn_trans.hpp"
 #include "fn_norm.hpp"
 #include "fn_eye.hpp"
-
 #include "fn_dot.hpp"
 #include "op_div.hpp"
 
@@ -15,6 +14,7 @@ namespace moris
     namespace fem
     {
         //------------------------------------------------------------------------------
+
         SP_Dirichlet_Nitsche::SP_Dirichlet_Nitsche()
         {
             // set size for the property pointer cell
@@ -25,6 +25,7 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+
         void SP_Dirichlet_Nitsche::reset_cluster_measures()
         {
             // evaluate element size from the cluster
@@ -34,6 +35,7 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+
         void SP_Dirichlet_Nitsche::set_property(
                 std::shared_ptr< Property > aProperty,
                 std::string                 aPropertyString,
@@ -50,6 +52,7 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+
         void SP_Dirichlet_Nitsche::eval_SP()
         {
             // get the material property
@@ -61,7 +64,9 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
-        void SP_Dirichlet_Nitsche::eval_dSPdMasterDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes )
+
+        void SP_Dirichlet_Nitsche::eval_dSPdMasterDOF(
+                const moris::Cell< MSI::Dof_Type > & aDofTypes )
         {
             // get the dof type as a uint
             uint tDofType = static_cast< uint >( aDofTypes( 0 ) );

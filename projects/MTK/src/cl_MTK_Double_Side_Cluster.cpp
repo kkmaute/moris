@@ -16,7 +16,7 @@ namespace moris
          mSlaveSideCluster(nullptr)
         {
 
-        };
+        }
 
         //----------------------------------------------------------------------------------
 
@@ -39,7 +39,7 @@ namespace moris
             }
 
             mMasterToSlaveVertexPairs.append(aLeftToRightVertexPair);
-        };
+        }
 
         //----------------------------------------------------------------------------------
 

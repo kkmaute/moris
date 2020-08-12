@@ -121,16 +121,22 @@ namespace moris
             Matrix< DDRMat > tJumpVelocity = tFIMaster->val() - tFISlave->val();
 
             // compute master residual
-            mSet->get_residual()( 0 )( { tMasterResStartIndex, tMasterResStopIndex }, { 0, 0 } ) += aWStar * (
-                    - trans( tFIMaster->N() ) * tTractionFluid
-                    - mBeta * tSPMasterWeight->val()( 0 ) * trans( tCMMasterFluid->testTraction( mNormal, mResidualDofType ) ) * tJumpVelocity
-                    + tSPNitsche->val()( 0 ) * trans( tFIMaster->N() ) * tJumpVelocity ) ;
+            mSet->get_residual()( 0 )(
+                    { tMasterResStartIndex, tMasterResStopIndex },
+                    { 0, 0 } ) += aWStar * (
+                            - trans( tFIMaster->N() ) * tTractionFluid
+                            - mBeta * tSPMasterWeight->val()( 0 ) * trans( tCMMasterFluid->testTraction( mNormal, mResidualDofType ) ) * tJumpVelocity
+                            + tSPNitsche->val()( 0 ) * trans( tFIMaster->N() ) * tJumpVelocity ) ;
 
             // compute slave residual
-            mSet->get_residual()( 0 )( { tSlaveResStartIndex, tSlaveResStopIndex }, { 0, 0 } ) += aWStar * (
-                    + trans( tFISlave->N() ) * tTractionFluid
-                    - mBeta * tSPSlaveWeight->val()( 0 ) * trans( tCMSlaveFluid->testTraction( mNormal, mResidualDofType ) ) * tJumpVelocity
-                    - tSPNitsche->val()( 0 ) * trans( tFISlave->N() ) * tJumpVelocity );
+            mSet->get_residual()( 0 )(
+                    { tSlaveResStartIndex, tSlaveResStopIndex },
+                    { 0, 0 } ) += aWStar * (
+                            + trans( tFISlave->N() ) * tTractionFluid
+                            - mBeta * tSPSlaveWeight->val()( 0 ) * trans( tCMSlaveFluid->testTraction( mNormal, mResidualDofType ) ) * tJumpVelocity
+                            - tSPNitsche->val()( 0 ) * trans( tFISlave->N() ) * tJumpVelocity );
+
+            //Turbulence part -------------------------------------------------------------
 
             // get the turbulence constitutive model
             std::shared_ptr< Constitutive_Model > tCMMasterTurbulence =
@@ -147,18 +153,23 @@ namespace moris
                         tSPSlaveWeight->val()( 0 )  * tCMSlaveTurbulence->traction( mNormal );
 
                 // compute master residual
-                mSet->get_residual()( 0 )( { tMasterResStartIndex, tMasterResStopIndex }, { 0, 0 } ) += aWStar * (
-                        - trans( tFIMaster->N() ) * tTractionTurbulence
-                        - mBeta * tSPMasterWeight->val()( 0 ) * trans( tCMMasterTurbulence->testTraction( mNormal, mResidualDofType ) ) * tJumpVelocity ) ;
+                mSet->get_residual()( 0 )(
+                        { tMasterResStartIndex, tMasterResStopIndex },
+                        { 0, 0 } ) += aWStar * (
+                                - trans( tFIMaster->N() ) * tTractionTurbulence
+                                - mBeta * tSPMasterWeight->val()( 0 ) * trans( tCMMasterTurbulence->testTraction( mNormal, mResidualDofType ) ) * tJumpVelocity ) ;
 
                 // compute slave residual
-                mSet->get_residual()( 0 )( { tSlaveResStartIndex, tSlaveResStopIndex }, { 0, 0 } ) += aWStar * (
-                        + trans( tFISlave->N() ) * tTractionTurbulence
-                        - mBeta * tSPSlaveWeight->val()( 0 ) * trans( tCMSlaveTurbulence->testTraction( mNormal, mResidualDofType ) ) * tJumpVelocity );
+                mSet->get_residual()( 0 )(
+                        { tSlaveResStartIndex, tSlaveResStopIndex },
+                        { 0, 0 } ) += aWStar * (
+                                + trans( tFISlave->N() ) * tTractionTurbulence
+                                - mBeta * tSPSlaveWeight->val()( 0 ) * trans( tCMSlaveTurbulence->testTraction( mNormal, mResidualDofType ) ) * tJumpVelocity );
             }
         }
 
         //------------------------------------------------------------------------------
+
         void IWG_Incompressible_NS_Velocity_Interface::compute_jacobian( real aWStar )
         {
 #ifdef DEBUG
@@ -529,12 +540,14 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+
         void IWG_Incompressible_NS_Velocity_Interface::compute_jacobian_and_residual( real aWStar )
         {
             MORIS_ERROR( false, "IWG_Incompressible_NS_Velocity_Interface::compute_jacobian_and_residual - This function does nothing.");
         }
 
         //------------------------------------------------------------------------------
+
         void IWG_Incompressible_NS_Velocity_Interface::compute_dRdp( real aWStar )
         {
             MORIS_ERROR( false, "IWG_Incompressible_NS_Velocity_Interface::compute_dRdp - This function does nothing.");

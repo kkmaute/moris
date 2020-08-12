@@ -152,31 +152,31 @@ namespace moris
                     return std::make_shared< IWG_Incompressible_NS_Convective_Velocity_Ghost >();
 
                 case IWG_Type::INCOMPRESSIBLE_NS_VELOCITY_DIRICHLET_SYMMETRIC_NITSCHE :
-                    return std::make_shared< IWG_Incompressible_NS_Velocity_Dirichlet_Nitsche >( -1 );
-
-                case IWG_Type::INCOMPRESSIBLE_NS_VELOCITY_DIRICHLET_UNSYMMETRIC_NITSCHE :
                     return std::make_shared< IWG_Incompressible_NS_Velocity_Dirichlet_Nitsche >( 1 );
 
+                case IWG_Type::INCOMPRESSIBLE_NS_VELOCITY_DIRICHLET_UNSYMMETRIC_NITSCHE :
+                    return std::make_shared< IWG_Incompressible_NS_Velocity_Dirichlet_Nitsche >( -1 );
+
                 case IWG_Type::INCOMPRESSIBLE_NS_PRESSURE_DIRICHLET_SYMMETRIC_NITSCHE :
-                    return std::make_shared< IWG_Incompressible_NS_Pressure_Dirichlet_Nitsche >( -1 );
+                    return std::make_shared< IWG_Incompressible_NS_Pressure_Dirichlet_Nitsche >( 1 );
 
                 case IWG_Type::INCOMPRESSIBLE_NS_PRESSURE_DIRICHLET_UNSYMMETRIC_NITSCHE :
-                    return std::make_shared< IWG_Incompressible_NS_Pressure_Dirichlet_Nitsche >( 1 );
+                    return std::make_shared< IWG_Incompressible_NS_Pressure_Dirichlet_Nitsche >( -1 );
 
                 case IWG_Type::INCOMPRESSIBLE_NS_IMPOSED_PRESSURE :
                     return std::make_shared< IWG_Incompressible_NS_Pressure_Neumann >();
 
                 case IWG_Type::INCOMPRESSIBLE_NS_VELOCITY_INTERFACE_SYMMETRIC_NITSCHE :
-                    return std::make_shared< IWG_Incompressible_NS_Velocity_Interface >( -1 );
-
-                case IWG_Type::INCOMPRESSIBLE_NS_VELOCITY_INTERFACE_UNSYMMETRIC_NITSCHE :
                     return std::make_shared< IWG_Incompressible_NS_Velocity_Interface >( 1 );
 
+                case IWG_Type::INCOMPRESSIBLE_NS_VELOCITY_INTERFACE_UNSYMMETRIC_NITSCHE :
+                    return std::make_shared< IWG_Incompressible_NS_Velocity_Interface >( -1 );
+
                 case IWG_Type::INCOMPRESSIBLE_NS_PRESSURE_INTERFACE_SYMMETRIC_NITSCHE :
-                    return std::make_shared< IWG_Incompressible_NS_Pressure_Interface >( -1 );
+                    return std::make_shared< IWG_Incompressible_NS_Pressure_Interface >( 1 );
 
                 case IWG_Type::INCOMPRESSIBLE_NS_PRESSURE_INTERFACE_UNSYMMETRIC_NITSCHE :
-                    return std::make_shared< IWG_Incompressible_NS_Pressure_Interface >( 1 );
+                    return std::make_shared< IWG_Incompressible_NS_Pressure_Interface >( -1 );
 
 //                case IWG_Type::COMPRESSIBLE_NS_DENSITY_BULK :
 //                    return std::make_shared< IWG_Compressible_NS_Density_Bulk >();
@@ -197,19 +197,22 @@ namespace moris
                     return std::make_shared< IWG_Spalart_Allmaras_Turbulence_Bulk >();
 
                 case IWG_Type::SPALART_ALLMARAS_TURBULENCE_DIRICHLET_SYMMETRIC_NITSCHE :
-                    return std::make_shared< IWG_Spalart_Allmaras_Turbulence_Dirichlet >( -1 );
-
-                case IWG_Type::SPALART_ALLMARAS_TURBULENCE_DIRICHLET_UNSYMMETRIC_NITSCHE :
                     return std::make_shared< IWG_Spalart_Allmaras_Turbulence_Dirichlet >( 1 );
 
-                case IWG_Type::SPALART_ALLMARAS_TURBULENCE_INTERFACE :
-                    return std::make_shared< IWG_Spalart_Allmaras_Turbulence_Interface >();
+                case IWG_Type::SPALART_ALLMARAS_TURBULENCE_DIRICHLET_UNSYMMETRIC_NITSCHE :
+                    return std::make_shared< IWG_Spalart_Allmaras_Turbulence_Dirichlet >( -1 );
+
+                case IWG_Type::SPALART_ALLMARAS_TURBULENCE_INTERFACE_SYMMETRIC_NITSCHE :
+                    return std::make_shared< IWG_Spalart_Allmaras_Turbulence_Interface >( 1 );
+
+                case IWG_Type::SPALART_ALLMARAS_TURBULENCE_INTERFACE_UNSYMMETRIC_NITSCHE :
+                    return std::make_shared< IWG_Spalart_Allmaras_Turbulence_Interface >( -1 );
 
                 case IWG_Type::STRUC_LINEAR_CONTACT_SYMMETRIC_NITSCHE :
-                    return std::make_shared< IWG_Isotropic_Struc_Linear_Contact_Nitsche >(-1);
+                    return std::make_shared< IWG_Isotropic_Struc_Linear_Contact_Nitsche >( -1 );
 
                 case IWG_Type::STRUC_LINEAR_CONTACT_UNSYMMETRIC_NITSCHE :
-                    return std::make_shared< IWG_Isotropic_Struc_Linear_Contact_Nitsche >(1);
+                    return std::make_shared< IWG_Isotropic_Struc_Linear_Contact_Nitsche >( 1 );
 
                 case IWG_Type::STRUC_LINEAR_CONTACT_PENALTY :
                     return std::make_shared< IWG_Isotropic_Struc_Linear_Contact_Penalty >();

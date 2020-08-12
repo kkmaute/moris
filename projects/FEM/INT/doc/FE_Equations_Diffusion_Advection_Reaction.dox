@@ -6,14 +6,29 @@ namespace fem {
 \f[
 \begin{array}{lll}
 \mathbf{R}_{T} & = & \displaystyle
-  \bigg( d,\ \rho c_p \frac{\partial \mathbf{T}}{\partial t} \bigg)_{\Omega}
-+ \bigg( d,\ \rho c_p \mathbf{u} \cdot \nabla T \bigg)_{\Omega}
-- \bigg( \nabla d,\ \kappa\ \nabla T \bigg)_{\Omega}
-- \bigg( d,\ \mathbf{b}\bigg)_{\Omega}
-- \bigg( d,\ \mathbf{q}\bigg)_{\Gamma_N}\\[15pt]
+  \bigg( \theta,\ \rho c_p \frac{\partial T}{\partial t} \bigg)_{\Omega}
++ \bigg( \theta,\ \rho c_p \mathbf{u} \cdot \nabla T \bigg)_{\Omega}
+- \bigg( \nabla \theta,\ \kappa\ \nabla T \bigg)_{\Omega}
+- \bigg( \theta,\ \mathbf{b}\bigg)_{\Omega}
+- \bigg( \theta,\ \mathbf{q}\bigg)_{\Gamma_N}  
+\end{array}
+\f]
+where 
+- \f$ T \f$ is the temperature field,
+- \f$ \theta \f$ is the chosen test field,
+- \f$ \rho \f$ is the material density,
+- \f$ c_p \f$ is the material heat capacity,
+- \f$ \kappa \f$ is the material conductivity,
+- \f$ \mathbf{b} \f$ is a heat load,
+- \f$ \mathbf{q} \f$ is a heat flux imposed on the Neumann boundary \f$ \Gamma_N \f$.
 
+\section SUPG_Stabilization SUPG Stabilization
+The governing equations are stabilized using SUPG:
+ 
+\f[
+\begin{array}{lll}
 \mathbf{R}_{T}^{SUPG} & = & \displaystyle
- \bigg( \frac{1}{\rho\ c_p} \mathbf{u} \nabla d,\ \tau_{T} r_T \bigg)_{\Omega}\\[15pt]
+ \bigg( \frac{1}{\rho\ c_p} \mathbf{u} \nabla \theta,\ \tau_{T} r_T \bigg)_{\Omega}\\[15pt]
  
  r_T & = & \displaystyle \rho\ c_p\ \bigg( \frac{\partial T}{\partial t} + \mathbf{u}\ \nabla T \bigg) - \nabla \cdot ( \kappa \nabla T ) \\[15pt] 
  
@@ -21,13 +36,60 @@ namespace fem {
 \end{array}
 \f]
 
-where \f$ 
- h  =  2\ || \mathbf{u} ||\ \bigg( \sum_a l \mathbf{u} \nabla N_a l \bigg)^{-1}, \quad
+where 
+- \f$ h  =  2\ || \mathbf{u} ||\ \bigg( \sum_a l \mathbf{u} \nabla N_a l \bigg)^{-1}, \quad
  \tau_1  = \frac{h}{2\ || \mathbf{u} ||}, \quad
  \tau_2  = \Delta t / 2, \quad
  \tau_3  = \frac{h^2}{4 \kappa} \f$
  - ... are described in \ref FE_CM_Diffusion
 
+\section Dirichlet_BC Dirichlet Boundary Conditions via Nitsche's Formulation
+Dirichlet boundary conditions are imposed weakly via Nitsche's formulation as:
+\f[
+\begin{array}{lll}
+\mathbf{R}_{T}^{\Gamma_{D}} & = & \displaystyle
+- \bigg( [[\theta]],\ ( \kappa\ \nabla T ) \cdot \mathbf{n}  \bigg)_{\Gamma_{D}}
++ \beta \bigg( ( \kappa\ \nabla \theta ) \cdot \mathbf{n},\ ( T - \overline{T} ) \bigg)_{\Gamma_{D}}
++ \bigg( \gamma_N\ [[ \theta ]],\ ( T - \overline{T} ) \bigg)_{\Gamma_{D}}
+\end{array}
+\f]
+where 
+- \f$ \beta = 1 \f$ for symmetric version and \f$ \beta = -1 \f$ for skew symmetric version,
+- \f$ \gamma_N \f$ is described in \ref SP_Dirichlet_Nitsche 
+using the conductivity \f$ \kappa \f$ as material property,
+- \f$ \overline{T} \f$ is the imposed temperature on the boundary.
+
+Material/material interface conditions are also imposed weakly via Nitsche's formulation:
+\f[
+\begin{array}{lll}
+\mathbf{R}_{T}^{\Gamma_{ifc}} & = & \displaystyle
+- \bigg( [[\theta]],\ \{( \kappa\ \nabla T ) \cdot \mathbf{n} \} \bigg)_{\Gamma_{ifc}}
++ \beta \bigg( \{ ( \kappa\ \nabla \theta ) \cdot \mathbf{n} \},\ [[T]] \bigg)_{\Gamma_{ifc}}
++ \bigg( \gamma_N\ [[ \theta ]],\ [[ T ]] \bigg)_{\Gamma_{ifc}}
+\end{array}
+\f]
+where 
+- \f$ \beta = 1 \f$ for symmetric version and \f$ \beta = -1 \f$ for skew symmetric version,
+- \f$ [[ \bullet ]] \f$ is a jump and is defined as \f$ [[ \bullet ]]  = \bullet_M - \bullet_S \f$,
+- \f$ \{ \bullet \} \f$ is a mean and is defined as \f$ \{ \bullet \}  = ( w_M\ \bullet_M + w_S\ \bullet_S ) \f$,
+- \f$ \gamma_N \f$ is described in \ref FE_SP_Nitsche_Interface using the conductivity \f$ \kappa \f$ as material property,
+- \f$ w_M \f$ is described in \ref FE_SP_Master_Weight_Interface using the conductivity \f$ \kappa \f$ as material property,
+- \f$ w_S \f$ is described in \ref FE_SP_Master_Weight_Interface using the conductivity \f$ \kappa \f$ as material property.
+
+\section Ghost Face-oriented Ghost Stabilization
+Face-oriented ghost stabilization for the diffusion-advection-reaction is given as:
+\f[
+\begin{array}{lll}
+\mathbf{R}_{T}^{GP} & = & \displaystyle
+\sum_{F} \sum_{i} \int_{F} \gamma_{\kappa}^{GP} [[ \frac{\partial^i \theta }{\partial \mathbf{x}^i} \cdot \mathbf{n} ]] 
+: [[ \frac{\partial^i T}{\partial \mathbf{x}^i} \cdot \mathbf{n} ]]\ d\Gamma
+\end{array}
+\f]
+
+The ghost part of the residual \f$ \mathbf{R}_{T}^{GP} \f$ is implemented in 
+IWG_Ghost_Normal_Field, corresponding to the enums IWG\_Type::GHOST_NORMAL_FIELD.
+The stabilization parameter \f$ \gamma_{\kappa}^{GP} \f$ is described in \ref FE_SP_Ghost_Field 
+using the conductivity \f$ \kappa \f$ as material property.
 */
 
 }

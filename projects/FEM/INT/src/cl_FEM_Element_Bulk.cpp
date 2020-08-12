@@ -121,7 +121,8 @@ namespace moris
                     mSet->get_requested_IWGs()( iIWG )->reset_eval_flags();
 
                     // FIXME: enforced nodal weak bcs
-                    mSet->get_requested_IWGs()( iIWG )->set_nodal_weak_bcs( mCluster->mInterpolationElement->get_weak_bcs() );
+                    mSet->get_requested_IWGs()( iIWG )->set_nodal_weak_bcs(
+                            mCluster->mInterpolationElement->get_weak_bcs() );
 
                     // compute residual at evaluation point
                     mSet->get_requested_IWGs()( iIWG )->compute_residual( tWStar );
@@ -165,7 +166,8 @@ namespace moris
                     mSet->get_requested_IWGs()( iIWG )->reset_eval_flags();
 
                     // FIXME set nodal weak BCs
-                    mSet->get_requested_IWGs()( iIWG )->set_nodal_weak_bcs( mCluster->mInterpolationElement->get_weak_bcs() );
+                    mSet->get_requested_IWGs()( iIWG )->set_nodal_weak_bcs(
+                            mCluster->mInterpolationElement->get_weak_bcs() );
 
                     // compute jacobian at evaluation point
                     mSet->get_requested_IWGs()( iIWG )->compute_jacobian( tWStar );
@@ -206,7 +208,8 @@ namespace moris
                     mSet->get_requested_IWGs()( iIWG )->reset_eval_flags();
 
                     // FIXME set nodal weak BCs
-                    mSet->get_requested_IWGs()( iIWG )->set_nodal_weak_bcs( mCluster->mInterpolationElement->get_weak_bcs() );
+                    mSet->get_requested_IWGs()( iIWG )->set_nodal_weak_bcs(
+                            mCluster->mInterpolationElement->get_weak_bcs() );
 
                     // compute residual at evaluation point
                     mSet->get_requested_IWGs()( iIWG )->compute_residual( tWStar );
@@ -252,7 +255,8 @@ namespace moris
                     mSet->get_requested_IWGs()( iIWG )->reset_eval_flags();
 
                     // FIXME set nodal weak BCs
-                    mSet->get_requested_IWGs()( iIWG )->set_nodal_weak_bcs( mCluster->mInterpolationElement->get_weak_bcs() );
+                    mSet->get_requested_IWGs()( iIWG )->set_nodal_weak_bcs(
+                            mCluster->mInterpolationElement->get_weak_bcs() );
 
                     // set a perturbation size
                     real tPerturbation = 1E-6;
@@ -285,9 +289,6 @@ namespace moris
 
             // get number of IQIs
             uint tNumIQIs = mSet->get_number_of_requested_IQIs();
-
-            // FIXME create a cell of IQI values
-            moris::Cell< Matrix< DDRMat > > tQIValues( tNumIQIs );
 
             // loop over integration points
             uint tNumIntegPoints = mSet->get_number_of_integration_points();
@@ -465,7 +466,8 @@ namespace moris
                         mCluster->get_primary_cell_local_coords_on_side_wrt_interp_cell( mCellIndexInCluster ).get_row( iVertex );
 
                 tGlobalIntegPoint.resize( 1, tGlobalIntegPoint.numel() + 1 );
-                tGlobalIntegPoint( tGlobalIntegPoint.numel() - 1 ) = mCluster->mInterpolationElement->get_time()( 0 );
+                tGlobalIntegPoint( tGlobalIntegPoint.numel() - 1 ) =
+                        mCluster->mInterpolationElement->get_time()( 0 ); //FIXME plot at beginning of slab
                 tGlobalIntegPoint = trans( tGlobalIntegPoint );
 
                 // set vertex coordinates for field interpolator
@@ -518,8 +520,8 @@ namespace moris
                 mSet->get_IQI_for_vis( aOutputType )->compute_QI( tQIValue );
 
                 // FIXME assemble on the set here or inside the compute QI?
-                ( *mSet->mSetElementalValues )( mSet->mCellAssemblyMap( aMeshIndex )( mMasterCell->get_index() ), 0 )
-                                                                                                                                        += tQIValue( 0 ) * tWStar / tNumIntegPoints;
+                ( *mSet->mSetElementalValues )( mSet->mCellAssemblyMap( aMeshIndex )( mMasterCell->get_index() ), 0 ) += 
+                        tQIValue( 0 ) * tWStar / tNumIntegPoints;
             }
         }
 

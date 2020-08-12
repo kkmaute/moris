@@ -13,6 +13,7 @@ namespace moris
     namespace fem
     {
         //------------------------------------------------------------------------------
+
         SP_Nitsche_Interface::SP_Nitsche_Interface()
         {
             // set size for the property pointer cells
@@ -24,14 +25,15 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+
         void SP_Nitsche_Interface::reset_cluster_measures()
         {
             // evaluate cluster measures from the cluster
             mMasterVolume = mCluster->compute_cluster_cell_measure(
-                    mtk::Primary_Void::INTERP,
+                    mtk::Primary_Void::PRIMARY,
                     mtk::Master_Slave::MASTER );
             mSlaveVolume = mCluster->compute_cluster_cell_measure(
-                    mtk::Primary_Void::INTERP,
+                    mtk::Primary_Void::PRIMARY,
                     mtk::Master_Slave::SLAVE );
             mInterfaceSurface = mCluster->compute_cluster_cell_side_measure(
                     mtk::Primary_Void::PRIMARY,
@@ -39,6 +41,7 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+
         void SP_Nitsche_Interface::set_property(
                 std::shared_ptr< Property > aProperty,
                 std::string                 aPropertyString,
@@ -53,6 +56,7 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+
         void SP_Nitsche_Interface::eval_SP()
         {
             // get the master/slave material property
@@ -61,13 +65,19 @@ namespace moris
             std::shared_ptr< Property > tSlavePropMaterial =
                     mSlaveProp( static_cast< uint >( SP_Property_Type::MATERIAL ) );
 
+            // get the master/slave material property values
+            real tMasterMaterial = tMasterPropMaterial->val()( 0 );
+            real tSlaveMaterial  = tSlavePropMaterial->val()( 0 );
+
             // compute stabilization parameter value
             mPPVal = 2.0 * mParameters( 0 ) * mInterfaceSurface /
-                    ( mMasterVolume / tMasterPropMaterial->val()( 0 ) + mSlaveVolume / tSlavePropMaterial->val()( 0 ) );
+                    ( mMasterVolume / tMasterMaterial + mSlaveVolume / tSlaveMaterial );
         }
 
         //------------------------------------------------------------------------------
-        void SP_Nitsche_Interface::eval_dSPdMasterDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes )
+
+        void SP_Nitsche_Interface::eval_dSPdMasterDOF(
+                const moris::Cell< MSI::Dof_Type > & aDofTypes )
         {
             // get the dof type as a uint
             uint tDofType = static_cast< uint >( aDofTypes( 0 ) );
@@ -91,18 +101,24 @@ namespace moris
             std::shared_ptr< Property > tSlavePropMaterial =
                     mSlaveProp( static_cast< uint >( SP_Property_Type::MATERIAL ) );
 
+            // get the master/slave material property values
+            real tMasterMaterial = tMasterPropMaterial->val()( 0 );
+            real tSlaveMaterial  = tSlavePropMaterial->val()( 0 );
+
             // if indirect dependency on the dof type
             if ( tMasterPropMaterial->check_dof_dependency( aDofTypes ) )
             {
                 // compute derivative with indirect dependency through properties
                 mdPPdMasterDof( tDofIndex ).matrix_data() +=
                         this->val()( 0 ) * mMasterVolume * tMasterPropMaterial->dPropdDOF( aDofTypes ) /
-                        ( std::pow( tMasterPropMaterial->val()( 0 ), 2 ) * ( mMasterVolume / tMasterPropMaterial->val()( 0 ) + mSlaveVolume / tSlavePropMaterial->val()( 0 ) ) );
+                        ( std::pow( tMasterMaterial, 2 ) * ( mMasterVolume / tMasterMaterial + mSlaveVolume / tSlaveMaterial ) );
             }
         }
 
         //------------------------------------------------------------------------------
-        void SP_Nitsche_Interface::eval_dSPdSlaveDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes )
+
+        void SP_Nitsche_Interface::eval_dSPdSlaveDOF(
+                const moris::Cell< MSI::Dof_Type > & aDofTypes )
         {
             // get the dof type as a uint
             uint tDofType = static_cast< uint >( aDofTypes( 0 ) );
@@ -126,13 +142,17 @@ namespace moris
             std::shared_ptr< Property > tSlavePropMaterial =
                     mSlaveProp( static_cast< uint >( SP_Property_Type::MATERIAL ) );
 
+            // get the master/slave material property values
+            real tMasterMaterial = tMasterPropMaterial->val()( 0 );
+            real tSlaveMaterial  = tSlavePropMaterial->val()( 0 );
+
             // if indirect dependency on the dof type
             if ( tSlavePropMaterial->check_dof_dependency( aDofTypes ) )
             {
                 // compute derivative with indirect dependency through properties
                 mdPPdSlaveDof( tDofIndex ).matrix_data() +=
                         this->val()( 0 ) * mSlaveVolume * tSlavePropMaterial->dPropdDOF( aDofTypes ) /
-                        ( std::pow( tSlavePropMaterial->val()( 0 ), 2 ) * ( mMasterVolume / tMasterPropMaterial->val()( 0 ) + mSlaveVolume / tSlavePropMaterial->val()( 0 ) ) );
+                        ( std::pow( tSlaveMaterial, 2 ) * ( mMasterVolume / tMasterMaterial + mSlaveVolume / tSlaveMaterial ) );
             }
         }
 
