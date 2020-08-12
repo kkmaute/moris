@@ -37,7 +37,7 @@ namespace moris
 
         // ---------------------------------------------------------------------------------
         Matrix<DDRMat>
-        Cell_Info::get_vertex_loc_coord(moris_index aVertexOrdinal) const
+        Cell_Info::get_vertex_loc_coord(moris_index const & aVertexOrdinal) const
         {
             MORIS_ERROR(0,"get_loc_coord_on_side_ordinal not implemented for given cell info type");
             return Matrix<DDRMat>(0,0);

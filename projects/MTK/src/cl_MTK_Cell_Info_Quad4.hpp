@@ -104,7 +104,7 @@ public:
     // ----------------------------------------------------------------------------------
 
     Matrix<DDRMat>
-    get_vertex_loc_coord(moris_index aVertexOrdinal) const;
+    get_vertex_loc_coord(moris_index const & aVertexOrdinal) const;
 
     // ----------------------------------------------------------------------------------
 
