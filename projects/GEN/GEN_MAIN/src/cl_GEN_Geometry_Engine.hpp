@@ -1,6 +1,11 @@
 #ifndef MORIS_CL_Geometry_Engine_HPP_
 #define MORIS_CL_Geometry_Engine_HPP_
 
+// MRS
+#include "cl_Param_List.hpp"
+#include "fn_Exec_load_user_library.hpp"
+#include "fn_trans.hpp"
+
 // WRK
 #include "cl_WRK_Performer.hpp"
 
@@ -8,7 +13,6 @@
 #include "cl_GEN_Geometry.hpp"
 #include "cl_GEN_Property.hpp"
 #include "cl_GEN_Phase_Table.hpp"
-#include "cl_GEN_Geometry_Object.hpp"
 #include "pdv/cl_GEN_Pdv_Host_Manager.hpp"
 #include "cl_GEN_Pdv_Enums.hpp"
 
@@ -18,13 +22,14 @@
 #include "cl_MTK_Mesh_Manager.hpp"
 #include "cl_Mesh_Enums.hpp"
 
-// MRS
-#include "cl_Param_List.hpp"
-#include "fn_Exec_load_user_library.hpp"
-#include "fn_trans.hpp"
+namespace xtk
+{
+    class Topology;
+}
 
 namespace moris
 {
+
     //------------------------------------------------------------------------------------------------------------------
 
     namespace MSI
@@ -71,6 +76,7 @@ namespace moris
 
             // PDVs
             Pdv_Host_Manager mPdvHostManager;
+            std::shared_ptr<Intersection_Node> mQueuedIntersectionNode;
             Cell<std::shared_ptr<Intersection_Node>> mIntersectionNodes;
 
             // Phase Table
@@ -78,7 +84,6 @@ namespace moris
 
             // Temporary FIXME
             Matrix<IndexMat> mInterfaceNodeIndices;
-            Cell<Matrix<IndexMat>> mInterfaceParentNodes;
 
         public:
 
@@ -171,6 +176,55 @@ namespace moris
             bool is_intersected(const Matrix<IndexMat>& aNodeIndices, const Matrix<DDRMat>& aNodeCoordinates);
 
             /**
+             * Determines if the given edge is intersected, and queues an intersection node if it is. If an intersection
+             * node has been queued, questions can be asked about the queued node:
+             *
+             * @param aNodeIndex1 First node index
+             * @param aNodeIndex2 Second node index
+             * @param aNodeCoordinates1 First node coordinate
+             * @param aNodeCoordinates2 Second node coordinate
+             * @return If the edge is intersected and a node has been queued
+             */
+            bool queue_intersection(
+                    uint aNodeIndex1,
+                    uint aNodeIndex2,
+                    const Matrix<DDRMat>& aNodeCoordinates1,
+                    const Matrix<DDRMat>& aNodeCoordinates2);
+
+            /**
+             * Returns if the queued intersection has the first parent node on the active geometry interface.
+             *
+             * @return If the first parent node is on the interface
+             */
+            bool queued_intersection_first_parent_on_interface();
+
+            /**
+             * Returns if the queued intersection has the second parent node on the active geometry interface.
+             *
+             * @return If the second parent node is on the interface
+             */
+            bool queued_intersection_second_parent_on_interface();
+
+            /**
+             * Gets the local coordinate of the queued intersection node.
+             *
+             * @return Intersection node local coordinate (between -1 and 1)
+             */
+            real get_queued_intersection_local_coordinate();
+
+            /**
+             * Gets the global coordinates of the queued intersection node.
+             *
+             * @return Intersection node global coordinates
+             */
+            Matrix<DDRMat> get_queued_intersection_global_coordinates();
+
+            /**
+             * Admit the queued intersection as a unique, permanent node(s) for sensitivity calculations.
+             */
+            void admit_queued_intersection();
+
+            /**
              * Gets all of the geometry field values at the specified coordinates
              *
              * @param aNodeIndices Node indices on the mesh
@@ -190,20 +244,6 @@ namespace moris
                                          const Cell<xtk::Topology*>& aParentTopo,
                                          const Cell<Matrix<DDRMat>>& aParamCoordRelativeToParent,
                                          const Matrix<DDRMat>&       aGlobalNodeCoord );
-
-            /**
-             * @brief is_intersected checks to see if an entity provided to it intersects a geometry field. Intersects in this context
-             * means a geometry crosses a certain threshold (typically 0). For levelset fields, this can be thought of as a phase change
-             *
-             * @param[in] aNodeCoords       - Node coordinate
-             * @param[in] aNodeToEntityConn - Connectivity between nodes and parent entity
-             * @param[in] aCheckType        - Specifies what type of intersection check is to be performed
-             *                                   0 - No information on interface required
-             *                                   1 - information on interface required
-             */
-            void is_intersected(const Matrix<DDRMat>&      aNodeCoords,
-                                const Matrix<IndexMat>&    aNodetoEntityConn,
-                                Cell<GEN_Geometry_Object>& aGeometryObjects);
 
             /**
              * Sets the indices for the nodes on the interface
@@ -311,38 +351,6 @@ namespace moris
             void create_pdvs(std::shared_ptr<mtk::Mesh_Manager> aMeshManager);
 
         private:
-
-            /**
-             * Approximate comparison to see if a node is on the interface
-             *
-             * @param aFieldValue Geometry field value
-             * @return If the value is determined to be on the interface with the geometry engine's error factor
-             */
-            bool on_interface(real aFieldValue);
-
-            /**
-             * Compute_intersection_info, calculates the relevant intersection information placed in the geometry object
-             *
-             * @param[in]  aEntityNodeInds - node to entity connectivity
-             * @param[in]  aNodeVars       - node level set values
-             * @param[in]  aCheckType      - if a entity local location is necessary 1, else 0.
-             * @param[out] Returns an intersection flag and local coordinates if aCheckType 1 in cell 1 and node sensitivity information in cell 2 if intersection point located
-             **/
-            bool compute_intersection_info(moris_index             aEntityIndex,
-                                           const Matrix<IndexMat>& aEntityNodeInds,
-                                           const Matrix<DDRMat>&   aNodeCoords,
-                                           GEN_Geometry_Object&    aGeometryObject);
-
-            /**
-             * Computes the intersection of an isocountour with an entity and returning the local coordinate relative to the parent
-             * and the global coordinate if needed
-             */
-            void get_intersection_location(
-                    const Matrix<DDRMat>&   aGlobalNodeCoordinates,
-                    const Matrix<DDRMat>&   aEntityNodeVars,
-                    const Matrix<IndexMat>& aEntityNodeIndices,
-                    Matrix<DDRMat>&         aIntersectionLocalCoordinates,
-                    Matrix<DDRMat>&         aIntersectionGlobalCoordinates);
 
             /**
              * Create PDV_Type hosts with the specified PDV_Type types on the interpolation mesh

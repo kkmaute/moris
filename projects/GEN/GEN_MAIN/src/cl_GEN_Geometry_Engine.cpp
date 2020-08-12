@@ -1,3 +1,6 @@
+// MRS
+#include "fn_Parsing_Tools.hpp"
+
 // GEN
 #include "cl_GEN_Geometry_Engine.hpp"
 #include "fn_GEN_create_geometries.hpp"
@@ -11,8 +14,8 @@
 #include "cl_MTK_Integration_Mesh.hpp"
 #include "cl_MTK_Interpolation_Mesh.hpp"
 
-// MRS
-#include "fn_Parsing_Tools.hpp"
+// XTK FIXME
+#include "cl_XTK_Topology.hpp"
 
 namespace moris
 {
@@ -108,7 +111,6 @@ namespace moris
             // Reset info related to the mesh
             mPdvHostManager.reset();
             mIntersectionNodes.resize(0);
-            mInterfaceParentNodes.resize(0);
             mInterfaceNodeIndices.resize(0, 0);
             mActiveGeometryIndex = 0;
         }
@@ -203,6 +205,68 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
+        bool Geometry_Engine::queue_intersection(
+                uint aFirstNodeIndex,
+                uint aSecondNodeIndex,
+                const Matrix<DDRMat>& aFirstNodeCoordinates,
+                const Matrix<DDRMat>& aSecondNodeCoordinates)
+        {
+            // Determine if edge is intersected
+            bool tEdgeIsIntersected = mGeometries(mActiveGeometryIndex)->evaluate_field_value(aFirstNodeIndex, aFirstNodeCoordinates)
+                    * mGeometries(mActiveGeometryIndex)->evaluate_field_value(aSecondNodeIndex, aSecondNodeCoordinates) <= 0;
+
+            // If edge is intersected, queue intersection node
+            if (tEdgeIsIntersected)
+            {
+                mQueuedIntersectionNode = std::make_shared<Intersection_Node>(
+                        aFirstNodeIndex,
+                        aSecondNodeIndex,
+                        aFirstNodeCoordinates,
+                        aSecondNodeCoordinates,
+                        mGeometries(mActiveGeometryIndex),
+                        mIsocontourThreshold);
+            }
+
+            return tEdgeIsIntersected;
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
+        bool Geometry_Engine::queued_intersection_first_parent_on_interface()
+        {
+            return mQueuedIntersectionNode->first_parent_on_interface();
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
+        bool Geometry_Engine::queued_intersection_second_parent_on_interface()
+        {
+            return mQueuedIntersectionNode->second_parent_on_interface();
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
+        real Geometry_Engine::get_queued_intersection_local_coordinate()
+        {
+            return mQueuedIntersectionNode->get_local_coordinates()(0);
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
+        Matrix<DDRMat> Geometry_Engine::get_queued_intersection_global_coordinates()
+        {
+            return mQueuedIntersectionNode->get_global_coordinates();
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
+        void Geometry_Engine::admit_queued_intersection()
+        {
+            mIntersectionNodes.push_back(mQueuedIntersectionNode);
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
         void Geometry_Engine::create_new_child_nodes(
                 const Cell<moris_index>&    aNewNodeIndices,
                 const Cell<xtk::Topology*>& aParentTopo,
@@ -228,44 +292,6 @@ namespace moris
                     mGeometries(tGeometryIndex)->add_child_node(aNewNodeIndices(tNode), tChildNode);
                 }
             }
-        }
-
-        //--------------------------------------------------------------------------------------------------------------
-
-        void Geometry_Engine::is_intersected(
-                const Matrix<DDRMat>&      aNodeCoords,
-                const Matrix<IndexMat>&    aNodetoEntityConn,
-                Cell<GEN_Geometry_Object>& aGeometryObjects)
-        {
-            //Get information for loops
-            size_t tNumEntities = aNodetoEntityConn.n_rows(); // Number of entities provided to the geometry engine
-
-            //Initialize
-            size_t tIntersectedCount = 0;    // Intersected element counter
-            aGeometryObjects.clear();
-            aGeometryObjects.resize(tNumEntities,GEN_Geometry_Object());
-
-            //Loop over elements and determine if the element has an intersection
-            for(moris_index i = 0; i < (moris_index)tNumEntities; i++)
-            {
-
-                //Populate the intersection flag of this element with a bool
-                Matrix< IndexMat > tRow = aNodetoEntityConn.get_row(i);
-                bool tIsIntersected = compute_intersection_info(
-                        i,
-                        tRow,
-                        aNodeCoords,
-                        aGeometryObjects(tIntersectedCount) );
-
-                if (tIsIntersected)
-                {
-                    mInterfaceParentNodes.push_back(tRow);
-                    tIntersectedCount++;
-                }
-            }
-
-            // resize
-            aGeometryObjects.resize( tIntersectedCount, GEN_Geometry_Object() );
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -621,142 +647,6 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
         // PRIVATE
-        //--------------------------------------------------------------------------------------------------------------
-
-        bool Geometry_Engine::on_interface(real aFieldValue)
-        {
-            return (std::abs(aFieldValue - mIsocontourThreshold) < mErrorFactor);
-        }
-
-        //--------------------------------------------------------------------------------------------------------------
-
-        bool Geometry_Engine::compute_intersection_info(
-                moris_index             aEntityIndex,
-                const Matrix<IndexMat>& aEntityNodeIndices,
-                const Matrix<DDRMat>&   aNodeCoords,
-                GEN_Geometry_Object&    aGeometryObject)
-        {
-            //Initialize
-            bool tIsIntersected = false;
-
-            real tMax = 0;
-            real tMin = 0;
-            uint tMaxLocRow = 0;
-            uint tMaxLocCol = 0;
-            uint tMinLocRow = 0;
-            uint tMinLocCol = 0;
-
-            size_t tNodeInd  = 0;
-            size_t tNumNodes = aEntityNodeIndices.numel();
-            Matrix< DDRMat > tEntityNodeVars(tNumNodes, 1);
-
-            // Loop through nodes and get level set values from pre-computed values in aNodeVars or in the level set mesh
-            for(size_t n = 0; n < tNumNodes; n++)
-            {
-                tNodeInd = aEntityNodeIndices(n);
-
-                tEntityNodeVars(n) = this->get_geometry_field_value(
-                        tNodeInd,
-                        aNodeCoords.get_row(tNodeInd),
-                        mActiveGeometryIndex);
-            }
-
-            //get the max and minimum level set value for the entity
-            tMax = tEntityNodeVars.max(tMaxLocRow,tMaxLocCol);
-            tMin = tEntityNodeVars.min(tMinLocRow,tMinLocCol);
-
-            // All nodes are on interface
-            if (this->on_interface(tMin) and this->on_interface(tMax))
-            {
-                aGeometryObject.set_parent_entity_index(aEntityIndex);
-                aGeometryObject.mark_all_nodes_as_on_interface();
-                tIsIntersected = true;
-            }
-
-            // Max node is on interface
-            else if (this->on_interface(tMax))
-            {
-                aGeometryObject.set_parent_entity_index(aEntityIndex);
-                aGeometryObject.mark_node_as_on_interface(tMaxLocRow);
-                tIsIntersected = true;
-            }
-
-            // Min node is on interface
-            else if (this->on_interface(tMin))
-            {
-                aGeometryObject.set_parent_entity_index(aEntityIndex);
-                aGeometryObject.mark_node_as_on_interface(tMinLocRow);
-                tIsIntersected = true;
-            }
-
-            // Interface is somewhere inside of parent
-            else if ((tMax > mIsocontourThreshold) and (tMin < mIsocontourThreshold))
-            {
-                aGeometryObject.set_parent_entity_index(aEntityIndex);
-                tIsIntersected = true;
-
-                // Determine if new node
-                bool tNewNode = true;
-                if (aEntityNodeIndices.n_cols() == 2)
-                {
-                    for (uint tParentIndex = 0; tParentIndex < mInterfaceParentNodes.size(); tParentIndex++)
-                    {
-                        tNewNode = tNewNode and (mInterfaceParentNodes(tParentIndex).min() != aEntityNodeIndices.min()
-                                or mInterfaceParentNodes(tParentIndex).max() != aEntityNodeIndices.max());
-                    }
-                }
-
-                if (tNewNode)
-                {
-                    Matrix< DDRMat > tIntersectLocalCoordinate(1,1);
-                    Matrix< DDRMat > tIntersectGlobalCoordinate(1,mSpatialDim);
-
-                    get_intersection_location(aNodeCoords,
-                                              tEntityNodeVars,
-                                              aEntityNodeIndices,
-                                              tIntersectLocalCoordinate,
-                                              tIntersectGlobalCoordinate);
-
-                    aGeometryObject.set_interface_loc_coord(tIntersectLocalCoordinate(0));
-                    aGeometryObject.set_interface_glb_coord(tIntersectGlobalCoordinate);
-                }
-            }
-
-            return tIsIntersected;
-        }
-
-        //--------------------------------------------------------------------------------------------------------------
-
-        void Geometry_Engine::get_intersection_location(
-                const Matrix<DDRMat>&   aGlobalNodeCoordinates,
-                const Matrix<DDRMat>&   aEntityNodeVars,
-                const Matrix<IndexMat>& aEntityNodeIndices,
-                Matrix<DDRMat>&         aIntersectionLocalCoordinates,
-                Matrix<DDRMat>&         aIntersectionGlobalCoordinates)
-        {
-            // Intersection node
-            Cell <Matrix<DDRMat>> tParentNodeCoordinates(2, Matrix<DDRMat>(1, mSpatialDim));
-
-            aGlobalNodeCoordinates.get_row(aEntityNodeIndices(0), tParentNodeCoordinates(0));
-            aGlobalNodeCoordinates.get_row(aEntityNodeIndices(1), tParentNodeCoordinates(1));
-
-            Matrix <DDUMat> tParentNodeIndices(2, 1);
-
-            tParentNodeIndices(0) = aEntityNodeIndices(0);
-            tParentNodeIndices(1) = aEntityNodeIndices(1);
-
-            mIntersectionNodes.push_back(
-                    std::make_shared<Intersection_Node>(
-                             tParentNodeIndices,
-                             tParentNodeCoordinates,
-                             mGeometries(mActiveGeometryIndex),
-                             mIsocontourThreshold));
-
-            // Return local and global coordinates
-            aIntersectionLocalCoordinates = mIntersectionNodes(mIntersectionNodes.size() - 1)->get_local_coordinates();
-            aIntersectionGlobalCoordinates = mIntersectionNodes(mIntersectionNodes.size() - 1)->get_global_coordinates();
-        }
-
         //--------------------------------------------------------------------------------------------------------------
 
         void Geometry_Engine::create_ip_pdv_hosts(
