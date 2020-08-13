@@ -8,8 +8,9 @@ namespace moris
     {
 
         //------------------------------------------------------------------------------
-        Field_Interpolator_Manager::Field_Interpolator_Manager
-        ( const moris::Cell< moris::Cell< enum MSI::Dof_Type > > & aDofTypes,
+
+        Field_Interpolator_Manager::Field_Interpolator_Manager(
+                const moris::Cell< moris::Cell< enum MSI::Dof_Type > > & aDofTypes,
                 MSI::Equation_Set                                * aEquationSet,
                 mtk::Master_Slave                                  aIsMaster )
         : mDofTypes( aDofTypes ),
@@ -26,8 +27,8 @@ namespace moris
             mMaxNumDvFI = 0;
         }
 
-        Field_Interpolator_Manager::Field_Interpolator_Manager
-        ( const moris::Cell< moris::Cell< enum MSI::Dof_Type > >  & aDofTypes,
+        Field_Interpolator_Manager::Field_Interpolator_Manager(
+                const moris::Cell< moris::Cell< enum MSI::Dof_Type > >  & aDofTypes,
                 const moris::Cell< moris::Cell< enum PDV_Type > > & aDvTypes,
                 MSI::Equation_Set                                 * aEquationSet,
                 mtk::Master_Slave                                   aIsMaster )
@@ -48,8 +49,8 @@ namespace moris
             mDvTypeMap = mEquationSet->get_dv_type_map( aIsMaster );
         }
 
-        Field_Interpolator_Manager::Field_Interpolator_Manager
-        ( const moris::Cell< moris::Cell< enum MSI::Dof_Type > > & aDofTypes,
+        Field_Interpolator_Manager::Field_Interpolator_Manager(
+                const moris::Cell< moris::Cell< enum MSI::Dof_Type > > & aDofTypes,
                 MSI::Equation_Set                                * aEquationSet,
                 MSI::Model_Solver_Interface                      * aModelSolverInterface,
                 mtk::Master_Slave                                  aIsMaster )
@@ -68,6 +69,7 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+
         Field_Interpolator_Manager::~Field_Interpolator_Manager()
         {
             // delete pointers on the FI manager
@@ -75,6 +77,7 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+
         void Field_Interpolator_Manager::delete_pointers()
         {
             // delete the dof field interpolator pointers
@@ -105,8 +108,9 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
-        void Field_Interpolator_Manager::create_field_interpolators
-        ( MSI::Model_Solver_Interface * aModelSolverInterface )
+
+        void Field_Interpolator_Manager::create_field_interpolators(
+                MSI::Model_Solver_Interface * aModelSolverInterface )
         {
             // dof field interpolators------------------------------------------
 
@@ -179,6 +183,7 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+
         void Field_Interpolator_Manager::create_geometry_interpolators()
         {
             // get element type for set
@@ -237,7 +242,9 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
-        Field_Interpolator * Field_Interpolator_Manager::get_field_interpolators_for_type( enum MSI::Dof_Type aDofType )
+
+        Field_Interpolator * Field_Interpolator_Manager::get_field_interpolators_for_type(
+                enum MSI::Dof_Type aDofType )
         {
             // check of the equation set pointer was set for the FI manager
             MORIS_ASSERT( mEquationSet != nullptr,
@@ -263,7 +270,9 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
-        Field_Interpolator * Field_Interpolator_Manager::get_field_interpolators_for_type( enum PDV_Type aDvType )
+
+        Field_Interpolator * Field_Interpolator_Manager::get_field_interpolators_for_type(
+                enum PDV_Type aDvType )
         {
             // get the set index for the requested dv type
             sint tDvIndex =  mEquationSet->get_dv_index_for_type_1( aDvType, mIsMaster );
@@ -285,6 +294,7 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+
         void Field_Interpolator_Manager::set_space_time( Matrix< DDRMat > & aParamPoint )
         {
             // loop over the dof field interpolators
@@ -312,7 +322,9 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
-        void Field_Interpolator_Manager::set_space_time_from_local_IG_point( Matrix< DDRMat > & aLocalParamPoint )
+
+        void Field_Interpolator_Manager::set_space_time_from_local_IG_point(
+                Matrix< DDRMat > & aLocalParamPoint )
         {
             // set evaluation point in the IG param space for IG geometry interpolator
             mIGGeometryInterpolator->set_space_time( aLocalParamPoint );
@@ -326,6 +338,7 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+
         void Field_Interpolator_Manager::set_coeff_for_type(
                 enum MSI::Dof_Type   aDofType,
                 Matrix< DDRMat >   & aCoeff )
@@ -335,6 +348,7 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+
         void Field_Interpolator_Manager::set_coeff_for_type(
                 enum PDV_Type      aDvType,
                 Matrix< DDRMat > & aCoeff )
