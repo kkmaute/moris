@@ -29,6 +29,13 @@ namespace moris
 
                 //------------------------------------------------------------------------------
 
+            private:
+
+                //------------------------------------------------------------------------------
+
+                // stress type to evaluate
+                enum Stress_Type mStressType;
+
                 enum class IQI_Property_Type
                 {
                         MAX_ENUM
@@ -54,13 +61,27 @@ namespace moris
                 // Local string to constitutive enum map
                 std::map< std::string, IQI_Stabilization_Type > mStabilizationMap;
 
+                //------------------------------------------------------------------------------
+
+            protected:
+
+                //------------------------------------------------------------------------------
+                /*
+                 * default constructor
+                 */
+                IQI_Stress(){
+                    MORIS_ERROR( false, " IQI_Stress: Default constructor unavailable. Use enum to construct IQI. ");
+                };
+
+                //------------------------------------------------------------------------------
+
             public:
 
                 //------------------------------------------------------------------------------
                 /*
                  * constructor
                  */
-                IQI_Stress();
+                IQI_Stress( enum Stress_Type aStressType );
 
                 //------------------------------------------------------------------------------
                 /**
@@ -140,6 +161,50 @@ namespace moris
                 void compute_dQIdDof( Matrix< DDRMat > & adQIdDof );
 
                 //------------------------------------------------------------------------------
+                /**
+                 * gets the stress vector from the constitutive model and sorts it into a format standardized
+                 * (independent of 2D-plane strain, 2D-plain stress, and 3D)
+                 * @param[ out ] tStressVector vector with 6 entries containing the normal and shear stress values
+                 */
+                Matrix< DDRMat > get_stress_vector();
+
+                //------------------------------------------------------------------------------
+                /**
+                 * evaluate the Von-Mises stress using the stress vector provided by the constitutive model
+                 * @param[ out ] tStressValue the value of the Von-Mises stress
+                 */
+                real eval_Von_Mises_stress();
+
+                //------------------------------------------------------------------------------
+                /**
+                 * evaluate the i-th principal stress using the stress vector provided by the constitutive model
+                 * @param[ in ] aPrincipalStressIndex number i of the principal stress to get,
+                 *               i.e. 1,2,3 for the first, second and third principal stress, respectively
+                 * @param[ out ] tStressValue the value of the requested principal stress
+                 */
+                real eval_principal_stress( uint aPrincipalStressIndex );
+
+                //------------------------------------------------------------------------------
+                /**
+                 * evaluate the i-th normal stress using the stress vector provided by the constitutive model
+                 * @param[ in ] aStressIndex number of the principal stress to get,
+                 *               i.e. 1,2,3 for the x-, y-, and z-normal stresses, respectively
+                 * @param[ out ] tStressValue the value of the requested principal stress
+                 */
+                real eval_normal_stress( uint aStressIndex );
+
+                //------------------------------------------------------------------------------
+                /**
+                 * evaluate the i-th shear stress using the stress vector provided by the constitutive model
+                 * @param[ in ] aStressIndex number of the principal stress to get,
+                 *               i.e. 1,2,3 for the yz-, xz-, and xy-shear stresses, respectively
+                 *               in 2D the input is ignored, as there's only one shear stress
+                 * @param[ out ] tStressValue the value of the requested principal stress
+                 */
+                real eval_shear_stress( uint aStressIndex );
+
+                //------------------------------------------------------------------------------
+
         };
     }/* end namespace fem */
 } /* end namespace moris */
