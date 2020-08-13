@@ -2439,10 +2439,10 @@ namespace moris
                             switch( aInterpolationOrder )
                             {
                                 case mtk::Interpolation_Order::LINEAR:
-                                    return fem::Integration_Order::BAR_1;
+                                    return fem::Integration_Order::BAR_3;
 
                                 case mtk::Interpolation_Order::QUADRATIC:
-                                    return fem::Integration_Order::BAR_2;
+                                    return fem::Integration_Order::BAR_3;
 
                                 case mtk::Interpolation_Order::CUBIC:
                                     return fem::Integration_Order::BAR_3;
@@ -2505,10 +2505,10 @@ namespace moris
                             switch( aInterpolationOrder )
                             {
                                 case mtk::Interpolation_Order::LINEAR:
-                                    return fem::Integration_Order::TRI_3;
+                                    return fem::Integration_Order::TRI_7;
 
                                 case mtk::Interpolation_Order::QUADRATIC:
-                                    return fem::Integration_Order::TRI_6;
+                                    return fem::Integration_Order::TRI_7;
 
                                 case mtk::Interpolation_Order::CUBIC:
                                     return fem::Integration_Order::TRI_7;
@@ -2525,7 +2525,7 @@ namespace moris
                             switch( aInterpolationOrder )
                             {
                                 case mtk::Interpolation_Order::LINEAR:
-                                    return fem::Integration_Order::TET_4;
+                                    return fem::Integration_Order::TET_11;
 
                                 case mtk::Interpolation_Order::QUADRATIC:
                                     return fem::Integration_Order::TET_11;
@@ -2556,7 +2556,7 @@ namespace moris
                             switch( aInterpolationOrder )
                             {
                                 case mtk::Interpolation_Order::LINEAR:
-                                    return fem::Integration_Order::BAR_1;
+                                    return fem::Integration_Order::BAR_3;
 
                                 case mtk::Interpolation_Order::QUADRATIC:
                                     return fem::Integration_Order::BAR_3;
@@ -2599,10 +2599,10 @@ namespace moris
                             switch( aInterpolationOrder )
                             {
                                 case mtk::Interpolation_Order::LINEAR:
-                                    return fem::Integration_Order::TRI_3;
+                                    return fem::Integration_Order::TRI_7;
 
                                 case mtk::Interpolation_Order::QUADRATIC:
-                                    return fem::Integration_Order::TRI_6;
+                                    return fem::Integration_Order::TRI_7;
 
                                 case mtk::Interpolation_Order::CUBIC:
                                     return fem::Integration_Order::TRI_7;

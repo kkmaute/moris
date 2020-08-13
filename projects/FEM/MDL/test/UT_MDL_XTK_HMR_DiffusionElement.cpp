@@ -989,19 +989,18 @@ TEST_CASE("HMR Interpolation XTK Cut Diffusion Model Multigrid","[XTK_HMR_DIFF_M
         moris::Matrix< DDRMat > tSolution;
         tTimeSolver->get_full_solution( tSolution );
 
-        CHECK( equal_to( tSolution( 0, 0 ), 4.999591892500180, 1.0e+08 ) );
-        CHECK( equal_to( tSolution( 1, 0 ), 5.000081957190350, 1.0e+08 ) );
-        CHECK( equal_to( tSolution( 2, 0 ), 4.999591897493581, 1.0e+08 ) );
-        CHECK( equal_to( tSolution( 3, 0 ), 5.000081951223003, 1.0e+08 ) );
-        CHECK( equal_to( tSolution( 4, 0 ), 17.12282413844208, 1.0e+08 ) );
-        CHECK( equal_to( tSolution( 5, 0 ), 17.07413794445246, 1.0e+08 ) );
-        CHECK( equal_to( tSolution( 6, 0 ), 17.12282396030806, 1.0e+08 ) );
-        CHECK( equal_to( tSolution( 7, 0 ), 17.07413802489490, 1.0e+08 ) );
-        CHECK( equal_to( tSolution( 8, 0 ), 5.000244192065129, 1.0e+08 ) );
-        CHECK( equal_to( tSolution( 382, 0 ), 51.49916278038950, 1.0e+08 ) );
-        CHECK( equal_to( tSolution( 461, 0 ), 17.12282369430180, 1.0e+08 ) );
-        CHECK( equal_to( tSolution( 505, 0 ), 29.47091327323650, 1.0e+08 ) );
-
+        CHECK( equal_to( tSolution( 0, 0 ), 4.996475958184066e+00, 1.0e+08 ) );
+        CHECK( equal_to( tSolution( 1, 0 ), 5.001614336890515e+00, 1.0e+08 ) );
+        CHECK( equal_to( tSolution( 2, 0 ), 4.996475958380925e+00, 1.0e+08 ) );
+        CHECK( equal_to( tSolution( 3, 0 ), 5.001614336455297e+00, 1.0e+08 ) );
+        CHECK( equal_to( tSolution( 4, 0 ), 1.738460989114971e+01, 1.0e+08 ) );
+        CHECK( equal_to( tSolution( 5, 0 ), 1.702129204434117e+01, 1.0e+08 ) );
+        CHECK( equal_to( tSolution( 6, 0 ), 1.738460989438929e+01, 1.0e+08 ) );
+        CHECK( equal_to( tSolution( 7, 0 ), 1.702129204632152e+01, 1.0e+08 ) );
+        CHECK( equal_to( tSolution( 8, 0 ), 5.000295368225293e+00, 1.0e+08 ) );
+        CHECK( equal_to( tSolution( 382, 0 ), 7.893190602140564e+01, 1.0e+08 ) );
+        CHECK( equal_to( tSolution( 461, 0 ), 1.738460994897352e+01, 1.0e+08 ) );
+        CHECK( equal_to( tSolution( 505, 0 ), 3.061872885857206e+01, 1.0e+08 ) );
 
         delete tInterpMesh;
     }
@@ -1276,18 +1275,19 @@ TEST_CASE(" XTK Diffusion  Multigrid","[XTK_DIFF_MULTIGRID]")
         moris::Matrix< DDRMat > tSolution;
         tTimeSolver->get_full_solution( tSolution );
 
-        CHECK( equal_to( tSolution( 0, 0 ), 4.999591892500180, 1.0e+08 ) );
-        CHECK( equal_to( tSolution( 1, 0 ), 5.000081957190350, 1.0e+08 ) );
-        CHECK( equal_to( tSolution( 2, 0 ), 4.999591897493581, 1.0e+08 ) );
-        CHECK( equal_to( tSolution( 3, 0 ), 5.000081951223003, 1.0e+08 ) );
-        CHECK( equal_to( tSolution( 4, 0 ), 17.12282413844208, 1.0e+08 ) );
-        CHECK( equal_to( tSolution( 5, 0 ), 17.07413794445246, 1.0e+08 ) );
-        CHECK( equal_to( tSolution( 6, 0 ), 17.12282396030806, 1.0e+08 ) );
-        CHECK( equal_to( tSolution( 7, 0 ), 17.07413802489490, 1.0e+08 ) );
-        CHECK( equal_to( tSolution( 8, 0 ), 5.000244192065129, 1.0e+08 ) );
-        CHECK( equal_to( tSolution( 382, 0 ), 51.49916278038950, 1.0e+08 ) );
-        CHECK( equal_to( tSolution( 461, 0 ), 17.12282369430180, 1.0e+08 ) );
-        CHECK( equal_to( tSolution( 505, 0 ), 29.47091327323650, 1.0e+08 ) );
+        CHECK( equal_to( tSolution( 0, 0 ),   4.996475958184067e+00, 1.0e+08 ) );
+        CHECK( equal_to( tSolution( 1, 0 ),   5.001614336890515e+00, 1.0e+08 ) );
+        CHECK( equal_to( tSolution( 2, 0 ),   4.996475958380924e+00, 1.0e+08 ) );
+        CHECK( equal_to( tSolution( 3, 0 ),   5.001614336455301e+00, 1.0e+08 ) );
+        CHECK( equal_to( tSolution( 4, 0 ),   1.738460989114971e+01, 1.0e+08 ) );
+        CHECK( equal_to( tSolution( 5, 0 ),   1.702129204434116e+01, 1.0e+08 ) );
+        CHECK( equal_to( tSolution( 6, 0 ),   1.738460989438929e+01, 1.0e+08 ) );
+        CHECK( equal_to( tSolution( 7, 0 ),   1.702129204632152e+01, 1.0e+08 ) );
+        CHECK( equal_to( tSolution( 8, 0 ),   5.000295368225293e+00, 1.0e+08 ) );
+        CHECK( equal_to( tSolution( 382, 0 ), 7.893190602140562e+01, 1.0e+08 ) );
+        CHECK( equal_to( tSolution( 461, 0 ), 1.738460994897350e+01, 1.0e+08 ) );
+        CHECK( equal_to( tSolution( 505, 0 ), 3.061872885857204e+01, 1.0e+08 ) );
+
         delete tInterpMesh;
     }
 }
