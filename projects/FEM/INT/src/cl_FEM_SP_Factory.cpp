@@ -20,12 +20,14 @@
 #include "cl_FEM_SP_Turbulence_Dirichlet_Nitsche.hpp"
 #include "cl_FEM_SP_Stab_Penalty_Contact.hpp"
 #include "cl_FEM_SP_Penalty_Contact.hpp"
+#include "cl_FEM_SP_Spalart_Allmaras_Nitsche_Interface.hpp"
 
 namespace moris
 {
     namespace fem
     {
         //------------------------------------------------------------------------------
+
         std::shared_ptr< Stabilization_Parameter > SP_Factory::create_SP(
                 fem::Stabilization_Type aStabilizationType )
         {
@@ -81,6 +83,9 @@ namespace moris
 
                 case fem::Stabilization_Type::TURBULENCE_DIRICHLET_NITSCHE :
                     return std::make_shared< SP_Turbulence_Dirichlet_Nitsche >();
+
+                case fem::Stabilization_Type::SPALART_ALLMARAS_NITSCHE_INTERFACE :
+                    return std::make_shared< SP_Spalart_Allmaras_Nitsche_Interface >();
 
                 case fem::Stabilization_Type::PENALTY_CONTACT :
                     return std::make_shared< SP_Penalty_Contact >();
