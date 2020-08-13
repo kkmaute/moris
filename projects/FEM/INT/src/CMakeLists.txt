@@ -139,7 +139,7 @@ set(HEADERS
     cl_FEM_IQI_Stress.hpp
     cl_FEM_IQI_Dof.hpp
     cl_FEM_IQI_Max_Dof.hpp
-    cl_FEM_IQI_Max_Von_Mises_Stress.hpp
+    cl_FEM_IQI_Max_Stress.hpp
     cl_FEM_IQI_Property.hpp
     cl_FEM_IQI_L2_Error_Analytic.hpp
     cl_FEM_IQI_H1_Error_Analytic.hpp
@@ -285,7 +285,7 @@ set(LIB_SOURCES
     cl_FEM_IQI_Stress.cpp
     cl_FEM_IQI_Dof.cpp
     cl_FEM_IQI_Max_Dof.cpp
-    cl_FEM_IQI_Max_Von_Mises_Stress.cpp
+    cl_FEM_IQI_Max_Stress.cpp
     cl_FEM_IQI_Property.cpp
     cl_FEM_IQI_L2_Error_Analytic.cpp
     cl_FEM_IQI_H1_Error_Analytic.cpp
