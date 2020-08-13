@@ -90,10 +90,14 @@ void check_linear_results(moris::mtk::Exodus_IO_Helper & aExoIO,uint aNodeId)
     REQUIRE(  tRelDifference_Temp < 1.0e-0);
 
     // check IQIs of first time step (only 1 IQI is defined, first time step has index 0)
-    real tReferenceIQI_VelX =  6.736192625623286e-01;
-    real tReferenceIQI_VelY = -1.396889030305290e-02;
-    real tReferenceIQI_Pres =  3.194274688223597e-01;
-    real tReferenceIQI_Temp =  1.853046110935463e+01;
+    //    real tReferenceIQI_VelX =  6.736192625623286e-01;
+    //    real tReferenceIQI_VelY = -1.396889030305290e-02;
+    //    real tReferenceIQI_Pres =  3.194274688223597e-01;
+    //    real tReferenceIQI_Temp =  1.853046110935463e+01;
+    real tReferenceIQI_VelX =  6.701556884755125e-01;
+    real tReferenceIQI_VelY = -1.404947332583528e-02;
+    real tReferenceIQI_Pres =  3.225261607686859e-01;
+    real tReferenceIQI_Temp =  1.914316430063299e+01;
 
     real tRelIQIDifference_VelX = std::abs( ( aExoIO.get_global_variable(0, 0 ) - tReferenceIQI_VelX ) / tReferenceIQI_VelX );
     real tRelIQIDifference_VelY = std::abs( ( aExoIO.get_global_variable(1, 0 ) - tReferenceIQI_VelY ) / tReferenceIQI_VelY );
