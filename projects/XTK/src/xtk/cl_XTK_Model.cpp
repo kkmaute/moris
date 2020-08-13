@@ -3623,11 +3623,13 @@ namespace xtk
         //    print_neighborhood();
     }
 
+    // ----------------------------------------------------------------------------------
+
     void
     Model::delete_neighborhood()
     {
         mElementToElement.resize(0);
-    };
+    }
 
     // ----------------------------------------------------------------------------------
 
@@ -4396,7 +4398,7 @@ namespace xtk
     Model::get_subphase_to_subphase()
     {
         return mSubphaseToSubPhase;
-    };
+    }
 
     //------------------------------------------------------------------------------
 
@@ -4412,7 +4414,7 @@ namespace xtk
     Model::get_subphase_to_subphase_transition_loc()
     {
         return mTransitionNeighborCellLocation;
-    };
+    }
 
     //------------------------------------------------------------------------------
 
