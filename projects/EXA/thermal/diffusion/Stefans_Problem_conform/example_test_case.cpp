@@ -16,10 +16,10 @@ using namespace moris;
 //---------------------------------------------------------------
 
 // global variable for interpolation order
-uint gInterpolationOrder;
+uint gInterpolationOrder = 1;
 
 // flag to print reference values
-bool gPrintReferenceValues = false;
+bool gPrintReferenceValues = true;
 
 //---------------------------------------------------------------
 
@@ -100,9 +100,7 @@ void check_quadratic_results(moris::mtk::Exodus_IO_Helper & aExoIO,uint aNodeId)
 
     // check nodal coordinates
     real tRelDiffNorm = moris::norm( aExoIO.get_nodal_coordinate( aNodeId ) - tReferenceCoordinate )/ moris::norm(tReferenceCoordinate);
-
-    //FIXME: fix global variable problem for quadratic
-    //REQUIRE( tRelDiffNorm <  1.0e-8 );
+    REQUIRE( tRelDiffNorm <  1.0e-8 );
 
     // check time value for time step index 0
     real tReferenceTime = 48.0;
@@ -113,11 +111,8 @@ void check_quadratic_results(moris::mtk::Exodus_IO_Helper & aExoIO,uint aNodeId)
 
     // check temperature at node aNodeId in first time step (temperature is 3rd nodal field, first time step has index 0)
     real tReferenceTemperature = 3.233669081256222e+02;
-
     real tRelTempDifference = std::abs( ( aExoIO.get_nodal_field_value( aNodeId, 2, 9 ) - tReferenceTemperature ) / tReferenceTemperature );
-
-    //FIXME: fix global variable problem for quadratic
-    //REQUIRE(  tRelTempDifference < 1.0e-4);
+    REQUIRE(  tRelTempDifference < 1.0e-4);
 
 }
 
@@ -143,8 +138,8 @@ void check_linear_results_serial()
     else
     {
         REQUIRE( tNumDims  ==  2   );
-        REQUIRE( tNumNodes ==  1002 );
-        REQUIRE( tNumElems ==  500 );
+        REQUIRE( tNumNodes ==  102 );
+        REQUIRE( tNumElems ==  50 );
     }
 
     // check results
@@ -176,9 +171,9 @@ void check_quadratic_results_serial()
     else
     {
         REQUIRE( tNumDims  ==  2   );
-        //FIXME: fix global variable problem for quadratic
-        //REQUIRE( tNumNodes ==  3003 );
-        //REQUIRE( tNumElems ==  500 );
+
+        REQUIRE( tNumNodes ==  303 );
+        REQUIRE( tNumElems ==  50 );
     }
 
     // check results
@@ -192,6 +187,9 @@ void check_quadratic_results_serial()
 TEST_CASE("Comsol_conform_Linear",
         "[moris],[example],[thermal],[diffusion]")
 {
+    // set interpolation order
+    gInterpolationOrder = 1;
+
     // define command line call
     int argc = 2;
 
@@ -205,9 +203,6 @@ TEST_CASE("Comsol_conform_Linear",
 
     // catch test statements should follow
     REQUIRE( tRet ==  0 );
-
-    // set interpolation order
-    gInterpolationOrder = 1;
 
     // check results
     switch ( par_size() )
@@ -230,6 +225,9 @@ TEST_CASE("Comsol_conform_Linear",
 TEST_CASE("Comsol_conform_Quadratic",
         "[moris],[example],[thermal],[diffusion]")
 {
+    // set interpolation order
+    gInterpolationOrder = 2;
+
     // define command line call
     int argc = 2;
 
@@ -243,9 +241,6 @@ TEST_CASE("Comsol_conform_Quadratic",
 
     // catch test statements should follow
     REQUIRE( tRet ==  0 );
-
-    // set interpolation order
-    gInterpolationOrder = 2;
 
     // check results
     switch ( par_size() )
