@@ -73,10 +73,10 @@ void check_linear_results(moris::mtk::Exodus_IO_Helper & aExoIO,uint aNodeId)
     REQUIRE( tRelTimeDifference <  1.0e-8 );
 
     // check temperature at node aNodeId in first time step (temperature is 3rd nodal field, first time step has index 0)
-    real tReferenceVelX =  1.223969184818649e+00;
-    real tReferenceVelY = -3.574433637808433e-01;
-    real tReferencePres =  5.616011815092509e-01;
-    real tReferenceTemp = -4.423250532479562e-01;
+    real tReferenceVelX =  1.221234525166533e+00;
+    real tReferenceVelY = -3.638584413360180e-01;
+    real tReferencePres =  5.676528631115153e-01;
+    real tReferenceTemp = -8.025057568704884e-01;
 
     real tRelDifference_VelX = std::abs( ( aExoIO.get_nodal_field_value( aNodeId, 2, 0 ) - tReferenceVelX ) / tReferenceVelX );
     real tRelDifference_VelY = std::abs( ( aExoIO.get_nodal_field_value( aNodeId, 3, 0 ) - tReferenceVelY ) / tReferenceVelY );
@@ -90,10 +90,6 @@ void check_linear_results(moris::mtk::Exodus_IO_Helper & aExoIO,uint aNodeId)
     REQUIRE(  tRelDifference_Temp < 1.0e-0);
 
     // check IQIs of first time step (only 1 IQI is defined, first time step has index 0)
-    //    real tReferenceIQI_VelX =  6.736192625623286e-01;
-    //    real tReferenceIQI_VelY = -1.396889030305290e-02;
-    //    real tReferenceIQI_Pres =  3.194274688223597e-01;
-    //    real tReferenceIQI_Temp =  1.853046110935463e+01;
     real tReferenceIQI_VelX =  6.701556884755125e-01;
     real tReferenceIQI_VelY = -1.404947332583528e-02;
     real tReferenceIQI_Pres =  3.225261607686859e-01;
