@@ -3623,6 +3623,8 @@ namespace xtk
         //    print_neighborhood();
     }
 
+    // ----------------------------------------------------------------------------------
+
     void
     Model::delete_neighborhood()
     {
