@@ -110,20 +110,20 @@ namespace moris
                 /**
                  * evaluates the constitutive model change rate of enthalpy
                  */
-                virtual void eval_Hdot();
+                virtual void eval_EnergyDot();
 
                 //------------------------------------------------------------------------------
                 /**
                  * evaluates the constitutive model spatial gradient of enthalpy
                  */
-                virtual void eval_gradH();
+                virtual void eval_gradEnergy();
 
 
                 //------------------------------------------------------------------------------
                 /**
                  * evaluates the constitutive model change rate of spatial gradient of enthalpy (needed for GGLS-stabilization)
                  */
-                virtual void eval_gradHdot();
+                virtual void eval_gradEnergyDot();
 
                 //------------------------------------------------------------------------------
                 /**
@@ -200,25 +200,25 @@ namespace moris
                 /**
                  * evaluate the constitutive model enthalpy change rate wrt to a dof type
                  * @param[ in ] aDofTypes a dof type wrt which the derivative is evaluated
-                 * dHdotdDOF ( 1 x numDerDof )
+                 * dEnergyDotdDOF ( 1 x numDerDof )
                  */
-                virtual void eval_dHdotdDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes );
+                virtual void eval_dEnergyDotdDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes );
 
                 //------------------------------------------------------------------------------
                 /**
                  * evaluate the constitutive model gradient of enthalpy wrt to a dof type
                  * @param[ in ] aDofTypes a dof type wrt which the derivative is evaluated
-                 * dGradHdDOF ( mSpaceDim x numDerDof )
+                 * dGradEnergydDOF ( mSpaceDim x numDerDof )
                  */
-                virtual void eval_dGradHdDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes );
+                virtual void eval_dGradEnergydDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes );
 
                 //------------------------------------------------------------------------------
                 /**
                  * evaluate the constitutive model gradient of enthalpy change rate wrt to a dof type
                  * @param[ in ] aDofTypes a dof type wrt which the derivative is evaluated
-                 * dgradHdotdDOF ( mSpaceDim x numDerDof )
+                 * dgradEnergyDotdDOF ( mSpaceDim x numDerDof )
                  */
-                virtual void eval_dGradHdotdDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes );
+                virtual void eval_dGradEnergyDotdDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes );
 
                 //------------------------------------------------------------------------------
                 /**

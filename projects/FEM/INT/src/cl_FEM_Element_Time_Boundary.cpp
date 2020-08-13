@@ -96,6 +96,12 @@ namespace moris
 
         void Element_Time_Boundary::compute_residual()
         {
+            // get number of IWGs
+            uint tNumIWGs = mSet->get_number_of_requested_IWGs();
+
+            // get number of integration points
+            uint tNumIntegPoints = mSet->get_number_of_integration_points();
+
             // loop over time boundaries
             for ( uint iTimeBoundary = 0; iTimeBoundary < 2; iTimeBoundary++ )
             {
@@ -106,11 +112,7 @@ namespace moris
                 moris::Cell< Matrix< DDSMat > > tIsActiveDv;
                 this->init_ig_geometry_interpolator( iTimeBoundary, tIsActiveDv );
 
-                // get number of IWGs
-                uint tNumIWGs = mSet->get_number_of_requested_IWGs();
-
                 // loop over integration points
-                uint tNumIntegPoints = mSet->get_number_of_integration_points();
                 for( uint iGP = 0; iGP < tNumIntegPoints; iGP++ )
                 {
                     // get integration point location in the reference surface
@@ -145,6 +147,12 @@ namespace moris
 
         void Element_Time_Boundary::compute_jacobian()
         {
+            // get number of IWGs
+            uint tNumIWGs = mSet->get_number_of_requested_IWGs();
+
+            // get number of integration points
+            uint tNumIntegPoints = mSet->get_number_of_integration_points();
+
             // loop over time boundaries
             for ( uint iTimeBoundary = 0; iTimeBoundary < 2; iTimeBoundary++ )
             {
@@ -155,12 +163,7 @@ namespace moris
                 moris::Cell< Matrix< DDSMat > > tIsActiveDv;
                 this->init_ig_geometry_interpolator( iTimeBoundary, tIsActiveDv );
 
-                // get number of IWGs
-                uint tNumIWGs = mSet->get_number_of_requested_IWGs();
-
                 // loop over integration points
-                uint tNumIntegPoints = mSet->get_number_of_integration_points();
-
                 for( uint iGP = 0; iGP < tNumIntegPoints; iGP++ )
                 {
                     // get local integration point location
@@ -191,6 +194,12 @@ namespace moris
 
         void Element_Time_Boundary::compute_jacobian_and_residual()
         {
+            // get number of IWGs
+            uint tNumIWGs = mSet->get_number_of_requested_IWGs();
+
+            // get number of integration points integration points
+            uint tNumIntegPoints = mSet->get_number_of_integration_points();
+
             // loop over time boundaries
             for ( uint iTimeBoundary = 0; iTimeBoundary < 2; iTimeBoundary++ )
             {
@@ -201,11 +210,7 @@ namespace moris
                 moris::Cell< Matrix< DDSMat > > tIsActiveDv;
                 this->init_ig_geometry_interpolator( iTimeBoundary, tIsActiveDv );
 
-                // get number of IWGs
-                uint tNumIWGs = mSet->get_number_of_requested_IWGs();
-
                 // loop over integration points
-                uint tNumIntegPoints = mSet->get_number_of_integration_points();
                 for( uint iGP = 0; iGP < tNumIntegPoints; iGP++ )
                 {
                     // get local integration point location
@@ -239,6 +244,12 @@ namespace moris
 
         void Element_Time_Boundary::compute_dRdp()
         {
+            // get number of IWGs
+            uint tNumIWGs = mSet->get_number_of_requested_IWGs();
+
+            // get number of integration points
+            uint tNumIntegPoints = mSet->get_number_of_integration_points();
+
             // loop over time boundaries
             for ( uint iTimeBoundary = 0; iTimeBoundary < 2; iTimeBoundary++ )
             {
@@ -252,11 +263,7 @@ namespace moris
                 moris::Cell< Matrix< DDSMat > > tIsActiveDv;
                 this->init_ig_geometry_interpolator( iTimeBoundary, tIsActiveDv );
 
-                // get number of IWGs
-                uint tNumIWGs = mSet->get_number_of_requested_IWGs();
-
                 // loop over integration points
-                uint tNumIntegPoints = mSet->get_number_of_integration_points();
                 for( uint iGP = 0; iGP < tNumIntegPoints; iGP++ )
                 {
                     // get integration point location in the reference surface
@@ -302,6 +309,12 @@ namespace moris
 
         void Element_Time_Boundary::compute_QI()
         {
+            // get number of IQIs
+            uint tNumIQIs = mSet->get_number_of_requested_IQIs();
+
+            // get number of integration points
+            uint tNumIntegPoints = mSet->get_number_of_integration_points();
+
             // loop over time boundaries
             for ( uint iTimeBoundary = 0; iTimeBoundary < 2; iTimeBoundary++ )
             {
@@ -312,14 +325,7 @@ namespace moris
                 moris::Cell< Matrix< DDSMat > > tIsActiveDv;
                 this->init_ig_geometry_interpolator( iTimeBoundary, tIsActiveDv );
 
-                // get number of IQIs
-                uint tNumIQIs = mSet->get_number_of_requested_IQIs();
-
-                // FIXME create a cell of IQI values
-                moris::Cell< Matrix< DDRMat > > tQIValues( tNumIQIs );
-
                 // loop over integration points
-                uint tNumIntegPoints = mSet->get_number_of_integration_points();
                 for( uint iGP = 0; iGP < tNumIntegPoints; iGP++ )
                 {
                     // get the ith integration point in the IG param space
@@ -349,6 +355,12 @@ namespace moris
 
         void Element_Time_Boundary::compute_dQIdu()
         {
+            // get number of IQIs
+            uint tNumIQIs = mSet->get_number_of_requested_IQIs();
+
+            // get number of integration points
+            uint tNumIntegPoints = mSet->get_number_of_integration_points();
+
             // loop over time boundaries
             for ( uint iTimeBoundary = 0; iTimeBoundary < 2; iTimeBoundary++ )
             {
@@ -359,11 +371,7 @@ namespace moris
                 moris::Cell< Matrix< DDSMat > > tIsActiveDv;
                 this->init_ig_geometry_interpolator( iTimeBoundary, tIsActiveDv );
 
-                // get number of IQIs
-                uint tNumIQIs = mSet->get_number_of_requested_IQIs();
-
                 // loop over integration points
-                uint tNumIntegPoints = mSet->get_number_of_integration_points();
                 for( uint iGP = 0; iGP < tNumIntegPoints; iGP++ )
                 {
                     // get the ith integration point in the IG param space
@@ -393,6 +401,12 @@ namespace moris
 
         void Element_Time_Boundary::compute_dQIdp_explicit()
         {
+            // get number of IWGs
+            uint tNumIQIs = mSet->get_number_of_requested_IQIs();
+
+            // loop over integration points
+            uint tNumIntegPoints = mSet->get_number_of_integration_points();
+
             // loop over time boundaries
             for ( uint iTimeBoundary = 0; iTimeBoundary < 2; iTimeBoundary++ )
             {
@@ -406,11 +420,7 @@ namespace moris
                 moris::Cell< Matrix< DDSMat > > tIsActiveDv;
                 this->init_ig_geometry_interpolator( iTimeBoundary, tIsActiveDv );
 
-                // get number of IWGs
-                uint tNumIQIs = mSet->get_number_of_requested_IQIs();
-
                 // loop over integration points
-                uint tNumIntegPoints = mSet->get_number_of_integration_points();
                 for( uint iGP = 0; iGP < tNumIntegPoints; iGP++ )
                 {
                     // get the ith integration point in the IG param space

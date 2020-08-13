@@ -127,7 +127,7 @@ Cell_Cluster_HMR::get_vertices_in_cluster(const mtk::Master_Slave aIsMaster ) co
 
 //----------------------------------------------------------------
 
-moris::Matrix<moris::DDRMat> const &
+moris::Matrix<moris::DDRMat>
 Cell_Cluster_HMR::get_vertices_local_coordinates_wrt_interp_cell( const mtk::Master_Slave aIsMaster ) const
 {
     return mVertexParamCoords;

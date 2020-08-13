@@ -376,7 +376,6 @@ namespace xtk
         // Tell the subdivision to assign node Ids if it is the only subdivision method (critical for outputting)
         // This is usually only going to happen in test cases
         // Note: the Conformal subdivision methods dependent on node ids for subdivision routine, the node Ids are set regardless of the below boolean
-
         bool tNonConformingMeshFlag = false;
         bool tSetPhase = true;
 
@@ -384,6 +383,16 @@ namespace xtk
         {
             tNonConformingMeshFlag = true;
         }
+
+        // outer cell - geometry index, inner cell active child mesh indices for each geometries
+        moris::Cell<moris::Matrix<moris::IndexMat>> tActiveChildMeshIndicesByGeom(tNumGeometries);
+
+        // iterate through geometry descriptions
+        for(moris::size_t iGeom = 0; iGeom<tNumGeometries; iGeom++)
+        {
+
+        }
+
 
         // Loop over each geometry and have an active child mesh indices list for each
         for(moris::size_t iGeom = 0; iGeom<tNumGeometries; iGeom++)
@@ -449,106 +458,12 @@ namespace xtk
         {
             case Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8:
             {
-                //            MORIS_ASSERT(tXTKMeshData.get_entity_connected_to_entity_loc_inds(0, moris::EntityRank::ELEMENT, moris::EntityRank::NODE).numel() == 8, "NC_REGULAR_SUBDIVISION_HEX8 is for HEX8 meshes only.");
-                MORIS_ASSERT(aFirstSubdivision,"NC_REGULAR_SUBDIVISION_HEX8 needs to be the first subdivision routine for each geometry");
-                MORIS_ASSERT(mModelDimension == 3,"NC_REGULAR_SUBDIVISION_HEX8 needs to be done on a 3D mesh");
-
-                // Runs the first cut routine to get the new active child mesh indices and indicate which are new and need to be regularly subdivided and which ones dont
-                moris::Matrix< moris::IndexMat > tNewPairBool;
-                run_first_cut_routine(TemplateType::HEX_8, aGeomIndex, 8,  aActiveChildMeshIndices,tNewPairBool);
-
-                // set the child cell topology as tet 3s
-                mCutMesh.set_child_element_topology(CellTopology::TET4);
-
-                // initialize a struct of all the data we are keeping track of in this decomposition
-                // intended to reduce the clutter of function inputs etc
-                Decomposition_Data tDecompData;
-                tDecompData.mSubdivisionMethod = Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8;
-
-                // number of intersected elements
-                moris::uint tIntersectedCount = aActiveChildMeshIndices.n_cols();
-
-                // make node requests for each intersected element
-                this->decompose_internal_reg_sub_hex8_make_requests(aActiveChildMeshIndices,tNewPairBool,tDecompData);
-
-                // specify a dummy secondary id (not really needed for this type of decomposition)
-                tDecompData.tSecondaryIdentifiers = Cell<moris_index>(tDecompData.tNewNodeParentIndex.size(), MORIS_INDEX_MAX);
-
-                moris_index tMessageTag = 60000; /*arbitrary tag for regular subdivision*/
-                assign_node_requests_identifiers(tDecompData,tMessageTag);
-
-                // Allocate interface flag space in XTK mesh even though these are not interface nodes
-                mBackgroundMesh.allocate_space_in_interface_node_flags(tDecompData.tNewNodeIndex.size(),mGeometryEngine->get_num_geometries());
-
-                // add nodes to the background mesh
-                this->assign_index(tDecompData);
-                mBackgroundMesh.batch_create_new_nodes(tDecompData.tNewNodeId,tDecompData.tNewNodeIndex, tDecompData.tNewNodeOwner,tDecompData.tNewNodeCoordinate);
-
-                // add nodes to child mesh
-                this->decompose_internal_set_new_nodes_in_child_mesh_reg_sub(aActiveChildMeshIndices,tNewPairBool, 3, tDecompData);
-
-                // associate new nodes with geometry objects
-                create_new_node_association_with_geometry(tDecompData);
-
-                for(moris::size_t i = 0; i< tIntersectedCount; i++)
-                {
-                    if(tNewPairBool(0,i) == 0)
-                    {
-                        mCutMesh.generate_templated_mesh(aActiveChildMeshIndices(i),TemplateType::REGULAR_SUBDIVISION_HEX8);
-                    }
-                }
-
+                this->decompose_internal_reg_sub_hex8(aGeomIndex, aActiveChildMeshIndices, aFirstSubdivision, aSetIds);
                 break;
             }
             case Subdivision_Method::NC_REGULAR_SUBDIVISION_QUAD4:
             {
-                MORIS_ASSERT(aFirstSubdivision, "NC_REGULAR_SUBDIVISION_QUAD4 needs to be the first subdivision routine for each geometry.");
-                MORIS_ASSERT(mModelDimension == 2, "NC_REGULAR_SUBDIVISION_QUAD4 needs to be done on a 2D mesh.");
-
-                // Runs the first cut routine to get the new active child mesh indices and indicate which are new and need to be regularly subdivided and which ones don't
-                moris::Matrix< moris::IndexMat > tNewPairBool;
-                run_first_cut_routine(TemplateType::QUAD_4, aGeomIndex, 4, aActiveChildMeshIndices, tNewPairBool);
-
-                // mark child cells as tri 3s
-                mCutMesh.set_child_element_topology(CellTopology::TRI3);
-
-                // initialize a struct of all the data we are keeping track of in this decomposition
-                // intended to reduce the clutter of function inputs etc
-                Decomposition_Data tDecompData;
-                tDecompData.mSubdivisionMethod = Subdivision_Method::NC_REGULAR_SUBDIVISION_QUAD4;
-
-                // number of intersected elements
-                moris::uint tIntersectedCount = aActiveChildMeshIndices.n_cols();
-
-                // make node requests for each intersected element
-                this->decompose_internal_reg_sub_quad4_make_requests(aActiveChildMeshIndices, tNewPairBool, tDecompData);
-
-                // specify a dummy secondary id (not really needed for this type of decomposition)
-                tDecompData.tSecondaryIdentifiers = Cell<moris_index>(tDecompData.tNewNodeParentIndex.size(), MORIS_INDEX_MAX);
-
-                moris_index tMessageTag = 60000; /*arbitrary tag for regular subdivision*/
-                assign_node_requests_identifiers(tDecompData,tMessageTag);
-
-                // Allocate interface flag space in XTK mesh even though these are not interface nodes
-                mBackgroundMesh.allocate_space_in_interface_node_flags(tDecompData.tNewNodeIndex.size(),mGeometryEngine->get_num_geometries());
-
-                // add nodes to the background mesh
-                this->assign_index(tDecompData);
-                mBackgroundMesh.batch_create_new_nodes(tDecompData.tNewNodeId,tDecompData.tNewNodeIndex, tDecompData.tNewNodeOwner,tDecompData.tNewNodeCoordinate);
-
-                // crate nodes in child mesh
-                this->decompose_internal_set_new_nodes_in_child_mesh_reg_sub(aActiveChildMeshIndices,tNewPairBool,2,tDecompData);
-
-                // associate new nodes with geometry objects
-                create_new_node_association_with_geometry(tDecompData);
-
-                for(moris::size_t i = 0; i< tIntersectedCount; i++)
-                {
-                    if(tNewPairBool(0,i) == 0)
-                    {
-                        mCutMesh.generate_templated_mesh(aActiveChildMeshIndices(i),TemplateType::REGULAR_SUBDIVISION_QUAD4);
-                    }
-                }
+                this->decompose_internal_reg_sub_quad4(aGeomIndex, aActiveChildMeshIndices, aFirstSubdivision, aSetIds);
                 break;
 
             }
@@ -560,7 +475,7 @@ namespace xtk
                 if(aFirstSubdivision)
                 {
                     moris::Matrix< moris::IndexMat > tNewPairBool;
-                    run_first_cut_routine(TemplateType::TET_4, aGeomIndex, 4, aActiveChildMeshIndices,tNewPairBool);
+                    this->run_first_cut_routine(aGeomIndex, aActiveChildMeshIndices,tNewPairBool);
 
                     for(moris::size_t i = 0; i<aActiveChildMeshIndices.n_cols(); i++)
                     {
@@ -633,7 +548,7 @@ namespace xtk
                             // Determine which parent nodes, if any, are on the interface
                             bool tFirstParentOnInterface = mGeometryEngine->queued_intersection_first_parent_on_interface();
                             bool tSecondParentOnInterface = mGeometryEngine->queued_intersection_second_parent_on_interface();
-                            
+
                             if (tFirstParentOnInterface)
                             {
                                 // Tell the xtk mesh that the first node is an interface node
@@ -712,7 +627,7 @@ namespace xtk
                                     uint tNewNodeIndex = mBackgroundMesh.get_first_available_index(EntityRank::NODE);
                                     tDecompData.tNewNodeIndex(tDecompData.tNewNodeIndex.size() - 1) = tNewNodeIndex;
                                     mBackgroundMesh.update_first_available_index(tNewNodeIndex + 1, EntityRank::NODE);
-                                    
+
                                     // Admit queued node in geometry engine
                                     mGeometryEngine->admit_queued_intersection(tNewNodeIndex);
                                 }
@@ -740,6 +655,8 @@ namespace xtk
 
                 // add nodes to the background mesh
                 mBackgroundMesh.batch_create_new_nodes(tDecompData.tNewNodeId,tDecompData.tNewNodeIndex,tDecompData.tNewNodeOwner,tDecompData.tNewNodeCoordinate);
+
+                //
 
                 // add nodes to child mesh
                 this->decompose_internal_set_new_nodes_in_child_mesh_nh(aActiveChildMeshIndices,tDecompData);
@@ -794,7 +711,7 @@ namespace xtk
                 {
 
                     moris::Matrix< moris::IndexMat > tNewPairBool;
-                    run_first_cut_routine(TemplateType::TRI_3, aGeomIndex, 3, aActiveChildMeshIndices,tNewPairBool);
+                    run_first_cut_routine( aGeomIndex, aActiveChildMeshIndices,tNewPairBool);
 
                     for(moris::size_t i = 0; i<aActiveChildMeshIndices.n_cols(); i++)
                     {
@@ -952,7 +869,7 @@ namespace xtk
                                     uint tNewNodeIndex = mBackgroundMesh.get_first_available_index(EntityRank::NODE);
                                     tDecompData.tNewNodeIndex(tDecompData.tNewNodeIndex.size() - 1) = tNewNodeIndex;
                                     mBackgroundMesh.update_first_available_index(tNewNodeIndex + 1, EntityRank::NODE);
-                                    
+
                                     // Admit queued node in geometry engine
                                     mGeometryEngine->admit_queued_intersection(tNewNodeIndex);
                                 }
@@ -1035,6 +952,64 @@ namespace xtk
             {
                 moris::size_t breaker = 0;
                 MORIS_ERROR(breaker != 0, "formulate_node_request should not enter the default case, check to see if your aCheckType is undefined.");
+            }
+        }
+    }
+
+    // ----------------------------------------------------------------------------------
+
+    void
+    Model::decompose_internal_reg_sub_hex8(
+            moris::uint                        aGeomIndex,
+            moris::Matrix< moris::IndexMat > & aActiveChildMeshIndices,
+            bool                       const & aFirstSubdivision,
+            bool                       const & aSetIds )
+    {
+        MORIS_ASSERT(aFirstSubdivision,"NC_REGULAR_SUBDIVISION_HEX8 needs to be the first subdivision routine for each geometry");
+        MORIS_ASSERT(mModelDimension == 3,"NC_REGULAR_SUBDIVISION_HEX8 needs to be done on a 3D mesh");
+
+        // Runs the first cut routine to get the new active child mesh indices and indicate which are new and need to be regularly subdivided and which ones dont
+        moris::Matrix< moris::IndexMat > tNewPairBool;
+        run_first_cut_routine(aGeomIndex, aActiveChildMeshIndices, tNewPairBool);
+
+        // set the child cell topology as tet 3s
+        mCutMesh.set_child_element_topology(CellTopology::TET4);
+
+        // initialize a struct of all the data we are keeping track of in this decomposition
+        // intended to reduce the clutter of function inputs etc
+        Decomposition_Data tDecompData;
+        tDecompData.mSubdivisionMethod = Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8;
+
+        // number of intersected elements
+        moris::uint tIntersectedCount = aActiveChildMeshIndices.n_cols();
+
+        // make node requests for each intersected element
+        this->decompose_internal_reg_sub_hex8_make_requests(aActiveChildMeshIndices,tNewPairBool,tDecompData);
+
+        // specify a dummy secondary id (not really needed for this type of decomposition)
+        tDecompData.tSecondaryIdentifiers = Cell<moris_index>(tDecompData.tNewNodeParentIndex.size(), MORIS_INDEX_MAX);
+
+        moris_index tMessageTag = 60000; /*arbitrary tag for regular subdivision*/
+        assign_node_requests_identifiers(tDecompData,tMessageTag);
+
+        // Allocate interface flag space in XTK mesh even though these are not interface nodes
+        mBackgroundMesh.allocate_space_in_interface_node_flags(tDecompData.tNewNodeIndex.size(),mGeometryEngine->get_num_geometries());
+
+        // add nodes to the background mesh
+        this->assign_index(tDecompData);
+        mBackgroundMesh.batch_create_new_nodes(tDecompData.tNewNodeId,tDecompData.tNewNodeIndex, tDecompData.tNewNodeOwner,tDecompData.tNewNodeCoordinate);
+
+        // add nodes to child mesh
+        this->decompose_internal_set_new_nodes_in_child_mesh_reg_sub(aActiveChildMeshIndices,tNewPairBool, 3, tDecompData);
+
+        // associate new nodes with geometry objects
+        create_new_node_association_with_geometry(tDecompData);
+
+        for(moris::size_t i = 0; i< tIntersectedCount; i++)
+        {
+            if(tNewPairBool(0,i) == 0)
+            {
+                mCutMesh.generate_templated_mesh(aActiveChildMeshIndices(i),TemplateType::REGULAR_SUBDIVISION_HEX8);
             }
         }
     }
@@ -1211,6 +1186,62 @@ namespace xtk
     }
 
     // ----------------------------------------------------------------------------------
+
+    void
+    Model::decompose_internal_reg_sub_quad4(
+            moris::uint                        aGeomIndex,
+            moris::Matrix< moris::IndexMat > & aActiveChildMeshIndices,
+            bool                       const & aFirstSubdivision,
+            bool                       const & aSetIds )
+    {
+        MORIS_ASSERT(aFirstSubdivision, "NC_REGULAR_SUBDIVISION_QUAD4 needs to be the first subdivision routine for each geometry.");
+        MORIS_ASSERT(mModelDimension == 2, "NC_REGULAR_SUBDIVISION_QUAD4 needs to be done on a 2D mesh.");
+
+        // Runs the first cut routine to get the new active child mesh indices and indicate which are new and need to be regularly subdivided and which ones don't
+        moris::Matrix< moris::IndexMat > tNewPairBool;
+        run_first_cut_routine(aGeomIndex, aActiveChildMeshIndices, tNewPairBool);
+
+        // mark child cells as tri 3s
+        mCutMesh.set_child_element_topology(CellTopology::TRI3);
+
+        // initialize a struct of all the data we are keeping track of in this decomposition
+        // intended to reduce the clutter of function inputs etc
+        Decomposition_Data tDecompData;
+        tDecompData.mSubdivisionMethod = Subdivision_Method::NC_REGULAR_SUBDIVISION_QUAD4;
+
+        // number of intersected elements
+        moris::uint tIntersectedCount = aActiveChildMeshIndices.n_cols();
+
+        // make node requests for each intersected element
+        this->decompose_internal_reg_sub_quad4_make_requests(aActiveChildMeshIndices, tNewPairBool, tDecompData);
+
+        // specify a dummy secondary id (not really needed for this type of decomposition)
+        tDecompData.tSecondaryIdentifiers = Cell<moris_index>(tDecompData.tNewNodeParentIndex.size(), MORIS_INDEX_MAX);
+
+        moris_index tMessageTag = 60000; /*arbitrary tag for regular subdivision*/
+        assign_node_requests_identifiers(tDecompData,tMessageTag);
+
+        // Allocate interface flag space in XTK mesh even though these are not interface nodes
+        mBackgroundMesh.allocate_space_in_interface_node_flags(tDecompData.tNewNodeIndex.size(),mGeometryEngine->get_num_geometries());
+
+        // add nodes to the background mesh
+        this->assign_index(tDecompData);
+        mBackgroundMesh.batch_create_new_nodes(tDecompData.tNewNodeId,tDecompData.tNewNodeIndex, tDecompData.tNewNodeOwner,tDecompData.tNewNodeCoordinate);
+
+        // crate nodes in child mesh
+        this->decompose_internal_set_new_nodes_in_child_mesh_reg_sub(aActiveChildMeshIndices,tNewPairBool,2,tDecompData);
+
+        // associate new nodes with geometry objects
+        create_new_node_association_with_geometry(tDecompData);
+
+        for(moris::size_t i = 0; i< tIntersectedCount; i++)
+        {
+            if(tNewPairBool(0,i) == 0)
+            {
+                mCutMesh.generate_templated_mesh(aActiveChildMeshIndices(i),TemplateType::REGULAR_SUBDIVISION_QUAD4);
+            }
+        }
+    }
 
     void
     Model::decompose_internal_reg_sub_quad4_make_requests(
@@ -2390,9 +2421,7 @@ namespace xtk
     // ----------------------------------------------------------------------------------
 
     void  Model::run_first_cut_routine(
-            enum TemplateType const &          aTemplateType,
             moris::uint                        aGeomIndex,
-            moris::size_t const &              aNumNodesPerElement,
             moris::Matrix< moris::IndexMat > & aActiveChildMeshIndices,
             moris::Matrix< moris::IndexMat > & aNewPairBool)
     {
@@ -2405,13 +2434,21 @@ namespace xtk
 
         // Number of elements
         moris::size_t tNumElements = mBackgroundMesh.get_num_entities(EntityRank::ELEMENT);
+        MORIS_ERROR(tNumElements > 0,"Empty mesh passed to XTK");
+
+        // get the linear background cell indo
+        mtk::Cell_Info_Factory tCellInfoFactory;
+        moris::mtk::Cell_Info* tGeometricCellInfo = tCellInfoFactory.create_cell_info(mBackgroundMesh.get_parent_cell_topology());
+
+        // collect a vector of node to element connectivity for the entire mesh
+        moris::uint tNumNodesPerElement = tGeometricCellInfo->get_num_verts();
 
         // New child meshes
         moris::size_t tNumNewChildMeshes = 0;
         moris::moris_index tNewIndex = 0;
         Matrix<IndexMat> tIntersectedElementIndices(0, 0);
         Cell<std::pair<moris::moris_index, moris::moris_index>> tNewChildElementPair(0);
-        Matrix<IndexMat> tElementNodeIndices(tNumElements, aNumNodesPerElement);
+        Matrix<IndexMat> tElementNodeIndices(tNumElements, tNumNodesPerElement);
 
         // Loop over elements to check for intersections
         for (size_t tParentElementIndex = 0; tParentElementIndex < tNumElements; tParentElementIndex++)
@@ -2421,7 +2458,7 @@ namespace xtk
                     moris::EntityRank::ELEMENT,
                     moris::EntityRank::NODE);
 
-            for (moris::uint j = 0; j < aNumNodesPerElement; j++)
+            for (moris::uint j = 0; j < tNumNodesPerElement; j++)
             {
                 tElementNodeIndices(tParentElementIndex, j) = tElementNodeIndicesTemp(j);
             }
@@ -2462,6 +2499,33 @@ namespace xtk
         // Allocate space for more simple meshes in XTK mesh
         mCutMesh.inititalize_new_child_meshes(tNumNewChildMeshes, mModelDimension);
 
+        // figure out the template to use
+        enum CellTopology tParentTopo = mBackgroundMesh.get_parent_cell_topology();
+        enum TemplateType tParentTemp = TemplateType::INVALID_TEMPLATE_TYPE;
+
+        if (tParentTopo == CellTopology::HEX8 or tParentTopo == CellTopology::HEX27 or tParentTopo == CellTopology::HEX64 )
+        {
+            tParentTemp = TemplateType::HEX_8;
+        }
+
+        else if (tParentTopo == CellTopology::TET4 or tParentTopo == CellTopology::TET10)
+        {
+            tParentTemp = TemplateType::TET_4;
+        }
+
+        else if (tParentTopo == CellTopology::QUAD4 or tParentTopo == CellTopology::QUAD9 or tParentTopo == CellTopology::QUAD16)
+        {
+            tParentTemp = TemplateType::QUAD_4;
+        }
+        else if (tParentTopo == CellTopology::TRI3)
+        {
+            tParentTemp = TemplateType::TRI_3;
+        }
+        else
+        {
+            MORIS_ERROR(false, "Invalid background cell topo.");
+        }
+
         moris::Matrix< moris::IndexMat > tPlaceHolder(1, 1);
         for (moris::size_t j = 0; j < tIntersectedElementIndices.length(); j++)
         {
@@ -2482,7 +2546,7 @@ namespace xtk
                 Matrix< IndexMat > tElementMat = {{tIntersectedElementIndices(j)}};
 
                 Cell<moris::Matrix< moris::IndexMat >> tAncestorInformation = {tPlaceHolder, tEdgetoElemConnInd, tFacetoElemConnInd, tElementMat};
-                mCutMesh.initialize_new_mesh_from_parent_element(aActiveChildMeshIndices(j), aTemplateType, tNodetoElemConnVec, tAncestorInformation);
+                mCutMesh.initialize_new_mesh_from_parent_element(aActiveChildMeshIndices(j), tParentTemp, tNodetoElemConnVec, tAncestorInformation);
 
                 // add node ids
                 mBackgroundMesh.convert_loc_entity_ind_to_glb_entity_ids(EntityRank::NODE, tNodetoElemConnVec);
@@ -2507,6 +2571,8 @@ namespace xtk
                 tChildMesh.add_new_geometry_interface(aGeomIndex);
             }
         }
+
+        delete tGeometricCellInfo;
     }
 
     // ----------------------------------------------------------------------------------
@@ -3417,7 +3483,8 @@ namespace xtk
 
     // ----------------------------------------------------------------------------------
 
-    void Model::construct_multigrid()
+    void
+    Model::construct_multigrid()
     {
         mMultigrid = std::make_shared< xtk::Multigrid >( this );
 
@@ -3431,6 +3498,46 @@ namespace xtk
 
         std::string tName = "Enriched_bspline_1.exo";
         mMultigrid->build_basis_exodus_information(tName);
+    }
+
+    // ----------------------------------------------------------------------------------
+
+    Cut_Mesh &
+    Model::get_cut_mesh()
+    {
+        return mCutMesh;
+    }
+
+    // ----------------------------------------------------------------------------------
+
+    Cut_Mesh const &
+    Model::get_cut_mesh() const
+    {
+        return mCutMesh;
+    }
+
+    // ----------------------------------------------------------------------------------
+
+    Background_Mesh &
+    Model::get_background_mesh()
+    {
+        return mBackgroundMesh;
+    }
+
+    // ----------------------------------------------------------------------------------
+
+    Background_Mesh const &
+    Model::get_background_mesh() const
+    {
+        return mBackgroundMesh;
+    }
+
+    // ----------------------------------------------------------------------------------
+
+    moris::ge::Geometry_Engine*
+    Model::get_geom_engine()
+    {
+        return mGeometryEngine;
     }
 
     // ----------------------------------------------------------------------------------
@@ -3508,6 +3615,14 @@ namespace xtk
         }
 
         //    print_neighborhood();
+    }
+
+    // ----------------------------------------------------------------------------------
+
+    void
+    Model::delete_neighborhood()
+    {
+        mElementToElement.resize(0);
     }
 
     // ----------------------------------------------------------------------------------
@@ -4269,6 +4384,46 @@ namespace xtk
         auto tIter = mCellGlbToLocalMap.find(aCellId);
         MORIS_ASSERT(tIter != mCellGlbToLocalMap.end(),"Id not in map");
         return tIter->second;
+    }
+
+    //------------------------------------------------------------------------------
+
+    moris::Cell<moris::Cell<moris_index>>  const &
+    Model::get_subphase_to_subphase()
+    {
+        return mSubphaseToSubPhase;
+    }
+
+    //------------------------------------------------------------------------------
+
+    moris::Cell<moris::Cell<moris_index>>  const &
+    Model::get_subphase_to_subphase_my_side_ords()
+    {
+        return mSubphaseToSubPhaseMySideOrds;
+    }
+
+    //------------------------------------------------------------------------------
+
+    moris::Cell<moris::Cell<moris_index>>  const &
+    Model::get_subphase_to_subphase_transition_loc()
+    {
+        return mTransitionNeighborCellLocation;
+    }
+
+    //------------------------------------------------------------------------------
+
+    moris::Cell<moris::Cell<moris_index>>  const &
+    Model::get_subphase_to_subphase_neighbor_side_ords()
+    {
+        return mSubphaseToSubPhaseNeighborSideOrds;
+    }
+
+    //------------------------------------------------------------------------------
+
+    std::shared_ptr< Multigrid >
+    Model::get_multigrid_ptr()
+    {
+        return mMultigrid;
     }
 
     //------------------------------------------------------------------------------

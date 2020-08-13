@@ -5,17 +5,17 @@
  *      Author: schmidt
  */
 #include <iostream>
-
-#include "cl_FEM_Element.hpp"                     //FEM/INT/src
-#include "cl_FEM_Interpolation_Element.hpp"       //FEM/INT/src
-#include "cl_FEM_Field_Interpolator_Manager.hpp"  //FEM/INT/src
-#include "cl_MSI_Design_Variable_Interface.hpp"   //FEM/INT/src
-#include "cl_FEM_Cluster.hpp"                     //FEM/INT/src
-#include "cl_FEM_Set.hpp"                         //FEM/INT/src
-#include "cl_FEM_Model.hpp"                       //FEM/INT/src
-
+//FEM/INT/src
+#include "cl_FEM_Element.hpp"
+#include "cl_FEM_Interpolation_Element.hpp"
+#include "cl_FEM_Field_Interpolator_Manager.hpp"
+#include "cl_MSI_Design_Variable_Interface.hpp"
+#include "cl_FEM_Cluster.hpp"
+#include "cl_FEM_Set.hpp"
+#include "cl_FEM_Model.hpp"
+//SOL/src
 #include "cl_SOL_Dist_Vector.hpp"
-
+//LINALG/src
 #include "fn_isfinite.hpp"
 
 namespace moris
@@ -23,6 +23,7 @@ namespace moris
     namespace fem
     {
         //------------------------------------------------------------------------------
+
         Interpolation_Element::Interpolation_Element(
                 const Element_Type                aElementType,
                 const Cell< const mtk::Cell * > & aInterpolationCell,
@@ -36,7 +37,8 @@ namespace moris
             mMasterInterpolationCell = aInterpolationCell( 0 );
 
             // get vertices from cell
-            moris::Cell< mtk::Vertex* > tVertices = mMasterInterpolationCell->get_vertex_pointers();
+            moris::Cell< mtk::Vertex* > tVertices =
+                    mMasterInterpolationCell->get_vertex_pointers();
 
             // get number of vertices from cell
             uint tNumOfVertices = tVertices.size();
@@ -51,17 +53,15 @@ namespace moris
                 mNodeObj( 0 )( iVertex ) = aNodes( tVertices( iVertex )->get_index() );
             }
 
-            //            // set size of Weak BCs
-            //            mNodalWeakBCs.set_size( tNumOfVertices, 1 );
-
-            // switch on the element type
+            // if double sided sideset
             if( mElementType == fem::Element_Type::DOUBLE_SIDESET )
             {
                 // fill the slave interpolation cell
                 mSlaveInterpolationCell  = aInterpolationCell( 1 );
 
                 // get vertices from cell
-                moris::Cell< mtk::Vertex* > tSlaveVertices  = mSlaveInterpolationCell->get_vertex_pointers();
+                moris::Cell< mtk::Vertex* > tSlaveVertices =
+                        mSlaveInterpolationCell->get_vertex_pointers();
 
                 // get number of vertices from cell
                 uint tNumOfSlaveVertices = tSlaveVertices.size();
@@ -79,6 +79,7 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+
         void Interpolation_Element::set_cluster(
                 std::shared_ptr< fem::Cluster > aCluster,
                 const uint                      aMeshIndex )
@@ -102,6 +103,7 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+
         void Interpolation_Element::set_field_interpolators_coefficients()
         {
             // dof field interpolators------------------------------------------
@@ -150,8 +152,8 @@ namespace moris
             for( uint iDOF = 0; iDOF < tSlaveNumDofTypes; iDOF++ )
             {
                 // get the ith dof type group
-                moris::Cell< MSI::Dof_Type > tDofTypeGroup
-                = mSet->get_dof_type_list( mtk::Master_Slave::SLAVE )( iDOF );
+                moris::Cell< MSI::Dof_Type > tDofTypeGroup =
+                        mSet->get_dof_type_list( mtk::Master_Slave::SLAVE )( iDOF );
 
                 // get the pdof values for the ith dof type group
                 Cell< Cell< Matrix< DDRMat > > > tCoeff_Original;
@@ -258,6 +260,7 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+
         void Interpolation_Element::compute_jacobian()
         {
             // compute pdof values
@@ -289,6 +292,7 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+
         void Interpolation_Element::compute_residual()
         {
             //Fixme do this only once
@@ -328,7 +332,8 @@ namespace moris
                 // ask cluster to compute residual
                 mFemCluster( 0 )->compute_residual();
             }
-            else
+            else if( ( mSet->mEquationModel->get_is_forward_analysis() ) &&
+                    ( mSet->get_number_of_requested_IQIs() > 0 ) )
             {
                 // FIXME should not be like this
                 mSet->set_IQI_field_interpolator_managers();
@@ -342,6 +347,7 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+
         void Interpolation_Element::compute_jacobian_and_residual()
         {
             //Fixme do this only once
@@ -375,6 +381,7 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+
         void Interpolation_Element::compute_dRdp()
         {
             // compute pdof values
@@ -584,7 +591,8 @@ namespace moris
 
                     mEquationSet->get_equation_model()->
                             get_design_variable_interface()->
-                            get_ip_dv_ids_for_type_and_ind( tVerticesInds,
+                            get_ip_dv_ids_for_type_and_ind(
+                                    tVerticesInds,
                                     tRequestedIPDvTypes,
                                     tTypeListOfLocalToGlobalIds );
 
@@ -608,7 +616,7 @@ namespace moris
                         tCounter += tTypeListOfLocalToGlobalIds( Ii ).numel();
                     }
 
-                    // assemble imlicid dQidp into multivector
+                    // assemble implicit dQidp into multivector
                     mEquationSet->get_equation_model()->get_implicit_dQidp()->sum_into_global_values(
                             tLocalToGlobalIds,
                             tLocalIPdQiDp,
@@ -629,7 +637,7 @@ namespace moris
                     // post multiplication of adjoint values time dRdp
                     moris::Matrix< DDRMat > tLocalIGdQiDp = -1.0 * trans( mAdjointPdofValues( Ik ) ) * tdRdp( 1 );
 
-                    // assemble imlicid dQidp into multivector
+                    // assemble implicit dQidp into multivector
                     mEquationSet->get_equation_model()->get_implicit_dQidp()->sum_into_global_values(
                             tLocalToGlobalIds2,
                             tLocalIGdQiDp,

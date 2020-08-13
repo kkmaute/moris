@@ -44,6 +44,7 @@ cl_MTK_Side_Cluster_Input.hpp
 cl_MTK_Side_Cluster.hpp
 cl_MTK_Side_Set.hpp
 cl_MTK_Side_Sets_Info.hpp
+cl_MTK_Cell_Info.hpp
 cl_MTK_Cell_Info_Tet4.hpp
 cl_MTK_Cell_Info_Quad9.hpp
 cl_MTK_Cell_Info_Quad16.hpp
@@ -82,6 +83,7 @@ cl_MTK_Writer_Exodus.cpp
 cl_MTK_Reader_Exodus.cpp
 cl_MTK_Cell_Info_Factory.cpp
 cl_MTK_Block.cpp
+cl_MTK_Cell_Info.cpp
 cl_MTK_Cell_Info_Hex8.cpp
 cl_MTK_Cell_Info_Hex27.cpp
 cl_MTK_Cell_Info_Hex64.cpp
@@ -90,7 +92,9 @@ cl_MTK_Cell_Info_Tri3.cpp
 cl_MTK_Cell_Info_Quad4.cpp
 cl_MTK_Cell_Info_Quad9.cpp
 cl_MTK_Cell_Info_Quad16.cpp
-cl_MTK_Mesh_Manager.cpp)
+cl_MTK_Mesh_Manager.cpp
+cl_MTK_Double_Side_Cluster.cpp
+cl_MTK_Side_Cluster.cpp)
 
 # List library dependencies
 set(LIB_DEPENDENCIES

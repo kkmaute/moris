@@ -35,12 +35,18 @@ namespace moris
 {
 
     // Geometry Parameters
-    moris::real tXlength = 0.28;
+    // moris::real tXlength = 0.28;
+    moris::real tXlength = 0.028;
     moris::real tYlength = 0.0015;
     moris::real tXcenter = 0.5 * tXlength;
     moris::real tYcenter = 0.5 * tYlength;
     moris::real tEps = 1.0e-4;
 
+    // mesh
+    // std::string tNumElemsPerDim = "520,6";
+    // std::string tHMRDomainDimensions = "0.2912,0.0030";
+    std::string tNumElemsPerDim = "26,3";
+    std::string tHMRDomainDimensions = "0.030,0.0030";
 
     // time solver parameters
     moris::sint tStep = 10;
@@ -48,7 +54,6 @@ namespace moris
 
     // ramp up of Dirichlet BC (number of time slabs to ramp up the value on the BC)
     moris::real tRampUp = 6.0;
-
 
     // Constant function for properties
     void Func_Const(
@@ -142,17 +147,11 @@ namespace moris
 
         tParameterlist( 0 )( 0 ) = prm::create_hmr_parameter_list();
 
-        tParameterlist( 0 )( 0 ).set( "number_of_elements_per_dimension", std::string("520,6"));
-        tParameterlist( 0 )( 0 ).set( "domain_dimensions",                std::string("0.2912,0.0030"));
+        tParameterlist( 0 )( 0 ).set( "number_of_elements_per_dimension", tNumElemsPerDim );
+        tParameterlist( 0 )( 0 ).set( "domain_dimensions",                tHMRDomainDimensions );
         tParameterlist( 0 )( 0 ).set( "domain_offset",                    std::string("-0.0015,-0.0008") );
-        tParameterlist( 0 )( 0 ).set( "domain_sidesets",                  std::string("1,2,3,4"));
-        tParameterlist( 0 )( 0 ).set( "lagrange_output_meshes",           std::string("0"));
-
-        if (gPrintReferenceValues == true)
-            std::cout << "Interpolation Order: " << gInterpolationOrder << " \n" << std::flush;
-
-        // FIXME: Global variables seem to be not passed in correctly
-        gInterpolationOrder = 1;
+        tParameterlist( 0 )( 0 ).set( "domain_sidesets",                  std::string("1,2,3,4") );
+        tParameterlist( 0 )( 0 ).set( "lagrange_output_meshes",           std::string("0") );
 
         switch ( gInterpolationOrder )
         {
@@ -170,7 +169,7 @@ namespace moris
             }
             default:
             {
-                MORIS_ERROR(false,"Input File: This 2D Example can only be run with Linear or Quadratic",par_size());
+                MORIS_ERROR( false, "EXA::Comsol_cut: This 2D Example can only be run with Linear or Quadratic" );
             }
         }
 

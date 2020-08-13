@@ -38,21 +38,24 @@ namespace moris
             mDivFluxEval      = true;
             mTractionEval     = true;
             mTestTractionEval.assign( mDofTypes.size(), true );
+            mStressEval       = true;
             mStrainEval       = true;
             mDivStrainEval    = true;
             mTestStrainEval   = true;
             mConstEval        = true;
-            mHdotEval         = true;
-            mGradHEval        = true;
-            mGradHdotEval     = true;
+            mEnergyEval         = true;
+            mEnergyDotEval         = true;
+            mGradEnergyEval        = true;
+            mGradEnergyDotEval     = true;
             mGradDivFluxEval  = true;
 
             // reset the dof derivative flag
             uint tNumDofTypes = mGlobalDofTypes.size();
             mdFluxdDofEval.assign( tNumDofTypes, true );
-            mHdotDofEval.assign( tNumDofTypes, true );
-            mGradHDofEval.assign( tNumDofTypes, true );
-            mGradHdotDofEval.assign( tNumDofTypes, true );
+            mEnergyDofEval.assign( tNumDofTypes, true );
+            mEnergyDotDofEval.assign( tNumDofTypes, true );
+            mGradEnergyDofEval.assign( tNumDofTypes, true );
+            mGradEnergyDotDofEval.assign( tNumDofTypes, true );
             mGradDivFluxDofEval.assign( tNumDofTypes, true );
             mddivfluxduEval.assign( tNumDofTypes, true );
             mdTractiondDofEval.assign( tNumDofTypes, true );
@@ -60,6 +63,7 @@ namespace moris
             {
                 mdTestTractiondDofEval( iDirectDof ).assign( tNumDofTypes, true );
             }
+            mdStressdDofEval.assign( tNumDofTypes, true );
             mdStraindDofEval.assign( tNumDofTypes, true );
             mddivstrainduEval.assign( tNumDofTypes, true );
             mdConstdDofEval.assign( tNumDofTypes, true );
@@ -190,9 +194,10 @@ namespace moris
             uint tNumDirectDofTypes = mDofTypes.size();
 
             // set flag for evaluation
-            mHdotDofEval.resize( tNumGlobalDofTypes, true );
-            mGradHdotDofEval.resize( tNumGlobalDofTypes, true );
-            mGradHDofEval.resize( tNumGlobalDofTypes, true );
+            mEnergyDofEval.resize( tNumGlobalDofTypes, true );
+            mEnergyDotDofEval.resize( tNumGlobalDofTypes, true );
+            mGradEnergyDotDofEval.resize( tNumGlobalDofTypes, true );
+            mGradEnergyDofEval.resize( tNumGlobalDofTypes, true );
             mGradDivFluxDofEval.resize( tNumGlobalDofTypes, true );
             mTestTractionEval.resize( tNumDirectDofTypes, true );
             mdFluxdDofEval.resize( tNumGlobalDofTypes, true );
@@ -203,14 +208,16 @@ namespace moris
             {
                 mdTestTractiondDofEval( iDirectDof ).assign( tNumGlobalDofTypes, true );
             }
+            mdStressdDofEval.resize( tNumGlobalDofTypes, true );
             mdStraindDofEval.resize( tNumGlobalDofTypes, true );
             mddivstrainduEval.resize( tNumGlobalDofTypes, true );
             mdConstdDofEval.resize( tNumGlobalDofTypes, true );
 
             // set storage for evaluation
-            mHdotDof.resize( tNumGlobalDofTypes );
-            mGradHdotDof.resize( tNumGlobalDofTypes );
-            mGradHDof.resize( tNumGlobalDofTypes );
+            mEnergyDof.resize( tNumGlobalDofTypes );
+            mEnergyDotDof.resize( tNumGlobalDofTypes );
+            mGradEnergyDotDof.resize( tNumGlobalDofTypes );
+            mGradEnergyDof.resize( tNumGlobalDofTypes );
             mGradDivFluxDof.resize( tNumGlobalDofTypes );
             mTestTraction.resize( tNumDirectDofTypes );
             mdFluxdDof.resize( tNumGlobalDofTypes );
@@ -221,6 +228,7 @@ namespace moris
             {
                 mdTestTractiondDof( iDirectDof ).resize( tNumGlobalDofTypes );
             }
+            mdStressdDof.resize( tNumGlobalDofTypes );
             mdStraindDof.resize( tNumGlobalDofTypes );
             mddivstraindu.resize( tNumGlobalDofTypes );
             mdConstdDof.resize( tNumGlobalDofTypes );
@@ -1057,9 +1065,9 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        void Constitutive_Model::eval_dHdotdDOF_FD(
+        void Constitutive_Model::eval_dEnergyDotdDOF_FD(
                 const moris::Cell< MSI::Dof_Type > & aDofTypes,
-                Matrix< DDRMat >                   & adHdotdDOF_FD,
+                Matrix< DDRMat >                   & adEnergyDotdDOF_FD,
                 real                                 aPerturbation,
                 fem::FDScheme_Type                   aFDSchemeType )
         {
@@ -1080,8 +1088,8 @@ namespace moris
             uint tDerNumFields = tFI->get_number_of_fields();
 
             // set size for derivative
-            uint tNumRows = this->Hdot().n_rows();
-            mHdotDof( tDofIndex ).set_size( tNumRows, tDerNumDof, 0.0 );
+            uint tNumRows = this->EnergyDot().n_rows();
+            mEnergyDotDof( tDofIndex ).set_size( tNumRows, tDerNumDof, 0.0 );
 
             // coefficients for dof type wrt which derivative is computed
             Matrix< DDRMat > tCoeff = tFI->get_coeff();
@@ -1113,9 +1121,9 @@ namespace moris
                         // reset properties
                         this->reset_eval_flags();
 
-                        // assemble dHdotdu
-                        mHdotDof( tDofIndex ).get_column( tDofCounter ) +=
-                                tFDScheme( 1 )( iPoint ) * this->Hdot() /
+                        // assemble dEnergyDotdu
+                        mEnergyDotDof( tDofIndex ).get_column( tDofCounter ) +=
+                                tFDScheme( 1 )( iPoint ) * this->EnergyDot() /
                                 ( tFDScheme( 2 )( 0 ) * tDeltaH );
                     }
                     // update dof counter
@@ -1126,14 +1134,14 @@ namespace moris
             tFI->set_coeff( tCoeff );
 
             // FIXME
-            adHdotdDOF_FD = mHdotDof( tDofIndex );
+            adEnergyDotdDOF_FD = mEnergyDotDof( tDofIndex );
         }
 
         //------------------------------------------------------------------------------
 
-        void Constitutive_Model::eval_dGradHdDOF_FD(
+        void Constitutive_Model::eval_dGradEnergydDOF_FD(
                 const moris::Cell< MSI::Dof_Type > & aDofTypes,
-                Matrix< DDRMat >                   & adGradHdDOF_FD,
+                Matrix< DDRMat >                   & adGradEnergydDOF_FD,
                 real                                 aPerturbation,
                 fem::FDScheme_Type                   aFDSchemeType )
         {
@@ -1154,8 +1162,8 @@ namespace moris
             uint tDerNumFields = tFI->get_number_of_fields();
 
             // set size for derivative
-            uint tNumRows = this->gradH().n_rows();
-            mGradHDof( tDofIndex ).set_size( tNumRows, tDerNumDof, 0.0 );
+            uint tNumRows = this->gradEnergy().n_rows();
+            mGradEnergyDof( tDofIndex ).set_size( tNumRows, tDerNumDof, 0.0 );
 
             // coefficients for dof type wrt which derivative is computed
             Matrix< DDRMat > tCoeff = tFI->get_coeff();
@@ -1188,8 +1196,8 @@ namespace moris
                         this->reset_eval_flags();
 
                         // assemble dGradHdu
-                        mGradHDof( tDofIndex ).get_column( tDofCounter ) +=
-                                tFDScheme( 1 )( iPoint ) * this->gradH() /
+                        mGradEnergyDof( tDofIndex ).get_column( tDofCounter ) +=
+                                tFDScheme( 1 )( iPoint ) * this->gradEnergy() /
                                 ( tFDScheme( 2 )( 0 ) * tDeltaH );
                     }
                     // update dof counter
@@ -1200,14 +1208,14 @@ namespace moris
             tFI->set_coeff( tCoeff );
 
             // FIXME
-            adGradHdDOF_FD = mGradHDof( tDofIndex );
+            adGradEnergydDOF_FD = mGradEnergyDof( tDofIndex );
         }
 
         //------------------------------------------------------------------------------
 
-        void Constitutive_Model::eval_dGradHdotdDOF_FD(
+        void Constitutive_Model::eval_dGradEnergyDotdDOF_FD(
                 const moris::Cell< MSI::Dof_Type > & aDofTypes,
-                Matrix< DDRMat >                   & adGradHdotdDOF_FD,
+                Matrix< DDRMat >                   & adGradEnergyDotdDOF_FD,
                 real                                 aPerturbation,
                 fem::FDScheme_Type                   aFDSchemeType )
         {
@@ -1228,8 +1236,8 @@ namespace moris
             uint tDerNumFields = tFI->get_number_of_fields();
 
             // set size for derivative
-            uint tNumRows = this->gradHdot().n_rows();
-            mGradHdotDof( tDofIndex ).set_size( tNumRows, tDerNumDof, 0.0 );
+            uint tNumRows = this->gradEnergyDot().n_rows();
+            mGradEnergyDotDof( tDofIndex ).set_size( tNumRows, tDerNumDof, 0.0 );
 
             // coefficients for dof type wrt which derivative is computed
             Matrix< DDRMat > tCoeff = tFI->get_coeff();
@@ -1262,8 +1270,8 @@ namespace moris
                         this->reset_eval_flags();
 
                         // assemble dGradHdu
-                        mGradHdotDof( tDofIndex ).get_column( tDofCounter ) +=
-                                tFDScheme( 1 )( iPoint ) * this->gradHdot() /
+                        mGradEnergyDotDof( tDofIndex ).get_column( tDofCounter ) +=
+                                tFDScheme( 1 )( iPoint ) * this->gradEnergyDot() /
                                 ( tFDScheme( 2 )( 0 ) * tDeltaH );
                     }
 
@@ -1275,7 +1283,7 @@ namespace moris
             tFI->set_coeff( tCoeff );
 
             // FIXME
-            adGradHdotdDOF_FD = mGradHdotDof( tDofIndex );
+            adGradEnergyDotdDOF_FD = mGradEnergyDotDof( tDofIndex );
         }
 
         //------------------------------------------------------------------------------
@@ -1612,55 +1620,71 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        const Matrix< DDRMat > & Constitutive_Model::Hdot()
+        const Matrix< DDRMat > & Constitutive_Model::Energy()
         {
             // if the flux was not evaluated
-            if( mHdotEval)
+            if( mEnergyEval)
             {
                 // evaluate the flux
-                this->eval_Hdot();
+                this->eval_Energy();
 
                 // set bool for evaluation
-                mHdotEval = false;
+                mEnergyEval = false;
             }
             // return the flux value
-            return mHdot;
+            return mEnergy;
         }
 
         //------------------------------------------------------------------------------
 
-        const Matrix< DDRMat > & Constitutive_Model::gradHdot()
+        const Matrix< DDRMat > & Constitutive_Model::EnergyDot()
         {
             // if the flux was not evaluated
-            if( mGradHdotEval)
+            if( mEnergyDotEval)
             {
                 // evaluate the flux
-                this->eval_gradHdot();
+                this->eval_EnergyDot();
 
                 // set bool for evaluation
-                mGradHdotEval = false;
+                mEnergyDotEval = false;
             }
             // return the flux value
-            return mGradHdot;
+            return mEnergyDot;
         }
 
         //------------------------------------------------------------------------------
 
-        const Matrix< DDRMat > & Constitutive_Model::gradH()
+        const Matrix< DDRMat > & Constitutive_Model::gradEnergyDot()
         {
             // if the flux was not evaluated
-            if( mGradHEval)
+            if( mGradEnergyDotEval)
             {
                 // evaluate the flux
-                this->eval_gradH();
+                this->eval_gradEnergyDot();
 
                 // set bool for evaluation
-                mGradHEval = false;
+                mGradEnergyDotEval = false;
             }
             // return the flux value
-            return mGradH;
+            return mGradEnergyDot;
         }
 
+        //------------------------------------------------------------------------------
+
+        const Matrix< DDRMat > & Constitutive_Model::gradEnergy()
+        {
+            // if the flux was not evaluated
+            if( mGradEnergyEval)
+            {
+                // evaluate the flux
+                this->eval_gradEnergy();
+
+                // set bool for evaluation
+                mGradEnergyEval = false;
+            }
+            // return the flux value
+            return mGradEnergy;
+        }
 
         //------------------------------------------------------------------------------
 
@@ -1746,7 +1770,22 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+        const Matrix< DDRMat > & Constitutive_Model::stress()
+        {
+            // if the strain was not evaluated
+            if( mStressEval )
+            {
+                // evaluate the strain
+                this->eval_stress();
 
+                // set bool for evaluation
+                mStressEval = false;
+            }
+            // return the strain value
+            return mStress;
+        }
+
+        //------------------------------------------------------------------------------
         const Matrix< DDRMat > & Constitutive_Model::strain()
         {
             // if the strain was not evaluated
@@ -1889,89 +1928,111 @@ namespace moris
         }
 
         //-----------------------------------------------------------------------------
-
-        const Matrix< DDRMat > & Constitutive_Model::dHdotdDOF(
+        const Matrix< DDRMat > & Constitutive_Model::dEnergydDOF(
                 const moris::Cell< MSI::Dof_Type > & aDofType)
         {
             // if aDofType is not an active dof type for the CM
             MORIS_ERROR(
                     this->check_dof_dependency( aDofType ),
-                    "Constitutive_Model::dHdotdDOF - no dependency in this dof type." );
+                    "Constitutive_Model::dEnergydDOF - no dependency in this dof type." );
 
             // get the dof index
             uint tDofIndex = mGlobalDofTypeMap( static_cast< uint >( aDofType( 0 ) ) );
 
             // if the derivative has not been evaluated yet
-            if( mHdotDofEval( tDofIndex ) )
+            if( mEnergyDofEval( tDofIndex ) )
             {
                 // evaluate the derivative
-                this->eval_dHdotdDOF( aDofType );
+                this->eval_dEnergydDOF( aDofType );
 
                 // set bool for evaluation
-                mHdotDofEval( tDofIndex ) = false;
+                mEnergyDofEval( tDofIndex ) = false;
             }
 
             // return the derivative
-            return mHdotDof( tDofIndex );
+            return mEnergyDof( tDofIndex );
         }
 
-        //------------------------------------------------------------------------------
-
-        const Matrix< DDRMat > & Constitutive_Model::dGradHdDOF(
+        //-----------------------------------------------------------------------------
+        const Matrix< DDRMat > & Constitutive_Model::dEnergyDotdDOF(
                 const moris::Cell< MSI::Dof_Type > & aDofType)
         {
             // if aDofType is not an active dof type for the CM
             MORIS_ERROR(
                     this->check_dof_dependency( aDofType ),
-                    "Constitutive_Model::dGradHdDOF - no dependency on this dof type." );
+                    "Constitutive_Model::dEnergyDotdDOF - no dependency in this dof type." );
 
             // get the dof index
             uint tDofIndex = mGlobalDofTypeMap( static_cast< uint >( aDofType( 0 ) ) );
 
             // if the derivative has not been evaluated yet
-            if( mGradHDofEval( tDofIndex ) )
+            if( mEnergyDotDofEval( tDofIndex ) )
             {
                 // evaluate the derivative
-                this->eval_dGradHdDOF( aDofType );
+                this->eval_dEnergyDotdDOF( aDofType );
 
                 // set bool for evaluation
-                mGradHDofEval( tDofIndex ) = false;
+                mEnergyDotDofEval( tDofIndex ) = false;
             }
 
             // return the derivative
-            return mGradHDof( tDofIndex );
+            return mEnergyDotDof( tDofIndex );
         }
 
         //------------------------------------------------------------------------------
-
-        const Matrix< DDRMat > & Constitutive_Model::dGradHdotdDOF(
+        const Matrix< DDRMat > & Constitutive_Model::dGradEnergydDOF( 
                 const moris::Cell< MSI::Dof_Type > & aDofType)
         {
             // if aDofType is not an active dof type for the CM
             MORIS_ERROR(
                     this->check_dof_dependency( aDofType ),
-                    "Constitutive_Model::dGradHdDOF - no dependency on this dof type." );
+                    "Constitutive_Model::dGradEnergydDOF - no dependency on this dof type." );
 
             // get the dof index
             uint tDofIndex = mGlobalDofTypeMap( static_cast< uint >( aDofType( 0 ) ) );
 
             // if the derivative has not been evaluated yet
-            if( mGradHdotDofEval( tDofIndex ) )
+            if( mGradEnergyDofEval( tDofIndex ) )
             {
                 // evaluate the derivative
-                this->eval_dGradHdotdDOF( aDofType );
+                this->eval_dGradEnergydDOF( aDofType );
 
                 // set bool for evaluation
-                mGradHdotDofEval( tDofIndex ) = false;
+                mGradEnergyDofEval( tDofIndex ) = false;
             }
 
             // return the derivative
-            return mGradHdotDof( tDofIndex );
+            return mGradEnergyDof( tDofIndex );
         }
 
         //------------------------------------------------------------------------------
+        const Matrix< DDRMat > & Constitutive_Model::dGradEnergyDotdDOF( 
+                const moris::Cell< MSI::Dof_Type > & aDofType)
+        {
+            // if aDofType is not an active dof type for the CM
+            MORIS_ERROR(
+                    this->check_dof_dependency( aDofType ),
+                    "Constitutive_Model::dGradEnergydDOF - no dependency on this dof type." );
 
-        const Matrix< DDRMat > & Constitutive_Model::dGradDivFluxdDOF(
+            // get the dof index
+            uint tDofIndex = mGlobalDofTypeMap( static_cast< uint >( aDofType( 0 ) ) );
+
+            // if the derivative has not been evaluated yet
+            if( mGradEnergyDotDofEval( tDofIndex ) )
+            {
+                // evaluate the derivative
+                this->eval_dGradEnergyDotdDOF( aDofType );
+
+                // set bool for evaluation
+                mGradEnergyDotDofEval( tDofIndex ) = false;
+            }
+
+            // return the derivative
+            return mGradEnergyDotDof( tDofIndex );
+        }
+
+        //------------------------------------------------------------------------------
+        const Matrix< DDRMat > & Constitutive_Model::dGradDivFluxdDOF( 
                 const moris::Cell< MSI::Dof_Type > & aDofType)
         {
             // if aDofType is not an active dof type for the CM
@@ -2109,6 +2170,31 @@ namespace moris
 
             // return the derivative
             return mdStraindx( aOrder - 1 );
+        }
+
+        //------------------------------------------------------------------------------
+        const Matrix< DDRMat > & Constitutive_Model::dStressdDOF( const moris::Cell< MSI::Dof_Type > & aDofType )
+        {
+            // if aDofType is not an active dof type for the property
+            MORIS_ERROR(
+                    this->check_dof_dependency( aDofType ),
+                    "Constitutive_Model::dStressdDOF - no dependency in this dof type." );
+
+            // get the dof index
+            uint tDofIndex = mGlobalDofTypeMap( static_cast< uint >( aDofType( 0 ) ) );
+
+            // if the derivative has not been evaluated yet
+            if( mdStressdDofEval( tDofIndex ) )
+            {
+                // evaluate the derivative
+                this->eval_dStressdDOF( aDofType );
+
+                // set bool for evaluation
+                mdStressdDofEval( tDofIndex ) = false;
+            }
+
+            // return the derivative
+            return mdStressdDof( tDofIndex );
         }
 
         //------------------------------------------------------------------------------

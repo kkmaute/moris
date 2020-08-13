@@ -90,7 +90,6 @@ TEST_CASE("Cell Cluster Proxy","[MTK_CLUSTER_PROXY]")
         tVertices(i).mVertexInd   = (moris_index) i;
         tVertices(i).mVertexCoord = tNodeCoordinates.get_row(i);
     }
-    moris::print(tVertices,"tVertices");
 
     // setup cells and cell cluster
     moris::Cell<Cell_Proxy> tPrimaryCells(tCellIdsPhase0.numel());
@@ -464,7 +463,7 @@ TEST_CASE(" Same Interpolation and Integration Mesh + Cluster Input ","[MTK_MESH
         CHECK(all_true(tConvertedVertexIds == tVertexIds));
 
         // Check local coordinates wrt interpolation cell
-        moris::Matrix<moris::DDRMat> const & tLocalCoords = tCellClusterIndex3.get_vertices_local_coordinates_wrt_interp_cell();
+        moris::Matrix<moris::DDRMat> tLocalCoords = tCellClusterIndex3.get_vertices_local_coordinates_wrt_interp_cell();
 
         CHECK(all_true(tLocalCoordinatesWrtInterpCell == tLocalCoords));
 

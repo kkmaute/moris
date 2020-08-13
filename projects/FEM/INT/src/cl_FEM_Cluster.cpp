@@ -370,7 +370,7 @@ namespace moris
                     "Cluster::get_left_vertex_pair - empty cluster.");
 
             // get the paired vertex on the right
-            return mMeshCluster->get_left_vertex_pair( aLeftVertex );
+            return mMeshCluster->get_master_vertex_pair( aLeftVertex );
         }
 
         //------------------------------------------------------------------------------
@@ -388,7 +388,7 @@ namespace moris
                     "Cluster::get_right_vertex_ordinal_on_facet - empty cluster.");
 
             // return the index of the paired vertex on the right
-            return mMeshCluster->get_right_vertex_ord_on_facet(aCellIndexInCluster, aVertex);
+            return mMeshCluster->get_slave_vertex_ord_on_facet(aCellIndexInCluster, aVertex);
         }
 
         //------------------------------------------------------------------------------
@@ -547,28 +547,32 @@ namespace moris
             // init volume of the custer
             real tVolume = 0.0;
 
+            // get spatial dimension from IP geometry interpolator
+            uint tSpaceDim = mSet->get_field_interpolator_manager( aIsMaster )->
+                    get_IP_geometry_interpolator()->
+                    get_number_of_space_dimensions();
+
             // switch on set type
             fem::Element_Type tElementType = mSet->get_element_type();
             switch( tElementType )
             {
                 case fem::Element_Type::BULK :
                 case fem::Element_Type::TIME_SIDESET :
+                case fem::Element_Type::TIME_BOUNDARY :
+                {
                     tVolume = mMeshCluster->compute_cluster_cell_measure( aPrimaryOrVoid, aIsMaster );
                     break;
-
+                }
                 case fem::Element_Type::SIDESET :
                 case fem::Element_Type::DOUBLE_SIDESET :
+                {
                     tVolume = mMeshCluster->compute_cluster_cell_side_measure( aPrimaryOrVoid, aIsMaster );
+                    //tSpaceDim = tSpaceDim - 1;
                     break;
-
+                }
                 default:
                     MORIS_ERROR( false, "Undefined set type" );
             }
-
-            // get spatial dimension from IP geometry interpolator
-            uint tSpaceDim = mSet->get_field_interpolator_manager( aIsMaster )->
-                    get_IP_geometry_interpolator()->
-                    get_number_of_space_dimensions();
 
             // compute element size
             switch ( tSpaceDim )
@@ -593,7 +597,6 @@ namespace moris
                     return 0.0;
             }
         }
-
 
         //------------------------------------------------------------------------------
     } /* namespace fem */

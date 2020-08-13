@@ -16,7 +16,7 @@ using namespace moris;
 //---------------------------------------------------------------
 
 // global variable for interpolation order
-uint gInterpolationOrder;
+uint gInterpolationOrder = 1;
 
 // flag to print reference values
 bool gPrintReferenceValues = false;
@@ -49,11 +49,10 @@ void check_linear_results(moris::mtk::Exodus_IO_Helper & aExoIO,uint aNodeId)
     }
 
     // define reference coordinates for node aNodeId
-    Matrix< DDRMat > tReferenceCoordinate = { {7.40e-04},{7.0e-04} };
+    Matrix< DDRMat > tReferenceCoordinate = { {3.115384615384614e-03},{0.0012} };
 
     // check nodal coordinates
     real tRelDiffNorm = moris::norm( aExoIO.get_nodal_coordinate( aNodeId ) - tReferenceCoordinate )/ moris::norm(tReferenceCoordinate);
-
     REQUIRE( tRelDiffNorm <  1.0e-8 );
 
     // check time value for time step index 0
@@ -64,7 +63,7 @@ void check_linear_results(moris::mtk::Exodus_IO_Helper & aExoIO,uint aNodeId)
     REQUIRE( tRelTimeDifference <  1.0e-8 );
 
     // check temperature at node aNodeId in first time step (temperature is 3rd nodal field, first time step has index 0)
-    real tReferenceTemperature = 3.447893814188195e+02;
+    real tReferenceTemperature = 329.347;
 
     real tRelTempDifference = std::abs( ( aExoIO.get_nodal_field_value( aNodeId, 2, 9 ) - tReferenceTemperature ) / tReferenceTemperature );
 
@@ -96,28 +95,21 @@ void check_quadratic_results(moris::mtk::Exodus_IO_Helper & aExoIO,uint aNodeId)
     }
 
     // define reference coordinates for node aNodeId
-    Matrix< DDRMat > tReferenceCoordinate = { {7.40e-04},{7.0e-04} };
+    Matrix< DDRMat > tReferenceCoordinate = { {3.115384615384614e-03},{0.0012} };
 
     // check nodal coordinates
     real tRelDiffNorm = moris::norm( aExoIO.get_nodal_coordinate( aNodeId ) - tReferenceCoordinate )/ moris::norm(tReferenceCoordinate);
-
-    //FIXME: fix global variable problem for quadratic
-    //REQUIRE( tRelDiffNorm <  1.0e-8 );
+    REQUIRE( tRelDiffNorm <  1.0e-8 );
 
     // check time value for time step index 0
     real tReferenceTime = 48.0;
-
     real tRelTimeDifference = std::abs( ( aExoIO.get_time_value( ) - tReferenceTime) / tReferenceTime );
-
     REQUIRE( tRelTimeDifference <  1.0e-8 );
 
     // check temperature at node aNodeId in first time step (temperature is 3rd nodal field, first time step has index 0)
-    real tReferenceTemperature = 3.448139730200342e+02;
-
+    real tReferenceTemperature = 328.456;
     real tRelTempDifference = std::abs( ( aExoIO.get_nodal_field_value( aNodeId, 2, 9 ) - tReferenceTemperature ) / tReferenceTemperature );
-
-    //FIXME: fix global variable problem for quadratic
-    //REQUIRE(  tRelTempDifference < 1.0e-4);
+    REQUIRE(  tRelTempDifference < 1.0e-4);
 
 }
 
@@ -143,12 +135,12 @@ void check_linear_results_serial()
     else
     {
         REQUIRE( tNumDims  ==  2   );
-        REQUIRE( tNumNodes ==  6030 );
-        REQUIRE( tNumElems ==  6030 );
+        REQUIRE( tNumNodes ==  260 );
+        REQUIRE( tNumElems ==  237 );
     }
 
     // check results
-    uint tNodeId = 501;
+    uint tNodeId = 26;
 
     check_linear_results(tExoIO,tNodeId);
 }
@@ -169,8 +161,6 @@ void check_quadratic_results_serial()
 
     if (gPrintReferenceValues)
     {
-
-
         std::cout << "Number of dimensions: " << tNumDims  << std::endl;
         std::cout << "Number of nodes     : " << tNumNodes << std::endl;
         std::cout << "Number of elements  : " << tNumElems << std::endl;
@@ -178,13 +168,12 @@ void check_quadratic_results_serial()
     else
     {
         REQUIRE( tNumDims  ==  2   );
-        //FIXME: fix global variable problem for quadratic
-        //REQUIRE( tNumNodes ==  9528 );
-        //REQUIRE( tNumElems ==  6033 );
+        REQUIRE( tNumNodes ==  353 );
+        REQUIRE( tNumElems ==  237 );
     }
 
     // check results
-    uint tNodeId = 1001;
+    uint tNodeId = 53;
 
     check_quadratic_results(tExoIO,tNodeId);
 }
@@ -194,6 +183,9 @@ void check_quadratic_results_serial()
 TEST_CASE("Comsol_cut_Linear",
         "[moris],[example],[thermal],[diffusion]")
 {
+    // set interpolation order
+    gInterpolationOrder = 1;
+
     // define command line call
     int argc = 2;
 
@@ -207,9 +199,6 @@ TEST_CASE("Comsol_cut_Linear",
 
     // catch test statements should follow
     REQUIRE( tRet ==  0 );
-
-    // set interpolation order
-    gInterpolationOrder = 1;
 
     // check results
     switch ( par_size() )
@@ -232,6 +221,9 @@ TEST_CASE("Comsol_cut_Linear",
 TEST_CASE("Comsol_cut_Quadratic",
         "[moris],[example],[thermal],[diffusion]")
 {
+    // set interpolation order
+    gInterpolationOrder = 2;
+
     // define command line call
     int argc = 2;
 
@@ -245,9 +237,6 @@ TEST_CASE("Comsol_cut_Quadratic",
 
     // catch test statements should follow
     REQUIRE( tRet ==  0 );
-
-    // set interpolation order
-    gInterpolationOrder = 2;
 
     // check results
     switch ( par_size() )
@@ -263,22 +252,4 @@ TEST_CASE("Comsol_cut_Quadratic",
         }
     }
 
-}
-
-TEST_CASE("Comsol_cut_mesh",
-        "[moris],[example],[thermal],[diffusion]")
-{
-    // define command line call
-    int argc = 2;
-
-    char tString1[] = "";
-    char tString2[] = "./Comsol_cut.so";
-
-    char * argv[2] = {tString1,tString2};
-
-    // call to performance manager main interface
-    int tRet = fn_WRK_Workflow_Main_Interface( argc, argv );
-
-    // catch test statements should follow
-    REQUIRE( tRet ==  0 );
 }

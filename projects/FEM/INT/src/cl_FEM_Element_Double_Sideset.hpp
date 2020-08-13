@@ -49,15 +49,15 @@ namespace moris
 
                 //------------------------------------------------------------------------------
                 /**
-                 * compute jacobian over the element
-                 */
-                void compute_jacobian();
-
-                //------------------------------------------------------------------------------
-                /**
                  * compute residual over the element
                  */
                 void compute_residual();
+
+                //------------------------------------------------------------------------------
+                /**
+                 * compute jacobian over the element
+                 */
+                void compute_jacobian();
 
                 //------------------------------------------------------------------------------
                 /**
@@ -73,6 +73,24 @@ namespace moris
 
                 //------------------------------------------------------------------------------
                 /**
+                 * compute dQIdu
+                 */
+                void compute_QI()
+                {
+                    MORIS_ERROR( false, "Element_Double_Sideset::compute_QI - not implemented.");
+                }
+
+                //------------------------------------------------------------------------------
+                /**
+                 * compute dQIdu
+                 */
+                void compute_dQIdu()
+                {
+                    MORIS_ERROR( false, "Element_Double_Sideset::compute_dQIdu - not implemented.");
+                }
+
+                //------------------------------------------------------------------------------
+                /**
                  * compute dQIdp
                  */
                 void compute_dQIdp_explicit()
@@ -83,6 +101,7 @@ namespace moris
                 //------------------------------------------------------------------------------
                 /**
                  * compute volume over the element
+                 * @param[ in ] aIsMaster enum for master or slave
                  */
                 real compute_volume( mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER );
 
@@ -95,9 +114,9 @@ namespace moris
                  * @param[ in ] aMasterSideOrdinal side ordinal for the master element
                  * @param[ in ] aSlaveSideOrdinal  side ordinal for the slave element
                  * @param[ in ] aMasterIsActiveDv  list of if design variable is active
-                 *                                 (vertexIndex)(DvType) for master element
+                 *                                 (vertexIndex)(pdvType) for master element
                  * @param[ in ] aSlaveIsActiveDv   list of if design variable is active
-                 *                                 (vertexIndex)(DvType) for slave element
+                 *                                 (vertexIndex)(pdvType) for slave element
                  */
                 void init_ig_geometry_interpolator(
                         uint aMasterSideOrdinal,

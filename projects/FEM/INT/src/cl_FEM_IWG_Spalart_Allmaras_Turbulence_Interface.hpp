@@ -30,7 +30,7 @@ namespace moris
             private:
 
                 // sint for symmetric/unsymmetric Nitsche formulation
-                sint mBeta = -1.0;
+                sint mBeta = 1.0;
 
                 // local property enums
                 enum class IWG_Property_Type
@@ -46,8 +46,6 @@ namespace moris
                 enum class IWG_Stabilization_Type
                 {
                         NITSCHE_INTERFACE,
-                        MASTER_WEIGHT_INTERFACE,
-                        SLAVE_WEIGHT_INTERFACE,
                         MAX_ENUM
                 };
 
@@ -73,9 +71,10 @@ namespace moris
             public:
                 //------------------------------------------------------------------------------
                 /*
-                 *  constructor
+                 * constructor
+                 * @param[ in ] aBeta sint for symmetric/unsymmetric Nitsche formulation
                  */
-                IWG_Spalart_Allmaras_Turbulence_Interface();
+                IWG_Spalart_Allmaras_Turbulence_Interface( sint aBeta );
 
                 //------------------------------------------------------------------------------
                 /**
@@ -132,8 +131,6 @@ namespace moris
                  * @param[ in ] aWStar weight associated to the evaluation point
                  */
                 void compute_dRdp( real aWStar );
-
-            private:
 
             private:
                 //------------------------------------------------------------------------------

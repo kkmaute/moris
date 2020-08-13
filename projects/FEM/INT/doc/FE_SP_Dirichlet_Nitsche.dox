@@ -1,0 +1,21 @@
+namespace moris {
+namespace fem {
+
+/** \page FE_SP_Dirichlet_Nitsche Stabilization Parameter for Dirichlet condition via Nitsche formulation
+
+The Nitsche stabilization parameter for Dirichlet condition is given as:
+\f[
+\gamma_{N} = \alpha_{N} \frac{ \kappa }{ h };
+\f]
+where
+- \f$ \alpha_{N} \f$ is a scalar constant ranging in \f$ [  ] \f$,
+- \f$ \kappa \f$ is a material property,
+- \f$ h \f$ is the element size along the considered boundary.
+
+The stabilization parameter \f$ \gamma_{N} \f$ is implemented in SP_Dirichlet_Nitsche and 
+is build using the enum SP_Type::DIRICHLET_NITSCHE.
+
+*/
+
+}
+}

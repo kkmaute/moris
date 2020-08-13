@@ -11,6 +11,8 @@ namespace moris
 {
     namespace fem
     {
+        //------------------------------------------------------------------------------
+
         IWG_Diffusion_Interface::IWG_Diffusion_Interface()
         {
             // set size for the constitutive model pointer cell
@@ -30,6 +32,7 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+
         void IWG_Diffusion_Interface::set_constitutive_model(
                 std::shared_ptr< Constitutive_Model > aConstitutiveModel,
                 std::string                           aConstitutiveString,
@@ -46,6 +49,7 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+
         void IWG_Diffusion_Interface::set_stabilization_parameter(
                 std::shared_ptr< Stabilization_Parameter > aStabilizationParameter,
                 std::string                                aStabilizationString )
@@ -61,6 +65,7 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+
         void IWG_Diffusion_Interface::compute_residual( real aWStar )
         {
 #ifdef DEBUG
@@ -69,7 +74,7 @@ namespace moris
             this->check_field_interpolators( mtk::Master_Slave::SLAVE );
 #endif
 
-            // FIXME this should not happen
+            // Check that master and slave CMs are different
             MORIS_ASSERT( &mMasterCM( 0 ) != &mSlaveCM( 0 ), "Master and Slave constitutive model are the same. This will cause problems ");
 
             // get master index for residual dof type, indices for assembly
@@ -83,10 +88,12 @@ namespace moris
             uint tSlaveResStopIndex  = mSet->get_res_dof_assembly_map()( tSlaveDofIndex )( 0, 1 );
 
             // get the master field interpolator for the residual dof type
-            Field_Interpolator * tFIMaster = mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );
+            Field_Interpolator * tFIMaster =
+                    mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );
 
             // get the slave field interpolator for the residual dof type
-            Field_Interpolator * tFISlave  = mSlaveFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );
+            Field_Interpolator * tFISlave  =
+                    mSlaveFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );
 
             // get the elasticity constitutive model
             std::shared_ptr< Constitutive_Model > tCMMasterDiffusion =
@@ -115,15 +122,17 @@ namespace moris
             Matrix< DDRMat > tJump = tFIMaster->val() - tFISlave->val();
 
             // compute master residual
-            mSet->get_residual()( 0 )( { tMasterResStartIndex, tMasterResStopIndex }, { 0, 0 } )
-                    += aWStar * (
+            mSet->get_residual()( 0 )(
+                    { tMasterResStartIndex, tMasterResStopIndex },
+                    { 0, 0 } ) += aWStar * (
                             - trans( tFIMaster->N() ) * tTraction
                             + tSPMasterWeight->val()( 0 ) * tCMMasterDiffusion->testTraction( mNormal, mResidualDofType ) * tJump
                             + tSPNitsche->val()( 0 ) * trans( tFIMaster->N() ) * tJump ) ;
 
             // compute slave residual
-            mSet->get_residual()( 0 )( { tSlaveResStartIndex, tSlaveResStopIndex }, { 0, 0 } )
-                    += aWStar * (
+            mSet->get_residual()( 0 )(
+                    { tSlaveResStartIndex, tSlaveResStopIndex },
+                    { 0, 0 } ) += aWStar * (
                             trans( tFISlave->N() ) * tTraction
                             + tSPSlaveWeight->val()( 0 ) * tCMSlaveDiffusion->testTraction( mNormal, mResidualDofType ) * tJump
                             - tSPNitsche->val()( 0 ) * trans( tFISlave->N() ) * tJump );

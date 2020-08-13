@@ -1,12 +1,12 @@
 /*
- * cl_FEM_IQI_Max_Von_Mises_Stress.hpp
+ * cl_FEM_IQI_Max_Stress.hpp
  *
  *  Created on: Jul 30, 2020
  *      Author: wunsch
  */
 
-#ifndef PROJECTS_FEM_INT_SRC_CL_FEM_IQI_MAX_VON_MISES_STRESS_HPP_
-#define PROJECTS_FEM_INT_SRC_CL_FEM_IQI_MAX_VON_MISES_STRESS_HPP_
+#ifndef PROJECTS_FEM_INT_SRC_CL_FEM_IQI_MAX_STRESS_HPP_
+#define PROJECTS_FEM_INT_SRC_CL_FEM_IQI_MAX_STRESS_HPP_
 
 #include <map>
 
@@ -24,10 +24,17 @@ namespace moris
     {
         //------------------------------------------------------------------------------
 
-        class IQI_Max_Von_Mises_Stress : public IQI
+        class IQI_Max_Stress : public IQI
         {
 
                 //------------------------------------------------------------------------------
+
+            private:
+
+                //------------------------------------------------------------------------------
+
+                // stress type to evaluate
+                enum Stress_Type mStressType;
 
                 enum class IQI_Property_Type
                 {
@@ -56,19 +63,33 @@ namespace moris
                 // Local string to constitutive enum map
                 std::map< std::string, IQI_Stabilization_Type > mStabilizationMap;
 
+                //------------------------------------------------------------------------------
+
+            protected:
+
+                //------------------------------------------------------------------------------
+                /*
+                 * default constructor
+                 */
+                IQI_Max_Stress(){
+                    MORIS_ERROR( false, " IQI_Max_Stress: Default constructor unavailable. Use enum to construct IQI. ");
+                };
+
+                //------------------------------------------------------------------------------
+
             public:
 
                 //------------------------------------------------------------------------------
                 /*
                  * constructor
                  */
-                IQI_Max_Von_Mises_Stress();
+                IQI_Max_Stress( enum Stress_Type aStressType );
 
                 //------------------------------------------------------------------------------
                 /**
                  * trivial destructor
                  */
-                ~IQI_Max_Von_Mises_Stress(){};
+                ~IQI_Max_Stress(){};
 
                 //------------------------------------------------------------------------------
                 /**
@@ -116,8 +137,52 @@ namespace moris
                 void compute_dQIdDof( Matrix< DDRMat > & adQIdDof );
 
                 //------------------------------------------------------------------------------
+                /**
+                 * gets the stress vector from the constitutive model and sorts it into a format standardized
+                 * (independent of 2D-plane strain, 2D-plain stress, and 3D)
+                 * @param[ out ] tStressVector vector with 6 entries containing the normal and shear stress values
+                 */
+                Matrix< DDRMat > get_stress_vector();
+
+                //------------------------------------------------------------------------------
+                /**
+                 * evaluate the Von-Mises stress using the stress vector provided by the constitutive model
+                 * @param[ out ] tStressValue the value of the Von-Mises stress
+                 */
+                real eval_Von_Mises_stress();
+
+                //------------------------------------------------------------------------------
+                /**
+                 * evaluate the i-th principal stress using the stress vector provided by the constitutive model
+                 * @param[ in ] aPrincipalStressIndex number i of the principal stress to get,
+                 *               i.e. 1,2,3 for the first, second and third principal stress, respectively
+                 * @param[ out ] tStressValue the value of the requested principal stress
+                 */
+                real eval_principal_stress( uint aPrincipalStressIndex );
+
+                //------------------------------------------------------------------------------
+                /**
+                 * evaluate the i-th normal stress using the stress vector provided by the constitutive model
+                 * @param[ in ] aStressIndex number of the principal stress to get,
+                 *               i.e. 1,2,3 for the x-, y-, and z-normal stresses, respectively
+                 * @param[ out ] tStressValue the value of the requested principal stress
+                 */
+                real eval_normal_stress( uint aStressIndex );
+
+                //------------------------------------------------------------------------------
+                /**
+                 * evaluate the i-th shear stress using the stress vector provided by the constitutive model
+                 * @param[ in ] aStressIndex number of the principal stress to get,
+                 *               i.e. 1,2,3 for the yz-, xz-, and xy-shear stresses, respectively
+                 *               in 2D the input is ignored, as there's only one shear stress
+                 * @param[ out ] tStressValue the value of the requested principal stress
+                 */
+                real eval_shear_stress( uint aStressIndex );
+
+                //------------------------------------------------------------------------------
+
         };
     }/* end namespace fem */
 } /* end namespace moris */
 
-#endif /* PROJECTS_FEM_INT_SRC_CL_FEM_IQI_MAX_VON_MISES_STRESS_HPP_ */
+#endif /* PROJECTS_FEM_INT_SRC_CL_FEM_IQI_MAX_STRESS_HPP_ */

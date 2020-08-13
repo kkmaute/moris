@@ -4,13 +4,16 @@ namespace fem {
 /** @defgroup FE_Equations_Spalart_Allmaras_Turbulence Spalart-Allmaras Turbulence Model Equations
 
 The strong form of the Spalart-Allmaras turbulence equation is given as:
-\f[
+
+\f$
+\displaystyle
 \frac{\partial \tilde{\nu}}{\partial t} 
 + \tilde{\mathbf{u}} \cdot \nabla \tilde{\nu} 
 = P
 - D
 + \left[ \nabla \cdot \bigg( K\ \nabla \tilde{\nu} \bigg) \right]
-\f]
+\f$
+
 where 
 - \f$ \tilde{\nu} \f$ is the modified viscosity,
 - \f$ \tilde{\mathbf{u}} \f$ is the modified velocity and 
@@ -35,14 +38,17 @@ The following constants are used:
 The value of \f$ \tilde{S} \f$ should always be positive and greater than \f$ 0.3 S \f$ for physically relevant configurations.
 Numerically, the model allows for zero or negative values of \f$ \tilde{S} \f$ when \f$ f_{v2} \f$ turns negative. 
 This situation disrupts other functions in the SA model. To ensure the non-negativity of \f$ \tilde{S} \f$, the following model is proposed:
-\f[
+
+\f$
+\displaystyle
 \tilde{S} = \left\{
 \begin{array}{ll}
 S + \overline{S} & \mbox{if}\ \overline{S} \geq -c_{v2} S \\
 S + \frac{S \left( c_{v2}^2 S + c_{v3} \overline{S} \right)}{\left( c_{v3} - 2 c_{v2} \right) S - \overline{S}}& \mbox{if}\ \overline{S} < -c_{v2} S
 \end{array}
 \right.
-\f]
+\f$
+
 where 
 - \f$ S \f$ is a measure of the vorticity and \f$ S = \sqrt{2 W_{ij} W_{ij}} \f$, 
 with \f$ W_{ij} = \frac{1}{2} \left( \frac{\partial v_i}{\partial x_j} - \frac{\partial v_j}{\partial x_i} \right) \f$, 
@@ -52,6 +58,7 @@ with
 \f$ f_{v1} = \frac{\chi^3}{\chi^3 + c_{v1}^3} \f$.
 
 The following constants are used:
+
 \f$ c_{v1} = 7.1 \f$, \f$ c_{v2} = 0.7 \f$, and \f$ c_{v3} = 0.9 \f$.
 
 \section Negative_SA_Model Negative Spalart-Allmaras Model
@@ -66,13 +73,16 @@ turbulence solution is used. The model behaves such that:
 - the analytic solution is non-negative given non-negative boundary conditions.
 
 The strong form of the negative Spalart-Allmaras turbulence equation is given as:
-\f[
+
+\f$
+\displaystyle
 \frac{\partial \tilde{\nu}}{\partial t} 
 + \tilde{\mathbf{u}} \cdot \nabla \tilde{\nu} 
 = P
 - D
 + \left[ \nabla \cdot \bigg( K\ \nabla \tilde{\nu} \bigg) \right]
-\f]
+\f$
+
 where 
 - \f$ P \f$ is the production term and 
 \f$ P = c_{b1}\ (1-c_{t3})\ S\ \tilde{\nu} \f$,
@@ -84,51 +94,60 @@ where
 
 \section Stabilization SUPG stabilization
 The Spalart-Allmaras turbulence equation can be rewritten as a standard advection-diffusion-reaction equation: 
-\f[
+
+\f$
+\displaystyle
 \frac{\partial \tilde{\nu}}{\partial t} 
 + \mathbf{a} \cdot \nabla \tilde{\nu} 
 = \nabla \cdot \left( \kappa\ \nabla \tilde{\nu} \right) 
 + s\ \tilde{\nu}
-\f]
+\f$
 
-\f[
+\f$
+\displaystyle
 \frac{\partial \tilde{\nu}}{\partial t} 
 + \left( \mathbf{u} - \frac{c_{b2}}{\sigma}\ \nabla \tilde{\nu} \right) \cdot \nabla \tilde{\nu}  
 = \frac{1}{\sigma} \nabla \cdot \left[ ( \nu + \tilde{\nu} )\ \nabla \tilde{\nu} \right]
 +\left[ c_{b1}\ (1-f_{t2})\ \tilde{S} - \left( c_{w1}\ f_{w} - \frac{c_{b1}}{\kappa^2} f_{t2} \right) \frac{\tilde{\nu}}{d^2} \right] \tilde{\nu}
-\f]
+\f$
+
 where 
-\f[
+
+\f$
 \begin{array}{lll}
 \mathbf{a} & = & \displaystyle \mathbf{u} - \frac{c_{b2}}{\sigma} \nabla \tilde{\nu},\\
 \kappa & = & \displaystyle \frac{\nu + \tilde{\nu}}{\sigma},\\
 s & = & \displaystyle c_{b1} \left( 1 - f_{t2} \right) \tilde{S} - \left( c_{w1} f_w - \frac{c_{b1}}{\kappa^2} f_{t2} \right) \frac{\tilde{v}}{d^2} 
 \end{array}
-\f]
+\f$
 
 The weak form of the Spalart-Allmaras equation is given as:
-\f[
+
+\f$
 \displaystyle 
 R_{\tilde{\nu}} = \bigg( w,\ \frac{\partial \tilde{\nu}}{\partial t} \bigg)_{\Omega} 
 + \bigg( w,\ \left[ \mathbf{u} - \frac{c_{b2}}{\sigma} \nabla \tilde{\nu} \right] \cdot \nabla \tilde{\nu} \bigg)_{\Omega}
 + \bigg( \nabla w,\ \frac{1}{\sigma} \left[ ( \nu + \tilde{\nu} )\ \nabla \tilde{\nu} \right] \bigg)_{\Omega}
 - \bigg( w,\ \left[ c_{b1}\ (1-f_{t2})\ \tilde{S} - \left( c_{w1}\ f_{w} - \frac{c_{b1}}{\kappa^2} f_{t2} \right) \frac{\tilde{\nu}}{d^2} \right] \tilde{\nu} \bigg)_{\Omega}  
- \f]
+\f$
 
 The equation is stabilized with SUPG:
-\f[
+
+\f$
 \begin{array}{lll}
-R_{\tilde{\nu}}^{SUPG} & = & \bigg( \left[ \mathbf{u} - \frac{c_{b2}}{\sigma} \nabla \tilde{\nu} \right] \cdot \nabla w,\ \tau_{\tilde{\nu}}\ r_{\tilde{\nu}} \bigg)_{\Omega}\\[15pt]
+R_{\tilde{\nu}}^{SUPG} & = & 
+\displaystyle \bigg( \left[ \mathbf{u} - \frac{c_{b2}}{\sigma} \nabla \tilde{\nu} \right] \cdot \nabla w,\ \tau_{\tilde{\nu}}\ r_{\tilde{\nu}} \bigg)_{\Omega}\\[15pt]
 
 r_{\tilde{\nu}} & = &
-\frac{\partial \tilde{\nu}}{\partial t} 
+\displaystyle \frac{\partial \tilde{\nu}}{\partial t} 
 + \left( \mathbf{u} - \frac{c_{b2}}{\sigma}\ \nabla \tilde{\nu} \right) \cdot \nabla \tilde{\nu} 
 - \frac{1}{\sigma} \nabla \cdot \left[ ( \nu + \tilde{\nu} )\ \nabla \tilde{\nu} \right] 
 - \left[ c_{b1}\ (1-f_{t2})\ \tilde{S} - \left( c_{w1}\ f_{w} - \frac{c_{b1}}{\kappa^2} f_{t2} \right) \frac{\tilde{\nu}}{d^2} \right] \tilde{\nu}\\[15pt]
 
-\tau_{\tilde{\nu}} & = & \left[ \left(\frac{2\ || \mathbf{a} ||}{h} \right)^2 + \left( \frac{4 \kappa}{h^2} \right)^2 + \left( s \right)^2 \right]^{-1/2}\\
+\tau_{\tilde{\nu}} & = & 
+\displaystyle \left[ \left(\frac{2\ || \mathbf{a} ||}{h} \right)^2 + \left( \frac{4 \kappa}{h^2} \right)^2 + \left( s \right)^2 \right]^{-1/2}\\
 \end{array}
-\f]
+\f$
 
 The bulk part of the residual \f$ R_{\tilde{\nu}} \f$ and the SUPG stabilization are implemented 
 in IWG_Spalart_Allmaras_Turbulence_Bulk,
@@ -136,14 +155,18 @@ corresponding to the enum IWG\_Type::SPALART\_ALLMARAS\_TURBULENCE\_BULK.
 
 \section Dirichlet_BC Dirichlet boundary conditions
 Dirichlet boundary conditions on the modified viscosity are applied via Nitsche's formulation:
-\f[
+
+\f$
+\displaystyle
 R_{\tilde{\nu}}^{D} = 
 - \bigg( w,\ \sigma( \tilde{\nu} ) \cdot \mathbf{n} \bigg)_{\Gamma_D}
-+ \bigg( \sigma( w ) \cdot \mathbf{n},\ \tilde{\nu}- \overline{\tilde{\nu}} \bigg)_{\Gamma_D}
-+ \bigg( \gamma^N_{\tilde{\nu}} w,\ \tilde{\nu}- \overline{\tilde{\nu}} \bigg)_{\Gamma_D}\\[15pt]
-\f]
+- \beta \bigg( \sigma( w ) \cdot \mathbf{n},\ \tilde{\nu}- \overline{\tilde{\nu}} \bigg)_{\Gamma_D}
++ \bigg( \gamma^N_{\tilde{\nu}} w,\ \tilde{\nu}- \overline{\tilde{\nu}} \bigg)_{\Gamma_D}
+\f$
+
 where
 - \f$ \sigma(\tilde{\nu}) = K \nabla \tilde{\nu} \f$.
+- \f$ \beta = 1 \f$ for the symmetric formulation and \f$ \beta = -1 \f$ for the unsymmetric formulation.
 
 The BC part of the residual \f$ R_{\tilde{\nu}}^{D} \f$ is implemented in 
 IWG_Spalart_Allmaras_Turbulence_Dirichlet,
@@ -151,13 +174,30 @@ corresponding to the enum IWG\_Type::SPALART_ALLMARAS_TURBULENCE_SYMMETRIC_DIRIC
 The stabilization parameter \f$ \gamma^N_{\tilde{\nu}} \f$ is implemented in
 SP_Turbulence_Dirichlet_Nitsche and described in \ref FE_SP_Spalart_Allmaras_Dirichlet_Nitsche.
 
+Fluid/fluid interface conditions are also imposed weakly via Nitsche's formulation:
+
+\f$
+\displaystyle
+R_{\tilde{\nu}}^{ifc} = 
+- \bigg( [[w]],\ \{\sigma( \tilde{\nu} ) \cdot \mathbf{n} \} \bigg)_{\Gamma_{ifc}}
+- \beta\ \bigg( \{ \sigma( w ) \cdot \mathbf{n} \},\ [[\tilde{\nu}]] \bigg)_{\Gamma_{ifc}}
++ \bigg( \gamma^N_{\tilde{\nu}} [[w]],\ [[\tilde{\nu}]] \bigg)_{\Gamma_{ifc}}
+\f$
+
+where 
+- \f$ \beta = 1 \f$ for the symmetric formulation and \f$ \beta = -1 \f$ for the unsymmetric formulation.
+
+
 \section Ghost Face-oriented ghost stabilization
 The face-oriented ghost penalty stabilization used for the modified viscosity is formulated as:
-\f[
+
+\f$
+\displaystyle
 R_{\tilde{\nu}}^{GP} = 
 \sum_{F} \sum_{i} \int_{F} \gamma^{GP}_{\tilde{\nu}} [[ \frac{\partial^i w}{\partial \mathbf{x}^i} \cdot \mathbf{n} ]] 
 : [[ \frac{\partial^i \tilde{\nu}}{\partial \mathbf{x}^i} \cdot \mathbf{n} ]] \ d\Gamma
-\f]
+\f$
+
 where
 - \f$ \gamma^{GP}_{\tilde{\nu}} \f$ is the stabilization parameter and is described in \ref FE_SP_Ghost_Field 
 using the fluid kinematic viscosity\f$ \nu \f$ as material property.

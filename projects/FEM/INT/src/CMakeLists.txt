@@ -43,6 +43,9 @@ set(HEADERS
     cl_FEM_IWG_Incompressible_NS_Pressure_Neumann.hpp
     cl_FEM_IWG_Incompressible_NS_Velocity_Interface.hpp
     cl_FEM_IWG_Incompressible_NS_Pressure_Interface.hpp
+    cl_FEM_IWG_Compressible_NS_Density_Bulk.hpp
+    cl_FEM_IWG_Compressible_NS_Velocity_Bulk.hpp
+    cl_FEM_IWG_Compressible_NS_Temperature_Bulk.hpp
     cl_FEM_IWG_FS_Struc_Interface.hpp
     cl_FEM_IWG_Spalart_Allmaras_Turbulence_Bulk.hpp
     cl_FEM_IWG_Spalart_Allmaras_Turbulence_Dirichlet.hpp
@@ -125,6 +128,8 @@ set(HEADERS
     cl_FEM_CM_Diffusion_Linear_Isotropic_Phase_Change.hpp
     cl_FEM_CM_Fluid_Incompressible.hpp
     cl_FEM_CM_Fluid_Turbulence.hpp
+    cl_FEM_CM_Fluid_Compressible_Ideal.hpp
+    cl_FEM_CM_Fluid_Compressible_Van_der_Waals.hpp
     cl_FEM_CM_Factory.hpp
     cl_FEM_IQI.hpp
     cl_FEM_IQI_Analytic.hpp
@@ -134,7 +139,7 @@ set(HEADERS
     cl_FEM_IQI_Stress.hpp
     cl_FEM_IQI_Dof.hpp
     cl_FEM_IQI_Max_Dof.hpp
-	cl_FEM_IQI_Max_Von_Mises_Stress.hpp
+    cl_FEM_IQI_Max_Stress.hpp
     cl_FEM_IQI_Property.hpp
     cl_FEM_IQI_L2_Error_Analytic.hpp
     cl_FEM_IQI_H1_Error_Analytic.hpp
@@ -164,6 +169,7 @@ set(HEADERS
     cl_FEM_SP_GGLS_Diffusion.hpp
     cl_FEM_SP_SUPG_Spalart_Allmaras_Turbulence.hpp
     cl_FEM_SP_Turbulence_Dirichlet_Nitsche.hpp
+    cl_FEM_SP_Spalart_Allmaras_Nitsche_Interface.hpp
     cl_FEM_SP_Stab_Penalty_Contact.hpp
     cl_FEM_SP_Penalty_Contact.hpp
     cl_FEM_Set_User_Info.hpp
@@ -212,6 +218,9 @@ set(LIB_SOURCES
     cl_FEM_IWG_Incompressible_NS_Pressure_Neumann.cpp
     cl_FEM_IWG_Incompressible_NS_Velocity_Interface.cpp
     cl_FEM_IWG_Incompressible_NS_Pressure_Interface.cpp
+    cl_FEM_IWG_Compressible_NS_Density_Bulk.cpp
+    cl_FEM_IWG_Compressible_NS_Velocity_Bulk.cpp
+    cl_FEM_IWG_Compressible_NS_Temperature_Bulk.cpp
     cl_FEM_IWG_FS_Struc_Interface.cpp
     cl_FEM_IWG_Spalart_Allmaras_Turbulence_Bulk.cpp
     cl_FEM_IWG_Spalart_Allmaras_Turbulence_Dirichlet.cpp
@@ -246,6 +255,8 @@ set(LIB_SOURCES
     cl_FEM_CM_Struc_Linear_Isotropic.cpp
     cl_FEM_CM_Fluid_Incompressible.cpp
     cl_FEM_CM_Fluid_Turbulence.cpp
+    cl_FEM_CM_Fluid_Compressible_Ideal.cpp
+    cl_FEM_CM_Fluid_Compressible_Van_der_Waals.cpp
     cl_FEM_Stabilization_Parameter.cpp
     cl_FEM_SP_Factory.cpp
     cl_FEM_SP_Dirichlet_Nitsche.cpp
@@ -263,6 +274,7 @@ set(LIB_SOURCES
     cl_FEM_SP_Velocity_Dirichlet_Nitsche.cpp
     cl_FEM_SP_SUPG_Advection.cpp
     cl_FEM_SP_SUPG_Spalart_Allmaras_Turbulence.cpp
+    cl_FEM_SP_Spalart_Allmaras_Nitsche_Interface.cpp
     cl_FEM_SP_GGLS_Diffusion.cpp
     cl_FEM_SP_Stab_Penalty_Contact.cpp
     cl_FEM_SP_Penalty_Contact.cpp
@@ -275,7 +287,7 @@ set(LIB_SOURCES
     cl_FEM_IQI_Stress.cpp
     cl_FEM_IQI_Dof.cpp
     cl_FEM_IQI_Max_Dof.cpp
-	cl_FEM_IQI_Max_Von_Mises_Stress.cpp
+    cl_FEM_IQI_Max_Stress.cpp
     cl_FEM_IQI_Property.cpp
     cl_FEM_IQI_L2_Error_Analytic.cpp
     cl_FEM_IQI_H1_Error_Analytic.cpp

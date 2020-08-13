@@ -51,7 +51,10 @@ namespace xtk
         // Construct Ghost Double Side Clusters and Sets
         this->construct_ghost_double_side_sets_in_mesh(tGhostSetupData);
 
-        // identify and communicate vertices in aura that interpolate into ghost facets
+        // Look through the vertices used in ghost stabilization
+        // and identify which ones do not have their t-matrix.
+        // Retrieve these t-matrices from their owner. This ensures
+        // the solver has all appropriate information downstream.
         this->identify_and_setup_aura_vertices_in_ghost(tGhostSetupData);
 
 //        MORIS_ERROR(mXTKModel->get_enriched_interp_mesh(0).verify_basis_support(),"Issue detected in basis support after ghost stabilization."); // TODO: change to assert once done debugging
@@ -1074,7 +1077,6 @@ namespace xtk
                 // if I am the one constructing this subphase then add it to ghost setup data
                 if(this->create_ghost(aGhostSetupData,(moris_index)i,tSubphaseToSubphase(i)(j),tTrivial))
                 {
-                    //                    std::cout<<"Create ghost between" << " SP "<<std::setw(6)<<i<<" and SP " <<std::setw(6)<< tSubphaseToSubphase(i)(j)<<" Trivial? "<< tTrivial <<std::endl;
                     moris_index tFirstInterpCellIndex  = aGhostSetupData.mSubphaseIndexToInterpolationCellIndex(i);
                     moris_index tSecondInterpCellIndex = aGhostSetupData.mSubphaseIndexToInterpolationCellIndex(tSubphaseToSubphase(i)(j));
 
@@ -1130,14 +1132,11 @@ namespace xtk
             {
                 // create a new side cluster for each of the pairs
                 std::shared_ptr<Side_Cluster> tSlaveSideCluster  = this->create_slave_side_cluster(aGhostSetupData,tEnrIpCells,i,j);
-                std::shared_ptr<Side_Cluster>tMasterSideCluster = this->create_master_side_cluster(aGhostSetupData,tEnrIpCells,i,j,tSlaveSideCluster.get(),tCurrentIndex,tCurrentId);
+                std::shared_ptr<Side_Cluster> tMasterSideCluster = this->create_master_side_cluster(aGhostSetupData,tEnrIpCells,i,j,tSlaveSideCluster.get(),tCurrentIndex,tCurrentId);
 
                 // verify the subphase cluster
                 MORIS_ASSERT(tSlaveSideCluster->mInterpolationCell->get_bulkphase_index() == (moris_index)i,"Bulk phase mismatch on slave side of double side set cluster");
                 MORIS_ASSERT(tMasterSideCluster->mInterpolationCell->get_bulkphase_index() == (moris_index)i,"Bulk phase mismatch on master side of double side set cluster");
-
-//                MORIS_ASSERT(tEnrInterpMesh.verify_basis_interpolating_into_cluster(*tSlaveSideCluster.get(),0),"Basis issue in cluster");
-//                MORIS_ASSERT(tEnrInterpMesh.verify_basis_interpolating_into_cluster(*tMasterSideCluster.get(),0),"Basis issue in cluster");
 
                 // add to side clusters the integration mesh
                 tEnrIntegMesh.mDoubleSideSetsMasterIndex(aGhostSetupData.mDblSideSetIndexInMesh(i)).push_back(tEnrIntegMesh.mDoubleSideSingleSideClusters.size());
@@ -1177,7 +1176,7 @@ namespace xtk
         // 2. The owning processor of the master (first) subphase constructs the ghost facet.
         // 3. Construct from coarse to fine in HMR
 
-        // make sure flag is set to true
+        // make sure flag is set to true, this is only turned to false on transition from coarse to fine cells
         aTrivialFlag = 0;
 
         moris_index tFirstSubphaseId  = mXTKModel->get_subphase_id(aFirstSubphase);

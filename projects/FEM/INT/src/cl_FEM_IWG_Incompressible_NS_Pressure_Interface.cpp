@@ -5,8 +5,6 @@
 #include "cl_FEM_IWG_Incompressible_NS_Pressure_Interface.hpp"
 //LINALG/src
 #include "fn_trans.hpp"
-#include "fn_norm.hpp"
-#include "fn_eye.hpp"
 
 namespace moris
 {
@@ -14,6 +12,7 @@ namespace moris
     {
 
         //------------------------------------------------------------------------------
+
         IWG_Incompressible_NS_Pressure_Interface::IWG_Incompressible_NS_Pressure_Interface( sint aBeta )
         {
             // set mBeta for symmetric/skew symmetric Nitsche
@@ -35,6 +34,7 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+
         void IWG_Incompressible_NS_Pressure_Interface::set_constitutive_model(
                 std::shared_ptr< Constitutive_Model > aConstitutiveModel,
                 std::string                           aConstitutiveString,
@@ -51,6 +51,7 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+
          void IWG_Incompressible_NS_Pressure_Interface::set_stabilization_parameter(
                  std::shared_ptr< Stabilization_Parameter > aStabilizationParameter,
                  std::string                                aStabilizationString )
@@ -66,6 +67,7 @@ namespace moris
          }
 
         //------------------------------------------------------------------------------
+
         void IWG_Incompressible_NS_Pressure_Interface::compute_residual( real aWStar )
         {
             // check master field interpolators
@@ -106,15 +108,20 @@ namespace moris
             Matrix< DDRMat > tVelocityJump = tFIMaster->val() - tFISlave->val();
 
             // compute master residual
-            mSet->get_residual()( 0 )( { tMasterResStartIndex, tMasterResStopIndex }, { 0, 0 } ) -= aWStar * (
+            mSet->get_residual()( 0 )(
+                    { tMasterResStartIndex, tMasterResStopIndex },
+                    { 0, 0 } ) -= aWStar * (
                     mBeta * tSPMasterWeight->val()( 0 ) * trans( tCMMasterFluid->testTraction( mNormal, mResidualDofType ) ) * tVelocityJump );
 
             // compute slave residual
-            mSet->get_residual()( 0 )( { tSlaveResStartIndex, tSlaveResStopIndex }, { 0, 0 } ) -= aWStar * (
+            mSet->get_residual()( 0 )(
+                    { tSlaveResStartIndex, tSlaveResStopIndex },
+                    { 0, 0 } ) -= aWStar * (
                     mBeta * tSPSlaveWeight->val()( 0 ) * trans( tCMSlaveFluid->testTraction( mNormal, mResidualDofType ) ) * tVelocityJump );
         }
 
         //------------------------------------------------------------------------------
+
         void IWG_Incompressible_NS_Pressure_Interface::compute_jacobian( real aWStar )
         {
 #ifdef DEBUG
@@ -267,7 +274,7 @@ namespace moris
                                     mBeta * trans( tCMMasterFluid->testTraction( mNormal, mResidualDofType ) ) * tVelocityJump * tSPMasterWeight->dSPdSlaveDOF( tDofType ) );
                 }
 
-                // if master SP depends on dof type
+                // if slave SP depends on dof type
                 if( tSPSlaveWeight->check_dof_dependency( tDofType, mtk::Master_Slave::SLAVE ) )
                 {
                     // add contribution to master jacobian
@@ -280,6 +287,7 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+
         void IWG_Incompressible_NS_Pressure_Interface::compute_jacobian_and_residual( real aWStar )
         {
 #ifdef DEBUG
@@ -291,6 +299,7 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+
         void IWG_Incompressible_NS_Pressure_Interface::compute_dRdp( real aWStar )
         {
 #ifdef DEBUG

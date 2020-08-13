@@ -15,7 +15,6 @@
 #include "cl_FEM_IQI_Analytic.hpp"
 #include "cl_FEM_IQI_Dof.hpp"
 #include "cl_FEM_IQI_Max_Dof.hpp"
-#include "cl_FEM_IQI_Max_Von_Mises_Stress.hpp"
 #include "cl_FEM_IQI_Property.hpp"
 #include "cl_FEM_IQI_L2_Error_Analytic.hpp"
 #include "cl_FEM_IQI_H1_Error_Analytic.hpp"
@@ -25,6 +24,7 @@
 #include "cl_FEM_IQI_Volume_Fraction.hpp"
 #include "cl_FEM_IQI_2D_Drag_Lift_Coefficient.hpp"
 #include "cl_FEM_IQI_Latent_Heat_Absorption.hpp"
+#include "cl_FEM_IQI_Max_Stress.hpp"
 #include "cl_FEM_IQI_Turbulent_Kinematic_Viscosity.hpp"
 
 namespace moris
@@ -54,11 +54,24 @@ namespace moris
                 case IQI_Type::STRAIN_ENERGY :
                     return std::make_shared< IQI_Strain_Energy >();
 
-                case IQI_Type::STRESS :
-                    return std::make_shared< IQI_Stress >();
-					
-				case IQI_Type::MAX_VON_MISES_STRESS :
-                    return std::make_shared< IQI_Max_Von_Mises_Stress >();
+                case IQI_Type::NORMAL_STRESS :
+                    return std::make_shared< IQI_Stress >( Stress_Type::NORMAL_STRESS );
+                case IQI_Type::SHEAR_STRESS :
+                    return std::make_shared< IQI_Stress >( Stress_Type::SHEAR_STRESS );
+                case IQI_Type::VON_MISES_STRESS :
+                    return std::make_shared< IQI_Stress >( Stress_Type::VON_MISES_STRESS );
+                case IQI_Type::PRINCIPAL_STRESS :
+                    return std::make_shared< IQI_Stress >( Stress_Type::PRINCIPAL_STRESS );
+
+                case IQI_Type::MAX_NORMAL_STRESS :
+                    return std::make_shared< IQI_Max_Stress >( Stress_Type::NORMAL_STRESS );
+                case IQI_Type::MAX_SHEAR_STRESS :
+                    return std::make_shared< IQI_Max_Stress >( Stress_Type::SHEAR_STRESS );
+                case IQI_Type::MAX_VON_MISES_STRESS :
+                    return std::make_shared< IQI_Max_Stress >( Stress_Type::VON_MISES_STRESS );
+                case IQI_Type::MAX_PRINCIPAL_STRESS :
+                    return std::make_shared< IQI_Max_Stress >( Stress_Type::PRINCIPAL_STRESS );
+
 
                 case IQI_Type::ANALYTIC :
                     return std::make_shared< IQI_Analytic >();
