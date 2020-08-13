@@ -107,9 +107,6 @@ namespace moris
                 std::shared_ptr<mtk::Mesh_Manager> tMeshManager = std::make_shared<mtk::Mesh_Manager>();
                 tMeshManager->register_mesh_pair( &tEnrInterpMesh, &tEnrIntegMesh);
 
-                // Set interface nodes
-                tXTKModel.communicate_interface_nodes();
-
                 // Create PDVs on integration mesh
                 tGeometryEngine.create_pdvs(tMeshManager);
 

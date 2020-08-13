@@ -257,9 +257,6 @@ namespace xtk
 
             std::cout<<"XTK: Write integration mesh to exodus file completed in " <<(std::clock() - tStart) / (double)(CLOCKS_PER_SEC)<<" s."<<std::endl;
         }
-
-        // Communicate interface nodes
-        this->communicate_interface_nodes();
     }
 
     // ----------------------------------------------------------------------------------
@@ -484,6 +481,7 @@ namespace xtk
                 mBackgroundMesh.allocate_space_in_interface_node_flags(tDecompData.tNewNodeIndex.size(),mGeometryEngine->get_num_geometries());
 
                 // add nodes to the background mesh
+                this->assign_index(tDecompData);
                 mBackgroundMesh.batch_create_new_nodes(tDecompData.tNewNodeId,tDecompData.tNewNodeIndex, tDecompData.tNewNodeOwner,tDecompData.tNewNodeCoordinate);
 
                 // add nodes to child mesh
@@ -535,6 +533,7 @@ namespace xtk
                 mBackgroundMesh.allocate_space_in_interface_node_flags(tDecompData.tNewNodeIndex.size(),mGeometryEngine->get_num_geometries());
 
                 // add nodes to the background mesh
+                this->assign_index(tDecompData);
                 mBackgroundMesh.batch_create_new_nodes(tDecompData.tNewNodeId,tDecompData.tNewNodeIndex, tDecompData.tNewNodeOwner,tDecompData.tNewNodeCoordinate);
 
                 // crate nodes in child mesh
@@ -709,9 +708,13 @@ namespace xtk
                                             tGlobalCoord,
                                             new Edge_Topology(tEdgeToNode.get_row(tEdgeInd)), /*this is deleted in the decomp data deconstructor*/
                                             tLocalCoordRelativeToEdge.get_row(0));
+
+                                    uint tNewNodeIndex = mBackgroundMesh.get_first_available_index(EntityRank::NODE);
+                                    tDecompData.tNewNodeIndex(tDecompData.tNewNodeIndex.size() - 1) = tNewNodeIndex;
+                                    mBackgroundMesh.update_first_available_index(tNewNodeIndex + 1, EntityRank::NODE);
                                     
                                     // Admit queued node in geometry engine
-                                    mGeometryEngine->admit_queued_intersection();
+                                    mGeometryEngine->admit_queued_intersection(tNewNodeIndex);
                                 }
 
                                 // add to pending node pointers for child mesh
@@ -945,9 +948,13 @@ namespace xtk
                                             tGlobalCoord,
                                             new Edge_Topology(tEdgeToNode.get_row(tEdgeInd)), /*Note: this is deleted in the decomp data deconstructor*/
                                             tLocalCoordRelativeToEdge.get_row(0));
+
+                                    uint tNewNodeIndex = mBackgroundMesh.get_first_available_index(EntityRank::NODE);
+                                    tDecompData.tNewNodeIndex(tDecompData.tNewNodeIndex.size() - 1) = tNewNodeIndex;
+                                    mBackgroundMesh.update_first_available_index(tNewNodeIndex + 1, EntityRank::NODE);
                                     
                                     // Admit queued node in geometry engine
-                                    mGeometryEngine->admit_queued_intersection();
+                                    mGeometryEngine->admit_queued_intersection(tNewNodeIndex);
                                 }
 
                                 // add to pending node pointers for child mesh
@@ -1449,11 +1456,8 @@ namespace xtk
         // allocate ids for nodes I own
         moris::moris_id tNodeId  = mBackgroundMesh.allocate_entity_ids(aDecompData.tNewNodeId.size(), EntityRank::NODE);
 
-        // get first available index
-        moris::moris_id tNodeInd = mBackgroundMesh.get_first_available_index(EntityRank::NODE);
-
         // Assign owned request identifiers
-        this->assign_owned_request_identifiers(aDecompData, tOwnedRequest, tNodeInd, tNodeId);
+        this->assign_owned_request_id(aDecompData, tOwnedRequest, tNodeId);
 
         // prepare node information request data
         Cell<Matrix<IndexMat>> tOutwardRequests;
@@ -1484,10 +1488,7 @@ namespace xtk
         this->inward_receive_request_answers(aMPITag+1,1,tProcRanks,tReceivedRequestsAnswers);
 
         // handle received information
-        this->handle_received_request_answers(aDecompData,tOutwardRequests,tReceivedRequestsAnswers,tNodeInd,tNodeId);
-
-        // return index to update
-        mBackgroundMesh.update_first_available_index(tNodeInd,EntityRank::NODE);
+        this->handle_received_request_answers(aDecompData,tOutwardRequests,tReceivedRequestsAnswers,tNodeId);
 
         MORIS_ASSERT(this->verify_successful_node_assignment(aDecompData),"Unsuccesssful node assignment detected.");
 
@@ -1552,19 +1553,14 @@ namespace xtk
     // ----------------------------------------------------------------------------------
 
     void
-    Model::assign_owned_request_identifiers(
+    Model::assign_owned_request_id(
             Decomposition_Data & aDecompData,
             Cell<uint> const &   aOwnedRequest,
-            moris::moris_id &    aNodeInd,
             moris::moris_id &    aNodeId)
     {
         for(moris::uint i = 0; i < aOwnedRequest.size(); i++)
         {
             moris_index tRequestIndex = aOwnedRequest(i);
-
-            // set the new node index
-            aDecompData.tNewNodeIndex(tRequestIndex) = aNodeInd;
-            aNodeInd++;
 
             // set the new node id
             aDecompData.tNewNodeId(tRequestIndex) = aNodeId;
@@ -1573,6 +1569,23 @@ namespace xtk
             // increment number of new nodes with set ids (for assertion purposes)
             aDecompData.mNumNewNodesWithIds++;
         }
+    }
+
+    // ----------------------------------------------------------------------------------
+
+    void
+    Model::assign_index(Decomposition_Data & aDecompData)
+    {
+        moris_index tNodeIndex = mBackgroundMesh.get_first_available_index(EntityRank::NODE);
+
+        for(moris::uint i = 0; i < aDecompData.tNewNodeIndex.size(); i++)
+        {
+            // set the new node index
+            aDecompData.tNewNodeIndex(i) = tNodeIndex;
+            tNodeIndex++;
+        }
+
+        mBackgroundMesh.update_first_available_index(tNodeIndex, EntityRank::NODE);
     }
 
     // ----------------------------------------------------------------------------------
@@ -1718,7 +1731,6 @@ namespace xtk
             Decomposition_Data           & aDecompData,
             Cell<Matrix<IndexMat>> const & aRequests,
             Cell<Matrix<IndexMat>> const & aRequestAnswers,
-            moris::moris_id              & aNodeInd,
             moris::moris_id              & aNodeId)
     {
         // iterate through received data
@@ -1758,8 +1770,6 @@ namespace xtk
                         if(tNodeId < MORIS_ID_MAX && aDecompData.tNewNodeId(tRequestIndex) == MORIS_INDEX_MAX)
                         {
                             aDecompData.tNewNodeId(tRequestIndex) = tNodeId;
-                            aDecompData.tNewNodeIndex(tRequestIndex) = aNodeInd;
-                            aNodeInd++;
 
                             // set the new node id
                             aDecompData.tNewNodeId(tRequestIndex) = tNodeId;
@@ -2865,49 +2875,6 @@ namespace xtk
             MORIS_ASSERT(mGlobalToLocalSubphaseMap.find(tSubphaseId) == mGlobalToLocalSubphaseMap.end(),"Subphase id already in map");
             mGlobalToLocalSubphaseMap[tSubphaseId] = i;
         }
-    }
-
-    // ----------------------------------------------------------------------------------
-    // Sensitivity Source code
-    // ----------------------------------------------------------------------------------
-
-    void
-    Model::communicate_interface_nodes()
-    {
-        // verify the state of the xtk model
-        MORIS_ERROR(mDecomposed,"Prior to computing sensitivity, the decomposition process must be called");
-        MORIS_ERROR(!mConvertedToTet10s,"Prior to computing sensitivity, the convert tet4 to tet10 process was called");
-        MORIS_ERROR(!mSensitivity,"Calling compute interface sensitivity twice is not supported");
-
-        // Set interface nodes to GE
-        Matrix<IndexMat> tAllInterfaceNodes = mBackgroundMesh.get_interface_nodes_loc_inds(0);
-        uint tTotalNode = tAllInterfaceNodes.length();
-        for (uint tGeometryIndex = 1; tGeometryIndex < mGeometryEngine->get_num_geometries(); tGeometryIndex++)
-        {
-            // Get interface nodes
-            Matrix<IndexMat> tInterfaceNodes = mBackgroundMesh.get_interface_nodes_loc_inds(tGeometryIndex);
-            tAllInterfaceNodes.resize(1, tTotalNode + tInterfaceNodes.length());
-
-            for (uint tNode = 0; tNode < tInterfaceNodes.length(); tNode++)
-            {
-                // Check with existing nodes and assign
-                bool tNew = true;
-                for (uint tAllNode = 0; tAllNode < tTotalNode; tAllNode++)
-                {
-                    if (tAllInterfaceNodes(tAllNode) == tInterfaceNodes(tNode))
-                    {
-                        tNew = false;
-                        tAllInterfaceNodes.resize(1, tAllInterfaceNodes.length() - 1);
-                        break;
-                    }
-                }
-                if (tNew)
-                {
-                    tAllInterfaceNodes(tTotalNode++) = tInterfaceNodes(tNode);
-                }
-            }
-        }
-        mGeometryEngine->set_interface_nodes(tAllInterfaceNodes);
     }
 
     // ----------------------------------------------------------------------------------

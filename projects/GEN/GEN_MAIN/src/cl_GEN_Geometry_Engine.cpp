@@ -110,8 +110,6 @@ namespace moris
 
             // Reset info related to the mesh
             mPdvHostManager.reset();
-            mIntersectionNodes.resize(0);
-            mInterfaceNodeIndices.resize(0, 0);
             mActiveGeometryIndex = 0;
         }
 
@@ -260,9 +258,9 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        void Geometry_Engine::admit_queued_intersection()
+        void Geometry_Engine::admit_queued_intersection(uint aNodeIndex)
         {
-            mIntersectionNodes.push_back(mQueuedIntersectionNode);
+            mPdvHostManager.set_intersection_node(aNodeIndex, mQueuedIntersectionNode);
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -273,7 +271,7 @@ namespace moris
                 const Cell<Matrix<DDRMat>>& aParamCoordRelativeToParent,
                 const Matrix<DDRMat>&       aGlobalNodeCoord )
         {
-            for (uint tNode = 0; tNode < aNewNodeIndices.size(); tNode++ )
+            for (uint tNode = 0; tNode < aNewNodeIndices.size(); tNode++)
             {
                 // Create child node
                 Matrix<DDUMat> tParentNodeIndices(aParentTopo(tNode)->get_node_indices().length(), 1);
@@ -292,13 +290,6 @@ namespace moris
                     mGeometries(tGeometryIndex)->add_child_node(aNewNodeIndices(tNode), tChildNode);
                 }
             }
-        }
-
-        //--------------------------------------------------------------------------------------------------------------
-
-        void Geometry_Engine::set_interface_nodes(const Matrix<IndexMat>& aInterfaceNodeIndices)
-        {
-            mInterfaceNodeIndices = aInterfaceNodeIndices;
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -698,12 +689,6 @@ namespace moris
 
         void Geometry_Engine::create_ig_pdv_hosts(mtk::Integration_Mesh* aIntegrationMesh)
         {
-            // Check interface nodes
-            MORIS_ERROR(mInterfaceNodeIndices.length() == mIntersectionNodes.size(),
-                        ("Number of interface nodes in XTK (" + std::to_string(mInterfaceNodeIndices.length()) +
-                        ") must match number of intersection nodes in the geometry engine (" +
-                        std::to_string(mIntersectionNodes.size()) + ").").c_str());
-
             // Get information from integration mesh
             uint tNumSets = aIntegrationMesh->get_num_sets();
 
@@ -740,19 +725,9 @@ namespace moris
                 tPdvTypes(tMeshSetIndex)(0) = tCoordinatePdvs;
             }
 
-            // Create hosts
-            if (mInterfaceNodeIndices.length() > 0)
-            {
-                Cell<std::shared_ptr<Intersection_Node>> tIntersectionNodes(mInterfaceNodeIndices(mInterfaceNodeIndices.length() - 1) + 1);
-
-                for (uint tInterfaceNode = 0; tInterfaceNode < mInterfaceNodeIndices.length(); tInterfaceNode++)
-                {
-                    tIntersectionNodes(mInterfaceNodeIndices(tInterfaceNode)) = mIntersectionNodes(tInterfaceNode);
-                }
-
-                mPdvHostManager.create_ig_pdv_hosts(tPdvTypes, tIntersectionNodes);
-                mPdvHostManager.set_ig_requested_pdv_types(tCoordinatePdvs);
-            }
+            // Set PDV types
+            mPdvHostManager.set_ig_pdv_types(tPdvTypes);
+            mPdvHostManager.set_ig_requested_pdv_types(tCoordinatePdvs);
         }
 
         //--------------------------------------------------------------------------------------------------------------

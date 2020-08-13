@@ -362,8 +362,7 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        void Pdv_Host_Manager::create_ig_pdv_hosts(Cell<Cell<Cell<PDV_Type>>>               aPdvTypes,
-                                                   Cell<std::shared_ptr<Intersection_Node>> aIntersectionNodes)
+        void Pdv_Host_Manager::set_ig_pdv_types(Cell<Cell<Cell<PDV_Type>>> aPdvTypes)
         {
             // Check that number of sets is consistent
             uint tNumSets = aPdvTypes.size();
@@ -371,9 +370,6 @@ namespace moris
             // Set PDV types
             mIgPdvTypes = aPdvTypes;
             mUniqueIgPdvTypes.resize(tNumSets);
-
-            // Initialize PDV hosts
-            mIntersectionNodes = aIntersectionNodes;
 
             // Unique PDV types
             for (uint tMeshSetIndex = 0; tMeshSetIndex < tNumSets; tMeshSetIndex++)
@@ -392,33 +388,40 @@ namespace moris
                 {
                     for (uint tPdvIndex = 0; tPdvIndex < mIgPdvTypes(tMeshSetIndex)(tGroupIndex).size(); tPdvIndex++)
                     {
-                        mUniqueIgPdvTypes(tMeshSetIndex)(tUniquePdvIndex++) = mIgPdvTypes(tMeshSetIndex)(tGroupIndex)(tPdvIndex);
+                        mUniqueIgPdvTypes(tMeshSetIndex)(tUniquePdvIndex++) = mIgPdvTypes(tMeshSetIndex)(tGroupIndex)(
+                                tPdvIndex);
                     }
                 }
             }
+        }
 
-            // Assign PDV indices
-            for (uint tNodeIndex = 0; tNodeIndex < aIntersectionNodes.size(); tNodeIndex++)
+        //--------------------------------------------------------------------------------------------------------------
+
+        void Pdv_Host_Manager::set_intersection_node(uint aNodeIndex, std::shared_ptr<Intersection_Node> aIntersectionNode)
+        {
+            // Resize
+            if (aNodeIndex >= mIntersectionNodes.size())
             {
-                // Determine if node is intersection
-                if (mIntersectionNodes(tNodeIndex))
-                {
-                    // Number of PDVs being added FIXME may not be true in the future, check for this
-                    uint tNumAddedPdvs = aPdvTypes(0)(0).size();
+                mIntersectionNodes.resize(aNodeIndex + 1);
+            }
 
-                    // Set global index
-                    mIntersectionNodes(tNodeIndex)->set_starting_pdv_index(mGlobalPdvIndex);
+            // Set intersection node
+            mIntersectionNodes(aNodeIndex) = aIntersectionNode;
 
-                    // Resize global map
-                    mGlobalPdvTypeMap.resize(mGlobalPdvTypeMap.length() + tNumAddedPdvs, 1);
+            // Set global index
+            mIntersectionNodes(aNodeIndex)->set_starting_pdv_index(mGlobalPdvIndex);
 
-                    // Update global index
-                    for (uint tPdvIndex = 0; tPdvIndex < tNumAddedPdvs; tPdvIndex++)
-                    {
-                        mGlobalPdvTypeMap(mGlobalPdvIndex) = mGlobalPdvIndex;
-                        mGlobalPdvIndex++;
-                    }
-                }
+            // Number of PDVs being added
+            uint tNumAddedPdvs = aIntersectionNode->get_global_coordinates().length();
+
+            // Resize global map
+            mGlobalPdvTypeMap.resize(mGlobalPdvTypeMap.length() + tNumAddedPdvs, 1);
+
+            // Update global index
+            for (uint tPdvIndex = 0; tPdvIndex < tNumAddedPdvs; tPdvIndex++)
+            {
+                mGlobalPdvTypeMap(mGlobalPdvIndex) = mGlobalPdvIndex;
+                mGlobalPdvIndex++;
             }
         }
 

@@ -77,13 +77,9 @@ namespace moris
             // PDVs
             Pdv_Host_Manager mPdvHostManager;
             std::shared_ptr<Intersection_Node> mQueuedIntersectionNode;
-            Cell<std::shared_ptr<Intersection_Node>> mIntersectionNodes;
 
             // Phase Table
             Phase_Table mPhaseTable;
-
-            // Temporary FIXME
-            Matrix<IndexMat> mInterfaceNodeIndices;
 
         public:
 
@@ -222,7 +218,7 @@ namespace moris
             /**
              * Admit the queued intersection as a unique, permanent node(s) for sensitivity calculations.
              */
-            void admit_queued_intersection();
+            void admit_queued_intersection(uint aNodeIndex);
 
             /**
              * Gets all of the geometry field values at the specified coordinates
@@ -244,13 +240,6 @@ namespace moris
                                          const Cell<xtk::Topology*>& aParentTopo,
                                          const Cell<Matrix<DDRMat>>& aParamCoordRelativeToParent,
                                          const Matrix<DDRMat>&       aGlobalNodeCoord );
-
-            /**
-             * Sets the indices for the nodes on the interface
-             *
-             * @param aInterfaceNodeIndices Interface node indices
-             */
-            void set_interface_nodes(const Matrix<IndexMat>& aInterfaceNodeIndices);
 
             /**
              * @brief Get the total number of phases in the phase table
