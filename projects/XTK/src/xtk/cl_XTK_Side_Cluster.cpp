@@ -108,7 +108,7 @@ namespace xtk
             moris::mtk::Cell_Info const * tCellInfo = mInterpolationCell->get_connectivity();
 
             // side ordinal on interpolation cell
-            moris::uint tSideOrd = (uint) mIntegrationCellSideOrdinals(0);
+            // moris::uint tSideOrd = (uint) mIntegrationCellSideOrdinals(0);
 
             // get the local coordinates on the side ordinal
             Matrix<DDRMat> tXi  = tCellInfo->get_vertex_loc_coord(tVertexOrdinal);
