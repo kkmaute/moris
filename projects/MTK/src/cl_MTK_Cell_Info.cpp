@@ -37,7 +37,7 @@ namespace moris
 
         // ---------------------------------------------------------------------------------
         Matrix<DDRMat>
-        Cell_Info::get_vertex_loc_coord(moris_index aVertexOrdinal) const
+        Cell_Info::get_vertex_loc_coord(moris_index const & aVertexOrdinal) const
         {
             MORIS_ERROR(0,"get_loc_coord_on_side_ordinal not implemented for given cell info type");
             return Matrix<DDRMat>(0,0);
@@ -72,16 +72,26 @@ namespace moris
 
         }
 
-//        // ---------------------------------------------------------------------------------
-//        Matrix<DDRMat>
-//        Cell_Info::get_loc_coord_on_side_ordinal( moris::uint aSideOrdinal ) const
-//        {
-//            // number of vertices
-//            moris::uint tNumVertsPerFacet = this->get_num_verts_per_facet();
-//
-//
-//            Matrix<DDRMat> tLocCoords(tNumVertsPerFacet,t)
-//        }
+        // ---------------------------------------------------------------------------------
+
+        void
+        Cell_Info::get_loc_coords_of_cell(Matrix<DDRMat> & aXi) const
+        {
+            // number of vertices
+            uint tNumVerts = this->get_num_verts();
+
+            // dimension of local coordinates
+            uint tDimXi = this->get_loc_coord_dim();
+
+            // allocate space
+            aXi.resize(tNumVerts,tDimXi);
+
+            // iterate through vertices and get their local coordinate
+            for(moris::uint i = 0; i < tNumVerts; i++)
+            {
+                aXi.get_row(i) = this->get_vertex_loc_coord((moris_index) i).get_row(0);
+            }
+        }
 
         // ---------------------------------------------------------------------------------
 

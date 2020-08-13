@@ -95,7 +95,7 @@ namespace moris
     int tRefineBuffer      = 1;
     int tInitialRefinement = 0;
 
-    int tInterfaceRefinement = 1;
+    int tInterfaceRefinement = 0;
 
     /* ------------------------------------------------------------------------ */
     // Minimum level set value
@@ -390,6 +390,7 @@ namespace moris
         tParameterList( 1 ).push_back( prm::create_constitutive_model_parameter_list() );
         tParameterList( 1 )( tCMCounter ).set( "constitutive_name", "CMStrucLinIso1");
         tParameterList( 1 )( tCMCounter ).set( "constitutive_type", static_cast< uint >( fem::Constitutive_Type::STRUC_LIN_ISO ) );
+        tParameterList( 1 )( tCMCounter ).set( "model_type",        static_cast< uint >( fem::Model_Type::FULL ) );
         tParameterList( 1 )( tCMCounter ).set( "dof_dependencies",  std::pair< std::string, std::string >( "UX,UY,UZ;TEMP", "Displacement,Temperature" ) );
         tParameterList( 1 )( tCMCounter ).set( "properties",
                 std::string("PropYoungs, YoungsModulus;") +

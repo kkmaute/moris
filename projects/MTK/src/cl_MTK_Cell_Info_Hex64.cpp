@@ -181,7 +181,7 @@ Cell_Info_Hex64::get_adjacent_side_ordinal(moris::uint aSideOrdinal) const
 //-----------------------------------------------------------------------------
 
 Matrix<DDRMat>
-Cell_Info_Hex64::get_vertex_loc_coord(moris_index aVertexOrdinal) const
+Cell_Info_Hex64::get_vertex_loc_coord(moris_index const & aVertexOrdinal) const
 {
     switch ( aVertexOrdinal )
     {

@@ -650,6 +650,8 @@ namespace xtk
                 // add nodes to the background mesh
                 mBackgroundMesh.batch_create_new_nodes(tDecompData.tNewNodeId,tDecompData.tNewNodeIndex,tDecompData.tNewNodeOwner,tDecompData.tNewNodeCoordinate);
 
+                //
+
                 // add nodes to child mesh
                 this->decompose_internal_set_new_nodes_in_child_mesh_nh(aActiveChildMeshIndices,tDecompData);
 
@@ -3487,7 +3489,8 @@ namespace xtk
 
     // ----------------------------------------------------------------------------------
 
-    void Model::construct_multigrid()
+    void
+    Model::construct_multigrid()
     {
         mMultigrid = std::make_shared< xtk::Multigrid >( this );
 
@@ -3501,6 +3504,46 @@ namespace xtk
 
         std::string tName = "Enriched_bspline_1.exo";
         mMultigrid->build_basis_exodus_information(tName);
+    }
+
+    // ----------------------------------------------------------------------------------
+
+    Cut_Mesh &
+    Model::get_cut_mesh()
+    {
+        return mCutMesh;
+    }
+
+    // ----------------------------------------------------------------------------------
+
+    Cut_Mesh const &
+    Model::get_cut_mesh() const
+    {
+        return mCutMesh;
+    }
+
+    // ----------------------------------------------------------------------------------
+
+    Background_Mesh &
+    Model::get_background_mesh()
+    {
+        return mBackgroundMesh;
+    }
+
+    // ----------------------------------------------------------------------------------
+
+    Background_Mesh const &
+    Model::get_background_mesh() const
+    {
+        return mBackgroundMesh;
+    }
+
+    // ----------------------------------------------------------------------------------
+
+    moris::ge::Geometry_Engine*
+    Model::get_geom_engine()
+    {
+        return mGeometryEngine;
     }
 
     // ----------------------------------------------------------------------------------
@@ -3578,6 +3621,14 @@ namespace xtk
         }
 
         //    print_neighborhood();
+    }
+
+    // ----------------------------------------------------------------------------------
+
+    void
+    Model::delete_neighborhood()
+    {
+        mElementToElement.resize(0);
     }
 
     // ----------------------------------------------------------------------------------
@@ -4339,6 +4390,46 @@ namespace xtk
         auto tIter = mCellGlbToLocalMap.find(aCellId);
         MORIS_ASSERT(tIter != mCellGlbToLocalMap.end(),"Id not in map");
         return tIter->second;
+    }
+
+    //------------------------------------------------------------------------------
+
+    moris::Cell<moris::Cell<moris_index>>  const &
+    Model::get_subphase_to_subphase()
+    {
+        return mSubphaseToSubPhase;
+    }
+
+    //------------------------------------------------------------------------------
+
+    moris::Cell<moris::Cell<moris_index>>  const &
+    Model::get_subphase_to_subphase_my_side_ords()
+    {
+        return mSubphaseToSubPhaseMySideOrds;
+    }
+
+    //------------------------------------------------------------------------------
+
+    moris::Cell<moris::Cell<moris_index>>  const &
+    Model::get_subphase_to_subphase_transition_loc()
+    {
+        return mTransitionNeighborCellLocation;
+    }
+
+    //------------------------------------------------------------------------------
+
+    moris::Cell<moris::Cell<moris_index>>  const &
+    Model::get_subphase_to_subphase_neighbor_side_ords()
+    {
+        return mSubphaseToSubPhaseNeighborSideOrds;
+    }
+
+    //------------------------------------------------------------------------------
+
+    std::shared_ptr< Multigrid >
+    Model::get_multigrid_ptr()
+    {
+        return mMultigrid;
     }
 
     //------------------------------------------------------------------------------

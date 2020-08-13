@@ -120,7 +120,7 @@ Side_Cluster_HMR::get_vertices_in_cluster( const mtk::Master_Slave aIsMaster ) c
 
 //----------------------------------------------------------------
 
-moris::Matrix<moris::DDRMat> const &
+moris::Matrix<moris::DDRMat>
 Side_Cluster_HMR::get_vertices_local_coordinates_wrt_interp_cell( const mtk::Master_Slave aIsMaster ) const
 {
     MORIS_ERROR(!mTrivial,"Accessing local coordinates on a trivial side cluster is not allowed");

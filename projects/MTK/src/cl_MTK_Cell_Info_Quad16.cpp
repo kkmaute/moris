@@ -164,7 +164,7 @@ namespace moris
         // ----------------------------------------------------------------------------------
 
         Matrix<DDRMat>
-        Cell_Info_Quad16::get_vertex_loc_coord(moris_index aVertexOrdinal) const
+        Cell_Info_Quad16::get_vertex_loc_coord(moris_index const & aVertexOrdinal) const
         {
             switch (aVertexOrdinal)
             {

@@ -206,7 +206,7 @@ namespace moris
                  */
                 virtual
                 Matrix<DDRMat>
-                get_vertex_loc_coord(moris_index aVertexOrdinal) const;
+                get_vertex_loc_coord(moris_index const & aVertexOrdinal) const;
 
                 // ---------------------------------------------------------------------------------
                 /*!
@@ -218,6 +218,14 @@ namespace moris
                 get_loc_coord_on_side_ordinal(
                         moris::uint const & aSideOrdinal,
                         Matrix<DDRMat>    & aXi ) const;
+
+                // ---------------------------------------------------------------------------------
+                /*!
+                * @param[out] Parametric coordinate of the all the cell's vertices
+                */
+                virtual
+                void
+                get_loc_coords_of_cell(Matrix<DDRMat> & aXi) const;
 
                 // ---------------------------------------------------------------------------------
                 /*!

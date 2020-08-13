@@ -1,6 +1,6 @@
 set(EXAMPLE_MAIN  Main_Thick_Pressure_Vessel)
 set(EXAMPLE_FILES Pressure_Vessel_3D Pressure_Vessel_3D_Immersed)
-set(EXAMPLE_PROCS 1)
+set(EXAMPLE_PROCS 1 4)
 
 # List source files
 set(EXAMPLE_SOURCES
@@ -93,7 +93,7 @@ endforeach()
 # Add parallel tests
 if(MORIS_HAVE_PARALLEL_TESTS)
     foreach(PROCS ${EXAMPLE_PROCS})
-        add_test(NAME ${EXAMPLE_FILE}-${PROCS}-procs
+        add_test(NAME Thick_Pressure_Vessel-${PROCS}-procs
                  WORKING_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}
                  COMMAND ${MORIS_EXECUTE_COMMAND} -n ${PROCS} ${VALGRIND} ${VALGRIND_OPTIONS} $<TARGET_FILE:${EXAMPLE_MAIN}>)
     endforeach()

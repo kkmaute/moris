@@ -60,7 +60,7 @@ namespace moris
                  * Default virtual destructor
                  */
                 virtual
-                ~Double_Side_Cluster(){};
+                ~Double_Side_Cluster();
 
                 // ----------------------------------------------------------------------------------
 
@@ -324,12 +324,12 @@ namespace moris
                  * Access the full array of local coordinates on the master
                  */
 
-                moris::Matrix<moris::DDRMat> const &
+                moris::Matrix<moris::DDRMat>
                 get_vertices_local_coordinates_wrt_interp_cell( const mtk::Master_Slave aIsMaster ) const;
 
                 //----------------------------------------------------------------
 
-                moris::Matrix<moris::DDRMat> const &
+                moris::Matrix<moris::DDRMat>
                 get_master_vertices_local_coordinates_wrt_interp_cell() const;
 
                 //----------------------------------------------------------------
@@ -337,7 +337,7 @@ namespace moris
                 /*
                  * Access the full array of local coordinates on the slave
                  */
-                moris::Matrix<moris::DDRMat> const &
+                moris::Matrix<moris::DDRMat>
                 get_slave_vertices_local_coordinates_wrt_interp_cell() const;
 
                 //----------------------------------------------------------------

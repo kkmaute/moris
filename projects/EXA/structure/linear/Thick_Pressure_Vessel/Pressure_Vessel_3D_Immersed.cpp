@@ -21,6 +21,13 @@
 
 #include "AztecOO.h"
 
+//---------------------------------------------------------------
+
+// global variable for interpolation order
+extern uint gInterpolationOrder;
+
+//---------------------------------------------------------------
+
 #ifdef  __cplusplus
 extern "C"
 {
@@ -79,12 +86,11 @@ namespace moris
     std::string tDomainDims         = "0.6, 0.6, 0.6";
     std::string tDomainOffset       = "-0.1, -0.1, -0.1";
     std::string tDomainSidesets     = "1,2,3,4,5,6";
-    std::string tInterpolationOrder = "1";
 
     int tRefineBuffer      = 1;
     int tInitialRefinement = 0;
 
-    int tInterfaceRefinement = 1;
+    int tInterfaceRefinement = 0;
 
     /* ------------------------------------------------------------------------ */
     // Minimum level set value
@@ -229,9 +235,9 @@ namespace moris
         tParameterlist( 0 )( 0 ).set( "domain_sidesets",                  tDomainSidesets);
         tParameterlist( 0 )( 0 ).set( "lagrange_output_meshes",           std::string("0"));
 
-        tParameterlist( 0 )( 0 ).set( "lagrange_orders",  tInterpolationOrder );
+        tParameterlist( 0 )( 0 ).set( "lagrange_orders",  std::to_string(gInterpolationOrder) );
         tParameterlist( 0 )( 0 ).set( "lagrange_pattern", std::string( "0" )  );
-        tParameterlist( 0 )( 0 ).set( "bspline_orders",   tInterpolationOrder );
+        tParameterlist( 0 )( 0 ).set( "bspline_orders",   std::to_string(gInterpolationOrder) );
         tParameterlist( 0 )( 0 ).set( "bspline_pattern",  std::string( "0" )  );
 
         tParameterlist( 0 )( 0 ).set( "lagrange_to_bspline", std::string("0") );
@@ -292,8 +298,7 @@ namespace moris
         tParameterlist( 1 )( tGeoCounter ).set( "field_function_name", "Sphere");
         tParameterlist( 1 )( tGeoCounter ).set( "constant_parameters", std::to_string(tInnerRad));
         tParameterlist( 1 )( tGeoCounter ).set( "number_of_refinements", tInterfaceRefinement);
-        tParameterlist( 1 )( tGeoCounter ).set( "number_of_refinements", tInterfaceRefinement);
-        tGeoCounter++;
+         tGeoCounter++;
 
         tParameterlist( 1 ).push_back( prm::create_user_defined_geometry_parameter_list() );
         tParameterlist( 1 )( tGeoCounter ).set( "field_function_name", "Plane");
@@ -425,6 +430,7 @@ namespace moris
         tParameterList( 1 ).push_back( prm::create_constitutive_model_parameter_list() );
         tParameterList( 1 )( tCMCounter ).set( "constitutive_name", "CMStrucLinIso1");
         tParameterList( 1 )( tCMCounter ).set( "constitutive_type", static_cast< uint >( fem::Constitutive_Type::STRUC_LIN_ISO ) );
+        tParameterList( 1 )( tCMCounter ).set( "model_type",        static_cast< uint >( fem::Model_Type::FULL ) );
         tParameterList( 1 )( tCMCounter ).set( "dof_dependencies",  std::pair< std::string, std::string >( "UX,UY,UZ;TEMP", "Displacement,Temperature" ) );
         tParameterList( 1 )( tCMCounter ).set( "properties",
                 std::string("PropYoungs, YoungsModulus;") +
