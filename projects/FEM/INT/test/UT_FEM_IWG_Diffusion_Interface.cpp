@@ -101,16 +101,6 @@ TEST_CASE( "IWG_Diff_Interface", "[moris],[fem],[IWG_Diff_Interface]" )
     tSPNitscheInterface->set_property( tPropMasterConductivity, "Material", mtk::Master_Slave::MASTER );
     tSPNitscheInterface->set_property( tPropSlaveConductivity, "Material", mtk::Master_Slave::SLAVE );
 
-    std::shared_ptr< fem::Stabilization_Parameter > tSPMasterWeightInterface =
-            tSPFactory.create_SP( fem::Stabilization_Type::MASTER_WEIGHT_INTERFACE );
-    tSPMasterWeightInterface->set_property( tPropMasterConductivity, "Material", mtk::Master_Slave::MASTER );
-    tSPMasterWeightInterface->set_property( tPropSlaveConductivity, "Material", mtk::Master_Slave::SLAVE );
-
-    std::shared_ptr< fem::Stabilization_Parameter > tSPSlaveWeightInterface =
-            tSPFactory.create_SP( fem::Stabilization_Type::SLAVE_WEIGHT_INTERFACE );
-    tSPSlaveWeightInterface->set_property( tPropMasterConductivity, "Material", mtk::Master_Slave::MASTER );
-    tSPSlaveWeightInterface->set_property( tPropSlaveConductivity, "Material", mtk::Master_Slave::SLAVE );
-
     // define the IWGs
     fem::IWG_Factory tIWGFactory;
 
@@ -119,11 +109,9 @@ TEST_CASE( "IWG_Diff_Interface", "[moris],[fem],[IWG_Diff_Interface]" )
     tIWG->set_residual_dof_type( tTempDofTypes );
     tIWG->set_dof_type_list( tDofTypes, mtk::Master_Slave::MASTER );
     tIWG->set_dof_type_list( tDofTypes, mtk::Master_Slave::SLAVE );
-    tIWG->set_stabilization_parameter( tSPNitscheInterface, "NitscheInterface" );
-    tIWG->set_stabilization_parameter( tSPMasterWeightInterface, "MasterWeightInterface" );
-    tIWG->set_stabilization_parameter( tSPSlaveWeightInterface, "SlaveWeightInterface" );
     tIWG->set_constitutive_model( tCMMasterDiffLinIso, "Diffusion", mtk::Master_Slave::MASTER );
     tIWG->set_constitutive_model( tCMSlaveDiffLinIso, "Diffusion", mtk::Master_Slave::SLAVE );
+    tIWG->set_stabilization_parameter( tSPNitscheInterface, "NitscheInterface" );
 
     // init set info
     //------------------------------------------------------------------------------
@@ -160,6 +148,7 @@ TEST_CASE( "IWG_Diff_Interface", "[moris],[fem],[IWG_Diff_Interface]" )
         // set space dimension to CM, SP
         tCMMasterDiffLinIso->set_space_dim( iSpaceDim );
         tCMSlaveDiffLinIso->set_space_dim( iSpaceDim );
+        tSPNitscheInterface->set_space_dim( iSpaceDim );
 
         // switch on space dimension
         switch( iSpaceDim )

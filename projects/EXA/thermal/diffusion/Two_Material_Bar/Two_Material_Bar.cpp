@@ -449,20 +449,6 @@ namespace moris
         tParameterList( 2 )( tSPCounter ).set( "slave_properties",    "PropConductivity2,Material") ;
         tSPCounter++;
 
-        tParameterList( 2 ).push_back( prm::create_stabilization_parameter_parameter_list() );  
-        tParameterList( 2 )( tSPCounter ).set( "stabilization_name",  "SPInterfaceNitscheMasterWeight") ;
-        tParameterList( 2 )( tSPCounter ).set( "stabilization_type",  static_cast< uint >( fem::Stabilization_Type::MASTER_WEIGHT_INTERFACE ) );
-        tParameterList( 2 )( tSPCounter ).set( "master_properties",   "PropConductivity1,Material") ;
-        tParameterList( 2 )( tSPCounter ).set( "slave_properties",    "PropConductivity2,Material") ;
-        tSPCounter++;
-
-        tParameterList( 2 ).push_back( prm::create_stabilization_parameter_parameter_list() );
-        tParameterList( 2 )( tSPCounter ).set( "stabilization_name",  "SPInterfaceNitscheSlaveWeight") ;
-        tParameterList( 2 )( tSPCounter ).set( "stabilization_type",  static_cast< uint >( fem::Stabilization_Type::SLAVE_WEIGHT_INTERFACE ) );
-        tParameterList( 2 )( tSPCounter ).set( "master_properties",   "PropConductivity1,Material") ;
-        tParameterList( 2 )( tSPCounter ).set( "slave_properties",    "PropConductivity2,Material") ;
-        tSPCounter++;
-
         // create parameter list for DBC on back surface
         tParameterList( 2 ).push_back( prm::create_stabilization_parameter_parameter_list() );
         tParameterList( 2 )( tSPCounter ).set( "stabilization_name",      "SPNitscheTemp") ;
@@ -542,15 +528,12 @@ namespace moris
         tParameterList( 3 ).push_back( prm::create_IWG_parameter_list() );
         tParameterList( 3 )( tIWGCounter ).set( "IWG_name",                   "IWGInterface12TEMP") ;
         tParameterList( 3 )( tIWGCounter ).set( "IWG_type",                   static_cast< uint >( fem::IWG_Type::SPATIALDIFF_INTERFACE ) );
-        tParameterList( 3 )( tIWGCounter ).set( "dof_residual",               "TEMP") ;
-        tParameterList( 3 )( tIWGCounter ).set( "master_dof_dependencies",    "TEMP") ;
-        tParameterList( 3 )( tIWGCounter ).set( "slave_dof_dependencies",     "TEMP") ;
-        tParameterList( 3 )( tIWGCounter ).set( "master_constitutive_models", "CMDiffusion1,Diffusion") ;
-        tParameterList( 3 )( tIWGCounter ).set( "slave_constitutive_models",  "CMDiffusion2,Diffusion") ;
-        tParameterList( 3 )( tIWGCounter ).set( "stabilization_parameters",
-                "SPInterfaceNitsche             ,NitscheInterface;"
-				"SPInterfaceNitscheMasterWeight ,MasterWeightInterface;"
-				"SPInterfaceNitscheSlaveWeight  ,SlaveWeightInterface")   ;
+        tParameterList( 3 )( tIWGCounter ).set( "dof_residual",               "TEMP");
+        tParameterList( 3 )( tIWGCounter ).set( "master_dof_dependencies",    "TEMP");
+        tParameterList( 3 )( tIWGCounter ).set( "slave_dof_dependencies",     "TEMP");
+        tParameterList( 3 )( tIWGCounter ).set( "master_constitutive_models", "CMDiffusion1,Diffusion");
+        tParameterList( 3 )( tIWGCounter ).set( "slave_constitutive_models",  "CMDiffusion2,Diffusion");
+        tParameterList( 3 )( tIWGCounter ).set( "stabilization_parameters",   "SPInterfaceNitsche,NitscheInterface");
         tParameterList( 3 )( tIWGCounter ).set( "mesh_set_names",             tInterface );
         tIWGCounter++;
 

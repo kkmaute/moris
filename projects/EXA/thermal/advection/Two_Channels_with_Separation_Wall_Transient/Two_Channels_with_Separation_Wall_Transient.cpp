@@ -394,22 +394,6 @@ extern "C"
             tParameterList( 2 )( tSPCounter ).set( "slave_properties",    "PropSolidConductivity,Material") ;
             tSPCounter++;
 
-            // master thermal interface stabilization parameter
-            tParameterList( 2 ).push_back( prm::create_stabilization_parameter_parameter_list() );
-            tParameterList( 2 )( tSPCounter ).set( "stabilization_name",  "SPInterfaceMasterWeight") ;
-            tParameterList( 2 )( tSPCounter ).set( "stabilization_type",  static_cast< uint >( fem::Stabilization_Type::MASTER_WEIGHT_INTERFACE ) );
-            tParameterList( 2 )( tSPCounter ).set( "master_properties",   "PropFluidConductivity,Material") ;
-            tParameterList( 2 )( tSPCounter ).set( "slave_properties",    "PropSolidConductivity,Material") ;
-            tSPCounter++;
-
-            // slave thermal interface stabilization parameter
-            tParameterList( 2 ).push_back( prm::create_stabilization_parameter_parameter_list() );
-            tParameterList( 2 )( tSPCounter ).set( "stabilization_name",  "SPInterfaceSlaveWeight") ;
-            tParameterList( 2 )( tSPCounter ).set( "stabilization_type",  static_cast< uint >( fem::Stabilization_Type::SLAVE_WEIGHT_INTERFACE ) );
-            tParameterList( 2 )( tSPCounter ).set( "master_properties",   "PropFluidConductivity,Material") ;
-            tParameterList( 2 )( tSPCounter ).set( "slave_properties",    "PropSolidConductivity,Material") ;
-            tSPCounter++;
-
             // ghost viscous stabilization parameter
             tParameterList( 2 ).push_back( prm::create_stabilization_parameter_parameter_list() );
             tParameterList( 2 )( tSPCounter ).set( "stabilization_name",  "SPGPViscous") ;
@@ -608,13 +592,13 @@ extern "C"
             tParameterList( 3 ).push_back( prm::create_IWG_parameter_list() );
             tParameterList( 3 )( tIWGCounter ).set( "IWG_name",                        "IWGInterfaceFluidSolid") ;
             tParameterList( 3 )( tIWGCounter ).set( "IWG_type",                        static_cast< uint >( fem::IWG_Type::SPATIALDIFF_INTERFACE ) );
-            tParameterList( 3 )( tIWGCounter ).set( "dof_residual",                    "TEMP") ;
-            tParameterList( 3 )( tIWGCounter ).set( "master_dof_dependencies",         "VX,VY;P;TEMP") ;
-            tParameterList( 3 )( tIWGCounter ).set( "slave_dof_dependencies",          "VX,VY;P;TEMP") ;
-            tParameterList( 3 )( tIWGCounter ).set( "master_constitutive_models",      "CMFluidDiffusion,Diffusion") ;
-            tParameterList( 3 )( tIWGCounter ).set( "slave_constitutive_models",       "CMSolidDiffusion,Diffusion") ;
-            tParameterList( 3 )( tIWGCounter ).set( "stabilization_parameters",        "SPInterfaceNitsche,NitscheInterface;SPInterfaceMasterWeight,MasterWeightInterface;SPInterfaceSlaveWeight,SlaveWeightInterface") ;
-            tParameterList( 3 )( tIWGCounter ).set( "mesh_set_names",                  "dbl_iside_p0_34_p1_42,dbl_iside_p0_46_p1_42") ;
+            tParameterList( 3 )( tIWGCounter ).set( "dof_residual",                    "TEMP");
+            tParameterList( 3 )( tIWGCounter ).set( "master_dof_dependencies",         "VX,VY;P;TEMP");
+            tParameterList( 3 )( tIWGCounter ).set( "slave_dof_dependencies",          "VX,VY;P;TEMP");
+            tParameterList( 3 )( tIWGCounter ).set( "master_constitutive_models",      "CMFluidDiffusion,Diffusion");
+            tParameterList( 3 )( tIWGCounter ).set( "slave_constitutive_models",       "CMSolidDiffusion,Diffusion");
+            tParameterList( 3 )( tIWGCounter ).set( "stabilization_parameters",        "SPInterfaceNitsche,NitscheInterface");
+            tParameterList( 3 )( tIWGCounter ).set( "mesh_set_names",                  "dbl_iside_p0_34_p1_42,dbl_iside_p0_46_p1_42");
             tIWGCounter++;
 
             // ghost viscous IWG

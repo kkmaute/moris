@@ -170,8 +170,8 @@ namespace moris
                     // loop over the IG cells
                     for( moris::uint iIGCell = 0; iIGCell < mMasterIntegrationCells.size(); iIGCell++)
                     {
-                        Matrix< IndexMat > tMasterVertexIndices =
-                                mMasterIntegrationCells( iIGCell )->get_vertices_ind_on_side_ordinal( mMasterListOfSideOrdinals( iIGCell ) );
+                        Matrix< IndexMat > tMasterVertexIndices = mMasterIntegrationCells( iIGCell )->
+                                get_vertices_ind_on_side_ordinal( mMasterListOfSideOrdinals( iIGCell ) );
 
                         for(moris::uint iVertex = 0; iVertex < tMasterVertexIndices.numel(); iVertex++ )
                         {

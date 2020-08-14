@@ -5,8 +5,6 @@
 #include "cl_FEM_SP_Ghost_Displacement.hpp"
 #include "cl_FEM_SP_Ghost_Virtual_Work.hpp"
 #include "cl_FEM_SP_Nitsche_Interface.hpp"
-#include "cl_FEM_SP_Master_Weight_Interface.hpp"
-#include "cl_FEM_SP_Slave_Weight_Interface.hpp"
 #include "cl_FEM_SP_Reciprocal_Total_Volume.hpp"
 #include "cl_FEM_SP_Incompressible_Flow.hpp"
 #include "cl_FEM_SP_Viscous_Ghost.hpp"
@@ -47,12 +45,6 @@ namespace moris
 
                 case fem::Stabilization_Type::NITSCHE_INTERFACE :
                     return std::make_shared< SP_Nitsche_Interface >();
-
-                case fem::Stabilization_Type::MASTER_WEIGHT_INTERFACE :
-                    return std::make_shared< SP_Master_Weight_Interface >();
-
-                case fem::Stabilization_Type::SLAVE_WEIGHT_INTERFACE :
-                    return std::make_shared< SP_Slave_Weight_Interface >();
 
                 case fem::Stabilization_Type::RECIPROCAL_TOTAL_VOLUME :
                     return std::make_shared< SP_Reciprocal_Total_Volume >();

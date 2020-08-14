@@ -1,5 +1,7 @@
-#include "cl_FEM_Integration_Rule.hpp" //FEM/INT/src
-#include "cl_FEM_Integrator.hpp"       //FEM/INT/src
+//FEM/INT/src
+#include "cl_FEM_Integration_Rule.hpp"
+#include "cl_FEM_Integrator.hpp"
+//LINALG/src
 #include "op_times.hpp"
 #include "fn_trans.hpp"
 #include "fn_reshape.hpp"
@@ -9,7 +11,7 @@ namespace moris
 {
     namespace fem
     {
-//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
 
         Integrator::Integrator( const Integration_Rule & aIntegrationRule )
         {
@@ -38,7 +40,7 @@ namespace moris
             mTimeCoeffs->get_weights( mTimeWeights );
         }
 
-//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
 
         Integrator::~Integrator()
         {
@@ -55,14 +57,14 @@ namespace moris
             }
         }
 
-//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
 
         uint Integrator::get_number_of_points()
         {
             return mNumOfSpacePoints * mNumOfTimePoints;
         }
 
-//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
 
         void Integrator::get_points( Matrix< DDRMat > & aIntegrationPoints )
         {
@@ -71,7 +73,7 @@ namespace moris
 
             // set output matrix size for space time
             aIntegrationPoints.set_size( tNumOfSpaceDim + 1,
-                                         mNumOfSpacePoints*mNumOfTimePoints );
+                    mNumOfSpacePoints * mNumOfTimePoints );
 
             Matrix< DDRMat > tOnes( 1, mNumOfSpacePoints, 1.0 );
 
@@ -84,23 +86,26 @@ namespace moris
                 stopCol  = ( k + 1 ) * mNumOfSpacePoints - 1;
 
                 // fill in the space points coordinates
-                aIntegrationPoints( { 0, tNumOfSpaceDim-1 }, { startCol, stopCol } )
-                    = mSpacePoints.matrix_data();
+                aIntegrationPoints( { 0, tNumOfSpaceDim - 1 }, { startCol, stopCol } ) =
+                        mSpacePoints.matrix_data();
 
                 // fill in the time point coordinates
-                aIntegrationPoints( { tNumOfSpaceDim, tNumOfSpaceDim }, { startCol, stopCol } )
-                    = mTimePoints( k ) * tOnes;
+                aIntegrationPoints( { tNumOfSpaceDim, tNumOfSpaceDim }, { startCol, stopCol } ) =
+                        mTimePoints( k ) * tOnes;
             }
         }
 
-//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
 
         void Integrator::get_weights( Matrix< DDRMat > & aIntegrationWeights )
         {
             // get weights
-            aIntegrationWeights = reshape ( trans( mSpaceWeights ) * mTimeWeights, 1, mNumOfSpacePoints*mNumOfTimePoints );
+            aIntegrationWeights = reshape (
+                    trans( mSpaceWeights ) * mTimeWeights,
+                    1,
+                    mNumOfSpacePoints*mNumOfTimePoints );
         }
 
-//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
     } /* namespace fem */
 } /* namespace moris */

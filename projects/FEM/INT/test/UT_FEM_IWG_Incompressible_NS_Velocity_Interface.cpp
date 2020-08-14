@@ -135,16 +135,6 @@ TEST_CASE( "IWG_Incompressible_NS_Velocity_Interface_Symmetric_Nitsche",
     tSPNitsche->set_property( tPropMasterViscosity, "Material", mtk::Master_Slave::MASTER );
     tSPNitsche->set_property( tPropSlaveViscosity, "Material", mtk::Master_Slave::SLAVE );
 
-    std::shared_ptr< fem::Stabilization_Parameter > tSPMasterWeight =
-            tSPFactory.create_SP( fem::Stabilization_Type::MASTER_WEIGHT_INTERFACE );
-    tSPMasterWeight->set_property( tPropMasterViscosity, "Material", mtk::Master_Slave::MASTER );
-    tSPMasterWeight->set_property( tPropSlaveViscosity, "Material", mtk::Master_Slave::SLAVE );
-
-    std::shared_ptr< fem::Stabilization_Parameter > tSPSlaveWeight =
-            tSPFactory.create_SP( fem::Stabilization_Type::SLAVE_WEIGHT_INTERFACE );
-    tSPSlaveWeight->set_property( tPropMasterViscosity, "Material", mtk::Master_Slave::MASTER );
-    tSPSlaveWeight->set_property( tPropSlaveViscosity, "Material", mtk::Master_Slave::SLAVE );
-
     // define the IWGs
     fem::IWG_Factory tIWGFactory;
 
@@ -158,8 +148,6 @@ TEST_CASE( "IWG_Incompressible_NS_Velocity_Interface_Symmetric_Nitsche",
     tIWG->set_constitutive_model( tCMMasterTurbulence, "TurbulenceFluid", mtk::Master_Slave::MASTER );
     tIWG->set_constitutive_model( tCMSlaveTurbulence, "TurbulenceFluid", mtk::Master_Slave::SLAVE );
     tIWG->set_stabilization_parameter( tSPNitsche, "NitscheInterface" );
-    tIWG->set_stabilization_parameter( tSPMasterWeight, "MasterWeightInterface" );
-    tIWG->set_stabilization_parameter( tSPSlaveWeight, "SlaveWeightInterface" );
 
     // init set info
     //------------------------------------------------------------------------------
@@ -265,6 +253,7 @@ TEST_CASE( "IWG_Incompressible_NS_Velocity_Interface_Symmetric_Nitsche",
         tCMMasterTurbulence->set_space_dim( iSpaceDim );
         tCMSlaveFluid->set_space_dim( iSpaceDim );
         tCMSlaveTurbulence->set_space_dim( iSpaceDim );
+        tSPNitsche->set_space_dim( iSpaceDim );
 
         // loop on the interpolation order
         for( uint iInterpOrder = 1; iInterpOrder < 4; iInterpOrder++ )
@@ -582,16 +571,6 @@ TEST_CASE( "IWG_Incompressible_NS_Velocity_Interface_Unsymmetric_Nitsche",
     tSPNitsche->set_property( tPropMasterViscosity, "Material", mtk::Master_Slave::MASTER );
     tSPNitsche->set_property( tPropSlaveViscosity, "Material", mtk::Master_Slave::SLAVE );
 
-    std::shared_ptr< fem::Stabilization_Parameter > tSPMasterWeight =
-            tSPFactory.create_SP( fem::Stabilization_Type::MASTER_WEIGHT_INTERFACE );
-    tSPMasterWeight->set_property( tPropMasterViscosity, "Material", mtk::Master_Slave::MASTER );
-    tSPMasterWeight->set_property( tPropSlaveViscosity, "Material", mtk::Master_Slave::SLAVE );
-
-    std::shared_ptr< fem::Stabilization_Parameter > tSPSlaveWeight =
-            tSPFactory.create_SP( fem::Stabilization_Type::SLAVE_WEIGHT_INTERFACE );
-    tSPSlaveWeight->set_property( tPropMasterViscosity, "Material", mtk::Master_Slave::MASTER );
-    tSPSlaveWeight->set_property( tPropSlaveViscosity, "Material", mtk::Master_Slave::SLAVE );
-
     // define the IWGs
     fem::IWG_Factory tIWGFactory;
 
@@ -605,8 +584,6 @@ TEST_CASE( "IWG_Incompressible_NS_Velocity_Interface_Unsymmetric_Nitsche",
     tIWG->set_constitutive_model( tCMMasterTurbulence, "TurbulenceFluid", mtk::Master_Slave::MASTER );
     tIWG->set_constitutive_model( tCMSlaveTurbulence, "TurbulenceFluid", mtk::Master_Slave::SLAVE );
     tIWG->set_stabilization_parameter( tSPNitsche, "NitscheInterface" );
-    tIWG->set_stabilization_parameter( tSPMasterWeight, "MasterWeightInterface" );
-    tIWG->set_stabilization_parameter( tSPSlaveWeight, "SlaveWeightInterface" );
 
     // init set info
     //------------------------------------------------------------------------------
@@ -712,6 +689,7 @@ TEST_CASE( "IWG_Incompressible_NS_Velocity_Interface_Unsymmetric_Nitsche",
         tCMMasterTurbulence->set_space_dim( iSpaceDim );
         tCMSlaveFluid->set_space_dim( iSpaceDim );
         tCMSlaveTurbulence->set_space_dim( iSpaceDim );
+        tSPNitsche->set_space_dim( iSpaceDim );
 
         // loop on the interpolation order
         for( uint iInterpOrder = 1; iInterpOrder < 4; iInterpOrder++ )

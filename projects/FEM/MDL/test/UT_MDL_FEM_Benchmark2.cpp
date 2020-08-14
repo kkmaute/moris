@@ -948,22 +948,16 @@ TEST_CASE("FEM Benchmark 2 - 2Mat","[MDL_FEM_Benchmark2_2Mat]")
         //------------------------------------------------------------------------------
         fem::SP_Factory tSPFactory;
 
-        std::shared_ptr< fem::Stabilization_Parameter > tSPDirichletNitsche = tSPFactory.create_SP( fem::Stabilization_Type::DIRICHLET_NITSCHE );
+        std::shared_ptr< fem::Stabilization_Parameter > tSPDirichletNitsche =
+                tSPFactory.create_SP( fem::Stabilization_Type::DIRICHLET_NITSCHE );
         tSPDirichletNitsche->set_parameters( { {{ tDBCGamma }} } );
         tSPDirichletNitsche->set_property( tPropKappaA, "Material", mtk::Master_Slave::MASTER );
 
-        std::shared_ptr< fem::Stabilization_Parameter > tSPNitscheInterface = tSPFactory.create_SP( fem::Stabilization_Type::NITSCHE_INTERFACE );
+        std::shared_ptr< fem::Stabilization_Parameter > tSPNitscheInterface =
+                tSPFactory.create_SP( fem::Stabilization_Type::NITSCHE_INTERFACE );
         tSPNitscheInterface->set_parameters( { {{ tIBCGamma }} } );
         tSPNitscheInterface->set_property( tPropKappaB, "Material", mtk::Master_Slave::MASTER );
         tSPNitscheInterface->set_property( tPropKappaA, "Material", mtk::Master_Slave::SLAVE );
-
-        std::shared_ptr< fem::Stabilization_Parameter > tSPMasterWeightInterface = tSPFactory.create_SP( fem::Stabilization_Type::MASTER_WEIGHT_INTERFACE );
-        tSPMasterWeightInterface->set_property( tPropKappaB, "Material", mtk::Master_Slave::MASTER );
-        tSPMasterWeightInterface->set_property( tPropKappaA, "Material", mtk::Master_Slave::SLAVE );
-
-        std::shared_ptr< fem::Stabilization_Parameter > tSPSlaveWeightInterface = tSPFactory.create_SP( fem::Stabilization_Type::SLAVE_WEIGHT_INTERFACE );
-        tSPSlaveWeightInterface->set_property( tPropKappaB, "Material", mtk::Master_Slave::MASTER );
-        tSPSlaveWeightInterface->set_property( tPropKappaA, "Material", mtk::Master_Slave::SLAVE );
 
         // create the IWGs
         //------------------------------------------------------------------------------
@@ -995,11 +989,9 @@ TEST_CASE("FEM Benchmark 2 - 2Mat","[MDL_FEM_Benchmark2_2Mat]")
         tIWGInterface->set_residual_dof_type( { MSI::Dof_Type::TEMP } );
         tIWGInterface->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
         tIWGInterface->set_dof_type_list( {{ MSI::Dof_Type::TEMP }}, mtk::Master_Slave::SLAVE );
-        tIWGInterface->set_stabilization_parameter( tSPNitscheInterface, "NitscheInterface" );
-        tIWGInterface->set_stabilization_parameter( tSPMasterWeightInterface, "MasterWeightInterface" );
-        tIWGInterface->set_stabilization_parameter( tSPSlaveWeightInterface, "SlaveWeightInterface" );
         tIWGInterface->set_constitutive_model( tCMDiffLinIsoB, "Diffusion", mtk::Master_Slave::MASTER );
         tIWGInterface->set_constitutive_model( tCMDiffLinIsoA, "Diffusion", mtk::Master_Slave::SLAVE );
+        tIWGInterface->set_stabilization_parameter( tSPNitscheInterface, "NitscheInterface" );
 
         // create the IQIs
         //------------------------------------------------------------------------------
@@ -1310,22 +1302,16 @@ TEST_CASE("FEM Benchmark Diffusion Inclusion - 2Mat","[MDL_FEM_Benchmark_Diffusi
         //------------------------------------------------------------------------------
         fem::SP_Factory tSPFactory;
 
-        std::shared_ptr< fem::Stabilization_Parameter > tSPDirichletNitsche = tSPFactory.create_SP( fem::Stabilization_Type::DIRICHLET_NITSCHE );
+        std::shared_ptr< fem::Stabilization_Parameter > tSPDirichletNitsche =
+                tSPFactory.create_SP( fem::Stabilization_Type::DIRICHLET_NITSCHE );
         tSPDirichletNitsche->set_parameters( { {{ tDBCGamma }} } );
         tSPDirichletNitsche->set_property( tPropKappaA, "Material", mtk::Master_Slave::MASTER );
 
-        std::shared_ptr< fem::Stabilization_Parameter > tSPNitscheInterface = tSPFactory.create_SP( fem::Stabilization_Type::NITSCHE_INTERFACE );
+        std::shared_ptr< fem::Stabilization_Parameter > tSPNitscheInterface =
+                tSPFactory.create_SP( fem::Stabilization_Type::NITSCHE_INTERFACE );
         tSPNitscheInterface->set_parameters( { {{ tIBCGamma }} } );
         tSPNitscheInterface->set_property( tPropKappaB, "Material", mtk::Master_Slave::MASTER );
         tSPNitscheInterface->set_property( tPropKappaA, "Material", mtk::Master_Slave::SLAVE );
-
-        std::shared_ptr< fem::Stabilization_Parameter > tSPMasterWeightInterface = tSPFactory.create_SP( fem::Stabilization_Type::MASTER_WEIGHT_INTERFACE );
-        tSPMasterWeightInterface->set_property( tPropKappaB, "Material", mtk::Master_Slave::MASTER );
-        tSPMasterWeightInterface->set_property( tPropKappaA, "Material", mtk::Master_Slave::SLAVE );
-
-        std::shared_ptr< fem::Stabilization_Parameter > tSPSlaveWeightInterface = tSPFactory.create_SP( fem::Stabilization_Type::SLAVE_WEIGHT_INTERFACE );
-        tSPSlaveWeightInterface->set_property( tPropKappaB, "Material", mtk::Master_Slave::MASTER );
-        tSPSlaveWeightInterface->set_property( tPropKappaA, "Material", mtk::Master_Slave::SLAVE );
 
         // create the IWGs
         //------------------------------------------------------------------------------
@@ -1357,11 +1343,9 @@ TEST_CASE("FEM Benchmark Diffusion Inclusion - 2Mat","[MDL_FEM_Benchmark_Diffusi
         tIWGInterface->set_residual_dof_type( { MSI::Dof_Type::TEMP } );
         tIWGInterface->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
         tIWGInterface->set_dof_type_list( {{ MSI::Dof_Type::TEMP }}, mtk::Master_Slave::SLAVE );
-        tIWGInterface->set_stabilization_parameter( tSPNitscheInterface, "NitscheInterface" );
-        tIWGInterface->set_stabilization_parameter( tSPMasterWeightInterface, "MasterWeightInterface" );
-        tIWGInterface->set_stabilization_parameter( tSPSlaveWeightInterface, "SlaveWeightInterface" );
         tIWGInterface->set_constitutive_model( tCMDiffLinIsoB, "Diffusion", mtk::Master_Slave::MASTER );
         tIWGInterface->set_constitutive_model( tCMDiffLinIsoA, "Diffusion", mtk::Master_Slave::SLAVE );
+        tIWGInterface->set_stabilization_parameter( tSPNitscheInterface, "NitscheInterface" );
 
         // create the IQIs
         //------------------------------------------------------------------------------
