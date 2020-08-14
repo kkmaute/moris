@@ -1,8 +1,10 @@
 #include "catch.hpp"
 #include "cl_Matrix.hpp"
-#include "cl_GEN_Pdv_Host_Manager.hpp"
+#include "cl_GEN_Geometry_Engine.hpp"
 #include "fn_PRM_GEN_Parameters.hpp"
 #include "fn_GEN_create_properties.hpp"
+#include "fn_GEN_create_geometries.hpp"
+#include "fn_GEN_create_simple_mesh.hpp"
 
 namespace moris
 {
@@ -95,12 +97,45 @@ namespace moris
 
         TEST_CASE("Intersection PDV creation", "[gen], [pdv], [intersection pdv]")
         {
+            // Create mesh
+            mtk::Interpolation_Mesh* tMesh = create_simple_mesh();
 
+            // Set up geometry
+            Cell<std::shared_ptr<Geometry>> tGeometries(2);
+            Matrix<DDRMat> tADVs(0, 0);
+
+            // Circle
+            real tRadius = 0.5;
+            ParameterList tCircleParameterList = prm::create_geometry_parameter_list();
+            tCircleParameterList.set("type", "circle");
+            tCircleParameterList.set("constant_parameters", "0.0, 0.0, " + std::to_string(tRadius));
+            tGeometries(0) = create_geometry(tCircleParameterList, tADVs);
+
+            // Plane
+            ParameterList tPlaneParameterList = prm::create_geometry_parameter_list();
+            tPlaneParameterList.set("type", "plane");
+            tPlaneParameterList.set("constant_parameters", "0.25, 0.0, 1.0, 0.0");
+            tGeometries(1) = create_geometry(tPlaneParameterList, tADVs);
+
+            // Create geometry engine
+            Phase_Table tPhaseTable (1, Phase_Table_Structure::EXP_BASE_2);
+            Geometry_Engine tGeometriesEngine(tGeometries, tPhaseTable, tMesh);
+
+            // Determine if intersected
+            for (uint tElementIndex = 0; tElementIndex < tMesh->get_num_elems(); tElementIndex++)
+            {
+                CHECK(tGeometriesEngine.is_intersected(
+                        tMesh->get_mtk_cell(tElementIndex).get_vertex_inds(),
+                        tMesh->get_mtk_cell(tElementIndex).get_vertex_coords()));
+            }
+
+            // Clean up
+            delete tMesh;
         }
 
         //--------------------------------------------------------------------------------------------------------------
 
-        TEST_CASE("PDV sensitivities test", "[gen], [pdv], [sensitivity], [PDV sensitivity]")
+        TEST_CASE("PDV sensitivities test", "[gen], [pdv], [sensitivity], [pdv sensitivity]")
         {
             // Create PDV_Type host manager
             Pdv_Host_Manager tPdvHostManager;
