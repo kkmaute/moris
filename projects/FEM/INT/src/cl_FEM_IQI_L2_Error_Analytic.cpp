@@ -12,7 +12,9 @@ namespace moris
 {
     namespace fem
     {
-//------------------------------------------------------------------------------
+
+        //------------------------------------------------------------------------------
+
         IQI_L2_Error_Analytic::IQI_L2_Error_Analytic()
         {
             // set IQI type
@@ -28,26 +30,76 @@ namespace moris
             mPropertyMap[ "L2Check" ] = IQI_Property_Type::L2_CHECK;
         }
 
-//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
+
+        void IQI_L2_Error_Analytic::set_property(
+                std::shared_ptr< Property > aProperty,
+                std::string                 aPropertyString,
+                mtk::Master_Slave           aIsMaster )
+        {
+            // check that aPropertyString makes sense
+            std::string tErrMsg =
+                    std::string( "IQI_L2_Error_Analytic::set_property - Unknown aPropertyString: " ) +
+                    aPropertyString;
+            MORIS_ERROR( mPropertyMap.find( aPropertyString ) != mPropertyMap.end(), tErrMsg.c_str() );
+
+            // check no slave allowed
+            MORIS_ERROR( aIsMaster == mtk::Master_Slave::MASTER,
+                    "IQI_L2_Error_Analytic::set_property - No slave allowed." );
+
+            // set the property in the property cell
+            this->get_properties( aIsMaster )( static_cast< uint >( mPropertyMap[ aPropertyString ] ) ) = aProperty;
+        }
+
+        //------------------------------------------------------------------------------
+
         void IQI_L2_Error_Analytic::compute_QI( Matrix< DDRMat > & aQI )
         {
             // get field interpolator
-            Field_Interpolator * tFI = mMasterFIManager->get_field_interpolators_for_type( mMasterDofTypes( 0 )( 0 ) );
+            Field_Interpolator * tFI =
+                    mMasterFIManager->get_field_interpolators_for_type( mMasterDofTypes( 0 )( 0 ) );
 
-            // get property index
-            uint tL2CheckIndex = static_cast< uint >( IQI_Property_Type::L2_CHECK );
+            // get analytical solution property
+            std::shared_ptr< Property > tPropL2Check =
+                    mMasterProp( static_cast< uint >( IQI_Property_Type::L2_CHECK ) );
+
+            // compute jump
+            Matrix< DDRMat > tJump = tFI->val() - tPropL2Check->val();
 
             // evaluate the QI
-            aQI = ( trans( tFI->val() - mMasterProp( tL2CheckIndex )->val() ) * ( tFI->val() - mMasterProp( tL2CheckIndex )->val() ) );
+            aQI = trans( tJump ) * tJump ;
         }
 
-//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
+
+        void IQI_L2_Error_Analytic::compute_QI( moris::real aWStar )
+        {
+            // get index for QI
+            sint tQIIndex = mSet->get_QI_assembly_index( mName );
+
+            // get field interpolator
+            Field_Interpolator * tFI =
+                    mMasterFIManager->get_field_interpolators_for_type( mMasterDofTypes( 0 )( 0 ) );
+
+            // get analytical solution property
+            std::shared_ptr< Property > tPropL2Check =
+                    mMasterProp( static_cast< uint >( IQI_Property_Type::L2_CHECK ) );
+
+            // compute jump
+            Matrix< DDRMat > tJump = tFI->val() - tPropL2Check->val();
+
+            // evaluate the QI
+            mSet->get_QI()( tQIIndex ).matrix_data() += aWStar * ( trans( tJump ) * tJump );
+        }
+
+        //------------------------------------------------------------------------------
+
         void IQI_L2_Error_Analytic::compute_dQIdu( Matrix< DDRMat > & adQIdDof )
         {
             MORIS_ERROR( false, "IQI_L2_Error_Analytic::compute_dQIdu - Not implemented." );
         }
 
-//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
     }/* end_namespace_fem */
 }/* end_namespace_moris */
 
