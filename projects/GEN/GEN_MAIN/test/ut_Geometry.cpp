@@ -22,7 +22,7 @@ namespace moris
 
     void user_defined_geometry_sensitivity(const Matrix<DDRMat>& aCoordinates,
                                            const Cell<real*>&    aParameters,
-                                                 Matrix<DDRMat>& aSensitivities);
+                                           Matrix<DDRMat>&       aSensitivities);
 
     // Approximate check for DDRMat vector
     void check_approx(Matrix<DDRMat> aMat1, Matrix<DDRMat> aMat2);
@@ -349,12 +349,13 @@ namespace moris
             // Create user-defined geometry
             Matrix<DDRMat> tADVs = {{-1.0, 0.5}};
 
-            std::shared_ptr<Geometry> tGeometry = std::make_shared<User_Defined_Geometry>(tADVs,
-                                                                                          Matrix<DDUMat>({{1, 0}}),
-                                                                                          Matrix<DDUMat>({{0, 1}}),
-                                                                                          Matrix<DDRMat>({{}}),
-                                                                                          &user_defined_geometry_field,
-                                                                                          &user_defined_geometry_sensitivity);
+            std::shared_ptr<Geometry> tGeometry = std::make_shared<User_Defined_Geometry>(
+                    tADVs,
+                    Matrix<DDUMat>({{1, 0}}),
+                    Matrix<DDUMat>({{0, 1}}),
+                    Matrix<DDRMat>({{}}),
+                    &user_defined_geometry_field,
+                    &user_defined_geometry_sensitivity);
 
             // Set coordinates for checking
             Matrix<DDRMat> tCoordinates1 = {{1.0, 1.0}};
@@ -367,9 +368,9 @@ namespace moris
             // Check sensitivity values
             Matrix<DDRMat> tSensitivities;
             tGeometry->evaluate_sensitivity(0, tCoordinates1, tSensitivities);
-            check_approx(tSensitivities, {{1.0, 3.0}});
+            check_approx(tSensitivities, {{3.0, 1.0}});
             tGeometry->evaluate_sensitivity(0, tCoordinates2, tSensitivities);
-            check_approx(tSensitivities, {{2.0, 6.0}});
+            check_approx(tSensitivities, {{6.0, 2.0}});
 
             // Change ADVs and coordinates
             tADVs = {{2.0, 0.5}};
@@ -382,9 +383,9 @@ namespace moris
 
             // Check sensitivity values
             tGeometry->evaluate_sensitivity(0, tCoordinates1, tSensitivities);
-            check_approx(tSensitivities, {{0.0, 12.0}});
+            check_approx(tSensitivities, {{12.0, 0.0}});
             tGeometry->evaluate_sensitivity(0, tCoordinates2, tSensitivities);
-            check_approx(tSensitivities, {{2.0, -12.0}});
+            check_approx(tSensitivities, {{-12.0, 2.0}});
         }
 
         //--------------------------------------------------------------------------------------------------------------

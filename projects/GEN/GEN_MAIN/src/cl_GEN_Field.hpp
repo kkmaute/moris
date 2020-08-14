@@ -14,9 +14,9 @@ namespace moris
             Cell<real*> mFieldVariables;
 
         private:
-            Matrix<DDUMat> mADVIndices;
             Matrix<DDRMat> mConstantParameters;
-            Cell<bool> mActiveVariables;
+            Matrix<DDSMat> mFieldADVDependencies;
+            bool mDependsOnADVs;
             uint mNumADVs;
             sint mNumRefinements;
             sint mRefinementFunctionIndex;
