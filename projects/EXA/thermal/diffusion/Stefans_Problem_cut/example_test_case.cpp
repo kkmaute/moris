@@ -40,7 +40,7 @@ void check_linear_results(moris::mtk::Exodus_IO_Helper & aExoIO,uint aNodeId)
 
         // solution of reference point at reference time step
         std::cout << "Temperature at reference point: " << std::scientific << std::setprecision(15) <<
-                aExoIO.get_nodal_field_value( aNodeId, 2, 9 ) << std::endl;
+                aExoIO.get_nodal_field_value( aNodeId, 2, 14 ) << std::endl;
 
         // value of IQI at reference time step
         //std::cout << "IQI value: " << std::scientific << std::setprecision(15) << aExoIO.get_global_variable(0, 0 ) << std::endl;
@@ -56,16 +56,16 @@ void check_linear_results(moris::mtk::Exodus_IO_Helper & aExoIO,uint aNodeId)
     REQUIRE( tRelDiffNorm <  1.0e-8 );
 
     // check time value for time step index 0
-    real tReferenceTime = 48.0;
+    real tReferenceTime = 32.0;
 
     real tRelTimeDifference = std::abs( ( aExoIO.get_time_value( ) - tReferenceTime) / tReferenceTime );
 
     REQUIRE( tRelTimeDifference <  1.0e-8 );
 
     // check temperature at node aNodeId in first time step (temperature is 3rd nodal field, first time step has index 0)
-    real tReferenceTemperature = 329.3466432568;
+    real tReferenceTemperature = 328.984629;
 
-    real tRelTempDifference = std::abs( ( aExoIO.get_nodal_field_value( aNodeId, 2, 9 ) - tReferenceTemperature ) / tReferenceTemperature );
+    real tRelTempDifference = std::abs( ( aExoIO.get_nodal_field_value( aNodeId, 2, 14 ) - tReferenceTemperature ) / tReferenceTemperature );
 
     //FIXME: difference between parallel and serial run requires loose tolerance
     REQUIRE(  tRelTempDifference < 1.0e-4);
@@ -86,7 +86,7 @@ void check_quadratic_results(moris::mtk::Exodus_IO_Helper & aExoIO,uint aNodeId)
 
         // solution of reference point at reference time step
         std::cout << "Temperature at reference point: " << std::scientific << std::setprecision(15) <<
-                aExoIO.get_nodal_field_value( aNodeId, 2, 9 ) << std::endl;
+                aExoIO.get_nodal_field_value( aNodeId, 2, 14 ) << std::endl;
 
         // value of IQI at reference time step
         //std::cout << "IQI value: " << std::scientific << std::setprecision(15) << aExoIO.get_global_variable(0, 0 ) << std::endl;
@@ -102,13 +102,14 @@ void check_quadratic_results(moris::mtk::Exodus_IO_Helper & aExoIO,uint aNodeId)
     REQUIRE( tRelDiffNorm <  1.0e-8 );
 
     // check time value for time step index 0
-    real tReferenceTime = 48.0;
+    real tReferenceTime = 32.0;
     real tRelTimeDifference = std::abs( ( aExoIO.get_time_value( ) - tReferenceTime) / tReferenceTime );
     REQUIRE( tRelTimeDifference <  1.0e-8 );
 
     // check temperature at node aNodeId in first time step (temperature is 3rd nodal field, first time step has index 0)
-    real tReferenceTemperature = 328.43971486;
-    real tRelTempDifference = std::abs( ( aExoIO.get_nodal_field_value( aNodeId, 2, 9 ) - tReferenceTemperature ) / tReferenceTemperature );
+    real tReferenceTemperature = 328.804624;
+
+    real tRelTempDifference = std::abs( ( aExoIO.get_nodal_field_value( aNodeId, 2, 14 ) - tReferenceTemperature ) / tReferenceTemperature );
     REQUIRE(  tRelTempDifference < 1.0e-4);
 
 }
