@@ -432,12 +432,12 @@ Matrix<DDRMat> compute_dconstraint_dcriteria(Matrix<DDRMat> aADVs, Matrix<DDRMat
         {
 //             create IWG for 2 material - ghost
 //             tParameterList( 3 ).push_back( prm::create_IWG_parameter_list() );
-//             tParameterList( 3 )( tIWGCounter ).set( "IWG_name",                   std::string("IWGGP1Temp") );
+//             tParameterList( 3 )( tIWGCounter ).set( "IWG_name",                   "IWGGP1Temp") ;
 //             tParameterList( 3 )( tIWGCounter ).set( "IWG_type",                   static_cast< uint >( fem::IWG_Type::SPATIALDIFF_GHOST ) );
-//             tParameterList( 3 )( tIWGCounter ).set( "dof_residual",               std::string("TEMP") );
-//             tParameterList( 3 )( tIWGCounter ).set( "master_dof_dependencies",    std::string("TEMP") );
-//             tParameterList( 3 )( tIWGCounter ).set( "slave_dof_dependencies",     std::string("TEMP") );
-//             tParameterList( 3 )( tIWGCounter ).set( "stabilization_parameters",   std::string("SPGPTemp1,GhostDispl") );
+//             tParameterList( 3 )( tIWGCounter ).set( "dof_residual",               "TEMP") ;
+//             tParameterList( 3 )( tIWGCounter ).set( "master_dof_dependencies",    "TEMP") ;
+//             tParameterList( 3 )( tIWGCounter ).set( "slave_dof_dependencies",     "TEMP") ;
+//             tParameterList( 3 )( tIWGCounter ).set( "stabilization_parameters",   "SPGPTemp1,GhostDispl") ;
 //             tParameterList( 3 )( tIWGCounter ).set( "mesh_set_names",             tPhase1Ghost );
 //             tIWGCounter++;
         }

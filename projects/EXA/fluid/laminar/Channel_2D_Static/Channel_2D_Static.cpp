@@ -132,18 +132,18 @@ extern "C"
 
             tParameterlist( 0 )( 0 ) = prm::create_hmr_parameter_list();
 
-            tParameterlist( 0 )( 0 ).set( "number_of_elements_per_dimension", std::string("200,200"));
-            tParameterlist( 0 )( 0 ).set( "domain_dimensions",                std::string("10.0,10.0"));
-            tParameterlist( 0 )( 0 ).set( "domain_offset",                    std::string("-4.63,-4.74"));
-            tParameterlist( 0 )( 0 ).set( "domain_sidesets",                  std::string("1,2,3,4"));
-            tParameterlist( 0 )( 0 ).set( "lagrange_output_meshes",           std::string("0"));
+            tParameterlist( 0 )( 0 ).set( "number_of_elements_per_dimension", "200,200");
+            tParameterlist( 0 )( 0 ).set( "domain_dimensions",                "10.0,10.0");
+            tParameterlist( 0 )( 0 ).set( "domain_offset",                    "-4.63,-4.74");
+            tParameterlist( 0 )( 0 ).set( "domain_sidesets",                  "1,2,3,4");
+            tParameterlist( 0 )( 0 ).set( "lagrange_output_meshes",           "0");
 
-            tParameterlist( 0 )( 0 ).set( "lagrange_orders",  std::string("1" ));
-            tParameterlist( 0 )( 0 ).set( "lagrange_pattern", std::string("0" ));
-            tParameterlist( 0 )( 0 ).set( "bspline_orders",   std::string("1" ));
-            tParameterlist( 0 )( 0 ).set( "bspline_pattern",  std::string("0" ));
+            tParameterlist( 0 )( 0 ).set( "lagrange_orders",  "1" );
+            tParameterlist( 0 )( 0 ).set( "lagrange_pattern", "0" );
+            tParameterlist( 0 )( 0 ).set( "bspline_orders",   "1" );
+            tParameterlist( 0 )( 0 ).set( "bspline_pattern",  "0" );
 
-            tParameterlist( 0 )( 0 ).set( "lagrange_to_bspline", std::string("0") );
+            tParameterlist( 0 )( 0 ).set( "lagrange_to_bspline", "0") ;
 
             tParameterlist( 0 )( 0 ).set( "truncate_bsplines",  1 );
             tParameterlist( 0 )( 0 ).set( "refinement_buffer",  3 );
@@ -165,10 +165,10 @@ extern "C"
 
             tParameterlist( 0 )( 0 ) = prm::create_xtk_parameter_list();
             tParameterlist( 0 )( 0 ).set( "decompose",                 true );
-            tParameterlist( 0 )( 0 ).set( "decomposition_type",        std::string("conformal") );
+            tParameterlist( 0 )( 0 ).set( "decomposition_type",        "conformal") ;
             tParameterlist( 0 )( 0 ).set( "enrich",                    true );
-            tParameterlist( 0 )( 0 ).set( "basis_rank",                std::string("bspline") );
-            tParameterlist( 0 )( 0 ).set( "enrich_mesh_indices",       std::string("0") );
+            tParameterlist( 0 )( 0 ).set( "basis_rank",                "bspline") ;
+            tParameterlist( 0 )( 0 ).set( "enrich_mesh_indices",       "0") ;
             tParameterlist( 0 )( 0 ).set( "ghost_stab",                true );
             tParameterlist( 0 )( 0 ).set( "multigrid",                 false );
             tParameterlist( 0 )( 0 ).set( "print_enriched_ig_mesh",    false );
@@ -228,44 +228,44 @@ extern "C"
 
             // create viscosity property
             tParameterList( 0 ).push_back( prm::create_property_parameter_list() );
-            tParameterList( 0 )( tPropCounter ).set( "property_name",            std::string("PropViscosity") );
+            tParameterList( 0 )( tPropCounter ).set( "property_name",            "PropViscosity") ;
             tParameterList( 0 )( tPropCounter ).set( "function_parameters",      std::to_string(tFluidViscosity) );
-            tParameterList( 0 )( tPropCounter ).set( "value_function",           std::string("Func_Const") );
+            tParameterList( 0 )( tPropCounter ).set( "value_function",           "Func_Const") ;
             tPropCounter++;
 
             // create density property
             tParameterList( 0 ).push_back( prm::create_property_parameter_list() );
-            tParameterList( 0 )( tPropCounter ).set( "property_name",            std::string("PropDensity") );
+            tParameterList( 0 )( tPropCounter ).set( "property_name",            "PropDensity") ;
             tParameterList( 0 )( tPropCounter ).set( "function_parameters",      std::to_string(tFluidDensity) );
-            tParameterList( 0 )( tPropCounter ).set( "value_function",           std::string("Func_Const") );
+            tParameterList( 0 )( tPropCounter ).set( "value_function",           "Func_Const") ;
             tPropCounter++;
 
             // create zero velocity property
             tParameterList( 0 ).push_back( prm::create_property_parameter_list() );
-            tParameterList( 0 )( tPropCounter ).set( "property_name",            std::string("PropZeroU") );
-            tParameterList( 0 )( tPropCounter ).set( "function_parameters",      std::string("0.0;0.0") );
-            tParameterList( 0 )( tPropCounter ).set( "value_function",           std::string("Func_Const") );
+            tParameterList( 0 )( tPropCounter ).set( "property_name",            "PropZeroU") ;
+            tParameterList( 0 )( tPropCounter ).set( "function_parameters",      "0.0;0.0") ;
+            tParameterList( 0 )( tPropCounter ).set( "value_function",           "Func_Const") ;
             tPropCounter++;
 
             // create init velocity property
             tParameterList( 0 ).push_back( prm::create_property_parameter_list() );
-            tParameterList( 0 )( tPropCounter ).set( "property_name",            std::string("PropInletU") );
-            tParameterList( 0 )( tPropCounter ).set( "value_function",           std::string("Func_Inlet_U") );
+            tParameterList( 0 )( tPropCounter ).set( "property_name",            "PropInletU") ;
+            tParameterList( 0 )( tPropCounter ).set( "value_function",           "Func_Inlet_U") ;
             tParameterList( 0 )( tPropCounter ).set( "function_parameters",      std::to_string(tChannelRadius) + "/0.0" );
             tPropCounter++;
 
             // create pressure property
             tParameterList( 0 ).push_back( prm::create_property_parameter_list() );
-            tParameterList( 0 )( tPropCounter ).set( "property_name",            std::string("InletPressure") );
+            tParameterList( 0 )( tPropCounter ).set( "property_name",            "InletPressure") ;
             tParameterList( 0 )( tPropCounter ).set( "function_parameters",      std::to_string(tInletPressure) );
-            tParameterList( 0 )( tPropCounter ).set( "value_function",           std::string("Func_Const") );
+            tParameterList( 0 )( tPropCounter ).set( "value_function",           "Func_Const") ;
             tPropCounter++;
 
             // create total pressure property
             tParameterList( 0 ).push_back( prm::create_property_parameter_list() );
-            tParameterList( 0 )( tPropCounter ).set( "property_name",            std::string("PropInletUpwind") );
-            tParameterList( 0 )( tPropCounter ).set( "function_parameters",      std::string("1.0") );
-            tParameterList( 0 )( tPropCounter ).set( "value_function",           std::string("Func_Const") );
+            tParameterList( 0 )( tPropCounter ).set( "property_name",            "PropInletUpwind") ;
+            tParameterList( 0 )( tPropCounter ).set( "function_parameters",      "1.0") ;
+            tParameterList( 0 )( tPropCounter ).set( "value_function",           "Func_Const") ;
             tPropCounter++;
 
             //------------------------------------------------------------------------------
@@ -276,10 +276,10 @@ extern "C"
 
             // create fluid constitutive model
             tParameterList( 1 ).push_back( prm::create_constitutive_model_parameter_list() );
-            tParameterList( 1 )( tCMCounter ).set( "constitutive_name", std::string("CMFluid") );
+            tParameterList( 1 )( tCMCounter ).set( "constitutive_name", "CMFluid") ;
             tParameterList( 1 )( tCMCounter ).set( "constitutive_type", static_cast< uint >( fem::Constitutive_Type::FLUID_INCOMPRESSIBLE ) );
             tParameterList( 1 )( tCMCounter ).set( "dof_dependencies",  std::pair< std::string, std::string >( "VX,VY;P", "Velocity,Pressure" ) );
-            tParameterList( 1 )( tCMCounter ).set( "properties",        std::string("PropViscosity,Viscosity;PropDensity,Density") );
+            tParameterList( 1 )( tCMCounter ).set( "properties",        "PropViscosity,Viscosity;PropDensity,Density") ;
             tCMCounter++;
 
             //------------------------------------------------------------------------------
@@ -290,46 +290,46 @@ extern "C"
 
             // create SUPG stabilization parameter for Navier-Stokes
             tParameterList( 2 ).push_back( prm::create_stabilization_parameter_parameter_list() );
-            tParameterList( 2 )( tSPCounter ).set( "stabilization_name",      std::string("SPSUPGNS") );
+            tParameterList( 2 )( tSPCounter ).set( "stabilization_name",      "SPSUPGNS") ;
             tParameterList( 2 )( tSPCounter ).set( "stabilization_type",      static_cast< uint >( fem::Stabilization_Type::INCOMPRESSIBLE_FLOW ) );
-            tParameterList( 2 )( tSPCounter ).set( "function_parameters",     std::string("36.0") );
-            tParameterList( 2 )( tSPCounter ).set( "master_properties",       std::string("PropViscosity,Viscosity;PropDensity,Density") );
+            tParameterList( 2 )( tSPCounter ).set( "function_parameters",     "36.0") ;
+            tParameterList( 2 )( tSPCounter ).set( "master_properties",       "PropViscosity,Viscosity;PropDensity,Density") ;
             tParameterList( 2 )( tSPCounter ).set( "master_dof_dependencies", std::pair< std::string, std::string >( "VX,VY;P", "Velocity,Pressure" ) );
             tSPCounter++;
 
             // create Nitsche stabilization parameter for velocity
             tParameterList( 2 ).push_back( prm::create_stabilization_parameter_parameter_list() );
-            tParameterList( 2 )( tSPCounter ).set( "stabilization_name",      std::string("SPNitscheU") );
+            tParameterList( 2 )( tSPCounter ).set( "stabilization_name",      "SPNitscheU") ;
             tParameterList( 2 )( tSPCounter ).set( "stabilization_type",      static_cast< uint >( fem::Stabilization_Type::VELOCITY_DIRICHLET_NITSCHE ) );
             tParameterList( 2 )( tSPCounter ).set( "function_parameters",     std::to_string(tGammaNitsche) +"/1.0" );
             tParameterList( 2 )( tSPCounter ).set( "master_dof_dependencies", std::pair< std::string, std::string >( "VX,VY", "Velocity" ) );
-            tParameterList( 2 )( tSPCounter ).set( "master_properties",       std::string("PropViscosity,Viscosity;PropDensity,Density") );
+            tParameterList( 2 )( tSPCounter ).set( "master_properties",       "PropViscosity,Viscosity;PropDensity,Density") ;
             tSPCounter++;
 
             // create Ghost stabilization parameter for viscous velocity
             tParameterList( 2 ).push_back( prm::create_stabilization_parameter_parameter_list() );
-            tParameterList( 2 )( tSPCounter ).set( "stabilization_name",  std::string("SPGPViscous") );
+            tParameterList( 2 )( tSPCounter ).set( "stabilization_name",  "SPGPViscous") ;
             tParameterList( 2 )( tSPCounter ).set( "stabilization_type",  static_cast< uint >( fem::Stabilization_Type::VISCOUS_GHOST ) );
             tParameterList( 2 )( tSPCounter ).set( "function_parameters", std::to_string(tGammaGPmu) );
-            tParameterList( 2 )( tSPCounter ).set( "master_properties",   std::string("PropViscosity,Viscosity") );
+            tParameterList( 2 )( tSPCounter ).set( "master_properties",   "PropViscosity,Viscosity") ;
             tSPCounter++;
 
             // create Ghost stabilization parameter for velocity
             tParameterList( 2 ).push_back( prm::create_stabilization_parameter_parameter_list() );
-            tParameterList( 2 )( tSPCounter ).set( "stabilization_name",      std::string("SPGPVelocity") );
+            tParameterList( 2 )( tSPCounter ).set( "stabilization_name",      "SPGPVelocity") ;
             tParameterList( 2 )( tSPCounter ).set( "stabilization_type",      static_cast< uint >( fem::Stabilization_Type::CONVECTIVE_GHOST ) );
             tParameterList( 2 )( tSPCounter ).set( "function_parameters",     std::to_string(tGammaGPu) );
             tParameterList( 2 )( tSPCounter ).set( "master_dof_dependencies", std::pair< std::string, std::string >( "VX,VY", "Velocity" ) );
-            tParameterList( 2 )( tSPCounter ).set( "master_properties",       std::string("PropDensity,Density") );
+            tParameterList( 2 )( tSPCounter ).set( "master_properties",       "PropDensity,Density") ;
             tSPCounter++;
 
             // create Ghost stabilization parameter for pressure
             tParameterList( 2 ).push_back( prm::create_stabilization_parameter_parameter_list() );
-            tParameterList( 2 )( tSPCounter ).set( "stabilization_name",      std::string("SPGPPressure") );
+            tParameterList( 2 )( tSPCounter ).set( "stabilization_name",      "SPGPPressure") ;
             tParameterList( 2 )( tSPCounter ).set( "stabilization_type",      static_cast< uint >( fem::Stabilization_Type::PRESSURE_GHOST ) );
             tParameterList( 2 )( tSPCounter ).set( "function_parameters",     std::to_string(tGammaGPp) +"/1.0" );
             tParameterList( 2 )( tSPCounter ).set( "master_dof_dependencies", std::pair< std::string, std::string >( "VX,VY", "Velocity" ) );
-            tParameterList( 2 )( tSPCounter ).set( "master_properties",       std::string("PropViscosity,Viscosity;PropDensity,Density") );
+            tParameterList( 2 )( tSPCounter ).set( "master_properties",       "PropViscosity,Viscosity;PropDensity,Density") ;
             tSPCounter++;
 
             //------------------------------------------------------------------------------
@@ -340,23 +340,23 @@ extern "C"
 
             // create incompressible NS velocity bulk IWG
             tParameterList( 3 ).push_back( prm::create_IWG_parameter_list() );
-            tParameterList( 3 )( tIWGCounter ).set( "IWG_name",                   std::string("IWGVelocityBulk") );
+            tParameterList( 3 )( tIWGCounter ).set( "IWG_name",                   "IWGVelocityBulk") ;
             tParameterList( 3 )( tIWGCounter ).set( "IWG_type",                   static_cast< uint >( fem::IWG_Type::INCOMPRESSIBLE_NS_VELOCITY_BULK ) );
-            tParameterList( 3 )( tIWGCounter ).set( "dof_residual",               std::string("VX,VY") );
-            tParameterList( 3 )( tIWGCounter ).set( "master_dof_dependencies",    std::string("VX,VY;P") );
-            tParameterList( 3 )( tIWGCounter ).set( "master_constitutive_models", std::string("CMFluid,IncompressibleFluid") );
-            tParameterList( 3 )( tIWGCounter ).set( "stabilization_parameters",   std::string("SPSUPGNS,IncompressibleFlow") );
+            tParameterList( 3 )( tIWGCounter ).set( "dof_residual",               "VX,VY") ;
+            tParameterList( 3 )( tIWGCounter ).set( "master_dof_dependencies",    "VX,VY;P") ;
+            tParameterList( 3 )( tIWGCounter ).set( "master_constitutive_models", "CMFluid,IncompressibleFluid") ;
+            tParameterList( 3 )( tIWGCounter ).set( "stabilization_parameters",   "SPSUPGNS,IncompressibleFlow") ;
             tParameterList( 3 )( tIWGCounter ).set( "mesh_set_names",             sFluid );
             tIWGCounter++;
 
             // create incompressible NS pressure bulk IWG
             tParameterList( 3 ).push_back( prm::create_IWG_parameter_list() );
-            tParameterList( 3 )( tIWGCounter ).set( "IWG_name",                   std::string("IWGPressureBulk") );
+            tParameterList( 3 )( tIWGCounter ).set( "IWG_name",                   "IWGPressureBulk") ;
             tParameterList( 3 )( tIWGCounter ).set( "IWG_type",                   static_cast< uint >( fem::IWG_Type::INCOMPRESSIBLE_NS_PRESSURE_BULK ) );
-            tParameterList( 3 )( tIWGCounter ).set( "dof_residual",               std::string("P") );
-            tParameterList( 3 )( tIWGCounter ).set( "master_dof_dependencies",    std::string("VX,VY;P") );
-            tParameterList( 3 )( tIWGCounter ).set( "master_constitutive_models", std::string("CMFluid,IncompressibleFluid") );
-            tParameterList( 3 )( tIWGCounter ).set( "stabilization_parameters",   std::string("SPSUPGNS,IncompressibleFlow") );
+            tParameterList( 3 )( tIWGCounter ).set( "dof_residual",               "P") ;
+            tParameterList( 3 )( tIWGCounter ).set( "master_dof_dependencies",    "VX,VY;P") ;
+            tParameterList( 3 )( tIWGCounter ).set( "master_constitutive_models", "CMFluid,IncompressibleFluid") ;
+            tParameterList( 3 )( tIWGCounter ).set( "stabilization_parameters",   "SPSUPGNS,IncompressibleFlow") ;
             tParameterList( 3 )( tIWGCounter ).set( "mesh_set_names",             sFluid );
             tIWGCounter++;
 
@@ -364,11 +364,11 @@ extern "C"
             {
                 // create inlet total pressure BC
                 tParameterList( 3 ).push_back( prm::create_IWG_parameter_list() );
-                tParameterList( 3 )( tIWGCounter ).set( "IWG_name",                   std::string("IWGInletImposedPressure") );
+                tParameterList( 3 )( tIWGCounter ).set( "IWG_name",                   "IWGInletImposedPressure") ;
                 tParameterList( 3 )( tIWGCounter ).set( "IWG_type",                   static_cast< uint >( fem::IWG_Type::INCOMPRESSIBLE_NS_IMPOSED_PRESSURE ) );
-                tParameterList( 3 )( tIWGCounter ).set( "dof_residual",               std::string("VX,VY") );
-                tParameterList( 3 )( tIWGCounter ).set( "master_dof_dependencies",    std::string("VX,VY;P") );
-                tParameterList( 3 )( tIWGCounter ).set( "master_properties",          std::string("InletPressure,Pressure") );
+                tParameterList( 3 )( tIWGCounter ).set( "dof_residual",               "VX,VY") ;
+                tParameterList( 3 )( tIWGCounter ).set( "master_dof_dependencies",    "VX,VY;P") ;
+                tParameterList( 3 )( tIWGCounter ).set( "master_properties",          "InletPressure,Pressure") ;
                 tParameterList( 3 )( tIWGCounter ).set( "mesh_set_names",             sInlet );
                 tIWGCounter++;
             }
@@ -377,48 +377,48 @@ extern "C"
             {
                 // create incompressible NS velocity Dirichlet IWG for inlet
                 tParameterList( 3 ).push_back( prm::create_IWG_parameter_list() );
-                tParameterList( 3 )( tIWGCounter ).set( "IWG_name",                   std::string("IWGInletVelocity") );
+                tParameterList( 3 )( tIWGCounter ).set( "IWG_name",                   "IWGInletVelocity") ;
                 tParameterList( 3 )( tIWGCounter ).set( "IWG_type",                   static_cast< uint >( fem::IWG_Type::INCOMPRESSIBLE_NS_VELOCITY_DIRICHLET_SYMMETRIC_NITSCHE ) );
-                tParameterList( 3 )( tIWGCounter ).set( "dof_residual",               std::string("VX,VY") );
-                tParameterList( 3 )( tIWGCounter ).set( "master_dof_dependencies",    std::string("VX,VY;P") );
-                tParameterList( 3 )( tIWGCounter ).set( "master_properties",          std::string("PropInletU,Dirichlet") );
-                tParameterList( 3 )( tIWGCounter ).set( "master_constitutive_models", std::string("CMFluid,IncompressibleFluid") );
-                tParameterList( 3 )( tIWGCounter ).set( "stabilization_parameters",   std::string("SPNitscheU,DirichletNitsche") );
+                tParameterList( 3 )( tIWGCounter ).set( "dof_residual",               "VX,VY") ;
+                tParameterList( 3 )( tIWGCounter ).set( "master_dof_dependencies",    "VX,VY;P") ;
+                tParameterList( 3 )( tIWGCounter ).set( "master_properties",          "PropInletU,Dirichlet") ;
+                tParameterList( 3 )( tIWGCounter ).set( "master_constitutive_models", "CMFluid,IncompressibleFluid") ;
+                tParameterList( 3 )( tIWGCounter ).set( "stabilization_parameters",   "SPNitscheU,DirichletNitsche") ;
                 tParameterList( 3 )( tIWGCounter ).set( "mesh_set_names",             sInlet );
                 tIWGCounter++;
 
                 // create incompressible NS pressure Dirichlet IWG for inlet
                 tParameterList( 3 ).push_back( prm::create_IWG_parameter_list() );
-                tParameterList( 3 )( tIWGCounter ).set( "IWG_name",                   std::string("IWGInletPressure") );
+                tParameterList( 3 )( tIWGCounter ).set( "IWG_name",                   "IWGInletPressure") ;
                 tParameterList( 3 )( tIWGCounter ).set( "IWG_type",                   static_cast< uint >( fem::IWG_Type::INCOMPRESSIBLE_NS_PRESSURE_DIRICHLET_SYMMETRIC_NITSCHE ) );
-                tParameterList( 3 )( tIWGCounter ).set( "dof_residual",               std::string("P") );
-                tParameterList( 3 )( tIWGCounter ).set( "master_dof_dependencies",    std::string("VX,VY;P") );
-                tParameterList( 3 )( tIWGCounter ).set( "master_properties",          std::string("PropInletU,Dirichlet") );
-                tParameterList( 3 )( tIWGCounter ).set( "master_constitutive_models", std::string("CMFluid,IncompressibleFluid") );
+                tParameterList( 3 )( tIWGCounter ).set( "dof_residual",               "P") ;
+                tParameterList( 3 )( tIWGCounter ).set( "master_dof_dependencies",    "VX,VY;P") ;
+                tParameterList( 3 )( tIWGCounter ).set( "master_properties",          "PropInletU,Dirichlet") ;
+                tParameterList( 3 )( tIWGCounter ).set( "master_constitutive_models", "CMFluid,IncompressibleFluid") ;
                 tParameterList( 3 )( tIWGCounter ).set( "mesh_set_names",             sInlet );
                 tIWGCounter++;
             }
 
             // create incompressible NS velocity Dirichlet IWG for walls
             tParameterList( 3 ).push_back( prm::create_IWG_parameter_list() );
-            tParameterList( 3 )( tIWGCounter ).set( "IWG_name",                   std::string("IWGZeroVelocity") );
+            tParameterList( 3 )( tIWGCounter ).set( "IWG_name",                   "IWGZeroVelocity") ;
             tParameterList( 3 )( tIWGCounter ).set( "IWG_type",                   static_cast< uint >( fem::IWG_Type::INCOMPRESSIBLE_NS_VELOCITY_DIRICHLET_SYMMETRIC_NITSCHE ) );
-            tParameterList( 3 )( tIWGCounter ).set( "dof_residual",               std::string("VX,VY") );
-            tParameterList( 3 )( tIWGCounter ).set( "master_dof_dependencies",    std::string("VX,VY;P") );
-            tParameterList( 3 )( tIWGCounter ).set( "master_properties",          std::string("PropZeroU,Dirichlet") );
-            tParameterList( 3 )( tIWGCounter ).set( "master_constitutive_models", std::string("CMFluid,IncompressibleFluid") );
-            tParameterList( 3 )( tIWGCounter ).set( "stabilization_parameters",   std::string("SPNitscheU,DirichletNitsche") );
+            tParameterList( 3 )( tIWGCounter ).set( "dof_residual",               "VX,VY") ;
+            tParameterList( 3 )( tIWGCounter ).set( "master_dof_dependencies",    "VX,VY;P") ;
+            tParameterList( 3 )( tIWGCounter ).set( "master_properties",          "PropZeroU,Dirichlet") ;
+            tParameterList( 3 )( tIWGCounter ).set( "master_constitutive_models", "CMFluid,IncompressibleFluid") ;
+            tParameterList( 3 )( tIWGCounter ).set( "stabilization_parameters",   "SPNitscheU,DirichletNitsche") ;
             tParameterList( 3 )( tIWGCounter ).set( "mesh_set_names",             sWalls );
             tIWGCounter++;
 
             // create incompressible NS pressure Dirichlet IWG for walls
             tParameterList( 3 ).push_back( prm::create_IWG_parameter_list() );
-            tParameterList( 3 )( tIWGCounter ).set( "IWG_name",                   std::string("IWGZeroPressure") );
+            tParameterList( 3 )( tIWGCounter ).set( "IWG_name",                   "IWGZeroPressure") ;
             tParameterList( 3 )( tIWGCounter ).set( "IWG_type",                   static_cast< uint >( fem::IWG_Type::INCOMPRESSIBLE_NS_PRESSURE_DIRICHLET_SYMMETRIC_NITSCHE ) );
-            tParameterList( 3 )( tIWGCounter ).set( "dof_residual",               std::string("P") );
-            tParameterList( 3 )( tIWGCounter ).set( "master_dof_dependencies",    std::string("VX,VY;P") );
-            tParameterList( 3 )( tIWGCounter ).set( "master_properties",          std::string("PropZeroU,Dirichlet") );
-            tParameterList( 3 )( tIWGCounter ).set( "master_constitutive_models", std::string("CMFluid,IncompressibleFluid") );
+            tParameterList( 3 )( tIWGCounter ).set( "dof_residual",               "P") ;
+            tParameterList( 3 )( tIWGCounter ).set( "master_dof_dependencies",    "VX,VY;P") ;
+            tParameterList( 3 )( tIWGCounter ).set( "master_properties",          "PropZeroU,Dirichlet") ;
+            tParameterList( 3 )( tIWGCounter ).set( "master_constitutive_models", "CMFluid,IncompressibleFluid") ;
             tParameterList( 3 )( tIWGCounter ).set( "mesh_set_names",             sWalls );
             tIWGCounter++;
 
@@ -426,34 +426,34 @@ extern "C"
             {
                 // create Ghost stabilization viscous IWG
                 tParameterList( 3 ).push_back( prm::create_IWG_parameter_list() );
-                tParameterList( 3 )( tIWGCounter ).set( "IWG_name",                   std::string("IWGGPViscous") );
+                tParameterList( 3 )( tIWGCounter ).set( "IWG_name",                   "IWGGPViscous") ;
                 tParameterList( 3 )( tIWGCounter ).set( "IWG_type",                   static_cast< uint >( fem::IWG_Type::GHOST_NORMAL_FIELD ) );
-                tParameterList( 3 )( tIWGCounter ).set( "dof_residual",               std::string("VX,VY") );
-                tParameterList( 3 )( tIWGCounter ).set( "master_dof_dependencies",    std::string("VX,VY;P") );
-                tParameterList( 3 )( tIWGCounter ).set( "slave_dof_dependencies",     std::string("VX,VY;P") );
-                tParameterList( 3 )( tIWGCounter ).set( "stabilization_parameters",   std::string("SPGPViscous,GhostSP") );
+                tParameterList( 3 )( tIWGCounter ).set( "dof_residual",               "VX,VY") ;
+                tParameterList( 3 )( tIWGCounter ).set( "master_dof_dependencies",    "VX,VY;P") ;
+                tParameterList( 3 )( tIWGCounter ).set( "slave_dof_dependencies",     "VX,VY;P") ;
+                tParameterList( 3 )( tIWGCounter ).set( "stabilization_parameters",   "SPGPViscous,GhostSP") ;
                 tParameterList( 3 )( tIWGCounter ).set( "mesh_set_names",             sFluidGhost );
                 tIWGCounter++;
 
                 // create Ghost stabilization convective IWG
                 tParameterList( 3 ).push_back( prm::create_IWG_parameter_list() );
-                tParameterList( 3 )( tIWGCounter ).set( "IWG_name",                   std::string("IWGGPConvective") );
+                tParameterList( 3 )( tIWGCounter ).set( "IWG_name",                   "IWGGPConvective") ;
                 tParameterList( 3 )( tIWGCounter ).set( "IWG_type",                   static_cast< uint >( fem::IWG_Type::GHOST_NORMAL_FIELD ) );
-                tParameterList( 3 )( tIWGCounter ).set( "dof_residual",               std::string("VX,VY") );
-                tParameterList( 3 )( tIWGCounter ).set( "master_dof_dependencies",    std::string("VX,VY;P") );
-                tParameterList( 3 )( tIWGCounter ).set( "slave_dof_dependencies",     std::string("VX,VY;P") );
-                tParameterList( 3 )( tIWGCounter ).set( "stabilization_parameters",   std::string("SPGPVelocity,GhostSP") );
+                tParameterList( 3 )( tIWGCounter ).set( "dof_residual",               "VX,VY") ;
+                tParameterList( 3 )( tIWGCounter ).set( "master_dof_dependencies",    "VX,VY;P") ;
+                tParameterList( 3 )( tIWGCounter ).set( "slave_dof_dependencies",     "VX,VY;P") ;
+                tParameterList( 3 )( tIWGCounter ).set( "stabilization_parameters",   "SPGPVelocity,GhostSP") ;
                 tParameterList( 3 )( tIWGCounter ).set( "mesh_set_names",             sFluidGhost );
                 tIWGCounter++;
 
                 // create Ghost stabilization pressure IWG
                 tParameterList( 3 ).push_back( prm::create_IWG_parameter_list() );
-                tParameterList( 3 )( tIWGCounter ).set( "IWG_name",                   std::string("IWGGPPressure") );
+                tParameterList( 3 )( tIWGCounter ).set( "IWG_name",                   "IWGGPPressure") ;
                 tParameterList( 3 )( tIWGCounter ).set( "IWG_type",                   static_cast< uint >( fem::IWG_Type::GHOST_NORMAL_FIELD ) );
-                tParameterList( 3 )( tIWGCounter ).set( "dof_residual",               std::string("P") );
-                tParameterList( 3 )( tIWGCounter ).set( "master_dof_dependencies",    std::string("VX,VY;P") );
-                tParameterList( 3 )( tIWGCounter ).set( "slave_dof_dependencies",     std::string("VX,VY;P") );
-                tParameterList( 3 )( tIWGCounter ).set( "stabilization_parameters",   std::string("SPGPPressure,GhostSP") );
+                tParameterList( 3 )( tIWGCounter ).set( "dof_residual",               "P") ;
+                tParameterList( 3 )( tIWGCounter ).set( "master_dof_dependencies",    "VX,VY;P") ;
+                tParameterList( 3 )( tIWGCounter ).set( "slave_dof_dependencies",     "VX,VY;P") ;
+                tParameterList( 3 )( tIWGCounter ).set( "stabilization_parameters",   "SPGPPressure,GhostSP") ;
                 tParameterList( 3 )( tIWGCounter ).set( "mesh_set_names",             sFluidGhost );
                 tIWGCounter++;
             }
@@ -466,30 +466,30 @@ extern "C"
 
             // create parameter list for IQI 1
             tParameterList( 4 ).push_back( prm::create_IQI_parameter_list() );
-            tParameterList( 4 )( tIQICounter ).set( "IQI_name",                   std::string("IQIBulkVX") );
+            tParameterList( 4 )( tIQICounter ).set( "IQI_name",                   "IQIBulkVX") ;
             tParameterList( 4 )( tIQICounter ).set( "IQI_type",                   static_cast< uint >( fem::IQI_Type::DOF ) );
             tParameterList( 4 )( tIQICounter ).set( "IQI_output_type",            static_cast< uint >( vis::Output_Type::VX ) );
-            tParameterList( 4 )( tIQICounter ).set( "master_dof_dependencies",    std::string("VX,VY") );
+            tParameterList( 4 )( tIQICounter ).set( "master_dof_dependencies",    "VX,VY") ;
             tParameterList( 4 )( tIQICounter ).set( "vectorial_field_index",      0 );
             tParameterList( 4 )( tIQICounter ).set( "mesh_set_names",             sFluid );
             tIQICounter++;
 
             // create parameter list for IQI 2
             tParameterList( 4 ).push_back( prm::create_IQI_parameter_list() );
-            tParameterList( 4 )( tIQICounter ).set( "IQI_name",                   std::string("IQIBulkVY") );
+            tParameterList( 4 )( tIQICounter ).set( "IQI_name",                   "IQIBulkVY") ;
             tParameterList( 4 )( tIQICounter ).set( "IQI_type",                   static_cast< uint >( fem::IQI_Type::DOF ) );
             tParameterList( 4 )( tIQICounter ).set( "IQI_output_type",            static_cast< uint >( vis::Output_Type::VY ) );
-            tParameterList( 4 )( tIQICounter ).set( "master_dof_dependencies",    std::string("VX,VY") );
+            tParameterList( 4 )( tIQICounter ).set( "master_dof_dependencies",    "VX,VY") ;
             tParameterList( 4 )( tIQICounter ).set( "vectorial_field_index",      1 );
             tParameterList( 4 )( tIQICounter ).set( "mesh_set_names",             sFluid );
             tIQICounter++;
 
             // create parameter list for IQI 3
             tParameterList( 4 ).push_back( prm::create_IQI_parameter_list() );
-            tParameterList( 4 )( tIQICounter ).set( "IQI_name",                   std::string("IQIBulkP") );
+            tParameterList( 4 )( tIQICounter ).set( "IQI_name",                   "IQIBulkP") ;
             tParameterList( 4 )( tIQICounter ).set( "IQI_type",                   static_cast< uint >( fem::IQI_Type::DOF ) );
             tParameterList( 4 )( tIQICounter ).set( "IQI_output_type",            static_cast< uint >( vis::Output_Type::P ) );
-            tParameterList( 4 )( tIQICounter ).set( "master_dof_dependencies",    std::string("P") );
+            tParameterList( 4 )( tIQICounter ).set( "master_dof_dependencies",    "P") ;
             tParameterList( 4 )( tIQICounter ).set( "vectorial_field_index",      0 );
             tParameterList( 4 )( tIQICounter ).set( "mesh_set_names",             sFluid );
             tIQICounter++;
@@ -513,15 +513,15 @@ extern "C"
             tParameterlist( 2 )( 0 ).set("NLA_max_iter",             50 );
 
             tParameterlist( 3 )( 0 ) = moris::prm::create_nonlinear_solver_parameter_list();
-            tParameterlist( 3 )( 0 ).set("NLA_DofTypes", std::string("VX,VY;P") );
+            tParameterlist( 3 )( 0 ).set("NLA_DofTypes", "VX,VY;P") ;
 
             tParameterlist( 4 )( 0 ) = moris::prm::create_time_solver_algorithm_parameter_list();
 
             tParameterlist( 5 )( 0 ) = moris::prm::create_time_solver_parameter_list();
-            tParameterlist( 5 )( 0 ).set("TSA_DofTypes",            std::string("VX,VY;P") );
-            tParameterlist( 5 )( 0 ).set("TSA_Initialize_Sol_Vec",  std::string("VX,0.5;VY,0.0;P,0.0") );
-            tParameterlist( 5 )( 0 ).set("TSA_Output_Indices",      std::string("0") );
-            tParameterlist( 5 )( 0 ).set("TSA_Output_Crteria",      std::string("Output_Criterion") );
+            tParameterlist( 5 )( 0 ).set("TSA_DofTypes",            "VX,VY;P") ;
+            tParameterlist( 5 )( 0 ).set("TSA_Initialize_Sol_Vec",  "VX,0.5;VY,0.0;P,0.0") ;
+            tParameterlist( 5 )( 0 ).set("TSA_Output_Indices",      "0") ;
+            tParameterlist( 5 )( 0 ).set("TSA_Output_Crteria",      "Output_Criterion") ;
 
             tParameterlist( 6 )( 0 ) = moris::prm::create_solver_warehouse_parameterlist();
         }
@@ -543,9 +543,9 @@ extern "C"
             tParameterlist( 0 )( 0 ).set( "File_Name"  , std::pair< std::string, std::string >( "./", "Channel_2D_Static.exo" ) );
             tParameterlist( 0 )( 0 ).set( "Mesh_Type"  , static_cast< uint >( vis::VIS_Mesh_Type::STANDARD ) );
             tParameterlist( 0 )( 0 ).set( "Set_Names"  , sFluid );
-            tParameterlist( 0 )( 0 ).set( "Field_Names", std::string( "VX,VY,P" ) );
-            tParameterlist( 0 )( 0 ).set( "Field_Type" , std::string( "NODAL,NODAL,NODAL" ) );
-            tParameterlist( 0 )( 0 ).set( "Output_Type", std::string( "VX,VY,P" ) );
+            tParameterlist( 0 )( 0 ).set( "Field_Names",  "VX,VY,P" ) ;
+            tParameterlist( 0 )( 0 ).set( "Field_Type" ,  "NODAL,NODAL,NODAL" ) ;
+            tParameterlist( 0 )( 0 ).set( "Output_Type",  "VX,VY,P" ) ;
             tParameterlist( 0 )( 0 ).set( "Save_Frequency",1);
         }
 
