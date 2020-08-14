@@ -394,22 +394,6 @@ extern "C"
             tParameterList( 2 )( tSPCounter ).set( "slave_properties",    std::string("PropSolidConductivity,Material") );
             tSPCounter++;
 
-            // master thermal interface stabilization parameter
-            tParameterList( 2 ).push_back( prm::create_stabilization_parameter_parameter_list() );
-            tParameterList( 2 )( tSPCounter ).set( "stabilization_name",  std::string("SPInterfaceMasterWeight") );
-            tParameterList( 2 )( tSPCounter ).set( "stabilization_type",  static_cast< uint >( fem::Stabilization_Type::MASTER_WEIGHT_INTERFACE ) );
-            tParameterList( 2 )( tSPCounter ).set( "master_properties",   std::string("PropFluidConductivity,Material") );
-            tParameterList( 2 )( tSPCounter ).set( "slave_properties",    std::string("PropSolidConductivity,Material") );
-            tSPCounter++;
-
-            // slave thermal interface stabilization parameter
-            tParameterList( 2 ).push_back( prm::create_stabilization_parameter_parameter_list() );
-            tParameterList( 2 )( tSPCounter ).set( "stabilization_name",  std::string("SPInterfaceSlaveWeight") );
-            tParameterList( 2 )( tSPCounter ).set( "stabilization_type",  static_cast< uint >( fem::Stabilization_Type::SLAVE_WEIGHT_INTERFACE ) );
-            tParameterList( 2 )( tSPCounter ).set( "master_properties",   std::string("PropFluidConductivity,Material") );
-            tParameterList( 2 )( tSPCounter ).set( "slave_properties",    std::string("PropSolidConductivity,Material") );
-            tSPCounter++;
-
             // ghost viscous stabilization parameter
             tParameterList( 2 ).push_back( prm::create_stabilization_parameter_parameter_list() );
             tParameterList( 2 )( tSPCounter ).set( "stabilization_name",  std::string("SPGPViscous") );
@@ -613,7 +597,7 @@ extern "C"
             tParameterList( 3 )( tIWGCounter ).set( "slave_dof_dependencies",          std::string("VX,VY;P;TEMP") );
             tParameterList( 3 )( tIWGCounter ).set( "master_constitutive_models",      std::string("CMFluidDiffusion,Diffusion") );
             tParameterList( 3 )( tIWGCounter ).set( "slave_constitutive_models",       std::string("CMSolidDiffusion,Diffusion") );
-            tParameterList( 3 )( tIWGCounter ).set( "stabilization_parameters",        std::string("SPInterfaceNitsche,NitscheInterface;SPInterfaceMasterWeight,MasterWeightInterface;SPInterfaceSlaveWeight,SlaveWeightInterface") );
+            tParameterList( 3 )( tIWGCounter ).set( "stabilization_parameters",        std::string("SPInterfaceNitsche,NitscheInterface") );
             tParameterList( 3 )( tIWGCounter ).set( "mesh_set_names",                  std::string("dbl_iside_p0_34_p1_42,dbl_iside_p0_46_p1_42") );
             tIWGCounter++;
 

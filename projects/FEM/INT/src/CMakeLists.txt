@@ -155,8 +155,6 @@ set(HEADERS
     cl_FEM_SP_Dirichlet_Nitsche.hpp
     cl_FEM_SP_Nitsche_Interface.hpp
     cl_FEM_SP_Reciprocal_Total_Volume.hpp
-    cl_FEM_SP_Master_Weight_Interface.hpp
-    cl_FEM_SP_Slave_Weight_Interface.hpp
     cl_FEM_SP_Ghost_Displacement.hpp
     cl_FEM_SP_Ghost_Virtual_Work.hpp
     cl_FEM_SP_Incompressible_Flow.hpp
@@ -262,8 +260,6 @@ set(LIB_SOURCES
     cl_FEM_SP_Dirichlet_Nitsche.cpp
     cl_FEM_SP_Nitsche_Interface.cpp
     cl_FEM_SP_Reciprocal_Total_Volume.cpp
-    cl_FEM_SP_Master_Weight_Interface.cpp
-    cl_FEM_SP_Slave_Weight_Interface.cpp
     cl_FEM_SP_Ghost_Displacement.cpp
     cl_FEM_SP_Ghost_Virtual_Work.cpp
     cl_FEM_SP_Incompressible_Flow.cpp

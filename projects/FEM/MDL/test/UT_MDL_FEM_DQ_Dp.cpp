@@ -254,14 +254,6 @@ TEST_CASE("MDL FEM Elastic DQ/Dp","[MDL_FEM_DQ_DP]")
 //       tSPNitscheInterface->set_property( tPropEMod1, "Material", mtk::Master_Slave::MASTER );
 //       tSPNitscheInterface->set_property( tPropEMod2, "Material", mtk::Master_Slave::SLAVE );
 //
-//       std::shared_ptr< fem::Stabilization_Parameter > tSPMasterWeightInterface = tSPFactory.create_SP( fem::Stabilization_Type::MASTER_WEIGHT_INTERFACE );
-//       tSPMasterWeightInterface->set_property( tPropEMod1, "Material", mtk::Master_Slave::MASTER );
-//       tSPMasterWeightInterface->set_property( tPropEMod2, "Material", mtk::Master_Slave::SLAVE );
-//
-//       std::shared_ptr< fem::Stabilization_Parameter > tSPSlaveWeightInterface = tSPFactory.create_SP( fem::Stabilization_Type::SLAVE_WEIGHT_INTERFACE );
-//       tSPSlaveWeightInterface->set_property( tPropEMod1, "Material", mtk::Master_Slave::MASTER );
-//       tSPSlaveWeightInterface->set_property( tPropEMod2, "Material", mtk::Master_Slave::SLAVE );
-//
 //       // define the IWGs
 //       fem::IWG_Factory tIWGFactory;
 //
@@ -292,8 +284,6 @@ TEST_CASE("MDL FEM Elastic DQ/Dp","[MDL_FEM_DQ_DP]")
 //       tIWGInterface->set_dof_type_list( { tResDofTypes } );
 //       tIWGInterface->set_dof_type_list( { tResDofTypes }, mtk::Master_Slave::SLAVE );
 //       tIWGInterface->set_stabilization_parameter( tSPNitscheInterface, "NitscheInterface" );
-//       tIWGInterface->set_stabilization_parameter( tSPMasterWeightInterface, "MasterWeightInterface" );
-//       tIWGInterface->set_stabilization_parameter( tSPSlaveWeightInterface, "SlaveWeightInterface" );
 //       tIWGInterface->set_constitutive_model( tCMStrucLinIso1, "ElastLinIso", mtk::Master_Slave::MASTER );
 //       tIWGInterface->set_constitutive_model( tCMStrucLinIso2, "ElastLinIso", mtk::Master_Slave::SLAVE );
 //

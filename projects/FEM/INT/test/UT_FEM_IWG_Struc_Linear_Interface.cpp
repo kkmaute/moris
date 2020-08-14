@@ -100,16 +100,6 @@ TEST_CASE( "IWG_Struc_Linear_Interface", "[moris],[fem],[IWG_Struc_Linear_Interf
     tSPNitscheInterface->set_property( tPropMasterEMod, "Material", mtk::Master_Slave::MASTER );
     tSPNitscheInterface->set_property( tPropSlaveEMod, "Material", mtk::Master_Slave::SLAVE );
 
-    std::shared_ptr< fem::Stabilization_Parameter > tSPMasterWeightInterface =
-            tSPFactory.create_SP( fem::Stabilization_Type::MASTER_WEIGHT_INTERFACE );
-    tSPMasterWeightInterface->set_property( tPropMasterEMod, "Material", mtk::Master_Slave::MASTER );
-    tSPMasterWeightInterface->set_property( tPropSlaveEMod, "Material", mtk::Master_Slave::SLAVE );
-
-    std::shared_ptr< fem::Stabilization_Parameter > tSPSlaveWeightInterface =
-            tSPFactory.create_SP( fem::Stabilization_Type::SLAVE_WEIGHT_INTERFACE );
-    tSPSlaveWeightInterface->set_property( tPropMasterEMod, "Material", mtk::Master_Slave::MASTER );
-    tSPSlaveWeightInterface->set_property( tPropSlaveEMod, "Material", mtk::Master_Slave::SLAVE );
-
     // define the IWGs
     fem::IWG_Factory tIWGFactory;
 
@@ -117,11 +107,9 @@ TEST_CASE( "IWG_Struc_Linear_Interface", "[moris],[fem],[IWG_Struc_Linear_Interf
     tIWG->set_residual_dof_type( tDispDofTypes );
     tIWG->set_dof_type_list( tDofTypes, mtk::Master_Slave::MASTER );
     tIWG->set_dof_type_list( tDofTypes, mtk::Master_Slave::SLAVE );
-    tIWG->set_stabilization_parameter( tSPNitscheInterface, "NitscheInterface" );
-    tIWG->set_stabilization_parameter( tSPMasterWeightInterface, "MasterWeightInterface" );
-    tIWG->set_stabilization_parameter( tSPSlaveWeightInterface, "SlaveWeightInterface" );
     tIWG->set_constitutive_model( tCMMasterStrucLinIso, "ElastLinIso", mtk::Master_Slave::MASTER );
     tIWG->set_constitutive_model( tCMSlaveStrucLinIso, "ElastLinIso", mtk::Master_Slave::SLAVE );
+    tIWG->set_stabilization_parameter( tSPNitscheInterface, "NitscheInterface" );
 
     // init set info
     //------------------------------------------------------------------------------
@@ -157,6 +145,7 @@ TEST_CASE( "IWG_Struc_Linear_Interface", "[moris],[fem],[IWG_Struc_Linear_Interf
         tCMMasterStrucLinIso->set_model_type( fem::Model_Type::PLANE_STRESS );
         tCMSlaveStrucLinIso->set_space_dim( iSpaceDim );
         tCMSlaveStrucLinIso->set_model_type( fem::Model_Type::PLANE_STRESS );
+        tSPNitscheInterface->set_space_dim( iSpaceDim );
 
         // set geometry inputs
         //------------------------------------------------------------------------------
