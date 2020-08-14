@@ -29,7 +29,7 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        TEST_CASE("Full Interface Sensitivity Test", "[GEN], [INTERSECTION_SENSITIVITY]")
+        TEST_CASE("Interface sensitivity test", "[GEN], [interface], [sensitivity], [interface sensitivity]")
         {
             if (par_size() == 1)
             {
@@ -106,9 +106,6 @@ namespace moris
                 // place the pair in mesh manager
                 std::shared_ptr<mtk::Mesh_Manager> tMeshManager = std::make_shared<mtk::Mesh_Manager>();
                 tMeshManager->register_mesh_pair( &tEnrInterpMesh, &tEnrIntegMesh);
-
-                // Set interface nodes
-                tXTKModel.communicate_interface_nodes();
 
                 // Create PDVs on integration mesh
                 tGeometryEngine.create_pdvs(tMeshManager);

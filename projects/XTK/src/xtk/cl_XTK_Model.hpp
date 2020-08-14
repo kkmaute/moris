@@ -230,16 +230,6 @@ namespace xtk
             void
             unzip_interface();
 
-            // ----------------------------------------------------------------------------------
-
-            /*!
-             * Communicates the interface nodes with the geometry engine
-             */
-            void
-            communicate_interface_nodes();
-
-            // ----------------------------------------------------------------------------------
-
             /*!
              * Perform generalized heaviside  enrichment.
              */
@@ -564,7 +554,6 @@ namespace xtk
 
             // XTK Model State Flags
             bool mDecomposed        = false; // Model has been decomposed
-            bool mSensitivity       = false; // Model has computed sensitivity
             bool mConvertedToTet10s = false; // Model has been converted from tet4's to tet10s
             bool mEnriched          = false; // Model has been enriched
             bool mUnzipped          = false; // Model has been unzipped
@@ -711,42 +700,45 @@ namespace xtk
             /*
              * Parallel assignment of node request identifiers
              */
-             void
-             assign_node_requests_identifiers(
-                     Decomposition_Data & aDecompData,
-                     moris::moris_index   aMPITag);
+            void
+            assign_node_requests_identifiers(
+                    Decomposition_Data & aDecompData,
+                    moris::moris_index   aMPITag);
 
-             //------------------------------------------------------------------------------
+            //------------------------------------------------------------------------------
 
-             void
-             sort_new_node_requests_by_owned_and_not_owned(
-                     Decomposition_Data                    & tDecompData,
-                     Cell<uint>                            & aOwnedRequests,
-                     Cell<Cell<uint>>                      & aNotOwnedRequests,
-                     Cell<uint>                            & aProcRanks,
-                     std::unordered_map<moris_id,moris_id> & aProcRankToIndexInData);
+            void
+            sort_new_node_requests_by_owned_and_not_owned(
+                    Decomposition_Data                    & tDecompData,
+                    Cell<uint>                            & aOwnedRequests,
+                    Cell<Cell<uint>>                      & aNotOwnedRequests,
+                    Cell<uint>                            & aProcRanks,
+                    std::unordered_map<moris_id,moris_id> & aProcRankToIndexInData);
 
-             //------------------------------------------------------------------------------
+            //------------------------------------------------------------------------------
 
-             void
-             assign_owned_request_identifiers(
-                     Decomposition_Data & aDecompData,
-                     Cell<uint> const &       aOwnedRequest,
-                     moris::moris_id &        aNodeInd,
-                     moris::moris_id &        aNodeId);
+            void
+            assign_owned_request_id(
+                    Decomposition_Data & aDecompData,
+                    Cell<uint> const   & aOwnedRequest,
+                    moris::moris_id    & aNodeId);
 
-             //------------------------------------------------------------------------------
+            //------------------------------------------------------------------------------
 
-             /*!
-              * Sets up the decomposition data request for node identifiers from owning proc
-              *
-              */
-             void
-             setup_outward_requests(Decomposition_Data              const & aDecompData,
-                     Cell<Cell<uint>>                const & aNotOwnedRequests,
-                     Cell<uint>                      const & aProcRanks,
-                     std::unordered_map<moris_id,moris_id> & aProcRankToIndexInData,
-                     Cell<Matrix<IndexMat>>                & aSentRequests);
+            void assign_index(Decomposition_Data & aDecompData);
+
+            //------------------------------------------------------------------------------
+
+            /*!
+             * Sets up the decomposition data request for node identifiers from owning proc
+             *
+             */
+            void
+            setup_outward_requests(Decomposition_Data              const & aDecompData,
+                    Cell<Cell<uint>>                const & aNotOwnedRequests,
+                    Cell<uint>                      const & aProcRanks,
+                    std::unordered_map<moris_id,moris_id> & aProcRankToIndexInData,
+                    Cell<Matrix<IndexMat>>                & aSentRequests);
 
              //------------------------------------------------------------------------------
 
@@ -806,7 +798,6 @@ namespace xtk
                      Decomposition_Data           & aDecompData,
                      Cell<Matrix<IndexMat>> const & aRequests,
                      Cell<Matrix<IndexMat>> const & aRequestAnswers,
-                     moris::moris_id              & aNodeInd,
                      moris::moris_id              & aNodeId);
 
              //------------------------------------------------------------------------------

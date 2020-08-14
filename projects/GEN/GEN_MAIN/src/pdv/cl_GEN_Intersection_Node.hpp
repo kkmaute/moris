@@ -12,8 +12,10 @@ namespace moris
 
         private:
             std::shared_ptr<Geometry> mInterfaceGeometry;
+            bool mFirstParentOnInterface;
+            bool mSecondParentOnInterface;
             Cell<std::shared_ptr<Intersection_Node>> mNodeDependencies;
-            Matrix<DDRMat> mCoordinates;
+            Matrix<DDRMat> mGlobalCoordinates;
             uint mStartingPdvIndex;
             bool mPdvIndexSet = false;
 
@@ -26,10 +28,27 @@ namespace moris
              * @param aInterfaceGeometry Geometry that intersects the parent to create this child
              * @param aIsocontourThreshold Threshold for determining the intersection location of the child node
              */
-            Intersection_Node(Matrix<DDUMat>            aParentNodeIndices,
-                              Cell<Matrix<DDRMat>>      aParentNodeCoordinates,
-                              std::shared_ptr<Geometry> aInterfaceGeometry,
-                              real                      aIsocontourThreshold);
+            Intersection_Node(
+                    uint                      aFirstNodeIndex,
+                    uint                      aSecondNodeIndex,
+                    const Matrix<DDRMat>&     aFirstNodeCoordinates,
+                    const Matrix<DDRMat>&     aSecondNodeCoordinates,
+                    std::shared_ptr<Geometry> aInterfaceGeometry,
+                    real                      aIsocontourThreshold);
+
+            /**
+             * Returns if the first parent used to create this node is on the geoemtry interface already.
+             *
+             * @return If the first parent is on the interface
+             */
+            bool first_parent_on_interface();
+
+            /**
+             * Returns if the second parent used to create this node is on the geometry interface already.
+             *
+             * @return If the second parent is on the interface
+             */
+            bool second_parent_on_interface();
 
             /**
              * Sets the starting index to be able to use the intersection coordinates of this node as PDVs
@@ -52,6 +71,13 @@ namespace moris
              * @return Coordinate value
              */
             real get_coordinate_value(uint aCoordinateIndex);
+
+            /**
+             * Gets all global coordinate values for this intersection node.
+             *
+             * @return Global coordinates
+             */
+            Matrix<DDRMat> get_global_coordinates();
 
             /**
              * Gets all of the sensitivity vectors for each coordinate
