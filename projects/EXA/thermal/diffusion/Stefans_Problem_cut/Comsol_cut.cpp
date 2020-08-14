@@ -49,11 +49,11 @@ namespace moris
     std::string tHMRDomainDimensions = "0.030,0.0030";
 
     // time solver parameters
-    moris::sint tStep = 10;
+    moris::sint tStep = 15;
     moris::real tTmax = 480.0;
 
     // ramp up of Dirichlet BC (number of time slabs to ramp up the value on the BC)
-    moris::real tRampUp = 6.0;
+    moris::real tRampUp = 9.0;
 
     // Constant function for properties
     void Func_Const(
@@ -464,8 +464,8 @@ namespace moris
         tParameterlist( 1 )( 0 ) = moris::prm::create_linear_solver_parameter_list();
 
         tParameterlist( 2 )( 0 ) = moris::prm::create_nonlinear_algorithm_parameter_list();
-        tParameterlist( 2 )( 0 ).set("NLA_rel_res_norm_drop", 5e-05 );
-        tParameterlist( 2 )( 0 ).set("NLA_relaxation_parameter", 1.0 );
+        tParameterlist( 2 )( 0 ).set("NLA_rel_res_norm_drop", 2.0e-05 );
+        tParameterlist( 2 )( 0 ).set("NLA_relaxation_parameter", 0.96 );
         tParameterlist( 2 )( 0 ).set("NLA_max_iter", 20 );
 
         tParameterlist( 3 )( 0 ) = moris::prm::create_nonlinear_solver_parameter_list();
