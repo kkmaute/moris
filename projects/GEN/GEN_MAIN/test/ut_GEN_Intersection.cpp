@@ -29,31 +29,30 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        TEST_CASE("Interface sensitivity test", "[GEN], [interface], [sensitivity], [interface sensitivity]")
+        TEST_CASE("Interface sensitivity test", "[gen], [interface], [sensitivity], [interface sensitivity]")
         {
             if (par_size() == 1)
             {
+                // Create mesh
                 ParameterList tParameters = prm::create_hmr_parameter_list();
 
-                tParameters.set( "number_of_elements_per_dimension", std::string("2, 2"));
-                tParameters.set( "domain_dimensions", std::string("2, 2") );
-                tParameters.set( "domain_offset", std::string("-1.0, -1.0") );
-                tParameters.set( "domain_sidesets", std::string("1,2,3,4") );
-                tParameters.set( "lagrange_output_meshes", std::string("0") );
+                tParameters.set( "number_of_elements_per_dimension", "2, 2");
+                tParameters.set( "domain_dimensions", "2, 2");
+                tParameters.set( "domain_offset", "-1.0, -1.0");
+                tParameters.set( "domain_sidesets", "1,2,3,4");
+                tParameters.set( "lagrange_output_meshes", "0");
 
-                tParameters.set( "lagrange_orders", std::string("2") );
-                tParameters.set( "lagrange_pattern", std::string("0") );
-                tParameters.set( "bspline_orders", std::string("2") );
-                tParameters.set( "bspline_pattern", std::string("0") );
+                tParameters.set( "lagrange_orders", "2");
+                tParameters.set( "lagrange_pattern", "0");
+                tParameters.set( "bspline_orders", "2");
+                tParameters.set( "bspline_pattern", "0");
 
-                tParameters.set( "lagrange_to_bspline", std::string("0") );
+                tParameters.set( "lagrange_to_bspline", "0");
 
                 tParameters.set( "truncate_bsplines", 1 );
                 tParameters.set( "refinement_buffer", 3 );
                 tParameters.set( "staircase_buffer", 3 );
-                tParameters.set( "initial_refinement", 0 );
 
-                tParameters.set( "use_multigrid", 0 );
                 tParameters.set( "severity_level", 2 );
 
                 hmr::HMR tHMR( tParameters );
@@ -62,30 +61,36 @@ namespace moris
                 tHMR.perform_initial_refinement( 0 );
                 tHMR.finalize();
 
-                hmr::Interpolation_Mesh_HMR * tInterpolationMesh = tHMR.create_interpolation_mesh(0);
-
-                // Create geometry
+                mtk::Interpolation_Mesh* tInterpolationMesh = tHMR.create_interpolation_mesh(0);
+                
+                // Set up ADVs
                 real tRadius = 0.25;
                 Matrix<DDRMat> tADVs = {{0.0, 0.0, tRadius,
                         -1.0, -1.0, -1.0, -1.0,
                         -1.0, -1.0, 1.0, 0.0,
                         -0.5, 0.5, 1.0, 1.0,
                         1.0, 1.0, 1.0, 1.0}};
+                
+                // Create geometry
                 Cell<std::shared_ptr<Geometry>> tGeometry(2);
-                tGeometry(0) = std::make_shared<Circle>(tADVs,
-                                                        Matrix<DDUMat>({{0, 1, 2}}),
-                                                        Matrix<DDUMat>({{0, 1, 2}}),
-                                                        Matrix<DDRMat>(0, 0));
+                tGeometry(0) = std::make_shared<Circle>(
+                        tADVs,
+                        Matrix<DDUMat>({{0, 1, 2}}),
+                        Matrix<DDUMat>({{0, 1, 2}}),
+                        Matrix<DDRMat>(0, 0));
 
-                tGeometry(1) = std::make_shared<Level_Set>(tADVs,
-                    Matrix<DDUMat>({{0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15}}),
-                    Matrix<DDUMat>({{3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18}}),
-                    Matrix<DDRMat>(0, 0),
-                    tInterpolationMesh);
+                tGeometry(1) = std::make_shared<Level_Set>(
+                        tADVs,
+                        Matrix<DDUMat>({{0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15}}),
+                        Matrix<DDUMat>({{3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18}}),
+                        Matrix<DDRMat>(0, 0),
+                        tInterpolationMesh);
 
+                // Create geometry engine
                 Phase_Table tPhaseTable (2, Phase_Table_Structure::EXP_BASE_2);
                 Geometry_Engine tGeometryEngine(tGeometry, tPhaseTable, tInterpolationMesh, tADVs);
 
+                // Create XTK model
                 xtk::Model tXTKModel(2, tInterpolationMesh, &tGeometryEngine);
                 tXTKModel.mVerbose = false;
 
@@ -104,11 +109,11 @@ namespace moris
 //                writer.close_file();
 
                 // place the pair in mesh manager
-                std::shared_ptr<mtk::Mesh_Manager> tMeshManager = std::make_shared<mtk::Mesh_Manager>();
-                tMeshManager->register_mesh_pair( &tEnrInterpMesh, &tEnrIntegMesh);
+                std::shared_ptr<mtk::Mesh_Manager> tInterpolationMeshManager = std::make_shared<mtk::Mesh_Manager>();
+                tInterpolationMeshManager->register_mesh_pair( &tEnrInterpMesh, &tEnrIntegMesh);
 
                 // Create PDVs on integration mesh
-                tGeometryEngine.create_pdvs(tMeshManager);
+                tGeometryEngine.create_pdvs(tInterpolationMeshManager);
 
                 // Make sure PDVs contain sensitivity information
                 Pdv_Host_Manager *tPdvHostManager = dynamic_cast<Pdv_Host_Manager*>(tGeometryEngine.get_design_variable_interface());
@@ -120,6 +125,7 @@ namespace moris
                           -9.284086907492073e-02}};
                 CHECK(norm(tPdvHostManager->compute_diqi_dadv() - tTempSolution) < 1E-8);
 
+                // Clean up
                 delete tInterpolationMesh;
 
             }

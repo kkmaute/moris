@@ -11,7 +11,7 @@ namespace moris
 {
     namespace ge
     {
-        TEST_CASE("Discrete property based on ADVs", "[GEN], [property], [discrete property]")
+        TEST_CASE("Discrete property based on ADVs", "[gen], [property], [discrete property]")
         {
             // Set up default parameter lists
             moris::Cell<moris::Cell<ParameterList>> tParameterLists(3);
@@ -36,7 +36,7 @@ namespace moris
             Geometry_Engine tGeometryEngine(tParameterLists);
         }
 
-        TEST_CASE("Property dependency test", "[GEN], [property], [property dependency]")
+        TEST_CASE("Property dependency test", "[gen], [property], [property dependency]")
         {
             // Set up default parameter lists
             moris::Cell<moris::Cell<ParameterList>> tParameterLists(3);
