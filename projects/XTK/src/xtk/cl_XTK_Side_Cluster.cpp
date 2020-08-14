@@ -56,10 +56,17 @@ namespace xtk
         return mIntegrationCellSideOrdinals(aCellIndexInCluster);
     }
     //----------------------------------------------------------------
-    moris::Cell<moris::mtk::Vertex const *> const &
+    moris::Cell<moris::mtk::Vertex const *>
     Side_Cluster::get_vertices_in_cluster( const mtk::Master_Slave aIsMaster ) const
     {
-        return mVerticesInCluster;
+        if(!mTrivial)
+        {
+            return mVerticesInCluster;
+        }
+        else
+        {
+            return mInterpolationCell->get_geometric_vertices_on_side_ordinal(mIntegrationCellSideOrdinals(0));
+        }
     }
     //----------------------------------------------------------------
     moris::Matrix<moris::DDRMat>
@@ -192,7 +199,7 @@ namespace xtk
     void
     Side_Cluster::finalize_setup()
     {
-        moris::Cell<moris::mtk::Vertex const *> const & tVerticesInCluster = this->get_vertices_in_cluster();
+        moris::Cell<moris::mtk::Vertex const *> tVerticesInCluster = this->get_vertices_in_cluster();
 
         // add to map if trivial otherwise the child mesh takes care of this
         if(mTrivial || mChildMesh == nullptr)

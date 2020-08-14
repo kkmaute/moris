@@ -93,7 +93,6 @@ public:
     /**
      * fills a moris::cell with pointers to connected vertices
      */
-    //FIXME: SDF's Triangle_Vertex causes this to not be able to return a reference.
     virtual moris::Cell< Vertex* >
     get_vertex_pointers() const = 0;
 

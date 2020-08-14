@@ -45,6 +45,10 @@ Mesh_Checker::Mesh_Checker(
 
     // ip specific gathering
     this->gather_serialized_ip_mesh(&mSerializedIpMesh);
+
+    // setup maps for each proc
+    this->setup_vertex_maps(&mSerializedIpMesh);
+    this->setup_vertex_maps(&mSerializedIgMesh);
 }
 //--------------------------------------------------------------------------------
 Mesh_Checker::~Mesh_Checker(){}
@@ -52,8 +56,13 @@ Mesh_Checker::~Mesh_Checker(){}
 bool
 Mesh_Checker::perform()
 {
+    // verify the coordinates
     mIpVertexDiag = this->verify_vertex_coordinates(&mSerializedIpMesh,true);
     mIgVertexDiag = this->verify_vertex_coordinates(&mSerializedIgMesh,true);
+
+    // verify the ownership
+    mIpVertexOwnerDiag = this->verify_vertex_ownership(&mSerializedIpMesh);
+    mIpVertexOwnerDiag = this->verify_vertex_ownership(&mSerializedIgMesh);
 
     return false;
 }
@@ -239,15 +248,68 @@ Mesh_Checker::verify_vertex_coordinates(
     }
 
 }
+bool
+Mesh_Checker::verify_vertex_ownership(Serialized_Mesh_Data* aSerializedMesh)
+{
+    moris::uint tValidInd = 1;
+
+    if(par_rank() == 0)
+    {
+        // iterate through processors
+        for(moris::uint iP = 0; iP< aSerializedMesh->mCollectVertexIds.size(); iP++)
+        {
+            // iterate through vertices on proc
+            for(moris::uint iV = 0; iV < aSerializedMesh->mCollectVertexIds(iP).numel(); iV++)
+            {
+                moris_id tVertexId = aSerializedMesh->mCollectVertexIds(iP)(iV);
+                moris_id tVertexOwner = aSerializedMesh->mCollectVertexOwners(iP)(iV);
+
+                bool tNodeExists = true;
+
+                auto tIter = aSerializedMesh->mCollectVertexMaps(tVertexOwner).find(tVertexId);
+                if(tIter == aSerializedMesh->mCollectVertexMaps(tVertexOwner).end())
+                {
+
+                    tNodeExists =false;
+                }
+
+
+                MORIS_ASSERT(aSerializedMesh->mCollectVertexMaps(iP).find(tVertexId) == aSerializedMesh->mCollectVertexMaps(iP).end(),"Vertex id already in the map");
+                aSerializedMesh->mCollectVertexMaps(iP)[tVertexId] = iV;
+            }
+        }
+    }
+
+
+    broadcast(tValidInd);
+
+    barrier();
+
+    if(tValidInd == 0)
+    {
+        return false;
+    }
+    else
+    {
+        return true;
+    }
+
+}
+
 //--------------------------------------------------------------------------------
 void
 Mesh_Checker::print_diagnostics()
 {
     if(par_rank() == 0)
     {
+        uint tFirstColWidth = 15;
+        uint tSecondColWidth = 11;
+
         std::cout<<"Mesh Checking Diagnostics:"<<std::endl;
-        std::cout<<"               Interp Mesh"<<" | Integ Mesh"<<std::endl;
-        std::cout<<"   Vertex Ids: "<<std::setw(11)<<this->bool_to_string(mIpVertexDiag)<<" | "<<std::setw(10)<<this->bool_to_string(mIgVertexDiag)<<std::endl;
+        std::cout<<std::setw(tFirstColWidth)<<""<<std::setw(tSecondColWidth)<<"Interp Mesh"<<std::setw(tSecondColWidth)<<" | Integ Mesh"<<std::endl;
+        std::cout<<std::setw(tFirstColWidth)<<"Vertex Ids: "<<std::setw(tSecondColWidth)<<this->bool_to_string(mIpVertexDiag)<<" |"<<std::setw(tSecondColWidth)<<this->bool_to_string(mIgVertexDiag)<<std::endl;
+        std::cout<<std::setw(tFirstColWidth)<<"Vertex Coords: "<<std::setw(tSecondColWidth)<<this->bool_to_string(mIpVertexDiag)<<" |"<<std::setw(tSecondColWidth)<<this->bool_to_string(mIgVertexDiag)<<std::endl;
+        std::cout<<std::setw(tFirstColWidth)<<"Vertex Owners: "<<std::setw(tSecondColWidth)<<this->bool_to_string(mIpVertexDiag)<<" |"<<std::setw(tSecondColWidth)<<this->bool_to_string(mIgVertexDiag)<<std::endl;
     }
 }
 
@@ -282,6 +344,7 @@ Mesh_Checker::serialize_vertices(
     size_t tNumNodes = aMesh->get_num_entities((moris::EntityRank)EntityRank::NODE);
 
     aSerialMesh->mVertexIds.resize(tNumNodes,1);
+    aSerialMesh->mVertexOwners.resize(tNumNodes,1);
     aSerialMesh->mVertexCoordinates.resize(tNumNodes,aMesh->get_spatial_dim());
 
     for(size_t i = 0; i< tNumNodes; i++ )
@@ -291,6 +354,9 @@ Mesh_Checker::serialize_vertices(
 
         // add id to the data
         aSerialMesh->mVertexIds(i) = aMesh->get_glb_entity_id_from_entity_loc_index(i,EntityRank::NODE,mMeshIndex);
+
+        // get the owner
+//        aSerialMesh->mVertexOwners(i) = aMesh->get_entity_owner(i,EntityRank::NODE);
     }
 
 }
@@ -302,7 +368,6 @@ Mesh_Checker::serialize_vertex_t_matrices(
 {
     size_t tNumNodes = aMesh->get_num_entities((moris::EntityRank)EntityRank::NODE);
 
-std::cout<<"tNumNodes = "<<tNumNodes<<std::endl;
     for(size_t i = 0; i< tNumNodes; i++ )
     {
         Vertex & tVertex = aMesh->get_mtk_vertex(i);
@@ -335,54 +400,54 @@ Mesh_Checker::gather_serialized_mesh(Serialized_Mesh_Data* aSerializedMesh)
     moris_index tTag = 600;
 
     moris::all_gather_vector(aSerializedMesh->mVertexIds,aSerializedMesh->mCollectVertexIds,tTag,1);
-    moris::all_gather_vector(aSerializedMesh->mVertexCoordinates,aSerializedMesh->mCollectVertexCoords,tTag,1);
-
-    moris::print(aSerializedMesh->mCollectVertexIds,"aSerializedMesh->mCollectVertexIds");
+    moris::all_gather_vector(aSerializedMesh->mVertexOwners,aSerializedMesh->mCollectVertexOwners,tTag+1,1);
+    moris::all_gather_vector(aSerializedMesh->mVertexCoordinates,aSerializedMesh->mCollectVertexCoords,tTag+2,1);
 }
 
 void
 Mesh_Checker::gather_serialized_ip_mesh(Serialized_Mesh_Data* aSerializedMesh)
 {
-//    moris_index tTag = 650;
-//
-//
-//    // get the basis weights
-//    Matrix<DDRMat> tVertexTMatrixWeightsData;
-//    Matrix<IndexMat> tVertexTMatrixWeightsOffsets;
-//    this->cell_of_mats_to_serial_mat(aSerializedMesh->mVertexTMatrixWeights,tVertexTMatrixWeightsData,tVertexTMatrixWeightsOffsets);
-//
-//    moris::Cell<Matrix<DDRMat>> tGatheredFlattenedWeightsData;
-//    moris::Cell<Matrix<IndexMat>> tGatheredFlattenedWeightsOffsets;
-//    moris::all_gather_vector(tVertexTMatrixWeightsData,tGatheredFlattenedWeightsData,tTag,0);
-//    moris::all_gather_vector(tVertexTMatrixWeightsOffsets,tGatheredFlattenedWeightsOffsets,tTag+1,0);
-//
-//
-//    // get the basis ids
-//    Matrix<DDRMat> tVertexTMatrixIdsData;
-//    Matrix<IndexMat> tVertexTMatrixIdsOffsets;
-//    this->cell_of_mats_to_serial_mat(aSerializedMesh->mVertexTMatrixWeights,tVertexTMatrixIdsData,tVertexTMatrixIdsOffsets);
-//
-//
-//    moris::Cell<Matrix<IndexMat>> tGatheredFlattenedBasisIdData;
-//    moris::Cell<Matrix<IndexMat>> tGatheredFlattenedBasisIdOffsets;
-//    moris::all_gather_vector(tVertexTMatrixIdsData,tGatheredFlattenedBasisIdData,tTag+2,0);
-//    moris::all_gather_vector(tVertexTMatrixIdsOffsets,tGatheredFlattenedBasisIdOffsets,tTag+3,0);
-//
-//    // get the basisi owners
-//
-//
-//    if(par_rank() == 0)
-//    {
-//        aSerializedMesh->mCollectVertexTMatrixWeights.resize(tGatheredFlattenedWeightsData.size());
-//
-//        // iterate through the data and construct cell of mats
-//        for(moris::uint i = 0; i < tGatheredFlattenedWeightsData.size(); i++)
-//        {
-//            this->serial_mat_to_cell_of_mats(tGatheredFlattenedWeightsData(i),tGatheredFlattenedWeightsOffsets(i),aSerializedMesh->mCollectVertexTMatrixWeights(i));
-//            this->serial_mat_to_cell_of_mats(tGatheredFlattenedBasisIdData(i),tGatheredFlattenedBasisIdOffsets(i),aSerializedMesh->mCollectVertexTMatrixBasisIds(i));
-//
-//        }
-//    }
+    moris_index tTag = 650;
+
+
+    // get the basis weights
+    Matrix<DDRMat> tVertexTMatrixWeightsData;
+    Matrix<IndexMat> tVertexTMatrixWeightsOffsets;
+    this->cell_of_mats_to_flattened_mat(aSerializedMesh->mVertexTMatrixWeights,tVertexTMatrixWeightsData,tVertexTMatrixWeightsOffsets);
+
+    moris::Cell<Matrix<DDRMat>> tGatheredFlattenedWeightsData;
+    moris::Cell<Matrix<IndexMat>> tGatheredFlattenedWeightsOffsets;
+    moris::all_gather_vector(tVertexTMatrixWeightsData,tGatheredFlattenedWeightsData,tTag,0);
+    moris::all_gather_vector(tVertexTMatrixWeightsOffsets,tGatheredFlattenedWeightsOffsets,tTag+1,0);
+
+
+    // get the basis ids
+    Matrix<IndexMat> tVertexTMatrixIdsData;
+    Matrix<IndexMat> tVertexTMatrixIdsOffsets;
+    this->cell_of_mats_to_flattened_mat(aSerializedMesh->mVertexTMatrixBasisIds,tVertexTMatrixIdsData,tVertexTMatrixIdsOffsets);
+
+
+    // gather the vertex t-matrices
+    moris::Cell<Matrix<IndexMat>> tGatheredFlattenedBasisIdData;
+    moris::Cell<Matrix<IndexMat>> tGatheredFlattenedBasisIdOffsets;
+    moris::all_gather_vector(tVertexTMatrixIdsData,tGatheredFlattenedBasisIdData,tTag+2,0);
+    moris::all_gather_vector(tVertexTMatrixIdsOffsets,tGatheredFlattenedBasisIdOffsets,tTag+3,0);
+
+    //
+    if(par_rank() == 0)
+    {
+        aSerializedMesh->mCollectVertexTMatrixWeights.resize(tGatheredFlattenedWeightsData.size());
+        aSerializedMesh->mCollectVertexTMatrixBasisIds.resize(tGatheredFlattenedBasisIdData.size());
+
+        // iterate through the data and construct cell of mats
+
+       std::cout<<"tGatheredFlattenedWeightsData.size() = "<<tGatheredFlattenedWeightsData.size()<<std::endl;
+        for(moris::uint i = 0; i < tGatheredFlattenedWeightsData.size(); i++)
+        {
+            this->flattened_mat_to_cell_of_mats(tGatheredFlattenedWeightsData(i),tGatheredFlattenedWeightsOffsets(i),aSerializedMesh->mCollectVertexTMatrixWeights(i));
+            this->flattened_mat_to_cell_of_mats(tGatheredFlattenedBasisIdData(i),tGatheredFlattenedBasisIdOffsets(i),aSerializedMesh->mCollectVertexTMatrixBasisIds(i));
+        }
+    }
 
 
 
@@ -399,6 +464,28 @@ Mesh_Checker::gather_serialized_ip_mesh(Serialized_Mesh_Data* aSerializedMesh)
 //    moris::print(tVertexTMatrixWeightsData,"tVertexTMatrixWeightsData");
 //    moris::print(tVertexTMatrixWeightsOffsets,"tVertexTMatrixWeightsOffsets");
 }
+
+//--------------------------------------------------------------------------------
+
+void
+Mesh_Checker::setup_vertex_maps(Serialized_Mesh_Data* aSerializedMesh)
+{
+    aSerializedMesh->mCollectVertexMaps.resize(aSerializedMesh->mCollectVertexIds.size());
+
+    // iterate through processors
+    for(moris::uint iP = 0; iP< aSerializedMesh->mCollectVertexIds.size(); iP++)
+    {
+        // iterate through vertices on proc
+        for(moris::uint iV = 0; iV < aSerializedMesh->mCollectVertexIds(iP).numel(); iV++)
+        {
+            moris_id tVertexId = aSerializedMesh->mCollectVertexIds(iP)(iV);
+
+            MORIS_ASSERT(aSerializedMesh->mCollectVertexMaps(iP).find(tVertexId) == aSerializedMesh->mCollectVertexMaps(iP).end(),"Vertex id already in the map");
+            aSerializedMesh->mCollectVertexMaps(iP)[tVertexId] = iV;
+        }
+    }
+}
+
 //--------------------------------------------------------------------------------
 
 std::string

@@ -25,14 +25,14 @@ class Cell_Cluster : public mtk::Cell_Cluster
 public:
     Cell_Cluster();
     ~Cell_Cluster();
-    bool                                            is_trivial( const mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER ) const;
-    moris::Cell<moris::mtk::Cell const *> const &   get_primary_cells_in_cluster( const mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER ) const;
-    moris::Cell<moris::mtk::Cell const *> const &   get_void_cells_in_cluster() const;
-    moris::mtk::Cell const &                        get_interpolation_cell( const mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER ) const;
-    moris::Cell<moris::mtk::Vertex const *> const & get_vertices_in_cluster( const mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER) const;
-    moris::Matrix<moris::DDRMat>                    get_vertices_local_coordinates_wrt_interp_cell( const mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER ) const;
-    moris::Matrix<moris::DDRMat>                    get_vertex_local_coordinate_wrt_interp_cell( moris::mtk::Vertex const * aVertex, const mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER) const ;
-    moris_index                                     get_dim_of_param_coord( const mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER ) const ;
+    bool                                          is_trivial( const mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER ) const;
+    moris::Cell<moris::mtk::Cell const *> const & get_primary_cells_in_cluster( const mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER ) const;
+    moris::Cell<moris::mtk::Cell const *> const & get_void_cells_in_cluster() const;
+    moris::mtk::Cell const &                      get_interpolation_cell( const mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER ) const;
+    moris::Cell<moris::mtk::Vertex const *>       get_vertices_in_cluster( const mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER) const;
+    moris::Matrix<moris::DDRMat>                  get_vertices_local_coordinates_wrt_interp_cell( const mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER ) const;
+    moris::Matrix<moris::DDRMat>                  get_vertex_local_coordinate_wrt_interp_cell( moris::mtk::Vertex const * aVertex, const mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER) const ;
+    moris_index                                   get_dim_of_param_coord( const mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER ) const ;
 
     friend class Enriched_Integration_Mesh;
 

@@ -34,14 +34,6 @@ namespace xtk
     {
         Ghost_Setup_Data tGhostSetupData;
 
-        //
-        //        mtk::Mesh_Checker tMeshChecker(0,&mXTKModel->get_enriched_interp_mesh(0),&mXTKModel->get_enriched_integ_mesh(0));
-        //        tMeshChecker.perform();
-        //        tMeshChecker.print_diagnostics();
-        //
-
-
-
         // construct trivial subphase interpolation cells
         this->construct_ip_ig_cells_for_ghost_side_clusters(tGhostSetupData);
 
@@ -1284,7 +1276,8 @@ namespace xtk
         tSlaveSideCluster->mVerticesInCluster = tSlaveSideCluster->mIntegrationCells(0)->
                 get_geometric_vertices_on_side_ordinal(tSlaveSideCluster->mIntegrationCellSideOrdinals(0));
 
-        tSlaveSideCluster->mVerticesInCluster.size();
+
+        print(tSlaveSideCluster->get_vertices_local_coordinates_wrt_interp_cell(),"Loc Coords");
 
         return tSlaveSideCluster;
     }
@@ -1377,7 +1370,7 @@ namespace xtk
             moris_index            & aCurrentId)
     {
         // get the vertices on the side for the slave side cluster
-        moris::Cell<moris::mtk::Vertex const *> const & tSlaveVertices = aSlaveSideCluster->get_vertices_in_cluster();
+        moris::Cell<moris::mtk::Vertex const *> tSlaveVertices = aSlaveSideCluster->get_vertices_in_cluster();
 
         // get the side master interpolation cell
         Interpolation_Cell_Unzipped const *  tMasterIpCell =  aMasterSideCluster->mInterpolationCell;

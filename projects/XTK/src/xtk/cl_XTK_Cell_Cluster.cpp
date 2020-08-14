@@ -51,17 +51,31 @@ namespace xtk
         return *mInterpolationCell;
     }
     //----------------------------------------------------------------
-    moris::Cell<moris::mtk::Vertex const *> const &
+    moris::Cell<moris::mtk::Vertex const *>
     Cell_Cluster::get_vertices_in_cluster( const mtk::Master_Slave aIsMaster ) const
     {
-        MORIS_ASSERT(!mTrivial,"Trying to access vertices in cluster on a trivial cluster");
-        return mVerticesInCluster;
+        if(!mTrivial)
+        {
+            return mVerticesInCluster;
+        }
+        else
+        {
+            moris::Cell<moris::mtk::Vertex*> tVertices = mInterpolationCell->get_vertex_pointers();
+
+            moris::Cell<moris::mtk::Vertex const *> tConstVertices(tVertices.size());
+
+            for(moris::uint i = 0 ; i < tVertices.size(); i++)
+            {
+                tConstVertices(i) = tVertices(i);
+            }
+
+            return tConstVertices;
+        }
     }
     //----------------------------------------------------------------
     moris::Matrix<moris::DDRMat>
     Cell_Cluster::get_vertices_local_coordinates_wrt_interp_cell( const mtk::Master_Slave aIsMaster )  const
     {
-        MORIS_ASSERT(!mTrivial,"Accessing local coordinates on a trivial cell cluster is not allowed");
         if(!mTrivial)
         {
             return mChildMesh->get_parametric_coordinates();
