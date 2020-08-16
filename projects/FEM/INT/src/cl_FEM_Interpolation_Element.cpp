@@ -332,7 +332,7 @@ namespace moris
                 // ask cluster to compute residual
                 mFemCluster( 0 )->compute_residual();
             }
-            else if( ( mSet->mEquationModel->get_is_forward_analysis() ) &&
+            else if( ( !mSet->mEquationModel->get_is_forward_analysis() ) &&
                     ( mSet->get_number_of_requested_IQIs() > 0 ) )
             {
                 // FIXME should not be like this
