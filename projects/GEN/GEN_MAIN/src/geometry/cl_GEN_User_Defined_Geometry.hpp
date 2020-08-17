@@ -59,7 +59,6 @@ namespace moris
              */
             User_Defined_Geometry(Matrix<DDRMat>                 aConstantParameters,
                                   MORIS_GEN_FIELD_FUNCTION       aFieldEvaluationFunction,
-                                  MORIS_GEN_SENSITIVITY_FUNCTION aSensitivityEvaluationFunction = nullptr,
                                   sint                           aNumRefinements = 0,
                                   sint                           aRefinementFunctionIndex = -1,
                                   sint                           aBSplineMeshIndex = -1,
