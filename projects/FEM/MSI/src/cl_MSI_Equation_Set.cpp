@@ -398,7 +398,7 @@ namespace moris
             // loop over the requested IQI names
             for( uint Ik = 0; Ik < tIQINames.size(); Ik++ )
             {
-                // fill the IQI assmebly map
+                // fill the IQI assembly map
                 mRequestedIQINamesAssemblyMap[ tIQINames( Ik ) ] = Ik;
             }
         }
