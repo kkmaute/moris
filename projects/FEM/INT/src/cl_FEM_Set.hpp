@@ -129,6 +129,12 @@ namespace moris
                 // bool for time boundary integral
                 bool mTimeBoundary = false;
 
+                // bool for analytical/FD SA
+                bool mIsAnalyticalSA = false;
+
+                // enum for FD sceme used for FD SA
+                fem::FDScheme_Type mFDSchemeForSA = fem::FDScheme_Type::POINT_3_CENTRAL;
+
                 friend class MSI::Equation_Object;
                 friend class Cluster;
                 friend class Element_Bulk;
@@ -218,6 +224,27 @@ namespace moris
                 enum fem::Element_Type get_element_type() const
                 {
                     return mElementType;
+                }
+
+                //------------------------------------------------------------------------------
+                /**
+                 * get flag for sensitivity analysis on the set (analytical or finite difference)
+                 * @param[ out ] mIsAnalyticalSA bool true if analytical sensitivity analysis
+                 *                                    false if finite difference
+                 */
+                bool get_is_analytical_sensitivity_analysis() const
+                {
+                    return mIsAnalyticalSA;
+                }
+
+                //------------------------------------------------------------------------------
+                /**
+                 * get enum for FD scheme for sensitivity analysis on the set
+                 * @param[ out ] mFDSchemeForSA enum for FD scheme used for
+                 */
+                enum fem::FDScheme_Type get_finite_difference_scheme_for_sensitivity_analysis() const
+                {
+                    return mFDSchemeForSA;
                 }
 
                 //------------------------------------------------------------------------------
