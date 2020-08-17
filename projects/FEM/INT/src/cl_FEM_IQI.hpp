@@ -508,9 +508,9 @@ namespace moris
                 //------------------------------------------------------------------------------
                 /**
                  * evaluate the derivative of the quantity of interest wrt to dv types
-                 * @param[ in ] adQIdp matrix to fill with derivative of the QI wrt dv
+                 * @param[ in ] aWStar weight associated to the evaluation point
                  */
-                virtual void compute_dQIdp( Matrix< DDRMat > & adQIdp )
+                virtual void compute_dQIdp( real aWStar )
                 {
                     MORIS_ERROR( false, "IQI::compute_dQIdp - Not implemented for base class. " );
                 }
