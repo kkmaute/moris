@@ -218,7 +218,7 @@ extern "C"
         void FEMParameterList( moris::Cell< moris::Cell< ParameterList > > & tParameterList )
         {
             // create a cell of cell of parameter list for fem
-            tParameterList.resize( 5 );
+            tParameterList.resize( 6 );
 
             //------------------------------------------------------------------------------
             // fill the property part of the parameter list
@@ -493,6 +493,11 @@ extern "C"
             tParameterList( 4 )( tIQICounter ).set( "vectorial_field_index",      0 );
             tParameterList( 4 )( tIQICounter ).set( "mesh_set_names",             sFluid );
             tIQICounter++;
+
+            //------------------------------------------------------------------------------
+            // fill the computation part of the parameter list
+            tParameterList( 5 ).resize( 1 );
+            tParameterList( 5 )( 0 ) = prm::create_computation_parameter_list();
         }
 
         void SOLParameterList( moris::Cell< moris::Cell< ParameterList > > & tParameterlist )
