@@ -132,8 +132,8 @@ namespace moris
                 // bool for analytical/FD SA
                 bool mIsAnalyticalSA = false;
 
-                // enum for FD sceme used for FD SA
-                fem::FDScheme_Type mFDSchemeForSA = fem::FDScheme_Type::POINT_3_CENTRAL;
+                // enum for FD scheme used for FD SA
+                fem::FDScheme_Type mFDSchemeForSA = fem::FDScheme_Type::UNDEFINED;
 
                 friend class MSI::Equation_Object;
                 friend class Cluster;
@@ -159,8 +159,8 @@ namespace moris
                  * @param[ in ] aIPNodes  cell of node pointers
                  */
                 Set(
-                        fem::FEM_Model            * aFemModel,
-                        moris::mtk::Set           * aMeshSet,
+                        fem::FEM_Model                  * aFemModel,
+                        moris::mtk::Set                 * aMeshSet,
                         const fem::Set_User_Info        & aSetInfo,
                         const moris::Cell< Node_Base* > & aIPNodes );
 
@@ -228,6 +228,17 @@ namespace moris
 
                 //------------------------------------------------------------------------------
                 /**
+                 * set sensitivity analysis type flag on the set (analytical or finite difference)
+                 * @param[ in ] aIsAnalyticalSA bool true if analytical sensitivity analysis
+                 *                                   false if finite difference
+                 */
+                void set_is_analytical_sensitivity_analysis( bool aIsAnalyticalSA )
+                {
+                    mIsAnalyticalSA = aIsAnalyticalSA;
+                }
+
+                //------------------------------------------------------------------------------
+                /**
                  * get flag for sensitivity analysis on the set (analytical or finite difference)
                  * @param[ out ] mIsAnalyticalSA bool true if analytical sensitivity analysis
                  *                                    false if finite difference
@@ -235,6 +246,17 @@ namespace moris
                 bool get_is_analytical_sensitivity_analysis() const
                 {
                     return mIsAnalyticalSA;
+                }
+
+                //------------------------------------------------------------------------------
+                /**
+                 * set FD scheme enum for sensitivity analysis on the set
+                 * @param[ in ] aFDSchemeForSA enum for FD scheme used for
+                 */
+                void set_finite_difference_scheme_for_sensitivity_analysis(
+                        enum fem::FDScheme_Type aFDSchemeForSA )
+                {
+                    mFDSchemeForSA = aFDSchemeForSA;
                 }
 
                 //------------------------------------------------------------------------------
@@ -253,9 +275,9 @@ namespace moris
                  * @param[ out ] aClusters cell of mesh cluster pointers
                  */
                 moris::Cell< mtk::Cluster const* > const & get_clusters_on_set() const
-                {
+                                {
                     return mMeshClusterList;
-                }
+                                }
 
                 //------------------------------------------------------------------------------
                 /**
@@ -304,9 +326,9 @@ namespace moris
                  * @param[ out ] aIWGs cell of IWG pointers
                  */
                 moris::Cell< std::shared_ptr< IWG > > & get_IWGs()
-                {
+                                {
                     return mIWGs;
-                }
+                                }
 
                 //------------------------------------------------------------------------------
                 /**
@@ -323,9 +345,9 @@ namespace moris
                  * @param[ out ] mRequestedIWGs cell of requested IWG pointers
                  */
                 moris::Cell< std::shared_ptr< IWG > > & get_requested_IWGs()
-                {
+                                {
                     return mRequestedIWGs;
-                }
+                                }
 
                 //------------------------------------------------------------------------------
                 /**
@@ -362,9 +384,9 @@ namespace moris
                  * @param[ out ] mRequestedIQIs cell of IQIs pointers
                  */
                 moris::Cell< std::shared_ptr< IQI > > & get_requested_IQIs()
-                {
+                                {
                     return mRequestedIQIs;
-                }
+                                }
 
                 //------------------------------------------------------------------------------
                 /**
@@ -504,9 +526,9 @@ namespace moris
                  * @param[ out ] aIntegPoints integration points
                  */
                 const Matrix< DDRMat > & get_integration_points()
-                {
+                                {
                     return mIntegPoints;
-                }
+                                }
 
                 //------------------------------------------------------------------------------
                 /**
@@ -514,9 +536,9 @@ namespace moris
                  * @param[ out ] aIntegWeights integration weights
                  */
                 const Matrix< DDRMat > & get_integration_weights()
-                {
+                                {
                     return mIntegWeights;
-                }
+                                }
 
                 //------------------------------------------------------------------------------
                 /**

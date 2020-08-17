@@ -4,37 +4,38 @@
 #include <gperftools/profiler.h>
 #endif
 
-#include "cl_Stopwatch.hpp" //CHR/src
-
+//CHR/src
+#include "cl_Stopwatch.hpp"
+//LINALG/src
 #include "cl_Map.hpp"
 #include "fn_unique.hpp"
 #include "fn_sum.hpp" // for check
 #include "fn_iscol.hpp"
 #include "fn_trans.hpp"
 #include "op_equal_equal.hpp"
-
+//MTK/src
 #include "MTK_Tools.hpp"
-#include "cl_MTK_Enums.hpp"              //MTK/src
-#include "cl_MTK_Mesh_Manager.hpp"       //MTK/src
+#include "cl_MTK_Enums.hpp"
+#include "cl_MTK_Mesh_Manager.hpp"
 #include "cl_MTK_Integration_Mesh.hpp"
 #include "cl_MTK_Interpolation_Mesh.hpp"
-
-#include "cl_FEM_Node_Base.hpp"          //FEM/INT/src
-#include "cl_FEM_Node.hpp"               //FEM/INT/src
-#include "cl_FEM_Enums.hpp"              //FEM/INT/src
-
+//FEM/INT/src
+#include "cl_FEM_Node_Base.hpp"
+#include "cl_FEM_Node.hpp"
+#include "cl_FEM_Enums.hpp"
 #include "cl_FEM_Model.hpp"
 #include "cl_FEM_Set.hpp"
 #include "cl_FEM_CM_Factory.hpp"
 #include "cl_FEM_SP_Factory.hpp"
 #include "cl_FEM_IWG_Factory.hpp"
 #include "cl_FEM_IQI_Factory.hpp"
-
+//FEM/MSI/src
 #include "cl_MSI_Equation_Object.hpp"
 #include "cl_MSI_Dof_Type_Enums.hpp"
-
-#include "cl_GEN_Pdv_Enums.hpp"
+//FEM/VIS/src
 #include "cl_VIS_Output_Enums.hpp"
+//GEN/src
+#include "cl_GEN_Pdv_Enums.hpp"
 
 namespace moris
 {
@@ -1196,8 +1197,14 @@ namespace moris
             moris::Cell< ParameterList > tIWGParameterList = mParameterList( 3 );
             moris::Cell< ParameterList > tIQIParameterList = mParameterList( 4 );
 
+            // get fem computation type parameter list
+            ParameterList tComputationParameterList = mParameterList( 5 )( 0 );
+            bool tIsAnalyticalSA =
+                    tComputationParameterList.get< bool >( "is_analytical_sensitivity" );
+            fem::FDScheme_Type tFDSchemeForSA =
+                    static_cast< fem::FDScheme_Type >( tComputationParameterList.get< uint >( "finite_difference_scheme" ) );
+
             // create a map of the set
-            //std::map< std::pair< std::string, bool >, uint > tMeshtoFemSet;
             std::map< std::tuple< std::string, bool, bool >, uint > tMeshtoFemSet;
 
             // loop over the IWGs
@@ -1239,6 +1246,12 @@ namespace moris
 
                         // set its time boundary flag
                         aSetUserInfo.set_time_boundary( tTimeBoundary );
+
+                        // set its sensitivity analysis type flag
+                        aSetUserInfo.set_is_analytical_sensitivity_analysis( tIsAnalyticalSA );
+
+                        // set its FD scheme for sensitivity analysis
+                        aSetUserInfo.set_finite_difference_scheme_for_sensitivity_analysis( tFDSchemeForSA );
 
                         // set the IWG
                         aSetUserInfo.set_IWG( mIWGs( iIWG ) );
@@ -1296,6 +1309,12 @@ namespace moris
 
                         // set its time boundary flag
                         aSetUserInfo.set_time_boundary( tTimeBoundary );
+
+                        // set its sensitivity analysis type flag
+                        aSetUserInfo.set_is_analytical_sensitivity_analysis( tIsAnalyticalSA );
+
+                        // set its FD scheme for sensitivity analysis
+                        aSetUserInfo.set_finite_difference_scheme_for_sensitivity_analysis( tFDSchemeForSA );
 
                         // set the IQI
                         aSetUserInfo.set_IQI( mIQIs( iIQI ) );
