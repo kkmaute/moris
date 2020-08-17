@@ -453,11 +453,28 @@ namespace moris
 
         void Cluster::compute_dRdp()
         {
-            // loop over the IG elements
-            for ( uint iElem = 0; iElem < mElements.size(); iElem++ )
+            // bool for analytical sensitivity analysis
+            bool tIsAnalyticalSA = mSet->get_is_analytical_sensitivity_analysis();
+
+            // if analytical sensitivity analysis
+            if( tIsAnalyticalSA )
             {
-                // compute the dRdp for the IG element
-                mElements( iElem )->compute_dRdp();
+                // loop over the IG elements
+                for ( uint iElem = 0; iElem < mElements.size(); iElem++ )
+                {
+                    // compute the dRdp for the IG element
+                    mElements( iElem )->compute_dRdp();
+                }
+            }
+            // if finite difference sensitivity analysis
+            else
+            {
+                // loop over the IG elements
+                for ( uint iElem = 0; iElem < mElements.size(); iElem++ )
+                {
+                    // compute the dRdp for the IG element
+                    mElements( iElem )->compute_dRdp_FD();
+                }
             }
         }
 
@@ -465,11 +482,28 @@ namespace moris
 
         void Cluster::compute_dQIdp_explicit()
         {
-            // loop over the IG elements
-            for ( uint iElem = 0; iElem < mElements.size(); iElem++ )
+            // bool for analytical sensitivity analysis
+            bool tIsAnalyticalSA = mSet->get_is_analytical_sensitivity_analysis();
+
+            // if analytical sensitivity analysis
+            if( tIsAnalyticalSA )
             {
-                // compute the dQIdp for the IG element
-                mElements( iElem )->compute_dQIdp_explicit();
+                // loop over the IG elements
+                for ( uint iElem = 0; iElem < mElements.size(); iElem++ )
+                {
+                    // compute the dQIdp for the IG element
+                    mElements( iElem )->compute_dQIdp_explicit();
+                }
+            }
+            // if finite difference sensitivity analysis
+            else
+            {
+                // loop over the IG elements
+                for ( uint iElem = 0; iElem < mElements.size(); iElem++ )
+                {
+                    // compute the dQIdp for the IG element
+                    mElements( iElem )->compute_dQIdp_explicit_FD();
+                }
             }
         }
 
