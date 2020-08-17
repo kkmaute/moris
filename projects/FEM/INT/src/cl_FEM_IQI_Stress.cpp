@@ -76,7 +76,6 @@ namespace moris
 
             // evaluate the QI
             aQI(0,0) = tStressValue;
-
         }
 
         //------------------------------------------------------------------------------
@@ -227,7 +226,7 @@ namespace moris
                     mMasterCM( static_cast< uint >( IQI_Constitutive_Type::ELAST_LIN_ISO ) )->flux();
 
             // pull apart stress vector into components
-            uint tNumStressComponents = tStressVector.length();
+            uint tNumStressComponents = tCMStress.length();
             switch  (tNumStressComponents)
             {
                 // 2D plane stress

@@ -270,7 +270,8 @@ namespace moris
                 SHEAR_STRESS,
                 VON_MISES_STRESS,
                 PRINCIPAL_STRESS,
-                MAX_SHEAR_STRESS
+                MAX_SHEAR_STRESS,
+                END_STRESS_TYPE
         };
 
         //------------------------------------------------------------------------------
