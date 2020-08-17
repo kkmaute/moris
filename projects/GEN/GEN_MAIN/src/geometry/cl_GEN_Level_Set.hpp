@@ -66,15 +66,6 @@ namespace moris
             real evaluate_field_value(uint aNodeIndex);
 
             /**
-             * Given a node index, evaluates the sensitivity of the geometry field with respect to all of the
-             * geometry variables.
-             *
-             * @param aNodeIndex Node index
-             * @param aSensitivities Vector of sensitivities
-             */
-            void evaluate_all_sensitivities(uint aNodeIndex, Matrix<DDRMat>& aSensitivities);
-
-            /**
              * Add a new child node for evaluation
              *
              * @param aNodeIndex Index of the child node
@@ -88,6 +79,17 @@ namespace moris
              * @return false
              */
             bool conversion_to_bsplines();
+
+        private:
+
+            /**
+             * Given a node index, evaluates the sensitivity of the geometry field with respect to all of the
+             * geometry variables.
+             *
+             * @param aNodeIndex Node index
+             * @param aSensitivities Vector of sensitivities
+             */
+            void evaluate_all_sensitivities(uint aNodeIndex, Matrix<DDRMat>& aSensitivities);
 
         };
     }

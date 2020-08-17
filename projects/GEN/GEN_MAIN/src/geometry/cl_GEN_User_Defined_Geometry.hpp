@@ -73,6 +73,8 @@ namespace moris
              */
             real evaluate_field_value(const Matrix<DDRMat>& aCoordinates);
 
+        private:
+
             /**
              * Given a node coordinate, evaluates the sensitivity of the geometry field with respect to all of the
              * geometry variables.
@@ -81,8 +83,6 @@ namespace moris
              * @param aSensitivities Vector of sensitivities
              */
             void evaluate_all_sensitivities(const Matrix<DDRMat>& aCoordinates, Matrix<DDRMat>& aSensitivities);
-
-        private:
 
             /**
              * Sets the user-defined functions. Eliminates redundant code since it's the same logic for all constructors.
