@@ -517,7 +517,13 @@ namespace moris
             // Number of filled ADVs
             uint tNumFilledADVs = mADVs.length();
 
-            // Loop over all geometries and properties to resize ADVs (TODO)
+            // Reset geometries if parameter lists are given
+            if (mGeometryParameterLists.size() > 0)
+            {
+                mGeometries.resize(0);
+            }
+
+            // Loop over all geometry and property parameter lists to resize ADVs (TODO)
             for (uint tGeometryIndex = 0; tGeometryIndex < mGeometryParameterLists.size(); tGeometryIndex++)
             {
                 // Determine if level set will be created
