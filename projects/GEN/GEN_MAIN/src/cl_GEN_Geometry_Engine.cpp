@@ -13,6 +13,7 @@
 // MTK
 #include "cl_MTK_Integration_Mesh.hpp"
 #include "cl_MTK_Interpolation_Mesh.hpp"
+#include "cl_MTK_Writer_Exodus.hpp"
 
 // XTK FIXME
 #include "cl_XTK_Topology.hpp"
@@ -617,14 +618,54 @@ namespace moris
 
         void Geometry_Engine::output_fields_on_mesh(mtk::Mesh* aMesh, std::string aExodusFileName)
         {
-            // TODO
+            if (aExodusFileName != "")
+            {
+                // Write mesh
+                mtk::Writer_Exodus tWriter(aMesh);
+                tWriter.write_mesh("", aExodusFileName);
+
+                // Setup fields
+                Cell<std::string> tFieldNames(mGeometries.size());
+                for (uint tGeometryIndex = 0; tGeometryIndex < mGeometries.size(); tGeometryIndex++)
+                {
+                    tFieldNames(tGeometryIndex) = "Geometry " + std::to_string(tGeometryIndex);
+                }
+                tWriter.set_nodal_fields(tFieldNames);
+
+                // Get all node coordinates
+                Cell<Matrix<DDRMat>> tNodeCoordinates(aMesh->get_num_nodes());
+                for (uint tNodeIndex = 0; tNodeIndex < aMesh->get_num_nodes(); tNodeIndex++)
+                {
+                    tNodeCoordinates(tNodeIndex) = aMesh->get_node_coordinate(tNodeIndex);
+                }
+
+                // Loop over geometries
+                for (uint tGeometryIndex = 0; tGeometryIndex < mGeometries.size(); tGeometryIndex++)
+                {
+                    // Create field vector
+                    Matrix<DDRMat> tFieldData(aMesh->get_num_nodes(), 1);
+
+                    // Assign field to vector
+                    for (uint tNodeIndex = 0; tNodeIndex < aMesh->get_num_nodes(); tNodeIndex++)
+                    {
+                        tFieldData(tNodeIndex) = mGeometries(tGeometryIndex)->evaluate_field_value(
+                                tNodeIndex,
+                                tNodeCoordinates(tNodeIndex));
+                    }
+
+                    // Create field on mesh
+                    tWriter.write_nodal_field("Geometry " + std::to_string(tGeometryIndex), tFieldData);
+                }
+
+                // Finalize
+                tWriter.close_file(true);
+            }
         }
 
         //--------------------------------------------------------------------------------------------------------------
 
         void Geometry_Engine::write_geometry_fields(mtk::Mesh* aMesh, std::string aBaseFileName)
         {
-            // Save level set data
             if (aBaseFileName != "")
             {
                 // Get all node coordinates
@@ -656,7 +697,9 @@ namespace moris
                         }
 
                         // Level-set field
-                        tOutFile << mGeometries(tGeometryIndex)->evaluate_field_value(tNodeIndex, tNodeCoordinates(tNodeIndex)) << std::endl;
+                        tOutFile << mGeometries(tGeometryIndex)->evaluate_field_value(
+                                tNodeIndex,
+                                tNodeCoordinates(tNodeIndex)) << std::endl;
                     }
 
                     // Close file

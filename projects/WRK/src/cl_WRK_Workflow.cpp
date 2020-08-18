@@ -70,7 +70,7 @@ namespace moris
 
             // Output GEN fields, if requested
             mPerformerManager->mGENPerformer( 0 )->output_fields(
-                    mPerformerManager->mMTKPerformer( 1 )->get_interpolation_mesh( 0 ));
+                    mPerformerManager->mMTKPerformer( 1 )->get_integration_mesh( 0 ));
 
             // Assign PDVs
             mPerformerManager->mGENPerformer( 0 )->create_pdvs( mPerformerManager->mMTKPerformer( 1 ) );
