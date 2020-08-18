@@ -30,10 +30,9 @@ namespace moris
                 Cell<Cell<ParameterList>> aParameterLists,
                 std::shared_ptr<Library_IO> aLibrary):
 
-                // Level-set options
+                // Level set options
                 mIsocontourThreshold(aParameterLists(0)(0).get<real>("isocontour_threshold")),
                 mErrorFactor(aParameterLists(0)(0).get<real>("isocontour_error_factor")),
-                mLevelSetFile(aParameterLists(0)(0).get<std::string>("level_set_file")),
 
                 // ADVs/IQIs
                 mADVs(aParameterLists(0)(0).get<sint>("advs_size")
@@ -50,9 +49,13 @@ namespace moris
                 // Library
                 mLibrary(aLibrary),
 
-                // Geometries and properties
+                // Geometries
                 mGeometries(create_geometries(aParameterLists(1), mADVs, mLibrary)),
                 mGeometryParameterLists(aParameterLists(1)),
+                mGeometryFieldFile(aParameterLists(0)(0).get<std::string>("geometry_field_file")),
+                mOutputMeshFile(aParameterLists(0)(0).get<std::string>("output_mesh_file")),
+
+                // Properties
                 mProperties(create_properties(aParameterLists(2), mADVs, mLibrary)),
                 mPropertyParameterLists(aParameterLists(2)),
 
@@ -75,12 +78,12 @@ namespace moris
         //--------------------------------------------------------------------------------------------------------------
 
         Geometry_Engine::Geometry_Engine(
-                Cell< std::shared_ptr<Geometry> >  aGeometry,
-                Phase_Table                        aPhaseTable,
-                mtk::Interpolation_Mesh*           aMesh,
-                Matrix<DDRMat>                     aADVs,
-                real                               aIsocontourThreshold,
-                real                               aErrorFactor)
+                Cell< std::shared_ptr<Geometry> > aGeometry,
+                Phase_Table                       aPhaseTable,
+                mtk::Interpolation_Mesh*          aMesh,
+                Matrix<DDRMat>                    aADVs,
+                real                              aIsocontourThreshold,
+                real                              aErrorFactor)
                 : mIsocontourThreshold(aIsocontourThreshold),
                   mErrorFactor(aErrorFactor),
                   mADVs(aADVs),
@@ -600,9 +603,29 @@ namespace moris
                     tNumFilledADVs = tNumFilledADVs + tNumCoeffs;
                 }
             }
+        }
 
+        //--------------------------------------------------------------------------------------------------------------
+
+        void Geometry_Engine::output_fields(mtk::Mesh* aMesh)
+        {
+            this->output_fields_on_mesh(aMesh, mOutputMeshFile);
+            this->write_geometry_fields(aMesh, mGeometryFieldFile);
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
+        void Geometry_Engine::output_fields_on_mesh(mtk::Mesh* aMesh, std::string aExodusFileName)
+        {
+            // TODO
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
+        void Geometry_Engine::write_geometry_fields(mtk::Mesh* aMesh, std::string aBaseFileName)
+        {
             // Save level set data
-            if (mLevelSetFile != "")
+            if (aBaseFileName != "")
             {
                 // Get all node coordinates
                 Cell<Matrix<DDRMat>> tNodeCoordinates(aMesh->get_num_nodes());
@@ -615,7 +638,7 @@ namespace moris
                 for (uint tGeometryIndex = 0; tGeometryIndex < mGeometries.size(); tGeometryIndex++)
                 {
                     // Create file
-                    std::ofstream tOutFile(mLevelSetFile + "_" + std::to_string(tGeometryIndex) + ".txt");
+                    std::ofstream tOutFile(aBaseFileName + "_" + std::to_string(tGeometryIndex) + ".txt");
 
                     // Write to file
                     for (uint tNodeIndex = 0; tNodeIndex < aMesh->get_num_nodes(); tNodeIndex++)
