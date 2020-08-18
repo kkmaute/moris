@@ -167,6 +167,9 @@ namespace moris
             tParameterList.insert( "finite_difference_scheme",
                     static_cast< uint >( fem::FDScheme_Type::POINT_1_FORWARD ) );
 
+            // real for relative perturbation size for finite difference
+            tParameterList.insert( "finite_difference_perturbation_size", 1e-6 );
+
             return tParameterList;
         }
 

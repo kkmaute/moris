@@ -37,7 +37,8 @@ namespace moris
           mIQIs( aSetInfo.get_IQIs() ),
           mTimeContinuity( aSetInfo.get_time_continuity() ),
           mIsAnalyticalSA( aSetInfo.get_is_analytical_sensitivity_analysis() ),
-          mFDSchemeForSA( aSetInfo.get_finite_difference_scheme_for_sensitivity_analysis() )
+          mFDSchemeForSA( aSetInfo.get_finite_difference_scheme_for_sensitivity_analysis() ),
+          mFDPerturbation( aSetInfo.get_finite_difference_perturbation_size() )
         {
             // get the set type (BULK, SIDESET, DOUBLE_SIDESET, TIME_SIDESET)
             this->determine_set_type();
@@ -808,7 +809,9 @@ namespace moris
         }
 
         //-----------------------------------------------------------------------------
-        void Set::create_field_interpolator_managers( MSI::Model_Solver_Interface * aModelSolverInterface )
+
+        void Set::create_field_interpolator_managers(
+                MSI::Model_Solver_Interface * aModelSolverInterface )
         {
             // create the master field interpolator manager
             mMasterFIManager = new Field_Interpolator_Manager(

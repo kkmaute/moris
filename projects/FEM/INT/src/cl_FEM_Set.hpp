@@ -135,6 +135,9 @@ namespace moris
                 // enum for FD scheme used for FD SA
                 fem::FDScheme_Type mFDSchemeForSA = fem::FDScheme_Type::UNDEFINED;
 
+                // real for FD perturbation size
+                real mFDPerturbation = 0.0;
+
                 friend class MSI::Equation_Object;
                 friend class Cluster;
                 friend class Element_Bulk;
@@ -271,13 +274,33 @@ namespace moris
 
                 //------------------------------------------------------------------------------
                 /**
+                 * set perturbation size for finite difference
+                 * @param[ in ] aFDPerturbation perturbation size
+                 */
+                void set_finite_difference_perturbation_size( real aFDPerturbation )
+                {
+                    mFDPerturbation = aFDPerturbation;
+                }
+
+                //------------------------------------------------------------------------------
+                /**
+                 * get perturbation size for finite difference
+                 * @param[ out ] mFDPerturbation perturbation size
+                 */
+                real get_finite_difference_perturbation_size()
+                {
+                    return mFDPerturbation;
+                }
+
+                //------------------------------------------------------------------------------
+                /**
                  * get the clusters on the set
                  * @param[ out ] aClusters cell of mesh cluster pointers
                  */
                 moris::Cell< mtk::Cluster const* > const & get_clusters_on_set() const
-                                {
+                {
                     return mMeshClusterList;
-                                }
+                }
 
                 //------------------------------------------------------------------------------
                 /**

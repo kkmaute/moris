@@ -1199,10 +1199,18 @@ namespace moris
 
             // get fem computation type parameter list
             ParameterList tComputationParameterList = mParameterList( 5 )( 0 );
+
+            // get bool for analytical/finite differenec for SA
             bool tIsAnalyticalSA =
                     tComputationParameterList.get< bool >( "is_analytical_sensitivity" );
-            fem::FDScheme_Type tFDSchemeForSA =
-                    static_cast< fem::FDScheme_Type >( tComputationParameterList.get< uint >( "finite_difference_scheme" ) );
+
+            // get enum for FD scheme
+            fem::FDScheme_Type tFDSchemeForSA = static_cast< fem::FDScheme_Type >(
+                    tComputationParameterList.get< uint >( "finite_difference_scheme" ) );
+
+            // get perturbation size for FD
+            real tFDPerturbation = tComputationParameterList.get< real >(
+                    "finite_difference_perturbation_size" );
 
             // create a map of the set
             std::map< std::tuple< std::string, bool, bool >, uint > tMeshtoFemSet;
@@ -1252,6 +1260,9 @@ namespace moris
 
                         // set its FD scheme for sensitivity analysis
                         aSetUserInfo.set_finite_difference_scheme_for_sensitivity_analysis( tFDSchemeForSA );
+
+                        // set its FD perturbation size for sensitivity analysis
+                        aSetUserInfo.set_finite_difference_perturbation_size( tFDPerturbation );
 
                         // set the IWG
                         aSetUserInfo.set_IWG( mIWGs( iIWG ) );
@@ -1315,6 +1326,9 @@ namespace moris
 
                         // set its FD scheme for sensitivity analysis
                         aSetUserInfo.set_finite_difference_scheme_for_sensitivity_analysis( tFDSchemeForSA );
+
+                        // set its FD perturbation size for sensitivity analysis
+                        aSetUserInfo.set_finite_difference_perturbation_size( tFDPerturbation );
 
                         // set the IQI
                         aSetUserInfo.set_IQI( mIQIs( iIQI ) );

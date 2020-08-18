@@ -52,6 +52,9 @@ namespace moris
                 // enum for FD scheme used for FD SA
                 fem::FDScheme_Type mFDSchemeForSA = fem::FDScheme_Type::UNDEFINED;
 
+                // real for finite difference perturbation size
+                real mFDPerturbation;
+
                 //------------------------------------------------------------------------------
             public :
 
@@ -147,7 +150,8 @@ namespace moris
                  * get the time continuity bool
                  * @param[ out ] mTimeContinuity bool for time sideset
                  */
-                const bool & get_time_continuity() const
+                const
+                bool & get_time_continuity() const
                 {
                     return mTimeContinuity;
                 }
@@ -167,7 +171,8 @@ namespace moris
                  * get the time boundary bool
                  * @param[ out ] mTimeBoundary bool for time boundary integral
                  */
-                const bool & get_time_boundary() const
+                const
+                bool & get_time_boundary() const
                 {
                     return mTimeBoundary;
                 }
@@ -187,7 +192,8 @@ namespace moris
                  * get flag for sensitivity analysis on the set (analytical or finite difference)
                  * @param[ in ] aIsAnalyticalSA bool for sensitivity analysis computation type
                  */
-                const bool & get_is_analytical_sensitivity_analysis() const
+                const
+                bool & get_is_analytical_sensitivity_analysis() const
                 {
                     return mIsAnalyticalSA;
                 }
@@ -211,6 +217,27 @@ namespace moris
                 enum fem::FDScheme_Type get_finite_difference_scheme_for_sensitivity_analysis() const
                 {
                     return mFDSchemeForSA;
+                }
+
+                //------------------------------------------------------------------------------
+                /**
+                 * set perturbation size for finite difference
+                 * @param[ in ] aFDPerturbation perturbation size
+                 */
+                void set_finite_difference_perturbation_size( real aFDPerturbation )
+                {
+                    mFDPerturbation = aFDPerturbation;
+                }
+
+                //------------------------------------------------------------------------------
+                /**
+                 * get perturbation size for finite difference
+                 * @param[ out ] mFDPerturbation perturbation size
+                 */
+                const
+                real & get_finite_difference_perturbation_size() const
+                {
+                    return mFDPerturbation;
                 }
 
                 //------------------------------------------------------------------------------
