@@ -72,7 +72,6 @@ namespace moris
                 case IQI_Type::MAX_PRINCIPAL_STRESS :
                     return std::make_shared< IQI_Max_Stress >( Stress_Type::PRINCIPAL_STRESS );
 
-
                 case IQI_Type::ANALYTIC :
                     return std::make_shared< IQI_Analytic >();
 
