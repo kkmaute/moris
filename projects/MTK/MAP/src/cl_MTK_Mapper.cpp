@@ -265,17 +265,8 @@ namespace moris
             // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
             dla::Solver_Factory  tSolFactory;
-            std::shared_ptr< dla::Linear_Solver_Algorithm > tLinearSolverAlgorithm = tSolFactory.create_solver( sol::SolverType::AZTEC_IMPL );
-
-            tLinearSolverAlgorithm->set_param("AZ_diagnostics") = AZ_none;
-            tLinearSolverAlgorithm->set_param("AZ_output") = AZ_none;
-
-            //            tLinearSolverAlgorithm->set_param("AZ_keep_info") = 1;
-            //tLinearSolverAlgorithm->set_param("AZ_pre_calc") = AZ_reuse;
-            //            tLinearSolverAlgorithm->set_param("AZ_graph_fill") = 5;
-
-            //            tLinearSolverAlgorithm->set_param("Use_ML_Prec") = true;
-            //tLinearSolverAlgorithm->set_param("ML_reuse") = true;
+            std::shared_ptr< dla::Linear_Solver_Algorithm > tLinearSolverAlgorithm =
+                    tSolFactory.create_solver( sol::SolverType::AMESOS_IMPL );
 
             dla::Linear_Solver tLinSolver;
 
@@ -286,7 +277,8 @@ namespace moris
             // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
             NLA::Nonlinear_Solver_Factory tNonlinFactory;
-            std::shared_ptr< NLA::Nonlinear_Algorithm > tNonlinearSolverAlgorithm = tNonlinFactory.create_nonlinear_solver( NLA::NonlinearSolverType::NEWTON_SOLVER );
+            std::shared_ptr< NLA::Nonlinear_Algorithm > tNonlinearSolverAlgorithm =
+                    tNonlinFactory.create_nonlinear_solver( NLA::NonlinearSolverType::NEWTON_SOLVER );
 
             tNonlinearSolverAlgorithm->set_param("NLA_max_iter")   = 10;
             tNonlinearSolverAlgorithm->set_param("NLA_hard_break") = false;
@@ -303,7 +295,8 @@ namespace moris
             // STEP 3: create time Solver and algorithm
             // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
             tsa::Time_Solver_Factory tTimeSolverFactory;
-            std::shared_ptr< tsa::Time_Solver_Algorithm > tTimeSolverAlgorithm = tTimeSolverFactory.create_time_solver( tsa::TimeSolverType::MONOLITHIC );
+            std::shared_ptr< tsa::Time_Solver_Algorithm > tTimeSolverAlgorithm =
+                    tTimeSolverFactory.create_time_solver( tsa::TimeSolverType::MONOLITHIC );
 
             tTimeSolverAlgorithm->set_nonlinear_solver( &tNonlinearSolver );
 
