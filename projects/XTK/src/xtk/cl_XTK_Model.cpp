@@ -245,7 +245,10 @@ namespace xtk
         {
             std::clock_t tStart = std::clock();
 
-            tEnrIntegMesh.deactivate_empty_sets();
+            if (mParameterList.get<bool>("deactivate_empty_sets"))
+            {
+                tEnrIntegMesh.deactivate_empty_sets();
+            }
 
             // Write mesh
             moris::mtk::Writer_Exodus writer( &tEnrIntegMesh );
