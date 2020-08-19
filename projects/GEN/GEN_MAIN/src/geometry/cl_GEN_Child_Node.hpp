@@ -8,8 +8,8 @@ namespace moris
 {
     namespace ge
     {
-        // Forward declaration of Geometry class
-        class Geometry;
+        // Forward declaration of Field class
+        class Field;
 
         class Child_Node
         {
@@ -44,20 +44,20 @@ namespace moris
             Matrix<DDRMat> get_local_coordinates();
 
             /**
-             * Get the geometry field value on the child node based on values from its parents
+             * Get the field value on the child node based on values from its parents.
              *
-             * @param aGeometry Geometry pointer, called from inside a geometry
+             * @param aField Field pointer, referenced during call from field class
              * @return Field value
              */
-            virtual real interpolate_geometry_field_value(Geometry* aGeometry);
+            virtual real interpolate_field_value(Field* aField);
 
             /**
-             * Get a geometry sensitivity on the child node based on its parents
+             * Get the field sensitivities on the child node based on its parents.
              *
-             * @param aGeometry Geometry pointer, called from inside a geometry
+             * @param aField Field pointer, referenced during call from field class
              * @param aSensitivities Field sensitivities
              */
-            virtual void interpolate_geometry_sensitivity(Geometry* aGeometry, Matrix<DDRMat>& aSensitivities);
+            virtual void interpolate_field_sensitivity(Field* aField, Matrix<DDRMat>& aSensitivities);
         };
     }
 }

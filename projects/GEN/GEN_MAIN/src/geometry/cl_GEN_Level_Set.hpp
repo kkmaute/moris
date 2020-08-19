@@ -16,8 +16,6 @@ namespace moris
 
         private:
             mtk::Mesh* mMesh;
-            uint mNumOriginalNodes;
-            Cell<std::shared_ptr<Child_Node>> mChildNodes;
 
         public:
             /**
@@ -64,19 +62,6 @@ namespace moris
              * @return Distance to this geometry
              */
             real evaluate_field_value(uint aNodeIndex);
-
-            /**
-             * Add a new child node for evaluation
-             *
-             * @param aNodeIndex Index of the child node
-             * @param aChildNode Contains information about how the child node was created
-             */
-            void add_child_node(uint aNodeIndex, std::shared_ptr<Child_Node> aChildNode);
-
-            /**
-             * Resets all child nodes, called when a new XTK mesh is being created.
-             */
-            virtual void reset_child_nodes();
 
             /**
              * Function for determining if this geometry is to be used for seeding a B-spline level set field.

@@ -30,8 +30,8 @@ namespace moris
                         aBSplineMeshIndex,
                         aBSplineLowerBound,
                         aBSplineUpperBound),
-                  mMesh(aMesh),
-                  mNumOriginalNodes(mMesh->get_num_nodes())
+                  Field_Discrete(aMesh->get_num_nodes()),
+                  mMesh(aMesh)
         {
             // Check that number of variables equals the number of B-spline coefficients
             MORIS_ASSERT(mFieldVariables.size() == mMesh->get_num_coeffs(aBSplineMeshIndex),
@@ -52,8 +52,8 @@ namespace moris
                         aGeometry->get_bspline_mesh_index(),
                         aGeometry->get_bspline_lower_bound(),
                         aGeometry->get_bspline_upper_bound()),
-                  mMesh(aMesh),
-                  mNumOriginalNodes(mMesh->get_num_nodes())
+                  Field_Discrete(aMesh->get_num_nodes()),
+                  mMesh(aMesh)
         {
             // Check for L2 needed
             if (mNumOriginalNodes != mMesh->get_num_coeffs(this->get_bspline_mesh_index()))
@@ -100,24 +100,12 @@ namespace moris
             // Initialize
             real tResult = 0.0;
 
-            // If node is on original interpolation mesh
-            if (aNodeIndex < mNumOriginalNodes)
+            // Sum over all B-spline basis functions
+            Matrix<IndexMat> tIndices = mMesh->get_bspline_inds_of_node_loc_ind(aNodeIndex, EntityRank::BSPLINE);
+            Matrix<DDRMat> tMatrix = mMesh->get_t_matrix_of_node_loc_ind(aNodeIndex, EntityRank::BSPLINE);
+            for (uint tBspline = 0; tBspline < tIndices.length(); tBspline++)
             {
-                Matrix<IndexMat> tIndices = mMesh->get_bspline_inds_of_node_loc_ind(aNodeIndex, EntityRank::BSPLINE);
-                Matrix<DDRMat> tMatrix = mMesh->get_t_matrix_of_node_loc_ind(aNodeIndex, EntityRank::BSPLINE);
-                for (uint tBspline = 0; tBspline < tIndices.length(); tBspline++)
-                {
-                    tResult += tMatrix(tBspline) * (*mFieldVariables(tIndices(tBspline)));
-                }
-            }
-
-            // Otherwise, use child nodes
-            else
-            {
-                MORIS_ASSERT((aNodeIndex - mNumOriginalNodes) < mChildNodes.size(),
-                             "A level set field value was requested from a node that this geometry doesn't know. "
-                             "Perhaps a child node was not added to this field?");
-                tResult = mChildNodes(aNodeIndex - mNumOriginalNodes)->interpolate_geometry_field_value(this);
+                tResult += tMatrix(tBspline) * (*mFieldVariables(tIndices(tBspline)));
             }
 
             // Return result
@@ -131,41 +119,13 @@ namespace moris
             // Initialize
             aSensitivities.set_size(1, mFieldVariables.size(), 0.0);
 
-            // If node is on original interpolation mesh
-            if (aNodeIndex < mNumOriginalNodes)
+            // Get T-matrix
+            Matrix<IndexMat> tIndices = mMesh->get_bspline_inds_of_node_loc_ind(aNodeIndex, EntityRank::BSPLINE);
+            Matrix<DDRMat> tMatrix = mMesh->get_t_matrix_of_node_loc_ind(aNodeIndex, EntityRank::BSPLINE);
+            for (uint tBspline = 0; tBspline < tIndices.length(); tBspline++)
             {
-                Matrix<IndexMat> tIndices = mMesh->get_bspline_inds_of_node_loc_ind(aNodeIndex, EntityRank::BSPLINE);
-                Matrix<DDRMat> tMatrix = mMesh->get_t_matrix_of_node_loc_ind(aNodeIndex, EntityRank::BSPLINE);
-                for (uint tBspline = 0; tBspline < tIndices.length(); tBspline++)
-                {
-                    aSensitivities(tIndices(tBspline)) = tMatrix(tBspline);
-                }
+                aSensitivities(tIndices(tBspline)) = tMatrix(tBspline);
             }
-
-            // Otherwise, use child nodes
-            else
-            {
-                MORIS_ASSERT((aNodeIndex - mNumOriginalNodes) < mChildNodes.size(),
-                             "A level set sensitivity was requested from a node that this geometry doesn't know. "
-                             "Perhaps a child node was not added to this field?");
-                mChildNodes(aNodeIndex - mNumOriginalNodes)->interpolate_geometry_sensitivity(this, aSensitivities);
-            }
-        }
-
-        //--------------------------------------------------------------------------------------------------------------
-
-        void Level_Set::add_child_node(uint aNodeIndex, std::shared_ptr<Child_Node> aChildNode)
-        {
-            MORIS_ASSERT(aNodeIndex == mNumOriginalNodes + mChildNodes.size(),
-                    "Child nodes must be added to a level set field in order by node index.");
-            mChildNodes.push_back(aChildNode);
-        }
-
-        //--------------------------------------------------------------------------------------------------------------
-
-        void Level_Set::reset_child_nodes()
-        {
-            mChildNodes.resize(0);
         }
 
         //--------------------------------------------------------------------------------------------------------------
