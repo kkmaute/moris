@@ -276,7 +276,6 @@ namespace moris
         tParameterlist( 1 )( tGeoCounter ).set( "field_function_name", "Sphere");
         tParameterlist( 1 )( tGeoCounter ).set( "constant_parameters", std::to_string(tInnerRad));
         tParameterlist( 1 )( tGeoCounter ).set( "number_of_refinements", tInterfaceRefinement);
-        tGeoCounter++;
     }
     /* ------------------------------------------------------------------------ */
 

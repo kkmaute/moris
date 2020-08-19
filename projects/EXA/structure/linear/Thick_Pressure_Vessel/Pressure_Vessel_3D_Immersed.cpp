@@ -316,7 +316,6 @@ namespace moris
         tParameterlist( 1 )( tGeoCounter ).set( "field_function_name", "Plane");
         tParameterlist( 1 )( tGeoCounter ).set( "constant_parameters", "0,0,0,0,0,1");
         tParameterlist( 1 )( tGeoCounter ).set( "number_of_refinements", tInterfaceRefinement);
-        tGeoCounter++;
     }
     /* ------------------------------------------------------------------------ */
 
