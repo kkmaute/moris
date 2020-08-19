@@ -74,7 +74,7 @@ void check_results(
     uint tNumNodes = tExoIO.get_number_of_nodes();
     uint tNumElems = tExoIO.get_number_of_elements();
 
-    MORIS_LOG_INFO("Check number of dimensions: reference %12d, actual %12d, prec. error %12.5e.",
+    MORIS_LOG_INFO("Check number of dimensions: reference %12d, actual %12d, percent error %12.5e.",
             tReferenceNumDims(aTestCaseIndex),tNumDims,std::abs((tNumDims-tReferenceNumDims(aTestCaseIndex))/tReferenceNumDims(aTestCaseIndex)*100.0));
     MORIS_LOG_INFO("Check number of nodes:      reference %12d, actual %12d, perc. error %12.5e.",
             tReferenceNumNodes(aTestCaseIndex),tNumNodes,std::abs((tNumNodes-tReferenceNumNodes(aTestCaseIndex))/tReferenceNumNodes(aTestCaseIndex)*100.0));
@@ -95,11 +95,11 @@ void check_results(
 
     real tRelDiffNorm = moris::norm( tActualCoordinate - tReferenceCoordinate(aTestCaseIndex) )/ moris::norm(tReferenceCoordinate(aTestCaseIndex));
 
-    MORIS_LOG_INFO("Check nodal x-coordinates:  reference %12.5e, actual %12.5e, prec. error %12.5e.",
+    MORIS_LOG_INFO("Check nodal x-coordinates:  reference %12.5e, actual %12.5e, percent error %12.5e.",
             tReferenceCoordinate(aTestCaseIndex)(0),tActualCoordinate(0),tRelDiffNorm*100.0);
-    MORIS_LOG_INFO("Check nodal y-coordinates:  reference %12.5e, actual %12.5e, prec. error %12.5e.",
+    MORIS_LOG_INFO("Check nodal y-coordinates:  reference %12.5e, actual %12.5e, percent error %12.5e.",
             tReferenceCoordinate(aTestCaseIndex)(1),tActualCoordinate(1),tRelDiffNorm*100.0);
-    MORIS_LOG_INFO("Check nodal z-coordinates:  reference %12.5e, actual %12.5e, prec. error %12.5e.",
+    MORIS_LOG_INFO("Check nodal z-coordinates:  reference %12.5e, actual %12.5e, percent error %12.5e.",
             tReferenceCoordinate(aTestCaseIndex)(2),tActualCoordinate(2),tRelDiffNorm*100.0);
 
     REQUIRE( tRelDiffNorm <  1.0e-8 );
@@ -112,7 +112,7 @@ void check_results(
 
     real tRelTimeDifference = std::abs( ( tActualTime - tReferenceTime(aTestCaseIndex)) / tReferenceTime(aTestCaseIndex) );
 
-    MORIS_LOG_INFO("Check time:                 reference %12.5e, actual %12.5e, prec. error %12.5e.",
+    MORIS_LOG_INFO("Check time:                 reference %12.5e, actual %12.5e, percent error %12.5e.",
             tReferenceTime(aTestCaseIndex),tActualTime,tRelDiffNorm*100.0);
 
     REQUIRE( tRelTimeDifference <  1.0e-8 );
@@ -125,7 +125,7 @@ void check_results(
 
     real tRelTempDifference = std::abs( ( tActualTemperature - tReferenceTemperature(aTestCaseIndex) ) / tReferenceTemperature(aTestCaseIndex) );
 
-    MORIS_LOG_INFO("Check nodal temperature:    reference %12.5e, actual %12.5e, prec. error %12.5e.",
+    MORIS_LOG_INFO("Check nodal temperature:    reference %12.5e, actual %12.5e, percent error %12.5e.",
             tReferenceTemperature(aTestCaseIndex),tActualTemperature,tRelTempDifference*100.0);
 
     //FIXME: difference between parallel and serial run requires loose tolerance
@@ -139,7 +139,7 @@ void check_results(
 
     real tRelIQIDifference = std::abs( ( tActualIQI - tReferenceIQI(aTestCaseIndex) ) / tReferenceIQI(aTestCaseIndex) );
 
-    MORIS_LOG_INFO("Check temperature IQI:      reference %12.5e, actual %12.5e, prec. error %12.5e.",
+    MORIS_LOG_INFO("Check temperature IQI:      reference %12.5e, actual %12.5e, percent error %12.5e.",
             tReferenceIQI(aTestCaseIndex),tActualIQI,tRelIQIDifference*100.0);
 
     REQUIRE(  tRelIQIDifference < 1.0e-4);
