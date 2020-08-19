@@ -115,6 +115,10 @@ namespace moris
             // Reset info related to the mesh
             mPdvHostManager.reset();
             mActiveGeometryIndex = 0;
+            for (uint tGeometryIndex = 0; tGeometryIndex < mGeometries.size(); tGeometryIndex++)
+            {
+                mGeometries(tGeometryIndex)->reset_child_nodes();
+            }
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -289,7 +293,7 @@ namespace moris
                         tParentNodeIndices, tParentNodeCoordinates, aParentTopo(tNode)->get_basis_function(), aParamCoordRelativeToParent(tNode));
 
                 // Assign to geometries
-                for (uint tGeometryIndex = 0; tGeometryIndex < this->get_num_geometries(); tGeometryIndex++)
+                for (uint tGeometryIndex = 0; tGeometryIndex < mGeometries.size(); tGeometryIndex++)
                 {
                     mGeometries(tGeometryIndex)->add_child_node(aNewNodeIndices(tNode), tChildNode);
                 }

@@ -156,7 +156,16 @@ namespace moris
 
         void Level_Set::add_child_node(uint aNodeIndex, std::shared_ptr<Child_Node> aChildNode)
         {
+            MORIS_ASSERT(aNodeIndex == mNumOriginalNodes + mChildNodes.size(),
+                    "Child nodes must be added to a level set field in order by node index.");
             mChildNodes.push_back(aChildNode);
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
+        void Level_Set::reset_child_nodes()
+        {
+            mChildNodes.resize(0);
         }
 
         //--------------------------------------------------------------------------------------------------------------
