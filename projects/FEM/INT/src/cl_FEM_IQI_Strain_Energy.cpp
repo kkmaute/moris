@@ -30,6 +30,7 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+
         void IQI_Strain_Energy::set_constitutive_model(
                 std::shared_ptr< Constitutive_Model > aConstitutiveModel,
                 std::string                           aConstitutiveString,
