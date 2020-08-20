@@ -1051,8 +1051,8 @@ namespace moris
                     }
 
                     // get dv types for stabilization parameter
-                    moris::Cell< moris::Cell< PDV_Type > > tActiveDvTypes
-                    = tSP->get_global_dv_type_list( mtk::Master_Slave::SLAVE );
+                    moris::Cell< moris::Cell< PDV_Type > > tActiveDvTypes =
+                            tSP->get_global_dv_type_list( mtk::Master_Slave::SLAVE );
 
                     // loop on property dv type
                     for ( uint iDv = 0; iDv < tActiveDvTypes.size(); iDv++ )
@@ -1272,6 +1272,7 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+
         moris::Cell< moris::Cell< PDV_Type > > & IWG::get_global_dv_type_list(
                 mtk::Master_Slave aIsMaster )
         {
