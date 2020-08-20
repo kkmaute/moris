@@ -71,7 +71,7 @@ namespace moris
             {
                 // get number of IQIs on treated equation set
                 moris::uint tNumIQIsOnSet =
-                        mFemSets( iSet )->get_number_of_requested_IQIs();
+                        mFemSets( Ii )->get_number_of_requested_IQIs();
 
                 // if some IQI are requested on treated equation set
                 if( tNumIQIsOnSet > 0 )
