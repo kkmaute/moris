@@ -37,10 +37,10 @@ namespace moris
         {
             protected:
 
-                // list of FEM sets
+                // list of equation sets
                 moris::Cell< MSI::Equation_Set * > mFemSets;
 
-                // list of FEM clusters
+                // list of equation objects
                 moris::Cell< MSI::Equation_Object* > mFemClusters;
 
                 // map from mesh set indices to fem set indices
@@ -49,16 +49,16 @@ namespace moris
                 // distributed solution vectors for current and previous time slabs
                 sol::Dist_Vector * mSolutionVector     = nullptr;
                 sol::Dist_Vector * mPrevSolutionVector = nullptr;
-                sol::Dist_Vector * mAdjointSolutionVector = nullptr;
+                sol::Dist_Vector * mAdjointSolutionVector  = nullptr;
                 sol::Dist_Vector * mPreviousAdjointSolutionVector = nullptr;
 
-                sol::Dist_Map * mdQiduMap = nullptr;
+                sol::Dist_Map * mdQIdpMap = nullptr;
 
-                moris::Cell< moris::Matrix< DDRMat > > mGloablIQIVal;
+                moris::Cell< moris::Matrix< DDRMat > > mGlobalIQIVal;
 
                 sol::Dist_Vector * mImplicitdQidp = nullptr;
                 sol::Dist_Vector * mExplicitdQidp = nullptr;
-                sol::Dist_Vector * mQidu = nullptr;
+                sol::Dist_Vector * mdQIdp         = nullptr;
 
                 // matrices for current and previous time slabs
                 Matrix< DDRMat > mTime;
@@ -67,7 +67,7 @@ namespace moris
                 MSI::Design_Variable_Interface * mDesignVariableInterface = nullptr;
 
                 bool mIsForwardAnalysis = true;
-                bool mISOffDiagonalTimeContribution = false;
+                bool mIsOffDiagonalTimeContribution = false;
 
                 moris::sint mNumSensitivityAnalysisRHS = -1;
 
@@ -234,10 +234,10 @@ namespace moris
 
                 //------------------------------------------------------------------------------
                 /**
-                 * returns the dQidu
-                 * @param[ out ] mQidu returns a pointer to dQidu
+                 * returns the dQIdp
+                 * @param[ out ] mdQidp returns a pointer to dQIdp
                  */
-                sol::Dist_Vector * get_dQidu();
+                sol::Dist_Vector * get_dQIdp();
 
                 //------------------------------------------------------------------------------
                 /**
@@ -255,9 +255,9 @@ namespace moris
                  * @param[ out ] mTime matrix for time in current time slab
                  */
                 Matrix< DDRMat > & get_time()
-                    {
+                {
                     return mTime;
-                    }
+                }
 
                 //------------------------------------------------------------------------------
                 /**
@@ -276,9 +276,9 @@ namespace moris
                  * @param[ out ] mPrevTime matrix for time in previous time slab
                  */
                 Matrix< DDRMat > & get_previous_time()
-                    {
+                {
                     return mPrevTime;
-                    }
+                }
 
                 //------------------------------------------------------------------------------
                 /**
@@ -314,11 +314,12 @@ namespace moris
                 /**
                  * get requested IQI names
                  */
-                virtual const moris::Cell< std::string > & get_requested_IQI_names()
-                    {
+                virtual const
+                moris::Cell< std::string > & get_requested_IQI_names()
+                {
                     MORIS_ERROR( false, "Equation_Model::get_requested_IQI_names - not implemented for base class." );
                     return mDummy;
-                    }
+                }
 
                 //------------------------------------------------------------------------------
                 /**
@@ -327,7 +328,7 @@ namespace moris
                 void set_is_sensitivity_analysis()
                 {
                     mIsForwardAnalysis = false;
-                };
+                }
 
                 //------------------------------------------------------------------------------
                 /**
@@ -336,26 +337,27 @@ namespace moris
                 void set_is_forward_analysis()
                 {
                     mIsForwardAnalysis = true;
-                };
+                }
 
                 //------------------------------------------------------------------------------
                 /**
-                 * returns if this is the a forward analysis
-                 * @param[ out ] mIsForwardAnalysis
+                 * returns if this is a forward analysis
+                 * @param[ out ] mIsForwardAnalysis bool true if forward analysis
                  */
                 bool get_is_forward_analysis()
                 {
                     return mIsForwardAnalysis;
-                };
+                }
 
                 //------------------------------------------------------------------------------
                 /**
                  * indicated that
                  */
-                void set_is_adjoint_off_diagonal_time_contribution( const bool aIsOffDiagonalTimeContribution )
+                void set_is_adjoint_off_diagonal_time_contribution(
+                        const bool aIsOffDiagonalTimeContribution )
                 {
-                    mISOffDiagonalTimeContribution = aIsOffDiagonalTimeContribution;
-                };
+                    mIsOffDiagonalTimeContribution = aIsOffDiagonalTimeContribution;
+                }
 
                 //------------------------------------------------------------------------------
                 /**
@@ -364,12 +366,16 @@ namespace moris
                  */
                 bool get_is_adjoint_off_diagonal_time_contribution()
                 {
-                    return mISOffDiagonalTimeContribution;
-                };
+                    return mIsOffDiagonalTimeContribution;
+                }
 
                 //------------------------------------------------------------------------------
-
+                /**
+                 * initialize explicit and implicit dQidp
+                 */
                 void initialize_explicit_and_implicit_dQIdp();
+
+                //------------------------------------------------------------------------------
                 /**
                  * compute implicit dQidp
                  */
@@ -382,17 +388,26 @@ namespace moris
                 void compute_explicit_dQIdp();
 
                 //------------------------------------------------------------------------------
-
-                void initialize_IQIs();
                 /**
-                 * compute explicit dQidp
+                 * initialize QI
+                 */
+                void initialize_IQIs();
+
+                //------------------------------------------------------------------------------
+                /**
+                 * compute QI
                  */
                 void compute_IQIs();
 
+                //------------------------------------------------------------------------------
+                /**
+                 * get QI global values
+                 * @param[ out ] mGlobalIQIVal cell filled with global QI values
+                 */
                 moris::Cell< moris::Matrix< DDRMat > > get_IQI_values()
                 {
-                    return mGloablIQIVal;
-                };
+                    return mGlobalIQIVal;
+                }
 
                 //------------------------------------------------------------------------------
         };
@@ -400,5 +415,4 @@ namespace moris
     } /* namespace MSI */
 } /* namespace moris */
 
-
-#endif /* PROJECTS_FEM_MDL_SRC_CL_MSI_MODEL_HPP_ */
+#endif /* PROJECTS_FEM_MDL_SRC_CL_MSI_EQUATION_MODEL_HPP_ */
