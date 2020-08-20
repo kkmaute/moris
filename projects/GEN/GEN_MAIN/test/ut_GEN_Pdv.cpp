@@ -1,8 +1,10 @@
 #include "catch.hpp"
 #include "cl_Matrix.hpp"
-#include "cl_GEN_Pdv_Host_Manager.hpp"
+#include "cl_GEN_Geometry_Engine.hpp"
 #include "fn_PRM_GEN_Parameters.hpp"
 #include "fn_GEN_create_properties.hpp"
+#include "fn_GEN_create_geometries.hpp"
+#include "fn_GEN_create_simple_mesh.hpp"
 
 namespace moris
 {
@@ -21,7 +23,7 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        TEST_CASE("PDV creation through host manager", "[GEN], [PDV]")
+        TEST_CASE("Interpolation PDV creation", "[gen], [pdv], [interpolation pdv]")
         {
             // Create PDV_Type host manager
             Pdv_Host_Manager tPdvHostManager;
@@ -57,7 +59,10 @@ namespace moris
                 {
                     for (uint tPdvIndex = 0; tPdvIndex < 2; tPdvIndex++)
                     {
-                        tPdvHostManager.create_ip_pdv(uint(tIpNodeIndicesPerSet(tMeshSetIndex)(tNodeIndex)), tIpPdvTypes(tMeshSetIndex)(tPdvIndex)(0), real(tMeshSetIndex));
+                        tPdvHostManager.create_ip_pdv(
+                                (uint)tIpNodeIndicesPerSet(tMeshSetIndex)(tNodeIndex),
+                                tIpPdvTypes(tMeshSetIndex)(tPdvIndex)(0),
+                                (real)tMeshSetIndex);
                     }
                 }
             }
@@ -72,64 +77,12 @@ namespace moris
                     tPdvHostManager.get_ip_pdv_value(tIpNodeIndicesPerSet(tMeshSetIndex), tIpPdvTypes(tMeshSetIndex)(tPdvIndex), tPdvValues);
                     for (uint tNodeIndex = 0; tNodeIndex < 4; tNodeIndex++)
                     {
-                        CHECK(tPdvValues(0)(tNodeIndex) == tMeshSetIndex + (tMeshSetIndex == 0) * (tNodeIndex > 1) * (tIpPdvTypes(tMeshSetIndex)(tPdvIndex)(0) == PDV_Type::TEMPERATURE));
+                        CHECK(tPdvValues(0)(tNodeIndex) == tMeshSetIndex + (tMeshSetIndex == 0) * (tNodeIndex > 1)
+                        * (tIpPdvTypes(tMeshSetIndex)(tPdvIndex)(0) == PDV_Type::TEMPERATURE));
                     }
                 }
             }
 
-//            // ----------------- Integration PDVs ---------------------- //
-//            // Node indices per set
-//            Cell<Matrix<DDSMat>> tIgNodeIndicesPerSet(3);
-//            tIgNodeIndicesPerSet(0).resize(4, 1);
-//            tIgNodeIndicesPerSet(1).resize(3, 1);
-//            tIgNodeIndicesPerSet(2).resize(3, 1);
-//            tIgNodeIndicesPerSet(0) = {{0, 1, 2, 3}};
-//            tIgNodeIndicesPerSet(1) = {{0, 4, 5}};
-//            tIgNodeIndicesPerSet(2) = {{1, 2, 6, 7}};
-//
-//            // IG PDV_Type types
-//            Cell<PDV_Type> tCoordinatePdvs(3);
-//            tCoordinatePdvs(0) = PDV_Type::X_COORDINATE;
-//            tCoordinatePdvs(1) = PDV_Type::Y_COORDINATE;
-//            tCoordinatePdvs(2) = PDV_Type::Z_COORDINATE;
-//
-//            // PDV_Type types per set
-//            Cell<Cell<Cell<PDV_Type>>> tIgPdvTypes(3);
-//            for (uint tMeshSetIndex = 0; tMeshSetIndex < 3; tMeshSetIndex++)
-//            {
-//                tIgPdvTypes(tMeshSetIndex).resize(1);
-//                tIgPdvTypes(tMeshSetIndex)(0) = tCoordinatePdvs;
-//            }
-//
-//            // Coordinates
-//            Matrix<F31RMat> tCoordinates(3, 1);
-//            Cell<Matrix<F31RMat>> tAllNodeCoordinates(8);
-//            for (uint tNodeIndex = 0; tNodeIndex < 8; tNodeIndex++)
-//            {
-//                for (uint tDimension = 0; tDimension < 3; tDimension++)
-//                {
-//                    tCoordinates(tDimension) = real(tNodeIndex * tDimension);
-//                }
-//                tAllNodeCoordinates(tNodeIndex) = tCoordinates;
-//            }
-
-//            // Create PDV_Type hosts
-//            tPdvHostManager.create_ig_pdv_hosts(tIgNodeIndicesPerSet, tAllNodeCoordinates, tIgPdvTypes);
-//
-//            // Check PDVs
-//            for (uint tMeshSetIndex = 0; tMeshSetIndex < 3; tMeshSetIndex++)
-//            {
-//                tPdvValues.clear();
-//                tPdvHostManager.get_ig_pdv_value(tIgNodeIndicesPerSet(tMeshSetIndex), tIgPdvTypes(tMeshSetIndex)(0), tPdvValues);
-//                for (uint tNodeIndex = 0; tNodeIndex < tIgNodeIndicesPerSet(tMeshSetIndex).length(); tNodeIndex++)
-//                {
-//                    for (uint tDimension = 0; tDimension < 3; tDimension++)
-//                    {
-//                        CHECK(tPdvValues(tDimension)(tNodeIndex) == Approx(real(tIgNodeIndicesPerSet(tMeshSetIndex)(tNodeIndex) * tDimension)));
-//                    }
-//                }
-//            }
-//
             // ------------------- Check global map ----------------------- //
             const Matrix<DDSMat> & tLocalGlobalMap = tPdvHostManager.get_my_local_global_map();
 
@@ -140,7 +93,52 @@ namespace moris
             }
         }
 
-        TEST_CASE("PDV sensitivities test", "[GEN], [sensitivity]")
+        //--------------------------------------------------------------------------------------------------------------
+
+        TEST_CASE("Intersection PDV creation", "[gen], [pdv], [intersection pdv]")
+        {
+            if (par_size() == 1)
+            {
+                // Create mesh
+                mtk::Interpolation_Mesh* tMesh = create_simple_mesh();
+
+                // Set up geometry
+                Cell<std::shared_ptr<Geometry>> tGeometries(2);
+                Matrix<DDRMat> tADVs(0, 0);
+
+                // Circle
+                real tRadius = 0.5;
+                ParameterList tCircleParameterList = prm::create_geometry_parameter_list();
+                tCircleParameterList.set("type", "circle");
+                tCircleParameterList.set("constant_parameters", "0.0, 0.0, " + std::to_string(tRadius));
+                tGeometries(0) = create_geometry(tCircleParameterList, tADVs);
+
+                // Plane
+                ParameterList tPlaneParameterList = prm::create_geometry_parameter_list();
+                tPlaneParameterList.set("type", "plane");
+                tPlaneParameterList.set("constant_parameters", "0.25, 0.0, 1.0, 0.0");
+                tGeometries(1) = create_geometry(tPlaneParameterList, tADVs);
+
+                // Create geometry engine
+                Phase_Table tPhaseTable (1, Phase_Table_Structure::EXP_BASE_2);
+                Geometry_Engine tGeometriesEngine(tGeometries, tPhaseTable, tMesh);
+
+                // Determine if intersected
+                for (uint tElementIndex = 0; tElementIndex < tMesh->get_num_elems(); tElementIndex++)
+                {
+                    CHECK(tGeometriesEngine.is_intersected(
+                            tMesh->get_mtk_cell(tElementIndex).get_vertex_inds(),
+                            tMesh->get_mtk_cell(tElementIndex).get_vertex_coords()));
+                }
+
+                // Clean up
+                delete tMesh;
+            }
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
+        TEST_CASE("PDV sensitivities test", "[gen], [pdv], [sensitivity], [pdv sensitivity]")
         {
             // Create PDV_Type host manager
             Pdv_Host_Manager tPdvHostManager;
@@ -183,5 +181,8 @@ namespace moris
             // Check sensitivities
             CHECK(norm(tPdvHostManager.compute_diqi_dadv() - tDiqiDpdv) <= 1E-12);
         }
+
+        //--------------------------------------------------------------------------------------------------------------
+
     }
 }

@@ -1518,7 +1518,7 @@ namespace moris
                         }
                         else
                         {
-                            fd_scheme( fem::FDScheme_Type::POINT_3_CENTRAL, tFDScheme );
+                            fd_scheme( aFDSchemeType, tFDScheme );
                         }
                         uint tNumPoints = tFDScheme( 0 ).size();
 

@@ -17,10 +17,9 @@
 #include "linalg_typedefs.hpp"
 #include "cl_XML_Parser.hpp"
 #include "cl_Param_List.hpp"
-#include "cl_FEM_Enums.hpp" //FEM/INT/src
-
-#include "cl_FEM_Enums.hpp" //FEM/INT/src
-
+//FEM/INT/src
+#include "cl_FEM_Enums.hpp"
+//FEM/VIS/src
 #include "cl_VIS_Output_Enums.hpp"
 
 
@@ -29,7 +28,7 @@ namespace moris
     namespace prm
     {
 
-//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
         /*
          * creates a property parameter list with default inputs
          * @param [ out ] ParameterList a property parameter list
@@ -49,7 +48,7 @@ namespace moris
             return tParameterList;
         }
 
-//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
         /*
          * creates a constitutive model parameter list with default inputs
          * @param [ out ] ParameterList a CM parameter list
@@ -68,7 +67,7 @@ namespace moris
             return tParameterList;
         }
 
-//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
         /*
          * creates a stabilization parameter parameter list with default inputs
          * @param [ out ] ParameterList a SP parameter list
@@ -92,7 +91,7 @@ namespace moris
             return tParameterList;
         }
 
-//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
         /*
          * creates an IWG parameter list with default inputs
          * @param [ out ] ParameterList a IWG parameter list
@@ -121,7 +120,7 @@ namespace moris
             return tParameterList;
         }
 
-//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
         /*
          * creates an IQI parameter list with default inputs
          * @param [ out ] ParameterList a IQI parameter list
@@ -151,7 +150,29 @@ namespace moris
             return tParameterList;
         }
 
-//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
+        /*
+         * creates computation fem parameter list with default inputs
+         * @param [ out ] ParameterList a computation parameter list
+         */
+        ParameterList create_computation_parameter_list()
+        {
+            ParameterList tParameterList;
+
+            // bool true for analytical sensitivity analysis, false for finite difference
+            tParameterList.insert( "is_analytical_sensitivity", false );
+
+            // enum for finite difference scheme
+            tParameterList.insert( "finite_difference_scheme",
+                    static_cast< uint >( fem::FDScheme_Type::POINT_1_FORWARD ) );
+
+            // real for relative perturbation size for finite difference
+            tParameterList.insert( "finite_difference_perturbation_size", 1e-6 );
+
+            return tParameterList;
+        }
+
+        //------------------------------------------------------------------------------
 
     }/* end_namespace_prm */
 }/* end_namespace_moris */

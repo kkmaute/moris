@@ -30,6 +30,9 @@ namespace moris
 
             public:
 
+                // sint for symmetric/unsymmetric Nitsche
+                sint mBeta = 1.0;
+
                 enum class IWG_Constitutive_Type
                 {
                     DIFF_LIN_ISO,
@@ -42,8 +45,6 @@ namespace moris
                 enum class IWG_Stabilization_Type
                 {
                     NITSCHE_INTERFACE,
-                    MASTER_WEIGHT_INTERFACE,
-                    SLAVE_WEIGHT_INTERFACE,
                     MAX_ENUM
                 };
 
@@ -54,7 +55,7 @@ namespace moris
                 /*
                  * constructor
                  */
-                IWG_Diffusion_Interface();
+                IWG_Diffusion_Interface( sint aBeta );
 
                 //------------------------------------------------------------------------------
                 /**

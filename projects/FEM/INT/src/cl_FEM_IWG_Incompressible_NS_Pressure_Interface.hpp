@@ -45,8 +45,7 @@ namespace moris
 
                 enum class IWG_Stabilization_Type
                 {
-                    MASTER_WEIGHT_INTERFACE,
-                    SLAVE_WEIGHT_INTERFACE,
+                    NITSCHE_INTERFACE,
                     MAX_ENUM
                 };
 

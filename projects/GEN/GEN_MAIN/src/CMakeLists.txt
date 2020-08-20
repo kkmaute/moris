@@ -8,8 +8,6 @@ set(${GEN_MAIN}_VERSION ${MORIS_VERSION})
 set(HEADERS
 
 	cl_GEN_Geometry_Engine.hpp
-	cl_GEN_Geometry_Object_Manager.hpp
-	cl_GEN_Geometry_Object.hpp
 	cl_GEN_Phase_Table.hpp
 	cl_GEN_Field.hpp
 	cl_GEN_Field_Analytic.hpp
@@ -103,8 +101,6 @@ include_directories(${MORIS_PACKAGE_DIR}/WRK/src)
 set(LIB_SOURCES
 
 	cl_GEN_Geometry_Engine.cpp
-	cl_GEN_Geometry_Object_Manager.cpp
-	cl_GEN_Geometry_Object.cpp
 	cl_GEN_Phase_Table.cpp
 	cl_GEN_Field.cpp
 	cl_GEN_Field_Analytic.cpp

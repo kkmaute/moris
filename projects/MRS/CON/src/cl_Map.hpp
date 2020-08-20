@@ -216,6 +216,4 @@ namespace moris
     };
 }
 
-
-
 #endif /* CL_MAP_HPP_ */

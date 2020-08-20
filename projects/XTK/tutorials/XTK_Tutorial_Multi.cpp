@@ -288,23 +288,6 @@ main( int    argc,
      * Other tutorials will go into more detail about using these data structures.
      */
 
-    /*!
-     * \subsection capabilities 2.) Interface Design Sensitivity Computation
-     * For optimization problems, shape/design sensitivities of the interface are needed.
-     * With the call to compute_interface_sensitivity(), XTK uses information from the
-     * decomposition process to project shape velocities of the geometry onto the
-     * interface nodes. Interface design sensitivities must be computed after the decomposition process.
-     * This is because without a decomposition there is not a notion of an interface and therefore there is no notion of
-     * interface sensitivities. This sensitivity computation occurs when compute_interface_sensitivity is called through
-     * the XTK model.
-     * This call iterates through geometries and computes design sensitivities relative to each geometry.
-     *
-     * \code{.cpp}
-     * tXTKModel.compute_interface_sensitivity();
-     * \endcode
-     */
-//      tXTKModel.communicate_interface_nodes();
-
       /*!
        * \subsection unzip 4.) Interface unzipping
        */

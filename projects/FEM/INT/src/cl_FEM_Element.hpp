@@ -157,11 +157,19 @@ namespace moris
 
                 //------------------------------------------------------------------------------
                 /**
-                 * compute dRdp
+                 * compute dRdp by analytical formulation
                  */
                 virtual void compute_dRdp()
                 {
-                    MORIS_ERROR( false, "Element::compute_dRdp - Not implemented for base class.");
+                    MORIS_ERROR( false, "Element::compute_dRdp - Not implemented for base class." );
+                }
+
+                /**
+                 * compute dRdp by finite difference
+                 */
+                virtual void compute_dRdp_FD()
+                {
+                    MORIS_ERROR( false, "Element::compute_dRdp_FD - Not implemented for base class." );
                 }
 
                 //------------------------------------------------------------------------------
@@ -175,11 +183,19 @@ namespace moris
 
                 //------------------------------------------------------------------------------
                 /**
-                 * compute dQIdp
+                 * compute dQIdp by analytical formulation
                  */
                 virtual void compute_dQIdp_explicit()
                 {
-                    MORIS_ERROR( false, "Element::compute_dQIdp_explicit - Not implemented for base class.");
+                    MORIS_ERROR( false, "Element::compute_dQIdp_explicit - Not implemented for base class." );
+                }
+
+                /**
+                 * compute dQIdp by finite difference
+                 */
+                virtual void compute_dQIdp_explicit_FD()
+                {
+                    MORIS_ERROR( false, "Element::compute_dQIdp_explicit_FD - Not implemented for base class." );
                 }
 
                 //------------------------------------------------------------------------------
@@ -188,8 +204,7 @@ namespace moris
                  */
                 virtual void compute_dQIdu()
                 {
-                    // this virtual function does nothing
-                    //MORIS_ERROR( false, "Element::compute_dQIdu - Not implemented for base class.");
+                    MORIS_ERROR( false, "Element::compute_dQIdu - Not implemented for base class." );
                 }
 
                 //------------------------------------------------------------------------------
@@ -223,7 +238,6 @@ namespace moris
                         default :
                         {
                             MORIS_ERROR( false, "Element::compute_quantity_of_interest - unknown field type." );
-                            break;
                         }
                     }
                 }

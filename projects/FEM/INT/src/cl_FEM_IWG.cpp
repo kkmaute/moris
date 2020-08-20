@@ -1051,8 +1051,8 @@ namespace moris
                     }
 
                     // get dv types for stabilization parameter
-                    moris::Cell< moris::Cell< PDV_Type > > tActiveDvTypes
-                    = tSP->get_global_dv_type_list( mtk::Master_Slave::SLAVE );
+                    moris::Cell< moris::Cell< PDV_Type > > tActiveDvTypes =
+                            tSP->get_global_dv_type_list( mtk::Master_Slave::SLAVE );
 
                     // loop on property dv type
                     for ( uint iDv = 0; iDv < tActiveDvTypes.size(); iDv++ )
@@ -1091,8 +1091,8 @@ namespace moris
             if ( aIsResidual )
             {
                 // get the requested dof types
-                moris::Cell< moris::Cell< enum MSI::Dof_Type > > tRequestedDofTypes
-                = mSet->get_secundary_dof_types();
+                moris::Cell< moris::Cell< enum MSI::Dof_Type > > tRequestedDofTypes =
+                        mSet->get_secundary_dof_types();
 
                 // reserve possible max size for requested dof lists
                 mRequestedMasterGlobalDofTypes.reserve( tRequestedDofTypes.size() );
@@ -1272,6 +1272,7 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+
         moris::Cell< moris::Cell< PDV_Type > > & IWG::get_global_dv_type_list(
                 mtk::Master_Slave aIsMaster )
         {
@@ -1761,6 +1762,13 @@ namespace moris
             Matrix< DDRMat > tMaxIP = max( tIPGI->get_space_coeff().matrix_data() );
             Matrix< DDRMat > tMinIP = min( tIPGI->get_space_coeff().matrix_data() );
 
+            // init perturbation
+            real tDeltaH = 0.0;
+
+            // init FD scheme
+            moris::Cell< moris::Cell< real > > tFDScheme;
+            fd_scheme( aFDSchemeType, tFDScheme );
+
             // loop over the spatial directions
             for( uint iCoeffCol = 0; iCoeffCol< tDerNumDimensions; iCoeffCol++ )
             {
@@ -1770,7 +1778,7 @@ namespace moris
                     if ( aIsActive( iCoeffCol )( iCoeffRow ) == 1 )
                     {
                         // compute the perturbation value
-                        real tDeltaH = aPerturbation * tCoeff( iCoeffRow, iCoeffCol );
+                        tDeltaH = aPerturbation * tCoeff( iCoeffRow, iCoeffCol );
 
                         // check that perturbation is not zero
                         if( ( tDeltaH < 1e-12 ) && ( tDeltaH > - 1e-12 ) )
@@ -1780,6 +1788,7 @@ namespace moris
 
                         // check point location
                         moris::Cell< moris::Cell< real > > tFDScheme;
+                        fd_scheme( aFDSchemeType, tFDScheme );
                         if( tCoeff( iCoeffRow, iCoeffCol ) + tDeltaH > tMaxIP( iCoeffCol ) )
                         {
                             fd_scheme( fem::FDScheme_Type::POINT_1_BACKWARD, tFDScheme );
@@ -1787,10 +1796,6 @@ namespace moris
                         else if( tCoeff( iCoeffRow, iCoeffCol ) - tDeltaH < tMinIP( iCoeffCol ) )
                         {
                             fd_scheme( fem::FDScheme_Type::POINT_1_FORWARD, tFDScheme );
-                        }
-                        else
-                        {
-                            fd_scheme( fem::FDScheme_Type::POINT_3_CENTRAL, tFDScheme );
                         }
                         uint tNumPoints = tFDScheme( 0 ).size();
 
@@ -1894,6 +1899,13 @@ namespace moris
             uint tSlaveResDofAssemblyStart = mSet->get_res_dof_assembly_map()( tSlaveResDofIndex )( 0, 0 );
             uint tSlaveResDofAssemblyStop  = mSet->get_res_dof_assembly_map()( tSlaveResDofIndex )( 0, 1 );
 
+            // init perturbation
+            real tDeltaH = 0.0;
+
+            // init FD scheme
+            moris::Cell< moris::Cell< real > > tFDScheme;
+            fd_scheme( aFDSchemeType, tFDScheme );
+
             if( aMasterIsActive.size() != 0 )
             {
                 // get number of master GI bases and space dimensions
@@ -1916,7 +1928,7 @@ namespace moris
                         if ( aMasterIsActive( iCoeffCol )( iCoeffRow ) == 1 )
                         {
                             // compute the perturbation value
-                            real tDeltaH = aPerturbation * tCoeff( iCoeffRow, iCoeffCol );
+                            tDeltaH = aPerturbation * tCoeff( iCoeffRow, iCoeffCol );
 
                             // check that perturbation is not zero
                             if( ( tDeltaH < 1e-12 ) && ( tDeltaH > - 1e-12 ) )
@@ -1925,7 +1937,7 @@ namespace moris
                             }
 
                             // check point location
-                            moris::Cell< moris::Cell< real > > tFDScheme;
+                            fd_scheme( aFDSchemeType, tFDScheme );
                             if( tCoeff( iCoeffRow, iCoeffCol ) + tDeltaH > tMasterMaxIP( iCoeffCol ) )
                             {
                                 fd_scheme( fem::FDScheme_Type::POINT_1_BACKWARD, tFDScheme );
@@ -1933,10 +1945,6 @@ namespace moris
                             else if( tCoeff( iCoeffRow, iCoeffCol ) - tDeltaH < tMasterMinIP( iCoeffCol ) )
                             {
                                 fd_scheme( fem::FDScheme_Type::POINT_1_FORWARD, tFDScheme );
-                            }
-                            else
-                            {
-                                fd_scheme( fem::FDScheme_Type::POINT_3_CENTRAL, tFDScheme );
                             }
                             uint tNumPoints = tFDScheme( 0 ).size();
 
@@ -2024,7 +2032,7 @@ namespace moris
                         if ( aSlaveIsActive( iCoeffCol )( iCoeffRow ) == 1 )
                         {
                             // compute the perturbation value
-                            real tDeltaH = aPerturbation * tCoeff( iCoeffRow, iCoeffCol );
+                            tDeltaH = aPerturbation * tCoeff( iCoeffRow, iCoeffCol );
 
                             // check that perturbation is not zero
                             if( ( tDeltaH < 1e-12 ) && ( tDeltaH > - 1e-12 ) )
@@ -2033,7 +2041,7 @@ namespace moris
                             }
 
                             // check point location
-                            moris::Cell< moris::Cell< real > > tFDScheme;
+                            fd_scheme( aFDSchemeType, tFDScheme );
                             if( tCoeff( iCoeffRow, iCoeffCol ) + tDeltaH > tSlaveMaxIP( iCoeffCol ) )
                             {
                                 fd_scheme( fem::FDScheme_Type::POINT_1_BACKWARD, tFDScheme );
@@ -2041,10 +2049,6 @@ namespace moris
                             else if( tCoeff( iCoeffRow, iCoeffCol ) - tDeltaH < tSlaveMinIP( iCoeffCol ) )
                             {
                                 fd_scheme( fem::FDScheme_Type::POINT_1_FORWARD, tFDScheme );
-                            }
-                            else
-                            {
-                                fd_scheme( fem::FDScheme_Type::POINT_3_CENTRAL, tFDScheme );
                             }
                             uint tNumPoints = tFDScheme( 0 ).size();
 
@@ -2137,6 +2141,9 @@ namespace moris
             uint tResDofAssemblyStart = mSet->get_res_dof_assembly_map()( tResDofIndex )( 0, 0 );
             uint tResDofAssemblyStop  = mSet->get_res_dof_assembly_map()( tResDofIndex )( 0, 1 );
 
+            // init perturbation
+            real tDeltaH = 0.0;
+
             // loop over the dv types associated with a FI
             for( uint iFI = 0; iFI < tNumDvType; iFI++ )
             {
@@ -2166,7 +2173,7 @@ namespace moris
                     for( uint iCoeffRow = 0; iCoeffRow < tDerNumBases; iCoeffRow++  )
                     {
                         // compute the perturbation absolute value
-                        real tDeltaH = aPerturbation * tCoeff( iCoeffRow, iCoeffCol );
+                        tDeltaH = aPerturbation * tCoeff( iCoeffRow, iCoeffCol );
 
                         // check that perturbation is not zero
                         if( ( tDeltaH < 1e-12 ) && ( tDeltaH > - 1e-12 ) )
@@ -2244,6 +2251,9 @@ namespace moris
             uint tSlaveResDofAssemblyStart = mSet->get_res_dof_assembly_map()( tSlaveResDofIndex )( 0, 0 );
             uint tSlaveResDofAssemblyStop  = mSet->get_res_dof_assembly_map()( tSlaveResDofIndex )( 0, 1 );
 
+            // init perturbation
+            real tDeltaH = 0.0;
+
             // loop over the master dv types associated with a FI
             for( uint iFI = 0; iFI < tNumDvType; iFI++ )
             {
@@ -2273,7 +2283,7 @@ namespace moris
                     for( uint iCoeffRow = 0; iCoeffRow < tDerNumBases; iCoeffRow++  )
                     {
                         // compute the perturbation absolute value
-                        real tDeltaH = aPerturbation * tCoeff( iCoeffRow, iCoeffCol );
+                        tDeltaH = aPerturbation * tCoeff( iCoeffRow, iCoeffCol );
 
                         // check that perturbation is not zero
                         if( ( tDeltaH < 1e-12 ) && ( tDeltaH > - 1e-12 ) )
@@ -2358,7 +2368,7 @@ namespace moris
                     for( uint iCoeffRow = 0; iCoeffRow < tDerNumBases; iCoeffRow++  )
                     {
                         // compute the perturbation absolute value
-                        real tDeltaH = aPerturbation * tCoeff( iCoeffRow, iCoeffCol );
+                        tDeltaH = aPerturbation * tCoeff( iCoeffRow, iCoeffCol );
 
                         // check that perturbation is not zero
                         if( ( tDeltaH < 1e-12 ) && ( tDeltaH > - 1e-12 ) )

@@ -11,21 +11,40 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        Intersection_Node::Intersection_Node(Matrix<DDUMat>            aParentNodeIndices,
-                                             Cell<Matrix<DDRMat>>      aParentNodeCoordinates,
-                                             std::shared_ptr<Geometry> aInterfaceGeometry,
-                                             real                      aIsocontourThreshold)
-                : Child_Node(aParentNodeIndices,
-                             aParentNodeCoordinates,
+        Intersection_Node::Intersection_Node(
+                uint                      aFirstNodeIndex,
+                uint                      aSecondNodeIndex,
+                const Matrix<DDRMat>&     aFirstNodeCoordinates,
+                const Matrix<DDRMat>&     aSecondNodeCoordinates,
+                std::shared_ptr<Geometry> aInterfaceGeometry,
+                real                      aIsocontourThreshold)
+                : Child_Node({{aFirstNodeIndex, aSecondNodeIndex}},
+                             {aFirstNodeCoordinates, aSecondNodeCoordinates},
                              xtk::Linear_Basis_Function(),
                              Interpolation::linear_interpolation_value(
                                      Matrix<DDRMat>(
-                                             {{aInterfaceGeometry->evaluate_field_value(aParentNodeIndices(0), aParentNodeCoordinates(0))},
-                                              {aInterfaceGeometry->evaluate_field_value(aParentNodeIndices(1), aParentNodeCoordinates(1))}}),
+                                             {{aInterfaceGeometry->evaluate_field_value(aFirstNodeIndex, aFirstNodeCoordinates)},
+                                              {aInterfaceGeometry->evaluate_field_value(aSecondNodeIndex, aSecondNodeCoordinates)}}),
                                      aIsocontourThreshold)),
                   mInterfaceGeometry(aInterfaceGeometry),
-                  mCoordinates((mBasisValues(0) * aParentNodeCoordinates(0)) + (mBasisValues(1) * aParentNodeCoordinates(1)))
+                  mFirstParentOnInterface(mInterfaceGeometry->evaluate_field_value(aFirstNodeIndex, aFirstNodeCoordinates) == 0.0),
+                  mSecondParentOnInterface(mInterfaceGeometry->evaluate_field_value(aSecondNodeIndex, aSecondNodeCoordinates) == 0.0),
+                  mGlobalCoordinates((mBasisValues(0) * aFirstNodeCoordinates) + (mBasisValues(1) * aSecondNodeCoordinates))
         {
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
+        bool Intersection_Node::first_parent_on_interface()
+        {
+            return mFirstParentOnInterface;
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
+        bool Intersection_Node::second_parent_on_interface()
+        {
+            return mSecondParentOnInterface;
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -48,7 +67,14 @@ namespace moris
 
         real Intersection_Node::get_coordinate_value(uint aCoordinateIndex)
         {
-            return mCoordinates(aCoordinateIndex);
+            return mGlobalCoordinates(aCoordinateIndex);
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
+        Matrix<DDRMat> Intersection_Node::get_global_coordinates()
+        {
+            return mGlobalCoordinates;
         }
 
         //--------------------------------------------------------------------------------------------------------------

@@ -1,15 +1,11 @@
 #include "catch.hpp"
 #include "cl_Matrix.hpp"
 #include "cl_GEN_Geometry_Engine.hpp"
+#include "cl_GEN_User_Defined_Geometry.hpp"
 #include "fn_GEN_create_geometries.hpp"
+#include "fn_GEN_create_simple_mesh.hpp"
 #include "fn_PRM_GEN_Parameters.hpp"
 #include "fn_Exec_load_user_library.hpp"
-#include "cl_GEN_User_Defined_Geometry.hpp"
-
-#include "cl_HMR.hpp"
-#include "cl_HMR_Mesh.hpp"
-#include "cl_HMR_Mesh_Interpolation.hpp"
-#include "cl_PRM_HMR_Parameters.hpp"
 
 namespace moris
 {
@@ -22,12 +18,10 @@ namespace moris
 
     void user_defined_geometry_sensitivity(const Matrix<DDRMat>& aCoordinates,
                                            const Cell<real*>&    aParameters,
-                                                 Matrix<DDRMat>& aSensitivities);
+                                           Matrix<DDRMat>&       aSensitivities);
 
     // Approximate check for DDRMat vector
     void check_approx(Matrix<DDRMat> aMat1, Matrix<DDRMat> aMat2);
-
-    //------------------------------------------------------------------------------------------------------------------
 
     namespace ge
     {
@@ -40,7 +34,9 @@ namespace moris
                                 real aYSemidiameter,
                                 bool aCheck = true);
 
-        TEST_CASE("Circle Test", "[GEN], [GEN_CIRCLE]")
+        //--------------------------------------------------------------------------------------------------------------
+
+        TEST_CASE("Circle test", "[gen], [geometry], [circle]")
         {
             // Set up geometry
             ParameterList tCircle1ParameterList = prm::create_geometry_parameter_list();
@@ -120,7 +116,9 @@ namespace moris
             check_approx(tSensitivities, {{-1.0, 0.0, 0.0, 0.0, -1.0}});
         }
 
-        TEST_CASE("Superellipse Test", "[GEN], [GEN_SUPERELLIPSE]")
+        //--------------------------------------------------------------------------------------------------------------
+
+        TEST_CASE("Superellipse test", "[gen], [geometry], [superellipse]")
         {
             // Set up geometry
             ParameterList tSuperellipseParameterList = prm::create_geometry_parameter_list();
@@ -175,7 +173,7 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        TEST_CASE("Sphere Test", "[GEN], [GEN_SPHERE]")
+        TEST_CASE("Sphere test", "[gen], [geometry], [sphere]")
         {
             // Set up geometry
             ParameterList tSphereParameterList = prm::create_geometry_parameter_list();
@@ -225,7 +223,9 @@ namespace moris
             check_approx(tSensitivities, {{-2.0 / 3.0, 2.0 / 3.0, -1.0 / 3.0, -1.0}});
         }
 
-        TEST_CASE("Superellipsoid Test", "[GEN], [GEN_SUPERELLIPSOID]")
+        //--------------------------------------------------------------------------------------------------------------
+
+        TEST_CASE("Superellipsoid test", "[gen], [geometry], [superellipsoid]")
         {
             // Set up geometry
             ParameterList tSuperellipsoidParameterList = prm::create_geometry_parameter_list();
@@ -280,39 +280,12 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        TEST_CASE("Level Set Geometry Test", "[GEN], [GEN_LEVEL_SET_GEOMETRY]")
+        TEST_CASE("Level set geometry test", "[gen], [geometry], [level set geometry]")
         {
             if (par_size() == 1)
             {
-                ParameterList tParameters = prm::create_hmr_parameter_list();
-
-                tParameters.set( "number_of_elements_per_dimension", "2, 2");
-                tParameters.set( "domain_dimensions", "2, 2");
-                tParameters.set( "domain_offset", "-1.0, -1.0");
-                tParameters.set( "domain_sidesets", "1,2,3,4");
-                tParameters.set( "lagrange_output_meshes", "0");
-
-                tParameters.set( "lagrange_orders", "1");
-                tParameters.set( "lagrange_pattern", "0");
-                tParameters.set( "bspline_orders", "2");
-                tParameters.set( "bspline_pattern", "0");
-                
-                tParameters.set( "lagrange_to_bspline", "0");
-                
-                tParameters.set( "truncate_bsplines", 1 );
-                tParameters.set( "refinement_buffer", 3 );
-                tParameters.set( "staircase_buffer", 3 );
-
-                tParameters.set( "severity_level", 2 );
-
-                hmr::HMR tHMR( tParameters );
-
-                // initial refinement
-                tHMR.perform_initial_refinement( 0 );
-                tHMR.finalize();
-
-                // Get interpolation mesh
-                hmr::Interpolation_Mesh_HMR* tInterpolationMesh = tHMR.create_interpolation_mesh(0);
+                // Create mesh
+                mtk::Interpolation_Mesh* tMesh = create_simple_mesh();
 
                 // Set up geometry
                 real tRadius = 0.5;
@@ -326,35 +299,36 @@ namespace moris
 
                 // Create geometry engine
                 Phase_Table tPhaseTable (1, Phase_Table_Structure::EXP_BASE_2);
-                Geometry_Engine tGeometryEngine(tGeometry, tPhaseTable, tInterpolationMesh);
+                Geometry_Engine tGeometryEngine(tGeometry, tPhaseTable, tMesh);
 
                 // Check values
-                for (uint tNodeIndex = 0; tNodeIndex < tInterpolationMesh->get_num_nodes(); tNodeIndex++)
+                for (uint tNodeIndex = 0; tNodeIndex < tMesh->get_num_nodes(); tNodeIndex++)
                 {
-                    Matrix<DDRMat> tNodeCoord = tInterpolationMesh->get_node_coordinate(tNodeIndex);
+                    Matrix<DDRMat> tNodeCoord = tMesh->get_node_coordinate(tNodeIndex);
                     CHECK( tGeometryEngine.get_geometry_field_value(tNodeIndex, {{}}, 0) ==
                         Approx(sqrt(pow(tNodeCoord(0), 2) + pow(tNodeCoord(1), 2)) - tRadius) );
                 }
 
                 // Clean up
-                delete tInterpolationMesh;
+                delete tMesh;
 
             }
         }
 
         //--------------------------------------------------------------------------------------------------------------
 
-        TEST_CASE("User-Defined Geometry Test", "[GEN], [GEN_USER_DEFINED_GEOMETRY]")
+        TEST_CASE("User-defined geometry test", "[gen], [geometry], [user-defined geometry]")
         {
             // Create user-defined geometry
             Matrix<DDRMat> tADVs = {{-1.0, 0.5}};
 
-            std::shared_ptr<Geometry> tGeometry = std::make_shared<User_Defined_Geometry>(tADVs,
-                                                                                          Matrix<DDUMat>({{1, 0}}),
-                                                                                          Matrix<DDUMat>({{0, 1}}),
-                                                                                          Matrix<DDRMat>({{}}),
-                                                                                          &user_defined_geometry_field,
-                                                                                          &user_defined_geometry_sensitivity);
+            std::shared_ptr<Geometry> tGeometry = std::make_shared<User_Defined_Geometry>(
+                    tADVs,
+                    Matrix<DDUMat>({{1, 0}}),
+                    Matrix<DDUMat>({{0, 1}}),
+                    Matrix<DDRMat>({{}}),
+                    &user_defined_geometry_field,
+                    &user_defined_geometry_sensitivity);
 
             // Set coordinates for checking
             Matrix<DDRMat> tCoordinates1 = {{1.0, 1.0}};
@@ -367,9 +341,9 @@ namespace moris
             // Check sensitivity values
             Matrix<DDRMat> tSensitivities;
             tGeometry->evaluate_sensitivity(0, tCoordinates1, tSensitivities);
-            check_approx(tSensitivities, {{1.0, 3.0}});
+            check_approx(tSensitivities, {{3.0, 1.0}});
             tGeometry->evaluate_sensitivity(0, tCoordinates2, tSensitivities);
-            check_approx(tSensitivities, {{2.0, 6.0}});
+            check_approx(tSensitivities, {{6.0, 2.0}});
 
             // Change ADVs and coordinates
             tADVs = {{2.0, 0.5}};
@@ -382,14 +356,14 @@ namespace moris
 
             // Check sensitivity values
             tGeometry->evaluate_sensitivity(0, tCoordinates1, tSensitivities);
-            check_approx(tSensitivities, {{0.0, 12.0}});
+            check_approx(tSensitivities, {{12.0, 0.0}});
             tGeometry->evaluate_sensitivity(0, tCoordinates2, tSensitivities);
-            check_approx(tSensitivities, {{2.0, -12.0}});
+            check_approx(tSensitivities, {{-12.0, 2.0}});
         }
 
         //--------------------------------------------------------------------------------------------------------------
 
-        TEST_CASE("Multigeometry Test", "[GEN], [GEN_MULTIGEOMETRY]")
+        TEST_CASE("Multigeometry test", "[gen], [geometry], [multigeometry]")
         {
             // Set up geometry
             Cell<ParameterList> tCircleParameterLists(2);
@@ -459,7 +433,7 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        TEST_CASE("Swiss Cheese Slice Test", "[GEN], [GEN_SWISS_CHEESE_SLICE]")
+        TEST_CASE("Swiss cheese slice test", "[gen], [geometry], [swiss cheese slice]")
         {
             // Set up geometry
             ParameterList tSwissCheeseParameterList = prm::create_swiss_cheese_slice_parameter_list();

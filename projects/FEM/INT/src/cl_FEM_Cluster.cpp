@@ -162,6 +162,28 @@ namespace moris
                 aVerticesIndices = mMeshCluster->get_vertex_indices_in_cluster();
 
                 // FIXME! Mesh should return this
+                if( mElementType == fem::Element_Type::SIDESET )
+                {
+                    aVerticesIndices.set_size( 1, 0 );
+                    uint tVertexCounter = 0;
+
+                    // loop over the IG cells
+                    for( moris::uint iIGCell = 0; iIGCell < mMasterIntegrationCells.size(); iIGCell++)
+                    {
+                        Matrix< IndexMat > tMasterVertexIndices = mMasterIntegrationCells( iIGCell )->
+                                get_vertices_ind_on_side_ordinal( mMasterListOfSideOrdinals( iIGCell ) );
+
+                        for(moris::uint iVertex = 0; iVertex < tMasterVertexIndices.numel(); iVertex++ )
+                        {
+                            tVertexCounter += 1;
+                            aVerticesIndices.resize( 1, tVertexCounter );
+                            // get the vertex index
+                            aVerticesIndices( tVertexCounter - 1 ) = tMasterVertexIndices( iVertex );
+                        }
+                    }
+                }
+
+                // FIXME! Mesh should return this
                 if( mElementType == fem::Element_Type::DOUBLE_SIDESET )
                 {
                     aVerticesIndices.set_size( 1, 0 );
@@ -431,11 +453,28 @@ namespace moris
 
         void Cluster::compute_dRdp()
         {
-            // loop over the IG elements
-            for ( uint iElem = 0; iElem < mElements.size(); iElem++ )
+            // bool for analytical sensitivity analysis
+            bool tIsAnalyticalSA = mSet->get_is_analytical_sensitivity_analysis();
+
+            // if analytical sensitivity analysis
+            if( tIsAnalyticalSA )
             {
-                // compute the dRdp for the IG element
-                mElements( iElem )->compute_dRdp();
+                // loop over the IG elements
+                for ( uint iElem = 0; iElem < mElements.size(); iElem++ )
+                {
+                    // compute the dRdp for the IG element
+                    mElements( iElem )->compute_dRdp();
+                }
+            }
+            // if finite difference sensitivity analysis
+            else
+            {
+                // loop over the IG elements
+                for ( uint iElem = 0; iElem < mElements.size(); iElem++ )
+                {
+                    // compute the dRdp for the IG element
+                    mElements( iElem )->compute_dRdp_FD();
+                }
             }
         }
 
@@ -443,11 +482,28 @@ namespace moris
 
         void Cluster::compute_dQIdp_explicit()
         {
-            // loop over the IG elements
-            for ( uint iElem = 0; iElem < mElements.size(); iElem++ )
+            // bool for analytical sensitivity analysis
+            bool tIsAnalyticalSA = mSet->get_is_analytical_sensitivity_analysis();
+
+            // if analytical sensitivity analysis
+            if( tIsAnalyticalSA )
             {
-                // compute the dQIdp for the IG element
-                mElements( iElem )->compute_dQIdp_explicit();
+                // loop over the IG elements
+                for ( uint iElem = 0; iElem < mElements.size(); iElem++ )
+                {
+                    // compute the dQIdp for the IG element
+                    mElements( iElem )->compute_dQIdp_explicit();
+                }
+            }
+            // if finite difference sensitivity analysis
+            else
+            {
+                // loop over the IG elements
+                for ( uint iElem = 0; iElem < mElements.size(); iElem++ )
+                {
+                    // compute the dQIdp for the IG element
+                    mElements( iElem )->compute_dQIdp_explicit_FD();
+                }
             }
         }
 

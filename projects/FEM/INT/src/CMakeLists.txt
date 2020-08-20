@@ -139,7 +139,7 @@ set(HEADERS
     cl_FEM_IQI_Stress.hpp
     cl_FEM_IQI_Dof.hpp
     cl_FEM_IQI_Max_Dof.hpp
-    cl_FEM_IQI_Max_Von_Mises_Stress.hpp
+    cl_FEM_IQI_Max_Stress.hpp
     cl_FEM_IQI_Property.hpp
     cl_FEM_IQI_L2_Error_Analytic.hpp
     cl_FEM_IQI_H1_Error_Analytic.hpp
@@ -155,8 +155,6 @@ set(HEADERS
     cl_FEM_SP_Dirichlet_Nitsche.hpp
     cl_FEM_SP_Nitsche_Interface.hpp
     cl_FEM_SP_Reciprocal_Total_Volume.hpp
-    cl_FEM_SP_Master_Weight_Interface.hpp
-    cl_FEM_SP_Slave_Weight_Interface.hpp
     cl_FEM_SP_Ghost_Displacement.hpp
     cl_FEM_SP_Ghost_Virtual_Work.hpp
     cl_FEM_SP_Incompressible_Flow.hpp
@@ -169,6 +167,7 @@ set(HEADERS
     cl_FEM_SP_GGLS_Diffusion.hpp
     cl_FEM_SP_SUPG_Spalart_Allmaras_Turbulence.hpp
     cl_FEM_SP_Turbulence_Dirichlet_Nitsche.hpp
+    cl_FEM_SP_Spalart_Allmaras_Nitsche_Interface.hpp
     cl_FEM_SP_Stab_Penalty_Contact.hpp
     cl_FEM_SP_Penalty_Contact.hpp
     cl_FEM_Set_User_Info.hpp
@@ -261,8 +260,6 @@ set(LIB_SOURCES
     cl_FEM_SP_Dirichlet_Nitsche.cpp
     cl_FEM_SP_Nitsche_Interface.cpp
     cl_FEM_SP_Reciprocal_Total_Volume.cpp
-    cl_FEM_SP_Master_Weight_Interface.cpp
-    cl_FEM_SP_Slave_Weight_Interface.cpp
     cl_FEM_SP_Ghost_Displacement.cpp
     cl_FEM_SP_Ghost_Virtual_Work.cpp
     cl_FEM_SP_Incompressible_Flow.cpp
@@ -273,6 +270,7 @@ set(LIB_SOURCES
     cl_FEM_SP_Velocity_Dirichlet_Nitsche.cpp
     cl_FEM_SP_SUPG_Advection.cpp
     cl_FEM_SP_SUPG_Spalart_Allmaras_Turbulence.cpp
+    cl_FEM_SP_Spalart_Allmaras_Nitsche_Interface.cpp
     cl_FEM_SP_GGLS_Diffusion.cpp
     cl_FEM_SP_Stab_Penalty_Contact.cpp
     cl_FEM_SP_Penalty_Contact.cpp
@@ -285,7 +283,7 @@ set(LIB_SOURCES
     cl_FEM_IQI_Stress.cpp
     cl_FEM_IQI_Dof.cpp
     cl_FEM_IQI_Max_Dof.cpp
-    cl_FEM_IQI_Max_Von_Mises_Stress.cpp
+    cl_FEM_IQI_Max_Stress.cpp
     cl_FEM_IQI_Property.cpp
     cl_FEM_IQI_L2_Error_Analytic.cpp
     cl_FEM_IQI_H1_Error_Analytic.cpp

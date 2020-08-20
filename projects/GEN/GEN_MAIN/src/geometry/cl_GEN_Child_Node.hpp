@@ -17,7 +17,10 @@ namespace moris
         protected:
             Matrix<DDUMat>       mParentNodeIndices;
             Cell<Matrix<DDRMat>> mParentNodeCoordinates;
-            Matrix<DDRMat> mBasisValues;
+            Matrix<DDRMat>       mBasisValues;
+
+        private:
+            Matrix<DDRMat>       mLocalCoordinates;
 
         public:
             /**
@@ -32,6 +35,13 @@ namespace moris
                        Cell<Matrix<DDRMat>>       aParentNodeCoordinates,
                        const xtk::Basis_Function& aBasisFunction,
                        Matrix<DDRMat>             aLocalCoordinates);
+
+            /**
+             * Gets the local coordinates of this child node.
+             *
+             * @return Local coordinates
+             */
+            Matrix<DDRMat> get_local_coordinates();
 
             /**
              * Get the geometry field value on the child node based on values from its parents

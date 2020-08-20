@@ -272,22 +272,71 @@ namespace moris
                     // reset IWG
                     mSet->get_requested_IWGs()( iIWG )->reset_eval_flags();
 
-                    // set a perturbation size
-                    real tPerturbation = 1E-6;
+                    // compute dRdpMat at evaluation point
+                    mSet->get_requested_IWGs()( iIWG )->compute_dRdp( tWStar );
+                }
+            }
+        }
+
+        //------------------------------------------------------------------------------
+
+        void Element_Time_Sideset::compute_dRdp_FD()
+        {
+            // get finite difference scheme type
+            fem::FDScheme_Type tFDScheme =
+                    mSet->get_finite_difference_scheme_for_sensitivity_analysis();
+
+            // get the finite difference perturbation size
+            real tFDPerturbation = mSet->get_finite_difference_perturbation_size();
+
+            // get the vertices indices
+            Matrix< IndexMat > tVertexIndices = mMasterCell->get_vertex_inds();
+
+            // set physical and parametric space and time coefficients for IG element
+            moris::Cell< Matrix< DDSMat > > tIsActiveDv;
+            this->init_ig_geometry_interpolator( tIsActiveDv );
+
+            // get number of IWGs
+            uint tNumIWGs = mSet->get_number_of_requested_IWGs();
+
+            // loop over integration points
+            uint tNumIntegPoints = mSet->get_number_of_integration_points();
+            for( uint iGP = 0; iGP < tNumIntegPoints; iGP++ )
+            {
+                // get integration point location in the reference surface
+                Matrix< DDRMat > tLocalIntegPoint = mSet->get_integration_points().get_column( iGP );
+
+                // set evaluation point for interpolators (FIs and GIs)
+                mSet->get_field_interpolator_manager()->
+                        set_space_time_from_local_IG_point( tLocalIntegPoint );
+                mSet->get_field_interpolator_manager_previous_time()->
+                        set_space_time_from_local_IG_point( tLocalIntegPoint );
+
+                // compute integration point weight
+                real tWStar = mSet->get_integration_weights()( iGP ) *
+                        mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator()->det_J();
+
+                // loop over the IWGs
+                for( uint iIWG = 0; iIWG < tNumIWGs; iIWG++ )
+                {
+                    // reset IWG
+                    mSet->get_requested_IWGs()( iIWG )->reset_eval_flags();
 
                     // compute dRdpMat at evaluation point
                     mSet->get_requested_IWGs()( iIWG )->compute_dRdp_FD_material(
                             tWStar,
-                            tPerturbation );
+                            tFDPerturbation,
+                            tFDScheme );
 
                     // compute dRdpGeo at evaluation point
                     if( tIsActiveDv.size() != 0 )
                     {
                         mSet->get_requested_IWGs()( iIWG )->compute_dRdp_FD_geometry(
                                 tWStar,
-                                tPerturbation,
+                                tFDPerturbation,
                                 tIsActiveDv,
-                                tVertexIndices );
+                                tVertexIndices,
+                                tFDScheme );
                     }
                 }
             }
@@ -413,27 +462,75 @@ namespace moris
                     // reset IWG
                     mSet->get_requested_IQIs()( iIQI )->reset_eval_flags();
 
-                    // relative perturbation size
-                    real tPerturbation = 1E-6;
+                    // compute dQIdpMat at evaluation point
+                    mSet->get_requested_IQIs()( iIQI )->compute_dQIdp( tWStar );
+                }
+            }
+        }
+
+        //------------------------------------------------------------------------------
+
+        void Element_Time_Sideset::compute_dQIdp_explicit_FD()
+        {
+            // get finite difference scheme type
+            fem::FDScheme_Type tFDScheme =
+                    mSet->get_finite_difference_scheme_for_sensitivity_analysis();
+
+            // get the finite difference perturbation size
+            real tFDPerturbation = mSet->get_finite_difference_perturbation_size();
+
+            // get the vertices indices
+            Matrix< IndexMat > tVertexIndices = mMasterCell->get_vertex_inds();
+
+            // set physical and parametric space and time coefficients for IG element
+            moris::Cell< Matrix< DDSMat > > tIsActiveDv;
+            this->init_ig_geometry_interpolator( tIsActiveDv );
+
+            // get number of IWGs
+            uint tNumIQIs = mSet->get_number_of_requested_IQIs();
+
+            // loop over integration points
+            uint tNumIntegPoints = mSet->get_number_of_integration_points();
+            for( uint iGP = 0; iGP < tNumIntegPoints; iGP++ )
+            {
+                // get the ith integration point in the IG param space
+                Matrix< DDRMat > tLocalIntegPoint = mSet->get_integration_points().get_column( iGP );
+
+                // set evaluation point for interpolators (FIs and GIs)
+                mSet->get_field_interpolator_manager()->
+                        set_space_time_from_local_IG_point( tLocalIntegPoint );
+                mSet->get_field_interpolator_manager_previous_time()->
+                        set_space_time_from_local_IG_point( tLocalIntegPoint );
+
+                // compute integration point weight
+                real tWStar = mSet->get_integration_weights()( iGP ) *
+                        mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator()->det_J();
+
+                // loop over the IQIs
+                for( uint iIQI = 0; iIQI < tNumIQIs; iIQI++ )
+                {
+                    // reset IWG
+                    mSet->get_requested_IQIs()( iIQI )->reset_eval_flags();
 
                     // compute dQIdpMat at evaluation point
                     mSet->get_requested_IQIs()( iIQI )->compute_dQIdp_FD_material(
                             tWStar,
-                            tPerturbation );
+                            tFDPerturbation,
+                            tFDScheme );
 
                     // compute dQIdpGeo at evaluation point
                     if( tIsActiveDv.size() != 0 )
                     {
                         mSet->get_requested_IQIs()( iIQI )->compute_dQIdp_FD_geometry(
                                 tWStar,
-                                tPerturbation,
+                                tFDPerturbation,
                                 tIsActiveDv,
-                                tVertexIndices );
+                                tVertexIndices,
+                                tFDScheme );
                     }
                 }
             }
         }
-
 
         //------------------------------------------------------------------------------
 

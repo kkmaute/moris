@@ -354,14 +354,16 @@ TEST_CASE("2D Linear Stuct Contract","[XTK_HMR_LS_Contact_2D]")
         // define constitutive models
         fem::CM_Factory tCMFactory;
 
-        std::shared_ptr< fem::Constitutive_Model > tCMStrucLinIso1 = tCMFactory.create_CM( fem::Constitutive_Type::STRUC_LIN_ISO );
+        std::shared_ptr< fem::Constitutive_Model > tCMStrucLinIso1 =
+                tCMFactory.create_CM( fem::Constitutive_Type::STRUC_LIN_ISO );
         tCMStrucLinIso1->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY }} );
         tCMStrucLinIso1->set_property( tPropEModA, "YoungsModulus" );
         tCMStrucLinIso1->set_property( tPropNua, "PoissonRatio" );
         tCMStrucLinIso1->set_space_dim( 2 );
         tCMStrucLinIso1->set_model_type(fem::Model_Type::PLANE_STRESS);
 
-        std::shared_ptr< fem::Constitutive_Model > tCMStrucLinIso2 = tCMFactory.create_CM( fem::Constitutive_Type::STRUC_LIN_ISO );
+        std::shared_ptr< fem::Constitutive_Model > tCMStrucLinIso2 =
+                tCMFactory.create_CM( fem::Constitutive_Type::STRUC_LIN_ISO );
         tCMStrucLinIso2->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY }} );
         tCMStrucLinIso2->set_property( tPropEModB, "YoungsModulus" );
         tCMStrucLinIso2->set_property( tPropNub, "PoissonRatio" );
@@ -370,37 +372,34 @@ TEST_CASE("2D Linear Stuct Contract","[XTK_HMR_LS_Contact_2D]")
 
         // define stabilization parameters
         fem::SP_Factory tSPFactory;
-        std::shared_ptr< fem::Stabilization_Parameter > tSPDirichletNitsche = tSPFactory.create_SP( fem::Stabilization_Type::DIRICHLET_NITSCHE );
+        std::shared_ptr< fem::Stabilization_Parameter > tSPDirichletNitsche =
+                tSPFactory.create_SP( fem::Stabilization_Type::DIRICHLET_NITSCHE );
         tSPDirichletNitsche->set_parameters( { {{ tDBCGamma }} } );
         tSPDirichletNitsche->set_property( tPropEModB, "Material", mtk::Master_Slave::MASTER );
 
-        std::shared_ptr< fem::Stabilization_Parameter > tSPNitscheInterface = tSPFactory.create_SP( fem::Stabilization_Type::NITSCHE_INTERFACE );
+        std::shared_ptr< fem::Stabilization_Parameter > tSPNitscheInterface =
+                tSPFactory.create_SP( fem::Stabilization_Type::NITSCHE_INTERFACE );
         tSPNitscheInterface->set_parameters( { {{ 1.0 }} } );
         tSPNitscheInterface->set_property( tPropEModB, "Material", mtk::Master_Slave::MASTER );
         tSPNitscheInterface->set_property( tPropEModA, "Material", mtk::Master_Slave::SLAVE );
 
-        std::shared_ptr< fem::Stabilization_Parameter > tSPMasterWeightInterface = tSPFactory.create_SP( fem::Stabilization_Type::MASTER_WEIGHT_INTERFACE );
-        tSPMasterWeightInterface->set_property( tPropEModB, "Material", mtk::Master_Slave::MASTER );
-        tSPMasterWeightInterface->set_property( tPropEModA, "Material", mtk::Master_Slave::SLAVE );
-
-        std::shared_ptr< fem::Stabilization_Parameter > tSPSlaveWeightInterface = tSPFactory.create_SP( fem::Stabilization_Type::SLAVE_WEIGHT_INTERFACE );
-        tSPSlaveWeightInterface->set_property( tPropEModB, "Material", mtk::Master_Slave::MASTER );
-        tSPSlaveWeightInterface->set_property( tPropEModA, "Material", mtk::Master_Slave::SLAVE );
-
         // define the IWGs
         fem::IWG_Factory tIWGFactory;
 
-        std::shared_ptr< fem::IWG > tIWGBulkA = tIWGFactory.create_IWG( fem::IWG_Type::STRUC_LINEAR_BULK );
+        std::shared_ptr< fem::IWG > tIWGBulkA =
+                tIWGFactory.create_IWG( fem::IWG_Type::STRUC_LINEAR_BULK );
         tIWGBulkA->set_residual_dof_type( { MSI::Dof_Type::UX, MSI::Dof_Type::UY } );
         tIWGBulkA->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY }} );
         tIWGBulkA->set_constitutive_model( tCMStrucLinIso1, "ElastLinIso", mtk::Master_Slave::MASTER );
 
-        std::shared_ptr< fem::IWG > tIWGBulkB = tIWGFactory.create_IWG( fem::IWG_Type::STRUC_LINEAR_BULK );
+        std::shared_ptr< fem::IWG > tIWGBulkB =
+                tIWGFactory.create_IWG( fem::IWG_Type::STRUC_LINEAR_BULK );
         tIWGBulkB->set_residual_dof_type( { MSI::Dof_Type::UX, MSI::Dof_Type::UY } );
         tIWGBulkB->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY }} );
         tIWGBulkB->set_constitutive_model( tCMStrucLinIso2, "ElastLinIso", mtk::Master_Slave::MASTER );
 
-        std::shared_ptr< fem::IWG > tIWGDirichlet = tIWGFactory.create_IWG( fem::IWG_Type::STRUC_LINEAR_DIRICHLET_UNSYMMETRIC_NITSCHE );
+        std::shared_ptr< fem::IWG > tIWGDirichlet =
+                tIWGFactory.create_IWG( fem::IWG_Type::STRUC_LINEAR_DIRICHLET_UNSYMMETRIC_NITSCHE );
         tIWGDirichlet->set_residual_dof_type( { MSI::Dof_Type::UX, MSI::Dof_Type::UY } );
         tIWGDirichlet->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY }} );
         tIWGDirichlet->set_stabilization_parameter( tSPDirichletNitsche, "DirichletNitsche" );
@@ -408,18 +407,18 @@ TEST_CASE("2D Linear Stuct Contract","[XTK_HMR_LS_Contact_2D]")
         tIWGDirichlet->set_property( tPropDirichlet, "Dirichlet", mtk::Master_Slave::MASTER );
         tIWGDirichlet->set_property( tPropDirichlet2, "Select", mtk::Master_Slave::MASTER );
 
-        std::shared_ptr< fem::IWG > tIWGNeumann = tIWGFactory.create_IWG( fem::IWG_Type::STRUC_LINEAR_NEUMANN );
+        std::shared_ptr< fem::IWG > tIWGNeumann =
+                tIWGFactory.create_IWG( fem::IWG_Type::STRUC_LINEAR_NEUMANN );
         tIWGNeumann->set_residual_dof_type( { MSI::Dof_Type::UX, MSI::Dof_Type::UY } );
         tIWGNeumann->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY }} );
         tIWGNeumann->set_property( tPropTraction, "Traction", mtk::Master_Slave::MASTER );
 
-        std::shared_ptr< fem::IWG > tIWGInterface = tIWGFactory.create_IWG( fem::IWG_Type::STRUC_LINEAR_INTERFACE );
+        std::shared_ptr< fem::IWG > tIWGInterface =
+                tIWGFactory.create_IWG( fem::IWG_Type::STRUC_LINEAR_INTERFACE );
         tIWGInterface->set_residual_dof_type( { MSI::Dof_Type::UX, MSI::Dof_Type::UY } );
         tIWGInterface->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY }} );
         tIWGInterface->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY }},mtk::Master_Slave::SLAVE );
         tIWGInterface->set_stabilization_parameter( tSPNitscheInterface, "NitscheInterface" );
-        tIWGInterface->set_stabilization_parameter( tSPMasterWeightInterface, "MasterWeightInterface" );
-        tIWGInterface->set_stabilization_parameter( tSPSlaveWeightInterface, "SlaveWeightInterface" );
         tIWGInterface->set_constitutive_model( tCMStrucLinIso2, "ElastLinIso", mtk::Master_Slave::MASTER );
         tIWGInterface->set_constitutive_model( tCMStrucLinIso1, "ElastLinIso", mtk::Master_Slave::SLAVE );
 

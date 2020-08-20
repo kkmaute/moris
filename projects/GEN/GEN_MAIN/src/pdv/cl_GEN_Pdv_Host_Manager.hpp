@@ -220,14 +220,19 @@ namespace moris
                                      Cell<Cell<Cell<PDV_Type>>>  aPdvTypes);
 
             /**
-             * Create the pdv hosts on integration nodes based on the pdv types per set
+             * Set the integration PDV types per set.
              *
-             * @param aNodeIndicesPerSet The node indices contained on a set
-             * @param aNodeCoordinates The node coordinates indexed by node
              * @param aPdvTypes The PDV types per set, grouped
              */
-            void create_ig_pdv_hosts(Cell<Cell<Cell<PDV_Type>>>               aPdvTypes,
-                                     Cell<std::shared_ptr<Intersection_Node>> aIntersectionNodes);
+            void set_ig_pdv_types(Cell<Cell<Cell<PDV_Type>>> aPdvTypes);
+
+            /**
+             * Set an intersection at a node index and assign its starting PDV index for later.
+             *
+             * @param aNodeIndex Node index
+             * @param aIntersectionNode Intersection node admitted by the geometry engine
+             */
+            void set_intersection_node(uint aNodeIndex, std::shared_ptr<Intersection_Node> aIntersectionNode);
             
             /**
              * Set the requested interpolation node PDV types for sensitivities

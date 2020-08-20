@@ -4,26 +4,24 @@
 # List source files
 set(TEST_SOURCES
 	test_main.cpp
-
-	ut_Pdvs.cpp
-	ut_Geometry.cpp
-	ut_Property.cpp
-	ut_Intersection.cpp
+	ut_GEN_Pdv.cpp
+	ut_GEN_Geometry.cpp
+	ut_GEN_Property.cpp
+	ut_GEN_Intersection.cpp
+	fn_GEN_create_simple_mesh.cpp
     )
 
 #FIXME: Remove this once xtk has removed subdirectories from its package
 set(XTK_INCLUDES                                                                                                                                                                                                                                                               
-    "assert"                                                                                                                                                                                                                                                                   
-    "containers"                                                                                                                                                                                                                                                               
-    "core"                                                                                                                                                                                                                                                                     
-    "geomeng"                                                                                                                                                                                                                                                                  
-    "geometry"                                                                                                                                                                                                                                                                 
-    "ios"                                                                                                                                                                                                                                                                      
-    "linalg"                                                                                                                                                                                                                                                                   
-    "mesh"                                                                                                                                                                                                                                                                     
-    "tools"                                                                                                                                                                                                                                                                    
-    "topology"                                                                                                                                                                                                                                                                 
-    "xtk"                                                                                                                                                                                                                                                                      
+    "assert"
+    "containers"
+    "core"
+    "ios"
+    "linalg"
+    "mesh"
+    "tools"
+    "topology"
+    "xtk"
     )    
     
 # Include depedency directories                                                                                                                                                                                                                                                

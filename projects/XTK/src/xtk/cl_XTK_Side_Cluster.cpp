@@ -22,40 +22,53 @@ namespace xtk
                     mVerticesInCluster(0,nullptr),
                     mVertexLocalCoords(0)
     {}
+    
     //----------------------------------------------------------------
+    
     bool
     Side_Cluster::is_trivial( const mtk::Master_Slave aIsMaster ) const
     {
         return mTrivial;
     }
+    
     //----------------------------------------------------------------
+    
     moris::mtk::Cell const &
     Side_Cluster::get_interpolation_cell(const mtk::Master_Slave aIsMaster ) const
     {
         return *mInterpolationCell;
     }
+    
     //----------------------------------------------------------------
+    
     moris::Cell<moris::mtk::Cell const *> const &
     Side_Cluster::get_cells_in_side_cluster() const
     {
         return mIntegrationCells;
     }
+    
     //----------------------------------------------------------------
+    
     moris::Matrix<moris::IndexMat>
     Side_Cluster::get_cell_side_ordinals( const mtk::Master_Slave aIsMaster ) const
     {
         return mIntegrationCellSideOrdinals;
     }
+    
     //----------------------------------------------------------------
+    
     moris_index
-    Side_Cluster::get_cell_side_ordinal(moris::moris_index aCellIndexInCluster,
+    Side_Cluster::get_cell_side_ordinal(
+            moris::moris_index      aCellIndexInCluster,
             const mtk::Master_Slave aIsMaster  ) const
     {
         MORIS_ASSERT(aCellIndexInCluster<(moris_index)mIntegrationCellSideOrdinals.numel(),"Cell index in cluster out of bounds");
 
         return mIntegrationCellSideOrdinals(aCellIndexInCluster);
     }
+    
     //----------------------------------------------------------------
+    
     moris::Cell<moris::mtk::Vertex const *>
     Side_Cluster::get_vertices_in_cluster( const mtk::Master_Slave aIsMaster ) const
     {
@@ -68,7 +81,9 @@ namespace xtk
             return mInterpolationCell->get_base_cell()->get_geometric_vertices_on_side_ordinal(mIntegrationCellSideOrdinals(0));
         }
     }
+    
     //----------------------------------------------------------------
+    
     moris::Matrix<moris::DDRMat>
     Side_Cluster::get_vertices_local_coordinates_wrt_interp_cell( const mtk::Master_Slave aIsMaster )  const
     {
@@ -97,7 +112,9 @@ namespace xtk
             return mVertexLocalCoordsMat;
         }
     }
+    
     //----------------------------------------------------------------
+    
     moris::Matrix<moris::DDRMat>
     Side_Cluster::get_vertex_local_coordinate_wrt_interp_cell( moris::mtk::Vertex const * aVertex,
             const mtk::Master_Slave aIsMaster ) const
@@ -114,9 +131,6 @@ namespace xtk
             // get the interpolation cell's connectivity information
             moris::mtk::Cell_Info const * tCellInfo = mInterpolationCell->get_connectivity();
 
-            // side ordinal on interpolation cell
-            moris::uint tSideOrd = (uint) mIntegrationCellSideOrdinals(0);
-
             // get the local coordinates on the side ordinal
             Matrix<DDRMat> tXi  = tCellInfo->get_vertex_loc_coord(tVertexOrdinal);
 
@@ -127,6 +141,7 @@ namespace xtk
             return mVertexLocalCoords(this->get_vertex_cluster_index(aVertex));
         }
     }
+    
     //----------------------------------------------------------------
 
     moris::moris_index
@@ -147,9 +162,13 @@ namespace xtk
             return mChildMesh->get_cm_local_node_index(aVertex->get_index());
         }
     }
+    
     //----------------------------------------------------------------
+    
     moris_index
-    Side_Cluster::get_vertex_ordinal_on_facet( moris_index aCellIndexInCluster, moris::mtk::Vertex const * aVertex ) const
+    Side_Cluster::get_vertex_ordinal_on_facet( 
+            moris_index                aCellIndexInCluster, 
+            moris::mtk::Vertex const * aVertex ) const
     {
         moris_index tSideOrd = mIntegrationCellSideOrdinals(aCellIndexInCluster);
 
@@ -166,15 +185,20 @@ namespace xtk
         }
         return MORIS_INDEX_MAX;
     }
+    
     //----------------------------------------------------------------
+    
     moris_index
     Side_Cluster::get_dim_of_param_coord( const mtk::Master_Slave aIsMaster) const
     {
         return this->get_vertices_local_coordinates_wrt_interp_cell(aIsMaster).n_cols();
     }
 
+    //----------------------------------------------------------------
+    
     moris::real
-    Side_Cluster::compute_cluster_cell_measure(const mtk::Primary_Void aPrimaryOrVoid,
+    Side_Cluster::compute_cluster_cell_measure(
+            const mtk::Primary_Void aPrimaryOrVoid,
             const mtk::Master_Slave aIsMaster) const
     {
         if( aPrimaryOrVoid == mtk::Primary_Void::PRIMARY ||  aPrimaryOrVoid == mtk::Primary_Void::VOID )
@@ -186,7 +210,9 @@ namespace xtk
             return mInterpolationCell->compute_cell_measure();
         }
     }
+    
     //----------------------------------------------------------------
+    
     void
     Side_Cluster::print_vertex_map() const
     {
@@ -195,7 +221,9 @@ namespace xtk
             std::cout<<"Vertex Id: "<<i.first<<" | Cluster Index: "<<i.second<< std::endl;
         }
     }
+    
     //----------------------------------------------------------------
+    
     void
     Side_Cluster::finalize_setup()
     {
@@ -224,9 +252,12 @@ namespace xtk
         }
 
     }
+    
     //----------------------------------------------------------------
+    
     void
-    Side_Cluster::add_vertex_to_map(moris_id aVertexId,
+    Side_Cluster::add_vertex_to_map(
+            moris_id    aVertexId,
             moris_index aVertexLocalIndex)
     {
         MORIS_ERROR(mVertexIdToLocalIndex.find(aVertexId) == mVertexIdToLocalIndex.end(),"Trying to add vertex already found in side cluster");
@@ -234,19 +265,6 @@ namespace xtk
     }
 
     //----------------------------------------------------------------
-    //----------------------------------------------------------------
-    //----------------------------------------------------------------
-    //----------------------------------------------------------------
-    //----------------------------------------------------------------
-    //----------------------------------------------------------------
-    //----------------------------------------------------------------
-    //----------------------------------------------------------------
-    //----------------------------------------------------------------
-    //----------------------------------------------------------------
-    //----------------------------------------------------------------
-    //----------------------------------------------------------------
-    //----------------------------------------------------------------
-
 }
 
 

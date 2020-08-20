@@ -5,8 +5,6 @@
 #include "cl_FEM_SP_Ghost_Displacement.hpp"
 #include "cl_FEM_SP_Ghost_Virtual_Work.hpp"
 #include "cl_FEM_SP_Nitsche_Interface.hpp"
-#include "cl_FEM_SP_Master_Weight_Interface.hpp"
-#include "cl_FEM_SP_Slave_Weight_Interface.hpp"
 #include "cl_FEM_SP_Reciprocal_Total_Volume.hpp"
 #include "cl_FEM_SP_Incompressible_Flow.hpp"
 #include "cl_FEM_SP_Viscous_Ghost.hpp"
@@ -20,12 +18,14 @@
 #include "cl_FEM_SP_Turbulence_Dirichlet_Nitsche.hpp"
 #include "cl_FEM_SP_Stab_Penalty_Contact.hpp"
 #include "cl_FEM_SP_Penalty_Contact.hpp"
+#include "cl_FEM_SP_Spalart_Allmaras_Nitsche_Interface.hpp"
 
 namespace moris
 {
     namespace fem
     {
         //------------------------------------------------------------------------------
+
         std::shared_ptr< Stabilization_Parameter > SP_Factory::create_SP(
                 fem::Stabilization_Type aStabilizationType )
         {
@@ -45,12 +45,6 @@ namespace moris
 
                 case fem::Stabilization_Type::NITSCHE_INTERFACE :
                     return std::make_shared< SP_Nitsche_Interface >();
-
-                case fem::Stabilization_Type::MASTER_WEIGHT_INTERFACE :
-                    return std::make_shared< SP_Master_Weight_Interface >();
-
-                case fem::Stabilization_Type::SLAVE_WEIGHT_INTERFACE :
-                    return std::make_shared< SP_Slave_Weight_Interface >();
 
                 case fem::Stabilization_Type::RECIPROCAL_TOTAL_VOLUME :
                     return std::make_shared< SP_Reciprocal_Total_Volume >();
@@ -81,6 +75,9 @@ namespace moris
 
                 case fem::Stabilization_Type::TURBULENCE_DIRICHLET_NITSCHE :
                     return std::make_shared< SP_Turbulence_Dirichlet_Nitsche >();
+
+                case fem::Stabilization_Type::SPALART_ALLMARAS_NITSCHE_INTERFACE :
+                    return std::make_shared< SP_Spalart_Allmaras_Nitsche_Interface >();
 
                 case fem::Stabilization_Type::PENALTY_CONTACT :
                     return std::make_shared< SP_Penalty_Contact >();
