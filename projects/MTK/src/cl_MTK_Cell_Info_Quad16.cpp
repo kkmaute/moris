@@ -48,7 +48,7 @@ namespace moris
         uint
         Cell_Info_Quad16::get_num_verts_per_facet() const
         {
-            return 3;
+            return 4;
         }
         // ----------------------------------------------------------------------------------
         uint

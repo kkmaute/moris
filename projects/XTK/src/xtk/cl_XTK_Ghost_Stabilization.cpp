@@ -1277,8 +1277,6 @@ namespace xtk
                 get_geometric_vertices_on_side_ordinal(tSlaveSideCluster->mIntegrationCellSideOrdinals(0));
 
 
-        print(tSlaveSideCluster->get_vertices_local_coordinates_wrt_interp_cell(),"Loc Coords");
-
         return tSlaveSideCluster;
     }
 

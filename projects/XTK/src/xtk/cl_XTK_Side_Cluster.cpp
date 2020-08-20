@@ -65,7 +65,7 @@ namespace xtk
         }
         else
         {
-            return mInterpolationCell->get_geometric_vertices_on_side_ordinal(mIntegrationCellSideOrdinals(0));
+            return mInterpolationCell->get_base_cell()->get_geometric_vertices_on_side_ordinal(mIntegrationCellSideOrdinals(0));
         }
     }
     //----------------------------------------------------------------
