@@ -322,7 +322,7 @@ namespace moris
     void FEMParameterList( moris::Cell< moris::Cell< ParameterList > > & tParameterList )
     {
         // create a cell of cell of parameter list for fem
-        tParameterList.resize( 5 );
+        tParameterList.resize( 6 );
 
         //------------------------------------------------------------------------------
         // init property counter
@@ -666,6 +666,11 @@ namespace moris
         tParameterList( 4 )( tIQICounter ).set( "master_properties",          "PropDensity,Density");
         tParameterList( 4 )( tIQICounter ).set( "mesh_set_names",             tVessel);
         tIQICounter++;
+
+        //------------------------------------------------------------------------------
+        // fill the computation part of the parameter list
+        tParameterList( 5 ).resize( 1 );
+        tParameterList( 5 )( 0 ) = prm::create_computation_parameter_list();
     }
 
     /* ------------------------------------------------------------------------ */

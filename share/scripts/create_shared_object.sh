@@ -131,7 +131,13 @@ make shared_object_file
 
 cd "$workdir"
 
-mv "$MORISROOT/$builddir/lib/input_file.so" $cppfile.so
+if [ -f "$MORISROOT/$builddir/lib/input_file.so" ];then
+    mv "$MORISROOT/$builddir/lib/input_file.so" $cppfile.so
+else
+    echo ""
+    echo " .so file does not exist due to compiler error"
+    echo ""
+fi
 
 if [ "$dbgflag" = '0' ];then
     rm "$MORISROOT/projects/mains/input_file.cpp"

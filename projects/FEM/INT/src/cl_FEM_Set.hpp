@@ -132,8 +132,11 @@ namespace moris
                 // bool for analytical/FD SA
                 bool mIsAnalyticalSA = false;
 
-                // enum for FD sceme used for FD SA
-                fem::FDScheme_Type mFDSchemeForSA = fem::FDScheme_Type::POINT_3_CENTRAL;
+                // enum for FD scheme used for FD SA
+                fem::FDScheme_Type mFDSchemeForSA = fem::FDScheme_Type::UNDEFINED;
+
+                // real for FD perturbation size
+                real mFDPerturbation = 0.0;
 
                 friend class MSI::Equation_Object;
                 friend class Cluster;
@@ -159,8 +162,8 @@ namespace moris
                  * @param[ in ] aIPNodes  cell of node pointers
                  */
                 Set(
-                        fem::FEM_Model            * aFemModel,
-                        moris::mtk::Set           * aMeshSet,
+                        fem::FEM_Model                  * aFemModel,
+                        moris::mtk::Set                 * aMeshSet,
                         const fem::Set_User_Info        & aSetInfo,
                         const moris::Cell< Node_Base* > & aIPNodes );
 
@@ -228,6 +231,17 @@ namespace moris
 
                 //------------------------------------------------------------------------------
                 /**
+                 * set sensitivity analysis type flag on the set (analytical or finite difference)
+                 * @param[ in ] aIsAnalyticalSA bool true if analytical sensitivity analysis
+                 *                                   false if finite difference
+                 */
+                void set_is_analytical_sensitivity_analysis( bool aIsAnalyticalSA )
+                {
+                    mIsAnalyticalSA = aIsAnalyticalSA;
+                }
+
+                //------------------------------------------------------------------------------
+                /**
                  * get flag for sensitivity analysis on the set (analytical or finite difference)
                  * @param[ out ] mIsAnalyticalSA bool true if analytical sensitivity analysis
                  *                                    false if finite difference
@@ -239,12 +253,43 @@ namespace moris
 
                 //------------------------------------------------------------------------------
                 /**
+                 * set FD scheme enum for sensitivity analysis on the set
+                 * @param[ in ] aFDSchemeForSA enum for FD scheme used for
+                 */
+                void set_finite_difference_scheme_for_sensitivity_analysis(
+                        enum fem::FDScheme_Type aFDSchemeForSA )
+                {
+                    mFDSchemeForSA = aFDSchemeForSA;
+                }
+
+                //------------------------------------------------------------------------------
+                /**
                  * get enum for FD scheme for sensitivity analysis on the set
                  * @param[ out ] mFDSchemeForSA enum for FD scheme used for
                  */
                 enum fem::FDScheme_Type get_finite_difference_scheme_for_sensitivity_analysis() const
                 {
                     return mFDSchemeForSA;
+                }
+
+                //------------------------------------------------------------------------------
+                /**
+                 * set perturbation size for finite difference
+                 * @param[ in ] aFDPerturbation perturbation size
+                 */
+                void set_finite_difference_perturbation_size( real aFDPerturbation )
+                {
+                    mFDPerturbation = aFDPerturbation;
+                }
+
+                //------------------------------------------------------------------------------
+                /**
+                 * get perturbation size for finite difference
+                 * @param[ out ] mFDPerturbation perturbation size
+                 */
+                real get_finite_difference_perturbation_size()
+                {
+                    return mFDPerturbation;
                 }
 
                 //------------------------------------------------------------------------------
@@ -304,9 +349,9 @@ namespace moris
                  * @param[ out ] aIWGs cell of IWG pointers
                  */
                 moris::Cell< std::shared_ptr< IWG > > & get_IWGs()
-                {
+                                {
                     return mIWGs;
-                }
+                                }
 
                 //------------------------------------------------------------------------------
                 /**
@@ -323,9 +368,9 @@ namespace moris
                  * @param[ out ] mRequestedIWGs cell of requested IWG pointers
                  */
                 moris::Cell< std::shared_ptr< IWG > > & get_requested_IWGs()
-                {
+                                {
                     return mRequestedIWGs;
-                }
+                                }
 
                 //------------------------------------------------------------------------------
                 /**
@@ -362,9 +407,9 @@ namespace moris
                  * @param[ out ] mRequestedIQIs cell of IQIs pointers
                  */
                 moris::Cell< std::shared_ptr< IQI > > & get_requested_IQIs()
-                {
+                                {
                     return mRequestedIQIs;
-                }
+                                }
 
                 //------------------------------------------------------------------------------
                 /**
@@ -504,9 +549,9 @@ namespace moris
                  * @param[ out ] aIntegPoints integration points
                  */
                 const Matrix< DDRMat > & get_integration_points()
-                {
+                                {
                     return mIntegPoints;
-                }
+                                }
 
                 //------------------------------------------------------------------------------
                 /**
@@ -514,9 +559,9 @@ namespace moris
                  * @param[ out ] aIntegWeights integration weights
                  */
                 const Matrix< DDRMat > & get_integration_weights()
-                {
+                                {
                     return mIntegWeights;
-                }
+                                }
 
                 //------------------------------------------------------------------------------
                 /**

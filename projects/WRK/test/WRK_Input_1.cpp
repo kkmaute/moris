@@ -51,7 +51,7 @@ moris::real  Lvl_set_1( const moris::Matrix< DDRMat >    & aCoordinates,
 void FEMParameterList( moris::Cell< moris::Cell< ParameterList > > & tParameterList )
 {
     // create a cell of cell of parameter list for fem
-    tParameterList.resize( 5 );
+    tParameterList.resize( 6 );
 
     //------------------------------------------------------------------------------
     // fill the property part of the parameter list
@@ -243,6 +243,9 @@ void FEMParameterList( moris::Cell< moris::Cell< ParameterList > > & tParameterL
     tParameterList( 4 )( 0 ).set( "master_constitutive_models", std::string("CMStrucLinIso1,Elast") );
     tParameterList( 4 )( 0 ).set( "mesh_set_names",             std::string("HMR_dummy_n_p1") );
 
+    // create computation parameter list
+    tParameterList( 5 ).resize( 1 );
+    tParameterList( 5 )( 0 ) = prm::create_computation_parameter_list();
 }
 
 void SOLParameterList( moris::Cell< moris::Cell< ParameterList > > & tParameterlist )

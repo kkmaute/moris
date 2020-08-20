@@ -226,21 +226,23 @@ TEST_CASE("Eqn_Obj_pdv","[MSI],[Eqn_Obj_pdv]")
         // FEM inputs
         //------------------------------------------------------------------------------
         // create the properties
-        std::shared_ptr< fem::Property > tPropMasterConductivity = std::make_shared< fem::Property > ();
+        std::shared_ptr< fem::Property > tPropMasterConductivity =
+                std::make_shared< fem::Property > ();
         tPropMasterConductivity->set_parameters( { {{ 1.0 }} } );
         tPropMasterConductivity->set_dv_type_list( {{ PDV_Type::DENSITY }} );
         tPropMasterConductivity->set_val_function( tFIValDvFunction_FDTest );
         tPropMasterConductivity->set_dv_derivative_functions( { tFIDerDvFunction_FDTest } );
 
-        std::shared_ptr< fem::Property > tPropMasterTempLoad = std::make_shared< fem::Property > ();
+        std::shared_ptr< fem::Property > tPropMasterTempLoad =
+                std::make_shared< fem::Property > ();
         tPropMasterTempLoad->set_parameters( { {{ 1.0 }} } );
         tPropMasterTempLoad->set_val_function( tConstValFunction_FDTest );
 
         // define constitutive models
         fem::CM_Factory tCMFactory;
 
-        std::shared_ptr< fem::Constitutive_Model > tCMMasterDiffLinIso
-        = tCMFactory.create_CM( fem::Constitutive_Type::DIFF_LIN_ISO );
+        std::shared_ptr< fem::Constitutive_Model > tCMMasterDiffLinIso =
+                tCMFactory.create_CM( fem::Constitutive_Type::DIFF_LIN_ISO );
         tCMMasterDiffLinIso->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
         tCMMasterDiffLinIso->set_property( tPropMasterConductivity, "Conductivity" );
         tCMMasterDiffLinIso->set_space_dim( 2 );
@@ -248,7 +250,8 @@ TEST_CASE("Eqn_Obj_pdv","[MSI],[Eqn_Obj_pdv]")
         // define an IWG
         fem::IWG_Factory tIWGFactory;
 
-        std::shared_ptr< fem::IWG > tIWG = tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_BULK );
+        std::shared_ptr< fem::IWG > tIWG =
+                tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_BULK );
         tIWG->set_residual_dof_type( { MSI::Dof_Type::TEMP } );
         tIWG->set_dof_type_list( {{ MSI::Dof_Type::TEMP }}, mtk::Master_Slave::MASTER );
         tIWG->set_constitutive_model( tCMMasterDiffLinIso, "Diffusion", mtk::Master_Slave::MASTER );
@@ -256,7 +259,8 @@ TEST_CASE("Eqn_Obj_pdv","[MSI],[Eqn_Obj_pdv]")
 
         // define an IQI
         fem::IQI_Factory tIQIFactory;
-        std::shared_ptr< fem::IQI > tIQI = tIQIFactory.create_IQI( fem::IQI_Type::STRAIN_ENERGY );
+        std::shared_ptr< fem::IQI > tIQI =
+                tIQIFactory.create_IQI( fem::IQI_Type::STRAIN_ENERGY );
         tIQI->set_dof_type_list( {{ MSI::Dof_Type::TEMP }}, mtk::Master_Slave::MASTER );
         tIQI->set_constitutive_model( tCMMasterDiffLinIso, "Elast", mtk::Master_Slave::MASTER );
         tIQI->set_name("IQI_1");
@@ -266,6 +270,9 @@ TEST_CASE("Eqn_Obj_pdv","[MSI],[Eqn_Obj_pdv]")
         tSetBulk1.set_mesh_set_name( "Omega_0_tets" );
         tSetBulk1.set_IWGs( { tIWG } );
         tSetBulk1.set_IQIs( { tIQI } );
+        tSetBulk1.set_is_analytical_sensitivity_analysis( false );
+        tSetBulk1.set_finite_difference_scheme_for_sensitivity_analysis(
+                fem::FDScheme_Type::POINT_1_FORWARD );
 
         // create a cell of set info
         moris::Cell< fem::Set_User_Info > tSetInfo( 1 );
@@ -274,7 +281,8 @@ TEST_CASE("Eqn_Obj_pdv","[MSI],[Eqn_Obj_pdv]")
         // FEM model
         //------------------------------------------------------------------------------
         // create model
-        mdl::Model * tModel = new mdl::Model( &tMeshManager,
+        mdl::Model * tModel = new mdl::Model(
+                &tMeshManager,
                                                0,
                                                tSetInfo,
                                                tDesignVariableInterface );
@@ -296,12 +304,12 @@ TEST_CASE("Eqn_Obj_pdv","[MSI],[Eqn_Obj_pdv]")
         // FEM set
         //------------------------------------------------------------------------------
         // get the equation set from the model
-        moris::Cell< MSI::Equation_Set * > tSets
-        = tModel->get_fem_model()->get_equation_sets();
+        moris::Cell< MSI::Equation_Set * > tSets =
+                tModel->get_fem_model()->get_equation_sets();
 
         // get the equation set from the model
-        std::shared_ptr< MSI::Equation_Model > tEquationModel
-        = tModel->get_fem_model();
+        std::shared_ptr< MSI::Equation_Model > tEquationModel =
+                tModel->get_fem_model();
 
         // get a working set
         MSI::Equation_Set* tWorkSet = tSets( 0 );
@@ -389,8 +397,8 @@ TEST_CASE("Eqn_Obj_pdv","[MSI],[Eqn_Obj_pdv]")
 
         // compute dRdp
         tWorkEqObj->compute_dRdp();
-        print( tWorkSet->get_drdp()( 0 ), "dRdpMat" );
-        print( tWorkSet->get_drdp()( 1 ), "dRdpGeo" );
+        //print( tWorkSet->get_drdp()( 0 ), "dRdpMat" );
+        //print( tWorkSet->get_drdp()( 1 ), "dRdpGeo" );
 
         // compute QIs
         tWorkSet->mQI.resize( 1 );
@@ -403,7 +411,7 @@ TEST_CASE("Eqn_Obj_pdv","[MSI],[Eqn_Obj_pdv]")
         reinterpret_cast< fem::Set * >( tWorkSet )->mResidual.resize( 1 );
         reinterpret_cast< fem::Set * >( tWorkSet )->mResidual( 0 ).set_size( 4, 1, 0.0 );
         tWorkEqObj->compute_dQIdu();
-        print( tWorkSet->get_residual()( 0 ), "dQIdu" );
+        //print( tWorkSet->get_residual()( 0 ), "dQIdu" );
 
 //        // compute dQIdp
 //        tWorkEqObj->compute_dQIdp_explicit();

@@ -460,6 +460,9 @@ namespace moris
             fem::FDScheme_Type tFDScheme =
                     mSet->get_finite_difference_scheme_for_sensitivity_analysis();
 
+            // get the finite difference perturbation size
+            real tFDPerturbation = mSet->get_finite_difference_perturbation_size();
+
             // get treated side ordinal on the master and on the slave
             uint tMasterSideOrd = mCluster->mMasterListOfSideOrdinals( mCellIndexInCluster );
             uint tSlaveSideOrd  = mCluster->mSlaveListOfSideOrdinals( mCellIndexInCluster );
@@ -530,13 +533,10 @@ namespace moris
                     // set the normal for the IWG
                     mSet->get_requested_IWGs()( iIWG )->set_normal( tNormal );
 
-                    // set a perturbation size
-                    real tPerturbation = 1E-6;
-
                     // compute dRdpMat at evaluation point
                     mSet->get_requested_IWGs()( iIWG )->compute_dRdp_FD_material_double(
                             tWStar,
-                            tPerturbation,
+                            tFDPerturbation,
                             tFDScheme );
 
                     // if active pdv on master or slave
@@ -545,7 +545,7 @@ namespace moris
                         // compute dRdpGeo at evaluation point
                         mSet->get_requested_IWGs()( iIWG )->compute_dRdp_FD_geometry_double(
                                 tWStar,
-                                tPerturbation,
+                                tFDPerturbation,
                                 tMasterIsActiveDv,
                                 tMasterVertexIndices,
                                 tSlaveIsActiveDv,

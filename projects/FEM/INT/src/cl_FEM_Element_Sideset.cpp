@@ -312,6 +312,9 @@ namespace moris
             fem::FDScheme_Type tFDScheme =
                     mSet->get_finite_difference_scheme_for_sensitivity_analysis();
 
+            // get the finite difference perturbation size
+            real tFDPerturbation = mSet->get_finite_difference_perturbation_size();
+
             // get treated side ordinal
             uint tSideOrd = mCluster->mMasterListOfSideOrdinals( mCellIndexInCluster );
 
@@ -351,13 +354,10 @@ namespace moris
                     // FIXME set nodal weak BCs
                     mSet->get_requested_IWGs()( iIWG )->set_nodal_weak_bcs( mCluster->mInterpolationElement->get_weak_bcs() );
 
-                    // set a perturbation size
-                    real tPerturbation = 1E-6;
-
                     // compute dRdpMat at evaluation point
                     mSet->get_requested_IWGs()( iIWG )->compute_dRdp_FD_material(
                             tWStar,
-                            tPerturbation,
+                            tFDPerturbation,
                             tFDScheme );
 
                     // compute dRdpGeo at evaluation point
@@ -365,7 +365,7 @@ namespace moris
                     {
                         mSet->get_requested_IWGs()( iIWG )->compute_dRdp_FD_geometry(
                                 tWStar,
-                                tPerturbation,
+                                tFDPerturbation,
                                 tIsActiveDv,
                                 tVertexIndices,
                                 tFDScheme );
@@ -469,6 +469,9 @@ namespace moris
             fem::FDScheme_Type tFDScheme =
                     mSet->get_finite_difference_scheme_for_sensitivity_analysis();
 
+            // get the finite difference perturbation size
+            real tFDPerturbation = mSet->get_finite_difference_perturbation_size();
+
             // get treated side ordinal
             uint tSideOrd = mCluster->mMasterListOfSideOrdinals( mCellIndexInCluster );
 
@@ -504,13 +507,10 @@ namespace moris
                     // reset IWG
                     mSet->get_requested_IQIs()( iIQI )->reset_eval_flags();
 
-                    // relative perturbation size
-                    real tPerturbation = 1E-6;
-
                     // compute dQIdpMat at evaluation point
                     mSet->get_requested_IQIs()( iIQI )->compute_dQIdp_FD_material(
                             tWStar,
-                            tPerturbation,
+                            tFDPerturbation,
                             tFDScheme );
 
                     // compute dQIdpGeo at evaluation point
@@ -518,7 +518,7 @@ namespace moris
                     {
                         mSet->get_requested_IQIs()( iIQI )->compute_dQIdp_FD_geometry(
                                 tWStar,
-                                tPerturbation,
+                                tFDPerturbation,
                                 tIsActiveDv,
                                 tVertexIndices,
                                 tFDScheme );
