@@ -273,6 +273,7 @@ TEST_CASE("Eqn_Obj_pdv","[MSI],[Eqn_Obj_pdv]")
         tSetBulk1.set_is_analytical_sensitivity_analysis( false );
         tSetBulk1.set_finite_difference_scheme_for_sensitivity_analysis(
                 fem::FDScheme_Type::POINT_1_FORWARD );
+        tSetBulk1.set_finite_difference_perturbation_size( 1e-6 );
 
         // create a cell of set info
         moris::Cell< fem::Set_User_Info > tSetInfo( 1 );
