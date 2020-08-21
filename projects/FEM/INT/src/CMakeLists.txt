@@ -70,6 +70,7 @@ set(HEADERS
     cl_FEM_Integration_Coeffs_Bar_3.hpp
     cl_FEM_Integration_Coeffs_Bar_4.hpp
     cl_FEM_Integration_Coeffs_Bar_5.hpp
+    cl_FEM_Integration_Coeffs_Bar_6.hpp
     cl_FEM_Integration_Coeffs_Base.hpp
     cl_FEM_Integration_Coeffs_Hex_2x2x2.hpp
     cl_FEM_Integration_Coeffs_Hex_3x3x3.hpp
@@ -82,14 +83,21 @@ set(HEADERS
     cl_FEM_Integration_Coeffs_Quad_5x5.hpp
     cl_FEM_Integration_Coeffs_Tri_1.hpp
     cl_FEM_Integration_Coeffs_Tri_3.hpp
+    cl_FEM_Integration_Coeffs_Tri_4.hpp
     cl_FEM_Integration_Coeffs_Tri_6.hpp
     cl_FEM_Integration_Coeffs_Tri_7.hpp
     cl_FEM_Integration_Coeffs_Tri_12.hpp
+    cl_FEM_Integration_Coeffs_Tri_13.hpp
+    cl_FEM_Integration_Coeffs_Tri_16.hpp
+    cl_FEM_Integration_Coeffs_Tri_19.hpp
+    cl_FEM_Integration_Coeffs_Tri_25.hpp
     cl_FEM_Integration_Coeffs_Tet_1.hpp
     cl_FEM_Integration_Coeffs_Tet_4.hpp
     cl_FEM_Integration_Coeffs_Tet_5.hpp
     cl_FEM_Integration_Coeffs_Tet_11.hpp
     cl_FEM_Integration_Coeffs_Tet_15.hpp
+    cl_FEM_Integration_Coeffs_Tet_31.hpp
+    cl_FEM_Integration_Coeffs_Tet_45.hpp
     cl_FEM_Integration_Rule.hpp
     cl_FEM_Integrator.hpp
     cl_FEM_Integrator_Test_Polynomial.hpp

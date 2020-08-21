@@ -16,7 +16,8 @@ TEST_CASE("Integration_Rule_LINE", "[moris],[fem],[Integration_Rule_LINE]")
             Integration_Order::BAR_2,
             Integration_Order::BAR_3,
             Integration_Order::BAR_4,
-            Integration_Order::BAR_5 };
+            Integration_Order::BAR_5,
+            Integration_Order::BAR_6 };
 
     // create a space quad element
     Matrix<DDRMat > tXHat  = {{  0.0 }, { 1.0 }};
@@ -330,9 +331,14 @@ TEST_CASE("Integration_Rule_TRI", "[moris],[fem],[Integration_Rule_TRI]")
     moris::Cell< fem::Integration_Order > tIntegrationOrderList = {
             Integration_Order::TRI_1,
             Integration_Order::TRI_3,
+            Integration_Order::TRI_4,
             Integration_Order::TRI_6,
             Integration_Order::TRI_7,
-            Integration_Order::TRI_12 };
+            Integration_Order::TRI_12,
+            Integration_Order::TRI_13,
+            Integration_Order::TRI_16,
+            Integration_Order::TRI_19,
+            Integration_Order::TRI_25 };
 
     // create a space quad element
     Matrix<DDRMat > tXHat  = {{ 0.0, 0.0 }, { 1.0, 0.0 }, { 0.0, 1.0 }};
@@ -436,7 +442,9 @@ TEST_CASE("Integration_Rule_TET", "[moris],[fem],[Integration_Rule_TET]")
             Integration_Order::TET_4,
             Integration_Order::TET_5,
             Integration_Order::TET_11,
-            Integration_Order::TET_15 };
+            Integration_Order::TET_15,
+            Integration_Order::TET_31,
+            Integration_Order::TET_45 };
 
     // create a space quad element
     Matrix< DDRMat > tXHat = {{ 0.0, 0.0, 0.0 }, { 0.0, -1.0, 0.0 }, { 1.0, 0.0, 0.0 }, { 0.0,  0.0, 1.0 }};
