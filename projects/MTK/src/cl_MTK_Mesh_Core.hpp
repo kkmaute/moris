@@ -28,8 +28,7 @@ namespace moris
         {
         protected:
 
-            // Note these members are here only to allow for throwing in
-            // get_mtk_cell and get_mtk_vertex function
+            // FIXME these members are here only to allow for throwing, should be removed later
             mtk::Vertex*     mDummyVertex = nullptr;
             mtk::Cell*       mDummyCells  = nullptr;
             real             mDummyReal   = 0.0;
@@ -37,12 +36,11 @@ namespace moris
             Matrix<DDRMat>   mDummyMatrix;
             Matrix<DDSMat>   mDummyMatrix2;
 
-            //------------------------------------------------------------------------------
-            //! ref to hmr object for multigrid
+            //! ref to hmr object for multigrid FIXME
             std::shared_ptr< hmr::Database > mDatabase;
 
+            // FIXME
             hmr::Lagrange_Mesh_Base * mMesh = nullptr;
-            //------------------------------------------------------------------------------
 
         public:
 
@@ -50,21 +48,15 @@ namespace moris
             bool mVerbose = false;
 
             /**
-             * trivial constructor
+             * Constructor
              */
-            Mesh()
-            {
-            };
-
-            //------------------------------------------------------------------------------
+            Mesh();
 
             /**
-             * virtual destructor
+             * Destructor
              */
             virtual
-            ~Mesh()
-            {
-            };
+            ~Mesh();
 
             //##############################################
             // 1.) General mesh information access
@@ -115,10 +107,8 @@ namespace moris
              */
             virtual moris::mtk::Set * get_set_by_name( std::string aSetLabel ) const;
 
-            //------------------------------------------------------------------------------
             // end of pure virtual functions in section 1
             // all functions below this line need to be able to have a default implementation
-            //------------------------------------------------------------------------------
 
             // FIXME pure virtual
             /**
@@ -152,11 +142,9 @@ namespace moris
              */
             virtual uint get_num_elems() const;
 
-            //------------------------------------------------------------------------------
             //##############################################
             // 2.) Access Mesh Data by index Functions
             //##############################################
-            //------------------------------------------------------------------------------
             //##############################################
             // 2.a.) Access standard mesh data
             //##############################################
@@ -215,9 +203,7 @@ namespace moris
             moris::Cell<moris::mtk::Vertex const *>
             get_all_vertices() const;
 
-            //------------------------------------------------------------------------------
             // end of pure virtual functions in section 2.1
-            //------------------------------------------------------------------------------
 
             // FIXME pure virtual
             /**
@@ -556,8 +542,6 @@ namespace moris
             Matrix< DDRMat >
             get_node_coordinate( moris_index aNodeIndex ) const;
 
-            //------------------------------------------------------------------------------
-
             //##############################################
             // Field Access
             //##############################################
@@ -580,7 +564,6 @@ namespace moris
                     const enum EntityRank & aFieldEntityRank,
                     const Matrix<DDRMat>  & aFieldData);
 
-            //------------------------------------------------------------------------------
             //##############################################
             // Facet Access
             //##############################################
@@ -590,7 +573,6 @@ namespace moris
             moris::mtk::Facet*
             get_facet(moris_index);
 
-            //------------------------------------------------------------------------------
             //##############################################
             // Cell and Vertex Pointer Functions
             //##############################################
@@ -622,6 +604,19 @@ namespace moris
             // FIXME remove access to cell, add set functions for cell instead
             virtual mtk::Cell  &
             get_writable_mtk_cell( moris_index aElementIndex );
+
+            // FIXME split into only the needed calls (node from what I can tell), make pure virtual
+            /**
+             * Gets the max entity ID for a given entity rank.
+             *
+             * @param aEntityRank Entity rank
+             * @param aBSplineMeshIndex B-spline mesh index
+             * @return Max entity ID
+             */
+            virtual
+            moris_id
+            get_max_entity_id( enum EntityRank aEntityRank,
+                               const moris_index     aBSplineMeshIndex = 0 ) const;
 
             //##############################################
             // Entity Ownership Functions
@@ -729,12 +724,7 @@ namespace moris
             virtual uint
             get_num_fields(
                     const enum EntityRank aEntityRank,
-                    const moris_index     aBSPlineMeshIndex = 0) const
-            {
-                return 0;
-            }
-
-            //------------------------------------------------------------------------------
+                    const moris_index     aBSPlineMeshIndex = 0);
 
             /**
              * return the index of the field of this label
@@ -742,15 +732,7 @@ namespace moris
              */
             virtual moris_index get_field_ind(
                     const std::string     & aFieldLabel,
-                    const enum EntityRank   aEntityRank) const
-            {
-                MORIS_ERROR( false ,"get_field_ind() not implemented" );
-                return gNoIndex;
-            }
-
-            //------------------------------------------------------------------------------
-
-            //------------------------------------------------------------------------------
+                    const enum EntityRank   aEntityRank) const;
 
             /**
              * add a scalar field to the database
@@ -760,13 +742,7 @@ namespace moris
             virtual moris_index
             create_scalar_field(
                     const std::string   & aFieldLabel,
-                    const enum EntityRank aEntityRank )
-            {
-                MORIS_ERROR( false ,"create_scalar_field() not implemented" );
-                return gNoIndex;
-            }
-
-            //------------------------------------------------------------------------------
+                    const enum EntityRank aEntityRank );
 
             /**
              * add a vector field to the database
@@ -775,13 +751,7 @@ namespace moris
             create_vector_field(
                     const std::string   & aFieldLabel,
                     const enum EntityRank aEntityRank,
-                    const uint            aDimension )
-            {
-                MORIS_ERROR( false ,"create_vector_field() not implemented" );
-                return gNoIndex;
-            }
-
-            //------------------------------------------------------------------------------
+                    const uint            aDimension );
 
             /**
              * get value of entity
@@ -791,13 +761,7 @@ namespace moris
                     const moris_index     aFieldIndex,
                     const enum EntityRank aEntityRank,
                     const uint            aEntityIndex,
-                    const moris_index     aBSPlineMeshIndex = 0)
-            {
-                MORIS_ERROR( false ,"get_value_of_scalar_field() not implemented" );
-                return mDummyReal;
-            }
-
-            //------------------------------------------------------------------------------
+                    const moris_index     aBSPlineMeshIndex = 0);
 
             /**
              * get value of entity ( const version )
@@ -807,13 +771,7 @@ namespace moris
                     const moris_index     aFieldIndex,
                     const enum EntityRank aEntityRank,
                     const uint            aEntityIndex,
-                    const moris_index     aBSPlineMeshIndex = 0) const
-            {
-                MORIS_ERROR( false ,"get_value_of_scalar_field() const not implemented" );
-                return mDummyReal;
-            }
-
-            //------------------------------------------------------------------------------
+                    const moris_index     aBSPlineMeshIndex = 0) const;
 
             /**
              * fixme: need opinion: sould we always return a DDRMat?
@@ -823,13 +781,7 @@ namespace moris
             get_value_of_vector_field(
                     const moris_index     aFieldIndex,
                     const enum EntityRank aEntityRank,
-                    const uint            aEntityIndex )
-            {
-                MORIS_ERROR( false ,"get_value_of_vector_field() not implemented" );
-                return  mDummyMatrix;
-            }
-
-            //------------------------------------------------------------------------------
+                    const uint            aEntityIndex );
 
             /**
              * return the entry of a vector field ( const version )
@@ -838,13 +790,7 @@ namespace moris
             get_value_of_vector_field(
                     const moris_index     aFieldIndex,
                     const enum EntityRank aEntityRank,
-                    const uint            aEntityIndex ) const
-            {
-                MORIS_ERROR( false ,"get_value_of_vector_field() not implemented" );
-                return mDummyMatrix;
-            }
-
-            //------------------------------------------------------------------------------
+                    const uint            aEntityIndex ) const;
 
             // FIXME not required by mapper anymore, can/should remove from here and mapper
             /**
@@ -888,9 +834,6 @@ namespace moris
                     const moris_index     aBSPlineMeshIndex = 0);
 
             // FIXME breaks inheritance
-            /**
-             * returns HMR database pointer if MTK is build with HMR
-             */
             std::shared_ptr< hmr::Database > get_HMR_database( );
 
             // FIXME breaks inheritance
@@ -911,7 +854,7 @@ namespace moris
              *
              * @param aNodeIndex Node index
              * @param aBSplineRank B-spline rank
-             * @return
+             * @return T-matrix
              */
             virtual const Matrix< DDRMat > &
             get_t_matrix_of_node_loc_ind(
@@ -948,7 +891,7 @@ namespace moris
              * Get the adof map.
              *
              * @param aBSplineIndex B-spline index
-             * @param aAdofMap
+             * @param aAdofMap Adof map
              */
             void
             virtual
@@ -1079,15 +1022,7 @@ namespace moris
             void
             get_mtk_cells(
                     Matrix< IndexMat >                      aCellInds,
-                    moris::Cell<moris::mtk::Cell const *> & aCells) const
-            {
-                aCells = moris::Cell< mtk::Cell const * >(aCellInds.numel());
-
-                for(moris::uint i = 0 ; i < aCellInds.numel(); i++)
-                {
-                    aCells(i) = &this->get_mtk_cell(aCellInds(i));
-                }
-            }
+                    moris::Cell<moris::mtk::Cell const *> & aCells);
 
             //##############################################
             // Multigrid acessor functions FIXME default implementation for non-multigrid + documentation
@@ -1122,21 +1057,11 @@ namespace moris
 #ifdef DEBUG
             virtual Matrix< DDRMat > get_basis_coords(
                         const moris_index aInterpolationIndex,
-                        const moris_index aBasisIndex )
-                {
-                    MORIS_ERROR( false, "get_basis_coords(), not implemented for this mesh type.");
-                    return mDummyMatrix;
-                }
-
-                //-------------------------------------------------------------------------------
+                        const moris_index aBasisIndex );
 
                 virtual sint get_basis_status(
                         const moris_index aInterpolationIndex,
-                        const moris_index aBasisIndex )
-                {
-                    MORIS_ERROR( false, "get_basis_status(), not implemented for this mesh type.");
-                    return 0;
-                }
+                        const moris_index aBasisIndex );
 #endif
         };
     }

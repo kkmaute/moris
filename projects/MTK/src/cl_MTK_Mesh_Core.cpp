@@ -7,13 +7,13 @@ namespace moris
         
         //--------------------------------------------------------------------------------------------------------------
         
-        Mesh()
+        Mesh::Mesh()
         {
         }
 
         //--------------------------------------------------------------------------------------------------------------
         
-        ~Mesh()
+        Mesh::~Mesh()
         {
         }
 
@@ -80,12 +80,12 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
         
-        Cell<Vertex const *>
+        moris::Cell<Vertex const *>
         Mesh::get_all_vertices() const
         {
             MORIS_ERROR(0,"No default implementation of get_all_vertices_no_aura");
 
-            return Cell<Vertex const *>(0,nullptr);
+            return moris::Cell<Vertex const *>(0,nullptr);
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -427,6 +427,16 @@ namespace moris
         //--------------------------------------------------------------------------------------------------------------
 
         moris_id
+        Mesh::get_max_entity_id( enum EntityRank aEntityRank,
+                           const moris_index     aBSplineMeshIndex) const
+        {
+            MORIS_ERROR(0,"Entered virtual function in Mesh base class, (function is not implemented)");
+            return 0;
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
+        moris_id
         Mesh::get_entity_owner(
                 moris_index       aEntityIndex,
                 enum EntityRank   aEntityRank,
@@ -470,11 +480,11 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        Cell<Matrix< IdMat >>
+        moris::Cell<Matrix< IdMat >>
         Mesh::get_communication_vertex_pairing() const
         {
             MORIS_ERROR(0,"get_communication_vertex_pairing not implemented");
-            return Cell<Matrix< IdMat >>(0);
+            return moris::Cell<Matrix< IdMat >>(0);
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -482,7 +492,7 @@ namespace moris
         void
         Mesh::create_output_mesh(
                 std::string  &aFileName,
-                bool          aAddElemCmap = false)
+                bool          aAddElemCmap)
         {
             MORIS_ERROR(0,"Create output mesh not implemented");
         }
@@ -492,7 +502,7 @@ namespace moris
         uint
         Mesh::get_num_fields(
                 const enum EntityRank aEntityRank,
-                const moris_index     aBSPlineMeshIndex) const
+                const moris_index     aBSPlineMeshIndex)
         {
             MORIS_ERROR( false ,"get_num_fields() not implemented" );
             return 0;
@@ -540,7 +550,7 @@ namespace moris
          * get value of entity
          */
         real &
-        get_value_of_scalar_field(
+        Mesh::get_value_of_scalar_field(
                 const moris_index     aFieldIndex,
                 const enum EntityRank aEntityRank,
                 const uint            aEntityIndex,
@@ -556,7 +566,7 @@ namespace moris
          * get value of entity ( const version )
          */
         const real &
-        get_value_of_scalar_field(
+        Mesh::get_value_of_scalar_field(
                 const moris_index     aFieldIndex,
                 const enum EntityRank aEntityRank,
                 const uint            aEntityIndex,
@@ -573,7 +583,7 @@ namespace moris
          *        should this be a row or column vector?
          */
         Matrix<DDRMat> &
-        get_value_of_vector_field(
+        Mesh::get_value_of_vector_field(
                 const moris_index     aFieldIndex,
                 const enum EntityRank aEntityRank,
                 const uint            aEntityIndex )
@@ -588,7 +598,7 @@ namespace moris
          * return the entry of a vector field ( const version )
          */
         const Matrix<DDRMat> &
-        get_value_of_vector_field(
+        Mesh::get_value_of_vector_field(
                 const moris_index     aFieldIndex,
                 const enum EntityRank aEntityRank,
                 const uint            aEntityIndex ) const
@@ -605,7 +615,7 @@ namespace moris
          * if HMR is used.
          */
         Matrix<DDRMat> &
-        get_field( const moris_index  aFieldIndex,
+        Mesh::get_field( const moris_index  aFieldIndex,
                    const enum EntityRank aEntityRank,
                    const moris_index     aBSPlineMeshIndex)
         {
@@ -616,7 +626,7 @@ namespace moris
         //--------------------------------------------------------------------------------------------------------------
         
         uint
-        get_max_level_of_entity(
+        Mesh::get_max_level_of_entity(
                 const enum EntityRank aEntityRank,
                 const moris_index     aBSPlineMeshIndex)
         {
@@ -627,7 +637,7 @@ namespace moris
         //--------------------------------------------------------------------------------------------------------------
         
         uint
-        get_level_of_entity_loc_ind(
+        Mesh::get_level_of_entity_loc_ind(
                 const enum EntityRank aEntityRank,
                 const uint            aEntityIndex,
                 const moris_index     aBSPlineMeshIndex)
@@ -638,13 +648,15 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
         
-        std::shared_ptr< hmr::Database > get_HMR_database( )
+        std::shared_ptr< hmr::Database > Mesh::get_HMR_database( )
         {
             MORIS_ERROR( this->get_mesh_type() == MeshType::HMR ,"Not HMR" );
             return mDatabase;
         }
 
-        hmr::Lagrange_Mesh_Base * get_HMR_lagrange_mesh( )
+        //--------------------------------------------------------------------------------------------------------------
+
+        hmr::Lagrange_Mesh_Base * Mesh::get_HMR_lagrange_mesh( )
         {
             MORIS_ERROR( this->get_mesh_type() == MeshType::HMR ,"Not HMR" );
             MORIS_ERROR( mMesh != nullptr ,"get_HMR_lagrange_mesh(), Lagrange mesh is nullptr" );
@@ -655,7 +667,7 @@ namespace moris
         //--------------------------------------------------------------------------------------------------------------
         
         uint
-        get_num_coeffs(const uint aBSplineMeshIndex) const
+        Mesh::get_num_coeffs(const uint aBSplineMeshIndex) const
         {
             return 0;
         }
@@ -663,7 +675,7 @@ namespace moris
         //--------------------------------------------------------------------------------------------------------------
         
         const Matrix< DDRMat > &
-        get_t_matrix_of_node_loc_ind(
+        Mesh::get_t_matrix_of_node_loc_ind(
                 const moris_index aNodeIndex,
                 const EntityRank  aBSplineRank )
         {
@@ -674,7 +686,7 @@ namespace moris
         //--------------------------------------------------------------------------------------------------------------
 
         Matrix< IndexMat >
-        get_bspline_inds_of_node_loc_ind(
+        Mesh::get_bspline_inds_of_node_loc_ind(
                 const moris_index aNodeIndex,
                 const EntityRank  aBSplineRank )
         {
@@ -685,7 +697,7 @@ namespace moris
 
         
         uint
-        get_num_basis_functions(const uint aMeshIndex = 0)
+        Mesh::get_num_basis_functions(const uint aMeshIndex)
         {
             return this->get_num_nodes();
         }
@@ -693,7 +705,7 @@ namespace moris
         //--------------------------------------------------------------------------------------------------------------
         
         void
-        get_adof_map(
+        Mesh::get_adof_map(
                 const uint                     aBSplineIndex,
                 map< moris_id, moris_index > & aAdofMap ) const
         {
@@ -706,7 +718,7 @@ namespace moris
          * return the interpolation order of this field
          */
         uint
-        get_order_of_field(
+        Mesh::get_order_of_field(
                 const moris_index     aFieldIndex,
                 const enum EntityRank aEntityRank )
         {
@@ -716,17 +728,17 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
         
-        Cell<std::string>
-        get_set_names(enum EntityRank aSetEntityRank) const
+        moris::Cell<std::string>
+        Mesh::get_set_names(enum EntityRank aSetEntityRank) const
         {
             MORIS_ERROR(0," get_set_names has no base implementation");
-            return Cell<std::string>(0);
+            return moris::Cell<std::string>(0);
         }
 
         //--------------------------------------------------------------------------------------------------------------
         
         Matrix< IndexMat >
-        get_set_entity_loc_inds( enum EntityRank aSetEntityRank,
+        Mesh::get_set_entity_loc_inds( enum EntityRank aSetEntityRank,
                                  std::string     aSetName) const
         {
             MORIS_ERROR(0," get_set_entity_loc_inds has no base implementation");
@@ -736,7 +748,7 @@ namespace moris
         //--------------------------------------------------------------------------------------------------------------
         
         enum CellTopology
-        get_blockset_topology(const  std::string & aSetName)
+        Mesh::get_blockset_topology(const  std::string & aSetName)
         {
             MORIS_ERROR(0," get_blockset_topology has no base implementation");
             return CellTopology::INVALID;
@@ -745,7 +757,7 @@ namespace moris
         //--------------------------------------------------------------------------------------------------------------
         
         enum CellTopology
-        get_sideset_topology(const  std::string & aSetName)
+        Mesh::get_sideset_topology(const  std::string & aSetName)
         {
             MORIS_ERROR(0," get_sideset_topology has no base implementation");
             return CellTopology::INVALID;
@@ -753,13 +765,13 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
         
-        Cell< Cell const * > get_set_cells( std::string aSetLabel ) const
+        moris::Cell< Cell const * > Mesh::get_set_cells( std::string aSetLabel ) const
         {
             Set * tSet = this->get_set_by_name( aSetLabel );
 
             enum SetType tSetType = tSet->get_set_type();
 
-            Cell<Cell const *> tBlockSetCells;
+            moris::Cell<Cell const *> tBlockSetCells;
 
             if ( tSetType == SetType::BULK )
             {
@@ -782,12 +794,12 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
         
-        Cell<Cell const *>
-        get_block_set_cells( std::string     aSetName) const
+        moris::Cell<Cell const *>
+        Mesh::get_block_set_cells( std::string     aSetName) const
         {
             Matrix< IndexMat > tBlockSetElementInd = this->get_set_entity_loc_inds( EntityRank::ELEMENT, aSetName );
 
-            Cell<Cell const *> tBlockSetCells(tBlockSetElementInd.numel());
+            moris::Cell<Cell const *> tBlockSetCells(tBlockSetElementInd.numel());
 
             for( luint k=0; k < tBlockSetElementInd.numel(); ++k )
             {
@@ -799,7 +811,7 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
         
-        void get_sideset_elems_loc_inds_and_ords(
+        void Mesh::get_sideset_elems_loc_inds_and_ords(
                 const  std::string & aSetName,
                 Matrix< IndexMat > & aElemIndices,
                 Matrix< IndexMat > & aSidesetOrdinals ) const
@@ -810,9 +822,9 @@ namespace moris
         //--------------------------------------------------------------------------------------------------------------
 
         
-        void get_sideset_cells_and_ords(
+        void Mesh::get_sideset_cells_and_ords(
                 const  std::string               & aSetName,
-                Cell< Cell const * > & aCells,
+                moris::Cell< Cell const * > & aCells,
                 Matrix< IndexMat >               & aSidesetOrdinals ) const
         {
             Matrix<IndexMat> tElemIndices;
@@ -820,7 +832,7 @@ namespace moris
 
             // convert element indices to cell pointers
             uint tNumCellsInSet = tElemIndices.numel();
-            aCells = Cell< Cell const * >(tNumCellsInSet);
+            aCells = moris::Cell< Cell const * >(tNumCellsInSet);
 
             for(uint i = 0 ; i < tNumCellsInSet; i++)
             {
@@ -830,11 +842,11 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
         
-        uint get_sidesets_num_faces( Cell< moris_index > aSideSetIndex ) const
+        uint Mesh::get_sidesets_num_faces( moris::Cell< moris_index > aSideSetIndex ) const
         {
             uint tNumSideSetFaces = 0;
 
-            Cell<std::string> tSideSetsNames = this->get_set_names( this->get_facet_rank() );
+            moris::Cell<std::string> tSideSetsNames = this->get_set_names( this->get_facet_rank() );
 
             for( luint Ik=0; Ik < aSideSetIndex.size(); ++Ik )
             {
@@ -853,17 +865,17 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
         
-        Cell<Vertex const *>
-        get_vertices_in_vertex_set_no_aura(std::string aSetName) const
+        moris::Cell<Vertex const *>
+        Mesh::get_vertices_in_vertex_set_no_aura(std::string aSetName) const
         {
             MORIS_ERROR(0,"No default implementation of get_vertices_in_vertex_set");
-            return Cell<Vertex const *> (0);
+            return moris::Cell<Vertex const *> (0);
         }
 
         //--------------------------------------------------------------------------------------------------------------
         
         enum EntityRank
-        get_facet_rank() const
+        Mesh::get_facet_rank() const
         {
             uint tSpatialDim = this->get_spatial_dim();
             if(tSpatialDim  == 1)
@@ -888,11 +900,11 @@ namespace moris
         //--------------------------------------------------------------------------------------------------------------
 
         void
-        get_mtk_cells(
-                Matrix< IndexMat >                      aCellInds,
-                Cell<Cell const *> & aCells) const
+        Mesh::get_mtk_cells(
+                Matrix< IndexMat >          aCellInds,
+                moris::Cell<Cell const *> & aCells)
         {
-            aCells = Cell< Cell const * >(aCellInds.numel());
+            aCells = moris::Cell< Cell const * >(aCellInds.numel());
 
             for(uint i = 0 ; i < aCellInds.numel(); i++)
             {
@@ -902,23 +914,23 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        uint get_num_interpolations()
+        uint Mesh::get_num_interpolations()
         {
             MORIS_ERROR( false, "get_num_interpolations(), not implemented for this mesh type.");
             return 0;
-        };
+        }
 
         //--------------------------------------------------------------------------------------------------------------
 
-        uint get_max_level( const moris_index aInterpolationIndex )
+        uint Mesh::get_max_level( const moris_index aInterpolationIndex )
         {
             MORIS_ERROR( false, "get_max_level(), not implemented for this mesh type.");
             return 0;
-        };
+        }
 
         //--------------------------------------------------------------------------------------------------------------
 
-        uint get_num_basis( const moris_index aInterpolationIndex )
+        uint Mesh::get_num_basis( const moris_index aInterpolationIndex )
         {
             MORIS_ERROR( false, "get_num_basis(), not implemented for this mesh type.");
             return 0;
@@ -926,7 +938,7 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        uint get_basis_level( const moris_index aInterpolationIndex,
+        uint Mesh::get_basis_level( const moris_index aInterpolationIndex,
                                       const moris_index aBasisIndex )
         {
             MORIS_ERROR( false, "get_basis_level(), not implemented for this mesh type.");
@@ -935,7 +947,7 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        uint get_num_coarse_basis_of_basis(
+        uint Mesh::get_num_coarse_basis_of_basis(
                 const moris_index aInterpolationIndex,
                 const moris_index aBasisIndex )
         {
@@ -945,7 +957,7 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        uint get_coarse_basis_index_of_basis(
+        uint Mesh::get_coarse_basis_index_of_basis(
                 const moris_index aInterpolationIndex,
                 const moris_index aBasisIndex,
                 const moris_index aCoarseParentIndex )
@@ -956,7 +968,7 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        Matrix< DDSMat > get_fine_basis_inds_of_basis(
+        Matrix< DDSMat > Mesh::get_fine_basis_inds_of_basis(
                 const moris_index aInterpolationIndex,
                 const moris_index aBasisIndex )
         {
@@ -966,7 +978,7 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        Matrix< DDRMat > get_fine_basis_weights_of_basis(
+        Matrix< DDRMat > Mesh::get_fine_basis_weights_of_basis(
                 const moris_index aInterpolationIndex,
                 const moris_index aBasisIndex )
         {
@@ -976,9 +988,9 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
+#ifdef DEBUG
 
-        #ifdef DEBUG
-        Matrix< DDRMat > get_basis_coords(
+        Matrix< DDRMat > Mesh::get_basis_coords(
                 const moris_index aInterpolationIndex,
                 const moris_index aBasisIndex )
         {
@@ -988,14 +1000,16 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        sint get_basis_status(
+        sint Mesh::get_basis_status(
                 const moris_index aInterpolationIndex,
                 const moris_index aBasisIndex )
         {
             MORIS_ERROR( false, "get_basis_status(), not implemented for this mesh type.");
             return 0;
         }
-        
+
+#endif
+
         //--------------------------------------------------------------------------------------------------------------
                 
     }
