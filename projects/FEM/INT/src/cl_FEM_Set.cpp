@@ -2447,7 +2447,7 @@ namespace moris
                                     return fem::Integration_Order::BAR_3;
 
                                 case mtk::Interpolation_Order::QUADRATIC:
-                                    return fem::Integration_Order::BAR_3;
+                                    return fem::Integration_Order::BAR_4;
 
                                 case mtk::Interpolation_Order::CUBIC:
                                     return fem::Integration_Order::BAR_5;
@@ -2490,10 +2490,10 @@ namespace moris
                                     return fem::Integration_Order::HEX_2x2x2;
 
                                 case mtk::Interpolation_Order::SERENDIPITY:
-                                    return fem::Integration_Order::HEX_3x3x3;
+                                    return fem::Integration_Order::HEX_4x4x4;
 
                                 case mtk::Interpolation_Order::QUADRATIC:
-                                    return fem::Integration_Order::HEX_3x3x3;
+                                    return fem::Integration_Order::HEX_4x4x4;
 
                                 case mtk::Interpolation_Order::CUBIC:
                                     return fem::Integration_Order::HEX_5x5x5;
@@ -2513,10 +2513,10 @@ namespace moris
                                     return fem::Integration_Order::TRI_7;
 
                                 case mtk::Interpolation_Order::QUADRATIC:
-                                    return fem::Integration_Order::TRI_7;
+                                    return fem::Integration_Order::TRI_12;
 
                                 case mtk::Interpolation_Order::CUBIC:
-                                    return fem::Integration_Order::TRI_12;
+                                    return fem::Integration_Order::TRI_25;
 
                                 default:
                                     MORIS_ERROR( false, "Set::get_auto_integration_order - Unknown or unsupported interpolation order.");
@@ -2533,10 +2533,10 @@ namespace moris
                                     return fem::Integration_Order::TET_11;
 
                                 case mtk::Interpolation_Order::QUADRATIC:
-                                    return fem::Integration_Order::TET_11;
+                                    return fem::Integration_Order::TET_45;
 
                                 case mtk::Interpolation_Order::CUBIC:
-                                    return fem::Integration_Order::TET_15;
+                                    return fem::Integration_Order::TET_45;
 
                                 default:
                                     MORIS_ERROR( false, "Set::get_auto_integration_order - Unknown or unsupported interpolation order.");
@@ -2564,7 +2564,7 @@ namespace moris
                                     return fem::Integration_Order::BAR_3;
 
                                 case mtk::Interpolation_Order::QUADRATIC:
-                                    return fem::Integration_Order::BAR_3;
+                                    return fem::Integration_Order::BAR_4;
 
                                 case mtk::Interpolation_Order::CUBIC:
                                     return fem::Integration_Order::BAR_5;
@@ -2607,10 +2607,10 @@ namespace moris
                                     return fem::Integration_Order::TRI_7;
 
                                 case mtk::Interpolation_Order::QUADRATIC:
-                                    return fem::Integration_Order::TRI_7;
+                                    return fem::Integration_Order::TRI_12;
 
                                 case mtk::Interpolation_Order::CUBIC:
-                                    return fem::Integration_Order::TRI_12;
+                                    return fem::Integration_Order::TRI_25;
 
                                 default:
                                     MORIS_ERROR( false, "Set::get_auto_integration_order - Unknown or unsupported interpolation order.");

@@ -46,6 +46,7 @@ namespace moris
                 BAR_3,
                 BAR_4,
                 BAR_5,
+                BAR_6,
                 QUAD_1x1,
                 QUAD_2x2,
                 QUAD_3x3,
@@ -53,9 +54,14 @@ namespace moris
                 QUAD_5x5,
                 TRI_1,
                 TRI_3,
+                TRI_4,
                 TRI_6,
                 TRI_7,
                 TRI_12,
+                TRI_13,
+                TRI_16,
+                TRI_19,
+                TRI_25,
                 HEX_1x1x1,
                 HEX_2x2x2,
                 HEX_3x3x3,
@@ -67,6 +73,8 @@ namespace moris
                 TET_10,
                 TET_11,
                 TET_15,
+                TET_31,
+                TET_45,
                 END_INTEGRATION_ORDER
         };
 

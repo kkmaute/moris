@@ -746,6 +746,7 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+
         real SP_SUPG_Spalart_Allmaras_Turbulence::compute_chi()
         {
             // get the residual dof FI (here viscosity)
@@ -761,6 +762,7 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+
         void SP_SUPG_Spalart_Allmaras_Turbulence::compute_dchidu(
                 const moris::Cell< MSI::Dof_Type > & aDofTypes,
                 Matrix< DDRMat >                   & adchidu )
@@ -1106,6 +1108,7 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+
         real SP_SUPG_Spalart_Allmaras_Turbulence::compute_r()
         {
             // compute stilde
@@ -1122,11 +1125,18 @@ namespace moris
             // compute viscosity / ( stilde * kappa² * d² )
             real tR = tFIViscosity->val()( 0 ) / ( tSTilde * std::pow( mKappa * tPropWallDistance->val()( 0 ), 2.0 ) );
 
+            // check that r is finite or set it to mRLim
+            Matrix<DDRMat> tRMatrix( 1, 1, tR );
+            if( !isfinite( tRMatrix ) )
+            {
+                tR = mRLim;
+            }
+
             return std::min( tR, mRLim );
         }
 
-
         //------------------------------------------------------------------------------
+
         void SP_SUPG_Spalart_Allmaras_Turbulence::compute_drdu(
                 const moris::Cell< MSI::Dof_Type > & aDofTypes,
                 Matrix< DDRMat >                   & adrdu )

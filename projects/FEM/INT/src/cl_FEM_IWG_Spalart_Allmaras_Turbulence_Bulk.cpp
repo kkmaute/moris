@@ -1328,6 +1328,13 @@ namespace moris
             // compute viscosity / ( stilde * kappa² * d² )
             real tR = tFIViscosity->val()( 0 ) / ( tSTilde * std::pow( mKappa * tPropWallDistance->val()( 0 ), 2.0 ) );
 
+            // check that r is finite or set it to mRLim
+            Matrix<DDRMat> tRMatrix( 1, 1, tR );
+            if( !isfinite( tRMatrix ) )
+            {
+                tR = mRLim;
+            }
+
             return std::min( tR, mRLim );
         }
 

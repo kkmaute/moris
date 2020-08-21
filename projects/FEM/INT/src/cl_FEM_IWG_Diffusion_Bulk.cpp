@@ -11,6 +11,7 @@ namespace moris
     {
 
         //------------------------------------------------------------------------------
+
         IWG_Diffusion_Bulk::IWG_Diffusion_Bulk()
         {
             // set size for the property pointer cell
@@ -33,6 +34,7 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+
         void IWG_Diffusion_Bulk::set_property(
                 std::shared_ptr< Property > aProperty,
                 std::string                 aPropertyString,
@@ -57,6 +59,7 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+
         void IWG_Diffusion_Bulk::set_constitutive_model(
                 std::shared_ptr< Constitutive_Model > aConstitutiveModel,
                 std::string                           aConstitutiveString,
@@ -81,6 +84,7 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+
         void IWG_Diffusion_Bulk::set_stabilization_parameter(
                 std::shared_ptr< Stabilization_Parameter > aStabilizationParameter,
                 std::string                                aStabilizationString )
@@ -127,9 +131,9 @@ namespace moris
             // compute the residual
             mSet->get_residual()( 0 )(
                     { tMasterResStartIndex, tMasterResStopIndex },
-                    { 0, 0 } ) +=
-                            aWStar * (  trans( tCMDiffusion->testStrain() ) * tCMDiffusion->flux() +
-                                    trans( tFITemp->N() ) * tCMDiffusion->EnergyDot() );
+                    { 0, 0 } ) += aWStar * (
+                            trans( tCMDiffusion->testStrain() ) * tCMDiffusion->flux() +
+                            trans( tFITemp->N() ) * tCMDiffusion->EnergyDot() );
 
             // if body load
             if ( tPropLoad != nullptr )
@@ -137,8 +141,8 @@ namespace moris
                 // compute contribution of body load to residual
                 mSet->get_residual()( 0 )(
                         { tMasterResStartIndex, tMasterResStopIndex },
-                        { 0, 0 } ) -=
-                                aWStar * ( trans( tFITemp->N() ) * tPropLoad->val()( 0 ) );
+                        { 0, 0 } ) -= aWStar * (
+                                trans( tFITemp->N() ) * tPropLoad->val()( 0 ) );
             }
 
             // if stabilization parameter is defined
@@ -147,11 +151,10 @@ namespace moris
                 // compute the residual from bulk diffusion term
                 mSet->get_residual()( 0 )(
                         { tMasterResStartIndex, tMasterResStopIndex },
-                        { 0, 0 } ) +=
-                                aWStar * ( trans( tCMDiffusion->testStrain() ) * tGGLSParam->val()(0) *
-                                        ( tCMDiffusion->gradEnergyDot() - tCMDiffusion->graddivflux() ) );
+                        { 0, 0 } ) += aWStar * (
+                                trans( tCMDiffusion->testStrain() ) * tGGLSParam->val()(0) *
+                                ( tCMDiffusion->gradEnergyDot() - tCMDiffusion->graddivflux() ) );
             }
-
         }
 
         //------------------------------------------------------------------------------
@@ -206,8 +209,8 @@ namespace moris
                         // add contribution to jacobian
                         mSet->get_jacobian()(
                                 { tMasterResStartIndex, tMasterResStopIndex },
-                                { tMasterDepStartIndex, tMasterDepStopIndex } ) -=
-                                        aWStar * ( trans( tFITemp->N() ) * tPropLoad->dPropdDOF( tDofType ) );
+                                { tMasterDepStartIndex, tMasterDepStopIndex } ) -= aWStar * (
+                                        trans( tFITemp->N() ) * tPropLoad->dPropdDOF( tDofType ) );
                     }
                 }
 
@@ -217,10 +220,9 @@ namespace moris
                     // compute the jacobian
                     mSet->get_jacobian()(
                             { tMasterResStartIndex, tMasterResStopIndex },
-                            { tMasterDepStartIndex, tMasterDepStopIndex } ) +=
-                                    aWStar * (
-                                            trans( tCMDiffusion->testStrain() ) * tCMDiffusion->dFluxdDOF( tDofType ) +
-                                            trans( tFITemp->N() ) * tCMDiffusion->dEnergyDotdDOF( tDofType )  );
+                            { tMasterDepStartIndex, tMasterDepStopIndex } ) += aWStar * (
+                                    trans( tCMDiffusion->testStrain() ) * tCMDiffusion->dFluxdDOF( tDofType ) +
+                                    trans( tFITemp->N() ) * tCMDiffusion->dEnergyDotdDOF( tDofType )  );
                     // FIXME add derivative of the test strain
                 }
 
@@ -248,18 +250,17 @@ namespace moris
                         // compute the jacobian
                         mSet->get_jacobian()(
                                 { tMasterResStartIndex, tMasterResStopIndex },
-                                { tMasterDepStartIndex, tMasterDepStopIndex } ) +=
-                                        aWStar * tGGLSParam->val()(0) *  trans( tCMDiffusion->testStrain() ) *
-                                                ( tCMDiffusion->dGradEnergyDotdDOF( tDofType ) - tCMDiffusion->dGradDivFluxdDOF( tDofType ) );
+                                { tMasterDepStartIndex, tMasterDepStopIndex } ) += aWStar * (
+                                        tGGLSParam->val()(0) *  trans( tCMDiffusion->testStrain() ) *
+                                        ( tCMDiffusion->dGradEnergyDotdDOF( tDofType ) - tCMDiffusion->dGradDivFluxdDOF( tDofType ) ) );
                     }
 
                     // add contribution from stabilization parameter
                     mSet->get_jacobian()(
                             { tMasterResStartIndex, tMasterResStopIndex },
-                            { tMasterDepStartIndex, tMasterDepStopIndex } ) +=
-                                    aWStar *  trans( tCMDiffusion->testStrain() ) * ( tCMDiffusion->gradEnergyDot() - tCMDiffusion->graddivflux() ) *
-                                       tGGLSParam->dSPdMasterDOF( tDofType );
-
+                            { tMasterDepStartIndex, tMasterDepStopIndex } ) += aWStar * (
+                                    trans( tCMDiffusion->testStrain() ) * ( tCMDiffusion->gradEnergyDot() - tCMDiffusion->graddivflux() ) *
+                                    tGGLSParam->dSPdMasterDOF( tDofType ) );
                 }
             }
         }

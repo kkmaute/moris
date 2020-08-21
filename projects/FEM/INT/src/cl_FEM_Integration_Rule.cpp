@@ -1,30 +1,43 @@
+//FEM/INT/src
 #include "cl_FEM_Integration_Rule.hpp"
-#include "cl_FEM_Integration_Coeffs.hpp"          //FEM/INT/src
-#include "cl_FEM_Integration_Coeffs_Point.hpp"    //FEM/INT/src
-#include "cl_FEM_Integration_Coeffs_Bar_1.hpp"    //FEM/INT/src
-#include "cl_FEM_Integration_Coeffs_Bar_2.hpp"    //FEM/INT/src
-#include "cl_FEM_Integration_Coeffs_Bar_3.hpp"    //FEM/INT/src
-#include "cl_FEM_Integration_Coeffs_Bar_4.hpp"    //FEM/INT/src
-#include "cl_FEM_Integration_Coeffs_Bar_5.hpp"    //FEM/INT/src
-#include "cl_FEM_Integration_Coeffs_Quad_2x2.hpp" //FEM/INT/src
-#include "cl_FEM_Integration_Coeffs_Quad_3x3.hpp" //FEM/INT/src
-#include "cl_FEM_Integration_Coeffs_Quad_4x4.hpp" //FEM/INT/src
-#include "cl_FEM_Integration_Coeffs_Quad_5x5.hpp" //FEM/INT/src
+#include "cl_FEM_Integration_Coeffs.hpp"
+#include "cl_FEM_Integration_Coeffs_Point.hpp"
+//bar
+#include "cl_FEM_Integration_Coeffs_Bar_1.hpp"
+#include "cl_FEM_Integration_Coeffs_Bar_2.hpp"
+#include "cl_FEM_Integration_Coeffs_Bar_3.hpp"
+#include "cl_FEM_Integration_Coeffs_Bar_4.hpp"
+#include "cl_FEM_Integration_Coeffs_Bar_5.hpp"
+#include "cl_FEM_Integration_Coeffs_Bar_6.hpp"
+//quad
+#include "cl_FEM_Integration_Coeffs_Quad_2x2.hpp"
+#include "cl_FEM_Integration_Coeffs_Quad_3x3.hpp"
+#include "cl_FEM_Integration_Coeffs_Quad_4x4.hpp"
+#include "cl_FEM_Integration_Coeffs_Quad_5x5.hpp"
+//tri
 #include "cl_FEM_Integration_Coeffs_Tri_1.hpp"
 #include "cl_FEM_Integration_Coeffs_Tri_3.hpp"
+#include "cl_FEM_Integration_Coeffs_Tri_4.hpp"
 #include "cl_FEM_Integration_Coeffs_Tri_6.hpp"
 #include "cl_FEM_Integration_Coeffs_Tri_7.hpp"
 #include "cl_FEM_Integration_Coeffs_Tri_12.hpp"
+#include "cl_FEM_Integration_Coeffs_Tri_13.hpp"
+#include "cl_FEM_Integration_Coeffs_Tri_16.hpp"
+#include "cl_FEM_Integration_Coeffs_Tri_19.hpp"
+#include "cl_FEM_Integration_Coeffs_Tri_25.hpp"
+//tet
 #include "cl_FEM_Integration_Coeffs_Tet_1.hpp"
 #include "cl_FEM_Integration_Coeffs_Tet_4.hpp"
 #include "cl_FEM_Integration_Coeffs_Tet_5.hpp"
 #include "cl_FEM_Integration_Coeffs_Tet_11.hpp"
 #include "cl_FEM_Integration_Coeffs_Tet_15.hpp"
-#include "cl_FEM_Integration_Coeffs_Hex_2x2x2.hpp" //FEM/INT/src
-#include "cl_FEM_Integration_Coeffs_Hex_3x3x3.hpp" //FEM/INT/src
-#include "cl_FEM_Integration_Coeffs_Hex_4x4x4.hpp" //FEM/INT/src
-#include "cl_FEM_Integration_Coeffs_Hex_5x5x5.hpp" //FEM/INT/src
-
+#include "cl_FEM_Integration_Coeffs_Tet_31.hpp"
+#include "cl_FEM_Integration_Coeffs_Tet_45.hpp"
+//hex
+#include "cl_FEM_Integration_Coeffs_Hex_2x2x2.hpp"
+#include "cl_FEM_Integration_Coeffs_Hex_3x3x3.hpp"
+#include "cl_FEM_Integration_Coeffs_Hex_4x4x4.hpp"
+#include "cl_FEM_Integration_Coeffs_Hex_5x5x5.hpp"
 
 namespace moris
 {
@@ -169,6 +182,11 @@ namespace moris
                             Integration_Type::GAUSS,
                             Integration_Order::BAR_5 >();
 
+                case Integration_Order::BAR_6 :
+                    return new Integration_Coeffs<
+                            Integration_Type::GAUSS,
+                            Integration_Order::BAR_6 >();
+
                 default :
                     MORIS_ERROR( false, "Integration_Rule::create_coeffs_gauss_bar - integration order not implemented/allowed for bar.");
                     return nullptr;
@@ -248,30 +266,65 @@ namespace moris
         {
             switch( aIntegrationOrder )
             {
+                // for polynomial order 1
                 case Integration_Order::TRI_1 :
                     return new Integration_Coeffs<
                             Integration_Type::GAUSS,
                             Integration_Order::TRI_1 >();
 
+                    // for polynomial order 2
                 case Integration_Order::TRI_3 :
                     return new Integration_Coeffs<
                             Integration_Type::GAUSS,
                             Integration_Order::TRI_3 >();
 
+                    // for polynomial order 3
+                case Integration_Order::TRI_4 :
+                    return new Integration_Coeffs<
+                            Integration_Type::GAUSS,
+                            Integration_Order::TRI_4 >();
+
+                    // for polynomial order 4
                 case Integration_Order::TRI_6 :
                     return new Integration_Coeffs<
                             Integration_Type::GAUSS,
                             Integration_Order::TRI_6 >();
 
+                    // for polynomial order 5
                 case Integration_Order::TRI_7 :
                     return new Integration_Coeffs<
                             Integration_Type::GAUSS,
                             Integration_Order::TRI_7 >();
 
+                    // for polynomial order 6
                 case Integration_Order::TRI_12 :
                     return new Integration_Coeffs<
                             Integration_Type::GAUSS,
                             Integration_Order::TRI_12 >();
+
+                    // for polynomial order 7
+                case Integration_Order::TRI_13 :
+                    return new Integration_Coeffs<
+                            Integration_Type::GAUSS,
+                            Integration_Order::TRI_13 >();
+
+                    // for polynomial order 8
+                case Integration_Order::TRI_16 :
+                    return new Integration_Coeffs<
+                            Integration_Type::GAUSS,
+                            Integration_Order::TRI_16 >();
+
+                    // for polynomial order 9
+                case Integration_Order::TRI_19 :
+                    return new Integration_Coeffs<
+                            Integration_Type::GAUSS,
+                            Integration_Order::TRI_19 >();
+
+                    // for polynomial order 10
+                case Integration_Order::TRI_25 :
+                    return new Integration_Coeffs<
+                            Integration_Type::GAUSS,
+                            Integration_Order::TRI_25 >();
 
                 default :
                     MORIS_ERROR( false, " Integration_Rule::create_coeffs_gauss_tri - integration order not implemented/allowed for tri.");
@@ -286,30 +339,47 @@ namespace moris
         {
             switch( aIntegrationOrder )
             {
+                // for polynomial order 1
                 case Integration_Order::TET_1 :
                     return new Integration_Coeffs<
                             Integration_Type::GAUSS,
                             Integration_Order::TET_1 >();
 
+                    // for polynomial order 2
                 case Integration_Order::TET_4 :
                     return new Integration_Coeffs<
                             Integration_Type::GAUSS,
                             Integration_Order::TET_4 >();
 
+                    // for polynomial order 3
                 case Integration_Order::TET_5 :
                     return new Integration_Coeffs<
                             Integration_Type::GAUSS,
                             Integration_Order::TET_5 >();
 
+                    // for polynomial order 4
                 case Integration_Order::TET_11 :
                     return new Integration_Coeffs<
                             Integration_Type::GAUSS,
                             Integration_Order::TET_11 >();
 
+                    // for polynomial order 5
                 case Integration_Order::TET_15 :
                     return new Integration_Coeffs<
                             Integration_Type::GAUSS,
                             Integration_Order::TET_15 >();
+
+                    // for polynomial order 7
+                case Integration_Order::TET_31 :
+                    return new Integration_Coeffs<
+                            Integration_Type::GAUSS,
+                            Integration_Order::TET_31 >();
+
+                    // for polynomial order 7
+                case Integration_Order::TET_45 :
+                    return new Integration_Coeffs<
+                            Integration_Type::GAUSS,
+                            Integration_Order::TET_45 >();
 
                 default :
                     MORIS_ERROR( false, " Integration_Rule::create_coeffs_gauss_tet - integration order not implemented/allowed for tet.");
