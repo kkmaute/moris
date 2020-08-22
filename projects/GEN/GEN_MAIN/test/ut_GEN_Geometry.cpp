@@ -4,6 +4,7 @@
 #include "cl_GEN_User_Defined_Geometry.hpp"
 #include "fn_GEN_create_geometries.hpp"
 #include "fn_GEN_create_simple_mesh.hpp"
+
 #include "fn_PRM_GEN_Parameters.hpp"
 #include "fn_Exec_load_user_library.hpp"
 
@@ -285,7 +286,7 @@ namespace moris
             if (par_size() == 1)
             {
                 // Create mesh
-                mtk::Interpolation_Mesh* tMesh = create_simple_mesh();
+                mtk::Interpolation_Mesh* tMesh = create_simple_mesh(2, 2);
 
                 // Set up geometry
                 real tRadius = 0.5;

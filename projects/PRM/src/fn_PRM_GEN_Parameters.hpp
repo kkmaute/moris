@@ -98,7 +98,7 @@ namespace moris
             // Must change
             tParameterList.insert("left_bound", 0.0);               // Left-most hole center
             tParameterList.insert("right_bound", 0.0);              // Right-most hole center
-            tParameterList.insert("bottom_bound", 0.0);             // Bottom
+            tParameterList.insert("bottom_bound", 0.0);             // Bottom-most hole center
             tParameterList.insert("top_bound", 0.0);                // Top-most hole center
             tParameterList.insert("hole_x_semidiameter", 0.0);      // Superellipse semi-diameter in the x direction
             tParameterList.insert("hole_y_semidiameter", 0.0);      // Superellipse semi-diameter in the y direction

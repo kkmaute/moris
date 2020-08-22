@@ -8,11 +8,12 @@ namespace moris
 {
     namespace ge
     {
-        mtk::Interpolation_Mesh* create_simple_mesh()
+        mtk::Interpolation_Mesh* create_simple_mesh(uint aNumXElements, uint aNumYElements)
         {
             ParameterList tParameters = prm::create_hmr_parameter_list();
 
-            tParameters.set( "number_of_elements_per_dimension", "2, 2");
+            tParameters.set( "number_of_elements_per_dimension",
+                    std::to_string(aNumXElements) + ", " + std::to_string(aNumYElements));
             tParameters.set( "domain_dimensions", "2, 2");
             tParameters.set( "domain_offset", "-1.0, -1.0");
             tParameters.set( "domain_sidesets", "1,2,3,4");

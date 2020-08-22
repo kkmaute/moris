@@ -13,7 +13,7 @@ namespace moris
          *
          * @return HMR mesh pointer
          */
-        mtk::Interpolation_Mesh* create_simple_mesh();
+        mtk::Interpolation_Mesh* create_simple_mesh(uint aNumXElements, uint aNumYElements);
     }
 }
 
