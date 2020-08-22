@@ -249,6 +249,16 @@ public:
         return mListofSideSets.size();
     };
 
+    /**
+     * Gets element indices in a block set.
+     *
+     * @param aSetIndex Block set index
+     * @return Element indices in the set
+     */
+    Matrix<IndexMat> get_element_indices_in_block_set(uint aSetIndex)
+    {
+        return mListofBlocks(aSetIndex)->get_vertices_inds_on_block(true);
+    }
 
 
 //

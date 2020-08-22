@@ -330,7 +330,8 @@ namespace moris
 
             // FIXME pure virtual or default implementation without error
             /**
-             * Get a local entity index from a
+             * Get a local entity index from a global ID.
+             *
              * @param aEntityId Global entity ID
              * @param aEntityRank Entity rank
              * @param aBSplineMeshIndex B-spline mesh index
@@ -711,7 +712,7 @@ namespace moris
                     bool          aAddElemCmap = false);
 
             //##############################################
-            //  Field Functions FIXME probably just remove all of these
+            //  Field Functions TODO sort out which of these need to be in the base
             //##############################################
 
             /**
@@ -936,6 +937,23 @@ namespace moris
             get_set_entity_loc_inds(
                     enum EntityRank aSetEntityRank,
                     std::string     aSetName) const;
+
+            /**
+             * Gets element indices in a block set.
+             *
+             * @param aSetIndex Block set index
+             * @return Element indices in the set
+             */
+            virtual Matrix<IndexMat> get_element_indices_in_block_set(uint aSetIndex) = 0;
+
+            /**
+             * Gets the element IDs in a block set, in order by index. Default implementation is to get the indices
+             * and then transform them, but this can be overridden.
+             *
+             * @param aSetIndex Block set index
+             * @return Element IDs in the set
+             */
+            virtual Matrix<IdMat> get_element_ids_in_block_set(uint aSetIndex);
 
             // FIXME pure virtual
             /**

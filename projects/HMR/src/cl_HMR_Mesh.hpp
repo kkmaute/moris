@@ -32,548 +32,564 @@ namespace moris
          */
         class Mesh : public virtual mtk::Mesh
         {
-                //! describing label
-                std::string mLabel;
-
-                moris::Cell< moris::hmr::BSpline_Mesh_Base* > mDummyBSplineMeshes;
-
-                // give access to the member data to stk based interpolation and integration meshes
-                friend class Interpolation_Mesh_HMR;
-                friend class Integration_Mesh_HMR;
-
-                // Global to Local Entity Map
-                // moris::Cell(0) - Node Global to Local
-                // moris::Cell(1) - Edge Global to Local
-                // moris::Cell(2) - Face Global to Local
-                // moris::Cell(3) - Cell Global to Local
-                // Keep in mind not all of these are created
-
-                moris::Cell<std::unordered_map<moris_id,moris_index>> mEntityGlobaltoLocalMap;
-
-                //-------------------------------------------------------------------------------
-            public:
-                //-------------------------------------------------------------------------------
-
-                /**
-                 * mesh constructor, to be called from HMR
-                 */
-                Mesh(
-                        std::shared_ptr< Database >   aDatabase,
-                        const uint                  & aLagrangeOrder,
-                        const uint                  & aLagrangePattern );
+            //! describing label
+            std::string mLabel;
+
+            moris::Cell< moris::hmr::BSpline_Mesh_Base* > mDummyBSplineMeshes;
+
+            // give access to the member data to stk based interpolation and integration meshes
+            friend class Interpolation_Mesh_HMR;
+            friend class Integration_Mesh_HMR;
+
+            // Global to Local Entity Map
+            // moris::Cell(0) - Node Global to Local
+            // moris::Cell(1) - Edge Global to Local
+            // moris::Cell(2) - Face Global to Local
+            // moris::Cell(3) - Cell Global to Local
+            // Keep in mind not all of these are created
+
+            moris::Cell<std::unordered_map<moris_id,moris_index>> mEntityGlobaltoLocalMap;
+
+            //-------------------------------------------------------------------------------
+        public:
+            //-------------------------------------------------------------------------------
+
+            /**
+             * mesh constructor, to be called from HMR
+             */
+            Mesh(
+                    std::shared_ptr< Database >   aDatabase,
+                    const uint                  & aLagrangeOrder,
+                    const uint                  & aLagrangePattern );
 
 
-                Mesh(
-                        std::shared_ptr< Database >   aDatabase,
-                        const uint                  & aOrder,
-                        const uint                  & aLagrangePattern,
-                        const uint                  & aBsplinePattern);
+            Mesh(
+                    std::shared_ptr< Database >   aDatabase,
+                    const uint                  & aOrder,
+                    const uint                  & aLagrangePattern,
+                    const uint                  & aBsplinePattern);
 
-                Mesh(
-                        std::shared_ptr< Database >   aDatabase,
-                        const uint                  & aLagrangeMeshIndex );
+            Mesh(
+                    std::shared_ptr< Database >   aDatabase,
+                    const uint                  & aLagrangeMeshIndex );
 
-                //-------------------------------------------------------------------------------
+            //-------------------------------------------------------------------------------
 
-                /**
-                 * destructor
-                 */
-                ~Mesh();
+            /**
+             * destructor
+             */
+            ~Mesh();
 
-                //-------------------------------------------------------------------------------
+            //-------------------------------------------------------------------------------
 
-                /**
-                 * return the type of this mesh
-                 */
-                MeshType get_mesh_type() const
-                {
-                    return MeshType::HMR;
-                }
+            /**
+             * return the type of this mesh
+             */
+            MeshType get_mesh_type() const
+            {
+                return MeshType::HMR;
+            }
 
-                //-------------------------------------------------------------------------------
+            //-------------------------------------------------------------------------------
 
-                /**
-                 * provides a moris::Matrix< DDUMat > containing the IDs this mesh has
-                 * to communicate with
-                 */
-                Matrix< IdMat > get_communication_table() const ;
+            /**
+             * provides a moris::Matrix< DDUMat > containing the IDs this mesh has
+             * to communicate with
+             */
+            Matrix< IdMat > get_communication_table() const ;
 
-                // -----------------------------------------------------------------------------
+            // -----------------------------------------------------------------------------
 
-                /**
-                 * returns the proc neighbors for this proc. This function return 9 entries for 2D and 27 for 3D.
-                 * Some of them can be gNoId if this proc does not exist.
-                 */
-                Matrix< IdMat > get_proc_neighbors() const;
+            /**
+             * returns the proc neighbors for this proc. This function return 9 entries for 2D and 27 for 3D.
+             * Some of them can be gNoId if this proc does not exist.
+             */
+            Matrix< IdMat > get_proc_neighbors() const;
 
-                //-------------------------------------------------------------------------------
+            //-------------------------------------------------------------------------------
 
-                /**
-                 * creates a new field pointer that is linked to this mesh
-                 */
-                std::shared_ptr< Field > create_field(
-                        const std::string & aLabel,
-                        const uint        & aBSplineOrder );
+            /**
+             * creates a new field pointer that is linked to this mesh
+             */
+            std::shared_ptr< Field > create_field(
+                    const std::string & aLabel,
+                    const uint        & aBSplineOrder );
 
-                //-------------------------------------------------------------------------------
+            //-------------------------------------------------------------------------------
 
-                /**
-                 * returns a pointer to the underlying lagrange mesh
-                 */
-                Lagrange_Mesh_Base * get_lagrange_mesh()
-                {
-                    return mMesh;
-                }
+            /**
+             * returns a pointer to the underlying lagrange mesh
+             */
+            Lagrange_Mesh_Base * get_lagrange_mesh()
+            {
+                return mMesh;
+            }
 
-                //-------------------------------------------------------------------------------
+            //-------------------------------------------------------------------------------
 
-                /**
-                 * return a pointer to the database
-                 */
-                std::shared_ptr< Database > get_database()
-                {
-                    return mDatabase;
-                }
+            /**
+             * return a pointer to the database
+             */
+            std::shared_ptr< Database > get_database()
+            {
+                return mDatabase;
+            }
 
-                //-------------------------------------------------------------------------------
-                // Functions for MTK
-                //-------------------------------------------------------------------------------
+            //-------------------------------------------------------------------------------
+            // Functions for MTK
+            //-------------------------------------------------------------------------------
 
-                /**
-                 * returns the number of dimensions of this mesh
-                 */
-                uint get_spatial_dim() const;
+            /**
+             * returns the number of dimensions of this mesh
+             */
+            uint get_spatial_dim() const;
 
-                //-------------------------------------------------------------------------------
+            //-------------------------------------------------------------------------------
 
-                uint get_num_entities( const enum EntityRank aEntityRank,
-                        const moris_index     aIndex = 0 ) const;
+            uint get_num_entities( const enum EntityRank aEntityRank,
+                                   const moris_index     aIndex = 0 ) const;
 
-                //-------------------------------------------------------------------------------
+            //-------------------------------------------------------------------------------
 
-                uint get_num_elemens_including_aura() const ;
+            uint get_num_elemens_including_aura() const ;
 
-                //-------------------------------------------------------------------------------
+            //-------------------------------------------------------------------------------
 
-                uint get_num_nodes() const;
+            uint get_num_nodes() const;
 
-                //-------------------------------------------------------------------------------
+            //-------------------------------------------------------------------------------
 
-                uint get_num_edges() const;
+            uint get_num_edges() const;
 
-                //-------------------------------------------------------------------------------
+            //-------------------------------------------------------------------------------
 
-                uint get_num_faces() const;
+            uint get_num_faces() const;
 
-                //-------------------------------------------------------------------------------
+            //-------------------------------------------------------------------------------
 
-                uint get_num_elems() const;
+            uint get_num_elems() const;
 
-                //-------------------------------------------------------------------------------
+            /**
+             * Gets element indices in a block set.
+             *
+             * @param aSetIndex Block set index
+             * @return Element indices in the set
+             */
+            Matrix<IndexMat> get_element_indices_in_block_set(uint aSetIndex);
 
-                uint get_num_coeffs( const uint aBSplineMeshIndex ) const;
+            /**
+             * Gets the element IDs in a block set.
+             *
+             * @param aSetIndex Block set index
+             * @return Element IDs in the set
+             */
+            Matrix<IdMat> get_element_ids_in_block_set(uint aSetIndex);
 
-                //-------------------------------------------------------------------------------
+            //-------------------------------------------------------------------------------
 
-                Matrix< IndexMat > get_bspline_inds_of_node_loc_ind(
-                        const moris_index      aNodeIndex,
-                        const enum EntityRank  aBSplineRank );                //FIXME
+            uint get_num_coeffs( const uint aBSplineMeshIndex ) const;
 
-                //-------------------------------------------------------------------------------
+            //-------------------------------------------------------------------------------
 
-                Matrix< IndexMat > get_entity_connected_to_entity_loc_inds(
-                        moris_index       aEntityIndex,
-                        enum EntityRank   aInputEntityRank,
-                        enum EntityRank   aOutputEntityRank,
-                        const moris_index aIndex = 0 ) const;
+            Matrix< IndexMat > get_bspline_inds_of_node_loc_ind(
+                    const moris_index      aNodeIndex,
+                    const enum EntityRank  aBSplineRank );                //FIXME
 
-                //-------------------------------------------------------------------------------
+            //-------------------------------------------------------------------------------
 
-                Matrix< IndexMat > get_entity_connected_to_entity_glob_ids(
-                        moris_index        aEntityId,
-                        enum EntityRank    aInputEntityRank,
-                        enum EntityRank    aOutputEntityRank,
-                        const moris_index  aIndex = 0 ) const;
+            Matrix< IndexMat > get_entity_connected_to_entity_loc_inds(
+                    moris_index       aEntityIndex,
+                    enum EntityRank   aInputEntityRank,
+                    enum EntityRank   aOutputEntityRank,
+                    const moris_index aIndex = 0 ) const;
 
-                //-------------------------------------------------------------------------------
+            //-------------------------------------------------------------------------------
 
-                Matrix< IndexMat > get_nodes_connected_to_node_loc_inds( moris_index aNodeIndex ) const ;
+            Matrix< IndexMat > get_entity_connected_to_entity_glob_ids(
+                    moris_index        aEntityId,
+                    enum EntityRank    aInputEntityRank,
+                    enum EntityRank    aOutputEntityRank,
+                    const moris_index  aIndex = 0 ) const;
 
-                //-------------------------------------------------------------------------------
+            //-------------------------------------------------------------------------------
 
-                Matrix< IndexMat > get_nodes_connected_to_edge_loc_inds( moris_index aEdgeIndex ) const ;
+            Matrix< IndexMat > get_nodes_connected_to_node_loc_inds( moris_index aNodeIndex ) const ;
 
-                //-------------------------------------------------------------------------------
+            //-------------------------------------------------------------------------------
 
-                Matrix< IndexMat > get_nodes_connected_to_face_loc_inds( moris_index aFaceIndex ) const ;
+            Matrix< IndexMat > get_nodes_connected_to_edge_loc_inds( moris_index aEdgeIndex ) const ;
 
-                //-------------------------------------------------------------------------------
+            //-------------------------------------------------------------------------------
 
-                Matrix< IndexMat > get_nodes_connected_to_element_loc_inds( moris_index aElementIndex ) const ;
+            Matrix< IndexMat > get_nodes_connected_to_face_loc_inds( moris_index aFaceIndex ) const ;
 
-                //-------------------------------------------------------------------------------
+            //-------------------------------------------------------------------------------
 
-                Matrix < IndexMat > get_edges_connected_to_node_loc_inds( moris_index aNodeIndex ) const ;
+            Matrix< IndexMat > get_nodes_connected_to_element_loc_inds( moris_index aElementIndex ) const ;
 
-                //-------------------------------------------------------------------------------
+            //-------------------------------------------------------------------------------
 
-                Matrix< IndexMat > get_edges_connected_to_element_loc_inds( moris_index aElementIndex ) const ;
+            Matrix < IndexMat > get_edges_connected_to_node_loc_inds( moris_index aNodeIndex ) const ;
 
-                //-------------------------------------------------------------------------------
+            //-------------------------------------------------------------------------------
 
-                Matrix < IndexMat > get_faces_connected_to_node_loc_inds( moris_index aNodeIndex ) const ;
+            Matrix< IndexMat > get_edges_connected_to_element_loc_inds( moris_index aElementIndex ) const ;
 
-                //-------------------------------------------------------------------------------
+            //-------------------------------------------------------------------------------
 
-                Matrix< IndexMat > get_faces_connected_to_element_loc_inds( moris_index aElementIndex ) const ;
+            Matrix < IndexMat > get_faces_connected_to_node_loc_inds( moris_index aNodeIndex ) const ;
 
-                //-------------------------------------------------------------------------------
+            //-------------------------------------------------------------------------------
 
-                Matrix < IndexMat > get_elements_connected_to_node_loc_inds( moris_index aNodeIndex ) const;
+            Matrix< IndexMat > get_faces_connected_to_element_loc_inds( moris_index aElementIndex ) const ;
 
-                //-------------------------------------------------------------------------------
+            //-------------------------------------------------------------------------------
 
-                Matrix< IndexMat > get_elements_connected_to_face_loc_inds( moris_index aFaceIndex ) const ;
+            Matrix < IndexMat > get_elements_connected_to_node_loc_inds( moris_index aNodeIndex ) const;
 
-                //-------------------------------------------------------------------------------
+            //-------------------------------------------------------------------------------
 
-                void get_elements_in_support_of_basis(const uint           aMeshIndex,
-                        const uint           aBasisIndex,
-                        Matrix< IndexMat > & aElementIndices);
+            Matrix< IndexMat > get_elements_connected_to_face_loc_inds( moris_index aFaceIndex ) const ;
 
-                //-------------------------------------------------------------------------------
+            //-------------------------------------------------------------------------------
 
-                void get_nodes_indices_in_bounding_box(
-                        const moris::Matrix< DDRMat >   & aPoint,
-                        const moris::Matrix< DDRMat >   & aBoundingBoxSize,
-                        moris::Matrix< IndexMat >       & aNodeIndices );
+            void get_elements_in_support_of_basis(const uint           aMeshIndex,
+                                                  const uint           aBasisIndex,
+                                                  Matrix< IndexMat > & aElementIndices);
 
-                //-------------------------------------------------------------------------------
-                uint get_num_basis_functions(const uint aMeshIndex);
-                //-------------------------------------------------------------------------------
+            //-------------------------------------------------------------------------------
 
-                Matrix< IndexMat > get_elements_connected_to_element_and_face_ind_loc_inds( moris_index aElementIndex ) const;
+            void get_nodes_indices_in_bounding_box(
+                    const moris::Matrix< DDRMat >   & aPoint,
+                    const moris::Matrix< DDRMat >   & aBoundingBoxSize,
+                    moris::Matrix< IndexMat >       & aNodeIndices );
 
-                //-------------------------------------------------------------------------------
-                Matrix< IndexMat > get_elements_connected_to_element_and_face_ord_loc_inds( moris_index aElementIndex ) const;
-                //-------------------------------------------------------------------------------
-                //          Global ID Functions
-                //-------------------------------------------------------------------------------
+            //-------------------------------------------------------------------------------
+            uint get_num_basis_functions(const uint aMeshIndex);
+            //-------------------------------------------------------------------------------
 
-                moris_id get_glb_entity_id_from_entity_loc_index(
-                        moris_index        aEntityIndex,
-                        enum EntityRank    aEntityRank,
-                        const moris_index  aIndex = 0 ) const ;
+            Matrix< IndexMat > get_elements_connected_to_element_and_face_ind_loc_inds( moris_index aElementIndex ) const;
 
-                moris_id get_glb_element_id_from_element_loc_index( moris_index aEntityIndex ) const;
+            //-------------------------------------------------------------------------------
+            Matrix< IndexMat > get_elements_connected_to_element_and_face_ord_loc_inds( moris_index aElementIndex ) const;
+            //-------------------------------------------------------------------------------
+            //          Global ID Functions
+            //-------------------------------------------------------------------------------
 
-                //-------------------------------------------------------------------------------
-                moris_index get_loc_entity_ind_from_entity_glb_id(
-                        moris_id           aEntityId,
-                        enum EntityRank    aEntityRank,
-                        const moris_index  aIndex = 0) const;
+            moris_id get_glb_entity_id_from_entity_loc_index(
+                    moris_index        aEntityIndex,
+                    enum EntityRank    aEntityRank,
+                    const moris_index  aIndex = 0 ) const ;
 
-                //-------------------------------------------------------------------------------
+            moris_id get_glb_element_id_from_element_loc_index( moris_index aEntityIndex ) const;
 
-                moris_id get_max_entity_id( enum EntityRank aEntityRank,
-                        const moris_index     aIndex ) const ;
+            //-------------------------------------------------------------------------------
+            moris_index get_loc_entity_ind_from_entity_glb_id(
+                    moris_id           aEntityId,
+                    enum EntityRank    aEntityRank,
+                    const moris_index  aIndex = 0) const;
 
-                //-------------------------------------------------------------------------------
-                //          Coordinate Field Functions
-                //-------------------------------------------------------------------------------
+            //-------------------------------------------------------------------------------
 
-                Matrix< DDRMat > get_node_coordinate( moris_index aNodeIndex ) const;
+            moris_id get_max_entity_id( enum EntityRank aEntityRank,
+                                        const moris_index     aIndex ) const ;
 
-                //-------------------------------------------------------------------------------
-                //           Entity Ownership Functions
-                //-------------------------------------------------------------------------------
+            //-------------------------------------------------------------------------------
+            //          Coordinate Field Functions
+            //-------------------------------------------------------------------------------
 
-                moris_id get_entity_owner(
-                        moris_index        aEntityIndex,
-                        enum EntityRank    aEntityRank,
-                        const moris_index  aIndex = 0 ) const;
+            Matrix< DDRMat > get_node_coordinate( moris_index aNodeIndex ) const;
 
-                //FIXME Needs parallel implementation
-                void
-                get_processors_whom_share_entity(
-                        moris_index       aEntityIndex,
-                        enum EntityRank   aEntityRank,
-                        Matrix< IdMat > & aProcsWhomShareEntity) const;
+            //-------------------------------------------------------------------------------
+            //           Entity Ownership Functions
+            //-------------------------------------------------------------------------------
 
+            moris_id get_entity_owner(
+                    moris_index        aEntityIndex,
+                    enum EntityRank    aEntityRank,
+                    const moris_index  aIndex = 0 ) const;
 
-                enum EntityRank
-                get_facet_rank() const;
+            //FIXME Needs parallel implementation
+            void
+            get_processors_whom_share_entity(
+                    moris_index       aEntityIndex,
+                    enum EntityRank   aEntityRank,
+                    Matrix< IdMat > & aProcsWhomShareEntity) const;
 
-                //-------------------------------------------------------------------------------
-                //           Set Functions
-                //-------------------------------------------------------------------------------
 
-                void get_sideset_elems_loc_inds_and_ords(
-                        const  std::string     & aSetName,
-                        Matrix< IndexMat >     & aElemIndices,
-                        Matrix< IndexMat >     & aSidesetOrdinals ) const;
+            enum EntityRank
+            get_facet_rank() const;
 
-                //-------------------------------------------------------------------------------
+            //-------------------------------------------------------------------------------
+            //           Set Functions
+            //-------------------------------------------------------------------------------
 
-                moris::Cell<std::string> get_set_names(enum EntityRank aSetEntityRank) const;
+            void get_sideset_elems_loc_inds_and_ords(
+                    const  std::string     & aSetName,
+                    Matrix< IndexMat >     & aElemIndices,
+                    Matrix< IndexMat >     & aSidesetOrdinals ) const;
 
-                //-------------------------------------------------------------------------------
+            //-------------------------------------------------------------------------------
 
-                Matrix< IndexMat > get_set_entity_loc_inds(
-                        enum EntityRank aSetEntityRank,
-                        std::string     aSetName ) const;
+            moris::Cell<std::string> get_set_names(enum EntityRank aSetEntityRank) const;
 
-                //-------------------------------------------------------------------------------
-                //           Pointer Functions for FEM
-                //-------------------------------------------------------------------------------
+            //-------------------------------------------------------------------------------
 
-                mtk::Vertex & get_mtk_vertex( moris_index aVertexIndex )
-                {
-                    return *mMesh->get_node_by_index( aVertexIndex );
-                }
+            Matrix< IndexMat > get_set_entity_loc_inds(
+                    enum EntityRank aSetEntityRank,
+                    std::string     aSetName ) const;
 
-                //-------------------------------------------------------------------------------
+            //-------------------------------------------------------------------------------
+            //           Pointer Functions for FEM
+            //-------------------------------------------------------------------------------
 
-                mtk::Vertex const & get_mtk_vertex( moris_index aVertexIndex ) const
-                {
-                    return *mMesh->get_node_by_index( aVertexIndex );
-                }
+            mtk::Vertex & get_mtk_vertex( moris_index aVertexIndex )
+            {
+                return *mMesh->get_node_by_index( aVertexIndex );
+            }
 
-                //-------------------------------------------------------------------------------
+            //-------------------------------------------------------------------------------
 
-                //            mtk::Vertex & get_mtk_vertex_including_aura( moris_index aVertexIndex )
-                //            {
-                //                return *mMesh->get_node_by_index_including_aura( aVertexIndex );
-                //            }
+            mtk::Vertex const & get_mtk_vertex( moris_index aVertexIndex ) const
+            {
+                return *mMesh->get_node_by_index( aVertexIndex );
+            }
 
-                //-------------------------------------------------------------------------------
+            //-------------------------------------------------------------------------------
 
-                //            mtk::Vertex const & get_mtk_vertex_including_aura( moris_index aVertexIndex ) const
-                //            {
-                //                return *mMesh->get_node_by_index_including_aura( aVertexIndex );
-                //            }
+            //            mtk::Vertex & get_mtk_vertex_including_aura( moris_index aVertexIndex )
+            //            {
+            //                return *mMesh->get_node_by_index_including_aura( aVertexIndex );
+            //            }
 
-                //-------------------------------------------------------------------------------
+            //-------------------------------------------------------------------------------
 
-                mtk::Cell & get_mtk_cell( moris_index aElementIndex );
+            //            mtk::Vertex const & get_mtk_vertex_including_aura( moris_index aVertexIndex ) const
+            //            {
+            //                return *mMesh->get_node_by_index_including_aura( aVertexIndex );
+            //            }
 
-                //-------------------------------------------------------------------------------
+            //-------------------------------------------------------------------------------
 
-                mtk::Cell const & get_mtk_cell( moris_index aElementIndex ) const;
-                //-------------------------------------------------------------------------------
+            mtk::Cell & get_mtk_cell( moris_index aElementIndex );
 
-                moris::mtk::Facet*
-                get_facet(moris_index aFacetIndex)
-                {
-                    return mMesh->get_facet(aFacetIndex);
-                }
+            //-------------------------------------------------------------------------------
 
-                //-------------------------------------------------------------------------------
+            mtk::Cell const & get_mtk_cell( moris_index aElementIndex ) const;
+            //-------------------------------------------------------------------------------
 
+            moris::mtk::Facet*
+            get_facet(moris_index aFacetIndex)
+            {
+                return mMesh->get_facet(aFacetIndex);
+            }
 
-                moris::Cell<moris::mtk::Vertex const *>
-                get_all_vertices() const;
+            //-------------------------------------------------------------------------------
 
-                //-------------------------------------------------------------------------------
 
-                //            moris::Cell<moris::mtk::Vertex const *>
-                //            get_all_vertices_including_aura() const;
+            moris::Cell<moris::mtk::Vertex const *>
+            get_all_vertices() const;
 
-                //-------------------------------------------------------------------------------
+            //-------------------------------------------------------------------------------
 
-                void get_adof_map(
-                        const uint                     aBSplineIndex,
-                        map< moris_id, moris_index > & aAdofMap ) const;
+            //            moris::Cell<moris::mtk::Vertex const *>
+            //            get_all_vertices_including_aura() const;
 
-                //-------------------------------------------------------------------------------
+            //-------------------------------------------------------------------------------
 
-                moris_index get_field_ind(
-                        const std::string     & aFieldLabel,
-                        const enum EntityRank   aEntityRank) const;
+            void get_adof_map(
+                    const uint                     aBSplineIndex,
+                    map< moris_id, moris_index > & aAdofMap ) const;
 
-                //-------------------------------------------------------------------------------
+            //-------------------------------------------------------------------------------
 
-                uint get_num_fields(
-                        const enum EntityRank aEntityRank,
-                        const moris_index     aIndex = 0 ) const;
+            moris_index get_field_ind(
+                    const std::string     & aFieldLabel,
+                    const enum EntityRank   aEntityRank) const;
 
-                //-------------------------------------------------------------------------------
+            //-------------------------------------------------------------------------------
 
-                real & get_value_of_scalar_field(
-                        const      moris_index  aFieldIndex,
-                        const enum EntityRank   aEntityRank,
-                        const uint              aEntityIndex,
-                        const moris_index       aIndex = 0);
+            uint get_num_fields(
+                    const enum EntityRank aEntityRank,
+                    const moris_index     aIndex = 0 ) const;
 
-                //-------------------------------------------------------------------------------
+            //-------------------------------------------------------------------------------
 
-                const real & get_value_of_scalar_field(
-                        const      moris_index  aFieldIndex,
-                        const enum EntityRank   aEntityRank,
-                        const uint              aEntityIndex,
-                        const moris_index       aIndex = 0) const;
+            real & get_value_of_scalar_field(
+                    const      moris_index  aFieldIndex,
+                    const enum EntityRank   aEntityRank,
+                    const uint              aEntityIndex,
+                    const moris_index       aIndex = 0);
 
-                //-------------------------------------------------------------------------------
+            //-------------------------------------------------------------------------------
 
-                Matrix<DDRMat> & get_field(
-                        const moris_index     aFieldIndex,
-                        const enum EntityRank aEntityRank,
-                        const moris_index     aIndex = 0);
+            const real & get_value_of_scalar_field(
+                    const      moris_index  aFieldIndex,
+                    const enum EntityRank   aEntityRank,
+                    const uint              aEntityIndex,
+                    const moris_index       aIndex = 0) const;
 
-                //-------------------------------------------------------------------------------
+            //-------------------------------------------------------------------------------
 
-                enum CellTopology get_blockset_topology( const  std::string & aSetName );
+            Matrix<DDRMat> & get_field(
+                    const moris_index     aFieldIndex,
+                    const enum EntityRank aEntityRank,
+                    const moris_index     aIndex = 0);
 
-                //-------------------------------------------------------------------------------
-            private:
-                //-------------------------------------------------------------------------------
+            //-------------------------------------------------------------------------------
 
-                void get_element_indices_from_memory_indices(
-                        const Matrix< DDLUMat> & aMemoryIndices,
-                        Matrix< IndexMat >     & aIndices ) const;
+            enum CellTopology get_blockset_topology( const  std::string & aSetName );
 
-                //-------------------------------------------------------------------------------
-                /**
-                 * subroutine for get_elements_connected_to_element_loc_inds(
-                 */
-                void collect_memory_indices_of_active_element_neighbors(
-                        const moris_index  aElementIndex,
-                        Matrix< DDLUMat> & aMemoryIndices,
-                        Matrix< DDLUMat> & aThisCellFacetOrds,
-                        Matrix< DDLUMat> & aNeighborCellFacetOrds,
-                        Matrix< DDLUMat> & aTransitionNeighborCellLocation,
-                        luint            & aCounter ) const;
+            //-------------------------------------------------------------------------------
+        private:
+            //-------------------------------------------------------------------------------
 
-                //-------------------------------------------------------------------------------
+            void get_element_indices_from_memory_indices(
+                    const Matrix< DDLUMat> & aMemoryIndices,
+                    Matrix< IndexMat >     & aIndices ) const;
 
-                /**
-                 * subroutine for get_elements_connected_to_node_loc_inds
-                 */
-                void collect_memory_indices_of_active_elements_connected_to_node(
-                        const moris_index  aNodeIndex,
-                        Matrix< DDLUMat> & aMemoryIndices ) const;
+            //-------------------------------------------------------------------------------
+            /**
+             * subroutine for get_elements_connected_to_element_loc_inds(
+             */
+            void collect_memory_indices_of_active_element_neighbors(
+                    const moris_index  aElementIndex,
+                    Matrix< DDLUMat> & aMemoryIndices,
+                    Matrix< DDLUMat> & aThisCellFacetOrds,
+                    Matrix< DDLUMat> & aNeighborCellFacetOrds,
+                    Matrix< DDLUMat> & aTransitionNeighborCellLocation,
+                    luint            & aCounter ) const;
 
-                //-------------------------------------------------------------------------------
-            public:
-                const Matrix< DDRMat > & get_t_matrix_of_node_loc_ind(
-                        const moris_index      aNodeIndex,
-                        const enum EntityRank  aBSplineRank )
-                {
-                    return *mMesh->get_node_by_index( aNodeIndex )->get_interpolation( 0)
-                            ->get_weights();
-                }
-            private:
+            //-------------------------------------------------------------------------------
 
-                //-------------------------------------------------------------------------------
+            /**
+             * subroutine for get_elements_connected_to_node_loc_inds
+             */
+            void collect_memory_indices_of_active_elements_connected_to_node(
+                    const moris_index  aNodeIndex,
+                    Matrix< DDLUMat> & aMemoryIndices ) const;
 
-                uint get_level_of_entity_loc_ind(
-                        const enum EntityRank aEntityRank,
-                        const uint            aEntityIndex,
-                        const moris_index     aIndex = 0);
+            //-------------------------------------------------------------------------------
+        public:
+            const Matrix< DDRMat > & get_t_matrix_of_node_loc_ind(
+                    const moris_index      aNodeIndex,
+                    const enum EntityRank  aBSplineRank )
+            {
+                return *mMesh->get_node_by_index( aNodeIndex )->get_interpolation( 0)
+                             ->get_weights();
+            }
+        private:
 
+            //-------------------------------------------------------------------------------
 
-                //-------------------------------------------------------------------------------
+            uint get_level_of_entity_loc_ind(
+                    const enum EntityRank aEntityRank,
+                    const uint            aEntityIndex,
+                    const moris_index     aIndex = 0);
 
-                uint get_max_level_of_entity( const enum EntityRank aEntityRank, const moris_index     aIndex= 0 );
 
-                //-------------------------------------------------------------------------------
+            //-------------------------------------------------------------------------------
 
-                Matrix< IndexMat > get_inds_of_active_elements_connected_to_basis( const Basis * aBasis ) const;
+            uint get_max_level_of_entity( const enum EntityRank aEntityRank, const moris_index     aIndex= 0 );
 
-                //-------------------------------------------------------------------------------
+            //-------------------------------------------------------------------------------
 
-                void setup_glb_to_local_maps();
+            Matrix< IndexMat > get_inds_of_active_elements_connected_to_basis( const Basis * aBasis ) const;
 
-                //-------------------------------------------------------------------------------
+            //-------------------------------------------------------------------------------
 
-                void setup_entity_global_to_local_map(
-                        enum  EntityRank     aEntityRank,
-                        uint               & aCounter,
-                        const moris_index    aIndex = 0);
+            void setup_glb_to_local_maps();
 
-                //------------------------------------------------------------------------------
-                //##############################################
-                // Multigrid acessor functions
-                //##############################################
-                //-------------------------------------------------------------------------------
+            //-------------------------------------------------------------------------------
 
-                uint get_num_interpolations()
-                {
-                    return mMesh->get_number_of_bspline_meshes();
-                };
+            void setup_entity_global_to_local_map(
+                    enum  EntityRank     aEntityRank,
+                    uint               & aCounter,
+                    const moris_index    aIndex = 0);
 
-                //-------------------------------------------------------------------------------
+            //------------------------------------------------------------------------------
+            //##############################################
+            // Multigrid acessor functions
+            //##############################################
+            //-------------------------------------------------------------------------------
 
-                uint get_max_level( const moris_index aInterpolationIndex )
-                {
-                    return mMesh->get_bspline_mesh( aInterpolationIndex )->get_max_level();
-                };
+            uint get_num_interpolations()
+            {
+                return mMesh->get_number_of_bspline_meshes();
+            };
 
-                //-------------------------------------------------------------------------------
+            //-------------------------------------------------------------------------------
 
-                uint get_num_basis( const moris_index aInterpolationIndex )
-                {
-                    return mMesh->get_bspline_mesh( aInterpolationIndex )->get_number_of_indexed_basis();
-                }
+            uint get_max_level( const moris_index aInterpolationIndex )
+            {
+                return mMesh->get_bspline_mesh( aInterpolationIndex )->get_max_level();
+            };
 
-                //-------------------------------------------------------------------------------
+            //-------------------------------------------------------------------------------
 
-                uint get_basis_level( const moris_index aInterpolationIndex,
-                        const moris_index aBasisIndex )
-                {
-                    return mMesh->get_bspline_mesh( aInterpolationIndex )
+            uint get_num_basis( const moris_index aInterpolationIndex )
+            {
+                return mMesh->get_bspline_mesh( aInterpolationIndex )->get_number_of_indexed_basis();
+            }
+
+            //-------------------------------------------------------------------------------
+
+            uint get_basis_level( const moris_index aInterpolationIndex,
+                                  const moris_index aBasisIndex )
+            {
+                return mMesh->get_bspline_mesh( aInterpolationIndex )
                             ->get_basis_by_index( aBasisIndex )
                             ->get_level();
-                }
+            }
 
-                //-------------------------------------------------------------------------------
+            //-------------------------------------------------------------------------------
 
-                uint get_num_coarse_basis_of_basis(
-                        const moris_index aInterpolationIndex,
-                        const moris_index aBasisIndex )
-                {
-                    return mMesh->get_bspline_mesh( aInterpolationIndex )
+            uint get_num_coarse_basis_of_basis(
+                    const moris_index aInterpolationIndex,
+                    const moris_index aBasisIndex )
+            {
+                return mMesh->get_bspline_mesh( aInterpolationIndex )
                             ->get_basis_by_index( aBasisIndex )
                             ->get_number_of_parents();
-                }
+            }
 
-                //-------------------------------------------------------------------------------
+            //-------------------------------------------------------------------------------
 
-                uint get_coarse_basis_index_of_basis(
-                        const moris_index aInterpolationIndex,
-                        const moris_index aBasisIndex,
-                        const moris_index aCoarseParentIndexForBasis )
-                {
-                    return mMesh->get_bspline_mesh( aInterpolationIndex )
+            uint get_coarse_basis_index_of_basis(
+                    const moris_index aInterpolationIndex,
+                    const moris_index aBasisIndex,
+                    const moris_index aCoarseParentIndexForBasis )
+            {
+                return mMesh->get_bspline_mesh( aInterpolationIndex )
                             ->get_basis_by_index( aBasisIndex )
                             ->get_parent( aCoarseParentIndexForBasis )
                             ->get_index();
-                }
+            }
 
-                //-------------------------------------------------------------------------------
+            //-------------------------------------------------------------------------------
 
-                moris::Matrix< DDSMat > get_fine_basis_inds_of_basis(
-                        const moris_index aInterpolationIndex,
-                        const moris_index aBasisIndex )
-                {
-                    return mMesh->get_bspline_mesh( aInterpolationIndex )
+            moris::Matrix< DDSMat > get_fine_basis_inds_of_basis(
+                    const moris_index aInterpolationIndex,
+                    const moris_index aBasisIndex )
+            {
+                return mMesh->get_bspline_mesh( aInterpolationIndex )
                             ->get_children_ind_for_basis( aBasisIndex );
-                }
+            }
 
-                //-------------------------------------------------------------------------------
+            //-------------------------------------------------------------------------------
 
-                moris::Matrix< DDRMat > get_fine_basis_weights_of_basis(
-                        const moris_index aInterpolationIndex,
-                        const moris_index aBasisIndex )
-                {
-                    return mMesh->get_bspline_mesh( aInterpolationIndex )
+            moris::Matrix< DDRMat > get_fine_basis_weights_of_basis(
+                    const moris_index aInterpolationIndex,
+                    const moris_index aBasisIndex )
+            {
+                return mMesh->get_bspline_mesh( aInterpolationIndex )
                             ->get_children_weights_for_parent( aBasisIndex );
-                }
+            }
 
-                //-------------------------------------------------------------------------------
+            //-------------------------------------------------------------------------------
 
 #ifdef DEBUG
-                Matrix< DDRMat > get_basis_coords( const moris_index aInterpolationIndex,
+            Matrix< DDRMat > get_basis_coords( const moris_index aInterpolationIndex,
                         const moris_index aBasisIndex )
                 {
                     return mMesh->get_bspline_mesh( aInterpolationIndex )
@@ -604,7 +620,7 @@ namespace moris
                 }
 #endif
 
-                //-------------------------------------------------------------------------------
+            //-------------------------------------------------------------------------------
         };
 
     } /* namespace hmr */

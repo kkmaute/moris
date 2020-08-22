@@ -312,7 +312,6 @@ namespace xtk
                 // get the vertex set index
                 auto tSetIndex = mVertexSetLabelToOrd.find(aSetName);
 
-
                 moris::Cell<moris::mtk::Vertex*> tVerticesInSet = mVerticesInVertexSet(tSetIndex->second);
                 Matrix<IndexMat> tVerticesInSetMat(1,tVerticesInSet.size());
                 for(moris::uint i = 0; i < tVerticesInSet.size(); i++)
@@ -347,6 +346,13 @@ namespace xtk
                 break;
             }
         }
+    }
+
+    // ----------------------------------------------------------------------------
+
+    Matrix<IndexMat> Enriched_Integration_Mesh::get_element_indices_in_block_set(uint aSetIndex)
+    {
+        return this->get_block_entity_loc_inds(this->get_set_names(EntityRank::ELEMENT)(aSetIndex));
     }
 
     //------------------------------------------------------------------------------

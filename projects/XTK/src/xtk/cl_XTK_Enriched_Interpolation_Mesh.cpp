@@ -281,6 +281,26 @@ namespace xtk
 
     // ----------------------------------------------------------------------------
 
+    Matrix<IndexMat> Enriched_Interpolation_Mesh::get_element_indices_in_block_set(uint aSetIndex)
+    {
+        Matrix<IndexMat> tElementIndices(mEnrichedInterpCells.size(), 1);
+        if (aSetIndex == 0)
+        {
+            for (uint tElementIndex = 0; tElementIndex < mEnrichedInterpCells.size(); tElementIndex++)
+            {
+                tElementIndices(tElementIndex) = tElementIndex;
+            }
+        }
+        else
+        {
+            tElementIndices.set_size(0, 0);
+        }
+
+        return tElementIndices;
+    }
+
+    // ----------------------------------------------------------------------------
+
     moris_id
     Enriched_Interpolation_Mesh::get_max_entity_id(
             enum EntityRank   aEntityRank,

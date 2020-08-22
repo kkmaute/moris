@@ -315,6 +315,22 @@ public:
     get_set_entity_loc_inds( enum EntityRank aSetEntityRank,
                              std::string     aSetName) const;
 
+    /**
+     * Gets element indices in a block set.
+     *
+     * @param aSetIndex Block set index
+     * @return Element indices in the set
+     */
+    Matrix<IndexMat> get_element_indices_in_block_set(uint aSetIndex);
+
+    /**
+     * Gets the element IDs in a block set, in order by index.
+     *
+     * @param aSetIndex Block set index
+     * @return Element IDs in the set
+     */
+    Matrix<IdMat> get_element_ids_in_block_set(uint aSetIndex);
+
     /*
      * Topology of cells in block set
      */

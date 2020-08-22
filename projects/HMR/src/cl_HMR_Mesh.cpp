@@ -273,6 +273,58 @@ namespace moris
 
         //-----------------------------------------------------------------------------
 
+        Matrix<IndexMat> Mesh::get_element_indices_in_block_set(uint aSetIndex)
+        {
+            // Get number of elements
+            uint tNumElements = mMesh->get_number_of_elements();
+
+            // Initialize element indices
+            Matrix<IndexMat> tElementIndices(tNumElements, 1);
+
+            // Fill element indices
+            if (aSetIndex == 0)
+            {
+                for (uint tElementIndex = 0; tElementIndex < tNumElements; tElementIndex++)
+                {
+                    tElementIndices(tElementIndex) = tElementIndex;
+                }
+            }
+            else // Should not be called for a set index other than 0, but just in case:
+            {
+                tElementIndices.set_size(0, 0);
+            }
+
+            return tElementIndices;
+        }
+
+        //-----------------------------------------------------------------------------
+
+        Matrix<IdMat> Mesh::get_element_ids_in_block_set(uint aSetIndex)
+        {
+            // Get number of elements
+            uint tNumElements = mMesh->get_number_of_elements();
+
+            // Initialize element IDs
+            Matrix<IdMat> tElementIDs(tNumElements, 1);
+
+            // Fill element IDs
+            if (aSetIndex == 0)
+            {
+                for (uint tElementIndex = 0; tElementIndex < tNumElements; tElementIndex++)
+                {
+                    tElementIDs(tElementIndex) = mMesh->get_element(tElementIndex)->get_hmr_id();
+                }
+            }
+            else // Should not be called for a set index other than 0, but just in case:
+            {
+                tElementIDs.set_size(0, 0);
+            }
+
+            return tElementIDs;
+        }
+
+        //-----------------------------------------------------------------------------
+
         uint Mesh::get_num_coeffs( const uint aBsplineMeshIndex ) const
         {
             return mMesh->get_number_of_bsplines_on_proc( aBsplineMeshIndex );
@@ -1590,8 +1642,7 @@ namespace moris
         {
             if (aSetEntityRank == EntityRank::ELEMENT)
             {
-                moris::uint tAuraSize = mMesh->get_number_of_elements_including_aura() - mMesh->get_number_of_elements();
-                moris::uint tNumEntities = mMesh->get_number_of_elements_including_aura() - tAuraSize;
+                moris::uint tNumEntities = mMesh->get_number_of_elements();
 
                 Matrix< IndexMat >  tOutputEntityInds ( tNumEntities, 1 );
 
@@ -1630,23 +1681,19 @@ namespace moris
                 case EntityRank::ELEMENT:
                 {
                     return mMesh->get_element( aEntityIndex )->get_level();
-                    break;
                 }
                 case EntityRank::NODE:
                 {
                     return mMesh->get_node_by_index( aEntityIndex )->get_level();
-                    break;
                 }
                 case EntityRank::BSPLINE:
                 {
                     return mMesh->get_bspline( aIndex, aEntityIndex )->get_level();
-                    break;
                 }
                 default :
                 {
                     MORIS_ERROR( false, "get_level_of_entity_loc_ind: invalid entity rank" );
                     return 0;
-                    break;
                 }
             }
         }
@@ -1662,18 +1709,15 @@ namespace moris
                 case EntityRank::NODE:
                 {
                     return mMesh->get_max_level();
-                    break;
                 }
                 case EntityRank::BSPLINE:
                 {
                     return mMesh->get_bspline_mesh( aIndex )->get_max_level();
-                    break;
                 }
                 default :
                 {
                     MORIS_ERROR( false, "get_level_of_entity_loc_ind: invalid entity rank" );
                     return 0;
-                    break;
                 }
             }
         }
