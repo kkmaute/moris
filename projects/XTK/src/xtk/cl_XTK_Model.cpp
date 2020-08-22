@@ -664,9 +664,6 @@ namespace xtk
                 // add nodes to child mesh
                 this->decompose_internal_set_new_nodes_in_child_mesh_nh(aActiveChildMeshIndices,tDecompData);
 
-                // associate new nodes with geometry objects
-                create_new_node_association_with_geometry(tDecompData);
-
                 // mark nodes as interface nodes
                 moris_index tGeomIndex = mGeometryEngine->get_active_geometry_index();
                 for(moris::uint i = 0; i <tDecompData.tNewNodeId.size(); i++)
@@ -901,9 +898,6 @@ namespace xtk
 
                 // add nodes to child mesh
                 this->decompose_internal_set_new_nodes_in_child_mesh_nh(aActiveChildMeshIndices,tDecompData);
-
-                // associate new nodes with geometry objects
-                create_new_node_association_with_geometry(tDecompData);
 
                 // mark nodes as interface nodes
                 moris_index tGeomIndex = mGeometryEngine->get_active_geometry_index();
