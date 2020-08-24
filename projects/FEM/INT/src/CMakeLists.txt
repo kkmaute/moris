@@ -96,8 +96,9 @@ set(HEADERS
     cl_FEM_Integration_Coeffs_Tet_5.hpp
     cl_FEM_Integration_Coeffs_Tet_11.hpp
     cl_FEM_Integration_Coeffs_Tet_15.hpp
-    cl_FEM_Integration_Coeffs_Tet_31.hpp
-    cl_FEM_Integration_Coeffs_Tet_45.hpp
+    cl_FEM_Integration_Coeffs_Tet_20.hpp
+    cl_FEM_Integration_Coeffs_Tet_35.hpp
+    cl_FEM_Integration_Coeffs_Tet_56.hpp
     cl_FEM_Integration_Rule.hpp
     cl_FEM_Integrator.hpp
     cl_FEM_Integrator_Test_Polynomial.hpp
