@@ -12,9 +12,11 @@ namespace moris
     namespace fem
     {
         //------------------------------------------------------------------------------
+
         IWG_FS_Struc_Interface::IWG_FS_Struc_Interface(){}
 
         //------------------------------------------------------------------------------
+
         void IWG_FS_Struc_Interface::compute_residual( real aWStar )
         {
 #ifdef DEBUG
@@ -38,11 +40,18 @@ namespace moris
                     mSlaveFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );
 
             // compute slave residual
-            mSet->get_residual()( 0 )( { tSlaveResStartIndex, tSlaveResStopIndex }, { 0, 0 } ) -= aWStar * (
-                    trans( tFISolidDispl->N() ) * tFIFluidPressure->val() );
+            mSet->get_residual()( 0 )(
+                    { tSlaveResStartIndex, tSlaveResStopIndex },
+                    { 0, 0 } ) -= aWStar * (
+                            trans( tFISolidDispl->N() ) * tFIFluidPressure->val() );
+
+            // check for nan, infinity
+            MORIS_ERROR( isfinite( mSet->get_residual()( 0 ) ),
+                    "IWG_FS_Struc_Interface::compute_residual - Residual contains NAN or INF, exiting!");
         }
 
         //------------------------------------------------------------------------------
+
         void IWG_FS_Struc_Interface::compute_jacobian( real aWStar )
         {
 #ifdef DEBUG
@@ -91,15 +100,21 @@ namespace moris
                                     trans( tFISolidDispl->N() ) * tFIFluidPressure->N() );
                 }
             }
+
+            // check for nan, infinity
+            MORIS_ERROR(  isfinite( mSet->get_jacobian() ) ,
+                    "IWG_FS_Struc_Interface::compute_jacobian - Jacobian contains NAN or INF, exiting!");
         }
 
         //------------------------------------------------------------------------------
+
         void IWG_FS_Struc_Interface::compute_jacobian_and_residual( real aWStar )
         {
             MORIS_ERROR( false, "IWG_FS_Struc_Interface::compute_jacobian_and_residual - This function does nothing.");
         }
 
         //------------------------------------------------------------------------------
+
         void IWG_FS_Struc_Interface::compute_dRdp( real aWStar )
         {
             MORIS_ERROR( false, "IWG_FS_Struc_Interface::compute_dRdp - This function does nothing.");

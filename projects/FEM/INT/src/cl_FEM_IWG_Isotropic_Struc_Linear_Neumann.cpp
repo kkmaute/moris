@@ -13,6 +13,7 @@ namespace moris
     {
 
         //------------------------------------------------------------------------------
+
         IWG_Isotropic_Struc_Linear_Neumann::IWG_Isotropic_Struc_Linear_Neumann()
         {
             // set size for the property pointer cell
@@ -24,6 +25,7 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+
         void IWG_Isotropic_Struc_Linear_Neumann::set_property(
                 std::shared_ptr< Property > aProperty,
                 std::string                 aPropertyString,
@@ -43,8 +45,8 @@ namespace moris
             this->get_properties( aIsMaster )( static_cast< uint >( mPropertyMap[ aPropertyString ] ) ) = aProperty;
         }
 
-
         //------------------------------------------------------------------------------
+
         void IWG_Isotropic_Struc_Linear_Neumann::compute_residual( real aWStar )
         {
 #ifdef DEBUG
@@ -72,15 +74,23 @@ namespace moris
             // compute the residual
             if (tPropTraction != nullptr)
             {
-                mSet->get_residual()( 0 )( { tMasterResStartIndex, tMasterResStopIndex }, { 0, 0 } ) -= aWStar * (
-                        trans( tFI->N() ) * tPropTraction->val() );
+                mSet->get_residual()( 0 )(
+                        { tMasterResStartIndex, tMasterResStopIndex },
+                        { 0, 0 } ) -= aWStar * (
+                                trans( tFI->N() ) * tPropTraction->val() );
             }
 
             if (tPropPressure != nullptr)
             {
-                mSet->get_residual()( 0 )( { tMasterResStartIndex, tMasterResStopIndex }, { 0, 0 } ) -= aWStar * (
-                        trans( tFI->N() ) * mNormal *  tPropPressure->val());
+                mSet->get_residual()( 0 )(
+                        { tMasterResStartIndex, tMasterResStopIndex },
+                        { 0, 0 } ) -= aWStar * (
+                                trans( tFI->N() ) * mNormal *  tPropPressure->val());
             }
+
+            // check for nan, infinity
+            MORIS_ERROR( isfinite( mSet->get_residual()( 0 ) ),
+                    "IWG_Isotropic_Struc_Linear_Neumann::compute_residual - Residual contains NAN or INF, exiting!");
         }
 
         //------------------------------------------------------------------------------
@@ -145,15 +155,21 @@ namespace moris
                     }
                 }
             }
+
+            // check for nan, infinity
+            MORIS_ERROR(  isfinite( mSet->get_jacobian() ) ,
+                    "IWG_Isotropic_Struc_Linear_Neumann::compute_jacobian - Jacobian contains NAN or INF, exiting!");
         }
 
         //------------------------------------------------------------------------------
+
         void IWG_Isotropic_Struc_Linear_Neumann::compute_jacobian_and_residual( real aWStar )
         {
             MORIS_ERROR( false, "IWG_Isotropic_Struc_Linear_Neumann::compute_jacobian_and_residual - Not implemented.");
         }
 
         //------------------------------------------------------------------------------
+
         void IWG_Isotropic_Struc_Linear_Neumann::compute_dRdp( real aWStar )
         {
             MORIS_ERROR( false, "IWG_Isotropic_Struc_Linear_Neumann::compute_dRdp - Not implemented.");

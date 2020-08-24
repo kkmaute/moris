@@ -118,16 +118,24 @@ namespace moris
             Matrix< DDRMat > tJumpViscosity = tFIMaster->val() - tFISlave->val();
 
             // compute master residual
-            mSet->get_residual()( 0 )( { tMasterResStartIndex, tMasterResStopIndex }, { 0, 0 } ) += aWStar * (
-                    - trans( tFIMaster->N() ) * tTraction
-                    - mBeta * tMasterWeight * trans( tMasterTestTraction ) * tJumpViscosity
-                    + tNitsche * trans( tFIMaster->N() ) * tJumpViscosity ) ;
+            mSet->get_residual()( 0 )(
+                    { tMasterResStartIndex, tMasterResStopIndex },
+                    { 0, 0 } ) += aWStar * (
+                            - trans( tFIMaster->N() ) * tTraction
+                            - mBeta * tMasterWeight * trans( tMasterTestTraction ) * tJumpViscosity
+                            + tNitsche * trans( tFIMaster->N() ) * tJumpViscosity ) ;
 
             // compute slave residual
-            mSet->get_residual()( 0 )( { tSlaveResStartIndex, tSlaveResStopIndex }, { 0, 0 } ) += aWStar * (
-                    + trans( tFISlave->N() ) * tTraction
-                    - mBeta * tSlaveWeight * trans( tSlaveTestTraction ) * tJumpViscosity
-                    - tNitsche * trans( tFISlave->N() ) * tJumpViscosity );
+            mSet->get_residual()( 0 )(
+                    { tSlaveResStartIndex, tSlaveResStopIndex },
+                    { 0, 0 } ) += aWStar * (
+                            + trans( tFISlave->N() ) * tTraction
+                            - mBeta * tSlaveWeight * trans( tSlaveTestTraction ) * tJumpViscosity
+                            - tNitsche * trans( tFISlave->N() ) * tJumpViscosity );
+
+            // check for nan, infinity
+            MORIS_ERROR( isfinite(  mSet->get_residual()( 0 ) ),
+                    "IWG_Spalart_Allmaras_Turbulence_Interface::compute_residual - Residual contains NAN or INF, exiting!");
         }
 
         //------------------------------------------------------------------------------
@@ -332,6 +340,10 @@ namespace moris
                                     - mBeta * trans( tSlaveTestTraction ) * tJumpViscosity * tSlaveWeightDer );
                 }
             }
+
+            // check for nan, infinity
+            MORIS_ERROR( isfinite( mSet->get_jacobian() ) ,
+                    "IWG_Spalart_Allmaras_Turbulence_Interface::compute_jacobian - Jacobian contains NAN or INF, exiting!");
         }
 
         //------------------------------------------------------------------------------

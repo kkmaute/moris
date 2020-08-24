@@ -155,6 +155,10 @@ namespace moris
                                 trans( tCMDiffusion->testStrain() ) * tGGLSParam->val()(0) *
                                 ( tCMDiffusion->gradEnergyDot() - tCMDiffusion->graddivflux() ) );
             }
+
+            // check for nan, infinity
+            MORIS_ERROR( isfinite( mSet->get_residual()( 0 ) ),
+                    "IWG_Diffusion_Bulk::compute_residual - Residual contains NAN or INF, exiting!");
         }
 
         //------------------------------------------------------------------------------
@@ -263,6 +267,10 @@ namespace moris
                                     tGGLSParam->dSPdMasterDOF( tDofType ) );
                 }
             }
+
+            // check for nan, infinity
+            MORIS_ERROR(  isfinite( mSet->get_jacobian() ) ,
+                    "IWG_Diffusion_Bulk::compute_jacobian - Jacobian contains NAN or INF, exiting!");
         }
 
         //------------------------------------------------------------------------------

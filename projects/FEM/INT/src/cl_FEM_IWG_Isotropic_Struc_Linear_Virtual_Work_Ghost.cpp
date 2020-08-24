@@ -12,6 +12,7 @@ namespace moris
     namespace fem
     {
         //------------------------------------------------------------------------------
+
         IWG_Isotropic_Struc_Linear_Virtual_Work_Ghost::IWG_Isotropic_Struc_Linear_Virtual_Work_Ghost()
         {
             // set size for the constitutive model pointer cell
@@ -29,6 +30,7 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+
         void IWG_Isotropic_Struc_Linear_Virtual_Work_Ghost::set_constitutive_model(
                 std::shared_ptr< Constitutive_Model > aConstitutiveModel,
                 std::string                           aConstitutiveString,
@@ -45,6 +47,7 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+
         void IWG_Isotropic_Struc_Linear_Virtual_Work_Ghost::set_stabilization_parameter(
                 std::shared_ptr< Stabilization_Parameter > aStabilizationParameter,
                 std::string                                aStabilizationString )
@@ -60,6 +63,7 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+
         void IWG_Isotropic_Struc_Linear_Virtual_Work_Ghost::compute_residual( real aWStar )
         {
 #ifdef DEBUG
@@ -136,9 +140,14 @@ namespace moris
                 mSet->get_residual()( 0 )( { tSlaveResStartIndex,  tSlaveResStopIndex },  { 0, 0 } ) -= aWStar * (
                         tGhostPenalty * trans( mSlaveCM( tElastLinIsoIndex )->testStrain() )  * trans( tNormalMatrix ) * tGradJump );
             }
+
+            // check for nan, infinity
+            MORIS_ERROR( isfinite( mSet->get_residual()( 0 ) ),
+                    "IWG_Isotropic_Struc_Linear_Virtual_Work_Ghost::compute_residual - Residual contains NAN or INF, exiting!");
         }
 
         //------------------------------------------------------------------------------
+
         void IWG_Isotropic_Struc_Linear_Virtual_Work_Ghost::compute_jacobian( real aWStar )
         {
 #ifdef DEBUG
@@ -266,21 +275,28 @@ namespace moris
                     }
                 }
             }
+
+            // check for nan, infinity
+            MORIS_ERROR(  isfinite( mSet->get_jacobian() ) ,
+                    "IWG_Isotropic_Struc_Linear_Virtual_Work_Ghost::compute_jacobian - Jacobian contains NAN or INF, exiting!");
         }
 
         //------------------------------------------------------------------------------
+
         void IWG_Isotropic_Struc_Linear_Virtual_Work_Ghost::compute_jacobian_and_residual( real aWStar )
         {
             MORIS_ERROR( false, "IWG_Isotropic_Struc_Linear_Virtual_Work_Ghost::compute_jacobian_and_residual - Not implemented." );
         }
 
         //------------------------------------------------------------------------------
+
         void IWG_Isotropic_Struc_Linear_Virtual_Work_Ghost::compute_dRdp( real aWStar )
         {
             MORIS_ERROR( false, "IWG_Isotropic_Struc_Linear_Virtual_Work_Ghost::compute_dRdp - This function does nothing.");
         }
 
         //------------------------------------------------------------------------------
+
         void IWG_Isotropic_Struc_Linear_Virtual_Work_Ghost::get_normal_matrix
         ( uint               aOrderGhost,
                 Matrix< DDRMat > & aNormalMatrix )

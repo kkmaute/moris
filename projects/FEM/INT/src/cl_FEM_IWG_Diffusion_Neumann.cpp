@@ -70,6 +70,10 @@ namespace moris
                     { tResStartIndex, tResStopIndex },
                     { 0, 0 } ) += aWStar * (
                             - trans( tFI->N() ) * mMasterProp( tNeumannIndex )->val() );
+
+            // check for nan, infinity
+            MORIS_ERROR( isfinite( mSet->get_residual()( 0 ) ),
+                    "IWG_Diffusion_Neumann::compute_residual - Residual contains NAN or INF, exiting!");
         }
 
         //------------------------------------------------------------------------------
@@ -114,6 +118,10 @@ namespace moris
                                     trans( tFI->N() ) * mMasterProp( tNeumannIndex )->dPropdDOF( tDepDofType ) );
                 }
             }
+
+            // check for nan, infinity
+            MORIS_ERROR(  isfinite( mSet->get_jacobian() ) ,
+                    "IWG_Diffusion_Neumann::compute_jacobian - Jacobian contains NAN or INF, exiting!");
         }
 
         //------------------------------------------------------------------------------

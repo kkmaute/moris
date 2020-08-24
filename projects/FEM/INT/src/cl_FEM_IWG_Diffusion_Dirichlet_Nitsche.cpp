@@ -156,6 +156,10 @@ namespace moris
                             - trans( tFI->N() ) * tM * tCMDiffusion->traction( mNormal )
                             + mBeta * tCMDiffusion->testTraction( mNormal, mResidualDofType ) * tM * tJump
                             + tSPNitsche->val()( 0 ) * trans( tFI->N() ) * tM * tJump );
+
+            // check for nan, infinity
+            MORIS_ERROR( isfinite( mSet->get_residual()( 0 ) ),
+                    "IWG_Diffusion_Dirichlet_Nitsche::compute_residual - Residual contains NAN or INF, exiting!");
         }
 
         //------------------------------------------------------------------------------
@@ -264,6 +268,10 @@ namespace moris
                                     trans( tFI->N() ) * tM * tJump( 0 ) * tSPNitsche->dSPdMasterDOF( tDofType ) );
                 }
             }
+
+            // check for nan, infinity
+            MORIS_ERROR(  isfinite( mSet->get_jacobian() ) ,
+                    "IWG_Diffusion_Dirichlet_Nitsche::compute_jacobian - Jacobian contains NAN or INF, exiting!");
         }
 
         //------------------------------------------------------------------------------
@@ -279,7 +287,6 @@ namespace moris
         {
             MORIS_ERROR( false, "IWG_Diffusion_Dirichlet_Nitsche::compute_dRdp - Not implemented.");
         }
-
 
         //------------------------------------------------------------------------------
     } /* namespace fem */

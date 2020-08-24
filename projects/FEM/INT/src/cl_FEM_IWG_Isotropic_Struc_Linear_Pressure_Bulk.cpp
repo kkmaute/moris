@@ -12,6 +12,7 @@ namespace moris
     namespace fem
     {
         //------------------------------------------------------------------------------
+
         IWG_Isotropic_Struc_Linear_Pressure_Bulk::IWG_Isotropic_Struc_Linear_Pressure_Bulk()
         {
             // set size for the constitutive model pointer cell
@@ -22,6 +23,7 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+
         void IWG_Isotropic_Struc_Linear_Pressure_Bulk::set_constitutive_model(
                 std::shared_ptr< Constitutive_Model > aConstitutiveModel,
                 std::string                           aConstitutiveString,
@@ -42,6 +44,7 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+
         void IWG_Isotropic_Struc_Linear_Pressure_Bulk::compute_residual( real aWStar )
         {
 #ifdef DEBUG
@@ -65,11 +68,18 @@ namespace moris
                     static_cast < moris::fem::CM_Struc_Linear_Isotropic* > ( mMasterCM( static_cast< uint >( IWG_Constitutive_Type::ELAST_LIN_ISO ) ).get());
 
             // compute the residual
-            mSet->get_residual()( 0 )( { tMasterResStartIndex, tMasterResStopIndex }, { 0, 0 } ) += aWStar * (
+            mSet->get_residual()( 0 )(
+                    { tMasterResStartIndex, tMasterResStopIndex },
+                    { 0, 0 } ) += aWStar * (
                     trans( tPressureFI->N() ) * ( tDisplacementFI->div() + tCMElasticity->eval_inv_bulk_modulus() * tPressureFI->val()( 0 ) ) );
+
+            // check for nan, infinity
+            MORIS_ERROR( isfinite( mSet->get_residual()( 0 ) ),
+                    "IWG_Isotropic_Struc_Linear_Pressure_Bulk::compute_residual - Residual contains NAN or INF, exiting!");
         }
 
         //------------------------------------------------------------------------------
+
         void IWG_Isotropic_Struc_Linear_Pressure_Bulk::compute_jacobian( real aWStar )
         {
 #ifdef DEBUG
@@ -131,15 +141,21 @@ namespace moris
                                     trans( tPressureFI->N() ) * tCMElasticity->eval_dInvBulkModulusdDOF( tDofType ) * tPressureFI->val()( 0 ) );
                 }
             }
+
+            // check for nan, infinity
+            MORIS_ERROR(  isfinite( mSet->get_jacobian() ) ,
+                    "IWG_Isotropic_Struc_Linear_Pressure_Bulk::compute_jacobian - Jacobian contains NAN or INF, exiting!");
         }
 
         //------------------------------------------------------------------------------
+
         void IWG_Isotropic_Struc_Linear_Pressure_Bulk::compute_jacobian_and_residual( real aWStar )
         {
             MORIS_ERROR( false, "IWG_Isotropic_Struc_Linear_Pressure_Bulk::compute_jacobian_and_residual - Not implemented.");
         }
 
         //------------------------------------------------------------------------------
+
         void IWG_Isotropic_Struc_Linear_Pressure_Bulk::compute_dRdp( real aWStar )
         {
             MORIS_ERROR( false, "IWG_Isotropic_Struc_Linear_Pressure_Bulk::compute_dRdp - Not implemented.");

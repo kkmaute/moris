@@ -4,7 +4,6 @@
 #include "cl_FEM_Field_Interpolator_Manager.hpp"
 //LINALG/src
 #include "fn_trans.hpp"
-#include "fn_isfinite.hpp"
 
 namespace moris
 {
@@ -120,9 +119,14 @@ namespace moris
                             trans( tFIViscosity->N() ) * tWallDestructionTerm +
                             trans( tFIViscosity->dnNdxn( 1 ) ) * tDiffusionCoeff * tFIViscosity->gradx( 1 ) +
                             trans( tFIViscosity->dnNdxn( 1 ) ) * tModVelocity * tSPSUPG->val()( 0 ) * tR( 0 ) );
+
+            // check for nan, infinity
+            MORIS_ERROR( isfinite( mSet->get_residual()( 0 ) ),
+                    "IWG_Spalart_Allmaras_Turbulence_Bulk::compute_residual - Residual contains NAN or INF, exiting!");
         }
 
         //------------------------------------------------------------------------------
+
         void IWG_Spalart_Allmaras_Turbulence_Bulk::compute_jacobian( real aWStar )
         {
 #ifdef DEBUG
@@ -239,6 +243,10 @@ namespace moris
                                 trans( tFIViscosity->dnNdxn( 1 ) ) * tFIViscosity->gradx( 1 ) * tdDiffdu +
                                 trans( tFIViscosity->dnNdxn( 1 ) ) * tModVelocity * tSPSUPG->val()( 0 ) * tJ );
             }
+
+            // check for nan, infinity
+            MORIS_ERROR( isfinite( mSet->get_jacobian() ),
+                    "IWG_Spalart_Allmaras_Turbulence_Bulk::compute_jacobian - Jacobian contains NAN or INF, exiting!");
         }
 
         //------------------------------------------------------------------------------

@@ -165,9 +165,9 @@ namespace moris
             mSet->get_residual()( 0 )(
                     { tMasterResStartIndex, tMasterResStopIndex },
                     { 0, 0 } ) += aWStar * (
-                                    - trans( tFIVelocity->N() ) * tM * tCMFluid->traction( mNormal )
-                                    - mBeta * trans( tCMFluid->testTraction( mNormal, mResidualDofType ) ) * tM * tVelocityJump
-                                    + tSPNitsche->val()( 0 ) * trans( tFIVelocity->N() ) * tM * tVelocityJump );
+                            - trans( tFIVelocity->N() ) * tM * tCMFluid->traction( mNormal )
+                            - mBeta * trans( tCMFluid->testTraction( mNormal, mResidualDofType ) ) * tM * tVelocityJump
+                            + tSPNitsche->val()( 0 ) * trans( tFIVelocity->N() ) * tM * tVelocityJump );
 
             // if upwind
             if ( tPropUpwind )
@@ -189,6 +189,10 @@ namespace moris
                                 mBeta * trans( tCMTurbulence->testTraction( mNormal, mResidualDofType ) ) *
                                 tM * tVelocityJump );
             }
+
+            // check for nan, infinity
+            MORIS_ERROR( isfinite( mSet->get_residual()( 0 ) ),
+                    "IWG_Incompressible_NS_Velocity_Dirichlet_Nitsche::compute_residual - Residual contains NAN or INF, exiting!");
         }
 
         //------------------------------------------------------------------------------
@@ -353,8 +357,8 @@ namespace moris
                         mSet->get_jacobian()(
                                 { tMasterResStartIndex, tMasterResStopIndex },
                                 { tMasterDepStartIndex, tMasterDepStopIndex } ) += aWStar * (
-                                       - mBeta * trans( tCMTurbulence->testTraction( mNormal, mResidualDofType ) ) *
-                                       tM * tFIVelocity->N() );
+                                        - mBeta * trans( tCMTurbulence->testTraction( mNormal, mResidualDofType ) ) *
+                                        tM * tFIVelocity->N() );
                     }
 
                     // if imposed velocity depends on dof type
@@ -364,8 +368,8 @@ namespace moris
                         mSet->get_jacobian()(
                                 { tMasterResStartIndex, tMasterResStopIndex },
                                 { tMasterDepStartIndex, tMasterDepStopIndex } ) -= aWStar * (
-                                       - mBeta * trans( tCMTurbulence->testTraction( mNormal, mResidualDofType ) ) *
-                                       tM * tPropVelocity->dPropdDOF( tDofType ) );
+                                        - mBeta * trans( tCMTurbulence->testTraction( mNormal, mResidualDofType ) ) *
+                                        tM * tPropVelocity->dPropdDOF( tDofType ) );
                     }
 
                     // if turbulence depends on dof type
@@ -380,6 +384,10 @@ namespace moris
                     }
                 }
             }
+
+            // check for nan, infinity
+            MORIS_ERROR(  isfinite( mSet->get_jacobian() ) ,
+                    "IWG_Incompressible_NS_Velocity_Dirichlet_Nitsche::compute_jacobian - Jacobian contains NAN or INF, exiting!");
         }
 
         //------------------------------------------------------------------------------
