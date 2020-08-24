@@ -186,6 +186,8 @@ namespace moris
         {
             mRefinementFunctions.push_back(aLibrary->load_user_defined_refinement_functions(tFunctionNames(tFunctionIndex)));
         }
+
+        this->update_max_polynomial_and_truncated_buffer();
     }
 
 //--------------------------------------------------------------------------------
