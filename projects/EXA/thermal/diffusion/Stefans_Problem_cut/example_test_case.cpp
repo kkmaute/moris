@@ -63,7 +63,7 @@ void check_linear_results(moris::mtk::Exodus_IO_Helper & aExoIO,uint aNodeId)
     REQUIRE( tRelTimeDifference <  1.0e-8 );
 
     // check temperature at node aNodeId in first time step (temperature is 3rd nodal field, first time step has index 0)
-    real tReferenceTemperature = 328.984629;
+    real tReferenceTemperature = 3.289846289451254e+02;
 
     real tRelTempDifference = std::abs( ( aExoIO.get_nodal_field_value( aNodeId, 2, 14 ) - tReferenceTemperature ) / tReferenceTemperature );
 
@@ -107,7 +107,7 @@ void check_quadratic_results(moris::mtk::Exodus_IO_Helper & aExoIO,uint aNodeId)
     REQUIRE( tRelTimeDifference <  1.0e-8 );
 
     // check temperature at node aNodeId in first time step (temperature is 3rd nodal field, first time step has index 0)
-    real tReferenceTemperature = 328.804624;
+    real tReferenceTemperature = 3.288041558380193e+02;
 
     real tRelTempDifference = std::abs( ( aExoIO.get_nodal_field_value( aNodeId, 2, 14 ) - tReferenceTemperature ) / tReferenceTemperature );
     REQUIRE(  tRelTempDifference < 1.0e-4);

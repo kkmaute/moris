@@ -4,12 +4,11 @@
  *  Created on: Jul 14, 2018
  *      Author: schmidt
  */
+
 #include "cl_MSI_Pdof_Host.hpp"
 #include "cl_MSI_Model_Solver_Interface.hpp"
 #include "cl_MSI_Dof_Manager.hpp"
-
 #include "cl_MSI_Solver_Interface.hpp"
-
 #include "cl_MSI_Equation_Object.hpp"
 #include "cl_MSI_Equation_Set.hpp"
 #include "cl_MSI_Equation_Model.hpp"
@@ -20,6 +19,8 @@ namespace moris
 {
     namespace MSI
     {
+
+        //-------------------------------------------------------------------------------------------------
 
         Equation_Object::Equation_Object(
                 const moris::Cell < moris::Cell< fem::Node_Base * > > & aNodeObjs )
@@ -253,7 +254,7 @@ namespace moris
                     for ( moris::uint Ij=0; Ij < tNumMyPdofs; Ij++ )
                     {
                         tNonUniqueAdofIds ( { tAdofPosCounter, tAdofPosCounter + ( mFreePdofList( Ia )( Ik )( Ij )->mAdofIds ).numel() -1 }, { 0, 0 } )
-                                                    = mFreePdofList( Ia )( Ik )( Ij )->mAdofIds.matrix_data();
+                                                            = mFreePdofList( Ia )( Ik )( Ij )->mAdofIds.matrix_data();
 
                         // Add number if these adofs to number of assembled adofs
                         tAdofPosCounter += ( mFreePdofList( Ia )( Ik )( Ij )->mAdofIds ).numel();
@@ -481,7 +482,7 @@ namespace moris
 
                     if( tNumEntries != 0 )
                     {
-                       aEqnObjAdofId( { tCounter, tCounter + tNumEntries - 1 }, { 0, 0 }) =
+                        aEqnObjAdofId( { tCounter, tCounter + tNumEntries - 1 }, { 0, 0 }) =
                                 mUniqueAdofTypeList( Ii )( tDofTypeIndex ).matrix_data();
 
                         tCounter += tNumEntries;
@@ -498,7 +499,7 @@ namespace moris
 
         void Equation_Object::get_egn_obj_jacobian( Matrix< DDRMat > & aEqnObjMatrix )
         {
-            // compute Jacobian
+            // compute jacobian
             this->compute_jacobian();
 
             // build T-matrix
@@ -519,9 +520,10 @@ namespace moris
 
         void Equation_Object::get_equation_obj_residual( Cell< Matrix< DDRMat > > & aEqnObjRHS )
         {
+            // compute R for forward analysis or dQIdp for sensitivity analysis
             this->compute_residual();
 
-            //        Cell< Matrix< DDRMat > > & tElementalResidual = mEquationSet->get_residual();
+            // get R or dQIdp values from set
             Cell< Matrix< DDRMat > > tElementalResidual = mEquationSet->get_residual();
 
             //        this->add_staggered_contribution_to_residual( tElementalResidual );
@@ -564,7 +566,7 @@ namespace moris
             Cell< Matrix< DDRMat > > tElementalResidual( tNumRHS );
 
             // FIXME this is a hack and will be changed in the next days
-            // if forward analysis
+            // if sensitivity analysis
             if( !mEquationSet->mEquationModel->get_is_forward_analysis() )
             {
                 // compute jacobian
@@ -600,8 +602,8 @@ namespace moris
         void Equation_Object::get_egn_obj_jacobian_and_residual(
                 Matrix< DDRMat > & aEqnObjMatrix,
                 Cell< Matrix< DDRMat > > & aEqnObjRHS )
-          {
-              // compute Jacobian
+        {
+            // compute Jacobian
             this->compute_jacobian_and_residual();
 
             // build T-matrix
@@ -640,7 +642,7 @@ namespace moris
             {
                 aEqnObjRHS( Ik ) = trans( tTMatrix ) * tElementalResidual( Ik );
             }
-          }
+        }
 
         //-------------------------------------------------------------------------------------------------
 
@@ -908,14 +910,16 @@ namespace moris
         }
 
         //-------------------------------------------------------------------------------------------------
+
         void Equation_Object::set_time( Matrix< DDRMat > & aTime )
         {
             return mEquationSet->mEquationModel->set_time( aTime );
         }
 
+        //-------------------------------------------------------------------------------------------------
+
         Matrix< DDRMat > & Equation_Object::get_time()
         {
-            //return mTime ;
             return mEquationSet->mEquationModel->get_time();
         }
 
@@ -1005,16 +1009,16 @@ namespace moris
 
             switch ( aIsMaster )
             {
-                case ( mtk::Master_Slave::MASTER ):
-                        {
+                case mtk::Master_Slave::MASTER :
+                {
                     tIsMaster = 0;
                     break;
-                        }
-                case( mtk::Master_Slave::SLAVE ):
-                        {
+                }
+                case mtk::Master_Slave::SLAVE :
+                {
                     tIsMaster = 1;
                     break;
-                        }
+                }
                 default:
                 {
                     MORIS_ERROR(false, "Equation_Object::get_my_pdof_values - can only be MASTER or SLAVE");
@@ -1047,7 +1051,7 @@ namespace moris
                     // Get dof type index
 
                     moris::sint tDofTypeIndex = mEquationSet->get_model_solver_interface()->get_dof_manager()
-                                                                                  ->get_pdof_index_for_type( aRequestedDofTypes( Ii ) );
+                                                                                          ->get_pdof_index_for_type( aRequestedDofTypes( Ii ) );
 
                     MORIS_ASSERT( mMyPdofHosts( tIsMaster )( Ik )->get_num_time_levels_of_type( tDofTypeIndex ) !=0,
                             "Equation_Object::get_my_pdof_values: talk with Mathias about this");                         //FIXME delete this error after a closer look
@@ -1086,7 +1090,7 @@ namespace moris
                     {
                         // Get dof type index
                         moris::sint tDofTypeIndex = mEquationSet->get_model_solver_interface()->get_dof_manager()
-                                                                                      ->get_pdof_index_for_type( aRequestedDofTypes( Ii ) );
+                                                                                              ->get_pdof_index_for_type( aRequestedDofTypes( Ii ) );
 
                         // Check if number if time levels on this dof type is smaller than maximal number of time levels on dof type
                         if ( (sint)mMyPdofHosts( tIsMaster )( Ik )->get_num_time_levels_of_type( tDofTypeIndex ) == tMaxTimeLevelsOnDofType )
@@ -1111,8 +1115,9 @@ namespace moris
 
         //-------------------------------------------------------------------------------------------------
 
-        void Equation_Object::reshape_pdof_values( const Cell< Matrix< DDRMat > > & aPdofValues,
-                Matrix< DDRMat >         & aReshapedPdofValues )
+        void Equation_Object::reshape_pdof_values(
+                const Cell< Matrix< DDRMat > > & aPdofValues,
+                Matrix< DDRMat >               & aReshapedPdofValues )
         {
             MORIS_ASSERT( aPdofValues.size() != 0,
                     "Equation_Object::reshape_pdof_values(), pdof value vector is empty");

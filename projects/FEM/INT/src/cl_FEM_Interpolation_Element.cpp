@@ -516,14 +516,15 @@ namespace moris
             //----------------------------------------------------------------------------------------
 
             // get the assembly vector
-            Matrix< DDSMat > tLocalToGlobalIds2 = mEquationSet->get_geo_pdv_assembly_vector();
+            Matrix< DDSMat > tLocalToGlobalIds =
+                    mEquationSet->get_geo_pdv_assembly_vector();
 
             // loop over the ig pdv
             for( uint Ik = 0; Ik < mSet->mdQIdp( 1 ).size(); Ik++ )
             {
                 // assemble explicit dQIdpGeo into multivector
                 mEquationSet->get_equation_model()->get_explicit_dQidp()->sum_into_global_values(
-                        tLocalToGlobalIds2,
+                        tLocalToGlobalIds,
                         mSet->mdQIdp( 1 )( Ik ),
                         Ik );
             }
@@ -542,27 +543,6 @@ namespace moris
             // extract adjoint values for this equation object
             this->compute_my_adjoint_values();
 
-            //        moris::Matrix< DDRMat > tMyAdjointValues( mAdjointPdofValues.numel(), 1, 0.0 );
-            //
-            //        // get number of master dof types
-            //        uint tMasterNumDofTypes = mEquationSet->get_dof_type_list().size();
-            //
-            //        // loop on the master dof types
-            //        for( uint iDOF = 0; iDOF < tMasterNumDofTypes; iDOF++ )
-            //        {
-            //            // get the ith dof type group
-            //            moris::Cell< MSI::Dof_Type > tDofTypeGroup = mSet->get_dof_type_list()( iDOF );
-            //
-            //            // get the pdof values for the ith dof type group. Outer cell are multi-vector entries
-            //            Cell< Cell< Matrix< DDRMat > > > tCoeff_Original;
-            //            this->get_my_pdof_values( mAdjointPdofValues, tDofTypeGroup, tCoeff_Original );
-            //
-            //        //FIXME reshape correctly
-            ////            // reshape tCoeffs into the order the cluster expects them
-            ////            Matrix< DDRMat > tCoeff;
-            ////            this->reshape_pdof_values( tCoeff_Original( 0 ), tCoeff );
-            //        }
-
             // get requested dv types from GE
             Cell< enum PDV_Type > tRequestedIPDvTypes;
 
@@ -579,10 +559,12 @@ namespace moris
                 if( tRequestedIPDvTypesFromFEM.size()!= 0 )
                 {
                     // post multiplication of adjoint values time dRdp
-                    moris::Matrix< DDRMat > tLocalIPdQiDp = -1.0 * trans( mAdjointPdofValues( Ik ) ) * tdRdp( 0 );
+                    moris::Matrix< DDRMat > tLocalIPdQiDp =
+                            -1.0 * trans( mAdjointPdofValues( Ik ) ) * tdRdp( 0 );
 
                     // get vertices from cell
-                    Matrix< IndexMat > tVerticesInds = mMasterInterpolationCell->get_vertex_inds();
+                    Matrix< IndexMat > tVerticesInds =
+                            mMasterInterpolationCell->get_vertex_inds();
 
                     //FIXME add Slave for double side set and ghost
 
@@ -628,18 +610,22 @@ namespace moris
             //----------------------------------------------------------------------------------------
 
             // get the assembly vector
-            Matrix< DDSMat > tLocalToGlobalIds2 = mEquationSet->get_geo_pdv_assembly_vector();
+            Matrix< DDSMat > tLocalToGlobalIds =
+                    mEquationSet->get_geo_pdv_assembly_vector();
 
-            if( tLocalToGlobalIds2.numel() > 0 )
+            // if assembly vector is not empty
+            if( tLocalToGlobalIds.numel() > 0 )
             {
+                // loop over the adjoint values lambda
                 for( uint Ik = 0; Ik < mAdjointPdofValues.size(); Ik++ )
                 {
                     // post multiplication of adjoint values time dRdp
-                    moris::Matrix< DDRMat > tLocalIGdQiDp = -1.0 * trans( mAdjointPdofValues( Ik ) ) * tdRdp( 1 );
+                    moris::Matrix< DDRMat > tLocalIGdQiDp =
+                            -1.0 * trans( mAdjointPdofValues( Ik ) ) * tdRdp( 1 );
 
                     // assemble implicit dQidp into multivector
                     mEquationSet->get_equation_model()->get_implicit_dQidp()->sum_into_global_values(
-                            tLocalToGlobalIds2,
+                            tLocalToGlobalIds,
                             tLocalIGdQiDp,
                             Ik );
                 }

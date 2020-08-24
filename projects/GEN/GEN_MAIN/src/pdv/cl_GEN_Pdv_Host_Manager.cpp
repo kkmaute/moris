@@ -457,7 +457,7 @@ namespace moris
 
         Matrix<DDRMat> Pdv_Host_Manager::compute_diqi_dadv()
         {
-            return this->get_dQidu() * this->compute_dpdv_dadv();
+            return this->get_dQIdp() * this->compute_dpdv_dadv();
         }
 
         //--------------------------------------------------------------------------------------------------------------

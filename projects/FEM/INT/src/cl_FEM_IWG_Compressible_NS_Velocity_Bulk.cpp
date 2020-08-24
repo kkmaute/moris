@@ -152,6 +152,10 @@ namespace moris
                 mSet->get_residual()( 0 )( { tMasterResStartIndex, tMasterResStopIndex }, { 0, 0 } )
                         += aWStar * ( trans( tFIVelocity->N() ) * tFIDensity->val() * tPropBodyForce->val() );
             }
+
+            // check for nan, infinity
+            MORIS_ERROR( isfinite( mSet->get_residual()( 0 ) ),
+                    "IWG_Compressible_NS_Velocity_Bulk::compute_residual - Residual contains NAN or INF, exiting!");
         }
 
         //------------------------------------------------------------------------------
@@ -255,9 +259,11 @@ namespace moris
                                         -1.0 * trans( tFIVelocity->N() ) * tFIDensity->val() * tPropBodyForce->dPropdDOF( tDofType ) );
                     }
                 }
-
             }
 
+            // check for nan, infinity
+            MORIS_ERROR(  isfinite( mSet->get_jacobian() ) ,
+                    "IWG_Compressible_NS_Velocity_Bulk::compute_jacobian - Jacobian contains NAN or INF, exiting!");
         }
 
         //------------------------------------------------------------------------------
@@ -304,6 +310,7 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+
         void IWG_Compressible_NS_Velocity_Bulk::compute_uiuj(Matrix< DDRMat > & auiuj)
         {
             // get the velocity vector
@@ -338,6 +345,7 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+
         void IWG_Compressible_NS_Velocity_Bulk::compute_duiujdDOF(Matrix< DDRMat > & aduiujdDOF)
         {
             // get the velocity vector

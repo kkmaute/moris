@@ -13,6 +13,7 @@ namespace moris
     {
 
         //------------------------------------------------------------------------------
+
         IWG_Diffusion_Radiation::IWG_Diffusion_Radiation()
         {
             // set size for the property pointer cell
@@ -25,6 +26,7 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+
         void IWG_Diffusion_Radiation::set_property(
                 std::shared_ptr< Property > aProperty,
                 std::string                 aPropertyString,
@@ -45,6 +47,7 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+
         void IWG_Diffusion_Radiation::compute_residual( real aWStar )
         {
 #ifdef DEBUG
@@ -73,12 +76,20 @@ namespace moris
 
             // compute the residual
             // N * a * (T - T_ref)
-            mSet->get_residual()( 0 )( { tResStartIndex, tResStopIndex }, { 0, 0 } ) +=
-                    aWStar * mStefanBoltzmannConst * tAlpha * ( std::pow( tT - tT0 , 4.0 ) - std::pow( tTinf - tT0 , 4.0 ) ) *
-                    trans( tFI->N() );
+            mSet->get_residual()( 0 )(
+                    { tResStartIndex, tResStopIndex },
+                    { 0, 0 } ) += aWStar * (
+                            mStefanBoltzmannConst * tAlpha *
+                            ( std::pow( tT - tT0 , 4.0 ) - std::pow( tTinf - tT0 , 4.0 ) ) *
+                            trans( tFI->N() ) );
+
+            // check for nan, infinity
+            MORIS_ERROR( isfinite( mSet->get_residual()( 0 ) ),
+                    "IWG_Diffusion_Radiation::compute_residual - Residual contains NAN or INF, exiting!");
         }
 
         //------------------------------------------------------------------------------
+
         void IWG_Diffusion_Radiation::compute_jacobian( real aWStar )
         {
 #ifdef DEBUG
@@ -140,15 +151,21 @@ namespace moris
                                     trans( tFI->N() ) * mMasterProp( tEmissivityIndex )->dPropdDOF( tDepDofType );
                 }
             }
+
+            // check for nan, infinity
+            MORIS_ERROR(  isfinite( mSet->get_jacobian() ) ,
+                    "IWG_Diffusion_Neumann::compute_jacobian - Jacobian contains NAN or INF, exiting!");
         }
 
         //------------------------------------------------------------------------------
+
         void IWG_Diffusion_Radiation::compute_jacobian_and_residual( real aWStar )
         {
             MORIS_ERROR( false, " IWG_Diffusion_Radiation::compute_jacobian_and_residual - Not implemented." );
         }
 
         //------------------------------------------------------------------------------
+
         void IWG_Diffusion_Radiation::compute_dRdp( real aWStar )
         {
             MORIS_ERROR( false, "IWG_Diffusion_Radiation::compute_dRdp - Not implemented.");

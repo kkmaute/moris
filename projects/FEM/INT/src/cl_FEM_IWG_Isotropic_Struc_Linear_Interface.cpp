@@ -112,19 +112,28 @@ namespace moris
             Matrix< DDRMat > tJump = tFIMaster->val() - tFISlave->val();
 
             // compute master residual
-            mSet->get_residual()( 0 )( { tMasterResStartIndex, tMasterResStopIndex }, { 0, 0 } ) += aWStar * (
-                    - trans( tFIMaster->N() ) * tTraction
-                    + tMasterWeight * tCMMasterElasticity->testTraction( mNormal, mResidualDofType ) * tJump
-                    + tNitsche * trans( tFIMaster->N() ) * tJump ) ;
+            mSet->get_residual()( 0 )(
+                    { tMasterResStartIndex, tMasterResStopIndex },
+                    { 0, 0 } ) += aWStar * (
+                            - trans( tFIMaster->N() ) * tTraction
+                            + tMasterWeight * tCMMasterElasticity->testTraction( mNormal, mResidualDofType ) * tJump
+                            + tNitsche * trans( tFIMaster->N() ) * tJump ) ;
 
             // compute slave residual
-            mSet->get_residual()( 0 )( { tSlaveResStartIndex, tSlaveResStopIndex }, { 0, 0 } ) += aWStar * (
-                    trans( tFISlave->N() ) * tTraction
-                    + tSlaveWeight * tCMSlaveElasticity->testTraction( mNormal, mResidualDofType ) * tJump
-                    - tNitsche * trans( tFISlave->N() ) * tJump );
+            mSet->get_residual()( 0 )(
+                    { tSlaveResStartIndex, tSlaveResStopIndex },
+                    { 0, 0 } ) += aWStar * (
+                            trans( tFISlave->N() ) * tTraction
+                            + tSlaveWeight * tCMSlaveElasticity->testTraction( mNormal, mResidualDofType ) * tJump
+                            - tNitsche * trans( tFISlave->N() ) * tJump );
+
+            // check for nan, infinity
+            MORIS_ERROR( isfinite( mSet->get_residual()( 0 ) ),
+                    "IWG_Isotropic_Struc_Linear_Interface::compute_residual - Residual contains NAN or INF, exiting!");
         }
 
         //------------------------------------------------------------------------------
+
         void IWG_Isotropic_Struc_Linear_Interface::compute_jacobian( real aWStar )
         {
 #ifdef DEBUG
@@ -309,6 +318,10 @@ namespace moris
                                     + tCMSlaveElasticity->testTraction( mNormal, mResidualDofType ) * tJump * tSlaveWeightDer );
                 }
             }
+
+            // check for nan, infinity
+            MORIS_ERROR(  isfinite( mSet->get_jacobian() ) ,
+                    "IWG_Isotropic_Struc_Linear_Interface::compute_jacobian - Jacobian contains NAN or INF, exiting!");
         }
 
         //------------------------------------------------------------------------------

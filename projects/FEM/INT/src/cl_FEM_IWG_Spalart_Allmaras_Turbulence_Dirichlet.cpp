@@ -159,6 +159,10 @@ namespace moris
                                 tPropUpwind->val()( 0 ) * trans( tFIViscosity->N() ) *
                                 dot( tModVelocity, mNormal ) * tM * tJump );
             }
+
+            // check for nan, infinity
+            MORIS_ERROR( isfinite(  mSet->get_residual()( 0 ) ),
+                    "IWG_Spalart_Allmaras_Turbulence_Dirichlet::compute_residual - Residual contains NAN or INF, exiting!");
         }
 
         //------------------------------------------------------------------------------
@@ -334,9 +338,14 @@ namespace moris
                     }
                 }
             }
+
+            // check for nan, infinity
+            MORIS_ERROR( isfinite( mSet->get_jacobian() ) ,
+                    "IWG_Spalart_Allmaras_Turbulence_Dirichlet::compute_jacobian - Jacobian contains NAN or INF, exiting!");
         }
 
         //------------------------------------------------------------------------------
+
         void IWG_Spalart_Allmaras_Turbulence_Dirichlet::compute_jacobian_and_residual( real aWStar )
         {
 #ifdef DEBUG
@@ -348,6 +357,7 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+
         void IWG_Spalart_Allmaras_Turbulence_Dirichlet::compute_dRdp( real aWStar )
         {
 #ifdef DEBUG

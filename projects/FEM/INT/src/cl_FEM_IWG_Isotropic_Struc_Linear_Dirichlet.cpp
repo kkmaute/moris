@@ -13,6 +13,7 @@ namespace moris
     {
 
         //------------------------------------------------------------------------------
+
         IWG_Isotropic_Struc_Linear_Dirichlet::IWG_Isotropic_Struc_Linear_Dirichlet( sint aBeta )
         {
             // sign for symmetric/unsymmetric Nitsche
@@ -39,6 +40,7 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+
         void IWG_Isotropic_Struc_Linear_Dirichlet::set_property(
                 std::shared_ptr< Property > aProperty,
                 std::string                 aPropertyString,
@@ -59,6 +61,7 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+
         void IWG_Isotropic_Struc_Linear_Dirichlet::set_constitutive_model(
                 std::shared_ptr< Constitutive_Model > aConstitutiveModel,
                 std::string                           aConstitutiveString,
@@ -79,6 +82,7 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+
         void IWG_Isotropic_Struc_Linear_Dirichlet::set_stabilization_parameter(
                 std::shared_ptr< Stabilization_Parameter > aStabilizationParameter,
                 std::string                                aStabilizationString )
@@ -94,6 +98,7 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+
         void IWG_Isotropic_Struc_Linear_Dirichlet::compute_residual( real aWStar )
         {
 #ifdef DEBUG
@@ -144,13 +149,20 @@ namespace moris
             Matrix< DDRMat > tJump = tFIDispl->val() - tPropDirichlet->val();
 
             // compute the residual
-            mSet->get_residual()( 0 )( { tMasterResStartIndex, tMasterResStopIndex }, { 0, 0 } ) += aWStar * (
-                    - trans( tFIDispl->N() ) * tM * tCMElasticity->traction( mNormal )
-                    + mBeta * tCMElasticity->testTraction( mNormal, mResidualDofType ) * tM * tJump
-                    + tSPNitsche->val()( 0 ) * trans( tFIDispl->N() ) * tM * tJump );
+            mSet->get_residual()( 0 )(
+                    { tMasterResStartIndex, tMasterResStopIndex },
+                    { 0, 0 } ) += aWStar * (
+                            - trans( tFIDispl->N() ) * tM * tCMElasticity->traction( mNormal )
+                            + mBeta * tCMElasticity->testTraction( mNormal, mResidualDofType ) * tM * tJump
+                            + tSPNitsche->val()( 0 ) * trans( tFIDispl->N() ) * tM * tJump );
+
+            // check for nan, infinity
+            MORIS_ERROR( isfinite( mSet->get_residual()( 0 ) ),
+                    "IWG_Isotropic_Struc_Linear_Dirichlet::compute_residual - Residual contains NAN or INF, exiting!");
         }
 
         //------------------------------------------------------------------------------
+
         void IWG_Isotropic_Struc_Linear_Dirichlet::compute_jacobian( real aWStar )
         {
 #ifdef DEBUG
@@ -256,15 +268,21 @@ namespace moris
                                     trans( tFIDispl->N() ) * tM * tJump * tSPNitsche->dSPdMasterDOF( tDofType ) );
                 }
             }
+
+            // check for nan, infinity
+            MORIS_ERROR(  isfinite( mSet->get_jacobian() ) ,
+                    "IWG_Isotropic_Struc_Linear_Dirichlet::compute_jacobian - Jacobian contains NAN or INF, exiting!");
         }
 
         //------------------------------------------------------------------------------
+
         void IWG_Isotropic_Struc_Linear_Dirichlet::compute_jacobian_and_residual( real aWStar )
         {
             MORIS_ERROR( false, "IWG_Isotropic_Struc_Linear_Dirichlet::compute_jacobian_and_residual - This function does nothing.");
         }
 
         //------------------------------------------------------------------------------
+
         void IWG_Isotropic_Struc_Linear_Dirichlet::compute_dRdp( real aWStar )
         {
             MORIS_ERROR( false, "IWG_Isotropic_Struc_Linear_Dirichlet::compute_dRdp - This function does nothing.");

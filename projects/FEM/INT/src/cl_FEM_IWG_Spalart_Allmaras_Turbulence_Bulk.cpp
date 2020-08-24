@@ -4,7 +4,6 @@
 #include "cl_FEM_Field_Interpolator_Manager.hpp"
 //LINALG/src
 #include "fn_trans.hpp"
-#include "fn_isfinite.hpp"
 
 namespace moris
 {
@@ -120,9 +119,14 @@ namespace moris
                             trans( tFIViscosity->N() ) * tWallDestructionTerm +
                             trans( tFIViscosity->dnNdxn( 1 ) ) * tDiffusionCoeff * tFIViscosity->gradx( 1 ) +
                             trans( tFIViscosity->dnNdxn( 1 ) ) * tModVelocity * tSPSUPG->val()( 0 ) * tR( 0 ) );
+
+            // check for nan, infinity
+            MORIS_ERROR( isfinite( mSet->get_residual()( 0 ) ),
+                    "IWG_Spalart_Allmaras_Turbulence_Bulk::compute_residual - Residual contains NAN or INF, exiting!");
         }
 
         //------------------------------------------------------------------------------
+
         void IWG_Spalart_Allmaras_Turbulence_Bulk::compute_jacobian( real aWStar )
         {
 #ifdef DEBUG
@@ -239,6 +243,10 @@ namespace moris
                                 trans( tFIViscosity->dnNdxn( 1 ) ) * tFIViscosity->gradx( 1 ) * tdDiffdu +
                                 trans( tFIViscosity->dnNdxn( 1 ) ) * tModVelocity * tSPSUPG->val()( 0 ) * tJ );
             }
+
+            // check for nan, infinity
+            MORIS_ERROR( isfinite( mSet->get_jacobian() ),
+                    "IWG_Spalart_Allmaras_Turbulence_Bulk::compute_jacobian - Jacobian contains NAN or INF, exiting!");
         }
 
         //------------------------------------------------------------------------------
@@ -489,6 +497,10 @@ namespace moris
             // get the wall distance value
             real tWallDistance = tPropWallDistance->val()( 0 );
 
+            // check negative/zero wall distance
+            MORIS_ERROR( tWallDistance > 0.0,
+                    "IWG_Spalart_Allmaras_Turbulence_Bulk::compute_wall_destruction_term - Negative or zero wall distance, exiting!");
+
             // if viscosity is positive or zero
             if( tModViscosity >= 0.0 )
             {
@@ -542,6 +554,10 @@ namespace moris
 
             // get the wall distance value
             real tWallDistance = tPropWallDistance->val()( 0 );
+
+            // check negative/zero wall distance
+            MORIS_ERROR( tWallDistance > 0.0,
+                    "IWG_Spalart_Allmaras_Turbulence_Bulk::compute_dwalldestructiondu - Negative or zero wall distance, exiting!");
 
             // if viscosity is positive or zero
             if( tModViscosity >= 0.0 )
@@ -1109,11 +1125,18 @@ namespace moris
             std::shared_ptr< Property > tPropWallDistance =
                     mMasterProp( static_cast< uint >( IWG_Property_Type::WALL_DISTANCE ) );
 
+            // get wall distance
+            real tWallDistance = tPropWallDistance->val()( 0 );
+
+            // check negative/zero wall distance
+            MORIS_ERROR( tWallDistance > 0.0,
+                    "IWG_Spalart_Allmaras_Turbulence_Bulk::compute_sbar - Negative or zero wall distance, exiting!");
+
             // compute fv2
             real tFv2 = this->compute_fv2();
 
             // compute s
-            return tFv2 * tFIViscosity->val()( 0 ) / std::pow( mKappa * tPropWallDistance->val()( 0 ), 2.0 );
+            return tFv2 * tFIViscosity->val()( 0 ) / std::pow( mKappa * tWallDistance, 2.0 );
         }
 
         //------------------------------------------------------------------------------
@@ -1137,6 +1160,13 @@ namespace moris
             std::shared_ptr< Property > tPropWallDistance =
                     mMasterProp( static_cast< uint >( IWG_Property_Type::WALL_DISTANCE ) );
 
+            // get the wall distance value
+            real tWallDistance = tPropWallDistance->val()( 0 );
+
+            // check negative/zero wall distance
+            MORIS_ERROR( tWallDistance > 0.0,
+                    "IWG_Spalart_Allmaras_Turbulence_Bulk::compute_dsbardu - Negative or zero wall distance, exiting!");
+
             // compute fv2
             real tFv2 = this->compute_fv2();
 
@@ -1147,7 +1177,7 @@ namespace moris
             // compute dsbardu
             adsbardu.matrix_data() +=
                     tFIViscosity->val() * tdfv2du /
-                    std::pow( mKappa * tPropWallDistance->val()( 0 ), 2.0 );
+                    std::pow( mKappa * tWallDistance, 2.0 );
 
             // if dof type is residual dof type
             if( aDofTypes( 0 ) == mResidualDofType( 0 ) )
@@ -1155,7 +1185,7 @@ namespace moris
                 // add contribution
                 adsbardu.matrix_data() +=
                         tFv2 * tFIViscosity->N() /
-                        std::pow( mKappa * tPropWallDistance->val()( 0 ), 2.0 );
+                        std::pow( mKappa * tWallDistance, 2.0 );
             }
         }
 
@@ -1325,8 +1355,23 @@ namespace moris
             std::shared_ptr< Property > tPropWallDistance =
                     mMasterProp( static_cast< uint >( IWG_Property_Type::WALL_DISTANCE ) );
 
+            // get the wall distance value
+            real tWallDistance = tPropWallDistance->val()( 0 );
+
+            // check negative/zero wall distance
+            MORIS_ERROR( tWallDistance > 0.0,
+                    "IWG_Spalart_Allmaras_Turbulence_Bulk::compute_r - Negative or zero wall distance, exiting!");
+
             // compute viscosity / ( stilde * kappa² * d² )
-            real tR = tFIViscosity->val()( 0 ) / ( tSTilde * std::pow( mKappa * tPropWallDistance->val()( 0 ), 2.0 ) );
+            real tR = tFIViscosity->val()( 0 ) / ( tSTilde * std::pow( mKappa * tWallDistance, 2.0 ) );
+
+            // check that r is finite and greater than zero or set it to mRLim
+            Matrix<DDRMat> tRMatrix( 1, 1, tR );
+            Matrix<DDRMat> tInvRMatrix( 1, 1, 1/tR );
+            if( !isfinite( tRMatrix ) || !isfinite(tInvRMatrix) )
+            {
+                tR = mRLim;
+            }
 
             return std::min( tR, mRLim );
         }
@@ -1357,6 +1402,13 @@ namespace moris
                 std::shared_ptr< Property > tPropWallDistance =
                         mMasterProp( static_cast< uint >( IWG_Property_Type::WALL_DISTANCE ) );
 
+                // get the wall distance value
+                real tWallDistance = tPropWallDistance->val()( 0 );
+
+                // check negative/zero wall distance
+                MORIS_ERROR( tWallDistance > 0.0,
+                        "IWG_Spalart_Allmaras_Turbulence_Bulk::compute_drdu - Negative or zero wall distance, exiting!");
+
                 // compute stilde
                 real tSTilde = this->compute_stilde();
 
@@ -1374,7 +1426,7 @@ namespace moris
                     adrdu.matrix_data() += tSTilde * tDerFI->N().matrix_data();
                 }
 
-                adrdu = adrdu / std::pow( tSTilde * mKappa * tPropWallDistance->val()( 0 ), 2.0 );
+                adrdu = adrdu / std::pow( tSTilde * mKappa * tWallDistance, 2.0 );
             }
         }
 
@@ -1395,6 +1447,12 @@ namespace moris
                 const moris::Cell< MSI::Dof_Type > & aDofTypes,
                 Matrix< DDRMat >                   & adgdu )
         {
+            // get the derivative dof FIs
+            Field_Interpolator * tDerFI = mMasterFIManager->get_field_interpolators_for_type( aDofTypes( 0 ) );
+
+            // init adgdu
+            adgdu.set_size( 1, tDerFI->get_number_of_space_time_coefficients(), 0.0 );
+
             // compute r
             real tR = this->compute_r();
 
@@ -1403,7 +1461,7 @@ namespace moris
             this->compute_drdu( aDofTypes, tdrdu );
 
             // compute adgdu
-            adgdu = ( 1.0 + mCw2 * ( 6.0 * std::pow( tR, 5.0 ) - 1.0 ) ) * tdrdu;
+            adgdu.matrix_data() += ( 1.0 + mCw2 * ( 6.0 * std::pow( tR, 5.0 ) - 1.0 ) ) * tdrdu;
         }
 
         //------------------------------------------------------------------------------
@@ -1426,6 +1484,12 @@ namespace moris
                 const moris::Cell< MSI::Dof_Type > & aDofTypes,
                 Matrix< DDRMat >                   & adfwdu )
         {
+            // get the derivative dof FIs
+            Field_Interpolator * tDerFI = mMasterFIManager->get_field_interpolators_for_type( aDofTypes( 0 ) );
+
+            // init adfwdu
+            adfwdu.set_size( 1, tDerFI->get_number_of_space_time_coefficients(), 0.0 );
+
             // compute g
             real tG = this->compute_g();
 
@@ -1437,7 +1501,7 @@ namespace moris
             real tFw = this->compute_fw();
 
             // init adfwdu
-            adfwdu = ( tFw * std::pow( mCw3, 6.0 ) * tdgdu ) /
+            adfwdu.matrix_data() += ( tFw * std::pow( mCw3, 6.0 ) * tdgdu ) /
                     ( tG * ( std::pow( tG, 6.0 ) + std::pow( mCw3, 6.0 ) ) );
         }
 

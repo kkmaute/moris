@@ -102,6 +102,10 @@ namespace moris
                         { tSlaveResStartIndex, tSlaveResStopIndex },
                         { 0, 0 } ) -= aWStar * ( tSlavedNdxFlat * tPreMultiply );
             }
+
+            // check for nan, infinity
+            MORIS_ERROR( isfinite( mSet->get_residual()( 0 ) ),
+                    "IWG_Ghost_Normal_Field::compute_residual - Residual contains NAN or INF, exiting!");
         }
 
         //------------------------------------------------------------------------------
@@ -236,6 +240,10 @@ namespace moris
                     }
                 }
             }
+
+            // check for nan, infinity
+            MORIS_ERROR(  isfinite( mSet->get_jacobian() ) ,
+                    "IWG_Ghost_Normal_Field::compute_jacobian - Jacobian contains NAN or INF, exiting!");
         }
 
         //------------------------------------------------------------------------------
@@ -253,6 +261,7 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+
         void IWG_Ghost_Normal_Field::get_flat_normal_matrix(
                 Matrix< DDRMat > & aFlatNormal,
                 uint               aOrder )

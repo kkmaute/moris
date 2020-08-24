@@ -132,9 +132,14 @@ namespace moris
                             + trans( tFISlave->N() ) * tTraction
                             + mBeta * tSlaveWeight * tCMSlaveDiffusion->testTraction( mNormal, mResidualDofType ) * tJump
                             - tNitsche * trans( tFISlave->N() ) * tJump );
+
+            // check for nan, infinity
+            MORIS_ERROR( isfinite( mSet->get_residual()( 0 ) ),
+                    "IWG_Diffusion_Interface::compute_residual - Residual contains NAN or INF, exiting!");
         }
 
         //------------------------------------------------------------------------------
+
         void IWG_Diffusion_Interface::compute_jacobian( real aWStar )
         {
 #ifdef DEBUG
@@ -328,6 +333,10 @@ namespace moris
                                     - trans( tFISlave->N() ) * tJump * tNitscheDer );
                 }
             }
+
+            // check for nan, infinity
+            MORIS_ERROR(  isfinite( mSet->get_jacobian() ) ,
+                    "IWG_Diffusion_Interface::compute_jacobian - Jacobian contains NAN or INF, exiting!");
         }
 
         //------------------------------------------------------------------------------

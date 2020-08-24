@@ -12,6 +12,7 @@ namespace moris
     namespace fem
     {
         //------------------------------------------------------------------------------
+
         IWG_Diffusion_Virtual_Work_Ghost::IWG_Diffusion_Virtual_Work_Ghost()
         {
             // set size for the constitutive model pointer cell
@@ -29,6 +30,7 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+
         void IWG_Diffusion_Virtual_Work_Ghost::set_constitutive_model(
                 std::shared_ptr< Constitutive_Model > aConstitutiveModel,
                 std::string                           aConstitutiveString,
@@ -45,6 +47,7 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+
         void IWG_Diffusion_Virtual_Work_Ghost::set_stabilization_parameter(
                 std::shared_ptr< Stabilization_Parameter > aStabilizationParameter,
                 std::string                                aStabilizationString )
@@ -60,6 +63,7 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+
         void IWG_Diffusion_Virtual_Work_Ghost::compute_residual( real aWStar )
         {
 #ifdef DEBUG
@@ -136,17 +140,25 @@ namespace moris
 
                 // multiply common terms
                 Matrix< DDRMat > tPreMultiply =
-                        tSPGhost->val()( 0 ) * trans( tNormalMatrix ) * tNormalMatrix
-                        * ( tMasterConductivity * tMasterFI->gradx( iOrder ) - tSlaveConductivity * tSlaveFI->gradx( iOrder ) );
+                        tSPGhost->val()( 0 ) * trans( tNormalMatrix ) * tNormalMatrix *
+                        ( tMasterConductivity * tMasterFI->gradx( iOrder ) - tSlaveConductivity * tSlaveFI->gradx( iOrder ) );
 
                 // compute master residual
-                mSet->get_residual()( 0 )( { tMasterResStartIndex, tMasterResStopIndex }, { 0, 0 } )
-                                 += aWStar * ( trans( tMasterFI->dnNdxn( iOrder ) ) * tPreMultiply );
+                mSet->get_residual()( 0 )(
+                        { tMasterResStartIndex, tMasterResStopIndex },
+                        { 0, 0 } ) += aWStar * (
+                                trans( tMasterFI->dnNdxn( iOrder ) ) * tPreMultiply );
 
                 // compute slave residual
-                mSet->get_residual()( 0 )( { tSlaveResStartIndex, tSlaveResStopIndex }, { 0, 0 } )
-                                 -= aWStar * ( trans( tSlaveFI->dnNdxn( iOrder ) ) * tPreMultiply );
+                mSet->get_residual()( 0 )(
+                        { tSlaveResStartIndex, tSlaveResStopIndex },
+                        { 0, 0 } ) -= aWStar * (
+                                trans( tSlaveFI->dnNdxn( iOrder ) ) * tPreMultiply );
             }
+
+            // check for nan, infinity
+            MORIS_ERROR( isfinite( mSet->get_residual()( 0 ) ),
+                    "IWG_Diffusion_Virtual_Work_Ghost::compute_residual - Residual contains NAN or INF, exiting!");
         }
 
         //------------------------------------------------------------------------------
@@ -327,21 +339,28 @@ namespace moris
                     }
                 }
             }
+
+            // check for nan, infinity
+            MORIS_ERROR(  isfinite( mSet->get_jacobian() ) ,
+                    "IWG_Diffusion_Virtual_Work_Ghost::compute_jacobian - Jacobian contains NAN or INF, exiting!");
         }
 
         //------------------------------------------------------------------------------
+
         void IWG_Diffusion_Virtual_Work_Ghost::compute_jacobian_and_residual( real aWStar )
         {
             MORIS_ERROR( false, "IWG_Diffusion_Virtual_Work_Ghost::compute_jacobian_and_residual - Not implemented." );
         }
 
         //------------------------------------------------------------------------------
+
         void IWG_Diffusion_Virtual_Work_Ghost::compute_dRdp( real aWStar )
         {
             MORIS_ERROR( false, "IWG_Diffusion_Virtual_Work_Ghost::compute_dRdp - This function does nothing.");
         }
 
         //------------------------------------------------------------------------------
+
         Matrix< DDRMat > IWG_Diffusion_Virtual_Work_Ghost::get_normal_matrix ( uint aOrderGhost )
         {
             // init the normal matrix

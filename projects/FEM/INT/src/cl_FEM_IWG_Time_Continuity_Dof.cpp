@@ -103,6 +103,10 @@ namespace moris
                     { tMasterResStartIndex, tMasterResStopIndex },
                     { 0, 0 } ) += aWStar * (
                             trans( tFICurrent->N() ) * tJump );
+
+            // check for nan, infinity
+            MORIS_ERROR( isfinite( mSet->get_residual()( 0 ) ),
+                    "IWG_Time_Continuity_Dof::compute_residual - Residual contains NAN or INF, exiting!");
         }
 
         //------------------------------------------------------------------------------
@@ -162,6 +166,10 @@ namespace moris
                 }
             }
             // FIXME add derivative for initial conditions?
+
+            // check for nan, infinity
+            MORIS_ERROR( isfinite( mSet->get_jacobian() ),
+                    "IWG_Time_Continuity_Dof::compute_jacobian - Jacobian contains NAN or INF, exiting!");
         }
 
         //------------------------------------------------------------------------------
