@@ -1097,6 +1097,7 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+
         real SP_SUPG_Spalart_Allmaras_Turbulence::compute_ft2()
         {
             // compute chi
@@ -1107,6 +1108,7 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+
         void SP_SUPG_Spalart_Allmaras_Turbulence::compute_dft2du(
                 const moris::Cell< MSI::Dof_Type > & aDofTypes,
                 Matrix< DDRMat >                   & adft2du )
@@ -1150,9 +1152,10 @@ namespace moris
             // compute viscosity / ( stilde * kappa² * d² )
             real tR = tFIViscosity->val()( 0 ) / ( tSTilde * std::pow( mKappa * tWallDistance, 2.0 ) );
 
-            // check that r is finite or set it to mRLim
+            // check that r is finite and greater then zero or set it to mRLim
             Matrix<DDRMat> tRMatrix( 1, 1, tR );
-            if( !isfinite( tRMatrix ) )
+            Matrix<DDRMat> tInvRMatrix( 1, 1, 1/tR );
+            if( !isfinite( tRMatrix ) || !isfinite(tInvRMatrix) )
             {
                 tR = mRLim;
             }

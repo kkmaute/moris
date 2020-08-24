@@ -1365,9 +1365,10 @@ namespace moris
             // compute viscosity / ( stilde * kappa² * d² )
             real tR = tFIViscosity->val()( 0 ) / ( tSTilde * std::pow( mKappa * tWallDistance, 2.0 ) );
 
-            // check that r is finite or set it to mRLim
+            // check that r is finite and greater than zero or set it to mRLim
             Matrix<DDRMat> tRMatrix( 1, 1, tR );
-            if( !isfinite( tRMatrix ) )
+            Matrix<DDRMat> tInvRMatrix( 1, 1, 1/tR );
+            if( !isfinite( tRMatrix ) || !isfinite(tInvRMatrix) )
             {
                 tR = mRLim;
             }
@@ -1446,6 +1447,12 @@ namespace moris
                 const moris::Cell< MSI::Dof_Type > & aDofTypes,
                 Matrix< DDRMat >                   & adgdu )
         {
+            // get the derivative dof FIs
+            Field_Interpolator * tDerFI = mMasterFIManager->get_field_interpolators_for_type( aDofTypes( 0 ) );
+
+            // init adgdu
+            adgdu.set_size( 1, tDerFI->get_number_of_space_time_coefficients(), 0.0 );
+
             // compute r
             real tR = this->compute_r();
 
@@ -1454,7 +1461,7 @@ namespace moris
             this->compute_drdu( aDofTypes, tdrdu );
 
             // compute adgdu
-            adgdu = ( 1.0 + mCw2 * ( 6.0 * std::pow( tR, 5.0 ) - 1.0 ) ) * tdrdu;
+            adgdu.matrix_data() += ( 1.0 + mCw2 * ( 6.0 * std::pow( tR, 5.0 ) - 1.0 ) ) * tdrdu;
         }
 
         //------------------------------------------------------------------------------
@@ -1477,6 +1484,12 @@ namespace moris
                 const moris::Cell< MSI::Dof_Type > & aDofTypes,
                 Matrix< DDRMat >                   & adfwdu )
         {
+            // get the derivative dof FIs
+            Field_Interpolator * tDerFI = mMasterFIManager->get_field_interpolators_for_type( aDofTypes( 0 ) );
+
+            // init adfwdu
+            adfwdu.set_size( 1, tDerFI->get_number_of_space_time_coefficients(), 0.0 );
+
             // compute g
             real tG = this->compute_g();
 
@@ -1488,7 +1501,7 @@ namespace moris
             real tFw = this->compute_fw();
 
             // init adfwdu
-            adfwdu = ( tFw * std::pow( mCw3, 6.0 ) * tdgdu ) /
+            adfwdu.matrix_data() += ( tFw * std::pow( mCw3, 6.0 ) * tdgdu ) /
                     ( tG * ( std::pow( tG, 6.0 ) + std::pow( mCw3, 6.0 ) ) );
         }
 
