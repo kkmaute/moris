@@ -282,7 +282,7 @@ When deriving the weak form with the bulk terms in the above section, the follow
 ### Momentum Conservation
 \f[
 \Residual_{B\velocity} =
-\int_{\DomainBoundary} \VelTestFunc ( \density \velocity \otimes \velocity ) \ d\BoundarySegment 
+\int_{\DomainBoundary} \VelTestFunc \left[ ( \density \velocity \otimes \velocity ) \cdot \SurfaceNormal \right] \ d\BoundarySegment 
  - \int_{\DomainBoundary} \VelTestFunc ( \CauchyStress \cdot \SurfaceNormal ) \ d\BoundarySegment
 \f]
 
@@ -359,8 +359,8 @@ The temperature Nitsche is derived from the heat flux boundary condition.
 \f[
 \Residual_{BD\temp} = 
 \int_{\DirichletBoundary} \TempTestFunc \HeatFlux \ d\BoundarySegment
-\pm \int_{\DirichletBoundary} \variation{\HeatFlux} \jump{\density} d\BoundarySegment
-+ \NitschePenaltyParameter \int_{\DirichletBoundary} \TempTestFunc \jump{\density} \ d\BoundarySegment
+\pm \int_{\DirichletBoundary} \variation{\HeatFlux} \jump{\temp} d\BoundarySegment
++ \NitschePenaltyParameter \int_{\DirichletBoundary} \TempTestFunc \jump{\temp} \ d\BoundarySegment
 \f]
 where the variation of the traction \f$ \variation{\traction} \f$ is 
 \f[ \begin{split}
