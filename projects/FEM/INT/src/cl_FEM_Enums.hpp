@@ -73,8 +73,9 @@ namespace moris
                 TET_10,
                 TET_11,
                 TET_15,
-                TET_31,
-                TET_45,
+                TET_20,
+                TET_35,
+                TET_56,
                 END_INTEGRATION_ORDER
         };
 

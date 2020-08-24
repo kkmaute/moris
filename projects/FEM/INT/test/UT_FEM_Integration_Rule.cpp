@@ -443,8 +443,9 @@ TEST_CASE("Integration_Rule_TET", "[moris],[fem],[Integration_Rule_TET]")
             Integration_Order::TET_5,
             Integration_Order::TET_11,
             Integration_Order::TET_15,
-            Integration_Order::TET_31,
-            Integration_Order::TET_45 };
+            Integration_Order::TET_20,
+            Integration_Order::TET_35,
+            Integration_Order::TET_56 };
 
     // create a space quad element
     Matrix< DDRMat > tXHat = {{ 0.0, 0.0, 0.0 }, { 0.0, -1.0, 0.0 }, { 1.0, 0.0, 0.0 }, { 0.0,  0.0, 1.0 }};

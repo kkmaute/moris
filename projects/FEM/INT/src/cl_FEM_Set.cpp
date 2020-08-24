@@ -2533,10 +2533,10 @@ namespace moris
                                     return fem::Integration_Order::TET_11;
 
                                 case mtk::Interpolation_Order::QUADRATIC:
-                                    return fem::Integration_Order::TET_15;
+                                    return fem::Integration_Order::TET_35;
 
                                 case mtk::Interpolation_Order::CUBIC:
-                                    return fem::Integration_Order::TET_15;
+                                    return fem::Integration_Order::TET_56;
 
                                 default:
                                     MORIS_ERROR( false, "Set::get_auto_integration_order - Unknown or unsupported interpolation order.");
