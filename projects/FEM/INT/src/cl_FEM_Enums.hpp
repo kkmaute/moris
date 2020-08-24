@@ -102,6 +102,7 @@ namespace moris
                 HELMHOLTZ,  // Helmholtz
                 LSNORMAL,   // LS normal
                 OLSSON,     // Olsson et al. (2007) reinitialization
+
                 SPATIALDIFF_BULK,      // spatial diffusion bulk
                 SPATIALDIFF_PC_BULK,   // spatial diffusion bulk with phase change
                 ADVECTION_BULK,
@@ -113,6 +114,7 @@ namespace moris
                 SPATIALDIFF_INTERFACE, // spatial diffusion Nitsche interface condition
                 SPATIALDIFF_GGLS_PC,   // spatial diffusion GGLS stabilization term for phase change
                 SPATIALDIFF_VW_GHOST,  // spatial diffusion virtual work ghost
+
                 STRUC_LINEAR_BULK,     // linear elasticity bulk
                 STRUC_LINEAR_DIRICHLET_SYMMETRIC_NITSCHE,// linear elasticity Dirichlet (Nitsche)
                 STRUC_LINEAR_DIRICHLET_UNSYMMETRIC_NITSCHE,// linear elasticity Dirichlet (Nitsche)
@@ -122,6 +124,7 @@ namespace moris
                 STRUC_LINEAR_PRESSURE_BULK, //linear elasticity bulk mixed formulation
                 STRUC_LINEAR_PRESSURE_DIRICHLET_SYMMETRIC_NITSCHE, // linear elasticity Dirichlet mixed formulation (Nitsche)
                 STRUC_LINEAR_PRESSURE_DIRICHLET_UNSYMMETRIC_NITSCHE,
+
                 INCOMPRESSIBLE_NS_VELOCITY_BULK,
                 INCOMPRESSIBLE_NS_PRESSURE_BULK,
                 INCOMPRESSIBLE_NS_CONVECTIVE_VELOCITY_GHOST,
@@ -134,9 +137,20 @@ namespace moris
                 INCOMPRESSIBLE_NS_VELOCITY_INTERFACE_UNSYMMETRIC_NITSCHE,
                 INCOMPRESSIBLE_NS_PRESSURE_INTERFACE_SYMMETRIC_NITSCHE,
                 INCOMPRESSIBLE_NS_PRESSURE_INTERFACE_UNSYMMETRIC_NITSCHE,
+
                 COMPRESSIBLE_NS_DENSITY_BULK,
                 COMPRESSIBLE_NS_VELOCITY_BULK,
                 COMPRESSIBLE_NS_TEMPERATURE_BULK,
+                COMPRESSIBLE_NS_TRACTION_NEUMANN,
+                COMPRESSIBLE_NS_HEAT_FLUX_NEUMANN,
+                COMPRESSIBLE_NS_MASS_FLUX_NEUMANN,
+                COMPRESSIBLE_NS_DENSITY_DIRICHLET_SYMMETRIC_NITSCHE,
+                COMPRESSIBLE_NS_DENSITY_DIRICHLET_UNSYMMETRIC_NITSCHE,
+                COMPRESSIBLE_NS_VELOCITY_DIRICHLET_SYMMETRIC_NITSCHE,
+                COMPRESSIBLE_NS_VELOCITY_DIRICHLET_UNSYMMETRIC_NITSCHE,
+                COMPRESSIBLE_NS_TEMPERATURE_DIRICHLET_SYMMETRIC_NITSCHE,
+                COMPRESSIBLE_NS_TEMPERATURE_DIRICHLET_UNSYMMETRIC_NITSCHE,
+
                 FS_STRUC_INTERFACE,
                 TIME_CONTINUITY_DOF,
                 SPALART_ALLMARAS_TURBULENCE_BULK,
