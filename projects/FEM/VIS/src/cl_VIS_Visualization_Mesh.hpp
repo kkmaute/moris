@@ -59,14 +59,13 @@ public:
         this->collect_all_sets();
 
         // All vertices/cells
-        mAllVertices = moris::Cell< moris::mtk::Vertex const * >( this->get_num_nodes() );
         mAllCells = moris::Cell< mtk::Cell const * >( this->get_num_elems() );
         uint tNumBlocks = this->get_num_blocks();
         for(uint Ik=0; Ik < tNumBlocks; Ik ++)
         {
             for(uint Ii=0; Ii < mVerticesOnSet( Ik ).size(); Ii ++)
             {
-                mAllVertices( mVerticesOnSet( Ik )( Ii )->get_index() ) = mVerticesOnSet( Ik )( Ii );
+                mAllVertices.push_back(mVerticesOnSet( Ik )( Ii ));
             }
 
             for(uint Ii=0; Ii < mCellsOnSet( Ik ).size(); Ii ++)
@@ -132,26 +131,14 @@ public:
         return tSetNames;
     }
 
-// ----------------------------------------------------------------------------
-
-
-    //------------------------------------------------------------------------------
-    /*
-     * Get number of nodes
+    /**
+     * Get the number of nodes on the mesh.
+     *
+     * @return Number of nodes
      */
     uint get_num_nodes() const
     {
-        uint tNumBlocks = this->get_num_blocks();
-
-        uint tNumNodes = 0;
-
-        for(uint Ik=0; Ik<tNumBlocks; Ik ++)
-        {
-            moris::mtk::Set * tSet = this->get_set_by_index( Ik);
-
-            tNumNodes += tSet->get_num_vertices_on_set( mOnlyPrimary );
-        }
-        return tNumNodes;
+        return mAllVertices.size();
     }
 
     // ----------------------------------------------------------------------------
@@ -196,21 +183,7 @@ public:
 
     moris::Cell< moris::mtk::Vertex const * > get_all_vertices() const
     {
-        uint tNumBlocks = this->get_num_blocks();
-
-        moris::Cell< moris::mtk::Vertex const * > tVertices( this->get_num_nodes() );
-
-        uint tCounter = 0;
-        for(uint Ik=0; Ik < tNumBlocks; Ik ++)
-        {
-
-            for(uint Ii=0; Ii < mVerticesOnSet( Ik ).size(); Ii ++)
-            {
-                tVertices( tCounter++ ) = mVerticesOnSet( Ik )( Ii ) ;
-            }
-        }
-
-        return tVertices;
+        return mAllVertices;
     }
 
     // ----------------------------------------------------------------------------
@@ -279,35 +252,6 @@ public:
         return mListofBlocks(aSetIndex)->get_cell_inds_on_block(false);
     }
 
-
-//
-//    /*
-//     * Get cell clusters within a block set
-//     */
-//    virtual
-//    moris::Cell<Cluster const *>
-//    get_cell_clusters_in_set(moris_index aBlockSetOrdinal) const = 0;
-//
-//    //##############################################
-//    // Side Set Cluster Access
-//    //##############################################
-//    /*!
-//     * Get side clusters within a side set
-//     */
-//    virtual
-//    moris::Cell<Cluster const *>
-//    get_side_set_cluster(moris_index aSideSetOrdinal) const = 0;
-//
-//
-//    // ----------------------------------------------------------------------------
-//
-//    /*!
-//     * Returns the label
-//     */
-//    virtual
-//    std::string
-//    get_side_set_label(moris_index aSideSetOrdinal) const = 0;
-
     MeshType get_mesh_type() const
     {
         return MeshType::VIS;
@@ -363,7 +307,6 @@ public:
      * @param aNodeIndex Node index
      * @return Node coordinates
      */
-    virtual
     Matrix< DDRMat >
     get_node_coordinate( moris_index aNodeIndex ) const
     {
@@ -397,7 +340,6 @@ public:
         }
     }
 
-    virtual
     enum CellTopology
     get_blockset_topology(const std::string & aSetName)
     {
