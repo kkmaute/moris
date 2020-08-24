@@ -2584,10 +2584,10 @@ namespace moris
                                     return fem::Integration_Order::QUAD_2x2;
 
                                 case mtk::Interpolation_Order::SERENDIPITY:
-                                    return fem::Integration_Order::QUAD_3x3;
+                                    return fem::Integration_Order::QUAD_4x4;
 
                                 case mtk::Interpolation_Order::QUADRATIC:
-                                    return fem::Integration_Order::QUAD_3x3;
+                                    return fem::Integration_Order::QUAD_4x4;
 
                                 case mtk::Interpolation_Order::CUBIC:
                                     return fem::Integration_Order::QUAD_5x5;
