@@ -185,10 +185,6 @@ namespace moris
             std::shared_ptr< Property > tPropViscosity =
                     mMasterProp( static_cast< uint >( SP_Property_Type::VISCOSITY ) );
 
-            // get wall distance property
-            std::shared_ptr< Property > tPropWallDistance =
-                    mMasterProp( static_cast< uint >( SP_Property_Type::WALL_DISTANCE ) );
-
             // evaluate uTilde = u - 1/sigma cb2 gradv
             Matrix< DDRMat > tModVelocity =
                     tVelocityFI->val() - mCb2 * tViscosityFI->gradx( 1 ) / mSigma;
@@ -365,6 +361,10 @@ namespace moris
             // get the wall distance value
             real tWallDistance = tPropWallDistance->val()( 0 );
 
+            // check negative/zero wall distance
+            MORIS_ERROR( tWallDistance > 0.0,
+                    "SP_SUPG_Spalart_Allmaras_Turbulence::compute_wall_destruction_coefficient - Negative or zero wall distance, exiting!");
+
             // if viscosity is positive or zero
             if( tModViscosity >= 0.0 )
             {
@@ -418,6 +418,10 @@ namespace moris
 
             // get the wall distance value
             real tWallDistance = tPropWallDistance->val()( 0 );
+
+            // check negative/zero wall distance
+            MORIS_ERROR( tWallDistance > 0.0,
+                    "SP_SUPG_Spalart_Allmaras_Turbulence::compute_dwalldestructiondu - Negative or zero wall distance, exiting!");
 
             // if viscosity is positive or zero
             if( tModViscosity >= 0.0 )
@@ -910,11 +914,18 @@ namespace moris
             std::shared_ptr< Property > tPropWallDistance =
                     mMasterProp( static_cast< uint >( SP_Property_Type::WALL_DISTANCE ) );
 
+            // get the wall distance value
+            real tWallDistance = tPropWallDistance->val()( 0 );
+
+            // check negative/zero wall distance
+            MORIS_ERROR( tWallDistance > 0.0,
+                    "SP_SUPG_Spalart_Allmaras_Turbulence::compute_sbar - Negative or zero wall distance, exiting!");
+
             // compute fv2
             real tFv2 = this->compute_fv2();
 
             // compute s
-            return tFv2 * tFIViscosity->val()( 0 ) / std::pow( mKappa * tPropWallDistance->val()( 0 ), 2.0 );
+            return tFv2 * tFIViscosity->val()( 0 ) / std::pow( mKappa * tWallDistance, 2.0 );
         }
 
         //------------------------------------------------------------------------------
@@ -938,6 +949,13 @@ namespace moris
             std::shared_ptr< Property > tPropWallDistance =
                     mMasterProp( static_cast< uint >( SP_Property_Type::WALL_DISTANCE ) );
 
+            // get the wall distance value
+            real tWallDistance = tPropWallDistance->val()( 0 );
+
+            // check negative/zero wall distance
+            MORIS_ERROR( tWallDistance > 0.0,
+                    "SP_SUPG_Spalart_Allmaras_Turbulence::compute_dsbardu - Negative or zero wall distance, exiting!");
+
             // compute fv2
             real tFv2 = this->compute_fv2();
 
@@ -948,7 +966,7 @@ namespace moris
             // compute dsbardu
             adsbardu.matrix_data() +=
                     tFIViscosity->val() * tdfv2du /
-                    std::pow( mKappa * tPropWallDistance->val()( 0 ), 2.0 );
+                    std::pow( mKappa * tWallDistance, 2.0 );
 
             // if dof type is residual dof type
             if( aDofTypes( 0 ) == mMasterDofViscosity )
@@ -956,7 +974,7 @@ namespace moris
                 // add contribution
                 adsbardu.matrix_data() +=
                         tFv2 * tFIViscosity->N() /
-                        std::pow( mKappa * tPropWallDistance->val()( 0 ), 2.0 );
+                        std::pow( mKappa * tWallDistance, 2.0 );
             }
         }
 
@@ -1122,8 +1140,15 @@ namespace moris
             std::shared_ptr< Property > tPropWallDistance =
                     mMasterProp( static_cast< uint >( SP_Property_Type::WALL_DISTANCE ) );
 
+            // get the wall distance value
+            real tWallDistance = tPropWallDistance->val()( 0 );
+
+            // check negative/zero wall distance
+            MORIS_ERROR( tWallDistance > 0.0,
+                    "SP_SUPG_Spalart_Allmaras_Turbulence::compute_r - Negative or zero wall distance, exiting!");
+
             // compute viscosity / ( stilde * kappa² * d² )
-            real tR = tFIViscosity->val()( 0 ) / ( tSTilde * std::pow( mKappa * tPropWallDistance->val()( 0 ), 2.0 ) );
+            real tR = tFIViscosity->val()( 0 ) / ( tSTilde * std::pow( mKappa * tWallDistance, 2.0 ) );
 
             // check that r is finite or set it to mRLim
             Matrix<DDRMat> tRMatrix( 1, 1, tR );
@@ -1162,6 +1187,13 @@ namespace moris
                 std::shared_ptr< Property > tPropWallDistance =
                         mMasterProp( static_cast< uint >( SP_Property_Type::WALL_DISTANCE ) );
 
+                // get the wall distance value
+                real tWallDistance = tPropWallDistance->val()( 0 );
+
+                // check negative/zero wall distance
+                MORIS_ERROR( tWallDistance > 0.0,
+                        "SP_SUPG_Spalart_Allmaras_Turbulence::compute_drdu - Negative or zero wall distance, exiting!");
+
                 // compute stilde
                 real tSTilde = this->compute_stilde();
 
@@ -1179,7 +1211,7 @@ namespace moris
                     adrdu.matrix_data() += tSTilde * tDerFI->N().matrix_data();
                 }
 
-                adrdu = adrdu / std::pow( tSTilde * mKappa * tPropWallDistance->val()( 0 ), 2.0 );
+                adrdu = adrdu / std::pow( tSTilde * mKappa * tWallDistance, 2.0 );
             }
         }
 
