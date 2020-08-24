@@ -162,18 +162,6 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
         
-        moris_id
-        Mesh::get_glb_entity_id_from_entity_loc_index(
-                moris_index        aEntityIndex,
-                enum EntityRank    aEntityRank,
-                const moris_index  aBSPlineMeshIndex) const
-        {
-            MORIS_ERROR(0,"Entered function in Mesh base class, (function is not implemented)");
-            return 0;
-        }
-
-        //--------------------------------------------------------------------------------------------------------------
-        
         moris_index
         Mesh::get_loc_entity_ind_from_entity_glb_id(
                 moris_id           aEntityId,
@@ -340,15 +328,6 @@ namespace moris
         //--------------------------------------------------------------------------------------------------------------
         
         Matrix< DDRMat >
-        Mesh::get_node_coordinate( moris_index aNodeIndex ) const
-        {
-            MORIS_ERROR(0,"Entered function in Mesh base class, (function is not implemented)");
-            return Matrix<DDRMat>(0,0);
-        }
-
-        //--------------------------------------------------------------------------------------------------------------
-        
-        Matrix< DDRMat >
         Mesh::get_entity_field_value_real_scalar(
                 const Matrix<IndexMat> & aEntityIndices,
                 const std::string      & aFieldName,
@@ -502,9 +481,8 @@ namespace moris
         uint
         Mesh::get_num_fields(
                 const enum EntityRank aEntityRank,
-                const moris_index     aBSPlineMeshIndex)
+                const moris_index     aBSPlineMeshIndex) const
         {
-            MORIS_ERROR( false ,"get_num_fields() not implemented" );
             return 0;
         }
 
@@ -669,7 +647,7 @@ namespace moris
         uint
         Mesh::get_num_coeffs(const uint aBSplineMeshIndex) const
         {
-            return 0;
+            return this->get_num_nodes();
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -760,15 +738,6 @@ namespace moris
             }
 
             return tElementIDs;
-        }
-
-        //--------------------------------------------------------------------------------------------------------------
-        
-        enum CellTopology
-        Mesh::get_blockset_topology(const  std::string & aSetName)
-        {
-            MORIS_ERROR(0," get_blockset_topology has no base implementation");
-            return CellTopology::INVALID;
         }
         
         //--------------------------------------------------------------------------------------------------------------

@@ -32,6 +32,8 @@ protected:
     moris::Cell< moris::mtk::Set * > mListofBlocks;
     moris::Cell< moris::mtk::Set * > mListofSideSets;
 
+    moris::Cell< moris::mtk::Vertex const * > mAllVertices;
+    moris::Cell< mtk::Cell const * >                  mAllCells;
     moris::Cell< moris::Cell< mtk::Cell * > >   mCellsOnSet;
     moris::Cell< moris::Cell< mtk::Vertex * > >  mVerticesOnSet;
     moris::Cell< moris::Cell< const mtk::Cluster * > >        mClustersOnBlock;
@@ -55,6 +57,23 @@ public:
                                                                                             mOnlyPrimary( aOnlyPrimary )
     {
         this->collect_all_sets();
+
+        // All vertices/cells
+        mAllVertices = moris::Cell< moris::mtk::Vertex const * >( this->get_num_nodes() );
+        mAllCells = moris::Cell< mtk::Cell const * >( this->get_num_elems() );
+        uint tNumBlocks = this->get_num_blocks();
+        for(uint Ik=0; Ik < tNumBlocks; Ik ++)
+        {
+            for(uint Ii=0; Ii < mVerticesOnSet( Ik ).size(); Ii ++)
+            {
+                mAllVertices( mVerticesOnSet( Ik )( Ii )->get_index() ) = mVerticesOnSet( Ik )( Ii );
+            }
+
+            for(uint Ii=0; Ii < mCellsOnSet( Ik ).size(); Ii ++)
+            {
+                mAllCells( mCellsOnSet( Ik )( Ii )->get_index() ) = mCellsOnSet( Ik )( Ii );
+            }
+        }
     }
 
     // ----------------------------------------------------------------------------
@@ -257,7 +276,7 @@ public:
      */
     Matrix<IndexMat> get_element_indices_in_block_set(uint aSetIndex)
     {
-        return mListofBlocks(aSetIndex)->get_vertices_inds_on_block(true);
+        return mListofBlocks(aSetIndex)->get_cell_inds_on_block(false);
     }
 
 
@@ -311,6 +330,12 @@ public:
         return 0;
     }
 
+    Matrix< IndexMat >
+    get_nodes_connected_to_element_loc_inds(moris_index aElementIndex) const
+    {
+        return mAllCells(aElementIndex)->get_vertex_inds();
+    }
+
     Matrix<IndexMat> get_entity_connected_to_entity_loc_inds (moris_index     aEntityIndex,
                                                              enum EntityRank aInputEntityRank,
                                                              enum EntityRank aOutputEntityRank,
@@ -330,6 +355,53 @@ public:
     {
          MORIS_ERROR( false, "get_entity_connected_to_entity_loc_inds(), not implemented for visualization mesh" );
         return Matrix<IndexMat>( 0, 0 );
+    }
+
+    /**
+     * Get the spatial coordinates of a node.
+     *
+     * @param aNodeIndex Node index
+     * @return Node coordinates
+     */
+    virtual
+    Matrix< DDRMat >
+    get_node_coordinate( moris_index aNodeIndex ) const
+    {
+        return mAllVertices(aNodeIndex)->get_coords();
+    }
+
+
+    /**
+     * Get a global entity ID from an entity rank and local index.
+     *
+     * @param aEntityIndex Local entity index
+     * @param aEntityRank Entity rank
+     * @param aBSplineMeshIndex B-spline mesh Index
+     * @return Global entity ID
+     */
+    moris_id
+    get_glb_entity_id_from_entity_loc_index(
+            moris_index        aEntityIndex,
+            enum EntityRank    aEntityRank,
+            const moris_index  aBSplineMeshIndex = 0) const
+    {
+        switch (aEntityRank)
+        {
+            case EntityRank::NODE:
+                return mAllVertices(aEntityIndex)->get_id();
+            case EntityRank::ELEMENT:
+                return mAllCells(aEntityIndex)->get_id();
+            default:
+                MORIS_ERROR(false, "VIS mesh get_glb_entity_id_from_entity_loc_index() needs to be implemented.");
+                return 0;
+        }
+    }
+
+    virtual
+    enum CellTopology
+    get_blockset_topology(const std::string & aSetName)
+    {
+        return mListofBlocks(mSetNameToIndexMap[aSetName])->get_cell_topology();
     }
 
 protected:

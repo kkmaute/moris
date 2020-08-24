@@ -312,7 +312,6 @@ namespace moris
             // global id functions
             //##############################################
 
-            // FIXME pure virtual or default implementation without error
             /**
              * Get a global entity ID from an entity rank and local index.
              *
@@ -326,7 +325,7 @@ namespace moris
             get_glb_entity_id_from_entity_loc_index(
                     moris_index        aEntityIndex,
                     enum EntityRank    aEntityRank,
-                    const moris_index  aBSplineMeshIndex = 0) const;
+                    const moris_index  aBSplineMeshIndex = 0) const = 0;
 
             // FIXME pure virtual or default implementation without error
             /**
@@ -532,7 +531,6 @@ namespace moris
                     const moris::Matrix< DDRMat >   & aBoundingBoxSize,
                     moris::Matrix< IndexMat >       & aNodeIndices );
 
-            // FIXME pure virtual
             /**
              * Get the spatial coordinates of a node.
              *
@@ -541,7 +539,7 @@ namespace moris
              */
             virtual
             Matrix< DDRMat >
-            get_node_coordinate( moris_index aNodeIndex ) const;
+            get_node_coordinate( moris_index aNodeIndex ) const = 0;
 
             //##############################################
             // Field Access
@@ -725,7 +723,7 @@ namespace moris
             virtual uint
             get_num_fields(
                     const enum EntityRank aEntityRank,
-                    const moris_index     aBSPlineMeshIndex = 0);
+                    const moris_index     aBSPlineMeshIndex = 0) const;
 
             /**
              * return the index of the field of this label
@@ -964,7 +962,7 @@ namespace moris
              */
             virtual
             enum CellTopology
-            get_blockset_topology(const std::string & aSetName);
+            get_blockset_topology(const std::string & aSetName) = 0;
 
             // FIXME pure virtual
             /**

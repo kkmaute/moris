@@ -607,7 +607,7 @@ namespace moris
                     for (uint tElementNumber = 0; tElementNumber < tNumElementsInBlock; tElementNumber++)
                     {
                         // Get the vertex indices of this element
-                        Matrix<IndexMat> tNodeIndices = mMesh->get_nodes_connected_to_element_loc_inds(tElementNumber);
+                        Matrix<IndexMat> tNodeIndices = mMesh->get_nodes_connected_to_element_loc_inds(tElementIndices(tElementNumber));
 
                         // Assign each vertex individually
                         for (int tNodeNum = 0; tNodeNum < tNumNodesPerElement; tNodeNum++)
