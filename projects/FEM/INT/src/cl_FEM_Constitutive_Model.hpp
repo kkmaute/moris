@@ -929,8 +929,7 @@ namespace moris
                 virtual void eval_dTestTractiondDOF(
                         const moris::Cell< MSI::Dof_Type > & aDofTypes,
                         const Matrix< DDRMat >             & aNormal,
-                        const moris::Cell< MSI::Dof_Type > & aTestDofTypes,
-                        enum CM_Function_Type                aCMFunctionType = CM_Function_Type::DEFAULT )
+                        const moris::Cell< MSI::Dof_Type > & aTestDofTypes )
                 {
                     MORIS_ERROR( false, " Constitutive_Model::eval_dTestTractiondDOF - This function does nothing. " );
                 }
