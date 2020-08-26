@@ -27,7 +27,7 @@ namespace moris
             mMasterProp.resize( static_cast< uint >( IWG_Property_Type::MAX_ENUM ), nullptr );
 
             // populate the property map
-            mPropertyMap[ "BodyForce" ] = IWG_Property_Type::BODY_FORCE;
+            mPropertyMap[ "BodyForce" ]     = IWG_Property_Type::BODY_FORCE;
             mPropertyMap[ "BodyHeatLoad" ]  = IWG_Property_Type::BODY_HEAT_LOAD;
 
             // set size for the constitutive model pointer cell
@@ -120,7 +120,10 @@ namespace moris
                     { tMasterResStartIndex, tMasterResStopIndex },
                     { 0, 0 } ) += aWStar * (
                             trans( tFITemp->N() ) * tCMFluid->EnergyDot() +
-                            trans( tFITemp->dnNdxn( 1 ) ) * tCMFluid->flux() );
+                            trans( tFITemp->dnNdxn( 1 ) ) *
+                            ( tCMFluid->flux( CM_Function_Type::WORK ) -
+                              tCMFluid->flux( CM_Function_Type::ENERGY ) -
+                              tCMFluid->flux( CM_Function_Type::THERMAL ) ) );
 
             // if there is a body force
             if ( tPropBodyForce != nullptr )
@@ -196,7 +199,10 @@ namespace moris
                             { tMasterResStartIndex, tMasterResStopIndex },
                             { tMasterDepStartIndex, tMasterDepStopIndex } ) += aWStar * (
                                     trans( tFITemp->N() ) * tCMFluid->dEnergyDotdDOF( tDofType ) -
-                                    trans( tFITemp->dnNdxn( 1 ) ) * tCMFluid->dFluxdDOF( tDofType ) );
+                                    trans( tFITemp->dnNdxn( 1 ) ) *
+                                    ( tCMFluid->dFluxdDOF( tDofType, CM_Function_Type::WORK ) -
+                                      tCMFluid->dFluxdDOF( tDofType, CM_Function_Type::ENERGY ) -
+                                      tCMFluid->dFluxdDOF( tDofType, CM_Function_Type::THERMAL ) ) );
                 }
 
                 // if a body force is present
