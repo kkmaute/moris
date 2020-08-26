@@ -35,22 +35,45 @@ namespace moris
 
                 // Pressure
                 Matrix< DDRMat > mPressure;
-                Matrix< DDRMat > mPressureDof;
+                bool mPressureEval = true;
+                moris::Cell< Matrix< DDRMat > > mPressureDof;
+                moris::Cell< bool > mPressureDofEval;
 
                 // Thermal Flux
                 Matrix< DDRMat > mThermalFlux;
-                Matrix< DDRMat > mThermalFluxDof;
+                bool mThermalFluxEval = true;
+                moris::Cell< Matrix< DDRMat > > mThermalFluxDof;
+                moris::Cell< bool > mThermalFluxDofEval;
+
+                // Work Flux
+                Matrix< DDRMat > mWorkFlux;
+                bool mWorkFluxEval = true;
+                moris::Cell< Matrix< DDRMat > > mWorkFluxDof;
+                moris::Cell< bool > mWorkFluxDofEval;
+
+                // Energy Flux
+                Matrix< DDRMat > mEnergyFlux;
+                bool mEnergyFluxEval = true;
+                moris::Cell< Matrix< DDRMat > > mEnergyFluxDof;
+                moris::Cell< bool > mEnergyFluxDofEval;
+
+//                // Mechanical Flux
+//                Matrix< DDRMat > mStress;
+//                bool mStressEval = true;
+//                moris::Cell< Matrix< DDRMat > > mStressDof;
+//                moris::Cell< bool > mStressDofEval;
+
+                // velocity matrix for flattened tensors
+                Matrix< DDRMat > mVelocityMatrix;
+                bool mVelocityMatrixEval = true;
+
+                // flattened identity matrix
+                Matrix< DDRMat > mFlatIdentity;
 
                 // default dof types
                 MSI::Dof_Type mDofDensity     = MSI::Dof_Type::RHO;
                 MSI::Dof_Type mDofVelocity    = MSI::Dof_Type::VX;
                 MSI::Dof_Type mDofTemperature = MSI::Dof_Type::TEMP;
-
-                // flattened identity matrix
-                Matrix< DDRMat > mFlatIdentity;
-
-                // velocity matrix for flattened tensors
-                Matrix< DDRMat > mVelocityMatrix;
 
                 // property type for CM
                 enum class CM_Property_Type
@@ -107,6 +130,12 @@ namespace moris
 
                 //------------------------------------------------------------------------------
                 /**
+                 * reset evaluation flags specific to this constitutive models
+                 */
+                void reset_specific_eval_flags();
+
+                //------------------------------------------------------------------------------
+                /**
                  * set constitutive model dof types
                  * @param[ in ] aDofTypes a list of group of dof types
                  * @param[ in ] aDofStrings a list of strings to describe the dof types
@@ -148,22 +177,80 @@ namespace moris
 
                 //------------------------------------------------------------------------------
                 /**
-                 * evaluate the constitutive model flux (in this case: the thermal flux)
+                 * evaluate the constitutive model fluxes
                  */
-                void eval_flux();
+                void eval_flux()
+                {
+                    MORIS_ERROR( false,
+                            "CM_Fluid_Compressible_Ideal::eval_flux - not implemented, use specific flux functions." );
+                };
+
+                /**
+                 * get the constitutive model fluxes
+                 * @param[ in ]  aCMFunctionType  enum indicating which flux is called, if there are several
+                 * @param[ out ] mFlux constitutive model fluxes
+                 */
+                const Matrix< DDRMat > & flux( enum CM_Function_Type aCMFunctionType = CM_Function_Type::DEFAULT );
+
+                /**
+                 * evaluate the constitutive model fluxes derivatives wrt to a dof type
+                 * @param[ in ] aDofTypes  a dof type wrt which the derivative is evaluated
+                 */
+                void eval_dFluxdDOF(
+                        const moris::Cell< MSI::Dof_Type > & aDofTypes )
+                {
+                    MORIS_ERROR( false,
+                            "CM_Fluid_Compressible_Ideal::eval_dFluxdDOF - not implemented, use specific flux functions." );
+                };
+
+                /**
+                 * get the derivative of the fluxes wrt dof
+                 * @param[ in ] aDofTypes  a dof type wrt which the derivative is evaluated
+                 * @param[ out ] mFluxDofDer derivative of the fluxes wrt dof
+                 */
+                virtual const Matrix< DDRMat > & dFluxdDOF(
+                        const moris::Cell< MSI::Dof_Type > & aDofTypes,
+                        enum CM_Function_Type                aCMFunctionType = CM_Function_Type::DEFAULT );
+
+                //------------------------------------------------------------------------------
+                //------------------------------------------------------------------------------
+                /**
+                 * evaluate the constitutive model advective energy flux
+                 */
+                void eval_energy_flux();
+
+                /**
+                 *  get the constitutive model advective energy flux
+                 * @param[ out ] constitutive model / equation of state pressure
+                 */
+                const Matrix< DDRMat > & energy_flux();
 
                 //------------------------------------------------------------------------------
                 /**
-                 * evaluate the constitutive model flux derivative wrt to a dof type
+                 * evaluate the constitutive model advective energy flux derivative wrt to a dof type
                  * @param[ in ] aDofTypes  a dof type wrt which the derivative is evaluated
                  */
-                void eval_dFluxdDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes );
+                void eval_energy_dFluxdDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes );
 
+                /**
+                 * get the derivative of the advective energy flux wrt dof
+                 * @param[ in ] aDofTypes  a dof type wrt which the derivative is evaluated
+                 * @param[ out ] ThermalFluxDofDer derivative of the thermal flux wrt dof
+                 */
+                const Matrix< DDRMat > & energy_dFluxdDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes );
+
+                //------------------------------------------------------------------------------
                 //------------------------------------------------------------------------------
                 /**
                  * evaluate the thermal part of the constitutive model flux
                  */
                 void eval_thermal_flux();
+
+                /**
+                 *  get the constitutive model thermal flux
+                 * @param[ out ] constitutive model / equation of state pressure
+                 */
+                const Matrix< DDRMat > & thermal_flux();
 
                 //------------------------------------------------------------------------------
                 /**
@@ -172,6 +259,55 @@ namespace moris
                  */
                 void eval_thermal_dFluxdDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes );
 
+                /**
+                 * get the derivative of the thermal flux wrt dof
+                 * @param[ in ] aDofTypes  a dof type wrt which the derivative is evaluated
+                 * @param[ out ] ThermalFluxDofDer derivative of the thermal flux wrt dof
+                 */
+                const Matrix< DDRMat > & thermal_dFluxdDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes );
+
+                //------------------------------------------------------------------------------
+                //------------------------------------------------------------------------------
+                /**
+                 * evaluate the mechanical work part of the constitutive model flux
+                 */
+                void eval_work_flux();
+
+                /**
+                 *  get the constitutive model mechanical work flux
+                 * @param[ out ] constitutive model / equation of state pressure
+                 */
+                const Matrix< DDRMat > & work_flux();
+
+                //------------------------------------------------------------------------------
+                /**
+                 * evaluate the mechanical work part of the constitutive model flux derivative wrt to a dof type
+                 * @param[ in ] aDofTypes  a dof type wrt which the derivative is evaluated
+                 */
+                void eval_work_dFluxdDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes );
+
+                /**
+                 * get the derivative of the mechanical work flux wrt dof
+                 * @param[ in ] aDofTypes  a dof type wrt which the derivative is evaluated
+                 * @param[ out ] ThermalFluxDofDer derivative of the thermal flux wrt dof
+                 */
+                const Matrix< DDRMat > & work_dFluxdDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes );
+
+                //------------------------------------------------------------------------------
+                //------------------------------------------------------------------------------
+                /**
+                 * evaluate the constitutive model stress
+                 */
+                void eval_stress();
+
+                //------------------------------------------------------------------------------
+                /**
+                 * evaluate the constitutive model stress derivative wrt to a dof type
+                 * @param[ in ] aDofTypes a dof type wrt which the derivative is evaluated
+                 */
+                void eval_dStressdDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes );
+
+                //------------------------------------------------------------------------------
                 //------------------------------------------------------------------------------
                 /**
                  * evaluates the constitutive model energy
@@ -202,19 +338,6 @@ namespace moris
 
                 //------------------------------------------------------------------------------
                 /**
-                 * evaluate the constitutive model stress
-                 */
-                void eval_stress();
-
-                //------------------------------------------------------------------------------
-                /**
-                 * evaluate the constitutive model stress derivative wrt to a dof type
-                 * @param[ in ] aDofTypes a dof type wrt which the derivative is evaluated
-                 */
-                void eval_dStressdDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes );
-
-                //------------------------------------------------------------------------------
-                /**
                  * evaluate the traction
                  * @param[ in ] aNormal normal
                  */
@@ -232,12 +355,23 @@ namespace moris
 
                 //------------------------------------------------------------------------------
                 /**
+                 * evaluate the constitutive model pressure
+                 */
+                void eval_pressure();
+
+                /**
                  * evaluate and get the constitutive model / equation of state pressure
                  * @param[ out ] constitutive model / equation of state pressure
                  */
                 const Matrix< DDRMat > & pressure();
 
                 //------------------------------------------------------------------------------
+                /**
+                 * evaluate the constitutive model pressure
+                 * @param[ in ] aDofTypes  a dof type wrt which the derivative is evaluated
+                 */
+                void eval_dPressuredDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes );
+
                 /**
                  * get the derivative of the Pressure wrt dof
                  * @param[ in ] aDofTypes  a dof type wrt which the derivative is evaluated
@@ -269,7 +403,7 @@ namespace moris
 
                 //--------------------------------------------------------------------------------------------------------------
                 /**
-                 * evaluates velocity matrix for operation on flattended stress and strain vectors
+                 * evaluates velocity matrix for operation on flattened stress and strain vectors
                  */
                 void eval_velocityMatrix()
                 {
@@ -277,6 +411,12 @@ namespace moris
                 }
                 void eval_velocitymatrix_2d();
                 void eval_velocitymatrix_3d();
+
+                /**
+                 * get the velocity matrix for operation on flattened stress and strain vectors
+                 * @param[ out ] mStress constitutive model stress
+                 */
+                const Matrix< DDRMat > & velocityMatrix();
 
                 //--------------------------------------------------------------------------------------------------------------
                 /**
