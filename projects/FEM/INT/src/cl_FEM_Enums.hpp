@@ -298,6 +298,20 @@ namespace moris
         };
 
         //------------------------------------------------------------------------------
+
+        enum class CM_Function_Type
+        {
+                DEFAULT,
+                THERMAL,
+                FLUID,
+                MECHANICAL,
+                ENERGY,
+                WORK,
+                HEAT,
+                END_CM_FUNCTION_TYPE
+        };
+
+        //------------------------------------------------------------------------------
     } /* namespace fem */
 } /* namespace moris */
 
