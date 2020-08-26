@@ -354,6 +354,7 @@ namespace moris
                         const Matrix< DDRMat >             & aNormal );
 
                 //------------------------------------------------------------------------------
+                //------------------------------------------------------------------------------
                 /**
                  * evaluate the constitutive model pressure
                  */
@@ -379,7 +380,8 @@ namespace moris
                  */
                 const Matrix< DDRMat > & dPressuredDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes );
 
-                //--------------------------------------------------------------------------------------------------------------
+                //------------------------------------------------------------------------------
+                //------------------------------------------------------------------------------
                 /**
                  * evaluates the test strain (is equal to dStrain/dDoF in this case)
                  */
@@ -414,7 +416,7 @@ namespace moris
 
                 /**
                  * get the velocity matrix for operation on flattened stress and strain vectors
-                 * @param[ out ] mStress constitutive model stress
+                 * @param[ out ] mVelocityMatrix constitutive model stress
                  */
                 const Matrix< DDRMat > & velocityMatrix();
 

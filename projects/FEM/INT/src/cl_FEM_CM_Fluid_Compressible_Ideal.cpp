@@ -172,6 +172,7 @@ namespace moris
         }
 
         //--------------------------------------------------------------------------------------------------------------
+        //--------------------------------------------------------------------------------------------------------------
 
         const Matrix< DDRMat > & CM_Fluid_Compressible_Ideal::flux( enum CM_Function_Type aCMFunctionType )
         {
@@ -191,7 +192,7 @@ namespace moris
 
                     // unknown CM function type
                 default :
-                    MORIS_ERROR( false , "Constitutive_Model::flux - unknown CM function type for flux." );
+                    MORIS_ERROR( false , "CM_Fluid_Compressible_Van_der_Waals::flux - unknown CM function type for flux." );
                     return mFlux;
             }
         }
@@ -216,7 +217,7 @@ namespace moris
 
                     // unknown CM function type
                 default :
-                    MORIS_ERROR( false , "Constitutive_Model::dFluxdDOF - unknown CM function type for flux." );
+                    MORIS_ERROR( false , "CM_Fluid_Compressible_Van_der_Waals::dFluxdDOF - unknown CM function type for flux." );
                     return mFlux;
             }
         }
@@ -784,6 +785,11 @@ namespace moris
             // get the dof index
             uint tDofIndex = mGlobalDofTypeMap( static_cast< uint >( aDofTypes( 0 ) ) );
 
+            // initialize the matrix
+            mPressureDof( tDofIndex ).set_size( 1,
+                    mFIManager->get_field_interpolators_for_type( aDofTypes( 0 ) )->
+                    get_number_of_space_time_coefficients(), 0.0 );
+
             // if Density DoF
             if( aDofTypes( 0 ) == mDofDensity )
             {
@@ -979,38 +985,3 @@ namespace moris
 
     } /* namespace fem */
 } /* namespace moris */
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
