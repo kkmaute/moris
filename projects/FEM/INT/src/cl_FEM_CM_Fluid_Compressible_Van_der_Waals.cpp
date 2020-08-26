@@ -77,6 +77,41 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
+        void CM_Fluid_Compressible_Van_der_Waals::reset_specific_eval_flags()
+        {
+            // get number of Dof Types
+            uint tNumDofTypes = mGlobalDofTypes.size();
+
+            // reset Pressure
+            mPressureEval = true;
+            mPressureDofEval.assign( tNumDofTypes, true );
+
+            // reset Thermal Flux
+            mThermalFluxEval = true;
+            mThermalFluxDofEval.assign( tNumDofTypes, true );
+
+            // reset work Flux
+            mWorkFluxEval = true;
+            mWorkFluxDofEval.assign( tNumDofTypes, true );
+
+            // reset energy Flux
+            mEnergyFluxEval = true;
+            mEnergyFluxDofEval.assign( tNumDofTypes, true );
+
+            // reset velocity matrix for flattened tensors
+            mVelocityMatrixEval = true;
+
+            // reset strain contribution due to density surface effects
+            mDensityStrainEval = true;
+            mDensityStrainDofEval = true;
+
+            // reset laplacian of density
+            mLaplaceDensityEval = true;
+            mLaplaceDensityDofEval = true;
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
         void CM_Fluid_Compressible_Van_der_Waals::set_dof_type_list(
                 moris::Cell< moris::Cell< MSI::Dof_Type > > aDofTypes,
                 moris::Cell< std::string >                  aDofStrings )
@@ -156,27 +191,294 @@ namespace moris
         }
 
         //--------------------------------------------------------------------------------------------------------------
+        //--------------------------------------------------------------------------------------------------------------
 
-        void CM_Fluid_Compressible_Van_der_Waals::eval_flux()
+        const Matrix< DDRMat > & CM_Fluid_Compressible_Van_der_Waals::flux( enum CM_Function_Type aCMFunctionType )
         {
-            // get the velocity
-            Matrix< DDRMat > tVelocity =  mFIManager->get_field_interpolators_for_type( mDofVelocity )->val();
+            switch( aCMFunctionType )
+            {
+                case CM_Function_Type::THERMAL :
+                    return this->thermal_flux();
 
-            // evaluate the thermal flux
-            this->eval_thermal_flux();
+                case CM_Function_Type::ENERGY :
+                    return this->energy_flux();
 
-            // evaluate the velocity matrix
-            this->eval_velocityMatrix();
+                case CM_Function_Type::WORK :
+                    return this->work_flux();
 
-            // compute contribution
-            mFlux = mVelocityMatrix * this->stress() -
-                    this->Energy() * tVelocity -
-                    mThermalFlux;
+                case CM_Function_Type::MECHANICAL :
+                    return this->stress();
+
+                    // unknown CM function type
+                default :
+                    MORIS_ERROR( false , "CM_Fluid_Compressible_Van_der_Waals::flux - unknown CM function type for flux." );
+                    return mFlux;
+            }
+        }
+
+        const Matrix< DDRMat > & CM_Fluid_Compressible_Van_der_Waals::dFluxdDOF(
+                const moris::Cell< MSI::Dof_Type > & aDofTypes,
+                enum CM_Function_Type                aCMFunctionType )
+        {
+            switch( aCMFunctionType )
+            {
+                case CM_Function_Type::THERMAL :
+                    return this->thermal_dFluxdDOF( aDofTypes );
+
+                case CM_Function_Type::ENERGY :
+                    return this->energy_dFluxdDOF( aDofTypes );
+
+                case CM_Function_Type::WORK :
+                    return this->work_dFluxdDOF( aDofTypes );
+
+                case CM_Function_Type::MECHANICAL :
+                    return this->dStressdDOF( aDofTypes );
+
+                    // unknown CM function type
+                default :
+                    MORIS_ERROR( false , "CM_Fluid_Compressible_Van_der_Waals::dFluxdDOF - unknown CM function type for flux." );
+                    return mFlux;
+            }
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+        //--------------------------------------------------------------------------------------------------------------
+
+        void CM_Fluid_Compressible_Van_der_Waals::eval_thermal_flux()
+        {
+            // get field interpolators
+            Field_Interpolator * tFITemp = mFIManager->get_field_interpolators_for_type( mDofTemperature );
+
+            // get the properties
+            std::shared_ptr< Property > tPropThermalConductivity = get_property( "ThermalConductivity" );
+
+            // compute thermal flux q = - k * grad(T)
+            mThermalFlux =  -1.0 * tPropThermalConductivity->val() * tFITemp->gradx( 1 );
+        }
+
+        const Matrix< DDRMat > & CM_Fluid_Compressible_Van_der_Waals::thermal_flux()
+        {
+            // if the test strain was not evaluated
+            if( mThermalFluxEval )
+            {
+                // evaluate the test strain
+                this->eval_thermal_flux();
+
+                // set bool for evaluation
+                mThermalFluxEval = false;
+            }
+            // return the test strain value
+            return mThermalFlux;
         }
 
         //--------------------------------------------------------------------------------------------------------------
 
-        void CM_Fluid_Compressible_Van_der_Waals::eval_dFluxdDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes )
+        void CM_Fluid_Compressible_Van_der_Waals::eval_thermal_dFluxdDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes )
+        {
+            // get field interpolators
+            Field_Interpolator * tFITemp = mFIManager->get_field_interpolators_for_type( mDofTemperature );
+
+            // get the properties
+            std::shared_ptr< Property > tPropThermalConductivity = get_property( "ThermalConductivity" );
+
+            // get the dof index
+            uint tDofIndex = mGlobalDofTypeMap( static_cast< uint >( aDofTypes( 0 ) ) );
+
+            // initialize the matrix
+            mThermalFluxDof( tDofIndex ).set_size( mSpaceDim,
+                    mFIManager->get_field_interpolators_for_type( aDofTypes( 0 ) )->
+                    get_number_of_space_time_coefficients(), 0.0 );
+
+            // direct dependency on the temperature dof type
+            if( aDofTypes( 0 ) == mDofTemperature )
+            {
+                // compute contribution
+                mThermalFluxDof( tDofIndex ).matrix_data() +=
+                        -1.0 * tPropThermalConductivity->val() * tFITemp->dnNdxn( 1 );
+            }
+
+            // if indirect dependency of conductivity on the dof type
+            if ( tPropThermalConductivity->check_dof_dependency( aDofTypes ) )
+            {
+                // compute derivative with indirect dependency through properties
+                mThermalFluxDof( tDofIndex ).matrix_data() +=
+                        -1.0 * tFITemp->gradx( 1 ) * tPropThermalConductivity->dPropdDOF( aDofTypes );
+            }
+        }
+
+        const Matrix< DDRMat > & CM_Fluid_Compressible_Van_der_Waals::thermal_dFluxdDOF(
+                const moris::Cell< MSI::Dof_Type > & aDofTypes )
+        {
+            // if aDofType is not an active dof type for the CM
+            MORIS_ERROR(
+                    this->check_dof_dependency( aDofTypes ),
+                    "CM_Fluid_Compressible_Van_der_Waals::thermal_dFluxdDOF - no dependency in this dof type." );
+
+            // get the dof index
+            uint tDofIndex = mGlobalDofTypeMap( static_cast< uint >( aDofTypes( 0 ) ) );
+
+            // if the derivative has not been evaluated yet
+            if( mThermalFluxDofEval( tDofIndex ) )
+            {
+                // evaluate the derivative
+                this->eval_thermal_dFluxdDOF( aDofTypes );
+
+                // set bool for evaluation
+                mThermalFluxDofEval( tDofIndex ) = false;
+            }
+
+            // return the dof deriv value
+            return mThermalFluxDof( tDofIndex );
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+        //--------------------------------------------------------------------------------------------------------------
+
+        void CM_Fluid_Compressible_Van_der_Waals::eval_work_flux()
+        {
+            // get field interpolators
+            Field_Interpolator * tFIDensity = mFIManager->get_field_interpolators_for_type( mDofDensity );
+            Field_Interpolator * tFIVelocity = mFIManager->get_field_interpolators_for_type( mDofVelocity );
+
+            // get the properties
+            std::shared_ptr< Property > tPropCapillarityCoefficient = get_property( "CapillarityCoefficient" );
+
+            // compute contribution
+            mWorkFlux = this->velocityMatrix() * this->flux( CM_Function_Type::MECHANICAL ) -
+                    tPropCapillarityCoefficient->val() * tFIDensity->val() * tFIVelocity->div() * tFIDensity->gradx( 1 );
+        }
+
+        const Matrix< DDRMat > & CM_Fluid_Compressible_Van_der_Waals::work_flux()
+        {
+            // if the flux was not evaluated
+            if( mWorkFluxEval )
+            {
+                // evaluate the flux
+                this->eval_work_flux();
+
+                // set bool for evaluation
+                mWorkFluxEval = false;
+            }
+            // return the flux value
+            return mWorkFlux;
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
+        void CM_Fluid_Compressible_Van_der_Waals::eval_work_dFluxdDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes )
+        {
+            // get the dof index
+            uint tDofIndex = mGlobalDofTypeMap( static_cast< uint >( aDofTypes( 0 ) ) );
+
+            // get field interpolators
+            Field_Interpolator * tFIDensity = mFIManager->get_field_interpolators_for_type( mDofDensity );
+            Field_Interpolator * tFIVelocity = mFIManager->get_field_interpolators_for_type( mDofVelocity );
+
+            // get the properties
+            std::shared_ptr< Property > tPropCapillarityCoefficient = get_property( "CapillarityCoefficient" );
+
+            // unfold the flattened stress tensor
+            Matrix< DDRMat > tStressTensor;
+            this->unfold( this->flux( CM_Function_Type::MECHANICAL ) , tStressTensor );
+
+            // initialize the matrix
+            mWorkFluxDof( tDofIndex ).set_size( mSpaceDim,
+                    mFIManager->get_field_interpolators_for_type( aDofTypes( 0 ) )->
+                    get_number_of_space_time_coefficients(), 0.0 );
+
+            // direct dependency on the density dof type
+            if( aDofTypes( 0 ) == mDofDensity )
+            {
+                // compute contribution
+                mWorkFluxDof( tDofIndex ).matrix_data() +=
+                        this->velocityMatrix() * this->dFluxdDOF( aDofTypes, CM_Function_Type::MECHANICAL) -
+                        tPropCapillarityCoefficient->val() * tFIVelocity->div() * tFIDensity->gradx( 1 ) * tFIDensity->N() -
+                        tPropCapillarityCoefficient->val() * tFIVelocity->div() * tFIDensity->val() * tFIDensity->dnNdxn( 1 ) ;
+            }
+
+            // direct dependency on the velocity dof type
+            if( aDofTypes( 0 ) == mDofVelocity )
+            {
+                // compute contribution
+                mWorkFluxDof( tDofIndex ).matrix_data() +=
+                        this->velocityMatrix() * this->dFluxdDOF( aDofTypes, CM_Function_Type::MECHANICAL) +
+                        tStressTensor * tFIVelocity->dnNdxn( 1 ) -
+                        tPropCapillarityCoefficient->val() * tFIDensity->val() * tFIDensity->gradx( 1 ) * tFIVelocity->div_operator();
+            }
+
+            // direct dependency on the temperature dof type
+            if( aDofTypes( 0 ) == mDofTemperature )
+            {
+                // compute contribution
+                mWorkFluxDof( tDofIndex ).matrix_data() +=
+                        this->velocityMatrix() * this->dFluxdDOF( aDofTypes, CM_Function_Type::MECHANICAL);
+            }
+
+            // if indirect dependency of capillarity
+            if ( tPropCapillarityCoefficient->check_dof_dependency( aDofTypes ) )
+            {
+                // compute derivative with indirect dependency through properties
+                mWorkFluxDof( tDofIndex ).matrix_data() +=
+                        -1.0 * tFIDensity->val() * tFIVelocity->div() * tFIDensity->gradx( 1 ) *
+                        tPropCapillarityCoefficient->dPropdDOF( aDofTypes );
+            }
+        }
+
+        const Matrix< DDRMat > & CM_Fluid_Compressible_Van_der_Waals::work_dFluxdDOF(
+                const moris::Cell< MSI::Dof_Type > & aDofTypes )
+        {
+            // if aDofType is not an active dof type for the CM
+            MORIS_ERROR(
+                    this->check_dof_dependency( aDofTypes ),
+                    "CM_Fluid_Compressible_Van_der_Waals::work_dFluxdDOF - no dependency in this dof type." );
+
+            // get the dof index
+            uint tDofIndex = mGlobalDofTypeMap( static_cast< uint >( aDofTypes( 0 ) ) );
+
+            // if the derivative has not been evaluated yet
+            if( mWorkFluxDofEval( tDofIndex ) )
+            {
+                // evaluate the derivative
+                this->eval_work_dFluxdDOF( aDofTypes );
+
+                // set bool for evaluation
+                mWorkFluxDofEval( tDofIndex ) = false;
+            }
+
+            // return the dof deriv value
+            return mWorkFluxDof( tDofIndex );
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+        //--------------------------------------------------------------------------------------------------------------
+
+        void CM_Fluid_Compressible_Van_der_Waals::eval_energy_flux()
+        {
+            // get the velocity
+            Matrix< DDRMat > tVelocity =  mFIManager->get_field_interpolators_for_type( mDofVelocity )->val();
+
+            // compute contribution
+            mEnergyFlux = this->Energy() * tVelocity;
+        }
+
+        const Matrix< DDRMat > & CM_Fluid_Compressible_Van_der_Waals::energy_flux()
+        {
+            // if the flux was not evaluated
+            if( mEnergyFluxEval )
+            {
+                // evaluate the flux
+                this->eval_energy_flux();
+
+                // set bool for evaluation
+                mEnergyFluxEval = false;
+            }
+            // return the flux value
+            return mEnergyFlux;
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
+        void CM_Fluid_Compressible_Van_der_Waals::eval_energy_dFluxdDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes )
         {
             // get the dof type as a uint
             uint tDofType = static_cast< uint >( aDofTypes( 0 ) );
@@ -187,90 +489,105 @@ namespace moris
             // get the velocity
             Field_Interpolator * tFIVelocity  =  mFIManager->get_field_interpolators_for_type( mDofVelocity );
 
-            // evaluate the velocity matrix
-            this->eval_velocityMatrix();
-
-            // unfold the flattened stress tensor
-            Matrix< DDRMat > tStressTensor;
-            this->unfold( this->stress() , tStressTensor );
-
-
             // initialize the matrix
-            mdFluxdDof( tDofIndex ).set_size( mSpaceDim,
+            mEnergyFluxDof( tDofIndex ).set_size( mSpaceDim,
                     mFIManager->get_field_interpolators_for_type( aDofTypes( 0 ) )->
                     get_number_of_space_time_coefficients(), 0.0 );
 
             // direct dependency on the density dof type
             if( aDofTypes( 0 ) == mDofDensity )
             {
-                // evaluate thermal flux DoF derivative
-                this->eval_thermal_dFluxdDOF( aDofTypes );
-
                 // compute contribution
-                mdFluxdDof( tDofIndex ).matrix_data() +=
-                        mVelocityMatrix * this->dStressdDOF( aDofTypes ) -
-                        this->dEnergydDOF( aDofTypes ) * tFIVelocity->val() -
-                        mThermalFluxDof;
+                mEnergyFluxDof( tDofIndex ).matrix_data() +=
+                        this->dEnergydDOF( aDofTypes ) * tFIVelocity->val();
             }
 
             // direct dependency on the velocity dof type
             if( aDofTypes( 0 ) == mDofVelocity )
             {
                 // compute contribution
-                mdFluxdDof( tDofIndex ).matrix_data() +=
-                        mVelocityMatrix * this->dStressdDOF( aDofTypes ) +
-                        tStressTensor * tFIVelocity->dnNdxn( 1 ) -
-                        this->dEnergydDOF( aDofTypes ) * tFIVelocity->val() -
+                mEnergyFluxDof( tDofIndex ).matrix_data() +=
+                        this->dEnergydDOF( aDofTypes ) * tFIVelocity->val() +
                         this->Energy() * tFIVelocity->dnNdxn( 1 );
             }
 
             // direct dependency on the temperature dof type
             if( aDofTypes( 0 ) == mDofTemperature )
             {
-                // evaluate thermal flux DoF derivative
-                this->eval_thermal_dFluxdDOF( aDofTypes );
-
                 // compute contribution
-                mdFluxdDof( tDofIndex ).matrix_data() +=
-                        mVelocityMatrix * this->dStressdDOF( aDofTypes ) -
-                        this->dEnergydDOF( aDofTypes ) * tFIVelocity->val() -
-                        mThermalFluxDof;
+                mEnergyFluxDof( tDofIndex ).matrix_data() +=
+                        this->dEnergydDOF( aDofTypes ) * tFIVelocity->val();
             }
         }
 
+        const Matrix< DDRMat > & CM_Fluid_Compressible_Van_der_Waals::energy_dFluxdDOF(
+                const moris::Cell< MSI::Dof_Type > & aDofTypes )
+        {
+            // if aDofType is not an active dof type for the CM
+            MORIS_ERROR(
+                    this->check_dof_dependency( aDofTypes ),
+                    "CM_Fluid_Compressible_Van_der_Waals::energy_dFluxdDOF - no dependency in this dof type." );
+
+            // get the dof index
+            uint tDofIndex = mGlobalDofTypeMap( static_cast< uint >( aDofTypes( 0 ) ) );
+
+            // if the derivative has not been evaluated yet
+            if( mEnergyFluxDofEval( tDofIndex ) )
+            {
+                // evaluate the derivative
+                this->eval_energy_dFluxdDOF( aDofTypes );
+
+                // set bool for evaluation
+                mEnergyFluxDofEval( tDofIndex ) = false;
+            }
+
+            // return the dof deriv value
+            return mEnergyFluxDof( tDofIndex );
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
         //--------------------------------------------------------------------------------------------------------------
 
-        void CM_Fluid_Compressible_Van_der_Waals::eval_thermal_flux()
+        void CM_Fluid_Compressible_Van_der_Waals::eval_stress()
         {
-            // get field interpolators
+            // get the FIs
             Field_Interpolator * tFIDensity = mFIManager->get_field_interpolators_for_type( mDofDensity );
             Field_Interpolator * tFIVelocity = mFIManager->get_field_interpolators_for_type( mDofVelocity );
-            Field_Interpolator * tFITemp = mFIManager->get_field_interpolators_for_type( mDofTemperature );
 
             // get the properties
+            std::shared_ptr< Property > tPropDynamicViscosity = get_property( "DynamicViscosity" );
             std::shared_ptr< Property > tPropCapillarityCoefficient = get_property( "CapillarityCoefficient" );
-            std::shared_ptr< Property > tPropThermalConductivity = get_property( "ThermalConductivity" );
 
-            // compute thermal flux q = - k * grad(T)
-            mThermalFlux = tPropCapillarityCoefficient->val() * tFIDensity->val() * tFIVelocity->div() * tFIDensity->gradx( 1 ) -
-                    tPropThermalConductivity->val() * tFITemp->gradx( 1 );
+            // compute Stress
+            mStress = 2.0 * tPropDynamicViscosity->val() *
+                    ( this->strain() -  ( 1 / 3 ) * tFIVelocity->div() * mFlatIdentity  ) +
+                    ( tFIDensity->val() * tFIDensity->val() * this->laplaceDensity() +
+                            0.5 * trans( tFIDensity->gradx( 1 ) ) * tFIDensity->gradx( 1 ) ) *
+                    tPropCapillarityCoefficient->val() * mFlatIdentity -
+                    tPropCapillarityCoefficient->val() * this->densityStrain() -
+                    this->pressure() * mFlatIdentity ;
         }
 
         //--------------------------------------------------------------------------------------------------------------
 
-        void CM_Fluid_Compressible_Van_der_Waals::eval_thermal_dFluxdDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes )
+        void CM_Fluid_Compressible_Van_der_Waals::eval_dStressdDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes )
         {
-            // get field interpolators
+            // get the dof type as a uint
+            uint tDofType = static_cast< uint >( aDofTypes( 0 ) );
+
+            // get the dof type index
+            uint tDofIndex = mGlobalDofTypeMap( tDofType );
+
+            // get the FIs
             Field_Interpolator * tFIDensity = mFIManager->get_field_interpolators_for_type( mDofDensity );
             Field_Interpolator * tFIVelocity = mFIManager->get_field_interpolators_for_type( mDofVelocity );
-            Field_Interpolator * tFITemp = mFIManager->get_field_interpolators_for_type( mDofTemperature );
 
             // get the properties
+            std::shared_ptr< Property > tPropDynamicViscosity = get_property( "DynamicViscosity" );
             std::shared_ptr< Property > tPropCapillarityCoefficient = get_property( "CapillarityCoefficient" );
-            std::shared_ptr< Property > tPropThermalConductivity = get_property( "ThermalConductivity" );
 
             // initialize the matrix
-            mThermalFluxDof.set_size( mSpaceDim,
+            mdStressdDof( tDofIndex ).set_size( ( mSpaceDim - 1 ) * 3,
                     mFIManager->get_field_interpolators_for_type( aDofTypes( 0 ) )->
                     get_number_of_space_time_coefficients(), 0.0 );
 
@@ -278,45 +595,53 @@ namespace moris
             if( aDofTypes( 0 ) == mDofDensity )
             {
                 // compute contribution
-                mThermalFluxDof.matrix_data() +=
-                        tPropCapillarityCoefficient->val() * tFIVelocity->div() * tFIDensity->gradx( 1 ) * tFIDensity->N() +
-                        tPropCapillarityCoefficient->val() * tFIVelocity->div() * tFIDensity->val() * tFIDensity->dnNdxn( 1 ) ;
+                mdStressdDof( tDofIndex ).matrix_data() +=
+                        mFlatIdentity * this->dPressuredDOF( aDofTypes ) +
+                        tFIDensity->val() * mFlatIdentity * this->laplaceDensityDof() +
+                        this->laplaceDensity() * mFlatIdentity * tFIDensity->N() +
+                        mFlatIdentity * trans( tFIDensity->gradx( 1 ) ) * tFIDensity->dnNdxn( 1 ) -
+                        this->laplaceDensityDof();
             }
 
             // direct dependency on the velocity dof type
             if( aDofTypes( 0 ) == mDofVelocity )
             {
                 // compute contribution
-                mThermalFluxDof.matrix_data() +=
-                        tPropCapillarityCoefficient->val() * tFIDensity->val() * tFIDensity->gradx( 1 ) * tFIVelocity->div_operator();
+                mdStressdDof( tDofIndex ).matrix_data() +=
+                        2.0 * tPropDynamicViscosity->val() *
+                        ( this->dStraindDOF( aDofTypes ) - ( 1 / 3 ) * mFlatIdentity * tFIVelocity->div_operator() );
             }
 
             // direct dependency on the temperature dof type
             if( aDofTypes( 0 ) == mDofTemperature )
             {
                 // compute contribution
-                mThermalFluxDof.matrix_data() +=
-                        -1.0 * tPropThermalConductivity->val() * tFITemp->dnNdxn( 1 );
+                mdStressdDof( tDofIndex ).matrix_data() +=
+                        mFlatIdentity * this->dPressuredDOF( aDofTypes );
+            }
+
+            // if indirect dependency of viscosity
+            if ( tPropDynamicViscosity->check_dof_dependency( aDofTypes ) )
+            {
+                // compute derivative with indirect dependency through properties
+                mdStressdDof( tDofIndex ).matrix_data() +=
+                        2.0 * ( this->strain() - ( 1 / 3 ) * tFIVelocity->div() * mFlatIdentity ) *
+                        tPropDynamicViscosity->dPropdDOF( aDofTypes );
             }
 
             // if indirect dependency of capillarity
             if ( tPropCapillarityCoefficient->check_dof_dependency( aDofTypes ) )
             {
                 // compute derivative with indirect dependency through properties
-                mThermalFluxDof.matrix_data() +=
-                        tFIDensity->val() * tFIVelocity->div() * tFIDensity->gradx( 1 ) *
-                        tPropCapillarityCoefficient->dPropdDOF( aDofTypes );
-            }
-
-            // if indirect dependency of conductivity on the dof type
-            if ( tPropThermalConductivity->check_dof_dependency( aDofTypes ) )
-            {
-                // compute derivative with indirect dependency through properties
-                mThermalFluxDof.matrix_data() +=
-                        -1.0 * tFITemp->gradx( 1 ) * tPropThermalConductivity->dPropdDOF( aDofTypes );
+                mdStressdDof( tDofIndex ).matrix_data() +=
+                        ( tFIDensity->val() * tFIDensity->val() * this->laplaceDensity() +
+                                0.5 * trans( tFIDensity->gradx( 1 ) ) * tFIDensity->gradx( 1 ) ) *
+                        mFlatIdentity  * tPropCapillarityCoefficient->dPropdDOF( aDofTypes ) -
+                        this->densityStrain() * tPropCapillarityCoefficient->dPropdDOF( aDofTypes ) ;
             }
         }
 
+        //--------------------------------------------------------------------------------------------------------------
         //--------------------------------------------------------------------------------------------------------------
 
         void CM_Fluid_Compressible_Van_der_Waals::eval_Energy()
@@ -400,6 +725,7 @@ namespace moris
             }
         }
 
+        //--------------------------------------------------------------------------------------------------------------
         //--------------------------------------------------------------------------------------------------------------
 
         void CM_Fluid_Compressible_Van_der_Waals::eval_EnergyDot()
@@ -494,113 +820,6 @@ namespace moris
         }
 
         //--------------------------------------------------------------------------------------------------------------
-
-        void CM_Fluid_Compressible_Van_der_Waals::eval_stress()
-        {
-            // get the FIs
-            Field_Interpolator * tFIDensity = mFIManager->get_field_interpolators_for_type( mDofDensity );
-            Field_Interpolator * tFIVelocity = mFIManager->get_field_interpolators_for_type( mDofVelocity );
-
-            // get the properties
-            std::shared_ptr< Property > tPropDynamicViscosity = get_property( "DynamicViscosity" );
-            std::shared_ptr< Property > tPropCapillarityCoefficient = get_property( "CapillarityCoefficient" );
-
-            // evaluate density strain
-            this->eval_densityStrain();
-
-            // evaluate Laplace(density)
-            this->eval_laplaceDensity();
-
-            // compute Stress
-            mStress = 2.0 * tPropDynamicViscosity->val() *
-                    ( this->strain() -  ( 1 / 3 ) * tFIVelocity->div() * mFlatIdentity  ) +
-                    ( tFIDensity->val() * tFIDensity->val() * mLaplaceDensity +
-                            0.5 * trans( tFIDensity->gradx( 1 ) ) * tFIDensity->gradx( 1 ) ) *
-                    tPropCapillarityCoefficient->val() * mFlatIdentity -
-                    tPropCapillarityCoefficient->val() * mDensityStrain -
-                    this->pressure() * mFlatIdentity ;
-        }
-
-        //--------------------------------------------------------------------------------------------------------------
-
-        void CM_Fluid_Compressible_Van_der_Waals::eval_dStressdDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes )
-        {
-            // get the dof type as a uint
-            uint tDofType = static_cast< uint >( aDofTypes( 0 ) );
-
-            // get the dof type index
-            uint tDofIndex = mGlobalDofTypeMap( tDofType );
-
-            // get the FIs
-            Field_Interpolator * tFIDensity = mFIManager->get_field_interpolators_for_type( mDofDensity );
-            Field_Interpolator * tFIVelocity = mFIManager->get_field_interpolators_for_type( mDofVelocity );
-
-            // get the properties
-            std::shared_ptr< Property > tPropDynamicViscosity = get_property( "DynamicViscosity" );
-            std::shared_ptr< Property > tPropCapillarityCoefficient = get_property( "CapillarityCoefficient" );
-
-            // initialize the matrix
-            mdStressdDof( tDofIndex ).set_size( ( mSpaceDim - 1 ) * 3,
-                    mFIManager->get_field_interpolators_for_type( aDofTypes( 0 ) )->
-                    get_number_of_space_time_coefficients(), 0.0 );
-
-            // direct dependency on the density dof type
-            if( aDofTypes( 0 ) == mDofDensity )
-            {
-                // evaluate the (dof derivs of the) laplacian of the density
-                this->eval_laplaceDensity();
-                this->eval_laplaceDensityDof();
-
-                // evaluate the dof deriv of the density strain
-                this->eval_densityStrainDof();
-
-                // compute contribution
-                mdStressdDof( tDofIndex ).matrix_data() +=
-                        mFlatIdentity * this->dPressuredDOF( aDofTypes ) +
-                        tFIDensity->val() * mFlatIdentity * mLaplaceDensityDof +
-                        mLaplaceDensity * mFlatIdentity * tFIDensity->N() +
-                        mFlatIdentity * trans( tFIDensity->gradx( 1 ) ) * tFIDensity->dnNdxn( 1 ) -
-                        mLaplaceDensityDof;
-            }
-
-            // direct dependency on the velocity dof type
-            if( aDofTypes( 0 ) == mDofVelocity )
-            {
-                // compute contribution
-                mdStressdDof( tDofIndex ).matrix_data() +=
-                        2.0 * tPropDynamicViscosity->val() *
-                        ( this->dStraindDOF( aDofTypes ) - ( 1 / 3 ) * mFlatIdentity * tFIVelocity->div_operator() );
-            }
-
-            // direct dependency on the temperature dof type
-            if( aDofTypes( 0 ) == mDofTemperature )
-            {
-                // compute contribution
-                mdStressdDof( tDofIndex ).matrix_data() +=
-                        mFlatIdentity * this->dPressuredDOF( aDofTypes );
-            }
-
-            // if indirect dependency of viscosity
-            if ( tPropDynamicViscosity->check_dof_dependency( aDofTypes ) )
-            {
-                // compute derivative with indirect dependency through properties
-                mdStressdDof( tDofIndex ).matrix_data() +=
-                        2.0 * ( this->strain() - ( 1 / 3 ) * tFIVelocity->div() * mFlatIdentity ) *
-                        tPropDynamicViscosity->dPropdDOF( aDofTypes );
-            }
-
-            // if indirect dependency of capillarity
-            if ( tPropCapillarityCoefficient->check_dof_dependency( aDofTypes ) )
-            {
-                // compute derivative with indirect dependency through properties
-                mdStressdDof( tDofIndex ).matrix_data() +=
-                        ( tFIDensity->val() * tFIDensity->val() * mLaplaceDensity +
-                                0.5 * trans( tFIDensity->gradx( 1 ) ) * tFIDensity->gradx( 1 ) ) *
-                        mFlatIdentity  * tPropCapillarityCoefficient->dPropdDOF( aDofTypes ) -
-                        mDensityStrain * tPropCapillarityCoefficient->dPropdDOF( aDofTypes ) ;
-            }
-        }
-
         //--------------------------------------------------------------------------------------------------------------
 
         void CM_Fluid_Compressible_Van_der_Waals::eval_dTractiondDOF(
@@ -620,8 +839,9 @@ namespace moris
         }
 
         //--------------------------------------------------------------------------------------------------------------
+        //--------------------------------------------------------------------------------------------------------------
 
-        const Matrix< DDRMat > & CM_Fluid_Compressible_Van_der_Waals::pressure()
+        void CM_Fluid_Compressible_Van_der_Waals::eval_pressure()
         {
             // get field interpolators
             Field_Interpolator * tFIDensity = mFIManager->get_field_interpolators_for_type( mDofDensity );
@@ -636,13 +856,27 @@ namespace moris
             mPressure = ( 1 / tPropSecondVdWconstant->val()( 0 ) - tFIDensity->val()( 0 ) ) *
                     tPropSpecificGasConstant->val() * tPropSecondVdWconstant->val() * tFIDensity->val() * tFITemp->val() -
                     std::pow( tFIDensity->val()( 0 ), 2.0 ) * tPropFirstVdWconstant->val();
+        }
 
+        const Matrix< DDRMat > & CM_Fluid_Compressible_Van_der_Waals::pressure()
+        {
+            // if the test strain was not evaluated
+            if( mPressureEval )
+            {
+                // evaluate the test strain
+                this->eval_pressure();
+
+                // set bool for evaluation
+                mPressureEval = false;
+            }
+
+            // return the test strain value
             return mPressure;
         }
 
         //--------------------------------------------------------------------------------------------------------------
 
-        const Matrix< DDRMat > & CM_Fluid_Compressible_Van_der_Waals::dPressuredDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes )
+        void CM_Fluid_Compressible_Van_der_Waals::eval_dPressuredDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes )
         {
             // get field interpolators
             Field_Interpolator * tFIDensity = mFIManager->get_field_interpolators_for_type( mDofDensity );
@@ -653,10 +887,18 @@ namespace moris
             std::shared_ptr< Property > tPropFirstVdWconstant = get_property( "FirstVdWconstant" );
             std::shared_ptr< Property > tPropSecondVdWconstant = get_property( "SecondVdWconstant" );
 
+            // get the dof index
+            uint tDofIndex = mGlobalDofTypeMap( static_cast< uint >( aDofTypes( 0 ) ) );
+
+            // initialize the matrix
+            mPressureDof( tDofIndex ).set_size( 1,
+                    mFIManager->get_field_interpolators_for_type( aDofTypes( 0 ) )->
+                    get_number_of_space_time_coefficients(), 0.0 );
+
             // if Density DoF
             if( aDofTypes( 0 ) == mDofDensity )
             {
-                mPressureDof = ( std::pow( tPropSecondVdWconstant->val()( 0 ), 2.0 ) /
+                mPressureDof( tDofIndex ) = ( std::pow( tPropSecondVdWconstant->val()( 0 ), 2.0 ) /
                         std::pow( tPropSecondVdWconstant->val()( 0 ) - tFIDensity->val()( 0 ), 2.0 ) ) *
                         tPropSpecificGasConstant->val() * tFITemp->val() * tFIDensity->N() -
                         2.0 * tPropFirstVdWconstant->val() * tFIDensity->val() * tFIDensity->N();
@@ -666,14 +908,37 @@ namespace moris
             if( aDofTypes( 0 ) == mDofTemperature )
             {
                 // compute derivative with direct dependency
-                mPressureDof = ( 1 / tPropSecondVdWconstant->val()( 0 ) - tFIDensity->val()( 0 ) ) *
+                mPressureDof( tDofIndex ) = ( 1 / tPropSecondVdWconstant->val()( 0 ) - tFIDensity->val()( 0 ) ) *
                         tPropSpecificGasConstant->val() * tPropSecondVdWconstant->val() * tFIDensity->val() * tFITemp->N();
             }
-
-            // return the pressure DoF deriv
-            return mPressureDof;
         }
 
+        const Matrix< DDRMat > & CM_Fluid_Compressible_Van_der_Waals::dPressuredDOF(
+                const moris::Cell< MSI::Dof_Type > & aDofType )
+        {
+            // if aDofType is not an active dof type for the CM
+            MORIS_ERROR(
+                    this->check_dof_dependency( aDofType ),
+                    "CM_Fluid_Compressible_Van_der_Waals::dPressuredDOF - no dependency in this dof type." );
+
+            // get the dof index
+            uint tDofIndex = mGlobalDofTypeMap( static_cast< uint >( aDofType( 0 ) ) );
+
+            // if the derivative has not been evaluated yet
+            if( mPressureDofEval( tDofIndex ) )
+            {
+                // evaluate the derivative
+                this->eval_dPressuredDOF( aDofType );
+
+                // set bool for evaluation
+                mPressureDofEval( tDofIndex ) = false;
+            }
+
+            // return the derivative
+            return mPressureDof( tDofIndex );
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
         //--------------------------------------------------------------------------------------------------------------
 
         void CM_Fluid_Compressible_Van_der_Waals::eval_strain_2d()
@@ -701,81 +966,6 @@ namespace moris
             mStrain( 3, 0 ) = 0.5 * ( tVelocityGradx( 1, 2 ) + tVelocityGradx( 2, 1 ) );
             mStrain( 4, 0 ) = 0.5 * ( tVelocityGradx( 0, 2 ) + tVelocityGradx( 2, 0 ) );
             mStrain( 5, 0 ) = 0.5 * ( tVelocityGradx( 0, 1 ) + tVelocityGradx( 1, 0 ) );
-        }
-
-        //--------------------------------------------------------------------------------------------------------------
-
-        void CM_Fluid_Compressible_Van_der_Waals::eval_densitystrain_2d()
-        {
-            // get the density gradient from density FI
-            Matrix< DDRMat > tDensityGradx = mFIManager->get_field_interpolators_for_type( mDofDensity)->gradx( 1 );
-
-            // evaluate the strain
-            mDensityStrain.set_size( 3, 1, 0.0 );
-            mDensityStrain( 0, 0 ) = std::pow( tDensityGradx( 0 ), 2.0 );
-            mDensityStrain( 1, 0 ) = std::pow( tDensityGradx( 1 ), 2.0 );
-            mDensityStrain( 2, 0 ) = tDensityGradx( 0 ) * tDensityGradx( 1 ) ;
-        }
-
-        void CM_Fluid_Compressible_Van_der_Waals::eval_densitystrain_3d()
-        {
-            // get the density spatial gradient from density FI
-            Matrix< DDRMat > tDensityGradx = mFIManager->get_field_interpolators_for_type( mDofDensity )->gradx( 1 );
-
-            // evaluate the strain
-            mDensityStrain.set_size( 6, 1, 0.0 );
-            mDensityStrain( 0, 0 ) = std::pow( tDensityGradx( 0 ), 2.0 );
-            mDensityStrain( 1, 0 ) = std::pow( tDensityGradx( 1 ), 2.0 );
-            mDensityStrain( 2, 0 ) = std::pow( tDensityGradx( 2 ), 2.0 );
-            mDensityStrain( 3, 0 ) = tDensityGradx( 1 ) * tDensityGradx( 2 );
-            mDensityStrain( 4, 0 ) = tDensityGradx( 0 ) * tDensityGradx( 2 );
-            mDensityStrain( 5, 0 ) = tDensityGradx( 0 ) * tDensityGradx( 1 );
-        }
-
-        //--------------------------------------------------------------------------------------------------------------
-
-        void CM_Fluid_Compressible_Van_der_Waals::eval_densitystraindof_2d()
-        {
-            // get the density gradient and shape function derivatives from density FI
-            Matrix< DDRMat > tNx = mFIManager->get_field_interpolators_for_type( mDofDensity)->dnNdxn( 1 );
-            Matrix< DDRMat > tGradX = mFIManager->get_field_interpolators_for_type( mDofDensity)->gradx( 1 );
-
-            // get number of bases
-            uint tNumBases = mFIManager->get_field_interpolators_for_type( mDofDensity )->get_number_of_space_time_bases();
-
-            // evaluate the strain
-            mDensityStrainDof.set_size( 3, tNumBases, 0.0 );
-            mDensityStrainDof( { 0, 0 }, { 0, tNumBases - 1 } ) = tGradX( 0 ) * tNx( { 0, 0 }, { 0, tNumBases - 1 } );
-            mDensityStrainDof( { 1, 1 }, { 0, tNumBases - 1 } ) = tGradX( 1 ) * tNx( { 1, 1 }, { 0, tNumBases - 1 } );
-            mDensityStrainDof( { 2, 2 }, { 0, tNumBases - 1 } ) = 0.5 * (
-                    tGradX( 1 ) * tNx( { 0, 0 }, { 0, tNumBases - 1 } ) +
-                    tGradX( 0 ) * tNx( { 1, 1 }, { 0, tNumBases - 1 } ) );
-        }
-
-        void CM_Fluid_Compressible_Van_der_Waals::eval_densitystraindof_3d()
-        {
-            // get the density gradient and shape function derivatives from density FI
-            Matrix< DDRMat > tNx = mFIManager->get_field_interpolators_for_type( mDofDensity)->dnNdxn( 1 );
-            Matrix< DDRMat > tGradX = mFIManager->get_field_interpolators_for_type( mDofDensity)->gradx( 1 );
-
-            // get number of bases
-            uint tNumBases = mFIManager->get_field_interpolators_for_type( mDofDensity )->get_number_of_space_time_bases();
-
-            // evaluate the strain
-            mDensityStrainDof.set_size( 6, tNumBases, 0.0 );
-            mDensityStrainDof( { 0, 0 }, { 0, tNumBases - 1 } ) = tGradX( 0 ) * tNx( { 0, 0 }, { 0, tNumBases - 1 } );
-            mDensityStrainDof( { 1, 1 }, { 0, tNumBases - 1 } ) = tGradX( 1 ) * tNx( { 1, 1 }, { 0, tNumBases - 1 } );
-            mDensityStrainDof( { 2, 2 }, { 0, tNumBases - 1 } ) = tGradX( 2 ) * tNx( { 2, 2 }, { 0, tNumBases - 1 } );
-
-            mDensityStrainDof( { 3, 3 }, { 0, tNumBases - 1 } ) = 0.5 * (
-                    tGradX( 1 ) * tNx( { 2, 2 }, { 0, tNumBases - 1 } ) +
-                    tGradX( 2 ) * tNx( { 1, 1 }, { 0, tNumBases - 1 } ) );
-            mDensityStrainDof( { 4, 4 }, { 0, tNumBases - 1 } ) = 0.5 * (
-                    tGradX( 0 ) * tNx( { 2, 2 }, { 0, tNumBases - 1 } ) +
-                    tGradX( 2 ) * tNx( { 0, 0 }, { 0, tNumBases - 1 } ) );
-            mDensityStrainDof( { 5, 5 }, { 0, tNumBases - 1 } ) = 0.5 * (
-                    tGradX( 1 ) * tNx( { 0, 0 }, { 0, tNumBases - 1 } ) +
-                    tGradX( 0 ) * tNx( { 1, 1 }, { 0, tNumBases - 1 } ) );
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -846,6 +1036,8 @@ namespace moris
         }
 
         //--------------------------------------------------------------------------------------------------------------
+        //--------------------------------------------------------------------------------------------------------------
+
         void CM_Fluid_Compressible_Van_der_Waals::eval_velocitymatrix_2d()
         {
             // get velocity vector
@@ -869,7 +1061,133 @@ namespace moris
                     {    0.0 ,  0.0 , tU( 2 ), tU( 1 ), tU( 0 ),    0.0  } };
         }
 
+        const Matrix< DDRMat > & CM_Fluid_Compressible_Van_der_Waals::velocityMatrix()
+        {
+            // if the velocity matrix was not evaluated
+            if( mVelocityMatrixEval )
+            {
+                // evaluate the test strain
+                this->eval_velocityMatrix();
+
+                // set bool for evaluation
+                mVelocityMatrixEval = false;
+            }
+
+            // return the test strain value
+            return mVelocityMatrix;
+        }
+
         //--------------------------------------------------------------------------------------------------------------
+        //--------------------------------------------------------------------------------------------------------------
+
+        void CM_Fluid_Compressible_Van_der_Waals::eval_densitystrain_2d()
+        {
+            // get the density gradient from density FI
+            Matrix< DDRMat > tDensityGradx = mFIManager->get_field_interpolators_for_type( mDofDensity)->gradx( 1 );
+
+            // evaluate the strain
+            mDensityStrain.set_size( 3, 1, 0.0 );
+            mDensityStrain( 0, 0 ) = std::pow( tDensityGradx( 0 ), 2.0 );
+            mDensityStrain( 1, 0 ) = std::pow( tDensityGradx( 1 ), 2.0 );
+            mDensityStrain( 2, 0 ) = tDensityGradx( 0 ) * tDensityGradx( 1 ) ;
+        }
+
+        void CM_Fluid_Compressible_Van_der_Waals::eval_densitystrain_3d()
+        {
+            // get the density spatial gradient from density FI
+            Matrix< DDRMat > tDensityGradx = mFIManager->get_field_interpolators_for_type( mDofDensity )->gradx( 1 );
+
+            // evaluate the strain
+            mDensityStrain.set_size( 6, 1, 0.0 );
+            mDensityStrain( 0, 0 ) = std::pow( tDensityGradx( 0 ), 2.0 );
+            mDensityStrain( 1, 0 ) = std::pow( tDensityGradx( 1 ), 2.0 );
+            mDensityStrain( 2, 0 ) = std::pow( tDensityGradx( 2 ), 2.0 );
+            mDensityStrain( 3, 0 ) = tDensityGradx( 1 ) * tDensityGradx( 2 );
+            mDensityStrain( 4, 0 ) = tDensityGradx( 0 ) * tDensityGradx( 2 );
+            mDensityStrain( 5, 0 ) = tDensityGradx( 0 ) * tDensityGradx( 1 );
+        }
+
+        const Matrix< DDRMat > & CM_Fluid_Compressible_Van_der_Waals::densityStrain()
+        {
+            // if the derivative has not been evaluated yet
+            if( mDensityStrainEval )
+            {
+                // evaluate the derivative
+                this->eval_densityStrain();
+
+                // set bool for evaluation
+                mDensityStrainEval = false;
+            }
+
+            // return the  value
+            return mDensityStrain;
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
+        void CM_Fluid_Compressible_Van_der_Waals::eval_densitystraindof_2d()
+        {
+            // get the density gradient and shape function derivatives from density FI
+            Matrix< DDRMat > tNx = mFIManager->get_field_interpolators_for_type( mDofDensity)->dnNdxn( 1 );
+            Matrix< DDRMat > tGradX = mFIManager->get_field_interpolators_for_type( mDofDensity)->gradx( 1 );
+
+            // get number of bases
+            uint tNumBases = mFIManager->get_field_interpolators_for_type( mDofDensity )->get_number_of_space_time_bases();
+
+            // evaluate the strain
+            mDensityStrainDof.set_size( 3, tNumBases, 0.0 );
+            mDensityStrainDof( { 0, 0 }, { 0, tNumBases - 1 } ) = tGradX( 0 ) * tNx( { 0, 0 }, { 0, tNumBases - 1 } );
+            mDensityStrainDof( { 1, 1 }, { 0, tNumBases - 1 } ) = tGradX( 1 ) * tNx( { 1, 1 }, { 0, tNumBases - 1 } );
+            mDensityStrainDof( { 2, 2 }, { 0, tNumBases - 1 } ) = 0.5 * (
+                    tGradX( 1 ) * tNx( { 0, 0 }, { 0, tNumBases - 1 } ) +
+                    tGradX( 0 ) * tNx( { 1, 1 }, { 0, tNumBases - 1 } ) );
+        }
+
+        void CM_Fluid_Compressible_Van_der_Waals::eval_densitystraindof_3d()
+        {
+            // get the density gradient and shape function derivatives from density FI
+            Matrix< DDRMat > tNx = mFIManager->get_field_interpolators_for_type( mDofDensity)->dnNdxn( 1 );
+            Matrix< DDRMat > tGradX = mFIManager->get_field_interpolators_for_type( mDofDensity)->gradx( 1 );
+
+            // get number of bases
+            uint tNumBases = mFIManager->get_field_interpolators_for_type( mDofDensity )->get_number_of_space_time_bases();
+
+            // evaluate the strain
+            mDensityStrainDof.set_size( 6, tNumBases, 0.0 );
+            mDensityStrainDof( { 0, 0 }, { 0, tNumBases - 1 } ) = tGradX( 0 ) * tNx( { 0, 0 }, { 0, tNumBases - 1 } );
+            mDensityStrainDof( { 1, 1 }, { 0, tNumBases - 1 } ) = tGradX( 1 ) * tNx( { 1, 1 }, { 0, tNumBases - 1 } );
+            mDensityStrainDof( { 2, 2 }, { 0, tNumBases - 1 } ) = tGradX( 2 ) * tNx( { 2, 2 }, { 0, tNumBases - 1 } );
+
+            mDensityStrainDof( { 3, 3 }, { 0, tNumBases - 1 } ) = 0.5 * (
+                    tGradX( 1 ) * tNx( { 2, 2 }, { 0, tNumBases - 1 } ) +
+                    tGradX( 2 ) * tNx( { 1, 1 }, { 0, tNumBases - 1 } ) );
+            mDensityStrainDof( { 4, 4 }, { 0, tNumBases - 1 } ) = 0.5 * (
+                    tGradX( 0 ) * tNx( { 2, 2 }, { 0, tNumBases - 1 } ) +
+                    tGradX( 2 ) * tNx( { 0, 0 }, { 0, tNumBases - 1 } ) );
+            mDensityStrainDof( { 5, 5 }, { 0, tNumBases - 1 } ) = 0.5 * (
+                    tGradX( 1 ) * tNx( { 0, 0 }, { 0, tNumBases - 1 } ) +
+                    tGradX( 0 ) * tNx( { 1, 1 }, { 0, tNumBases - 1 } ) );
+        }
+
+        const Matrix< DDRMat > & CM_Fluid_Compressible_Van_der_Waals::densityStrainDof()
+        {
+            // if the derivative has not been evaluated yet
+            if( mDensityStrainDofEval )
+            {
+                // evaluate the derivative
+                this->eval_densityStrainDof();
+
+                // set bool for evaluation
+                mDensityStrainDofEval = false;
+            }
+
+            // return the  value
+            return mDensityStrainDof;
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+        //--------------------------------------------------------------------------------------------------------------
+
         void CM_Fluid_Compressible_Van_der_Waals::eval_laplacedensity_2d()
         {
             // get second derivatives for density
@@ -888,7 +1206,24 @@ namespace moris
             mLaplaceDensity = {{ td2Rhodx2(0) + td2Rhodx2(1) + td2Rhodx2(2) }};
         }
 
+        const Matrix< DDRMat > & CM_Fluid_Compressible_Van_der_Waals::laplaceDensity()
+        {
+            // if the derivative has not been evaluated yet
+            if( mLaplaceDensityEval )
+            {
+                // evaluate the derivative
+                this->eval_laplaceDensity();
+
+                // set bool for evaluation
+                mLaplaceDensityEval = false;
+            }
+
+            // return the  value
+            return mLaplaceDensity;
+        }
+
         //--------------------------------------------------------------------------------------------------------------
+
         void CM_Fluid_Compressible_Van_der_Waals::eval_laplacedensitydof_2d()
         {
             // get second derivatives shape functions of density field
@@ -927,7 +1262,25 @@ namespace moris
             }
         }
 
+        const Matrix< DDRMat > & CM_Fluid_Compressible_Van_der_Waals::laplaceDensityDof()
+        {
+            // if the derivative has not been evaluated yet
+            if( mLaplaceDensityDofEval )
+            {
+                // evaluate the derivative
+                this->eval_laplaceDensityDof();
+
+                // set bool for evaluation
+                mLaplaceDensityDofEval = false;
+            }
+
+            // return the dof deriv value
+            return mLaplaceDensityDof;
+        }
+
         //--------------------------------------------------------------------------------------------------------------
+        //--------------------------------------------------------------------------------------------------------------
+
         void CM_Fluid_Compressible_Van_der_Waals::unfold_2d(
                 const Matrix< DDRMat > & aFlattenedTensor,
                 Matrix< DDRMat > & aExpandedTensor)
