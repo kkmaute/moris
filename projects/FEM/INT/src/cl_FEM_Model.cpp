@@ -1181,9 +1181,42 @@ namespace moris
                     }
 
                 }
+
+                // Set normalization
+                std::string tNormalization = tIQIParameterList( iIQI ).get< std::string >( "normalization" );
+                if ( tNormalization == "none" )
+                {
+                    // Do nothing
+                }
+                else if (tNormalization == "time")
+                {
+
+                }
+                else if (tNormalization == "design")
+                {
+
+                }
+                else
+                {
+                    // Try to set reference values directly
+                    try
+                    {
+                        mIQIs( iIQI )->set_reference_value(string_to_mat<DDRMat>(tNormalization)(0));
+                    }
+                    catch (...)
+                    {
+                        // create error message
+                        std::string tErrMsg =
+                                "FEM_Model::create_IQIs - Unknown normalization: " + tNormalization +
+                                        ". Must be 'none', 'time', 'design', or a reference value.";
+
+                        // error
+                        MORIS_ERROR( false , tErrMsg.c_str() );
+                    }
+                }
+
                 //                // debug
                 //                mIQIs( iIQI )->print_names();
-
             }
         }
 

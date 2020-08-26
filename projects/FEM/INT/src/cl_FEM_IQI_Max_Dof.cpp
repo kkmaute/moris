@@ -85,38 +85,9 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        void IQI_Max_Dof::compute_QI( moris::real aWStar )
+        void IQI_Max_Dof::compute_dQIdu( MSI::Dof_Type aDofType, Matrix< DDRMat > & adQIdu )
         {
-            // get index for QI
-            sint tQIIndex = mSet->get_QI_assembly_index( mName );
-
-            // get field interpolator for a given dof type
-            Field_Interpolator * tFI =
-                    mMasterFIManager->get_field_interpolators_for_type( mMasterDofTypes( 0 )( 0 ) );
-
-            // get property values
-            real tRefValue = mMasterProp( static_cast< uint >( IQI_Property_Type::REFERENCE_VALUE ) )->val()( 0 );
-            real tExponent = mMasterProp( static_cast< uint >( IQI_Property_Type::EXPONENT ) )->val()( 0 );
-
-            // check if dof index was set (for the case of vector field)
-            if( mMasterDofTypes( 0 ).size() > 1 )
-            {
-                MORIS_ERROR( mIQITypeIndex != -1, "IQI_Max_Dof::compute_QI - mIQITypeIndex not set." );
-            }
-            else
-            {
-                mIQITypeIndex = 0;
-            }
-
-            // evaluate the QI
-            mSet->get_QI()( tQIIndex ).matrix_data() += { aWStar *  std::pow( 1/tRefValue * tFI->val()( mIQITypeIndex ) - 1.0, tExponent ) };
-        }
-
-        //------------------------------------------------------------------------------
-
-        void IQI_Max_Dof::compute_dQIdu( Matrix< DDRMat > & adQIdDof )
-        {
-            MORIS_ERROR( false, "IQI_Max_Dof::compute_dQIdu( Matrix< DDRMat > & adQIdDof ) --- Not implemented, yet. \n" );
+            MORIS_ERROR( false, "IQI_Max_Dof::compute_dQIdu( MSI::Dof_Type aDofType, Matrix< DDRMat > & adQIdu ) --- Not implemented, yet. \n" );
         }
 
         //------------------------------------------------------------------------------

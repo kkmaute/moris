@@ -80,9 +80,9 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        void IQI_Stress::compute_dQIdDof( Matrix< DDRMat > & adQIdDof )
+        void IQI_Stress::compute_dQIdu( MSI::Dof_Type aDofType, Matrix< DDRMat > & adQIdu )
         {
-            MORIS_ERROR( 0, "IQI_Stress::compute_dQIdDof - Derivates of stress wrt dof not implemented" );
+            MORIS_ERROR( 0, "IQI_Stress::compute_dQIdu - Derivates of stress wrt dof not implemented" );
         }
 
         //------------------------------------------------------------------------------

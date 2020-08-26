@@ -64,56 +64,18 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        void IQI_Strain_Energy::compute_QI( moris::real aWStar )
+        void IQI_Strain_Energy::compute_dQIdu( MSI::Dof_Type aDofType, Matrix< DDRMat > & adQIdu )
         {
-            // get index for QI
-            sint tQIIndex = mSet->get_QI_assembly_index( mName );
-
             // get the elasticity CM
             std::shared_ptr< Constitutive_Model > tCMElasticity =
                     mMasterCM( static_cast< uint >( IQI_Constitutive_Type::ELAST ) );
 
-            // evaluate the QI
-            mSet->get_QI()( tQIIndex ).matrix_data() += aWStar * (
-                    0.5 * trans( tCMElasticity->flux() ) * tCMElasticity->strain() );
-        }
-
-        //------------------------------------------------------------------------------
-
-        void IQI_Strain_Energy::compute_dQIdu( real aWStar )
-        {
-            // get the column index to assemble in residual
-            sint tQIIndex = mSet->get_QI_assembly_index( mName );
-
-            // get the requested dof types
-            moris::Cell < enum MSI::Dof_Type > tRequestedDofTypes =
-                    this->get_requested_dof_types();
-
-            // get the elasticity CM
-            std::shared_ptr< Constitutive_Model > tCMElasticity =
-                    mMasterCM( static_cast< uint >( IQI_Constitutive_Type::ELAST ) );
-
-            // compute dQIdDof for indirect dof dependencies
-            for( uint iDof = 0; iDof < tRequestedDofTypes.size(); iDof++ )
+            // if elasticity CM depends on dof type
+            if ( tCMElasticity->check_dof_dependency( { aDofType } ) )
             {
-                // get treated dof type
-                MSI::Dof_Type tDofType = tRequestedDofTypes( iDof );
-
-                // get the set index for dof type
-                sint tDofIndex = mSet->get_dof_index_for_type( tDofType, mtk::Master_Slave::MASTER );
-
-                // get start and end indices for assembly
-                uint tStartRow = mSet->get_res_dof_assembly_map()( tDofIndex )( 0, 0 );
-                uint tEndRow   = mSet->get_res_dof_assembly_map()( tDofIndex )( 0, 1 );
-
-                // if elasticity CM depends on dof type
-                if ( tCMElasticity->check_dof_dependency( { tDofType } ) )
-                {
-                    // compute dQIdDof
-                    mSet->get_residual()( tQIIndex )( { tStartRow, tEndRow }, { 0, 0 } ) += aWStar * 0.5 * (
-                            trans( tCMElasticity->dFluxdDOF( { tDofType } ) ) * tCMElasticity->strain( ) +
-                            trans( trans( tCMElasticity->flux() ) * tCMElasticity->dStraindDOF( { tDofType } ) ) );
-                }
+                // compute dQIdu
+                adQIdu = trans( tCMElasticity->dFluxdDOF( { aDofType } ) ) * tCMElasticity->strain( ) +
+                         trans( trans( tCMElasticity->flux() ) * tCMElasticity->dStraindDOF( { aDofType } ) );
             }
         }
 

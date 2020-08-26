@@ -411,7 +411,7 @@ namespace moris
                     mSet->get_requested_IQIs()( iIQI )->reset_eval_flags();
 
                     // compute QI at evaluation point
-                    mSet->get_requested_IQIs()( iIQI )->compute_QI( tWStar );
+                    mSet->get_requested_IQIs()( iIQI )->add_QI_on_set( tWStar );
                 }
             }
         }
@@ -561,7 +561,7 @@ namespace moris
 
                 // compute quantity of interest at evaluation point
                 Matrix< DDRMat > tQIValue;
-                mSet->get_IQI_for_vis( aOutputType )->compute_QI( tQIValue );
+                mSet->get_IQI_for_vis( aOutputType )->get_QI( tQIValue );
 
                 // FIXME assemble on the set here or inside the compute QI?
                 *( mSet->mSetGlobalValues ) += tQIValue( 0 ) * tWStar;
@@ -604,7 +604,7 @@ namespace moris
 
                 // compute quantity of interest at evaluation point
                 Matrix< DDRMat > tQIValue;
-                mSet->get_IQI_for_vis( aOutputType )->compute_QI( tQIValue );
+                mSet->get_IQI_for_vis( aOutputType )->get_QI( tQIValue );
 
                 // FIXME assemble on the set here or inside the compute QI?
                 // FIXME add up on shared node and divide or overwrite
@@ -648,7 +648,7 @@ namespace moris
 
                 // compute quantity of interest at evaluation point
                 Matrix< DDRMat > tQIValue;
-                mSet->get_IQI_for_vis( aOutputType )->compute_QI( tQIValue );
+                mSet->get_IQI_for_vis( aOutputType )->get_QI( tQIValue );
 
                 // FIXME assemble on the set here or inside the compute QI?
                 ( *mSet->mSetElementalValues )( mSet->mCellAssemblyMap( aMeshIndex )( mMasterCell->get_index() ), 0 ) +=

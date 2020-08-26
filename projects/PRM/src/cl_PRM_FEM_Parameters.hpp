@@ -146,6 +146,7 @@ namespace moris
             tParameterList.insert( "mesh_set_names",             std::string( "" ) );
             tParameterList.insert( "time_continuity",            false );
             tParameterList.insert( "time_boundary",              false );
+            tParameterList.insert( "normalization",              "none" ); // options: time, design, vector of reference values
 
             return tParameterList;
         }

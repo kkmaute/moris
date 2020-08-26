@@ -126,16 +126,9 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        void IQI_Turbulent_Kinematic_Viscosity::compute_QI( moris::real aWStar )
+        void IQI_Turbulent_Kinematic_Viscosity::compute_dQIdu( MSI::Dof_Type aDofType, Matrix< DDRMat > & adQIdu )
         {
-            MORIS_ERROR( false, "IQI_Turbulent_Kinematic_Viscosity - not implemented");
-        }
-
-        //------------------------------------------------------------------------------
-
-        void IQI_Turbulent_Kinematic_Viscosity::compute_dQIdu( real aWStar )
-        {
-            MORIS_ERROR( false, "IQI_Turbulent_Kinematic_Viscosity - not implemented");
+            MORIS_ERROR(false, "compute_dQIdu() not implemented for turbulent kinematic viscosity IQI.");
         }
 
         //------------------------------------------------------------------------------

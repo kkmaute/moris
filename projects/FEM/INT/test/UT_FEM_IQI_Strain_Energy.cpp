@@ -259,7 +259,7 @@ TEST_CASE( "IQI_Strain_Energy", "[moris],[fem],[IQI_Strain_Energy]" )
     Matrix< DDRMat > tQI;
     tIQI->compute_QI( tQI );
 //    print( tQI, "tQI" );
-    tIQI->compute_QI( 1.0 );
+    tIQI->add_QI_on_set( 1.0 );
 //    print( tIQI->mSet->get_QI()( 0 ), "QI" );
 
 //    // check evaluation of the derivative of the quantity of interest wrt to dof

@@ -14,7 +14,7 @@ namespace moris
     namespace fem
     {
 
-//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
 
         IQI_Volume_Fraction::IQI_Volume_Fraction()
         {
@@ -34,7 +34,7 @@ namespace moris
             mStabilizationMap[ "Reciprocal_total_vol" ] = IQI_Stabilization_Type::RECIPROCAL_TOTAL_VOLUME;
         }
 
-//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
 
         void IQI_Volume_Fraction::compute_QI( Matrix< DDRMat > & aQI )
         {
@@ -45,23 +45,15 @@ namespace moris
             aQI( 0 ) = mStabilizationParam( 0 )->val()( 0 );
         }
 
-//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
 
-        void IQI_Volume_Fraction::compute_QI( moris::real aWStar )
+        void IQI_Volume_Fraction::compute_dQIdu( MSI::Dof_Type aDofType, Matrix< DDRMat > & adQIdu )
         {
-            // get indices for properties, CM and SP
-            uint tReciprocalVolIndex = static_cast< uint >( IQI_Stabilization_Type::RECIPROCAL_TOTAL_VOLUME );
-
-            // get index for QI
-//            sint tQIIndex = mSet->get_QI_assembly_index(mName );
-            sint tQIIndex = 0;
-
-            //print( mSet->get_QI(), "mSet->get_QI()");
-            // evaluate the QI
-            mSet->get_QI()( tQIIndex ).matrix_data() += aWStar * mStabilizationParam( tReciprocalVolIndex )->val()( 0 );
+            MORIS_ERROR(false, "compute_dQIdu not implemented for a volume fraction IQI.");
         }
 
-//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
+
     }/* end namespace fem */
 }/* end namespace moris */
 

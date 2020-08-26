@@ -66,6 +66,7 @@ namespace moris
             ~IQI_H1_Semi_Error(){};
 
 //------------------------------------------------------------------------------
+        private:
             /**
              * compute the quantity of interest
              * @param[ in ] aQI quantity of interest matrix to fill
@@ -75,9 +76,9 @@ namespace moris
 //------------------------------------------------------------------------------
             /**
              * compute the derivative of the quantity of interest wrt dof types
-             * @param[ in ] adQIdDof derivative of quantity of interest matrix to fill
+             * @param[ in ] adQIdu derivative of quantity of interest matrix to fill
              */
-            void compute_dQIdu( Matrix< DDRMat > & adQIdDof );
+            void compute_dQIdu( MSI::Dof_Type aDofType, Matrix< DDRMat > & adQIdu );
 
 //------------------------------------------------------------------------------
         };

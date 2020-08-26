@@ -111,6 +111,13 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
+        void IQI::set_reference_value(real aReferenceValue)
+        {
+            mReferenceValue = aReferenceValue;
+        }
+
+        //------------------------------------------------------------------------------
+
         void IQI::set_field_interpolator_manager(
                 Field_Interpolator_Manager * aFieldInterpolatorManager,
                 mtk::Master_Slave            aIsMaster )
@@ -1223,7 +1230,7 @@ namespace moris
                             mSet->get_QI()( tQIIndex ).fill( 0.0 );
 
                             // compute the QI
-                            this->compute_QI( aWStar );
+                            this->add_QI_on_set( aWStar );
 
                             // assemble the dQIdu
                             mSet->get_residual()( tQIIndex )( { tMasterDepStartIndex + tDofCounter, tMasterDepStartIndex + tDofCounter }, { 0, 0 } ) +=
@@ -1297,7 +1304,7 @@ namespace moris
                             mSet->get_QI()( tQIIndex ).fill( 0.0 );
 
                             // compute the QI
-                            this->compute_QI( aWStar );
+                            this->add_QI_on_set( aWStar );
 
                             // assemble the dQIdu
                             mSet->get_residual()( tQIIndex )( { tSlaveDepStartIndex + tDofCounter, tSlaveDepStartIndex + tDofCounter }, { 0, 0 } ) +=
@@ -1327,23 +1334,23 @@ namespace moris
             // get the column index to assemble in residual
             sint tQIIndex = mSet->get_QI_assembly_index( mName );
 
-            // compute dQIdDof with IQI
-            this->compute_dQIdu( aWStar );
+            // compute dQIdu with IQI
+            this->add_dQIdu_on_set( aWStar );
             adQIdu = mSet->get_residual()( tQIIndex );
 
             // reset dQIdu
             mSet->get_residual()( tQIIndex ).fill( 0.0 );
 
-            // compute dQIdDof by FD
+            // compute dQIdu by FD
             this->compute_dQIdu_FD( aWStar, aPerturbation, aFDSchemeType );
             adQIduFD = mSet->get_residual()( tQIIndex );
 
             //define a boolean for check
-            bool tCheckdQIdDof = true;
+            bool tCheckdQIdu = true;
 
             // check if adQIdu and adQIduFD have the same size
-            tCheckdQIdDof = tCheckdQIdDof && ( adQIdu.n_rows() == adQIduFD.n_rows());
-            tCheckdQIdDof = tCheckdQIdDof && ( adQIdu.n_cols() == adQIduFD.n_cols());
+            tCheckdQIdu = tCheckdQIdu && ( adQIdu.n_rows() == adQIduFD.n_rows());
+            tCheckdQIdu = tCheckdQIdu && ( adQIdu.n_cols() == adQIduFD.n_cols());
 
             // loop over the rows
             for ( uint iRow = 0; iRow < adQIdu.n_rows(); iRow++ )
@@ -1352,12 +1359,12 @@ namespace moris
                 for( uint jCol = 0; jCol < adQIdu.n_cols(); jCol++ )
                 {
                     // check each components
-                    tCheckdQIdDof = tCheckdQIdDof && ( adQIdu( iRow, jCol ) - adQIduFD( iRow, jCol ) < aEpsilon );
+                    tCheckdQIdu = tCheckdQIdu && ( adQIdu( iRow, jCol ) - adQIduFD( iRow, jCol ) < aEpsilon );
                 }
             }
 
             // return bool
-            return tCheckdQIdDof;
+            return tCheckdQIdu;
         }
 
         //------------------------------------------------------------------------------
@@ -1433,7 +1440,7 @@ namespace moris
                             mSet->get_QI()( tIQIAssemblyIndex ).fill( 0.0 );
 
                             // compute the QI
-                            this->compute_QI( aWStar );
+                            this->add_QI_on_set( aWStar );
 
                             // get the pdv index for assembly
                             uint tPdvAssemblyIndex = mSet->get_mat_pdv_assembly_map()( iFI )( 0, 0 ) + tPdvCoeffCounter;
@@ -1559,7 +1566,7 @@ namespace moris
 
                             // compute the QI
                             real tWStarPert = tGPWeight * tIGGI->det_J();
-                            this->compute_QI( tWStarPert );
+                            this->add_QI_on_set( tWStarPert );
 
                             // evaluate dQIdpGeo
                             mSet->get_dqidpgeo()( tIQIAssemblyIndex )( tPdvAssemblyIndex ) +=
@@ -1573,6 +1580,74 @@ namespace moris
                 tIGGI->set_space_coeff( tCoeff );
                 tIGGI->set_space_param_coeff( tParamCoeff );
                 mSet->get_field_interpolator_manager()->set_space_time_from_local_IG_point( tEvaluationPoint );
+            }
+        }
+
+        //------------------------------------------------------------------------------
+
+        void IQI::get_QI( Matrix< DDRMat > & aQIVal )
+        {
+            // Compute QI
+            this->compute_QI(aQIVal);
+
+            // Perform scaling
+            aQIVal = aQIVal / mReferenceValue;
+        }
+
+        //------------------------------------------------------------------------------
+
+        void IQI::get_dQIdu( MSI::Dof_Type aDofType, Matrix< DDRMat > & adQIdu )
+        {
+            // Compute dQIdu
+            this->compute_dQIdu(aDofType, adQIdu);
+
+            // Perform scaling
+            adQIdu = adQIdu / mReferenceValue;
+        }
+
+        //------------------------------------------------------------------------------
+
+        void IQI::add_QI_on_set( moris::real aWStar )
+        {
+            // get index for QI
+            sint tQIIndex = mSet->get_QI_assembly_index( mName );
+
+            // compute QI
+            Matrix< DDRMat > tQIVal(1, 1, 0.0);
+            this->get_QI(tQIVal);
+
+            // put on the set
+            mSet->get_QI()( tQIIndex ).matrix_data() += aWStar * tQIVal;
+        }
+
+        //------------------------------------------------------------------------------
+
+        void IQI::add_dQIdu_on_set( real aWStar )
+        {
+            // get the column index to assemble in residual
+            sint tQIIndex = mSet->get_QI_assembly_index( mName );
+
+            // get the requested dof types
+            moris::Cell < enum MSI::Dof_Type > tRequestedDofTypes =
+                    this->get_requested_dof_types();
+
+            // compute dQIdu for indirect dof dependencies
+            for( uint iDof = 0; iDof < tRequestedDofTypes.size(); iDof++ )
+            {
+                // get treated dof type
+                MSI::Dof_Type tDofType = tRequestedDofTypes( iDof );
+
+                // get the set index for dof type
+                sint tDofIndex = mSet->get_dof_index_for_type( tDofType, mtk::Master_Slave::MASTER );
+
+                // get start and end indices for assembly
+                uint tStartRow = mSet->get_res_dof_assembly_map()( tDofIndex )( 0, 0 );
+                uint tEndRow   = mSet->get_res_dof_assembly_map()( tDofIndex )( 0, 1 );
+
+                // compute dQIdu
+                Matrix<DDRMat> tdQIdu(tEndRow - tStartRow + 1, 1, 0.0);
+                this->get_dQIdu(tDofType, tdQIdu);
+                mSet->get_residual()( tQIIndex )( { tStartRow, tEndRow }, { 0, 0 } ) += aWStar * tdQIdu;
             }
         }
 

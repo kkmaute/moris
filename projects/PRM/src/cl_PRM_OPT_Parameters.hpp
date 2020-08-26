@@ -1,7 +1,3 @@
-//
-// Created by christopherson on 3/4/20.
-//
-
 #ifndef MORIS_CL_PRM_OPT_PARAMETERS_HPP
 #define MORIS_CL_PRM_OPT_PARAMETERS_HPP
 

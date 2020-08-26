@@ -760,7 +760,7 @@ namespace moris
 
                     // compute quantity of interest at evaluation point
                     Matrix< DDRMat > tQIValue;
-                    mSet->get_IQI_for_vis( aOutputType )->compute_QI( tQIValue );
+                    mSet->get_IQI_for_vis( aOutputType )->get_QI( tQIValue );
 
                     // fill in the nodal set values
                     ( * mSet->mSetNodalValues )( tVertexIndices( iVertex ), 0 ) =

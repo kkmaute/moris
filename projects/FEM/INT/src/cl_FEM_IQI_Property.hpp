@@ -22,11 +22,11 @@ namespace moris
 {
     namespace fem
     {
-//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
 
         class IQI_Property : public IQI
         {
-//------------------------------------------------------------------------------
+            //------------------------------------------------------------------------------
 
             enum class IQI_Property_Type
             {
@@ -54,19 +54,19 @@ namespace moris
             std::map< std::string, IQI_Stabilization_Type > mStabilizationMap;
 
         public:
-//------------------------------------------------------------------------------
+            //------------------------------------------------------------------------------
             /*
              * constructor
              */
             IQI_Property();
 
-//------------------------------------------------------------------------------
+            //------------------------------------------------------------------------------
             /**
              * trivial destructor
              */
             ~IQI_Property(){};
 
-//------------------------------------------------------------------------------
+            //------------------------------------------------------------------------------
             /**
              * set property
              * @param[ in ] aProperty       a property pointer
@@ -87,21 +87,21 @@ namespace moris
                 this->get_properties( aIsMaster )( static_cast< uint >( mPropertyMap[ aPropertyString ] ) ) = aProperty;
             }
 
-//------------------------------------------------------------------------------
+        private:
             /**
              * compute the quantity of interest
              * @param[ in ] aQI quantity of interest matrix to fill
              */
             void compute_QI( Matrix< DDRMat > & aQI );
 
-//------------------------------------------------------------------------------
+            //------------------------------------------------------------------------------
             /**
              * compute the derivative of the quantity of interest wrt dof types
-             * @param[ in ] adQIdDof derivative of quantity of interest matrix to fill
+             * @param[ in ] adQIdu derivative of quantity of interest matrix to fill
              */
-            void compute_dQIdu( Matrix< DDRMat > & adQIdDof );
+            void compute_dQIdu( MSI::Dof_Type aDofType, Matrix< DDRMat > & adQIdu );
 
-//------------------------------------------------------------------------------
+            //------------------------------------------------------------------------------
         };
     }/* end namespace fem */
 } /* end namespace moris */
