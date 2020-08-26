@@ -98,9 +98,6 @@ namespace xtk
 
             // Vertex interpolations for this enrichment ordered by background vertex index
             Cell<mtk::Vertex_Interpolation*> mBGVertexInterpolations;
-
-            // Vertices with null vertex interpolation
-            Cell<moris_index> mNullVertexInterpVerts;
     };
 
     class Model;
