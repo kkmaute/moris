@@ -267,7 +267,7 @@ corresponds to the enum IWG_Type::COMPRESSIBLE_NS_VELOCITY_BULK in the IWG facto
 + \int_{\domain} \TempTestFunc \left[ \density \BodyForce \cdot \velocity + \BodyLoad \right] \ d\domain 
 = \Residual_{\TempTestFunc} \ShouldEqual 0 \ \ \ in  \ \domain
 \f]
-where \f$ \TempTestFunc \f$ is the density test function.
+where \f$ \TempTestFunc \f$ is the temperature test function.
 This IWG is implemented in IWG_Compressible_NS_Temperature_Bulk and 
 corresponds to the enum IWG_Type::COMPRESSIBLE_NS_TEMPERATURE_BULK in the IWG factory.
 
@@ -292,15 +292,15 @@ When deriving the weak form with the bulk terms in the above section, the follow
 \f[
 \Residual_{B\velocity} =
 \int_{\DomainBoundary} \VelTestFunc \left[ ( \density \velocity \otimes \velocity ) \cdot \SurfaceNormal \right] \ d\BoundarySegment 
- - \int_{\DomainBoundary} \VelTestFunc ( \CauchyStress \cdot \SurfaceNormal ) \ d\BoundarySegment
++ \int_{\DomainBoundary} \VelTestFunc ( \CauchyStress \cdot \SurfaceNormal ) \ d\BoundarySegment
 \f]
 
 ### Energy Conservation
 \f[
 \Residual_{B\temp} =
 \int_{\DomainBoundary} \TempTestFunc (\ThermalFlux \cdot \SurfaceNormal ) \ d\BoundarySegment 
- - \int_{\DomainBoundary} \TempTestFunc \left[ 
- ( \EnergyFlux - \WorkFlux ) \cdot \SurfaceNormal \right] \ d\BoundarySegment
+- \int_{\DomainBoundary} \TempTestFunc \left[ 
+( \EnergyFlux - \WorkFlux ) \cdot \SurfaceNormal \right] \ d\BoundarySegment
 \f]
 
 
@@ -315,8 +315,8 @@ When deriving the weak form with the bulk terms in the above section, the follow
 ### Advective Energy Flux Boundary IWG 
 \f[
 \Residual_{BF\temp} =
- - \int_{\DomainBoundary} \TempTestFunc \left[ 
- ( \EnergyFlux - \WorkFlux ) \cdot \SurfaceNormal \right] \ d\BoundarySegment
+\int_{\DomainBoundary} \TempTestFunc \left[ 
++ ( \EnergyFlux - \WorkFlux ) \cdot \SurfaceNormal \right] \ d\BoundarySegment
 \f]
 
 
