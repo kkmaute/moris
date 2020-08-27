@@ -143,7 +143,7 @@ namespace moris
                             trans( tFIVelocity->N() ) * tFIDensity->gradt( 1 ) * tFIVelocity->val() +
                             trans( tFIVelocity->N() ) * tFIDensity->val() * trans( tFIVelocity->gradt( 1 ) ) +
                             trans( tCMFluid->testStrain() ) * tFIDensity->val() * mMultipMat * tUiUj +
-                            trans( tCMFluid->testStrain() ) * tFIDensity->val() * mMultipMat * tCMFluid->stress()  );
+                            trans( tCMFluid->testStrain() ) * tFIDensity->val() * mMultipMat * tCMFluid->flux( CM_Function_Type::MECHANICAL ) );
 
             // if there is a body force
             if ( tPropBodyForce != nullptr )
@@ -201,7 +201,7 @@ namespace moris
                     mSet->get_jacobian()(
                             { tMasterResStartIndex, tMasterResStopIndex },
                             { tMasterDepStartIndex, tMasterDepStopIndex } ) += aWStar * (
-                                    trans( tCMFluid->testStrain() ) * tCMFluid->dStressdDOF( tDofType ) );
+                                    trans( tCMFluid->testStrain() ) * tCMFluid->dFluxdDOF( tDofType, CM_Function_Type::MECHANICAL ) );
                 }
 
                 // if dof type is velocity, add diagonal term (velocity-velocity DoF types)
