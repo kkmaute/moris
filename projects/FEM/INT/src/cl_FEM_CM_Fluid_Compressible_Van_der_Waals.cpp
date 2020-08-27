@@ -51,6 +51,7 @@ namespace moris
                     m_eval_laplacedensitydof = &CM_Fluid_Compressible_Van_der_Waals::eval_laplacedensitydof_2d;
                     m_eval_velocitymatrix    = &CM_Fluid_Compressible_Van_der_Waals::eval_velocitymatrix_2d;
                     m_unfold_tensor          = &CM_Fluid_Compressible_Van_der_Waals::unfold_2d;
+                    m_flatten_normal         = &CM_Fluid_Compressible_Van_der_Waals::flatten_normal_2d;
                     mFlatIdentity = { { 1.0 }, { 1.0 }, { 0.0 } };
                     break;
                         }
@@ -64,6 +65,7 @@ namespace moris
                     m_eval_laplacedensitydof = &CM_Fluid_Compressible_Van_der_Waals::eval_laplacedensitydof_3d;
                     m_eval_velocitymatrix    = &CM_Fluid_Compressible_Van_der_Waals::eval_velocitymatrix_3d;
                     m_unfold_tensor          = &CM_Fluid_Compressible_Van_der_Waals::unfold_3d;
+                    m_flatten_normal         = &CM_Fluid_Compressible_Van_der_Waals::flatten_normal_3d;
                     mFlatIdentity = { { 1.0 }, { 1.0 }, { 1.0 }, { 0.0 }, { 0.0 }, { 0.0 } };
                     break;
                         }
@@ -1298,6 +1300,35 @@ namespace moris
                     { aFlattenedTensor( 0 ), aFlattenedTensor( 5 ), aFlattenedTensor( 4 ) },
                     { aFlattenedTensor( 5 ), aFlattenedTensor( 1 ), aFlattenedTensor( 3 ) },
                     { aFlattenedTensor( 4 ), aFlattenedTensor( 3 ), aFlattenedTensor( 2 ) } };
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
+        void CM_Fluid_Compressible_Van_der_Waals::flatten_normal_2d(
+                const Matrix< DDRMat > & aNormal,
+                Matrix< DDRMat >       & aFlatNormal )
+        {
+            aFlatNormal.set_size( 2, 3, 0.0 );
+            aFlatNormal( 0, 0 ) = aNormal( 0, 0 );
+            aFlatNormal( 0, 2 ) = aNormal( 1, 0 );
+            aFlatNormal( 1, 1 ) = aNormal( 1, 0 );
+            aFlatNormal( 1, 2 ) = aNormal( 0, 0 );
+        }
+
+        void CM_Fluid_Compressible_Van_der_Waals::flatten_normal_3d(
+                const Matrix< DDRMat > & aNormal,
+                Matrix< DDRMat >       & aFlatNormal )
+        {
+            aFlatNormal.set_size( 3, 6, 0.0 );
+            aFlatNormal( 0, 0 ) = aNormal( 0, 0 );
+            aFlatNormal( 1, 1 ) = aNormal( 1, 0 );
+            aFlatNormal( 2, 2 ) = aNormal( 2, 0 );
+            aFlatNormal( 0, 4 ) = aNormal( 2, 0 );
+            aFlatNormal( 0, 5 ) = aNormal( 1, 0 );
+            aFlatNormal( 1, 3 ) = aNormal( 2, 0 );
+            aFlatNormal( 1, 5 ) = aNormal( 0, 0 );
+            aFlatNormal( 2, 3 ) = aNormal( 1, 0 );
+            aFlatNormal( 2, 4 ) = aNormal( 0, 0 );
         }
 
         //--------------------------------------------------------------------------------------------------------------

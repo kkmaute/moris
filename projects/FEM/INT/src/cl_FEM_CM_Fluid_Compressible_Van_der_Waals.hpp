@@ -114,6 +114,9 @@ namespace moris
                 void ( CM_Fluid_Compressible_Van_der_Waals:: * m_unfold_tensor )(
                         const Matrix< DDRMat > & aFlattenedTensor,
                         Matrix< DDRMat > & aExpandedTensor) = nullptr;
+                void ( CM_Fluid_Compressible_Van_der_Waals:: * m_flatten_normal )(
+                        const Matrix< DDRMat > & aNormal,
+                        Matrix< DDRMat > & aFlatNormal ) = nullptr;
 
                 //------------------------------------------------------------------------------
 
@@ -538,6 +541,22 @@ namespace moris
                 void unfold_3d(
                         const Matrix< DDRMat > & aFlattenedTensor,
                         Matrix< DDRMat > & aExpandedTensor);
+
+                //--------------------------------------------------------------------------------------------------------------
+                /**
+                 * flatten normal vector
+                 * @param[ in ] aNormal          a normal vector
+                 * @param[ in ] aFlattenedNormal a matrix for flattened normal to fill
+                 */
+                void flatten_normal( const Matrix< DDRMat > & aNormal,
+                        Matrix< DDRMat > & aFlatNormal )
+                {
+                    ( this->*m_flatten_normal )( aNormal, aFlatNormal );
+                }
+                void flatten_normal_2d( const Matrix< DDRMat > & aNormal,
+                        Matrix< DDRMat > & aFlatNormal );
+                void flatten_normal_3d( const Matrix< DDRMat > & aNormal,
+                        Matrix< DDRMat > & aFlatNormal );
 
                 //------------------------------------------------------------------------------
             private:
