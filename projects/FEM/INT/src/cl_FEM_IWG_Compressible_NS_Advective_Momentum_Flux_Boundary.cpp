@@ -1,11 +1,11 @@
 /*
- * cl_FEM_IWG_Compressible_NS_Advective_Mass_Flux_Boundary.cpp
+ * cl_FEM_IWG_Compressible_NS_Advective_Momentum_Flux_Boundary.cpp
  *
  *  Created on: Aug 26, 2020
  *      Author: wunsch
  */
 
-#include "cl_FEM_IWG_Compressible_NS_Advective_Mass_Flux_Boundary.hpp"
+#include "cl_FEM_IWG_Compressible_NS_Advective_Momentum_Flux_Boundary.hpp"
 
 #include "cl_FEM_Set.hpp"
 #include "cl_FEM_Field_Interpolator_Manager.hpp"
@@ -21,7 +21,7 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        IWG_Compressible_NS_Advective_Mass_Flux_Boundary::IWG_Compressible_NS_Advective_Mass_Flux_Boundary()
+        IWG_Compressible_NS_Advective_Momentum_Flux_Boundary::IWG_Compressible_NS_Advective_Momentum_Flux_Boundary()
         {
             // set size for the constitutive model pointer cell
             mMasterCM.resize( static_cast< uint >( IWG_Constitutive_Type::MAX_ENUM ), nullptr );
@@ -32,20 +32,20 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        void IWG_Compressible_NS_Advective_Mass_Flux_Boundary::set_property(
+        void IWG_Compressible_NS_Advective_Momentum_Flux_Boundary::set_property(
                 std::shared_ptr< Property > aProperty,
                 std::string                 aPropertyString,
                 mtk::Master_Slave           aIsMaster )
         {
             // check that aPropertyString makes sense
             std::string tErrMsg =
-                    std::string( "IWG_Compressible_NS_Advective_Mass_Flux_Boundary::set_property - Unknown aPropertyString: " ) +
+                    std::string( "IWG_Compressible_NS_Advective_Momentum_Flux_Boundary::set_property - Unknown aPropertyString: " ) +
                     aPropertyString;
             MORIS_ERROR( mPropertyMap.find( aPropertyString ) != mPropertyMap.end(), tErrMsg.c_str() );
 
             // check no slave allowed
             MORIS_ERROR( aIsMaster == mtk::Master_Slave::MASTER,
-                    "IWG_Compressible_NS_Advective_Mass_Flux_Boundary::set_property - No slave allowed." );
+                    "IWG_Compressible_NS_Advective_Momentum_Flux_Boundary::set_property - No slave allowed." );
 
             // set the property in the property cell
             this->get_properties( aIsMaster )( static_cast< uint >( mPropertyMap[ aPropertyString ] ) ) = aProperty;
@@ -53,20 +53,20 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        void IWG_Compressible_NS_Advective_Mass_Flux_Boundary::set_constitutive_model(
+        void IWG_Compressible_NS_Advective_Momentum_Flux_Boundary::set_constitutive_model(
                 std::shared_ptr< Constitutive_Model > aConstitutiveModel,
                 std::string                           aConstitutiveString,
                 mtk::Master_Slave                     aIsMaster  )
         {
             // check that aConstitutiveString makes sense
             std::string tErrMsg =
-                    std::string( "IWG_Compressible_NS_Advective_Mass_Flux_Boundary::set_constitutive_model - Unknown aConstitutiveString: " ) +
+                    std::string( "IWG_Compressible_NS_Advective_Momentum_Flux_Boundary::set_constitutive_model - Unknown aConstitutiveString: " ) +
                     aConstitutiveString;
             MORIS_ERROR( mConstitutiveMap.find( aConstitutiveString ) != mConstitutiveMap.end(), tErrMsg.c_str() );
 
             // check no slave allowed
             MORIS_ERROR( aIsMaster == mtk::Master_Slave::MASTER,
-                    "IWG_Compressible_NS_Advective_Mass_Flux_Boundary::set_constitutive_model - No slave allowed." );
+                    "IWG_Compressible_NS_Advective_Momentum_Flux_Boundary::set_constitutive_model - No slave allowed." );
 
             // set the constitutive model in the constitutive model cell
             this->get_constitutive_models( aIsMaster )( static_cast< uint >( mConstitutiveMap[ aConstitutiveString ] ) ) = aConstitutiveModel;
@@ -74,16 +74,16 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        void IWG_Compressible_NS_Advective_Mass_Flux_Boundary::set_stabilization_parameter(
+        void IWG_Compressible_NS_Advective_Momentum_Flux_Boundary::set_stabilization_parameter(
                 std::shared_ptr< Stabilization_Parameter > aStabilizationParameter,
                 std::string                                aStabilizationString )
         {
-            MORIS_ERROR( false, "IWG_Compressible_NS_Advective_Mass_Flux_Boundary::set_stabilization_parameter - Not implemented." );
+            MORIS_ERROR( false, "IWG_Compressible_NS_Advective_Momentum_Flux_Boundary::set_stabilization_parameter - Not implemented." );
         }
 
         //------------------------------------------------------------------------------
 
-        void IWG_Compressible_NS_Advective_Mass_Flux_Boundary::compute_residual( real aWStar )
+        void IWG_Compressible_NS_Advective_Momentum_Flux_Boundary::compute_residual( real aWStar )
         {
             // check master field interpolators
 #ifdef DEBUG
@@ -113,11 +113,11 @@ namespace moris
 
             // check for nan, infinity
             MORIS_ERROR( isfinite( mSet->get_residual()( 0 ) ),
-                    "IWG_Compressible_NS_Advective_Mass_Flux_Boundary::compute_residual - Residual contains NAN or INF, exiting!");
+                    "IWG_Compressible_NS_Advective_Momentum_Flux_Boundary::compute_residual - Residual contains NAN or INF, exiting!");
         }
 
         //------------------------------------------------------------------------------
-        void IWG_Compressible_NS_Advective_Mass_Flux_Boundary::compute_jacobian( real aWStar )
+        void IWG_Compressible_NS_Advective_Momentum_Flux_Boundary::compute_jacobian( real aWStar )
         {
             // check master field interpolators
 #ifdef DEBUG
@@ -184,45 +184,45 @@ namespace moris
 
             // check for nan, infinity
             MORIS_ERROR(  isfinite( mSet->get_jacobian() ) ,
-                    "IWG_Compressible_NS_Advective_Mass_Flux_Boundary::compute_jacobian - Jacobian contains NAN or INF, exiting!");
+                    "IWG_Compressible_NS_Advective_Momentum_Flux_Boundary::compute_jacobian - Jacobian contains NAN or INF, exiting!");
         }
 
         //------------------------------------------------------------------------------
 
-        void IWG_Compressible_NS_Advective_Mass_Flux_Boundary::compute_jacobian_and_residual( real aWStar )
+        void IWG_Compressible_NS_Advective_Momentum_Flux_Boundary::compute_jacobian_and_residual( real aWStar )
         {
 #ifdef DEBUG
             // check master field interpolators
             this->check_field_interpolators();
 #endif
 
-            MORIS_ERROR( false, "IWG_Compressible_NS_Advective_Mass_Flux_Boundary::compute_jacobian_and_residual - Not implemented." );
+            MORIS_ERROR( false, "IWG_Compressible_NS_Advective_Momentum_Flux_Boundary::compute_jacobian_and_residual - Not implemented." );
         }
 
         //------------------------------------------------------------------------------
 
-        void IWG_Compressible_NS_Advective_Mass_Flux_Boundary::compute_dRdp( real aWStar )
+        void IWG_Compressible_NS_Advective_Momentum_Flux_Boundary::compute_dRdp( real aWStar )
         {
 #ifdef DEBUG
             // check master field interpolators, properties and constitutive models
             this->check_field_interpolators();
 #endif
 
-            MORIS_ERROR( false, "IWG_Compressible_NS_Advective_Mass_Flux_Boundary::compute_dRdp - Not implemented." );
+            MORIS_ERROR( false, "IWG_Compressible_NS_Advective_Momentum_Flux_Boundary::compute_dRdp - Not implemented." );
         }
 
         //------------------------------------------------------------------------------
 
-        void IWG_Compressible_NS_Advective_Mass_Flux_Boundary::compute_residual_strong_form(
+        void IWG_Compressible_NS_Advective_Momentum_Flux_Boundary::compute_residual_strong_form(
                 Matrix< DDRMat > & aRM,
                 real             & aRC )
         {
-            MORIS_ERROR( false, "IWG_Compressible_NS_Advective_Mass_Flux_Boundary::compute_residual_strong_form - Not implemented." );
+            MORIS_ERROR( false, "IWG_Compressible_NS_Advective_Momentum_Flux_Boundary::compute_residual_strong_form - Not implemented." );
         }
 
         //------------------------------------------------------------------------------
 
-        void IWG_Compressible_NS_Advective_Mass_Flux_Boundary::compute_jacobian_strong_form(
+        void IWG_Compressible_NS_Advective_Momentum_Flux_Boundary::compute_jacobian_strong_form(
                 moris::Cell< MSI::Dof_Type >   aDofTypes,
                 Matrix< DDRMat >             & aJM,
                 Matrix< DDRMat >             & aJC )
@@ -232,7 +232,7 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        void IWG_Compressible_NS_Advective_Mass_Flux_Boundary::compute_uiuj(Matrix< DDRMat > & auiuj)
+        void IWG_Compressible_NS_Advective_Momentum_Flux_Boundary::compute_uiuj(Matrix< DDRMat > & auiuj)
         {
             // get the velocity vector
             Field_Interpolator * tFIVelocity =  mMasterFIManager->get_field_interpolators_for_type( mDofVelocity );
@@ -267,7 +267,7 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        void IWG_Compressible_NS_Advective_Mass_Flux_Boundary::compute_duiujdDOF(Matrix< DDRMat > & aduiujdDOF)
+        void IWG_Compressible_NS_Advective_Momentum_Flux_Boundary::compute_duiujdDOF(Matrix< DDRMat > & aduiujdDOF)
         {
             // get the velocity vector
             Field_Interpolator * tFIVelocity =  mMasterFIManager->get_field_interpolators_for_type( mDofVelocity );
@@ -316,7 +316,7 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        void IWG_Compressible_NS_Advective_Mass_Flux_Boundary::compute_normal_matrix( Matrix< DDRMat > & aNormalMatrix )
+        void IWG_Compressible_NS_Advective_Momentum_Flux_Boundary::compute_normal_matrix( Matrix< DDRMat > & aNormalMatrix )
         {
             // assembly into matrix
             // for 2D
