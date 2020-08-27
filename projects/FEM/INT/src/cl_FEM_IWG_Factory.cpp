@@ -47,6 +47,7 @@
 #include "cl_FEM_IWG_Compressible_NS_Velocity_Bulk.hpp"
 #include "cl_FEM_IWG_Compressible_NS_Temperature_Bulk.hpp"
 #include "cl_FEM_IWG_Compressible_NS_Advective_Mass_Flux_Boundary.hpp"
+#include "cl_FEM_IWG_Compressible_NS_Advective_Energy_Flux_Boundary.hpp"
 //Fluid structure interface
 #include "cl_FEM_IWG_FS_Struc_Interface.hpp"
 //Time continuity
@@ -212,6 +213,9 @@ namespace moris
 
                 case IWG_Type::COMPRESSIBLE_NS_ADVECTIVE_MASS_FLUX:
                     return std::make_shared< IWG_Compressible_NS_Advective_Mass_Flux_Boundary >();
+
+                case IWG_Type::COMPRESSIBLE_NS_ADVECTIVE_ENERGY_FLUX:
+                    return std::make_shared< IWG_Compressible_NS_Advective_Energy_Flux_Boundary >();
 
 //                case IWG_Type::COMPRESSIBLE_NS_TRACTION_NEUMANN :
 //                    return std::make_shared< IWG_Compressible_NS_Traction_Neumann >();
