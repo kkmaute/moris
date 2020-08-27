@@ -27,12 +27,15 @@ namespace moris
         {
 
                 //------------------------------------------------------------------------------
-            public:
+
+            private:
 
                 // default dof types
                 MSI::Dof_Type mDofDensity     = MSI::Dof_Type::RHO;
                 MSI::Dof_Type mDofVelocity    = MSI::Dof_Type::VX;
                 MSI::Dof_Type mDofTemperature = MSI::Dof_Type::TEMP;
+
+            public:
 
                 // local property enums
                 enum class IWG_Property_Type
