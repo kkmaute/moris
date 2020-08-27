@@ -45,6 +45,7 @@ using namespace moris;
 
 namespace moris
 {
+    class Memory_Map;
 namespace mtk
 {
 class Vertex;
@@ -291,6 +292,7 @@ public:
  
     moris::mtk::Interpolation_Order
     get_child_interpolation_order() const;
+
 
     // ----------------------------------------------------------------------------------
     // Functions to access ancestry
@@ -771,6 +773,7 @@ public:
 
     // ----------------------------------------------------------------------------------
  
+ 
     void
     print_double_sides_between_subphases( moris_index aVerboseLevel = 0);
 
@@ -852,7 +855,11 @@ public:
     mark_as_hmr_child_mesh(){ mHMR = true; };
 
     // ----------------------------------------------------------------------------------
- 
+    // Memory Printing / Computing
+    // ----------------------------------------------------------------------------------
+    moris::Memory_Map
+    get_memory_usage();
+
 private:
     // Parent element index
     moris::moris_index mParentElementIndex;

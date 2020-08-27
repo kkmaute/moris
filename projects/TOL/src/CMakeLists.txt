@@ -8,7 +8,8 @@ set(${TOL}_VERSION ${MORIS_VERSION})
 set(HEADERS
     cl_Debug.hpp
     cl_Enums.hpp
-    cl_Geometry.hpp )
+    cl_Geometry.hpp
+    cl_TOL_Memory_Map.hpp )
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Tools Library
@@ -16,7 +17,8 @@ set(HEADERS
 # List source files
 set(LIB_SOURCES
     cl_Debug.cpp
-    cl_Geometry.cpp )
+    cl_Geometry.cpp
+    cl_TOL_Memory_Map.cpp )
 
 # List library dependencies
 set(LIB_DEPENDENCIES
