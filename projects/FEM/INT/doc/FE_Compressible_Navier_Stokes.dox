@@ -299,7 +299,7 @@ When deriving the weak form with the bulk terms in the above section, the follow
 \f[
 \Residual_{B\temp} =
 \int_{\DomainBoundary} \TempTestFunc (\ThermalFlux \cdot \SurfaceNormal ) \ d\BoundarySegment 
-- \int_{\DomainBoundary} \TempTestFunc \left[ 
++ \int_{\DomainBoundary} \TempTestFunc \left[ 
 ( \EnergyFlux - \WorkFlux ) \cdot \SurfaceNormal \right] \ d\BoundarySegment
 \f]
 
@@ -316,7 +316,7 @@ When deriving the weak form with the bulk terms in the above section, the follow
 \f[
 \Residual_{BF\temp} =
 \int_{\DomainBoundary} \TempTestFunc \left[ 
-+ ( \EnergyFlux - \WorkFlux ) \cdot \SurfaceNormal \right] \ d\BoundarySegment
+ ( \EnergyFlux - \WorkFlux ) \cdot \SurfaceNormal \right] \ d\BoundarySegment
 \f]
 
 

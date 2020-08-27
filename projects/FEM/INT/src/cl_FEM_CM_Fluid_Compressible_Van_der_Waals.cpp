@@ -88,7 +88,7 @@ namespace moris
             mPressureEval = true;
             mPressureDofEval.assign( tNumDofTypes, true );
 
-            // reset Thermal Flux
+            // reset Thermal Flux -------------------------------------
             mThermalFluxEval = true;
             mThermalFluxDofEval.assign( tNumDofTypes, true );
 
@@ -100,7 +100,27 @@ namespace moris
             mEnergyFluxEval = true;
             mEnergyFluxDofEval.assign( tNumDofTypes, true );
 
-            // reset velocity matrix for flattened tensors
+            // reset mechanical Flux
+            //mStressEval = true;
+            //mStressDofEval.assign( tNumDofTypes, true );
+
+            // reset Thermal Traction ----------------------------------
+            mThermalTractionEval = true;
+            mThermalTractionDofEval.assign( tNumDofTypes, true );
+
+            // reset work Traction
+            mWorkTractionEval = true;
+            mWorkTractionDofEval.assign( tNumDofTypes, true );
+
+            // reset energy Traction
+            mEnergyTractionEval = true;
+            mEnergyTractionDofEval.assign( tNumDofTypes, true );
+
+            // reset Mechanical Traction
+            mMechanicalTractionEval = true;
+            mMechanicalTractionDofEval.assign( tNumDofTypes, true );
+
+            // reset velocity matrix for flattened tensors -------------
             mVelocityMatrixEval = true;
 
             // reset strain contribution due to density surface effects
@@ -824,20 +844,315 @@ namespace moris
         //--------------------------------------------------------------------------------------------------------------
         //--------------------------------------------------------------------------------------------------------------
 
-        void CM_Fluid_Compressible_Van_der_Waals::eval_dTractiondDOF(
-                const moris::Cell< MSI::Dof_Type > & aDofTypes,
-                const Matrix< DDRMat >             & aNormal )
+        const Matrix< DDRMat > & CM_Fluid_Compressible_Van_der_Waals::traction(
+                const Matrix< DDRMat > & aNormal,
+                enum CM_Function_Type aCMFunctionType )
         {
-            // Function is not implemented
-            MORIS_ERROR( false, "CM_Fluid_Compressible_Van_der_Waals::eval_dTractiondDOF - not implemented yet." );
+            switch( aCMFunctionType )
+            {
+                case CM_Function_Type::THERMAL :
+                    return this->thermal_traction( aNormal );
+
+                case CM_Function_Type::ENERGY :
+                    return this->energy_traction( aNormal );
+
+                case CM_Function_Type::WORK :
+                    return this->work_traction( aNormal );
+
+                case CM_Function_Type::MECHANICAL :
+                    return this->mechanical_traction( aNormal );
+
+                    // unknown CM function type
+                default :
+                    MORIS_ERROR( false , "CM_Fluid_Compressible_Van_der_Waals::traction - unknown CM function type for traction." );
+                    return mTraction;
+            }
+        }
+
+        const Matrix< DDRMat > & CM_Fluid_Compressible_Van_der_Waals::dTractiondDOF(
+                const moris::Cell< MSI::Dof_Type > & aDofTypes,
+                const Matrix< DDRMat >             & aNormal,
+                enum CM_Function_Type                aCMFunctionType)
+        {
+            switch( aCMFunctionType )
+            {
+                case CM_Function_Type::THERMAL :
+                    return this->thermal_dTractiondDOF( aDofTypes, aNormal );
+
+                case CM_Function_Type::ENERGY :
+                    return this->energy_dTractiondDOF( aDofTypes, aNormal );
+
+                case CM_Function_Type::WORK :
+                    return this->work_dTractiondDOF( aDofTypes, aNormal );
+
+                case CM_Function_Type::MECHANICAL :
+                    return this->mechanical_dTractiondDOF( aDofTypes, aNormal );
+
+                    // unknown CM function type
+                default :
+                    MORIS_ERROR( false , "CM_Fluid_Compressible_Van_der_Waals::dTractiondDOF - unknown CM function type for traction." );
+                    return mTraction;
+            }
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+        //--------------------------------------------------------------------------------------------------------------
+
+        void CM_Fluid_Compressible_Van_der_Waals::eval_thermal_traction( const Matrix< DDRMat > & aNormal )
+        {
+            // compute the traction
+            mThermalTraction = trans( aNormal ) * this->flux( CM_Function_Type::THERMAL );
+        }
+
+        const Matrix< DDRMat > & CM_Fluid_Compressible_Van_der_Waals::thermal_traction( const Matrix< DDRMat > & aNormal)
+        {
+            // if the quantity was not evaluated
+            if( mThermalTractionEval )
+            {
+                // evaluate the test strain
+                this->eval_thermal_traction( aNormal );
+
+                // set bool for evaluation
+                mThermalTractionEval = false;
+            }
+            // return the test strain value
+            return mThermalTraction;
         }
 
         //--------------------------------------------------------------------------------------------------------------
 
-        void CM_Fluid_Compressible_Van_der_Waals::eval_traction( const Matrix< DDRMat > & aNormal )
+        void CM_Fluid_Compressible_Van_der_Waals::eval_thermal_dTractiondDOF(
+                const moris::Cell< MSI::Dof_Type > & aDofTypes,
+                const Matrix< DDRMat >             & aNormal  )
         {
-            // Function is not implemented
-            MORIS_ERROR( false, "CM_Fluid_Compressible_Van_der_Waals::eval_traction - not implemented yet." );
+            // get the dof index
+            uint tDofIndex = mGlobalDofTypeMap( static_cast< uint >( aDofTypes( 0 ) ) );
+
+            // flatten normal
+            //Matrix< DDRMat > tFlatNormal;
+            //this->flatten_normal( aNormal, tFlatNormal );
+
+            // direct contribution
+            mThermalTractionDof( tDofIndex ) = trans( aNormal ) * this->dFluxdDOF( aDofTypes, CM_Function_Type::THERMAL );
+        }
+
+        const Matrix< DDRMat > & CM_Fluid_Compressible_Van_der_Waals::thermal_dTractiondDOF(
+                const moris::Cell< MSI::Dof_Type > & aDofTypes,
+                const Matrix< DDRMat >             & aNormal  )
+        {
+            // if aDofType is not an active dof type for the CM
+            MORIS_ERROR( this->check_dof_dependency( aDofTypes ),
+                    "CM_Fluid_Compressible_Van_der_Waals::thermal_dTractiondDOF - no dependency in this dof type." );
+
+            // get the dof index
+            uint tDofIndex = mGlobalDofTypeMap( static_cast< uint >( aDofTypes( 0 ) ) );
+
+            // if the derivative has not been evaluated yet
+            if( mThermalTractionDofEval( tDofIndex ) )
+            {
+                // evaluate the derivative
+                this->eval_thermal_dTractiondDOF( aDofTypes, aNormal );
+
+                // set bool for evaluation
+                mThermalTractionDofEval( tDofIndex ) = false;
+            }
+
+            // return the dof deriv value
+            return mThermalTractionDof( tDofIndex );
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+        //--------------------------------------------------------------------------------------------------------------
+
+        void CM_Fluid_Compressible_Van_der_Waals::eval_energy_traction( const Matrix< DDRMat > & aNormal )
+        {
+            // compute the traction
+            mEnergyTraction = trans( aNormal ) * this->flux( CM_Function_Type::ENERGY );
+        }
+
+        const Matrix< DDRMat > & CM_Fluid_Compressible_Van_der_Waals::energy_traction( const Matrix< DDRMat > & aNormal)
+        {
+            // if quantity not evaluated
+            if( mEnergyTractionEval )
+            {
+                // evaluate the test strain
+                this->eval_energy_traction( aNormal );
+
+                // set bool for evaluation
+                mEnergyTractionEval = false;
+            }
+            // return the test strain value
+            return mEnergyTraction;
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
+        void CM_Fluid_Compressible_Van_der_Waals::eval_energy_dTractiondDOF(
+                const moris::Cell< MSI::Dof_Type > & aDofTypes,
+                const Matrix< DDRMat >             & aNormal  )
+        {
+            // get the dof index
+            uint tDofIndex = mGlobalDofTypeMap( static_cast< uint >( aDofTypes( 0 ) ) );
+
+            // direct contribution
+            mEnergyTractionDof( tDofIndex ) = trans( aNormal ) * this->dFluxdDOF( aDofTypes, CM_Function_Type::ENERGY );
+        }
+
+        const Matrix< DDRMat > & CM_Fluid_Compressible_Van_der_Waals::energy_dTractiondDOF(
+                const moris::Cell< MSI::Dof_Type > & aDofTypes,
+                const Matrix< DDRMat >             & aNormal  )
+        {
+            // if aDofType is not an active dof type for the CM
+            MORIS_ERROR( this->check_dof_dependency( aDofTypes ),
+                    "CM_Fluid_Compressible_Van_der_Waals::energy_dTractiondDOF - no dependency in this dof type." );
+
+            // get the dof index
+            uint tDofIndex = mGlobalDofTypeMap( static_cast< uint >( aDofTypes( 0 ) ) );
+
+            // if the derivative has not been evaluated yet
+            if( mEnergyTractionDofEval( tDofIndex ) )
+            {
+                // evaluate the derivative
+                this->eval_energy_dTractiondDOF( aDofTypes, aNormal );
+
+                // set bool for evaluation
+                mEnergyTractionDofEval( tDofIndex ) = false;
+            }
+
+            // return the dof deriv value
+            return mEnergyTractionDof( tDofIndex );
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+        //--------------------------------------------------------------------------------------------------------------
+
+        void CM_Fluid_Compressible_Van_der_Waals::eval_work_traction( const Matrix< DDRMat > & aNormal )
+        {
+            // compute the traction
+            mWorkTraction = trans( aNormal ) * this->flux( CM_Function_Type::WORK );
+        }
+
+        const Matrix< DDRMat > & CM_Fluid_Compressible_Van_der_Waals::work_traction( const Matrix< DDRMat > & aNormal)
+        {
+            // if quantity not evaluated
+            if( mWorkTractionEval )
+            {
+                // evaluate the test strain
+                this->eval_work_traction( aNormal );
+
+                // set bool for evaluation
+                mWorkTractionEval = false;
+            }
+            // return the test strain value
+            return mWorkTraction;
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
+        void CM_Fluid_Compressible_Van_der_Waals::eval_work_dTractiondDOF(
+                const moris::Cell< MSI::Dof_Type > & aDofTypes,
+                const Matrix< DDRMat >             & aNormal  )
+        {
+            // get the dof index
+            uint tDofIndex = mGlobalDofTypeMap( static_cast< uint >( aDofTypes( 0 ) ) );
+
+            // direct contribution
+            mWorkTractionDof( tDofIndex ) = trans( aNormal ) * this->dFluxdDOF( aDofTypes, CM_Function_Type::ENERGY );
+        }
+
+        const Matrix< DDRMat > & CM_Fluid_Compressible_Van_der_Waals::work_dTractiondDOF(
+                const moris::Cell< MSI::Dof_Type > & aDofTypes,
+                const Matrix< DDRMat >             & aNormal  )
+        {
+            // if aDofType is not an active dof type for the CM
+            MORIS_ERROR( this->check_dof_dependency( aDofTypes ),
+                    "CM_Fluid_Compressible_Van_der_Waals::work_dTractiondDOF - no dependency in this dof type." );
+
+            // get the dof index
+            uint tDofIndex = mGlobalDofTypeMap( static_cast< uint >( aDofTypes( 0 ) ) );
+
+            // if the derivative has not been evaluated yet
+            if( mWorkTractionDofEval( tDofIndex ) )
+            {
+                // evaluate the derivative
+                this->eval_work_dTractiondDOF( aDofTypes, aNormal );
+
+                // set bool for evaluation
+                mWorkTractionDofEval( tDofIndex ) = false;
+            }
+
+            // return the dof deriv value
+            return mWorkTractionDof( tDofIndex );
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+        //--------------------------------------------------------------------------------------------------------------
+
+        void CM_Fluid_Compressible_Van_der_Waals::eval_mechanical_traction( const Matrix< DDRMat > & aNormal )
+        {
+            // flatten the normal
+            Matrix< DDRMat > tFlatNormal;
+            this->flatten_normal( aNormal, tFlatNormal );
+
+            // compute the traction
+            mMechanicalTraction = tFlatNormal * this->flux( CM_Function_Type::MECHANICAL );
+        }
+
+        const Matrix< DDRMat > & CM_Fluid_Compressible_Van_der_Waals::mechanical_traction( const Matrix< DDRMat > & aNormal)
+        {
+            // if quantity not evaluated
+            if( mMechanicalTractionEval )
+            {
+                // evaluate the test strain
+                this->eval_work_traction( aNormal );
+
+                // set bool for evaluation
+                mMechanicalTractionEval = false;
+            }
+            // return the test strain value
+            return mMechanicalTraction;
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
+        void CM_Fluid_Compressible_Van_der_Waals::eval_mechanical_dTractiondDOF(
+                const moris::Cell< MSI::Dof_Type > & aDofTypes,
+                const Matrix< DDRMat >             & aNormal  )
+        {
+            // get the dof index
+            uint tDofIndex = mGlobalDofTypeMap( static_cast< uint >( aDofTypes( 0 ) ) );
+
+            // flatten the normal
+            Matrix< DDRMat > tFlatNormal;
+            this->flatten_normal( aNormal, tFlatNormal );
+
+            // direct contribution
+            mMechanicalTractionDof( tDofIndex ) = tFlatNormal * this->dFluxdDOF( aDofTypes, CM_Function_Type::MECHANICAL );
+        }
+
+        const Matrix< DDRMat > & CM_Fluid_Compressible_Van_der_Waals::mechanical_dTractiondDOF(
+                const moris::Cell< MSI::Dof_Type > & aDofTypes,
+                const Matrix< DDRMat >             & aNormal  )
+        {
+            // if aDofType is not an active dof type for the CM
+            MORIS_ERROR( this->check_dof_dependency( aDofTypes ),
+                    "CM_Fluid_Compressible_Van_der_Waals::mechanical_dTractiondDOF - no dependency in this dof type." );
+
+            // get the dof index
+            uint tDofIndex = mGlobalDofTypeMap( static_cast< uint >( aDofTypes( 0 ) ) );
+
+            // if the derivative has not been evaluated yet
+            if( mMechanicalTractionDofEval( tDofIndex ) )
+            {
+                // evaluate the derivative
+                this->eval_mechanical_dTractiondDOF( aDofTypes, aNormal );
+
+                // set bool for evaluation
+                mMechanicalTractionDofEval( tDofIndex ) = false;
+            }
+
+            // return the dof deriv value
+            return mMechanicalTractionDof( tDofIndex );
         }
 
         //--------------------------------------------------------------------------------------------------------------
