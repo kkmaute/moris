@@ -39,7 +39,7 @@ namespace moris
                 moris::Cell< Matrix< DDRMat > > mPressureDof;
                 moris::Cell< bool > mPressureDofEval;
 
-                // Thermal Flux
+                // Thermal Flux ---------------------------------------
                 Matrix< DDRMat > mThermalFlux;
                 bool mThermalFluxEval = true;
                 moris::Cell< Matrix< DDRMat > > mThermalFluxDof;
@@ -63,7 +63,31 @@ namespace moris
 //                moris::Cell< Matrix< DDRMat > > mStressDof;
 //                moris::Cell< bool > mStressDofEval;
 
-                // velocity matrix for flattened tensors
+                // Thermal Traction -----------------------------------
+                Matrix< DDRMat > mThermalTraction;
+                bool mThermalTractionEval = true;
+                moris::Cell< Matrix< DDRMat > > mThermalTractionDof;
+                moris::Cell< bool > mThermalTractionDofEval;
+
+                // Work Traction
+                Matrix< DDRMat > mWorkTraction;
+                bool mWorkTractionEval = true;
+                moris::Cell< Matrix< DDRMat > > mWorkTractionDof;
+                moris::Cell< bool > mWorkTractionDofEval;
+
+                // Energy Traction
+                Matrix< DDRMat > mEnergyTraction;
+                bool mEnergyTractionEval = true;
+                moris::Cell< Matrix< DDRMat > > mEnergyTractionDof;
+                moris::Cell< bool > mEnergyTractionDofEval;
+
+                // Mechanical Traction
+                Matrix< DDRMat > mMechanicalTraction;
+                bool mMechanicalTractionEval = true;
+                moris::Cell< Matrix< DDRMat > > mMechanicalTractionDof;
+                moris::Cell< bool > mMechanicalTractionDofEval;
+
+                // velocity matrix for flattened tensors --------------
                 Matrix< DDRMat > mVelocityMatrix;
                 bool mVelocityMatrixEval = true;
 
@@ -340,13 +364,26 @@ namespace moris
                 void eval_dEnergyDotdDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes );
 
                 //------------------------------------------------------------------------------
+                //------------------------------------------------------------------------------
                 /**
                  * evaluate the traction
                  * @param[ in ] aNormal normal
                  */
-                void eval_traction( const Matrix< DDRMat > & aNormal );
+                void eval_traction( const Matrix< DDRMat > & aNormal )
+                {
+                    MORIS_ERROR( false,
+                            "CM_Fluid_Compressible_Ideal::eval_traction - not implemented, use specific traction functions." );
+                };
 
-                //------------------------------------------------------------------------------
+                /**
+                 * get the constitutive model traction
+                 * @param[ in ]  aNormal   normal
+                 * @param[ out ] mTraction constitutive model traction
+                 */
+                const Matrix< DDRMat > & traction(
+                        const Matrix< DDRMat > & aNormal,
+                        enum CM_Function_Type aCMFunctionType = CM_Function_Type::DEFAULT );
+
                 /**
                  * evaluate the constitutive model traction derivative wrt to a dof type
                  * @param[ in ] aDofTypes a dof type wrt which the derivative is evaluated
@@ -354,6 +391,165 @@ namespace moris
                  */
                 void eval_dTractiondDOF(
                         const moris::Cell< MSI::Dof_Type > & aDofTypes,
+                        const Matrix< DDRMat >             & aNormal )
+                {
+                    MORIS_ERROR( false,
+                            "CM_Fluid_Compressible_Ideal::eval_dTractiondDOF - not implemented, use specific traction functions." );
+                };
+
+                /**
+                 * get the derivative of the traction wrt dof
+                 * @param[ in ]  aDofType        group of dof type
+                 * @param[ in ]  aNormal         normal
+                 * @param[ out ] mTractionDofDer derivative of the traction wrt dof
+                 */
+                const Matrix< DDRMat > & dTractiondDOF(
+                        const moris::Cell< MSI::Dof_Type > & aDofType,
+                        const Matrix< DDRMat >             & aNormal,
+                        enum CM_Function_Type                aCMFunctionType = CM_Function_Type::DEFAULT );
+
+                //------------------------------------------------------------------------------
+                //------------------------------------------------------------------------------
+                /**
+                 * evaluate the constitutive model thermal flux traction
+                 * @param[ in ] aNormal normal
+                 */
+                void eval_thermal_traction( const Matrix< DDRMat > & aNormal );
+
+                /**
+                 * get the constitutive model thermal flux traction
+                 * @param[ in ]  aNormal   normal
+                 * @param[ out ] mTraction constitutive model thermal flux traction
+                 */
+                const Matrix< DDRMat > & thermal_traction(
+                        const Matrix< DDRMat > & aNormal);
+
+                //------------------------------------------------------------------------------
+                /**
+                 * evaluate the constitutive model thermal flux traction derivative wrt to a dof type
+                 * @param[ in ] aDofTypes a dof type wrt which the derivative is evaluated
+                 * @param[ in ] aNormal   normal
+                 */
+                void eval_thermal_dTractiondDOF(
+                        const moris::Cell< MSI::Dof_Type > & aDofTypes,
+                        const Matrix< DDRMat >             & aNormal );
+
+                /**
+                 * get the derivative of the thermal flux traction wrt dof
+                 * @param[ in ]  aDofType        group of dof type
+                 * @param[ in ]  aNormal         normal
+                 * @param[ out ] mTractionDofDer derivative of the thermal flux traction wrt dof
+                 */
+                const Matrix< DDRMat > & thermal_dTractiondDOF(
+                        const moris::Cell< MSI::Dof_Type > & aDofType,
+                        const Matrix< DDRMat >             & aNormal );
+
+                //------------------------------------------------------------------------------
+                //------------------------------------------------------------------------------
+                /**
+                 * evaluate the constitutive model advective energy flux traction
+                 * @param[ in ] aNormal normal
+                 */
+                void eval_energy_traction( const Matrix< DDRMat > & aNormal );
+
+                /**
+                 * get the constitutive model advective energy flux traction
+                 * @param[ in ]  aNormal   normal
+                 * @param[ out ] mTraction constitutive model advective energy flux traction
+                 */
+                const Matrix< DDRMat > & energy_traction(
+                        const Matrix< DDRMat > & aNormal);
+
+                //------------------------------------------------------------------------------
+                /**
+                 * evaluate the constitutive model advective energy flux traction derivative wrt to a dof type
+                 * @param[ in ] aDofTypes a dof type wrt which the derivative is evaluated
+                 * @param[ in ] aNormal   normal
+                 */
+                void eval_energy_dTractiondDOF(
+                        const moris::Cell< MSI::Dof_Type > & aDofTypes,
+                        const Matrix< DDRMat >             & aNormal );
+
+                /**
+                 * get the derivative of the advective energy flux traction wrt dof
+                 * @param[ in ]  aDofType        group of dof type
+                 * @param[ in ]  aNormal         normal
+                 * @param[ out ] mTractionDofDer derivative of the traction wrt dof
+                 */
+                const Matrix< DDRMat > & energy_dTractiondDOF(
+                        const moris::Cell< MSI::Dof_Type > & aDofType,
+                        const Matrix< DDRMat >             & aNormal );
+
+                //------------------------------------------------------------------------------
+                //------------------------------------------------------------------------------
+                /**
+                 * evaluate the constitutive model mechanical work flux traction
+                 * @param[ in ] aNormal normal
+                 */
+                void eval_work_traction( const Matrix< DDRMat > & aNormal );
+
+                /**
+                 * get the constitutive model mechanical work flux traction
+                 * @param[ in ]  aNormal   normal
+                 * @param[ out ] mTraction constitutive model mechanical work flux traction
+                 */
+                const Matrix< DDRMat > & work_traction(
+                        const Matrix< DDRMat > & aNormal);
+
+                //------------------------------------------------------------------------------
+                /**
+                 * evaluate the constitutive model mechanical work flux traction derivative wrt to a dof type
+                 * @param[ in ] aDofTypes a dof type wrt which the derivative is evaluated
+                 * @param[ in ] aNormal   normal
+                 */
+                void eval_work_dTractiondDOF(
+                        const moris::Cell< MSI::Dof_Type > & aDofTypes,
+                        const Matrix< DDRMat >             & aNormal );
+
+                /**
+                 * get the derivative of the mechanical work flux traction wrt dof
+                 * @param[ in ]  aDofType        group of dof type
+                 * @param[ in ]  aNormal         normal
+                 * @param[ out ] mTractionDofDer derivative of the mechanical work flux traction wrt dof
+                 */
+                const Matrix< DDRMat > & work_dTractiondDOF(
+                        const moris::Cell< MSI::Dof_Type > & aDofType,
+                        const Matrix< DDRMat >             & aNormal );
+
+                //------------------------------------------------------------------------------
+                //------------------------------------------------------------------------------
+                /**
+                 * evaluate the constitutive model mechanical traction
+                 * @param[ in ] aNormal normal
+                 */
+                void eval_mechanical_traction( const Matrix< DDRMat > & aNormal );
+
+                /**
+                 * get the constitutive model mechanical traction
+                 * @param[ in ]  aNormal   normal
+                 * @param[ out ] mTraction constitutive model mechanical traction
+                 */
+                const Matrix< DDRMat > & mechanical_traction(
+                        const Matrix< DDRMat > & aNormal);
+
+                //------------------------------------------------------------------------------
+                /**
+                 * evaluate the constitutive model mechanical traction derivative wrt to a dof type
+                 * @param[ in ] aDofTypes a dof type wrt which the derivative is evaluated
+                 * @param[ in ] aNormal   normal
+                 */
+                void eval_mechanical_dTractiondDOF(
+                        const moris::Cell< MSI::Dof_Type > & aDofTypes,
+                        const Matrix< DDRMat >             & aNormal );
+
+                /**
+                 * get the derivative of the mechanical traction wrt dof
+                 * @param[ in ]  aDofType        group of dof type
+                 * @param[ in ]  aNormal         normal
+                 * @param[ out ] mTractionDofDer derivative of the mechanical traction wrt dof
+                 */
+                const Matrix< DDRMat > & mechanical_dTractiondDOF(
+                        const moris::Cell< MSI::Dof_Type > & aDofType,
                         const Matrix< DDRMat >             & aNormal );
 
                 //------------------------------------------------------------------------------
