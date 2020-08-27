@@ -50,8 +50,13 @@ set(HEADERS
     cl_FEM_IWG_Compressible_NS_Density_Bulk.hpp
     cl_FEM_IWG_Compressible_NS_Velocity_Bulk.hpp
     cl_FEM_IWG_Compressible_NS_Temperature_Bulk.hpp
-    cl_FEM_IWG_Compressible_NS_Advective_Mass_Flux_Boundary.hpp
+    cl_FEM_IWG_Compressible_NS_Advective_Momentum_Flux_Boundary.hpp
     cl_FEM_IWG_Compressible_NS_Advective_Energy_Flux_Boundary.hpp
+    cl_FEM_IWG_Compressible_NS_Mass_Flux_Neumann.hpp
+    cl_FEM_IWG_Compressible_NS_Traction_Neumann.hpp
+    cl_FEM_IWG_Compressible_NS_Heat_Flux_Neumann.hpp
+    #cl_FEM_IWG_Compressible_NS_Velocity_Dirichlet_Nitsche.hpp
+    #cl_FEM_IWG_Compressible_NS_Temperature_Dirichlet_Nitsche.hpp
     
     cl_FEM_IWG_FS_Struc_Interface.hpp
     cl_FEM_IWG_Spalart_Allmaras_Turbulence_Bulk.hpp
@@ -244,8 +249,13 @@ set(LIB_SOURCES
     cl_FEM_IWG_Compressible_NS_Density_Bulk.cpp
     cl_FEM_IWG_Compressible_NS_Velocity_Bulk.cpp
     cl_FEM_IWG_Compressible_NS_Temperature_Bulk.cpp
-    cl_FEM_IWG_Compressible_NS_Advective_Mass_Flux_Boundary.cpp
+    cl_FEM_IWG_Compressible_NS_Advective_Momentum_Flux_Boundary.cpp
     cl_FEM_IWG_Compressible_NS_Advective_Energy_Flux_Boundary.cpp
+    cl_FEM_IWG_Compressible_NS_Mass_Flux_Neumann.cpp
+    cl_FEM_IWG_Compressible_NS_Traction_Neumann.cpp
+    cl_FEM_IWG_Compressible_NS_Heat_Flux_Neumann.cpp
+    #cl_FEM_IWG_Compressible_NS_Velocity_Dirichlet_Nitsche.cpp
+    #cl_FEM_IWG_Compressible_NS_Temperature_Dirichlet_Nitsche.cpp
     
     cl_FEM_IWG_FS_Struc_Interface.cpp
     cl_FEM_IWG_Spalart_Allmaras_Turbulence_Bulk.cpp
