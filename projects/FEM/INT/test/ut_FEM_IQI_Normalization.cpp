@@ -65,7 +65,7 @@ namespace moris
 
             tParameters.set( "lagrange_orders", "1");
             tParameters.set( "lagrange_pattern", "0");
-            tParameters.set( "bspline_orders", "2");
+            tParameters.set( "bspline_orders", "1");
             tParameters.set( "bspline_pattern", "0");
 
             tParameters.set( "lagrange_to_bspline", "0");
