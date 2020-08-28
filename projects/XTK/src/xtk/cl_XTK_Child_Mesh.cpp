@@ -2223,70 +2223,61 @@ Child_Mesh::get_memory_usage()
 {
     moris::Memory_Map tMemoryMap;
 
-    tMemoryMap.mMemoryMapData["mParentElementIndex"]     = sizeof(mParentElementIndex);
-    tMemoryMap.mMemoryMapData["mElementTopology"]        = sizeof(mElementTopology);
-    tMemoryMap.mMemoryMapData["mConnectivity"]           = sizeof(mConnectivity);
-    tMemoryMap.mMemoryMapData["mElementToNode"]          = mElementToNode.capacity();
-    tMemoryMap.mMemoryMapData["mElementEdgeParentInds"]  = mElementEdgeParentInds.capacity();
+    tMemoryMap.mMemoryMapData["mParentElementIndex"] = sizeof(mParentElementIndex);
+    tMemoryMap.mMemoryMapData["mElementTopology"] = sizeof(mElementTopology);
+    tMemoryMap.mMemoryMapData["mConnectivity"] = sizeof(mConnectivity);
+    tMemoryMap.mMemoryMapData["mElementToNode"] = mElementToNode.capacity();
+    tMemoryMap.mMemoryMapData["mElementEdgeParentInds"] = mElementEdgeParentInds.capacity();
     tMemoryMap.mMemoryMapData["mElementEdgeParentRanks"] = mElementEdgeParentRanks.capacity();
-    tMemoryMap.mMemoryMapData["mElementFaceParentInds"]  = mElementFaceParentInds.capacity();
+    tMemoryMap.mMemoryMapData["mElementFaceParentInds"] = mElementFaceParentInds.capacity();
     tMemoryMap.mMemoryMapData["mElementFaceParentRanks"] = mElementFaceParentRanks.capacity();
-    tMemoryMap.mMemoryMapData["mElementInterfaceSides"]  = mElementInterfaceSides.capacity();
-    tMemoryMap.mMemoryMapData["mElementEdgeParentInds"]  = mElementEdgeParentInds.capacity();
-    tMemoryMap.mMemoryMapData["mElementEdgeParentInds"]  = mElementEdgeParentInds.capacity();
-    tMemoryMap.mMemoryMapData["mSpatialDimension"]       = sizeof(mSpatialDimension);
-    tMemoryMap.mMemoryMapData["mGeometryIndex"]       = mGeometryIndex.capacity();
-    tMemoryMap.mMemoryMapData["mChildElementIds"]       = mChildElementIds.capacity();
-    tMemoryMap.mMemoryMapData["mChildElementInds"]       = mChildElementInds.capacity();
-    tMemoryMap.mMemoryMapData["mVertices"]       = mVertices.capacity();
-    tMemoryMap.mMemoryMapData["mNodeIds"]       = mNodeIds.capacity();
-    tMemoryMap.mMemoryMapData["mNodeInds"]       = mNodeInds.capacity();
-    tMemoryMap.mMemoryMapData["mNodeParentRank"]       = mNodeParentRank.capacity();
-    tMemoryMap.mMemoryMapData["mNodeParentInds"]       = mNodeParentInds.capacity();
-    tMemoryMap.mMemoryMapData["mNodeIndsToCMInd"]       = mNodeIndsToCMInd.size() * 2* sizeof(moris::size_t);
-    tMemoryMap.mMemoryMapData["mNodeParametricCoord"]       = mNodeParametricCoord.capacity();
-    tMemoryMap.mMemoryMapData["mFaceToNode"]       = mFaceToNode.capacity();
-tMemoryMap.mMemoryMapData["mNodeToFace"]       = mNodeToFace.capacity();
-tMemoryMap.mMemoryMapData["mFaceToElement"]       = mFaceToElement.capacity();
-tMemoryMap.mMemoryMapData["mElementToFace"]       = mElementToFace.capacity();
-tMemoryMap.mMemoryMapData["mFaceParentInds"]       = mFaceParentInds.capacity();
-tMemoryMap.mMemoryMapData["mFaceParentInds"]       = mFaceParentInds.capacity();
-tMemoryMap.mMemoryMapData["mFaceParentRanks"]       = mFaceParentRanks.capacity();
-tMemoryMap.mMemoryMapData["mEdgeToNode"]       = mEdgeToNode.capacity();
-tMemoryMap.mMemoryMapData["mNodeToEdge"]       = mNodeToEdge.capacity();
-tMemoryMap.mMemoryMapData["mEdgeToElement"]       = mEdgeToElement.capacity();
+    tMemoryMap.mMemoryMapData["mElementInterfaceSides"] = mElementInterfaceSides.capacity();
+    tMemoryMap.mMemoryMapData["mElementEdgeParentInds"] = mElementEdgeParentInds.capacity();
+    tMemoryMap.mMemoryMapData["mElementEdgeParentInds"] = mElementEdgeParentInds.capacity();
+    tMemoryMap.mMemoryMapData["mSpatialDimension"] = sizeof(mSpatialDimension);
+    tMemoryMap.mMemoryMapData["mGeometryIndex"] = mGeometryIndex.capacity();
+    tMemoryMap.mMemoryMapData["mChildElementIds"] = mChildElementIds.capacity();
+    tMemoryMap.mMemoryMapData["mChildElementInds"] = mChildElementInds.capacity();
+    tMemoryMap.mMemoryMapData["mVertices"] = mVertices.capacity();
+    tMemoryMap.mMemoryMapData["mNodeIds"] = mNodeIds.capacity();
+    tMemoryMap.mMemoryMapData["mNodeInds"] = mNodeInds.capacity();
+    tMemoryMap.mMemoryMapData["mNodeParentRank"] = mNodeParentRank.capacity();
+    tMemoryMap.mMemoryMapData["mNodeParentInds"] = mNodeParentInds.capacity();
+    tMemoryMap.mMemoryMapData["mNodeIndsToCMInd"] = mNodeIndsToCMInd.size() * 2 * sizeof(moris::size_t);
+    tMemoryMap.mMemoryMapData["mNodeParametricCoord"] = mNodeParametricCoord.capacity();
+    tMemoryMap.mMemoryMapData["mFaceToNode"] = mFaceToNode.capacity();
+    tMemoryMap.mMemoryMapData["mNodeToFace"] = mNodeToFace.capacity();
+    tMemoryMap.mMemoryMapData["mFaceToElement"] = mFaceToElement.capacity();
+    tMemoryMap.mMemoryMapData["mElementToFace"] = mElementToFace.capacity();
+    tMemoryMap.mMemoryMapData["mFaceParentInds"] = mFaceParentInds.capacity();
+    tMemoryMap.mMemoryMapData["mFaceParentInds"] = mFaceParentInds.capacity();
+    tMemoryMap.mMemoryMapData["mFaceParentRanks"] = mFaceParentRanks.capacity();
+    tMemoryMap.mMemoryMapData["mEdgeToNode"] = mEdgeToNode.capacity();
+    tMemoryMap.mMemoryMapData["mNodeToEdge"] = mNodeToEdge.capacity();
+    tMemoryMap.mMemoryMapData["mEdgeToElement"] = mEdgeToElement.capacity();
+    tMemoryMap.mMemoryMapData["mElementToEdge"] = mElementToEdge.capacity();
+    tMemoryMap.mMemoryMapData["mEdgeParentInds"] = mEdgeParentInds.capacity();
+    tMemoryMap.mMemoryMapData["mEdgeParentRanks"] = mEdgeParentRanks.capacity();
+    tMemoryMap.mMemoryMapData["mElementToElement"] = mElementToElement.capacity();
+    tMemoryMap.mMemoryMapData["mIntersectConnectivity"] = mIntersectConnectivity.capacity();
+    tMemoryMap.mMemoryMapData["mIntersectedCMNodeIndex"] = mIntersectedCMNodeIndex.capacity();
+    tMemoryMap.mMemoryMapData["mIntersectedEdges"] = mIntersectedEdges.capacity();
+    tMemoryMap.mMemoryMapData["mEdgeOnInterface"] = mEdgeOnInterface.capacity();
+    tMemoryMap.mMemoryMapData["mElementPhaseIndices"] = mElementPhaseIndices.capacity();
+    tMemoryMap.mMemoryMapData["mElementBinIndex"] = mElementBinIndex.capacity();
+    tMemoryMap.mMemoryMapData["mBinBulkPhase"] = mBinBulkPhase.capacity();
+    tMemoryMap.mMemoryMapData["mElementBinIndex"] = mElementBinIndex.capacity();
+    tMemoryMap.mMemoryMapData["mBinBulkPhase"] = mBinBulkPhase.capacity();
+    tMemoryMap.mMemoryMapData["mSubPhaseBinId"] = mSubPhaseBinId.capacity();
+    tMemoryMap.mMemoryMapData["mSubPhaseBinIndices"] = mSubPhaseBinIndices.capacity();
+    tMemoryMap.mMemoryMapData["mSubPhaseBins"] = mSubPhaseBins.capacity();
+    tMemoryMap.mMemoryMapData["mSubphaseBasisIndices"] = mSubphaseBasisIndices.capacity();
+    tMemoryMap.mMemoryMapData["mSubphaseBasisEnrichmentLevel"] = mSubphaseBasisEnrichmentLevel.capacity();
+    tMemoryMap.mMemoryMapData["mDoubleSideSetSubphaseInds"] = mDoubleSideSetSubphaseInds.capacity();
+    tMemoryMap.mMemoryMapData["mDoubleSideSetCellPairs"] = mDoubleSideSetCellPairs.capacity();
+    tMemoryMap.mMemoryMapData["mDoubleSideSetFacetPairs"] = mDoubleSideSetFacetPairs.capacity();
 
-
-
-tMemoryMap.mMemoryMapData["mElementToEdge"]       = mElementToEdge.capacity();
-tMemoryMap.mMemoryMapData["mEdgeParentInds"]       = mEdgeParentInds.capacity();
-tMemoryMap.mMemoryMapData["mEdgeParentRanks"]       = mEdgeParentRanks.capacity();
-tMemoryMap.mMemoryMapData["mElementToElement"]       = mElementToElement.capacity();
-tMemoryMap.mMemoryMapData["mIntersectConnectivity"]       = mIntersectConnectivity.capacity();
-tMemoryMap.mMemoryMapData["mIntersectedCMNodeIndex"]       = mIntersectedCMNodeIndex.capacity();
-tMemoryMap.mMemoryMapData["mIntersectedEdges"]       = mIntersectedEdges.capacity();
-tMemoryMap.mMemoryMapData["mEdgeOnInterface"]       = mEdgeOnInterface.capacity();
-tMemoryMap.mMemoryMapData["mElementPhaseIndices"]       = mElementPhaseIndices.capacity();
-tMemoryMap.mMemoryMapData["mElementBinIndex"]       = mElementBinIndex.capacity();
-tMemoryMap.mMemoryMapData["mBinBulkPhase"]       = mBinBulkPhase.capacity();
-
-
-tMemoryMap.mMemoryMapData["mElementBinIndex"]       = mElementBinIndex.capacity();
-tMemoryMap.mMemoryMapData["mBinBulkPhase"]       = mBinBulkPhase.capacity();
-tMemoryMap.mMemoryMapData["mSubPhaseBinId"]       = mSubPhaseBinId.capacity();
-tMemoryMap.mMemoryMapData["mSubPhaseBinIndices"]       = mSubPhaseBinIndices.capacity();
-tMemoryMap.mMemoryMapData["mSubPhaseBins"]       = mSubPhaseBins.capacity();
-tMemoryMap.mMemoryMapData["mSubphaseBasisIndices"]       = mSubphaseBasisIndices.capacity();
-tMemoryMap.mMemoryMapData["mSubphaseBasisEnrichmentLevel"]       = mSubphaseBasisEnrichmentLevel.capacity();
-tMemoryMap.mMemoryMapData["mDoubleSideSetSubphaseInds"]       = mDoubleSideSetSubphaseInds.capacity();
-tMemoryMap.mMemoryMapData["mDoubleSideSetCellPairs"]       = mDoubleSideSetCellPairs.capacity();
-tMemoryMap.mMemoryMapData["mDoubleSideSetFacetPairs"]       = mDoubleSideSetFacetPairs.capacity();
-tMemoryMap.mMemoryMapData["mGeometryIndex"]       = mGeometryIndex.capacity();
-
-    tMemoryMap.print_memory_map();
-    
     return tMemoryMap;
-
 }
 
 // ---------------------------------------------------------------------------------

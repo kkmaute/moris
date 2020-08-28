@@ -29,6 +29,7 @@
 #include "cl_MTK_Cell_Info.hpp"
 #include "cl_MTK_Writer_Exodus.hpp"
 #include "fn_Parsing_Tools.hpp"
+#include "cl_TOL_Memory_Map.hpp"
 //#include "cl_XTK_Enrichment.hpp"
 using namespace moris;
 
@@ -62,7 +63,7 @@ namespace xtk
     }
 
     // ----------------------------------------------------------------------------------
-
+ 
     /*
      * using the general geometry engine
      */
@@ -88,6 +89,8 @@ namespace xtk
         mBackgroundMesh.initialize_interface_node_flags(
                 mBackgroundMesh.get_num_entities(EntityRank::NODE),
                 mGeometryEngine->get_num_geometries());
+
+                
     }
 
     // ----------------------------------------------------------------------------------
@@ -3352,6 +3355,9 @@ namespace xtk
             std::cout<<"XTK: Basis enrichment computation completed in " <<(std::clock() - start) / (double)(CLOCKS_PER_SEC)<<" s."<<std::endl;
             std::cout<<"XTK: Basis enrichment performed on mesh index: "<< aMeshIndex<<std::endl;
         }
+
+        Memory_Map tModelMemory =  this->get_memory_usage();
+        tModelMemory.print_memory_map();
     }
 
     // ----------------------------------------------------------------------------------
@@ -3593,32 +3599,37 @@ namespace xtk
         // add uncut neighborhood to connectivity
         // keep track of boundaries with an uncut mesh next to a cut mesh
         moris::Cell<moris::Cell<moris_index>> tCutToUncutFace;
-        construct_uncut_neighborhood(tCutToUncutFace);
+        this->construct_uncut_neighborhood(tCutToUncutFace);
 
         // since there are hanging nodes in HMR we need to do a little extra
         // to get the neighborhood correct
         if(mBackgroundMesh.get_mesh_data().get_mesh_type() == MeshType::HMR)
         {
-            construct_cut_mesh_simple_neighborhood();    //FIXME: Keenan - comments are missing for these steps
+            // create the simple relationship neighborhood between child meshes
+            this->construct_cut_mesh_simple_neighborhood();  
 
-            construct_cut_mesh_to_uncut_mesh_neighborhood(tCutToUncutFace);
+            // create neighborhood between the portion of the mesh intersected and not intersected. Creates
+            // connections between tetrahedral cells and hexahedral cells
+            this->construct_cut_mesh_to_uncut_mesh_neighborhood(tCutToUncutFace);
 
-            construct_complex_neighborhood();
+            // Currently not doing anything. Intended to construct the neighborhood between intersected cells
+            // on multiple refinement levels
+            this->construct_complex_neighborhood();
         }
         else
         {
             // create the simple relationship neighborhood between child meshes
-            construct_cut_mesh_simple_neighborhood();
+            this->construct_cut_mesh_simple_neighborhood();
 
             // create the link between uncut background cells and their neighboring children cells
-            construct_cut_mesh_to_uncut_mesh_neighborhood(tCutToUncutFace);
+            this->construct_cut_mesh_to_uncut_mesh_neighborhood(tCutToUncutFace);
         }
 
         //    print_neighborhood();
     }
 
     // ----------------------------------------------------------------------------------
-
+ 
     void
     Model::delete_neighborhood()
     {
@@ -3828,6 +3839,9 @@ namespace xtk
         moris::mtk::Cell_Info_Factory tFactory;
         moris::mtk::Cell_Info* tCellInfo = tFactory.create_cell_info(tCellTopo);
         xtk::create_faces_from_element_to_node(tCellInfo, mBackgroundMesh.get_num_entities(EntityRank::NODE), tCMElementToNode, tElementToFace, tFaceToNode, tNodeToFace, tFaceToElement);
+       
+        // remove this data right away since it is not needed
+        tNodeToFace.resize(0,0);
 
         // element connectivity
         moris::size_t tNumFacePerElem = tCellInfo->get_num_facets();
@@ -5553,6 +5567,77 @@ namespace xtk
         }
     }
 
+    //------------------------------------------------------------------------------
+
+    void
+    Model::print_memory_usage() const
+    {
+        // member data sizes
+        std::size_t tTotalSize        = sizeof(*this);
+        std::size_t tBGMeshSize       = sizeof(mBackgroundMesh);
+        std::size_t tCutMeshSize      = sizeof(mCutMesh);
+        std::size_t tCellGlbtoLocSize = sizeof(mCellGlbToLocalMap);
+
+        // neighborhood data sizes
+        // std::size_t tElementToElementSize               = sizeof(mElementToElement);
+        // std::size_t tSubphaseToSubPhaseSize             = sizeof(mSubphaseToSubPhase);
+        // std::size_t tSubphaseToSubPhaseMySideOrdsSize   = sizeof(mSubphaseToSubPhaseMySideOrds);
+        // std::size_t tSubphaseToSubPhaseNeighborSideOrdsSize = sizeof(mSubphaseToSubPhaseNeighborSideOrds);
+        std::size_t tElementToElementSize                   = mElementToElement.capacity();
+        std::size_t tSubphaseToSubPhaseSize                 = mSubphaseToSubPhase.capacity();
+        std::size_t tSubphaseToSubPhaseMySideOrdsSize       = mSubphaseToSubPhaseMySideOrds.capacity();
+        std::size_t tSubphaseToSubPhaseNeighborSideOrdsSize = mSubphaseToSubPhaseNeighborSideOrds.capacity();
+
+        // Percentage of the total memory usage
+        moris::real tPercentBgMesh   = (real) tBGMeshSize / (real) tTotalSize*100;
+        moris::real tPercentCutMesh  = (real) tCutMeshSize / (real) tTotalSize*100;
+        moris::real tPercentGlbToLoc = (real) tCellGlbtoLocSize / (real) tTotalSize*100;
+        
+        // neighborhood data percentages
+        moris::real tElementToElementPercent                   =  (real) tElementToElementSize / (real) tTotalSize*100;
+        moris::real tSubphaseToSubPhasePercent                 =  (real) tSubphaseToSubPhaseSize / (real) tTotalSize*100;
+        moris::real tSubphaseToSubPhaseMySideOrdsPercent       =  (real) tSubphaseToSubPhaseMySideOrdsSize / (real) tTotalSize*100;
+        moris::real tSubphaseToSubPhaseNeighborSideOrdsPercent =  (real) tSubphaseToSubPhaseNeighborSideOrdsSize / (real) tTotalSize*100;
+
+        // Data that is not owned by the model but useful to print
+        std::size_t tEnrichmentSize       = sizeof(*mEnrichment);
+        std::size_t tGhostSize            = sizeof(*mGhostStabilization);
+        std::size_t tEnrichmentIgMeshSize = sizeof(mEnrichedIntegMesh);
+        std::size_t tEnrichmentIpMeshSize = sizeof(mEnrichedInterpMesh);
+        std::size_t tMultigridSize        = sizeof(*mMultigrid);
+        
+        std::cout<<"Model Owned Data Sizes:"<<std::endl;
+        std::cout<<"Total of Model:                              " << std::setw(8) << tTotalSize                              <<" bytes.\n"
+                 <<"    Size of Background Mesh:                 " << std::setw(8) << tBGMeshSize                             <<" bytes | " << tPercentBgMesh <<"%\n"
+                 <<"    Size of Cut Mesh:                        " << std::setw(8) << tCutMeshSize                            <<" bytes | " << tPercentCutMesh<<"%\n"
+                 <<"    Size of Cell to Cell:                    " << std::setw(8) << tElementToElementSize                   <<" bytes | " << tElementToElementPercent<<"%\n"
+                 <<"    Size of Subphase to Subphase:            " << std::setw(8) << tSubphaseToSubPhaseSize                 <<" bytes | " << tSubphaseToSubPhasePercent<<"%\n"
+                 <<"    Size of Subphase to Subphase Ords:       " << std::setw(8) << tSubphaseToSubPhaseMySideOrdsSize       <<" bytes | " << tSubphaseToSubPhaseMySideOrdsPercent<<"%\n"
+                 <<"    Size of Subphase to Subphase Neigh Ords: " << std::setw(8) << tSubphaseToSubPhaseNeighborSideOrdsSize <<" bytes | " << tSubphaseToSubPhaseNeighborSideOrdsPercent<<"%\n"
+                 <<"Data not owned by XTK Model Sizes:" <<"\n"
+                 <<"    Size of Enrichment:          "  << std::setw(8) << tEnrichmentSize<<"\n"
+                 <<"    Size of Ghost Stabilization: "  << std::setw(8) << tGhostSize<<"\n"
+                 <<"    Size of Enriched IG Meshes:  "  << std::setw(8) << tEnrichmentIgMeshSize<<"\n"
+                 <<"    Size of Enriched IG Meshes:  "  << std::setw(8) << tEnrichmentIpMeshSize<<"\n"
+                 <<"    Size of Multigrid:           "  << std::setw(8) << tMultigridSize<<"\n";
+                 
+
+
+    }
+
+    moris::Memory_Map
+    Model::get_memory_usage()
+    {
+        moris::Memory_Map tXTKModelMM;
+        moris::Memory_Map tCutMeshMM = mCutMesh.get_memory_usage();
+        
+        // make the sum of the cut mesh memory map the cut mesh memory
+        tXTKModelMM.mMemoryMapData["Cut Mesh"] = tCutMeshMM.sum();
+
+
+    }
+
+ 
     //------------------------------------------------------------------------------
 
     void

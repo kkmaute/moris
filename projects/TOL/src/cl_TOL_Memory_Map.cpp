@@ -57,7 +57,6 @@ namespace moris
         Memory_Map tCombinedMap;
         tCombinedMap.mMemoryMapData = mMemoryMapData;
 
-        std::cout<<"COMBO WOMBO"<<std::endl;
 
         for (auto it = aMemMapB.mMemoryMapData.begin(); it != aMemMapB.mMemoryMapData.end(); it++)
         {

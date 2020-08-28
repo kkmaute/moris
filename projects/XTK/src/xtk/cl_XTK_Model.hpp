@@ -213,6 +213,20 @@ namespace xtk
             print_timing_data() const;
 
             //--------------------------------------------------------------------------------
+            /*!
+            *  @brief Print the memory usage of member class and member data
+            */
+            void
+            print_memory_usage() const;
+
+            //--------------------------------------------------------------------------------
+            /*!
+            * @brief get the memory usage of XTK
+            */
+            moris::Memory_Map
+            get_memory_usage();
+
+            //--------------------------------------------------------------------------------
             //FIXME: REMOVE and related functions in child mesh
             /*!
              * Uses sub-phase information within a child mesh to construct one interpolation element for each sub-phase cluster
@@ -567,9 +581,9 @@ namespace xtk
 
             // element to element neighborhood
             moris::Cell<moris::Cell<moris::mtk::Cell*>> mElementToElement;
-            moris::Cell<moris::Cell<moris_index>> mSubphaseToSubPhase;
-            moris::Cell<moris::Cell<moris_index>> mSubphaseToSubPhaseMySideOrds;
-            moris::Cell<moris::Cell<moris_index>> mSubphaseToSubPhaseNeighborSideOrds;
+            moris::Cell<moris::Cell<moris_index>>       mSubphaseToSubPhase;
+            moris::Cell<moris::Cell<moris_index>>       mSubphaseToSubPhaseMySideOrds;
+            moris::Cell<moris::Cell<moris_index>>       mSubphaseToSubPhaseNeighborSideOrds;
 
             // in the case of a hierarchically refined mesh, there are transitions with hanging nodes
             // this data flags the transition from a large facet to a smaller facet. (this is trivial
