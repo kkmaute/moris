@@ -1,12 +1,12 @@
 /*
- * cl_FEM_IWG_Compressible_NS_Density_Bulk.hpp
+ * cl_FEM_IWG_Compressible_NS_Advective_Energy_Flux_Boundary.hpp
  *
- *  Created on: Jul 22, 2020
+ *  Created on: Aug 26, 2020
  *      Author: wunsch
  */
 
-#ifndef SRC_FEM_CL_FEM_IWG_COMPRESSIBLE_NS_DENSITY_BULK_HPP_
-#define SRC_FEM_CL_FEM_IWG_COMPRESSIBLE_NS_DENSITY_BULK_HPP_
+#ifndef SRC_FEM_CL_FEM_IWG_COMPRESSIBLE_NS_ADVECTIVE_Energy_FLUX_BOUNDARY_HPP_
+#define SRC_FEM_CL_FEM_IWG_COMPRESSIBLE_NS_ADVECTIVE_Energy_FLUX_BOUNDARY_HPP_
 
 #include <map>
 #include "typedefs.hpp"                     //MRS/COR/src
@@ -23,7 +23,7 @@ namespace moris
     {
         //------------------------------------------------------------------------------
 
-        class IWG_Compressible_NS_Density_Bulk : public IWG
+        class IWG_Compressible_NS_Advective_Energy_Flux_Boundary : public IWG
         {
 
                 //------------------------------------------------------------------------------
@@ -60,13 +60,13 @@ namespace moris
                 /*
                  *  constructor
                  */
-                IWG_Compressible_NS_Density_Bulk();
+                IWG_Compressible_NS_Advective_Energy_Flux_Boundary();
 
                 //------------------------------------------------------------------------------
                 /**
                  * trivial destructor
                  */
-                ~IWG_Compressible_NS_Density_Bulk(){};
+                ~IWG_Compressible_NS_Advective_Energy_Flux_Boundary(){};
 
                 //------------------------------------------------------------------------------
                 /**
@@ -159,4 +159,4 @@ namespace moris
     } /* namespace fem */
 } /* namespace moris */
 
-#endif /* SRC_FEM_CL_FEM_IWG_COMPRESSIBLE_NS_DENSITY_BULK_HPP_ */
+#endif /* SRC_FEM_CL_FEM_IWG_COMPRESSIBLE_NS_ADVECTIVE_ENERGY_FLUX_BOUNDARY_HPP_ */

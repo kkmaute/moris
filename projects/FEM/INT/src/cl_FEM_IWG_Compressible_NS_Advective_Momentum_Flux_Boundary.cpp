@@ -1,13 +1,14 @@
 /*
- * cl_FEM_IWG_Compressible_NS_Velocity_Bulk.cpp
+ * cl_FEM_IWG_Compressible_NS_Advective_Momentum_Flux_Boundary.cpp
  *
- *  Created on: Jul 28, 2020
+ *  Created on: Aug 26, 2020
  *      Author: wunsch
  */
 
+#include "cl_FEM_IWG_Compressible_NS_Advective_Momentum_Flux_Boundary.hpp"
+
 #include "cl_FEM_Set.hpp"
 #include "cl_FEM_Field_Interpolator_Manager.hpp"
-#include "cl_FEM_IWG_Compressible_NS_Velocity_Bulk.hpp"
 
 #include "fn_trans.hpp"
 #include "fn_norm.hpp"
@@ -20,58 +21,31 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        IWG_Compressible_NS_Velocity_Bulk::IWG_Compressible_NS_Velocity_Bulk()
+        IWG_Compressible_NS_Advective_Momentum_Flux_Boundary::IWG_Compressible_NS_Advective_Momentum_Flux_Boundary()
         {
-            // set size for the property pointer cell
-            mMasterProp.resize( static_cast< uint >( IWG_Property_Type::MAX_ENUM ), nullptr );
-
-            // populate the property map
-            mPropertyMap[ "BodyForce" ] = IWG_Property_Type::BODY_FORCE;
-
             // set size for the constitutive model pointer cell
             mMasterCM.resize( static_cast< uint >( IWG_Constitutive_Type::MAX_ENUM ), nullptr );
 
             // populate the constitutive map
             mConstitutiveMap[ "Fluid" ] = IWG_Constitutive_Type::FLUID;
-
-            // build multiplication matrix
-            // for 2D
-            if( mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) )->get_number_of_fields() == 2 )
-            {
-                mMultipMat = {
-                        { 1.0, 0.0, 0.0 },
-                        { 0.0, 1.0, 0.0 },
-                        { 0.0, 0.0, 2.0 }};
-            }
-            // for 3D
-            else
-            {
-                mMultipMat = {
-                        { 1.0, 0.0, 0.0, 0.0, 0.0, 0.0 },
-                        { 0.0, 1.0, 0.0, 0.0, 0.0, 0.0 },
-                        { 1.0, 0.0, 1.0, 0.0, 0.0, 0.0 },
-                        { 0.0, 0.0, 0.0, 2.0, 0.0, 0.0 },
-                        { 0.0, 0.0, 0.0, 0.0, 2.0, 0.0 },
-                        { 0.0, 0.0, 0.0, 0.0, 0.0, 2.0 }};
-            }
         }
 
         //------------------------------------------------------------------------------
 
-        void IWG_Compressible_NS_Velocity_Bulk::set_property(
+        void IWG_Compressible_NS_Advective_Momentum_Flux_Boundary::set_property(
                 std::shared_ptr< Property > aProperty,
                 std::string                 aPropertyString,
                 mtk::Master_Slave           aIsMaster )
         {
             // check that aPropertyString makes sense
             std::string tErrMsg =
-                    std::string( "IWG_Compressible_NS_Velocity_Bulk::set_property - Unknown aPropertyString: " ) +
+                    std::string( "IWG_Compressible_NS_Advective_Momentum_Flux_Boundary::set_property - Unknown aPropertyString: " ) +
                     aPropertyString;
             MORIS_ERROR( mPropertyMap.find( aPropertyString ) != mPropertyMap.end(), tErrMsg.c_str() );
 
             // check no slave allowed
             MORIS_ERROR( aIsMaster == mtk::Master_Slave::MASTER,
-                    "IWG_Compressible_NS_Velocity_Bulk::set_property - No slave allowed." );
+                    "IWG_Compressible_NS_Advective_Momentum_Flux_Boundary::set_property - No slave allowed." );
 
             // set the property in the property cell
             this->get_properties( aIsMaster )( static_cast< uint >( mPropertyMap[ aPropertyString ] ) ) = aProperty;
@@ -79,20 +53,20 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        void IWG_Compressible_NS_Velocity_Bulk::set_constitutive_model(
+        void IWG_Compressible_NS_Advective_Momentum_Flux_Boundary::set_constitutive_model(
                 std::shared_ptr< Constitutive_Model > aConstitutiveModel,
                 std::string                           aConstitutiveString,
                 mtk::Master_Slave                     aIsMaster  )
         {
             // check that aConstitutiveString makes sense
             std::string tErrMsg =
-                    std::string( "IWG_Compressible_NS_Velocity_Bulk::set_constitutive_model - Unknown aConstitutiveString: " ) +
+                    std::string( "IWG_Compressible_NS_Advective_Momentum_Flux_Boundary::set_constitutive_model - Unknown aConstitutiveString: " ) +
                     aConstitutiveString;
             MORIS_ERROR( mConstitutiveMap.find( aConstitutiveString ) != mConstitutiveMap.end(), tErrMsg.c_str() );
 
             // check no slave allowed
             MORIS_ERROR( aIsMaster == mtk::Master_Slave::MASTER,
-                    "IWG_Compressible_NS_Velocity_Bulk::set_constitutive_model - No slave allowed." );
+                    "IWG_Compressible_NS_Advective_Momentum_Flux_Boundary::set_constitutive_model - No slave allowed." );
 
             // set the constitutive model in the constitutive model cell
             this->get_constitutive_models( aIsMaster )( static_cast< uint >( mConstitutiveMap[ aConstitutiveString ] ) ) = aConstitutiveModel;
@@ -100,16 +74,16 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        void IWG_Compressible_NS_Velocity_Bulk::set_stabilization_parameter(
+        void IWG_Compressible_NS_Advective_Momentum_Flux_Boundary::set_stabilization_parameter(
                 std::shared_ptr< Stabilization_Parameter > aStabilizationParameter,
                 std::string                                aStabilizationString )
         {
-            MORIS_ERROR( false, "IWG_Compressible_NS_Velocity_Bulk::set_stabilization_parameter - Not implemented." );
+            MORIS_ERROR( false, "IWG_Compressible_NS_Advective_Momentum_Flux_Boundary::set_stabilization_parameter - Not implemented." );
         }
 
         //------------------------------------------------------------------------------
 
-        void IWG_Compressible_NS_Velocity_Bulk::compute_residual( real aWStar )
+        void IWG_Compressible_NS_Advective_Momentum_Flux_Boundary::compute_residual( real aWStar )
         {
             // check master field interpolators
 #ifdef DEBUG
@@ -121,46 +95,29 @@ namespace moris
             uint tMasterResStartIndex = mSet->get_res_dof_assembly_map()( tMasterDofIndex )( 0, 0 );
             uint tMasterResStopIndex  = mSet->get_res_dof_assembly_map()( tMasterDofIndex )( 0, 1 );
 
-            // get the velocity FI
-            Field_Interpolator * tFIVelocity =  mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );
-
-            // get Density FI
-            Field_Interpolator * tFIDensity =  mMasterFIManager->get_field_interpolators_for_type( mDofDensity );
-
-            // get the mass body force property
-            std::shared_ptr< Property > tPropBodyForce = mMasterProp( static_cast< uint >( IWG_Property_Type::BODY_FORCE ) );
-
-            // get the compressible fluid constitutive model
-            std::shared_ptr< Constitutive_Model > tCMFluid = mMasterCM( static_cast< uint >( IWG_Constitutive_Type::FLUID ) );
+            // get the field interpolators
+            Field_Interpolator * tDensityFI = mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );
+            Field_Interpolator * tVelocityFI = mMasterFIManager->get_field_interpolators_for_type( mDofVelocity );
 
             // build dyadic product of velocity vectors
             Matrix< DDRMat > tUiUj;
             this->compute_uiuj( tUiUj );
 
-            // compute the residual
-            mSet->get_residual()( 0 )( { tMasterResStartIndex, tMasterResStopIndex }, { 0, 0 } )
-                    += aWStar * (
-                            trans( tFIVelocity->N() ) * tFIDensity->gradt( 1 ) * tFIVelocity->val() +
-                            trans( tFIVelocity->N() ) * tFIDensity->val() * trans( tFIVelocity->gradt( 1 ) ) +
-                            trans( tCMFluid->testStrain() ) * tFIDensity->val() * mMultipMat * tUiUj +
-                            trans( tCMFluid->testStrain() ) * tFIDensity->val() * mMultipMat * tCMFluid->flux( CM_Function_Type::MECHANICAL ) );
+            // build flattened normal
+            Matrix< DDRMat > tNormalMatrix;
+            this->compute_normal_matrix( tNormalMatrix );
 
-            // if there is a body force
-            if ( tPropBodyForce != nullptr )
-            {
-                // add gravity to residual weak form
-                mSet->get_residual()( 0 )( { tMasterResStartIndex, tMasterResStopIndex }, { 0, 0 } )
-                        += aWStar * ( trans( tFIVelocity->N() ) * tFIDensity->val() * tPropBodyForce->val() );
-            }
+            // compute the residual weak form
+            mSet->get_residual()( 0 )( { tMasterResStartIndex, tMasterResStopIndex }, { 0, 0 } ) += aWStar * (
+                    trans( tVelocityFI->N() ) * tDensityFI->val() * tNormalMatrix * tUiUj );
 
             // check for nan, infinity
             MORIS_ERROR( isfinite( mSet->get_residual()( 0 ) ),
-                    "IWG_Compressible_NS_Velocity_Bulk::compute_residual - Residual contains NAN or INF, exiting!");
+                    "IWG_Compressible_NS_Advective_Momentum_Flux_Boundary::compute_residual - Residual contains NAN or INF, exiting!");
         }
 
         //------------------------------------------------------------------------------
-
-        void IWG_Compressible_NS_Velocity_Bulk::compute_jacobian( real aWStar )
+        void IWG_Compressible_NS_Advective_Momentum_Flux_Boundary::compute_jacobian( real aWStar )
         {
             // check master field interpolators
 #ifdef DEBUG
@@ -176,12 +133,6 @@ namespace moris
             Field_Interpolator * tFIVelocity =  mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );
             Field_Interpolator * tFIDensity =  mMasterFIManager->get_field_interpolators_for_type( mDofDensity );
 
-            // get the mass body force property
-            std::shared_ptr< Property > tPropBodyForce = mMasterProp( static_cast< uint >( IWG_Property_Type::BODY_FORCE ) );
-
-            // get the compressible fluid constitutive model
-            std::shared_ptr< Constitutive_Model > tCMFluid = mMasterCM( static_cast< uint >( IWG_Constitutive_Type::FLUID ) );
-
             // compute the jacobian for dof dependencies
             uint tNumDofDependencies = mRequestedMasterGlobalDofTypes.size();
             for( uint iDOF = 0; iDOF < tNumDofDependencies; iDOF++ )
@@ -194,16 +145,6 @@ namespace moris
                 uint tMasterDepStartIndex = mSet->get_jac_dof_assembly_map()( tMasterDofIndex )( tDofDepIndex, 0 );
                 uint tMasterDepStopIndex  = mSet->get_jac_dof_assembly_map()( tMasterDofIndex )( tDofDepIndex, 1 );
 
-                // if fluid CM depends on dof type
-                if ( tCMFluid->check_dof_dependency( tDofType ) )
-                {
-                    // add contribution
-                    mSet->get_jacobian()(
-                            { tMasterResStartIndex, tMasterResStopIndex },
-                            { tMasterDepStartIndex, tMasterDepStopIndex } ) += aWStar * (
-                                    trans( tCMFluid->testStrain() ) * tCMFluid->dFluxdDOF( tDofType, CM_Function_Type::MECHANICAL ) );
-                }
-
                 // if dof type is velocity, add diagonal term (velocity-velocity DoF types)
                 if( tDofType( 0 ) == mDofDensity )
                 {
@@ -211,23 +152,15 @@ namespace moris
                     Matrix< DDRMat > tUiUj;
                     this->compute_uiuj( tUiUj );
 
+                    // build flattened normal
+                    Matrix< DDRMat > tNormalMatrix;
+                    this->compute_normal_matrix( tNormalMatrix );
+
                     // add contribution
                     mSet->get_jacobian()(
                             { tMasterResStartIndex, tMasterResStopIndex },
                             { tMasterDepStartIndex, tMasterDepStopIndex } ) += aWStar * (
-                                    trans( tFIVelocity->N() ) * tFIVelocity->gradt( 1 ) * tFIDensity->N() +
-                                    trans( tFIVelocity->N() ) * tFIVelocity->val() * tFIDensity->dnNdtn( 1 ) -
-                                    trans( tCMFluid->testStrain() ) * mMultipMat * tUiUj * tFIDensity->N() );
-
-                    // if a body force is present
-                    if ( tPropBodyForce != nullptr )
-                    {
-                        // compute the jacobian contribution
-                        mSet->get_jacobian()(
-                                { tMasterResStartIndex, tMasterResStopIndex },
-                                { tMasterDepStartIndex, tMasterDepStopIndex } ) += aWStar * (
-                                        -1.0 * trans( tFIVelocity->N() ) * tPropBodyForce->val() * tFIDensity->N() );
-                    }
+                                    trans( tFIVelocity->N() ) * tNormalMatrix * tUiUj * tFIDensity->N() );
                 }
 
                 // if dof type is velocity, add diagonal term (velocity-velocity DoF types)
@@ -237,81 +170,69 @@ namespace moris
                     Matrix< DDRMat > tdUiUjdDOF;
                     this->compute_duiujdDOF( tdUiUjdDOF );
 
+                    // build flattened normal
+                    Matrix< DDRMat > tNormalMatrix;
+                    this->compute_normal_matrix( tNormalMatrix );
+
                     // add contribution
                     mSet->get_jacobian()(
                             { tMasterResStartIndex, tMasterResStopIndex },
                             { tMasterDepStartIndex, tMasterDepStopIndex } ) += aWStar * (
-                                    trans( tFIVelocity->N() ) * tFIDensity->gradt( 1 ) * tFIVelocity->N() +
-                                    trans( tFIVelocity->N() ) * tFIDensity->val() * tFIVelocity->dnNdtn( 1 ) -
-                                    trans( tCMFluid->testStrain() ) * tFIDensity->val() * mMultipMat * tdUiUjdDOF );
-                }
-
-                // if a body force is present
-                if ( tPropBodyForce != nullptr )
-                {
-                    // if the body force depends on the dof type -> indirect dependency
-                    if ( tPropBodyForce->check_dof_dependency( tDofType ) )
-                    {
-                        // compute the jacobian contribution
-                        mSet->get_jacobian()(
-                                { tMasterResStartIndex, tMasterResStopIndex },
-                                { tMasterDepStartIndex, tMasterDepStopIndex } ) += aWStar * (
-                                        -1.0 * trans( tFIVelocity->N() ) * tFIDensity->val() * tPropBodyForce->dPropdDOF( tDofType ) );
-                    }
+                                    trans( tFIVelocity->N() ) * tFIDensity->val() * tNormalMatrix * tdUiUjdDOF );
                 }
             }
 
             // check for nan, infinity
             MORIS_ERROR(  isfinite( mSet->get_jacobian() ) ,
-                    "IWG_Compressible_NS_Velocity_Bulk::compute_jacobian - Jacobian contains NAN or INF, exiting!");
+                    "IWG_Compressible_NS_Advective_Momentum_Flux_Boundary::compute_jacobian - Jacobian contains NAN or INF, exiting!");
         }
 
         //------------------------------------------------------------------------------
 
-        void IWG_Compressible_NS_Velocity_Bulk::compute_jacobian_and_residual( real aWStar )
+        void IWG_Compressible_NS_Advective_Momentum_Flux_Boundary::compute_jacobian_and_residual( real aWStar )
         {
 #ifdef DEBUG
             // check master field interpolators
             this->check_field_interpolators();
 #endif
 
-            MORIS_ERROR( false, "IWG_Compressible_NS_Velocity_Bulk::compute_jacobian_and_residual - Not implemented." );
+            MORIS_ERROR( false, "IWG_Compressible_NS_Advective_Momentum_Flux_Boundary::compute_jacobian_and_residual - Not implemented." );
         }
 
         //------------------------------------------------------------------------------
 
-        void IWG_Compressible_NS_Velocity_Bulk::compute_dRdp( real aWStar )
+        void IWG_Compressible_NS_Advective_Momentum_Flux_Boundary::compute_dRdp( real aWStar )
         {
 #ifdef DEBUG
             // check master field interpolators, properties and constitutive models
             this->check_field_interpolators();
 #endif
 
-            MORIS_ERROR( false, "IWG_Compressible_NS_Velocity_Bulk::compute_dRdp - Not implemented." );
+            MORIS_ERROR( false, "IWG_Compressible_NS_Advective_Momentum_Flux_Boundary::compute_dRdp - Not implemented." );
         }
 
         //------------------------------------------------------------------------------
 
-        void IWG_Compressible_NS_Velocity_Bulk::compute_residual_strong_form(
+        void IWG_Compressible_NS_Advective_Momentum_Flux_Boundary::compute_residual_strong_form(
                 Matrix< DDRMat > & aRM,
                 real             & aRC )
         {
-            MORIS_ERROR( false, "IWG_Compressible_NS_Velocity_Bulk::compute_residual_strong_form - Not implemented." );
+            MORIS_ERROR( false, "IWG_Compressible_NS_Advective_Momentum_Flux_Boundary::compute_residual_strong_form - Not implemented." );
         }
 
         //------------------------------------------------------------------------------
 
-        void IWG_Compressible_NS_Velocity_Bulk::compute_jacobian_strong_form(
+        void IWG_Compressible_NS_Advective_Momentum_Flux_Boundary::compute_jacobian_strong_form(
                 moris::Cell< MSI::Dof_Type >   aDofTypes,
                 Matrix< DDRMat >             & aJM,
                 Matrix< DDRMat >             & aJC )
         {
-            MORIS_ERROR( false, "IWG_Compressible_NS_Velocity_Bulk::compute_jacobian_strong_form - Not implemented." );
+            MORIS_ERROR( false, "IWG_Compressible_NS_Advective_Mass_Flux_Boundary::compute_jacobian_strong_form - Not implemented." );
         }
 
         //------------------------------------------------------------------------------
 
-        void IWG_Compressible_NS_Velocity_Bulk::compute_uiuj(Matrix< DDRMat > & auiuj)
+        void IWG_Compressible_NS_Advective_Momentum_Flux_Boundary::compute_uiuj(Matrix< DDRMat > & auiuj)
         {
             // get the velocity vector
             Field_Interpolator * tFIVelocity =  mMasterFIManager->get_field_interpolators_for_type( mDofVelocity );
@@ -346,7 +267,7 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        void IWG_Compressible_NS_Velocity_Bulk::compute_duiujdDOF(Matrix< DDRMat > & aduiujdDOF)
+        void IWG_Compressible_NS_Advective_Momentum_Flux_Boundary::compute_duiujdDOF(Matrix< DDRMat > & aduiujdDOF)
         {
             // get the velocity vector
             Field_Interpolator * tFIVelocity =  mMasterFIManager->get_field_interpolators_for_type( mDofVelocity );
@@ -390,6 +311,28 @@ namespace moris
 
                 aduiujdDOF( { 5, 5 }, { 0, tNumBases - 1 } )                 = tUvec( 1 ) * tNmat( { 0, 0 }, { 0, tNumBases - 1 } );
                 aduiujdDOF( { 5, 5 }, { tNumBases, 2 * tNumBases - 1 } )     = tUvec( 0 ) * tNmat( { 0, 0 }, { 0, tNumBases - 1 } );
+            }
+        }
+
+        //------------------------------------------------------------------------------
+
+        void IWG_Compressible_NS_Advective_Momentum_Flux_Boundary::compute_normal_matrix( Matrix< DDRMat > & aNormalMatrix )
+        {
+            // assembly into matrix
+            // for 2D
+            if( mMasterFIManager->get_field_interpolators_for_type( mDofVelocity )->get_number_of_fields() == 2 )
+            {
+                aNormalMatrix = {
+                        { mNormal( 0 ),         0.0 , mNormal( 1 ) },
+                        {         0.0 , mNormal( 1 ), mNormal( 0 ) } };
+            }
+            // for 3D
+            else
+            {
+                aNormalMatrix = {
+                        { mNormal( 0 ),         0.0 ,         0.0 ,         0.0 , mNormal( 2 ), mNormal( 1 ) },
+                        {         0.0 , mNormal( 1 ),         0.0 , mNormal( 2 ),         0.0 , mNormal( 0 ) },
+                        {         0.0 ,         0.0 , mNormal( 2 ), mNormal( 1 ), mNormal( 0 ),         0.0  } };
             }
         }
 
