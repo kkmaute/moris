@@ -469,10 +469,10 @@ TEST_CASE("2D XTK WITH HMR ThermoElastic 2D","[XTK_HMR_thermoelastic_2D]")
         std::string tMorisRoot = moris::get_base_moris_dir();
         std::string tHdf5FilePath = tMorisRoot + "/projects/FEM/MDL/test/data/Thermoelastic_test_2d.hdf5";
 
-        //------------------------------------------------------------------------------
-        //    write solution ( uncomment this if you want to recreate solution files )
-        //------------------------------------------------------------------------------
-
+//        //------------------------------------------------------------------------------
+//        //    write solution ( uncomment this if you want to recreate solution files )
+//        //------------------------------------------------------------------------------
+//
 //        // create file
 //        hid_t tFileID = create_hdf5_file( tHdf5FilePath );
 //
@@ -501,31 +501,18 @@ TEST_CASE("2D XTK WITH HMR ThermoElastic 2D","[XTK_HMR_thermoelastic_2D]")
         // close file
         close_hdf5_file( tFileID );
 
-//        // verify solution
-//        moris::real tEpsilon = 1E-06;
-//        bool tCheck = true;
-//        for( uint Ik = 0; Ik <tFullSolution.numel(); Ik++)
-//        {
-//            if (!((tFullSolution(Ik) - tGoldSolution(Ik)) <= tEpsilon))
-//            {
-//                tCheck = false;
-//            }
-//        }
-//        //CHECK(tCheck);
-
         // verify solution
-                        bool tSolutionCheck = true;
-                        for( uint i = 0; i < tFullSolution.numel(); i++ )
-                        {
-                            tSolutionCheck = tSolutionCheck && ( tFullSolution( i ) - tGoldSolution( i ) < 1e-03 );
-                            if( !tSolutionCheck )
-                            {
-                                std::cout<<"tFullSolution( i ) "<<tFullSolution( i )<<" tGoldSolution( i ) "<<tGoldSolution( i )<<std::endl;
-                            }
-                        }
-                //CHECK(tSolutionCheck);
+        bool tSolutionCheck = true;
+        for( uint i = 0; i < tFullSolution.numel(); i++ )
+        {
+            tSolutionCheck = tSolutionCheck && ( tFullSolution( i ) - tGoldSolution( i ) < 1e-03 );
+            if( !tSolutionCheck )
+            {
+                std::cout<<"tFullSolution( i ) "<<tFullSolution( i )<<" tGoldSolution( i ) "<<tGoldSolution( i )<<std::endl;
+            }
+        }
+        CHECK(tSolutionCheck);
 
-//        delete tIntegMesh1;
         delete tModel;
         delete tInterpolationMesh;
     }
