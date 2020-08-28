@@ -21,16 +21,16 @@
 
 namespace moris
 {
-class Library_IO;
-//------------------------------------------------------------------------------
+    class Library_IO;
+    //------------------------------------------------------------------------------
     namespace mtk
     {
-       class Mesh_Manager;
+        class Mesh_Manager;
     }
 
     namespace vis
     {
-       class Output_Manager;
+        class Output_Manager;
     }
 
     namespace fem
@@ -70,10 +70,11 @@ class Library_IO;
     }
     namespace mdl
     {
-//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
 
         class Model
         {
+        private:
             // pointer to reference mesh
             mtk::Mesh_Manager* mMeshManager = nullptr;
             moris_index        mMeshPairIndex;
@@ -113,9 +114,9 @@ class Library_IO;
             moris::Cell< moris::Cell< ParameterList > > mSOLParameterList;
             moris::Cell< moris::Cell< ParameterList > > mVISParameterList;
 
-//------------------------------------------------------------------------------
+            //------------------------------------------------------------------------------
         public:
-//------------------------------------------------------------------------------
+            //------------------------------------------------------------------------------
             /**
              * constructor
              * @param[ in ] aMeshManager   pointer to mesh info
@@ -125,12 +126,12 @@ class Library_IO;
              * @param[ in ] aUseMultigrid  bool for multigrid use
              */
             Model(       mtk::Mesh_Manager*                  aMeshManager,
-                   const uint                                aBSplineIndex,
+                         const uint                                aBSplineIndex,
                          moris::Cell< fem::Set_User_Info > & aSetInfo,
-                   const moris_index                         aMeshPairIndex = 0,
-                   const bool                                aUseMultigrid  = false );
+                         const moris_index                         aMeshPairIndex = 0,
+                         const bool                                aUseMultigrid  = false );
 
-//------------------------------------------------------------------------------
+            //------------------------------------------------------------------------------
             /**
              * constructor
              * @param[ in ] aMeshManager   pointer to mesh info
@@ -141,79 +142,79 @@ class Library_IO;
              * @param[ in ] aUseMultigrid  bool for multigrid use
              */
             Model(       mtk::Mesh_Manager*                  aMeshManager,
-                   const uint                                aBSplineIndex,
+                         const uint                                aBSplineIndex,
                          moris::Cell< fem::Set_User_Info > & aSetInfo,
                          MSI::Design_Variable_Interface    * aDesignVariableInterface,
-                   const moris_index                         aMeshPairIndex = 0,
-                   const bool                                aUseMultigrid  = false );
+                         const moris_index                         aMeshPairIndex = 0,
+                         const bool                                aUseMultigrid  = false );
 
-//------------------------------------------------------------------------------
+            //------------------------------------------------------------------------------
             /**
              * constructor
              * @param[ in ] aBSplineIndex  ???
              * @param[ in ] aMeshPairIndex ???
              */
             Model(       std::shared_ptr< Library_IO > aLibrary,
-                   const uint                aBSplineIndex,
-                   const moris_index         aMeshPairIndex = 0 );
+                         const uint                aBSplineIndex,
+                         const moris_index         aMeshPairIndex = 0 );
 
-//------------------------------------------------------------------------------
+            //------------------------------------------------------------------------------
             /**
              * destructor
              */
             ~Model();
 
-//------------------------------------------------------------------------------
+            //------------------------------------------------------------------------------
             /**
              * solve
              */
             void perform( uint aIndex = 0 );
 
-//------------------------------------------------------------------------------
+            //------------------------------------------------------------------------------
 
             void perform_forward_analysis();
 
-//------------------------------------------------------------------------------
+            //------------------------------------------------------------------------------
 
-           moris::Cell< moris::Matrix< DDRMat > > get_IQI_values();
+            moris::Cell< moris::Matrix< DDRMat > > get_IQI_values();
 
-//------------------------------------------------------------------------------
+            //------------------------------------------------------------------------------
 
             void perform_sensitivity_analysis();
 
-//------------------------------------------------------------------------------
+            //------------------------------------------------------------------------------
 
             void set_solver_warehouse_hack( std::shared_ptr< sol::SOL_Warehouse > aSolverWarehouse)
             {
                 mSolverWarehouse = aSolverWarehouse;
             };
 
-//------------------------------------------------------------------------------
+            //------------------------------------------------------------------------------
             /**
              * set MTK performer
              * @param[ in ] aMTKPerformer the MTK mesh manager
              */
             void set_performer( std::shared_ptr< mtk::Mesh_Manager > aMTKPerformer );
 
-//------------------------------------------------------------------------------
+            //------------------------------------------------------------------------------
 
             void set_design_variable_interface( MSI::Design_Variable_Interface * aDesignVariableInterface );
 
-//------------------------------------------------------------------------------
+            //------------------------------------------------------------------------------
             /**
              * initialize the set - build FEM, MSI, VIS and SOL
              */
             void initialize();
 
 
-//------------------------------------------------------------------------------
+            //------------------------------------------------------------------------------
             /**
              * set dof order
              * @param[ in ] aOrder an order
              */
             void set_dof_order( const uint aOrder );
 
-//------------------------------------------------------------------------------
+            //------------------------------------------------------------------------------
             /**
 
              * get the model solver interface
@@ -223,7 +224,7 @@ class Library_IO;
                 return mModelSolverInterface;
             }
 
-//------------------------------------------------------------------------------
+            //------------------------------------------------------------------------------
             /**
              * get the solver interface
              */
@@ -232,7 +233,7 @@ class Library_IO;
                 return mSolverInterface;
             }
 
-//------------------------------------------------------------------------------
+            //------------------------------------------------------------------------------
             /**
              * get the fem model
              * (used for UT)
@@ -242,7 +243,7 @@ class Library_IO;
                 return mEquationModel;
             }
 
-//------------------------------------------------------------------------------
+            //------------------------------------------------------------------------------
             /**
              * get the adof map
              * @param[ out ] adof map
@@ -252,7 +253,7 @@ class Library_IO;
                 return mAdofMap;
             }
 
-//------------------------------------------------------------------------------
+            //------------------------------------------------------------------------------
             /**
              * FIXME
              * sets the weak BCs
@@ -260,7 +261,7 @@ class Library_IO;
              */
             void set_weak_bcs( const Matrix< DDRMat > & aWeakBCs );
 
-//------------------------------------------------------------------------------
+            //------------------------------------------------------------------------------
             /**
              * FIXME
              * sets the weak BCs from a nodal field
@@ -268,30 +269,30 @@ class Library_IO;
              */
             void set_weak_bcs_from_nodal_field( moris_index aFieldIndex );
 
-//------------------------------------------------------------------------------
-           /*
-            * set output manager
-            * @param[ in ] aOutputManager pointer to output manager
-            */
-           void set_output_manager( vis::Output_Manager * aOutputManager )
-           {
-               mOutputManager = aOutputManager;
-           }
+            //------------------------------------------------------------------------------
+            /*
+             * set output manager
+             * @param[ in ] aOutputManager pointer to output manager
+             */
+            void set_output_manager( vis::Output_Manager * aOutputManager )
+            {
+                mOutputManager = aOutputManager;
+            }
 
-//------------------------------------------------------------------------------
-           /*
-            * output solution
-            * @param[ in ] aVisMeshIndex mesh index on with solution is displayed
-            * @param[ in ] aTime         a time at which solution is displayed
-            * @param[ in ] aCloseFile    boolean indicating the closing of the exodus file
-            */
-           void output_solution( const uint aVisMeshIndex,
-                                 const real aTime,
-                                 const bool aCloseFile );
+            //------------------------------------------------------------------------------
+            /*
+             * output solution
+             * @param[ in ] aVisMeshIndex mesh index on with solution is displayed
+             * @param[ in ] aTime         a time at which solution is displayed
+             * @param[ in ] aCloseFile    boolean indicating the closing of the exodus file
+             */
+            void output_solution( const uint aVisMeshIndex,
+                                  const real aTime,
+                                  const bool aCloseFile );
 
-//------------------------------------------------------------------------------
+            //------------------------------------------------------------------------------
         };
-//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
     } /* namespace mdl */
 } /* namespace moris */
 

@@ -60,6 +60,7 @@ set(TEST_SOURCES
     UT_FEM_IWG_Spalart_Allmaras_Turbulence_Bulk.cpp
     UT_FEM_IWG_Spalart_Allmaras_Turbulence_Dirichlet.cpp
     UT_FEM_IWG_Spalart_Allmaras_Turbulence_Interface.cpp
+	ut_FEM_IQI_Normalization.cpp
     UT_FEM_IQI_Strain_Energy.cpp
     UT_FEM_Input.cpp
     UT_FEM_Geometry_Interpolator.cpp

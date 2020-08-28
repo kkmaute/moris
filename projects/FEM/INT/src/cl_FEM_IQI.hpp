@@ -115,6 +115,7 @@ namespace moris
 
             // Normalization
             real mReferenceValue = 1.0;
+            bool mNormalized = false;
 
             //------------------------------------------------------------------------------
         public :

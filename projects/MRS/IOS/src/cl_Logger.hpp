@@ -58,6 +58,8 @@ namespace moris
             // Clock for tracing and timing
             GlobalClock  mGlobalClock;
 
+            uint mIteration = 0; // FIXME this is absolutely a hack, it doesn't even store the iteration correctly :)
+
         public:
 
             Logger(){}

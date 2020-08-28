@@ -113,7 +113,11 @@ namespace moris
 
         void IQI::set_reference_value(real aReferenceValue)
         {
-            mReferenceValue = aReferenceValue;
+            if (not mNormalized)
+            {
+                mReferenceValue = aReferenceValue;
+                mNormalized = true;
+            }
         }
 
         //------------------------------------------------------------------------------
