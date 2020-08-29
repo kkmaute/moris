@@ -214,13 +214,6 @@ namespace xtk
 
             //--------------------------------------------------------------------------------
             /*!
-            *  @brief Print the memory usage of member class and member data
-            */
-            void
-            print_memory_usage() const;
-
-            //--------------------------------------------------------------------------------
-            /*!
             * @brief get the memory usage of XTK
             */
             moris::Memory_Map
