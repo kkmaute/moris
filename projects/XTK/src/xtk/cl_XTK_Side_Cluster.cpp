@@ -10,6 +10,7 @@
 #include "cl_XTK_Interpolation_Cell_Unzipped.hpp"
 #include "cl_XTK_Child_Mesh.hpp"
 #include "assert.hpp"
+#include "fn_TOL_Capacities.hpp"
 
 namespace xtk
 {
@@ -223,7 +224,25 @@ namespace xtk
     }
     
     //----------------------------------------------------------------
-    
+
+    size_t
+    Side_Cluster::capacity()
+    {
+
+        size_t tTotalSize = 0;
+        tTotalSize += sizeof(mTrivial);
+        tTotalSize += sizeof(mInterpolationCell);
+        tTotalSize += sizeof(mChildMesh);
+        tTotalSize += mIntegrationCells.capacity();
+        tTotalSize += mIntegrationCellSideOrdinals.capacity();
+
+        tTotalSize += mVerticesInCluster.capacity();
+        tTotalSize += moris::internal_capacity(mVertexLocalCoords);
+        tTotalSize += sizeof(mAssociatedCellCluster);
+
+        return tTotalSize;
+    }
+
     void
     Side_Cluster::finalize_setup()
     {

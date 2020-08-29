@@ -125,8 +125,24 @@ namespace xtk
 
         return mChildMesh;
     }
-    //----------------------------------------------------------------
 
+    //----------------------------------------------------------------
+ 
+    size_t
+    Cell_Cluster::capacity()
+    {   
+        size_t tTotalSize = 0;
+        tTotalSize += sizeof(mTrivial);
+        tTotalSize += sizeof(mInterpolationCell);
+        tTotalSize += sizeof(mChildMesh);
+        tTotalSize += mPrimaryIntegrationCells.capacity();
+        tTotalSize += mVoidIntegrationCells.capacity();
+        tTotalSize += mVerticesInCluster.capacity();
+        return tTotalSize;
+    }
+
+    //----------------------------------------------------------------
+ 
 }
 
 

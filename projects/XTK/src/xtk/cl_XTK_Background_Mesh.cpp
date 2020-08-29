@@ -999,6 +999,29 @@ namespace xtk
 
     // ----------------------------------------------------------------------------------
 
+    moris::Memory_Map
+    Background_Mesh::get_memory_usage()
+    {
+        // memory map
+        moris::Memory_Map tMemoryMap;
+
+        tMemoryMap.mMemoryMapData["mMeshData (ptr)"] = sizeof(mMeshData);
+        tMemoryMap.mMemoryMapData["mExternalMeshData"] = mExternalMeshData.capacity();
+        tMemoryMap.mMemoryMapData["mEntityLocaltoGlobalMap"] =moris::internal_capacity(mEntityLocaltoGlobalMap);
+        tMemoryMap.mMemoryMapData["mCommunicationMap"] =mCommunicationMap.capacity();
+        tMemoryMap.mMemoryMapData["mChildMtkCells"] =moris::internal_capacity_ptr(mChildMtkCells);
+        //fixme: add mVertexGlbToLocalMap
+        // tMemoryMap.mMemoryMapData["mVertexGlbToLocalMap"] =moris::internal_capacity(mVertexGlbToLocalMap);
+        tMemoryMap.mMemoryMapData["mXtkMtkVertices"] =mXtkMtkVertices.capacity();
+        tMemoryMap.mMemoryMapData["mNodeIndexToChildMeshIndex"] =mNodeIndexToChildMeshIndex.capacity();
+        tMemoryMap.mMemoryMapData["mElementPhaseIndex"] =mElementPhaseIndex.capacity();
+        tMemoryMap.mMemoryMapData["mInterfaceNodeFlag"] =mInterfaceNodeFlag.capacity();
+
+        return tMemoryMap;
+    }
+
+    // ----------------------------------------------------------------------------------
+
     void
     Background_Mesh::initialize_element_phase_indices(moris::size_t const & aNumElements)
     {

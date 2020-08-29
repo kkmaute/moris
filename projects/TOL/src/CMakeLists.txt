@@ -9,7 +9,8 @@ set(HEADERS
     cl_Debug.hpp
     cl_Enums.hpp
     cl_Geometry.hpp
-    cl_TOL_Memory_Map.hpp )
+    cl_TOL_Memory_Map.hpp
+    fn_TOL_Capacities.hpp )
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Tools Library

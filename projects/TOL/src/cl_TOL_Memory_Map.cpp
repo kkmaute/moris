@@ -17,10 +17,12 @@ namespace moris
 
     // ----------------------------------------------------------------------------------
     void
-    Memory_Map::print_memory_map()
+    Memory_Map::print()
     {
+        std::cout<<"\n----------------------------------------------------------------------------------\n";
         size_t tTotal = 0;
         size_t tWidth = 0;
+        moris::real tTotalPercent= 0.0;
 
         // iterate and collect the total size
         for (auto it = mMemoryMapData.begin(); it != mMemoryMapData.end(); it++)
@@ -40,13 +42,27 @@ namespace moris
                       << " | "
                       << std::right
                       << std::setw(15)
-                      << it->second // string's value
-                      << " | "
-                      << std::setw(9)
+                      << (moris::real) it->second / (1024*8)  // string's value
+                      << " KiB | "
+                      << std::setw(12)
                       << (moris::real)it->second / (moris::real)tTotal * 100
                       << "%"
                       << std::endl;
+            tTotalPercent = tTotalPercent + (moris::real)it->second / (moris::real)tTotal * 100;
         }
+
+        std::cout     << std::left
+                      << std::setw(tWidth + 1)
+                      <<" "
+                      << " | "
+                      << std::right
+                      << std::setw(15)
+                      << tTotal/ (1024*8) 
+                      << " KiB | "
+                      << std::setw(12)
+                      << tTotalPercent
+                      << "%"
+                      << std::endl;
     }
 
     // ----------------------------------------------------------------------------------
@@ -85,5 +101,6 @@ namespace moris
     }
 
     // ----------------------------------------------------------------------------------
+    
  
 } // namespace moris

@@ -16,7 +16,7 @@
 #include "cl_MTK_Cell_Info_Hex8.hpp"
 #include "cl_MTK_Cell_Info_Quad4.hpp"
 #include "fn_isempty.hpp"
-
+#include "cl_TOL_Memory_Map.hpp"
 #include <memory>
 
 namespace xtk
@@ -716,7 +716,42 @@ namespace xtk
     }
 
     //------------------------------------------------------------------------------
+ 
+    moris::Memory_Map
+    Enriched_Integration_Mesh::get_memory_usage()
+    {   
+        // memory map of ig mesh
+       moris::Memory_Map tMM;
+       tMM.mMemoryMapData["mVertexSetNames"] = moris::internal_capacity(mVertexSetNames);
+       tMM.mMemoryMapData["mVerticesInVertexSet"] = moris::internal_capacity(mVerticesInVertexSet);
+       tMM.mMemoryMapData["mVertexSetColors"] = moris::internal_capacity(mVertexSetColors);
+       tMM.mMemoryMapData["mBlockSetNames"] = moris::internal_capacity(mBlockSetNames);
+       tMM.mMemoryMapData["mBlockSetTopology"] = mBlockSetTopology.capacity();
+       tMM.mMemoryMapData["mBlockSetNames"] = moris::internal_capacity(mBlockSetNames);
+       tMM.mMemoryMapData["mPrimaryBlockSetClusters"] = moris::internal_capacity(mPrimaryBlockSetClusters);
+       tMM.mMemoryMapData["mBlockSetColors"] = moris::internal_capacity(mBlockSetColors);
+       tMM.mMemoryMapData["mColorsBlockSets"] = moris::internal_capacity(mColorsBlockSets);
+       tMM.mMemoryMapData["mSideSetLabels"]   = moris::internal_capacity(mSideSetLabels);
+       tMM.mMemoryMapData["mSideSets"] = moris::internal_capacity_nested_ptr(mSideSets);
+       tMM.mMemoryMapData["mSideSetColors"] = moris::internal_capacity(mSideSetColors);
+       tMM.mMemoryMapData["mColorsSideSets"] = moris::internal_capacity(mColorsSideSets);
+       tMM.mMemoryMapData["mDoubleSideSetLabels"] = moris::internal_capacity(mDoubleSideSetLabels);
+       tMM.mMemoryMapData["mDoubleSideSets"] = moris::internal_capacity(mDoubleSideSets);
+       tMM.mMemoryMapData["mDoubleSideSetsMasterIndex"] = moris::internal_capacity(mDoubleSideSetsMasterIndex);
+       tMM.mMemoryMapData["mDoubleSideSetsSlaveIndex"] = moris::internal_capacity(mDoubleSideSetsSlaveIndex);
+//FIXME: Implement capacities down through MTK children
+    //    tMM.mMemoryMapData["mDoubleSideClusters"] = moris::internal_capacity(mDoubleSideClusters);
+       tMM.mMemoryMapData["mDoubleSideSingleSideClusters"] = moris::internal_capacity_ptr(mDoubleSideSingleSideClusters);
+       tMM.mMemoryMapData["mBulkPhaseToDblSideIndex"] = mBulkPhaseToDblSideIndex.capacity();
+       tMM.mMemoryMapData["mMasterDoubleSideSetColor"] = moris::internal_capacity(mMasterDoubleSideSetColor);
+       tMM.mMemoryMapData["mSlaveDoubleSideSetColor"] = moris::internal_capacity(mSlaveDoubleSideSetColor);
+       tMM.mMemoryMapData["mColorMasterDoubleSideSet"] = moris::internal_capacity(mColorMasterDoubleSideSet);
+       tMM.mMemoryMapData["mColorSlaveDoubleSideSet"] = moris::internal_capacity(mColorSlaveDoubleSideSet);
+       return tMM;
+    }
 
+    //------------------------------------------------------------------------------
+ 
     enum CellTopology
     Enriched_Integration_Mesh::get_blockset_topology(const  std::string & aSetName)
     {

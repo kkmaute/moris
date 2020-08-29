@@ -45,6 +45,9 @@ public:
     moris::real                             compute_cluster_cell_measure(const mtk::Primary_Void aPrimaryOrVoid = mtk::Primary_Void::PRIMARY, const mtk::Master_Slave aIsMaster      = mtk::Master_Slave::MASTER) const;
 
 
+    // memory
+    size_t
+    capacity();
 
     void print_vertex_map() const;
     friend class Enriched_Integration_Mesh;

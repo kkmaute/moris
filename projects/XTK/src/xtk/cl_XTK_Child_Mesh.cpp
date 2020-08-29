@@ -2271,7 +2271,7 @@ Child_Mesh::get_memory_usage()
     tMemoryMap.mMemoryMapData["mSubPhaseBinId"] = mSubPhaseBinId.capacity();
     tMemoryMap.mMemoryMapData["mSubPhaseBinIndices"] = mSubPhaseBinIndices.capacity();
     tMemoryMap.mMemoryMapData["mSubPhaseBins"] = mSubPhaseBins.capacity();
-    tMemoryMap.mMemoryMapData["mSubphaseBasisIndices"] = mSubphaseBasisIndices.capacity();
+    tMemoryMap.mMemoryMapData["mSubphaseBasisIndices"] = moris::internal_capacity(mSubphaseBasisIndices);
     tMemoryMap.mMemoryMapData["mSubphaseBasisEnrichmentLevel"] = mSubphaseBasisEnrichmentLevel.capacity();
     tMemoryMap.mMemoryMapData["mDoubleSideSetSubphaseInds"] = mDoubleSideSetSubphaseInds.capacity();
     tMemoryMap.mMemoryMapData["mDoubleSideSetCellPairs"] = mDoubleSideSetCellPairs.capacity();
@@ -2366,6 +2366,7 @@ Child_Mesh::generate_face_connectivity_and_ancestry(moris::Matrix< moris::IndexM
     this->setup_face_ancestry();
 
     mNodeToFace.resize(0,0);
+    
 }
 // ---------------------------------------------------------------------------------
 void
@@ -2386,8 +2387,9 @@ Child_Mesh::generate_edge_connectivity_and_ancestry(moris::Matrix< moris::IndexM
 
     mEdgeOnInterface.resize(1,mEdgeToNode.n_rows());
 
-
     setup_edge_ancestry();
+
+    mNodeToEdge.resize(0,0);
 
 }
 // ---------------------------------------------------------------------------------

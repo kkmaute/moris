@@ -7,6 +7,7 @@
 #define SRC_TOOLS_CL_TOL_MEMORY_MAP_HPP_
 
 #include <unordered_map>
+#include "fn_TOL_Capacities.hpp"
 
 namespace moris
 {
@@ -31,7 +32,7 @@ namespace moris
         * @brief Print the memory usage of the map
         */
         void
-        print_memory_map();
+        print();
 
         // ----------------------------------------------------------------------------------
  

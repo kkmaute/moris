@@ -40,6 +40,10 @@ public:
     Interpolation_Cell_Unzipped const * get_xtk_interpolation_cell() const;
     Child_Mesh const *                  get_xtk_child_mesh() const;
 
+    // memory
+    size_t
+    capacity();
+
 protected:
     bool                                    mTrivial;
     Interpolation_Cell_Unzipped const *     mInterpolationCell;

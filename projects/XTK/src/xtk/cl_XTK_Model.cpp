@@ -3357,7 +3357,7 @@ namespace xtk
         }
 
         Memory_Map tModelMemory =  this->get_memory_usage();
-        tModelMemory.print_memory_map();
+        tModelMemory.print();
     }
 
     // ----------------------------------------------------------------------------------
@@ -3566,28 +3566,6 @@ namespace xtk
         }
     }
 
-    // ----------------------------------------------------------------------------------
-    // Export mesh Source code
-    // ----------------------------------------------------------------------------------
-
-    void
-    Model::extract_surface_mesh_to_obj(
-            std::string                      aOutputFile,
-            size_t                           aPhaseIndex,
-            moris::Cell<std::string> const & aBoundingSideSets)
-    {
-        // start timing on this decomposition
-        std::clock_t start = std::clock();
-
-        // create the output mtk mesh
-        extract_surface_mesh_to_obj_internal(aOutputFile,aPhaseIndex,aBoundingSideSets);
-
-        if(moris::par_rank() == 0  && mVerbose)
-        {
-            std::cout<<"XTK: Extract surface to obj completed in "<< (std::clock() - start) / (double)(CLOCKS_PER_SEC)<<" s."<<std::endl;
-            std::cout<<"XTK: OBJ File: "<<aOutputFile<<std::endl;
-        }
-    }
 
     //------------------------------------------------------------------------------
 
@@ -4081,271 +4059,6 @@ namespace xtk
     }
 
     //------------------------------------------------------------------------------
-
-    void
-    Model::extract_surface_mesh_to_obj_internal(
-            std::string                      aOutputFile,
-            size_t                           aPhaseIndex,
-            moris::Cell<std::string> const & aBoundingSideSets)
-    {
-        MORIS_ERROR(aBoundingSideSets.size() == 6,
-                " There needs to be 6 side sets which skin the mesh to extract the surface");
-
-        // allocate side set data
-        moris::Cell<moris::Matrix<IndexMat>> tElementIndAndSideOrds(2*6);
-        moris::Cell<moris::mtk::MtkSideSetInfo> tBackgroundSideSets(2*6);
-
-        // background mesh data
-        moris::mtk::Mesh const & tMeshData = mBackgroundMesh.get_mesh_data();
-
-        // setup outputting options
-        Output_Options tOutputOptions;
-
-        // Specify there are 2 possible phases
-        size_t tNumPhases = mGeometryEngine->get_num_bulk_phase();
-
-        // Say I only want to output phase 1
-        Cell<size_t> tPhasesToOutput = {aPhaseIndex};
-        tOutputOptions.change_phases_to_output(tNumPhases,tPhasesToOutput);
-
-        // Initialize Sets information structure
-        moris::mtk::MtkSetsInfo tMtkMeshSets;
-
-        moris::uint tNumChildCells   = 0;
-        moris::uint tNumNoChildCells = 0;
-        for(moris::uint i = 0; i <aBoundingSideSets.size(); i++)
-        {
-            moris::uint tNoChildInd = 2*i;
-            moris::uint tChildInd = 2*i+1;
-
-            this->propogate_background_side_set(aBoundingSideSets(i),tNoChildInd,tChildInd,tElementIndAndSideOrds,tBackgroundSideSets,tOutputOptions,true);
-
-            tNumNoChildCells = tNumNoChildCells + tElementIndAndSideOrds(tNoChildInd).n_rows();
-            tNumChildCells = tNumChildCells + tElementIndAndSideOrds(tChildInd).n_rows();
-        }
-
-        // get the interface information
-        Cell<moris::Matrix<moris::IndexMat>> tInterfaceNodes = mBackgroundMesh.get_interface_nodes_glob_ids();
-
-        // interface sides
-        moris::Matrix<moris::IdMat> tInterfaceElemIndandSideOrd = mCutMesh.pack_interface_sides(0,aPhaseIndex,1);
-
-        // tri 3s
-        moris::Matrix<moris::IdMat> tTri3ElemToNode(tNumChildCells + tInterfaceElemIndandSideOrd.n_rows() + tNumNoChildCells*4,3);
-
-        // keep track of nodes that are in skinned mesh
-        moris::uint tNodeCount = 0;
-        moris::Matrix<moris::IdMat> tNodesOnBoundary((tNumNoChildCells*5+tNumChildCells*3 + tInterfaceNodes(aPhaseIndex).numel()) ,1);
-        tNodesOnBoundary.fill(MORIS_ID_MAX);
-
-        // collect tri nodes
-        moris_index tTriCount = 0;
-        for(moris::uint  i = 0; i<6; i++)
-        {
-            moris::uint tChildInd = 2*i+1;
-
-            // iterate through cells in this side set
-            for(moris::uint  j = 0; j <tElementIndAndSideOrds(tChildInd).n_rows(); j++)
-            {
-                // get the mtk cell
-                moris::mtk::Cell const & tCell = mBackgroundMesh.get_mtk_cell(tElementIndAndSideOrds(tChildInd)(j,0));
-
-                moris::Cell<moris::mtk::Vertex const *> tVerticesOnSide = tCell.get_vertices_on_side_ordinal(tElementIndAndSideOrds(tChildInd)(j,1));
-
-                Matrix<IdMat> tVertexIds( 1, tVerticesOnSide.size());
-                for(moris::uint k =0; k < 3; k++)
-                {
-                    tVertexIds(k) = tVerticesOnSide(k)->get_id();
-                    tNodesOnBoundary(tNodeCount) = tVertexIds(k);
-                    tNodeCount++;
-                }
-
-                tTri3ElemToNode.get_row(tTriCount) = tVertexIds.get_row(0);
-                tTriCount++;
-            }
-        }
-
-        // Collect the nodes on the surface and construct a quad 4 / tri 3 mesh
-        // quad 4s
-        uint tQuadCount = 0;
-        moris::Matrix<moris::IdMat> tQuad4ElemToNode(tNumNoChildCells,4);
-
-        for(moris::uint i = 0; i < 6; i++)
-        {
-            moris::uint tNoChildInd = 2*i;
-
-            for(moris::uint  j = 0; j <tElementIndAndSideOrds(tNoChildInd).n_rows(); j++)
-            {
-                // get the mtk cell
-                moris::mtk::Cell const & tCell = mBackgroundMesh.get_mtk_cell(tElementIndAndSideOrds(tNoChildInd)(j,0));
-
-                moris::Cell<moris::mtk::Vertex const *> tVerticesOnSide = tCell.get_vertices_on_side_ordinal(tElementIndAndSideOrds(tNoChildInd)(j,1));
-
-                Matrix<IdMat> tVertexIds( 1, tVerticesOnSide.size());
-
-                for(moris::uint k =0; k < 4; k++)
-                {
-                    tVertexIds(k) = tVerticesOnSide(k)->get_id();
-                    tNodesOnBoundary(tNodeCount) = tVertexIds(k);
-                    tNodeCount++;
-                }
-                tQuad4ElemToNode.get_row(tQuadCount) = tVertexIds.get_row(0);
-                tQuadCount++;
-            }
-        }
-
-        // triangulate quad 4s
-        //
-        // allocate ids for triangulation
-        moris_id tNodeId = mBackgroundMesh.allocate_entity_ids(tQuad4ElemToNode.n_rows(),EntityRank::NODE);
-
-        // template for splitting the quad 4 into tris
-        moris::Matrix<moris::IdMat> tTriangulatedQuadMap = {{0,1,4},{1,2,4},{2,3,4},{3,0,4}};
-
-        moris::Matrix<moris::IdMat> tNodeIdsForTemplate(1,5);
-
-        moris::Matrix<moris::IdMat>  tNewVertexId(tQuad4ElemToNode.n_rows(),1);
-        moris::Matrix<moris::DDRMat> tNewVertexCoords(tQuad4ElemToNode.n_rows(),3);
-        moris::Matrix<moris::DDRMat> tParamCoordCenterQuad( {{ 0.0,  0.0}} );
-
-        for(moris::uint i = 0; i<tQuad4ElemToNode.n_rows(); i++)
-        {
-            // assign ids needed for template
-            tNodeIdsForTemplate({0,0},{0,3})              = tQuad4ElemToNode.get_row(i);
-            tNodeIdsForTemplate(4)                        = tNodeId;
-            tNewVertexId(i)                               = tNodeId;
-            tNodeId++;
-
-            // turn quad into triangles
-            moris::Matrix<moris::IdMat> tTriangulatedQuad = reindex_matrix(tTriangulatedQuadMap,0,tNodeIdsForTemplate);
-
-            // compute vertex coordinate
-            moris::Matrix<moris::DDRMat> tNodeCoordsOnFace(4,3);
-            for(moris::uint j = 0; j < 4; j++)
-            {
-                moris_index tNodeIndex = tMeshData.get_loc_entity_ind_from_entity_glb_id(tNodeIdsForTemplate(j),EntityRank::NODE);
-                tNodeCoordsOnFace.get_row(j) = tMeshData.get_node_coordinate(tNodeIndex).get_row(0);
-            }
-
-            // bilinearly interpolate to the center of this face fi
-            moris::Matrix<moris::DDRMat> tNewNodeCoordinates;
-            xtk::Interpolation::bilinear_interpolation(tNodeCoordsOnFace, tParamCoordCenterQuad, tNewNodeCoordinates);
-            tNewVertexCoords.get_row(i) = tNewNodeCoordinates.get_row(0);
-
-            // add quad to tri 3s
-            for(moris::uint  j = 0; j < 4; j++)
-            {
-                tTri3ElemToNode.get_row(tTriCount) = tTriangulatedQuad.get_row(j);
-                tTriCount++;
-            }
-        }
-
-        // add interface nodes to nodes on boundary
-        tNodesOnBoundary({tNodeCount, tNodeCount + tInterfaceNodes(aPhaseIndex).numel()-1},{0,0}) = moris::trans(tInterfaceNodes(aPhaseIndex));
-        tNodeCount = tNodeCount + tInterfaceNodes(aPhaseIndex).numel();
-
-        // add interface facets
-
-        // iterate through cells in interface
-        for(moris::uint  i = 0; i <tInterfaceElemIndandSideOrd.n_rows(); i++)
-        {
-            // get the mtk cell
-
-            moris::mtk::Cell const & tCell = mBackgroundMesh.get_mtk_cell(tInterfaceElemIndandSideOrd(i,0));
-            moris::Cell<moris::mtk::Vertex const *> tVerticesOnSide = tCell.get_vertices_on_side_ordinal(tInterfaceElemIndandSideOrd(i,1));
-
-            Matrix<IdMat> tVertexIds( 1, tVerticesOnSide.size());
-            for(moris::uint k =0; k < 3; k++)
-            {
-                tVertexIds(k) = tVerticesOnSide(k)->get_id();
-            }
-
-            tTri3ElemToNode.get_row(tTriCount) = tVertexIds.get_row(0);
-            tTriCount++;
-        }
-
-        // assign element ids
-        //fixme: Make these ids unique across processors
-        moris::Matrix<moris::IdMat> tChildFaceElementIds(tTriCount,1);
-        for(moris::uint  i = 0; i <tChildFaceElementIds.numel(); i++)
-        {
-            tChildFaceElementIds(i) = (moris_id)i+1;
-        }
-
-        // Interface elements
-        moris::mtk::MtkBlockSetInfo tTri3Block;
-        tTri3Block.mCellIdsInSet = &tChildFaceElementIds;
-        tTri3Block.mBlockSetName = "tri_surf";
-        tTri3Block.mBlockSetTopo = CellTopology::TRI3;
-        tMtkMeshSets.add_block_set(&tTri3Block);
-
-        // Convert to vertex indices
-        tNodesOnBoundary.resize(tNodeCount,1);
-        moris::Matrix<moris::IdMat> tNodeMap;
-
-        moris::unique( tNodesOnBoundary,tNodeMap);
-        moris::Matrix<moris::IndexMat> tNodeIndices(tNodeMap.numel(),1);
-
-        for(moris::uint i = 0; i <tNodeMap.numel(); i++)
-        {
-            tNodeIndices(i) = mBackgroundMesh.get_loc_entity_ind_from_entity_glb_id(tNodeMap(i),EntityRank::NODE);
-        }
-
-        // Get the node coordinates
-        moris::Matrix<moris::DDRMat> tNodeCoordinates = mBackgroundMesh.get_selected_node_coordinates_loc_inds(tNodeIndices);
-
-        // add nodes created during quad 4
-        uint tNumNodeNoMidside = tNodeCoordinates.n_rows();
-        uint tNumMidsideNodes = tNewVertexId.numel();
-        uint tTotalNumNodes  =  tNumNodeNoMidside + tNumMidsideNodes;
-        tNodeCoordinates.resize(tNumNodeNoMidside + tNumMidsideNodes,3);
-        tNodeCoordinates({tNumNodeNoMidside,tTotalNumNodes-1},{0,2}) = tNewVertexCoords.matrix_data();
-
-        tNodeMap.resize(tTotalNumNodes, 1);
-        tNodeMap({tNumNodeNoMidside, tTotalNumNodes-1},{0,0}) = tNewVertexId.matrix_data();
-
-        // make vertices consecutive for obj output
-        std::unordered_map<moris_index, moris_index> tObjIndex;
-        for(moris::uint i = 0; i < tNodeMap.numel(); i++)
-        {
-            tObjIndex[tNodeMap(i)] = i+1;
-        }
-
-        // renumber vertex
-        for(moris::uint i  = 0; i <tTri3ElemToNode.n_rows(); i++)
-        {
-            for(moris::uint  j = 0; j<tTri3ElemToNode.n_cols(); j++)
-            {
-                auto tIter = tObjIndex.find(tTri3ElemToNode(i,j));
-                tTri3ElemToNode(i,j) = tIter->second;
-            }
-        }
-
-        // write to an obj file
-        std::string tParObjPath =  moris::make_path_parallel( aOutputFile );
-
-        std::ofstream tOFS (tParObjPath, std::ofstream::out);
-
-        tOFS << std::setprecision (15);
-
-        tOFS << "# XTK OBJ EXTRACTION"<<std::endl;
-
-        // add vertices
-        for(moris::uint i = 0 ; i < tNodeCoordinates.n_rows(); i++)
-        {
-            tOFS << std::scientific << "v "<< tNodeCoordinates(i,0) <<" "<< tNodeCoordinates(i,1) << " "<< tNodeCoordinates(i,2) <<std::endl;
-        }
-
-        // add facets
-        for(moris::uint i = 0; i < tTri3ElemToNode.n_rows(); i++)
-        {
-            tOFS << "f "<< tTri3ElemToNode(i,0) <<" "<< tTri3ElemToNode(i,1)<< " "<< tTri3ElemToNode(i,2) <<std::endl;
-        }
-
-        tOFS.close();
-    }
-
-    // ----------------------------------------------------------------------------------
 
     moris::mtk::Integration_Mesh*
     Model::get_output_mesh(Output_Options const & aOutputOptions)
@@ -5568,72 +5281,38 @@ namespace xtk
     }
 
     //------------------------------------------------------------------------------
-
-    void
-    Model::print_memory_usage() const
-    {
-        // member data sizes
-        std::size_t tTotalSize        = sizeof(*this);
-        std::size_t tBGMeshSize       = sizeof(mBackgroundMesh);
-        std::size_t tCutMeshSize      = sizeof(mCutMesh);
-        std::size_t tCellGlbtoLocSize = sizeof(mCellGlbToLocalMap);
-
-        // neighborhood data sizes
-        // std::size_t tElementToElementSize               = sizeof(mElementToElement);
-        // std::size_t tSubphaseToSubPhaseSize             = sizeof(mSubphaseToSubPhase);
-        // std::size_t tSubphaseToSubPhaseMySideOrdsSize   = sizeof(mSubphaseToSubPhaseMySideOrds);
-        // std::size_t tSubphaseToSubPhaseNeighborSideOrdsSize = sizeof(mSubphaseToSubPhaseNeighborSideOrds);
-        std::size_t tElementToElementSize                   = mElementToElement.capacity();
-        std::size_t tSubphaseToSubPhaseSize                 = mSubphaseToSubPhase.capacity();
-        std::size_t tSubphaseToSubPhaseMySideOrdsSize       = mSubphaseToSubPhaseMySideOrds.capacity();
-        std::size_t tSubphaseToSubPhaseNeighborSideOrdsSize = mSubphaseToSubPhaseNeighborSideOrds.capacity();
-
-        // Percentage of the total memory usage
-        moris::real tPercentBgMesh   = (real) tBGMeshSize / (real) tTotalSize*100;
-        moris::real tPercentCutMesh  = (real) tCutMeshSize / (real) tTotalSize*100;
-        moris::real tPercentGlbToLoc = (real) tCellGlbtoLocSize / (real) tTotalSize*100;
-        
-        // neighborhood data percentages
-        moris::real tElementToElementPercent                   =  (real) tElementToElementSize / (real) tTotalSize*100;
-        moris::real tSubphaseToSubPhasePercent                 =  (real) tSubphaseToSubPhaseSize / (real) tTotalSize*100;
-        moris::real tSubphaseToSubPhaseMySideOrdsPercent       =  (real) tSubphaseToSubPhaseMySideOrdsSize / (real) tTotalSize*100;
-        moris::real tSubphaseToSubPhaseNeighborSideOrdsPercent =  (real) tSubphaseToSubPhaseNeighborSideOrdsSize / (real) tTotalSize*100;
-
-        // Data that is not owned by the model but useful to print
-        std::size_t tEnrichmentSize       = sizeof(*mEnrichment);
-        std::size_t tGhostSize            = sizeof(*mGhostStabilization);
-        std::size_t tEnrichmentIgMeshSize = sizeof(mEnrichedIntegMesh);
-        std::size_t tEnrichmentIpMeshSize = sizeof(mEnrichedInterpMesh);
-        std::size_t tMultigridSize        = sizeof(*mMultigrid);
-        
-        std::cout<<"Model Owned Data Sizes:"<<std::endl;
-        std::cout<<"Total of Model:                              " << std::setw(8) << tTotalSize                              <<" bytes.\n"
-                 <<"    Size of Background Mesh:                 " << std::setw(8) << tBGMeshSize                             <<" bytes | " << tPercentBgMesh <<"%\n"
-                 <<"    Size of Cut Mesh:                        " << std::setw(8) << tCutMeshSize                            <<" bytes | " << tPercentCutMesh<<"%\n"
-                 <<"    Size of Cell to Cell:                    " << std::setw(8) << tElementToElementSize                   <<" bytes | " << tElementToElementPercent<<"%\n"
-                 <<"    Size of Subphase to Subphase:            " << std::setw(8) << tSubphaseToSubPhaseSize                 <<" bytes | " << tSubphaseToSubPhasePercent<<"%\n"
-                 <<"    Size of Subphase to Subphase Ords:       " << std::setw(8) << tSubphaseToSubPhaseMySideOrdsSize       <<" bytes | " << tSubphaseToSubPhaseMySideOrdsPercent<<"%\n"
-                 <<"    Size of Subphase to Subphase Neigh Ords: " << std::setw(8) << tSubphaseToSubPhaseNeighborSideOrdsSize <<" bytes | " << tSubphaseToSubPhaseNeighborSideOrdsPercent<<"%\n"
-                 <<"Data not owned by XTK Model Sizes:" <<"\n"
-                 <<"    Size of Enrichment:          "  << std::setw(8) << tEnrichmentSize<<"\n"
-                 <<"    Size of Ghost Stabilization: "  << std::setw(8) << tGhostSize<<"\n"
-                 <<"    Size of Enriched IG Meshes:  "  << std::setw(8) << tEnrichmentIgMeshSize<<"\n"
-                 <<"    Size of Enriched IG Meshes:  "  << std::setw(8) << tEnrichmentIpMeshSize<<"\n"
-                 <<"    Size of Multigrid:           "  << std::setw(8) << tMultigridSize<<"\n";
-                 
-
-
-    }
-
     moris::Memory_Map
     Model::get_memory_usage()
     {
         moris::Memory_Map tXTKModelMM;
-        moris::Memory_Map tCutMeshMM = mCutMesh.get_memory_usage();
+
+        moris::Memory_Map tCutMeshMM    = mCutMesh.get_memory_usage();
+        tCutMeshMM.print();
+
+        // Background Mesh
+        moris::Memory_Map tEnrichmentMM = mEnrichment->get_memory_usage();
+        moris::Memory_Map tIgMeshMM     = mEnrichedIntegMesh(0)->get_memory_usage();
+        moris::Memory_Map tBGMeshMM     = mBackgroundMesh.get_memory_usage();
+
+        // Interpolation Mesh
+        // Ghost Stabilization
         
         // make the sum of the cut mesh memory map the cut mesh memory
         tXTKModelMM.mMemoryMapData["Cut Mesh"] = tCutMeshMM.sum();
+        tXTKModelMM.mMemoryMapData["Enrichment"] = tEnrichmentMM.sum();
+        tXTKModelMM.mMemoryMapData["Enriched Ig Mesh"] = tIgMeshMM.sum();
+        tXTKModelMM.mMemoryMapData["Background Mesh"] = tBGMeshMM.sum();
+        tXTKModelMM.mMemoryMapData["mElementToElement ptrs"] = moris::internal_capacity(mElementToElement);
+        tXTKModelMM.mMemoryMapData["mElementToElement ptrs"] = moris::internal_capacity(mElementToElement);
+        tXTKModelMM.mMemoryMapData["mSubphaseToSubPhase"] = moris::internal_capacity(mSubphaseToSubPhase);
+        tXTKModelMM.mMemoryMapData["mSubphaseToSubPhaseMySideOrds"] = moris::internal_capacity(mSubphaseToSubPhaseMySideOrds);
+        tXTKModelMM.mMemoryMapData["mSubphaseToSubPhaseNeighborSideOrds"] = moris::internal_capacity(mSubphaseToSubPhaseNeighborSideOrds);
 
+        tCutMeshMM.print();
+        tEnrichmentMM.print();
+        tIgMeshMM.print();
+        tBGMeshMM.print();
+        return tXTKModelMM;
 
     }
 

@@ -216,6 +216,16 @@ public:
     get_interpolation_order() const = 0;
 
     //------------------------------------------------------------------------------
+
+    /**
+     * returns the order of the element
+     */
+    virtual size_t
+    capacity()
+    {
+        MORIS_ERROR(0,"No default implementation");
+        return 0;
+    };
 };
 
 //------------------------------------------------------------------------------

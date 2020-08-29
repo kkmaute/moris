@@ -65,6 +65,7 @@ namespace xtk
 
         // Perform enrichment over basis clusters
         perform_basis_cluster_enrichment();
+
     }
 
     //-------------------------------------------------------------------------------------
@@ -85,10 +86,36 @@ namespace xtk
 
     //-------------------------------------------------------------------------------------
 
-    Cell<moris::Matrix< moris::IndexMat >> const &
-    Enrichment::get_subphases_loc_inds_in_enriched_basis(moris_index const & aEnrichmentDataIndex ) const
+    Cell<moris::Matrix<moris::IndexMat>> const &
+    Enrichment::get_subphases_loc_inds_in_enriched_basis(moris_index const &aEnrichmentDataIndex) const
     {
         return mEnrichmentData(aEnrichmentDataIndex).mSubphaseIndsInEnrichedBasis;
+    }
+
+    //-------------------------------------------------------------------------------------
+
+    moris::Memory_Map
+    Enrichment::get_memory_usage()
+    {
+        Memory_Map tMemoryMap;
+
+        tMemoryMap.mMemoryMapData["mEnrichmentMethod"] = sizeof(mEnrichmentMethod);
+        tMemoryMap.mMemoryMapData["mBasisRank"] = sizeof(mBasisRank);
+        tMemoryMap.mMemoryMapData["mMeshIndices"] = mMeshIndices.capacity();
+        tMemoryMap.mMemoryMapData["mNumBulkPhases"] = sizeof(mNumBulkPhases);
+        tMemoryMap.mMemoryMapData["mMeshIndices"] = mMeshIndices.capacity();
+        
+        tMemoryMap.mMemoryMapData["mElementEnrichmentLevel"]      = moris::internal_capacity( mEnrichmentData(0).mElementEnrichmentLevel );
+        tMemoryMap.mMemoryMapData["mElementIndsInBasis"]          = moris::internal_capacity(mEnrichmentData(0).mElementIndsInBasis);
+        tMemoryMap.mMemoryMapData["mSubphaseIndsInEnrichedBasis"] = moris::internal_capacity(mEnrichmentData(0).mSubphaseIndsInEnrichedBasis);
+        tMemoryMap.mMemoryMapData["mBasisEnrichmentIndices"]      = moris::internal_capacity(mEnrichmentData(0).mBasisEnrichmentIndices);
+        tMemoryMap.mMemoryMapData["mEnrichedBasisIndexToId"]      = mEnrichmentData(0).mEnrichedBasisIndexToId.capacity();
+        tMemoryMap.mMemoryMapData["mSubphaseBGBasisIndices"]      = moris::internal_capacity(mEnrichmentData(0).mSubphaseBGBasisIndices);
+        tMemoryMap.mMemoryMapData["mSubphaseBGBasisEnrLev"]       = moris::internal_capacity(mEnrichmentData(0).mSubphaseBGBasisEnrLev);
+        tMemoryMap.mMemoryMapData["mNumEnrichmentLevels"]         = sizeof( mEnrichmentData(0).mNumEnrichmentLevels);
+        tMemoryMap.mMemoryMapData["mBGVertexInterpolations ptrs"] = mEnrichmentData(0).mBGVertexInterpolations.capacity();
+
+        return tMemoryMap;
     }
 
     //-------------------------------------------------------------------------------------

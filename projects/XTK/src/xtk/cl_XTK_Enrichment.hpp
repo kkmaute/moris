@@ -44,6 +44,7 @@
 #include "cl_XTK_Vertex_Enrichment.hpp"
 #include "cl_MTK_Vertex_Interpolation.hpp"
 
+#include "cl_TOL_Memory_Map.hpp"
 /*
  * This class provides all the functions to perform the enrichment strategy on a child mesh
  */
@@ -177,8 +178,16 @@ namespace xtk
             Cell<moris::Matrix< moris::IndexMat >> const &
             get_element_enrichment_levels_in_basis_support(moris_index const & aEnrichmentDataIndex = 0) const;
 
+            // ----------------------------------------------------------------------------------
+ 
+            /*!
+            * @brief get the memory usage of enrichment
+            */
+            moris::Memory_Map
+            get_memory_usage();
 
-
+            // ----------------------------------------------------------------------------------
+ 
             typedef std::unordered_map<moris::moris_index,moris::moris_index> IndexMap;
             friend class Multigrid;
         private:

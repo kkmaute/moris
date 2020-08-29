@@ -793,7 +793,7 @@ namespace xtk
         {
             tMemoryMapCMs = tMemoryMapCMs + mChildrenMeshes(i).get_memory_usage();
         }
-
+    
         tMemoryMap.mMemoryMapData["Child Meshes"] = tMemoryMapCMs.sum();
         tMemoryMap.mMemoryMapData["mSpatialDim"]  = sizeof(mSpatialDim);
         tMemoryMap.mMemoryMapData["mOwnedChildrenMeshes"] = mOwnedChildrenMeshes.capacity();
