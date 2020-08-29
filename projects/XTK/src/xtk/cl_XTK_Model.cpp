@@ -3352,8 +3352,6 @@ namespace xtk
             std::cout<<"XTK: Basis enrichment computation completed in " <<(std::clock() - start) / (double)(CLOCKS_PER_SEC)<<" s."<<std::endl;
             std::cout<<"XTK: Basis enrichment performed on mesh index: "<< aMeshIndex<<std::endl;
         }
-    
-        tModelMemory.print();
     }
 
     // ----------------------------------------------------------------------------------

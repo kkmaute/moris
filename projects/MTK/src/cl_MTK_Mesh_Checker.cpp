@@ -262,6 +262,8 @@ Mesh_Checker::verify_vertex_ownership(Serialized_Mesh_Data* aSerializedMesh)
             for(moris::uint iV = 0; iV < aSerializedMesh->mCollectVertexIds(iP).numel(); iV++)
             {
                 moris_id tVertexId = aSerializedMesh->mCollectVertexIds(iP)(iV);
+
+                /*
                 moris_id tVertexOwner = aSerializedMesh->mCollectVertexOwners(iP)(iV);
 
                 bool tNodeExists = true;
@@ -272,7 +274,7 @@ Mesh_Checker::verify_vertex_ownership(Serialized_Mesh_Data* aSerializedMesh)
 
                     tNodeExists =false;
                 }
-
+                */
 
                 MORIS_ASSERT(aSerializedMesh->mCollectVertexMaps(iP).find(tVertexId) == aSerializedMesh->mCollectVertexMaps(iP).end(),"Vertex id already in the map");
                 aSerializedMesh->mCollectVertexMaps(iP)[tVertexId] = iV;

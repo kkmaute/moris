@@ -13,7 +13,7 @@ namespace xtk
     // ----------------------------------------------------------------------------------
     // Constructor/Deconstructor Source code
     // ----------------------------------------------------------------------------------
-    Cell_XTK_CM::Cell_XTK_CM(){};
+    Cell_XTK_CM::Cell_XTK_CM(){}
 
     Cell_XTK_CM::Cell_XTK_CM(moris::moris_id aElementId,
                              moris::moris_index aElementIndex,
@@ -45,7 +45,7 @@ namespace xtk
 
     // ----------------------------------------------------------------------------------
 
-    Cell_XTK_CM::~Cell_XTK_CM(){};
+    Cell_XTK_CM::~Cell_XTK_CM(){}
 
     // ----------------------------------------------------------------------------------
     moris_id

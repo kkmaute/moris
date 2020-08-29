@@ -14,7 +14,7 @@ namespace moris
     {
         //------------------------------------------------------------------------------
 
-        Vertex_XTK::Vertex_XTK(){};
+        Vertex_XTK::Vertex_XTK(){}
 
         //------------------------------------------------------------------------------
 
@@ -25,20 +25,23 @@ namespace moris
               mVertexIndex(aVertexIndex),
               mBackgroundMeshPtr(aBackgroundMeshPtr){
 
-              };
+              }
 
         //------------------------------------------------------------------------------
+
         Vertex_XTK::Vertex_XTK(mtk::Vertex * aBackgroundMeshVertex)
             : mVertexId(aBackgroundMeshVertex->get_id()),
               mVertexIndex(aBackgroundMeshVertex->get_index()),
               mBackgroundMeshVertex(aBackgroundMeshVertex)
         {
         }
-        //------------------------------------------------------------------------------
-
-        Vertex_XTK::~Vertex_XTK(){};
 
         //------------------------------------------------------------------------------
+
+        Vertex_XTK::~Vertex_XTK(){}
+
+        //------------------------------------------------------------------------------
+
         void
         Vertex_XTK::set_vertex_interpolation(Vertex_Interpolation_XTK * aVertexInterpolation)
         {
