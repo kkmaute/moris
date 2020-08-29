@@ -33,6 +33,7 @@ namespace moris
                 enum class IWG_Property_Type
                 {
                     LOAD,
+                    BEDDING,
                     MAX_ENUM
                 };
 
