@@ -1,7 +1,3 @@
-//
-// Created by christopherson on 9/13/19.
-//
-
 #ifndef MORIS_CL_MTK_WRITER_EXODUS_HPP
 #define MORIS_CL_MTK_WRITER_EXODUS_HPP
 

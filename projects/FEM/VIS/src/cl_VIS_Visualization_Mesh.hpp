@@ -32,6 +32,8 @@ protected:
     moris::Cell< moris::mtk::Set * > mListofBlocks;
     moris::Cell< moris::mtk::Set * > mListofSideSets;
 
+    moris::Cell< moris::mtk::Vertex const * > mAllVertices;
+    moris::Cell< mtk::Cell const * >                  mAllCells;
     moris::Cell< moris::Cell< mtk::Cell * > >   mCellsOnSet;
     moris::Cell< moris::Cell< mtk::Vertex * > >  mVerticesOnSet;
     moris::Cell< moris::Cell< const mtk::Cluster * > >        mClustersOnBlock;
@@ -55,6 +57,22 @@ public:
                                                                                             mOnlyPrimary( aOnlyPrimary )
     {
         this->collect_all_sets();
+
+        // All vertices/cells
+        mAllCells = moris::Cell< mtk::Cell const * >( this->get_num_elems() );
+        uint tNumBlocks = this->get_num_blocks();
+        for(uint Ik=0; Ik < tNumBlocks; Ik ++)
+        {
+            for(uint Ii=0; Ii < mVerticesOnSet( Ik ).size(); Ii ++)
+            {
+                mAllVertices.push_back(mVerticesOnSet( Ik )( Ii ));
+            }
+
+            for(uint Ii=0; Ii < mCellsOnSet( Ik ).size(); Ii ++)
+            {
+                mAllCells( mCellsOnSet( Ik )( Ii )->get_index() ) = mCellsOnSet( Ik )( Ii );
+            }
+        }
     }
 
     // ----------------------------------------------------------------------------
@@ -113,26 +131,14 @@ public:
         return tSetNames;
     }
 
-// ----------------------------------------------------------------------------
-
-
-    //------------------------------------------------------------------------------
-    /*
-     * Get number of nodes
+    /**
+     * Get the number of nodes on the mesh.
+     *
+     * @return Number of nodes
      */
     uint get_num_nodes() const
     {
-        uint tNumBlocks = this->get_num_blocks();
-
-        uint tNumNodes = 0;
-
-        for(uint Ik=0; Ik<tNumBlocks; Ik ++)
-        {
-            moris::mtk::Set * tSet = this->get_set_by_index( Ik);
-
-            tNumNodes += tSet->get_num_vertices_on_set( mOnlyPrimary );
-        }
-        return tNumNodes;
+        return mAllVertices.size();
     }
 
     // ----------------------------------------------------------------------------
@@ -177,21 +183,7 @@ public:
 
     moris::Cell< moris::mtk::Vertex const * > get_all_vertices() const
     {
-        uint tNumBlocks = this->get_num_blocks();
-
-        moris::Cell< moris::mtk::Vertex const * > tVertices( this->get_num_nodes() );
-
-        uint tCounter = 0;
-        for(uint Ik=0; Ik < tNumBlocks; Ik ++)
-        {
-
-            for(uint Ii=0; Ii < mVerticesOnSet( Ik ).size(); Ii ++)
-            {
-                tVertices( tCounter++ ) = mVerticesOnSet( Ik )( Ii ) ;
-            }
-        }
-
-        return tVertices;
+        return mAllVertices;
     }
 
     // ----------------------------------------------------------------------------
@@ -249,35 +241,16 @@ public:
         return mListofSideSets.size();
     };
 
-
-
-//
-//    /*
-//     * Get cell clusters within a block set
-//     */
-//    virtual
-//    moris::Cell<Cluster const *>
-//    get_cell_clusters_in_set(moris_index aBlockSetOrdinal) const = 0;
-//
-//    //##############################################
-//    // Side Set Cluster Access
-//    //##############################################
-//    /*!
-//     * Get side clusters within a side set
-//     */
-//    virtual
-//    moris::Cell<Cluster const *>
-//    get_side_set_cluster(moris_index aSideSetOrdinal) const = 0;
-//
-//
-//    // ----------------------------------------------------------------------------
-//
-//    /*!
-//     * Returns the label
-//     */
-//    virtual
-//    std::string
-//    get_side_set_label(moris_index aSideSetOrdinal) const = 0;
+    /**
+     * Gets element indices in a block set.
+     *
+     * @param aSetIndex Block set index
+     * @return Element indices in the set
+     */
+    Matrix<IndexMat> get_element_indices_in_block_set(uint aSetIndex)
+    {
+        return mListofBlocks(aSetIndex)->get_cell_inds_on_block(false);
+    }
 
     MeshType get_mesh_type() const
     {
@@ -301,6 +274,12 @@ public:
         return 0;
     }
 
+    Matrix< IndexMat >
+    get_nodes_connected_to_element_loc_inds(moris_index aElementIndex) const
+    {
+        return mAllCells(aElementIndex)->get_vertex_inds();
+    }
+
     Matrix<IndexMat> get_entity_connected_to_entity_loc_inds (moris_index     aEntityIndex,
                                                              enum EntityRank aInputEntityRank,
                                                              enum EntityRank aOutputEntityRank,
@@ -320,6 +299,51 @@ public:
     {
          MORIS_ERROR( false, "get_entity_connected_to_entity_loc_inds(), not implemented for visualization mesh" );
         return Matrix<IndexMat>( 0, 0 );
+    }
+
+    /**
+     * Get the spatial coordinates of a node.
+     *
+     * @param aNodeIndex Node index
+     * @return Node coordinates
+     */
+    Matrix< DDRMat >
+    get_node_coordinate( moris_index aNodeIndex ) const
+    {
+        return mAllVertices(aNodeIndex)->get_coords();
+    }
+
+
+    /**
+     * Get a global entity ID from an entity rank and local index.
+     *
+     * @param aEntityIndex Local entity index
+     * @param aEntityRank Entity rank
+     * @param aBSplineMeshIndex B-spline mesh Index
+     * @return Global entity ID
+     */
+    moris_id
+    get_glb_entity_id_from_entity_loc_index(
+            moris_index        aEntityIndex,
+            enum EntityRank    aEntityRank,
+            const moris_index  aBSplineMeshIndex = 0) const
+    {
+        switch (aEntityRank)
+        {
+            case EntityRank::NODE:
+                return mAllVertices(aEntityIndex)->get_id();
+            case EntityRank::ELEMENT:
+                return mAllCells(aEntityIndex)->get_id();
+            default:
+                MORIS_ERROR(false, "VIS mesh get_glb_entity_id_from_entity_loc_index() needs to be implemented.");
+                return 0;
+        }
+    }
+
+    enum CellTopology
+    get_blockset_topology(const std::string & aSetName)
+    {
+        return mListofBlocks(mSetNameToIndexMap[aSetName])->get_cell_topology();
     }
 
 protected:

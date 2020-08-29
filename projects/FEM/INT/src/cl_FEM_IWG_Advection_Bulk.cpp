@@ -12,6 +12,7 @@ namespace moris
     namespace fem
     {
         //------------------------------------------------------------------------------
+
         IWG_Advection_Bulk::IWG_Advection_Bulk()
         {
             // set size for the constitutive model pointer cell
@@ -28,6 +29,7 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+
         void IWG_Advection_Bulk::set_constitutive_model(
                 std::shared_ptr< Constitutive_Model > aConstitutiveModel,
                 std::string                           aConstitutiveString,
@@ -52,6 +54,7 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+
         void IWG_Advection_Bulk::set_stabilization_parameter(
                 std::shared_ptr< Stabilization_Parameter > aStabilizationParameter,
                 std::string                                aStabilizationString )
@@ -68,6 +71,7 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+
         void IWG_Advection_Bulk::compute_residual( real aWStar )
         {
             // check master field interpolators
@@ -102,13 +106,17 @@ namespace moris
             // compute the residual
             mSet->get_residual()( 0 )(
                     { tMasterResStartIndex, tMasterResStopIndex },
-                    { 0, 0 } ) +=
-                            aWStar * (
-                                    trans( tFITemp->N() ) * trans( tFIVelocity->val() ) * tCMDiffusion->gradEnergy() +
-                                    tSPSUPG->val()( 0 ) * trans( tFITemp->dnNdxn( 1 ) ) * tFIVelocity->val() * tRT( 0, 0 ) );
+                    { 0, 0 } ) += aWStar * (
+                            trans( tFITemp->N() ) * trans( tFIVelocity->val() ) * tCMDiffusion->gradEnergy() +
+                            tSPSUPG->val()( 0 ) * trans( tFITemp->dnNdxn( 1 ) ) * tFIVelocity->val() * tRT( 0, 0 ) );
+
+            // check for nan, infinity
+            MORIS_ERROR( isfinite( mSet->get_residual()( 0 ) ),
+                    "IWG_Advection_Bulk::compute_residual - Residual contains NAN or INF, exiting!");
         }
 
         //------------------------------------------------------------------------------
+
         void IWG_Advection_Bulk::compute_jacobian( real aWStar )
         {
 #ifdef DEBUG
@@ -198,21 +206,28 @@ namespace moris
                                     tRT( 0, 0 ) * tSPSUPG->dSPdMasterDOF( tDofType );
                 }
             }
+
+            // check for nan, infinity
+            MORIS_ERROR( isfinite( mSet->get_jacobian() ),
+                    "IWG_Advection_Bulk::compute_jacobian - Jacobian contains NAN or INF, exiting!");
         }
 
         //------------------------------------------------------------------------------
+
         void IWG_Advection_Bulk::compute_jacobian_and_residual( real aWStar )
         {
             MORIS_ERROR( false, "IWG_Advection_Bulk::compute_jacobian_and_residual - Not implemented." );
         }
 
         //------------------------------------------------------------------------------
+
         void IWG_Advection_Bulk::compute_dRdp( real aWStar )
         {
             MORIS_ERROR( false, "IWG_Advection_Bulk::compute_dRdp - Not implemented." );
         }
 
         //------------------------------------------------------------------------------
+
         void IWG_Advection_Bulk::compute_residual_strong_form( Matrix< DDRMat > & aRT )
         {
             // get the velocity dof field interpolator
@@ -228,6 +243,7 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+
         void IWG_Advection_Bulk::compute_jacobian_strong_form (
                 moris::Cell< MSI::Dof_Type > & aDofTypes,
                 Matrix< DDRMat >             & aJT )

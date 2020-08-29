@@ -15,11 +15,9 @@ namespace moris
         {
 
         private:
-            std::string mFieldName;
             mtk::Mesh* mMesh;
+            std::string mFieldName;
             EntityRank mEntityRank;
-            uint mNumOriginalNodes;
-            Cell<std::shared_ptr<Child_Node>> mChildNodes;
 
         public:
             /**
@@ -44,6 +42,8 @@ namespace moris
              */
             real evaluate_field_value(uint aNodeIndex);
 
+        private:
+
             /**
              * Given a node index, evaluates the sensitivity of the geometry field with respect to all of the
              * geometry variables. This is currently not implemented for a mesh field geometry.
@@ -52,14 +52,6 @@ namespace moris
              * @param aSensitivities Vector of sensitivities
              */
             void evaluate_all_sensitivities(uint aNodeIndex, Matrix<DDRMat>& aSensitivities);
-
-            /**
-             * Add a new child node for evaluation
-             *
-             * @param aNodeIndex Index of the child node
-             * @param aChildNode Contains information about how the child node was created
-             */
-            void add_child_node(uint aNodeIndex, std::shared_ptr<Child_Node> aChildNode);
 
         };
     }

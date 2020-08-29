@@ -20,13 +20,14 @@ namespace moris
     {
 
         //------------------------------------------------------------------------------
+
         IWG_Compressible_NS_Temperature_Bulk::IWG_Compressible_NS_Temperature_Bulk()
         {
             // set size for the property pointer cell
             mMasterProp.resize( static_cast< uint >( IWG_Property_Type::MAX_ENUM ), nullptr );
 
             // populate the property map
-            mPropertyMap[ "BodyForce" ] = IWG_Property_Type::BODY_FORCE;
+            mPropertyMap[ "BodyForce" ]     = IWG_Property_Type::BODY_FORCE;
             mPropertyMap[ "BodyHeatLoad" ]  = IWG_Property_Type::BODY_HEAT_LOAD;
 
             // set size for the constitutive model pointer cell
@@ -37,6 +38,7 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+
         void IWG_Compressible_NS_Temperature_Bulk::set_property(
                 std::shared_ptr< Property > aProperty,
                 std::string                 aPropertyString,
@@ -57,6 +59,7 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+
         void IWG_Compressible_NS_Temperature_Bulk::set_constitutive_model(
                 std::shared_ptr< Constitutive_Model > aConstitutiveModel,
                 std::string                           aConstitutiveString,
@@ -77,6 +80,7 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+
         void IWG_Compressible_NS_Temperature_Bulk::set_stabilization_parameter(
                 std::shared_ptr< Stabilization_Parameter > aStabilizationParameter,
                 std::string                                aStabilizationString )
@@ -85,6 +89,7 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+
         void IWG_Compressible_NS_Temperature_Bulk::compute_residual( real aWStar )
         {
             // check master field interpolators
@@ -111,10 +116,14 @@ namespace moris
             std::shared_ptr< Constitutive_Model > tCMFluid = mMasterCM( static_cast< uint >( IWG_Constitutive_Type::FLUID ) );
 
             // compute the residual
-            mSet->get_residual()( 0 )( { tMasterResStartIndex, tMasterResStopIndex }, { 0, 0 } )
-                    += aWStar * (
+            mSet->get_residual()( 0 )(
+                    { tMasterResStartIndex, tMasterResStopIndex },
+                    { 0, 0 } ) += aWStar * (
                             trans( tFITemp->N() ) * tCMFluid->EnergyDot() +
-                            trans( tFITemp->dnNdxn( 1 ) ) * tCMFluid->flux() );
+                            trans( tFITemp->dnNdxn( 1 ) ) *
+                            ( tCMFluid->flux( CM_Function_Type::WORK ) -
+                              tCMFluid->flux( CM_Function_Type::ENERGY ) -
+                              tCMFluid->flux( CM_Function_Type::THERMAL ) ) );
 
             // if there is a body force
             if ( tPropBodyForce != nullptr )
@@ -123,17 +132,25 @@ namespace moris
                 Field_Interpolator * tFIDensity =  mMasterFIManager->get_field_interpolators_for_type( mDofDensity );
 
                 // add contribution
-                mSet->get_residual()( 0 )( { tMasterResStartIndex, tMasterResStopIndex }, { 0, 0 } )
-                        += aWStar * ( dot( tPropBodyForce->val(), tFIVelocity->val() ) * tFIDensity->val() * trans( tFITemp->N() ) );
+                mSet->get_residual()( 0 )(
+                        { tMasterResStartIndex, tMasterResStopIndex },
+                        { 0, 0 } ) += aWStar * (
+                                dot( tPropBodyForce->val(), tFIVelocity->val() ) * tFIDensity->val() * trans( tFITemp->N() ) );
             }
 
             // if there is a body heat load
             if ( tPropBodyHeatLoad != nullptr )
             {
                 // add contribution
-                mSet->get_residual()( 0 )( { tMasterResStartIndex, tMasterResStopIndex }, { 0, 0 } )
-                        += aWStar * ( trans( tFITemp->N() ) * tPropBodyHeatLoad->val() );
+                mSet->get_residual()( 0 )(
+                        { tMasterResStartIndex, tMasterResStopIndex },
+                        { 0, 0 } ) += aWStar * (
+                                trans( tFITemp->N() ) * tPropBodyHeatLoad->val() );
             }
+
+            // check for nan, infinity
+            MORIS_ERROR( isfinite( mSet->get_residual()( 0 ) ),
+                    "IWG_Compressible_NS_Temperature_Bulk::compute_residual - Residual contains NAN or INF, exiting!");
         }
 
         //------------------------------------------------------------------------------
@@ -182,7 +199,10 @@ namespace moris
                             { tMasterResStartIndex, tMasterResStopIndex },
                             { tMasterDepStartIndex, tMasterDepStopIndex } ) += aWStar * (
                                     trans( tFITemp->N() ) * tCMFluid->dEnergyDotdDOF( tDofType ) -
-                                    trans( tFITemp->dnNdxn( 1 ) ) * tCMFluid->dFluxdDOF( tDofType ) );
+                                    trans( tFITemp->dnNdxn( 1 ) ) *
+                                    ( tCMFluid->dFluxdDOF( tDofType, CM_Function_Type::WORK ) -
+                                      tCMFluid->dFluxdDOF( tDofType, CM_Function_Type::ENERGY ) -
+                                      tCMFluid->dFluxdDOF( tDofType, CM_Function_Type::THERMAL ) ) );
                 }
 
                 // if a body force is present
@@ -220,9 +240,14 @@ namespace moris
                                     trans( tFITemp->N() ) * tPropBodyHeatLoad->dPropdDOF( tDofType ) );
                 }
             }
+
+            // check for nan, infinity
+            MORIS_ERROR( isfinite( mSet->get_jacobian() ) ,
+                    "IWG_Compressible_NS_Temperature_Bulk::compute_jacobian - Jacobian contains NAN or INF, exiting!");
         }
 
         //------------------------------------------------------------------------------
+
         void IWG_Compressible_NS_Temperature_Bulk::compute_jacobian_and_residual( real aWStar )
         {
 #ifdef DEBUG
@@ -234,6 +259,7 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+
         void IWG_Compressible_NS_Temperature_Bulk::compute_dRdp( real aWStar )
         {
 #ifdef DEBUG
@@ -245,6 +271,7 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+
         void IWG_Compressible_NS_Temperature_Bulk::compute_residual_strong_form(
                 Matrix< DDRMat > & aRM,
                 real             & aRC )
@@ -253,6 +280,7 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+
         void IWG_Compressible_NS_Temperature_Bulk::compute_jacobian_strong_form(
                 moris::Cell< MSI::Dof_Type >   aDofTypes,
                 Matrix< DDRMat >             & aJM,

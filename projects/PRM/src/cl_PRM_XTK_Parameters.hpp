@@ -50,6 +50,10 @@ namespace moris
         // verbose - should be replaced by the severity level of the logger
         tParameterList.insert( "verbose", false );
 
+        // if to deactivate empty sets - used only if outputting ig mesh as well, set to true only for debugging
+        tParameterList.insert( "deactivate_empty_sets", false );
+
+        // print enriched integration mesh
         tParameterList.insert( "print_enriched_ig_mesh", false );
 
         // write XTK exodus mesh

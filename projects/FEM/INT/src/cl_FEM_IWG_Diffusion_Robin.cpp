@@ -13,6 +13,7 @@ namespace moris
     {
 
         //------------------------------------------------------------------------------
+
         IWG_Diffusion_Robin::IWG_Diffusion_Robin()
         {
             // set size for the property pointer cell
@@ -24,6 +25,7 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+
         void IWG_Diffusion_Robin::set_property(
                 std::shared_ptr< Property > aProperty,
                 std::string                 aPropertyString,
@@ -44,6 +46,7 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+
         void IWG_Diffusion_Robin::compute_residual( real aWStar )
         {
 #ifdef DEBUG
@@ -65,12 +68,19 @@ namespace moris
 
             // compute the residual
             // N * a * (T - T_ref)
-            mSet->get_residual()( 0 )( { tResStartIndex, tResStopIndex }, { 0, 0 } )
-                    += aWStar * mMasterProp( tCoefficientIndex )->val() *
-                    ( tFI->val() - mMasterProp( tAmbTempIndex )->val() ) * trans( tFI->N() );
+            mSet->get_residual()( 0 )(
+                    { tResStartIndex, tResStopIndex },
+                    { 0, 0 } ) += aWStar * (
+                            mMasterProp( tCoefficientIndex )->val() *
+                            ( tFI->val() - mMasterProp( tAmbTempIndex )->val() ) * trans( tFI->N() ) );
+
+            // check for nan, infinity
+            MORIS_ERROR( isfinite( mSet->get_residual()( 0 ) ),
+                    "IWG_Diffusion_Robin::compute_residual - Residual contains NAN or INF, exiting!");
         }
 
         //------------------------------------------------------------------------------
+
         void IWG_Diffusion_Robin::compute_jacobian( real aWStar )
         {
 #ifdef DEBUG
@@ -106,8 +116,8 @@ namespace moris
                 {
                     mSet->get_jacobian()(
                             { tResStartIndex, tResStopIndex },
-                            { tDepStartIndex, tDepStopIndex } )
-                            += aWStar * mMasterProp( tCoefficientIndex )->val() * trans( tFI->N() ) *  tFI->N();
+                            { tDepStartIndex, tDepStopIndex } ) += aWStar *
+                            mMasterProp( tCoefficientIndex )->val() * trans( tFI->N() ) *  tFI->N();
                 }
 
                 // if dependency of heat transfer coefficient on dof type
@@ -116,20 +126,26 @@ namespace moris
                     // add contribution to jacobian
                     mSet->get_jacobian()(
                             { tResStartIndex, tResStopIndex },
-                            { tDepStartIndex, tDepStopIndex } )
-                            += aWStar * ( tFI->val() - mMasterProp( tAmbTempIndex )->val() ) *
-                            trans( tFI->N() ) * mMasterProp( tCoefficientIndex )->dPropdDOF( tDepDofType );
+                            { tDepStartIndex, tDepStopIndex } ) += aWStar * (
+                                    tFI->val() - mMasterProp( tAmbTempIndex )->val() ) *
+                                    trans( tFI->N() ) * mMasterProp( tCoefficientIndex )->dPropdDOF( tDepDofType );
                 }
             }
+
+            // check for nan, infinity
+            MORIS_ERROR(  isfinite( mSet->get_jacobian() ) ,
+                    "IWG_Diffusion_Robin::compute_jacobian - Jacobian contains NAN or INF, exiting!");
         }
 
         //------------------------------------------------------------------------------
+
         void IWG_Diffusion_Robin::compute_jacobian_and_residual( real aWStar )
         {
             MORIS_ERROR( false, " IWG_Diffusion_Robin::compute_jacobian_and_residual - Not implemented." );
         }
 
         //------------------------------------------------------------------------------
+
         void IWG_Diffusion_Robin::compute_dRdp( real aWStar )
         {
             MORIS_ERROR( false, "IWG_Diffusion_Robin::compute_dRdp - Not implemented.");

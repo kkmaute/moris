@@ -46,11 +46,10 @@ namespace moris
         {
         private:
 
-            // Level-set
+            // Level set
             real mIsocontourThreshold;
             real mErrorFactor;
             Matrix<DDUMat> mBSplineMeshIndices;
-            std::string mLevelSetFile = "";
 
             // Spatial dimensions
             uint mSpatialDim;
@@ -69,6 +68,8 @@ namespace moris
             size_t mActiveGeometryIndex = 0;
             Cell<std::shared_ptr<Geometry>> mGeometries;
             Cell<ParameterList> mGeometryParameterLists;
+            std::string mGeometryFieldFile = "";
+            std::string mOutputMeshFile = "";
 
             // Property
             Cell<std::shared_ptr<Property>> mProperties;
@@ -326,11 +327,36 @@ namespace moris
                                                uint aRefinementIndex);
 
             /**
-             * Computes and saves the current level-set field data based on the given interpolation mesh.
+             * Geometry fields which are set to be parametrized by a B-spline level field are done so on the given mesh.
              *
              * @param aMesh Mesh for computing level set data
              */
             void compute_level_set_data(mtk::Interpolation_Mesh* aMesh);
+
+            /**
+             * Outputs geometry and property fields on the given mesh, and writes level set fields to a text file.
+             * Uses output locations and file names stored from a parameter list or previous call to an output function.
+             *
+             * @param aMesh Mesh to evaluate fields on
+             */
+            void output_fields(mtk::Mesh* aMesh);
+
+            /**
+             * Creates geometry and property fields on the given mesh, and writes the mesh to an exodus file.
+             *
+             * @param aMesh Mesh to evaluate fields on
+             * @param aExodusFileName Name of an Exodus file to write the mesh to
+             */
+            void output_fields_on_mesh(mtk::Mesh* aMesh, std::string aExodusFileName);
+            
+            /**
+             * Writes all geometry fields to separate text files with the given base file name (suffix appended on to
+             * identify each individual geometry by index.
+             * 
+             * @param aMesh Mesh to evaluate fields on
+             * @param aFileName Base name of text files to write the geometry field data to
+             */
+            void write_geometry_fields(mtk::Mesh* aMesh, std::string aBaseFileName);
 
             /**
              * Assign PDV hosts based on properties constructed through parameter lists

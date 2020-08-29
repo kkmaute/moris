@@ -172,7 +172,7 @@ namespace moris
         const real tPerturbation = 1.0e-6;
 
         // set size of sensitivity vector
-        aSensitivities.set_size(1, tNumBars*8);
+        aSensitivities.set_size(1, tNumBars*6);
 
         // initialize adv counter
         uint iv=0;

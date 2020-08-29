@@ -143,7 +143,7 @@ namespace moris
                             trans( tFIVelocity->N() ) * tFIDensity->gradt( 1 ) * tFIVelocity->val() +
                             trans( tFIVelocity->N() ) * tFIDensity->val() * trans( tFIVelocity->gradt( 1 ) ) +
                             trans( tCMFluid->testStrain() ) * tFIDensity->val() * mMultipMat * tUiUj +
-                            trans( tCMFluid->testStrain() ) * tFIDensity->val() * mMultipMat * tCMFluid->stress()  );
+                            trans( tCMFluid->testStrain() ) * tFIDensity->val() * mMultipMat * tCMFluid->flux( CM_Function_Type::MECHANICAL ) );
 
             // if there is a body force
             if ( tPropBodyForce != nullptr )
@@ -152,6 +152,10 @@ namespace moris
                 mSet->get_residual()( 0 )( { tMasterResStartIndex, tMasterResStopIndex }, { 0, 0 } )
                         += aWStar * ( trans( tFIVelocity->N() ) * tFIDensity->val() * tPropBodyForce->val() );
             }
+
+            // check for nan, infinity
+            MORIS_ERROR( isfinite( mSet->get_residual()( 0 ) ),
+                    "IWG_Compressible_NS_Velocity_Bulk::compute_residual - Residual contains NAN or INF, exiting!");
         }
 
         //------------------------------------------------------------------------------
@@ -197,7 +201,7 @@ namespace moris
                     mSet->get_jacobian()(
                             { tMasterResStartIndex, tMasterResStopIndex },
                             { tMasterDepStartIndex, tMasterDepStopIndex } ) += aWStar * (
-                                    trans( tCMFluid->testStrain() ) * tCMFluid->dStressdDOF( tDofType ) );
+                                    trans( tCMFluid->testStrain() ) * tCMFluid->dFluxdDOF( tDofType, CM_Function_Type::MECHANICAL ) );
                 }
 
                 // if dof type is velocity, add diagonal term (velocity-velocity DoF types)
@@ -255,9 +259,11 @@ namespace moris
                                         -1.0 * trans( tFIVelocity->N() ) * tFIDensity->val() * tPropBodyForce->dPropdDOF( tDofType ) );
                     }
                 }
-
             }
 
+            // check for nan, infinity
+            MORIS_ERROR(  isfinite( mSet->get_jacobian() ) ,
+                    "IWG_Compressible_NS_Velocity_Bulk::compute_jacobian - Jacobian contains NAN or INF, exiting!");
         }
 
         //------------------------------------------------------------------------------
@@ -304,6 +310,7 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+
         void IWG_Compressible_NS_Velocity_Bulk::compute_uiuj(Matrix< DDRMat > & auiuj)
         {
             // get the velocity vector
@@ -338,6 +345,7 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+
         void IWG_Compressible_NS_Velocity_Bulk::compute_duiujdDOF(Matrix< DDRMat > & aduiujdDOF)
         {
             // get the velocity vector

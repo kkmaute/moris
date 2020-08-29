@@ -57,10 +57,6 @@ namespace moris
             uint tSlaveResStartIndex = mSet->get_res_dof_assembly_map()( tSlaveDofIndex )( 0, 0 );
             uint tSlaveResStopIndex  = mSet->get_res_dof_assembly_map()( tSlaveDofIndex )( 0, 1 );
 
-//            // FIXME to remove
-//            Matrix< DDRMat > tPrev1 = mSet->get_residual()( 0 )({ tMasterResStartIndex, tMasterResStopIndex },{ 0, 0 } );
-//            Matrix< DDRMat > tPrev2 = mSet->get_residual()( 0 )({ tSlaveResStartIndex, tSlaveResStopIndex },{ 0, 0 } );
-
             // get the master field interpolator for the residual dof type
             Field_Interpolator * tFIMaster = mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );
 
@@ -82,12 +78,20 @@ namespace moris
             tConvectivePreMultiply = reshape( tConvectivePreMultiply, tConvectivePreMultiply.numel(), 1 );
 
             // compute master residual
-            mSet->get_residual()( 0 )( { tMasterResStartIndex, tMasterResStopIndex }, { 0, 0 } ) += aWStar * (
-                    trans( tMasterdNdx ) * tConvectivePreMultiply );
+            mSet->get_residual()( 0 )(
+                    { tMasterResStartIndex, tMasterResStopIndex },
+                    { 0, 0 } ) += aWStar * (
+                            trans( tMasterdNdx ) * tConvectivePreMultiply );
 
             // compute slave residual
-            mSet->get_residual()( 0 )( { tSlaveResStartIndex, tSlaveResStopIndex }, { 0, 0 } ) -= aWStar * (
-                    trans( tSlavedNdx ) * tConvectivePreMultiply );
+            mSet->get_residual()( 0 )(
+                    { tSlaveResStartIndex, tSlaveResStopIndex },
+                    { 0, 0 } ) -= aWStar * (
+                            trans( tSlavedNdx ) * tConvectivePreMultiply );
+
+            // check for nan, infinity
+            MORIS_ERROR( isfinite( mSet->get_residual()( 0 ) ),
+                    "IWG_Incompressible_NS_Convective_Velocity_Ghost::compute_residual - Residual contains NAN or INF, exiting!");
         }
 
         //------------------------------------------------------------------------------
@@ -204,6 +208,10 @@ namespace moris
                                     tSPConvective->val()( 0 ) * trans( tSlavedNdx ) * tSlavedNdx );
                 }
             }
+
+            // check for nan, infinity
+            MORIS_ERROR(  isfinite( mSet->get_jacobian() ) ,
+                    "IWG_Ghost_Normal_Field::compute_jacobian - Jacobian contains NAN or INF, exiting!");
         }
 
         //------------------------------------------------------------------------------

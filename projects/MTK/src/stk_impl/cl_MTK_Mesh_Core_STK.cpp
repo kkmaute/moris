@@ -765,6 +765,52 @@ namespace mtk
 
     // ----------------------------------------------------------------------------
 
+    Matrix<IndexMat> Mesh_Core_STK::get_element_indices_in_block_set(uint aSetIndex)
+    {
+        // Get element IDs
+        Matrix<IdMat> tElementIDs = this->get_element_ids_in_block_set(aSetIndex);
+
+        // Element Indices
+        Matrix<IndexMat> tElementIndices(tElementIDs.n_rows(), tElementIDs.n_cols());
+
+        // Transform into indices
+        for ( uint tElementIndex = 0; tElementIndex < tElementIDs.length(); tElementIndex++ )
+        {
+            tElementIndices(tElementIndex) = this->get_loc_entity_ind_from_entity_glb_id(
+                    tElementIDs(tElementIndex), EntityRank::ELEMENT);
+        }
+
+        return tElementIndices;
+    }
+
+    // ----------------------------------------------------------------------------
+
+    Matrix<IdMat> Mesh_Core_STK::get_element_ids_in_block_set(uint aSetIndex)
+    {
+        // Get pointer to field defined by input name
+        stk::mesh::Part* const tSetPart = mSTKMeshData->mMtkMeshMetaData->get_part(
+                this->get_set_names(EntityRank::ELEMENT)(aSetIndex) );
+
+        // Access data through a selector
+        stk::mesh::Selector tSetSelector( *tSetPart );
+        stk::mesh::EntityVector aElements;
+        stk::mesh::get_selected_entities( tSetSelector, mSTKMeshData->mMtkMeshBulkData->buckets(
+                this->get_stk_entity_rank( EntityRank::ELEMENT ) ),
+                        aElements );
+
+        // Get entity Ids
+        uint tNumElements = aElements.size();
+        Matrix< IdMat >  tElementIDs ( tNumElements, 1 );
+        for ( uint tElementIndex = 0; tElementIndex < tNumElements; tElementIndex++ )
+        {
+            tElementIDs( tElementIndex ) = ( moris_id ) mSTKMeshData->mMtkMeshBulkData->identifier( aElements[tElementIndex] );
+        }
+
+        return tElementIDs;
+    }
+
+    // ----------------------------------------------------------------------------
+
     enum CellTopology Mesh_Core_STK::get_blockset_topology(const std::string & aSetName )
     {
         // Get pointer to field defined by input name

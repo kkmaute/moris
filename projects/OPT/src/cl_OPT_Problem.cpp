@@ -40,6 +40,12 @@ namespace moris
             mInterface->initialize(mADVs, mLowerBounds, mUpperBounds);
             this->override_advs(); // user can override the interface ADVs
 
+            // Check to make sure ADVs are a column vector
+            if (mADVs.n_rows() == 1)
+            {
+                mADVs = trans(mADVs);
+            }
+
             // Set finite difference epsilons knowing number of advs
             this->set_finite_differencing(mFiniteDifferenceType, mFiniteDifferenceEpsilons);
 
@@ -113,11 +119,6 @@ namespace moris
 
         void Problem::set_advs(Matrix<DDRMat> aNewADVs)
         {
-            if (aNewADVs.n_rows() != mADVs.n_rows())
-            {
-                aNewADVs=trans(aNewADVs);
-            }
-
             if (norm(aNewADVs - mADVs) < mADVNormTolerance)
             {
                 return;

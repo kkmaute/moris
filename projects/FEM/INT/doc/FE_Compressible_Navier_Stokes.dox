@@ -25,26 +25,28 @@ The set of governing equations in their strong form for the space time domain
 Conservation of mass:
 \f[
 \pfrac{\density}{\time} + \div{(\density \velocity)} 
-= \Residual_1 \ShouldEqual 0 \ \ \ in  \ \domain
+= 0 \ \ \ in  \ \domain
 \f]
 
 Conservation of momentum:
 \f[
 \pfrac{(\density \velocity)}{\time} + \div{(\density \velocity \otimes \velocity)} 
 - \div{\CauchyStress} - \density \BodyForce
-= \Residual_2 \ShouldEqual 0 \ \ \ in  \ \domain
+= 0 \ \ \ in  \ \domain
 \f]
 
 Conservation of Energy:
 \f[
 \pfrac{\TotalEnergyDensity}{\time} 
-+ \div{(\TotalEnergyDensity)} 
-- \div{\CauchyStress} 
-+ \div{\HeatFlux} 
++ \div{(\EnergyFlux - \WorkFlux)} 
++ \div{\ThermalFlux} 
 - \density \BodyForce \cdot \velocity 
 - \BodyLoad
-= \Residual_3 \ShouldEqual 0 \ \ \ in  \ \domain
+= 0 \ \ \ in  \ \domain
 \f]
+where \f$ \EnergyFlux \f$ and \f$ \WorkFlux \f$ denote the advective flux of energy 
+and the flux of mechanical work respectively. Generally, \f$ \EnergyFlux = \TotalEnergyDensity \velocity \f$ 
+and \f$ \WorkFlux = \CauchyStress \velocity \f$.
 
 The initial conditions are defined as follows:
 
@@ -96,7 +98,7 @@ where the specific inner energy is
 The thermal flux is defined as
 
 \f[
-\HeatFlux = - \ThermalConductivity \grad{\temp}
+\ThermalFlux = - \ThermalConductivity \grad{\temp}
 \f]
 
 Finally the Cauchy stress tensor is computed as
@@ -109,6 +111,11 @@ Finally the Cauchy stress tensor is computed as
 + \KinematicViscosity (\div{\velocity}) \IdentityMat
 \right] - \pressure \IdentityMat
 \f]
+
+The energy fluxes are defined as
+\f[ \EnergyFlux = \TotalEnergyDensity \velocity \f] 
+and
+\f[ \WorkFlux = \CauchyStress \velocity \f]
 
 where Stokes' assumption \f$ \KinematicViscosity = - \frac{2}{3} \DynamicViscosity \f$ is used.
 
@@ -164,32 +171,23 @@ It can be computed using the universal gas constant and the molar mass using the
 \f]
 
 The total energy density is computed as follows 
-
 \f[
-\TotalEnergyDensity = \density \left( \SpecificInnerEnergy + \frac{\abs{\velocity}^2}{2} \right)
+\TotalEnergyDensity = 
+\density \left( \SpecificInnerEnergy + \frac{\abs{\velocity}^2}{2} \right) + \frac{\capillarity}{2} \abs{\velocity}^2
 \f]
-
 where the specific inner energy is
-
 \f[
 \SpecificInnerEnergy = \IsochorHeatCap \temp - \VdWconstA \density
 \f]
 
 The thermal flux is defined as
-
 \f[
-\HeatFlux 
-= - \ThermalConductivity \grad{\temp} + \InterstitialWorkFlux 
-=  - \ThermalConductivity \grad{\temp} 
-   + \left[ \capillarity \density  \left( \div{\velocity} \right) \grad{\density} \right]
+\ThermalFlux 
+= - \ThermalConductivity \grad{\temp} 
 \f]
-
-where \f$ \InterstitialWorkFlux \f$ is called the interstitial working flux which accounts for the compressibility 
-effects introduced by the phase change.
 
 
 Finally the Cauchy stress tensor is computed as
-
 \f[
 \CauchyStress 
 = \ViscousStress + \KortewegStress - \pressure \IdentityMat 
@@ -203,9 +201,22 @@ Finally the Cauchy stress tensor is computed as
 \right] 
 - \pressure \IdentityMat
 \f]
-
 where \f$ \KortewegStress \f$ is called the Korteweg stress. 
 Again, Stokes' assumption \f$ \KinematicViscosity = - \frac{2}{3} \DynamicViscosity \f$ is used.
+
+
+The energy fluxes are defined as
+\f[ 
+\EnergyFlux = \TotalEnergyDensity \velocity 
+\f] 
+and
+\f[ 
+\WorkFlux 
+= \CauchyStress \velocity - \InterstitialWorkFlux 
+= \CauchyStress \velocity - \left[ \capillarity \density  \left( \div{\velocity} \right) \grad{\density} \right]
+\f]
+where \f$ \InterstitialWorkFlux \f$ is called the interstitial working flux which accounts for the compressibility 
+effects introduced by the phase change.
 
 To use this constitutive model, the following six properties need to be defined:
 -# the isochoric heat capacity \f$ \IsochorHeatCap \f$ (Keyword: "IsochoricHeatCapacity")
@@ -214,7 +225,6 @@ To use this constitutive model, the following six properties need to be defined:
 -# the capillarity coefficient \f$ \capillarity \f$ (Keyword: "Capillarity")
 -# the specific gas constant \f$ \GasConst \f$, and (Keyword: "SpecificGasConstant")
 -# the dynamic viscosity \f$ \DynamicViscosity \f$ of the fluid used (Keyword: "DynamicViscosity")
-
 
 
 --------------------------------------------------------------------------------------------------------------------------
@@ -227,48 +237,167 @@ For this physics model, no stabilization has been implemented, yet.
 
 After deriving the weak form, the following weak form of the governing equations for the bulk is obtained.
 
-Mass Conservation:
+## Mass Conservation
 \f[
-\int_{\domain} \TestFunction \dot{\density} \ d\domain 
-- \int_{\domain} \grad{\TestFunction} \cdot (\density \velocity) \ d\domain 
-= \Residual_1 \ShouldEqual 0 \ \ \ in  \ \domain
+\int_{\domain} \DensTestFunc \dot{\density} \ d\domain 
+- \int_{\domain} \grad{\DensTestFunc} \cdot (\density \velocity) \ d\domain 
+= \Residual_{\DensTestFunc} \ShouldEqual 0 \ \ \ in  \ \domain
 \f]
-where the density is used for the test functions \f$ \TestFunction = \TestFunc_{\density} \f$.
+where \f$ \DensTestFunc \f$ is the density test function.
+This IWG is implemented in IWG_Compressible_NS_Density_Bulk and 
+corresponds to the enum IWG_Type::COMPRESSIBLE_NS_DENSITY_BULK in the IWG factory.
 
-Momentum Equation:
+## Momentum Equation
 \f[
-\int_{\domain} \TestFunctionVector \cdot \left( \dot{\density} \velocity + \density \dot{\velocity} \right) \ d\domain 
-- \int_{\domain} \left( \density \velocity \otimes \velocity \right) \DoubleDot \grad{\TestFunctionVector} \ d\domain 
-+ \int_{\domain} \CauchyStress \DoubleDot \grad{\TestFunctionVector} \ d\domain 
-- \int_{\domain} \TestFunctionVector \cdot \density \BodyForce \ d\domain
-= \Residual_2 \ShouldEqual 0 \ \ \ in  \ \domain 
+\int_{\domain} \VelTestFunc \cdot \left( \dot{\density} \velocity + \density \dot{\velocity} \right) \ d\domain 
+- \int_{\domain} \left( \density \velocity \otimes \velocity \right) \DoubleDot \grad{\VelTestFunc} \ d\domain 
++ \int_{\domain} \CauchyStress \DoubleDot \grad{\VelTestFunc} \ d\domain 
+- \int_{\domain} \VelTestFunc \cdot \density \BodyForce \ d\domain
+= \Residual_{\VelTestFunc} \ShouldEqual 0 \ \ \ in  \ \domain 
 \f]
-where the velocity is used for the test functions \f$ \TestFunctionVector = \trans{(\TestFunc_{ux}, \TestFunc_{uz}, \TestFunc_{uz})} \f$.
+where \f$ \VelTestFunc = \trans{(\TestFunc_{ux}, \TestFunc_{uz}, \TestFunc_{uz})} \f$ is the velocity test function.
+This IWG is implemented in IWG_Compressible_NS_Velocity_Bulk and 
+corresponds to the enum IWG_Type::COMPRESSIBLE_NS_VELOCITY_BULK in the IWG factory.
 
-Energy Equation:
+## Energy Equation
 \f[
-\int_{\domain} \TestFunction \dot{\TotalEnergyDensity} \ d\domain 
-+ \int_{\domain} \grad{\TestFunction} \cdot \left[ \CauchyStress \velocity - \TotalEnergyDensity \velocity 
-                       - \HeatFlux \right] \ d\domain 
-+ \int_{\domain} \TestFunction \left[ \density \BodyForce \cdot \velocity + \BodyLoad \right] \ d\domain 
-= \Residual_3 \ShouldEqual 0 \ \ \ in  \ \domain
+\int_{\domain} \TempTestFunc \dot{\TotalEnergyDensity} \ d\domain 
++ \int_{\domain} \grad{\TempTestFunc} \cdot \left[ \WorkFlux - \EnergyFlux
+                       - \ThermalFlux \right] \ d\domain 
++ \int_{\domain} \TempTestFunc \left[ \density \BodyForce \cdot \velocity + \BodyLoad \right] \ d\domain 
+= \Residual_{\TempTestFunc} \ShouldEqual 0 \ \ \ in  \ \domain
 \f]
-where the temperature is used for the test functions \f$ \TestFunction = \TestFunc_{\temp} \f$.
+where \f$ \TempTestFunc \f$ is the temperature test function.
+This IWG is implemented in IWG_Compressible_NS_Temperature_Bulk and 
+corresponds to the enum IWG_Type::COMPRESSIBLE_NS_TEMPERATURE_BULK in the IWG factory.
 
-To use this Bulk IWG, the following two properties need to be defined:
+## Remarks
+To use this Bulk IWGs, the following two properties need to be defined:
 -# the body force vector \f$ \BodyForce \f$ (unit: force per unit mass) (Keyword: "BodyForce")
 -# the volumetric heat load \f$ \BodyLoad \f$ (unit: power per unit volume) (Keyword: "BodyLoad")
 
 --------------------------------------------------------------------------------------------------------------------------
-# Boudary IWGs
+# Boundary IWGs
 
-## Traction BC (Prescribe Pressure and stresses)
+## Boundary Terms in the Weak Form
+When deriving the weak form with the bulk terms in the above section, the following boundary terms appear in the weak form.
 
-## No-Slip BC (Prescribe Velocity)
+### Mass Conservation
+\f[
+\Residual_{B\density} = 
+\int_{\DomainBoundary} \DensTestFunc (\density \velocity \cdot \SurfaceNormal) \ d\BoundarySegment
+\f]
 
-## Thermal Neummann BC (Prescribe Heat Flux)
+### Momentum Conservation
+\f[
+\Residual_{B\velocity} =
+\int_{\DomainBoundary} \VelTestFunc \left[ ( \density \velocity \otimes \velocity ) \cdot \SurfaceNormal \right] \ d\BoundarySegment 
++ \int_{\DomainBoundary} \VelTestFunc ( \CauchyStress \cdot \SurfaceNormal ) \ d\BoundarySegment
+\f]
 
-## Thermal Dirichlet BC (Prescribe Temperature)
+### Energy Conservation
+\f[
+\Residual_{B\temp} =
+\int_{\DomainBoundary} \TempTestFunc (\ThermalFlux \cdot \SurfaceNormal ) \ d\BoundarySegment 
++ \int_{\DomainBoundary} \TempTestFunc \left[ 
+( \EnergyFlux - \WorkFlux ) \cdot \SurfaceNormal \right] \ d\BoundarySegment
+\f]
+
+
+## Boundary IWGs 
+
+### Advective Mass Flux Boundary IWG 
+\f[
+\Residual_{BF\velocity} =
+\int_{\DomainBoundary} \VelTestFunc \left[ ( \density \velocity \otimes \velocity ) \cdot \SurfaceNormal \right] \ d\BoundarySegment 
+\f]
+
+### Advective Energy Flux Boundary IWG 
+\f[
+\Residual_{BF\temp} =
+\int_{\DomainBoundary} \TempTestFunc \left[ 
+ ( \EnergyFlux - \WorkFlux ) \cdot \SurfaceNormal \right] \ d\BoundarySegment
+\f]
+
+
+## IWGs for enforcing Boundary Conditions
+
+### Traction BC (Prescribe Pressure and stresses)
+\f[
+\Residual_{BN\traction} =
+-\int_{\NeumannBoundary} \VelTestFunc \cdot \traction \ d\BoundarySegment
+\f]
+The prescribed traction \f$ \traction = \CauchyStress \SurfaceNormal \f$ is a vector. 
+The unit is force per unit area, and the Keyword used is "Traction".
+
+### Mass Flux Neumann BC (Prescribe Mass in-/out-flow)
+\f[
+\Residual_{BN\MassFlux} =
+ \int_{\NeumannBoundary} \DensTestFunc \MassFlux \ d\BoundarySegment
+\f]
+The prescribed mass flux \f$ \MassFlux = \density \velocity \cdot \SurfaceNormal \f$ is a scalar. 
+The unit is mass per unit area and time, and the Keyword used is "MassFlux".
+
+### Thermal Neumann BC (Prescribe Heat in-/out-flow)
+\f[
+\Residual_{BN\HeatFlux} =
+\int_{\NeumannBoundary} \TempTestFunc \HeatFlux \ d\BoundarySegment
+\f]
+The prescribed heat flux \f$ \HeatFlux = \ThermalFlux \cdot \SurfaceNormal \f$ is a scalar. 
+The unit is Energy per unit area and time, and the Keyword used is "HeatFlux".
+
+### Nitsche Density
+NOT IMPLEMENTED!!!
+The density Nitsche is derived from the mass flux boundary condition.
+\f[
+\Residual_{BD\density} = 
+\int_{\DirichletBoundary} \DensTestFunc \MassFlux \ d\BoundarySegment
+\pm \int_{\DirichletBoundary} \variation{\MassFlux} \jump{\density} d\BoundarySegment
++ \NitschePenaltyParameter \int_{\DirichletBoundary} \DensTestFunc \jump{\density} \ d\BoundarySegment
+\f]
+where the variation of the mass flux \f$ \variation{\MassFlux} \f$ is 
+\f[ \begin{split}
+\variation{\MassFlux} 
+&= \variation{\density \velocity \cdot \SurfaceNormal} \\
+&= (\velocity \cdot \SurfaceNormal) \var{\density} + ( \density \SurfaceNormal ) \cdot \var{\velocity} \\
+&= (\velocity \cdot \SurfaceNormal) \DensTestFunc + ( \density \SurfaceNormal ) \cdot \VelTestFunc \\
+\end{split} \f]
+Hence, the IWG assembles terms both on the density and velocity DoF types.
+
+### Nitsche Velocity
+\f[
+\Residual_{BD\velocity} = 
+- \int_{\DirichletBoundary} \VelTestFunc \cdot \traction \ d\BoundarySegment
+\mp \int_{\DirichletBoundary} \variation{\traction} \cdot \jump{\velocity} d\BoundarySegment
+- \NitschePenaltyParameter \int_{\DirichletBoundary} \VelTestFunc \cdot \jump{\velocity} \ d\BoundarySegment
+\f]
+where the variation of the traction \f$ \variation{\traction} \f$ is 
+\f[ \begin{split}
+\variation{\traction} 
+&= \pfrac{\CauchyStress \SurfaceNormal}{\density} \var{\density} 
++ \pfrac{\CauchyStress \SurfaceNormal}{\velocity} \cdot \var{\velocity}  
++ \pfrac{\CauchyStress \SurfaceNormal}{\temp} \var{\temp} \\
+&= \left[ \pfrac{\CauchyStress}{\density} \DensTestFunc 
++ \pfrac{\CauchyStress}{\velocity} \cdot \VelTestFunc  
++ \pfrac{\CauchyStress}{\temp} \TempTestFunc \right] \cdot \SurfaceNormal \\
+\end{split} \f]
+Hence, the IWG assembles terms on the density, velocity,and temperature DoF types.
+
+### Nitsche Temperature
+The temperature Nitsche is derived from the heat flux boundary condition.
+\f[
+\Residual_{BD\temp} = 
+\int_{\DirichletBoundary} \TempTestFunc \HeatFlux \ d\BoundarySegment
+\pm \int_{\DirichletBoundary} \variation{\HeatFlux} \jump{\temp} d\BoundarySegment
++ \NitschePenaltyParameter \int_{\DirichletBoundary} \TempTestFunc \jump{\temp} \ d\BoundarySegment
+\f]
+where the variation of the traction \f$ \variation{\traction} \f$ is 
+\f[ \begin{split}
+\variation{\HeatFlux} 
+&= \pfrac{\ThermalFlux \SurfaceNormal}{\temp} \var{\temp} \\ 
+&= \left[ \pfrac{\ThermalFlux}{\temp} \cdot \SurfaceNormal \right] \TempTestFunc 
+\end{split} \f]
+Hence, the IWG assembles terms only on the temperature DoF type.
 
 
 */

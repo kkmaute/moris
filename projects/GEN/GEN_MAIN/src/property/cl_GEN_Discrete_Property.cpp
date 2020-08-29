@@ -16,15 +16,16 @@ namespace moris
                                              sint            aBSplineMeshIndex,
                                              real            aBSplineLowerBound,
                                              real            aBSplineUpperBound)
-                                             : Field(aADVs,
-                                                     aPropertyVariableIndices,
-                                                     aADVIndices,
-                                                     aConstantParameters,
-                                                     aNumRefinements,
-                                                     aRefinementFunctionIndex,
-                                                     aBSplineMeshIndex,
-                                                     aBSplineLowerBound,
-                                                     aBSplineUpperBound)
+                : Field(aADVs,
+                        aPropertyVariableIndices,
+                        aADVIndices,
+                        aConstantParameters,
+                        aNumRefinements,
+                        aRefinementFunctionIndex,
+                        aBSplineMeshIndex,
+                        aBSplineLowerBound,
+                        aBSplineUpperBound),
+                  Field_Discrete(aADVs.length())
         {
         }
 

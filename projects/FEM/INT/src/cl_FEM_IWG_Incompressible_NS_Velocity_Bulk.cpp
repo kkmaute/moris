@@ -13,6 +13,7 @@ namespace moris
     {
 
         //------------------------------------------------------------------------------
+
         IWG_Incompressible_NS_Velocity_Bulk::IWG_Incompressible_NS_Velocity_Bulk()
         {
             // set size for the property pointer cell
@@ -40,6 +41,7 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+
         void IWG_Incompressible_NS_Velocity_Bulk::set_property(
                 std::shared_ptr< Property > aProperty,
                 std::string                 aPropertyString,
@@ -60,6 +62,7 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+
         void IWG_Incompressible_NS_Velocity_Bulk::set_constitutive_model(
                 std::shared_ptr< Constitutive_Model > aConstitutiveModel,
                 std::string                           aConstitutiveString,
@@ -80,6 +83,7 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+
         void IWG_Incompressible_NS_Velocity_Bulk::set_stabilization_parameter(
                 std::shared_ptr< Stabilization_Parameter > aStabilizationParameter,
                 std::string                                aStabilizationString )
@@ -95,6 +99,7 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+
         void IWG_Incompressible_NS_Velocity_Bulk::compute_residual( real aWStar )
         {
             // check master field interpolators
@@ -106,9 +111,6 @@ namespace moris
             uint tMasterDofIndex      = mSet->get_dof_index_for_type( mResidualDofType( 0 ), mtk::Master_Slave::MASTER );
             uint tMasterResStartIndex = mSet->get_res_dof_assembly_map()( tMasterDofIndex )( 0, 0 );
             uint tMasterResStopIndex  = mSet->get_res_dof_assembly_map()( tMasterDofIndex )( 0, 1 );
-
-//            // FIXME to remove
-//            Matrix< DDRMat > tPrev = mSet->get_residual()( 0 )({ tMasterResStartIndex, tMasterResStopIndex },{ 0, 0 } );
 
             // get the velocity FI
             Field_Interpolator * tVelocityFI =
@@ -179,19 +181,19 @@ namespace moris
 
             // compute the residual
             mSet->get_residual()( 0 )( { tMasterResStartIndex, tMasterResStopIndex }, { 0, 0 } )
-                    += aWStar * (
-                            trans( tVelocityFI->N() ) * tDensity * trans( tVelocityFI->gradt( 1 ) ) +
-                            trans( tVelocityFI->N() ) * tDensity * trans( tVelocityFI->gradx( 1 ) ) * tVelocityFI->val() +
-                            trans( tIncFluidCM->testStrain() ) * tPre * tIncFluidCM->flux() +
-                            trans( tujvij ) * tDensity * tSPSUPSPSPG->val()( 0 ) * tRM +
-                            trans( tVelocityFI->div_operator() ) * tSPSUPSPSPG->val()( 1 ) * tRC );
+                            += aWStar * (
+                                    trans( tVelocityFI->N() ) * tDensity * trans( tVelocityFI->gradt( 1 ) ) +
+                                    trans( tVelocityFI->N() ) * tDensity * trans( tVelocityFI->gradx( 1 ) ) * tVelocityFI->val() +
+                                    trans( tIncFluidCM->testStrain() ) * tPre * tIncFluidCM->flux() +
+                                    trans( tujvij ) * tDensity * tSPSUPSPSPG->val()( 0 ) * tRM +
+                                    trans( tVelocityFI->div_operator() ) * tSPSUPSPSPG->val()( 1 ) * tRC );
 
             // if gravity
             if ( tGravityProp != nullptr )
             {
                 // add gravity to residual weak form
                 mSet->get_residual()( 0 )( { tMasterResStartIndex, tMasterResStopIndex }, { 0, 0 } )
-                        += aWStar * ( trans( tVelocityFI->N() ) * tDensity * tGravityProp->val() );
+                                += aWStar * ( trans( tVelocityFI->N() ) * tDensity * tGravityProp->val() );
             }
 
             // if thermal expansion and reference temperature
@@ -204,9 +206,9 @@ namespace moris
 
                 // add contribution to residual
                 mSet->get_residual()( 0 )( { tMasterResStartIndex, tMasterResStopIndex }, { 0, 0 } )
-                        -= aWStar * (
-                                trans( tVelocityFI->N() ) * tDensity * tGravityProp->val() *
-                                tThermalExpProp->val() * ( tTempFI->val() - tRefTempProp->val() ) );
+                                -= aWStar * (
+                                        trans( tVelocityFI->N() ) * tDensity * tGravityProp->val() *
+                                        tThermalExpProp->val() * ( tTempFI->val() - tRefTempProp->val() ) );
             }
 
             // if permeability
@@ -214,7 +216,7 @@ namespace moris
             {
                 // add brinkman term to residual weak form
                 mSet->get_residual()( 0 )( { tMasterResStartIndex, tMasterResStopIndex }, { 0, 0 } )
-                        += aWStar * ( trans( tVelocityFI->N() ) * tInvPermeabProp->val()( 0 ) * tVelocityFI->val() );
+                                += aWStar * ( trans( tVelocityFI->N() ) * tInvPermeabProp->val()( 0 ) * tVelocityFI->val() );
             }
 
             // if turbulence
@@ -225,14 +227,13 @@ namespace moris
                         aWStar * ( trans( tCMTurbulence->testStrain() ) * tPre * tCMTurbulence->flux() );
             }
 
-//            std::cout<<"1 "<<
-//                    mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator()->valx()( 0 )<<" "<<
-//                    mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator()->valx()( 1 )<< " "<<
-//                    mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator()->valt()( 0 )<< " "<<
-//                    norm( mSet->get_residual()( 0 )({ tMasterResStartIndex, tMasterResStopIndex },{ 0, 0 } ) - tPrev )<<std::endl;
+            // check for nan, infinity
+            MORIS_ERROR( isfinite( mSet->get_residual()( 0 ) ),
+                    "IWG_Incompressible_NS_Velocity_Bulk::compute_residual - Residual contains NAN or INF, exiting!");
         }
 
         //------------------------------------------------------------------------------
+
         void IWG_Incompressible_NS_Velocity_Bulk::compute_jacobian( real aWStar )
         {
 #ifdef DEBUG
@@ -244,10 +245,6 @@ namespace moris
             uint tMasterDofIndex      = mSet->get_dof_index_for_type( mResidualDofType( 0 ), mtk::Master_Slave::MASTER );
             uint tMasterResStartIndex = mSet->get_res_dof_assembly_map()( tMasterDofIndex )( 0, 0 );
             uint tMasterResStopIndex  = mSet->get_res_dof_assembly_map()( tMasterDofIndex )( 0, 1 );
-
-//            // FIXME to remove
-//            uint tEndIndex = mSet->get_jacobian().n_cols() - 1;
-//            Matrix< DDRMat > tPrev = mSet->get_jacobian()({ tMasterResStartIndex, tMasterResStopIndex },{ 0, tEndIndex } );
 
             // get velocity FI
             Field_Interpolator * tVelocityFI =
@@ -408,7 +405,7 @@ namespace moris
                         mSet->get_jacobian()(
                                 { tMasterResStartIndex, tMasterResStopIndex },
                                 { tMasterDepStartIndex, tMasterDepStopIndex } ) +=
-                                aWStar * ( trans( tCMTurbulence->testStrain() ) * tPre * tCMTurbulence->dFluxdDOF( tDofType ) );
+                                        aWStar * ( trans( tCMTurbulence->testStrain() ) * tPre * tCMTurbulence->dFluxdDOF( tDofType ) );
                         // FIXME add dteststrainddof
                     }
                 }
@@ -541,19 +538,13 @@ namespace moris
                 }
             }
 
-//            std::cout<<"11 "<<
-//                    mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator()->valx()( 0 )<<" "<<
-//                    mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator()->valx()( 1 )<< " "<<
-//                    mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator()->valt()( 0 )<< " "<<
-//                    max(max( mSet->get_jacobian()({ tMasterResStartIndex, tMasterResStopIndex },{ 0, tEndIndex } ) - tPrev ) )<<std::endl;
-//            std::cout<<"12 "<<
-//                    mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator()->valx()( 0 )<<" "<<
-//                    mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator()->valx()( 1 )<< " "<<
-//                    mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator()->valt()( 0 )<< " "<<
-//                    min( min( mSet->get_jacobian()({ tMasterResStartIndex, tMasterResStopIndex },{ 0, tEndIndex } ) - tPrev ) )<<std::endl;
+            // check for nan, infinity
+            MORIS_ERROR(  isfinite( mSet->get_jacobian() ) ,
+                    "IWG_Incompressible_NS_Velocity_Bulk::compute_jacobian - Jacobian contains NAN or INF, exiting!");
         }
 
         //------------------------------------------------------------------------------
+
         void IWG_Incompressible_NS_Velocity_Bulk::compute_jacobian_and_residual( real aWStar )
         {
 #ifdef DEBUG
@@ -565,6 +556,7 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+
         void IWG_Incompressible_NS_Velocity_Bulk::compute_dRdp( real aWStar )
         {
 #ifdef DEBUG
@@ -576,6 +568,7 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+
         void IWG_Incompressible_NS_Velocity_Bulk::compute_residual_strong_form(
                 Matrix< DDRMat > & aRM,
                 real             & aRC )
@@ -663,6 +656,7 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+
         void IWG_Incompressible_NS_Velocity_Bulk::compute_jacobian_strong_form(
                 moris::Cell< MSI::Dof_Type >   aDofTypes,
                 Matrix< DDRMat >             & aJM,
@@ -866,7 +860,9 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
-        void IWG_Incompressible_NS_Velocity_Bulk::compute_ujvij( Matrix< DDRMat > & aujvij )
+
+        void IWG_Incompressible_NS_Velocity_Bulk::compute_ujvij(
+                Matrix< DDRMat > & aujvij )
         {
             // get the residual dof type FI (here velocity)
             Field_Interpolator * tVelocityFI = mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );
@@ -886,6 +882,7 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+
         void IWG_Incompressible_NS_Velocity_Bulk::compute_ujvijrm(
                 Matrix< DDRMat > & aujvijrm,
                 Matrix< DDRMat > & arm )
@@ -914,8 +911,10 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+
         // FIXME provided directly by the field interpolator?
-        void IWG_Incompressible_NS_Velocity_Bulk::compute_dnNdtn( Matrix< DDRMat > & adnNdtn )
+        void IWG_Incompressible_NS_Velocity_Bulk::compute_dnNdtn(
+                Matrix< DDRMat > & adnNdtn )
         {
             // get the residual dof type FI (here velocity)
             Field_Interpolator * tVelocityFI = mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );

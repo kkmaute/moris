@@ -123,14 +123,6 @@ extern "C"
             return aReturnValue;
         }
 
-        moris::Matrix< DDRMat > Func_Sensitivity(
-                const moris::Matrix< DDRMat >     & aCoordinates,
-                const moris::Cell< moris::real* > & aGeometryParameters )
-            {
-            moris::Matrix< DDRMat > aReturnValue;
-            return aReturnValue;
-            }
-
         void OPTParameterList( moris::Cell< moris::Cell< ParameterList > > & tParameterlist )
         {
             tParameterlist.resize( 1 );
@@ -203,15 +195,12 @@ extern "C"
             // Geometry parameter lists
             tParameterlist( 1 ).push_back( prm::create_user_defined_geometry_parameter_list() );
             tParameterlist( 1 )( tGeoCounter ).set( "field_function_name", "Func_Circle");
-            tParameterlist( 1 )( tGeoCounter ).set( "sensitivity_function_name", "Func_Sensitivity");
             tParameterlist( 1 )( tGeoCounter ).set( "constant_parameters", "2.0,0.0,0.0");
             tGeoCounter++;
 
             tParameterlist( 1 ).push_back( prm::create_user_defined_geometry_parameter_list() );
             tParameterlist( 1 )( tGeoCounter ).set( "field_function_name", "Func_Circle");
-            tParameterlist( 1 )( tGeoCounter ).set( "sensitivity_function_name", "Func_Sensitivity");
             tParameterlist( 1 )( tGeoCounter ).set( "constant_parameters", "1.0,0.0,0.0");
-            tGeoCounter++;
         }
 
         void FEMParameterList( moris::Cell< moris::Cell< ParameterList > > & tParameterList )

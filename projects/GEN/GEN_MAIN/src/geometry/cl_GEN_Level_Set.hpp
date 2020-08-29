@@ -16,8 +16,6 @@ namespace moris
 
         private:
             mtk::Mesh* mMesh;
-            uint mNumOriginalNodes;
-            Cell<std::shared_ptr<Child_Node>> mChildNodes;
 
         public:
             /**
@@ -66,6 +64,15 @@ namespace moris
             real evaluate_field_value(uint aNodeIndex);
 
             /**
+             * Function for determining if this geometry is to be used for seeding a B-spline level set field.
+             *
+             * @return false
+             */
+            bool conversion_to_bsplines();
+
+        private:
+
+            /**
              * Given a node index, evaluates the sensitivity of the geometry field with respect to all of the
              * geometry variables.
              *
@@ -73,21 +80,6 @@ namespace moris
              * @param aSensitivities Vector of sensitivities
              */
             void evaluate_all_sensitivities(uint aNodeIndex, Matrix<DDRMat>& aSensitivities);
-
-            /**
-             * Add a new child node for evaluation
-             *
-             * @param aNodeIndex Index of the child node
-             * @param aChildNode Contains information about how the child node was created
-             */
-            void add_child_node(uint aNodeIndex, std::shared_ptr<Child_Node> aChildNode);
-
-            /**
-             * Function for determining if this geometry is to be used for seeding a B-spline level set field.
-             *
-             * @return false
-             */
-            bool conversion_to_bsplines();
 
         };
     }

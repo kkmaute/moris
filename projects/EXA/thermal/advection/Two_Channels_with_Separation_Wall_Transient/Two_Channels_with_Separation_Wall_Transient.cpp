@@ -95,15 +95,6 @@ extern "C"
             return aReturnValue;
         }
 
-        // Dummy sensitivity function
-        moris::Matrix<DDRMat> Func_Dummy(
-                const moris::Matrix< DDRMat >     & aCoordinates,
-                const moris::Cell< moris::real* > & aGeometryParameters )
-        {
-            moris::Matrix< DDRMat > dummy;
-            return dummy;
-        }
-
         // OPT parameter list
         void OPTParameterList( moris::Cell< moris::Cell< ParameterList > > & tParameterlist )
         {
@@ -180,39 +171,32 @@ extern "C"
             // Geometry parameter lists
             tParameterlist( 1 ).push_back( prm::create_user_defined_geometry_parameter_list() );
             tParameterlist( 1 )( tGeoCounter ).set( "field_function_name", "Func_Plane");
-            tParameterlist( 1 )( tGeoCounter ).set( "sensitivity_function_name", "Func_Dummy");
             tParameterlist( 1 )( tGeoCounter ).set( "constant_parameters", "0,0,1,0");
             tGeoCounter++;
 
             tParameterlist( 1 ).push_back( prm::create_user_defined_geometry_parameter_list() );
             tParameterlist( 1 )( tGeoCounter ).set( "field_function_name", "Func_Plane");
-            tParameterlist( 1 )( tGeoCounter ).set( "sensitivity_function_name", "Func_Dummy");
             tParameterlist( 1 )( tGeoCounter ).set( "constant_parameters", "0,0,1,0.41");
             tGeoCounter++;
 
             tParameterlist( 1 ).push_back( prm::create_user_defined_geometry_parameter_list() );
             tParameterlist( 1 )( tGeoCounter ).set( "field_function_name", "Func_Plane");
-            tParameterlist( 1 )( tGeoCounter ).set( "sensitivity_function_name", "Func_Dummy");
             tParameterlist( 1 )( tGeoCounter ).set( "constant_parameters", "0,0,1,0.18");
             tGeoCounter++;
 
             tParameterlist( 1 ).push_back( prm::create_user_defined_geometry_parameter_list() );
             tParameterlist( 1 )( tGeoCounter ).set( "field_function_name", "Func_Plane");
-            tParameterlist( 1 )( tGeoCounter ).set( "sensitivity_function_name", "Func_Dummy");
             tParameterlist( 1 )( tGeoCounter ).set( "constant_parameters", "0,0,1,0.23");
             tGeoCounter++;
 
             tParameterlist( 1 ).push_back( prm::create_user_defined_geometry_parameter_list() );
             tParameterlist( 1 )( tGeoCounter ).set( "field_function_name", "Func_Plane");
-            tParameterlist( 1 )( tGeoCounter ).set( "sensitivity_function_name", "Func_Dummy");
             tParameterlist( 1 )( tGeoCounter ).set( "constant_parameters", "1,0,0,0");
             tGeoCounter++;
 
             tParameterlist( 1 ).push_back( prm::create_user_defined_geometry_parameter_list() );
             tParameterlist( 1 )( tGeoCounter ).set( "field_function_name", "Func_Plane");
-            tParameterlist( 1 )( tGeoCounter ).set( "sensitivity_function_name", "Func_Dummy");
             tParameterlist( 1 )( tGeoCounter ).set( "constant_parameters", "1,1.845,0,0");
-            tGeoCounter++;
         }
 
         // FEM parameter list

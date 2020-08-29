@@ -31,8 +31,9 @@
 #include "cl_FEM_Integration_Coeffs_Tet_5.hpp"
 #include "cl_FEM_Integration_Coeffs_Tet_11.hpp"
 #include "cl_FEM_Integration_Coeffs_Tet_15.hpp"
-#include "cl_FEM_Integration_Coeffs_Tet_31.hpp"
-#include "cl_FEM_Integration_Coeffs_Tet_45.hpp"
+#include "cl_FEM_Integration_Coeffs_Tet_20.hpp"
+#include "cl_FEM_Integration_Coeffs_Tet_35.hpp"
+#include "cl_FEM_Integration_Coeffs_Tet_56.hpp"
 //hex
 #include "cl_FEM_Integration_Coeffs_Hex_2x2x2.hpp"
 #include "cl_FEM_Integration_Coeffs_Hex_3x3x3.hpp"
@@ -369,17 +370,23 @@ namespace moris
                             Integration_Type::GAUSS,
                             Integration_Order::TET_15 >();
 
-                    // for polynomial order 7
-                case Integration_Order::TET_31 :
+                    // for polynomial order 6
+                case Integration_Order::TET_20 :
                     return new Integration_Coeffs<
                             Integration_Type::GAUSS,
-                            Integration_Order::TET_31 >();
+                            Integration_Order::TET_20 >();
 
                     // for polynomial order 7
-                case Integration_Order::TET_45 :
+                case Integration_Order::TET_35 :
                     return new Integration_Coeffs<
                             Integration_Type::GAUSS,
-                            Integration_Order::TET_45 >();
+                            Integration_Order::TET_35 >();
+
+                    // for polynomial order 9
+                case Integration_Order::TET_56 :
+                    return new Integration_Coeffs<
+                            Integration_Type::GAUSS,
+                            Integration_Order::TET_56 >();
 
                 default :
                     MORIS_ERROR( false, " Integration_Rule::create_coeffs_gauss_tet - integration order not implemented/allowed for tet.");

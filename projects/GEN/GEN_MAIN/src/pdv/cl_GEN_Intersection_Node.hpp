@@ -7,6 +7,8 @@ namespace moris
 {
     namespace ge
     {
+        class Geometry;
+
         class Intersection_Node : public Child_Node
         {
 

@@ -12,6 +12,7 @@ namespace moris
     {
 
         //------------------------------------------------------------------------------
+
         IWG_Incompressible_NS_Pressure_Neumann::IWG_Incompressible_NS_Pressure_Neumann()
         {
             // set size for the property pointer cell
@@ -24,6 +25,7 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+
         void IWG_Incompressible_NS_Pressure_Neumann::set_property(
                 std::shared_ptr< Property > aProperty,
                 std::string                 aPropertyString,
@@ -44,6 +46,7 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+
         void IWG_Incompressible_NS_Pressure_Neumann::compute_residual( real aWStar )
         {
             // check master field interpolators
@@ -108,9 +111,14 @@ namespace moris
                         { 0, 0 } ) +=
                                 aWStar * ( tImposedPressure * trans( tVelocityFI->N() ) * mNormal );
             }
+
+            // check for nan, infinity
+            MORIS_ERROR( isfinite( mSet->get_residual()( 0 ) ),
+                    "IWG_Incompressible_NS_Pressure_Neumann::compute_residual - Residual contains NAN or INF, exiting!");
         }
 
         //------------------------------------------------------------------------------
+
         void IWG_Incompressible_NS_Pressure_Neumann::compute_jacobian( real aWStar )
         {
 #ifdef DEBUG
@@ -171,7 +179,7 @@ namespace moris
                     {
                         // compute derivative of imposed pressure with respect to velocities
                         const Matrix< DDRMat > tdpredvel =
-                               -1.0 * tPropDensity->val()( 0 ) * trans( tVelocityFI->val() ) * tVelocityFI->N();
+                                -1.0 * tPropDensity->val()( 0 ) * trans( tVelocityFI->val() ) * tVelocityFI->N();
 
                         // compute the jacobian/
                         mSet->get_jacobian()(
@@ -204,9 +212,14 @@ namespace moris
                     }
                 }
             }
+
+            // check for nan, infinity
+            MORIS_ERROR(  isfinite( mSet->get_jacobian() ) ,
+                    "IWG_Incompressible_NS_Pressure_Neumann::compute_jacobian - Jacobian contains NAN or INF, exiting!");
         }
 
         //------------------------------------------------------------------------------
+
         void IWG_Incompressible_NS_Pressure_Neumann::compute_jacobian_and_residual( real aWStar )
         {
 #ifdef DEBUG
@@ -218,6 +231,7 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+
         void IWG_Incompressible_NS_Pressure_Neumann::compute_dRdp( real aWStar )
         {
 #ifdef DEBUG

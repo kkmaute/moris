@@ -281,6 +281,106 @@ namespace xtk
 
     // ----------------------------------------------------------------------------
 
+    Matrix<IndexMat> Enriched_Interpolation_Mesh::get_element_indices_in_block_set(uint aSetIndex)
+    {
+        Matrix<IndexMat> tElementIndices(mEnrichedInterpCells.size(), 1);
+        if (aSetIndex == 0)
+        {
+            for (uint tElementIndex = 0; tElementIndex < mEnrichedInterpCells.size(); tElementIndex++)
+            {
+                tElementIndices(tElementIndex) = tElementIndex;
+            }
+        }
+        else
+        {
+            tElementIndices.set_size(0, 0);
+        }
+
+        return tElementIndices;
+    }
+
+    // ----------------------------------------------------------------------------
+
+    enum CellTopology Enriched_Interpolation_Mesh::get_blockset_topology( const  std::string & aSetName )
+    {
+        uint tNumberOfDimensions = this->get_spatial_dim();
+
+        moris::mtk::Interpolation_Order tOrder = mEnrichedInterpCells(0)->get_interpolation_order();
+
+        enum CellTopology tCellTopology = CellTopology::END_ENUM;
+
+        switch( tNumberOfDimensions )
+        {
+            case 1:
+            {
+                MORIS_ERROR(false, "1D not implemented");
+                break;
+            }
+            case 2:
+            {
+                switch( tOrder )
+                {
+                    case moris::mtk::Interpolation_Order::LINEAR:
+                    {
+                        tCellTopology = CellTopology::QUAD4;
+                        break;
+                    }
+                    case moris::mtk::Interpolation_Order::QUADRATIC:
+                    {
+                        tCellTopology = CellTopology::QUAD9;
+                        break;
+                    }
+                    case moris::mtk::Interpolation_Order::CUBIC:
+                    {
+                        tCellTopology = CellTopology::QUAD16;
+                        break;
+                    }
+                    default :
+                    {
+                        MORIS_ERROR( false, " Order not implemented");
+                        break;
+                    }
+                }
+                break;
+            }
+            case 3:
+            {
+                switch( tOrder )
+                {
+                    case moris::mtk::Interpolation_Order::LINEAR:
+                    {
+                        tCellTopology = CellTopology::HEX8;
+                        break;
+                    }
+                    case moris::mtk::Interpolation_Order::QUADRATIC:
+                    {
+                        tCellTopology = CellTopology::HEX27;
+                        break;
+                    }
+                    case moris::mtk::Interpolation_Order::CUBIC:
+                    {
+                        tCellTopology = CellTopology::HEX64;
+                        break;
+                    }
+                    default :
+                    {
+                        MORIS_ERROR( false, " Order not implemented");
+                        break;
+                    }
+                }
+                break;
+            }
+            default :
+            {
+                MORIS_ERROR( false, "Number of dimensions not implemented");
+                break;
+            }
+        }
+        return tCellTopology;
+    }
+
+    // ----------------------------------------------------------------------------
+
     moris_id
     Enriched_Interpolation_Mesh::get_max_entity_id(
             enum EntityRank   aEntityRank,

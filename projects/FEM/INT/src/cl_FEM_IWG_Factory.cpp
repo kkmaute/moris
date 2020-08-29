@@ -43,9 +43,14 @@
 #include "cl_FEM_IWG_Incompressible_NS_Velocity_Interface.hpp"
 #include "cl_FEM_IWG_Incompressible_NS_Pressure_Interface.hpp"
 //Compressible Fluid
-//#include "cl_FEM_IWG_Compressible_NS_Density_Bulk.hpp"
-//#include "cl_FEM_IWG_Compressible_NS_Velocity_Bulk.hpp"
-//#include "cl_FEM_IWG_Compressible_NS_Temperature_Bulk.hpp"
+#include "cl_FEM_IWG_Compressible_NS_Density_Bulk.hpp"
+#include "cl_FEM_IWG_Compressible_NS_Velocity_Bulk.hpp"
+#include "cl_FEM_IWG_Compressible_NS_Temperature_Bulk.hpp"
+#include "cl_FEM_IWG_Compressible_NS_Advective_Energy_Flux_Boundary.hpp"
+#include "cl_FEM_IWG_Compressible_NS_Advective_Momentum_Flux_Boundary.hpp"
+#include "cl_FEM_IWG_Compressible_NS_Mass_Flux_Neumann.hpp"
+#include "cl_FEM_IWG_Compressible_NS_Traction_Neumann.hpp"
+#include "cl_FEM_IWG_Compressible_NS_Heat_Flux_Neumann.hpp"
 //Fluid structure interface
 #include "cl_FEM_IWG_FS_Struc_Interface.hpp"
 //Time continuity
@@ -70,6 +75,9 @@ namespace moris
         {
             switch( aIWGType )
             {
+
+                //------------------------------------------------------------------------------
+
                 case IWG_Type::L2 :
                     return std::make_shared< IWG_L2 >();
 
@@ -87,6 +95,8 @@ namespace moris
                     //
                     //                case IWG_Type::OLSSON :
                     //                    return std::make_shared< IWG_Olsson_CLS_Bulk >();
+
+                    //------------------------------------------------------------------------------
 
                 case IWG_Type::SPATIALDIFF_BULK :
                     return std::make_shared< IWG_Diffusion_Bulk >();
@@ -112,11 +122,15 @@ namespace moris
                 case IWG_Type::SPATIALDIFF_VW_GHOST :
                     return std::make_shared< IWG_Diffusion_Virtual_Work_Ghost >();
 
+                    //------------------------------------------------------------------------------
+
                 case IWG_Type::ADVECTION_BULK :
                     return std::make_shared< IWG_Advection_Bulk >();
 
                 case IWG_Type::STRUC_LINEAR_BULK :
                     return std::make_shared< IWG_Isotropic_Struc_Linear_Bulk >();
+
+                    //------------------------------------------------------------------------------
 
                 case IWG_Type::STRUC_LINEAR_DIRICHLET_SYMMETRIC_NITSCHE :
                     return std::make_shared< IWG_Isotropic_Struc_Linear_Dirichlet >( -1 );
@@ -141,6 +155,17 @@ namespace moris
 
                 case IWG_Type::STRUC_LINEAR_PRESSURE_DIRICHLET_UNSYMMETRIC_NITSCHE :
                     return std::make_shared< IWG_Isotropic_Struc_Linear_Pressure_Dirichlet >( 1 );
+
+                case IWG_Type::STRUC_LINEAR_CONTACT_SYMMETRIC_NITSCHE :
+                    return std::make_shared< IWG_Isotropic_Struc_Linear_Contact_Nitsche >( -1 );
+
+                case IWG_Type::STRUC_LINEAR_CONTACT_UNSYMMETRIC_NITSCHE :
+                    return std::make_shared< IWG_Isotropic_Struc_Linear_Contact_Nitsche >( 1 );
+
+                case IWG_Type::STRUC_LINEAR_CONTACT_PENALTY :
+                    return std::make_shared< IWG_Isotropic_Struc_Linear_Contact_Penalty >();
+
+                    //------------------------------------------------------------------------------
 
                 case IWG_Type::INCOMPRESSIBLE_NS_VELOCITY_BULK :
                     return std::make_shared< IWG_Incompressible_NS_Velocity_Bulk >();
@@ -178,14 +203,45 @@ namespace moris
                 case IWG_Type::INCOMPRESSIBLE_NS_PRESSURE_INTERFACE_UNSYMMETRIC_NITSCHE :
                     return std::make_shared< IWG_Incompressible_NS_Pressure_Interface >( -1 );
 
-//                case IWG_Type::COMPRESSIBLE_NS_DENSITY_BULK :
-//                    return std::make_shared< IWG_Compressible_NS_Density_Bulk >();
+                    //------------------------------------------------------------------------------
 
-//                case IWG_Type::COMPRESSIBLE_NS_VELOCITY_BULK :
-//                    return std::make_shared< IWG_Compressible_NS_Velocity_Bulk >();
+                case IWG_Type::COMPRESSIBLE_NS_DENSITY_BULK :
+                    return std::make_shared< IWG_Compressible_NS_Density_Bulk >();
 
-//                case IWG_Type::COMPRESSIBLE_NS_TEMPERATURE_BULK :
-//                    return std::make_shared< IWG_Compressible_NS_Temperature_Bulk >();
+                case IWG_Type::COMPRESSIBLE_NS_VELOCITY_BULK :
+                    return std::make_shared< IWG_Compressible_NS_Velocity_Bulk >();
+
+                case IWG_Type::COMPRESSIBLE_NS_TEMPERATURE_BULK :
+                    return std::make_shared< IWG_Compressible_NS_Temperature_Bulk >();
+
+                case IWG_Type::COMPRESSIBLE_NS_ADVECTIVE_MOMENTUM_FLUX:
+                    return std::make_shared< IWG_Compressible_NS_Advective_Momentum_Flux_Boundary >();
+
+                case IWG_Type::COMPRESSIBLE_NS_ADVECTIVE_ENERGY_FLUX:
+                    return std::make_shared< IWG_Compressible_NS_Advective_Energy_Flux_Boundary >();
+
+                case IWG_Type::COMPRESSIBLE_NS_MASS_FLUX_NEUMANN :
+                    return std::make_shared< IWG_Compressible_NS_Mass_Flux_Neumann >();
+
+                case IWG_Type::COMPRESSIBLE_NS_TRACTION_NEUMANN :
+                    return std::make_shared< IWG_Compressible_NS_Traction_Neumann >();
+
+                case IWG_Type::COMPRESSIBLE_NS_HEAT_FLUX_NEUMANN :
+                    return std::make_shared< IWG_Compressible_NS_Heat_Flux_Neumann >();
+
+//                case IWG_Type::COMPRESSIBLE_NS_VELOCITY_DIRICHLET_SYMMETRIC_NITSCHE :
+//                    return std::make_shared< IWG_Compressible_NS_Velocity_Dirichlet_Nitsche >( 1 );
+//
+//                case IWG_Type::COMPRESSIBLE_NS_VELOCITY_DIRICHLET_UNSYMMETRIC_NITSCHE :
+//                    return std::make_shared< IWG_Compressible_NS_Velocity_Dirichlet_Nitsche >( -1 );
+//
+//                case IWG_Type::COMPRESSIBLE_NS_TEMPERATURE_DIRICHLET_SYMMETRIC_NITSCHE :
+//                    return std::make_shared< IWG_Compressible_NS_Temperature_Dirichlet_Nitsche >( 1 );
+//
+//                case IWG_Type::COMPRESSIBLE_NS_TEMPERATURE_DIRICHLET_UNSYMMETRIC_NITSCHE :
+//                    return std::make_shared< IWG_Compressible_NS_Temperature_Dirichlet_Nitsche >( -1 );
+
+                    //------------------------------------------------------------------------------
 
                 case IWG_Type::FS_STRUC_INTERFACE :
                     return std::make_shared< IWG_FS_Struc_Interface >();
@@ -207,15 +263,6 @@ namespace moris
 
                 case IWG_Type::SPALART_ALLMARAS_TURBULENCE_INTERFACE_UNSYMMETRIC_NITSCHE :
                     return std::make_shared< IWG_Spalart_Allmaras_Turbulence_Interface >( -1 );
-
-                case IWG_Type::STRUC_LINEAR_CONTACT_SYMMETRIC_NITSCHE :
-                    return std::make_shared< IWG_Isotropic_Struc_Linear_Contact_Nitsche >( -1 );
-
-                case IWG_Type::STRUC_LINEAR_CONTACT_UNSYMMETRIC_NITSCHE :
-                    return std::make_shared< IWG_Isotropic_Struc_Linear_Contact_Nitsche >( 1 );
-
-                case IWG_Type::STRUC_LINEAR_CONTACT_PENALTY :
-                    return std::make_shared< IWG_Isotropic_Struc_Linear_Contact_Penalty >();
 
                 case IWG_Type::GHOST_NORMAL_FIELD :
                     return std::make_shared< IWG_Ghost_Normal_Field >();

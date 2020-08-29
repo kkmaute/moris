@@ -18,8 +18,10 @@
 
 \newcommand{\AAAAA}{------------------------------------------------- Math Operators }
 \newcommand{\abs}[1]{  \left\vert #1 \right\vert }
-\newcommand{\jump}[1]{ \left[ \!\! \left[ #1 \right] \!\! \right] }
+\newcommand{\jump}[1]{ \left[ \! \left[ #1 \right] \! \right] }
 \newcommand{\norm}[1]{ \left\vert \! \left\vert #1 \right\vert \! \right\vert }
+\newcommand{\variation}[1]{ \delta \left( #1 \right) }
+\newcommand{\var}[1]{ \variation{ #1 } }
 
 \newcommand{\AAAAA}{--------------------------------------------------- Math Symbols }
 \newcommand{\ShouldEqual}{\thinspace \stackrel{!}{=} \thinspace}
@@ -38,7 +40,6 @@
 \newcommand{\IdentityMat}{\mat{I}}
 \newcommand{\DoubleDot}{\thinspace \bm{:} \thinspace}
 
-
 \newcommand{\AAAAA}{-----------------------------------------------------------------}
 \newcommand{\AAAAA}{----- VARIABLES -------------------------------------------------}
 \newcommand{\AAAAA}{-----------------------------------------------------------------}
@@ -47,6 +48,7 @@
 \newcommand{\time}{t}
 \newcommand{\space}{\vec{x}}
 \newcommand{\density}{\rho}
+\newcommand{\mass}{m}
 \newcommand{\temperature}{T}
 \newcommand{\temp}{\temperature}
 \newcommand{\velocity}{\vec{u}}
@@ -61,6 +63,15 @@
 \newcommand{\TestFunc}{\TestFunction}
 \newcommand{\TestFunctionVector}{\vec{\TestFunction}}
 \newcommand{\TestFuncVec}{\TestFunctionVector}
+
+\newcommand{\TemperatureTestFunction}{z}
+\newcommand{\TempTestFunc}{\TemperatureTestFunction}
+\newcommand{\VelocityTestFunction}{\vec{v}}
+\newcommand{\VelTestFunc}{\VelocityTestFunction}
+\newcommand{\DensityTestFunction}{w}
+\newcommand{\DensTestFunc}{\DensityTestFunction}
+\newcommand{\PresssureTestFunction}{q}
+\newcommand{\PresTestFunc}{\PresssureTestFunction}
 
 \newcommand{\AAAAA}{---------------------- Variables Describing Computational Domain }
 \newcommand{\domain}{\Omega}
@@ -77,10 +88,18 @@
 \newcommand{\SpaceBoundSeg}{\SpaceBoundarySegment}
 \newcommand{\TimeBoundarySegment}{\BoundSeg_{\time}}
 \newcommand{\TimeBoundSeg}{\TimeBoundarySegment}
+\newcommand{\NeumannBoundary}{\BoundarySegment_N}
+\newcommand{\DirichletBoundary}{\BoundarySegment_D}
 \newcommand{\SurfaceNormal}{\vec{n}}
 \newcommand{\SurfNorm}{\SurfaceNormal}
 \newcommand{\ElementSize}{h}
 \newcommand{\ElemSize}{\ElementSize}
+\newcommand{\PenaltyParameter}{\gamma}
+\newcommand{\PenParam}{\PenaltyParameter}
+\newcommand{\NitschePenaltyParameter}{\PenaltyParameter_N}
+\newcommand{\NitschePenParam}{\NitschePenaltyParameter}
+\newcommand{\GhostPenaltyParameter}{\PenaltyParameter_G}
+\newcommand{\GhostPenParam}{\GhostPenaltyParameter}
 
 \newcommand{\AAAAA}{-------------------------------- Topology and Shape Optimization }
 \newcommand{\OptimizationVariables}{\vec{s}}
@@ -110,7 +129,8 @@
 
 \newcommand{\AAAAA}{------------------------------------------------- Heat Transport }
 \newcommand{\PrescribedTemperature}{\bar{\temp}}
-\newcommand{\HeatFlux}{q}
+\newcommand{\ThermalFlux}{\vec{q}}
+\newcommand{\HeatFlux}{q_{\SurfaceNormal}}
 \newcommand{\BodyLoad}{Q}
 \newcommand{\AmbientTemperature}{\temp_{inf}}
 \newcommand{\AmbTemp}{\AmbientTemperature}
@@ -161,8 +181,8 @@
 \newcommand{\GibbsFreeEnergy}{G}
 \newcommand{\SpecificGibbsFreeEnergy}{g}
 \newcommand{\SpecGibbsFreeEnergy}{\SpecificGibbsFreeEnergy}
-\newcommand{\work}{W_{TD}}
-\newcommand{\SpecificWork}{w_{TD}}
+\newcommand{\work}{W}
+\newcommand{\SpecificWork}{w}
 \newcommand{\SpecWork}{\SpecificWork}
 \newcommand{\IsobaricHeatCapacity}{c_p}
 \newcommand{\IsobarHeatCap}{\IsobaricHeatCapacity}
@@ -185,7 +205,11 @@
 \newcommand{\ViscousStress}{\mat{\tau}} 
 \newcommand{\DynamicViscosity}{\mu}
 \newcommand{\KinematicViscosity}{\nu}
+\newcommand{\MassFlux}{\dot{\mass}}
 
+\newcommand{\GeneralizedFlux}{\vec{F}}
+\newcommand{\WorkFlux}{\GeneralizedFlux_{\work}}
+\newcommand{\EnergyFlux}{\GeneralizedFlux_{\TotalEnergyDensity}}
 \newcommand{\KortewegStress}{\mat{\varsigma}}
-\newcommand{\capillarity}{K}
+\newcommand{\capillarity}{\lambda}
 \newcommand{\InterstitialWorkFlux}{\vec{\Pi}}

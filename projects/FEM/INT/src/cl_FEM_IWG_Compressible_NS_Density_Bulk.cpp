@@ -20,6 +20,7 @@ namespace moris
     {
 
         //------------------------------------------------------------------------------
+
         IWG_Compressible_NS_Density_Bulk::IWG_Compressible_NS_Density_Bulk()
         {
             // set size for the constitutive model pointer cell
@@ -30,6 +31,7 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+
         void IWG_Compressible_NS_Density_Bulk::set_property(
                 std::shared_ptr< Property > aProperty,
                 std::string                 aPropertyString,
@@ -50,6 +52,7 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+
         void IWG_Compressible_NS_Density_Bulk::set_constitutive_model(
                 std::shared_ptr< Constitutive_Model > aConstitutiveModel,
                 std::string                           aConstitutiveString,
@@ -70,6 +73,7 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+
         void IWG_Compressible_NS_Density_Bulk::set_stabilization_parameter(
                 std::shared_ptr< Stabilization_Parameter > aStabilizationParameter,
                 std::string                                aStabilizationString )
@@ -78,6 +82,7 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+
         void IWG_Compressible_NS_Density_Bulk::compute_residual( real aWStar )
         {
             // check master field interpolators
@@ -99,8 +104,12 @@ namespace moris
 
             // compute the residual weak form
             mSet->get_residual()( 0 )( { tMasterResStartIndex, tMasterResStopIndex }, { 0, 0 } ) += aWStar * (
-                                trans( tDensityFI->N() ) * tDensityFI->gradt( 1 )
-                                - trans( tDensityFI->dnNdxn( 1 ) ) * tDensityFI->val()( 0 ) * tVelocityFI->val() );
+                    trans( tDensityFI->N() ) * tDensityFI->gradt( 1 )
+                    - trans( tDensityFI->dnNdxn( 1 ) ) * tDensityFI->val()( 0 ) * tVelocityFI->val() );
+
+            // check for nan, infinity
+            MORIS_ERROR( isfinite( mSet->get_residual()( 0 ) ),
+                    "IWG_Compressible_NS_Density_Bulk::compute_residual - Residual contains NAN or INF, exiting!");
         }
 
         //------------------------------------------------------------------------------
@@ -156,9 +165,14 @@ namespace moris
                                     - 1.0 * trans( tDensityFI->dnNdxn( 1 ) ) * tDensityFI->val()( 0 ) * tVelocityFI->N() );
                 }
             }
+
+            // check for nan, infinity
+            MORIS_ERROR( isfinite( mSet->get_jacobian() ),
+                    "IWG_Compressible_NS_Density_Bulk::compute_jacobian - Jacobian contains NAN or INF, exiting!");
         }
 
         //------------------------------------------------------------------------------
+
         void IWG_Compressible_NS_Density_Bulk::compute_jacobian_and_residual( real aWStar )
         {
 #ifdef DEBUG
@@ -170,6 +184,7 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+
         void IWG_Compressible_NS_Density_Bulk::compute_dRdp( real aWStar )
         {
 #ifdef DEBUG
@@ -181,6 +196,7 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+
         void IWG_Compressible_NS_Density_Bulk::compute_residual_strong_form(
                 Matrix< DDRMat > & aRM,
                 real             & aRC )
@@ -189,6 +205,7 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+
         void IWG_Compressible_NS_Density_Bulk::compute_jacobian_strong_form(
                 moris::Cell< MSI::Dof_Type >   aDofTypes,
                 Matrix< DDRMat >             & aJM,

@@ -12,6 +12,7 @@
 #include "cl_Matrix.hpp"
 #include "typedefs.hpp"
 #include "fn_reshape.hpp"
+#include "fn_isfinite.hpp"
 //MRS/COR/src // note: linalg_typedefs.hpp must be included AFTER the cl_Matrix.hpp
 #include "linalg_typedefs.hpp"
 //FEM/INT/src

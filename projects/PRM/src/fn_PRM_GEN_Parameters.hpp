@@ -18,10 +18,11 @@ namespace moris
         {
             ParameterList tParameterList;
 
-            // Level-set parameters
+            // Level set parameters
             tParameterList.insert("isocontour_threshold", 0.0); // Level-set isocontour level
             tParameterList.insert("isocontour_error_factor", 0.0); // Error factor for determining interface nodes
-            tParameterList.insert("level_set_file", ""); // Base file name (without extension) for saving level-set data
+            tParameterList.insert("output_mesh_file", ""); // File name for exodus mesh, if default no mesh is written
+            tParameterList.insert("geometry_field_file", ""); // Base file name (without extension) for saving geometry fields
 
             // ADVs/IQIs
             tParameterList.insert("initial_advs", "");       // Initial ADVs, string converted into vector
@@ -97,7 +98,7 @@ namespace moris
             // Must change
             tParameterList.insert("left_bound", 0.0);               // Left-most hole center
             tParameterList.insert("right_bound", 0.0);              // Right-most hole center
-            tParameterList.insert("bottom_bound", 0.0);             // Bottom
+            tParameterList.insert("bottom_bound", 0.0);             // Bottom-most hole center
             tParameterList.insert("top_bound", 0.0);                // Top-most hole center
             tParameterList.insert("hole_x_semidiameter", 0.0);      // Superellipse semi-diameter in the x direction
             tParameterList.insert("hole_y_semidiameter", 0.0);      // Superellipse semi-diameter in the y direction

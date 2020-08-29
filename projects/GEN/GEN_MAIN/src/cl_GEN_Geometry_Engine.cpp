@@ -13,6 +13,7 @@
 // MTK
 #include "cl_MTK_Integration_Mesh.hpp"
 #include "cl_MTK_Interpolation_Mesh.hpp"
+#include "cl_MTK_Writer_Exodus.hpp"
 
 // XTK FIXME
 #include "cl_XTK_Topology.hpp"
@@ -30,10 +31,9 @@ namespace moris
                 Cell<Cell<ParameterList>> aParameterLists,
                 std::shared_ptr<Library_IO> aLibrary):
 
-                // Level-set options
+                // Level set options
                 mIsocontourThreshold(aParameterLists(0)(0).get<real>("isocontour_threshold")),
                 mErrorFactor(aParameterLists(0)(0).get<real>("isocontour_error_factor")),
-                mLevelSetFile(aParameterLists(0)(0).get<std::string>("level_set_file")),
 
                 // ADVs/IQIs
                 mADVs(aParameterLists(0)(0).get<sint>("advs_size")
@@ -50,9 +50,13 @@ namespace moris
                 // Library
                 mLibrary(aLibrary),
 
-                // Geometries and properties
+                // Geometries
                 mGeometries(create_geometries(aParameterLists(1), mADVs, mLibrary)),
                 mGeometryParameterLists(aParameterLists(1)),
+                mGeometryFieldFile(aParameterLists(0)(0).get<std::string>("geometry_field_file")),
+                mOutputMeshFile(aParameterLists(0)(0).get<std::string>("output_mesh_file")),
+
+                // Properties
                 mProperties(create_properties(aParameterLists(2), mADVs, mLibrary)),
                 mPropertyParameterLists(aParameterLists(2)),
 
@@ -75,12 +79,12 @@ namespace moris
         //--------------------------------------------------------------------------------------------------------------
 
         Geometry_Engine::Geometry_Engine(
-                Cell< std::shared_ptr<Geometry> >  aGeometry,
-                Phase_Table                        aPhaseTable,
-                mtk::Interpolation_Mesh*           aMesh,
-                Matrix<DDRMat>                     aADVs,
-                real                               aIsocontourThreshold,
-                real                               aErrorFactor)
+                Cell< std::shared_ptr<Geometry> > aGeometry,
+                Phase_Table                       aPhaseTable,
+                mtk::Interpolation_Mesh*          aMesh,
+                Matrix<DDRMat>                    aADVs,
+                real                              aIsocontourThreshold,
+                real                              aErrorFactor)
                 : mIsocontourThreshold(aIsocontourThreshold),
                   mErrorFactor(aErrorFactor),
                   mADVs(aADVs),
@@ -111,6 +115,10 @@ namespace moris
             // Reset info related to the mesh
             mPdvHostManager.reset();
             mActiveGeometryIndex = 0;
+            for (uint tGeometryIndex = 0; tGeometryIndex < mGeometries.size(); tGeometryIndex++)
+            {
+                mGeometries(tGeometryIndex)->reset_child_nodes();
+            }
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -260,7 +268,14 @@ namespace moris
 
         void Geometry_Engine::admit_queued_intersection(uint aNodeIndex)
         {
+            // Assign as PDV host
             mPdvHostManager.set_intersection_node(aNodeIndex, mQueuedIntersectionNode);
+
+            // Assign as child node
+            for (uint tGeometryIndex = 0; tGeometryIndex < mGeometries.size(); tGeometryIndex++)
+            {
+                mGeometries(tGeometryIndex)->add_child_node(aNodeIndex, mQueuedIntersectionNode);
+            }
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -285,7 +300,7 @@ namespace moris
                         tParentNodeIndices, tParentNodeCoordinates, aParentTopo(tNode)->get_basis_function(), aParamCoordRelativeToParent(tNode));
 
                 // Assign to geometries
-                for (uint tGeometryIndex = 0; tGeometryIndex < this->get_num_geometries(); tGeometryIndex++)
+                for (uint tGeometryIndex = 0; tGeometryIndex < mGeometries.size(); tGeometryIndex++)
                 {
                     mGeometries(tGeometryIndex)->add_child_node(aNewNodeIndices(tNode), tChildNode);
                 }
@@ -517,7 +532,13 @@ namespace moris
             // Number of filled ADVs
             uint tNumFilledADVs = mADVs.length();
 
-            // Loop over all geometries and properties to resize ADVs (TODO)
+            // Reset geometries if parameter lists are given
+            if (mGeometryParameterLists.size() > 0)
+            {
+                mGeometries.resize(0);
+            }
+
+            // Loop over all geometry and property parameter lists to resize ADVs (TODO)
             for (uint tGeometryIndex = 0; tGeometryIndex < mGeometryParameterLists.size(); tGeometryIndex++)
             {
                 // Determine if level set will be created
@@ -594,9 +615,69 @@ namespace moris
                     tNumFilledADVs = tNumFilledADVs + tNumCoeffs;
                 }
             }
+        }
 
-            // Save level set data
-            if (mLevelSetFile != "")
+        //--------------------------------------------------------------------------------------------------------------
+
+        void Geometry_Engine::output_fields(mtk::Mesh* aMesh)
+        {
+            this->output_fields_on_mesh(aMesh, mOutputMeshFile);
+            this->write_geometry_fields(aMesh, mGeometryFieldFile);
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
+        void Geometry_Engine::output_fields_on_mesh(mtk::Mesh* aMesh, std::string aExodusFileName)
+        {
+            if (aExodusFileName != "")
+            {
+                // Write mesh
+                mtk::Writer_Exodus tWriter(aMesh);
+                tWriter.write_mesh("", aExodusFileName);
+
+                // Setup fields
+                Cell<std::string> tFieldNames(mGeometries.size());
+                for (uint tGeometryIndex = 0; tGeometryIndex < mGeometries.size(); tGeometryIndex++)
+                {
+                    tFieldNames(tGeometryIndex) = "Geometry " + std::to_string(tGeometryIndex);
+                }
+                tWriter.set_nodal_fields(tFieldNames);
+
+                // Get all node coordinates
+                Cell<Matrix<DDRMat>> tNodeCoordinates(aMesh->get_num_nodes());
+                for (uint tNodeIndex = 0; tNodeIndex < aMesh->get_num_nodes(); tNodeIndex++)
+                {
+                    tNodeCoordinates(tNodeIndex) = aMesh->get_node_coordinate(tNodeIndex);
+                }
+
+                // Loop over geometries
+                for (uint tGeometryIndex = 0; tGeometryIndex < mGeometries.size(); tGeometryIndex++)
+                {
+                    // Create field vector
+                    Matrix<DDRMat> tFieldData(aMesh->get_num_nodes(), 1);
+
+                    // Assign field to vector
+                    for (uint tNodeIndex = 0; tNodeIndex < aMesh->get_num_nodes(); tNodeIndex++)
+                    {
+                        tFieldData(tNodeIndex) = mGeometries(tGeometryIndex)->evaluate_field_value(
+                                tNodeIndex,
+                                tNodeCoordinates(tNodeIndex));
+                    }
+
+                    // Create field on mesh
+                    tWriter.write_nodal_field("Geometry " + std::to_string(tGeometryIndex), tFieldData);
+                }
+
+                // Finalize
+                tWriter.close_file(true);
+            }
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
+        void Geometry_Engine::write_geometry_fields(mtk::Mesh* aMesh, std::string aBaseFileName)
+        {
+            if (aBaseFileName != "")
             {
                 // Get all node coordinates
                 Cell<Matrix<DDRMat>> tNodeCoordinates(aMesh->get_num_nodes());
@@ -609,7 +690,7 @@ namespace moris
                 for (uint tGeometryIndex = 0; tGeometryIndex < mGeometries.size(); tGeometryIndex++)
                 {
                     // Create file
-                    std::ofstream tOutFile(mLevelSetFile + "_" + std::to_string(tGeometryIndex) + ".txt");
+                    std::ofstream tOutFile(aBaseFileName + "_" + std::to_string(tGeometryIndex) + ".txt");
 
                     // Write to file
                     for (uint tNodeIndex = 0; tNodeIndex < aMesh->get_num_nodes(); tNodeIndex++)
@@ -627,7 +708,9 @@ namespace moris
                         }
 
                         // Level-set field
-                        tOutFile << mGeometries(tGeometryIndex)->evaluate_field_value(tNodeIndex, tNodeCoordinates(tNodeIndex)) << std::endl;
+                        tOutFile << mGeometries(tGeometryIndex)->evaluate_field_value(
+                                tNodeIndex,
+                                tNodeCoordinates(tNodeIndex)) << std::endl;
                     }
 
                     // Close file
