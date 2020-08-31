@@ -96,29 +96,41 @@ public:
     //------------------------------------------------------------------------------
     moris::Cell<xtk::Cell_Cluster const  *>  const & get_xtk_cell_clusters_in_block_set(moris_index aBlockSetOrdinal) const;
 
-    /*
-     * Get the side set name of the interface.
+    /*!
+     * @return Interface side set name
      */
     std::string
     get_interface_side_set_name(moris_index aGeomIndex,
                                 moris_index aBulkPhaseIndex0,
                                 moris_index aBulkPhaseIndex1);
 
+    //------------------------------------------------------------------------------
+    /*!
+     * @return Double sided interface side set name
+     */
     std::string
     get_dbl_interface_side_set_name(moris_index aBulkPhaseIndex0,
                                     moris_index aBulkPhaseIndex1);
 
+    //------------------------------------------------------------------------------
+    
     /*!
-     * Returns the primary cell local indices in a block set.
+     * @return Primary cell local indices in a block set
      */
     Matrix< IndexMat >
     get_block_entity_loc_inds( std::string     aSetName) const;
 
+    
+    //------------------------------------------------------------------------------
+    
     /*!
+     * @brief Creates a double sided interface between the two bulk phases.
      * This function creates additional dbl sided interfaces. By default,
      * the enriched integrztion mesh creates only the low-master high-slave
      * dbl sided interfaces. This functions allows creation of  low-slave high-master
      * interfaces.
+     * @param[in] aMasterBulkPhaseIndex Master bulk phase index
+     * @param[in] aSlaveBulkPhaseIndex Slave bulk phase index
      */
     void
     create_dbl_sided_interface_set(moris_index aMasterBulkPhaseIndex,
@@ -128,19 +140,35 @@ public:
     //------------------------------------------------------------------------------
     // Output/ Viz Functions
     //------------------------------------------------------------------------------
-    /*
-     * For cleanup when writing to an exodus file (note: in general this should not be used because
+    /*!
+     * @brief For cleanup when writing to an exodus file (note: in general this should not be used because
      * sets may not be always empty through an optimization run)
      */
     void
     deactivate_empty_sets();
 
+    //------------------------------------------------------------------------------
+
+    /*!
+     * @brief Deactive empty side sets in mesh. 
+     */
     void
     deactivate_empty_side_sets();
 
+
+    //------------------------------------------------------------------------------
+
+    /*!
+     * @brief Deactive empty block sets in mesh. 
+     */
     void
     deactivate_empty_block_sets();
 
+    //------------------------------------------------------------------------------
+     /*!
+     * @brief Create basis support fields
+     * @return Cell of field names for basis support (1xNumBasisFunc)
+     */
     moris::Cell<std::string>
     create_basis_support_fields();
 
@@ -148,7 +176,8 @@ public:
     // Memory Map
     //------------------------------------------------------------------------------
     /*!
-     * @brief get the memory usage map
+     * @brief Memory map of the enriched integration mesh
+     * @return Memory map
      */
     moris::Memory_Map
     get_memory_usage();
@@ -157,24 +186,34 @@ public:
     // Additional Field Functions
     //------------------------------------------------------------------------------
     /*!
-     * Create a field in the enriched integration mesh. aBulkphaseIndex of MORIS_
-     * INDEX_MAX results in a field over all phases. (returns the field index)
+     * @brief Create a field
+     * @param[in] aLabel Field label
+     * @param[in] aEntityRank Field entity rank
+     * @param[in]aBulkPhaseIndex Bulk phase field defined over
+     * aBulkphaseIndex of MORIS_INDEX_MAX results in a field over all phases
      */
     moris::moris_index
     create_field(std::string            aLabel,
                  enum moris::EntityRank aEntityRank,
                  moris::moris_index     aBulkPhaseIndex = MORIS_INDEX_MAX);
+
     //------------------------------------------------------------------------------
+
     /*!
-     * Returns the field index in the member data vector, more efficient to do
-     * this once and access the field directly through the index
+     * @brief Given a field name and rank, gets the field index(ordinal)
+     * @return Field index
      */
     moris::moris_index
     get_field_index(std::string              aLabel,
                     enum moris::EntityRank   aEntityRank);
+
     //------------------------------------------------------------------------------
+ 
     /*!
-     * Add field data to created field.
+     * @brief Add field data to created field
+     * @param[in] aFieldIndex Field index (use fn:get_field_index(...) to get)
+     * @param[in] aEntityRank Field entity rank
+     * @param[in] aFieldData Field data
      */
     void
     add_field_data(moris::moris_index       aFieldIndex,
@@ -182,33 +221,48 @@ public:
                    Matrix<DDRMat>  const  & aFieldData);
 
     /*!
-     * return field data on a specified field
+     * @brief Given a field index and field entity rank, get the field data
+     * @param[in] aFieldIndex Field index (use fn:get_field_index(...) to get)
+     * @param[in] aEntityRank Field entity rank
+     * @return Field data
      */
     Matrix<DDRMat> const   &
     get_field_data(moris::moris_index       aFieldIndex,
                    enum moris::EntityRank   aEntityRank) const;
     //------------------------------------------------------------------------------
-    /*
-     * Convert a entity indices to entity ids
+    /*!
+     * @brief Convert entity indices to entity ids
+     * @param[in] aIndices Enitity indices
+     * @param[in] aEntityRank Entity rank
+     * @return Entity ids
      */
     Matrix<IdMat> convert_indices_to_ids(Matrix<IndexMat> const & aIndices,
                                          enum EntityRank          aEntityRank) const;
     //------------------------------------------------------------------------------
-    /*
-     * Convert a entity ids to entity indices
+    /*!
+     * @brief Convert entity ids to entity indices
+     * @param[in] aIds Enitity ids
+     * @param[in] aEntityRank Entity rank
+     * @return Entity indices
      */
     Matrix<IndexMat> convert_ids_to_indices(Matrix<IdMat> const & aIds,
                                             enum EntityRank       aEntityRank) const;
     //------------------------------------------------------------------------------
 
-    /*
-     * Get multple mtk cells from cell index matrix
+    /*!
+     * @brief Get MTK cells from their indices
+     * @param[in] aCellIndices Cell indices
+     * @return MTK cells
      */
     moris::Cell<moris::mtk::Cell const *>
     get_mtk_cells_loc_inds(Matrix<IndexMat> const & aCellIndices);
+
     //------------------------------------------------------------------------------
-    /*
-     * Get multple mtk vertices from vertex index matrix
+
+    /*!
+     * @brief Get MTK vertices from their indices
+     * @param[in] aVertexIndices Vertex indices
+     * @return MTK vertices
      */
     moris::Cell<moris::mtk::Vertex const *>
     get_mtk_vertices_loc_inds(Matrix<IndexMat> const & aVertexIndices);
@@ -218,14 +272,13 @@ public:
     // Accessor functions of XTK specific data structures
     //------------------------------------------------------------------------------
     /*!
-     * get the xtk cell cluster associated with an interpolation cell
+     * @brief Get the XTK cell cluster implementation
+     * @param[in] aInterpCell Interpolation MTK cell
+     * @return XTK cell cluster
+     * NOTE: requires there is only one cell cluster associated with the interpolation cell
      */
     xtk::Cell_Cluster const &
     get_xtk_cell_cluster(mtk::Cell const & aInterpCell) const;
-    //------------------------------------------------------------------------------
-    // Debug
-    //------------------------------------------------------------------------------
-
 
     //------------------------------------------------------------------------------
     // Printing
@@ -240,15 +293,29 @@ public:
     //--------------------------------------------------------------------------------
     // Utilities for manipulating sets
     //--------------------------------------------------------------------------------
+    /*!
+     * @brief Create a single side set from a double sided side set
+     * @param[in] aDblSideSetIndex Double side set index
+     * @param[in] aSideSetName New side set name
+     * @param[in] aCollectSets Perform collect operation upon completion of function. 
+     * @return Side set index
+     */
     moris_index
     create_side_set_from_dbl_side_set(moris_index const & aDblSideSetIndex,
                                       std::string const & aSideSetName,
                                       bool aCollectSets = true);
 
+    /*!
+     * @brief Create a block set from a single sided side set
+     * @param[in] aDblSideSetIndex Double side set index
+     * @param[in] aBlockSetName New block set name
+     * @param[in] aCellTopo New block set cell topology
+     * @return Block set index
+     */
     moris_index
-    create_block_set_from_cells_of_side_set(moris_index const & aSideSetIndex,
-                                            std::string const & aSideSetName,
-                                            enum CellTopology   aCellTopo);
+    create_block_set_from_cells_of_side_set(moris_index       const & aSideSetIndex,
+                                            std::string       const & aBlockSetName,
+                                            enum CellTopology const & aCellTopo);
 
     friend class Enrichment;
     friend class Ghost_Stabilization;
@@ -311,84 +378,130 @@ protected:
     //------------------------------------------------------------------------------
     moris_id allocate_entity_ids(moris::size_t  aNumReqs, enum EntityRank aEntityRank);
 
+    //------------------------------------------------------------------------------
+    
     void
     commit_double_side_set(moris_index const & aDoubleSideSetIndex);
 
+    //------------------------------------------------------------------------------
+    
     void
     commit_side_set(moris_index const & aSideSetIndex);
 
+    //------------------------------------------------------------------------------
+    
     void
     commit_block_set(moris_index const & aBlockSetIndex);
 
 private:
     //------------------------------------------------------------------------------
+
     void
     setup_cell_clusters();
+
     //------------------------------------------------------------------------------
+
     void
     setup_blockset_with_cell_clusters();
+
     //------------------------------------------------------------------------------
+
     void
     setup_side_set_clusters();
+
     //------------------------------------------------------------------------------
+    
     void
     setup_double_side_set_clusters();
+
     //------------------------------------------------------------------------------
+    
     void
     setup_color_to_set();
+
     //------------------------------------------------------------------------------
+
     void
     setup_double_sided_interface_sides();
+
     //------------------------------------------------------------------------------
+
     void
     declare_interface_double_side_sets();
+
     //------------------------------------------------------------------------------
+
     moris_index
     get_dbl_side_set_index(moris_index aPhase0,
                            moris_index aPhase1);
+                           
     //------------------------------------------------------------------------------
+
     void
     create_interface_double_side_sets_and_clusters();
+
     //------------------------------------------------------------------------------
+
     moris::Cell<std::string>
     split_set_name_by_bulk_phase(std::string aBaseName);
+
     //------------------------------------------------------------------------------
+
     moris::Cell<std::string>
     split_set_name_by_child_no_child(std::string aBaseName);
 
     //------------------------------------------------------------------------------
+
     Cell<moris_index>
     register_vertex_set_names(moris::Cell<std::string> const & aVertexSetNames);
+
     //------------------------------------------------------------------------------
+
     Cell<moris_index>
     register_block_set_names_with_cell_topo(moris::Cell<std::string> const & aBlockSetNames,
                                             enum CellTopology                aBlockTopology);
+
     //------------------------------------------------------------------------------
+
     void
     set_block_set_colors(moris_index const &    aBlockSetIndex,
                          Matrix<IndexMat> const & aBlockSetColors);
+                         
     //------------------------------------------------------------------------------
+
     Cell<moris_index>
     register_side_set_names(moris::Cell<std::string> const & aSideSetNames);
+
     //------------------------------------------------------------------------------
+
     void
     set_side_set_colors(moris_index const &    aSideSetIndex,
                          Matrix<IndexMat> const & aSideSetColors);
+
     //------------------------------------------------------------------------------
+
     Cell<moris_index>
     register_double_side_set_names(moris::Cell<std::string> const & aDblSideSetNames);
+
     //------------------------------------------------------------------------------
+
     void
     set_double_side_set_colors(moris_index const &      aDblSideSetIndex,
                                Matrix<IndexMat> const & aMasterSideColors,
                                Matrix<IndexMat> const & aSlaveSideColors);
+
     //------------------------------------------------------------------------------
+
     void
     setup_interface_side_sets();
+
     //------------------------------------------------------------------------------
+
     void
     declare_interface_side_sets();
+
     //------------------------------------------------------------------------------
+
     void
     create_interface_side_sets_and_clusters();
 
@@ -397,21 +510,29 @@ private:
     setup_interface_vertex_sets();
 
     //------------------------------------------------------------------------------
+
     Cell<moris_index>
     declare_interface_vertex_sets();
+
     //------------------------------------------------------------------------------
+
     void
     create_interface_vertex_sets(Cell<moris_index> const & aInterfaceVertexSetOrds);
+
     //------------------------------------------------------------------------------
+
     void
     set_vertex_set_color(moris_index     const & aVertexSetIndex,
                         Matrix<IndexMat> const & aVertexSetColors);
+
     //------------------------------------------------------------------------------
+
     void
     construct_color_to_set_relationship(moris::Cell<moris::Matrix<IndexMat>> const & aSetColors,
                                         moris::Cell<moris::Cell<moris_index>> & aColorToSetIndex);
 
     //------------------------------------------------------------------------------
+
     void
     create_interface_side_sets_from_interface_double_side_set(moris_index const & aBulkphase0,
                                                               moris_index const & aBulkphase1);
@@ -425,16 +546,13 @@ private:
     moris_index
     get_entity_rank_field_index(enum moris::EntityRank   aEntityRank);
     //------------------------------------------------------------------------------
-    /*
-     * Returns whether a field exists or not
+    /*!
+     * @return  whether a field exists or not
      */
     bool
     field_exists(std::string              aLabel,
                  enum moris::EntityRank   aEntityRank);
-    //------------------------------------------------------------------------------
-    //------------------------------------------------------------------------------
-    // Parallel functions
-    //------------------------------------------------------------------------------
+
 };
 }
 

@@ -120,12 +120,25 @@ Interpolation_Vertex_Unzipped::add_vertex_interpolation(const uint aOrder,
 
     mInterpolation(aOrder) = aVertexInterp;
 }
+
 //------------------------------------------------------------------------------
 
 void
 Interpolation_Vertex_Unzipped::set_vertex_id(moris_index const & aId)
 {
     mVertexId = aId;
+}
+//------------------------------------------------------------------------------
+size_t
+Interpolation_Vertex_Unzipped::capacity()
+{
+    size_t tTotal = 0;
+    tTotal += sizeof(mBaseInterpVertex);
+    tTotal += sizeof(mVertexId);
+    tTotal += sizeof(mVertexIndex);
+    tTotal += sizeof(mVertexOwner);
+    tTotal += mInterpolation.capacity();
+    return tTotal;
 }
 
 }

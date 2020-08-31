@@ -3352,6 +3352,10 @@ namespace xtk
             std::cout<<"XTK: Basis enrichment computation completed in " <<(std::clock() - start) / (double)(CLOCKS_PER_SEC)<<" s."<<std::endl;
             std::cout<<"XTK: Basis enrichment performed on mesh index: "<< aMeshIndex<<std::endl;
         }
+
+        // this->get_memory_usage();            
+            
+
     }
 
     // ----------------------------------------------------------------------------------
@@ -5278,24 +5282,43 @@ namespace xtk
     moris::Memory_Map
     Model::get_memory_usage()
     {
+        // memory map for model
         moris::Memory_Map tXTKModelMM;
 
-        moris::Memory_Map tCutMeshMM    = mCutMesh.get_memory_usage();
-        tCutMeshMM.print();
+        // member data that have memory maps
+        moris::Memory_Map tCutMeshMM;
+        moris::Memory_Map tBGMeshMM;
+        moris::Memory_Map tEnrichmentMM;
+        moris::Memory_Map tGhostMM;
+        moris::Memory_Map tIgMeshMM;
+        moris::Memory_Map tIpMeshMM;
 
-        // Background Mesh
-        moris::Memory_Map tEnrichmentMM = mEnrichment->get_memory_usage();
-        moris::Memory_Map tIgMeshMM     = mEnrichedIntegMesh(0)->get_memory_usage();
-        moris::Memory_Map tBGMeshMM     = mBackgroundMesh.get_memory_usage();
+        if(mDecomposed)
+        {
+            tCutMeshMM    = mCutMesh.get_memory_usage();
+            tBGMeshMM     = mBackgroundMesh.get_memory_usage();
+        }
 
-        // Interpolation Mesh
-        // Ghost Stabilization
+        if(mEnriched)
+        {
+            tEnrichmentMM = mEnrichment->get_memory_usage();
+            tIgMeshMM     = this->get_enriched_integ_mesh().get_memory_usage();
+            tIpMeshMM     = this->get_enriched_interp_mesh().get_memory_usage();
+        }
+
+        if(mGhost)
+        {
+            tGhostMM      = mGhostStabilization->get_memory_usage();
+        }
+
         
         // make the sum of the cut mesh memory map the cut mesh memory
-        tXTKModelMM.mMemoryMapData["Cut Mesh"] = tCutMeshMM.sum();
-        tXTKModelMM.mMemoryMapData["Enrichment"] = tEnrichmentMM.sum();
+        tXTKModelMM.mMemoryMapData["Cut Mesh"]         = tCutMeshMM.sum();
+        tXTKModelMM.mMemoryMapData["Enrichment"]       = tEnrichmentMM.sum();
         tXTKModelMM.mMemoryMapData["Enriched Ig Mesh"] = tIgMeshMM.sum();
-        tXTKModelMM.mMemoryMapData["Background Mesh"] = tBGMeshMM.sum();
+        tXTKModelMM.mMemoryMapData["Enriched Ip Mesh"] = tIpMeshMM.sum();
+        tXTKModelMM.mMemoryMapData["Ghost"]            = tGhostMM.sum();
+        tXTKModelMM.mMemoryMapData["Background Mesh"]  = tBGMeshMM.sum();
         tXTKModelMM.mMemoryMapData["mElementToElement ptrs"] = moris::internal_capacity(mElementToElement);
         tXTKModelMM.mMemoryMapData["mElementToElement ptrs"] = moris::internal_capacity(mElementToElement);
         tXTKModelMM.mMemoryMapData["mSubphaseToSubPhase"] = moris::internal_capacity(mSubphaseToSubPhase);
@@ -5306,6 +5329,7 @@ namespace xtk
         tEnrichmentMM.print();
         tIgMeshMM.print();
         tBGMeshMM.print();
+        tXTKModelMM.print();
         return tXTKModelMM;
 
     }

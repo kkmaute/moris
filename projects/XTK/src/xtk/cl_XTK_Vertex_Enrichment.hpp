@@ -174,6 +174,9 @@ public:
     bool
     has_interpolation() const;
 
+    size_t
+    capacity();
+
 protected:
     moris::moris_index               mNodeIndex;
     moris::Matrix< moris::IndexMat > mBasisIndices;

@@ -120,6 +120,17 @@ Interpolation_Cell_Unzipped::get_xtk_interpolation_vertices()
     return mVertices;
 }
 //------------------------------------------------------------------------------
+size_t
+Interpolation_Cell_Unzipped::capacity()
+{
+    size_t tTotal = 0;
+    tTotal += sizeof(mBaseCell);
+    tTotal += sizeof(mSubPhaseIndex);
+    tTotal += sizeof(mSubPhaseIndex);
+    tTotal += sizeof(mBulkPhaseIndex);
+    tTotal += mVertices.capacity();
+    return tTotal;
+}
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------

@@ -9,6 +9,7 @@
 #include "cl_Map.hpp"
 
 #include "cl_XTK_Multigrid.hpp"
+#include "fn_TOL_Capacities.hpp"
 
 namespace xtk
 {
@@ -927,6 +928,39 @@ namespace xtk
 
     // ----------------------------------------------------------------------------
 
+    moris::Memory_Map
+    Enriched_Interpolation_Mesh::get_memory_usage()
+    {
+        // memory map of ig mesh
+        moris::Memory_Map tMM;
+        tMM.mMemoryMapData["mXTKModel ptr"] = sizeof(mXTKModel);
+        tMM.mMemoryMapData["mBasisRank ptr"] = sizeof(mBasisRank);
+        tMM.mMemoryMapData["mMeshIndices"] = mMeshIndices.capacity();
+        //FIXME: add mMeshIndexToLocMeshIndex
+        tMM.mMemoryMapData["mNumVerts"] = sizeof(mNumVerts);
+        tMM.mMemoryMapData["mEnrichedInterpVerts"] = moris::internal_capacity(mEnrichedInterpVerts);
+        tMM.mMemoryMapData["mNumVertsPerInterpCell"] = sizeof(mNumVertsPerInterpCell);
+        tMM.mMemoryMapData["mEnrichedInterpVerts"] = moris::internal_capacity(mEnrichedInterpVerts);
+        tMM.mMemoryMapData["mBaseInterpVertToVertEnrichmentIndex"] = moris::internal_capacity_nested(mBaseInterpVertToVertEnrichmentIndex);
+        tMM.mMemoryMapData["mInterpVertEnrichment"] = moris::internal_capacity_nested_ptr(mInterpVertEnrichment);
+        tMM.mMemoryMapData["mVertexEnrichmentParentVertexIndex"] = moris::internal_capacity(mVertexEnrichmentParentVertexIndex);
+        tMM.mMemoryMapData["mVertexBulkPhase"] = mVertexBulkPhase.capacity();
+        tMM.mMemoryMapData["mCoeffToEnrichCoeffs"] = moris::internal_capacity_nested(mCoeffToEnrichCoeffs);
+        tMM.mMemoryMapData["mEnrichCoeffLocToGlob"] = moris::internal_capacity(mEnrichCoeffLocToGlob);
+        //fixme: add me mGlobaltoLocalBasisMaps
+        tMM.mMemoryMapData["mEnrichCoeffOwnership"] = moris::internal_capacity(mEnrichCoeffOwnership);
+        tMM.mMemoryMapData["mLocalToGlobalMaps"] = moris::internal_capacity(mLocalToGlobalMaps);
+        //fixme: add mGlobaltoLobalMaps
+        tMM.mMemoryMapData["mBaseCelltoEnrichedCell"] = moris::internal_capacity(mBaseCelltoEnrichedCell);
+        tMM.mMemoryMapData["mCellInfo"] = sizeof(mCellInfo);
+        tMM.mMemoryMapData["mNotOwnedVerts"] = mNotOwnedVerts.capacity();
+        tMM.mMemoryMapData["mNotOwnedBasis"] = mNotOwnedBasis.capacity();
+        tMM.mMemoryMapData["mOwnedBasis"] = mOwnedBasis.capacity();
+        return tMM;
+    }
+
+    // ----------------------------------------------------------------------------
+    
     void
     Enriched_Interpolation_Mesh::convert_enriched_basis_indices_to_ids(
             moris_index            const & aMeshIndex,

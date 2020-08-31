@@ -1240,9 +1240,9 @@ namespace xtk
 
     moris_index
     Enriched_Integration_Mesh::create_block_set_from_cells_of_side_set(
-            moris_index const & aSideSetIndex,
-            std::string const & aBlockSetName,
-            enum CellTopology   aCellTopo)
+            moris_index       const & aSideSetIndex,
+            std::string       const & aBlockSetName,
+            enum CellTopology const & aCellTopo)
     {
         moris::Cell<std::shared_ptr<xtk::Side_Cluster>> & tSideClusters = mSideSets(aSideSetIndex);
 

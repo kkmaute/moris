@@ -12,6 +12,8 @@
 #include "cl_XTK_Model.hpp"
 #include "cl_MTK_Mesh.hpp"
 #include "cl_XTK_Enriched_Interpolation_Mesh.hpp"
+#include "fn_TOL_Capacities.hpp"
+#include "cl_TOL_Memory_Map.hpp"
 using namespace moris;
 
 namespace moris
@@ -43,6 +45,22 @@ namespace xtk
             // trivial clusters are ones that are not on a hanging node interface
             Cell<Cell<moris_index>> mTrivialFlag;
             Cell<Cell<moris_index>> mTransitionLocation;
+
+            size_t
+            capacity()
+            {
+                size_t tTotal = 0;
+                tTotal += mSubphaseIndexToInterpolationCellIndex.capacity();
+                tTotal += mDblSideSetIndexInMesh.capacity();
+                tTotal += moris::internal_capacity(mMasterSideIgCellSideOrds);
+                tTotal += moris::internal_capacity(mMasterSideIgCellSideOrds);
+                tTotal += moris::internal_capacity(mSlaveSideIgCellSideOrds);
+                tTotal += moris::internal_capacity(mTrivialFlag);
+                tTotal += moris::internal_capacity(mTransitionLocation);
+                return tTotal;
+            }
+
+            
     };
 
     class Model;
@@ -51,22 +69,47 @@ namespace xtk
     {
         public:
             // ----------------------------------------------------------------------------------
+            /*!
+            *  @brief Default constructor
+            */
             Ghost_Stabilization();
 
             // ----------------------------------------------------------------------------------
+            /*!
+            *  @brief Constructor
+            */
             Ghost_Stabilization( Model* aXTKModel );
 
             // ----------------------------------------------------------------------------------
+            /*!
+            *  @brief Perform/setup ghost stabilization
+            */
             void
             setup_ghost_stabilization();
 
             // ----------------------------------------------------------------------------------
+            /*!
+            *  @brief Work with meshes, to add visualization set for provided bulk phase
+            *  @param[in] aBulkPhase Bulk phase
+            */
             void
-            visualize_ghost_on_mesh(moris_index aBulkPhase);
+            visualize_ghost_on_mesh(moris_index const & aBulkPhase);
 
             // ----------------------------------------------------------------------------------
+            /*!
+            *  @brief Get the dbl side set name of ghost stabilization
+            *  @param[in] aBulkPhase Bulk phase
+            *  @return Name of double side set
+            */
             std::string
-            get_ghost_dbl_side_set_name(moris_index aBulkPhase);
+            get_ghost_dbl_side_set_name(moris_index const & aBulkPhase);
+
+            // ----------------------------------------------------------------------------------
+            /*!
+            * @return Memory map of ghost stabilization
+            */
+           Memory_Map
+           get_memory_usage();
 
         private:
             // ----------------------------------------------------------------------------------
