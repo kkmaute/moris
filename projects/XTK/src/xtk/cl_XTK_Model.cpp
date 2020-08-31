@@ -3352,10 +3352,6 @@ namespace xtk
             std::cout<<"XTK: Basis enrichment computation completed in " <<(std::clock() - start) / (double)(CLOCKS_PER_SEC)<<" s."<<std::endl;
             std::cout<<"XTK: Basis enrichment performed on mesh index: "<< aMeshIndex<<std::endl;
         }
-
-        // this->get_memory_usage();            
-            
-
     }
 
     // ----------------------------------------------------------------------------------
@@ -5308,7 +5304,7 @@ namespace xtk
 
         if(mGhost)
         {
-            tGhostMM      = mGhostStabilization->get_memory_usage();
+            tGhostMM    = mGhostStabilization->get_memory_usage();
         }
 
         
@@ -5325,11 +5321,8 @@ namespace xtk
         tXTKModelMM.mMemoryMapData["mSubphaseToSubPhaseMySideOrds"] = moris::internal_capacity(mSubphaseToSubPhaseMySideOrds);
         tXTKModelMM.mMemoryMapData["mSubphaseToSubPhaseNeighborSideOrds"] = moris::internal_capacity(mSubphaseToSubPhaseNeighborSideOrds);
 
-        tCutMeshMM.print();
-        tEnrichmentMM.print();
-        tIgMeshMM.print();
-        tBGMeshMM.print();
-        tXTKModelMM.print();
+        tXTKModelMM.par_print();
+
         return tXTKModelMM;
 
     }

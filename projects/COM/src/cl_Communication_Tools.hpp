@@ -117,19 +117,6 @@ namespace moris
     moris::size_t
     scatter(std::vector<moris::size_t>  & aMessage);
 
-    /*
-     * Communicate Id of node created on an edge shared by a face
-     * @param[in] tNID - ID of node created on a face
-     * @param[in]
-     */
-    void
-    communicate_info(
-            Matrix< IdMat >                & aSendProcs,
-            Matrix< IdMat >                & aRecvProcs,
-            moris::Cell<moris::uint>       & aSendTags,
-            moris::Cell<moris::uint>       & aRecvTags,
-            moris::Cell<Matrix< DDUMat >>  & aSendMessage,
-            moris::Cell<Matrix< DDUMat >>  & aRecvMessage);
 
     moris::uint gather_value_and_bcast_max( moris::uint aMessage );
 
@@ -835,6 +822,17 @@ namespace moris
 
         barrier();
     }
+
+    /*!
+     * Gather cell of strings
+     */
+    void
+    all_gather_cell_of_str(
+            Cell<std::string> const & aCellToGather,
+            Cell<Cell<std::string>> & aGatheredCells,
+            moris_index aTag,
+            moris_index aBaseProc = 0);
+
 }
 
 #endif /* SRC_COMM_CL_COMMUNICATION_TOOLS_HPP_ */

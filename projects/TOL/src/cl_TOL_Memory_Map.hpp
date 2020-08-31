@@ -7,6 +7,9 @@
 #define SRC_TOOLS_CL_TOL_MEMORY_MAP_HPP_
 
 #include <unordered_map>
+
+#include "cl_Matrix.hpp"
+
 #include "fn_TOL_Capacities.hpp"
 
 namespace moris
@@ -25,6 +28,11 @@ namespace moris
 
         // ----------------------------------------------------------------------------------
 
+        Memory_Map(Cell<std::string> const & aKeys,
+                   Matrix<DDSTMat>   const & aVals);
+ 
+        // ----------------------------------------------------------------------------------
+ 
         ~Memory_Map();
 
         // ----------------------------------------------------------------------------------
@@ -33,6 +41,14 @@ namespace moris
         */
         void
         print();
+
+        // ----------------------------------------------------------------------------------
+ 
+       /*! 
+        * @brief Parallel print the memory usage of the map
+        */
+        void
+        par_print();
 
         // ----------------------------------------------------------------------------------
  
@@ -55,6 +71,37 @@ namespace moris
         std::unordered_map<std::string, size_t> mMemoryMapData;
 
         // ----------------------------------------------------------------------------------
+
+        private:
+        
+        // ----------------------------------------------------------------------------------
+
+        /*!
+         * @brief Gather all memory maps to root processor.
+         * @param[out] aGatheredMemMap Gathered Memory Maps;
+         */ 
+        void
+        gather_all(Cell<Memory_Map> & aGatheredMemMap);
+
+        // ----------------------------------------------------------------------------------
+        /*!
+         * @brief Serialize memory map
+         * mpi purposes.
+         * @param[out] aKeyCell Cell of keys (on root proc)
+         */
+        void
+        serialize( Cell<std::string> & aKeyCell,
+                   Matrix<DDSTMat>   & aValCell);
+
+        /*!
+         * @brief Deserialize memory maps on root processor
+         * @param[out] 
+         */
+        void
+        deserialize( Cell<Cell<std::string>> & aGatheredKeyCells,
+                     Cell<Matrix<DDSTMat>>   & aGatheredValCells,
+                     Cell<Memory_Map>        & aGatheredMemMaps);
+
     };
 } // namespace moris
 
