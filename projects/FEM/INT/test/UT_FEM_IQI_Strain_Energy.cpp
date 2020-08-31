@@ -62,12 +62,17 @@ void tFIDerDvFunction_UTIQISTRAINENERGY
 using namespace moris;
 using namespace fem;
 
-
-TEST_CASE( "IQI_Strain_Energy", "[moris],[fem],[IQI_Strain_Energy]" )
+TEST_CASE("IQI_Strain_Energy", "[moris],[fem],[IQI_Strain_Energy]")
 {
+    // define an epsilon environment
+    real tEpsilon = 1E-6;
+
+    // define a perturbation relative size
+    real tPerturbation = 1E-6;
+
     // create the properties
-    std::shared_ptr< fem::Property > tPropMasterEMod = std::make_shared< fem::Property > ();
-    tPropMasterEMod->set_parameters( { {{ 1.0 }} } );
+    std::shared_ptr<fem::Property> tPropMasterEMod = std::make_shared<fem::Property>();
+    tPropMasterEMod->set_parameters({{{1.0}}});
     tPropMasterEMod->set_dv_type_list( {{ PDV_Type::DENSITY }} );
     tPropMasterEMod->set_val_function( tFIValDvFunction_UTIQISTRAINENERGY );
     tPropMasterEMod->set_dv_derivative_functions( { tFIDerDvFunction_UTIQISTRAINENERGY } );
@@ -297,7 +302,4 @@ TEST_CASE( "IQI_Strain_Energy", "[moris],[fem],[IQI_Strain_Energy]" )
 //    tIQI->compute_dQIdp_FD_geometry( 1.0, tPerturbation, tIsActive, tdQIdpGeoFD );
 ////    print( tdQIdpGeoFD, "tdQIdpGeoFD" );
 
-}/*END_TEST_CASE*/
-
-
-
+} /*END_TEST_CASE*/
