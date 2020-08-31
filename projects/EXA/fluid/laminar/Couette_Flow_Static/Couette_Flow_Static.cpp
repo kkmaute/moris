@@ -89,13 +89,18 @@ extern "C"
             real ty = aFIManager->get_IP_geometry_interpolator()->valx()( 1 );
             real tR = std::pow( std::pow( tx, 2.0 ) + std::pow( ty, 2.0 ), 0.5 );
 
+            real tx2 = std::pow( tx, 2.0 );
+            real ty2 = std::pow( ty, 2.0 );
+            real tR2 = std::pow( tR, 2.0 );
+            real tR4 = std::pow( tR, 4.0 );
+
             // set size for aPropMatrix
             aPropMatrix.set_size( 2, 2, 0.0 );
-            aPropMatrix( 0, 0 ) = 2.0 * tB * tx * ty / std::pow( tR, 4.0 );
-            aPropMatrix( 1, 0 ) = - tA - tB / std::pow( tR, 2.0 ) + 2.0 * tB * std::pow( ty, 2.0 )/ std::pow( tR, 4.0 );
+            aPropMatrix( 0, 0 ) = 2.0 * tB * tx * ty / tR4;
+            aPropMatrix( 1, 0 ) = - tA - tB / tR2 + 2.0 * tB * ty2 / tR4;
 
-            aPropMatrix( 0, 1 ) = tA + tB / std::pow( tR, 2.0 ) - 2.0 * tB * std::pow( tx, 2.0 ) / std::pow( tR, 4.0);
-            aPropMatrix( 1, 1 ) = - 2.0 * tB * tx * ty / std::pow( tR, 2.0 );
+            aPropMatrix( 0, 1 ) = tA + tB / tR2 - 2.0 * tB * tx2 / tR4;
+            aPropMatrix( 1, 1 ) = - 2.0 * tB * tx * ty / tR4;
         }
 
         bool Output_Criterion( moris::tsa::Time_Solver * aTimeSolver )
