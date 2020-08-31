@@ -550,7 +550,7 @@ namespace moris
                     get_design_variable_interface()->
                     get_ip_requested_dv_types( tRequestedIPDvTypes );
 
-            // loop over the number of adjont vectors for this equation object
+            // loop over the number of adjoint vectors for this equation object
             for( uint Ik = 0; Ik < mAdjointPdofValues.size(); Ik++ )
             {
                 // FIXME super big hack. this if statement should be handled differently
