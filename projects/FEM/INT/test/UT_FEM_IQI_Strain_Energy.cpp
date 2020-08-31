@@ -13,22 +13,25 @@
 
 #define protected public
 #define private   public
-#include "cl_FEM_Model.hpp"         //FEM/INT/src
-#include "cl_FEM_Field_Interpolator_Manager.hpp"                   //FEM//INT//src
-#include "cl_FEM_IQI.hpp"         //FEM/INT/src
-#include "cl_FEM_Set.hpp"         //FEM/INT/src
+//FEM/INT/src
+#include "cl_FEM_Model.hpp"
+#include "cl_FEM_Field_Interpolator_Manager.hpp"
+#include "cl_FEM_IQI.hpp"
+#include "cl_FEM_Set.hpp"
 #undef protected
 #undef private
-
-#include "cl_FEM_Field_Interpolator.hpp"                   //FEM//INT//src
-#include "cl_FEM_Property.hpp"                   //FEM//INT//src
-#include "cl_FEM_CM_Factory.hpp"                   //FEM//INT//src
-#include "cl_FEM_IQI_Factory.hpp"                   //FEM//INT//src
-#include "cl_MTK_Enums.hpp" //MTK/src
+//FEM/INT/src
 #include "cl_FEM_Enums.hpp"                                //FEM//INT/src
-#include "cl_MSI_Design_Variable_Interface.hpp"                   //FEM//INT//src
+#include "cl_FEM_Field_Interpolator.hpp"
+#include "cl_FEM_Property.hpp"
+#include "cl_FEM_CM_Factory.hpp"
+#include "cl_FEM_IQI_Factory.hpp"
 #include "FEM_Test_Proxy/cl_FEM_Design_Variable_Interface_Proxy.hpp"
-
+//FEM/MSI/src
+#include "cl_MSI_Design_Variable_Interface.hpp"
+//MTK/src
+#include "cl_MTK_Enums.hpp"
+//LINALG/src
 #include "op_equal_equal.hpp"
 
 void tConstValFunction_UTIQISTRAINENERGY
@@ -252,27 +255,27 @@ TEST_CASE( "IQI_Strain_Energy", "[moris],[fem],[IQI_Strain_Energy]" )
     // evaluate the quantity of interest
     Matrix< DDRMat > tQI;
     tIQI->compute_QI( tQI );
-//    print( tQI, "tQI" );
+    print( tQI, "tQI" );
     tIQI->compute_QI( 1.0 );
-//    print( tIQI->mSet->get_QI()( 0 ), "QI" );
+    print( tIQI->mSet->get_QI()( 0 ), "QI" );
 
-//    // check evaluation of the derivative of the quantity of interest wrt to dof
-//    //------------------------------------------------------------------------------
-//    // evaluate the quantity of interest derivatives wrt to dof
-//    Matrix< DDRMat > tdQIdu;
-//    Matrix< DDRMat > tdQIduFD;
-//    bool tCheckdQIdu = tIQI->check_dQIdu_FD( 1.0,
-//                                             tPerturbation,
-//                                             tEpsilon,
-//                                             tdQIdu,
-//                                             tdQIduFD );
-////    // print for debug
-////    print( tdQIdu,   "tdQIdu" );
-////    print( tdQIduFD, "tdQIduFD" );
-//
-//    // require check is true
-//    REQUIRE( tCheckdQIdu );
-//
+    // check evaluation of the derivative of the quantity of interest wrt to dof
+    //------------------------------------------------------------------------------
+    // evaluate the quantity of interest derivatives wrt to dof
+    Matrix< DDRMat > tdQIdu;
+    Matrix< DDRMat > tdQIduFD;
+    bool tCheckdQIdu = tIQI->check_dQIdu_FD( 1.0,
+                                             tPerturbation,
+                                             tEpsilon,
+                                             tdQIdu,
+                                             tdQIduFD );
+//    // print for debug
+    //print( tdQIdu,   "tdQIdu" );
+    //print( tdQIduFD, "tdQIduFD" );
+
+    // require check is true
+    REQUIRE( tCheckdQIdu );
+
 //    // check evaluation of the derivative of the quantity of interest wrt to dv
 //    //------------------------------------------------------------------------------
 //    Matrix< DDRMat > tdQIdpMatFD;
