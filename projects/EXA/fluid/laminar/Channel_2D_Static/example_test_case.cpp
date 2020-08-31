@@ -29,10 +29,6 @@ TEST_CASE("Channel_2D_Static_Inlet_Velocity",
 
     char * argv[2] = {tString1,tString2};
 
-    // set inlet bc flags
-    bool gInletVelocityBCFlag = true;
-    bool gInletPressureBCFlag = false;
-
     // call to performance manager main interface
     fn_WRK_Workflow_Main_Interface( argc, argv );
 
@@ -52,10 +48,6 @@ TEST_CASE("Channel_2D_Static_Inlet_Pressure",
     char tString2[] = "./Channel_2D_Static.so";
 
     char * argv[2] = {tString1,tString2};
-
-    // set inlet bc flags
-    bool gInletVelocityBCFlag = false;
-    bool gInletPressureBCFlag = true;
 
     // call to performance manager main interface
     fn_WRK_Workflow_Main_Interface( argc, argv );

@@ -93,7 +93,6 @@ TEST_CASE("2D XTK WITH HMR No truncation enrichment","[XTK_HMR_ENR_2D]")
         std::string tFieldName = "Cylinder";
 
         moris::uint tLagrangeMeshIndex = 0;
-        moris::uint tBSplineMeshIndex = 0;
 
         moris::hmr::Parameters tParameters;
 
@@ -218,8 +217,6 @@ TEST_CASE("2D XTK WITH HMR Multi-Mat","[XTK_HMR_MULTI_2D]")
         std::string tFieldName = "Geometry";
 
         moris::uint tLagrangeMeshIndex = 0;
-        moris::uint tBSplineMeshIndex = 0;
-
         moris::hmr::Parameters tParameters;
 
         tParameters.set_number_of_elements_per_dimension( { {3}, {1}} );
@@ -300,8 +297,6 @@ TEST_CASE("2D XTK WITH HMR Multi-Mat","[XTK_HMR_MULTI_2D]")
 
         Enrichment const & tEnrichment = tXTKModel.get_basis_enrichment();
 
-        Enriched_Integration_Mesh & tEnrInteg = tXTKModel.get_enriched_integ_mesh(0);
-
         // Declare the fields related to enrichment strategy in output options
         Cell<std::string> tEnrichmentFieldNames = tEnrichment.get_cell_enrichment_field_names();
 
@@ -334,7 +329,6 @@ TEST_CASE("2D XTK WITH HMR Multiple Order Enrichment","[XTK_HMR_ENR_2D_MO]")
         std::string tFieldName = "Geometry";
 
         moris::uint tLagrangeMeshIndex = 0;
-        moris::uint tBSplineMeshIndex = 0;
 
         ParameterList tParameters = prm::create_hmr_parameter_list();
 
@@ -411,28 +405,6 @@ TEST_CASE("2D XTK WITH HMR Multiple Order Enrichment","[XTK_HMR_ENR_2D_MO]")
         tXTKModel.perform_basis_enrichment(EntityRank::BSPLINE, {{0,1}});
 
         Enrichment const & tEnrichment = tXTKModel.get_basis_enrichment();
-
-        Enriched_Integration_Mesh & tEnrInteg = tXTKModel.get_enriched_integ_mesh(0);
-        Enriched_Interpolation_Mesh & tEnrIP = tXTKModel.get_enriched_interp_mesh(0);
-
-//        moris::Cell<std::string> tBasisSupportFields = tEnrInteg.create_basis_support_fields();
-
-        std::string tEnrIgMeshFileName = "./xtk_exo/multiple_order_ig_mesh.exo";
-
-        mtk::Writer_Exodus writer(&tEnrInteg);
-        writer.write_mesh("", tEnrIgMeshFileName);
-        writer.set_time(0.0);
-//        writer.set_nodal_fields(tBasisSupportFields);
-//
-//        for(moris::uint i = 0; i < tBasisSupportFields.size(); i++)
-//        {
-//            moris_index tFieldIndex = tEnrInteg.get_field_index(tBasisSupportFields(i),EntityRank::NODE);
-//            writer.write_nodal_field(tBasisSupportFields(i), tEnrInteg.get_field_data(tFieldIndex,EntityRank::NODE));
-//        }
-
-        // Write the fields
-        writer.close_file();
-
 
         // Declare the fields related to enrichment strategy in output options
         Cell<std::string> tEnrichmentFieldNames = tEnrichment.get_cell_enrichment_field_names();

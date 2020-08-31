@@ -58,9 +58,6 @@ namespace moris
     {
         if( moris::par_size() == 1 )
         {
-            // order for this example
-            moris::uint tOrder = 1;
-
             moris::uint tLagrangeMeshIndex = 0;
             moris::uint tBSplineMeshIndex = 0;
 
@@ -174,12 +171,6 @@ namespace moris
              {
                  tNodes( k ) = new fem::Node( &tInterpolationMesh->get_mtk_vertex( k ) );
              }
-
-             // ask mesh about number of elements on proc
-             luint tNumberOfElements = tInterpolationMesh->get_num_elems();
-
-             // create equation objects
-//             tElements.reserve( tNumberOfElements );
 
              Cell< MSI::Equation_Set * >      tElementBlocks(1,nullptr);
 

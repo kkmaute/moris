@@ -34,7 +34,6 @@ namespace mtk
 {
 TEST_CASE( "Interpolation Mesh from File STK","[Interpolation Mesh]")
 {    // Parallel
-    uint p_rank = moris::par_rank();
     uint p_size = moris::par_size();
 
     // File prefix

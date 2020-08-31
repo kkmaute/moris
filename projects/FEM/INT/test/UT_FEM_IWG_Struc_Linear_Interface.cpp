@@ -229,7 +229,6 @@ TEST_CASE( "IWG_Struc_Linear_Interface", "[moris],[fem],[IWG_Struc_Linear_Interf
 
             // get number of dof per type
             int tNumDofDisp  = tNumCoeff * iSpaceDim;
-            int tNumDofP    = tNumCoeff;
 
             //create a space time interpolation rule
             Interpolation_Rule tFIRule ( tGeometryType,

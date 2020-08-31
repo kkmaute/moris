@@ -16,10 +16,10 @@ namespace moris
 TEST_CASE("moris::tools::Geometry",
           "[moris],[tools],[Geometry]")
         {
-            // Volume of a tetrahedron
-            Matrix< DDRMat > tCoord = {{0,0,0},{1,-1,0},{2,0,0},{1,0,1}};  // can be interpreted as x,y,z coords
+            // // Volume of a tetrahedron
+            // Matrix< DDRMat > tCoord = {{0,0,0},{1,-1,0},{2,0,0},{1,0,1}};  // can be interpreted as x,y,z coords
 
-            real volume = moris::Geometry::vol_tetrahedron(tCoord);
+            // real volume = moris::Geometry::vol_tetrahedron(tCoord);
         }
 }
 

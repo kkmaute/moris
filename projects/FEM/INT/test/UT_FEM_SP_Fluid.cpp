@@ -259,14 +259,6 @@ TEST_CASE( "SP_Fluid", "[SP_Fluid]" )
             // create an interpolation order
             mtk::Interpolation_Order tInterpolationOrder = tInterpolationOrders( iInterpOrder - 1 );
 
-            // number of dof for interpolation order
-            uint tNumCoeff = tNumCoeffs( iSpaceDim - 2, iInterpOrder - 1 );
-
-            // get number of dof
-            int tNumDofVel = tNumCoeff * iSpaceDim;
-            int tNumDofP   = tNumCoeff;
-            int tNumDofVis = tNumCoeff;
-
             //create a space time interpolation rule
             Interpolation_Rule tFIRule ( tGeometryType,
                     Interpolation_Type::LAGRANGE,

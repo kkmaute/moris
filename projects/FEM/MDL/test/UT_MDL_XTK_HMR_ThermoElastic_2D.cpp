@@ -233,8 +233,6 @@ TEST_CASE("2D XTK WITH HMR ThermoElastic 2D","[XTK_HMR_thermoelastic_2D]")
         mtk::Mesh_Manager tMeshManager;
         tMeshManager.register_mesh_pair(&tEnrInterpMesh, &tEnrIntegMesh);
 
-        uint tSpatialDimension = 2;
-
         //------------------------------------------------------------------------------
         // create the properties
         std::shared_ptr< fem::Property > tPropConductivity1 = std::make_shared< fem::Property >();
@@ -399,7 +397,6 @@ TEST_CASE("2D XTK WITH HMR ThermoElastic 2D","[XTK_HMR_thermoelastic_2D]")
          moris::Cell< fem::Set_User_Info > tSetInfo( 2 );
          tSetInfo( 0 ) = tSetBulk1;
          tSetInfo( 1 ) = tSetDirichlet;
-         uint tBSplineMeshIndex = 0;
 
         // create model
         mdl::Model * tModel = new mdl::Model( &tMeshManager,
@@ -712,7 +709,6 @@ TEST_CASE("2D XTK WITH HMR ThermoElastic 2D Staggered","[XTK_HMR_thermoelastic_2
         mtk::Mesh_Manager tMeshManager;
         tMeshManager.register_mesh_pair(&tEnrInterpMesh, &tEnrIntegMesh);
 
-        uint tSpatialDimension = 2;
 
         //------------------------------------------------------------------------------
         // create the properties
@@ -881,7 +877,6 @@ TEST_CASE("2D XTK WITH HMR ThermoElastic 2D Staggered","[XTK_HMR_thermoelastic_2
          tSetInfo( 0 ) = tSetBulk1;
          tSetInfo( 1 ) = tSetDirichlet;
 
-        uint tBSplineMeshIndex = 0;
         // create model
         mdl::Model * tModel = new mdl::Model( &tMeshManager,
                                                0,

@@ -146,7 +146,6 @@ TEST_CASE(" 2-D Conformal Decomposition Templates ","[2D_Conf_Temp]")
         Cell<size_t> tCurrentPermutation = tPermutations.get_permutation(iPerm);
         moris::moris_index tEdge0  = tCurrentPermutation(0);
         moris::moris_index tEdge1  = tCurrentPermutation(1);
-        moris::moris_index tPermId = tEdge0+tEdge1;
 
 
 // add volume computation and normals here
@@ -167,8 +166,6 @@ TEST_CASE(" 2-D Conformal Decomposition Templates ","[2D_Conf_Temp]")
 
         moris::Matrix< moris::IdMat > tElementIds  = tChildMesh.get_element_ids();
         moris::Matrix< moris::IdMat > tElementNode = tChildMesh.get_element_to_node_global();
-
-        uint aNumDim = 2;
 
     }
 

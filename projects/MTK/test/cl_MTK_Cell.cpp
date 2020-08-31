@@ -128,9 +128,6 @@ TEST_CASE("MTK Cell","[MTK],[MTK_CELL]")
                            {+0.000000000000000e+00},
                            {+1.000000000000000e+00}};
 
-        // Check normals
-        moris::moris_index tNumSides = 0;
-
         // iterate through sides and verify normal
         for(moris::uint i = 0; i < 6 ; i ++)
         {

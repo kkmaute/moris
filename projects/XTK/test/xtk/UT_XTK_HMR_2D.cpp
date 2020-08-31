@@ -71,7 +71,6 @@ TEST_CASE("2D XTK WITH HMR","[XTK_HMR_2D]")
             std::string tFieldName = "Cylinder";
 
             moris::uint tLagrangeMeshIndex = 0;
-            moris::uint tBSplineMeshIndex = 0;
 
             moris::hmr::Parameters tParameters;
 
@@ -142,8 +141,6 @@ TEST_CASE("2D XTK WITH HMR","[XTK_HMR_2D]")
             tXTKModel.perform_basis_enrichment(EntityRank::BSPLINE,0);
 
 
-            xtk::Enriched_Integration_Mesh & tEnrIgMesh = tXTKModel.get_enriched_integ_mesh(0);
-
             tXTKModel.construct_face_oriented_ghost_penalization_cells();
 
 
@@ -176,7 +173,6 @@ TEST_CASE("2D XTK WITH HMR WEIRD INTERSECTION","[XTK_HMR_2D_WI]")
         std::string tFieldName = "Cylinder";
 
          moris::uint tLagrangeMeshIndex = 0;
-         moris::uint tBSplineMeshIndex = 0;
 
          moris::hmr::Parameters tParameters;
 

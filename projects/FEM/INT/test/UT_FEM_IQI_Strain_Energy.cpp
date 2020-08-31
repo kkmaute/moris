@@ -62,12 +62,6 @@ using namespace fem;
 
 TEST_CASE( "IQI_Strain_Energy", "[moris],[fem],[IQI_Strain_Energy]" )
 {
-    // define an epsilon environment
-    real tEpsilon = 1E-6;
-
-    // define a perturbation relative size
-    real tPerturbation = 1E-6;
-
     // create the properties
     std::shared_ptr< fem::Property > tPropMasterEMod = std::make_shared< fem::Property > ();
     tPropMasterEMod->set_parameters( { {{ 1.0 }} } );

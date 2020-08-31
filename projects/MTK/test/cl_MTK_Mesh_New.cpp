@@ -32,7 +32,6 @@ namespace mtk
 
 TEST_CASE("Surrogate XTK Mesh","[MTK_Surrogate]")
         {
-    uint p_rank = moris::par_rank();
     uint p_size = moris::par_size();
 
     if( p_size == 1 ) // specify it is a serial test only
@@ -93,7 +92,6 @@ TEST_CASE("Surrogate XTK Mesh","[MTK_Surrogate]")
                                                        {13, 14, 16, 15, 17, 18, 20, 19}};
 
     // Tetrathedral cells in material phase 1
-    CellTopology     tPhase0ChildTopo  = CellTopology::TET4;
     Matrix<IndexMat> tCellIdsPhase0    = {{6, 8, 10, 12, 14, 16, 17, 18, 20, 31, 32, 33, 42, 43, 44, 53, 54, 55, 62, 63, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84}};
     Matrix<IndexMat> tCellToNodePhase0 = {{29, 14, 31, 32},
                                           {13, 28, 30, 33},
@@ -130,7 +128,6 @@ TEST_CASE("Surrogate XTK Mesh","[MTK_Surrogate]")
 
 
     // Tetrathedral cells in material phase 1
-    CellTopology tPhase1ChildTopo = CellTopology::TET4;
     Matrix<IndexMat> tCellToNodeGhost0 = {{21, 27, 31, 30},
                                                 {17, 18, 21, 27},
                                                 {31, 27, 34, 36},
@@ -282,7 +279,6 @@ TEST_CASE("Surrogate XTK Mesh","[MTK_Surrogate]")
     moris::mtk::MtkMeshData tMeshDataInput(3);
 
     moris::uint tSpatialDim   = 3;
-    moris::uint tNumElemTypes = 3;
     Matrix<IdMat> tNodeOwner(1,tNodeCoordinates.n_rows(),moris::par_rank());
     tMeshDataInput.ElemConn(0) = &tInterpElemsAsIntegCellToNodes;
     tMeshDataInput.ElemConn(1) = &tCellToNodePhase0;
@@ -306,7 +302,6 @@ TEST_CASE("Surrogate XTK Mesh","[MTK_Surrogate]")
     tIntegMeshData->create_output_mesh(tIntegFileOutput,"tIntegFileOutput");
 
     // Define the relationship between integration mesh and interpolation mesh
-    moris::moris_index tInterpCellIndex = 3;
     Matrix<IndexMat> tVertexIDs = {{13, 14, 16, 15, 17, 18, 20, 19, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44}};
 
     // element level parameter
@@ -351,7 +346,6 @@ TEST_CASE("Surrogate XTK Mesh","[MTK_Surrogate]")
 TEST_CASE("Interpolation are the same Integration Mesh","[NEW_MTK]")
 {
 
-    uint p_rank = moris::par_rank();
     uint p_size = moris::par_size();
 
     if( p_size == 1 ) // specify it is a serial test only
@@ -398,7 +392,6 @@ TEST_CASE("Interpolation are the same Integration Mesh","[NEW_MTK]")
 
 TEST_CASE( "Integration Mesh from File","[Integration Mesh]")
 {    // Parallel
-    uint p_rank = moris::par_rank();
     uint p_size = moris::par_size();
 
     if( p_size == 1 ) // specify it is a serial test only

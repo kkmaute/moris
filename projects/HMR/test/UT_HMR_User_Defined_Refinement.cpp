@@ -211,8 +211,6 @@ TEST_CASE("HMR_User_Defined_Refinement", "[moris],[mesh],[hmr],[HMR_User_Defined
 //            tHMR.save_to_exodus( 0,"UserDefinedRef.exo" );
 
              uint tNumElements = tMesh->get_num_elems();
-             uint tNumNodes = tMesh->get_num_nodes();
-             uint tNumCoeffs = tMesh->get_num_coeffs( 0 );
 
              // perform test
              REQUIRE( tNumElements == 1126 );

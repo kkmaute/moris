@@ -36,8 +36,6 @@ namespace moris
     {
         TEST_CASE( "Constitutive_Model", "[moris],[fem],[CM]" )
         {
-            // real for check
-            real tEpsilon = 1E-6;
 
             // create the properties
             std::shared_ptr< fem::Property > tProp = std::make_shared< fem::Property > ();

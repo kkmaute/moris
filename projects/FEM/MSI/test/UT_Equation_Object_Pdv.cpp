@@ -113,7 +113,6 @@ TEST_CASE("Eqn_Obj_pdv","[MSI],[Eqn_Obj_pdv]")
         Matrix<IndexMat> tInterpElemsAsIntegCellToNodesInterpolation = {{1, 2, 3, 4}};
 
         // Tetrathedral cells in material phase 1
-        CellTopology     tPhase0ChildTopoInterpolation  = CellTopology::QUAD4;
         Matrix<IndexMat> tCellIdsPhase0Interpolation    = {{1}};
         Matrix<IndexMat> tCellToNodePhase0Interpolation= {{1, 2, 3,4}};
 
@@ -131,7 +130,6 @@ TEST_CASE("Eqn_Obj_pdv","[MSI],[Eqn_Obj_pdv]")
         moris::mtk::MtkMeshData tMeshDataInputInterpolation(1);
 
         moris::uint tSpatialDim   = 2;
-        moris::uint tNumElemTypes = 1;
         Matrix<IdMat> tNodeOwnerInterpolation(1,tNodeCoordinatesInterpolation.n_rows(),moris::par_rank());
         tMeshDataInputInterpolation.ElemConn(0)             = &tInterpElemsAsIntegCellToNodesInterpolation;
         tMeshDataInputInterpolation.LocaltoGlobalElemMap(0) = (&tInterpElemsAsIntegCellIdsInterpolation);
@@ -154,7 +152,6 @@ TEST_CASE("Eqn_Obj_pdv","[MSI],[Eqn_Obj_pdv]")
         Matrix<IndexMat> tLocalToGlobalNodeMap = {{1, 2, 3, 4, 5, 6 }};
 
         // Tetrathedral cells in material phase 1
-        CellTopology     tPhase0ChildTopo  = CellTopology::TRI3;
         Matrix<IndexMat> tCellIdsPhase0    = {{1,2,3,4}};
         Matrix<IndexMat> tCellToNodePhase0 = {{1,5,6},{2,3,5},{5,3,6},{6,3,4}};
 

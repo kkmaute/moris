@@ -102,7 +102,6 @@ TEST_CASE("XTK HMR Test","[XTK_HMR]")
             std::string tFieldName = "Cylinder";
 
             moris::uint tLagrangeMeshIndex = 0;
-            moris::uint tBSplineMeshIndex = 0;
 
             moris::hmr::Parameters tParameters;
 

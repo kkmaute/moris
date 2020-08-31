@@ -29,8 +29,6 @@ TEST_CASE("XTK Cell Clusters","[MTK_CLUSTER_XTK]")
 {
     if(moris::par_size()== 1 || moris::par_size()== 2)
     {
-        bool tOutputEnrichmentFields = true;
-
         // Generate mesh from string
         std::string tMeshFileName     = "generated:2x2x2";
 
