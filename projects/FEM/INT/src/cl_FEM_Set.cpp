@@ -218,13 +218,15 @@ namespace moris
 
                 this->build_requested_IWG_dof_type_list( aIsResidual );
 
-                // set fem set pointer to IWGs
+                this->build_requested_IQI_dof_type_list();
+
+                // set fem set pointer to IWGs FIXME still needed done in constructor?
                 for(  std::shared_ptr< IWG > tIWG : mRequestedIWGs )
                 {
                     tIWG->set_set_pointer( this );
                 }
 
-                // set fem set pointer to IQIs
+                // set fem set pointer to IQIs FIXME still needed done in constructor?
                 for(  std::shared_ptr< IQI > tIQI : mRequestedIQIs )
                 {
                     tIQI->set_set_pointer( this );
@@ -1766,11 +1768,19 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        void Set::build_requested_IWG_dof_type_list( const bool aItResidual )
+        void Set::build_requested_IWG_dof_type_list( const bool aIsResidual )
         {
             for( auto tIWG : mRequestedIWGs )
             {
-                tIWG->build_requested_dof_type_list( aItResidual );
+                tIWG->build_requested_dof_type_list( aIsResidual );
+            }
+        }
+
+        void Set::build_requested_IQI_dof_type_list()
+        {
+            for( auto tIQI : mRequestedIQIs )
+            {
+                tIQI->build_requested_dof_type_list();
             }
         }
 
@@ -2257,7 +2267,7 @@ namespace moris
                 // get the set index for the slave dof type
                 tDofIndex = this->get_dof_index_for_type(
                         tRequestedDofTypes( Ik ),
-                        mtk::Master_Slave::SLAVE  );
+                        mtk::Master_Slave::SLAVE );
 
                 // if this slave dof is active
                 if( tDofIndex != -1 )
@@ -2269,44 +2279,8 @@ namespace moris
                 }
             }
 
-            // get the geo dv types requested by the opt
-            moris::Cell < enum PDV_Type > tRequestedDvTypes;
-            this->get_ig_unique_dv_types_for_set( tRequestedDvTypes );
-
-            // init active geo pdv counter
-            uint tActiveGeoPdvCounter = 0;
-
-            // get node indices on cluster
-            moris::Matrix< moris::IndexMat > tNodeIndicesOnCluster;
-            aFemCluster->get_vertex_indices_in_cluster_for_sensitivity( tNodeIndicesOnCluster );
-
-            // loop over the ig nodes on cluster
-            uint tNumIGNodes = tNodeIndicesOnCluster.numel();
-
-            // loop over the requested pdv types
-            for( uint iGeoPdv = 0; iGeoPdv < tRequestedDvTypes.size(); iGeoPdv++ )
-            {
-                // get treated geo pdv type
-                PDV_Type tGeoPdvType = tRequestedDvTypes( iGeoPdv );
-
-                // loop over the ig nodes on cluster
-                for( uint iIGNode = 0; iIGNode < tNumIGNodes; iIGNode++ )
-                {
-                    // get treated node index
-                    moris_index tNodeIndex = tNodeIndicesOnCluster( iIGNode );
-
-                    // create key pair
-                    std::pair< moris_index, PDV_Type > tKeyPair = std::make_pair( tNodeIndex, tGeoPdvType );
-
-                    // if in map
-                    if( mPdvGeoAssemblyMap.find( tKeyPair ) != mPdvGeoAssemblyMap.end() )
-                    {
-                        tActiveGeoPdvCounter++;
-                    }
-                }
-            }
             // set size for dRdpgeo
-            mdRdp( 1 ).set_size( tNumRows, tActiveGeoPdvCounter, 0.0 );
+            mdRdp( 1 ).set_size( tNumRows, mPdvGeoAssemblyVector.numel(), 0.0 );
         }
 
         //------------------------------------------------------------------------------

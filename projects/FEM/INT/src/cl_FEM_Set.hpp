@@ -349,9 +349,9 @@ namespace moris
                  * @param[ out ] aIWGs cell of IWG pointers
                  */
                 moris::Cell< std::shared_ptr< IWG > > & get_IWGs()
-                                {
+                {
                     return mIWGs;
-                                }
+                }
 
                 //------------------------------------------------------------------------------
                 /**
@@ -368,9 +368,9 @@ namespace moris
                  * @param[ out ] mRequestedIWGs cell of requested IWG pointers
                  */
                 moris::Cell< std::shared_ptr< IWG > > & get_requested_IWGs()
-                                {
+                {
                     return mRequestedIWGs;
-                                }
+                }
 
                 //------------------------------------------------------------------------------
                 /**
@@ -407,9 +407,9 @@ namespace moris
                  * @param[ out ] mRequestedIQIs cell of IQIs pointers
                  */
                 moris::Cell< std::shared_ptr< IQI > > & get_requested_IQIs()
-                                {
+                {
                     return mRequestedIQIs;
-                                }
+                }
 
                 //------------------------------------------------------------------------------
                 /**
@@ -504,6 +504,12 @@ namespace moris
 
                 //------------------------------------------------------------------------------
                 /**
+                 * create a dof type list for the list of IQIs requested
+                 */
+                void build_requested_IQI_dof_type_list();
+
+                //------------------------------------------------------------------------------
+                /**
                  * get the IP geometry type
                  * @param[ out ] aGeometryType
                  */
@@ -549,9 +555,9 @@ namespace moris
                  * @param[ out ] aIntegPoints integration points
                  */
                 const Matrix< DDRMat > & get_integration_points()
-                                {
+                {
                     return mIntegPoints;
-                                }
+                }
 
                 //------------------------------------------------------------------------------
                 /**
@@ -559,9 +565,9 @@ namespace moris
                  * @param[ out ] aIntegWeights integration weights
                  */
                 const Matrix< DDRMat > & get_integration_weights()
-                                {
+                {
                     return mIntegWeights;
-                                }
+                }
 
                 //------------------------------------------------------------------------------
                 /**
