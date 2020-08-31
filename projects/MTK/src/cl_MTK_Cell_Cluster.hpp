@@ -52,7 +52,7 @@ public:
     get_interpolation_cell( const mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER ) const = 0;
 
     virtual
-    moris::Cell<moris::mtk::Vertex const *> const &
+    moris::Cell<moris::mtk::Vertex const *>
     get_vertices_in_cluster( const mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER) const = 0;
 
     virtual void set_interpolation_cell( moris::mtk::Cell const * aInterpCell )
@@ -231,7 +231,7 @@ public:
          moris::uint tNumVertices = this->get_num_vertices_in_cluster();
 
          // cell access
-         moris::Cell<moris::mtk::Vertex const *> const & tVertices = this->get_vertices_in_cluster();
+         moris::Cell<moris::mtk::Vertex const *> tVertices = this->get_vertices_in_cluster();
 
          // initialize output
          moris::Matrix<moris::IndexMat> tVertexIndices(1,tNumVertices);
@@ -309,7 +309,7 @@ public:
          moris::uint tNumVertices = this->get_num_vertices_in_cluster();
 
          // cell access
-         moris::Cell<moris::mtk::Vertex const *> const & tVertices = this->get_vertices_in_cluster();
+         moris::Cell<moris::mtk::Vertex const *> tVertices = this->get_vertices_in_cluster();
 
          // initialize output
          moris::Matrix<moris::IdMat> tVertexIds(1,tNumVertices);

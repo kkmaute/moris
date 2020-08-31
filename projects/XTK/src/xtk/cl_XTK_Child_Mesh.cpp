@@ -8,6 +8,7 @@
 #include "cl_XTK_Child_Mesh.hpp"
 #include "assert.hpp"
 #include "cl_MTK_Vertex.hpp"
+#include "cl_TOL_Memory_Map.hpp"
 
 using namespace moris;
 namespace xtk
@@ -929,6 +930,51 @@ Child_Mesh::get_child_elements_connected_to_parent_facet(moris::moris_index     
 
 // ---------------------------------------------------------------------------------
 
+moris::moris_index
+Child_Mesh::get_cm_local_node_index(moris::moris_index aNodeProcIndex) const
+{
+    auto tIter = mNodeIndsToCMInd.find(aNodeProcIndex);
+
+    MORIS_ASSERT(tIter != mNodeIndsToCMInd.end(), "Node not in map, conversion to local indices failed");
+
+    return tIter->second;
+}
+
+// ---------------------------------------------------------------------------------
+
+bool Child_Mesh::has_interface_along_geometry(moris_index aGeomIndex) const
+{
+    uint tNumGeoms = mGeometryIndex.size();
+    for (uint iG = 0; iG < tNumGeoms; iG++)
+    {
+        if (mGeometryIndex(iG) == aGeomIndex)
+        {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+// ---------------------------------------------------------------------------------
+ 
+moris_index
+Child_Mesh::get_local_geom_index(moris_index aGeomIndex) const
+{
+    uint tNumGeoms = mGeometryIndex.size();
+    for (uint iG = 0; iG < tNumGeoms; iG++)
+    {
+        if (mGeometryIndex(iG) == aGeomIndex)
+        {
+            return (moris_index)iG;
+        }
+    }
+
+    return MORIS_INDEX_MAX;
+}
+
+// ---------------------------------------------------------------------------------
+ 
 void
 Child_Mesh::modify_child_mesh(enum TemplateType aTemplate)
 {
@@ -1979,6 +2025,16 @@ Child_Mesh::print_double_sides_between_subphases(moris_index aVerboseLevel)
         std::cout<<std::endl;
     }
     std::cout<<"--------------------------------------------------------"<<std::endl;
+}    \
+
+// ---------------------------------------------------------------------------------
+
+Cell<moris_index> const &
+Child_Mesh::get_subphase_basis_enrichment_levels(moris_index aSubphaseBin) const
+{
+    MORIS_ASSERT(aSubphaseBin < (moris_index)mSubphaseBasisEnrichmentLevel.size(), "Subphase group index out of bounds");
+
+    return mSubphaseBasisEnrichmentLevel(aSubphaseBin);
 }
 
 // ---------------------------------------------------------------------------------
@@ -2161,68 +2217,68 @@ Child_Mesh::pack_interface_sides( moris_index aGeometryIndex,
     return tInterfaceInfo;
 }
 
-//void
-//Child_Mesh::pack_all_interface_sides(   Cell<moris_index>       & aGeometryIndex,
-//                                        Cell<moris_index>       & aPhaseIndex0,
-//                                        Cell<moris_index>       & aPhaseIndex1,
-//                                        Cell<Cell<moris_index>> & aNeighborCell0,
-//                                        Cell<Cell<moris_index>> & aNeighborCellSideOrd0,
-//                                        Cell<Cell<moris_index>> & aNeighborCell1,
-//                                        Cell<Cell<moris_index>> & aNeighborCellSideOrd1,
-//                                        moris_index             & aIndexFlag) const
-//{
-    // collect all the bulk phases active in this child mesh
-//    Cell<moris_index> tActiveBulkPhasesLocalIndex;
-////    Cell<moris_index> tActiveBulkPhases = this->get_active_bulk_phases(tActiveBulkPhasesLocalIndex);
-////
-////    // number of active bulkphases
-//    moris_index tNumActiveBP = tActiveBulkPhases.size();
-////
-//    // starting index for a given iGeom
-//    moris_index tStart = 0;
-//
-//    // allocate temporary data
-//    Cell<moris_index>                   tGeometryIndex
-//
-//    Cell<moris_index>                   tPhaseIndex0;
-//    Cell<moris_index>                   tPhaseIndex1;
-//    Cell<moris::Matrix< moris::IdMat >> tNeighborCellsAndSharedOrds;
-//
-//    std::cout<<"---------------------------------------"<<std::endl;
-//    // iterate through active geometries on this child mesh
-//    // get the interface pairs with respect to this geometry
-//    for(moris::uint iGeom =0; iGeom < mGeometryIndex.size(); iGeom++)
-//    {
-//        // get the element pairs along this geometric interface
-//        bool tNoPair = true;
-//        moris::Matrix<moris::IndexMat> tInterfaceElementPairs; // Child mesh local cell indices of pairs
-//        moris::Matrix<moris::IndexMat> tInterfacePairSideOrds;
-//        this->unzip_child_mesh_interface_get_interface_element_pairs(iGeom,tNoPair,tInterfaceElementPairs,tInterfacePairSideOrds);
-//        MORIS_ASSERT(!tNoPair,"No pair found");
-//
-//
-//        // iterate through element pairs
-//        for(moris::uint iP = 0; iP < tInterfaceElementPairs.n_cols(); iP++)
-//        {
-//            // get the cell child m indices
-//            moris_index tCell0 = tInterfaceElementPairs(0,iP);
-//            moris_index tCell1 = tInterfaceElementPairs(1,iP);
-//
-//            // get the phase of these cells
-//            moris_index tBPCell0 = this->get_element_phase_index(tCell0);
-//            moris_index tBPCell1 = this->get_element_phase_index(tCell1);
-//
-//
-//            std::cout<<"Cell 0: " << tCell0<<" | Bulk Phase: "<<tBPCell0<<std::endl;
-//            std::cout<<"Cell 1: " << tCell1<<" | Bulk Phase: "<<tBPCell1<<std::endl;
-//
-//        }
-//
-//
-//
-//    }
-//
-//}
+// ---------------------------------------------------------------------------------
+moris::Memory_Map
+Child_Mesh::get_memory_usage()
+{
+    moris::Memory_Map tMemoryMap;
+
+    tMemoryMap.mMemoryMapData["mParentElementIndex"] = sizeof(mParentElementIndex);
+    tMemoryMap.mMemoryMapData["mElementTopology"] = sizeof(mElementTopology);
+    tMemoryMap.mMemoryMapData["mConnectivity"] = sizeof(mConnectivity);
+    tMemoryMap.mMemoryMapData["mElementToNode"] = mElementToNode.capacity();
+    tMemoryMap.mMemoryMapData["mElementEdgeParentInds"] = mElementEdgeParentInds.capacity();
+    tMemoryMap.mMemoryMapData["mElementEdgeParentRanks"] = mElementEdgeParentRanks.capacity();
+    tMemoryMap.mMemoryMapData["mElementFaceParentInds"] = mElementFaceParentInds.capacity();
+    tMemoryMap.mMemoryMapData["mElementFaceParentRanks"] = mElementFaceParentRanks.capacity();
+    tMemoryMap.mMemoryMapData["mElementInterfaceSides"] = mElementInterfaceSides.capacity();
+    tMemoryMap.mMemoryMapData["mElementEdgeParentInds"] = mElementEdgeParentInds.capacity();
+    tMemoryMap.mMemoryMapData["mElementEdgeParentInds"] = mElementEdgeParentInds.capacity();
+    tMemoryMap.mMemoryMapData["mSpatialDimension"] = sizeof(mSpatialDimension);
+    tMemoryMap.mMemoryMapData["mGeometryIndex"] = mGeometryIndex.capacity();
+    tMemoryMap.mMemoryMapData["mChildElementIds"] = mChildElementIds.capacity();
+    tMemoryMap.mMemoryMapData["mChildElementInds"] = mChildElementInds.capacity();
+    tMemoryMap.mMemoryMapData["mVertices"] = mVertices.capacity();
+    tMemoryMap.mMemoryMapData["mNodeIds"] = mNodeIds.capacity();
+    tMemoryMap.mMemoryMapData["mNodeInds"] = mNodeInds.capacity();
+    tMemoryMap.mMemoryMapData["mNodeParentRank"] = mNodeParentRank.capacity();
+    tMemoryMap.mMemoryMapData["mNodeParentInds"] = mNodeParentInds.capacity();
+    tMemoryMap.mMemoryMapData["mNodeIndsToCMInd"] = mNodeIndsToCMInd.size() * 2 * sizeof(moris::size_t);
+    tMemoryMap.mMemoryMapData["mNodeParametricCoord"] = mNodeParametricCoord.capacity();
+    tMemoryMap.mMemoryMapData["mFaceToNode"] = mFaceToNode.capacity();
+    tMemoryMap.mMemoryMapData["mNodeToFace"] = mNodeToFace.capacity();
+    tMemoryMap.mMemoryMapData["mFaceToElement"] = mFaceToElement.capacity();
+    tMemoryMap.mMemoryMapData["mElementToFace"] = mElementToFace.capacity();
+    tMemoryMap.mMemoryMapData["mFaceParentInds"] = mFaceParentInds.capacity();
+    tMemoryMap.mMemoryMapData["mFaceParentInds"] = mFaceParentInds.capacity();
+    tMemoryMap.mMemoryMapData["mFaceParentRanks"] = mFaceParentRanks.capacity();
+    tMemoryMap.mMemoryMapData["mEdgeToNode"] = mEdgeToNode.capacity();
+    tMemoryMap.mMemoryMapData["mNodeToEdge"] = mNodeToEdge.capacity();
+    tMemoryMap.mMemoryMapData["mEdgeToElement"] = mEdgeToElement.capacity();
+    tMemoryMap.mMemoryMapData["mElementToEdge"] = mElementToEdge.capacity();
+    tMemoryMap.mMemoryMapData["mEdgeParentInds"] = mEdgeParentInds.capacity();
+    tMemoryMap.mMemoryMapData["mEdgeParentRanks"] = mEdgeParentRanks.capacity();
+    tMemoryMap.mMemoryMapData["mElementToElement"] = mElementToElement.capacity();
+    tMemoryMap.mMemoryMapData["mIntersectConnectivity"] = mIntersectConnectivity.capacity();
+    tMemoryMap.mMemoryMapData["mIntersectedCMNodeIndex"] = mIntersectedCMNodeIndex.capacity();
+    tMemoryMap.mMemoryMapData["mIntersectedEdges"] = mIntersectedEdges.capacity();
+    tMemoryMap.mMemoryMapData["mEdgeOnInterface"] = mEdgeOnInterface.capacity();
+    tMemoryMap.mMemoryMapData["mElementPhaseIndices"] = mElementPhaseIndices.capacity();
+    tMemoryMap.mMemoryMapData["mElementBinIndex"] = mElementBinIndex.capacity();
+    tMemoryMap.mMemoryMapData["mBinBulkPhase"] = mBinBulkPhase.capacity();
+    tMemoryMap.mMemoryMapData["mElementBinIndex"] = mElementBinIndex.capacity();
+    tMemoryMap.mMemoryMapData["mBinBulkPhase"] = mBinBulkPhase.capacity();
+    tMemoryMap.mMemoryMapData["mSubPhaseBinId"] = mSubPhaseBinId.capacity();
+    tMemoryMap.mMemoryMapData["mSubPhaseBinIndices"] = mSubPhaseBinIndices.capacity();
+    tMemoryMap.mMemoryMapData["mSubPhaseBins"] = mSubPhaseBins.capacity();
+    tMemoryMap.mMemoryMapData["mSubphaseBasisIndices"] = moris::internal_capacity(mSubphaseBasisIndices);
+    tMemoryMap.mMemoryMapData["mSubphaseBasisEnrichmentLevel"] = mSubphaseBasisEnrichmentLevel.capacity();
+    tMemoryMap.mMemoryMapData["mDoubleSideSetSubphaseInds"] = mDoubleSideSetSubphaseInds.capacity();
+    tMemoryMap.mMemoryMapData["mDoubleSideSetCellPairs"] = mDoubleSideSetCellPairs.capacity();
+    tMemoryMap.mMemoryMapData["mDoubleSideSetFacetPairs"] = mDoubleSideSetFacetPairs.capacity();
+
+    return tMemoryMap;
+}
 
 // ---------------------------------------------------------------------------------
 moris::Matrix< moris::IdMat >
@@ -2294,20 +2350,23 @@ void
 Child_Mesh::generate_face_connectivity_and_ancestry(moris::Matrix< moris::IndexMat > const & aElementToNodeLocal)
 {
 
-    create_faces_from_element_to_node(mConnectivity.get(),
-                                      get_num_entities(EntityRank::NODE),
-                                      aElementToNodeLocal,
-                                      mElementToFace,
-                                      mFaceToNode,
-                                      mNodeToFace,
-                                      mFaceToElement);
+    xtk::create_faces_from_element_to_node(mConnectivity.get(),
+                                          this->get_num_entities(EntityRank::NODE),
+                                          aElementToNodeLocal,
+                                          mElementToFace,
+                                          mFaceToNode,
+                                          mNodeToFace,
+                                          mFaceToElement);
 
     // Convert face to node from cm indices to proc indices
-    mFaceToNode = convert_to_proc_indices(mFaceToNode);
+    mFaceToNode = this->convert_to_proc_indices(mFaceToNode);
 
     mHasFaceConn = true;
 
-    setup_face_ancestry();
+    this->setup_face_ancestry();
+
+    mNodeToFace.resize(0,0);
+    
 }
 // ---------------------------------------------------------------------------------
 void
@@ -2328,8 +2387,9 @@ Child_Mesh::generate_edge_connectivity_and_ancestry(moris::Matrix< moris::IndexM
 
     mEdgeOnInterface.resize(1,mEdgeToNode.n_rows());
 
-
     setup_edge_ancestry();
+
+    mNodeToEdge.resize(0,0);
 
 }
 // ---------------------------------------------------------------------------------

@@ -19,7 +19,8 @@ namespace moris
             mMasterProp.resize( static_cast< uint >( IWG_Property_Type::MAX_ENUM ), nullptr );
 
             // populate the property map
-            mPropertyMap[ "Load" ] = IWG_Property_Type::LOAD;
+            mPropertyMap[ "Load" ]    = IWG_Property_Type::LOAD;
+            mPropertyMap[ "Bedding" ] = IWG_Property_Type::BEDDING;
 
             // set size for the constitutive model pointer cell
             mMasterCM.resize( static_cast< uint >( IWG_Constitutive_Type::MAX_ENUM ), nullptr );
@@ -92,6 +93,10 @@ namespace moris
             std::shared_ptr< Property > tPropLoad =
                     mMasterProp( static_cast< uint >( IWG_Property_Type::LOAD ) );
 
+            // get bedding property
+            std::shared_ptr< Property > tPropBedding =
+                    mMasterProp( static_cast< uint >( IWG_Property_Type::BEDDING ) );
+
             // get elasticity CM
             std::shared_ptr< Constitutive_Model > tCMElasticty =
                     mMasterCM( static_cast< uint >( IWG_Constitutive_Type::ELAST_LIN_ISO ) );
@@ -110,6 +115,16 @@ namespace moris
                         { tMasterResStartIndex, tMasterResStopIndex },
                         { 0, 0 } ) -= aWStar * (
                                 trans( tDisplacementFI->N() ) * tPropLoad->val() );
+            }
+
+            // if bedding
+            if ( tPropBedding != nullptr )
+            {
+                // compute body load contribution
+                mSet->get_residual()( 0 )(
+                        { tMasterResStartIndex, tMasterResStopIndex },
+                        { 0, 0 } ) += aWStar * (
+                                trans( tDisplacementFI->N() ) * tDisplacementFI->val() * tPropBedding->val() );
             }
 
             // check for nan, infinity
@@ -137,6 +152,10 @@ namespace moris
             // get body load property
             std::shared_ptr< Property > tPropLoad =
                     mMasterProp( static_cast< uint >( IWG_Property_Type::LOAD ) );
+
+            // get bedding property
+            std::shared_ptr< Property > tPropBedding =
+                    mMasterProp( static_cast< uint >( IWG_Property_Type::BEDDING ) );
 
             // get elasticity CM
             std::shared_ptr< Constitutive_Model > tCMElasticty =
@@ -167,6 +186,25 @@ namespace moris
                                 { tMasterResStartIndex, tMasterResStopIndex },
                                 { tMasterDepStartIndex, tMasterDepStopIndex } ) -= aWStar * (
                                         trans( tDisplacementFI->N() ) * tPropLoad->dPropdDOF( tDofType ) );
+                    }
+                }
+
+                // if bedding
+                if ( tPropBedding != nullptr )
+                {
+                    // compute bedding contribution
+                    mSet->get_jacobian()(
+                            { tMasterResStartIndex, tMasterResStopIndex },
+                            { tMasterDepStartIndex, tMasterDepStopIndex } ) += aWStar * (
+                                    trans( tDisplacementFI->N() ) *  tDisplacementFI->N() * tPropBedding->val()(0) );
+
+                    // consider contributions from dependency of bedding parameter on DOFs
+                    if ( tPropBedding->check_dof_dependency( tDofType ) )
+                    {
+                        mSet->get_jacobian()(
+                                { tMasterResStartIndex, tMasterResStopIndex },
+                                { tMasterDepStartIndex, tMasterDepStopIndex } ) += aWStar * (
+                                        trans( tDisplacementFI->N() ) *  tDisplacementFI->N() * tPropBedding->dPropdDOF( tDofType ) );
                     }
                 }
 

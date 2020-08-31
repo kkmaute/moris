@@ -272,12 +272,12 @@ namespace moris
                 /*!
                  * @return all the master vertices in this cluster
                  */
-                moris::Cell<moris::mtk::Vertex const *> const &
+                moris::Cell<moris::mtk::Vertex const *>
                 get_vertices_in_cluster( const mtk::Master_Slave aIsMaster ) const;
 
 
 
-                moris::Cell<moris::mtk::Vertex const *> const &
+                moris::Cell<moris::mtk::Vertex const *>
                 get_master_vertices_in_cluster() const;
 
                 //----------------------------------------------------------------
@@ -286,7 +286,7 @@ namespace moris
                  * Returns all the slave vertices in this cluster
                  */
 
-                moris::Cell<moris::mtk::Vertex const *> const &
+                moris::Cell<moris::mtk::Vertex const *>
                 get_slave_vertices_in_cluster() const;
 
                 //----------------------------------------------------------------

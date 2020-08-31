@@ -84,45 +84,31 @@ public:
      * for HMR this is not trivial
      */
     virtual uint
-    get_level() const
-    {
-        return 0;
-    }
+    get_level() const;
 
+    //------------------------------------------------------------------------------
 
     /**
      * fills a moris::cell with pointers to connected vertices
      */
-    //FIXME: SDF's Triangle_Vertex causes this to not be able to return a reference.
     virtual moris::Cell< Vertex* >
     get_vertex_pointers() const = 0;
+
+    //------------------------------------------------------------------------------
 
     /**
      * tells how many vertices are connected to this cell
      */
     virtual uint
-    get_number_of_vertices() const
-    {
-        return this->get_vertex_pointers().size();
-    };
+    get_number_of_vertices() const;
+
     //------------------------------------------------------------------------------
 
     /**
      * returns a Mat with IDs of connected vertices
      */
     virtual Matrix< IdMat >
-    get_vertex_ids() const
-    {
-        uint tNumVertices = this->get_number_of_vertices();
-        moris::Cell< Vertex* > tVertices = this->get_vertex_pointers();
-
-        Matrix< IdMat > tVertexIds(1, tNumVertices);
-        for(uint i = 0; i<tNumVertices; i++)
-        {
-            tVertexIds(i) = tVertices(i)->get_id();
-        }
-        return tVertexIds;
-    }
+    get_vertex_ids() const;
 
     //------------------------------------------------------------------------------
 
@@ -130,18 +116,7 @@ public:
      * returns a Mat with indices of connected vertices
      */
     virtual Matrix< IndexMat >
-    get_vertex_inds() const
-    {
-        uint tNumVertices = this->get_number_of_vertices();
-        moris::Cell< Vertex* > tVertices = this->get_vertex_pointers();
-
-        Matrix< IdMat > tVertexInds(1, tNumVertices);
-        for(uint i = 0; i<tNumVertices; i++)
-        {
-            tVertexInds(i) = tVertices(i)->get_index();
-        }
-        return tVertexInds;
-    }
+    get_vertex_inds() const;
 
     //------------------------------------------------------------------------------
 
@@ -152,24 +127,12 @@ public:
     virtual Matrix< DDRMat >
     get_vertex_coords() const = 0;
 
-
     //------------------------------------------------------------------------------
+
     virtual
     moris::Cell<mtk::Vertex_Interpolation*>
-    get_vertex_interpolations( const uint aOrder ) const
-    {
-        uint tNumVerts = this->get_number_of_vertices();
-        moris::Cell< mtk::Vertex* > tVertexPointers = this->get_vertex_pointers();
-        moris::Cell<mtk::Vertex_Interpolation*> tVertexInterp(tNumVerts);
+    get_vertex_interpolations( const uint aOrder ) const;
 
-        for(moris::uint i = 0; i < tNumVerts; i++)
-        {
-            tVertexInterp(i) =tVertexPointers(i)->get_interpolation(aOrder);
-        }
-
-        return tVertexInterp;
-
-    }
     //------------------------------------------------------------------------------
 
     /*!
@@ -178,11 +141,9 @@ public:
      */
     virtual
     moris::Cell<moris::mtk::Vertex const *>
-    get_vertices_on_side_ordinal(moris::moris_index aSideOrdinal) const
-    {
-        MORIS_ERROR(0,"get_vertices_on_side_ordinal has no default implementation");
-        return  moris::Cell<moris::mtk::Vertex const *>(0);
-    }
+    get_vertices_on_side_ordinal(moris::moris_index aSideOrdinal) const;
+
+    //------------------------------------------------------------------------------
 
     /*!
      * get vertices on side ordinal that define the geometry (i.e. the corner nodes)
@@ -190,11 +151,9 @@ public:
      */
     virtual
     moris::Cell<moris::mtk::Vertex const *>
-    get_geometric_vertices_on_side_ordinal(moris::moris_index aSideOrdinal) const
-    {
-        MORIS_ERROR(0,"get_geometric_vertices_on_side_ordinal has no default implementation");
-        return  moris::Cell<moris::mtk::Vertex const *>(0);
-    }
+    get_geometric_vertices_on_side_ordinal(moris::moris_index aSideOrdinal) const;
+
+    //------------------------------------------------------------------------------
 
     /*!
      * Get vertex coordinates on side ordinal
@@ -202,33 +161,7 @@ public:
 
     virtual
     moris::Matrix<moris::DDRMat>
-    get_cell_physical_coords_on_side_ordinal(moris::moris_index aSideOrdinal) const
-    {
-
-        // FIXME: Add assert to check side ordinal
-
-        // get the vertex pointers on the side
-        moris::Cell<moris::mtk::Vertex const *> tVerticesOnSide = this->get_vertices_on_side_ordinal(aSideOrdinal);
-
-        // allocate output coords (note we do not know the spatial dimension at this time)
-        moris::Matrix<moris::DDRMat> tVertexPhysCoords(0,0);
-
-        // iterate through vertices and collect local coordinates
-        for(moris::uint i = 0; i < tVerticesOnSide.size(); i++)
-        {
-            moris::Matrix<moris::DDRMat> tVertexCoord = tVerticesOnSide(i)->get_coords();
-
-            if( i == 0 )
-            {
-                MORIS_ASSERT(isrow(tVertexCoord),"Default implementation assumes row based coordinates");
-                tVertexPhysCoords.resize(tVerticesOnSide.size(), tVertexCoord.numel());
-            }
-
-            tVertexPhysCoords.get_row(i) = tVertexCoord.get_row(0);
-        }
-
-        return tVertexPhysCoords;
-    }
+    get_cell_physical_coords_on_side_ordinal(moris::moris_index aSideOrdinal) const;
 
     //------------------------------------------------------------------------------
 
@@ -237,20 +170,7 @@ public:
      * This functions is needed for side clustering
      */
     moris::Matrix< IndexMat >
-    get_vertices_ind_on_side_ordinal(moris::moris_index aSideOrdinal) const
-    {
-        moris::Cell<moris::mtk::Vertex const *> tVertices = this->get_vertices_on_side_ordinal(aSideOrdinal);
-
-        uint tNumVertices = tVertices.size();
-
-        Matrix< IndexMat > tVertexInd( 1, tNumVertices );
-
-        for(uint i = 0; i < tNumVertices; i++ )
-        {
-            tVertexInd( 0, i ) = tVertices( i )->get_index();
-        }
-        return  tVertexInd;
-    }
+    get_vertices_ind_on_side_ordinal(moris::moris_index aSideOrdinal) const;
 
     //------------------------------------------------------------------------------
 
@@ -267,33 +187,27 @@ public:
      */
     virtual
     moris::Matrix<moris::DDRMat>
-    compute_outward_side_normal(moris::moris_index aSideOrdinal) const
-    {
-        MORIS_ERROR(0,"compute_outward_side_normal has no default implementation");
-        return  moris::Matrix<moris::DDRMat>(0,0);
-    }
+    compute_outward_side_normal(moris::moris_index aSideOrdinal) const;
+
+    //------------------------------------------------------------------------------
 
     /*
      * Volume in 3D, Surface Area in 2D
      */
     virtual
     moris::real
-    compute_cell_measure() const
-    {
-       MORIS_ERROR(0,"Compute cell measure not implemented");
-       return 0;
-    }
+    compute_cell_measure() const;
+
+    //------------------------------------------------------------------------------
 
     /*
      * Surface Area on side of cell in 3D, line length on side in 2D
      */
     virtual
     moris::real
-    compute_cell_side_measure(moris_index const & aCellSideOrd) const
-    {
-       MORIS_ERROR(0,"Compute cell side measure not implemented");
-       return 0;
-    }
+    compute_cell_side_measure(moris_index const & aCellSideOrd) const;
+
+    //------------------------------------------------------------------------------
 
     /**
      * returns the order of the element
@@ -302,6 +216,16 @@ public:
     get_interpolation_order() const = 0;
 
     //------------------------------------------------------------------------------
+
+    /**
+     * returns the order of the element
+     */
+    virtual size_t
+    capacity()
+    {
+        MORIS_ERROR(0,"No default implementation");
+        return 0;
+    };
 };
 
 //------------------------------------------------------------------------------

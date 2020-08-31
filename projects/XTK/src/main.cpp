@@ -245,18 +245,6 @@ void run_xtk_problem(XTK_Problem_Params & aXTKProblemParams)
         delete tOutputMTK;
     }
 
-    if(aXTKProblemParams.mWriteobj)
-    {
-        tOpTimer = std::clock();
-        moris::Cell<std::string> tBoundingSets = {"surface_1","surface_2","surface_3","surface_4","surface_5","surface_6"};
-
-
-        tXTKModel.extract_surface_mesh_to_obj(aXTKProblemParams.mobjOutputFile,
-                aXTKProblemParams.mPhaseForobj,
-                tBoundingSets);
-        tWriteObjTime = (std::clock() - tOpTimer)/(CLOCKS_PER_SEC/1000);
-    }
-
 
     // stop full clock timer
     tFullTime = (std::clock() - tFullTimer)/(CLOCKS_PER_SEC/1000);

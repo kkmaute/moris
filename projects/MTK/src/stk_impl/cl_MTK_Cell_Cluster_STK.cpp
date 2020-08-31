@@ -117,7 +117,7 @@ Cell_Cluster_STK::get_interpolation_cell( const mtk::Master_Slave aIsMaster ) co
 
 //----------------------------------------------------------------
 
-moris::Cell<moris::mtk::Vertex const *> const &
+moris::Cell<moris::mtk::Vertex const *>
 Cell_Cluster_STK::get_vertices_in_cluster( const mtk::Master_Slave aIsMaster ) const
 {
     return mVerticesInCluster;

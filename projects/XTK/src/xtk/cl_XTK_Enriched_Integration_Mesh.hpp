@@ -14,6 +14,7 @@
 #include "cl_Cell.hpp"
 #include "cl_XTK_Field.hpp"
 #include <unordered_map>
+#include "cl_TOL_Memory_Map.hpp"
 
 using namespace moris;
 
@@ -143,6 +144,14 @@ public:
     moris::Cell<std::string>
     create_basis_support_fields();
 
+    //------------------------------------------------------------------------------
+    // Memory Map
+    //------------------------------------------------------------------------------
+    /*!
+     * @brief get the memory usage map
+     */
+    moris::Memory_Map
+    get_memory_usage();
 
     //------------------------------------------------------------------------------
     // Additional Field Functions

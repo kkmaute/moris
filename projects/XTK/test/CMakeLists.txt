@@ -19,7 +19,6 @@ set(TEST_SOURCES
 xtk/UT_XTK_Performance.cpp
 	#xtk/cl_XTK_Multigrid.cpp
 	xtk/UT_XTK_Model.cpp
-	xtk/UT_XTK_Model_Parallel.cpp
 	xtk/UT_XTK_Model_2D.cpp
 	xtk/UT_XTK_Child_Mesh_RegSub_2D.cpp
 	xtk/UT_XTK_Child_Mesh_Conform_2D.cpp

@@ -86,7 +86,7 @@ Cell_Info_Quad4::get_geometric_node_to_facet_map() const
 moris::Matrix<moris::IndexMat>
 Cell_Info_Quad4::get_geometric_node_to_facet_map(moris::uint aSideOrdinal) const
 {
-    return this->get_node_to_face_map(aSideOrdinal);
+    return this->get_node_to_facet_map(aSideOrdinal);
 }
 // ----------------------------------------------------------------------------------
 moris::Matrix<moris::IndexMat>

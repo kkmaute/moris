@@ -16,6 +16,7 @@
 #include "cl_MTK_Cluster.hpp"
 #include "cl_Cell.hpp"
 #include "fn_isvector.hpp"
+#include <unordered_map>
 
 namespace moris
 {
@@ -31,18 +32,33 @@ class Serialized_Mesh_Data
         moris_index mSpatialDim;
 
         // individual proc serial data
-        Matrix<IdMat>  mVertexIds;
-        Matrix<DDRMat> mVertexCoordinates;
-        moris::Cell<Matrix<DDRMat>> mVertexTMatrixWeights;
-        moris::Cell<Matrix<IdMat>> mVertexTMatrixBasisIds;
-        moris::Cell<Matrix<IdMat>> mVertexTMatrixBasisOwners;
+
+        // vertex related data
+        Matrix<IdMat>  mVertexIds; //(x)
+        Matrix<IdMat>  mVertexOwners; //(x)
+        Matrix<DDRMat> mVertexCoordinates; //(x)
+        moris::Cell<Matrix<DDRMat>> mVertexTMatrixWeights; //(x)
+        moris::Cell<Matrix<IdMat>> mVertexTMatrixBasisIds; //(x)
+        moris::Cell<Matrix<IdMat>> mVertexTMatrixBasisOwners; //(x)
+
+        // cell related data
+        moris::Cell<Matrix<IdMat>>     mCellToVertex; //(-) outer cell is the  cell topology
+        moris::Cell<enum CellTopology> mCellTopo;     //(-)
+
+        // Block Sets
+        moris::Cell<std::string>   mCellSetNames;
+        moris::Cell<Matrix<IdMat>> mCellsInCellSet;
+
+
 
 
         // collected data on proc 0
-        moris::Cell<Matrix<IdMat>> mCollectVertexIds;
-        moris::Cell<Matrix<DDRMat>> mCollectVertexCoords;
-        moris::Cell<moris::Cell<Matrix<DDRMat>>> mCollectVertexTMatrixWeights;
-        moris::Cell<moris::Cell<Matrix<IdMat>>> mCollectVertexTMatrixBasisIds;
+        moris::Cell<std::unordered_map<moris_index,moris_index>> mCollectVertexMaps;
+        moris::Cell<Matrix<IdMat>> mCollectVertexIds; //(x)
+        moris::Cell<Matrix<IdMat>> mCollectVertexOwners; //(x)
+        moris::Cell<Matrix<DDRMat>> mCollectVertexCoords; //(x)
+        moris::Cell<moris::Cell<Matrix<DDRMat>>> mCollectVertexTMatrixWeights; //(x)
+        moris::Cell<moris::Cell<Matrix<IdMat>>> mCollectVertexTMatrixBasisIds; //(x)
         moris::Cell<moris::Cell<Matrix<IdMat>>> mCollectVertexTMatrixBasisOwners;
 
 
@@ -78,10 +94,12 @@ private:
     // diagnostic flags
     // interp mesh
     bool mIpVertexDiag = false;
+    bool mIpVertexOwnerDiag = false;
     bool mIpVertexBasisDiag = false;
 
     // integ mesh
     bool mIgVertexDiag    = false;
+    bool mIgVertexOwnerDiag = false;
 
 
     void
@@ -106,6 +124,9 @@ private:
     void
     gather_serialized_ip_mesh(Serialized_Mesh_Data* aSerializedMesh);
 
+    void
+    setup_vertex_maps(Serialized_Mesh_Data* aSerializedMesh);
+
     std::string
     bool_to_string(bool aBool);
 
@@ -118,6 +139,16 @@ private:
     verify_vertex_coordinates(
             Serialized_Mesh_Data* aSerializedMesh,
             bool         aStackedVertexFlag);
+
+    /*!
+     * Verifies node ownership in the mesh.
+     * @param[in] aMesh - An integration or interpolation mesh
+     * @param[in] aStackedVertexFlag - if true more than one vertex can be at the same spatial location
+     */
+    bool
+    verify_vertex_ownership(Serialized_Mesh_Data* aSerializedMesh);
+
+
 
     template <typename MatrixType>
     Matrix<MatrixType> concatenate_cell_of_mats(moris::Cell<Matrix<MatrixType>> aMat,
@@ -174,9 +205,6 @@ private:
             for(moris::uint i = 0; i < aMat.size(); i++)
             {
                 tEnd = tStart + aMat(i).n_rows() - 1;
-                std::cout<<" aMat(i).n_rows() = "<< aMat(i).n_rows()<<std::endl;
-                std::cout<<" aMat(i).n_cols() = "<< aMat(i).n_cols()<<std::endl;
-                std::cout<<" tEnd - tStart = "<< tStart - tEnd<<std::endl;
 
                 tConcatenatedMat({tStart,tEnd},{0,tFixedDimSize-1}) = aMat(i).matrix_data();
                 tStart = tEnd+1;
@@ -189,7 +217,7 @@ private:
 
     template <typename MatrixType>
     void
-    cell_of_mats_to_serial_mat(
+    cell_of_mats_to_flattened_mat(
             moris::Cell<Matrix<MatrixType>> const & aCellOfMats,
             Matrix<MatrixType> & aData,
             Matrix<IndexMat> & aOffsets)
@@ -228,23 +256,21 @@ private:
 
     template <typename MatrixType>
     void
-    serial_mat_to_cell_of_mats(
+    flattened_mat_to_cell_of_mats(
             Matrix<MatrixType> const & aData,
             Matrix<IndexMat>   const & aOffsets,
             moris::Cell<Matrix<MatrixType>>  & aCellOfMats)
     {
-        aCellOfMats.resize(aOffsets.numel() - 1);
+        aCellOfMats.resize(aOffsets.numel() - 1, Matrix<MatrixType>(0,0));
 
         moris_index tStart = 0;
 
         for(moris::uint i = 0 ; i < aOffsets.numel()-1; i ++ )
         {
 
-            std::cout<<"tStart = "<<tStart<<std::endl;
             // number of basis interpolating into the vertex
             moris::moris_index tNumel = aOffsets(i+1) - tStart;
 
-            std::cout<<"tNumel = "<<tNumel<<std::endl;
             aCellOfMats(i).resize(1,tNumel);
 
             // itere and grab  data
