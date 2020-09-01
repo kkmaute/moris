@@ -21,7 +21,8 @@ enum class EntityBase {
     GlobalClock,
     MSI,
     Mesh,
-    TEST_CASE
+    TEST_CASE,
+    OptimizationAlgorithm
 };
 
 // copy string
@@ -43,7 +44,10 @@ enum class EntityType {
     PETSc,
     Monolythic,
     Newton,
-    Arclength
+    Arclength,
+    GCMMA,
+    MMA,
+    PCG
 };
 
 // copy string

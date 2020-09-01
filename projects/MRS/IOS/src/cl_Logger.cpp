@@ -108,18 +108,18 @@ namespace moris
                 if ((mDirectOutputFormat == 3) || (mDirectOutputFormat == 2))
                 {
                     std::cout << print_empty_line(mGlobalClock.mIndentationLevel - 1)
-                                                      << "__Start: " << get_enum_str(aEntityBase)
-                                                      << " - " << get_enum_str(aEntityType)
-                                                      << " - " << get_enum_str(aEntityAction)
-                                                      << " \n";
+                                                              << "__Start: " << get_enum_str(aEntityBase)
+                                                              << " - " << get_enum_str(aEntityType)
+                                                              << " - " << get_enum_str(aEntityAction)
+                                                              << " \n";
                     std::cout << print_empty_line(mGlobalClock.mIndentationLevel) << " \n";
                 }
                 else
                 {
                     std::cout << "Signing in: " << get_enum_str(aEntityBase)
-                                        << " - " << get_enum_str(aEntityType)
-                                        << " - " << get_enum_str(aEntityAction)
-                                        << " \n";
+                                                << " - " << get_enum_str(aEntityType)
+                                                << " - " << get_enum_str(aEntityAction)
+                                                << " \n";
                 }
             }
         }
@@ -147,9 +147,9 @@ namespace moris
                 if ((mDirectOutputFormat == 3) || (mDirectOutputFormat == 2))
                 {
                     std::cout << print_empty_line(mGlobalClock.mIndentationLevel)
-                                                      << "_ElapsedTime = "
-                                                      << ( (moris::real) std::clock() - mGlobalClock.mTimeStamps(mGlobalClock.mIndentationLevel) ) / CLOCKS_PER_SEC
-                                                      << " \n";
+                                                              << "_ElapsedTime = "
+                                                              << ( (moris::real) std::clock() - mGlobalClock.mTimeStamps(mGlobalClock.mIndentationLevel) ) / CLOCKS_PER_SEC
+                                                              << " \n";
                     std::cout << print_empty_line(mGlobalClock.mIndentationLevel - 1) << " \n";
                 }
                 else
@@ -161,6 +161,88 @@ namespace moris
 
         // decrement clock
         mGlobalClock.sign_out();
+    }
+
+    //------------------------------------------------------------------------------
+
+    void Logger::iterate()
+    {
+        // increment iteration count of current instance
+        mGlobalClock.iterate();
+
+        // only processor 0 prints message
+        if (logger_par_rank() == mOutputRank )
+        {
+            // print iteration to screen
+            // switch based on OutputFormat provided
+            if ((mDirectOutputFormat == 3) || (mDirectOutputFormat == 2))
+            {
+                std::cout << print_empty_line( mGlobalClock.mIndentationLevel ) << "_"
+                        << get_enum_str( OutputSpecifier::Iteration ) << ": "
+                        << ios::stringify( mGlobalClock.mIndentationLevel ) << " \n" << std::flush;
+            }
+            else
+            {
+                std::cout << get_enum_str( OutputSpecifier::Iteration ) << ": "
+                        << ios::stringify( mGlobalClock.mIndentationLevel ) << " \n" << std::flush;
+            }
+
+            // write to file if requested
+            if( mWriteToAscii )
+            {
+                // formated output to log file
+                this->log_to_file(
+                        OutputSpecifier::Iteration,
+                        mGlobalClock.mCurrentIteration( mGlobalClock.mIndentationLevel ) );
+            }
+        }
+    }
+
+    //------------------------------------------------------------------------------
+
+    uint Logger::get_iteration(
+            enum EntityBase   aEntityBase,
+            enum EntityType   aEntityType,
+            enum EntityAction aEntityAction )
+    {
+        // initialize
+        uint tIndentLevel = 0;
+        bool tInstanceFound = false;
+
+        // go through global clock stack from bottom and look for requested instance
+        while( tIndentLevel < mGlobalClock.mIndentationLevel && tInstanceFound == false )
+        {
+            // check if Instance matches the instance searched for
+            if( aEntityBase == mGlobalClock.mCurrentEntity( tIndentLevel ) &&
+                    aEntityType == mGlobalClock.mCurrentType( tIndentLevel ) &&
+                    aEntityAction == mGlobalClock.mCurrentAction( tIndentLevel ) )
+            {
+                tInstanceFound = true;
+            }
+
+            // increment cursor
+            tIndentLevel++;
+        }
+
+        // return iteration count if the instance was found
+        if ( tInstanceFound )
+            return mGlobalClock.mCurrentIteration( tIndentLevel - 1 );
+
+        // throw error if instance was not found
+        else
+            return 0;
+    }
+
+    //------------------------------------------------------------------------------
+
+    uint Logger::get_opt_iteration()
+    {
+        // iteration of arbitrary Optimization Algorithm
+        // note: this can be done, as there's always only one active opt.-alg.
+        return this->get_iteration(
+                EntityBase::OptimizationAlgorithm ,
+                EntityType::Arbitrary,
+                EntityAction::Arbitrary );
     }
 
     // -----------------------------------------------------------------------------
