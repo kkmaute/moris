@@ -45,13 +45,39 @@ public:
     // MTK Interpolation Cell Implementation
     // see base class for documentation
     //------------------------------------------------------------------------------
-    uint                        get_level() const { return mBaseCell->get_level();};
-    uint                        get_number_of_vertices() const;
-    moris::Cell< mtk::Vertex* > get_vertex_pointers() const;
-    Matrix< DDRMat >            get_vertex_coords() const;
-    void                        set_vertices(moris::Cell< xtk::Interpolation_Vertex_Unzipped* > const & aVertexPointers);
-    moris::mtk::Cell const*     get_base_cell() const;
-    moris::mtk::Cell*           get_base_cell();
+    uint
+    get_level() const;
+
+    //------------------------------------------------------------------------------
+
+    uint
+    get_number_of_vertices() const;
+
+    //------------------------------------------------------------------------------
+
+    moris::Cell< mtk::Vertex* >
+    get_vertex_pointers() const;
+
+    //------------------------------------------------------------------------------
+
+    Matrix< DDRMat >
+    get_vertex_coords() const;
+
+    //------------------------------------------------------------------------------
+
+    void
+    set_vertices(moris::Cell< xtk::Interpolation_Vertex_Unzipped* > const & aVertexPointers);
+
+    //------------------------------------------------------------------------------
+
+    moris::mtk::Cell const*
+    get_base_cell() const;
+
+    //------------------------------------------------------------------------------
+
+    moris::mtk::Cell*
+    get_base_cell();
+
     //------------------------------------------------------------------------------
     // End Mtk Interpolation Cell Implementation
     //------------------------------------------------------------------------------
@@ -74,6 +100,10 @@ public:
     moris::Cell< xtk::Interpolation_Vertex_Unzipped* > const &
     get_xtk_interpolation_vertices() const;
     //------------------------------------------------------------------------------
+    // memory
+    size_t
+    capacity();
+
 protected:
     moris::Cell< xtk::Interpolation_Vertex_Unzipped* > &
     get_xtk_interpolation_vertices();
@@ -88,7 +118,6 @@ private:
     moris::moris_index                                 mSubPhaseIndex;
     moris::moris_index                                 mBulkPhaseIndex;
     moris::Cell< xtk::Interpolation_Vertex_Unzipped* > mVertices;
-    mtk::Cell_Info*                                    mCellInfo;
 };
 
 

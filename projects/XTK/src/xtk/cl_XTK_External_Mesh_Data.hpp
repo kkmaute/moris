@@ -25,6 +25,8 @@
 // XTKL: XTK Includes
 #include "cl_XTK_Pending_Node.hpp"
 
+#include "fn_TOL_Capacities.hpp"
+
 // XTKL: Linear Algebra Includes
 #include "cl_MPI_Tools.hpp"
 
@@ -114,6 +116,21 @@ public:
         MORIS_ASSERT(aFieldIndex<(moris::moris_index)mNumFields,"Field index is outside of bounds. Note this function should not be used directly but via STK_Mesh_Data only");
         return mFieldData(0,aFieldIndex);
     }
+
+    size_t
+    capacity()
+    {
+        size_t tTotal = 0;
+        tTotal += sizeof(mGlbId);
+        tTotal += sizeof(mLocInd);
+        tTotal += sizeof(mOwningProc);
+        tTotal += sizeof(mNumFields);
+        tTotal += sizeof(mEntityRank);
+        tTotal += mFieldData.capacity();
+        tTotal += mEntityCoordinates.capacity();
+        return tTotal;
+    }
+
 
 
 
@@ -405,6 +422,20 @@ public:
     get_local_to_global_node_map() const
     {
         return mLocalToGlobalExtNodes;
+    }
+
+    size_t
+    capacity()
+    {
+        size_t tTotal = 0;
+        tTotal += mFirstExtEntityInds.capacity();
+        tTotal += mFirstAvailableIds.capacity();
+        tTotal += mLocalToGlobalExtNodes.capacity();
+        tTotal += mFirstAvailableInds.capacity();
+        tTotal += moris::internal_capacity_nested(mExternalEntities);
+        tTotal += moris::internal_capacity(mFieldNames);
+
+        return tTotal;
     }
 
 private:

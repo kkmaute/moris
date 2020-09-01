@@ -65,6 +65,7 @@ namespace xtk
 
         // Perform enrichment over basis clusters
         perform_basis_cluster_enrichment();
+
     }
 
     //-------------------------------------------------------------------------------------
@@ -85,30 +86,36 @@ namespace xtk
 
     //-------------------------------------------------------------------------------------
 
-    Cell<moris::Matrix< moris::IndexMat >> const &
-    Enrichment::get_subphases_loc_inds_in_enriched_basis(moris_index const & aEnrichmentDataIndex ) const
+    Cell<moris::Matrix<moris::IndexMat>> const &
+    Enrichment::get_subphases_loc_inds_in_enriched_basis(moris_index const &aEnrichmentDataIndex) const
     {
         return mEnrichmentData(aEnrichmentDataIndex).mSubphaseIndsInEnrichedBasis;
     }
 
     //-------------------------------------------------------------------------------------
 
-    Cell<moris::Matrix< moris::IndexMat >>
-    Enrichment::get_subphases_glb_id_in_enriched_basis(moris_index const & aEnrichmentDataIndex ) const
+    moris::Memory_Map
+    Enrichment::get_memory_usage()
     {
+        Memory_Map tMemoryMap;
 
-        Cell<moris::Matrix< moris::IndexMat >> tSubphaseIdsInEnrichedBasis( mEnrichmentData(aEnrichmentDataIndex).mSubphaseIndsInEnrichedBasis.size() );
+        tMemoryMap.mMemoryMapData["mEnrichmentMethod"] = sizeof(mEnrichmentMethod);
+        tMemoryMap.mMemoryMapData["mBasisRank"] = sizeof(mBasisRank);
+        tMemoryMap.mMemoryMapData["mMeshIndices"] = mMeshIndices.capacity();
+        tMemoryMap.mMemoryMapData["mNumBulkPhases"] = sizeof(mNumBulkPhases);
+        tMemoryMap.mMemoryMapData["mMeshIndices"] = mMeshIndices.capacity();
+        
+        tMemoryMap.mMemoryMapData["mElementEnrichmentLevel"]      = moris::internal_capacity( mEnrichmentData(0).mElementEnrichmentLevel );
+        tMemoryMap.mMemoryMapData["mElementIndsInBasis"]          = moris::internal_capacity(mEnrichmentData(0).mElementIndsInBasis);
+        tMemoryMap.mMemoryMapData["mSubphaseIndsInEnrichedBasis"] = moris::internal_capacity(mEnrichmentData(0).mSubphaseIndsInEnrichedBasis);
+        tMemoryMap.mMemoryMapData["mBasisEnrichmentIndices"]      = moris::internal_capacity(mEnrichmentData(0).mBasisEnrichmentIndices);
+        tMemoryMap.mMemoryMapData["mEnrichedBasisIndexToId"]      = mEnrichmentData(0).mEnrichedBasisIndexToId.capacity();
+        tMemoryMap.mMemoryMapData["mSubphaseBGBasisIndices"]      = moris::internal_capacity(mEnrichmentData(0).mSubphaseBGBasisIndices);
+        tMemoryMap.mMemoryMapData["mSubphaseBGBasisEnrLev"]       = moris::internal_capacity(mEnrichmentData(0).mSubphaseBGBasisEnrLev);
+        tMemoryMap.mMemoryMapData["mNumEnrichmentLevels"]         = sizeof( mEnrichmentData(0).mNumEnrichmentLevels);
+        tMemoryMap.mMemoryMapData["mBGVertexInterpolations ptrs"] = mEnrichmentData(0).mBGVertexInterpolations.capacity();
 
-        for(moris::uint i = 0 ; i < tSubphaseIdsInEnrichedBasis.size(); i++)
-        {
-            tSubphaseIdsInEnrichedBasis(i).resize(mEnrichmentData(aEnrichmentDataIndex).mSubphaseIndsInEnrichedBasis(i).n_rows(),mEnrichmentData(aEnrichmentDataIndex).mSubphaseIndsInEnrichedBasis(i).n_cols());
-
-            for(moris::uint j =0 ; j < mEnrichmentData(aEnrichmentDataIndex).mSubphaseIndsInEnrichedBasis(i).numel(); j++)
-            {
-                tSubphaseIdsInEnrichedBasis(i)(j) = mXTKModelPtr->get_subphase_id(mEnrichmentData(aEnrichmentDataIndex).mSubphaseIndsInEnrichedBasis(i)(j));
-            }
-        }
-        return tSubphaseIdsInEnrichedBasis;
+        return tMemoryMap;
     }
 
     //-------------------------------------------------------------------------------------
@@ -816,7 +823,7 @@ namespace xtk
                 {
                     moris_index tLocalBasisIndex = aBasisIndexToBasisOwner(i)(j);
                     moris_index tGlobaId         = aReceivedEnrichedIds(i)(j);
-                    
+
                     MORIS_ASSERT(mEnrichmentData(aEnrichmentDataIndex).mEnrichedBasisIndexToId(tLocalBasisIndex) == MORIS_INDEX_MAX,
                             "Id already set for this basis function");
 
@@ -863,42 +870,6 @@ namespace xtk
 
     //-------------------------------------------------------------------------------------
 
-    void
-    Enrichment::construct_element_to_basis_connectivity(
-            moris::Cell<moris::Cell<moris::moris_index>> & aElementToBasis,
-            moris::Cell<moris::Cell<moris::moris_index>> & aElementToBasisEnrichmentLevel)
-    {
-        // mesh data
-        moris::mtk::Mesh & tXTKMeshData = mBackgroundMeshPtr->get_mesh_data();
-
-        // Number of basis functions
-        moris::size_t tNumBasis = tXTKMeshData.get_num_basis_functions();
-
-        // member data access
-        Cell<moris::Matrix< moris::IdMat >> const & tElementInds        = this->get_element_inds_in_basis_support();
-        Cell<moris::Matrix< moris::IdMat >> const & tElementEnrichments = this->get_element_enrichment_levels_in_basis_support();
-
-        // allocate outputs
-        aElementToBasis                = moris::Cell<moris::Cell<moris::moris_index>>(mXTKModelPtr->get_num_elements_total());
-        aElementToBasisEnrichmentLevel = moris::Cell<moris::Cell<moris::moris_index>>(mXTKModelPtr->get_num_elements_total());
-
-        // Iterate through basis
-        for(moris::moris_index  iB = 0; iB<(moris::moris_index)tNumBasis; iB++)
-        {
-            // iterate through elements (child and not child in basis support)
-            for(moris::uint iEl = 0; iEl < tElementInds(iB).numel(); iEl++ )
-            {
-                moris::moris_index tElemIndex       = tElementInds(iB)(iEl);
-                moris::moris_index tEnrichmentLevel = tElementEnrichments(iB)(iEl);
-
-                // add basis index to cell for the element and also store enrichment level
-                aElementToBasis(tElemIndex).push_back(iB);
-                aElementToBasisEnrichmentLevel(tElemIndex).push_back(tEnrichmentLevel);
-            }
-        }
-    }
-
-    //-------------------------------------------------------------------------------------
 
     bool
     Enrichment::subphase_is_in_support(

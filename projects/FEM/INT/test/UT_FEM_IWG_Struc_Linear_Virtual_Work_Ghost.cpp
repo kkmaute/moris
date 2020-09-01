@@ -229,7 +229,6 @@ TEST_CASE( "IWG_Elast_VWGhost", "[moris],[fem],[IWG_Elast_VWGhost]" )
 
             // get number of dof per type
             int tNumDofDisp  = tNumCoeff * iSpaceDim;
-            int tNumDofP    = tNumCoeff;
 
             //create a space time interpolation rule
             Interpolation_Rule tFIRule ( tGeometryType,

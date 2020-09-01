@@ -112,7 +112,7 @@ Side_Cluster_HMR::get_cell_side_ordinal(moris::moris_index aCellIndexInCluster,
 
 //----------------------------------------------------------------
 
-moris::Cell<moris::mtk::Vertex const *> const &
+moris::Cell<moris::mtk::Vertex const *>
 Side_Cluster_HMR::get_vertices_in_cluster( const mtk::Master_Slave aIsMaster ) const
 {
     return mVerticesInCluster;

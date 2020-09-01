@@ -107,7 +107,7 @@ public:
     };
 
     virtual
-    moris::Cell<moris::mtk::Vertex const *> const &
+    moris::Cell<moris::mtk::Vertex const *>
     get_vertices_in_cluster( const mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER ) const = 0;
 
     virtual

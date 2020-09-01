@@ -20,6 +20,8 @@
 // Assertion Includes:
 #include "fn_assert.hpp"
 
+#include "cl_TOL_Memory_Map.hpp"
+
 // Linear Algebra Includes
 #include "cl_Matrix.hpp"
 #include "fn_print.hpp"
@@ -259,6 +261,7 @@ namespace xtk
             get_all_non_intersected_elements_loc_inds() const;
 
             // -------------------------------------------------------------------
+
             // Functions for setting up downard inheritance, where downward
             // downward inheritance is the relationship between a parent element
             // and its children elements
@@ -355,6 +358,16 @@ namespace xtk
 
             void
             print_vertex_map();
+
+            //--------------------------------------------------------------------------------
+            // Memory Functions
+            //--------------------------------------------------------------------------------
+
+            /*!
+            * @brief get the memory usage of background mesh
+            */
+            moris::Memory_Map
+            get_memory_usage();
 
             // -------------------------------------------------------------------
             // Functions related to setting and accessing element phase indices

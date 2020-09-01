@@ -120,6 +120,7 @@ namespace moris
                  * @param[in] aSideOrdinal a side ordinal
                  * @return Geometric vertex to facet map
                  */
+                virtual
                 moris::Matrix<moris::IndexMat>
                 get_geometric_node_to_facet_map(moris::uint aSideOrdinal) const;
 

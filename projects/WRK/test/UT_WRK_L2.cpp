@@ -69,9 +69,6 @@ TEST_CASE("WRK L2 test","[WRK_L2_test]")
     {
         std::string tFieldName = "Geometry";
 
-         moris::uint tLagrangeMeshIndex = 0;
-         moris::uint tBSplineMeshIndex = 0;
-
          //----- HRM parameter list --------
 
          ParameterList tParameters = prm::create_hmr_parameter_list();

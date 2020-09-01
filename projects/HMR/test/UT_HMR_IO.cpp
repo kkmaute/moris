@@ -53,8 +53,6 @@ TEST_CASE("HMR_IO","[moris],[hmr],[HMR_IO]")
     {
         for( moris::uint tOrder=1; tOrder<=3; tOrder++ )
         {
-            uint tLagrangeMeshIndex = 0;
-
             // create settings object
             moris::hmr::Parameters tParameters;
 

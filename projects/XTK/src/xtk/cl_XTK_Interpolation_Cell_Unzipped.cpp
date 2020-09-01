@@ -25,12 +25,23 @@ Interpolation_Cell_Unzipped::Interpolation_Cell_Unzipped(moris::mtk::Cell*      
 }
 
 //------------------------------------------------------------------------------
+
+uint
+Interpolation_Cell_Unzipped::get_level() const
+{
+    return mBaseCell->get_level();
+}
+
+//------------------------------------------------------------------------------
+
 uint
 Interpolation_Cell_Unzipped::get_number_of_vertices() const
 {
     return mVertices.size();
 }
+
 //------------------------------------------------------------------------------
+
 moris::Cell< mtk::Vertex* >
 Interpolation_Cell_Unzipped::get_vertex_pointers() const
 {
@@ -47,11 +58,13 @@ Interpolation_Cell_Unzipped::get_vertex_pointers() const
 }
 
 //------------------------------------------------------------------------------
+
 Matrix< DDRMat >
 Interpolation_Cell_Unzipped::get_vertex_coords() const
 {
     return mBaseCell->get_vertex_coords();
 }
+
 //------------------------------------------------------------------------------
 
 void
@@ -59,6 +72,7 @@ Interpolation_Cell_Unzipped::set_vertices(moris::Cell< xtk::Interpolation_Vertex
 {
     mVertices = aVertexPointers;
 }
+
 //------------------------------------------------------------------------------
 
 moris::mtk::Cell const*
@@ -67,36 +81,56 @@ Interpolation_Cell_Unzipped::get_base_cell() const
     return mBaseCell;
 }
 
+//------------------------------------------------------------------------------
+
 moris::mtk::Cell*
 Interpolation_Cell_Unzipped::get_base_cell()
 {
     return mBaseCell;
 }
+
 //------------------------------------------------------------------------------
+
 moris_index
 Interpolation_Cell_Unzipped::get_subphase_index() const
 {
     return mSubPhaseIndex;
 }
+
 //------------------------------------------------------------------------------
+
 moris_index
 Interpolation_Cell_Unzipped::get_bulkphase_index() const
 {
     return mBulkPhaseIndex;
 }
+
 //------------------------------------------------------------------------------
+
 moris::Cell< xtk::Interpolation_Vertex_Unzipped* > const &
 Interpolation_Cell_Unzipped::get_xtk_interpolation_vertices() const
 {
     return mVertices;
 }
 //------------------------------------------------------------------------------
+
 moris::Cell< xtk::Interpolation_Vertex_Unzipped* > &
 Interpolation_Cell_Unzipped::get_xtk_interpolation_vertices()
 {
     return mVertices;
 }
 //------------------------------------------------------------------------------
+size_t
+Interpolation_Cell_Unzipped::capacity()
+{
+    size_t tTotal = 0;
+    tTotal += sizeof(mBaseCell);
+    tTotal += sizeof(mSubPhaseIndex);
+    tTotal += sizeof(mSubPhaseIndex);
+    tTotal += sizeof(mBulkPhaseIndex);
+    tTotal += mVertices.capacity();
+    return tTotal;
+}
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------

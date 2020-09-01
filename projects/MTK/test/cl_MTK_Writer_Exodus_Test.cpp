@@ -84,7 +84,6 @@ namespace moris
                                                                 {13, 14, 16, 15, 17, 18, 20, 19}};
 
             // Tetrathedral cells in material phase 1
-            CellTopology tPhase0ChildTopo = CellTopology::TET4;
             Matrix <IndexMat> tCellIdsPhase0 = {{6, 8, 10, 12, 14, 16, 17, 18, 20, 31, 32, 33, 42, 43, 44, 53, 54, 55, 62, 63, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84}};
             Matrix <IndexMat> tCellToNodePhase0 = {{29, 14, 31, 32},
                                                    {13, 28, 30, 33},
@@ -121,7 +120,6 @@ namespace moris
 
 
             // Tetrathedral cells in material phase 1
-            CellTopology tPhase1ChildTopo = CellTopology::TET4;
             Matrix <IndexMat> tCellToNodeGhost0 = {{21, 27, 31, 30},
                                                    {17, 18, 21, 27},
                                                    {31, 27, 34, 36},

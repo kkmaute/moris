@@ -96,7 +96,6 @@ TEST_CASE("Reading 3D mesh from ExodusII file", "[moris],[mesh],[cl_Mesh],[Mesh]
 }
 TEST_CASE( "Creating 8x8x8 3D mesh generated from a string","[MTK_MESH_1]")
 {    // Parallel
-    uint p_rank = moris::par_rank();
     uint p_size = moris::par_size();
 
     // File prefix
@@ -359,7 +358,6 @@ TEST_CASE( "Creating 8x8x8 3D mesh generated from a string","[MTK_MESH_1]")
 
 TEST_CASE( "Testing a side set on an 8x8x8 generated mesh","[MTK_MESH_1_SIDE_SET]")
 {    // Parallel
-    uint p_rank = moris::par_rank();
     uint p_size = moris::par_size();
 
     // File prefix

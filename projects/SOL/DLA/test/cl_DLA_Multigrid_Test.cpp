@@ -80,11 +80,7 @@ TEST_CASE("DLA_Multigrid","[DLA],[DLA_multigrid]")
 {
     if( moris::par_size() == 1 )
     {
-        // order for this example
-        moris::uint tOrder = 1;
-
-        // create parameter object
-
+       // create parameter object
         moris::uint tLagrangeMeshIndex = 0;
         moris::uint tBSplineMeshIndex = 0;
 
@@ -552,7 +548,7 @@ TEST_CASE("DLA_Multigrid_Circle","[DLA],[DLA_multigrid_sphere]")
     if( moris::par_size() == 1 )
     {
         moris::uint tLagrangeMeshIndex = 0;
-        moris::uint tBSplineMeshIndex = 0;
+    
 
         // create parameter object
         moris::hmr::Parameters tParameters;

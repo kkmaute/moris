@@ -122,7 +122,7 @@ namespace mtk
          moris::uint tNumVertices = this->get_num_vertices_in_cluster();
 
          // cell access
-         moris::Cell<moris::mtk::Vertex const *> const & tVertices = this->get_vertices_in_cluster();
+         moris::Cell<moris::mtk::Vertex const *> tVertices = this->get_vertices_in_cluster();
 
          // initialize output
          moris::Matrix<moris::IndexMat> tVertexIndices(1,tNumVertices);
@@ -176,7 +176,7 @@ namespace mtk
          moris::uint tNumVertices = this->get_num_vertices_in_cluster();
 
          // cell access
-         moris::Cell<moris::mtk::Vertex const *> const & tVertices = this->get_vertices_in_cluster();
+         moris::Cell<moris::mtk::Vertex const *> tVertices = this->get_vertices_in_cluster();
 
          // initialize output
          moris::Matrix<moris::IndexMat> tVertexIds(1,tNumVertices);

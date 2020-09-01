@@ -1749,7 +1749,7 @@ namespace moris
 
             // get number of master GI bases and space dimensions
             uint tDerNumBases      = tIGGI->get_number_of_space_bases();
-            uint tDerNumDimensions = tIGGI->get_number_of_space_dimensions();
+            uint tDerNumDimensions = tIPGI->get_number_of_space_dimensions();
 
             // coefficients for dv type wrt which derivative is computed
             Matrix< DDRMat > tCoeff = tIGGI->get_space_coeff();
@@ -1910,7 +1910,7 @@ namespace moris
             {
                 // get number of master GI bases and space dimensions
                 uint tDerNumBases      = tMasterIGGI->get_number_of_space_bases();
-                uint tDerNumDimensions = tMasterIGGI->get_number_of_space_dimensions();
+                uint tDerNumDimensions = tMasterIPGI->get_number_of_space_dimensions();
 
                 // coefficients for dv type wrt which derivative is computed
                 Matrix< DDRMat > tCoeff = tMasterIGGI->get_space_coeff();

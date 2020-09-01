@@ -44,6 +44,7 @@
 #include "cl_XTK_Vertex_Enrichment.hpp"
 #include "cl_MTK_Vertex_Interpolation.hpp"
 
+#include "cl_TOL_Memory_Map.hpp"
 /*
  * This class provides all the functions to perform the enrichment strategy on a child mesh
  */
@@ -98,9 +99,6 @@ namespace xtk
 
             // Vertex interpolations for this enrichment ordered by background vertex index
             Cell<mtk::Vertex_Interpolation*> mBGVertexInterpolations;
-
-            // Vertices with null vertex interpolation
-            Cell<moris_index> mNullVertexInterpVerts;
     };
 
     class Model;
@@ -120,66 +118,30 @@ namespace xtk
                     xtk::Cut_Mesh*                          aCutMeshPtr,
                     xtk::Background_Mesh*                   aBackgroundMeshPtr);
 
-            bool mVerbose = false;
-            bool mBasisEnrToBulkPhase = false;
-            typedef std::unordered_map<moris::moris_index,moris::moris_index> IndexMap;
-            friend class Multigrid;
+            // ----------------------------------------------------------------------------------
 
+            bool mVerbose = false; /* Verbose output of enrichment information flag */
 
             /*!
-             * Performs basis function enrichment so that each element in connected regions of a given bulk phase are
-             * assigned a unique enrichment level in the basis support.
-             * @param[in] aCutMesh - Mesh containing elements around the interface
-             * @param[in] aBackgroundMesh - Background mesh (Lagrangian Mesh)
-             * @param[in] aMatrixFactory - Means of creating matrix objects
-             *
+             * Perform basis function enrichment
              */
             void
             perform_enrichment();
 
-            /*!
-             * Returns the element inds in a basis support constructed in call to perform_enrichment. These are indexed by basis function index.
-             */
-            Cell<moris::Matrix< moris::IdMat >> const &
-            get_element_inds_in_basis_support(moris_index const & aEnrichmentDataIndex = 0) const;
-
-            /*!
-             * Returns the element enrichment levels in a basis support constructed in call to perform_enrichment. These are indexed by basis function index.
-             * Correspond to the element inds found at the same index in mElementIndsInBasis.
-             */
-            Cell<moris::Matrix< moris::IndexMat >> const &
-            get_element_enrichment_levels_in_basis_support(moris_index const & aEnrichmentDataIndex = 0) const;
-
             // ----------------------------------------------------------------------------------
             // Accessing enrichment data
             // ----------------------------------------------------------------------------------
-            moris::Cell<moris::Matrix<moris::IndexMat>> const &
-            get_enriched_basis_indices(moris_index const & aEnrichmentDataIndex = 0) const
-            {
-                return mEnrichmentData(aEnrichmentDataIndex).mBasisEnrichmentIndices;
-            }
 
             /*!
              * Returns the subphases indices in enriched basis functions support
+             * Note: Used in XTK Multigrid
              */
             Cell<moris::Matrix< moris::IndexMat >> const &
             get_subphases_loc_inds_in_enriched_basis(moris_index const & aEnrichmentDataIndex = 0) const;
-            /*!
-             * Returns the subphases ids in enriched basis functions support
-             */
-            Cell<moris::Matrix< moris::IndexMat >>
-            get_subphases_glb_id_in_enriched_basis(moris_index const & aEnrichmentDataIndex = 0) const;
 
-            //    void
-            //    create_multilevel_enrichments();
-
-            /*
-             * Returns a vector of cell fields names to declare in STK mesh if you want to visualize the cell level
-             * enrichment fields. cells within each subphase of a given basis function. One field per basis function, one field per child mesh
-             */
-            Cell<std::string>
-            get_cell_enrichment_field_names() const;
-
+            // ----------------------------------------------------------------------------------
+            // Field writing for debugging
+            // ----------------------------------------------------------------------------------
             /*
              * Provided an MTK mesh, writes the cell enrichment data onto the mesh. (fields declared from get_cell_enrichment_field_names )
              */
@@ -188,16 +150,56 @@ namespace xtk
                     Cell<std::string>  & aEnrichmentFieldStrs,
                     mtk::Mesh*           aMeshWithEnrFields) const;
 
+            // ----------------------------------------------------------------------------------
+
+            /*
+             * Returns a vector of cell fields names to declare in STK mesh if you want to visualize the cell level
+             * enrichment fields. cells within each subphase of a given basis function. One field per basis function, one field per child mesh
+             */
+            Cell<std::string>
+            get_cell_enrichment_field_names() const;
+
+            // ----------------------------------------------------------------------------------
+
+            /*!
+             * Returns the element inds in a basis support constructed in call to perform_enrichment. These are indexed by basis function index.
+             * Note: Only used for debug outputting in function write_cell_enrichment_to_fields.
+             */
+            Cell<moris::Matrix< moris::IdMat >> const &
+            get_element_inds_in_basis_support(moris_index const & aEnrichmentDataIndex = 0) const;
+
+            // ----------------------------------------------------------------------------------
+
+            /*!
+             * Returns the element enrichment levels in a basis support constructed in call to perform_enrichment. These are indexed by basis function index.
+             * Correspond to the element inds found at the same index in mElementIndsInBasis.
+             * Note: Only used for debug outputting in function write_cell_enrichment_to_fields.
+             */
+            Cell<moris::Matrix< moris::IndexMat >> const &
+            get_element_enrichment_levels_in_basis_support(moris_index const & aEnrichmentDataIndex = 0) const;
+
+            // ----------------------------------------------------------------------------------
+ 
+            /*!
+            * @brief get the memory usage of enrichment
+            */
+            moris::Memory_Map
+            get_memory_usage();
+
+            // ----------------------------------------------------------------------------------
+ 
+            typedef std::unordered_map<moris::moris_index,moris::moris_index> IndexMap;
+            friend class Multigrid;
         private:
 
             // enrichment method
             enum Enrichment_Method mEnrichmentMethod;
 
             // basis rank
-            enum EntityRank mBasisRank;
+            enum EntityRank mBasisRank; /*Entity rank of the basis functions*/
 
             // index of interpolation
-            Matrix<IndexMat> mMeshIndices;
+            Matrix<IndexMat> mMeshIndices; /* Mesh indices to perform enrichment on*/
 
             // number of bulk-phases possible in model
             moris::size_t mNumBulkPhases;
@@ -326,14 +328,6 @@ namespace xtk
             count_elements_in_support(moris::Matrix< moris::IndexMat > const & aParentElementsInSupport);
 
             // ----------------------------------------------------------------------------------
-
-            void
-            construct_element_to_basis_connectivity(
-                    moris::Cell<moris::Cell<moris::moris_index>> & aElementToBasis,
-                    moris::Cell<moris::Cell<moris::moris_index>> & aElementToBasisEnrichmentLevel);
-
-            // ----------------------------------------------------------------------------------
-
             bool
             subphase_is_in_support(
                     moris_index const & aEnrichmentDataIndex,
@@ -355,19 +349,24 @@ namespace xtk
             // ----------------------------------------------------------------------------------
             void
             construct_enriched_interpolation_mesh();
+
             // ----------------------------------------------------------------------------------
 
             void
             construct_enriched_integration_mesh();
+
             // ----------------------------------------------------------------------------------
 
             void
             allocate_interpolation_cells();
+
             // ----------------------------------------------------------------------------------
 
             void
             construct_enriched_interpolation_vertices_and_cells();
+
             // ----------------------------------------------------------------------------------
+
             void
             construct_enriched_vertex_interpolation(
                     moris_index                           const & aEnrichmentDataIndex,
@@ -376,6 +375,7 @@ namespace xtk
                     std::unordered_map<moris_id,moris_id>       & aMapBasisIndexToLocInSubPhase,
                     Vertex_Enrichment                           & aVertexEnrichment);
             // ----------------------------------------------------------------------------------
+
             std::unordered_map<moris_id,moris_id>
             construct_subphase_basis_to_basis_map(Cell<moris_id> const & aSubPhaseBasisIndex);
 

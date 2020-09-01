@@ -113,7 +113,6 @@ namespace moris
                 std::string tFieldName = "Geometry";
 
                 moris::uint tLagrangeMeshIndex = 0;
-                moris::uint tBSplineMeshIndex = 0;
 
                 moris::hmr::Parameters tParameters;
 

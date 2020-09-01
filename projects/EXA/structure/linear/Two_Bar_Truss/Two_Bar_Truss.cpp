@@ -51,6 +51,8 @@ namespace moris
     std::string tPois = "0.3";
     std::string tDens = "1.0";
 
+    std::string tBedding = std::to_string(1.0*1e-6);
+
     /* ------------------------------------------------------------------------ */
     // HMR parameters
 
@@ -517,6 +519,14 @@ namespace moris
         tParameterList( 0 )( tPropCounter ).set( "value_function",           "Func_Neumann");
         tPropCounter++;
 
+        // properties of bedding (supression for RBMs)
+        tParameterList( 0 ).push_back( prm::create_property_parameter_list() );
+        tParameterList( 0 )( tPropCounter ).set( "property_name",            "PropBedding");
+        tParameterList( 0 )( tPropCounter ).set( "function_parameters",      tBedding);
+        tParameterList( 0 )( tPropCounter ).set( "value_function",           "Func_Const");
+        tPropCounter++;
+
+
         //------------------------------------------------------------------------------
         // init CM counter
         uint tCMCounter = 0;
@@ -560,6 +570,7 @@ namespace moris
         tParameterList( 3 )( tIWGCounter ).set( "dof_residual",               "UX,UY");
         tParameterList( 3 )( tIWGCounter ).set( "master_dof_dependencies",    "UX,UY");
         tParameterList( 3 )( tIWGCounter ).set( "master_constitutive_models", "CMStrucLinIso1,ElastLinIso");
+        tParameterList( 3 )( tIWGCounter ).set( "master_properties",          "PropBedding,Bedding");
         tParameterList( 3 )( tIWGCounter ).set( "mesh_set_names",             tBars);
         tIWGCounter++;
 

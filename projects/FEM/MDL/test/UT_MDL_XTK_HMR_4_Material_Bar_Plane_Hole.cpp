@@ -256,7 +256,6 @@ TEST_CASE("XTK HMR 4 Material Bar Intersected By Plane and Hole","[XTK_HMR_PLANE
          moris::uint tLagrangeOrder = 1;
          moris::uint tBsplineOrder = 1;
          moris::uint tLagrangeMeshIndex = 0;
-         moris::uint tBSplineMeshIndex = 0;
 
          moris::hmr::Parameters tParameters;
          tParameters.set_number_of_elements_per_dimension( { {22}, {8}} );
@@ -709,7 +708,6 @@ TEST_CASE("XTK HMR 4 Material Bar Intersected By Plane and Hole 3D","[XTK_HMR_PL
         moris::uint tLagrangeOrder = 1;
         moris::uint tBsplineOrder = 1;
          moris::uint tLagrangeMeshIndex = 0;
-         moris::uint tBSplineMeshIndex = 0;
 
          moris::hmr::Parameters tParameters;
          tParameters.set_number_of_elements_per_dimension( { {22}, {8},{8}} );

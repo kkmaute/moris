@@ -152,6 +152,7 @@ set(LIB_DEPENDENCIES
 	${MDL}-lib
     ${MAP}-lib
     ${HMR}-lib
+    ${TOL}-lib
     )
 
 # Set the output path for library

@@ -100,7 +100,6 @@ TEST_CASE("XTK HMR Material Void Bar Intersected By Plane","[XTK_HMR_PLANE_BAR_M
         std::string tFieldName = "Geometry";
 
         moris::uint tLagrangeMeshIndex = 0;
-        moris::uint tBSplineMeshIndex = 0;
 
         moris::hmr::Parameters tParameters;
 
@@ -372,7 +371,6 @@ TEST_CASE("XTK HMR Material Void Bar Intersected By Plane","[XTK_HMR_PLANE_BAR_M
 //
 //        CHECK(norm(tFullSol - tGoldSolution)<1e-08);
 
-        xtk::Enrichment const & tEnrichment = tXTKModel.get_basis_enrichment();
 
 //        // Declare the fields related to enrichment strategy in output options
         // output solution and meshes

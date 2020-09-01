@@ -221,6 +221,16 @@ public:
                                           Cell<Matrix<IndexMat>> const & aEnrichedIndices,
                                           Cell<Matrix<IdMat>>          & aEnrichedIds) const;
 
+    //------------------------------------------------------------------------------
+    // Memory Map
+    //------------------------------------------------------------------------------
+    /*!
+     * @brief Memory map of the enriched integration mesh
+     * @return Memory map
+     */
+    moris::Memory_Map
+    get_memory_usage();
+
     // Print functions
     void print() const;
     void print_enriched_cells() const;

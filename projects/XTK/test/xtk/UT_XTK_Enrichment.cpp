@@ -113,9 +113,6 @@ TEST_CASE("Enrichment Example 1","[ENRICH_1]")
         // Perform the enrichment
         tXTKModel.perform_basis_enrichment(EntityRank::NODE);
 
-        // get the enriched interpolation mesh
-        Enriched_Interpolation_Mesh const & tEnrInterpMesh = tXTKModel.get_enriched_interp_mesh();
-
 
         Enrichment const & tEnrichment = tXTKModel.get_basis_enrichment();
 
@@ -242,9 +239,6 @@ TEST_CASE("8 Element 10 enrichment Levels","[ENRICH_10_EL_CLUSTER]")
 
         // Perform the enrichment
         tXTKModel.perform_basis_enrichment(EntityRank::NODE);
-
-        // get the enriched interpolation mesh
-        Enriched_Interpolation_Mesh const & tEnrInterpMesh = tXTKModel.get_enriched_interp_mesh();
 
         Enrichment const & tEnrichment = tXTKModel.get_basis_enrichment();
 

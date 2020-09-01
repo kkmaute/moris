@@ -193,6 +193,15 @@ public:
         return mMatrix.n_elem;
     }
 
+    /*!
+    *
+    */
+    size_t
+    capacity() const
+    {
+        return this->numel() * sizeof(Data_Type);
+    }
+
     void set_row(size_t aRowIndex, const Matrix<arma::Mat<Type>> & aVec)
     {
         MORIS_ASSERT(isvector(aVec), "aVec needs to be a vector");

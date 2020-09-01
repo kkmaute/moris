@@ -53,7 +53,11 @@ public:
     void
     add_vertex_interpolation(const uint aOrder,
                              Vertex_Enrichment* aVertexInterp);
-
+                             
+    //------------------------------------------------------------------------------
+    // memory
+    size_t
+    capacity();
 
     friend class Ghost_Stabilization;
     friend class Enriched_Interpolation_Mesh;
@@ -73,7 +77,7 @@ private:
     moris_index mVertexOwner;
 
     // interpolation of vertex
-    Cell<Vertex_Enrichment*> mInterpolation;
+    Cell<Vertex_Enrichment*> mInterpolation; // Vertex Enrichment owned by ip mesh
 
 };
 

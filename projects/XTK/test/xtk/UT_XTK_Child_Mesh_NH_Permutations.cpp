@@ -608,8 +608,6 @@ TEST_CASE("Node Hierarchy Template 3 Node Case Permutations","[3_NODE]")
             moris::moris_index tEdgeM = tCurrentPermutation(1);
             moris::moris_index tEdgeH = tCurrentPermutation(2);
 
-            moris::moris_index tPermutationId = 100*tEdgeH + 10*tEdgeM + tEdgeL;
-
             // Set up node coordinates
             moris::Matrix< moris::DDRMat > tNodeCoords;
             setup_node_coordinates_3_node(tEdgeL,tEdgeM,tEdgeH,tNodeCoords);
@@ -791,8 +789,6 @@ TEST_CASE("Node Hierarchy Template 4 Node Case Permutations","[4_NODE]")
             moris::moris_index tEdgeML = tCurrentPermutation(1);
             moris::moris_index tEdgeMH = tCurrentPermutation(2);
             moris::moris_index tEdgeH  = tCurrentPermutation(3);
-
-            size_t tPermutationId = 1000*tEdgeH + 100*tEdgeMH + 10 * tEdgeML + tEdgeL;
 
             // Set up node coordinates
             moris::Matrix< moris::DDRMat > tNodeCoords;
@@ -1105,7 +1101,6 @@ TEST_CASE("2 Edge intersected Tetrahedral Template","[2_NODE]")
 
         moris::moris_index tEdgeL = tCurrentPermutation(0);
         moris::moris_index tEdgeH = tCurrentPermutation(1);
-        moris::moris_index tPermutation = 10*tEdgeL + tEdgeH;
 
         // Initialize Template
         Mesh_Modification_Template tMeshTemplate(tElementsAncestry(0,0),
