@@ -99,7 +99,7 @@ void check_quadratic_results(moris::mtk::Exodus_IO_Helper & aExoIO,uint aNodeId)
     Matrix< DDRMat > tReferenceCoordinate = { {3.920e-03},{0.0} };
 
     // check nodal coordinates
-    real tRelDiffNorm = moris::norm( aExoIO.get_nodal_coordinate( aNodeId ) - tReferenceCoordinate )/ moris::norm(tReferenceCoordinate);
+    // real tRelDiffNorm = moris::norm( aExoIO.get_nodal_coordinate( aNodeId ) - tReferenceCoordinate )/ moris::norm(tReferenceCoordinate);
 
     //FIXME: fix global variable problem for quadratic
     //REQUIRE( tRelDiffNorm <  1.0e-8 );

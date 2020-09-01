@@ -74,7 +74,6 @@ TEST_CASE("2D XTK WITH HMR MULLTIGRID 11","[XTK_HMR_Multigrid]")
         std::string tFieldName = "Cylinder";
 
          moris::uint tLagrangeMeshIndex = 0;
-         moris::uint tBSplineMeshIndex = 0;
 
          moris::hmr::Parameters tParameters;
 
@@ -154,9 +153,7 @@ TEST_CASE("2D XTK WITH HMR MULLTIGRID 11","[XTK_HMR_Multigrid]")
 
         // get meshes
         xtk::Enriched_Interpolation_Mesh & tEnrInterpMesh = tXTKModel.get_enriched_interp_mesh();
-        xtk::Enriched_Integration_Mesh   & tEnrIgMesh = tXTKModel.get_enriched_integ_mesh(0);
 
-        std::cout<<tEnrInterpMesh.get_num_basis( 0 )<<std::endl;
         uint tNumBasis = tEnrInterpMesh.get_num_basis( 0);
 
         std::string tMorisRoot = moris::get_base_moris_dir();

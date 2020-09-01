@@ -153,8 +153,6 @@ namespace moris
         moris::real tFluidViscosity = 1.0; /* Fluid viscosity () */
 
         // Boundary Conditions
-        moris::real tInletPressure  = 20.0;   /* Inlet pressure  () */
-        moris::real tOutletPressure =  0.0;   /* Outlet pressure () */
         moris::real tGammaNitsche   = 50.0; /* Penalty for Dirichlet BC */
         moris::real tGammaGPmu      = 0.05;      /* Penalty for ghost viscosity */
         moris::real tGammaGPu       = 0.05;      /* Penalty for ghost velocity */
@@ -163,8 +161,6 @@ namespace moris
         // Mesh Setup
         moris::uint tNumX   = 200; /* Number of elements in x*/
         moris::uint tNumY   = 200; /* Number of elements in y*/
-        moris::uint tNumRef = 1;   /* Number of HMR refinements */
-        moris::uint tOrder  = 1;   /* Lagrange Order and Bspline Order (forced to be same for this example) */
 
         size_t tModelDimension = 2;
 
@@ -511,7 +507,6 @@ TEST_CASE("MDL_Fluid_Benchmark_Immersed_Inlet_Pressure","[MDL_Fluid_Benchmark_Im
         moris::real tPlaneTop    =  0.5;                  /* y top plane    (m) */
         moris::real tPlaneLeft   = -2.5;                /* x left plane   (m) */
         moris::real tPlaneRight  =  2.5;                /* x right plane  (m) */
-        moris::real tChannelRadius = ( tPlaneTop - tPlaneBottom ) / 2.0; /* channel radius  (m) */
 
         //Material Parameters
         moris::real tFluidDensity   = 1.0; /* Fluid density   () */
@@ -519,7 +514,6 @@ TEST_CASE("MDL_Fluid_Benchmark_Immersed_Inlet_Pressure","[MDL_Fluid_Benchmark_Im
 
         // Boundary Conditions
         moris::real tInletPressure  = 20.0;   /* Inlet pressure  () */
-        moris::real tOutletPressure =  0.0;   /* Outlet pressure () */
         moris::real tGammaNitsche   = 50.0; /* Penalty for Dirichlet BC */
         moris::real tGammaGPmu      = 0.05;   /* Penalty for ghost viscosity */
         moris::real tGammaGPu       = 0.05;   /* Penalty for ghost velocity */
@@ -528,12 +522,10 @@ TEST_CASE("MDL_Fluid_Benchmark_Immersed_Inlet_Pressure","[MDL_Fluid_Benchmark_Im
         // Mesh Setup
         moris::uint tNumX   = 400; /* Number of elements in x*/
         moris::uint tNumY   = 400; /* Number of elements in y*/
-        moris::uint tNumRef = 1;   /* Number of HMR refinements */
-        moris::uint tOrder  = 1;   /* Lagrange Order and Bspline Order (forced to be same for this example) */
 
         size_t tModelDimension = 2;
 
-        uint tLagrangeMeshIndex = 0;
+        moris::uint tLagrangeMeshIndex = 0;
 
         ParameterList tParameters = prm::create_hmr_parameter_list();
         tParameters.set( "number_of_elements_per_dimension", std::to_string(tNumX) + "," + std::to_string(tNumY));
@@ -2219,10 +2211,9 @@ TEST_CASE("MDL_Fluid_Benchmark_Radial_Couette_Flow","[MDL_Fluid_Benchmark_Radial
         // Mesh Setup
         moris::uint tNumX   = 20; /* Number of elements in x*/
         moris::uint tNumY   = 20; /* Number of elements in y*/
-        moris::uint tNumRef = 0;  /* Number of HMR refinements */
-        moris::uint tOrder  = 1;  /* Lagrange Order and Bspline Order (forced to be same for this example) */
 
-        uint tLagrangeMeshIndex = 0;
+        moris::uint tLagrangeMeshIndex = 0;
+
         ParameterList tParameters = prm::create_hmr_parameter_list();
 
         tParameters.set( "number_of_elements_per_dimension", std::to_string(tNumX) + "," + std::to_string(tNumY));

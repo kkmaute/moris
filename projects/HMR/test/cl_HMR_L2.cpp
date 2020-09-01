@@ -332,7 +332,6 @@ TEST_CASE("HMR_CommTable2", "[moris],[mesh],[hmr],[HMR_CommTable2]")
     // can only perform test for 1, 2 or 4 procs
     if( moris::par_size() == 4  )
     {
-        moris::uint tDimension=3;
 
 //------------------------------------------------------------------------------
 //  HMR Parameters setup
@@ -389,7 +388,6 @@ TEST_CASE("HMR_L2_Test_Pattern", "[moris],[mesh],[hmr],[hmr_L2_pattern]")
     // can only perform test for 1, 2 or 4 procs
     if( moris::par_size() == 1  )
     {
-        moris::uint tDimension=2;
 
 //------------------------------------------------------------------------------
 //  HMR Parameters setup
@@ -505,7 +503,6 @@ TEST_CASE("HMR_L2_Test_Pattern3", "[moris],[mesh],[hmr],[hmr_L2_pattern3]")
     // can only perform test for 1, 2 or 4 procs
     if( moris::par_size() == 1  )
     {
-        moris::uint tDimension=2;
 
 //------------------------------------------------------------------------------
 //  HMR Parameters setup
@@ -630,7 +627,6 @@ TEST_CASE("HMR_L2_Test_Pattern4", "[moris],[mesh],[hmr],[hmr_L2_pattern4]")
     // can only perform test for 1, 2 or 4 procs
     if( moris::par_size() == 1  )
     {
-        moris::uint tDimension=2;
 
 //------------------------------------------------------------------------------
 //  HMR Parameters setup
@@ -765,8 +761,6 @@ TEST_CASE("HMR_L2_Test_Pattern2", "[moris],[mesh],[hmr],[hmr_L2_pattern2]")
         // can only perform test for 1, 2 or 4 procs
         if( moris::par_size() == 1  )
         {
-            moris::uint tDimension=2;
-
     //------------------------------------------------------------------------------
     //  HMR Parameters setup
     //------------------------------------------------------------------------------

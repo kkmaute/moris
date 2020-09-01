@@ -32,5 +32,5 @@ TEST_CASE("Single_Phase_Hollow_Cylinder_Static",
     char * argv[2] = {tString1,tString2};
 
     // call to performance manager main interface
-    int tRet = fn_WRK_Workflow_Main_Interface( argc, argv );
+    fn_WRK_Workflow_Main_Interface( argc, argv );
 }

@@ -20,7 +20,6 @@ namespace xtk
 
 TEST_CASE("2D Regular Subdivision Method","[RSM_2D_Lin]")
                 {
-    int tProcRank = par_rank();
     int tProcSize = par_size();
 
     if(tProcSize==1)
@@ -175,7 +174,6 @@ TEST_CASE("2D Conformal Subdivision","[CM_2D_LIN]")
 
 TEST_CASE("2D Regular Subdivision Method Quadratic Lagrange Cells","[RSM_2D_Quad]")
                 {
-    int tProcRank = par_rank();
     int tProcSize = par_size();
 
     if(tProcSize==1)
@@ -271,7 +269,6 @@ TEST_CASE("2D Regular Subdivision Method Quadratic Lagrange Cells","[RSM_2D_Quad
 
 TEST_CASE("2D Conformal Quadratic Lagrange Cells","[CM_2D_QUAD]")
                 {
-    int tProcRank = par_rank();
     int tProcSize = par_size();
 
     if(tProcSize==1)

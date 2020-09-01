@@ -55,7 +55,7 @@ namespace xtk
     // ----------------------------------------------------------------------------------
 
     void
-    Ghost_Stabilization::visualize_ghost_on_mesh(moris_index aBulkPhase)
+    Ghost_Stabilization::visualize_ghost_on_mesh(moris_index const & aBulkPhase)
     {
         // get the enriched integration mesh
         Enriched_Integration_Mesh & tEnrIgMesh = mXTKModel->get_enriched_integ_mesh(0);
@@ -83,12 +83,25 @@ namespace xtk
     // ----------------------------------------------------------------------------------
 
     std::string
-    Ghost_Stabilization::get_ghost_dbl_side_set_name(moris_index aBulkPhase)
+    Ghost_Stabilization::get_ghost_dbl_side_set_name(moris_index const & aBulkPhase)
     {
         MORIS_ASSERT(aBulkPhase < (moris_index)mXTKModel->get_geom_engine()->get_num_bulk_phase(),"Bulk Phase index out of bounds.");
 
         return "ghost_p" + std::to_string(aBulkPhase);
     }
+
+    // ----------------------------------------------------------------------------------
+
+    Memory_Map
+    Ghost_Stabilization::get_memory_usage()
+    {   
+        // Ghost is an algorithm, all data created by
+        // ghost is placed in the meshes
+        Memory_Map tMM;
+        tMM.mMemoryMapData["mXTKModel ptr"] = sizeof(mXTKModel);
+        return tMM;
+    }
+
     // ----------------------------------------------------------------------------------
 
     //FIXME: Keenan - code below needs to be split up in smaller units

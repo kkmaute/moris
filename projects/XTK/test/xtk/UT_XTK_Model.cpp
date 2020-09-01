@@ -174,7 +174,6 @@ namespace xtk
 
     TEST_CASE("Regular Subdivision and Nodal Hierarchy Subdivision","[XTK] [CONFORMAL_MODEL]")
     {
-        int tProcRank = moris::par_rank();
         int tProcSize = moris::par_size();
 
         if(tProcSize<=2)
@@ -412,10 +411,6 @@ namespace xtk
         //    tXTKModel.unzip_interface();
 
         moris::Matrix<moris::DDRMat> tNodeCoords = tXTKModel.get_background_mesh().get_all_node_coordinates_loc_inds();
-        moris::real tMySurfaceArea = compute_interface_surface_area(tNodeCoords,tXTKModel);
-
-        // Collect all volumes
-        moris::real tGlbSurf = sum_all(tMySurfaceArea);
 
         tXTKModel.perform_basis_enrichment(EntityRank::NODE);
 

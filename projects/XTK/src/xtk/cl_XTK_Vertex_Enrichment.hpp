@@ -174,6 +174,9 @@ public:
     bool
     has_interpolation() const;
 
+    size_t
+    capacity();
+
 protected:
     moris::moris_index               mNodeIndex;
     moris::Matrix< moris::IndexMat > mBasisIndices;
@@ -228,7 +231,6 @@ std::ostream &
 operator<<(std::ostream & os, const xtk::Vertex_Enrichment & dt)
 {
     moris::Matrix< moris::IndexMat > const & tBasisIndices = dt.get_basis_indices();
-    moris::Matrix< moris::IndexMat > const & tBasisIds     = dt.get_ids();
     moris::Matrix< moris::IndexMat > const & tBasisOwner   = dt.get_owners();
     moris::Matrix< moris::DDRMat >   const & tBasisWeights = dt.get_basis_weights();
 

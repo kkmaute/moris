@@ -74,7 +74,7 @@ TEST_CASE("Sparse Mat","[Sparse Mat],[DistLinAlg]")
     moris::Matrix< DDRMat > tValues ( tLength, 1, 0.0 );
 
     // Get matrix values
-    sint err = tMat->get_matrix()->ExtractGlobalRowCopy( tGlobalRow, tLength, tNumEntries, tValues.data() );
+    tMat->get_matrix()->ExtractGlobalRowCopy( tGlobalRow, tLength, tNumEntries, tValues.data() );
 
     // Compare to true values.
     if ( rank == 0 )
@@ -153,7 +153,7 @@ TEST_CASE("Scale Sparse Mat","[Scale Sparse Mat],[DistLinAlg]")
     moris::Matrix< DDRMat > tValues (tLength, 1, 0.0);
 
     // Get matrix values
-    sint err = tMat->get_matrix()->ExtractGlobalRowCopy(tGlobalRow, tLength, tNumEntries, tValues.data() );
+    tMat->get_matrix()->ExtractGlobalRowCopy(tGlobalRow, tLength, tNumEntries, tValues.data() );
 
     // Compare to true values.
     if (rank == 0)
@@ -262,7 +262,7 @@ TEST_CASE("Diagonal Sparse Mat","[Diagonal Sparse Mat],[DistLinAlg]")
     moris::Matrix< DDRMat > tValues (tLength, 1, 0.0);
 
     // Get matrix values
-    sint err = tMat->get_matrix()->ExtractGlobalRowCopy(tGlobalRow, tLength, tNumEntries, tValues.data() );
+    tMat->get_matrix()->ExtractGlobalRowCopy(tGlobalRow, tLength, tNumEntries, tValues.data() );
 
     // Compare to true values.
     if (rank == 0)

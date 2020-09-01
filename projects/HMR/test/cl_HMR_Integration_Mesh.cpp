@@ -106,7 +106,6 @@ namespace moris
         if(par_size() == 1)
         {
             moris::uint tLagrangeMeshIndex = 0;
-            moris::uint tBSplineMeshIndex = 0;
 
             moris::hmr::Parameters tParameters;
 
