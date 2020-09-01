@@ -2091,48 +2091,11 @@ namespace moris
             // set size for dQIdp
             mdQIdp( 1 ).resize( tNumRequestedIQIs );
 
-            // get the requested geo pdv types
-            moris::Cell < enum PDV_Type > tRequestedDvTypes;
-            this->get_ig_unique_dv_types_for_set( tRequestedDvTypes );
-
-            // init active geo pdv counter
-            uint tActiveGeoPdvCounter = 0;
-
-            // get node indices on cluster
-            moris::Matrix< moris::IndexMat > tNodeIndicesOnCluster;
-            aFemCluster->get_vertex_indices_in_cluster_for_sensitivity( tNodeIndicesOnCluster );
-
-            // loop over the ig nodes on cluster
-            uint tNumIGNodes = tNodeIndicesOnCluster.numel();
-
-            // loop over the requested pdv types
-            for( uint iGeoPdv = 0; iGeoPdv < tRequestedDvTypes.size(); iGeoPdv++ )
-            {
-                // get treated geo pdv type
-                PDV_Type tGeoPdvType = tRequestedDvTypes( iGeoPdv );
-
-                // loop over the ig nodes on cluster
-                for( uint iIGNode = 0; iIGNode < tNumIGNodes; iIGNode++ )
-                {
-                    // get treated node index
-                    moris_index tNodeIndex = tNodeIndicesOnCluster( iIGNode );
-
-                    // create key pair
-                    std::pair< moris_index, PDV_Type > tKeyPair = std::make_pair( tNodeIndex, tGeoPdvType );
-
-                    // if in map
-                    if( mPdvGeoAssemblyMap.find( tKeyPair ) != mPdvGeoAssemblyMap.end() )
-                    {
-                        tActiveGeoPdvCounter++;
-                    }
-                }
-            }
-
             // loop over requested IQIs
             for ( auto & tdQIdp : mdQIdp( 1 ) )
             {
                 // fill the dQIdp vector with zero
-                tdQIdp.set_size( 1, tActiveGeoPdvCounter, 0.0 );
+                tdQIdp.set_size( 1, mPdvGeoAssemblyVector.numel(), 0.0 );
             }
         }
 
