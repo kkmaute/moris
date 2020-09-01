@@ -263,6 +263,13 @@ namespace xtk
 
             std::cout<<"XTK: Write integration mesh to exodus file completed in " <<(std::clock() - tStart) / (double)(CLOCKS_PER_SEC)<<" s."<<std::endl;
         }
+        
+        // print the memory usage of XTK
+        if( mParameterList.get<bool>("print_memory") )
+        {
+            moris::Memory_Map tXTKMM = this->get_memory_usage();
+            tXTKMM.par_print();
+        }
     }
 
     // ----------------------------------------------------------------------------------
@@ -5309,22 +5316,18 @@ namespace xtk
 
         
         // make the sum of the cut mesh memory map the cut mesh memory
-        tXTKModelMM.mMemoryMapData["Cut Mesh"]         = tCutMeshMM.sum();
-        tXTKModelMM.mMemoryMapData["Enrichment"]       = tEnrichmentMM.sum();
+        tXTKModelMM.mMemoryMapData["Cut Mesh"] = tCutMeshMM.sum();
+        tXTKModelMM.mMemoryMapData["Enrichment"] = tEnrichmentMM.sum();
         tXTKModelMM.mMemoryMapData["Enriched Ig Mesh"] = tIgMeshMM.sum();
         tXTKModelMM.mMemoryMapData["Enriched Ip Mesh"] = tIpMeshMM.sum();
-        tXTKModelMM.mMemoryMapData["Ghost"]            = tGhostMM.sum();
-        tXTKModelMM.mMemoryMapData["Background Mesh"]  = tBGMeshMM.sum();
+        tXTKModelMM.mMemoryMapData["Ghost"] = tGhostMM.sum();
+        tXTKModelMM.mMemoryMapData["Background Mesh"] = tBGMeshMM.sum();
         tXTKModelMM.mMemoryMapData["mElementToElement ptrs"] = moris::internal_capacity(mElementToElement);
         tXTKModelMM.mMemoryMapData["mElementToElement ptrs"] = moris::internal_capacity(mElementToElement);
         tXTKModelMM.mMemoryMapData["mSubphaseToSubPhase"] = moris::internal_capacity(mSubphaseToSubPhase);
         tXTKModelMM.mMemoryMapData["mSubphaseToSubPhaseMySideOrds"] = moris::internal_capacity(mSubphaseToSubPhaseMySideOrds);
         tXTKModelMM.mMemoryMapData["mSubphaseToSubPhaseNeighborSideOrds"] = moris::internal_capacity(mSubphaseToSubPhaseNeighborSideOrds);
-
-        tXTKModelMM.par_print();
-
         return tXTKModelMM;
-
     }
 
  

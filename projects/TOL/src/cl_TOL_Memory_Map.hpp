@@ -88,6 +88,7 @@ namespace moris
          * @brief Serialize memory map
          * mpi purposes.
          * @param[out] aKeyCell Cell of keys (on root proc)
+         * @param[out] aValCell Mat of vals (on root proc)
          */
         void
         serialize( Cell<std::string> & aKeyCell,

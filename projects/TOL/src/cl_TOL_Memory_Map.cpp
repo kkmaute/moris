@@ -57,7 +57,7 @@ namespace moris
                       << " | "
                       << std::right
                       << std::setw(15)
-                      << (moris::real) it->second / (1024*8)  // string's value
+                      << (moris::real) it->second / (1000)  // string's value
                       << " KiB | "
                       << std::setw(12)
                       << (moris::real)it->second / (moris::real)tTotal * 100
@@ -65,14 +65,14 @@ namespace moris
                       << std::endl;
             tTotalPercent = tTotalPercent + (moris::real)it->second / (moris::real)tTotal * 100;
         }
-
+        std::cout<<"----------------------------------------------------------------------------------\n";
         std::cout     << std::left
                       << std::setw(tWidth + 1)
                       <<" "
                       << " | "
                       << std::right
                       << std::setw(15)
-                      << tTotal/ (1024*8) 
+                      << tTotal/ (1000) 
                       << " KiB | "
                       << std::setw(12)
                       << tTotalPercent
@@ -92,8 +92,8 @@ namespace moris
         // Combined memory map
         Memory_Map tFullMM;
 
-        if (par_rank() == 0)
-        {   
+        if(par_rank() == 0)
+        {
             // total memory
             size_t tTotalMem = 0;
             // determine memory on each proc
@@ -102,48 +102,46 @@ namespace moris
             {
                 tTotalMemPerProc(i) = tGatheredMM(i).sum();
                 tTotalMem += tTotalMemPerProc(i);
-
                 tFullMM = tFullMM + tGatheredMM(i);
             }
-                    moris::real tTotalPercent = 0.0;
+            moris::real tTotalPercent = 0.0;
 
-        // print the full map
-        tFullMM.print();
+            // print the full map
+            tFullMM.print();
 
-        // Header
-        std::cout << std::setw(16) << "Proc Rank"
-                  << " | "
-                  << std::setw(16) << "Memory (KiB)"
-                  << " | "
-                  << std::setw(12) << "     " << std::endl;
-
-        for (moris::uint i = 0; i < tTotalMemPerProc.size(); i++)
-        {
-            std::cout << std::setw(16) << i
+            // Header
+            std::cout << std::setw(16) << "Proc Rank"
                       << " | "
-                      << std::setw(16) << tTotalMemPerProc(i)/1000
+                      << std::setw(16) << "Memory (KiB)"
                       << " | "
-                      << std::setw(12)<< (real) tTotalMemPerProc(i)/ (real) tTotalMem * 100 
-                      <<"%"
+                      << std::setw(12) << "     " << std::endl;
+
+            for (moris::uint i = 0; i < tTotalMemPerProc.size(); i++)
+            {
+                std::cout << std::setw(16) << i
+                          << " | "
+                          << std::setw(16) << tTotalMemPerProc(i) / 1000
+                          << " | "
+                          << std::setw(12) << (real)tTotalMemPerProc(i) / (real)tTotalMem * 100
+                          << "%"
+                          << std::endl;
+                tTotalPercent += (real)tTotalMemPerProc(i) / (real)tTotalMem * 100;
+            }
+
+            std::cout << "----------------------------------------------------------------------------------\n";
+            std::cout << std::left
+                      << std::setw(16)
+                      << " "
+                      << " | "
+                      << std::right
+                      << std::setw(12)
+                      << tTotalMem / 1000
+                      << " KiB | "
+                      << std::setw(12)
+                      << tTotalPercent
+                      << "%"
                       << std::endl;
-            tTotalPercent += (real) tTotalMemPerProc(i)/ (real) tTotalMem * 100;
         }
-
-        std::cout << std::left
-                  << std::setw(16)
-                  << " "
-                  << " | "
-                  << std::right
-                  << std::setw(12)
-                  << tTotalMem / 1000
-                  << " KiB | "
-                  << std::setw(12)
-                  << tTotalPercent
-                  << "%"
-                  << std::endl;
-        }
-
-
     }
 
     // ----------------------------------------------------------------------------------

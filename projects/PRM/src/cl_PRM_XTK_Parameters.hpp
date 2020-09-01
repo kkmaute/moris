@@ -65,6 +65,9 @@ namespace moris
         // enriched integration mesh options
         tParameterList.insert( "high_to_low_dbl_side_sets", false );
 
+        // print memory usage
+        tParameterList.insert( "print_memory", false );
+
         return tParameterList;
     }
 //------------------------------------------------------------------------------
