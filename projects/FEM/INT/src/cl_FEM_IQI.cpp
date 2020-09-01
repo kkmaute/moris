@@ -1132,22 +1132,6 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        // FIXME
-        moris::Cell < enum MSI::Dof_Type > IQI::get_requested_dof_types()
-        {
-            this->get_global_dof_type_list();
-
-            moris::Cell < enum MSI::Dof_Type > tRequestedDofTypes( mMasterGlobalDofTypes.size() );
-
-            for ( uint iDofGroup = 0; iDofGroup < mMasterGlobalDofTypes.size(); iDofGroup++ )
-            {
-                tRequestedDofTypes( iDofGroup ) = mMasterGlobalDofTypes( iDofGroup )( 0 );
-            }
-            return tRequestedDofTypes;
-        }
-
-        //------------------------------------------------------------------------------
-
         void IQI::compute_dQIdu_FD(
                 real               aWStar,
                 real               aPerturbation,
@@ -1510,6 +1494,7 @@ namespace moris
 
                         // check point location
                         moris::Cell< moris::Cell< real > > tFDScheme;
+                        fd_scheme( aFDSchemeType, tFDScheme );
                         if( tCoeff( iCoeffRow, iCoeffCol ) + tDeltaH > tMaxIP( iCoeffCol ) )
                         {
                             fd_scheme( fem::FDScheme_Type::POINT_1_BACKWARD, tFDScheme );
@@ -1517,10 +1502,6 @@ namespace moris
                         else if( tCoeff( iCoeffRow, iCoeffCol ) - tDeltaH < tMinIP( iCoeffCol ) )
                         {
                             fd_scheme( fem::FDScheme_Type::POINT_1_FORWARD, tFDScheme );
-                        }
-                        else
-                        {
-                            fd_scheme( aFDSchemeType, tFDScheme );
                         }
                         uint tNumPoints = tFDScheme( 0 ).size();
 
