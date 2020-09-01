@@ -1362,8 +1362,8 @@ namespace moris
             {
                 // IQI index
                 uint tIQIIndex = 0;
-                while ((mIQIs(tIQIIndex)->get_name() not_eq mRequestedIQINames(tRequestedIQIIndex))
-                        and tIQIIndex < mIQIs.size())
+                while (tIQIIndex < mIQIs.size()
+                        and (mIQIs(tIQIIndex)->get_name() not_eq mRequestedIQINames(tRequestedIQIIndex)))
                 {
                     tIQIIndex++;
                 }

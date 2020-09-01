@@ -174,11 +174,28 @@ TEST_CASE( "IQI_Strain_Energy", "[moris],[fem],[IQI_Strain_Energy]" )
 
     // create a fem set pointer
     MSI::Equation_Set * tSet = new fem::Set();
-    fem::FEM_Model tModel;
 
-    tModel.set_requested_IQI_names({"IQI_1"});
+    // FEM parameter lists
+    Cell<Cell<ParameterList>> tParameterList;
+    tParameterList.resize( 6 );
 
+    tParameterList( 4 ).push_back( prm::create_IQI_parameter_list() );
+    tParameterList( 4 )( 0 ).set( "IQI_name",                   "Volume");
+    tParameterList( 4 )( 0 ).set( "IQI_type",                   static_cast< uint >( fem::IQI_Type::VOLUME ) );
+    tParameterList( 4 )( 0 ).set( "normalization",              "design" );
+
+    // create computation  parameter list
+    tParameterList( 5 ).resize( 1 );
+    tParameterList( 5 )( 0 ) = prm::create_computation_parameter_list();
+
+    // Create FEM model
+    FEM_Model tModel;
+    tModel.set_parameter_list(tParameterList);
+    tModel.set_requested_IQI_names({"Volume"});
     tSet->set_equation_model(&tModel);
+
+    // Create IQI
+    tModel.initialize(nullptr);
 
     // create a GEN/MSI interface
     MSI::Design_Variable_Interface * tGENMSIInterface = new fem::FEM_Design_Variable_Interface_Proxy();
@@ -235,7 +252,7 @@ TEST_CASE( "IQI_Strain_Energy", "[moris],[fem],[IQI_Strain_Energy]" )
     moris::Cell< moris::Cell< enum fem::IQI_Type > > tRequestedIQITypes( 1 );
     tRequestedIQITypes( 0 ).resize( 1, fem::IQI_Type::STRAIN_ENERGY );
 
-     tSet->create_requested_IQI_type_map();
+    tSet->create_requested_IQI_type_map();
 
     // create a field interpolator manager
     moris::Cell< moris::Cell< enum MSI::Dof_Type > > tDummy;
@@ -256,49 +273,9 @@ TEST_CASE( "IQI_Strain_Energy", "[moris],[fem],[IQI_Strain_Energy]" )
     // check evaluation of the quantity of interest
     //------------------------------------------------------------------------------
     // evaluate the quantity of interest
-    Matrix< DDRMat > tQI;
-    tIQI->compute_QI( tQI );
-//    print( tQI, "tQI" );
-    tIQI->add_QI_on_set( 1.0 );
-//    print( tIQI->mSet->get_QI()( 0 ), "QI" );
-
-//    // check evaluation of the derivative of the quantity of interest wrt to dof
-//    //------------------------------------------------------------------------------
-//    // evaluate the quantity of interest derivatives wrt to dof
-//    Matrix< DDRMat > tdQIdu;
-//    Matrix< DDRMat > tdQIduFD;
-//    bool tCheckdQIdu = tIQI->check_dQIdu_FD( 1.0,
-//                                             tPerturbation,
-//                                             tEpsilon,
-//                                             tdQIdu,
-//                                             tdQIduFD );
-////    // print for debug
-////    print( tdQIdu,   "tdQIdu" );
-////    print( tdQIduFD, "tdQIduFD" );
-//
-//    // require check is true
-//    REQUIRE( tCheckdQIdu );
-//
-//    // check evaluation of the derivative of the quantity of interest wrt to dv
-//    //------------------------------------------------------------------------------
-//    Matrix< DDRMat > tdQIdpMatFD;
-//    tIQI->compute_dQIdp_FD_material( 1.0, tPerturbation, tdQIdpMatFD );
-////    print( tdQIdpMatFD, "tdQIdpMatFD" );
-//
-//    // assume that every x, y, z coords are active pdv
-//    moris::Cell< Matrix< DDSMat > > tIsActive( 8 );
-//    tIsActive( 0 ) = { {1}, {1}, {1} };
-//    tIsActive( 1 ) = { {1}, {1}, {1} };
-//    tIsActive( 2 ) = { {1}, {1}, {1} };
-//    tIsActive( 3 ) = { {1}, {1}, {1} };
-//    tIsActive( 4 ) = { {1}, {1}, {1} };
-//    tIsActive( 5 ) = { {1}, {1}, {1} };
-//    tIsActive( 6 ) = { {1}, {1}, {1} };
-//    tIsActive( 7 ) = { {1}, {1}, {1} };
-//
-//    Matrix< DDRMat > tdQIdpGeoFD;
-//    tIQI->compute_dQIdp_FD_geometry( 1.0, tPerturbation, tIsActive, tdQIdpGeoFD );
-////    print( tdQIdpGeoFD, "tdQIdpGeoFD" );
+    tModel.initialize_IQIs();
+    tModel.compute_IQIs();
+    CHECK(tModel.get_IQI_values()(0)(0) = 1.0);
 
 }/*END_TEST_CASE*/
 
