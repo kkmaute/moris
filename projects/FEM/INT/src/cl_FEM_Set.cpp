@@ -1490,6 +1490,7 @@ namespace moris
 
             // set size for the dv assembly map
             mPdvMatAssemblyMap.resize( tMaxDvIndex );
+            mPdvMatAssemblyVector.set_size( tMaxDvIndex, 1, -1 );
 
             // init the dv assembly map
             for( uint Ik = 0; Ik < mPdvMatAssemblyMap.size(); Ik++ )
@@ -1792,7 +1793,7 @@ namespace moris
             if ( !mJacobianExist )
             {
                 // get the dof types requested by the solver
-                moris::Cell< enum MSI::Dof_Type > tRequestedDofTypes = 
+                moris::Cell< enum MSI::Dof_Type > tRequestedDofTypes =
                         this->get_requested_dof_types();
 
                 // init dof coefficient counter
