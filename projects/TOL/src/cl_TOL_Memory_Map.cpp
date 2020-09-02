@@ -98,7 +98,7 @@ namespace moris
             size_t tTotalMem = 0;
             // determine memory on each proc
             Cell<size_t> tTotalMemPerProc(par_size());
-            for (moris::uint i = 0; i < par_size(); i++)
+            for (int i = 0; i < par_size(); i++)
             {
                 tTotalMemPerProc(i) = tGatheredMM(i).sum();
                 tTotalMem += tTotalMemPerProc(i);

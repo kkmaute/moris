@@ -27,9 +27,9 @@ enum class OutputSpecifier;
 class GlobalClock
     {
 
-    //------------------------------------ PRIVATE -------------------------------------//
+    //------------------------------------ PRIVATE ------------------------------------
+
     private:
-//    public:
 
     friend class Logger;
 
@@ -48,37 +48,44 @@ class GlobalClock
     // list of currently active action
     Cell< enum EntityAction > mCurrentAction;
 
+    // list of current iteration for each instance
+    Cell< uint > mCurrentIteration;
+
     // list of starting times for each active entity
     Cell< real > mTimeStamps;
 
     // track number of function IDs
     uint mMaxFunctionID = 0;
 
+    //------------------------------------ PUBLIC -------------------------------------
 
-
-    //------------------------------------ PUPLIC --------------------------------------//
     public:
 
-    // -------------------------------------------------------------------------------- //
+    // --------------------------------------------------------------------------------
     // constructor initializing all members
     GlobalClock();
 
-    // -------------------------------------------------------------------------------- //
+    // --------------------------------------------------------------------------------
     // destructor
-    ~GlobalClock();
+    ~GlobalClock(){};
 
-    // -------------------------------------------------------------------------------- //
+    // --------------------------------------------------------------------------------
     // operation to start tracing new entity, increment all lists
-    void sign_in( enum EntityBase aEntityBase, enum EntityType aEntityType, enum EntityAction aEntityAction );
+    void sign_in(
+            enum EntityBase   aEntityBase,
+            enum EntityType   aEntityType,
+            enum EntityAction aEntityAction );
 
-    // -------------------------------------------------------------------------------- //
+    // --------------------------------------------------------------------------------
     // operation to stop tracing an entity, decrement all lists
     void sign_out();
 
-    // -------------------------------------------------------------------------------- //
+    // --------------------------------------------------------------------------------
+    // operation to increment iteration count of currently active instance
+    void iterate();
+
+    // --------------------------------------------------------------------------------
     }; // class GlobalClock
 } // namespace moris
 
-
 #endif  /* MORIS_IOS_CL_GLOBALCLOCK_HPP_ */
-

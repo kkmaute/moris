@@ -80,10 +80,11 @@ namespace moris
 
                 //------------------------------------------------------------------------------
                 /**
-                 * compute the derivative of the quantity of interest wrt dof types
-                 * @param[ in ] adQIdDof derivative of quantity of interest matrix to fill
+                 * compute the derivative of the quantity of interest
+                 * wrt requested dof types
+                 * @param[ in ] aWStar weight associated to the evaluation point
                  */
-                void compute_dQIdu( Matrix< DDRMat > & adQIdDof );
+                void compute_dQIdu( moris::real aWStar );
 
                 //------------------------------------------------------------------------------
         };

@@ -462,7 +462,7 @@ namespace moris
 
             moris::uint tCellIndex = 0;
             aGatheredCells(i).push_back("");
-            for (uint  j = 0; j < tLength; j++)
+            for (int  j = 0; j < tLength; j++)
             {
                 if(tChars[j] == '\0')
                 {
