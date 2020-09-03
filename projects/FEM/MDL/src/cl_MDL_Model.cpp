@@ -34,7 +34,7 @@
 
 #include "cl_VIS_Output_Manager.hpp"
 
-#include "cl_PRM_MSI_Parameters.hpp"
+#include "fn_PRM_MSI_Parameters.hpp"
 
 #include "fn_Exec_load_user_library.hpp"
 

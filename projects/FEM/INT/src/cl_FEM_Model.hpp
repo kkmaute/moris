@@ -16,7 +16,7 @@
 #include "cl_MTK_Enums.hpp"
 #include "fn_Parsing_Tools.hpp"
 
-#include "cl_PRM_FEM_Parameters.hpp" //FEM/INT/src
+#include "fn_PRM_FEM_Parameters.hpp" //FEM/INT/src
 #include "cl_MSI_Dof_Type_Enums.hpp"
 #include "cl_GEN_Pdv_Enums.hpp"
 

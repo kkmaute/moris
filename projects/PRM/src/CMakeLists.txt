@@ -6,14 +6,14 @@ set(${PRM}_VERSION ${MORIS_VERSION})
 
 # List header files
 set(HEADERS
-	cl_PRM_FEM_Parameters.hpp
+        fn_PRM_FEM_Parameters.hpp
     fn_PRM_GEN_Parameters.hpp
-	cl_PRM_HMR_Parameters.hpp
-	cl_PRM_MSI_Parameters.hpp
-	cl_PRM_OPT_Parameters.hpp
-	cl_PRM_SOL_Parameters.hpp
-	cl_PRM_VIS_Parameters.hpp
-	cl_PRM_XTK_Parameters.hpp
+        fn_PRM_HMR_Parameters.hpp
+        fn_PRM_MSI_Parameters.hpp
+        fn_PRM_OPT_Parameters.hpp
+        fn_PRM_SOL_Parameters.hpp
+        fn_PRM_VIS_Parameters.hpp
+        fn_PRM_XTK_Parameters.hpp
      )
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -21,7 +21,7 @@ set(HEADERS
 
 # List library source files
 set(LIB_SOURCES
-    cl_PRM_FEM_Parameters.cpp )
+        fn_PRM_FEM_Parameters.cpp)
 
 # List library dependencies
 set(LIB_DEPENDENCIES

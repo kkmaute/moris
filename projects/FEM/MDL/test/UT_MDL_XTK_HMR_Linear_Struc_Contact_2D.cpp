@@ -63,7 +63,7 @@
 #include "cl_GEN_Circle.hpp"
 #include "cl_GEN_Plane.hpp"
 
-#include "cl_PRM_HMR_Parameters.hpp"
+#include "fn_PRM_HMR_Parameters.hpp"
 
 #include <functional>
 

@@ -45,7 +45,7 @@
 #include "cl_FEM_IWG_Factory.hpp"              //FEM/INT/src
 #include "cl_FEM_Set.hpp"                      //FEM/INT/src
 
-#include "cl_PRM_MSI_Parameters.hpp"                      //FEM/INT/src
+#include "fn_PRM_MSI_Parameters.hpp"                      //FEM/INT/src
 
 namespace moris
 {

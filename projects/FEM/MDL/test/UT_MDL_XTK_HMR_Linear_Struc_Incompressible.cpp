@@ -84,7 +84,7 @@
 #include "cl_GEN_Sphere.hpp"
 
 //PRM/src
-#include "cl_PRM_HMR_Parameters.hpp"
+#include "fn_PRM_HMR_Parameters.hpp"
 
 namespace moris
 {

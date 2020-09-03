@@ -1,6 +1,6 @@
 #include <catch.hpp>
 
-#include "cl_PRM_OPT_Parameters.hpp"
+#include "fn_PRM_OPT_Parameters.hpp"
 #include "cl_OPT_Manager.hpp"
 #include "fn_OPT_create_interface.hpp"
 #include "cl_OPT_Problem_User_Defined.hpp"

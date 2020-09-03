@@ -16,7 +16,7 @@
 
 #include "cl_Communication_Tools.hpp"
 
-#include "cl_PRM_SOL_Parameters.hpp"
+#include "fn_PRM_SOL_Parameters.hpp"
 
 extern moris::Comm_Manager gMorisComm;
 

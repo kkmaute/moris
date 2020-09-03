@@ -87,7 +87,7 @@
 #include "cl_SOL_Warehouse.hpp"
 
 #include "fn_norm.hpp"
-#include "cl_PRM_SOL_Parameters.hpp"
+#include "fn_PRM_SOL_Parameters.hpp"
 
 #include "cl_GEN_Plane.hpp"
 #include "cl_GEN_User_Defined_Geometry.hpp"

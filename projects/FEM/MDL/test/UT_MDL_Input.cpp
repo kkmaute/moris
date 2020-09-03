@@ -43,7 +43,7 @@
 #include "cl_FEM_CM_Factory.hpp"              //FEM/INT/src
 #include "cl_FEM_Set_User_Info.hpp"           //FEM/INT/src
 #include "cl_FEM_Model.hpp"
-#include "cl_PRM_FEM_Parameters.hpp"
+#include "fn_PRM_FEM_Parameters.hpp"
 #include "cl_FEM_Field_Interpolator_Manager.hpp"
 
 #include "cl_MDL_Model.hpp"

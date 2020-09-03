@@ -42,7 +42,7 @@
 
 #include "fn_r2.hpp"
 
-#include "cl_PRM_MSI_Parameters.hpp"
+#include "fn_PRM_MSI_Parameters.hpp"
 
 moris::real
 LevelSetFunction( const moris::Matrix< moris::DDRMat > & aPoint )
