@@ -77,6 +77,7 @@ namespace moris
 
             // map of master and slave mat pdv types for assembly
             Cell< moris::Matrix< DDSMat > > mPdvMatAssemblyMap;
+            moris::Matrix< DDSMat > mPdvMatAssemblyVector;
             std::map< std::pair< moris_index, PDV_Type >, uint > mPdvGeoAssemblyMap;
             moris::Matrix< DDSMat > mPdvGeoAssemblyVector;
 
@@ -369,6 +370,15 @@ namespace moris
             moris::Cell< moris::Matrix< DDSMat > > & get_mat_pdv_assembly_map()
             {
                 return mPdvMatAssemblyMap;
+            }
+
+            //------------------------------------------------------------------------------
+            /**
+             * get dRdpMat pdv assembly vector
+             */
+            Matrix< DDSMat > & get_mat_pdv_assembly_vector()
+            {
+                return mPdvMatAssemblyVector;
             }
 
             //-------------------------------------------------------------------------------------------------

@@ -472,18 +472,11 @@ namespace moris
              */
             void add_dQIdu_on_set( real aWStar );
 
-            //------------------------------------------------------------------------------
-            /**
-             * get requested dof type
-             * @param[ in ] mRequestedDofType list of requested dof type
-             */
-            moris::Cell < enum MSI::Dof_Type > get_requested_dof_types();
-
-            //------------------------------------------------------------------------------
-            /**
-             * build requested dof type list
-             */
-            void build_requested_dof_type_list();
+                //------------------------------------------------------------------------------
+                /**
+                 * build requested dof type list
+                 */
+                void build_requested_dof_type_list();
 
             //------------------------------------------------------------------------------
             /**

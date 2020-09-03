@@ -80,7 +80,7 @@ namespace moris
             }
 
             // evaluate the QI
-            aQI = {{ std::pow( 1/tRefValue * tFI->val()( mIQITypeIndex ) - 1.0, tExponent ) }};
+            aQI = {{ std::pow( ( tFI->val()( mIQITypeIndex ) / tRefValue ) - 1.0, tExponent ) }};
         }
 
         //------------------------------------------------------------------------------
