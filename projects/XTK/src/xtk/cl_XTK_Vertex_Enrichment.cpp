@@ -201,6 +201,21 @@ Vertex_Enrichment::has_interpolation() const
     }
 }
 //------------------------------------------------------------------------------
+
+size_t
+Vertex_Enrichment::capacity()
+{
+    size_t tTotal = 0;
+    tTotal += sizeof(mNodeIndex);
+    tTotal += mBasisIndices.capacity();
+    tTotal += mBasisIds.capacity();
+    tTotal += mBasisOwners.capacity();
+    tTotal += mBasisWeights.capacity();
+    tTotal += sizeof(mBaseVertexInterp);
+    // FIXME: add mBasisMap
+    return tTotal;
+}
+
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------

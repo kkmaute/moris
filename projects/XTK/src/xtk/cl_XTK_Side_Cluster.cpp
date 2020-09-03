@@ -10,6 +10,7 @@
 #include "cl_XTK_Interpolation_Cell_Unzipped.hpp"
 #include "cl_XTK_Child_Mesh.hpp"
 #include "assert.hpp"
+#include "fn_TOL_Capacities.hpp"
 
 namespace xtk
 {
@@ -69,10 +70,17 @@ namespace xtk
     
     //----------------------------------------------------------------
     
-    moris::Cell<moris::mtk::Vertex const *> const &
+    moris::Cell<moris::mtk::Vertex const *>
     Side_Cluster::get_vertices_in_cluster( const mtk::Master_Slave aIsMaster ) const
     {
-        return mVerticesInCluster;
+        if(!mTrivial)
+        {
+            return mVerticesInCluster;
+        }
+        else
+        {
+            return mInterpolationCell->get_base_cell()->get_geometric_vertices_on_side_ordinal(mIntegrationCellSideOrdinals(0));
+        }
     }
     
     //----------------------------------------------------------------
@@ -216,11 +224,29 @@ namespace xtk
     }
     
     //----------------------------------------------------------------
-    
+
+    size_t
+    Side_Cluster::capacity()
+    {
+
+        size_t tTotalSize = 0;
+        tTotalSize += sizeof(mTrivial);
+        tTotalSize += sizeof(mInterpolationCell);
+        tTotalSize += sizeof(mChildMesh);
+        tTotalSize += mIntegrationCells.capacity();
+        tTotalSize += mIntegrationCellSideOrdinals.capacity();
+
+        tTotalSize += mVerticesInCluster.capacity();
+        tTotalSize += moris::internal_capacity(mVertexLocalCoords);
+        tTotalSize += sizeof(mAssociatedCellCluster);
+
+        return tTotalSize;
+    }
+
     void
     Side_Cluster::finalize_setup()
     {
-        moris::Cell<moris::mtk::Vertex const *> const & tVerticesInCluster = this->get_vertices_in_cluster();
+        moris::Cell<moris::mtk::Vertex const *> tVerticesInCluster = this->get_vertices_in_cluster();
 
         // add to map if trivial otherwise the child mesh takes care of this
         if(mTrivial || mChildMesh == nullptr)

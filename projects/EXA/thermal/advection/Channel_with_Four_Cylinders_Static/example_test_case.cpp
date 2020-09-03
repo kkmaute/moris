@@ -163,12 +163,12 @@ void check_linear_results_parallel()
     else
     {
         REQUIRE( tNumDims  ==  2    );
-        REQUIRE( tNumNodes ==  3009 );
-        REQUIRE( tNumElems ==  2990 );
+        REQUIRE( tNumNodes ==  3025 );
+        REQUIRE( tNumElems ==  3002 );
     }
 
     // check results at reference node (watch: node Id depends on processor)
-    uint tNodeId = 64;
+    uint tNodeId = 66;
 
     check_linear_results(tExoIO,tNodeId);
 }

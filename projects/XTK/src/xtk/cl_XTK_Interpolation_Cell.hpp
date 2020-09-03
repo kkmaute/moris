@@ -63,6 +63,10 @@ public:
     moris::Cell<moris::mtk::Vertex const *>
     get_vertices_on_side_ordinal(moris::moris_index aSideOrdinal) const;
 
+
+    moris::Cell<moris::mtk::Vertex const *>
+    get_geometric_vertices_on_side_ordinal( moris::moris_index aSideOrdinal )  const;
+
     moris::Matrix<moris::DDRMat>
     compute_outward_side_normal(moris::moris_index aSideOrdinal) const;
 

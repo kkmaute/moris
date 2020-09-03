@@ -213,6 +213,13 @@ namespace xtk
             print_timing_data() const;
 
             //--------------------------------------------------------------------------------
+            /*!
+            * @brief get the memory usage of XTK
+            */
+            moris::Memory_Map
+            get_memory_usage();
+
+            //--------------------------------------------------------------------------------
             //FIXME: REMOVE and related functions in child mesh
             /*!
              * Uses sub-phase information within a child mesh to construct one interpolation element for each sub-phase cluster
@@ -350,26 +357,6 @@ namespace xtk
              */
             moris::mtk::Integration_Mesh*
             get_output_mesh(Output_Options const & aOutputOptions = Output_Options());
-
-            //-----------------------------------------------------------------------------------
-
-            /*!
-             * returns the XTK model as an mtk mesh
-             */
-            moris::mtk::Mesh*
-            get_xtk_as_mtk();
-
-            //-----------------------------------------------------------------------------------
-
-            //FIXME: WORKING?
-            /*!
-             * Extracts the surface mesh with respect to the provided geometry index.
-             * XTK needs to be provided the side sets names
-             */
-            void
-            extract_surface_mesh_to_obj(std::string                      aOutputFile,
-                    size_t                           aPhaseIndex,
-                    moris::Cell<std::string> const & aBoundingSideSets);
 
             //--------------------------------------------------------------------------------
             // Cell Neighborhood creation and access
@@ -567,9 +554,9 @@ namespace xtk
 
             // element to element neighborhood
             moris::Cell<moris::Cell<moris::mtk::Cell*>> mElementToElement;
-            moris::Cell<moris::Cell<moris_index>> mSubphaseToSubPhase;
-            moris::Cell<moris::Cell<moris_index>> mSubphaseToSubPhaseMySideOrds;
-            moris::Cell<moris::Cell<moris_index>> mSubphaseToSubPhaseNeighborSideOrds;
+            moris::Cell<moris::Cell<moris_index>>       mSubphaseToSubPhase;
+            moris::Cell<moris::Cell<moris_index>>       mSubphaseToSubPhaseMySideOrds;
+            moris::Cell<moris::Cell<moris_index>>       mSubphaseToSubPhaseNeighborSideOrds;
 
             // in the case of a hierarchically refined mesh, there are transitions with hanging nodes
             // this data flags the transition from a large facet to a smaller facet. (this is trivial
@@ -1106,18 +1093,6 @@ namespace xtk
                       Output_Options                   const  & aOutputOptions,
                       Cell<moris::Matrix<moris::IdMat>>       & aCellIdsAndSideOrds,
                       Cell<std::string>                       & aInterfaceSetNames);
-
-              //------------------------------------------------------------------------------
-
-              /*!
-               * extract surface internal function
-               */
-              void
-              extract_surface_mesh_to_obj_internal(
-                      std::string                      aOutputFile,
-                      size_t                           aPhaseIndex,
-                      moris::Cell<std::string> const & aBoundingSideSets);
-
 
               //------------------------------------------------------------------------------
 

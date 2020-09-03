@@ -231,7 +231,6 @@ TEST_CASE( "IWG_Diff_Dirichlet", "[moris],[fem],[IWG_Diff_Dirichlet]" )
             uint tNumCoeff = tNumCoeffs( iSpaceDim - 2, iInterpOrder - 1 );
 
             // get number of dof per type
-            int tNumDofVel  = tNumCoeff * iSpaceDim;
             int tNumDofTEMP = tNumCoeff;
 
             //create a space time interpolation rule

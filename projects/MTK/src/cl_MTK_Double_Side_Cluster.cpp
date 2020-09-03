@@ -321,7 +321,7 @@ namespace moris
 
         //----------------------------------------------------------------------------------
 
-        moris::Cell<moris::mtk::Vertex const *> const &
+        moris::Cell<moris::mtk::Vertex const *>
         Double_Side_Cluster::get_vertices_in_cluster(
                 const mtk::Master_Slave aIsMaster ) const
         {
@@ -342,7 +342,7 @@ namespace moris
 
         //----------------------------------------------------------------------------------
 
-        moris::Cell<moris::mtk::Vertex const *> const &
+        moris::Cell<moris::mtk::Vertex const *>
         Double_Side_Cluster::get_master_vertices_in_cluster() const
         {
             return this->get_master_side_cluster().get_vertices_in_cluster();
@@ -350,7 +350,7 @@ namespace moris
 
         //----------------------------------------------------------------------------------
 
-        moris::Cell<moris::mtk::Vertex const *> const &
+        moris::Cell<moris::mtk::Vertex const *>
         Double_Side_Cluster::get_slave_vertices_in_cluster() const
         {
             return this->get_slave_side_cluster().get_vertices_in_cluster();
@@ -393,10 +393,8 @@ namespace moris
             moris::uint tSlaveNumVertices = mSlaveSideCluster->get_num_vertices_in_cluster();
 
             // access the vertices in a side cluster
-            moris::Cell<moris::mtk::Vertex const *> const & tMasterVertices =
-                    mMasterSideCluster->get_vertices_in_cluster();
-            moris::Cell<moris::mtk::Vertex const *> const & tSlaveVertices =
-                    mSlaveSideCluster->get_vertices_in_cluster();
+            moris::Cell<moris::mtk::Vertex const *> tMasterVertices = mMasterSideCluster->get_vertices_in_cluster();
+            moris::Cell<moris::mtk::Vertex const *> const & tSlaveVertices = mSlaveSideCluster->get_vertices_in_cluster();
 
             // initialize output
             moris::Matrix<moris::IndexMat> tVertexIndices(1,tMasterNumVertices+tSlaveNumVertices);

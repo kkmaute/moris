@@ -46,7 +46,7 @@ public:
     /**
      * trivial constructor
      */
-    Cell_XTK_CM(){};
+    Cell_XTK_CM();
 
     Cell_XTK_CM(moris::moris_id       aElementId,
              moris::moris_index    aElementIndex,
@@ -57,9 +57,9 @@ public:
     //------------------------------------------------------------------------------
 
     /**
-     * Destructor. Must be virtual.
+     * Destructor
      */
-    ~Cell_XTK_CM(){};
+    ~Cell_XTK_CM();
 
     //------------------------------------------------------------------------------
 
@@ -69,10 +69,7 @@ public:
      * @return moris_id ID
      */
     moris_id
-    get_id() const
-    {
-        return mElementId;
-    }
+    get_id() const;
 
     //------------------------------------------------------------------------------
 
@@ -82,10 +79,7 @@ public:
      * @return moris_index ID
      */
     moris_index
-    get_index() const
-    {
-        return mElementIndex;
-    }
+    get_index() const;
 
     //------------------------------------------------------------------------------
 
@@ -93,10 +87,7 @@ public:
      * tells how many vertices are connected to this cell
      */
     uint
-    get_number_of_vertices() const
-    {
-        return mChildMeshPtr->get_element_to_node().n_cols();
-    }
+    get_number_of_vertices() const;
 
     //------------------------------------------------------------------------------
 
@@ -105,10 +96,7 @@ public:
      * ( this information is needed for STK )
      */
     moris_id
-    get_owner() const
-    {
-        return mElementOwner;
-    }
+    get_owner() const;
 
     //------------------------------------------------------------------------------
 
@@ -125,10 +113,7 @@ public:
      * returns a Mat with IDs of connected vertices
      */
     Matrix< IdMat >
-    get_vertex_ids() const
-    {
-        return mChildMeshPtr->get_element_to_node_glob_ids(mCMElementIndex);
-    }
+    get_vertex_ids() const;
 
     //------------------------------------------------------------------------------
 
@@ -136,10 +121,7 @@ public:
      * returns a Mat with indices of connected vertices
      */
     Matrix< IndexMat >
-    get_vertex_inds() const
-    {
-        return mChildMeshPtr->get_element_to_node().get_row(mCMElementIndex);
-    }
+    get_vertex_inds() const;
 
     //------------------------------------------------------------------------------
 
@@ -156,10 +138,7 @@ public:
      * returns an enum that defines the geometry type of the element
      */
     mtk::Geometry_Type
-    get_geometry_type() const
-    {
-        return mChildMeshPtr->get_child_geometry_type();
-    }
+    get_geometry_type() const;
 
     //------------------------------------------------------------------------------
 
@@ -167,74 +146,35 @@ public:
      * returns the order of the element
      */
     mtk::Interpolation_Order
-    get_interpolation_order() const
-    {
-        return mChildMeshPtr->get_child_interpolation_order();
-    }
+    get_interpolation_order() const;
 
     //------------------------------------------------------------------------------
 
     moris::Cell<moris::mtk::Vertex const *>
-    get_vertices_on_side_ordinal(moris::moris_index aSideOrdinal) const
-    {
-
-        moris::Cell< mtk::Vertex* > tVertices = this->get_vertex_pointers();
-
-        moris::Matrix<moris::IndexMat> tNodeOrdsOnSide = mChildMeshPtr->get_cell_info()->get_node_to_facet_map(aSideOrdinal);
-
-        moris::Cell<moris::mtk::Vertex const *> tVerticesOnSide(tNodeOrdsOnSide.numel());
-        for(moris::uint i = 0; i < tNodeOrdsOnSide.numel(); i++)
-        {
-            tVerticesOnSide(i) = tVertices(tNodeOrdsOnSide(i));
-        }
-
-        return tVerticesOnSide;
-    }
-
+    get_vertices_on_side_ordinal(moris::moris_index aSideOrdinal) const;
     //------------------------------------------------------------------------------
 
     moris::Matrix<moris::DDRMat>
-    compute_outward_side_normal(moris::moris_index aSideOrdinal) const
-    {
-        // get the vertex coordinates
-        moris::Matrix<moris::DDRMat> tVertexCoords = this->get_vertex_coords();
-
-        // Get vector along these edges
-        moris::Matrix<moris::DDRMat> tEdge0Vector(tVertexCoords.numel(),1);
-        moris::Matrix<moris::DDRMat> tEdge1Vector(tVertexCoords.numel(),1);
-
-        // Get the nodes which need to be used to compute normal
-        moris::Matrix<moris::IndexMat> tEdgeNodesForNormal = mChildMeshPtr->get_cell_info()->get_node_map_outward_normal(aSideOrdinal);
-
-        // Get vector along these edges
-        tEdge0Vector = moris::linalg_internal::trans(tVertexCoords.get_row(tEdgeNodesForNormal(1,0)) - tVertexCoords.get_row(tEdgeNodesForNormal(0,0)));
-        tEdge1Vector = moris::linalg_internal::trans(tVertexCoords.get_row(tEdgeNodesForNormal(1,1)) - tVertexCoords.get_row(tEdgeNodesForNormal(0,1)));
-
-        // Take the cross product to get the normal
-        Matrix<DDRMat> tOutwardNormal = moris::cross(tEdge0Vector,tEdge1Vector);
-
-        // Normalize
-        Matrix<DDRMat> tUnitOutwardNormal = tOutwardNormal / moris::norm(tOutwardNormal);
-
-
-        return tUnitOutwardNormal;
-
-    }
-
-    moris::real
-    compute_cell_measure() const
-    {
-       return mChildMeshPtr->get_cell_info()->compute_cell_size(this);
-    }
+    compute_outward_side_normal(moris::moris_index aSideOrdinal) const;
 
     //------------------------------------------------------------------------------
+ 
     moris::real
-    compute_cell_side_measure(moris_index const & aSideOrdinal) const
-    {
-       return mChildMeshPtr->get_cell_info()->compute_cell_side_size(this,aSideOrdinal);
-    }
-    //------------------------------------------------------------------------------
+    compute_cell_measure() const;
 
+    //------------------------------------------------------------------------------
+ 
+    moris::real
+    compute_cell_side_measure(moris_index const & aSideOrdinal) const;
+
+    //------------------------------------------------------------------------------
+    /*!
+    * @brief capacity of the cell
+    */
+    size_t
+    capacity();
+    //------------------------------------------------------------------------------
+ 
 private:
 
     moris::moris_id       mElementId;

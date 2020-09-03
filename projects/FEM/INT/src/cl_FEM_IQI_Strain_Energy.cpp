@@ -74,8 +74,8 @@ namespace moris
             if ( tCMElasticity->check_dof_dependency( { aDofType } ) )
             {
                 // compute dQIdu
-                adQIdu = trans( tCMElasticity->dFluxdDOF( { aDofType } ) ) * tCMElasticity->strain( ) +
-                         trans( trans( tCMElasticity->flux() ) * tCMElasticity->dStraindDOF( { aDofType } ) );
+                adQIdu = 0.5 * (trans( tCMElasticity->dFluxdDOF( { aDofType } ) ) * tCMElasticity->strain( ) +
+                         trans( trans( tCMElasticity->flux() ) * tCMElasticity->dStraindDOF( { aDofType } ) ));
             }
         }
 

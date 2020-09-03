@@ -70,7 +70,6 @@ TEST_CASE("Visualization Mesh Output","[VIS],[Vizualization_Mesh_Output]")
                 std::string tFieldName = "Geometry";
 
                 moris::uint tLagrangeMeshIndex = 0;
-                moris::uint tBSplineMeshIndex = 0;
 
                 moris::hmr::Parameters tParameters;
 

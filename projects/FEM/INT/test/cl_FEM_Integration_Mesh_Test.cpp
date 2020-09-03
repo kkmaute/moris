@@ -46,9 +46,7 @@ TEST_CASE( "Intergration_Mesh", "[moris],[fem],[IntegMesh]" )
         Interpolation_Function_Base * tSpaceInterpolation = tGeoInterpIPRule.create_space_interpolation_function();
         Interpolation_Function_Base * tTimeInterpolation  = tGeoInterpIPRule.create_time_interpolation_function();
 
-        uint tNumSpaceBases    = tSpaceInterpolation->get_number_of_bases();
         uint tNumTimeBases     = tTimeInterpolation->get_number_of_bases();
-        uint tNumSpaceDim      = tSpaceInterpolation->get_number_of_dimensions();
         uint tNumTimeDim       = tTimeInterpolation->get_number_of_dimensions();
         uint tNumParamSpaceDim = tSpaceInterpolation->get_number_of_param_dimensions();
 
@@ -86,7 +84,6 @@ TEST_CASE( "Intergration_Mesh", "[moris],[fem],[IntegMesh]" )
         // space geometry interpolations for integration mesh
         Interpolation_Function_Base * tIntegSpaceInterpolation = tGeoInterpIGRule.create_space_interpolation_function();
         uint tIntegNumSpaceBases    = tIntegSpaceInterpolation->get_number_of_bases();
-        uint tIntegNumSpaceDim      = tIntegSpaceInterpolation->get_number_of_dimensions();
         uint tIntegNumParamSpaceDim = tIntegSpaceInterpolation->get_number_of_param_dimensions();
 
         // create a integration rule
@@ -260,9 +257,7 @@ TEST_CASE( "Intergration_Mesh", "[moris],[fem],[IntegMesh]" )
            Interpolation_Function_Base * tSpaceInterpolation = tGeoInterpIPRule.create_space_interpolation_function();
            Interpolation_Function_Base * tTimeInterpolation  = tGeoInterpIPRule.create_time_interpolation_function();
 
-           uint tNumSpaceBases = tSpaceInterpolation->get_number_of_bases();
            uint tNumTimeBases  = tTimeInterpolation->get_number_of_bases();
-           uint tNumSpaceDim   = tSpaceInterpolation->get_number_of_dimensions();
            uint tNumTimeDim    = tTimeInterpolation->get_number_of_dimensions();
            uint tNumParamSpaceDim = tSpaceInterpolation->get_number_of_param_dimensions();
 
@@ -300,7 +295,6 @@ TEST_CASE( "Intergration_Mesh", "[moris],[fem],[IntegMesh]" )
            // space geometry interpolations for integration mesh
            Interpolation_Function_Base * tIntegSpaceInterpolation = tGeoInterpIGRule.create_space_interpolation_function();
            uint tIntegNumSpaceBases    = tIntegSpaceInterpolation->get_number_of_bases();
-           uint tIntegNumSpaceDim      = tIntegSpaceInterpolation->get_number_of_dimensions();
            uint tIntegNumParamSpaceDim = tIntegSpaceInterpolation->get_number_of_param_dimensions();
 
            // create a integration rule
@@ -488,9 +482,7 @@ TEST_CASE( "Intergration_Mesh", "[moris],[fem],[IntegMesh]" )
         Interpolation_Function_Base * tSpaceInterpolation = tGeoInterpIPRule.create_space_interpolation_function();
         Interpolation_Function_Base * tTimeInterpolation  = tGeoInterpIPRule.create_time_interpolation_function();
 
-        uint tNumSpaceBases    = tSpaceInterpolation->get_number_of_bases();
         uint tNumTimeBases     = tTimeInterpolation->get_number_of_bases();
-        uint tNumSpaceDim      = tSpaceInterpolation->get_number_of_dimensions();
         uint tNumTimeDim       = tTimeInterpolation->get_number_of_dimensions();
         uint tNumParamSpaceDim = tSpaceInterpolation->get_number_of_param_dimensions();
 
@@ -534,7 +526,6 @@ TEST_CASE( "Intergration_Mesh", "[moris],[fem],[IntegMesh]" )
         // space geometry interpolations for integration mesh
         Interpolation_Function_Base * tIntegSpaceInterpolation = tGeoInterpIGRule.create_space_interpolation_function();
         uint tIntegNumSpaceBases    = tIntegSpaceInterpolation->get_number_of_bases();
-        uint tIntegNumSpaceDim      = tIntegSpaceInterpolation->get_number_of_dimensions();
         uint tIntegNumParamSpaceDim = tIntegSpaceInterpolation->get_number_of_param_dimensions();
 
         // create a integration rule
@@ -720,9 +711,7 @@ TEST_CASE( "Intergration_Mesh", "[moris],[fem],[IntegMesh]" )
            Interpolation_Function_Base * tSpaceInterpolation = tGeoInterpIPRule.create_space_interpolation_function();
            Interpolation_Function_Base * tTimeInterpolation  = tGeoInterpIPRule.create_time_interpolation_function();
 
-           uint tNumSpaceBases = tSpaceInterpolation->get_number_of_bases();
            uint tNumTimeBases  = tTimeInterpolation->get_number_of_bases();
-           uint tNumSpaceDim   = tSpaceInterpolation->get_number_of_dimensions();
            uint tNumTimeDim    = tTimeInterpolation->get_number_of_dimensions();
            uint tNumParamSpaceDim = tSpaceInterpolation->get_number_of_param_dimensions();
 
@@ -760,7 +749,6 @@ TEST_CASE( "Intergration_Mesh", "[moris],[fem],[IntegMesh]" )
            // space geometry interpolations for integration mesh
            Interpolation_Function_Base * tIntegSpaceInterpolation = tGeoInterpIGRule.create_space_interpolation_function();
            uint tIntegNumSpaceBases    = tIntegSpaceInterpolation->get_number_of_bases();
-           uint tIntegNumSpaceDim      = tIntegSpaceInterpolation->get_number_of_dimensions();
            uint tIntegNumParamSpaceDim = tIntegSpaceInterpolation->get_number_of_param_dimensions();
 
            // create a integration rule

@@ -714,7 +714,6 @@ namespace moris
             tic tTimer_HMR;
 
             moris::uint tLagrangeMeshIndex = 0;
-            moris::uint tBSplineMeshIndex = 0;
 
             moris::hmr::Parameters tParameters;
 
@@ -1018,7 +1017,6 @@ namespace moris
             tic tTimer_HMR;
 
             moris::uint tLagrangeMeshIndex = 0;
-            moris::uint tBSplineMeshIndex = 0;
 
             moris::hmr::Parameters tParameters;
 

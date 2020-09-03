@@ -83,6 +83,7 @@ cl_MTK_Writer_Exodus.cpp
 cl_MTK_Reader_Exodus.cpp
 cl_MTK_Cell_Info_Factory.cpp
 cl_MTK_Block.cpp
+cl_MTK_Cell.cpp
 cl_MTK_Cell_Info.cpp
 cl_MTK_Cell_Info_Hex8.cpp
 cl_MTK_Cell_Info_Hex27.cpp

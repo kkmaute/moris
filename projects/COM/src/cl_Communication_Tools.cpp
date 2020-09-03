@@ -385,7 +385,7 @@ namespace moris
     }
 
 //------------------------------------------------------------------------------
-
+ 
     int
     create_comm_tag ( const int & aSource, const int & aTarget )
     {
@@ -403,8 +403,84 @@ namespace moris
         return tMax*par_size() + tMin ;
     }
 
+//------------------------------------------------------------------------------
+
+    void
+    all_gather_cell_of_str(
+        Cell<std::string> const & aCellToGather,
+        Cell<Cell<std::string>> & aGatheredCells,
+        moris_index aTag,
+        moris_index aBaseProc)
+    {
+        
+        MPI_Request tRequest;
 
 
+    std::vector<char> cstrings;
+    cstrings.reserve(aCellToGather.size());
+    for(std::string s: aCellToGather.data())
+    {
+        for(size_t i = 0; i < strlen(s.c_str()); ++i)
+        {
+            cstrings.push_back(s.c_str()[i]);
+        }
+        // terminate str
+        cstrings.push_back('\0');
+    }
+
+    MPI_Isend(cstrings.data(), cstrings.size(), MPI_CHAR, aBaseProc, aTag, moris::get_comm(), &tRequest);
+
+    barrier();
+
+    // on base rank go ahead and receive the data
+    if(par_rank() == aBaseProc)
+    {
+        aGatheredCells.resize(par_size());
+        for(int i = 0; i < par_size(); i++)
+        {
+            MPI_Status tStatus;
+            MPI_Probe(i, aTag, moris::get_comm(), &tStatus);
+
+            //    MORIS_ERROR(tExists,"Trying to receive a message that does not exists");
+
+            int tLength = 0;
+            MPI_Get_count(
+                    &tStatus,
+                    MPI_CHAR,
+                    &tLength);
+            
+            char* tChars = new char[tLength];
+
+            MPI_Recv(
+                tChars,
+                tLength,
+                MPI_CHAR,
+                i,
+                aTag,
+                moris::get_comm(),
+                &tStatus);
+
+            moris::uint tCellIndex = 0;
+            aGatheredCells(i).push_back("");
+            for (int  j = 0; j < tLength; j++)
+            {
+                if(tChars[j] == '\0')
+                {
+                    tCellIndex++;
+                    aGatheredCells(i).push_back("");
+                }
+                else
+                {
+                    aGatheredCells(i)(tCellIndex).push_back(tChars[j]);
+                }
+                
+            }
+            aGatheredCells(i).pop_back();
+        }
+    }
+
+    barrier();
+    }
 
 //------------------------------------------------------------------------------
 }

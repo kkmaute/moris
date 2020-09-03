@@ -13,22 +13,25 @@
 
 #define protected public
 #define private   public
-#include "cl_FEM_Model.hpp"         //FEM/INT/src
-#include "cl_FEM_Field_Interpolator_Manager.hpp"                   //FEM//INT//src
-#include "cl_FEM_IQI.hpp"         //FEM/INT/src
-#include "cl_FEM_Set.hpp"         //FEM/INT/src
+//FEM/INT/src
+#include "cl_FEM_Model.hpp"
+#include "cl_FEM_Field_Interpolator_Manager.hpp"
+#include "cl_FEM_IQI.hpp"
+#include "cl_FEM_Set.hpp"
 #undef protected
 #undef private
-
-#include "cl_FEM_Field_Interpolator.hpp"                   //FEM//INT//src
-#include "cl_FEM_Property.hpp"                   //FEM//INT//src
-#include "cl_FEM_CM_Factory.hpp"                   //FEM//INT//src
-#include "cl_FEM_IQI_Factory.hpp"                   //FEM//INT//src
-#include "cl_MTK_Enums.hpp" //MTK/src
+//FEM/INT/src
 #include "cl_FEM_Enums.hpp"                                //FEM//INT/src
-#include "cl_MSI_Design_Variable_Interface.hpp"                   //FEM//INT//src
+#include "cl_FEM_Field_Interpolator.hpp"
+#include "cl_FEM_Property.hpp"
+#include "cl_FEM_CM_Factory.hpp"
+#include "cl_FEM_IQI_Factory.hpp"
 #include "FEM_Test_Proxy/cl_FEM_Design_Variable_Interface_Proxy.hpp"
-
+//FEM/MSI/src
+#include "cl_MSI_Design_Variable_Interface.hpp"
+//MTK/src
+#include "cl_MTK_Enums.hpp"
+//LINALG/src
 #include "op_equal_equal.hpp"
 
 void tConstValFunction_UTIQISTRAINENERGY
@@ -59,8 +62,7 @@ void tFIDerDvFunction_UTIQISTRAINENERGY
 using namespace moris;
 using namespace fem;
 
-
-TEST_CASE( "IQI_Strain_Energy", "[moris],[fem],[IQI_Strain_Energy]" )
+TEST_CASE("IQI_Strain_Energy", "[moris],[fem],[IQI_Strain_Energy]")
 {
     // define an epsilon environment
     real tEpsilon = 1E-6;
@@ -69,8 +71,8 @@ TEST_CASE( "IQI_Strain_Energy", "[moris],[fem],[IQI_Strain_Energy]" )
     real tPerturbation = 1E-6;
 
     // create the properties
-    std::shared_ptr< fem::Property > tPropMasterEMod = std::make_shared< fem::Property > ();
-    tPropMasterEMod->set_parameters( { {{ 1.0 }} } );
+    std::shared_ptr<fem::Property> tPropMasterEMod = std::make_shared<fem::Property>();
+    tPropMasterEMod->set_parameters({{{1.0}}});
     tPropMasterEMod->set_dv_type_list( {{ PDV_Type::DENSITY }} );
     tPropMasterEMod->set_val_function( tFIValDvFunction_UTIQISTRAINENERGY );
     tPropMasterEMod->set_dv_derivative_functions( { tFIDerDvFunction_UTIQISTRAINENERGY } );
@@ -94,7 +96,7 @@ TEST_CASE( "IQI_Strain_Energy", "[moris],[fem],[IQI_Strain_Energy]" )
     std::shared_ptr< fem::IQI > tIQI = tIQIFactory.create_IQI( fem::IQI_Type::STRAIN_ENERGY );
     tIQI->set_constitutive_model( tCMMasterElastLinIso, "Elast", mtk::Master_Slave::MASTER );
     tIQI->set_IQI_phase_type( Phase_Type::PHASE0 );
-    tIQI->set_name("IQI_1");
+    tIQI->set_name("Strain Energy");
 
     // create evaluation point xi, tau
     //------------------------------------------------------------------------------
@@ -180,8 +182,8 @@ TEST_CASE( "IQI_Strain_Energy", "[moris],[fem],[IQI_Strain_Energy]" )
     tParameterList.resize( 6 );
 
     tParameterList( 4 ).push_back( prm::create_IQI_parameter_list() );
-    tParameterList( 4 )( 0 ).set( "IQI_name",                   "Volume");
-    tParameterList( 4 )( 0 ).set( "IQI_type",                   static_cast< uint >( fem::IQI_Type::VOLUME ) );
+    tParameterList( 4 )( 0 ).set( "IQI_name",                   "Strain Energy");
+    tParameterList( 4 )( 0 ).set( "IQI_type",                   static_cast< uint >( fem::IQI_Type::STRAIN_ENERGY ) );
     tParameterList( 4 )( 0 ).set( "normalization",              "design" );
 
     // create computation  parameter list
@@ -191,7 +193,7 @@ TEST_CASE( "IQI_Strain_Energy", "[moris],[fem],[IQI_Strain_Energy]" )
     // Create FEM model
     FEM_Model tModel;
     tModel.set_parameter_list(tParameterList);
-    tModel.set_requested_IQI_names({"Volume"});
+    tModel.set_requested_IQI_names({"Strain Energy"});
     tSet->set_equation_model(&tModel);
 
     // Create IQI
@@ -277,7 +279,13 @@ TEST_CASE( "IQI_Strain_Energy", "[moris],[fem],[IQI_Strain_Energy]" )
     tModel.compute_IQIs();
     CHECK(tModel.get_IQI_values()(0)(0) = 1.0);
 
-}/*END_TEST_CASE*/
+    Matrix< DDRMat > tdQIdu;
+    Matrix< DDRMat > tdQIduFD;
+    bool tCheckdQIdu = tIQI->check_dQIdu_FD( 1.0,
+                                             tPerturbation,
+                                             tEpsilon,
+                                             tdQIdu,
+                                             tdQIduFD );
+    CHECK( tCheckdQIdu );
 
-
-
+} /*END_TEST_CASE*/

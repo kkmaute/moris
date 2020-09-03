@@ -303,11 +303,12 @@ namespace moris
              */
 
             auto
-            capacity()
+            capacity() const
             ->decltype (mCell.capacity() )
             {
                 return mCell.capacity();
             }
+
 
             //------------------------------------------------------------------
 

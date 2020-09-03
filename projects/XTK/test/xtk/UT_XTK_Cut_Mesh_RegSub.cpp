@@ -87,9 +87,6 @@ node_is_on_face(moris_index     aFaceIndex,
 TEST_CASE("Direct Testing of the regular subdivision","[NEW_REG_SUB_TEMPLATE]")
 {
 
-    // Model dimension
-    size_t tModelDim = 3;
-
     // Set up global coordinates
     moris::Matrix< moris::DDRMat > tNodeCoords(15,3);
     tNodeCoords(0,0)  = 0.0; tNodeCoords(0,1)  = 0.0; tNodeCoords(0,2)  = 0.0;

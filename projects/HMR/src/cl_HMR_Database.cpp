@@ -1479,7 +1479,7 @@ namespace moris
             // collect elements from level
             Cell< Background_Element_Base * > tElementsOfLevel;
 
-            uint tActivationPatter = mParameters->get_working_pattern();
+            //uint tActivationPatter = mParameters->get_working_pattern();
 
             // collect elements on level
             mBackgroundMesh->collect_elements_on_level( aLevel, tElementsOfLevel );
@@ -1551,7 +1551,7 @@ namespace moris
 
             // loop over all elements in queue
             for( Background_Element_Base * tElement : tElements )
-            {
+            {				
                 // get element neighbors
                 // container for neighbors
                 Cell< Background_Element_Base * > tNeighbors;
@@ -1565,7 +1565,7 @@ namespace moris
                     tNeighbor->put_on_refinement_queue();
 
                     // set flag on working pattern
-                    tNeighbor->set_refined_flag( tActivationPatter );
+                    //tNeighbor->set_refined_flag( tActivationPatter );
                 }
             }
         }

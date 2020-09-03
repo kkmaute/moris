@@ -34,14 +34,6 @@ namespace xtk
     {
         Ghost_Setup_Data tGhostSetupData;
 
-        //
-        //        mtk::Mesh_Checker tMeshChecker(0,&mXTKModel->get_enriched_interp_mesh(0),&mXTKModel->get_enriched_integ_mesh(0));
-        //        tMeshChecker.perform();
-        //        tMeshChecker.print_diagnostics();
-        //
-
-
-
         // construct trivial subphase interpolation cells
         this->construct_ip_ig_cells_for_ghost_side_clusters(tGhostSetupData);
 
@@ -63,7 +55,7 @@ namespace xtk
     // ----------------------------------------------------------------------------------
 
     void
-    Ghost_Stabilization::visualize_ghost_on_mesh(moris_index aBulkPhase)
+    Ghost_Stabilization::visualize_ghost_on_mesh(moris_index const & aBulkPhase)
     {
         // get the enriched integration mesh
         Enriched_Integration_Mesh & tEnrIgMesh = mXTKModel->get_enriched_integ_mesh(0);
@@ -91,12 +83,25 @@ namespace xtk
     // ----------------------------------------------------------------------------------
 
     std::string
-    Ghost_Stabilization::get_ghost_dbl_side_set_name(moris_index aBulkPhase)
+    Ghost_Stabilization::get_ghost_dbl_side_set_name(moris_index const & aBulkPhase)
     {
         MORIS_ASSERT(aBulkPhase < (moris_index)mXTKModel->get_geom_engine()->get_num_bulk_phase(),"Bulk Phase index out of bounds.");
 
         return "ghost_p" + std::to_string(aBulkPhase);
     }
+
+    // ----------------------------------------------------------------------------------
+
+    Memory_Map
+    Ghost_Stabilization::get_memory_usage()
+    {   
+        // Ghost is an algorithm, all data created by
+        // ghost is placed in the meshes
+        Memory_Map tMM;
+        tMM.mMemoryMapData["mXTKModel ptr"] = sizeof(mXTKModel);
+        return tMM;
+    }
+
     // ----------------------------------------------------------------------------------
 
     //FIXME: Keenan - code below needs to be split up in smaller units
@@ -1284,7 +1289,6 @@ namespace xtk
         tSlaveSideCluster->mVerticesInCluster = tSlaveSideCluster->mIntegrationCells(0)->
                 get_geometric_vertices_on_side_ordinal(tSlaveSideCluster->mIntegrationCellSideOrdinals(0));
 
-        tSlaveSideCluster->mVerticesInCluster.size();
 
         return tSlaveSideCluster;
     }
@@ -1377,7 +1381,7 @@ namespace xtk
             moris_index            & aCurrentId)
     {
         // get the vertices on the side for the slave side cluster
-        moris::Cell<moris::mtk::Vertex const *> const & tSlaveVertices = aSlaveSideCluster->get_vertices_in_cluster();
+        moris::Cell<moris::mtk::Vertex const *> tSlaveVertices = aSlaveSideCluster->get_vertices_in_cluster();
 
         // get the side master interpolation cell
         Interpolation_Cell_Unzipped const *  tMasterIpCell =  aMasterSideCluster->mInterpolationCell;

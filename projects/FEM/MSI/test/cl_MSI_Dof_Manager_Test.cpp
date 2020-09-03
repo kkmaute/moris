@@ -485,7 +485,6 @@ namespace moris
 
          // Determine process rank
          size_t tRank = par_rank();
-         size_t tSize = par_size();
 
          // Hardcode input test values
          switch( tRank )
@@ -554,7 +553,6 @@ namespace moris
 
         // Determine process rank
         size_t tRank = par_rank();
-        size_t tSize = par_size();
 
         // Hardcode input test values
         switch( tRank )
@@ -625,7 +623,6 @@ namespace moris
             // Create node obj
             moris::uint tNodeId1 = 0;
             moris::uint tNodeId2 = 1;
-            moris::uint tNodeId3 = 2;
 
             fem::Node_Base * Node1;
             fem::Node_Base * Node2;
@@ -648,7 +645,6 @@ namespace moris
 
             // Determine process rank
             size_t tRank = par_rank();
-            size_t tSize = par_size();
 
             // Hardcode input test values
             switch( tRank )
@@ -820,7 +816,6 @@ namespace moris
             // Create node obj
             moris::uint tNodeId1 = 0;
             moris::uint tNodeId2 = 1;
-            moris::uint tNodeId3 = 2;
 
             fem::Node_Base * Node1;
             fem::Node_Base * Node2;
@@ -843,7 +838,6 @@ namespace moris
 
             // Determine process rank
             size_t tRank = par_rank();
-            size_t tSize = par_size();
 
             // Hardcode input test values
             switch( tRank )

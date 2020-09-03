@@ -87,7 +87,6 @@ Mesh* generate_single_element_hex8()
     // Create scalar field
     Scalar_Field_Info< DDRMat > tNodeField;
 
-    uint tNumNodes = tNodeLocaltoGlobal.numel();
     Matrix < DDRMat > tNodeFieldData = {{0.0, 1.0, 0.5, 0.5, 0.5, 0.5, 1.0, 0.0}};
 
     tNodeField.set_field_name("nodefield");
@@ -162,7 +161,6 @@ Mesh* generate_single_element_tet4()
 	// Create scalar field
 	Scalar_Field_Info< DDRMat > tNodeField;
 
-	uint tNumNodes = tNodeLocaltoGlobal.numel();
 	Matrix < DDRMat > tNodeFieldData = {{0.0, 1.0, 0.5, 0.5}};
 
 	tNodeField.set_field_name("nodefield");
@@ -237,7 +235,6 @@ Mesh* generate_single_element_quad4()
 	// Create scalar field
 	Scalar_Field_Info< DDRMat > tNodeField;
 
-	uint tNumNodes = tNodeLocaltoGlobal.numel();
 	Matrix < DDRMat > tNodeFieldData = {{0.0, 1.0, 0.5, 0.5}};
 
 	tNodeField.set_field_name("nodefield");
@@ -311,7 +308,6 @@ Mesh* generate_single_element_tri3()
 	// Create scalar field
 	Scalar_Field_Info< DDRMat > tNodeField;
 
-	uint tNumNodes = tNodeLocaltoGlobal.numel();
 	Matrix < DDRMat > tNodeFieldData = {{0.0, 1.0, 0.5}};
 
 	tNodeField.set_field_name("nodefield");

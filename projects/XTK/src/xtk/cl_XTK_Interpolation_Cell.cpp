@@ -33,6 +33,28 @@ Interpolation_Cell::get_vertices_on_side_ordinal(moris::moris_index aSideOrdinal
     }
     return tVerticesOnSide;
 }
+
+moris::Cell<moris::mtk::Vertex const *>
+Interpolation_Cell::get_geometric_vertices_on_side_ordinal( moris::moris_index aSideOrdinal )  const
+{
+    MORIS_ASSERT(mCellInfo != nullptr, "Cell info null ptr");
+
+    moris::Cell< moris::mtk::Vertex* > tVertices = this->get_vertex_pointers();
+
+    // get vertex ordinals
+    moris::Matrix<moris::IndexMat> tGeometricVertOrdsOnFacet = mCellInfo->get_geometric_node_to_facet_map(aSideOrdinal);
+
+    // allocate cell of vertices
+    moris::Cell<moris::mtk::Vertex const *> tVerticesOnSide(tGeometricVertOrdsOnFacet.numel());
+
+    for(moris::uint i = 0; i < tGeometricVertOrdsOnFacet.numel(); i++)
+    {
+        tVerticesOnSide(i) = tVertices(tGeometricVertOrdsOnFacet(i));
+    }
+
+    return tVerticesOnSide;
+}
+
 moris::Matrix<moris::DDRMat>
 Interpolation_Cell::compute_outward_side_normal(moris::moris_index aSideOrdinal) const
 {

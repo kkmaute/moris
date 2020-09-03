@@ -43,7 +43,6 @@ TEST_CASE( "Interpolation mesh QUAD4 - Integration mesh QUAD4 ",
     // define an integration mesh
     //------------------------------------------------------------------------------
     // integration mesh geometry type
-    mtk::Geometry_Type tGeoTypeIG     = mtk::Geometry_Type::QUAD;
     mtk::Geometry_Type tSideGeoTypeIG = mtk::Geometry_Type::LINE;
 
     // define a QUAD4 integration element, i.e. space param coordinates xiHat
@@ -228,7 +227,6 @@ TEST_CASE( "Interpolation mesh TRI3 - Integration mesh TRI3 ",
     // define an integration mesh
     //------------------------------------------------------------------------------
     // integration mesh geometry type
-    mtk::Geometry_Type tGeoTypeIG     = mtk::Geometry_Type::TRI;
     mtk::Geometry_Type tSideGeoTypeIG = mtk::Geometry_Type::LINE;
 
     // define a TRI3 integration element, i.e. space param coordinates xiHat
@@ -419,7 +417,6 @@ TEST_CASE( "Interpolation mesh TET4 - Integration mesh TET4 ",
     // define an integration mesh
     //------------------------------------------------------------------------------
     // integration mesh geometry type
-    mtk::Geometry_Type tGeoTypeIG = mtk::Geometry_Type::TET;
     mtk::Geometry_Type tSideGeoTypeIG = mtk::Geometry_Type::TRI;
 
     // define a TET4 integration element, i.e. space param coordinates xiHat
@@ -618,7 +615,6 @@ TEST_CASE( "Interpolation mesh HEX8 - Integration mesh HEX8 ",
     // define an integration mesh
     //------------------------------------------------------------------------------
     // integration mesh geometry type
-    mtk::Geometry_Type tGeoTypeIG = mtk::Geometry_Type::HEX;
     mtk::Geometry_Type tSideGeoTypeIG = mtk::Geometry_Type::QUAD;
 
     // define a HEX8 integration element, i.e. space param coordinates xiHat

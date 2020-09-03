@@ -39,29 +39,78 @@ namespace moris
             switch ( mSpaceDim )
             {
                 case ( 2 ):
-                        {
+                            {
                     m_eval_strain            = &CM_Fluid_Compressible_Ideal::eval_strain_2d;
                     m_eval_teststrain        = &CM_Fluid_Compressible_Ideal::eval_teststrain_2d;
                     m_eval_velocitymatrix    = &CM_Fluid_Compressible_Ideal::eval_velocitymatrix_2d;
                     m_unfold_tensor          = &CM_Fluid_Compressible_Ideal::unfold_2d;
+                    m_flatten_normal         = &CM_Fluid_Compressible_Ideal::flatten_normal_2d;
                     mFlatIdentity = { { 1.0 }, { 1.0 }, { 0.0 } };
                     break;
-                        }
+                            }
                 case ( 3 ):
-                        {
+                            {
                     m_eval_strain            = &CM_Fluid_Compressible_Ideal::eval_strain_3d;
                     m_eval_teststrain        = &CM_Fluid_Compressible_Ideal::eval_teststrain_3d;
                     m_eval_velocitymatrix    = &CM_Fluid_Compressible_Ideal::eval_velocitymatrix_3d;
                     m_unfold_tensor          = &CM_Fluid_Compressible_Ideal::unfold_3d;
+                    m_flatten_normal         = &CM_Fluid_Compressible_Ideal::flatten_normal_3d;
                     mFlatIdentity = { { 1.0 }, { 1.0 }, { 1.0 }, { 0.0 }, { 0.0 }, { 0.0 } };
                     break;
-                        }
+                            }
                 default :
                 {
                     MORIS_ERROR( false, "CM_Fluid_Compressible_Ideal::set_function_pointers - this function is currently unused, might be used in the future." );
                     break;
                 }
             }
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
+        void CM_Fluid_Compressible_Ideal::reset_specific_eval_flags()
+        {
+            // get number of Dof Types
+            uint tNumDofTypes = mGlobalDofTypes.size();
+
+            // reset Pressure
+            mPressureEval = true;
+            mPressureDofEval.assign( tNumDofTypes, true );
+
+            // reset velocity matrix for flattened tensors
+            mVelocityMatrixEval = true;
+
+            // reset Thermal Flux ---------------------------------
+            mThermalFluxEval = true;
+            mThermalFluxDofEval.assign( tNumDofTypes, true );
+
+            // reset work Flux
+            mWorkFluxEval = true;
+            mWorkFluxDofEval.assign( tNumDofTypes, true );
+
+            // reset energy Flux
+            mEnergyFluxEval = true;
+            mEnergyFluxDofEval.assign( tNumDofTypes, true );
+
+            // reset mechanical Flux
+            //mStressEval = true;
+            //mStressDofEval.assign( tNumDofTypes, true );
+
+            // reset Thermal Traction ------------------------------
+            mThermalTractionEval = true;
+            mThermalTractionDofEval.assign( tNumDofTypes, true );
+
+            // reset work Traction
+            mWorkTractionEval = true;
+            mWorkTractionDofEval.assign( tNumDofTypes, true );
+
+            // reset energy Traction
+            mEnergyTractionEval = true;
+            mEnergyTractionDofEval.assign( tNumDofTypes, true );
+
+            // reset Mechanical Traction
+            mMechanicalTractionEval = true;
+            mMechanicalTractionDofEval.assign( tNumDofTypes, true );
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -145,88 +194,57 @@ namespace moris
         }
 
         //--------------------------------------------------------------------------------------------------------------
+        //--------------------------------------------------------------------------------------------------------------
 
-        void CM_Fluid_Compressible_Ideal::eval_flux()
+        const Matrix< DDRMat > & CM_Fluid_Compressible_Ideal::flux( enum CM_Function_Type aCMFunctionType )
         {
-            // get the velocity
-            Matrix< DDRMat > tVelocity =  mFIManager->get_field_interpolators_for_type( mDofVelocity )->val();
+            switch( aCMFunctionType )
+            {
+                case CM_Function_Type::THERMAL :
+                    return this->thermal_flux();
 
-            // evaluate the thermal flux
-            this->eval_thermal_flux();
+                case CM_Function_Type::ENERGY :
+                    return this->energy_flux();
 
-            // evaluate the velocity matrix
-            this->eval_velocityMatrix();
+                case CM_Function_Type::WORK :
+                    return this->work_flux();
 
-            // compute contribution
-            mFlux = mVelocityMatrix * this->stress() -
-                    this->Energy() * tVelocity -
-                    mThermalFlux;
+                case CM_Function_Type::MECHANICAL :
+                    return this->stress();
+
+                    // unknown CM function type
+                default :
+                    MORIS_ERROR( false , "CM_Fluid_Compressible_Van_der_Waals::flux - unknown CM function type for flux." );
+                    return mFlux;
+            }
+        }
+
+        const Matrix< DDRMat > & CM_Fluid_Compressible_Ideal::dFluxdDOF(
+                const moris::Cell< MSI::Dof_Type > & aDofTypes,
+                enum CM_Function_Type                aCMFunctionType )
+        {
+            switch( aCMFunctionType )
+            {
+                case CM_Function_Type::THERMAL :
+                    return this->thermal_dFluxdDOF( aDofTypes );
+
+                case CM_Function_Type::ENERGY :
+                    return this->energy_dFluxdDOF( aDofTypes );
+
+                case CM_Function_Type::WORK :
+                    return this->work_dFluxdDOF( aDofTypes );
+
+                case CM_Function_Type::MECHANICAL :
+                    return this->dStressdDOF( aDofTypes );
+
+                    // unknown CM function type
+                default :
+                    MORIS_ERROR( false , "CM_Fluid_Compressible_Van_der_Waals::dFluxdDOF - unknown CM function type for flux." );
+                    return mFlux;
+            }
         }
 
         //--------------------------------------------------------------------------------------------------------------
-
-        void CM_Fluid_Compressible_Ideal::eval_dFluxdDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes )
-        {
-            // get the dof type as a uint
-            uint tDofType = static_cast< uint >( aDofTypes( 0 ) );
-
-            // get the dof type index
-            uint tDofIndex = mGlobalDofTypeMap( tDofType );
-
-            // get the velocity
-            Field_Interpolator * tFIVelocity  =  mFIManager->get_field_interpolators_for_type( mDofVelocity );
-
-            // evaluate the velocity matrix
-            this->eval_velocityMatrix();
-
-            // unfold the flattened stress tensor
-            Matrix< DDRMat > tStressTensor;
-            this->unfold( this->stress() , tStressTensor );
-
-
-            // initialize the matrix
-            mdFluxdDof( tDofIndex ).set_size( mSpaceDim,
-                    mFIManager->get_field_interpolators_for_type( aDofTypes( 0 ) )->
-                    get_number_of_space_time_coefficients(), 0.0 );
-
-            // direct dependency on the density dof type
-            if( aDofTypes( 0 ) == mDofDensity )
-            {
-                // evaluate thermal flux DoF derivative
-                this->eval_thermal_dFluxdDOF( aDofTypes );
-
-                // compute contribution
-                mdFluxdDof( tDofIndex ).matrix_data() +=
-                        mVelocityMatrix * this->dStressdDOF( aDofTypes ) -
-                        this->dEnergydDOF( aDofTypes ) * tFIVelocity->val() -
-                        mThermalFluxDof;
-            }
-
-            // direct dependency on the velocity dof type
-            if( aDofTypes( 0 ) == mDofVelocity )
-            {
-                // compute contribution
-                mdFluxdDof( tDofIndex ).matrix_data() +=
-                        mVelocityMatrix * this->dStressdDOF( aDofTypes ) +
-                        tStressTensor * tFIVelocity->dnNdxn( 1 ) -
-                        this->dEnergydDOF( aDofTypes ) * tFIVelocity->val() -
-                        this->Energy() * tFIVelocity->dnNdxn( 1 );
-            }
-
-            // direct dependency on the temperature dof type
-            if( aDofTypes( 0 ) == mDofTemperature )
-            {
-                // evaluate thermal flux DoF derivative
-                this->eval_thermal_dFluxdDOF( aDofTypes );
-
-                // compute contribution
-                mdFluxdDof( tDofIndex ).matrix_data() +=
-                        mVelocityMatrix * this->dStressdDOF( aDofTypes ) -
-                        this->dEnergydDOF( aDofTypes ) * tFIVelocity->val() -
-                        mThermalFluxDof;
-            }
-        }
-
         //--------------------------------------------------------------------------------------------------------------
 
         void CM_Fluid_Compressible_Ideal::eval_thermal_flux()
@@ -241,6 +259,21 @@ namespace moris
             mThermalFlux = -1.0 * tThermalConductivity->val()( 0 ) * tTempFI->gradx( 1 );
         }
 
+        const Matrix< DDRMat > & CM_Fluid_Compressible_Ideal::thermal_flux()
+        {
+            // if the test strain was not evaluated
+            if( mThermalFluxEval )
+            {
+                // evaluate the test strain
+                this->eval_thermal_flux();
+
+                // set bool for evaluation
+                mThermalFluxEval = false;
+            }
+            // return the test strain value
+            return mThermalFlux;
+        }
+
         //--------------------------------------------------------------------------------------------------------------
 
         void CM_Fluid_Compressible_Ideal::eval_thermal_dFluxdDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes )
@@ -248,8 +281,11 @@ namespace moris
             // get the conductivity property
             std::shared_ptr< Property > tPropThermalConductivity = get_property( "ThermalConductivity" );
 
+            // get the dof index
+            uint tDofIndex = mGlobalDofTypeMap( static_cast< uint >( aDofTypes( 0 ) ) );
+
             // initialize the matrix
-            mThermalFluxDof.set_size( mSpaceDim,
+            mThermalFluxDof( tDofIndex ).set_size( mSpaceDim,
                     mFIManager->get_field_interpolators_for_type( aDofTypes( 0 ) )->
                     get_number_of_space_time_coefficients(), 0.0 );
 
@@ -261,7 +297,7 @@ namespace moris
             if( aDofTypes( 0 ) == mDofTemperature )
             {
                 // compute derivative with direct dependency
-                mThermalFluxDof.matrix_data() +=
+                mThermalFluxDof( tDofIndex ).matrix_data() +=
                         -1.0 * tPropThermalConductivity->val()( 0 ) * tFITemp->dnNdxn( 1 );
             }
 
@@ -269,11 +305,233 @@ namespace moris
             if ( tPropThermalConductivity->check_dof_dependency( aDofTypes ) )
             {
                 // compute derivative with indirect dependency through properties
-                mThermalFluxDof.matrix_data() +=
+                mThermalFluxDof( tDofIndex ).matrix_data() +=
                         -1.0 * tFITemp->gradx( 1 ) * tPropThermalConductivity->dPropdDOF( aDofTypes );
             }
         }
 
+        const Matrix< DDRMat > & CM_Fluid_Compressible_Ideal::thermal_dFluxdDOF(
+                const moris::Cell< MSI::Dof_Type > & aDofTypes )
+        {
+            // if aDofType is not an active dof type for the CM
+            MORIS_ERROR(
+                    this->check_dof_dependency( aDofTypes ),
+                    "CM_Fluid_Compressible_Ideal::thermal_dFluxdDOF - no dependency in this dof type." );
+
+            // get the dof index
+            uint tDofIndex = mGlobalDofTypeMap( static_cast< uint >( aDofTypes( 0 ) ) );
+
+            // if the derivative has not been evaluated yet
+            if( mThermalFluxDofEval( tDofIndex ) )
+            {
+                // evaluate the derivative
+                this->eval_thermal_dFluxdDOF( aDofTypes );
+
+                // set bool for evaluation
+                mThermalFluxDofEval( tDofIndex ) = false;
+            }
+
+            // return the dof deriv value
+            return mThermalFluxDof( tDofIndex );
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+        //--------------------------------------------------------------------------------------------------------------
+
+        void CM_Fluid_Compressible_Ideal::eval_work_flux()
+        {
+            // get the velocity
+            Matrix< DDRMat > tVelocity =  mFIManager->get_field_interpolators_for_type( mDofVelocity )->val();
+
+            // compute contribution
+            mWorkFlux = this->velocityMatrix() * this->flux(CM_Function_Type::MECHANICAL);
+        }
+
+        const Matrix< DDRMat > & CM_Fluid_Compressible_Ideal::work_flux()
+        {
+            // if the flux was not evaluated
+            if( mWorkFluxEval )
+            {
+                // evaluate the flux
+                this->eval_work_flux();
+
+                // set bool for evaluation
+                mWorkFluxEval = false;
+            }
+            // return the flux value
+            return mWorkFlux;
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
+        void CM_Fluid_Compressible_Ideal::eval_work_dFluxdDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes )
+        {
+            // get the dof type as a uint
+            uint tDofType = static_cast< uint >( aDofTypes( 0 ) );
+
+            // get the dof type index
+            uint tDofIndex = mGlobalDofTypeMap( tDofType );
+
+            // get the velocity
+            Field_Interpolator * tFIVelocity  =  mFIManager->get_field_interpolators_for_type( mDofVelocity );
+
+            // unfold the flattened stress tensor
+            Matrix< DDRMat > tStressTensor;
+            this->unfold( this->flux(CM_Function_Type::MECHANICAL) , tStressTensor );
+
+            // initialize the matrix
+            mWorkFluxDof( tDofIndex ).set_size( mSpaceDim,
+                    mFIManager->get_field_interpolators_for_type( aDofTypes( 0 ) )->
+                    get_number_of_space_time_coefficients(), 0.0 );
+
+            // direct dependency on the density dof type
+            if( aDofTypes( 0 ) == mDofDensity )
+            {
+                // compute contribution
+                mWorkFluxDof( tDofIndex ).matrix_data() +=
+                        this->velocityMatrix() * this->dFluxdDOF( aDofTypes, CM_Function_Type::MECHANICAL);
+            }
+
+            // direct dependency on the velocity dof type
+            if( aDofTypes( 0 ) == mDofVelocity )
+            {
+                // compute contribution
+                mWorkFluxDof( tDofIndex ).matrix_data() +=
+                        this->velocityMatrix() * this->dFluxdDOF( aDofTypes, CM_Function_Type::MECHANICAL) +
+                        tStressTensor * tFIVelocity->dnNdxn( 1 ) ;
+            }
+
+            // direct dependency on the temperature dof type
+            if( aDofTypes( 0 ) == mDofTemperature )
+            {
+                // compute contribution
+                mWorkFluxDof( tDofIndex ).matrix_data() +=
+                        this->velocityMatrix() * this->dFluxdDOF( aDofTypes, CM_Function_Type::MECHANICAL);
+            }
+        }
+
+        const Matrix< DDRMat > & CM_Fluid_Compressible_Ideal::work_dFluxdDOF(
+                const moris::Cell< MSI::Dof_Type > & aDofTypes )
+        {
+            // if aDofType is not an active dof type for the CM
+            MORIS_ERROR(
+                    this->check_dof_dependency( aDofTypes ),
+                    "CM_Fluid_Compressible_Ideal::work_dFluxdDOF - no dependency in this dof type." );
+
+            // get the dof index
+            uint tDofIndex = mGlobalDofTypeMap( static_cast< uint >( aDofTypes( 0 ) ) );
+
+            // if the derivative has not been evaluated yet
+            if( mWorkFluxDofEval( tDofIndex ) )
+            {
+                // evaluate the derivative
+                this->eval_work_dFluxdDOF( aDofTypes );
+
+                // set bool for evaluation
+                mWorkFluxDofEval( tDofIndex ) = false;
+            }
+
+            // return the dof deriv value
+            return mWorkFluxDof( tDofIndex );
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+        //--------------------------------------------------------------------------------------------------------------
+
+        void CM_Fluid_Compressible_Ideal::eval_energy_flux()
+        {
+            // get the velocity
+            Matrix< DDRMat > tVelocity =  mFIManager->get_field_interpolators_for_type( mDofVelocity )->val();
+
+            // compute contribution
+            mEnergyFlux = this->Energy() * tVelocity;
+        }
+
+        const Matrix< DDRMat > & CM_Fluid_Compressible_Ideal::energy_flux()
+        {
+            // if the flux was not evaluated
+            if( mEnergyFluxEval )
+            {
+                // evaluate the flux
+                this->eval_energy_flux();
+
+                // set bool for evaluation
+                mEnergyFluxEval = false;
+            }
+            // return the flux value
+            return mEnergyFlux;
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
+        void CM_Fluid_Compressible_Ideal::eval_energy_dFluxdDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes )
+        {
+            // get the dof type as a uint
+            uint tDofType = static_cast< uint >( aDofTypes( 0 ) );
+
+            // get the dof type index
+            uint tDofIndex = mGlobalDofTypeMap( tDofType );
+
+            // get the velocity
+            Field_Interpolator * tFIVelocity  =  mFIManager->get_field_interpolators_for_type( mDofVelocity );
+
+            // initialize the matrix
+            mEnergyFluxDof( tDofIndex ).set_size( mSpaceDim,
+                    mFIManager->get_field_interpolators_for_type( aDofTypes( 0 ) )->
+                    get_number_of_space_time_coefficients(), 0.0 );
+
+            // direct dependency on the density dof type
+            if( aDofTypes( 0 ) == mDofDensity )
+            {
+                // compute contribution
+                mEnergyFluxDof( tDofIndex ).matrix_data() +=
+                        this->dEnergydDOF( aDofTypes ) * tFIVelocity->val();
+            }
+
+            // direct dependency on the velocity dof type
+            if( aDofTypes( 0 ) == mDofVelocity )
+            {
+                // compute contribution
+                mEnergyFluxDof( tDofIndex ).matrix_data() +=
+                        this->dEnergydDOF( aDofTypes ) * tFIVelocity->val() +
+                        this->Energy() * tFIVelocity->dnNdxn( 1 );
+            }
+
+            // direct dependency on the temperature dof type
+            if( aDofTypes( 0 ) == mDofTemperature )
+            {
+                // compute contribution
+                mEnergyFluxDof( tDofIndex ).matrix_data() +=
+                        this->dEnergydDOF( aDofTypes ) * tFIVelocity->val();
+            }
+        }
+
+        const Matrix< DDRMat > & CM_Fluid_Compressible_Ideal::energy_dFluxdDOF(
+                const moris::Cell< MSI::Dof_Type > & aDofTypes )
+        {
+            // if aDofType is not an active dof type for the CM
+            MORIS_ERROR(
+                    this->check_dof_dependency( aDofTypes ),
+                    "CM_Fluid_Compressible_Ideal::energy_dFluxdDOF - no dependency in this dof type." );
+
+            // get the dof index
+            uint tDofIndex = mGlobalDofTypeMap( static_cast< uint >( aDofTypes( 0 ) ) );
+
+            // if the derivative has not been evaluated yet
+            if( mEnergyFluxDofEval( tDofIndex ) )
+            {
+                // evaluate the derivative
+                this->eval_energy_dFluxdDOF( aDofTypes );
+
+                // set bool for evaluation
+                mEnergyFluxDofEval( tDofIndex ) = false;
+            }
+
+            // return the dof deriv value
+            return mEnergyFluxDof( tDofIndex );
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
         //--------------------------------------------------------------------------------------------------------------
 
         void CM_Fluid_Compressible_Ideal::eval_Energy()
@@ -322,7 +580,7 @@ namespace moris
                         0.5 * trans( tFIVelocity->val() ) * tFIVelocity->val() * tFIDensity->N();
             }
 
-// FIXME: check derivative of norm of velocity
+            // FIXME: check derivative of norm of velocity
             // direct dependency on the velocity dof type
             if( aDofTypes( 0 ) == mDofVelocity )
             {
@@ -340,6 +598,7 @@ namespace moris
             }
         }
 
+        //--------------------------------------------------------------------------------------------------------------
         //--------------------------------------------------------------------------------------------------------------
 
         void CM_Fluid_Compressible_Ideal::CM_Fluid_Compressible_Ideal::eval_EnergyDot()
@@ -415,6 +674,7 @@ namespace moris
         }
 
         //--------------------------------------------------------------------------------------------------------------
+        //--------------------------------------------------------------------------------------------------------------
 
         void CM_Fluid_Compressible_Ideal::eval_stress()
         {
@@ -487,26 +747,323 @@ namespace moris
         }
 
         //--------------------------------------------------------------------------------------------------------------
+        //--------------------------------------------------------------------------------------------------------------
 
-        void CM_Fluid_Compressible_Ideal::eval_dTractiondDOF(
+        const Matrix< DDRMat > & CM_Fluid_Compressible_Ideal::traction(
+                const Matrix< DDRMat > & aNormal,
+                enum CM_Function_Type aCMFunctionType )
+        {
+            switch( aCMFunctionType )
+            {
+                case CM_Function_Type::THERMAL :
+                    return this->thermal_traction( aNormal );
+
+                case CM_Function_Type::ENERGY :
+                    return this->energy_traction( aNormal );
+
+                case CM_Function_Type::WORK :
+                    return this->work_traction( aNormal );
+
+                case CM_Function_Type::MECHANICAL :
+                    return this->mechanical_traction( aNormal );
+
+                    // unknown CM function type
+                default :
+                    MORIS_ERROR( false , "CM_Fluid_Compressible_Ideal::traction - unknown CM function type for traction." );
+                    return mTraction;
+            }
+        }
+
+        const Matrix< DDRMat > & CM_Fluid_Compressible_Ideal::dTractiondDOF(
                 const moris::Cell< MSI::Dof_Type > & aDofTypes,
-                const Matrix< DDRMat >             & aNormal )
+                const Matrix< DDRMat >             & aNormal,
+                enum CM_Function_Type                aCMFunctionType)
         {
-            // Function is not implemented
-            MORIS_ERROR( false, "CM_Fluid_Compressible_Ideal::eval_dTractiondDOF - not implemented yet." );
+            switch( aCMFunctionType )
+            {
+                case CM_Function_Type::THERMAL :
+                    return this->thermal_dTractiondDOF( aDofTypes, aNormal );
+
+                case CM_Function_Type::ENERGY :
+                    return this->energy_dTractiondDOF( aDofTypes, aNormal );
+
+                case CM_Function_Type::WORK :
+                    return this->work_dTractiondDOF( aDofTypes, aNormal );
+
+                case CM_Function_Type::MECHANICAL :
+                    return this->mechanical_dTractiondDOF( aDofTypes, aNormal );
+
+                    // unknown CM function type
+                default :
+                    MORIS_ERROR( false , "CM_Fluid_Compressible_Ideal::dTractiondDOF - unknown CM function type for traction." );
+                    return mTraction;
+            }
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+        //--------------------------------------------------------------------------------------------------------------
+
+        void CM_Fluid_Compressible_Ideal::eval_thermal_traction( const Matrix< DDRMat > & aNormal )
+        {
+            // compute the traction
+            mThermalTraction = trans( aNormal ) * this->flux( CM_Function_Type::THERMAL );
+        }
+
+        const Matrix< DDRMat > & CM_Fluid_Compressible_Ideal::thermal_traction( const Matrix< DDRMat > & aNormal)
+        {
+            // if the quantity was not evaluated
+            if( mThermalTractionEval )
+            {
+                // evaluate the test strain
+                this->eval_thermal_traction( aNormal );
+
+                // set bool for evaluation
+                mThermalTractionEval = false;
+            }
+            // return the test strain value
+            return mThermalTraction;
         }
 
         //--------------------------------------------------------------------------------------------------------------
 
-        void CM_Fluid_Compressible_Ideal::eval_traction( const Matrix< DDRMat > & aNormal )
+        void CM_Fluid_Compressible_Ideal::eval_thermal_dTractiondDOF(
+                const moris::Cell< MSI::Dof_Type > & aDofTypes,
+                const Matrix< DDRMat >             & aNormal  )
         {
-            // Function is not implemented
-            MORIS_ERROR( false, "CM_Fluid_Compressible_Ideal::eval_traction - not implemented yet." );
+            // get the dof index
+            uint tDofIndex = mGlobalDofTypeMap( static_cast< uint >( aDofTypes( 0 ) ) );
+
+            // flatten normal
+            //Matrix< DDRMat > tFlatNormal;
+            //this->flatten_normal( aNormal, tFlatNormal );
+
+            // direct contribution
+            mThermalTractionDof( tDofIndex ) = trans( aNormal ) * this->dFluxdDOF( aDofTypes, CM_Function_Type::THERMAL );
+        }
+
+        const Matrix< DDRMat > & CM_Fluid_Compressible_Ideal::thermal_dTractiondDOF(
+                const moris::Cell< MSI::Dof_Type > & aDofTypes,
+                const Matrix< DDRMat >             & aNormal  )
+        {
+            // if aDofType is not an active dof type for the CM
+            MORIS_ERROR( this->check_dof_dependency( aDofTypes ),
+                    "CM_Fluid_Compressible_Ideal::thermal_dTractiondDOF - no dependency in this dof type." );
+
+            // get the dof index
+            uint tDofIndex = mGlobalDofTypeMap( static_cast< uint >( aDofTypes( 0 ) ) );
+
+            // if the derivative has not been evaluated yet
+            if( mThermalTractionDofEval( tDofIndex ) )
+            {
+                // evaluate the derivative
+                this->eval_thermal_dTractiondDOF( aDofTypes, aNormal );
+
+                // set bool for evaluation
+                mThermalTractionDofEval( tDofIndex ) = false;
+            }
+
+            // return the dof deriv value
+            return mThermalTractionDof( tDofIndex );
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+        //--------------------------------------------------------------------------------------------------------------
+
+        void CM_Fluid_Compressible_Ideal::eval_energy_traction( const Matrix< DDRMat > & aNormal )
+        {
+            // compute the traction
+            mEnergyTraction = trans( aNormal ) * this->flux( CM_Function_Type::ENERGY );
+        }
+
+        const Matrix< DDRMat > & CM_Fluid_Compressible_Ideal::energy_traction( const Matrix< DDRMat > & aNormal)
+        {
+            // if quantity not evaluated
+            if( mEnergyTractionEval )
+            {
+                // evaluate the test strain
+                this->eval_energy_traction( aNormal );
+
+                // set bool for evaluation
+                mEnergyTractionEval = false;
+            }
+            // return the test strain value
+            return mEnergyTraction;
         }
 
         //--------------------------------------------------------------------------------------------------------------
 
-        const Matrix< DDRMat > & CM_Fluid_Compressible_Ideal::pressure()
+        void CM_Fluid_Compressible_Ideal::eval_energy_dTractiondDOF(
+                const moris::Cell< MSI::Dof_Type > & aDofTypes,
+                const Matrix< DDRMat >             & aNormal  )
+        {
+            // get the dof index
+            uint tDofIndex = mGlobalDofTypeMap( static_cast< uint >( aDofTypes( 0 ) ) );
+
+            // direct contribution
+            mEnergyTractionDof( tDofIndex ) = trans( aNormal ) * this->dFluxdDOF( aDofTypes, CM_Function_Type::ENERGY );
+        }
+
+        const Matrix< DDRMat > & CM_Fluid_Compressible_Ideal::energy_dTractiondDOF(
+                const moris::Cell< MSI::Dof_Type > & aDofTypes,
+                const Matrix< DDRMat >             & aNormal  )
+        {
+            // if aDofType is not an active dof type for the CM
+            MORIS_ERROR( this->check_dof_dependency( aDofTypes ),
+                    "CM_Fluid_Compressible_Ideal::energy_dTractiondDOF - no dependency in this dof type." );
+
+            // get the dof index
+            uint tDofIndex = mGlobalDofTypeMap( static_cast< uint >( aDofTypes( 0 ) ) );
+
+            // if the derivative has not been evaluated yet
+            if( mEnergyTractionDofEval( tDofIndex ) )
+            {
+                // evaluate the derivative
+                this->eval_energy_dTractiondDOF( aDofTypes, aNormal );
+
+                // set bool for evaluation
+                mEnergyTractionDofEval( tDofIndex ) = false;
+            }
+
+            // return the dof deriv value
+            return mEnergyTractionDof( tDofIndex );
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+        //--------------------------------------------------------------------------------------------------------------
+
+        void CM_Fluid_Compressible_Ideal::eval_work_traction( const Matrix< DDRMat > & aNormal )
+        {
+            // compute the traction
+            mWorkTraction = trans( aNormal ) * this->flux( CM_Function_Type::WORK );
+        }
+
+        const Matrix< DDRMat > & CM_Fluid_Compressible_Ideal::work_traction( const Matrix< DDRMat > & aNormal)
+        {
+            // if quantity not evaluated
+            if( mWorkTractionEval )
+            {
+                // evaluate the test strain
+                this->eval_work_traction( aNormal );
+
+                // set bool for evaluation
+                mWorkTractionEval = false;
+            }
+            // return the test strain value
+            return mWorkTraction;
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
+        void CM_Fluid_Compressible_Ideal::eval_work_dTractiondDOF(
+                const moris::Cell< MSI::Dof_Type > & aDofTypes,
+                const Matrix< DDRMat >             & aNormal  )
+        {
+            // get the dof index
+            uint tDofIndex = mGlobalDofTypeMap( static_cast< uint >( aDofTypes( 0 ) ) );
+
+            // direct contribution
+            mWorkTractionDof( tDofIndex ) = trans( aNormal ) * this->dFluxdDOF( aDofTypes, CM_Function_Type::ENERGY );
+        }
+
+        const Matrix< DDRMat > & CM_Fluid_Compressible_Ideal::work_dTractiondDOF(
+                const moris::Cell< MSI::Dof_Type > & aDofTypes,
+                const Matrix< DDRMat >             & aNormal  )
+        {
+            // if aDofType is not an active dof type for the CM
+            MORIS_ERROR( this->check_dof_dependency( aDofTypes ),
+                    "CM_Fluid_Compressible_Ideal::work_dTractiondDOF - no dependency in this dof type." );
+
+            // get the dof index
+            uint tDofIndex = mGlobalDofTypeMap( static_cast< uint >( aDofTypes( 0 ) ) );
+
+            // if the derivative has not been evaluated yet
+            if( mWorkTractionDofEval( tDofIndex ) )
+            {
+                // evaluate the derivative
+                this->eval_work_dTractiondDOF( aDofTypes, aNormal );
+
+                // set bool for evaluation
+                mWorkTractionDofEval( tDofIndex ) = false;
+            }
+
+            // return the dof deriv value
+            return mWorkTractionDof( tDofIndex );
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+        //--------------------------------------------------------------------------------------------------------------
+
+        void CM_Fluid_Compressible_Ideal::eval_mechanical_traction( const Matrix< DDRMat > & aNormal )
+        {
+            // flatten the normal
+            Matrix< DDRMat > tFlatNormal;
+            this->flatten_normal( aNormal, tFlatNormal );
+
+            // compute the traction
+            mMechanicalTraction = tFlatNormal * this->flux( CM_Function_Type::MECHANICAL );
+        }
+
+        const Matrix< DDRMat > & CM_Fluid_Compressible_Ideal::mechanical_traction( const Matrix< DDRMat > & aNormal)
+        {
+            // if quantity not evaluated
+            if( mMechanicalTractionEval )
+            {
+                // evaluate the test strain
+                this->eval_work_traction( aNormal );
+
+                // set bool for evaluation
+                mMechanicalTractionEval = false;
+            }
+            // return the test strain value
+            return mMechanicalTraction;
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
+        void CM_Fluid_Compressible_Ideal::eval_mechanical_dTractiondDOF(
+                const moris::Cell< MSI::Dof_Type > & aDofTypes,
+                const Matrix< DDRMat >             & aNormal  )
+        {
+            // get the dof index
+            uint tDofIndex = mGlobalDofTypeMap( static_cast< uint >( aDofTypes( 0 ) ) );
+
+            // flatten the normal
+            Matrix< DDRMat > tFlatNormal;
+            this->flatten_normal( aNormal, tFlatNormal );
+
+            // direct contribution
+            mMechanicalTractionDof( tDofIndex ) = tFlatNormal * this->dFluxdDOF( aDofTypes, CM_Function_Type::MECHANICAL );
+        }
+
+        const Matrix< DDRMat > & CM_Fluid_Compressible_Ideal::mechanical_dTractiondDOF(
+                const moris::Cell< MSI::Dof_Type > & aDofTypes,
+                const Matrix< DDRMat >             & aNormal  )
+        {
+            // if aDofType is not an active dof type for the CM
+            MORIS_ERROR( this->check_dof_dependency( aDofTypes ),
+                    "CM_Fluid_Compressible_Ideal::mechanical_dTractiondDOF - no dependency in this dof type." );
+
+            // get the dof index
+            uint tDofIndex = mGlobalDofTypeMap( static_cast< uint >( aDofTypes( 0 ) ) );
+
+            // if the derivative has not been evaluated yet
+            if( mMechanicalTractionDofEval( tDofIndex ) )
+            {
+                // evaluate the derivative
+                this->eval_mechanical_dTractiondDOF( aDofTypes, aNormal );
+
+                // set bool for evaluation
+                mMechanicalTractionDofEval( tDofIndex ) = false;
+            }
+
+            // return the dof deriv value
+            return mMechanicalTractionDof( tDofIndex );
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+        //--------------------------------------------------------------------------------------------------------------
+
+        void CM_Fluid_Compressible_Ideal::eval_pressure()
         {
             // get field interpolator values
             Matrix< DDRMat >  tDensity = mFIManager->get_field_interpolators_for_type( mDofDensity )->val();
@@ -515,14 +1072,29 @@ namespace moris
             // get the specific gas constant
             Matrix< DDRMat >  tSpecificGasConstant = get_property( "SpecificGasConstant" )->val();
 
-            // return the pressure
+            // compute the pressure
             mPressure = tDensity * tSpecificGasConstant * tTemperature;
+        }
+
+        const Matrix< DDRMat > & CM_Fluid_Compressible_Ideal::pressure()
+        {
+            // if the test strain was not evaluated
+            if( mPressureEval )
+            {
+                // evaluate the test strain
+                this->eval_pressure();
+
+                // set bool for evaluation
+                mPressureEval = false;
+            }
+
+            // return the test strain value
             return mPressure;
         }
 
         //--------------------------------------------------------------------------------------------------------------
 
-        const Matrix< DDRMat > & CM_Fluid_Compressible_Ideal::dPressuredDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes )
+        void CM_Fluid_Compressible_Ideal::eval_dPressuredDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes )
         {
             // get field interpolators
             Field_Interpolator * tFIDensity = mFIManager->get_field_interpolators_for_type( mDofDensity );
@@ -531,23 +1103,54 @@ namespace moris
             // get the specific gas constant
             Matrix< DDRMat >  tSpecificGasConstant = get_property( "SpecificGasConstant" )->val();
 
+            // get the dof index
+            uint tDofIndex = mGlobalDofTypeMap( static_cast< uint >( aDofTypes( 0 ) ) );
+
+            // initialize the matrix
+            mPressureDof( tDofIndex ).set_size( 1,
+                    mFIManager->get_field_interpolators_for_type( aDofTypes( 0 ) )->
+                    get_number_of_space_time_coefficients(), 0.0 );
+
             // if Density DoF
             if( aDofTypes( 0 ) == mDofDensity )
             {
-                mPressureDof = tSpecificGasConstant * tFITemp->val() * tFIDensity->dnNdxn( 1 );
+                mPressureDof( tDofIndex ) = tSpecificGasConstant * tFITemp->val() * tFIDensity->dnNdxn( 1 );
             }
 
             // if Temperature DoF
             if( aDofTypes( 0 ) == mDofTemperature )
             {
                 // compute derivative with direct dependency
-                mPressureDof = tSpecificGasConstant * tFIDensity->val() * tFITemp->dnNdxn( 1 );
+                mPressureDof( tDofIndex ) = tSpecificGasConstant * tFIDensity->val() * tFITemp->dnNdxn( 1 );
             }
-
-            // return the pressure DoF deriv
-            return mPressureDof;
         }
 
+        const Matrix< DDRMat > & CM_Fluid_Compressible_Ideal::dPressuredDOF(
+                const moris::Cell< MSI::Dof_Type > & aDofType )
+        {
+            // if aDofType is not an active dof type for the CM
+            MORIS_ERROR(
+                    this->check_dof_dependency( aDofType ),
+                    "CM_Fluid_Compressible_Ideal::dPressuredDOF - no dependency in this dof type." );
+
+            // get the dof index
+            uint tDofIndex = mGlobalDofTypeMap( static_cast< uint >( aDofType( 0 ) ) );
+
+            // if the derivative has not been evaluated yet
+            if( mPressureDofEval( tDofIndex ) )
+            {
+                // evaluate the derivative
+                this->eval_dPressuredDOF( aDofType );
+
+                // set bool for evaluation
+                mPressureDofEval( tDofIndex ) = false;
+            }
+
+            // return the derivative
+            return mPressureDof( tDofIndex );
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
         //--------------------------------------------------------------------------------------------------------------
 
         void CM_Fluid_Compressible_Ideal::eval_strain_2d()
@@ -645,6 +1248,8 @@ namespace moris
         }
 
         //--------------------------------------------------------------------------------------------------------------
+        //--------------------------------------------------------------------------------------------------------------
+
         void CM_Fluid_Compressible_Ideal::eval_velocitymatrix_2d()
         {
             Matrix< DDRMat > tU = mFIManager->get_field_interpolators_for_type( mDofVelocity )->val();
@@ -664,10 +1269,28 @@ namespace moris
                     {    0.0 ,  0.0 , tU( 2 ), tU( 1 ), tU( 0 ),    0.0  } };
         }
 
+        const Matrix< DDRMat > & CM_Fluid_Compressible_Ideal::velocityMatrix()
+        {
+            // if the velocity matrix was not evaluated
+            if( mVelocityMatrixEval )
+            {
+                // evaluate the test strain
+                this->eval_velocityMatrix();
+
+                // set bool for evaluation
+                mVelocityMatrixEval = false;
+            }
+
+            // return the test strain value
+            return mVelocityMatrix;
+        }
+
         //--------------------------------------------------------------------------------------------------------------
+        //--------------------------------------------------------------------------------------------------------------
+
         void CM_Fluid_Compressible_Ideal::unfold_2d(
                 const Matrix< DDRMat > & aFlattenedTensor,
-                Matrix< DDRMat > & aExpandedTensor)
+                Matrix< DDRMat >       & aExpandedTensor)
         {
             aExpandedTensor = {
                     { aFlattenedTensor( 0 ), aFlattenedTensor( 2 ) },
@@ -686,40 +1309,35 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
+        void CM_Fluid_Compressible_Ideal::flatten_normal_2d(
+                const Matrix< DDRMat > & aNormal,
+                Matrix< DDRMat >       & aFlatNormal )
+        {
+            aFlatNormal.set_size( 2, 3, 0.0 );
+            aFlatNormal( 0, 0 ) = aNormal( 0, 0 );
+            aFlatNormal( 0, 2 ) = aNormal( 1, 0 );
+            aFlatNormal( 1, 1 ) = aNormal( 1, 0 );
+            aFlatNormal( 1, 2 ) = aNormal( 0, 0 );
+        }
+
+        void CM_Fluid_Compressible_Ideal::flatten_normal_3d(
+                const Matrix< DDRMat > & aNormal,
+                Matrix< DDRMat >       & aFlatNormal )
+        {
+            aFlatNormal.set_size( 3, 6, 0.0 );
+            aFlatNormal( 0, 0 ) = aNormal( 0, 0 );
+            aFlatNormal( 1, 1 ) = aNormal( 1, 0 );
+            aFlatNormal( 2, 2 ) = aNormal( 2, 0 );
+            aFlatNormal( 0, 4 ) = aNormal( 2, 0 );
+            aFlatNormal( 0, 5 ) = aNormal( 1, 0 );
+            aFlatNormal( 1, 3 ) = aNormal( 2, 0 );
+            aFlatNormal( 1, 5 ) = aNormal( 0, 0 );
+            aFlatNormal( 2, 3 ) = aNormal( 1, 0 );
+            aFlatNormal( 2, 4 ) = aNormal( 0, 0 );
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+        //--------------------------------------------------------------------------------------------------------------
+
     } /* namespace fem */
 } /* namespace moris */
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

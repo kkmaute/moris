@@ -32,41 +32,27 @@ namespace moris
             /**
              * trivial constructor
              */
-            Vertex_XTK(){};
+            Vertex_XTK();
 
 
             Vertex_XTK(moris::moris_id        aVertexId,
                        moris::moris_index     aVertexIndex,
-                       xtk::Background_Mesh * aBackgroundMeshPtr):
-                           mVertexId(aVertexId),
-                           mVertexIndex(aVertexIndex),
-                           mBackgroundMeshPtr(aBackgroundMeshPtr)
-                       {};
-
+                       xtk::Background_Mesh * aBackgroundMeshPtr);
             /*
              * Constructor for a background mesh vertex
              */
-            Vertex_XTK(mtk::Vertex* aBackgroundMeshVertex):
-                mVertexId(aBackgroundMeshVertex->get_id()),
-                mVertexIndex(aBackgroundMeshVertex->get_index()),
-                mBackgroundMeshVertex(aBackgroundMeshVertex)
-            {
-            }
+            Vertex_XTK(mtk::Vertex* aBackgroundMeshVertex);
 //------------------------------------------------------------------------------
 
             /**
              * Destructor
              */
-            ~Vertex_XTK(){};
+            ~Vertex_XTK();
 
 
 //------------------------------------------------------------------------------
             void
-            set_vertex_interpolation(Vertex_Interpolation_XTK* aVertexInterpolation)
-            {
-                MORIS_ASSERT( aVertexInterpolation != nullptr,"aVertexInterpolation provided is a null ptr" );
-                mVertexInterpolation = aVertexInterpolation;
-            }
+            set_vertex_interpolation(Vertex_Interpolation_XTK* aVertexInterpolation);
 
 //------------------------------------------------------------------------------
 
@@ -82,10 +68,7 @@ namespace moris
              * returns the domain wide id of this vertex
              */
             moris_id
-            get_id() const
-            {
-                return mVertexId;
-            }
+            get_id() const;
 
 //------------------------------------------------------------------------------
 
@@ -93,50 +76,34 @@ namespace moris
              * returns the processor unique index of this vertex
              */
             moris_index
-            get_index() const
-            {
-                return mVertexIndex;
-            }
+            get_index() const;
 
 //------------------------------------------------------------------------------
 
             // fixme: change this into moris_id
             // FIXME: add owner function in background mesh
             moris_index
-            get_owner() const
-            {
-                MORIS_ERROR( false,"Function not implemented in xtk vertex" );
-                return 0;
-            }
+            get_owner() const;
 
 //------------------------------------------------------------------------------
 
             Vertex_Interpolation *
-            get_interpolation( const uint aOrder )
-            {
-                MORIS_ASSERT( mVertexInterpolation != nullptr,"mInterpolation is a null ptr" );
-                return mVertexInterpolation;
-            }
+            get_interpolation( const uint aOrder );
 
 //------------------------------------------------------------------------------
 
             const Vertex_Interpolation *
-            get_interpolation( const uint aOrder ) const
-            {
-                MORIS_ASSERT( mVertexInterpolation != nullptr,"mInterpolation is a null ptr" );
-                return mVertexInterpolation;
-            }
+            get_interpolation( const uint aOrder ) const;
 
 //------------------------------------------------------------------------------
 
             uint
-            get_level() const
-            {
-                return 0;
-            }
+            get_level() const;
 
 //------------------------------------------------------------------------------
 
+            size_t
+            capacity();
 
         private:
             moris::moris_id            mVertexId;
@@ -145,14 +112,10 @@ namespace moris
 
 
             // If this vertex is craeted by XTK we need a pointer to the background mesh
-            xtk::Background_Mesh *     mBackgroundMeshPtr = nullptr; // To access coords... (set to null for assertion purposes)
+            xtk::Background_Mesh * mBackgroundMeshPtr = nullptr; // To access coords... (set to null for assertion purposes)
 
             // If this was a vertex in the background mesh (simply store the pointer)
-            Vertex *                     mBackgroundMeshVertex = nullptr;
-
-
-
-
+            Vertex * mBackgroundMeshVertex = nullptr;
         };
 //------------------------------------------------------------------------------
     } /* namespace mtk */

@@ -142,11 +142,11 @@ namespace moris
                 COMPRESSIBLE_NS_DENSITY_BULK,
                 COMPRESSIBLE_NS_VELOCITY_BULK,
                 COMPRESSIBLE_NS_TEMPERATURE_BULK,
+                COMPRESSIBLE_NS_ADVECTIVE_MOMENTUM_FLUX,
+                COMPRESSIBLE_NS_ADVECTIVE_ENERGY_FLUX,
+                COMPRESSIBLE_NS_MASS_FLUX_NEUMANN,
                 COMPRESSIBLE_NS_TRACTION_NEUMANN,
                 COMPRESSIBLE_NS_HEAT_FLUX_NEUMANN,
-                COMPRESSIBLE_NS_MASS_FLUX_NEUMANN,
-                COMPRESSIBLE_NS_DENSITY_DIRICHLET_SYMMETRIC_NITSCHE,
-                COMPRESSIBLE_NS_DENSITY_DIRICHLET_UNSYMMETRIC_NITSCHE,
                 COMPRESSIBLE_NS_VELOCITY_DIRICHLET_SYMMETRIC_NITSCHE,
                 COMPRESSIBLE_NS_VELOCITY_DIRICHLET_UNSYMMETRIC_NITSCHE,
                 COMPRESSIBLE_NS_TEMPERATURE_DIRICHLET_SYMMETRIC_NITSCHE,
@@ -295,6 +295,20 @@ namespace moris
                 PRINCIPAL_STRESS,
                 MAX_SHEAR_STRESS,
                 END_STRESS_TYPE
+        };
+
+        //------------------------------------------------------------------------------
+
+        enum class CM_Function_Type
+        {
+                DEFAULT,
+                THERMAL,
+                FLUID,
+                MECHANICAL,
+                ENERGY,
+                WORK,
+                HEAT,
+                END_CM_FUNCTION_TYPE
         };
 
         //------------------------------------------------------------------------------

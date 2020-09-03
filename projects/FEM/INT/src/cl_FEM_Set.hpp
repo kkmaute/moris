@@ -502,6 +502,11 @@ namespace moris
              */
             void build_requested_IWG_dof_type_list( const bool aIsResidual );
 
+            /**
+             * Create a dof type list for the list of IQIs being requested.
+             */
+            void build_requested_IQI_dof_type_list();
+
             //------------------------------------------------------------------------------
             /**
              * get the IP geometry type

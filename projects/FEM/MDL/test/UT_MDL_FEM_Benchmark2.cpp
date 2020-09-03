@@ -174,8 +174,6 @@ TEST_CASE("MDL_FEM_Benchmark_Diffusion_1Mat","[MDL_FEM_Benchmark_Diffusion_1Mat]
         // Mesh Setup
         moris::uint tNumX   = 20; /* Number of elements in x*/
         moris::uint tNumY   = 20; /* Number of elements in y*/
-        moris::uint tNumRef = 2;  /* Number of HMR refinements */
-        moris::uint tOrder  = 1;  /* Lagrange Order and Bspline Order (forced to be same for this example) */
 
 
         uint tLagrangeMeshIndex = 0;
@@ -487,11 +485,8 @@ TEST_CASE("MDL_FEM_Benchmark_Diffusion_1Mat_Ghost","[MDL_FEM_Benchmark_Diffusion
         // Mesh Setup
         moris::uint tNumX   = 20; /* Number of elements in x*/
         moris::uint tNumY   = 20; /* Number of elements in y*/
-        moris::uint tNumRef = 2;  /* Number of HMR refinements */
-        moris::uint tOrder  = 1;  /* Lagrange Order and Bspline Order (forced to be same for this example) */
+        moris::uint tLagrangeMeshIndex = 0;
 
-
-        uint tLagrangeMeshIndex = 0;
         std::string tOuterFieldName   = "Outercircle";
         std::string tInnerFieldName   = "Innercircle";
         ParameterList tParameters = prm::create_hmr_parameter_list();
@@ -825,8 +820,6 @@ TEST_CASE("FEM Benchmark 2 - 2Mat","[MDL_FEM_Benchmark2_2Mat]")
         // mesh Setup
         moris::uint tNumX   = 20; /* Number of elements in x*/
         moris::uint tNumY   = 20; /* Number of elements in y*/
-        moris::uint tNumRef = 2;  /* Number of HMR refinements */
-        moris::uint tOrder  = 1;  /* Lagrange Order and Bspline Order (forced to be same for this example) */
 
         // define hmr parameters
         //------------------------------------------------------------------------------
@@ -1179,8 +1172,6 @@ TEST_CASE("FEM Benchmark Diffusion Inclusion - 2Mat","[MDL_FEM_Benchmark_Diffusi
         // mesh Setup
         moris::uint tNumX   = 20; /* Number of elements in x*/
         moris::uint tNumY   = 20; /* Number of elements in y*/
-        moris::uint tNumRef = 2;  /* Number of HMR refinements */
-        moris::uint tOrder  = 1;  /* Lagrange Order and Bspline Order (forced to be same for this example) */
 
         // define hmr parameters
         //------------------------------------------------------------------------------

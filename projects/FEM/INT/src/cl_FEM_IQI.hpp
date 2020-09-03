@@ -483,7 +483,7 @@ namespace moris
             /**
              * build requested dof type list
              */
-            void build_requested_dof_type_lists();
+            void build_requested_dof_type_list();
 
             //------------------------------------------------------------------------------
             /**

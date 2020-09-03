@@ -16,9 +16,9 @@ include(${MORIS_DEPENDS_DIR}/LINALG_Depends.cmake)
 include(${MORIS_DEPENDS_DIR}/MTK_Depends.cmake)
 include(${MORIS_DEPENDS_DIR}/ALG_Depends.cmake)
 include(${MORIS_DEPENDS_DIR}/GEN_Depends.cmake)
+include(${MORIS_DEPENDS_DIR}/TOL_Depends.cmake)
 # Moris packages included for exe's
 include(${MORIS_DEPENDS_DIR}/COM_Depends.cmake)
-
 #if(BUILD_HMR)
 include(${MORIS_DEPENDS_DIR}/GEN_Depends.cmake)
 include(${MORIS_DEPENDS_DIR}/MSI_Depends.cmake)

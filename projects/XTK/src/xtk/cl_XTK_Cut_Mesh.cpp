@@ -9,6 +9,7 @@
 #include "cl_Matrix.hpp"
 #include "cl_XTK_Model.hpp"
 #include "cl_MPI_Tools.hpp"
+#include "cl_TOL_Memory_Map.hpp"
 namespace xtk
 {
     Cut_Mesh:: Cut_Mesh() :
@@ -771,6 +772,42 @@ namespace xtk
                 aSubphase(tElementInds(iCE)) = tSubphaseInds(tChildMesh.get_element_subphase_index(iCE));
             }
         }
+    }
+
+    // ----------------------------------------------------------------------------------
+
+    moris::Memory_Map
+    Cut_Mesh::get_memory_usage()
+    {
+        // memory map
+        moris::Memory_Map tMemoryMap;
+
+        // memory map of child mesh
+        moris::Memory_Map tMemoryMapCMs;
+
+        // number of child meshes
+        moris::uint tNumChildMeshes = this->get_num_child_meshes();
+
+        //sum up all child mesh data
+        for (moris::uint i = 0; i < tNumChildMeshes; i++)
+        {
+            tMemoryMapCMs = tMemoryMapCMs + mChildrenMeshes(i).get_memory_usage();
+        }
+    
+        tMemoryMap.mMemoryMapData["Child Meshes"] = tMemoryMapCMs.sum();
+        tMemoryMap.mMemoryMapData["mSpatialDim"]  = sizeof(mSpatialDim);
+        tMemoryMap.mMemoryMapData["mOwnedChildrenMeshes"] = mOwnedChildrenMeshes.capacity();
+        tMemoryMap.mMemoryMapData["mNotOwnedChildrenMeshes"] = mNotOwnedChildrenMeshes.capacity();
+        tMemoryMap.mMemoryMapData["mNotOwnedOwningProc"] = mNotOwnedOwningProc.capacity();
+        tMemoryMap.mMemoryMapData["mNumberOfChildrenMesh"] = sizeof(mNumberOfChildrenMesh);
+        tMemoryMap.mMemoryMapData["mConsistentCounts"] = sizeof(mConsistentCounts);
+        tMemoryMap.mMemoryMapData["mNumEntities"] = mNumEntities.capacity();
+        tMemoryMap.mMemoryMapData["mChildElementTopo"] = sizeof(mChildElementTopo);
+        tMemoryMap.mMemoryMapData["mNumSubPhases"] = sizeof(mNumSubPhases);
+        tMemoryMap.mMemoryMapData["mSubPhaseIndexToChildMesh"] = mSubPhaseIndexToChildMesh.capacity();
+        tMemoryMap.mMemoryMapData["mSubPhaseIndexToChildMeshSubphaseIndex"] = mSubPhaseIndexToChildMeshSubphaseIndex.capacity();
+
+        return tMemoryMap;
     }
 
     // ----------------------------------------------------------------------------------

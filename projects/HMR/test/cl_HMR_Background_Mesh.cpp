@@ -852,10 +852,166 @@ TEST_CASE("HMR_Background_Mesh_refine", "[moris],[mesh],[hmr],[Background_Mesh_r
 
         tHMR.finalize();
 
+        //tHMR.save_background_mesh_to_vtk( "BackgorundMesh_refine.vtk");
+
+        std::cout<<"Active Elements "<<tHMR.get_database()->get_number_of_elements_on_proc()<<std::endl;
+        std::cout<<"Padding Elements "<<tHMR.get_database()->get_number_of_padding_elements_on_proc()<<std::endl;
+
+        tParameters.set_severity_level( 0 );
+    }
+}
+
+TEST_CASE("HMR_Background_Mesh_refinement_buffer", "[moris],[mesh],[hmr],[Background_Mesh_refinement_buffer],[Background_Mesh]")
+{
+    if( moris::par_size() == 2 )
+    {
+        // create parameter object
+        moris::hmr::Parameters tParameters;
+        tParameters.set_number_of_elements_per_dimension( { { 4 }, { 4 } } );
+//        tParameters.set_verbose( true );
+        tParameters.set_severity_level( 0 );
+        tParameters.set_multigrid( false );
+        tParameters.set_bspline_truncation( true );
+
+        tParameters.set_refinement_buffer( 1 );
+        tParameters.set_staircase_buffer( 1 );
+
+        tParameters.set_lagrange_orders  ( { {1} });
+        tParameters.set_lagrange_patterns({ {0} });
+
+        tParameters.set_bspline_orders   ( { {1} } );
+        tParameters.set_bspline_patterns ( { {0} } );
+
+        tParameters.set_number_aura( false );
+
+        moris::Cell< moris::Matrix< moris::DDSMat > > tLagrangeToBSplineMesh( 1 );
+        tLagrangeToBSplineMesh( 0 ) = { {0} };
+
+        tParameters.set_lagrange_to_bspline_mesh( tLagrangeToBSplineMesh );
+
+        // create HMR object
+        moris::hmr::HMR tHMR( tParameters );
+
+        for( moris::uint Ii = 0; Ii<1; Ii++)
+        {
+            if( moris::par_rank() == 0)
+            {
+                tHMR.get_database()->get_background_mesh()->get_element( 1 )->put_on_refinement_queue();
+            }
+            if( moris::par_rank() == 1)
+            {
+                tHMR.get_database()->get_background_mesh()->get_element( 6 )->put_on_refinement_queue();
+            }
+			
+			tHMR.perform_refinement( 0 );
+            tHMR.update_refinement_pattern( 0 );
+        }
+
+        tHMR.finalize();
+
         tHMR.save_background_mesh_to_vtk( "BackgorundMesh_refine.vtk");
 
         std::cout<<"Active Elements "<<tHMR.get_database()->get_number_of_elements_on_proc()<<std::endl;
         std::cout<<"Padding Elements "<<tHMR.get_database()->get_number_of_padding_elements_on_proc()<<std::endl;
+		
+		// list of active elements on proc
+        moris::Matrix< moris::DDLUMat > tElementIDs;
+
+        // get hmr ids of active elements
+        tHMR.get_database()->get_background_mesh()->get_active_elements_on_proc( tElementIDs );
+		
+		REQUIRE( tElementIDs.numel()  == 26 );
+	
+		if( moris::par_rank()==0)
+		{
+			REQUIRE( tElementIDs(  0 )  == 62 );			REQUIRE( tElementIDs(  1 )  == 63 );
+			REQUIRE( tElementIDs(  14 ) == 100 );			REQUIRE( tElementIDs(  15 ) == 101 );
+			REQUIRE( tElementIDs(  16 ) == 19 );			REQUIRE( tElementIDs(  21 ) == 25 );
+			REQUIRE( tElementIDs(  24 ) == 148 );			REQUIRE( tElementIDs(  25 ) == 149 );
+		}
+		
+		if( moris::par_rank()==1)
+		{
+			REQUIRE( tElementIDs(  0 )   == 66 );			REQUIRE( tElementIDs(  1 )   == 67 );
+			REQUIRE( tElementIDs(  7 )   == 102 );			REQUIRE( tElementIDs(  8 )   == 103 );
+			REQUIRE( tElementIDs(  9 )   == 16 );			REQUIRE( tElementIDs(  17 )  == 129 );
+			REQUIRE( tElementIDs(  23 )  == 141 );			REQUIRE( tElementIDs(  25 )  == 153 );
+		}
+		
+
+        tParameters.set_severity_level( 0 );
+    }
+}
+
+TEST_CASE("HMR_Background_Mesh_refinement_buffer_2", "[moris],[mesh],[hmr],[Background_Mesh_refinement_buffer_2],[Background_Mesh]")
+{
+    if( moris::par_size() == 4 )
+    {
+        // create parameter object
+        moris::hmr::Parameters tParameters;
+        tParameters.set_number_of_elements_per_dimension( { { 4 }, { 4 } } );
+//        tParameters.set_verbose( true );
+        tParameters.set_severity_level( 0 );
+        tParameters.set_multigrid( false );
+        tParameters.set_bspline_truncation( true );
+
+        tParameters.set_refinement_buffer( 2 );
+        tParameters.set_staircase_buffer( 1 );
+
+        tParameters.set_lagrange_orders  ( { {1} });
+        tParameters.set_lagrange_patterns({ {0} });
+
+        tParameters.set_bspline_orders   ( { {1} } );
+        tParameters.set_bspline_patterns ( { {0} } );
+
+        tParameters.set_number_aura( false );
+
+        moris::Cell< moris::Matrix< moris::DDSMat > > tLagrangeToBSplineMesh( 1 );
+        tLagrangeToBSplineMesh( 0 ) = { {0} };
+
+        tParameters.set_lagrange_to_bspline_mesh( tLagrangeToBSplineMesh );
+
+        // create HMR object
+        moris::hmr::HMR tHMR( tParameters );
+
+        for( moris::uint Ii = 0; Ii<1; Ii++)
+        {
+            if( moris::par_rank() == 0)
+            {
+                tHMR.get_database()->get_background_mesh()->get_element( 1 )->put_on_refinement_queue();
+            }
+            if( moris::par_rank() == 3)
+            {
+                tHMR.get_database()->get_background_mesh()->get_element( 3 )->put_on_refinement_queue();
+            }
+			
+			tHMR.perform_refinement( 0 );
+            tHMR.update_refinement_pattern( 0 );
+        }
+
+        tHMR.finalize();
+
+        //tHMR.save_background_mesh_to_vtk( "BackgorundMesh_refine_4.vtk");
+
+        std::cout<<"Active Elements "<<tHMR.get_database()->get_number_of_elements_on_proc()<<std::endl;
+        std::cout<<"Padding Elements "<<tHMR.get_database()->get_number_of_padding_elements_on_proc()<<std::endl;
+		
+		// list of active elements on proc
+        moris::Matrix< moris::DDLUMat > tElementIDs;
+
+        // get hmr ids of active elements
+        tHMR.get_database()->get_background_mesh()->get_active_elements_on_proc( tElementIDs );
+		
+		if( moris::par_rank() == 1)
+		{
+			REQUIRE( tElementIDs.numel()  == 13 );
+		}
+		else
+		{
+		    REQUIRE( tElementIDs.numel()  == 16 );
+		}
+
+	
 
         tParameters.set_severity_level( 0 );
     }

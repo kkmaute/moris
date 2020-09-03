@@ -1095,7 +1095,7 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        void IQI::build_requested_dof_type_lists()
+        void IQI::build_requested_dof_type_list()
         {
             // clear the dof lists
             mRequestedMasterGlobalDofTypes.clear();
@@ -1237,9 +1237,9 @@ namespace moris
                             this->add_QI_on_set( aWStar );
 
                             // assemble the dQIdu
-                            mSet->get_residual()( tQIIndex )( { tMasterDepStartIndex + tDofCounter, tMasterDepStartIndex + tDofCounter }, { 0, 0 } ) +=
-                                    tFDScheme( 1 )( iPoint ) *
-                                    mSet->get_QI()( tQIIndex ) /
+                            mSet->get_residual()( tQIIndex )(
+                                    { tMasterDepStartIndex + tDofCounter, tMasterDepStartIndex + tDofCounter },
+                                    { 0, 0 } ) += tFDScheme( 1 )( iPoint ) * mSet->get_QI()( tQIIndex ) /
                                     ( tFDScheme( 2 )( 0 ) * tDeltaH );
                         }
                         // update dof counter
@@ -1311,7 +1311,9 @@ namespace moris
                             this->add_QI_on_set( aWStar );
 
                             // assemble the dQIdu
-                            mSet->get_residual()( tQIIndex )( { tSlaveDepStartIndex + tDofCounter, tSlaveDepStartIndex + tDofCounter }, { 0, 0 } ) +=
+                            mSet->get_residual()( tQIIndex )(
+                                    { tSlaveDepStartIndex + tDofCounter, tSlaveDepStartIndex + tDofCounter },
+                                    { 0, 0 } ) +=
                                     tFDScheme( 1 )( iPoint ) *
                                     mSet->get_QI()( tQIIndex ) /
                                     ( tFDScheme( 2 )( 0 ) * tDeltaH );
@@ -1486,7 +1488,7 @@ namespace moris
 
             // get number of master GI bases and space dimensions
             uint tDerNumBases      = tIGGI->get_number_of_space_bases();
-            uint tDerNumDimensions = tIGGI->get_number_of_space_dimensions();
+            uint tDerNumDimensions = tIPGI->get_number_of_space_dimensions();
 
             // coefficients for dv type wrt which derivative is computed
             Matrix< DDRMat > tCoeff = tIGGI->get_space_coeff();
@@ -1499,10 +1501,10 @@ namespace moris
             Matrix< DDRMat > tMaxIP = max( tIPGI->get_space_coeff().matrix_data() );
             Matrix< DDRMat > tMinIP = min( tIPGI->get_space_coeff().matrix_data() );
 
-            // loop over the spatial directions
+            // loop over the spatial directions/loop on pdv type
             for( uint iCoeffCol = 0; iCoeffCol< tDerNumDimensions; iCoeffCol++ )
             {
-                // loop over the IG nodes
+                // loop over the IG nodes/loop one nodes
                 for( uint iCoeffRow = 0; iCoeffRow< tDerNumBases; iCoeffRow++ )
                 {
                     // if pdv is active

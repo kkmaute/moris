@@ -411,7 +411,6 @@ TEST_CASE("HMR_T_Matrix_Perturb_qub", "[moris],[mesh],[hmr],[hmr_t_matrix_pertur
     if(  moris::par_size() == 1 )
     {
         moris::uint tBplineMeshIndex = 0;
-        moris::uint tLagrangeMeshInex = 0;
 
         moris::hmr::Parameters tParameters;
 

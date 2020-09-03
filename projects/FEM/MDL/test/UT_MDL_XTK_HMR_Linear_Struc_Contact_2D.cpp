@@ -111,7 +111,6 @@ TEST_CASE("2D Linear Stuct Contract","[XTK_HMR_LS_Contact_2D]")
 
         // Boundary Conditions
         moris::real tDirchletX = 0.0; // m
-        moris::real tDirchletY = 0.0; // m
         moris::real tDBCGamma  = 1000.0;
 
         moris::real tForce =  -10000.0; // N/m (normal to top surface)
@@ -120,7 +119,6 @@ TEST_CASE("2D Linear Stuct Contract","[XTK_HMR_LS_Contact_2D]")
         moris::uint tNumX   = 20; /* Number of elements in x*/
         moris::uint tNumY   = 20; /* Number of elements in y*/
         moris::uint tNumRef = 1;  /* Number of HMR refinements */
-        moris::uint tOrder = 1;  /* Lagrange Order and Bspline Order (forced to be same for this example) */
 
         // Files
         std::string tHMRIPMeshFileName = "./mdl_exo/mdl_xtk_hmr_2d.e";
