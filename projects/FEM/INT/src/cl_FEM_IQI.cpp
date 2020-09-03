@@ -1614,14 +1614,11 @@ namespace moris
             // get the column index to assemble in residual
             sint tQIIndex = mSet->get_QI_assembly_index( mName );
 
-            // get the requested dof types
-            moris::Cell < enum MSI::Dof_Type > tRequestedDofTypes = mSet->get_requested_dof_types();
-
             // compute dQIdu for indirect dof dependencies
-            for( uint iDof = 0; iDof < tRequestedDofTypes.size(); iDof++ )
+            for( uint iDof = 0; iDof < mRequestedMasterGlobalDofTypes.size(); iDof++ )
             {
                 // get treated dof type
-                MSI::Dof_Type tDofType = tRequestedDofTypes( iDof );
+                MSI::Dof_Type tDofType = mRequestedMasterGlobalDofTypes( iDof )(0);
 
                 // get the set index for dof type
                 sint tDofIndex = mSet->get_dof_index_for_type( tDofType, mtk::Master_Slave::MASTER );

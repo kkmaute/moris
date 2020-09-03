@@ -472,11 +472,11 @@ namespace moris
              */
             void add_dQIdu_on_set( real aWStar );
 
-                //------------------------------------------------------------------------------
-                /**
-                 * build requested dof type list
-                 */
-                void build_requested_dof_type_list();
+            //------------------------------------------------------------------------------
+            /**
+             * build requested dof type list
+             */
+            void build_requested_dof_type_list();
 
             //------------------------------------------------------------------------------
             /**
