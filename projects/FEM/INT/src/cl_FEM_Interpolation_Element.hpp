@@ -160,7 +160,8 @@ namespace moris
                  * @param[ in ] aFieldType  an enum for computation/return type
                  *                          GLOBAL, NODAL, ELEMENTAL
                  */
-                void compute_quantity_of_interest( const uint             aClusterIndex,
+                void compute_quantity_of_interest(
+                        const uint             aClusterIndex,
                         enum  vis::Output_Type aOutputType,
                         enum  vis::Field_Type  aFieldType );
 

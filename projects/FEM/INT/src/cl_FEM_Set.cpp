@@ -858,6 +858,7 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+
         Field_Interpolator_Manager * Set::get_field_interpolator_manager(
                 mtk::Master_Slave aIsMaster )
         {
@@ -876,6 +877,7 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+
         Field_Interpolator_Manager * Set::get_field_interpolator_manager_previous_time(
                 mtk::Master_Slave aIsMaster )
         {
@@ -1014,6 +1016,7 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+
         void Set::create_residual_dof_assembly_map()
         {
             // get the list of requested dof types by the solver
