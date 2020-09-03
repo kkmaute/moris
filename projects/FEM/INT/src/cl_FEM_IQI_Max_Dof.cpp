@@ -80,7 +80,7 @@ namespace moris
             }
 
             // evaluate the QI
-            aQI = {{ std::pow( 1/tRefValue * tFI->val()( mIQITypeIndex ) - 1.0, tExponent ) }};
+            aQI = {{ std::pow( ( tFI->val()( mIQITypeIndex ) / tRefValue ) - 1.0, tExponent ) }};
         }
 
         //------------------------------------------------------------------------------
@@ -109,7 +109,7 @@ namespace moris
             }
 
             // evaluate the QI
-            mSet->get_QI()( tQIIndex ).matrix_data() += { aWStar *  std::pow( 1/tRefValue * tFI->val()( mIQITypeIndex ) - 1.0, tExponent ) };
+            mSet->get_QI()( tQIIndex ).matrix_data() += { aWStar * std::pow( ( tFI->val()( mIQITypeIndex ) / tRefValue ) - 1.0, tExponent ) };
         }
 
         //------------------------------------------------------------------------------
@@ -119,37 +119,44 @@ namespace moris
             // get the column index to assemble in residual
             sint tQIIndex = mSet->get_QI_assembly_index( mName );
 
+            // get field interpolator for a given dof type
+            Field_Interpolator * tFIMax =
+                    mMasterFIManager->get_field_interpolators_for_type( mMasterDofTypes( 0 )( 0 ) );
+
             // get property values
             real tRefValue = mMasterProp( static_cast< uint >( IQI_Property_Type::REFERENCE_VALUE ) )->val()( 0 );
             real tExponent = mMasterProp( static_cast< uint >( IQI_Property_Type::EXPONENT ) )->val()( 0 );
 
-            // compute dQIdDof for indirect dof dependencies
-            for( uint iDof = 0; iDof < mMasterGlobalDofTypes.size(); iDof++ )
+            // get the number of master dof type dependencies
+            uint tNumDofDependencies = mRequestedMasterGlobalDofTypes.size();
+
+            // loop over master dof dependencies
+            for( uint iDof = 0; iDof < tNumDofDependencies; iDof++ )
             {
-                // build selection matrix
-                uint tNumVecFieldComps = mMasterGlobalDofTypes( iDof ).size();
-                Matrix< DDRMat > tSelect( tNumVecFieldComps, tNumVecFieldComps, 0.0 );
-                tSelect( mIQITypeIndex, mIQITypeIndex) = 1.0;
-
                 // get treated dof type
-                MSI::Dof_Type tDofType = mMasterGlobalDofTypes( iDof )( 0 );
+                moris::Cell< MSI::Dof_Type > tDofType = mRequestedMasterGlobalDofTypes( iDof );
 
-                // get field interpolator for a given dof type
-                Field_Interpolator * tFI =
-                        mMasterFIManager->get_field_interpolators_for_type( tDofType );
+                // get the index for dof type, indices for assembly
+                sint tDofDepIndex         = mSet->get_dof_index_for_type( tDofType( 0 ), mtk::Master_Slave::MASTER );
+                uint tMasterDepStartIndex = mSet->get_res_dof_assembly_map()( tDofDepIndex )( 0, 0 );
+                uint tMasterDepStopIndex  = mSet->get_res_dof_assembly_map()( tDofDepIndex )( 0, 1 );
 
-                // get the set index for dof type
-                sint tDofIndex = mSet->get_dof_index_for_type( tDofType, mtk::Master_Slave::MASTER );
+                // if requested dof type is max dof type
+                if( tDofType( 0 ) == mMasterDofTypes( 0 )( 0 ) )
+                {
+                    // build selection matrix
+                    uint tNumVecFieldComps = tFIMax->val().numel();
+                    Matrix< DDRMat > tSelect( tNumVecFieldComps, tNumVecFieldComps, 0.0 );
+                    tSelect( mIQITypeIndex, mIQITypeIndex ) = 1.0;
 
-                // get start and end indices for assembly
-                uint tStartRow = mSet->get_res_dof_assembly_map()( tDofIndex )( 0, 0 );
-                uint tEndRow   = mSet->get_res_dof_assembly_map()( tDofIndex )( 0, 1 );
-
-                // compute dQIdDof
-                mSet->get_residual()( tQIIndex )( { tStartRow, tEndRow }, { 0, 0 } ) += aWStar *
-                        ( tExponent / tRefValue ) *
-                        std::pow( 1/tRefValue * tFI->val()( mIQITypeIndex ) - 1.0, tExponent - 1.0 ) *
-                        trans( tFI->N() ) * tSelect;
+                    // compute dQIdDof
+                    mSet->get_residual()( tQIIndex )(
+                            { tMasterDepStartIndex, tMasterDepStopIndex },
+                            { 0, 0 } ) += aWStar * (
+                                    ( tExponent / tRefValue ) *
+                                    std::pow( ( tFIMax->val()( mIQITypeIndex ) / tRefValue ) - 1.0, tExponent - 1.0 ) *
+                                    trans( tFIMax->N() ) * tSelect );
+                }
             }
         }
 

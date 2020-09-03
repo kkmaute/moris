@@ -112,13 +112,8 @@ namespace moris
         // FIXME: this functionality has not been tested, yet
         void IQI_Latent_Heat_Absorption::compute_dQIdu( real aWStar )
         {
-
             // get the column index to assemble in residual
             sint tQIIndex = mSet->get_QI_assembly_index( mName );
-
-            // get the requested dof types
-            moris::Cell < enum MSI::Dof_Type > tRequestedDofTypes =
-                    this->get_requested_dof_types();
 
             // get properties
             std::shared_ptr< Property > tPropDensity = mMasterProp( static_cast< uint >( IQI_Property_Type::DENSITY ) );
@@ -139,21 +134,22 @@ namespace moris
                     tPropPSfunct->val()( 0 ),
                     tFITemp );
 
+            // get the number of master dof type dependencies
+            uint tNumDofDependencies = mRequestedMasterGlobalDofTypes.size();
+
             // compute dQIdDof for indirect dof dependencies
-            for( uint iDof = 0; iDof < tRequestedDofTypes.size(); iDof++ )
+            for( uint iDof = 0; iDof < tNumDofDependencies; iDof++ )
             {
                 // get treated dof type
-                MSI::Dof_Type tDofType = tRequestedDofTypes( iDof );
+                moris::Cell< MSI::Dof_Type > tDofType = mRequestedMasterGlobalDofTypes( iDof );
 
-                // get the set index for dof type
-                sint tDofIndex = mSet->get_dof_index_for_type( tDofType, mtk::Master_Slave::MASTER );
-
-                // get start and end indices for assembly
-                uint tStartRow = mSet->get_res_dof_assembly_map()( tDofIndex )( 0, 0 );
-                uint tEndRow   = mSet->get_res_dof_assembly_map()( tDofIndex )( 0, 1 );
+                // get the index for dof type, indices for assembly
+                sint tDofDepIndex         = mSet->get_dof_index_for_type( tDofType( 0 ), mtk::Master_Slave::MASTER );
+                uint tMasterDepStartIndex = mSet->get_res_dof_assembly_map()( tDofDepIndex )( 0, 0 );
+                uint tMasterDepStopIndex  = mSet->get_res_dof_assembly_map()( tDofDepIndex )( 0, 1 );
 
                 // if direct dependency on the dof type
-                if( tDofType == MSI::Dof_Type::TEMP )
+                if( tDofType( 0 ) == MSI::Dof_Type::TEMP )
                 {
                     // compute Dof derivative of phase state function
                     const moris::Matrix<DDRMat> dfdDof = eval_dFdTempdDOF(
@@ -163,21 +159,24 @@ namespace moris
                             tFITemp);
 
                     // compute derivative with direct dependency
-                    mSet->get_residual()( tQIIndex )( { tStartRow, tEndRow }, { 0, 0 } ) +=
-                            tPropDensity->val()(0) *  tPropLatHeat->val()(0) * tdfdT * tFITemp->dnNdtn(1)
-                            + tPropDensity->val()(0) * tPropLatHeat->val()(0) * tFITemp->gradt(1) * dfdDof;
+                    mSet->get_residual()( tQIIndex )(
+                            { tMasterDepStartIndex, tMasterDepStopIndex },
+                            { 0, 0 } ) += aWStar * (
+                                    tPropDensity->val()(0) * tPropLatHeat->val()(0) * tdfdT * tFITemp->dnNdtn(1) +
+                                    tPropDensity->val()(0) * tPropLatHeat->val()(0) * tFITemp->gradt(1) * dfdDof );
                 }
 
-                // if indirect dependency of density on the dof type
-                if ( tPropDensity->check_dof_dependency( {MSI::Dof_Type::TEMP} ) )
+                // if density property depends on the dof type
+                if ( tPropDensity->check_dof_dependency( tDofType ) )
                 {
                     // compute derivative with indirect dependency through properties
-                    mSet->get_residual()( tQIIndex )( { tStartRow, tEndRow }, { 0, 0 } ) +=
-                            tPropLatHeat->val()(0) * tdfdT * tFITemp->gradt(1) * tPropDensity->dPropdDOF( {MSI::Dof_Type::TEMP} );
+                    mSet->get_residual()( tQIIndex )(
+                            { tMasterDepStartIndex, tMasterDepStopIndex },
+                            { 0, 0 } ) += aWStar *(
+                                    tPropLatHeat->val()(0) * tdfdT * tFITemp->gradt(1) *
+                                    tPropDensity->dPropdDOF( tDofType ) );
                 }
-
             } /* end: for each requested DoF type */
-
         } /* end: method compute_dQIdu */
 
         //------------------------------------------------------------------------------
