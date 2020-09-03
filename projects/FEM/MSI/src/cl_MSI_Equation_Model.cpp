@@ -68,44 +68,44 @@ namespace moris
             // get local number of equation sets
             moris::uint tNumSets = mFemSets.size();
 
-            // loop over IQIs on model
-            for( moris::uint tIQIIndex = 0; tIQIIndex < tNumIQIsOnModel; tIQIIndex++ )
+            // loop over local equation sets
+            for ( moris::uint tSetIndex = 0; tSetIndex < tNumSets; tSetIndex++ )
             {
-                // loop over local equation sets
-                for (moris::uint tSetIndex = 0; tSetIndex < tNumSets; tSetIndex++)
+                // get number of IQIs on treated equation set
+                moris::uint tNumIQIsOnSet = mFemSets( tSetIndex )->get_number_of_requested_IQIs();
+
+                // if some IQI are requested on treated equation set
+                if( tNumIQIsOnSet > 0 )
                 {
+                    // get number of equation objects on treated equation set
+                    moris::uint tNumEquationObjectOnSet = mFemSets( tSetIndex )->get_num_equation_objects();
+
                     // initialize treated equation set // FIXME????
-                    mFemSets(tSetIndex)->initialize_set(true);
+                    mFemSets( tSetIndex )->initialize_set( true );
 
-                    // get number of IQIs on treated equation set
-                    moris::uint tNumIQIsOnSet = mFemSets(tSetIndex)->get_number_of_requested_IQIs();
-
-                    // if some IQI are requested on treated equation set
-                    if (tNumIQIsOnSet > 0)
+                    // loop over equation objects on treated equation set
+                    for( moris::uint tEquationObjectIndex = 0; tEquationObjectIndex < tNumEquationObjectOnSet; tEquationObjectIndex++ )
                     {
-                        // get number of equation objects on treated equation set
-                        moris::uint tNumEquationObjectOnSet = mFemSets(tSetIndex)->get_num_equation_objects();
+                        // compute QI
+                        // FIXME this is elemental right now??
+                        mFemSets( tSetIndex )->get_equation_object_list()( tEquationObjectIndex )->compute_QI();
 
-                        // loop over equation objects on treated equation set
-                        for (moris::uint tEquationObjectIndex = 0; tEquationObjectIndex < tNumEquationObjectOnSet; tEquationObjectIndex++)
+                        // loop over IQIs on model
+                        for( moris::uint tIQIIndex = 0; tIQIIndex < tNumIQIsOnModel; tIQIIndex++ )
                         {
-                            // compute QI
-                            // FIXME this is elemental right now??
-                            mFemSets(tSetIndex)->get_equation_object_list()(tEquationObjectIndex)->compute_QI();
-
                             // assemble QI values into global vector
-                            mGlobalIQIVal(tIQIIndex)(0) += mFemSets(tSetIndex)->get_QI()(tIQIIndex)(0);
+                            mGlobalIQIVal( tIQIIndex )( 0 ) += mFemSets( tSetIndex )->get_QI()( tIQIIndex )( 0 );
                         }
-                        // free memory on treated equation set
-                        mFemSets(tSetIndex)->free_matrix_memory();
                     }
+                    // free memory on treated equation set
+                    mFemSets( tSetIndex )->free_matrix_memory();
                 }
+            }
 
-                // Normalization
-                if (gLogger.mIteration == 0)
-                {
-                    this->normalize_IQIs();
-                }
+            // Normalization
+            if (gLogger.mIteration == 0)
+            {
+                this->normalize_IQIs();
             }
         }
 
