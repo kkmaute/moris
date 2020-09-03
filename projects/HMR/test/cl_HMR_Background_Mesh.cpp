@@ -863,7 +863,7 @@ TEST_CASE("HMR_Background_Mesh_refine", "[moris],[mesh],[hmr],[Background_Mesh_r
 
 TEST_CASE("HMR_Background_Mesh_refinement_buffer", "[moris],[mesh],[hmr],[Background_Mesh_refinement_buffer],[Background_Mesh]")
 {
-    if( moris::par_size() == 4 )
+    if( moris::par_size() == 2 )
     {
         // create parameter object
         moris::hmr::Parameters tParameters;
@@ -902,9 +902,6 @@ TEST_CASE("HMR_Background_Mesh_refinement_buffer", "[moris],[mesh],[hmr],[Backgr
             {
                 tHMR.get_database()->get_background_mesh()->get_element( 6 )->put_on_refinement_queue();
             }
-
-
-            tHMR.get_database()->create_extra_refinement_buffer_for_level( 0 );
 			
 			tHMR.perform_refinement( 0 );
             tHMR.update_refinement_pattern( 0 );
@@ -912,7 +909,7 @@ TEST_CASE("HMR_Background_Mesh_refinement_buffer", "[moris],[mesh],[hmr],[Backgr
 
         tHMR.finalize();
 
-        //tHMR.save_background_mesh_to_vtk( "BackgorundMesh_refine.vtk");
+        tHMR.save_background_mesh_to_vtk( "BackgorundMesh_refine.vtk");
 
         std::cout<<"Active Elements "<<tHMR.get_database()->get_number_of_elements_on_proc()<<std::endl;
         std::cout<<"Padding Elements "<<tHMR.get_database()->get_number_of_padding_elements_on_proc()<<std::endl;
@@ -940,6 +937,7 @@ TEST_CASE("HMR_Background_Mesh_refinement_buffer", "[moris],[mesh],[hmr],[Backgr
 			REQUIRE( tElementIDs(  9 )   == 16 );			REQUIRE( tElementIDs(  17 )  == 129 );
 			REQUIRE( tElementIDs(  23 )  == 141 );			REQUIRE( tElementIDs(  25 )  == 153 );
 		}
+		
 
         tParameters.set_severity_level( 0 );
     }
@@ -986,22 +984,14 @@ TEST_CASE("HMR_Background_Mesh_refinement_buffer_2", "[moris],[mesh],[hmr],[Back
             {
                 tHMR.get_database()->get_background_mesh()->get_element( 3 )->put_on_refinement_queue();
             }
-
-
-            tHMR.get_database()->create_extra_refinement_buffer_for_level( 0 );
 			
 			tHMR.perform_refinement( 0 );
             tHMR.update_refinement_pattern( 0 );
-
-            //tHMR.perform_refinement_based_on_working_pattern( 0 );
-
-            // perform refinement
-            //tHMR.get_database()->get_background_mesh()->perform_refinement( 0 );
         }
 
         tHMR.finalize();
 
-        tHMR.save_background_mesh_to_vtk( "BackgorundMesh_refine.vtk");
+        //tHMR.save_background_mesh_to_vtk( "BackgorundMesh_refine_4.vtk");
 
         std::cout<<"Active Elements "<<tHMR.get_database()->get_number_of_elements_on_proc()<<std::endl;
         std::cout<<"Padding Elements "<<tHMR.get_database()->get_number_of_padding_elements_on_proc()<<std::endl;
@@ -1012,7 +1002,7 @@ TEST_CASE("HMR_Background_Mesh_refinement_buffer_2", "[moris],[mesh],[hmr],[Back
         // get hmr ids of active elements
         tHMR.get_database()->get_background_mesh()->get_active_elements_on_proc( tElementIDs );
 		
-		if( moris::par_rank()==1)
+		if( moris::par_rank() == 1)
 		{
 			REQUIRE( tElementIDs.numel()  == 13 );
 		}
@@ -1020,6 +1010,7 @@ TEST_CASE("HMR_Background_Mesh_refinement_buffer_2", "[moris],[mesh],[hmr],[Back
 		{
 		    REQUIRE( tElementIDs.numel()  == 16 );
 		}
+
 	
 
         tParameters.set_severity_level( 0 );

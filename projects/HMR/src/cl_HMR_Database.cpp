@@ -1551,7 +1551,7 @@ namespace moris
 
             // loop over all elements in queue
             for( Background_Element_Base * tElement : tElements )
-            {
+            {				
                 // get element neighbors
                 // container for neighbors
                 Cell< Background_Element_Base * > tNeighbors;
