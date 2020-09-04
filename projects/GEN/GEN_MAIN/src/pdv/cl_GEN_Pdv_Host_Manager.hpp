@@ -191,22 +191,6 @@ namespace moris
              * @param[ in ] aPdvTypes list of dv types to fill
              */
             void get_ig_requested_dv_types( Cell< PDV_Type > & aPdvTypes );
-            
-            /**
-             * Get pdv by type and node index
-             *
-             * @param aNodeIndex     a node index
-             * @param aPdvType         a list of dv types
-             */
-            std::shared_ptr<Pdv> get_ip_pdv_by_type_and_index(moris_index aNodeIndex, PDV_Type aPdvType);
-
-            /**
-             * Get pdv by type and node index
-             *
-             * @param aNodeIndex     a node index
-             * @param aPdvType         a list of dv types
-             */
-            std::shared_ptr<Pdv> get_ig_pdv_by_type_and_index(moris_index aNodeIndex, PDV_Type aPdvType);
 
             /**
              * Create the pdv hosts on interpolation nodes based on the pdv types per set
@@ -215,7 +199,7 @@ namespace moris
              * @param aNodeCoordinates The node coordinates indexed by node
              * @param aPdvTypes The PDV types per set, grouped
              */
-            void create_ip_pdv_hosts(Cell<Matrix<DDSMat>>        aNodeIndicesPerSet,
+            void create_interpolation_pdv_hosts(Cell<Matrix<DDSMat>>        aNodeIndicesPerSet,
                                      Cell<Matrix<DDRMat>>        aNodeCoordinates,
                                      Cell<Cell<Cell<PDV_Type>>>  aPdvTypes);
 
@@ -224,7 +208,7 @@ namespace moris
              *
              * @param aPdvTypes The PDV types per set, grouped
              */
-            void set_ig_pdv_types(Cell<Cell<Cell<PDV_Type>>> aPdvTypes);
+            void set_integration_pdv_types(Cell<Cell<Cell<PDV_Type>>> aPdvTypes);
 
             /**
              * Set an intersection at a node index and assign its starting PDV index for later.
@@ -235,18 +219,26 @@ namespace moris
             void set_intersection_node(uint aNodeIndex, std::shared_ptr<Intersection_Node> aIntersectionNode);
             
             /**
+             * Sets the number of nodes on the integration mesh, in order to resize the intersection nodes and 
+             * be able to handle all questions about nodes up to this number.
+             * 
+             * @param aNumNodes Total number of nodes on the integration mesh
+             */
+            void set_num_integration_nodes(uint aNumNodes);
+            
+            /**
              * Set the requested interpolation node PDV types for sensitivities
              *
              * @param aPdvTypes the pdv types which will be requested by MDL
              */
-            void set_ip_requested_pdv_types(Cell<PDV_Type> aPdvTypes);
+            void set_requested_interpolation_pdv_types(Cell<PDV_Type> aPdvTypes);
 
             /**
              * Set the requested integration node PDV types for sensitivities
              *
              * @param aPdvTypes the pdv types which will be requested by MDL
              */
-            void set_ig_requested_pdv_types(Cell<PDV_Type> aPdvTypes);
+            void set_requested_integration_pdv_types(Cell<PDV_Type> aPdvTypes);
 
             /**
              * Create PDV on interpolation mesh node with real value
@@ -255,7 +247,7 @@ namespace moris
              * @param aPdvType PDV type
              * @param aPdvVal PDV value
              */
-            void create_ip_pdv(uint aNodeIndex, PDV_Type aPdvType, moris::real aPdvVal);
+            void create_interpolation_pdv(uint aNodeIndex, PDV_Type aPdvType, moris::real aPdvVal);
 
             /**
              * Create PDV on interpolation mesh node with GEN property
@@ -264,7 +256,7 @@ namespace moris
              * @param aPdvType PDV type
              * @param aPropertyPointer Pointer to a GEN property
              */
-            void create_ip_pdv(uint aNodeIndex, PDV_Type aPdvType, std::shared_ptr<Property> aPropertyPointer);
+            void create_interpolation_pdv(uint aNodeIndex, PDV_Type aPdvType, std::shared_ptr<Property> aPropertyPointer);
 
             /**
              * Does the necessary chain rule on the IQI derivatives with respect to PDVs which each of the PDV
