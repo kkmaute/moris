@@ -396,7 +396,6 @@ namespace moris
         tParameterList( 4 ).push_back( prm::create_IQI_parameter_list() );
         tParameterList( 4 )( tIQICounter ).set( "IQI_name",                   "IQIBulkTEMP") ;
         tParameterList( 4 )( tIQICounter ).set( "IQI_type",                   static_cast< uint >( fem::IQI_Type::DOF ) );
-        tParameterList( 4 )( tIQICounter ).set( "IQI_output_type",            static_cast< uint >( vis::Output_Type::TEMP ) );
         tParameterList( 4 )( tIQICounter ).set( "master_dof_dependencies",    "TEMP") ;
         tParameterList( 4 )( tIQICounter ).set( "vectorial_field_index",      0 );
         tParameterList( 4 )( tIQICounter ).set( "mesh_set_names",             "HMR_dummy_n_p1") ;
@@ -406,7 +405,6 @@ namespace moris
         tParameterList( 4 ).push_back( prm::create_IQI_parameter_list() );
         tParameterList( 4 )( tIQICounter ).set( "IQI_name",                   "IQIMaxTEMP") ;
         tParameterList( 4 )( tIQICounter ).set( "IQI_type",                   static_cast< uint >( fem::IQI_Type::MAX_DOF ) );
-        tParameterList( 4 )( tIQICounter ).set( "IQI_output_type",            static_cast< uint >( vis::Output_Type::MAX_DOF ) );
         tParameterList( 4 )( tIQICounter ).set( "master_dof_dependencies",    "TEMP") ;
         tParameterList( 4 )( tIQICounter ).set( "master_properties",
                 "PropMaxTempReference,ReferenceValue;"
@@ -418,7 +416,6 @@ namespace moris
         tParameterList( 4 ).push_back( prm::create_IQI_parameter_list() );
         tParameterList( 4 )( tIQICounter ).set( "IQI_name",                   "IQILatentHeatAbsorption") ;
         tParameterList( 4 )( tIQICounter ).set( "IQI_type",                   static_cast< uint >( fem::IQI_Type::LATENT_HEAT_ABSORPTION ) );
-        tParameterList( 4 )( tIQICounter ).set( "IQI_output_type",            static_cast< uint >( vis::Output_Type::LATENT_HEAT_ABSORPTION ) );
         tParameterList( 4 )( tIQICounter ).set( "master_dof_dependencies",    "TEMP") ;
         tParameterList( 4 )( tIQICounter ).set( "master_properties",
                 "PropDensity,Density;"
@@ -488,7 +485,7 @@ namespace moris
         tParameterlist( 0 )( 0 ).set( "Set_Names"  ,  "HMR_dummy_n_p1" ) ;
         tParameterlist( 0 )( 0 ).set( "Field_Names",  "TEMP,MAX_DOF,LATENT_HEAT_ABSORPTION" ) ;
         tParameterlist( 0 )( 0 ).set( "Field_Type" ,  "NODAL,GLOBAL,GLOBAL" ) ;
-        tParameterlist( 0 )( 0 ).set( "Output_Type",  "TEMP,MAX_DOF,LATENT_HEAT_ABSORPTION" ) ;
+        tParameterlist( 0 )( 0 ).set( "QI_Names",  "IQIBulkTEMP,IQIMaxTEMP,IQILatentHeatAbsorption" ) ;
     }
 
     //------------------------------------------------------------------------------

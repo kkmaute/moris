@@ -96,8 +96,8 @@ namespace moris
                  * @param[ in ] aOutputType an enum for the output type
                  */
                 void compute_quantity_of_interest_global(
-                        const uint             aMeshIndex,
-                        enum  vis::Output_Type aOutputType );
+                        const uint          aMeshIndex,
+                        const std::string & aQIName );
 
                 //------------------------------------------------------------------------------
                 /**
@@ -105,8 +105,8 @@ namespace moris
                  * @param[ in ] aOutputType an enum for the output type
                  */
                 void compute_quantity_of_interest_nodal(
-                        const uint             aMeshIndex,
-                        enum  vis::Output_Type aOutputType );
+                        const uint          aMeshIndex,
+                        const std::string & aQINamee );
 
                 //------------------------------------------------------------------------------
                 /**
@@ -114,8 +114,8 @@ namespace moris
                  * @param[ in ] aOutputType an enum for the output type
                  */
                 void compute_quantity_of_interest_elemental(
-                        const uint             aMeshIndex,
-                        enum  vis::Output_Type aOutputType );
+                        const uint          aMeshIndex,
+                        const std::string & aQIName );
 
                 //------------------------------------------------------------------------------
                 /**

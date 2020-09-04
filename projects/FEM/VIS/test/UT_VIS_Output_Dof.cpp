@@ -241,11 +241,13 @@ namespace moris
                 tIQIUX->set_output_type( vis::Output_Type::UX );
                 tIQIUX->set_dof_type_list( { tResDofTypes }, mtk::Master_Slave::MASTER );
                 tIQIUX->set_output_type_index( 0 );
+				tIQIUX->set_name( "IQI_UX" );
 
                 std::shared_ptr< fem::IQI > tIQIUY = tIQIFactory.create_IQI( fem::IQI_Type::DOF );
                 tIQIUY->set_output_type( vis::Output_Type::UY );
                 tIQIUY->set_dof_type_list( { tResDofTypes }, mtk::Master_Slave::MASTER );
                 tIQIUY->set_output_type_index( 1 );
+				tIQIUY->set_name( "IQI_UY" );
 
                 // create the IWGs
                 fem::IWG_Factory tIWGFactory;
@@ -343,7 +345,7 @@ namespace moris
                                          { "HMR_dummy_c_p0", "HMR_dummy_c_p1", "HMR_dummy_n_p0", "HMR_dummy_n_p1"},
                                          { "Displacement nodal UX", "Displacement nodal UY" },
                                          { Field_Type::NODAL, Field_Type::NODAL },
-                                         { Output_Type::UX, Output_Type::UY } );
+                                         { "IQI_UX","IQI_UY" } );
                 tModel->set_output_manager( &tOutputData );
 
                 // --------------------------------------------------------------------------------------

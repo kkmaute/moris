@@ -387,7 +387,7 @@ namespace moris
                  * @param[ in ]  aOutputType output type enum
                  * @param[ out ] aIQI        an IQI pointer
                  */
-                std::shared_ptr< IQI > get_IQI_for_vis( enum vis::Output_Type aOutputType );
+                std::shared_ptr< IQI > get_IQI_for_vis( const std::string & aQIName );
 
                 //------------------------------------------------------------------------------
                 /**
@@ -706,7 +706,7 @@ namespace moris
                         Matrix< DDRMat >      * aElementFieldValues,
                         Matrix< DDRMat >      * aNodalFieldValues,
                         moris::real           * aGlobalScalar,
-                        enum vis::Output_Type   aOutputType,
+                        const std::string     & aQIName,
                         enum vis::Field_Type    aFieldType );
 
                 //------------------------------------------------------------------------------

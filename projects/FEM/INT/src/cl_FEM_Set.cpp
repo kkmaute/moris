@@ -946,7 +946,7 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        std::shared_ptr< IQI > Set::get_IQI_for_vis( enum vis::Output_Type aOutputType )
+        std::shared_ptr< IQI > Set::get_IQI_for_vis( const std::string & aQIName )
         {
             // FIXME use a map
 
@@ -957,7 +957,7 @@ namespace moris
             for ( uint iIQI = 0; iIQI < mIQIs.size(); iIQI++ )
             {
                 // if the output type is the same as the IQI
-                if ( aOutputType == mIQIs( iIQI )->get_IQI_type() )
+                if ( aQIName == mIQIs( iIQI )->get_name() )
                 {
                     // fill the return pointer to the IQI
                     tIQI = mIQIs( iIQI );
@@ -2664,7 +2664,7 @@ namespace moris
                 Matrix< DDRMat >      * aElementFieldValues,
                 Matrix< DDRMat >      * aNodalFieldValues,
                 moris::real           * aGlobalScalar,
-                enum vis::Output_Type   aOutputType,
+                const std::string     & aQIName,
                 enum vis::Field_Type    aFieldType )
         {
             mSetElementalValues = aElementFieldValues;
@@ -2679,7 +2679,7 @@ namespace moris
             {
                 mEquationObjList( Ik )->compute_quantity_of_interest(
                         aMeshIndex,
-                        aOutputType,
+                        aQIName,
                         aFieldType );
             }
 

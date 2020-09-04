@@ -453,9 +453,10 @@ namespace moris
                 }
 
                 //-------------------------------------------------------------------------------------------------
-                virtual void compute_quantity_of_interest( const uint            aMeshIndex,
-                        enum vis::Output_Type aOutputType,
-                        enum vis::Field_Type    aFieldType)
+                virtual void compute_quantity_of_interest( 
+				        const uint             aMeshIndex,
+                        const std::string    & aQIName,
+                        enum vis::Field_Type   aFieldType)
                 {
                     MORIS_ASSERT( false, "compute_quantity_of_interest(), not implemented for base class." );
                 }

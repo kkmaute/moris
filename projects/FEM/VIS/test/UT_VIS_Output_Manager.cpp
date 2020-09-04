@@ -242,6 +242,7 @@ namespace moris
 
             std::shared_ptr< fem::IQI > tIQI = tIQIFactory.create_IQI( fem::IQI_Type::STRAIN_ENERGY );
             tIQI->set_constitutive_model( tCMMasterElastLinIso, "Elast", mtk::Master_Slave::MASTER );
+			tIQI->set_name( "IQI" );
 
             // define the IWGs
             fem::IWG_Factory tIWGFactory;
@@ -339,7 +340,7 @@ namespace moris
                     { "HMR_dummy_c_p0", "HMR_dummy_c_p1", "HMR_dummy_n_p0", "HMR_dummy_n_p1"},
                     { "strain energy elemental", "strain energy global", "strain energy nodal IP" },
                     { Field_Type::ELEMENTAL, Field_Type::GLOBAL,  Field_Type::NODAL },
-                    { Output_Type::STRAIN_ENERGY, Output_Type::STRAIN_ENERGY, Output_Type::STRAIN_ENERGY } );
+                    { "IQI","IQI","IQI" } );
 
             tModel->set_output_manager( &tOutputData );
 
@@ -542,6 +543,7 @@ namespace moris
 
             std::shared_ptr< fem::IQI > tIQI = tIQIFactory.create_IQI( fem::IQI_Type::STRAIN_ENERGY );
             tIQI->set_constitutive_model( tCMMasterElastLinIso, "Elast", mtk::Master_Slave::MASTER );
+			tIQI->set_name( "IQI" );
 
             // define the IWGs
             fem::IWG_Factory tIWGFactory;
@@ -631,7 +633,8 @@ namespace moris
             tParameterList.set( "Set_Names"  , std::string( "HMR_dummy_c_p0,HMR_dummy_c_p1,HMR_dummy_n_p0,HMR_dummy_n_p1" ) );
             tParameterList.set( "Field_Names", std::string( "strain_energy_elemental,strain_energy_global,strain_energy_nodal_IP" ) );
             tParameterList.set( "Field_Type" , std::string( "ELEMENTAL,GLOBAL,NODAL" ) );
-            tParameterList.set( "Output_Type", std::string( "STRAIN_ENERGY,STRAIN_ENERGY,STRAIN_ENERGY" ) );
+			tParameterList.set( "QI_Names", std::string( "IQI,IQI,IQI" ) );
+
 
             Output_Manager tOutputData( tParameterList );
 

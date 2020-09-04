@@ -585,7 +585,7 @@ namespace moris
                         Matrix< DDRMat >      * aElementFieldValues,
                         Matrix< DDRMat >      * aNodalFieldValues,
                         moris::real           * aGlobalScalar,
-                        enum vis::Output_Type   aOutputType,
+                        const std::string     & aQIName,
                         enum vis::Field_Type    aFieldType)
                 {
                     MORIS_ASSERT( false, "Equation_Set::compute_quantity_of_interest - not implemented for base class." );

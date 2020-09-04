@@ -226,7 +226,7 @@ namespace moris
                     { "block_1_c_p0", "block_1_n_p0" },
                     { "TEMP" },
                     { vis::Field_Type::NODAL },
-                    { vis::Output_Type::TEMP } );
+                    { "IQI_temp" } );
             tModel->set_output_manager( &tOutputData );
 
             moris::Cell< enum MSI::Dof_Type > tDofTypes1( 1, MSI::Dof_Type::TEMP );

@@ -695,9 +695,9 @@ namespace moris
         //------------------------------------------------------------------------------
 
         void Interpolation_Element::compute_quantity_of_interest(
-                const uint            aMeshIndex,
-                enum vis::Output_Type aOutputType,
-                enum vis::Field_Type  aFieldType )
+                const uint              aMeshIndex,
+                const std::string     & aQIName,
+                enum vis::Field_Type    aFieldType )
         {
             // compute pdof values
             // FIXME do this only once
@@ -715,7 +715,7 @@ namespace moris
             this->set_field_interpolators_coefficients();
 
             // FIXME should not be like this
-            mSet->get_IQI_for_vis( aOutputType )->
+            mSet->get_IQI_for_vis( aQIName )->
                     set_field_interpolator_manager( mSet->get_field_interpolator_manager() );
 
             // set cluster for stabilization parameter
@@ -724,7 +724,7 @@ namespace moris
             if( mElementType == fem::Element_Type::DOUBLE_SIDESET )
             {
                 // set the IP geometry interpolator physical space and time coefficients for the slave interpolation cell
-                mSet->get_IQI_for_vis( aOutputType )->
+                mSet->get_IQI_for_vis( aQIName )->
                         set_field_interpolator_manager( mSet->get_field_interpolator_manager(
                                 mtk::Master_Slave::SLAVE ),
                                 mtk::Master_Slave::SLAVE );
@@ -756,11 +756,11 @@ namespace moris
                     mSet->get_field_interpolator_manager()->set_space_time( tGlobalIntegPoint );
 
                     // reset the requested IQI
-                    mSet->get_IQI_for_vis( aOutputType )->reset_eval_flags();
+                    mSet->get_IQI_for_vis( aQIName )->reset_eval_flags();
 
                     // compute quantity of interest at evaluation point
                     Matrix< DDRMat > tQIValue;
-                    mSet->get_IQI_for_vis( aOutputType )->compute_QI( tQIValue );
+                    mSet->get_IQI_for_vis( aQIName )->compute_QI( tQIValue );
 
                     // fill in the nodal set values
                     ( * mSet->mSetNodalValues )( tVertexIndices( iVertex ), 0 ) =
@@ -770,7 +770,7 @@ namespace moris
             else
             {
                 // ask cluster to compute quantity of interest
-                mFemCluster( aMeshIndex )->compute_quantity_of_interest( aMeshIndex, aOutputType, aFieldType );
+                mFemCluster( aMeshIndex )->compute_quantity_of_interest( aMeshIndex, aQIName, aFieldType );
             }
         }
 
