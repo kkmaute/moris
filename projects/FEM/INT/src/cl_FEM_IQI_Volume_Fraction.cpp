@@ -18,9 +18,6 @@ namespace moris
 
         IQI_Volume_Fraction::IQI_Volume_Fraction()
         {
-            // set IQI type
-            mIQIType = vis::Output_Type::VOLUME_FRACTION;
-
             // set fem IQI type
             mFEMIQIType = fem::IQI_Type::VOLUME_FRACTION;
 

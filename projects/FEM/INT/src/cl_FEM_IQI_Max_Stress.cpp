@@ -20,9 +20,6 @@ namespace moris
             // assign stress type to evaluate
             mStressType = aStressType;
 
-            // set IQI type
-            mIQIType = vis::Output_Type::MAX_STRESS;
-
             // set FEM IQI type
             mFEMIQIType = fem::IQI_Type::MAX_STRESS;
 

@@ -30,22 +30,6 @@ namespace moris
 
             // set mBeta
             mBeta = aBeta;
-
-            // set IQI type
-            switch( mBeta )
-            {
-                case 1 :
-                    mIQIType = vis::Output_Type::DRAG_COEFF;
-                    break;
-
-                case -1 :
-                    mIQIType = vis::Output_Type::LIFT_COEFF;
-                    break;
-
-                default:
-                    MORIS_ERROR( false, "IQI_Drag_Lift_Coefficient::IQI_Drag_Lift_Coefficient - mBeta can only be +1 or -1" );
-                    break;
-            }
         }
 
         //------------------------------------------------------------------------------

@@ -15,9 +15,6 @@ namespace moris
         //------------------------------------------------------------------------------
         IQI_Analytic::IQI_Analytic()
         {
-            // set IQI type
-            mIQIType = vis::Output_Type::STRAIN_ENERGY;
-
             mMasterProp.resize( static_cast< uint >( IQI_Property_Type::MAX_ENUM ), nullptr );
 
             // populate the constitutive map

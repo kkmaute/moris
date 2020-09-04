@@ -20,9 +20,6 @@ namespace moris
             // assign stress type to evaluate
             mStressType = aStressType;
 
-            // set IQI type
-            mIQIType = vis::Output_Type::STRESS;
-
             // set size for the constitutive model pointer cell
             mMasterCM.resize( static_cast< uint >( IQI_Constitutive_Type::MAX_ENUM ), nullptr );
 

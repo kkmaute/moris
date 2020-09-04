@@ -730,19 +730,16 @@ TEST_CASE("MDL_Fluid_Benchmark_Immersed_Inlet_Pressure","[MDL_Fluid_Benchmark_Im
         fem::IQI_Factory tIQIFactory;
 
         std::shared_ptr< fem::IQI > tIQIVX = tIQIFactory.create_IQI( fem::IQI_Type::DOF );
-        tIQIVX->set_output_type( vis::Output_Type::VX );
         tIQIVX->set_dof_type_list( { { MSI::Dof_Type::VX, MSI::Dof_Type::VY } }, mtk::Master_Slave::MASTER );
         tIQIVX->set_output_type_index( 0 );
 		tIQIVX->set_name( "IQI_VX" );
 
         std::shared_ptr< fem::IQI > tIQIVY = tIQIFactory.create_IQI( fem::IQI_Type::DOF );
-        tIQIVY->set_output_type( vis::Output_Type::VY );
         tIQIVY->set_dof_type_list( { { MSI::Dof_Type::VX, MSI::Dof_Type::VY } }, mtk::Master_Slave::MASTER );
         tIQIVY->set_output_type_index( 1 );
 		tIQIVY->set_name( "IQI_VY" );
 
         std::shared_ptr< fem::IQI > tIQIP = tIQIFactory.create_IQI( fem::IQI_Type::DOF );
-        tIQIP->set_output_type( vis::Output_Type::P );
         tIQIP->set_dof_type_list( { { MSI::Dof_Type::P } }, mtk::Master_Slave::MASTER );
         tIQIP->set_output_type_index( 0 );
 		tIQIP->set_name( "IQI_P" );
@@ -2418,31 +2415,26 @@ TEST_CASE("MDL_Fluid_Benchmark_Radial_Couette_Flow","[MDL_Fluid_Benchmark_Radial
         fem::IQI_Factory tIQIFactory;
 
         std::shared_ptr< fem::IQI > tIQIVX = tIQIFactory.create_IQI( fem::IQI_Type::DOF );
-        tIQIVX->set_output_type( vis::Output_Type::VX );
         tIQIVX->set_dof_type_list( { { MSI::Dof_Type::VX, MSI::Dof_Type::VY } }, mtk::Master_Slave::MASTER );
         tIQIVX->set_output_type_index( 0 );
 		tIQIVX->set_name( "IQI_VX" );
 
         std::shared_ptr< fem::IQI > tIQIVY = tIQIFactory.create_IQI( fem::IQI_Type::DOF );
-        tIQIVY->set_output_type( vis::Output_Type::VY );
         tIQIVY->set_dof_type_list( { { MSI::Dof_Type::VX, MSI::Dof_Type::VY } }, mtk::Master_Slave::MASTER );
         tIQIVY->set_output_type_index( 1 );
 		tIQIVY->set_name( "IQI_VY" );
 
         std::shared_ptr< fem::IQI > tIQIP = tIQIFactory.create_IQI( fem::IQI_Type::DOF );
-        tIQIP->set_output_type( vis::Output_Type::P );
         tIQIP->set_dof_type_list( { { MSI::Dof_Type::P } }, mtk::Master_Slave::MASTER );
         tIQIP->set_output_type_index( 0 );
 		tIQIP->set_name( "IQI_P" );
 
         std::shared_ptr< fem::IQI > tIQIL2 = tIQIFactory.create_IQI( fem::IQI_Type::L2_ERROR_ANALYTIC );
-        tIQIL2->set_output_type( vis::Output_Type::L2_ERROR_ANALYTIC );
         tIQIL2->set_dof_type_list( { { MSI::Dof_Type::VX, MSI::Dof_Type::VY } }, mtk::Master_Slave::MASTER );
         tIQIL2->set_property( tPropImposedVelocity, "L2Check", mtk::Master_Slave::MASTER );
 		tIQIL2->set_name( "IQI_L2" );
 
         std::shared_ptr< fem::IQI > tIQIH1 = tIQIFactory.create_IQI( fem::IQI_Type::H1_ERROR_ANALYTIC );
-        tIQIH1->set_output_type( vis::Output_Type::H1_ERROR_ANALYTIC );
         tIQIH1->set_dof_type_list( { { MSI::Dof_Type::VX, MSI::Dof_Type::VY } }, mtk::Master_Slave::MASTER );
         tIQIH1->set_property( tPropAnalyticdVelocitydx, "H1Check", mtk::Master_Slave::MASTER );
 		tIQIH1->set_name( "IQI_H1" );
