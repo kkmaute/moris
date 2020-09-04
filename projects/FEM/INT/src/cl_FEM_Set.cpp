@@ -948,30 +948,6 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        std::shared_ptr< IQI > Set::get_IQI_for_vis( const std::string & aQIName )
-        {
-            // FIXME use a map
-
-            // init the IQI pointer for return
-            std::shared_ptr< IQI > tIQI = nullptr;
-
-            // select the IQI based on type
-            for ( uint iIQI = 0; iIQI < mIQIs.size(); iIQI++ )
-            {
-                // if the output type is the same as the IQI
-                if ( aQIName == mIQIs( iIQI )->get_name() )
-                {
-                    // fill the return pointer to the IQI
-                    tIQI = mIQIs( iIQI );
-                }
-            }
-
-            // return the selected IQI
-            return tIQI;
-        }
-
-        //------------------------------------------------------------------------------
-
         void Set::set_IQI_cluster_for_stabilization_parameters( fem::Cluster * aCluster )
         {
             // loop over the IQIs
@@ -2643,23 +2619,27 @@ namespace moris
             mSetNodalCounter.set_size( (*mSetNodalValues).numel(), 1, 0 );
 
             mSetElementalValues->set_size( mMtkIgCellOnSet( aMeshIndex ), 1, 0.0 );
-
-            for( uint Ik = 0; Ik < mEquationObjList.size(); Ik++ )
+			
+			// check if this set has the requested IQI
+            if( mIQINameToIndexMap.key_exists( aQIName ) )
             {
-                mEquationObjList( Ik )->compute_quantity_of_interest(
-                        aMeshIndex,
-                        aQIName,
-                        aFieldType );
-            }
-
-            //FIXME I do not like this at all. someone change it
-            for( uint Ik = 0; Ik < mSetNodalValues->numel(); Ik++ )
-            {
-                if( mSetNodalCounter(Ik) != 0)
+                for( uint Ik = 0; Ik < mEquationObjList.size(); Ik++ )
                 {
-                    (*mSetNodalValues)(Ik) = (*mSetNodalValues)(Ik)/mSetNodalCounter(Ik);
+                    mEquationObjList( Ik )->compute_quantity_of_interest(
+                            aMeshIndex,
+                            aQIName,
+                            aFieldType );
                 }
-            }
+
+                //FIXME I do not like this at all. someone change it
+                for( uint Ik = 0; Ik < mSetNodalValues->numel(); Ik++ )
+                {
+                    if( mSetNodalCounter(Ik) != 0)
+                    {
+                        (*mSetNodalValues)(Ik) = (*mSetNodalValues)(Ik)/mSetNodalCounter(Ik);
+                    }
+                }
+			}
         }
 
         //------------------------------------------------------------------------------

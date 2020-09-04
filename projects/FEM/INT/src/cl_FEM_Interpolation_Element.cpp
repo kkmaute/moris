@@ -804,10 +804,16 @@ namespace moris
 
             // set the field interpolators coefficients
             this->set_field_interpolators_coefficients();
+			
+			// get the set local index
+            moris_index tIQISetLocalIndex =
+                        mSet->mIQINameToIndexMap.find( aQIName );
 
-            // FIXME should not be like this
-            mSet->get_IQI_for_vis( aQIName )->
-                    set_field_interpolator_manager( mSet->get_field_interpolator_manager() );
+            // get IQI
+            std::shared_ptr< IQI > tIQI = mSet->mIQIs( tIQISetLocalIndex );
+
+            // 
+            tIQI->set_field_interpolator_manager( mSet->get_field_interpolator_manager() );
 
             // set cluster for stabilization parameter
             mSet->set_IQI_cluster_for_stabilization_parameters( mFemCluster( 0 ).get() );
@@ -815,8 +821,7 @@ namespace moris
             if( mElementType == fem::Element_Type::DOUBLE_SIDESET )
             {
                 // set the IP geometry interpolator physical space and time coefficients for the slave interpolation cell
-                mSet->get_IQI_for_vis( aQIName )->
-                        set_field_interpolator_manager( mSet->get_field_interpolator_manager(
+                tIQI->set_field_interpolator_manager( mSet->get_field_interpolator_manager(
                                 mtk::Master_Slave::SLAVE ),
                                 mtk::Master_Slave::SLAVE );
             }
@@ -847,11 +852,11 @@ namespace moris
                     mSet->get_field_interpolator_manager()->set_space_time( tGlobalIntegPoint );
 
                     // reset the requested IQI
-                    mSet->get_IQI_for_vis( aQIName )->reset_eval_flags();
+                    tIQI->reset_eval_flags();
 
                     // compute quantity of interest at evaluation point
                     Matrix< DDRMat > tQIValue;
-                    mSet->get_IQI_for_vis( aQIName )->compute_QI( tQIValue );
+                    tIQI->compute_QI( tQIValue );
 
                     // fill in the nodal set values
                     ( * mSet->mSetNodalValues )( tVertexIndices( iVertex ), 0 ) =
