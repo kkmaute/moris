@@ -30,7 +30,6 @@ namespace moris
 
         void Pdv_Host_Manager::reset()
         {
-            mIpPdvHosts.resize(0);
             mIntersectionNodes.resize(0);
             mGlobalPdvTypeMap.resize(0, 0);
             mGlobalPdvIndex = 0;

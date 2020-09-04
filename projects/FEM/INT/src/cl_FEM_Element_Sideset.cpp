@@ -411,7 +411,50 @@ namespace moris
                     mSet->get_requested_IQIs()( iIQI )->reset_eval_flags();
 
                     // compute QI at evaluation point
-                    mSet->get_requested_IQIs()( iIQI )->compute_QI( tWStar );
+                    mSet->get_requested_IQIs()( iIQI )->add_QI_on_set( tWStar );
+                }
+            }
+        }
+
+        //------------------------------------------------------------------------------
+
+        //FIXME: needs unit testing
+        void Element_Sideset::compute_dQIdu()
+        {
+            // get treated side ordinal
+            uint tSideOrd = mCluster->mMasterListOfSideOrdinals( mCellIndexInCluster );
+
+            // set physical and parametric space and time coefficients for IG element
+            moris::Cell< Matrix< DDSMat > > tIsActiveDv;
+            this->init_ig_geometry_interpolator(
+                    tSideOrd,
+                    tIsActiveDv );
+
+            // get number of IQIs
+            uint tNumIQIs = mSet->get_number_of_requested_IQIs();
+
+            // loop over integration points
+            uint tNumIntegPoints = mSet->get_number_of_integration_points();
+            for( uint iGP = 0; iGP < tNumIntegPoints; iGP++ )
+            {
+                // get the ith integration point in the IG param space
+                Matrix< DDRMat > tLocalIntegPoint = mSet->get_integration_points().get_column( iGP );
+
+                // set evaluation point for interpolators (FIs and GIs)
+                mSet->get_field_interpolator_manager()->set_space_time_from_local_IG_point( tLocalIntegPoint );
+
+                // compute integration point weight
+                real tWStar = mSet->get_integration_weights()( iGP ) *
+                        mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator()->det_J();
+
+                // loop over the IQIs
+                for( uint iIQI = 0; iIQI < tNumIQIs; iIQI++ )
+                {
+                    // reset IWG
+                    mSet->get_requested_IQIs()( iIQI )->reset_eval_flags();
+
+                    // compute dQIdu at evaluation point
+                    mSet->get_requested_IQIs()( iIQI )->add_dQIdu_on_set( tWStar );
                 }
             }
         }

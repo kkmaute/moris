@@ -1,4 +1,5 @@
 #include "cl_OPT_Problem.hpp"
+#include "cl_Logger.hpp"
 #include "op_plus.hpp"
 #include "fn_norm.hpp"
 #include "fn_trans.hpp"
@@ -51,6 +52,7 @@ namespace moris
 
             // Get the criteria at the first step
             mCriteria = mInterface->get_criteria(mADVs);
+            gLogger.mIteration = 1;
 
             // Initialize constraints
             mConstraintTypes = this->get_constraint_types();

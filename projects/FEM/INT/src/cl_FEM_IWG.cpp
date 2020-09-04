@@ -1902,9 +1902,11 @@ namespace moris
             // init perturbation
             real tDeltaH = 0.0;
 
+            // get GP weight
+            real tGPWeight = aWStar / tMasterIGGI->det_J();
+
             // init FD scheme
             moris::Cell< moris::Cell< real > > tFDScheme;
-            fd_scheme( aFDSchemeType, tFDScheme );
 
             if( aMasterIsActive.size() != 0 )
             {
@@ -1917,7 +1919,6 @@ namespace moris
                 Matrix< DDRMat > tParamCoeff = tMasterIGGI->get_space_param_coeff();
                 Matrix< DDRMat > tEvaluationPoint;
                 tMasterIGGI->get_space_time( tEvaluationPoint );
-                real tGPWeight = aWStar / tMasterIGGI->det_J();
 
                 // loop over the spatial directions
                 for( uint iCoeffCol = 0; iCoeffCol< tDerNumDimensions; iCoeffCol++ )
@@ -1999,7 +2000,6 @@ namespace moris
                                                 tFDScheme( 1 )( iPoint ) *
                                                 mSet->get_residual()( 0 )( { tSlaveResDofAssemblyStart, tSlaveResDofAssemblyStop }, { 0, 0 } ) /
                                                 ( tFDScheme( 2 )( 0 ) * tDeltaH );
-
                             }
                         }
                     }
@@ -2012,16 +2012,15 @@ namespace moris
 
             if( aSlaveIsActive.size() != 0 )
             {
-                // get number of master GI bases and space dimensions
+                // get number of slave GI bases and space dimensions
                 uint tDerNumBases      = tSlaveIGGI->get_number_of_space_bases();
-                uint tDerNumDimensions = tSlaveIGGI->get_number_of_space_dimensions();
+                uint tDerNumDimensions = tSlaveIPGI->get_number_of_space_dimensions();
 
                 // coefficients for dv type wrt which derivative is computed
                 Matrix< DDRMat > tCoeff = tSlaveIGGI->get_space_coeff();
                 Matrix< DDRMat > tParamCoeff = tSlaveIGGI->get_space_param_coeff();
                 Matrix< DDRMat > tEvaluationPoint;
                 tSlaveIGGI->get_space_time( tEvaluationPoint );
-                real tGPWeight = aWStar / tMasterIGGI->det_J();
 
                 // loop over the spatial directions
                 for( uint iCoeffCol = 0; iCoeffCol< tDerNumDimensions; iCoeffCol++ )

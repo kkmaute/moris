@@ -24,45 +24,52 @@ namespace moris
 
         class IQI_Drag_Lift_Coefficient : public IQI
         {
-//------------------------------------------------------------------------------
-            public:
+            //------------------------------------------------------------------------------
+        public:
 
-                // property type for the IQI
-                enum class Property_Type
-                {
-                    DENSITY,    // fluid density
-                    VISCOSITY,
-                    VELOCITY_MAX,
-                    DIAMETER,
-                    MAX_ENUM
-                };
+            // property type for the IQI
+            enum class Property_Type
+            {
+                DENSITY,    // fluid density
+                VISCOSITY,
+                VELOCITY_MAX,
+                DIAMETER,
+                MAX_ENUM
+            };
 
-                // local string to property enum map
-                std::map< std::string, Property_Type > mPropertyMap;
+            // local string to property enum map
+            std::map< std::string, Property_Type > mPropertyMap;
 
-                // sign for drag/lift
-                sint mBeta;
+            // sign for drag/lift
+            sint mBeta;
 
-//------------------------------------------------------------------------------
+            //------------------------------------------------------------------------------
             /*
              *  constructor
              */
             IQI_Drag_Lift_Coefficient( sint aBeta );
 
-//------------------------------------------------------------------------------
+            //------------------------------------------------------------------------------
             /**
              * trivial destructor
              */
             ~IQI_Drag_Lift_Coefficient(){};
 
-//------------------------------------------------------------------------------
+            //------------------------------------------------------------------------------
+        private:
             /**
              * compute the quantity of interest
              * @param[ in ] aQI quantity of interest matrix to fill
              */
             void compute_QI( Matrix< DDRMat > & aQI );
 
-//------------------------------------------------------------------------------
+            /**
+             * compute the derivative of the quantity of interest wrt dof types
+             * @param[ in ] adQIdu derivative of quantity of interest matrix to fill
+             */
+            void compute_dQIdu( MSI::Dof_Type aDofType, Matrix< DDRMat > & adQIdu );
+
+            //------------------------------------------------------------------------------
         };
     }/* end namespace fem */
 } /* end namespace moris */

@@ -114,7 +114,7 @@ namespace moris
                  */
                 Matrix< IndexMat > & get_side_ordinal_info(
                         mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER )
-                                {
+                {
                     switch( aIsMaster )
                     {
                         case mtk::Master_Slave::MASTER :
@@ -127,7 +127,7 @@ namespace moris
                             MORIS_ERROR( false, "Cluster::get_side_ordinal_info - can only be master or slave." );
                             return mMasterListOfSideOrdinals;
                     }
-                                }
+                }
 
                 //------------------------------------------------------------------------------
                 /**

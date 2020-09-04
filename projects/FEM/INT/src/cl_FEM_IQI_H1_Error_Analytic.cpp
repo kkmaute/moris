@@ -73,30 +73,7 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        void IQI_H1_Error_Analytic::compute_QI( moris::real aWStar )
-        {
-            // get index for QI
-            sint tQIIndex = mSet->get_QI_assembly_index( mName );
-
-            // get field interpolator
-            Field_Interpolator * tFI =
-                    mMasterFIManager->get_field_interpolators_for_type( mMasterDofTypes( 0 )( 0 ) );
-
-            // get analytical solution property
-            std::shared_ptr< Property > tPropH1Check =
-                    mMasterProp( static_cast< uint >( IQI_Property_Type::H1_CHECK ) );
-
-            // get jump between value and analytic
-            Matrix< DDRMat > tJump =
-                    reshape( tFI->gradx( 1 ) - tPropH1Check->val(), tFI->gradx( 1 ).numel(), 1 );
-
-            // evaluate the QI
-            mSet->get_QI()( tQIIndex ).matrix_data() += aWStar * ( trans( tJump ) * tJump );
-        }
-
-        //------------------------------------------------------------------------------
-
-        void IQI_H1_Error_Analytic::compute_dQIdu( Matrix< DDRMat > & adQIdDof )
+        void IQI_H1_Error_Analytic::compute_dQIdu( MSI::Dof_Type aDofType, Matrix< DDRMat > & adQIdu )
         {
             MORIS_ERROR( false, "IQI_H1_Error_Analytic::compute_dQIdu - Not implemented." );
         }

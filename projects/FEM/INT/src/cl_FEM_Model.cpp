@@ -1181,9 +1181,9 @@ namespace moris
                     }
 
                 }
+
                 //                // debug
                 //                mIQIs( iIQI )->print_names();
-
             }
         }
 
@@ -1354,7 +1354,59 @@ namespace moris
             //            }
         }
 
-        //------------------------------------------------------------------------------
+        //-------------------------------------------------------------------------------------------------
+
+        void FEM_Model::normalize_IQIs()
+        {
+            for (uint tRequestedIQIIndex = 0; tRequestedIQIIndex < mRequestedIQINames.size(); tRequestedIQIIndex++)
+            {
+                // IQI index
+                uint tIQIIndex = 0;
+                while (tIQIIndex < mIQIs.size()
+                        and (mIQIs(tIQIIndex)->get_name() not_eq mRequestedIQINames(tRequestedIQIIndex)))
+                {
+                    tIQIIndex++;
+                }
+                MORIS_ASSERT(tIQIIndex < mIQIs.size(),
+                        ("IQI was not found with the requested name " + mRequestedIQINames(tRequestedIQIIndex)).c_str());
+
+                // Set normalization
+                std::string tNormalization = mParameterList(4)(tIQIIndex).get< std::string >("normalization");
+                if (tNormalization == "none")
+                {
+                    // Do nothing
+                }
+                else if (tNormalization == "time")
+                {
+                    MORIS_ERROR(false, "Time normalization not implemented yet for IQIs yet, implementation should go here.");
+                }
+                else if (tNormalization == "design")
+                {
+                    mIQIs(tRequestedIQIIndex)->set_reference_value(mGlobalIQIVal(tRequestedIQIIndex)(0));
+                    mGlobalIQIVal(tRequestedIQIIndex)(0) = 1.0;
+                }
+                else
+                {
+                    // Try to set reference values directly
+                    try
+                    {
+                        mIQIs(tRequestedIQIIndex)->set_reference_value(string_to_mat<DDRMat>(tNormalization)(0));
+                    }
+                    catch (...)
+                    {
+                        // create error message
+                        std::string tErrMsg =
+                                "FEM_Model::normalize_IQIs() - Unknown normalization: " + tNormalization +
+                                        ". Must be 'none', 'time', 'design', or a reference value.";
+
+                        // error
+                        MORIS_ERROR( false , tErrMsg.c_str() );
+                    }
+                }
+            }
+        }
+
+        //-------------------------------------------------------------------------------------------------
 
     } /* namespace mdl */
 } /* namespace moris */

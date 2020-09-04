@@ -13,7 +13,7 @@
 #include "linalg_typedefs.hpp"
 #include "fn_unique.hpp"
 
-#include "cl_PRM_HMR_Parameters.hpp"
+#include "fn_PRM_HMR_Parameters.hpp"
 
 namespace moris
 {

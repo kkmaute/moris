@@ -82,6 +82,13 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+
+        void IQI_Drag_Lift_Coefficient::compute_dQIdu( MSI::Dof_Type aDofType, Matrix< DDRMat > & adQIdu )
+        {
+            MORIS_ERROR(false, "compute_dQIdu() not implemented for a drag/lift coefficient IQI.");
+        }
+
+        //------------------------------------------------------------------------------
     }/* end namespace fem */
 }/* end namespace moris */
 

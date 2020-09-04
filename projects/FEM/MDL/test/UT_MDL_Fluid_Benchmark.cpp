@@ -12,8 +12,8 @@
 #include "fn_equal_to.hpp"
 #include "fn_norm.hpp"
 //PRM
-#include "cl_PRM_HMR_Parameters.hpp"
-#include "cl_PRM_SOL_Parameters.hpp"
+#include "fn_PRM_HMR_Parameters.hpp"
+#include "fn_PRM_SOL_Parameters.hpp"
 //MTK/src
 #include "cl_MTK_Vertex.hpp"
 #include "cl_MTK_Cell.hpp"

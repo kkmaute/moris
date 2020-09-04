@@ -81,6 +81,12 @@ namespace moris
 
                 //------------------------------------------------------------------------------
                 /**
+                 * compute dQIdu
+                 */
+                void compute_dQIdu();
+
+                //------------------------------------------------------------------------------
+                /**
                  * compute dQIdp by analytical formulation
                  */
                 void compute_dQIdp_explicit();

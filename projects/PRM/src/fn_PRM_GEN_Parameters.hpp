@@ -1,5 +1,5 @@
-#ifndef MORIS_CL_PRM_GEN_PARAMETERS_HPP_
-#define MORIS_CL_PRM_GEN_PARAMETERS_HPP_
+#ifndef MORIS_FN_PRM_GEN_PARAMETERS_HPP_
+#define MORIS_FN_PRM_GEN_PARAMETERS_HPP_
 
 #include "cl_Param_List.hpp"
 
@@ -169,4 +169,4 @@ namespace moris
     }
 }
 
-#endif /* MORIS_CL_PRM_GEN_PARAMETERS_HPP_ */
+#endif /* MORIS_FN_PRM_GEN_PARAMETERS_HPP_ */

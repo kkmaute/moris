@@ -1,12 +1,12 @@
 /*
- * cl_PRM_FEM_Parameters.hpp
+ * fn_PRM_FEM_Parameters.hpp
  *
  *  Created on: Feb 6, 2020
  *      Author: noel
  */
 
-#ifndef PROJECTS_PRM_SRC_CL_PRM_FEM_PARAMETERS_HPP_
-#define PROJECTS_PRM_SRC_CL_PRM_FEM_PARAMETERS_HPP_
+#ifndef PROJECTS_PRM_SRC_FN_PRM_FEM_PARAMETERS_HPP_
+#define PROJECTS_PRM_SRC_FN_PRM_FEM_PARAMETERS_HPP_
 
 #include <string>
 #include <cstdio>
@@ -146,6 +146,7 @@ namespace moris
             tParameterList.insert( "mesh_set_names",             std::string( "" ) );
             tParameterList.insert( "time_continuity",            false );
             tParameterList.insert( "time_boundary",              false );
+            tParameterList.insert( "normalization",              "none" ); // options: time, design, vector of reference values
 
             return tParameterList;
         }
@@ -177,4 +178,4 @@ namespace moris
     }/* end_namespace_prm */
 }/* end_namespace_moris */
 
-#endif /* PROJECTS_PRM_SRC_CL_PRM_FEM_PARAMETERS_HPP_ */
+#endif /* PROJECTS_PRM_SRC_FN_PRM_FEM_PARAMETERS_HPP_ */

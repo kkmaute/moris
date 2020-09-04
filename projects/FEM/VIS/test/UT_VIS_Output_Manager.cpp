@@ -81,7 +81,7 @@
 #include "cl_TSA_Time_Solver.hpp"
 #include "cl_SOL_Warehouse.hpp"
 
-#include "cl_PRM_VIS_Parameters.hpp"
+#include "fn_PRM_VIS_Parameters.hpp"
 
 moris::real PlaneVisTest(const moris::Matrix< moris::DDRMat > & aPoint )
 {

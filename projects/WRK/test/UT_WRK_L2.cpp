@@ -41,8 +41,8 @@
 #include "cl_HMR_Factory.hpp" //HMR/src
 #include "cl_HMR_Field.hpp"
 #include "cl_HMR_Lagrange_Mesh_Base.hpp" //HMR/src
-#include "cl_PRM_HMR_Parameters.hpp"
-#include "cl_PRM_XTK_Parameters.hpp"
+#include "fn_PRM_HMR_Parameters.hpp"
+#include "fn_PRM_XTK_Parameters.hpp"
 #include "fn_PRM_GEN_Parameters.hpp"
 
 using namespace moris;

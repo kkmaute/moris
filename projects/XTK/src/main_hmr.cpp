@@ -41,7 +41,7 @@
 #include "cl_GEN_User_Defined_Geometry.hpp"
 #include "cl_GEN_Phase_Table.hpp"
 
-#include "cl_PRM_HMR_Parameters.hpp"
+#include "fn_PRM_HMR_Parameters.hpp"
 
 
 // select namespaces

@@ -1000,30 +1000,18 @@ namespace moris
         //        }
         //    }
 
-        void Equation_Object::get_my_pdof_values( const moris::Cell< Matrix< DDRMat > >         & aPdofValues,
-                const moris::Cell< enum Dof_Type >            & aRequestedDofTypes,
+        void Equation_Object::get_my_pdof_values(
+                const moris::Cell< Matrix< DDRMat > >   & aPdofValues,
+                const moris::Cell< enum Dof_Type >      & aRequestedDofTypes,
                 moris::Cell< Cell< Matrix< DDRMat > > > & aRequestedPdofValues,
-                const mtk::Master_Slave                         aIsMaster )
+                const mtk::Master_Slave                   aIsMaster )
         {
-            uint tIsMaster = 0;
+            // check that master or slave
+            MORIS_ERROR( ( aIsMaster == mtk::Master_Slave::MASTER ) || ( aIsMaster == mtk::Master_Slave::SLAVE ),
+                    "Equation_Object::get_my_pdof_values - can only be MASTER or SLAVE" );
 
-            switch ( aIsMaster )
-            {
-                case mtk::Master_Slave::MASTER :
-                {
-                    tIsMaster = 0;
-                    break;
-                }
-                case mtk::Master_Slave::SLAVE :
-                {
-                    tIsMaster = 1;
-                    break;
-                }
-                default:
-                {
-                    MORIS_ERROR(false, "Equation_Object::get_my_pdof_values - can only be MASTER or SLAVE");
-                }
-            }
+            // uint for master/slave
+            uint tIsMaster = static_cast< uint >( aIsMaster );
 
             // Initialize list which contains the maximal number of time levels per dof type
             Matrix< DDSMat > tTimeLevelsPerDofType( aRequestedDofTypes.size(), 1, -1 );

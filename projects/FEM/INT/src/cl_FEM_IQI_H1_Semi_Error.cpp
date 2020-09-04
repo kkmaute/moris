@@ -33,7 +33,7 @@ namespace moris
         }
 
 //------------------------------------------------------------------------------
-        void IQI_H1_Semi_Error::compute_dQIdu( Matrix< DDRMat > & adQIdDof )
+        void IQI_H1_Semi_Error::compute_dQIdu( MSI::Dof_Type aDofType, Matrix< DDRMat > & adQIdu )
         {
             MORIS_ERROR( false, "IQI_H1_Semi_Error::compute_dQIdu - Not implemented." );
         }
