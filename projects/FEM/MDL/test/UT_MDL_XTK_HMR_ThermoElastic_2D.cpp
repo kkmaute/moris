@@ -372,16 +372,19 @@ TEST_CASE("2D XTK WITH HMR ThermoElastic 2D","[XTK_HMR_thermoelastic_2D]")
         tIQIUX->set_output_type( vis::Output_Type::UX );
         tIQIUX->set_dof_type_list( { { MSI::Dof_Type::UX, MSI::Dof_Type::UY } }, mtk::Master_Slave::MASTER );
         tIQIUX->set_output_type_index( 0 );
+		tIQIUX->set_name( "IQI_UX" );
 
         std::shared_ptr< fem::IQI > tIQIUY = tIQIFactory.create_IQI( fem::IQI_Type::DOF );
         tIQIUY->set_output_type( vis::Output_Type::UY );
         tIQIUY->set_dof_type_list( { { MSI::Dof_Type::UX, MSI::Dof_Type::UY } }, mtk::Master_Slave::MASTER );
         tIQIUY->set_output_type_index( 1 );
+		tIQIUY->set_name( "IQI_UY" );
 
         std::shared_ptr< fem::IQI > tIQITEMP = tIQIFactory.create_IQI( fem::IQI_Type::DOF );
         tIQITEMP->set_output_type( vis::Output_Type::TEMP );
         tIQITEMP->set_dof_type_list( { { MSI::Dof_Type::TEMP } }, mtk::Master_Slave::MASTER );
         tIQITEMP->set_output_type_index( 0 );
+		tIQITEMP->set_name( "IQI_TEMP" );
 
          //----------------------------------------------------------------------------------------------------------
          fem::Set_User_Info tSetBulk1;
@@ -414,7 +417,7 @@ TEST_CASE("2D XTK WITH HMR ThermoElastic 2D","[XTK_HMR_thermoelastic_2D]")
                                  { "HMR_dummy_n_p1" },
                                  { "UX", "UY", "TEMP" },
                                  { vis::Field_Type::NODAL, vis::Field_Type::NODAL, vis::Field_Type::NODAL },
-                                 { vis::Output_Type::UX,  vis::Output_Type::UY, vis::Output_Type::TEMP } );
+                                 { "IQI_UX","IQI_UY","IQI_TEMP" } );
         tModel->set_output_manager( &tOutputData );
 
         sol::SOL_Warehouse tSolverWarehouse( tModel->get_solver_interface() );
@@ -837,16 +840,19 @@ TEST_CASE("2D XTK WITH HMR ThermoElastic 2D Staggered","[XTK_HMR_thermoelastic_2
          tIQIUX->set_output_type( vis::Output_Type::UX );
          tIQIUX->set_dof_type_list( { { MSI::Dof_Type::UX, MSI::Dof_Type::UY } }, mtk::Master_Slave::MASTER );
          tIQIUX->set_output_type_index( 0 );
+		 tIQIUX->set_name( "IQI_UX" );
 
          std::shared_ptr< fem::IQI > tIQIUY = tIQIFactory.create_IQI( fem::IQI_Type::DOF );
          tIQIUY->set_output_type( vis::Output_Type::UY );
          tIQIUY->set_dof_type_list( { { MSI::Dof_Type::UX, MSI::Dof_Type::UY } }, mtk::Master_Slave::MASTER );
          tIQIUY->set_output_type_index( 1 );
+		 tIQIUY->set_name( "IQI_UY" );
 
          std::shared_ptr< fem::IQI > tIQITEMP = tIQIFactory.create_IQI( fem::IQI_Type::DOF );
          tIQITEMP->set_output_type( vis::Output_Type::TEMP );
          tIQITEMP->set_dof_type_list( { { MSI::Dof_Type::TEMP } }, mtk::Master_Slave::MASTER );
          tIQITEMP->set_output_type_index( 0 );
+		 tIQITEMP->set_name( "IQI_TEMP" );
 
          //----------------------------------------------------------------------------------------------------------
 
@@ -880,7 +886,7 @@ TEST_CASE("2D XTK WITH HMR ThermoElastic 2D Staggered","[XTK_HMR_thermoelastic_2
                                  { "HMR_dummy_n_p1" },
                                  { "UX", "UY", "TEMP" },
                                  { vis::Field_Type::NODAL, vis::Field_Type::NODAL, vis::Field_Type::NODAL },
-                                 { vis::Output_Type::UX,  vis::Output_Type::UY, vis::Output_Type::TEMP } );
+                                 { "IQI_UX","IQI_UY","IQI_TEMP" } );
         tModel->set_output_manager( &tOutputData );
 
         sol::SOL_Warehouse tSolverWarehouse( tModel->get_solver_interface() );

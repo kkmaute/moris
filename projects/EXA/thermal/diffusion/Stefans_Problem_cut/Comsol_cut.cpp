@@ -434,7 +434,6 @@ namespace moris
         tParameterList( 4 ).push_back( prm::create_IQI_parameter_list() );
         tParameterList( 4 )( tIQICounter ).set( "IQI_name",                   "IQIBulkTEMP") ;
         tParameterList( 4 )( tIQICounter ).set( "IQI_type",                   static_cast< uint >( fem::IQI_Type::DOF ) );
-        tParameterList( 4 )( tIQICounter ).set( "IQI_output_type",            static_cast< uint >( vis::Output_Type::TEMP ) );
         tParameterList( 4 )( tIQICounter ).set( "master_dof_dependencies",    "TEMP") ;
         tParameterList( 4 )( tIQICounter ).set( "vectorial_field_index",      0 );
         tParameterList( 4 )( tIQICounter ).set( "mesh_set_names",             "HMR_dummy_n_p15,HMR_dummy_c_p15") ;
@@ -499,7 +498,7 @@ namespace moris
         tParameterlist( 0 )( 0 ).set( "Set_Names"  ,  "HMR_dummy_n_p15,HMR_dummy_c_p15" ) ;
         tParameterlist( 0 )( 0 ).set( "Field_Names",  "TEMP" ) ;
         tParameterlist( 0 )( 0 ).set( "Field_Type" ,  "NODAL" ) ;
-        tParameterlist( 0 )( 0 ).set( "Output_Type",  "TEMP" ) ;
+        tParameterlist( 0 )( 0 ).set( "QI_Names",  "IQIBulkTEMP" ) ;
     }
 
     //------------------------------------------------------------------------------

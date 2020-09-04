@@ -617,7 +617,6 @@ namespace moris
         tParameterList( 4 ).push_back( prm::create_IQI_parameter_list() );
         tParameterList( 4 )( tIQICounter ).set( "IQI_name",                   "IQIBulkDISPX");
         tParameterList( 4 )( tIQICounter ).set( "IQI_type",                   static_cast< uint >( fem::IQI_Type::DOF ) );
-        tParameterList( 4 )( tIQICounter ).set( "IQI_output_type",            static_cast< uint >( vis::Output_Type::UX ) );
         tParameterList( 4 )( tIQICounter ).set( "master_dof_dependencies",    "UX,UY");
         tParameterList( 4 )( tIQICounter ).set( "vectorial_field_index",      0 );
         tParameterList( 4 )( tIQICounter ).set( "mesh_set_names",             tTotalDomain);
@@ -626,7 +625,6 @@ namespace moris
         tParameterList( 4 ).push_back( prm::create_IQI_parameter_list() );
         tParameterList( 4 )( tIQICounter ).set( "IQI_name",                   "IQIBulkDISPY");
         tParameterList( 4 )( tIQICounter ).set( "IQI_type",                   static_cast< uint >( fem::IQI_Type::DOF ) );
-        tParameterList( 4 )( tIQICounter ).set( "IQI_output_type",            static_cast< uint >( vis::Output_Type::UY ) );
         tParameterList( 4 )( tIQICounter ).set( "master_dof_dependencies",    "UX,UY");
         tParameterList( 4 )( tIQICounter ).set( "vectorial_field_index",      1 );
         tParameterList( 4 )( tIQICounter ).set( "mesh_set_names",             tTotalDomain);
@@ -635,7 +633,6 @@ namespace moris
         tParameterList( 4 ).push_back( prm::create_IQI_parameter_list() );
         tParameterList( 4 )( tIQICounter ).set( "IQI_name",                   "IQIBulkStrainEnergy");
         tParameterList( 4 )( tIQICounter ).set( "IQI_type",                    static_cast< uint >( fem::IQI_Type::STRAIN_ENERGY ) );
-        tParameterList( 4 )( tIQICounter ).set( "IQI_output_type",             static_cast< uint >( vis::Output_Type::STRAIN_ENERGY ));
         tParameterList( 4 )( tIQICounter ).set( "master_dof_dependencies",    "UX,UY");
         tParameterList( 4 )( tIQICounter ).set( "master_constitutive_models", "CMStrucLinIso1,Elast");
         tParameterList( 4 )( tIQICounter ).set( "mesh_set_names",             tBars);
@@ -644,7 +641,6 @@ namespace moris
         tParameterList( 4 ).push_back( prm::create_IQI_parameter_list() );
         tParameterList( 4 )( tIQICounter ).set( "IQI_name",                   "IQIBulkVolume");
         tParameterList( 4 )( tIQICounter ).set( "IQI_type",                   static_cast< uint >( fem::IQI_Type::VOLUME ));
-        tParameterList( 4 )( tIQICounter ).set( "IQI_output_type",            static_cast< uint >( vis::Output_Type::VOLUME ));
         tParameterList( 4 )( tIQICounter ).set( "master_properties",          "PropDensity,Density");
         tParameterList( 4 )( tIQICounter ).set( "mesh_set_names",             tBars);
         tIQICounter++;
@@ -703,7 +699,7 @@ namespace moris
         tParameterlist( 0 )( 0 ).set( "Set_Names"  , tTotalDomain );
         tParameterlist( 0 )( 0 ).set( "Field_Names", std::string("UX,UY,STRAIN_ENERGY,VOLUME") );
         tParameterlist( 0 )( 0 ).set( "Field_Type" , std::string("NODAL,NODAL,GLOBAL,GLOBAL") );
-        tParameterlist( 0 )( 0 ).set( "Output_Type", std::string("UX,UY,STRAIN_ENERGY,VOLUME") );
+        tParameterlist( 0 )( 0 ).set( "QI_Names"   , std::string("IQIBulkDISPX,IQIBulkDISPY,IQIBulkStrainEnergy,IQIBulkVolume") );
         tParameterlist( 0 )( 0 ).set( "Save_Frequency", 1 );
     }
 

@@ -591,12 +591,12 @@ namespace moris
              * @param[ in ] aFieldType
              */
             virtual void compute_quantity_of_interest(
-                    const uint              aMeshIndex,
-                    Matrix< DDRMat >      * aElementFieldValues,
-                    Matrix< DDRMat >      * aNodalFieldValues,
-                    moris::real           * aGlobalScalar,
-                    enum vis::Output_Type   aOutputType,
-                    enum vis::Field_Type    aFieldType)
+                        const uint              aMeshIndex,
+                        Matrix< DDRMat >      * aElementFieldValues,
+                        Matrix< DDRMat >      * aNodalFieldValues,
+                        moris::real           * aGlobalScalar,
+                        const std::string     & aQIName,
+                        enum vis::Field_Type    aFieldType)
             {
                 MORIS_ASSERT( false, "Equation_Set::compute_quantity_of_interest - not implemented for base class." );
             }

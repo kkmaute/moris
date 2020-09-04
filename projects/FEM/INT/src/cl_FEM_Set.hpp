@@ -383,14 +383,6 @@ namespace moris
 
             //------------------------------------------------------------------------------
             /**
-             * get IQI from type output type for visualization
-             * @param[ in ]  aOutputType output type enum
-             * @param[ out ] aIQI        an IQI pointer
-             */
-            std::shared_ptr< IQI > get_IQI_for_vis( enum vis::Output_Type aOutputType );
-
-            //------------------------------------------------------------------------------
-            /**
              * building an IQI name to set local index map
              */
             void create_IQI_map();
@@ -705,7 +697,7 @@ namespace moris
                     Matrix< DDRMat >      * aElementFieldValues,
                     Matrix< DDRMat >      * aNodalFieldValues,
                     moris::real           * aGlobalScalar,
-                    enum vis::Output_Type   aOutputType,
+                    const std::string     & aQIName,
                     enum vis::Field_Type    aFieldType );
 
             //------------------------------------------------------------------------------

@@ -948,30 +948,6 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        std::shared_ptr< IQI > Set::get_IQI_for_vis( enum vis::Output_Type aOutputType )
-        {
-            // FIXME use a map
-
-            // init the IQI pointer for return
-            std::shared_ptr< IQI > tIQI = nullptr;
-
-            // select the IQI based on type
-            for ( uint iIQI = 0; iIQI < mIQIs.size(); iIQI++ )
-            {
-                // if the output type is the same as the IQI
-                if ( aOutputType == mIQIs( iIQI )->get_IQI_type() )
-                {
-                    // fill the return pointer to the IQI
-                    tIQI = mIQIs( iIQI );
-                }
-            }
-
-            // return the selected IQI
-            return tIQI;
-        }
-
-        //------------------------------------------------------------------------------
-
         void Set::set_IQI_cluster_for_stabilization_parameters( fem::Cluster * aCluster )
         {
             // loop over the IQIs
@@ -2633,7 +2609,7 @@ namespace moris
                 Matrix< DDRMat >      * aElementFieldValues,
                 Matrix< DDRMat >      * aNodalFieldValues,
                 moris::real           * aGlobalScalar,
-                enum vis::Output_Type   aOutputType,
+                const std::string     & aQIName,
                 enum vis::Field_Type    aFieldType )
         {
             mSetElementalValues = aElementFieldValues;
@@ -2643,23 +2619,27 @@ namespace moris
             mSetNodalCounter.set_size( (*mSetNodalValues).numel(), 1, 0 );
 
             mSetElementalValues->set_size( mMtkIgCellOnSet( aMeshIndex ), 1, 0.0 );
-
-            for( uint Ik = 0; Ik < mEquationObjList.size(); Ik++ )
+			
+			// check if this set has the requested IQI
+            if( mIQINameToIndexMap.key_exists( aQIName ) )
             {
-                mEquationObjList( Ik )->compute_quantity_of_interest(
-                        aMeshIndex,
-                        aOutputType,
-                        aFieldType );
-            }
-
-            //FIXME I do not like this at all. someone change it
-            for( uint Ik = 0; Ik < mSetNodalValues->numel(); Ik++ )
-            {
-                if( mSetNodalCounter(Ik) != 0)
+                for( uint Ik = 0; Ik < mEquationObjList.size(); Ik++ )
                 {
-                    (*mSetNodalValues)(Ik) = (*mSetNodalValues)(Ik)/mSetNodalCounter(Ik);
+                    mEquationObjList( Ik )->compute_quantity_of_interest(
+                            aMeshIndex,
+                            aQIName,
+                            aFieldType );
                 }
-            }
+
+                //FIXME I do not like this at all. someone change it
+                for( uint Ik = 0; Ik < mSetNodalValues->numel(); Ik++ )
+                {
+                    if( mSetNodalCounter(Ik) != 0)
+                    {
+                        (*mSetNodalValues)(Ik) = (*mSetNodalValues)(Ik)/mSetNodalCounter(Ik);
+                    }
+                }
+			}
         }
 
         //------------------------------------------------------------------------------

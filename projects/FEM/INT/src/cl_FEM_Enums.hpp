@@ -181,7 +181,6 @@ namespace moris
                 H1_ERROR_ANALYTIC,
                 H1_SEMI_ERROR,
                 J_INTEGRAL,
-                K1_SENT,
                 ANALYTIC,
                 LIFT_COEFF,
                 DRAG_COEFF,

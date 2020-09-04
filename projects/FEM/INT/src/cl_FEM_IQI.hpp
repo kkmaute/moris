@@ -570,7 +570,6 @@ namespace moris
                 MORIS_ERROR( false, "IQI::compute_dQIdp_FD_geometry_double - not implemented yet");
             }
 
-        private:
 
             /**
              * Evaluate the quantity of interest.

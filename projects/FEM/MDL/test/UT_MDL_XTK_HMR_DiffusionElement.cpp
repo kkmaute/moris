@@ -577,6 +577,7 @@ namespace moris
             tIQITEMP->set_output_type( vis::Output_Type::TEMP );
             tIQITEMP->set_dof_type_list( { {MSI::Dof_Type::TEMP} }, mtk::Master_Slave::MASTER );
             tIQITEMP->set_output_type_index( 0 );
+			tIQITEMP->set_name( "IQI_Temp" );
 
             // define set info
             fem::Set_User_Info tSetBulk1;
@@ -623,7 +624,7 @@ namespace moris
                     { "HMR_dummy_c_p0", "HMR_dummy_n_p0"},
                     { "Temperature" },
                     {   vis::Field_Type::NODAL },
-                    { vis::Output_Type::TEMP } );
+                    { "IQI_Temp" } );
 
             tModel->set_output_manager( &tOutputData );
 
@@ -897,6 +898,7 @@ namespace moris
             tIQITEMP->set_output_type( vis::Output_Type::TEMP );
             tIQITEMP->set_dof_type_list( { { MSI::Dof_Type::TEMP} }, mtk::Master_Slave::MASTER );
             tIQITEMP->set_output_type_index( 0 );
+			tIQITEMP->set_name( "IQI_Temp" );
 
             // define set info
             fem::Set_User_Info tSetBulk1;
@@ -947,7 +949,7 @@ namespace moris
                     { "HMR_dummy" },
                     { "Temperature" },
                     { vis::Field_Type::NODAL },
-                    { vis::Output_Type::TEMP } );
+                    { "IQI_Temp" } );
             tModel->set_output_manager( &tOutputData );
 
             //-------------------------------------------------------
@@ -1232,7 +1234,7 @@ namespace moris
                     { "HMR_dummy" },
                     { "Temperature" },
                     { vis::Field_Type::NODAL },
-                    { vis::Output_Type::TEMP } );
+                    { "IQI_Temp" } );
             tModel->set_output_manager( &tOutputData );
 
             //-------------------------------------------------------

@@ -229,11 +229,13 @@ TEST_CASE("MDL FEM Benchmark Diff Block","[MDL_FEM_Benchmark_Diff_Block]")
        tIQITEMP->set_output_type( vis::Output_Type::TEMP );
        tIQITEMP->set_dof_type_list( { { MSI::Dof_Type::TEMP} }, mtk::Master_Slave::MASTER );
        tIQITEMP->set_output_type_index( 0 );
+	   tIQITEMP->set_name( "IQI_TEMP" );
 
        std::shared_ptr< fem::IQI > tIQIL2TEMP = tIQIFactory.create_IQI( fem::IQI_Type::L2_ERROR_ANALYTIC );
        tIQIL2TEMP->set_output_type( vis::Output_Type::L2_ERROR_ANALYTIC );
        tIQIL2TEMP->set_dof_type_list( { { MSI::Dof_Type::TEMP} }, mtk::Master_Slave::MASTER );
        tIQIL2TEMP->set_property( tPropL2Analytic, "L2Check", mtk::Master_Slave::MASTER );
+	   tIQIL2TEMP->set_name( "IQI_L2" );
 
        // define set info
        fem::Set_User_Info tSetBulk1;
@@ -270,7 +272,7 @@ TEST_CASE("MDL FEM Benchmark Diff Block","[MDL_FEM_Benchmark_Diff_Block]")
                                 { "HMR_dummy" },
                                 { "Temperature", "L2 error" },
                                 { vis::Field_Type::NODAL, vis::Field_Type::GLOBAL },
-                                { vis::Output_Type::TEMP, vis::Output_Type::L2_ERROR_ANALYTIC } );
+                                { "IQI_TEMP","IQI_L2" } );
        tModel->set_output_manager( &tOutputData );
 
        // --------------------------------------------------------------------------------------
@@ -522,6 +524,7 @@ TEST_CASE("MDL FEM Benchmark Diff Interface","[MDL_FEM_Benchmark_Diff_Interface]
        tIQITEMP->set_output_type( vis::Output_Type::TEMP );
        tIQITEMP->set_dof_type_list( { { MSI::Dof_Type::TEMP} }, mtk::Master_Slave::MASTER );
        tIQITEMP->set_output_type_index( 0 );
+	   tIQITEMP->set_name( "IQI_TEMP" );
 
        // define set info
        fem::Set_User_Info tSetBulk1;
@@ -583,7 +586,7 @@ TEST_CASE("MDL FEM Benchmark Diff Interface","[MDL_FEM_Benchmark_Diff_Interface]
                                 { "HMR_dummy_c_p0", "HMR_dummy_c_p1", "HMR_dummy_n_p0", "HMR_dummy_n_p1"},
                                 { "Temperature" },
                                 { vis::Field_Type::NODAL },
-                                { vis::Output_Type::TEMP } );
+                                { "IQI_TEMP" } );
 
        tModel->set_output_manager( &tOutputData );
 
@@ -852,6 +855,7 @@ TEST_CASE("MDL FEM Benchmark Diff Ghost","[MDL_FEM_Benchmark_Diff_Ghost]")
        tIQITEMP->set_output_type( vis::Output_Type::TEMP );
        tIQITEMP->set_dof_type_list( { { MSI::Dof_Type::TEMP} }, mtk::Master_Slave::MASTER );
        tIQITEMP->set_output_type_index( 0 );
+	   tIQITEMP->set_name( "IQI_TEMP" );
 
        // define set info
        fem::Set_User_Info tSetBulk1;
@@ -918,7 +922,7 @@ TEST_CASE("MDL FEM Benchmark Diff Ghost","[MDL_FEM_Benchmark_Diff_Ghost]")
                                 { "HMR_dummy_c_p0", "HMR_dummy_c_p1", "HMR_dummy_n_p0", "HMR_dummy_n_p1"},
                                 { "Temperature" },
                                 { vis::Field_Type::NODAL },
-                                { vis::Output_Type::TEMP } );
+                                { "IQI_TEMP" } );
 
        tModel->set_output_manager( &tOutputData );
 
@@ -1102,19 +1106,19 @@ TEST_CASE("MDL FEM Benchmark Elast Block","[MDL_FEM_Benchmark_Elast_Block]")
        fem::IQI_Factory tIQIFactory;
 
        std::shared_ptr< fem::IQI > tIQIUX = tIQIFactory.create_IQI( fem::IQI_Type::DOF );
-       tIQIUX->set_output_type( vis::Output_Type::UX );
        tIQIUX->set_dof_type_list( { { tResDofTypes } }, mtk::Master_Slave::MASTER );
        tIQIUX->set_output_type_index( 0 );
+	   tIQIUX->set_name( "IQI_UX" );
 
        std::shared_ptr< fem::IQI > tIQIUY = tIQIFactory.create_IQI( fem::IQI_Type::DOF );
-       tIQIUY->set_output_type( vis::Output_Type::UY );
        tIQIUY->set_dof_type_list( { tResDofTypes }, mtk::Master_Slave::MASTER );
        tIQIUY->set_output_type_index( 1 );
+	   tIQIUY->set_name( "IQI_UY" );
 
        std::shared_ptr< fem::IQI > tIQIUZ = tIQIFactory.create_IQI( fem::IQI_Type::DOF );
-       tIQIUZ->set_output_type( vis::Output_Type::UZ );
        tIQIUZ->set_dof_type_list( { tResDofTypes }, mtk::Master_Slave::MASTER );
        tIQIUZ->set_output_type_index( 2 );
+	   tIQIUZ->set_name( "IQI_UZ" );
 
        // define set info
        fem::Set_User_Info tSetBulk1;
@@ -1151,7 +1155,7 @@ TEST_CASE("MDL FEM Benchmark Elast Block","[MDL_FEM_Benchmark_Elast_Block]")
                                 { "HMR_dummy" },
                                 { "Displacement UX", "Displacement UY", "Displacement UZ" },
                                 { vis::Field_Type::NODAL, vis::Field_Type::NODAL, vis::Field_Type::NODAL },
-                                { vis::Output_Type::UX, vis::Output_Type::UY, vis::Output_Type::UZ } );
+                                { "IQI_UX","IQI_UY","IQI_UZ" } );
 
        tModel->set_output_manager( &tOutputData );
 
@@ -1407,16 +1411,19 @@ TEST_CASE("MDL FEM Benchmark Elast Interface","[MDL_FEM_Benchmark_Elast_Interfac
        tIQIUX->set_output_type( vis::Output_Type::UX );
        tIQIUX->set_dof_type_list( { { tResDofTypes } }, mtk::Master_Slave::MASTER );
        tIQIUX->set_output_type_index( 0 );
+	   tIQIUX->set_name( "IQI_UX" );
 
        std::shared_ptr< fem::IQI > tIQIUY = tIQIFactory.create_IQI( fem::IQI_Type::DOF );
        tIQIUY->set_output_type( vis::Output_Type::UY );
        tIQIUY->set_dof_type_list( { tResDofTypes }, mtk::Master_Slave::MASTER );
        tIQIUY->set_output_type_index( 1 );
+	   tIQIUY->set_name( "IQI_UY" );
 
        std::shared_ptr< fem::IQI > tIQIUZ = tIQIFactory.create_IQI( fem::IQI_Type::DOF );
        tIQIUZ->set_output_type( vis::Output_Type::UZ );
        tIQIUZ->set_dof_type_list( { tResDofTypes }, mtk::Master_Slave::MASTER );
        tIQIUZ->set_output_type_index( 2 );
+	   tIQIUZ->set_name( "IQI_UZ" );
 
        // define set info
        fem::Set_User_Info tSetBulk1;
@@ -1476,7 +1483,7 @@ TEST_CASE("MDL FEM Benchmark Elast Interface","[MDL_FEM_Benchmark_Elast_Interfac
                                 { "HMR_dummy_c_p0", "HMR_dummy_c_p1", "HMR_dummy_n_p0", "HMR_dummy_n_p1" },
                                 { "Displacement UX", "Displacement UY", "Displacement UZ" },
                                 { vis::Field_Type::NODAL, vis::Field_Type::NODAL, vis::Field_Type::NODAL },
-                                { vis::Output_Type::UX, vis::Output_Type::UY, vis::Output_Type::UZ } );
+                                { "IQI_UX","IQI_UY","IQI_UZ" } );
 
        tModel->set_output_manager( &tOutputData );
 
@@ -1756,16 +1763,19 @@ TEST_CASE("MDL FEM Benchmark Elast Ghost","[MDL_FEM_Benchmark_Elast_Ghost]")
        tIQIUX->set_output_type( vis::Output_Type::UX );
        tIQIUX->set_dof_type_list( { { tResDofTypes } }, mtk::Master_Slave::MASTER );
        tIQIUX->set_output_type_index( 0 );
+	   tIQIUX->set_name( "IQI_UX" );
 
        std::shared_ptr< fem::IQI > tIQIUY = tIQIFactory.create_IQI( fem::IQI_Type::DOF );
        tIQIUY->set_output_type( vis::Output_Type::UY );
        tIQIUY->set_dof_type_list( { tResDofTypes }, mtk::Master_Slave::MASTER );
        tIQIUY->set_output_type_index( 1 );
+	   tIQIUY->set_name( "IQI_UY" );
 
        std::shared_ptr< fem::IQI > tIQIUZ = tIQIFactory.create_IQI( fem::IQI_Type::DOF );
        tIQIUZ->set_output_type( vis::Output_Type::UZ );
        tIQIUZ->set_dof_type_list( { tResDofTypes }, mtk::Master_Slave::MASTER );
        tIQIUZ->set_output_type_index( 2 );
+	   tIQIUZ->set_name( "IQI_UZ" );
 
        // define set info
        fem::Set_User_Info tSetBulk1;
@@ -1830,7 +1840,7 @@ TEST_CASE("MDL FEM Benchmark Elast Ghost","[MDL_FEM_Benchmark_Elast_Ghost]")
                                 { "HMR_dummy_c_p0", "HMR_dummy_c_p1", "HMR_dummy_n_p0", "HMR_dummy_n_p1" },
                                 { "Displacement UX", "Displacement UY", "Displacement UZ" },
                                 { vis::Field_Type::NODAL, vis::Field_Type::NODAL, vis::Field_Type::NODAL },
-                                { vis::Output_Type::UX, vis::Output_Type::UY, vis::Output_Type::UZ } );
+                                { "IQI_UX","IQI_UY","IQI_UZ" } );
 
        tModel->set_output_manager( &tOutputData );
 

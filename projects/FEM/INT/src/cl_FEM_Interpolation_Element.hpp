@@ -161,9 +161,9 @@ namespace moris
                  *                          GLOBAL, NODAL, ELEMENTAL
                  */
                 void compute_quantity_of_interest(
-                        const uint             aClusterIndex,
-                        enum  vis::Output_Type aOutputType,
-                        enum  vis::Field_Type  aFieldType );
+                        const uint              aClusterIndex,
+                        const std::string     & aQIName,
+                        enum  vis::Field_Type   aFieldType );
 
                 //------------------------------------------------------------------------------
                 /**

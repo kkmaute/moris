@@ -215,24 +215,24 @@ namespace moris
                  * @param[ in ] aFieldType  an enum for computation/field type
                  */
                 void compute_quantity_of_interest( const uint aMeshIndex,
-                        enum vis::Output_Type aOutputType,
+                        const std::string   & aQIName,
                         enum vis::Field_Type  aFieldType  )
                 {
                     switch ( aFieldType )
                     {
                         case vis::Field_Type::GLOBAL :
                         {
-                            this->compute_quantity_of_interest_global( aMeshIndex, aOutputType );
+                            this->compute_quantity_of_interest_global( aMeshIndex, aQIName );
                             break;
                         }
                         case vis::Field_Type::NODAL :
                         {
-                            this->compute_quantity_of_interest_nodal( aMeshIndex, aOutputType );
+                            this->compute_quantity_of_interest_nodal( aMeshIndex, aQIName );
                             break;
                         }
                         case vis::Field_Type::ELEMENTAL :
                         {
-                            this->compute_quantity_of_interest_elemental( aMeshIndex, aOutputType );
+                            this->compute_quantity_of_interest_elemental( aMeshIndex, aQIName );
                             break;
                         }
                         default :
@@ -249,8 +249,8 @@ namespace moris
                  * @param[ in ] aOutputType an enum for the output type
                  */
                 virtual void compute_quantity_of_interest_global(
-                        const uint            aMeshIndex,
-                        enum vis::Output_Type aOutputType )
+                        const uint          aMeshIndex,
+                        const std::string & aQIName )
                 {
                     MORIS_ERROR( false, "Element::compute_quantity_of_interest_global - Not implemented for base class." );
                 }
@@ -262,8 +262,8 @@ namespace moris
                  * @param[ in ] aOutputType an enum for the output type
                  */
                 virtual void compute_quantity_of_interest_nodal(
-                        const uint aMeshIndex,
-                        enum vis::Output_Type aOutputType )
+                        const uint          aMeshIndex,
+                        const std::string & aQIName )
                 {
                     MORIS_ERROR( false, "Element::compute_quantity_of_interest_nodal - Not implemented for base class." );
                 }
@@ -275,8 +275,8 @@ namespace moris
                  * @param[ in ] aOutputType an enum for the output type
                  */
                 virtual void compute_quantity_of_interest_elemental(
-                        const uint            aMeshIndex,
-                        enum vis::Output_Type aOutputType )
+                        const uint          aMeshIndex,
+                        const std::string & aQIName )
                 {
                     MORIS_ERROR( false, "Element::compute_quantity_of_interest_elemental - Not implemented for base class." );
                 }

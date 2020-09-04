@@ -507,12 +507,19 @@ namespace moris
         //------------------------------------------------------------------------------
 
         void Element_Bulk::compute_quantity_of_interest_global(
-                const uint             aMeshIndex,
-                enum  vis::Output_Type aOutputType )
+                const uint          aMeshIndex,
+                const std::string & aQIName )
         {
             // set physical and parametric space and time coefficients for IG element
             moris::Cell< Matrix< DDSMat > > tIsActiveDv;
             this->init_ig_geometry_interpolator( tIsActiveDv );
+						
+            // get the set local index
+            moris_index tIQISetLocalIndex =
+                        mSet->mIQINameToIndexMap.find( aQIName );
+
+            // get IQI
+            std::shared_ptr< IQI > tIQI = mSet->mIQIs( tIQISetLocalIndex );
 
             // loop over integration points
             uint tNumIntegPoints = mSet->get_number_of_integration_points();
@@ -529,11 +536,11 @@ namespace moris
                         mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator()->det_J();
 
                 // reset the requested IQI
-                mSet->get_IQI_for_vis( aOutputType )->reset_eval_flags();
+                tIQI->reset_eval_flags();
 
                 // compute quantity of interest at evaluation point
                 Matrix< DDRMat > tQIValue;
-                mSet->get_IQI_for_vis( aOutputType )->get_QI( tQIValue );
+                tIQI->compute_QI( tQIValue );
 
                 // FIXME assemble on the set here or inside the compute QI?
                 *( mSet->mSetGlobalValues ) += tQIValue( 0 ) * tWStar;
@@ -543,8 +550,8 @@ namespace moris
         //------------------------------------------------------------------------------
 
         void Element_Bulk::compute_quantity_of_interest_nodal(
-                const uint aMeshIndex,
-                enum vis::Output_Type aOutputType )
+                const uint          aMeshIndex,
+                const std::string & aQIName )
         {
             // set physical and parametric space and time coefficients for IG element
             moris::Cell< Matrix< DDSMat > > tIsActiveDv;
@@ -552,6 +559,13 @@ namespace moris
 
             // get the vertices
             moris::Cell< mtk::Vertex * > tVertices = mMasterCell->get_vertex_pointers();
+			
+			// get the set local index
+            moris_index tIQISetLocalIndex =
+                        mSet->mIQINameToIndexMap.find( aQIName );
+
+            // get IQI
+            std::shared_ptr< IQI > tIQI = mSet->mIQIs( tIQISetLocalIndex );
 
             // loop over the vertices
             uint tNumNodes = tVertices.size();
@@ -570,11 +584,11 @@ namespace moris
                 mSet->get_field_interpolator_manager()->set_space_time( tGlobalIntegPoint );
 
                 // reset the requested IQI
-                mSet->get_IQI_for_vis( aOutputType )->reset_eval_flags();
+                tIQI->reset_eval_flags();
 
                 // compute quantity of interest at evaluation point
                 Matrix< DDRMat > tQIValue;
-                mSet->get_IQI_for_vis( aOutputType )->get_QI( tQIValue );
+                tIQI->compute_QI( tQIValue );
 
                 // FIXME assemble on the set here or inside the compute QI?
                 // FIXME add up on shared node and divide or overwrite
@@ -587,12 +601,19 @@ namespace moris
         //------------------------------------------------------------------------------
 
         void Element_Bulk::compute_quantity_of_interest_elemental(
-                const uint aMeshIndex,
-                enum vis::Output_Type aOutputType )
+                const uint          aMeshIndex,
+                const std::string & aQIName )
         {
             // set physical and parametric space and time coefficients for IG element
             moris::Cell< Matrix< DDSMat > > tIsActiveDv;
             this->init_ig_geometry_interpolator( tIsActiveDv );
+			
+			// get the set local index
+            moris_index tIQISetLocalIndex =
+                        mSet->mIQINameToIndexMap.find( aQIName );
+
+            // get IQI
+            std::shared_ptr< IQI > tIQI = mSet->mIQIs( tIQISetLocalIndex );
 
             // loop over integration points
             uint tNumIntegPoints = mSet->get_number_of_integration_points();
@@ -609,11 +630,11 @@ namespace moris
                         mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator()->det_J();
 
                 // reset the requested IQI
-                mSet->get_IQI_for_vis( aOutputType )->reset_eval_flags();
+                tIQI->reset_eval_flags();
 
                 // compute quantity of interest at evaluation point
                 Matrix< DDRMat > tQIValue;
-                mSet->get_IQI_for_vis( aOutputType )->get_QI( tQIValue );
+                tIQI->compute_QI( tQIValue );
 
                 // FIXME assemble on the set here or inside the compute QI?
                 ( *mSet->mSetElementalValues )( mSet->mCellAssemblyMap( aMeshIndex )( mMasterCell->get_index() ), 0 ) += 
