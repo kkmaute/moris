@@ -41,7 +41,6 @@ namespace moris
         mVISParameterList.insert( "Field_Names"    , std::string("") );
         mVISParameterList.insert( "Field_Type"     , std::string("") );
 		mVISParameterList.insert( "QI_Names"       , std::string("") );
-        mVISParameterList.insert( "Output_Type"    , std::string("") );
 
         return mVISParameterList;
     }

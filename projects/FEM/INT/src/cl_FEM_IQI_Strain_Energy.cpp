@@ -16,9 +16,6 @@ namespace moris
 
         IQI_Strain_Energy::IQI_Strain_Energy()
         {
-            // set IQI type
-            mIQIType = vis::Output_Type::STRAIN_ENERGY;
-
             // set fem IQI type
             mFEMIQIType = fem::IQI_Type::STRAIN_ENERGY;
 

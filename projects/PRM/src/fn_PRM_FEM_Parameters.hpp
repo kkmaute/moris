@@ -131,7 +131,6 @@ namespace moris
 
             tParameterList.insert( "IQI_name",                   std::string( "undefined" ) );
             tParameterList.insert( "IQI_type",                   static_cast< uint >( fem::IQI_Type::UNDEFINED ) );
-            tParameterList.insert( "IQI_output_type",            static_cast< uint >( vis::Output_Type::UNDEFINED ) );
             tParameterList.insert( "master_dof_dependencies",    std::string( "" ) );
             tParameterList.insert( "slave_dof_dependencies",     std::string( "" ) );
             tParameterList.insert( "master_dv_dependencies",     std::string( "" ) );

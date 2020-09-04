@@ -15,9 +15,6 @@ namespace moris
 //------------------------------------------------------------------------------
         IQI_H1_Semi_Error::IQI_H1_Semi_Error()
         {
-            // set IQI type
-            mIQIType = vis::Output_Type::H1_SEMI_ERROR;
-
             // set FEM IQI type
             mFEMIQIType = fem::IQI_Type::H1_SEMI_ERROR;
         }

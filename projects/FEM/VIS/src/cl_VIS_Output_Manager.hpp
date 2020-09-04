@@ -70,9 +70,6 @@ namespace moris
 
             //! Field types
             moris::Cell< enum Field_Type >  mFieldType;
-
-            //! Output enums
-            moris::Cell< enum Output_Type > mOutputType;
 			
 			//! Quantitiy of interest names
             moris::Cell< std::string >      mQINames;

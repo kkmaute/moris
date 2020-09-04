@@ -17,9 +17,6 @@ namespace moris
 
         IQI_L2_Error_Analytic::IQI_L2_Error_Analytic()
         {
-            // set IQI type
-            mIQIType = vis::Output_Type::L2_ERROR_ANALYTIC;
-
             // set FEM IQI type
             mFEMIQIType = fem::IQI_Type::L2_ERROR_ANALYTIC;
 
