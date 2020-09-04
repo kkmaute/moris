@@ -56,7 +56,7 @@ namespace moris
         void IQI_Max_Dof::compute_QI( Matrix< DDRMat > & aQI )
         {
             // get field interpolator for a given dof type
-            Field_Interpolator * tFI =
+            Field_Interpolator * tFIMaxDof =
                     mMasterFIManager->get_field_interpolators_for_type( mMasterDofTypes( 0 )( 0 ) );
 
             MORIS_ERROR(mMasterProp( static_cast< uint >( IQI_Property_Type::REFERENCE_VALUE ) ) != nullptr,
@@ -80,29 +80,47 @@ namespace moris
             }
 
             // evaluate the QI
-            aQI = {{ std::pow( ( tFI->val()( mIQITypeIndex ) / tRefValue ) - 1.0, tExponent ) }};
+            aQI = {{ std::pow( ( tFIMaxDof->val()( mIQITypeIndex ) / tRefValue ) - 1.0, tExponent ) }};
         }
 
         //------------------------------------------------------------------------------
 
-        void IQI_Max_Dof::compute_dQIdu( MSI::Dof_Type aDofType, Matrix< DDRMat > & adQIdu )
+        void IQI_Max_Dof::compute_dQIdu(
+                moris::Cell< MSI::Dof_Type > & aDofType,
+                Matrix< DDRMat >             & adQIdu )
         {
+            // FIXME protect max dof type
+            // get field interpolator for max dof type
+            Field_Interpolator * tFIMaxDof =
+                    mMasterFIManager->get_field_interpolators_for_type( mMasterDofTypes( 0 )( 0 ) );
+
             // get property values
             real tRefValue = mMasterProp( static_cast< uint >( IQI_Property_Type::REFERENCE_VALUE ) )->val()( 0 );
             real tExponent = mMasterProp( static_cast< uint >( IQI_Property_Type::EXPONENT ) )->val()( 0 );
 
-            // build selection matrix
-            uint tNumVecFieldComps = mMasterDofTypes( 0 ).size();
-            Matrix< DDRMat > tSelect( tNumVecFieldComps, tNumVecFieldComps, 0.0 );
-            tSelect( mIQITypeIndex, mIQITypeIndex) = 1.0;
+            // FIXME protect max dof type
+            // if derivative dof type is max dof type
+            if( aDofType( 0 ) == mMasterDofTypes( 0 )( 0 ) )
+            {
+                // build selection matrix
+                uint tNumVecFieldComps = tFIMaxDof->val().numel();
+                Matrix< DDRMat > tSelect( tNumVecFieldComps, tNumVecFieldComps, 0.0 );
+                tSelect( mIQITypeIndex, mIQITypeIndex ) = 1.0;
 
-            // get field interpolator for a given dof type
-            Field_Interpolator * tFI = mMasterFIManager->get_field_interpolators_for_type( mMasterDofTypes( 0 )( 0 ) );
+                // compute dQIdDof
+                adQIdu = ( tExponent / tRefValue ) *
+                        std::pow( ( tFIMaxDof->val()( mIQITypeIndex ) / tRefValue ) - 1.0, tExponent - 1.0 ) *
+                        trans( tFIMaxDof->N() ) * tSelect;
+            }
+            else
+            {
+                // get field interpolator for derivative
+                Field_Interpolator * tFIDer =
+                        mMasterFIManager->get_field_interpolators_for_type( aDofType( 0 ) );
 
-            // compute dQIdDof
-            adQIdu = ( tExponent / tRefValue ) *
-                    std::pow( 1/tRefValue * tFI->val()( mIQITypeIndex ) - 1.0, tExponent - 1.0 ) *
-                    trans( tFI->N() ) * tSelect;
+                // set adQIdu size
+                adQIdu.set_size( 1, tFIDer->get_number_of_space_time_coefficients(), 0.0 );
+            }
         }
 
         //------------------------------------------------------------------------------

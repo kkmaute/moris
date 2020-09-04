@@ -64,18 +64,21 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        void IQI_Strain_Energy::compute_dQIdu( MSI::Dof_Type aDofType, Matrix< DDRMat > & adQIdu )
+        void IQI_Strain_Energy::compute_dQIdu(
+                moris::Cell< MSI::Dof_Type > & aDofType,
+                Matrix< DDRMat >             & adQIdu )
         {
             // get the elasticity CM
             std::shared_ptr< Constitutive_Model > tCMElasticity =
                     mMasterCM( static_cast< uint >( IQI_Constitutive_Type::ELAST ) );
 
             // if elasticity CM depends on dof type
-            if ( tCMElasticity->check_dof_dependency( { aDofType } ) )
+            if ( tCMElasticity->check_dof_dependency( aDofType ) )
             {
                 // compute dQIdu
-                adQIdu = 0.5 * (trans( tCMElasticity->dFluxdDOF( { aDofType } ) ) * tCMElasticity->strain( ) +
-                         trans( trans( tCMElasticity->flux() ) * tCMElasticity->dStraindDOF( { aDofType } ) ));
+                adQIdu = 0.5 * (
+                        trans( tCMElasticity->dFluxdDOF( aDofType ) )   * tCMElasticity->strain() +
+                        trans( tCMElasticity->dStraindDOF( aDofType ) ) * tCMElasticity->flux() );
             }
         }
 

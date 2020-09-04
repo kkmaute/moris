@@ -13,6 +13,7 @@ namespace moris
     namespace fem
     {
         //------------------------------------------------------------------------------
+
         IQI_Drag_Lift_Coefficient::IQI_Drag_Lift_Coefficient( sint aBeta )
         {
             // fill master dof map (default)
@@ -49,6 +50,7 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+
         void IQI_Drag_Lift_Coefficient::compute_QI( Matrix< DDRMat > & aQI )
         {
             // get the velocity FI
@@ -83,9 +85,11 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        void IQI_Drag_Lift_Coefficient::compute_dQIdu( MSI::Dof_Type aDofType, Matrix< DDRMat > & adQIdu )
+        void IQI_Drag_Lift_Coefficient::compute_dQIdu(
+                moris::Cell< MSI::Dof_Type > & aDofType,
+                Matrix< DDRMat >             & adQIdu )
         {
-            MORIS_ERROR(false, "compute_dQIdu() not implemented for a drag/lift coefficient IQI.");
+            MORIS_ERROR( false, "IQI_Drag_Lift_Coefficient::compute_dQIdu() - not implemented for a drag/lift coefficient IQI.");
         }
 
         //------------------------------------------------------------------------------

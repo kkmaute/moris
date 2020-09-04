@@ -13,6 +13,24 @@ namespace moris
     namespace fem
     {
         //------------------------------------------------------------------------------
+
+        void IQI_J_Integral::set_constitutive_model(
+                std::shared_ptr< Constitutive_Model > aConstitutiveModel,
+                std::string                           aConstitutiveString,
+                mtk::Master_Slave                     aIsMaster )
+        {
+            // can only be master
+            MORIS_ERROR( aIsMaster == mtk::Master_Slave::MASTER,
+                    "IQI::set_constitutive model - can only be master." );
+
+            // FIXME check that constitutive string makes sense?
+
+            // set the constitutive model in the constitutive model cell
+            this->get_constitutive_models( aIsMaster )( static_cast< uint >( mConstitutiveMap[ aConstitutiveString ] ) ) = aConstitutiveModel;
+        }
+
+        //------------------------------------------------------------------------------
+
         IQI_J_Integral::IQI_J_Integral()
         {
             // set IQI type
@@ -24,7 +42,9 @@ namespace moris
             // populate the constitutive map
             mConstitutiveMap[ "ElastLinIso" ] = IQI_Constitutive_Type::ELAST_LIN_ISO;
         }
+
         //------------------------------------------------------------------------------
+
         void IQI_J_Integral::compute_QI( Matrix< DDRMat > & aQI )
         {
             /*
@@ -42,17 +62,21 @@ namespace moris
 
             // 2D
             aQI = ( trans( mMasterCM( tElastLinIsoIndex )->flux() ) * mMasterCM( tElastLinIsoIndex )->strain() )*tN(0)
-                    - mMasterCM( tElastLinIsoIndex )->traction(tN)(0)*mMasterCM( tElastLinIsoIndex )->strain()(0)
-                    - mMasterCM( tElastLinIsoIndex )->traction(tN)(1)*mMasterFIManager->get_field_interpolators_for_type( MSI::Dof_Type::UX )->gradx(1)(1,0);  //FIXME: need to ask for displacement dof
+                            - mMasterCM( tElastLinIsoIndex )->traction(tN)(0)*mMasterCM( tElastLinIsoIndex )->strain()(0)
+                            - mMasterCM( tElastLinIsoIndex )->traction(tN)(1)*mMasterFIManager->get_field_interpolators_for_type( MSI::Dof_Type::UX )->gradx(1)(1,0);  //FIXME: need to ask for displacement dof
 
         }
 
         //------------------------------------------------------------------------------
 
-        void IQI_J_Integral::compute_dQIdu( MSI::Dof_Type aDofType, Matrix< DDRMat > & adQIdu  )
+        void IQI_J_Integral::compute_dQIdu(
+                moris::Cell< MSI::Dof_Type > & aDofType,
+                Matrix< DDRMat >             & adQIdu  )
         {
             MORIS_ERROR( false, "IQI_J_Integral::compute_dQIdu() - this function does nothing for the J-Integral" );
         }
+
+        //------------------------------------------------------------------------------
 
     }   // end fem namespace
 }       // end moris namespace

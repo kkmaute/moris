@@ -80,9 +80,12 @@ namespace moris
 
             /**
              * compute the derivative of the quantity of interest wrt dof types
-             * @param[ in ] adQIdu derivative of quantity of interest matrix to fill
+             * @param[ in ] aDofType group of dof types wrt which derivatives are evaluated
+             * @param[ in ] adQIdu   derivative of quantity of interest matrix to fill
              */
-            void compute_dQIdu( MSI::Dof_Type aDofType, Matrix< DDRMat > & adQIdu );
+            void compute_dQIdu(
+                    moris::Cell< MSI::Dof_Type > & aDofType,
+                    Matrix< DDRMat >             & adQIdu );
 
             //------------------------------------------------------------------------------
         };

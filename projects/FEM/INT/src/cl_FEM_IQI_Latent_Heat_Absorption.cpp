@@ -82,7 +82,9 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        void IQI_Latent_Heat_Absorption::compute_dQIdu( MSI::Dof_Type aDofType, Matrix< DDRMat > & adQIdu )
+        void IQI_Latent_Heat_Absorption::compute_dQIdu(
+                moris::Cell< MSI::Dof_Type > & aDofType,
+                Matrix< DDRMat >             & adQIdu )
         {
             // get properties
             std::shared_ptr< Property > tPropDensity = mMasterProp( static_cast< uint >( IQI_Property_Type::DENSITY ) );
@@ -104,7 +106,7 @@ namespace moris
                     tFITemp );
 
             // if direct dependency on the dof type
-            if( aDofType == MSI::Dof_Type::TEMP )
+            if( aDofType( 0 ) == MSI::Dof_Type::TEMP )
             {
                 // compute Dof derivative of phase state function
                 const moris::Matrix<DDRMat> dfdDof = eval_dFdTempdDOF(
@@ -114,16 +116,16 @@ namespace moris
                         tFITemp);
 
                 // compute derivative with direct dependency
-                adQIdu = tPropDensity->val()(0) * tPropLatHeat->val()(0) * tdfdT * tFITemp->dnNdtn(1) +
-                                tPropDensity->val()(0) * tPropLatHeat->val()(0) * tFITemp->gradt(1) * dfdDof;
+                adQIdu =
+                        tPropDensity->val()(0) * tPropLatHeat->val()(0) * tdfdT * tFITemp->dnNdtn(1) +
+                        tPropDensity->val()(0) * tPropLatHeat->val()(0) * tFITemp->gradt(1) * dfdDof;
             }
 
             // if density property depends on the dof type
-            if ( tPropDensity->check_dof_dependency( {aDofType} ) )
+            if ( tPropDensity->check_dof_dependency( aDofType ) )
             {
                 // compute derivative with indirect dependency through properties
-                adQIdu = tPropLatHeat->val()(0) * tdfdT * tFITemp->gradt(1) *
-                                tPropDensity->dPropdDOF( {aDofType} );
+                adQIdu = tPropLatHeat->val()(0) * tdfdT * tFITemp->gradt(1) * tPropDensity->dPropdDOF( aDofType );
             }
         }
 
