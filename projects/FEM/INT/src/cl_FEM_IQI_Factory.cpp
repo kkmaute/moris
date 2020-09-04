@@ -12,7 +12,6 @@
 #include "cl_FEM_IQI_Volume.hpp"
 #include "cl_FEM_IQI_Strain_Energy.hpp"
 #include "cl_FEM_IQI_Stress.hpp"
-#include "cl_FEM_IQI_Analytic.hpp"
 #include "cl_FEM_IQI_Dof.hpp"
 #include "cl_FEM_IQI_Max_Dof.hpp"
 #include "cl_FEM_IQI_Property.hpp"
@@ -70,9 +69,6 @@ namespace moris
                     return std::make_shared< IQI_Max_Stress >( Stress_Type::VON_MISES_STRESS );
                 case IQI_Type::MAX_PRINCIPAL_STRESS :
                     return std::make_shared< IQI_Max_Stress >( Stress_Type::PRINCIPAL_STRESS );
-
-                case IQI_Type::ANALYTIC :
-                    return std::make_shared< IQI_Analytic >();
 
                 case IQI_Type::L2_ERROR_ANALYTIC :
                     return std::make_shared< IQI_L2_Error_Analytic >();

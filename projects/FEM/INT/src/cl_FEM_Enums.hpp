@@ -181,7 +181,6 @@ namespace moris
                 H1_ERROR_ANALYTIC,
                 H1_SEMI_ERROR,
                 J_INTEGRAL,
-                ANALYTIC,
                 LIFT_COEFF,
                 DRAG_COEFF,
                 LATENT_HEAT_ABSORPTION,
@@ -203,6 +202,7 @@ namespace moris
         };
 
         //------------------------------------------------------------------------------
+
         enum class Constitutive_Type
         {
                 UNDEFINED,
