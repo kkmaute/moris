@@ -33,9 +33,6 @@ namespace moris
 
         IQI_Property::IQI_Property()
         {
-            // set IQI type
-            mIQIType = vis::Output_Type::PROPERTY;
-
             // set size for the property pointer cell
             mMasterProp.resize( static_cast< uint >( IQI_Property_Type::MAX_ENUM ), nullptr );
 

@@ -574,7 +574,6 @@ namespace moris
             fem::IQI_Factory tIQIFactory;
 
             std::shared_ptr< fem::IQI > tIQITEMP = tIQIFactory.create_IQI( fem::IQI_Type::DOF );
-            tIQITEMP->set_output_type( vis::Output_Type::TEMP );
             tIQITEMP->set_dof_type_list( { {MSI::Dof_Type::TEMP} }, mtk::Master_Slave::MASTER );
             tIQITEMP->set_output_type_index( 0 );
 			tIQITEMP->set_name( "IQI_Temp" );
@@ -895,7 +894,6 @@ namespace moris
             fem::IQI_Factory tIQIFactory;
 
             std::shared_ptr< fem::IQI > tIQITEMP = tIQIFactory.create_IQI( fem::IQI_Type::DOF );
-            tIQITEMP->set_output_type( vis::Output_Type::TEMP );
             tIQITEMP->set_dof_type_list( { { MSI::Dof_Type::TEMP} }, mtk::Master_Slave::MASTER );
             tIQITEMP->set_output_type_index( 0 );
 			tIQITEMP->set_name( "IQI_Temp" );
@@ -1181,7 +1179,6 @@ namespace moris
             //        tIQITEMP->set_output_type_index( 0 );
 
             std::shared_ptr< fem::IQI > tIQIVolFraction = tIQIFactory.create_IQI( fem::IQI_Type::VOLUME_FRACTION );
-            tIQIVolFraction->set_output_type( vis::Output_Type::VOLUME_FRACTION );
             tIQIVolFraction->set_stabilization_parameter( tSPReciprocalVolume, "Reciprocal_total_vol" );
 
 

@@ -19,9 +19,6 @@ namespace moris
 
         IQI_Latent_Heat_Absorption::IQI_Latent_Heat_Absorption()
         {
-            // set IQI type
-            mIQIType = vis::Output_Type::LATENT_HEAT_ABSORPTION;
-
             // set fem IQI type
             mFEMIQIType = fem::IQI_Type::LATENT_HEAT_ABSORPTION;
 

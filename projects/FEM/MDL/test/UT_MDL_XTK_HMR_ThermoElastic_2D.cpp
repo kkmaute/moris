@@ -369,19 +369,16 @@ TEST_CASE("2D XTK WITH HMR ThermoElastic 2D","[XTK_HMR_thermoelastic_2D]")
         fem::IQI_Factory tIQIFactory;
 
         std::shared_ptr< fem::IQI > tIQIUX = tIQIFactory.create_IQI( fem::IQI_Type::DOF );
-        tIQIUX->set_output_type( vis::Output_Type::UX );
         tIQIUX->set_dof_type_list( { { MSI::Dof_Type::UX, MSI::Dof_Type::UY } }, mtk::Master_Slave::MASTER );
         tIQIUX->set_output_type_index( 0 );
 		tIQIUX->set_name( "IQI_UX" );
 
         std::shared_ptr< fem::IQI > tIQIUY = tIQIFactory.create_IQI( fem::IQI_Type::DOF );
-        tIQIUY->set_output_type( vis::Output_Type::UY );
         tIQIUY->set_dof_type_list( { { MSI::Dof_Type::UX, MSI::Dof_Type::UY } }, mtk::Master_Slave::MASTER );
         tIQIUY->set_output_type_index( 1 );
 		tIQIUY->set_name( "IQI_UY" );
 
         std::shared_ptr< fem::IQI > tIQITEMP = tIQIFactory.create_IQI( fem::IQI_Type::DOF );
-        tIQITEMP->set_output_type( vis::Output_Type::TEMP );
         tIQITEMP->set_dof_type_list( { { MSI::Dof_Type::TEMP } }, mtk::Master_Slave::MASTER );
         tIQITEMP->set_output_type_index( 0 );
 		tIQITEMP->set_name( "IQI_TEMP" );
@@ -837,19 +834,16 @@ TEST_CASE("2D XTK WITH HMR ThermoElastic 2D Staggered","[XTK_HMR_thermoelastic_2
          fem::IQI_Factory tIQIFactory;
 
          std::shared_ptr< fem::IQI > tIQIUX = tIQIFactory.create_IQI( fem::IQI_Type::DOF );
-         tIQIUX->set_output_type( vis::Output_Type::UX );
          tIQIUX->set_dof_type_list( { { MSI::Dof_Type::UX, MSI::Dof_Type::UY } }, mtk::Master_Slave::MASTER );
          tIQIUX->set_output_type_index( 0 );
 		 tIQIUX->set_name( "IQI_UX" );
 
          std::shared_ptr< fem::IQI > tIQIUY = tIQIFactory.create_IQI( fem::IQI_Type::DOF );
-         tIQIUY->set_output_type( vis::Output_Type::UY );
          tIQIUY->set_dof_type_list( { { MSI::Dof_Type::UX, MSI::Dof_Type::UY } }, mtk::Master_Slave::MASTER );
          tIQIUY->set_output_type_index( 1 );
 		 tIQIUY->set_name( "IQI_UY" );
 
          std::shared_ptr< fem::IQI > tIQITEMP = tIQIFactory.create_IQI( fem::IQI_Type::DOF );
-         tIQITEMP->set_output_type( vis::Output_Type::TEMP );
          tIQITEMP->set_dof_type_list( { { MSI::Dof_Type::TEMP } }, mtk::Master_Slave::MASTER );
          tIQITEMP->set_output_type_index( 0 );
 		 tIQITEMP->set_name( "IQI_TEMP" );

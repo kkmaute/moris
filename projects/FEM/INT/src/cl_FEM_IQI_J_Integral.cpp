@@ -33,9 +33,6 @@ namespace moris
 
         IQI_J_Integral::IQI_J_Integral()
         {
-            // set IQI type
-            mIQIType = vis::Output_Type::J_INTEGRAL;
-
             // set size for the constitutive model pointer cell
             mMasterCM.resize( static_cast< uint >( IQI_Constitutive_Type::MAX_ENUM ), nullptr );
 

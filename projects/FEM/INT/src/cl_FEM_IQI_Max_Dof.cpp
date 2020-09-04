@@ -16,12 +16,6 @@ namespace moris
 
         IQI_Max_Dof::IQI_Max_Dof()
         {
-            // set IQI type
-            mIQIType = vis::Output_Type::MAX_DOF;
-
-            // set FEM IQI type
-            mFEMIQIType = fem::IQI_Type::MAX_DOF;
-
             // set the property pointer cell size
             mMasterProp.resize( static_cast< uint >( IQI_Property_Type::MAX_ENUM ), nullptr );
 

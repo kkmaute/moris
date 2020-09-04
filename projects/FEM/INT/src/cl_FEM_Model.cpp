@@ -1064,11 +1064,6 @@ namespace moris
                 // set name
                 mIQIs( iIQI )->set_name( tIQIParameterList( iIQI ).get< std::string >( "IQI_name" ) );
 
-                // set IQI output type
-                vis::Output_Type tIQIOutputType =
-                        static_cast< vis::Output_Type >( tIQIParameterList( iIQI ).get< uint >( "IQI_output_type" ) );
-                mIQIs( iIQI )->set_output_type( tIQIOutputType);
-
                 // set master dof dependencies
                 moris::Cell< moris::Cell< moris::MSI::Dof_Type > > tDofTypes;
                 string_to_cell_of_cell(

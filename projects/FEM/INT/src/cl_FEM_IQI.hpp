@@ -45,9 +45,6 @@ namespace moris
             // FEM set pointer
             fem::Set * mSet = nullptr;
 
-            // IQI type
-            enum vis::Output_Type mIQIType;
-
             // FEM IQI type
             enum fem::IQI_Type mFEMIQIType;
 
@@ -160,15 +157,6 @@ namespace moris
 
             //------------------------------------------------------------------------------
             /**
-             * get vis IQI type
-             */
-            enum vis::Output_Type get_IQI_type()
-            {
-                return mIQIType;
-            }
-
-            //------------------------------------------------------------------------------
-            /**
              * get fem IQI type
              */
             enum fem::IQI_Type get_fem_IQI_type()
@@ -216,16 +204,6 @@ namespace moris
             void set_set_pointer( Set * aSetPointer )
             {
                 mSet = aSetPointer;
-            }
-
-            //------------------------------------------------------------------------------
-            /*
-             * set output type
-             * @param[ in ] aSetPointer a FEM set pointer
-             */
-            void set_output_type( enum vis::Output_Type aOutputType )
-            {
-                mIQIType = aOutputType;
             }
 
             //------------------------------------------------------------------------------

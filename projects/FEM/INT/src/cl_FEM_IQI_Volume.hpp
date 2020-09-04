@@ -42,9 +42,6 @@ namespace moris
              */
             IQI_Volume()
             {
-                // set IQI type
-                mIQIType = vis::Output_Type::VOLUME;
-
                 // set size for the property pointer cell
                 mMasterProp.resize( static_cast< uint >( IQI_Property_Type::MAX_ENUM ), nullptr );
 

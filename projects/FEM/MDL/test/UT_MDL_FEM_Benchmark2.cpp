@@ -323,19 +323,16 @@ TEST_CASE("MDL_FEM_Benchmark_Diffusion_1Mat","[MDL_FEM_Benchmark_Diffusion_1Mat]
         fem::IQI_Factory tIQIFactory;
 
         std::shared_ptr< fem::IQI > tIQITEMP = tIQIFactory.create_IQI( fem::IQI_Type::DOF );
-        tIQITEMP->set_output_type( vis::Output_Type::TEMP );
         tIQITEMP->set_dof_type_list( { { MSI::Dof_Type::TEMP } }, mtk::Master_Slave::MASTER );
         tIQITEMP->set_output_type_index( 0 );
 		tIQITEMP->set_name( "IQI_TEMP" );
 
         std::shared_ptr< fem::IQI > tIQIL2 = tIQIFactory.create_IQI( fem::IQI_Type::L2_ERROR_ANALYTIC );
-        tIQIL2->set_output_type( vis::Output_Type::L2_ERROR_ANALYTIC );
         tIQIL2->set_dof_type_list( { { MSI::Dof_Type::TEMP } }, mtk::Master_Slave::MASTER );
         tIQIL2->set_property( tPropL2Analytic, "L2Check", mtk::Master_Slave::MASTER );
 		tIQIL2->set_name( "IQI_L2" );
 
         std::shared_ptr< fem::IQI > tIQITempExact = tIQIFactory.create_IQI( fem::IQI_Type::PROPERTY );
-        tIQITempExact->set_output_type( vis::Output_Type::PROPERTY );
         tIQITempExact->set_property( tPropL2Analytic, "Property", mtk::Master_Slave::MASTER );
 		tIQITempExact->set_name( "IQI_Exact" );
 
@@ -647,19 +644,16 @@ TEST_CASE("MDL_FEM_Benchmark_Diffusion_1Mat_Ghost","[MDL_FEM_Benchmark_Diffusion
         fem::IQI_Factory tIQIFactory;
 
         std::shared_ptr< fem::IQI > tIQITEMP = tIQIFactory.create_IQI( fem::IQI_Type::DOF );
-        tIQITEMP->set_output_type( vis::Output_Type::TEMP );
         tIQITEMP->set_dof_type_list( { { MSI::Dof_Type::TEMP } }, mtk::Master_Slave::MASTER );
         tIQITEMP->set_output_type_index( 0 );
 		tIQITEMP->set_name( "IQI_TEMP" );
 
         std::shared_ptr< fem::IQI > tIQIL2 = tIQIFactory.create_IQI( fem::IQI_Type::L2_ERROR_ANALYTIC );
-        tIQIL2->set_output_type( vis::Output_Type::L2_ERROR_ANALYTIC );
         tIQIL2->set_dof_type_list( { { MSI::Dof_Type::TEMP } }, mtk::Master_Slave::MASTER );
         tIQIL2->set_property( tPropL2Analytic, "L2Check", mtk::Master_Slave::MASTER );
 		tIQIL2->set_name( "IQI_L2" );
 
         std::shared_ptr< fem::IQI > tIQITempExact = tIQIFactory.create_IQI( fem::IQI_Type::PROPERTY );
-        tIQITempExact->set_output_type( vis::Output_Type::PROPERTY );
         tIQITempExact->set_property( tPropL2Analytic, "Property", mtk::Master_Slave::MASTER );
 		tIQITempExact->set_name( "IQI_Exact" );
 
@@ -997,19 +991,16 @@ TEST_CASE("FEM Benchmark 2 - 2Mat","[MDL_FEM_Benchmark2_2Mat]")
         fem::IQI_Factory tIQIFactory;
 
         std::shared_ptr< fem::IQI > tIQITEMP = tIQIFactory.create_IQI( fem::IQI_Type::DOF );
-        tIQITEMP->set_output_type( vis::Output_Type::TEMP );
         tIQITEMP->set_dof_type_list( { { MSI::Dof_Type::TEMP } }, mtk::Master_Slave::MASTER );
         tIQITEMP->set_output_type_index( 0 );
 		tIQITEMP->set_name( "IQI_Temp" );
 
         std::shared_ptr< fem::IQI > tIQIL2 = tIQIFactory.create_IQI( fem::IQI_Type::L2_ERROR_ANALYTIC );
-        tIQIL2->set_output_type( vis::Output_Type::L2_ERROR_ANALYTIC );
         tIQIL2->set_dof_type_list( { { MSI::Dof_Type::TEMP } }, mtk::Master_Slave::MASTER );
         tIQIL2->set_property( tPropL2Analytic, "L2Check", mtk::Master_Slave::MASTER );
 		tIQIL2->set_name( "IQI_L2" );
 
         std::shared_ptr< fem::IQI > tIQITempExact = tIQIFactory.create_IQI( fem::IQI_Type::PROPERTY );
-        tIQITempExact->set_output_type( vis::Output_Type::PROPERTY );
         tIQITempExact->set_property( tPropL2Analytic, "Property", mtk::Master_Slave::MASTER );
 		tIQITempExact->set_name( "IQI_Exact" );
 
@@ -1352,19 +1343,16 @@ TEST_CASE("FEM Benchmark Diffusion Inclusion - 2Mat","[MDL_FEM_Benchmark_Diffusi
         fem::IQI_Factory tIQIFactory;
 
         std::shared_ptr< fem::IQI > tIQITEMP = tIQIFactory.create_IQI( fem::IQI_Type::DOF );
-        tIQITEMP->set_output_type( vis::Output_Type::TEMP );
         tIQITEMP->set_dof_type_list( { { MSI::Dof_Type::TEMP } }, mtk::Master_Slave::MASTER );
         tIQITEMP->set_output_type_index( 0 );
 		tIQITEMP->set_name( "IQI_Temp" );
 
         std::shared_ptr< fem::IQI > tIQIL2 = tIQIFactory.create_IQI( fem::IQI_Type::L2_ERROR_ANALYTIC );
-        tIQIL2->set_output_type( vis::Output_Type::L2_ERROR_ANALYTIC );
         tIQIL2->set_dof_type_list( { { MSI::Dof_Type::TEMP } }, mtk::Master_Slave::MASTER );
         tIQIL2->set_property( tPropL2Analytic, "L2Check", mtk::Master_Slave::MASTER );
 		tIQIL2->set_name( "IQI_L2" );
 
         std::shared_ptr< fem::IQI > tIQITempExact = tIQIFactory.create_IQI( fem::IQI_Type::PROPERTY );
-        tIQITempExact->set_output_type( vis::Output_Type::PROPERTY );
         tIQITempExact->set_property( tPropL2Analytic, "Property", mtk::Master_Slave::MASTER );
 		tIQITempExact->set_name( "IQI_Exact" );
 

@@ -17,9 +17,6 @@ namespace moris
 
         IQI_Turbulent_Kinematic_Viscosity::IQI_Turbulent_Kinematic_Viscosity()
         {
-            // set IQI type
-            mIQIType = vis::Output_Type::TURBULENT_KINEMATIC_VISCOSITY;
-
             // set fem IQI type
             mFEMIQIType = fem::IQI_Type::TURBULENT_KINEMATIC_VISCOSITY;
 
