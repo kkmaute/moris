@@ -61,10 +61,23 @@ namespace moris
                         {false, false, false, false}, // Geometry 1, Element 2
                         {true, false, true, false}}}; // Geometry 1, Element 3
 
-                // Intersection local coordinates
+                // Intersection coordinates
                 real tFrac = 2.0 / (3.0 + sqrt(17.0));
                 Matrix<DDRMat> tIntersectionLocalCoordinates = {{
                         -tFrac, 1.0, 0.0, tFrac, -1.0, tFrac, 0.0, -tFrac, -0.5, 0.5, -0.5, 0.5}};
+                Cell<Matrix<DDRMat>> tIntersectionGlobalCoordinates = {
+                        {{0.0, -0.5 - (tFrac / 2)}},
+                        {{-1.0, 0.0}},
+                        {{0.5, 0.0}},
+                        {{0.0, -0.5 - (tFrac / 2)}},
+                        {{-1.0, 0.0}},
+                        {{0.0, 0.5 + (tFrac / 2)}},
+                        {{0.5, 0.0}},
+                        {{0.0, 0.5 + (tFrac / 2)}},
+                        {{0.25, -1.0}},
+                        {{0.25, 0.0}},
+                        {{0.25, 0.0}},
+                        {{0.25, 1.0}}};
 
                 // Check element intersections
                 uint tIntersectionCount = 0;
@@ -110,6 +123,12 @@ namespace moris
                                 CHECK(tGeometryEngine.get_queued_intersection_local_coordinate() ==
                                         Approx(tIntersectionLocalCoordinates(tIntersectionCount)));
 
+                                // Check global coordinates
+                                CHECK(tGeometryEngine.get_queued_intersection_global_coordinates()(0) ==
+                                        Approx(tIntersectionGlobalCoordinates(tIntersectionCount)(0)));
+                                CHECK(tGeometryEngine.get_queued_intersection_global_coordinates()(1) ==
+                                        Approx(tIntersectionGlobalCoordinates(tIntersectionCount)(1)));
+
                                 // Admit intersection
                                 tGeometryEngine.admit_queued_intersection(9 + tIntersectionCount);
 
@@ -149,6 +168,49 @@ namespace moris
                 CHECK(tGeometryEngine.get_field_value(0, 18, {{}}) == Approx(-0.25));
                 CHECK(tGeometryEngine.get_field_value(0, 19, {{}}) == Approx(-0.25));
                 CHECK(tGeometryEngine.get_field_value(0, 20, {{}}) == Approx(0.423278));
+
+                // Test that the new intersections have been added to the PDV host manager, but ONLY for the circle
+                Pdv_Host_Manager* tPdvHostManager = dynamic_cast<Pdv_Host_Manager*>(tGeometryEngine.get_design_variable_interface());
+                Cell<Matrix<DDRMat>> tPdvValues(0);
+                Cell<Matrix<DDSMat>> tIsActive(0);
+                tPdvHostManager->get_ig_pdv_value({{0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16}},
+                                                  {PDV_Type::X_COORDINATE, PDV_Type::Y_COORDINATE},
+                                                  tPdvValues,
+                                                  tIsActive);
+
+                // Background nodes
+                for (uint tNodeIndex = 0; tNodeIndex < 9; tNodeIndex++)
+                {
+                    // Check if not active
+                    CHECK(tIsActive(0)(tNodeIndex) == false);
+                    CHECK(tIsActive(1)(tNodeIndex) == false);
+                }
+
+                // Nodes on the circle interface (depends on ADVs, active)
+                for (uint tNodeIndex = 9; tNodeIndex < 17; tNodeIndex++)
+                {
+                    // Check if active
+                    CHECK(tIsActive(0)(tNodeIndex) == true);
+                    CHECK(tIsActive(1)(tNodeIndex) == true);
+
+                    // Check for node coordinates as PDV values
+                    CHECK(tPdvValues(0)(tNodeIndex) == Approx(tIntersectionGlobalCoordinates(tNodeIndex - 9)(0)));
+                    CHECK(tPdvValues(1)(tNodeIndex) == Approx(tIntersectionGlobalCoordinates(tNodeIndex - 9)(1)));
+                }
+
+                // Nodes on the plane interface (does not depend on ADVs, inactive and not created)
+                try // Intentionally try to error out for nodes that do not contain PDVs and have greater indices
+                {
+                    tPdvHostManager->get_ig_pdv_value({{17, 18, 19, 20}}, // TODO Subset are still on circle
+                                                      {PDV_Type::X_COORDINATE, PDV_Type::Y_COORDINATE},
+                                                      tPdvValues);
+                    CHECK(false); // This line should never be reached!
+                }
+                catch (...)
+                {
+                    CHECK(true); // Should end up here instead
+                }
+                // TODO maybe also check sensitivities? This is already tested on IP nodes but still might be a good idea.
 
                 //------------------------------------------------------------------------------------------------------
                 // Start second check

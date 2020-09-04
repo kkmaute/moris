@@ -269,7 +269,10 @@ namespace moris
         void Geometry_Engine::admit_queued_intersection(uint aNodeIndex)
         {
             // Assign as PDV host
-            mPdvHostManager.set_intersection_node(aNodeIndex, mQueuedIntersectionNode);
+            if (mGeometries(mActiveGeometryIndex)->depends_on_advs())
+            {
+                mPdvHostManager.set_intersection_node(aNodeIndex, mQueuedIntersectionNode);
+            }
 
             // Assign as child node
             for (uint tGeometryIndex = 0; tGeometryIndex < mGeometries.size(); tGeometryIndex++)
