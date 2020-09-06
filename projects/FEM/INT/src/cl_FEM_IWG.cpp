@@ -1757,6 +1757,11 @@ namespace moris
             Matrix< DDRMat > tEvaluationPoint;
             tIGGI->get_space_time( tEvaluationPoint );
             real tGPWeight = aWStar / tIGGI->det_J();
+            Matrix< DDRMat > tNormal;
+            if( mSet->get_element_type() == fem::Element_Type::SIDESET )
+            {
+                tIGGI->get_normal( tNormal );
+            }
 
             // IP element max/min
             Matrix< DDRMat > tMaxIP = max( tIPGI->get_space_coeff().matrix_data() );
@@ -1827,6 +1832,14 @@ namespace moris
                             // set evaluation point for interpolators (FIs and GIs)
                             mSet->get_field_interpolator_manager()->set_space_time_from_local_IG_point( tEvaluationPoint );
 
+                            // reset the normal
+                            if( mSet->get_element_type() == fem::Element_Type::SIDESET )
+                            {
+                                Matrix< DDRMat > tNormalPert;
+                                tIGGI->get_normal( tNormalPert );
+                                this->set_normal( tNormalPert );
+                            }
+
                             // reset properties, CM and SP for IWG
                             this->reset_eval_flags();
 
@@ -1845,10 +1858,14 @@ namespace moris
                         }
                     }
                 }
-                // reset the coefficients values
-                tIGGI->set_space_coeff( tCoeff );
-                tIGGI->set_space_param_coeff( tParamCoeff );
-                mSet->get_field_interpolator_manager()->set_space_time_from_local_IG_point( tEvaluationPoint );
+            }
+            // reset the coefficients values
+            tIGGI->set_space_coeff( tCoeff );
+            tIGGI->set_space_param_coeff( tParamCoeff );
+            mSet->get_field_interpolator_manager()->set_space_time_from_local_IG_point( tEvaluationPoint );
+            if( mSet->get_element_type() == fem::Element_Type::SIDESET )
+            {
+                this->set_normal( tNormal );
             }
         }
 
@@ -1919,6 +1936,8 @@ namespace moris
                 Matrix< DDRMat > tParamCoeff = tMasterIGGI->get_space_param_coeff();
                 Matrix< DDRMat > tEvaluationPoint;
                 tMasterIGGI->get_space_time( tEvaluationPoint );
+                Matrix< DDRMat > tNormal;
+                tMasterIGGI->get_normal( tNormal );
 
                 // loop over the spatial directions
                 for( uint iCoeffCol = 0; iCoeffCol< tDerNumDimensions; iCoeffCol++ )
@@ -1977,6 +1996,11 @@ namespace moris
                                 // set evaluation point for interpolators (FIs and GIs)
                                 mSet->get_field_interpolator_manager()->set_space_time_from_local_IG_point( tEvaluationPoint );
 
+                                // reset the normal
+                                Matrix< DDRMat > tNormalPert;
+                                tMasterIGGI->get_normal( tNormalPert );
+                                this->set_normal( tNormalPert );
+
                                 // reset properties, CM and SP for IWG
                                 this->reset_eval_flags();
 
@@ -2003,11 +2027,12 @@ namespace moris
                             }
                         }
                     }
-                    // reset the coefficients values
-                    tMasterIGGI->set_space_coeff( tCoeff );
-                    tMasterIGGI->set_space_param_coeff( tParamCoeff );
-                    mSet->get_field_interpolator_manager()->set_space_time_from_local_IG_point( tEvaluationPoint );
                 }
+                // reset the coefficients values
+                tMasterIGGI->set_space_coeff( tCoeff );
+                tMasterIGGI->set_space_param_coeff( tParamCoeff );
+                mSet->get_field_interpolator_manager()->set_space_time_from_local_IG_point( tEvaluationPoint );
+                this->set_normal( tNormal );
             }
 
             if( aSlaveIsActive.size() != 0 )
@@ -2021,6 +2046,9 @@ namespace moris
                 Matrix< DDRMat > tParamCoeff = tSlaveIGGI->get_space_param_coeff();
                 Matrix< DDRMat > tEvaluationPoint;
                 tSlaveIGGI->get_space_time( tEvaluationPoint );
+                Matrix< DDRMat > tNormal;
+                tSlaveIGGI->get_normal( tNormal );
+                tNormal = -1.0 * tNormal;
 
                 // loop over the spatial directions
                 for( uint iCoeffCol = 0; iCoeffCol< tDerNumDimensions; iCoeffCol++ )
@@ -2079,6 +2107,12 @@ namespace moris
                                 // set evaluation point for interpolators (FIs and GIs)
                                 mSet->get_field_interpolator_manager( mtk::Master_Slave::SLAVE )->set_space_time_from_local_IG_point( tEvaluationPoint );
 
+                                // reset the normal
+                                Matrix< DDRMat > tNormalPert;
+                                tSlaveIGGI->get_normal( tNormalPert );
+                                tNormalPert = -1.0 * tNormalPert;
+                                this->set_normal( tNormalPert );
+
                                 // reset properties, CM and SP for IWG
                                 this->reset_eval_flags();
 
@@ -2105,12 +2139,12 @@ namespace moris
                             }
                         }
                     }
-                    // reset the coefficients values
-                    tSlaveIGGI->set_space_coeff( tCoeff );
-                    tSlaveIGGI->set_space_param_coeff( tParamCoeff );
-                    mSet->get_field_interpolator_manager( mtk::Master_Slave::SLAVE )->
-                            set_space_time_from_local_IG_point( tEvaluationPoint );
                 }
+                // reset the coefficients values
+                tSlaveIGGI->set_space_coeff( tCoeff );
+                tSlaveIGGI->set_space_param_coeff( tParamCoeff );
+                mSet->get_field_interpolator_manager( mtk::Master_Slave::SLAVE )->set_space_time_from_local_IG_point( tEvaluationPoint );
+                this->set_normal( tNormal );
             }
         }
 
