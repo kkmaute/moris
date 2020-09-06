@@ -412,7 +412,7 @@ TEST_CASE("2D Linear Stuct Contract","[XTK_HMR_LS_Contact_2D]")
         tIWGNeumann->set_property( tPropTraction, "Traction", mtk::Master_Slave::MASTER );
 
         std::shared_ptr< fem::IWG > tIWGInterface =
-                tIWGFactory.create_IWG( fem::IWG_Type::STRUC_LINEAR_INTERFACE );
+                tIWGFactory.create_IWG( fem::IWG_Type::STRUC_LINEAR_INTERFACE_SYMMETRIC_NITSCHE );
         tIWGInterface->set_residual_dof_type( { MSI::Dof_Type::UX, MSI::Dof_Type::UY } );
         tIWGInterface->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY }} );
         tIWGInterface->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY }},mtk::Master_Slave::SLAVE );

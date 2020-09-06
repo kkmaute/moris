@@ -1733,7 +1733,7 @@ TEST_CASE("MDL FEM Benchmark Elast Ghost","[MDL_FEM_Benchmark_Elast_Ghost]")
        tIWGNeumann->set_property( tPropTraction, "Traction", mtk::Master_Slave::MASTER );
 
        std::shared_ptr< fem::IWG > tIWGInterface =
-               tIWGFactory.create_IWG( fem::IWG_Type::STRUC_LINEAR_INTERFACE );
+               tIWGFactory.create_IWG( fem::IWG_Type::STRUC_LINEAR_INTERFACE_SYMMETRIC_NITSCHE );
        tIWGInterface->set_residual_dof_type( tResDofTypes );
        tIWGInterface->set_dof_type_list( { tResDofTypes } );
        tIWGInterface->set_dof_type_list( { tResDofTypes }, mtk::Master_Slave::SLAVE );
