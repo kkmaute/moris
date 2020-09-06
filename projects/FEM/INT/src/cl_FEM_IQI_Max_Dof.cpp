@@ -96,15 +96,24 @@ namespace moris
             // if derivative dof type is max dof type
             if( aDofType( 0 ) == mMasterDofTypes( 0 )( 0 ) )
             {
+                // check if dof index was set (for the case of vector field)
+                if( mMasterDofTypes( 0 ).size() > 1 )
+                {
+                    MORIS_ERROR( mIQITypeIndex != -1, "IQI_Max_Dof::compute_QI - mIQITypeIndex not set." );
+                }
+                else
+                {
+                    mIQITypeIndex = 0;
+                }
+
                 // build selection matrix
                 uint tNumVecFieldComps = tFIMaxDof->val().numel();
-                Matrix< DDRMat > tSelect( tNumVecFieldComps, tNumVecFieldComps, 0.0 );
-                tSelect( mIQITypeIndex, mIQITypeIndex ) = 1.0;
+                Matrix< DDRMat > tSelect( tNumVecFieldComps, 1, 0.0 );
+                tSelect( mIQITypeIndex, 0 ) = 1.0;
 
                 // compute dQIdDof
-                adQIdu = ( tExponent / tRefValue ) *
-                        std::pow( ( tFIMaxDof->val()( mIQITypeIndex ) / tRefValue ) - 1.0, tExponent - 1.0 ) *
-                        trans( tFIMaxDof->N() ) * tSelect;
+                real tdQI = std::pow( ( tFIMaxDof->val()( mIQITypeIndex ) / tRefValue ) - 1.0, tExponent - 1.0 );
+                adQIdu = tExponent * tdQI * trans( tFIMaxDof->N() ) * tSelect / tRefValue;
             }
             else
             {

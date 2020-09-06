@@ -291,14 +291,14 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        void Pdv_Host_Manager::create_ip_pdv_hosts(Cell<Matrix<DDSMat>>       aNodeIndicesPerSet,
+        void Pdv_Host_Manager::create_interpolation_pdv_hosts(Cell<Matrix<DDSMat>>       aNodeIndicesPerSet,
                                                    Cell<Matrix<DDRMat>>       aNodeCoordinates,
                                                    Cell<Cell<Cell<PDV_Type>>> aPdvTypes)
         {
             // Check that number of sets is consistent
             uint tNumSets = aPdvTypes.size();
             MORIS_ERROR(tNumSets == aNodeIndicesPerSet.size(),
-                    "Information passed to Pdv_Host_Manager.create_ip_pdv_hosts() does not have a consistent number of sets!");
+                    "Information passed to Pdv_Host_Manager.create_interpolation_pdv_hosts() does not have a consistent number of sets!");
 
             // Set PDV types
             mIpPdvTypes = aPdvTypes;
@@ -361,7 +361,7 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        void Pdv_Host_Manager::set_ig_pdv_types(Cell<Cell<Cell<PDV_Type>>> aPdvTypes)
+        void Pdv_Host_Manager::set_integration_pdv_types(Cell<Cell<Cell<PDV_Type>>> aPdvTypes)
         {
             // Check that number of sets is consistent
             uint tNumSets = aPdvTypes.size();
@@ -426,28 +426,35 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        void Pdv_Host_Manager::set_ip_requested_pdv_types(Cell<PDV_Type> aPdvTypes)
+        void Pdv_Host_Manager::set_num_integration_nodes(uint aNumNodes)
+        {
+            mIntersectionNodes.resize(aNumNodes);
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
+        void Pdv_Host_Manager::set_requested_interpolation_pdv_types(Cell<PDV_Type> aPdvTypes)
         {
             mRequestedIpPdvTypes = aPdvTypes;
         }
 
         //--------------------------------------------------------------------------------------------------------------
 
-        void Pdv_Host_Manager::set_ig_requested_pdv_types(Cell<PDV_Type> aPdvTypes)
+        void Pdv_Host_Manager::set_requested_integration_pdv_types(Cell<PDV_Type> aPdvTypes)
         {
             mRequestedIgPdvTypes = aPdvTypes;
         }
 
         //--------------------------------------------------------------------------------------------------------------
 
-        void Pdv_Host_Manager::create_ip_pdv(uint aNodeIndex, PDV_Type aPdvType, real aPdvVal)
+        void Pdv_Host_Manager::create_interpolation_pdv(uint aNodeIndex, PDV_Type aPdvType, real aPdvVal)
         {
             mIpPdvHosts(aNodeIndex)->create_pdv(aPdvType, aPdvVal);
         }
 
         //--------------------------------------------------------------------------------------------------------------
 
-        void Pdv_Host_Manager::create_ip_pdv(uint aNodeIndex, PDV_Type aPdvType, std::shared_ptr<Property> aPropertyPointer)
+        void Pdv_Host_Manager::create_interpolation_pdv(uint aNodeIndex, PDV_Type aPdvType, std::shared_ptr<Property> aPropertyPointer)
         {
             mIpPdvHosts(aNodeIndex)->create_pdv(aPdvType, aPropertyPointer);
         }

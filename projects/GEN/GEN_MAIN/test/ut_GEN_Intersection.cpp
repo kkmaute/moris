@@ -169,17 +169,20 @@ namespace moris
                 CHECK(tGeometryEngine.get_field_value(0, 19, {{}}) == Approx(-0.25));
                 CHECK(tGeometryEngine.get_field_value(0, 20, {{}}) == Approx(0.423278));
 
-                // Test that the new intersections have been added to the PDV host manager, but ONLY for the circle
+                // Get the PDV host manager and set the number of total nodes
                 Pdv_Host_Manager* tPdvHostManager = dynamic_cast<Pdv_Host_Manager*>(tGeometryEngine.get_design_variable_interface());
+                tPdvHostManager->set_num_integration_nodes(21);
+
+                // Test that the new intersections have been added to the PDV host manager, but ONLY for the circle
                 Cell<Matrix<DDRMat>> tPdvValues(0);
                 Cell<Matrix<DDSMat>> tIsActive(0);
-                tPdvHostManager->get_ig_pdv_value({{0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16}},
+                tPdvHostManager->get_ig_pdv_value({{0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20}},
                                                   {PDV_Type::X_COORDINATE, PDV_Type::Y_COORDINATE},
                                                   tPdvValues,
                                                   tIsActive);
 
                 // Background nodes
-                for (uint tNodeIndex = 0; tNodeIndex < 9; tNodeIndex++)
+                for (uint tNodeIndex = 0; tNodeIndex <= 8; tNodeIndex++)
                 {
                     // Check if not active
                     CHECK(tIsActive(0)(tNodeIndex) == false);
@@ -187,7 +190,7 @@ namespace moris
                 }
 
                 // Nodes on the circle interface (depends on ADVs, active)
-                for (uint tNodeIndex = 9; tNodeIndex < 17; tNodeIndex++)
+                for (uint tNodeIndex = 9; tNodeIndex <= 16; tNodeIndex++)
                 {
                     // Check if active
                     CHECK(tIsActive(0)(tNodeIndex) == true);
@@ -198,18 +201,14 @@ namespace moris
                     CHECK(tPdvValues(1)(tNodeIndex) == Approx(tIntersectionGlobalCoordinates(tNodeIndex - 9)(1)));
                 }
 
-                // Nodes on the plane interface (does not depend on ADVs, inactive and not created)
-                try // Intentionally try to error out for nodes that do not contain PDVs and have greater indices
+                // Nodes on the plane interface (inactive) TODO Subset are still on circle
+                for (uint tNodeIndex = 17; tNodeIndex <= 20; tNodeIndex++)
                 {
-                    tPdvHostManager->get_ig_pdv_value({{17, 18, 19, 20}}, // TODO Subset are still on circle
-                                                      {PDV_Type::X_COORDINATE, PDV_Type::Y_COORDINATE},
-                                                      tPdvValues);
-                    CHECK(false); // This line should never be reached!
+                    // Check if not active
+                    CHECK(tIsActive(0)(tNodeIndex) == false);
+                    CHECK(tIsActive(1)(tNodeIndex) == false);
                 }
-                catch (...)
-                {
-                    CHECK(true); // Should end up here instead
-                }
+
                 // TODO maybe also check sensitivities? This is already tested on IP nodes but still might be a good idea.
 
                 //------------------------------------------------------------------------------------------------------
