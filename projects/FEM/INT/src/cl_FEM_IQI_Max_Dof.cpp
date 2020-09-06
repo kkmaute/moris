@@ -85,18 +85,28 @@ namespace moris
             real tRefValue = mMasterProp( static_cast< uint >( IQI_Property_Type::REFERENCE_VALUE ) )->val()( 0 );
             real tExponent = mMasterProp( static_cast< uint >( IQI_Property_Type::EXPONENT ) )->val()( 0 );
 
+            // check if dof index was set (for the case of vector field)
+            if( mMasterDofTypes( 0 ).size() > 1 )
+            {
+                MORIS_ERROR( mIQITypeIndex != -1, "IQI_Max_Dof::compute_QI - mIQITypeIndex not set." );
+            }
+            else
+            {
+                mIQITypeIndex = 0;
+            }
+
             // build selection matrix
             uint tNumVecFieldComps = mMasterDofTypes( 0 ).size();
-            Matrix< DDRMat > tSelect( tNumVecFieldComps, tNumVecFieldComps, 0.0 );
-            tSelect( mIQITypeIndex, mIQITypeIndex) = 1.0;
+            Matrix< DDRMat > tSelect( tNumVecFieldComps, 1, 0.0 );
+            tSelect( mIQITypeIndex, 0 ) = 1.0;
 
             // get field interpolator for a given dof type
             Field_Interpolator * tFI = mMasterFIManager->get_field_interpolators_for_type( mMasterDofTypes( 0 )( 0 ) );
 
             // compute dQIdDof
-            adQIdu = ( tExponent / tRefValue ) *
-                    std::pow( 1/tRefValue * tFI->val()( mIQITypeIndex ) - 1.0, tExponent - 1.0 ) *
-                    trans( tFI->N() ) * tSelect;
+            real tdQI = std::pow( ( tFI->val()( mIQITypeIndex ) / tRefValue ) - 1.0, tExponent - 1.0 );
+
+            adQIdu = tExponent / tRefValue * tdQI * trans( tFI->N() ) * tSelect;
         }
 
         //------------------------------------------------------------------------------
