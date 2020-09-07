@@ -200,27 +200,28 @@ namespace moris
                                 { tMasterResStartIndex, tMasterResStopIndex },
                                 { tMasterDepStartIndex, tMasterDepStopIndex } ) += aWStar * (
                                         trans( tDisplacementFI->N() ) *  tDisplacementFI->N() * tPropBedding->val()(0) );
-
-                        // consider contributions from dependency of bedding parameter on DOFs
-                        if ( tPropBedding->check_dof_dependency( tDofType ) )
-                        {
-                            mSet->get_jacobian()(
-                                    { tMasterResStartIndex, tMasterResStopIndex },
-                                    { tMasterDepStartIndex, tMasterDepStopIndex } ) += aWStar * (
-                                            trans( tDisplacementFI->N() ) *  tDisplacementFI->N() * tPropBedding->dPropdDOF( tDofType ) );
-                        }
-                    }
-
-                    // if constitutive model depends on the dof type
-                    if ( tCMElasticty->check_dof_dependency( tDofType ) )
-                    {
-                        // compute the contribution to jacobian
-                        mSet->get_jacobian()(
-                                { tMasterResStartIndex, tMasterResStopIndex },
-                                { tMasterDepStartIndex, tMasterDepStopIndex } ) += aWStar * (
-                                        trans( tCMElasticty->testStrain() ) * tCMElasticty->dFluxdDOF( tDofType ) );
                     }
                 }
+
+                // consider contributions from dependency of bedding parameter on DOFs
+                if ( tPropBedding->check_dof_dependency( tDofType ) )
+                {
+                    mSet->get_jacobian()(
+                            { tMasterResStartIndex, tMasterResStopIndex },
+                            { tMasterDepStartIndex, tMasterDepStopIndex } ) += aWStar * (
+                                    trans( tDisplacementFI->N() ) *  tDisplacementFI->val() * tPropBedding->dPropdDOF( tDofType ) );
+                }
+
+                // if constitutive model depends on the dof type
+                if ( tCMElasticty->check_dof_dependency( tDofType ) )
+                {
+                    // compute the contribution to jacobian
+                    mSet->get_jacobian()(
+                            { tMasterResStartIndex, tMasterResStopIndex },
+                            { tMasterDepStartIndex, tMasterDepStopIndex } ) += aWStar * (
+                                    trans( tCMElasticty->testStrain() ) * tCMElasticty->dFluxdDOF( tDofType ) );
+                }
+
             }
 
             // check for nan, infinity
