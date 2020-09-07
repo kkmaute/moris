@@ -17,16 +17,19 @@ TEST_CASE(
 {
     #include "containers/cl_tuple.inc"
 
+    // check access to components of tuple
     REQUIRE(b.get< 0 >() == 2 );
     REQUIRE(b.get< 1 >() == 2.0 );
     REQUIRE(b.get< 2 >() == "hello" );
 
+    // check initialize by argument
     moris::Tuple< moris::sint, moris::real, std::string > c( b );
 
     REQUIRE(c.get< 0 >() == 2 );
     REQUIRE(c.get< 1 >() == 2.0 );
     REQUIRE(c.get< 2 >() == "hello" );
 
+    // check initialize by copy operator
     moris::Tuple< moris::sint, moris::real, std::string > d = b;
 
     REQUIRE(d.get< 0 >() == 2 );
@@ -34,6 +37,7 @@ TEST_CASE(
     REQUIRE(d.get< 1 >() == 2.0 );
     REQUIRE(d.get< 2 >() == "hello" );
 
+    // check equality and inequality of tuples
     bool check1 = ( b == c);
 
     moris::Tuple< int, moris::real, std::string > bb( 3, 2.0, "hello" );
@@ -49,51 +53,16 @@ TEST_CASE(
     REQUIRE( check3 == false);
     REQUIRE( check4 == false);
 
+    moris::uint aInt21 = 4;
+    moris::uint aInt22 = 5;
+    moris::uint aInt23 = 6;
 
-    int numOpts = 1000;
+    moris::uint aInt24, aInt25, aInt26;
 
+    // check std library functions
+    std::tie(aInt24, aInt25, aInt26) = std::make_tuple(aInt21, aInt22, aInt23);
 
-    moris::tic timer2;
-    for(int i2 = 0; i2 < numOpts; ++i2)
-    {
-        moris::uint aInt21 = 4;
-        moris::uint aInt22 = 5;
-        moris::uint aInt23 = 6;
-
-        moris::uint aInt24, aInt25, aInt26;
-
-        std::tie(aInt24, aInt25, aInt26) = std::make_tuple(aInt21, aInt22, aInt23);
-    }
-    moris::real time2 = timer2.toc<moris::chronos::nanoseconds>().wall;
-
-
-    moris::tic timer0;
-    for(int i0 = 0; i0 < numOpts; ++i0)
-    {
-        moris::uint aInt01 = 4;
-        moris::uint aInt02 = 5;
-        moris::uint aInt03 = 6;
-
-        moris::uint aInt04, aInt05, aInt06;
-
-        moris::tie(aInt04, aInt05, aInt06) = moris::make_tuple(aInt01, aInt02, aInt03);
-    }
-    moris::real time0 = timer0.toc<moris::chronos::nanoseconds>().wall;
-
-
-    moris::tic timer1;
-    for(int i1 = 0; i1 < numOpts; ++i1)
-    {
-        moris::uint aInt11 = 4;
-        moris::uint aInt12 = 5;
-        moris::uint aInt13 = 6;
-
-        moris::uint aInt14, aInt15, aInt16;
-
-        std::tie(aInt14, aInt15, aInt16) = std::make_tuple(aInt11, aInt12, aInt13);
-    }
-    moris::real time1 = timer1.toc<moris::chronos::nanoseconds>().wall;
-
-    //REQUIRE( ( time0 - time1) < 0.15*time1 );
-
+    REQUIRE( aInt24 == aInt21);
+    REQUIRE( aInt25 == aInt22);
+    REQUIRE( aInt26 == aInt23);
 }
