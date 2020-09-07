@@ -7,15 +7,17 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        Field_Discrete::Field_Discrete(uint aNumOriginalNodes)
-                : mNumOriginalNodes(aNumOriginalNodes)
+        Field_Discrete::Field_Discrete(
+                uint aNumOriginalNodes)
+        : mNumOriginalNodes(aNumOriginalNodes)
         {
         }
 
         //--------------------------------------------------------------------------------------------------------------
 
-        real Field_Discrete::evaluate_field_value(uint                  aNodeIndex,
-                                                  const Matrix<DDRMat>& aCoordinates)
+        real Field_Discrete::evaluate_field_value(
+                uint                  aNodeIndex,
+                const Matrix<DDRMat>& aCoordinates)
         {
             if (aNodeIndex < mNumOriginalNodes)
             {
@@ -24,17 +26,18 @@ namespace moris
             else
             {
                 MORIS_ASSERT((aNodeIndex - mNumOriginalNodes) < mChildNodes.size(),
-                             "A discrete field value was requested from a node that this field doesn't know. "
-                             "Perhaps a child node was not added to this field?");
+                        "A discrete field value was requested from a node that this field doesn't know. "
+                        "Perhaps a child node was not added to this field?");
                 return mChildNodes(aNodeIndex - mNumOriginalNodes)->interpolate_field_value(this);
             }
         }
 
         //--------------------------------------------------------------------------------------------------------------
 
-        void Field_Discrete::evaluate_all_sensitivities(uint                  aNodeIndex,
-                                                        const Matrix<DDRMat>& aCoordinates,
-                                                        Matrix<DDRMat>&       aSensitivities)
+        void Field_Discrete::evaluate_all_sensitivities(
+                uint                  aNodeIndex,
+                const Matrix<DDRMat>& aCoordinates,
+                Matrix<DDRMat>&       aSensitivities)
         {
             if (aNodeIndex < mNumOriginalNodes)
             {
@@ -43,18 +46,20 @@ namespace moris
             else
             {
                 MORIS_ASSERT((aNodeIndex - mNumOriginalNodes) < mChildNodes.size(),
-                             "A discrete field sensitivity was requested from a node that this field doesn't know. "
-                             "Perhaps a child node was not added to this field?");
+                        "A discrete field sensitivity was requested from a node that this field doesn't know. "
+                        "Perhaps a child node was not added to this field?");
                 mChildNodes(aNodeIndex - mNumOriginalNodes)->interpolate_field_sensitivity(this, aSensitivities);
             }
         }
 
         //--------------------------------------------------------------------------------------------------------------
 
-        void Field_Discrete::add_child_node(uint aNodeIndex, std::shared_ptr<Child_Node> aChildNode)
+        void Field_Discrete::add_child_node(
+                uint                        aNodeIndex,
+                std::shared_ptr<Child_Node> aChildNode)
         {
             MORIS_ASSERT(aNodeIndex == mNumOriginalNodes + mChildNodes.size(),
-                         "Child nodes must be added to a level set field in order by node index.");
+                    "Child nodes must be added to a level set field in order by node index.");
             mChildNodes.push_back(aChildNode);
         }
 
