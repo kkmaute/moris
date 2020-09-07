@@ -189,33 +189,37 @@ namespace moris
                     }
                 }
 
-                // if bedding
-                if ( tPropBedding != nullptr )
+                // if dof type is velocity, add diagonal term (velocity-velocity DoF types)
+                if( tDofType( 0 ) == mResidualDofType( 0 ) )
                 {
-                    // compute bedding contribution
-                    mSet->get_jacobian()(
-                            { tMasterResStartIndex, tMasterResStopIndex },
-                            { tMasterDepStartIndex, tMasterDepStopIndex } ) += aWStar * (
-                                    trans( tDisplacementFI->N() ) *  tDisplacementFI->N() * tPropBedding->val()(0) );
-
-                    // consider contributions from dependency of bedding parameter on DOFs
-                    if ( tPropBedding->check_dof_dependency( tDofType ) )
+                    // if bedding
+                    if ( tPropBedding != nullptr )
                     {
+                        // compute bedding contribution
                         mSet->get_jacobian()(
                                 { tMasterResStartIndex, tMasterResStopIndex },
                                 { tMasterDepStartIndex, tMasterDepStopIndex } ) += aWStar * (
-                                        trans( tDisplacementFI->N() ) *  tDisplacementFI->N() * tPropBedding->dPropdDOF( tDofType ) );
-                    }
-                }
+                                        trans( tDisplacementFI->N() ) *  tDisplacementFI->N() * tPropBedding->val()(0) );
 
-                // if constitutive model depends on the dof type
-                if ( tCMElasticty->check_dof_dependency( tDofType ) )
-                {
-                    // compute the contribution to jacobian
-                    mSet->get_jacobian()(
-                            { tMasterResStartIndex, tMasterResStopIndex },
-                            { tMasterDepStartIndex, tMasterDepStopIndex } ) += aWStar * (
-                                    trans( tCMElasticty->testStrain() ) * tCMElasticty->dFluxdDOF( tDofType ) );
+                        // consider contributions from dependency of bedding parameter on DOFs
+                        if ( tPropBedding->check_dof_dependency( tDofType ) )
+                        {
+                            mSet->get_jacobian()(
+                                    { tMasterResStartIndex, tMasterResStopIndex },
+                                    { tMasterDepStartIndex, tMasterDepStopIndex } ) += aWStar * (
+                                            trans( tDisplacementFI->N() ) *  tDisplacementFI->N() * tPropBedding->dPropdDOF( tDofType ) );
+                        }
+                    }
+
+                    // if constitutive model depends on the dof type
+                    if ( tCMElasticty->check_dof_dependency( tDofType ) )
+                    {
+                        // compute the contribution to jacobian
+                        mSet->get_jacobian()(
+                                { tMasterResStartIndex, tMasterResStopIndex },
+                                { tMasterDepStartIndex, tMasterDepStopIndex } ) += aWStar * (
+                                        trans( tCMElasticty->testStrain() ) * tCMElasticty->dFluxdDOF( tDofType ) );
+                    }
                 }
             }
 
