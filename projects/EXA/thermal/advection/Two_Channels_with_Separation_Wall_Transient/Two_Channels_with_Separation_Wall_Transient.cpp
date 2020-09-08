@@ -742,7 +742,7 @@ extern "C"
             tParameterlist( 0 )( 0 ).set( "Set_Names"  ,  "HMR_dummy_n_p34,HMR_dummy_c_p34,HMR_dummy_n_p46,HMR_dummy_c_p46,HMR_dummy_n_p42,HMR_dummy_c_p42" ) ;
             tParameterlist( 0 )( 0 ).set( "Field_Names",  "VX,VY,P,TEMP" ) ;
             tParameterlist( 0 )( 0 ).set( "Field_Type" ,  "NODAL,NODAL,NODAL,NODAL" ) ;
-            tParameterlist( 0 )( 0 ).set( "QI_Names",  "IQIBulkVX,IQIBulkVY,IQIBulkP,IQIBulkTEMP" ) ;
+            tParameterlist( 0 )( 0 ).set( "IQI_Names"  ,  "IQIBulkVX,IQIBulkVY,IQIBulkP,IQIBulkTEMP" ) ;
         }
 
         //------------------------------------------------------------------------------

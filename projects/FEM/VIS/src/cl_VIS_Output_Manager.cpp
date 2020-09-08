@@ -92,7 +92,7 @@ namespace moris
             MORIS_ERROR( tFieldNames.size() == tFieldTypes.size(),"Output_Manager::set_outputs - Number of Field Names and Field Types differ.");
 			
 			moris::Cell< std::string > tQINames;
-            string_to_cell( aParamterelist.get< std::string >( "QI_Names" ), tQINames );
+            string_to_cell( aParamterelist.get< std::string >( "IQI_Names"), tQINames );
             tOutputData.mQINames = tQINames;
 
             // check that length of Field_Names and Field_Type are consistent

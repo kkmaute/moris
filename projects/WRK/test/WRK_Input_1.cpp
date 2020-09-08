@@ -318,7 +318,7 @@ void VISParameterList( moris::Cell< moris::Cell< ParameterList > > & tParameterl
     tParameterlist( 0 )( 0 ).set( "Set_Names"  , std::string( "HMR_dummy_n_p1" ) );
     tParameterlist( 0 )( 0 ).set( "Field_Names", std::string( "strain_energy_elemental,strain_energy_global,strain_energy_nodal_IP" ) );
     tParameterlist( 0 )( 0 ).set( "Field_Type" , std::string( "ELEMENTAL,GLOBAL,NODAL" ) );
-    tParameterlist( 0 )( 0 ).set( "QI_Names"   , std::string( "IQIBulkU_1,IQIBulkU_1,IQIBulkU_1" ) );
+    tParameterlist( 0 )( 0 ).set( "IQI_Names"  , std::string( "IQIBulkU_1,IQIBulkU_1,IQIBulkU_1" ) );
     
 }
 

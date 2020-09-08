@@ -524,7 +524,7 @@ extern "C"
             tParameterlist( 0 )( 0 ).set( "Set_Names"  , sFluid );
             tParameterlist( 0 )( 0 ).set( "Field_Names", "VX,VY,P,L2_ERROR_ANALYTIC,H1_ERROR_ANALYTIC") ;
             tParameterlist( 0 )( 0 ).set( "Field_Type" , "NODAL,NODAL,NODAL,NODAL,NODAL") ;
-            tParameterlist( 0 )( 0 ).set( "QI_Names"    , "IQIBulkVX,IQIBulkVY,IQIBulkP,IQIBulkL2Error,IQIBulkH1Error") ;
+            tParameterlist( 0 )( 0 ).set( "IQI_Names"  , "IQIBulkVX,IQIBulkVY,IQIBulkP,IQIBulkL2Error,IQIBulkH1Error") ;
         }
 
         //------------------------------------------------------------------------------

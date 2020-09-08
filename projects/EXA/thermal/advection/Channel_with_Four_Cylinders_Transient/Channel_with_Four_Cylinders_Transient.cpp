@@ -797,7 +797,7 @@ namespace moris
         tParameterlist( 0 )( 0 ).set( "Set_Names"  ,  "HMR_dummy_n_p160,HMR_dummy_c_p160" ) ;
         tParameterlist( 0 )( 0 ).set( "Field_Names",  "VX,VY,P,TEMP" ) ;
         tParameterlist( 0 )( 0 ).set( "Field_Type" ,  "NODAL,NODAL,NODAL,NODAL" ) ;
-        tParameterlist( 0 )( 0 ).set( "QI_Names"    ,  "IQIBulkVX,IQIBulkVY,IQIBulkP,IQIBulkTEMP" ) ;
+        tParameterlist( 0 )( 0 ).set( "IQI_Names"  ,  "IQIBulkVX,IQIBulkVY,IQIBulkP,IQIBulkTEMP" ) ;
         tParameterlist( 0 )( 0 ).set( "Save_Frequency", 1 );
     }
 

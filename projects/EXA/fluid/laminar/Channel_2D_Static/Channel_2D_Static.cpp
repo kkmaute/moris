@@ -534,7 +534,7 @@ extern "C"
             tParameterlist( 0 )( 0 ).set( "Set_Names"  , sFluid );
             tParameterlist( 0 )( 0 ).set( "Field_Names",  "VX,VY,P" ) ;
             tParameterlist( 0 )( 0 ).set( "Field_Type" ,  "NODAL,NODAL,NODAL" ) ;
-            tParameterlist( 0 )( 0 ).set( "QI_Names"   ,  "IQIBulkVX,IQIBulkVY,IQIBulkP" ) ;
+            tParameterlist( 0 )( 0 ).set( "IQI_Names"  ,  "IQIBulkVX,IQIBulkVY,IQIBulkP" ) ;
             tParameterlist( 0 )( 0 ).set( "Save_Frequency",1);
         }
 
