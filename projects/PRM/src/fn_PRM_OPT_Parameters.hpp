@@ -55,14 +55,14 @@ namespace moris
             ParameterList tParameterList;
 
             tParameterList.insert( "algorithm"    , "gcmma"); // Algorithm name, don't change
-            tParameterList.insert( "max_its"      , 100  );  // Maximum number of iterations
-            tParameterList.insert( "max_inner_its", 0    );  // Maximum inner iterations per every optimization iteration
-            tParameterList.insert( "norm_drop"    , 1e-4 );  // Relative change in objective convergence criteria
-            tParameterList.insert( "asymp_adapt0" , 0.5  );  // Initial asymptote adaptation factor
-            tParameterList.insert( "asymp_adaptb"  , 0.7  );  // Shrinking asymptote adaptation factor
-            tParameterList.insert( "asymp_adaptc" , 1.2  );  // Expanding asymptote adaptation factor
-            tParameterList.insert( "step_size"    , 0.01 );  // GCMMA step size
-            tParameterList.insert( "penalty"      , 100.0);  // GCMMA constraint penalty
+            tParameterList.insert( "max_its"      , 100  );   // Maximum number of iterations
+            tParameterList.insert( "max_inner_its", 0    );   // Maximum inner iterations per every optimization iteration
+            tParameterList.insert( "norm_drop"    , 1e-4 );   // Relative change in objective convergence criteria
+            tParameterList.insert( "asymp_adapt0" , 0.5  );   // Initial asymptote adaptation factor
+            tParameterList.insert( "asymp_adaptb" , 0.7  );   // Shrinking asymptote adaptation factor
+            tParameterList.insert( "asymp_adaptc" , 1.2  );   // Expanding asymptote adaptation factor
+            tParameterList.insert( "step_size"    , 0.01 );   // GCMMA step size
+            tParameterList.insert( "penalty"      , 100.0);   // GCMMA constraint penalty
 
             return tParameterList;
         }

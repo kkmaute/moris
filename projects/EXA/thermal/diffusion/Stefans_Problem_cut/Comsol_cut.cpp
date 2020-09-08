@@ -495,10 +495,10 @@ namespace moris
         tParameterlist( 0 )( 0 ) = prm::create_vis_parameter_list();
         tParameterlist( 0 )( 0 ).set( "File_Name"  , std::pair< std::string, std::string >( "./", "Comsol_cut.exo" ) );
         tParameterlist( 0 )( 0 ).set( "Mesh_Type"  , static_cast< uint >( vis::VIS_Mesh_Type::STANDARD ) );
-        tParameterlist( 0 )( 0 ).set( "Set_Names"  ,  "HMR_dummy_n_p15,HMR_dummy_c_p15" ) ;
-        tParameterlist( 0 )( 0 ).set( "Field_Names",  "TEMP" ) ;
-        tParameterlist( 0 )( 0 ).set( "Field_Type" ,  "NODAL" ) ;
-        tParameterlist( 0 )( 0 ).set( "QI_Names",  "IQIBulkTEMP" ) ;
+        tParameterlist( 0 )( 0 ).set( "Set_Names"  , "HMR_dummy_n_p15,HMR_dummy_c_p15" ) ;
+        tParameterlist( 0 )( 0 ).set( "Field_Names", "TEMP" ) ;
+        tParameterlist( 0 )( 0 ).set( "Field_Type" , "NODAL" ) ;
+        tParameterlist( 0 )( 0 ).set( "IQI_Names"  , "IQIBulkTEMP" ) ;
     }
 
     //------------------------------------------------------------------------------
