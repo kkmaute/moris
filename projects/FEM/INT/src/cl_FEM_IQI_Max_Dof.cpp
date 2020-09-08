@@ -115,15 +115,6 @@ namespace moris
                 real tdQI = std::pow( ( tFIMaxDof->val()( mIQITypeIndex ) / tRefValue ) - 1.0, tExponent - 1.0 );
                 adQIdu = tExponent * tdQI * trans( tFIMaxDof->N() ) * tSelect / tRefValue;
             }
-            else
-            {
-                // get field interpolator for derivative
-                Field_Interpolator * tFIDer =
-                        mMasterFIManager->get_field_interpolators_for_type( aDofType( 0 ) );
-
-                // set adQIdu size
-                adQIdu.set_size( 1, tFIDer->get_number_of_space_time_coefficients(), 0.0 );
-            }
         }
 
         //------------------------------------------------------------------------------
