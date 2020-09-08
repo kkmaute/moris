@@ -903,8 +903,10 @@ TEST_CASE("2D XTK WITH HMR ThermoElastic 2D Staggered","[XTK_HMR_thermoelastic_2
         tParameterlist( 2 ).resize( 2 );
         tParameterlist( 2 )( 0 ) = moris::prm::create_nonlinear_algorithm_parameter_list();
         tParameterlist( 2 )( 0 )("NLA_Solver_Implementation") = static_cast< uint >( moris::NLA::NonlinearSolverType::NEWTON_SOLVER );
+		tParameterlist( 2 )( 0 ).set("NLA_combined_res_jac_assembly", false );
         tParameterlist( 2 )( 1 ) = moris::prm::create_nonlinear_algorithm_parameter_list();
         tParameterlist( 2 )( 1 )("NLA_Solver_Implementation") = static_cast< uint >( moris::NLA::NonlinearSolverType::NLBGS_SOLVER );
+		tParameterlist( 2 )( 1 ).set("NLA_combined_res_jac_assembly", false );
 
         tParameterlist( 3 ).resize( 3 );
         tParameterlist( 3 )( 0 ) = moris::prm::create_nonlinear_solver_parameter_list();
@@ -1062,7 +1064,7 @@ TEST_CASE("2D XTK WITH HMR ThermoElastic 2D Staggered","[XTK_HMR_thermoelastic_2
                         std::cout<<"tFullSolution( i ) "<<tFullSolution( i )<<" tGoldSolution( i ) "<<tGoldSolution( i )<<std::endl;
                     }
                 }
-        //CHECK(tSolutionCheck);
+        CHECK(tSolutionCheck);
 
 //        delete tIntegMesh1;
         delete tModel;

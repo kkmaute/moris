@@ -230,8 +230,11 @@ namespace moris
                         // reset IWG
                         mSet->get_requested_IWGs()( iIWG )->reset_eval_flags();
 
-                        // compute residual at evaluation point
-                        mSet->get_requested_IWGs()( iIWG )->compute_residual( tWStar );
+                        if( mSet->mEquationModel->get_is_forward_analysis() )
+                        {
+                            // compute residual at evaluation point
+                            mSet->get_requested_IWGs()( iIWG )->compute_residual( tWStar );
+						}
 
                         // compute jacobian at evaluation point
                         mSet->get_requested_IWGs()( iIWG )->compute_jacobian( tWStar );

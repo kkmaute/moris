@@ -624,15 +624,14 @@ namespace moris
             // FIXME this is a hack and will be changed in the next days
             if( !mEquationSet->mEquationModel->get_is_forward_analysis() )
             {
-                this->compute_jacobian();
-
                 this->compute_my_adjoint_values();
 
                 for ( uint Ik = 0; Ik<tElementalResidual.size(); Ik++ )
                 {
                     tElementalResidual( Ik ) = trans( mEquationSet->get_jacobian() ) * mAdjointPdofValues( Ik )- tElementalResidual( Ik );
                 }
-            }
+            }		
+			
 
             uint tNumRHS = mEquationSet->mEquationModel->get_num_rhs();
 

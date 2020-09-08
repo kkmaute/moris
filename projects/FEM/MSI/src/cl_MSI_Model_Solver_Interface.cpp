@@ -101,7 +101,7 @@ namespace moris
         {
             // Get dof type enum
             enum Dof_Type tDofType = mDofMgn.get_dof_type_enum( aDofType );
-
+			
             if      ( tDofType == Dof_Type::UX )          { return mMSIParameterList.get< moris::sint >( "UX" ); }
             else if ( tDofType == Dof_Type::UY )          { return mMSIParameterList.get< moris::sint >( "UY" ); }
             else if ( tDofType == Dof_Type::UZ )          { return mMSIParameterList.get< moris::sint >( "UZ" ); }

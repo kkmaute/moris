@@ -454,6 +454,16 @@ namespace moris
 
             // set cluster for stabilization parameter
             mSet->set_IWG_cluster_for_stabilization_parameters( mFemCluster( 0 ).get() );
+			
+			if( ( !mSet->mEquationModel->get_is_forward_analysis() ) &&
+                    ( mSet->get_number_of_requested_IQIs() > 0 ) )
+            {
+                // FIXME should not be like this
+                mSet->set_IQI_field_interpolator_managers();
+
+                // set cluster for stabilization parameter
+                mSet->set_IQI_cluster_for_stabilization_parameters( mFemCluster( 0 ).get() );
+            }
 
             // ask cluster to compute Jacobian and residual
             mFemCluster( 0 )->compute_jacobian_and_residual();
