@@ -1893,14 +1893,12 @@ namespace moris
             // get the slave GI for the IG and IP element considered
             Geometry_Interpolator * tSlaveIGGI =
                     mSet->get_field_interpolator_manager( mtk::Master_Slave::SLAVE )->get_IG_geometry_interpolator();
-            Geometry_Interpolator * tSlaveIPGI =
-                    mSet->get_field_interpolator_manager( mtk::Master_Slave::SLAVE )->get_IP_geometry_interpolator();
+//            Geometry_Interpolator * tSlaveIPGI =
+//                    mSet->get_field_interpolator_manager( mtk::Master_Slave::SLAVE )->get_IP_geometry_interpolator();
 
             // IP element max/min
             Matrix< DDRMat > tMasterMaxIP = max( tMasterIPGI->get_space_coeff().matrix_data() );
             Matrix< DDRMat > tMasterMinIP = min( tMasterIPGI->get_space_coeff().matrix_data() );
-            Matrix< DDRMat > tSlaveMaxIP = max( tSlaveIPGI->get_space_coeff().matrix_data() );
-            Matrix< DDRMat > tSlaveMinIP = min( tSlaveIPGI->get_space_coeff().matrix_data() );
 
             // get the master residual dof type index in the set
             uint tMasterResDofIndex = mSet->get_dof_index_for_type(
@@ -1922,33 +1920,50 @@ namespace moris
             // get GP weight
             real tGPWeight = aWStar / tMasterIGGI->det_J();
 
+            // get master coeff
+            Matrix< DDRMat > tMasterCoeff = tMasterIGGI->get_space_coeff();
+            Matrix< DDRMat > tMasterParamCoeff = tMasterIGGI->get_space_param_coeff();
+            Matrix< DDRMat > tMasterEvaluationPoint;
+            tMasterIGGI->get_space_time( tMasterEvaluationPoint );
+            Matrix< DDRMat > tMasterNormal;
+            tMasterIGGI->get_normal( tMasterNormal );
+
+            // coefficients for dv type wrt which derivative is computed
+            Matrix< DDRMat > tSlaveCoeff = tSlaveIGGI->get_space_coeff();
+            Matrix< DDRMat > tSlaveParamCoeff = tSlaveIGGI->get_space_param_coeff();
+            Matrix< DDRMat > tSlaveEvaluationPoint;
+            tSlaveIGGI->get_space_time( tSlaveEvaluationPoint );
+
+            // get number of master GI bases and space dimensions
+            uint tDerNumBases      = tMasterIGGI->get_number_of_space_bases();
+            uint tDerNumDimensions = tMasterIPGI->get_number_of_space_dimensions();
+
             // init FD scheme
             moris::Cell< moris::Cell< real > > tFDScheme;
 
             if( aMasterIsActive.size() != 0 )
             {
-                // get number of master GI bases and space dimensions
-                uint tDerNumBases      = tMasterIGGI->get_number_of_space_bases();
-                uint tDerNumDimensions = tMasterIPGI->get_number_of_space_dimensions();
-
-                // coefficients for dv type wrt which derivative is computed
-                Matrix< DDRMat > tCoeff = tMasterIGGI->get_space_coeff();
-                Matrix< DDRMat > tParamCoeff = tMasterIGGI->get_space_param_coeff();
-                Matrix< DDRMat > tEvaluationPoint;
-                tMasterIGGI->get_space_time( tEvaluationPoint );
-                Matrix< DDRMat > tNormal;
-                tMasterIGGI->get_normal( tNormal );
-
-                // loop over the spatial directions
-                for( uint iCoeffCol = 0; iCoeffCol< tDerNumDimensions; iCoeffCol++ )
+                // loop over the IG nodes
+                for( uint iCoeffRow = 0; iCoeffRow < tDerNumBases; iCoeffRow++ )
                 {
-                    // loop over the IG nodes
-                    for( uint iCoeffRow = 0; iCoeffRow< tDerNumBases; iCoeffRow++ )
+                    // find the node on the slave side
+                    uint tSlaveNodeLocalIndex;
+                    for ( uint iNode = 0; iNode < tDerNumBases; iNode++ )
+                    {
+                        if( aMasterVertexIndices( iCoeffRow ) == aSlaveVertexIndices( iNode ) )
+                        {
+                            tSlaveNodeLocalIndex = iNode;
+                            break;
+                        }
+                    }
+
+                    // loop over the spatial directions
+                    for( uint iCoeffCol = 0; iCoeffCol< tDerNumDimensions; iCoeffCol++ )
                     {
                         if ( aMasterIsActive( iCoeffCol )( iCoeffRow ) == 1 )
                         {
                             // compute the perturbation value
-                            tDeltaH = aPerturbation * tCoeff( iCoeffRow, iCoeffCol );
+                            tDeltaH = aPerturbation * tMasterCoeff( iCoeffRow, iCoeffCol );
 
                             // check that perturbation is not zero
                             if( ( tDeltaH < 1e-12 ) && ( tDeltaH > - 1e-12 ) )
@@ -1958,11 +1973,11 @@ namespace moris
 
                             // check point location
                             fd_scheme( aFDSchemeType, tFDScheme );
-                            if( tCoeff( iCoeffRow, iCoeffCol ) + tDeltaH > tMasterMaxIP( iCoeffCol ) )
+                            if( tMasterCoeff( iCoeffRow, iCoeffCol ) + tDeltaH > tMasterMaxIP( iCoeffCol ) )
                             {
                                 fd_scheme( fem::FDScheme_Type::POINT_1_BACKWARD, tFDScheme );
                             }
-                            else if( tCoeff( iCoeffRow, iCoeffCol ) - tDeltaH < tMasterMinIP( iCoeffCol ) )
+                            else if( tMasterCoeff( iCoeffRow, iCoeffCol ) - tDeltaH < tMasterMinIP( iCoeffCol ) )
                             {
                                 fd_scheme( fem::FDScheme_Type::POINT_1_FORWARD, tFDScheme );
                             }
@@ -1977,24 +1992,36 @@ namespace moris
                             for ( uint iPoint = 0; iPoint < tNumPoints; iPoint++ )
                             {
                                 // reset the perturbed coefficents
-                                Matrix< DDRMat > tCoeffPert = tCoeff;
+                                Matrix< DDRMat > tMasterCoeffPert = tMasterCoeff;
+                                Matrix< DDRMat > tSlaveCoeffPert  = tSlaveCoeff;
 
                                 // pertub the coefficent
-                                tCoeffPert( iCoeffRow, iCoeffCol ) += tFDScheme( 0 )( iPoint ) * tDeltaH;
+                                tMasterCoeffPert( iCoeffRow, iCoeffCol ) +=
+                                        tFDScheme( 0 )( iPoint ) * tDeltaH;
+                                tSlaveCoeffPert( tSlaveNodeLocalIndex, iCoeffCol ) +=
+                                        tFDScheme( 0 )( iPoint ) * tDeltaH;
 
                                 // setting the perturbed coefficients
-                                tMasterIGGI->set_space_coeff( tCoeffPert );
+                                tMasterIGGI->set_space_coeff( tMasterCoeffPert );
+                                tSlaveIGGI->set_space_coeff( tSlaveCoeffPert );
 
                                 // update local coordinates
-                                Matrix< DDRMat > tXCoords  = tCoeffPert.get_row( iCoeffRow );
-                                Matrix< DDRMat > tXiCoords = tParamCoeff.get_row( iCoeffRow );
+                                Matrix< DDRMat > tXCoords  = tMasterCoeffPert.get_row( iCoeffRow );
+                                Matrix< DDRMat > tXiCoords = tMasterParamCoeff.get_row( iCoeffRow );
                                 tMasterIPGI->update_local_coordinates( tXCoords, tXiCoords );
-                                Matrix< DDRMat > tParamCoeffPert = tParamCoeff;
-                                tParamCoeffPert.get_row( iCoeffRow ) = tXiCoords.matrix_data();
-                                tMasterIGGI->set_space_param_coeff( tParamCoeffPert );
+                                Matrix< DDRMat > tMasterParamCoeffPert = tMasterParamCoeff;
+                                tMasterParamCoeffPert.get_row( iCoeffRow ) = tXiCoords.matrix_data();
+                                Matrix< DDRMat > tSlaveParamCoeffPert = tSlaveParamCoeff;
+                                tSlaveParamCoeffPert.get_row( tSlaveNodeLocalIndex ) = tXiCoords.matrix_data();
+
+                                tMasterIGGI->set_space_param_coeff( tMasterParamCoeffPert );
+                                tSlaveIGGI->set_space_param_coeff( tSlaveParamCoeffPert );
 
                                 // set evaluation point for interpolators (FIs and GIs)
-                                mSet->get_field_interpolator_manager()->set_space_time_from_local_IG_point( tEvaluationPoint );
+                                mSet->get_field_interpolator_manager( mtk::Master_Slave::MASTER )->
+                                        set_space_time_from_local_IG_point( tMasterEvaluationPoint );
+                                mSet->get_field_interpolator_manager( mtk::Master_Slave::SLAVE )->
+                                        set_space_time_from_local_IG_point( tSlaveEvaluationPoint );
 
                                 // reset the normal
                                 Matrix< DDRMat > tNormalPert;
@@ -2024,129 +2051,303 @@ namespace moris
                                                 tFDScheme( 1 )( iPoint ) *
                                                 mSet->get_residual()( 0 )( { tSlaveResDofAssemblyStart, tSlaveResDofAssemblyStop }, { 0, 0 } ) /
                                                 ( tFDScheme( 2 )( 0 ) * tDeltaH );
+
+                                // reset the coefficients values
+                                tMasterIGGI->set_space_coeff( tMasterCoeff );
+                                tMasterIGGI->set_space_param_coeff( tMasterParamCoeff );
+                                tSlaveIGGI->set_space_coeff( tSlaveCoeff );
+                                tSlaveIGGI->set_space_param_coeff( tSlaveParamCoeff );
+                                mSet->get_field_interpolator_manager( mtk::Master_Slave::MASTER )->
+                                        set_space_time_from_local_IG_point( tMasterEvaluationPoint );
+                                mSet->get_field_interpolator_manager( mtk::Master_Slave::SLAVE )->
+                                        set_space_time_from_local_IG_point( tSlaveEvaluationPoint );
+                                this->set_normal( tMasterNormal );
                             }
                         }
                     }
                 }
-                // reset the coefficients values
-                tMasterIGGI->set_space_coeff( tCoeff );
-                tMasterIGGI->set_space_param_coeff( tParamCoeff );
-                mSet->get_field_interpolator_manager()->set_space_time_from_local_IG_point( tEvaluationPoint );
-                this->set_normal( tNormal );
-            }
-
-            if( aSlaveIsActive.size() != 0 )
-            {
-                // get number of slave GI bases and space dimensions
-                uint tDerNumBases      = tSlaveIGGI->get_number_of_space_bases();
-                uint tDerNumDimensions = tSlaveIPGI->get_number_of_space_dimensions();
-
-                // coefficients for dv type wrt which derivative is computed
-                Matrix< DDRMat > tCoeff = tSlaveIGGI->get_space_coeff();
-                Matrix< DDRMat > tParamCoeff = tSlaveIGGI->get_space_param_coeff();
-                Matrix< DDRMat > tEvaluationPoint;
-                tSlaveIGGI->get_space_time( tEvaluationPoint );
-                Matrix< DDRMat > tNormal;
-                tSlaveIGGI->get_normal( tNormal );
-                tNormal = -1.0 * tNormal;
-
-                // loop over the spatial directions
-                for( uint iCoeffCol = 0; iCoeffCol< tDerNumDimensions; iCoeffCol++ )
-                {
-                    // loop over the IG nodes
-                    for( uint iCoeffRow = 0; iCoeffRow< tDerNumBases; iCoeffRow++ )
-                    {
-                        if ( aSlaveIsActive( iCoeffCol )( iCoeffRow ) == 1 )
-                        {
-                            // compute the perturbation value
-                            tDeltaH = aPerturbation * tCoeff( iCoeffRow, iCoeffCol );
-
-                            // check that perturbation is not zero
-                            if( ( tDeltaH < 1e-12 ) && ( tDeltaH > - 1e-12 ) )
-                            {
-                                tDeltaH = aPerturbation;
-                            }
-
-                            // check point location
-                            fd_scheme( aFDSchemeType, tFDScheme );
-                            if( tCoeff( iCoeffRow, iCoeffCol ) + tDeltaH > tSlaveMaxIP( iCoeffCol ) )
-                            {
-                                fd_scheme( fem::FDScheme_Type::POINT_1_BACKWARD, tFDScheme );
-                            }
-                            else if( tCoeff( iCoeffRow, iCoeffCol ) - tDeltaH < tSlaveMinIP( iCoeffCol ) )
-                            {
-                                fd_scheme( fem::FDScheme_Type::POINT_1_FORWARD, tFDScheme );
-                            }
-                            uint tNumPoints = tFDScheme( 0 ).size();
-
-                            // get the geometry pdv assembly index
-                            std::pair< moris_index, PDV_Type > tKeyPair =
-                                    std::make_pair( aSlaveVertexIndices( iCoeffRow ), tRequestedGeoPdvType( iCoeffCol ) );
-                            uint tPdvAssemblyIndex = mSet->get_geo_pdv_assembly_map()[ tKeyPair ];
-
-                            // loop over point of FD scheme
-                            for ( uint iPoint = 0; iPoint < tNumPoints; iPoint++ )
-                            {
-                                // reset the perturbed coefficents
-                                Matrix< DDRMat > tCoeffPert = tCoeff;
-
-                                // pertub the coefficent
-                                tCoeffPert( iCoeffRow, iCoeffCol ) += tFDScheme( 0 )( iPoint ) * tDeltaH;
-
-                                // setting the perturbed coefficients
-                                tSlaveIGGI->set_space_coeff( tCoeffPert );
-
-                                // update local coordinates
-                                Matrix< DDRMat > tXCoords  = tCoeffPert.get_row( iCoeffRow );
-                                Matrix< DDRMat > tXiCoords = tParamCoeff.get_row( iCoeffRow );
-                                tSlaveIPGI->update_local_coordinates( tXCoords, tXiCoords );
-                                Matrix< DDRMat > tParamCoeffPert = tParamCoeff;
-                                tParamCoeffPert.get_row( iCoeffRow ) = tXiCoords.matrix_data();
-                                tSlaveIGGI->set_space_param_coeff( tParamCoeffPert );
-
-                                // set evaluation point for interpolators (FIs and GIs)
-                                mSet->get_field_interpolator_manager( mtk::Master_Slave::SLAVE )->set_space_time_from_local_IG_point( tEvaluationPoint );
-
-                                // reset the normal
-                                Matrix< DDRMat > tNormalPert;
-                                tSlaveIGGI->get_normal( tNormalPert );
-                                tNormalPert = -1.0 * tNormalPert;
-                                this->set_normal( tNormalPert );
-
-                                // reset properties, CM and SP for IWG
-                                this->reset_eval_flags();
-
-                                // reset and evaluate the residual plus
-                                mSet->get_residual()( 0 ).fill( 0.0 );
-                                real tWStarPert = tGPWeight * tSlaveIGGI->det_J();
-                                this->compute_residual( tWStarPert );
-
-                                // evaluate dMasterRdpGeo
-                                mSet->get_drdpgeo()(
-                                        { tMasterResDofAssemblyStart, tMasterResDofAssemblyStop },
-                                        { tPdvAssemblyIndex,          tPdvAssemblyIndex } ) +=
-                                                tFDScheme( 1 )( iPoint ) *
-                                                mSet->get_residual()( 0 )( { tMasterResDofAssemblyStart, tMasterResDofAssemblyStop }, { 0, 0 } ) /
-                                                ( tFDScheme( 2 )( 0 ) * tDeltaH );
-
-                                // evaluate dSlaveRdpGeo
-                                mSet->get_drdpgeo()(
-                                        { tSlaveResDofAssemblyStart, tSlaveResDofAssemblyStop },
-                                        { tPdvAssemblyIndex,         tPdvAssemblyIndex } ) +=
-                                                tFDScheme( 1 )( iPoint ) *
-                                                mSet->get_residual()( 0 )( { tSlaveResDofAssemblyStart, tSlaveResDofAssemblyStop }, { 0, 0 } ) /
-                                                ( tFDScheme( 2 )( 0 ) * tDeltaH );
-                            }
-                        }
-                    }
-                }
-                // reset the coefficients values
-                tSlaveIGGI->set_space_coeff( tCoeff );
-                tSlaveIGGI->set_space_param_coeff( tParamCoeff );
-                mSet->get_field_interpolator_manager( mtk::Master_Slave::SLAVE )->set_space_time_from_local_IG_point( tEvaluationPoint );
-                this->set_normal( tNormal );
             }
         }
+
+        //        void IWG::compute_dRdp_FD_geometry_double(
+        //                moris::real                       aWStar,
+        //                moris::real                       aPerturbation,
+        //                moris::Cell< Matrix< DDSMat > > & aMasterIsActive,
+        //                Matrix< IndexMat >              & aMasterVertexIndices,
+        //                moris::Cell< Matrix< DDSMat > > & aSlaveIsActive,
+        //                Matrix< IndexMat >              & aSlaveVertexIndices,
+        //                fem::FDScheme_Type                aFDSchemeType )
+        //        {
+        //            print( aMasterVertexIndices, "aMasterVertexIndices" );
+        //            print( aSlaveVertexIndices, "aSlaveVertexIndices" );
+        //
+        //            // get requested geometry pdv types
+        //            moris::Cell< PDV_Type > tRequestedGeoPdvType;
+        //            mSet->get_ig_unique_dv_types_for_set( tRequestedGeoPdvType );
+        //
+        //            // get the master GI for the IG and IP element considered
+        //            Geometry_Interpolator * tMasterIGGI =
+        //                    mSet->get_field_interpolator_manager( mtk::Master_Slave::MASTER )->get_IG_geometry_interpolator();
+        //            Geometry_Interpolator * tMasterIPGI =
+        //                    mSet->get_field_interpolator_manager( mtk::Master_Slave::MASTER )->get_IP_geometry_interpolator();
+        //
+        //            // get the slave GI for the IG and IP element considered
+        //            Geometry_Interpolator * tSlaveIGGI =
+        //                    mSet->get_field_interpolator_manager( mtk::Master_Slave::SLAVE )->get_IG_geometry_interpolator();
+        //            Geometry_Interpolator * tSlaveIPGI =
+        //                    mSet->get_field_interpolator_manager( mtk::Master_Slave::SLAVE )->get_IP_geometry_interpolator();
+        //
+        //            // IP element max/min
+        //            Matrix< DDRMat > tMasterMaxIP = max( tMasterIPGI->get_space_coeff().matrix_data() );
+        //            Matrix< DDRMat > tMasterMinIP = min( tMasterIPGI->get_space_coeff().matrix_data() );
+        ////            Matrix< DDRMat > tSlaveMaxIP = max( tSlaveIPGI->get_space_coeff().matrix_data() );
+        ////            Matrix< DDRMat > tSlaveMinIP = min( tSlaveIPGI->get_space_coeff().matrix_data() );
+        //
+        //            // get the master residual dof type index in the set
+        //            uint tMasterResDofIndex = mSet->get_dof_index_for_type(
+        //                    mResidualDofType( 0 ),
+        //                    mtk::Master_Slave::MASTER );
+        //            uint tMasterResDofAssemblyStart = mSet->get_res_dof_assembly_map()( tMasterResDofIndex )( 0, 0 );
+        //            uint tMasterResDofAssemblyStop  = mSet->get_res_dof_assembly_map()( tMasterResDofIndex )( 0, 1 );
+        //
+        //            // get the slave residual dof type index in the set
+        //            uint tSlaveResDofIndex = mSet->get_dof_index_for_type(
+        //                    mResidualDofType( 0 ),
+        //                    mtk::Master_Slave::SLAVE );
+        //            uint tSlaveResDofAssemblyStart = mSet->get_res_dof_assembly_map()( tSlaveResDofIndex )( 0, 0 );
+        //            uint tSlaveResDofAssemblyStop  = mSet->get_res_dof_assembly_map()( tSlaveResDofIndex )( 0, 1 );
+        //
+        //            // init perturbation
+        //            real tDeltaH = 0.0;
+        //
+        //            // get GP weight
+        //            real tGPWeight = aWStar / tMasterIGGI->det_J();
+        //
+        //            // init FD scheme
+        //            moris::Cell< moris::Cell< real > > tFDScheme;
+        //
+        //            if( aMasterIsActive.size() != 0 )
+        //            {
+        //                // get number of master GI bases and space dimensions
+        //                uint tDerNumBases      = tMasterIGGI->get_number_of_space_bases();
+        //                uint tDerNumDimensions = tMasterIPGI->get_number_of_space_dimensions();
+        //
+        //                // coefficients for dv type wrt which derivative is computed
+        //                Matrix< DDRMat > tCoeff = tMasterIGGI->get_space_coeff();
+        //                Matrix< DDRMat > tParamCoeff = tMasterIGGI->get_space_param_coeff();
+        //                Matrix< DDRMat > tEvaluationPoint;
+        //                tMasterIGGI->get_space_time( tEvaluationPoint );
+        //                Matrix< DDRMat > tNormal;
+        //                tMasterIGGI->get_normal( tNormal );
+        //
+        //                // loop over the spatial directions
+        //                for( uint iCoeffCol = 0; iCoeffCol< tDerNumDimensions; iCoeffCol++ )
+        //                {
+        //                    // loop over the IG nodes
+        //                    for( uint iCoeffRow = 0; iCoeffRow< tDerNumBases; iCoeffRow++ )
+        //                    {
+        //                        if ( aMasterIsActive( iCoeffCol )( iCoeffRow ) == 1 )
+        //                        {
+        //                            // compute the perturbation value
+        //                            tDeltaH = aPerturbation * tCoeff( iCoeffRow, iCoeffCol );
+        //
+        //                            // check that perturbation is not zero
+        //                            if( ( tDeltaH < 1e-12 ) && ( tDeltaH > - 1e-12 ) )
+        //                            {
+        //                                tDeltaH = aPerturbation;
+        //                            }
+        //
+        //                            // check point location
+        //                            fd_scheme( aFDSchemeType, tFDScheme );
+        //                            if( tCoeff( iCoeffRow, iCoeffCol ) + tDeltaH > tMasterMaxIP( iCoeffCol ) )
+        //                            {
+        //                                fd_scheme( fem::FDScheme_Type::POINT_1_BACKWARD, tFDScheme );
+        //                            }
+        //                            else if( tCoeff( iCoeffRow, iCoeffCol ) - tDeltaH < tMasterMinIP( iCoeffCol ) )
+        //                            {
+        //                                fd_scheme( fem::FDScheme_Type::POINT_1_FORWARD, tFDScheme );
+        //                            }
+        //                            uint tNumPoints = tFDScheme( 0 ).size();
+        //
+        //                            // get the geometry pdv assembly index
+        //                            std::pair< moris_index, PDV_Type > tKeyPair =
+        //                                    std::make_pair( aMasterVertexIndices( iCoeffRow ), tRequestedGeoPdvType( iCoeffCol ) );
+        //                            uint tPdvAssemblyIndex = mSet->get_geo_pdv_assembly_map()[ tKeyPair ];
+        //
+        //                            // loop over point of FD scheme
+        //                            for ( uint iPoint = 0; iPoint < tNumPoints; iPoint++ )
+        //                            {
+        //                                // reset the perturbed coefficents
+        //                                Matrix< DDRMat > tCoeffPert = tCoeff;
+        //
+        //                                // pertub the coefficent
+        //                                tCoeffPert( iCoeffRow, iCoeffCol ) += tFDScheme( 0 )( iPoint ) * tDeltaH;
+        //
+        //                                // setting the perturbed coefficients
+        //                                tMasterIGGI->set_space_coeff( tCoeffPert );
+        //
+        //                                // update local coordinates
+        //                                Matrix< DDRMat > tXCoords  = tCoeffPert.get_row( iCoeffRow );
+        //                                Matrix< DDRMat > tXiCoords = tParamCoeff.get_row( iCoeffRow );
+        //                                tMasterIPGI->update_local_coordinates( tXCoords, tXiCoords );
+        //                                Matrix< DDRMat > tParamCoeffPert = tParamCoeff;
+        //                                tParamCoeffPert.get_row( iCoeffRow ) = tXiCoords.matrix_data();
+        //                                tMasterIGGI->set_space_param_coeff( tParamCoeffPert );
+        //
+        //                                // set evaluation point for interpolators (FIs and GIs)
+        //                                mSet->get_field_interpolator_manager()->set_space_time_from_local_IG_point( tEvaluationPoint );
+        //
+        //                                // reset the normal
+        //                                Matrix< DDRMat > tNormalPert;
+        //                                tMasterIGGI->get_normal( tNormalPert );
+        //                                this->set_normal( tNormalPert );
+        //
+        //                                // reset properties, CM and SP for IWG
+        //                                this->reset_eval_flags();
+        //
+        //                                // reset and evaluate the residual plus
+        //                                mSet->get_residual()( 0 ).fill( 0.0 );
+        //                                real tWStarPert = tGPWeight * tMasterIGGI->det_J();
+        //                                this->compute_residual( tWStarPert );
+        //
+        //                                // evaluate dMasterRdpGeo
+        //                                mSet->get_drdpgeo()(
+        //                                        { tMasterResDofAssemblyStart, tMasterResDofAssemblyStop },
+        //                                        { tPdvAssemblyIndex,          tPdvAssemblyIndex } ) +=
+        //                                                tFDScheme( 1 )( iPoint ) *
+        //                                                mSet->get_residual()( 0 )( { tMasterResDofAssemblyStart, tMasterResDofAssemblyStop }, { 0, 0 } ) /
+        //                                                ( tFDScheme( 2 )( 0 ) * tDeltaH );
+        //
+        //                                // evaluate dSlaveRdpGeo
+        //                                mSet->get_drdpgeo()(
+        //                                        { tSlaveResDofAssemblyStart, tSlaveResDofAssemblyStop },
+        //                                        { tPdvAssemblyIndex,         tPdvAssemblyIndex } ) +=
+        //                                                tFDScheme( 1 )( iPoint ) *
+        //                                                mSet->get_residual()( 0 )( { tSlaveResDofAssemblyStart, tSlaveResDofAssemblyStop }, { 0, 0 } ) /
+        //                                                ( tFDScheme( 2 )( 0 ) * tDeltaH );
+        //                            }
+        //                        }
+        //                    }
+        //                }
+        //                // reset the coefficients values
+        //                tMasterIGGI->set_space_coeff( tCoeff );
+        //                tMasterIGGI->set_space_param_coeff( tParamCoeff );
+        //                mSet->get_field_interpolator_manager()->set_space_time_from_local_IG_point( tEvaluationPoint );
+        //                this->set_normal( tNormal );
+        //            }
+        //
+        //            if( aSlaveIsActive.size() != 0 )
+        //            {
+        //                // get number of slave GI bases and space dimensions
+        //                uint tDerNumBases      = tSlaveIGGI->get_number_of_space_bases();
+        //                uint tDerNumDimensions = tSlaveIPGI->get_number_of_space_dimensions();
+        //
+        //                // coefficients for dv type wrt which derivative is computed
+        //                Matrix< DDRMat > tCoeff = tSlaveIGGI->get_space_coeff();
+        //                Matrix< DDRMat > tParamCoeff = tSlaveIGGI->get_space_param_coeff();
+        //                Matrix< DDRMat > tEvaluationPoint;
+        //                tSlaveIGGI->get_space_time( tEvaluationPoint );
+        //                Matrix< DDRMat > tNormal;
+        //                tSlaveIGGI->get_normal( tNormal );
+        //                tNormal = -1.0 * tNormal;
+        //
+        //                // loop over the spatial directions
+        //                for( uint iCoeffCol = 0; iCoeffCol< tDerNumDimensions; iCoeffCol++ )
+        //                {
+        //                    // loop over the IG nodes
+        //                    for( uint iCoeffRow = 0; iCoeffRow< tDerNumBases; iCoeffRow++ )
+        //                    {
+        //                        if ( aSlaveIsActive( iCoeffCol )( iCoeffRow ) == 1 )
+        //                        {
+        //                            // compute the perturbation value
+        //                            tDeltaH = aPerturbation * tCoeff( iCoeffRow, iCoeffCol );
+        //
+        //                            // check that perturbation is not zero
+        //                            if( ( tDeltaH < 1e-12 ) && ( tDeltaH > - 1e-12 ) )
+        //                            {
+        //                                tDeltaH = aPerturbation;
+        //                            }
+        //
+        //                            // check point location
+        //                            fd_scheme( aFDSchemeType, tFDScheme );
+        //                            if( tCoeff( iCoeffRow, iCoeffCol ) + tDeltaH > tSlaveMaxIP( iCoeffCol ) )
+        //                            {
+        //                                fd_scheme( fem::FDScheme_Type::POINT_1_BACKWARD, tFDScheme );
+        //                            }
+        //                            else if( tCoeff( iCoeffRow, iCoeffCol ) - tDeltaH < tSlaveMinIP( iCoeffCol ) )
+        //                            {
+        //                                fd_scheme( fem::FDScheme_Type::POINT_1_FORWARD, tFDScheme );
+        //                            }
+        //                            uint tNumPoints = tFDScheme( 0 ).size();
+        //
+        //                            // get the geometry pdv assembly index
+        //                            std::pair< moris_index, PDV_Type > tKeyPair =
+        //                                    std::make_pair( aSlaveVertexIndices( iCoeffRow ), tRequestedGeoPdvType( iCoeffCol ) );
+        //                            uint tPdvAssemblyIndex = mSet->get_geo_pdv_assembly_map()[ tKeyPair ];
+        //
+        //                            // loop over point of FD scheme
+        //                            for ( uint iPoint = 0; iPoint < tNumPoints; iPoint++ )
+        //                            {
+        //                                // reset the perturbed coefficents
+        //                                Matrix< DDRMat > tCoeffPert = tCoeff;
+        //
+        //                                // pertub the coefficent
+        //                                tCoeffPert( iCoeffRow, iCoeffCol ) += tFDScheme( 0 )( iPoint ) * tDeltaH;
+        //
+        //                                // setting the perturbed coefficients
+        //                                tSlaveIGGI->set_space_coeff( tCoeffPert );
+        //
+        //                                // update local coordinates
+        //                                Matrix< DDRMat > tXCoords  = tCoeffPert.get_row( iCoeffRow );
+        //                                Matrix< DDRMat > tXiCoords = tParamCoeff.get_row( iCoeffRow );
+        //                                tSlaveIPGI->update_local_coordinates( tXCoords, tXiCoords );
+        //                                Matrix< DDRMat > tParamCoeffPert = tParamCoeff;
+        //                                tParamCoeffPert.get_row( iCoeffRow ) = tXiCoords.matrix_data();
+        //                                tSlaveIGGI->set_space_param_coeff( tParamCoeffPert );
+        //
+        //                                // set evaluation point for interpolators (FIs and GIs)
+        //                                mSet->get_field_interpolator_manager( mtk::Master_Slave::SLAVE )->set_space_time_from_local_IG_point( tEvaluationPoint );
+        //
+        //                                // reset the normal
+        //                                Matrix< DDRMat > tNormalPert;
+        //                                tSlaveIGGI->get_normal( tNormalPert );
+        //                                tNormalPert = -1.0 * tNormalPert;
+        //                                this->set_normal( tNormalPert );
+        //
+        //                                // reset properties, CM and SP for IWG
+        //                                this->reset_eval_flags();
+        //
+        //                                // reset and evaluate the residual plus
+        //                                mSet->get_residual()( 0 ).fill( 0.0 );
+        //                                real tWStarPert = tGPWeight * tSlaveIGGI->det_J();
+        //                                this->compute_residual( tWStarPert );
+        //
+        //                                // evaluate dMasterRdpGeo
+        //                                mSet->get_drdpgeo()(
+        //                                        { tMasterResDofAssemblyStart, tMasterResDofAssemblyStop },
+        //                                        { tPdvAssemblyIndex,          tPdvAssemblyIndex } ) +=
+        //                                                tFDScheme( 1 )( iPoint ) *
+        //                                                mSet->get_residual()( 0 )( { tMasterResDofAssemblyStart, tMasterResDofAssemblyStop }, { 0, 0 } ) /
+        //                                                ( tFDScheme( 2 )( 0 ) * tDeltaH );
+        //
+        //                                // evaluate dSlaveRdpGeo
+        //                                mSet->get_drdpgeo()(
+        //                                        { tSlaveResDofAssemblyStart, tSlaveResDofAssemblyStop },
+        //                                        { tPdvAssemblyIndex,         tPdvAssemblyIndex } ) +=
+        //                                                tFDScheme( 1 )( iPoint ) *
+        //                                                mSet->get_residual()( 0 )( { tSlaveResDofAssemblyStart, tSlaveResDofAssemblyStop }, { 0, 0 } ) /
+        //                                                ( tFDScheme( 2 )( 0 ) * tDeltaH );
+        //                            }
+        //                        }
+        //                    }
+        //                }
+        //                // reset the coefficients values
+        //                tSlaveIGGI->set_space_coeff( tCoeff );
+        //                tSlaveIGGI->set_space_param_coeff( tParamCoeff );
+        //                mSet->get_field_interpolator_manager( mtk::Master_Slave::SLAVE )->set_space_time_from_local_IG_point( tEvaluationPoint );
+        //                this->set_normal( tNormal );
+        //            }
+        //        }
 
         //------------------------------------------------------------------------------
 
