@@ -777,7 +777,7 @@ TEST_CASE("2D XTK WITH HMR ThermoElastic 2D Staggered","[XTK_HMR_thermoelastic_2
          // define stabilization parameters
          fem::SP_Factory tSPFactory;
          std::shared_ptr< fem::Stabilization_Parameter > tSPDirichletNitscheU = tSPFactory.create_SP( fem::Stabilization_Type::DIRICHLET_NITSCHE );
-         tSPDirichletNitscheU->set_parameters( { {{ 1.0 }} } );
+         tSPDirichletNitscheU->set_parameters( { {{ 100.0 }} } );
          tSPDirichletNitscheU->set_property( tPropEMod1, "Material", mtk::Master_Slave::MASTER );
 
          std::shared_ptr< fem::Stabilization_Parameter > tSPDirichletNitscheTEMP = tSPFactory.create_SP( fem::Stabilization_Type::DIRICHLET_NITSCHE );
@@ -1022,8 +1022,6 @@ TEST_CASE("2D XTK WITH HMR ThermoElastic 2D Staggered","[XTK_HMR_thermoelastic_2
         Matrix<DDRMat> tGoldSolution;
         tTimeSolver->get_full_solution(tFullSolution);
 
-//        print(tFullSolution,"tFullSol");
-
         std::string tMorisRoot = moris::get_base_moris_dir();
         std::string tHdf5FilePath = tMorisRoot + "/projects/FEM/MDL/test/data/Thermoelastic_test_2d.hdf5";
 
@@ -1044,29 +1042,19 @@ TEST_CASE("2D XTK WITH HMR ThermoElastic 2D Staggered","[XTK_HMR_thermoelastic_2
         close_hdf5_file( tFileID );
 
         // verify solution
-//        moris::real tEpsilon = 1E-06;
-//        bool tCheck = true;
-//        for( uint Ik = 0; Ik <tFullSolution.numel(); Ik++)
-//        {
-//            if (!((tFullSolution(Ik) - tGoldSolution(Ik)) <= tEpsilon))
-//            {
-//                tCheck = false;
-//            }
-//        }
 
-        // verify solution
-                bool tSolutionCheck = true;
-                for( uint i = 0; i < tFullSolution.numel(); i++ )
-                {
-                    tSolutionCheck = tSolutionCheck && ( tFullSolution( i ) - tGoldSolution( i ) < 1e-03 );
-                    if( !tSolutionCheck )
-                    {
-                        std::cout<<"tFullSolution( i ) "<<tFullSolution( i )<<" tGoldSolution( i ) "<<tGoldSolution( i )<<std::endl;
-                    }
-                }
+        bool tSolutionCheck = true;
+        for( uint i = 0; i < tFullSolution.numel(); i++ )
+        {
+            tSolutionCheck = tSolutionCheck && ( tFullSolution( i ) - tGoldSolution( i ) < 1e-03 );
+            if( !tSolutionCheck )
+            {
+                std::cout<<"tFullSolution( i ) "<<tFullSolution( i )<<" tGoldSolution( i ) "<<tGoldSolution( i )<<std::endl;
+            }
+        }
+
         CHECK(tSolutionCheck);
 
-//        delete tIntegMesh1;
         delete tModel;
         delete tInterpolationMesh;
     }
@@ -1183,7 +1171,7 @@ TEST_CASE("2D XTK WITH HMR ThermoElastic 2D Staggered","[XTK_HMR_thermoelastic_2
 //                                                 {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY, MSI::Dof_Type::UZ },},
 //                                                 { fem::Property_Type::STRUC_NEUMANN },
 //                                                 moris::Cell< fem::Constitutive_Type >( 0 ) );
-//      tIntIWG( 0 ) = fem::IWG_User_Defined_Info( fem::IWG_Type::STRUC_LINEAR_INTERFACE,
+//      tIntIWG( 0 ) = fem::IWG_User_Defined_Info( fem::IWG_Type::STRUC_LINEAR_INTERFACE_SYMMETRIC_NITSCHE,
 //                                                 { MSI::Dof_Type::UX, MSI::Dof_Type::UY, MSI::Dof_Type::UZ },
 //                                                 {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY, MSI::Dof_Type::UZ }},
 //                                                 Cell< fem::Property_Type >( 0 ),

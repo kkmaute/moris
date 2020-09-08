@@ -27,69 +27,66 @@ namespace moris
         class IQI_Latent_Heat_Absorption : public IQI
         {
 
-            //------------------------------------------------------------------------------
+                //------------------------------------------------------------------------------
 
-            enum class IQI_Property_Type
-            {
-                DENSITY,
-                LATENT_HEAT,
-                PC_TEMP,
-                PHASE_STATE_FUNCTION,
-                PHASE_CHANGE_CONST,
-                MAX_ENUM
-            };
+                enum class IQI_Property_Type
+                {
+                        DENSITY,
+                        LATENT_HEAT,
+                        PC_TEMP,
+                        PHASE_STATE_FUNCTION,
+                        PHASE_CHANGE_CONST,
+                        MAX_ENUM
+                };
 
-            // Local string to property enum map
-            std::map< std::string, IQI_Property_Type > mPropertyMap;
+                // Local string to property enum map
+                std::map< std::string, IQI_Property_Type > mPropertyMap;
 
-        public:
-            //------------------------------------------------------------------------------
-            /*
-             * constructor
-             */
-            IQI_Latent_Heat_Absorption();
+            public:
+                //------------------------------------------------------------------------------
+                /*
+                 * constructor
+                 */
+                IQI_Latent_Heat_Absorption();
 
-            //------------------------------------------------------------------------------
-            /**
-             * trivial destructor
-             */
-            ~IQI_Latent_Heat_Absorption(){};
+                //------------------------------------------------------------------------------
+                /**
+                 * trivial destructor
+                 */
+                ~IQI_Latent_Heat_Absorption(){};
 
-            //------------------------------------------------------------------------------
-            /**
-             * set property
-             * @param[ in ] aProperty       a property pointer
-             * @param[ in ] aPropertyString a string describing the property
-             * @param[ in ] aIsMaster       enum master or slave
-             */
-            void set_property(
-                    std::shared_ptr< Property > aProperty,
-                    std::string                 aPropertyString,
-                    mtk::Master_Slave           aIsMaster = mtk::Master_Slave::MASTER );
+                //------------------------------------------------------------------------------
+                /**
+                 * set property
+                 * @param[ in ] aProperty       a property pointer
+                 * @param[ in ] aPropertyString a string describing the property
+                 * @param[ in ] aIsMaster       enum master or slave
+                 */
+                void set_property(
+                        std::shared_ptr< Property > aProperty,
+                        std::string                 aPropertyString,
+                        mtk::Master_Slave           aIsMaster = mtk::Master_Slave::MASTER );
 
-            /**
-             * compute the derivative of the quantity of interest
-             * wrt requested dof types
-             * @param[ in ] aWStar weight associated to the evaluation point
-             */
-            void compute_dQIdu( moris::real aWStar );
+            private:
 
-        private:
-            /**
-             * compute the quantity of interest
-             * @param[ in ] aQI quantity of interest matrix to fill
-             */
-            void compute_QI( Matrix< DDRMat > & aQI );
+                //------------------------------------------------------------------------------
+                /**
+                 * compute the quantity of interest
+                 * @param[ in ] aQI quantity of interest matrix to fill
+                 */
+                void compute_QI( Matrix< DDRMat > & aQI );
 
-            //------------------------------------------------------------------------------
+                //------------------------------------------------------------------------------
+                /**
+                 * compute the derivative of the quantity of interest wrt dof types
+                 * @param[ in ] aDofType group of dof types wrt which derivatives are evaluated
+                 * @param[ in ] adQIdu   derivative of quantity of interest matrix to fill
+                 */
+                void compute_dQIdu(
+                        moris::Cell< MSI::Dof_Type > & aDofType,
+                        Matrix< DDRMat >             & adQIdu );
 
-            /**
-             * compute the derivative of the quantity of interest wrt dof types
-             * @param[ in ] adQIdu derivative of quantity of interest matrix to fill
-             */
-            void compute_dQIdu( MSI::Dof_Type aDofType, Matrix< DDRMat > & adQIdu );
-
-            //------------------------------------------------------------------------------
+                //------------------------------------------------------------------------------
         };
     }/* end namespace fem */
 } /* end namespace moris */

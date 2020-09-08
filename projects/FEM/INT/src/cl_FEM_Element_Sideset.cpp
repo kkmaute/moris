@@ -291,11 +291,17 @@ namespace moris
                 real tWStar = mSet->get_integration_weights()( iGP ) *
                         mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator()->det_J();
 
+                // get the normal from mesh
+                Matrix< DDRMat > tNormal = mCluster->get_side_normal( mMasterCell, tSideOrd );
+
                 // loop over the IWGs
                 for( uint iIWG = 0; iIWG < tNumIWGs; iIWG++ )
                 {
                     // reset IWG
                     mSet->get_requested_IWGs()( iIWG )->reset_eval_flags();
+
+                    // set the normal for the IWG
+                    mSet->get_requested_IWGs()( iIWG )->set_normal( tNormal );
 
                     // FIXME set nodal weak BCs
                     mSet->get_requested_IWGs()( iIWG )->set_nodal_weak_bcs(
@@ -348,6 +354,9 @@ namespace moris
                 real tWStar = mSet->get_integration_weights()( iGP ) *
                         mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator()->det_J();
 
+                // get the normal from mesh
+                Matrix< DDRMat > tNormal = mCluster->get_side_normal( mMasterCell, tSideOrd );
+
                 // loop over the IWGs
                 for( uint iIWG = 0; iIWG < tNumIWGs; iIWG++ )
                 {
@@ -355,7 +364,11 @@ namespace moris
                     mSet->get_requested_IWGs()( iIWG )->reset_eval_flags();
 
                     // FIXME set nodal weak BCs
-                    mSet->get_requested_IWGs()( iIWG )->set_nodal_weak_bcs( mCluster->mInterpolationElement->get_weak_bcs() );
+                    mSet->get_requested_IWGs()( iIWG )->set_nodal_weak_bcs(
+                            mCluster->mInterpolationElement->get_weak_bcs() );
+
+                    // set the normal for the IWG
+                    mSet->get_requested_IWGs()( iIWG )->set_normal( tNormal );
 
                     // compute dRdpMat at evaluation point
                     mSet->get_requested_IWGs()( iIWG )->compute_dRdp_FD_material(
@@ -587,10 +600,10 @@ namespace moris
             this->init_ig_geometry_interpolator(
                     tSideOrd,
                     tIsActiveDv );
-					
+
             // get the set local index
             moris_index tIQISetLocalIndex =
-                        mSet->mIQINameToIndexMap.find( aQIName );
+                    mSet->mIQINameToIndexMap.find( aQIName );
 
             // get IQI
             std::shared_ptr< IQI > tIQI = mSet->mIQIs( tIQISetLocalIndex );
@@ -638,10 +651,10 @@ namespace moris
 
             // get the vertices
             moris::Cell< mtk::Vertex const * > tVertices = mMasterCell->get_vertices_on_side_ordinal( tSideOrd );
-			
-			// get the set local index
+
+            // get the set local index
             moris_index tIQISetLocalIndex =
-                        mSet->mIQINameToIndexMap.find( aQIName );
+                    mSet->mIQINameToIndexMap.find( aQIName );
 
             // get IQI
             std::shared_ptr< IQI > tIQI = mSet->mIQIs( tIQISetLocalIndex );
@@ -688,10 +701,10 @@ namespace moris
             this->init_ig_geometry_interpolator(
                     tSideOrd,
                     tIsActiveDv );
-					
-			// get the set local index
+
+            // get the set local index
             moris_index tIQISetLocalIndex =
-                        mSet->mIQINameToIndexMap.find( aQIName );
+                    mSet->mIQINameToIndexMap.find( aQIName );
 
             // get IQI
             std::shared_ptr< IQI > tIQI = mSet->mIQIs( tIQISetLocalIndex );

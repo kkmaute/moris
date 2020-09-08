@@ -39,7 +39,8 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        void IQI_Max_Stress::set_property( std::shared_ptr< Property > aProperty,
+        void IQI_Max_Stress::set_property(
+                std::shared_ptr< Property > aProperty,
                 std::string                 aPropertyString,
                 mtk::Master_Slave           aIsMaster)
         {
@@ -145,9 +146,11 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        void IQI_Max_Stress::compute_dQIdu( MSI::Dof_Type aDofType, Matrix< DDRMat > & adQIdu )
+        void IQI_Max_Stress::compute_dQIdu(
+                moris::Cell< MSI::Dof_Type > & aDofType,
+                Matrix< DDRMat >             & adQIdu )
         {
-            MORIS_ERROR(0,"IQI_Max_Von_Mises_Stress::compute_dQIdu - Derivatives of stress wrt dof not implemented");
+            MORIS_ERROR( false,"IQI_Max_Von_Mises_Stress::compute_dQIdu - Derivatives of stress wrt dof not implemented");
         }
 
         //------------------------------------------------------------------------------

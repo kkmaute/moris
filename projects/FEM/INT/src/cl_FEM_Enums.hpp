@@ -120,7 +120,8 @@ namespace moris
                 STRUC_LINEAR_DIRICHLET_SYMMETRIC_NITSCHE,// linear elasticity Dirichlet (Nitsche)
                 STRUC_LINEAR_DIRICHLET_UNSYMMETRIC_NITSCHE,// linear elasticity Dirichlet (Nitsche)
                 STRUC_LINEAR_NEUMANN,  // linear elasticity Neumann
-                STRUC_LINEAR_INTERFACE,// linear elasticity Nitsche interface condition
+                STRUC_LINEAR_INTERFACE_SYMMETRIC_NITSCHE,// linear elasticity Nitsche interface condition
+                STRUC_LINEAR_INTERFACE_UNSYMMETRIC_NITSCHE,
                 STRUC_LINEAR_VW_GHOST, // linear elasticity Ghost flux based
                 STRUC_LINEAR_PRESSURE_BULK, //linear elasticity bulk mixed formulation
                 STRUC_LINEAR_PRESSURE_DIRICHLET_SYMMETRIC_NITSCHE, // linear elasticity Dirichlet mixed formulation (Nitsche)
@@ -181,7 +182,6 @@ namespace moris
                 H1_ERROR_ANALYTIC,
                 H1_SEMI_ERROR,
                 J_INTEGRAL,
-                ANALYTIC,
                 LIFT_COEFF,
                 DRAG_COEFF,
                 LATENT_HEAT_ABSORPTION,
@@ -203,6 +203,7 @@ namespace moris
         };
 
         //------------------------------------------------------------------------------
+
         enum class Constitutive_Type
         {
                 UNDEFINED,

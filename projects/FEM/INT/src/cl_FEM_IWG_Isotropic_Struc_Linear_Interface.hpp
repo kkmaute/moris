@@ -30,10 +30,13 @@ namespace moris
 
             public:
 
+                // sint for symmetric/unsymmetric Nitsche
+                sint mBeta = 1.0;
+
                 enum class IWG_Constitutive_Type
                 {
-                    ELAST_LIN_ISO,
-                    MAX_ENUM
+                        ELAST_LIN_ISO,
+                        MAX_ENUM
                 };
 
                 // Local string to constitutive enum map
@@ -51,8 +54,9 @@ namespace moris
                 //------------------------------------------------------------------------------
                 /*
                  * constructor
+                 * @param[ in ] aBeta +1 or -1 for symmetric/unsymmetric symmetric Nitsche
                  */
-                IWG_Isotropic_Struc_Linear_Interface();
+                IWG_Isotropic_Struc_Linear_Interface( sint aBeta );
 
                 //------------------------------------------------------------------------------
                 /**

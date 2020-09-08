@@ -482,10 +482,10 @@ namespace moris
         tParameterlist( 0 )( 0 ) = prm::create_vis_parameter_list();
         tParameterlist( 0 )( 0 ).set( "File_Name"  , std::pair< std::string, std::string >( "./", "Comsol_conform.exo" ) );
         tParameterlist( 0 )( 0 ).set( "Mesh_Type"  , static_cast< uint >( vis::VIS_Mesh_Type::STANDARD ) );
-        tParameterlist( 0 )( 0 ).set( "Set_Names"  ,  "HMR_dummy_n_p1" ) ;
-        tParameterlist( 0 )( 0 ).set( "Field_Names",  "TEMP,MAX_DOF,LATENT_HEAT_ABSORPTION" ) ;
-        tParameterlist( 0 )( 0 ).set( "Field_Type" ,  "NODAL,GLOBAL,GLOBAL" ) ;
-        tParameterlist( 0 )( 0 ).set( "QI_Names",  "IQIBulkTEMP,IQIMaxTEMP,IQILatentHeatAbsorption" ) ;
+        tParameterlist( 0 )( 0 ).set( "Set_Names"  , "HMR_dummy_n_p1" ) ;
+        tParameterlist( 0 )( 0 ).set( "Field_Names", "TEMP,MAX_DOF,LATENT_HEAT_ABSORPTION" ) ;
+        tParameterlist( 0 )( 0 ).set( "Field_Type" , "NODAL,GLOBAL,GLOBAL" ) ;
+        tParameterlist( 0 )( 0 ).set( "IQI_Names"  , "IQIBulkTEMP,IQIMaxTEMP,IQILatentHeatAbsorption" ) ;
     }
 
     //------------------------------------------------------------------------------

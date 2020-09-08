@@ -22,65 +22,46 @@ namespace moris
 {
     namespace fem
     {
-//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
 
         class IQI_H1_Semi_Error : public IQI
         {
-//------------------------------------------------------------------------------
+                //------------------------------------------------------------------------------
 
-            enum class IQI_Property_Type
-            {
-                MAX_ENUM
-            };
+            public:
+                //------------------------------------------------------------------------------
+                /*
+                 * constructor
+                 */
+                IQI_H1_Semi_Error();
 
-            // Local string to property enum map
-            std::map< std::string, IQI_Property_Type > mPropertyMap;
+                //------------------------------------------------------------------------------
+                /**
+                 * trivial destructor
+                 */
+                ~IQI_H1_Semi_Error(){};
 
-            enum class IQI_Constitutive_Type
-            {
-                MAX_ENUM
-            };
+                //------------------------------------------------------------------------------
+            private:
 
-            // Local string to constitutive enum map
-            std::map< std::string, IQI_Constitutive_Type > mConstitutiveMap;
+                //------------------------------------------------------------------------------
+                /**
+                 * compute the quantity of interest
+                 * @param[ in ] aQI quantity of interest matrix to fill
+                 */
+                void compute_QI( Matrix< DDRMat > & aQI );
 
-            enum class IQI_Stabilization_Type
-            {
-                MAX_ENUM
-            };
+                //------------------------------------------------------------------------------
+                /**
+                 * compute the derivative of the quantity of interest wrt dof types
+                 * @param[ in ] aDofType group of dof types wrt which derivatives are evaluated
+                 * @param[ in ] adQIdu   derivative of quantity of interest matrix to fill
+                 */
+                void compute_dQIdu(
+                        moris::Cell< MSI::Dof_Type > & aDofType,
+                        Matrix< DDRMat >             & adQIdu );
 
-            // Local string to constitutive enum map
-            std::map< std::string, IQI_Stabilization_Type > mStabilizationMap;
-
-        public:
-//------------------------------------------------------------------------------
-            /*
-             * constructor
-             */
-            IQI_H1_Semi_Error();
-
-//------------------------------------------------------------------------------
-            /**
-             * trivial destructor
-             */
-            ~IQI_H1_Semi_Error(){};
-
-//------------------------------------------------------------------------------
-        private:
-            /**
-             * compute the quantity of interest
-             * @param[ in ] aQI quantity of interest matrix to fill
-             */
-            void compute_QI( Matrix< DDRMat > & aQI );
-
-//------------------------------------------------------------------------------
-            /**
-             * compute the derivative of the quantity of interest wrt dof types
-             * @param[ in ] adQIdu derivative of quantity of interest matrix to fill
-             */
-            void compute_dQIdu( MSI::Dof_Type aDofType, Matrix< DDRMat > & adQIdu );
-
-//------------------------------------------------------------------------------
+                //------------------------------------------------------------------------------
         };
     }/* end namespace fem */
 } /* end namespace moris */

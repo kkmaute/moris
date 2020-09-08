@@ -27,58 +27,61 @@ namespace moris
         class IQI_Max_Dof : public IQI
         {
 
-            //------------------------------------------------------------------------------
+                //------------------------------------------------------------------------------
 
-            enum class IQI_Property_Type
-            {
-                REFERENCE_VALUE,
-                EXPONENT,
-                MAX_ENUM
-            };
+                enum class IQI_Property_Type
+                {
+                        REFERENCE_VALUE,
+                        EXPONENT,
+                        MAX_ENUM
+                };
 
-            // Local string to property enum map
-            std::map< std::string, IQI_Property_Type > mPropertyMap;
+                // Local string to property enum map
+                std::map< std::string, IQI_Property_Type > mPropertyMap;
 
-        public:
-            //------------------------------------------------------------------------------
-            /*
-             * constructor
-             */
-            IQI_Max_Dof();
+            public:
+                //------------------------------------------------------------------------------
+                /*
+                 * constructor
+                 */
+                IQI_Max_Dof();
 
-            //------------------------------------------------------------------------------
-            /**
-             * trivial destructor
-             */
-            ~IQI_Max_Dof(){};
+                //------------------------------------------------------------------------------
+                /**
+                 * trivial destructor
+                 */
+                ~IQI_Max_Dof(){};
 
-            //------------------------------------------------------------------------------
-            /**
-             * set property
-             * @param[ in ] aProperty       a property pointer
-             * @param[ in ] aPropertyString a string describing the property
-             * @param[ in ] aIsMaster       enum master or slave
-             */
-            void set_property(
-                    std::shared_ptr< Property > aProperty,
-                    std::string                 aPropertyString,
-                    mtk::Master_Slave           aIsMaster = mtk::Master_Slave::MASTER );
+                //------------------------------------------------------------------------------
+                /**
+                 * set property
+                 * @param[ in ] aProperty       a property pointer
+                 * @param[ in ] aPropertyString a string describing the property
+                 * @param[ in ] aIsMaster       enum master or slave
+                 */
+                void set_property(
+                        std::shared_ptr< Property > aProperty,
+                        std::string                 aPropertyString,
+                        mtk::Master_Slave           aIsMaster = mtk::Master_Slave::MASTER );
 
-        private:
-            /**
-             * compute the quantity of interest
-             * @param[ in ] aQI quantity of interest matrix to fill
-             */
-            void compute_QI( Matrix< DDRMat > & aQI );
+            private:
+                /**
+                 * compute the quantity of interest
+                 * @param[ in ] aQI quantity of interest matrix to fill
+                 */
+                void compute_QI( Matrix< DDRMat > & aQI );
 
-            //------------------------------------------------------------------------------
-            /**
-             * compute the derivative of the quantity of interest wrt dof types
-             * @param[ in ] adQIdu derivative of quantity of interest matrix to fill
-             */
-            void compute_dQIdu( MSI::Dof_Type aDofType, Matrix< DDRMat > & adQIdu );
+                //------------------------------------------------------------------------------
+                /**
+                 * compute the derivative of the quantity of interest wrt dof types
+                 * @param[ in ] aDofType group of dof types wrt which derivatives are evaluated
+                 * @param[ in ] adQIdu   derivative of quantity of interest matrix to fill
+                 */
+                void compute_dQIdu(
+                        moris::Cell< MSI::Dof_Type > & aDofType,
+                        Matrix< DDRMat >             & adQIdu );
 
-            //------------------------------------------------------------------------------
+                //------------------------------------------------------------------------------
         };
     }/* end namespace fem */
 } /* end namespace moris */

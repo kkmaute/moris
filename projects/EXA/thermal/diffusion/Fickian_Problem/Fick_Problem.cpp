@@ -401,7 +401,7 @@ namespace moris
         tParameterlist( 0 )( 0 ).set( "Set_Names"  ,  "HMR_dummy_n_p0" ) ;
         tParameterlist( 0 )( 0 ).set( "Field_Names",  "TEMP" ) ;
         tParameterlist( 0 )( 0 ).set( "Field_Type" ,  "NODAL" ) ;
-        tParameterlist( 0 )( 0 ).set( "QI_Names"    ,  "IQIBulkTEMP" ) ;
+        tParameterlist( 0 )( 0 ).set( "IQI_Names"  ,  "IQIBulkTEMP" ) ;
     }
 
     //------------------------------------------------------------------------------

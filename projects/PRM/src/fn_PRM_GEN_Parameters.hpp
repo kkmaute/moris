@@ -111,14 +111,18 @@ namespace moris
             tParameterList.insert("allow_less_than_target_spacing", true);
 
             // Optional
-            tParameterList.insert("superellipse_exponent", 2.0);    // Superellipse exponent
-            tParameterList.insert("row_offset", 0.0);               // Offset to be applied on subsequent rows
-            tParameterList.insert("number_of_refinements", 0);      // Number of refinement steps using HMR
-            tParameterList.insert("refinement_function_index", -1); // Index of user-defined refinement function (-1 = none)
-            tParameterList.insert("bspline_mesh_index", -1);        // Index of B-spline mesh to create level set field on (-1 = none)
-            tParameterList.insert("bspline_lower_bound", -1.0);     // Lower bound of level set field (if bspline_mesh_index >= 0)
-            tParameterList.insert("bspline_upper_bound", 1.0);      // Upper bound of level set field (if bspline_mesh_index >= 0)
-            tParameterList.insert("multigeometry_id", "");          // ID of a multigeometry to be added to ("" = none)
+            tParameterList.insert("superellipse_exponent", 2.0);        // Superellipse exponent
+            tParameterList.insert("superellipse_scaling", 1.0);         // Superellipse scaling
+            tParameterList.insert("superellipse_regularization", 1e-8); // Superellipse regularization
+            tParameterList.insert("superellipse_shift", 1e-6);          // Superellipse shift
+
+            tParameterList.insert("row_offset", 0.0);                   // Offset to be applied on subsequent rows
+            tParameterList.insert("number_of_refinements", 0);          // Number of refinement steps using HMR
+            tParameterList.insert("refinement_function_index", -1);     // Index of user-defined refinement function (-1 = none)
+            tParameterList.insert("bspline_mesh_index", -1);            // Index of B-spline mesh to create level set field on (-1 = none)
+            tParameterList.insert("bspline_lower_bound", -1.0);         // Lower bound of level set field (if bspline_mesh_index >= 0)
+            tParameterList.insert("bspline_upper_bound", 1.0);          // Upper bound of level set field (if bspline_mesh_index >= 0)
+            tParameterList.insert("multigeometry_id", "");              // ID of a multi-geometry to be added to ("" = none)
 
             return tParameterList;
         }

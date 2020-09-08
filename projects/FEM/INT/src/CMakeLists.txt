@@ -156,7 +156,6 @@ set(HEADERS
     cl_FEM_CM_Factory.hpp
     
     cl_FEM_IQI.hpp
-    cl_FEM_IQI_Analytic.hpp
     cl_FEM_IQI_Factory.hpp
     cl_FEM_IQI_Volume.hpp
     cl_FEM_IQI_Strain_Energy.hpp
@@ -317,7 +316,6 @@ set(LIB_SOURCES
     cl_FEM_SP_Turbulence_Dirichlet_Nitsche.cpp
     
     cl_FEM_IQI.cpp
-    cl_FEM_IQI_Analytic.cpp
     cl_FEM_IQI_Factory.cpp
     cl_FEM_IQI_Volume.cpp
     cl_FEM_IQI_Strain_Energy.cpp

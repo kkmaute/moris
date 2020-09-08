@@ -432,10 +432,12 @@ namespace moris
 
             /**
              * Gets the derivative of the quantities of interest wrt requested dof types, including scaling.
-             * @param[ in ] aDofType Dof type being evaluated
-             * @param[ out ] adQIdu derivative of quantity of interest
+             * @param[ in ]  aDofType group of dof type for derivative
+             * @param[ out ] adQIdu   derivative of quantity of interest
              */
-            void get_dQIdu( MSI::Dof_Type aDofType, Matrix< DDRMat > & adQIdu );
+            void get_dQIdu(
+                    moris::Cell< MSI::Dof_Type > & aDofType,
+                    Matrix< DDRMat >             & adQIdu );
 
             //------------------------------------------------------------------------------
             /**
@@ -558,10 +560,12 @@ namespace moris
             //------------------------------------------------------------------------------
             /**
              * Compute the derivative of the quantities of interest wrt requested dof types.
-             * @param[ in ] aDofType Dof type being evaluated
+             * @param[ in ]  aDofType Dof type being evaluated
              * @param[ out ] adQIdu derivative of quantity of interest
              */
-            virtual void compute_dQIdu( MSI::Dof_Type aDofType, Matrix< DDRMat > & adQIdu ) = 0;
+            virtual void compute_dQIdu(
+                    moris::Cell< MSI::Dof_Type > & aDofType,
+                    Matrix< DDRMat >             & adQIdu ) = 0;
 
         };
         //------------------------------------------------------------------------------

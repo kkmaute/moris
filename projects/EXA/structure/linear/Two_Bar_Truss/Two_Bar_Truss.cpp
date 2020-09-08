@@ -699,7 +699,7 @@ namespace moris
         tParameterlist( 0 )( 0 ).set( "Set_Names"  , tTotalDomain );
         tParameterlist( 0 )( 0 ).set( "Field_Names", std::string("UX,UY,STRAIN_ENERGY,VOLUME") );
         tParameterlist( 0 )( 0 ).set( "Field_Type" , std::string("NODAL,NODAL,GLOBAL,GLOBAL") );
-        tParameterlist( 0 )( 0 ).set( "QI_Names"   , std::string("IQIBulkDISPX,IQIBulkDISPY,IQIBulkStrainEnergy,IQIBulkVolume") );
+        tParameterlist( 0 )( 0 ).set( "IQI_Names"   , std::string("IQIBulkDISPX,IQIBulkDISPY,IQIBulkStrainEnergy,IQIBulkVolume") );
         tParameterlist( 0 )( 0 ).set( "Save_Frequency", 1 );
     }
 

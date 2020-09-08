@@ -138,8 +138,11 @@ namespace moris
                 case IWG_Type::STRUC_LINEAR_DIRICHLET_UNSYMMETRIC_NITSCHE :
                     return std::make_shared< IWG_Isotropic_Struc_Linear_Dirichlet >( 1 );
 
-                case IWG_Type::STRUC_LINEAR_INTERFACE :
-                    return std::make_shared< IWG_Isotropic_Struc_Linear_Interface >();
+                case IWG_Type::STRUC_LINEAR_INTERFACE_SYMMETRIC_NITSCHE :
+                    return std::make_shared< IWG_Isotropic_Struc_Linear_Interface >( 1 );
+
+                case IWG_Type::STRUC_LINEAR_INTERFACE_UNSYMMETRIC_NITSCHE :
+                    return std::make_shared< IWG_Isotropic_Struc_Linear_Interface >( -1 );
 
                 case IWG_Type::STRUC_LINEAR_NEUMANN :
                     return std::make_shared< IWG_Isotropic_Struc_Linear_Neumann >();

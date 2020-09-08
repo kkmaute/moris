@@ -123,9 +123,11 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        void IQI_Turbulent_Kinematic_Viscosity::compute_dQIdu( MSI::Dof_Type aDofType, Matrix< DDRMat > & adQIdu )
+        void IQI_Turbulent_Kinematic_Viscosity::compute_dQIdu(
+                moris::Cell< MSI::Dof_Type > & aDofType,
+                Matrix< DDRMat >             & adQIdu )
         {
-            MORIS_ERROR(false, "compute_dQIdu() not implemented for turbulent kinematic viscosity IQI.");
+            MORIS_ERROR( false, "compute_dQIdu() not implemented for turbulent kinematic viscosity IQI." );
         }
 
         //------------------------------------------------------------------------------

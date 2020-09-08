@@ -709,7 +709,7 @@ namespace moris
 
          tParameterlist( 0 )( 0 ).set( "Field_Names"   ,  "VX,VY,P,TEMP,IQIBulkVX,IQIBulkVY,IQIBulkP,IQIBulkTEMP" ) ;
          tParameterlist( 0 )( 0 ).set( "Field_Type"    ,  "NODAL,NODAL,NODAL,NODAL,GLOBAL,GLOBAL,GLOBAL,GLOBAL" ) ;
-         tParameterlist( 0 )( 0 ).set( "QI_Names"       ,  "IQIBulkVX,IQIBulkVY,IQIBulkP,IQIBulkTEMP,IQIBulkVX,IQIBulkVY,IQIBulkP,IQIBulkTEMP" ) ;
+         tParameterlist( 0 )( 0 ).set( "IQI_Names"     ,  "IQIBulkVX,IQIBulkVY,IQIBulkP,IQIBulkTEMP,IQIBulkVX,IQIBulkVY,IQIBulkP,IQIBulkTEMP" ) ;
 
         tParameterlist( 0 )( 0 ).set( "Save_Frequency", 1 );
     }

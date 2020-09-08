@@ -532,7 +532,7 @@ namespace moris
             // set physical and parametric space and time coefficients for IG element
             moris::Cell< Matrix< DDSMat > > tIsActiveDv;
             this->init_ig_geometry_interpolator( tIsActiveDv );
-						
+
             // get the set local index
             moris_index tIQISetLocalIndex =
                         mSet->mIQINameToIndexMap.find( aQIName );
@@ -578,8 +578,8 @@ namespace moris
 
             // get the vertices
             moris::Cell< mtk::Vertex * > tVertices = mMasterCell->get_vertex_pointers();
-			
-			// get the set local index
+
+            // get the set local index
             moris_index tIQISetLocalIndex =
                         mSet->mIQINameToIndexMap.find( aQIName );
 
@@ -626,8 +626,8 @@ namespace moris
             // set physical and parametric space and time coefficients for IG element
             moris::Cell< Matrix< DDSMat > > tIsActiveDv;
             this->init_ig_geometry_interpolator( tIsActiveDv );
-			
-			// get the set local index
+
+            // get the set local index
             moris_index tIQISetLocalIndex =
                         mSet->mIQINameToIndexMap.find( aQIName );
 

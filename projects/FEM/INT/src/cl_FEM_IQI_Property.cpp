@@ -13,6 +13,24 @@ namespace moris
     namespace fem
     {
         //------------------------------------------------------------------------------
+
+        void IQI_Property::set_property(
+                std::shared_ptr< Property > aProperty,
+                std::string                 aPropertyString,
+                mtk::Master_Slave           aIsMaster )
+        {
+            // can only be master
+            MORIS_ERROR( aIsMaster == mtk::Master_Slave::MASTER,
+                    "IQI_Property::set_property - can only be master." );
+
+            // FIXME check that property type makes sense?
+
+            // set the property in the property cell
+            this->get_properties( aIsMaster )( static_cast< uint >( mPropertyMap[ aPropertyString ] ) ) = aProperty;
+        }
+
+        //------------------------------------------------------------------------------
+
         IQI_Property::IQI_Property()
         {
             // set size for the property pointer cell
@@ -23,6 +41,7 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+
         void IQI_Property::compute_QI( Matrix< DDRMat > & aQI )
         {
             // get property index
@@ -33,7 +52,10 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
-        void IQI_Property::compute_dQIdu( MSI::Dof_Type aDofType, Matrix< DDRMat > & adQIdu )
+
+        void IQI_Property::compute_dQIdu(
+                moris::Cell< MSI::Dof_Type > & aDofType,
+                Matrix< DDRMat >             & adQIdu )
         {
             MORIS_ERROR( false, "IQI_Property::compute_dQIdu - Not implemented." );
         }

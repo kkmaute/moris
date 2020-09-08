@@ -1298,9 +1298,9 @@ namespace moris
                             mSet->get_residual()( tQIIndex )(
                                     { tSlaveDepStartIndex + tDofCounter, tSlaveDepStartIndex + tDofCounter },
                                     { 0, 0 } ) +=
-                                    tFDScheme( 1 )( iPoint ) *
-                                    mSet->get_QI()( tQIIndex ) /
-                                    ( tFDScheme( 2 )( 0 ) * tDeltaH );
+                                            tFDScheme( 1 )( iPoint ) *
+                                            mSet->get_QI()( tQIIndex ) /
+                                            ( tFDScheme( 2 )( 0 ) * tDeltaH );
                         }
                         // update dof counter
                         tDofCounter++;
@@ -1583,10 +1583,12 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        void IQI::get_dQIdu( MSI::Dof_Type aDofType, Matrix< DDRMat > & adQIdu )
+        void IQI::get_dQIdu(
+                moris::Cell< MSI::Dof_Type > & aDofType,
+                Matrix< DDRMat >             & adQIdu )
         {
             // Compute dQIdu
-            this->compute_dQIdu(aDofType, adQIdu);
+            this->compute_dQIdu( aDofType, adQIdu );
 
             // Perform scaling
             adQIdu = adQIdu / mReferenceValue;
@@ -1600,8 +1602,8 @@ namespace moris
             sint tQIIndex = mSet->get_QI_assembly_index( mName );
 
             // compute QI
-            Matrix< DDRMat > tQIVal(1, 1, 0.0);
-            this->get_QI(tQIVal);
+            Matrix< DDRMat > tQIVal( 1, 1, 0.0 );
+            this->get_QI( tQIVal );
 
             // put on the set
             mSet->get_QI()( tQIIndex ).matrix_data() += aWStar * tQIVal;
@@ -1614,23 +1616,28 @@ namespace moris
             // get the column index to assemble in residual
             sint tQIIndex = mSet->get_QI_assembly_index( mName );
 
+            // get the number of master dof type dependencies
+            uint tNumDofDependencies = mRequestedMasterGlobalDofTypes.size();
+
             // compute dQIdu for indirect dof dependencies
-            for( uint iDof = 0; iDof < mRequestedMasterGlobalDofTypes.size(); iDof++ )
+            for( uint iDof = 0; iDof < tNumDofDependencies; iDof++ )
             {
-                // get treated dof type
-                MSI::Dof_Type tDofType = mRequestedMasterGlobalDofTypes( iDof )(0);
+                // get the treated dof type
+                Cell< MSI::Dof_Type > tDofType = mRequestedMasterGlobalDofTypes( iDof );
 
-                // get the set index for dof type
-                sint tDofIndex = mSet->get_dof_index_for_type( tDofType, mtk::Master_Slave::MASTER );
-
-                // get start and end indices for assembly
-                uint tStartRow = mSet->get_res_dof_assembly_map()( tDofIndex )( 0, 0 );
-                uint tEndRow   = mSet->get_res_dof_assembly_map()( tDofIndex )( 0, 1 );
+                // get master index for residual dof type, indices for assembly
+                uint tMasterDofIndex      = mSet->get_dof_index_for_type( tDofType( 0 ), mtk::Master_Slave::MASTER );
+                uint tMasterDepStartIndex = mSet->get_res_dof_assembly_map()( tMasterDofIndex )( 0, 0 );
+                uint tMasterDepStopIndex  = mSet->get_res_dof_assembly_map()( tMasterDofIndex )( 0, 1 );
 
                 // compute dQIdu
-                Matrix<DDRMat> tdQIdu(tEndRow - tStartRow + 1, 1, 0.0);
-                this->get_dQIdu(tDofType, tdQIdu);
-                mSet->get_residual()( tQIIndex )( { tStartRow, tEndRow }, { 0, 0 } ) += aWStar * tdQIdu;
+                Matrix<DDRMat> tdQIdu( tMasterDepStopIndex - tMasterDepStartIndex + 1, 1, 0.0 );
+                this->get_dQIdu( tDofType, tdQIdu );
+
+                // add dQIdu contribution
+                mSet->get_residual()( tQIIndex )(
+                        { tMasterDepStartIndex, tMasterDepStopIndex },
+                        { 0, 0 } ) += aWStar * tdQIdu;
             }
         }
 

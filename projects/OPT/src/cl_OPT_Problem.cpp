@@ -175,7 +175,6 @@ namespace moris
 
             // Function pointers
             this->set_finite_differencing(aType);
-
         }
 
         // -------------------------------------------------------------------------------------------------------------
@@ -185,17 +184,17 @@ namespace moris
             // Set gradient function pointers
             switch (aType[0])
             {
-                case('b'):
+                case 'b':
                 {
                     mFiniteDifferenceEpsilons = mFiniteDifferenceEpsilons * -1.0;
                 }
-                case('f'):
+                case 'f':
                 {
                     compute_objective_gradient = &Problem::compute_objective_gradient_fd_bias;
                     compute_constraint_gradient = &Problem::compute_constraint_gradient_fd_bias;
                     break;
                 }
-                case('c'):
+                case 'c':
                 {
                     compute_objective_gradient = &Problem::compute_objective_gradient_fd_central;
                     compute_constraint_gradient = &Problem::compute_constraint_gradient_fd_central;
@@ -229,16 +228,18 @@ namespace moris
 
         void Problem::compute_objective_gradient_analytical()
         {
-            mObjectiveGradient = this->compute_dobjective_dadv()
-                                 + this->compute_dobjective_dcriteria() * mInterface->get_dcriteria_dadv();
+            mObjectiveGradient =
+                    this->compute_dobjective_dadv() +
+                    this->compute_dobjective_dcriteria() * mInterface->get_dcriteria_dadv();
         }
 
         // -------------------------------------------------------------------------------------------------------------
 
         void Problem::compute_constraint_gradient_analytical()
         {
-            mConstraintGradient = this->compute_dconstraint_dadv()
-                                  + this->compute_dconstraint_dcriteria() * mInterface->get_dcriteria_dadv();
+            mConstraintGradient =
+                    this->compute_dconstraint_dadv() +
+                    this->compute_dconstraint_dcriteria() * mInterface->get_dcriteria_dadv();
         }
 
         // -------------------------------------------------------------------------------------------------------------
@@ -288,7 +289,7 @@ namespace moris
                 for (uint tConstraintIndex = 0; tConstraintIndex < mConstraints.length(); tConstraintIndex++)
                 {
                     mConstraintGradient(tConstraintIndex, tADVIndex)
-                            = (tConstraintsPerturbed(tConstraintIndex) - mConstraints(tConstraintIndex)) / mFiniteDifferenceEpsilons(tADVIndex);
+                                                    = (tConstraintsPerturbed(tConstraintIndex) - mConstraints(tConstraintIndex)) / mFiniteDifferenceEpsilons(tADVIndex);
                 }
 
                 // Restore ADV
@@ -354,8 +355,8 @@ namespace moris
                 // Central difference
                 for (uint tConstraintIndex = 0; tConstraintIndex < mConstraints.length(); tConstraintIndex++)
                 {
-                    mConstraintGradient(tConstraintIndex, tADVIndex)
-                    = (tConstraintsPlus(tConstraintIndex) - tConstraintsMinus(tConstraintIndex)) / (2 * mFiniteDifferenceEpsilons(tADVIndex));
+                    mConstraintGradient(tConstraintIndex, tADVIndex) =
+                            (tConstraintsPlus(tConstraintIndex) - tConstraintsMinus(tConstraintIndex)) / (2.0 * mFiniteDifferenceEpsilons(tADVIndex));
                 }
 
                 // Restore ADV

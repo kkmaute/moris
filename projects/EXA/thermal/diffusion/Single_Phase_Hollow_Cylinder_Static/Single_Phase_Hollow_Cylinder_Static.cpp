@@ -458,7 +458,7 @@ extern "C"
             tParameterlist( 0 )( 0 ).set( "Set_Names"  , "HMR_dummy_n_p2,HMR_dummy_c_p2") ;
             tParameterlist( 0 )( 0 ).set( "Field_Names", "TEMP,TEMP_ANALYTIC,L2_ERROR_ANALYTIC,H1_ERROR_ANALYTIC,MAX_DOF,VOLUME") ;
             tParameterlist( 0 )( 0 ).set( "Field_Type" , "NODAL,NODAL,GLOBAL,GLOBAL,GLOBAL,GLOBAL") ;
-            tParameterlist( 0 )( 0 ).set( "QI_Names"   , "IQIBulkTEMP,IQIBulkTEMPAnalytic,IQIBulkL2Error,IQIBulkH1Error,IQIMaxTEMP,IQIVolume") ;
+            tParameterlist( 0 )( 0 ).set( "IQI_Names"  , "IQIBulkTEMP,IQIBulkTEMPAnalytic,IQIBulkL2Error,IQIBulkH1Error,IQIMaxTEMP,IQIVolume") ;
             tParameterlist( 0 )( 0 ).set( "Save_Frequency", 1 );
         }
 

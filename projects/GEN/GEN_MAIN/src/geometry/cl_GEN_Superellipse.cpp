@@ -8,51 +8,62 @@ namespace moris
         //--------------------------------------------------------------------------------------------------------------
 
         Superellipse::Superellipse(Matrix<DDRMat>& aADVs,
-                                   Matrix<DDUMat>  aGeometryVariableIndices,
-                                   Matrix<DDUMat>  aADVIndices,
-                                   Matrix<DDRMat>  aConstantParameters,
-                                   sint            aNumRefinements,
-                                   sint            aRefinementFunctionIndex,
-                                   sint            aBSplineMeshIndex,
-                                   real            aBSplineLowerBound,
-                                   real            aBSplineUpperBound)
-                : Field(aADVs,
-                        aGeometryVariableIndices,
-                        aADVIndices,
-                        aConstantParameters,
-                        aNumRefinements,
-                        aRefinementFunctionIndex,
-                        aBSplineMeshIndex,
-                        aBSplineLowerBound,
-                        aBSplineUpperBound)
+                Matrix<DDUMat>  aGeometryVariableIndices,
+                Matrix<DDUMat>  aADVIndices,
+                Matrix<DDRMat>  aConstantParameters,
+                sint            aNumRefinements,
+                sint            aRefinementFunctionIndex,
+                sint            aBSplineMeshIndex,
+                real            aBSplineLowerBound,
+                real            aBSplineUpperBound)
+        : Field(aADVs,
+                aGeometryVariableIndices,
+                aADVIndices,
+                aConstantParameters,
+                aNumRefinements,
+                aRefinementFunctionIndex,
+                aBSplineMeshIndex,
+                aBSplineLowerBound,
+                aBSplineUpperBound)
         {
-            MORIS_ERROR(aGeometryVariableIndices.length() + aConstantParameters.length() == 5,
-                        "A GEN Superellipse must be created with a total of exactly 5 variables (ADVs + constant parameters).");
+            MORIS_ERROR(aGeometryVariableIndices.length() + aConstantParameters.length() == 8,
+                    "A GEN Super-ellipse must be created with a total of exactly 8 variables (ADVs + constant parameters).");
+
             MORIS_ERROR(*(mFieldVariables(2)) > 0 and *(mFieldVariables(3)) > 0,
-                        "A GEN Superellipse must be created with positive semidiameters.");
+                    "A GEN Super-ellipse must be created with positive semi-diameters.");
+
+            MORIS_ERROR(std::abs(std::fmod(*(mFieldVariables(4)),2.0)) < 1e-12,
+                    "A GEN Super-ellipse must be created with an even exponent.");
         }
 
         //--------------------------------------------------------------------------------------------------------------
 
-        Superellipse::Superellipse(real aXCenter,
-                                   real aYCenter,
-                                   real aXSemidiameter,
-                                   real aYSemidiameter,
-                                   real aExponent,
-                                   sint aNumRefinements,
-                                   sint aRefinementFunctionIndex,
-                                   sint aBSplineMeshIndex,
-                                   real aBSplineLowerBound,
-                                   real aBSplineUpperBound)
-                : Field(Matrix<DDRMat>({{aXCenter, aYCenter, aXSemidiameter, aYSemidiameter, aExponent}}),
-                        aNumRefinements,
-                        aRefinementFunctionIndex,
-                        aBSplineMeshIndex,
-                        aBSplineLowerBound,
-                        aBSplineUpperBound)
+        Superellipse::Superellipse(
+                real aXCenter,
+                real aYCenter,
+                real aXSemidiameter,
+                real aYSemidiameter,
+                real aExponent,
+                real aScaling,
+                real aRegularization,
+                real aShift,
+                sint aNumRefinements,
+                sint aRefinementFunctionIndex,
+                sint aBSplineMeshIndex,
+                real aBSplineLowerBound,
+                real aBSplineUpperBound)
+        : Field(Matrix<DDRMat>({{aXCenter, aYCenter, aXSemidiameter, aYSemidiameter, aExponent, aScaling, aRegularization, aShift}}),
+                aNumRefinements,
+                aRefinementFunctionIndex,
+                aBSplineMeshIndex,
+                aBSplineLowerBound,
+                aBSplineUpperBound)
         {
             MORIS_ERROR(*(mFieldVariables(2)) > 0 and *(mFieldVariables(3)) > 0,
-                        "A GEN Superellipse must be created with positive semidiameters.");
+                    "A GEN Super-ellipse must be created with positive semi-diameters.");
+
+            MORIS_ERROR(std::abs(std::fmod(*(mFieldVariables(4)),2.0)) < 1e-12,
+                    "A GEN Super-ellipse must be created with an even exponent.");
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -60,15 +71,30 @@ namespace moris
         real Superellipse::evaluate_field_value(const Matrix<DDRMat>& aCoordinates)
         {
             // Get variables
-            real tXCenter = *(mFieldVariables(0));
-            real tYCenter = *(mFieldVariables(1));
-            real tXSemidiameter = *(mFieldVariables(2));
-            real tYSemidiameter = *(mFieldVariables(3));
-            real tExponent = *(mFieldVariables(4));
+            real tXCenter        = *(mFieldVariables(0));
+            real tYCenter        = *(mFieldVariables(1));
+            real tXSemidiameter  = *(mFieldVariables(2));
+            real tYSemidiameter  = *(mFieldVariables(3));
+            real tExponent       = *(mFieldVariables(4));
+            real tScaling        = *(mFieldVariables(5));
+            real tRegularization = *(mFieldVariables(6));
+            real tShift          = *(mFieldVariables(7));
 
             // Evaluate field
-            return pow(pow(std::abs(aCoordinates(0) - tXCenter) / tXSemidiameter, tExponent)
-                     + pow(std::abs(aCoordinates(1) - tYCenter) / tYSemidiameter, tExponent), 1.0 / tExponent) - 1.0;
+            real tConstant = pow(
+                    pow((aCoordinates(0) - tXCenter) / tXSemidiameter, tExponent) +
+                    pow((aCoordinates(1) - tYCenter) / tYSemidiameter, tExponent) +
+                    pow( tRegularization                             , tExponent), 1.0 / tExponent) - tRegularization;
+
+            real tLevelset = tScaling * (tConstant - 1.0);
+
+            // Ensure that level set value is not approx. zero at evaluation point
+            if ( std::abs(tLevelset < tShift))
+            {
+                tLevelset += tLevelset<0.0 ? -tShift : tShift;
+            }
+
+            return tLevelset;
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -76,34 +102,37 @@ namespace moris
         void Superellipse::evaluate_all_sensitivities(const Matrix<DDRMat>& aCoordinates, Matrix<DDRMat>& aSensitivities)
         {
             // Get variables
-            real tXCenter = *(mFieldVariables(0));
-            real tYCenter = *(mFieldVariables(1));
-            real tXSemidiameter = *(mFieldVariables(2));
-            real tYSemidiameter = *(mFieldVariables(3));
-            real tExponent = *(mFieldVariables(4));
+            real tXCenter        = *(mFieldVariables(0));
+            real tYCenter        = *(mFieldVariables(1));
+            real tXSemidiameter  = *(mFieldVariables(2));
+            real tYSemidiameter  = *(mFieldVariables(3));
+            real tExponent       = *(mFieldVariables(4));
+            real tScaling        = *(mFieldVariables(5));
+            real tRegularization = *(mFieldVariables(6));
 
             // Constant in all calculations
-            real tConstant = pow(std::abs(aCoordinates(0) - tXCenter) / tXSemidiameter, tExponent)
-                           + pow(std::abs(aCoordinates(1) - tYCenter) / tYSemidiameter, tExponent);
-            tConstant = tConstant ? pow(tConstant, -1.0 + (1.0 / tExponent)) : 0.0;
+            real tConstant0 = pow(
+                    pow((aCoordinates(0) - tXCenter)/tXSemidiameter,tExponent) +
+                    pow((aCoordinates(1) - tYCenter)/tYSemidiameter,tExponent) +
+                    pow( tRegularization                           ,tExponent),(1.0/tExponent - 1.0));
+
+            real tConstant1 = pow((aCoordinates(0) - tXCenter)/tXSemidiameter,tExponent - 1.0);
+            real tConstant2 = pow((aCoordinates(1) - tYCenter)/tYSemidiameter,tExponent - 1.0);
 
             // Calculate sensitivities
-            aSensitivities.set_size(1, 5);
-            aSensitivities(0) = -tConstant * pow(1.0 / tXSemidiameter, tExponent) * (aCoordinates(0) - tXCenter)
-                    * pow(std::abs(tXCenter - aCoordinates(0)), tExponent - 2.0);
-            aSensitivities(1) = -tConstant * pow(1.0 / tYSemidiameter, tExponent) * (aCoordinates(1) - tYCenter)
-                    * pow(std::abs(tYCenter - aCoordinates(1)), tExponent - 2.0);
-            aSensitivities(2) = -tConstant * pow(1.0 / tXSemidiameter, tExponent + 1.0)
-                    * pow(std::abs(tXCenter - aCoordinates(0)), tExponent);
-            aSensitivities(3) = -tConstant * pow(1.0 / tYSemidiameter, tExponent + 1.0)
-                    * pow(std::abs(tYCenter - aCoordinates(1)), tExponent);
+            aSensitivities.set_size(1, 8);
 
-            // TODO? this uses FD only because the analytical function is super complicated for the exponent derivative
-            aSensitivities(4) = (pow(pow(std::abs(aCoordinates(0) - tXCenter) / tXSemidiameter, tExponent + mEpsilon)
-                                   + pow(std::abs(aCoordinates(1) - tYCenter) / tYSemidiameter, tExponent + mEpsilon), 1.0 / (tExponent + mEpsilon))
-                               - pow(pow(std::abs(aCoordinates(0) - tXCenter) / tXSemidiameter, tExponent - mEpsilon)
-                                   + pow(std::abs(aCoordinates(1) - tYCenter) / tYSemidiameter, tExponent - mEpsilon), 1.0 / (tExponent - mEpsilon)))
-                               / (2.0 * mEpsilon);
+            aSensitivities(0) = -tScaling*tConstant1*tConstant0/tXSemidiameter;
+            aSensitivities(1) = -tScaling*tConstant2*tConstant0/tYSemidiameter;
+
+            aSensitivities(2) = -tScaling*(aCoordinates(0) - tXCenter)*tConstant1*tConstant0/pow(tXSemidiameter,2.0);
+            aSensitivities(3) = -tScaling*(aCoordinates(1) - tYCenter)*tConstant2*tConstant0/pow(tYSemidiameter,2.0);
+
+            // the reminder sensitivities are typically not used and therefore not calculated
+            aSensitivities(4) = MORIS_REAL_MAX;
+            aSensitivities(5) = MORIS_REAL_MAX;
+            aSensitivities(6) = MORIS_REAL_MAX;
+            aSensitivities(7) = MORIS_REAL_MAX;
         }
 
         //--------------------------------------------------------------------------------------------------------------

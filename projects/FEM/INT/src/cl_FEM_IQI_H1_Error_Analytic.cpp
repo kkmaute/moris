@@ -70,7 +70,9 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        void IQI_H1_Error_Analytic::compute_dQIdu( MSI::Dof_Type aDofType, Matrix< DDRMat > & adQIdu )
+        void IQI_H1_Error_Analytic::compute_dQIdu(
+                moris::Cell< MSI::Dof_Type > & aDofType,
+                Matrix< DDRMat >             & adQIdu )
         {
             MORIS_ERROR( false, "IQI_H1_Error_Analytic::compute_dQIdu - Not implemented." );
         }

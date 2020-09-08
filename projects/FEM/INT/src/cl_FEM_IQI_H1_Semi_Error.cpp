@@ -12,30 +12,36 @@ namespace moris
 {
     namespace fem
     {
-//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
+
         IQI_H1_Semi_Error::IQI_H1_Semi_Error()
         {
             // set FEM IQI type
             mFEMIQIType = fem::IQI_Type::H1_SEMI_ERROR;
         }
 
-//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
+
         void IQI_H1_Semi_Error::compute_QI( Matrix< DDRMat > & aQI )
         {
             // get field interpolator
-            Field_Interpolator * tFI = mMasterFIManager->get_field_interpolators_for_type( mMasterDofTypes( 0 )( 0 ) );
+            Field_Interpolator * tFI =
+                    mMasterFIManager->get_field_interpolators_for_type( mMasterDofTypes( 0 )( 0 ) );
 
             // evaluate the QI
             aQI = trans( tFI->gradx( 1 ) ) * tFI->gradx( 1 );
         }
 
-//------------------------------------------------------------------------------
-        void IQI_H1_Semi_Error::compute_dQIdu( MSI::Dof_Type aDofType, Matrix< DDRMat > & adQIdu )
+        //------------------------------------------------------------------------------
+
+        void IQI_H1_Semi_Error::compute_dQIdu(
+                moris::Cell< MSI::Dof_Type > & aDofType,
+                Matrix< DDRMat >             & adQIdu )
         {
             MORIS_ERROR( false, "IQI_H1_Semi_Error::compute_dQIdu - Not implemented." );
         }
 
-//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
     }/* end_namespace_fem */
 }/* end_namespace_moris */
 

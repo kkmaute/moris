@@ -27,36 +27,41 @@ namespace moris
         class IQI_Dof : public IQI
         {
 
-        public:
-            //------------------------------------------------------------------------------
-            /*
-             * constructor
-             */
-            IQI_Dof();
+            public:
+                //------------------------------------------------------------------------------
+                /*
+                 * constructor
+                 */
+                IQI_Dof();
 
-            //------------------------------------------------------------------------------
-            /**
-             * trivial destructor
-             */
-            ~IQI_Dof(){};
+                //------------------------------------------------------------------------------
+                /**
+                 * trivial destructor
+                 */
+                ~IQI_Dof(){};
 
-            //------------------------------------------------------------------------------
+                //------------------------------------------------------------------------------
 
-        private:
-            /**
-             * compute the quantity of interest
-             * @param[ in ] aQI quantity of interest matrix to fill
-             */
-            void compute_QI( Matrix< DDRMat > & aQI );
+            private:
 
-            //------------------------------------------------------------------------------
-            /**
-             * compute the derivative of the quantity of interest wrt dof types
-             * @param[ in ] adQIdu derivative of quantity of interest matrix to fill
-             */
-            void compute_dQIdu( MSI::Dof_Type aDofType, Matrix< DDRMat > & adQIdu );
+                //------------------------------------------------------------------------------
+                /**
+                 * compute the quantity of interest
+                 * @param[ in ] aQI quantity of interest matrix to fill
+                 */
+                void compute_QI( Matrix< DDRMat > & aQI );
 
-            //------------------------------------------------------------------------------
+                //------------------------------------------------------------------------------
+                /**
+                 * compute the derivative of the quantity of interest wrt dof types
+                 * @param[ in ] aDofType group of dof types wrt which derivatives are evaluated
+                 * @param[ in ] adQIdu   derivative of quantity of interest matrix to fill
+                 */
+                void compute_dQIdu(
+                        moris::Cell< MSI::Dof_Type > & aDofType,
+                        Matrix< DDRMat >             & adQIdu );
+
+                //------------------------------------------------------------------------------
         };
     }/* end namespace fem */
 } /* end namespace moris */

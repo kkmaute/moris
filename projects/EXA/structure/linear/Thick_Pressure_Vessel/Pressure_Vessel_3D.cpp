@@ -678,7 +678,7 @@ namespace moris
         tParameterlist( 0 )( 0 ).set( "Set_Names"  , tVessel );
         tParameterlist( 0 )( 0 ).set( "Field_Names", "UX,UY,UZ,TEMP,STRAIN_ENERGY,VOLUME") ;
         tParameterlist( 0 )( 0 ).set( "Field_Type" , "NODAL,NODAL,NODAL,NODAL,GLOBAL,GLOBAL") ;
-        tParameterlist( 0 )( 0 ).set( "QI_Names"    , "IQIBulkDISPX,IQIBulkDISPY,IQIBulkDISPZ,IQIBulkTEMP,IQIBulkStrainEnergy,IQIBulkVolume") ;
+        tParameterlist( 0 )( 0 ).set( "IQI_Names"  , "IQIBulkDISPX,IQIBulkDISPY,IQIBulkDISPZ,IQIBulkTEMP,IQIBulkStrainEnergy,IQIBulkVolume") ;
         tParameterlist( 0 )( 0 ).set( "Save_Frequency", 1 );
     }
 

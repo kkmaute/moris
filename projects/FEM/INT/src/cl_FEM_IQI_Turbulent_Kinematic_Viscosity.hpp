@@ -26,113 +26,117 @@ namespace moris
 
         class IQI_Turbulent_Kinematic_Viscosity : public IQI
         {
-        private:
+            private:
 
-            // viscosity dof type (default)
-            MSI::Dof_Type mMasterDofViscosity = MSI::Dof_Type::VISCOSITY;
+                // viscosity dof type (default)
+                MSI::Dof_Type mMasterDofViscosity = MSI::Dof_Type::VISCOSITY;
 
-            // property type for IQI
-            enum class Property_Type
-            {
-                DYNAMIC_VISCOSITY, // fluid dynamic viscosity
-                DENSITY,           // fluid density
-                MAX_ENUM
-            };
+                // property type for IQI
+                enum class Property_Type
+                {
+                        DYNAMIC_VISCOSITY, // fluid dynamic viscosity
+                        DENSITY,           // fluid density
+                        MAX_ENUM
+                };
 
-            // local string to property enum map
-            std::map< std::string, Property_Type > mPropertyMap;
+                // local string to property enum map
+                std::map< std::string, Property_Type > mPropertyMap;
 
-            // Spalart-Allmaras turbulence model constants
-            real mCv1 = 7.1;
+                // Spalart-Allmaras turbulence model constants
+                real mCv1 = 7.1;
 
-            //------------------------------------------------------------------------------
+                //------------------------------------------------------------------------------
 
-        public:
-            //------------------------------------------------------------------------------
-            /*
-             * constructor
-             */
-            IQI_Turbulent_Kinematic_Viscosity();
+            public:
+                //------------------------------------------------------------------------------
+                /*
+                 * constructor
+                 */
+                IQI_Turbulent_Kinematic_Viscosity();
 
-            //------------------------------------------------------------------------------
-            /**
-             * trivial destructor
-             */
-            ~IQI_Turbulent_Kinematic_Viscosity(){};
+                //------------------------------------------------------------------------------
+                /**
+                 * trivial destructor
+                 */
+                ~IQI_Turbulent_Kinematic_Viscosity(){};
 
-            //------------------------------------------------------------------------------
-            /**
-             * set dof type list for IQI
-             * @param[ in ] aDofTypes   list of group of dof types
-             * @param[ in ] aDofStrings list of names for group of dof types
-             */
-            void set_dof_type_list(
-                    moris::Cell< moris::Cell< MSI::Dof_Type > > & aDofTypes,
-                    moris::Cell< std::string >                  & aDofStrings,
-                    mtk::Master_Slave                             aIsMaster = mtk::Master_Slave::MASTER );
+                //------------------------------------------------------------------------------
+                /**
+                 * set dof type list for IQI
+                 * @param[ in ] aDofTypes   list of group of dof types
+                 * @param[ in ] aDofStrings list of names for group of dof types
+                 */
+                void set_dof_type_list(
+                        moris::Cell< moris::Cell< MSI::Dof_Type > > & aDofTypes,
+                        moris::Cell< std::string >                  & aDofStrings,
+                        mtk::Master_Slave                             aIsMaster = mtk::Master_Slave::MASTER );
 
-            //------------------------------------------------------------------------------
-            /**
-             * set property
-             * @param[ in ] aProperty       a property pointer
-             * @param[ in ] aPropertyString a string defining the property
-             * @param[ in ] aIsMaster       an enum for master or slave
-             */
-            void set_property(
-                    std::shared_ptr< Property > aProperty,
-                    std::string                 aPropertyString,
-                    mtk::Master_Slave           aIsMaster = mtk::Master_Slave::MASTER );
+                //------------------------------------------------------------------------------
+                /**
+                 * set property
+                 * @param[ in ] aProperty       a property pointer
+                 * @param[ in ] aPropertyString a string defining the property
+                 * @param[ in ] aIsMaster       an enum for master or slave
+                 */
+                void set_property(
+                        std::shared_ptr< Property > aProperty,
+                        std::string                 aPropertyString,
+                        mtk::Master_Slave           aIsMaster = mtk::Master_Slave::MASTER );
 
-        private:
+            private:
 
-            //------------------------------------------------------------------------------
-            /**
-             * compute the quantity of interest
-             * @param[ in ] aQI quantity of interest matrix to fill
-             */
-            void compute_QI( Matrix< DDRMat > & aQI );
+                //------------------------------------------------------------------------------
+                /**
+                 * compute the quantity of interest
+                 * @param[ in ] aQI quantity of interest matrix to fill
+                 */
+                void compute_QI( Matrix< DDRMat > & aQI );
 
-            /**
-             * compute the derivative of the quantity of interest wrt dof types
-             * @param[ in ] adQIdu derivative of quantity of interest matrix to fill
-             */
-            void compute_dQIdu( MSI::Dof_Type aDofType, Matrix< DDRMat > & adQIdu );
+                //------------------------------------------------------------------------------
+                /**
+                 * compute the derivative of the quantity of interest wrt dof types
+                 * @param[ in ] aDofType group of dof types wrt which derivatives are evaluated
+                 * @param[ in ] adQIdu   derivative of quantity of interest matrix to fill
+                 */
+                void compute_dQIdu(
+                        moris::Cell< MSI::Dof_Type > & aDofType,
+                        Matrix< DDRMat >             & adQIdu );
 
-            //------------------------------------------------------------------------------
-            /**
-             * compute fv1 = chi³ / ( chi³ + cv1³)
-             * @param[ out ] fv1
-             */
-            real compute_fv1();
+                //------------------------------------------------------------------------------
+                /**
+                 * compute fv1 = chi³ / ( chi³ + cv1³)
+                 * @param[ out ] fv1
+                 */
+                real compute_fv1();
 
-            //------------------------------------------------------------------------------
-            /**
-             * compute the derivative of fv1 wrt to a dof type
-             * @param[ in ] aDofTypes  a list of dof type wrt which
-             *                         the derivative is requested
-             * @param[ in ] adfv1du    a matrix to fill with dfv1du
-             */
-            void compute_dfv1du(
-                    const moris::Cell< MSI::Dof_Type > & aDofTypes,
-                    Matrix< DDRMat >                   & adfv1du );
+                //------------------------------------------------------------------------------
+                /**
+                 * compute the derivative of fv1 wrt to a dof type
+                 * @param[ in ] aDofTypes  a list of dof type wrt which
+                 *                         the derivative is requested
+                 * @param[ in ] adfv1du    a matrix to fill with dfv1du
+                 */
+                void compute_dfv1du(
+                        const moris::Cell< MSI::Dof_Type > & aDofTypes,
+                        Matrix< DDRMat >                   & adfv1du );
 
-            //------------------------------------------------------------------------------
-            /**
-             * compute chi = viscosityDof / viscosityProp
-             * @param[ out ] chi
-             */
-            real compute_chi();
+                //------------------------------------------------------------------------------
+                /**
+                 * compute chi = viscosityDof / viscosityProp
+                 * @param[ out ] chi
+                 */
+                real compute_chi();
 
-            //------------------------------------------------------------------------------
-            /**
-             * compute the derivative of chi wrt to a dof type
-             * @param[ in ] aDofTypes  a list of dof type wrt which
-             *                         the derivative is requested
-             * @param[ in ] adchidu    a matrix to fill with dchidu
-             */
-            void compute_dchidu(
-                    const moris::Cell< MSI::Dof_Type > & aDofTypes,
-                    Matrix< DDRMat >                   & adchidu );
+                //------------------------------------------------------------------------------
+                /**
+                 * compute the derivative of chi wrt to a dof type
+                 * @param[ in ] aDofTypes  a list of dof type wrt which
+                 *                         the derivative is requested
+                 * @param[ in ] adchidu    a matrix to fill with dchidu
+                 */
+                void compute_dchidu(
+                        const moris::Cell< MSI::Dof_Type > & aDofTypes,
+                        Matrix< DDRMat >                   & adchidu );
 
         };
     }/* end namespace fem */

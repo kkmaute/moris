@@ -573,7 +573,7 @@ Matrix<DDRMat> compute_dconstraint_dcriteria(Matrix<DDRMat> aADVs, Matrix<DDRMat
         tParameterlist( 0 )( 0 ).set( "Set_Names"  , tPhase1 );
         tParameterlist( 0 )( 0 ).set( "Field_Names", "TEMP,MAX_DOF");
         tParameterlist( 0 )( 0 ).set( "Field_Type" , "NODAL,GLOBAL");
-        tParameterlist( 0 )( 0 ).set( "QI_Names"    , "IQIBulkTEMP,IQIMaxTemp");
+        tParameterlist( 0 )( 0 ).set( "IQI_Names"  , "IQIBulkTEMP,IQIMaxTemp");
         tParameterlist( 0 )( 0 ).set( "Save_Frequency", 1 );
     }
 
