@@ -122,6 +122,16 @@ namespace moris
             uint tNumRHMS = this->get_num_rhs();
 
             // create vector for dQIdp implicit and explicit contributions
+            if ( mImplicitdQidp != nullptr )
+            {
+                delete mImplicitdQidp;
+            }
+
+            if ( mImplicitdQidp != nullptr )
+            {
+                delete mExplicitdQidp;
+            }
+
             mImplicitdQidp = tMatFactory.create_vector( mdQIdpMap, tNumRHMS );
             mExplicitdQidp = tMatFactory.create_vector( mdQIdpMap, tNumRHMS );
 
