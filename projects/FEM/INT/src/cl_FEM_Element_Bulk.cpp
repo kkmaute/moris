@@ -185,6 +185,9 @@ namespace moris
 
             // get number of IWGs
             uint tNumIWGs = mSet->get_number_of_requested_IWGs();
+			
+			// get number of IQIs
+            uint tNumIQIs = mSet->get_number_of_requested_IQIs();
 
             // loop over integration points
             uint tNumIntegPoints = mSet->get_number_of_integration_points();
@@ -211,12 +214,28 @@ namespace moris
                     mSet->get_requested_IWGs()( iIWG )->set_nodal_weak_bcs(
                             mCluster->mInterpolationElement->get_weak_bcs() );
 
-                    // compute residual at evaluation point
-                    mSet->get_requested_IWGs()( iIWG )->compute_residual( tWStar );
+                    if( mSet->mEquationModel->get_is_forward_analysis() )
+                    {
+                        // compute residual at evaluation point
+                        mSet->get_requested_IWGs()( iIWG )->compute_residual( tWStar );
+					}
 
                     // compute jacobian at evaluation point
                     mSet->get_requested_IWGs()( iIWG )->compute_jacobian( tWStar );
                 }
+				
+				if( ( !mSet->mEquationModel->get_is_forward_analysis() ) && ( tNumIQIs > 0 ) )
+                {
+				    // loop over the IQIs
+                    for( uint iIQI = 0; iIQI < tNumIQIs; iIQI++ )
+                    {
+                        // reset IWG
+                        mSet->get_requested_IQIs()( iIQI )->reset_eval_flags();
+
+                        // compute dQIdu at evaluation point
+                        mSet->get_requested_IQIs()( iIQI )->add_dQIdu_on_set( tWStar );
+                    }
+				}
             }
         }
 
