@@ -1092,7 +1092,7 @@ namespace moris
             {
                 // get the requested dof types
                 moris::Cell< moris::Cell< enum MSI::Dof_Type > > tRequestedDofTypes =
-                        mSet->get_secundary_dof_types();
+                        mSet->get_secondary_dof_types();
 
                 // reserve possible max size for requested dof lists
                 mRequestedMasterGlobalDofTypes.reserve( tRequestedDofTypes.size() );

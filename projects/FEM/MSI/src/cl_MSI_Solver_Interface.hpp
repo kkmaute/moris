@@ -46,7 +46,7 @@ namespace moris
                 Matrix< DDRMat>  mPrevTime;
 
                 moris::Cell< enum MSI::Dof_Type > mListOfDofTypes;
-                Cell< moris::Cell< enum MSI::Dof_Type > > mListOfSecundaryDofTypes;
+                Cell< moris::Cell< enum MSI::Dof_Type > > mListOfSecondaryDofTypes;
 
                 mdl::Model * mModel = nullptr;
 
@@ -144,9 +144,9 @@ namespace moris
 
                 //------------------------------------------------------------------------------
 
-                void set_secundary_dof_types( const Cell< moris::Cell< enum MSI::Dof_Type > > aListOfDofTypes )
+                void set_secondary_dof_types( const Cell< moris::Cell< enum MSI::Dof_Type > > aListOfDofTypes )
                 {
-                    mListOfSecundaryDofTypes = aListOfDofTypes;
+                    mListOfSecondaryDofTypes = aListOfDofTypes;
                 };
 
                 //------------------------------------------------------------------------------
@@ -158,9 +158,9 @@ namespace moris
 
                 //------------------------------------------------------------------------------
 
-                moris::Cell< moris::Cell< enum MSI::Dof_Type > > get_secundary_dof_types()
+                moris::Cell< moris::Cell< enum MSI::Dof_Type > > get_secondary_dof_types()
                 {
-                    return mListOfSecundaryDofTypes;
+                    return mListOfSecondaryDofTypes;
                 };
 
                 //------------------------------------------------------------------------------

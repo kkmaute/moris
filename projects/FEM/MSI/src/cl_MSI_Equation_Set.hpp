@@ -549,9 +549,9 @@ namespace moris
 
             //------------------------------------------------------------------------------
             /**
-             * get secundary dof types
+             * get secondary dof types
              */
-            moris::Cell< moris::Cell< enum MSI::Dof_Type > > get_secundary_dof_types();
+            moris::Cell< moris::Cell< enum MSI::Dof_Type > > get_secondary_dof_types();
 
             //------------------------------------------------------------------------------
             /**

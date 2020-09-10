@@ -149,9 +149,9 @@ namespace moris
                 MORIS_ERROR( false, "Solver_Interface::set_requested_dof_types: not set.");
             };
 
-            virtual void set_secundary_dof_types( const Cell< moris::Cell< enum MSI::Dof_Type > > aListOfDofTypes )
+            virtual void set_secondary_dof_types( const Cell< moris::Cell< enum MSI::Dof_Type > > aListOfDofTypes )
             {
-                MORIS_ERROR( false, "Solver_Interface::set_secundary_dof_types: not set.");
+                MORIS_ERROR( false, "Solver_Interface::set_secondary_dof_types: not set.");
             };
 
             virtual moris::Cell< enum MSI::Dof_Type > get_requested_dof_types()

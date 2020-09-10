@@ -1265,10 +1265,10 @@ namespace moris
                     get_solver_interface()->
                     get_requested_dof_types();
 
-            moris::Cell< moris::Cell < enum MSI::Dof_Type > > tSecundaryDofTypes =
+            moris::Cell< moris::Cell < enum MSI::Dof_Type > > tSecondaryDofTypes =
                     this->get_model_solver_interface()->
                     get_solver_interface()->
-                    get_secundary_dof_types();
+                    get_secondary_dof_types();
 
             sint tMaxDofIndex = -1;
 
@@ -1296,10 +1296,10 @@ namespace moris
 
             sint tMaxDofIndexSec = -1;
 
-            for( uint Ik = 0; Ik < tSecundaryDofTypes.size(); Ik++ )
+            for( uint Ik = 0; Ik < tSecondaryDofTypes.size(); Ik++ )
             {
                 sint tDofIndex = this->get_dof_index_for_type(
-                        tSecundaryDofTypes( Ik )( 0 ),
+                        tSecondaryDofTypes( Ik )( 0 ),
                         mtk::Master_Slave::MASTER );
 
                 if( tDofIndex != -1 )
@@ -1308,7 +1308,7 @@ namespace moris
                 }
 
                 tDofIndex = this->get_dof_index_for_type(
-                        tSecundaryDofTypes( Ik )( 0 ),
+                        tSecondaryDofTypes( Ik )( 0 ),
                         mtk::Master_Slave::SLAVE );
 
                 if( tDofIndex != -1 )
@@ -1335,16 +1335,16 @@ namespace moris
                 {
                     uint tCounter_2 = 0;
 
-                    for( uint Ii = 0; Ii < tSecundaryDofTypes.size(); Ii++ )
+                    for( uint Ii = 0; Ii < tSecondaryDofTypes.size(); Ii++ )
                     {
                         sint tDofIndex_2 = this->get_dof_index_for_type(
-                                tSecundaryDofTypes( Ii )( 0 ),
+                                tSecondaryDofTypes( Ii )( 0 ),
                                 mtk::Master_Slave::MASTER );
 
                         if( tDofIndex_2 != -1 )
                         {
                             uint tNumCoeff_2 = mMasterFIManager->
-                                    get_field_interpolators_for_type( tSecundaryDofTypes( Ii )( 0 ) )->
+                                    get_field_interpolators_for_type( tSecondaryDofTypes( Ii )( 0 ) )->
                                     get_number_of_space_time_coefficients();
 
                             mJacDofAssemblyMap( tDofIndex )( tDofIndex_2, 0 ) = tCounter_2;
@@ -1354,16 +1354,16 @@ namespace moris
                         }
                     }
 
-                    for( uint Ii = 0; Ii < tSecundaryDofTypes.size(); Ii++ )
+                    for( uint Ii = 0; Ii < tSecondaryDofTypes.size(); Ii++ )
                     {
                         sint tDofIndex_2 = this->get_dof_index_for_type(
-                                tSecundaryDofTypes( Ii )( 0 ),
+                                tSecondaryDofTypes( Ii )( 0 ),
                                 mtk::Master_Slave::SLAVE );
 
                         if( tDofIndex_2 != -1 )
                         {
                             uint tNumCoeff_2 = mSlaveFIManager->
-                                    get_field_interpolators_for_type(  tSecundaryDofTypes( Ii )( 0 ) )->
+                                    get_field_interpolators_for_type(  tSecondaryDofTypes( Ii )( 0 ) )->
                                     get_number_of_space_time_coefficients();
 
                             mJacDofAssemblyMap( tDofIndex )( tDofIndex_2, 0 ) = tCounter_2;
@@ -1385,16 +1385,16 @@ namespace moris
                 {
                     uint tCounter_2 = 0;
 
-                    for( uint Ii = 0; Ii < tSecundaryDofTypes.size(); Ii++ )
+                    for( uint Ii = 0; Ii < tSecondaryDofTypes.size(); Ii++ )
                     {
                         sint tDofIndex_2 = this->get_dof_index_for_type(
-                                tSecundaryDofTypes( Ii )( 0 ),
+                                tSecondaryDofTypes( Ii )( 0 ),
                                 mtk::Master_Slave::MASTER  );
 
                         if( tDofIndex_2 != -1 )
                         {
                             uint tNumCoeff_2 = mMasterFIManager->
-                                    get_field_interpolators_for_type( tSecundaryDofTypes( Ii )( 0 ) )
+                                    get_field_interpolators_for_type( tSecondaryDofTypes( Ii )( 0 ) )
                                     ->get_number_of_space_time_coefficients();
 
                             mJacDofAssemblyMap( tDofIndex )( tDofIndex_2, 0 ) = tCounter_2;
@@ -1404,16 +1404,16 @@ namespace moris
                         }
                     }
 
-                    for( uint Ii = 0; Ii < tSecundaryDofTypes.size(); Ii++ )
+                    for( uint Ii = 0; Ii < tSecondaryDofTypes.size(); Ii++ )
                     {
                         sint tDofIndex_2 = this->get_dof_index_for_type(
-                                tSecundaryDofTypes( Ii )( 0 ),
+                                tSecondaryDofTypes( Ii )( 0 ),
                                 mtk::Master_Slave::SLAVE  );
 
                         if( tDofIndex_2 != -1 )
                         {
                             uint tNumCoeff_2 = mSlaveFIManager->
-                                    get_field_interpolators_for_type(  tSecundaryDofTypes( Ii )( 0 ) )->
+                                    get_field_interpolators_for_type(  tSecondaryDofTypes( Ii )( 0 ) )->
                                     get_number_of_space_time_coefficients();
 
                             mJacDofAssemblyMap( tDofIndex )( tDofIndex_2, 0 ) = tCounter_2;
@@ -1826,7 +1826,7 @@ namespace moris
                 {
                     // get the secondary dof types from the solver
                     moris::Cell< moris::Cell< enum MSI::Dof_Type > > tSecDofTypes =
-                            this->get_secundary_dof_types();
+                            this->get_secondary_dof_types();
 
                     // init dof coefficient counter for rows
                     uint tNumRows = 0;
