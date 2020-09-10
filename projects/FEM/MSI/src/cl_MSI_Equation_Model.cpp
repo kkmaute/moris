@@ -13,6 +13,7 @@
 #include "cl_MSI_Equation_Model.hpp"
 
 #include "cl_SOL_Dist_Vector.hpp"
+#include "cl_SOL_Dist_Map.hpp"
 #include "cl_Matrix_Vector_Factory.hpp"
 #include "cl_SOL_Enums.hpp"
 
@@ -115,6 +116,8 @@ namespace moris
         {
             // create map for dQIdpMap
             moris::Matrix_Vector_Factory tMatFactory( sol::MapType::Epetra );
+
+            delete mdQIdpMap;
             mdQIdpMap = tMatFactory.create_map(
                     mDesignVariableInterface->get_my_local_global_map() );
 
@@ -122,15 +125,8 @@ namespace moris
             uint tNumRHMS = this->get_num_rhs();
 
             // create vector for dQIdp implicit and explicit contributions
-            if ( mImplicitdQidp != nullptr )
-            {
-                delete mImplicitdQidp;
-            }
-
-            if ( mImplicitdQidp != nullptr )
-            {
-                delete mExplicitdQidp;
-            }
+            delete mImplicitdQidp;
+            delete mExplicitdQidp;
 
             mImplicitdQidp = tMatFactory.create_vector( mdQIdpMap, tNumRHMS );
             mExplicitdQidp = tMatFactory.create_vector( mdQIdpMap, tNumRHMS );
@@ -206,6 +202,7 @@ namespace moris
                     mFemSets( iSet )->free_matrix_memory();
                 }
             }
+
             // global assembly to switch entries to the right processor
             mExplicitdQidp->vector_global_asembly();
             //mExplicitdQidp->print();
@@ -222,6 +219,7 @@ namespace moris
             uint tNumRHMS = this->get_num_rhs();
 
             // create vector for dQIdp
+            delete mdQIdp;
             mdQIdp = tMatFactory.create_vector( mdQIdpMap, tNumRHMS );
 
             // fill vector with zero
