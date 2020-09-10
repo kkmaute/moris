@@ -647,7 +647,7 @@ namespace moris
 
         void Equation_Object::add_staggered_contribution_to_residual( Matrix< DDRMat > & aElementResidual )
         {
-            moris::Cell< moris::Cell< enum MSI::Dof_Type > > tSecDofTypes =  mEquationSet->get_secundary_dof_types();
+            moris::Cell< moris::Cell< enum MSI::Dof_Type > > tSecDofTypes =  mEquationSet->get_secondary_dof_types();
 
             for( auto tSecDofTypes : tSecDofTypes )
             {

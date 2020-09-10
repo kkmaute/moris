@@ -37,8 +37,8 @@ namespace NLA
         //! List of list of dof types
         moris::Cell< moris::Cell< enum MSI::Dof_Type > >  mStaggeredDofTypeList;
 
-        //! List of secundary dependencies
-        moris::Cell< moris::Cell< enum MSI::Dof_Type > >  mSecundaryDofTypeList;
+        //! List of secondary dependencies
+        moris::Cell< moris::Cell< enum MSI::Dof_Type > >  mSecondaryDofTypeList;
 
         //! List with nonlinear solvers
         moris::Cell< std::shared_ptr< Nonlinear_Algorithm > > mNonlinearSolverAlgorithmList;
