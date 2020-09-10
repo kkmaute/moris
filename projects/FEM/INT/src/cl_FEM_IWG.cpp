@@ -1947,7 +1947,7 @@ namespace moris
                 for( uint iCoeffRow = 0; iCoeffRow < tDerNumBases; iCoeffRow++ )
                 {
                     // find the node on the slave side
-                    uint tSlaveNodeLocalIndex;
+                    uint tSlaveNodeLocalIndex = 0;
                     for ( uint iNode = 0; iNode < tDerNumBases; iNode++ )
                     {
                         if( aMasterVertexIndices( iCoeffRow ) == aSlaveVertexIndices( iNode ) )
