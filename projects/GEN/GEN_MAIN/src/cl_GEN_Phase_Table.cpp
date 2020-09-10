@@ -7,7 +7,10 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        Phase_Table::Phase_Table(Phase_Table_Structure aStructure, uint aNumPhases, Cell<std::string> aPhaseNames)
+        Phase_Table::Phase_Table(
+            Phase_Table_Structure aStructure, 
+            uint                  aNumPhases, 
+            Cell<std::string>     aPhaseNames)
         : mPhaseTableStructure(aStructure),
         mNumPhases(aNumPhases)
         {
@@ -24,7 +27,10 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        Phase_Table::Phase_Table(Matrix<IndexMat> aPhaseTable, Phase_Table_Structure aStructure, Cell<std::string> aPhaseNames)
+        Phase_Table::Phase_Table(
+            Matrix<IndexMat>      aPhaseTable, 
+            Phase_Table_Structure aStructure, 
+            Cell<std::string>     aPhaseNames)
         : Phase_Table(aStructure, aPhaseTable.n_rows(), aPhaseNames)
         {
             mPhaseTable = aPhaseTable;
@@ -34,7 +40,10 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        Phase_Table::Phase_Table(uint aNumPhi, Phase_Table_Structure aStructure, Cell<std::string> aPhaseNames)
+        Phase_Table::Phase_Table(
+            uint                       aNumPhi, 
+            enum Phase_Table_Structure aStructure, 
+            Cell<std::string>          aPhaseNames)
         : Phase_Table(aStructure, std::pow(2, aNumPhi), aPhaseNames)
         {
             if (aNumPhi > 0)
@@ -81,14 +90,20 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        Phase_Table::Phase_Table(Matrix<IndexMat> aPhaseTable, std::string aStructure, Cell<std::string> aPhaseNames)
+        Phase_Table::Phase_Table(
+            Matrix<IndexMat>  aPhaseTable, 
+            std::string       aStructure,
+            Cell<std::string> aPhaseNames)
         : Phase_Table(aPhaseTable, get_phase_table_structure(aStructure), aPhaseNames)
         {
         }
 
         //--------------------------------------------------------------------------------------------------------------
 
-        Phase_Table::Phase_Table(uint aNumPhi, std::string aStructure, Cell<std::string> aPhaseNames)
+        Phase_Table::Phase_Table(
+            uint              aNumPhi,
+            std::string       aStructure, 
+            Cell<std::string> aPhaseNames)
         : Phase_Table(aNumPhi, get_phase_table_structure(aStructure), aPhaseNames)
         {
         }
@@ -116,15 +131,17 @@ namespace moris
         //--------------------------------------------------------------------------------------------------------------
 
         moris::moris_index
-        Phase_Table::get_phase_sign_of_given_phase_and_geometry(moris::moris_index aPhaseIndex,
-                                                   moris::moris_index aGeometryIndex)
+        Phase_Table::get_phase_sign_of_given_phase_and_geometry(
+            moris::moris_index aPhaseIndex,
+            moris::moris_index aGeometryIndex)
         {
             return mPhaseTable(aPhaseIndex,aGeometryIndex);
         }
 
         //--------------------------------------------------------------------------------------------------------------
 
-        moris::moris_index Phase_Table::get_phase_index(moris::Matrix< moris::IndexMat > const & aEntityPhaseInfo)
+        moris::moris_index Phase_Table::get_phase_index(
+            moris::Matrix< moris::IndexMat > const & aEntityPhaseInfo)
         {
 
             switch(mPhaseTableStructure)
@@ -152,7 +169,8 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        std::string const & Phase_Table::get_phase_name(moris::moris_index const & aPhaseIndex)
+        std::string const & Phase_Table::get_phase_name(
+            moris::moris_index const & aPhaseIndex )
         {
             MORIS_ASSERT(aPhaseIndex<(moris::moris_index)mPhaseNames.size(),"Phase index out of bounds");
             return mPhaseNames(aPhaseIndex);
@@ -191,7 +209,8 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        Phase_Table_Structure Phase_Table::get_phase_table_structure(std::string aStructure)
+        Phase_Table_Structure Phase_Table::get_phase_table_structure(
+            std::string aStructure )
         {
             // Phase table structure
             if (aStructure == "exp_base_2")
