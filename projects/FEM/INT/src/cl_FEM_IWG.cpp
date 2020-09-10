@@ -1947,7 +1947,7 @@ namespace moris
                 for( uint iCoeffRow = 0; iCoeffRow < tDerNumBases; iCoeffRow++ )
                 {
                     // find the node on the slave side
-                    uint tSlaveNodeLocalIndex = 0;
+                    sint tSlaveNodeLocalIndex = -1;
                     for ( uint iNode = 0; iNode < tDerNumBases; iNode++ )
                     {
                         if( aMasterVertexIndices( iCoeffRow ) == aSlaveVertexIndices( iNode ) )
@@ -1956,6 +1956,7 @@ namespace moris
                             break;
                         }
                     }
+                    MORIS_ERROR( tSlaveNodeLocalIndex != -1, "IWG::compute_dRdp_FD_geometry_double - slave index not found.");
 
                     // loop over the spatial directions
                     for( uint iCoeffCol = 0; iCoeffCol< tDerNumDimensions; iCoeffCol++ )

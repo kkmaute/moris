@@ -1469,7 +1469,6 @@ namespace moris
 
             // set size for the dv assembly map
             mPdvMatAssemblyMap.resize( tMaxDvIndex );
-            mPdvMatAssemblyVector.set_size( tMaxDvIndex, 1, -1 );
 
             // init the dv assembly map
             for( uint Ik = 0; Ik < mPdvMatAssemblyMap.size(); Ik++ )
@@ -1534,6 +1533,10 @@ namespace moris
                     tCounter += tNumCoeff;
                 }
             }
+
+            // set size for assembly vector
+            mPdvMatAssemblyVector.set_size( tCounter, 1, -1 );
+
         }
 
         //--------------------------------------------------------------------------
