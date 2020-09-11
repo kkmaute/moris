@@ -12,8 +12,9 @@ using namespace moris;
 
 //----------------------------------------------------------------------------------------------
 
-Vector_Epetra::Vector_Epetra(       sol::Dist_Map   * aMapClass,
-                              const sint              aNumVectors ) : sol::Dist_Vector( aMapClass )
+Vector_Epetra::Vector_Epetra(
+        sol::Dist_Map   * aMapClass,
+        const sint        aNumVectors ) : sol::Dist_Vector( aMapClass )
 {
     mNumVectors = aNumVectors;
 
@@ -27,32 +28,34 @@ Vector_Epetra::Vector_Epetra(       sol::Dist_Map   * aMapClass,
 
 Vector_Epetra::~Vector_Epetra()
 {
-    delete( mEpetraVector );
+    delete mEpetraVector;
 }
 
 //----------------------------------------------------------------------------------------------
 
-void Vector_Epetra::replace_global_values( const moris::Matrix< DDSMat > & aGlobalIds,
-                                           const moris::Matrix< DDRMat > & aValues,
-                                           const uint                    & aVectorIndex )
+void Vector_Epetra::replace_global_values(
+        const moris::Matrix< DDSMat > & aGlobalIds,
+        const moris::Matrix< DDRMat > & aValues,
+        const uint                    & aVectorIndex )
 {
     reinterpret_cast< Epetra_FEVector* >( mEpetraVector )->ReplaceGlobalValues( aGlobalIds.numel(),
-                                                                                aGlobalIds.data(),
-                                                                                aValues.data(),
-                                                                                aVectorIndex );
+            aGlobalIds.data(),
+            aValues.data(),
+            aVectorIndex );
 }
 
 //----------------------------------------------------------------------------------------------
 
-void Vector_Epetra::sum_into_global_values( const moris::Matrix< DDSMat > & aGlobalIds,
-                                            const moris::Matrix< DDRMat > & aValues,
-                                            const uint                    & aVectorIndex )
+void Vector_Epetra::sum_into_global_values(
+        const moris::Matrix< DDSMat > & aGlobalIds,
+        const moris::Matrix< DDRMat > & aValues,
+        const uint                    & aVectorIndex )
 {
     // sum a number (aNumMyDofs) of values (mem_pointer( aRHSVal )) into given positions (mem_pointer( aElementTopology )) of the vector
     reinterpret_cast< Epetra_FEVector* >( mEpetraVector )->SumIntoGlobalValues( aGlobalIds.numel(),
-                                                                                aGlobalIds.data(),
-                                                                                aValues.data(),
-                                                                                aVectorIndex );
+            aGlobalIds.data(),
+            aValues.data(),
+            aVectorIndex );
 }
 
 //----------------------------------------------------------------------------------------------
@@ -65,9 +68,10 @@ void Vector_Epetra::vector_global_asembly()
 
 //----------------------------------------------------------------------------------------------
 
-void Vector_Epetra::vec_plus_vec( const moris::real      & aScaleA,
-                                        sol::Dist_Vector & aVecA,
-                                  const moris::real      & aScaleThis )
+void Vector_Epetra::vec_plus_vec(
+        const moris::real   & aScaleA,
+        sol::Dist_Vector    & aVecA,
+        const moris::real   & aScaleThis )
 {
     // check if both vectors are build with the same map
     const Epetra_Map* tMap = aVecA.get_map()->get_epetra_map();
@@ -86,8 +90,9 @@ void Vector_Epetra::vec_plus_vec( const moris::real      & aScaleA,
 
 //----------------------------------------------------------------------------------------------
 
-void Vector_Epetra::scale_vector( const moris::real & aValue,
-                                  const moris::uint & aVecIndex )
+void Vector_Epetra::scale_vector(
+        const moris::real & aValue,
+        const moris::uint & aVecIndex )
 {
     // check if index of vector is 0. might not be zero for a multivector
     if ( aVecIndex==0 )
@@ -194,10 +199,11 @@ void Vector_Epetra::extract_copy( moris::Matrix< DDRMat > & LHSValues )
 
 //----------------------------------------------------------------------------------------------
 
-void Vector_Epetra::extract_my_values( const moris::uint                            & aNumIndices,
-                                       const moris::Matrix< DDSMat >                & aGlobalRows,
-                                       const moris::uint                            & aRowOffsets,
-                                             moris::Cell< moris::Matrix< DDRMat > > & ExtractedValues )
+void Vector_Epetra::extract_my_values(
+        const moris::uint                      & aNumIndices,
+        const moris::Matrix< DDSMat >          & aGlobalRows,
+        const moris::uint                      & aRowOffsets,
+        moris::Cell< moris::Matrix< DDRMat > > & ExtractedValues )
 {
     ExtractedValues.resize( mNumVectors );
 
@@ -218,11 +224,11 @@ void Vector_Epetra::extract_my_values( const moris::uint                        
 
             MORIS_ASSERT( !( tLocIndex < 0 ), "Vector_Epetra::extract_my_values: local index < 0. this is not allowed");
 
-//            if (!offsets)
-//            {
-//                LHSValues[i] = mValuesPtr[locIndex];
-//                continue;
-//            }
+            //            if (!offsets)
+            //            {
+            //                LHSValues[i] = mValuesPtr[locIndex];
+            //                continue;
+            //            }
 
             MORIS_ASSERT( !( aRowOffsets < 0 ), "Vector_Epetra::extract_my_values: offset < 0. this is not allowed");
 
@@ -277,7 +283,7 @@ void Vector_Epetra::read_vector_from_HDF5( const char* aFilename )
 
     mEpetraVector = NewVector;
     //FIXME
-//    mMap->get_epetra_map() = NewMap;
+    //    mMap->get_epetra_map() = NewMap;
     //mMap->get_epetra_full_overlapping_map() = NewMap;
 }
 
