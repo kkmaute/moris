@@ -1,5 +1,6 @@
 set(EXAMPLE_MAIN Main_Shape_Sensitivity_Circle_Sweep_Transient)
-set(EXAMPLE_FILE Shape_Sensitivity_Circle_Sweep_Transient)
+set(EXAMPLE_FILES Shape_Sensitivity_Circle_Sweep_Transient Shape_Sensitivity_Circle_Sweep_Transient_Vol_2)
+set(EXAMPLE_PROCS 1)
 
 # List source files
 set(EXAMPLE_SOURCES
@@ -85,11 +86,16 @@ foreach(TPL ${SO_TPLS})
     list(APPEND SO_INCLUDES ${MORIS_${TPL}_INCLUDE_DIRS})
 endforeach()
 
-dynamic_link_input(${EXAMPLE_FILE} ${EXAMPLE_FILE} ${EXAMPLE_FILE}.cpp ${SO_INCLUDES})
+# create dynamically linked .so files
+foreach(EXAMPLE_FILE ${EXAMPLE_FILES})
+    dynamic_link_input(${EXAMPLE_FILE} ${EXAMPLE_FILE} ${EXAMPLE_FILE}.cpp ${SO_INCLUDES})
+endforeach()
 
 # Add parallel tests
 if(MORIS_HAVE_PARALLEL_TESTS)
-	add_test(NAME ${EXAMPLE_FILE} 
-	COMMAND ${MORIS_EXECUTE_COMMAND} -n 1 ${VALGRIND} ${VALGRIND_OPTIONS} $<TARGET_FILE:${EXAMPLE_MAIN}>
-    WORKING_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
+    foreach(PROCS ${EXAMPLE_PROCS})
+        add_test(NAME Thick_Pressure_Vessel-${PROCS}-procs
+                 WORKING_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}
+                 COMMAND ${MORIS_EXECUTE_COMMAND} -n ${PROCS} ${VALGRIND} ${VALGRIND_OPTIONS} $<TARGET_FILE:${EXAMPLE_MAIN}>)
+    endforeach()
 endif()
