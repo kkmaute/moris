@@ -21,11 +21,11 @@ namespace moris
                 ParameterList                                       aMSIParameterList,
                 std::shared_ptr< MSI::Equation_Model >              aEquationModel,
                 mtk::Mesh                                         * aMesh )
-                : mMSIParameterList( aMSIParameterList ),
-                  mEquationBlocks( aEquationModel->get_equation_sets() ),
-                  mDofMgn( aMesh->get_communication_table(), this ),
-                  mMesh( aMesh ),
-                  mEquationModel( aEquationModel )
+        : mMSIParameterList( aMSIParameterList ),
+          mEquationBlocks( aEquationModel->get_equation_sets() ),
+          mDofMgn( aMesh->get_communication_table(), this ),
+          mMesh( aMesh ),
+          mEquationModel( aEquationModel )
         {
             this->create_equation_object_list();
 
@@ -40,7 +40,8 @@ namespace moris
         {
             // get map from mesh
             moris::map< moris::moris_id, moris::moris_index > tCoefficientsIdtoIndexMap;
-            if( mMesh != nullptr)         //FIXME fix all constructores to be able to get rid of this if statement
+
+            if( mMesh != nullptr)         //FIXME fix all constructors to be able to get rid of this if statement
             {
                 mMesh->get_adof_map( 0, tCoefficientsIdtoIndexMap );
 
@@ -101,7 +102,7 @@ namespace moris
         {
             // Get dof type enum
             enum Dof_Type tDofType = mDofMgn.get_dof_type_enum( aDofType );
-			
+
             if      ( tDofType == Dof_Type::UX )          { return mMSIParameterList.get< moris::sint >( "UX" ); }
             else if ( tDofType == Dof_Type::UY )          { return mMSIParameterList.get< moris::sint >( "UY" ); }
             else if ( tDofType == Dof_Type::UZ )          { return mMSIParameterList.get< moris::sint >( "UZ" ); }
@@ -125,6 +126,5 @@ namespace moris
                 return 0;
             }
         }
-
     }
 }
