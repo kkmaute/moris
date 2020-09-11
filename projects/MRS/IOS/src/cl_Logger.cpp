@@ -146,16 +146,16 @@ namespace moris
                 // switch based on OutputFormat provided
                 if ((mDirectOutputFormat == 3) || (mDirectOutputFormat == 2))
                 {
-                    std::cout << print_empty_line(mGlobalClock.mIndentationLevel)
-                                                              << "_ElapsedTime = "
-                                                              << ( (moris::real) std::clock() - mGlobalClock.mTimeStamps(mGlobalClock.mIndentationLevel) ) / CLOCKS_PER_SEC
-                                                              << " \n";
+                    std::cout << print_empty_line(mGlobalClock.mIndentationLevel) << "_ElapsedTime = " <<
+                            ( (moris::real) std::clock() - mGlobalClock.mTimeStamps(mGlobalClock.mIndentationLevel) ) / CLOCKS_PER_SEC <<
+                            " \n" << std::flush;
                     std::cout << print_empty_line(mGlobalClock.mIndentationLevel - 1) << " \n";
                 }
                 else
-                    std::cout << "Signing out current instance. Elapsed time = "
-                    << ( (moris::real) std::clock() - mGlobalClock.mTimeStamps(mGlobalClock.mIndentationLevel) ) / CLOCKS_PER_SEC
-                    << " \n";
+                    std::cout << "Signing out " << get_enum_str( mGlobalClock.mCurrentType( mGlobalClock.mIndentationLevel ) ) <<
+                    ". Elapsed time = " <<
+                    ( (moris::real) std::clock() - mGlobalClock.mTimeStamps(mGlobalClock.mIndentationLevel) ) / CLOCKS_PER_SEC <<
+                    " \n" << std::flush;
             }
         }
 
@@ -177,14 +177,18 @@ namespace moris
             // switch based on OutputFormat provided
             if ((mDirectOutputFormat == 3) || (mDirectOutputFormat == 2))
             {
-                std::cout << print_empty_line( mGlobalClock.mIndentationLevel ) << "_"
-                        << get_enum_str( OutputSpecifier::Iteration ) << ": "
-                        << ios::stringify( mGlobalClock.mIndentationLevel ) << " \n" << std::flush;
+                std::cout << print_empty_line( mGlobalClock.mIndentationLevel ) << "_" <<
+                        get_enum_str( mGlobalClock.mCurrentType( mGlobalClock.mIndentationLevel ) ) << " - " <<
+                        get_enum_str( OutputSpecifier::Iteration ) << ": " <<
+                        ios::stringify( mGlobalClock.mCurrentIteration( mGlobalClock.mIndentationLevel ) ) <<
+                        " \n" << std::flush;
             }
             else
             {
-                std::cout << get_enum_str( OutputSpecifier::Iteration ) << ": "
-                        << ios::stringify( mGlobalClock.mIndentationLevel ) << " \n" << std::flush;
+                std::cout << get_enum_str( OutputSpecifier::Iteration ) << ": " <<
+                        get_enum_str( mGlobalClock.mCurrentType( mGlobalClock.mIndentationLevel ) ) << " - " <<
+                        ios::stringify( mGlobalClock.mCurrentIteration( mGlobalClock.mIndentationLevel ) ) <<
+                        " \n" << std::flush;
             }
 
             // write to file if requested
@@ -214,8 +218,10 @@ namespace moris
         {
             // check if Instance matches the instance searched for
             if( aEntityBase == mGlobalClock.mCurrentEntity( tIndentLevel ) &&
-                    aEntityType == mGlobalClock.mCurrentType( tIndentLevel ) &&
-                    aEntityAction == mGlobalClock.mCurrentAction( tIndentLevel ) )
+                    ( aEntityType == mGlobalClock.mCurrentType( tIndentLevel ) ||
+                            aEntityType == EntityType::Arbitrary ) &&
+                    ( aEntityAction == mGlobalClock.mCurrentAction( tIndentLevel ) ||
+                            aEntityAction == EntityAction::Arbitrary ) )
             {
                 tInstanceFound = true;
             }
