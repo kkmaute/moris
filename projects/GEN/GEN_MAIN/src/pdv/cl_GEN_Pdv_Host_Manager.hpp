@@ -19,6 +19,9 @@ namespace moris
             // Number of ADVs
             uint mNumADVs;
             bool mNumADVsSet = false;
+            
+            // Static nodes set
+            bool mNumStaticNodesSet = false;
 
             // list of pdv hosts - interpolation nodes
             Cell<std::shared_ptr<Interpolation_Pdv_Host>> mIpPdvHosts;
@@ -58,14 +61,21 @@ namespace moris
             ~Pdv_Host_Manager();
 
             /**
-             * Sets the number of ADVs
+             * Sets the number of ADVs.
              *
              * @param aNumADVs Number of ADVs
              */
             void set_num_advs(uint aNumADVs);
+            
+            /**
+             * Sets the number of nodes.
+             * 
+             * @param aNumNodes Number of nodes
+             */
+            void set_num_background_nodes(uint aNumNodes); 
 
             /**
-             * Resets the stored information about PDV hosts
+             * Resets the stored information about PDV hosts.
              */
             void reset();
             

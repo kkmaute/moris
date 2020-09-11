@@ -273,6 +273,10 @@ namespace moris
             {
                 mPdvHostManager.set_intersection_node(aNodeIndex, mQueuedIntersectionNode);
             }
+            else
+            {
+                mPdvHostManager.set_intersection_node(aNodeIndex, nullptr);
+            }
 
             // Assign as child node
             for (uint tGeometryIndex = 0; tGeometryIndex < mGeometries.size(); tGeometryIndex++)
@@ -289,6 +293,7 @@ namespace moris
                 const Cell<Matrix<DDRMat>>& aParamCoordRelativeToParent,
                 const Matrix<DDRMat>&       aGlobalNodeCoord )
         {
+            // Loop over nodes
             for (uint tNode = 0; tNode < aNewNodeIndices.size(); tNode++)
             {
                 // Create child node
@@ -308,6 +313,9 @@ namespace moris
                     mGeometries(tGeometryIndex)->add_child_node(aNewNodeIndices(tNode), tChildNode);
                 }
             }
+
+            // Set max node index
+            mPdvHostManager.set_num_background_nodes(aNewNodeIndices(aNewNodeIndices.size() - 1) + 1);
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -318,7 +326,6 @@ namespace moris
         }
 
         //--------------------------------------------------------------------------------------------------------------
-
 
         moris_index Geometry_Engine::get_phase_sign_of_given_phase_and_geometry(
                 moris_index aPhaseIndex,
@@ -526,6 +533,9 @@ namespace moris
         {
             // Register spatial dimension
             mSpatialDim = aMesh->get_spatial_dim();
+
+            // Set number of background nodes
+            mPdvHostManager.set_num_background_nodes(aMesh->get_num_nodes());
 
             // Number of filled ADVs
             uint tNumFilledADVs = mADVs.length();

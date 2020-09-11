@@ -1,4 +1,5 @@
 #include "cl_GEN_Pdv_Host_Manager.hpp"
+#include "cl_Communication_Tools.hpp"
 #include "fn_sum.hpp"
 
 namespace moris
@@ -24,6 +25,14 @@ namespace moris
         {
             mNumADVs = aNumADVs;
             mNumADVsSet = true;
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+        
+        void Pdv_Host_Manager::set_num_background_nodes(uint aNumNodes)
+        {
+            mIntersectionNodes.resize(aNumNodes);
+            mNumStaticNodesSet = true;
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -214,6 +223,7 @@ namespace moris
 
         const Matrix<DDSMat> & Pdv_Host_Manager::get_my_local_global_map()
         {
+            MORIS_ERROR(par_size() == 1, "PDV Host Manager local/global map will not work in parallel.");
             return mGlobalPdvTypeMap;
         }
 
@@ -269,7 +279,9 @@ namespace moris
                 {
                     if (mIntersectionNodes(aNodeIndices(tNode)))
                     {
-                        aDvIds(tPdvTypeIndex)(tNode) = mIntersectionNodes(aNodeIndices(tNode))->get_starting_pdv_index() + static_cast<uint>(aPdvTypes(tPdvTypeIndex));
+                        aDvIds(tPdvTypeIndex)(tNode) =
+                                mIntersectionNodes(aNodeIndices(tNode))->get_starting_pdv_index()
+                                + static_cast<uint>(aPdvTypes(tPdvTypeIndex));
                     }
                 }
             }
@@ -398,29 +410,33 @@ namespace moris
 
         void Pdv_Host_Manager::set_intersection_node(uint aNodeIndex, std::shared_ptr<Intersection_Node> aIntersectionNode)
         {
-            // Resize
-            if (aNodeIndex >= mIntersectionNodes.size())
+            // Check node index
+            MORIS_ASSERT(mNumStaticNodesSet,
+                    "Number of background nodes must be set in the PDV Host Manager before intersection nodes can be created.");
+            MORIS_ASSERT(aNodeIndex == mIntersectionNodes.size(),
+                    "Intersection nodes must be added to the PDV Host Manager in order by node index.");
+
+            // Add intersection node
+            mIntersectionNodes.push_back(aIntersectionNode);
+
+            // Check for if this should be a PDV
+            if (mIntersectionNodes(aNodeIndex))
             {
-                mIntersectionNodes.resize(aNodeIndex + 1);
-            }
+                // Set global index
+                mIntersectionNodes(aNodeIndex)->set_starting_pdv_index(mGlobalPdvIndex);
 
-            // Set intersection node
-            mIntersectionNodes(aNodeIndex) = aIntersectionNode;
+                // Number of PDVs being added
+                uint tNumAddedPdvs = aIntersectionNode->get_global_coordinates().length();
 
-            // Set global index
-            mIntersectionNodes(aNodeIndex)->set_starting_pdv_index(mGlobalPdvIndex);
+                // Resize global map
+                mGlobalPdvTypeMap.resize(mGlobalPdvTypeMap.length() + tNumAddedPdvs, 1);
 
-            // Number of PDVs being added
-            uint tNumAddedPdvs = aIntersectionNode->get_global_coordinates().length();
-
-            // Resize global map
-            mGlobalPdvTypeMap.resize(mGlobalPdvTypeMap.length() + tNumAddedPdvs, 1);
-
-            // Update global index
-            for (uint tPdvIndex = 0; tPdvIndex < tNumAddedPdvs; tPdvIndex++)
-            {
-                mGlobalPdvTypeMap(mGlobalPdvIndex) = mGlobalPdvIndex;
-                mGlobalPdvIndex++;
+                // Update global index
+                for (uint tPdvIndex = 0; tPdvIndex < tNumAddedPdvs; tPdvIndex++)
+                {
+                    mGlobalPdvTypeMap(mGlobalPdvIndex) = mGlobalPdvIndex;
+                    mGlobalPdvIndex++;
+                }
             }
         }
 
@@ -508,5 +524,8 @@ namespace moris
             }
             return tTotalAdvSensitivities;
         }
+
+        //--------------------------------------------------------------------------------------------------------------
+
     }
 }

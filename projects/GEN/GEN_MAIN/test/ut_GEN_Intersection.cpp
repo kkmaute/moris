@@ -217,6 +217,7 @@ namespace moris
 
                 // Set new ADVs, level set field now has no intersections
                 tGeometryEngine.set_advs(Matrix<DDRMat>(16, 1, 1.0));
+                tGeometryEngine.compute_level_set_data(tMesh);
 
                 // Solution for is_intersected() per geometry and per element
                 tIsElementIntersected = {{false, false, false, false}, {false, true, false, true}};
