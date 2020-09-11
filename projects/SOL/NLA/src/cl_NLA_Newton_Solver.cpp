@@ -21,7 +21,7 @@
 
 #include "cl_Communication_Tools.hpp"
 
-// Detailed Logging package
+// Logging package
 #include "cl_Logger.hpp"
 #include "cl_Tracer.hpp"
 #include "cl_Tracer_Enums.hpp"
@@ -86,8 +86,8 @@ void Newton_Solver::solver_nonlinear_system( Nonlinear_Problem * aNonlinearProbl
     // Newton loop
     for ( moris::sint It = 1; It <= tMaxIts; ++It )
     {
-        //                gLogger.log_specific( OutputSpecifier::Iteration, It );
-        MORIS_LOG_SPEC( OutputSpecifier::Iteration, It );
+        // log solver iteration
+        MORIS_LOG_ITERATION();
 
         //get_nonlinear_problem()
         clock_t tNewtonLoopStartTime = clock();
