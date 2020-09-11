@@ -48,6 +48,9 @@ namespace NLA
         //! Pointer to the linear solver manager
         dla::Linear_Solver * mLinSolverManager = nullptr;
 
+        //! Pointer to the linear solver manager for adjoint solve. Can be the same than mLinSolverManager
+        dla::Linear_Solver * mLinSolverManagerForAdjoint = nullptr;
+
         //! pointer to the nonliner problem
         Nonlinear_Problem * mNonlinearProblem = nullptr;
 
@@ -101,6 +104,15 @@ namespace NLA
          * @param[in] aLinSolverManager Linear solver manager
          */
         void set_linear_solver( dla::Linear_Solver * aLinSolver );
+
+        //--------------------------------------------------------------------------------------------------
+
+        /**
+         * @brief Set the linear solver for adjoint solve
+         *
+         * @param[in] aLinSolverManager Linear solver manager
+         */
+        void set_linear_solver_for_adjoint_solve( dla::Linear_Solver * aLinSolver );
 
         //--------------------------------------------------------------------------------------------------
 

@@ -161,8 +161,16 @@ void Newton_Solver::solve_linear_system(
         moris::sint & aIter,
         bool        & aHardBreak )
 {
-    // Solve linear system
-    mLinSolverManager->solver_linear_system( mNonlinearProblem->get_linearized_problem(), aIter );
+    if( !( mMyNonLinSolverManager->get_solver_interface()->get_is_forward_analysis() ) )
+    {
+        // Solve linear system
+        mLinSolverManagerForAdjoint->solver_linear_system( mNonlinearProblem->get_linearized_problem(), aIter );
+    }
+    else
+    {
+        // Solve linear system
+        mLinSolverManager->solver_linear_system( mNonlinearProblem->get_linearized_problem(), aIter );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------------------------------
