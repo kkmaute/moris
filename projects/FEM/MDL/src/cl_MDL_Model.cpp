@@ -43,15 +43,16 @@ namespace moris
     namespace mdl
     {
         //------------------------------------------------------------------------------
-        Model::Model(       mtk::Mesh_Manager                 * aMeshManager,
-                            const uint                                aBSplineIndex,
-                            moris::Cell< fem::Set_User_Info > & aSetInfo,
-                            const moris_index                         aMeshPairIndex,
-                            const bool                                aUseMultigrid )
-                : mMeshManager( aMeshManager ),
-                  mMeshPairIndex( aMeshPairIndex ),
-                  mBSplineIndex ( aBSplineIndex ),
-                  mUseMultigrid( aUseMultigrid )
+        Model::Model(
+                mtk::Mesh_Manager                 * aMeshManager,
+                const uint                          aBSplineIndex,
+                moris::Cell< fem::Set_User_Info > & aSetInfo,
+                const moris_index                   aMeshPairIndex,
+                const bool                          aUseMultigrid )
+        : mMeshManager( aMeshManager ),
+          mMeshPairIndex( aMeshPairIndex ),
+          mBSplineIndex ( aBSplineIndex ),
+          mUseMultigrid( aUseMultigrid )
         {
             // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
             // STEP 0: initialize
@@ -66,9 +67,11 @@ namespace moris
             tic tTimer1;
 
             // build the FEM model from FEM parameter list
-            mEquationModel = std::make_shared< fem::FEM_Model >( mMeshManager,
-                                                                 mMeshPairIndex,
-                                                                 aSetInfo );
+            mEquationModel = std::make_shared< fem::FEM_Model >(
+                    mMeshManager,
+                    mMeshPairIndex,
+                    aSetInfo );
+
             if( par_rank() == 0)
             {
                 // stop timer
@@ -76,7 +79,7 @@ namespace moris
 
                 // print output
                 MORIS_LOG_INFO( "Model: created FEM model in %5.3f seconds.",
-                                ( double ) tElapsedTime / 1000 );
+                        ( double ) tElapsedTime / 1000 );
                 MORIS_LOG_INFO( " " );
             }
 
@@ -97,9 +100,10 @@ namespace moris
             }
 
             // build the model solver interface from the MSI parameter list
-            mModelSolverInterface = new moris::MSI::Model_Solver_Interface( tMSIParameters,
-                                                                            mEquationModel,
-                                                                            tInterpolationMesh );
+            mModelSolverInterface = new moris::MSI::Model_Solver_Interface(
+                    tMSIParameters,
+                    mEquationModel,
+                    tInterpolationMesh );
 
             // finalize the fem sets
             mEquationModel->finalize_equation_sets( mModelSolverInterface );
@@ -117,7 +121,7 @@ namespace moris
 
                 // print output
                 MORIS_LOG_INFO( "Model: created Model-Solver Interface in %5.3f seconds.",
-                                ( double ) tElapsedTime / 1000 );
+                        ( double ) tElapsedTime / 1000 );
                 MORIS_LOG_INFO( " " );
             }
 
@@ -131,11 +135,11 @@ namespace moris
 
         //------------------------------------------------------------------------------
         Model::Model(std::shared_ptr< Library_IO > aLibrary,
-                     const uint                          aBSplineIndex,
-                     const moris_index                   aMeshPairIndex )
-                : mMeshPairIndex( aMeshPairIndex ),
-                  mBSplineIndex( aBSplineIndex ),
-                  mLibrary( aLibrary )
+                const uint                         aBSplineIndex,
+                const moris_index                  aMeshPairIndex )
+        : mMeshPairIndex( aMeshPairIndex ),
+          mBSplineIndex( aBSplineIndex ),
+          mLibrary( aLibrary )
         {
             // start timer
             tic tTimer0;
@@ -167,22 +171,23 @@ namespace moris
 
                 // print output
                 MORIS_LOG_INFO( "Model: unpack of the inputs in %5.3f seconds.",
-                                ( double ) tElapsedTime / 1000 );
+                        ( double ) tElapsedTime / 1000 );
                 MORIS_LOG_INFO( " " );
             }
         }
 
         //------------------------------------------------------------------------------
-        Model::Model(mtk::Mesh_Manager*                  aMeshManager,
-                     const uint                                aBSplineIndex,
-                     moris::Cell< fem::Set_User_Info > & aSetInfo,
-                     MSI::Design_Variable_Interface    * aDesignVariableInterface,
-                     const moris_index                         aMeshPairIndex,
-                     const bool                                aUseMultigrid )
-                : mMeshManager( aMeshManager ),
-                  mMeshPairIndex( aMeshPairIndex ),
-                  mBSplineIndex( aBSplineIndex ),
-                  mUseMultigrid( aUseMultigrid )
+        Model::Model(
+                mtk::Mesh_Manager*                  aMeshManager,
+                const uint                          aBSplineIndex,
+                moris::Cell< fem::Set_User_Info > & aSetInfo,
+                MSI::Design_Variable_Interface    * aDesignVariableInterface,
+                const moris_index                   aMeshPairIndex,
+                const bool                          aUseMultigrid )
+        : mMeshManager( aMeshManager ),
+          mMeshPairIndex( aMeshPairIndex ),
+          mBSplineIndex( aBSplineIndex ),
+          mUseMultigrid( aUseMultigrid )
         {
             // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
             // STEP 1: create the FEM model
@@ -191,9 +196,11 @@ namespace moris
             tic tTimer1;
 
             // build the FEM model from FEM parameter list
-            mEquationModel = std::make_shared< fem::FEM_Model >( mMeshManager,
-                                                                 mMeshPairIndex,
-                                                                 aSetInfo );
+            mEquationModel = std::make_shared< fem::FEM_Model >(
+                    mMeshManager,
+                    mMeshPairIndex,
+                    aSetInfo );
+
             if( par_rank() == 0)
             {
                 // stop timer
@@ -201,7 +208,7 @@ namespace moris
 
                 // print output
                 MORIS_LOG_INFO( "Model: created FEM model in %5.3f seconds.",
-                                ( double ) tElapsedTime / 1000 );
+                        ( double ) tElapsedTime / 1000 );
                 MORIS_LOG_INFO( " " );
             }
 
@@ -219,9 +226,10 @@ namespace moris
             tMSIParameters.set( "multigrid", mUseMultigrid );
 
             // create the model solver interface from the MSI parameter list
-            mModelSolverInterface = new moris::MSI::Model_Solver_Interface( tMSIParameters,
-                                                                            mEquationModel,
-                                                                            tInterpolationMesh );
+            mModelSolverInterface = new moris::MSI::Model_Solver_Interface(
+                    tMSIParameters,
+                    mEquationModel,
+                    tInterpolationMesh );
 
             // finalize the fem sets
             // FIXME pass in the interface
@@ -240,7 +248,7 @@ namespace moris
 
                 // print output
                 MORIS_LOG_INFO( "Model: created Model-Solver Interface in %5.3f seconds.",
-                                ( double ) tElapsedTime / 1000 );
+                        ( double ) tElapsedTime / 1000 );
                 MORIS_LOG_INFO( " " );
             }
 
@@ -281,16 +289,24 @@ namespace moris
         void Model::initialize()
         {
             // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+            // STEP 0: delete model and interface
+            // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+            delete mModelSolverInterface;
+            delete mSolverInterface;
+            delete mOutputManager;
+
+            // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
             // STEP 1: create the FEM model
             // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
             // start timer
             tic tTimer1;
 
             // build the FEM model from FEM parameter list
-            mEquationModel = std::make_shared< fem::FEM_Model >( mMeshManager,
-                                                                 mMeshPairIndex,
-                                                                 mFEMParameterList,
-                                                                 mLibrary );
+            mEquationModel = std::make_shared< fem::FEM_Model >(
+                    mMeshManager,
+                    mMeshPairIndex,
+                    mFEMParameterList,
+                    mLibrary );
 
             if( par_rank() == 0)
             {
@@ -299,7 +315,7 @@ namespace moris
 
                 // print output
                 MORIS_LOG_INFO( "Model: created FEM model in %5.3f seconds.",
-                                ( double ) tElapsedTime / 1000 );
+                        ( double ) tElapsedTime / 1000 );
                 MORIS_LOG_INFO( " " );
             }
 
@@ -316,9 +332,11 @@ namespace moris
             MORIS_ERROR( tInterpolationMesh->get_mesh_type() != MeshType::STK, "Does not work for STK");
 
             // build the model solver interface
-            mModelSolverInterface = new moris::MSI::Model_Solver_Interface( mMSIParameterList( 0 )( 0 ),
-                                                                            mEquationModel,
-                                                                            tInterpolationMesh );
+
+            mModelSolverInterface = new moris::MSI::Model_Solver_Interface(
+                    mMSIParameterList( 0 )( 0 ),
+                    mEquationModel,
+                    tInterpolationMesh );
 
             // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
             // STEP 3: create the solver interface
@@ -344,8 +362,8 @@ namespace moris
                 real tElapsedTime = tTimerSolver.toc<moris::chronos::milliseconds>().wall;
 
                 // print output
-                MORIS_LOG_INFO( "Model: created Solver Warehouse in %5.3f seconds.\n\n",
-                                ( double ) tElapsedTime / 1000 );
+                MORIS_LOG_INFO( "Model: created Solver Warehouse in %5.3f seconds.",
+                        ( double ) tElapsedTime / 1000 );
             }
 
             // finalize the model solver interface
@@ -361,7 +379,7 @@ namespace moris
 
                 // print output
                 MORIS_LOG_INFO( "Model: created Model-Solver Interface in %5.3f seconds.",
-                                ( double ) tElapsedTime / 1000 );
+                        ( double ) tElapsedTime / 1000 );
                 MORIS_LOG_INFO( " " );
             }
 
@@ -384,8 +402,8 @@ namespace moris
                 real tElapsedTime = tTimerVisMesh.toc<moris::chronos::milliseconds>().wall;
 
                 // print output
-                MORIS_LOG_INFO( "Model: created Vis Mesh in %5.3f seconds.\n\n",
-                                ( double ) tElapsedTime / 1000 );
+                MORIS_LOG_INFO( "Model: created Vis Mesh in %5.3f seconds.",
+                        ( double ) tElapsedTime / 1000 );
             }
         }
 
@@ -473,10 +491,11 @@ namespace moris
                 for( uint k=0; k<tNumberOfNodes; ++k )
                 {
                     // copy weak bc into element
-                    tNodalWeakBCs( k ) = mMeshManager->get_interpolation_mesh( mMeshPairIndex )
-                                                     ->get_value_of_scalar_field( aFieldIndex,
-                                                                                  EntityRank::NODE,
-                                                                                  tElement->get_node_index( k ) );
+                    tNodalWeakBCs( k ) = mMeshManager->get_interpolation_mesh( mMeshPairIndex ) ->
+                            get_value_of_scalar_field(
+                                    aFieldIndex,
+                                    EntityRank::NODE,
+                                    tElement->get_node_index( k ) );
                 }
             }
         }
@@ -489,19 +508,21 @@ namespace moris
 
         //------------------------------------------------------------------------------
         void Model::output_solution( const uint aVisMeshIndex,
-                                     const real aTime,
-                                     const bool aCloseFile )
+                const real aTime,
+                const bool aCloseFile )
         {
             // create vis mesh and setup output
-            mOutputManager->setup_vis_mesh_for_output(aVisMeshIndex,
-                                                      mMeshManager,
-                                                      mMeshPairIndex,
-                                                      mEquationModel );
+            mOutputManager->setup_vis_mesh_for_output(
+                    aVisMeshIndex,
+                    mMeshManager,
+                    mMeshPairIndex,
+                    mEquationModel );
 
             // write requested fields
-            mOutputManager->write_field( aVisMeshIndex,
-                                         aTime,
-                                         mEquationModel );
+            mOutputManager->write_field(
+                    aVisMeshIndex,
+                    aTime,
+                    mEquationModel );
 
             if( aCloseFile )
             {
