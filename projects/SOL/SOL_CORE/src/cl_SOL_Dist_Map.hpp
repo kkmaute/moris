@@ -40,6 +40,7 @@ namespace moris
                 /** Destructor */
                 virtual ~Dist_Map()
                 {};
+
                 // ----------------------------------------------------------------------------------------------------------------------
 
                 virtual moris::sint return_local_ind_of_global_Id( moris::uint aGlobalId ) const = 0;
