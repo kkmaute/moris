@@ -1,6 +1,11 @@
 // MORIS
 #include "cl_OPT_Algorithm_GCMMA.hpp"
 
+// Logger package
+#include "cl_Logger.hpp"
+#include "cl_Tracer.hpp"
+#include "cl_Tracer_Enums.hpp"
+
 // Third party header files
 #include "optalggcmmacall.hpp"
 #include "mma.hpp"
@@ -31,6 +36,9 @@ OptAlgGCMMA::~OptAlgGCMMA()
 
 void OptAlgGCMMA::solve(std::shared_ptr<moris::opt::Problem> aOptProb )
 {
+    // Trace optimization
+    Tracer tTracer(EntityBase::OptimizationAlgorithm, EntityType::GCMMA, EntityAction::Solve);
+
     mProblem = aOptProb; // set the member variable mProblem to aOptProb
 
     // Note that these pointers are deleted by the the Arma and Eigen
@@ -91,6 +99,9 @@ void opt_alg_gcmma_func_wrap(
         double&      aObjval,
         double*      aConval )
 {
+    // Log iteration of optimization
+    MORIS_LOG_ITERATION();
+
     // Update the ADV matrix
     Matrix<DDRMat> tADVs(aAdv, aOptAlgGCMMA->mProblem->get_num_advs(), 1);
     aOptAlgGCMMA->mProblem->set_advs(tADVs);
