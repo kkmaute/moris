@@ -134,9 +134,9 @@ void Monolithic_Time_Solver::solve_implicit_DqDs( moris::Cell< sol::Dist_Vector 
 
         MORIS_LOG_INFO ((tOrnament+tTimeInfo+tOrnament).c_str());
 
-        mNonlinearSolver->set_time_step_iter( Ik );
+        mNonlinearSolverForAdjoint->set_time_step_iter( Ik );
 
-        mNonlinearSolver->solve( aFullAdjointVector( 0 ) );
+        mNonlinearSolverForAdjoint->solve( aFullAdjointVector( 0 ) );
 
         mSolverInterface->postmultiply_implicit_dQds();
 
