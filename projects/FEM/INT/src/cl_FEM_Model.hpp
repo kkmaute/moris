@@ -310,6 +310,10 @@ namespace moris
              */
             void create_fem_set_info();
 
+            void create_fem_set_info(
+                    std::map< std::string, uint >            & aIWGMap,
+                    std::map< std::string, uint >            & aIQIMap );
+
             //------------------------------------------------------------------------------
 
             /**

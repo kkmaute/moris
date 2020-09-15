@@ -338,8 +338,20 @@ namespace moris
             std::map< std::string, uint > tIQIMap;
             this->create_IQIs( tIQIMap, tPropertyMap, tCMMap, tSPMap, tMSIDofTypeMap, tMSIDvTypeMap );
 
+            // FIXME temporary to keep both options
             // create fem set info
-            this->create_fem_set_info();
+            if( mParameterList.size() == 6 )
+            {
+                this->create_fem_set_info();
+            }
+            else if( mParameterList.size() == 7 )
+            {
+                this->create_fem_set_info( tIWGMap, tIQIMap );
+            }
+            else
+            {
+                MORIS_ERROR( false, "FEM_Model::initialize - wrong size for parameter list" );
+            }
         }
 
         //------------------------------------------------------------------------------
@@ -1369,6 +1381,261 @@ namespace moris
             }
 
             // debug print
+            if( tPrintPhysics )
+            {
+                for( uint iSet = 0; iSet < mSetInfo.size(); iSet++ )
+                {
+                    mSetInfo( iSet ).print_names();
+                }
+            }
+        }
+
+        //------------------------------------------------------------------------------
+
+        void FEM_Model::create_fem_set_info(
+                std::map< std::string, uint > & aIWGMap,
+                std::map< std::string, uint > & aIQIMap )
+        {
+            // get fem computation type parameter list
+            ParameterList tComputationParameterList = mParameterList( 6 )( 0 );
+
+            // get bool for printing physics model
+            bool tPrintPhysics =
+                    tComputationParameterList.get< bool >( "print_physics_model" );
+
+            // get bool for analytical/finite differenec for SA
+            bool tIsAnalyticalSA =
+                    tComputationParameterList.get< bool >( "is_analytical_sensitivity" );
+
+            // get enum for FD scheme
+            fem::FDScheme_Type tFDSchemeForSA = static_cast< fem::FDScheme_Type >(
+                    tComputationParameterList.get< uint >( "finite_difference_scheme" ) );
+
+            // get perturbation size for FD
+            real tFDPerturbation = tComputationParameterList.get< real >(
+                    "finite_difference_perturbation_size" );
+
+            // create a map of the set
+            std::map< std::tuple< std::string, bool, bool >, uint > tMeshtoFemSet;
+
+            // get the IWG and IQI parameter lists
+            moris::Cell< ParameterList > tIWGParameterList = mParameterList( 3 );
+            moris::Cell< ParameterList > tIQIParameterList = mParameterList( 4 );
+
+            // get fem computation type parameter list
+            moris::Cell< ParameterList > tPhaseParameterList = mParameterList( 5 );
+
+            // get number of phases
+            uint tNumPhases = tPhaseParameterList.size();
+
+            // init fem sets counter
+            uint tNumFEMSets = 0;
+
+            // loop over the phases
+            for( uint iPhase = 0; iPhase < tNumPhases; iPhase++ )
+            {
+                //                // FIXME use this with mesh
+                //                // get the phase type
+                //                fem::Element_Type tPhaseType =
+                //                        static_cast< fem::Element_Type >( tPhaseParameterList( iPhase ).get< uint >( "phase_type" ) );
+                //
+                //                // get the phase index
+                //                uint tPhaseIndex =
+                //                        tPhaseParameterList( iPhase ).get< uint >( "phase_index" );
+
+                // get the mesh set names from mesh
+                // FIXME need access from mesh
+                moris::Cell< std::string > tMeshSetNames;
+                string_to_cell( tPhaseParameterList( iPhase ).get< std::string >( "mesh_set_names" ), tMeshSetNames );
+
+                // get the number of mesh sets
+                uint tNumMeshSets = tMeshSetNames.size();
+
+                // get IWG names
+                moris::Cell< std::string > tIWGNames;
+                string_to_cell( tPhaseParameterList( iPhase ).get< std::string >( "IWG_names"), tIWGNames );
+
+                // get IQI names
+                moris::Cell< std::string > tIQINames;
+                string_to_cell( tPhaseParameterList( iPhase ).get< std::string >( "IQI_names"), tIQINames );
+
+                // get the number of IWGs and IQIs
+                uint tNumIWGs = tIWGNames.size();
+                uint tNumIQIs = tIQINames.size();
+
+                // loop over the mesh set names
+                for( uint iSetName = 0; iSetName < tNumMeshSets; iSetName++ )
+                {
+                    // get treated mesh set name
+                    std::string tTreatedMeshSetName = tMeshSetNames( iSetName );
+
+                    // loop over the IWGs
+                    for( uint iIWG = 0; iIWG < tNumIWGs; iIWG++ )
+                    {
+                        // get the IWG name
+                        std::string tTreatedIWGName = tIWGNames( iIWG );
+
+                        // get the time continuity flag from the IWG parameter list
+                        bool tTimeContinuity = tIWGParameterList( iIWG ).get< bool >( "time_continuity" );
+
+                        // get the time boundary flag from the IQI parameter list
+                        bool tTimeBoundary = tIWGParameterList( iIWG ).get< bool >( "time_boundary" );
+
+                        // get treated IWG
+                        std::shared_ptr< fem::IWG > tTreatedIWG;
+                        if ( aIWGMap.find( tTreatedIWGName ) != aIWGMap.end() )
+                        {
+                            // get IWG index in list of IWG pointers
+                            uint tIWGIndex = aIWGMap[ tTreatedIWGName ];
+
+                            // set treated IWG from list of IWG pointers
+                            tTreatedIWG = mIWGs( tIWGIndex );
+                        }
+                        else
+                        {
+                            // create error message
+                            std::string tErrMsg =
+                                    "FEM_Model::create_fem_set_info - Unknown tTreatedIWGName: " +
+                                    tTreatedIWGName;
+
+                            // error
+                            MORIS_ERROR( false , tErrMsg.c_str() );
+                        }
+
+                        // check if the mesh set name already in map
+                        if( tMeshtoFemSet.find( std::make_tuple(
+                                tTreatedMeshSetName,
+                                tTimeContinuity,
+                                tTimeBoundary ) ) == tMeshtoFemSet.end() )
+                        {
+                            // add the mesh set name map
+                            tMeshtoFemSet[ std::make_tuple(
+                                    tTreatedMeshSetName,
+                                    tTimeContinuity,
+                                    tTimeBoundary ) ] = tNumFEMSets++;
+
+                            // create a fem set info for the mesh set
+                            Set_User_Info aSetUserInfo;
+
+                            // set its mesh set name
+                            aSetUserInfo.set_mesh_set_name( tTreatedMeshSetName );
+
+                            // set its time continuity flag
+                            aSetUserInfo.set_time_continuity( tTimeContinuity );
+
+                            // set its time boundary flag
+                            aSetUserInfo.set_time_boundary( tTimeBoundary );
+
+                            // set its sensitivity analysis type flag
+                            aSetUserInfo.set_is_analytical_sensitivity_analysis( tIsAnalyticalSA );
+
+                            // set its FD scheme for sensitivity analysis
+                            aSetUserInfo.set_finite_difference_scheme_for_sensitivity_analysis( tFDSchemeForSA );
+
+                            // set its FD perturbation size for sensitivity analysis
+                            aSetUserInfo.set_finite_difference_perturbation_size( tFDPerturbation );
+
+                            // set the IWG
+                            aSetUserInfo.set_IWG( tTreatedIWG );
+
+                            // add it to the list of fem set info
+                            mSetInfo.push_back( aSetUserInfo );
+                        }
+                        else
+                        {
+                            // set the IWG
+                            mSetInfo( tMeshtoFemSet[ std::make_tuple(
+                                    tMeshSetNames( iSetName ),
+                                    tTimeContinuity,
+                                    tTimeBoundary ) ] ).set_IWG( tTreatedIWG );
+                        }
+                    }
+
+                    // loop over the IQIs
+                    for( uint iIQI = 0; iIQI < tNumIQIs; iIQI++ )
+                    {
+                        // get the IWG name
+                        std::string tTreatedIQIName = tIQINames( iIQI );
+
+                        // get the time continuity flag from the IQI parameter list
+                        bool tTimeContinuity = tIQIParameterList( iIQI ).get< bool >( "time_continuity" );
+
+                        // get the time boundary flag from the IQI parameter list
+                        bool tTimeBoundary = tIQIParameterList( iIQI ).get< bool >( "time_boundary" );
+
+                        // get treated IQI
+                        std::shared_ptr< fem::IQI > tTreatedIQI;
+                        if ( aIQIMap.find( tTreatedIQIName ) != aIQIMap.end() )
+                        {
+                            // get IQI index in list of IQI pointers
+                            uint tIQIIndex = aIQIMap[ tTreatedIQIName ];
+
+                            // set treated IQI from list of IQI pointers
+                            tTreatedIQI = mIQIs( tIQIIndex );
+                        }
+                        else
+                        {
+                            // create error message
+                            std::string tErrMsg =
+                                    "FEM_Model::create_fem_set_info - Unknown tTreatedIQIName: " +
+                                    tTreatedIQIName;
+
+                            // error
+                            MORIS_ERROR( false , tErrMsg.c_str() );
+                        }
+
+                        // check if the mesh set name already in map
+                        if( tMeshtoFemSet.find( std::make_tuple(
+                                tTreatedMeshSetName,
+                                tTimeContinuity,
+                                tTimeBoundary ) ) == tMeshtoFemSet.end() )
+                        {
+                            // add the mesh set name map
+                            tMeshtoFemSet[ std::make_tuple(
+                                    tTreatedMeshSetName,
+                                    tTimeContinuity,
+                                    tTimeBoundary ) ] = tNumFEMSets++;
+
+                            // create a fem set info for the mesh set
+                            Set_User_Info aSetUserInfo;
+
+                            // set its mesh set name
+                            aSetUserInfo.set_mesh_set_name( tTreatedMeshSetName );
+
+                            // set its time continuity flag
+                            aSetUserInfo.set_time_continuity( tTimeContinuity );
+
+                            // set its time boundary flag
+                            aSetUserInfo.set_time_boundary( tTimeBoundary );
+
+                            // set its sensitivity analysis type flag
+                            aSetUserInfo.set_is_analytical_sensitivity_analysis( tIsAnalyticalSA );
+
+                            // set its FD scheme for sensitivity analysis
+                            aSetUserInfo.set_finite_difference_scheme_for_sensitivity_analysis( tFDSchemeForSA );
+
+                            // set its FD perturbation size for sensitivity analysis
+                            aSetUserInfo.set_finite_difference_perturbation_size( tFDPerturbation );
+
+                            // set the IWG
+                            aSetUserInfo.set_IQI( tTreatedIQI );
+
+                            // add it to the list of fem set info
+                            mSetInfo.push_back( aSetUserInfo );
+                        }
+                        else
+                        {
+                            // set the IWG
+                            mSetInfo( tMeshtoFemSet[ std::make_tuple(
+                                    tMeshSetNames( iSetName ),
+                                    tTimeContinuity,
+                                    tTimeBoundary ) ] ).set_IQI( tTreatedIQI );
+                        }
+                    }
+                }
+            }
+
+            // debug print for fem sets
             if( tPrintPhysics )
             {
                 for( uint iSet = 0; iSet < mSetInfo.size(); iSet++ )
