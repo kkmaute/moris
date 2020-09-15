@@ -2622,8 +2622,8 @@ namespace moris
             mSetNodalCounter.set_size( (*mSetNodalValues).numel(), 1, 0 );
 
             mSetElementalValues->set_size( mMtkIgCellOnSet( aMeshIndex ), 1, 0.0 );
-			
-			// check if this set has the requested IQI
+
+            // check if this set has the requested IQI
             if( mIQINameToIndexMap.key_exists( aQIName ) )
             {
                 for( uint Ik = 0; Ik < mEquationObjList.size(); Ik++ )
@@ -2642,7 +2642,7 @@ namespace moris
                         (*mSetNodalValues)(Ik) = (*mSetNodalValues)(Ik)/mSetNodalCounter(Ik);
                     }
                 }
-			}
+            }
         }
 
         //------------------------------------------------------------------------------
