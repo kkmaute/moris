@@ -203,7 +203,7 @@
 //
 //
 //            size_t tModelDimension = 3;
-//            moris::ge::Phase_Table tPhaseTable (tGeometryVector.size(), moris::ge::Phase_Table_Structure::EXP_BASE_2);
+//            moris::ge::Phase_Table tPhaseTable (tGeometryVector.size());
 //            moris::ge::Geometry_Engine tGeometryEngine(tGeometryVector,tPhaseTable,tModelDimension);
 //            xtk::Model tXTKModel(tModelDimension,tInterpMesh,&tGeometryEngine);
 //            tXTKModel.mVerbose  =  true;

@@ -16,87 +16,6 @@ using namespace moris;
 namespace xtk
 {
 
-TEST_CASE("Autogenerate Exponential Base 2 Table","[AUTO_PHASE_TABLE]")
-{
-    Phase_Table tPhaseTable (3, Phase_Table_Structure::EXP_BASE_2);
-
-
-    Matrix< IndexMat > tExpectedPhaseTableData (
-            {{0,0,0},
-        {0,0,1},
-        {0,1,0},
-        {0,1,1},
-        {1,0,0},
-        {1,0,1},
-        {1,1,0},
-        {1,1,1}});
-
-    CHECK(all_true(tExpectedPhaseTableData == tPhaseTable.get_phase_table_data()));
-}
-TEST_CASE("2 Nonintersecting geometries","[2_Phase],[NO_OVER]")
-{
-
-    // FIXME: THIS EXAMPLE IS NOT HANDLING AN MPI CALL CORRECTLY
-    //    Matrix< IndexMat > tPhaseTableData (
-    //            {{0,0},
-    //             {0,1},
-    //             {1,0},
-    //             {1,1}});
-    //
-    //    Cell<std::string> tPhaseNames = {"m0","m1","m2","m3"};
-    //
-    //    // Geometry Engine Setup -----------------------
-    //    // Using a 2 Levelset Spheres as the Geometry
-    //    real tRadius1  = 2.70;
-    //    real tXCenter1 = 4.51;
-    //    real tYCenter1 = 4.51;
-    //    real tZCenter1 = 4.51;
-    //    Sphere tLevelsetSphere1(tRadius1, tXCenter1, tYCenter1, tZCenter1);
-    //
-    //    real tRadius2  = 2.80;
-    //    real tXCenter2 = 4.51;
-    //    real tYCenter2 = 4.51;
-    //    real tZCenter2 = 5.51;
-    //    Sphere tLevelsetSphere2(tRadius2, tXCenter2, tYCenter2, tZCenter2);
-    //
-    //
-    //    Phase_Table tPhaseTable (2,  Phase_Table_Structure::EXP_BASE_2);
-    //    Geometry_Engine tGeometryEngine(
-    //        {&tLevelsetSphere1,
-    //         &tLevelsetSphere2},
-    //        tPhaseTable);
-    //
-    //    // Create Mesh ---------------------------------
-    //    std::string tMeshFileName = "generated:10x10x10";
-    //    moris::mtk::Mesh* tMeshData = moris::mtk::create_interpolation_mesh( MeshType::STK, tMeshFileName );
-    //
-    //    // Setup XTK Model -----------------------------
-    //    size_t tModelDimension = 3;
-    //    Model tXTKModel(tModelDimension,tMeshData,tGeometryEngine);
-    //
-    //    tXTKModel.mVerbose=true;
-    //
-    //    //Specify your decomposition methods and start cutting
-    //    Cell<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8, Subdivision_Method::C_HIERARCHY_TET4};
-    //    tXTKModel.decompose(tDecompositionMethods);
-    //
-    //    Output_Options tOutputOptions;
-    //
-    //    // Write output mesh
-    //    moris::mtk::Mesh* tCutMeshData = tXTKModel.get_output_mesh();
-    //
-    //    std::string tPrefix = std::getenv("MORISOUTPUT");
-    //    std::string tMeshOutputFile = tPrefix + "/unit_recursive_no_intersect.e";
-    //    tCutMeshData->create_output_mesh(tMeshOutputFile);
-    //
-    //
-    //    delete tMeshData;
-    //    delete tCutMeshData;
-
-
-}
-
-
 TEST_CASE("2 Intersecting Geometries","[2_Phase][OVER]")
 {
 
@@ -140,7 +59,7 @@ TEST_CASE("2 Intersecting Geometries","[2_Phase][OVER]")
         Plane<3> tPlane3(tXc3,tYc3,tZc3,tXn3,tYn3,tZn3);
 
 
-        Phase_Table tPhaseTable (3,  Phase_Table_Structure::EXP_BASE_2);
+        Phase_Table tPhaseTable (3);
         Geometry_Engine tGeometryEngine({&tPlane1, &tPlane2,&tPlane3},tPhaseTable);
 
         // Create Mesh ---------------------------------

@@ -32,9 +32,10 @@ namespace moris
 
     // ----------------------------------------------------------------------------------
     void
-    Memory_Map::print()
+    Memory_Map::print(std::string const & aTitle)
     {
         std::cout<<"\n----------------------------------------------------------------------------------\n";
+        std::cout<<" Memory Map Name: "<<aTitle<<"\n";
         size_t tTotal = 0;
         size_t tWidth = 0;
         moris::real tTotalPercent = 0.0;
@@ -83,7 +84,7 @@ namespace moris
     // ----------------------------------------------------------------------------------
 
     void
-    Memory_Map::par_print()
+    Memory_Map::par_print(std::string const & aTitle)
     {
         // get all the memory maps onto this proc
         Cell<Memory_Map> tGatheredMM;
@@ -105,9 +106,9 @@ namespace moris
                 tFullMM = tFullMM + tGatheredMM(i);
             }
             moris::real tTotalPercent = 0.0;
-
+        
             // print the full map
-            tFullMM.print();
+            tFullMM.print(aTitle);
 
             // Header
             std::cout << std::setw(16) << "Proc Rank"

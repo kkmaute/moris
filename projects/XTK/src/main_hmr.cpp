@@ -141,7 +141,7 @@ main(
     tGeometryVector(0) = std::make_shared<ge::User_Defined_Geometry>(Matrix<DDRMat>(0, 0), &(LevelSetFunctionGeometry));
 
     // Tell the geometry engine about the discrete field mesh and how to interpret phases
-    moris::ge::Phase_Table tPhaseTable (1, moris::ge::Phase_Table_Structure::EXP_BASE_2);
+    moris::ge::Phase_Table tPhaseTable (1);
     moris::ge::Geometry_Engine tGeometryEngine(tGeometryVector,tPhaseTable,tInterpMesh);
 
     // Tell the XTK model that it should decompose with a C_HIERARCHY_TET4, on the same mesh that the level set field is defined on.

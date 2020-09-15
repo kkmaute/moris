@@ -156,7 +156,7 @@ TEST_CASE("Sensitivity test","[Sensitivity test]")
 //            tGeomVec(0) = std::make_shared<moris::ge::Circle>(tCenterPoint(0), tCenterPoint(1), tROuter);
 //            tGeomVec(1) = std::make_shared<moris::ge::Circle>(tCenterPoint(0), tCenterPoint(1), tRInner);
 //
-//            moris::ge::Phase_Table     tPhaseTable( tGeomVec.size(), moris::ge::Phase_Table_Structure::EXP_BASE_2 );
+//            moris::ge::Phase_Table     tPhaseTable( tGeomVec.size() );
 //            moris::ge::Geometry_Engine tGENGeometryEngine( tGeomVec, tPhaseTable, 2 );
 //
 //            moris_index tMeshIndex = tGENGeometryEngine.register_mesh( tMesh );
@@ -202,7 +202,7 @@ TEST_CASE("Sensitivity test","[Sensitivity test]")
                                                                             &evaluate_sensitivity);
 
         size_t tModelDimension = 2;
-        moris::ge::Phase_Table tPhaseTable (1, moris::ge::Phase_Table_Structure::EXP_BASE_2);
+        moris::ge::Phase_Table tPhaseTable (1);
         moris::ge::Geometry_Engine tGeometryEngine(tGeometryVector,tPhaseTable,tModelDimension);
         xtk::Model tXTKModel(tModelDimension,tInterpMesh,&tGeometryEngine);
         tXTKModel.mVerbose = false;

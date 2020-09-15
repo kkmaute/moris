@@ -147,7 +147,7 @@ namespace xtk
             xtk::Mesh_Field_Geometry tLevelSetMesh(tMeshData,{tLSFName});
 
             // Tell the geometry engine about the discrete field mesh and how to interpret phases
-            Phase_Table tPhaseTable (1,  Phase_Table_Structure::EXP_BASE_2);
+            Phase_Table tPhaseTable (1);
             Geometry_Engine tGeometryEngine(tLevelSetMesh,tPhaseTable);
 
 

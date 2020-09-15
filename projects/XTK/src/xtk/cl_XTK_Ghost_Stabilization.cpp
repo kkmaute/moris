@@ -417,10 +417,10 @@ namespace xtk
                 tTMatrixOffsets);
 
         // send information
-        mXTKModel->return_request_answers_reals(tMPITag+3, tTMatrixWeights, tProcsReceivedFrom1);
-        mXTKModel->return_request_answers(tMPITag+4, tTMatrixIndices, tProcsReceivedFrom1);
-        mXTKModel->return_request_answers(tMPITag+5, tTMatrixOwners, tProcsReceivedFrom1);
-        mXTKModel->return_request_answers(tMPITag+6, tTMatrixOffsets, tProcsReceivedFrom1);
+        mXTKModel->return_request_answers_reals( tMPITag+3, tTMatrixWeights, tProcsReceivedFrom1);
+        mXTKModel->return_request_answers( tMPITag+4, tTMatrixIndices, tProcsReceivedFrom1);
+        mXTKModel->return_request_answers( tMPITag+5, tTMatrixOwners, tProcsReceivedFrom1);
+        mXTKModel->return_request_answers( tMPITag+6, tTMatrixOffsets, tProcsReceivedFrom1);
 
         // wait
         barrier();

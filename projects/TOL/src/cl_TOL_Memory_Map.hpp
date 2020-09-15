@@ -40,7 +40,7 @@ namespace moris
         * @brief Print the memory usage of the map
         */
         void
-        print();
+        print(std::string const & aTitle);
 
         // ----------------------------------------------------------------------------------
  
@@ -48,7 +48,7 @@ namespace moris
         * @brief Parallel print the memory usage of the map
         */
         void
-        par_print();
+        par_print( std::string const & aTitle );
 
         // ----------------------------------------------------------------------------------
  

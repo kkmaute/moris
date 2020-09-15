@@ -299,7 +299,7 @@ namespace moris
                 tGeometry(0) = create_geometry(tCircleParameterList, tADVs);
 
                 // Create geometry engine
-                Phase_Table tPhaseTable (1, Phase_Table_Structure::EXP_BASE_2);
+                Phase_Table tPhaseTable (1);
                 Geometry_Engine tGeometryEngine(tGeometry, tPhaseTable, tMesh);
 
                 // Check values

@@ -186,7 +186,7 @@ TEST_CASE("XTK HMR Test","[XTK_HMR]")
             tGeometryVector(0) = std::make_shared<moris::ge::User_Defined_Geometry>(Matrix<DDRMat>(0, 0), &(LevelSetSphereCylinderGeometry));
 
             size_t tModelDimension = 3;
-            moris::ge::Phase_Table tPhaseTable (1, moris::ge::Phase_Table_Structure::EXP_BASE_2);
+            moris::ge::Phase_Table tPhaseTable (tGeometryVector.size());
             moris::ge::Geometry_Engine tGeometryEngine(tGeometryVector,tPhaseTable,tInterpMesh);
             xtk::Model tXTKModel(tModelDimension,tInterpMesh,&tGeometryEngine);
             tXTKModel.mVerbose  =  true;

@@ -108,7 +108,7 @@ namespace moris
             std::string tMeshFileName = "generated:1x1x4|sideset:z";
             moris::mtk::Interpolation_Mesh* tInterpMesh1 = moris::mtk::create_interpolation_mesh( MeshType::STK, tMeshFileName, &tMeshData );
 
-            moris::ge::Phase_Table tPhaseTable (1,  "exp_base_2");
+            moris::ge::Phase_Table tPhaseTable (1);
             moris::ge::Geometry_Engine tGeometryEngine(tGeometry, tPhaseTable, tInterpMesh1);
 
             // Setup XTK Model ----------------------------------------------------------------
@@ -384,7 +384,7 @@ namespace moris
             std::string tMeshFileName = "generated:1x1x4|sideset:z";
             moris::mtk::Interpolation_Mesh* tInterpMesh1 = moris::mtk::create_interpolation_mesh( MeshType::STK, tMeshFileName, &tMeshData );
 
-            ge::Phase_Table tPhaseTable (1,  ge::Phase_Table_Structure::EXP_BASE_2);
+            ge::Phase_Table tPhaseTable (1);
             ge::Geometry_Engine tGeometryEngine(tGeometryVector, tPhaseTable, tInterpMesh1);
 
             // Setup XTK Model ----------------------------------------------------------------

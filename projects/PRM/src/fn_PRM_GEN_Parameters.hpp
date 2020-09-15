@@ -37,7 +37,7 @@ namespace moris
 
             // Phase table
             tParameterList.insert("phase_table", ""); // Construct phase table directly
-            tParameterList.insert("phase_table_structure", "exp_base_2"); // Phase table structure (if not using phase_table)
+            tParameterList.insert("print_phase_table", false); // print the phase table
 
             return tParameterList;
         }

@@ -408,7 +408,7 @@ TEST_CASE("MDL FEM Benchmark Diff Interface","[MDL_FEM_Benchmark_Diff_Interface]
         tGeometryVector(0) = std::make_shared<moris::ge::Plane>(2.6, 0.0, 1.0, 0.0);
 
         size_t tModelDimension = 3;
-        moris::ge::Phase_Table  tPhaseTable( tGeometryVector.size(), moris::ge::Phase_Table_Structure::EXP_BASE_2 );
+        moris::ge::Phase_Table  tPhaseTable( tGeometryVector.size() );
         moris::ge::Geometry_Engine  tGeometryEngine( tGeometryVector, tPhaseTable, tInterpMesh );
 
         xtk::Model tXTKModel( tModelDimension,tInterpMesh,&tGeometryEngine );
@@ -720,7 +720,7 @@ TEST_CASE("MDL FEM Benchmark Diff Ghost","[MDL_FEM_Benchmark_Diff_Ghost]")
         tGeometryVector(0) = std::make_shared<moris::ge::Plane>(2.6, 0.0, 1.0, 0.0);
 
         size_t tModelDimension = 3;
-        moris::ge::Phase_Table  tPhaseTable( tGeometryVector.size(), moris::ge::Phase_Table_Structure::EXP_BASE_2 );
+        moris::ge::Phase_Table  tPhaseTable( tGeometryVector.size());
         moris::ge::Geometry_Engine  tGeometryEngine( tGeometryVector, tPhaseTable, tInterpMesh );
 
         xtk::Model tXTKModel( tModelDimension,tInterpMesh,&tGeometryEngine );
@@ -1288,7 +1288,7 @@ TEST_CASE("MDL FEM Benchmark Elast Interface","[MDL_FEM_Benchmark_Elast_Interfac
         tGeometryVector(0) = std::make_shared<moris::ge::Plane>(2.6, 0.0, 1.0, 0.0);
 
         size_t tModelDimension = 3;
-        moris::ge::Phase_Table  tPhaseTable( tGeometryVector.size(), moris::ge::Phase_Table_Structure::EXP_BASE_2 );
+        moris::ge::Phase_Table  tPhaseTable( tGeometryVector.size());
         moris::ge::Geometry_Engine  tGeometryEngine( tGeometryVector, tPhaseTable, tInterpMesh );
 
         xtk::Model tXTKModel( tModelDimension, tInterpMesh, &tGeometryEngine );
@@ -1612,7 +1612,7 @@ TEST_CASE("MDL FEM Benchmark Elast Ghost","[MDL_FEM_Benchmark_Elast_Ghost]")
         tGeometryVector(0) = std::make_shared<moris::ge::Plane>(2.6, 0.0, 1.0, 0.0);
 
         size_t tModelDimension = 3;
-        moris::ge::Phase_Table  tPhaseTable( tGeometryVector.size(), moris::ge::Phase_Table_Structure::EXP_BASE_2 );
+        moris::ge::Phase_Table  tPhaseTable( tGeometryVector.size());
         moris::ge::Geometry_Engine  tGeometryEngine( tGeometryVector, tPhaseTable, tInterpMesh );
 
         xtk::Model tXTKModel( tModelDimension, tInterpMesh, &tGeometryEngine );

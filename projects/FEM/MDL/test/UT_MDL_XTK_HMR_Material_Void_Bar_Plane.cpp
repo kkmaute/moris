@@ -156,7 +156,7 @@ TEST_CASE("XTK HMR Material Void Bar Intersected By Plane","[XTK_HMR_PLANE_BAR_M
         tGeometryVector(0) = std::make_shared<moris::ge::Plane>(0.9545459, 0.11, 1.0, 0.0);
 
         size_t tModelDimension = 2;
-        moris::ge::Phase_Table tPhaseTable (1, moris::ge::Phase_Table_Structure::EXP_BASE_2);
+        moris::ge::Phase_Table tPhaseTable (1);
         moris::ge::Geometry_Engine tGeometryEngine(tGeometryVector, tPhaseTable, tInterpMesh);
         xtk::Model tXTKModel(tModelDimension, tInterpMesh, &tGeometryEngine);
         tXTKModel.mVerbose = false;

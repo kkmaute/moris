@@ -281,7 +281,7 @@ TEST_CASE("MDL Gyroid","[MDL_Gyroid]")
         moris::Cell<moris::ge::GEN_Geometry*> tGeometryVector = {&tFieldAsGeom};
 
         size_t tModelDimension = 3;
-        moris::ge::GEN_Phase_Table  tPhaseTable( tGeometryVector.size(),  Phase_Table_Structure::EXP_BASE_2 );
+        moris::ge::GEN_Phase_Table  tPhaseTable( tGeometryVector.size() );
         moris::ge::Geometry_Engine  tGeometryEngine( tGeometryVector,tPhaseTable,tModelDimension );
 
 //        moris::ge::Geometry_Engine tGeometryEngine;

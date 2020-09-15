@@ -63,7 +63,7 @@ TEST_CASE("2D Regular Subdivision Method","[RSM_2D_Lin]")
 
         moris::mtk::Interpolation_Mesh* tMeshData = moris::mtk::create_interpolation_mesh( MeshType::STK, aMeshData );
 
-        moris::ge::Phase_Table tPhaseTable (1, moris::ge::Phase_Table_Structure::EXP_BASE_2);
+        moris::ge::Phase_Table tPhaseTable (1);
         moris::ge::Geometry_Engine tGeometryEngine(tGeometry, tPhaseTable, tMeshData);
 
         // Setup XTK Model -----------------------------
@@ -147,7 +147,7 @@ TEST_CASE("2D Conformal Subdivision","[CM_2D_LIN]")
 
         moris::mtk::Interpolation_Mesh* tMeshData = moris::mtk::create_interpolation_mesh( MeshType::STK, aMeshData );
 
-        moris::ge::Phase_Table tPhaseTable (1, moris::ge::Phase_Table_Structure::EXP_BASE_2);
+        moris::ge::Phase_Table tPhaseTable (1);
         moris::ge::Geometry_Engine tGeometryEngine(tGeometry, tPhaseTable, tMeshData);
 
 
@@ -230,7 +230,7 @@ TEST_CASE("2D Regular Subdivision Method Quadratic Lagrange Cells","[RSM_2D_Quad
 
         moris::mtk::Interpolation_Mesh* tMeshData = moris::mtk::create_interpolation_mesh( MeshType::STK, aMeshData );
 
-        moris::ge::Phase_Table tPhaseTable (1, moris::ge::Phase_Table_Structure::EXP_BASE_2);
+        moris::ge::Phase_Table tPhaseTable (1);
         moris::ge::Geometry_Engine tGeometryEngine(tGeometry, tPhaseTable, tMeshData);
 
         std::string tMeshInterpOutputFile    = "./xtk_exo/xtk_test_output_regular_subdivision_interp_2d.e";
@@ -325,7 +325,7 @@ TEST_CASE("2D Conformal Quadratic Lagrange Cells","[CM_2D_QUAD]")
 
         moris::mtk::Interpolation_Mesh* tMeshData = moris::mtk::create_interpolation_mesh( MeshType::STK, aMeshData );
 
-        moris::ge::Phase_Table tPhaseTable (1, moris::ge::Phase_Table_Structure::EXP_BASE_2);
+        moris::ge::Phase_Table tPhaseTable (1);
         moris::ge::Geometry_Engine tGeometryEngine(tGeometry, tPhaseTable, tMeshData);
 
         std::string tMeshInterpOutputFile    = "./xtk_exo/xtk_test_conformal_subdivision_quad_interp_2d.e";

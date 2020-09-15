@@ -22,31 +22,18 @@ namespace moris
         {
 
         public:
-            // ----------------------------------------------------------------------------------
 
             /**
-             * Constructor with explicitly defined phase table
-             *
-             * @param aPhaseTable Explicit phase table
-             * @param aStructure Phase table structure
-             * @param aPhaseNames (optional) Phase names
+             * @brief Allocate the phase table, if no num bulk-phases and map provided
+             * assume that it is a standard 2^n table
+             * @param aNumGeometries Number of geometries
+             * @param aNumBulkPhase Number of bulk phases 
+             * @param aGeomIndexToBulkPhase Geometric index to bulk phase map
+             * 
              */
-            Phase_Table( Matrix<IndexMat>      aPhaseTable, 
-                         Phase_Table_Structure aStructure, 
-                         Cell<std::string>     aPhaseNames = {});
-
-            // ----------------------------------------------------------------------------------
-
-            /**
-             * Constructor for phase table built on structure
-             *
-             * @param aNumPhi Number of fields
-             * @param aStructure Phase table structure
-             * @param aPhaseNames (optional) Phase names
-             */
-            Phase_Table( uint                       aNumPhi,
-                         enum Phase_Table_Structure aStructure, 
-                         Cell<std::string>          aPhaseNames = {});
+            Phase_Table( moris::uint      const & aNumGeometries,
+                         moris::uint      const & aNumBulkPhase = MORIS_UINT_MAX,
+                         Matrix<IndexMat> const & aGeomIndexToBulkPhase = {{}});
 
             // ----------------------------------------------------------------------------------
 
@@ -57,15 +44,9 @@ namespace moris
              * @param aStructure Phase table structure
              * @param aPhaseNames (optional) Phase names
              */
-            Phase_Table( Matrix<IndexMat>  aPhaseTable, 
-                         std::string       aStructure, 
+            Phase_Table( Matrix<IndexMat> aPhaseTable,
+                         Phase_Table_Structure aStructure,
                          Cell<std::string> aPhaseNames = {});
-
-            // ----------------------------------------------------------------------------------
-
-            Phase_Table( Phase_Table_Structure aStructure, 
-                         uint                  aNumPhases, 
-                         Cell<std::string>     aPhaseNames);
 
             // ----------------------------------------------------------------------------------
 
@@ -76,10 +57,48 @@ namespace moris
              * @param aStructure Phase table structure
              * @param aPhaseNames (optional) Phase names
              */
-            Phase_Table( uint              aNumPhi, 
-                         std::string       aStructure,
-                         Cell<std::string> aPhaseNames = {});
+            Phase_Table(uint aNumPhi,
+                        enum Phase_Table_Structure aStructure,
+                        Cell<std::string> aPhaseNames = {});
 
+            // ----------------------------------------------------------------------------------
+
+            /**
+             * Constructor with explicitly defined phase table
+             *
+             * @param aPhaseTable Explicit phase table
+             * @param aStructure Phase table structure
+             * @param aPhaseNames (optional) Phase names
+             */
+            Phase_Table(Matrix<IndexMat> aPhaseTable,
+                        std::string aStructure,
+                        Cell<std::string> aPhaseNames = {});
+
+            // ----------------------------------------------------------------------------------
+
+            Phase_Table(Phase_Table_Structure aStructure,
+                        uint aNumPhases,
+                        Cell<std::string> aPhaseNames);
+
+            // ----------------------------------------------------------------------------------
+
+            /**
+             * Constructor for phase table built on structure
+             *
+             * @param aNumPhi Number of fields
+             * @param aStructure Phase table structure
+             * @param aPhaseNames (optional) Phase names
+             */
+            Phase_Table(uint aNumPhi,
+                        std::string aStructure,
+                        Cell<std::string> aPhaseNames = {});
+
+            // ----------------------------------------------------------------------------------
+            /**
+             * @brief set the index to bulk phase map
+             */ 
+            void
+            set_index_to_bulk_phase_map(Matrix<IndexMat> const & aIndexToBulkPhase);
             // ----------------------------------------------------------------------------------
 
             /**
@@ -87,7 +106,7 @@ namespace moris
              *
              * @return Number of phases
              */
-            moris_index 
+            moris_index
             get_num_phases();
 
             // ----------------------------------------------------------------------------------
@@ -100,8 +119,8 @@ namespace moris
              * @return Phase table value
              */
             moris_index
-            get_phase_sign_of_given_phase_and_geometry( moris_index aPhaseIndex,
-                                                        moris_index aGeometryIndex);
+            get_phase_sign_of_given_phase_and_geometry(moris_index aPhaseIndex,
+                                                       moris_index aGeometryIndex);
 
             // ----------------------------------------------------------------------------------
 
@@ -111,8 +130,8 @@ namespace moris
              * @param aEntityPhaseInfo Phase info
              * @return Phase index
              */
-            moris_index 
-            get_phase_index( Matrix<IndexMat> const & aEntityPhaseInfo );
+            moris_index
+            get_phase_index(Matrix<IndexMat> const &aEntityPhaseInfo);
 
             // ----------------------------------------------------------------------------------
 
@@ -122,24 +141,26 @@ namespace moris
              * @param aPhaseIndex The index of the requested phase
              * @return Phase name
              */
-            std::string const & 
-            get_phase_name( moris_index const & aPhaseIndex);
+            std::string const &
+            get_phase_name(moris_index const &aPhaseIndex);
 
             // ----------------------------------------------------------------------------------
 
-        private:
-            Cell<std::string>     mPhaseNames;              // phase names
-            Phase_Table_Structure mPhaseTableStructure; // enum defining phase table structure
-            Matrix<IndexMat>      mPhaseTable; // the actual phase table
-            moris_index           mNumPhases;              // number of phases
+            /*!
+            * @brief Print information for setting up phase table
+            */
+            void
+            print();
 
-            /**
-             * Checks the structure of the stored phase table
-             *
-             * @return If the phase table is correct based on the underlying structure
-             */
-            bool 
-            check_phase_table_structure();
+        private:
+            //fixme:remove
+            Cell<std::string> mPhaseNames; // phase names
+            Matrix<IndexMat> mPhaseTable;  // the phase table
+                                           //fixme: end
+
+            moris_index mNumPhases;               // number of bulk phases
+            moris_index mNumGeometries;       // total number of geometries
+            Matrix<IndexMat> mGeomValToBulkPhase; // Geometric value to Bulk phase
 
             // ----------------------------------------------------------------------------------
 
@@ -157,10 +178,13 @@ namespace moris
              * @param aStringStructure string defining the phase table structure
              * @return Phase_Table_Structure enum
              */
-            enum Phase_Table_Structure 
-            get_phase_table_structure( std::string aStringStructure );
+            enum Phase_Table_Structure
+            get_phase_table_structure(std::string aStringStructure);
 
             // ----------------------------------------------------------------------------------
+
+            Matrix<IndexMat>
+            get_geometry_to_phase_index();
         };
     } // namespace ge
 } // namespace moris

@@ -268,7 +268,7 @@ namespace xtk
         if( mParameterList.get<bool>("print_memory") )
         {
             moris::Memory_Map tXTKMM = this->get_memory_usage();
-            tXTKMM.par_print();
+            tXTKMM.par_print("XTK Model");
         }
     }
 
@@ -5327,6 +5327,8 @@ namespace xtk
         tXTKModelMM.mMemoryMapData["mSubphaseToSubPhase"] = moris::internal_capacity(mSubphaseToSubPhase);
         tXTKModelMM.mMemoryMapData["mSubphaseToSubPhaseMySideOrds"] = moris::internal_capacity(mSubphaseToSubPhaseMySideOrds);
         tXTKModelMM.mMemoryMapData["mSubphaseToSubPhaseNeighborSideOrds"] = moris::internal_capacity(mSubphaseToSubPhaseNeighborSideOrds);
+
+        tIgMeshMM.par_print("Ig Mesh");
         return tXTKModelMM;
     }
 

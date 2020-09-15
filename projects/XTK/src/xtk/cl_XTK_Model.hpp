@@ -237,6 +237,8 @@ namespace xtk
             void
             unzip_interface();
 
+            // ----------------------------------------------------------------------------------
+ 
             /*!
              * Perform generalized heaviside  enrichment.
              */
@@ -246,7 +248,7 @@ namespace xtk
                     moris_index      const & aMeshIndex = 0);
 
             // ----------------------------------------------------------------------------------
-
+ 
             /*!
              * @brief Perform basis enrichment
              * @param[in] aBasisRank Entity rank of basis functions
