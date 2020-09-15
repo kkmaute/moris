@@ -152,6 +152,25 @@ namespace moris
 
         //------------------------------------------------------------------------------
         /*
+         * creates phase parameter list with default inputs
+         * @param [ out ] ParameterList a phase parameter list
+         */
+        ParameterList create_phase_parameter_list()
+        {
+            ParameterList tParameterList;
+
+            tParameterList.insert( "phase_name",     std::string( "undefined" ) );
+            tParameterList.insert( "phase_type",     static_cast< uint >( fem::Element_Type::UNDEFINED ) );
+            tParameterList.insert( "phase_index",    std::string( "" ) );
+            tParameterList.insert( "mesh_set_names", std::string( "" ) );
+            tParameterList.insert( "IWG_names",      std::string( "" ) );
+            tParameterList.insert( "IQI_names",      std::string( "" ) );
+
+            return tParameterList;
+        }
+
+        //------------------------------------------------------------------------------
+        /*
          * creates computation fem parameter list with default inputs
          * @param [ out ] ParameterList a computation parameter list
          */
