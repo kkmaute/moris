@@ -452,8 +452,8 @@ TEST_CASE("XTK HMR 4 Material Bar Intersected By Plane and Hole","[XTK_HMR_PLANE
         fem::IQI_Factory tIQIFactory;
 
         std::shared_ptr< fem::IQI > tIQITEMP = tIQIFactory.create_IQI( fem::IQI_Type::DOF );
-        tIQITEMP->set_output_type( vis::Output_Type::TEMP );
         tIQITEMP->set_dof_type_list( { { MSI::Dof_Type::TEMP} }, mtk::Master_Slave::MASTER );
+		tIQITEMP->set_name( "IQI_TEMP" );
 
         // create a list of active block-sets
         std::string tDblInterfaceSideSetName01 = tEnrIntegMesh.get_dbl_interface_side_set_name(0,1);
@@ -565,7 +565,7 @@ TEST_CASE("XTK HMR 4 Material Bar Intersected By Plane and Hole","[XTK_HMR_PLANE
                                    "HMR_dummy_n_p0", "HMR_dummy_n_p1", "HMR_dummy_n_p2", "HMR_dummy_n_p3"},
                                  { "Temperature" },
                                  { vis::Field_Type::NODAL },
-                                 { vis::Output_Type::TEMP } );
+                                 { "IQI_TEMP" } );
 
         tModel->set_output_manager( &tOutputData );
 
@@ -869,9 +869,9 @@ TEST_CASE("XTK HMR 4 Material Bar Intersected By Plane and Hole 3D","[XTK_HMR_PL
         fem::IQI_Factory tIQIFactory;
 
         std::shared_ptr< fem::IQI > tIQITEMP =
-                tIQIFactory.create_IQI( fem::IQI_Type::DOF );
-        tIQITEMP->set_output_type( vis::Output_Type::TEMP );
+        tIQIFactory.create_IQI( fem::IQI_Type::DOF );
         tIQITEMP->set_dof_type_list( { { MSI::Dof_Type::TEMP} }, mtk::Master_Slave::MASTER );
+		tIQITEMP->set_name( "IQI_TEMP" );
 
         // define the IWGs
         fem::IWG_Factory tIWGFactory;
@@ -1042,7 +1042,7 @@ TEST_CASE("XTK HMR 4 Material Bar Intersected By Plane and Hole 3D","[XTK_HMR_PL
                                    "HMR_dummy_n_p0", "HMR_dummy_n_p1", "HMR_dummy_n_p2", "HMR_dummy_n_p3"},
                                  { "Temperature" },
                                  { vis::Field_Type::NODAL },
-                                 { vis::Output_Type::TEMP } );
+                                 { "IQI_TEMP" } );
         tModel->set_output_manager( &tOutputData );
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

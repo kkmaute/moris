@@ -17,9 +17,6 @@ namespace moris
 
         IQI_Turbulent_Kinematic_Viscosity::IQI_Turbulent_Kinematic_Viscosity()
         {
-            // set IQI type
-            mIQIType = vis::Output_Type::TURBULENT_KINEMATIC_VISCOSITY;
-
             // set fem IQI type
             mFEMIQIType = fem::IQI_Type::TURBULENT_KINEMATIC_VISCOSITY;
 
@@ -126,16 +123,11 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        void IQI_Turbulent_Kinematic_Viscosity::compute_QI( moris::real aWStar )
+        void IQI_Turbulent_Kinematic_Viscosity::compute_dQIdu(
+                moris::Cell< MSI::Dof_Type > & aDofType,
+                Matrix< DDRMat >             & adQIdu )
         {
-            MORIS_ERROR( false, "IQI_Turbulent_Kinematic_Viscosity - not implemented");
-        }
-
-        //------------------------------------------------------------------------------
-
-        void IQI_Turbulent_Kinematic_Viscosity::compute_dQIdu( real aWStar )
-        {
-            MORIS_ERROR( false, "IQI_Turbulent_Kinematic_Viscosity - not implemented");
+            MORIS_ERROR( false, "compute_dQIdu() not implemented for turbulent kinematic viscosity IQI." );
         }
 
         //------------------------------------------------------------------------------

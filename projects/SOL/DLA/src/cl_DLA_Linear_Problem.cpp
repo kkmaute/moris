@@ -101,6 +101,8 @@ namespace moris
 
             mSolverInterface->fill_matrix_and_RHS( mMat, mVectorRHS );
 
+            mSolverInterface->assemble_additional_DqDs_RHS_contribution( mVectorRHS );
+
             // stop timer
             //real tElapsedTime = tTimer.toc<moris::chronos::milliseconds>().wall;
             //MORIS_LOG_INFO( "Assembly of Residual and Jacobian on processor %u took %5.3f seconds.", ( uint ) par_rank(), ( double ) tElapsedTime / 1000);

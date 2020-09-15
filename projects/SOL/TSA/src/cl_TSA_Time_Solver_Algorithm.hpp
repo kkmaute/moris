@@ -49,11 +49,16 @@ namespace moris
 
                 moris::Cell< Time_Solver * > mTimeSolverList;
 
+                //!  Pointer to time solver
                 Time_Solver * mMyTimeSolver;
 
                 moris::uint mCallCounter = 0;
 
+                //!  Nonlinear Solver
                 NLA::Nonlinear_Solver * mNonlinearSolver = nullptr;
+
+                //!  Nonlinear Solver for adjoint solve. Can be the same than mNonlinearSolver
+                NLA::Nonlinear_Solver * mNonlinearSolverForAdjoint = nullptr;
 
                 //!  flag indicating if this is the master time solver
                 bool mIsMasterTimeSolver = false;
@@ -132,6 +137,17 @@ namespace moris
                 void set_nonlinear_solver( NLA::Nonlinear_Solver * aNonlinearSolver )
                 {
                     mNonlinearSolver = aNonlinearSolver;
+                };
+
+                //-------------------------------------------------------------------------------
+                /**
+                 * @brief set nonlinear solver for adjoint solve
+                 *
+                 * @param[in] aNonlinearSolver     Nonlinear solver
+                 */
+                void set_nonlinear_solver_for_adjoint_solve( NLA::Nonlinear_Solver * aNonlinearSolver )
+                {
+                    mNonlinearSolverForAdjoint = aNonlinearSolver;
                 };
 
                 //-------------------------------------------------------------------------------

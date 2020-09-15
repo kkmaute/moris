@@ -8,6 +8,12 @@
 #include "cl_XTK_Model.hpp"
 #include "cl_MDL_Model.hpp"
 
+#include "cl_Logger.hpp"
+#include "cl_Tracer.hpp"
+#include "cl_Tracer_Enums.hpp"
+
+#include "fn_norm.hpp"
+
 namespace moris
 {
     namespace wrk
@@ -26,7 +32,6 @@ namespace moris
                 Matrix<DDRMat>& aLowerBounds,
                 Matrix<DDRMat>& aUpperBounds)
         {
-
             // Stage 1: HMR refinement -------------------------------------------------------------------
 
             // uniform initial refinement
@@ -46,7 +51,6 @@ namespace moris
             aADVs        = mPerformerManager->mGENPerformer( 0 )->get_advs();
             aLowerBounds = mPerformerManager->mGENPerformer( 0 )->get_lower_bounds();
             aUpperBounds = mPerformerManager->mGENPerformer( 0 )->get_upper_bounds();
-
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -107,7 +111,28 @@ namespace moris
 
             mPerformerManager->mMDLPerformer( 0 )->perform( 1 );
 
-            return mPerformerManager->mGENPerformer( 0 )->get_dcriteria_dadv();
+            Matrix<DDRMat> tDCriteriaDAdv = mPerformerManager->mGENPerformer( 0 )->get_dcriteria_dadv();
+
+            MORIS_LOG_INFO ( "--------------------------------------------------------------------------------");
+            MORIS_LOG_INFO ( "Gradients of design criteria wrt ADVs:");
+
+            for (uint i=0;i<tDCriteriaDAdv.n_rows();++i)
+            {
+                Matrix<DDRMat> tDIQIDAdv = tDCriteriaDAdv.get_row(i);
+
+                auto tItrMin = std::min_element(tDIQIDAdv.data(),tDIQIDAdv.data()+tDIQIDAdv.numel());
+                auto tIndMin = std::distance(tDIQIDAdv.data(),tItrMin);
+
+                auto tItrMax = std::max_element(tDIQIDAdv.data(),tDIQIDAdv.data()+tDIQIDAdv.numel());
+                auto tIndMax = std::distance(tDIQIDAdv.data(),tItrMax);
+
+                MORIS_LOG_INFO ( "Criteria(%i): norm = %e   min = %e  (index = %i)   max = %e  (index = %i)",
+                        i, norm(tDIQIDAdv),tDIQIDAdv.min(),tIndMin,tDIQIDAdv.max(),tIndMax);
+            }
+
+            MORIS_LOG_INFO ( "--------------------------------------------------------------------------------");
+
+            return tDCriteriaDAdv;
         }
 
         //--------------------------------------------------------------------------------------------------------------

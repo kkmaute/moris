@@ -35,381 +35,386 @@ namespace moris
 
         class Equation_Model
         {
-            protected:
+        protected:
 
-                // list of equation sets
-                moris::Cell< MSI::Equation_Set * > mFemSets;
+            // list of equation sets
+            moris::Cell< MSI::Equation_Set * > mFemSets;
 
-                // list of equation objects
-                moris::Cell< MSI::Equation_Object* > mFemClusters;
+            // list of equation objects
+            moris::Cell< MSI::Equation_Object* > mFemClusters;
 
-                // map from mesh set indices to fem set indices
-                map< std::tuple< moris_index, bool, bool >, moris_index > mMeshSetToFemSetMap;
+            // map from mesh set indices to fem set indices
+            map< std::tuple< moris_index, bool, bool >, moris_index > mMeshSetToFemSetMap;
 
-                // distributed solution vectors for current and previous time slabs
-                sol::Dist_Vector * mSolutionVector     = nullptr;
-                sol::Dist_Vector * mPrevSolutionVector = nullptr;
-                sol::Dist_Vector * mAdjointSolutionVector  = nullptr;
-                sol::Dist_Vector * mPreviousAdjointSolutionVector = nullptr;
+            // distributed solution vectors for current and previous time slabs
+            sol::Dist_Vector * mSolutionVector     = nullptr;
+            sol::Dist_Vector * mPrevSolutionVector = nullptr;
+            sol::Dist_Vector * mAdjointSolutionVector  = nullptr;
+            sol::Dist_Vector * mPreviousAdjointSolutionVector = nullptr;
 
-                sol::Dist_Map * mdQIdpMap = nullptr;
+            sol::Dist_Map * mdQIdpMap = nullptr;
 
-                moris::Cell< moris::Matrix< DDRMat > > mGlobalIQIVal;
+            moris::Cell< moris::Matrix< DDRMat > > mGlobalIQIVal;
 
-                sol::Dist_Vector * mImplicitdQidp = nullptr;
-                sol::Dist_Vector * mExplicitdQidp = nullptr;
-                sol::Dist_Vector * mdQIdp         = nullptr;
+            sol::Dist_Vector * mImplicitdQidp = nullptr;
+            sol::Dist_Vector * mExplicitdQidp = nullptr;
+            sol::Dist_Vector * mdQIdp         = nullptr;
 
-                // matrices for current and previous time slabs
-                Matrix< DDRMat > mTime;
-                Matrix< DDRMat > mPrevTime;
+            // matrices for current and previous time slabs
+            Matrix< DDRMat > mTime;
+            Matrix< DDRMat > mPrevTime;
 
-                MSI::Design_Variable_Interface * mDesignVariableInterface = nullptr;
+            MSI::Design_Variable_Interface * mDesignVariableInterface = nullptr;
 
-                bool mIsForwardAnalysis = true;
-                bool mIsOffDiagonalTimeContribution = false;
+            bool mIsForwardAnalysis = true;
+            bool mIsOffDiagonalTimeContribution = false;
 
-                moris::sint mNumSensitivityAnalysisRHS = -1;
+            moris::sint mNumSensitivityAnalysisRHS = -1;
 
-                //------------------------------------------------------------------------------
-                // Dummy Variables
-                moris::Cell< std::string > mDummy;
+            //------------------------------------------------------------------------------
+            // Dummy Variables
+            moris::Cell< std::string > mDummy;
 
-                //------------------------------------------------------------------------------
-            public:
-                //------------------------------------------------------------------------------
-                /**
-                 * constructor
-                 */
-                Equation_Model(){};
+            //------------------------------------------------------------------------------
+        public:
+            //------------------------------------------------------------------------------
+            /**
+             * constructor
+             */
+            Equation_Model(){};
 
-                //------------------------------------------------------------------------------
-                /**
-                 * destructor
-                 */
-                virtual ~Equation_Model(){};
+            //------------------------------------------------------------------------------
+            /**
+             * destructor
+             */
+            virtual ~Equation_Model(){};
 
-                //------------------------------------------------------------------------------
-                /**
-                 * get equation sets for test
-                 */
-                moris::sint get_num_rhs();
+            //------------------------------------------------------------------------------
+            /**
+             * get equation sets for test
+             */
+            moris::sint get_num_rhs();
 
-                //------------------------------------------------------------------------------
-                /**
-                 * get equation sets for test
-                 */
-                moris::Cell< MSI::Equation_Set * > & get_equation_sets()
-                {
-                    return mFemSets;
-                }
+            //------------------------------------------------------------------------------
+            /**
+             * get equation sets for test
+             */
+            moris::Cell< MSI::Equation_Set * > & get_equation_sets()
+            {
+                return mFemSets;
+            }
 
-                //------------------------------------------------------------------------------
-                /**
-                 * get equation objects
-                 */
-                moris::Cell< MSI::Equation_Object * > & get_equation_objects()
-                {
-                    return mFemClusters;
-                }
+            //------------------------------------------------------------------------------
+            /**
+             * get equation objects
+             */
+            moris::Cell< MSI::Equation_Object * > & get_equation_objects()
+            {
+                return mFemClusters;
+            }
 
-                //------------------------------------------------------------------------------
-                /**
-                 * MTK set to fem set index map
-                 */
-                map< std::tuple< moris_index, bool, bool >, moris_index > & get_mesh_set_to_fem_set_index_map()
-                {
-                    return mMeshSetToFemSetMap;
-                }
+            //------------------------------------------------------------------------------
+            /**
+             * MTK set to fem set index map
+             */
+            map< std::tuple< moris_index, bool, bool >, moris_index > & get_mesh_set_to_fem_set_index_map()
+            {
+                return mMeshSetToFemSetMap;
+            }
 
-                //------------------------------------------------------------------------------
-                /**
-                 * finalize the equation sets
-                 * @param[ in ] aModelSolverInterface pointer to a model solver interface
-                 */
-                virtual void finalize_equation_sets( MSI::Model_Solver_Interface * aModelSolverInterface )
-                {
-                    MORIS_ERROR( false, "Equation_Model::finalize_equation_sets - not implemented for base class." );
-                }
+            //------------------------------------------------------------------------------
+            /**
+             * finalize the equation sets
+             * @param[ in ] aModelSolverInterface pointer to a model solver interface
+             */
+            virtual void finalize_equation_sets( MSI::Model_Solver_Interface * aModelSolverInterface )
+            {
+                MORIS_ERROR( false, "Equation_Model::finalize_equation_sets - not implemented for base class." );
+            }
 
-                //------------------------------------------------------------------------------
-                /**
-                 * set solution vector
-                 * @param[ in ] aSolutionVector distributed solution vector
-                 */
-                void set_solution_vector( sol::Dist_Vector * aSolutionVector )
-                {
-                    mSolutionVector = aSolutionVector;
-                }
+            //------------------------------------------------------------------------------
+            /**
+             * set solution vector
+             * @param[ in ] aSolutionVector distributed solution vector
+             */
+            void set_solution_vector( sol::Dist_Vector * aSolutionVector )
+            {
+                mSolutionVector = aSolutionVector;
+            }
 
-                //------------------------------------------------------------------------------
-                /**
-                 * get solution vector
-                 * @param[ out ] aSolutionVector distributed solution vector
-                 */
-                sol::Dist_Vector * get_solution_vector()
-                {
-                    return mSolutionVector;
-                }
+            //------------------------------------------------------------------------------
+            /**
+             * get solution vector
+             * @param[ out ] aSolutionVector distributed solution vector
+             */
+            sol::Dist_Vector * get_solution_vector()
+            {
+                return mSolutionVector;
+            }
 
-                //------------------------------------------------------------------------------
-                /**
-                 * set previous solution vector
-                 * @param[ in ] aSolutionVector previous distributed solution vector
-                 */
-                void set_previous_solution_vector( sol::Dist_Vector * aSolutionVector )
-                {
-                    mPrevSolutionVector = aSolutionVector;
-                }
+            //------------------------------------------------------------------------------
+            /**
+             * set previous solution vector
+             * @param[ in ] aSolutionVector previous distributed solution vector
+             */
+            void set_previous_solution_vector( sol::Dist_Vector * aSolutionVector )
+            {
+                mPrevSolutionVector = aSolutionVector;
+            }
 
-                //------------------------------------------------------------------------------
-                /**
-                 * get previous solution vector
-                 * @param[ out ] aSolutionVector previous distributed solution vector
-                 */
-                sol::Dist_Vector * get_previous_solution_vector()
-                {
-                    return mPrevSolutionVector;
-                }
+            //------------------------------------------------------------------------------
+            /**
+             * get previous solution vector
+             * @param[ out ] aSolutionVector previous distributed solution vector
+             */
+            sol::Dist_Vector * get_previous_solution_vector()
+            {
+                return mPrevSolutionVector;
+            }
 
-                //------------------------------------------------------------------------------
-                /**
-                 * set sensitivity solution vector
-                 * @param[ in ] aSensitivitySolutionVector distributed solution vector for sensitivity
-                 */
-                void set_adjoint_solution_vector( sol::Dist_Vector * aSolutionVector )
-                {
-                    mAdjointSolutionVector = aSolutionVector;
-                }
+            //------------------------------------------------------------------------------
+            /**
+             * set sensitivity solution vector
+             * @param[ in ] aSensitivitySolutionVector distributed solution vector for sensitivity
+             */
+            void set_adjoint_solution_vector( sol::Dist_Vector * aSolutionVector )
+            {
+                mAdjointSolutionVector = aSolutionVector;
+            }
 
-                //------------------------------------------------------------------------------
-                /**
-                 * set previous adjoint solution vector
-                 * @param[ in ] aSensitivitySolutionVector distributed solution vector for sensitivity
-                 */
-                void set_previous_adjoint_solution_vector( sol::Dist_Vector * aSolutionVector )
-                {
-                    mPreviousAdjointSolutionVector = aSolutionVector;
-                }
+            //------------------------------------------------------------------------------
+            /**
+             * set previous adjoint solution vector
+             * @param[ in ] aSensitivitySolutionVector distributed solution vector for sensitivity
+             */
+            void set_previous_adjoint_solution_vector( sol::Dist_Vector * aSolutionVector )
+            {
+                mPreviousAdjointSolutionVector = aSolutionVector;
+            }
 
-                //------------------------------------------------------------------------------
-                /**
-                 * get adjoint solution vector
-                 * @param[ out ] aSolutionVector adjoint distributed solution vector
-                 */
-                sol::Dist_Vector * get_adjoint_solution_vector()
-                {
-                    return mAdjointSolutionVector;
-                }
+            //------------------------------------------------------------------------------
+            /**
+             * get adjoint solution vector
+             * @param[ out ] aSolutionVector adjoint distributed solution vector
+             */
+            sol::Dist_Vector * get_adjoint_solution_vector()
+            {
+                return mAdjointSolutionVector;
+            }
 
-                //------------------------------------------------------------------------------
-                /**
-                 * get previous adjoint solution vector
-                 * @param[ out ] aSolutionVector previous adjoint distributed solution vector
-                 */
-                sol::Dist_Vector * get_previous_adjoint_solution_vector()
-                {
-                    return mPreviousAdjointSolutionVector;
-                }
+            //------------------------------------------------------------------------------
+            /**
+             * get previous adjoint solution vector
+             * @param[ out ] aSolutionVector previous adjoint distributed solution vector
+             */
+            sol::Dist_Vector * get_previous_adjoint_solution_vector()
+            {
+                return mPreviousAdjointSolutionVector;
+            }
 
-                //------------------------------------------------------------------------------
-                /**
-                 * returns the implicit dQidu
-                 * @param[ out ] mImplicitdQidu returns a pointer to dQidu
-                 */
-                sol::Dist_Vector * get_implicit_dQidp()
-                {
-                    return mImplicitdQidp;
-                }
+            //------------------------------------------------------------------------------
+            /**
+             * returns the implicit dQidu
+             * @param[ out ] mImplicitdQidu returns a pointer to dQidu
+             */
+            sol::Dist_Vector * get_implicit_dQidp()
+            {
+                return mImplicitdQidp;
+            }
 
-                //------------------------------------------------------------------------------
-                /**
-                 * returns the explicit dQidu
-                 * @param[ out ] mExplicitdQidu returns a pointer to dQidu
-                 */
-                sol::Dist_Vector * get_explicit_dQidp()
-                {
-                    return mExplicitdQidp;
-                }
+            //------------------------------------------------------------------------------
+            /**
+             * returns the explicit dQidu
+             * @param[ out ] mExplicitdQidu returns a pointer to dQidu
+             */
+            sol::Dist_Vector * get_explicit_dQidp()
+            {
+                return mExplicitdQidp;
+            }
 
-                //------------------------------------------------------------------------------
-                /**
-                 * returns the dQIdp
-                 * @param[ out ] mdQidp returns a pointer to dQIdp
-                 */
-                sol::Dist_Vector * get_dQIdp();
+            //------------------------------------------------------------------------------
+            /**
+             * returns the dQIdp
+             * @param[ out ] mdQidp returns a pointer to dQIdp
+             */
+            sol::Dist_Vector * get_dQIdp();
 
-                //------------------------------------------------------------------------------
-                /**
-                 * set time for current time slab
-                 * @param[ in ] aTime matrix for time in current time slab
-                 */
-                void set_time( Matrix< DDRMat > & aTime )
-                {
-                    mTime = aTime;
-                }
+            //------------------------------------------------------------------------------
+            /**
+             * set time for current time slab
+             * @param[ in ] aTime matrix for time in current time slab
+             */
+            void set_time( Matrix< DDRMat > & aTime )
+            {
+                mTime = aTime;
+            }
 
-                //------------------------------------------------------------------------------
-                /**
-                 * get time for current time slab
-                 * @param[ out ] mTime matrix for time in current time slab
-                 */
-                Matrix< DDRMat > & get_time()
-                {
-                    return mTime;
-                }
+            //------------------------------------------------------------------------------
+            /**
+             * get time for current time slab
+             * @param[ out ] mTime matrix for time in current time slab
+             */
+            Matrix< DDRMat > & get_time()
+            {
+                return mTime;
+            }
 
-                //------------------------------------------------------------------------------
-                /**
-                 * set time for previous time slab
-                 * @param[ in ] aPrevTime matrix for time in previous time slab
-                 */
-                void set_previous_time( Matrix< DDRMat > & aPrevTime )
-                {
-                    mPrevTime = aPrevTime;
-                }
+            //------------------------------------------------------------------------------
+            /**
+             * set time for previous time slab
+             * @param[ in ] aPrevTime matrix for time in previous time slab
+             */
+            void set_previous_time( Matrix< DDRMat > & aPrevTime )
+            {
+                mPrevTime = aPrevTime;
+            }
 
-                //------------------------------------------------------------------------------
+            //------------------------------------------------------------------------------
 
-                /**
-                 * get time for previous time slab
-                 * @param[ out ] mPrevTime matrix for time in previous time slab
-                 */
-                Matrix< DDRMat > & get_previous_time()
-                {
-                    return mPrevTime;
-                }
+            /**
+             * get time for previous time slab
+             * @param[ out ] mPrevTime matrix for time in previous time slab
+             */
+            Matrix< DDRMat > & get_previous_time()
+            {
+                return mPrevTime;
+            }
 
-                //------------------------------------------------------------------------------
-                /**
-                 * set pointer to design variable interface
-                 * @param[ in ] aDesignVariableInterface pointer to design variable interface
-                 */
-                void set_design_variable_interface( MSI::Design_Variable_Interface * aDesignVariableInterface )
-                {
-                    mDesignVariableInterface = aDesignVariableInterface;
-                }
+            //------------------------------------------------------------------------------
+            /**
+             * set pointer to design variable interface
+             * @param[ in ] aDesignVariableInterface pointer to design variable interface
+             */
+            void set_design_variable_interface( MSI::Design_Variable_Interface * aDesignVariableInterface )
+            {
+                mDesignVariableInterface = aDesignVariableInterface;
+            }
 
-                //------------------------------------------------------------------------------
-                /**
-                 * get pointer to design variable interface
-                 * @param[ out ] mDesignVariableInterface pointer to design variable interface
-                 */
-                MSI::Design_Variable_Interface * get_design_variable_interface()
-                {
-                    return mDesignVariableInterface;
-                }
+            //------------------------------------------------------------------------------
+            /**
+             * get pointer to design variable interface
+             * @param[ out ] mDesignVariableInterface pointer to design variable interface
+             */
+            MSI::Design_Variable_Interface * get_design_variable_interface()
+            {
+                return mDesignVariableInterface;
+            }
 
-                //------------------------------------------------------------------------------
-                /**
-                 * set requested IQI names
-                 * @param[ in ] aRequestedIQINames List of requested IQI names
-                 */
-                virtual void set_requested_IQI_names( const moris::Cell< std::string > & aRequestedIQINames )
-                {
-                    MORIS_ERROR( false, "Equation_Model::set_requested_IQI_names - not implemented for base class." );
-                }
+            //------------------------------------------------------------------------------
+            /**
+             * set requested IQI names
+             * @param[ in ] aRequestedIQINames List of requested IQI names
+             */
+            virtual void set_requested_IQI_names( const moris::Cell< std::string > & aRequestedIQINames )
+            {
+                MORIS_ERROR( false, "Equation_Model::set_requested_IQI_names - not implemented for base class." );
+            }
 
-                //------------------------------------------------------------------------------
-                /**
-                 * get requested IQI names
-                 */
-                virtual const
-                moris::Cell< std::string > & get_requested_IQI_names()
-                {
-                    MORIS_ERROR( false, "Equation_Model::get_requested_IQI_names - not implemented for base class." );
-                    return mDummy;
-                }
+            //------------------------------------------------------------------------------
+            /**
+             * get requested IQI names
+             */
+            virtual const
+            moris::Cell< std::string > & get_requested_IQI_names()
+            {
+                MORIS_ERROR( false, "Equation_Model::get_requested_IQI_names - not implemented for base class." );
+                return mDummy;
+            }
 
-                //------------------------------------------------------------------------------
-                /**
-                 * indicated that this equation model is used for the sensitivity analysis
-                 */
-                void set_is_sensitivity_analysis()
-                {
-                    mIsForwardAnalysis = false;
-                }
+            //------------------------------------------------------------------------------
+            /**
+             * indicated that this equation model is used for the sensitivity analysis
+             */
+            void set_is_sensitivity_analysis()
+            {
+                mIsForwardAnalysis = false;
+            }
 
-                //------------------------------------------------------------------------------
-                /**
-                 * indicated that this equation model is used for the forward analysis
-                 */
-                void set_is_forward_analysis()
-                {
-                    mIsForwardAnalysis = true;
-                }
+            //------------------------------------------------------------------------------
+            /**
+             * indicated that this equation model is used for the forward analysis
+             */
+            void set_is_forward_analysis()
+            {
+                mIsForwardAnalysis = true;
+            }
 
-                //------------------------------------------------------------------------------
-                /**
-                 * returns if this is a forward analysis
-                 * @param[ out ] mIsForwardAnalysis bool true if forward analysis
-                 */
-                bool get_is_forward_analysis()
-                {
-                    return mIsForwardAnalysis;
-                }
+            //------------------------------------------------------------------------------
+            /**
+             * returns if this is a forward analysis
+             * @param[ out ] mIsForwardAnalysis bool true if forward analysis
+             */
+            bool get_is_forward_analysis()
+            {
+                return mIsForwardAnalysis;
+            }
 
-                //------------------------------------------------------------------------------
-                /**
-                 * indicated that
-                 */
-                void set_is_adjoint_off_diagonal_time_contribution(
-                        const bool aIsOffDiagonalTimeContribution )
-                {
-                    mIsOffDiagonalTimeContribution = aIsOffDiagonalTimeContribution;
-                }
+            //------------------------------------------------------------------------------
+            /**
+             * indicated that
+             */
+            void set_is_adjoint_off_diagonal_time_contribution(
+                    const bool aIsOffDiagonalTimeContribution )
+            {
+                mIsOffDiagonalTimeContribution = aIsOffDiagonalTimeContribution;
+            }
 
-                //------------------------------------------------------------------------------
-                /**
-                 * returns if this
-                 * @param[ out ] mIsForwardAnalysis
-                 */
-                bool get_is_adjoint_off_diagonal_time_contribution()
-                {
-                    return mIsOffDiagonalTimeContribution;
-                }
+            //------------------------------------------------------------------------------
+            /**
+             * returns if this
+             * @param[ out ] mIsForwardAnalysis
+             */
+            bool get_is_adjoint_off_diagonal_time_contribution()
+            {
+                return mIsOffDiagonalTimeContribution;
+            }
 
-                //------------------------------------------------------------------------------
-                /**
-                 * initialize explicit and implicit dQidp
-                 */
-                void initialize_explicit_and_implicit_dQIdp();
+            //------------------------------------------------------------------------------
+            /**
+             * initialize explicit and implicit dQidp
+             */
+            void initialize_explicit_and_implicit_dQIdp();
 
-                //------------------------------------------------------------------------------
-                /**
-                 * compute implicit dQidp
-                 */
-                void compute_implicit_dQIdp();
+            //------------------------------------------------------------------------------
+            /**
+             * compute implicit dQidp
+             */
+            void compute_implicit_dQIdp();
 
-                //------------------------------------------------------------------------------
-                /**
-                 * compute explicit dQidp
-                 */
-                void compute_explicit_dQIdp();
+            //------------------------------------------------------------------------------
+            /**
+             * compute explicit dQidp
+             */
+            void compute_explicit_dQIdp();
 
-                //------------------------------------------------------------------------------
-                /**
-                 * initialize QI
-                 */
-                void initialize_IQIs();
+            //------------------------------------------------------------------------------
+            /**
+             * initialize QI
+             */
+            void initialize_IQIs();
 
-                //------------------------------------------------------------------------------
-                /**
-                 * compute QI
-                 */
-                void compute_IQIs();
+            //------------------------------------------------------------------------------
+            /**
+             * compute QI
+             */
+            void compute_IQIs();
 
-                //------------------------------------------------------------------------------
-                /**
-                 * get QI global values
-                 * @param[ out ] mGlobalIQIVal cell filled with global QI values
-                 */
-                moris::Cell< moris::Matrix< DDRMat > > get_IQI_values()
-                {
-                    return mGlobalIQIVal;
-                }
+            //------------------------------------------------------------------------------
+            /**
+             * get QI global values
+             * @param[ out ] mGlobalIQIVal cell filled with global QI values
+             */
+            moris::Cell< moris::Matrix< DDRMat > > get_IQI_values( )
+            {
+                return mGlobalIQIVal;
+            }
 
-                //------------------------------------------------------------------------------
+            /**
+             * Scale the IQIs according to user input. Default does nothing, scaling is done in child class.
+             */
+            virtual void normalize_IQIs();
+
+            //------------------------------------------------------------------------------
         };
         //------------------------------------------------------------------------------
     } /* namespace MSI */

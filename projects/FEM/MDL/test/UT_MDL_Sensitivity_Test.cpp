@@ -56,8 +56,8 @@
 
 #include "cl_VIS_Output_Manager.hpp"
 
-#include "cl_PRM_HMR_Parameters.hpp"
-#include "cl_PRM_SOL_Parameters.hpp"
+#include "fn_PRM_HMR_Parameters.hpp"
+#include "fn_PRM_SOL_Parameters.hpp"
 
 real plane_evaluate_field_value(const moris::Matrix< DDRMat >    & aCoordinates,
                                  const moris::Cell< moris::real* > & aParameters)

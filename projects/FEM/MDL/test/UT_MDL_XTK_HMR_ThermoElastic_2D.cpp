@@ -93,9 +93,9 @@
 
 #include "cl_GEN_Plane.hpp"
 
-#include "cl_PRM_SOL_Parameters.hpp"
+#include "fn_PRM_SOL_Parameters.hpp"
 
-#include "cl_PRM_HMR_Parameters.hpp"
+#include "fn_PRM_HMR_Parameters.hpp"
 
 
 namespace moris
@@ -369,19 +369,19 @@ TEST_CASE("2D XTK WITH HMR ThermoElastic 2D","[XTK_HMR_thermoelastic_2D]")
         fem::IQI_Factory tIQIFactory;
 
         std::shared_ptr< fem::IQI > tIQIUX = tIQIFactory.create_IQI( fem::IQI_Type::DOF );
-        tIQIUX->set_output_type( vis::Output_Type::UX );
         tIQIUX->set_dof_type_list( { { MSI::Dof_Type::UX, MSI::Dof_Type::UY } }, mtk::Master_Slave::MASTER );
         tIQIUX->set_output_type_index( 0 );
+		tIQIUX->set_name( "IQI_UX" );
 
         std::shared_ptr< fem::IQI > tIQIUY = tIQIFactory.create_IQI( fem::IQI_Type::DOF );
-        tIQIUY->set_output_type( vis::Output_Type::UY );
         tIQIUY->set_dof_type_list( { { MSI::Dof_Type::UX, MSI::Dof_Type::UY } }, mtk::Master_Slave::MASTER );
         tIQIUY->set_output_type_index( 1 );
+		tIQIUY->set_name( "IQI_UY" );
 
         std::shared_ptr< fem::IQI > tIQITEMP = tIQIFactory.create_IQI( fem::IQI_Type::DOF );
-        tIQITEMP->set_output_type( vis::Output_Type::TEMP );
         tIQITEMP->set_dof_type_list( { { MSI::Dof_Type::TEMP } }, mtk::Master_Slave::MASTER );
         tIQITEMP->set_output_type_index( 0 );
+		tIQITEMP->set_name( "IQI_TEMP" );
 
          //----------------------------------------------------------------------------------------------------------
          fem::Set_User_Info tSetBulk1;
@@ -414,7 +414,7 @@ TEST_CASE("2D XTK WITH HMR ThermoElastic 2D","[XTK_HMR_thermoelastic_2D]")
                                  { "HMR_dummy_n_p1" },
                                  { "UX", "UY", "TEMP" },
                                  { vis::Field_Type::NODAL, vis::Field_Type::NODAL, vis::Field_Type::NODAL },
-                                 { vis::Output_Type::UX,  vis::Output_Type::UY, vis::Output_Type::TEMP } );
+                                 { "IQI_UX","IQI_UY","IQI_TEMP" } );
         tModel->set_output_manager( &tOutputData );
 
         sol::SOL_Warehouse tSolverWarehouse( tModel->get_solver_interface() );
@@ -777,7 +777,7 @@ TEST_CASE("2D XTK WITH HMR ThermoElastic 2D Staggered","[XTK_HMR_thermoelastic_2
          // define stabilization parameters
          fem::SP_Factory tSPFactory;
          std::shared_ptr< fem::Stabilization_Parameter > tSPDirichletNitscheU = tSPFactory.create_SP( fem::Stabilization_Type::DIRICHLET_NITSCHE );
-         tSPDirichletNitscheU->set_parameters( { {{ 1.0 }} } );
+         tSPDirichletNitscheU->set_parameters( { {{ 100.0 }} } );
          tSPDirichletNitscheU->set_property( tPropEMod1, "Material", mtk::Master_Slave::MASTER );
 
          std::shared_ptr< fem::Stabilization_Parameter > tSPDirichletNitscheTEMP = tSPFactory.create_SP( fem::Stabilization_Type::DIRICHLET_NITSCHE );
@@ -834,19 +834,19 @@ TEST_CASE("2D XTK WITH HMR ThermoElastic 2D Staggered","[XTK_HMR_thermoelastic_2
          fem::IQI_Factory tIQIFactory;
 
          std::shared_ptr< fem::IQI > tIQIUX = tIQIFactory.create_IQI( fem::IQI_Type::DOF );
-         tIQIUX->set_output_type( vis::Output_Type::UX );
          tIQIUX->set_dof_type_list( { { MSI::Dof_Type::UX, MSI::Dof_Type::UY } }, mtk::Master_Slave::MASTER );
          tIQIUX->set_output_type_index( 0 );
+		 tIQIUX->set_name( "IQI_UX" );
 
          std::shared_ptr< fem::IQI > tIQIUY = tIQIFactory.create_IQI( fem::IQI_Type::DOF );
-         tIQIUY->set_output_type( vis::Output_Type::UY );
          tIQIUY->set_dof_type_list( { { MSI::Dof_Type::UX, MSI::Dof_Type::UY } }, mtk::Master_Slave::MASTER );
          tIQIUY->set_output_type_index( 1 );
+		 tIQIUY->set_name( "IQI_UY" );
 
          std::shared_ptr< fem::IQI > tIQITEMP = tIQIFactory.create_IQI( fem::IQI_Type::DOF );
-         tIQITEMP->set_output_type( vis::Output_Type::TEMP );
          tIQITEMP->set_dof_type_list( { { MSI::Dof_Type::TEMP } }, mtk::Master_Slave::MASTER );
          tIQITEMP->set_output_type_index( 0 );
+		 tIQITEMP->set_name( "IQI_TEMP" );
 
          //----------------------------------------------------------------------------------------------------------
 
@@ -880,7 +880,7 @@ TEST_CASE("2D XTK WITH HMR ThermoElastic 2D Staggered","[XTK_HMR_thermoelastic_2
                                  { "HMR_dummy_n_p1" },
                                  { "UX", "UY", "TEMP" },
                                  { vis::Field_Type::NODAL, vis::Field_Type::NODAL, vis::Field_Type::NODAL },
-                                 { vis::Output_Type::UX,  vis::Output_Type::UY, vis::Output_Type::TEMP } );
+                                 { "IQI_UX","IQI_UY","IQI_TEMP" } );
         tModel->set_output_manager( &tOutputData );
 
         sol::SOL_Warehouse tSolverWarehouse( tModel->get_solver_interface() );
@@ -903,8 +903,10 @@ TEST_CASE("2D XTK WITH HMR ThermoElastic 2D Staggered","[XTK_HMR_thermoelastic_2
         tParameterlist( 2 ).resize( 2 );
         tParameterlist( 2 )( 0 ) = moris::prm::create_nonlinear_algorithm_parameter_list();
         tParameterlist( 2 )( 0 )("NLA_Solver_Implementation") = static_cast< uint >( moris::NLA::NonlinearSolverType::NEWTON_SOLVER );
+		tParameterlist( 2 )( 0 ).set("NLA_combined_res_jac_assembly", false );
         tParameterlist( 2 )( 1 ) = moris::prm::create_nonlinear_algorithm_parameter_list();
         tParameterlist( 2 )( 1 )("NLA_Solver_Implementation") = static_cast< uint >( moris::NLA::NonlinearSolverType::NLBGS_SOLVER );
+		tParameterlist( 2 )( 1 ).set("NLA_combined_res_jac_assembly", false );
 
         tParameterlist( 3 ).resize( 3 );
         tParameterlist( 3 )( 0 ) = moris::prm::create_nonlinear_solver_parameter_list();
@@ -1020,8 +1022,6 @@ TEST_CASE("2D XTK WITH HMR ThermoElastic 2D Staggered","[XTK_HMR_thermoelastic_2
         Matrix<DDRMat> tGoldSolution;
         tTimeSolver->get_full_solution(tFullSolution);
 
-//        print(tFullSolution,"tFullSol");
-
         std::string tMorisRoot = moris::get_base_moris_dir();
         std::string tHdf5FilePath = tMorisRoot + "/projects/FEM/MDL/test/data/Thermoelastic_test_2d.hdf5";
 
@@ -1042,29 +1042,19 @@ TEST_CASE("2D XTK WITH HMR ThermoElastic 2D Staggered","[XTK_HMR_thermoelastic_2
         close_hdf5_file( tFileID );
 
         // verify solution
-//        moris::real tEpsilon = 1E-06;
-//        bool tCheck = true;
-//        for( uint Ik = 0; Ik <tFullSolution.numel(); Ik++)
-//        {
-//            if (!((tFullSolution(Ik) - tGoldSolution(Ik)) <= tEpsilon))
-//            {
-//                tCheck = false;
-//            }
-//        }
 
-        // verify solution
-                bool tSolutionCheck = true;
-                for( uint i = 0; i < tFullSolution.numel(); i++ )
-                {
-                    tSolutionCheck = tSolutionCheck && ( tFullSolution( i ) - tGoldSolution( i ) < 1e-03 );
-                    if( !tSolutionCheck )
-                    {
-                        std::cout<<"tFullSolution( i ) "<<tFullSolution( i )<<" tGoldSolution( i ) "<<tGoldSolution( i )<<std::endl;
-                    }
-                }
-        //CHECK(tSolutionCheck);
+        bool tSolutionCheck = true;
+        for( uint i = 0; i < tFullSolution.numel(); i++ )
+        {
+            tSolutionCheck = tSolutionCheck && ( tFullSolution( i ) - tGoldSolution( i ) < 1e-03 );
+            if( !tSolutionCheck )
+            {
+                std::cout<<"tFullSolution( i ) "<<tFullSolution( i )<<" tGoldSolution( i ) "<<tGoldSolution( i )<<std::endl;
+            }
+        }
 
-//        delete tIntegMesh1;
+        CHECK(tSolutionCheck);
+
         delete tModel;
         delete tInterpolationMesh;
     }
@@ -1181,7 +1171,7 @@ TEST_CASE("2D XTK WITH HMR ThermoElastic 2D Staggered","[XTK_HMR_thermoelastic_2
 //                                                 {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY, MSI::Dof_Type::UZ },},
 //                                                 { fem::Property_Type::STRUC_NEUMANN },
 //                                                 moris::Cell< fem::Constitutive_Type >( 0 ) );
-//      tIntIWG( 0 ) = fem::IWG_User_Defined_Info( fem::IWG_Type::STRUC_LINEAR_INTERFACE,
+//      tIntIWG( 0 ) = fem::IWG_User_Defined_Info( fem::IWG_Type::STRUC_LINEAR_INTERFACE_SYMMETRIC_NITSCHE,
 //                                                 { MSI::Dof_Type::UX, MSI::Dof_Type::UY, MSI::Dof_Type::UZ },
 //                                                 {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY, MSI::Dof_Type::UZ }},
 //                                                 Cell< fem::Property_Type >( 0 ),

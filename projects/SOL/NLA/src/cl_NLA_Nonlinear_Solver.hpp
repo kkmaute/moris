@@ -37,8 +37,8 @@ namespace NLA
         //! List of list of dof types
         moris::Cell< moris::Cell< enum MSI::Dof_Type > >  mStaggeredDofTypeList;
 
-        //! List of secundary dependencies
-        moris::Cell< moris::Cell< enum MSI::Dof_Type > >  mSecundaryDofTypeList;
+        //! List of secondary dependencies
+        moris::Cell< moris::Cell< enum MSI::Dof_Type > >  mSecondaryDofTypeList;
 
         //! List with nonlinear solvers
         moris::Cell< std::shared_ptr< Nonlinear_Algorithm > > mNonlinearSolverAlgorithmList;
@@ -155,6 +155,15 @@ namespace NLA
          * @param[in] aSolverInterface Pointer to solver interface
          */
         void set_solver_interface( Solver_Interface * aSolverInterface ){ mSolverInput = aSolverInterface; };
+
+        //--------------------------------------------------------------------------------------------------
+
+        /**
+         * @brief Gets solver interface
+         *
+         * @param[out] Pointer to solver interface
+         */
+        Solver_Interface * get_solver_interface(){ return mSolverInput; };
 
         //--------------------------------------------------------------------------------------------------
 

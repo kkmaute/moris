@@ -84,6 +84,7 @@ namespace moris
             {
                 mPhaseTable.print();
             }
+            mPdvHostManager.set_requested_interpolation_pdv_types(tRequestedPdvTypes);
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -279,7 +280,10 @@ namespace moris
         void Geometry_Engine::admit_queued_intersection(uint aNodeIndex)
         {
             // Assign as PDV host
-            mPdvHostManager.set_intersection_node(aNodeIndex, mQueuedIntersectionNode);
+            if (mGeometries(mActiveGeometryIndex)->depends_on_advs())
+            {
+                mPdvHostManager.set_intersection_node(aNodeIndex, mQueuedIntersectionNode);
+            }
 
             // Assign as child node
             for (uint tGeometryIndex = 0; tGeometryIndex < mGeometries.size(); tGeometryIndex++)
@@ -461,13 +465,13 @@ namespace moris
 
         void Geometry_Engine::create_pdvs(std::shared_ptr<mtk::Mesh_Manager> aMeshManager)
         {
-            // Initialize
+            // Get integration mesh
             mtk::Integration_Mesh* tIntegrationMesh = aMeshManager->get_integration_mesh(0);
 
+            // Initialize PDV type groups and mesh set info
             Cell<Cell<Cell<PDV_Type>>> tPdvTypes(tIntegrationMesh->get_num_sets());
             Cell<PDV_Type> tPdvTypeGroup(1);
             Cell<std::string> tMeshSetNames(0);
-
             Matrix<DDUMat> tMeshSetIndices(0, 0);
 
             // PDV type map
@@ -499,24 +503,19 @@ namespace moris
             }
 
             // Create PDV hosts
-            this->create_ip_pdv_hosts(
+            this->create_interpolation_pdv_hosts(
                     aMeshManager->get_interpolation_mesh(0),
                     tIntegrationMesh,
                     tPdvTypes);
 
             if (mShapeSensitivities)
             {
-                this->create_ig_pdv_hosts(tIntegrationMesh);
+                this->set_integration_pdv_types(tIntegrationMesh);
             }
 
             // Loop over properties to assign PDVs
             for (uint tPropertyIndex = 0; tPropertyIndex < mPropertyParameterLists.size(); tPropertyIndex++)
             {
-                // PDV type and mesh set names/indices from parameter list
-                tPdvTypeGroup(0) = tPdvTypeMap[mPropertyParameterLists(tPropertyIndex).get<std::string>("pdv_type")];
-                string_to_cell(mPropertyParameterLists(tPropertyIndex).get<std::string>("pdv_mesh_set_names"), tMeshSetNames);
-                string_to_mat(mPropertyParameterLists(tPropertyIndex).get<std::string>("pdv_mesh_set_indices"), tMeshSetIndices);
-
                 // Assign PDVs
                 if (mPropertyParameterLists(tPropertyIndex).get<std::string>("pdv_mesh_type") == "interpolation")
                 {
@@ -733,7 +732,7 @@ namespace moris
         // PRIVATE
         //--------------------------------------------------------------------------------------------------------------
 
-        void Geometry_Engine::create_ip_pdv_hosts(
+        void Geometry_Engine::create_interpolation_pdv_hosts(
                 mtk::Interpolation_Mesh     * aInterpolationMesh,
                 mtk::Integration_Mesh       * aIntegrationMesh,
                 Cell<Cell<Cell<PDV_Type>>>    aPdvTypes)
@@ -775,12 +774,12 @@ namespace moris
             }
 
             // Create hosts
-            mPdvHostManager.create_ip_pdv_hosts(tNodeIndicesPerSet, tNodeCoordinates, aPdvTypes);
+            mPdvHostManager.create_interpolation_pdv_hosts(tNodeIndicesPerSet, tNodeCoordinates, aPdvTypes);
         }
 
         //--------------------------------------------------------------------------------------------------------------
 
-        void Geometry_Engine::create_ig_pdv_hosts(mtk::Integration_Mesh* aIntegrationMesh)
+        void Geometry_Engine::set_integration_pdv_types(mtk::Integration_Mesh* aIntegrationMesh)
         {
             // Get information from integration mesh
             uint tNumSets = aIntegrationMesh->get_num_sets();
@@ -819,8 +818,11 @@ namespace moris
             }
 
             // Set PDV types
-            mPdvHostManager.set_ig_pdv_types(tPdvTypes);
-            mPdvHostManager.set_ig_requested_pdv_types(tCoordinatePdvs);
+            mPdvHostManager.set_integration_pdv_types(tPdvTypes);
+            mPdvHostManager.set_requested_integration_pdv_types(tCoordinatePdvs);
+            
+            // Set PDV size
+            mPdvHostManager.set_num_integration_nodes(aIntegrationMesh->get_num_nodes());
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -861,7 +863,7 @@ namespace moris
                         moris_index tVertIndex = tVertices(iVert)->get_index();
 
                         // ask pdv host manager to assign to vertex a pdv type and a property
-                        mPdvHostManager.create_ip_pdv( uint(tVertIndex), aPdvType, aPropertyPointer );
+                        mPdvHostManager.create_interpolation_pdv( uint(tVertIndex), aPdvType, aPropertyPointer );
                     }
                 }
             }

@@ -12,7 +12,6 @@
 #include "cl_FEM_IQI_Volume.hpp"
 #include "cl_FEM_IQI_Strain_Energy.hpp"
 #include "cl_FEM_IQI_Stress.hpp"
-#include "cl_FEM_IQI_Analytic.hpp"
 #include "cl_FEM_IQI_Dof.hpp"
 #include "cl_FEM_IQI_Max_Dof.hpp"
 #include "cl_FEM_IQI_Property.hpp"
@@ -20,7 +19,6 @@
 #include "cl_FEM_IQI_H1_Error_Analytic.hpp"
 #include "cl_FEM_IQI_H1_Semi_Error.hpp"
 #include "cl_FEM_IQI_J_Integral.hpp"
-#include "cl_FEM_IQI_K1_SENT.hpp"
 #include "cl_FEM_IQI_Volume_Fraction.hpp"
 #include "cl_FEM_IQI_2D_Drag_Lift_Coefficient.hpp"
 #include "cl_FEM_IQI_Latent_Heat_Absorption.hpp"
@@ -72,9 +70,6 @@ namespace moris
                 case IQI_Type::MAX_PRINCIPAL_STRESS :
                     return std::make_shared< IQI_Max_Stress >( Stress_Type::PRINCIPAL_STRESS );
 
-                case IQI_Type::ANALYTIC :
-                    return std::make_shared< IQI_Analytic >();
-
                 case IQI_Type::L2_ERROR_ANALYTIC :
                     return std::make_shared< IQI_L2_Error_Analytic >();
 
@@ -86,9 +81,6 @@ namespace moris
 
                 case IQI_Type::J_INTEGRAL :
                     return std::make_shared< IQI_J_Integral >();
-
-                case IQI_Type::K1_SENT :
-                    return std::make_shared< IQI_K1_SENT >();
 
                 case IQI_Type::DRAG_COEFF :
                     return std::make_shared< IQI_Drag_Lift_Coefficient >( 1 );

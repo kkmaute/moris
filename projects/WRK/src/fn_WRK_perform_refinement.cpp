@@ -41,8 +41,15 @@ namespace moris
                 // Perform refinement and update index
                 if (tPerformRefinement)
                 {
-                    aHMR->perform_refinement_based_on_working_pattern( 0, false );
+					aHMR->perform_refinement( 0 );
+                    aHMR->update_refinement_pattern( 0 );
                 }
+				
+				// FIXME add for optimization
+                //if (tPerformRefinement)
+                //{
+                //    aHMR->perform_refinement_based_on_working_pattern( 0, false );
+                //}
 
                 // Update performers
                 tFirstPerformer++;

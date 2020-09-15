@@ -1,12 +1,12 @@
 /*
- * cl_PRM_SOL_Parameters.hpp
+ * fn_PRM_SOL_Parameters.hpp
  *
  *  Created on: Feb 6, 2020
  *      Author: schmidt
  */
 
-#ifndef PROJECTS_PRM_SRC_CL_PRM_SOL_PARAMETERS_HPP_
-#define PROJECTS_PRM_SRC_CL_PRM_SOL_PARAMETERS_HPP_
+#ifndef PROJECTS_PRM_SRC_FN_PRM_SOL_PARAMETERS_HPP_
+#define PROJECTS_PRM_SRC_FN_PRM_SOL_PARAMETERS_HPP_
 
 #include <string>
 #include <cstdio>
@@ -280,6 +280,8 @@ namespace moris
 
             tNonLinAlgorithmParameterList.insert( "NLA_Linear_solver" , 0 );
 
+            tNonLinAlgorithmParameterList.insert( "NLA_linear_solver_for_adjoint_solve" , -1 );
+
             // Allowable Newton solver iterations
             tNonLinAlgorithmParameterList.insert( "NLA_max_iter", 10 );
 
@@ -360,8 +362,9 @@ namespace moris
 
             tTimeAlgorithmParameterList.insert( "TSA_Solver_Implementation" , static_cast< uint >( tType ) );
 
-
             tTimeAlgorithmParameterList.insert( "TSA_Nonlinear_solver" , 0 );
+
+            tTimeAlgorithmParameterList.insert( "TSA_nonlinear_solver_for_adjoint_solve" , -1 );
 
             // Number of time steps
             tTimeAlgorithmParameterList.insert( "TSA_Num_Time_Steps", 1 );
@@ -457,4 +460,4 @@ namespace moris
     }/* end_namespace_prm */
 }/* end_namespace_moris */
 
-#endif /* PROJECTS_PRM_SRC_CL_PRM_SOL_PARAMETERS_HPP_ */
+#endif /* PROJECTS_PRM_SRC_FN_PRM_SOL_PARAMETERS_HPP_ */

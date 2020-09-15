@@ -363,11 +363,12 @@ namespace moris
                             // construct a trivial side cluster
                             moris::mtk::Cell* tInterpCell = &aInterpMesh->get_mtk_cell( tCellIndex );
 
-                            mSideSets(i).push_back( Side_Cluster_HMR(
-                                    tInterpCell,
-                                    tCellsInSet( iIGCell ),
-                                    tCellsInSet( iIGCell )->get_vertices_on_side_ordinal( tSideOrdsInSet(iIGCell) ),
-                                    tSideOrdsInSet( iIGCell ) ) );
+                            mSideSets(i).push_back(
+                                    Side_Cluster_HMR(
+                                            tInterpCell,
+                                            tCellsInSet( iIGCell ),
+                                            tCellsInSet( iIGCell )->get_vertices_on_side_ordinal( tSideOrdsInSet(iIGCell) ),
+                                            tSideOrdsInSet( iIGCell ) ) );
                         }
                     }
 

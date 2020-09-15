@@ -58,9 +58,11 @@ namespace moris
             // Clock for tracing and timing
             GlobalClock  mGlobalClock;
 
+            uint mIteration = 0; // FIXME this is absolutely a hack, it doesn't even store the iteration correctly :)
+
         public:
 
-            Logger(){}
+            Logger(){};
 
             //------------------------------------------------------------------------------
 
@@ -372,14 +374,32 @@ namespace moris
 
             // sign in
             void sign_in(
-                    enum EntityBase aEntityBase,
-                    enum EntityType aEntityType,
+                    enum EntityBase   aEntityBase,
+                    enum EntityType   aEntityType,
                     enum EntityAction aEntityAction );
 
             //------------------------------------------------------------------------------
 
             // signing out
             void sign_out();
+
+            //------------------------------------------------------------------------------
+
+            // increment iteration count of current instance
+            void iterate();
+
+            //------------------------------------------------------------------------------
+
+            // request/get the iteration of a logged instance
+            uint get_iteration(
+                    enum EntityBase   aEntityBase,
+                    enum EntityType   aEntityType,
+                    enum EntityAction aEntityAction );
+
+            //------------------------------------------------------------------------------
+
+            // request/get the iteration of the optimization algorithm
+            uint get_opt_iteration();
 
             //------------------------------------------------------------------------------
 
@@ -501,6 +521,19 @@ extern moris::Logger gLogger;
             {\
                 gLogger.log_specific( __VA_ARGS__ ); \
             }\
+        } while (false)
+
+// -----------------------------------------------------------------------------
+
+/**
+ * Log an iteration increment
+ *
+ * @include "IOS/src/cl_Logger/log.inc"
+ */
+#define MORIS_LOG_ITERATION( ... ) \
+        do \
+        { \
+                gLogger.iterate( __VA_ARGS__ ); \
         } while (false)
 
 // -----------------------------------------------------------------------------

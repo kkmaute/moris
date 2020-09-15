@@ -12,6 +12,51 @@ namespace moris
 {
     namespace fem
     {
+        //------------------------------------------------------------------------------
+
+        void IQI_Stress::set_property(
+                std::shared_ptr< Property > aProperty,
+                std::string                 aPropertyString,
+                mtk::Master_Slave           aIsMaster)
+        {
+            // can only be master
+            MORIS_ERROR( aIsMaster == mtk::Master_Slave::MASTER,
+                    "IQI::set_property - can only be master." );
+
+            // FIXME check that property type makes sense?
+
+            // set the property in the property cell
+            this->get_properties( aIsMaster )( static_cast< uint >( mPropertyMap[ aPropertyString ] ) ) = aProperty;
+        }
+
+        //------------------------------------------------------------------------------
+
+        void IQI_Stress::set_constitutive_model(
+                std::shared_ptr< Constitutive_Model > aConstitutiveModel,
+                std::string                           aConstitutiveString,
+                mtk::Master_Slave                     aIsMaster )
+        {
+            // can only be master
+            MORIS_ERROR( aIsMaster == mtk::Master_Slave::MASTER,
+                    "IQI::set_constitutive model - can only be master." );
+
+            // FIXME check that constitutive string makes sense?
+
+            // set the constitutive model in the constitutive model cell
+            this->get_constitutive_models( aIsMaster )( static_cast< uint >( mConstitutiveMap[ aConstitutiveString ] ) ) = aConstitutiveModel;
+        }
+
+        //------------------------------------------------------------------------------
+
+        void IQI_Stress::set_stabilization_parameter(
+                std::shared_ptr< Stabilization_Parameter > aStabilizationParameter,
+                std::string                                aStabilizationString )
+        {
+            // FIXME check that stabilization string makes sense?
+
+            // set the stabilization parameter in the stabilization parameter cell
+            this->get_stabilization_parameters()( static_cast< uint >( mStabilizationMap[ aStabilizationString ] ) ) = aStabilizationParameter;
+        }
 
         //------------------------------------------------------------------------------
 
@@ -19,9 +64,6 @@ namespace moris
         {
             // assign stress type to evaluate
             mStressType = aStressType;
-
-            // set IQI type
-            mIQIType = vis::Output_Type::STRESS;
 
             // set size for the constitutive model pointer cell
             mMasterCM.resize( static_cast< uint >( IQI_Constitutive_Type::MAX_ENUM ), nullptr );
@@ -54,24 +96,24 @@ namespace moris
             // switch for different stress types
             switch (mStressType)
             {
-            case Stress_Type::VON_MISES_STRESS:
-                tStressValue = this->eval_Von_Mises_stress();
-                break;
+                case Stress_Type::VON_MISES_STRESS:
+                    tStressValue = this->eval_Von_Mises_stress();
+                    break;
 
-            case Stress_Type::PRINCIPAL_STRESS:
-                tStressValue = this->eval_principal_stress( mIQITypeIndex + 1);
-                break;
+                case Stress_Type::PRINCIPAL_STRESS:
+                    tStressValue = this->eval_principal_stress( mIQITypeIndex + 1);
+                    break;
 
-            case Stress_Type::NORMAL_STRESS:
-                tStressValue = this->eval_normal_stress( mIQITypeIndex + 1);
-                break;
+                case Stress_Type::NORMAL_STRESS:
+                    tStressValue = this->eval_normal_stress( mIQITypeIndex + 1);
+                    break;
 
-            case Stress_Type::SHEAR_STRESS:
-                tStressValue = this->eval_shear_stress( mIQITypeIndex + 1);
-                break;
+                case Stress_Type::SHEAR_STRESS:
+                    tStressValue = this->eval_shear_stress( mIQITypeIndex + 1);
+                    break;
 
-            default:
-                MORIS_ERROR( false, "IQI_Max_Stress::compute_QI - Unknown Stress Type." );
+                default:
+                    MORIS_ERROR( false, "IQI_Max_Stress::compute_QI - Unknown Stress Type." );
             }
 
             // evaluate the QI
@@ -80,9 +122,11 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        void IQI_Stress::compute_dQIdDof( Matrix< DDRMat > & adQIdDof )
+        void IQI_Stress::compute_dQIdu(
+                moris::Cell< MSI::Dof_Type > & aDofType,
+                Matrix< DDRMat >             & adQIdu )
         {
-            MORIS_ERROR( 0, "IQI_Stress::compute_dQIdDof - Derivates of stress wrt dof not implemented" );
+            MORIS_ERROR( false, "IQI_Stress::compute_dQIdu - Derivates of stress wrt dof not implemented" );
         }
 
         //------------------------------------------------------------------------------
@@ -94,13 +138,13 @@ namespace moris
 
             // compute contributions to von mises stress
             real tNormalStressContribution =
-                            std::pow( tStressVector( 0 ) - tStressVector( 1 ), 2.0 ) +
-                            std::pow( tStressVector( 1 ) - tStressVector( 2 ), 2.0 ) +
-                            std::pow( tStressVector( 2 ) - tStressVector( 0 ), 2.0 );
+                    std::pow( tStressVector( 0 ) - tStressVector( 1 ), 2.0 ) +
+                    std::pow( tStressVector( 1 ) - tStressVector( 2 ), 2.0 ) +
+                    std::pow( tStressVector( 2 ) - tStressVector( 0 ), 2.0 );
             real tShearStressContribution =
-                            std::pow( tStressVector( 3 ), 2.0 ) +
-                            std::pow( tStressVector( 4 ), 2.0 ) +
-                            std::pow( tStressVector( 5 ), 2.0 );
+                    std::pow( tStressVector( 3 ), 2.0 ) +
+                    std::pow( tStressVector( 4 ), 2.0 ) +
+                    std::pow( tStressVector( 5 ), 2.0 );
 
             // compute Von-Mises stress value
             return std::sqrt( 0.5 * tNormalStressContribution + 3.0 * tShearStressContribution );

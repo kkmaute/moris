@@ -83,8 +83,8 @@
 #include "cl_GEN_Geometry_Field_HMR.hpp"
 
 //PRM
-#include "cl_PRM_HMR_Parameters.hpp"
-#include "cl_PRM_SOL_Parameters.hpp"
+#include "fn_PRM_HMR_Parameters.hpp"
+#include "fn_PRM_SOL_Parameters.hpp"
 #include "cl_GEN_Plane.hpp"
 
 #include "fn_norm.hpp"

@@ -87,7 +87,7 @@
 #include "cl_SOL_Warehouse.hpp"
 
 #include "fn_norm.hpp"
-#include "cl_PRM_SOL_Parameters.hpp"
+#include "fn_PRM_SOL_Parameters.hpp"
 
 #include "cl_GEN_Plane.hpp"
 #include "cl_GEN_User_Defined_Geometry.hpp"
@@ -574,9 +574,9 @@ namespace moris
             fem::IQI_Factory tIQIFactory;
 
             std::shared_ptr< fem::IQI > tIQITEMP = tIQIFactory.create_IQI( fem::IQI_Type::DOF );
-            tIQITEMP->set_output_type( vis::Output_Type::TEMP );
             tIQITEMP->set_dof_type_list( { {MSI::Dof_Type::TEMP} }, mtk::Master_Slave::MASTER );
             tIQITEMP->set_output_type_index( 0 );
+			tIQITEMP->set_name( "IQI_Temp" );
 
             // define set info
             fem::Set_User_Info tSetBulk1;
@@ -623,7 +623,7 @@ namespace moris
                     { "HMR_dummy_c_p0", "HMR_dummy_n_p0"},
                     { "Temperature" },
                     {   vis::Field_Type::NODAL },
-                    { vis::Output_Type::TEMP } );
+                    { "IQI_Temp" } );
 
             tModel->set_output_manager( &tOutputData );
 
@@ -894,9 +894,9 @@ namespace moris
             fem::IQI_Factory tIQIFactory;
 
             std::shared_ptr< fem::IQI > tIQITEMP = tIQIFactory.create_IQI( fem::IQI_Type::DOF );
-            tIQITEMP->set_output_type( vis::Output_Type::TEMP );
             tIQITEMP->set_dof_type_list( { { MSI::Dof_Type::TEMP} }, mtk::Master_Slave::MASTER );
             tIQITEMP->set_output_type_index( 0 );
+			tIQITEMP->set_name( "IQI_Temp" );
 
             // define set info
             fem::Set_User_Info tSetBulk1;
@@ -947,7 +947,7 @@ namespace moris
                     { "HMR_dummy" },
                     { "Temperature" },
                     { vis::Field_Type::NODAL },
-                    { vis::Output_Type::TEMP } );
+                    { "IQI_Temp" } );
             tModel->set_output_manager( &tOutputData );
 
             //-------------------------------------------------------
@@ -1179,7 +1179,6 @@ namespace moris
             //        tIQITEMP->set_output_type_index( 0 );
 
             std::shared_ptr< fem::IQI > tIQIVolFraction = tIQIFactory.create_IQI( fem::IQI_Type::VOLUME_FRACTION );
-            tIQIVolFraction->set_output_type( vis::Output_Type::VOLUME_FRACTION );
             tIQIVolFraction->set_stabilization_parameter( tSPReciprocalVolume, "Reciprocal_total_vol" );
 
 
@@ -1232,7 +1231,7 @@ namespace moris
                     { "HMR_dummy" },
                     { "Temperature" },
                     { vis::Field_Type::NODAL },
-                    { vis::Output_Type::TEMP } );
+                    { "IQI_Temp" } );
             tModel->set_output_manager( &tOutputData );
 
             //-------------------------------------------------------

@@ -85,7 +85,7 @@
 #include "cl_GE_Geometry_Library.hpp"
 #include "cl_GEN_Geom_Field_HMR.hpp"
 
-#include "cl_PRM_HMR_Parameters.hpp"
+#include "fn_PRM_HMR_Parameters.hpp"
 
 
 #include "fn_norm.hpp"

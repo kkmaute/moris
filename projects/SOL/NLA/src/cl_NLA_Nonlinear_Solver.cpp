@@ -16,7 +16,7 @@
 #include "cl_Communication_Tools.hpp"
 #include "cl_Logger.hpp"
 
-#include "cl_PRM_SOL_Parameters.hpp"
+#include "fn_PRM_SOL_Parameters.hpp"
 
 // Detailed Logging package
 //#include "cl_Tracer.hpp"
@@ -28,7 +28,7 @@ using namespace NLA;
 
 Nonlinear_Solver::Nonlinear_Solver(
         const enum NonlinearSolverType aNonLinSolverType )
-: mSecundaryDofTypeList( Cell<Cell<enum MSI::Dof_Type>>(0)),
+: mSecondaryDofTypeList( Cell<Cell<enum MSI::Dof_Type>>(0)),
   mNonLinSolverType( aNonLinSolverType )
 {
     // create solver factory
@@ -53,7 +53,7 @@ Nonlinear_Solver::Nonlinear_Solver(
 Nonlinear_Solver::Nonlinear_Solver(
         const enum NonlinearSolverType aNonLinSolverType,
         const ParameterList            aParameterlist )
-: mSecundaryDofTypeList( Cell<Cell<enum MSI::Dof_Type>>(0)),
+: mSecondaryDofTypeList( Cell<Cell<enum MSI::Dof_Type>>(0)),
   mParameterListNonLinearSolver( aParameterlist ),
   mNonLinSolverType( aNonLinSolverType )
 {
@@ -65,7 +65,7 @@ Nonlinear_Solver::Nonlinear_Solver(
 Nonlinear_Solver::Nonlinear_Solver(
         moris::Cell< std::shared_ptr<Nonlinear_Algorithm > > & aNonlinerSolverList,
         const enum NonlinearSolverType                            aNonLinSolverType )
-: mSecundaryDofTypeList( Cell<Cell<enum MSI::Dof_Type>>(0)),
+: mSecondaryDofTypeList( Cell<Cell<enum MSI::Dof_Type>>(0)),
   mNonLinSolverType( aNonLinSolverType )
 {
     mNonlinearSolverAlgorithmList = aNonlinerSolverList;
@@ -105,12 +105,12 @@ void Nonlinear_Solver::set_dof_type_list(
 
 void Nonlinear_Solver::set_secondiry_dof_type_list( const moris::Cell< enum MSI::Dof_Type > aStaggeredDofTypeList)
 {
-    if ( mSecundaryDofTypeList.size() == 0 )
+    if ( mSecondaryDofTypeList.size() == 0 )
     {
-        mSecundaryDofTypeList.clear();
+        mSecondaryDofTypeList.clear();
     }
 
-    mSecundaryDofTypeList.push_back( aStaggeredDofTypeList );
+    mSecondaryDofTypeList.push_back( aStaggeredDofTypeList );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -281,7 +281,7 @@ void Nonlinear_Solver::solve( sol::Dist_Vector * aFullVector )
 
     mSolverInput->set_requested_dof_types( tDofTypeUnion );
 
-    mSolverInput->set_secundary_dof_types( mSecundaryDofTypeList );
+    mSolverInput->set_secondary_dof_types( mSecondaryDofTypeList );
 
     if ( mNonLinSolverType == NonlinearSolverType::NLBGS_SOLVER )
     {

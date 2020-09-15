@@ -16,7 +16,7 @@
 #include "cl_TSA_Time_Solver_Algorithm.hpp"
 
 #include "fn_Parsing_Tools.hpp"
-#include "cl_PRM_SOL_Parameters.hpp"
+#include "fn_PRM_SOL_Parameters.hpp"
 
 #include "cl_Communication_Tools.hpp"
 #include "cl_Logger.hpp"

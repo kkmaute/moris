@@ -20,9 +20,6 @@ namespace moris
             // assign stress type to evaluate
             mStressType = aStressType;
 
-            // set IQI type
-            mIQIType = vis::Output_Type::MAX_STRESS;
-
             // set FEM IQI type
             mFEMIQIType = fem::IQI_Type::MAX_STRESS;
 
@@ -42,7 +39,8 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        void IQI_Max_Stress::set_property( std::shared_ptr< Property > aProperty,
+        void IQI_Max_Stress::set_property(
+                std::shared_ptr< Property > aProperty,
                 std::string                 aPropertyString,
                 mtk::Master_Slave           aIsMaster)
         {
@@ -148,34 +146,11 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        void IQI_Max_Stress::compute_QI( moris::real aWStar )
+        void IQI_Max_Stress::compute_dQIdu(
+                moris::Cell< MSI::Dof_Type > & aDofType,
+                Matrix< DDRMat >             & adQIdu )
         {
-            // get index for QI
-            sint tQIIndex = mSet->get_QI_assembly_index( mName );
-
-            // compute von mises stress value
-            real tStressValue = this->eval_Von_Mises_stress();
-
-            // check if properties are set
-            MORIS_ERROR(mMasterProp( static_cast< uint >( IQI_Property_Type::REFERENCE_VALUE ) ) != nullptr,
-                    "IQI_Max_Dof - no reference value set");
-
-            MORIS_ERROR(mMasterProp( static_cast< uint >( IQI_Property_Type::EXPONENT ) ) != nullptr,
-                    "IQI_Max_Dof - no exponent set");
-
-            // get property values
-            real tRefValue = mMasterProp( static_cast< uint >( IQI_Property_Type::REFERENCE_VALUE ) )->val()( 0 );
-            real tExponent = mMasterProp( static_cast< uint >( IQI_Property_Type::EXPONENT ) )->val()( 0 );
-
-            // evaluate the QI
-            mSet->get_QI()( tQIIndex ).matrix_data() += { aWStar *  std::pow( 1/tRefValue * tStressValue - 1.0, tExponent ) };
-        }
-
-        //------------------------------------------------------------------------------
-
-        void IQI_Max_Stress::compute_dQIdDof( Matrix< DDRMat > & adQIdDof )
-        {
-            MORIS_ERROR(0,"IQI_Max_Von_Mises_Stress::compute_dQIdDof - Derivatives of stress wrt dof not implemented");
+            MORIS_ERROR( false,"IQI_Max_Von_Mises_Stress::compute_dQIdu - Derivatives of stress wrt dof not implemented");
         }
 
         //------------------------------------------------------------------------------

@@ -3,6 +3,11 @@
 #include "fn_sum.hpp"
 #include "HDF5_Tools.hpp"
 
+// Logger package
+#include "cl_Logger.hpp"
+#include "cl_Tracer.hpp"
+#include "cl_Tracer_Enums.hpp"
+
 namespace moris
 {
     namespace opt
@@ -36,6 +41,9 @@ namespace moris
 
         void Algorithm_Sweep::solve(std::shared_ptr<Problem> aOptProb )
         {
+            // Trace optimization
+            Tracer tTracer(EntityBase::OptimizationAlgorithm, EntityType::Sweep, EntityAction::Solve);
+
             //----------------------------------------------------------------------------------------------------------
             // Initialize
             //----------------------------------------------------------------------------------------------------------
@@ -179,6 +187,9 @@ namespace moris
             // Loop through evaluation points
             for (uint tEvaluationIndex = 0; tEvaluationIndex < tTotalEvaluations; tEvaluationIndex++)
             {
+                // Log iteration of optimization
+                MORIS_LOG_ITERATION();
+
                 // Set new ADVs
                 mProblem->set_advs(mEvaluationPoints.get_column(tEvaluationIndex));
 

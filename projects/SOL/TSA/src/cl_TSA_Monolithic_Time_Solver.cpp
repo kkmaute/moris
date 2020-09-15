@@ -13,7 +13,7 @@
 #include "cl_NLA_Nonlinear_Solver.hpp"
 #include "cl_NLA_Nonlinear_Problem.hpp"
 
-// for detailed logging
+// Logging package
 #include "cl_Logger.hpp"
 #include "cl_Tracer.hpp"
 #include "cl_Tracer_Enums.hpp"
@@ -57,7 +57,8 @@ void Monolithic_Time_Solver::solve_monolytic_time_system( moris::Cell< sol::Dist
         tTimeFrames.push_back( tTime );
 
         // log number of time steps
-        MORIS_LOG_SPEC( OutputSpecifier::Iteration, (Ik+1) );
+        //MORIS_LOG_SPEC( OutputSpecifier::Iteration, (Ik+1) );
+        MORIS_LOG_ITERATION();
 
         mSolverInterface->set_solution_vector( aFullVector( tSolVecIndex ) );
         mSolverInterface->set_solution_vector_prev_time_step( aFullVector( tPrevSolVecIndex ) );
@@ -134,9 +135,9 @@ void Monolithic_Time_Solver::solve_implicit_DqDs( moris::Cell< sol::Dist_Vector 
 
         MORIS_LOG_INFO ((tOrnament+tTimeInfo+tOrnament).c_str());
 
-        mNonlinearSolver->set_time_step_iter( Ik );
+        mNonlinearSolverForAdjoint->set_time_step_iter( Ik );
 
-        mNonlinearSolver->solve( aFullAdjointVector( 0 ) );
+        mNonlinearSolverForAdjoint->solve( aFullAdjointVector( 0 ) );
 
         mSolverInterface->postmultiply_implicit_dQds();
 

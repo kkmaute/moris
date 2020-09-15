@@ -28,7 +28,7 @@ namespace moris
                 const moris::Cell< std::string >      & aBlockNames,
                 const moris::Cell< std::string >      & aFieldNames,
                 const moris::Cell< enum Field_Type >  & aFieldType,
-                const moris::Cell< enum Output_Type > & aEnum )
+                const moris::Cell< std::string >      & aQINames )
         {
             // create output data object
             vis::Output_Data tOutputData;
@@ -41,7 +41,7 @@ namespace moris
             tOutputData.mSetNames   = aBlockNames;
             tOutputData.mFieldNames = aFieldNames;
             tOutputData.mFieldType  = aFieldType;
-            tOutputData.mOutputType = aEnum;
+			tOutputData.mQINames    = aQINames;
 
             // resize list of output data objects
             uint tSize = mOutputData.size();
@@ -90,16 +90,13 @@ namespace moris
 
             // check that length of Field_Names and Field_Type are consistent
             MORIS_ERROR( tFieldNames.size() == tFieldTypes.size(),"Output_Manager::set_outputs - Number of Field Names and Field Types differ.");
-
-            moris::Cell< enum vis::Output_Type > tOutputTypes;
-            moris::map< std::string, enum vis::Output_Type > tOutputTypeMap = get_vis_output_type_map();
-            string_to_cell( aParamterelist.get< std::string >( "Output_Type" ) ,
-                    tOutputTypes,
-                    tOutputTypeMap );
-            tOutputData.mOutputType = tOutputTypes;
+			
+			moris::Cell< std::string > tQINames;
+            string_to_cell( aParamterelist.get< std::string >( "IQI_Names"), tQINames );
+            tOutputData.mQINames = tQINames;
 
             // check that length of Field_Names and Field_Type are consistent
-            MORIS_ERROR( tFieldNames.size() == tOutputTypes.size(),"Output_Manager::set_outputs - Number of Field Names and Output Types differ.");
+            MORIS_ERROR( tFieldNames.size() == tQINames.size(),"Output_Manager::set_outputs - Number of Field Names and QI Names differ.");
 
             // resize list of output data objects
             sint tSize = mOutputData.size();
@@ -474,7 +471,7 @@ namespace moris
                                 &tElementValues,
                                 &tNodalValues,
                                 &tGlobalValue,
-                                mOutputData( aVisMeshIndex ).mOutputType( Ik ),
+                                mOutputData( aVisMeshIndex ).mQINames( Ik ),
                                 mOutputData( aVisMeshIndex ).mFieldType( Ik ) );
 
                         if( mOutputData( aVisMeshIndex ).mFieldType( Ik ) == Field_Type::ELEMENTAL )

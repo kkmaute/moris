@@ -379,9 +379,9 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
-        moris::Cell< moris::Cell< enum MSI::Dof_Type > > Equation_Set::get_secundary_dof_types()
+        moris::Cell< moris::Cell< enum MSI::Dof_Type > > Equation_Set::get_secondary_dof_types()
         {
-            return mModelSolverInterface->get_solver_interface()->get_secundary_dof_types();
+            return mModelSolverInterface->get_solver_interface()->get_secondary_dof_types();
         }
 
         //------------------------------------------------------------------------------

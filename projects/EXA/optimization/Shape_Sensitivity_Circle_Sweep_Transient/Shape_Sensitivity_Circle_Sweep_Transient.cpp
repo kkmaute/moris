@@ -8,14 +8,14 @@
 #include "cl_TSA_Time_Solver.hpp"
 #include "cl_DLA_Solver_Interface.hpp"
 #include "cl_DLA_Linear_Solver_Aztec.hpp"
-#include "cl_PRM_FEM_Parameters.hpp"
-#include "cl_PRM_MSI_Parameters.hpp"
-#include "cl_PRM_SOL_Parameters.hpp"
-#include "cl_PRM_VIS_Parameters.hpp"
-#include "cl_PRM_HMR_Parameters.hpp"
+#include "fn_PRM_FEM_Parameters.hpp"
+#include "fn_PRM_MSI_Parameters.hpp"
+#include "fn_PRM_SOL_Parameters.hpp"
+#include "fn_PRM_VIS_Parameters.hpp"
+#include "fn_PRM_HMR_Parameters.hpp"
 #include "fn_PRM_GEN_Parameters.hpp"
-#include "cl_PRM_XTK_Parameters.hpp"
-#include "cl_PRM_OPT_Parameters.hpp"
+#include "fn_PRM_XTK_Parameters.hpp"
+#include "fn_PRM_OPT_Parameters.hpp"
 #include "cl_HMR_Element.hpp"
 #include "fn_equal_to.hpp"
 
@@ -353,6 +353,20 @@ Matrix<DDRMat> compute_dconstraint_dcriteria(Matrix<DDRMat> aADVs, Matrix<DDRMat
         tParameterList( 0 )( tPropCounter ).set( "value_function",           "Func_Const");
         tPropCounter++;
 
+        // Reference Temperature for MAX_DOF - IQI
+        tParameterList( 0 ).push_back( prm::create_property_parameter_list() );
+        tParameterList( 0 )( tPropCounter ).set( "property_name",            "PropMaxTempReference") ;
+        tParameterList( 0 )( tPropCounter ).set( "function_parameters",      "1.0" );
+        tParameterList( 0 )( tPropCounter ).set( "value_function",           "Func_Const") ;
+        tPropCounter++;
+
+        // Exponent for MAX_DOF - IQI
+        tParameterList( 0 ).push_back( prm::create_property_parameter_list() );
+        tParameterList( 0 )( tPropCounter ).set( "property_name",            "PropMaxTempExponent") ;
+        tParameterList( 0 )( tPropCounter ).set( "function_parameters",      "2.0" );
+        tParameterList( 0 )( tPropCounter ).set( "value_function",           "Func_Const");
+        tPropCounter++;
+
         //------------------------------------------------------------------------------
         // init CM counter
         uint tCMCounter = 0;
@@ -465,7 +479,6 @@ Matrix<DDRMat> compute_dconstraint_dcriteria(Matrix<DDRMat> aADVs, Matrix<DDRMat
         tParameterList( 4 ).push_back( prm::create_IQI_parameter_list() );
         tParameterList( 4 )( tIQICounter ).set( "IQI_name",                   "IQIBulkTEMP");
         tParameterList( 4 )( tIQICounter ).set( "IQI_type",                   static_cast< uint >( fem::IQI_Type::DOF ) );
-        tParameterList( 4 )( tIQICounter ).set( "IQI_output_type",            static_cast< uint >( vis::Output_Type::TEMP ) );
         tParameterList( 4 )( tIQICounter ).set( "master_dof_dependencies",    "TEMP");
         tParameterList( 4 )( tIQICounter ).set( "vectorial_field_index",      0 );
         tParameterList( 4 )( tIQICounter ).set( "mesh_set_names",             tPhase1 );
@@ -475,7 +488,6 @@ Matrix<DDRMat> compute_dconstraint_dcriteria(Matrix<DDRMat> aADVs, Matrix<DDRMat
         tParameterList( 4 ).push_back( prm::create_IQI_parameter_list() );
         tParameterList( 4 )( tIQICounter ).set( "IQI_name",                   "IQIBulkStrainEnergy");
         tParameterList( 4 )( tIQICounter ).set( "IQI_type",                   static_cast< uint >( fem::IQI_Type::STRAIN_ENERGY ) );
-        tParameterList( 4 )( tIQICounter ).set( "IQI_output_type",            static_cast< uint >( vis::Output_Type::STRAIN_ENERGY ) );
         tParameterList( 4 )( tIQICounter ).set( "master_dof_dependencies",    "TEMP");
         tParameterList( 4 )( tIQICounter ).set( "master_constitutive_models", "CMDiffusion1,Elast");
         tParameterList( 4 )( tIQICounter ).set( "mesh_set_names",             tPhase1);
@@ -484,10 +496,21 @@ Matrix<DDRMat> compute_dconstraint_dcriteria(Matrix<DDRMat> aADVs, Matrix<DDRMat
         tParameterList( 4 ).push_back( prm::create_IQI_parameter_list() );
         tParameterList( 4 )( tIQICounter ).set( "IQI_name",                   "IQIBulkVolume");
         tParameterList( 4 )( tIQICounter ).set( "IQI_type",                   static_cast< uint >( fem::IQI_Type::VOLUME ) );
-        tParameterList( 4 )( tIQICounter ).set( "IQI_output_type",            static_cast< uint >( vis::Output_Type::VOLUME ) );
         tParameterList( 4 )( tIQICounter ).set( "master_dof_dependencies",    "TEMP");
         tParameterList( 4 )( tIQICounter ).set( "mesh_set_names",             tPhase1 );
         tIQICounter++;
+
+        // Max Temperature IQI
+        tParameterList( 4 ).push_back( prm::create_IQI_parameter_list() );
+        tParameterList( 4 )( tIQICounter ).set( "IQI_name",                   "IQIMaxTemp") ;
+        tParameterList( 4 )( tIQICounter ).set( "IQI_type",                   static_cast< uint >( fem::IQI_Type::MAX_DOF ) );
+        tParameterList( 4 )( tIQICounter ).set( "master_dof_dependencies",    "TEMP") ;
+        tParameterList( 4 )( tIQICounter ).set( "vectorial_field_index",      0 );
+        tParameterList( 4 )( tIQICounter ).set( "master_properties",  "PropMaxTempReference,ReferenceValue;"
+                                                                      "PropMaxTempExponent,Exponent" ) ;
+        tParameterList( 4 )( tIQICounter ).set( "mesh_set_names",             tTotalDomain );
+        tIQICounter++;
+
 
         //------------------------------------------------------------------------------
         // fill the computation part of the parameter list
@@ -548,9 +571,9 @@ Matrix<DDRMat> compute_dconstraint_dcriteria(Matrix<DDRMat> aADVs, Matrix<DDRMat
         tParameterlist( 0 )( 0 ).set( "File_Name"  , std::pair< std::string, std::string >( "./", tOutputFileName ) );
         tParameterlist( 0 )( 0 ).set( "Mesh_Type"  , static_cast< uint >( vis::VIS_Mesh_Type::STANDARD ) );
         tParameterlist( 0 )( 0 ).set( "Set_Names"  , tPhase1 );
-        tParameterlist( 0 )( 0 ).set( "Field_Names", "TEMP");
-        tParameterlist( 0 )( 0 ).set( "Field_Type" , "NODAL");
-        tParameterlist( 0 )( 0 ).set( "Output_Type", "TEMP");
+        tParameterlist( 0 )( 0 ).set( "Field_Names", "TEMP,MAX_DOF");
+        tParameterlist( 0 )( 0 ).set( "Field_Type" , "NODAL,GLOBAL");
+        tParameterlist( 0 )( 0 ).set( "IQI_Names"  , "IQIBulkTEMP,IQIMaxTemp");
         tParameterlist( 0 )( 0 ).set( "Save_Frequency", 1 );
     }
 

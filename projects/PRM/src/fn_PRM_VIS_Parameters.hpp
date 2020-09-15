@@ -1,12 +1,12 @@
 /*
- * cl_PRM_VIS_Parameters.hpp
+ * fn_PRM_VIS_Parameters.hpp
  *
  *  Created on: Feb 6, 2020
  *      Author: schmidt
  */
 
-#ifndef PROJECTS_PRM_SRC_CL_PRM_VIS_PARAMETERS_HPP_
-#define PROJECTS_PRM_SRC_CL_PRM_VIS_PARAMETERS_HPP_
+#ifndef PROJECTS_PRM_SRC_FN_PRM_VIS_PARAMETERS_HPP_
+#define PROJECTS_PRM_SRC_FN_PRM_VIS_PARAMETERS_HPP_
 
 #include <string>
 #include <cstdio>
@@ -40,7 +40,7 @@ namespace moris
         mVISParameterList.insert( "Set_Names"      , std::string("") );
         mVISParameterList.insert( "Field_Names"    , std::string("") );
         mVISParameterList.insert( "Field_Type"     , std::string("") );
-        mVISParameterList.insert( "Output_Type"    , std::string("") );
+	mVISParameterList.insert( "IQI_Names"      , std::string("") );
 
         return mVISParameterList;
     }
@@ -49,4 +49,4 @@ namespace moris
     }/* end_namespace_prm */
 }/* end_namespace_moris */
 
-#endif /* PROJECTS_PRM_SRC_CL_PRM_VIS_PARAMETERS_HPP_ */
+#endif /* PROJECTS_PRM_SRC_FN_PRM_VIS_PARAMETERS_HPP_ */

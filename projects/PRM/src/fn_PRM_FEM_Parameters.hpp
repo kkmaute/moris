@@ -1,12 +1,12 @@
 /*
- * cl_PRM_FEM_Parameters.hpp
+ * fn_PRM_FEM_Parameters.hpp
  *
  *  Created on: Feb 6, 2020
  *      Author: noel
  */
 
-#ifndef PROJECTS_PRM_SRC_CL_PRM_FEM_PARAMETERS_HPP_
-#define PROJECTS_PRM_SRC_CL_PRM_FEM_PARAMETERS_HPP_
+#ifndef PROJECTS_PRM_SRC_FN_PRM_FEM_PARAMETERS_HPP_
+#define PROJECTS_PRM_SRC_FN_PRM_FEM_PARAMETERS_HPP_
 
 #include <string>
 #include <cstdio>
@@ -131,7 +131,6 @@ namespace moris
 
             tParameterList.insert( "IQI_name",                   std::string( "undefined" ) );
             tParameterList.insert( "IQI_type",                   static_cast< uint >( fem::IQI_Type::UNDEFINED ) );
-            tParameterList.insert( "IQI_output_type",            static_cast< uint >( vis::Output_Type::UNDEFINED ) );
             tParameterList.insert( "master_dof_dependencies",    std::string( "" ) );
             tParameterList.insert( "slave_dof_dependencies",     std::string( "" ) );
             tParameterList.insert( "master_dv_dependencies",     std::string( "" ) );
@@ -146,6 +145,7 @@ namespace moris
             tParameterList.insert( "mesh_set_names",             std::string( "" ) );
             tParameterList.insert( "time_continuity",            false );
             tParameterList.insert( "time_boundary",              false );
+            tParameterList.insert( "normalization",              "none" ); // options: time, design, vector of reference values
 
             return tParameterList;
         }
@@ -158,6 +158,9 @@ namespace moris
         ParameterList create_computation_parameter_list()
         {
             ParameterList tParameterList;
+
+            // bool true for printing physics
+            tParameterList.insert( "print_physics_model", false );
 
             // bool true for analytical sensitivity analysis, false for finite difference
             tParameterList.insert( "is_analytical_sensitivity", false );
@@ -177,4 +180,4 @@ namespace moris
     }/* end_namespace_prm */
 }/* end_namespace_moris */
 
-#endif /* PROJECTS_PRM_SRC_CL_PRM_FEM_PARAMETERS_HPP_ */
+#endif /* PROJECTS_PRM_SRC_FN_PRM_FEM_PARAMETERS_HPP_ */

@@ -11,6 +11,10 @@
 #include "cl_SOL_Dist_Vector.hpp"
 #include "cl_DLA_Solver_Interface.hpp"
 
+// Logging package
+#include "cl_Logger.hpp"
+#include "cl_Tracer.hpp"
+#include "cl_Tracer_Enums.hpp"
 
 using namespace moris;
 using namespace tsa;
@@ -18,6 +22,9 @@ using namespace tsa;
 
 void Staggered_Time_Solver::solve_staggered_time_system( moris::Cell< sol::Dist_Vector * > & aFullVector )
 {
+    // trace this solve
+    Tracer tTracer(EntityBase::TimeSolver, EntityType::Staggered, EntityAction::Solve);
+
     this->finalize();
 
     moris::sint tMaxIts = 1;
@@ -27,6 +34,9 @@ void Staggered_Time_Solver::solve_staggered_time_system( moris::Cell< sol::Dist_
     // time loop
     for ( sint It = 1; It <= tMaxIts; ++It )
     {
+        // log number of time steps
+        MORIS_LOG_ITERATION();
+
         moris::real tMaxNewTime      = 0.0;
 
         //get_time_problem()

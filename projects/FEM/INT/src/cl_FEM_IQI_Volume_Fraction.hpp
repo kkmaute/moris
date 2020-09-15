@@ -20,63 +20,65 @@ namespace moris
 {
     namespace fem
     {
-//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
 
         class IQI_Volume_Fraction : public IQI
         {
 
-            enum class IQI_Stabilization_Type
-            {
-                RECIPROCAL_TOTAL_VOLUME,
-                MAX_ENUM
-            };
+                enum class IQI_Stabilization_Type
+                {
+                        RECIPROCAL_TOTAL_VOLUME,
+                        MAX_ENUM
+                };
 
-            // Local string to constitutive enum map
-            std::map< std::string, IQI_Stabilization_Type > mStabilizationMap;
+                // Local string to constitutive enum map
+                std::map< std::string, IQI_Stabilization_Type > mStabilizationMap;
 
-//------------------------------------------------------------------------------
+                //------------------------------------------------------------------------------
             public:
-//------------------------------------------------------------------------------
-            /*
-             *  constructor
-             */
-            IQI_Volume_Fraction();
+                //------------------------------------------------------------------------------
+                /*
+                 *  constructor
+                 */
+                IQI_Volume_Fraction();
 
-//------------------------------------------------------------------------------
-            /**
-             * trivial destructor
-             */
-            ~IQI_Volume_Fraction(){};
+                //------------------------------------------------------------------------------
+                /**
+                 * trivial destructor
+                 */
+                ~IQI_Volume_Fraction(){};
 
-//------------------------------------------------------------------------------
-            /**
-             * compute the quantity of interest
-             * @param[ in ] aQI quantity of interest matrix to fill
-             */
-            void compute_QI( Matrix< DDRMat > & aQI );
+                //------------------------------------------------------------------------------
+                /**
+                 * set stabilization parameter
+                 * @param[ in ] aStabilizationParameter a stabilization parameter pointer
+                 * @param[ in ] aStabilizationString    a string defining the stabilization parameter
+                 */
+                void set_stabilization_parameter(
+                        std::shared_ptr< Stabilization_Parameter > aStabilizationParameter,
+                        std::string                                aStabilizationString );
 
-//------------------------------------------------------------------------------
+                //------------------------------------------------------------------------------
 
-            void compute_QI( moris::real aWStar );
+            private:
 
-//------------------------------------------------------------------------------
-        /**
-         * set stabilization parameter
-         * @param[ in ] aStabilizationParameter a stabilization parameter pointer
-         * @param[ in ] aStabilizationString    a string defining the stabilization parameter
-         */
-        void set_stabilization_parameter( std::shared_ptr< Stabilization_Parameter > aStabilizationParameter,
-                                          std::string                                aStabilizationString )
-        {
-            // FIXME check that stabilization string makes sense?
-        	std::cout<<static_cast< uint >( mStabilizationMap[ aStabilizationString ] )<<" string"<<std::endl;
-        	std::cout<<this->get_stabilization_parameters().size()<<" size"<<std::endl;
+                //------------------------------------------------------------------------------
+                /**
+                 * compute the quantity of interest
+                 * @param[ in ] aQI quantity of interest matrix to fill
+                 */
+                void compute_QI( Matrix< DDRMat > & aQI );
 
-            // set the stabilization parameter in the stabilization parameter cell
-            this->get_stabilization_parameters()( static_cast< uint >( mStabilizationMap[ aStabilizationString ] ) ) = aStabilizationParameter;
-        }
+                //------------------------------------------------------------------------------
+                /**
+                 * compute the derivative of the quantity of interest wrt dof types
+                 * @param[ in ] aDofType group of dof types wrt which derivatives are evaluated
+                 * @param[ in ] adQIdu   derivative of quantity of interest matrix to fill
+                 */
+                void compute_dQIdu(
+                        moris::Cell< MSI::Dof_Type > & aDofType,
+                        Matrix< DDRMat >             & adQIdu );
 
-//------------------------------------------------------------------------------
         };
     }/* end namespace fem */
 } /* end namespace moris */

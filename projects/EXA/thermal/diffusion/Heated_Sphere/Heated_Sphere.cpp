@@ -8,14 +8,14 @@
 #include "cl_TSA_Time_Solver.hpp"
 #include "cl_DLA_Solver_Interface.hpp"
 #include "cl_DLA_Linear_Solver_Aztec.hpp"
-#include "cl_PRM_FEM_Parameters.hpp"
-#include "cl_PRM_MSI_Parameters.hpp"
-#include "cl_PRM_SOL_Parameters.hpp"
-#include "cl_PRM_VIS_Parameters.hpp"
-#include "cl_PRM_HMR_Parameters.hpp"
+#include "fn_PRM_FEM_Parameters.hpp"
+#include "fn_PRM_MSI_Parameters.hpp"
+#include "fn_PRM_SOL_Parameters.hpp"
+#include "fn_PRM_VIS_Parameters.hpp"
+#include "fn_PRM_HMR_Parameters.hpp"
 #include "fn_PRM_GEN_Parameters.hpp"
-#include "cl_PRM_XTK_Parameters.hpp"
-#include "cl_PRM_OPT_Parameters.hpp"
+#include "fn_PRM_XTK_Parameters.hpp"
+#include "fn_PRM_OPT_Parameters.hpp"
 #include "cl_HMR_Element.hpp"
 #include "fn_equal_to.hpp"
 
@@ -554,7 +554,6 @@ namespace moris
         tParameterList( 4 ).push_back( prm::create_IQI_parameter_list() );
         tParameterList( 4 )( tIQICounter ).set( "IQI_name",                   "IQIBulkTEMP") ;
         tParameterList( 4 )( tIQICounter ).set( "IQI_type",                   static_cast< uint >( fem::IQI_Type::DOF ) );
-        tParameterList( 4 )( tIQICounter ).set( "IQI_output_type",            static_cast< uint >( vis::Output_Type::TEMP ) );
         tParameterList( 4 )( tIQICounter ).set( "master_dof_dependencies",    "TEMP") ;
         tParameterList( 4 )( tIQICounter ).set( "vectorial_field_index",      0 );
         tParameterList( 4 )( tIQICounter ).set( "mesh_set_names",             tTotalDomain );
@@ -564,7 +563,6 @@ namespace moris
         tParameterList( 4 ).push_back( prm::create_IQI_parameter_list() );
         tParameterList( 4 )( tIQICounter ).set( "IQI_name",                   "IQIBulkTEMPAnalytic") ;
         tParameterList( 4 )( tIQICounter ).set( "IQI_type",                   static_cast< uint >( fem::IQI_Type::PROPERTY ) );
-        tParameterList( 4 )( tIQICounter ).set( "IQI_output_type",            static_cast< uint >( vis::Output_Type::PROPERTY ) );
         tParameterList( 4 )( tIQICounter ).set( "master_properties",          "PropExactTemperature,Property") ;
         tParameterList( 4 )( tIQICounter ).set( "mesh_set_names",             tTotalDomain );
         tIQICounter++;
@@ -573,7 +571,6 @@ namespace moris
         tParameterList( 4 ).push_back( prm::create_IQI_parameter_list() );
         tParameterList( 4 )( tIQICounter ).set( "IQI_name",                   "IQIBulkL2Error") ;
         tParameterList( 4 )( tIQICounter ).set( "IQI_type",                   static_cast< uint >( fem::IQI_Type::L2_ERROR_ANALYTIC ) );
-        tParameterList( 4 )( tIQICounter ).set( "IQI_output_type",            static_cast< uint >( vis::Output_Type::L2_ERROR_ANALYTIC ) );
         tParameterList( 4 )( tIQICounter ).set( "master_dof_dependencies",    "TEMP") ;
         tParameterList( 4 )( tIQICounter ).set( "master_properties",          "PropExactTemperature,L2Check") ;
         tParameterList( 4 )( tIQICounter ).set( "mesh_set_names",             tTotalDomain );
@@ -583,7 +580,6 @@ namespace moris
         tParameterList( 4 ).push_back( prm::create_IQI_parameter_list() );
         tParameterList( 4 )( tIQICounter ).set( "IQI_name",                   "IQIBulkH1Error") ;
         tParameterList( 4 )( tIQICounter ).set( "IQI_type",                   static_cast< uint >( fem::IQI_Type::H1_ERROR_ANALYTIC ) );
-        tParameterList( 4 )( tIQICounter ).set( "IQI_output_type",            static_cast< uint >( vis::Output_Type::H1_ERROR_ANALYTIC ) );
         tParameterList( 4 )( tIQICounter ).set( "master_dof_dependencies",    "TEMP") ;
         tParameterList( 4 )( tIQICounter ).set( "master_properties",          "PropExactTemperatureGradient,H1Check") ;
         tParameterList( 4 )( tIQICounter ).set( "mesh_set_names",             tTotalDomain );
@@ -592,7 +588,6 @@ namespace moris
         tParameterList( 4 ).push_back( prm::create_IQI_parameter_list() );
         tParameterList( 4 )( tIQICounter ).set( "IQI_name",                   "IQIVolume") ;
         tParameterList( 4 )( tIQICounter ).set( "IQI_type",                   static_cast< uint >( fem::IQI_Type::VOLUME ) );
-        tParameterList( 4 )( tIQICounter ).set( "IQI_output_type",            static_cast< uint >( vis::Output_Type::VOLUME ) );
         tParameterList( 4 )( tIQICounter ).set( "master_dof_dependencies",    "TEMP") ;
         tParameterList( 4 )( tIQICounter ).set( "mesh_set_names",             tTotalDomain );
         tIQICounter++;
@@ -656,7 +651,7 @@ namespace moris
         tParameterlist( 0 )( 0 ).set( "Set_Names"  , tTotalDomain );
         tParameterlist( 0 )( 0 ).set( "Field_Names", "TEMP,TEMP_ANALYTIC,L2_ERROR_ANALYTIC,H1_ERROR_ANALYTIC,VOLUME") ;
         tParameterlist( 0 )( 0 ).set( "Field_Type" , "NODAL,NODAL,GLOBAL,GLOBAL,GLOBAL") ;
-        tParameterlist( 0 )( 0 ).set( "Output_Type", "TEMP,PROPERTY,L2_ERROR_ANALYTIC,H1_ERROR_ANALYTIC,VOLUME") ;
+        tParameterlist( 0 )( 0 ).set( "IQI_Names"  , "IQIBulkTEMP,IQIBulkTEMPAnalytic,IQIBulkL2Error,IQIBulkH1Error,IQIVolume") ;
         tParameterlist( 0 )( 0 ).set( "Save_Frequency", 1 );
     }
 

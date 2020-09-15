@@ -11,27 +11,28 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        Level_Set::Level_Set(Matrix<DDRMat>& aADVs,
-                             Matrix<DDUMat>  aGeometryVariableIndices,
-                             Matrix<DDUMat>  aADVIndices,
-                             Matrix<DDRMat>  aConstantParameters,
-                             mtk::Mesh*      aMesh,
-                             sint            aNumRefinements,
-                             sint            aRefinementFunctionIndex,
-                             uint            aBSplineMeshIndex,
-                             real            aBSplineLowerBound,
-                             real            aBSplineUpperBound)
-                : Field(aADVs,
-                        aGeometryVariableIndices,
-                        aADVIndices,
-                        aConstantParameters,
-                        aNumRefinements,
-                        aRefinementFunctionIndex,
-                        aBSplineMeshIndex,
-                        aBSplineLowerBound,
-                        aBSplineUpperBound),
-                  Field_Discrete(aMesh->get_num_nodes()),
-                  mMesh(aMesh)
+        Level_Set::Level_Set(
+                Matrix<DDRMat>& aADVs,
+                Matrix<DDUMat>  aGeometryVariableIndices,
+                Matrix<DDUMat>  aADVIndices,
+                Matrix<DDRMat>  aConstantParameters,
+                mtk::Mesh*      aMesh,
+                sint            aNumRefinements,
+                sint            aRefinementFunctionIndex,
+                uint            aBSplineMeshIndex,
+                real            aBSplineLowerBound,
+                real            aBSplineUpperBound)
+        : Field(aADVs,
+                aGeometryVariableIndices,
+                aADVIndices,
+                aConstantParameters,
+                aNumRefinements,
+                aRefinementFunctionIndex,
+                aBSplineMeshIndex,
+                aBSplineLowerBound,
+                aBSplineUpperBound),
+                Field_Discrete(aMesh->get_num_nodes()),
+                mMesh(aMesh)
         {
             // Check that number of variables equals the number of B-spline coefficients
             MORIS_ASSERT(mFieldVariables.size() == mMesh->get_num_coeffs(aBSplineMeshIndex),
@@ -40,20 +41,21 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        Level_Set::Level_Set(Matrix<DDRMat>&           aADVs,
-                             uint                      aADVIndex,
-                             mtk::Interpolation_Mesh*  aMesh,
-                             std::shared_ptr<Geometry> aGeometry)
-                : Field(aADVs,
-                        aADVIndex,
-                        aMesh->get_num_coeffs(aGeometry->get_bspline_mesh_index()),
-                        aGeometry->get_num_refinements(),
-                        aGeometry->get_refinement_function_index(),
-                        aGeometry->get_bspline_mesh_index(),
-                        aGeometry->get_bspline_lower_bound(),
-                        aGeometry->get_bspline_upper_bound()),
-                  Field_Discrete(aMesh->get_num_nodes()),
-                  mMesh(aMesh)
+        Level_Set::Level_Set(
+                Matrix<DDRMat>&           aADVs,
+                uint                      aADVIndex,
+                mtk::Interpolation_Mesh*  aMesh,
+                std::shared_ptr<Geometry> aGeometry)
+        : Field(aADVs,
+                aADVIndex,
+                aMesh->get_num_coeffs(aGeometry->get_bspline_mesh_index()),
+                aGeometry->get_num_refinements(),
+                aGeometry->get_refinement_function_index(),
+                aGeometry->get_bspline_mesh_index(),
+                aGeometry->get_bspline_lower_bound(),
+                aGeometry->get_bspline_upper_bound()),
+                Field_Discrete(aMesh->get_num_nodes()),
+                mMesh(aMesh)
         {
             // Check for L2 needed
             if (mNumOriginalNodes != mMesh->get_num_coeffs(this->get_bspline_mesh_index()))
@@ -65,30 +67,41 @@ namespace moris
                     tSourceField(tNodeIndex) = aGeometry->evaluate_field_value(tNodeIndex, mMesh->get_node_coordinate(tNodeIndex));
                 }
 
+                // Create integration mesh
+                mtk::Integration_Mesh * tIntegrationMesh = create_integration_mesh_from_interpolation_mesh(MeshType::HMR, aMesh);
+
                 // Create mesh manager
                 std::shared_ptr<mtk::Mesh_Manager> tMeshManager = std::make_shared<mtk::Mesh_Manager>();
-                tMeshManager->register_mesh_pair(aMesh, create_integration_mesh_from_interpolation_mesh(MeshType::HMR, aMesh));
+
+                // Register mesh pair
+                uint tMeshIndex = tMeshManager->register_mesh_pair(aMesh, tIntegrationMesh);
 
                 // Use mapper
-                mapper::Mapper tMapper(tMeshManager, 0, (uint)this->get_bspline_mesh_index());
+                mapper::Mapper tMapper(tMeshManager, tMeshIndex, (uint)this->get_bspline_mesh_index());
+
                 Matrix<DDRMat> tTargetField(0, 0);
+
                 tMapper.perform_mapping(tSourceField,
-                                        EntityRank::NODE,
-                                        tTargetField,
-                                        EntityRank::BSPLINE);
+                        EntityRank::NODE,
+                        tTargetField,
+                        EntityRank::BSPLINE);
 
                 // Assign ADVs
                 for (uint tBSplineIndex = 0; tBSplineIndex < mMesh->get_num_coeffs(this->get_bspline_mesh_index()); tBSplineIndex++)
                 {
                     aADVs(aADVIndex++) = tTargetField(tBSplineIndex);
                 }
+                
+                // Delete integration mesh
+                delete tIntegrationMesh;
             }
             else // Nodal values, no L2
             {
                 // Assign ADVs directly
                 for (uint tNodeIndex = 0; tNodeIndex < mNumOriginalNodes; tNodeIndex++)
                 {
-                    aADVs(aADVIndex++) = aGeometry->evaluate_field_value(tNodeIndex, mMesh->get_node_coordinate(tNodeIndex));
+                    aADVs(aADVIndex + mMesh->get_bspline_inds_of_node_loc_ind(tNodeIndex, EntityRank::BSPLINE)(0)) =
+                            aGeometry->evaluate_field_value(tNodeIndex, mMesh->get_node_coordinate(tNodeIndex));
                 }
             }
         }
@@ -114,7 +127,9 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        void Level_Set::evaluate_all_sensitivities(uint aNodeIndex, Matrix<DDRMat>& aSensitivities)
+        void Level_Set::evaluate_all_sensitivities(
+                uint            aNodeIndex,
+                Matrix<DDRMat>& aSensitivities)
         {
             // Initialize
             aSensitivities.set_size(1, mFieldVariables.size(), 0.0);

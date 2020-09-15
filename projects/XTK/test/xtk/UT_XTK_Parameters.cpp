@@ -27,7 +27,7 @@
 #include "fn_norm.hpp"
 #include "op_minus.hpp"
 
-#include "cl_PRM_XTK_Parameters.hpp"
+#include "fn_PRM_XTK_Parameters.hpp"
 #include "cl_Param_List.hpp"
 
 

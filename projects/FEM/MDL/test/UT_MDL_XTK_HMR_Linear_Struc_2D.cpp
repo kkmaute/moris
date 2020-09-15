@@ -82,7 +82,7 @@
 
 #include "cl_GEN_Circle.hpp"
 
-#include "cl_PRM_HMR_Parameters.hpp"
+#include "fn_PRM_HMR_Parameters.hpp"
 
 
 
@@ -333,7 +333,7 @@ TEST_CASE("2D XTK WITH HMR Struc Interface 2D","[XTK_HMR_Struc_Interface_2D]")
         tIWGNeumann->set_property( tPropTraction, "Traction", mtk::Master_Slave::MASTER );
 
         std::shared_ptr< fem::IWG > tIWGInterface =
-                tIWGFactory.create_IWG( fem::IWG_Type::STRUC_LINEAR_INTERFACE );
+                tIWGFactory.create_IWG( fem::IWG_Type::STRUC_LINEAR_INTERFACE_SYMMETRIC_NITSCHE );
         tIWGInterface->set_residual_dof_type( { MSI::Dof_Type::UX, MSI::Dof_Type::UY } );
         tIWGInterface->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY }} );
         tIWGInterface->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY }},mtk::Master_Slave::SLAVE );
@@ -612,7 +612,7 @@ TEST_CASE("2D XTK WITH HMR Struc Interface 3D","[XTK_HMR_Struc_Interface_3D]") /
 //        tIWGNeumann->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY, MSI::Dof_Type::UZ  }} );
 //        tIWGNeumann->set_property( tPropNeumann, "Neumann", mtk::Master_Slave::MASTER );
 //
-//        std::shared_ptr< fem::IWG > tIWGInterface = tIWGFactory.create_IWG( fem::IWG_Type::STRUC_LINEAR_INTERFACE );
+//        std::shared_ptr< fem::IWG > tIWGInterface = tIWGFactory.create_IWG( fem::IWG_Type::STRUC_LINEAR_INTERFACE_SYMMETRIC_NITSCHE );
 //        tIWGInterface->set_residual_dof_type( { MSI::Dof_Type::UX, MSI::Dof_Type::UY, MSI::Dof_Type::UZ  } );
 //        tIWGInterface->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY, MSI::Dof_Type::UZ  }} );
 //        tIWGInterface->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY, MSI::Dof_Type::UZ  }},mtk::Master_Slave::SLAVE );
@@ -927,7 +927,7 @@ TEST_CASE("2D XTK WITH HMR Struc 2D first","[XTK_HMR_Struc_2D_01]")
         tIWGNeumann->set_property( tPropTraction, "Traction", mtk::Master_Slave::MASTER );
 
         std::shared_ptr< fem::IWG > tIWGInterface =
-                tIWGFactory.create_IWG( fem::IWG_Type::STRUC_LINEAR_INTERFACE );
+                tIWGFactory.create_IWG( fem::IWG_Type::STRUC_LINEAR_INTERFACE_SYMMETRIC_NITSCHE );
         tIWGInterface->set_residual_dof_type( { MSI::Dof_Type::UX, MSI::Dof_Type::UY } );
         tIWGInterface->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY }} );
         tIWGInterface->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY }},mtk::Master_Slave::SLAVE );
@@ -1505,7 +1505,7 @@ TEST_CASE("XTK HMR Struc Interface 3D","[XTK_HMR_Struc_Interface_3D]")
 //      tIWGNeumann->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY, MSI::Dof_Type::UZ }} );
 //      tIWGNeumann->set_property( tPropNeumann, "Neumann", mtk::Master_Slave::MASTER );
 //
-//      std::shared_ptr< fem::IWG > tIWGInterface1 = tIWGFactory.create_IWG( fem::IWG_Type::STRUC_LINEAR_INTERFACE );
+//      std::shared_ptr< fem::IWG > tIWGInterface1 = tIWGFactory.create_IWG( fem::IWG_Type::STRUC_LINEAR_INTERFACE_SYMMETRIC_NITSCHE );
 //      tIWGInterface1->set_residual_dof_type( { MSI::Dof_Type::UX, MSI::Dof_Type::UY, MSI::Dof_Type::UZ } );
 //      tIWGInterface1->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY, MSI::Dof_Type::UZ }} );
 //      tIWGInterface1->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY, MSI::Dof_Type::UZ }},mtk::Master_Slave::SLAVE );
@@ -1513,7 +1513,7 @@ TEST_CASE("XTK HMR Struc Interface 3D","[XTK_HMR_Struc_Interface_3D]")
 //      tIWGInterface1->set_constitutive_model( tCMStrucLinIso2, "ElastLinIso", mtk::Master_Slave::MASTER );
 //      tIWGInterface1->set_constitutive_model( tCMStrucLinIso2bis, "ElastLinIso", mtk::Master_Slave::SLAVE );
 //
-//      std::shared_ptr< fem::IWG > tIWGInterface2 = tIWGFactory.create_IWG( fem::IWG_Type::STRUC_LINEAR_INTERFACE );
+//      std::shared_ptr< fem::IWG > tIWGInterface2 = tIWGFactory.create_IWG( fem::IWG_Type::STRUC_LINEAR_INTERFACE_SYMMETRIC_NITSCHE );
 //      tIWGInterface2->set_residual_dof_type( { MSI::Dof_Type::UX, MSI::Dof_Type::UY, MSI::Dof_Type::UZ } );
 //      tIWGInterface2->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY, MSI::Dof_Type::UZ }} );
 //      tIWGInterface2->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY, MSI::Dof_Type::UZ }},mtk::Master_Slave::SLAVE );
@@ -1521,7 +1521,7 @@ TEST_CASE("XTK HMR Struc Interface 3D","[XTK_HMR_Struc_Interface_3D]")
 //      tIWGInterface2->set_constitutive_model( tCMStrucLinIso2, "ElastLinIso", mtk::Master_Slave::MASTER );
 //      tIWGInterface2->set_constitutive_model( tCMStrucLinIso1, "ElastLinIso", mtk::Master_Slave::SLAVE );
 //
-//      std::shared_ptr< fem::IWG > tIWGInterface3 = tIWGFactory.create_IWG( fem::IWG_Type::STRUC_LINEAR_INTERFACE );
+//      std::shared_ptr< fem::IWG > tIWGInterface3 = tIWGFactory.create_IWG( fem::IWG_Type::STRUC_LINEAR_INTERFACE_SYMMETRIC_NITSCHE );
 //      tIWGInterface3->set_residual_dof_type( { MSI::Dof_Type::UX, MSI::Dof_Type::UY, MSI::Dof_Type::UZ } );
 //      tIWGInterface3->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY, MSI::Dof_Type::UZ }} );
 //      tIWGInterface3->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY, MSI::Dof_Type::UZ }},mtk::Master_Slave::SLAVE );

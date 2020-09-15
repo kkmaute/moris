@@ -1,5 +1,10 @@
 #include "cl_OPT_Algorithm_SQP.hpp"
 
+// Logger package
+#include "cl_Logger.hpp"
+#include "cl_Tracer.hpp"
+#include "cl_Tracer_Enums.hpp"
+
 #ifdef FORT_NO_
 #define _FORTRAN(a) a
 #elif  F77ADD_
@@ -148,6 +153,9 @@ namespace moris
 
         void Algorithm_SQP::solve(std::shared_ptr<Problem> aOptProb )
         {
+            // Trace optimization
+            Tracer tTracer(EntityBase::OptimizationAlgorithm, EntityType::SQP, EntityAction::Solve);
+
             mProblem = aOptProb; // set the member variable mProblem to aOptProb
 
             int tInform = 0;
@@ -300,6 +308,9 @@ namespace moris
 
         void Algorithm_SQP::func_grad(int n, double* x, int needG )
         {
+            // Log iteration of optimization
+            MORIS_LOG_ITERATION();
+
             auto tAdvVec = mProblem->get_advs().data();
 
             if( !std::equal(x, x+n, tAdvVec) )

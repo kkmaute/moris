@@ -279,7 +279,7 @@ TEST_CASE("MDL FEM Elastic DQ/Dp","[MDL_FEM_DQ_DP]")
 //       tIWGNeumann->set_dof_type_list( { tResDofTypes } );
 //       tIWGNeumann->set_property( tPropNeumann, "Neumann", mtk::Master_Slave::MASTER );
 //
-//       std::shared_ptr< fem::IWG > tIWGInterface = tIWGFactory.create_IWG( fem::IWG_Type::STRUC_LINEAR_INTERFACE );
+//       std::shared_ptr< fem::IWG > tIWGInterface = tIWGFactory.create_IWG( fem::IWG_Type::STRUC_LINEAR_INTERFACE_SYMMETRIC_NITSCHE );
 //       tIWGInterface->set_residual_dof_type( tResDofTypes );
 //       tIWGInterface->set_dof_type_list( { tResDofTypes } );
 //       tIWGInterface->set_dof_type_list( { tResDofTypes }, mtk::Master_Slave::SLAVE );

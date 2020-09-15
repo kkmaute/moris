@@ -8,14 +8,14 @@
 #include "cl_TSA_Time_Solver.hpp"
 #include "cl_DLA_Solver_Interface.hpp"
 #include "fn_equal_to.hpp"
-#include "cl_PRM_FEM_Parameters.hpp"
-#include "cl_PRM_MSI_Parameters.hpp"
-#include "cl_PRM_SOL_Parameters.hpp"
-#include "cl_PRM_VIS_Parameters.hpp"
-#include "cl_PRM_HMR_Parameters.hpp"
+#include "fn_PRM_FEM_Parameters.hpp"
+#include "fn_PRM_MSI_Parameters.hpp"
+#include "fn_PRM_SOL_Parameters.hpp"
+#include "fn_PRM_VIS_Parameters.hpp"
+#include "fn_PRM_HMR_Parameters.hpp"
 #include "fn_PRM_GEN_Parameters.hpp"
-#include "cl_PRM_XTK_Parameters.hpp"
-#include "cl_PRM_OPT_Parameters.hpp"
+#include "fn_PRM_XTK_Parameters.hpp"
+#include "fn_PRM_OPT_Parameters.hpp"
 
 
 #include "cl_DLA_Linear_Solver_Aztec.hpp"
@@ -238,7 +238,6 @@ void FEMParameterList( moris::Cell< moris::Cell< ParameterList > > & tParameterL
     tParameterList( 4 )( 0 ) = prm::create_IQI_parameter_list();
     tParameterList( 4 )( 0 ).set( "IQI_name",                   std::string("IQIBulkU_1") );
     tParameterList( 4 )( 0 ).set( "IQI_type",                   static_cast< uint >( fem::IQI_Type::STRAIN_ENERGY ) );
-    tParameterList( 4 )( 0 ).set( "IQI_output_type",            static_cast< uint >( vis::Output_Type::STRAIN_ENERGY ) );
     tParameterList( 4 )( 0 ).set( "master_dof_dependencies",    std::string("UX,UY") );
     tParameterList( 4 )( 0 ).set( "master_constitutive_models", std::string("CMStrucLinIso1,Elast") );
     tParameterList( 4 )( 0 ).set( "mesh_set_names",             std::string("HMR_dummy_n_p1") );
@@ -319,7 +318,7 @@ void VISParameterList( moris::Cell< moris::Cell< ParameterList > > & tParameterl
     tParameterlist( 0 )( 0 ).set( "Set_Names"  , std::string( "HMR_dummy_n_p1" ) );
     tParameterlist( 0 )( 0 ).set( "Field_Names", std::string( "strain_energy_elemental,strain_energy_global,strain_energy_nodal_IP" ) );
     tParameterlist( 0 )( 0 ).set( "Field_Type" , std::string( "ELEMENTAL,GLOBAL,NODAL" ) );
-    tParameterlist( 0 )( 0 ).set( "Output_Type", std::string( "STRAIN_ENERGY,STRAIN_ENERGY,STRAIN_ENERGY" ) );
+    tParameterlist( 0 )( 0 ).set( "IQI_Names"  , std::string( "IQIBulkU_1,IQIBulkU_1,IQIBulkU_1" ) );
     
 }
 

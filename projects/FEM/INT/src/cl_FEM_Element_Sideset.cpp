@@ -245,8 +245,11 @@ namespace moris
                     // set the normal for the IWG
                     mSet->get_requested_IWGs()( iIWG )->set_normal( tNormal );
 
-                    // compute residual at integration point
-                    mSet->get_requested_IWGs()( iIWG )->compute_residual( tWStar );
+                    if( mSet->mEquationModel->get_is_forward_analysis() )
+                    {
+                        // compute residual at integration point
+                        mSet->get_requested_IWGs()( iIWG )->compute_residual( tWStar );
+					}
 
                     // compute jacobian at evaluation point
                     mSet->get_requested_IWGs()( iIWG )->compute_jacobian( tWStar );
@@ -288,11 +291,17 @@ namespace moris
                 real tWStar = mSet->get_integration_weights()( iGP ) *
                         mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator()->det_J();
 
+                // get the normal from mesh
+                Matrix< DDRMat > tNormal = mCluster->get_side_normal( mMasterCell, tSideOrd );
+
                 // loop over the IWGs
                 for( uint iIWG = 0; iIWG < tNumIWGs; iIWG++ )
                 {
                     // reset IWG
                     mSet->get_requested_IWGs()( iIWG )->reset_eval_flags();
+
+                    // set the normal for the IWG
+                    mSet->get_requested_IWGs()( iIWG )->set_normal( tNormal );
 
                     // FIXME set nodal weak BCs
                     mSet->get_requested_IWGs()( iIWG )->set_nodal_weak_bcs(
@@ -345,6 +354,9 @@ namespace moris
                 real tWStar = mSet->get_integration_weights()( iGP ) *
                         mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator()->det_J();
 
+                // get the normal from mesh
+                Matrix< DDRMat > tNormal = mCluster->get_side_normal( mMasterCell, tSideOrd );
+
                 // loop over the IWGs
                 for( uint iIWG = 0; iIWG < tNumIWGs; iIWG++ )
                 {
@@ -352,7 +364,11 @@ namespace moris
                     mSet->get_requested_IWGs()( iIWG )->reset_eval_flags();
 
                     // FIXME set nodal weak BCs
-                    mSet->get_requested_IWGs()( iIWG )->set_nodal_weak_bcs( mCluster->mInterpolationElement->get_weak_bcs() );
+                    mSet->get_requested_IWGs()( iIWG )->set_nodal_weak_bcs(
+                            mCluster->mInterpolationElement->get_weak_bcs() );
+
+                    // set the normal for the IWG
+                    mSet->get_requested_IWGs()( iIWG )->set_normal( tNormal );
 
                     // compute dRdpMat at evaluation point
                     mSet->get_requested_IWGs()( iIWG )->compute_dRdp_FD_material(
@@ -411,7 +427,50 @@ namespace moris
                     mSet->get_requested_IQIs()( iIQI )->reset_eval_flags();
 
                     // compute QI at evaluation point
-                    mSet->get_requested_IQIs()( iIQI )->compute_QI( tWStar );
+                    mSet->get_requested_IQIs()( iIQI )->add_QI_on_set( tWStar );
+                }
+            }
+        }
+
+        //------------------------------------------------------------------------------
+
+        //FIXME: needs unit testing
+        void Element_Sideset::compute_dQIdu()
+        {
+            // get treated side ordinal
+            uint tSideOrd = mCluster->mMasterListOfSideOrdinals( mCellIndexInCluster );
+
+            // set physical and parametric space and time coefficients for IG element
+            moris::Cell< Matrix< DDSMat > > tIsActiveDv;
+            this->init_ig_geometry_interpolator(
+                    tSideOrd,
+                    tIsActiveDv );
+
+            // get number of IQIs
+            uint tNumIQIs = mSet->get_number_of_requested_IQIs();
+
+            // loop over integration points
+            uint tNumIntegPoints = mSet->get_number_of_integration_points();
+            for( uint iGP = 0; iGP < tNumIntegPoints; iGP++ )
+            {
+                // get the ith integration point in the IG param space
+                Matrix< DDRMat > tLocalIntegPoint = mSet->get_integration_points().get_column( iGP );
+
+                // set evaluation point for interpolators (FIs and GIs)
+                mSet->get_field_interpolator_manager()->set_space_time_from_local_IG_point( tLocalIntegPoint );
+
+                // compute integration point weight
+                real tWStar = mSet->get_integration_weights()( iGP ) *
+                        mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator()->det_J();
+
+                // loop over the IQIs
+                for( uint iIQI = 0; iIQI < tNumIQIs; iIQI++ )
+                {
+                    // reset IWG
+                    mSet->get_requested_IQIs()( iIQI )->reset_eval_flags();
+
+                    // compute dQIdu at evaluation point
+                    mSet->get_requested_IQIs()( iIQI )->add_dQIdu_on_set( tWStar );
                 }
             }
         }
@@ -530,8 +589,8 @@ namespace moris
         //------------------------------------------------------------------------------
 
         void Element_Sideset::compute_quantity_of_interest_global(
-                const uint             aMeshIndex,
-                enum  vis::Output_Type aOutputType )
+                const uint          aMeshIndex,
+                const std::string & aQIName )
         {
             // get treated side ordinal
             uint tSideOrd = mCluster->mMasterListOfSideOrdinals( mCellIndexInCluster );
@@ -541,6 +600,13 @@ namespace moris
             this->init_ig_geometry_interpolator(
                     tSideOrd,
                     tIsActiveDv );
+
+            // get the set local index
+            moris_index tIQISetLocalIndex =
+                    mSet->mIQINameToIndexMap.find( aQIName );
+
+            // get IQI
+            std::shared_ptr< IQI > tIQI = mSet->mIQIs( tIQISetLocalIndex );
 
             // loop over integration points
             uint tNumIntegPoints = mSet->get_number_of_integration_points();
@@ -557,11 +623,11 @@ namespace moris
                         mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator()->det_J();
 
                 // reset the requested IQI
-                mSet->get_IQI_for_vis( aOutputType )->reset_eval_flags();
+                tIQI->reset_eval_flags();
 
                 // compute quantity of interest at evaluation point
                 Matrix< DDRMat > tQIValue;
-                mSet->get_IQI_for_vis( aOutputType )->compute_QI( tQIValue );
+                tIQI->compute_QI( tQIValue );
 
                 // FIXME assemble on the set here or inside the compute QI?
                 *( mSet->mSetGlobalValues ) += tQIValue( 0 ) * tWStar;
@@ -571,8 +637,8 @@ namespace moris
         //------------------------------------------------------------------------------
 
         void Element_Sideset::compute_quantity_of_interest_nodal(
-                const uint             aMeshIndex,
-                enum  vis::Output_Type aOutputType )
+                const uint          aMeshIndex,
+                const std::string & aQIName )
         {
             // get treated side ordinal
             uint tSideOrd = mCluster->mMasterListOfSideOrdinals( mCellIndexInCluster );
@@ -585,6 +651,13 @@ namespace moris
 
             // get the vertices
             moris::Cell< mtk::Vertex const * > tVertices = mMasterCell->get_vertices_on_side_ordinal( tSideOrd );
+
+            // get the set local index
+            moris_index tIQISetLocalIndex =
+                    mSet->mIQINameToIndexMap.find( aQIName );
+
+            // get IQI
+            std::shared_ptr< IQI > tIQI = mSet->mIQIs( tIQISetLocalIndex );
 
             // loop over the vertices
             uint tNumNodes = tVertices.size();
@@ -600,11 +673,11 @@ namespace moris
                 mSet->get_field_interpolator_manager()->set_space_time( tGlobalIntegPoint );
 
                 // reset the requested IQI
-                mSet->get_IQI_for_vis( aOutputType )->reset_eval_flags();
+                tIQI->reset_eval_flags();
 
                 // compute quantity of interest at evaluation point
                 Matrix< DDRMat > tQIValue;
-                mSet->get_IQI_for_vis( aOutputType )->compute_QI( tQIValue );
+                tIQI->compute_QI( tQIValue );
 
                 // FIXME assemble on the set here or inside the compute QI?
                 // FIXME add up on shared node and divide or overwrite
@@ -617,8 +690,8 @@ namespace moris
         //------------------------------------------------------------------------------
 
         void Element_Sideset::compute_quantity_of_interest_elemental(
-                const uint             aMeshIndex,
-                enum  vis::Output_Type aOutputType )
+                const uint          aMeshIndex,
+                const std::string & aQIName )
         {
             // get treated side ordinal
             uint tSideOrd = mCluster->mMasterListOfSideOrdinals( mCellIndexInCluster );
@@ -628,6 +701,13 @@ namespace moris
             this->init_ig_geometry_interpolator(
                     tSideOrd,
                     tIsActiveDv );
+
+            // get the set local index
+            moris_index tIQISetLocalIndex =
+                    mSet->mIQINameToIndexMap.find( aQIName );
+
+            // get IQI
+            std::shared_ptr< IQI > tIQI = mSet->mIQIs( tIQISetLocalIndex );
 
             // loop over integration points
             uint tNumIntegPoints = mSet->get_number_of_integration_points();
@@ -644,11 +724,11 @@ namespace moris
                         mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator()->det_J();
 
                 // reset the requested IQI
-                mSet->get_IQI_for_vis( aOutputType )->reset_eval_flags();
+                tIQI->reset_eval_flags();
 
                 // compute quantity of interest at evaluation point
                 Matrix< DDRMat > tQIValue;
-                mSet->get_IQI_for_vis( aOutputType )->compute_QI( tQIValue );
+                tIQI->compute_QI( tQIValue );
 
                 // FIXME assemble on the set here or inside the compute QI?
                 ( *mSet->mSetElementalValues )( mSet->mCellAssemblyMap( aMeshIndex )( mMasterCell->get_index() ), 0 ) +=

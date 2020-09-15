@@ -310,7 +310,6 @@ TEST_CASE("MDL XFEM Measure","[MDL_XFEM_MEASURE]")
        fem::IQI_Factory tIQIFactory;
 
        std::shared_ptr< fem::IQI > tIQIVolFraction = tIQIFactory.create_IQI( fem::IQI_Type::VOLUME_FRACTION );
-       tIQIVolFraction->set_output_type( vis::Output_Type::VOLUME_FRACTION );
        tIQIVolFraction->set_stabilization_parameter( tSPReciprocalVolume, "Reciprocal_total_vol" );
        tIQIVolFraction->set_name( "IQIBulkVolumeFraction");
 

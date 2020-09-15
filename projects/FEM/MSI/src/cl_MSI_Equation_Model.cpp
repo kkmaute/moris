@@ -13,8 +13,11 @@
 #include "cl_MSI_Equation_Model.hpp"
 
 #include "cl_SOL_Dist_Vector.hpp"
+#include "cl_SOL_Dist_Map.hpp"
 #include "cl_Matrix_Vector_Factory.hpp"
 #include "cl_SOL_Enums.hpp"
+
+#include "cl_Logger.hpp"
 
 namespace moris
 {
@@ -67,40 +70,43 @@ namespace moris
             moris::uint tNumSets = mFemSets.size();
 
             // loop over local equation sets
-            for ( moris::uint Ii = 0; Ii < tNumSets; Ii++ )
+            for ( moris::uint tSetIndex = 0; tSetIndex < tNumSets; tSetIndex++ )
             {
                 // get number of IQIs on treated equation set
-                moris::uint tNumIQIsOnSet =
-                        mFemSets( Ii )->get_number_of_requested_IQIs();
+                moris::uint tNumIQIsOnSet = mFemSets( tSetIndex )->get_number_of_requested_IQIs();
 
                 // if some IQI are requested on treated equation set
                 if( tNumIQIsOnSet > 0 )
                 {
                     // get number of equation objects on treated equation set
-                    moris::uint tNumEquationObjectOnSet =
-                            mFemSets( Ii )->get_num_equation_objects();
+                    moris::uint tNumEquationObjectOnSet = mFemSets( tSetIndex )->get_num_equation_objects();
 
                     // initialize treated equation set // FIXME????
-                    mFemSets( Ii )->initialize_set( true );
+                    mFemSets( tSetIndex )->initialize_set( true );
 
                     // loop over equation objects on treated equation set
-                    for( moris::uint Ik = 0; Ik < tNumEquationObjectOnSet; Ik++ )
+                    for( moris::uint tEquationObjectIndex = 0; tEquationObjectIndex < tNumEquationObjectOnSet; tEquationObjectIndex++ )
                     {
                         // compute QI
                         // FIXME this is elemental right now??
-                        mFemSets( Ii )->get_equation_object_list()( Ik )->compute_QI();
+                        mFemSets( tSetIndex )->get_equation_object_list()( tEquationObjectIndex )->compute_QI();
 
                         // loop over IQIs on model
-                        for( moris::uint Ij = 0; Ij < tNumIQIsOnModel; Ij++ )
+                        for( moris::uint tIQIIndex = 0; tIQIIndex < tNumIQIsOnModel; tIQIIndex++ )
                         {
                             // assemble QI values into global vector
-                            mGlobalIQIVal( Ij )( 0 ) +=
-                                    mFemSets( Ii )->get_QI()( Ij )( 0 );
+                            mGlobalIQIVal( tIQIIndex )( 0 ) += mFemSets( tSetIndex )->get_QI()( tIQIIndex )( 0 );
                         }
                     }
                     // free memory on treated equation set
-                    mFemSets( Ii )->free_matrix_memory();
+                    mFemSets( tSetIndex )->free_matrix_memory();
                 }
+            }
+
+            // Normalization
+            if (gLogger.mIteration == 0)
+            {
+                this->normalize_IQIs();
             }
         }
 
@@ -110,6 +116,8 @@ namespace moris
         {
             // create map for dQIdpMap
             moris::Matrix_Vector_Factory tMatFactory( sol::MapType::Epetra );
+
+            delete mdQIdpMap;
             mdQIdpMap = tMatFactory.create_map(
                     mDesignVariableInterface->get_my_local_global_map() );
 
@@ -117,6 +125,9 @@ namespace moris
             uint tNumRHMS = this->get_num_rhs();
 
             // create vector for dQIdp implicit and explicit contributions
+            delete mImplicitdQidp;
+            delete mExplicitdQidp;
+
             mImplicitdQidp = tMatFactory.create_vector( mdQIdpMap, tNumRHMS );
             mExplicitdQidp = tMatFactory.create_vector( mdQIdpMap, tNumRHMS );
 
@@ -133,25 +144,25 @@ namespace moris
             moris::uint tNumSets = mFemSets.size();
 
             // loop over local equation sets
-            for ( moris::uint Ii = 0; Ii < tNumSets; Ii++ )
+            for ( moris::uint tSetIndex = 0; tSetIndex < tNumSets; tSetIndex++ )
             {
                 // get number of equation object on treated equation set
                 moris::uint tNumEquationObjectOnSet =
-                        mFemSets( Ii )->get_num_equation_objects();
+                        mFemSets( tSetIndex )->get_num_equation_objects();
 
                 // initialize treated equation set //FIXME????
-                mFemSets( Ii )->initialize_set( true );
+                mFemSets( tSetIndex )->initialize_set( true );
 
                 // loop over equation objects on treated equation set
-                for ( moris::uint Ik = 0; Ik < tNumEquationObjectOnSet; Ik++ )
+                for ( moris::uint tEquationObjectIndex = 0; tEquationObjectIndex < tNumEquationObjectOnSet; tEquationObjectIndex++ )
                 {
                     // compute dQIdp implicit
-                    mFemSets( Ii )->
-                            get_equation_object_list()( Ik )->
+                    mFemSets( tSetIndex )->
+                            get_equation_object_list()( tEquationObjectIndex )->
                             compute_dQIdp_implicit();
                 }
                 // free memory on treated equation set
-                mFemSets( Ii )->free_matrix_memory();
+                mFemSets( tSetIndex )->free_matrix_memory();
             }
 
             // global assembly to switch entries to the right processor
@@ -191,6 +202,7 @@ namespace moris
                     mFemSets( iSet )->free_matrix_memory();
                 }
             }
+
             // global assembly to switch entries to the right processor
             mExplicitdQidp->vector_global_asembly();
             //mExplicitdQidp->print();
@@ -207,6 +219,7 @@ namespace moris
             uint tNumRHMS = this->get_num_rhs();
 
             // create vector for dQIdp
+            delete mdQIdp;
             mdQIdp = tMatFactory.create_vector( mdQIdpMap, tNumRHMS );
 
             // fill vector with zero
@@ -220,6 +233,12 @@ namespace moris
 
             // return dQIdp
             return mdQIdp;
+        }
+
+        //-------------------------------------------------------------------------------------------------
+
+        void Equation_Model::normalize_IQIs()
+        {
         }
 
         //-------------------------------------------------------------------------------------------------

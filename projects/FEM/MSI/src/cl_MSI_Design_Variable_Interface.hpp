@@ -48,7 +48,7 @@ namespace moris
                 /**
                  * trivial destructor
                  */
-                ~Design_Variable_Interface(){};
+                virtual ~Design_Variable_Interface(){};
 
                 //------------------------------------------------------------------------------
                 /**
@@ -217,8 +217,6 @@ namespace moris
                 Matrix< DDRMat > get_dQIdp();
 
                 //------------------------------------------------------------------------------
-
-
 
         };
     }

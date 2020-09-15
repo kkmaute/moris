@@ -114,7 +114,7 @@ namespace moris
                  */
                 Matrix< IndexMat > & get_side_ordinal_info(
                         mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER )
-                                {
+                {
                     switch( aIsMaster )
                     {
                         case mtk::Master_Slave::MASTER :
@@ -127,7 +127,7 @@ namespace moris
                             MORIS_ERROR( false, "Cluster::get_side_ordinal_info - can only be master or slave." );
                             return mMasterListOfSideOrdinals;
                     }
-                                }
+                }
 
                 //------------------------------------------------------------------------------
                 /**
@@ -222,9 +222,9 @@ namespace moris
                  *                          GLOBAL, NODAL, ELEMENTAL
                  */
                 void compute_quantity_of_interest(
-                        const uint            aMeshIndex,
-                        enum vis::Output_Type aOutputType,
-                        enum vis::Field_Type  aFieldType );
+                        const uint             aMeshIndex,
+                        const std::string    & aQIName,
+                        enum vis::Field_Type   aFieldType );
 
                 //------------------------------------------------------------------------------
                 /**

@@ -29,7 +29,7 @@
 
 #include "cl_FEM_Model.hpp"
 
-#include "cl_PRM_MSI_Parameters.hpp"
+#include "fn_PRM_MSI_Parameters.hpp"
 
 #include "cl_HMR_Parameters.hpp"
 #include "cl_HMR.hpp"
@@ -50,7 +50,7 @@
 #include "cl_DLA_Linear_Solver_Aztec.hpp"
 #include "cl_DLA_Linear_Solver.hpp"
 #include "cl_NLA_Nonlinear_Solver.hpp"
-#include "cl_PRM_SOL_Parameters.hpp"
+#include "fn_PRM_SOL_Parameters.hpp"
 #include "cl_SOL_Warehouse.hpp"
 #include "cl_TSA_Time_Solver.hpp"
 

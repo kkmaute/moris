@@ -651,6 +651,19 @@ namespace moris
 
         void HMR::perform_refinement( const uint aPattern )
         {
+			// get max level on this mesh
+            uint tMaxLevelOnMesh = mDatabase->get_background_mesh()->get_max_level();
+
+            if( mParameters->get_refinement_buffer() > 0 )
+            {
+                // get number of levels
+                for( uint tLevel=0; tLevel<=tMaxLevelOnMesh; ++tLevel )
+                {
+                    // create extra buffer
+                    mDatabase->create_extra_refinement_buffer_for_level( tLevel );
+                }
+            }
+			
             // refine database and remember flag
             mDatabase->get_background_mesh()->perform_refinement( aPattern );
 
@@ -1433,19 +1446,6 @@ namespace moris
 
             // flag elements in HMR
             this->put_elements_on_refinment_queue( tRefinementList );
-
-            // get max level on this mesh
-            uint tMaxLevelOnMesh = mDatabase->get_background_mesh()->get_max_level();
-
-            if( mParameters->get_refinement_buffer() > 0 )
-            {
-                // get number of levels
-                for( uint tLevel=0; tLevel<=tMaxLevelOnMesh; ++tLevel )
-                {
-                    // create extra buffer
-                    mDatabase->create_extra_refinement_buffer_for_level( tLevel );
-                }
-            }
 
             // return number of flagged elements
             return aElementCounter;

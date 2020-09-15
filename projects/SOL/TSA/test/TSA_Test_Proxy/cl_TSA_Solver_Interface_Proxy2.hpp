@@ -46,7 +46,7 @@ namespace moris
                 moris::sint mNY;
 
                 moris::Cell< enum MSI::Dof_Type > mListOfDofTypes;
-                Cell< moris::Cell< enum MSI::Dof_Type > > mListSecundaryOfDofTypes;
+                Cell< moris::Cell< enum MSI::Dof_Type > > mListSecondaryOfDofTypes;
 
                 moris::real mk = 2;
                 Matrix< DDRMat> mT;
@@ -93,9 +93,9 @@ namespace moris
                     return mListOfDofTypes;
                 };
 
-                void set_secundary_dof_types( const moris::Cell< moris::Cell< enum MSI::Dof_Type > > aListOfDofTypes )
+                void set_secondary_dof_types( const moris::Cell< moris::Cell< enum MSI::Dof_Type > > aListOfDofTypes )
                 {
-                    mListSecundaryOfDofTypes = aListOfDofTypes;
+                    mListSecondaryOfDofTypes = aListOfDofTypes;
                 };
 
                 // local dimension of the problem

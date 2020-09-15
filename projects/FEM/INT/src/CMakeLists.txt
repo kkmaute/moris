@@ -156,7 +156,6 @@ set(HEADERS
     cl_FEM_CM_Factory.hpp
     
     cl_FEM_IQI.hpp
-    cl_FEM_IQI_Analytic.hpp
     cl_FEM_IQI_Factory.hpp
     cl_FEM_IQI_Volume.hpp
     cl_FEM_IQI_Strain_Energy.hpp
@@ -169,7 +168,6 @@ set(HEADERS
     cl_FEM_IQI_H1_Error_Analytic.hpp
     cl_FEM_IQI_H1_Semi_Error.hpp
     cl_FEM_IQI_J_Integral.hpp
-    cl_FEM_IQI_K1_SENT.hpp
     cl_FEM_IQI_Volume_Fraction.hpp
     cl_FEM_IQI_2D_Drag_Lift_Coefficient.hpp
     cl_FEM_IQI_Latent_Heat_Absorption.hpp
@@ -318,7 +316,6 @@ set(LIB_SOURCES
     cl_FEM_SP_Turbulence_Dirichlet_Nitsche.cpp
     
     cl_FEM_IQI.cpp
-    cl_FEM_IQI_Analytic.cpp
     cl_FEM_IQI_Factory.cpp
     cl_FEM_IQI_Volume.cpp
     cl_FEM_IQI_Strain_Energy.cpp
@@ -331,7 +328,6 @@ set(LIB_SOURCES
     cl_FEM_IQI_H1_Error_Analytic.cpp
     cl_FEM_IQI_H1_Semi_Error.cpp
     cl_FEM_IQI_J_Integral.cpp
-    cl_FEM_IQI_K1_SENT.cpp
     cl_FEM_IQI_2D_Drag_Lift_Coefficient.cpp
     cl_FEM_IQI_Volume_Fraction.cpp
     cl_FEM_IQI_2D_Drag_Lift_Coefficient.cpp

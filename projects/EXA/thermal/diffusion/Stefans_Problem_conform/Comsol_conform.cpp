@@ -8,14 +8,14 @@
 #include "cl_TSA_Time_Solver.hpp"
 #include "cl_DLA_Solver_Interface.hpp"
 #include "cl_DLA_Linear_Solver_Aztec.hpp"
-#include "cl_PRM_FEM_Parameters.hpp"
-#include "cl_PRM_MSI_Parameters.hpp"
-#include "cl_PRM_SOL_Parameters.hpp"
-#include "cl_PRM_VIS_Parameters.hpp"
-#include "cl_PRM_HMR_Parameters.hpp"
+#include "fn_PRM_FEM_Parameters.hpp"
+#include "fn_PRM_MSI_Parameters.hpp"
+#include "fn_PRM_SOL_Parameters.hpp"
+#include "fn_PRM_VIS_Parameters.hpp"
+#include "fn_PRM_HMR_Parameters.hpp"
 #include "fn_PRM_GEN_Parameters.hpp"
-#include "cl_PRM_XTK_Parameters.hpp"
-#include "cl_PRM_OPT_Parameters.hpp"
+#include "fn_PRM_XTK_Parameters.hpp"
+#include "fn_PRM_OPT_Parameters.hpp"
 #include "fn_equal_to.hpp"
 
 #include "AztecOO.h"
@@ -396,7 +396,6 @@ namespace moris
         tParameterList( 4 ).push_back( prm::create_IQI_parameter_list() );
         tParameterList( 4 )( tIQICounter ).set( "IQI_name",                   "IQIBulkTEMP") ;
         tParameterList( 4 )( tIQICounter ).set( "IQI_type",                   static_cast< uint >( fem::IQI_Type::DOF ) );
-        tParameterList( 4 )( tIQICounter ).set( "IQI_output_type",            static_cast< uint >( vis::Output_Type::TEMP ) );
         tParameterList( 4 )( tIQICounter ).set( "master_dof_dependencies",    "TEMP") ;
         tParameterList( 4 )( tIQICounter ).set( "vectorial_field_index",      0 );
         tParameterList( 4 )( tIQICounter ).set( "mesh_set_names",             "HMR_dummy_n_p1") ;
@@ -406,7 +405,6 @@ namespace moris
         tParameterList( 4 ).push_back( prm::create_IQI_parameter_list() );
         tParameterList( 4 )( tIQICounter ).set( "IQI_name",                   "IQIMaxTEMP") ;
         tParameterList( 4 )( tIQICounter ).set( "IQI_type",                   static_cast< uint >( fem::IQI_Type::MAX_DOF ) );
-        tParameterList( 4 )( tIQICounter ).set( "IQI_output_type",            static_cast< uint >( vis::Output_Type::MAX_DOF ) );
         tParameterList( 4 )( tIQICounter ).set( "master_dof_dependencies",    "TEMP") ;
         tParameterList( 4 )( tIQICounter ).set( "master_properties",
                 "PropMaxTempReference,ReferenceValue;"
@@ -418,7 +416,6 @@ namespace moris
         tParameterList( 4 ).push_back( prm::create_IQI_parameter_list() );
         tParameterList( 4 )( tIQICounter ).set( "IQI_name",                   "IQILatentHeatAbsorption") ;
         tParameterList( 4 )( tIQICounter ).set( "IQI_type",                   static_cast< uint >( fem::IQI_Type::LATENT_HEAT_ABSORPTION ) );
-        tParameterList( 4 )( tIQICounter ).set( "IQI_output_type",            static_cast< uint >( vis::Output_Type::LATENT_HEAT_ABSORPTION ) );
         tParameterList( 4 )( tIQICounter ).set( "master_dof_dependencies",    "TEMP") ;
         tParameterList( 4 )( tIQICounter ).set( "master_properties",
                 "PropDensity,Density;"
@@ -485,10 +482,10 @@ namespace moris
         tParameterlist( 0 )( 0 ) = prm::create_vis_parameter_list();
         tParameterlist( 0 )( 0 ).set( "File_Name"  , std::pair< std::string, std::string >( "./", "Comsol_conform.exo" ) );
         tParameterlist( 0 )( 0 ).set( "Mesh_Type"  , static_cast< uint >( vis::VIS_Mesh_Type::STANDARD ) );
-        tParameterlist( 0 )( 0 ).set( "Set_Names"  ,  "HMR_dummy_n_p1" ) ;
-        tParameterlist( 0 )( 0 ).set( "Field_Names",  "TEMP,MAX_DOF,LATENT_HEAT_ABSORPTION" ) ;
-        tParameterlist( 0 )( 0 ).set( "Field_Type" ,  "NODAL,GLOBAL,GLOBAL" ) ;
-        tParameterlist( 0 )( 0 ).set( "Output_Type",  "TEMP,MAX_DOF,LATENT_HEAT_ABSORPTION" ) ;
+        tParameterlist( 0 )( 0 ).set( "Set_Names"  , "HMR_dummy_n_p1" ) ;
+        tParameterlist( 0 )( 0 ).set( "Field_Names", "TEMP,MAX_DOF,LATENT_HEAT_ABSORPTION" ) ;
+        tParameterlist( 0 )( 0 ).set( "Field_Type" , "NODAL,GLOBAL,GLOBAL" ) ;
+        tParameterlist( 0 )( 0 ).set( "IQI_Names"  , "IQIBulkTEMP,IQIMaxTEMP,IQILatentHeatAbsorption" ) ;
     }
 
     //------------------------------------------------------------------------------

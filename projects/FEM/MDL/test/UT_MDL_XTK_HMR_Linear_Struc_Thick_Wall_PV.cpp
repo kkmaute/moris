@@ -74,7 +74,7 @@
 #include "cl_GEN_Geom_Field_HMR.hpp"
 #include "cl_GEN_Geometry.hpp"
 
-#include "cl_PRM_HMR_Parameters.hpp"
+#include "fn_PRM_HMR_Parameters.hpp"
 #include "cl_Plane.hpp"
 
 #include <functional>
@@ -341,7 +341,7 @@ TEST_CASE("2D Linear Stuct Thick Walled Pressure Vessel","[XTK_HMR_LS_PV]")
 //#include "cl_GEN_Geom_Field_HMR.hpp"
 //#include "cl_GEN_Geometry.hpp"
 //
-//#include "cl_PRM_HMR_Parameters.hpp"
+//#include "fn_PRM_HMR_Parameters.hpp"
 //#include "cl_Plane.hpp"
 //
 //#include <functional>

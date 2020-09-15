@@ -49,7 +49,7 @@
 #include "cl_HMR_Field.hpp"
 #include "cl_HMR_Lagrange_Mesh_Base.hpp" //HMR/src
 #include "cl_HMR_Parameters.hpp" //HMR/src
-#include "cl_PRM_HMR_Parameters.hpp" // paramter list for hmr mesh
+#include "fn_PRM_HMR_Parameters.hpp" // paramter list for hmr mesh
 
 #include "cl_DLA_Solver_Factory.hpp"
 #include "cl_DLA_Solver_Interface.hpp"

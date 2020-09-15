@@ -44,7 +44,10 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        Phase_Table::Phase_Table(Matrix<IndexMat> aPhaseTable, Phase_Table_Structure aStructure, Cell<std::string> aPhaseNames)
+        Phase_Table::Phase_Table(
+                Matrix<IndexMat>      aPhaseTable,
+                Phase_Table_Structure aStructure,
+                Cell<std::string>     aPhaseNames)
         : Phase_Table(aStructure, aPhaseTable.n_rows(), aPhaseNames)
         {
             mPhaseTable = aPhaseTable;
@@ -53,7 +56,10 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        Phase_Table::Phase_Table(uint aNumPhi, Phase_Table_Structure aStructure, Cell<std::string> aPhaseNames)
+        Phase_Table::Phase_Table(
+                uint                  aNumPhi,
+                Phase_Table_Structure aStructure,
+                Cell<std::string>     aPhaseNames)
         : Phase_Table(aStructure, std::pow(2, aNumPhi), aPhaseNames)
         {
  
@@ -111,7 +117,7 @@ namespace moris
 
         moris::moris_index
         Phase_Table::get_phase_sign_of_given_phase_and_geometry(moris::moris_index aPhaseIndex,
-                                                   moris::moris_index aGeometryIndex)
+                moris::moris_index aGeometryIndex)
         {
             MORIS_ERROR(0,"REMOVED");
             return mPhaseTable(aPhaseIndex,aGeometryIndex);

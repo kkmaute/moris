@@ -8,14 +8,14 @@
 #include "cl_TSA_Time_Solver.hpp"
 #include "cl_DLA_Solver_Interface.hpp"
 #include "cl_DLA_Linear_Solver_Aztec.hpp"
-#include "cl_PRM_FEM_Parameters.hpp"
-#include "cl_PRM_MSI_Parameters.hpp"
-#include "cl_PRM_SOL_Parameters.hpp"
-#include "cl_PRM_VIS_Parameters.hpp"
-#include "cl_PRM_HMR_Parameters.hpp"
+#include "fn_PRM_FEM_Parameters.hpp"
+#include "fn_PRM_MSI_Parameters.hpp"
+#include "fn_PRM_SOL_Parameters.hpp"
+#include "fn_PRM_VIS_Parameters.hpp"
+#include "fn_PRM_HMR_Parameters.hpp"
 #include "fn_PRM_GEN_Parameters.hpp"
-#include "cl_PRM_XTK_Parameters.hpp"
-#include "cl_PRM_OPT_Parameters.hpp"
+#include "fn_PRM_XTK_Parameters.hpp"
+#include "fn_PRM_OPT_Parameters.hpp"
 #include "fn_equal_to.hpp"
 
 #include "AztecOO.h"
@@ -328,7 +328,6 @@ namespace moris
         tParameterList( 4 ).push_back( prm::create_IQI_parameter_list() );
         tParameterList( 4 )( tIQICounter ).set( "IQI_name",                   "IQIBulkTEMP");
         tParameterList( 4 )( tIQICounter ).set( "IQI_type",                   static_cast< uint >( fem::IQI_Type::DOF ) );
-        tParameterList( 4 )( tIQICounter ).set( "IQI_output_type",            static_cast< uint >( vis::Output_Type::UX ) );
         tParameterList( 4 )( tIQICounter ).set( "master_dof_dependencies",    "UX,UY");
         tParameterList( 4 )( tIQICounter ).set( "vectorial_field_index",      0 );
         tParameterList( 4 )( tIQICounter ).set( "mesh_set_names",             "HMR_dummy_n_p3,HMR_dummy_c_p3");
@@ -347,7 +346,6 @@ namespace moris
         tParameterList( 4 ).push_back( prm::create_IQI_parameter_list() );
         tParameterList( 4 )( tIQICounter ).set( "IQI_name",                   "IQIBulkVolume");
         tParameterList( 4 )( tIQICounter ).set( "IQI_type",                   static_cast< uint >( fem::IQI_Type::VOLUME ));
-        tParameterList( 4 )( tIQICounter ).set( "IQI_output_type",            static_cast< uint >( vis::Output_Type::VOLUME ));
         tParameterList( 4 )( tIQICounter ).set( "master_properties",          "PropDensity,Density");
         tParameterList( 4 )( tIQICounter ).set( "mesh_set_names",             "HMR_dummy_n_p3,HMR_dummy_c_p3");
         tIQICounter++;

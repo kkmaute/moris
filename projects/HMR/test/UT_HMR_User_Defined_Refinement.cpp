@@ -17,7 +17,7 @@
 #include "fn_norm.hpp"
 #include "fn_equal_to.hpp"
 
-#include "cl_PRM_HMR_Parameters.hpp"
+#include "fn_PRM_HMR_Parameters.hpp"
 
 
 using namespace moris;
@@ -44,7 +44,7 @@ int user_defined_refinement(       Element                  * aElement,
     real lsth = 0.0;
 
     // abs variable field bandwidth (absolute)
-    real lsbwabs = 0.1;
+    real lsbwabs = 0.225;
 
     // maximum refinement level
     uint maxlevel = 4;
@@ -207,13 +207,13 @@ TEST_CASE("HMR_User_Defined_Refinement", "[moris],[mesh],[hmr],[HMR_User_Defined
             // calculate T-Matrices etc
             tDatabase->finalize();
 
-//            tField->evaluate_scalar_function( LevelSetFunction );
-//            tHMR.save_to_exodus( 0,"UserDefinedRef.exo" );
+            tField->evaluate_scalar_function( LevelSetFunction );
+            tHMR.save_to_exodus( 0,"UserDefinedRef.exo" );
 
              uint tNumElements = tMesh->get_num_elems();
 
              // perform test
-             REQUIRE( tNumElements == 1126 );
+             REQUIRE( tNumElements == 1120 );
 //             REQUIRE( tNumNodes == 722 );
 //             REQUIRE( tNumCoeffs == 584 );
     }

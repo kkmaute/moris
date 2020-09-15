@@ -1,9 +1,5 @@
-//
-// Created by christopherson on 3/4/20.
-//
-
-#ifndef MORIS_CL_PRM_OPT_PARAMETERS_HPP
-#define MORIS_CL_PRM_OPT_PARAMETERS_HPP
+#ifndef MORIS_FN_PRM_OPT_PARAMETERS_HPP
+#define MORIS_FN_PRM_OPT_PARAMETERS_HPP
 
 #include "cl_Param_List.hpp"
 
@@ -59,14 +55,14 @@ namespace moris
             ParameterList tParameterList;
 
             tParameterList.insert( "algorithm"    , "gcmma"); // Algorithm name, don't change
-            tParameterList.insert( "max_its"      , 100  );  // Maximum number of iterations
-            tParameterList.insert( "max_inner_its", 0    );  // Maximum inner iterations per every optimization iteration
-            tParameterList.insert( "norm_drop"    , 1e-4 );  // Relative change in objective convergence criteria
-            tParameterList.insert( "asymp_adapt0" , 0.5  );  // Initial asymptote adaptation factor
-            tParameterList.insert( "asymp_adaptb"  , 0.7  );  // Shrinking asymptote adaptation factor
-            tParameterList.insert( "asymp_adaptc" , 1.2  );  // Expanding asymptote adaptation factor
-            tParameterList.insert( "step_size"    , 0.01 );  // GCMMA step size
-            tParameterList.insert( "penalty"      , 100.0);  // GCMMA constraint penalty
+            tParameterList.insert( "max_its"      , 100  );   // Maximum number of iterations
+            tParameterList.insert( "max_inner_its", 0    );   // Maximum inner iterations per every optimization iteration
+            tParameterList.insert( "norm_drop"    , 1e-4 );   // Relative change in objective convergence criteria
+            tParameterList.insert( "asymp_adapt0" , 0.5  );   // Initial asymptote adaptation factor
+            tParameterList.insert( "asymp_adaptb" , 0.7  );   // Shrinking asymptote adaptation factor
+            tParameterList.insert( "asymp_adaptc" , 1.2  );   // Expanding asymptote adaptation factor
+            tParameterList.insert( "step_size"    , 0.01 );   // GCMMA step size
+            tParameterList.insert( "penalty"      , 100.0);   // GCMMA constraint penalty
 
             return tParameterList;
         }
@@ -193,4 +189,4 @@ namespace moris
     }
 }
 
-#endif //MORIS_CL_PRM_OPT_PARAMETERS_HPP
+#endif //MORIS_FN_PRM_OPT_PARAMETERS_HPP
