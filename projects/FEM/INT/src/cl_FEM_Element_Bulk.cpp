@@ -185,8 +185,8 @@ namespace moris
 
             // get number of IWGs
             uint tNumIWGs = mSet->get_number_of_requested_IWGs();
-			
-			// get number of IQIs
+
+            // get number of IQIs
             uint tNumIQIs = mSet->get_number_of_requested_IQIs();
 
             // loop over integration points
@@ -218,15 +218,15 @@ namespace moris
                     {
                         // compute residual at evaluation point
                         mSet->get_requested_IWGs()( iIWG )->compute_residual( tWStar );
-					}
+                    }
 
                     // compute jacobian at evaluation point
                     mSet->get_requested_IWGs()( iIWG )->compute_jacobian( tWStar );
                 }
-				
-				if( ( !mSet->mEquationModel->get_is_forward_analysis() ) && ( tNumIQIs > 0 ) )
+
+                if( ( !mSet->mEquationModel->get_is_forward_analysis() ) && ( tNumIQIs > 0 ) )
                 {
-				    // loop over the IQIs
+                    // loop over the IQIs
                     for( uint iIQI = 0; iIQI < tNumIQIs; iIQI++ )
                     {
                         // reset IWG
@@ -235,7 +235,7 @@ namespace moris
                         // compute dQIdu at evaluation point
                         mSet->get_requested_IQIs()( iIQI )->add_dQIdu_on_set( tWStar );
                     }
-				}
+                }
             }
         }
 
@@ -243,9 +243,6 @@ namespace moris
 
         void Element_Bulk::compute_dRdp()
         {
-            // get the vertices indices
-            Matrix< IndexMat > tVertexIndices = mMasterCell->get_vertex_inds();
-
             // set physical and parametric space and time coefficients for IG element
             moris::Cell< Matrix< DDSMat > > tIsActiveDv;
             this->init_ig_geometry_interpolator( tIsActiveDv );
@@ -312,7 +309,8 @@ namespace moris
                 Matrix< DDRMat > tLocalIntegPoint = mSet->get_integration_points().get_column( iGP );
 
                 // set evaluation point for interpolators (FIs and GIs)
-                mSet->get_field_interpolator_manager()->set_space_time_from_local_IG_point( tLocalIntegPoint );
+                mSet->get_field_interpolator_manager()->
+                        set_space_time_from_local_IG_point( tLocalIntegPoint );
 
                 // compute integration point weight
                 real tWStar = mSet->get_integration_weights()( iGP ) *
@@ -389,9 +387,6 @@ namespace moris
 
         void Element_Bulk::compute_dQIdp_explicit()
         {
-            // get the vertices indices
-            Matrix< IndexMat > tVertexIndices = mMasterCell->get_vertex_inds();
-
             // set physical and parametric space and time coefficients for IG element
             moris::Cell< Matrix< DDSMat > > tIsActiveDv;
             this->init_ig_geometry_interpolator( tIsActiveDv );
