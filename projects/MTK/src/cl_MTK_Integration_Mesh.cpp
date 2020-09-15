@@ -28,6 +28,12 @@ namespace moris
                 delete tListofSideSets;
             }
             mListofSideSets.clear();
+
+            for( auto tListofDoubleSideSets : mListofDoubleSideSets )
+            {
+                delete tListofDoubleSideSets;
+            }
+            mListofDoubleSideSets.clear();
         }
 
         // ----------------------------------------------------------------------------

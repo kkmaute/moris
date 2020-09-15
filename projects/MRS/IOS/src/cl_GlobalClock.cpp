@@ -36,6 +36,9 @@ namespace moris
         // initialize list of Actions
         mCurrentAction.resize( 1 , EntityAction::Create );
 
+        // initialize list of Actions
+        mCurrentIteration.resize( 1 , 0 );
+
         // record starting time
         mTimeStamps.resize( 1 , (real) std::clock() );
     }

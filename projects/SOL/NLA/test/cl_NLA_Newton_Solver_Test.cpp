@@ -246,6 +246,8 @@ namespace moris
 
         dla::Linear_Solver * tLinSolManager = new dla::Linear_Solver();
         Nonlinear_Solver  tNonLinSolManager;
+        tNonLinSolManager.set_solver_interface( tSolverInput );
+
         /*!
          * Create nonlinear problem class
          *
@@ -373,6 +375,7 @@ namespace moris
 
         dla::Linear_Solver * tLinSolManager = new dla::Linear_Solver();
         Nonlinear_Solver  tNonLinSolManager;
+        tNonLinSolManager.set_solver_interface( tSolverInput );
 
         Nonlinear_Problem * tNonlinearProblem = new Nonlinear_Problem( tSolverInput );
 
@@ -421,6 +424,7 @@ namespace moris
 
         dla::Linear_Solver  tLinSolManager;
         Nonlinear_Solver  tNonLinSolManager;
+        tNonLinSolManager.set_solver_interface( tSolverInput );
 
         Nonlinear_Problem tNonlinearProblem( tSolverInput, 0,true, sol::MapType::Petsc );
 
@@ -508,6 +512,7 @@ namespace moris
          */
         dla::Linear_Solver * tLinSolManager = new dla::Linear_Solver();
         Nonlinear_Solver  tNonLinSolManager;
+        tNonLinSolManager.set_solver_interface( tSolverInput );
 
         /*!
          * Create nonlinear problem class

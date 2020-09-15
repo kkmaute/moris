@@ -280,6 +280,8 @@ namespace moris
 
             tNonLinAlgorithmParameterList.insert( "NLA_Linear_solver" , 0 );
 
+            tNonLinAlgorithmParameterList.insert( "NLA_linear_solver_for_adjoint_solve" , -1 );
+
             // Allowable Newton solver iterations
             tNonLinAlgorithmParameterList.insert( "NLA_max_iter", 10 );
 
@@ -360,8 +362,9 @@ namespace moris
 
             tTimeAlgorithmParameterList.insert( "TSA_Solver_Implementation" , static_cast< uint >( tType ) );
 
-
             tTimeAlgorithmParameterList.insert( "TSA_Nonlinear_solver" , 0 );
+
+            tTimeAlgorithmParameterList.insert( "TSA_nonlinear_solver_for_adjoint_solve" , -1 );
 
             // Number of time steps
             tTimeAlgorithmParameterList.insert( "TSA_Num_Time_Steps", 1 );

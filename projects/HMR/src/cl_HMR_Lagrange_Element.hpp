@@ -23,7 +23,7 @@ namespace moris
 {
     namespace hmr
     {
-//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
 
         /**
          * \brief Lagrange Element templated against
@@ -34,455 +34,465 @@ namespace moris
         template< uint N, uint D >
         class Lagrange_Element : public Element
         {
+                //! pointer to nodes
+                Basis** mNodes;
 
-            //! pointer to nodes
-            Basis**       mNodes;
+                //! pointers to twin on B-Spline mesh
+                moris::Cell< Element* > mTwins;
 
-            //! pointers to twin on B-Spline mesh
-            moris::Cell< Element* > mTwins;
+                //! cell with facets
+                moris::Cell< Facet * > mFacets;
 
-            //! cell with facets
-            moris::Cell< Facet * > mFacets;
+                //! cell with edges
+                moris::Cell< Edge * > mEdges;
 
-            //! cell with edges
-            moris::Cell< Edge * > mEdges;
+                // -----------------------------------------------------------------------------
+            public:
+                // -----------------------------------------------------------------------------
 
-// -----------------------------------------------------------------------------
-        public:
-// -----------------------------------------------------------------------------
-
-            /**
-             * default Lagrange Element constructor
-             */
-            Lagrange_Element( Background_Element_Base* aElement,
-                              const uint & aActivationPattern ) :
-                Element( aElement, aActivationPattern )
-
+                /**
+                 * default Lagrange Element constructor
+                 */
+                Lagrange_Element(
+                        Background_Element_Base * aElement,
+                        const uint              & aActivationPattern ) : Element( aElement, aActivationPattern )
             {
-                if( N == 2 )
-                {
-                    mFacets.resize( 4, nullptr );
-                }
-                else if ( N == 3 )
-                {
-                    mFacets.resize( 6, nullptr );
-                    mEdges.resize( 12, nullptr );
-                }
+                    if( N == 2 )
+                    {
+                        mFacets.resize( 4, nullptr );
+                    }
+                    else if ( N == 3 )
+                    {
+                        mFacets.resize( 6, nullptr );
+                        mEdges.resize( 12, nullptr );
+                    }
             }
 
-//------------------------------------------------------------------------------
+                //------------------------------------------------------------------------------
 
-            /**
-             * default destructor
-             */
-            ~Lagrange_Element()
-            {
-                this->delete_basis_container();
-            }
-
-//------------------------------------------------------------------------------
-
-            void init_basis_container()
-            {
-                MORIS_ASSERT( ! mHaveBasis,
-                        "Basis container of element already initiated" );
-
-                mHaveBasis = true;
-                mNodes = new Basis*[ D ];
-                for( uint k=0; k<D; ++k )
+                /**
+                 * default destructor
+                 */
+                ~Lagrange_Element()
                 {
-                    mNodes[ k ] = nullptr;
-                }
-            }
-
-//------------------------------------------------------------------------------
-
-            void delete_basis_container()
-            {
-                if( mHaveBasis )
-                {
-                    mHaveBasis = false;
-                    delete [] mNodes;
-                }
-            }
-
-//------------------------------------------------------------------------------
-
-            /**
-             * MTK Interface: returns the number of vertices connected to this
-             *                element
-             */
-            uint get_number_of_vertices() const
-            {
-                return D;
-            }
-
-//------------------------------------------------------------------------------
-
-            /**
-             * MTK Interface: returns a cell with the vertex pointers of this
-             * element
-             */
-            moris::Cell< mtk::Vertex* > get_vertex_pointers() const
-            {
-                moris::Cell< mtk::Vertex* > aVertices( D );
-                for( uint k = 0; k<D; ++k )
-                {
-                    aVertices( k ) = mNodes[ k ];
+                    this->delete_basis_container();
                 }
 
-                return aVertices;
-            }
+                //------------------------------------------------------------------------------
 
-//------------------------------------------------------------------------------
-
-            /**
-             * MTK Interface: returns a mat with the vertex IDs
-             */
-            Matrix< IdMat > get_vertex_ids() const
-            {
-                Matrix< IdMat > aIDs( D, 1 );
-                for( uint k = 0; k<D; ++k )
+                void init_basis_container()
                 {
-                    // the following line is correct
-                    aIDs( k ) =  mNodes[ k ]->get_id();
+                    MORIS_ASSERT( ! mHaveBasis,
+                            "Basis container of element already initiated" );
+
+                    mHaveBasis = true;
+                    mNodes = new Basis*[ D ];
+                    for( uint k=0; k<D; ++k )
+                    {
+                        mNodes[ k ] = nullptr;
+                    }
                 }
 
-                return aIDs;
-            }
+                //------------------------------------------------------------------------------
 
-//------------------------------------------------------------------------------
-
-            /**
-             * MTK Interface: returns a mat with the vertex IDs
-             */
-            Matrix< IndexMat > get_vertex_inds() const
-            {
-                Matrix< IndexMat > aIndices( 1, D );  // FIXME was originally a column vector
-                for( uint k = 0; k<D; ++k )
+                void delete_basis_container()
                 {
-                    // the following line is correct
-                    aIndices( k ) =  mNodes[ k ]->get_index();
+                    if( mHaveBasis )
+                    {
+                        mHaveBasis = false;
+                        delete [] mNodes;
+                    }
                 }
 
-                return aIndices;
-            }
+                //------------------------------------------------------------------------------
 
-//------------------------------------------------------------------------------
-            /**
-             * for debugging
-             *
-             * @return void
-             */
-            void print_connectivity()
-            {
-                std::fprintf( stdout,
-                        "connectivity of element %4lu ( ID %4lu, parent %4lu ):\n",
-                        ( long unsigned int ) mElement->get_hmr_index( mActivationPattern ),
-                        ( long unsigned int ) mElement->get_hmr_id(),
-                        ( long unsigned int ) mElement->get_parent()->get_hmr_id() );
-                for( uint k=0; k<D; ++k )
+                /**
+                 * MTK Interface: returns the number of vertices connected to this
+                 *                element
+                 */
+                uint get_number_of_vertices() const
                 {
-                    // get node
-                    Basis* tNode = this->get_basis( k );
+                    return D;
+                }
+
+                //------------------------------------------------------------------------------
+
+                /**
+                 * MTK Interface: returns a cell with the vertex pointers of this
+                 * element
+                 */
+                moris::Cell< mtk::Vertex* > get_vertex_pointers() const
+                {
+                    moris::Cell< mtk::Vertex* > aVertices( D );
+                    for( uint k = 0; k<D; ++k )
+                    {
+                        aVertices( k ) = mNodes[ k ];
+                    }
+
+                    return aVertices;
+                }
+
+                //------------------------------------------------------------------------------
+
+                /**
+                 * MTK Interface: returns a mat with the vertex IDs
+                 */
+                Matrix< IdMat > get_vertex_ids() const
+                {
+                    Matrix< IdMat > aIDs( D, 1 );
+                    for( uint k = 0; k<D; ++k )
+                    {
+                        // the following line is correct
+                        aIDs( k ) =  mNodes[ k ]->get_id();
+                    }
+
+                    return aIDs;
+                }
+
+                //------------------------------------------------------------------------------
+
+                /**
+                 * MTK Interface: returns a mat with the vertex IDs
+                 */
+                Matrix< IndexMat > get_vertex_inds() const
+                {
+                    Matrix< IndexMat > aIndices( 1, D );  // FIXME was originally a column vector
+
+                    for( uint k = 0; k<D; ++k )
+                    {
+                        // the following line is correct
+                        aIndices( k ) =  mNodes[ k ]->get_index();
+                    }
+
+                    return aIndices;
+                }
+
+                //------------------------------------------------------------------------------
+                /**
+                 * for debugging
+                 *
+                 * @return void
+                 */
+                void print_connectivity()
+                {
                     std::fprintf( stdout,
-                            "    %2u :  Node %lu , ID %lu, MEM %lu \n",
-                            ( unsigned int ) k,
-                            ( long unsigned int ) tNode->get_hmr_index(),
-                            ( long unsigned int ) tNode->get_hmr_id(),
-                            ( long unsigned int ) tNode->get_memory_index());
+                            "connectivity of element %4lu ( ID %4lu, parent %4lu ):\n",
+                            ( long unsigned int ) mElement->get_hmr_index( mActivationPattern ),
+                            ( long unsigned int ) mElement->get_hmr_id(),
+                            ( long unsigned int ) mElement->get_parent()->get_hmr_id() );
+
+                    for( uint k=0; k<D; ++k )
+                    {
+                        // get node
+                        Basis* tNode = this->get_basis( k );
+                        std::fprintf( stdout,
+                                "    %2u :  Node %lu , ID %lu, MEM %lu \n",
+                                ( unsigned int ) k,
+                                ( long unsigned int ) tNode->get_hmr_index(),
+                                ( long unsigned int ) tNode->get_hmr_id(),
+                                ( long unsigned int ) tNode->get_memory_index());
+                    }
+                    std::fprintf( stdout, "\n" );
                 }
-                std::fprintf( stdout, "\n" );
-            }
 
+                //------------------------------------------------------------------------------
 
-//------------------------------------------------------------------------------
-
-            /**
-             * get pointer to node
-             *
-             * @param[in] aIndex              element local index of node
-             *
-             * @return    Basis* pointer to Lagrange node
-             *
-             */
-            Basis* get_basis( const uint& aIndex )
-            {
-                if( mHaveBasis )
+                /**
+                 * get pointer to node
+                 *
+                 * @param[in] aIndex              element local index of node
+                 *
+                 * @return    Basis* pointer to Lagrange node
+                 *
+                 */
+                Basis* get_basis( const uint& aIndex )
                 {
-                    return mNodes[ aIndex ];
+                    if( mHaveBasis )
+                    {
+                        MORIS_ASSERT(aIndex<D,"Try to access mNodes with index being out of bound.\n");
+                        return mNodes[ aIndex ];
+                    }
+                    else
+                    {
+                        return nullptr;
+                    }
                 }
-                else
+
+                const Basis* get_basis( const uint& aIndex ) const
                 {
-                    return nullptr;
+                    if( mHaveBasis )
+                    {
+                        MORIS_ASSERT(aIndex<D,"Try to access mNodes with index being out of bound.\n");
+                        return mNodes[ aIndex ];
+                    }
+                    else
+                    {
+                        return nullptr;
+                    }
                 }
-            }
 
-            const Basis* get_basis( const uint& aIndex ) const
-            {
-                if( mHaveBasis )
+                //------------------------------------------------------------------------------
+
+                /**
+                 * set pointer of node to specified index and object
+                 *
+                 * @param[in]    aIndex  element local index of node
+                 * @param[in]    aBasis  pointer to Lagrange node
+                 *
+                 * @return void
+                 *
+                 */
+                void insert_basis(
+                        const uint  & aIndex,
+                        Basis       * aBasis )
                 {
-                    return mNodes[ aIndex ];
+                    MORIS_ASSERT(aIndex<D,"Try to insert bases into mNodes with index being out of bound.\n");
+                    mNodes[ aIndex ] = aBasis;
                 }
-                else
+
+                //------------------------------------------------------------------------------
+
+                /**
+                 * string needed for gmsh output
+                 *
+                 * @return std::string
+                 *
+                 */
+                std::string get_gmsh_string();
+
+                //------------------------------------------------------------------------------
+
+                /**
+                 * VTK ID needed for VTK output
+                 *
+                 * @return uint
+                 */
+                uint get_vtk_type();
+
+                //------------------------------------------------------------------------------
+
+                /**
+                 * node IDs needed for VTK output
+                 *
+                 * @param[out] moris::Matrix< DDLUMat >
+                 *
+                 * @return void
+                 *
+                 */
+                void get_basis_indices_for_vtk( Matrix< DDLUMat > & aNodes );
+
+                //------------------------------------------------------------------------------
+
+                /**
+                 * Creates all nodes on the coarsest level.
+                 * Called by Lagrange mesh create_basis_on_level_zero().
+                 *
+                 * @param[inout] aAllElementsOnProc   cell containing all Lagrange
+                 *                                    elements including the aura
+                 * @param[inout] aNodeCounter         counter to keep track of
+                 *                                    how many nodes were generated
+                 * @return void
+                 */
+                void create_basis_on_level_zero(
+                        moris::Cell< Element * > & aAllElementsOnProc,
+                        luint                    & aNodeCounter );
+
+                //------------------------------------------------------------------------------
+
+                /**
+                 * Creates nodes for children of refined elements.
+                 * Called by Lagrange mesh.
+                 *
+                 * @param[inout] aAllElementsOnProc   cell containing all Lagrange
+                 *                                    elements including the aura
+                 * @param[inout] aBasisCounter        counter to keep track of
+                 *                                    how many nodes were generated
+                 * @return void
+                 */
+                void create_basis_for_children(
+                        moris::Cell< Element * > & aAllElementsOnProc,
+                        luint                    & aBasisCounter );
+
+                //------------------------------------------------------------------------------
+
+                /**
+                 * returns the ijk position of a given basis
+                 *
+                 * @param[in]  aBasisNumber   element local number of basis
+                 * @param[out] aIJK           proc local ijk position of this basis
+                 *
+                 * @return void
+                 *
+                 */
+                void get_ijk_of_basis(
+                        const uint  & aBasisNumber,
+                        luint       * aIJK );
+
+                //------------------------------------------------------------------------------
+
+                /**
+                 * reserve memory for twin container
+                 */
+                void allocate_twin_container( const uint aSize )
                 {
-                    return nullptr;
+                    mTwins.resize( aSize, nullptr );
                 }
-            }
 
-//------------------------------------------------------------------------------
+                //------------------------------------------------------------------------------
 
-            /**
-             * set pointer of node to specified index and object
-             *
-             * @param[in]    aIndex  element local index of node
-             * @param[in]    aBasis  pointer to Lagrange node
-             *
-             * @return void
-             *
-             */
-            void insert_basis( const uint  & aIndex,
-                                     Basis * aBasis )
-            {
-                mNodes[ aIndex ] = aBasis;
-            }
+                /**
+                 * set twin on corresponding B-Spline mesh
+                 */
+                void set_twin( const uint aIndex, Element* aTwin )
+                {
+                    mTwins( aIndex ) = aTwin;
+                }
 
-//------------------------------------------------------------------------------
+                //------------------------------------------------------------------------------
 
-            /**
-             * string needed for gmsh output
-             *
-             * @return std::string
-             *
-             */
-           std::string get_gmsh_string();
+                /**
+                 * returns the mtk geometry type of this element
+                 */
+                mtk::Geometry_Type get_geometry_type() const ;
 
-//------------------------------------------------------------------------------
+                //------------------------------------------------------------------------------
 
-           /**
-            * VTK ID needed for VTK output
-            *
-            * @return uint
-            */
-           uint get_vtk_type();
+                /**
+                 * returns a Mat with the node coords
+                 */
+                Matrix< DDRMat > get_vertex_coords() const;
 
-//------------------------------------------------------------------------------
+                //------------------------------------------------------------------------------
 
-           /**
-            * node IDs needed for VTK output
-            *
-            * @param[out] moris::Matrix< DDLUMat >
-            *
-            * @return void
-            *
-            */
-           void get_basis_indices_for_vtk( Matrix< DDLUMat > & aNodes );
+                /*!
+                 * Returns the vertices on a given side ordinal
+                 */
+                moris::Cell<moris::mtk::Vertex const *> get_vertices_on_side_ordinal(moris::moris_index aSideOrdinal) const;
 
-//------------------------------------------------------------------------------
+                //------------------------------------------------------------------------------
 
-           /**
-            * Creates all nodes on the coarsest level.
-            * Called by Lagrange mesh create_basis_on_level_zero().
-            *
-            * @param[inout] aAllElementsOnProc   cell containing all Lagrange
-            *                                    elements including the aura
-            * @param[inout] aNodeCounter         counter to keep track of
-            *                                    how many nodes were generated
-            * @return void
-            */
-           void create_basis_on_level_zero( moris::Cell< Element * > & aAllElementsOnProc,
-                                            luint                    & aNodeCounter );
+                /*!
+                 * Returns the corner or geometric vertices on a given side ordinal
+                 */
+                moris::Cell<moris::mtk::Vertex const *> get_geometric_vertices_on_side_ordinal(moris::moris_index aSideOrdinal) const;
 
-//------------------------------------------------------------------------------
+                //------------------------------------------------------------------------------
 
-           /**
-            * Creates nodes for children of refined elements.
-            * Called by Lagrange mesh.
-            *
-            * @param[inout] aAllElementsOnProc   cell containing all Lagrange
-            *                                    elements including the aura
-            * @param[inout] aBasisCounter        counter to keep track of
-            *                                    how many nodes were generated
-            * @return void
-            */
-           void create_basis_for_children( moris::Cell< Element * > & aAllElementsOnProc,
-                                           luint                    & aBasisCounter );
+                /*!
+                 * Returns the outward normal on a side ordinal
+                 */
+                moris::Matrix<moris::DDRMat> compute_outward_side_normal(moris::moris_index aSideOrdinal) const;
 
-//------------------------------------------------------------------------------
+                //------------------------------------------------------------------------------
 
-           /**
-            * returns the ijk position of a given basis
-            *
-            * @param[in]  aBasisNumber   element local number of basis
-            * @param[out] aIJK           proc local ijk position of this basis
-            *
-            * @return void
-            *
-            */
-           void get_ijk_of_basis( const uint  & aBasisNumber,
-                                        luint * aIJK );
+                /*!
+                 * Returns the outward normal on a side ordinal
+                 */
+                moris::real compute_cell_measure() const;
 
-//------------------------------------------------------------------------------
+                //------------------------------------------------------------------------------
 
-           /**
-            * reserve memory for twin container
-            */
-           void allocate_twin_container( const uint aSize )
-           {
-               mTwins.resize( aSize, nullptr );
-           }
-
-//------------------------------------------------------------------------------
-
-           /**
-            * set twin on corresponding B-Spline mesh
-            */
-           void set_twin( const uint aIndex, Element* aTwin )
-           {
-               mTwins( aIndex ) = aTwin;
-           }
+                /*!
+                 * Returns the outward normal on a side ordinal
+                 */
+                moris::real
+                compute_cell_side_measure(moris_index const & aCellSideOrd) const;
 
 
-//------------------------------------------------------------------------------
+                //------------------------------------------------------------------------------
+                /**
+                 * returns the interpolation order of this element
+                 */
+                mtk::Interpolation_Order get_interpolation_order() const;
 
-           /**
-            * returns the mtk geometry type of this element
-            */
-           mtk::Geometry_Type get_geometry_type() const ;
+                //------------------------------------------------------------------------------
 
-//------------------------------------------------------------------------------
+                Facet * get_hmr_facet( const uint & aIndex )
+                {
+                    return mFacets( aIndex );
+                }
 
-           /**
-            * returns a Mat with the node coords
-            */
-           Matrix< DDRMat > get_vertex_coords() const;
+                //------------------------------------------------------------------------------
 
-//------------------------------------------------------------------------------
+                void set_hmr_facet(
+                        Facet      * aFacet,
+                        const uint & aIndex )
+                {
+                    mFacets( aIndex ) = aFacet;
+                }
 
-           /*!
-            * Returns the vertices on a given side ordinal
-            */
-           moris::Cell<moris::mtk::Vertex const *> get_vertices_on_side_ordinal(moris::moris_index aSideOrdinal) const;
+                //------------------------------------------------------------------------------
 
-//------------------------------------------------------------------------------
+                Edge * get_hmr_edge( const uint & aIndex )
+                {
+                    return mEdges( aIndex );
+                }
 
-           /*!
-            * Returns the corner or geometric vertices on a given side ordinal
-            */
-           moris::Cell<moris::mtk::Vertex const *> get_geometric_vertices_on_side_ordinal(moris::moris_index aSideOrdinal) const;
+                //------------------------------------------------------------------------------
 
-//------------------------------------------------------------------------------
+                const Edge * get_hmr_edge( const uint & aIndex ) const
+                {
+                    return mEdges( aIndex );
+                }
 
-           /*!
-            * Returns the outward normal on a side ordinal
-            */
-           moris::Matrix<moris::DDRMat> compute_outward_side_normal(moris::moris_index aSideOrdinal) const;
+                //------------------------------------------------------------------------------
 
-//------------------------------------------------------------------------------
+                void set_hmr_edge(
+                        Edge       * aEdge,
+                        const uint & aIndex )
+                {
+                    mEdges( aIndex ) = aEdge;
+                }
 
-           /*!
-            * Returns the outward normal on a side ordinal
-            */
-           moris::real compute_cell_measure() const;
+                //------------------------------------------------------------------------------
+            protected:
+                //------------------------------------------------------------------------------
 
-//------------------------------------------------------------------------------
+                /**
+                 * create new node at position
+                 *
+                 * @param[in]    aNodeNumber   element local index of new node
+                 *
+                 * @return void
+                 */
+                void create_basis( const uint & aBasisNumber )
+                {
+                    // container for basis position
+                    luint tIJK[ N ];
 
-           /*!
-            * Returns the outward normal on a side ordinal
-            */
-           moris::real
-   		   compute_cell_side_measure(moris_index const & aCellSideOrd) const;
+                    // ask element for position
+                    this->get_ijk_of_basis( aBasisNumber, tIJK );
 
+                    // create new Lagrange node
+                    mNodes[ aBasisNumber ] = new Lagrange_Node< N >(
+                            tIJK,
+                            mElement->get_level(),
+                            mElement->get_owner() );
+                }
 
-//------------------------------------------------------------------------------
-           /**
-            * returns the interpolation order of this element
-            */
-           mtk::Interpolation_Order get_interpolation_order() const;
-
-//------------------------------------------------------------------------------
-
-           Facet * get_hmr_facet( const uint & aIndex )
-           {
-               return mFacets( aIndex );
-           }
-
-//------------------------------------------------------------------------------
-
-           void set_hmr_facet( Facet* aFacet, const uint & aIndex )
-           {
-               mFacets( aIndex ) = aFacet;
-           }
-
-//------------------------------------------------------------------------------
-
-           Edge * get_hmr_edge( const uint & aIndex )
-           {
-               return mEdges( aIndex );
-           }
-
-//------------------------------------------------------------------------------
-
-           const Edge * get_hmr_edge( const uint & aIndex ) const
-           {
-               return mEdges( aIndex );
-           }
-
-//------------------------------------------------------------------------------
-
-           void set_hmr_edge( Edge * aEdge, const uint & aIndex )
-           {
-               mEdges( aIndex ) = aEdge;
-           }
-
-//------------------------------------------------------------------------------
-        protected:
-//------------------------------------------------------------------------------
-
-           /**
-            * create new node at position
-            *
-            * @param[in]    aNodeNumber   element local index of new node
-            *
-            * @return void
-            */
-           void create_basis( const uint & aBasisNumber )
-           {
-               // container for basis position
-               luint tIJK[ N ];
-
-               // ask element for position
-               this->get_ijk_of_basis( aBasisNumber, tIJK );
-
-               // create new Lagrange node
-               mNodes[ aBasisNumber ] = new Lagrange_Node< N >( tIJK,
-                                                                mElement->get_level(),
-                                                                mElement->get_owner() );
-           }
-
-//------------------------------------------------------------------------------
+                //------------------------------------------------------------------------------
         };
-//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
 
         template< uint N, uint D >
         void Lagrange_Element< N, D >::create_basis_on_level_zero(
                 moris::Cell< Element * > & aAllElementsOnProc,
-                luint             & aBasisCounter )
+                luint                    & aBasisCounter )
         {
             MORIS_ERROR( false, "Don't know how to create Lagrange nodes on level zero.");
         }
 
-//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
 
         template< uint N, uint D >
         void Lagrange_Element< N, D >::create_basis_for_children(
                 moris::Cell< Element * > & aAllElementsOnProc,
-                luint             & aBasisCounter )
+                luint                    & aBasisCounter )
         {
             MORIS_ERROR( false, "Don't know how to create Lagrange nodes for children.");
         }
 
-//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
 
         template< uint N, uint D >
         std::string Lagrange_Element< N, D >::get_gmsh_string()
@@ -491,7 +501,7 @@ namespace moris
             return aString;
         }
 
-//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
 
         template< uint N, uint D >
         uint Lagrange_Element< N, D >::get_vtk_type()
@@ -500,7 +510,7 @@ namespace moris
             return 2;
         }
 
-//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
 
         template< uint N, uint D >
         void Lagrange_Element< N, D >::get_basis_indices_for_vtk( Matrix< DDLUMat > & aBasis )
@@ -508,7 +518,7 @@ namespace moris
             // do nothing
         }
 
-//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
 
         template< uint N, uint D >
         void Lagrange_Element< N, D >::get_ijk_of_basis(
@@ -518,7 +528,7 @@ namespace moris
             MORIS_ERROR( false, "Don't know how to get ijk of basis.");
         }
 
-//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
 
         template< uint N, uint D >
         Matrix< DDRMat > Lagrange_Element< N, D >::get_vertex_coords() const
@@ -536,7 +546,7 @@ namespace moris
             return aCoords;
         }
 
-//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
 
         template< uint N, uint D >
         mtk::Geometry_Type Lagrange_Element< N, D >::get_geometry_type() const
@@ -545,7 +555,7 @@ namespace moris
             return mtk::Geometry_Type::UNDEFINED;
         }
 
-//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
 
         template< uint N, uint D >
         mtk::Interpolation_Order Lagrange_Element< N, D >::get_interpolation_order() const
@@ -554,7 +564,7 @@ namespace moris
             return mtk::Interpolation_Order::UNDEFINED;
         }
 
-//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
         template< uint N, uint D >
         moris::Cell<moris::mtk::Vertex const *>
         Lagrange_Element< N, D >::get_vertices_on_side_ordinal(moris::moris_index aSideOrdinal) const
@@ -562,7 +572,7 @@ namespace moris
             MORIS_ERROR( false, "get_vertices_on_side_ordinal() not available for this element.");
             return moris::Cell<moris::mtk::Vertex const *>(0);
         }
-//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
         template< uint N, uint D >
         moris::Cell<moris::mtk::Vertex const *>
         Lagrange_Element< N, D >::get_geometric_vertices_on_side_ordinal(moris::moris_index aSideOrdinal) const
@@ -570,16 +580,16 @@ namespace moris
             MORIS_ERROR( false, "get_vertices_on_side_ordinal() not available for this element.");
             return moris::Cell<moris::mtk::Vertex const *>(0);
         }
-//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
 
         template< uint N, uint D >
         moris::Matrix<moris::DDRMat>
         Lagrange_Element< N, D >::compute_outward_side_normal(moris::moris_index aSideOrdinal) const
-	{
-        	MORIS_ERROR( false, "compute_outward_side_normal() not available for this element.");
-        	return moris::Matrix<moris::DDRMat>(0,0);
-	}
-//------------------------------------------------------------------------------
+        {
+            MORIS_ERROR( false, "compute_outward_side_normal() not available for this element.");
+            return moris::Matrix<moris::DDRMat>(0,0);
+        }
+        //------------------------------------------------------------------------------
         template< uint N, uint D >
         moris::real
         Lagrange_Element< N, D >::compute_cell_measure() const
@@ -587,10 +597,10 @@ namespace moris
             MORIS_ERROR( false, "compute_cell_measure() not available for this element.");
             return 0;
         }
-//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
         template< uint N, uint D >
         moris::real
-		Lagrange_Element< N, D >::compute_cell_side_measure(moris_index const & aCellSideOrd) const
+        Lagrange_Element< N, D >::compute_cell_side_measure(moris_index const & aCellSideOrd) const
         {
             MORIS_ERROR( false, "compute_cell_side_measure() not available for this element.");
             return 0;

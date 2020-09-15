@@ -1,5 +1,10 @@
 #include "cl_OPT_Algorithm_LBFGS.hpp"
 
+// Logger package
+#include "cl_Logger.hpp"
+#include "cl_Tracer.hpp"
+#include "cl_Tracer_Enums.hpp"
+
 #ifdef FORT_NO_
 #define _FORTRAN(a) a
 #elif  F77ADD_
@@ -45,6 +50,9 @@ namespace moris
 
         void Algorithm_LBFGS::solve(std::shared_ptr<Problem> aOptProb )
         {
+            // Trace optimization
+            Tracer tTracer(EntityBase::OptimizationAlgorithm, EntityType::LBFGS, EntityAction::Solve);
+
             mProblem = aOptProb;  // set the member variable mProblem to aOptProb
 
             int n = mProblem->get_num_advs(); // number of design variables
@@ -82,6 +90,9 @@ namespace moris
 
             while ( (strcmp(task, fg_start) == 0) || (strcmp(task, "NEW_X") == 0) )
             {
+                // Log iteration of optimization
+                MORIS_LOG_ITERATION();
+
                 if (strcmp(task, fg_start) == 0)
                 {
                     // call to compute objective

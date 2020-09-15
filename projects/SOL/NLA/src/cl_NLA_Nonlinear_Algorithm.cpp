@@ -37,6 +37,17 @@ void Nonlinear_Algorithm::set_linear_solver( dla::Linear_Solver * aLinSolver  )
 
 //--------------------------------------------------------------------------------------------------------------------------
 
+void Nonlinear_Algorithm::set_linear_solver_for_adjoint_solve( dla::Linear_Solver * aLinSolver  )
+{
+    // Delete liner solver manager
+    delete mLinSolverManagerForAdjoint;
+
+    // Set liner solver manager
+    mLinSolverManagerForAdjoint = aLinSolver;
+}
+
+//--------------------------------------------------------------------------------------------------------------------------
+
 moris::real Nonlinear_Algorithm::calculate_time_needed( const clock_t aTime )
 {
     moris::real tDeltaTime = (moris::real) ( clock() - aTime ) / CLOCKS_PER_SEC;

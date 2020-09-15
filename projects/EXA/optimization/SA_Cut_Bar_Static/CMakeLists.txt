@@ -1,5 +1,5 @@
-set(EXAMPLE_MAIN Main_Shape_Sensitivity_Circle_Sweep_Transient)
-set(EXAMPLE_FILES Shape_Sensitivity_Circle_Sweep_Transient Shape_Sensitivity_Circle_Sweep_Transient_Vol_2)
+set(EXAMPLE_MAIN Main_SA_Cut_Bar_Static)
+set(EXAMPLE_FILES SA_Cut_Bar_Static)
 set(EXAMPLE_PROCS 1)
 
 # List source files

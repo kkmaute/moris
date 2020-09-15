@@ -158,6 +158,15 @@ namespace NLA
 
         //--------------------------------------------------------------------------------------------------
 
+        /**
+         * @brief Gets solver interface
+         *
+         * @param[out] Pointer to solver interface
+         */
+        Solver_Interface * get_solver_interface(){ return mSolverInput; };
+
+        //--------------------------------------------------------------------------------------------------
+
 //        /**
 //         * @brief Sets sub-non-linear solver this nonlinear solver is operating on
 //         *

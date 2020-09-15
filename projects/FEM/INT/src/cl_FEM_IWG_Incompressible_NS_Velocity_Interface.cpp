@@ -274,22 +274,25 @@ namespace moris
                     Matrix< DDRMat > tMasterWeightDer = tSPNitsche->dSPdMasterDOF( tDofType ).get_row( 1 );
                     Matrix< DDRMat > tSlaveWeightDer  = tSPNitsche->dSPdMasterDOF( tDofType ).get_row( 2 );
 
+                    // get traction derivative
+                    Matrix< DDRMat > tTractionDer =
+                            tCMMasterFluid->traction( mNormal ) * tMasterWeightDer +
+                            tCMSlaveFluid->traction( mNormal )  * tSlaveWeightDer;
+
                     // add contribution to jacobian
                     mSet->get_jacobian()(
                             { tMasterResStartIndex, tMasterResStopIndex },
                             { tMasterDepStartIndex, tMasterDepStopIndex } ) += aWStar * (
-                                    trans( tFIMaster->N() ) * tJumpVelocity * tNitscheDer
-                                    - trans( tFIMaster->N() ) * tCMMasterFluid->traction( mNormal ) * tMasterWeightDer
+                                    - trans( tFIMaster->N() ) * tTractionDer
                                     - mBeta * trans( tCMMasterFluid->testTraction( mNormal, mResidualDofType ) ) * tJumpVelocity * tMasterWeightDer
-                                    - trans( tFIMaster->N() ) * tCMSlaveFluid->traction( mNormal ) * tSlaveWeightDer );
+                                    + trans( tFIMaster->N() ) * tJumpVelocity * tNitscheDer );
 
                     mSet->get_jacobian()(
                             { tSlaveResStartIndex,  tSlaveResStopIndex },
                             { tMasterDepStartIndex, tMasterDepStopIndex } ) += aWStar * (
-                                    - trans( tFISlave->N() ) * tJumpVelocity * tNitscheDer
-                                    + trans( tFISlave->N() ) * tCMMasterFluid->traction( mNormal ) * tMasterWeightDer
-                                    + trans( tFISlave->N() ) * tCMSlaveFluid->traction( mNormal ) * tSlaveWeightDer
-                                    - mBeta * trans( tCMSlaveFluid->testTraction( mNormal, mResidualDofType ) ) * tJumpVelocity * tSlaveWeightDer );
+                                    + trans( tFISlave->N() ) * tTractionDer
+                                    - mBeta * trans( tCMSlaveFluid->testTraction( mNormal, mResidualDofType ) ) * tJumpVelocity * tSlaveWeightDer
+                                    - trans( tFISlave->N() ) * tJumpVelocity * tNitscheDer );
                 }
 
                 // if turbulence
@@ -331,19 +334,22 @@ namespace moris
                         Matrix< DDRMat > tMasterWeightDer = tSPNitsche->dSPdMasterDOF( tDofType ).get_row( 1 );
                         Matrix< DDRMat > tSlaveWeightDer  = tSPNitsche->dSPdMasterDOF( tDofType ).get_row( 2 );
 
+                        // get traction derivative
+                        Matrix< DDRMat > tTractionDer =
+                                tCMMasterTurbulence->traction( mNormal ) * tMasterWeightDer +
+                                tCMSlaveTurbulence->traction( mNormal )  * tSlaveWeightDer;
+
                         // add contribution to jacobian
                         mSet->get_jacobian()(
                                 { tMasterResStartIndex, tMasterResStopIndex },
                                 { tMasterDepStartIndex, tMasterDepStopIndex } ) += aWStar * (
-                                        - trans( tFIMaster->N() ) * tCMMasterTurbulence->traction( mNormal ) * tMasterWeightDer
-                                        - mBeta * trans( tCMMasterTurbulence->testTraction( mNormal, mResidualDofType ) ) * tJumpVelocity * tMasterWeightDer
-                                        - trans( tFIMaster->N() ) * tCMSlaveTurbulence->traction( mNormal ) * tSlaveWeightDer );
+                                        - trans( tFIMaster->N() ) * tTractionDer
+                                        - mBeta * trans( tCMMasterTurbulence->testTraction( mNormal, mResidualDofType ) ) * tJumpVelocity * tMasterWeightDer );
 
                         mSet->get_jacobian()(
                                 { tSlaveResStartIndex,  tSlaveResStopIndex },
                                 { tMasterDepStartIndex, tMasterDepStopIndex } ) += aWStar * (
-                                        + trans( tFISlave->N() ) * tCMMasterTurbulence->traction( mNormal ) * tMasterWeightDer
-                                        + trans( tFISlave->N() ) * tCMSlaveTurbulence->traction( mNormal ) * tSlaveWeightDer
+                                        + trans( tFISlave->N() ) * tTractionDer
                                         - mBeta * trans( tCMSlaveTurbulence->testTraction( mNormal, mResidualDofType ) ) * tJumpVelocity * tSlaveWeightDer );
                     }
                 }
@@ -401,22 +407,25 @@ namespace moris
                     Matrix< DDRMat > tMasterWeightDer = tSPNitsche->dSPdSlaveDOF( tDofType ).get_row( 1 );
                     Matrix< DDRMat > tSlaveWeightDer  = tSPNitsche->dSPdSlaveDOF( tDofType ).get_row( 2 );
 
+                    // get traction derivative
+                    Matrix< DDRMat > tTractionDer =
+                            tCMMasterFluid->traction( mNormal ) * tMasterWeightDer +
+                            tCMSlaveFluid->traction( mNormal )  * tSlaveWeightDer;
+
                     // add contribution to jacobian
                     mSet->get_jacobian()(
                             { tMasterResStartIndex, tMasterResStopIndex },
                             { tSlaveDepStartIndex,  tSlaveDepStopIndex  } ) += aWStar * (
-                                    + trans( tFIMaster->N() ) * tJumpVelocity * tNitscheDer
-                                    - trans( tFIMaster->N() ) * tCMMasterFluid->traction( mNormal ) * tMasterWeightDer
+                                    - trans( tFIMaster->N() ) * tTractionDer
                                     - mBeta * trans( tCMMasterFluid->testTraction( mNormal, mResidualDofType ) ) * tJumpVelocity * tMasterWeightDer
-                                    - trans( tFIMaster->N() ) * tCMSlaveFluid->traction( mNormal ) * tSlaveWeightDer );
+                                    + trans( tFIMaster->N() ) * tJumpVelocity * tNitscheDer );
 
                     mSet->get_jacobian()(
                             { tSlaveResStartIndex, tSlaveResStopIndex },
                             { tSlaveDepStartIndex, tSlaveDepStopIndex } ) += aWStar * (
-                                    - trans( tFISlave->N() ) * tJumpVelocity * tNitscheDer
-                                    + trans( tFISlave->N() ) * tCMMasterFluid->traction( mNormal ) * tMasterWeightDer
-                                    + trans( tFISlave->N() ) * tCMSlaveFluid->traction( mNormal ) * tSlaveWeightDer
-                                    - mBeta * trans( tCMSlaveFluid->testTraction( mNormal, mResidualDofType ) ) * tJumpVelocity * tSlaveWeightDer );
+                                    + trans( tFISlave->N() ) * tTractionDer
+                                    - mBeta * trans( tCMSlaveFluid->testTraction( mNormal, mResidualDofType ) ) * tJumpVelocity * tSlaveWeightDer
+                                    - trans( tFISlave->N() ) * tJumpVelocity * tNitscheDer );
                 }
 
                 // if turbulence
@@ -458,19 +467,22 @@ namespace moris
                         Matrix< DDRMat > tMasterWeightDer = tSPNitsche->dSPdSlaveDOF( tDofType ).get_row( 1 );
                         Matrix< DDRMat > tSlaveWeightDer  = tSPNitsche->dSPdSlaveDOF( tDofType ).get_row( 2 );
 
+                        // get traction derivative
+                        Matrix< DDRMat > tTractionDer =
+                                tCMMasterTurbulence->traction( mNormal ) * tMasterWeightDer +
+                                tCMSlaveTurbulence->traction( mNormal )  * tSlaveWeightDer;
+
                         // add contribution to jacobian
                         mSet->get_jacobian()(
                                 { tMasterResStartIndex, tMasterResStopIndex },
                                 { tSlaveDepStartIndex,  tSlaveDepStopIndex  } ) += aWStar * (
-                                        - trans( tFIMaster->N() ) * tCMMasterTurbulence->traction( mNormal ) * tMasterWeightDer
-                                        - mBeta * trans( tCMMasterTurbulence->testTraction( mNormal, mResidualDofType ) ) * tJumpVelocity * tMasterWeightDer
-                                        - trans( tFIMaster->N() ) * tCMSlaveTurbulence->traction( mNormal ) * tSlaveWeightDer );
+                                        - trans( tFIMaster->N() ) * tTractionDer
+                                        - mBeta * trans( tCMMasterTurbulence->testTraction( mNormal, mResidualDofType ) ) * tJumpVelocity * tMasterWeightDer );
 
                         mSet->get_jacobian()(
                                 { tSlaveResStartIndex, tSlaveResStopIndex },
                                 { tSlaveDepStartIndex, tSlaveDepStopIndex } ) += aWStar * (
-                                        + trans( tFISlave->N() ) * tCMMasterTurbulence->traction( mNormal ) * tMasterWeightDer
-                                        + trans( tFISlave->N() ) * tCMSlaveTurbulence->traction( mNormal ) * tSlaveWeightDer
+                                        + trans( tFISlave->N() ) * tTractionDer
                                         - mBeta * trans( tCMSlaveTurbulence->testTraction( mNormal, mResidualDofType ) ) * tJumpVelocity * tSlaveWeightDer );
                     }
                 }

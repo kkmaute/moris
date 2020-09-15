@@ -42,6 +42,7 @@ namespace moris
     namespace fem
     {
         //------------------------------------------------------------------------------
+
         FEM_Model::FEM_Model(
                 mtk::Mesh_Manager *                 aMeshManager,
                 const moris_index                 & aMeshPairIndex,
@@ -167,6 +168,7 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+
         FEM_Model::FEM_Model(
                 mtk::Mesh_Manager                           * aMeshManager,
                 const moris_index                           & aMeshPairIndex,
@@ -305,6 +307,7 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+
         void FEM_Model::initialize( std::shared_ptr< Library_IO > aLibrary )
         {
             // get msi string to dof type map
@@ -328,16 +331,19 @@ namespace moris
             this->create_stabilization_parameters( tSPMap, tPropertyMap, tCMMap, tMSIDofTypeMap, tMSIDvTypeMap );
 
             // create IWGs
-            this->create_IWGs( tPropertyMap, tCMMap, tSPMap, tMSIDofTypeMap, tMSIDvTypeMap );
+            std::map< std::string, uint > tIWGMap;
+            this->create_IWGs( tIWGMap, tPropertyMap, tCMMap, tSPMap, tMSIDofTypeMap, tMSIDvTypeMap );
 
             // create IQIs
-            this->create_IQIs( tPropertyMap, tCMMap, tSPMap, tMSIDofTypeMap, tMSIDvTypeMap );
+            std::map< std::string, uint > tIQIMap;
+            this->create_IQIs( tIQIMap, tPropertyMap, tCMMap, tSPMap, tMSIDofTypeMap, tMSIDvTypeMap );
 
             // create fem set info
             this->create_fem_set_info();
         }
 
         //------------------------------------------------------------------------------
+
         FEM_Model::~FEM_Model()
         {
             // delete fem nodes
@@ -359,7 +365,9 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
-        void FEM_Model::finalize_equation_sets( MSI::Model_Solver_Interface * aModelSolverInterface )
+
+        void FEM_Model::finalize_equation_sets(
+                MSI::Model_Solver_Interface * aModelSolverInterface )
         {
             // loop over the fem sets
             for( MSI::Equation_Set * tFemSet : mFemSets )
@@ -370,6 +378,7 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+
         void FEM_Model::create_properties(
                 std::map< std::string, uint >            & aPropertyMap,
                 moris::map< std::string, MSI::Dof_Type > & aMSIDofTypeMap,
@@ -468,6 +477,7 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+
         void FEM_Model::create_constitutive_models(
                 std::map< std::string, uint >            & aCMMap,
                 std::map< std::string, uint >            & aPropertyMap,
@@ -573,6 +583,7 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+
         void FEM_Model::create_stabilization_parameters(
                 std::map< std::string, uint >            & aSPMap,
                 std::map< std::string, uint >            & aPropertyMap,
@@ -797,7 +808,9 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+
         void FEM_Model::create_IWGs(
+                std::map< std::string, uint >            & aIWGMap,
                 std::map< std::string, uint >            & aPropertyMap,
                 std::map< std::string, uint >            & aCMMap,
                 std::map< std::string, uint >            & aSPMap,
@@ -828,6 +841,9 @@ namespace moris
 
                 // set name
                 mIWGs( iIWG )->set_name( tIWGParameterList( iIWG ).get< std::string >( "IWG_name" ) );
+
+                // fill IWG map
+                aIWGMap[ tIWGParameterList( iIWG ).get< std::string >( "IWG_name" ) ] = iIWG;
 
                 // set residual dof type
                 moris::Cell< moris::MSI::Dof_Type > tResDofTypes;
@@ -1032,7 +1048,9 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+
         void FEM_Model::create_IQIs(
+                std::map< std::string, uint >            & aIQIMap,
                 std::map< std::string, uint >            & aPropertyMap,
                 std::map< std::string, uint >            & aCMMap,
                 std::map< std::string, uint >            & aSPMap,
@@ -1063,6 +1081,9 @@ namespace moris
 
                 // set name
                 mIQIs( iIQI )->set_name( tIQIParameterList( iIQI ).get< std::string >( "IQI_name" ) );
+
+                // fill IQI map
+                aIQIMap[ tIQIParameterList( iIQI ).get< std::string >( "IQI_name" ) ] = iIQI;
 
                 // set master dof dependencies
                 moris::Cell< moris::Cell< moris::MSI::Dof_Type > > tDofTypes;
@@ -1183,6 +1204,7 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+
         void FEM_Model::create_fem_set_info()
         {
             // init number of fem sets to be created
@@ -1194,6 +1216,10 @@ namespace moris
 
             // get fem computation type parameter list
             ParameterList tComputationParameterList = mParameterList( 5 )( 0 );
+
+            // get bool for printing physics model
+            bool tPrintPhysics =
+                    tComputationParameterList.get< bool >( "print_physics_model" );
 
             // get bool for analytical/finite differenec for SA
             bool tIsAnalyticalSA =
@@ -1342,11 +1368,14 @@ namespace moris
                 }
             }
 
-            //            // debug print
-            //            for( uint iSet = 0; iSet < mSetInfo.size(); iSet++ )
-            //            {
-            //                mSetInfo( iSet ).print_names();
-            //            }
+            // debug print
+            if( tPrintPhysics )
+            {
+                for( uint iSet = 0; iSet < mSetInfo.size(); iSet++ )
+                {
+                    mSetInfo( iSet ).print_names();
+                }
+            }
         }
 
         //-------------------------------------------------------------------------------------------------
@@ -1392,7 +1421,7 @@ namespace moris
                         // create error message
                         std::string tErrMsg =
                                 "FEM_Model::normalize_IQIs() - Unknown normalization: " + tNormalization +
-                                        ". Must be 'none', 'time', 'design', or a reference value.";
+                                ". Must be 'none', 'time', 'design', or a reference value.";
 
                         // error
                         MORIS_ERROR( false , tErrMsg.c_str() );
