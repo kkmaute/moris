@@ -159,6 +159,9 @@ namespace moris
         {
             ParameterList tParameterList;
 
+            // bool true for printing physics
+            tParameterList.insert( "print_physics_model", false );
+
             // bool true for analytical sensitivity analysis, false for finite difference
             tParameterList.insert( "is_analytical_sensitivity", false );
 
