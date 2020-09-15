@@ -230,7 +230,7 @@ namespace moris
                     {
                         // compute jacobian at evaluation point
                         mSet->get_requested_IWGs()( iIWG )->compute_residual( tWStar );
-					}
+                    }
 
                     // compute jacobian at evaluation point
                     mSet->get_requested_IWGs()( iIWG )->compute_jacobian( tWStar );
@@ -242,9 +242,6 @@ namespace moris
 
         void Element_Time_Sideset::compute_dRdp()
         {
-            // get the vertices indices
-            Matrix< IndexMat > tVertexIndices = mMasterCell->get_vertex_inds();
-
             // set physical and parametric space and time coefficients for IG element
             moris::Cell< Matrix< DDSMat > > tIsActiveDv;
             this->init_ig_geometry_interpolator( tIsActiveDv );
