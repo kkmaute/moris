@@ -41,181 +41,198 @@ namespace moris
     {
         struct Output_Data
         {
-            //! Mesh Index for sanity checks
-            sint                            mMeshIndex = -1;
+                //! Mesh Index for sanity checks
+                sint                            mMeshIndex = -1;
 
-            //! Frequency with which output file is save during transient simulation
-            sint                            mSaveFrequency = MORIS_SINT_MAX;
+                //! Frequency with which output file is save during transient simulation
+                sint                            mSaveFrequency = MORIS_SINT_MAX;
 
-            //! Counter of writing fields to mesh
-            sint                            mFieldWriteCounter = 0;
+                //! Counter of writing fields to mesh
+                sint                            mFieldWriteCounter = 0;
 
-            //! Mesh Type
-            enum VIS_Mesh_Type              mMeshType;
+                //! Time offset for writing sequence of optimization steps
+                real                            mTimeOffset = 0.0;
 
-            //! Output Path
-            std::string                     mOutputPath;
+                //! Mesh Type
+                enum VIS_Mesh_Type              mMeshType;
 
-            //! Mesh Name
-            std::string                     mMeshName;
+                //! Output Path
+                std::string                     mOutputPath;
 
-            //! Mesh Name
-            std::string                     mMeshPath;
+                //! Mesh Name
+                std::string                     mMeshName;
 
-            //! Set names which shall be part of this mesh
-            moris::Cell< std::string >      mSetNames;
+                //! Output Path for temporary file
+                std::string                     mTempPath;
 
-            //! Field names which shall be used for outputs
-            moris::Cell< std::string >      mFieldNames;
+                //! Temporary Name
+                std::string                     mTempName;
 
-            //! Field types
-            moris::Cell< enum Field_Type >  mFieldType;
-			
-			//! Quantitiy of interest names
-            moris::Cell< std::string >      mQINames;
+                //! Mesh Name
+                std::string                     mMeshPath;
+
+                //! Set names which shall be part of this mesh
+                moris::Cell< std::string >      mSetNames;
+
+                //! Field names which shall be used for outputs
+                moris::Cell< std::string >      mFieldNames;
+
+                //! Field types
+                moris::Cell< enum Field_Type >  mFieldType;
+
+                //! Quantity of interest names
+                moris::Cell< std::string >      mQINames;
         };
 
-//-----------------------------------------------------------------------------------------------------------
+        //-----------------------------------------------------------------------------------------------------------
 
         class Output_Manager
         {
-        private:
+            private:
 
-            moris::Cell< vis::Output_Data > mOutputData;
+                moris::Cell< vis::Output_Data > mOutputData;
 
-            moris::Cell< mtk::Mesh * > mVisMesh;
-            moris::Cell< bool >        mVisMeshCreatedAndOpen;
+                moris::Cell< mtk::Mesh * > mVisMesh;
+                moris::Cell< bool >        mVisMeshCreatedAndOpen;
 
-            bool mOnlyPrimary = false;
+                bool mOnlyPrimary = false;
 
-            moris::Cell< moris::mtk::Writer_Exodus * >  mWriter;
+                moris::Cell< moris::mtk::Writer_Exodus * >  mWriter;
 
-            mtk::Mesh_Manager *             mMTKMesh = nullptr;
+                mtk::Mesh_Manager *             mMTKMesh = nullptr;
 
-            moris::uint                     mMTKMeshPairIndex;
+                moris::uint                     mMTKMeshPairIndex = MORIS_UINT_MAX;
 
-            moris::real                     mTimeStamp;
+                moris::real                     mTimeShift = 0.0;
 
-        protected:
+            protected:
 
-        public:
-            Output_Manager(){};
+            public:
+                Output_Manager(){};
 
-//-----------------------------------------------------------------------------------------------------------
+                //-----------------------------------------------------------------------------------------------------------
 
-            Output_Manager( moris::ParameterList aParamterelist )
-            {
-                this->set_outputs( aParamterelist );
-            };
-
-//-----------------------------------------------------------------------------------------------------------
-
-            ~Output_Manager()
-            {
-                for( auto tMesh : mVisMesh )
+                Output_Manager( moris::ParameterList aParamterelist )
                 {
-                    delete tMesh;
-                }
-            };
+                    this->set_outputs( aParamterelist );
+                };
 
-//-----------------------------------------------------------------------------------------------------------
+                //-----------------------------------------------------------------------------------------------------------
 
-            void delete_pointers( const uint aVisMeshIndex )
-            {
-                delete ( mVisMesh( aVisMeshIndex ) );
-
-                mVisMesh( aVisMeshIndex ) = nullptr;
-
-                delete ( mWriter( aVisMeshIndex ) );
-
-                mWriter( aVisMeshIndex ) = nullptr;
-
-                mVisMeshCreatedAndOpen( aVisMeshIndex ) = false;
-            }
-
-//-----------------------------------------------------------------------------------------------------------
-
-            void end_writing( const uint aVisMeshIndex )
-            {
-                mWriter( aVisMeshIndex )->close_file();
-
-                this->delete_pointers( aVisMeshIndex );
-
-                MORIS_LOG( " Finished writing output. ");
-            }
-
-//-----------------------------------------------------------------------------------------------------------
-
-            void set_outputs( const uint                              aOutputIndex,
-                              const enum VIS_Mesh_Type                aMeshType,
-                              const std::string                     & aMeshPath,
-                              const std::string                     & aMeshName,
-                              const moris::Cell< std::string >      & aBlockNames,
-                              const moris::Cell< std::string >      & aFieldNames,
-                              const moris::Cell< enum Field_Type >  & aFieldType,
-                              const moris::Cell< std::string >      & aQINames );
-
-//---------------------------------------------------------------------------------------------------------------------------
-
-            void set_outputs( moris::ParameterList aParamterelist );
-
-//---------------------------------------------------------------------------------------------------------------------------
-
-            void setup_vis_mesh_for_output( const uint                                     aVisMeshIndex,
-                                                  mtk::Mesh_Manager                      * aMesh,
-                                            const uint                                     aMeshPairIndex,
-                                                  std::shared_ptr< MSI::Equation_Model >   aEquationModel)
-            {
-                if( mVisMeshCreatedAndOpen( aVisMeshIndex ) == false )
+                ~Output_Manager()
                 {
-                    this->create_visualization_mesh( aVisMeshIndex, aMesh, aMeshPairIndex );
+                    for( auto tMesh : mVisMesh )
+                    {
+                        delete tMesh;
+                    }
+                };
 
-                    this->set_visualization_sets( aVisMeshIndex, aEquationModel );
+                //-----------------------------------------------------------------------------------------------------------
 
-                    this->write_mesh( aVisMeshIndex );
+                void delete_pointers( const uint aVisMeshIndex )
+                {
+                    delete mVisMesh( aVisMeshIndex );
 
-                    mVisMeshCreatedAndOpen( aVisMeshIndex ) = true;
+                    mVisMesh( aVisMeshIndex ) = nullptr;
+
+                    delete mWriter( aVisMeshIndex );
+
+                    mWriter( aVisMeshIndex ) = nullptr;
+
+                    mVisMeshCreatedAndOpen( aVisMeshIndex ) = false;
                 }
-            }
 
-//---------------------------------------------------------------------------------------------------------------------------
+                //-----------------------------------------------------------------------------------------------------------
 
-            void create_visualization_mesh( const uint                aVisMeshIndex,
-                                                  mtk::Mesh_Manager * aMesh,
-                                            const uint                aMeshPairIndex);
+                void end_writing( const uint aVisMeshIndex )
+                {
+                    mWriter( aVisMeshIndex )->close_file();
 
-//-----------------------------------------------------------------------------------------------------------
+                    this->delete_pointers( aVisMeshIndex );
 
-            void set_visualization_sets( const uint                                   aVisMeshIndex,
-                                               std::shared_ptr< MSI::Equation_Model > aEquationModel );
+                    MORIS_LOG( " Finished writing output. ");
+                }
 
-//-----------------------------------------------------------------------------------------------------------
+                //-----------------------------------------------------------------------------------------------------------
 
-            void write_mesh( const uint aVisMeshIndex );
+                void set_outputs(
+                        const uint                              aOutputIndex,
+                        const enum VIS_Mesh_Type                aMeshType,
+                        const std::string                     & aMeshPath,
+                        const std::string                     & aMeshName,
+                        const std::string                     & aTempPath,
+                        const std::string                     & aTempName,
+                        const moris::Cell< std::string >      & aBlockNames,
+                        const moris::Cell< std::string >      & aFieldNames,
+                        const moris::Cell< enum Field_Type >  & aFieldType,
+                        const moris::Cell< std::string >      & aQINames,
+                        const uint                              aSaveFrequency = 1,
+                        const real                              aTimeOffset = 0.0);
 
-//-----------------------------------------------------------------------------------------------------------
+                //---------------------------------------------------------------------------------------------------------------------------
 
-            void write_mesh_indices( const uint aVisMeshIndex );
+                void set_outputs( moris::ParameterList aParamterelist );
 
-//-----------------------------------------------------------------------------------------------------------
+                //---------------------------------------------------------------------------------------------------------------------------
 
-            void add_nodal_fields( const uint aVisMeshIndex );
+                void setup_vis_mesh_for_output(
+                        const uint                               aVisMeshIndex,
+                        mtk::Mesh_Manager                      * aMesh,
+                        const uint                               aMeshPairIndex,
+                        std::shared_ptr< MSI::Equation_Model >   aEquationModel)
+                {
+                    if( mVisMeshCreatedAndOpen( aVisMeshIndex ) == false )
+                    {
+                        this->create_visualization_mesh( aVisMeshIndex, aMesh, aMeshPairIndex );
 
-//-----------------------------------------------------------------------------------------------------------
+                        this->set_visualization_sets( aVisMeshIndex, aEquationModel );
 
-            void add_elemetal_fields( const uint aVisMeshIndex );
+                        this->write_mesh( aVisMeshIndex );
 
-//-----------------------------------------------------------------------------------------------------------
+                        mVisMeshCreatedAndOpen( aVisMeshIndex ) = true;
+                    }
+                }
 
-            void add_global_fields( const uint aVisMeshIndex );
+                //---------------------------------------------------------------------------------------------------------------------------
 
-//-----------------------------------------------------------------------------------------------------------
+                void create_visualization_mesh(
+                        const uint          aVisMeshIndex,
+                        mtk::Mesh_Manager * aMesh,
+                        const uint          aMeshPairIndex);
 
-            void write_field( const uint                                   aVisMeshIndex,
-                              const real                                   aTime,
-                                    std::shared_ptr< MSI::Equation_Model > aEquationModel );
+                //-----------------------------------------------------------------------------------------------------------
 
-//-----------------------------------------------------------------------------------------------------------
+                void set_visualization_sets(
+                        const uint                             aVisMeshIndex,
+                        std::shared_ptr< MSI::Equation_Model > aEquationModel );
+
+                //-----------------------------------------------------------------------------------------------------------
+
+                void write_mesh( const uint aVisMeshIndex );
+
+                //-----------------------------------------------------------------------------------------------------------
+
+                void write_mesh_indices( const uint aVisMeshIndex );
+
+                //-----------------------------------------------------------------------------------------------------------
+
+                void add_nodal_fields( const uint aVisMeshIndex );
+
+                //-----------------------------------------------------------------------------------------------------------
+
+                void add_elemetal_fields( const uint aVisMeshIndex );
+
+                //-----------------------------------------------------------------------------------------------------------
+
+                void add_global_fields( const uint aVisMeshIndex );
+
+                //-----------------------------------------------------------------------------------------------------------
+
+                void write_field( const uint                                   aVisMeshIndex,
+                        const real                                   aTime,
+                        std::shared_ptr< MSI::Equation_Model > aEquationModel );
+
+                //-----------------------------------------------------------------------------------------------------------
 
         };
     } /* namespace VIS */

@@ -55,7 +55,7 @@
 //
 //    // Write mesh
 //    moris::mtk::Writer_Exodus writer(&tXTKModel.get_enriched_integ_mesh());
-//    writer.write_mesh("", "./xtk_exo/xtk_test_ghost.exo");
+//    writer.write_mesh("", "xtk_test_ghost.exo","","xtk_temp.exo");
 //
 //    // Write the fields
 //    writer.set_time(0.0);

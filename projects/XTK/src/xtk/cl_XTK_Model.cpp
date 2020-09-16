@@ -63,7 +63,7 @@ namespace xtk
     }
 
     // ----------------------------------------------------------------------------------
- 
+
     /*
      * using the general geometry engine
      */
@@ -90,7 +90,7 @@ namespace xtk
                 mBackgroundMesh.get_num_entities(EntityRank::NODE),
                 mGeometryEngine->get_num_geometries());
 
-                
+
     }
 
     // ----------------------------------------------------------------------------------
@@ -255,7 +255,7 @@ namespace xtk
 
             // Write mesh
             moris::mtk::Writer_Exodus writer( &tEnrIntegMesh );
-            writer.write_mesh("", "./xtk_temp.exo");
+            writer.write_mesh("", "./xtk_temp.exo", "", "./xtk_temp2.exo");
 
             // Write the fields
             writer.set_time(0.0);
@@ -3601,7 +3601,7 @@ namespace xtk
     }
 
     // ----------------------------------------------------------------------------------
- 
+
     void
     Model::delete_neighborhood()
     {
@@ -3811,7 +3811,7 @@ namespace xtk
         moris::mtk::Cell_Info_Factory tFactory;
         moris::mtk::Cell_Info* tCellInfo = tFactory.create_cell_info(tCellTopo);
         xtk::create_faces_from_element_to_node(tCellInfo, mBackgroundMesh.get_num_entities(EntityRank::NODE), tCMElementToNode, tElementToFace, tFaceToNode, tNodeToFace, tFaceToElement);
-       
+
         // remove this data right away since it is not needed
         tNodeToFace.resize(0,0);
 
@@ -5307,7 +5307,6 @@ namespace xtk
             tGhostMM    = mGhostStabilization->get_memory_usage();
         }
 
-        
         // make the sum of the cut mesh memory map the cut mesh memory
         tXTKModelMM.mMemoryMapData["Cut Mesh"]         = tCutMeshMM.sum();
         tXTKModelMM.mMemoryMapData["Enrichment"]       = tEnrichmentMM.sum();
@@ -5327,7 +5326,7 @@ namespace xtk
 
     }
 
- 
+
     //------------------------------------------------------------------------------
 
     void
