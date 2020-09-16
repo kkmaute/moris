@@ -105,6 +105,7 @@ namespace moris
     // Side sets 
     std::string tFinPcmInterface  = "dbl_iside_p0_3_p1_1";
     std::string tFinNeumannInterface  = "SideSet_3_n_p3,SideSet_3_c_p3";
+    std::string tPCMDirichletInterface = "SideSet_1_n_p1,SideSet_1_c_p1";
 
     // Ghost sets
     std::string tFinGhost = "ghost_p3";
@@ -314,7 +315,7 @@ namespace moris
         // init geometry counter
         uint tGeoCounter = 0;
 
-        // Geometry parameter lists  
+        // Geometry parameter lists
         tParameterlist( 1 ).push_back( prm::create_geometry_parameter_list() );
         tParameterlist( 1 )( tGeoCounter ).set( "type", "plane");
         tParameterlist( 1 )( tGeoCounter ).set( "constant_parameters", "-1.0, 0.0, 1.0, 0.0");
