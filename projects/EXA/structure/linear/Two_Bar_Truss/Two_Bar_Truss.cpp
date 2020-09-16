@@ -296,9 +296,8 @@ namespace moris
 
     Matrix<DDRMat> compute_dobjective_dcriteria(Matrix<DDRMat> aADVs, Matrix<DDRMat> aCriteria)
     {
-        Matrix<DDRMat> tDObjectiveDCriteria( 1, 2 );
+        Matrix<DDRMat> tDObjectiveDCriteria( 1, aCriteria.numel(), 0.0 );
         tDObjectiveDCriteria( 0 ) = 1 / 2.7;
-        tDObjectiveDCriteria( 1 ) = 0;
 
         return tDObjectiveDCriteria;
     }
@@ -316,8 +315,7 @@ namespace moris
 
     Matrix<DDRMat> compute_dconstraint_dcriteria(Matrix<DDRMat> aADVs, Matrix<DDRMat> aCriteria)
     {
-        Matrix<DDRMat> tDConstraintDCriteria( 1, 2 );
-        tDConstraintDCriteria( 0 ) = 0;
+        Matrix<DDRMat> tDConstraintDCriteria( 1, aCriteria.numel(), 0.0 );
         tDConstraintDCriteria( 1 ) = 1.0 / 1.9;
 
         return tDConstraintDCriteria;
@@ -526,6 +524,17 @@ namespace moris
         tParameterList( 0 )( tPropCounter ).set( "value_function",           "Func_Const");
         tPropCounter++;
 
+        tParameterList( 0 ).push_back( prm::create_property_parameter_list() );
+        tParameterList( 0 )( tPropCounter ).set( "property_name",            "PropMaxReference") ;
+        tParameterList( 0 )( tPropCounter ).set( "function_parameters",      "1.0") ;
+        tParameterList( 0 )( tPropCounter ).set( "value_function",           "Func_Const") ;
+        tPropCounter++;
+
+        tParameterList( 0 ).push_back( prm::create_property_parameter_list() );
+        tParameterList( 0 )( tPropCounter ).set( "property_name",            "PropMaxExponent") ;
+        tParameterList( 0 )( tPropCounter ).set( "function_parameters",      "2.0") ;
+        tParameterList( 0 )( tPropCounter ).set( "value_function",           "Func_Const") ;
+        tPropCounter++;
 
         //------------------------------------------------------------------------------
         // init CM counter
@@ -577,7 +586,7 @@ namespace moris
         // create parameter list for IWG 2
         tParameterList( 3 ).push_back( prm::create_IWG_parameter_list() );
         tParameterList( 3 )( tIWGCounter ).set( "IWG_name",                   "IWGDirichletU");
-        tParameterList( 3 )( tIWGCounter ).set( "IWG_type",                   static_cast< uint >( fem::IWG_Type::STRUC_LINEAR_DIRICHLET_SYMMETRIC_NITSCHE ) );
+        tParameterList( 3 )( tIWGCounter ).set( "IWG_type",                   static_cast< uint >( fem::IWG_Type::STRUC_LINEAR_DIRICHLET_UNSYMMETRIC_NITSCHE ) );
         tParameterList( 3 )( tIWGCounter ).set( "dof_residual",               "UX,UY");
         tParameterList( 3 )( tIWGCounter ).set( "master_dof_dependencies",    "UX,UY");
         tParameterList( 3 )( tIWGCounter ).set( "master_properties",          "PropDirichlet,Dirichlet");
@@ -636,6 +645,18 @@ namespace moris
         tParameterList( 4 )( tIQICounter ).set( "master_dof_dependencies",    "UX,UY");
         tParameterList( 4 )( tIQICounter ).set( "master_constitutive_models", "CMStrucLinIso1,Elast");
         tParameterList( 4 )( tIQICounter ).set( "mesh_set_names",             tBars);
+        tIQICounter++;
+
+        // Max UDisp
+        tParameterList( 4 ).push_back( prm::create_IQI_parameter_list() );
+        tParameterList( 4 )( tIQICounter ).set( "IQI_name",                   "IQIMaxDofUy") ;
+        tParameterList( 4 )( tIQICounter ).set( "IQI_type",                   static_cast< uint >( fem::IQI_Type::MAX_DOF ) );
+        tParameterList( 4 )( tIQICounter ).set( "master_dof_dependencies",    "UX,UY") ;
+        tParameterList( 4 )( tIQICounter ).set( "vectorial_field_index",      1 );
+        tParameterList( 4 )( tIQICounter ).set( "master_properties",
+                "PropMaxReference,ReferenceValue;"
+                "PropMaxExponent,Exponent") ;
+        tParameterList( 4 )( tIQICounter ).set( "mesh_set_names",             tTotalDomain) ;
         tIQICounter++;
 
         tParameterList( 4 ).push_back( prm::create_IQI_parameter_list() );
@@ -697,9 +718,9 @@ namespace moris
         tParameterlist( 0 )( 0 ).set( "File_Name"  , std::pair< std::string, std::string >( "./", tOutputFileName ) );
         tParameterlist( 0 )( 0 ).set( "Mesh_Type"  , static_cast< uint >( vis::VIS_Mesh_Type::STANDARD ) );
         tParameterlist( 0 )( 0 ).set( "Set_Names"  , tTotalDomain );
-        tParameterlist( 0 )( 0 ).set( "Field_Names", std::string("UX,UY,STRAIN_ENERGY,VOLUME") );
-        tParameterlist( 0 )( 0 ).set( "Field_Type" , std::string("NODAL,NODAL,GLOBAL,GLOBAL") );
-        tParameterlist( 0 )( 0 ).set( "IQI_Names"   , std::string("IQIBulkDISPX,IQIBulkDISPY,IQIBulkStrainEnergy,IQIBulkVolume") );
+        tParameterlist( 0 )( 0 ).set( "Field_Names", std::string("UX,UY,STRAIN_ENERGY,MAXUY,VOLUME") );
+        tParameterlist( 0 )( 0 ).set( "Field_Type" , std::string("NODAL,NODAL,GLOBAL,GLOBAL,GLOBAL") );
+        tParameterlist( 0 )( 0 ).set( "IQI_Names"   , std::string("IQIBulkDISPX,IQIBulkDISPY,IQIBulkStrainEnergy,IQIMaxDofUy,IQIBulkVolume") );
         tParameterlist( 0 )( 0 ).set( "Save_Frequency", 1 );
     }
 
