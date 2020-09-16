@@ -145,18 +145,20 @@ moris::sint Linear_Solver_Amesos::solve_linear_system(
     // Perform symbolic factorization
     //    if ( !mParameterList.get< bool >( "symbolic_factorization" ) || !mIsPastFirstSolve )
     //    {
+    //FIXME Symbilic factorization only if matrix graph changes
     error = mAmesosSolver->SymbolicFactorization();
 
     MORIS_ERROR( error == 0, "SYMBOLIC FACTORIZATION in Linear Solver Trilinos Amesos returned an error %i. Exiting linear solve", error );
     //    }
 
-    // Perform numeric factorization
+    // Perform numeric factorization // FIXME only if values of matrix change
     error = mAmesosSolver->NumericFactorization();
     MORIS_ERROR( error == 0, "NUMERIC FACTORIZATION in Linear Solver Trilinos Amesos returned an error %i. Exiting linear solve", error );
 
     // Solve linear system
     error = mAmesosSolver->Solve();
     MORIS_ERROR( error == 0, "Error in solving linear system with Amesos" );
+
 
     mIsPastFirstSolve = true;
 

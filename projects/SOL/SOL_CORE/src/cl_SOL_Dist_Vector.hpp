@@ -60,6 +60,11 @@ namespace moris
                 };
 
                 /**
+                 * @brief Returns the number of vectors.
+                 */
+                moris::sint get_num_vectors(){return mNumVectors;};
+
+                /**
                  * @brief Replace global vector entries.
                  */
                 virtual void replace_global_values( const moris::Matrix< DDSMat > & aGlobalIds,
@@ -199,8 +204,7 @@ namespace moris
                     return nullptr;
                 };
 
-
-                const sol::Dist_Map * get_map() { return mMap; };
+                sol::Dist_Map * get_map() { return mMap; };
 
 
 

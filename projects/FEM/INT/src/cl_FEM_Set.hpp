@@ -121,9 +121,6 @@ namespace moris
             moris::Cell< uint >                    mMtkIgCellOnSet;
 
             // bool for time continuity
-            bool mIsResidual = false;
-
-            // bool for time continuity
             bool mTimeContinuity = false;
 
             // bool for time boundary integral

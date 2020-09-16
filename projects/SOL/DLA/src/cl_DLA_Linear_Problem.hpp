@@ -10,6 +10,7 @@
 // MORIS header files.
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
+#include "cl_SOL_Enums.hpp"
 
 namespace moris
 {
@@ -38,6 +39,8 @@ namespace dla
 
         moris::real mCondEstimate;
 
+        enum sol::MapType mTplType = sol::MapType::Epetra;
+
     public:
         Linear_Problem( Solver_Interface * aInput ) : mMat(NULL),
                                                       mVectorRHS(NULL),
@@ -52,6 +55,10 @@ namespace dla
         void assemble_residual_and_jacobian( sol::Dist_Vector * aFullSolutionVector );
         void assemble_residual();
         void assemble_jacobian();
+
+        void assemble_staggered_residual_contribution();
+
+        void compute_residual_for_adjoint_solve();
 
         virtual moris::sint solve_linear_system() = 0;
 

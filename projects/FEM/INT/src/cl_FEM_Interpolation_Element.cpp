@@ -354,6 +354,9 @@ namespace moris
                 this->compute_previous_pdof_values();
             }
 
+            // initialize the residual
+            mSet->initialize_mResidual();
+
             // initialize the jacobian
             mSet->initialize_mJacobian();
 
