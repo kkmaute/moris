@@ -1439,9 +1439,12 @@ namespace moris
                 //                fem::Element_Type tPhaseType =
                 //                        static_cast< fem::Element_Type >( tPhaseParameterList( iPhase ).get< uint >( "phase_type" ) );
                 //
-                //                // get the phase index
-                //                uint tPhaseIndex =
-                //                        tPhaseParameterList( iPhase ).get< uint >( "phase_index" );
+                //                // get the master phase index
+                //                uint tMasterPhaseIndex =
+                //                        tPhaseParameterList( iPhase ).get< uint >( "master_phase_index" );
+                //                // get the slave phase index
+                //                uint tSlavePhaseIndex =
+                //                        tPhaseParameterList( iPhase ).get< uint >( "slave_phase_index" );
 
                 // get the mesh set names from mesh
                 // FIXME need access from mesh
