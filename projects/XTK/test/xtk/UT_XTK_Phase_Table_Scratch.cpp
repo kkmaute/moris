@@ -171,10 +171,10 @@ TEST_CASE("Phase Table Scratch","[XTK_PHASE_TABLE]")
 
             // setup the phase table
             moris_index tNumGeom      = tGeometryVector.size();
-            moris::ge::Phase_Table tPhaseTable( tNumGeom ); 
-            // moris_index tNumBulkPhase = 3;
-            // Matrix<IndexMat> tGeomIndexToBulkPhase = {{0,0,2,2,0,0,2,1}};
-            // moris::ge::Phase_Table tPhaseTable( tNumGeom, tNumBulkPhase, tGeomIndexToBulkPhase );
+            // moris::ge::Phase_Table tPhaseTable( tNumGeom ); 
+            moris_index tNumBulkPhase = 3;
+            Matrix<IndexMat> tGeomIndexToBulkPhase = {{0,0,2,2,0,0,2,1}};
+            moris::ge::Phase_Table tPhaseTable( tNumGeom, tNumBulkPhase, tGeomIndexToBulkPhase );
 
             tPhaseTable.print();
 
@@ -195,8 +195,7 @@ TEST_CASE("Phase Table Scratch","[XTK_PHASE_TABLE]")
             // output to exodus file ----------------------------------------------------------
            // Write mesh
            moris::mtk::Writer_Exodus writer(&tXTKModel.get_enriched_integ_mesh(0));
-           writer.write_mesh("", "./xtk_exo/phase_table_2n.exo");
-
+           writer.write_mesh("", "./xtk_exo/phase_table_2n.exo", "", "temp.exo");
            // Write the fields
            writer.set_time(0.0);
            writer.close_file();
