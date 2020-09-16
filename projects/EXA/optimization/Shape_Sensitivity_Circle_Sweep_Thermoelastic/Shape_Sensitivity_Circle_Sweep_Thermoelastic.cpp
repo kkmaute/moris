@@ -67,6 +67,12 @@ namespace moris
     // density
     std::string tDens1 = "1.0";
 
+    std::string tCTE     = "1.0";
+    std::string tRefTemp = "0.0";
+
+    std::string tEmod = "1.0";
+    std::string tPois = "0.0";
+
     // conductivity
     moris::real sK1 = 1.0;
 
@@ -95,7 +101,7 @@ namespace moris
     moris::real tNLA_relaxation_parameter = 1.0;
     int tNLA_max_iter = 2;
 
-    int tTSA_Num_Time_Steps = 2;
+    int tTSA_Num_Time_Steps = 1;
     moris::real tTSA_Time_Frame = 1.0e0;
 
     /* ------------------------------------------------------------------------ */
@@ -206,7 +212,7 @@ Matrix<DDRMat> compute_dconstraint_dcriteria(Matrix<DDRMat> aADVs, Matrix<DDRMat
         tParameterlist(0)(0) = moris::prm::create_opt_problem_parameter_list();
         tParameterlist(0)(0).set("is_optimization_problem", true);
         tParameterlist(0)(0).set("problem", "user_defined");
-        tParameterlist(0)(0).set("library", "./Shape_Sensitivity_Circle_Sweep_Transient.so");
+        tParameterlist(0)(0).set("library", "./Shape_Sensitivity_Circle_Sweep_Thermoelastic.so");
 
         tParameterlist(2)(0) = moris::prm::create_sweep_parameter_list();
         tParameterlist(2)(0).set("hdf5_path", "shape_opt_test.hdf5");
@@ -273,7 +279,7 @@ Matrix<DDRMat> compute_dconstraint_dcriteria(Matrix<DDRMat> aADVs, Matrix<DDRMat
         tParameterlist( 0 )( 0 ).set("initial_advs"      , "3.0; 2.21; 1.4");
         tParameterlist( 0 )( 0 ).set("lower_bounds"      , "3.0; 2.21; 1.4");
         tParameterlist( 0 )( 0 ).set("upper_bounds"      , "3.0; 2.21; 1.4");
-        tParameterlist( 0 )( 0 ).set("IQI_types"         , "IQIBulkStrainEnergy,IQIBulkVolume");
+        tParameterlist( 0 )( 0 ).set("IQI_types"         , "IQIBulkStrainEnergyDISP,IQIBulkVolume");
 
         // Geometry parameter lists
         tParameterlist( 1 ).resize(1);
@@ -333,6 +339,13 @@ Matrix<DDRMat> compute_dconstraint_dcriteria(Matrix<DDRMat> aADVs, Matrix<DDRMat
         tParameterList( 0 )( tPropCounter ).set( "value_function",           "Func_Const");
         tPropCounter++;
 
+        // properties of boundary conditions
+        tParameterList( 0 ).push_back( prm::create_property_parameter_list() );
+        tParameterList( 0 )( tPropCounter ).set( "property_name",            "PropDirichlet");
+        tParameterList( 0 )( tPropCounter ).set( "function_parameters",      "0.0;0.0");
+        tParameterList( 0 )( tPropCounter ).set( "value_function",           "Func_Const");
+        tPropCounter++;
+
         // time continuity weights
         tParameterList( 0 ).push_back( prm::create_property_parameter_list() );
         tParameterList( 0 )( tPropCounter ).set( "property_name",            "PropWeightCurrent");
@@ -367,9 +380,46 @@ Matrix<DDRMat> compute_dconstraint_dcriteria(Matrix<DDRMat> aADVs, Matrix<DDRMat
         tParameterList( 0 )( tPropCounter ).set( "value_function",           "Func_Const");
         tPropCounter++;
 
+        tParameterList( 0 ).push_back( prm::create_property_parameter_list() );
+        tParameterList( 0 )( tPropCounter ).set( "property_name",            "PropCTE");
+        tParameterList( 0 )( tPropCounter ).set( "function_parameters",      tCTE);
+        tParameterList( 0 )( tPropCounter ).set( "value_function",           "Func_Const");
+        tPropCounter++;
+
+        tParameterList( 0 ).push_back( prm::create_property_parameter_list() );
+        tParameterList( 0 )( tPropCounter ).set( "property_name",            "PropRefTemp");
+        tParameterList( 0 )( tPropCounter ).set( "function_parameters",      tRefTemp);
+        tParameterList( 0 )( tPropCounter ).set( "value_function",           "Func_Const");
+        tPropCounter++;
+
+        tParameterList( 0 ).push_back( prm::create_property_parameter_list() );
+        tParameterList( 0 )( tPropCounter ).set( "property_name",            "PropYoungs");
+        tParameterList( 0 )( tPropCounter ).set( "function_parameters",      tEmod);
+        tParameterList( 0 )( tPropCounter ).set( "value_function",           "Func_Const");
+        tPropCounter++;
+
+        tParameterList( 0 ).push_back( prm::create_property_parameter_list() );
+        tParameterList( 0 )( tPropCounter ).set( "property_name",            "PropPoisson");
+        tParameterList( 0 )( tPropCounter ).set( "function_parameters",      tPois);
+        tParameterList( 0 )( tPropCounter ).set( "value_function",           "Func_Const");
+        tPropCounter++;
+
         //------------------------------------------------------------------------------
         // init CM counter
         uint tCMCounter = 0;
+
+        // create parameter list for constitutive model 1
+        tParameterList( 1 ).push_back( prm::create_constitutive_model_parameter_list() );
+        tParameterList( 1 )( tCMCounter ).set( "constitutive_name", "CMStrucLinIso1");
+        tParameterList( 1 )( tCMCounter ).set( "constitutive_type", static_cast< uint >( fem::Constitutive_Type::STRUC_LIN_ISO ) );
+        tParameterList( 1 )( tCMCounter ).set( "model_type",        static_cast< uint >( fem::Model_Type::FULL ) );
+        tParameterList( 1 )( tCMCounter ).set( "dof_dependencies",  std::pair< std::string, std::string >( "UX,UY;TEMP", "Displacement,Temperature" ) );
+        tParameterList( 1 )( tCMCounter ).set( "properties",
+                "PropYoungs, YoungsModulus;"
+                "PropPoisson,PoissonRatio;"
+                "PropCTE,    CTE;"
+                "PropRefTemp,ReferenceTemperature");
+        tCMCounter++;
 
         // create parameter list for constitutive model - Inclusion
         tParameterList( 1 ).push_back( prm::create_constitutive_model_parameter_list() );
@@ -384,6 +434,14 @@ Matrix<DDRMat> compute_dconstraint_dcriteria(Matrix<DDRMat> aADVs, Matrix<DDRMat
         //------------------------------------------------------------------------------
         // init SP counter
         uint tSPCounter = 0;
+
+        // Nitsche stabilization parameter for structure
+        tParameterList( 2 ).push_back( prm::create_stabilization_parameter_parameter_list() );
+        tParameterList( 2 )( tSPCounter ).set( "stabilization_name",      "SPNitscheStruc");
+        tParameterList( 2 )( tSPCounter ).set( "stabilization_type",      static_cast< uint >( fem::Stabilization_Type::DIRICHLET_NITSCHE ) );
+        tParameterList( 2 )( tSPCounter ).set( "function_parameters",     "100.0");
+        tParameterList( 2 )( tSPCounter ).set( "master_properties",       "PropYoungs,Material");
+        tSPCounter++;
 
         // create parameter list for DBC on back surface
         tParameterList( 2 ).push_back( prm::create_stabilization_parameter_parameter_list() );
@@ -408,15 +466,48 @@ Matrix<DDRMat> compute_dconstraint_dcriteria(Matrix<DDRMat> aADVs, Matrix<DDRMat
         // init IWG counter
         uint tIWGCounter = 0;
 
+        // create IWG - bulk structure
+        tParameterList( 3 ).push_back( prm::create_IWG_parameter_list() );
+        tParameterList( 3 )( tIWGCounter ).set( "IWG_name",                   "IWGBulkStruct");
+        tParameterList( 3 )( tIWGCounter ).set( "IWG_type",                   static_cast< uint >( fem::IWG_Type::STRUC_LINEAR_BULK ) );
+        tParameterList( 3 )( tIWGCounter ).set( "dof_residual",               "UX,UY");
+        tParameterList( 3 )( tIWGCounter ).set( "master_dof_dependencies",    "UX,UY;TEMP");
+        tParameterList( 3 )( tIWGCounter ).set( "master_constitutive_models", "CMStrucLinIso1,ElastLinIso");
+        tParameterList( 3 )( tIWGCounter ).set( "mesh_set_names",             tPhase1);
+        tIWGCounter++;
+
         // create IWG for inclusion - bulk diffusion
         tParameterList( 3 ).push_back( prm::create_IWG_parameter_list() );
         tParameterList( 3 )( tIWGCounter ).set( "IWG_name",                   "IWGDiffusion1Bulk");
         tParameterList( 3 )( tIWGCounter ).set( "IWG_type",                   static_cast< uint >( fem::IWG_Type::SPATIALDIFF_BULK ) );
         tParameterList( 3 )( tIWGCounter ).set( "dof_residual",               "TEMP");
-        tParameterList( 3 )( tIWGCounter ).set( "master_dof_dependencies",    "TEMP");
+        tParameterList( 3 )( tIWGCounter ).set( "master_dof_dependencies",    "UX,UY;TEMP");
         tParameterList( 3 )( tIWGCounter ).set( "master_constitutive_models", "CMDiffusion1,Diffusion");
         tParameterList( 3 )( tIWGCounter ).set( "master_properties",          "PropHeatLoad1,Load");
         tParameterList( 3 )( tIWGCounter ).set( "mesh_set_names",             tPhase1 );
+        tIWGCounter++;
+
+        // create IWG - Dirichlet structure
+        tParameterList( 3 ).push_back( prm::create_IWG_parameter_list() );
+        tParameterList( 3 )( tIWGCounter ).set( "IWG_name",                   "IWGDirichletDISP");
+        tParameterList( 3 )( tIWGCounter ).set( "IWG_type",                   static_cast< uint >( fem::IWG_Type::STRUC_LINEAR_DIRICHLET_UNSYMMETRIC_NITSCHE ) );
+        tParameterList( 3 )( tIWGCounter ).set( "dof_residual",               "UX,UY");
+        tParameterList( 3 )( tIWGCounter ).set( "master_dof_dependencies",    "UX,UY;TEMP");
+        tParameterList( 3 )( tIWGCounter ).set( "master_properties",          "PropDirichlet,Dirichlet");
+        tParameterList( 3 )( tIWGCounter ).set( "master_constitutive_models", "CMStrucLinIso1,ElastLinIso");
+        tParameterList( 3 )( tIWGCounter ).set( "stabilization_parameters",   "SPNitscheStruc,DirichletNitsche");
+        tParameterList( 3 )( tIWGCounter ).set( "mesh_set_names",             tBackSurface);
+        tIWGCounter++;
+
+        tParameterList( 3 ).push_back( prm::create_IWG_parameter_list() );
+        tParameterList( 3 )( tIWGCounter ).set( "IWG_name",                   "IWGDirichletDISP2");
+        tParameterList( 3 )( tIWGCounter ).set( "IWG_type",                   static_cast< uint >( fem::IWG_Type::STRUC_LINEAR_DIRICHLET_UNSYMMETRIC_NITSCHE ) );
+        tParameterList( 3 )( tIWGCounter ).set( "dof_residual",               "UX,UY");
+        tParameterList( 3 )( tIWGCounter ).set( "master_dof_dependencies",    "UX,UY;TEMP");
+        tParameterList( 3 )( tIWGCounter ).set( "master_properties",          "PropDirichlet,Dirichlet");
+        tParameterList( 3 )( tIWGCounter ).set( "master_constitutive_models", "CMStrucLinIso1,ElastLinIso");
+        tParameterList( 3 )( tIWGCounter ).set( "stabilization_parameters",   "SPNitscheStruc,DirichletNitsche");
+        tParameterList( 3 )( tIWGCounter ).set( "mesh_set_names",             tFrontSurface);
         tIWGCounter++;
 
         //create IWG for Neumann boundary conditions
@@ -424,7 +515,7 @@ Matrix<DDRMat> compute_dconstraint_dcriteria(Matrix<DDRMat> aADVs, Matrix<DDRMat
         tParameterList( 3 )( tIWGCounter ).set( "IWG_name",                   "IWGInletFlux");
         tParameterList( 3 )( tIWGCounter ).set( "IWG_type",                   static_cast< uint >( fem::IWG_Type::SPATIALDIFF_NEUMANN ) );
         tParameterList( 3 )( tIWGCounter ).set( "dof_residual",               "TEMP");
-        tParameterList( 3 )( tIWGCounter ).set( "master_dof_dependencies",    "TEMP");
+        tParameterList( 3 )( tIWGCounter ).set( "master_dof_dependencies",    "UX,UY;TEMP");
         tParameterList( 3 )( tIWGCounter ).set( "master_properties",          "PropSurfaceFlux,Neumann");
         tParameterList( 3 )( tIWGCounter ).set( "mesh_set_names",             tFrontSurface );
         tIWGCounter++;
@@ -434,7 +525,7 @@ Matrix<DDRMat> compute_dconstraint_dcriteria(Matrix<DDRMat> aADVs, Matrix<DDRMat
         tParameterList( 3 )( tIWGCounter ).set( "IWG_name",                   "IWG2SurfaceTemp");
         tParameterList( 3 )( tIWGCounter ).set( "IWG_type",                   static_cast< uint >( fem::IWG_Type::SPATIALDIFF_DIRICHLET_UNSYMMETRIC_NITSCHE ) );
         tParameterList( 3 )( tIWGCounter ).set( "dof_residual",               "TEMP");
-        tParameterList( 3 )( tIWGCounter ).set( "master_dof_dependencies",    "TEMP");
+        tParameterList( 3 )( tIWGCounter ).set( "master_dof_dependencies",    "UX,UY;TEMP");
         tParameterList( 3 )( tIWGCounter ).set( "master_properties",          "PropImposedTemperature,Dirichlet");
         tParameterList( 3 )( tIWGCounter ).set( "master_constitutive_models", "CMDiffusion1,Diffusion");
         tParameterList( 3 )( tIWGCounter ).set( "stabilization_parameters",   "SPNitscheTemp,DirichletNitsche");
@@ -456,20 +547,6 @@ Matrix<DDRMat> compute_dconstraint_dcriteria(Matrix<DDRMat> aADVs, Matrix<DDRMat
 //             tIWGCounter++;
         }
 
-        // create IWG for time continuity
-        tParameterList( 3 ).push_back( prm::create_IWG_parameter_list() );
-        tParameterList( 3 )( tIWGCounter ).set( "IWG_name",                   "IWGTimeContinuityTemp");
-        tParameterList( 3 )( tIWGCounter ).set( "IWG_type",                   static_cast< uint >( fem::IWG_Type::TIME_CONTINUITY_DOF ) );
-        tParameterList( 3 )( tIWGCounter ).set( "dof_residual",               "TEMP");
-        tParameterList( 3 )( tIWGCounter ).set( "master_dof_dependencies",    "TEMP");
-        tParameterList( 3 )( tIWGCounter ).set( "master_properties",
-                                                "PropWeightCurrent   ,WeightCurrent;"
-                                                "PropWeightPrevious  ,WeightPrevious;"
-                                                "PropInitialCondition,InitialCondition");
-        tParameterList( 3 )( tIWGCounter ).set( "mesh_set_names",             tPhase1 );
-        tParameterList( 3 )( tIWGCounter ).set( "time_continuity",            true );
-        tIWGCounter++;
-
 
         //------------------------------------------------------------------------------
         // init IQI counter
@@ -485,11 +562,19 @@ Matrix<DDRMat> compute_dconstraint_dcriteria(Matrix<DDRMat> aADVs, Matrix<DDRMat
         tIQICounter++;
 
         // create parameter list for IQI 4
+        //tParameterList( 4 ).push_back( prm::create_IQI_parameter_list() );
+        //tParameterList( 4 )( tIQICounter ).set( "IQI_name",                   "IQIBulkStrainEnergyT");
+        //tParameterList( 4 )( tIQICounter ).set( "IQI_type",                   static_cast< uint >( fem::IQI_Type::STRAIN_ENERGY ) );
+        //tParameterList( 4 )( tIQICounter ).set( "master_dof_dependencies",    "TEMP");
+        //tParameterList( 4 )( tIQICounter ).set( "master_constitutive_models", "CMDiffusion1,Elast");
+        //tParameterList( 4 )( tIQICounter ).set( "mesh_set_names",             tPhase1);
+        //tIQICounter++;
+
         tParameterList( 4 ).push_back( prm::create_IQI_parameter_list() );
-        tParameterList( 4 )( tIQICounter ).set( "IQI_name",                   "IQIBulkStrainEnergy");
-        tParameterList( 4 )( tIQICounter ).set( "IQI_type",                   static_cast< uint >( fem::IQI_Type::STRAIN_ENERGY ) );
-        tParameterList( 4 )( tIQICounter ).set( "master_dof_dependencies",    "TEMP");
-        tParameterList( 4 )( tIQICounter ).set( "master_constitutive_models", "CMDiffusion1,Elast");
+        tParameterList( 4 )( tIQICounter ).set( "IQI_name",                   "IQIBulkStrainEnergyDISP");
+        tParameterList( 4 )( tIQICounter ).set( "IQI_type",                    static_cast< uint >( fem::IQI_Type::STRAIN_ENERGY ) );
+        tParameterList( 4 )( tIQICounter ).set( "master_dof_dependencies",    "UX,UY");
+        tParameterList( 4 )( tIQICounter ).set( "master_constitutive_models", "CMStrucLinIso1,Elast");
         tParameterList( 4 )( tIQICounter ).set( "mesh_set_names",             tPhase1);
         tIQICounter++;
 
@@ -508,7 +593,7 @@ Matrix<DDRMat> compute_dconstraint_dcriteria(Matrix<DDRMat> aADVs, Matrix<DDRMat
         tParameterList( 4 )( tIQICounter ).set( "vectorial_field_index",      0 );
         tParameterList( 4 )( tIQICounter ).set( "master_properties",  "PropMaxTempReference,ReferenceValue;"
                                                                       "PropMaxTempExponent,Exponent" ) ;
-        tParameterList( 4 )( tIQICounter ).set( "mesh_set_names",             tTotalDomain );
+        tParameterList( 4 )( tIQICounter ).set( "mesh_set_names",             tPhase1 );
         tIQICounter++;
 
 
@@ -537,18 +622,17 @@ Matrix<DDRMat> compute_dconstraint_dcriteria(Matrix<DDRMat> aADVs, Matrix<DDRMat
         tParameterlist( 2 )( 0 ).set("NLA_combined_res_jac_assembly", false );
 
         tParameterlist( 3 )( 0 ) = moris::prm::create_nonlinear_solver_parameter_list();
-        tParameterlist( 3 )( 0 ).set("NLA_DofTypes"      , "TEMP");
+        tParameterlist( 3 )( 0 ).set("NLA_DofTypes"      , "UX,UY,TEMP");
 
         tParameterlist( 4 )( 0 ) = moris::prm::create_time_solver_algorithm_parameter_list();
         tParameterlist( 4 )( 0 ).set("TSA_Num_Time_Steps", tTSA_Num_Time_Steps );
         tParameterlist( 4 )( 0 ).set("TSA_Time_Frame",     tTSA_Time_Frame );
 
         tParameterlist( 5 )( 0 ) = moris::prm::create_time_solver_parameter_list();
-        tParameterlist( 5 )( 0 ).set("TSA_DofTypes",           "TEMP");
-        tParameterlist( 5 )( 0 ).set("TSA_Initialize_Sol_Vec", "TEMP,0.0");
+        tParameterlist( 5 )( 0 ).set("TSA_DofTypes",           "UX,UY,TEMP");
+        tParameterlist( 5 )( 0 ).set("TSA_Initialize_Sol_Vec", "UX,0.0;UY,0.0;TEMP,0.0");
         tParameterlist( 5 )( 0 ).set("TSA_Output_Indices",     "0");
         tParameterlist( 5 )( 0 ).set("TSA_Output_Crteria",     "Output_Criterion");
-        tParameterlist( 5 )( 0 ).set("TSA_time_level_per_type", "TEMP,2");
 
         tParameterlist( 6 )( 0 ) = moris::prm::create_solver_warehouse_parameterlist();
     }

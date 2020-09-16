@@ -1,5 +1,5 @@
-set(EXAMPLE_MAIN Main_SA_Cut_Bar_Transient)
-set(EXAMPLE_FILES SA_Cut_PCBar_Transient)
+set(EXAMPLE_MAIN Main_Shape_Sensitivity_Circle_Sweep_Thermoelastic)
+set(EXAMPLE_FILES Shape_Sensitivity_Circle_Sweep_Thermoelastic Shape_Sensitivity_Circle_Sweep_Thermoelastic_Staggered)
 set(EXAMPLE_PROCS 1)
 
 # List source files
@@ -94,7 +94,7 @@ endforeach()
 # Add parallel tests
 if(MORIS_HAVE_PARALLEL_TESTS)
     foreach(PROCS ${EXAMPLE_PROCS})
-        add_test(NAME ${EXAMPLE_FILES}-${PROCS}-procs
+        add_test(NAME Shape_Sensitivity_Circle_Sweep_Thermoelastic-${PROCS}-procs
                  WORKING_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}
                  COMMAND ${MORIS_EXECUTE_COMMAND} -n ${PROCS} ${VALGRIND} ${VALGRIND_OPTIONS} $<TARGET_FILE:${EXAMPLE_MAIN}>)
     endforeach()

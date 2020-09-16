@@ -60,17 +60,23 @@ using namespace dla;
             //get_nonlinear_problem()
             clock_t tNewtonLoopStartTime = clock();
 
-            // Loop over all non-linear systems
-            for (uint Ik = tNonLinSysStartIt ; Ik < tNumNonLinSystems;Ik++)
+            if( mMyNonLinSolverManager->get_solver_interface()->get_is_forward_analysis() )
             {
-//                  moris::sint tNonlinSolverManagerIndex = mMyNonLinSolverManager->get_solver_warehouse()
-//                                                                                ->get_nonlinear_solver_manager_index( mMyNonLinSolverManager->get_sonlinear_solver_manager_index(), Ik );
-//
-//                  Nonlinear_Solver * tMySubSolverManager = mMyNonLinSolverManager->get_solver_warehouse()
-//                                                                                         ->get_nonliner_solver_manager_list()( tNonlinSolverManagerIndex );
-
-                mMyNonLinSolverManager->get_sub_nonlinear_solver( Ik )->solve( aNonlinearProblem->get_full_vector() );
-            } // end loop over all non-linear sub-systems
+                // Loop over all non-linear systems
+                for (uint Ik = tNonLinSysStartIt ; Ik < tNumNonLinSystems;Ik++)
+                {
+                    std::cout<<"loop through nonlin systems"<<std::endl;
+                    mMyNonLinSolverManager->get_sub_nonlinear_solver( Ik )->solve( aNonlinearProblem->get_full_vector() );
+                } // end loop over all non-linear sub-systems
+            }
+            else
+            {
+                // Loop over all non-linear systems backwards
+                for (sint Ik = tNumNonLinSystems; Ik > (sint)tNonLinSysStartIt; Ik-- )
+                {
+                    mMyNonLinSolverManager->get_sub_nonlinear_solver( Ik-1 )->solve( aNonlinearProblem->get_full_vector() );
+                } // end loop over all non-linear sub-systems
+            }
 
             tMaxNewTime = this->calculate_time_needed( tNewtonLoopStartTime );
             bool tHartBreak = false;

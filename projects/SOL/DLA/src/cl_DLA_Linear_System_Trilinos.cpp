@@ -20,6 +20,7 @@ using namespace dla;
 
 Linear_System_Trilinos::Linear_System_Trilinos( Solver_Interface * aInput ) : moris::dla::Linear_Problem( aInput )
 {
+    mTplType = sol::MapType::Epetra;
     if ( aInput->get_matrix_market_path() == NULL )
     {
         Matrix_Vector_Factory    tMatFactory( sol::MapType::Epetra );
@@ -83,7 +84,8 @@ Linear_System_Trilinos::Linear_System_Trilinos( Solver_Interface * aInput,
                                                 sol::Dist_Map    * aFreeMap,
                                                 sol::Dist_Map    * aFullMap ) : moris::dla::Linear_Problem( aInput )
 {
-        Matrix_Vector_Factory    tMatFactory( sol::MapType::Epetra );
+        mTplType = sol::MapType::Epetra;
+        Matrix_Vector_Factory    tMatFactory( mTplType );
 
         // Build matrix
         mMat = tMatFactory.create_matrix( aInput, aFreeMap );

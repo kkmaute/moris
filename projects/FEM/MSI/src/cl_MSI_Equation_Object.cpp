@@ -393,9 +393,19 @@ namespace moris
             // get list of all T-Matrices
             this->build_PADofMap_list( tPADofMapList );
 
+            moris::Cell< enum MSI::Dof_Type > tRequestedDofTypes;
+
             //get list of requested dof tpes
-            moris::Cell< enum MSI::Dof_Type > tRequestedDofTypes =  mEquationSet->get_model_solver_interface()->
-                    get_solver_interface()->get_requested_dof_types();
+            if( !mEquationSet->mIsResidual)
+            {
+                 tRequestedDofTypes =  mEquationSet->get_model_solver_interface()->
+                         get_solver_interface()->get_requested_dof_types();
+            }
+            else
+            {
+                 tRequestedDofTypes =  mEquationSet->get_model_solver_interface()->
+                         get_solver_interface()->get_secondary_dof_types()(0);
+            }
 
             // initialize column and row counter
             uint tNumColCounter = 0;
@@ -453,8 +463,19 @@ namespace moris
 
         void Equation_Object::get_equation_obj_dof_ids( Matrix< DDSMat > & aEqnObjAdofId )
         {
-            Cell < enum MSI::Dof_Type >  tRequestedDofTypes =  mEquationSet->get_model_solver_interface()->
-                    get_solver_interface()->get_requested_dof_types();
+            moris::Cell< enum MSI::Dof_Type > tRequestedDofTypes;
+
+            //get list of requested dof tpes
+            if( !mEquationSet->mIsResidual)
+            {
+                 tRequestedDofTypes =  mEquationSet->get_model_solver_interface()->
+                         get_solver_interface()->get_requested_dof_types();
+            }
+            else
+            {
+                 tRequestedDofTypes =  mEquationSet->get_model_solver_interface()->
+                         get_solver_interface()->get_secondary_dof_types()(0);
+            }
 
             Dof_Manager * tDofManager =  mEquationSet->get_model_solver_interface()->get_dof_manager();
 
@@ -506,6 +527,8 @@ namespace moris
             Matrix< DDRMat > tTMatrix;
             this->build_PADofMap_1( tTMatrix );
 
+            //print(mEquationSet->get_jacobian(),"jac");
+
             // project pdof residual to adof residual
             aEqnObjMatrix = trans( tTMatrix ) * mEquationSet->get_jacobian() * tTMatrix;
 
@@ -526,19 +549,43 @@ namespace moris
             // get R or dQIdp values from set
             Cell< Matrix< DDRMat > > tElementalResidual = mEquationSet->get_residual();
 
-            //        this->add_staggered_contribution_to_residual( tElementalResidual );
-
-            // FIXME this is a hack and will be changed in the next days
             if( !mEquationSet->mEquationModel->get_is_forward_analysis() )
             {
-                this->compute_jacobian();
-
-                this->compute_my_adjoint_values();
-
                 for ( uint Ik = 0; Ik<tElementalResidual.size(); Ik++ )
                 {
-                    tElementalResidual( Ik ) = trans( mEquationSet->get_jacobian() ) * mAdjointPdofValues( Ik ) - tElementalResidual( Ik );
+                    tElementalResidual( Ik ) = -1.0* tElementalResidual( Ik );
                 }
+
+                //this->add_staggered_contribution_to_residual( tElementalResidual );
+            }
+
+            Matrix< DDRMat > tTMatrix;
+            this->build_PADofMap_1( tTMatrix );
+
+            uint tNumRHS = mEquationSet->mEquationModel->get_num_rhs();
+
+            aEqnObjRHS.resize( tNumRHS );
+
+            for( uint Ik = 0; Ik < tNumRHS; Ik++)
+            {
+                aEqnObjRHS( Ik ) = trans( tTMatrix ) * tElementalResidual( Ik );
+            }
+        }
+
+        void Equation_Object::get_staggered_equation_obj_residual( Cell< Matrix< DDRMat > > & aEqnObjRHS )
+        {
+            if( !mEquationSet->mEquationModel->get_is_forward_analysis() )
+            {
+                // compute jacobian
+                this->compute_jacobian();
+            }
+
+            // get R or dQIdp values from set
+            Cell< Matrix< DDRMat > > tElementalResidual = mEquationSet->get_residual();
+
+            if( !mEquationSet->mEquationModel->get_is_forward_analysis() )
+            {
+                this->add_staggered_contribution_to_residual( tElementalResidual );
             }
 
             Matrix< DDRMat > tTMatrix;
@@ -575,10 +622,36 @@ namespace moris
                 // compute previous adjoint values
                 this->compute_my_previous_adjoint_values();
 
+                Cell< enum MSI::Dof_Type > tDofType1 = mEquationSet->get_requested_dof_types();
+//
+                // get the pdof values for the ith dof type group
+                Cell< Cell< Matrix< DDRMat > > > tCoeff_Original;
+
+                this->get_my_pdof_values( mPreviousAdjointPdofValues, tDofType1, tCoeff_Original, mtk::Master_Slave::MASTER );
+
+                uint tNumRHS  =tCoeff_Original.size();
+                Cell< Matrix< DDRMat > > tCoeff( tNumRHS );
+
                 // loop over the rhs
                 for ( uint Ik = 0; Ik < tNumRHS; Ik++ )
                 {
-                    tElementalResidual( Ik ) = trans( mEquationSet->get_jacobian() ) * mPreviousAdjointPdofValues( Ik );
+                    // reshape tCoeffs into the order the cluster expects them
+                    this->reshape_pdof_values( tCoeff_Original( Ik ), tCoeff( Ik ) );
+
+                    Cell< Matrix< DDRMat > > tCoeff1(tNumRHS);
+
+                    tCoeff1( Ik ).set_size( tCoeff( Ik ).numel(),1, 0.0);
+                    //fixme get rid of for loop
+                    uint tCounter=0;
+                    for( uint Ia = 0; Ia<tCoeff( Ik ).n_cols(); Ia++)
+                    {
+                        for( uint Ii = 0; Ii<tCoeff ( Ik ).n_rows(); Ii++)
+                        {
+                            tCoeff1( Ik )(tCounter++) = tCoeff( Ik )(Ii,Ia);
+                        }
+                    }
+
+                    tElementalResidual( Ik ) = trans( mEquationSet->get_jacobian() ) * tCoeff1( Ik );
                 }
             }
 
@@ -621,14 +694,12 @@ namespace moris
 
             Cell< Matrix< DDRMat > > tElementalResidual = mEquationSet->get_residual();
 
-            // FIXME this is a hack and will be changed in the next days
             if( !mEquationSet->mEquationModel->get_is_forward_analysis() )
             {
-                this->compute_my_adjoint_values();
-
                 for ( uint Ik = 0; Ik<tElementalResidual.size(); Ik++ )
                 {
-                    tElementalResidual( Ik ) = trans( mEquationSet->get_jacobian() ) * mAdjointPdofValues( Ik )- tElementalResidual( Ik );
+                    //tElementalResidual( Ik ) = trans( mEquationSet->get_jacobian() ) * mAdjointPdofValues( Ik )- tElementalResidual( Ik );
+                    tElementalResidual( Ik ) = -1.0* tElementalResidual( Ik );
                 }
             }		
 			
@@ -645,11 +716,16 @@ namespace moris
 
         //-------------------------------------------------------------------------------------------------
 
-        void Equation_Object::add_staggered_contribution_to_residual( Matrix< DDRMat > & aElementResidual )
+        void Equation_Object::add_staggered_contribution_to_residual( Cell< Matrix< DDRMat > > & aElementResidual )
         {
-            moris::Cell< moris::Cell< enum MSI::Dof_Type > > tSecDofTypes =  mEquationSet->get_secondary_dof_types();
+            moris::Cell< moris::Cell< enum MSI::Dof_Type > > tAllSecDofTypes =  mEquationSet->get_secondary_dof_types();
 
-            for( auto tSecDofTypes : tSecDofTypes )
+            if( tAllSecDofTypes.size() != 0 )
+            {
+                this->compute_my_adjoint_values();
+            }
+
+            for( auto tSecDofTypes : tAllSecDofTypes )
             {
                 moris::Cell< enum MSI::Dof_Type > tRequestedDofTypes =  mEquationSet->get_requested_dof_types();
 
@@ -671,33 +747,42 @@ namespace moris
                             uint tEndCol   = mEquationSet->mJacDofAssemblyMap( tDofIndex )( tSecDofIndex, 1 );
 
                             // seperate master slave index
-                            sint tSeperateSecDofIndex = mEquationSet->get_dof_index_for_type_1( tSecDofTypes( 0 ), mtk::Master_Slave::MASTER );
+                            sint tSeperateSecDofIndex = mEquationSet->get_dof_index_for_type_1( tDofTypes, mtk::Master_Slave::MASTER );
 
                             // get the ith dof type group
                             moris::Cell< MSI::Dof_Type > tDofTypeGroup = mEquationSet->mMasterDofTypes( tSeperateSecDofIndex );
 
                             // get the pdof values for the ith dof type group
                             Cell< Cell< Matrix< DDRMat > > > tCoeff_Original;
-                            Matrix< DDRMat > tCoeff;
 
-                            this->get_my_pdof_values( mPdofValues, tDofTypeGroup, tCoeff_Original, mtk::Master_Slave::MASTER );
+                            this->get_my_pdof_values( mAdjointPdofValues, tDofTypeGroup, tCoeff_Original, mtk::Master_Slave::MASTER );
 
-                            // reshape tCoeffs into the order the cluster expects them
-                            this->reshape_pdof_values( tCoeff_Original( 0 ), tCoeff );
+                            uint tNumRHS  =tCoeff_Original.size();
+                            Cell< Matrix< DDRMat > > tCoeff( tNumRHS );
 
-                            Matrix< DDRMat > tCoeff1( tCoeff.numel(),1, 0.0);
-                            //fixme get rid of for loop
-                            uint tCounter=0;
-                            for( uint Ik = 0; Ik<tCoeff.n_cols(); Ik++)
+                            //print(mEquationSet->get_jacobian(),"staggerd jac");
+
+                            for( uint Ik = 0; Ik < tNumRHS; Ik++ )
                             {
-                                for( uint Ii = 0; Ii<tCoeff.n_rows(); Ii++)
-                                {
-                                    tCoeff1(tCounter++) = tCoeff(Ii,Ik);
-                                }
-                            }
+                                // reshape tCoeffs into the order the cluster expects them
+                                this->reshape_pdof_values( tCoeff_Original( Ik ), tCoeff( Ik ) );
 
-                            aElementResidual( { tStartRow, tEndRow },{ 0, 0 } )
-                            -= mEquationSet->get_jacobian()( { tStartRow, tEndRow }, { tStartCol, tEndCol } ) * tCoeff1;
+                                Cell< Matrix< DDRMat > > tCoeff1(tNumRHS);
+
+                                tCoeff1( Ik ).set_size( tCoeff( Ik ).numel(),1, 0.0);
+                                //fixme get rid of for loop
+                                uint tCounter=0;
+                                for( uint Ia = 0; Ia<tCoeff( Ik ).n_cols(); Ia++)
+                                {
+                                    for( uint Ii = 0; Ii<tCoeff ( Ik ).n_rows(); Ii++)
+                                    {
+                                        tCoeff1( Ik )(tCounter++) = tCoeff( Ik )(Ii,Ia);
+                                    }
+                                }
+
+                                aElementResidual(Ik)( { tStartCol, tEndCol },{ 0, 0 } )
+                                += trans( mEquationSet->get_jacobian()( { tStartRow, tEndRow }, { tStartCol, tEndCol } ) ) * tCoeff1( Ik );
+                            }
                         }
 
                         tDofIndex = mEquationSet->get_dof_index_for_type( tDofTypes, mtk::Master_Slave::SLAVE );
@@ -720,12 +805,12 @@ namespace moris
                             Cell< Cell< Matrix< DDRMat > > > tCoeff_Original;
                             Matrix< DDRMat > tCoeff;
 
-                            this->get_my_pdof_values( mPdofValues, tDofTypeGroup, tCoeff_Original, mtk::Master_Slave::SLAVE );
+                            this->get_my_pdof_values( mAdjointPdofValues, tDofTypeGroup, tCoeff_Original, mtk::Master_Slave::SLAVE );
 
                             // reshape tCoeffs into the order the cluster expects them
                             this->reshape_pdof_values( tCoeff_Original( 0 ), tCoeff );
 
-                            aElementResidual( { tStartRow, tEndRow },{ 0, 0 } )
+                            aElementResidual(0)( { tStartRow, tEndRow },{ 0, 0 } )
                             -= mEquationSet->get_jacobian()( { tStartRow, tEndRow }, { tStartCol, tEndCol } ) * tCoeff;
                         }
                     }
@@ -758,12 +843,12 @@ namespace moris
                             Cell< Cell< Matrix< DDRMat > > > tCoeff_Original;
                             Matrix< DDRMat > tCoeff;
 
-                            this->get_my_pdof_values( mPdofValues, tDofTypeGroup, tCoeff_Original, mtk::Master_Slave::MASTER );
+                            this->get_my_pdof_values( mAdjointPdofValues, tDofTypeGroup, tCoeff_Original, mtk::Master_Slave::MASTER );
 
                             // reshape tCoeffs into the order the cluster expects them
                             this->reshape_pdof_values( tCoeff_Original( 0 ), tCoeff );
 
-                            aElementResidual( { tStartRow, tEndRow },{ 0, 0 } )
+                            aElementResidual(0)( { tStartRow, tEndRow },{ 0, 0 } )
                             -= mEquationSet->get_jacobian()( { tStartRow, tEndRow }, { tStartCol, tEndCol } ) * tCoeff;
                         }
 
@@ -787,12 +872,12 @@ namespace moris
                             Cell< Cell< Matrix< DDRMat > > > tCoeff_Original;
                             Matrix< DDRMat > tCoeff;
 
-                            this->get_my_pdof_values( mPdofValues, tDofTypeGroup, tCoeff_Original, mtk::Master_Slave::SLAVE );
+                            this->get_my_pdof_values( mAdjointPdofValues, tDofTypeGroup, tCoeff_Original, mtk::Master_Slave::SLAVE );
 
                             // reshape tCoeffs into the order the cluster expects them
                             this->reshape_pdof_values( tCoeff_Original( 0 ), tCoeff );
 
-                            aElementResidual( { tStartRow, tEndRow },{ 0, 0 } )
+                            aElementResidual(0)( { tStartRow, tEndRow },{ 0, 0 } )
                             -= mEquationSet->get_jacobian()( { tStartRow, tEndRow }, { tStartCol, tEndCol } ) * tCoeff;
                         }
                     }
@@ -1036,7 +1121,6 @@ namespace moris
                 for ( moris::uint Ik = 0; Ik < mMyPdofHosts( tIsMaster ).size(); Ik++ )
                 {
                     // Get dof type index
-
                     moris::sint tDofTypeIndex = mEquationSet->get_model_solver_interface()->get_dof_manager()
                                                                                           ->get_pdof_index_for_type( aRequestedDofTypes( Ii ) );
 
@@ -1079,7 +1163,7 @@ namespace moris
                         moris::sint tDofTypeIndex = mEquationSet->get_model_solver_interface()->get_dof_manager()
                                                                                               ->get_pdof_index_for_type( aRequestedDofTypes( Ii ) );
 
-                        // Check if number if time levels on this dof type is smaller than maximal number of time levels on dof type
+                        // Check if number of time levels on this dof type is smaller than maximal number of time levels on dof type
                         if ( (sint)mMyPdofHosts( tIsMaster )( Ik )->get_num_time_levels_of_type( tDofTypeIndex ) == tMaxTimeLevelsOnDofType )
                         {
                             // get pointer list all time pdofs on this pdof type

@@ -93,6 +93,9 @@ namespace moris
             bool mdRdpMatExist  = false;
             bool mdQIdpMatExist = false;
 
+            // bool for time continuity
+            bool mIsResidual = false;
+
             Matrix< DDRMat > mTime;
 
             // unique list of dof and dv types

@@ -41,6 +41,9 @@ namespace moris
     //include/exclude Nitsche Dirichlet boundary for debugging
     bool tHaveDirichlet = true;
 
+    //include/exclude Ghost IWG for debugging
+    bool tHaveGhost = true;
+
     //switch between running with phase change or without
     bool tIsPhaseChange = true;
 
@@ -102,6 +105,10 @@ namespace moris
     // Side sets 
     std::string tFinPcmInterface  = "dbl_iside_p0_3_p1_1";
     std::string tFinNeumannInterface  = "SideSet_3_n_p3,SideSet_3_c_p3";
+
+    // Ghost sets
+    std::string tFinGhost = "ghost_p3";
+    std::string tPcmGhost = "ghost_p1";
 
     // HMR parameters -------------------------------------------------
     //std::string tNumElemsPerDim = "2, 16";
@@ -608,7 +615,7 @@ namespace moris
         tParameterList( 3 )( tIWGCounter ).set( "mesh_set_names",             tPcmBulk );
         tIWGCounter++;
 
-        if (tHaveDirichlet)
+        if ( tHaveDirichlet )
         {
             // Interface Dirichlet BC              
             tParameterList( 3 ).push_back( prm::create_IWG_parameter_list() );
@@ -634,6 +641,31 @@ namespace moris
         tParameterList( 3 )( tIWGCounter ).set( "master_properties",          "PropNeumannBC,Neumann") ;
         tParameterList( 3 )( tIWGCounter ).set( "mesh_set_names",             tFinNeumannInterface );
         tIWGCounter++;
+
+        if ( tHaveGhost )
+        {
+            // Fin Ghost
+            tParameterList( 3 ).push_back( prm::create_IWG_parameter_list() );
+            tParameterList( 3 )( tIWGCounter ).set( "IWG_name",                   std::string("IWGFinGhost") );
+            tParameterList( 3 )( tIWGCounter ).set( "IWG_type",                   static_cast< uint >( fem::IWG_Type::GHOST_NORMAL_FIELD ) );
+            tParameterList( 3 )( tIWGCounter ).set( "dof_residual",               std::string("TEMP") );
+            tParameterList( 3 )( tIWGCounter ).set( "master_dof_dependencies",    std::string("TEMP") );
+            tParameterList( 3 )( tIWGCounter ).set( "slave_dof_dependencies",     std::string("TEMP") );
+            tParameterList( 3 )( tIWGCounter ).set( "stabilization_parameters",   std::string("SPGPTempFin,GhostSP") );
+            tParameterList( 3 )( tIWGCounter ).set( "mesh_set_names",             tFinGhost );
+            tIWGCounter++;
+
+            // PCM Ghost
+            tParameterList( 3 ).push_back( prm::create_IWG_parameter_list() );
+            tParameterList( 3 )( tIWGCounter ).set( "IWG_name",                   std::string("IWGPcmGhost") );
+            tParameterList( 3 )( tIWGCounter ).set( "IWG_type",                   static_cast< uint >( fem::IWG_Type::GHOST_NORMAL_FIELD ) );
+            tParameterList( 3 )( tIWGCounter ).set( "dof_residual",               std::string("TEMP") );
+            tParameterList( 3 )( tIWGCounter ).set( "master_dof_dependencies",    std::string("TEMP") );
+            tParameterList( 3 )( tIWGCounter ).set( "slave_dof_dependencies",     std::string("TEMP") );
+            tParameterList( 3 )( tIWGCounter ).set( "stabilization_parameters",   std::string("SPGPTempPcm,GhostSP") );
+            tParameterList( 3 )( tIWGCounter ).set( "mesh_set_names",             tPcmGhost );
+            tIWGCounter++;
+        }
 
         // Time Continuity
         tParameterList( 3 ).push_back( prm::create_IWG_parameter_list() );

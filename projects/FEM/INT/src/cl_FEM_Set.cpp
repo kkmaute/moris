@@ -1887,56 +1887,113 @@ namespace moris
             // if residual not initialized before
             if ( !mResidualExist )
             {
-                // get the dof types requested by the solver
-                moris::Cell < enum MSI::Dof_Type >tRequestedDofTypes =
-                        this->get_requested_dof_types();
-
-                // init dof coefficient counter
-                uint tNumCoeff = 0;
-
-                // loop over the requested dof types
-                for( uint Ik = 0; Ik < tRequestedDofTypes.size(); Ik++ )
+                if( !mIsResidual )
                 {
-                    // get the set index for the master dof type
-                    sint tDofIndex = this->get_dof_index_for_type(
-                            tRequestedDofTypes( Ik ),
-                            mtk::Master_Slave::MASTER );
+                    // get the dof types requested by the solver
+                    moris::Cell < enum MSI::Dof_Type >tRequestedDofTypes =
+                            this->get_requested_dof_types();
 
-                    // if this master dof is active
-                    if( tDofIndex != -1 )
+                    // init dof coefficient counter
+                    uint tNumCoeff = 0;
+
+                    // loop over the requested dof types
+                    for( uint Ik = 0; Ik < tRequestedDofTypes.size(); Ik++ )
                     {
-                        // update number of dof coefficients
-                        tNumCoeff += mMasterFIManager->
-                                get_field_interpolators_for_type( tRequestedDofTypes( Ik ) )->
-                                get_number_of_space_time_coefficients();
+                        // get the set index for the master dof type
+                        sint tDofIndex = this->get_dof_index_for_type(
+                                tRequestedDofTypes( Ik ),
+                                mtk::Master_Slave::MASTER );
+
+                        // if this master dof is active
+                        if( tDofIndex != -1 )
+                        {
+                            // update number of dof coefficients
+                            tNumCoeff += mMasterFIManager->
+                                    get_field_interpolators_for_type( tRequestedDofTypes( Ik ) )->
+                                    get_number_of_space_time_coefficients();
+                        }
+
+                        // get the set index for the slave dof type
+                        tDofIndex = this->get_dof_index_for_type(
+                                tRequestedDofTypes( Ik ),
+                                mtk::Master_Slave::SLAVE  );
+
+                        // if this slave dof is active
+                        if( tDofIndex != -1 )
+                        {
+                            // update number of dof coefficients
+                            tNumCoeff += mSlaveFIManager->
+                                    get_field_interpolators_for_type( tRequestedDofTypes( Ik ) )->
+                                    get_number_of_space_time_coefficients();
+                        }
                     }
 
-                    // get the set index for the slave dof type
-                    tDofIndex = this->get_dof_index_for_type(
-                            tRequestedDofTypes( Ik ),
-                            mtk::Master_Slave::SLAVE  );
+                    // get the number of rhs
+                    uint tNumRHS = mEquationModel->get_num_rhs();
 
-                    // if this slave dof is active
-                    if( tDofIndex != -1 )
+                    // set size for the list of dQIdu vectors
+                    mResidual.resize( tNumRHS );
+
+                    // loop over the dQIdu vectors
+                    for( auto & tRes : mResidual )
                     {
-                        // update number of dof coefficients
-                        tNumCoeff += mSlaveFIManager->
-                                get_field_interpolators_for_type( tRequestedDofTypes( Ik ) )->
-                                get_number_of_space_time_coefficients();
+                        // set size for the dQIdu vector
+                        tRes.set_size( tNumCoeff, 1, 0.0 );
                     }
                 }
-
-                // get the number of rhs
-                uint tNumRHS = mEquationModel->get_num_rhs();
-
-                // set size for the list of dQIdu vectors
-                mResidual.resize( tNumRHS );
-
-                // loop over the dQIdu vectors
-                for( auto & tRes : mResidual )
+                else
                 {
-                    // set size for the dQIdu vector
-                    tRes.set_size( tNumCoeff, 1, 0.0 );
+                    // get the dof types requested by the solver FIXME
+                    moris::Cell < enum MSI::Dof_Type >tRequestedDofTypes =
+                            this->get_secondary_dof_types()(0);
+
+                    // init dof coefficient counter
+                    uint tNumCoeff = 0;
+
+                    // loop over the requested dof types
+                    for( uint Ik = 0; Ik < tRequestedDofTypes.size(); Ik++ )
+                    {
+                        // get the set index for the master dof type
+                        sint tDofIndex = this->get_dof_index_for_type(
+                                tRequestedDofTypes( Ik ),
+                                mtk::Master_Slave::MASTER );
+
+                        // if this master dof is active
+                        if( tDofIndex != -1 )
+                        {
+                            // update number of dof coefficients
+                            tNumCoeff += mMasterFIManager->
+                                    get_field_interpolators_for_type( tRequestedDofTypes( Ik ) )->
+                                    get_number_of_space_time_coefficients();
+                        }
+
+                        // get the set index for the slave dof type
+                        tDofIndex = this->get_dof_index_for_type(
+                                tRequestedDofTypes( Ik ),
+                                mtk::Master_Slave::SLAVE  );
+
+                        // if this slave dof is active
+                        if( tDofIndex != -1 )
+                        {
+                            // update number of dof coefficients
+                            tNumCoeff += mSlaveFIManager->
+                                    get_field_interpolators_for_type( tRequestedDofTypes( Ik ) )->
+                                    get_number_of_space_time_coefficients();
+                        }
+                    }
+
+                    // get the number of rhs
+                    uint tNumRHS = mEquationModel->get_num_rhs();
+
+                    // set size for the list of dQIdu vectors
+                    mResidual.resize( tNumRHS );
+
+                    // loop over the dQIdu vectors
+                    for( auto & tRes : mResidual )
+                    {
+                        // set size for the dQIdu vector
+                        tRes.set_size( tNumCoeff, 1, 0.0 );
+                    }
                 }
 
                 // set the residual initialization flag to true
