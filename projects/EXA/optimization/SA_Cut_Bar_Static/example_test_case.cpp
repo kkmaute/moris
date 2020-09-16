@@ -73,8 +73,8 @@ TEST_CASE("SA_Cut_Bar_Static",
                     tADVIndex,
                     tConstraintsAnalytical(tADVIndex),
                     tFDTypes(tFDIndex).c_str(),
-                    tConstraintsAnalytical(tADVIndex),
-                    100*std::abs((tConstraintsAnalytical(tADVIndex)-tConstraintsAnalytical(tADVIndex))/tConstraintsAnalytical(tADVIndex)));
+                    tConstraintsFD(tADVIndex),
+                    100*std::abs((tConstraintsAnalytical(tADVIndex)-tConstraintsFD(tADVIndex))/tConstraintsFD(tADVIndex)));
 
             CHECK( std::abs( ( tObjectiveAnalytical(   tADVIndex ) - tObjectiveFD(   tADVIndex ) ) /
                     tObjectiveFD(   tADVIndex ) ) < tToleranceSensties );

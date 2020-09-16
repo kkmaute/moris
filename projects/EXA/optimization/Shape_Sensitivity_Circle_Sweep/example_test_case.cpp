@@ -59,6 +59,20 @@ TEST_CASE("Shape_Sensitivity_Circle_Sweep",
 
         for (uint tADVIndex = 0; tADVIndex < tObjectiveAnalytical.length(); tADVIndex++)
         {
+            MORIS_LOG_INFO("Check derivative of objective  wrt. ADV(%i):  analytical  %12.5e, finite difference (%s) %12.5e, percent error %12.5e.",
+                    tADVIndex,
+                    tObjectiveAnalytical(tADVIndex),
+                    tFDTypes(tFDIndex).c_str(),
+                    tObjectiveFD(tADVIndex),
+                    100*std::abs((tObjectiveAnalytical(tADVIndex)-tObjectiveFD(tADVIndex))/tObjectiveFD(tADVIndex)));
+
+            MORIS_LOG_INFO("Check derivative of constraint wrt. ADV(%i):  analytical  %12.5e, finite difference (%s) %12.5e, percent error %12.5e.",
+                    tADVIndex,
+                    tConstraintsAnalytical(tADVIndex),
+                    tFDTypes(tFDIndex).c_str(),
+                    tConstraintsFD(tADVIndex),
+                    100*std::abs((tConstraintsAnalytical(tADVIndex)-tConstraintsFD(tADVIndex))/tConstraintsFD(tADVIndex)));
+
             CHECK(tObjectiveAnalytical(tADVIndex) == Approx(tObjectiveFD(tADVIndex)));
             CHECK(tConstraintsAnalytical(tADVIndex) == Approx(tConstraintsFD(tADVIndex)));
         }
