@@ -71,7 +71,7 @@ namespace moris
             {
                 tRequestedPdvTypes(tPdvTypeIndex) = tPdvTypeMap[tRequestedPdvNames(tPdvTypeIndex)];
             }
-            mPdvHostManager.set_ip_requested_pdv_types(tRequestedPdvTypes);
+            mPdvHostManager.set_requested_interpolation_pdv_types(tRequestedPdvTypes);
             
             // Set map if its a non-standard phase table (i.e. the map is not 1-1 between index and bulk phase).
             if(aParameterLists(0)(0).get<std::string>("phase_table").length() > 0)
@@ -84,7 +84,6 @@ namespace moris
             {
                 mPhaseTable.print();
             }
-            mPdvHostManager.set_requested_interpolation_pdv_types(tRequestedPdvTypes);
         }
 
         //--------------------------------------------------------------------------------------------------------------
