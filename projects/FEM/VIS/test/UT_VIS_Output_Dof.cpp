@@ -340,6 +340,8 @@ namespace moris
 //                                         VIS_Mesh_Type::OVERLAPPING_INTERFACE,
                                          "./",
                                          "Vis_Output_Dof.exo",
+                                         "./",
+                                          "temp.exo",
                                          { "HMR_dummy_c_p0", "HMR_dummy_c_p1", "HMR_dummy_n_p0", "HMR_dummy_n_p1"},
                                          { "Displacement nodal UX", "Displacement nodal UY" },
                                          { Field_Type::NODAL, Field_Type::NODAL },

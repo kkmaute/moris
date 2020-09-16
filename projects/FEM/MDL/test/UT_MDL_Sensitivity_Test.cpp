@@ -219,7 +219,7 @@ TEST_CASE("Sensitivity test","[Sensitivity test]")
 
         // Write mesh
         moris::mtk::Writer_Exodus writer(&tEnrIntegMesh);
-        //writer.write_mesh("","./mdl_exo/xtk_ig_mesh_for_sensitivity_test.e");
+        //writer.write_mesh("","./mdl_exo/xtk_ig_mesh_for_sensitivity_test.e", "", "temp.exo");
 
         // Write the fields
 //        writer.set_time(0.0);
@@ -409,6 +409,8 @@ TEST_CASE("Sensitivity test","[Sensitivity test]")
                                  vis::VIS_Mesh_Type::STANDARD, //OVERLAPPING_INTERFACE
                                  "./",
                                  "MDL_Sensitivity_Test.exo",
+                                 "./",
+                                  "temp.exo",
                                  { "HMR_dummy_c_p0", "HMR_dummy_c_p1", "HMR_dummy_n_p0", "HMR_dummy_n_p1" },
                                  {  "TEMP" },
                                  {  vis::Field_Type::NODAL },

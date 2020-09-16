@@ -641,7 +641,7 @@ namespace moris
             {
                 // Write mesh
                 mtk::Writer_Exodus tWriter(aMesh);
-                tWriter.write_mesh("", aExodusFileName);
+                tWriter.write_mesh("", aExodusFileName, "", "gen_temp.exo");
 
                 // Setup fields
                 Cell<std::string> tFieldNames(mGeometries.size());

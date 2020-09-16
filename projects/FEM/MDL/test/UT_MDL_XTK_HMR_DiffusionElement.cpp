@@ -620,6 +620,8 @@ namespace moris
                     vis::VIS_Mesh_Type::OVERLAPPING_INTERFACE,
                     "./",
                     "XTK_HMR_DIFF.exo",
+                    "./",
+                     "temp.exo",
                     { "HMR_dummy_c_p0", "HMR_dummy_n_p0"},
                     { "Temperature" },
                     {   vis::Field_Type::NODAL },
@@ -811,7 +813,7 @@ namespace moris
             {
                 // Write mesh
                 moris::mtk::Writer_Exodus writer(tIntegMesh1);
-                writer.write_mesh("", "./xtk_multigrid.exo");
+                writer.write_mesh("", "./xtk_multigrid.exo", "", "temp.exo");
 
                 // Write the fields
                 writer.set_time(0.0);
@@ -944,6 +946,8 @@ namespace moris
                     vis::VIS_Mesh_Type::STANDARD,
                     "./",
                     "UT_MDL_Multigrid.exo",
+                    "./",
+                     "temp.exo",
                     { "HMR_dummy" },
                     { "Temperature" },
                     { vis::Field_Type::NODAL },
@@ -1228,6 +1232,8 @@ namespace moris
                     vis::VIS_Mesh_Type::STANDARD,
                     "./",
                     "UT_MDL_Multigrid.exo",
+                    "./",
+                     "temp.exo",
                     { "HMR_dummy" },
                     { "Temperature" },
                     { vis::Field_Type::NODAL },

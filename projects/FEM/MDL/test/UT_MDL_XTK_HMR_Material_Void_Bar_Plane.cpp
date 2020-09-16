@@ -178,7 +178,7 @@ TEST_CASE("XTK HMR Material Void Bar Intersected By Plane","[XTK_HMR_PLANE_BAR_M
 
         // Write mesh
         moris::mtk::Writer_Exodus writer(&tEnrIntegMesh);
-        writer.write_mesh("","./mdl_exo/xtk_hmr_bar_plane_mat_void_integ_2d_ghost.e");
+        writer.write_mesh("", "./mdl_exo/xtk_hmr_bar_plane_mat_void_integ_2d_ghost.e", "", "temp.exo");
 
         // Write the fields
         writer.set_time(0.0);

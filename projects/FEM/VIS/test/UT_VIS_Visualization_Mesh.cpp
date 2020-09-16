@@ -152,7 +152,7 @@ TEST_CASE("Visualization Mesh Output","[VIS],[Vizualization_Mesh_Output]")
 //                Writer_Exodus writer(tVisMesh);
 //                std::string tPrefix = moris::get_base_moris_dir();
 //                std::string tMeshFilePath = tPrefix + "build";
-//                writer.write_mesh(tMeshFilePath, "Vis_Mesh_2.exo");
+//                writer.write_mesh(tMeshFilePath, "Vis_Mesh_2.exo", tMeshFilePath, "temp.exo");
 //
 //                moris::Cell<const moris::mtk::Cell*> tElementsInBlock = tVisMesh->get_set_cells("HMR_dummy_c_p0");
 //

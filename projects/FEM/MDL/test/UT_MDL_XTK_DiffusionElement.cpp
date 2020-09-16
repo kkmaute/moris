@@ -223,6 +223,8 @@ namespace moris
                     vis::VIS_Mesh_Type::STANDARD, //OVERLAPPING_INTERFACE
                     "./",
                     "UT_Output_xtk_mdl_enr_integ.exo",
+                    "./",
+                     "temp.exo",
                     { "block_1_c_p0", "block_1_n_p0" },
                     { "TEMP" },
                     { vis::Field_Type::NODAL },

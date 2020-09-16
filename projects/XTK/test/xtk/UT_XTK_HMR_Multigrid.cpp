@@ -274,7 +274,7 @@ TEST_CASE("2D XTK WITH HMR MULLTIGRID 11","[XTK_HMR_Multigrid]")
 
         // Write mesh
         moris::mtk::Writer_Exodus writer(&tEnrIgMesh);
-        writer.write_mesh("", "./xtk_exo/xtk_hmr_2d_ig_multigrid.exo");
+        writer.write_mesh("", "xtk_hmr_2d_ig_multigrid.exo", "", "xtk_temp.exo");
 
         // Write the fields
         writer.set_time(0.0);

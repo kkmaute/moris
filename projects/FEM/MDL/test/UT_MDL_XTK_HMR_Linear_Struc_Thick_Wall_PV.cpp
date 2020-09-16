@@ -790,7 +790,7 @@ TEST_CASE("2D Linear Stuct Thick Walled Pressure Vessel","[XTK_HMR_LS_PV]")
 //                {
 //                    // Write mesh
 //                    Writer_Exodus writer(&tEnrIntegMesh);
-//                    writer.write_mesh("", tEnrIgMeshFileName);
+//                    writer.write_mesh("", tEnrIgMeshFileName, "", "temp.exo");
 //
 //                    // Write the fields
 //                    writer.set_time(0.0);
@@ -973,6 +973,8 @@ TEST_CASE("2D Linear Stuct Thick Walled Pressure Vessel","[XTK_HMR_LS_PV]")
                                          vis::VIS_Mesh_Type::STANDARD,
                                          tPath,
                                          tVizMeshFileName,
+                                         "./",
+                                          "temp.exo",
                                          { "HMR_dummy_c_p2", "HMR_dummy_n_p2"},
                                          { "UX", "UY","UR_Analytic" },
                                          { vis::Field_Type::NODAL,vis::Field_Type::NODAL, vis::Field_Type::NODAL   },

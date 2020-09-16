@@ -239,7 +239,7 @@
 //            tEnrIntegMesh.deactivate_empty_sets();
 //            // Write mesh
 //            moris::mtk::Writer_Exodus writer(&tEnrIntegMesh);
-//            writer.write_mesh("", tEnrIgMeshFileName);
+//            writer.write_mesh("", tEnrIgMeshFileName, "", "xtk_temp.exo");
 //
 //            // Write the fields
 //            writer.set_time(0.0);

@@ -337,6 +337,8 @@ namespace moris
                         VIS_Mesh_Type::OVERLAPPING_INTERFACE,
                         "./",
                         "Output_Vis_Mesh_overlapping.exo",
+                        "./",
+                        "temp.exo",
                         { "HMR_dummy_c_p0", "HMR_dummy_c_p1", "HMR_dummy_n_p0", "HMR_dummy_n_p1"},
                         { "strain energy elemental", "strain energy global", "strain energy nodal IP" },
                         { Field_Type::ELEMENTAL, Field_Type::GLOBAL,  Field_Type::NODAL },

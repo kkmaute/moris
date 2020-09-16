@@ -190,7 +190,7 @@ TEST_CASE("XTK HMR 2 Material Bar Intersected By Plane","[XTK_HMR_PLANE_BAR_2D]"
 
         // Write mesh
         moris::mtk::Writer_Exodus writer(&tEnrIntegMesh);
-        writer.write_mesh("","./mdl_exo/xtk_hmr_bar_plane_2_mat_integ_2d_ghost.e");
+        writer.write_mesh("", "./mdl_exo/xtk_hmr_bar_plane_2_mat_integ_2d_ghost.e", "", "temp.exo");
 
         // Write the fields
         writer.set_time(0.0);

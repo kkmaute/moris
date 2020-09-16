@@ -447,6 +447,8 @@ namespace moris
         vis::VIS_Mesh_Type::STANDARD, //OVERLAPPING_INTERFACE
         "./",
         "MDL_Fluid_Benchmark_Immersed_Inlet_Velocity_Output.exo",
+        "./",
+         "temp.exo",
         { "HMR_dummy_c_p10", "HMR_dummy_n_p10" },
         { "VX", "VY", "P" },
         { vis::Field_Type::NODAL, vis::Field_Type::NODAL, vis::Field_Type::NODAL },
@@ -799,6 +801,8 @@ TEST_CASE("MDL_Fluid_Benchmark_Immersed_Inlet_Pressure","[MDL_Fluid_Benchmark_Im
         vis::VIS_Mesh_Type::STANDARD, //OVERLAPPING_INTERFACE
         "./",
         "MDL_Fluid_Benchmark_Immersed_Inlet_Pressure_Output.exo",
+        "./",
+         "temp.exo",
         { "HMR_dummy_c_p10", "HMR_dummy_n_p10" },
         { "VX", "VY", "P" },
         { vis::Field_Type::NODAL, vis::Field_Type::NODAL, vis::Field_Type::NODAL },
@@ -2488,6 +2492,8 @@ TEST_CASE("MDL_Fluid_Benchmark_Radial_Couette_Flow","[MDL_Fluid_Benchmark_Radial
                                 vis::VIS_Mesh_Type::STANDARD, //OVERLAPPING_INTERFACE
                                 "./",
                                 "MDL_Fluid_Benchmark_Radial_Couette_Output.exo",
+                                "./",
+                                 "temp.exo",
                                 { "HMR_dummy_c_p1", "HMR_dummy_n_p1" },
                                 { "VX", "VY", "P", "L2", "H1" },
                                 { vis::Field_Type::NODAL,
