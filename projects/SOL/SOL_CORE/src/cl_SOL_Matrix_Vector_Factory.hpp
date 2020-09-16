@@ -9,11 +9,8 @@
 
 #include <memory>
 #include "cl_Matrix.hpp"
-//#include "linalg_typedefs.hpp"
-#include "typedefs.hpp"                       //MRS/COR/src
-
+#include "typedefs.hpp"
 #include "cl_SOL_Enums.hpp"
-//#include "cl_SOL_Dist_Map.hpp"
 
 namespace moris
 {

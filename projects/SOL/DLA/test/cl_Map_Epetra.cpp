@@ -12,7 +12,7 @@
 #include "cl_Communication_Tools.hpp" // COM/src/
 
 #include "cl_Map_Epetra.hpp" // DLA/src/
-#include "cl_Matrix_Vector_Factory.hpp" // DLA/src/
+#include "cl_SOL_Matrix_Vector_Factory.hpp" // DLA/src/
 
 #include "cl_Map_PETSc.hpp" // DLA/src/
 

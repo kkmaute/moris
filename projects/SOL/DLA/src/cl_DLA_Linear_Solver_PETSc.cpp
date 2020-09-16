@@ -6,7 +6,7 @@
  */
 #include "cl_DLA_Linear_Solver_PETSc.hpp"
 #include "cl_DLA_Preconditioner_PETSc.hpp"
-#include "cl_Matrix_Vector_Factory.hpp"
+#include "cl_SOL_Matrix_Vector_Factory.hpp"
 
 #include <petscksp.h>
 #include <petscdm.h>
