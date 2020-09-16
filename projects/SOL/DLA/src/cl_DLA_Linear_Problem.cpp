@@ -7,6 +7,8 @@
 #include "cl_DLA_Linear_Problem.hpp"
 #include "cl_SOL_Dist_Vector.hpp"
 #include "cl_SOL_Dist_Matrix.hpp"
+#include "cl_Matrix_Vector_Factory.hpp"
+#include "cl_SOL_Enums.hpp"
 
 #include "cl_Stopwatch.hpp" //CHR/src
 
@@ -64,10 +66,23 @@ namespace moris
 
             mSolverInterface->assemble_additional_DqDs_RHS_contribution( mVectorRHS );
 
+            if( !mSolverInterface->get_is_forward_analysis() )
+            {
+                this->compute_residual_for_adjoint_solve();
+            }
+
 
             real tElapsedTime = tTimer.toc<moris::chronos::milliseconds>().wall;
             MORIS_LOG_INFO( " Assembly of residual on processor %u took %5.3f seconds.", ( uint ) par_rank(), ( double ) tElapsedTime / 1000);
 
+            //std::cout<<"first RHS"<<std::endl;
+            //mVectorRHS->print();
+        }
+
+        void Linear_Problem::assemble_staggered_residual_contribution()
+        {
+            mSolverInterface->assemble_staggerd_RHS_contribution( mVectorRHS );
+            //std::cout<<"second RHS"<<std::endl;
             //mVectorRHS->print();
         }
 
@@ -103,9 +118,35 @@ namespace moris
 
             mSolverInterface->assemble_additional_DqDs_RHS_contribution( mVectorRHS );
 
+            if( !mSolverInterface->get_is_forward_analysis() )
+            {
+                this->compute_residual_for_adjoint_solve();
+            }
+
             // stop timer
             //real tElapsedTime = tTimer.toc<moris::chronos::milliseconds>().wall;
             //MORIS_LOG_INFO( "Assembly of Residual and Jacobian on processor %u took %5.3f seconds.", ( uint ) par_rank(), ( double ) tElapsedTime / 1000);
+        }
+
+        //----------------------------------------------------------------------------------------
+
+        void Linear_Problem::compute_residual_for_adjoint_solve()
+        {
+            Matrix_Vector_Factory tMatFactory( mTplType );
+
+            // create vector for jacobian times sol vec
+            sol::Dist_Vector * tMatTimesSolVec = tMatFactory.create_vector(
+                          mSolverInterface,
+                          mVectorRHS->get_map(),
+                          mSolverInterface->get_num_rhs() );
+
+            // multiply jacobian with previous solution vector
+            mMat->mat_vec_product( *mFreeVectorLHS, *tMatTimesSolVec, false );
+
+            // add contribution to RHS
+            mVectorRHS->vec_plus_vec( 1.0, *tMatTimesSolVec, 1.0 );
+
+            delete tMatTimesSolVec;
         }
     }
 }

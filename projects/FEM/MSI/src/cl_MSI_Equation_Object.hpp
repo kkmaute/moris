@@ -272,6 +272,8 @@ namespace moris
 
             void get_equation_obj_residual( Cell< Matrix< DDRMat > > & aEqnObjRHS );
 
+            void get_staggered_equation_obj_residual( Cell< Matrix< DDRMat > > & aEqnObjRHS );
+
             void get_equation_obj_off_diagonal_residual( Cell< Matrix< DDRMat > > & aEqnObjRHS );
 
             //-------------------------------------------------------------------------------------------------
@@ -282,7 +284,7 @@ namespace moris
 
             //-------------------------------------------------------------------------------------------------
 
-            void add_staggered_contribution_to_residual( Matrix< DDRMat > & aElementResidual );
+            void add_staggered_contribution_to_residual( Cell< Matrix< DDRMat > > & aElementResidual );
 
             //-------------------------------------------------------------------------------------------------
             //            void get_equation_obj_dof_ids( Matrix< DDSMat > & aEqnObjAdofId )

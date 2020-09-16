@@ -202,7 +202,7 @@ namespace NLA
          *
          * @param[out] rListOfListsOfDofTypes Returns the nonlinear solver managers list of list of dof types
          */
-        moris::Cell< moris::Cell< enum MSI::Dof_Type > > & get_dof_type_list()    { return mStaggeredDofTypeList; };
+        moris::Cell< moris::Cell< enum MSI::Dof_Type > >  get_dof_type_list() { return mStaggeredDofTypeList; };
 
         //--------------------------------------------------------------------------------------------------
 
@@ -212,6 +212,19 @@ namespace NLA
          * @param[out] rUnionListOfDofTypes Returns the union list of this nonliner solver managers dof types
          */
         moris::Cell< enum MSI::Dof_Type > get_dof_type_union();
+
+        //--------------------------------------------------------------------------------------------------
+
+        /**
+         * @brief Get secundary dof type list
+         *
+         * @param[out] rUnionListOfDofTypes Returns the union list of this nonliner solver managers dof types
+         */
+        moris::Cell< moris::Cell< enum MSI::Dof_Type > >  get_secundary_dof_type_list(){ return mSecondaryDofTypeList; };
+
+        //--------------------------------------------------------------------------------------------------
+
+        moris::Cell< enum MSI::Dof_Type > get_sec_dof_type_union();
 
         //--------------------------------------------------------------------------------------------------
 

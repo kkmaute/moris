@@ -29,6 +29,7 @@ Linear_System_PETSc::Linear_System_PETSc(       Solver_Interface * aInput,
                                           const bool               aNotCreatedByNonLinSolver) : moris::dla::Linear_Problem( aInput ),
                                                                                                 mNotCreatedByNonLinearSolver( aNotCreatedByNonLinSolver)
 {
+    mTplType = sol::MapType::Petsc;
     if( mNotCreatedByNonLinearSolver )
     {
         // Initialize petsc solvers
@@ -76,6 +77,7 @@ Linear_System_PETSc::Linear_System_PETSc(       Solver_Interface * aInput,
                                           const bool               aNotCreatedByNonLinSolver) : moris::dla::Linear_Problem( aInput ),
                                                                                                 mNotCreatedByNonLinearSolver( aNotCreatedByNonLinSolver)
 {
+    mTplType = sol::MapType::Petsc;
     if( mNotCreatedByNonLinearSolver )
     {
         // Initialize petsc solvers

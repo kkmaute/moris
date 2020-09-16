@@ -290,6 +290,8 @@ moris::sint Linear_Solver_Aztec::solve_linear_system(       Linear_Problem * aLi
     mEpetraProblem.SetRHS     ( aLinearSystem->get_solver_RHS()     ->get_epetra_vector() );
     mEpetraProblem.SetLHS     ( aLinearSystem->get_free_solver_LHS()->get_epetra_vector() );
 
+    MORIS_ERROR( aLinearSystem->get_solver_RHS()->get_num_vectors() == 1, "Linear_Solver_Aztec::solve_linear_system(), num RHS != 1. Use BELOS_IMPL instead.");
+
     mAztecSolver = new AztecOO ( mEpetraProblem );
 
 //    mAztecSolver.SetProblem( *aLinearSystem->get_linear_system_epetra() );
