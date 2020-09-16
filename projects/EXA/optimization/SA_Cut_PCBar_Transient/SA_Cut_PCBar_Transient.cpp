@@ -49,7 +49,7 @@ namespace moris
 
     // Output Config --------------------------------------------------
     // set to true for vis output, set to false for sensitivity validation
-    bool tOutputCriterion    = true;
+    bool tOutputCriterion    = false;
     std::string tHDF5Path    = "SA_Cut_PCBar_Transient.hdf5";
     std::string tLibraryName = "SA_Cut_PCBar_Transient.so";
     std::string tOutputFile  = "SA_Cut_PCBar_Transient.exo";
