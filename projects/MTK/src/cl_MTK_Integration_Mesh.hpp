@@ -29,9 +29,16 @@ namespace moris
                 moris::Cell< moris::mtk::Set * > mListofSideSets;
                 moris::Cell< moris::mtk::Set * > mListofDoubleSideSets;
 
-                moris::Cell< moris::mtk::Set * > mListOfAllSets;
+                moris::Cell< moris::mtk::Set * > mListOfAllSets;    
 
                 map< std::string, moris_index >  mSetNameToIndexMap;
+
+                // set by color
+                moris_index mMaxColor;
+                moris::Cell<moris::Cell<moris::mtk::Set *>> mBlockSetToColor;
+                moris::Cell<moris::Cell<moris::mtk::Set *>> mSideSetToColor;
+                moris::Cell<moris::Cell<moris::mtk::Set *>> mDoubleSideSetToColor;
+                moris::Cell<moris::Cell<moris::mtk::Set *>> mAllSetToColor;
 
             public:
                 Integration_Mesh(){};
@@ -51,24 +58,82 @@ namespace moris
                 Cell_Cluster const &
                 get_cell_cluster(Cell const & aInterpCell) const = 0;
 
-                // ----------------------------------------------------------------------------
-
-                virtual moris::uint get_num_sets() const;
-
-                // ----------------------------------------------------------------------------
-
-                moris::mtk::Set * get_set_by_name( std::string aSetLabel ) const;
+                //##############################################
+                // MTK Set Access
+                //##############################################
 
                 // ----------------------------------------------------------------------------
 
-                moris::mtk::Set * get_set_by_index( moris_index aIndex ) const;
+                virtual
+                moris::uint 
+                get_num_sets() const;
 
                 // ----------------------------------------------------------------------------
-
-                moris_index get_set_index_by_name( std::string aSetLabel );
+                /*!
+                * @brief Get mesh set by name
+                * @param[in] aSetLabel Set label
+                */
+                moris::mtk::Set * 
+                get_set_by_name( std::string aSetLabel ) const;
 
                 // ----------------------------------------------------------------------------
+                /*!
+                * @brief Get set name by set index
+                * @param[in] aIndex Set index
+                */
+                moris::mtk::Set * 
+                get_set_by_index( moris_index aIndex ) const;
 
+                // ----------------------------------------------------------------------------
+                /*!
+                * @brief Get set index by set name
+                * @param[in] aSetLabel Set label
+                * @return Set index
+                */
+                moris_index 
+                get_set_index_by_name( std::string aSetLabel );
+                
+                // ----------------------------------------------------------------------------
+                /*!
+                * @brief Get block sets with color
+                * @param[in] aColor Set color
+                */
+                moris::Cell<moris::mtk::Set*> const &
+                get_block_sets_with_color(moris_index const & aColor);
+
+                // ----------------------------------------------------------------------------
+                /*!
+                * @brief Get side sets with color
+                * @param[in] aColor Set color
+                */
+                moris::Cell<moris::mtk::Set*> const &
+                get_side_sets_with_color(moris_index const & aColor);
+
+                // ----------------------------------------------------------------------------
+                /*!
+                * @brief Get double side sets with color
+                * @param[in] aColor Set color
+                */
+                moris::Cell<moris::mtk::Set*> const &
+                get_double_side_sets_with_color(moris_index const & aColor);
+
+                // ----------------------------------------------------------------------------
+                /*!
+                * @brief Get all sets with color
+                * @param[in] aColor Set color
+                */
+                moris::Cell<moris::mtk::Set*> const &
+                get_all_sets_with_color(moris_index const & aColor);
+
+                // ----------------------------------------------------------------------------
+                /*!
+                * @brief Print sets by colors
+                */
+                void
+                print_sets_by_colors();
+                 
+                // ----------------------------------------------------------------------------
+                  
                 /*
                  * Get block set names
                  */
@@ -206,6 +271,9 @@ namespace moris
             protected:
 
                 void collect_all_sets();
+
+                void
+                setup_set_to_color();
 
                 // ----------------------------------------------------------------------------
 
