@@ -1,4 +1,4 @@
-set(EXAMPLE_MAIN Main_SA_Cut_Bar_Transient)
+set(EXAMPLE_MAIN Main_SA_Cut_PCBar_Transient)
 set(EXAMPLE_FILES SA_Cut_PCBar_Transient)
 set(EXAMPLE_PROCS 1)
 
