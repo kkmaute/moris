@@ -1479,10 +1479,10 @@ namespace moris
                         std::string tTreatedIWGName = tIWGNames( iIWG );
 
                         // get the time continuity flag from the IWG parameter list
-                        bool tTimeContinuity = tIWGParameterList( iIWG ).get< bool >( "time_continuity" );
+                        bool tTimeContinuity = false;
 
                         // get the time boundary flag from the IQI parameter list
-                        bool tTimeBoundary = tIWGParameterList( iIWG ).get< bool >( "time_boundary" );
+                        bool tTimeBoundary = false;
 
                         // get treated IWG
                         std::shared_ptr< fem::IWG > tTreatedIWG;
@@ -1493,6 +1493,12 @@ namespace moris
 
                             // set treated IWG from list of IWG pointers
                             tTreatedIWG = mIWGs( tIWGIndex );
+
+                            // get the time continuity flag from the IWG parameter list
+                            tTimeContinuity = tIWGParameterList( tIWGIndex ).get< bool >( "time_continuity" );
+
+                            // get the time boundary flag from the IQI parameter list
+                            tTimeBoundary = tIWGParameterList( tIWGIndex ).get< bool >( "time_boundary" );
                         }
                         else
                         {
@@ -1506,6 +1512,11 @@ namespace moris
                         }
 
                         // check if the mesh set name already in map
+                        std::cout<<"tTreatedMeshSetName "<<tTreatedMeshSetName<<std::endl;
+                        std::cout<<"tTimeContinuity "<<tTimeContinuity<<std::endl;
+                        std::cout<<"tTimeBoundary "<<tTimeBoundary<<std::endl;
+
+                        std::cout<<"Already there? "<<(tMeshtoFemSet.find( std::make_tuple(tTreatedMeshSetName,tTimeContinuity,tTimeBoundary ) ) == tMeshtoFemSet.end())<<std::endl;
                         if( tMeshtoFemSet.find( std::make_tuple(
                                 tTreatedMeshSetName,
                                 tTimeContinuity,
@@ -1561,10 +1572,10 @@ namespace moris
                         std::string tTreatedIQIName = tIQINames( iIQI );
 
                         // get the time continuity flag from the IQI parameter list
-                        bool tTimeContinuity = tIQIParameterList( iIQI ).get< bool >( "time_continuity" );
+                        bool tTimeContinuity = false;
 
                         // get the time boundary flag from the IQI parameter list
-                        bool tTimeBoundary = tIQIParameterList( iIQI ).get< bool >( "time_boundary" );
+                        bool tTimeBoundary = false;
 
                         // get treated IQI
                         std::shared_ptr< fem::IQI > tTreatedIQI;
@@ -1575,6 +1586,12 @@ namespace moris
 
                             // set treated IQI from list of IQI pointers
                             tTreatedIQI = mIQIs( tIQIIndex );
+
+                            // get the time continuity flag from the IQI parameter list
+                            tTimeContinuity = tIQIParameterList( tIQIIndex ).get< bool >( "time_continuity" );
+
+                            // get the time boundary flag from the IQI parameter list
+                            tTimeBoundary = tIQIParameterList( tIQIIndex ).get< bool >( "time_boundary" );
                         }
                         else
                         {
