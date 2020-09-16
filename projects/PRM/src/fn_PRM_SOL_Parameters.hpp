@@ -342,6 +342,8 @@ namespace moris
 
             tNonLinSolverParameterList.insert( "NLA_DofTypes" , std::string("UNDEFINED") );
 
+            tNonLinSolverParameterList.insert( "NLA_Secundary_DofTypes" , std::string("") );
+
             tNonLinSolverParameterList.insert( "NLA_Sub_Nonlinear_Solver" , std::string("") );
 
             tNonLinSolverParameterList.insert( "NLA_Nonlinear_solver_algorithms" , std::string("0") );
