@@ -561,6 +561,8 @@ TEST_CASE("XTK HMR 4 Material Bar Intersected By Plane and Hole","[XTK_HMR_PLANE
                                  vis::VIS_Mesh_Type::STANDARD,
                                  "./",
                                  tMeshOutputFile,
+                                 "./",
+                                  "temp.exo",
                                  { "HMR_dummy_c_p0", "HMR_dummy_c_p1", "HMR_dummy_c_p2", "HMR_dummy_c_p3",
                                    "HMR_dummy_n_p0", "HMR_dummy_n_p1", "HMR_dummy_n_p2", "HMR_dummy_n_p3"},
                                  { "Temperature" },
@@ -766,7 +768,7 @@ TEST_CASE("XTK HMR 4 Material Bar Intersected By Plane and Hole 3D","[XTK_HMR_PL
         tEnrIgMesh.create_block_set_from_cells_of_side_set(tSSIndex,"ghost_bs_3", CellTopology::HEX8);
 
         moris::mtk::Writer_Exodus writer(&tEnrIgMesh);
-        writer.write_mesh("", "./mdl_exo/xtk_hmr_bar_hole_integ_ghost.exo");
+        writer.write_mesh("", "./mdl_exo/xtk_hmr_bar_hole_integ_ghost.exo", "", "temp.exo");
 
         // Write the fields
         writer.set_time(0.0);
@@ -1038,6 +1040,8 @@ TEST_CASE("XTK HMR 4 Material Bar Intersected By Plane and Hole 3D","[XTK_HMR_PL
                                  vis::VIS_Mesh_Type::STANDARD,
                                  "./",
                                  tMeshOutputFile,
+                                 "./",
+                                  "temp.exo",
                                  { "HMR_dummy_c_p0", "HMR_dummy_c_p1", "HMR_dummy_c_p2", "HMR_dummy_c_p3",
                                    "HMR_dummy_n_p0", "HMR_dummy_n_p1", "HMR_dummy_n_p2", "HMR_dummy_n_p3"},
                                  { "Temperature" },

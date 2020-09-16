@@ -377,6 +377,8 @@ TEST_CASE("MDL_FEM_Benchmark_Diffusion_1Mat","[MDL_FEM_Benchmark_Diffusion_1Mat]
                                  vis::VIS_Mesh_Type::STANDARD, //OVERLAPPING_INTERFACE
                                  "./",
                                  "MDL_FEM_Benchmark_Diffusion_1Mat.exo",
+                                 "./",
+                                  "temp.exo",
                                  { "HMR_dummy_c_p1", "HMR_dummy_n_p1" },
                                  { "TEMP", "L2", "TEMP_EXACT" },
                                  { vis::Field_Type::NODAL, vis::Field_Type::NODAL, vis::Field_Type::NODAL },
@@ -564,7 +566,7 @@ TEST_CASE("MDL_FEM_Benchmark_Diffusion_1Mat_Ghost","[MDL_FEM_Benchmark_Diffusion
         tGhost.visualize_ghost_on_mesh( 2 );
 
         moris::mtk::Writer_Exodus writer(&tEnrIntegMesh);
-        writer.write_mesh("", "benchmark_enriched_ig_w_ghost.exo");
+        writer.write_mesh("", "benchmark_enriched_ig_w_ghost.exo", "", "temp.exo");
         writer.close_file();
 
         // place the pair in mesh manager
@@ -703,6 +705,8 @@ TEST_CASE("MDL_FEM_Benchmark_Diffusion_1Mat_Ghost","[MDL_FEM_Benchmark_Diffusion
                                  vis::VIS_Mesh_Type::STANDARD, //OVERLAPPING_INTERFACE
                                  "./",
                                  "MDL_FEM_Benchmark_Diffusion_1Mat_Ghost.exo",
+                                 "./",
+                                  "temp.exo",
                                  { "HMR_dummy_c_p1", "HMR_dummy_n_p1" },
                                  { "TEMP", "L2", "TEMP_EXACT" },
                                  { vis::Field_Type::NODAL, vis::Field_Type::NODAL, vis::Field_Type::NODAL },
@@ -1062,6 +1066,8 @@ TEST_CASE("FEM Benchmark 2 - 2Mat","[MDL_FEM_Benchmark2_2Mat]")
                                  vis::VIS_Mesh_Type::STANDARD, //OVERLAPPING_INTERFACE
                                  "./",
                                  "UT_MDL_FEM_Bench2_Output_2Mat.exo",
+                                 "./",
+                                  "temp.exo",
                                  { "HMR_dummy_c_p1", "HMR_dummy_n_p1", "HMR_dummy_c_p3", "HMR_dummy_n_p3" },
                                  { "TEMP", "L2", "TEMP_EXACT" },
                                  { vis::Field_Type::NODAL, vis::Field_Type::NODAL, vis::Field_Type::NODAL },
@@ -1414,6 +1420,8 @@ TEST_CASE("FEM Benchmark Diffusion Inclusion - 2Mat","[MDL_FEM_Benchmark_Diffusi
                                  vis::VIS_Mesh_Type::STANDARD, //OVERLAPPING_INTERFACE
                                  "./",
                                  "UT_MDL_FEM_Bench2_Output_2Mat.exo",
+                                 "./",
+                                  "temp.exo",
                                  { "HMR_dummy_c_p1", "HMR_dummy_n_p1", "HMR_dummy_c_p3", "HMR_dummy_n_p3" },
                                  { "TEMP", "L2", "TEMP_EXACT" },
                                  { vis::Field_Type::NODAL, vis::Field_Type::NODAL, vis::Field_Type::NODAL },

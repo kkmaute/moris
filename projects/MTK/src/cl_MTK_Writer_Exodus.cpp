@@ -87,11 +87,13 @@ namespace moris
 
         void Writer_Exodus::write_mesh(
                 std::string         aFilePath,
-                const std::string & aFileName)
+                const std::string & aFileName,
+                std::string         aTempPath,
+                const std::string & aTempName)
         {
             MORIS_ERROR(mMesh != nullptr, "No mesh has been given to the Exodus Writer!");
 
-            this->create_init_mesh_file(aFilePath, aFileName);
+            this->create_init_mesh_file(aFilePath, aFileName, aTempPath, aTempName);
 
             this->write_nodes();
             this->write_node_sets();
@@ -104,10 +106,12 @@ namespace moris
         void Writer_Exodus::write_points(
                 std::string         aFilePath,
                 const std::string & aFileName,
+                std::string         aTempPath,
+                const std::string & aTempName,
                 Matrix<DDRMat>      aCoordinates)
         {
             // Create the actual file
-            this->create_file(aFilePath, aFileName);
+            this->create_file(aFilePath, aFileName, aTempPath, aTempName);
 
             // Initialize database
             int tNumDimensions = aCoordinates.n_cols();
@@ -402,13 +406,13 @@ namespace moris
             for (uint ig=0;ig<tNumVarialbes;++ig)
             {
                 // Variable name to index
-               uint tVariableIndex = mGlobalVariableNamesMap[ aVariableNames(ig) ];
+                uint tVariableIndex = mGlobalVariableNamesMap[ aVariableNames(ig) ];
 
-               // check that index is valid
-               MORIS_ASSERT(tVariableIndex < tNumVarialbes,"Global variable index too large.");
+                // check that index is valid
+                MORIS_ASSERT(tVariableIndex < tNumVarialbes,"Global variable index too large.");
 
-               // store global variable in sorted list
-               tSortedValues(tVariableIndex) =  aVariableValues(ig);
+                // store global variable in sorted list
+                tSortedValues(tVariableIndex) =  aVariableValues(ig);
             }
 
             // Write the variables
@@ -424,7 +428,9 @@ namespace moris
 
         void Writer_Exodus::create_file(
                 std::string         aFilePath,
-                const std::string & aFileName)
+                const std::string & aFileName,
+                std::string         aTempPath,
+                const std::string & aTempName)
         {
             MORIS_ERROR(mExoid == -1, "Exodus file is currently open, call close_file() before creating a new one.");
 
@@ -433,13 +439,18 @@ namespace moris
             {
                 aFilePath += "/";
             }
-            mTempFileName = aFilePath + "temp.exo";
+
+            if (!aTempPath.empty())
+            {
+                aTempPath += "/";
+            }
+
+            mTempFileName = aTempPath + aTempName;
             mPermFileName = aFilePath + aFileName;
 
             // Make file name parallel, if necessary
             if (par_size() > 1)
             {
-
                 // make sure they have the same number of leading zeros
                 std::string tParSizeBaseStr =  std::to_string(par_size());
 
@@ -463,10 +474,12 @@ namespace moris
 
         void Writer_Exodus::create_init_mesh_file(
                 std::string         aFilePath,
-                const std::string & aFileName)
+                const std::string & aFileName,
+                std::string         aTempPath,
+                const std::string & aTempName)
         {
             // Create the actual file
-            this->create_file(aFilePath, aFileName);
+            this->create_file(aFilePath, aFileName, aTempPath, aTempName);
 
             // Number of dimensions
             int tNumDimensions = mMesh->get_spatial_dim();

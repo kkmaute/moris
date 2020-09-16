@@ -26,25 +26,27 @@ namespace moris
     namespace prm
     {
 
-//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
 
-    // creates a parameter list with default inputs
-    moris::ParameterList create_vis_parameter_list()
-    {
-        ParameterList mVISParameterList;
+        // creates a parameter list with default inputs
+        moris::ParameterList create_vis_parameter_list()
+        {
+            ParameterList mVISParameterList;
 
-        mVISParameterList.insert( "Output_Index"   , 0 );
-        mVISParameterList.insert( "Mesh_Type"      , static_cast< uint >( vis::VIS_Mesh_Type::OVERLAPPING_INTERFACE ) );
-        mVISParameterList.insert( "File_Name"      , std::pair< std::string, std::string >( "", "" ) );
-        mVISParameterList.insert( "Save_Frequency" , MORIS_SINT_MAX );
-        mVISParameterList.insert( "Set_Names"      , std::string("") );
-        mVISParameterList.insert( "Field_Names"    , std::string("") );
-        mVISParameterList.insert( "Field_Type"     , std::string("") );
-	mVISParameterList.insert( "IQI_Names"      , std::string("") );
+            mVISParameterList.insert( "Output_Index"   , 0 );
+            mVISParameterList.insert( "Mesh_Type"      , static_cast< uint >( vis::VIS_Mesh_Type::OVERLAPPING_INTERFACE ) );
+            mVISParameterList.insert( "File_Name"      , std::pair< std::string, std::string >( "", "" ) );
+            mVISParameterList.insert( "Temp_Name"      , std::pair< std::string, std::string >( "./", "temp.exo" ) );
+            mVISParameterList.insert( "Save_Frequency" , MORIS_SINT_MAX );
+            mVISParameterList.insert( "Time_Offset"    , 0.0 );
+            mVISParameterList.insert( "Set_Names"      , std::string("") );
+            mVISParameterList.insert( "Field_Names"    , std::string("") );
+            mVISParameterList.insert( "Field_Type"     , std::string("") );
+            mVISParameterList.insert( "IQI_Names"      , std::string("") );
 
-        return mVISParameterList;
-    }
-//------------------------------------------------------------------------------
+            return mVISParameterList;
+        }
+        //------------------------------------------------------------------------------
 
     }/* end_namespace_prm */
 }/* end_namespace_moris */
