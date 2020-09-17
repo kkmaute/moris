@@ -1403,7 +1403,7 @@ namespace moris
             bool tPrintPhysics =
                     tComputationParameterList.get< bool >( "print_physics_model" );
 
-            // get bool for analytical/finite differenec for SA
+            // get bool for analytical/finite difference for SA
             bool tIsAnalyticalSA =
                     tComputationParameterList.get< bool >( "is_analytical_sensitivity" );
 
@@ -1512,11 +1512,6 @@ namespace moris
                         }
 
                         // check if the mesh set name already in map
-                        std::cout<<"tTreatedMeshSetName "<<tTreatedMeshSetName<<std::endl;
-                        std::cout<<"tTimeContinuity "<<tTimeContinuity<<std::endl;
-                        std::cout<<"tTimeBoundary "<<tTimeBoundary<<std::endl;
-
-                        std::cout<<"Already there? "<<(tMeshtoFemSet.find( std::make_tuple(tTreatedMeshSetName,tTimeContinuity,tTimeBoundary ) ) == tMeshtoFemSet.end())<<std::endl;
                         if( tMeshtoFemSet.find( std::make_tuple(
                                 tTreatedMeshSetName,
                                 tTimeContinuity,
@@ -1660,7 +1655,9 @@ namespace moris
             {
                 for( uint iSet = 0; iSet < mSetInfo.size(); iSet++ )
                 {
+                    std::cout<<"%-------------------------------------------------"<<std::endl;
                     mSetInfo( iSet ).print_names();
+                    std::cout<<"%-------------------------------------------------"<<std::endl;
                 }
             }
         }
