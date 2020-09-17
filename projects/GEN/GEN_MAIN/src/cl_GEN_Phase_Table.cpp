@@ -131,7 +131,7 @@ namespace moris
 
             // MORIS_ASSERT(aEntityPhaseInfo.n_cols() == mPhaseTable.n_cols(), "Need information about every phase for this entity because using 2^n phase rule");
             moris::moris_index i = 0;
-            for(moris::size_t j = 0; j<mNumGeometries; j++)
+            for(moris::size_t j = 0; j<(moris::size_t)mNumGeometries; j++)
             {
                 MORIS_ASSERT(aEntityPhaseInfo(0,j) == 0 || aEntityPhaseInfo(0,j) == 1 ,"Phase not 1 or 0. Note: 1 corresponds to a positive and 0 to a negative");
 
@@ -161,7 +161,7 @@ namespace moris
 
             // print the header 
             std::cout<<std::setw(8)<<"i" <<" | "<<std::setw(8)<<"Bp"<<" | ";
-            for(moris::uint iG  = 0; iG < mNumGeometries; iG++)
+            for(moris::uint iG  = 0; iG < (moris::size_t)mNumGeometries; iG++)
             {
                 std::cout<<std::setw(8)<<"G_" + std::to_string(iG) << " | ";
             }
@@ -220,7 +220,7 @@ namespace moris
             moris::moris_index tAlternator = tNumRows;
             moris::moris_index tCount = 0;
             moris::moris_index tVal = 0;
-            for(uint iC = 0; iC < mNumGeometries; iC++)
+            for(uint iC = 0; iC < (moris::size_t)mNumGeometries; iC++)
             {
                 tAlternator = tAlternator/2;
                 for(moris::moris_index iR = 0; iR<tNumRows; iR ++)
