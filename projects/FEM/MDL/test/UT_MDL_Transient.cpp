@@ -380,7 +380,7 @@ TEST_CASE("MDL Transient XFEM","[MDL_Transient_XFEM]")
 //        tGeometry( 0 ) = std::make_shared< moris::ge::Plane >( tPlaneLeft, 0.0, 1.0, 0.0 );
 //        tGeometry( 1 ) = std::make_shared< moris::ge::Plane >( tPlaneRight, 0.0, 1.0, 0.0 );
 //
-//        moris::ge::Phase_Table tPhaseTable (1, moris::ge::Phase_Table_Structure::EXP_BASE_2);
+//        moris::ge::Phase_Table tPhaseTable (1);
 //        moris::ge::Geometry_Engine tGENGeometryEngine( tGeometry, tPhaseTable, 2 );
 //
 //        moris_index tMeshIndex = tGENGeometryEngine.register_mesh( tMesh );
@@ -420,7 +420,7 @@ TEST_CASE("MDL Transient XFEM","[MDL_Transient_XFEM]")
     tGeometry0( 1 ) = std::make_shared< moris::ge::Plane >( tPlaneRight, 0.0, 1.0, 0.0 );
 
       size_t tModelDimension = 2;
-      moris::ge::Phase_Table         tPhaseTable0( 2, moris::ge::Phase_Table_Structure::EXP_BASE_2 );
+      moris::ge::Phase_Table         tPhaseTable0( 2 );
       moris::ge::Geometry_Engine     tGENGeometryEngine0( tGeometry0, tPhaseTable0, tModelDimension );
 
       // --------------------------------------------------------------------------------------

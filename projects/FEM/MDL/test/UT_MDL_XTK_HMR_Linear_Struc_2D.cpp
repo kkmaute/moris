@@ -225,7 +225,7 @@ TEST_CASE("2D XTK WITH HMR Struc Interface 2D","[XTK_HMR_Struc_Interface_2D]")
         Cell<std::shared_ptr<moris::ge::Geometry>> tGeometry(1);
         tGeometry(0) = std::make_shared<moris::ge::Circle>(0.0, 0.0, 0.2501);
 
-        moris::ge::Phase_Table tPhaseTable (1, moris::ge::Phase_Table_Structure::EXP_BASE_2);
+        moris::ge::Phase_Table tPhaseTable (1);
         moris::ge::Geometry_Engine tGeometryEngine(tGeometry, tPhaseTable, tInterpolationMesh);
 
          xtk::Model tXTKModel(2, tInterpolationMesh, &tGeometryEngine);
@@ -515,7 +515,7 @@ TEST_CASE("2D XTK WITH HMR Struc Interface 3D","[XTK_HMR_Struc_Interface_3D]") /
 //        Cell<std::shared_ptr<moris::ge::Geometry>> tGeometry(1);
 //        tGeometry(0) = std::make_shared<moris::ge::Circle>(100.0, 0.0, 0.2501);
 //
-//        moris::ge::Phase_Table tPhaseTable (1, moris::ge::Phase_Table_Structure::EXP_BASE_2);
+//        moris::ge::Phase_Table tPhaseTable (1);
 //        moris::ge::Geometry_Engine tGeometryEngine(tGeometry, tPhaseTable, 3);
 //
 //         xtk::Model tXTKModel(3, tInterpolationMesh, &tGeometryEngine);
@@ -802,7 +802,7 @@ TEST_CASE("2D XTK WITH HMR Struc 2D first","[XTK_HMR_Struc_2D_01]")
         Cell<std::shared_ptr<moris::ge::Geometry>> tGeometry(1);
         tGeometry(0) = std::make_shared<moris::ge::Circle>(0.0, 0.0, 0.4501);
 
-        moris::ge::Phase_Table tPhaseTable (1, moris::ge::Phase_Table_Structure::EXP_BASE_2);
+        moris::ge::Phase_Table tPhaseTable (1);
         moris::ge::Geometry_Engine tGeometryEngine(tGeometry, tPhaseTable, tInterpolationMesh);
 
         xtk::Model tXTKModel(2, tInterpolationMesh, &tGeometryEngine);
@@ -1115,7 +1115,7 @@ TEST_CASE("2D XTK WITH HMR Struc 2D second","[XTK_HMR_Struc_2D_02]")
         Cell<std::shared_ptr<moris::ge::Geometry>> tGeometry(1);
         tGeometry(0) = std::make_shared<moris::ge::Circle>(0.0, 0.0, 0.4501);
 
-        moris::ge::Phase_Table tPhaseTable (1, moris::ge::Phase_Table_Structure::EXP_BASE_2);
+        moris::ge::Phase_Table tPhaseTable (1);
         moris::ge::Geometry_Engine tGeometryEngine(tGeometry, tPhaseTable, tInterpolationMesh);
 
         xtk::Model tXTKModel(2, tInterpolationMesh, &tGeometryEngine);
@@ -1381,7 +1381,7 @@ TEST_CASE("XTK HMR Struc Interface 3D","[XTK_HMR_Struc_Interface_3D]")
 //      moris::ge::GEN_Geom_Field tPlaneFieldAsGeom2(tHMRFields(1));
 //      moris::Cell<moris::ge::GEN_Geometry*> tGeometryVector = {&tCircleFieldAsGeom,&tPlaneFieldAsGeom2};
 //
-//      moris::ge::GEN_Phase_Table     tPhaseTable (tGeometryVector.size(),  Phase_Table_Structure::EXP_BASE_2);
+//      moris::ge::GEN_Phase_Table     tPhaseTable (tGeometryVector.size());
 //      moris::ge::Geometry_Engine tGeometryEngine(tGeometryVector,tPhaseTable,tSpatialDimension);
 //      xtk::Model           tXTKModel(tSpatialDimension,tInterpMesh.get(),&tGeometryEngine);
 //      tXTKModel.mVerbose = false;

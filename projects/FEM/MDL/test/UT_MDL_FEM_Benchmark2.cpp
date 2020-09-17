@@ -220,7 +220,7 @@ TEST_CASE("MDL_FEM_Benchmark_Diffusion_1Mat","[MDL_FEM_Benchmark_Diffusion_1Mat]
         tHMR->finalize();
         moris::hmr::Interpolation_Mesh_HMR * tInterpolationMesh = tHMR->create_interpolation_mesh(tLagrangeMeshIndex);
 
-        moris::ge::Phase_Table tPhaseTable (1, moris::ge::Phase_Table_Structure::EXP_BASE_2);
+        moris::ge::Phase_Table tPhaseTable (1);
         moris::ge::Geometry_Engine tGENGeometryEngine(tGeometry, tPhaseTable, tInterpolationMesh);
 
         //-----------------------------------------------------------------------------------------------
@@ -230,7 +230,7 @@ TEST_CASE("MDL_FEM_Benchmark_Diffusion_1Mat","[MDL_FEM_Benchmark_Diffusion_1Mat]
         tGeometry0(1) = std::make_shared<moris::ge::Circle>(tCenterPoint(0), tCenterPoint(1), tRInner);
 
         size_t tModelDimension = 2;
-        moris::ge::Phase_Table         tPhaseTable0( 2, moris::ge::Phase_Table_Structure::EXP_BASE_2 );
+        moris::ge::Phase_Table         tPhaseTable0( 2);
         moris::ge::Geometry_Engine     tGENGeometryEngine0( tGeometry0, tPhaseTable0, tInterpolationMesh );
 
         // --------------------------------------------------------------------------------------
@@ -532,7 +532,7 @@ TEST_CASE("MDL_FEM_Benchmark_Diffusion_1Mat_Ghost","[MDL_FEM_Benchmark_Diffusion
         tHMR->finalize();
         moris::hmr::Interpolation_Mesh_HMR * tInterpolationMesh = tHMR->create_interpolation_mesh(tLagrangeMeshIndex);
 
-        moris::ge::Phase_Table tPhaseTable (1, moris::ge::Phase_Table_Structure::EXP_BASE_2);
+        moris::ge::Phase_Table tPhaseTable (1);
         moris::ge::Geometry_Engine tGENGeometryEngine(tGeometry, tPhaseTable, tInterpolationMesh);
 
         //-----------------------------------------------------------------------------------------------
@@ -542,7 +542,7 @@ TEST_CASE("MDL_FEM_Benchmark_Diffusion_1Mat_Ghost","[MDL_FEM_Benchmark_Diffusion
         tGeometry0(1) = std::make_shared<moris::ge::Circle>(tCenterPoint(0), tCenterPoint(1), tRInner);
 
         size_t tModelDimension = 2;
-        moris::ge::Phase_Table         tPhaseTable0( tGeometry0.size(), moris::ge::Phase_Table_Structure::EXP_BASE_2 );
+        moris::ge::Phase_Table         tPhaseTable0( tGeometry0.size());
         moris::ge::Geometry_Engine     tGENGeometryEngine0( tGeometry0, tPhaseTable0, tInterpolationMesh );
 
         // --------------------------------------------------------------------------------------
@@ -873,7 +873,7 @@ TEST_CASE("FEM Benchmark 2 - 2Mat","[MDL_FEM_Benchmark2_2Mat]")
         tHMR->finalize();
         moris::hmr::Interpolation_Mesh_HMR * tInterpolationMesh = tHMR->create_interpolation_mesh(tLagrangeMeshIndex);
 
-        moris::ge::Phase_Table tPhaseTable (3, moris::ge::Phase_Table_Structure::EXP_BASE_2);
+        moris::ge::Phase_Table tPhaseTable (3);
         moris::ge::Geometry_Engine tGENGeometryEngine(tGeometry, tPhaseTable, tInterpolationMesh);
 
         // --------------------------------------------------------------------------------------
@@ -1227,7 +1227,7 @@ TEST_CASE("FEM Benchmark Diffusion Inclusion - 2Mat","[MDL_FEM_Benchmark_Diffusi
         tHMR->finalize();
         moris::hmr::Interpolation_Mesh_HMR * tInterpolationMesh = tHMR->create_interpolation_mesh(tLagrangeMeshIndex);
 
-        moris::ge::Phase_Table tPhaseTable (3, moris::ge::Phase_Table_Structure::EXP_BASE_2);
+        moris::ge::Phase_Table tPhaseTable (3);
         moris::ge::Geometry_Engine tGENGeometryEngine(tGeometry, tPhaseTable, tInterpolationMesh);
 
         // --------------------------------------------------------------------------------------

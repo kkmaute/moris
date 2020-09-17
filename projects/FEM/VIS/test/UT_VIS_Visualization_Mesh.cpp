@@ -122,7 +122,7 @@ TEST_CASE("Visualization Mesh Output","[VIS],[Vizualization_Mesh_Output]")
                 tGeometryVector(0) = std::make_shared<moris::ge::Plane>(0.11, 0.11, 1.0, 0.0);
 
                 size_t tModelDimension = 2;
-                moris::ge::Phase_Table tPhaseTable (1, moris::ge::Phase_Table_Structure::EXP_BASE_2);
+                moris::ge::Phase_Table tPhaseTable (1);
                 moris::ge::Geometry_Engine tGeometryEngine(tGeometryVector,tPhaseTable,tInterpMesh);
 
                 xtk::Model tXTKModel(tModelDimension,tInterpMesh,&tGeometryEngine);

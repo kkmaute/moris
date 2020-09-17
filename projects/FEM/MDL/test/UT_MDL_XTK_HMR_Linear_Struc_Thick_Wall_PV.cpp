@@ -631,7 +631,7 @@ TEST_CASE("2D Linear Stuct Thick Walled Pressure Vessel","[XTK_HMR_LS_PV]")
 //                moris::Cell<moris::ge::GEN_Geometry*> tGeometryVector = { & tInnerCircleForGE , & tOuterCircleForGE};
 //
 //                size_t tModelDimension = 2;
-//                moris::ge::GEN_Phase_Table tPhaseTable (tGeometryVector.size(),  Phase_Table_Structure::EXP_BASE_2);
+//                moris::ge::GEN_Phase_Table tPhaseTable (tGeometryVector.size());
 //                moris::ge::Geometry_Engine tGeometryEngine(tGeometryVector,tPhaseTable,tModelDimension);
 //                xtk::Model tXTKModel(tModelDimension,tInterpolationMesh.get(),&tGeometryEngine);
 //                tXTKModel.mVerbose = false;
@@ -756,7 +756,7 @@ TEST_CASE("2D Linear Stuct Thick Walled Pressure Vessel","[XTK_HMR_LS_PV]")
                 moris::Cell<moris::ge::GEN_Geometry*> tGeometryVector = { & tInnerCircleForGE , & tOuterCircleForGE};
 
                 size_t tModelDimension = 2;
-                moris::ge::GEN_Phase_Table tPhaseTable (tGeometryVector.size(),  Phase_Table_Structure::EXP_BASE_2);
+                moris::ge::GEN_Phase_Table tPhaseTable (tGeometryVector.size());
                 moris::ge::GEN_Geometry_Engine tGeometryEngine(tGeometryVector,tPhaseTable,tModelDimension);
                 xtk::Model tXTKModel(tModelDimension,tInterpolationMesh,&tGeometryEngine);
                 tXTKModel.mVerbose = false;

@@ -212,7 +212,7 @@ TEST_CASE("2D XTK WITH HMR ThermoElastic 2D","[XTK_HMR_thermoelastic_2D]")
 
         size_t tModelDimension = 2;
         //------------------------------------------------------------------------------
-        moris::ge::Phase_Table tPhaseTable (1, moris::ge::Phase_Table_Structure::EXP_BASE_2);
+        moris::ge::Phase_Table tPhaseTable (1);
         moris::ge::Geometry_Engine tGeometryEngine(tGeometryVector, tPhaseTable, tInterpolationMesh);
 
         xtk::Model tXTKModel(tModelDimension, tInterpolationMesh, &tGeometryEngine);
@@ -677,7 +677,7 @@ TEST_CASE("2D XTK WITH HMR ThermoElastic 2D Staggered","[XTK_HMR_thermoelastic_2
         tGeometryVector(0) = std::make_shared<moris::ge::Plane>(-500.0, 0.0, 1.0, 0.0);
 
         size_t tModelDimension = 2;
-        moris::ge::Phase_Table tPhaseTable (1, moris::ge::Phase_Table_Structure::EXP_BASE_2);
+        moris::ge::Phase_Table tPhaseTable (1);
         moris::ge::Geometry_Engine tGeometryEngine(tGeometryVector, tPhaseTable, tInterpolationMesh);
 
         xtk::Model tXTKModel(tModelDimension, tInterpolationMesh, &tGeometryEngine);

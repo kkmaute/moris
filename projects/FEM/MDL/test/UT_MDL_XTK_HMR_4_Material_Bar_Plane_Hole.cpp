@@ -288,7 +288,7 @@ TEST_CASE("XTK HMR 4 Material Bar Intersected By Plane and Hole","[XTK_HMR_PLANE
         tGeometryVector(1) = std::make_shared<moris::ge::Plane>(0.1, 0.1, 1.0, 0.0);
 
          size_t tModelDimension = 2;
-         moris::ge::Phase_Table     tPhaseTable (tGeometryVector.size(), moris::ge::Phase_Table_Structure::EXP_BASE_2);
+         moris::ge::Phase_Table     tPhaseTable (tGeometryVector.size());
          moris::ge::Geometry_Engine tGeometryEngine(tGeometryVector, tPhaseTable, tInterpMesh);
          xtk::Model           tXTKModel(tModelDimension, tInterpMesh, &tGeometryEngine);
          tXTKModel.mVerbose = false;
@@ -741,7 +741,7 @@ TEST_CASE("XTK HMR 4 Material Bar Intersected By Plane and Hole 3D","[XTK_HMR_PL
         tGeometryVector(1) = std::make_shared<moris::ge::Plane>(0.1, 0.1, 0.1, 1.0, 0.0, 0.0);
 
          size_t tModelDimension = 3;
-         moris::ge::Phase_Table     tPhaseTable (tGeometryVector.size(), moris::ge::Phase_Table_Structure::EXP_BASE_2);
+         moris::ge::Phase_Table     tPhaseTable (tGeometryVector.size());
          moris::ge::Geometry_Engine tGeometryEngine(tGeometryVector, tPhaseTable, tInterpMesh);
          xtk::Model           tXTKModel(tModelDimension,tInterpMesh,&tGeometryEngine);
          tXTKModel.mVerbose = false;

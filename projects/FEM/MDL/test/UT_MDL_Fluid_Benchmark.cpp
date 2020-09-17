@@ -208,7 +208,7 @@ namespace moris
         tHMR->finalize();
         moris::hmr::Interpolation_Mesh_HMR * tInterpolationMesh = tHMR->create_interpolation_mesh(tLagrangeMeshIndex);
 
-        moris::ge::Phase_Table tPhaseTable (4, moris::ge::Phase_Table_Structure::EXP_BASE_2);
+        moris::ge::Phase_Table tPhaseTable (4);
         moris::ge::Geometry_Engine tGENGeometryEngine(tGeometry, tPhaseTable, tInterpolationMesh);
 
         // --------------------------------------------------------------------------------------
@@ -571,7 +571,7 @@ TEST_CASE("MDL_Fluid_Benchmark_Immersed_Inlet_Pressure","[MDL_Fluid_Benchmark_Im
         tHMR->finalize();
         moris::hmr::Interpolation_Mesh_HMR * tInterpolationMesh = tHMR->create_interpolation_mesh(tLagrangeMeshIndex);
 
-        moris::ge::Phase_Table tPhaseTable (4, moris::ge::Phase_Table_Structure::EXP_BASE_2);
+        moris::ge::Phase_Table tPhaseTable (4);
         moris::ge::Geometry_Engine tGENGeometryEngine(tGeometry, tPhaseTable, tInterpolationMesh);
 
         // --------------------------------------------------------------------------------------
@@ -2260,7 +2260,7 @@ TEST_CASE("MDL_Fluid_Benchmark_Radial_Couette_Flow","[MDL_Fluid_Benchmark_Radial
         moris::hmr::Interpolation_Mesh_HMR * tInterpolationMesh =
                 tHMR->create_interpolation_mesh(tLagrangeMeshIndex);
 
-        moris::ge::Phase_Table tPhaseTable (2, moris::ge::Phase_Table_Structure::EXP_BASE_2);
+        moris::ge::Phase_Table tPhaseTable (2);
         moris::ge::Geometry_Engine tGENGeometryEngine(tGeometry, tPhaseTable, tInterpolationMesh);
 
         // --------------------------------------------------------------------------------------

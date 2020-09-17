@@ -63,7 +63,7 @@ namespace xtk
             std::string tMeshFileName = "generated:1x1x1";
             moris::mtk::Interpolation_Mesh* tMeshData = moris::mtk::create_interpolation_mesh( MeshType::STK, tMeshFileName, NULL );
 
-            moris::ge::Phase_Table tPhaseTable (1, moris::ge::Phase_Table_Structure::EXP_BASE_2);
+            moris::ge::Phase_Table tPhaseTable (1);
             moris::ge::Geometry_Engine tGeometryEngine(tGeometry, tPhaseTable, tMeshData);
 
             // Setup XTK Model -----------------------------
@@ -194,7 +194,7 @@ namespace xtk
             std::string tBMOutputFile ="./xtk_exo/xtk_test_output_conformal_bm.e";
             tMeshData->create_output_mesh(tBMOutputFile);
 
-            moris::ge::Phase_Table tPhaseTable (1, moris::ge::Phase_Table_Structure::EXP_BASE_2);
+            moris::ge::Phase_Table tPhaseTable (1);
             moris::ge::Geometry_Engine tGeometryEngine(tGeometry, tPhaseTable, tMeshData);
 
             // Setup XTK Model ----------------------------------------------------------------
@@ -387,7 +387,7 @@ namespace xtk
         // fill in the parallel fields
         moris::mtk::Interpolation_Mesh* tMeshData = moris::mtk::create_interpolation_mesh( MeshType::STK, tMeshFileName,  &tMeshDataInput  );
 
-        moris::ge::Phase_Table tPhaseTable (1, moris::ge::Phase_Table_Structure::EXP_BASE_2);
+        moris::ge::Phase_Table tPhaseTable (1);
         moris::ge::Geometry_Engine tGeometryEngine(tGeometry, tPhaseTable, tMeshData);
 
         tVizTool.populate_parallel_cell_fields_on_mesh(tMeshData);

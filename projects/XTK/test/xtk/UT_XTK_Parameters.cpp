@@ -53,7 +53,7 @@ TEST_CASE("XTK Parameter List","[PARAM]")
     std::string tBMOutputFile ="./xtk_exo/xtk_test_output_conformal_bm.e";
     tMeshData->create_output_mesh(tBMOutputFile);
 
-    moris::ge::Phase_Table tPhaseTable (1, moris::ge::Phase_Table_Structure::EXP_BASE_2);
+    moris::ge::Phase_Table tPhaseTable (1);
     moris::ge::Geometry_Engine tGeometryEngine(tGeometry, tPhaseTable, tMeshData);
 
     ParameterList tXTKParams = prm::create_xtk_parameter_list();

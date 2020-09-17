@@ -31,7 +31,7 @@
 //    Cell<std::shared_ptr<moris::ge::Geometry>> tGeometry(1);
 //    tGeometry(0) = std::make_shared<moris::ge::Plane>(tCenters(0), tCenters(1), tCenters(2), tNormals(0), tNormals(1), tNormals(2));
 //
-//    moris::ge::Phase_Table tPhaseTable (1, moris::ge::Phase_Table_Structure::EXP_BASE_2);
+//    moris::ge::Phase_Table tPhaseTable (tGeometry.size());
 //    moris::ge::Geometry_Engine tGeometryEngine(tGeometry, tPhaseTable);
 //
 //    // Create Mesh ---------------------------------

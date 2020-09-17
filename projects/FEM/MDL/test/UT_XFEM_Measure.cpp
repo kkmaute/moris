@@ -189,7 +189,7 @@ TEST_CASE("MDL XFEM Measure","[MDL_XFEM_MEASURE]")
         tGeometryVector(0) = std::make_shared<moris::ge::Plane>(2.6, 0.0, 1.0, 0.0);
 
         size_t tModelDimension = 3;
-        moris::ge::Phase_Table  tPhaseTable( tGeometryVector.size(), moris::ge::Phase_Table_Structure::EXP_BASE_2 );
+        moris::ge::Phase_Table  tPhaseTable( tGeometryVector.size() );
         moris::ge::Geometry_Engine  tGeometryEngine( tGeometryVector, tPhaseTable, tInterpMesh );
 
         xtk::Model tXTKModel( tModelDimension,tInterpMesh,&tGeometryEngine );

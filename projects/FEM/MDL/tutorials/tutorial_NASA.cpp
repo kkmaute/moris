@@ -206,7 +206,7 @@ main( int    argc,
     moris::Cell<xtk::Geometry*> tGeometryVector = {&tCircleFieldAsGeom,&tPlaneFieldAsGeom2};
 
     size_t tModelDimension = tDim;
-    xtk::Phase_Table     tPhaseTable (tGeometryVector.size(),  Phase_Table_Structure::EXP_BASE_2);
+    xtk::Phase_Table     tPhaseTable (tGeometryVector.size());
     xtk::Geometry_Engine tGeometryEngine(tGeometryVector,tPhaseTable,tModelDimension);
     xtk::Model           tXTKModel(tModelDimension,tInterpMesh.get(),&tGeometryEngine);
     tXTKModel.mVerbose = false;
