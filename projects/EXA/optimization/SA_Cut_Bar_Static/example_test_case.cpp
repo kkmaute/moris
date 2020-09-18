@@ -19,7 +19,7 @@ TEST_CASE("SA_Cut_Bar_Static",
         "[moris],[example],[optimization],[sweep],[sweep_static]")
 {
     // Tolerance for adjoint vs. FD sensitivities
-    moris::real tToleranceSensties = 0.021;
+    moris::real tToleranceSensties = 0.01;
 
     // define command line call
     int argc = 2;
