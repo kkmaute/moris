@@ -26,6 +26,9 @@ namespace moris
             NLSX,   //< X-Level set normal
             NLSY,   //< Y-Level set normal
             NLSZ,   //< Z-Level set normal
+            THETA,  //< Heat method temperature
+            PHID,   //< Heat method distance field
+            PHISD,  //< Heat method signed distance field
             VX,     //< X-Velocity
             VY,     //< Y-Velocity
             VZ,     //< Z-Velocity
@@ -53,6 +56,9 @@ namespace moris
             tMSIDofTypeMap["NLSX"]        = MSI::Dof_Type::NLSX;
             tMSIDofTypeMap["NLSY"]        = MSI::Dof_Type::NLSY;
             tMSIDofTypeMap["NLSZ"]        = MSI::Dof_Type::NLSZ;
+            tMSIDofTypeMap["THETA"]       = MSI::Dof_Type::THETA;
+            tMSIDofTypeMap["PHID"]        = MSI::Dof_Type::PHID;
+            tMSIDofTypeMap["PHISD"]       = MSI::Dof_Type::PHISD;
             tMSIDofTypeMap["VX"]          = MSI::Dof_Type::VX;
             tMSIDofTypeMap["VY"]          = MSI::Dof_Type::VY;
             tMSIDofTypeMap["VZ"]          = MSI::Dof_Type::VZ;
@@ -63,6 +69,38 @@ namespace moris
 
             return tMSIDofTypeMap;
         }
+
+        //------------------------------------------------------------------------------
+
+        map< enum MSI::Dof_Type, std::string > get_dof_type_name_map()
+        {
+            map< enum MSI::Dof_Type, std::string  > tMSIDofTypeMap;
+
+            tMSIDofTypeMap[MSI::Dof_Type::UX]          = "UX";
+            tMSIDofTypeMap[MSI::Dof_Type::UY]          = "UY";
+            tMSIDofTypeMap[MSI::Dof_Type::UZ]          = "UZ";
+            tMSIDofTypeMap[MSI::Dof_Type::TEMP]        = "TEMP";
+            tMSIDofTypeMap[MSI::Dof_Type::L2]          = "L2";
+            tMSIDofTypeMap[MSI::Dof_Type::MAPPING_DOF] = "MAPPING_DOF";
+            tMSIDofTypeMap[MSI::Dof_Type::LS1]         = "LS1";
+            tMSIDofTypeMap[MSI::Dof_Type::LS2]         = "LS2";
+            tMSIDofTypeMap[MSI::Dof_Type::NLSX]        = "NLSX";
+            tMSIDofTypeMap[MSI::Dof_Type::NLSY]        = "NLSY";
+            tMSIDofTypeMap[MSI::Dof_Type::NLSZ]        = "NLSZ";
+            tMSIDofTypeMap[MSI::Dof_Type::THETA]       = "THETA";
+            tMSIDofTypeMap[MSI::Dof_Type::PHID]        = "PHID";
+            tMSIDofTypeMap[MSI::Dof_Type::PHISD]       = "PHISD";
+            tMSIDofTypeMap[MSI::Dof_Type::VX]          = "VX";
+            tMSIDofTypeMap[MSI::Dof_Type::VY]          = "VY";
+            tMSIDofTypeMap[MSI::Dof_Type::VZ]          = "VZ";
+            tMSIDofTypeMap[MSI::Dof_Type::P]           = "P";
+            tMSIDofTypeMap[MSI::Dof_Type::RHO]         = "RHO";
+            tMSIDofTypeMap[MSI::Dof_Type::VISCOSITY]   = "VISCOSITY";
+            tMSIDofTypeMap[MSI::Dof_Type::UNDEFINED]   = "UNDEFINED";
+
+            return tMSIDofTypeMap;
+        }
+
     }
 }
 
