@@ -18,6 +18,9 @@
 // XTK FIXME
 #include "cl_XTK_Topology.hpp"
 
+// SOL FIXME
+#include "cl_SOL_Matrix_Vector_Factory.hpp"
+
 namespace moris
 {
     namespace ge
@@ -125,6 +128,14 @@ namespace moris
 
         Matrix<DDRMat>& Geometry_Engine::get_advs()
         {
+//
+//            moris::sol::Dist_Map* tFullMap = tADVFactory.create_map(tOwned);
+//            moris::sol::Dist_Vector* tFullVector = tADVFactory.create_vector(tFullMap);
+//
+//            tOwnedVector->vector_global_asembly();
+//            tFullVector->import_local_to_global(*tOwnedVector);
+
+            mOwnedADVs->extract_copy(mADVs);
             return mADVs;
         }
 
@@ -581,6 +592,27 @@ namespace moris
             mLowerBounds.resize(mADVs.length(), 1);
             mUpperBounds.resize(mADVs.length(), 1);
             mPdvHostManager.set_num_advs(mADVs.length());
+
+            // Create factor for distributed ADV vector
+            Matrix_Vector_Factory tDistributedFactory;
+
+            // Set primitive ADV IDs
+            Matrix<DDSMat> tOwnedADVIds(mADVs.length(), 1);
+            for (uint tADVIndex = 0; tADVIndex < mADVs.length(); tADVIndex++)
+            {
+                tOwnedADVIds(tADVIndex) = tADVIndex;
+            }
+
+            // Communicate level set ADV IDs
+
+            // Create map for distributed vector
+            moris::sol::Dist_Map* tOwnedADVMap = tDistributedFactory.create_map(tOwnedADVIds);
+
+            // Create vector
+            mOwnedADVs = tDistributedFactory.create_vector(tOwnedADVMap);
+
+            // Assign primitive values
+            mOwnedADVs->replace_global_values(tOwnedADVIds, mADVs);
 
             // Build geometries and properties
             if (mGeometryParameterLists.size() > 0)

@@ -22,6 +22,9 @@
 #include "cl_MTK_Mesh_Manager.hpp"
 #include "cl_Mesh_Enums.hpp"
 
+// SOL FIXME
+#include "cl_SOL_Dist_Vector.hpp"
+
 namespace xtk
 {
     class Topology;
@@ -55,6 +58,7 @@ namespace moris
 
             // ADVs/IQIs
             Matrix<DDRMat> mADVs;
+            moris::sol::Dist_Vector* mOwnedADVs;
             Matrix<DDRMat> mLowerBounds;
             Matrix<DDRMat> mUpperBounds;
             Cell<std::string> mRequestedIQIs;
