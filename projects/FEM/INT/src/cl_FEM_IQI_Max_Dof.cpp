@@ -22,6 +22,7 @@ namespace moris
             // populate the property map
             mPropertyMap[ "ReferenceValue" ]    = IQI_Property_Type::REFERENCE_VALUE;
             mPropertyMap[ "Exponent" ]          = IQI_Property_Type::EXPONENT;
+            mPropertyMap[ "Shift" ]             = IQI_Property_Type::SHIFT;
         }
 
         //------------------------------------------------------------------------------
@@ -62,6 +63,9 @@ namespace moris
             // get property values
             real tRefValue = mMasterProp( static_cast< uint >( IQI_Property_Type::REFERENCE_VALUE ) )->val()( 0 );
             real tExponent = mMasterProp( static_cast< uint >( IQI_Property_Type::EXPONENT ) )->val()( 0 );
+            real tShift = 1.0;
+            if ( mMasterProp( static_cast< uint >( IQI_Property_Type::SHIFT ) ) != nullptr )
+                tShift = mMasterProp( static_cast< uint >( IQI_Property_Type::SHIFT ) )->val()( 0 );
 
             // check if dof index was set (for the case of vector field)
             if( mMasterDofTypes( 0 ).size() > 1 )
@@ -74,7 +78,7 @@ namespace moris
             }
 
             // evaluate the QI
-            aQI = {{ std::pow( ( tFIMaxDof->val()( mIQITypeIndex ) / tRefValue ) - 1.0, tExponent ) }};
+            aQI = {{ std::pow( ( tFIMaxDof->val()( mIQITypeIndex ) / tRefValue ) - tShift, tExponent ) }};
         }
 
         //------------------------------------------------------------------------------
@@ -91,6 +95,9 @@ namespace moris
             // get property values
             real tRefValue = mMasterProp( static_cast< uint >( IQI_Property_Type::REFERENCE_VALUE ) )->val()( 0 );
             real tExponent = mMasterProp( static_cast< uint >( IQI_Property_Type::EXPONENT ) )->val()( 0 );
+            real tShift = 1.0;
+            if ( mMasterProp( static_cast< uint >( IQI_Property_Type::SHIFT ) ) != nullptr )
+                tShift = mMasterProp( static_cast< uint >( IQI_Property_Type::SHIFT ) )->val()( 0 );
 
             // FIXME protect max dof type
             // if derivative dof type is max dof type
@@ -112,7 +119,7 @@ namespace moris
                 tSelect( mIQITypeIndex, 0 ) = 1.0;
 
                 // compute dQIdDof
-                real tdQI = std::pow( ( tFIMaxDof->val()( mIQITypeIndex ) / tRefValue ) - 1.0, tExponent - 1.0 );
+                real tdQI = std::pow( ( tFIMaxDof->val()( mIQITypeIndex ) / tRefValue ) - tShift, tExponent - 1.0 );
                 adQIdu = tExponent * tdQI * trans( tFIMaxDof->N() ) * tSelect / tRefValue;
             }
         }
