@@ -57,7 +57,7 @@ namespace NLA
         //! Parameterlist for this nonlinear solver
         moris::ParameterList mParameterListNonlinearSolver;
 
-        bool mLinSolverOwned = true;
+        bool mLinSolverOwned = false;
 
         friend class Convergence;
 
