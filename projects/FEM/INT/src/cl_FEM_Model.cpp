@@ -1114,7 +1114,8 @@ namespace moris
                 mIQIs( iIQI )->set_dv_type_list( tDvTypes );
 
                 // set index for vectorial field
-                mIQIs( iIQI )->set_output_type_index( tIQIParameterList( iIQI ).get< moris::sint >( "vectorial_field_index" ) );
+                mIQIs( iIQI )->set_output_type_index(
+                        tIQIParameterList( iIQI ).get< moris::sint >( "vectorial_field_index" ) );
 
                 // set master properties
                 moris::Cell< moris::Cell< std::string > > tMasterPropertyNamesPair;
@@ -1434,22 +1435,50 @@ namespace moris
             // loop over the phases
             for( uint iPhase = 0; iPhase < tNumPhases; iPhase++ )
             {
-                //                // FIXME use this with mesh
-                //                // get the phase type
-                //                fem::Element_Type tPhaseType =
-                //                        static_cast< fem::Element_Type >( tPhaseParameterList( iPhase ).get< uint >( "phase_type" ) );
-                //
-                //                // get the master phase index
-                //                uint tMasterPhaseIndex =
-                //                        tPhaseParameterList( iPhase ).get< uint >( "master_phase_index" );
-                //                // get the slave phase index
-                //                uint tSlavePhaseIndex =
-                //                        tPhaseParameterList( iPhase ).get< uint >( "slave_phase_index" );
+//                // get the phase type
+//                fem::Element_Type tPhaseType =
+//                        static_cast< fem::Element_Type >( tPhaseParameterList( iPhase ).get< uint >( "phase_type" ) );
+//
+//                // get master phase index
+//                moris_index tMasterPhaseIndex =
+//                        stoi( tPhaseParameterList( iPhase ).get< std::string >( "master_phase_index" ) );
+//
+//                // get slave phase indices
+//                moris::Cell< moris::Matrix< DDSMat > > tSlavePhaseIndices;
+//                string_to_cell_mat_2(
+//                        tPhaseParameterList( iPhase ).get< std::string >( "slave_phase_index" ),
+//                        tSlavePhaseIndices );
 
                 // get the mesh set names from mesh
                 // FIXME need access from mesh
                 moris::Cell< std::string > tMeshSetNames;
                 string_to_cell( tPhaseParameterList( iPhase ).get< std::string >( "mesh_set_names" ), tMeshSetNames );
+
+//                moris::Cell< std::string > tMeshSetNames2;
+//                switch ( tPhaseType )
+//                {
+//                    case fem::Element_Type::BULK :
+//                    {
+//                        mMeshManager->get_integration_mesh( 0 )->
+//                                get_block_set_names_with_color( tMasterPhaseIndex, tMeshSetNames2 );
+//                        break;
+//                    }
+//                    case fem::Element_Type::SIDESET :
+//                    {
+//                        break;
+//                    }
+//                    case fem::Element_Type::DOUBLE_SIDESET :
+//                    {
+//                        break;
+//                    }
+//                    default :
+//                    {
+//                        MORIS_ERROR( false, "FEM_Model::create_fem_set_info - Unknown set type" );
+//                    }
+//                }
+//                print(tMeshSetNames,"tMeshSetNames");
+//                print(tMeshSetNames2,"tMeshSetNames2");
+
 
                 // get the number of mesh sets
                 uint tNumMeshSets = tMeshSetNames.size();
