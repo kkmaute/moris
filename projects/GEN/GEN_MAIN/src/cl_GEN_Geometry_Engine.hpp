@@ -58,11 +58,15 @@ namespace moris
 
             // ADVs/IQIs
             Matrix<DDRMat> mADVs;
-            moris::sol::Dist_Vector* mOwnedADVs;
+            Matrix<DDSMat> mOwnedADVIds;
+            sol::Dist_Vector* mOwnedADVs;
+
+            // Bounds
             Matrix<DDRMat> mLowerBounds;
             Matrix<DDRMat> mUpperBounds;
+
+            // IQIs
             Cell<std::string> mRequestedIQIs;
-            bool mShapeSensitivities = false;
 
             // Library
             std::shared_ptr<Library_IO> mLibrary;
@@ -73,6 +77,7 @@ namespace moris
             Cell<ParameterList> mGeometryParameterLists;
             std::string mGeometryFieldFile = "";
             std::string mOutputMeshFile = "";
+            bool mShapeSensitivities = false;
 
             // Property
             Cell<std::shared_ptr<Property>> mProperties;

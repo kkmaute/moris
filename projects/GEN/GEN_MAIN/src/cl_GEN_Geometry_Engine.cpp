@@ -113,7 +113,8 @@ namespace moris
         void Geometry_Engine::set_advs(Matrix<DDRMat> aNewADVs)
         {
             // Set new ADVs
-            mADVs = aNewADVs;
+            mOwnedADVs->replace_global_values(mOwnedADVIds, aNewADVs);
+            mADVs = aNewADVs; // FIXME
 
             // Reset info related to the mesh
             mPdvHostManager.reset();
@@ -597,27 +598,27 @@ namespace moris
             Matrix_Vector_Factory tDistributedFactory;
 
             // Set primitive ADV IDs
-            Matrix<DDSMat> tOwnedADVIds(mADVs.length(), 1);
+            mOwnedADVIds.resize(mADVs.length(), 1);
             for (uint tADVIndex = 0; tADVIndex < mADVs.length(); tADVIndex++)
             {
-                tOwnedADVIds(tADVIndex) = tADVIndex;
+                mOwnedADVIds(tADVIndex) = tADVIndex;
             }
 
             // Communicate level set ADV IDs
 
             // Create map for distributed vector
-            moris::sol::Dist_Map* tOwnedADVMap = tDistributedFactory.create_map(tOwnedADVIds);
+            moris::sol::Dist_Map* tOwnedADVMap = tDistributedFactory.create_map(mOwnedADVIds);
 
             // Create vector
             mOwnedADVs = tDistributedFactory.create_vector(tOwnedADVMap);
 
             // Assign primitive values
-            mOwnedADVs->replace_global_values(tOwnedADVIds, mADVs);
+            mOwnedADVs->replace_global_values(mOwnedADVIds, mADVs);
 
             // Build geometries and properties
             if (mGeometryParameterLists.size() > 0)
             {
-                mGeometries = create_geometries(mGeometryParameterLists, mADVs, mLibrary);
+                mGeometries = create_geometries(mGeometryParameterLists, mOwnedADVs, mLibrary);
                 mProperties = create_properties(mPropertyParameterLists, mADVs, mLibrary);
                 mGeometryParameterLists.resize(0);
                 // TODO have properties store all data so parameter lists can be deleted too
@@ -635,11 +636,23 @@ namespace moris
                     // Always have shape sensitivities if level set
                     mShapeSensitivities = true;
 
-                    // Create level set
-                    mGeometries(tGeometryIndex) = std::make_shared<Level_Set>(mADVs,
-                                                                              tNumFilledADVs,
-                                                                              aMesh,
-                                                                              mGeometries(tGeometryIndex));
+                    // Create level set FIXME when we have parallel L2
+                    if (par_size() == 1)
+                    {
+                        mGeometries(tGeometryIndex) = std::make_shared<Level_Set>(
+                                mADVs,
+                                tNumFilledADVs,
+                                aMesh,
+                                mGeometries(tGeometryIndex));
+                    }
+                    else
+                    {
+                        mGeometries(tGeometryIndex) = std::make_shared<Level_Set>(
+                                mOwnedADVs,
+                                tNumFilledADVs,
+                                aMesh,
+                                mGeometries(tGeometryIndex));
+                    }
 
                     // Assign bounds
                     uint tNumCoeffs = aMesh->get_num_coeffs(mGeometries(tGeometryIndex)->get_bspline_mesh_index());
