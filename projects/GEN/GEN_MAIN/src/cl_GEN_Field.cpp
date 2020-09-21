@@ -16,8 +16,9 @@ namespace moris
                      sint aBSplineMeshIndex,
                      real aBSplineLowerBound,
                      real aBSplineUpperBound)
-                : mConstantParameters(aConstantParameters),
-                  mFieldADVDependencies(aFieldVariableIndices.length() + mConstantParameters.length(), 1, -1),
+                : mFieldVariables(aFieldVariableIndices.length() + aConstantParameters.length()),
+                  mConstantParameters(aConstantParameters),
+                  mADVDependencies(aFieldVariableIndices.length() + aConstantParameters.length(), 1, -1),
                   mDependsOnADVs(aADVIndices.length()),
                   mNumADVs(aADVs.length()),
                   mNumRefinements(aNumRefinements),
@@ -27,36 +28,59 @@ namespace moris
                   mBSplineUpperBound(aBSplineUpperBound)
 
         {
-            // Check that the number of field variables indices equals the number of ADV indices, resize field variables
-            MORIS_ERROR(aFieldVariableIndices.length() == aADVIndices.length(),
-                        "Number of field variables indices must equal the number of ADV indices in a GEN field.");
-
             // Resize field variables
-            uint tNumInputs = aFieldVariableIndices.length() + mConstantParameters.length();
-            mFieldVariables.resize(tNumInputs);
+            this->assign_adv_dependencies(aFieldVariableIndices, aADVIndices);
 
             // Fill with pointers to ADVs
             for (uint tADVFillIndex = 0; tADVFillIndex < aFieldVariableIndices.length(); tADVFillIndex++)
             {
                 mFieldVariables(aFieldVariableIndices(tADVFillIndex)) = &(aADVs(aADVIndices(tADVFillIndex)));
-                mFieldADVDependencies(aFieldVariableIndices(tADVFillIndex)) = aADVIndices(tADVFillIndex);
+            }
+            
+            // Fill constant parameters
+            this->fill_constant_parameters();
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
+        Field::Field(sol::Dist_Vector* aOwnedADVs,
+                     Matrix<DDUMat> aFieldVariableIndices,
+                     Matrix<DDUMat> aADVIndices,
+                     Matrix<DDRMat> aConstantParameters,
+                     sint aNumRefinements,
+                     sint aRefinementFunctionIndex,
+                     sint aBSplineMeshIndex,
+                     real aBSplineLowerBound,
+                     real aBSplineUpperBound)
+                : mFieldVariables(aFieldVariableIndices.length() + aConstantParameters.length()),
+                  mConstantParameters(aConstantParameters),
+                  mADVDependencies(aFieldVariableIndices.length() + aConstantParameters.length(), 1, -1),
+                  mDependsOnADVs(aADVIndices.length()),
+                  mNumADVs(aOwnedADVs->vec_global_length()),
+                  mNumRefinements(aNumRefinements),
+                  mRefinementFunctionIndex(aRefinementFunctionIndex),
+                  mBSplineMeshIndex(aBSplineMeshIndex),
+                  mBSplineLowerBound(aBSplineLowerBound),
+                  mBSplineUpperBound(aBSplineUpperBound)
+
+        {
+            // Resize field variables
+            this->assign_adv_dependencies(aFieldVariableIndices, aADVIndices);
+
+            // Fill with pointers to ADVs
+            for (uint tADVFillIndex = 0; tADVFillIndex < aFieldVariableIndices.length(); tADVFillIndex++)
+            {
+                mFieldVariables(aFieldVariableIndices(tADVFillIndex)) = &(*aOwnedADVs)(aADVIndices(tADVFillIndex));
             }
 
-            // Fill with constant parameters and identify these variables
-            uint tParameterIndex = 0;
-            for (uint tVariableIndex = 0; tVariableIndex < tNumInputs; tVariableIndex++)
-            {
-                if (mFieldVariables(tVariableIndex) == nullptr)
-                {
-                    mFieldVariables(tVariableIndex) = &(mConstantParameters(tParameterIndex++));
-                }
-            }
+            // Fill constant parameters
+            this->fill_constant_parameters();
         }
 
         //--------------------------------------------------------------------------------------------------------------
         
         Field::Field(Matrix<DDRMat>& aADVs,
-                     uint aADVIndex,
+                     uint aStartingADVIndex,
                      uint aNumFieldVariables,
                      sint aNumRefinements,
                      sint aRefinementFunctionIndex,
@@ -64,7 +88,7 @@ namespace moris
                      real aBSplineLowerBound,
                      real aBSplineUpperBound)
                 : mFieldVariables(aNumFieldVariables),
-                  mFieldADVDependencies(aNumFieldVariables, 1),
+                  mADVDependencies(aNumFieldVariables, 1),
                   mDependsOnADVs(true),
                   mNumADVs(aADVs.length()),
                   mNumRefinements(aNumRefinements),
@@ -74,15 +98,48 @@ namespace moris
                   mBSplineUpperBound(aBSplineUpperBound)
         {
             // Check for ADV size
-            MORIS_ERROR((aADVIndex + aNumFieldVariables) <= aADVs.length(),
+            MORIS_ERROR((aStartingADVIndex + aNumFieldVariables) <= aADVs.length(),
                         "GEN field constructor with number of field variables given can only be called with an "
                         "ADV vector that has already been resized to an adequate length.");
 
             // Set variables from ADVs
             for (uint tVariableIndex = 0; tVariableIndex < aNumFieldVariables; tVariableIndex++)
             {
-                mFieldADVDependencies(tVariableIndex) = aADVIndex + tVariableIndex;
-                mFieldVariables(tVariableIndex) = &(aADVs(aADVIndex + tVariableIndex));
+                mFieldVariables(tVariableIndex) = &(aADVs(aStartingADVIndex + tVariableIndex));
+                mADVDependencies(tVariableIndex) = aStartingADVIndex + tVariableIndex;
+            }
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
+        Field::Field(sol::Dist_Vector* aOwnedADVs,
+                     uint aStartingADVIndex,
+                     uint aNumFieldVariables,
+                     sint aNumRefinements,
+                     sint aRefinementFunctionIndex,
+                     sint aBSplineMeshIndex,
+                     real aBSplineLowerBound,
+                     real aBSplineUpperBound)
+                : mFieldVariables(aNumFieldVariables),
+                  mADVDependencies(aNumFieldVariables, 1),
+                  mDependsOnADVs(true),
+                  mNumADVs(aOwnedADVs->vec_global_length()),
+                  mNumRefinements(aNumRefinements),
+                  mRefinementFunctionIndex(aRefinementFunctionIndex),
+                  mBSplineMeshIndex(aBSplineMeshIndex),
+                  mBSplineLowerBound(aBSplineLowerBound),
+                  mBSplineUpperBound(aBSplineUpperBound)
+        {
+            // Check for ADV size
+            MORIS_ERROR((aStartingADVIndex + aNumFieldVariables) <= (uint)aOwnedADVs->vec_local_length(),
+                        "GEN field constructor with number of field variables given can only be called with an "
+                        "ADV distributed vector with adequate local length.");
+
+            // Set variables from ADVs
+            for (uint tVariableIndex = 0; tVariableIndex < aNumFieldVariables; tVariableIndex++)
+            {
+                mFieldVariables(tVariableIndex) = &(*aOwnedADVs)(aStartingADVIndex + tVariableIndex);
+                mADVDependencies(tVariableIndex) = aStartingADVIndex + tVariableIndex;
             }
         }
 
@@ -94,8 +151,9 @@ namespace moris
                      sint aBSplineMeshIndex,
                      real aBSplineLowerBound,
                      real aBSplineUpperBound)
-                : mConstantParameters(aConstantParameters),
-                  mFieldADVDependencies(aConstantParameters.length(), 1, -1),
+                : mFieldVariables(aConstantParameters.length()),
+                  mConstantParameters(aConstantParameters),
+                  mADVDependencies(aConstantParameters.length(), 1, -1),
                   mDependsOnADVs(false),
                   mNumADVs(0),
                   mNumRefinements(aNumRefinements),
@@ -104,12 +162,8 @@ namespace moris
                   mBSplineLowerBound(aBSplineLowerBound),
                   mBSplineUpperBound(aBSplineUpperBound)
         {
-            // Resize field variables
-            uint tNumInputs = mConstantParameters.length();
-            mFieldVariables.resize(tNumInputs);
-
-            // Fill field variables
-            for (uint tVariableIndex = 0; tVariableIndex < tNumInputs; tVariableIndex++)
+            // Fill field variables with all constant parameters
+            for (uint tVariableIndex = 0; tVariableIndex < mConstantParameters.length(); tVariableIndex++)
             {
                 mFieldVariables(tVariableIndex) = &(mConstantParameters(tVariableIndex));
             }
@@ -131,9 +185,10 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        void Field::evaluate_sensitivity(uint                  aNodeIndex,
-                                         const Matrix<DDRMat>& aCoordinates,
-                                         Matrix<DDRMat>&       aSensitivities)
+        void Field::evaluate_sensitivity(
+                uint                  aNodeIndex,
+                const Matrix<DDRMat>& aCoordinates,
+                Matrix<DDRMat>&       aSensitivities)
         {
             // Resize sensitivities
             aSensitivities.set_size(1, mNumADVs, 0.0);
@@ -143,11 +198,11 @@ namespace moris
             this->evaluate_all_sensitivities(aNodeIndex, aCoordinates, tTempSensitivities);
 
             // Return only what is needed
-            for (uint tSensitivityIndex = 0; tSensitivityIndex < mFieldADVDependencies.length(); tSensitivityIndex++)
+            for (uint tSensitivityIndex = 0; tSensitivityIndex < mADVDependencies.length(); tSensitivityIndex++)
             {
-                if (mFieldADVDependencies(tSensitivityIndex) >= 0)
+                if (mADVDependencies(tSensitivityIndex) >= 0)
                 {
-                    aSensitivities(mFieldADVDependencies(tSensitivityIndex)) = tTempSensitivities(tSensitivityIndex);
+                    aSensitivities(mADVDependencies(tSensitivityIndex)) = tTempSensitivities(tSensitivityIndex);
                 }
             }
         }
@@ -211,6 +266,37 @@ namespace moris
         bool Field::conversion_to_bsplines()
         {
             return (mBSplineMeshIndex >= 0);
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
+        void Field::assign_adv_dependencies(
+                Matrix<DDUMat>& aFieldVariableIndices,
+                Matrix<DDUMat>& aADVIndices)
+        {
+            // Check that the number of field variables indices equals the number of ADV indices
+            MORIS_ERROR(aFieldVariableIndices.length() == aADVIndices.length(),
+                        "Number of field variables indices must equal the number of ADV indices in a GEN field.");
+
+            // Set ADV dependencies
+            for (uint tADVFillIndex = 0; tADVFillIndex < aFieldVariableIndices.length(); tADVFillIndex++)
+            {
+                mADVDependencies(aFieldVariableIndices(tADVFillIndex)) = aADVIndices(tADVFillIndex);
+            }
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+        
+        void Field::fill_constant_parameters()
+        {
+            uint tParameterIndex = 0;
+            for (uint tVariableIndex = 0; tVariableIndex < mFieldVariables.size(); tVariableIndex++)
+            {
+                if (mFieldVariables(tVariableIndex) == nullptr)
+                {
+                    mFieldVariables(tVariableIndex) = &(mConstantParameters(tParameterIndex++));
+                }
+            }
         }
 
         //--------------------------------------------------------------------------------------------------------------
