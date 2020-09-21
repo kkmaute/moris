@@ -521,7 +521,7 @@ Matrix<DDRMat> compute_dconstraint_dcriteria(Matrix<DDRMat> aADVs, Matrix<DDRMat
     void SOLParameterList( moris::Cell< moris::Cell< ParameterList > > & tParameterlist )
     {
         tParameterlist.resize( 7 );
-        for( uint Ik = 2; Ik < 7; Ik ++)
+        for( uint Ik = 4; Ik < 7; Ik ++)
         {
             tParameterlist( Ik ).resize( 1 );
         }
@@ -535,19 +535,35 @@ Matrix<DDRMat> compute_dconstraint_dcriteria(Matrix<DDRMat> aADVs, Matrix<DDRMat
         tParameterlist( 1 )( 1 ) = moris::prm::create_linear_solver_parameter_list();
         tParameterlist( 1 )( 1 ).set("DLA_Linear_solver_algorithms", "1" );
 
+        tParameterlist( 2 ).resize( 2 );
         tParameterlist( 2 )( 0 ) = moris::prm::create_nonlinear_algorithm_parameter_list();
-        tParameterlist( 2 )( 0 ).set("NLA_linear_solver_for_adjoint_solve", 1 );
+        //tParameterlist( 2 )( 0 ).set("NLA_linear_solver_for_adjoint_solve", 1 );
         tParameterlist( 2 )( 0 ).set("NLA_rel_res_norm_drop",    tNLA_rel_res_norm_drop );
         tParameterlist( 2 )( 0 ).set("NLA_relaxation_parameter", tNLA_relaxation_parameter  );
         tParameterlist( 2 )( 0 ).set("NLA_max_iter",             tNLA_max_iter );
         tParameterlist( 2 )( 0 ).set("NLA_combined_res_jac_assembly", true );
 
+        tParameterlist( 2 )( 1 ) = moris::prm::create_nonlinear_algorithm_parameter_list();
+        //tParameterlist( 2 )( 1 ).set("NLA_linear_solver_for_adjoint_solve", 1 );
+        tParameterlist( 2 )( 1 ).set("NLA_rel_res_norm_drop",    tNLA_rel_res_norm_drop );
+        tParameterlist( 2 )( 1 ).set("NLA_relaxation_parameter", tNLA_relaxation_parameter  );
+        tParameterlist( 2 )( 1 ).set("NLA_max_iter",             tNLA_max_iter );
+        tParameterlist( 2 )( 1 ).set("NLA_combined_res_jac_assembly", true );
+        tParameterlist( 2 )( 1 ).set("NLA_Linear_solver", 1 );
+
+        tParameterlist( 3 ).resize( 2 );
         tParameterlist( 3 )( 0 ) = moris::prm::create_nonlinear_solver_parameter_list();
         tParameterlist( 3 )( 0 ).set("NLA_DofTypes"      , "TEMP");
+
+        tParameterlist( 3 )( 1 ) = moris::prm::create_nonlinear_solver_parameter_list();
+        tParameterlist( 3 )( 1 ).set("NLA_DofTypes"      , "TEMP");
+        tParameterlist( 3 )( 1 ).set("NLA_Sub_Nonlinear_Solver"      , "1");
+
 
         tParameterlist( 4 )( 0 ) = moris::prm::create_time_solver_algorithm_parameter_list();
         tParameterlist( 4 )( 0 ).set("TSA_Num_Time_Steps", tTSA_Num_Time_Steps );
         tParameterlist( 4 )( 0 ).set("TSA_Time_Frame",     tTSA_Time_Frame );
+        tParameterlist( 4 )( 0 ).set("TSA_nonlinear_solver_for_adjoint_solve",     1 );
 
         tParameterlist( 5 )( 0 ) = moris::prm::create_time_solver_parameter_list();
         tParameterlist( 5 )( 0 ).set("TSA_DofTypes",           "TEMP");

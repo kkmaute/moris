@@ -17,7 +17,10 @@
 #include "cl_Matrix_Vector_Factory.hpp"
 #include "cl_SOL_Enums.hpp"
 
+// Logging package
 #include "cl_Logger.hpp"
+#include "cl_Tracer.hpp"
+#include "cl_Tracer_Enums.hpp"
 
 namespace moris
 {
@@ -140,6 +143,9 @@ namespace moris
 
         void Equation_Model::compute_implicit_dQIdp()
         {
+            //Trace this function
+            Tracer tTracer(EntityBase::MSI, EntityType::EquationModel, EntityAction::Compute_dQIdp_Impl);
+
             // get local number of equation sets
             moris::uint tNumSets = mFemSets.size();
 
@@ -174,6 +180,9 @@ namespace moris
 
         void Equation_Model::compute_explicit_dQIdp()
         {
+            //Trace this function
+            Tracer tTracer(EntityBase::MSI, EntityType::EquationModel, EntityAction::Compute_dQIdp_Expl);
+
             // get local number of equation sets
             moris::uint tNumSets = mFemSets.size();
 

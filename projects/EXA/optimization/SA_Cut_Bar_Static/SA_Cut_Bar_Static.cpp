@@ -83,6 +83,7 @@ namespace moris
     // IQI Configuration ----------------------------------------------
     std::string tMaxTempReference = "10.0";
     std::string tMaxTempExponent = "2.0";
+    std::string tMaxTempShift = "0.0";
 
     // Mesh sets ------------------------------------------------------
 
@@ -413,6 +414,13 @@ namespace moris
         tParameterList( 0 )( tPropCounter ).set( "value_function",           "Func_Const") ;
         tPropCounter++;
 
+        // Shift value for MAX_DOF - IQI
+        tParameterList( 0 ).push_back( prm::create_property_parameter_list() );
+        tParameterList( 0 )( tPropCounter ).set( "property_name",            "PropMaxTempShift") ;
+        tParameterList( 0 )( tPropCounter ).set( "function_parameters",      tMaxTempShift );
+        tParameterList( 0 )( tPropCounter ).set( "value_function",           "Func_Const") ;
+        tPropCounter++;
+
         //------------------------------------------------------------------------------
 
         // init CM counter
@@ -621,8 +629,10 @@ namespace moris
         tParameterList( 4 )( tIQICounter ).set( "IQI_type",                   static_cast< uint >( fem::IQI_Type::MAX_DOF ) );
         tParameterList( 4 )( tIQICounter ).set( "master_dof_dependencies",    "TEMP") ;
         tParameterList( 4 )( tIQICounter ).set( "vectorial_field_index",      0 );
-        tParameterList( 4 )( tIQICounter ).set( "master_properties",          "PropMaxTempReference,ReferenceValue;"
-                "PropMaxTempExponent,Exponent" );
+        tParameterList( 4 )( tIQICounter ).set( "master_properties",
+                "PropMaxTempReference,ReferenceValue;"
+                "PropMaxTempExponent,Exponent;"
+                "PropMaxTempShift,Shift");
         tParameterList( 4 )( tIQICounter ).set( "mesh_set_names",             tTotalDomain );
         tIQICounter++;
 

@@ -44,7 +44,7 @@ Newton_Solver::Newton_Solver()
 
 Newton_Solver::Newton_Solver( const ParameterList aParameterlist ) : Nonlinear_Algorithm( aParameterlist )
 {
-    mLinSolverManager = new dla::Linear_Solver();
+
 }
 
 //--------------------------------------------------------------------------------------------------------------------------
