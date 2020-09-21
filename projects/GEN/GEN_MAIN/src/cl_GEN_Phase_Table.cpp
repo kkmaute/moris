@@ -100,10 +100,9 @@ namespace moris
         void
         Phase_Table::set_index_to_bulk_phase_map(Matrix<IndexMat> const & aIndexToBulkPhase)
         {
-            MORIS_ASSERT(aIndexToBulkPhase.numel() == std::pow(2,aIndexToBulkPhase.numel()),"aIndexToBulkPhase needs to be of length 2^N_geom.");
-
+            MORIS_ASSERT(aIndexToBulkPhase.numel() == std::pow(2,mNumGeometries),"aIndexToBulkPhase needs to be of length 2^N_geom.");
             mGeomValToBulkPhase = aIndexToBulkPhase;
-            mNumPhases = mGeomValToBulkPhase.max();
+            mNumPhases = mGeomValToBulkPhase.max() + 1;
         }
 
         //--------------------------------------------------------------------------------------------------------------
