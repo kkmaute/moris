@@ -374,7 +374,7 @@ namespace moris
         tParameterList( 1 )( tCMCounter ).set( "dof_dependencies",  std::pair< std::string, std::string >( "VX,VY;P", "Velocity,Pressure" ) );
         tParameterList( 1 )( tCMCounter ).set( "properties",
                 "PropViscosity,Viscosity;"
-				"PropDensity  ,Density")    ;
+                "PropDensity  ,Density")    ;
         tCMCounter++;
 
         // create parameter list for constitutive model 2
@@ -384,8 +384,8 @@ namespace moris
         tParameterList( 1 )( tCMCounter ).set( "dof_dependencies",  std::pair< std::string, std::string >( "TEMP", "Temperature" ) );
         tParameterList( 1 )( tCMCounter ).set( "properties",
                 "PropConductivity,Conductivity;"
-				"PropDensity     ,Density;"
-				"PropCapacity    ,HeatCapacity") ;
+                "PropDensity     ,Density;"
+                "PropCapacity    ,HeatCapacity") ;
         tCMCounter++;
 
         //------------------------------------------------------------------------------
@@ -609,8 +609,8 @@ namespace moris
         tParameterList( 3 )( tIWGCounter ).set( "master_dof_dependencies",    "VX,VY;P;TEMP") ;
         tParameterList( 3 )( tIWGCounter ).set( "master_properties",
                 "PropWeightCurrent,WeightCurrent;"
-				"PropWeightPrevious,WeightPrevious;"
-				"PropInitialConditionU,InitialCondition") ;
+                "PropWeightPrevious,WeightPrevious;"
+                "PropInitialConditionU,InitialCondition") ;
         tParameterList( 3 )( tIWGCounter ).set( "mesh_set_names",             "HMR_dummy_c_p160,HMR_dummy_n_p160") ;
         tParameterList( 3 )( tIWGCounter ).set( "time_continuity",            true );
         tIWGCounter++;
@@ -622,8 +622,8 @@ namespace moris
         tParameterList( 3 )( tIWGCounter ).set( "master_dof_dependencies",    "VX,VY;P;TEMP") ;
         tParameterList( 3 )( tIWGCounter ).set( "master_properties",
                 "PropWeightCurrent,WeightCurrent;"
-				"PropWeightPrevious,WeightPrevious;"
-				"PropInitialConditionTEMP,InitialCondition") ;
+                "PropWeightPrevious,WeightPrevious;"
+                "PropInitialConditionTEMP,InitialCondition") ;
         tParameterList( 3 )( tIWGCounter ).set( "mesh_set_names",             "HMR_dummy_c_p160,HMR_dummy_n_p160") ;
         tParameterList( 3 )( tIWGCounter ).set( "time_continuity",            true );
         tIWGCounter++;
