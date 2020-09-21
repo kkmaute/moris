@@ -84,6 +84,23 @@ namespace moris
 
         // ----------------------------------------------------------------------------
 
+         void
+         Integration_Mesh::get_block_set_names_with_color(
+                 moris_index const        & aColor,
+                 moris::Cell<std::string> & aSetNames)
+         {
+             MORIS_ASSERT(aColor <= mMaxColor,"Color above maximum color value");
+
+             uint tNumSets = mBlockSetToColor(aColor).size();
+             aSetNames.resize( tNumSets );
+             for(uint iS=0;iS<tNumSets;iS++)
+             {
+                 aSetNames(iS) = mBlockSetToColor(aColor)(iS)->get_set_name();
+             }
+         }
+
+        // ----------------------------------------------------------------------------
+
          moris::Cell<moris::mtk::Set*> const &
         Integration_Mesh::get_side_sets_with_color(moris_index const & aColor)
         {
