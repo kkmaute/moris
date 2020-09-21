@@ -140,11 +140,14 @@ TEST_CASE("Sum Dist Vector","[Sum Dist Vector],[DistLinAlg]")
         {
             CHECK( equal_to( tSol( 0,0 ), 0.0 ) );
             CHECK( equal_to( tSol( 5,0 ), 0.0 ) );
+            CHECK( equal_to( (*tVectorA)(17), 0.0 ) );
         }
         if (rank == 2)
         {
             CHECK( equal_to( tSol( 0,0 ), 0.0 ) );
             CHECK( equal_to( tSol( 1,0 ), 2.0 ) );
+            CHECK( equal_to( (*tVectorA)(4), 0.0 ) );
+            CHECK( equal_to( (*tVectorA)(5), 2.0 ) );
         }
         delete( tSolverInput );
         delete( tMap );

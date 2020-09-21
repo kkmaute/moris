@@ -60,6 +60,14 @@ namespace moris
                 };
 
                 /**
+                 * Gets a value in the distributed vector based on a given ID.
+                 *
+                 * @param aGlobalId Global ID
+                 * @return Value
+                 */
+                virtual real& operator()( sint aGlobalId, uint aVectorIndex = 0 ) = 0;
+
+                /**
                  * @brief Replace global vector entries.
                  */
                 virtual void replace_global_values( const moris::Matrix< DDSMat > & aGlobalIds,

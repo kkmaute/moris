@@ -31,6 +31,20 @@ Vector_Epetra::~Vector_Epetra()
     delete mEpetraVector;
 }
 
+//-----------------------------------------------------------------------------
+
+real& Vector_Epetra::operator()( sint aGlobalId, uint aVectorIndex )
+{
+    // Get offset for this vector
+    uint tOffset = this->vec_local_length() * aVectorIndex;
+
+    // Get local index
+    uint tLocIndex =  mMap->return_local_ind_of_global_Id( aGlobalId );
+
+    // Return value
+    return mValuesPtr[ tLocIndex + tOffset ];
+}
+
 //----------------------------------------------------------------------------------------------
 
 void Vector_Epetra::replace_global_values(
@@ -212,11 +226,11 @@ void Vector_Epetra::extract_my_values(
         ExtractedValues( Ik ).set_size( aNumIndices, 1 );
     }
 
-    moris::sint tVecLenght = this->vec_local_length();
+    moris::sint tVecLength = this->vec_local_length();
 
     for ( moris::sint Ik = 0; Ik < mNumVectors; ++Ik )
     {
-        moris::sint tOffset = tVecLenght * Ik;
+        moris::sint tOffset = tVecLength * Ik;
 
         for ( moris::uint Ii = 0; Ii < aNumIndices; ++Ii )
         {
