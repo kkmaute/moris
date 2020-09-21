@@ -34,6 +34,7 @@ namespace sol
 }
 namespace NLA
 {
+    class Nonlinear_Solver;
     class Nonlinear_Problem
     {
     private:
@@ -50,6 +51,9 @@ namespace NLA
         sol::Dist_Map   * mMapFull = nullptr;               //FIXME replace with marketplace
 
         dla::Linear_Problem * mLinearProblem = nullptr;
+
+        //! Pointer to my nonlinear solver
+        Nonlinear_Solver * mMyNonLinSolver = nullptr;
 
         bool mIsMasterSystem = false;
 
@@ -99,6 +103,12 @@ namespace NLA
 
         //--------------------------------------------------------------------------------------------------
         void set_interface( Solver_Interface * aSolverInterface );
+
+        //--------------------------------------------------------------------------------------------------
+        void set_nonlinear_solver( Nonlinear_Solver * aNonlinearSolver )
+        {
+            mMyNonLinSolver = aNonlinearSolver;
+        };
 
         //--------------------------------------------------------------------------------------------------
         void build_linearized_problem( const bool        & aRebuildJacobian,

@@ -221,6 +221,32 @@ moris::Cell< enum MSI::Dof_Type > Nonlinear_Solver::get_dof_type_union()
     return tUnionEnumList;
 }
 
+moris::Cell< enum MSI::Dof_Type > Nonlinear_Solver::get_sec_dof_type_union()
+{
+    moris::sint tCounter = 0;
+
+    // Loop over all dof type lists to determine the total number of dof types
+    for ( moris::uint Ik = 0; Ik < mSecondaryDofTypeList.size(); ++Ik )
+    {
+        tCounter = tCounter + mSecondaryDofTypeList( Ik ).size();
+    }
+
+    // Create list of dof types with earlier determines size
+    moris::Cell< enum MSI::Dof_Type > tUnionEnumList( tCounter );
+    tCounter = 0;
+
+    // Loop over all dof types. Add them to union list
+    for ( moris::uint Ik = 0; Ik < mSecondaryDofTypeList.size(); ++Ik )
+    {
+        for ( moris::uint Ii = 0; Ii < mSecondaryDofTypeList( Ik ).size(); ++Ii )
+        {
+            tUnionEnumList( tCounter++ ) = mSecondaryDofTypeList( Ik )( Ii );
+        }
+    }
+
+    return tUnionEnumList;
+}
+
 //--------------------------------------------------------------------------------------------------
 
 void Nonlinear_Solver::set_sonlinear_solver_manager_index( const moris::sint aNonlinearSolverManagerIndex )
@@ -306,20 +332,10 @@ void Nonlinear_Solver::solve( sol::Dist_Vector * aFullVector )
                 mSolverWarehouse->get_tpl_type() );
     }
 
+    mNonlinearProblem->set_nonlinear_solver( this );
+
     mNonlinearSolverAlgorithmList( 0 )->set_nonlinear_solver_manager( this );
 
-    if ( mNonLinSolverType == NonlinearSolverType::ARC_LENGTH_SOLVER )
-    {
-        if( mNonlinearSolverAlgorithmList( 0 )->get_my_nonlin_solver()->get_time_step_iter() == 0 )
-        {
-            mNonlinearSolverAlgorithmList( 0 )->initialize_variables( mNonlinearProblem );
-        }
-        //            mNonlinearSolverAlgorithmList( 0 )->solver_nonlinear_system( mNonlinearProblem );
-    }
-    //        else
-    //        {
-    //            mNonlinearSolverAlgorithmList( 0 )->solver_nonlinear_system( mNonlinearProblem );
-    //        }
     mNonlinearSolverAlgorithmList( 0 )->solver_nonlinear_system( mNonlinearProblem );
 }
 

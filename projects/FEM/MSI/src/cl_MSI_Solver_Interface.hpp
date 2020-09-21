@@ -322,6 +322,16 @@ namespace moris
                             get_equation_obj_residual( aElementRHS );
                 };
 
+                void get_equation_object_staggered_rhs(
+                        const moris::uint        & aMyEquSetInd,
+                        const moris::uint        & aMyElementInd,
+                        Cell< Matrix< DDRMat > > & aElementRHS )
+                {
+                    mMSI->get_equation_set( aMyEquSetInd )->
+                            get_equation_object_list()( aMyElementInd )->
+                            get_staggered_equation_obj_residual( aElementRHS );
+                };
+
                 //------------------------------------------------------------------------------
 
                 void get_equation_object_off_diag_rhs(

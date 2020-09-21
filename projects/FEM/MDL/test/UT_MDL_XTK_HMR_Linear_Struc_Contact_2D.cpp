@@ -269,7 +269,7 @@ TEST_CASE("2D Linear Stuct Contract","[XTK_HMR_LS_Contact_2D]")
         tGeometryVector(3) = tBottomPlane;
 
         size_t tModelDimension = 2;
-        moris::ge::Phase_Table tPhaseTable (tGeometryVector.size(), moris::ge::Phase_Table_Structure::EXP_BASE_2);
+        moris::ge::Phase_Table tPhaseTable (tGeometryVector.size());
         moris::ge::Geometry_Engine tGeometryEngine(tGeometryVector,tPhaseTable,tInterpolationMesh);
         xtk::Model tXTKModel(tModelDimension,tInterpolationMesh,&tGeometryEngine);
         tXTKModel.mVerbose = false;
@@ -302,7 +302,7 @@ TEST_CASE("2D Linear Stuct Contract","[XTK_HMR_LS_Contact_2D]")
             tEnrIntegMesh.deactivate_empty_sets();
             // Write mesh
             moris::mtk::Writer_Exodus writer(&tEnrIntegMesh);
-            writer.write_mesh("", tEnrIgMeshFileName);
+            writer.write_mesh("", tEnrIgMeshFileName, "", "temp.exo");
 
             // Write the fields
             writer.set_time(0.0);

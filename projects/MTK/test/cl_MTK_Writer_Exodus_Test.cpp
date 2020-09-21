@@ -292,7 +292,7 @@ namespace moris
 
             // Write mesh
             Writer_Exodus writer(tIntegMeshData);
-            writer.write_mesh("", "test_write.exo");
+            writer.write_mesh("", "test_write.exo", "", "test_temp.exo");
 
             // Nodal fields
             moris::Cell<std::string> tNodalFieldNames(3);

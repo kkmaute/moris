@@ -381,7 +381,8 @@ namespace xtk
         // Create writer/file
         moris::mtk::Writer_Exodus tWriter;
         std::string tMorisRoot = std::getenv("MORISOUTPUT");
-        tWriter.write_points(tMorisRoot, aName, mEnrichedBasisCoords);
+        std::string tTempName  = "multigrid_basis_temp.exo";
+        tWriter.write_points(tMorisRoot, aName, tMorisRoot, tTempName, mEnrichedBasisCoords);
 
         // Create fields
         moris::Cell<std::string> tPointFieldNames(2);

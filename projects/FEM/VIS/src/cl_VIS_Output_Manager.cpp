@@ -11,7 +11,11 @@
 
 #include "fn_Parsing_Tools.hpp"
 
+// Logging package
+#include "cl_Logger.hpp"
+
 extern moris::Comm_Manager gMorisComm;
+extern moris::Logger       gLogger;
 
 namespace moris
 {
@@ -25,10 +29,14 @@ namespace moris
                 const enum VIS_Mesh_Type                aMeshType,
                 const std::string                     & aMeshPath,
                 const std::string                     & aMeshName,
+                const std::string                     & aTempPath,
+                const std::string                     & aTempName,
                 const moris::Cell< std::string >      & aBlockNames,
                 const moris::Cell< std::string >      & aFieldNames,
                 const moris::Cell< enum Field_Type >  & aFieldType,
-                const moris::Cell< std::string >      & aQINames )
+                const moris::Cell< std::string >      & aQINames,
+                const uint                              aSaveFrequency,
+                const real                              aTimeOffset)
         {
             // create output data object
             vis::Output_Data tOutputData;
@@ -38,10 +46,15 @@ namespace moris
             tOutputData.mMeshType   = aMeshType;
             tOutputData.mMeshName   = aMeshName;
             tOutputData.mMeshPath   = aMeshPath;
+            tOutputData.mTempName   = aTempName;
+            tOutputData.mTempPath   = aTempPath;
             tOutputData.mSetNames   = aBlockNames;
             tOutputData.mFieldNames = aFieldNames;
             tOutputData.mFieldType  = aFieldType;
-			tOutputData.mQINames    = aQINames;
+            tOutputData.mQINames    = aQINames;
+
+            tOutputData.mSaveFrequency = aSaveFrequency;
+            tOutputData.mTimeOffset    = aTimeOffset;
 
             // resize list of output data objects
             uint tSize = mOutputData.size();
@@ -68,30 +81,39 @@ namespace moris
             // fill output data object
             tOutputData.mMeshIndex  = aParamterelist.get< moris::sint >( "Output_Index" );
             tOutputData.mMeshType   = static_cast< moris::vis::VIS_Mesh_Type >( aParamterelist.get< moris::uint >( "Mesh_Type" ) );
+
             tOutputData.mOutputPath = std::get< 0 >( aParamterelist.get< std::pair< std::string, std::string > >( "File_Name" ) );
             tOutputData.mMeshName   = std::get< 1 >( aParamterelist.get< std::pair< std::string, std::string > >( "File_Name" ) );
 
+            // note: file path for temp file currently ignored
+            tOutputData.mTempPath   = std::get< 0 >( aParamterelist.get< std::pair< std::string, std::string > >( "Temp_Name" ) );
+            tOutputData.mTempName   = std::get< 1 >( aParamterelist.get< std::pair< std::string, std::string > >( "Temp_Name" ) );
+
             tOutputData.mSaveFrequency  = aParamterelist.get< moris::sint >( "Save_Frequency" );
+            tOutputData.mTimeOffset     = aParamterelist.get< moris::real >( "Time_Offset" );
 
             moris::Cell< std::string > tSetNames;
             string_to_cell( aParamterelist.get< std::string >( "Set_Names" ), tSetNames );
             tOutputData.mSetNames   = tSetNames;
 
             moris::Cell< std::string > tFieldNames;
-            string_to_cell( aParamterelist.get< std::string >( "Field_Names" ), tFieldNames );
+            string_to_cell(
+                    aParamterelist.get< std::string >( "Field_Names" ),
+                    tFieldNames );
             tOutputData.mFieldNames = tFieldNames;
 
             moris::Cell< enum vis::Field_Type > tFieldTypes;
             moris::map< std::string, enum vis::Field_Type > tFieldTypeMap = get_vis_field_type_map();
-            string_to_cell( aParamterelist.get< std::string >( "Field_Type" ) ,
+            string_to_cell(
+                    aParamterelist.get< std::string >( "Field_Type" ) ,
                     tFieldTypes,
                     tFieldTypeMap );
             tOutputData.mFieldType  = tFieldTypes;
 
             // check that length of Field_Names and Field_Type are consistent
             MORIS_ERROR( tFieldNames.size() == tFieldTypes.size(),"Output_Manager::set_outputs - Number of Field Names and Field Types differ.");
-			
-			moris::Cell< std::string > tQINames;
+
+            moris::Cell< std::string > tQINames;
             string_to_cell( aParamterelist.get< std::string >( "IQI_Names"), tQINames );
             tOutputData.mQINames = tQINames;
 
@@ -196,12 +218,32 @@ namespace moris
             // get file name
             std::string tMeshFileName = mOutputData( aVisMeshIndex ).mMeshName;
 
+            // specify file path for temporary file
+            std::string tMeshTempPath = mOutputData( aVisMeshIndex ).mTempPath;
+
+            // get file name of temporary file
+            std::string tMeshTempName = mOutputData( aVisMeshIndex ).mTempName;
+
+            // augment file name if time offset > 0
+            if ( mOutputData( aVisMeshIndex ).mTimeOffset > 0)
+            {
+                // get optimization iteration
+                uint tOptIter = gLogger.get_opt_iteration();
+
+                // set name
+                std::string tOptIterStrg = std::to_string(tOptIter);
+                tMeshFileName += ".e-s." + std::string(4-tOptIterStrg.length(),'0') + tOptIterStrg;
+
+                // determine time shift
+                mTimeShift = tOptIter * mOutputData( aVisMeshIndex ).mTimeOffset;
+            }
+
             std::string tMassage = "Writing " + tMeshFileName + " to " + tMeshFilePath +".";
 
             MORIS_LOG( tMassage.c_str() );
 
             // write mesh to file
-            mWriter( aVisMeshIndex )->write_mesh( tMeshFilePath, tMeshFileName );
+            mWriter( aVisMeshIndex )->write_mesh( tMeshFilePath, tMeshFileName, tMeshTempPath, tMeshTempName );
 
             // add nodal elemental and global fields to mesh
             this->add_nodal_fields( aVisMeshIndex );
@@ -420,7 +462,7 @@ namespace moris
             mOutputData( aVisMeshIndex ).mFieldWriteCounter++;
 
             // write time to file
-            mWriter( aVisMeshIndex )->set_time( aTime );
+            mWriter( aVisMeshIndex )->set_time( aTime + mTimeShift );
 
             // get mesh set to fem set index map
             map< std::tuple< moris_index, bool, bool >, moris_index > & tMeshSetToFemSetMap =

@@ -193,6 +193,16 @@ void SOL_Warehouse::create_nonlinear_solvers()
             mNonlinearSolvers( Ik )->set_dof_type_list( tCellOfCells( Ii ) );
         }
 
+        Cell< Cell< MSI::Dof_Type >> tCellOfCellsSecDofTypes;
+        string_to_cell_of_cell( mParameterlist( 3 )( Ik ).get< std::string >( "NLA_Secundary_DofTypes" ),
+                tCellOfCellsSecDofTypes,
+                tMap );
+
+        for( uint Ii = 0; Ii< tCellOfCellsSecDofTypes.size(); Ii++ )
+        {
+            mNonlinearSolvers( Ik )->set_secondiry_dof_type_list( tCellOfCellsSecDofTypes( Ii ) );
+        }
+
         moris::Matrix< DDSMat > tNonlinearSubSolvers;
         string_to_mat( mParameterlist( 3 )( Ik ).get< std::string >( "NLA_Sub_Nonlinear_Solver" ),
                 tNonlinearSubSolvers );

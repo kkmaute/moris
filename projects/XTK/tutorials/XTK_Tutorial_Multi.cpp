@@ -184,12 +184,12 @@ main( int    argc,
      *
      * For this example a \f$2^n\f$ material phase table.
      * \code{.cpp}
-     *  Phase_Table tPhaseTable (tNumGeometries,  Phase_Table_Structure::EXP_BASE_2);
+     *  Phase_Table tPhaseTable (tNumGeometries);
      * \endcode
      *
      */
 
-    Phase_Table tPhaseTable (tNumGeometries,  Phase_Table_Structure::EXP_BASE_2);
+    Phase_Table tPhaseTable (tNumGeometries);
 
     /*!
      * \subsection geom_eng_setup  4.) Geometry Engine Setup

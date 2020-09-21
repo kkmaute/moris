@@ -156,7 +156,7 @@ TEST_CASE("Sensitivity test","[Sensitivity test]")
 //            tGeomVec(0) = std::make_shared<moris::ge::Circle>(tCenterPoint(0), tCenterPoint(1), tROuter);
 //            tGeomVec(1) = std::make_shared<moris::ge::Circle>(tCenterPoint(0), tCenterPoint(1), tRInner);
 //
-//            moris::ge::Phase_Table     tPhaseTable( tGeomVec.size(), moris::ge::Phase_Table_Structure::EXP_BASE_2 );
+//            moris::ge::Phase_Table     tPhaseTable( tGeomVec.size() );
 //            moris::ge::Geometry_Engine tGENGeometryEngine( tGeomVec, tPhaseTable, 2 );
 //
 //            moris_index tMeshIndex = tGENGeometryEngine.register_mesh( tMesh );
@@ -202,7 +202,7 @@ TEST_CASE("Sensitivity test","[Sensitivity test]")
                                                                             &evaluate_sensitivity);
 
         size_t tModelDimension = 2;
-        moris::ge::Phase_Table tPhaseTable (1, moris::ge::Phase_Table_Structure::EXP_BASE_2);
+        moris::ge::Phase_Table tPhaseTable (1);
         moris::ge::Geometry_Engine tGeometryEngine(tGeometryVector,tPhaseTable,tModelDimension);
         xtk::Model tXTKModel(tModelDimension,tInterpMesh,&tGeometryEngine);
         tXTKModel.mVerbose = false;
@@ -219,7 +219,7 @@ TEST_CASE("Sensitivity test","[Sensitivity test]")
 
         // Write mesh
         moris::mtk::Writer_Exodus writer(&tEnrIntegMesh);
-        //writer.write_mesh("","./mdl_exo/xtk_ig_mesh_for_sensitivity_test.e");
+        //writer.write_mesh("","./mdl_exo/xtk_ig_mesh_for_sensitivity_test.e", "", "temp.exo");
 
         // Write the fields
 //        writer.set_time(0.0);
@@ -409,6 +409,8 @@ TEST_CASE("Sensitivity test","[Sensitivity test]")
                                  vis::VIS_Mesh_Type::STANDARD, //OVERLAPPING_INTERFACE
                                  "./",
                                  "MDL_Sensitivity_Test.exo",
+                                 "./",
+                                  "temp.exo",
                                  { "HMR_dummy_c_p0", "HMR_dummy_c_p1", "HMR_dummy_n_p0", "HMR_dummy_n_p1" },
                                  {  "TEMP" },
                                  {  vis::Field_Type::NODAL },

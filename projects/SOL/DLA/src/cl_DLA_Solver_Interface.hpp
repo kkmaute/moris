@@ -171,10 +171,7 @@ namespace moris
             // local dimension of the problem
             virtual moris::uint get_num_my_dofs() = 0;
 
-            virtual moris::uint get_num_rhs()
-            {
-                return 1;
-            };
+            virtual moris::uint get_num_rhs() = 0;
 
             virtual uint get_max_num_global_dofs() = 0;
 
@@ -243,6 +240,14 @@ namespace moris
                     const moris::uint              & aMyBlockInd,
                     const moris::uint              & aMyElementInd,
                     Cell< Matrix< DDRMat > >       & aElementRHS )
+            {
+                MORIS_ERROR( false, "not implemented");
+            };
+
+            virtual void get_equation_object_staggered_rhs(
+                    const moris::uint        & aMyEquSetInd,
+                    const moris::uint        & aMyElementInd,
+                    Cell< Matrix< DDRMat > > & aElementRHS )
             {
                 MORIS_ERROR( false, "not implemented");
             };
@@ -362,6 +367,8 @@ namespace moris
 
             //---------------------------------------------------------------------------------------------------------
             void assemble_RHS( moris::sol::Dist_Vector * aVectorRHS );
+
+            void assemble_staggerd_RHS_contribution( moris::sol::Dist_Vector * aVectorRHS );
 
             //FIXME first draft. change this after diagonal jac gets moved into solver
             void assemble_additional_DqDs_RHS_contribution( moris::sol::Dist_Vector * aVectorRHS );

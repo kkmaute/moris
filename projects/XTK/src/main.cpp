@@ -186,7 +186,7 @@ void run_xtk_problem(XTK_Problem_Params & aXTKProblemParams)
     // setup the geometry engine
     //TODO: support multiple geometries, and different phase tables
     //          Phase_Table tPhaseTable (1,  Phase_Table_Structure::EXP_BASE_2);
-    moris::ge::Phase_Table tPhaseTable (1,  "exp_base_2");
+    moris::ge::Phase_Table tPhaseTable (1);
     moris::ge::Geometry_Engine tGeometryEngine(tGeometry, tPhaseTable, tMeshData);
 
     // setup the XTK model

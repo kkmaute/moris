@@ -267,6 +267,8 @@ TEST_CASE("MDL FEM Benchmark Diff Block","[MDL_FEM_Benchmark_Diff_Block]")
                                 vis::VIS_Mesh_Type::STANDARD,
                                 "./",
                                 "UT_MDL_FEM_Benchmark_Output_Block.exo",
+                                "./",
+                                 "temp.exo",
                                 { "HMR_dummy" },
                                 { "Temperature", "L2 error" },
                                 { vis::Field_Type::NODAL, vis::Field_Type::GLOBAL },
@@ -408,7 +410,7 @@ TEST_CASE("MDL FEM Benchmark Diff Interface","[MDL_FEM_Benchmark_Diff_Interface]
         tGeometryVector(0) = std::make_shared<moris::ge::Plane>(2.6, 0.0, 1.0, 0.0);
 
         size_t tModelDimension = 3;
-        moris::ge::Phase_Table  tPhaseTable( tGeometryVector.size(), moris::ge::Phase_Table_Structure::EXP_BASE_2 );
+        moris::ge::Phase_Table  tPhaseTable( tGeometryVector.size() );
         moris::ge::Geometry_Engine  tGeometryEngine( tGeometryVector, tPhaseTable, tInterpMesh );
 
         xtk::Model tXTKModel( tModelDimension,tInterpMesh,&tGeometryEngine );
@@ -580,6 +582,8 @@ TEST_CASE("MDL FEM Benchmark Diff Interface","[MDL_FEM_Benchmark_Diff_Interface]
                                 vis::VIS_Mesh_Type::STANDARD,
                                 "./",
                                 "UT_MDL_FEM_Benchmark_Output.exo",
+                                "./",
+                                 "temp.exo",
                                 { "HMR_dummy_c_p0", "HMR_dummy_c_p1", "HMR_dummy_n_p0", "HMR_dummy_n_p1"},
                                 { "Temperature" },
                                 { vis::Field_Type::NODAL },
@@ -720,7 +724,7 @@ TEST_CASE("MDL FEM Benchmark Diff Ghost","[MDL_FEM_Benchmark_Diff_Ghost]")
         tGeometryVector(0) = std::make_shared<moris::ge::Plane>(2.6, 0.0, 1.0, 0.0);
 
         size_t tModelDimension = 3;
-        moris::ge::Phase_Table  tPhaseTable( tGeometryVector.size(), moris::ge::Phase_Table_Structure::EXP_BASE_2 );
+        moris::ge::Phase_Table  tPhaseTable( tGeometryVector.size());
         moris::ge::Geometry_Engine  tGeometryEngine( tGeometryVector, tPhaseTable, tInterpMesh );
 
         xtk::Model tXTKModel( tModelDimension,tInterpMesh,&tGeometryEngine );
@@ -915,6 +919,8 @@ TEST_CASE("MDL FEM Benchmark Diff Ghost","[MDL_FEM_Benchmark_Diff_Ghost]")
                                 vis::VIS_Mesh_Type::STANDARD,
                                 "./",
                                 "UT_MDL_FEM_Benchmark_Ghost_Output.exo",
+                                "./",
+                                 "temp.exo",
                                 { "HMR_dummy_c_p0", "HMR_dummy_c_p1", "HMR_dummy_n_p0", "HMR_dummy_n_p1"},
                                 { "Temperature" },
                                 { vis::Field_Type::NODAL },
@@ -1148,6 +1154,8 @@ TEST_CASE("MDL FEM Benchmark Elast Block","[MDL_FEM_Benchmark_Elast_Block]")
                                 vis::VIS_Mesh_Type::STANDARD,
                                 "./",
                                 "UT_MDL_FEM_Benchmark_Elast_Block_Output.exo",
+                                "./",
+                                 "temp.exo",
                                 { "HMR_dummy" },
                                 { "Displacement UX", "Displacement UY", "Displacement UZ" },
                                 { vis::Field_Type::NODAL, vis::Field_Type::NODAL, vis::Field_Type::NODAL },
@@ -1288,7 +1296,7 @@ TEST_CASE("MDL FEM Benchmark Elast Interface","[MDL_FEM_Benchmark_Elast_Interfac
         tGeometryVector(0) = std::make_shared<moris::ge::Plane>(2.6, 0.0, 1.0, 0.0);
 
         size_t tModelDimension = 3;
-        moris::ge::Phase_Table  tPhaseTable( tGeometryVector.size(), moris::ge::Phase_Table_Structure::EXP_BASE_2 );
+        moris::ge::Phase_Table  tPhaseTable( tGeometryVector.size());
         moris::ge::Geometry_Engine  tGeometryEngine( tGeometryVector, tPhaseTable, tInterpMesh );
 
         xtk::Model tXTKModel( tModelDimension, tInterpMesh, &tGeometryEngine );
@@ -1474,6 +1482,8 @@ TEST_CASE("MDL FEM Benchmark Elast Interface","[MDL_FEM_Benchmark_Elast_Interfac
                                 vis::VIS_Mesh_Type::STANDARD,
                                 "./",
                                 "UT_MDL_FEM_Benchmark_Elast_Interface_Output.exo",
+                                "./",
+                                 "temp.exo",
                                 { "HMR_dummy_c_p0", "HMR_dummy_c_p1", "HMR_dummy_n_p0", "HMR_dummy_n_p1" },
                                 { "Displacement UX", "Displacement UY", "Displacement UZ" },
                                 { vis::Field_Type::NODAL, vis::Field_Type::NODAL, vis::Field_Type::NODAL },
@@ -1613,7 +1623,7 @@ TEST_CASE("MDL FEM Benchmark Elast Ghost","[MDL_FEM_Benchmark_Elast_Ghost]")
         tGeometryVector(0) = std::make_shared<moris::ge::Plane>(2.6, 0.0, 1.0, 0.0);
 
         size_t tModelDimension = 3;
-        moris::ge::Phase_Table  tPhaseTable( tGeometryVector.size(), moris::ge::Phase_Table_Structure::EXP_BASE_2 );
+        moris::ge::Phase_Table  tPhaseTable( tGeometryVector.size());
         moris::ge::Geometry_Engine  tGeometryEngine( tGeometryVector, tPhaseTable, tInterpMesh );
 
         xtk::Model tXTKModel( tModelDimension, tInterpMesh, &tGeometryEngine );
@@ -1828,6 +1838,8 @@ TEST_CASE("MDL FEM Benchmark Elast Ghost","[MDL_FEM_Benchmark_Elast_Ghost]")
                                 vis::VIS_Mesh_Type::STANDARD,
                                 "./",
                                 "UT_MDL_FEM_Benchmark_Elast_Ghost_Output.exo",
+                                "./",
+                                 "temp.exo",
                                 { "HMR_dummy_c_p0", "HMR_dummy_c_p1", "HMR_dummy_n_p0", "HMR_dummy_n_p1" },
                                 { "Displacement UX", "Displacement UY", "Displacement UZ" },
                                 { vis::Field_Type::NODAL, vis::Field_Type::NODAL, vis::Field_Type::NODAL },

@@ -227,7 +227,7 @@ TEST_CASE("2D XTK HMR Incompressible","[XTK_HMR_I_2D]")
         Cell<std::shared_ptr<moris::ge::Geometry>> tGeometry(1);
         tGeometry(0) = std::make_shared<moris::ge::Circle>(0.0, 0.0, 0.4501);
 
-        moris::ge::Phase_Table tPhaseTable (1, moris::ge::Phase_Table_Structure::EXP_BASE_2);
+        moris::ge::Phase_Table tPhaseTable (1);
         moris::ge::Geometry_Engine tGeometryEngine(tGeometry, tPhaseTable, tInterpolationMesh);
 
         xtk::Model tXTKModel(2, tInterpolationMesh, &tGeometryEngine);
@@ -383,6 +383,8 @@ TEST_CASE("2D XTK HMR Incompressible","[XTK_HMR_I_2D]")
                                  vis::VIS_Mesh_Type::STANDARD, //OVERLAPPING_INTERFACE
                                  "./",
                                  "MDL_XTK_HMR_Linear_Struc_Incompressible_Test_2D_Output.exo",
+                                 "./",
+                                  "temp.exo",
                                  { "HMR_dummy_c_p1", "HMR_dummy_n_p1" },
                                  { "UX", "UY", "P" },
                                  { vis::Field_Type::NODAL, vis::Field_Type::NODAL, vis::Field_Type::NODAL },

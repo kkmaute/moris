@@ -169,7 +169,7 @@ TEST_CASE("XTK HMR 2 Material Bar Intersected By Plane","[XTK_HMR_PLANE_BAR_2D]"
         tGeometryVector(0) = std::make_shared<moris::ge::Plane>(0.11, 0.11, 1.0, 0.0);
 
         size_t tModelDimension = 2;
-        moris::ge::Phase_Table tPhaseTable (1, moris::ge::Phase_Table_Structure::EXP_BASE_2);
+        moris::ge::Phase_Table tPhaseTable(1);
         moris::ge::Geometry_Engine tGeometryEngine(tGeometryVector, tPhaseTable, tInterpMesh);
         xtk::Model tXTKModel(tModelDimension, tInterpMesh, &tGeometryEngine);
         tXTKModel.mVerbose = false;
@@ -190,7 +190,7 @@ TEST_CASE("XTK HMR 2 Material Bar Intersected By Plane","[XTK_HMR_PLANE_BAR_2D]"
 
         // Write mesh
         moris::mtk::Writer_Exodus writer(&tEnrIntegMesh);
-        writer.write_mesh("","./mdl_exo/xtk_hmr_bar_plane_2_mat_integ_2d_ghost.e");
+        writer.write_mesh("", "./mdl_exo/xtk_hmr_bar_plane_2_mat_integ_2d_ghost.e", "", "temp.exo");
 
         // Write the fields
         writer.set_time(0.0);

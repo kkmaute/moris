@@ -129,7 +129,7 @@ TEST_CASE("2D XTK WITH HMR","[XTK_HMR_2D]")
             tGeometryVector(0) = std::make_shared<moris::ge::Circle>(0.0, 0.0, 1.1);
 
             size_t tModelDimension = 2;
-            moris::ge::Phase_Table tPhaseTable (1, moris::ge::Phase_Table_Structure::EXP_BASE_2);
+            moris::ge::Phase_Table tPhaseTable (tGeometryVector.size());
             moris::ge::Geometry_Engine tGeometryEngine(tGeometryVector, tPhaseTable, tInterpMesh);
             Model tXTKModel(tModelDimension, tInterpMesh, &tGeometryEngine);
             tXTKModel.mVerbose  =  false;
@@ -154,7 +154,7 @@ TEST_CASE("2D XTK WITH HMR","[XTK_HMR_2D]")
 
             // Write mesh
 //            moris::mtk::Writer_Exodus writer(&tEnrIgMesh);
-//            writer.write_mesh("", "./xtk_exo/xtk_hmr_2d_ig.exo");
+//            writer.write_mesh("", "xtk_hmr_2d_ig.exo", "", "xtk_temp.exo");
 
             // Write the fields
 //            writer.set_time(0.0);
@@ -232,7 +232,7 @@ TEST_CASE("2D XTK WITH HMR WEIRD INTERSECTION","[XTK_HMR_2D_WI]")
         tGeometry(0) = std::make_shared<moris::ge::Plane>(tCenters(0), tCenters(1), tNormals(0), tNormals(1));
 
          size_t tModelDimension = 2;
-         moris::ge::Phase_Table tPhaseTable (1, moris::ge::Phase_Table_Structure::EXP_BASE_2);
+         moris::ge::Phase_Table tPhaseTable (tGeometry.size());
          moris::ge::Geometry_Engine tGeometryEngine(tGeometry, tPhaseTable, tInterpMesh);
          Model tXTKModel(tModelDimension, tInterpMesh, &tGeometryEngine);
          tXTKModel.mVerbose  =  false;

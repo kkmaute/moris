@@ -281,7 +281,7 @@ TEST_CASE("MDL Gyroid","[MDL_Gyroid]")
         moris::Cell<moris::ge::GEN_Geometry*> tGeometryVector = {&tFieldAsGeom};
 
         size_t tModelDimension = 3;
-        moris::ge::GEN_Phase_Table  tPhaseTable( tGeometryVector.size(),  Phase_Table_Structure::EXP_BASE_2 );
+        moris::ge::GEN_Phase_Table  tPhaseTable( tGeometryVector.size() );
         moris::ge::Geometry_Engine  tGeometryEngine( tGeometryVector,tPhaseTable,tModelDimension );
 
 //        moris::ge::Geometry_Engine tGeometryEngine;
@@ -493,6 +493,8 @@ TEST_CASE("MDL Gyroid","[MDL_Gyroid]")
        tOutputData.set_outputs( 0,
                                 vis::VIS_Mesh_Type::STANDARD,
                                 "UT_Gyroid_Output_01.exo",
+                                "./",
+                                 "temp.exo",
                                 { "HMR_dummy_c_p0", "HMR_dummy_c_p1", "HMR_dummy_n_p0", "HMR_dummy_n_p1"},
                                 { 0, 1, 2, 3 },
                                 { "Temperature" },

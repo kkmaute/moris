@@ -23,7 +23,7 @@ TEST_CASE("Extract a surface mesh from XTK","[Extract_Surf]")
         //
         //            Plane tLevelsetSphere(tXCenter,tYCenter,tZCenter,1.0,1.0,1.0);
         Gyroid tGyroid;
-        Phase_Table tPhaseTable (1,  Phase_Table_Structure::EXP_BASE_2);
+        Phase_Table tPhaseTable (1);
         Geometry_Engine tGeometryEngine(tGyroid,tPhaseTable);
 
         // Create Mesh --------------------------------------------------------------------

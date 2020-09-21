@@ -139,6 +139,10 @@ void Monolithic_Time_Solver::solve_implicit_DqDs( moris::Cell< sol::Dist_Vector 
 
         mNonlinearSolverForAdjoint->solve( aFullAdjointVector( 0 ) );
 
+        moris::Cell< enum MSI::Dof_Type > tDofTypeUnion = mMyTimeSolver->get_dof_type_union();
+
+        mSolverInterface->set_requested_dof_types( tDofTypeUnion );
+
         mSolverInterface->postmultiply_implicit_dQds();
 
         aFullAdjointVector( 1 )->vec_plus_vec( 1.0, *(aFullAdjointVector( 0 )), 0.0 );

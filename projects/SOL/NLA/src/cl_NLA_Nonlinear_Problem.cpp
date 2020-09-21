@@ -5,6 +5,7 @@
  *      Author: schmidt
  */
 #include "cl_NLA_Nonlinear_Problem.hpp"
+#include "cl_NLA_Nonlinear_Solver.hpp"
 #include "cl_SOL_Warehouse.hpp"
 
 #include <ctime>
@@ -108,10 +109,6 @@ Nonlinear_Problem::Nonlinear_Problem(
 
     mSolverInterface->set_solution_vector( mFullVector );
 
-    //    mDummyFullVector = tMatFactory.create_vector( aSolverInterface, mMap, tNumRHMS );       // FIXME delete
-    //    mDummyFullVector->vec_put_scalar( 0.0 );
-    //    aSolverInterface->set_solution_vector_prev_time_step(mDummyFullVector);
-
     mFullVector->vec_put_scalar( 0.0 );
 
     // delete pointers if they already exist
@@ -199,6 +196,27 @@ void Nonlinear_Problem::build_linearized_problem( const bool & aRebuildJacobian,
         }
 
         mLinearProblem->assemble_residual();
+
+        if( !mSolverInterface->get_is_forward_analysis() )
+        {
+            moris::Cell< enum MSI::Dof_Type >tSecDofTypes = mMyNonLinSolver->get_sec_dof_type_union();
+
+            if( tSecDofTypes.size() != 0)
+            {
+                moris::Cell< moris::Cell< enum MSI::Dof_Type > > tDofType = mMyNonLinSolver->get_dof_type_list();
+                mSolverInterface->set_requested_dof_types( tSecDofTypes );
+                mSolverInterface->set_secondary_dof_types( tDofType );
+
+                mLinearProblem->assemble_staggered_residual_contribution();
+
+                moris::Cell< enum MSI::Dof_Type > tDofTypeUnion = mMyNonLinSolver->get_dof_type_union();
+                moris::Cell< moris::Cell< enum MSI::Dof_Type > > mSecondaryDofTypeList = mMyNonLinSolver->get_secundary_dof_type_list();
+                mSolverInterface->set_requested_dof_types( tDofTypeUnion );
+                mSolverInterface->set_secondary_dof_types( mSecondaryDofTypeList );
+            }
+        }
+
+
     }
 }
 

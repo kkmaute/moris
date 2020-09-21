@@ -220,7 +220,7 @@ TEST_CASE("MDL_FEM_Benchmark_Diffusion_1Mat","[MDL_FEM_Benchmark_Diffusion_1Mat]
         tHMR->finalize();
         moris::hmr::Interpolation_Mesh_HMR * tInterpolationMesh = tHMR->create_interpolation_mesh(tLagrangeMeshIndex);
 
-        moris::ge::Phase_Table tPhaseTable (1, moris::ge::Phase_Table_Structure::EXP_BASE_2);
+        moris::ge::Phase_Table tPhaseTable (1);
         moris::ge::Geometry_Engine tGENGeometryEngine(tGeometry, tPhaseTable, tInterpolationMesh);
 
         //-----------------------------------------------------------------------------------------------
@@ -230,7 +230,7 @@ TEST_CASE("MDL_FEM_Benchmark_Diffusion_1Mat","[MDL_FEM_Benchmark_Diffusion_1Mat]
         tGeometry0(1) = std::make_shared<moris::ge::Circle>(tCenterPoint(0), tCenterPoint(1), tRInner);
 
         size_t tModelDimension = 2;
-        moris::ge::Phase_Table         tPhaseTable0( 2, moris::ge::Phase_Table_Structure::EXP_BASE_2 );
+        moris::ge::Phase_Table         tPhaseTable0( 2);
         moris::ge::Geometry_Engine     tGENGeometryEngine0( tGeometry0, tPhaseTable0, tInterpolationMesh );
 
         // --------------------------------------------------------------------------------------
@@ -377,6 +377,8 @@ TEST_CASE("MDL_FEM_Benchmark_Diffusion_1Mat","[MDL_FEM_Benchmark_Diffusion_1Mat]
                                  vis::VIS_Mesh_Type::STANDARD, //OVERLAPPING_INTERFACE
                                  "./",
                                  "MDL_FEM_Benchmark_Diffusion_1Mat.exo",
+                                 "./",
+                                  "temp.exo",
                                  { "HMR_dummy_c_p1", "HMR_dummy_n_p1" },
                                  { "TEMP", "L2", "TEMP_EXACT" },
                                  { vis::Field_Type::NODAL, vis::Field_Type::NODAL, vis::Field_Type::NODAL },
@@ -530,7 +532,7 @@ TEST_CASE("MDL_FEM_Benchmark_Diffusion_1Mat_Ghost","[MDL_FEM_Benchmark_Diffusion
         tHMR->finalize();
         moris::hmr::Interpolation_Mesh_HMR * tInterpolationMesh = tHMR->create_interpolation_mesh(tLagrangeMeshIndex);
 
-        moris::ge::Phase_Table tPhaseTable (1, moris::ge::Phase_Table_Structure::EXP_BASE_2);
+        moris::ge::Phase_Table tPhaseTable (1);
         moris::ge::Geometry_Engine tGENGeometryEngine(tGeometry, tPhaseTable, tInterpolationMesh);
 
         //-----------------------------------------------------------------------------------------------
@@ -540,7 +542,7 @@ TEST_CASE("MDL_FEM_Benchmark_Diffusion_1Mat_Ghost","[MDL_FEM_Benchmark_Diffusion
         tGeometry0(1) = std::make_shared<moris::ge::Circle>(tCenterPoint(0), tCenterPoint(1), tRInner);
 
         size_t tModelDimension = 2;
-        moris::ge::Phase_Table         tPhaseTable0( tGeometry0.size(), moris::ge::Phase_Table_Structure::EXP_BASE_2 );
+        moris::ge::Phase_Table         tPhaseTable0( tGeometry0.size());
         moris::ge::Geometry_Engine     tGENGeometryEngine0( tGeometry0, tPhaseTable0, tInterpolationMesh );
 
         // --------------------------------------------------------------------------------------
@@ -564,7 +566,7 @@ TEST_CASE("MDL_FEM_Benchmark_Diffusion_1Mat_Ghost","[MDL_FEM_Benchmark_Diffusion
         tGhost.visualize_ghost_on_mesh( 2 );
 
         moris::mtk::Writer_Exodus writer(&tEnrIntegMesh);
-        writer.write_mesh("", "benchmark_enriched_ig_w_ghost.exo");
+        writer.write_mesh("", "benchmark_enriched_ig_w_ghost.exo", "", "temp.exo");
         writer.close_file();
 
         // place the pair in mesh manager
@@ -703,6 +705,8 @@ TEST_CASE("MDL_FEM_Benchmark_Diffusion_1Mat_Ghost","[MDL_FEM_Benchmark_Diffusion
                                  vis::VIS_Mesh_Type::STANDARD, //OVERLAPPING_INTERFACE
                                  "./",
                                  "MDL_FEM_Benchmark_Diffusion_1Mat_Ghost.exo",
+                                 "./",
+                                  "temp.exo",
                                  { "HMR_dummy_c_p1", "HMR_dummy_n_p1" },
                                  { "TEMP", "L2", "TEMP_EXACT" },
                                  { vis::Field_Type::NODAL, vis::Field_Type::NODAL, vis::Field_Type::NODAL },
@@ -869,7 +873,7 @@ TEST_CASE("FEM Benchmark 2 - 2Mat","[MDL_FEM_Benchmark2_2Mat]")
         tHMR->finalize();
         moris::hmr::Interpolation_Mesh_HMR * tInterpolationMesh = tHMR->create_interpolation_mesh(tLagrangeMeshIndex);
 
-        moris::ge::Phase_Table tPhaseTable (3, moris::ge::Phase_Table_Structure::EXP_BASE_2);
+        moris::ge::Phase_Table tPhaseTable (3);
         moris::ge::Geometry_Engine tGENGeometryEngine(tGeometry, tPhaseTable, tInterpolationMesh);
 
         // --------------------------------------------------------------------------------------
@@ -1062,6 +1066,8 @@ TEST_CASE("FEM Benchmark 2 - 2Mat","[MDL_FEM_Benchmark2_2Mat]")
                                  vis::VIS_Mesh_Type::STANDARD, //OVERLAPPING_INTERFACE
                                  "./",
                                  "UT_MDL_FEM_Bench2_Output_2Mat.exo",
+                                 "./",
+                                  "temp.exo",
                                  { "HMR_dummy_c_p1", "HMR_dummy_n_p1", "HMR_dummy_c_p3", "HMR_dummy_n_p3" },
                                  { "TEMP", "L2", "TEMP_EXACT" },
                                  { vis::Field_Type::NODAL, vis::Field_Type::NODAL, vis::Field_Type::NODAL },
@@ -1221,7 +1227,7 @@ TEST_CASE("FEM Benchmark Diffusion Inclusion - 2Mat","[MDL_FEM_Benchmark_Diffusi
         tHMR->finalize();
         moris::hmr::Interpolation_Mesh_HMR * tInterpolationMesh = tHMR->create_interpolation_mesh(tLagrangeMeshIndex);
 
-        moris::ge::Phase_Table tPhaseTable (3, moris::ge::Phase_Table_Structure::EXP_BASE_2);
+        moris::ge::Phase_Table tPhaseTable (3);
         moris::ge::Geometry_Engine tGENGeometryEngine(tGeometry, tPhaseTable, tInterpolationMesh);
 
         // --------------------------------------------------------------------------------------
@@ -1414,6 +1420,8 @@ TEST_CASE("FEM Benchmark Diffusion Inclusion - 2Mat","[MDL_FEM_Benchmark_Diffusi
                                  vis::VIS_Mesh_Type::STANDARD, //OVERLAPPING_INTERFACE
                                  "./",
                                  "UT_MDL_FEM_Bench2_Output_2Mat.exo",
+                                 "./",
+                                  "temp.exo",
                                  { "HMR_dummy_c_p1", "HMR_dummy_n_p1", "HMR_dummy_c_p3", "HMR_dummy_n_p3" },
                                  { "TEMP", "L2", "TEMP_EXACT" },
                                  { vis::Field_Type::NODAL, vis::Field_Type::NODAL, vis::Field_Type::NODAL },

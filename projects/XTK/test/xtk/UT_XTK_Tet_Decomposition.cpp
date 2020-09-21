@@ -63,7 +63,7 @@ TEST_CASE("Tet background mesh analytic sphere","[TET_START_SPHERE]")
     tYCenter = 0.0;
     tZCenter = 1.0;
     Sphere tLevelSetSphere2(tRadius,tXCenter,tYCenter,tZCenter);
-    Phase_Table tPhaseTable (2,  Phase_Table_Structure::EXP_BASE_2);
+    Phase_Table tPhaseTable (2);
     Geometry_Engine tGeometryEngine({&tLevelSetSphere,&tLevelSetSphere2},tPhaseTable);
     tGeometryEngine.mComputeDxDp = false;
     // Load the mesh
@@ -131,7 +131,7 @@ TEST_CASE("Tet background mesh analytic cylinder","[TET_START_CYLINDER]")
     Cell<Cell<real>> tAxis   = {{1,0,0}};
 
     Multi_Cylinder<real, size_t, moris::DDRMat, moris::DDSTMat> tMultiCylinder(tCenter,tRadius,tLength, tAxis);
-    Phase_Table tPhaseTable (1,  Phase_Table_Structure::EXP_BASE_2);
+    Phase_Table tPhaseTable (1);
     Geometry_Engine tGeometryEngine(tMultiCylinder,tPhaseTable);
 
     // Load the mesh
@@ -213,7 +213,7 @@ TEST_CASE("Tet background mesh discrete cylinder","[TET_START_CYLINDER_DISCRETE]
 
 
     // Tell the geometry engine about the discrete field mesh and how to interpret phases
-    Phase_Table tPhaseTable (1,  Phase_Table_Structure::EXP_BASE_2);
+    Phase_Table tPhaseTable (1);
     Geometry_Engine tGeometryEngine(tLevelSetMesh,tPhaseTable);
 
 

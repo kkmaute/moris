@@ -115,6 +115,48 @@ void Solver_Interface::assemble_RHS( moris::sol::Dist_Vector * aVectorRHS )
 //    aVectorRHS->print();
 }
 
+void Solver_Interface::assemble_staggerd_RHS_contribution( moris::sol::Dist_Vector * aVectorRHS )
+{
+    // Get local number of elements
+    moris::uint tNumBlocks = this->get_num_my_blocks();
+
+    moris::uint tNumRHS = this->get_num_rhs();
+
+    // Loop over all local elements to build matrix graph
+    for ( moris::uint Ii=0; Ii < tNumBlocks; Ii++ )
+    {
+        moris::uint tNumEquationObjectOnSet = this->get_num_equation_objects_on_set( Ii );
+
+        this->initialize_set( Ii, true );                     // FIXME FIXME shoudl be true. this is a brutal hack and will be changed in a few days
+
+        for ( moris::uint Ik=0; Ik < tNumEquationObjectOnSet; Ik++ )
+        {
+            Matrix< DDSMat > tElementTopology;
+            this->get_element_topology(Ii, Ik, tElementTopology );
+
+            Cell< Matrix< DDRMat > > tElementRHS;
+            this->get_equation_object_staggered_rhs( Ii, Ik, tElementRHS );
+
+            for ( moris::uint Ia=0; Ia < tNumRHS; Ia++ )
+            {
+                // Fill elementRHS in distributed RHS
+                aVectorRHS->sum_into_global_values(
+                        tElementTopology,
+                        tElementRHS( Ia ),
+                        Ia );
+            }
+        }
+
+        this->free_block_memory( Ii );
+    }
+
+    // global assembly to switch entries to the right processor
+    aVectorRHS->vector_global_asembly();
+
+//    aVectorRHS->print();
+}
+
+
 //---------------------------------------------------------------------------------------------------------
 
 void Solver_Interface::assemble_additional_DqDs_RHS_contribution( moris::sol::Dist_Vector * aVectorRHS )
@@ -129,25 +171,29 @@ void Solver_Interface::assemble_additional_DqDs_RHS_contribution( moris::sol::Di
         // Loop over all local elements to build matrix graph
         for ( moris::uint Ii=0; Ii < tNumBlocks; Ii++ )
         {
-            moris::uint tNumEquationObjectOnSet = this->get_num_equation_objects_on_set( Ii );
-
-            this->initialize_set( Ii, false, true);                     // FIXME FIXME shoudl be true. this is a brutal hack and will be changed in a few days
-
-            for ( moris::uint Ik=0; Ik < tNumEquationObjectOnSet; Ik++ )
+            // only check bulk sets
+            if( this->get_set_type( Ii ) == fem::Element_Type::TIME_SIDESET )
             {
-                Matrix< DDSMat > tElementTopology;
-                this->get_element_topology(Ii, Ik, tElementTopology );
+                moris::uint tNumEquationObjectOnSet = this->get_num_equation_objects_on_set( Ii );
 
-                Cell< Matrix< DDRMat > > tElementRHS;
-                this->get_equation_object_off_diag_rhs( Ii, Ik, tElementRHS );
+                this->initialize_set( Ii, false, true);                     // FIXME FIXME should be true. this is a brutal hack and will be changed in a few days
 
-                for ( moris::uint Ia=0; Ia < tNumRHS; Ia++ )
+                for ( moris::uint Ik=0; Ik < tNumEquationObjectOnSet; Ik++ )
                 {
-                    // Fill elementRHS in distributed RHS
-                    aVectorRHS->sum_into_global_values(
-                            tElementTopology,
-                            tElementRHS( Ia ),
-                            Ia );
+                    Matrix< DDSMat > tElementTopology;
+                    this->get_element_topology(Ii, Ik, tElementTopology );
+
+                    Cell< Matrix< DDRMat > > tElementRHS;
+                    this->get_equation_object_off_diag_rhs( Ii, Ik, tElementRHS );
+
+                    for ( moris::uint Ia=0; Ia < tNumRHS; Ia++ )
+                    {
+                        // Fill elementRHS in distributed RHS
+                        aVectorRHS->sum_into_global_values(
+                                tElementTopology,
+                                tElementRHS( Ia ),
+                                Ia );
+                    }
                 }
             }
 

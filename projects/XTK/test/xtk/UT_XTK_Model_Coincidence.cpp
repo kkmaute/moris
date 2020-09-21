@@ -60,7 +60,7 @@ TEST_CASE("Cylinders coincident with each other ","[COINCIDENT]")
 
             moris::Cell<Geometry*> tGeometryVector = {&tCylinder1, &tCylinder2};
 
-            Phase_Table tPhaseTable (2,  Phase_Table_Structure::EXP_BASE_2);
+            Phase_Table tPhaseTable (tGeometryVector.size());
             Geometry_Engine tGeometryEngine(tGeometryVector,tPhaseTable);
 
             // Create Mesh ---------------------------------
@@ -107,7 +107,7 @@ TEST_CASE("Plane coincident with background mesh ","[COINCIDENT_PLANE]")
 
         Plane tPlane(tXc,tYc,tZc,tXn,tYn,tZn);
 
-        Phase_Table tPhaseTable (1,  Phase_Table_Structure::EXP_BASE_2);
+        Phase_Table tPhaseTable (1);
         Geometry_Engine tGeometryEngine(tPlane,tPhaseTable);
 
         // Create Mesh ---------------------------------

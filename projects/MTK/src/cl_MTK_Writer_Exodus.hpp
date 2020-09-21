@@ -86,12 +86,16 @@ namespace moris
                 /**
                  * Creates an Exodus file and writes everything MTK provides about the given mesh.
                  *
+                 * @param aFilePath The path of the final file
                  * @param aFileName The name of the final file
-                 * @param aFilePath The path the temporary and final file
+                 * @param aTempPath The path of the temporary file
+                 * @param aTempName The name of a temporary file
                  */
                 void write_mesh(
                         std::string         aFilePath,
-                        const std::string & aFileName);
+                        const std::string & aFileName,
+                        std::string         aTempPath,
+                        const std::string & aTempName);
 
                 /**
                  * Save temporary to permanent Exodus file.
@@ -101,13 +105,17 @@ namespace moris
                 /**
                  * Creates an Exodus file and writes everything MTK provides about the mesh.
                  *
+                 * @param aFilePath The path of the final file
                  * @param aFileName The name of the final file
-                 * @param aFilePath The path the temporary and final file
+                 * @param aTempPath The path of the temporary file
+                 * @param aTempName The name of a temporary file
                  * @param aCoordinates The coordinates of the points to be written
                  */
                 void write_points(
                         std::string         aFilePath,
                         const std::string & aFileName,
+                        std::string         aTempPath,
+                        const std::string & aTempName,
                         Matrix<DDRMat>      aCoordinates);
 
                 /**
@@ -184,30 +192,38 @@ namespace moris
                  *  @param aVariableValues vector of values of the global variables
                  */
                 void write_global_variables(
-                         moris::Cell<std::string>    & aVariableNames,
-                         const moris::Matrix<DDRMat> & aVariableValues);
+                        moris::Cell<std::string>    & aVariableNames,
+                        const moris::Matrix<DDRMat> & aVariableValues);
 
             private:
 
                 /**
                  * Creates an Exodus database at the given file path and string
                  *
+                 * @param aFilePath The path of the final file
                  * @param aFileName The name of the final file
-                 * @param aFilePath The path the temporary and final file
+                 * @param aTempPath The path of the temporary file
+                 * @param aTempName The name of a temporary file
                  */
                 void create_file(
                         std::string         aFilePath,
-                        const std::string & aFileName);
+                        const std::string & aFileName,
+                        std::string         aTempPath,
+                        const std::string & aTempName);
 
                 /**
                  * Creates an Exodus database and initializes it at the given file path and string using an MTK mesh
                  *
+                 * @param aFilePath The path of the final file
                  * @param aFileName The name of the final file
-                 * @param aFilePath The path the temporary and final file
+                 * @param aTempPath The path of the temporary file
+                 * @param aTempName The name of a temporary file
                  */
                 void create_init_mesh_file(
                         std::string         aFilePath,
-                        const std::string & aFileName);
+                        const std::string & aFileName,
+                        std::string         aTempPath,
+                        const std::string & aTempName);
 
                 /**
                  * Writes the coordinates of the nodes in the MTK mesh to Exodus.

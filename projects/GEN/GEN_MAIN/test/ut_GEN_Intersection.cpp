@@ -41,7 +41,7 @@ namespace moris
                 tGeometries(1) = create_geometry(tPlaneParameterList, tADVs);
 
                 // Create geometry engine
-                Phase_Table tPhaseTable (1, Phase_Table_Structure::EXP_BASE_2);
+                Phase_Table tPhaseTable (1);
                 Geometry_Engine tGeometryEngine(tGeometries, tPhaseTable, tMesh);
 
                 // TODO ensure this writes the mesh/fields correctly instead of just relying on no errors being thrown

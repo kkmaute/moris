@@ -62,11 +62,9 @@ namespace moris
                 // Properties
                 mProperties(create_properties(aParameterLists(2), mADVs, mLibrary)),
                 mPropertyParameterLists(aParameterLists(2)),
-
-                // Phase table
-                mPhaseTable(string_to_mat<IndexMat>(aParameterLists(0)(0).get<std::string>("phase_table")).numel()
-                      ? Phase_Table(string_to_mat<IndexMat>(aParameterLists(0)(0).get<std::string>("phase_table")), aParameterLists(0)(0).get<std::string>("phase_table_structure"))
-                      : Phase_Table(mGeometries.size(), aParameterLists(0)(0).get<std::string>("phase_table_structure")))
+                
+                // phase table
+                mPhaseTable(mGeometries.size())
         {
             // Set requested PDVs
             Cell<std::string> tRequestedPdvNames = string_to_cell<std::string>(aParameterLists(0)(0).get<std::string>("PDV_types"));
@@ -77,6 +75,18 @@ namespace moris
                 tRequestedPdvTypes(tPdvTypeIndex) = tPdvTypeMap[tRequestedPdvNames(tPdvTypeIndex)];
             }
             mPdvHostManager.set_requested_interpolation_pdv_types(tRequestedPdvTypes);
+            
+            // Set map if its a non-standard phase table (i.e. the map is not 1-1 between index and bulk phase).
+            if(aParameterLists(0)(0).get<std::string>("phase_table").length() > 0)
+            {
+                Matrix<IndexMat> tPhaseTable = string_to_mat<IndexMat>(aParameterLists(0)(0).get<std::string>("phase_table"));
+                mPhaseTable.set_index_to_bulk_phase_map(tPhaseTable);
+            }
+            // print the phase table if requested (since GEN doesn't have a perform operator this is going here)
+            if(aParameterLists(0)(0).get<bool>("print_phase_table") && par_rank() == 0)
+            {
+                mPhaseTable.print();
+            }
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -686,7 +696,7 @@ namespace moris
             {
                 // Write mesh
                 mtk::Writer_Exodus tWriter(aMesh);
-                tWriter.write_mesh("", aExodusFileName);
+                tWriter.write_mesh("", aExodusFileName, "", "gen_temp.exo");
 
                 // Setup fields
                 Cell<std::string> tFieldNames(mGeometries.size());

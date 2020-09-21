@@ -163,7 +163,7 @@ namespace moris
                 tGeometryVector(0) = std::make_shared<moris::ge::Plane>(0.11, 0.11, 1.0, 0.0);
 
                 size_t tModelDimension = 2;
-                moris::ge::Phase_Table tPhaseTable (1, moris::ge::Phase_Table_Structure::EXP_BASE_2);
+                moris::ge::Phase_Table tPhaseTable (1);
                 moris::ge::Geometry_Engine tGeometryEngine(tGeometryVector,tPhaseTable,tInterpMesh);
 
                 xtk::Model tXTKModel(tModelDimension,tInterpMesh,&tGeometryEngine);
@@ -340,6 +340,8 @@ namespace moris
 //                                         VIS_Mesh_Type::OVERLAPPING_INTERFACE,
                                          "./",
                                          "Vis_Output_Dof.exo",
+                                         "./",
+                                          "temp.exo",
                                          { "HMR_dummy_c_p0", "HMR_dummy_c_p1", "HMR_dummy_n_p0", "HMR_dummy_n_p1"},
                                          { "Displacement nodal UX", "Displacement nodal UY" },
                                          { Field_Type::NODAL, Field_Type::NODAL },

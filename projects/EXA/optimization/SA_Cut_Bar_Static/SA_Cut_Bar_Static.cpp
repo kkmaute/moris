@@ -83,15 +83,16 @@ namespace moris
     // IQI Configuration ----------------------------------------------
     std::string tMaxTempReference = "10.0";
     std::string tMaxTempExponent = "2.0";
+    std::string tMaxTempShift = "0.0";
 
     // Mesh sets ------------------------------------------------------
 
-    // Bulk sets 
+    // Bulk sets
     std::string tFinBulk = "HMR_dummy_n_p3,HMR_dummy_c_p3";
     std::string tPcmBulk = "HMR_dummy_n_p1,HMR_dummy_c_p1";
     std::string tTotalDomain = tFinBulk + "," + tPcmBulk;
 
-    // Side sets 
+    // Side sets
     std::string tFinPcmInterface  = "dbl_iside_p0_3_p1_1";
     std::string tFinNeumannInterface  = "SideSet_3_n_p3,SideSet_3_c_p3";
     std::string tPCMDirichletInterface = "SideSet_1_n_p1,SideSet_1_c_p1";
@@ -276,7 +277,7 @@ namespace moris
         // init geometry counter
         uint tGeoCounter = 0;
 
-        // Geometry parameter lists  
+        // Geometry parameter lists
         tParameterlist( 1 ).push_back( prm::create_geometry_parameter_list() );
         tParameterlist( 1 )( tGeoCounter ).set( "type", "plane");
         tParameterlist( 1 )( tGeoCounter ).set( "constant_parameters", "-1.0, 0.0, 1.0, 0.0");
@@ -290,13 +291,6 @@ namespace moris
         tParameterlist( 1 )( tGeoCounter ).set( "constant_parameters", "0.0, 0.0, 1.0");
         tGeoCounter++;
     }
-
-    //    void HMParameterList( moris::Cell< moris::Cell< ParameterList > > & tParameterList )
-    //    {
-    //        tParameterList( 0 ).push_back( prm::create_hm_parameter_list() );
-    //        tParameterList( 0 )( 0 ).set( "bulk", tTotalDomain) ;
-    //        tParameterList( 0 )( 0 ).set( "interfaces", tInterfaces) ;
-    //    }
 
     void FEMParameterList( moris::Cell< moris::Cell< ParameterList > > & tParameterList )
     {
@@ -417,6 +411,13 @@ namespace moris
         tParameterList( 0 ).push_back( prm::create_property_parameter_list() );
         tParameterList( 0 )( tPropCounter ).set( "property_name",            "PropMaxTempExponent") ;
         tParameterList( 0 )( tPropCounter ).set( "function_parameters",      tMaxTempExponent );
+        tParameterList( 0 )( tPropCounter ).set( "value_function",           "Func_Const") ;
+        tPropCounter++;
+
+        // Shift value for MAX_DOF - IQI
+        tParameterList( 0 ).push_back( prm::create_property_parameter_list() );
+        tParameterList( 0 )( tPropCounter ).set( "property_name",            "PropMaxTempShift") ;
+        tParameterList( 0 )( tPropCounter ).set( "function_parameters",      tMaxTempShift );
         tParameterList( 0 )( tPropCounter ).set( "value_function",           "Func_Const") ;
         tPropCounter++;
 
@@ -628,8 +629,10 @@ namespace moris
         tParameterList( 4 )( tIQICounter ).set( "IQI_type",                   static_cast< uint >( fem::IQI_Type::MAX_DOF ) );
         tParameterList( 4 )( tIQICounter ).set( "master_dof_dependencies",    "TEMP") ;
         tParameterList( 4 )( tIQICounter ).set( "vectorial_field_index",      0 );
-        tParameterList( 4 )( tIQICounter ).set( "master_properties",          "PropMaxTempReference,ReferenceValue;"
-                "PropMaxTempExponent,Exponent" );
+        tParameterList( 4 )( tIQICounter ).set( "master_properties",
+                "PropMaxTempReference,ReferenceValue;"
+                "PropMaxTempExponent,Exponent;"
+                "PropMaxTempShift,Shift");
         tParameterList( 4 )( tIQICounter ).set( "mesh_set_names",             tTotalDomain );
         tIQICounter++;
 

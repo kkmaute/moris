@@ -203,7 +203,7 @@
 //
 //
 //            size_t tModelDimension = 3;
-//            moris::ge::Phase_Table tPhaseTable (tGeometryVector.size(), moris::ge::Phase_Table_Structure::EXP_BASE_2);
+//            moris::ge::Phase_Table tPhaseTable (tGeometryVector.size());
 //            moris::ge::Geometry_Engine tGeometryEngine(tGeometryVector,tPhaseTable,tModelDimension);
 //            xtk::Model tXTKModel(tModelDimension,tInterpMesh,&tGeometryEngine);
 //            tXTKModel.mVerbose  =  true;
@@ -239,7 +239,7 @@
 //            tEnrIntegMesh.deactivate_empty_sets();
 //            // Write mesh
 //            moris::mtk::Writer_Exodus writer(&tEnrIntegMesh);
-//            writer.write_mesh("", tEnrIgMeshFileName);
+//            writer.write_mesh("", tEnrIgMeshFileName, "", "xtk_temp.exo");
 //
 //            // Write the fields
 //            writer.set_time(0.0);

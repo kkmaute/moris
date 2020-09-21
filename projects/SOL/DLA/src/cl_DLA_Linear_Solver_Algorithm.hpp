@@ -40,7 +40,7 @@ namespace dla
         moris::real mNumFactTime;
         moris::real mPreCondTime;
 
-        Solver_Interface * mSolverInterface;
+        Solver_Interface * mSolverInterface = nullptr;
 
         moris::ParameterList mParameterList; // The Algorithm specific parameter list
 
