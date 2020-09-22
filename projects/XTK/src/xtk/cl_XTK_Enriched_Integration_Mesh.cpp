@@ -178,6 +178,14 @@ namespace xtk
 
     //------------------------------------------------------------------------------
 
+    std::unordered_map<moris_id,moris_index>
+    Enriched_Integration_Mesh::get_vertex_glb_id_to_loc_vertex_ind_map() const
+    {
+        return mModel->mBackgroundMesh.get_vertex_glb_id_to_loc_vertex_ind_map();
+    }
+
+    //------------------------------------------------------------------------------
+
     moris_index
     Enriched_Integration_Mesh::get_loc_entity_ind_from_entity_glb_id(
             moris_id          aEntityId,
