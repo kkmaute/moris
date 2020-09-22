@@ -1,5 +1,5 @@
 #include <string>
-
+#include <iomanip>
 #include "cl_MTK_Integration_Mesh.hpp"
 #include "cl_MTK_Mesh_Core.hpp"
 #include "cl_MTK_Cell_Cluster.hpp"
@@ -74,7 +74,70 @@ namespace moris
         }
 
         // ----------------------------------------------------------------------------
+ 
+        moris::Cell<moris::mtk::Set*> const &
+        Integration_Mesh::get_block_sets_with_color(moris_index const & aColor)
+        {
+            MORIS_ASSERT(aColor <= mMaxColor,"Color above maximum color value");
+            return mBlockSetToColor(aColor);
+        }
 
+        // ----------------------------------------------------------------------------
+
+         moris::Cell<moris::mtk::Set*> const &
+        Integration_Mesh::get_side_sets_with_color(moris_index const & aColor)
+        {
+            MORIS_ASSERT(aColor <= mMaxColor,"Color above maximum color value");
+            return mSideSetToColor(aColor);
+        }
+
+        // ----------------------------------------------------------------------------
+
+         moris::Cell<moris::mtk::Set*> const &
+        Integration_Mesh::get_double_side_sets_with_color(moris_index const & aColor)
+        {
+            MORIS_ASSERT(aColor <= mMaxColor,"Color above maximum color value");
+            return mDoubleSideSetToColor(aColor);
+        }
+
+        // ----------------------------------------------------------------------------
+ 
+
+        moris::Cell<moris::mtk::Set*> const &
+        Integration_Mesh::get_all_sets_with_color(moris_index const & aColor)
+        {
+            MORIS_ASSERT(aColor <= mMaxColor,"Color above maximum color value");
+            return mAllSetToColor(aColor);
+        }
+
+        // ----------------------------------------------------------------------------
+        void
+        Integration_Mesh::print_sets_by_colors()
+        {
+            for(moris::uint i = 0; i < mBlockSetToColor.size(); i++)
+            {
+                std::cout<<"\n Color: "<<std::setw(8)<<i<<std::endl;
+                std::cout<<"    Blocks: "<<std::endl;
+                for(moris::uint iS = 0; iS <mBlockSetToColor(i).size(); iS++ )
+                {
+                    std::cout<<"            "<<mBlockSetToColor(i)(iS)->get_set_name()<<std::endl;
+                }
+
+                std::cout<<"    Side Sets: "<<std::endl;
+                for(moris::uint iS = 0; iS <mSideSetToColor(i).size(); iS++ )
+                {
+                    std::cout<<"            "<<mSideSetToColor(i)(iS)->get_set_name()<<std::endl;
+                }
+
+                std::cout<<"    Double Side Sets: "<<std::endl;
+                for(moris::uint iS = 0; iS <mDoubleSideSetToColor(i).size(); iS++ )
+                {
+                    std::cout<<"            "<<mDoubleSideSetToColor(i)(iS)->get_set_name()<<std::endl;
+                }
+            }
+        }
+        // ----------------------------------------------------------------------------
+ 
         std::string Integration_Mesh::get_block_set_label(moris_index aBlockSetOrdinal) const
         {
             MORIS_ERROR(0, "get_block_set_label has no default implementation");
@@ -123,7 +186,8 @@ namespace moris
 
         // ----------------------------------------------------------------------------
 
-        void Integration_Mesh::collect_all_sets()
+        void 
+        Integration_Mesh::collect_all_sets()
         {
             // reset
             mListOfAllSets.clear();
@@ -131,29 +195,108 @@ namespace moris
 
             uint tCounter = 0;
 
+            // Append block sets to list of all sets
             mListOfAllSets.append( mListofBlocks );
 
+            // add the cell topology to the set
             for( uint Ik = 0; Ik < mListofBlocks.size(); Ik++ )
             {
                 std::string tSetName = mListOfAllSets( tCounter )->get_set_name();
-
+                
+                // set the blockset cell topology
                 mListOfAllSets( tCounter++ )->set_cell_topology( this->get_blockset_topology( tSetName ) );
             }
 
+            // Append side sets to list of all sets
             mListOfAllSets.append( mListofSideSets );
 
             //FIXME implement cell topology for side set
 
+            // Append double side sets to list of all sets
             mListOfAllSets.append( mListofDoubleSideSets );
 
+            // iterate through all sets and register their index in the map
             for( uint Ik = 0; Ik < mListOfAllSets.size(); Ik++ )
             {
                 mListOfAllSets( Ik )->set_set_index( Ik );
 
                 mSetNameToIndexMap[ mListOfAllSets( Ik )->get_set_name() ] = Ik;
             }
+
+            // setup color to set data
+            this->setup_set_to_color();
         }
 
+        // ----------------------------------------------------------------------------
+        void
+        Integration_Mesh::setup_set_to_color()
+        {
+            // determine maximum color for the sets (for data sizing)
+            mMaxColor = 0;
+            for(moris::uint i = 0; i < mListOfAllSets.size() ; i++)
+            {
+                Matrix<IndexMat> const & tSetColors = mListOfAllSets(i)->get_set_colors();
+
+                // if the max set color is greater than current max
+                // replace the current max
+                if(tSetColors.numel() > 0)
+                {
+                    moris_index tMaxSetColor = tSetColors.max();
+                    if(mMaxColor < tMaxSetColor)
+                    {
+                        mMaxColor = tMaxSetColor;
+                    }
+                }
+            }
+
+            // size outer cell size of member data
+            mBlockSetToColor.resize(mMaxColor + 1);
+            mSideSetToColor.resize(mMaxColor + 1);
+            mDoubleSideSetToColor.resize(mMaxColor + 1);
+            mAllSetToColor.resize(mMaxColor + 1);
+
+            // iterate through block sets 
+            for(moris::uint i = 0; i < mListofBlocks.size(); i++)
+            {
+                Matrix<IndexMat> const & tSetColors = mListofBlocks(i)->get_set_colors();
+
+                // iterate through the colors and add to related color grouping
+                for(moris::uint j = 0; j < tSetColors.numel(); j++)
+                {
+                    mBlockSetToColor(tSetColors(j)).push_back(mListofBlocks(i));
+                    mAllSetToColor(tSetColors(j)).push_back(mListofBlocks(i));
+                }
+            }
+
+            // iterate through side sets 
+            for(moris::uint i = 0; i < mListofSideSets.size(); i++)
+            {
+                Matrix<IndexMat> const & tSetColors = mListofSideSets(i)->get_set_colors();
+
+                // iterate through the colors and add to related color grouping
+                for(moris::uint j = 0; j < tSetColors.numel(); j++)
+                {
+                    mSideSetToColor(tSetColors(j)).push_back(mListofSideSets(i));
+                    mAllSetToColor(tSetColors(j)).push_back(mListofSideSets(i));
+                }
+            }
+
+            // iterate through double side sets 
+            for(moris::uint i = 0; i < mListofDoubleSideSets.size(); i++)
+            {
+                Matrix<IndexMat> const & tSetColors = mListofDoubleSideSets(i)->get_set_colors();
+
+                // iterate through the colors and add to related color grouping
+                for(moris::uint j = 0; j < tSetColors.numel(); j++)
+                {
+                    mDoubleSideSetToColor(tSetColors(j)).push_back(mListofDoubleSideSets(i));
+                    mAllSetToColor(tSetColors(j)).push_back(mListofDoubleSideSets(i));
+                }
+            }
+        }
+        // ----------------------------------------------------------------------------
+
+        
         // ----------------------------------------------------------------------------
 
     }

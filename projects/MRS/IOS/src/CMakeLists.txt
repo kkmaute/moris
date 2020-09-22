@@ -12,7 +12,8 @@ set(HEADERS
 	fn_Parsing_Tools.hpp
 	fn_Exec_load_user_library.hpp
 	fn_Logger.hpp
-	fn_stringify.hpp
+    fn_stringify.hpp
+    fn_stringify_matrix.hpp
 	fn_to_stdio.hpp
 	HDF5_Tools.hpp
 	IO_Tools.hpp

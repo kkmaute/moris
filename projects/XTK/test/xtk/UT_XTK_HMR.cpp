@@ -254,10 +254,6 @@ TEST_CASE("XTK HMR Test","[XTK_HMR]")
             unique(tOwnedIndices);
             unique(tOwnedIds);
 
-
-            std::cout<<"tOwnedIndices.size() = "<<tOwnedIndices.size()<<std::endl;
-            std::cout<<"tOwnedIds.size() = "<<tOwnedIds.size()<<std::endl;
-
             delete tInterpMesh;
 
     }
