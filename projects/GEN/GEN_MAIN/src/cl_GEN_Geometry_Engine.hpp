@@ -21,6 +21,7 @@
 #include "cl_MTK_Cluster.hpp"
 #include "cl_MTK_Mesh_Manager.hpp"
 #include "cl_Mesh_Enums.hpp"
+#include <unordered_map>
 
 namespace xtk
 {
@@ -225,6 +226,11 @@ namespace moris
                  */
                 void admit_queued_intersection(uint aNodeIndex);
 
+                void update_queued_intersection(
+                        const moris_index & aNodeIndex,
+                        const moris_index & aNodeId,
+                        const moris_index & aNodeOwner );
+
                 /**
                  * Gets all of the geometry field values at the specified coordinates
                  *
@@ -412,6 +418,8 @@ namespace moris
                         PDV_Type                  aPdvType,
                         mtk::Integration_Mesh*    aIntegrationMesh,
                         Matrix<DDUMat>            aSetIndices);
+
+                void initialize_pdv_type_list();
         };
     }
 }
