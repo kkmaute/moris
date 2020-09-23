@@ -349,7 +349,10 @@ namespace moris
             }
 
             // Set max node index
-            mPdvHostManager.set_num_background_nodes(aNewNodeIndices(aNewNodeIndices.size() - 1) + 1);
+            if (aNewNodeIndices.size() > 0)
+            {
+                mPdvHostManager.set_num_background_nodes(aNewNodeIndices(aNewNodeIndices.size() - 1) + 1);
+            }
         }
 
         //--------------------------------------------------------------------------------------------------------------
