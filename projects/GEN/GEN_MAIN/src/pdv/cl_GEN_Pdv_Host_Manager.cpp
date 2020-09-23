@@ -223,7 +223,7 @@ namespace moris
 
         const Matrix<DDSMat> & Pdv_Host_Manager::get_my_local_global_map()
         {
-            MORIS_ERROR(par_size() == 1, "PDV Host Manager local/global map will not work in parallel.");
+            // MORIS_ERROR(par_size() == 1, "PDV Host Manager local/global map will not work in parallel.");
             return mGlobalPdvTypeMap;
         }
 
