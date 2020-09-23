@@ -124,6 +124,7 @@ namespace moris
         {
             // Set new ADVs
             mOwnedADVs->replace_global_values(mOwnedADVIds, aNewADVs);
+            mOwnedADVs->vector_global_asembly();
             mADVs = aNewADVs; // FIXME
 
             // Reset info related to the mesh
@@ -604,30 +605,31 @@ namespace moris
             mUpperBounds.resize(mADVs.length(), 1);
             mPdvHostManager.set_num_advs(mADVs.length());
 
-            // Create factor for distributed ADV vector
-            Matrix_Vector_Factory tDistributedFactory;
-
-            // Set primitive ADV IDs
-            mOwnedADVIds.resize(mADVs.length(), 1);
-            for (uint tADVIndex = 0; tADVIndex < mADVs.length(); tADVIndex++)
-            {
-                mOwnedADVIds(tADVIndex) = tADVIndex;
-            }
-
-            // Communicate level set ADV IDs
-
-            // Create map for distributed vector
-            moris::sol::Dist_Map* tOwnedADVMap = tDistributedFactory.create_map(mOwnedADVIds);
-
-            // Create vector
-            mOwnedADVs = tDistributedFactory.create_vector(tOwnedADVMap);
-
-            // Assign primitive values
-            mOwnedADVs->replace_global_values(mOwnedADVIds, mADVs);
-
-            // Build geometries and properties
+            // Build geometries and properties from parameter lists using distributed vector
             if (mGeometryParameterLists.size() > 0)
             {
+                // Create factor for distributed ADV vector
+                Matrix_Vector_Factory tDistributedFactory;
+
+                // Set primitive ADV IDs
+                mOwnedADVIds.resize(mADVs.length(), 1);
+                for (uint tADVIndex = 0; tADVIndex < mADVs.length(); tADVIndex++)
+                {
+                    mOwnedADVIds(tADVIndex) = tADVIndex;
+                }
+
+                // Communicate level set ADV IDs
+
+                // Create map for distributed vector
+                moris::sol::Dist_Map* tOwnedADVMap = tDistributedFactory.create_map(mOwnedADVIds);
+
+                // Create vector
+                mOwnedADVs = tDistributedFactory.create_vector(tOwnedADVMap);
+
+                // Assign primitive values
+                mOwnedADVs->replace_global_values(mOwnedADVIds, mADVs);
+
+                // Build geometries and properties
                 mGeometries = create_geometries(mGeometryParameterLists, mOwnedADVs, mLibrary);
                 mProperties = create_properties(mPropertyParameterLists, mADVs, mLibrary);
                 mGeometryParameterLists.resize(0);
