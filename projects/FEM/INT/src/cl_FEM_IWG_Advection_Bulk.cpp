@@ -85,11 +85,13 @@ namespace moris
             uint tMasterResStopIndex  = mSet->get_res_dof_assembly_map()( tMasterDofIndex )( 0, 1 );
 
             // get the residual dof (here temperature) field interpolator
-            Field_Interpolator* tFITemp = mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );
+            Field_Interpolator* tFITemp =
+                    mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );
 
             // get the velocity dof field interpolator
             // FIXME protect dof type
-            Field_Interpolator* tFIVelocity = mMasterFIManager->get_field_interpolators_for_type( MSI::Dof_Type::VX );
+            Field_Interpolator* tFIVelocity =
+                    mMasterFIManager->get_field_interpolators_for_type( MSI::Dof_Type::VX );
 
             // get the diffusion CM
             std::shared_ptr< Constitutive_Model > tCMDiffusion =
@@ -134,7 +136,8 @@ namespace moris
 
             // get the velocity dof field interpolator
             // FIXME protect dof type
-            Field_Interpolator* tFIVelocity = mMasterFIManager->get_field_interpolators_for_type( MSI::Dof_Type::VX );
+            Field_Interpolator* tFIVelocity =
+                    mMasterFIManager->get_field_interpolators_for_type( MSI::Dof_Type::VX );
 
             // get the diffusion CM
             std::shared_ptr< Constitutive_Model > tCMDiffusion =
@@ -162,16 +165,6 @@ namespace moris
                 uint tMasterDepStartIndex = mSet->get_jac_dof_assembly_map()( tMasterDofIndex )( tDofDepIndex, 0 );
                 uint tMasterDepStopIndex  = mSet->get_jac_dof_assembly_map()( tMasterDofIndex )( tDofDepIndex, 1 );
 
-                // if residual dof type (here temperature)
-                if( tDofType( 0 ) == mResidualDofType( 0 ) )
-                {
-                    // add contribution to jacobian
-                    mSet->get_jacobian()(
-                            { tMasterResStartIndex, tMasterResStopIndex },
-                            { tMasterDepStartIndex, tMasterDepStopIndex } ) +=
-                                    aWStar * trans( tFITemp->N() ) * trans( tFIVelocity->val() ) * tCMDiffusion->dGradEnergydDOF( tDofType );
-                }
-
                 // if velocity dof type
                 // FIXME protect dof type
                 if( tDofType( 0 ) == MSI::Dof_Type::VX )
@@ -179,10 +172,19 @@ namespace moris
                     // add contribution to jacobian
                     mSet->get_jacobian()(
                             { tMasterResStartIndex, tMasterResStopIndex },
-                            { tMasterDepStartIndex, tMasterDepStopIndex } ) +=
-                                    aWStar * (
-                                            trans( tFITemp->N() ) * trans( tCMDiffusion->gradEnergy() ) * tFIVelocity->N() +
-                                            tSPSUPG->val()( 0 ) * trans( tFITemp->dnNdxn( 1 ) ) * tFIVelocity->N() * tRT( 0, 0 )  );
+                            { tMasterDepStartIndex, tMasterDepStopIndex } ) += aWStar * (
+                                    trans( tFITemp->N() ) * trans( tCMDiffusion->gradEnergy() ) * tFIVelocity->N() +
+                                    tSPSUPG->val()( 0 ) * trans( tFITemp->dnNdxn( 1 ) ) * tFIVelocity->N() * tRT( 0, 0 ) );
+                }
+
+                // if diffusion CM depends on dof type
+                if( tCMDiffusion->check_dof_dependency( tDofType ) )
+                {
+                    // add contribution to jacobian
+                    mSet->get_jacobian()(
+                            { tMasterResStartIndex, tMasterResStopIndex },
+                            { tMasterDepStartIndex, tMasterDepStopIndex } ) += aWStar *
+                            ( trans( tFITemp->N() ) * trans( tFIVelocity->val() ) * tCMDiffusion->dGradEnergydDOF( tDofType ) );
                 }
 
                 // compute the jacobian strong form
@@ -192,8 +194,8 @@ namespace moris
                 // compute the jacobian contribution from strong form
                 mSet->get_jacobian()(
                         { tMasterResStartIndex, tMasterResStopIndex },
-                        { tMasterDepStartIndex, tMasterDepStopIndex } ) +=
-                                aWStar * tSPSUPG->val()( 0 ) * trans( tFITemp->dnNdxn( 1 ) ) * tFIVelocity->val() * tJT;
+                        { tMasterDepStartIndex, tMasterDepStopIndex } ) += aWStar * (
+                                tSPSUPG->val()( 0 ) * trans( tFITemp->dnNdxn( 1 ) ) * tFIVelocity->val() * tJT );
 
                 // if SUPG stabilization parameter depends on dof type
                 if( tSPSUPG->check_dof_dependency( tDofType ) )
@@ -201,9 +203,8 @@ namespace moris
                     // add contribution to jacobian
                     mSet->get_jacobian()(
                             { tMasterResStartIndex, tMasterResStopIndex },
-                            { tMasterDepStartIndex, tMasterDepStopIndex } ) +=
-                                    aWStar *  trans( tFITemp->dnNdxn( 1 ) ) * tFIVelocity->val() *
-                                    tRT( 0, 0 ) * tSPSUPG->dSPdMasterDOF( tDofType );
+                            { tMasterDepStartIndex, tMasterDepStopIndex } ) += aWStar * (
+                                    trans( tFITemp->dnNdxn( 1 ) ) * tFIVelocity->val() * tRT( 0, 0 ) * tSPSUPG->dSPdMasterDOF( tDofType ) );
                 }
             }
 
@@ -239,7 +240,9 @@ namespace moris
             std::shared_ptr< Constitutive_Model > tCMDiffusion =
                     mMasterCM( static_cast< uint >( IWG_Constitutive_Type::DIFFUSION ) );
 
-            aRT = tCMDiffusion->EnergyDot() + trans( tFIVelocity->val() ) * tCMDiffusion->gradEnergy() - tCMDiffusion->divflux();
+            aRT = tCMDiffusion->EnergyDot() +
+                    trans( tFIVelocity->val() ) * tCMDiffusion->gradEnergy() -
+                    tCMDiffusion->divflux();
         }
 
         //------------------------------------------------------------------------------
@@ -249,11 +252,13 @@ namespace moris
                 Matrix< DDRMat >             & aJT )
         {
             // get the res dof and the derivative dof FIs
-            Field_Interpolator * tFIDer  = mMasterFIManager->get_field_interpolators_for_type( aDofTypes( 0 ) );
+            Field_Interpolator * tFIDer =
+                    mMasterFIManager->get_field_interpolators_for_type( aDofTypes( 0 ) );
 
             // get the velocity dof field interpolator
             // FIXME protect dof type
-            Field_Interpolator* tFIVelocity = mMasterFIManager->get_field_interpolators_for_type( MSI::Dof_Type::VX );
+            Field_Interpolator* tFIVelocity =
+                    mMasterFIManager->get_field_interpolators_for_type( MSI::Dof_Type::VX );
 
             // initialize aJT
             aJT.set_size( 1, tFIDer->get_number_of_space_time_coefficients(), 0.0 );
@@ -266,9 +271,9 @@ namespace moris
             if( tCMDiffusion->check_dof_dependency( aDofTypes ) )
             {
                 // compute contribution to jacobian strong form
-                aJT.matrix_data() =
+                aJT.matrix_data() +=
                         tCMDiffusion->dEnergyDotdDOF( aDofTypes ).matrix_data() +
-                        trans( tFIVelocity->val() ) * tCMDiffusion->dGradEnergydDOF(aDofTypes) -
+                        trans( tFIVelocity->val() ) * tCMDiffusion->dGradEnergydDOF( aDofTypes ) -
                         tCMDiffusion->ddivfluxdu( aDofTypes ).matrix_data();
             }
 

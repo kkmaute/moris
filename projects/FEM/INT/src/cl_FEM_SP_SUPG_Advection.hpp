@@ -39,6 +39,9 @@ namespace moris
                 // default dof type
                 MSI::Dof_Type mMasterDofVelocity = MSI::Dof_Type::VX;
 
+                // cluster measures
+                real mElementSize = 1.0;
+
             public:
 
                 // property type for the SP
@@ -73,7 +76,10 @@ namespace moris
                  */
                 void reset_cluster_measures()
                 {
-                    // No cluster measure needed
+                    // evaluate element size from the cluster
+                    mElementSize = mCluster->compute_cluster_cell_length_measure(
+                            mtk::Primary_Void::PRIMARY,
+                            mtk::Master_Slave::MASTER );
                 }
 
                 //------------------------------------------------------------------------------
