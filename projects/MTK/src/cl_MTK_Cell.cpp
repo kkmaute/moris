@@ -63,6 +63,22 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
+        Matrix< IndexMat >
+        Cell::get_vertex_owners() const
+        {
+            uint tNumVertices = this->get_number_of_vertices();
+            moris::Cell< Vertex* > tVertices = this->get_vertex_pointers();
+
+            Matrix< IdMat > tVertexOwners(1, tNumVertices);
+            for(uint i = 0; i<tNumVertices; i++)
+            {
+                tVertexOwners(i) = tVertices(i)->get_owner();
+            }
+            return tVertexOwners;
+        }
+
+        //------------------------------------------------------------------------------
+
         moris::Cell<mtk::Vertex_Interpolation*>
         Cell::get_vertex_interpolations( const uint aOrder ) const
         {

@@ -12,6 +12,8 @@ namespace moris
         public:
             bool mIsActive = true;
 
+            moris_id mId = gNoID;
+
         protected:
 
             /**
@@ -26,6 +28,17 @@ namespace moris
              */
             ~Pdv();
 
+            void set_id( const moris_id & tId)
+            {
+                MORIS_ASSERT( mId == gNoID, "Pdv::set_id(), id of this pdv was set before" );
+                mId = tId;
+            };
+
+            moris_id get_id()
+            {
+                return mId;
+            };
+
             /**
              * Get the PDV value
              *
@@ -34,6 +47,11 @@ namespace moris
              * @return Current value of this PDV
              */
             virtual real get_value(uint aNodeIndex, const Matrix<DDRMat>& aCoordinates) = 0;
+
+            virtual void set_value(const moris::real & aValue )
+            {
+                MORIS_ERROR( false, "Pdv::set_value(), not implemented for this pdv type" );
+            }
 
             /**
              * Get the PDV sensitivity with respect to ADVs

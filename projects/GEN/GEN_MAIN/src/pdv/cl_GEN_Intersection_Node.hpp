@@ -21,7 +21,11 @@ namespace moris
             uint mStartingPdvIndex;
             bool mPdvIndexSet = false;
 
+            moris_id mVertexId = -1;
+            moris_index mVertexOwner = -1;
+
         public:
+            Intersection_Node(){};
             /**
              * Constructor
              *
@@ -57,14 +61,14 @@ namespace moris
              *
              * @param aStartingPdvIndex The global index of the first PDV on the host
              */
-            void set_starting_pdv_index(uint aStartingPdvIndex);
+            void set_starting_pdv_id(uint aStartingPdvIndex);
 
             /**
              * Get the starting global index for the intersection coordinate PDVs
              *
              * @return The global index of the first PDV on the host
              */
-            uint get_starting_pdv_index();
+            uint get_starting_pdv_id();
 
             /**
              * Get the value of a coordinate of this node
@@ -87,6 +91,28 @@ namespace moris
              * @param aSensitivities Sensitivity matrix to be filled
              */
             void get_all_sensitivities(Matrix<DDRMat>& aSensitivities);
+
+            moris::uint get_num_pdvs();
+
+            void set_vertex_id( const moris_id & aVertexId)
+            {
+                mVertexId = aVertexId;
+            };
+
+            void set_vertex_owner( const moris_index & aVertexOwner)
+            {
+                mVertexOwner = aVertexOwner;
+            };
+
+            moris_id get_vertex_id()
+            {
+                return mVertexId;
+            };
+
+            moris_index get_vertex_owner()
+            {
+                return mVertexOwner;
+            };
 
         };
     }

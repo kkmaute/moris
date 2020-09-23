@@ -23,6 +23,7 @@ namespace moris
             Matrix<DDRMat>       mLocalCoordinates;
 
         public:
+            Child_Node(){};
             /**
              * Constructor
              *

@@ -308,6 +308,14 @@ namespace moris
             }
         }
 
+        void Geometry_Engine::update_queued_intersection(
+                const moris_index & aNodeIndex,
+                const moris_index & aNodeId,
+                const moris_index & aNodeOwner )
+        {
+            mPdvHostManager.update_intersection_node(aNodeIndex,aNodeId,aNodeOwner);
+        }
+
         //--------------------------------------------------------------------------------------------------------------
 
         void Geometry_Engine::create_new_child_nodes(
@@ -490,11 +498,14 @@ namespace moris
             // Initialize PDV type groups and mesh set info
             Cell<Cell<Cell<PDV_Type>>> tPdvTypes(tIntegrationMesh->get_num_sets());
             Cell<PDV_Type> tPdvTypeGroup(1);
+
             Cell<std::string> tMeshSetNames(0);
             Matrix<DDUMat> tMeshSetIndices(0, 0);
 
             // PDV type map
             map< std::string, PDV_Type > tPdvTypeMap = get_pdv_type_map();
+
+            this->initialize_pdv_type_list();
 
             // Loop over properties to create PDVs
             for (uint tPropertyIndex = 0; tPropertyIndex < mPropertyParameterLists.size(); tPropertyIndex++)
@@ -521,6 +532,15 @@ namespace moris
                 }
             }
 
+            Matrix< IdMat > tCommTable = aMeshManager->get_interpolation_mesh(0)->get_communication_table();
+            std::unordered_map<moris_id,moris_index> tIPVertexGlobaToLocalMap =
+                    aMeshManager->get_interpolation_mesh(0)->get_vertex_glb_id_to_loc_vertex_ind_map();
+            std::unordered_map<moris_id,moris_index> tIGVertexGlobaToLocalMap =
+                    tIntegrationMesh->get_vertex_glb_id_to_loc_vertex_ind_map();
+
+            mPdvHostManager.set_communication_table( tCommTable );
+            mPdvHostManager.set_vertex_global_to_local_maps( tIPVertexGlobaToLocalMap, tIGVertexGlobaToLocalMap);
+
             // Create PDV hosts
             this->create_interpolation_pdv_hosts(
                     aMeshManager->get_interpolation_mesh(0),
@@ -531,6 +551,8 @@ namespace moris
             {
                 this->set_integration_pdv_types(tIntegrationMesh);
             }
+
+            mPdvHostManager.create_pdv_ids();
 
             // Loop over properties to assign PDVs
             for (uint tPropertyIndex = 0; tPropertyIndex < mPropertyParameterLists.size(); tPropertyIndex++)
@@ -549,6 +571,47 @@ namespace moris
             // Get rid of parameter lists
             mPropertyParameterLists.resize(0);
         }
+
+        //--------------------------------------------------------------------------------------------------------------
+
+        void Geometry_Engine::initialize_pdv_type_list()
+        {
+            // Reserve of temporary pdv type list
+            moris::Cell< enum PDV_Type > tTemporaryPdvTypeList;
+            tTemporaryPdvTypeList.reserve( static_cast< int >( PDV_Type::UNDEFINED ) + 1 );
+            Matrix< DDUMat > tListToCheckIfEnumExist( (static_cast< int >(PDV_Type::UNDEFINED) + 1), 1, 0 );
+
+            // PDV type map
+            map< std::string, PDV_Type > tPdvTypeMap = get_pdv_type_map();
+
+            // Loop over properties to build parallel consitent pdv list
+             for (uint tPropertyIndex = 0; tPropertyIndex < mPropertyParameterLists.size(); tPropertyIndex++)
+             {
+                 // PDV type and mesh set names/indices from parameter list
+                 enum PDV_Type tPdvType = tPdvTypeMap[mPropertyParameterLists(tPropertyIndex).get<std::string>("pdv_type")];
+
+                 if ( tListToCheckIfEnumExist(static_cast< int >(tPdvType) , 0) == 0)
+                 {
+                     // Set 1 at position of the enum value
+                     tListToCheckIfEnumExist( static_cast< int >(tPdvType) ,0 ) = 1;
+
+                     tTemporaryPdvTypeList.push_back( tPdvType );
+                 }
+             }
+
+            // Shrink pdv type list to fit
+             tTemporaryPdvTypeList.shrink_to_fit();
+
+            // Communicate dof types so that all processors have the same unique list
+             mPdvHostManager.communicate_dof_types( tTemporaryPdvTypeList );
+
+            // Create a map
+             mPdvHostManager.create_dv_type_map();
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
+
 
         //--------------------------------------------------------------------------------------------------------------
 
@@ -799,6 +862,8 @@ namespace moris
             uint tNumNodes = aInterpolationMesh->get_num_nodes();
 
             Cell<Matrix<DDSMat>> tNodeIndicesPerSet(tNumSets);
+            Cell<Matrix<DDSMat>> tNodeIdsPerSet(tNumSets);
+            Cell<Matrix<DDSMat>> tNodeOwnersPerSet(tNumSets);
             Cell<Matrix<DDRMat>> tNodeCoordinates(tNumNodes);
 
             // Loop through sets
@@ -812,13 +877,22 @@ namespace moris
                 {
                     const mtk::Cluster* tCluster = tSet->get_clusters_by_index(tClusterIndex);
 
-                    // Indices on cluster
+                    // Indices on cluster // FIXME this is really bad and slow. especially when building the pdvs
                     Matrix<IndexMat> tNodeIndicesInCluster = tCluster->get_interpolation_cell().get_vertex_inds();
-                    tNodeIndicesPerSet(tMeshSetIndex).resize(tNodeIndicesPerSet(tMeshSetIndex).length() + tNodeIndicesInCluster.length(), 1);
+                    Matrix<IndexMat> tNodeIdsInCluster     = tCluster->get_interpolation_cell().get_vertex_ids();
+                    Matrix<IndexMat> tNodeOwnersInCluster = tCluster->get_interpolation_cell().get_vertex_owners();
 
+                    // FIXME don't undersand this resize. it's really slow
+                    tNodeIndicesPerSet(tMeshSetIndex).resize(tNodeIndicesPerSet(tMeshSetIndex).length() + tNodeIndicesInCluster.length(), 1);
+                    tNodeIdsPerSet(tMeshSetIndex).resize(tNodeIdsPerSet(tMeshSetIndex).length() + tNodeIdsInCluster.length(), 1);
+                    tNodeOwnersPerSet(tMeshSetIndex).resize(tNodeOwnersPerSet(tMeshSetIndex).length() + tNodeOwnersInCluster.length(), 1);
+
+                    // FIXME we have nodes up to 8 tims in this list in 3d
                     for (uint tNodeInCluster = 0; tNodeInCluster < tNodeIndicesInCluster.length(); tNodeInCluster++)
                     {
-                        tNodeIndicesPerSet(tMeshSetIndex)(tCurrentNode++) = tNodeIndicesInCluster(tNodeInCluster);
+                        tNodeIndicesPerSet(tMeshSetIndex)(tCurrentNode)   = tNodeIndicesInCluster(tNodeInCluster);
+                        tNodeIdsPerSet(tMeshSetIndex)(tCurrentNode)   = tNodeIdsInCluster(tNodeInCluster);
+                        tNodeOwnersPerSet(tMeshSetIndex)(tCurrentNode++) = tNodeOwnersInCluster(tNodeInCluster);
                     }
                 }
             }
@@ -830,7 +904,12 @@ namespace moris
             }
 
             // Create hosts
-            mPdvHostManager.create_interpolation_pdv_hosts(tNodeIndicesPerSet, tNodeCoordinates, aPdvTypes);
+            mPdvHostManager.create_interpolation_pdv_hosts(
+                    tNodeIndicesPerSet,
+                    tNodeIdsPerSet,
+                    tNodeOwnersPerSet,
+                    tNodeCoordinates,
+                    aPdvTypes);
         }
 
         //--------------------------------------------------------------------------------------------------------------

@@ -44,6 +44,7 @@ public:
     Matrix< IndexMat >        get_entity_connected_to_entity_loc_inds(moris_index aEntityIndex, enum EntityRank aInputEntityRank, enum EntityRank aOutputEntityRank,const moris_index aIndex =0) const;
     Matrix< IndexMat >        get_elements_connected_to_element_and_face_ind_loc_inds(moris_index aElementIndex) const;
     moris_id                  get_glb_entity_id_from_entity_loc_index(moris_index aEntityIndex,enum EntityRank aEntityRank, const moris_index aIndex =0) const;
+    std::unordered_map<moris_id,moris_index> get_vertex_glb_id_to_loc_vertex_ind_map() const;
     moris_index               get_loc_entity_ind_from_entity_glb_id( moris_id aEntityId, enum EntityRank aEntityRank, const moris_index aIndex =0) const;
     Cell<mtk::Vertex const *> get_all_vertices() const;
     Matrix< IdMat >           get_entity_connected_to_entity_glob_ids( moris_id aEntityId, enum EntityRank aInputEntityRank, enum EntityRank aOutputEntityRank, const moris_index aIndex =0) const;

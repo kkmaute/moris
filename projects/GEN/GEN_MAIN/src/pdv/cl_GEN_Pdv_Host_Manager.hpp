@@ -6,6 +6,9 @@
 #include "cl_GEN_Intersection_Node.hpp"
 #include "cl_GEN_Pdv_Enums.hpp"
 #include "cl_Matrix.hpp"
+#include "cl_Communication_Tools.hpp"
+#include "cl_Communication_Manager.hpp"
+#include <unordered_map>
 
 namespace moris
 {
@@ -21,12 +24,20 @@ namespace moris
             bool mNumADVsSet = false;
             
             // Static nodes set
-            bool mNumStaticNodesSet = false;
+            bool mNumBackgroundNodesSet = false;
+
+            moris::Cell< enum PDV_Type >   mPdvTypeList;          // List containing all used unique dv types.
+            Matrix< DDSMat >               mPdvTypeMap;           // Map which maps the unique dv types onto consecutive values.
+
+            Matrix< IdMat >                mCommTable;
 
             // list of pdv hosts - interpolation nodes
             Cell<std::shared_ptr<Interpolation_Pdv_Host>> mIpPdvHosts;
             Cell<std::shared_ptr<Intersection_Node>> mIntersectionNodes;
             
+            std::unordered_map<moris_id,moris_index> mIGVertexIdtoIndMap;
+            std::unordered_map<moris_id,moris_index> mIPVertexIdtoIndMap;
+
             // Groups of PDV types used per set
             Cell<Cell<Cell<PDV_Type>>> mIpPdvTypes;
             Cell<Cell<Cell<PDV_Type>>> mIgPdvTypes;
@@ -40,13 +51,14 @@ namespace moris
             Cell<PDV_Type> mRequestedIgPdvTypes;
 
             // List of global indices for identifying a given local PDV
-            Matrix<IndexMat> mGlobalPdvTypeMap;
+            Matrix<IndexMat> mOwnedPdvLocalToGlobalMap;
+            Matrix<IndexMat> mOwnedAndSharedPdvLocalToGlobalMap;
+
+            uint mNumOwnedPdvs = 0;
+            uint mNumOwnedAndSharedPdvs = 0;
 
             // Requested IQI types
             Cell<std::string> mRequestedIQIs;
-            
-            // Pdv index
-            uint mGlobalPdvIndex = 0;
             
         public:
             
@@ -59,6 +71,16 @@ namespace moris
              * Destructor
              */
             ~Pdv_Host_Manager();
+
+            const Matrix< DDSMat > & get_pdv_type_map()
+            {
+                return mPdvTypeMap;
+            }
+
+            uint get_max_num_pdvs()
+            {
+                return mPdvTypeList.size();
+            }
 
             /**
              * Sets the number of ADVs.
@@ -73,6 +95,18 @@ namespace moris
              * @param aNumNodes Number of nodes
              */
             void set_num_background_nodes(uint aNumNodes); 
+
+            void set_communication_table( const Matrix< IdMat > & aCommTable );
+
+            Matrix< IdMat > get_communication_table();
+
+            void set_vertex_global_to_local_maps(
+                    std::unordered_map<moris_id,moris_index> & aIPVertexGlobaToLocalMap,
+                    std::unordered_map<moris_id,moris_index> & aIGVertexGlobaToLocalMap)
+            {
+                mIPVertexIdtoIndMap = aIPVertexGlobaToLocalMap;
+                mIGVertexIdtoIndMap = aIGVertexGlobaToLocalMap;
+            };
 
             /**
              * Resets the stored information about PDV hosts.
@@ -166,6 +200,8 @@ namespace moris
              */
             const Matrix<DDSMat> & get_my_local_global_map();
             
+            const Matrix<DDSMat> & get_my_local_global_overlapping_map();
+
             /**
              * Return local to global DV type map
              *
@@ -209,9 +245,12 @@ namespace moris
              * @param aNodeCoordinates The node coordinates indexed by node
              * @param aPdvTypes The PDV types per set, grouped
              */
-            void create_interpolation_pdv_hosts(Cell<Matrix<DDSMat>>        aNodeIndicesPerSet,
-                                     Cell<Matrix<DDRMat>>        aNodeCoordinates,
-                                     Cell<Cell<Cell<PDV_Type>>>  aPdvTypes);
+            void create_interpolation_pdv_hosts(
+                    const Cell<Matrix<DDSMat>>       & aNodeIndicesPerSet,
+                    const Cell<Matrix<DDSMat>>       & aNodeIdsPerSet,
+                    const Cell<Matrix<DDSMat>>       & aNodeOwnersPerSet,
+                    const Cell<Matrix<DDRMat>>       & aNodeCoordinates,
+                    const Cell<Cell<Cell<PDV_Type>>> & aPdvTypes);
 
             /**
              * Set the integration PDV types per set.
@@ -228,6 +267,11 @@ namespace moris
              */
             void set_intersection_node(uint aNodeIndex, std::shared_ptr<Intersection_Node> aIntersectionNode);
             
+            void update_intersection_node(
+                    const moris_index & aNodeIndex,
+                    const moris_index & aNodeId,
+                    const moris_index & aNodeOwner);
+
             /**
              * Sets the number of nodes on the integration mesh, in order to resize the intersection nodes and 
              * be able to handle all questions about nodes up to this number.
@@ -276,7 +320,33 @@ namespace moris
              */
             Matrix<DDRMat> compute_diqi_dadv();
 
+            void communicate_dof_types( moris::Cell< enum PDV_Type > & aPdvTypeList );
+
+            void create_dv_type_map();
+
+            void create_pdv_ids();
+
         private:
+
+            void communicate_check_if_owned_pdv_exists();
+
+            void get_num_pdvs();
+
+            uint communicate_pdv_offsets( const moris::uint & aNumOwnedPdvs );
+
+            void set_owned_pdv_ids( uint aPdvOffset );
+
+            moris_id set_owned_interpolation_pdv_ids( moris_id aOwnedIdCounter );
+
+            moris_id set_owned_intersection_node_pdv_ids( moris_id aOwnedIdCounter );
+
+            void communicate_shared_pdv_ids();
+
+            void communicate_shared_interpolation_pdv_ids();
+
+            void communicate_shared_intersection_node_pdv_ids();
+
+            void build_local_to_global_maps();
             /**
              * Computes the derivatives of the PDVs with respect to the ADVs
              *

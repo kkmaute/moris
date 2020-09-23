@@ -1078,6 +1078,12 @@ namespace xtk
         return tIter->second;
     }
 
+    std::unordered_map< moris_id, moris_index>
+    Background_Mesh::get_vertex_glb_id_to_loc_vertex_ind_map() const
+    {
+        return mVertexGlbToLocalMap;
+    }
+
     // ----------------------------------------------------------------------------------
 
     void
