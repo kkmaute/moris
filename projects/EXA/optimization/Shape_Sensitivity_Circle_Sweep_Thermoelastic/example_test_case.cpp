@@ -71,7 +71,7 @@ TEST_CASE("Shape_Sensitivity_Circle_Sweep_Thermoelastic",
                     tConstraintsAnalytical(tADVIndex),
                     tFDTypes(tFDIndex).c_str(),
                     tConstraintsAnalytical(tADVIndex),
-                    100*std::abs((tConstraintsAnalytical(tADVIndex)-tConstraintsAnalytical(tADVIndex))/tConstraintsAnalytical(tADVIndex)));
+                    100*std::abs((tConstraintsAnalytical(tADVIndex)-tConstraintsFD(tADVIndex))/tConstraintsFD(tADVIndex)));
 
             CHECK(tObjectiveAnalytical(tADVIndex) == Approx(tObjectiveFD(tADVIndex)));
             CHECK(tConstraintsAnalytical(tADVIndex) == Approx(tConstraintsFD(tADVIndex)));
