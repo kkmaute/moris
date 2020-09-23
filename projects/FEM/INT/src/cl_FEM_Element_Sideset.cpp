@@ -249,7 +249,7 @@ namespace moris
                     {
                         // compute residual at integration point
                         mSet->get_requested_IWGs()( iIWG )->compute_residual( tWStar );
-					}
+                    }
 
                     // compute jacobian at evaluation point
                     mSet->get_requested_IWGs()( iIWG )->compute_jacobian( tWStar );
@@ -263,9 +263,6 @@ namespace moris
         {
             // get treated side ordinal
             uint tSideOrd = mCluster->mMasterListOfSideOrdinals( mCellIndexInCluster );
-
-            // get the vertices indices
-            Matrix< IndexMat > tVertexIndices = mMasterCell->get_vertices_ind_on_side_ordinal( tSideOrd );
 
             // set physical and parametric space and time coefficients for IG element
             moris::Cell< Matrix< DDSMat > > tIsActiveDv;
@@ -466,11 +463,19 @@ namespace moris
                 // loop over the IQIs
                 for( uint iIQI = 0; iIQI < tNumIQIs; iIQI++ )
                 {
-                    // reset IWG
-                    mSet->get_requested_IQIs()( iIQI )->reset_eval_flags();
+//                    // check if IQI has dof dependencies
+//                    moris::Cell< moris::Cell< MSI::Dof_Type > > aDofTypeList =
+//                            mSet->get_requested_IQIs()( iIQI )->get_global_dof_type_list();
+//
+//                    // if there are dof dependencies
+//                    if( aDofTypeList.size() > 0 )
+//                    {
+                        // reset IWG
+                        mSet->get_requested_IQIs()( iIQI )->reset_eval_flags();
 
-                    // compute dQIdu at evaluation point
-                    mSet->get_requested_IQIs()( iIQI )->add_dQIdu_on_set( tWStar );
+                        // compute dQIdu at evaluation point
+                        mSet->get_requested_IQIs()( iIQI )->add_dQIdu_on_set( tWStar );
+//                    }
                 }
             }
         }
@@ -481,9 +486,6 @@ namespace moris
         {
             // get treated side ordinal
             uint tSideOrd = mCluster->mMasterListOfSideOrdinals( mCellIndexInCluster );
-
-            // get the vertices indices
-            Matrix< IndexMat > tVertexIndices = mMasterCell->get_vertices_ind_on_side_ordinal( tSideOrd );
 
             // set physical and parametric space and time coefficients for IG element
             moris::Cell< Matrix< DDSMat > > tIsActiveDv;
