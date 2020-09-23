@@ -123,8 +123,11 @@ namespace moris
         void Geometry_Engine::set_advs(Matrix<DDRMat> aNewADVs)
         {
             // Set new ADVs
-            mOwnedADVs->replace_global_values(mOwnedADVIds, aNewADVs);
-            mOwnedADVs->vector_global_asembly();
+            if (mOwnedADVs and mOwnedADVIds.length())
+            {
+                mOwnedADVs->replace_global_values(mOwnedADVIds, aNewADVs);
+                mOwnedADVs->vector_global_asembly();
+            }
             mADVs = aNewADVs; // FIXME
 
             // Reset info related to the mesh
