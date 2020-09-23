@@ -1741,7 +1741,7 @@ namespace moris
             // get the GI for the IG element considered
             Geometry_Interpolator * tIGGI = mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator();
             Geometry_Interpolator * tIPGI = mSet->get_field_interpolator_manager()->get_IP_geometry_interpolator();
-            Geometry_Interpolator * tIGGIPrevious;
+            Geometry_Interpolator * tIGGIPrevious = nullptr;
             if( mSet->get_element_type() == fem::Element_Type::TIME_SIDESET )
             {
                 tIGGIPrevious =
@@ -1780,7 +1780,6 @@ namespace moris
 
             // init FD scheme
             moris::Cell< moris::Cell< real > > tFDScheme;
-            fd_scheme( aFDSchemeType, tFDScheme );
 
             // loop over the spatial directions
             for( uint iCoeffCol = 0; iCoeffCol< tDerNumDimensions; iCoeffCol++ )
@@ -1800,7 +1799,6 @@ namespace moris
                         }
 
                         // check point location
-                        moris::Cell< moris::Cell< real > > tFDScheme;
                         fd_scheme( aFDSchemeType, tFDScheme );
                         if( tCoeff( iCoeffRow, iCoeffCol ) + tDeltaH > tMaxIP( iCoeffCol ) )
                         {
@@ -1921,8 +1919,6 @@ namespace moris
             // get the slave GI for the IG and IP element considered
             Geometry_Interpolator * tSlaveIGGI =
                     mSet->get_field_interpolator_manager( mtk::Master_Slave::SLAVE )->get_IG_geometry_interpolator();
-//            Geometry_Interpolator * tSlaveIPGI =
-//                    mSet->get_field_interpolator_manager( mtk::Master_Slave::SLAVE )->get_IP_geometry_interpolator();
 
             // IP element max/min
             Matrix< DDRMat > tMasterMaxIP = max( tMasterIPGI->get_space_coeff().matrix_data() );
@@ -2020,11 +2016,11 @@ namespace moris
                             // loop over point of FD scheme
                             for ( uint iPoint = 0; iPoint < tNumPoints; iPoint++ )
                             {
-                                // reset the perturbed coefficents
+                                // reset the perturbed coefficients
                                 Matrix< DDRMat > tMasterCoeffPert = tMasterCoeff;
                                 Matrix< DDRMat > tSlaveCoeffPert  = tSlaveCoeff;
 
-                                // pertub the coefficent
+                                // perturb the coefficient
                                 tMasterCoeffPert( iCoeffRow, iCoeffCol ) +=
                                         tFDScheme( 0 )( iPoint ) * tDeltaH;
                                 tSlaveCoeffPert( tSlaveNodeLocalIndex, iCoeffCol ) +=
@@ -2170,10 +2166,10 @@ namespace moris
                         // loop over the points for FD
                         for( uint iPoint = 0; iPoint < tNumPoints; iPoint++ )
                         {
-                            // reset the perturbed coefficents
+                            // reset the perturbed coefficients
                             Matrix< DDRMat > tCoeffPert = tCoeff;
 
-                            // pertub the coefficent
+                            // perturb the coefficient
                             tCoeffPert( iCoeffRow, iCoeffCol ) += tFDScheme( 0 )( iPoint ) * tDeltaH;
 
                             // set the perturbed coefficients to FI
