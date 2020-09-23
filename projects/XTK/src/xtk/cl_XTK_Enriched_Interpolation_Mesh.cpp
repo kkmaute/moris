@@ -190,6 +190,16 @@ namespace xtk
 
     // ----------------------------------------------------------------------------
 
+    std::unordered_map<moris_id,moris_index>
+    Enriched_Interpolation_Mesh::get_vertex_glb_id_to_loc_vertex_ind_map() const
+    {
+        moris::uint tMapIndex = (uint) EntityRank::NODE;
+
+        return mGlobaltoLobalMaps(tMapIndex);
+    }
+
+    // ----------------------------------------------------------------------------
+
     Matrix<IdMat>
     Enriched_Interpolation_Mesh::get_entity_connected_to_entity_glob_ids(
             moris_id          aEntityId,

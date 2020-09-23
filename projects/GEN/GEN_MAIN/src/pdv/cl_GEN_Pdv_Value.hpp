@@ -14,6 +14,8 @@ namespace moris
             real mValue;
 
         public:
+
+            Pdv_Value(){};
             /**
              * Constructor
              *
@@ -29,6 +31,8 @@ namespace moris
              * @return Current value of this PDV
              */
             real get_value(uint aNodeIndex, const Matrix<DDRMat>& aCoordinates);
+
+            void set_value(const moris::real & aValue );
 
             /**
              * Get the PDV sensitivity with respect to ADVs

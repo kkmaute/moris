@@ -120,6 +120,11 @@ public:
 
     //------------------------------------------------------------------------------
 
+    Matrix< IndexMat >
+    get_vertex_owners() const;
+
+    //------------------------------------------------------------------------------
+
     /**
      * returns a Mat of dimension
      * < number of vertices * number of dimensions >

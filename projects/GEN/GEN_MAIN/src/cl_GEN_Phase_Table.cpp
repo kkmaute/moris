@@ -170,6 +170,7 @@ namespace moris
 
             // print the header 
             std::cout<<std::setw(8)<<"i" <<" | "<<std::setw(8)<<"Bp"<<" | ";
+
             for(moris::uint iG  = 0; iG < (moris::size_t)mNumGeometries; iG++)
             {
                 std::cout<<std::setw(8)<<"G_" + std::to_string(iG) << " | ";

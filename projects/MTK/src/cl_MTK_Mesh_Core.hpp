@@ -13,6 +13,8 @@
 #include "cl_MTK_Facet.hpp"
 #include "cl_MTK_Set.hpp"
 
+#include <unordered_map>
+
 namespace moris
 {
     namespace hmr
@@ -326,6 +328,16 @@ namespace moris
                     moris_index        aEntityIndex,
                     enum EntityRank    aEntityRank,
                     const moris_index  aBSplineMeshIndex = 0) const = 0;
+
+            virtual
+            std::unordered_map<moris_id,moris_index>
+            get_vertex_glb_id_to_loc_vertex_ind_map() const
+            {
+                MORIS_ERROR( false, "get_vertex_glb_id_to_loc_vertex_ind_map(), Not implemented for this mesh type");
+                std::unordered_map<moris_id,moris_index> tMap;
+
+                return tMap;
+            };
 
             // FIXME pure virtual or default implementation without error
             /**
