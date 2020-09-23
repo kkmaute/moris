@@ -727,7 +727,7 @@ namespace moris
                     for ( moris::uint Ii = 0; Ii < tMatsToReceive( Ik ).numel(); Ii++ )
                     {
                         // Get owned pdv Id
-                        auto tIter = mIGVertexIdtoIndMap.find( tMatsToReceive( Ik )( Ii ) );
+                        auto tIter = mIPVertexIdtoIndMap.find( tMatsToReceive( Ik )( Ii ) );
 
                         moris::uint tLocalPdvInd = tIter->second;
 
@@ -789,7 +789,7 @@ namespace moris
 
         uint Pdv_Host_Manager::communicate_pdv_offsets( const moris::uint & aNumOwnedPdvs )
         {
-            MORIS_LOG_INFO( "System has a total of %-5i dofs.", sum_all(aNumOwnedPdvs) );
+            MORIS_LOG_INFO( "System has a total of %-5i pdvs.", sum_all(aNumOwnedPdvs) );
 
             // Get list containing the number of owned pdvs of each processor
             Matrix< DDUMat > tNumOwnedPdvsList;

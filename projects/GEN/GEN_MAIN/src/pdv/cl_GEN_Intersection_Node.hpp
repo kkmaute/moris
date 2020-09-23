@@ -25,6 +25,7 @@ namespace moris
             moris_index mVertexOwner = -1;
 
         public:
+            Intersection_Node(){};
             /**
              * Constructor
              *
