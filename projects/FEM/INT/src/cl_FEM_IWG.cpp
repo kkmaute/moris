@@ -1893,6 +1893,10 @@ namespace moris
                 mSet->get_field_interpolator_manager_previous_time()->
                         set_space_time_from_local_IG_point( tEvaluationPoint );
             }
+
+            // check for nan, infinity
+            MORIS_ERROR( isfinite( mSet->get_drdpgeo() ) ,
+                    "IWG::compute_dRdp_FD_geometry - dRdp contains NAN or INF, exiting!");
         }
 
         //------------------------------------------------------------------------------
@@ -2092,6 +2096,10 @@ namespace moris
                     }
                 }
             }
+
+            // check for nan, infinity
+            MORIS_ERROR( isfinite( mSet->get_drdpgeo() ) ,
+                    "IWG::compute_dRdp_FD_geometry_double - dRdp contains NAN or INF, exiting!");
         }
 
         //------------------------------------------------------------------------------
@@ -2199,6 +2207,10 @@ namespace moris
                 // reset the coefficients values
                 tFI->set_coeff( tCoeff );
             }
+
+            // check for nan, infinity
+            MORIS_ERROR( isfinite( mSet->get_drdpmat() ) ,
+                    "IWG::compute_dRdp_FD_material - dRdp contains NAN or INF, exiting!");
         }
 
         //------------------------------------------------------------------------------
@@ -2402,6 +2414,10 @@ namespace moris
                 // reset the coefficients values
                 tFI->set_coeff( tCoeff );
             }
+
+            // check for nan, infinity
+            MORIS_ERROR( isfinite( mSet->get_drdpmat() ) ,
+                    "IWG::compute_dRdp_FD_material - dRdp contains NAN or INF, exiting!");
         }
 
         //------------------------------------------------------------------------------
