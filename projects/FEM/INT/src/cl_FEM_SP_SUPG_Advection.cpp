@@ -93,213 +93,158 @@ namespace moris
         //------------------------------------------------------------------------------
         void SP_SUPG_Advection::eval_SP()
         {
-            // set size for SP values
-            mPPVal.set_size( 1, 1, 0.0 );
-
             // get the velocity FI
             Field_Interpolator * tVelocityFI =
                     mMasterFIManager->get_field_interpolators_for_type( mMasterDofVelocity );
 
-            // compute norm( v )
-            real tNormA = std::sqrt( dot( tVelocityFI->val(), tVelocityFI->val() ) );
-
-            // compute the diffusion coefficient
+            // get the conductivity property
             std::shared_ptr< Property > tPropConductivity =
                     mMasterProp( static_cast< uint >( Property_Type::CONDUCTIVITY ) );
-            real tK = tPropConductivity->val()( 0 );
 
-            // evaluate tau
-            real tTau =
-                    std::pow( 2.0 * tNormA / mElementSize, 2 ) +
-                    std::pow( 4.0 * tK / std::pow( mElementSize, 2.0 ), 2 );
+            // get the norm of velocity
+            real tNorm = norm( tVelocityFI->val() );
 
-            // set tau
-            mPPVal = {{ std::pow( tTau, -0.5 ) }};
+            // get the abs term
+            real tAbs = 0.0;
+            uint tNumNodes = tVelocityFI->dnNdxn( 1 ).n_cols();
+            for ( uint iNode = 0; iNode < tNumNodes; iNode++ )
+            {
+                Matrix< DDRMat > tAdd =
+                        trans( tVelocityFI->val() ) * tVelocityFI->dnNdxn( 1 ).get_column( iNode );
+                tAbs += std::abs( tAdd( 0, 0 ) );
+            }
 
-//            // get the velocity FI
-//            Field_Interpolator * tVelocityFI =
-//                    mMasterFIManager->get_field_interpolators_for_type( mMasterDofVelocity );
-//
-//            // get the conductivity property
-//            std::shared_ptr< Property > tPropConductivity =
-//                    mMasterProp( static_cast< uint >( Property_Type::CONDUCTIVITY ) );
-//
-//            // get the norm of velocity
-//            real tNorm = norm( tVelocityFI->val() );
-//
-//            // get the abs term
-//            real tAbs = 0.0;
-//            uint tNumNodes = tVelocityFI->dnNdxn( 1 ).n_cols();
-//            for ( uint iNode = 0; iNode < tNumNodes; iNode++ )
-//            {
-//                Matrix< DDRMat > tAdd =
-//                        trans( tVelocityFI->val() ) * tVelocityFI->dnNdxn( 1 ).get_column( iNode );
-//                tAbs += std::abs( tAdd( 0, 0 ) );
-//            }
-//
-//            // get hugn
-//            real tHugn = 2.0 * tNorm / tAbs;
-//
-//            // get tau1
-//            real tTau1 = 0.5 * tHugn / tNorm;
-//
-//            // compute time increment deltat
-//            Matrix< DDRMat > tTimeCoeff =
-//                    mMasterFIManager->get_IP_geometry_interpolator()->get_time_coeff();
-//            real tDeltaT = tTimeCoeff.max() - tTimeCoeff.min();
-//
-//            // get tau2
-//            real tTau2 = tDeltaT / 2;
-//
-//            // get tau3
-//            real tTau3 = 0.25 * std::pow( tHugn, 2.0 ) / tPropConductivity->val()( 0 );
-//
-//            // compute stabilization parameter value
-//            mPPVal = {{ std::pow(
-//                    1 / std::pow( tTau1, 2.0 ) +
-//                    1 / std::pow( tTau2, 2.0 ) +
-//                    1 / std::pow( tTau3, 2.0 ) , -0.5 ) }};
+            // compute hugn
+            real tHugn = 1.0;
+            if( tAbs > 0.0 && tNorm > 0.0 )
+            {
+                tHugn = 2.0 * tNorm / tAbs;
+            }
+
+            // compute tau1
+            real tTau1 = 2.0 * tNorm / tHugn;
+
+            // compute tau2
+            real tTau2 = 4.0 * tPropConductivity->val()( 0 ) / std::pow( tHugn, 2.0 );
+
+            // compute time increment deltat
+            real tDeltaT = mMasterFIManager->get_IP_geometry_interpolator()->get_time_step();
+
+            // compute tau3
+            real tTau3 = 2 / tDeltaT;
+
+            // compute stabilization parameter value
+            mPPVal = {{ std::pow(
+                    std::pow( tTau1, 2.0 ) +
+                    std::pow( tTau2, 2.0 ) +
+                    std::pow( tTau3, 2.0 ) , -0.5 ) }};
+
         }
 
         //------------------------------------------------------------------------------
-        void SP_SUPG_Advection::eval_dSPdMasterDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes )
+
+        void SP_SUPG_Advection::eval_dSPdMasterDOF(
+                const moris::Cell< MSI::Dof_Type > & aDofTypes )
         {
             // get the dof type index
             uint tDofIndex = mMasterGlobalDofTypeMap( static_cast< uint >( aDofTypes( 0 ) ) );
 
             // get the dof type FI
-            Field_Interpolator * tFI =
+            Field_Interpolator * tFIDer =
                     mMasterFIManager->get_field_interpolators_for_type( aDofTypes( 0 ) );
 
-            // set matrix size
-            mdPPdMasterDof( tDofIndex ).set_size( 1, tFI->get_number_of_space_time_coefficients(), 0.0 );
+            // set size for dSPdMasterDof, dTau1dDof, dTau3dDof
+            mdPPdMasterDof( tDofIndex ).set_size( 1, tFIDer->get_number_of_space_time_coefficients(), 0.0 );
+            Matrix< DDRMat > tdTau1dDof( 1, tFIDer->get_number_of_space_time_coefficients(), 0.0 );
+            Matrix< DDRMat > tdTau2dDof( 1, tFIDer->get_number_of_space_time_coefficients(), 0.0 );
 
             // get the velocity FI
             Field_Interpolator * tVelocityFI =
                     mMasterFIManager->get_field_interpolators_for_type( mMasterDofVelocity );
 
-            // compute the diffusion coefficient
+            // get the conductivity property
             std::shared_ptr< Property > tPropConductivity =
                     mMasterProp( static_cast< uint >( Property_Type::CONDUCTIVITY ) );
-            real tK = tPropConductivity->val()( 0 );
 
-            // evaluate norm( uTilde )
-            real tNormA = std::sqrt( dot( tVelocityFI->val(), tVelocityFI->val() ) );
+            // compute the norm of velocity
+            real tNorm = norm( tVelocityFI->val() );
 
-            // tau A
-            real tTauA = 2.0 * tNormA / mElementSize;
+            // compute the abs term
+            real tAbs = 0.0;
+            uint tNumNodes = tVelocityFI->dnNdxn( 1 ).n_cols();
+            for ( uint iNode = 0; iNode < tNumNodes; iNode++ )
+            {
+                Matrix< DDRMat > tAdd = trans( tVelocityFI->val() ) * tVelocityFI->dnNdxn( 1 ).get_column( iNode );
+                tAbs += std::abs( tAdd( 0, 0 ) );
+            }
 
-            // tau K
-            real tTauK = 4.0 * tK / std::pow( mElementSize, 2.0 );
+            // compute hugn
+            real tHugn = 1.0;
+            if( tAbs > 0.0 && tNorm > 0.0 )
+            {
+                tHugn = 2.0 * tNorm / tAbs;
+            }
 
-            // init derivative of tauA, tauK, tauS
-            Matrix< DDRMat > tdtauAdu( 1, tFI->get_number_of_space_time_coefficients(), 0.0 );
-            Matrix< DDRMat > tdtauKdu( 1, tFI->get_number_of_space_time_coefficients(), 0.0 );
+            // compute tau1
+            real tTau1 = 2.0 * tNorm / tHugn;
+
+            // compute tau2
+            real tTau2 = 4.0 * tPropConductivity->val()( 0 ) / std::pow( tHugn, 2.0 );
 
             // if dof type is velocity
-            if( aDofTypes( 0 ) == mMasterDofVelocity && tNormA > 0.0 )
+            if( aDofTypes( 0 ) == mMasterDofVelocity )
             {
-                // add contribution to dSPdu
-                tdtauAdu.matrix_data() +=
-                        2.0 * trans( tVelocityFI->val() ) * tVelocityFI->N() / ( mElementSize * tNormA );
+                // if tAbs and tNorm > 0.0
+                if( tAbs > 0.0 && tNorm > 0.0 )
+                {
+                    // compute derivative of hugn wrt velocity dof
+                    Matrix< DDRMat > tdHugndu( 1, tVelocityFI->get_number_of_space_time_coefficients(), 0.0 );
+                    Matrix< DDRMat > tdNormdu( 1, tVelocityFI->get_number_of_space_time_coefficients(), 0.0 );
+                    Matrix< DDRMat > tdAbsdu(  1, tVelocityFI->get_number_of_space_time_coefficients(), 0.0 );
+
+                    // compute derivative of the velocity norm
+                    tdNormdu.matrix_data() +=
+                            trans( tVelocityFI->val() ) * tVelocityFI->N() / tNorm;
+
+                    // compute derivative of the abs term
+                    uint tNumNodes = tVelocityFI->dnNdxn( 1 ).n_cols();
+                    for ( uint iNode = 0; iNode < tNumNodes; iNode++ )
+                    {
+                        Matrix< DDRMat > tAdd =
+                                trans( tVelocityFI->val() ) * tVelocityFI->dnNdxn( 1 ).get_column( iNode );
+                        tdAbsdu.matrix_data() +=
+                                tAdd * trans( tVelocityFI->dnNdxn( 1 ).get_column( iNode ) ) *
+                                tVelocityFI->N() / std::abs( tAdd( 0, 0 ) );
+                    }
+
+                    // compute derivative of hugn
+                    tdHugndu.matrix_data() +=
+                            2.0 * ( tdNormdu * tAbs - tdAbsdu * tNorm ) / std::pow( tAbs, 2.0 );
+
+                    // compute dtau1du
+                    tdTau1dDof.matrix_data() +=
+                            2.0 * ( tHugn * tdNormdu - tdHugndu * tNorm ) / std::pow( tHugn, 2 );
+
+                    // compute dtau2du
+                    tdTau2dDof.matrix_data() -=
+                            8.0 * tPropConductivity->val()( 0 ) * tdHugndu / std::pow( tHugn, 3 );
+                }
             }
 
             // if conductivity property depends on dof type
             if( tPropConductivity->check_dof_dependency( aDofTypes ) )
             {
-                // compute tdtauKdu
-                tdtauKdu.matrix_data() +=
-                        4.0 * tPropConductivity->dPropdDOF( aDofTypes ) / std::pow( mElementSize, 2.0 );;
+                // compute dtau3du
+                tdTau2dDof.matrix_data() +=
+                        4.0 * tPropConductivity->dPropdDOF( aDofTypes ) / std::pow( tHugn, 2.0 );
             }
 
             // evaluate tau
             Matrix< DDRMat > tTau = this->val();
 
             // scale dSPdu
-            mdPPdMasterDof( tDofIndex ) = - 0.5 * std::pow( tTau( 0 ), 3 ) *
-                    ( 2.0 * tTauA * tdtauAdu + 2.0 * tTauK * tdtauKdu );
-
-//            // get the dof type index
-//            uint tDofIndex = mMasterGlobalDofTypeMap( static_cast< uint >( aDofTypes( 0 ) ) );
-//
-//            // get the dof type FI
-//            Field_Interpolator * tFIDer = mMasterFIManager->get_field_interpolators_for_type( aDofTypes( 0 ) );
-//
-//            // set size for dSPdMasterDof, dTau1dDof, dTau3dDof
-//            mdPPdMasterDof( tDofIndex ).set_size( 1, tFIDer->get_number_of_space_time_coefficients(), 0.0 );
-//            Matrix< DDRMat > tdTau1dDof( 1, tFIDer->get_number_of_space_time_coefficients(), 0.0 );
-//            Matrix< DDRMat > tdTau3dDof( 1, tFIDer->get_number_of_space_time_coefficients(), 0.0 );
-//            Matrix< DDRMat > tdAlphadDof( 1, tFIDer->get_number_of_space_time_coefficients(), 0.0 );
-//
-//            // get the velocity FI
-//            Field_Interpolator * tVelocityFI
-//            = mMasterFIManager->get_field_interpolators_for_type( mMasterDofVelocity );
-//
-//            // get the conductivity property
-//            std::shared_ptr< Property > tPropConductivity
-//            = mMasterProp( static_cast< uint >( Property_Type::CONDUCTIVITY ) );
-//
-//            // compute the norm of velocity
-//            real tNorm = norm( tVelocityFI->val() );
-//
-//            // compute the abs term
-//            real tAbs = 0.0;
-//            uint tNumNodes = tVelocityFI->dnNdxn( 1 ).n_cols();
-//            for ( uint iNode = 0; iNode < tNumNodes; iNode++ )
-//            {
-//                Matrix< DDRMat > tAdd = trans( tVelocityFI->val() ) * tVelocityFI->dnNdxn( 1 ).get_column( iNode );
-//                tAbs += std::abs( tAdd( 0, 0 ) );
-//            }
-//
-//            // compute hugn
-//            real tHugn = 2.0 * tNorm / tAbs;
-//
-//            // compute tau1
-//            real tTau1 = 0.5 * tHugn / tNorm;
-//
-//            // compute tau3
-//            real tTau3 = 0.25 * std::pow( tHugn, 2.0 ) / tPropConductivity->val()( 0 );
-//
-//            // if dof type is velocity
-//            if( aDofTypes( 0 ) == mMasterDofVelocity )
-//            {
-//                // compute derivative of the velocity norm
-//                Matrix< DDRMat > tdNormdu = trans( tVelocityFI->val() ) * tVelocityFI->N() / tNorm;
-//
-//                // compute derivative of the abs term
-//                Matrix< DDRMat > tdAbsdu( 1, tVelocityFI->get_number_of_space_time_coefficients(), 0.0 );
-//                uint tNumNodes = tVelocityFI->dnNdxn( 1 ).n_cols();
-//                for ( uint iNode = 0; iNode < tNumNodes; iNode++ )
-//                {
-//                    Matrix< DDRMat > tAdd = trans( tVelocityFI->val() ) * tVelocityFI->dnNdxn( 1 ).get_column( iNode );
-//                    tdAbsdu.matrix_data()
-//                                    += tAdd * trans( tVelocityFI->dnNdxn( 1 ).get_column( iNode ) ) * tVelocityFI->N() / std::abs( tAdd( 0, 0 ) );
-//                }
-//
-//                // compute derivative of hugn
-//                Matrix< DDRMat > tdHugndu( 1, tVelocityFI->get_number_of_space_time_coefficients(), 0.0 );
-//                tdHugndu = 2.0 * ( tdNormdu * tAbs - tdAbsdu * tNorm ) / std::pow( tAbs, 2.0 );
-//
-//                // compute dtau1du
-//                tdTau1dDof.matrix_data() += 0.5 * ( tdHugndu * tNorm - tHugn * tdNormdu ) / std::pow( tNorm, 2.0 );
-//
-//                // compute dtau3du
-//                tdTau3dDof.matrix_data() += 0.5 * tHugn * tdHugndu / tPropConductivity->val()( 0 );
-//            }
-//
-//            // if conductivity property depends on dof type
-//            if( tPropConductivity->check_dof_dependency( aDofTypes ) )
-//            {
-//                // compute dtau3du
-//                tdTau3dDof.matrix_data() -=
-//                        0.25 * std::pow( tHugn, 2.0 ) * tPropConductivity->dPropdDOF( aDofTypes ) / std::pow( tPropConductivity->val()( 0 ), 2.0 );
-//            }
-//
-//            // add contribution
-//            mdPPdMasterDof( tDofIndex ).matrix_data() +=
-//                    std::pow( this->val()( 0 ), 3.0 ) *
-//                    ( std::pow( tTau1, -3.0 ) * tdTau1dDof.matrix_data() + std::pow( tTau3, -3.0 ) * tdTau3dDof.matrix_data() );
-
+            mdPPdMasterDof( tDofIndex ).matrix_data() -= 0.5 * std::pow( tTau( 0 ), 3 ) *
+                    ( 2.0 * tTau1 * tdTau1dDof + 2.0 * tTau2 * tdTau2dDof );
         }
 
         //------------------------------------------------------------------------------
