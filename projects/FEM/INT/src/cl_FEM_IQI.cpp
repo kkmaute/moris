@@ -9,6 +9,8 @@
 #include "cl_FEM_Set.hpp"
 #include "cl_FEM_Field_Interpolator_Manager.hpp"
 
+#include "fn_norm.hpp"
+
 namespace moris
 {
     namespace fem
@@ -1448,6 +1450,10 @@ namespace moris
                 // reset the coefficients values
                 tFI->set_coeff( tCoeff );
             }
+
+            // check for nan, infinity
+            MORIS_ERROR( isfinite( mSet->get_dqidpmat()( tIQIAssemblyIndex ) ) ,
+                    "IQI::compute_dQIdp_FD_material - dQIdp contains NAN or INF, exiting!");
         }
 
         //------------------------------------------------------------------------------
@@ -1568,6 +1574,10 @@ namespace moris
                 tIGGI->set_space_param_coeff( tParamCoeff );
                 mSet->get_field_interpolator_manager()->set_space_time_from_local_IG_point( tEvaluationPoint );
             }
+
+            // check for nan, infinity
+            MORIS_ERROR( isfinite( mSet->get_dqidpgeo()( tIQIAssemblyIndex ) ) ,
+                    "IQI::compute_dQIdp_FD_geometry - dQIdp contains NAN or INF, exiting!");
         }
 
         //------------------------------------------------------------------------------
@@ -1639,6 +1649,11 @@ namespace moris
                         { tMasterDepStartIndex, tMasterDepStopIndex },
                         { 0, 0 } ) += aWStar * tdQIdu;
             }
+
+            // check for nan, infinity
+            MORIS_ERROR( isfinite( mSet->get_residual()( tQIIndex ) ) ,
+                    "IQI::add_dQIdu_on_set - dQIdu contains NAN or INF, exiting!");
+
         }
 
         //------------------------------------------------------------------------------
