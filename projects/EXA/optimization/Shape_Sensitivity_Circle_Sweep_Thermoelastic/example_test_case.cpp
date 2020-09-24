@@ -83,7 +83,7 @@ TEST_CASE("Shape_Sensitivity_Circle_Sweep_Thermoelastic",
 }
 
 TEST_CASE("Shape_Sensitivity_Circle_Sweep_Thermoelastic_Staggered",
-        "[moris],[example],[optimization],[sweep],[sweep_thermoelastic]")
+        "[moris],[example],[optimization],[sweep],[sweep_thermoelastic_staggered]")
 {
     // define command line call
     int argc = 2;

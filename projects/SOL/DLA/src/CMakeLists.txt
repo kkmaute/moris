@@ -6,7 +6,6 @@ set(${DLA}_VERSION ${MORIS_VERSION})
 
 # List header files
 set(HEADERS
-    cl_Communicator_Epetra.hpp
     cl_DLA_Linear_Solver_Amesos2.hpp
     cl_DLA_Linear_Solver_Amesos.hpp
     cl_DLA_Linear_Solver_Aztec.hpp
@@ -20,21 +19,13 @@ set(HEADERS
     cl_DLA_Solver_Factory.hpp
     cl_DLA_Solver_Interface.hpp
     cl_DLA_Linear_Solver_Algorithm.hpp
-    cl_DLA_Geometric_Multigrid.hpp
-    cl_Map_Epetra.hpp
-    cl_Map_PETSc.hpp
-    cl_MatrixPETSc.hpp
-    cl_Matrix_Vector_Factory.hpp
-    cl_Sparse_Matrix_EpetraFECrs.hpp
-    cl_Vector_Epetra.hpp
-    cl_VectorPETSc.hpp )
+    cl_DLA_Geometric_Multigrid.hpp)
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # distlinalg Library
 
 # List library source files
 set(LIB_SOURCES
-    cl_Communicator_Epetra.cpp
     cl_DLA_Linear_Solver_Amesos2.cpp
     cl_DLA_Linear_Solver_Amesos.cpp
     cl_DLA_Linear_Solver_Aztec.cpp
@@ -46,15 +37,8 @@ set(LIB_SOURCES
     cl_DLA_Linear_Solver.cpp
     cl_DLA_Linear_Problem.cpp
     cl_DLA_Geometric_Multigrid.cpp
-    cl_Map_Epetra.cpp
-    cl_Map_PETSc.cpp
-    cl_MatrixPETSc.cpp
-    cl_Matrix_Vector_Factory.cpp
-    cl_DLA_Solver_Factory.cpp
-    cl_Sparse_Matrix_EpetraFECrs.cpp
-    cl_Vector_Epetra.cpp
-    cl_VectorPETSc.cpp
-    cl_DLA_Solver_Interface.cpp )
+    cl_DLA_Solver_Interface.cpp
+    cl_DLA_Solver_Factory.cpp)
 
 # List library dependencies
 set(LIB_DEPENDENCIES

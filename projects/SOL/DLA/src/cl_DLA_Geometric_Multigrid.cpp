@@ -9,7 +9,7 @@
 #include "cl_SOL_Dist_Vector.hpp"
 
 #include "cl_DLA_Geometric_Multigrid.hpp"
-#include "cl_Matrix_Vector_Factory.hpp"
+#include "cl_SOL_Matrix_Vector_Factory.hpp"
 #include "cl_SOL_Enums.hpp"
 
 #include "cl_MTK_Mesh_Core.hpp"

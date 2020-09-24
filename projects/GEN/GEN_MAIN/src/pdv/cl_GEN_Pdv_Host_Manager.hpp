@@ -22,6 +22,9 @@ namespace moris
             // Number of ADVs
             uint mNumADVs;
             bool mNumADVsSet = false;
+            
+            // Static nodes set
+            bool mNumBackgroundNodesSet = false;
 
             moris::Cell< enum PDV_Type >   mPdvTypeList;          // List containing all used unique dv types.
             Matrix< DDSMat >               mPdvTypeMap;           // Map which maps the unique dv types onto consecutive values.
@@ -80,11 +83,18 @@ namespace moris
             }
 
             /**
-             * Sets the number of ADVs
+             * Sets the number of ADVs.
              *
              * @param aNumADVs Number of ADVs
              */
             void set_num_advs(uint aNumADVs);
+            
+            /**
+             * Sets the number of nodes.
+             * 
+             * @param aNumNodes Number of nodes
+             */
+            void set_num_background_nodes(uint aNumNodes); 
 
             void set_communication_table( const Matrix< IdMat > & aCommTable );
 
@@ -99,7 +109,7 @@ namespace moris
             };
 
             /**
-             * Resets the stored information about PDV hosts
+             * Resets the stored information about PDV hosts.
              */
             void reset();
             

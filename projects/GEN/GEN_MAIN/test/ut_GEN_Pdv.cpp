@@ -326,6 +326,7 @@ namespace moris
             {
                 // Create PDV_Type host manager
                 Pdv_Host_Manager tPdvHostManager;
+                tPdvHostManager.set_num_background_nodes(0);
 
                 Matrix<IdMat> tIpNodeIdsPerSet(4,1);
 

@@ -4,7 +4,7 @@
  *  Created on: Jun 28, 2018
  *      Author: schmidt
  */
-#include "cl_Matrix_Vector_Factory.hpp"
+#include "cl_SOL_Matrix_Vector_Factory.hpp"
 
 #include "cl_Sparse_Matrix_EpetraFECrs.hpp"
 #include "cl_MatrixPETSc.hpp"

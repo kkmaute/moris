@@ -12,7 +12,7 @@
 #include "cl_VectorPETSc.hpp"
 #include "cl_MatrixPETSc.hpp"
 
-#include "cl_Matrix_Vector_Factory.hpp"
+#include "cl_SOL_Matrix_Vector_Factory.hpp"
 #include "cl_DLA_Solver_Interface.hpp"
 
 #include "cl_DLA_Linear_Problem.hpp"

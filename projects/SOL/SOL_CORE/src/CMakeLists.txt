@@ -7,10 +7,17 @@ set(${SOL_CORE}_VERSION ${MORIS_VERSION})
 # List header files
 set(HEADERS
     cl_SOL_Warehouse.hpp
+	cl_SOL_Matrix_Vector_Factory.hpp
     cl_SOL_Dist_Vector.hpp
     cl_SOL_Dist_Matrix.hpp
     cl_SOL_Dist_Map.hpp
- )
+    cl_Communicator_Epetra.hpp
+	cl_Map_Epetra.hpp
+    cl_Map_PETSc.hpp
+    cl_MatrixPETSc.hpp
+    cl_Sparse_Matrix_EpetraFECrs.hpp
+    cl_Vector_Epetra.hpp
+    cl_VectorPETSc.hpp)
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Sol Core Library
@@ -18,12 +25,19 @@ set(HEADERS
 # List library source files
 set(LIB_SOURCES
     cl_SOL_Warehouse.cpp
+	cl_SOL_Matrix_Vector_Factory.cpp
+    cl_Communicator_Epetra.cpp
+    cl_Map_Epetra.cpp
+    cl_Map_PETSc.cpp
+    cl_MatrixPETSc.cpp
+    cl_Sparse_Matrix_EpetraFECrs.cpp
+    cl_Vector_Epetra.cpp
+    cl_VectorPETSc.cpp
  )
 
 # List library dependencies
 set(LIB_DEPENDENCIES
     ${DLA}-lib
-    ${MSI}-lib
     )
 
 # Set the output path for library

@@ -1,4 +1,5 @@
 #include "cl_GEN_Pdv_Host_Manager.hpp"
+#include "cl_Communication_Tools.hpp"
 #include "fn_sum.hpp"
 
 namespace moris
@@ -27,14 +28,26 @@ namespace moris
             mNumADVsSet = true;
         }
 
+        //--------------------------------------------------------------------------------------------------------------
+
         void Pdv_Host_Manager::set_communication_table( const Matrix< IdMat > & aCommTable )
         {
             mCommTable = aCommTable;
         }
 
+        //--------------------------------------------------------------------------------------------------------------
+
         Matrix< IdMat > Pdv_Host_Manager::get_communication_table()
         {
             return mCommTable;
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
+        void Pdv_Host_Manager::set_num_background_nodes(uint aNumNodes)
+        {
+            mIntersectionNodes.resize(aNumNodes);
+            mNumBackgroundNodesSet = true;
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -229,6 +242,8 @@ namespace moris
             return mOwnedPdvLocalToGlobalMap;
         }
 
+        //--------------------------------------------------------------------------------------------------------------
+
         const Matrix<DDSMat> & Pdv_Host_Manager::get_my_local_global_overlapping_map()
         {
             return mOwnedAndSharedPdvLocalToGlobalMap;
@@ -286,7 +301,9 @@ namespace moris
                 {
                     if (mIntersectionNodes(aNodeIndices(tNode)))
                     {
-                        aDvIds(tPdvTypeIndex)(tNode) = mIntersectionNodes(aNodeIndices(tNode))->get_starting_pdv_id() + static_cast<uint>(aPdvTypes(tPdvTypeIndex));
+                        aDvIds(tPdvTypeIndex)(tNode) =
+                                mIntersectionNodes(aNodeIndices(tNode))->get_starting_pdv_id()
+                                + static_cast<uint>(aPdvTypes(tPdvTypeIndex));
                     }
                 }
             }
@@ -411,15 +428,17 @@ namespace moris
 
         void Pdv_Host_Manager::set_intersection_node(uint aNodeIndex, std::shared_ptr<Intersection_Node> aIntersectionNode)
         {
-            // Resize FIXME this is a hack
-            if (aNodeIndex >= mIntersectionNodes.size())
-            {
-                mIntersectionNodes.resize(aNodeIndex + 1, nullptr);
-            }
+            // Check node index
+            MORIS_ASSERT(mNumBackgroundNodesSet,
+                         "Number of background nodes must be set in the PDV Host Manager before intersection nodes can be created.");
+            MORIS_ASSERT(aNodeIndex == mIntersectionNodes.size(),
+                         "Intersection nodes must be added to the PDV Host Manager in order by node index.");
 
-            // Set intersection node
-            mIntersectionNodes(aNodeIndex) = aIntersectionNode;
+            // Add intersection node
+            mIntersectionNodes.push_back(aIntersectionNode);
         }
+
+        //--------------------------------------------------------------------------------------------------------------
 
         void Pdv_Host_Manager::update_intersection_node(
                 const moris_index & aNodeIndex,
@@ -433,11 +452,10 @@ namespace moris
             {
                 mIntersectionNodes.resize(aNodeIndex + 1, nullptr);
             }
-
             if( mIntersectionNodes(aNodeIndex)!= nullptr )
             {
-                mIntersectionNodes(aNodeIndex)->set_vertex_id( aNodeId );
-                mIntersectionNodes(aNodeIndex)->set_vertex_owner( aNodeOwner );
+                mIntersectionNodes(aNodeIndex)->set_vertex_id(aNodeId);
+                mIntersectionNodes(aNodeIndex)->set_vertex_owner(aNodeOwner);
             }
         }
 
@@ -445,6 +463,7 @@ namespace moris
 
         void Pdv_Host_Manager::set_num_integration_nodes(uint aNumNodes)
         {
+            // FIXME check that this is done
             mIntersectionNodes.resize(aNumNodes);
         }
 

@@ -22,17 +22,17 @@ namespace moris
                 uint            aBSplineMeshIndex,
                 real            aBSplineLowerBound,
                 real            aBSplineUpperBound)
-        : Field(aADVs,
-                aGeometryVariableIndices,
-                aADVIndices,
-                aConstantParameters,
-                aNumRefinements,
-                aRefinementFunctionIndex,
-                aBSplineMeshIndex,
-                aBSplineLowerBound,
-                aBSplineUpperBound),
-                Field_Discrete(aMesh->get_num_nodes()),
-                mMesh(aMesh)
+                : Field(aADVs,
+                        aGeometryVariableIndices,
+                        aADVIndices,
+                        aConstantParameters,
+                        aNumRefinements,
+                        aRefinementFunctionIndex,
+                        aBSplineMeshIndex,
+                        aBSplineLowerBound,
+                        aBSplineUpperBound),
+                  Field_Discrete(aMesh->get_num_nodes()),
+                  mMesh(aMesh)
         {
             // Check that number of variables equals the number of B-spline coefficients
             MORIS_ASSERT(mFieldVariables.size() == mMesh->get_num_coeffs(aBSplineMeshIndex),
@@ -46,16 +46,16 @@ namespace moris
                 uint                      aADVIndex,
                 mtk::Interpolation_Mesh*  aMesh,
                 std::shared_ptr<Geometry> aGeometry)
-        : Field(aADVs,
-                aADVIndex,
-                aMesh->get_num_coeffs(aGeometry->get_bspline_mesh_index()),
-                aGeometry->get_num_refinements(),
-                aGeometry->get_refinement_function_index(),
-                aGeometry->get_bspline_mesh_index(),
-                aGeometry->get_bspline_lower_bound(),
-                aGeometry->get_bspline_upper_bound()),
-                Field_Discrete(aMesh->get_num_nodes()),
-                mMesh(aMesh)
+                : Field(aADVs,
+                        aADVIndex,
+                        aMesh->get_num_coeffs(aGeometry->get_bspline_mesh_index()),
+                        aGeometry->get_num_refinements(),
+                        aGeometry->get_refinement_function_index(),
+                        aGeometry->get_bspline_mesh_index(),
+                        aGeometry->get_bspline_lower_bound(),
+                        aGeometry->get_bspline_upper_bound()),
+                  Field_Discrete(aMesh->get_num_nodes()),
+                  mMesh(aMesh)
         {
             // Check for L2 needed
             if (mNumOriginalNodes != mMesh->get_num_coeffs(this->get_bspline_mesh_index()))
@@ -101,6 +101,40 @@ namespace moris
                 for (uint tNodeIndex = 0; tNodeIndex < mNumOriginalNodes; tNodeIndex++)
                 {
                     aADVs(aADVIndex + mMesh->get_bspline_inds_of_node_loc_ind(tNodeIndex, EntityRank::BSPLINE)(0)) =
+                            aGeometry->evaluate_field_value(tNodeIndex, mMesh->get_node_coordinate(tNodeIndex));
+                }
+            }
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
+        Level_Set::Level_Set(
+                sol::Dist_Vector*         aOwnedADVs,
+                uint                      aADVIndex,
+                mtk::Interpolation_Mesh*  aMesh,
+                std::shared_ptr<Geometry> aGeometry)
+                : Field(aOwnedADVs,
+                        aADVIndex,
+                        aMesh->get_num_coeffs(aGeometry->get_bspline_mesh_index()),
+                        aGeometry->get_num_refinements(),
+                        aGeometry->get_refinement_function_index(),
+                        aGeometry->get_bspline_mesh_index(),
+                        aGeometry->get_bspline_lower_bound(),
+                        aGeometry->get_bspline_upper_bound()),
+                  Field_Discrete(aMesh->get_num_nodes()),
+                  mMesh(aMesh)
+        {
+            // Check for L2 needed
+            if (mNumOriginalNodes != mMesh->get_num_coeffs(this->get_bspline_mesh_index()))
+            {
+                MORIS_ERROR(false, "L2 not implemented in parallel");
+            }
+            else // Nodal values, no L2
+            {
+                // Assign ADVs directly
+                for (uint tNodeIndex = 0; tNodeIndex < mNumOriginalNodes; tNodeIndex++)
+                {
+                    (*aOwnedADVs)(aADVIndex + mMesh->get_bspline_inds_of_node_loc_ind(tNodeIndex, EntityRank::BSPLINE)(0)) =
                             aGeometry->evaluate_field_value(tNodeIndex, mMesh->get_node_coordinate(tNodeIndex));
                 }
             }

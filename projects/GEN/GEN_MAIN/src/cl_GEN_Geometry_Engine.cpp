@@ -18,6 +18,9 @@
 // XTK FIXME
 #include "cl_XTK_Topology.hpp"
 
+// SOL FIXME
+#include "cl_SOL_Matrix_Vector_Factory.hpp"
+
 namespace moris
 {
     namespace ge
@@ -120,7 +123,12 @@ namespace moris
         void Geometry_Engine::set_advs(Matrix<DDRMat> aNewADVs)
         {
             // Set new ADVs
-            mADVs = aNewADVs;
+            if (mOwnedADVs and mOwnedADVIds.length())
+            {
+                mOwnedADVs->replace_global_values(mOwnedADVIds, aNewADVs);
+                mOwnedADVs->vector_global_asembly();
+            }
+            mADVs = aNewADVs; // FIXME
 
             // Reset info related to the mesh
             mPdvHostManager.reset();
@@ -135,6 +143,14 @@ namespace moris
 
         Matrix<DDRMat>& Geometry_Engine::get_advs()
         {
+//
+//            moris::sol::Dist_Map* tFullMap = tADVFactory.create_map(tOwned);
+//            moris::sol::Dist_Vector* tFullVector = tADVFactory.create_vector(tFullMap);
+//
+//            tOwnedVector->vector_global_asembly();
+//            tFullVector->import_local_to_global(*tOwnedVector);
+
+            mOwnedADVs->extract_copy(mADVs);
             return mADVs;
         }
 
@@ -283,6 +299,10 @@ namespace moris
             {
                 mPdvHostManager.set_intersection_node(aNodeIndex, mQueuedIntersectionNode);
             }
+            else
+            {
+                mPdvHostManager.set_intersection_node(aNodeIndex, nullptr);
+            }
 
             // Assign as child node
             for (uint tGeometryIndex = 0; tGeometryIndex < mGeometries.size(); tGeometryIndex++)
@@ -307,6 +327,7 @@ namespace moris
                 const Cell<Matrix<DDRMat>>& aParamCoordRelativeToParent,
                 const Matrix<DDRMat>&       aGlobalNodeCoord )
         {
+            // Loop over nodes
             for (uint tNode = 0; tNode < aNewNodeIndices.size(); tNode++)
             {
                 // Create child node
@@ -326,6 +347,12 @@ namespace moris
                     mGeometries(tGeometryIndex)->add_child_node(aNewNodeIndices(tNode), tChildNode);
                 }
             }
+
+            // Set max node index
+            if (aNewNodeIndices.size() > 0)
+            {
+                mPdvHostManager.set_num_background_nodes(aNewNodeIndices(aNewNodeIndices.size() - 1) + 1);
+            }
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -336,7 +363,6 @@ namespace moris
         }
 
         //--------------------------------------------------------------------------------------------------------------
-
 
         moris_index Geometry_Engine::get_phase_sign_of_given_phase_and_geometry(
                 moris_index aPhaseIndex,
@@ -600,6 +626,9 @@ namespace moris
             // Register spatial dimension
             mSpatialDim = aMesh->get_spatial_dim();
 
+            // Set number of background nodes
+            mPdvHostManager.set_num_background_nodes(aMesh->get_num_nodes());
+
             // Number of filled ADVs
             uint tNumFilledADVs = mADVs.length();
 
@@ -645,10 +674,32 @@ namespace moris
             mUpperBounds.resize(mADVs.length(), 1);
             mPdvHostManager.set_num_advs(mADVs.length());
 
-            // Build geometries and properties
+            // Build geometries and properties from parameter lists using distributed vector
             if (mGeometryParameterLists.size() > 0)
             {
-                mGeometries = create_geometries(mGeometryParameterLists, mADVs, mLibrary);
+                // Create factor for distributed ADV vector
+                Matrix_Vector_Factory tDistributedFactory;
+
+                // Set primitive ADV IDs
+                mOwnedADVIds.resize(mADVs.length(), 1);
+                for (uint tADVIndex = 0; tADVIndex < mADVs.length(); tADVIndex++)
+                {
+                    mOwnedADVIds(tADVIndex) = tADVIndex;
+                }
+
+                // Communicate level set ADV IDs
+
+                // Create map for distributed vector
+                moris::sol::Dist_Map* tOwnedADVMap = tDistributedFactory.create_map(mOwnedADVIds);
+
+                // Create vector
+                mOwnedADVs = tDistributedFactory.create_vector(tOwnedADVMap);
+
+                // Assign primitive values
+                mOwnedADVs->replace_global_values(mOwnedADVIds, mADVs);
+
+                // Build geometries and properties
+                mGeometries = create_geometries(mGeometryParameterLists, mOwnedADVs, mLibrary);
                 mProperties = create_properties(mPropertyParameterLists, mADVs, mLibrary);
                 mGeometryParameterLists.resize(0);
                 // TODO have properties store all data so parameter lists can be deleted too
@@ -666,11 +717,23 @@ namespace moris
                     // Always have shape sensitivities if level set
                     mShapeSensitivities = true;
 
-                    // Create level set
-                    mGeometries(tGeometryIndex) = std::make_shared<Level_Set>(mADVs,
-                                                                              tNumFilledADVs,
-                                                                              aMesh,
-                                                                              mGeometries(tGeometryIndex));
+                    // Create level set FIXME when we have parallel L2
+                    if (par_size() == 1)
+                    {
+                        mGeometries(tGeometryIndex) = std::make_shared<Level_Set>(
+                                mADVs,
+                                tNumFilledADVs,
+                                aMesh,
+                                mGeometries(tGeometryIndex));
+                    }
+                    else
+                    {
+                        mGeometries(tGeometryIndex) = std::make_shared<Level_Set>(
+                                mOwnedADVs,
+                                tNumFilledADVs,
+                                aMesh,
+                                mGeometries(tGeometryIndex));
+                    }
 
                     // Assign bounds
                     uint tNumCoeffs = aMesh->get_num_coeffs(mGeometries(tGeometryIndex)->get_bspline_mesh_index());

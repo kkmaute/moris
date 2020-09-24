@@ -60,7 +60,7 @@
 #include "cl_FEM_Geometry_Interpolator.hpp"
 #include "cl_FEM_Property.hpp"
 //SOL
-#include "cl_Matrix_Vector_Factory.hpp"
+#include "cl_SOL_Matrix_Vector_Factory.hpp"
 #include "cl_SOL_Dist_Map.hpp"
 #include "cl_SOL_Dist_Vector.hpp"
 
