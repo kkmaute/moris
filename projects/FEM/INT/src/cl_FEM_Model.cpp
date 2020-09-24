@@ -1386,7 +1386,9 @@ namespace moris
             {
                 for( uint iSet = 0; iSet < mSetInfo.size(); iSet++ )
                 {
+                    std::cout<<"%-------------------------------------------------"<<std::endl;
                     mSetInfo( iSet ).print_names();
+                    std::cout<<"%-------------------------------------------------"<<std::endl;
                 }
             }
         }
