@@ -1075,7 +1075,8 @@ namespace moris
             for( uint Ik = 0; Ik < tRequestedDofTypes.size(); Ik++ )
             {
                 //get the set index for the requested slave dof type
-                sint tDofIndex = this->get_dof_index_for_type( tRequestedDofTypes( Ik ),
+                sint tDofIndex = this->get_dof_index_for_type(
+                        tRequestedDofTypes( Ik ),
                         mtk::Master_Slave::SLAVE );
 
                 // if the dof type was set (its set index is different from -1)
