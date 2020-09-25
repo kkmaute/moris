@@ -614,34 +614,39 @@ namespace moris
             moris::Cell< MSI::Dof_Type > tDofTypeGroup =
                     mSet->get_requested_dof_types();
 
+            // get number of dof types
+            uint tNumDofTypes = tDofTypeGroup.size();
+
             // get the adjoint values for the ith dof type group
-            Cell< Cell< Matrix< DDRMat > > > tCoeff_Original;
+            Cell< Cell< Matrix< DDRMat > > > tMasterAdjointOriginal;
             this->get_my_pdof_values(
                     mAdjointPdofValues,
                     tDofTypeGroup,
-                    tCoeff_Original,
+                    tMasterAdjointOriginal,
                     mtk::Master_Slave::MASTER );
 
             uint tNumMasterPdofValues = 0;
-            Cell< Matrix< DDRMat > > tCoeff( tNumRHS );
+            Cell< Matrix< DDRMat > > tMasterAdjoint( tNumRHS );
             for( uint Ik = 0; Ik < tNumRHS; Ik++ )
             {
-                // reshape tCoeffs into the order the cluster expects them
-                this->reshape_pdof_values(
-                        tCoeff_Original( Ik ),
-                        tCoeff( Ik ) );
-
                 // set size for reordered adjoint values
                 tAdjointPdofValuesReordered( Ik ).set_size( tNumPdofValues, 1, 0.0 );
 
                 // FIXME get rid of for loop - use a better solution
                 uint tCounter = 0;
-                for( uint Ia = 0; Ia<tCoeff( Ik ).n_cols(); Ia++)
+                for( uint Ia = 0; Ia < tNumDofTypes; Ia++ )
                 {
-                    for( uint Ii = 0; Ii<tCoeff( Ik ).n_rows(); Ii++)
-                    {
-                        tAdjointPdofValuesReordered( Ik )( tCounter++ ) = tCoeff( Ik )( Ii, Ia );
-                    }
+                    // get number of pdof values for dof type
+                    uint tNumPdofValuesForType = tMasterAdjointOriginal( Ik )( Ia ).numel();
+
+                    // fill reordered adjoint pdof values
+                    tAdjointPdofValuesReordered( Ik )(
+                            { tCounter, tCounter + tNumPdofValuesForType - 1 },
+                            { 0, 0 } ) =
+                                    tMasterAdjointOriginal( Ik )( Ia ).matrix_data();
+
+                    // update counter
+                    tCounter += tNumPdofValuesForType;
                 }
 
                 // get number of master pdof values
@@ -658,22 +663,23 @@ namespace moris
                         tSlaveAdjointOriginal,
                         mtk::Master_Slave::SLAVE );
 
-                Cell< Matrix< DDRMat > > tSlaveAdjoint( tNumRHS );
                 for( uint Ik = 0; Ik < tNumRHS; Ik++ )
                 {
-                    // reshape tCoeffs into the order the cluster expects them
-                    this->reshape_pdof_values(
-                            tSlaveAdjointOriginal( Ik ),
-                            tSlaveAdjoint( Ik ) );
-
                     // FIXME get rid of for loop - use a better solution
                     uint tCounter = tNumMasterPdofValues;
-                    for( uint Ia = 0; Ia < tSlaveAdjoint( Ik ).n_cols(); Ia++)
+                    for( uint Ia = 0; Ia < tNumDofTypes; Ia++ )
                     {
-                        for( uint Ii = 0; Ii < tSlaveAdjoint( Ik ).n_rows(); Ii++)
-                        {
-                            tAdjointPdofValuesReordered( Ik )( tCounter++ ) = tSlaveAdjoint( Ik )( Ii, Ia ) ;
-                        }
+                        // get number of pdof values for dof type
+                        uint tNumPdofValuesForType = tSlaveAdjointOriginal( Ik )( Ia ).numel();
+
+                        // fill reordered adjoint pdof values
+                        tAdjointPdofValuesReordered( Ik )(
+                                { tCounter, tCounter + tNumPdofValuesForType - 1 },
+                                { 0, 0 } ) =
+                                        tSlaveAdjointOriginal( Ik )( Ia ).matrix_data();
+
+                        // update counter
+                        tCounter += tNumPdofValuesForType;
                     }
                 }
             }
