@@ -138,7 +138,7 @@ namespace moris
             // Set variables from ADVs
             for (uint tVariableIndex = 0; tVariableIndex < aNumFieldVariables; tVariableIndex++)
             {
-                mFieldVariables(tVariableIndex) = &(*aOwnedADVs)(aStartingADVIndex + tVariableIndex);
+                mFieldVariables(tVariableIndex) = &(*aOwnedADVs)(aStartingADVIndex + tVariableIndex + 1);
                 mADVDependencies(tVariableIndex) = aStartingADVIndex + tVariableIndex;
             }
         }

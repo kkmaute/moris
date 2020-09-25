@@ -15,7 +15,7 @@ namespace moris
         {
 
         private:
-            mtk::Mesh* mMesh;
+            mtk::Interpolation_Mesh* mMesh;
 
         public:
             /**
@@ -31,16 +31,16 @@ namespace moris
              * @param aBSplineLowerBound The lower bound for the B-spline coefficients describing this field
              * @param aBSplineUpperBound The upper bound for the B-spline coefficients describing this field
              */
-            Level_Set(Matrix<DDRMat>& aADVs,
-                      Matrix<DDUMat>  aGeometryVariableIndices,
-                      Matrix<DDUMat>  aADVIndices,
-                      Matrix<DDRMat>  aConstantParameters,
-                      mtk::Mesh*      aMesh,
-                      sint            aNumRefinements = 0,
-                      sint            aRefinementFunctionIndex = -1,
-                      uint            aBSplineMeshIndex = 0,
-                      real            aBSplineLowerBound = -1.0,
-                      real            aBSplineUpperBound = 1.0);
+            Level_Set(Matrix<DDRMat>&          aADVs,
+                      Matrix<DDUMat>           aGeometryVariableIndices,
+                      Matrix<DDUMat>           aADVIndices,
+                      Matrix<DDRMat>           aConstantParameters,
+                      mtk::Interpolation_Mesh* aMesh,
+                      sint                     aNumRefinements = 0,
+                      sint                     aRefinementFunctionIndex = -1,
+                      uint                     aBSplineMeshIndex = 0,
+                      real                     aBSplineLowerBound = -1.0,
+                      real                     aBSplineUpperBound = 1.0);
 
             /**
              * Constructor where ADVs are added based on an input field and a B-spline mesh.
@@ -93,6 +93,13 @@ namespace moris
              * @param aSensitivities Vector of sensitivities
              */
             void evaluate_all_sensitivities(uint aNodeIndex, Matrix<DDRMat>& aSensitivities);
+
+            /**
+             * Maps the level set field from nodes to B-splines for the given geometry.
+             *
+             * @return Target field
+             */
+            Matrix<DDRMat> map_to_bsplines(std::shared_ptr<Geometry> aGeometry);
 
         };
     }

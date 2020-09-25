@@ -105,10 +105,6 @@ namespace moris
                   mGeometries(aGeometry),
                   mPhaseTable(aPhaseTable)
         {
-            for (uint tGeometryIndex = 0; tGeometryIndex < mGeometries.size(); tGeometryIndex++)
-            {
-                mShapeSensitivities = (mShapeSensitivities or mGeometries(tGeometryIndex)->depends_on_advs());
-            }
             this->compute_level_set_data(aMesh);
         }
 
@@ -617,10 +613,6 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-
-
-        //--------------------------------------------------------------------------------------------------------------
-
         void Geometry_Engine::compute_level_set_data(mtk::Interpolation_Mesh* aMesh)
         {
             // Register spatial dimension
@@ -629,83 +621,106 @@ namespace moris
             // Set number of background nodes
             mPdvHostManager.set_num_background_nodes(aMesh->get_num_nodes());
 
-            // Number of filled ADVs
-            uint tNumFilledADVs = mADVs.length();
-
-            // Reset geometries if parameter lists are given
-            if (mGeometryParameterLists.size() > 0)
-            {
-                mGeometries.resize(0);
-            }
-
-            // Loop over all geometry and property parameter lists to resize ADVs (TODO)
-            for (uint tGeometryIndex = 0; tGeometryIndex < mGeometryParameterLists.size(); tGeometryIndex++)
-            {
-                // Determine if level set will be created
-                sint tBSplineMeshIndex = mGeometryParameterLists(tGeometryIndex).get<sint>("bspline_mesh_index");
-                if (tBSplineMeshIndex >= 0)
-                {
-                    // Resize
-                    mADVs.resize(mADVs.length() + aMesh->get_num_coeffs(tBSplineMeshIndex), 1);
-                }
-            }
-
-            // Check all input geometries for ADVs and level set conversion (if not from parameter list) for more resizing
-            bool tDependOnADVs = false;
-            bool tBSplineConversion = false;
+            // Loop over all geometries to get number of new ADVs
+            uint tNumNewOwnedADVs = 0;
             for (uint tGeometryIndex = 0; tGeometryIndex < mGeometries.size(); tGeometryIndex++)
             {
-                tDependOnADVs = (tDependOnADVs or mGeometries(tGeometryIndex)->depends_on_advs());
-                tBSplineConversion = (tBSplineConversion or mGeometries(tGeometryIndex)->conversion_to_bsplines());
-
-                // If level set will be created
+                // Determine if level set will be created
                 if (mGeometries(tGeometryIndex)->conversion_to_bsplines())
                 {
-                    // Resize
-                    mADVs.resize(mADVs.length() + aMesh->get_num_coeffs(mGeometries(tGeometryIndex)->get_bspline_mesh_index()), 1);
+                    // Loop over B-spline coefficients
+                    sint tBSplineMeshIndex = mGeometries(tGeometryIndex)->get_bspline_mesh_index();
+                    for (uint tBSplineIndex = 0; tBSplineIndex < aMesh->get_num_coeffs(tBSplineMeshIndex); tBSplineIndex++)
+                    {
+                        // If this processor owns this coefficient
+                        if (par_rank() == aMesh->get_entity_owner(tBSplineIndex, EntityRank::BSPLINE, tBSplineMeshIndex))
+                        {
+                            // New ADV needs to be created on this processor
+                            tNumNewOwnedADVs++;
+                        }
+                    }
                 }
             }
-            MORIS_ERROR((not tDependOnADVs) or (not tBSplineConversion),
-                        "If the geometry engine is given geometries which have already been created, they cannot both depend "
-                        "on ADVs and be converted into a level set. Instead, please create the level set beforehand.");
 
-            // Set number of ADVs after level set creation
-            mLowerBounds.resize(mADVs.length(), 1);
-            mUpperBounds.resize(mADVs.length(), 1);
-            mPdvHostManager.set_num_advs(mADVs.length());
+            // Set number of owned ADVs
+            uint tNumOwnedADVs = mADVs.length() + tNumNewOwnedADVs;
+            mLowerBounds.resize(tNumOwnedADVs, 1);
+            mUpperBounds.resize(tNumOwnedADVs, 1);
+            mPdvHostManager.set_num_advs(tNumOwnedADVs);
 
-            // Build geometries and properties from parameter lists using distributed vector
-            if (mGeometryParameterLists.size() > 0)
+            // Resize ADV IDs
+            mOwnedADVIds.resize(mADVs.length(), 1);
+            for (uint tADVIndex = 0; tADVIndex < mADVs.length(); tADVIndex++)
+            {
+                mOwnedADVIds(tADVIndex) = tADVIndex;
+            }
+            Matrix<DDSMat> tPrimitiveIds = mOwnedADVIds;
+            mOwnedADVIds.resize(tNumOwnedADVs, 1);
+
+            // Loop over all geometry parameter lists to set B-spline ADV bounds and IDs
+            uint tADVIndex = mADVs.length();
+            uint tIdOffset = tADVIndex; // FIXME this needs to be updated for multiple level set fields
+            for (uint tGeometryIndex = 0; tGeometryIndex < mGeometries.size(); tGeometryIndex++)
+            {
+                // Determine if level set will be created
+                if (mGeometries(tGeometryIndex)->conversion_to_bsplines())
+                {
+                    // Get bounds
+                    real tBSplineLowerBound = mGeometries(tGeometryIndex)->get_bspline_lower_bound();
+                    real tBSplineUpperBound = mGeometries(tGeometryIndex)->get_bspline_upper_bound();
+
+                    // Loop over B-spline coefficients
+                    sint tBSplineMeshIndex = mGeometries(tGeometryIndex)->get_bspline_mesh_index();
+                    for (uint tBSplineIndex = 0; tBSplineIndex < aMesh->get_num_coeffs(tBSplineMeshIndex); tBSplineIndex++)
+                    {
+                        // If this processor owns this coefficient
+                        if (par_rank() == aMesh->get_entity_owner(tBSplineIndex, EntityRank::BSPLINE, tBSplineMeshIndex))
+                        {
+                            // Bounds
+                            mLowerBounds(tADVIndex) = tBSplineLowerBound;
+                            mUpperBounds(tADVIndex) = tBSplineUpperBound;
+
+                            // New ADV ID
+                            mOwnedADVIds(tADVIndex++) = tIdOffset +
+                                    aMesh->get_glb_entity_id_from_entity_loc_index(tBSplineIndex, EntityRank::BSPLINE, tBSplineMeshIndex);
+                        }
+                    }
+                }
+            }
+
+            // Build distributed vector
+            if (mOwnedADVs == nullptr)
             {
                 // Create factor for distributed ADV vector
                 Matrix_Vector_Factory tDistributedFactory;
 
-                // Set primitive ADV IDs
-                mOwnedADVIds.resize(mADVs.length(), 1);
-                for (uint tADVIndex = 0; tADVIndex < mADVs.length(); tADVIndex++)
-                {
-                    mOwnedADVIds(tADVIndex) = tADVIndex;
-                }
-
                 // Communicate level set ADV IDs
 
                 // Create map for distributed vector
-                moris::sol::Dist_Map* tOwnedADVMap = tDistributedFactory.create_map(mOwnedADVIds);
+                sol::Dist_Map* tOwnedADVMap = tDistributedFactory.create_map(mOwnedADVIds);
 
                 // Create vector
                 mOwnedADVs = tDistributedFactory.create_vector(tOwnedADVMap);
 
-                // Assign primitive values
-                mOwnedADVs->replace_global_values(mOwnedADVIds, mADVs);
+                // Assign primitive IDs
+                mOwnedADVs->replace_global_values(tPrimitiveIds, mADVs);
 
+                // Global assembly
+                mOwnedADVs->vector_global_asembly();
+            }
+
+            // Build geometries and properties from parameter lists using distributed vector
+            // TODO augmented copy constructor for fields
+            if (mGeometryParameterLists.size() > 0)
+            {
                 // Build geometries and properties
                 mGeometries = create_geometries(mGeometryParameterLists, mOwnedADVs, mLibrary);
                 mProperties = create_properties(mPropertyParameterLists, mADVs, mLibrary);
                 mGeometryParameterLists.resize(0);
-                // TODO have properties store all data so parameter lists can be deleted too
             }
 
             // Determine if conversion to level sets are needed and if shape sensitivities are needed
+            uint tNumFilledADVs = mADVs.length();
             for (uint tGeometryIndex = 0; tGeometryIndex < mGeometries.size(); tGeometryIndex++)
             {
                 // Shape sensitivities logic in case of no level sets
@@ -718,35 +733,11 @@ namespace moris
                     mShapeSensitivities = true;
 
                     // Create level set FIXME when we have parallel L2
-                    if (par_size() == 1)
-                    {
-                        mGeometries(tGeometryIndex) = std::make_shared<Level_Set>(
-                                mADVs,
-                                tNumFilledADVs,
-                                aMesh,
-                                mGeometries(tGeometryIndex));
-                    }
-                    else
-                    {
-                        mGeometries(tGeometryIndex) = std::make_shared<Level_Set>(
-                                mOwnedADVs,
-                                tNumFilledADVs,
-                                aMesh,
-                                mGeometries(tGeometryIndex));
-                    }
-
-                    // Assign bounds
-                    uint tNumCoeffs = aMesh->get_num_coeffs(mGeometries(tGeometryIndex)->get_bspline_mesh_index());
-                    real tBSplineLowerBound = mGeometries(tGeometryIndex)->get_bspline_lower_bound();
-                    real tBSplineUpperBound = mGeometries(tGeometryIndex)->get_bspline_upper_bound();
-                    for (uint tADVIndex = tNumFilledADVs; tADVIndex < tNumFilledADVs + tNumCoeffs; tADVIndex++)
-                    {
-                        mLowerBounds(tADVIndex) = tBSplineLowerBound;
-                        mUpperBounds(tADVIndex) = tBSplineUpperBound;
-                    }
-
-                    // Update filled ADVs
-                    tNumFilledADVs = tNumFilledADVs + tNumCoeffs;
+                    mGeometries(tGeometryIndex) = std::make_shared<Level_Set>(
+                            mOwnedADVs,
+                            tNumFilledADVs,
+                            aMesh,
+                            mGeometries(tGeometryIndex));
                 }
             }
         }

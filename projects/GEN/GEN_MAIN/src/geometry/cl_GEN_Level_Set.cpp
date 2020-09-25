@@ -12,16 +12,16 @@ namespace moris
         //--------------------------------------------------------------------------------------------------------------
 
         Level_Set::Level_Set(
-                Matrix<DDRMat>& aADVs,
-                Matrix<DDUMat>  aGeometryVariableIndices,
-                Matrix<DDUMat>  aADVIndices,
-                Matrix<DDRMat>  aConstantParameters,
-                mtk::Mesh*      aMesh,
-                sint            aNumRefinements,
-                sint            aRefinementFunctionIndex,
-                uint            aBSplineMeshIndex,
-                real            aBSplineLowerBound,
-                real            aBSplineUpperBound)
+                Matrix<DDRMat>&          aADVs,
+                Matrix<DDUMat>           aGeometryVariableIndices,
+                Matrix<DDUMat>           aADVIndices,
+                Matrix<DDRMat>           aConstantParameters,
+                mtk::Interpolation_Mesh* aMesh,
+                sint                     aNumRefinements,
+                sint                     aRefinementFunctionIndex,
+                uint                     aBSplineMeshIndex,
+                real                     aBSplineLowerBound,
+                real                     aBSplineUpperBound)
                 : Field(aADVs,
                         aGeometryVariableIndices,
                         aADVIndices,
@@ -60,40 +60,14 @@ namespace moris
             // Check for L2 needed
             if (mNumOriginalNodes != mMesh->get_num_coeffs(this->get_bspline_mesh_index()))
             {
-                // Set values ons source field
-                Matrix<DDRMat> tSourceField(mNumOriginalNodes, 1);
-                for (uint tNodeIndex = 0; tNodeIndex < mNumOriginalNodes; tNodeIndex++)
-                {
-                    tSourceField(tNodeIndex) = aGeometry->evaluate_field_value(tNodeIndex, mMesh->get_node_coordinate(tNodeIndex));
-                }
-
-                // Create integration mesh
-                mtk::Integration_Mesh * tIntegrationMesh = create_integration_mesh_from_interpolation_mesh(MeshType::HMR, aMesh);
-
-                // Create mesh manager
-                std::shared_ptr<mtk::Mesh_Manager> tMeshManager = std::make_shared<mtk::Mesh_Manager>();
-
-                // Register mesh pair
-                uint tMeshIndex = tMeshManager->register_mesh_pair(aMesh, tIntegrationMesh);
-
-                // Use mapper
-                mapper::Mapper tMapper(tMeshManager, tMeshIndex, (uint)this->get_bspline_mesh_index());
-
-                Matrix<DDRMat> tTargetField(0, 0);
-
-                tMapper.perform_mapping(tSourceField,
-                        EntityRank::NODE,
-                        tTargetField,
-                        EntityRank::BSPLINE);
+                // Perform L2 mapping
+                Matrix<DDRMat> tTargetField = this->map_to_bsplines(aGeometry);
 
                 // Assign ADVs
                 for (uint tBSplineIndex = 0; tBSplineIndex < mMesh->get_num_coeffs(this->get_bspline_mesh_index()); tBSplineIndex++)
                 {
                     aADVs(aADVIndex++) = tTargetField(tBSplineIndex);
                 }
-                
-                // Delete integration mesh
-                delete tIntegrationMesh;
             }
             else // Nodal values, no L2
             {
@@ -110,11 +84,11 @@ namespace moris
 
         Level_Set::Level_Set(
                 sol::Dist_Vector*         aOwnedADVs,
-                uint                      aADVIndex,
+                uint                      aIdOffset,
                 mtk::Interpolation_Mesh*  aMesh,
                 std::shared_ptr<Geometry> aGeometry)
                 : Field(aOwnedADVs,
-                        aADVIndex,
+                        aIdOffset,
                         aMesh->get_num_coeffs(aGeometry->get_bspline_mesh_index()),
                         aGeometry->get_num_refinements(),
                         aGeometry->get_refinement_function_index(),
@@ -127,14 +101,41 @@ namespace moris
             // Check for L2 needed
             if (mNumOriginalNodes != mMesh->get_num_coeffs(this->get_bspline_mesh_index()))
             {
-                MORIS_ERROR(false, "L2 not implemented in parallel");
+                // Perform mapping
+                Matrix<DDRMat> tTargetField = this->map_to_bsplines(aGeometry);
+
+                // Assign ADVs
+                for (uint tBSplineIndex = 0; tBSplineIndex < mMesh->get_num_coeffs(this->get_bspline_mesh_index()); tBSplineIndex++)
+                {
+                    if (par_rank() == aMesh->get_entity_owner(tBSplineIndex, EntityRank::BSPLINE, this->get_bspline_mesh_index()))
+                    {
+                        // Get B-spline ID
+                        uint tBSplineId = mMesh->get_glb_entity_id_from_entity_loc_index(
+                                tBSplineIndex,
+                                EntityRank::BSPLINE,
+                                aGeometry->get_bspline_mesh_index());
+
+                        // Assign distributed vector element based on B-spline ID and offset
+                        (*aOwnedADVs)(aIdOffset + tBSplineId) = tTargetField(tBSplineIndex);
+                    }
+                }
             }
             else // Nodal values, no L2
             {
                 // Assign ADVs directly
                 for (uint tNodeIndex = 0; tNodeIndex < mNumOriginalNodes; tNodeIndex++)
                 {
-                    (*aOwnedADVs)(aADVIndex + mMesh->get_bspline_inds_of_node_loc_ind(tNodeIndex, EntityRank::BSPLINE)(0)) =
+                    // Get B-spline index
+                    uint tBSplineIndex = mMesh->get_bspline_inds_of_node_loc_ind(tNodeIndex, EntityRank::BSPLINE)(0);
+
+                    // Get B-spline ID
+                    uint tBSplineId = mMesh->get_glb_entity_id_from_entity_loc_index(
+                            tBSplineIndex,
+                            EntityRank::BSPLINE,
+                            aGeometry->get_bspline_mesh_index());
+
+                    // Assign distributed vector element based on B-spline ID and offset
+                    (*aOwnedADVs)(aIdOffset + tBSplineId) =
                             aGeometry->evaluate_field_value(tNodeIndex, mMesh->get_node_coordinate(tNodeIndex));
                 }
             }
@@ -175,6 +176,41 @@ namespace moris
             {
                 aSensitivities(tIndices(tBspline)) = tMatrix(tBspline);
             }
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
+        Matrix<DDRMat> Level_Set::map_to_bsplines(std::shared_ptr<Geometry> aGeometry)
+        {
+            // Check for serial
+            MORIS_ERROR(par_size() == 1, "L2 not implemented in parallel");
+
+            // Set values ons source field
+            Matrix<DDRMat> tSourceField(mNumOriginalNodes, 1);
+            for (uint tNodeIndex = 0; tNodeIndex < mNumOriginalNodes; tNodeIndex++)
+            {
+                tSourceField(tNodeIndex) = aGeometry->evaluate_field_value(tNodeIndex, mMesh->get_node_coordinate(tNodeIndex));
+            }
+
+            // Create integration mesh
+            mtk::Integration_Mesh * tIntegrationMesh = create_integration_mesh_from_interpolation_mesh(MeshType::HMR, mMesh);
+
+            // Create mesh manager
+            std::shared_ptr<mtk::Mesh_Manager> tMeshManager = std::make_shared<mtk::Mesh_Manager>();
+
+            // Register mesh pair
+            uint tMeshIndex = tMeshManager->register_mesh_pair(mMesh, tIntegrationMesh);
+
+            // Use mapper
+            mapper::Mapper tMapper(tMeshManager, tMeshIndex, (uint)this->get_bspline_mesh_index());
+            Matrix<DDRMat> tTargetField(0, 0);
+            tMapper.perform_mapping(tSourceField,
+                                    EntityRank::NODE,
+                                    tTargetField,
+                                    EntityRank::BSPLINE);
+
+            // Return target field
+            return tTargetField;
         }
 
         //--------------------------------------------------------------------------------------------------------------
