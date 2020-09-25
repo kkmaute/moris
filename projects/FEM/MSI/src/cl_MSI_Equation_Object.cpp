@@ -572,6 +572,8 @@ namespace moris
             }
         }
 
+        //-------------------------------------------------------------------------------------------------
+
         void Equation_Object::get_staggered_equation_obj_residual( Cell< Matrix< DDRMat > > & aEqnObjRHS )
         {
             if( !mEquationSet->mEquationModel->get_is_forward_analysis() )
@@ -623,7 +625,7 @@ namespace moris
                 this->compute_my_previous_adjoint_values();
 
                 Cell< enum MSI::Dof_Type > tDofType1 = mEquationSet->get_requested_dof_types();
-//
+
                 // get the pdof values for the ith dof type group
                 Cell< Cell< Matrix< DDRMat > > > tCoeff_Original;
 
@@ -701,8 +703,7 @@ namespace moris
                     //tElementalResidual( Ik ) = trans( mEquationSet->get_jacobian() ) * mAdjointPdofValues( Ik )- tElementalResidual( Ik );
                     tElementalResidual( Ik ) = -1.0* tElementalResidual( Ik );
                 }
-            }		
-			
+            }
 
             uint tNumRHS = mEquationSet->mEquationModel->get_num_rhs();
 
