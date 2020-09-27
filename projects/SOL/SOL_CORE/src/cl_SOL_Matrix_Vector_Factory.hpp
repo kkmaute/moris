@@ -32,6 +32,9 @@ namespace moris
 
         sol::Dist_Matrix * create_matrix(       Solver_Interface * aInput,
                                           const sol::Dist_Map        * aMap );
+										  
+		sol::Dist_Matrix * create_matrix( const sol::Dist_Map * aRowMap,
+                                          const sol::Dist_Map * aColMap );
 
         sol::Dist_Matrix * create_matrix( const moris::uint aRows,
                                           const moris::uint aCols );

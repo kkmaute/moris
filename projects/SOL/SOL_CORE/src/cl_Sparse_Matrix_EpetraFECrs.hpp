@@ -35,6 +35,10 @@ protected:
 public:
     Sparse_Matrix_EpetraFECrs(       moris::Solver_Interface * aInput,
                                const moris::sol::Dist_Map    * aMap );
+							   
+	Sparse_Matrix_EpetraFECrs(
+        const sol::Dist_Map * aRowMap,
+        const sol::Dist_Map * aColMap  );
 
     Sparse_Matrix_EpetraFECrs( const moris::uint aRows,
                                const moris::uint aCols )
@@ -49,8 +53,7 @@ public:
 
 	void fill_matrix_row( const moris::Matrix< DDRMat > & aA_val,
                           const moris::Matrix< DDSMat > & aRow,
-                          const moris::Matrix< DDSMat > & aCols )
-	{ MORIS_ERROR( false, "Sparse_Matrix_EpetraFECrs::fill_matrix_row: not set yet with epetra"); };
+                          const moris::Matrix< DDSMat > & aCols );
 
     void get_matrix_values( const moris::Matrix< DDSMat > & aRequestedIds,
                                   moris::Matrix< DDRMat > & aValues )
