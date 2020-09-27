@@ -374,12 +374,10 @@ TEST_CASE("Non-square matrix","[Non-square matrix],[DistLinAlg]")
 			tMat->fill_matrix_row( tVals, tRows, tCols );
 		}
 
-	
-
         // Call Global Asemby to ship information between processes
         tMat->matrix_global_assembly();
 
-        tMat->print();
+        //tMat->print();
 		
 		tMat->mat_vec_product( *tVector1, *tVector2, false );
 		
