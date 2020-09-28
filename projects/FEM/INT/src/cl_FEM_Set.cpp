@@ -202,6 +202,7 @@ namespace moris
         {
             if ( !mIsEmptySet )    //FIXME this flag is a hack. find better solution
             {
+				//std::cout<<"initializing fem set: "<<mMeshSet->get_set_name()<<std::endl;
                 mIsResidual = aIsResidual;
 
                 this->create_residual_dof_assembly_map();
@@ -1075,8 +1076,7 @@ namespace moris
             for( uint Ik = 0; Ik < tRequestedDofTypes.size(); Ik++ )
             {
                 //get the set index for the requested slave dof type
-                sint tDofIndex = this->get_dof_index_for_type(
-                        tRequestedDofTypes( Ik ),
+                sint tDofIndex = this->get_dof_index_for_type( tRequestedDofTypes( Ik ),
                         mtk::Master_Slave::SLAVE );
 
                 // if the dof type was set (its set index is different from -1)
@@ -2680,8 +2680,8 @@ namespace moris
             mSetNodalCounter.set_size( (*mSetNodalValues).numel(), 1, 0 );
 
             mSetElementalValues->set_size( mMtkIgCellOnSet( aMeshIndex ), 1, 0.0 );
-
-            // check if this set has the requested IQI
+			
+			// check if this set has the requested IQI
             if( mIQINameToIndexMap.key_exists( aQIName ) )
             {
                 for( uint Ik = 0; Ik < mEquationObjList.size(); Ik++ )
@@ -2700,7 +2700,7 @@ namespace moris
                         (*mSetNodalValues)(Ik) = (*mSetNodalValues)(Ik)/mSetNodalCounter(Ik);
                     }
                 }
-            }
+			}
         }
 
         //------------------------------------------------------------------------------

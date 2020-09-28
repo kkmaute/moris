@@ -45,6 +45,7 @@ namespace moris
 
             public:
                 Dist_Matrix( ) : mEpetraMat( NULL ),
+				                 mMap( NULL ),
                                  mPETScMat( NULL )
                 {};
 
