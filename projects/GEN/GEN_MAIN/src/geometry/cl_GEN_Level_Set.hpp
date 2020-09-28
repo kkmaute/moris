@@ -59,12 +59,15 @@ namespace moris
              * Constructor where ADVs are added based on an input field and a B-spline mesh.
              *
              * @param aOwnedADVs Pointer to the owned distributed ADVs
-             * @param aADVIndex Starting index for assigning ADVs
+             * @param aOwnedADVIds All owned ADV IDs on this processor
+             * @param aOwnedADVIdsIndex Index in the ID matrix for pulling IDs for this field
              * @param aMesh The mesh pointer where the B-spline information can be obtained
              * @param aGeometry Geometry for initializing the B-spline level set discretization
              */
             Level_Set(sol::Dist_Vector*         aOwnedADVs,
-                      uint                      aADVIndex,
+                      const Matrix<DDSMat>&     aOwnedADVIds,
+                      uint                      aOwnedADVIdsOffset,
+                      uint                      aNumFieldVariables,
                       mtk::Interpolation_Mesh*  aMesh,
                       std::shared_ptr<Geometry> aGeometry);
 

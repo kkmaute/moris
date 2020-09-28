@@ -106,14 +106,15 @@ namespace moris
              * @param aBSplineLowerBound The lower bound for the B-spline coefficients describing this field
              * @param aBSplineUpperBound The upper bound for the B-spline coefficients describing this field
              */
-            Field(sol::Dist_Vector* aOwnedADVs,
-                  uint aStartingADVIndex,
-                  uint aNumFieldVariables,
-                  sint aNumRefinements,
-                  sint aRefinementFunctionIndex,
-                  sint aBSplineMeshIndex,
-                  real aBSplineLowerBound,
-                  real aBSplineUpperBound);
+            Field(sol::Dist_Vector*     aOwnedADVs,
+                  const Matrix<DDSMat>& aOwnedADVIds,
+                  uint                  aOwnedADVIdsOffset,
+                  uint                  aNumFieldVariables,
+                  sint                  aNumRefinements,
+                  sint                  aRefinementFunctionIndex,
+                  sint                  aBSplineMeshIndex,
+                  real                  aBSplineLowerBound,
+                  real                  aBSplineUpperBound);
 
             /**
              * Constructor for only constant parameters

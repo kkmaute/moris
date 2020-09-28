@@ -124,7 +124,6 @@ namespace moris
                 mOwnedADVs->replace_global_values(mOwnedADVIds, aNewADVs);
                 mOwnedADVs->vector_global_asembly();
             }
-            mADVs = aNewADVs; // FIXME
 
             // Reset info related to the mesh
             mPdvHostManager.reset();
@@ -648,7 +647,7 @@ namespace moris
             mUpperBounds.resize(tNumOwnedADVs, 1);
             mPdvHostManager.set_num_advs(tNumOwnedADVs);
 
-            // Resize ADV IDs
+            // Resize ADV IDs and set primitive IDs
             mOwnedADVIds.resize(mADVs.length(), 1);
             for (uint tADVIndex = 0; tADVIndex < mADVs.length(); tADVIndex++)
             {
@@ -720,7 +719,6 @@ namespace moris
             }
 
             // Determine if conversion to level sets are needed and if shape sensitivities are needed
-            uint tNumFilledADVs = mADVs.length();
             for (uint tGeometryIndex = 0; tGeometryIndex < mGeometries.size(); tGeometryIndex++)
             {
                 // Shape sensitivities logic in case of no level sets
@@ -732,10 +730,12 @@ namespace moris
                     // Always have shape sensitivities if level set
                     mShapeSensitivities = true;
 
-                    // Create level set FIXME when we have parallel L2
+                    // Create level set FIXME for multiple level set fields
                     mGeometries(tGeometryIndex) = std::make_shared<Level_Set>(
                             mOwnedADVs,
-                            tNumFilledADVs,
+                            mOwnedADVIds,
+                            tPrimitiveIds.length(),
+                            tNumOwnedADVs,
                             aMesh,
                             mGeometries(tGeometryIndex));
                 }
