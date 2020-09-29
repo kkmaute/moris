@@ -24,6 +24,9 @@
 #include "cl_FEM_IQI_Latent_Heat_Absorption.hpp"
 #include "cl_FEM_IQI_Max_Stress.hpp"
 #include "cl_FEM_IQI_Turbulent_Kinematic_Viscosity.hpp"
+#include "cl_FEM_IQI_Total_Pressure.hpp"
+#include "cl_FEM_IQI_Mass_Flow.hpp"
+#include "cl_FEM_IQI_Thermal_Energy.hpp"
 
 namespace moris
 {
@@ -93,6 +96,15 @@ namespace moris
 
                 case IQI_Type::LATENT_HEAT_ABSORPTION :
                     return std::make_shared< IQI_Latent_Heat_Absorption >();
+
+                case IQI_Type::TOTAL_PRESSURE :
+                    return std::make_shared< IQI_Total_Pressure >();
+
+                case IQI_Type::MASS_FLOW :
+                    return std::make_shared< IQI_Mass_Flow >();
+
+                case IQI_Type::THERMAL_ENERGY :
+                    return std::make_shared< IQI_Thermal_Energy >();
 
                 default:
                     MORIS_ERROR( false, " IQI_Factory::create_IQI - No IQI type specified. " );

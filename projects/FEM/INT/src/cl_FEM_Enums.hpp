@@ -186,6 +186,9 @@ namespace moris
                 DRAG_COEFF,
                 LATENT_HEAT_ABSORPTION,
                 TURBULENT_KINEMATIC_VISCOSITY,
+                TOTAL_PRESSURE,
+                MASS_FLOW,
+                THERMAL_ENERGY,
 
                 MAX_STRESS,
                 MAX_NORMAL_STRESS,

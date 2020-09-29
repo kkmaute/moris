@@ -172,6 +172,9 @@ set(HEADERS
     cl_FEM_IQI_2D_Drag_Lift_Coefficient.hpp
     cl_FEM_IQI_Latent_Heat_Absorption.hpp
     cl_FEM_IQI_Turbulent_Kinematic_Viscosity.hpp
+    cl_FEM_IQI_Total_Pressure.hpp
+    cl_FEM_IQI_Mass_Flow.hpp
+    cl_FEM_IQI_Thermal_Energy.hpp
     
     cl_FEM_Stabilization_Parameter.hpp
     cl_FEM_SP_Factory.hpp
@@ -333,6 +336,9 @@ set(LIB_SOURCES
     cl_FEM_IQI_2D_Drag_Lift_Coefficient.cpp
     cl_FEM_IQI_Latent_Heat_Absorption.cpp
     cl_FEM_IQI_Turbulent_Kinematic_Viscosity.cpp
+    cl_FEM_IQI_Total_Pressure.cpp
+    cl_FEM_IQI_Mass_Flow.cpp
+    cl_FEM_IQI_Thermal_Energy.cpp
     
     cl_FEM_Interpolation_Element.cpp
     cl_FEM_Model.cpp
