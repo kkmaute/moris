@@ -57,6 +57,9 @@ namespace moris
             mIntersectionNodes.resize(0);
             mOwnedPdvLocalToGlobalMap.resize(0, 0);
             mOwnedAndSharedPdvLocalToGlobalMap.resize(0, 0);
+			
+			mNumOwnedPdvs = 0;
+            mNumOwnedAndSharedPdvs = 0;
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -508,7 +511,7 @@ namespace moris
         {
             // Check for ADVs
             MORIS_ERROR(mNumADVsSet, "PDV Host Manager must have the number of ADVs set before computing sensitivities.");
-
+			
             // Total matrix dpdv/dadv
             Matrix<DDRMat> tTotalAdvSensitivities(mNumOwnedPdvs, mNumADVs, 0.0);
 
@@ -542,6 +545,7 @@ namespace moris
                     }
                 }
             }
+			
             return tTotalAdvSensitivities;
         }
 
@@ -752,6 +756,7 @@ namespace moris
 
                         if ( mIpPdvHosts( tLocalPdvInd )->get_pdv_exists( tPdvType )  )
                         {
+							MORIS_ERROR(false," add the follwing lines");
 //                            //FIXME crete pdv
 //                            mIpPdvHosts( tLocalPdvInd ) = new Adof();
 //                            mIpPdvHosts( tLocalPdvInd )->set_adof_owning_processor( par_rank() );
@@ -1294,7 +1299,7 @@ namespace moris
 
             if ( !(par_size() <= 1) )
             {
-                //this->communicate_check_if_owned_pdv_exists()
+                //this->communicate_check_if_owned_pdv_exists();
             }
 
             this->get_num_pdvs();
