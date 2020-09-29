@@ -27,6 +27,11 @@ namespace moris
 
                 moris::mtk::Mesh*               mMesh;
 
+                // number of non-empty sets
+                int                             mNumElementBlocks = MORIS_UINT_MAX;
+                int                             mNumSideSets      = MORIS_UINT_MAX;
+                int                             mNumNodeSets      = MORIS_UINT_MAX;
+
                 std::string                     mTempFileName;
 
                 moris::uint                     mTimeStep = 0;

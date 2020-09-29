@@ -19,7 +19,7 @@ Sparse_Matrix_EpetraFECrs::Sparse_Matrix_EpetraFECrs(
 {
     // Fixme implement get function for nonzero rows
     //BSpline_Mesh_Base::get_number_of_basis_connected_to_basis( const moris_index aIndex )
-    moris::uint nonzerosRow =2;
+    moris::uint nonzerosRow =5;
 
     //FIXME insert boolean array for BC-- insert NumGlobalElements-- size
     mDirichletBCVec.set_size  ( aInput->get_max_num_global_dofs(), 1, 0 );
@@ -29,6 +29,18 @@ Sparse_Matrix_EpetraFECrs::Sparse_Matrix_EpetraFECrs(
 
     // create matrix class
     mEpetraMat = new Epetra_FECrsMatrix( Copy, *aMap->get_epetra_map(), nonzerosRow );
+}
+
+Sparse_Matrix_EpetraFECrs::Sparse_Matrix_EpetraFECrs(
+        const sol::Dist_Map * aRowMap,
+        const sol::Dist_Map * aColMap  )
+{
+    // Fixme implement get function for nonzero rows
+    //BSpline_Mesh_Base::get_number_of_basis_connected_to_basis( const moris_index aIndex )
+    moris::uint nonzerosRow =5;
+
+    // create matrix class
+    mEpetraMat = new Epetra_FECrsMatrix( Copy, *aRowMap->get_epetra_map(), *aColMap->get_epetra_map(), nonzerosRow );
 }
 
 // ----------------------------------------------------------------------------------------------------------------------
@@ -64,6 +76,23 @@ void Sparse_Matrix_EpetraFECrs::fill_matrix(
     mEpetraMat->SumIntoGlobalValues(
             aNumMyDofs,
             aEleDofConectivity.data(),
+            aA_val.data(),
+            Epetra_FECrsMatrix::COLUMN_MAJOR);
+}
+
+// ----------------------------------------------------------------------------------------------------------------------
+
+void Sparse_Matrix_EpetraFECrs::fill_matrix_row( 
+	    const moris::Matrix< DDRMat > & aA_val,
+        const moris::Matrix< DDSMat > & aRow,
+        const moris::Matrix< DDSMat > & aCols )
+{
+    // insert values to matrix
+    mEpetraMat->InsertGlobalValues(
+            aRow.numel(),
+            aRow.data(),
+			aCols.numel(),
+            aCols.data(),
             aA_val.data(),
             Epetra_FECrsMatrix::COLUMN_MAJOR);
 }

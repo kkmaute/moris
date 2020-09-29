@@ -60,7 +60,7 @@ namespace moris
             // ADVs/IQIs
             Matrix<DDRMat> mADVs;
             Matrix<DDSMat> mOwnedADVIds;
-            sol::Dist_Vector* mOwnedADVs;
+            sol::Dist_Vector* mOwnedADVs = nullptr;
 
             // Bounds
             Matrix<DDRMat> mLowerBounds;

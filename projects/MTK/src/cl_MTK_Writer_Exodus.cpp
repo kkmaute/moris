@@ -336,11 +336,11 @@ namespace moris
         //--------------------------------------------------------------------------------------------------------------
 
         void Writer_Exodus::write_elemental_field(       
-                std::string                          aBlockName,
-                std::string                          aFieldName,
+                std::string            aBlockName,
+                std::string            aFieldName,
                 const Matrix<DDRMat> & aFieldValues)
         {
-            MORIS_ERROR(mBlockNamesMap.size() == mBlockNamesMap.size(), aBlockName.append(
+            MORIS_ERROR(mBlockNamesMap.key_exists(aBlockName), aBlockName.append(
                     " is not a block name on this mesh!").c_str());
 
             // Block name to index
@@ -487,25 +487,61 @@ namespace moris
             // Number of nodes
             int tNumNodes = mMesh->get_num_nodes();
 
-            // Number of node sets
+            // Determine number of non-empty node sets
             moris::Cell<std::string> tNodeSetNames = mMesh->get_set_names(EntityRank::NODE);
-            int tNumNodeSets = tNodeSetNames.size();
+            mNumNodeSets = 0;
+            for (uint tNodeSetIndex = 0; tNodeSetIndex < tNodeSetNames.size(); tNodeSetIndex++)
+            {
+                // FIXME: should be replaced by call to MTK to just get number of nodes in node set (local or global?)
+                Matrix<IndexMat> tNodeIndices = mMesh->get_set_entity_loc_inds(
+                        EntityRank::NODE,
+                        tNodeSetNames(tNodeSetIndex));
 
-            // Number of side sets
+                if ( tNodeIndices.numel() > 0 )
+                {
+                    mNumNodeSets++;
+                }
+            }
+
+            // Determine number of non-empty side sets
             moris::Cell<std::string> tSideSetNames = mMesh->get_set_names(mMesh->get_facet_rank());
-            int tNumSideSets = tSideSetNames.size();
+            mNumSideSets = 0;
+            for (uint tSideSetIndex = 0; tSideSetIndex < tSideSetNames.size(); tSideSetIndex++)
+            {
+                // FIXME: should be replaced by call to MTK to just get number of faces in side set (local or global?)
+                Matrix<IndexMat> tSideSetElements;
+                Matrix<IndexMat> tSideSetOrdinals;
 
-            // Number of elements
-            int tNumElements = 0;
+                mMesh->get_sideset_elems_loc_inds_and_ords(
+                        tSideSetNames(tSideSetIndex),
+                        tSideSetElements,
+                        tSideSetOrdinals);
+
+                if (tSideSetOrdinals.numel() > 0 )
+                {
+                    mNumSideSets++;
+                }
+            }
+
+            // Determine number of non-empty blocks and elements
+            int tNumElements  = 0;
+            mNumElementBlocks = 0;
+
             moris::Cell<std::string> tBlockNames = mMesh->get_set_names(EntityRank::ELEMENT);
-            int tNumElementBlocks = tBlockNames.size();
+
             for (uint tBlockIndex = 0; tBlockIndex < tBlockNames.size(); tBlockIndex++)
             {
-                tNumElements += mMesh->get_element_indices_in_block_set(tBlockIndex).length();
+                uint tNumElementsInBlock = mMesh->get_element_indices_in_block_set(tBlockIndex).length();
+
+                if ( mMesh->get_element_indices_in_block_set(tBlockIndex).length() >0 )
+                {
+                    mNumElementBlocks ++;
+                    tNumElements += tNumElementsInBlock;
+                }
             }
 
             // Initialize database
-            ex_put_init(mExoid, "MTK", tNumDimensions, tNumNodes, tNumElements, tNumElementBlocks, tNumNodeSets, tNumSideSets);
+            ex_put_init(mExoid, "MTK", tNumDimensions, tNumNodes, tNumElements, mNumElementBlocks, mNumNodeSets, mNumSideSets);
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -552,17 +588,29 @@ namespace moris
         {
             // Get the number of node sets and their names
             moris::Cell<std::string> tNodeSetNames = mMesh->get_set_names(EntityRank::NODE);
-            uint tNumNodeSets = tNodeSetNames.size();
 
             // Write each node set
-            for (uint tNodeSetIndex = 0; tNodeSetIndex < tNumNodeSets; tNodeSetIndex++)
+            int tNumNodeSets = 0;
+
+            for (uint tNodeSetIndex = 0; tNodeSetIndex <  tNodeSetNames.size(); tNodeSetIndex++)
             {
-                Matrix<IndexMat> tNodeIndices = mMesh->get_set_entity_loc_inds(EntityRank::NODE,
+                Matrix<IndexMat> tNodeIndices = mMesh->get_set_entity_loc_inds(
+                        EntityRank::NODE,
                         tNodeSetNames(tNodeSetIndex));
 
-                ex_put_set_param(mExoid, EX_NODE_SET, tNodeSetIndex + 1, tNodeIndices.numel(), 0);
-                ex_put_set(mExoid, EX_NODE_SET, tNodeSetIndex + 1, tNodeIndices.data(), nullptr);
+                if ( tNodeIndices.numel() > 0 )
+                {
+                    ex_put_set_param(mExoid, EX_NODE_SET, tNumNodeSets + 1, tNodeIndices.numel(), 0);
+                    ex_put_set      (mExoid, EX_NODE_SET, tNumNodeSets + 1, tNodeIndices.data(), nullptr);
+
+                    // Increase counter for non-empty node sets
+                    tNumNodeSets++;
+                }
             }
+
+            // Check for correct non-empty node set count
+             MORIS_ERROR(tNumNodeSets == mNumNodeSets, "Incorrect number of non-empty node sets written to file." );
+
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -578,22 +626,26 @@ namespace moris
             moris::Cell<std::string> tBlockNames = mMesh->get_set_names(EntityRank::ELEMENT);
 
             // Loop through each block
+            int tNumElementBlocks = 0;
+
             for (uint tBlockIndex = 0; tBlockIndex < tBlockNames.size(); tBlockIndex++)
             {
                 // Get the block element identifiers
                 Matrix<IndexMat> tElementIndices = mMesh->get_element_indices_in_block_set(tBlockIndex);
-                Matrix<IdMat> tElementIDs = mMesh->get_element_ids_in_block_set(tBlockIndex);
+                Matrix<IdMat> tElementIDs        = mMesh->get_element_ids_in_block_set(tBlockIndex);
+
                 MORIS_ASSERT(tElementIndices.length() == tElementIDs.length(),
                         "Vector of element IDs must match vector of element indices for Exodus file writing.");
 
                 // Number of elements in the block
                 uint tNumElementsInBlock = tElementIndices.length();
 
-                // Add name to map
-                mBlockNamesMap[tBlockNames(tBlockIndex)] = tBlockIndex;
-
-                if (tNumElementsInBlock > 0) // Block has at least 1 element
+                // Ignore empty blocks
+                if (tNumElementsInBlock > 0)
                 {
+                    // Add name to map
+                    mBlockNamesMap[tBlockNames(tBlockIndex)] = tNumElementBlocks;
+
                     // Resize element map
                     tElementIdMap.resize(tElementIdMapStartIndex + tNumElementsInBlock, 1);
 
@@ -602,15 +654,15 @@ namespace moris
                     const char* tExodusBlockTopology = this->get_exodus_block_topology(tMorisBlockTopology);
 
                     // Get the number of nodes/edges/faces/attributes per element
-                    int tNumNodesPerElement = this->get_nodes_per_element(tMorisBlockTopology);
-                    int tNumEdgesPerElement = 0;
-                    int tNumFacesPerElement = 0;
+                    int tNumNodesPerElement      = this->get_nodes_per_element(tMorisBlockTopology);
+                    int tNumEdgesPerElement      = 0;
+                    int tNumFacesPerElement      = 0;
                     int tNumAttributesPerElement = 0;
 
                     // Make a block and name it
-                    ex_put_block(mExoid, EX_ELEM_BLOCK, tBlockIndex + 1, tExodusBlockTopology, tNumElementsInBlock,
+                    ex_put_block(mExoid, EX_ELEM_BLOCK, tNumElementBlocks + 1, tExodusBlockTopology, tNumElementsInBlock,
                             tNumNodesPerElement, tNumEdgesPerElement, tNumFacesPerElement, tNumAttributesPerElement);
-                    ex_put_name(mExoid, EX_ELEM_BLOCK, tBlockIndex + 1, tBlockNames(tBlockIndex).c_str());
+                    ex_put_name(mExoid, EX_ELEM_BLOCK, tNumElementBlocks + 1, tBlockNames(tBlockIndex).c_str());
 
                     // Construct matrix of node indices per element
                     Matrix<IndexMat> tConnectivityArray(tNumNodesPerElement * tNumElementsInBlock, 1, 0);
@@ -638,19 +690,18 @@ namespace moris
                     tElementIdMapStartIndex += tNumElementsInBlock;
 
                     // Write connectivity
-                    ex_put_conn(mExoid, EX_ELEM_BLOCK, tBlockIndex + 1, tConnectivityArray.data(), nullptr, nullptr);
-                }
+                    ex_put_conn(mExoid, EX_ELEM_BLOCK, tNumElementBlocks + 1, tConnectivityArray.data(), nullptr, nullptr);
 
-                else // Block has no elements
-                {
-                    ex_put_block(mExoid, EX_ELEM_BLOCK, tBlockIndex + 1, "N/A", 0, 0, 0, 0, 0);
-                    ex_put_name(mExoid, EX_ELEM_BLOCK, tBlockIndex + 1, tBlockNames(tBlockIndex).c_str());
+                    // Increase counter for non-empty element blocks
+                    tNumElementBlocks++;
                 }
             }
 
             // Write the element map
             ex_put_id_map(mExoid, EX_ELEM_MAP, tElementIdMap.data());
 
+            // Check for correct non-empty side set count
+             MORIS_ERROR(tNumElementBlocks == mNumElementBlocks, "Incorrect number of non-empty element blocks written to file." );
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -661,25 +712,38 @@ namespace moris
             moris::Cell<std::string> tSideSetNames = mMesh->get_set_names(mMesh->get_facet_rank());
 
             // Write side sets
+            int tNumSideSets = 0;
+
             for (uint tSideSetIndex = 0; tSideSetIndex < tSideSetNames.size(); tSideSetIndex++)
             {
                 // Get the side set element ids
                 Matrix<IndexMat> tSideSetElements;
                 Matrix<IndexMat> tSideSetOrdinals;
+
                 mMesh->get_sideset_elems_loc_inds_and_ords(tSideSetNames(tSideSetIndex), tSideSetElements, tSideSetOrdinals);
 
-                // Change element and ordinal to what Exodus wants
-                for (uint tElementNum = 0; tElementNum < tSideSetOrdinals.numel(); tElementNum++)
+                // Skip if side set is empty
+                if (tSideSetElements.numel() > 0 )
                 {
-                    tSideSetElements(tElementNum) = mMtkExodusElementIndexMap(tSideSetElements(tElementNum)) + 1;
-                    tSideSetOrdinals(tElementNum)++;
-                }
+                    // Change element and ordinal to what Exodus wants
+                    for (uint tElementNum = 0; tElementNum < tSideSetOrdinals.numel(); tElementNum++)
+                    {
+                        tSideSetElements(tElementNum) = mMtkExodusElementIndexMap(tSideSetElements(tElementNum)) + 1;
+                        tSideSetOrdinals(tElementNum)++;
+                    }
 
-                // Write the side set
-                ex_put_set_param(mExoid, EX_SIDE_SET, tSideSetIndex + 1, tSideSetElements.numel(), 0);
-                ex_put_set(mExoid, EX_SIDE_SET, tSideSetIndex + 1, tSideSetElements.data(), tSideSetOrdinals.data());
-                ex_put_name(mExoid, EX_SIDE_SET, tSideSetIndex + 1, tSideSetNames(tSideSetIndex).c_str());
+                    // Write the side set
+                    ex_put_set_param(mExoid, EX_SIDE_SET, tNumSideSets + 1, tSideSetElements.numel(), 0);
+                    ex_put_set      (mExoid, EX_SIDE_SET, tNumSideSets + 1, tSideSetElements.data(), tSideSetOrdinals.data());
+                    ex_put_name     (mExoid, EX_SIDE_SET, tNumSideSets + 1, tSideSetNames(tSideSetIndex).c_str());
+
+                    // Increase counter for non-empty side sets
+                    tNumSideSets++;
+                }
             }
+
+            // Check for correct non-empty side set count
+            MORIS_ERROR(tNumSideSets == mNumSideSets, "Incorrect number of non-empty side sets written to file." );
         }
 
         //--------------------------------------------------------------------------------------------------------------
