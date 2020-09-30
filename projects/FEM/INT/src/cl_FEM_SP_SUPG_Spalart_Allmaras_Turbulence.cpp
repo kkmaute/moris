@@ -208,7 +208,7 @@ namespace moris
             Matrix< DDRMat > tdtauSdu( 1, tFI->get_number_of_space_time_coefficients(), 0.0 );
 
             // if dof type is velocity
-            if( aDofTypes( 0 ) == mMasterDofVelocity )
+            if( aDofTypes( 0 ) == mMasterDofVelocity && tNormA > 0.0 )
             {
                 // add contribution to dSPdu
                 tdtauAdu.matrix_data() +=
@@ -216,7 +216,7 @@ namespace moris
             }
 
             // if dof type is velocity
-            if( aDofTypes( 0 ) == mMasterDofViscosity )
+            if( aDofTypes( 0 ) == mMasterDofViscosity && tNormA > 0.0 )
             {
                 // evaluate dadu
                 tdtauAdu.matrix_data() -=

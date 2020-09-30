@@ -27,7 +27,6 @@ const std::string get_enum_str(enum EntityBase aEntityBase)
     case EntityBase::NonLinearSolver:   return "NonLinearSolver";
     case EntityBase::NonLinearProblem:  return "NonLinearProblem";
     case EntityBase::TimeSolver:        return "TimeSolver";
-    case EntityBase::BlockSet:          return "BlockSet";
     case EntityBase::GlobalClock:       return "GlobalClock";
     case EntityBase::MSI:               return "MSI";
     case EntityBase::Mesh:              return "Mesh";
@@ -48,7 +47,6 @@ enum EntityBase get_entity_base_enum_from_str(std::string aEnumString)
     else if (aEnumString == "NonLinearSolver")  return EntityBase::NonLinearSolver;
     else if (aEnumString == "NonLinearProblem") return EntityBase::NonLinearProblem;
     else if (aEnumString == "TimeSolver")       return EntityBase::TimeSolver;
-    else if (aEnumString == "BlockSet")         return EntityBase::BlockSet;
     else if (aEnumString == "GlobalClock")      return EntityBase::GlobalClock;
     else if (aEnumString == "MSI")              return EntityBase::MSI;
     else if (aEnumString == "Mesh")             return EntityBase::Mesh;

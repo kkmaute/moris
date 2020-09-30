@@ -19,7 +19,7 @@ TEST_CASE("SA_Cut_Bar_Static",
         "[moris],[example],[optimization],[sweep],[sweep_static]")
 {
     // Tolerance for adjoint vs. FD sensitivities
-    moris::real tToleranceSensties = 0.021;
+    moris::real tToleranceSensties = 0.01;
 
     // define command line call
     int argc = 2;
@@ -73,8 +73,8 @@ TEST_CASE("SA_Cut_Bar_Static",
                     tADVIndex,
                     tConstraintsAnalytical(tADVIndex),
                     tFDTypes(tFDIndex).c_str(),
-                    tConstraintsAnalytical(tADVIndex),
-                    100*std::abs((tConstraintsAnalytical(tADVIndex)-tConstraintsAnalytical(tADVIndex))/tConstraintsAnalytical(tADVIndex)));
+                    tConstraintsFD(tADVIndex),
+                    100*std::abs((tConstraintsAnalytical(tADVIndex)-tConstraintsFD(tADVIndex))/tConstraintsFD(tADVIndex)));
 
             CHECK( std::abs( ( tObjectiveAnalytical(   tADVIndex ) - tObjectiveFD(   tADVIndex ) ) /
                     tObjectiveFD(   tADVIndex ) ) < tToleranceSensties );

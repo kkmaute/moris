@@ -22,6 +22,13 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
+        void Pdv_Value::set_value(const moris::real & aValue )
+        {
+            mValue = aValue;
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
         void Pdv_Value::get_sensitivity(uint aNodeIndex, const Matrix<DDRMat>& aCoordinates, Matrix<DDRMat>& aSensitivities)
         {
         }

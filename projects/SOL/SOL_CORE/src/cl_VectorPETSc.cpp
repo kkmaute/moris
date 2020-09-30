@@ -56,6 +56,16 @@ Vector_PETSc::~Vector_PETSc()
 
 //-----------------------------------------------------------------------------
 
+real& Vector_PETSc::operator()( sint aGlobalId, uint aVectorIndex )
+{
+    MORIS_ERROR(false, "operator() not implemented for PETSc vector.");
+    Matrix<DDRMat> tLHSValues;
+    extract_copy( tLHSValues );
+    return tLHSValues(0);
+}
+
+//-----------------------------------------------------------------------------
+
 void Vector_PETSc::sum_into_global_values(
         const moris::Matrix< DDSMat > & aGlobalIds,
         const moris::Matrix< DDRMat > & aValues,

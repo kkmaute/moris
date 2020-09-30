@@ -15,7 +15,7 @@ namespace moris
         {
 
         private:
-            mtk::Mesh* mMesh;
+            mtk::Interpolation_Mesh* mMesh;
 
         public:
             /**
@@ -31,19 +31,19 @@ namespace moris
              * @param aBSplineLowerBound The lower bound for the B-spline coefficients describing this field
              * @param aBSplineUpperBound The upper bound for the B-spline coefficients describing this field
              */
-            Level_Set(Matrix<DDRMat>& aADVs,
-                      Matrix<DDUMat>  aGeometryVariableIndices,
-                      Matrix<DDUMat>  aADVIndices,
-                      Matrix<DDRMat>  aConstantParameters,
-                      mtk::Mesh*      aMesh,
-                      sint            aNumRefinements = 0,
-                      sint            aRefinementFunctionIndex = -1,
-                      uint            aBSplineMeshIndex = 0,
-                      real            aBSplineLowerBound = -1.0,
-                      real            aBSplineUpperBound = 1.0);
+            Level_Set(Matrix<DDRMat>&          aADVs,
+                      Matrix<DDUMat>           aGeometryVariableIndices,
+                      Matrix<DDUMat>           aADVIndices,
+                      Matrix<DDRMat>           aConstantParameters,
+                      mtk::Interpolation_Mesh* aMesh,
+                      sint                     aNumRefinements = 0,
+                      sint                     aRefinementFunctionIndex = -1,
+                      uint                     aBSplineMeshIndex = 0,
+                      real                     aBSplineLowerBound = -1.0,
+                      real                     aBSplineUpperBound = 1.0);
 
             /**
-             * Constructor where ADVs are added based on an input field and the B-spline mesh.
+             * Constructor where ADVs are added based on an input field and a B-spline mesh.
              *
              * @param aADVs Reference to the full ADVs
              * @param aADVIndex Starting index for assigning ADVs
@@ -52,6 +52,22 @@ namespace moris
              */
             Level_Set(Matrix<DDRMat>&           aADVs,
                       uint                      aADVIndex,
+                      mtk::Interpolation_Mesh*  aMesh,
+                      std::shared_ptr<Geometry> aGeometry);
+
+            /**
+             * Constructor where ADVs are added based on an input field and a B-spline mesh.
+             *
+             * @param aOwnedADVs Pointer to the owned distributed ADVs
+             * @param aOwnedADVIds All owned ADV IDs on this processor
+             * @param aOwnedADVIdsIndex Index in the ID matrix for pulling IDs for this field
+             * @param aMesh The mesh pointer where the B-spline information can be obtained
+             * @param aGeometry Geometry for initializing the B-spline level set discretization
+             */
+            Level_Set(sol::Dist_Vector*         aOwnedADVs,
+                      const Matrix<DDSMat>&     aOwnedADVIds,
+                      uint                      aOwnedADVIdsOffset,
+                      uint                      aNumFieldVariables,
                       mtk::Interpolation_Mesh*  aMesh,
                       std::shared_ptr<Geometry> aGeometry);
 
@@ -80,6 +96,13 @@ namespace moris
              * @param aSensitivities Vector of sensitivities
              */
             void evaluate_all_sensitivities(uint aNodeIndex, Matrix<DDRMat>& aSensitivities);
+
+            /**
+             * Maps the level set field from nodes to B-splines for the given geometry.
+             *
+             * @return Target field
+             */
+            Matrix<DDRMat> map_to_bsplines(std::shared_ptr<Geometry> aGeometry);
 
         };
     }

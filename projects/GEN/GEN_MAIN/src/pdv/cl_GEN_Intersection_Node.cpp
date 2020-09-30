@@ -49,7 +49,7 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        void Intersection_Node::set_starting_pdv_index(uint aStartingPdvIndex)
+        void Intersection_Node::set_starting_pdv_id(uint aStartingPdvIndex)
         {
             mStartingPdvIndex = aStartingPdvIndex;
             mPdvIndexSet = true;
@@ -57,8 +57,9 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        uint Intersection_Node::get_starting_pdv_index()
+        uint Intersection_Node::get_starting_pdv_id()
         {
+            //
             MORIS_ASSERT(mPdvIndexSet, "Starting PDV index must be set for an intersection.");
             return mStartingPdvIndex;
         }
@@ -75,6 +76,11 @@ namespace moris
         Matrix<DDRMat> Intersection_Node::get_global_coordinates()
         {
             return mGlobalCoordinates;
+        }
+
+        moris::uint Intersection_Node::get_num_pdvs()
+        {
+            return mGlobalCoordinates.numel();
         }
 
         //--------------------------------------------------------------------------------------------------------------

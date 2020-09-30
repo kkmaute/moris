@@ -70,8 +70,8 @@ TEST_CASE("Shape_Sensitivity_Circle_Sweep_Thermoelastic",
                     tADVIndex,
                     tConstraintsAnalytical(tADVIndex),
                     tFDTypes(tFDIndex).c_str(),
-                    tConstraintsAnalytical(tADVIndex),
-                    100*std::abs((tConstraintsAnalytical(tADVIndex)-tConstraintsAnalytical(tADVIndex))/tConstraintsAnalytical(tADVIndex)));
+                    tConstraintsFD(tADVIndex),
+                    100*std::abs((tConstraintsAnalytical(tADVIndex)-tConstraintsFD(tADVIndex))/tConstraintsFD(tADVIndex)));
 
             CHECK(tObjectiveAnalytical(tADVIndex) == Approx(tObjectiveFD(tADVIndex)));
             CHECK(tConstraintsAnalytical(tADVIndex) == Approx(tConstraintsFD(tADVIndex)));
@@ -83,7 +83,7 @@ TEST_CASE("Shape_Sensitivity_Circle_Sweep_Thermoelastic",
 }
 
 TEST_CASE("Shape_Sensitivity_Circle_Sweep_Thermoelastic_Staggered",
-        "[moris],[example],[optimization],[sweep],[sweep_thermoelastic]")
+        "[moris],[example],[optimization],[sweep],[sweep_thermoelastic_staggered]")
 {
     // define command line call
     int argc = 2;
@@ -137,8 +137,8 @@ TEST_CASE("Shape_Sensitivity_Circle_Sweep_Thermoelastic_Staggered",
                     tADVIndex,
                     tConstraintsAnalytical(tADVIndex),
                     tFDTypes(tFDIndex).c_str(),
-                    tConstraintsAnalytical(tADVIndex),
-                    100*std::abs((tConstraintsAnalytical(tADVIndex)-tConstraintsAnalytical(tADVIndex))/tConstraintsAnalytical(tADVIndex)));
+                    tConstraintsFD(tADVIndex),
+                    100*std::abs((tConstraintsAnalytical(tADVIndex)-tConstraintsFD(tADVIndex))/tConstraintsFD(tADVIndex)));
 
             CHECK(tObjectiveAnalytical(tADVIndex) == Approx(tObjectiveFD(tADVIndex)));
             CHECK(tConstraintsAnalytical(tADVIndex) == Approx(tConstraintsFD(tADVIndex)));

@@ -509,11 +509,19 @@ namespace moris
                 // loop over the IQIs
                 for( uint iIQI = 0; iIQI < tNumIQIs; iIQI++ )
                 {
-                    // reset IWG
-                    mSet->get_requested_IQIs()( iIQI )->reset_eval_flags();
+//                    // check if IQI has dof dependencies
+//                    moris::Cell< moris::Cell< MSI::Dof_Type > > aDofTypeList =
+//                            mSet->get_requested_IQIs()( iIQI )->get_global_dof_type_list();
 
-                    // compute dQIdu at evaluation point
-                    mSet->get_requested_IQIs()( iIQI )->add_dQIdu_on_set( tWStar );
+                    // if there are dof dependencies
+                    //if( aDofTypeList.size() > 0 )
+                    //{
+                        // reset IWG
+                        mSet->get_requested_IQIs()( iIQI )->reset_eval_flags();
+
+                        // compute dQIdu at evaluation point
+                        mSet->get_requested_IQIs()( iIQI )->add_dQIdu_on_set( tWStar );
+                    //}
                 }
             }
         }

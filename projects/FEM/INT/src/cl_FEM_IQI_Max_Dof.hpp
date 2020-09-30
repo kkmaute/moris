@@ -33,11 +33,13 @@ namespace moris
                 {
                         REFERENCE_VALUE,
                         EXPONENT,
+                        SHIFT,
                         MAX_ENUM
                 };
 
                 // Local string to property enum map
                 std::map< std::string, IQI_Property_Type > mPropertyMap;
+
 
             public:
                 //------------------------------------------------------------------------------

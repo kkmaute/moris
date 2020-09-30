@@ -60,6 +60,14 @@ namespace moris
                 };
 
                 /**
+                 * Gets a value in the distributed vector based on a given ID.
+                 *
+                 * @param aGlobalId Global ID
+                 * @return Value
+                 */
+                virtual real& operator()( sint aGlobalId, uint aVectorIndex = 0 ) = 0;
+
+                /**
                  * @brief Returns the number of vectors.
                  */
                 moris::sint get_num_vectors(){return mNumVectors;};

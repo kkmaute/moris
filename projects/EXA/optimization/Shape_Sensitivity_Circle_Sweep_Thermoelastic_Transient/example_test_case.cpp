@@ -70,10 +70,10 @@ TEST_CASE("Shape_Sensitivity_Circle_Sweep_Thermoelastic_Transient",
                     tADVIndex,
                     tConstraintsAnalytical(tADVIndex),
                     tFDTypes(tFDIndex).c_str(),
-                    tConstraintsAnalytical(tADVIndex),
-                    100*std::abs((tConstraintsAnalytical(tADVIndex)-tConstraintsAnalytical(tADVIndex))/tConstraintsAnalytical(tADVIndex)));
+                    tConstraintsFD(tADVIndex),
+                    100*std::abs((tConstraintsAnalytical(tADVIndex)-tConstraintsFD(tADVIndex))/tConstraintsFD(tADVIndex)));
 
-            //CHECK(tObjectiveAnalytical(tADVIndex) == Approx(tObjectiveFD(tADVIndex)));
+            CHECK(tObjectiveAnalytical(tADVIndex) == Approx(tObjectiveFD(tADVIndex)));
             CHECK(tConstraintsAnalytical(tADVIndex) == Approx(tConstraintsFD(tADVIndex)));
         }
     }
@@ -137,8 +137,8 @@ TEST_CASE("Shape_Sensitivity_Circle_Sweep_Thermoelastic_Transient_Staggered",
                     tADVIndex,
                     tConstraintsAnalytical(tADVIndex),
                     tFDTypes(tFDIndex).c_str(),
-                    tConstraintsAnalytical(tADVIndex),
-                    100*std::abs((tConstraintsAnalytical(tADVIndex)-tConstraintsAnalytical(tADVIndex))/tConstraintsAnalytical(tADVIndex)));
+                    tConstraintsFD(tADVIndex),
+                    100*std::abs((tConstraintsAnalytical(tADVIndex)-tConstraintsFD(tADVIndex))/tConstraintsFD(tADVIndex)));
 
             //CHECK(tObjectiveAnalytical(tADVIndex) == Approx(tObjectiveFD(tADVIndex)));
             CHECK(tConstraintsAnalytical(tADVIndex) == Approx(tConstraintsFD(tADVIndex)));

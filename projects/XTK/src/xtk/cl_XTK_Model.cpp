@@ -669,7 +669,15 @@ namespace xtk
                 // add nodes to the background mesh
                 mBackgroundMesh.batch_create_new_nodes(tDecompData.tNewNodeId,tDecompData.tNewNodeIndex,tDecompData.tNewNodeOwner,tDecompData.tNewNodeCoordinate);
 
-                //
+                //update underlying ids and owners of interpolation nodes in GE
+                for( uint Ik = 0; Ik < tDecompData.tNewNodeIndex.size(); Ik++)
+                {
+                    moris_index tNodeIndex = tDecompData.tNewNodeIndex( Ik );
+                    moris_id tNodeId       = tDecompData.tNewNodeId( Ik );
+                    moris_index tNodeOwner = tDecompData.tNewNodeOwner( Ik );
+
+                    mGeometryEngine->update_queued_intersection(tNodeIndex, tNodeId, tNodeOwner);
+                }
 
                 // add nodes to child mesh
                 this->decompose_internal_set_new_nodes_in_child_mesh_nh(aActiveChildMeshIndices,tDecompData);
@@ -905,6 +913,16 @@ namespace xtk
 
                 // add nodes to the background mesh
                 mBackgroundMesh.batch_create_new_nodes(tDecompData.tNewNodeId,tDecompData.tNewNodeIndex,tDecompData.tNewNodeOwner,tDecompData.tNewNodeCoordinate);
+
+                //update underlying ids and owners of interpolation nodes in GE
+                for( uint Ik = 0; Ik < tDecompData.tNewNodeIndex.size(); Ik++)
+                {
+                    moris_index tNodeIndex = tDecompData.tNewNodeIndex( Ik );
+                    moris_id tNodeId       = tDecompData.tNewNodeId( Ik );
+                    moris_index tNodeOwner = tDecompData.tNewNodeOwner( Ik );
+
+                    mGeometryEngine->update_queued_intersection(tNodeIndex, tNodeId, tNodeOwner);
+                }
 
                 // add nodes to child mesh
                 this->decompose_internal_set_new_nodes_in_child_mesh_nh(aActiveChildMeshIndices,tDecompData);

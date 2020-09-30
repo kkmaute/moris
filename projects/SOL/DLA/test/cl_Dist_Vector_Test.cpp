@@ -11,7 +11,7 @@
 #include "linalg_typedefs.hpp"
 
 #include "cl_Communication_Tools.hpp" // COM/src
-#include "cl_Matrix_Vector_Factory.hpp" // DLA/src
+#include "cl_SOL_Matrix_Vector_Factory.hpp" // DLA/src
 #include "cl_Solver_Interface_Proxy.hpp" // DLA/src
 #include "cl_SOL_Dist_Vector.hpp" // DLA/src
 #include "cl_SOL_Dist_Map.hpp" // DLA/src
@@ -140,11 +140,14 @@ TEST_CASE("Sum Dist Vector","[Sum Dist Vector],[DistLinAlg]")
         {
             CHECK( equal_to( tSol( 0,0 ), 0.0 ) );
             CHECK( equal_to( tSol( 5,0 ), 0.0 ) );
+            CHECK( equal_to( (*tVectorA)(17), 0.0 ) );
         }
         if (rank == 2)
         {
             CHECK( equal_to( tSol( 0,0 ), 0.0 ) );
             CHECK( equal_to( tSol( 1,0 ), 2.0 ) );
+            CHECK( equal_to( (*tVectorA)(4), 0.0 ) );
+            CHECK( equal_to( (*tVectorA)(5), 2.0 ) );
         }
         delete( tSolverInput );
         delete( tMap );

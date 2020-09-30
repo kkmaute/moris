@@ -57,7 +57,16 @@ namespace moris
                 moris::Cell< MSI::Dof_Type > & aDofType,
                 Matrix< DDRMat >             & adQIdu )
         {
-            MORIS_ERROR( false, "IQI_Property::compute_dQIdu - Not implemented." );
+            // get the property
+            std::shared_ptr< Property > tProperty =
+                    mMasterProp( static_cast< uint >( IQI_Property_Type::PROPERTY ) );
+
+            // if property depends on dof type
+            if ( tProperty->check_dof_dependency( aDofType ) )
+            {
+                // compute dQIdu
+                adQIdu = tProperty->dPropdDOF( aDofType );
+            }
         }
 
         //------------------------------------------------------------------------------

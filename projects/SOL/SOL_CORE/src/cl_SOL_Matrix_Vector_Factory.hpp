@@ -9,11 +9,8 @@
 
 #include <memory>
 #include "cl_Matrix.hpp"
-//#include "linalg_typedefs.hpp"
-#include "typedefs.hpp"                       //MRS/COR/src
-
+#include "typedefs.hpp"
 #include "cl_SOL_Enums.hpp"
-//#include "cl_SOL_Dist_Map.hpp"
 
 namespace moris
 {
@@ -35,6 +32,9 @@ namespace moris
 
         sol::Dist_Matrix * create_matrix(       Solver_Interface * aInput,
                                           const sol::Dist_Map        * aMap );
+										  
+		sol::Dist_Matrix * create_matrix( const sol::Dist_Map * aRowMap,
+                                          const sol::Dist_Map * aColMap );
 
         sol::Dist_Matrix * create_matrix( const moris::uint aRows,
                                           const moris::uint aCols );

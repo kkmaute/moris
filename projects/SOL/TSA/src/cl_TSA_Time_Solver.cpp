@@ -5,7 +5,7 @@
  *      Author: schmidt
  */
 #include "cl_DLA_Solver_Interface.hpp"
-#include "cl_Matrix_Vector_Factory.hpp"
+#include "cl_SOL_Matrix_Vector_Factory.hpp"
 
 #include "cl_SOL_Dist_Map.hpp"
 #include "cl_SOL_Dist_Vector.hpp"

@@ -72,6 +72,60 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
+        Cell<std::shared_ptr<Geometry>> create_geometries(
+                Cell<ParameterList>         aGeometryParameterLists,
+                sol::Dist_Vector*           aOwnedADVs,
+                std::shared_ptr<Library_IO> aLibrary)
+        {
+            // Create geometry cell
+            Cell<std::shared_ptr<Geometry>> tGeometries(0);
+            Cell<std::shared_ptr<Multigeometry>> tMultigeometries(0);
+
+            // Create individual geometries
+            for (uint tGeometryIndex = 0; tGeometryIndex < aGeometryParameterLists.size(); tGeometryIndex++)
+            {
+                // Create geometry
+                std::shared_ptr<Geometry> tGeometry = create_geometry(aGeometryParameterLists(tGeometryIndex), aOwnedADVs, aLibrary);
+
+                // Determine if to add to multigeometry
+                std::string tMultigeometryID = aGeometryParameterLists(tGeometryIndex).get<std::string>("multigeometry_id");
+                if (tMultigeometryID != "")
+                {
+                    // Loop to see if this multigeometry ID exists already
+                    bool tMultigeometryFound = false;
+                    for (uint tMultigeometryIndex = 0; tMultigeometryIndex < tMultigeometries.size(); tMultigeometryIndex++)
+                    {
+                        if (tMultigeometries(tMultigeometryIndex)->get_id() == tMultigeometryID)
+                        {
+                            tMultigeometryFound = true;
+                            tMultigeometries(tMultigeometryIndex)->add_geometry(tGeometry);
+                            break;
+                        }
+                    }
+
+                    // Create new multigeometry with this ID
+                    if (not tMultigeometryFound)
+                    {
+                        tMultigeometries.push_back(std::make_shared<Multigeometry>(Cell<std::shared_ptr<Geometry>>(1, tGeometry), tMultigeometryID));
+                    }
+                }
+                else
+                {
+                    tGeometries.push_back(tGeometry);
+                }
+            }
+
+            // Add multigeometries at the end
+            for (uint tMultigeometryIndex = 0; tMultigeometryIndex < tMultigeometries.size(); tMultigeometryIndex++)
+            {
+                tGeometries.push_back(tMultigeometries(tMultigeometryIndex));
+            }
+
+            return tGeometries;
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
         std::shared_ptr<Geometry> create_geometry(
                 ParameterList               aGeometryParameterList,
                 Matrix<DDRMat>&             aADVs,
@@ -203,8 +257,198 @@ namespace moris
                 real tTargetYSpacing = aGeometryParameterList.get<real>("target_y_spacing");
 
                 MORIS_ERROR((tNumXHoles > 1 and tNumYHoles > 1) or (tTargetXSpacing and tTargetYSpacing),
-                        "In a swiss cheese parameter list, you must specify either a number of holes > 1 or a target "
-                        "spacing in each direction.");
+                            "In a swiss cheese parameter list, you must specify either a number of holes > 1 or a target "
+                            "spacing in each direction.");
+
+                if (tNumXHoles)
+                {
+                    return std::make_shared<Swiss_Cheese_Slice>(
+                            aGeometryParameterList.get<real>("left_bound"),
+                            aGeometryParameterList.get<real>("right_bound"),
+                            aGeometryParameterList.get<real>("bottom_bound"),
+                            aGeometryParameterList.get<real>("top_bound"),
+                            tNumXHoles,
+                            tNumYHoles,
+                            aGeometryParameterList.get<real>("hole_x_semidiameter"),
+                            aGeometryParameterList.get<real>("hole_y_semidiameter"),
+                            aGeometryParameterList.get<real>("superellipse_exponent"),
+                            aGeometryParameterList.get<real>("superellipse_scaling"),
+                            aGeometryParameterList.get<real>("superellipse_regularization"),
+                            aGeometryParameterList.get<real>("superellipse_shift"),
+                            aGeometryParameterList.get<real>("row_offset"),
+                            tNumRefinements,
+                            tRefinementFunctionIndex,
+                            tBSplineMeshIndex,
+                            tBSplineLowerBound,
+                            tBSplineUpperBound);
+                }
+                else
+                {
+                    return std::make_shared<Swiss_Cheese_Slice>(
+                            aGeometryParameterList.get<real>("left_bound"),
+                            aGeometryParameterList.get<real>("right_bound"),
+                            aGeometryParameterList.get<real>("bottom_bound"),
+                            aGeometryParameterList.get<real>("top_bound"),
+                            tTargetXSpacing,
+                            tTargetYSpacing,
+                            aGeometryParameterList.get<real>("hole_x_semidiameter"),
+                            aGeometryParameterList.get<real>("hole_y_semidiameter"),
+                            aGeometryParameterList.get<real>("superellipse_exponent"),
+                            aGeometryParameterList.get<real>("superellipse_scaling"),
+                            aGeometryParameterList.get<real>("superellipse_regularization"),
+                            aGeometryParameterList.get<real>("superellipse_shift"),
+                            aGeometryParameterList.get<real>("row_offset"),
+                            aGeometryParameterList.get<bool>("allow_less_than_target_spacing"),
+                            tNumRefinements,
+                            tRefinementFunctionIndex,
+                            tBSplineMeshIndex,
+                            tBSplineLowerBound,
+                            tBSplineUpperBound);
+                }
+
+            }
+            else
+            {
+                MORIS_ERROR(false, tGeometryType.append(" is not recognized as a valid Geometry type in fn_GEN_create_geometry.").c_str());
+                return nullptr;
+            }
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
+        std::shared_ptr<Geometry> create_geometry(
+                ParameterList               aGeometryParameterList,
+                sol::Dist_Vector*           aOwnedADVs,
+                std::shared_ptr<Library_IO> aLibrary)
+        {
+            // Geometry type
+            std::string tGeometryType = aGeometryParameterList.get<std::string>("type");
+
+            // Geometry inputs
+            Matrix<DDUMat> tGeometryVariableIndices(0, 0);
+            Matrix<DDUMat> tADVIndices(0, 0);
+            Matrix<DDRMat> tConstantParameters(0, 0);
+
+            // If not a swiss cheese, get ADV inputs
+            if (tGeometryType.compare(0, 12, "swiss_cheese"))
+            {
+                // ADV parameters
+                set_geometry_variable_inputs(aGeometryParameterList, aOwnedADVs->vec_local_length(), tGeometryVariableIndices, tADVIndices);
+
+                // Constant parameters
+                tConstantParameters = string_to_mat<DDRMat>(aGeometryParameterList.get<std::string>("constant_parameters"));
+            }
+
+            // Get refinement info
+            sint tNumRefinements = aGeometryParameterList.get<sint>("number_of_refinements");
+            sint tRefinementFunctionIndex = aGeometryParameterList.get<sint>("refinement_function_index");
+
+            // Get level set info
+            sint tBSplineMeshIndex = aGeometryParameterList.get<sint>("bspline_mesh_index");
+            real tBSplineLowerBound = aGeometryParameterList.get<real>("bspline_lower_bound");
+            real tBSplineUpperBound = aGeometryParameterList.get<real>("bspline_upper_bound");
+
+            // Build Geometry
+            if (tGeometryType == "circle")
+            {
+                return std::make_shared<Circle>(
+                        aOwnedADVs,
+                        tGeometryVariableIndices,
+                        tADVIndices,
+                        tConstantParameters,
+                        tNumRefinements,
+                        tRefinementFunctionIndex,
+                        tBSplineMeshIndex,
+                        tBSplineLowerBound,
+                        tBSplineUpperBound);
+            }
+            else if (tGeometryType == "superellipse")
+            {
+                return std::make_shared<Superellipse>(
+                        aOwnedADVs,
+                        tGeometryVariableIndices,
+                        tADVIndices,
+                        tConstantParameters,
+                        tNumRefinements,
+                        tRefinementFunctionIndex,
+                        tBSplineMeshIndex,
+                        tBSplineLowerBound,
+                        tBSplineUpperBound);
+            }
+            else if (tGeometryType == "sphere")
+            {
+                return std::make_shared<Sphere>(
+                        aOwnedADVs,
+                        tGeometryVariableIndices,
+                        tADVIndices,
+                        tConstantParameters,
+                        tNumRefinements,
+                        tRefinementFunctionIndex,
+                        tBSplineMeshIndex,
+                        tBSplineLowerBound,
+                        tBSplineUpperBound);
+            }
+            else if (tGeometryType == "superellipsoid")
+            {
+                return std::make_shared<Superellipsoid>(
+                        aOwnedADVs,
+                        tGeometryVariableIndices,
+                        tADVIndices,
+                        tConstantParameters,
+                        tNumRefinements,
+                        tRefinementFunctionIndex,
+                        tBSplineMeshIndex,
+                        tBSplineLowerBound,
+                        tBSplineUpperBound);
+            }
+            else if (tGeometryType == "plane")
+            {
+                return std::make_shared<Plane>(
+                        aOwnedADVs,
+                        tGeometryVariableIndices,
+                        tADVIndices,
+                        tConstantParameters,
+                        tNumRefinements,
+                        tRefinementFunctionIndex,
+                        tBSplineMeshIndex,
+                        tBSplineLowerBound,
+                        tBSplineUpperBound);
+            }
+            else if (tGeometryType == "user_defined")
+            {
+                // Check if library is given
+                MORIS_ERROR(aLibrary != nullptr, "Library must be given in order to create a user-defined geometry.");
+
+                // Get sensitivity function if needed
+                std::string tSensitivityFunctionName = aGeometryParameterList.get<std::string>("sensitivity_function_name");
+                MORIS_GEN_SENSITIVITY_FUNCTION tSensitivityFunction =
+                        (tSensitivityFunctionName == "" ? nullptr : aLibrary->load_gen_sensitivity_function(tSensitivityFunctionName));
+
+                // Create user-defined geometry
+                return std::make_shared<User_Defined_Geometry>(
+                        aOwnedADVs,
+                        tGeometryVariableIndices,
+                        tADVIndices,
+                        tConstantParameters,
+                        aLibrary->load_gen_field_function(aGeometryParameterList.get<std::string>("field_function_name")),
+                        tSensitivityFunction,
+                        tNumRefinements,
+                        tRefinementFunctionIndex,
+                        tBSplineMeshIndex,
+                        tBSplineLowerBound,
+                        tBSplineUpperBound);
+            }
+            else if (tGeometryType == "swiss_cheese_slice")
+            {
+                // Check for definition
+                uint tNumXHoles = (uint)aGeometryParameterList.get<sint>("number_of_x_holes");
+                uint tNumYHoles = (uint)aGeometryParameterList.get<sint>("number_of_y_holes");
+                real tTargetXSpacing = aGeometryParameterList.get<real>("target_x_spacing");
+                real tTargetYSpacing = aGeometryParameterList.get<real>("target_y_spacing");
+
+                MORIS_ERROR((tNumXHoles > 1 and tNumYHoles > 1) or (tTargetXSpacing and tTargetYSpacing),
+                            "In a swiss cheese parameter list, you must specify either a number of holes > 1 or a target "
+                            "spacing in each direction.");
 
                 if (tNumXHoles)
                 {

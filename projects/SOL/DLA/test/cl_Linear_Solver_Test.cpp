@@ -22,7 +22,7 @@
 #include "cl_Communication_Tools.hpp" // COM/src/
 #include "cl_DLA_Linear_Solver_Aztec.hpp" // DLA/src/
 
-#include "cl_Matrix_Vector_Factory.hpp" // DLA/src/
+#include "cl_SOL_Matrix_Vector_Factory.hpp" // DLA/src/
 #include "cl_Solver_Interface_Proxy.hpp" // DLA/src/
 #include "cl_DLA_Solver_Factory.hpp" // DLA/src/
 

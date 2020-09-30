@@ -3,6 +3,7 @@
 
 #include "cl_Matrix.hpp"
 #include "cl_GEN_Child_Node.hpp"
+#include "cl_SOL_Dist_Vector.hpp"
 
 namespace moris
 {
@@ -15,7 +16,7 @@ namespace moris
 
         private:
             Matrix<DDRMat> mConstantParameters;
-            Matrix<DDSMat> mFieldADVDependencies;
+            Matrix<DDSMat> mADVDependencies;
             bool mDependsOnADVs;
             uint mNumADVs;
             sint mNumRefinements;
@@ -27,11 +28,11 @@ namespace moris
         protected:
 
             /**
-             * Constructor, sets the pointers to ADVs and constant parameters for evaluations
+             * Constructor, sets the field variable pointers to ADVs and constant parameters for evaluations.
              *
              * @param aADVs Reference to the full ADVs
-             * @param aFieldVariableIndices Indices of geometry variables to be filled by the ADVs
-             * @param aADVIndices The indices of the ADV vector to fill in the geometry variables
+             * @param aFieldVariableIndices Indices of field variables to be filled by the ADVs
+             * @param aADVIndices The indices of the ADV vector to fill in the field variables
              * @param aConstantParameters The constant parameters not filled by ADVs
              * @param aNumRefinements The number of refinement steps to use for this field
              * @param aRefinementFunctionIndex The index of a user-defined refinement function (-1 = default refinement)
@@ -40,22 +41,44 @@ namespace moris
              * @param aBSplineUpperBound The upper bound for the B-spline coefficients describing this field
              */
             Field(Matrix<DDRMat>& aADVs,
-                  Matrix<DDUMat> aFieldVariableIndices,
-                  Matrix<DDUMat> aADVIndices,
-                  Matrix<DDRMat> aConstantParameters,
-                  sint aNumRefinements,
-                  sint aRefinementFunctionIndex,
-                  sint aBSplineMeshIndex,
-                  real aBSplineLowerBound,
-                  real aBSplineUpperBound);
+                  Matrix<DDUMat>  aFieldVariableIndices,
+                  Matrix<DDUMat>  aADVIndices,
+                  Matrix<DDRMat>  aConstantParameters,
+                  sint            aNumRefinements,
+                  sint            aRefinementFunctionIndex,
+                  sint            aBSplineMeshIndex,
+                  real            aBSplineLowerBound,
+                  real            aBSplineUpperBound);
 
             /**
-             * Constructor for creating new ADVs for all variables on this field. These values must be filled by a
-             * child constructor.
+             * Constructor, sets the field variable pointers to ADVs and constant parameters for evaluations.
+             *
+             * @param aOwnedADVs Pointer to the owned distributed ADVs
+             * @param aFieldVariableIndices Indices of field variables to be filled by the ADVs
+             * @param aADVIndices The indices of the ADV vector to fill in the field variables
+             * @param aConstantParameters The constant parameters not filled by ADVs
+             * @param aNumRefinements The number of refinement steps to use for this field
+             * @param aRefinementFunctionIndex The index of a user-defined refinement function (-1 = default refinement)
+             * @param aBSplineMeshIndex The index of a B-spline mesh for B-spline discretization (-1 = no B-splines)
+             * @param aBSplineLowerBound The lower bound for the B-spline coefficients describing this field
+             * @param aBSplineUpperBound The upper bound for the B-spline coefficients describing this field
+             */
+            Field(sol::Dist_Vector* aOwnedADVs,
+                  Matrix<DDUMat>    aFieldVariableIndices,
+                  Matrix<DDUMat>    aADVIndices,
+                  Matrix<DDRMat>    aConstantParameters,
+                  sint              aNumRefinements,
+                  sint              aRefinementFunctionIndex,
+                  sint              aBSplineMeshIndex,
+                  real              aBSplineLowerBound,
+                  real              aBSplineUpperBound);
+
+            /**
+             * Constructor for setting all field variables as consecutive ADVs.
              *
              * @param aADVs Reference to the full ADVs
-             * @param aADVIndex Index of the ADVs where this field will start using field variables
-             * @param aNumGeometryVariables The number of geometry variables
+             * @param aStartingADVIndex Index of the ADVs where this field will start using field variables
+             * @param aNumFieldVariables The number of field variables
              * @param aNumRefinements The number of refinement steps to use for this field
              * @param aRefinementFunctionIndex The index of a user-defined refinement function (-1 = default refinement)
              * @param aBSplineMeshIndex The index of a B-spline mesh for B-spline discretization (-1 = no B-splines)
@@ -63,13 +86,35 @@ namespace moris
              * @param aBSplineUpperBound The upper bound for the B-spline coefficients describing this field
              */
             Field(Matrix<DDRMat>& aADVs,
-                  uint aADVIndex,
-                  uint aNumFieldVariables,
-                  sint aNumRefinements,
-                  sint aRefinementFunctionIndex,
-                  sint aBSplineMeshIndex,
-                  real aBSplineLowerBound,
-                  real aBSplineUpperBound);
+                  uint            aStartingADVIndex,
+                  uint            aNumFieldVariables,
+                  sint            aNumRefinements,
+                  sint            aRefinementFunctionIndex,
+                  sint            aBSplineMeshIndex,
+                  real            aBSplineLowerBound,
+                  real            aBSplineUpperBound);
+
+            /**
+             * Constructor for setting all field variables as consecutive ADVs.
+             *
+             * @param aOwnedADVs Pointer to the owned distributed ADVs
+             * @param aStartingADVIndex Index of the ADVs where this field will start using field variables
+             * @param aNumFieldVariables The number of field variables
+             * @param aNumRefinements The number of refinement steps to use for this field
+             * @param aRefinementFunctionIndex The index of a user-defined refinement function (-1 = default refinement)
+             * @param aBSplineMeshIndex The index of a B-spline mesh for B-spline discretization (-1 = no B-splines)
+             * @param aBSplineLowerBound The lower bound for the B-spline coefficients describing this field
+             * @param aBSplineUpperBound The upper bound for the B-spline coefficients describing this field
+             */
+            Field(sol::Dist_Vector*     aOwnedADVs,
+                  const Matrix<DDSMat>& aOwnedADVIds,
+                  uint                  aOwnedADVIdsOffset,
+                  uint                  aNumFieldVariables,
+                  sint                  aNumRefinements,
+                  sint                  aRefinementFunctionIndex,
+                  sint                  aBSplineMeshIndex,
+                  real                  aBSplineLowerBound,
+                  real                  aBSplineUpperBound);
 
             /**
              * Constructor for only constant parameters
@@ -82,11 +127,11 @@ namespace moris
              * @param aBSplineUpperBound The upper bound for the B-spline coefficients describing this field
              */
             Field(Matrix<DDRMat> aConstantParameters,
-                  sint aNumRefinements,
-                  sint aRefinementFunctionIndex,
-                  sint aBSplineMeshIndex,
-                  real aBSplineLowerBound,
-                  real aBSplineUpperBound);
+                  sint           aNumRefinements,
+                  sint           aRefinementFunctionIndex,
+                  sint           aBSplineMeshIndex,
+                  real           aBSplineLowerBound,
+                  real           aBSplineUpperBound);
 
             /**
              * Default constructor
@@ -109,8 +154,9 @@ namespace moris
              * @param aCoordinates Vector of coordinate values
              * @return Field value
              */
-            virtual real evaluate_field_value(uint                  aNodeIndex,
-                                              const Matrix<DDRMat>& aCoordinates) = 0;
+            virtual real evaluate_field_value(
+                    uint                  aNodeIndex,
+                    const Matrix<DDRMat>& aCoordinates) = 0;
 
             /**
              * Given a node index or coordinate, returns a matrix of relevant sensitivities
@@ -119,9 +165,10 @@ namespace moris
              * @param aCoordinates Vector of coordinate values
              * @param aSensitivity Matrix of sensitivities
              */
-            virtual void evaluate_sensitivity(uint                  aIndex,
-                                              const Matrix<DDRMat>& aCoordinates,
-                                              Matrix<DDRMat>&       aSensitivities);
+            virtual void evaluate_sensitivity(
+                    uint                  aIndex,
+                    const Matrix<DDRMat>& aCoordinates,
+                    Matrix<DDRMat>&       aSensitivities);
 
             /**
              * Add a new child node for evaluation, implemented for discrete fields
@@ -195,9 +242,25 @@ namespace moris
              * @param aCoordinates Vector of coordinate values
              * @param aSensitivity Matrix of sensitivities
              */
-            virtual void evaluate_all_sensitivities(uint                  aNodeIndex,
-                                                    const Matrix<DDRMat>& aCoordinates,
-                                                    Matrix<DDRMat>&       aSensitivities) = 0;
+            virtual void evaluate_all_sensitivities(
+                    uint                  aNodeIndex,
+                    const Matrix<DDRMat>& aCoordinates,
+                    Matrix<DDRMat>&       aSensitivities) = 0;
+
+            /**
+             * Checks variable inputs and resizes the internal field variables based these inputs.
+             *
+             * @param aFieldVariableIndices Indices of Field variables to be filled by the ADVs
+             * @param aADVIndices The indices of the ADV vector to fill in the Field variables
+             */
+            void assign_adv_dependencies(
+                    Matrix<DDUMat>& aFieldVariableIndices,
+                    Matrix<DDUMat>& aADVIndices);
+            
+            /**
+             * Fills the remaining field variables with constant parameters.
+             */
+            void fill_constant_parameters();
 
         };
     }

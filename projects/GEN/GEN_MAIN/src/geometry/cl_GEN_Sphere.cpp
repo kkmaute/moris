@@ -32,6 +32,31 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
+        Sphere::Sphere(sol::Dist_Vector* aOwnedADVs,
+                       Matrix<DDUMat>    aGeometryVariableIndices,
+                       Matrix<DDUMat>    aADVIndices,
+                       Matrix<DDRMat>    aConstantParameters,
+                       sint              aNumRefinements,
+                       sint              aRefinementFunctionIndex,
+                       sint              aBSplineMeshIndex,
+                       real              aBSplineLowerBound,
+                       real              aBSplineUpperBound)
+                : Field(aOwnedADVs,
+                        aGeometryVariableIndices,
+                        aADVIndices,
+                        aConstantParameters,
+                        aNumRefinements,
+                        aRefinementFunctionIndex,
+                        aBSplineMeshIndex,
+                        aBSplineLowerBound,
+                        aBSplineUpperBound)
+        {
+            MORIS_ERROR(aGeometryVariableIndices.length() + aConstantParameters.length() == 4,
+                        "A GEN Sphere must be created with a total of exactly 4 variables (ADVs + constant parameters)");
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
         Sphere::Sphere(real aXCenter,
                        real aYCenter,
                        real aZCenter,

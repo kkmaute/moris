@@ -17,6 +17,7 @@ namespace moris
     {
 
         //--------------------------------------------------------------------------------------------------------------
+
         SP_Incompressible_Flow::SP_Incompressible_Flow()
         {
             // set the property pointer cell size
@@ -29,6 +30,7 @@ namespace moris
         }
 
         //--------------------------------------------------------------------------------------------------------------
+
         void SP_Incompressible_Flow::set_function_pointers()
         {
             // switch on space dimensions
@@ -56,6 +58,7 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+
         void SP_Incompressible_Flow::set_dof_type_list(
                 moris::Cell< moris::Cell< MSI::Dof_Type > > & aDofTypes,
                 moris::Cell< std::string >                  & aDofStrings,
@@ -113,6 +116,7 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+
         void SP_Incompressible_Flow::set_property(
                 std::shared_ptr< Property > aProperty,
                 std::string                 aPropertyString,
@@ -129,6 +133,7 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+
         void SP_Incompressible_Flow::eval_SP()
         {
             // set size for SP values
@@ -255,15 +260,19 @@ namespace moris
                 if( tInvPermeabProp->check_dof_dependency( aDofTypes ) )
                 {
                     mdPPdMasterDof( tDofIndex ).get_row( 0 ) -=
-                            tInvPermeabProp->val()(0) * std::pow( this->val()( 0 ), 3.0 ) * tInvPermeabProp->dPropdDOF( aDofTypes );
+                            tInvPermeabProp->val()(0) * std::pow( this->val()( 0 ), 3.0 ) *
+                            tInvPermeabProp->dPropdDOF( aDofTypes );
                 }
             }
 
             // dtauCdDOF
-            mdPPdMasterDof( tDofIndex ).get_row( 1 ) = - 1.0 * mdPPdMasterDof( tDofIndex ).get_row( 0 ) / ( tTrG * std::pow( this->val()( 0 ), 2.0 ) );
+            mdPPdMasterDof( tDofIndex ).get_row( 1 ) -=
+                    mdPPdMasterDof( tDofIndex ).get_row( 0 ) /
+                    ( tTrG * std::pow( this->val()( 0 ), 2.0 ) );
         }
 
         //------------------------------------------------------------------------------
+
         void SP_Incompressible_Flow::eval_G( Matrix< DDRMat > & aG )
         {
             // get the space jacobian from IP geometry interpolator
@@ -279,7 +288,8 @@ namespace moris
             this->mEvalGFunc( aG, tSpaceJacobian );
         }
 
-        void SP_Incompressible_Flow::eval_G_2d( Matrix< DDRMat > & aG,
+        void SP_Incompressible_Flow::eval_G_2d(
+                Matrix< DDRMat > & aG,
                 Matrix< DDRMat > & aInvSpaceJacobian )
         {
             // set size for aG
@@ -292,7 +302,8 @@ namespace moris
             aG( 1, 1 ) = std::pow( aInvSpaceJacobian( 1, 0 ), 2.0 ) + std::pow( aInvSpaceJacobian( 1, 1 ), 2.0 );
         }
 
-        void SP_Incompressible_Flow::eval_G_3d( Matrix< DDRMat > & aG,
+        void SP_Incompressible_Flow::eval_G_3d(
+                Matrix< DDRMat > & aG,
                 Matrix< DDRMat > & aInvSpaceJacobian )
         {
             // set size for aG

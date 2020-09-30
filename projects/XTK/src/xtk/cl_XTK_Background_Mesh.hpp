@@ -406,6 +406,9 @@ namespace xtk
                     moris_id        aEntityId,
                     enum EntityRank aEntityRank) const;
 
+            std::unordered_map< moris_id, moris_index>
+            get_vertex_glb_id_to_loc_vertex_ind_map() const;
+
             /*!
              * add child element to mtk cells
              */
@@ -502,7 +505,7 @@ namespace xtk
             moris::Cell<moris::mtk::Cell*> mChildMtkCells;
 
             // Vertex constructed by the decomposition process
-            std::map< moris_id, moris_index> mVertexGlbToLocalMap;
+            std::unordered_map< moris_id, moris_index> mVertexGlbToLocalMap;
             moris::Cell<moris::mtk::Vertex_XTK> mXtkMtkVertices;
 
             // Associate external node indices to the child meshes they belong to

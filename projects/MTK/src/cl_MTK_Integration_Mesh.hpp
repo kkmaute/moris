@@ -103,6 +103,17 @@ namespace moris
 
                 // ----------------------------------------------------------------------------
                 /*!
+                 * @brief Get block set names with color
+                 * @param[in] aColor    Set color
+                 * @param[in] aSetNames List of set names
+                 */
+                void
+                get_block_set_names_with_color(
+                        moris_index const        & aColor,
+                        moris::Cell<std::string> & aSetNames);
+
+                // ----------------------------------------------------------------------------
+                /*!
                 * @brief Get side sets with color
                 * @param[in] aColor Set color
                 */

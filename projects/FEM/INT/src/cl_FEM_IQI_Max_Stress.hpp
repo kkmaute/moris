@@ -40,6 +40,7 @@ namespace moris
                 {
                         REFERENCE_VALUE,
                         EXPONENT,
+                        SHIFT,
                         MAX_ENUM
                 };
 

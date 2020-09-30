@@ -7,6 +7,7 @@
 
 #include "fn_PRM_GEN_Parameters.hpp"
 #include "fn_Exec_load_user_library.hpp"
+#include "cl_SOL_Matrix_Vector_Factory.hpp"
 
 namespace moris
 {
@@ -50,71 +51,98 @@ namespace moris
             tCircle2ParameterList.set("geometry_variable_indices", "all");
             tCircle2ParameterList.set("adv_indices", "0, 2, 4");
 
-            // Create circles
-            Matrix<DDRMat> tADVs = {{0.0, 1.0, 2.0, 1.0, 2.0}};
-            std::shared_ptr<Geometry> tCircle1 = create_geometry(tCircle1ParameterList, tADVs);
-            std::shared_ptr<Geometry> tCircle2 = create_geometry(tCircle2ParameterList, tADVs);
+            // ADV vector
+            Matrix<DDRMat> tADVs;
 
-            // Set coordinates for checking
-            Matrix<DDRMat> tCoordinates0 = {{0.0, 0.0}};
-            Matrix<DDRMat> tCoordinates1 = {{1.0, 1.0}};
-            Matrix<DDRMat> tCoordinates2 = {{2.0, 2.0}};
+            // Distributed ADVs
+            Matrix_Vector_Factory tDistributedFactory;
+            Matrix<DDSMat> tADVIds = {{0}, {1}, {2}, {3}, {4}};
+            sol::Dist_Map* tADVMap = tDistributedFactory.create_map(tADVIds);
+            sol::Dist_Vector* tDistributedADVs = tDistributedFactory.create_vector(tADVMap);
 
-            // Check field values
-            CHECK(tCircle1->evaluate_field_value(0, tCoordinates0) == Approx(0.0));
-            CHECK(tCircle2->evaluate_field_value(0, tCoordinates0) == Approx(0.0));
-            CHECK(tCircle1->evaluate_field_value(0, tCoordinates1) == Approx(0.0));
-            CHECK(tCircle2->evaluate_field_value(0, tCoordinates1) == Approx(sqrt(2.0) - 2.0));
-            CHECK(tCircle1->evaluate_field_value(0, tCoordinates2) == Approx(sqrt(5.0) - 1.0));
-            CHECK(tCircle2->evaluate_field_value(0, tCoordinates2) == Approx(0.0));
+            // Define circles
+            std::shared_ptr<Geometry> tCircle1;
+            std::shared_ptr<Geometry> tCircle2;
 
-            // Check sensitivity values
-            Matrix<DDRMat> tSensitivities;
-            tCircle1->evaluate_sensitivity(0, tCoordinates0, tSensitivities);
-            check_approx(tSensitivities, {{0.0, 1.0, 0.0, -1.0, 0.0}});
-            tCircle2->evaluate_sensitivity(0, tCoordinates0, tSensitivities);
-            check_approx(tSensitivities, {{0.0, 0.0, 1.0, 0.0, -1.0}});
-            tCircle1->evaluate_sensitivity(0, tCoordinates1, tSensitivities);
-            check_approx(tSensitivities, {{-1.0, 0.0, 0.0, -1.0, 0.0}});
-            tCircle2->evaluate_sensitivity(0, tCoordinates1, tSensitivities);
-            check_approx(tSensitivities, {{-sqrt(2.0) / 2.0, 0.0, sqrt(2.0) / 2.0, 0.0, -1.0}});
-            tCircle1->evaluate_sensitivity(0, tCoordinates2, tSensitivities);
-            check_approx(tSensitivities, {{-2.0 / sqrt(5.0), -1.0 / sqrt(5.0), 0.0, -1.0, 0.0}});
-            tCircle2->evaluate_sensitivity(0, tCoordinates2, tSensitivities);
-            check_approx(tSensitivities, {{-1.0, 0.0, 0.0, 0.0, -1.0}});
+            // Loop over ADV types
+            for (bool tDistributed : {false, true})
+            {
+                // Set ADVs
+                tADVs = {{0.0, 1.0, 2.0, 1.0, 2.0}};
+                tDistributedADVs->replace_global_values(tADVIds, tADVs);
 
-            // Change ADVs and coordinates
-            tADVs(0) = 1.0;
-            tADVs(3) = 2.0;
-            tADVs(4) = 3.0;
-            tCoordinates0(0) = 1.0;
-            tCoordinates0(1) = -1.0;
-            tCoordinates1(0) = 3.0;
-            tCoordinates1(1) = 1.0;
-            tCoordinates2(0) = 4.0;
-            tCoordinates2(1) = 2.0;
+                // Create circles
+                if (tDistributed)
+                {
+                    tCircle1 = create_geometry(tCircle1ParameterList, tDistributedADVs);
+                    tCircle2 = create_geometry(tCircle2ParameterList, tDistributedADVs);
+                }
+                else
+                {
+                    tCircle1 = create_geometry(tCircle1ParameterList, tADVs);
+                    tCircle2 = create_geometry(tCircle2ParameterList, tADVs);
+                }
 
-            // Check field values
-            CHECK(tCircle1->evaluate_field_value(0, tCoordinates0) == Approx(0.0));
-            CHECK(tCircle2->evaluate_field_value(0, tCoordinates0) == Approx(0.0));
-            CHECK(tCircle1->evaluate_field_value(0, tCoordinates1) == Approx(0.0));
-            CHECK(tCircle2->evaluate_field_value(0, tCoordinates1) == Approx(sqrt(5.0) - 3.0));
-            CHECK(tCircle1->evaluate_field_value(0, tCoordinates2) == Approx(sqrt(10.0) - 2.0));
-            CHECK(tCircle2->evaluate_field_value(0, tCoordinates2) == Approx(0.0));
+                // Set coordinates for checking
+                Matrix<DDRMat> tCoordinates0 = {{0.0, 0.0}};
+                Matrix<DDRMat> tCoordinates1 = {{1.0, 1.0}};
+                Matrix<DDRMat> tCoordinates2 = {{2.0, 2.0}};
 
-            // Check sensitivity values
-            tCircle1->evaluate_sensitivity(0, tCoordinates0, tSensitivities);
-            check_approx(tSensitivities, {{0.0, 1.0, 0.0, -1.0, 0.0}});
-            tCircle2->evaluate_sensitivity(0, tCoordinates0, tSensitivities);
-            check_approx(tSensitivities, {{0.0, 0.0, 1.0, 0.0, -1.0}});
-            tCircle1->evaluate_sensitivity(0, tCoordinates1, tSensitivities);
-            check_approx(tSensitivities, {{-1.0, 0.0, 0.0, -1.0, 0.0}});
-            tCircle2->evaluate_sensitivity(0, tCoordinates1, tSensitivities);
-            check_approx(tSensitivities, {{-2.0 / sqrt(5.0), 0.0, 1.0 / sqrt(5.0), 0.0, -1.0}});
-            tCircle1->evaluate_sensitivity(0, tCoordinates2, tSensitivities);
-            check_approx(tSensitivities, {{-3.0 / sqrt(10.0), -1.0 / sqrt(10.0), 0.0, -1.0, 0.0}});
-            tCircle2->evaluate_sensitivity(0, tCoordinates2, tSensitivities);
-            check_approx(tSensitivities, {{-1.0, 0.0, 0.0, 0.0, -1.0}});
+                // Check field values
+                CHECK(tCircle1->evaluate_field_value(0, tCoordinates0) == Approx(0.0));
+                CHECK(tCircle2->evaluate_field_value(0, tCoordinates0) == Approx(0.0));
+                CHECK(tCircle1->evaluate_field_value(0, tCoordinates1) == Approx(0.0));
+                CHECK(tCircle2->evaluate_field_value(0, tCoordinates1) == Approx(sqrt(2.0) - 2.0));
+                CHECK(tCircle1->evaluate_field_value(0, tCoordinates2) == Approx(sqrt(5.0) - 1.0));
+                CHECK(tCircle2->evaluate_field_value(0, tCoordinates2) == Approx(0.0));
+
+                // Check sensitivity values
+                Matrix<DDRMat> tSensitivities;
+                tCircle1->evaluate_sensitivity(0, tCoordinates0, tSensitivities);
+                check_approx(tSensitivities, {{0.0, 1.0, 0.0, -1.0, 0.0}});
+                tCircle2->evaluate_sensitivity(0, tCoordinates0, tSensitivities);
+                check_approx(tSensitivities, {{0.0, 0.0, 1.0, 0.0, -1.0}});
+                tCircle1->evaluate_sensitivity(0, tCoordinates1, tSensitivities);
+                check_approx(tSensitivities, {{-1.0, 0.0, 0.0, -1.0, 0.0}});
+                tCircle2->evaluate_sensitivity(0, tCoordinates1, tSensitivities);
+                check_approx(tSensitivities, {{-sqrt(2.0) / 2.0, 0.0, sqrt(2.0) / 2.0, 0.0, -1.0}});
+                tCircle1->evaluate_sensitivity(0, tCoordinates2, tSensitivities);
+                check_approx(tSensitivities, {{-2.0 / sqrt(5.0), -1.0 / sqrt(5.0), 0.0, -1.0, 0.0}});
+                tCircle2->evaluate_sensitivity(0, tCoordinates2, tSensitivities);
+                check_approx(tSensitivities, {{-1.0, 0.0, 0.0, 0.0, -1.0}});
+
+                // Change ADVs and coordinates
+                tADVs = {{1.0, 1.0, 2.0, 2.0, 3.0}};
+                tDistributedADVs->replace_global_values(tADVIds, tADVs);
+                tCoordinates0(0) = 1.0;
+                tCoordinates0(1) = -1.0;
+                tCoordinates1(0) = 3.0;
+                tCoordinates1(1) = 1.0;
+                tCoordinates2(0) = 4.0;
+                tCoordinates2(1) = 2.0;
+
+                // Check field values
+                CHECK(tCircle1->evaluate_field_value(0, tCoordinates0) == Approx(0.0));
+                CHECK(tCircle2->evaluate_field_value(0, tCoordinates0) == Approx(0.0));
+                CHECK(tCircle1->evaluate_field_value(0, tCoordinates1) == Approx(0.0));
+                CHECK(tCircle2->evaluate_field_value(0, tCoordinates1) == Approx(sqrt(5.0) - 3.0));
+                CHECK(tCircle1->evaluate_field_value(0, tCoordinates2) == Approx(sqrt(10.0) - 2.0));
+                CHECK(tCircle2->evaluate_field_value(0, tCoordinates2) == Approx(0.0));
+
+                // Check sensitivity values
+                tCircle1->evaluate_sensitivity(0, tCoordinates0, tSensitivities);
+                check_approx(tSensitivities, {{0.0, 1.0, 0.0, -1.0, 0.0}});
+                tCircle2->evaluate_sensitivity(0, tCoordinates0, tSensitivities);
+                check_approx(tSensitivities, {{0.0, 0.0, 1.0, 0.0, -1.0}});
+                tCircle1->evaluate_sensitivity(0, tCoordinates1, tSensitivities);
+                check_approx(tSensitivities, {{-1.0, 0.0, 0.0, -1.0, 0.0}});
+                tCircle2->evaluate_sensitivity(0, tCoordinates1, tSensitivities);
+                check_approx(tSensitivities, {{-2.0 / sqrt(5.0), 0.0, 1.0 / sqrt(5.0), 0.0, -1.0}});
+                tCircle1->evaluate_sensitivity(0, tCoordinates2, tSensitivities);
+                check_approx(tSensitivities, {{-3.0 / sqrt(10.0), -1.0 / sqrt(10.0), 0.0, -1.0, 0.0}});
+                tCircle2->evaluate_sensitivity(0, tCoordinates2, tSensitivities);
+                check_approx(tSensitivities, {{-1.0, 0.0, 0.0, 0.0, -1.0}});
+            }
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -297,12 +325,14 @@ namespace moris
                 // Create mesh
                 mtk::Interpolation_Mesh* tMesh = create_simple_mesh(2, 2);
 
-                // Set up geometry
+                // Level set circle parameter list
                 real tRadius = 0.5;
                 ParameterList tCircleParameterList = prm::create_geometry_parameter_list();
                 tCircleParameterList.set("type", "circle");
                 tCircleParameterList.set("constant_parameters", "0.0, 0.0, " + std::to_string(tRadius));
                 tCircleParameterList.set("bspline_mesh_index", 0);
+
+                // Set up geometry
                 Cell<std::shared_ptr<Geometry>> tGeometry(1);
                 Matrix<DDRMat> tADVs(0, 0);
                 tGeometry(0) = create_geometry(tCircleParameterList, tADVs);
@@ -311,12 +341,32 @@ namespace moris
                 Phase_Table tPhaseTable (1);
                 Geometry_Engine tGeometryEngine(tGeometry, tPhaseTable, tMesh);
 
-                // Check values
+                // Check that ADVs were created and L2 was performed
+                tADVs = tGeometryEngine.get_advs();
+                REQUIRE(tADVs.length() == 16);
+                for (uint tBSplineIndex = 0; tBSplineIndex < 16; tBSplineIndex++)
+                {
+                    CHECK(tADVs(tBSplineIndex) != Approx(0.0));
+                }
+
+                // Check field values
                 for (uint tNodeIndex = 0; tNodeIndex < tMesh->get_num_nodes(); tNodeIndex++)
                 {
                     Matrix<DDRMat> tNodeCoord = tMesh->get_node_coordinate(tNodeIndex);
                     CHECK( tGeometryEngine.get_geometry_field_value(tNodeIndex, {{}}, 0) ==
                         Approx(sqrt(pow(tNodeCoord(0), 2) + pow(tNodeCoord(1), 2)) - tRadius) );
+                }
+
+                // Set new ADVs
+                tADVs = tADVs + (tRadius / 2.0);
+                tGeometryEngine.set_advs(tADVs);
+
+                // Check field values again
+                for (uint tNodeIndex = 0; tNodeIndex < tMesh->get_num_nodes(); tNodeIndex++)
+                {
+                    Matrix<DDRMat> tNodeCoord = tMesh->get_node_coordinate(tNodeIndex);
+                    CHECK( tGeometryEngine.get_geometry_field_value(tNodeIndex, {{}}, 0) ==
+                    Approx(sqrt(pow(tNodeCoord(0), 2) + pow(tNodeCoord(1), 2)) - (tRadius / 2.0)) );
                 }
 
                 // Clean up

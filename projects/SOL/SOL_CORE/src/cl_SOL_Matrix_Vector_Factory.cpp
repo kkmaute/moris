@@ -4,7 +4,7 @@
  *  Created on: Jun 28, 2018
  *      Author: schmidt
  */
-#include "cl_Matrix_Vector_Factory.hpp"
+#include "cl_SOL_Matrix_Vector_Factory.hpp"
 
 #include "cl_Sparse_Matrix_EpetraFECrs.hpp"
 #include "cl_MatrixPETSc.hpp"
@@ -34,6 +34,26 @@ sol::Dist_Matrix * moris::Matrix_Vector_Factory::create_matrix(       moris::Sol
     case (sol::MapType::Petsc):
         tSparseMatrix = new Matrix_PETSc( aInput, aMap );
         break;
+    default:
+        MORIS_ERROR( false, "No matrix type specified." );
+        break;
+    }
+    return tSparseMatrix;
+}
+
+sol::Dist_Matrix * moris::Matrix_Vector_Factory::create_matrix( const sol::Dist_Map * aRowMap,
+                                                                const sol::Dist_Map * aColMap )
+{
+	sol::Dist_Matrix * tSparseMatrix = nullptr;
+
+    switch( mMapType )
+    {
+    case (sol::MapType::Epetra):
+        tSparseMatrix = new Sparse_Matrix_EpetraFECrs( aRowMap, aColMap );
+        break;
+    //case (sol::MapType::Petsc):
+    //    tSparseMatrix = new Matrix_PETSc( aInput, aMap );
+    //    break;
     default:
         MORIS_ERROR( false, "No matrix type specified." );
         break;

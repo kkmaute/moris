@@ -9,6 +9,8 @@
 #include "cl_FEM_Set.hpp"
 #include "cl_FEM_Field_Interpolator_Manager.hpp"
 
+#include "fn_norm.hpp"
+
 namespace moris
 {
     namespace fem
@@ -1160,6 +1162,18 @@ namespace moris
             // get the column index to assemble in residual
             sint tQIIndex = mSet->get_QI_assembly_index( mName );
 
+            // reset properties, CM and SP for IWG
+            this->reset_eval_flags();
+
+            // reset the QI
+            mSet->get_QI()( tQIIndex ).fill( 0.0 );
+
+            // compute the QI
+            this->add_QI_on_set( aWStar );
+
+            // store QI value
+            Matrix< DDRMat > tQI = mSet->get_QI()( tQIIndex );
+
             // loop over the IWG dof types
             for( uint iFI = 0; iFI < tNumMasterDofType; iFI++ )
             {
@@ -1197,6 +1211,22 @@ namespace moris
                         if( ( tDeltaH < 1e-12 ) && ( tDeltaH > - 1e-12 ) )
                         {
                             tDeltaH = aPerturbation;
+                        }
+
+                        // if backward or forward add unperturbed contribution
+                        if( aFDSchemeType == fem::FDScheme_Type::POINT_1_BACKWARD )
+                        {
+                            mSet->get_residual()( tQIIndex )(
+                                    { tMasterDepStartIndex + tDofCounter, tMasterDepStartIndex + tDofCounter },
+                                    { 0, 0 } ) +=
+                                            tQI / ( tFDScheme( 2 )( 0 ) * tDeltaH );
+                        }
+                        if( aFDSchemeType == fem::FDScheme_Type::POINT_1_FORWARD )
+                        {
+                            mSet->get_residual()( tQIIndex )(
+                                    { tMasterDepStartIndex + tDofCounter, tMasterDepStartIndex + tDofCounter },
+                                    { 0, 0 } ) -=
+                                            tQI / ( tFDScheme( 2 )( 0 ) * tDeltaH );
                         }
 
                         // loop over the points for FD
@@ -1271,6 +1301,22 @@ namespace moris
                         if( ( tDeltaH < 1e-12 ) && ( tDeltaH > - 1e-12 ) )
                         {
                             tDeltaH = aPerturbation;
+                        }
+
+                        // if backward or forward add unperturbed contribution
+                        if( aFDSchemeType == fem::FDScheme_Type::POINT_1_BACKWARD )
+                        {
+                            mSet->get_residual()( tQIIndex )(
+                                    { tSlaveDepStartIndex + tDofCounter, tSlaveDepStartIndex + tDofCounter },
+                                    { 0, 0 } ) +=
+                                            tQI / ( tFDScheme( 2 )( 0 ) * tDeltaH );
+                        }
+                        if( aFDSchemeType == fem::FDScheme_Type::POINT_1_FORWARD )
+                        {
+                            mSet->get_residual()( tQIIndex )(
+                                    { tSlaveDepStartIndex + tDofCounter, tSlaveDepStartIndex + tDofCounter },
+                                    { 0, 0 } ) -=
+                                            tQI / ( tFDScheme( 2 )( 0 ) * tDeltaH );
                         }
 
                         // loop over the points for FD
@@ -1379,6 +1425,18 @@ namespace moris
             // get the IQI index
             uint tIQIAssemblyIndex = mSet->get_QI_assembly_index( mName );
 
+            // reset properties, CM and SP for IWG
+            this->reset_eval_flags();
+
+            // reset the QI
+            mSet->get_QI()( tIQIAssemblyIndex ).fill( 0.0 );
+
+            // compute the QI
+            this->add_QI_on_set( aWStar );
+
+            // store QI value
+            Matrix< DDRMat > tQI = mSet->get_QI()( tIQIAssemblyIndex );
+
             // loop over the pdv types
             for( uint iFI = 0; iFI < tNumPdvType; iFI++ )
             {
@@ -1411,13 +1469,28 @@ namespace moris
                             tDeltaH = aPerturbation;
                         }
 
+                        // get the pdv index for assembly
+                        uint tPdvAssemblyIndex = mSet->get_mat_pdv_assembly_map()( iFI )( 0, 0 ) + tPdvCoeffCounter;
+
+                        // if backward or forward add unperturbed contribution
+                        if( aFDSchemeType == fem::FDScheme_Type::POINT_1_BACKWARD )
+                        {
+                            mSet->get_dqidpmat()( tIQIAssemblyIndex )( tPdvAssemblyIndex ) +=
+                                    tQI( 0 ) / ( tFDScheme( 2 )( 0 ) * tDeltaH );
+                        }
+                        if( aFDSchemeType == fem::FDScheme_Type::POINT_1_FORWARD )
+                        {
+                            mSet->get_dqidpmat()( tIQIAssemblyIndex )( tPdvAssemblyIndex ) -=
+                                    tQI( 0 ) / ( tFDScheme( 2 )( 0 ) * tDeltaH );
+                        }
+
                         // loop over the points for FD
                         for( uint iPoint = 0; iPoint < tNumPoints; iPoint++ )
                         {
-                            // reset the perturbed coefficents
+                            // reset the perturbed coefficients
                             Matrix< DDRMat > tCoeffPert = tCoeff;
 
-                            // pertub the coefficent
+                            // pertub the coefficient
                             tCoeffPert( iCoeffRow, iCoeffCol ) += tFDScheme( 0 )( iPoint ) * tDeltaH;
 
                             // set the perturbed coefficients to FI
@@ -1432,9 +1505,6 @@ namespace moris
                             // compute the QI
                             this->add_QI_on_set( aWStar );
 
-                            // get the pdv index for assembly
-                            uint tPdvAssemblyIndex = mSet->get_mat_pdv_assembly_map()( iFI )( 0, 0 ) + tPdvCoeffCounter;
-
                             // assemble the jacobian
                             mSet->get_dqidpmat()( tIQIAssemblyIndex )( tPdvAssemblyIndex ) +=
                                     tFDScheme( 1 )( iPoint ) *
@@ -1448,6 +1518,10 @@ namespace moris
                 // reset the coefficients values
                 tFI->set_coeff( tCoeff );
             }
+
+            // check for nan, infinity
+            MORIS_ERROR( isfinite( mSet->get_dqidpmat()( tIQIAssemblyIndex ) ) ,
+                    "IQI::compute_dQIdp_FD_material - dQIdp contains NAN or INF, exiting!");
         }
 
         //------------------------------------------------------------------------------
@@ -1481,9 +1555,30 @@ namespace moris
             tIGGI->get_space_time( tEvaluationPoint );
             real tGPWeight = aWStar / tIGGI->det_J();
 
+            // for sideset
+            Matrix< DDRMat > tNormal;
+            if( mSet->get_element_type() == fem::Element_Type::SIDESET )
+            {
+                tIGGI->get_normal( tNormal );
+            }
+
             // IP element max/min
             Matrix< DDRMat > tMaxIP = max( tIPGI->get_space_coeff().matrix_data() );
             Matrix< DDRMat > tMinIP = min( tIPGI->get_space_coeff().matrix_data() );
+
+            // reset properties, CM and SP for IWG
+            this->reset_eval_flags();
+
+            // reset the QI
+            mSet->get_QI()( tIQIAssemblyIndex ).fill( 0.0 );
+
+            // compute the QI
+            this->add_QI_on_set( aWStar );
+
+            // store QI value
+            Matrix< DDRMat > tQI = mSet->get_QI()( tIQIAssemblyIndex );
+
+            moris::Cell< moris::Cell< real > > tFDScheme;
 
             // loop over the spatial directions/loop on pdv type
             for( uint iCoeffCol = 0; iCoeffCol< tDerNumDimensions; iCoeffCol++ )
@@ -1504,22 +1599,34 @@ namespace moris
                         }
 
                         // check point location
-                        moris::Cell< moris::Cell< real > > tFDScheme;
-                        fd_scheme( aFDSchemeType, tFDScheme );
+                        fem::FDScheme_Type tUsedFDScheme = aFDSchemeType;
                         if( tCoeff( iCoeffRow, iCoeffCol ) + tDeltaH > tMaxIP( iCoeffCol ) )
                         {
-                            fd_scheme( fem::FDScheme_Type::POINT_1_BACKWARD, tFDScheme );
+                            tUsedFDScheme = fem::FDScheme_Type::POINT_1_BACKWARD;
                         }
                         else if( tCoeff( iCoeffRow, iCoeffCol ) - tDeltaH < tMinIP( iCoeffCol ) )
                         {
-                            fd_scheme( fem::FDScheme_Type::POINT_1_FORWARD, tFDScheme );
+                            tUsedFDScheme = fem::FDScheme_Type::POINT_1_FORWARD;
                         }
+                        fd_scheme( tUsedFDScheme, tFDScheme );
                         uint tNumPoints = tFDScheme( 0 ).size();
 
                         // get the geometry pdv assembly index
                         std::pair< moris_index, PDV_Type > tKeyPair =
                                 std::make_pair( aVertexIndices( iCoeffRow ), tRequestedGeoPdvType( iCoeffCol ) );
                         uint tPdvAssemblyIndex = mSet->get_geo_pdv_assembly_map()[ tKeyPair ];
+
+                        // if backward or forward add unperturbed contribution
+                        if( tUsedFDScheme == fem::FDScheme_Type::POINT_1_BACKWARD )
+                        {
+                            mSet->get_dqidpgeo()( tIQIAssemblyIndex )( tPdvAssemblyIndex ) +=
+                                    tQI( 0 ) / ( tFDScheme( 2 )( 0 ) * tDeltaH );
+                        }
+                        if( tUsedFDScheme == fem::FDScheme_Type::POINT_1_FORWARD )
+                        {
+                            mSet->get_dqidpgeo()( tIQIAssemblyIndex )( tPdvAssemblyIndex ) -=
+                                    tQI( 0 ) / ( tFDScheme( 2 )( 0 ) * tDeltaH );
+                        }
 
                         // loop over point of FD scheme
                         for ( uint iPoint = 0; iPoint < tNumPoints; iPoint++ )
@@ -1545,6 +1652,14 @@ namespace moris
                             mSet->get_field_interpolator_manager()->
                                     set_space_time_from_local_IG_point( tEvaluationPoint );
 
+                            // reset the normal
+                            if( mSet->get_element_type() == fem::Element_Type::SIDESET )
+                            {
+                                Matrix< DDRMat > tNormalPert;
+                                tIGGI->get_normal( tNormalPert );
+                                this->set_normal( tNormalPert );
+                            }
+
                             // reset properties, CM and SP for IWG
                             this->reset_eval_flags();
 
@@ -1567,7 +1682,15 @@ namespace moris
                 tIGGI->set_space_coeff( tCoeff );
                 tIGGI->set_space_param_coeff( tParamCoeff );
                 mSet->get_field_interpolator_manager()->set_space_time_from_local_IG_point( tEvaluationPoint );
+                if( mSet->get_element_type() == fem::Element_Type::SIDESET )
+                {
+                    this->set_normal( tNormal );
+                }
             }
+
+            // check for nan, infinity
+            MORIS_ERROR( isfinite( mSet->get_dqidpgeo()( tIQIAssemblyIndex ) ) ,
+                    "IQI::compute_dQIdp_FD_geometry - dQIdp contains NAN or INF, exiting!");
         }
 
         //------------------------------------------------------------------------------
@@ -1639,6 +1762,11 @@ namespace moris
                         { tMasterDepStartIndex, tMasterDepStopIndex },
                         { 0, 0 } ) += aWStar * tdQIdu;
             }
+
+            // check for nan, infinity
+            MORIS_ERROR( isfinite( mSet->get_residual()( tQIIndex ) ) ,
+                    "IQI::add_dQIdu_on_set - dQIdu contains NAN or INF, exiting!");
+
         }
 
         //------------------------------------------------------------------------------

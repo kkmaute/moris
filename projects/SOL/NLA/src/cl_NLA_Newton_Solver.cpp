@@ -11,7 +11,7 @@
 #include "cl_NLA_Convergence.hpp"
 #include "cl_NLA_Nonlinear_Solver.hpp"
 
-#include "cl_Matrix_Vector_Factory.hpp"
+#include "cl_SOL_Matrix_Vector_Factory.hpp"
 #include "cl_DLA_Linear_Solver_Algorithm.hpp"
 #include "cl_DLA_Solver_Interface.hpp"
 #include "cl_DLA_Linear_Solver.hpp"
@@ -44,7 +44,7 @@ Newton_Solver::Newton_Solver()
 
 Newton_Solver::Newton_Solver( const ParameterList aParameterlist ) : Nonlinear_Algorithm( aParameterlist )
 {
-    mLinSolverManager = new dla::Linear_Solver();
+
 }
 
 //--------------------------------------------------------------------------------------------------------------------------

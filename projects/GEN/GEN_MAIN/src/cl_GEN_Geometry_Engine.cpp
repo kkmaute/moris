@@ -18,6 +18,9 @@
 // XTK FIXME
 #include "cl_XTK_Topology.hpp"
 
+// SOL FIXME
+#include "cl_SOL_Matrix_Vector_Factory.hpp"
+
 namespace moris
 {
     namespace ge
@@ -102,10 +105,6 @@ namespace moris
                   mGeometries(aGeometry),
                   mPhaseTable(aPhaseTable)
         {
-            for (uint tGeometryIndex = 0; tGeometryIndex < mGeometries.size(); tGeometryIndex++)
-            {
-                mShapeSensitivities = (mShapeSensitivities or mGeometries(tGeometryIndex)->depends_on_advs());
-            }
             this->compute_level_set_data(aMesh);
         }
 
@@ -113,6 +112,7 @@ namespace moris
 
         Geometry_Engine::~Geometry_Engine()
         {
+            delete mOwnedADVs;
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -120,7 +120,8 @@ namespace moris
         void Geometry_Engine::set_advs(Matrix<DDRMat> aNewADVs)
         {
             // Set new ADVs
-            mADVs = aNewADVs;
+            mOwnedADVs->replace_global_values(mOwnedADVIds, aNewADVs);
+            mOwnedADVs->vector_global_asembly();
 
             // Reset info related to the mesh
             mPdvHostManager.reset();
@@ -135,6 +136,14 @@ namespace moris
 
         Matrix<DDRMat>& Geometry_Engine::get_advs()
         {
+//
+//            moris::sol::Dist_Map* tFullMap = tADVFactory.create_map(tOwned);
+//            moris::sol::Dist_Vector* tFullVector = tADVFactory.create_vector(tFullMap);
+//
+//            tOwnedVector->vector_global_asembly();
+//            tFullVector->import_local_to_global(*tOwnedVector);
+
+            mOwnedADVs->extract_copy(mADVs);
             return mADVs;
         }
 
@@ -283,12 +292,24 @@ namespace moris
             {
                 mPdvHostManager.set_intersection_node(aNodeIndex, mQueuedIntersectionNode);
             }
+            else
+            {
+                mPdvHostManager.set_intersection_node(aNodeIndex, nullptr);
+            }
 
             // Assign as child node
             for (uint tGeometryIndex = 0; tGeometryIndex < mGeometries.size(); tGeometryIndex++)
             {
                 mGeometries(tGeometryIndex)->add_child_node(aNodeIndex, mQueuedIntersectionNode);
             }
+        }
+
+        void Geometry_Engine::update_queued_intersection(
+                const moris_index & aNodeIndex,
+                const moris_index & aNodeId,
+                const moris_index & aNodeOwner )
+        {
+            mPdvHostManager.update_intersection_node(aNodeIndex,aNodeId,aNodeOwner);
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -299,6 +320,7 @@ namespace moris
                 const Cell<Matrix<DDRMat>>& aParamCoordRelativeToParent,
                 const Matrix<DDRMat>&       aGlobalNodeCoord )
         {
+            // Loop over nodes
             for (uint tNode = 0; tNode < aNewNodeIndices.size(); tNode++)
             {
                 // Create child node
@@ -318,6 +340,12 @@ namespace moris
                     mGeometries(tGeometryIndex)->add_child_node(aNewNodeIndices(tNode), tChildNode);
                 }
             }
+
+            // Set max node index
+            if (aNewNodeIndices.size() > 0)
+            {
+                mPdvHostManager.set_num_background_nodes(aNewNodeIndices(aNewNodeIndices.size() - 1) + 1);
+            }
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -328,7 +356,6 @@ namespace moris
         }
 
         //--------------------------------------------------------------------------------------------------------------
-
 
         moris_index Geometry_Engine::get_phase_sign_of_given_phase_and_geometry(
                 moris_index aPhaseIndex,
@@ -470,11 +497,14 @@ namespace moris
             // Initialize PDV type groups and mesh set info
             Cell<Cell<Cell<PDV_Type>>> tPdvTypes(tIntegrationMesh->get_num_sets());
             Cell<PDV_Type> tPdvTypeGroup(1);
+
             Cell<std::string> tMeshSetNames(0);
             Matrix<DDUMat> tMeshSetIndices(0, 0);
 
             // PDV type map
             map< std::string, PDV_Type > tPdvTypeMap = get_pdv_type_map();
+
+            this->initialize_pdv_type_list();
 
             // Loop over properties to create PDVs
             for (uint tPropertyIndex = 0; tPropertyIndex < mPropertyParameterLists.size(); tPropertyIndex++)
@@ -501,6 +531,15 @@ namespace moris
                 }
             }
 
+            Matrix< IdMat > tCommTable = aMeshManager->get_interpolation_mesh(0)->get_communication_table();
+            std::unordered_map<moris_id,moris_index> tIPVertexGlobaToLocalMap =
+                    aMeshManager->get_interpolation_mesh(0)->get_vertex_glb_id_to_loc_vertex_ind_map();
+            std::unordered_map<moris_id,moris_index> tIGVertexGlobaToLocalMap =
+                    tIntegrationMesh->get_vertex_glb_id_to_loc_vertex_ind_map();
+
+            mPdvHostManager.set_communication_table( tCommTable );
+            mPdvHostManager.set_vertex_global_to_local_maps( tIPVertexGlobaToLocalMap, tIGVertexGlobaToLocalMap);
+
             // Create PDV hosts
             this->create_interpolation_pdv_hosts(
                     aMeshManager->get_interpolation_mesh(0),
@@ -511,6 +550,8 @@ namespace moris
             {
                 this->set_integration_pdv_types(tIntegrationMesh);
             }
+
+            mPdvHostManager.create_pdv_ids();
 
             // Loop over properties to assign PDVs
             for (uint tPropertyIndex = 0; tPropertyIndex < mPropertyParameterLists.size(); tPropertyIndex++)
@@ -532,95 +573,169 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
+        void Geometry_Engine::initialize_pdv_type_list()
+        {
+            // Reserve of temporary pdv type list
+            moris::Cell< enum PDV_Type > tTemporaryPdvTypeList;
+            tTemporaryPdvTypeList.reserve( static_cast< int >( PDV_Type::UNDEFINED ) + 1 );
+            Matrix< DDUMat > tListToCheckIfEnumExist( (static_cast< int >(PDV_Type::UNDEFINED) + 1), 1, 0 );
+
+            // PDV type map
+            map< std::string, PDV_Type > tPdvTypeMap = get_pdv_type_map();
+
+            // Loop over properties to build parallel consitent pdv list
+             for (uint tPropertyIndex = 0; tPropertyIndex < mPropertyParameterLists.size(); tPropertyIndex++)
+             {
+                 // PDV type and mesh set names/indices from parameter list
+                 enum PDV_Type tPdvType = tPdvTypeMap[mPropertyParameterLists(tPropertyIndex).get<std::string>("pdv_type")];
+
+                 if ( tListToCheckIfEnumExist(static_cast< int >(tPdvType) , 0) == 0)
+                 {
+                     // Set 1 at position of the enum value
+                     tListToCheckIfEnumExist( static_cast< int >(tPdvType) ,0 ) = 1;
+
+                     tTemporaryPdvTypeList.push_back( tPdvType );
+                 }
+             }
+
+            // Shrink pdv type list to fit
+             tTemporaryPdvTypeList.shrink_to_fit();
+
+            // Communicate dof types so that all processors have the same unique list
+             mPdvHostManager.communicate_dof_types( tTemporaryPdvTypeList );
+
+            // Create a map
+             mPdvHostManager.create_dv_type_map();
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
         void Geometry_Engine::compute_level_set_data(mtk::Interpolation_Mesh* aMesh)
         {
             // Register spatial dimension
             mSpatialDim = aMesh->get_spatial_dim();
 
-            // Number of filled ADVs
-            uint tNumFilledADVs = mADVs.length();
+            // Set number of background nodes
+            mPdvHostManager.set_num_background_nodes(aMesh->get_num_nodes());
 
-            // Reset geometries if parameter lists are given
-            if (mGeometryParameterLists.size() > 0)
+            // Build distributed vector
+            if (mOwnedADVs == nullptr)
             {
-                mGeometries.resize(0);
-            }
-
-            // Loop over all geometry and property parameter lists to resize ADVs (TODO)
-            for (uint tGeometryIndex = 0; tGeometryIndex < mGeometryParameterLists.size(); tGeometryIndex++)
-            {
-                // Determine if level set will be created
-                sint tBSplineMeshIndex = mGeometryParameterLists(tGeometryIndex).get<sint>("bspline_mesh_index");
-                if (tBSplineMeshIndex >= 0)
+                // Loop over all geometries to get number of new ADVs
+                uint tNumNewOwnedADVs = 0;
+                for (uint tGeometryIndex = 0; tGeometryIndex < mGeometries.size(); tGeometryIndex++)
                 {
-                    // Resize
-                    mADVs.resize(mADVs.length() + aMesh->get_num_coeffs(tBSplineMeshIndex), 1);
-                }
-            }
-
-            // Check all input geometries for ADVs and level set conversion (if not from parameter list) for more resizing
-            bool tDependOnADVs = false;
-            bool tBSplineConversion = false;
-            for (uint tGeometryIndex = 0; tGeometryIndex < mGeometries.size(); tGeometryIndex++)
-            {
-                tDependOnADVs = (tDependOnADVs or mGeometries(tGeometryIndex)->depends_on_advs());
-                tBSplineConversion = (tBSplineConversion or mGeometries(tGeometryIndex)->conversion_to_bsplines());
-
-                // If level set will be created
-                if (mGeometries(tGeometryIndex)->conversion_to_bsplines())
-                {
-                    // Resize
-                    mADVs.resize(mADVs.length() + aMesh->get_num_coeffs(mGeometries(tGeometryIndex)->get_bspline_mesh_index()), 1);
-                }
-            }
-            MORIS_ERROR((not tDependOnADVs) or (not tBSplineConversion),
-                        "If the geometry engine is given geometries which have already been created, they cannot both depend "
-                        "on ADVs and be converted into a level set. Instead, please create the level set beforehand.");
-
-            // Set number of ADVs after level set creation
-            mLowerBounds.resize(mADVs.length(), 1);
-            mUpperBounds.resize(mADVs.length(), 1);
-            mPdvHostManager.set_num_advs(mADVs.length());
-
-            // Build geometries and properties
-            if (mGeometryParameterLists.size() > 0)
-            {
-                mGeometries = create_geometries(mGeometryParameterLists, mADVs, mLibrary);
-                mProperties = create_properties(mPropertyParameterLists, mADVs, mLibrary);
-                mGeometryParameterLists.resize(0);
-                // TODO have properties store all data so parameter lists can be deleted too
-            }
-
-            // Determine if conversion to level sets are needed and if shape sensitivities are needed
-            for (uint tGeometryIndex = 0; tGeometryIndex < mGeometries.size(); tGeometryIndex++)
-            {
-                // Shape sensitivities logic in case of no level sets
-                mShapeSensitivities = (mShapeSensitivities or mGeometries(tGeometryIndex)->depends_on_advs());
-
-                // Convert to level set if needed
-                if (mGeometries(tGeometryIndex)->conversion_to_bsplines())
-                {
-                    // Always have shape sensitivities if level set
-                    mShapeSensitivities = true;
-
-                    // Create level set
-                    mGeometries(tGeometryIndex) = std::make_shared<Level_Set>(mADVs,
-                                                                              tNumFilledADVs,
-                                                                              aMesh,
-                                                                              mGeometries(tGeometryIndex));
-
-                    // Assign bounds
-                    uint tNumCoeffs = aMesh->get_num_coeffs(mGeometries(tGeometryIndex)->get_bspline_mesh_index());
-                    real tBSplineLowerBound = mGeometries(tGeometryIndex)->get_bspline_lower_bound();
-                    real tBSplineUpperBound = mGeometries(tGeometryIndex)->get_bspline_upper_bound();
-                    for (uint tADVIndex = tNumFilledADVs; tADVIndex < tNumFilledADVs + tNumCoeffs; tADVIndex++)
+                    // Determine if level set will be created
+                    if (mGeometries(tGeometryIndex)->conversion_to_bsplines())
                     {
-                        mLowerBounds(tADVIndex) = tBSplineLowerBound;
-                        mUpperBounds(tADVIndex) = tBSplineUpperBound;
+                        // Loop over B-spline coefficients
+                        sint tBSplineMeshIndex = mGeometries(tGeometryIndex)->get_bspline_mesh_index();
+                        for (uint tBSplineIndex = 0; tBSplineIndex < aMesh->get_num_coeffs(tBSplineMeshIndex); tBSplineIndex++)
+                        {
+                            // If this processor owns this coefficient
+                            if (par_rank() == aMesh->get_entity_owner(tBSplineIndex, EntityRank::BSPLINE, tBSplineMeshIndex))
+                            {
+                                // New ADV needs to be created on this processor
+                                tNumNewOwnedADVs++;
+                            }
+                        }
                     }
+                }
 
-                    // Update filled ADVs
-                    tNumFilledADVs = tNumFilledADVs + tNumCoeffs;
+                // Set number of owned ADVs
+                uint tNumOwnedADVs = mADVs.length() + tNumNewOwnedADVs;
+                mLowerBounds.resize(tNumOwnedADVs, 1);
+                mUpperBounds.resize(tNumOwnedADVs, 1);
+                mPdvHostManager.set_num_advs(tNumOwnedADVs);
+
+                // Resize ADV IDs and set primitive IDs
+                mOwnedADVIds.resize(mADVs.length(), 1);
+                for (uint tADVIndex = 0; tADVIndex < mADVs.length(); tADVIndex++)
+                {
+                    mOwnedADVIds(tADVIndex) = tADVIndex;
+                }
+                Matrix<DDSMat> tPrimitiveIds = mOwnedADVIds;
+                mOwnedADVIds.resize(tNumOwnedADVs, 1);
+
+                // Loop over all geometry parameter lists to set B-spline ADV bounds and IDs
+                uint tADVIndex = mADVs.length();
+                uint tIdOffset = tADVIndex; // FIXME this needs to be updated for multiple level set fields
+                for (uint tGeometryIndex = 0; tGeometryIndex < mGeometries.size(); tGeometryIndex++)
+                {
+                    // Determine if level set will be created
+                    if (mGeometries(tGeometryIndex)->conversion_to_bsplines())
+                    {
+                        // Get bounds
+                        real tBSplineLowerBound = mGeometries(tGeometryIndex)->get_bspline_lower_bound();
+                        real tBSplineUpperBound = mGeometries(tGeometryIndex)->get_bspline_upper_bound();
+
+                        // Loop over B-spline coefficients
+                        sint tBSplineMeshIndex = mGeometries(tGeometryIndex)->get_bspline_mesh_index();
+                        for (uint tBSplineIndex = 0; tBSplineIndex < aMesh->get_num_coeffs(tBSplineMeshIndex); tBSplineIndex++)
+                        {
+                            // If this processor owns this coefficient
+                            if (par_rank() == aMesh->get_entity_owner(tBSplineIndex, EntityRank::BSPLINE, tBSplineMeshIndex))
+                            {
+                                // Bounds
+                                mLowerBounds(tADVIndex) = tBSplineLowerBound;
+                                mUpperBounds(tADVIndex) = tBSplineUpperBound;
+
+                                // New ADV ID
+                                mOwnedADVIds(tADVIndex++) = tIdOffset +
+                                        aMesh->get_glb_entity_id_from_entity_loc_index(tBSplineIndex, EntityRank::BSPLINE, tBSplineMeshIndex);
+                            }
+                        }
+                    }
+                }
+
+                // Create factor for distributed ADV vector
+                Matrix_Vector_Factory tDistributedFactory;
+
+                // Communicate level set ADV IDs
+
+                // Create map for distributed vector
+                sol::Dist_Map* tOwnedADVMap = tDistributedFactory.create_map(mOwnedADVIds);
+
+                // Create vector
+                mOwnedADVs = tDistributedFactory.create_vector(tOwnedADVMap);
+
+                // Assign primitive IDs
+                mOwnedADVs->replace_global_values(tPrimitiveIds, mADVs);
+
+                // Global assembly
+                mOwnedADVs->vector_global_asembly();
+
+                // Build geometries and properties from parameter lists using distributed vector
+                // TODO augmented copy constructor for fields
+                if (mGeometryParameterLists.size() > 0)
+                {
+                    // Build geometries and properties
+                    mGeometries = create_geometries(mGeometryParameterLists, mOwnedADVs, mLibrary);
+                    mProperties = create_properties(mPropertyParameterLists, mADVs, mLibrary);
+                    mGeometryParameterLists.resize(0);
+                }
+
+                // Determine if conversion to level sets are needed and if shape sensitivities are needed
+                for (uint tGeometryIndex = 0; tGeometryIndex < mGeometries.size(); tGeometryIndex++)
+                {
+                    // Shape sensitivities logic in case of no level sets
+                    mShapeSensitivities = (mShapeSensitivities or mGeometries(tGeometryIndex)->depends_on_advs());
+
+                    // Convert to level set if needed
+                    if (mGeometries(tGeometryIndex)->conversion_to_bsplines())
+                    {
+                        // Always have shape sensitivities if level set
+                        mShapeSensitivities = true;
+
+                        // Create level set FIXME for multiple level set fields
+                        mGeometries(tGeometryIndex) = std::make_shared<Level_Set>(
+                                mOwnedADVs,
+                                mOwnedADVIds,
+                                tPrimitiveIds.length(),
+                                tNumOwnedADVs,
+                                aMesh,
+                                mGeometries(tGeometryIndex));
+                    }
                 }
             }
         }
@@ -742,6 +857,8 @@ namespace moris
             uint tNumNodes = aInterpolationMesh->get_num_nodes();
 
             Cell<Matrix<DDSMat>> tNodeIndicesPerSet(tNumSets);
+            Cell<Matrix<DDSMat>> tNodeIdsPerSet(tNumSets);
+            Cell<Matrix<DDSMat>> tNodeOwnersPerSet(tNumSets);
             Cell<Matrix<DDRMat>> tNodeCoordinates(tNumNodes);
 
             // Loop through sets
@@ -755,13 +872,22 @@ namespace moris
                 {
                     const mtk::Cluster* tCluster = tSet->get_clusters_by_index(tClusterIndex);
 
-                    // Indices on cluster
+                    // Indices on cluster // FIXME this is really bad and slow. especially when building the pdvs
                     Matrix<IndexMat> tNodeIndicesInCluster = tCluster->get_interpolation_cell().get_vertex_inds();
-                    tNodeIndicesPerSet(tMeshSetIndex).resize(tNodeIndicesPerSet(tMeshSetIndex).length() + tNodeIndicesInCluster.length(), 1);
+                    Matrix<IndexMat> tNodeIdsInCluster     = tCluster->get_interpolation_cell().get_vertex_ids();
+                    Matrix<IndexMat> tNodeOwnersInCluster = tCluster->get_interpolation_cell().get_vertex_owners();
 
+                    // FIXME don't undersand this resize. it's really slow
+                    tNodeIndicesPerSet(tMeshSetIndex).resize(tNodeIndicesPerSet(tMeshSetIndex).length() + tNodeIndicesInCluster.length(), 1);
+                    tNodeIdsPerSet(tMeshSetIndex).resize(tNodeIdsPerSet(tMeshSetIndex).length() + tNodeIdsInCluster.length(), 1);
+                    tNodeOwnersPerSet(tMeshSetIndex).resize(tNodeOwnersPerSet(tMeshSetIndex).length() + tNodeOwnersInCluster.length(), 1);
+
+                    // FIXME we have nodes up to 8 tims in this list in 3d
                     for (uint tNodeInCluster = 0; tNodeInCluster < tNodeIndicesInCluster.length(); tNodeInCluster++)
                     {
-                        tNodeIndicesPerSet(tMeshSetIndex)(tCurrentNode++) = tNodeIndicesInCluster(tNodeInCluster);
+                        tNodeIndicesPerSet(tMeshSetIndex)(tCurrentNode)   = tNodeIndicesInCluster(tNodeInCluster);
+                        tNodeIdsPerSet(tMeshSetIndex)(tCurrentNode)   = tNodeIdsInCluster(tNodeInCluster);
+                        tNodeOwnersPerSet(tMeshSetIndex)(tCurrentNode++) = tNodeOwnersInCluster(tNodeInCluster);
                     }
                 }
             }
@@ -773,7 +899,12 @@ namespace moris
             }
 
             // Create hosts
-            mPdvHostManager.create_interpolation_pdv_hosts(tNodeIndicesPerSet, tNodeCoordinates, aPdvTypes);
+            mPdvHostManager.create_interpolation_pdv_hosts(
+                    tNodeIndicesPerSet,
+                    tNodeIdsPerSet,
+                    tNodeOwnersPerSet,
+                    tNodeCoordinates,
+                    aPdvTypes);
         }
 
         //--------------------------------------------------------------------------------------------------------------

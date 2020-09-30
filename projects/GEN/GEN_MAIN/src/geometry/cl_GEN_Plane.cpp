@@ -1,7 +1,3 @@
-//
-// Created by christopherson on 4/17/20.
-//
-
 #include "cl_GEN_Plane.hpp"
 
 namespace moris
@@ -42,7 +38,44 @@ namespace moris
             }
             else
             {
-                MORIS_ERROR(false, "Incorrect number of parameters passed for construction of a GEN Plane");
+                MORIS_ERROR(false, "Incorrect number of parameters passed for construction of a GEN Plane.");
+            }
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
+        Plane::Plane(sol::Dist_Vector* aOwnedADVs,
+                     Matrix<DDUMat>    aGeometryVariableIndices,
+                     Matrix<DDUMat>    aADVIndices,
+                     Matrix<DDRMat>    aConstantParameters,
+                     sint              aNumRefinements,
+                     sint              aRefinementFunctionIndex,
+                     sint              aBSplineMeshIndex,
+                     real              aBSplineLowerBound,
+                     real              aBSplineUpperBound)
+                : Field(aOwnedADVs,
+                        aGeometryVariableIndices,
+                        aADVIndices,
+                        aConstantParameters,
+                        aNumRefinements,
+                        aRefinementFunctionIndex,
+                        aBSplineMeshIndex,
+                        aBSplineLowerBound,
+                        aBSplineUpperBound)
+        {
+            if (mFieldVariables.size() == 4)
+            {
+                m_eval_field = &Plane::eval_field_2d;
+                m_eval_sensitivity = &Plane::eval_sensitivity_2d;
+            }
+            else if (mFieldVariables.size() == 6)
+            {
+                m_eval_field = &Plane::eval_field_3d;
+                m_eval_sensitivity = &Plane::eval_sensitivity_3d;
+            }
+            else
+            {
+                MORIS_ERROR(false, "Incorrect number of parameters passed for construction of a GEN Plane.");
             }
         }
 

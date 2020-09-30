@@ -216,6 +216,9 @@ namespace moris
             // get number of IWGs
             uint tNumIWGs = mSet->get_number_of_requested_IWGs();
 
+            // get number of IQIs
+            uint tNumIQIs = mSet->get_number_of_requested_IQIs();
+
             // loop over integration points
             uint tNumIntegPoints = mSet->get_number_of_integration_points();
             for( uint iGP = 0; iGP < tNumIntegPoints; iGP++ )
@@ -249,10 +252,26 @@ namespace moris
                     {
                         // compute residual at integration point
                         mSet->get_requested_IWGs()( iIWG )->compute_residual( tWStar );
-					}
+                    }
 
                     // compute jacobian at evaluation point
                     mSet->get_requested_IWGs()( iIWG )->compute_jacobian( tWStar );
+                }
+
+                if( ( !mSet->mEquationModel->get_is_forward_analysis() ) && ( tNumIQIs > 0 ) )
+                {
+                    // loop over the IQIs
+                    for( uint iIQI = 0; iIQI < tNumIQIs; iIQI++ )
+                    {
+                        // reset IQI
+                        mSet->get_requested_IQIs()( iIQI )->reset_eval_flags();
+
+                        // set the normal for the IQI
+                        mSet->get_requested_IQIs()( iIQI )->set_normal( tNormal );
+
+                        // compute dQIdu at evaluation point
+                        mSet->get_requested_IQIs()( iIQI )->add_dQIdu_on_set( tWStar );
+                    }
                 }
             }
         }
@@ -263,9 +282,6 @@ namespace moris
         {
             // get treated side ordinal
             uint tSideOrd = mCluster->mMasterListOfSideOrdinals( mCellIndexInCluster );
-
-            // get the vertices indices
-            Matrix< IndexMat > tVertexIndices = mMasterCell->get_vertices_ind_on_side_ordinal( tSideOrd );
 
             // set physical and parametric space and time coefficients for IG element
             moris::Cell< Matrix< DDSMat > > tIsActiveDv;
@@ -420,11 +436,17 @@ namespace moris
                 real tWStar = mSet->get_integration_weights()( iGP ) *
                         mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator()->det_J();
 
+                // get the normal from mesh
+                Matrix< DDRMat > tNormal = mCluster->get_side_normal( mMasterCell, tSideOrd );
+
                 // loop over the IQIs
                 for( uint iIQI = 0; iIQI < tNumIQIs; iIQI++ )
                 {
                     // reset IQI
                     mSet->get_requested_IQIs()( iIQI )->reset_eval_flags();
+
+                    // set the normal for the IQI
+                    mSet->get_requested_IQIs()( iIQI )->set_normal( tNormal );
 
                     // compute QI at evaluation point
                     mSet->get_requested_IQIs()( iIQI )->add_QI_on_set( tWStar );
@@ -463,14 +485,28 @@ namespace moris
                 real tWStar = mSet->get_integration_weights()( iGP ) *
                         mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator()->det_J();
 
+                // get the normal from mesh
+                Matrix< DDRMat > tNormal = mCluster->get_side_normal( mMasterCell, tSideOrd );
+
                 // loop over the IQIs
                 for( uint iIQI = 0; iIQI < tNumIQIs; iIQI++ )
                 {
-                    // reset IWG
-                    mSet->get_requested_IQIs()( iIQI )->reset_eval_flags();
+//                    // check if IQI has dof dependencies
+//                    moris::Cell< moris::Cell< MSI::Dof_Type > > aDofTypeList =
+//                            mSet->get_requested_IQIs()( iIQI )->get_global_dof_type_list();
+//
+//                    // if there are dof dependencies
+//                    if( aDofTypeList.size() > 0 )
+//                    {
+                        // reset IWG
+                        mSet->get_requested_IQIs()( iIQI )->reset_eval_flags();
 
-                    // compute dQIdu at evaluation point
-                    mSet->get_requested_IQIs()( iIQI )->add_dQIdu_on_set( tWStar );
+                        // set the normal for the IWG
+                        mSet->get_requested_IQIs()( iIQI )->set_normal( tNormal );
+
+                        // compute dQIdu at evaluation point
+                        mSet->get_requested_IQIs()( iIQI )->add_dQIdu_on_set( tWStar );
+//                    }
                 }
             }
         }
@@ -481,9 +517,6 @@ namespace moris
         {
             // get treated side ordinal
             uint tSideOrd = mCluster->mMasterListOfSideOrdinals( mCellIndexInCluster );
-
-            // get the vertices indices
-            Matrix< IndexMat > tVertexIndices = mMasterCell->get_vertices_ind_on_side_ordinal( tSideOrd );
 
             // set physical and parametric space and time coefficients for IG element
             moris::Cell< Matrix< DDSMat > > tIsActiveDv;
@@ -508,11 +541,17 @@ namespace moris
                 real tWStar = mSet->get_integration_weights()( iGP ) *
                         mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator()->det_J();
 
+                // get the normal from mesh
+                Matrix< DDRMat > tNormal = mCluster->get_side_normal( mMasterCell, tSideOrd );
+
                 // loop over the IQIs
                 for( uint iIQI = 0; iIQI < tNumIQIs; iIQI++ )
                 {
                     // reset IWG
                     mSet->get_requested_IQIs()( iIQI )->reset_eval_flags();
+
+                    // set the normal for the IWG
+                    mSet->get_requested_IQIs()( iIQI )->set_normal( tNormal );
 
                     // compute dQIdpMat at evaluation point
                     mSet->get_requested_IQIs()( iIQI )->compute_dQIdp( tWStar );
@@ -560,11 +599,17 @@ namespace moris
                 real tWStar = mSet->get_integration_weights()( iGP ) *
                         mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator()->det_J();
 
+                // get the normal from mesh
+                Matrix< DDRMat > tNormal = mCluster->get_side_normal( mMasterCell, tSideOrd );
+
                 // loop over the IQIs
                 for( uint iIQI = 0; iIQI < tNumIQIs; iIQI++ )
                 {
                     // reset IWG
                     mSet->get_requested_IQIs()( iIQI )->reset_eval_flags();
+
+                    // set the normal for the IWG
+                    mSet->get_requested_IQIs()( iIQI )->set_normal( tNormal );
 
                     // compute dQIdpMat at evaluation point
                     mSet->get_requested_IQIs()( iIQI )->compute_dQIdp_FD_material(
@@ -622,8 +667,14 @@ namespace moris
                 real tWStar = mSet->get_integration_weights()( iGP ) *
                         mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator()->det_J();
 
+                // get the normal from mesh
+                Matrix< DDRMat > tNormal = mCluster->get_side_normal( mMasterCell, tSideOrd );
+
                 // reset the requested IQI
                 tIQI->reset_eval_flags();
+
+                // set the normal for the IWG
+                tIQI->set_normal( tNormal );
 
                 // compute quantity of interest at evaluation point
                 Matrix< DDRMat > tQIValue;
@@ -672,8 +723,14 @@ namespace moris
                 // set vertex coordinates for field interpolator
                 mSet->get_field_interpolator_manager()->set_space_time( tGlobalIntegPoint );
 
+                // get the normal from mesh
+                Matrix< DDRMat > tNormal = mCluster->get_side_normal( mMasterCell, tSideOrd );
+
                 // reset the requested IQI
                 tIQI->reset_eval_flags();
+
+                // set the normal for the IWG
+                tIQI->set_normal( tNormal );
 
                 // compute quantity of interest at evaluation point
                 Matrix< DDRMat > tQIValue;
@@ -723,8 +780,14 @@ namespace moris
                 real tWStar = mSet->get_integration_weights()( iGP ) *
                         mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator()->det_J();
 
+                // get the normal from mesh
+                Matrix< DDRMat > tNormal = mCluster->get_side_normal( mMasterCell, tSideOrd );
+
                 // reset the requested IQI
                 tIQI->reset_eval_flags();
+
+                // set the normal for the IWG
+                tIQI->set_normal( tNormal );
 
                 // compute quantity of interest at evaluation point
                 Matrix< DDRMat > tQIValue;

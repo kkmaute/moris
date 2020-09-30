@@ -32,6 +32,31 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
+        Circle::Circle(sol::Dist_Vector* aOwnedADVs,
+                       Matrix<DDUMat>    aGeometryVariableIndices,
+                       Matrix<DDUMat>    aADVIndices,
+                       Matrix<DDRMat>    aConstantParameters,
+                       sint              aNumRefinements,
+                       sint              aRefinementFunctionIndex,
+                       sint              aBSplineMeshIndex,
+                       real              aBSplineLowerBound,
+                       real              aBSplineUpperBound)
+                : Field(aOwnedADVs,
+                        aGeometryVariableIndices,
+                        aADVIndices,
+                        aConstantParameters,
+                        aNumRefinements,
+                        aRefinementFunctionIndex,
+                        aBSplineMeshIndex,
+                        aBSplineLowerBound,
+                        aBSplineUpperBound)
+        {
+            MORIS_ERROR(aGeometryVariableIndices.length() + aConstantParameters.length() == 3,
+                        "A GEN Circle must be created with a total of exactly 3 variables (ADVs + constant parameters)");
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
         Circle::Circle(real aXCenter,
                        real aYCenter,
                        real aRadius,

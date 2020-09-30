@@ -11,7 +11,7 @@ namespace moris
     namespace ge
     {
         /**
-         * Higher-level call for creating a cell of geometries, which ensures that the ADVs are resized properly
+         * Higher-level call for creating a cell of geometries, which also creates multigeometries.
          *
          * @param aGeometryParameterLists Parameter lists for creating geometry classes
          * @param aADVs Reference to the initial ADV vector
@@ -21,6 +21,19 @@ namespace moris
         Cell<std::shared_ptr<Geometry>> create_geometries(
                 Cell<ParameterList>         aGeometryParameterLists,
                 Matrix<DDRMat>&             aADVs,
+                std::shared_ptr<Library_IO> aLibrary = nullptr);
+
+        /**
+         * Higher-level call for creating a cell of geometries, which also creates multigeometries.
+         *
+         * @param aGeometryParameterLists Parameter lists for creating geometry classes
+         * @param aADVs Reference to the initial ADV vector
+         * @param aLibrary Pointer to library for loading user-defined functions
+         * @return Pointers to created Geometry classes
+         */
+        Cell<std::shared_ptr<Geometry>> create_geometries(
+                Cell<ParameterList>         aGeometryParameterLists,
+                sol::Dist_Vector*           aOwnedADVs,
                 std::shared_ptr<Library_IO> aLibrary = nullptr);
 
         /**
@@ -34,6 +47,19 @@ namespace moris
         std::shared_ptr<Geometry> create_geometry(
                 ParameterList               aGeometryParameterList,
                 Matrix<DDRMat>&             aADVs,
+                std::shared_ptr<Library_IO> aLibrary = nullptr);
+
+        /**
+         * Creates an instance of the specified Geometry class and returns a shared pointer to it.
+         *
+         * @param aGeometryParameterList Parameter list for creating a geometry class
+         * @param aADVs Reference to the initial ADV vector
+         * @param aLibrary Pointer to library for loading user-defined functions
+         * @return Pointer to specific Geometry class
+         */
+        std::shared_ptr<Geometry> create_geometry(
+                ParameterList               aGeometryParameterList,
+                sol::Dist_Vector*           aOwnedADVs,
                 std::shared_ptr<Library_IO> aLibrary = nullptr);
 
         /**

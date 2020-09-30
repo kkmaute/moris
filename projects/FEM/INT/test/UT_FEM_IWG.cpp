@@ -158,7 +158,7 @@ namespace moris
 
         // check master global dof list content
         CHECK( equal_to( static_cast< uint >( tIWG->mMasterGlobalDofTypes( 0 )( 0 ) ), 3 ) );
-        CHECK( equal_to( static_cast< uint >( tIWG->mMasterGlobalDofTypes( 1 )( 0 ) ), 11 ) );
+        CHECK( equal_to( static_cast< uint >( tIWG->mMasterGlobalDofTypes( 1 )( 0 ) ), 14 ) );
         CHECK( equal_to( static_cast< uint >( tIWG->mMasterGlobalDofTypes( 2 )( 0 ) ), 6 ) );
 
 //        // check slave global dof list size

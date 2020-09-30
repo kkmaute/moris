@@ -16,7 +16,6 @@ namespace moris
             NonLinearSolver,
             NonLinearProblem,
             TimeSolver,
-            BlockSet,
             GlobalClock,
             MSI,
             Mesh,
@@ -49,6 +48,7 @@ namespace moris
             LBFGS,
             SQP,
             Sweep,
+            EquationModel,
             Unknown
     };
 
@@ -65,6 +65,8 @@ namespace moris
             Build,
             Assemble,
             Compute,
+            Compute_dQIdp_Expl,
+            Compute_dQIdp_Impl,
             Create,
             Evaluate,
             AssembleJacobian,

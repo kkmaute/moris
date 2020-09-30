@@ -1331,6 +1331,17 @@ namespace moris
             // get master number of dof types
             uint tMasterNumDofTypes = mRequestedMasterGlobalDofTypes.size();
 
+            // reset properties, CM and SP for IWG
+            this->reset_eval_flags();
+
+            // reset and evaluate the residual plus
+            mSet->get_residual()( 0 ).fill( 0.0 );
+            this->compute_residual( aWStar );
+            Matrix< DDRMat > tResidual =
+                    mSet->get_residual()( 0 )(
+                            { tMasterResStartIndex, tMasterResStopIndex },
+                            { 0, 0 } );
+
             // loop over the IWG dof types
             for( uint iFI = 0; iFI < tMasterNumDofTypes; iFI++ )
             {
@@ -1368,6 +1379,22 @@ namespace moris
                         if( ( tDeltaH < 1e-12 ) && ( tDeltaH > - 1e-12 ) )
                         {
                             tDeltaH = aPerturbation;
+                        }
+
+                        // if backward or forward add unperturbed contribution
+                        if( aFDSchemeType == fem::FDScheme_Type::POINT_1_BACKWARD )
+                        {
+                            mSet->get_jacobian()(
+                                    { tMasterResStartIndex, tMasterResStopIndex },
+                                    { tMasterDepStartIndex + tDofCounter, tMasterDepStartIndex + tDofCounter } ) +=
+                                            tResidual / ( tFDScheme( 2 )( 0 ) * tDeltaH );
+                        }
+                        if( aFDSchemeType == fem::FDScheme_Type::POINT_1_FORWARD )
+                        {
+                            mSet->get_jacobian()(
+                                    { tMasterResStartIndex, tMasterResStopIndex },
+                                    { tMasterDepStartIndex + tDofCounter, tMasterDepStartIndex + tDofCounter } ) -=
+                                            tResidual / ( tFDScheme( 2 )( 0 ) * tDeltaH );
                         }
 
                         // loop over the points for FD
@@ -1431,6 +1458,21 @@ namespace moris
             uint tSlaveResStartIndex = mSet->get_res_dof_assembly_map()( tSlaveDofIndex )( 0, 0 );
             uint tSlaveResStopIndex  = mSet->get_res_dof_assembly_map()( tSlaveDofIndex )( 0, 1 );
 
+            // reset properties, CM and SP for IWG
+            this->reset_eval_flags();
+
+            // reset and evaluate the residual plus
+            mSet->get_residual()( 0 ).fill( 0.0 );
+            this->compute_residual( aWStar );
+            Matrix< DDRMat > tMasterResidual =
+                    mSet->get_residual()( 0 )(
+                            { tMasterResStartIndex, tMasterResStopIndex },
+                            { 0, 0 } );
+            Matrix< DDRMat > tSlaveResidual =
+                    mSet->get_residual()( 0 )(
+                            { tSlaveResStartIndex, tSlaveResStopIndex },
+                            { 0, 0 } );
+
             // get master number of dof types
             uint tMasterNumDofTypes = mRequestedMasterGlobalDofTypes.size();
 
@@ -1471,6 +1513,30 @@ namespace moris
                         if( ( tDeltaH < 1e-12 ) && ( tDeltaH > - 1e-12 ) )
                         {
                             tDeltaH = aPerturbation;
+                        }
+
+                        // if backward or forward add unperturbed contribution
+                        if( aFDSchemeType == fem::FDScheme_Type::POINT_1_BACKWARD )
+                        {
+                            mSet->get_jacobian()(
+                                    { tMasterResStartIndex, tMasterResStopIndex },
+                                    { tMasterDepStartIndex + tDofCounter, tMasterDepStartIndex + tDofCounter } ) +=
+                                            tMasterResidual / ( tFDScheme( 2 )( 0 ) * tDeltaH );
+                            mSet->get_jacobian()(
+                                    { tSlaveResStartIndex, tSlaveResStopIndex },
+                                    { tMasterDepStartIndex + tDofCounter, tMasterDepStartIndex + tDofCounter } ) +=
+                                            tSlaveResidual / ( tFDScheme( 2 )( 0 ) * tDeltaH );
+                        }
+                        if( aFDSchemeType == fem::FDScheme_Type::POINT_1_FORWARD )
+                        {
+                            mSet->get_jacobian()(
+                                    { tMasterResStartIndex, tMasterResStopIndex },
+                                    { tMasterDepStartIndex + tDofCounter, tMasterDepStartIndex + tDofCounter } ) -=
+                                            tMasterResidual / ( tFDScheme( 2 )( 0 ) * tDeltaH );
+                            mSet->get_jacobian()(
+                                    { tSlaveResStartIndex, tSlaveResStopIndex },
+                                    { tMasterDepStartIndex + tDofCounter, tMasterDepStartIndex + tDofCounter } ) -=
+                                            tSlaveResidual / ( tFDScheme( 2 )( 0 ) * tDeltaH );
                         }
 
                         // loop over the points for FD
@@ -1559,6 +1625,30 @@ namespace moris
                         if( ( tDeltaH < 1e-12 ) && ( tDeltaH > - 1e-12 ) )
                         {
                             tDeltaH = aPerturbation;
+                        }
+
+                        // if backward or forward add unperturbed contribution
+                        if( aFDSchemeType == fem::FDScheme_Type::POINT_1_BACKWARD )
+                        {
+                            mSet->get_jacobian()(
+                                    { tMasterResStartIndex, tMasterResStopIndex },
+                                    { tSlaveDepStartIndex + tDofCounter, tSlaveDepStartIndex + tDofCounter } ) +=
+                                            tMasterResidual / ( tFDScheme( 2 )( 0 ) * tDeltaH );
+                            mSet->get_jacobian()(
+                                    { tSlaveResStartIndex, tSlaveResStopIndex },
+                                    { tSlaveDepStartIndex + tDofCounter, tSlaveDepStartIndex + tDofCounter } ) +=
+                                            tSlaveResidual / ( tFDScheme( 2 )( 0 ) * tDeltaH );
+                        }
+                        if( aFDSchemeType == fem::FDScheme_Type::POINT_1_FORWARD )
+                        {
+                            mSet->get_jacobian()(
+                                    { tMasterResStartIndex, tMasterResStopIndex },
+                                    { tSlaveDepStartIndex + tDofCounter, tSlaveDepStartIndex + tDofCounter } ) -=
+                                            tMasterResidual / ( tFDScheme( 2 )( 0 ) * tDeltaH );
+                            mSet->get_jacobian()(
+                                    { tSlaveResStartIndex, tSlaveResStopIndex },
+                                    { tSlaveDepStartIndex + tDofCounter, tSlaveDepStartIndex + tDofCounter } ) -=
+                                            tSlaveResidual / ( tFDScheme( 2 )( 0 ) * tDeltaH );
                         }
 
                         // loop over the points for FD
@@ -1741,7 +1831,7 @@ namespace moris
             // get the GI for the IG element considered
             Geometry_Interpolator * tIGGI = mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator();
             Geometry_Interpolator * tIPGI = mSet->get_field_interpolator_manager()->get_IP_geometry_interpolator();
-            Geometry_Interpolator * tIGGIPrevious;
+            Geometry_Interpolator * tIGGIPrevious = nullptr;
             if( mSet->get_element_type() == fem::Element_Type::TIME_SIDESET )
             {
                 tIGGIPrevious =
@@ -1752,6 +1842,17 @@ namespace moris
             uint tResDofIndex = mSet->get_dof_index_for_type( mResidualDofType( 0 ), mtk::Master_Slave::MASTER );
             uint tResDofAssemblyStart = mSet->get_res_dof_assembly_map()( tResDofIndex )( 0, 0 );
             uint tResDofAssemblyStop  = mSet->get_res_dof_assembly_map()( tResDofIndex )( 0, 1 );
+
+            // reset properties, CM and SP for IWG
+            this->reset_eval_flags();
+
+            // reset, evaluate and store the residual for unperturbed case
+            mSet->get_residual()( 0 ).fill( 0.0 );
+            this->compute_residual( aWStar );
+            Matrix< DDRMat > tResidual =
+                    mSet->get_residual()( 0 )(
+                            { tResDofAssemblyStart, tResDofAssemblyStop },
+                            { 0, 0 } );
 
             // get number of master GI bases and space dimensions
             uint tDerNumBases      = tIGGI->get_number_of_space_bases();
@@ -1780,7 +1881,6 @@ namespace moris
 
             // init FD scheme
             moris::Cell< moris::Cell< real > > tFDScheme;
-            fd_scheme( aFDSchemeType, tFDScheme );
 
             // loop over the spatial directions
             for( uint iCoeffCol = 0; iCoeffCol< tDerNumDimensions; iCoeffCol++ )
@@ -1800,22 +1900,38 @@ namespace moris
                         }
 
                         // check point location
-                        moris::Cell< moris::Cell< real > > tFDScheme;
-                        fd_scheme( aFDSchemeType, tFDScheme );
+                        fem::FDScheme_Type tUsedFDScheme = aFDSchemeType;
                         if( tCoeff( iCoeffRow, iCoeffCol ) + tDeltaH > tMaxIP( iCoeffCol ) )
                         {
-                            fd_scheme( fem::FDScheme_Type::POINT_1_BACKWARD, tFDScheme );
+                            tUsedFDScheme = fem::FDScheme_Type::POINT_1_BACKWARD;
                         }
                         else if( tCoeff( iCoeffRow, iCoeffCol ) - tDeltaH < tMinIP( iCoeffCol ) )
                         {
-                            fd_scheme( fem::FDScheme_Type::POINT_1_FORWARD, tFDScheme );
+                            tUsedFDScheme = fem::FDScheme_Type::POINT_1_FORWARD;
                         }
+                        fd_scheme( tUsedFDScheme, tFDScheme );
                         uint tNumPoints = tFDScheme( 0 ).size();
 
                         // get the geometry pdv assembly index
                         std::pair< moris_index, PDV_Type > tKeyPair =
                                 std::make_pair( aVertexIndices( iCoeffRow ), tRequestedGeoPdvType( iCoeffCol ) );
                         uint tPdvAssemblyIndex = mSet->get_geo_pdv_assembly_map()[ tKeyPair ];
+
+                        // if backward or forward add unperturbed contribution
+                        if( tUsedFDScheme == fem::FDScheme_Type::POINT_1_BACKWARD )
+                        {
+                            mSet->get_drdpgeo()(
+                                    { tResDofAssemblyStart, tResDofAssemblyStop },
+                                    { tPdvAssemblyIndex,    tPdvAssemblyIndex } ) +=
+                                            tResidual / ( tFDScheme( 2 )( 0 ) * tDeltaH );
+                        }
+                        if( tUsedFDScheme == fem::FDScheme_Type::POINT_1_FORWARD )
+                        {
+                            mSet->get_drdpgeo()(
+                                    { tResDofAssemblyStart, tResDofAssemblyStop },
+                                    { tPdvAssemblyIndex,    tPdvAssemblyIndex } ) -=
+                                            tResidual / ( tFDScheme( 2 )( 0 ) * tDeltaH );
+                        }
 
                         // loop over point of FD scheme
                         for ( uint iPoint = 0; iPoint < tNumPoints; iPoint++ )
@@ -1895,6 +2011,10 @@ namespace moris
                 mSet->get_field_interpolator_manager_previous_time()->
                         set_space_time_from_local_IG_point( tEvaluationPoint );
             }
+
+            // check for nan, infinity
+            MORIS_ERROR( isfinite( mSet->get_drdpgeo() ) ,
+                    "IWG::compute_dRdp_FD_geometry - dRdp contains NAN or INF, exiting!");
         }
 
         //------------------------------------------------------------------------------
@@ -1921,8 +2041,6 @@ namespace moris
             // get the slave GI for the IG and IP element considered
             Geometry_Interpolator * tSlaveIGGI =
                     mSet->get_field_interpolator_manager( mtk::Master_Slave::SLAVE )->get_IG_geometry_interpolator();
-//            Geometry_Interpolator * tSlaveIPGI =
-//                    mSet->get_field_interpolator_manager( mtk::Master_Slave::SLAVE )->get_IP_geometry_interpolator();
 
             // IP element max/min
             Matrix< DDRMat > tMasterMaxIP = max( tMasterIPGI->get_space_coeff().matrix_data() );
@@ -1961,6 +2079,17 @@ namespace moris
             Matrix< DDRMat > tSlaveParamCoeff = tSlaveIGGI->get_space_param_coeff();
             Matrix< DDRMat > tSlaveEvaluationPoint;
             tSlaveIGGI->get_space_time( tSlaveEvaluationPoint );
+
+            // reset properties, CM and SP for IWG
+            this->reset_eval_flags();
+
+            // reset, evaluate and store the residual for unperturbed case
+            mSet->get_residual()( 0 ).fill( 0.0 );
+            this->compute_residual( aWStar );
+            Matrix< DDRMat > tMasterResidual =
+                    mSet->get_residual()( 0 )( { tMasterResDofAssemblyStart, tMasterResDofAssemblyStop }, { 0, 0 } );
+            Matrix< DDRMat > tSlaveResidual =
+                    mSet->get_residual()( 0 )( { tSlaveResDofAssemblyStart, tSlaveResDofAssemblyStop }, { 0, 0 } );
 
             // get number of master GI bases and space dimensions
             uint tDerNumBases      = tMasterIGGI->get_number_of_space_bases();
@@ -2001,15 +2130,16 @@ namespace moris
                             }
 
                             // check point location
-                            fd_scheme( aFDSchemeType, tFDScheme );
+                            fem::FDScheme_Type tUsedFDScheme = aFDSchemeType;
                             if( tMasterCoeff( iCoeffRow, iCoeffCol ) + tDeltaH > tMasterMaxIP( iCoeffCol ) )
                             {
-                                fd_scheme( fem::FDScheme_Type::POINT_1_BACKWARD, tFDScheme );
+                                tUsedFDScheme = fem::FDScheme_Type::POINT_1_BACKWARD;
                             }
                             else if( tMasterCoeff( iCoeffRow, iCoeffCol ) - tDeltaH < tMasterMinIP( iCoeffCol ) )
                             {
-                                fd_scheme( fem::FDScheme_Type::POINT_1_FORWARD, tFDScheme );
+                                tUsedFDScheme = fem::FDScheme_Type::POINT_1_FORWARD;
                             }
+                            fd_scheme( tUsedFDScheme, tFDScheme );
                             uint tNumPoints = tFDScheme( 0 ).size();
 
                             // get the geometry pdv assembly index
@@ -2017,14 +2147,38 @@ namespace moris
                                     std::make_pair( aMasterVertexIndices( iCoeffRow ), tRequestedGeoPdvType( iCoeffCol ) );
                             uint tPdvAssemblyIndex = mSet->get_geo_pdv_assembly_map()[ tKeyPair ];
 
+                            // if backward or forward add unperturbed contribution
+                            if( tUsedFDScheme == fem::FDScheme_Type::POINT_1_BACKWARD )
+                            {
+                                mSet->get_drdpgeo()(
+                                        { tMasterResDofAssemblyStart, tMasterResDofAssemblyStop },
+                                        { tPdvAssemblyIndex,          tPdvAssemblyIndex } ) +=
+                                                tMasterResidual / ( tFDScheme( 2 )( 0 ) * tDeltaH );
+                                mSet->get_drdpgeo()(
+                                        { tSlaveResDofAssemblyStart, tSlaveResDofAssemblyStop },
+                                        { tPdvAssemblyIndex,          tPdvAssemblyIndex } ) +=
+                                                tSlaveResidual / ( tFDScheme( 2 )( 0 ) * tDeltaH );
+                            }
+                            if( tUsedFDScheme == fem::FDScheme_Type::POINT_1_FORWARD )
+                            {
+                                mSet->get_drdpgeo()(
+                                        { tMasterResDofAssemblyStart, tMasterResDofAssemblyStop },
+                                        { tPdvAssemblyIndex,          tPdvAssemblyIndex } ) -=
+                                                tMasterResidual / ( tFDScheme( 2 )( 0 ) * tDeltaH );
+                                mSet->get_drdpgeo()(
+                                        { tSlaveResDofAssemblyStart, tSlaveResDofAssemblyStop },
+                                        { tPdvAssemblyIndex,          tPdvAssemblyIndex } ) -=
+                                                tSlaveResidual / ( tFDScheme( 2 )( 0 ) * tDeltaH );
+                            }
+
                             // loop over point of FD scheme
                             for ( uint iPoint = 0; iPoint < tNumPoints; iPoint++ )
                             {
-                                // reset the perturbed coefficents
+                                // reset the perturbed coefficients
                                 Matrix< DDRMat > tMasterCoeffPert = tMasterCoeff;
                                 Matrix< DDRMat > tSlaveCoeffPert  = tSlaveCoeff;
 
-                                // pertub the coefficent
+                                // perturb the coefficient
                                 tMasterCoeffPert( iCoeffRow, iCoeffCol ) +=
                                         tFDScheme( 0 )( iPoint ) * tDeltaH;
                                 tSlaveCoeffPert( tSlaveNodeLocalIndex, iCoeffCol ) +=
@@ -2096,6 +2250,10 @@ namespace moris
                     }
                 }
             }
+
+            // check for nan, infinity
+            MORIS_ERROR( isfinite( mSet->get_drdpgeo() ) ,
+                    "IWG::compute_dRdp_FD_geometry_double - dRdp contains NAN or INF, exiting!");
         }
 
         //------------------------------------------------------------------------------
@@ -2123,6 +2281,15 @@ namespace moris
                     mtk::Master_Slave::MASTER );
             uint tResDofAssemblyStart = mSet->get_res_dof_assembly_map()( tResDofIndex )( 0, 0 );
             uint tResDofAssemblyStop  = mSet->get_res_dof_assembly_map()( tResDofIndex )( 0, 1 );
+
+            // reset properties, CM and SP for IWG
+            this->reset_eval_flags();
+
+            // reset, evaluate and store the residual for unperturbed case
+            mSet->get_residual()( 0 ).fill( 0.0 );
+            this->compute_residual( aWStar );
+            Matrix< DDRMat > tResidual =
+                    mSet->get_residual()( 0 )( { tResDofAssemblyStart, tResDofAssemblyStop }, { 0, 0 } );
 
             // init perturbation
             real tDeltaH = 0.0;
@@ -2167,13 +2334,29 @@ namespace moris
                         // get mat pdv index
                         uint tPdvIndex = mSet->get_mat_pdv_assembly_map()( tDvDepIndex )( 0, 0 ) + tCoeffCounter;
 
+                        // if backward or forward add unperturbed contribution
+                        if( aFDSchemeType == fem::FDScheme_Type::POINT_1_BACKWARD )
+                        {
+                            mSet->get_drdpmat()(
+                                    { tResDofAssemblyStart, tResDofAssemblyStop },
+                                    { tPdvIndex,            tPdvIndex } ) +=
+                                            tResidual / ( tFDScheme( 2 )( 0 ) * tDeltaH );
+                        }
+                        if( aFDSchemeType == fem::FDScheme_Type::POINT_1_FORWARD )
+                        {
+                            mSet->get_drdpmat()(
+                                    { tResDofAssemblyStart, tResDofAssemblyStop },
+                                    { tPdvIndex,            tPdvIndex } ) -=
+                                            tResidual / ( tFDScheme( 2 )( 0 ) * tDeltaH );
+                        }
+
                         // loop over the points for FD
                         for( uint iPoint = 0; iPoint < tNumPoints; iPoint++ )
                         {
-                            // reset the perturbed coefficents
+                            // reset the perturbed coefficients
                             Matrix< DDRMat > tCoeffPert = tCoeff;
 
-                            // pertub the coefficent
+                            // perturb the coefficient
                             tCoeffPert( iCoeffRow, iCoeffCol ) += tFDScheme( 0 )( iPoint ) * tDeltaH;
 
                             // set the perturbed coefficients to FI
@@ -2203,6 +2386,10 @@ namespace moris
                 // reset the coefficients values
                 tFI->set_coeff( tCoeff );
             }
+
+            // check for nan, infinity
+            MORIS_ERROR( isfinite( mSet->get_drdpmat() ) ,
+                    "IWG::compute_dRdp_FD_material - dRdp contains NAN or INF, exiting!");
         }
 
         //------------------------------------------------------------------------------
@@ -2233,6 +2420,21 @@ namespace moris
             uint tSlaveResDofIndex = mSet->get_dof_index_for_type( mResidualDofType( 0 ), mtk::Master_Slave::SLAVE );
             uint tSlaveResDofAssemblyStart = mSet->get_res_dof_assembly_map()( tSlaveResDofIndex )( 0, 0 );
             uint tSlaveResDofAssemblyStop  = mSet->get_res_dof_assembly_map()( tSlaveResDofIndex )( 0, 1 );
+
+            // reset properties, CM and SP for IWG
+            this->reset_eval_flags();
+
+            // reset, evaluate and store the residual for unperturbed case
+            mSet->get_residual()( 0 ).fill( 0.0 );
+            this->compute_residual( aWStar );
+            Matrix< DDRMat > tMasterResidual =
+                    mSet->get_residual()( 0 )(
+                            { tMasterResDofAssemblyStart, tMasterResDofAssemblyStop },
+                            { 0, 0 } );
+            Matrix< DDRMat > tSlaveResidual =
+                    mSet->get_residual()( 0 )(
+                            { tSlaveResDofAssemblyStart, tSlaveResDofAssemblyStop },
+                            { 0, 0 } );
 
             // init perturbation
             real tDeltaH = 0.0;
@@ -2276,6 +2478,30 @@ namespace moris
 
                         // get mat pdv index
                         uint tPdvIndex = mSet->get_mat_pdv_assembly_map()( tDvDepIndex )( 0, 0 ) + tCoeffCounter;
+
+                        // if backward or forward add unperturbed contribution
+                        if( aFDSchemeType == fem::FDScheme_Type::POINT_1_BACKWARD )
+                        {
+                            mSet->get_drdpmat()(
+                                    { tMasterResDofAssemblyStart, tMasterResDofAssemblyStop },
+                                    { tPdvIndex,                  tPdvIndex } ) +=
+                                            tMasterResidual / ( tFDScheme( 2 )( 0 ) * tDeltaH );
+                            mSet->get_drdpmat()(
+                                    { tSlaveResDofAssemblyStart, tSlaveResDofAssemblyStop },
+                                    { tPdvIndex,                  tPdvIndex } ) +=
+                                            tSlaveResidual / ( tFDScheme( 2 )( 0 ) * tDeltaH );
+                        }
+                        if( aFDSchemeType == fem::FDScheme_Type::POINT_1_FORWARD )
+                        {
+                            mSet->get_drdpmat()(
+                                    { tMasterResDofAssemblyStart, tMasterResDofAssemblyStop },
+                                    { tPdvIndex,                  tPdvIndex } ) -=
+                                            tMasterResidual / ( tFDScheme( 2 )( 0 ) * tDeltaH );
+                            mSet->get_drdpmat()(
+                                    { tSlaveResDofAssemblyStart, tSlaveResDofAssemblyStop },
+                                    { tPdvIndex,                  tPdvIndex } ) -=
+                                            tSlaveResidual / ( tFDScheme( 2 )( 0 ) * tDeltaH );
+                        }
 
                         // loop over the points for FD
                         for( uint iPoint = 0; iPoint < tNumPoints; iPoint++ )
@@ -2341,6 +2567,21 @@ namespace moris
                 // coefficients for dof type wrt which derivative is computed
                 Matrix< DDRMat > tCoeff = tFI->get_coeff();
 
+                // reset properties, CM and SP for IWG
+                this->reset_eval_flags();
+
+                // reset and evaluate the residual
+                mSet->get_residual()( 0 ).fill( 0.0 );
+                this->compute_residual( aWStar );
+                Matrix< DDRMat > tMasterResidual =
+                        mSet->get_residual()( 0 )(
+                                { tMasterResDofAssemblyStart, tMasterResDofAssemblyStop },
+                                { 0, 0 } );
+                Matrix< DDRMat > tSlaveResidual =
+                        mSet->get_residual()( 0 )(
+                                { tSlaveResDofAssemblyStart, tSlaveResDofAssemblyStop },
+                                { 0, 0 } );
+
                 // init coeff counter
                 uint tCoeffCounter = 0;
 
@@ -2361,6 +2602,30 @@ namespace moris
 
                         // get mat pdv index
                         uint tPdvIndex = mSet->get_mat_pdv_assembly_map()( tDvDepIndex )( 0, 0 ) + tCoeffCounter;
+
+                        // if backward or forward add unperturbed contribution
+                        if( aFDSchemeType == fem::FDScheme_Type::POINT_1_BACKWARD )
+                        {
+                            mSet->get_drdpmat()(
+                                    { tMasterResDofAssemblyStart, tMasterResDofAssemblyStop },
+                                    { tPdvIndex,                  tPdvIndex } ) +=
+                                            tMasterResidual / ( tFDScheme( 2 )( 0 ) * tDeltaH );
+                            mSet->get_drdpmat()(
+                                    { tSlaveResDofAssemblyStart, tSlaveResDofAssemblyStop },
+                                    { tPdvIndex,                  tPdvIndex } ) +=
+                                            tSlaveResidual / ( tFDScheme( 2 )( 0 ) * tDeltaH );
+                        }
+                        if( aFDSchemeType == fem::FDScheme_Type::POINT_1_FORWARD )
+                        {
+                            mSet->get_drdpmat()(
+                                    { tMasterResDofAssemblyStart, tMasterResDofAssemblyStop },
+                                    { tPdvIndex,                  tPdvIndex } ) -=
+                                            tMasterResidual / ( tFDScheme( 2 )( 0 ) * tDeltaH );
+                            mSet->get_drdpmat()(
+                                    { tSlaveResDofAssemblyStart, tSlaveResDofAssemblyStop },
+                                    { tPdvIndex,                  tPdvIndex } ) -=
+                                            tSlaveResidual / ( tFDScheme( 2 )( 0 ) * tDeltaH );
+                        }
 
                         // loop over the points for FD
                         for( uint iPoint = 0; iPoint < tNumPoints; iPoint++ )
@@ -2406,6 +2671,10 @@ namespace moris
                 // reset the coefficients values
                 tFI->set_coeff( tCoeff );
             }
+
+            // check for nan, infinity
+            MORIS_ERROR( isfinite( mSet->get_drdpmat() ) ,
+                    "IWG::compute_dRdp_FD_material - dRdp contains NAN or INF, exiting!");
         }
 
         //------------------------------------------------------------------------------

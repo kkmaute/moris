@@ -202,6 +202,7 @@ namespace moris
         {
             if ( !mIsEmptySet )    //FIXME this flag is a hack. find better solution
             {
+				//std::cout<<"initializing fem set: "<<mMeshSet->get_set_name()<<std::endl;
                 mIsResidual = aIsResidual;
 
                 this->create_residual_dof_assembly_map();
