@@ -225,8 +225,6 @@ public:
     moris::Matrix<moris::IndexMat>
     get_vertex_indices_in_cluster() const
     {
-        MORIS_ERROR(!this->is_trivial(),"get_vertex_indices_in_cluster on trivial cluster is not allowed");
-
         // number of cells in cluster
          moris::uint tNumVertices = this->get_num_vertices_in_cluster();
 

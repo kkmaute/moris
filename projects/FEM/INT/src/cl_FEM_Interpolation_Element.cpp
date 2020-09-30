@@ -766,7 +766,7 @@ namespace moris
                         mFemCluster( aMeshIndex )->get_vertices_local_coordinates_wrt_interp_cell();
 
                 // get number of vertices on the treated mesh cluster
-                uint tNumNodes = tVertexIndices.size();
+                uint tNumNodes = tVertexLocalCoords.n_rows();
 
                 // loop over the vertices on the treated mesh cluster
                 for( uint iVertex = 0; iVertex < tNumNodes; iVertex++ )

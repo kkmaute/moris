@@ -55,12 +55,12 @@ namespace xtk
     Cell_Cluster::get_vertices_in_cluster( const mtk::Master_Slave aIsMaster ) const
     {
         if(!mTrivial)
-        {
+        {   
             return mVerticesInCluster;
         }
         else
         {
-            moris::Cell<moris::mtk::Vertex*> tVertices = mInterpolationCell->get_vertex_pointers();
+            moris::Cell<moris::mtk::Vertex*> tVertices = mInterpolationCell->get_base_cell()->get_vertex_pointers();
 
             moris::Cell<moris::mtk::Vertex const *> tConstVertices(tVertices.size());
 

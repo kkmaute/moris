@@ -249,6 +249,12 @@ namespace moris
                 }
             }
 
+            // clear old data
+            mBlockSetToColor.clear();
+            mSideSetToColor.clear();
+            mDoubleSideSetToColor.clear();
+            mAllSetToColor.clear();
+
             // size outer cell size of member data
             mBlockSetToColor.resize(mMaxColor + 1);
             mSideSetToColor.resize(mMaxColor + 1);

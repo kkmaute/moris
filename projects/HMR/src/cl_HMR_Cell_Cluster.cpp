@@ -121,7 +121,23 @@ Cell_Cluster_HMR::get_interpolation_cell( const mtk::Master_Slave aIsMaster ) co
 moris::Cell<moris::mtk::Vertex const *>
 Cell_Cluster_HMR::get_vertices_in_cluster(const mtk::Master_Slave aIsMaster ) const
 {
-    return mVerticesInCluster;
+    if (!mTrivial)
+    {
+        return mVerticesInCluster;
+    }
+    else
+    {
+        moris::Cell<moris::mtk::Vertex *> tVertices = mInterpolationCell->get_vertex_pointers();
+
+        moris::Cell<moris::mtk::Vertex const *> tConstVertices(tVertices.size());
+
+        for (moris::uint i = 0; i < tVertices.size(); i++)
+        {
+            tConstVertices(i) = tVertices(i);
+        }
+
+        return tConstVertices;
+    }
 }
 
 

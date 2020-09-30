@@ -17,6 +17,7 @@
 #include "cl_MTK_Block.hpp"
 #include "cl_MTK_Side_Set.hpp"
 #include "cl_MTK_Double_Side_Set.hpp"
+#include "cl_MTK_Cell_Info.hpp"
 namespace moris
 {
 namespace mtk
@@ -543,8 +544,7 @@ Integration_Mesh_STK::setup_side_set_clusters(Interpolation_Mesh & aInterpMesh,
         moris::Matrix<moris::IndexMat>   tSideOrdsInSet(0,0);
         this->get_sideset_cells_and_ords(aSideSetNames(i), tCellsInSet, tSideOrdsInSet);
 
-        // integration cell to side set index
-
+        std::cout<<"aSideSetNames(i) = "<<aSideSetNames(i)<<std::endl;            
         // figure out which integration cells are in the side cluster input. these are assumed
         // the only non-trivial ones, all others will be marked as trivial
         if(aSideClusterInput !=nullptr)
@@ -560,13 +560,24 @@ Integration_Mesh_STK::setup_side_set_clusters(Interpolation_Mesh & aInterpMesh,
                 moris_id tCellId = tCellsInSet(iIGCell)->get_id();
 
                 // interpolation cell index
-                moris_index tCellIndex = aInterpMesh.get_loc_entity_ind_from_entity_glb_id(tCellId,EntityRank::ELEMENT);
+                moris_index tCellIndex = this->get_loc_entity_ind_from_entity_glb_id(tCellId,EntityRank::ELEMENT);
 
                 // construct a trivial side cluster
-                moris::mtk::Cell* tInterpCell = &aInterpMesh.get_mtk_cell(tCellIndex);
+                moris::mtk::Cell_STK* tInterpCell = &mSTKMeshData->mMtkCells(tCellIndex);
 
+                // get the cell info of the interp cell
+                mtk::Cell_Info const * tCellInfo = tInterpCell->get_cell_info();
 
-                mSideSets(i).push_back(Side_Cluster_STK(tInterpCell,tCellsInSet(iIGCell), tCellsInSet(iIGCell)->get_vertices_on_side_ordinal(tSideOrdsInSet(iIGCell)), tSideOrdsInSet(iIGCell)));
+                // get local coordinates on the side
+                Matrix<DDRMat> tXi;
+                tCellInfo->get_loc_coord_on_side_ordinal(tSideOrdsInSet(iIGCell), tXi);
+
+                mSideSets(i).push_back(Side_Cluster_STK(true, 
+                                                        tInterpCell,
+                                                        {tCellsInSet(iIGCell)},
+                                                        {{tSideOrdsInSet(iIGCell)}}, 
+                                                        tCellsInSet(iIGCell)->get_vertices_on_side_ordinal(tSideOrdsInSet(iIGCell)),    
+                                                        tXi));
             }
 
         }
@@ -634,16 +645,30 @@ Integration_Mesh_STK::setup_side_set_clusters(Interpolation_Mesh & aInterpMesh,
         else
         {
                 // loop over cells in the side set and make sure they have all been included
-                for(moris::uint iIGCell = 0; iIGCell < tCellsInSet.size(); iIGCell++)
+                for (moris::uint iIGCell = 0; iIGCell < tCellsInSet.size(); iIGCell++)
                 {
-                        moris_id tCellId = tCellsInSet(iIGCell)->get_id();
+                    moris_id tCellId = tCellsInSet(iIGCell)->get_id();
 
-                        // interpolation cell index
-                        moris_index tCellIndex = aInterpMesh.get_loc_entity_ind_from_entity_glb_id(tCellId,EntityRank::ELEMENT);
+                    // interpolation cell index
+                    moris_index tCellIndex = this->get_loc_entity_ind_from_entity_glb_id(tCellId, EntityRank::ELEMENT);
 
-                        // construct a trivial side cluster
-                        moris::mtk::Cell* tInterpCell = &aInterpMesh.get_mtk_cell(tCellIndex);
-                        mSideSets(i).push_back(Side_Cluster_STK(tInterpCell,tCellsInSet(iIGCell), tCellsInSet(iIGCell)->get_vertices_on_side_ordinal(tSideOrdsInSet(iIGCell)), tSideOrdsInSet(iIGCell)));
+                    // construct a trivial side cluster
+                    moris::mtk::Cell_STK *tInterpCell = &mSTKMeshData->mMtkCells(tCellIndex);
+
+                    // get the cell info of the interp cell
+                    mtk::Cell_Info const *tCellInfo = tInterpCell->get_cell_info();
+
+                    // get local coordinates on the side
+                    Matrix<DDRMat> tXi;
+                    tCellInfo->get_loc_coord_on_side_ordinal(tSideOrdsInSet(iIGCell), tXi);
+
+
+                    mSideSets(i).push_back(Side_Cluster_STK(true,
+                                                            tInterpCell,
+                                                            {tCellsInSet(iIGCell)},
+                                                            {{tSideOrdsInSet(iIGCell)}},
+                                                            tCellsInSet(iIGCell)->get_vertices_on_side_ordinal(tSideOrdsInSet(iIGCell)),
+                                                            tXi));
                 }
         }
     }
