@@ -304,6 +304,8 @@ namespace moris
             }
         }
 
+        //--------------------------------------------------------------------------------------------------------------
+
         void Geometry_Engine::update_queued_intersection(
                 const moris_index & aNodeIndex,
                 const moris_index & aNodeId,
@@ -950,7 +952,8 @@ namespace moris
             // Set PDV types
             mPdvHostManager.set_integration_pdv_types(tPdvTypes);
             mPdvHostManager.set_requested_integration_pdv_types(tCoordinatePdvs);
-            
+			
+
             // Set PDV size
             mPdvHostManager.set_num_integration_nodes(aIntegrationMesh->get_num_nodes());
         }

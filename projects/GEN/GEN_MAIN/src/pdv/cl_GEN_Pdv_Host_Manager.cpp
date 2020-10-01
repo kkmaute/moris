@@ -58,7 +58,7 @@ namespace moris
             mOwnedPdvLocalToGlobalMap.resize(0, 0);
             mOwnedAndSharedPdvLocalToGlobalMap.resize(0, 0);
 			
-			mNumOwnedPdvs = 0;
+	            		mNumOwnedPdvs = 0;
             mNumOwnedAndSharedPdvs = 0;
         }
 
@@ -467,7 +467,7 @@ namespace moris
         void Pdv_Host_Manager::set_num_integration_nodes(uint aNumNodes)
         {
             // FIXME check that this is done
-            mIntersectionNodes.resize(aNumNodes);
+            mIntersectionNodes.resize(aNumNodes, nullptr);
         }
 
         //--------------------------------------------------------------------------------------------------------------
