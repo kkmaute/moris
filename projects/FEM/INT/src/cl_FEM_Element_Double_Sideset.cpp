@@ -366,7 +366,7 @@ namespace moris
                     {
                        // compute residual at integration point
                         mSet->get_requested_IWGs()( iIWG )->compute_residual( tWStar );
-					}
+                    }
 
                     // compute jacobian at integration point
                     mSet->get_requested_IWGs()( iIWG )->compute_jacobian( tWStar );
