@@ -346,7 +346,8 @@ TEST_CASE("2D XTK WITH HMR Multiple Order Enrichment","[XTK_HMR_ENR_2D_MO]")
         tParameters.set( "truncate_bsplines", 1 );
         tParameters.set( "refinement_buffer", 2 );
         tParameters.set( "staircase_buffer", 2 );
-        tParameters.set( "initial_refinement", 0 );
+        tParameters.set( "initial_refinement", "0" );
+        tParameters.set( "initial_refinement_pattern", "0" );
 
         tParameters.set( "use_multigrid", 0 );
         tParameters.set( "severity_level", 2 );
