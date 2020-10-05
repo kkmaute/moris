@@ -95,13 +95,11 @@ namespace moris
             // loop over the order
             for ( uint iOrder = 1; iOrder <= mOrder; iOrder++ )
             {
-                MORIS_ERROR( iOrder > 1, "Not implemented for order higher than one yet" );
+                // FIXME check to be removed
+                MORIS_ERROR( iOrder <= 1, "Not implemented for order higher than one yet" );
 
                 // set the order for the stabilization parameter
                 tSP->set_interpolation_order( iOrder );
-
-                // get stabilization parametre value
-                real tGhostPenalty = tSP->val()( 0 );
 
                 // get flattened normal matrix
                 Matrix< DDRMat > tNormalMatrix;
@@ -116,14 +114,14 @@ namespace moris
                 mSet->get_residual()( 0 )(
                         { tMasterResStartIndex, tMasterResStopIndex },
                         { 0, 0 } ) += aWStar * (
-                                tGhostPenalty *
+                                tSP->val()( 0 ) *
                                 trans( mMasterCM( tElastLinIsoIndex )->testStrain() ) *
                                 trans( tNormalMatrix ) * tGradJump );
 
                 mSet->get_residual()( 0 )(
                         { tSlaveResStartIndex,  tSlaveResStopIndex },
                         { 0, 0 } ) -= aWStar * (
-                                tGhostPenalty *
+                                tSP->val()( 0 ) *
                                 trans( mSlaveCM( tElastLinIsoIndex )->testStrain() ) *
                                 trans( tNormalMatrix ) * tGradJump );
             }
@@ -169,13 +167,11 @@ namespace moris
             // order 1
             for ( uint iOrder = 1; iOrder <= mOrder; iOrder++ )
             {
-                MORIS_ERROR( iOrder > 1, "Not implemented for order higher than one yet" );
+                // FIXME check to be removed
+                MORIS_ERROR( iOrder <= 1, "Not implemented for order higher than one yet" );
 
                 // set the order for the stabilization parameter
                 tSP->set_interpolation_order( iOrder );
-
-                // get stabilization parametre value
-                real tGhostPenalty = tSP->val()( 0 );
 
                 // get normal matrix
                 Matrix< DDRMat > tNormalMatrix;
@@ -199,14 +195,16 @@ namespace moris
                         mSet->get_jacobian()(
                                 { tMasterResStartIndex, tMasterResStopIndex },
                                 { tDepStartIndex,       tDepStopIndex } ) += aWStar * (
-                                        tGhostPenalty * trans( mMasterCM( tElastLinIsoIndex )->testStrain() ) *
-                                        trans( tNormalMatrix ) * mMasterCM( tElastLinIsoIndex )->dTractiondDOF( tDofType, mNormal ) );
+                                        tSP->val()( 0 ) *
+                                        trans( mMasterCM( tElastLinIsoIndex )->testStrain() ) * trans( tNormalMatrix ) *
+                                        mMasterCM( tElastLinIsoIndex )->dTractiondDOF( tDofType, mNormal ) );
 
                         mSet->get_jacobian()(
                                 { tSlaveResStartIndex, tSlaveResStopIndex },
                                 { tDepStartIndex,      tDepStopIndex } ) -= aWStar * (
-                                        tGhostPenalty * trans( mSlaveCM( tElastLinIsoIndex )->testStrain() ) *
-                                        trans( tNormalMatrix ) * mMasterCM( tElastLinIsoIndex )->dTractiondDOF( tDofType, mNormal ) );
+                                        tSP->val()( 0 ) *
+                                        trans( mSlaveCM( tElastLinIsoIndex )->testStrain() ) * trans( tNormalMatrix ) *
+                                        mMasterCM( tElastLinIsoIndex )->dTractiondDOF( tDofType, mNormal ) );
                     }
                 }
 
@@ -229,14 +227,16 @@ namespace moris
                         mSet->get_jacobian()(
                                 { tMasterResStartIndex, tMasterResStopIndex },
                                 { tDepStartIndex,       tDepStopIndex } ) -= aWStar * (
-                                        tGhostPenalty * trans( mMasterCM( tElastLinIsoIndex )->testStrain() ) *
-                                        trans( tNormalMatrix ) * mSlaveCM( tElastLinIsoIndex )->dTractiondDOF( tDofType, mNormal ) );
+                                        tSP->val()( 0 ) *
+                                        trans( mMasterCM( tElastLinIsoIndex )->testStrain() ) * trans( tNormalMatrix ) *
+                                        mSlaveCM( tElastLinIsoIndex )->dTractiondDOF( tDofType, mNormal ) );
 
                         mSet->get_jacobian()(
                                 { tSlaveResStartIndex, tSlaveResStopIndex },
                                 { tDepStartIndex,      tDepStopIndex } ) += aWStar * (
-                                        tGhostPenalty * trans( mSlaveCM( tElastLinIsoIndex )->testStrain() ) *
-                                        trans( tNormalMatrix ) * mSlaveCM( tElastLinIsoIndex )->dTractiondDOF( tDofType, mNormal ) );
+                                        tSP->val()( 0 ) *
+                                        trans( mSlaveCM( tElastLinIsoIndex )->testStrain() ) * trans( tNormalMatrix ) *
+                                        mSlaveCM( tElastLinIsoIndex )->dTractiondDOF( tDofType, mNormal ) );
                     }
                 }
             }
@@ -262,8 +262,8 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        void IWG_Isotropic_Struc_Linear_Virtual_Work_Ghost::get_normal_matrix
-        ( uint               aOrderGhost,
+        void IWG_Isotropic_Struc_Linear_Virtual_Work_Ghost::get_normal_matrix(
+                uint               aOrderGhost,
                 Matrix< DDRMat > & aNormalMatrix )
         {
             // get spatial dimensions
@@ -289,7 +289,6 @@ namespace moris
                         default:
                         {
                             MORIS_ERROR( false, "IWG_Isotropic_Struc_Linear_Virtual_Work_Ghost::get_normal_matrix - Spatial dimensions can only be 2, 3." );
-                            break;
                         }
                     }
                     break;
@@ -337,7 +336,6 @@ namespace moris
                         default:
                         {
                             MORIS_ERROR( false, "IWG_Isotropic_Struc_Linear_Virtual_Work_Ghost::get_normal_matrix - Spatial dimensions can only be 2, 3." );
-                            break;
                         }
                     }
                     break;
@@ -402,7 +400,6 @@ namespace moris
                         default:
                         {
                             MORIS_ERROR( false, "IWG_Isotropic_Struc_Linear_Virtual_Work_Ghost::get_normal_matrix - Spatial dimensions can only be 2, 3." );
-                            break;
                         }
                     }
                     break;
@@ -411,7 +408,6 @@ namespace moris
                 default:
                 {
                     MORIS_ERROR( false, "IWG_Isotropic_Struc_Linear_Virtual_Work_Ghost::get_normal_matrix - order not supported." );
-                    break;
                 }
             }
         }
