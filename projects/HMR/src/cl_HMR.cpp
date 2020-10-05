@@ -1113,76 +1113,53 @@ namespace moris
 
         // ----------------------------------------------------------------------------
 
-        void HMR::perform_initial_refinement( const uint aPattern )
+        void HMR::perform_initial_refinement()
         {
             // get minimum refinement from parameters object
-            uint tInitialRefinement = mParameters->get_initial_refinement();
+            Matrix< DDUMat > tInitialRefinement = mParameters->get_initial_refinement();
+            Matrix< DDUMat > tInitialRefinementPattern = mParameters->get_initial_refinement_patterns();
 
-            for( uint Ik=0; Ik<tInitialRefinement; ++Ik )
+            uint tNumInitialRefinementPatterns = tInitialRefinementPattern.numel();
+
+            uint tActivationPattern = mDatabase->get_activation_pattern();
+
+            for( uint Ii=0; Ii<tNumInitialRefinementPatterns; ++Ii )
             {
-                // get pointer to background mesh
-                Background_Mesh_Base * tBackMesh =  mDatabase->get_background_mesh();
+                uint tPattern = tInitialRefinementPattern( Ii );
 
-                // get number of active elements on mesh
-                uint tNumberOfElements = tBackMesh->get_number_of_active_elements_on_proc();
+                mDatabase->set_activation_pattern( tPattern );
 
-                // flag all elements
-                for( uint e=0; e<tNumberOfElements; ++e )
+                uint tNumRefinementsForPattern = tInitialRefinement( Ii );
+
+                for( uint Ik=0; Ik<tNumRefinementsForPattern; ++Ik )
                 {
-                    // get pointer to background element
-                    Background_Element_Base * tElement = tBackMesh->get_element( e );
+                    // get pointer to background mesh
+                    Background_Mesh_Base * tBackMesh =  mDatabase->get_background_mesh();
 
-                    //                    // set minumum level for this element
-                    //                    tElement->set_min_refimenent_level( tInitialRefinement );         //FIXME
+                    // get number of active elements on mesh
+                    uint tNumberOfElements = tBackMesh->get_number_of_active_elements_on_proc();
 
-                    // flag this element
-                    tElement->put_on_refinement_queue();
+                    // flag all elements
+                    for( uint e=0; e<tNumberOfElements; ++e )
+                    {
+                        // get pointer to background element
+                        Background_Element_Base * tElement = tBackMesh->get_element( e );
+
+                        //// set minumum level for this element
+                        //tElement->set_min_refimenent_level( tInitialRefinement );         //FIXME
+
+                        // flag this element
+                        tElement->put_on_refinement_queue();
+                    }
+
+                    // run the refiner
+                    this->perform_refinement_based_on_working_pattern( tPattern );
+
+                    mDatabase->update_bspline_meshes( tPattern );
+                    mDatabase->update_lagrange_meshes( tPattern );
                 }
-
-                // run the refiner
-                this->perform_refinement_based_on_working_pattern( aPattern );
-
-                mDatabase->update_bspline_meshes( aPattern );
-                mDatabase->update_lagrange_meshes( aPattern );
             }
-
-            //            if( mParameters->get_additional_lagrange_refinement()  == 0 )
-            //            {
-            //                // union pattern is needed, otherwise error is thrown
-            ////                this->get_database()->copy_pattern( mParameters->get_lagrange_output_pattern(),
-            ////                                                    mParameters->get_union_pattern() );
-            //
-            //                // update database
-            ////                mDatabase->update_bspline_meshes();
-            ////                mDatabase->update_lagrange_meshes();
-            //            }
-            //            else
-            //            {
-            //                MORIS_ERROR(false, "not implemented yet");
-            //                // select B-Spline flags on output for second flagging
-            //                this->get_database()->set_activation_pattern( mParameters->get_bspline_output_pattern() );
-            //
-            //                // add delta for Lagrange
-            //                tInitialRefinement += mParameters->get_additional_lagrange_refinement();
-            //
-            //                // get number of active elements on mesh
-            //                tNumberOfElements = tBackMesh->get_number_of_active_elements_on_proc();
-            //
-            //                // flag all elements
-            //                for( uint e=0; e<tNumberOfElements; ++e )
-            //                {
-            //                    // get pointer to background element
-            //                    Background_Element_Base * tElement = tBackMesh->get_element( e );
-            //
-            //                    // set minumum level for this element
-            //                    tElement->set_min_refimenent_level( tInitialRefinement );
-            //
-            //                    // flag this element
-            //                    tElement->put_on_refinement_queue();
-            //                }
-            //
-            //                this->perform_refinement( RefinementMode::LAGRANGE_INIT );
-            //            }
+            mDatabase->set_activation_pattern( tActivationPattern );
         }
 
         // ----------------------------------------------------------------------------

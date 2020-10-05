@@ -234,7 +234,8 @@ TEST_CASE("MDL Gyroid","[MDL_Gyroid]")
 
         tParameters.set_staircase_buffer( 1 );
 
-        tParameters.set_initial_refinement( 2 );
+        tParameters.set_initial_refinement( { {2} } );
+        tParameters.set_initial_refinement_patterns( { {0} } );
 
         tParameters.set_number_aura( true );
 
@@ -249,7 +250,7 @@ TEST_CASE("MDL Gyroid","[MDL_Gyroid]")
         // std::shared_ptr< Database >
 //        auto tDatabase = tHMR.get_database();
 
-        tHMR.perform_initial_refinement( 0 );
+        tHMR.perform_initial_refinement();
 
         std::shared_ptr< moris::hmr::Mesh > tMesh01 = tHMR.create_mesh( tLagrangeMeshIndex );   // HMR Lagrange mesh
         //==============================
