@@ -72,6 +72,9 @@ namespace moris
             this->check_field_interpolators( mtk::Master_Slave::SLAVE );
 #endif
 
+            // set interpolation order
+            IWG::set_interpolation_order();
+
             // get master index for residual dof type, indices for assembly
             uint tDofIndexMaster      = mSet->get_dof_index_for_type( mResidualDofType( 0 ), mtk::Master_Slave::MASTER );
             uint tMasterResStartIndex = mSet->get_res_dof_assembly_map()( tDofIndexMaster )( 0, 0 );
@@ -82,47 +85,23 @@ namespace moris
             uint tSlaveResStartIndex = mSet->get_res_dof_assembly_map()( tDofIndexSlave )( 0, 0 );
             uint tSlaveResStopIndex  = mSet->get_res_dof_assembly_map()( tDofIndexSlave )( 0, 1 );
 
-            // get master field interpolator for the residual dof type
-            Field_Interpolator * tMasterFI =
-                    mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );
-
-            //            // get slave field interpolator for the residual dof type
-            //            Field_Interpolator * tSlaveFI  = mSlaveFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );
-
-            // FIXME the order should be set differently
-            switch ( tMasterFI->get_space_interpolation_order() )
-            {
-                case mtk::Interpolation_Order::LINEAR :
-                {
-                    mOrder = 1;
-                    break;
-                }
-                case mtk::Interpolation_Order::QUADRATIC :
-                {
-                    mOrder = 2;
-                    break;
-                }
-                case mtk::Interpolation_Order::CUBIC :
-                {
-                    mOrder = 3;
-                    break;
-                }
-                default:
-                {
-                    MORIS_ERROR( false, "IWG_Isotropic_Struc_Linear_Virtual_Work_Ghost::compute_residual - order not supported");
-                    break;
-                }
-            }
-            MORIS_ERROR( mOrder <= 1, "IWG_Isotropic_Struc_Linear_Virtual_Work_Ghost:compute_residual - only first order supported. ");
-
             // get indices for SP, CM and properties
             uint tElastLinIsoIndex = static_cast< uint >( IWG_Constitutive_Type::ELAST_LIN_ISO );
+
+            // get the stabilization parameter
+            std::shared_ptr< Stabilization_Parameter > tSP =
+                    mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::GHOST_VW ) );
 
             // loop over the order
             for ( uint iOrder = 1; iOrder <= mOrder; iOrder++ )
             {
-                // penalty parameter
-                real tGhostPenalty = mStabilizationParam( iOrder - 1 )->val()( 0 );
+                MORIS_ERROR( iOrder > 1, "Not implemented for order higher than one yet" );
+
+                // set the order for the stabilization parameter
+                tSP->set_interpolation_order( iOrder );
+
+                // get stabilization parametre value
+                real tGhostPenalty = tSP->val()( 0 );
 
                 // get flattened normal matrix
                 Matrix< DDRMat > tNormalMatrix;
@@ -134,11 +113,19 @@ namespace moris
                         mSlaveCM( tElastLinIsoIndex )->traction( mNormal );
 
                 // compute the residual
-                mSet->get_residual()( 0 )( { tMasterResStartIndex, tMasterResStopIndex }, { 0, 0 } ) += aWStar * (
-                        tGhostPenalty * trans( mMasterCM( tElastLinIsoIndex )->testStrain() ) * trans( tNormalMatrix ) * tGradJump );
+                mSet->get_residual()( 0 )(
+                        { tMasterResStartIndex, tMasterResStopIndex },
+                        { 0, 0 } ) += aWStar * (
+                                tGhostPenalty *
+                                trans( mMasterCM( tElastLinIsoIndex )->testStrain() ) *
+                                trans( tNormalMatrix ) * tGradJump );
 
-                mSet->get_residual()( 0 )( { tSlaveResStartIndex,  tSlaveResStopIndex },  { 0, 0 } ) -= aWStar * (
-                        tGhostPenalty * trans( mSlaveCM( tElastLinIsoIndex )->testStrain() )  * trans( tNormalMatrix ) * tGradJump );
+                mSet->get_residual()( 0 )(
+                        { tSlaveResStartIndex,  tSlaveResStopIndex },
+                        { 0, 0 } ) -= aWStar * (
+                                tGhostPenalty *
+                                trans( mSlaveCM( tElastLinIsoIndex )->testStrain() ) *
+                                trans( tNormalMatrix ) * tGradJump );
             }
 
             // check for nan, infinity
@@ -156,6 +143,9 @@ namespace moris
             this->check_field_interpolators( mtk::Master_Slave::SLAVE );
 #endif
 
+            // set interpolation order
+            IWG::set_interpolation_order();
+
             // get master index for residual dof type, indices for assembly
             uint tDofIndexMaster      = mSet->get_dof_index_for_type( mResidualDofType( 0 ), mtk::Master_Slave::MASTER );
             uint tMasterResStartIndex = mSet->get_res_dof_assembly_map()( tDofIndexMaster )( 0, 0 );
@@ -166,55 +156,30 @@ namespace moris
             uint tSlaveResStartIndex = mSet->get_res_dof_assembly_map()( tDofIndexSlave )( 0, 0 );
             uint tSlaveResStopIndex  = mSet->get_res_dof_assembly_map()( tDofIndexSlave )( 0, 1 );
 
-            // get master field interpolator for the residual dof type
-            Field_Interpolator * tMasterFI =
-                    mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );
-
-            //            // get slave field interpolator for the residual dof type
-            //            Field_Interpolator * tSlaveFI  = mSlaveFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );
-
-            // FIXME the order should be set differently
-            switch ( tMasterFI->get_space_interpolation_order() )
-            {
-                case mtk::Interpolation_Order::LINEAR :
-                {
-                    mOrder = 1;
-                    break;
-                }
-                case mtk::Interpolation_Order::QUADRATIC :
-                {
-                    mOrder = 2;
-                    break;
-                }
-                case mtk::Interpolation_Order::CUBIC :
-                {
-                    mOrder = 3;
-                    break;
-                }
-                default:
-                {
-                    MORIS_ERROR( false, "IWG_Isotropic_Struc_Linear_Virtual_Work_Ghost::compute_residual - order not supported");
-                    break;
-                }
-            }
-
-            MORIS_ERROR( mOrder <= 1, "IWG_Isotropic_Struc_Linear_Virtual_Work_Ghost:compute_residual - only first order supported. ");
-
             // get number of master dof dependencies
             uint tMasterNumDofDependencies = mRequestedMasterGlobalDofTypes.size();
 
             // get indices for SP, CM and properties
             uint tElastLinIsoIndex = static_cast< uint >( IWG_Constitutive_Type::ELAST_LIN_ISO );
 
+            // get the stabilization parameter
+            std::shared_ptr< Stabilization_Parameter > tSP =
+                    mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::GHOST_VW ) );
+
             // order 1
             for ( uint iOrder = 1; iOrder <= mOrder; iOrder++ )
             {
+                MORIS_ERROR( iOrder > 1, "Not implemented for order higher than one yet" );
+
+                // set the order for the stabilization parameter
+                tSP->set_interpolation_order( iOrder );
+
+                // get stabilization parametre value
+                real tGhostPenalty = tSP->val()( 0 );
+
                 // get normal matrix
                 Matrix< DDRMat > tNormalMatrix;
                 this->get_normal_matrix( 2, tNormalMatrix );
-
-                // penalty parameter
-                real tGhostPenalty = mStabilizationParam( iOrder - 1 )->val()( 0 );
 
                 // compute the jacobian for indirect dof dependencies through master constitutive models
                 for( uint iDOF = 0; iDOF < tMasterNumDofDependencies; iDOF++ )

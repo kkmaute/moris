@@ -236,6 +236,9 @@ namespace moris
 
         void IWG::set_interpolation_order()
         {
+            // if order is already set
+            if( mOrder != MORIS_UINT_MAX ) return;
+
             // get residual dof type interpolation order
             mtk::Interpolation_Order tInterpOrder =
                     mSet->get_field_interpolator_manager()->
@@ -262,7 +265,7 @@ namespace moris
                 }
                 default:
                 {
-                    MORIS_ERROR( false, "IWG::set_interpolation_order - order not supported");
+                    MORIS_ERROR( false, "IWG::set_interpolation_order - order not supported" );
                 }
             }
         }

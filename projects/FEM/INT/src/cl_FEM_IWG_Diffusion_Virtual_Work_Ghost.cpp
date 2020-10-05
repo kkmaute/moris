@@ -71,6 +71,8 @@ namespace moris
             this->check_field_interpolators( mtk::Master_Slave::MASTER );
             this->check_field_interpolators( mtk::Master_Slave::SLAVE );
 #endif
+            // set interpolation order
+            IWG::set_interpolation_order();
 
             // get master index for residual dof type, indices for assembly
             uint tDofIndexMaster      = mSet->get_dof_index_for_type( mResidualDofType( 0 ), mtk::Master_Slave::MASTER );
@@ -83,37 +85,12 @@ namespace moris
             uint tSlaveResStopIndex  = mSet->get_res_dof_assembly_map()( tDofIndexSlave )( 0, 1 );
 
             // get master field interpolator for the residual dof type
-            Field_Interpolator * tMasterFI = mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );
+            Field_Interpolator * tMasterFI =
+                    mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );
 
             // get slave field interpolator for the residual dof type
-            Field_Interpolator * tSlaveFI  = mSlaveFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );
-
-            // FIXME the order should be set differently
-            mtk::Interpolation_Order tInterpOrder = mtk::Interpolation_Order::UNDEFINED;
-            tInterpOrder = tMasterFI->get_space_interpolation_order();
-            switch ( tInterpOrder )
-            {
-                case mtk::Interpolation_Order::LINEAR :
-                {
-                    mOrder = 1;
-                    break;
-                }
-                case mtk::Interpolation_Order::QUADRATIC :
-                {
-                    mOrder = 2;
-                    break;
-                }
-                case mtk::Interpolation_Order::CUBIC :
-                {
-                    mOrder = 3;
-                    break;
-                }
-                default:
-                {
-                    MORIS_ERROR( false, "IWG_Diffusion_Virtual_Work_Ghost::compute_residual - order not supported");
-                    break;
-                }
-            }
+            Field_Interpolator * tSlaveFI  =
+                    mSlaveFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );
 
             // get the diffusion constitutive model for master and slave
             std::shared_ptr< Constitutive_Model > tCMMasterDiff =
@@ -170,6 +147,9 @@ namespace moris
             this->check_field_interpolators( mtk::Master_Slave::SLAVE );
 #endif
 
+            // set interpolation order
+            IWG::set_interpolation_order();
+
             // get master index for residual dof type, indices for assembly
             uint tDofIndexMaster      = mSet->get_dof_index_for_type( mResidualDofType( 0 ), mtk::Master_Slave::MASTER );
             uint tMasterResStartIndex = mSet->get_res_dof_assembly_map()( tDofIndexMaster )( 0, 0 );
@@ -181,36 +161,12 @@ namespace moris
             uint tSlaveResStopIndex  = mSet->get_res_dof_assembly_map()( tDofIndexSlave )( 0, 1 );
 
             // get master field interpolator for the residual dof type
-            Field_Interpolator * tMasterFI = mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );
+            Field_Interpolator * tMasterFI =
+                    mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );
 
             // get slave field interpolator for the residual dof type
-            Field_Interpolator * tSlaveFI  = mSlaveFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );
-
-            // FIXME the order should be set differently
-            mtk::Interpolation_Order tInterpOrder = tMasterFI->get_space_interpolation_order();
-            switch ( tInterpOrder )
-            {
-                case mtk::Interpolation_Order::LINEAR :
-                {
-                    mOrder = 1;
-                    break;
-                }
-                case mtk::Interpolation_Order::QUADRATIC :
-                {
-                    mOrder = 2;
-                    break;
-                }
-                case mtk::Interpolation_Order::CUBIC :
-                {
-                    mOrder = 3;
-                    break;
-                }
-                default:
-                {
-                    MORIS_ERROR( false, "IWG_Diffusion_Virtual_Work_Ghost::compute_residual - order not supported");
-                    break;
-                }
-            }
+            Field_Interpolator * tSlaveFI  =
+                    mSlaveFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );
 
             // get the diffusion constitutive model for master and slave
             std::shared_ptr< Constitutive_Model > tCMMasterDiff =
@@ -255,15 +211,15 @@ namespace moris
                         // add contribution to jacobian
                         mSet->get_jacobian()(
                                 { tMasterResStartIndex, tMasterResStopIndex },
-                                { tDepStartIndex,       tDepStopIndex } )
-                                += aWStar * (   tSPGhost->val()( 0 )
+                                { tDepStartIndex,       tDepStopIndex } ) += aWStar * (
+                                        tSPGhost->val()( 0 )
                                         * trans( tMasterFI->dnNdxn( iOrder ) ) * trans( tNormalMatrix )
                                         * tNormalMatrix * tMasterConductivity * tMasterFI->dnNdxn( iOrder ) );
 
                         mSet->get_jacobian()(
                                 { tSlaveResStartIndex, tSlaveResStopIndex },
-                                { tDepStartIndex,      tDepStopIndex } )
-                                -= aWStar * (   tSPGhost->val()( 0 )
+                                { tDepStartIndex,      tDepStopIndex } ) -= aWStar * (
+                                        tSPGhost->val()( 0 )
                                         * trans( tSlaveFI->dnNdxn( iOrder ) ) * trans( tNormalMatrix )
                                         * tNormalMatrix * tMasterConductivity * tMasterFI->dnNdxn( iOrder ) );
                     }
@@ -274,15 +230,15 @@ namespace moris
                         // add contribution to jacobian
                         mSet->get_jacobian()(
                                 { tMasterResStartIndex, tMasterResStopIndex },
-                                { tDepStartIndex,       tDepStopIndex } )
-                                -= aWStar * (   tSPGhost->val()( 0 )
+                                { tDepStartIndex,       tDepStopIndex } ) -= aWStar * (
+                                        tSPGhost->val()( 0 )
                                         * trans( tMasterFI->dnNdxn( iOrder ) ) * trans( tNormalMatrix )
                                         * tNormalMatrix * tMasterFI->gradx( iOrder ) * tCMMasterDiff->dConstdDOF( tDofType ) );
 
                         mSet->get_jacobian()(
                                 { tSlaveResStartIndex, tSlaveResStopIndex },
-                                { tDepStartIndex,      tDepStopIndex } )
-                                += aWStar * (   tSPGhost->val()( 0 )
+                                { tDepStartIndex,      tDepStopIndex } ) += aWStar * (
+                                        tSPGhost->val()( 0 )
                                         * trans( tSlaveFI->dnNdxn( iOrder ) ) * trans( tNormalMatrix )
                                         * tNormalMatrix * tMasterFI->gradx( iOrder ) * tCMMasterDiff->dConstdDOF( tDofType ) );
                     }
@@ -306,15 +262,15 @@ namespace moris
                         // add contribution to jacobian
                         mSet->get_jacobian()(
                                 { tMasterResStartIndex, tMasterResStopIndex },
-                                { tDepStartIndex,       tDepStopIndex } )
-                                -= aWStar * (   tSPGhost->val()( 0 )
+                                { tDepStartIndex,       tDepStopIndex } ) -= aWStar * (
+                                        tSPGhost->val()( 0 )
                                         * trans( tMasterFI->dnNdxn( iOrder ) ) * trans( tNormalMatrix )
                                         * tNormalMatrix * tSlaveConductivity * tSlaveFI->dnNdxn( iOrder ) );
 
                         mSet->get_jacobian()(
                                 { tSlaveResStartIndex, tSlaveResStopIndex },
-                                { tDepStartIndex,      tDepStopIndex } )
-                                += aWStar * (   tSPGhost->val()( 0 )
+                                { tDepStartIndex,      tDepStopIndex } ) += aWStar * (
+                                        tSPGhost->val()( 0 )
                                         * trans( tSlaveFI->dnNdxn( iOrder ) ) * trans( tNormalMatrix )
                                         * tNormalMatrix * tSlaveConductivity * tSlaveFI->dnNdxn( iOrder ) );
                     }
@@ -325,15 +281,15 @@ namespace moris
                         // add contribution to jacobian
                         mSet->get_jacobian()(
                                 { tMasterResStartIndex, tMasterResStopIndex },
-                                { tDepStartIndex,       tDepStopIndex } )
-                                -= aWStar * (   tSPGhost->val()( 0 )
+                                { tDepStartIndex,       tDepStopIndex } ) -= aWStar * (
+                                        tSPGhost->val()( 0 )
                                         * trans( tMasterFI->dnNdxn( iOrder ) ) * trans( tNormalMatrix )
                                         * tNormalMatrix * tSlaveFI->gradx( iOrder ) * tCMSlaveDiff->dConstdDOF( tDofType ) );
 
                         mSet->get_jacobian()(
                                 { tSlaveResStartIndex, tSlaveResStopIndex },
-                                { tDepStartIndex,      tDepStopIndex } )
-                                += aWStar * (   tSPGhost->val()( 0 )
+                                { tDepStartIndex,      tDepStopIndex } ) += aWStar * (
+                                        tSPGhost->val()( 0 )
                                         * trans( tSlaveFI->dnNdxn( iOrder ) ) * trans( tNormalMatrix )
                                         * tNormalMatrix * tSlaveFI->gradx( iOrder ) * tCMSlaveDiff->dConstdDOF( tDofType ) );
                     }
@@ -389,7 +345,6 @@ namespace moris
                         default:
                         {
                             MORIS_ERROR( false, "IWG_Diffusion_Virtual_Work_Ghost::get_normal_matrix - Spatial dimensions can only be 2, 3." );
-                            break;
                         }
                     }
                     break;
@@ -437,7 +392,6 @@ namespace moris
                         default:
                         {
                             MORIS_ERROR( false, "IWG_Diffusion_Virtual_Work_Ghost::get_normal_matrix - Spatial dimensions can only be 2, 3." );
-                            break;
                         }
                     }
                     break;
@@ -502,7 +456,6 @@ namespace moris
                         default:
                         {
                             MORIS_ERROR( false, "IWG_Diffusion_Virtual_Work_Ghost::get_normal_matrix - Spatial dimensions can only be 2, 3." );
-                            break;
                         }
                     }
                     break;
@@ -511,7 +464,6 @@ namespace moris
                 default:
                 {
                     MORIS_ERROR( false, "IWG_Diffusion_Virtual_Work_Ghost::get_normal_matrix - order not supported." );
-                    break;
                 }
             }
             return tNormalMatrix;
