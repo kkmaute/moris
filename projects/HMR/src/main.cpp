@@ -63,21 +63,21 @@ void state_initialize_mesh( const Arguments & aArguments )
     // create new HMR object from parameter list
     HMR * tHMR = new HMR( tParams.get_parameter_list() );
 
-    // if there is no initial refinement, copy initial tensor mesh to output
-    if( tHMR->get_parameters()->get_initial_refinement()  == 0 && tHMR->get_parameters()->get_additional_lagrange_refinement() == 0 )
-    {
-        // test if max polynomial is 3
-        if ( tHMR->get_parameters()->get_max_polynomial() > 2 )
-        {
-            // activate extra pattern for exodus
-//            tHMR->get_database()->add_extra_refinement_step_for_exodus();
-        }
-    }
-    else
-    {
-        // otherwise, refine all elements n times
-        tHMR->perform_initial_refinement( 0 );
-    }
+//    // if there is no initial refinement, copy initial tensor mesh to output
+//    if( tHMR->get_parameters()->get_initial_refinement()  == 0 && tHMR->get_parameters()->get_additional_lagrange_refinement() == 0 )
+//    {
+//        // test if max polynomial is 3
+//        if ( tHMR->get_parameters()->get_max_polynomial() > 2 )
+//        {
+//            // activate extra pattern for exodus
+////            tHMR->get_database()->add_extra_refinement_step_for_exodus();
+//        }
+//    }
+//    else
+//    {
+//        // otherwise, refine all elements n times
+//        tHMR->perform_initial_refinement();
+//    }
 
     // finalize database
     tHMR->finalize();
