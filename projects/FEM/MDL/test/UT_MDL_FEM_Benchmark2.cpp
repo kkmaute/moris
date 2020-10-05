@@ -197,7 +197,8 @@ TEST_CASE("MDL_FEM_Benchmark_Diffusion_1Mat","[MDL_FEM_Benchmark_Diffusion_1Mat]
         tParameters.set( "truncate_bsplines", 1 );
         tParameters.set( "refinement_buffer", 3 );
         tParameters.set( "staircase_buffer", 3 );
-        tParameters.set( "initial_refinement", 1 );
+        tParameters.set( "initial_refinement", "1" );
+        tParameters.set( "initial_refinement_pattern", "0" );
 
         tParameters.set( "use_multigrid", 0 );
         tParameters.set( "severity_level", 2 );
@@ -206,7 +207,7 @@ TEST_CASE("MDL_FEM_Benchmark_Diffusion_1Mat","[MDL_FEM_Benchmark_Diffusion_1Mat]
         std::shared_ptr<hmr::HMR> tHMR = std::make_shared<hmr::HMR>( tParameters );
 
         // Initial refinement
-        tHMR->perform_initial_refinement( 0 );
+        tHMR->perform_initial_refinement();
 
         // Create geometry engine
         Cell<std::shared_ptr<moris::ge::Geometry>> tGeometry(2);
@@ -509,7 +510,8 @@ TEST_CASE("MDL_FEM_Benchmark_Diffusion_1Mat_Ghost","[MDL_FEM_Benchmark_Diffusion
         tParameters.set( "truncate_bsplines", 1 );
         tParameters.set( "refinement_buffer", 3 );
         tParameters.set( "staircase_buffer", 3 );
-        tParameters.set( "initial_refinement", 1 );
+        tParameters.set( "initial_refinement", "1" );
+        tParameters.set( "initial_refinement_pattern", "0" );
 
         tParameters.set( "use_multigrid", 0 );
         tParameters.set( "severity_level", 2 );
@@ -518,7 +520,7 @@ TEST_CASE("MDL_FEM_Benchmark_Diffusion_1Mat_Ghost","[MDL_FEM_Benchmark_Diffusion
         std::shared_ptr<hmr::HMR> tHMR = std::make_shared<hmr::HMR>( tParameters );
 
         // Initial refinement
-        tHMR->perform_initial_refinement( 0 );
+        tHMR->perform_initial_refinement();
 
         // Create geometry engine
         Cell<std::shared_ptr<moris::ge::Geometry>> tGeometry(2);
@@ -849,7 +851,8 @@ TEST_CASE("FEM Benchmark 2 - 2Mat","[MDL_FEM_Benchmark2_2Mat]")
         tParameters.set( "truncate_bsplines", 1 );
         tParameters.set( "refinement_buffer", 3 );
         tParameters.set( "staircase_buffer", 3 );
-        tParameters.set( "initial_refinement", 1 );
+        tParameters.set( "initial_refinement", "1" );
+        tParameters.set( "initial_refinement_pattern", "0" );
 
         tParameters.set( "use_multigrid", 0 );
         tParameters.set( "severity_level", 2 );
@@ -858,7 +861,7 @@ TEST_CASE("FEM Benchmark 2 - 2Mat","[MDL_FEM_Benchmark2_2Mat]")
         std::shared_ptr<hmr::HMR> tHMR = std::make_shared<hmr::HMR>( tParameters );
 
         // Initial refinement
-        tHMR->perform_initial_refinement( 0 );
+        tHMR->perform_initial_refinement();
 
         // Create geometry engine
         Cell<std::shared_ptr<moris::ge::Geometry>> tGeometry(3);
@@ -1203,7 +1206,8 @@ TEST_CASE("FEM Benchmark Diffusion Inclusion - 2Mat","[MDL_FEM_Benchmark_Diffusi
         tParameters.set( "truncate_bsplines", 1 );
         tParameters.set( "refinement_buffer", 3 );
         tParameters.set( "staircase_buffer", 3 );
-        tParameters.set( "initial_refinement", 1 );
+        tParameters.set( "initial_refinement", "1" );
+        tParameters.set( "initial_refinement_pattern", "0" );
 
         tParameters.set( "use_multigrid", 0 );
         tParameters.set( "severity_level", 2 );
@@ -1212,7 +1216,7 @@ TEST_CASE("FEM Benchmark Diffusion Inclusion - 2Mat","[MDL_FEM_Benchmark_Diffusi
         std::shared_ptr<hmr::HMR> tHMR = std::make_shared<hmr::HMR>( tParameters );
 
         // Initial refinement
-        tHMR->perform_initial_refinement( 0 );
+        tHMR->perform_initial_refinement();
 
         // Create geometry engine
         Cell<std::shared_ptr<moris::ge::Geometry>> tGeometry(3);
