@@ -20,6 +20,7 @@
 
 // SOL FIXME
 #include "cl_SOL_Matrix_Vector_Factory.hpp"
+#include "cl_SOL_Dist_Map.hpp"
 
 namespace moris
 {
@@ -120,7 +121,7 @@ namespace moris
         void Geometry_Engine::set_advs(Matrix<DDRMat> aNewADVs)
         {
             // Set new ADVs
-            mOwnedADVs->replace_global_values(mOwnedADVIds, aNewADVs);
+            mOwnedADVs->replace_global_values(mFullADVIds, aNewADVs);
             mOwnedADVs->vector_global_asembly();
 
             // Reset info related to the mesh
@@ -128,6 +129,7 @@ namespace moris
             mActiveGeometryIndex = 0;
             for (uint tGeometryIndex = 0; tGeometryIndex < mGeometries.size(); tGeometryIndex++)
             {
+                mGeometries(tGeometryIndex)->import_advs(mOwnedADVs);
                 mGeometries(tGeometryIndex)->reset_child_nodes();
             }
         }
@@ -136,14 +138,21 @@ namespace moris
 
         Matrix<DDRMat>& Geometry_Engine::get_advs()
         {
-//
-//            moris::sol::Dist_Map* tFullMap = tADVFactory.create_map(tOwned);
-//            moris::sol::Dist_Vector* tFullVector = tADVFactory.create_vector(tFullMap);
-//
-//            tOwnedVector->vector_global_asembly();
-//            tFullVector->import_local_to_global(*tOwnedVector);
+            // Create full ADVs
+            Matrix_Vector_Factory tDistributedFactory;
+            moris::sol::Dist_Map* tFullMap = tDistributedFactory.create_map(mFullADVIds);
+            moris::sol::Dist_Vector* tFullVector = tDistributedFactory.create_vector(tFullMap);
 
-            mOwnedADVs->extract_copy(mADVs);
+            // Import ADVs
+            tFullVector->import_local_to_global(*mOwnedADVs);
+
+            // Extract copy
+            tFullVector->extract_copy(mADVs);
+
+            // Delete full ADVs/map
+            //delete tFullMap;
+            delete tFullVector;
+
             return mADVs;
         }
 
@@ -618,9 +627,13 @@ namespace moris
             // Set number of background nodes
             mPdvHostManager.set_num_background_nodes(aMesh->get_num_nodes());
 
-            // Build distributed vector
+            // Build distributed ADVs
             if (mOwnedADVs == nullptr)
             {
+                //------------------------------------//
+                // Determine owned and shared ADV IDs //
+                //------------------------------------//
+
                 // Loop over all geometries to get number of new ADVs
                 uint tNumNewOwnedADVs = 0;
                 for (uint tGeometryIndex = 0; tGeometryIndex < mGeometries.size(); tGeometryIndex++)
@@ -628,9 +641,12 @@ namespace moris
                     // Determine if level set will be created
                     if (mGeometries(tGeometryIndex)->conversion_to_bsplines())
                     {
-                        // Loop over B-spline coefficients
+                        // Get number of coefficients
                         sint tBSplineMeshIndex = mGeometries(tGeometryIndex)->get_bspline_mesh_index();
-                        for (uint tBSplineIndex = 0; tBSplineIndex < aMesh->get_num_coeffs(tBSplineMeshIndex); tBSplineIndex++)
+                        uint tNumCoefficients = aMesh->get_num_coeffs(tBSplineMeshIndex);
+
+                        // Loop over B-spline coefficients
+                        for (uint tBSplineIndex = 0; tBSplineIndex < tNumCoefficients; tBSplineIndex++)
                         {
                             // If this processor owns this coefficient
                             if (par_rank() == aMesh->get_entity_owner(tBSplineIndex, EntityRank::BSPLINE, tBSplineMeshIndex))
@@ -657,9 +673,12 @@ namespace moris
                 Matrix<DDSMat> tPrimitiveIds = mOwnedADVIds;
                 mOwnedADVIds.resize(tNumOwnedADVs, 1);
 
+                // Cell of shared ADV IDs
+                Cell<Matrix<DDSMat>> tSharedADVIds(mGeometries.size());
+
                 // Loop over all geometry parameter lists to set B-spline ADV bounds and IDs
-                uint tADVIndex = mADVs.length();
-                uint tIdOffset = tADVIndex; // FIXME this needs to be updated for multiple level set fields
+                uint tOwnedADVIndex = mADVs.length();
+                uint tIdOffset = tOwnedADVIndex; // FIXME this needs to be updated for multiple level set fields
                 for (uint tGeometryIndex = 0; tGeometryIndex < mGeometries.size(); tGeometryIndex++)
                 {
                     // Determine if level set will be created
@@ -669,29 +688,43 @@ namespace moris
                         real tBSplineLowerBound = mGeometries(tGeometryIndex)->get_bspline_lower_bound();
                         real tBSplineUpperBound = mGeometries(tGeometryIndex)->get_bspline_upper_bound();
 
-                        // Loop over B-spline coefficients
+                        // Get number of coefficients
                         sint tBSplineMeshIndex = mGeometries(tGeometryIndex)->get_bspline_mesh_index();
-                        for (uint tBSplineIndex = 0; tBSplineIndex < aMesh->get_num_coeffs(tBSplineMeshIndex); tBSplineIndex++)
+                        uint tNumCoefficients = aMesh->get_num_coeffs(tBSplineMeshIndex);
+
+                        // Resize shared ADV IDs
+                        tSharedADVIds(tGeometryIndex).resize(tNumCoefficients, 1);
+
+                        // Loop over B-spline coefficients
+                        for (uint tBSplineIndex = 0; tBSplineIndex < tNumCoefficients; tBSplineIndex++)
                         {
-                            // If this processor owns this coefficient
+                            // Get new ADV ID and set as shared ID
+                            sint tNewADVId = tIdOffset + aMesh->get_glb_entity_id_from_entity_loc_index(
+                                    tBSplineIndex,
+                                    EntityRank::BSPLINE,
+                                    tBSplineMeshIndex);
+                            tSharedADVIds(tGeometryIndex)(tBSplineIndex) = tNewADVId;
+
+                            // If this processor owns this coefficient set to owned list and set bounds
                             if (par_rank() == aMesh->get_entity_owner(tBSplineIndex, EntityRank::BSPLINE, tBSplineMeshIndex))
                             {
                                 // Bounds
-                                mLowerBounds(tADVIndex) = tBSplineLowerBound;
-                                mUpperBounds(tADVIndex) = tBSplineUpperBound;
+                                mLowerBounds(tOwnedADVIndex) = tBSplineLowerBound;
+                                mUpperBounds(tOwnedADVIndex) = tBSplineUpperBound;
 
                                 // New ADV ID
-                                mOwnedADVIds(tADVIndex++) = tIdOffset +
-                                        aMesh->get_glb_entity_id_from_entity_loc_index(tBSplineIndex, EntityRank::BSPLINE, tBSplineMeshIndex);
+                                mOwnedADVIds(tOwnedADVIndex++) = tNewADVId;
                             }
                         }
                     }
                 }
 
+                //----------------------------------------//
+                // Create owned ADV vector                //
+                //----------------------------------------//
+
                 // Create factor for distributed ADV vector
                 Matrix_Vector_Factory tDistributedFactory;
-
-                // Communicate level set ADV IDs
 
                 // Create map for distributed vector
                 sol::Dist_Map* tOwnedADVMap = tDistributedFactory.create_map(mOwnedADVIds);
@@ -715,6 +748,13 @@ namespace moris
                     mGeometryParameterLists.resize(0);
                 }
 
+                // Delete map
+                //delete tOwnedADVMap;
+
+                //----------------------------------------//
+                // Convert geometries to level sets       //
+                //----------------------------------------//
+
                 // Determine if conversion to level sets are needed and if shape sensitivities are needed
                 for (uint tGeometryIndex = 0; tGeometryIndex < mGeometries.size(); tGeometryIndex++)
                 {
@@ -731,10 +771,48 @@ namespace moris
                         mGeometries(tGeometryIndex) = std::make_shared<Level_Set>(
                                 mOwnedADVs,
                                 mOwnedADVIds,
+                                tSharedADVIds(tGeometryIndex),
                                 tPrimitiveIds.length(),
-                                tNumOwnedADVs,
                                 aMesh,
                                 mGeometries(tGeometryIndex));
+                    }
+                }
+
+                //----------------------------------------//
+                // Communicate all ADV IDs to processor 0 //
+                //----------------------------------------//
+
+                // Set up communication list for communicating ADV IDs
+                Matrix<IdMat> tCommunicationList(1, 1, 0);
+                Cell<Matrix<DDSMat>> tReceivedIDs(0);
+                if (par_rank() == 0)
+                {
+                    tCommunicationList.resize(par_size() - 1, 1);
+                    for (uint tProcessorIndex = 1; tProcessorIndex < (uint)par_size(); tProcessorIndex++)
+                    {
+                        tCommunicationList(tProcessorIndex - 1) = tProcessorIndex;
+                    }
+                }
+
+                // Communicate owned ADV IDs;
+                communicate_mats(tCommunicationList, {mOwnedADVIds}, tReceivedIDs);
+
+                // Assemble full ADV IDs
+                if (par_rank() == 0)
+                {
+                    mFullADVIds = mOwnedADVIds;
+                    for (uint tProcessorIndex = 1; tProcessorIndex < (uint)par_size(); tProcessorIndex++)
+                    {
+                        // Get number of received ADV IDs and resize
+                        uint mFullADVIdsFilled = mFullADVIds.length();
+                        uint tNumReceivedADVs = tReceivedIDs(tProcessorIndex).length();
+                        mFullADVIds.resize(mFullADVIdsFilled + tNumReceivedADVs, 1);
+
+                        // Assign received ADV IDs
+                        for (uint tADVIndex = 0; tADVIndex < tNumReceivedADVs; tADVIndex++)
+                        {
+                            mFullADVIds(mFullADVIdsFilled + tADVIndex) = tReceivedIDs(tProcessorIndex)(tADVIndex);
+                        }
                     }
                 }
             }

@@ -15,6 +15,7 @@ namespace moris
             Cell<real*> mFieldVariables;
 
         private:
+            sol::Dist_Vector* mSharedADVs = nullptr;
             Matrix<DDRMat> mConstantParameters;
             Matrix<DDSMat> mADVDependencies;
             bool mDependsOnADVs;
@@ -76,40 +77,13 @@ namespace moris
             /**
              * Constructor for setting all field variables as consecutive ADVs.
              *
-             * @param aADVs Reference to the full ADVs
-             * @param aStartingADVIndex Index of the ADVs where this field will start using field variables
-             * @param aNumFieldVariables The number of field variables
-             * @param aNumRefinements The number of refinement steps to use for this field
+             * @param aSharedADVIds Shared ADV IDs needed for this field
              * @param aRefinementFunctionIndex The index of a user-defined refinement function (-1 = default refinement)
              * @param aBSplineMeshIndex The index of a B-spline mesh for B-spline discretization (-1 = no B-splines)
              * @param aBSplineLowerBound The lower bound for the B-spline coefficients describing this field
              * @param aBSplineUpperBound The upper bound for the B-spline coefficients describing this field
              */
-            Field(Matrix<DDRMat>& aADVs,
-                  uint            aStartingADVIndex,
-                  uint            aNumFieldVariables,
-                  sint            aNumRefinements,
-                  sint            aRefinementFunctionIndex,
-                  sint            aBSplineMeshIndex,
-                  real            aBSplineLowerBound,
-                  real            aBSplineUpperBound);
-
-            /**
-             * Constructor for setting all field variables as consecutive ADVs.
-             *
-             * @param aOwnedADVs Pointer to the owned distributed ADVs
-             * @param aStartingADVIndex Index of the ADVs where this field will start using field variables
-             * @param aNumFieldVariables The number of field variables
-             * @param aNumRefinements The number of refinement steps to use for this field
-             * @param aRefinementFunctionIndex The index of a user-defined refinement function (-1 = default refinement)
-             * @param aBSplineMeshIndex The index of a B-spline mesh for B-spline discretization (-1 = no B-splines)
-             * @param aBSplineLowerBound The lower bound for the B-spline coefficients describing this field
-             * @param aBSplineUpperBound The upper bound for the B-spline coefficients describing this field
-             */
-            Field(sol::Dist_Vector*     aOwnedADVs,
-                  const Matrix<DDSMat>& aOwnedADVIds,
-                  uint                  aOwnedADVIdsOffset,
-                  uint                  aNumFieldVariables,
+            Field(const Matrix<DDSMat>& aSharedADVIds,
                   sint                  aNumRefinements,
                   sint                  aRefinementFunctionIndex,
                   sint                  aBSplineMeshIndex,
@@ -169,6 +143,13 @@ namespace moris
                     uint                  aIndex,
                     const Matrix<DDRMat>& aCoordinates,
                     Matrix<DDRMat>&       aSensitivities);
+
+            /**
+             * Imports the local ADVs required from the full owned ADV distributed vector.
+             *
+             * @param aOwnedADVs Full owned distributed ADV vector
+             */
+            void import_advs(sol::Dist_Vector* aOwnedADVs);
 
             /**
              * Add a new child node for evaluation, implemented for discrete fields

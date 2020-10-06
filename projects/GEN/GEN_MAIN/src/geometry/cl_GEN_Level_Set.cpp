@@ -42,44 +42,13 @@ namespace moris
         //--------------------------------------------------------------------------------------------------------------
 
         Level_Set::Level_Set(
-                Matrix<DDRMat>&           aADVs,
-                uint                      aADVIndex,
-                mtk::Interpolation_Mesh*  aMesh,
-                std::shared_ptr<Geometry> aGeometry)
-                : Field(aADVs,
-                        aADVIndex,
-                        aMesh->get_num_coeffs(aGeometry->get_bspline_mesh_index()),
-                        aGeometry->get_num_refinements(),
-                        aGeometry->get_refinement_function_index(),
-                        aGeometry->get_bspline_mesh_index(),
-                        aGeometry->get_bspline_lower_bound(),
-                        aGeometry->get_bspline_upper_bound()),
-                  Field_Discrete(aMesh->get_num_nodes()),
-                  mMesh(aMesh)
-        {
-            // Map to B-splines
-            Matrix<DDRMat> tTargetField = this->map_to_bsplines(aGeometry);
-
-            // Assign ADVs
-            for (uint tBSplineIndex = 0; tBSplineIndex < mMesh->get_num_coeffs(this->get_bspline_mesh_index()); tBSplineIndex++)
-            {
-                aADVs(aADVIndex++) = tTargetField(tBSplineIndex);
-            }
-        }
-
-        //--------------------------------------------------------------------------------------------------------------
-
-        Level_Set::Level_Set(
                 sol::Dist_Vector*         aOwnedADVs,
                 const Matrix<DDSMat>&     aOwnedADVIds,
+                const Matrix<DDSMat>&     aSharedADVIds,
                 uint                      aOwnedADVIdsOffset,
-                uint                      aNumFieldVariables,
                 mtk::Interpolation_Mesh*  aMesh,
                 std::shared_ptr<Geometry> aGeometry)
-                : Field(aOwnedADVs,
-                        aOwnedADVIds,
-                        aOwnedADVIdsOffset,
-                        aNumFieldVariables,
+                : Field(aSharedADVIds,
                         aGeometry->get_num_refinements(),
                         aGeometry->get_refinement_function_index(),
                         aGeometry->get_bspline_mesh_index(),
@@ -92,15 +61,17 @@ namespace moris
             Matrix<DDRMat> tTargetField = this->map_to_bsplines(aGeometry);
 
             // Assign ADVs
-            uint tIdIndex = 0;
             for (uint tBSplineIndex = 0; tBSplineIndex < mMesh->get_num_coeffs(this->get_bspline_mesh_index()); tBSplineIndex++)
             {
                 if (par_rank() == aMesh->get_entity_owner(tBSplineIndex, EntityRank::BSPLINE, this->get_bspline_mesh_index()))
                 {
                     // Assign distributed vector element based on B-spline ID and offset
-                    (*aOwnedADVs)(aOwnedADVIds(tIdIndex++)) = tTargetField(tBSplineIndex);
+                    (*aOwnedADVs)(aOwnedADVIds(aOwnedADVIdsOffset++)) = tTargetField(tBSplineIndex);
                 }
             }
+
+            // Import ADVs
+            this->import_advs(aOwnedADVs);
         }
 
         //--------------------------------------------------------------------------------------------------------------

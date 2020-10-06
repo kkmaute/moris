@@ -9,7 +9,7 @@ namespace moris
 
         Multigeometry::Multigeometry(Cell<std::shared_ptr<Geometry>> aGeometries,
                                      std::string aID)
-                : Field({{}},
+                : Field(Matrix<DDRMat>(0, 0),
                         aGeometries(0)->get_num_refinements(),
                         aGeometries(0)->get_refinement_function_index(),
                         aGeometries(0)->get_bspline_mesh_index(),
