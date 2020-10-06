@@ -89,6 +89,35 @@ namespace moris
             tIGGI->set_time_param_coeff(  tIGParamTimeCoords );
         }
 
+        //----------------------------------------------------------------------
+
+        void Element_Bulk::init_ig_geometry_interpolator()
+        {
+            // get geometry interpolator for IG element
+            Geometry_Interpolator * tIGGI =
+                    mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator();
+
+            // get master physical space and time coordinates for IG element
+            Matrix< DDRMat > tIGPhysSpaceCoords =
+                    mMasterCell->get_vertex_coords();
+            Matrix< DDRMat > tIGPhysTimeCoords =
+                    mCluster->mInterpolationElement->get_time();
+
+            // get master parametric space and time coordinates for IG element
+            Matrix< DDRMat > tIGParamSpaceCoords =
+                    mCluster->get_primary_cell_local_coords_on_side_wrt_interp_cell( mCellIndexInCluster );
+            // FIXME not true if time is not linear
+            Matrix< DDRMat > tIGParamTimeCoords = { { -1.0 }, { 1.0 } };
+
+            // set physical space and time coefficients for IG element GI
+            tIGGI->set_space_coeff( tIGPhysSpaceCoords );
+            tIGGI->set_time_coeff(  tIGPhysTimeCoords );
+
+            // set parametric space and time coefficients for IG element GI
+            tIGGI->set_space_param_coeff( tIGParamSpaceCoords );
+            tIGGI->set_time_param_coeff(  tIGParamTimeCoords );
+        }
+
         //------------------------------------------------------------------------------
 
         void Element_Bulk::compute_residual()
@@ -533,8 +562,7 @@ namespace moris
                 const std::string & aQIName )
         {
             // set physical and parametric space and time coefficients for IG element
-            moris::Cell< Matrix< DDSMat > > tIsActiveDv;
-            this->init_ig_geometry_interpolator( tIsActiveDv );
+            this->init_ig_geometry_interpolator();
 
             // get the set local index
             moris_index tIQISetLocalIndex =
@@ -576,8 +604,7 @@ namespace moris
                 const std::string & aQIName )
         {
             // set physical and parametric space and time coefficients for IG element
-            moris::Cell< Matrix< DDSMat > > tIsActiveDv;
-            this->init_ig_geometry_interpolator( tIsActiveDv );
+            this->init_ig_geometry_interpolator();
 
             // get the vertices
             moris::Cell< mtk::Vertex * > tVertices = mMasterCell->get_vertex_pointers();
@@ -627,8 +654,7 @@ namespace moris
                 const std::string & aQIName )
         {
             // set physical and parametric space and time coefficients for IG element
-            moris::Cell< Matrix< DDSMat > > tIsActiveDv;
-            this->init_ig_geometry_interpolator( tIsActiveDv );
+            this->init_ig_geometry_interpolator();
 
             // get the set local index
             moris_index tIQISetLocalIndex =
