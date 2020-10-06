@@ -1158,11 +1158,13 @@ namespace moris
                     mDatabase->update_bspline_meshes( tPattern );
                     mDatabase->update_lagrange_meshes( tPattern );
                 }
-
-                // call update in case there is no refinement for this pattern. FIXME find a better way to handle this situation
-                mDatabase->update_bspline_meshes( tPattern );
-                mDatabase->update_lagrange_meshes( tPattern );
             }
+
+            // call update in case there is no refinement for this pattern.
+            // all meshes have to be updated in such that all meshes are updated with the maximal refined background mesh
+            mDatabase->update_bspline_meshes();
+            mDatabase->update_lagrange_meshes();
+
             mDatabase->set_activation_pattern( tActivationPattern );
         }
 
