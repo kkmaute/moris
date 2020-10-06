@@ -1158,6 +1158,10 @@ namespace moris
                     mDatabase->update_bspline_meshes( tPattern );
                     mDatabase->update_lagrange_meshes( tPattern );
                 }
+
+                // call update in case there is no refinement for this pattern. FIXME find a better way to handle this situation
+                mDatabase->update_bspline_meshes( tPattern );
+                mDatabase->update_lagrange_meshes( tPattern );
             }
             mDatabase->set_activation_pattern( tActivationPattern );
         }
