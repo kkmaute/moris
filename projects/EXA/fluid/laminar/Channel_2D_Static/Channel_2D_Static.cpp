@@ -140,7 +140,8 @@ extern "C"
             tParameterlist( 0 )( 0 ).set( "truncate_bsplines",  1 );
             tParameterlist( 0 )( 0 ).set( "refinement_buffer",  3 );
             tParameterlist( 0 )( 0 ).set( "staircase_buffer",   3 );
-            tParameterlist( 0 )( 0 ).set( "initial_refinement", 0 );
+            tParameterlist( 0 )( 0 ).set( "initial_refinement", "0" );
+            tParameterlist( 0 )( 0 ).set( "initial_refinement_pattern", "0" );
 
             tParameterlist( 0 )( 0 ).set( "use_number_aura", 1 );
 

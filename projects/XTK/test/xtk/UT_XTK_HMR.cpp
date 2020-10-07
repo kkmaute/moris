@@ -124,7 +124,8 @@ TEST_CASE("XTK HMR Test","[XTK_HMR]")
 
             tParameters.set_staircase_buffer( 1 );
 
-            tParameters.set_initial_refinement( 0 );
+            tParameters.set_initial_refinement( { {0} } );
+            tParameters.set_initial_refinement_patterns( { {0} } );
 
             tParameters.set_number_aura( true );
 

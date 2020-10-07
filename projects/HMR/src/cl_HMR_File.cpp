@@ -87,7 +87,7 @@ namespace moris
                                       mStatus );
 
             // save initial refinement
-            save_scalar_to_hdf5_file( mFileID,
+            save_matrix_to_hdf5_file( mFileID,
                                       "InitialBSplineRefinement",
                                       aParameters->get_initial_refinement(),
                                       mStatus );
@@ -225,12 +225,12 @@ namespace moris
             aParameters->set_multigrid( tValBool );
 
             // load initial refinement
-            load_scalar_from_hdf5_file( mFileID,
+            load_matrix_from_hdf5_file( mFileID,
                                         "InitialBSplineRefinement",
-                                        tValUint,
+                                        tMatUint,
                                         mStatus );
 
-            aParameters->set_initial_refinement( tValUint );
+            aParameters->set_initial_refinement( tMatUint );
 
             // load initial refinement
             load_scalar_from_hdf5_file( mFileID,

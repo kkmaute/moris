@@ -236,6 +236,9 @@ namespace moris
 
         void IWG::set_interpolation_order()
         {
+            // if order is already set
+            if( mOrder != MORIS_UINT_MAX ) return;
+
             // get residual dof type interpolation order
             mtk::Interpolation_Order tInterpOrder =
                     mSet->get_field_interpolator_manager()->
@@ -262,7 +265,7 @@ namespace moris
                 }
                 default:
                 {
-                    MORIS_ERROR( false, "IWG::set_interpolation_order - order not supported");
+                    MORIS_ERROR( false, "IWG::set_interpolation_order - order not supported" );
                 }
             }
         }
@@ -1331,9 +1334,6 @@ namespace moris
             // get master number of dof types
             uint tMasterNumDofTypes = mRequestedMasterGlobalDofTypes.size();
 
-            // reset properties, CM and SP for IWG
-            this->reset_eval_flags();
-
             // reset and evaluate the residual plus
             mSet->get_residual()( 0 ).fill( 0.0 );
             this->compute_residual( aWStar );
@@ -1376,34 +1376,36 @@ namespace moris
                         real tDeltaH = aPerturbation * tCoeff( iCoeffRow, iCoeffCol );
 
                         // check that perturbation is not zero
-                        if( ( tDeltaH < 1e-12 ) && ( tDeltaH > - 1e-12 ) )
+                        if( std::abs( tDeltaH ) < 1e-12 )
                         {
                             tDeltaH = aPerturbation;
                         }
 
+                        // set starting point for FD
+                        uint tStartPoint = 0;
+
                         // if backward or forward add unperturbed contribution
-                        if( aFDSchemeType == fem::FDScheme_Type::POINT_1_BACKWARD )
+                        if( ( aFDSchemeType == fem::FDScheme_Type::POINT_1_BACKWARD ) ||
+                                ( aFDSchemeType == fem::FDScheme_Type::POINT_1_FORWARD ) )
                         {
+                            // add unperturbed residual contribution to dRdp
                             mSet->get_jacobian()(
                                     { tMasterResStartIndex, tMasterResStopIndex },
                                     { tMasterDepStartIndex + tDofCounter, tMasterDepStartIndex + tDofCounter } ) +=
-                                            tResidual / ( tFDScheme( 2 )( 0 ) * tDeltaH );
-                        }
-                        if( aFDSchemeType == fem::FDScheme_Type::POINT_1_FORWARD )
-                        {
-                            mSet->get_jacobian()(
-                                    { tMasterResStartIndex, tMasterResStopIndex },
-                                    { tMasterDepStartIndex + tDofCounter, tMasterDepStartIndex + tDofCounter } ) -=
-                                            tResidual / ( tFDScheme( 2 )( 0 ) * tDeltaH );
+                                            tFDScheme( 1 )( 0 ) * tResidual /
+                                            ( tFDScheme( 2 )( 0 ) * tDeltaH );
+
+                            // skip first point in FD
+                            tStartPoint = 1;
                         }
 
                         // loop over the points for FD
-                        for( uint iPoint = 0; iPoint < tNumPoints; iPoint++ )
+                        for( uint iPoint = tStartPoint; iPoint < tNumPoints; iPoint++ )
                         {
-                            // reset the perturbed coefficents
+                            // reset the perturbed coefficients
                             Matrix< DDRMat > tCoeffPert = tCoeff;
 
-                            // pertub the coefficent
+                            // perturb the coefficient
                             tCoeffPert( iCoeffRow, iCoeffCol ) += tFDScheme( 0 )( iPoint ) * tDeltaH;
 
                             // set the perturbed coefficients to FI
@@ -1458,9 +1460,6 @@ namespace moris
             uint tSlaveResStartIndex = mSet->get_res_dof_assembly_map()( tSlaveDofIndex )( 0, 0 );
             uint tSlaveResStopIndex  = mSet->get_res_dof_assembly_map()( tSlaveDofIndex )( 0, 1 );
 
-            // reset properties, CM and SP for IWG
-            this->reset_eval_flags();
-
             // reset and evaluate the residual plus
             mSet->get_residual()( 0 ).fill( 0.0 );
             this->compute_residual( aWStar );
@@ -1510,37 +1509,38 @@ namespace moris
                         real tDeltaH = aPerturbation * tCoeff( iCoeffRow, iCoeffCol );
 
                         // check that perturbation is not zero
-                        if( ( tDeltaH < 1e-12 ) && ( tDeltaH > - 1e-12 ) )
+                        if( std::abs( tDeltaH ) < 1e-12 )
                         {
                             tDeltaH = aPerturbation;
                         }
 
+                        // set starting point for FD
+                        uint tStartPoint = 0;
+
                         // if backward or forward add unperturbed contribution
-                        if( aFDSchemeType == fem::FDScheme_Type::POINT_1_BACKWARD )
+                        if( ( aFDSchemeType == fem::FDScheme_Type::POINT_1_BACKWARD ) ||
+                                ( aFDSchemeType == fem::FDScheme_Type::POINT_1_FORWARD ) )
                         {
+                            // add unperturbed master residual contribution to dRdp
                             mSet->get_jacobian()(
                                     { tMasterResStartIndex, tMasterResStopIndex },
                                     { tMasterDepStartIndex + tDofCounter, tMasterDepStartIndex + tDofCounter } ) +=
-                                            tMasterResidual / ( tFDScheme( 2 )( 0 ) * tDeltaH );
+                                            tFDScheme( 1 )( 0 ) * tMasterResidual /
+                                            ( tFDScheme( 2 )( 0 ) * tDeltaH );
+
+                            // add unperturbed slave residual contribution to dRdp
                             mSet->get_jacobian()(
                                     { tSlaveResStartIndex, tSlaveResStopIndex },
                                     { tMasterDepStartIndex + tDofCounter, tMasterDepStartIndex + tDofCounter } ) +=
-                                            tSlaveResidual / ( tFDScheme( 2 )( 0 ) * tDeltaH );
-                        }
-                        if( aFDSchemeType == fem::FDScheme_Type::POINT_1_FORWARD )
-                        {
-                            mSet->get_jacobian()(
-                                    { tMasterResStartIndex, tMasterResStopIndex },
-                                    { tMasterDepStartIndex + tDofCounter, tMasterDepStartIndex + tDofCounter } ) -=
-                                            tMasterResidual / ( tFDScheme( 2 )( 0 ) * tDeltaH );
-                            mSet->get_jacobian()(
-                                    { tSlaveResStartIndex, tSlaveResStopIndex },
-                                    { tMasterDepStartIndex + tDofCounter, tMasterDepStartIndex + tDofCounter } ) -=
-                                            tSlaveResidual / ( tFDScheme( 2 )( 0 ) * tDeltaH );
+                                            tFDScheme( 1 )( 0 ) * tSlaveResidual /
+                                            ( tFDScheme( 2 )( 0 ) * tDeltaH );
+
+                            // skip first point in FD
+                            tStartPoint = 1;
                         }
 
                         // loop over the points for FD
-                        for( uint iPoint = 0; iPoint < tNumPoints; iPoint++ )
+                        for( uint iPoint = tStartPoint; iPoint < tNumPoints; iPoint++ )
                         {
                             // reset the perturbed coefficents
                             Matrix< DDRMat > tCoeffPert = tCoeff;
@@ -1550,7 +1550,6 @@ namespace moris
 
                             // set the perturbed coefficients to FI
                             tFI->set_coeff( tCoeffPert );
-                            tFI->reset_eval_flags(); // not useful
 
                             // reset properties, CM and SP for IWG
                             this->reset_eval_flags();
@@ -1622,37 +1621,38 @@ namespace moris
                         real tDeltaH = aPerturbation * tCoeff( iCoeffRow, iCoeffCol );
 
                         // check that perturbation is not zero
-                        if( ( tDeltaH < 1e-12 ) && ( tDeltaH > - 1e-12 ) )
+                        if( std::abs( tDeltaH ) < 1e-12 )
                         {
                             tDeltaH = aPerturbation;
                         }
 
+                        // set starting point for FD
+                        uint tStartPoint = 0;
+
                         // if backward or forward add unperturbed contribution
-                        if( aFDSchemeType == fem::FDScheme_Type::POINT_1_BACKWARD )
+                        if( ( aFDSchemeType == fem::FDScheme_Type::POINT_1_BACKWARD ) ||
+                                ( aFDSchemeType == fem::FDScheme_Type::POINT_1_FORWARD ) )
                         {
+                            // add unperturbed master residual contribution to dRdp
                             mSet->get_jacobian()(
                                     { tMasterResStartIndex, tMasterResStopIndex },
                                     { tSlaveDepStartIndex + tDofCounter, tSlaveDepStartIndex + tDofCounter } ) +=
-                                            tMasterResidual / ( tFDScheme( 2 )( 0 ) * tDeltaH );
+                                            tFDScheme( 1 )( 0 ) * tMasterResidual /
+                                            ( tFDScheme( 2 )( 0 ) * tDeltaH );
+
+                            // add unperturbed slave residual contribution to dRdp
                             mSet->get_jacobian()(
                                     { tSlaveResStartIndex, tSlaveResStopIndex },
                                     { tSlaveDepStartIndex + tDofCounter, tSlaveDepStartIndex + tDofCounter } ) +=
-                                            tSlaveResidual / ( tFDScheme( 2 )( 0 ) * tDeltaH );
-                        }
-                        if( aFDSchemeType == fem::FDScheme_Type::POINT_1_FORWARD )
-                        {
-                            mSet->get_jacobian()(
-                                    { tMasterResStartIndex, tMasterResStopIndex },
-                                    { tSlaveDepStartIndex + tDofCounter, tSlaveDepStartIndex + tDofCounter } ) -=
-                                            tMasterResidual / ( tFDScheme( 2 )( 0 ) * tDeltaH );
-                            mSet->get_jacobian()(
-                                    { tSlaveResStartIndex, tSlaveResStopIndex },
-                                    { tSlaveDepStartIndex + tDofCounter, tSlaveDepStartIndex + tDofCounter } ) -=
-                                            tSlaveResidual / ( tFDScheme( 2 )( 0 ) * tDeltaH );
+                                            tFDScheme( 1 )( 0 ) * tSlaveResidual /
+                                            ( tFDScheme( 2 )( 0 ) * tDeltaH );
+
+                            // skip first point in FD
+                            tStartPoint = 1;
                         }
 
                         // loop over the points for FD
-                        for( uint iPoint = 0; iPoint < tNumPoints; iPoint++ )
+                        for( uint iPoint = tStartPoint; iPoint < tNumPoints; iPoint++ )
                         {
                             // reset the perturbed coefficents
                             Matrix< DDRMat > tCoeffPert = tCoeff;
@@ -1843,9 +1843,6 @@ namespace moris
             uint tResDofAssemblyStart = mSet->get_res_dof_assembly_map()( tResDofIndex )( 0, 0 );
             uint tResDofAssemblyStop  = mSet->get_res_dof_assembly_map()( tResDofIndex )( 0, 1 );
 
-            // reset properties, CM and SP for IWG
-            this->reset_eval_flags();
-
             // reset, evaluate and store the residual for unperturbed case
             mSet->get_residual()( 0 ).fill( 0.0 );
             this->compute_residual( aWStar );
@@ -1894,7 +1891,7 @@ namespace moris
                         tDeltaH = aPerturbation * tCoeff( iCoeffRow, iCoeffCol );
 
                         // check that perturbation is not zero
-                        if( ( tDeltaH < 1e-12 ) && ( tDeltaH > - 1e-12 ) )
+                        if( std::abs( tDeltaH ) < 1e-12 )
                         {
                             tDeltaH = aPerturbation;
                         }
@@ -1917,24 +1914,26 @@ namespace moris
                                 std::make_pair( aVertexIndices( iCoeffRow ), tRequestedGeoPdvType( iCoeffCol ) );
                         uint tPdvAssemblyIndex = mSet->get_geo_pdv_assembly_map()[ tKeyPair ];
 
+                        // set starting point for FD
+                        uint tStartPoint = 0;
+
                         // if backward or forward add unperturbed contribution
-                        if( tUsedFDScheme == fem::FDScheme_Type::POINT_1_BACKWARD )
+                        if( ( tUsedFDScheme == fem::FDScheme_Type::POINT_1_BACKWARD ) ||
+                                ( tUsedFDScheme == fem::FDScheme_Type::POINT_1_FORWARD ) )
                         {
+                            // add unperturbed residual contribution to dRdp
                             mSet->get_drdpgeo()(
                                     { tResDofAssemblyStart, tResDofAssemblyStop },
                                     { tPdvAssemblyIndex,    tPdvAssemblyIndex } ) +=
-                                            tResidual / ( tFDScheme( 2 )( 0 ) * tDeltaH );
-                        }
-                        if( tUsedFDScheme == fem::FDScheme_Type::POINT_1_FORWARD )
-                        {
-                            mSet->get_drdpgeo()(
-                                    { tResDofAssemblyStart, tResDofAssemblyStop },
-                                    { tPdvAssemblyIndex,    tPdvAssemblyIndex } ) -=
-                                            tResidual / ( tFDScheme( 2 )( 0 ) * tDeltaH );
+                                            tFDScheme( 1 )( 0 ) * tResidual /
+                                            ( tFDScheme( 2 )( 0 ) * tDeltaH );
+
+                            // skip first point in FD
+                            tStartPoint = 1;
                         }
 
                         // loop over point of FD scheme
-                        for ( uint iPoint = 0; iPoint < tNumPoints; iPoint++ )
+                        for ( uint iPoint = tStartPoint; iPoint < tNumPoints; iPoint++ )
                         {
                             // reset the perturbed coefficents
                             Matrix< DDRMat > tCoeffPert = tCoeff;
@@ -2080,9 +2079,6 @@ namespace moris
             Matrix< DDRMat > tSlaveEvaluationPoint;
             tSlaveIGGI->get_space_time( tSlaveEvaluationPoint );
 
-            // reset properties, CM and SP for IWG
-            this->reset_eval_flags();
-
             // reset, evaluate and store the residual for unperturbed case
             mSet->get_residual()( 0 ).fill( 0.0 );
             this->compute_residual( aWStar );
@@ -2124,7 +2120,7 @@ namespace moris
                             tDeltaH = aPerturbation * tMasterCoeff( iCoeffRow, iCoeffCol );
 
                             // check that perturbation is not zero
-                            if( ( tDeltaH < 1e-12 ) && ( tDeltaH > - 1e-12 ) )
+                            if( std::abs( tDeltaH ) < 1e-12 )
                             {
                                 tDeltaH = aPerturbation;
                             }
@@ -2147,32 +2143,33 @@ namespace moris
                                     std::make_pair( aMasterVertexIndices( iCoeffRow ), tRequestedGeoPdvType( iCoeffCol ) );
                             uint tPdvAssemblyIndex = mSet->get_geo_pdv_assembly_map()[ tKeyPair ];
 
+                            // set starting point for FD
+                            uint tStartPoint = 0;
+
                             // if backward or forward add unperturbed contribution
-                            if( tUsedFDScheme == fem::FDScheme_Type::POINT_1_BACKWARD )
+                            if( ( tUsedFDScheme == fem::FDScheme_Type::POINT_1_BACKWARD ) ||
+                                    ( tUsedFDScheme == fem::FDScheme_Type::POINT_1_FORWARD ) )
                             {
+                                // add unperturbed master residual contribution to dRdp
                                 mSet->get_drdpgeo()(
                                         { tMasterResDofAssemblyStart, tMasterResDofAssemblyStop },
                                         { tPdvAssemblyIndex,          tPdvAssemblyIndex } ) +=
-                                                tMasterResidual / ( tFDScheme( 2 )( 0 ) * tDeltaH );
+                                                tFDScheme( 1 )( 0 ) * tMasterResidual /
+                                                ( tFDScheme( 2 )( 0 ) * tDeltaH );
+
+                                // add unperturbed slave residual contribution to dRdp
                                 mSet->get_drdpgeo()(
                                         { tSlaveResDofAssemblyStart, tSlaveResDofAssemblyStop },
                                         { tPdvAssemblyIndex,          tPdvAssemblyIndex } ) +=
-                                                tSlaveResidual / ( tFDScheme( 2 )( 0 ) * tDeltaH );
-                            }
-                            if( tUsedFDScheme == fem::FDScheme_Type::POINT_1_FORWARD )
-                            {
-                                mSet->get_drdpgeo()(
-                                        { tMasterResDofAssemblyStart, tMasterResDofAssemblyStop },
-                                        { tPdvAssemblyIndex,          tPdvAssemblyIndex } ) -=
-                                                tMasterResidual / ( tFDScheme( 2 )( 0 ) * tDeltaH );
-                                mSet->get_drdpgeo()(
-                                        { tSlaveResDofAssemblyStart, tSlaveResDofAssemblyStop },
-                                        { tPdvAssemblyIndex,          tPdvAssemblyIndex } ) -=
-                                                tSlaveResidual / ( tFDScheme( 2 )( 0 ) * tDeltaH );
+                                                tFDScheme( 1 )( 0 ) * tSlaveResidual /
+                                                ( tFDScheme( 2 )( 0 ) * tDeltaH );
+
+                                // skip first point in FD
+                                tStartPoint = 1;
                             }
 
                             // loop over point of FD scheme
-                            for ( uint iPoint = 0; iPoint < tNumPoints; iPoint++ )
+                            for ( uint iPoint = tStartPoint; iPoint < tNumPoints; iPoint++ )
                             {
                                 // reset the perturbed coefficients
                                 Matrix< DDRMat > tMasterCoeffPert = tMasterCoeff;
@@ -2234,25 +2231,24 @@ namespace moris
                                                 tFDScheme( 1 )( iPoint ) *
                                                 mSet->get_residual()( 0 )( { tSlaveResDofAssemblyStart, tSlaveResDofAssemblyStop }, { 0, 0 } ) /
                                                 ( tFDScheme( 2 )( 0 ) * tDeltaH );
-
-                                // reset the coefficients values
-                                tMasterIGGI->set_space_coeff( tMasterCoeff );
-                                tMasterIGGI->set_space_param_coeff( tMasterParamCoeff );
-                                tSlaveIGGI->set_space_coeff( tSlaveCoeff );
-                                tSlaveIGGI->set_space_param_coeff( tSlaveParamCoeff );
-                                mSet->get_field_interpolator_manager( mtk::Master_Slave::MASTER )->
-                                        set_space_time_from_local_IG_point( tMasterEvaluationPoint );
-                                mSet->get_field_interpolator_manager( mtk::Master_Slave::SLAVE )->
-                                        set_space_time_from_local_IG_point( tSlaveEvaluationPoint );
-                                this->set_normal( tMasterNormal );
                             }
                         }
                     }
                 }
+                // reset the coefficients values
+                tMasterIGGI->set_space_coeff( tMasterCoeff );
+                tMasterIGGI->set_space_param_coeff( tMasterParamCoeff );
+                tSlaveIGGI->set_space_coeff( tSlaveCoeff );
+                tSlaveIGGI->set_space_param_coeff( tSlaveParamCoeff );
+                mSet->get_field_interpolator_manager( mtk::Master_Slave::MASTER )->
+                        set_space_time_from_local_IG_point( tMasterEvaluationPoint );
+                mSet->get_field_interpolator_manager( mtk::Master_Slave::SLAVE )->
+                        set_space_time_from_local_IG_point( tSlaveEvaluationPoint );
+                this->set_normal( tMasterNormal );
             }
 
             // check for nan, infinity
-            MORIS_ERROR( isfinite( mSet->get_drdpgeo() ) ,
+            MORIS_ERROR( isfinite( mSet->get_drdpgeo() ),
                     "IWG::compute_dRdp_FD_geometry_double - dRdp contains NAN or INF, exiting!");
         }
 
@@ -2281,9 +2277,6 @@ namespace moris
                     mtk::Master_Slave::MASTER );
             uint tResDofAssemblyStart = mSet->get_res_dof_assembly_map()( tResDofIndex )( 0, 0 );
             uint tResDofAssemblyStop  = mSet->get_res_dof_assembly_map()( tResDofIndex )( 0, 1 );
-
-            // reset properties, CM and SP for IWG
-            this->reset_eval_flags();
 
             // reset, evaluate and store the residual for unperturbed case
             mSet->get_residual()( 0 ).fill( 0.0 );
@@ -2326,7 +2319,7 @@ namespace moris
                         tDeltaH = aPerturbation * tCoeff( iCoeffRow, iCoeffCol );
 
                         // check that perturbation is not zero
-                        if( ( tDeltaH < 1e-12 ) && ( tDeltaH > - 1e-12 ) )
+                        if( std::abs( tDeltaH ) < 1e-12 )
                         {
                             tDeltaH = aPerturbation;
                         }
@@ -2334,24 +2327,26 @@ namespace moris
                         // get mat pdv index
                         uint tPdvIndex = mSet->get_mat_pdv_assembly_map()( tDvDepIndex )( 0, 0 ) + tCoeffCounter;
 
-                        // if backward or forward add unperturbed contribution
-                        if( aFDSchemeType == fem::FDScheme_Type::POINT_1_BACKWARD )
+                        // set starting point for FD
+                        uint tStartPoint = 0;
+
+                        // if backward or forward FD, add unperturbed residual contribution
+                        if( ( aFDSchemeType == fem::FDScheme_Type::POINT_1_BACKWARD ) ||
+                                ( aFDSchemeType == fem::FDScheme_Type::POINT_1_FORWARD ) )
                         {
+                            // add unperturbed master residual contribution to dRdp
                             mSet->get_drdpmat()(
                                     { tResDofAssemblyStart, tResDofAssemblyStop },
-                                    { tPdvIndex,            tPdvIndex } ) +=
-                                            tResidual / ( tFDScheme( 2 )( 0 ) * tDeltaH );
-                        }
-                        if( aFDSchemeType == fem::FDScheme_Type::POINT_1_FORWARD )
-                        {
-                            mSet->get_drdpmat()(
-                                    { tResDofAssemblyStart, tResDofAssemblyStop },
-                                    { tPdvIndex,            tPdvIndex } ) -=
-                                            tResidual / ( tFDScheme( 2 )( 0 ) * tDeltaH );
+                                    { tPdvIndex,                  tPdvIndex } ) +=
+                                            tFDScheme( 1 )( 0 ) * tResidual /
+                                            ( tFDScheme( 2 )( 0 ) * tDeltaH );
+
+                            // skip first point in FD
+                            tStartPoint = 1;
                         }
 
                         // loop over the points for FD
-                        for( uint iPoint = 0; iPoint < tNumPoints; iPoint++ )
+                        for( uint iPoint = tStartPoint; iPoint < tNumPoints; iPoint++ )
                         {
                             // reset the perturbed coefficients
                             Matrix< DDRMat > tCoeffPert = tCoeff;
@@ -2421,9 +2416,6 @@ namespace moris
             uint tSlaveResDofAssemblyStart = mSet->get_res_dof_assembly_map()( tSlaveResDofIndex )( 0, 0 );
             uint tSlaveResDofAssemblyStop  = mSet->get_res_dof_assembly_map()( tSlaveResDofIndex )( 0, 1 );
 
-            // reset properties, CM and SP for IWG
-            this->reset_eval_flags();
-
             // reset, evaluate and store the residual for unperturbed case
             mSet->get_residual()( 0 ).fill( 0.0 );
             this->compute_residual( aWStar );
@@ -2471,7 +2463,7 @@ namespace moris
                         tDeltaH = aPerturbation * tCoeff( iCoeffRow, iCoeffCol );
 
                         // check that perturbation is not zero
-                        if( ( tDeltaH < 1e-12 ) && ( tDeltaH > - 1e-12 ) )
+                        if( std::abs( tDeltaH ) < 1e-12 )
                         {
                             tDeltaH = aPerturbation;
                         }
@@ -2479,32 +2471,33 @@ namespace moris
                         // get mat pdv index
                         uint tPdvIndex = mSet->get_mat_pdv_assembly_map()( tDvDepIndex )( 0, 0 ) + tCoeffCounter;
 
-                        // if backward or forward add unperturbed contribution
-                        if( aFDSchemeType == fem::FDScheme_Type::POINT_1_BACKWARD )
+                        // set starting point for FD
+                        uint tStartPoint = 0;
+
+                        // if backward or forward FD, add unperturbed residual contribution
+                        if( ( aFDSchemeType == fem::FDScheme_Type::POINT_1_BACKWARD ) ||
+                                ( aFDSchemeType == fem::FDScheme_Type::POINT_1_FORWARD ) )
                         {
+                            // add unperturbed master residual contribution to dRdp
                             mSet->get_drdpmat()(
                                     { tMasterResDofAssemblyStart, tMasterResDofAssemblyStop },
                                     { tPdvIndex,                  tPdvIndex } ) +=
-                                            tMasterResidual / ( tFDScheme( 2 )( 0 ) * tDeltaH );
+                                            tFDScheme( 1 )( 0 ) * tMasterResidual /
+                                            ( tFDScheme( 2 )( 0 ) * tDeltaH );
+
+                            // add unperturbed master residual contribution to dRdp
                             mSet->get_drdpmat()(
                                     { tSlaveResDofAssemblyStart, tSlaveResDofAssemblyStop },
                                     { tPdvIndex,                  tPdvIndex } ) +=
-                                            tSlaveResidual / ( tFDScheme( 2 )( 0 ) * tDeltaH );
-                        }
-                        if( aFDSchemeType == fem::FDScheme_Type::POINT_1_FORWARD )
-                        {
-                            mSet->get_drdpmat()(
-                                    { tMasterResDofAssemblyStart, tMasterResDofAssemblyStop },
-                                    { tPdvIndex,                  tPdvIndex } ) -=
-                                            tMasterResidual / ( tFDScheme( 2 )( 0 ) * tDeltaH );
-                            mSet->get_drdpmat()(
-                                    { tSlaveResDofAssemblyStart, tSlaveResDofAssemblyStop },
-                                    { tPdvIndex,                  tPdvIndex } ) -=
-                                            tSlaveResidual / ( tFDScheme( 2 )( 0 ) * tDeltaH );
+                                            tFDScheme( 1 )( 0 ) * tSlaveResidual /
+                                            ( tFDScheme( 2 )( 0 ) * tDeltaH );
+
+                            // skip first point in FD
+                            tStartPoint = 1;
                         }
 
                         // loop over the points for FD
-                        for( uint iPoint = 0; iPoint < tNumPoints; iPoint++ )
+                        for( uint iPoint = tStartPoint; iPoint < tNumPoints; iPoint++ )
                         {
                             // reset the perturbed coefficents
                             Matrix< DDRMat > tCoeffPert = tCoeff;
@@ -2595,7 +2588,7 @@ namespace moris
                         tDeltaH = aPerturbation * tCoeff( iCoeffRow, iCoeffCol );
 
                         // check that perturbation is not zero
-                        if( ( tDeltaH < 1e-12 ) && ( tDeltaH > - 1e-12 ) )
+                        if( std::abs( tDeltaH ) < 1e-12 )
                         {
                             tDeltaH = aPerturbation;
                         }
@@ -2603,32 +2596,33 @@ namespace moris
                         // get mat pdv index
                         uint tPdvIndex = mSet->get_mat_pdv_assembly_map()( tDvDepIndex )( 0, 0 ) + tCoeffCounter;
 
-                        // if backward or forward add unperturbed contribution
-                        if( aFDSchemeType == fem::FDScheme_Type::POINT_1_BACKWARD )
+                        // set starting point for FD
+                        uint tStartPoint = 0;
+
+                        // if backward or forward FD, add unperturbed residual contribution
+                        if( ( aFDSchemeType == fem::FDScheme_Type::POINT_1_BACKWARD ) ||
+                                ( aFDSchemeType == fem::FDScheme_Type::POINT_1_FORWARD ) )
                         {
+                            // add unperturbed master residual contribution to dRdp
                             mSet->get_drdpmat()(
                                     { tMasterResDofAssemblyStart, tMasterResDofAssemblyStop },
                                     { tPdvIndex,                  tPdvIndex } ) +=
-                                            tMasterResidual / ( tFDScheme( 2 )( 0 ) * tDeltaH );
+                                            tFDScheme( 1 )( 0 ) * tMasterResidual /
+                                            ( tFDScheme( 2 )( 0 ) * tDeltaH );
+
+                            // add unperturbed master residual contribution to dRdp
                             mSet->get_drdpmat()(
                                     { tSlaveResDofAssemblyStart, tSlaveResDofAssemblyStop },
                                     { tPdvIndex,                  tPdvIndex } ) +=
-                                            tSlaveResidual / ( tFDScheme( 2 )( 0 ) * tDeltaH );
-                        }
-                        if( aFDSchemeType == fem::FDScheme_Type::POINT_1_FORWARD )
-                        {
-                            mSet->get_drdpmat()(
-                                    { tMasterResDofAssemblyStart, tMasterResDofAssemblyStop },
-                                    { tPdvIndex,                  tPdvIndex } ) -=
-                                            tMasterResidual / ( tFDScheme( 2 )( 0 ) * tDeltaH );
-                            mSet->get_drdpmat()(
-                                    { tSlaveResDofAssemblyStart, tSlaveResDofAssemblyStop },
-                                    { tPdvIndex,                  tPdvIndex } ) -=
-                                            tSlaveResidual / ( tFDScheme( 2 )( 0 ) * tDeltaH );
+                                            tFDScheme( 1 )( 0 ) * tSlaveResidual /
+                                            ( tFDScheme( 2 )( 0 ) * tDeltaH );
+
+                            // skip first point in FD
+                            tStartPoint = 1;
                         }
 
                         // loop over the points for FD
-                        for( uint iPoint = 0; iPoint < tNumPoints; iPoint++ )
+                        for( uint iPoint = tStartPoint; iPoint < tNumPoints; iPoint++ )
                         {
                             // reset the perturbed coefficents
                             Matrix< DDRMat > tCoeffPert = tCoeff;

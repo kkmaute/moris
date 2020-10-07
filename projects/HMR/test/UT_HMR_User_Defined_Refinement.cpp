@@ -211,7 +211,8 @@ TEST_CASE("HMR_User_Defined_Refinement", "[moris],[mesh],[hmr],[HMR_User_Defined
 
             tParameters.set_lagrange_input_mesh( { { 0 } } );
 
-            tParameters.set_initial_refinement( 1 );
+            tParameters.set_initial_refinement( { {1} } );
+            tParameters.set_initial_refinement_patterns( { {0} } );
 
             Cell< Matrix< DDSMat > > tLagrangeToBSplineMesh( 1 );
             tLagrangeToBSplineMesh( 0 ) = { {0} };
@@ -231,7 +232,7 @@ TEST_CASE("HMR_User_Defined_Refinement", "[moris],[mesh],[hmr],[HMR_User_Defined
             auto tDatabase = tHMR.get_database();
 
             // initial refinement
-            tHMR.perform_initial_refinement( 0 );
+            tHMR.perform_initial_refinement();
 
             //-----------------------------------------------------------------
             // First refinement with field 1
@@ -318,7 +319,8 @@ TEST_CASE("Color refinement", "[moris],[mesh],[hmr],[Color refinement]")
 
         tParameters.set_lagrange_input_mesh( { { 0 } } );
 
-        tParameters.set_initial_refinement( 1 );
+        tParameters.set_initial_refinement( { {1} } );
+        tParameters.set_initial_refinement_patterns( { {0} } );
 
         Cell< Matrix< DDSMat > > tLagrangeToBSplineMesh( 1 );
         tLagrangeToBSplineMesh( 0 ) = { {0} };
@@ -338,7 +340,7 @@ TEST_CASE("Color refinement", "[moris],[mesh],[hmr],[Color refinement]")
         auto tDatabase = tHMR.get_database();
 
         // initial refinement
-        tHMR.perform_initial_refinement( 0 );
+        tHMR.perform_initial_refinement();
 
         //-----------------------------------------------------------------
         // First refinement with field 1

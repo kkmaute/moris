@@ -76,10 +76,10 @@ namespace moris
             this->update_element_indices();
 
             // link elements to B-Spline meshes
-            if(  mBSplineMeshes.size() > 0 )
-            {
-                this->link_twins();
-            }
+            //if(  mBSplineMeshes.size() > 0 )
+            //{
+                //this->link_twins();
+            //}
 
             // stop timer
             real tElapsedTime = tTimer.toc<moris::chronos::milliseconds>().wall;

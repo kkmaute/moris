@@ -85,7 +85,8 @@ TEST_CASE("WRK L2 test","[WRK_L2_test]")
          tParameters.set( "truncate_bsplines", 1 );
          tParameters.set( "refinement_buffer", 2 );
          tParameters.set( "staircase_buffer", 2 );
-         tParameters.set( "initial_refinement", 0 );
+         tParameters.set( "initial_refinement", "0" );
+         tParameters.set( "initial_refinement_pattern", "0" );
 
          tParameters.set( "use_multigrid", 0 );
          tParameters.set( "severity_level", 2 );
@@ -131,7 +132,7 @@ TEST_CASE("WRK L2 test","[WRK_L2_test]")
          std::shared_ptr< ge::Geometry_Engine > tGENPerformer = std::make_shared< ge::Geometry_Engine >( tParameterLists );
 
          // uniform initial refinement
-         tHMRPerformer->perform_initial_refinement( 0 );
+         tHMRPerformer->perform_initial_refinement();
 
          // HMR refined by GE
          //tGENPerformer->perform_refinement(tHMRPerformer);

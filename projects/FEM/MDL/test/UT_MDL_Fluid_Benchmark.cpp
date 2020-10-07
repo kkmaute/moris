@@ -183,7 +183,8 @@ namespace moris
         tParameters.set( "truncate_bsplines", 1 );
         tParameters.set( "refinement_buffer", 3 );
         tParameters.set( "staircase_buffer", 3 );
-        tParameters.set( "initial_refinement", 0 );
+        tParameters.set( "initial_refinement", "0" );
+        tParameters.set( "initial_refinement_pattern", "0" );
 
         tParameters.set( "use_multigrid", 0 );
         tParameters.set( "severity_level", 2 );
@@ -192,7 +193,7 @@ namespace moris
         std::shared_ptr<hmr::HMR> tHMR = std::make_shared<hmr::HMR>( tParameters );
 
         // Initial refinement
-        tHMR->perform_initial_refinement( 0 );
+        tHMR->perform_initial_refinement();
 
         // Create geometry engine
         Cell<std::shared_ptr<moris::ge::Geometry>> tGeometry(4);
@@ -546,7 +547,8 @@ TEST_CASE("MDL_Fluid_Benchmark_Immersed_Inlet_Pressure","[MDL_Fluid_Benchmark_Im
         tParameters.set( "truncate_bsplines", 1 );
         tParameters.set( "refinement_buffer", 3 );
         tParameters.set( "staircase_buffer", 3 );
-        tParameters.set( "initial_refinement", 0 );
+        tParameters.set( "initial_refinement", "0" );
+        tParameters.set( "initial_refinement_pattern", "0" );
 
         tParameters.set( "use_multigrid", 0 );
         tParameters.set( "severity_level", 2 );
@@ -555,7 +557,7 @@ TEST_CASE("MDL_Fluid_Benchmark_Immersed_Inlet_Pressure","[MDL_Fluid_Benchmark_Im
         std::shared_ptr<hmr::HMR> tHMR = std::make_shared<hmr::HMR>( tParameters );
 
         // Initial refinement
-        tHMR->perform_initial_refinement( 0 );
+        tHMR->perform_initial_refinement();
 
         // Create geometry engine
         Cell<std::shared_ptr<moris::ge::Geometry>> tGeometry(4);
@@ -2236,7 +2238,8 @@ TEST_CASE("MDL_Fluid_Benchmark_Radial_Couette_Flow","[MDL_Fluid_Benchmark_Radial
         tParameters.set( "truncate_bsplines", 1 );
         tParameters.set( "refinement_buffer", 3 );
         tParameters.set( "staircase_buffer", 3 );
-        tParameters.set( "initial_refinement", 2 );
+        tParameters.set( "initial_refinement", "2" );
+        tParameters.set( "initial_refinement_pattern", "0" );
 
         tParameters.set( "use_multigrid", 0 );
         tParameters.set( "severity_level", 2 );
@@ -2245,7 +2248,7 @@ TEST_CASE("MDL_Fluid_Benchmark_Radial_Couette_Flow","[MDL_Fluid_Benchmark_Radial
         std::shared_ptr<hmr::HMR> tHMR = std::make_shared<hmr::HMR>( tParameters );
 
         // Initial refinement
-        tHMR->perform_initial_refinement( 0 );
+        tHMR->perform_initial_refinement();
 
         // Create geometry engine
         Cell<std::shared_ptr<moris::ge::Geometry>> tGeometry(2);

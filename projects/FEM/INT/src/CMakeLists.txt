@@ -198,6 +198,7 @@ set(HEADERS
     cl_FEM_SP_Penalty_Contact.hpp
     
     cl_FEM_Set_User_Info.hpp
+    cl_FEM_Phase_User_Info.hpp
     cl_FEM_Interpolation_Element.hpp
     cl_FEM_Model.hpp
     fn_FEM_CM_Phase_State_Functions.hpp

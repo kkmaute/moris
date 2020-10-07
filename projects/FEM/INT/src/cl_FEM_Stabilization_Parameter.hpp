@@ -57,7 +57,7 @@ namespace moris
                 moris::Cell< Matrix< DDRMat > > mParameters;
 
                 // interpolation order
-                uint mOrder = 1;
+                uint mOrder = MORIS_UINT_MAX;
 
                 // normal
                 Matrix< DDRMat > mNormal;

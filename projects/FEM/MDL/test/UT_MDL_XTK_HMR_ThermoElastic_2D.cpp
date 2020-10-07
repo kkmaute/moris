@@ -176,7 +176,8 @@ TEST_CASE("2D XTK WITH HMR ThermoElastic 2D","[XTK_HMR_thermoelastic_2D]")
         tParameters.set( "truncate_bsplines", 1 );
         tParameters.set( "refinement_buffer", 3 );
         tParameters.set( "staircase_buffer", 3 );
-        tParameters.set( "initial_refinement", 0 );
+        tParameters.set( "initial_refinement", "0" );
+        tParameters.set( "initial_refinement_pattern", "0" );
 
         tParameters.set( "use_multigrid", 1 );
         tParameters.set( "severity_level", 2 );
@@ -184,7 +185,7 @@ TEST_CASE("2D XTK WITH HMR ThermoElastic 2D","[XTK_HMR_thermoelastic_2D]")
         hmr::HMR tHMR( tParameters );
 
         // initial refinement
-        tHMR.perform_initial_refinement( 0 );
+        tHMR.perform_initial_refinement();
 
         std::shared_ptr< moris::hmr::Mesh > tMesh = tHMR.create_mesh( tLagrangeMeshIndex );
 
@@ -642,7 +643,8 @@ TEST_CASE("2D XTK WITH HMR ThermoElastic 2D Staggered","[XTK_HMR_thermoelastic_2
         tParameters.set( "truncate_bsplines", 1 );
         tParameters.set( "refinement_buffer", 3 );
         tParameters.set( "staircase_buffer", 3 );
-        tParameters.set( "initial_refinement", 0 );
+        tParameters.set( "initial_refinement", "0" );
+        tParameters.set( "initial_refinement_pattern", "0" );
 
         tParameters.set( "use_multigrid", 0 );
         tParameters.set( "severity_level", 2 );
@@ -650,7 +652,7 @@ TEST_CASE("2D XTK WITH HMR ThermoElastic 2D Staggered","[XTK_HMR_thermoelastic_2
         hmr::HMR tHMR( tParameters );
 
         // initial refinement
-        tHMR.perform_initial_refinement( 0 );
+        tHMR.perform_initial_refinement();
 
         std::shared_ptr< moris::hmr::Mesh > tMesh = tHMR.create_mesh( tLagrangeMeshIndex );
 

@@ -29,7 +29,14 @@ namespace moris
         {
             this->create_equation_object_list();
 
-            mDofMgn.set_max_num_adofs( mMesh->get_num_coeffs( 0 ) );
+            uint tNumCoeffs = 0;
+
+            for( uint Ik = 0; Ik<mMesh->get_num_interpolations(); Ik++)
+            {
+                tNumCoeffs = std::max( tNumCoeffs, mMesh->get_num_coeffs( Ik ) );
+            }
+
+            mDofMgn.set_max_num_adofs( tNumCoeffs );
 
             mDofMgn.initialize_pdof_type_list( mEquationBlocks );
         }

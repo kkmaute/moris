@@ -902,8 +902,7 @@ namespace moris
 
         uint Mesh::get_num_interpolations()
         {
-            MORIS_ERROR( false, "get_num_interpolations(), not implemented for this mesh type.");
-            return 0;
+            return 1;
         }
 
         //--------------------------------------------------------------------------------------------------------------

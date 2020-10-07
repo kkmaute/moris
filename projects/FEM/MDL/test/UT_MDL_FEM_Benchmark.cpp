@@ -143,7 +143,8 @@ TEST_CASE("MDL FEM Benchmark Diff Block","[MDL_FEM_Benchmark_Diff_Block]")
 //        tParameters.set_lagrange_input_mesh( { { 0 } } );
 
         tParameters.set_staircase_buffer( 1 );
-        tParameters.set_initial_refinement( 0 );
+        tParameters.set_initial_refinement( { {0} } );
+        tParameters.set_initial_refinement_patterns( { {0} } );
         tParameters.set_number_aura( true );
 
         Cell< Matrix< DDSMat > > tLagrangeToBSplineMesh( 1 );
@@ -154,7 +155,7 @@ TEST_CASE("MDL FEM Benchmark Diff Block","[MDL_FEM_Benchmark_Diff_Block]")
         // create the HMR object by passing the settings to the constructor
         moris::hmr::HMR tHMR( tParameters );
 
-        tHMR.perform_initial_refinement( 0 );
+        tHMR.perform_initial_refinement();
 
         tHMR.finalize();
 
@@ -370,7 +371,8 @@ TEST_CASE("MDL FEM Benchmark Diff Interface","[MDL_FEM_Benchmark_Diff_Interface]
 
         tParameters.set_staircase_buffer( 1 );
 
-        tParameters.set_initial_refinement( 0 );
+        tParameters.set_initial_refinement( { {0} } );
+        tParameters.set_initial_refinement_patterns( { {0} } );
 
         tParameters.set_number_aura( true );
 
@@ -382,7 +384,7 @@ TEST_CASE("MDL FEM Benchmark Diff Interface","[MDL_FEM_Benchmark_Diff_Interface]
         // create the HMR object by passing the settings to the constructor
         moris::hmr::HMR tHMR( tParameters );
 
-        tHMR.perform_initial_refinement( 0 );
+        tHMR.perform_initial_refinement();
 
         std::shared_ptr< moris::hmr::Mesh > tMesh01 = tHMR.create_mesh( tLagrangeMeshIndex );   // HMR Lagrange mesh
         //==============================
@@ -684,7 +686,8 @@ TEST_CASE("MDL FEM Benchmark Diff Ghost","[MDL_FEM_Benchmark_Diff_Ghost]")
 
         tParameters.set_staircase_buffer( 1 );
 
-        tParameters.set_initial_refinement( 0 );
+        tParameters.set_initial_refinement( { {0} } );
+        tParameters.set_initial_refinement_patterns( { {0} } );
 
         tParameters.set_number_aura( true );
 
@@ -696,7 +699,7 @@ TEST_CASE("MDL FEM Benchmark Diff Ghost","[MDL_FEM_Benchmark_Diff_Ghost]")
         // create the HMR object by passing the settings to the constructor
         moris::hmr::HMR tHMR( tParameters );
 
-        tHMR.perform_initial_refinement( 0 );
+        tHMR.perform_initial_refinement();
 
         std::shared_ptr< moris::hmr::Mesh > tMesh01 = tHMR.create_mesh( tLagrangeMeshIndex );   // HMR Lagrange mesh
         //==============================
@@ -1019,7 +1022,8 @@ TEST_CASE("MDL FEM Benchmark Elast Block","[MDL_FEM_Benchmark_Elast_Block]")
 //        tParameters.set_lagrange_input_mesh( { { 0 } } );
 
         tParameters.set_staircase_buffer( 1 );
-        tParameters.set_initial_refinement( 0 );
+        tParameters.set_initial_refinement( { {0} } );
+        tParameters.set_initial_refinement_patterns( { {0} } );
         tParameters.set_number_aura( true );
 
         Cell< Matrix< DDSMat > > tLagrangeToBSplineMesh( 1 );
@@ -1030,7 +1034,7 @@ TEST_CASE("MDL FEM Benchmark Elast Block","[MDL_FEM_Benchmark_Elast_Block]")
         // create the HMR object by passing the settings to the constructor
         moris::hmr::HMR tHMR( tParameters );
 
-        tHMR.perform_initial_refinement( 0 );
+        tHMR.perform_initial_refinement();
 
         tHMR.finalize();
 
@@ -1256,7 +1260,8 @@ TEST_CASE("MDL FEM Benchmark Elast Interface","[MDL_FEM_Benchmark_Elast_Interfac
 
         tParameters.set_staircase_buffer( 1 );
 
-        tParameters.set_initial_refinement( 0 );
+        tParameters.set_initial_refinement( { {0} } );
+        tParameters.set_initial_refinement_patterns( { {0} } );
 
         tParameters.set_number_aura( true );
 
@@ -1268,7 +1273,7 @@ TEST_CASE("MDL FEM Benchmark Elast Interface","[MDL_FEM_Benchmark_Elast_Interfac
         // create the HMR object by passing the settings to the constructor
         moris::hmr::HMR tHMR( tParameters );
 
-        tHMR.perform_initial_refinement( 0 );
+        tHMR.perform_initial_refinement();
 
         std::shared_ptr< moris::hmr::Mesh > tMesh01 = tHMR.create_mesh( tLagrangeMeshIndex );   // HMR Lagrange mesh
         //==============================
@@ -1583,7 +1588,8 @@ TEST_CASE("MDL FEM Benchmark Elast Ghost","[MDL_FEM_Benchmark_Elast_Ghost]")
 
         tParameters.set_staircase_buffer( 1 );
 
-        tParameters.set_initial_refinement( 0 );
+        tParameters.set_initial_refinement( { {0} } );
+        tParameters.set_initial_refinement_patterns( { {0} } );
 
         tParameters.set_number_aura( true );
 
@@ -1595,7 +1601,7 @@ TEST_CASE("MDL FEM Benchmark Elast Ghost","[MDL_FEM_Benchmark_Elast_Ghost]")
         // create the HMR object by passing the settings to the constructor
         moris::hmr::HMR tHMR( tParameters );
 
-        tHMR.perform_initial_refinement( 0 );
+        tHMR.perform_initial_refinement();
 
         std::shared_ptr< moris::hmr::Mesh > tMesh01 = tHMR.create_mesh( tLagrangeMeshIndex );   // HMR Lagrange mesh
         //==============================

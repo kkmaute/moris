@@ -142,7 +142,8 @@ TEST_CASE("MDL Transient","[MDL_Transient]")
         tParameters.set_output_meshes( { {0} } );
 
         tParameters.set_staircase_buffer( 1 );
-        tParameters.set_initial_refinement( 2 );
+        tParameters.set_initial_refinement( { {2} } );
+        tParameters.set_initial_refinement_patterns( { {0} } );
         tParameters.set_number_aura( true );
 
         Cell< Matrix< DDSMat > > tLagrangeToBSplineMesh( 1 );
@@ -153,7 +154,7 @@ TEST_CASE("MDL Transient","[MDL_Transient]")
         // create the HMR object by passing the settings to the constructor
         moris::hmr::HMR tHMR( tParameters );
 
-        tHMR.perform_initial_refinement( 0 );
+        tHMR.perform_initial_refinement();
 
         tHMR.finalize();
 
@@ -361,7 +362,8 @@ TEST_CASE("MDL Transient XFEM","[MDL_Transient_XFEM]")
     tParameters.set( "truncate_bsplines", 1 );
     tParameters.set( "refinement_buffer", 3 );
     tParameters.set( "staircase_buffer", 3 );
-    tParameters.set( "initial_refinement", 2 );
+    tParameters.set( "initial_refinement", "2" );
+    tParameters.set( "initial_refinement_pattern", "0" );
 
     tParameters.set( "use_multigrid", 0 );
     tParameters.set( "severity_level", 2 );
@@ -370,7 +372,7 @@ TEST_CASE("MDL Transient XFEM","[MDL_Transient_XFEM]")
     hmr::HMR tHMR( tParameters );
 
     //initial refinement
-    tHMR.perform_initial_refinement( 0 );
+    tHMR.perform_initial_refinement();
 
     std::shared_ptr< moris::hmr::Mesh > tMesh = tHMR.create_mesh( tLagrangeMeshIndex );
 
