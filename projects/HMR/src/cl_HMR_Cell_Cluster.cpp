@@ -56,8 +56,6 @@ Cell_Cluster_HMR::add_primary_integration_cell(moris::Cell<moris::mtk::Cell  con
 void
 Cell_Cluster_HMR::add_void_integration_cell(moris::Cell<moris::mtk::Cell const *> const & aIntegrationCell)
 {
-    MORIS_ERROR(!mTrivial,"Adding void integration cells to trivial cluster is not allowed");
-
     mVoidIntegrationCells.append( aIntegrationCell );
 }
 
@@ -66,8 +64,6 @@ Cell_Cluster_HMR::add_void_integration_cell(moris::Cell<moris::mtk::Cell const *
 void
 Cell_Cluster_HMR::add_vertex_to_cluster(moris::Cell<moris::mtk::Vertex const *> const & aVertex)
 {
-    MORIS_ERROR(!mTrivial,"Adding vertex to trivial cluster is not allowed");
-
     // add vertices to map
     moris_index tIndex = mVerticesInCluster.size();
 
@@ -87,7 +83,7 @@ Cell_Cluster_HMR::add_vertex_to_cluster(moris::Cell<moris::mtk::Vertex const *> 
 void
 Cell_Cluster_HMR::add_vertex_local_coordinates_wrt_interp_cell(moris::Matrix<moris::DDRMat> const & aLocalCoords)
 {
-    MORIS_ERROR(!mTrivial,"Adding vertex  coords to trivial cluster is not allowed");
+    // MORIS_ERROR(!mTrivial,"Adding vertex  coords to trivial cluster is not allowed");
     MORIS_ASSERT(aLocalCoords.n_rows() == mVerticesInCluster.size(),"Local coordinates need to match the number of vertices in the cluster");
     mVertexParamCoords = aLocalCoords.copy();
 }
@@ -155,7 +151,7 @@ moris::Matrix<moris::DDRMat>
 Cell_Cluster_HMR::get_vertex_local_coordinate_wrt_interp_cell( moris::mtk::Vertex const * aVertex,
                                                                const mtk::Master_Slave aIsMaster ) const
 {
-    MORIS_ERROR(!mTrivial,"Accessing local coordinates on a trivial cell cluster is not allowed");
+    // MORIS_ERROR(!mTrivial,"Accessing local coordinates on a trivial cell cluster is not allowed");
 
     moris_index tLocalVertIndex = this->get_vertex_cluster_local_index(aVertex->get_id());
 
@@ -169,7 +165,7 @@ Cell_Cluster_HMR::get_vertex_local_coordinate_wrt_interp_cell( moris::mtk::Verte
 moris_index
 Cell_Cluster_HMR::get_dim_of_param_coord(const mtk::Master_Slave aIsMaster ) const
 {
-    MORIS_ERROR(!mTrivial,"Accessing size of local coordinates on a trivial cell cluster is not allowed");
+    // MORIS_ERROR(!mTrivial,"Accessing size of local coordinates on a trivial cell cluster is not allowed");
     return mVertexParamCoords.n_cols();
 }
 

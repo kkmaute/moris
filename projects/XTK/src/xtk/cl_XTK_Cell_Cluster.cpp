@@ -111,6 +111,37 @@ namespace xtk
         return this->get_vertices_local_coordinates_wrt_interp_cell(aIsMaster).n_cols();
     }
 
+    moris::Matrix<moris::DDRMat>                  
+    Cell_Cluster::get_primary_cell_local_coords_on_side_wrt_interp_cell(moris::moris_index aPrimaryCellClusterIndex) const
+    {
+        if(mTrivial)
+        {
+            return this->get_vertices_local_coordinates_wrt_interp_cell();
+        }
+        else
+        {
+             // MORIS_ERROR(!this->is_trivial(),"get_primary_cell_local_coords_on_side_wrt_interp_cell on trivial cluster is not allowed");
+             MORIS_ASSERT(aPrimaryCellClusterIndex < (moris_index)this->get_num_primary_cells(),"Integration Cell Cluster index out of bounds");
+
+            // get the integration cell of interest
+            moris::mtk::Cell const * tIntegrationCell = this->get_primary_cells_in_cluster()(aPrimaryCellClusterIndex);
+
+             // get the vertex pointers on the side
+            moris::Cell<moris::mtk::Vertex *> tVerticesOnCell = tIntegrationCell->get_vertex_pointers();
+
+            // allocate output (nnode x dim_xsi)
+            moris::Matrix<moris::DDRMat> tVertexParamCoords( tVerticesOnCell.size(), this->get_dim_of_param_coord());
+
+            // iterate through vertices and collect local coordinates
+            for(moris::uint i = 0; i < tVerticesOnCell.size(); i++)
+            {
+                 tVertexParamCoords.get_row(i) = this->get_vertex_local_coordinate_wrt_interp_cell(tVerticesOnCell(i)).get_row(0);
+            }
+
+             return tVertexParamCoords;
+        }
+    }
+
     //----------------------------------------------------------------
     Interpolation_Cell_Unzipped const *
     Cell_Cluster::get_xtk_interpolation_cell() const
