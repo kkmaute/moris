@@ -9,7 +9,7 @@
 #include "cl_Sparse_Matrix_EpetraFECrs.hpp"
 #include "cl_MatrixPETSc.hpp"
 #include "cl_Vector_Epetra.hpp"
-#include "cl_VectorPETSc.hpp"
+#include "cl_Vector_PETSc.hpp"
 #include "cl_Map_Epetra.hpp"
 #include "cl_Map_PETSc.hpp"
 #include "cl_SOL_Dist_Map.hpp"
@@ -117,26 +117,6 @@ moris::sol::Dist_Vector * tDistVector = nullptr;
 //    case (sol::MapType::Petsc):
 //        MORIS_ERROR( aNumVectors == 1, "Multivector not implemented for petsc");
 //        tDistVector = new Vector_PETSc( aInput, aMap, aNumVectors );
-//        break;
-    default:
-        MORIS_ERROR( false, "No vector type specified." );
-        break;
-    }
-    return tDistVector;
-}
-
-
-moris::sol::Dist_Vector * moris::Matrix_Vector_Factory::create_vector()
-{
-moris::sol::Dist_Vector * tDistVector = nullptr;
-
-    switch( mMapType )
-    {
-    case (sol::MapType::Epetra):
-        tDistVector = new moris::Vector_Epetra();
-        break;
-//    case (sol::MapType::Petsc):
-//        tDistVector = new Vector_PETSc( aInput, aMap, aVectorType );
 //        break;
     default:
         MORIS_ERROR( false, "No vector type specified." );

@@ -4,8 +4,8 @@
  *  Created on: Dec 5, 2018
  *      Author: schmidt
  */
-#ifndef SRC_DISTLINALG_CL_VECTORPETSC_HPP_
-#define SRC_DISTLINALG_CL_VECTORPETSC_HPP_
+#ifndef SRC_DISTLINALG_CL_VECTOR_PETSC_HPP_
+#define SRC_DISTLINALG_CL_VECTOR_PETSC_HPP_
 
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
@@ -88,7 +88,9 @@ namespace moris
 
         void read_vector_from_HDF5( const char* aFilename );
 
-    //-----------------------------------------------------------------------------
+        //-----------------------------------------------------------------------------
+
+        moris::real* get_values_pointer();
 
         virtual Vec get_petsc_vector()
         {
@@ -104,4 +106,4 @@ namespace moris
     };
 }
 
-#endif /* SRC_DISTLINALG_CL_VECTORPETSC_HPP_ */
+#endif /* SRC_DISTLINALG_CL_VECTOR_PETSC_HPP_ */

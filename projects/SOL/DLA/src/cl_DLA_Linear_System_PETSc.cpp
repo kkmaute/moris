@@ -11,6 +11,7 @@
 #include "Epetra_FECrsMatrix.h"
 #include "Epetra_RowMatrix.h"
 
+#include "cl_Vector_PETSc.hpp"
 #include "cl_DLA_Linear_System_PETSc.hpp"
 #include "cl_DLA_Solver_Interface.hpp"
 #include "cl_SOL_Enums.hpp"
@@ -160,7 +161,7 @@ moris::sint Linear_System_PETSc::solve_linear_system()
 
     KSPSetFromOptions( tPetscKSPProblem );
 
-    KSPSolve( tPetscKSPProblem, mVectorRHS->get_petsc_vector(), mFreeVectorLHS->get_petsc_vector() );
+    KSPSolve( tPetscKSPProblem, static_cast<Vector_PETSc*>(mVectorRHS)->get_petsc_vector(), static_cast<Vector_PETSc*>(mFreeVectorLHS)->get_petsc_vector() );
 
     KSPDestroy( &tPetscKSPProblem );
 
@@ -173,7 +174,7 @@ void Linear_System_PETSc::get_solution( Matrix< DDRMat > & LHSValues )
     //VecGetArray (tSolution, &  LHSValues.data());
 
     moris::sint tVecLocSize;
-    VecGetLocalSize( mFreeVectorLHS->get_petsc_vector(), &tVecLocSize );
+    VecGetLocalSize( static_cast<Vector_PETSc*>(mFreeVectorLHS)->get_petsc_vector(), &tVecLocSize );
 
     // FIXME replace with VecGetArray()
     moris::Matrix< DDSMat > tVal ( tVecLocSize, 1 , 0 );
@@ -198,7 +199,7 @@ void Linear_System_PETSc::get_solution( Matrix< DDRMat > & LHSValues )
         tVal( Ik, 0 ) = tOwnedOffsetList( par_rank(), 0)+Ik;
     }
 
-    VecGetValues( mFreeVectorLHS->get_petsc_vector(), tVecLocSize, tVal.data(), LHSValues.data() );
+    VecGetValues( static_cast<Vector_PETSc*>(mFreeVectorLHS)->get_petsc_vector(), tVecLocSize, tVal.data(), LHSValues.data() );
 }
 
 //------------------------------------------------------------------------------------------

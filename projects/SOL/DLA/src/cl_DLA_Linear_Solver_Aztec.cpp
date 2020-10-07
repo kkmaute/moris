@@ -73,8 +73,8 @@ void Linear_Solver_Aztec::set_linear_problem(  Linear_Problem * aLinearSystem )
 {
     // Set matrix. solution vector and RHS
     mEpetraProblem.SetOperator( aLinearSystem->get_matrix()->get_matrix() );
-    mEpetraProblem.SetRHS( aLinearSystem->get_solver_RHS()->get_epetra_vector() );
-    mEpetraProblem.SetLHS( aLinearSystem->get_free_solver_LHS()->get_epetra_vector() );
+    mEpetraProblem.SetRHS( static_cast<Vector_Epetra*>(aLinearSystem->get_solver_RHS())->get_epetra_vector() );
+    mEpetraProblem.SetLHS( static_cast<Vector_Epetra*>(aLinearSystem->get_free_solver_LHS())->get_epetra_vector() );
 }
 
 //----------------------------------------------------------------------------------------
@@ -286,9 +286,9 @@ moris::sint Linear_Solver_Aztec::solve_linear_system(       Linear_Problem * aLi
                                                       const moris::sint      aIter )
 {
     // Set matrix. solution vector and RHS
-    mEpetraProblem.SetOperator( aLinearSystem->get_matrix()         ->get_matrix()        );
-    mEpetraProblem.SetRHS     ( aLinearSystem->get_solver_RHS()     ->get_epetra_vector() );
-    mEpetraProblem.SetLHS     ( aLinearSystem->get_free_solver_LHS()->get_epetra_vector() );
+    mEpetraProblem.SetOperator( aLinearSystem->get_matrix()                                       ->get_matrix()        );
+    mEpetraProblem.SetRHS     ( dynamic_cast<Vector_Epetra*>(aLinearSystem->get_solver_RHS())     ->get_epetra_vector() );
+    mEpetraProblem.SetLHS     ( dynamic_cast<Vector_Epetra*>(aLinearSystem->get_free_solver_LHS())->get_epetra_vector() );
 
     MORIS_ERROR( aLinearSystem->get_solver_RHS()->get_num_vectors() == 1, "Linear_Solver_Aztec::solve_linear_system(), num RHS != 1. Use BELOS_IMPL instead.");
 

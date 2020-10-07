@@ -14,6 +14,7 @@
 #include "cl_SOL_Matrix_Vector_Factory.hpp" // DLA/src
 #include "cl_Solver_Interface_Proxy.hpp" // DLA/src
 #include "cl_SOL_Dist_Vector.hpp" // DLA/src
+#include "cl_Vector_Epetra.hpp"
 #include "cl_SOL_Dist_Map.hpp" // DLA/src
 
 namespace moris
@@ -65,7 +66,7 @@ TEST_CASE("Dist Vector","[Dist Vector],[DistLinAlg]")
         sint tMyLDA = 0;
 
         // Get solution and output it in moris::Mat LHSValues
-        tVectorA->get_epetra_vector()->ExtractCopy( tSol.data(), tMyLDA );
+        static_cast<Vector_Epetra*>(tVectorA)->get_epetra_vector()->ExtractCopy( tSol.data(), tMyLDA );
 
         if (rank == 0)
         {
@@ -134,7 +135,7 @@ TEST_CASE("Sum Dist Vector","[Sum Dist Vector],[DistLinAlg]")
         sint tMyLDA = 0;
 
         // Get solution and output it in moris::Mat LHSValues
-        tVectorA->get_epetra_vector()->ExtractCopy( tSol.data(), tMyLDA );
+        static_cast<Vector_Epetra*>(tVectorA)->get_epetra_vector()->ExtractCopy( tSol.data(), tMyLDA );
 
         if (rank == 0)
         {
@@ -201,7 +202,7 @@ TEST_CASE("Scale Dist Vector","[Scale Dist Vector],[DistLinAlg]")
         sint tMyLDA = 0;
 
         // Get solution and output it in moris::Mat LHSValues
-        tVectorA->get_epetra_vector()->ExtractCopy( tSol.data(), tMyLDA );
+        static_cast<Vector_Epetra*>(tVectorA)->get_epetra_vector()->ExtractCopy( tSol.data(), tMyLDA );
 
         if (rank == 0)
         {
@@ -328,7 +329,7 @@ TEST_CASE("Import Dist Vector","[Import Dist Vector],[DistLinAlg]")
         sint tMyLDA = 0;
 
         // Get solution and output it in moris::Mat LHSValues
-        tVectorFull->get_epetra_vector()->ExtractCopy(  tSol.data(), tMyLDA );
+        static_cast<Vector_Epetra*>(tVectorFull)->get_epetra_vector()->ExtractCopy(  tSol.data(), tMyLDA );
 
         // Get local vector lengt
         moris::uint tLocLength = tVectorFull->vec_local_length();

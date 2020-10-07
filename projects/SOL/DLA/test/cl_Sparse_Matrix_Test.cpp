@@ -231,7 +231,7 @@ TEST_CASE("Diagonal Sparse Mat","[Diagonal Sparse Mat],[DistLinAlg]")
     sint tMyLDA = 0;
 
     // Get solution and output it in moris::Mat LHSValues
-    tVectorDiagonal->get_epetra_vector()->ExtractCopy( tDiagonal.data(), tMyLDA );
+    static_cast<Vector_Epetra*>(tVectorDiagonal)->get_epetra_vector()->ExtractCopy( tDiagonal.data(), tMyLDA );
 
     // Compare to true values.
     if (rank == 0)
@@ -389,7 +389,7 @@ TEST_CASE("Non-square matrix","[Non-square matrix],[DistLinAlg]")
         sint tMyLDA = 0;
 
         // Get solution and output it in moris::Mat LHSValues
-        tVector2->get_epetra_vector()->ExtractCopy( tResult.data(), tMyLDA );
+        static_cast<Vector_Epetra*>(tVector2)->get_epetra_vector()->ExtractCopy( tResult.data(), tMyLDA );
 
         // Compare to true values.
         if (rank == 0)

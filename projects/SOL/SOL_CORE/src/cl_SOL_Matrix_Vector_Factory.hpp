@@ -46,8 +46,6 @@ namespace moris
         moris::sol::Dist_Vector * create_vector(       moris::sol::Dist_Map        * aMap,
                                                  const sint                      aNumVectors = 1 );
 
-        moris::sol::Dist_Vector * create_vector( );
-
         moris::sol::Dist_Map * create_map( const moris::Matrix< DDSMat > & aMyGlobalIds,
                                            const moris::Matrix< DDUMat > & aMyConstraintIds );
 

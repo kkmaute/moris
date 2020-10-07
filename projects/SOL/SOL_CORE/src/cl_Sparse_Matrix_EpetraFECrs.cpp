@@ -175,7 +175,7 @@ void Sparse_Matrix_EpetraFECrs::get_diagonal( sol::Dist_Vector & aDiagVec ) cons
     }
 
     // extract diagonal values into vector
-    int error = mEpetraMat->ExtractDiagonalCopy( ( Epetra_Vector & ) *(aDiagVec.get_epetra_vector()) );
+    int error = mEpetraMat->ExtractDiagonalCopy( *static_cast<Epetra_Vector*>(dynamic_cast<Vector_Epetra&>(aDiagVec).get_epetra_vector()) );
 
     if ( error != 0 )
     {
@@ -188,7 +188,7 @@ void Sparse_Matrix_EpetraFECrs::get_diagonal( sol::Dist_Vector & aDiagVec ) cons
 void Sparse_Matrix_EpetraFECrs::sparse_mat_left_scale( const sol::Dist_Vector & aScaleVector )
 {
     // scale matrix with vector from the left
-    int error = mEpetraMat->LeftScale( ( Epetra_Vector & ) *aScaleVector.get_epetra_vector() );
+    int error = mEpetraMat->LeftScale( *static_cast<Epetra_Vector*>( dynamic_cast<const Vector_Epetra&>(aScaleVector).get_epetra_vector() ) );
 
     if ( error != 0 )
     {
@@ -201,7 +201,7 @@ void Sparse_Matrix_EpetraFECrs::sparse_mat_left_scale( const sol::Dist_Vector & 
 void Sparse_Matrix_EpetraFECrs::sparse_mat_right_scale( const sol::Dist_Vector & aScaleVector )
 {
     // scale matrix with vector from the right
-    int error = mEpetraMat->RightScale( ( Epetra_Vector & ) *aScaleVector.get_epetra_vector() );
+    int error = mEpetraMat->RightScale( *static_cast<Epetra_Vector*>( dynamic_cast<const Vector_Epetra&>(aScaleVector).get_epetra_vector() ) );
 
     if ( error != 0 )
     {
@@ -220,7 +220,7 @@ void Sparse_Matrix_EpetraFECrs::replace_diagonal_values( const sol::Dist_Vector 
     }
 
     // replace diagonal matrix values with vector values
-    int error = mEpetraMat->ReplaceDiagonalValues( ( const Epetra_Vector & ) *(aDiagVec.get_epetra_vector()) );
+    int error = mEpetraMat->ReplaceDiagonalValues( *static_cast<Epetra_Vector*>( dynamic_cast<const Vector_Epetra&>(aDiagVec).get_epetra_vector() ) );
 
     if ( error != 0 )
     {
@@ -237,8 +237,8 @@ void Sparse_Matrix_EpetraFECrs::mat_vec_product(
 {
     mEpetraMat->Multiply(
             aUseTranspose,
-            *aInputVec.get_epetra_vector(),
-            *aResult.get_epetra_vector() );
+            *dynamic_cast<const Vector_Epetra&>(aInputVec).get_epetra_vector(),
+            *dynamic_cast<Vector_Epetra&>(aResult).get_epetra_vector() );
 }
 
 // ----------------------------------------------------------------------------------------------------------------------

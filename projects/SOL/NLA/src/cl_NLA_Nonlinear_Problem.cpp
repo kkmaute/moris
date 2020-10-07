@@ -229,12 +229,6 @@ void Nonlinear_Problem::build_linearized_problem(
 {
     Tracer tTracer(EntityBase::NonLinearProblem, EntityType::NoType, EntityAction::Build);
 
-    delete( mFullVector );
-
-    // Build Matrix vector factory
-    Matrix_Vector_Factory tMatFactory;
-    mFullVector = tMatFactory.create_vector();
-
     this->restart_from_sol_vec( aRestart );
 
     // Set VectorFreeSol and LHS
