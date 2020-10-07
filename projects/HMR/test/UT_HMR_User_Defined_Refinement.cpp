@@ -278,7 +278,7 @@ TEST_CASE("Color refinement", "[moris],[mesh],[hmr],[Color refinement]")
     // do this test for 2 and 3 dimensions
     if( par_size() == 1 )
     {
-		moris::uint tOrder=1;
+		// moris::uint tOrder=1;
 		moris::uint tDimension=2;
 
     //------------------------------------------------------------------------------
@@ -362,7 +362,7 @@ TEST_CASE("Color refinement", "[moris],[mesh],[hmr],[Color refinement]")
 
         tHMR.save_to_exodus( 0,"UserDefinedRefColor.exo" );
 
-        uint tNumElements = tMesh->get_num_elems();
+        // uint tNumElements = tMesh->get_num_elems();
 
         // perform test
         //REQUIRE( tNumElements == 1120 );    
