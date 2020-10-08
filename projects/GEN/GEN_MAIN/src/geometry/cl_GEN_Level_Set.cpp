@@ -78,7 +78,6 @@ namespace moris
 
         real Level_Set::evaluate_field_value(uint aNodeIndex)
         {
-            std::cout << "start evaluate " << par_rank() << std::endl;
             // Initialize
             real tResult = 0.0;
 
@@ -89,7 +88,6 @@ namespace moris
             {
                 tResult += tMatrix(tBspline) * (*mFieldVariables(tIndices(tBspline)));
             }
-            std::cout << "end evaluate " << par_rank() << std::endl;
 
             // Return result
             return tResult;
