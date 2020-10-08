@@ -78,6 +78,7 @@ namespace moris
 
         real Level_Set::evaluate_field_value(uint aNodeIndex)
         {
+            std::cout << "start evaluate " << par_rank() << std::endl;
             // Initialize
             real tResult = 0.0;
 
@@ -88,6 +89,7 @@ namespace moris
             {
                 tResult += tMatrix(tBspline) * (*mFieldVariables(tIndices(tBspline)));
             }
+            std::cout << "end evaluate " << par_rank() << std::endl;
 
             // Return result
             return tResult;
@@ -118,13 +120,15 @@ namespace moris
             // Create field
             Matrix<DDRMat> tTargetField(0, 0);
 
-            // Check if L2 is needed
-            for (uint tNodeIndex = 0; tNodeIndex < mNumOriginalNodes; tNodeIndex++)
+            // Find first node with interpolation
+            uint tTestNodeIndex = 0;
+            while (not mMesh->node_has_interpolation(tTestNodeIndex, this->get_bspline_mesh_index()))
             {
-                std::cout << tNodeIndex << ", " << mMesh->get_bspline_inds_of_node_loc_ind(tNodeIndex, EntityRank::BSPLINE)(0) << std::endl;
+                tTestNodeIndex++;
             }
 
-            if (mNumOriginalNodes != mMesh->get_num_coeffs(this->get_bspline_mesh_index()))
+            // Check if L2 is needed
+            if (mMesh->get_bspline_inds_of_node_loc_ind(tTestNodeIndex, EntityRank::BSPLINE).length() > 1)
             {
                 // Check for serial
                 MORIS_ERROR(par_size() == 1, "L2 not implemented in parallel");
@@ -160,11 +164,14 @@ namespace moris
                 // Assign ADVs directly
                 for (uint tNodeIndex = 0; tNodeIndex < mNumOriginalNodes; tNodeIndex++)
                 {
-                    // Get B-spline index
-                    uint tBSplineIndex = mMesh->get_bspline_inds_of_node_loc_ind(tNodeIndex, EntityRank::BSPLINE)(0);
+                    if (mMesh->node_has_interpolation(tNodeIndex, this->get_bspline_mesh_index()))
+                    {
+                        // Get B-spline index
+                        uint tBSplineIndex = mMesh->get_bspline_inds_of_node_loc_ind(tNodeIndex, EntityRank::BSPLINE)(0);
 
-                    // Assign target field
-                    tTargetField(tBSplineIndex) = aGeometry->evaluate_field_value(tNodeIndex, mMesh->get_node_coordinate(tNodeIndex));
+                        // Assign target field
+                        tTargetField(tBSplineIndex) = aGeometry->evaluate_field_value(tNodeIndex, mMesh->get_node_coordinate(tNodeIndex));
+                    }
                 }
             }
 
