@@ -237,7 +237,7 @@ namespace moris
         void IWG::set_interpolation_order()
         {
             // if order is already set
-            if( mOrder != MORIS_UINT_MAX ) return;
+            if( ( mOrder != MORIS_UINT_MAX ) && ( mOrder < 4 ) ) return;
 
             // get residual dof type interpolation order
             mtk::Interpolation_Order tInterpOrder =

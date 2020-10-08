@@ -254,6 +254,11 @@ namespace moris
 
                 void set_interpolation_order( uint aOrder )
                 {
+                    // check that order is 1 to 3
+                    MORIS_ERROR( ( aOrder > 0 ) && ( aOrder < 4 ),
+                            "IWG::set_interpolation_order - order not supported." );
+
+                    // set order
                     mOrder = aOrder;
                 }
 
