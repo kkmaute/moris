@@ -332,6 +332,13 @@ namespace moris
 
         //-----------------------------------------------------------------------------
 
+        bool Mesh::node_has_interpolation(uint aNodeIndex, uint aBSplineMeshIndex)
+        {
+            return mMesh->get_node_by_index(aNodeIndex)->has_interpolation(aBSplineMeshIndex);
+        }
+
+        //-----------------------------------------------------------------------------
+
         Matrix< IndexMat > Mesh::get_bspline_inds_of_node_loc_ind(
                 const moris_index      aNodeIndex,
                 const enum EntityRank  aBSplineRank )

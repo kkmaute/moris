@@ -859,6 +859,15 @@ namespace moris
             virtual uint
             get_num_coeffs(const uint aBSplineMeshIndex) const;
 
+            /**
+             * Returns if this node has information about B-spline interpolation or not
+             *
+             * @param aNodeIndex Node index
+             * @param aBSplineMeshIndex B-spline mesh index
+             * @return If interpolation exists
+             */
+            virtual bool node_has_interpolation(uint aNodeIndex, uint aBSplineMeshIndex);
+
             // FIXME B-spline rank should be B-spline mesh index
             /**
              * Get the T-matrix of a node.
