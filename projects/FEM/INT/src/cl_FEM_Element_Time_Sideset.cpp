@@ -60,22 +60,33 @@ namespace moris
                 // get space dimension
                 uint tSpaceDim = tIGPhysSpaceCoords.n_cols();
 
-                // reshape the XYZ values into a cell of vectors
-                moris::Cell< Matrix< DDRMat > > tPdvValueList( tSpaceDim );
-                for( uint iSpaceDim = 0; iSpaceDim < tSpaceDim; iSpaceDim++ )
-                {
-                    tPdvValueList( iSpaceDim ) = tIGPhysSpaceCoords.get_column( iSpaceDim );
-                }
-
                 // get the vertices indices for IG element
                 Matrix< IndexMat > tVertexIndices = mMasterCell->get_vertex_inds();
 
                 // get the pdv values from the MSI/GEN interface
+                moris::Cell< Matrix< DDRMat > > tPdvValueList( tSpaceDim );
                 mSet->get_equation_model()->get_design_variable_interface()->get_ig_pdv_value(
                         tVertexIndices,
                         tGeoPdvType,
                         tPdvValueList,
                         aIsActiveDv );
+
+                // reshape the XYZ values into a cell of vectors
+                for( uint iSpaceDim = 0; iSpaceDim < tSpaceDim; iSpaceDim++ )
+                {
+                    for ( uint iNode = 0; iNode < tIGPhysSpaceCoords.n_rows(); iNode++)
+                    {
+                        if ( ! aIsActiveDv(iSpaceDim)(iNode) )
+                        {
+                            tPdvValueList( iSpaceDim )( iNode ) = tIGPhysSpaceCoords( iNode,iSpaceDim );
+                        }
+                        else
+                        {
+                            MORIS_ASSERT( equal_to(tPdvValueList( iSpaceDim )( iNode ),tIGPhysSpaceCoords.get_column( iSpaceDim )( iNode ), 1.0) ,
+                                    "GE coordinate and MTK coordinate differ\n");
+                        }
+                    }
+                }
 
                 // reshape the cell of vectors tPdvValueList into a matrix tIGPhysSpaceCoords
                 tIGPhysSpaceCoords.set_size( 0, 0 );

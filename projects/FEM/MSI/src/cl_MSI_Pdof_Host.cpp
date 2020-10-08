@@ -15,8 +15,9 @@ namespace moris
     {
         //-----------------------------------------------------------------------------------------------------------
 
-        Pdof_Host::Pdof_Host( const moris::uint      aNumUsedDofTypes,
-                fem::Node_Base * aNodeObj ) : mNodeObj( aNodeObj )
+        Pdof_Host::Pdof_Host(
+                const moris::uint    aNumUsedDofTypes,
+                fem::Node_Base     * aNodeObj ) : mNodeObj( aNodeObj )
         {
             mNodeID = mNodeObj->get_id();
             //mNodeInd = mNodeObj->get_index();
@@ -27,6 +28,8 @@ namespace moris
             mListOfPdofTimePerType.resize( aNumUsedDofTypes );
         }
 
+        //-----------------------------------------------------------------------------------------------------------
+
         Pdof_Host::~Pdof_Host()
         {
             for( moris::Cell< Pdof* > & tList : mListOfPdofTimePerType )
@@ -35,11 +38,15 @@ namespace moris
                 {
                     delete tPdof;
                 }
+                tList.clear();
             }
+            mListOfPdofTimePerType.clear();
         }
+
         //-----------------------------------------------------------------------------------------------------------
 
-        void Pdof_Host::set_pdof_type( const enum Dof_Type      aDof_Type,
+        void Pdof_Host::set_pdof_type(
+                const enum Dof_Type      aDof_Type,
                 const Matrix< DDUMat > & aTimePerDofType,
                 const moris::uint        aNumUsedDofTypes,
                 const Matrix< DDSMat > & aPdofTypeMap)
@@ -81,10 +88,11 @@ namespace moris
 
         //-----------------------------------------------------------------------------------------------------------
 
-        void Pdof_Host::get_adofs( const Matrix< DDUMat >                     & aTimeLevelOffsets,
+        void Pdof_Host::get_adofs(
+                const Matrix< DDUMat >               & aTimeLevelOffsets,
                 moris::Cell< moris::Cell< Adof * > > & aAdofList,
                 Model_Solver_Interface               * aModelSolverInterface,
-                const bool                                 & aUseHMR )
+                const bool                           & aUseHMR )
         {
             if ( aUseHMR )
             {
@@ -97,7 +105,9 @@ namespace moris
         }
 
         //-----------------------------------------------------------------------------------------------------------
-        void Pdof_Host::create_adofs_based_on_Tmatrix( const Matrix< DDUMat >                     & aTimeLevelOffsets,
+
+        void Pdof_Host::create_adofs_based_on_Tmatrix(
+                const Matrix< DDUMat >               & aTimeLevelOffsets,
                 moris::Cell< moris::Cell< Adof * > > & aAdofList,
                 Model_Solver_Interface               * aModelSolverInterface )
         {
@@ -154,7 +164,8 @@ namespace moris
 
         //-----------------------------------------------------------------------------------------------------------
 
-        void Pdof_Host::create_adofs_based_on_pdofs( const Matrix< DDUMat >                     & aTimeLevelOffsets,
+        void Pdof_Host::create_adofs_based_on_pdofs(
+                const Matrix< DDUMat >               & aTimeLevelOffsets,
                 moris::Cell< moris::Cell< Adof * > > & aAdofList)
         {
             //        //Get number of pdof Types in this pdof host
@@ -271,7 +282,8 @@ namespace moris
 
         //-----------------------------------------------------------------------------------------------------------
 
-        void Pdof_Host::set_t_matrix( const bool & aUseHMR,
+        void Pdof_Host::set_t_matrix(
+                const bool             & aUseHMR,
                 Model_Solver_Interface * aModelSolverInterface )
         {
             //Get number of pdof Types in this pdof host
@@ -302,6 +314,7 @@ namespace moris
         }
 
         //-----------------------------------------------------------------------------------------------------------
+
         moris::uint Pdof_Host::get_num_pdofs()
         {
             //Get number of pdof Types in this pdof host
@@ -311,12 +324,53 @@ namespace moris
             // Loop over all pdof types
             for ( moris::uint Ii = 0; Ii < tNumPdofTypes; Ii++ )
             {
-                // Add loop for more timesteps
+                // Add loop for more time steps
                 counter = counter + mListOfPdofTimePerType( Ii ).size();
             }
             return counter;
         }
 
         //-----------------------------------------------------------------------------------------------------------
+
+        void Pdof_Host::print_t_matrix(
+                const bool              & aUseHMR,
+                Model_Solver_Interface * aModelSolverInterface )
+        {
+            //Get number of pdof Types in this pdof host
+             moris::uint tNumPdofTypes = mListOfPdofTimePerType.size();
+
+             // Array for coordinates
+            Matrix< DDRMat > tCoords;
+
+            // Loop over all pdof types and times to add T matrices
+            for ( moris::uint Ii = 0; Ii < tNumPdofTypes; Ii++ )
+            {
+                // Ask for adof mesh index for this dof type
+                moris::uint tAdofMeshIndex = ( moris::uint ) aModelSolverInterface->get_adof_index_for_type( 0 );
+
+                // nothing is printed unless Tmatrix is provided by HMR
+                if ( aUseHMR )
+                {
+                    // Get TMatrix.
+                    const Matrix< DDRMat > * tTmatrix  = mNodeObj->get_t_matrix( tAdofMeshIndex );
+                    const Matrix< DDSMat > tAdofMeshId = mNodeObj->get_adof_ids( tAdofMeshIndex );
+
+                    // Get nodal coordinates
+                    mNodeObj->get_vertex_coords(tCoords);
+
+                    std::cout << "%=======================================================================================\n";
+
+                    std::cout << "% Adof_index: " << Ii << std::endl;
+
+                    print(tCoords,"Pdof_Host_Coordinates");
+
+                    print(*tTmatrix,"Tmatrix weights");
+
+                    print(tAdofMeshId,"Tmatrix Ids" );
+
+                    std::cout << "%=======================================================================================\n";
+                }
+            }
+        }
     }
 }
