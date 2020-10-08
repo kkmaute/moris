@@ -33,10 +33,10 @@ TEST_CASE("Dist Vector","[Dist Vector],[DistLinAlg]")
         Solver_Interface* tSolverInput = new Solver_Interface_Proxy( );
 
         // Build matrix factory
-        Matrix_Vector_Factory      tMatFactory;
+        sol::Matrix_Vector_Factory      tMatFactory;
 
         // Build map
-        Dist_Map  * tMap = tMatFactory.create_map( tSolverInput->get_my_local_global_map(),
+        std::shared_ptr<Dist_Map> tMap = tMatFactory.create_map( tSolverInput->get_my_local_global_map(),
                                                     tSolverInput->get_constrained_Ids() );
 
         // build distributed vector
@@ -80,7 +80,6 @@ TEST_CASE("Dist Vector","[Dist Vector],[DistLinAlg]")
         }
 
         delete( tSolverInput );
-        delete( tMap );
         delete( tVectorA );
     }
 }
@@ -97,10 +96,10 @@ TEST_CASE("Sum Dist Vector","[Sum Dist Vector],[DistLinAlg]")
         Solver_Interface* tSolverInput = new Solver_Interface_Proxy( );
 
         // Build matrix factory
-        Matrix_Vector_Factory     tMatFactory;
+        sol::Matrix_Vector_Factory     tMatFactory;
 
         // Build map
-        Dist_Map * tMap = tMatFactory.create_map( tSolverInput->get_my_local_global_map(),
+        std::shared_ptr<Dist_Map> tMap = tMatFactory.create_map( tSolverInput->get_my_local_global_map(),
                                                    tSolverInput->get_constrained_Ids() );
 
         // build distributed vector
@@ -151,7 +150,6 @@ TEST_CASE("Sum Dist Vector","[Sum Dist Vector],[DistLinAlg]")
             CHECK( equal_to( (*tVectorA)(5), 2.0 ) );
         }
         delete( tSolverInput );
-        delete( tMap );
         delete( tVectorA );
         delete( tVectorB );
     }
@@ -169,10 +167,10 @@ TEST_CASE("Scale Dist Vector","[Scale Dist Vector],[DistLinAlg]")
         Solver_Interface * tSolverInput = new Solver_Interface_Proxy( );
 
         // Build matrix factory
-        Matrix_Vector_Factory      tMatFactory;
+        sol::Matrix_Vector_Factory      tMatFactory;
 
         // Build map
-        Dist_Map * tMap = tMatFactory.create_map( tSolverInput->get_my_local_global_map(),
+        std::shared_ptr<Dist_Map> tMap = tMatFactory.create_map( tSolverInput->get_my_local_global_map(),
                                                    tSolverInput->get_constrained_Ids() );
 
         // build distributed vector
@@ -215,7 +213,6 @@ TEST_CASE("Scale Dist Vector","[Scale Dist Vector],[DistLinAlg]")
             CHECK( equal_to( tSol( 1,0 ), 5.5 ) );
         }
         delete( tSolverInput );
-        delete( tMap );
         delete( tVectorA );
     }
 }
@@ -232,10 +229,10 @@ TEST_CASE("Norm/Length Dist Vector","[Norm Dist Vector],[DistLinAlg]")
         Solver_Interface* tSolverInput = new Solver_Interface_Proxy( );
 
         // Build matrix factory
-        Matrix_Vector_Factory      tMatFactory;
+        sol::Matrix_Vector_Factory      tMatFactory;
 
         // Build map
-        Dist_Map * tMap = tMatFactory.create_map( tSolverInput->get_my_local_global_map(),
+        std::shared_ptr<Dist_Map> tMap = tMatFactory.create_map( tSolverInput->get_my_local_global_map(),
                                                    tSolverInput->get_constrained_Ids());
 
         // build distributed vector
@@ -276,7 +273,6 @@ TEST_CASE("Norm/Length Dist Vector","[Norm Dist Vector],[DistLinAlg]")
             CHECK( equal_to( tGlobLength, 15.0 ) );
         }
         delete( tSolverInput );
-        delete( tMap );
         delete( tVectorA );
     }
 }
@@ -293,12 +289,12 @@ TEST_CASE("Import Dist Vector","[Import Dist Vector],[DistLinAlg]")
         Solver_Interface* tSolverInput = new Solver_Interface_Proxy( );
 
         // Build matrix factory
-        Matrix_Vector_Factory      tMatFactory;
+        sol::Matrix_Vector_Factory      tMatFactory;
 
         // Build map
-        Dist_Map * tMap = tMatFactory.create_map( tSolverInput->get_my_local_global_map()  );
+        std::shared_ptr<Dist_Map> tMap = tMatFactory.create_map( tSolverInput->get_my_local_global_map()  );
 
-        Dist_Map * tMapFree = tMatFactory.create_map( tSolverInput->get_my_local_global_map(),
+        std::shared_ptr<Dist_Map> tMapFree = tMatFactory.create_map( tSolverInput->get_my_local_global_map(),
                                                        tSolverInput->get_constrained_Ids() );
 
         // build local distributed free vector
@@ -349,7 +345,6 @@ TEST_CASE("Import Dist Vector","[Import Dist Vector],[DistLinAlg]")
             CHECK( equal_to( tGlobLength, 18.0 ) );
         }
         delete( tSolverInput );
-        delete( tMap );
         delete( tVectorFree );
         delete( tVectorFull );
     }

@@ -14,42 +14,62 @@
 
 namespace moris
 {
+    class Solver_Interface;
+
     namespace sol
     {
         class Dist_Matrix;
         class Dist_Vector;
         class Dist_Map;
+        
+        class Matrix_Vector_Factory
+        {
+        private:
+            enum MapType mMapType = MapType::Epetra;
+    
+        public:
+            Matrix_Vector_Factory(const enum MapType aMapType = MapType::Epetra);
+    
+            Dist_Matrix *create_matrix(
+                    Solver_Interface *aInput,
+                    std::shared_ptr<Dist_Map> aMap);
+    
+            Dist_Matrix *create_matrix(
+                    std::shared_ptr<Dist_Map> aRowMap,
+                    std::shared_ptr<Dist_Map> aColMap);
+    
+            Dist_Matrix *create_matrix(
+                    const moris::uint aRows,
+                    const moris::uint aCols);
+    
+            Dist_Vector *create_vector(
+                    moris::Solver_Interface *aInput,
+                    std::shared_ptr<Dist_Map> aMap,
+                    const sint aNumVectors = 1);
+    
+            Dist_Vector *create_vector(
+                    std::shared_ptr<Dist_Map> aMap,
+                    const sint aNumVectors = 1);
+
+            /**
+             * Creates a distributed vector/matrix map
+             *
+             * @param aMyGlobalIds Owned global IDs
+             * @param aMyConstraintIds Constraint IDs
+             * @return Distributed map
+             */
+            std::shared_ptr<Dist_Map> create_map(
+                    const moris::Matrix<DDSMat> &aMyGlobalIds,
+                    const moris::Matrix<DDUMat> &aMyConstraintIds);
+
+            /**
+             * Creates a distributed vector/matrix map
+             *
+             * @param aMyGlobalIds Owned global IDs
+             * @return Distributed map
+             */
+            std::shared_ptr<Dist_Map> create_map(const moris::Matrix<DDSMat> &aMyGlobalIds);
+        };
     }
-    class Solver_Interface;
-    class Matrix_Vector_Factory
-    {
-    private:
-        enum sol::MapType mMapType = sol::MapType::Epetra;
-    protected:
-
-    public:
-        Matrix_Vector_Factory( const enum sol::MapType aMapType = sol::MapType::Epetra );
-
-        sol::Dist_Matrix * create_matrix(       Solver_Interface * aInput,
-                                          const sol::Dist_Map        * aMap );
-										  
-		sol::Dist_Matrix * create_matrix( const sol::Dist_Map * aRowMap,
-                                          const sol::Dist_Map * aColMap );
-
-        sol::Dist_Matrix * create_matrix( const moris::uint aRows,
-                                          const moris::uint aCols );
-
-        moris::sol::Dist_Vector * create_vector(       moris::Solver_Interface * aInput,
-                                                       moris::sol::Dist_Map        * aMap,
-                                                 const sint                      aNumVectors = 1 );
-
-        moris::sol::Dist_Vector * create_vector(       moris::sol::Dist_Map        * aMap,
-                                                 const sint                      aNumVectors = 1 );
-
-        moris::sol::Dist_Map * create_map( const moris::Matrix< DDSMat > & aMyGlobalIds,
-                                           const moris::Matrix< DDUMat > & aMyConstraintIds );
-
-        moris::sol::Dist_Map * create_map( const moris::Matrix< DDSMat > & aMyGlobalIds );
-    };
 }
 #endif /* SRC_DISTLINALG_SPARSE_MATRIX_FACTORY_HPP_ */

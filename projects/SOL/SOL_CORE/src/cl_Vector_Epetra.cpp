@@ -13,7 +13,7 @@ using namespace moris;
 //----------------------------------------------------------------------------------------------
 
 Vector_Epetra::Vector_Epetra(
-        sol::Dist_Map   * aMapClass,
+        std::shared_ptr<sol::Dist_Map>  aMapClass,
         const sint        aNumVectors ) : sol::Dist_Vector( aMapClass )
 {
     mNumVectors = aNumVectors;

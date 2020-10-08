@@ -45,7 +45,7 @@ namespace dla
         mMultigridMap               = mSolverInterface->get_multigrid_map();
 
         // Build matrix vector factory to build prolongation operators
-        Matrix_Vector_Factory tMatFactory( sol::MapType::Petsc );
+        sol::Matrix_Vector_Factory tMatFactory( sol::MapType::Petsc );
 
         // Set size of List containing prolongation operators
         mProlongationList.resize( mListAdofExtIndMap.size() - 1 );

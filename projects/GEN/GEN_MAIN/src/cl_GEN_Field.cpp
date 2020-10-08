@@ -97,8 +97,8 @@ namespace moris
                   mBSplineUpperBound(aBSplineUpperBound)
         {
             // Create shared distributed vector
-            Matrix_Vector_Factory tDistributedFactory;
-            sol::Dist_Map* tSharedADVMap = tDistributedFactory.create_map(aSharedADVIds);
+            sol::Matrix_Vector_Factory tDistributedFactory;
+            std::shared_ptr<sol::Dist_Map> tSharedADVMap = tDistributedFactory.create_map(aSharedADVIds);
             mSharedADVs = tDistributedFactory.create_vector(tSharedADVMap);
 
             // Set variables from ADVs

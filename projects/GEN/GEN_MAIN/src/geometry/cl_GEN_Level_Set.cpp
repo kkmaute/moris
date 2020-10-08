@@ -119,6 +119,11 @@ namespace moris
             Matrix<DDRMat> tTargetField(0, 0);
 
             // Check if L2 is needed
+            for (uint tNodeIndex = 0; tNodeIndex < mNumOriginalNodes; tNodeIndex++)
+            {
+                std::cout << tNodeIndex << ", " << mMesh->get_bspline_inds_of_node_loc_ind(tNodeIndex, EntityRank::BSPLINE)(0) << std::endl;
+            }
+
             if (mNumOriginalNodes != mMesh->get_num_coeffs(this->get_bspline_mesh_index()))
             {
                 // Check for serial

@@ -39,7 +39,7 @@ protected:
 public:
     /** Default contructor */
     Matrix_PETSc(       moris::Solver_Interface * aInput,
-                  const moris::sol::Dist_Map    * aMap );
+                  std::shared_ptr<sol::Dist_Map>  aMap );
 
     Matrix_PETSc( const moris::uint aRows,
                   const moris::uint aCols );

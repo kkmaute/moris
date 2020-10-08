@@ -90,7 +90,7 @@ public :
 
 
 //        // create map object
-//        Matrix_Vector_Factory tMatFactory( MapType::Epetra );
+//        sol::Matrix_Vector_Factory tMatFactory( MapType::Epetra );
 //
 //        mVectorMap = tMatFactory.create_map( this->get_my_local_global_map(), mConstraintDofs );
 //

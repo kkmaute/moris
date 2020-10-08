@@ -39,7 +39,7 @@ Linear_System_PETSc::Linear_System_PETSc(       Solver_Interface * aInput,
 
     if ( aInput->get_matrix_market_path() == NULL )
     {
-        Matrix_Vector_Factory tMatFactory( sol::MapType::Petsc );
+        sol::Matrix_Vector_Factory tMatFactory( sol::MapType::Petsc );
 
         // create map object
         mMap = tMatFactory.create_map( aInput->get_my_local_global_map(),
@@ -58,10 +58,6 @@ Linear_System_PETSc::Linear_System_PETSc(       Solver_Interface * aInput,
         mFullVectorLHS = tMatFactory.create_vector( aInput, mMap, 1 );
 
         mSolverInterface->build_graph( mMat );
-
-//        mFreeVectorLHS->read_vector_from_HDF5( "Exact_Sol_petsc.h5" );
-//        mFreeVectorLHS->print();
-//        std::cout<<" aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa "<<std::endl;
     }
 
     else
@@ -73,8 +69,8 @@ Linear_System_PETSc::Linear_System_PETSc(       Solver_Interface * aInput,
 //----------------------------------------------------------------------------------------
 
 Linear_System_PETSc::Linear_System_PETSc(       Solver_Interface * aInput,
-                                                sol::Dist_Map    * aFreeMap,
-                                                sol::Dist_Map    * aFullMap,
+                                                std::shared_ptr<sol::Dist_Map>  aFreeMap,
+                                                std::shared_ptr<sol::Dist_Map>  aFullMap,
                                           const bool               aNotCreatedByNonLinSolver) : moris::dla::Linear_Problem( aInput ),
                                                                                                 mNotCreatedByNonLinearSolver( aNotCreatedByNonLinSolver)
 {
@@ -85,7 +81,7 @@ Linear_System_PETSc::Linear_System_PETSc(       Solver_Interface * aInput,
         PetscInitializeNoArguments();
     }
 
-    Matrix_Vector_Factory tMatFactory( sol::MapType::Petsc );
+    sol::Matrix_Vector_Factory tMatFactory( sol::MapType::Petsc );
 
     // Build matrix
     mMat = tMatFactory.create_matrix( aInput, aFreeMap );
@@ -115,12 +111,6 @@ Linear_System_PETSc::~Linear_System_PETSc()
     delete mFullVectorLHS;
     mFullVectorLHS=nullptr;
 
-    delete mMap;
-    mMap=nullptr;
-
-    delete mMapFree;
-    mMapFree=nullptr;
-
 //    mSolverInterface->delete_multigrid();
 
     //KSPDestroy( &mPetscProblem );
@@ -128,6 +118,10 @@ Linear_System_PETSc::~Linear_System_PETSc()
 
     if ( mNotCreatedByNonLinearSolver == true )
     {
+        // Must do a manual reset here before PetscFinalize!
+        mMap.reset();
+        mMapFree.reset();
+
         PetscFinalize();
     }
 }

@@ -31,7 +31,7 @@ namespace moris
     public:
         /** Default contructor */
         Vector_PETSc(       moris::Solver_Interface * aInput,
-                            moris::sol::Dist_Map    * aMap,
+                            std::shared_ptr<sol::Dist_Map>  aMap,
                       const sint                      aNumVectores );
 
         /** Destructor */

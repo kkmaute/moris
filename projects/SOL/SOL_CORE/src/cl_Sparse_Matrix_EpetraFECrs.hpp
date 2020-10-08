@@ -34,11 +34,11 @@ protected:
 
 public:
     Sparse_Matrix_EpetraFECrs(       moris::Solver_Interface * aInput,
-                               const moris::sol::Dist_Map    * aMap );
+                               std::shared_ptr<sol::Dist_Map>  aMap );
 							   
 	Sparse_Matrix_EpetraFECrs(
-        const sol::Dist_Map * aRowMap,
-        const sol::Dist_Map * aColMap  );
+        const std::shared_ptr<sol::Dist_Map>  aRowMap,
+        const std::shared_ptr<sol::Dist_Map>  aColMap  );
 
     Sparse_Matrix_EpetraFECrs( const moris::uint aRows,
                                const moris::uint aCols )

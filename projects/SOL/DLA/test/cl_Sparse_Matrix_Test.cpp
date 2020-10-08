@@ -31,10 +31,10 @@ TEST_CASE("Sparse Mat","[Sparse Mat],[DistLinAlg]")
     Solver_Interface * tSolverInput = new Solver_Interface_Proxy( );
 
     // Build matrix factory
-    Matrix_Vector_Factory      tMatFactory;
+    sol::Matrix_Vector_Factory      tMatFactory;
 
     // Build map
-    sol::Dist_Map * tLocalMap = tMatFactory.create_map( tSolverInput->get_my_local_global_map(),
+    std::shared_ptr<sol::Dist_Map>  tLocalMap = tMatFactory.create_map( tSolverInput->get_my_local_global_map(),
                                                     tSolverInput->get_constrained_Ids());
 
     // Create pointer to sparse matrix
@@ -84,7 +84,6 @@ TEST_CASE("Sparse Mat","[Sparse Mat],[DistLinAlg]")
         CHECK( equal_to( tValues( 8, 0 ), -3) );
     }
     delete ( tSolverInput );
-    delete ( tLocalMap );
     delete ( tMat );
 
     }
@@ -102,10 +101,10 @@ TEST_CASE("Scale Sparse Mat","[Scale Sparse Mat],[DistLinAlg]")
     Solver_Interface * tSolverInput = new Solver_Interface_Proxy( );
 
     // Build matrix factory
-    Matrix_Vector_Factory      tMatFactory;
+    sol::Matrix_Vector_Factory      tMatFactory;
 
     // Build map
-    sol::Dist_Map * tMap = tMatFactory.create_map( tSolverInput->get_my_local_global_map(),
+    std::shared_ptr<sol::Dist_Map>  tMap = tMatFactory.create_map( tSolverInput->get_my_local_global_map(),
                                                tSolverInput->get_constrained_Ids() );
 
     // build distributed vector
@@ -163,7 +162,6 @@ TEST_CASE("Scale Sparse Mat","[Scale Sparse Mat],[DistLinAlg]")
         CHECK(equal_to(tValues(8,0), -6.75));
     }
     delete ( tSolverInput );
-    delete ( tMap );
     delete ( tVectorScale );
     delete ( tMat );
     }
@@ -181,10 +179,10 @@ TEST_CASE("Diagonal Sparse Mat","[Diagonal Sparse Mat],[DistLinAlg]")
     Solver_Interface * tSolverInput = new Solver_Interface_Proxy( );
 
     // Build matrix factory
-    Matrix_Vector_Factory      tMatFactory;
+    sol::Matrix_Vector_Factory      tMatFactory;
 
     // Build map
-    sol::Dist_Map * tMap = tMatFactory.create_map( tSolverInput->get_my_local_global_map(),
+    std::shared_ptr<sol::Dist_Map>  tMap = tMatFactory.create_map( tSolverInput->get_my_local_global_map(),
                                                tSolverInput->get_constrained_Ids() );
 
     // build distributed vector
@@ -272,7 +270,6 @@ TEST_CASE("Diagonal Sparse Mat","[Diagonal Sparse Mat],[DistLinAlg]")
         CHECK(equal_to(tValues(8,0), -3));
     }
     delete ( tSolverInput );
-    delete ( tMap );
     delete ( tVectorDiagonal );
     delete ( tMat );
     }
@@ -333,7 +330,7 @@ TEST_CASE("Non-square matrix","[Non-square matrix],[DistLinAlg]")
     if (size == 2)
     {
         // Build matrix factory
-        Matrix_Vector_Factory      tMatFactory;
+        sol::Matrix_Vector_Factory      tMatFactory;
 		
 		moris::Matrix< DDSMat > tRowMapVal;
 		moris::Matrix< DDSMat > tColMapVal;
@@ -349,8 +346,8 @@ TEST_CASE("Non-square matrix","[Non-square matrix],[DistLinAlg]")
 		}
 
         // Build map
-        sol::Dist_Map * tRowMap = tMatFactory.create_map( tRowMapVal );
-		sol::Dist_Map * tColMap = tMatFactory.create_map( tColMapVal );
+        std::shared_ptr<sol::Dist_Map>  tRowMap = tMatFactory.create_map( tRowMapVal );
+		std::shared_ptr<sol::Dist_Map>  tColMap = tMatFactory.create_map( tColMapVal );
 
         // build distributed vector
         sol::Dist_Vector * tVector1 = tMatFactory.create_vector( tColMap );
@@ -401,8 +398,6 @@ TEST_CASE("Non-square matrix","[Non-square matrix],[DistLinAlg]")
         CHECK(equal_to(tResult(0,0), 2.0));
         }
 
-        delete ( tRowMap );
-        delete ( tColMap );
         delete ( tVector1 );
 	    delete ( tVector2 );
         delete ( tMat );

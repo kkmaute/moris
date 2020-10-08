@@ -139,8 +139,8 @@ namespace moris
         Matrix<DDRMat>& Geometry_Engine::get_advs()
         {
             // Create full ADVs
-            Matrix_Vector_Factory tDistributedFactory;
-            moris::sol::Dist_Map* tFullMap = tDistributedFactory.create_map(mFullADVIds);
+            sol::Matrix_Vector_Factory tDistributedFactory;
+            std::shared_ptr<sol::Dist_Map> tFullMap = tDistributedFactory.create_map(mFullADVIds);
             moris::sol::Dist_Vector* tFullVector = tDistributedFactory.create_vector(tFullMap);
 
             // Import ADVs
@@ -724,10 +724,10 @@ namespace moris
                 //----------------------------------------//
 
                 // Create factor for distributed ADV vector
-                Matrix_Vector_Factory tDistributedFactory;
+                sol::Matrix_Vector_Factory tDistributedFactory;
 
                 // Create map for distributed vector
-                sol::Dist_Map* tOwnedADVMap = tDistributedFactory.create_map(mOwnedADVIds);
+                std::shared_ptr<sol::Dist_Map> tOwnedADVMap = tDistributedFactory.create_map(mOwnedADVIds);
 
                 // Create vector
                 mOwnedADVs = tDistributedFactory.create_vector(tOwnedADVMap);
