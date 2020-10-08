@@ -174,6 +174,9 @@ TEST_CASE( "IWG_Elast_VWGhost", "[moris],[fem],[IWG_Elast_VWGhost]" )
         // loop on the interpolation order
         for( uint iInterpOrder = 1; iInterpOrder < 2; iInterpOrder++ )
         {
+            // set interpolation order for ghost
+            tIWG->set_interpolation_order( iInterpOrder );
+
             // create an interpolation order
             mtk::Interpolation_Order tGIInterpolationOrder = tInterpolationOrders( iInterpOrder - 1 );
 
