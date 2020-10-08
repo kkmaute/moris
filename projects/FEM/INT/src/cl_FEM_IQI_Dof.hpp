@@ -66,4 +66,4 @@ namespace moris
     }/* end namespace fem */
 } /* end namespace moris */
 
-#endif /* PROJECTS_FEM_INT_SRC_CL_FEM_IQI_STRAIN_ENERGY_HPP_ */
+#endif /* PROJECTS_FEM_INT_SRC_CL_FEM_IQI_DOF_HPP_ */

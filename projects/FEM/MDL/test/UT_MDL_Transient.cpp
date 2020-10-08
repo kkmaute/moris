@@ -234,7 +234,7 @@ TEST_CASE("MDL Transient","[MDL_Transient]")
        fem::IQI_Factory tIQIFactory;
 
        std::shared_ptr< fem::IQI > tIQITEMP = tIQIFactory.create_IQI( fem::IQI_Type::DOF );
-       tIQITEMP->set_output_type( vis::Output_Type::TEMP );
+       tIQITEMP->set_quantity_dof_type( { MSI::Dof_Type::TEMP } );
        tIQITEMP->set_dof_type_list( { { MSI::Dof_Type::TEMP} }, mtk::Master_Slave::MASTER );
        tIQITEMP->set_output_type_index( 0 );
 
@@ -522,7 +522,7 @@ TEST_CASE("MDL Transient XFEM","[MDL_Transient_XFEM]")
     fem::IQI_Factory tIQIFactory;
 
     std::shared_ptr< fem::IQI > tIQITEMP = tIQIFactory.create_IQI( fem::IQI_Type::DOF );
-    tIQITEMP->set_output_type( vis::Output_Type::TEMP );
+    tIQITEMP->set_quantity_dof_type( { MSI::Dof_Type::TEMP } );
     tIQITEMP->set_dof_type_list( { { MSI::Dof_Type::TEMP} }, mtk::Master_Slave::MASTER );
     tIQITEMP->set_output_type_index( 0 );
 

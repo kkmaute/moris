@@ -170,6 +170,7 @@ TEST_CASE( "Diffusion_2x2x2", "[moris],[mdl],[Diffusion_2x2x2]" )
         fem::IQI_Factory tIQIFactory;
 
         std::shared_ptr< fem::IQI > tIQITEMP = tIQIFactory.create_IQI( fem::IQI_Type::DOF );
+        tIQITEMP->set_quantity_dof_type( { MSI::Dof_Type::TEMP } );
         tIQITEMP->set_dof_type_list( { { MSI::Dof_Type::TEMP } }, mtk::Master_Slave::MASTER );
         tIQITEMP->set_output_type_index( 0 );
 

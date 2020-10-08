@@ -319,7 +319,8 @@ namespace moris
                         std::map< std::string, uint >            & aPhaseMap,
                         std::map< std::string, uint >            & aPropertyMap,
                         std::map< std::string, uint >            & aCMMap,
-                        std::map< std::string, uint >            & aSPMap );
+                        std::map< std::string, uint >            & aSPMap,
+                        moris::map< std::string, MSI::Dof_Type > & aMSIDofTypeMap );
 
                 //------------------------------------------------------------------------------
                 /**

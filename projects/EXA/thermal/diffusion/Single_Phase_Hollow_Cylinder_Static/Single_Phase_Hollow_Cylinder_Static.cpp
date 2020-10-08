@@ -357,6 +357,7 @@ extern "C"
             tParameterList( 4 ).push_back( prm::create_IQI_parameter_list() );
             tParameterList( 4 )( tIQICounter ).set( "IQI_name",                   "IQIBulkTEMP") ;
             tParameterList( 4 )( tIQICounter ).set( "IQI_type",                   static_cast< uint >( fem::IQI_Type::DOF ) );
+            tParameterList( 4 )( tIQICounter ).set( "dof_quantity",               "TEMP");
             tParameterList( 4 )( tIQICounter ).set( "master_dof_dependencies",    "TEMP") ;
             tParameterList( 4 )( tIQICounter ).set( "vectorial_field_index",      0 );
             tParameterList( 4 )( tIQICounter ).set( "mesh_set_names",             tSolid );
@@ -391,10 +392,11 @@ extern "C"
             tParameterList( 4 ).push_back( prm::create_IQI_parameter_list() );
             tParameterList( 4 )( tIQICounter ).set( "IQI_name",                   "IQIMaxTEMP") ;
             tParameterList( 4 )( tIQICounter ).set( "IQI_type",                   static_cast< uint >( fem::IQI_Type::MAX_DOF ) );
+            tParameterList( 4 )( tIQICounter ).set( "dof_quantity",               "TEMP");
             tParameterList( 4 )( tIQICounter ).set( "master_dof_dependencies",    "TEMP") ;
             tParameterList( 4 )( tIQICounter ).set( "master_properties",
                     "PropMaxTempReference,ReferenceValue;"
-				"PropMaxTempExponent,Exponent") ;
+                    "PropMaxTempExponent,Exponent") ;
             tParameterList( 4 )( tIQICounter ).set( "mesh_set_names",             tSolid );
             tIQICounter++;
 
