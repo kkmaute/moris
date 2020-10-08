@@ -1,8 +1,8 @@
 /*
  * cl_FEM_IWG_Diffusion_Virtual_Work_Ghost.hpp
  *
- *  Created on: Oct 17, 2019
- *      Author: noel
+ * Created on: Oct 17, 2019
+ *     Author: noel
  */
 
 #ifndef SRC_FEM_CL_FEM_IWG_Diffusion_Virtual_Work_Ghost_HPP_
@@ -27,9 +27,6 @@ namespace moris
 
         class IWG_Diffusion_Virtual_Work_Ghost : public IWG
         {
-                // order of Shape functions
-                uint mOrder;
-
                 //------------------------------------------------------------------------------
             public:
 
