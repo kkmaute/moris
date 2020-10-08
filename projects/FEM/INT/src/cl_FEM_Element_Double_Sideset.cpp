@@ -96,29 +96,52 @@ namespace moris
                 // get space dimension
                 uint tSpaceDim = tMasterIGPhysSpaceCoords.n_cols();
 
-                // reshape the XYZ values into a cell of vectors
-                moris::Cell< Matrix< DDRMat > > tMasterPdvValueList( tSpaceDim );
-                moris::Cell< Matrix< DDRMat > > tSlavePdvValueList( tSpaceDim );
-                for( uint iSpaceDim = 0; iSpaceDim < tSpaceDim; iSpaceDim++ )
-                {
-                    tMasterPdvValueList( iSpaceDim ) =
-                            tMasterIGPhysSpaceCoords.get_column( iSpaceDim );
-                    tSlavePdvValueList( iSpaceDim )  =
-                            tSlaveIGPhysSpaceCoords.get_column( iSpaceDim );
-                }
-
                 // get the pdv values from the MSI/GEN interface
+                moris::Cell< Matrix< DDRMat > > tMasterPdvValueList( tSpaceDim );
                 mSet->get_equation_model()->get_design_variable_interface()->get_ig_pdv_value(
                         tMasterVertexIndices,
                         tGeoPdvType,
                         tMasterPdvValueList,
                         aMasterIsActiveDv );
 
+                moris::Cell< Matrix< DDRMat > > tSlavePdvValueList( tSpaceDim );
                 mSet->get_equation_model()->get_design_variable_interface()->get_ig_pdv_value(
                         tSlaveVertexIndices,
                         tGeoPdvType,
                         tSlavePdvValueList,
                         aSlaveIsActiveDv );
+
+                // reshape the XYZ values into a cell of vectors
+                for( uint iSpaceDim = 0; iSpaceDim < tSpaceDim; iSpaceDim++ )
+                {
+                    // Master side
+                    for ( uint iNode = 0; iNode < tMasterIGPhysSpaceCoords.n_rows(); iNode++)
+                    {
+                        if ( ! aMasterIsActiveDv(iSpaceDim)(iNode) )
+                        {
+                            tMasterPdvValueList( iSpaceDim )( iNode ) = tMasterIGPhysSpaceCoords( iNode,iSpaceDim );
+                        }
+                        else
+                        {
+                            MORIS_ASSERT( equal_to(tMasterPdvValueList( iSpaceDim )( iNode ),tMasterIGPhysSpaceCoords.get_column( iSpaceDim )( iNode ), 1.0) ,
+                                    "GE coordinate and MTK coordinate differ\n");
+                        }
+                    }
+
+                    // Slave side
+                    for ( uint iNode = 0; iNode < tSlaveIGPhysSpaceCoords.n_rows(); iNode++)
+                    {
+                        if ( ! aSlaveIsActiveDv(iSpaceDim)(iNode) )
+                        {
+                            tSlavePdvValueList( iSpaceDim )( iNode ) = tSlaveIGPhysSpaceCoords( iNode,iSpaceDim );
+                        }
+                        else
+                        {
+                            MORIS_ASSERT( equal_to(tSlavePdvValueList( iSpaceDim )( iNode ),tSlaveIGPhysSpaceCoords.get_column( iSpaceDim )( iNode ), 1.0) ,
+                                    "GE coordinate and MTK coordinate differ\n");
+                        }
+                    }
+                }
 
                 // reshape the cell of vectors tPdvValueList into a matrix tPdvValues
                 tMasterIGPhysSpaceCoords.set_size( 0, 0 );
@@ -364,7 +387,7 @@ namespace moris
 
                     if( mSet->mEquationModel->get_is_forward_analysis() )
                     {
-                       // compute residual at integration point
+                        // compute residual at integration point
                         mSet->get_requested_IWGs()( iIWG )->compute_residual( tWStar );
                     }
 
