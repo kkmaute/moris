@@ -112,8 +112,9 @@ namespace moris
                 // set the order for the stabilization parameter
                 tSPGhost->set_interpolation_order( iOrder );
 
-                // get normal matrix
-                Matrix< DDRMat > tNormalMatrix = this->get_normal_matrix( iOrder );
+                // get flattened normal matrix
+                Matrix< DDRMat > tNormalMatrix;
+                this->get_flat_normal_matrix( tNormalMatrix, iOrder );
 
                 // multiply common terms
                 Matrix< DDRMat > tPreMultiply =
@@ -188,11 +189,12 @@ namespace moris
             // loop over the order
             for ( uint iOrder = 1; iOrder <= mOrder; iOrder++ )
             {
-                // get normal matrix
-                Matrix< DDRMat > tNormalMatrix = this->get_normal_matrix( iOrder );
-
                 // set the order for the stabilization parameter
                 tSPGhost->set_interpolation_order( iOrder );
+
+                // get flattened normal matrix
+                Matrix< DDRMat > tNormalMatrix;
+                this->get_flat_normal_matrix( tNormalMatrix, iOrder );
 
                 // compute the jacobian for indirect dof dependencies through master constitutive models
                 for( uint iDOF = 0; iDOF < tMasterNumDofDependencies; iDOF++ )
@@ -317,16 +319,15 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        Matrix< DDRMat > IWG_Diffusion_Virtual_Work_Ghost::get_normal_matrix ( uint aOrderGhost )
+        void IWG_Diffusion_Virtual_Work_Ghost::get_flat_normal_matrix(
+                Matrix< DDRMat > & aFlatNormal,
+                uint               aOrder )
         {
-            // init the normal matrix
-            Matrix< DDRMat > tNormalMatrix;
-
             // get spatial dimensions
             uint tSpaceDim = mNormal.numel();
 
             // switch on the ghost order
-            switch( aOrderGhost )
+            switch( aOrder )
             {
                 case 1 :
                 {
@@ -334,17 +335,17 @@ namespace moris
                     {
                         case 2 :
                         {
-                            tNormalMatrix = trans( mNormal );
+                            aFlatNormal = trans( mNormal );
                             break;
                         }
                         case 3 :
                         {
-                            tNormalMatrix = trans( mNormal );
+                            aFlatNormal = trans( mNormal );
                             break;
                         }
                         default:
                         {
-                            MORIS_ERROR( false, "IWG_Diffusion_Virtual_Work_Ghost::get_normal_matrix - Spatial dimensions can only be 2, 3." );
+                            MORIS_ERROR( false, "IWG_Diffusion_Virtual_Work_Ghost::get_flat_normal_matrix - Spatial dimensions can only be 2, 3." );
                         }
                     }
                     break;
@@ -357,41 +358,41 @@ namespace moris
                         case 2 :
                         {
                             // set the normal matrix size
-                            tNormalMatrix.set_size( 2, 3, 0.0 );
+                            aFlatNormal.set_size( 2, 3, 0.0 );
 
                             // fill the normal matrix
-                            tNormalMatrix( 0, 0 ) = mNormal( 0 );
-                            tNormalMatrix( 1, 1 ) = mNormal( 1 );
+                            aFlatNormal( 0, 0 ) = mNormal( 0 );
+                            aFlatNormal( 1, 1 ) = mNormal( 1 );
 
-                            tNormalMatrix( 0, 2 ) = mNormal( 1 );
-                            tNormalMatrix( 1, 2 ) = mNormal( 0 );
+                            aFlatNormal( 0, 2 ) = mNormal( 1 );
+                            aFlatNormal( 1, 2 ) = mNormal( 0 );
 
                             break;
                         }
                         case 3 :
                         {
                             // set the normal matrix size
-                            tNormalMatrix.set_size( 3, 6, 0.0 );
+                            aFlatNormal.set_size( 3, 6, 0.0 );
 
                             // fill the normal matrix
-                            tNormalMatrix( 0, 0 ) = mNormal( 0 );
-                            tNormalMatrix( 1, 1 ) = mNormal( 1 );
-                            tNormalMatrix( 2, 2 ) = mNormal( 2 );
+                            aFlatNormal( 0, 0 ) = mNormal( 0 );
+                            aFlatNormal( 1, 1 ) = mNormal( 1 );
+                            aFlatNormal( 2, 2 ) = mNormal( 2 );
 
-                            tNormalMatrix( 1, 3 ) = mNormal( 2 );
-                            tNormalMatrix( 2, 3 ) = mNormal( 1 );
+                            aFlatNormal( 1, 3 ) = mNormal( 2 );
+                            aFlatNormal( 2, 3 ) = mNormal( 1 );
 
-                            tNormalMatrix( 0, 4 ) = mNormal( 2 );
-                            tNormalMatrix( 2, 4 ) = mNormal( 0 );
+                            aFlatNormal( 0, 4 ) = mNormal( 2 );
+                            aFlatNormal( 2, 4 ) = mNormal( 0 );
 
-                            tNormalMatrix( 0, 5 ) = mNormal( 1 );
-                            tNormalMatrix( 1, 5 ) = mNormal( 0 );
+                            aFlatNormal( 0, 5 ) = mNormal( 1 );
+                            aFlatNormal( 1, 5 ) = mNormal( 0 );
 
                             break;
                         }
                         default:
                         {
-                            MORIS_ERROR( false, "IWG_Diffusion_Virtual_Work_Ghost::get_normal_matrix - Spatial dimensions can only be 2, 3." );
+                            MORIS_ERROR( false, "IWG_Diffusion_Virtual_Work_Ghost::get_flat_normal_matrix - Spatial dimensions can only be 2, 3." );
                         }
                     }
                     break;
@@ -401,61 +402,59 @@ namespace moris
                 {
                     switch ( tSpaceDim )
                     {
-                        case 2:
+                        case 2 :
                         {
                             // set the normal matrix size
-                            tNormalMatrix.set_size( 3, 4, 0.0 );
+                            aFlatNormal.set_size( 3, 4, 0.0 );
 
-                            tNormalMatrix( 0, 0 ) = mNormal( 0 );
-                            tNormalMatrix( 1, 1 ) = mNormal( 1 );
+                            aFlatNormal( 0, 0 ) = mNormal( 0 );
+                            aFlatNormal( 1, 1 ) = mNormal( 1 );
 
-                            tNormalMatrix( 0, 2 ) = mNormal( 1 );
-                            tNormalMatrix( 1, 3 ) = mNormal( 0 );
+                            aFlatNormal( 0, 2 ) = mNormal( 1 );
+                            aFlatNormal( 1, 3 ) = mNormal( 0 );
 
                             real tSqrtOf2 = std::sqrt( 2 );
 
-                            tNormalMatrix( 2, 2 ) = tSqrtOf2 * mNormal( 0 );
-                            tNormalMatrix( 2, 3 ) = tSqrtOf2 * mNormal( 1 );
-
+                            aFlatNormal( 2, 2 ) = tSqrtOf2 * mNormal( 0 );
+                            aFlatNormal( 2, 3 ) = tSqrtOf2 * mNormal( 1 );
                             break;
                         }
                         case 3 :
                         {
                             // set the normal matrix size
-                            tNormalMatrix.set_size( 6, 10, 0.0 );
+                            aFlatNormal.set_size( 6, 10, 0.0 );
 
-                            tNormalMatrix( 0, 0 ) = mNormal( 0 );
-                            tNormalMatrix( 1, 1 ) = mNormal( 1 );
-                            tNormalMatrix( 2, 2 ) = mNormal( 2 );
+                            aFlatNormal( 0, 0 ) = mNormal( 0 );
+                            aFlatNormal( 1, 1 ) = mNormal( 1 );
+                            aFlatNormal( 2, 2 ) = mNormal( 2 );
 
-                            tNormalMatrix( 0, 3 ) = mNormal( 1 );
-                            tNormalMatrix( 0, 4 ) = mNormal( 2 );
+                            aFlatNormal( 0, 3 ) = mNormal( 1 );
+                            aFlatNormal( 0, 4 ) = mNormal( 2 );
 
-                            tNormalMatrix( 1, 5 ) = mNormal( 0 );
-                            tNormalMatrix( 1, 6 ) = mNormal( 2 );
+                            aFlatNormal( 1, 5 ) = mNormal( 0 );
+                            aFlatNormal( 1, 6 ) = mNormal( 2 );
 
-                            tNormalMatrix( 2, 7 ) = mNormal( 0 );
-                            tNormalMatrix( 2, 8 ) = mNormal( 1 );
+                            aFlatNormal( 2, 7 ) = mNormal( 0 );
+                            aFlatNormal( 2, 8 ) = mNormal( 1 );
 
                             real tSqrtOf2 = std::sqrt( 2 );
 
-                            tNormalMatrix( 3, 3 ) = tSqrtOf2 * mNormal( 0 );
-                            tNormalMatrix( 3, 5 ) = tSqrtOf2 * mNormal( 1 );
-                            tNormalMatrix( 3, 9 ) = tSqrtOf2 * mNormal( 2 );
+                            aFlatNormal( 3, 3 ) = tSqrtOf2 * mNormal( 0 );
+                            aFlatNormal( 3, 5 ) = tSqrtOf2 * mNormal( 1 );
+                            aFlatNormal( 3, 9 ) = tSqrtOf2 * mNormal( 2 );
 
-                            tNormalMatrix( 4, 6 ) = tSqrtOf2 * mNormal( 1 );
-                            tNormalMatrix( 4, 8 ) = tSqrtOf2 * mNormal( 2 );
-                            tNormalMatrix( 4, 9 ) = tSqrtOf2 * mNormal( 0 );
+                            aFlatNormal( 4, 6 ) = tSqrtOf2 * mNormal( 1 );
+                            aFlatNormal( 4, 8 ) = tSqrtOf2 * mNormal( 2 );
+                            aFlatNormal( 4, 9 ) = tSqrtOf2 * mNormal( 0 );
 
-                            tNormalMatrix( 5, 4 ) = tSqrtOf2 * mNormal( 0 );
-                            tNormalMatrix( 5, 7 ) = tSqrtOf2 * mNormal( 2 );
-                            tNormalMatrix( 5, 9 ) = tSqrtOf2 * mNormal( 1 );
-
+                            aFlatNormal( 5, 4 ) = tSqrtOf2 * mNormal( 0 );
+                            aFlatNormal( 5, 7 ) = tSqrtOf2 * mNormal( 2 );
+                            aFlatNormal( 5, 9 ) = tSqrtOf2 * mNormal( 1 );
                             break;
                         }
                         default:
                         {
-                            MORIS_ERROR( false, "IWG_Diffusion_Virtual_Work_Ghost::get_normal_matrix - Spatial dimensions can only be 2, 3." );
+                            MORIS_ERROR( false, "IWG_Diffusion_Virtual_Work_Ghost::get_flat_normal_matrix - Spatial dimensions can only be 2, 3." );
                         }
                     }
                     break;
@@ -463,12 +462,10 @@ namespace moris
 
                 default:
                 {
-                    MORIS_ERROR( false, "IWG_Diffusion_Virtual_Work_Ghost::get_normal_matrix - order not supported." );
+                    MORIS_ERROR( false, "IWG_Diffusion_Virtual_Work_Ghost::get_flat_normal_matrix - order not supported" );
                 }
             }
-            return tNormalMatrix;
         }
-
         //------------------------------------------------------------------------------
     } /* namespace fem */
 } /* namespace moris */
