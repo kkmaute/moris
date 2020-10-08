@@ -150,7 +150,6 @@ namespace moris
             tFullVector->extract_copy(mADVs);
 
             // Delete full ADVs/map
-            //delete tFullMap;
             delete tFullVector;
 
             return mADVs;
@@ -748,9 +747,6 @@ namespace moris
                     mGeometryParameterLists.resize(0);
                 }
 
-                // Delete map
-                //delete tOwnedADVMap;
-
                 //----------------------------------------//
                 // Convert geometries to level sets       //
                 //----------------------------------------//
@@ -784,7 +780,8 @@ namespace moris
 
                 // Set up communication list for communicating ADV IDs
                 Matrix<IdMat> tCommunicationList(1, 1, 0);
-                Cell<Matrix<DDSMat>> tReceivedIDs(0);
+                Cell<Matrix<DDSMat>> tSendingIDs(1);
+                Cell<Matrix<DDSMat>> tReceivingIDs(0);
                 if (par_rank() == 0)
                 {
                     tCommunicationList.resize(par_size() - 1, 1);
@@ -793,9 +790,13 @@ namespace moris
                         tCommunicationList(tProcessorIndex - 1) = tProcessorIndex;
                     }
                 }
+                else
+                {
+                    tSendingIDs = {mOwnedADVIds};
+                }
 
                 // Communicate owned ADV IDs;
-                communicate_mats(tCommunicationList, {mOwnedADVIds}, tReceivedIDs);
+                communicate_mats(tCommunicationList, tSendingIDs, tReceivingIDs);
 
                 // Assemble full ADV IDs
                 if (par_rank() == 0)
@@ -805,13 +806,13 @@ namespace moris
                     {
                         // Get number of received ADV IDs and resize
                         uint mFullADVIdsFilled = mFullADVIds.length();
-                        uint tNumReceivedADVs = tReceivedIDs(tProcessorIndex).length();
+                        uint tNumReceivedADVs = tReceivingIDs(tProcessorIndex - 1).length();
                         mFullADVIds.resize(mFullADVIdsFilled + tNumReceivedADVs, 1);
 
                         // Assign received ADV IDs
                         for (uint tADVIndex = 0; tADVIndex < tNumReceivedADVs; tADVIndex++)
                         {
-                            mFullADVIds(mFullADVIdsFilled + tADVIndex) = tReceivedIDs(tProcessorIndex)(tADVIndex);
+                            mFullADVIds(mFullADVIdsFilled + tADVIndex) = tReceivingIDs(tProcessorIndex - 1)(tADVIndex);
                         }
                     }
                 }
