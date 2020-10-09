@@ -31,7 +31,7 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        TEST_CASE("Interpolation PDV creation test", "[gen], [pdv], [interpolation pdv]")
+        TEST_CASE("Interpolation PDV Creation", "[gen], [pdv], [interpolation pdv], [interpolation pdv serial]")
         {
             if( par_size() == 1)
             {
@@ -133,7 +133,7 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        TEST_CASE("Interpolation PDV creation test parallel", "[gen], [pdv], [interpolation pdv parallel]")
+        TEST_CASE("Parallel Interpolation PDV Creation", "[gen], [pdv], [interpolation pdv], [interpolation pdv parallel]")
         {
             if( par_size() == 2)
             {
@@ -255,7 +255,7 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        TEST_CASE("PDV sensitivities test", "[gen], [pdv], [sensitivity], [pdv sensitivity]")
+        TEST_CASE("PDV Sensitivities", "[gen], [pdv], [sensitivity], [pdv sensitivity]")
         {
             if( par_size() == 1)
             {
@@ -320,7 +320,7 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        TEST_CASE("Intersection PDV creation test parallel", "[gen], [pdv], [intersection pdv parallel]")
+        TEST_CASE("Intersection PDV Creation", "[gen], [pdv], [intersection pdv]")
         {
             if( par_size() == 2)
             {

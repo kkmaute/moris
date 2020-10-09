@@ -16,7 +16,7 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        TEST_CASE("Intersection and child node test", "[gen], [pdv], [intersection]")
+        TEST_CASE("Child Nodes and Intersections", "[gen], [pdv], [intersection]")
         {
             if (par_size() == 1)
             {

@@ -38,7 +38,7 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        TEST_CASE("Circle test", "[gen], [geometry], [circle]")
+        TEST_CASE("Circle", "[gen], [geometry], [circle]")
         {
             // Set up geometry
             ParameterList tCircle1ParameterList = prm::create_geometry_parameter_list();
@@ -147,7 +147,7 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        TEST_CASE("Superellipse test", "[gen], [geometry], [superellipse]")
+        TEST_CASE("Superellipse", "[gen], [geometry], [superellipse]")
         {
             // Set up geometry
             ParameterList tSuperellipseParameterList = prm::create_geometry_parameter_list();
@@ -211,7 +211,7 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        TEST_CASE("Sphere test", "[gen], [geometry], [sphere]")
+        TEST_CASE("Sphere", "[gen], [geometry], [sphere]")
         {
             // Set up geometry
             ParameterList tSphereParameterList = prm::create_geometry_parameter_list();
@@ -263,7 +263,7 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        TEST_CASE("Superellipsoid test", "[gen], [geometry], [superellipsoid]")
+        TEST_CASE("Superellipsoid", "[gen], [geometry], [superellipsoid]")
         {
             // Set up geometry
             ParameterList tSuperellipsoidParameterList = prm::create_geometry_parameter_list();
@@ -318,7 +318,7 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        TEST_CASE("Level set geometry test", "[gen], [geometry], [B-spline geometry], [B-spline geometry linear]")
+        TEST_CASE("Linear B-spline Geometry", "[gen], [geometry], [B-spline geometry], [B-spline geometry linear]")
         {
             // Create mesh
             mtk::Interpolation_Mesh* tMesh = create_simple_mesh(6, 6);
@@ -354,24 +354,36 @@ namespace moris
                 REQUIRE(tADVs.length() == 0);
             }
 
-            // Check field values
+            // Check field values at all nodes
             for (uint tNodeIndex = 0; tNodeIndex < tMesh->get_num_nodes(); tNodeIndex++)
             {
-                Matrix<DDRMat> tNodeCoord = tMesh->get_node_coordinate(tNodeIndex);
-                CHECK( tGeometryEngine.get_geometry_field_value(tNodeIndex, {{}}, 0) ==
-                        Approx(sqrt(pow(tNodeCoord(0), 2) + pow(tNodeCoord(1), 2)) - tRadius) );
+                // Get node coordinates
+                Matrix<DDRMat> tNodeCoordinates = tMesh->get_node_coordinate(tNodeIndex);
+
+                // Set approximate target
+                Approx tApproxTarget =
+                        Approx(sqrt(pow(tNodeCoordinates(0), 2) + pow(tNodeCoordinates(1), 2)) - tRadius);
+
+                // Check field value
+                CHECK(tGeometryEngine.get_geometry_field_value(tNodeIndex, {{}}, 0) == tApproxTarget);
             }
 
             // Set new ADVs
             tADVs = tADVs + (tRadius / 2.0);
             tGeometryEngine.set_advs(tADVs);
 
-            // Check field values again
+            // Check field values at all nodes again
             for (uint tNodeIndex = 0; tNodeIndex < tMesh->get_num_nodes(); tNodeIndex++)
             {
-                Matrix<DDRMat> tNodeCoord = tMesh->get_node_coordinate(tNodeIndex);
-                CHECK( tGeometryEngine.get_geometry_field_value(tNodeIndex, {{}}, 0) ==
-                        Approx(sqrt(pow(tNodeCoord(0), 2) + pow(tNodeCoord(1), 2)) - (tRadius / 2.0)) );
+                // Get node coordinates
+                Matrix<DDRMat> tNodeCoordinates = tMesh->get_node_coordinate(tNodeIndex);
+
+                // Set approximate target
+                Approx tApproxTarget =
+                        Approx(sqrt(pow(tNodeCoordinates(0), 2) + pow(tNodeCoordinates(1), 2)) - (tRadius / 2.0));
+
+                // Check field value
+                CHECK(tGeometryEngine.get_geometry_field_value(tNodeIndex, {{}}, 0) == tApproxTarget);
             }
 
             // Clean up
@@ -380,7 +392,114 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        TEST_CASE("User-defined geometry test", "[gen], [geometry], [user-defined geometry]")
+        TEST_CASE("Nonlinear B-spline Geometry", "[gen], [geometry], [B-spline geometry], [B-spline geometry nonlinear]")
+        {
+            if (par_size() == 1)
+            {
+                // Loop over possible cases
+                for (uint tCaseNumber = 0; tCaseNumber <= 1; tCaseNumber++)
+                {
+                    // Determine mesh orders
+                    uint tLagrangeOrder = 1;
+                    uint tBSplineOrder = 1;
+                    switch (tCaseNumber)
+                    {
+                        case 0:
+                        {
+                            tLagrangeOrder = 2;
+                            break;
+                        }
+                        case 1:
+                        {
+                            tBSplineOrder = 2;
+                            break;
+                        }
+                        default:
+                        {
+                            MORIS_ERROR(false, "Case not defined.");
+                        }
+                    }
+
+                    // Create mesh
+                    mtk::Interpolation_Mesh* tMesh = create_simple_mesh(2, 2, tLagrangeOrder, tBSplineOrder);
+
+                    // Level set circle parameter list
+                    real tRadius = 0.5;
+                    ParameterList tCircleParameterList = prm::create_geometry_parameter_list();
+                    tCircleParameterList.set("type", "circle");
+                    tCircleParameterList.set("constant_parameters", "0.0, 0.0, " + std::to_string(tRadius));
+                    tCircleParameterList.set("bspline_mesh_index", 0);
+
+                    // Set up geometry
+                    Cell<std::shared_ptr<Geometry>> tGeometry(1);
+                    Matrix<DDRMat> tADVs(0, 0);
+                    tGeometry(0) = create_geometry(tCircleParameterList, tADVs);
+
+                    // Create geometry engine
+                    Phase_Table tPhaseTable(1);
+                    Geometry_Engine tGeometryEngine(tGeometry, tPhaseTable, tMesh);
+
+                    // Check that ADVs were created and L2 was performed
+                    tADVs = tGeometryEngine.get_advs();
+                    uint tNumADVs = pow(2 + tBSplineOrder, 2);
+                    REQUIRE(tADVs.length() == tNumADVs);
+                    for (uint tBSplineIndex = 0; tBSplineIndex < tNumADVs; tBSplineIndex++)
+                    {
+                        CHECK(tADVs(tBSplineIndex) != Approx(0.0));
+                    }
+
+                    // Set epsilon for checking 
+                    real tEpsilon = std::numeric_limits<real>::epsilon()*100;
+                    
+                    // Epsilon must be much greater if Lagrange order is greater than B-spline order
+                    if (tLagrangeOrder > tBSplineOrder)
+                    {
+                        tEpsilon = 0.5;
+                    }
+
+                    // Check field values at all nodes
+                    for (uint tNodeIndex = 0; tNodeIndex < tMesh->get_num_nodes(); tNodeIndex++)
+                    {
+                        // Get node coordinates
+                        Matrix<DDRMat> tNodeCoordinates = tMesh->get_node_coordinate(tNodeIndex);
+
+                        // Set approximate target
+                        Approx tApproxTarget =
+                                Approx(sqrt(pow(tNodeCoordinates(0), 2) + pow(tNodeCoordinates(1), 2)) - tRadius)
+                                .epsilon(tEpsilon);
+
+                        // Check field value
+                        CHECK(tGeometryEngine.get_geometry_field_value(tNodeIndex, {{}}, 0) == tApproxTarget);
+                    }
+
+                    // Set new ADVs
+                    tADVs = tADVs + (tRadius / 2.0);
+                    tGeometryEngine.set_advs(tADVs);
+
+                    // Check field values at all nodes again
+                    for (uint tNodeIndex = 0; tNodeIndex < tMesh->get_num_nodes(); tNodeIndex++)
+                    {
+                        // Get node coordinates
+                        Matrix<DDRMat> tNodeCoordinates = tMesh->get_node_coordinate(tNodeIndex);
+
+                        // Set approximate target
+                        Approx tApproxTarget =
+                                Approx(sqrt(pow(tNodeCoordinates(0), 2) + pow(tNodeCoordinates(1), 2)) - (tRadius / 2.0))
+                                .epsilon(tEpsilon);
+
+                        // Check field value
+                        CHECK(tGeometryEngine.get_geometry_field_value(tNodeIndex, {{}}, 0) == tApproxTarget);
+                    }
+
+                    // Clean up
+                    delete tMesh;
+                }
+            }
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
+        TEST_CASE("User-defined Geometry", "[gen], [geometry], [user-defined geometry]")
         {
             // Create user-defined geometry
             Matrix<DDRMat> tADVs = {{-1.0, 0.5}};
@@ -426,7 +545,7 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        TEST_CASE("Multigeometry test", "[gen], [geometry], [multigeometry]")
+        TEST_CASE("MultiGeometry", "[gen], [geometry], [multigeometry]")
         {
             // Set up geometry
             Cell<ParameterList> tCircleParameterLists(2);
@@ -496,7 +615,7 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        TEST_CASE("Swiss cheese slice test", "[gen], [geometry], [swiss cheese slice]")
+        TEST_CASE("Swiss Cheese Slice", "[gen], [geometry], [swiss cheese slice]")
         {
             // Set up geometry
             ParameterList tSwissCheeseParameterList = prm::create_swiss_cheese_slice_parameter_list();
