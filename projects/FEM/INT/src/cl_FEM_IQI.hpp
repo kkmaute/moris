@@ -48,14 +48,14 @@ namespace moris
             // FEM IQI type
             enum fem::IQI_Type mFEMIQIType;
 
-            // Phase type
-            enum Phase_Type mIQIMatType;
-
             // IQI type index
             sint mIQITypeIndex = -1;
 
             // normal
             Matrix< DDRMat > mNormal;
+
+            // quantity dof type for IQI dof, max dof
+            moris::Cell< MSI::Dof_Type > mQuantityDofType;
 
             // master and slave dof type lists
             moris::Cell< moris::Cell< MSI::Dof_Type > > mMasterDofTypes;
@@ -166,19 +166,23 @@ namespace moris
 
             //------------------------------------------------------------------------------
             /**
-             * get IQI mat type
+             * set quantity dof type (IQI dof, max dof)
+             * @param[ in ] aQuantityDofType a cell of residual dof types
              */
-            enum Phase_Type get_IQI_phase_type()
+            void set_quantity_dof_type( const moris::Cell< MSI::Dof_Type > & aQuantityDofType )
             {
-                return mIQIMatType;
+                mQuantityDofType = aQuantityDofType;
             }
 
+            //------------------------------------------------------------------------------
             /**
-             * set IQI mat type
+             * return a dof type for the quantity (IQI dof, max dof)
+             * @param[ out ] mQuantityDofType a cell of residual dof types
              */
-            void set_IQI_phase_type( enum Phase_Type aMatType )
+            const
+            moris::Cell< MSI::Dof_Type > & get_quantity_dof_type() const
             {
-                mIQIMatType = aMatType;
+                return mQuantityDofType;
             }
 
             //------------------------------------------------------------------------------

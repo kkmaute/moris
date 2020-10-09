@@ -467,11 +467,13 @@ TEST_CASE("2D Linear Stuct Thick Walled Pressure Vessel","[XTK_HMR_LS_PV]")
                 tIQIUrAnalytic->set_property( tPropUrAnalytic, "Property", mtk::Master_Slave::MASTER );
 
                 std::shared_ptr< fem::IQI > tIQIUX = tIQIFactory.create_IQI( fem::IQI_Type::DOF );
+                tIQIUX->set_quantity_dof_type( { MSI::Dof_Type::UX, MSI::Dof_Type::UY } );
                 tIQIUX->set_output_type( vis::Output_Type::UX );
                 tIQIUX->set_dof_type_list( { tResDofTypes }, mtk::Master_Slave::MASTER );
                 tIQIUX->set_output_type_index( 0 );
 
                 std::shared_ptr< fem::IQI > tIQIUY = tIQIFactory.create_IQI( fem::IQI_Type::DOF );
+                tIQIUY->set_quantity_dof_type( { MSI::Dof_Type::UX, MSI::Dof_Type::UY } );
                 tIQIUY->set_output_type( vis::Output_Type::UY );
                 tIQIUY->set_dof_type_list( { tResDofTypes }, mtk::Master_Slave::MASTER );
                 tIQIUY->set_output_type_index( 1 );

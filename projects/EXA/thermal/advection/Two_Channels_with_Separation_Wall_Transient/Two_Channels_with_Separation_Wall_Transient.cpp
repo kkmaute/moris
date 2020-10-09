@@ -266,7 +266,7 @@ extern "C"
             tParameterList( 0 )( tPropCounter ).set( "property_name",            "PropInletVelocityTop") ;
             tParameterList( 0 )( tPropCounter ).set( "function_parameters",      std::string(
                     std::to_string(tRadiusTopChannel) + "/"
-				std::to_string(tYcTopChannel) + "/-1.0" ) );
+                    std::to_string(tYcTopChannel) + "/-1.0" ) );
             tParameterList( 0 )( tPropCounter ).set( "value_function",           "Func_Inlet_U") ;
             tPropCounter++;
 
@@ -275,7 +275,7 @@ extern "C"
             tParameterList( 0 )( tPropCounter ).set( "property_name",            "PropInletVelocityBottom") ;
             tParameterList( 0 )( tPropCounter ).set( "function_parameters",      std::string(
                     std::to_string(tRadiusBottomChannel) + "/"
-				std::to_string(tYcBottomChannel) + "/1.0" ) );
+                    std::to_string(tYcBottomChannel) + "/1.0" ) );
             tParameterList( 0 )( tPropCounter ).set( "value_function",           "Func_Inlet_U") ;
             tPropCounter++;
 
@@ -651,6 +651,7 @@ extern "C"
             tParameterList( 4 ).push_back( prm::create_IQI_parameter_list() );
             tParameterList( 4 )( tIQICounter ).set( "IQI_name",                   "IQIBulkVX") ;
             tParameterList( 4 )( tIQICounter ).set( "IQI_type",                   static_cast< uint >( fem::IQI_Type::DOF ) );
+            tParameterList( 4 )( tIQICounter ).set( "dof_quantity",               "VX,VY");
             tParameterList( 4 )( tIQICounter ).set( "master_dof_dependencies",    "VX,VY") ;
             tParameterList( 4 )( tIQICounter ).set( "vectorial_field_index",      0 );
             tParameterList( 4 )( tIQICounter ).set( "mesh_set_names",             "HMR_dummy_n_p34,HMR_dummy_c_p34,HMR_dummy_n_p46,HMR_dummy_c_p46,HMR_dummy_n_p42,HMR_dummy_c_p42") ;
@@ -660,6 +661,7 @@ extern "C"
             tParameterList( 4 ).push_back( prm::create_IQI_parameter_list() );
             tParameterList( 4 )( tIQICounter ).set( "IQI_name",                   "IQIBulkVY") ;
             tParameterList( 4 )( tIQICounter ).set( "IQI_type",                   static_cast< uint >( fem::IQI_Type::DOF ) );
+            tParameterList( 4 )( tIQICounter ).set( "dof_quantity",               "VX,VY");
             tParameterList( 4 )( tIQICounter ).set( "master_dof_dependencies",    "VX,VY") ;
             tParameterList( 4 )( tIQICounter ).set( "vectorial_field_index",      1 );
             tParameterList( 4 )( tIQICounter ).set( "mesh_set_names",             "HMR_dummy_n_p34,HMR_dummy_c_p34,HMR_dummy_n_p46,HMR_dummy_c_p46,HMR_dummy_n_p42,HMR_dummy_c_p42") ;
@@ -669,6 +671,7 @@ extern "C"
             tParameterList( 4 ).push_back( prm::create_IQI_parameter_list() );
             tParameterList( 4 )( tIQICounter ).set( "IQI_name",                   "IQIBulkP") ;
             tParameterList( 4 )( tIQICounter ).set( "IQI_type",                   static_cast< uint >( fem::IQI_Type::DOF ) );
+            tParameterList( 4 )( tIQICounter ).set( "dof_quantity",               "P");
             tParameterList( 4 )( tIQICounter ).set( "master_dof_dependencies",    "P") ;
             tParameterList( 4 )( tIQICounter ).set( "vectorial_field_index",      0 );
             tParameterList( 4 )( tIQICounter ).set( "mesh_set_names",             "HMR_dummy_n_p34,HMR_dummy_c_p34,HMR_dummy_n_p46,HMR_dummy_c_p46,HMR_dummy_n_p42,HMR_dummy_c_p42") ;
@@ -678,6 +681,7 @@ extern "C"
             tParameterList( 4 ).push_back( prm::create_IQI_parameter_list() );
             tParameterList( 4 )( tIQICounter ).set( "IQI_name",                   "IQIBulkTEMP") ;
             tParameterList( 4 )( tIQICounter ).set( "IQI_type",                   static_cast< uint >( fem::IQI_Type::DOF ) );
+            tParameterList( 4 )( tIQICounter ).set( "dof_quantity",               "TEMP");
             tParameterList( 4 )( tIQICounter ).set( "master_dof_dependencies",    "TEMP") ;
             tParameterList( 4 )( tIQICounter ).set( "vectorial_field_index",      0 );
             tParameterList( 4 )( tIQICounter ).set( "mesh_set_names",             "HMR_dummy_n_p34,HMR_dummy_c_p34,HMR_dummy_n_p46,HMR_dummy_c_p46,HMR_dummy_n_p42,HMR_dummy_c_p42") ;

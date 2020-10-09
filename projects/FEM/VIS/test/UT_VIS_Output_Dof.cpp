@@ -238,14 +238,16 @@ namespace moris
                 fem::IQI_Factory tIQIFactory;
 
                 std::shared_ptr< fem::IQI > tIQIUX = tIQIFactory.create_IQI( fem::IQI_Type::DOF );
+                tIQIUX->set_quantity_dof_type( { MSI::Dof_Type::UX, MSI::Dof_Type::UY } );
                 tIQIUX->set_dof_type_list( { tResDofTypes }, mtk::Master_Slave::MASTER );
                 tIQIUX->set_output_type_index( 0 );
-				tIQIUX->set_name( "IQI_UX" );
+                tIQIUX->set_name( "IQI_UX" );
 
                 std::shared_ptr< fem::IQI > tIQIUY = tIQIFactory.create_IQI( fem::IQI_Type::DOF );
+                tIQIUY->set_quantity_dof_type( { MSI::Dof_Type::UX, MSI::Dof_Type::UY } );
                 tIQIUY->set_dof_type_list( { tResDofTypes }, mtk::Master_Slave::MASTER );
                 tIQIUY->set_output_type_index( 1 );
-				tIQIUY->set_name( "IQI_UY" );
+                tIQIUY->set_name( "IQI_UY" );
 
                 // create the IWGs
                 fem::IWG_Factory tIWGFactory;

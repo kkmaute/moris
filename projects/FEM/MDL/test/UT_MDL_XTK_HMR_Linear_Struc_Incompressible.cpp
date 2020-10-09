@@ -328,19 +328,22 @@ TEST_CASE("2D XTK HMR Incompressible","[XTK_HMR_I_2D]")
         fem::IQI_Factory tIQIFactory;
 
         std::shared_ptr< fem::IQI > tIQIUX = tIQIFactory.create_IQI( fem::IQI_Type::DOF );
+        tIQIUX->set_quantity_dof_type( { MSI::Dof_Type::UX, MSI::Dof_Type::UY } );
         tIQIUX->set_dof_type_list( { { MSI::Dof_Type::UX, MSI::Dof_Type::UY } }, mtk::Master_Slave::MASTER );
         tIQIUX->set_output_type_index( 0 );
-		tIQIUX->set_name( "IQI_UX" );
+        tIQIUX->set_name( "IQI_UX" );
 
         std::shared_ptr< fem::IQI > tIQIUY = tIQIFactory.create_IQI( fem::IQI_Type::DOF );
+        tIQIUY->set_quantity_dof_type( { MSI::Dof_Type::UX, MSI::Dof_Type::UY } );
         tIQIUY->set_dof_type_list( { { MSI::Dof_Type::UX, MSI::Dof_Type::UY } }, mtk::Master_Slave::MASTER );
         tIQIUY->set_output_type_index( 1 );
-		tIQIUY->set_name( "IQI_UY" );
+        tIQIUY->set_name( "IQI_UY" );
 
         std::shared_ptr< fem::IQI > tIQIP = tIQIFactory.create_IQI( fem::IQI_Type::DOF );
+        tIQIP->set_quantity_dof_type( { MSI::Dof_Type::P } );
         tIQIP->set_dof_type_list( { { MSI::Dof_Type::P } }, mtk::Master_Slave::MASTER );
         tIQIP->set_output_type_index( 0 );
-		tIQIP->set_name( "IQI_P" );
+        tIQIP->set_name( "IQI_P" );
 
         // create a list of active block-sets
         std::string tInterfaceSideSetName = tEnrIntegMesh.get_interface_side_set_name( 0, 0, 1 );

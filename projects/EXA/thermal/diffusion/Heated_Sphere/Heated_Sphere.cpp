@@ -403,8 +403,8 @@ namespace moris
         tParameterList( 1 )( tCMCounter ).set( "dof_dependencies",  std::pair< std::string, std::string >( "TEMP", "Temperature" ) );
         tParameterList( 1 )( tCMCounter ).set( "properties",
                 "PropConductivityInner , Conductivity;"
-				"PropDensityInner      , Density;"
-				"PropCapacityInner     , HeatCapacity") ;
+                "PropDensityInner      , Density;"
+                "PropCapacityInner     , HeatCapacity") ;
         tCMCounter++;
 
         // create parameter list for constitutive model - Outer Material
@@ -414,8 +414,8 @@ namespace moris
         tParameterList( 1 )( tCMCounter ).set( "dof_dependencies",  std::pair< std::string, std::string >( "TEMP", "Temperature" ) );
         tParameterList( 1 )( tCMCounter ).set( "properties",
                 "PropConductivityOuter , Conductivity;"
-				"PropDensityOuter      , Density;"
-				"PropCapacityOuter     , HeatCapacity") ;
+                "PropDensityOuter      , Density;"
+                "PropCapacityOuter     , HeatCapacity") ;
         tCMCounter++;
 
         //------------------------------------------------------------------------------
@@ -531,19 +531,19 @@ namespace moris
             tIWGCounter++;
         }
 
-//        // create IWG for time continuity
-//        tParameterList( 3 ).push_back( prm::create_IWG_parameter_list() );
-//        tParameterList( 3 )( tIWGCounter ).set( "IWG_name",                   "IWGTimeContinuityTemp") ;
-//        tParameterList( 3 )( tIWGCounter ).set( "IWG_type",                   static_cast< uint >( fem::IWG_Type::TIME_CONTINUITY_DOF ) );
-//        tParameterList( 3 )( tIWGCounter ).set( "dof_residual",               "TEMP") ;
-//        tParameterList( 3 )( tIWGCounter ).set( "master_dof_dependencies",    "TEMP") ;
-//        tParameterList( 3 )( tIWGCounter ).set( "master_properties",
-//                "PropWeightCurrent   ,WeightCurrent;"
-				//                "PropWeightPrevious  ,WeightPrevious;"
-				//                "PropInitialCondition,InitialCondition") ;
-//        tParameterList( 3 )( tIWGCounter ).set( "mesh_set_names",             tTotalDomain );
-//        tParameterList( 3 )( tIWGCounter ).set( "time_continuity",            true );
-//        tIWGCounter++;
+        //        // create IWG for time continuity
+        //        tParameterList( 3 ).push_back( prm::create_IWG_parameter_list() );
+        //        tParameterList( 3 )( tIWGCounter ).set( "IWG_name",                   "IWGTimeContinuityTemp") ;
+        //        tParameterList( 3 )( tIWGCounter ).set( "IWG_type",                   static_cast< uint >( fem::IWG_Type::TIME_CONTINUITY_DOF ) );
+        //        tParameterList( 3 )( tIWGCounter ).set( "dof_residual",               "TEMP") ;
+        //        tParameterList( 3 )( tIWGCounter ).set( "master_dof_dependencies",    "TEMP") ;
+        //        tParameterList( 3 )( tIWGCounter ).set( "master_properties",
+        //                "PropWeightCurrent   ,WeightCurrent;"
+        //                "PropWeightPrevious  ,WeightPrevious;"
+        //                "PropInitialCondition,InitialCondition") ;
+        //        tParameterList( 3 )( tIWGCounter ).set( "mesh_set_names",             tTotalDomain );
+        //        tParameterList( 3 )( tIWGCounter ).set( "time_continuity",            true );
+        //        tIWGCounter++;
 
 
         //------------------------------------------------------------------------------
@@ -554,6 +554,7 @@ namespace moris
         tParameterList( 4 ).push_back( prm::create_IQI_parameter_list() );
         tParameterList( 4 )( tIQICounter ).set( "IQI_name",                   "IQIBulkTEMP") ;
         tParameterList( 4 )( tIQICounter ).set( "IQI_type",                   static_cast< uint >( fem::IQI_Type::DOF ) );
+        tParameterList( 4 )( tIQICounter ).set( "dof_quantity",               "TEMP");
         tParameterList( 4 )( tIQICounter ).set( "master_dof_dependencies",    "TEMP") ;
         tParameterList( 4 )( tIQICounter ).set( "vectorial_field_index",      0 );
         tParameterList( 4 )( tIQICounter ).set( "mesh_set_names",             tTotalDomain );

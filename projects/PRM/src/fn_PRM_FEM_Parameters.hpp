@@ -144,6 +144,7 @@ namespace moris
             tParameterList.insert( "IQI_type",                   static_cast< uint >( fem::IQI_Type::UNDEFINED ) );
             //FIXME
             tParameterList.insert( "IQI_bulk_type",              static_cast< uint >( fem::Element_Type::UNDEFINED ) );
+            tParameterList.insert( "dof_quantity",               std::string( "" ) );
 
             tParameterList.insert( "master_phase_name",          "" );
             tParameterList.insert( "slave_phase_name",           "" );

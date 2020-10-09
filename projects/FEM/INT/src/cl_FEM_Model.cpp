@@ -359,7 +359,7 @@ namespace moris
                     this->create_IWGs( tPhaseMap, tPropertyMap, tCMMap, tSPMap, tMSIDofTypeMap );
 
                     // create IQIs
-                    this->create_IQIs( tPhaseMap, tPropertyMap, tCMMap, tSPMap );
+                    this->create_IQIs( tPhaseMap, tPropertyMap, tCMMap, tSPMap, tMSIDofTypeMap );
 
                     // create FEM set info
                     this->create_fem_set_info();
@@ -1125,11 +1125,11 @@ namespace moris
                         tResDofTypes,
                         aMSIDofTypeMap );
 
-//                // get the treated IWG bulk type
-//                fem::Element_Type tIWGBulkType =
-//                        static_cast< fem::Element_Type >( tIWGParameter.get< uint >( "IWG_bulk_type" ) );
-//
-//                bool tMasterSlave = ( tIWGBulkType == fem::Element_Type::DOUBLE_SIDESET );
+                // get the treated IWG bulk type
+                fem::Element_Type tIWGBulkType =
+                        static_cast< fem::Element_Type >( tIWGParameter.get< uint >( "IWG_bulk_type" ) );
+
+                bool tMasterSlave = ( tIWGBulkType == fem::Element_Type::DOUBLE_SIDESET );
 
                 // create an IWG pointer
                 mIWGs( iIWG ) = tIWGFactory.create_IWG( tIWGType );
@@ -1148,7 +1148,7 @@ namespace moris
                 mtk::Master_Slave tIsMaster = mtk::Master_Slave::MASTER;
 
                 // loop on master and slave
-                for( uint iMaster = 0; iMaster <= 1; iMaster++ )
+                for( uint iMaster = 0; iMaster <= tMasterSlave; iMaster++ )
                 {
                     // if slave
                     if( iMaster )
@@ -1349,6 +1349,14 @@ namespace moris
                         aDvTypeMap );
                 mIQIs( iIQI )->set_dv_type_list( tDvTypes );
 
+                // get the treated IQI quantity dof type
+                moris::Cell< moris::MSI::Dof_Type > tQuantityDofTypes;
+                string_to_cell(
+                        tIQIParameterList( iIQI ).get< std::string >( "dof_quantity" ),
+                        tQuantityDofTypes,
+                        aMSIDofTypeMap );
+                mIQIs( iIQI )->set_quantity_dof_type( tQuantityDofTypes );
+
                 // set index for vectorial field
                 mIQIs( iIQI )->set_output_type_index(
                         tIQIParameterList( iIQI ).get< moris::sint >( "vectorial_field_index" ) );
@@ -1458,7 +1466,8 @@ namespace moris
                 std::map< std::string, uint >            & aPhaseMap,
                 std::map< std::string, uint >            & aPropertyMap,
                 std::map< std::string, uint >            & aCMMap,
-                std::map< std::string, uint >            & aSPMap )
+                std::map< std::string, uint >            & aSPMap,
+                moris::map< std::string, MSI::Dof_Type > & aMSIDofTypeMap )
         {
             // create an IQI factory
             IQI_Factory tIQIFactory;
@@ -1486,6 +1495,13 @@ namespace moris
                 fem::IQI_Type tIQIType =
                         static_cast< fem::IQI_Type >( tIQIParameter.get< uint >( "IQI_type" ) );
 
+                // get the treated IQI quantity dof type
+                moris::Cell< moris::MSI::Dof_Type > tQuantityDofTypes;
+                string_to_cell(
+                        tIQIParameter.get< std::string >( "dof_quantity" ),
+                        tQuantityDofTypes,
+                        aMSIDofTypeMap );
+
                 sint tIQIFieldIndex =
                         tIQIParameter.get< moris::sint >( "vectorial_field_index" );
 
@@ -1500,6 +1516,9 @@ namespace moris
 
                 // set name
                 mIQIs( iIQI )->set_name( tIQIName );
+
+                // set quantity dof type
+                mIQIs( iIQI )->set_quantity_dof_type( tQuantityDofTypes );
 
                 // set index for vectorial field
                 mIQIs( iIQI )->set_output_type_index( tIQIFieldIndex );
