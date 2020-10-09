@@ -121,6 +121,7 @@ namespace moris
         void Geometry_Engine::set_advs(Matrix<DDRMat> aNewADVs)
         {
             // Set new ADVs
+            mOwnedADVs->vec_put_scalar(0);
             mOwnedADVs->replace_global_values(mFullADVIds, aNewADVs);
             mOwnedADVs->vector_global_asembly();
 
@@ -780,11 +781,12 @@ namespace moris
 
                 // Set up communication list for communicating ADV IDs
                 Matrix<IdMat> tCommunicationList(1, 1, 0);
-                Cell<Matrix<DDSMat>> tSendingIDs(1);
+                Cell<Matrix<DDSMat>> tSendingIDs(0);
                 Cell<Matrix<DDSMat>> tReceivingIDs(0);
                 if (par_rank() == 0)
                 {
                     tCommunicationList.resize(par_size() - 1, 1);
+                    tSendingIDs.resize(par_size() - 1);
                     for (uint tProcessorIndex = 1; tProcessorIndex < (uint)par_size(); tProcessorIndex++)
                     {
                         tCommunicationList(tProcessorIndex - 1) = tProcessorIndex;

@@ -149,7 +149,7 @@ namespace moris
              *
              * @param aOwnedADVs Full owned distributed ADV vector
              */
-            void import_advs(sol::Dist_Vector* aOwnedADVs);
+            virtual void import_advs(sol::Dist_Vector* aOwnedADVs);
 
             /**
              * Add a new child node for evaluation, implemented for discrete fields

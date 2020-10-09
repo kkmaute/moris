@@ -16,6 +16,8 @@ namespace moris
 
         private:
             mtk::Interpolation_Mesh* mMesh;
+            sol::Dist_Vector* mOwnedNodalValues = nullptr;
+            sol::Dist_Vector* mSharedNodalValues = nullptr;
 
         public:
             /**
@@ -60,12 +62,24 @@ namespace moris
                       std::shared_ptr<Geometry> aGeometry);
 
             /**
+             * Destructor
+             */
+            ~Level_Set();
+
+            /**
              * Given a node index, returns the field value.
              *
              * @param aNodeIndex Node index
              * @return Distance to this geometry
              */
             real evaluate_field_value(uint aNodeIndex);
+
+            /**
+             * Imports the local ADVs required from the full owned ADV distributed vector, and recomputes nodal values.
+             *
+             * @param aOwnedADVs Full owned distributed ADV vector
+             */
+            void import_advs(sol::Dist_Vector* aOwnedADVs);
 
             /**
              * Function for determining if this geometry is to be used for seeding a B-spline level set field.

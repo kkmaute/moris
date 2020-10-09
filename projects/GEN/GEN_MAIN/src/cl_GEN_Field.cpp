@@ -108,9 +108,6 @@ namespace moris
                 mFieldVariables(tVariableIndex) = &(*mSharedADVs)(aSharedADVIds(tVariableIndex));
                 mADVDependencies(tVariableIndex) = aSharedADVIds(tVariableIndex) - 1; // FIXME
             }
-
-            // Delete map
-            //delete tSharedADVMap;
         }
 
         //--------------------------------------------------------------------------------------------------------------

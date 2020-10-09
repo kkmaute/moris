@@ -3,6 +3,8 @@
 #include "cl_MTK_Integration_Mesh.hpp"
 #include "cl_MTK_Mesh_Factory.hpp"
 #include "cl_MTK_Mapper.hpp"
+#include "cl_SOL_Matrix_Vector_Factory.hpp"
+#include "cl_SOL_Dist_Map.hpp"
 
 namespace moris
 {
@@ -60,37 +62,76 @@ namespace moris
             // Map to B-splines
             Matrix<DDRMat> tTargetField = this->map_to_bsplines(aGeometry);
 
+            // Get B-spline mesh index
+            uint tBSplineMeshIndex = this->get_bspline_mesh_index();
+
             // Assign ADVs
-            for (uint tBSplineIndex = 0; tBSplineIndex < mMesh->get_num_coeffs(this->get_bspline_mesh_index()); tBSplineIndex++)
+            for (uint tBSplineIndex = 0; tBSplineIndex < mMesh->get_num_coeffs(tBSplineMeshIndex); tBSplineIndex++)
             {
-                if (par_rank() == aMesh->get_entity_owner(tBSplineIndex, EntityRank::BSPLINE, this->get_bspline_mesh_index()))
+                if (par_rank() == aMesh->get_entity_owner(tBSplineIndex, EntityRank::BSPLINE, tBSplineMeshIndex))
                 {
                     // Assign distributed vector element based on B-spline ID and offset
                     (*aOwnedADVs)(aOwnedADVIds(aOwnedADVIdsOffset++)) = tTargetField(tBSplineIndex);
                 }
             }
 
-            // Import ADVs
+            // Determine number of owned and shared node IDs
+            uint tOwnedNodeCount = 0;
+            for (uint tNodeIndex = 0; tNodeIndex < mMesh->get_num_nodes(); tNodeIndex++)
+            {
+                if (par_rank() == aMesh->get_entity_owner(tNodeIndex, EntityRank::NODE, tBSplineMeshIndex))
+                {
+                    tOwnedNodeCount++;
+                }
+            }
+            Matrix<DDSMat> tOwnedNodeIDs(tOwnedNodeCount, 1);
+            Matrix<DDSMat> tSharedNodeIDs(mMesh->get_num_nodes(), 1);
+
+            // Assign owned and shared node IDs
+            tOwnedNodeCount = 0;
+            for (uint tNodeIndex = 0; tNodeIndex < mMesh->get_num_nodes(); tNodeIndex++)
+            {
+                sint tNodeID = mMesh->get_glb_entity_id_from_entity_loc_index(
+                        tNodeIndex,
+                        EntityRank::NODE,
+                        tBSplineMeshIndex);
+                tSharedNodeIDs(tNodeIndex) = tNodeID;
+                if (par_rank() == aMesh->get_entity_owner(tNodeIndex, EntityRank::NODE, tBSplineMeshIndex))
+                {
+                    tOwnedNodeIDs(tOwnedNodeCount++) = tNodeID;
+                }
+            }
+
+            // Create owned and shared distributed vectors
+            sol::Matrix_Vector_Factory tDistributedFactory;
+            std::shared_ptr<sol::Dist_Map> tOwnedNodeMap = tDistributedFactory.create_map(tOwnedNodeIDs);
+            std::shared_ptr<sol::Dist_Map> tSharedNodeMap = tDistributedFactory.create_map(tSharedNodeIDs);
+            mOwnedNodalValues = tDistributedFactory.create_vector(tOwnedNodeMap);
+            mSharedNodalValues = tDistributedFactory.create_vector(tSharedNodeMap);
+
+            // Import ADVs and assign nodal values
             this->import_advs(aOwnedADVs);
+
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
+        Level_Set::~Level_Set()
+        {
+            delete mOwnedNodalValues;
+            delete mSharedNodalValues;
         }
 
         //--------------------------------------------------------------------------------------------------------------
 
         real Level_Set::evaluate_field_value(uint aNodeIndex)
         {
-            // Initialize
-            real tResult = 0.0;
+            sint tNodeID = mMesh->get_glb_entity_id_from_entity_loc_index(
+                    aNodeIndex,
+                    EntityRank::NODE,
+                    this->get_bspline_mesh_index());
 
-            // Sum over all B-spline basis functions
-            Matrix<IndexMat> tIndices = mMesh->get_bspline_inds_of_node_loc_ind(aNodeIndex, EntityRank::BSPLINE);
-            Matrix<DDRMat> tMatrix = mMesh->get_t_matrix_of_node_loc_ind(aNodeIndex, EntityRank::BSPLINE);
-            for (uint tBspline = 0; tBspline < tIndices.length(); tBspline++)
-            {
-                tResult += tMatrix(tBspline) * (*mFieldVariables(tIndices(tBspline)));
-            }
-
-            // Return result
-            return tResult;
+            return (*mSharedNodalValues)(tNodeID);
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -105,10 +146,52 @@ namespace moris
             // Get T-matrix
             Matrix<IndexMat> tIndices = mMesh->get_bspline_inds_of_node_loc_ind(aNodeIndex, EntityRank::BSPLINE);
             Matrix<DDRMat> tMatrix = mMesh->get_t_matrix_of_node_loc_ind(aNodeIndex, EntityRank::BSPLINE);
-            for (uint tBspline = 0; tBspline < tIndices.length(); tBspline++)
+            for (uint tBSpline = 0; tBSpline < tIndices.length(); tBSpline++)
             {
-                aSensitivities(tIndices(tBspline)) = tMatrix(tBspline);
+                aSensitivities(tIndices(tBSpline)) = tMatrix(tBSpline);
             }
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
+        void Level_Set::import_advs(sol::Dist_Vector* aOwnedADVs)
+        {
+            // Import ADVs as usual
+            Field::import_advs(aOwnedADVs);
+
+            // Reset evaluated field
+            mOwnedNodalValues->vec_put_scalar(0);
+
+            // Evaluate field at owned nodes
+            for (uint tNodeIndex = 0; tNodeIndex < mMesh->get_num_nodes(); tNodeIndex++)
+            {
+                if (par_rank() == mMesh->get_entity_owner(tNodeIndex, EntityRank::NODE, this->get_bspline_mesh_index()))
+                {
+                    sint tNodeID = mMesh->get_glb_entity_id_from_entity_loc_index(
+                            tNodeIndex,
+                            EntityRank::NODE,
+                            this->get_bspline_mesh_index());
+                    Matrix<IndexMat> tBSplineIndices = mMesh->get_bspline_inds_of_node_loc_ind(tNodeIndex, EntityRank::BSPLINE);
+                    Matrix<DDRMat> tMatrix = mMesh->get_t_matrix_of_node_loc_ind(tNodeIndex, EntityRank::BSPLINE);
+                    for (uint tBSpline = 0; tBSpline < tBSplineIndices.length(); tBSpline++)
+                    {
+                        (*mOwnedNodalValues)(tNodeID) += tMatrix(tBSpline) * (*mFieldVariables(tBSplineIndices(tBSpline)));
+                    }
+                }
+            }
+
+            // Global assembly
+            mOwnedNodalValues->vector_global_asembly();
+
+            // Import nodal values
+            mSharedNodalValues->import_local_to_global(*mOwnedNodalValues);
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
+        bool Level_Set::conversion_to_bsplines()
+        {
+            return false;
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -175,13 +258,6 @@ namespace moris
 
             // Return mapped field
             return tTargetField;
-        }
-
-        //--------------------------------------------------------------------------------------------------------------
-
-        bool Level_Set::conversion_to_bsplines()
-        {
-            return false;
         }
 
         //--------------------------------------------------------------------------------------------------------------
