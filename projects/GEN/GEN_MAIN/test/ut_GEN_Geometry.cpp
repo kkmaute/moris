@@ -55,9 +55,9 @@ namespace moris
             Matrix<DDRMat> tADVs;
 
             // Distributed ADVs
-            Matrix_Vector_Factory tDistributedFactory;
+            sol::Matrix_Vector_Factory tDistributedFactory;
             Matrix<DDSMat> tADVIds = {{0}, {1}, {2}, {3}, {4}};
-            sol::Dist_Map* tADVMap = tDistributedFactory.create_map(tADVIds);
+            std::shared_ptr<sol::Dist_Map> tADVMap = tDistributedFactory.create_map(tADVIds);
             sol::Dist_Vector* tDistributedADVs = tDistributedFactory.create_vector(tADVMap);
 
             // Define circles
@@ -318,61 +318,64 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        TEST_CASE("Level set geometry test", "[gen], [geometry], [level set geometry]")
+        TEST_CASE("Level set geometry test", "[gen], [geometry], [B-spline geometry], [B-spline geometry linear]")
         {
-            if (par_size() == 1)
+            // Create mesh
+            mtk::Interpolation_Mesh* tMesh = create_simple_mesh(6, 6);
+
+            // Level set circle parameter list
+            real tRadius = 0.5;
+            ParameterList tCircleParameterList = prm::create_geometry_parameter_list();
+            tCircleParameterList.set("type", "circle");
+            tCircleParameterList.set("constant_parameters", "0.0, 0.0, " + std::to_string(tRadius));
+            tCircleParameterList.set("bspline_mesh_index", 0);
+
+            // Set up geometry
+            Cell<std::shared_ptr<Geometry>> tGeometry(1);
+            Matrix<DDRMat> tADVs(0, 0);
+            tGeometry(0) = create_geometry(tCircleParameterList, tADVs);
+
+            // Create geometry engine
+            Phase_Table tPhaseTable(1);
+            Geometry_Engine tGeometryEngine(tGeometry, tPhaseTable, tMesh);
+
+            // Check that ADVs were created and L2 was performed
+            tADVs = tGeometryEngine.get_advs();
+            if (par_rank() == 0)
             {
-                // Create mesh
-                mtk::Interpolation_Mesh* tMesh = create_simple_mesh(2, 2);
-
-                // Level set circle parameter list
-                real tRadius = 0.5;
-                ParameterList tCircleParameterList = prm::create_geometry_parameter_list();
-                tCircleParameterList.set("type", "circle");
-                tCircleParameterList.set("constant_parameters", "0.0, 0.0, " + std::to_string(tRadius));
-                tCircleParameterList.set("bspline_mesh_index", 0);
-
-                // Set up geometry
-                Cell<std::shared_ptr<Geometry>> tGeometry(1);
-                Matrix<DDRMat> tADVs(0, 0);
-                tGeometry(0) = create_geometry(tCircleParameterList, tADVs);
-
-                // Create geometry engine
-                Phase_Table tPhaseTable (1);
-                Geometry_Engine tGeometryEngine(tGeometry, tPhaseTable, tMesh);
-
-                // Check that ADVs were created and L2 was performed
-                tADVs = tGeometryEngine.get_advs();
-                REQUIRE(tADVs.length() == 16);
-                for (uint tBSplineIndex = 0; tBSplineIndex < 16; tBSplineIndex++)
+                REQUIRE(tADVs.length() == 49);
+                for (uint tBSplineIndex = 0; tBSplineIndex < 49; tBSplineIndex++)
                 {
                     CHECK(tADVs(tBSplineIndex) != Approx(0.0));
                 }
-
-                // Check field values
-                for (uint tNodeIndex = 0; tNodeIndex < tMesh->get_num_nodes(); tNodeIndex++)
-                {
-                    Matrix<DDRMat> tNodeCoord = tMesh->get_node_coordinate(tNodeIndex);
-                    CHECK( tGeometryEngine.get_geometry_field_value(tNodeIndex, {{}}, 0) ==
-                        Approx(sqrt(pow(tNodeCoord(0), 2) + pow(tNodeCoord(1), 2)) - tRadius) );
-                }
-
-                // Set new ADVs
-                tADVs = tADVs + (tRadius / 2.0);
-                tGeometryEngine.set_advs(tADVs);
-
-                // Check field values again
-                for (uint tNodeIndex = 0; tNodeIndex < tMesh->get_num_nodes(); tNodeIndex++)
-                {
-                    Matrix<DDRMat> tNodeCoord = tMesh->get_node_coordinate(tNodeIndex);
-                    CHECK( tGeometryEngine.get_geometry_field_value(tNodeIndex, {{}}, 0) ==
-                    Approx(sqrt(pow(tNodeCoord(0), 2) + pow(tNodeCoord(1), 2)) - (tRadius / 2.0)) );
-                }
-
-                // Clean up
-                delete tMesh;
-
             }
+            else
+            {
+                REQUIRE(tADVs.length() == 0);
+            }
+
+            // Check field values
+            for (uint tNodeIndex = 0; tNodeIndex < tMesh->get_num_nodes(); tNodeIndex++)
+            {
+                Matrix<DDRMat> tNodeCoord = tMesh->get_node_coordinate(tNodeIndex);
+                CHECK( tGeometryEngine.get_geometry_field_value(tNodeIndex, {{}}, 0) ==
+                        Approx(sqrt(pow(tNodeCoord(0), 2) + pow(tNodeCoord(1), 2)) - tRadius) );
+            }
+
+            // Set new ADVs
+            tADVs = tADVs + (tRadius / 2.0);
+            tGeometryEngine.set_advs(tADVs);
+
+            // Check field values again
+            for (uint tNodeIndex = 0; tNodeIndex < tMesh->get_num_nodes(); tNodeIndex++)
+            {
+                Matrix<DDRMat> tNodeCoord = tMesh->get_node_coordinate(tNodeIndex);
+                CHECK( tGeometryEngine.get_geometry_field_value(tNodeIndex, {{}}, 0) ==
+                        Approx(sqrt(pow(tNodeCoord(0), 2) + pow(tNodeCoord(1), 2)) - (tRadius / 2.0)) );
+            }
+
+            // Clean up
+            delete tMesh;
         }
 
         //--------------------------------------------------------------------------------------------------------------
