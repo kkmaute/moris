@@ -597,7 +597,6 @@ void Integration_Mesh_STK::setup_side_set_clusters(Interpolation_Mesh &aInterpMe
 
         moris::mtk::Cell_Info_Factory tFactory;
 
-        std::cout << "aSideSetNames(i) = " << aSideSetNames(i) << std::endl;
         // figure out which integration cells are in the side cluster input. these are assumed
         // the only non-trivial ones, all others will be marked as trivial
         if (aSideClusterInput != nullptr)
@@ -612,11 +611,9 @@ void Integration_Mesh_STK::setup_side_set_clusters(Interpolation_Mesh &aInterpMe
                     // integration cell id
                     moris_id tCellId = tCellsInSet(iIGCell)->get_id();
 
-                    std::cout<<"tCellId = "<<tCellId<<std::endl;
-
                     // interpolation cell index
                     moris_index tCellIndex = aInterpMesh.get_loc_entity_ind_from_entity_glb_id(tCellId, EntityRank::ELEMENT);
-
+            
                     // get the mtk cell
                     moris::mtk::Cell * tInterpCell = & aInterpMesh.get_mtk_cell(tCellIndex) ;
 

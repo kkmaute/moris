@@ -49,7 +49,6 @@ namespace xtk
         // the solver has all appropriate information downstream.
         this->identify_and_setup_aura_vertices_in_ghost(tGhostSetupData);
 
-//        MORIS_ERROR(mXTKModel->get_enriched_interp_mesh(0).verify_basis_support(),"Issue detected in basis support after ghost stabilization."); // TODO: change to assert once done debugging
     }
 
     // ----------------------------------------------------------------------------------
@@ -1285,9 +1284,12 @@ namespace xtk
         // allocate space in integration cell side ordinals
         tSlaveSideCluster->mIntegrationCellSideOrdinals = {{aGhostSetupData.mSlaveSideIgCellSideOrds(aBulkIndex)(aCellIndex)}};
 
-        // add vertices
+        // add geometric vertices to the cluster 
         tSlaveSideCluster->mVerticesInCluster = tSlaveSideCluster->mIntegrationCells(0)->
                 get_geometric_vertices_on_side_ordinal(tSlaveSideCluster->mIntegrationCellSideOrdinals(0));
+
+        // finalize
+        tSlaveSideCluster->finalize_setup();
 
 
         return tSlaveSideCluster;

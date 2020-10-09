@@ -73,14 +73,8 @@ namespace xtk
     moris::Cell<moris::mtk::Vertex const *>
     Side_Cluster::get_vertices_in_cluster( const mtk::Master_Slave aIsMaster ) const
     {
-        if(!mTrivial)
-        {
             return mVerticesInCluster;
-        }
-        else
-        {
-            return mInterpolationCell->get_base_cell()->get_geometric_vertices_on_side_ordinal(mIntegrationCellSideOrdinals(0));
-        }
+
     }
     
     //----------------------------------------------------------------
@@ -127,8 +121,9 @@ namespace xtk
         else if(mTrivial)
         {
             // Cluster index is also the ordinal in trivial cluster
-            moris_index tVertexOrdinal = this->get_vertex_cluster_index(aVertex);
+            moris_index tVertexOrdinal = mIntegrationCells(0)->get_vertex_ordinal_wrt_cell(aVertex->get_index());
 
+            std::cout<<"XTK Ord = "<<tVertexOrdinal<<std::endl;
             // get the interpolation cell's connectivity information
             moris::mtk::Cell_Info const * tCellInfo = mInterpolationCell->get_connectivity();
 

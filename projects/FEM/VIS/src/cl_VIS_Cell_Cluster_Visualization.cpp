@@ -6,6 +6,7 @@
  */
 #include "cl_VIS_Cell_Cluster_Visualization.hpp"
 #include "cl_MTK_Cell_Cluster.hpp"
+#include "cl_MTK_Cell_Info_Factory.hpp"
 
 namespace moris
 {
@@ -110,7 +111,6 @@ Cell_Cluster_Visualization::get_interpolation_cell( const mtk::Master_Slave aIsM
 moris::Cell<moris::mtk::Vertex const *>
 Cell_Cluster_Visualization::get_vertices_in_cluster( const mtk::Master_Slave aIsMaster ) const
 {
-//    MORIS_ASSERT(!mTrivial,"Trying to access vertices in cluster on a trivial cluster");
     return mVerticesInCluster;
 }
 
@@ -120,7 +120,7 @@ Cell_Cluster_Visualization::get_vertices_in_cluster( const mtk::Master_Slave aIs
 moris::Matrix<moris::DDRMat>
 Cell_Cluster_Visualization::get_vertices_local_coordinates_wrt_interp_cell( const mtk::Master_Slave aIsMaster )  const
 {
-    return mVertexParamCoords;
+            return mVertexParamCoords;
 }
 
 //----------------------------------------------------------------
@@ -142,8 +142,8 @@ moris_index
 Cell_Cluster_Visualization::get_dim_of_param_coord( const mtk::Master_Slave aIsMaster ) const
 {
     return mVertexParamCoords.n_cols();
-}
-
+}   
+ 
 //----------------------------------------------------------------
 
 moris_index

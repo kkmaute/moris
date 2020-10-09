@@ -161,6 +161,22 @@ namespace moris
             return  tVertexInd;
         }
 
+        moris_index
+        Cell::get_vertex_ordinal_wrt_cell(moris_index const & aVertexIndex) const
+        {
+           Matrix< IndexMat > tVertexInds = this->get_vertex_inds();
+           for(moris::uint i = 0; i < tVertexInds.numel(); i++)
+           {
+               if(tVertexInds(i) == aVertexIndex)
+               {
+                   return (moris_index)i;
+               }
+           }
+
+            MORIS_ERROR(0, "Vertex not attached to cell.");
+           return MORIS_INDEX_MAX;
+        }
+
         //------------------------------------------------------------------------------
 
         moris::Matrix<moris::DDRMat>
