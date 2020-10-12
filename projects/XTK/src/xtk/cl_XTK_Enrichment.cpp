@@ -257,7 +257,7 @@ namespace xtk
                 // if the vertex interpolation exits this vertex is own by the current processor
                 // and the vertex interpolation is stored; otherwise the nullptr is kept indicating
                 // that the vertex is not owned the by current processor
-                if(tVert.has_interpolation(mMeshIndices(iM)+1))                                  // FIXME: Keenan - why is there a +1 needs to be explained; seems hacky
+                if(tVert.has_interpolation(mMeshIndices(iM)))
                 {
                     mEnrichmentData(iM).mBGVertexInterpolations(iV) =tVert.get_interpolation(mMeshIndices(iM));
                 }

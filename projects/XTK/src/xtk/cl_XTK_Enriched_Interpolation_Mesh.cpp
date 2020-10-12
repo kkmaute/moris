@@ -545,7 +545,7 @@ namespace xtk
 
         // if the vertex has interpolation then there is a potential that the t-matrices
         // are the same. If not we always construct a new interpolation vertex here
-        if(aBaseInterpVertex->has_interpolation(aMeshIndex+1))
+        if(aBaseInterpVertex->has_interpolation(aMeshIndex))
         {
             // iterate through the enriched vertices related to the base vertex and see if any are equal
             for(moris::uint i = 0; i < tNumVertsEnrOnBaseVert; i++)
