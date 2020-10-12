@@ -64,7 +64,6 @@ namespace moris
 
             // ADVs
             Matrix<DDRMat> mADVs;
-            Matrix<DDSMat> mOwnedADVIds;
             Matrix<DDSMat> mFullADVIds;
             sol::Dist_Vector* mOwnedADVs = nullptr;
 

@@ -666,13 +666,13 @@ namespace moris
                 mPdvHostManager.set_num_advs(tNumOwnedADVs);
 
                 // Resize ADV IDs and set primitive IDs
-                mOwnedADVIds.resize(mADVs.length(), 1);
+                Matrix<DDSMat> tOwnedADVIds(mADVs.length(), 1);
                 for (uint tADVIndex = 0; tADVIndex < mADVs.length(); tADVIndex++)
                 {
-                    mOwnedADVIds(tADVIndex) = tADVIndex;
+                    tOwnedADVIds(tADVIndex) = tADVIndex;
                 }
-                Matrix<DDSMat> tPrimitiveIds = mOwnedADVIds;
-                mOwnedADVIds.resize(tNumOwnedADVs, 1);
+                Matrix<DDSMat> tPrimitiveIds = tOwnedADVIds;
+                tOwnedADVIds.resize(tNumOwnedADVs, 1);
 
                 // Cell of shared ADV IDs
                 Cell<Matrix<DDSMat>> tSharedADVIds(mGeometries.size());
@@ -714,7 +714,7 @@ namespace moris
                                 mUpperBounds(tOwnedADVIndex) = tBSplineUpperBound;
 
                                 // New ADV ID
-                                mOwnedADVIds(tOwnedADVIndex++) = tNewADVId;
+                                tOwnedADVIds(tOwnedADVIndex++) = tNewADVId;
                             }
                         }
                     }
@@ -728,7 +728,7 @@ namespace moris
                 sol::Matrix_Vector_Factory tDistributedFactory;
 
                 // Create map for distributed vector
-                std::shared_ptr<sol::Dist_Map> tOwnedADVMap = tDistributedFactory.create_map(mOwnedADVIds);
+                std::shared_ptr<sol::Dist_Map> tOwnedADVMap = tDistributedFactory.create_map(tOwnedADVIds);
 
                 // Create vector
                 mOwnedADVs = tDistributedFactory.create_vector(tOwnedADVMap);
@@ -768,7 +768,7 @@ namespace moris
                         // Create level set FIXME for multiple level set fields
                         mGeometries(tGeometryIndex) = std::make_shared<Level_Set>(
                                 mOwnedADVs,
-                                mOwnedADVIds,
+                                tOwnedADVIds,
                                 tSharedADVIds(tGeometryIndex),
                                 tPrimitiveIds.length(),
                                 aMesh,
@@ -808,7 +808,7 @@ namespace moris
                 }
                 else
                 {
-                    tSendingIDs = {mOwnedADVIds};
+                    tSendingIDs = {tOwnedADVIds};
                     tSendingLowerBounds = {mLowerBounds};
                     tSendingUpperBounds = {mUpperBounds};
                 }
@@ -822,7 +822,7 @@ namespace moris
                 if (par_rank() == 0)
                 {
                     // Start full IDs with owned IDs on processor 0
-                    mFullADVIds = mOwnedADVIds;
+                    mFullADVIds = tOwnedADVIds;
 
                     // Assemble additional IDs/bounds from other processors
                     for (uint tProcessorIndex = 1; tProcessorIndex < (uint)par_size(); tProcessorIndex++)
