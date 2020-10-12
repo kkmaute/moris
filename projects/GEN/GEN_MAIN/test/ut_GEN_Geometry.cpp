@@ -346,12 +346,18 @@ namespace moris
             // Create mesh
             mtk::Interpolation_Mesh* tMesh = create_simple_mesh(6, 6);
 
-            // Level set circle parameter list
+            // Circle parameters
             real tRadius = 0.5;
+            real tLowerBound = -2.0;
+            real tUpperBound = 2.0;
+
+            // Level set circle parameter list
             ParameterList tCircleParameterList = prm::create_geometry_parameter_list();
             tCircleParameterList.set("type", "circle");
             tCircleParameterList.set("constant_parameters", "0.0, 0.0, " + std::to_string(tRadius));
             tCircleParameterList.set("bspline_mesh_index", 0);
+            tCircleParameterList.set("bspline_lower_bound", tLowerBound);
+            tCircleParameterList.set("bspline_upper_bound", tUpperBound);
 
             // Set up geometry
             Cell<std::shared_ptr<Geometry>> tGeometry(1);
@@ -362,19 +368,29 @@ namespace moris
             Phase_Table tPhaseTable(1);
             Geometry_Engine_Test tGeometryEngine(tGeometry, tPhaseTable, tMesh);
 
-            // Check that ADVs were created and L2 was performed
+            // Get ADVs/bounds
             tADVs = tGeometryEngine.get_advs();
+            Matrix<DDRMat> tLowerBounds = tGeometryEngine.get_lower_bounds();
+            Matrix<DDRMat> tUpperBounds = tGeometryEngine.get_upper_bounds();
+
+            // Check that ADVs and bounds were created (specific values not checked)
             if (par_rank() == 0)
             {
                 REQUIRE(tADVs.length() == 49);
+                REQUIRE(tLowerBounds.length() == 49);
+                REQUIRE(tUpperBounds.length() == 49);
                 for (uint tBSplineIndex = 0; tBSplineIndex < 49; tBSplineIndex++)
                 {
                     CHECK(tADVs(tBSplineIndex) != Approx(0.0));
+                    CHECK(tLowerBounds(tBSplineIndex) == Approx(tLowerBound));
+                    CHECK(tUpperBounds(tBSplineIndex) == Approx(tUpperBound));
                 }
             }
             else
             {
                 REQUIRE(tADVs.length() == 0);
+                REQUIRE(tLowerBounds.length() == 0);
+                REQUIRE(tUpperBounds.length() == 0);
             }
 
             // Check field values at all nodes

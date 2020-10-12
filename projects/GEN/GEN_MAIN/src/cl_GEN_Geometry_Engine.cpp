@@ -780,14 +780,27 @@ namespace moris
                 // Communicate all ADV IDs to processor 0 //
                 //----------------------------------------//
 
+                // Sending mats
+                Cell<Matrix<DDSMat>> tSendingIDs(0);
+                Cell<Matrix<DDRMat>> tSendingLowerBounds(0);
+                Cell<Matrix<DDRMat>> tSendingUpperBounds(0);
+
+                // Receiving mats
+                Cell<Matrix<DDSMat>> tReceivingIDs(0);
+                Cell<Matrix<DDRMat>> tReceivingLowerBounds(0);
+                Cell<Matrix<DDRMat>> tReceivingUpperBounds(0);
+
                 // Set up communication list for communicating ADV IDs
                 Matrix<IdMat> tCommunicationList(1, 1, 0);
-                Cell<Matrix<DDSMat>> tSendingIDs(0);
-                Cell<Matrix<DDSMat>> tReceivingIDs(0);
                 if (par_rank() == 0)
                 {
+                    // Resize communication list and sending mats
                     tCommunicationList.resize(par_size() - 1, 1);
                     tSendingIDs.resize(par_size() - 1);
+                    tSendingLowerBounds.resize(par_size() - 1);
+                    tSendingUpperBounds.resize(par_size() - 1);
+
+                    // Assign communication list
                     for (uint tProcessorIndex = 1; tProcessorIndex < (uint)par_size(); tProcessorIndex++)
                     {
                         tCommunicationList(tProcessorIndex - 1) = tProcessorIndex;
@@ -796,28 +809,48 @@ namespace moris
                 else
                 {
                     tSendingIDs = {mOwnedADVIds};
+                    tSendingLowerBounds = {mLowerBounds};
+                    tSendingUpperBounds = {mUpperBounds};
                 }
 
-                // Communicate owned ADV IDs;
+                // Communicate mats
                 communicate_mats(tCommunicationList, tSendingIDs, tReceivingIDs);
+                communicate_mats(tCommunicationList, tSendingLowerBounds, tReceivingLowerBounds);
+                communicate_mats(tCommunicationList, tSendingUpperBounds, tReceivingUpperBounds);
 
-                // Assemble full ADV IDs
+                // Assemble full ADVs/bounds
                 if (par_rank() == 0)
                 {
+                    // Start full IDs with owned IDs on processor 0
                     mFullADVIds = mOwnedADVIds;
+
+                    // Assemble additional IDs/bounds from other processors
                     for (uint tProcessorIndex = 1; tProcessorIndex < (uint)par_size(); tProcessorIndex++)
                     {
-                        // Get number of received ADV IDs and resize
-                        uint mFullADVIdsFilled = mFullADVIds.length();
+                        // Get number of received ADVs
+                        uint tFullADVsFilled = mFullADVIds.length();
                         uint tNumReceivedADVs = tReceivingIDs(tProcessorIndex - 1).length();
-                        mFullADVIds.resize(mFullADVIdsFilled + tNumReceivedADVs, 1);
+
+                        // Resize full ADV IDs and bounds
+                        mFullADVIds.resize(tFullADVsFilled + tNumReceivedADVs, 1);
+                        mLowerBounds.resize(tFullADVsFilled + tNumReceivedADVs, 1);
+                        mUpperBounds.resize(tFullADVsFilled + tNumReceivedADVs, 1);
 
                         // Assign received ADV IDs
                         for (uint tADVIndex = 0; tADVIndex < tNumReceivedADVs; tADVIndex++)
                         {
-                            mFullADVIds(mFullADVIdsFilled + tADVIndex) = tReceivingIDs(tProcessorIndex - 1)(tADVIndex);
+                            mFullADVIds(tFullADVsFilled + tADVIndex) = tReceivingIDs(tProcessorIndex - 1)(tADVIndex);
+                            mLowerBounds(tFullADVsFilled + tADVIndex) =
+                                    tReceivingLowerBounds(tProcessorIndex - 1)(tADVIndex);
+                            mUpperBounds(tFullADVsFilled + tADVIndex) =
+                                    tReceivingUpperBounds(tProcessorIndex - 1)(tADVIndex);
                         }
                     }
+                }
+                else
+                {
+                    mLowerBounds.set_size(0, 0);
+                    mUpperBounds.set_size(0, 0);
                 }
             }
         }
