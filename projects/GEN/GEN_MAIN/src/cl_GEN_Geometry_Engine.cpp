@@ -35,6 +35,8 @@ namespace moris
                 Cell<Cell<ParameterList>> aParameterLists,
                 std::shared_ptr<Library_IO> aLibrary):
 
+                mGeometries(create_geometries(aParameterLists(1), mADVs, mLibrary)),
+
                 // Level set options
                 mIsocontourThreshold(aParameterLists(0)(0).get<real>("isocontour_threshold")),
                 mErrorFactor(aParameterLists(0)(0).get<real>("isocontour_error_factor")),
@@ -55,7 +57,6 @@ namespace moris
                 mLibrary(aLibrary),
 
                 // Geometries
-                mGeometries(create_geometries(aParameterLists(1), mADVs, mLibrary)),
                 mGeometryParameterLists(aParameterLists(1)),
                 mGeometryFieldFile(aParameterLists(0)(0).get<std::string>("geometry_field_file")),
                 mOutputMeshFile(aParameterLists(0)(0).get<std::string>("output_mesh_file")),
@@ -99,11 +100,11 @@ namespace moris
                 Matrix<DDRMat>                    aADVs,
                 real                              aIsocontourThreshold,
                 real                              aErrorFactor)
-                : mIsocontourThreshold(aIsocontourThreshold),
+                : mGeometries(aGeometry),
+                  mIsocontourThreshold(aIsocontourThreshold),
                   mErrorFactor(aErrorFactor),
                   mADVs(aADVs),
                   mActiveGeometryIndex(0),
-                  mGeometries(aGeometry),
                   mPhaseTable(aPhaseTable)
         {
             this->compute_level_set_data(aMesh);

@@ -28,6 +28,29 @@ namespace moris
     namespace ge
     {
 
+        //--------------------------------------------------------------------------------------------------------------
+
+        // Class for testing (sometimes need access to geometry after GEN manipulation)
+        class Geometry_Engine_Test : public Geometry_Engine
+        {
+        public:
+
+            Geometry_Engine_Test(
+                    Cell< std::shared_ptr<Geometry> > aGeometry,
+                    Phase_Table                       aPhaseTable,
+                    mtk::Interpolation_Mesh*          aMesh)
+                    : Geometry_Engine(aGeometry, aPhaseTable, aMesh)
+            {
+            }
+
+            std::shared_ptr<Geometry> get_geometry(uint aGeometryIndex = 0)
+            {
+                return mGeometries(aGeometryIndex);
+            }
+        };
+
+        //--------------------------------------------------------------------------------------------------------------
+
         // Check for ellipse location in a swiss cheese
         void check_swiss_cheese(std::shared_ptr<Geometry> aSwissCheese,
                                 real aXCenter,
@@ -337,7 +360,7 @@ namespace moris
 
             // Create geometry engine
             Phase_Table tPhaseTable(1);
-            Geometry_Engine tGeometryEngine(tGeometry, tPhaseTable, tMesh);
+            Geometry_Engine_Test tGeometryEngine(tGeometry, tPhaseTable, tMesh);
 
             // Check that ADVs were created and L2 was performed
             tADVs = tGeometryEngine.get_advs();
@@ -431,13 +454,12 @@ namespace moris
                     tCircleParameterList.set("bspline_mesh_index", 0);
 
                     // Set up geometry
-                    Cell<std::shared_ptr<Geometry>> tGeometry(1);
                     Matrix<DDRMat> tADVs(0, 0);
-                    tGeometry(0) = create_geometry(tCircleParameterList, tADVs);
+                    std::shared_ptr<Geometry> tBSplineCircle = create_geometry(tCircleParameterList, tADVs);
 
                     // Create geometry engine
                     Phase_Table tPhaseTable(1);
-                    Geometry_Engine tGeometryEngine(tGeometry, tPhaseTable, tMesh);
+                    Geometry_Engine_Test tGeometryEngine({tBSplineCircle}, tPhaseTable, tMesh);
 
                     // Check that ADVs were created and L2 was performed
                     tADVs = tGeometryEngine.get_advs();
@@ -457,19 +479,37 @@ namespace moris
                         tEpsilon = 0.5;
                     }
 
-                    // Check field values at all nodes
+                    // Get geometry back
+                    tBSplineCircle = tGeometryEngine.get_geometry(0);
+
+                    // Check field values and sensitivities at all nodes
+                    Matrix<DDRMat> tSensitivities;
+                    Matrix<DDRMat> tTargetSensitivities;
                     for (uint tNodeIndex = 0; tNodeIndex < tMesh->get_num_nodes(); tNodeIndex++)
                     {
                         // Get node coordinates
                         Matrix<DDRMat> tNodeCoordinates = tMesh->get_node_coordinate(tNodeIndex);
 
-                        // Set approximate target
-                        Approx tApproxTarget =
+                        // Set approximate field target
+                        Approx tTargetFieldValue =
                                 Approx(sqrt(pow(tNodeCoordinates(0), 2) + pow(tNodeCoordinates(1), 2)) - tRadius)
                                 .epsilon(tEpsilon);
 
                         // Check field value
-                        CHECK(tGeometryEngine.get_geometry_field_value(tNodeIndex, {{}}, 0) == tApproxTarget);
+                        CHECK(tBSplineCircle->evaluate_field_value(tNodeIndex, {{}}) == tTargetFieldValue);
+
+                        // Set target sensitivity
+                        tTargetSensitivities.set_size(tADVs.length(), 1, 0.0);
+                        Matrix<IndexMat> tBSplineIndices = tMesh->get_bspline_inds_of_node_loc_ind(tNodeIndex, EntityRank::BSPLINE);
+                        Matrix<DDRMat> tMatrix = tMesh->get_t_matrix_of_node_loc_ind(tNodeIndex, EntityRank::BSPLINE);
+                        for (uint tBSpline = 0; tBSpline < tBSplineIndices.length(); tBSpline++)
+                        {
+                            tTargetSensitivities(tBSplineIndices(tBSpline)) = tMatrix(tBSpline);
+                        }
+
+                        // Check sensitivity
+                        tBSplineCircle->evaluate_sensitivity(tNodeIndex, {{}}, tSensitivities);
+                        check_approx(tSensitivities, tTargetSensitivities);
                     }
 
                     // Set new ADVs
