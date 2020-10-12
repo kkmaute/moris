@@ -118,7 +118,7 @@ Linear_System_PETSc::~Linear_System_PETSc()
 
     if ( mNotCreatedByNonLinearSolver == true )
     {
-        // Must do a manual reset here before PetscFinalize!
+        // These calls are needed in order to delete the underlying Petsc maps before PetscFinalize
         mMap.reset();
         mMapFree.reset();
 

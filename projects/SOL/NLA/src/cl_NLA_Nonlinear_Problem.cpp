@@ -150,9 +150,11 @@ Nonlinear_Problem::~Nonlinear_Problem()
     {
         if ( mMapType == sol::MapType::Petsc)
         {
-            std::cout<<"delete linear system"<<std::endl;
+            // These calls are needed in order to delete the underlying Petsc maps before PetscFinalize
+            mMap.reset();
+            mMapFull.reset();
+
             PetscFinalize();
-            std::cout<<"delete linear system"<<std::endl;
         }
     }
 }
