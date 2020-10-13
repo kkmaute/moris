@@ -450,20 +450,6 @@ namespace moris
         tParameterList( 0 )( tPropCounter ).set( "value_function",           "Func_Const") ;
         tPropCounter++;
 
-        // Reference Temperature for MAX_DOF - IQI
-        tParameterList( 0 ).push_back( prm::create_property_parameter_list() );
-        tParameterList( 0 )( tPropCounter ).set( "property_name",            "PropMaxTempReference") ;
-        tParameterList( 0 )( tPropCounter ).set( "function_parameters",      tMaxTempReference );
-        tParameterList( 0 )( tPropCounter ).set( "value_function",           "Func_Const") ;
-        tPropCounter++;
-
-        // Exponent for MAX_DOF - IQI
-        tParameterList( 0 ).push_back( prm::create_property_parameter_list() );
-        tParameterList( 0 )( tPropCounter ).set( "property_name",            "PropMaxTempExponent") ;
-        tParameterList( 0 )( tPropCounter ).set( "function_parameters",      tMaxTempExponent );
-        tParameterList( 0 )( tPropCounter ).set( "value_function",           "Func_Const") ;
-        tPropCounter++;
-
         //------------------------------------------------------------------------------
 
         // init CM counter
@@ -712,9 +698,8 @@ namespace moris
         tParameterList( 4 )( tIQICounter ).set( "dof_quantity",               "TEMP") ;
         tParameterList( 4 )( tIQICounter ).set( "master_dof_dependencies",    "TEMP") ;
         tParameterList( 4 )( tIQICounter ).set( "vectorial_field_index",      0 );
-        tParameterList( 4 )( tIQICounter ).set( "master_properties",
-                "PropMaxTempReference,ReferenceValue;"
-                "PropMaxTempExponent,Exponent") ;
+        tParameterList( 4 )( tIQICounter ).set( "function_parameters",
+                        tMaxTempReference + "/" + tMaxTempExponent ) ;
         tParameterList( 4 )( tIQICounter ).set( "mesh_set_names",             tTotalDomain );
         tIQICounter++;
 

@@ -248,20 +248,6 @@ extern "C"
             tParameterList( 0 )( tPropCounter ).set( "value_function",           "AnalyticdTemperaturedxFunc") ;
             tPropCounter++;
 
-            // create parameter list for property 6
-            tParameterList( 0 ).push_back( prm::create_property_parameter_list() );
-            tParameterList( 0 )( tPropCounter ).set( "property_name",            "PropMaxTempReference") ;
-            tParameterList( 0 )( tPropCounter ).set( "function_parameters",      "5.0") ;
-            tParameterList( 0 )( tPropCounter ).set( "value_function",           "Func_Const") ;
-            tPropCounter++;
-
-            // create parameter list for property 7
-            tParameterList( 0 ).push_back( prm::create_property_parameter_list() );
-            tParameterList( 0 )( tPropCounter ).set( "property_name",            "PropMaxTempExponent") ;
-            tParameterList( 0 )( tPropCounter ).set( "function_parameters",      "30.0") ;
-            tParameterList( 0 )( tPropCounter ).set( "value_function",           "Func_Const") ;
-            tPropCounter++;
-
             //------------------------------------------------------------------------------
             // fill the constitutive model part of the parameter list
 
@@ -394,9 +380,7 @@ extern "C"
             tParameterList( 4 )( tIQICounter ).set( "IQI_type",                   static_cast< uint >( fem::IQI_Type::MAX_DOF ) );
             tParameterList( 4 )( tIQICounter ).set( "dof_quantity",               "TEMP");
             tParameterList( 4 )( tIQICounter ).set( "master_dof_dependencies",    "TEMP") ;
-            tParameterList( 4 )( tIQICounter ).set( "master_properties",
-                    "PropMaxTempReference,ReferenceValue;"
-                    "PropMaxTempExponent,Exponent") ;
+            tParameterList( 4 )( tIQICounter ).set( "function_parameters",        "5.0/30.0" ) ;
             tParameterList( 4 )( tIQICounter ).set( "mesh_set_names",             tSolid );
             tIQICounter++;
 
