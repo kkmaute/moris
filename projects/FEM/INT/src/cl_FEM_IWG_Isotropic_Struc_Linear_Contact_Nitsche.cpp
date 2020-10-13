@@ -229,7 +229,7 @@ namespace moris
             //moris::print(mSet->get_residual()( 0 )( { tMasterResStartIndex, tMasterResStopIndex }, { 0, 0 } ),"residual_master");
 
             // check for nan, infinity
-            MORIS_ERROR( isfinite( mSet->get_residual()( 0 ) ),
+            MORIS_ASSERT( isfinite( mSet->get_residual()( 0 ) ),
                     "IWG_Isotropic_Struc_Linear_Contact_Nitsche::compute_residual - Residual contains NAN or INF, exiting!");
         }
 
@@ -597,7 +597,7 @@ namespace moris
             }
 
             // check for nan, infinity
-            MORIS_ERROR(  isfinite( mSet->get_jacobian() ) ,
+            MORIS_ASSERT( isfinite( mSet->get_jacobian() ) ,
                     "IWG_Isotropic_Struc_Linear_Contact_Nitsche::compute_jacobian - Jacobian contains NAN or INF, exiting!");
         }
 

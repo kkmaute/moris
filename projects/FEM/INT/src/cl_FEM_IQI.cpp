@@ -1523,7 +1523,7 @@ namespace moris
             }
 
             // check for nan, infinity
-            MORIS_ERROR( isfinite( mSet->get_dqidpmat()( tIQIAssemblyIndex ) ) ,
+            MORIS_ASSERT( isfinite( mSet->get_dqidpmat()( tIQIAssemblyIndex ) ) ,
                     "IQI::compute_dQIdp_FD_material - dQIdp contains NAN or INF, exiting!");
         }
 
@@ -1693,7 +1693,7 @@ namespace moris
             }
 
             // check for nan, infinity
-            MORIS_ERROR( isfinite( mSet->get_dqidpgeo()( tIQIAssemblyIndex ) ) ,
+            MORIS_ASSERT( isfinite( mSet->get_dqidpgeo()( tIQIAssemblyIndex ) ) ,
                     "IQI::compute_dQIdp_FD_geometry - dQIdp contains NAN or INF, exiting!");
         }
 
@@ -1768,7 +1768,7 @@ namespace moris
             }
 
             // check for nan, infinity
-            MORIS_ERROR( isfinite( mSet->get_residual()( tQIIndex ) ) ,
+            MORIS_ASSERT( isfinite( mSet->get_residual()( tQIIndex ) ) ,
                     "IQI::add_dQIdu_on_set - dQIdu contains NAN or INF, exiting!");
 
         }

@@ -113,7 +113,7 @@ namespace moris
                             tSPSUPG->val()( 0 ) * trans( tFITemp->dnNdxn( 1 ) ) * tFIVelocity->val() * tRT( 0, 0 ) );
 
             // check for nan, infinity
-            MORIS_ERROR( isfinite( mSet->get_residual()( 0 ) ),
+            MORIS_ASSERT( isfinite( mSet->get_residual()( 0 ) ),
                     "IWG_Advection_Bulk::compute_residual - Residual contains NAN or INF, exiting!");
         }
 
@@ -209,7 +209,7 @@ namespace moris
             }
 
             // check for nan, infinity
-            MORIS_ERROR( isfinite( mSet->get_jacobian() ),
+            MORIS_ASSERT( isfinite( mSet->get_jacobian() ),
                     "IWG_Advection_Bulk::compute_jacobian - Jacobian contains NAN or INF, exiting!");
         }
 

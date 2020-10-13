@@ -108,6 +108,19 @@ namespace moris
             // IQI name
             std::string mName;
 
+            // bulk type
+            fem::Element_Type mBulkType = fem::Element_Type::BULK;
+
+            // strings for master and slave phase name
+            std::string mMasterPhaseName;
+            std::string mSlavePhaseName;
+
+            // bool for time continuity
+            bool mTimeContinuity = false;
+
+            // bool for time boundary
+            bool mTimeBoundary = false;
+
         private:
 
             // Normalization
@@ -157,11 +170,126 @@ namespace moris
 
             //------------------------------------------------------------------------------
             /**
+             * set time continuity flag
+             * param[ in ] aTimeContinuity bool true if IWG for time continuity
+             */
+            void set_time_continuity( bool aTimeContinuity )
+            {
+                mTimeContinuity = aTimeContinuity;
+            }
+
+            //------------------------------------------------------------------------------
+            /**
+             * get time continuity flag
+             * param[ out ] mTimeContinuity ool true if IWG for time continuity
+             */
+            bool get_time_continuity()
+            {
+                return mTimeContinuity;
+            }
+
+            //------------------------------------------------------------------------------
+            /**
+             * set time boundary flag
+             * param[ in ] aTimeBoundary bool true if IWG for time boundary
+             */
+            void set_time_boundary( bool aTimeBoundary )
+            {
+                mTimeBoundary = aTimeBoundary;
+            }
+
+            //------------------------------------------------------------------------------
+            /**
+             * get time boundary flag
+             * param[ out ] mTimeBoundary bool true if IWG for time boundary
+             */
+            bool get_time_boundary()
+            {
+                return mTimeBoundary;
+            }
+
+            //------------------------------------------------------------------------------
+            /**
+             * set bulk type
+             * @param[ in ] aBulkType element type for the IWG
+             */
+            void set_bulk_type( fem::Element_Type aBulkType )
+            {
+                mBulkType = aBulkType;
+            }
+
+            //------------------------------------------------------------------------------
+            /**
+             * get bulk type
+             * @param[ out ] mBulkType element type for the IWG
+             */
+            fem::Element_Type get_bulk_type()
+            {
+                return mBulkType;
+            }
+
+            //------------------------------------------------------------------------------
+            /**
              * get fem IQI type
              */
             enum fem::IQI_Type get_fem_IQI_type()
             {
                 return mFEMIQIType;
+            }
+
+            //------------------------------------------------------------------------------
+            /**
+             * set phase name
+             * param[ in ] aPhaseName a string for phase name
+             * param[ in ] aIsMaster  an enum for master or slave
+             */
+            void set_phase_name(
+                    std::string aPhaseName,
+                    mtk::Master_Slave aIsMaster )
+            {
+                switch( aIsMaster )
+                {
+                    case mtk::Master_Slave::MASTER :
+                    {
+                        mMasterPhaseName = aPhaseName;
+                        break;
+                    }
+                    case mtk::Master_Slave::SLAVE :
+                    {
+                        mSlavePhaseName = aPhaseName;
+                        break;
+                    }
+                    default :
+                    {
+                        MORIS_ERROR( false, "IWG::set_phase_name - aIsMaster can only be master or slave.");
+                    }
+                }
+            }
+
+            //------------------------------------------------------------------------------
+            /**
+             * get phase name
+             * param[ in ]  aIsMaster an enum for master or slave
+             * param[ out ] mName     a string for phase name
+             */
+            std::string get_phase_name( mtk::Master_Slave aIsMaster )
+            {
+                switch( aIsMaster )
+                {
+                    case mtk::Master_Slave::MASTER :
+                    {
+                        return mMasterPhaseName;
+                    }
+                    case mtk::Master_Slave::SLAVE :
+                    {
+                        return mSlavePhaseName;
+                    }
+                    default :
+                    {
+                        MORIS_ERROR( false, "IWG::get_phase_name - aIsMaster can only be master or slave.");
+                        return mMasterPhaseName;
+                    }
+                }
             }
 
             //------------------------------------------------------------------------------

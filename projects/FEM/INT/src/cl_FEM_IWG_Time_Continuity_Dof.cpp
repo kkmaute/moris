@@ -15,7 +15,11 @@ namespace moris
 
         IWG_Time_Continuity_Dof::IWG_Time_Continuity_Dof()
         {
+            // set IWG type
             mIWGType = moris::fem::IWG_Type::TIME_CONTINUITY_DOF;
+
+            // set time continuity flag
+            mTimeContinuity = true;
 
             // set size for the property pointer cell
             mMasterProp.resize( static_cast< uint >( IWG_Property_Type::MAX_ENUM ), nullptr );
@@ -105,7 +109,7 @@ namespace moris
                             trans( tFICurrent->N() ) * tJump );
 
             // check for nan, infinity
-            MORIS_ERROR( isfinite( mSet->get_residual()( 0 ) ),
+            MORIS_ASSERT( isfinite( mSet->get_residual()( 0 ) ),
                     "IWG_Time_Continuity_Dof::compute_residual - Residual contains NAN or INF, exiting!");
         }
 
@@ -168,7 +172,7 @@ namespace moris
             // FIXME add derivative for initial conditions?
 
             // check for nan, infinity
-            MORIS_ERROR( isfinite( mSet->get_jacobian() ),
+            MORIS_ASSERT( isfinite( mSet->get_jacobian() ),
                     "IWG_Time_Continuity_Dof::compute_jacobian - Jacobian contains NAN or INF, exiting!");
         }
 

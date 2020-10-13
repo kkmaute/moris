@@ -2012,7 +2012,7 @@ namespace moris
             }
 
             // check for nan, infinity
-            MORIS_ERROR( isfinite( mSet->get_drdpgeo() ) ,
+            MORIS_ASSERT( isfinite( mSet->get_drdpgeo() ) ,
                     "IWG::compute_dRdp_FD_geometry - dRdp contains NAN or INF, exiting!");
         }
 
@@ -2248,7 +2248,7 @@ namespace moris
             }
 
             // check for nan, infinity
-            MORIS_ERROR( isfinite( mSet->get_drdpgeo() ),
+            MORIS_ASSERT( isfinite( mSet->get_drdpgeo() ),
                     "IWG::compute_dRdp_FD_geometry_double - dRdp contains NAN or INF, exiting!");
         }
 
@@ -2383,7 +2383,7 @@ namespace moris
             }
 
             // check for nan, infinity
-            MORIS_ERROR( isfinite( mSet->get_drdpmat() ) ,
+            MORIS_ASSERT( isfinite( mSet->get_drdpmat() ) ,
                     "IWG::compute_dRdp_FD_material - dRdp contains NAN or INF, exiting!");
         }
 
@@ -2667,7 +2667,7 @@ namespace moris
             }
 
             // check for nan, infinity
-            MORIS_ERROR( isfinite( mSet->get_drdpmat() ) ,
+            MORIS_ASSERT( isfinite( mSet->get_drdpmat() ) ,
                     "IWG::compute_dRdp_FD_material - dRdp contains NAN or INF, exiting!");
         }
 

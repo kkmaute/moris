@@ -524,18 +524,6 @@ namespace moris
         tParameterList( 0 )( tPropCounter ).set( "value_function",           "Func_Const");
         tPropCounter++;
 
-        tParameterList( 0 ).push_back( prm::create_property_parameter_list() );
-        tParameterList( 0 )( tPropCounter ).set( "property_name",            "PropMaxReference") ;
-        tParameterList( 0 )( tPropCounter ).set( "function_parameters",      "1.0") ;
-        tParameterList( 0 )( tPropCounter ).set( "value_function",           "Func_Const") ;
-        tPropCounter++;
-
-        tParameterList( 0 ).push_back( prm::create_property_parameter_list() );
-        tParameterList( 0 )( tPropCounter ).set( "property_name",            "PropMaxExponent") ;
-        tParameterList( 0 )( tPropCounter ).set( "function_parameters",      "2.0") ;
-        tParameterList( 0 )( tPropCounter ).set( "value_function",           "Func_Const") ;
-        tPropCounter++;
-
         //------------------------------------------------------------------------------
         // init CM counter
         uint tCMCounter = 0;
@@ -656,9 +644,7 @@ namespace moris
         tParameterList( 4 )( tIQICounter ).set( "dof_quantity",               "UX,UY");
         tParameterList( 4 )( tIQICounter ).set( "master_dof_dependencies",    "UX,UY") ;
         tParameterList( 4 )( tIQICounter ).set( "vectorial_field_index",      1 );
-        tParameterList( 4 )( tIQICounter ).set( "master_properties",
-                "PropMaxReference,ReferenceValue;"
-                "PropMaxExponent,Exponent") ;
+        tParameterList( 4 )( tIQICounter ).set( "function_parameters",        "1.0/2.0" ) ;
         tParameterList( 4 )( tIQICounter ).set( "mesh_set_names",             tTotalDomain) ;
         tIQICounter++;
 

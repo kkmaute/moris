@@ -119,7 +119,7 @@ namespace moris
                             mBeta * tSlaveWeight * trans( tCMSlaveFluid->testTraction( mNormal, mResidualDofType ) ) * tVelocityJump );
 
             // check for nan, infinity
-            MORIS_ERROR( isfinite( mSet->get_residual()( 0 ) ),
+            MORIS_ASSERT( isfinite( mSet->get_residual()( 0 ) ),
                     "IWG_Incompressible_NS_Pressure_Interface::compute_residual - Residual contains NAN or INF, exiting!");
         }
 
@@ -279,7 +279,7 @@ namespace moris
             }
 
             // check for nan, infinity
-            MORIS_ERROR(  isfinite( mSet->get_jacobian() ) ,
+            MORIS_ASSERT( isfinite( mSet->get_jacobian() ) ,
                     "IWG_Incompressible_NS_Pressure_Interface::compute_jacobian - Jacobian contains NAN or INF, exiting!");
         }
 
