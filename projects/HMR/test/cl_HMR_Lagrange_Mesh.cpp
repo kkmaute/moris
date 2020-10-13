@@ -26,11 +26,11 @@ using namespace hmr;
 
 TEST_CASE("HMR_Lagrange_Mesh", "[moris],[mesh],[hmr],[hmr_lagrange_mesh],[lagrange_mesh]")
 {
-//-------------------------------------------------------------------------------
+    //-------------------------------------------------------------------------------
 
     if(  moris::par_size() == 1  ||  moris::par_size() == 2  || moris::par_size() == 4 )
     {
-//-------------------------------------------------------------------------------
+        //-------------------------------------------------------------------------------
 
 
         // empty container for B-Spline meshes
@@ -90,10 +90,10 @@ TEST_CASE("HMR_Lagrange_Mesh", "[moris],[mesh],[hmr],[hmr_lagrange_mesh],[lagran
             {
                 // create first order Lagrange mesh
                 moris::hmr::Lagrange_Mesh_Base* tLagrangeMesh =  tFactory.create_lagrange_mesh( tParameters,
-                                                                                                tBackgroundMesh,
-                                                                                                tBSplineMeshes,
-                                                                                                tPattern,
-                                                                                                p );
+                        tBackgroundMesh,
+                        tBSplineMeshes,
+                        tPattern,
+                        p );
 
                 // test node uniqueness
                 REQUIRE ( tLagrangeMesh->test_for_double_nodes() );
@@ -108,7 +108,7 @@ TEST_CASE("HMR_Lagrange_Mesh", "[moris],[mesh],[hmr],[hmr_lagrange_mesh],[lagran
             delete tParameters;
 
         } // end section
-//-------------------------------------------------------------------------------
+        //-------------------------------------------------------------------------------
 
         SECTION("Lagrange Mesh 3D: test node uniqueness")
         {
@@ -162,10 +162,10 @@ TEST_CASE("HMR_Lagrange_Mesh", "[moris],[mesh],[hmr],[hmr_lagrange_mesh],[lagran
             {
                 // create first order Lagrange mesh
                 moris::hmr::Lagrange_Mesh_Base * tLagrangeMesh =  tFactory.create_lagrange_mesh( tParameters,
-                                                                                                 tBackgroundMesh,
-                                                                                                 tBSplineMeshes,
-                                                                                                 tPattern,
-                                                                                                 p );
+                        tBackgroundMesh,
+                        tBSplineMeshes,
+                        tPattern,
+                        p );
 
                 // test node uniqueness
                 REQUIRE ( tLagrangeMesh->test_for_double_nodes() );
@@ -180,7 +180,7 @@ TEST_CASE("HMR_Lagrange_Mesh", "[moris],[mesh],[hmr],[hmr_lagrange_mesh],[lagran
             delete tParameters;
         } // end section
     } // end if
-//-------------------------------------------------------------------------------
+    //-------------------------------------------------------------------------------
 } // end test
 
 TEST_CASE("HMR_T_Matrix_Perturb_lin", "[moris],[mesh],[hmr],[hmr_t_matrix_perturb_lin],[lagrange_mesh]")
@@ -210,7 +210,8 @@ TEST_CASE("HMR_T_Matrix_Perturb_lin", "[moris],[mesh],[hmr],[hmr_t_matrix_pertur
         tParameters.set_refinement_buffer( 3 );
         tParameters.set_staircase_buffer( 1 );
 
-        tParameters.set_initial_refinement( 1 );
+        tParameters.set_initial_refinement( { {1} } );
+        tParameters.set_initial_refinement_patterns( { {0} } );
 
         Cell< Matrix< DDSMat > > tLagrangeToBSplineMesh( 1 );
         tLagrangeToBSplineMesh( 0 ) = { {0} };
@@ -225,7 +226,7 @@ TEST_CASE("HMR_T_Matrix_Perturb_lin", "[moris],[mesh],[hmr],[hmr_t_matrix_pertur
         // manually select output pattern
         tDatabase->get_background_mesh()->set_activation_pattern( 0 );
 
-        tHMR.perform_initial_refinement( 0 );
+        tHMR.perform_initial_refinement();
 
         // refine the first element three times
         for( uint tLevel = 0; tLevel < 4; ++tLevel )          // 4
@@ -235,13 +236,13 @@ TEST_CASE("HMR_T_Matrix_Perturb_lin", "[moris],[mesh],[hmr],[hmr_t_matrix_pertur
             tDatabase->perform_refinement( 0, false );
         }
 
-//        // update database etc
-//        tDatabase->perform_refinement( 0, false );
+        //        // update database etc
+        //        tDatabase->perform_refinement( 0, false );
 
         tHMR.finalize();
 
-//        tHMR.renumber_and_save_to_exodus( "Mesh_lin_renumber.exo" );
-//        tHMR.save_bsplines_to_vtk("Basis_renumber.vtk");
+        //        tHMR.renumber_and_save_to_exodus( "Mesh_lin_renumber.exo" );
+        //        tHMR.save_bsplines_to_vtk("Basis_renumber.vtk");
 
         auto tMesh = tHMR.create_mesh( tLagrangeMeshInex );
         uint tNumCoeffs = tMesh->get_num_coeffs( tBplineMeshIndex );
@@ -284,11 +285,11 @@ TEST_CASE("HMR_T_Matrix_Perturb_lin", "[moris],[mesh],[hmr],[hmr_t_matrix_pertur
             CHECK( norm( tNodalFieldValues - tNodalRefFieldValues ) < 1e-12 );
         }
 
-//        tHMR.save_to_exodus( tLagrangeMeshInex, "Mesh_lin.exo" );
-//
-//        tHMR.renumber_and_save_to_exodus( "Mesh_lin_renumber.exo" );
-//        tHMR.save_bsplines_to_vtk("Basis_renumber.vtk");
-//        tHMR.save_faces_to_vtk( "Faces.vtk" );
+        //        tHMR.save_to_exodus( tLagrangeMeshInex, "Mesh_lin.exo" );
+        //
+        //        tHMR.renumber_and_save_to_exodus( "Mesh_lin_renumber.exo" );
+        //        tHMR.save_bsplines_to_vtk("Basis_renumber.vtk");
+        //        tHMR.save_faces_to_vtk( "Faces.vtk" );
     }
 }
 
@@ -318,7 +319,8 @@ TEST_CASE("HMR_T_Matrix_Perturb_quad", "[moris],[mesh],[hmr],[hmr_t_matrix_pertu
         tParameters.set_refinement_buffer( 3 );
         tParameters.set_staircase_buffer( 1 );
 
-        tParameters.set_initial_refinement( 1 );
+        tParameters.set_initial_refinement( { {1} } );
+        tParameters.set_initial_refinement_patterns( { {0} } );
 
         //tParameters.set_side_sets({ {1}, {2}, {3}, {4} });
 
@@ -333,9 +335,9 @@ TEST_CASE("HMR_T_Matrix_Perturb_quad", "[moris],[mesh],[hmr],[hmr_t_matrix_pertu
         auto tDatabase = tHMR.get_database();
 
         // manually select output pattern
-//        tDatabase->get_background_mesh()->set_activation_pattern( tHMR.get_parameters()->get_lagrange_output_pattern() );
+        //        tDatabase->get_background_mesh()->set_activation_pattern( tHMR.get_parameters()->get_lagrange_output_pattern() );
 
-        tHMR.perform_initial_refinement( 0 );
+        tHMR.perform_initial_refinement();
 
         //tDatabase->get_background_mesh()->get_element(0)->set_min_refimenent_level(4);
         //tDatabase->get_background_mesh()->get_element(0)->put_on_refinement_queue();
@@ -431,7 +433,8 @@ TEST_CASE("HMR_T_Matrix_Perturb_qub", "[moris],[mesh],[hmr],[hmr_t_matrix_pertur
         tParameters.set_refinement_buffer( 3 );
         tParameters.set_staircase_buffer( 1 );
 
-        tParameters.set_initial_refinement( 1 );
+        tParameters.set_initial_refinement( { {1} } );
+        tParameters.set_initial_refinement_patterns( { {0} } );
 
         //tParameters.set_side_sets({ {1}, {2}, {3}, {4} });
 
@@ -448,7 +451,7 @@ TEST_CASE("HMR_T_Matrix_Perturb_qub", "[moris],[mesh],[hmr],[hmr_t_matrix_pertur
         // manually select output pattern
         tDatabase->get_background_mesh()->set_activation_pattern( 0 );
 
-        tHMR.perform_initial_refinement( 0 );
+        tHMR.perform_initial_refinement();
 
         // refine the first element three times
         for( uint tLevel = 0; tLevel < 4; ++tLevel )
@@ -458,16 +461,16 @@ TEST_CASE("HMR_T_Matrix_Perturb_qub", "[moris],[mesh],[hmr],[hmr_t_matrix_pertur
             tDatabase->perform_refinement( 0, false );
         }
 
-//        // update database etc
-//        tDatabase->perform_refinement( 0, false );
+        //        // update database etc
+        //        tDatabase->perform_refinement( 0, false );
 
         tHMR.finalize();
 
         std::cout<<"create mesh"<<std::endl;
-//        auto tMesh = tHMR.create_mesh( tLagrangeOrder );
+        //        auto tMesh = tHMR.create_mesh( tLagrangeOrder );
 
         Interpolation_Mesh_HMR * tMesh =  tHMR.create_interpolation_mesh( 3,
-                                                                                           0 );
+                0 );
 
         uint tNumCoeffs = tMesh->get_num_coeffs( tBplineMeshIndex );
 
@@ -488,7 +491,7 @@ TEST_CASE("HMR_T_Matrix_Perturb_qub", "[moris],[mesh],[hmr],[hmr_t_matrix_pertur
             Matrix< DDRMat > tNodalFieldValues = tField->get_node_values();
 
             //tField->save_field_to_hdf5( "BSpline_Field_Values.hdf5", false );
-//            tField->save_node_values_to_hdf5( "Node_Field_Values_Qub.hdf5", false );
+            //            tField->save_node_values_to_hdf5( "Node_Field_Values_Qub.hdf5", false );
             Matrix< DDRMat > tNodalRefFieldValues;
 
             std::string tPrefix = moris::get_base_moris_dir();
@@ -573,31 +576,31 @@ TEST_CASE("Lagrange_Mesh_Pattern","[moris],[hmr],[Lagrange_Mesh_Pattern],[lagran
 
         // create first order Lagrange mesh
         moris::hmr::Lagrange_Mesh_Base* tLagrangeMesh_1 =  tFactory.create_lagrange_mesh( tParameters,
-                                                                                          tBackgroundMesh,
-                                                                                          tBSplineMeshes,
-                                                                                          0,
-                                                                                          1 );
+                tBackgroundMesh,
+                tBSplineMeshes,
+                0,
+                1 );
         // create first order Lagrange mesh
         moris::hmr::Lagrange_Mesh_Base* tLagrangeMesh_2 =  tFactory.create_lagrange_mesh( tParameters,
-                                                                                          tBackgroundMesh,
-                                                                                          tBSplineMeshes,
-                                                                                          1,
-                                                                                          1 );
+                tBackgroundMesh,
+                tBSplineMeshes,
+                1,
+                1 );
         // create first order Lagrange mesh
         moris::hmr::Lagrange_Mesh_Base* tLagrangeMesh_3 =  tFactory.create_lagrange_mesh( tParameters,
-                                                                                          tBackgroundMesh,
-                                                                                          tBSplineMeshes,
-                                                                                          3,
-                                                                                          1 );
+                tBackgroundMesh,
+                tBSplineMeshes,
+                3,
+                1 );
 
         REQUIRE( tLagrangeMesh_1->get_number_of_nodes_on_proc()  == 43 );
         REQUIRE( tLagrangeMesh_2->get_number_of_nodes_on_proc()  == 43 );
         REQUIRE( tLagrangeMesh_3->get_number_of_nodes_on_proc()  == 61 );
 
         // output to exodus
-//        STK * tSTK = tLagrangeMesh_3->create_stk_object(0);
-//        tSTK->save_to_file( "cccccc.g");
-//        delete tSTK;
+        //        STK * tSTK = tLagrangeMesh_3->create_stk_object(0);
+        //        tSTK->save_to_file( "cccccc.g");
+        //        delete tSTK;
 
         // Check some basis coordinates of Lagrange mesh 1
         const moris::real* tXYZ_1 = tLagrangeMesh_1->get_node_by_index( 2 )->get_xyz( );
@@ -692,24 +695,24 @@ TEST_CASE("Lagrange_Mesh_Pattern_2","[moris],[hmr],[Lagrange_Mesh_Pattern_2],[la
 
         // create first order Lagrange mesh
         moris::hmr::Lagrange_Mesh_Base* tLagrangeMesh_1 =  tFactory.create_lagrange_mesh( tParameters,
-                                                                                          tBackgroundMesh,
-                                                                                          tBSplineMeshes,
-                                                                                          0,
-                                                                                          1 );
+                tBackgroundMesh,
+                tBSplineMeshes,
+                0,
+                1 );
         // create first order Lagrange mesh
         moris::hmr::Lagrange_Mesh_Base* tLagrangeMesh_2 =  tFactory.create_lagrange_mesh( tParameters,
-                                                                                          tBackgroundMesh,
-                                                                                          tBSplineMeshes,
-                                                                                          1,
-                                                                                          1 );
+                tBackgroundMesh,
+                tBSplineMeshes,
+                1,
+                1 );
 
         REQUIRE( tLagrangeMesh_1->get_number_of_nodes_on_proc()  == 43 );
         REQUIRE( tLagrangeMesh_2->get_number_of_nodes_on_proc()  == 30 );
 
         // output to exodus
-//        STK * tSTK = tLagrangeMesh_2->create_stk_object(0);
-//        tSTK->save_to_file( "cccccc.g");
-//        delete tSTK;
+        //        STK * tSTK = tLagrangeMesh_2->create_stk_object(0);
+        //        tSTK->save_to_file( "cccccc.g");
+        //        delete tSTK;
 
         // Check some basis coordinates of Lagrange mesh 1
         const moris::real* tXYZ_1 = tLagrangeMesh_1->get_node_by_index( 2 )->get_xyz( );
@@ -723,15 +726,15 @@ TEST_CASE("Lagrange_Mesh_Pattern_2","[moris],[hmr],[Lagrange_Mesh_Pattern_2],[la
         const moris::real* tXYZ_14 = tLagrangeMesh_1->get_node_by_index( 41 )->get_xyz( );
         REQUIRE( tXYZ_14[0]  == 0.75 );    REQUIRE( tXYZ_14[1]  == 1.0 );
 
-//        // Check some basis coordinates of Lagrange mesh 2
-//        const moris::real* tXYZ_5 = tLagrangeMesh_2->get_node_by_index( 2 )->get_xyz( );
-//        REQUIRE( tXYZ_5[0]  == 0.25 );    REQUIRE( tXYZ_5[1]  == 0.25 );
-//        const moris::real* tXYZ_6 = tLagrangeMesh_2->get_node_by_index( 13 )->get_xyz( );
-//        REQUIRE( tXYZ_6[0]  == 0.75 );    REQUIRE( tXYZ_6[1]  == 0.5 );
-//        const moris::real* tXYZ_7 = tLagrangeMesh_2->get_node_by_index( 15 )->get_xyz( );
-//        REQUIRE( tXYZ_7[0]  == 0.25 );    REQUIRE( tXYZ_7[1]  == 0.75 );
-//        const moris::real* tXYZ_8 = tLagrangeMesh_2->get_node_by_index( 36 )->get_xyz( );
-//        REQUIRE( tXYZ_8[0]  == 0.875 );    REQUIRE( tXYZ_8[1]  == 1.0 );
+        //        // Check some basis coordinates of Lagrange mesh 2
+        //        const moris::real* tXYZ_5 = tLagrangeMesh_2->get_node_by_index( 2 )->get_xyz( );
+        //        REQUIRE( tXYZ_5[0]  == 0.25 );    REQUIRE( tXYZ_5[1]  == 0.25 );
+        //        const moris::real* tXYZ_6 = tLagrangeMesh_2->get_node_by_index( 13 )->get_xyz( );
+        //        REQUIRE( tXYZ_6[0]  == 0.75 );    REQUIRE( tXYZ_6[1]  == 0.5 );
+        //        const moris::real* tXYZ_7 = tLagrangeMesh_2->get_node_by_index( 15 )->get_xyz( );
+        //        REQUIRE( tXYZ_7[0]  == 0.25 );    REQUIRE( tXYZ_7[1]  == 0.75 );
+        //        const moris::real* tXYZ_8 = tLagrangeMesh_2->get_node_by_index( 36 )->get_xyz( );
+        //        REQUIRE( tXYZ_8[0]  == 0.875 );    REQUIRE( tXYZ_8[1]  == 1.0 );
 
 
         // delete mesh
@@ -756,11 +759,11 @@ moris::real tPlane_Bench( const moris::Matrix< moris::DDRMat > & aPoint )
 
 TEST_CASE("Lagrange_Mesh_Pattern_3","[moris],[hmr],[Lagrange_Mesh_3],[lagrange_mesh]")
 {
-//    if(par_size() == 1)
+    //    if(par_size() == 1)
     {
-    	std::cout<<"I am proc: "<<par_rank()<<std::endl;
+        std::cout<<"I am proc: "<<par_rank()<<std::endl;
 
-           uint tLagrangeMeshIndex = 0;
+        uint tLagrangeMeshIndex = 0;
 
         // empty container for B-Spline meshes
         moris::Cell< moris::hmr::BSpline_Mesh_Base* > tBSplineMeshes;
@@ -782,11 +785,12 @@ TEST_CASE("Lagrange_Mesh_Pattern_3","[moris],[hmr],[Lagrange_Mesh_3],[lagrange_m
         tParameters.set_bspline_patterns ( { {0} } );
 
         tParameters.set_output_meshes( { {0} } );
-//        tParameters.set_lagrange_input_mesh( { { 0 } } );
+        //        tParameters.set_lagrange_input_mesh( { { 0 } } );
 
         tParameters.set_staircase_buffer( 2 );
 
-        tParameters.set_initial_refinement( 0 );
+        tParameters.set_initial_refinement( { {0} } );
+        tParameters.set_initial_refinement_patterns( { {0} } );
 
         tParameters.set_number_aura( true );
 
@@ -798,7 +802,7 @@ TEST_CASE("Lagrange_Mesh_Pattern_3","[moris],[hmr],[Lagrange_Mesh_3],[lagrange_m
         // create the HMR object by passing the settings to the constructor
         moris::hmr::HMR tHMR( tParameters );
 
-        tHMR.perform_initial_refinement( 0 );
+        tHMR.perform_initial_refinement();
 
         std::shared_ptr< moris::hmr::Mesh > tMesh01 = tHMR.create_mesh( tLagrangeMeshIndex );   // HMR Lagrange mesh
         //==============================
@@ -811,224 +815,282 @@ TEST_CASE("Lagrange_Mesh_Pattern_3","[moris],[hmr],[Lagrange_Mesh_3],[lagrange_m
         for( uint k=0; k<2; ++k )
         {
             tHMR.flag_surface_elements_on_working_pattern( tField );
-//            tHMR.user_defined_flagging( user_defined_refinement_MDLFEMBench, tFields, tParam, 0 );
+            //            tHMR.user_defined_flagging( user_defined_refinement_MDLFEMBench, tFields, tParam, 0 );
             tHMR.perform_refinement_based_on_working_pattern( 0, true );
             tField->evaluate_scalar_function( tPlane_Bench );
         }
         tHMR.finalize();
 
-//   //==============================
-//           tHMR.save_to_exodus( 0, "gyroid_general_geomEng.g" );
-//
-//           tHMR.save_mesh_to_vtk( "Lagrange_Mesh.vtk", 0 );
+        //   //==============================
+        //           tHMR.save_to_exodus( 0, "gyroid_general_geomEng.g" );
+        //
+        //           tHMR.save_mesh_to_vtk( "Lagrange_Mesh.vtk", 0 );
     }
 }
 
-    TEST_CASE("Lagrange_Mesh_Bounding_Box","[moris],[hmr],[lagrange_mesh_bounding_box]")
+TEST_CASE("Lagrange_Mesh_Bounding_Box","[moris],[hmr],[lagrange_mesh_bounding_box]")
+{
+    if(par_size() == 1)
     {
-        if(par_size() == 1)
+        // empty container for B-Spline meshes
+        moris::Cell< moris::hmr::BSpline_Mesh_Base* > tBSplineMeshes;
+
+        // create settings object
+        moris::hmr::Parameters * tParameters = new moris::hmr::Parameters;
+
+        // set number of elements
+        tParameters->set_number_of_elements_per_dimension( { {10}, {10} } );
+        tParameters->set_domain_dimensions( { {10}, {10} } );
+
+        // set buffer size to zero
+        tParameters->set_refinement_buffer( 1 );
+        tParameters->set_staircase_buffer( 1 );
+
+        // deactivate truncation
+        tParameters->set_bspline_truncation( false );
+
+        // create factory
+        moris::hmr::Factory tFactory;
+
+        // create background mesh object
+        moris::hmr::Background_Mesh_Base * tBackgroundMesh = tFactory.create_background_mesh( tParameters );
+
+        //----------------------------------------------------------------------------------------------------------
+        // Work on activation pattern 0 mesh
+        tBackgroundMesh->set_activation_pattern( 0 );
+
+        // element 0 is the element with ID 18
+        tBackgroundMesh->get_element( 0 )->put_on_refinement_queue();
+        tBackgroundMesh->perform_refinement( 0 );
+
+        tBackgroundMesh->get_element( 0 )->put_on_refinement_queue();
+        tBackgroundMesh->perform_refinement( 0 );
+
+        // create first order Lagrange mesh
+        moris::hmr::Lagrange_Mesh_Base* tLagrangeMesh =  tFactory.create_lagrange_mesh( tParameters,
+                tBackgroundMesh,
+                tBSplineMeshes,
+                0,
+                1 );
+
+        moris::Matrix< IndexMat > tNodeIndices;
+
+        tLagrangeMesh->calculate_nodes_indices_in_bounding_box( { { 0.1 },{ 1.1 } },
+                { { 0.9 },{ 1 } },
+                tNodeIndices );
+
+        moris::Matrix< IndexMat > tReferenceInices = { { 0 }, { 1 }, { 2 }, { 3 }, { 4 }, { 5 }, { 6 }, { 7 }, { 8 }, { 9 }, { 10 }, { 11 }, { 12 }, { 13 },
+                { 36 }, { 37 }, { 38 }, { 39 }, { 40 }, { 41 } };
+
+        bool tCheck = true;
+        for( uint Ik = 0; Ik < tReferenceInices.numel(); Ik++)
         {
-            // empty container for B-Spline meshes
-            moris::Cell< moris::hmr::BSpline_Mesh_Base* > tBSplineMeshes;
-
-            // create settings object
-            moris::hmr::Parameters * tParameters = new moris::hmr::Parameters;
-
-            // set number of elements
-            tParameters->set_number_of_elements_per_dimension( { {10}, {10} } );
-            tParameters->set_domain_dimensions( { {10}, {10} } );
-
-            // set buffer size to zero
-            tParameters->set_refinement_buffer( 1 );
-            tParameters->set_staircase_buffer( 1 );
-
-            // deactivate truncation
-            tParameters->set_bspline_truncation( false );
-
-            // create factory
-            moris::hmr::Factory tFactory;
-
-            // create background mesh object
-            moris::hmr::Background_Mesh_Base * tBackgroundMesh = tFactory.create_background_mesh( tParameters );
-
-            //----------------------------------------------------------------------------------------------------------
-            // Work on activation pattern 0 mesh
-            tBackgroundMesh->set_activation_pattern( 0 );
-
-            // element 0 is the element with ID 18
-            tBackgroundMesh->get_element( 0 )->put_on_refinement_queue();
-            tBackgroundMesh->perform_refinement( 0 );
-
-            tBackgroundMesh->get_element( 0 )->put_on_refinement_queue();
-            tBackgroundMesh->perform_refinement( 0 );
-
-            // create first order Lagrange mesh
-            moris::hmr::Lagrange_Mesh_Base* tLagrangeMesh =  tFactory.create_lagrange_mesh( tParameters,
-                                                                                              tBackgroundMesh,
-                                                                                              tBSplineMeshes,
-                                                                                              0,
-                                                                                              1 );
-
-            moris::Matrix< IndexMat > tNodeIndices;
-
-            tLagrangeMesh->calculate_nodes_indices_in_bounding_box( { { 0.1 },{ 1.1 } },
-                                                                    { { 0.9 },{ 1 } },
-                                                                    tNodeIndices );
-
-            moris::Matrix< IndexMat > tReferenceInices = { { 0 }, { 1 }, { 2 }, { 3 }, { 4 }, { 5 }, { 6 }, { 7 }, { 8 }, { 9 }, { 10 }, { 11 }, { 12 }, { 13 },
-                                                           { 36 }, { 37 }, { 38 }, { 39 }, { 40 }, { 41 } };
-
-            bool tCheck = true;
-            for( uint Ik = 0; Ik < tReferenceInices.numel(); Ik++)
+            if( tReferenceInices( Ik ) != tNodeIndices( Ik ) )
             {
-                if( tReferenceInices( Ik ) != tNodeIndices( Ik ) )
-                {
-                    tCheck = false;
-                    break;
-                }
+                tCheck = false;
+                break;
             }
-
-            CHECK( tCheck );
-
-            tLagrangeMesh->calculate_nodes_indices_in_bounding_box( { { 5.1 },{ 7.1 } },
-                                                                    { { 1 },{ 1 } },
-                                                                    tNodeIndices );
-
-            moris::Matrix< IndexMat > tReferenceInices_1 = { { 88}, { 89 }, { 100 }, { 99 }, { 111 }, { 110 }, { 90 }, { 101 }, { 112 } };
-
-            for( uint Ik = 0; Ik < tReferenceInices_1.numel(); Ik++)
-            {
-                if( tReferenceInices_1( Ik ) != tNodeIndices( Ik ) )
-                {
-                    tCheck = false;
-                    break;
-                }
-            }
-
-            CHECK( tCheck );
-
-            // delete mesh
-            delete tLagrangeMesh;
-
-            // delete background mesh
-            delete tBackgroundMesh;
-
-            // delete settings object
-            delete tParameters;
         }
+
+        CHECK( tCheck );
+
+        tLagrangeMesh->calculate_nodes_indices_in_bounding_box( { { 5.1 },{ 7.1 } },
+                { { 1 },{ 1 } },
+                tNodeIndices );
+
+        moris::Matrix< IndexMat > tReferenceInices_1 = { { 88}, { 89 }, { 100 }, { 99 }, { 111 }, { 110 }, { 90 }, { 101 }, { 112 } };
+
+        for( uint Ik = 0; Ik < tReferenceInices_1.numel(); Ik++)
+        {
+            if( tReferenceInices_1( Ik ) != tNodeIndices( Ik ) )
+            {
+                tCheck = false;
+                break;
+            }
+        }
+
+        CHECK( tCheck );
+
+        // delete mesh
+        delete tLagrangeMesh;
+
+        // delete background mesh
+        delete tBackgroundMesh;
+
+        // delete settings object
+        delete tParameters;
     }
+}
 
 
-    // this test checks if t-matrices with weigt sof 1 as a trivial case are created
-    TEST_CASE("Lagrange_Mesh_trivial","[moris],[hmr],[Lagrange_Mesh_trivial],[lagrange_mesh]")
-    {
+// this test checks if t-matrices with weigts of 1 as a trivial case are created
+TEST_CASE("Lagrange_Mesh_trivial","[moris],[hmr],[Lagrange_Mesh_trivial],[lagrange_mesh]")
+{
     //    if(par_size() == 1)
+    {
+        std::cout<<"I am proc: "<<par_rank()<<std::endl;
+
+        uint tLagrangeMeshIndex = 0;
+
+        // empty container for B-Spline meshes
+        moris::Cell< moris::hmr::BSpline_Mesh_Base* > tBSplineMeshes;
+
+        // create settings object
+        moris::hmr::Parameters tParameters;
+
+        tParameters.set_number_of_elements_per_dimension( { {40}, {10}, {10} } );
+        tParameters.set_domain_dimensions( 10, 5, 5 );
+        tParameters.set_domain_offset( 0.0, 0.0, 0.0 );
+        tParameters.set_side_sets({ {1}, {2}, {3}, {4}, {5}, {6} });
+
+        tParameters.set_bspline_truncation( true );
+
+        tParameters.set_lagrange_orders  ( { {1} });
+        tParameters.set_lagrange_patterns( { {0} });
+
+        tParameters.set_bspline_orders   ( { {1} } );
+        tParameters.set_bspline_patterns ( { {0} } );
+
+        tParameters.set_output_meshes( { {0} } );
+        //        tParameters.set_lagrange_input_mesh( { { 0 } } );
+
+        tParameters.set_staircase_buffer( 2 );
+
+        tParameters.set_initial_refinement( { {0} } );
+        tParameters.set_initial_refinement_patterns( { {0} } );
+
+        tParameters.set_number_aura( true );
+
+        Cell< Matrix< DDSMat > > tLagrangeToBSplineMesh( 2 );
+        tLagrangeToBSplineMesh( 0 ) = { {0, -1} };
+
+        tParameters.set_lagrange_to_bspline_mesh( tLagrangeToBSplineMesh );
+
+        // create the HMR object by passing the settings to the constructor
+        moris::hmr::HMR tHMR( tParameters );
+
+        tHMR.perform_initial_refinement();
+
+        std::shared_ptr< moris::hmr::Mesh > tMesh01 = tHMR.create_mesh( tLagrangeMeshIndex );   // HMR Lagrange mesh
+        //==============================
+        std::shared_ptr< hmr::Field > tField = tMesh01->create_field( "gyroid", tLagrangeMeshIndex);
+
+        tField->evaluate_scalar_function( tPlane_Bench );
+
+        moris::Cell< std::shared_ptr< moris::hmr::Field > > tFields( 1, tField );
+
+        for( uint k=0; k<2; ++k )
         {
-        	std::cout<<"I am proc: "<<par_rank()<<std::endl;
+            tHMR.flag_surface_elements_on_working_pattern( tField );
 
-            uint tLagrangeMeshIndex = 0;
-
-            // empty container for B-Spline meshes
-            moris::Cell< moris::hmr::BSpline_Mesh_Base* > tBSplineMeshes;
-
-            // create settings object
-            moris::hmr::Parameters tParameters;
-
-            tParameters.set_number_of_elements_per_dimension( { {40}, {10}, {10} } );
-            tParameters.set_domain_dimensions( 10, 5, 5 );
-            tParameters.set_domain_offset( 0.0, 0.0, 0.0 );
-            tParameters.set_side_sets({ {1}, {2}, {3}, {4}, {5}, {6} });
-
-            tParameters.set_bspline_truncation( true );
-
-            tParameters.set_lagrange_orders  ( { {1} });
-            tParameters.set_lagrange_patterns( { {0} });
-
-            tParameters.set_bspline_orders   ( { {1} } );
-            tParameters.set_bspline_patterns ( { {0} } );
-
-            tParameters.set_output_meshes( { {0} } );
-    //        tParameters.set_lagrange_input_mesh( { { 0 } } );
-
-            tParameters.set_staircase_buffer( 2 );
-
-            tParameters.set_initial_refinement( 0 );
-
-            tParameters.set_number_aura( true );
-
-            Cell< Matrix< DDSMat > > tLagrangeToBSplineMesh( 2 );
-            tLagrangeToBSplineMesh( 0 ) = { {0, -1} };
-
-            tParameters.set_lagrange_to_bspline_mesh( tLagrangeToBSplineMesh );
-
-            // create the HMR object by passing the settings to the constructor
-            moris::hmr::HMR tHMR( tParameters );
-
-            tHMR.perform_initial_refinement( 0 );
-
-            std::shared_ptr< moris::hmr::Mesh > tMesh01 = tHMR.create_mesh( tLagrangeMeshIndex );   // HMR Lagrange mesh
-            //==============================
-            std::shared_ptr< hmr::Field > tField = tMesh01->create_field( "gyroid", tLagrangeMeshIndex);
-
+            tHMR.perform_refinement_based_on_working_pattern( 0, true );
             tField->evaluate_scalar_function( tPlane_Bench );
-
-            moris::Cell< std::shared_ptr< moris::hmr::Field > > tFields( 1, tField );
-
-            for( uint k=0; k<2; ++k )
-            {
-                tHMR.flag_surface_elements_on_working_pattern( tField );
-
-                tHMR.perform_refinement_based_on_working_pattern( 0, true );
-                tField->evaluate_scalar_function( tPlane_Bench );
-            }
-            tHMR.finalize();
-
-            moris::hmr::Interpolation_Mesh_HMR * tInterpolationMesh = tHMR.create_interpolation_mesh( tLagrangeMeshIndex );
-
-            uint tNumNodes = tInterpolationMesh->get_num_nodes();
-
-            std::cout<<tNumNodes<<std::endl;
-
-            if( par_size() == 1)
-            {
-                REQUIRE( tNumNodes  == 16241 );
-            }
-            if( par_size() == 2)
-            {
-                if( par_rank() == 0)
-                {
-                    REQUIRE( tNumNodes == 14063 );
-                }
-                else if( par_rank() == 1)
-                {
-                    REQUIRE( tNumNodes == 2783 );
-                }
-
-            }
-            if( par_size() == 4)
-            {
-                if( par_rank() == 0)
-                {
-                    REQUIRE( tNumNodes  == 10038 );
-                }
-                else if( par_rank() == 1)
-                {
-                    REQUIRE( tNumNodes  == 9942 );
-                }
-            }
-
-            for( uint Ik = 0; Ik < tNumNodes; Ik++ )
-            {
-            	if( reinterpret_cast< Basis* >( &( tInterpolationMesh->get_mtk_vertex( Ik ) ) )->is_used() )
-            	{
-                    moris::Matrix< DDRMat > tMat = *(tInterpolationMesh->get_mtk_vertex( Ik ).get_interpolation( 1 )->get_weights());
-                    REQUIRE( tMat( 0, 0 )  == 1.0 );
-            	}
-            }
-
-            delete tInterpolationMesh;
         }
+        tHMR.finalize();
+
+        moris::hmr::Interpolation_Mesh_HMR * tInterpolationMesh = tHMR.create_interpolation_mesh( tLagrangeMeshIndex );
+
+        uint tNumNodes = tInterpolationMesh->get_num_nodes();
+
+        std::cout<<tNumNodes<<std::endl;
+
+        if( par_size() == 1)
+        {
+            REQUIRE( tNumNodes  == 16241 );
+        }
+        if( par_size() == 2)
+        {
+            if( par_rank() == 0)
+            {
+                REQUIRE( tNumNodes == 14063 );
+            }
+            else if( par_rank() == 1)
+            {
+                REQUIRE( tNumNodes == 2783 );
+            }
+
+        }
+        if( par_size() == 4)
+        {
+            if( par_rank() == 0)
+            {
+                REQUIRE( tNumNodes  == 10038 );
+            }
+            else if( par_rank() == 1)
+            {
+                REQUIRE( tNumNodes  == 9942 );
+            }
+        }
+
+        for( uint Ik = 0; Ik < tNumNodes; Ik++ )
+        {
+            if( reinterpret_cast< Basis* >( &( tInterpolationMesh->get_mtk_vertex( Ik ) ) )->is_used() )
+            {
+                moris::Matrix< DDRMat > tMat = *(tInterpolationMesh->get_mtk_vertex( Ik ).get_interpolation( 1 )->get_weights());
+                REQUIRE( tMat( 0, 0 )  == 1.0 );
+            }
+        }
+
+        delete tInterpolationMesh;
     }
+}
+
+TEST_CASE("Lagrange_Mesh_initial_refinement","[moris],[hmr],[Lagrange_Mesh_Initial_Refinement],[lagrange_mesh]")
+{
+    if(par_size() == 1)
+    {
+        std::cout<<"I am proc: "<<par_rank()<<std::endl;
+
+        uint tLagrangeMeshIndex = 0;
+
+        // empty container for B-Spline meshes
+        moris::Cell< moris::hmr::BSpline_Mesh_Base* > tBSplineMeshes;
+
+        // create settings object
+        moris::hmr::Parameters tParameters;
+
+        tParameters.set_number_of_elements_per_dimension( { {2}, {1}, {1} } );
+        tParameters.set_domain_dimensions( 2, 1, 1 );
+        tParameters.set_domain_offset( 0.0, 0.0, 0.0 );
+        tParameters.set_side_sets({ {1}, {2}, {3}, {4}, {5}, {6} });
+
+        tParameters.set_bspline_truncation( true );
+
+        tParameters.set_lagrange_orders  ( { {1} });
+        tParameters.set_lagrange_patterns( { {0} });
+
+        tParameters.set_bspline_orders   ( { {1, 1} } );
+        tParameters.set_bspline_patterns ( { {0, 1} } );
+
+        tParameters.set_output_meshes( { {0} } );
+
+        tParameters.set_staircase_buffer( 2 );
+
+        tParameters.set_initial_refinement( { {2, 1} } );
+        tParameters.set_initial_refinement_patterns( { {0, 1} } );
+
+        tParameters.set_number_aura( true );
+
+        Cell< Matrix< DDSMat > > tLagrangeToBSplineMesh( 1 );
+        tLagrangeToBSplineMesh( 0 ) = { {0, 1} };
+
+        tParameters.set_lagrange_to_bspline_mesh( tLagrangeToBSplineMesh );
+
+        // create the HMR object by passing the settings to the constructor
+        moris::hmr::HMR tHMR( tParameters );
+
+        tHMR.perform_initial_refinement();
+
+        std::shared_ptr< moris::hmr::Mesh > tMesh01 = tHMR.create_mesh( 0 );
+
+        tHMR.finalize();
+
+        tHMR.save_to_exodus( 0, "tMesh01.g" );
+
+        REQUIRE( tMesh01->get_num_coeffs( 0 )  == 225 );
+        REQUIRE( tMesh01->get_num_coeffs( 1 )  == 45 );
+    }
+}
 
 
 

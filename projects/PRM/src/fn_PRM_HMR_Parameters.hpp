@@ -81,7 +81,10 @@ namespace moris
         tParameterList.insert( "use_number_aura", 1 );
 
         //! initial refinement level
-        tParameterList.insert( "initial_refinement", 0 );
+        tParameterList.insert( "initial_refinement", "0" );
+
+        //! initial refinement level
+        tParameterList.insert( "initial_refinement_pattern", "0" );
 
         //! add comment by the person who implemented this
         tParameterList.insert( "max_refinement_level", -1 );

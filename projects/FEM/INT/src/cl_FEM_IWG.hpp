@@ -94,7 +94,7 @@ namespace moris
                 moris::Cell< std::shared_ptr< fem::Stabilization_Parameter > > mStabilizationParam;
 
                 // interpolation order for IWG
-                uint mOrder = 1;
+                uint mOrder = MORIS_UINT_MAX;
 
                 // string for IWG name
                 std::string mName;
@@ -251,6 +251,12 @@ namespace moris
                  * set interpolation order for the residual dof type
                  */
                 void set_interpolation_order();
+
+                void set_interpolation_order( uint aOrder )
+                {
+                    // set order
+                    mOrder = aOrder;
+                }
 
                 //------------------------------------------------------------------------------
                 /**

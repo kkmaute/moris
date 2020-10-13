@@ -1,8 +1,8 @@
 /*
  * cl_FEM_IWG_Diffusion_Virtual_Work_Ghost.hpp
  *
- *  Created on: Oct 17, 2019
- *      Author: noel
+ * Created on: Oct 17, 2019
+ *     Author: noel
  */
 
 #ifndef SRC_FEM_CL_FEM_IWG_Diffusion_Virtual_Work_Ghost_HPP_
@@ -27,9 +27,6 @@ namespace moris
 
         class IWG_Diffusion_Virtual_Work_Ghost : public IWG
         {
-                // order of Shape functions
-                uint mOrder;
-
                 //------------------------------------------------------------------------------
             public:
 
@@ -113,13 +110,17 @@ namespace moris
                  */
                 void compute_dRdp( real aWStar );
 
+            private:
                 //------------------------------------------------------------------------------
                 /**
                  * method to assemble "normal matrix" from normal vector needed for
                  * 2nd and 3rd order Ghost formulations
-                 * @param[ in ] aOrderGhost Order of derivatives and ghost formulation
+                 * @param[ in ] aFlatNormal flattened normal
+                 * @param[ in ] aOrder      order of derivatives and ghost formulation
                  */
-                Matrix< DDRMat > get_normal_matrix ( uint aOrderGhost );
+                void get_flat_normal_matrix(
+                                Matrix< DDRMat > & aFlatNormal,
+                                uint               aOrder );
 
                 //------------------------------------------------------------------------------
         };

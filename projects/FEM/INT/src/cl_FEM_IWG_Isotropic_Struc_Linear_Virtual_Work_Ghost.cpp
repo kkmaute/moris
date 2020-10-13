@@ -72,6 +72,9 @@ namespace moris
             this->check_field_interpolators( mtk::Master_Slave::SLAVE );
 #endif
 
+            // set interpolation order
+            IWG::set_interpolation_order();
+
             // get master index for residual dof type, indices for assembly
             uint tDofIndexMaster      = mSet->get_dof_index_for_type( mResidualDofType( 0 ), mtk::Master_Slave::MASTER );
             uint tMasterResStartIndex = mSet->get_res_dof_assembly_map()( tDofIndexMaster )( 0, 0 );
@@ -82,51 +85,25 @@ namespace moris
             uint tSlaveResStartIndex = mSet->get_res_dof_assembly_map()( tDofIndexSlave )( 0, 0 );
             uint tSlaveResStopIndex  = mSet->get_res_dof_assembly_map()( tDofIndexSlave )( 0, 1 );
 
-            // get master field interpolator for the residual dof type
-            Field_Interpolator * tMasterFI =
-                    mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );
-
-            //            // get slave field interpolator for the residual dof type
-            //            Field_Interpolator * tSlaveFI  = mSlaveFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );
-
-            // FIXME the order should be set differently
-            switch ( tMasterFI->get_space_interpolation_order() )
-            {
-                case mtk::Interpolation_Order::LINEAR :
-                {
-                    mOrder = 1;
-                    break;
-                }
-                case mtk::Interpolation_Order::QUADRATIC :
-                {
-                    mOrder = 2;
-                    break;
-                }
-                case mtk::Interpolation_Order::CUBIC :
-                {
-                    mOrder = 3;
-                    break;
-                }
-                default:
-                {
-                    MORIS_ERROR( false, "IWG_Isotropic_Struc_Linear_Virtual_Work_Ghost::compute_residual - order not supported");
-                    break;
-                }
-            }
-            MORIS_ERROR( mOrder <= 1, "IWG_Isotropic_Struc_Linear_Virtual_Work_Ghost:compute_residual - only first order supported. ");
-
             // get indices for SP, CM and properties
             uint tElastLinIsoIndex = static_cast< uint >( IWG_Constitutive_Type::ELAST_LIN_ISO );
+
+            // get the stabilization parameter
+            std::shared_ptr< Stabilization_Parameter > tSP =
+                    mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::GHOST_VW ) );
 
             // loop over the order
             for ( uint iOrder = 1; iOrder <= mOrder; iOrder++ )
             {
-                // penalty parameter
-                real tGhostPenalty = mStabilizationParam( iOrder - 1 )->val()( 0 );
+                // FIXME check to be removed
+                MORIS_ERROR( iOrder <= 1, "Not implemented for order higher than one yet" );
+
+                // set the order for the stabilization parameter
+                tSP->set_interpolation_order( iOrder );
 
                 // get flattened normal matrix
                 Matrix< DDRMat > tNormalMatrix;
-                this->get_normal_matrix( 2, tNormalMatrix );
+                this->get_flat_normal_matrix( tNormalMatrix, 2 );
 
                 // compute the jump in traction
                 Matrix< DDRMat > tGradJump =
@@ -134,11 +111,19 @@ namespace moris
                         mSlaveCM( tElastLinIsoIndex )->traction( mNormal );
 
                 // compute the residual
-                mSet->get_residual()( 0 )( { tMasterResStartIndex, tMasterResStopIndex }, { 0, 0 } ) += aWStar * (
-                        tGhostPenalty * trans( mMasterCM( tElastLinIsoIndex )->testStrain() ) * trans( tNormalMatrix ) * tGradJump );
+                mSet->get_residual()( 0 )(
+                        { tMasterResStartIndex, tMasterResStopIndex },
+                        { 0, 0 } ) += aWStar * (
+                                tSP->val()( 0 ) *
+                                trans( mMasterCM( tElastLinIsoIndex )->testStrain() ) *
+                                trans( tNormalMatrix ) * tGradJump );
 
-                mSet->get_residual()( 0 )( { tSlaveResStartIndex,  tSlaveResStopIndex },  { 0, 0 } ) -= aWStar * (
-                        tGhostPenalty * trans( mSlaveCM( tElastLinIsoIndex )->testStrain() )  * trans( tNormalMatrix ) * tGradJump );
+                mSet->get_residual()( 0 )(
+                        { tSlaveResStartIndex,  tSlaveResStopIndex },
+                        { 0, 0 } ) -= aWStar * (
+                                tSP->val()( 0 ) *
+                                trans( mSlaveCM( tElastLinIsoIndex )->testStrain() ) *
+                                trans( tNormalMatrix ) * tGradJump );
             }
 
             // check for nan, infinity
@@ -156,6 +141,9 @@ namespace moris
             this->check_field_interpolators( mtk::Master_Slave::SLAVE );
 #endif
 
+            // set interpolation order
+            IWG::set_interpolation_order();
+
             // get master index for residual dof type, indices for assembly
             uint tDofIndexMaster      = mSet->get_dof_index_for_type( mResidualDofType( 0 ), mtk::Master_Slave::MASTER );
             uint tMasterResStartIndex = mSet->get_res_dof_assembly_map()( tDofIndexMaster )( 0, 0 );
@@ -166,55 +154,28 @@ namespace moris
             uint tSlaveResStartIndex = mSet->get_res_dof_assembly_map()( tDofIndexSlave )( 0, 0 );
             uint tSlaveResStopIndex  = mSet->get_res_dof_assembly_map()( tDofIndexSlave )( 0, 1 );
 
-            // get master field interpolator for the residual dof type
-            Field_Interpolator * tMasterFI =
-                    mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );
-
-            //            // get slave field interpolator for the residual dof type
-            //            Field_Interpolator * tSlaveFI  = mSlaveFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );
-
-            // FIXME the order should be set differently
-            switch ( tMasterFI->get_space_interpolation_order() )
-            {
-                case mtk::Interpolation_Order::LINEAR :
-                {
-                    mOrder = 1;
-                    break;
-                }
-                case mtk::Interpolation_Order::QUADRATIC :
-                {
-                    mOrder = 2;
-                    break;
-                }
-                case mtk::Interpolation_Order::CUBIC :
-                {
-                    mOrder = 3;
-                    break;
-                }
-                default:
-                {
-                    MORIS_ERROR( false, "IWG_Isotropic_Struc_Linear_Virtual_Work_Ghost::compute_residual - order not supported");
-                    break;
-                }
-            }
-
-            MORIS_ERROR( mOrder <= 1, "IWG_Isotropic_Struc_Linear_Virtual_Work_Ghost:compute_residual - only first order supported. ");
-
             // get number of master dof dependencies
             uint tMasterNumDofDependencies = mRequestedMasterGlobalDofTypes.size();
 
             // get indices for SP, CM and properties
             uint tElastLinIsoIndex = static_cast< uint >( IWG_Constitutive_Type::ELAST_LIN_ISO );
 
+            // get the stabilization parameter
+            std::shared_ptr< Stabilization_Parameter > tSP =
+                    mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::GHOST_VW ) );
+
             // order 1
             for ( uint iOrder = 1; iOrder <= mOrder; iOrder++ )
             {
+                // FIXME check to be removed
+                MORIS_ERROR( iOrder <= 1, "Not implemented for order higher than one yet" );
+
+                // set the order for the stabilization parameter
+                tSP->set_interpolation_order( iOrder );
+
                 // get normal matrix
                 Matrix< DDRMat > tNormalMatrix;
-                this->get_normal_matrix( 2, tNormalMatrix );
-
-                // penalty parameter
-                real tGhostPenalty = mStabilizationParam( iOrder - 1 )->val()( 0 );
+                this->get_flat_normal_matrix( tNormalMatrix, 2 );
 
                 // compute the jacobian for indirect dof dependencies through master constitutive models
                 for( uint iDOF = 0; iDOF < tMasterNumDofDependencies; iDOF++ )
@@ -234,14 +195,16 @@ namespace moris
                         mSet->get_jacobian()(
                                 { tMasterResStartIndex, tMasterResStopIndex },
                                 { tDepStartIndex,       tDepStopIndex } ) += aWStar * (
-                                        tGhostPenalty * trans( mMasterCM( tElastLinIsoIndex )->testStrain() ) *
-                                        trans( tNormalMatrix ) * mMasterCM( tElastLinIsoIndex )->dTractiondDOF( tDofType, mNormal ) );
+                                        tSP->val()( 0 ) *
+                                        trans( mMasterCM( tElastLinIsoIndex )->testStrain() ) * trans( tNormalMatrix ) *
+                                        mMasterCM( tElastLinIsoIndex )->dTractiondDOF( tDofType, mNormal ) );
 
                         mSet->get_jacobian()(
                                 { tSlaveResStartIndex, tSlaveResStopIndex },
                                 { tDepStartIndex,      tDepStopIndex } ) -= aWStar * (
-                                        tGhostPenalty * trans( mSlaveCM( tElastLinIsoIndex )->testStrain() ) *
-                                        trans( tNormalMatrix ) * mMasterCM( tElastLinIsoIndex )->dTractiondDOF( tDofType, mNormal ) );
+                                        tSP->val()( 0 ) *
+                                        trans( mSlaveCM( tElastLinIsoIndex )->testStrain() ) * trans( tNormalMatrix ) *
+                                        mMasterCM( tElastLinIsoIndex )->dTractiondDOF( tDofType, mNormal ) );
                     }
                 }
 
@@ -264,14 +227,16 @@ namespace moris
                         mSet->get_jacobian()(
                                 { tMasterResStartIndex, tMasterResStopIndex },
                                 { tDepStartIndex,       tDepStopIndex } ) -= aWStar * (
-                                        tGhostPenalty * trans( mMasterCM( tElastLinIsoIndex )->testStrain() ) *
-                                        trans( tNormalMatrix ) * mSlaveCM( tElastLinIsoIndex )->dTractiondDOF( tDofType, mNormal ) );
+                                        tSP->val()( 0 ) *
+                                        trans( mMasterCM( tElastLinIsoIndex )->testStrain() ) * trans( tNormalMatrix ) *
+                                        mSlaveCM( tElastLinIsoIndex )->dTractiondDOF( tDofType, mNormal ) );
 
                         mSet->get_jacobian()(
                                 { tSlaveResStartIndex, tSlaveResStopIndex },
                                 { tDepStartIndex,      tDepStopIndex } ) += aWStar * (
-                                        tGhostPenalty * trans( mSlaveCM( tElastLinIsoIndex )->testStrain() ) *
-                                        trans( tNormalMatrix ) * mSlaveCM( tElastLinIsoIndex )->dTractiondDOF( tDofType, mNormal ) );
+                                        tSP->val()( 0 ) *
+                                        trans( mSlaveCM( tElastLinIsoIndex )->testStrain() ) * trans( tNormalMatrix ) *
+                                        mSlaveCM( tElastLinIsoIndex )->dTractiondDOF( tDofType, mNormal ) );
                     }
                 }
             }
@@ -297,15 +262,15 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        void IWG_Isotropic_Struc_Linear_Virtual_Work_Ghost::get_normal_matrix
-        ( uint               aOrderGhost,
-                Matrix< DDRMat > & aNormalMatrix )
+        void IWG_Isotropic_Struc_Linear_Virtual_Work_Ghost::get_flat_normal_matrix(
+                       Matrix< DDRMat > & aFlatNormal,
+                       uint               aOrder )
         {
             // get spatial dimensions
             uint tSpaceDim = mNormal.numel();
 
             // switch on the ghost order
-            switch( aOrderGhost )
+            switch( aOrder )
             {
                 case 1 :
                 {
@@ -313,18 +278,17 @@ namespace moris
                     {
                         case 2 :
                         {
-                            aNormalMatrix = trans( mNormal );
+                            aFlatNormal = trans( mNormal );
                             break;
                         }
                         case 3 :
                         {
-                            aNormalMatrix = trans( mNormal );
+                            aFlatNormal = trans( mNormal );
                             break;
                         }
                         default:
                         {
-                            MORIS_ERROR( false, "IWG_Isotropic_Struc_Linear_Virtual_Work_Ghost::get_normal_matrix - Spatial dimensions can only be 2, 3." );
-                            break;
+                            MORIS_ERROR( false, "IWG_Diffusion_Virtual_Work_Ghost::get_flat_normal_matrix - Spatial dimensions can only be 2, 3." );
                         }
                     }
                     break;
@@ -337,42 +301,41 @@ namespace moris
                         case 2 :
                         {
                             // set the normal matrix size
-                            aNormalMatrix.set_size( 2, 3, 0.0 );
+                            aFlatNormal.set_size( 2, 3, 0.0 );
 
                             // fill the normal matrix
-                            aNormalMatrix( 0, 0 ) = mNormal( 0 );
-                            aNormalMatrix( 1, 1 ) = mNormal( 1 );
+                            aFlatNormal( 0, 0 ) = mNormal( 0 );
+                            aFlatNormal( 1, 1 ) = mNormal( 1 );
 
-                            aNormalMatrix( 0, 2 ) = mNormal( 1 );
-                            aNormalMatrix( 1, 2 ) = mNormal( 0 );
+                            aFlatNormal( 0, 2 ) = mNormal( 1 );
+                            aFlatNormal( 1, 2 ) = mNormal( 0 );
 
                             break;
                         }
-                        case  3 :
+                        case 3 :
                         {
                             // set the normal matrix size
-                            aNormalMatrix.set_size( 3, 6, 0.0 );
+                            aFlatNormal.set_size( 3, 6, 0.0 );
 
                             // fill the normal matrix
-                            aNormalMatrix( 0, 0 ) = mNormal( 0 );
-                            aNormalMatrix( 1, 1 ) = mNormal( 1 );
-                            aNormalMatrix( 2, 2 ) = mNormal( 2 );
+                            aFlatNormal( 0, 0 ) = mNormal( 0 );
+                            aFlatNormal( 1, 1 ) = mNormal( 1 );
+                            aFlatNormal( 2, 2 ) = mNormal( 2 );
 
-                            aNormalMatrix( 1, 3 ) = mNormal( 2 );
-                            aNormalMatrix( 2, 3 ) = mNormal( 1 );
+                            aFlatNormal( 1, 3 ) = mNormal( 2 );
+                            aFlatNormal( 2, 3 ) = mNormal( 1 );
 
-                            aNormalMatrix( 0, 4 ) = mNormal( 2 );
-                            aNormalMatrix( 2, 4 ) = mNormal( 0 );
+                            aFlatNormal( 0, 4 ) = mNormal( 2 );
+                            aFlatNormal( 2, 4 ) = mNormal( 0 );
 
-                            aNormalMatrix( 0, 5 ) = mNormal( 1 );
-                            aNormalMatrix( 1, 5 ) = mNormal( 0 );
+                            aFlatNormal( 0, 5 ) = mNormal( 1 );
+                            aFlatNormal( 1, 5 ) = mNormal( 0 );
 
                             break;
                         }
                         default:
                         {
-                            MORIS_ERROR( false, "IWG_Isotropic_Struc_Linear_Virtual_Work_Ghost::get_normal_matrix - Spatial dimensions can only be 2, 3." );
-                            break;
+                            MORIS_ERROR( false, "IWG_Diffusion_Virtual_Work_Ghost::get_flat_normal_matrix - Spatial dimensions can only be 2, 3." );
                         }
                     }
                     break;
@@ -385,59 +348,56 @@ namespace moris
                         case 2 :
                         {
                             // set the normal matrix size
-                            aNormalMatrix.set_size( 3, 4, 0.0 );
+                            aFlatNormal.set_size( 3, 4, 0.0 );
 
-                            aNormalMatrix( 0, 0 ) = mNormal( 0 );
-                            aNormalMatrix( 1, 1 ) = mNormal( 1 );
+                            aFlatNormal( 0, 0 ) = mNormal( 0 );
+                            aFlatNormal( 1, 1 ) = mNormal( 1 );
 
-                            aNormalMatrix( 0, 2 ) = mNormal( 1 );
-                            aNormalMatrix( 1, 3 ) = mNormal( 0 );
+                            aFlatNormal( 0, 2 ) = mNormal( 1 );
+                            aFlatNormal( 1, 3 ) = mNormal( 0 );
 
                             real tSqrtOf2 = std::sqrt( 2 );
 
-                            aNormalMatrix( 2, 2 ) = tSqrtOf2 * mNormal( 0 );
-                            aNormalMatrix( 2, 3 ) = tSqrtOf2 * mNormal( 1 );
-
+                            aFlatNormal( 2, 2 ) = tSqrtOf2 * mNormal( 0 );
+                            aFlatNormal( 2, 3 ) = tSqrtOf2 * mNormal( 1 );
                             break;
                         }
                         case 3 :
                         {
                             // set the normal matrix size
-                            aNormalMatrix.set_size( 6, 10, 0.0 );
+                            aFlatNormal.set_size( 6, 10, 0.0 );
 
-                            aNormalMatrix( 0, 0 ) = mNormal( 0 );
-                            aNormalMatrix( 1, 1 ) = mNormal( 1 );
-                            aNormalMatrix( 2, 2 ) = mNormal( 2 );
+                            aFlatNormal( 0, 0 ) = mNormal( 0 );
+                            aFlatNormal( 1, 1 ) = mNormal( 1 );
+                            aFlatNormal( 2, 2 ) = mNormal( 2 );
 
-                            aNormalMatrix( 0, 3 ) = mNormal( 1 );
-                            aNormalMatrix( 0, 4 ) = mNormal( 2 );
+                            aFlatNormal( 0, 3 ) = mNormal( 1 );
+                            aFlatNormal( 0, 4 ) = mNormal( 2 );
 
-                            aNormalMatrix( 1, 5 ) = mNormal( 0 );
-                            aNormalMatrix( 1, 6 ) = mNormal( 2 );
+                            aFlatNormal( 1, 5 ) = mNormal( 0 );
+                            aFlatNormal( 1, 6 ) = mNormal( 2 );
 
-                            aNormalMatrix( 2, 7 ) = mNormal( 0 );
-                            aNormalMatrix( 2, 8 ) = mNormal( 1 );
+                            aFlatNormal( 2, 7 ) = mNormal( 0 );
+                            aFlatNormal( 2, 8 ) = mNormal( 1 );
 
                             real tSqrtOf2 = std::sqrt( 2 );
 
-                            aNormalMatrix( 3, 3 ) = tSqrtOf2 * mNormal( 0 );
-                            aNormalMatrix( 3, 5 ) = tSqrtOf2 * mNormal( 1 );
-                            aNormalMatrix( 3, 9 ) = tSqrtOf2 * mNormal( 2 );
+                            aFlatNormal( 3, 3 ) = tSqrtOf2 * mNormal( 0 );
+                            aFlatNormal( 3, 5 ) = tSqrtOf2 * mNormal( 1 );
+                            aFlatNormal( 3, 9 ) = tSqrtOf2 * mNormal( 2 );
 
-                            aNormalMatrix( 4, 6 ) = tSqrtOf2 * mNormal( 1 );
-                            aNormalMatrix( 4, 8 ) = tSqrtOf2 * mNormal( 2 );
-                            aNormalMatrix( 4, 9 ) = tSqrtOf2 * mNormal( 0 );
+                            aFlatNormal( 4, 6 ) = tSqrtOf2 * mNormal( 1 );
+                            aFlatNormal( 4, 8 ) = tSqrtOf2 * mNormal( 2 );
+                            aFlatNormal( 4, 9 ) = tSqrtOf2 * mNormal( 0 );
 
-                            aNormalMatrix( 5, 4 ) = tSqrtOf2 * mNormal( 0 );
-                            aNormalMatrix( 5, 7 ) = tSqrtOf2 * mNormal( 2 );
-                            aNormalMatrix( 5, 9 ) = tSqrtOf2 * mNormal( 1 );
-
+                            aFlatNormal( 5, 4 ) = tSqrtOf2 * mNormal( 0 );
+                            aFlatNormal( 5, 7 ) = tSqrtOf2 * mNormal( 2 );
+                            aFlatNormal( 5, 9 ) = tSqrtOf2 * mNormal( 1 );
                             break;
                         }
                         default:
                         {
-                            MORIS_ERROR( false, "IWG_Isotropic_Struc_Linear_Virtual_Work_Ghost::get_normal_matrix - Spatial dimensions can only be 2, 3." );
-                            break;
+                            MORIS_ERROR( false, "IWG_Diffusion_Virtual_Work_Ghost::get_flat_normal_matrix - Spatial dimensions can only be 2, 3." );
                         }
                     }
                     break;
@@ -445,8 +405,7 @@ namespace moris
 
                 default:
                 {
-                    MORIS_ERROR( false, "IWG_Isotropic_Struc_Linear_Virtual_Work_Ghost::get_normal_matrix - order not supported." );
-                    break;
+                    MORIS_ERROR( false, "IWG_Diffusion_Virtual_Work_Ghost::get_flat_normal_matrix - order not supported" );
                 }
             }
         }

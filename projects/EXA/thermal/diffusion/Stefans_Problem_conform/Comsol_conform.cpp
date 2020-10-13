@@ -142,7 +142,8 @@ namespace moris
         tParameterlist( 0 )( 0 ).set( "truncate_bsplines",  1 );
         tParameterlist( 0 )( 0 ).set( "refinement_buffer",  3 );
         tParameterlist( 0 )( 0 ).set( "staircase_buffer",   3 );
-        tParameterlist( 0 )( 0 ).set( "initial_refinement", 0 );
+        tParameterlist( 0 )( 0 ).set( "initial_refinement", "0" );
+        tParameterlist( 0 )( 0 ).set( "initial_refinement_pattern", "0" );
 
         tParameterlist( 0 )( 0 ).set( "use_multigrid",  0 );
         tParameterlist( 0 )( 0 ).set( "severity_level", 0 );
@@ -303,12 +304,12 @@ namespace moris
         tParameterList( 1 )( tCMCounter ).set( "dof_dependencies",  std::pair< std::string, std::string >( "TEMP", "Temperature" ) );
         tParameterList( 1 )( tCMCounter ).set( "properties",
                 "PropConductivity,Conductivity;"
-				"PropDensity,Density;"
-				"PropHeatCapacity,HeatCapacity;"
-				"PropLatentHeat,LatentHeat;"
-				"PropPCTemp,PCTemp;"
-				"PropPhaseState,PhaseStateFunction;"
-				"PropPCconst,PhaseChangeConst") ;
+                "PropDensity,Density;"
+                "PropHeatCapacity,HeatCapacity;"
+                "PropLatentHeat,LatentHeat;"
+                "PropPCTemp,PCTemp;"
+                "PropPhaseState,PhaseStateFunction;"
+                "PropPCconst,PhaseChangeConst") ;
         tCMCounter++;
 
         //------------------------------------------------------------------------------
@@ -331,12 +332,12 @@ namespace moris
         tParameterList( 2 )( tSPCounter ).set( "master_dof_dependencies", std::pair< std::string, std::string >( "TEMP", "Temperature" ) );
         tParameterList( 2 )( tSPCounter ).set( "master_properties",
                 "PropConductivity , Conductivity;"
-				"PropDensity      , Density;"
-				"PropHeatCapacity , HeatCapacity;"
-				"PropLatentHeat   , LatentHeat;"
-				"PropPCTemp       , PCTemp;"
-				"PropPhaseState   , PhaseStateFunction;"
-				"PropPCconst      , PhaseChangeConst")    ;
+                "PropDensity      , Density;"
+                "PropHeatCapacity , HeatCapacity;"
+                "PropLatentHeat   , LatentHeat;"
+                "PropPCTemp       , PCTemp;"
+                "PropPhaseState   , PhaseStateFunction;"
+                "PropPCconst      , PhaseChangeConst")    ;
         tSPCounter++;
 
         // Dirichlet SP
@@ -382,8 +383,8 @@ namespace moris
         tParameterList( 3 )( tIWGCounter ).set( "master_dof_dependencies",    "TEMP") ;
         tParameterList( 3 )( tIWGCounter ).set( "master_properties",
                 "PropWeightCurrent,WeightCurrent;"
-				"PropWeightPrevious,WeightPrevious;"
-				"PropInitialCondition,InitialCondition") ;
+                "PropWeightPrevious,WeightPrevious;"
+                "PropInitialCondition,InitialCondition") ;
         tParameterList( 3 )( tIWGCounter ).set( "mesh_set_names",             "HMR_dummy_n_p1") ;
         tParameterList( 3 )( tIWGCounter ).set( "time_continuity",            true );
         tIWGCounter++;
@@ -396,6 +397,7 @@ namespace moris
         tParameterList( 4 ).push_back( prm::create_IQI_parameter_list() );
         tParameterList( 4 )( tIQICounter ).set( "IQI_name",                   "IQIBulkTEMP") ;
         tParameterList( 4 )( tIQICounter ).set( "IQI_type",                   static_cast< uint >( fem::IQI_Type::DOF ) );
+        tParameterList( 4 )( tIQICounter ).set( "dof_quantity",               "TEMP");
         tParameterList( 4 )( tIQICounter ).set( "master_dof_dependencies",    "TEMP") ;
         tParameterList( 4 )( tIQICounter ).set( "vectorial_field_index",      0 );
         tParameterList( 4 )( tIQICounter ).set( "mesh_set_names",             "HMR_dummy_n_p1") ;
@@ -405,10 +407,11 @@ namespace moris
         tParameterList( 4 ).push_back( prm::create_IQI_parameter_list() );
         tParameterList( 4 )( tIQICounter ).set( "IQI_name",                   "IQIMaxTEMP") ;
         tParameterList( 4 )( tIQICounter ).set( "IQI_type",                   static_cast< uint >( fem::IQI_Type::MAX_DOF ) );
+        tParameterList( 4 )( tIQICounter ).set( "dof_quantity",               "TEMP");
         tParameterList( 4 )( tIQICounter ).set( "master_dof_dependencies",    "TEMP") ;
         tParameterList( 4 )( tIQICounter ).set( "master_properties",
                 "PropMaxTempReference,ReferenceValue;"
-				"PropMaxTempExponent,Exponent") ;
+                "PropMaxTempExponent,Exponent") ;
         tParameterList( 4 )( tIQICounter ).set( "mesh_set_names",             "HMR_dummy_n_p1") ;
         tIQICounter++;
 
@@ -419,10 +422,10 @@ namespace moris
         tParameterList( 4 )( tIQICounter ).set( "master_dof_dependencies",    "TEMP") ;
         tParameterList( 4 )( tIQICounter ).set( "master_properties",
                 "PropDensity,Density;"
-				"PropLatentHeat,LatentHeat;"
-				"PropPCTemp,PCTemp;"
-				"PropPhaseState,PhaseStateFunction;"
-				"PropPCconst,PhaseChangeConst") ;
+                "PropLatentHeat,LatentHeat;"
+                "PropPCTemp,PCTemp;"
+                "PropPhaseState,PhaseStateFunction;"
+                "PropPCconst,PhaseChangeConst") ;
         tParameterList( 4 )( tIQICounter ).set( "mesh_set_names",             "HMR_dummy_n_p1") ;
         tIQICounter++;
 

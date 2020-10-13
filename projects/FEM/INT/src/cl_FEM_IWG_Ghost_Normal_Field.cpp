@@ -118,6 +118,9 @@ namespace moris
             this->check_field_interpolators( mtk::Master_Slave::SLAVE );
 #endif
 
+            // set interpolation order
+            IWG::set_interpolation_order();
+
             // get master index for residual dof type, indices for assembly
             uint tMasterDofIndex      = mSet->get_dof_index_for_type( mResidualDofType( 0 ), mtk::Master_Slave::MASTER );
             uint tMasterResStartIndex = mSet->get_res_dof_assembly_map()( tMasterDofIndex )( 0, 0 );
@@ -127,9 +130,6 @@ namespace moris
             uint tSlaveDofIndex      = mSet->get_dof_index_for_type( mResidualDofType( 0 ), mtk::Master_Slave::SLAVE );
             uint tSlaveResStartIndex = mSet->get_res_dof_assembly_map()( tSlaveDofIndex )( 0, 0 );
             uint tSlaveResStopIndex  = mSet->get_res_dof_assembly_map()( tSlaveDofIndex )( 0, 1 );
-
-            // set interpolation order
-            IWG::set_interpolation_order();
 
             // get the master field interpolator for residual dof type
             Field_Interpolator * tFIMaster =
@@ -405,7 +405,7 @@ namespace moris
 
                 default:
                 {
-                    MORIS_ERROR( false, "IWG_Ghost_Normal_Field::get_flat_normal_matrix - order not supported." );
+                    MORIS_ERROR( false, "IWG_Ghost_Normal_Field::get_flat_normal_matrix - order not supported" );
                 }
             }
         }

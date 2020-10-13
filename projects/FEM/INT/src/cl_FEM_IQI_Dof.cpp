@@ -22,10 +22,10 @@ namespace moris
         {
             // get field interpolator for a given dof type
             Field_Interpolator * tFI =
-                    mMasterFIManager->get_field_interpolators_for_type( mMasterDofTypes( 0 )( 0 ) );
+                    mMasterFIManager->get_field_interpolators_for_type( mQuantityDofType( 0 ) );
 
             // check if dof index was set (for the case of vector field)
-            if( mMasterDofTypes( 0 ).size() > 1 )
+            if( mQuantityDofType.size() > 1 )
             {
                 MORIS_ERROR( mIQITypeIndex != -1, "IQI_Dof::compute_QI - mIQITypeIndex not set." );
             }

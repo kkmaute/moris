@@ -88,7 +88,6 @@ namespace moris
     std::string tDomainSidesets     = "1,2,3,4,5,6";
 
     int tRefineBuffer      = 1;
-    int tInitialRefinement = 0;
 
     int tInterfaceRefinement = 0;
 
@@ -245,7 +244,8 @@ namespace moris
         tParameterlist( 0 )( 0 ).set( "truncate_bsplines",  1 );
         tParameterlist( 0 )( 0 ).set( "refinement_buffer",  tRefineBuffer );
         tParameterlist( 0 )( 0 ).set( "staircase_buffer",   tRefineBuffer );
-        tParameterlist( 0 )( 0 ).set( "initial_refinement", tInitialRefinement );
+        tParameterlist( 0 )( 0 ).set( "initial_refinement", "0" );
+        tParameterlist( 0 )( 0 ).set( "initial_refinement_pattern", "0" );
 
         tParameterlist( 0 )( 0 ).set( "use_number_aura", 1);
 
@@ -617,6 +617,7 @@ namespace moris
         tParameterList( 4 ).push_back( prm::create_IQI_parameter_list() );
         tParameterList( 4 )( tIQICounter ).set( "IQI_name",                   "IQIBulkDISPX");
         tParameterList( 4 )( tIQICounter ).set( "IQI_type",                   static_cast< uint >( fem::IQI_Type::DOF ) );
+        tParameterList( 4 )( tIQICounter ).set( "dof_quantity",               "UX,UY,UZ");
         tParameterList( 4 )( tIQICounter ).set( "master_dof_dependencies",    "UX,UY,UZ");
         tParameterList( 4 )( tIQICounter ).set( "vectorial_field_index",      0 );
         tParameterList( 4 )( tIQICounter ).set( "mesh_set_names",             tVessel);
@@ -625,6 +626,7 @@ namespace moris
         tParameterList( 4 ).push_back( prm::create_IQI_parameter_list() );
         tParameterList( 4 )( tIQICounter ).set( "IQI_name",                   "IQIBulkDISPY");
         tParameterList( 4 )( tIQICounter ).set( "IQI_type",                   static_cast< uint >( fem::IQI_Type::DOF ) );
+        tParameterList( 4 )( tIQICounter ).set( "dof_quantity",               "UX,UY,UZ");
         tParameterList( 4 )( tIQICounter ).set( "master_dof_dependencies",    "UX,UY,UZ");
         tParameterList( 4 )( tIQICounter ).set( "vectorial_field_index",      1 );
         tParameterList( 4 )( tIQICounter ).set( "mesh_set_names",             tVessel);
@@ -633,6 +635,7 @@ namespace moris
         tParameterList( 4 ).push_back( prm::create_IQI_parameter_list() );
         tParameterList( 4 )( tIQICounter ).set( "IQI_name",                   "IQIBulkDISPZ");
         tParameterList( 4 )( tIQICounter ).set( "IQI_type",                   static_cast< uint >( fem::IQI_Type::DOF ) );
+        tParameterList( 4 )( tIQICounter ).set( "dof_quantity",               "UX,UY,UZ");
         tParameterList( 4 )( tIQICounter ).set( "master_dof_dependencies",    "UX,UY,UZ");
         tParameterList( 4 )( tIQICounter ).set( "vectorial_field_index",      2 );
         tParameterList( 4 )( tIQICounter ).set( "mesh_set_names",             tVessel);
@@ -641,6 +644,7 @@ namespace moris
         tParameterList( 4 ).push_back( prm::create_IQI_parameter_list() );
         tParameterList( 4 )( tIQICounter ).set( "IQI_name",                   "IQIBulkTEMP");
         tParameterList( 4 )( tIQICounter ).set( "IQI_type",                   static_cast< uint >( fem::IQI_Type::DOF ) );
+        tParameterList( 4 )( tIQICounter ).set( "dof_quantity",               "TEMP");
         tParameterList( 4 )( tIQICounter ).set( "master_dof_dependencies",    "TEMP");
         tParameterList( 4 )( tIQICounter ).set( "vectorial_field_index",      0 );
         tParameterList( 4 )( tIQICounter ).set( "mesh_set_names",             tVessel);

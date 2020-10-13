@@ -205,6 +205,9 @@ TEST_CASE( "IWG_Diff_VWGhost", "[moris],[fem],[IWG_Diff_VWGhost]" )
         // loop on the interpolation order
         for( uint iInterpOrder = 1; iInterpOrder < 2; iInterpOrder++ )
         {
+            // set interpolation order for ghost
+            tIWG->set_interpolation_order( iInterpOrder );
+
             // integration points
             //------------------------------------------------------------------------------
             // get an integration order

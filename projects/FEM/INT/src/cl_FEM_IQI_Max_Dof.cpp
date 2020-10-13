@@ -52,7 +52,7 @@ namespace moris
         {
             // get field interpolator for a given dof type
             Field_Interpolator * tFIMaxDof =
-                    mMasterFIManager->get_field_interpolators_for_type( mMasterDofTypes( 0 )( 0 ) );
+                    mMasterFIManager->get_field_interpolators_for_type( mQuantityDofType( 0 ) );
 
             MORIS_ERROR(mMasterProp( static_cast< uint >( IQI_Property_Type::REFERENCE_VALUE ) ) != nullptr,
                     "IQI_Max_Dof - no reference value set");
@@ -68,7 +68,7 @@ namespace moris
                 tShift = mMasterProp( static_cast< uint >( IQI_Property_Type::SHIFT ) )->val()( 0 );
 
             // check if dof index was set (for the case of vector field)
-            if( mMasterDofTypes( 0 ).size() > 1 )
+            if( mQuantityDofType.size() > 1 )
             {
                 MORIS_ERROR( mIQITypeIndex != -1, "IQI_Max_Dof::compute_QI - mIQITypeIndex not set." );
             }
@@ -87,10 +87,9 @@ namespace moris
                 moris::Cell< MSI::Dof_Type > & aDofType,
                 Matrix< DDRMat >             & adQIdu )
         {
-            // FIXME protect max dof type
             // get field interpolator for max dof type
             Field_Interpolator * tFIMaxDof =
-                    mMasterFIManager->get_field_interpolators_for_type( mMasterDofTypes( 0 )( 0 ) );
+                    mMasterFIManager->get_field_interpolators_for_type( mQuantityDofType( 0 ) );
 
             // get property values
             real tRefValue = mMasterProp( static_cast< uint >( IQI_Property_Type::REFERENCE_VALUE ) )->val()( 0 );
@@ -99,12 +98,11 @@ namespace moris
             if ( mMasterProp( static_cast< uint >( IQI_Property_Type::SHIFT ) ) != nullptr )
                 tShift = mMasterProp( static_cast< uint >( IQI_Property_Type::SHIFT ) )->val()( 0 );
 
-            // FIXME protect max dof type
             // if derivative dof type is max dof type
-            if( aDofType( 0 ) == mMasterDofTypes( 0 )( 0 ) )
+            if( aDofType( 0 ) == mQuantityDofType( 0 ) )
             {
                 // check if dof index was set (for the case of vector field)
-                if( mMasterDofTypes( 0 ).size() > 1 )
+                if( mQuantityDofType.size() > 1 )
                 {
                     MORIS_ERROR( mIQITypeIndex != -1, "IQI_Max_Dof::compute_QI - mIQITypeIndex not set." );
                 }

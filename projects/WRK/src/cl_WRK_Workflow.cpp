@@ -35,7 +35,7 @@ namespace moris
             // Stage 1: HMR refinement -------------------------------------------------------------------
 
             // uniform initial refinement
-            mPerformerManager->mHMRPerformer( 0 )->perform_initial_refinement( 0 );
+            mPerformerManager->mHMRPerformer( 0 )->perform_initial_refinement();
 
             // HMR refined by GE
             perform_refinement(mPerformerManager->mHMRPerformer( 0 ), {mPerformerManager->mGENPerformer( 0 )});

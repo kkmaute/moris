@@ -137,7 +137,8 @@ TEST_CASE("Sensitivity test","[Sensitivity test]")
         tParameters.set( "truncate_bsplines", 1 );
         tParameters.set( "refinement_buffer", 1 );
         tParameters.set( "staircase_buffer", 1 );
-        tParameters.set( "initial_refinement", 0 );
+        tParameters.set( "initial_refinement", "0" );
+        tParameters.set( "initial_refinement_pattern", "0" );
 
         tParameters.set( "use_multigrid", 0 );
         tParameters.set( "severity_level", 2 );
@@ -146,7 +147,7 @@ TEST_CASE("Sensitivity test","[Sensitivity test]")
         hmr::HMR tHMR( tParameters );
 
         //initial refinement
-        tHMR.perform_initial_refinement( 0 );
+        tHMR.perform_initial_refinement();
 
         std::shared_ptr< moris::hmr::Mesh > tMesh = tHMR.create_mesh( tLagrangeMeshIndex );
 
@@ -346,7 +347,7 @@ TEST_CASE("Sensitivity test","[Sensitivity test]")
         tIQI_SE2->set_name(tRequestedIQINames(1));
 
         std::shared_ptr< fem::IQI > tIQITEMP = tIQIFactory.create_IQI( fem::IQI_Type::DOF );
-        tIQITEMP->set_output_type( vis::Output_Type::TEMP );
+        tIQITEMP->set_quantity_dof_type( { MSI::Dof_Type::TEMP } );
         tIQITEMP->set_dof_type_list( { { MSI::Dof_Type::TEMP } }, mtk::Master_Slave::MASTER );
         tIQITEMP->set_output_type_index( 0 );
         tIQITEMP->set_name("IQI_TEMP");

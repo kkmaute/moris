@@ -134,7 +134,8 @@ namespace moris
         tParameterlist( 0 )( 0 ).set( "truncate_bsplines",  1 );
         tParameterlist( 0 )( 0 ).set( "refinement_buffer",  3 );
         tParameterlist( 0 )( 0 ).set( "staircase_buffer",   3 );
-        tParameterlist( 0 )( 0 ).set( "initial_refinement", 0 );
+        tParameterlist( 0 )( 0 ).set( "initial_refinement", "0" );
+        tParameterlist( 0 )( 0 ).set( "initial_refinement_pattern", "0" );
 
         tParameterlist( 0 )( 0 ).set( "use_multigrid",  0 );
         tParameterlist( 0 )( 0 ).set( "severity_level", 0 );
@@ -255,8 +256,8 @@ namespace moris
         tParameterList( 1 )( tCMCounter ).set( "constitutive_type", static_cast< uint >( fem::Constitutive_Type::DIFF_LIN_ISO ) );
         tParameterList( 1 )( tCMCounter ).set( "dof_dependencies",  std::pair< std::string, std::string >( "TEMP", "Temperature" ) );
         tParameterList( 1 )( tCMCounter ).set( "properties",        "PropConductivity,Conductivity;"
-				"PropDensity,Density;"
-				"PropHeatCapacity,HeatCapacity") ;
+                "PropDensity,Density;"
+                "PropHeatCapacity,HeatCapacity") ;
         tCMCounter++;
 
         //------------------------------------------------------------------------------
@@ -276,8 +277,8 @@ namespace moris
         tParameterList( 2 )( tSPCounter ).set( "stabilization_name",      "SPGGLSDiffusion") ;
         tParameterList( 2 )( tSPCounter ).set( "stabilization_type",      static_cast< uint >( fem::Stabilization_Type::GGLS_DIFFUSION ) );
         tParameterList( 2 )( tSPCounter ).set( "master_properties",       "PropConductivity,Conductivity;"
-				"PropDensity,Density;"
-				"PropHeatCapacity,HeatCapacity") ;
+                "PropDensity,Density;"
+                "PropHeatCapacity,HeatCapacity") ;
         tParameterList( 2 )( tSPCounter ).set( "master_dof_dependencies", std::pair< std::string, std::string >( "TEMP", "Temperature" ) );
         tSPCounter++;
 
@@ -310,10 +311,10 @@ namespace moris
         tParameterList( 3 )( tIWGCounter ).set( "IWG_type",                   static_cast< uint >( fem::IWG_Type::SPATIALDIFF_DIRICHLET_UNSYMMETRIC_NITSCHE ) );
         tParameterList( 3 )( tIWGCounter ).set( "dof_residual",               "TEMP") ;
         tParameterList( 3 )( tIWGCounter ).set( "master_dof_dependencies",    "TEMP") ;
-        tParameterList( 3 )( tIWGCounter ).set( "master_properties",	      "PropImposedTemp,Dirichlet") ;
+        tParameterList( 3 )( tIWGCounter ).set( "master_properties",          "PropImposedTemp,Dirichlet") ;
         tParameterList( 3 )( tIWGCounter ).set( "master_constitutive_models", "CMDiffusion,Diffusion") ;
         tParameterList( 3 )( tIWGCounter ).set( "stabilization_parameters",   "SPNitscheTemp,DirichletNitsche") ;
-        tParameterList( 3 )( tIWGCounter ).set( "mesh_set_names",		      "SideSet_4_n_p0") ;
+        tParameterList( 3 )( tIWGCounter ).set( "mesh_set_names",             "SideSet_4_n_p0") ;
         tIWGCounter++;
 
         // create parameter list for IWG 5
@@ -323,8 +324,8 @@ namespace moris
         tParameterList( 3 )( tIWGCounter ).set( "dof_residual",               "TEMP") ;
         tParameterList( 3 )( tIWGCounter ).set( "master_dof_dependencies",    "TEMP") ;
         tParameterList( 3 )( tIWGCounter ).set( "master_properties",          "PropWeightCurrent,WeightCurrent;"
-				"PropWeightPrevious,WeightPrevious;"
-				"PropInitialCondition,InitialCondition") ;
+                "PropWeightPrevious,WeightPrevious;"
+                "PropInitialCondition,InitialCondition") ;
         tParameterList( 3 )( tIWGCounter ).set( "mesh_set_names",             "HMR_dummy_n_p0") ;
         tParameterList( 3 )( tIWGCounter ).set( "time_continuity",            true );
         tIWGCounter++;
@@ -337,6 +338,7 @@ namespace moris
         tParameterList( 4 ).push_back( prm::create_IQI_parameter_list() );
         tParameterList( 4 )( tIQICounter ).set( "IQI_name",                   "IQIBulkTEMP") ;
         tParameterList( 4 )( tIQICounter ).set( "IQI_type",                   static_cast< uint >( fem::IQI_Type::DOF ) );
+        tParameterList( 4 )( tIQICounter ).set( "dof_quantity",               "TEMP");
         tParameterList( 4 )( tIQICounter ).set( "master_dof_dependencies",    "TEMP") ;
         tParameterList( 4 )( tIQICounter ).set( "vectorial_field_index",      0 );
         tParameterList( 4 )( tIQICounter ).set( "mesh_set_names",             "HMR_dummy_n_p0") ;

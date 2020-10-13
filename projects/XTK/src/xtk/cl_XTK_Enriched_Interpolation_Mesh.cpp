@@ -1925,7 +1925,7 @@ namespace xtk
 
     uint Enriched_Interpolation_Mesh::get_num_interpolations()
     {
-        return mXTKModel->get_multigrid_ptr()->get_num_interpolations();
+        return mMeshIndices.numel();
     }
 
     // ----------------------------------------------------------------------------

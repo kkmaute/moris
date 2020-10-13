@@ -149,7 +149,8 @@ TEST_CASE("MDL XFEM Measure","[MDL_XFEM_MEASURE]")
 
         tParameters.set_staircase_buffer( 1 );
 
-        tParameters.set_initial_refinement( 0 );
+        tParameters.set_initial_refinement( { {0} } );
+        tParameters.set_initial_refinement_patterns( { {0} } );
 
         tParameters.set_number_aura( true );
 
@@ -161,7 +162,7 @@ TEST_CASE("MDL XFEM Measure","[MDL_XFEM_MEASURE]")
         // create the HMR object by passing the settings to the constructor
         moris::hmr::HMR tHMR( tParameters );
 
-        tHMR.perform_initial_refinement( 0 );
+        tHMR.perform_initial_refinement();
 
         std::shared_ptr< moris::hmr::Mesh > tMesh01 = tHMR.create_mesh( tLagrangeMeshIndex );   // HMR Lagrange mesh
         //==============================

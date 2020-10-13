@@ -39,7 +39,7 @@ namespace moris
             hmr::HMR tHMR( tParameters );
 
             // initial refinement
-            tHMR.perform_initial_refinement( 0 );
+            tHMR.perform_initial_refinement();
             tHMR.finalize();
 
             return tHMR.create_interpolation_mesh(0);

@@ -74,7 +74,8 @@ TEST_CASE("HMR_IO","[moris],[hmr],[HMR_IO]")
             tParameters.set_staircase_buffer( 3 );
             tParameters.set_refinement_buffer( 3 );
 
-            tParameters.set_initial_refinement( 1 );
+            tParameters.set_initial_refinement( { {1} } );
+            tParameters.set_initial_refinement_patterns( { {0} } );
 
             Cell< Matrix< DDSMat > > tLagrangeToBSplineMesh( 1 );
             tLagrangeToBSplineMesh( 0 ) = { {0}, {1} };
@@ -94,7 +95,7 @@ TEST_CASE("HMR_IO","[moris],[hmr],[HMR_IO]")
             // manually select output pattern
             tDatabase->set_activation_pattern( 0 );
 
-            tHMR.perform_initial_refinement( 0 );
+            tHMR.perform_initial_refinement();
 
             // manually select output pattern
             tDatabase->set_activation_pattern( 1 );
@@ -216,7 +217,8 @@ TEST_CASE("HMR_Field_IO_HDF","[moris],[hmr],[HMR_Field_IO_HDF]")
             tParameters.set_staircase_buffer( 3 );
             tParameters.set_refinement_buffer( 3 );
 
-            tParameters.set_initial_refinement( 1 );
+            tParameters.set_initial_refinement( { {1} } );
+            tParameters.set_initial_refinement_patterns( { {0} } );
 
             Cell< Matrix< DDSMat > > tLagrangeToBSplineMesh( 1 );
             tLagrangeToBSplineMesh( 0 ) = { {0}, {1}, {2} };
@@ -236,7 +238,7 @@ TEST_CASE("HMR_Field_IO_HDF","[moris],[hmr],[HMR_Field_IO_HDF]")
             // manually select output pattern
             tDatabase->set_activation_pattern( 0 );
 
-            tHMR.perform_initial_refinement( 0 );
+            tHMR.perform_initial_refinement();
 
             // manually select output pattern
             tDatabase->set_activation_pattern( 1 );

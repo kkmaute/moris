@@ -496,7 +496,7 @@ namespace moris
 
                 // -----------------------------------------------------------------------------
 
-                void perform_initial_refinement( const uint aPattern );
+                void perform_initial_refinement();
 
                 // -----------------------------------------------------------------------------
 
