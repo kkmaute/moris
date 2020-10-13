@@ -46,7 +46,7 @@ namespace moris
                             trans( tFISolidDispl->N() ) * tFIFluidPressure->val() );
 
             // check for nan, infinity
-            MORIS_ERROR( isfinite( mSet->get_residual()( 0 ) ),
+            MORIS_ASSERT( isfinite( mSet->get_residual()( 0 ) ),
                     "IWG_FS_Struc_Interface::compute_residual - Residual contains NAN or INF, exiting!");
         }
 
@@ -102,7 +102,7 @@ namespace moris
             }
 
             // check for nan, infinity
-            MORIS_ERROR(  isfinite( mSet->get_jacobian() ) ,
+            MORIS_ASSERT( isfinite( mSet->get_jacobian() ) ,
                     "IWG_FS_Struc_Interface::compute_jacobian - Jacobian contains NAN or INF, exiting!");
         }
 

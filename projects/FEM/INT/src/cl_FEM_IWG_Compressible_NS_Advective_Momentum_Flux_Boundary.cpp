@@ -23,6 +23,9 @@ namespace moris
 
         IWG_Compressible_NS_Advective_Momentum_Flux_Boundary::IWG_Compressible_NS_Advective_Momentum_Flux_Boundary()
         {
+            // set time boundary flag
+            mTimeBoundary = true;
+
             // set size for the constitutive model pointer cell
             mMasterCM.resize( static_cast< uint >( IWG_Constitutive_Type::MAX_ENUM ), nullptr );
 
@@ -112,7 +115,7 @@ namespace moris
                     trans( tVelocityFI->N() ) * tDensityFI->val() * tNormalMatrix * tUiUj );
 
             // check for nan, infinity
-            MORIS_ERROR( isfinite( mSet->get_residual()( 0 ) ),
+            MORIS_ASSERT( isfinite( mSet->get_residual()( 0 ) ),
                     "IWG_Compressible_NS_Advective_Momentum_Flux_Boundary::compute_residual - Residual contains NAN or INF, exiting!");
         }
 
@@ -183,7 +186,7 @@ namespace moris
             }
 
             // check for nan, infinity
-            MORIS_ERROR(  isfinite( mSet->get_jacobian() ) ,
+            MORIS_ASSERT( isfinite( mSet->get_jacobian() ) ,
                     "IWG_Compressible_NS_Advective_Momentum_Flux_Boundary::compute_jacobian - Jacobian contains NAN or INF, exiting!");
         }
 

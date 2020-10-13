@@ -121,7 +121,7 @@ namespace moris
                             trans( tFIViscosity->dnNdxn( 1 ) ) * tModVelocity * tSPSUPG->val()( 0 ) * tR( 0 ) );
 
             // check for nan, infinity
-            MORIS_ERROR( isfinite( mSet->get_residual()( 0 ) ),
+            MORIS_ASSERT( isfinite( mSet->get_residual()( 0 ) ),
                     "IWG_Spalart_Allmaras_Turbulence_Bulk::compute_residual - Residual contains NAN or INF, exiting!");
         }
 
@@ -245,7 +245,7 @@ namespace moris
             }
 
             // check for nan, infinity
-            MORIS_ERROR( isfinite( mSet->get_jacobian() ),
+            MORIS_ASSERT( isfinite( mSet->get_jacobian() ),
                     "IWG_Spalart_Allmaras_Turbulence_Bulk::compute_jacobian - Jacobian contains NAN or INF, exiting!");
         }
 
