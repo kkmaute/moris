@@ -39,8 +39,14 @@ namespace moris
                 // phase dof type list
                 moris::Cell< moris::Cell< MSI::Dof_Type > > mDofTypes;
 
+                // matrix to check if a dof type was already set to the phase
+                Matrix< DDSMat > mDofCheck;
+
                 // phase dv type list
                 moris::Cell< moris::Cell< PDV_Type > > mDvTypes;
+
+                // matrix to check if a pdv type was already set to the phase
+                Matrix< DDSMat > mPdvCheck;
 
                 // master and slave constitutive models
                 moris::Cell< std::shared_ptr< fem::Constitutive_Model > > mCMs;
@@ -55,7 +61,14 @@ namespace moris
                 /**
                  * trivial constructor
                  */
-                Phase_User_Info(){};
+                Phase_User_Info()
+                {
+                    // set size for mDofCheck
+                    mDofCheck.set_size( static_cast< uint >( MSI::Dof_Type::END_ENUM ), 1, -1 );
+
+                    // set size for mPdvCheck
+                    mPdvCheck.set_size( static_cast< uint >( PDV_Type::UNDEFINED ), 1, -1 );
+                }
 
                 //------------------------------------------------------------------------------
                 /**
@@ -131,11 +144,38 @@ namespace moris
                 //------------------------------------------------------------------------------
                 /**
                  * set dof type list
-                 * @param[ out ] mDofTypes list of group of dof types
+                 * @param[ in ] aDofTypes list of group of dof types
                  */
-                void set_dof_type_list( const moris::Cell< moris::Cell< MSI::Dof_Type > > & aDofTypes )
+                void set_dof_type_list(
+                        const moris::Cell< moris::Cell< MSI::Dof_Type > > & aDofTypes )
                 {
                     mDofTypes = aDofTypes;
+                }
+
+                //------------------------------------------------------------------------------
+                /**
+                 * add dof type to list
+                 * @param[ in ] aDofTypes group of dof types to add to list of dof type
+                 */
+                void add_dof_type_to_list( moris::Cell< MSI::Dof_Type > & aDofTypes )
+                {
+                    // get dof type index in enum list
+                    uint tDofIndex = static_cast< uint >( aDofTypes( 0 ) );
+
+                    // if dof type not added to phase dof type list
+                    if( mDofCheck( tDofIndex ) == -1 )
+                    {
+                        // add dof type group to dof type list
+                        mDofTypes.push_back( aDofTypes );
+
+                        // set check to 1
+                        mDofCheck( tDofIndex ) = 1;
+                    }
+                }
+
+                Matrix< DDSMat > & get_dof_type_check_list()
+                {
+                    return mDofCheck;
                 }
 
                 //------------------------------------------------------------------------------
@@ -168,6 +208,32 @@ namespace moris
                 moris::Cell< moris::Cell< PDV_Type > > & get_dv_type_list()
                 {
                     return mDvTypes;
+                }
+
+                //------------------------------------------------------------------------------
+                /**
+                 * add pdv type to list
+                 * @param[ in ] aPdvTypes group of pdv types to add to list of pdv type
+                 */
+                void add_pdv_type_to_list( moris::Cell< PDV_Type > & aPdvTypes )
+                {
+                    // get pdv type index in enum list
+                    uint tPdvIndex = static_cast< uint >( aPdvTypes( 0 ) );
+
+                    // if pdv type not added to phase pdv type list
+                    if( mPdvCheck( tPdvIndex ) == -1 )
+                    {
+                        // add pdv type group to pdv type list
+                        mDvTypes.push_back( aPdvTypes );
+
+                        // set check to 1
+                        mPdvCheck( tPdvIndex ) = 1;
+                    }
+                }
+
+                Matrix< DDSMat > & get_pdv_type_check_list()
+                {
+                    return mPdvCheck;
                 }
 
                 //------------------------------------------------------------------------------
