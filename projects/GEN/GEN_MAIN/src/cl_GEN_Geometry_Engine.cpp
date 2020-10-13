@@ -35,8 +35,6 @@ namespace moris
                 Cell<Cell<ParameterList>> aParameterLists,
                 std::shared_ptr<Library_IO> aLibrary):
 
-                mGeometries(create_geometries(aParameterLists(1), mADVs, mLibrary)),
-
                 // Level set options
                 mIsocontourThreshold(aParameterLists(0)(0).get<real>("isocontour_threshold")),
                 mErrorFactor(aParameterLists(0)(0).get<real>("isocontour_error_factor")),
@@ -57,6 +55,7 @@ namespace moris
                 mLibrary(aLibrary),
 
                 // Geometries
+                mGeometries(create_geometries(aParameterLists(1), mADVs, mLibrary)),
                 mGeometryParameterLists(aParameterLists(1)),
                 mGeometryFieldFile(aParameterLists(0)(0).get<std::string>("geometry_field_file")),
                 mOutputMeshFile(aParameterLists(0)(0).get<std::string>("output_mesh_file")),
@@ -79,13 +78,14 @@ namespace moris
             mPdvHostManager.set_requested_interpolation_pdv_types(tRequestedPdvTypes);
             
             // Set map if its a non-standard phase table (i.e. the map is not 1-1 between index and bulk phase).
-            if(aParameterLists(0)(0).get<std::string>("phase_table").length() > 0)
+            if (aParameterLists(0)(0).get<std::string>("phase_table").length() > 0)
             {
                 Matrix<IndexMat> tPhaseTable = string_to_mat<IndexMat>(aParameterLists(0)(0).get<std::string>("phase_table"));
                 mPhaseTable.set_index_to_bulk_phase_map(tPhaseTable);
             }
+
             // print the phase table if requested (since GEN doesn't have a perform operator this is going here)
-            if(aParameterLists(0)(0).get<bool>("print_phase_table") && par_rank() == 0)
+            if (aParameterLists(0)(0).get<bool>("print_phase_table") and par_rank() == 0)
             {
                 mPhaseTable.print();
             }
@@ -100,11 +100,10 @@ namespace moris
                 Matrix<DDRMat>                    aADVs,
                 real                              aIsocontourThreshold,
                 real                              aErrorFactor)
-                : mGeometries(aGeometry),
-                  mIsocontourThreshold(aIsocontourThreshold),
+                : mIsocontourThreshold(aIsocontourThreshold),
                   mErrorFactor(aErrorFactor),
                   mADVs(aADVs),
-                  mActiveGeometryIndex(0),
+                  mGeometries(aGeometry),
                   mPhaseTable(aPhaseTable)
         {
             this->compute_level_set_data(aMesh);

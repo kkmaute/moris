@@ -49,10 +49,6 @@ namespace moris
         class Geometry_Engine : public wrk::Performer
         {
 
-        protected:
-
-            Cell<std::shared_ptr<Geometry>> mGeometries;
-
         private:
 
             // Level set
@@ -78,6 +74,9 @@ namespace moris
             std::shared_ptr<Library_IO> mLibrary;
 
             // Geometry
+        protected:
+            Cell<std::shared_ptr<Geometry>> mGeometries;
+        private:
             size_t mActiveGeometryIndex = 0;
             Cell<ParameterList> mGeometryParameterLists;
             std::string mGeometryFieldFile = "";
