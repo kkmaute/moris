@@ -224,13 +224,12 @@ namespace moris
             // set Multigrid flag
             aParameters->set_multigrid( tValBool );
 
-            // load initial refinement
-            load_matrix_from_hdf5_file( mFileID,
+            load_scalar_from_hdf5_file( mFileID,
                                         "InitialBSplineRefinement",
-                                        tMatUint,
+                                        tValUint,
                                         mStatus );
 
-            aParameters->set_initial_refinement( tMatUint );
+            aParameters->set_initial_refinement( {{tValUint}} );
 
             // load initial refinement
             load_scalar_from_hdf5_file( mFileID,
