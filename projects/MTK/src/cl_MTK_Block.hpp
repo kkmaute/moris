@@ -30,7 +30,7 @@ namespace moris
         {
             private :
                 uint                              mNumVerticesOnBlock;
-                moris::Matrix< DDSMat >           mVerticesOnBlock;
+                moris::Matrix< moris::IndexMat >  mVerticesOnBlock;
 
                 uint                              mNumCellsOnBlock;
                 moris::Matrix< DDSMat >           mCellsOnBlock;
@@ -46,53 +46,30 @@ namespace moris
 
                     for( uint Ik = 0; Ik < mSetClusters.size(); Ik++)
                     {
-                        for( uint Ij = 0; Ij < mSetClusters( Ik )->get_primary_cells_in_cluster().size(); Ij++)
-                        {
-                            tMaxNumVert +=  mSetClusters( Ik )->get_primary_cells_in_cluster()( Ij )
-                                                                          ->get_vertex_inds().numel();
-                        }
+                            tMaxNumVert +=  mSetClusters( Ik )->get_vertices_in_cluster().size();
 
-                        if( !aOnlyPrimary )
-                        {
-                            for( uint Ij = 0; Ij < mSetClusters( Ik )->get_void_cells_in_cluster().size(); Ij++)
-                            {
-                                tMaxNumVert +=  mSetClusters( Ik )->get_void_cells_in_cluster()( Ij )
-                                                                              ->get_vertex_inds().numel();
-                            }
-                        }
+                        // if( !aOnlyPrimary )
+                        // {
+                        //     for( uint Ij = 0; Ij < mSetClusters( Ik )->get_void_cells_in_cluster().size(); Ij++)
+                        //     {
+                        //         tMaxNumVert +=  mSetClusters( Ik )->get_void_cells_in_cluster()( Ij )
+                        //                                                       ->get_vertex_inds().numel();
+                        //     }
+                        // }
                     }
 
-                    moris::Matrix< DDSMat > tVerticesOnBlock(1, tMaxNumVert, -1 );
-
+                    moris::Matrix< moris::IndexMat > tVerticesOnBlock(1, tMaxNumVert, -1 );
                     uint tCounter = 0;
 
                     for( uint Ik = 0; Ik < mSetClusters.size(); Ik++)
                     {
-                        for( uint Ij = 0; Ij < mSetClusters( Ik )->get_primary_cells_in_cluster().size(); Ij++)
+                        // get the vertex indices in cluster Ik
+                        moris::Matrix<moris::IndexMat> tVerticesInCluster = mSetClusters( Ik )->get_vertex_indices_in_cluster();
+
+                        for(moris::uint iV = 0; iV < tVerticesInCluster.numel(); iV++)
                         {
-                            //FIXME rewrite for more readability
-                            tVerticesOnBlock( { 0, 0 },{ tCounter, tCounter + mSetClusters( Ik )->get_primary_cells_in_cluster()( Ij )
-                                    ->get_vertex_inds().numel() - 1 }) =
-                                            mSetClusters( Ik )->get_primary_cells_in_cluster()( Ij )
-                                            ->get_vertex_inds().matrix_data();
-
-                            tCounter += mSetClusters( Ik )->get_primary_cells_in_cluster()( Ij )
-                                                                      ->get_vertex_inds().numel();
-                        }
-
-                        if( !aOnlyPrimary )
-                        {
-                            for( uint Ij = 0; Ij < mSetClusters( Ik )->get_void_cells_in_cluster().size(); Ij++)
-                            {
-                                //FIXME rewrite for more readability
-                                tVerticesOnBlock( { 0, 0 },{ tCounter, tCounter + mSetClusters( Ik )->get_void_cells_in_cluster()( Ij )
-                                        ->get_vertex_inds().numel() - 1 }) =
-                                                mSetClusters( Ik )->get_void_cells_in_cluster()( Ij )
-                                                ->get_vertex_inds().matrix_data();
-
-                                tCounter += mSetClusters( Ik )->get_void_cells_in_cluster()( Ij )
-                                                                          ->get_vertex_inds().numel();
-                            }
+                            // set the vertex indices into the tVertices on Block
+                            tVerticesOnBlock(tCounter++) = tVerticesInCluster(iV);
                         }
                     }
 

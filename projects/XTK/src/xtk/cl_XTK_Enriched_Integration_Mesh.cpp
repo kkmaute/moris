@@ -1545,10 +1545,13 @@ namespace xtk
 
             }
 
-            // trivial case, the enriched interpolation cell becomes the primary cell
+            // trivial case, the base of the enriched interpolation cell becomes the primary cell
             else
             {
                 mCellClusters(tInterpCellIndex)->mPrimaryIntegrationCells.push_back(mCellClusters(tInterpCellIndex)->mInterpolationCell->get_base_cell());
+                Matrix<IndexMat> tVertexIndices = mCellClusters(tInterpCellIndex)->mPrimaryIntegrationCells(0)->get_vertex_inds();
+                mCellClusters(tInterpCellIndex)->mVerticesInCluster = this->get_mtk_vertices_loc_inds(tVertexIndices);
+
             }
         }
     }
@@ -1797,13 +1800,13 @@ namespace xtk
                         tSideCluster->mChildMesh = nullptr;
 
                         // integration cell is the same as the interpolation cell in this case
-                        tSideCluster->mIntegrationCells = moris::Cell<moris::mtk::Cell const *>(1,tSideCluster->mInterpolationCell->get_base_cell());
+                        tSideCluster->mIntegrationCells = {tSideCluster->mInterpolationCell->get_base_cell()};
 
                         // side ordinal
                         tSideCluster->mIntegrationCellSideOrdinals = Matrix<IndexMat>({{tSideOrd}});
 
                         // add vertices
-                        tSideCluster->mVerticesInCluster.append(tSideCluster->mInterpolationCell->get_vertices_on_side_ordinal(tSideOrd));
+                        tSideCluster->mVerticesInCluster.append(tSideCluster->mIntegrationCells(0)->get_vertices_on_side_ordinal(tSideOrd));
                         tSideCluster->finalize_setup();
 
                         tSideCluster->mAssociatedCellCluster = &this->get_cell_cluster(*tEnrichedCellsOfBaseCell(0));

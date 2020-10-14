@@ -225,8 +225,6 @@ public:
     moris::Matrix<moris::IndexMat>
     get_vertex_indices_in_cluster() const
     {
-        MORIS_ERROR(!this->is_trivial(),"get_vertex_indices_in_cluster on trivial cluster is not allowed");
-
         // number of cells in cluster
          moris::uint tNumVertices = this->get_num_vertices_in_cluster();
 
@@ -335,7 +333,6 @@ public:
     moris::Matrix<moris::DDRMat>
     get_primary_cell_local_coords_on_side_wrt_interp_cell(moris::moris_index aPrimaryCellClusterIndex) const
     {
-        MORIS_ERROR(!this->is_trivial(),"get_primary_cell_local_coords_on_side_wrt_interp_cell on trivial cluster is not allowed");
         MORIS_ASSERT(aPrimaryCellClusterIndex < (moris_index)this->get_num_primary_cells(),"Integration Cell Cluster index out of bounds");
 
         // get the integration cell of interest

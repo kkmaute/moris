@@ -15,6 +15,9 @@ namespace moris
 
         IWG_Incompressible_NS_Convective_Velocity_Ghost::IWG_Incompressible_NS_Convective_Velocity_Ghost()
         {
+            // set ghost flag
+            mIsGhost = true;
+
             // set size for the stabilization parameter pointer cell
             mStabilizationParam.resize( static_cast< uint >( IWG_Stabilization_Type::MAX_ENUM ), nullptr );
 
@@ -90,7 +93,7 @@ namespace moris
                             trans( tSlavedNdx ) * tConvectivePreMultiply );
 
             // check for nan, infinity
-            MORIS_ERROR( isfinite( mSet->get_residual()( 0 ) ),
+            MORIS_ASSERT( isfinite( mSet->get_residual()( 0 ) ),
                     "IWG_Incompressible_NS_Convective_Velocity_Ghost::compute_residual - Residual contains NAN or INF, exiting!");
         }
 
@@ -210,7 +213,7 @@ namespace moris
             }
 
             // check for nan, infinity
-            MORIS_ERROR(  isfinite( mSet->get_jacobian() ) ,
+            MORIS_ASSERT( isfinite( mSet->get_jacobian() ) ,
                     "IWG_Ghost_Normal_Field::compute_jacobian - Jacobian contains NAN or INF, exiting!");
         }
 

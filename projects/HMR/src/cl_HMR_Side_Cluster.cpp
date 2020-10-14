@@ -124,8 +124,6 @@ namespace moris
         moris::Matrix<moris::DDRMat>
         Side_Cluster_HMR::get_vertices_local_coordinates_wrt_interp_cell( const mtk::Master_Slave aIsMaster ) const
         {
-            MORIS_ERROR(!mTrivial,"Accessing local coordinates on a trivial side cluster is not allowed");
-
             return mVertexParamCoords;
         }
 
@@ -144,8 +142,6 @@ namespace moris
                 moris::mtk::Vertex       const * aVertex,
                 const mtk::Master_Slave          aIsMaster ) const
         {
-            MORIS_ERROR(!mTrivial,"Accessing local coordinates on a trivial side cluster is not allowed");
-
             moris_index tLocalVertIndex = this->get_vertex_cluster_local_index(aVertex->get_id());
 
             MORIS_ASSERT( tLocalVertIndex < (moris_index)mVertexParamCoords.n_rows(),"Vertex local side cluster index out of bounds. This could be cause by not adding parametric coordinates");
@@ -158,7 +154,6 @@ namespace moris
         moris_index
         Side_Cluster_HMR::get_dim_of_param_coord( const mtk::Master_Slave aIsMaster ) const
         {
-            MORIS_ERROR(!mTrivial,"Accessing size of local coordinates on a trivial side cluster is not allowed");
             return mVertexParamCoords.n_cols();
         }
 

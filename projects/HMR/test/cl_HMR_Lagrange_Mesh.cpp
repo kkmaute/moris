@@ -1041,8 +1041,6 @@ TEST_CASE("Lagrange_Mesh_initial_refinement","[moris],[hmr],[Lagrange_Mesh_Initi
     {
         std::cout<<"I am proc: "<<par_rank()<<std::endl;
 
-        uint tLagrangeMeshIndex = 0;
-
         // empty container for B-Spline meshes
         moris::Cell< moris::hmr::BSpline_Mesh_Base* > tBSplineMeshes;
 

@@ -146,7 +146,7 @@ namespace moris
             }
 
             // check for nan, infinity
-            MORIS_ERROR( isfinite( mSet->get_residual()( 0 ) ),
+            MORIS_ASSERT( isfinite( mSet->get_residual()( 0 ) ),
                     "IWG_Incompressible_NS_Pressure_Bulk::compute_residual - Residual contains NAN or INF, exiting!");
         }
 
@@ -247,7 +247,7 @@ namespace moris
             }
 
             // check for nan, infinity
-            MORIS_ERROR(  isfinite( mSet->get_jacobian() ) ,
+            MORIS_ASSERT( isfinite( mSet->get_jacobian() ) ,
                     "IWG_Incompressible_NS_Pressure_Bulk::compute_jacobian - Jacobian contains NAN or INF, exiting!");
         }
 

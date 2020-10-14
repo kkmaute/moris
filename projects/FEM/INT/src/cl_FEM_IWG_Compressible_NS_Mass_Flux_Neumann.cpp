@@ -77,7 +77,7 @@ namespace moris
                     { 0, 0 } ) += aWStar * ( trans( tFIDensity->N() ) * mMasterProp( tPropMassFluxIndex )->val() );
 
             // check for nan, infinity
-            MORIS_ERROR( isfinite( mSet->get_residual()( 0 ) ),
+            MORIS_ASSERT( isfinite( mSet->get_residual()( 0 ) ),
                     "IWG_Compressible_NS_Mass_Flux_Neumann::compute_residual - Residual contains NAN or INF, exiting!");
         }
 
@@ -125,7 +125,7 @@ namespace moris
             }
 
             // check for nan, infinity
-            MORIS_ERROR(  isfinite( mSet->get_jacobian() ) ,
+            MORIS_ASSERT( isfinite( mSet->get_jacobian() ) ,
                     "IWG_Compressible_NS_Mass_Flux_Neumann::compute_jacobian - Jacobian contains NAN or INF, exiting!");
         }
 

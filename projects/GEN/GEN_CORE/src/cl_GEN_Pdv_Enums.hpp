@@ -18,15 +18,6 @@ namespace moris
         UNDEFINED
     };
 
-    enum class Phase_Type
-    {
-        PHASE0,
-        PHASE1,
-        PHASE2,
-        UNDEFINED,
-        END_MAT_TYPE
-    };
-
     moris::map< std::string, PDV_Type > get_pdv_type_map();
 }
 

@@ -19,7 +19,7 @@ using namespace moris;
 uint gInterpolationOrder;
 
 // flag to print reference values
-bool gPrintReferenceValues = false;
+bool gPrintReferenceValues = true;
 
 //---------------------------------------------------------------
 
@@ -126,12 +126,10 @@ void check_linear_results_serial()
         std::cout << "Number of nodes     : " << tNumNodes << std::endl;
         std::cout << "Number of elements  : " << tNumElems << std::endl;
     }
-    else
-    {
-        REQUIRE( tNumDims  ==  2     );
-        REQUIRE( tNumNodes ==  14824 );
-        REQUIRE( tNumElems ==  14939 );
-    }
+
+    REQUIRE( tNumDims  ==  2     );
+    REQUIRE( tNumNodes ==  16107 );
+    REQUIRE( tNumElems ==  14939 );
 
     // check results
     uint tNodeId = 3187;

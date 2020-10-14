@@ -63,6 +63,7 @@ namespace moris
             tParameterList.insert( "dv_dependencies",   std::pair< std::string, std::string >( "", "" ) );
             tParameterList.insert( "properties",        std::string( "" ) );
             tParameterList.insert( "model_type",        static_cast< uint >( fem::Model_Type::UNDEFINED ) );
+            tParameterList.insert( "phase_name",        std::string( "" ) );
 
             return tParameterList;
         }
@@ -124,6 +125,8 @@ namespace moris
             tParameterList.insert( "mesh_set_names",             std::string( "" ) );
             tParameterList.insert( "master_phase_name",          std::string( "" ) );
             tParameterList.insert( "slave_phase_name",           std::string( "" ) );
+            tParameterList.insert( "side",                       std::string( "" ) );
+            tParameterList.insert( "single",                     std::string( "" ) );
 
             tParameterList.insert( "time_continuity",            false );
             tParameterList.insert( "time_boundary",              false );
@@ -153,6 +156,8 @@ namespace moris
             tParameterList.insert( "master_dv_dependencies",     std::string( "" ) );
             tParameterList.insert( "slave_dv_dependencies",      std::string( "" ) );
 
+            tParameterList.insert( "function_parameters",        std::string( "" ) );
+
             tParameterList.insert( "master_properties",          std::string( "" ) );
             tParameterList.insert( "slave_properties",           std::string( "" ) );
             tParameterList.insert( "master_constitutive_models", std::string( "" ) );
@@ -163,6 +168,8 @@ namespace moris
             tParameterList.insert( "master_phase_name",          std::string( "" ) );
             tParameterList.insert( "slave_phase_name",           std::string( "" ) );
             tParameterList.insert( "mesh_set_names",             std::string( "" ) );
+            tParameterList.insert( "side",                       std::string( "" ) );
+            tParameterList.insert( "single",                     std::string( "" ) );
 
             tParameterList.insert( "time_continuity",            false );
             tParameterList.insert( "time_boundary",              false );

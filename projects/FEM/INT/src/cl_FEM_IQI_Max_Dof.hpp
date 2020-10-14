@@ -29,18 +29,6 @@ namespace moris
 
                 //------------------------------------------------------------------------------
 
-                enum class IQI_Property_Type
-                {
-                        REFERENCE_VALUE,
-                        EXPONENT,
-                        SHIFT,
-                        MAX_ENUM
-                };
-
-                // Local string to property enum map
-                std::map< std::string, IQI_Property_Type > mPropertyMap;
-
-
             public:
                 //------------------------------------------------------------------------------
                 /*
@@ -53,18 +41,6 @@ namespace moris
                  * trivial destructor
                  */
                 ~IQI_Max_Dof(){};
-
-                //------------------------------------------------------------------------------
-                /**
-                 * set property
-                 * @param[ in ] aProperty       a property pointer
-                 * @param[ in ] aPropertyString a string describing the property
-                 * @param[ in ] aIsMaster       enum master or slave
-                 */
-                void set_property(
-                        std::shared_ptr< Property > aProperty,
-                        std::string                 aPropertyString,
-                        mtk::Master_Slave           aIsMaster = mtk::Master_Slave::MASTER );
 
             private:
                 /**
@@ -88,4 +64,4 @@ namespace moris
     }/* end namespace fem */
 } /* end namespace moris */
 
-#endif /* PROJECTS_FEM_INT_SRC_CL_FEM_IQI_Max_DOF_HPP_ */
+#endif /* PROJECTS_FEM_INT_SRC_CL_FEM_IQI_MAX_DOF_HPP_ */

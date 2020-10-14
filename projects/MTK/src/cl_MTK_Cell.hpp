@@ -179,6 +179,16 @@ public:
 
     //------------------------------------------------------------------------------
 
+    /*!
+    * @param[in] aVertexIndex - Proc local vertex index
+    * @return the vertex ordinal wrt the mtk cell
+    */ 
+    virtual
+    moris_index
+    get_vertex_ordinal_wrt_cell(moris_index const & aVertexIndex) const;
+
+    //------------------------------------------------------------------------------
+
     /**
      * returns an enum that defines the geometry type of the element
      */
@@ -210,7 +220,7 @@ public:
      */
     virtual
     moris::real
-    compute_cell_side_measure(moris_index const & aCellSideOrd) const;
+    compute_cell_side_measure(moris_index const & aCellSideOrd) const;\
 
     //------------------------------------------------------------------------------
 

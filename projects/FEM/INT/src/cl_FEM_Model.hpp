@@ -328,6 +328,8 @@ namespace moris
                  */
                 void create_fem_set_info();
 
+                void create_fem_set_info( std::map< std::string, uint > & aPhaseMap );
+
                 //            void create_fem_set_info(
                 //                    std::map< std::string, uint >            & aIWGMap,
                 //                    std::map< std::string, uint >            & aIQIMap );
@@ -345,11 +347,24 @@ namespace moris
                         moris::map< std::string, PDV_Type >      & aDvTypeMap );
 
                 //------------------------------------------------------------------------------
-
                 /**
                  * Scale the IQIs according to user input.
                  */
                 void normalize_IQIs();
+
+                //------------------------------------------------------------------------------
+                /**
+                 * Get mesh set name from input
+                 */
+                void get_mesh_set_names(
+                        std::map< std::string, uint > & aPhaseMap,
+                        fem::Element_Type               aIWGBulkType,
+                        std::string                     aMasterPhaseName,
+                        std::string                     aSlavePhaseName,
+                        std::string                     aSlavePhaseString,
+                        std::string                     aOrdinalString,
+                        bool                            aIsGhost,
+                        moris::Cell< std::string >    & aMeshSetNames );
 
         };
         //------------------------------------------------------------------------------
