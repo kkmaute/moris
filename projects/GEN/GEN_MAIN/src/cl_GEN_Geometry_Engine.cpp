@@ -320,7 +320,7 @@ namespace moris
                 const moris_index & aNodeId,
                 const moris_index & aNodeOwner )
         {
-            mPdvHostManager.update_intersection_node(aNodeIndex,aNodeId,aNodeOwner);
+            mPdvHostManager.update_intersection_node(aNodeIndex, aNodeId, aNodeOwner);
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -1068,10 +1068,7 @@ namespace moris
             // Set PDV types
             mPdvHostManager.set_integration_pdv_types(tPdvTypes);
             mPdvHostManager.set_requested_integration_pdv_types(tCoordinatePdvs);
-			
 
-            // Set PDV size
-            mPdvHostManager.set_num_integration_nodes(aIntegrationMesh->get_num_nodes());
         }
 
         //--------------------------------------------------------------------------------------------------------------

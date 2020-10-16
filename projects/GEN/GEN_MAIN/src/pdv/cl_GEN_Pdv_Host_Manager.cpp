@@ -463,14 +463,6 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        void Pdv_Host_Manager::set_num_integration_nodes(uint aNumNodes)
-        {
-            // FIXME check that this is done
-            mIntersectionNodes.resize(aNumNodes, nullptr);
-        }
-
-        //--------------------------------------------------------------------------------------------------------------
-
         void Pdv_Host_Manager::set_requested_interpolation_pdv_types(Cell<PDV_Type> aPdvTypes)
         {
             mRequestedIpPdvTypes = aPdvTypes;

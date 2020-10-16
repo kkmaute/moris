@@ -280,14 +280,6 @@ namespace moris
                         const moris_index & aNodeOwner);
 
                 /**
-                 * Sets the number of nodes on the integration mesh, in order to resize the intersection nodes and
-                 * be able to handle all questions about nodes up to this number.
-                 *
-                 * @param aNumNodes Total number of nodes on the integration mesh
-                 */
-                void set_num_integration_nodes(uint aNumNodes);
-
-                /**
                  * Set the requested interpolation node PDV types for sensitivities
                  *
                  * @param aPdvTypes the pdv types which will be requested by MDL
