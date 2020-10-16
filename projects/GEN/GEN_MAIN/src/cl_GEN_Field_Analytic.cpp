@@ -18,21 +18,21 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        real Field_Analytic::evaluate_field_value(
+        real Field_Analytic::get_field_value(
                 uint                  aIndex,
                 const Matrix<DDRMat>& aCoordinates)
         {
-            return this->evaluate_field_value(aCoordinates);
+            return this->get_field_value(aCoordinates);
         }
 
         //--------------------------------------------------------------------------------------------------------------
 
-        void Field_Analytic::evaluate_all_sensitivities(
+        void Field_Analytic::evaluate_sensitivities(
                 uint                  aIndex,
                 const Matrix<DDRMat>& aCoordinates,
                 Matrix<DDRMat>&       aSensitivities)
         {
-            this->evaluate_all_sensitivities(aCoordinates, aSensitivities);
+            this->evaluate_sensitivities(aCoordinates, aSensitivities);
         }
 
         //--------------------------------------------------------------------------------------------------------------

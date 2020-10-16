@@ -41,7 +41,7 @@ namespace moris
              * @param aNodeIndex Node index
              * @return Property value
              */
-            real evaluate_field_value(uint aNodeIndex);
+            real get_field_value(uint aNodeIndex);
 
             /**
              * Given a node index, evaluates the sensitivity of the property field with respect to all of the
@@ -50,7 +50,7 @@ namespace moris
              * @param aNodeIndex Node index
              * @param aSensitivities Vector of sensitivities
              */
-            void evaluate_all_sensitivities(uint aNodeIndex, Matrix<DDRMat>& aSensitivities);
+            void evaluate_sensitivities(uint aNodeIndex, Matrix<DDRMat>& aSensitivities);
 
         };
     }

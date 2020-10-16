@@ -27,7 +27,7 @@ namespace moris
                  * @param aCoordinates Vector of coordinate values
                  * @return Field value
                  */
-                real evaluate_field_value(
+                real get_field_value(
                         uint                  aIndex,
                         const Matrix<DDRMat>& aCoordinates);
 
@@ -37,7 +37,7 @@ namespace moris
                  * @param aCoordinates vector of coordinate values
                  * @return Field value
                  */
-                virtual real evaluate_field_value(const Matrix<DDRMat>& aCoordinates) = 0;
+                virtual real get_field_value(const Matrix<DDRMat>& aCoordinates) = 0;
 
             private:
 
@@ -48,7 +48,7 @@ namespace moris
                  * @param aCoordinates Vector of coordinate values
                  * @param aSensitivity Matrix of sensitivities
                  */
-                void evaluate_all_sensitivities(
+                void evaluate_sensitivities(
                         uint                  aIndex,
                         const Matrix<DDRMat>& aCoordinates,
                         Matrix<DDRMat>&       aSensitivities);
@@ -59,7 +59,7 @@ namespace moris
                  * @param aCoordinates Vector of coordinate values
                  * @param aSensitivity Matrix of sensitivities
                  */
-                virtual void evaluate_all_sensitivities(
+                virtual void evaluate_sensitivities(
                         const Matrix<DDRMat>&  aCoordinates,
                         Matrix<DDRMat>&        aSensitivities) = 0;
 

@@ -23,12 +23,12 @@ namespace moris
                              xtk::Linear_Basis_Function(),
                              Interpolation::linear_interpolation_value(
                                      Matrix<DDRMat>(
-                                             {{aInterfaceGeometry->evaluate_field_value(aFirstNodeIndex, aFirstNodeCoordinates)},
-                                              {aInterfaceGeometry->evaluate_field_value(aSecondNodeIndex, aSecondNodeCoordinates)}}),
+                                             {{aInterfaceGeometry->get_field_value(aFirstNodeIndex, aFirstNodeCoordinates)},
+                                              {aInterfaceGeometry->get_field_value(aSecondNodeIndex, aSecondNodeCoordinates)}}),
                                      aIsocontourThreshold)),
                   mInterfaceGeometry(aInterfaceGeometry),
-                  mFirstParentOnInterface(mInterfaceGeometry->evaluate_field_value(aFirstNodeIndex, aFirstNodeCoordinates) == 0.0),
-                  mSecondParentOnInterface(mInterfaceGeometry->evaluate_field_value(aSecondNodeIndex, aSecondNodeCoordinates) == 0.0),
+                  mFirstParentOnInterface(mInterfaceGeometry->get_field_value(aFirstNodeIndex, aFirstNodeCoordinates) == 0.0),
+                  mSecondParentOnInterface(mInterfaceGeometry->get_field_value(aSecondNodeIndex, aSecondNodeCoordinates) == 0.0),
                   mGlobalCoordinates((mBasisValues(0) * aFirstNodeCoordinates) + (mBasisValues(1) * aSecondNodeCoordinates))
         {
         }
@@ -90,17 +90,17 @@ namespace moris
             // Geometry field sensitivities
             Matrix<DDRMat> tFieldSensitivityNode1(0, 0);
             Matrix<DDRMat> tFieldSensitivityNode2(0, 0);
-            mInterfaceGeometry->evaluate_sensitivity(mParentNodeIndices(0),
+            mInterfaceGeometry->get_field_adv_sensitivities(mParentNodeIndices(0),
                                                      mParentNodeCoordinates(0),
                                                      tFieldSensitivityNode1);
-            mInterfaceGeometry->evaluate_sensitivity(mParentNodeIndices(1),
+            mInterfaceGeometry->get_field_adv_sensitivities(mParentNodeIndices(1),
                                                      mParentNodeCoordinates(1),
                                                      tFieldSensitivityNode2);
 
             // Field values
-            real tPhiA = mInterfaceGeometry->evaluate_field_value(mParentNodeIndices(0),
+            real tPhiA = mInterfaceGeometry->get_field_value(mParentNodeIndices(0),
                                                                   mParentNodeCoordinates(0));
-            real tPhiB = mInterfaceGeometry->evaluate_field_value(mParentNodeIndices(1),
+            real tPhiB = mInterfaceGeometry->get_field_value(mParentNodeIndices(1),
                                                                   mParentNodeCoordinates(1));
 
             // Compute $\frac{\partial x_{\Gamma}}{\partial \phi}$

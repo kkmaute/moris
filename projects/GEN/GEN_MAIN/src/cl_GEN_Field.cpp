@@ -152,7 +152,7 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        void Field::evaluate_sensitivity(
+        void Field::get_field_adv_sensitivities(
                 uint                  aNodeIndex,
                 const Matrix<DDRMat>& aCoordinates,
                 Matrix<DDRMat>&       aSensitivities)
@@ -162,7 +162,7 @@ namespace moris
 
             // Evaluate all sensitivities
             Matrix<DDRMat> tTempSensitivities;
-            this->evaluate_all_sensitivities(aNodeIndex, aCoordinates, tTempSensitivities);
+            this->evaluate_sensitivities(aNodeIndex, aCoordinates, tTempSensitivities);
 
             // Return only what is needed
             for (uint tSensitivityIndex = 0; tSensitivityIndex < mADVDependencies.length(); tSensitivityIndex++)

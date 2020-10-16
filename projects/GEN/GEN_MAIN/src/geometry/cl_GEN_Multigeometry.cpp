@@ -23,28 +23,28 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        real Multigeometry::evaluate_field_value(uint aNodeIndex, const Matrix<DDRMat>& aCoordinates)
+        real Multigeometry::get_field_value(uint aNodeIndex, const Matrix<DDRMat>& aCoordinates)
         {
-            real tResult = mGeometries(0)->evaluate_field_value(aNodeIndex, aCoordinates);
+            real tResult = mGeometries(0)->get_field_value(aNodeIndex, aCoordinates);
             for (uint tGeometryIndex = 1; tGeometryIndex < mGeometries.size(); tGeometryIndex++)
             {
-                tResult = std::min(tResult, mGeometries(tGeometryIndex)->evaluate_field_value(aNodeIndex, aCoordinates));
+                tResult = std::min(tResult, mGeometries(tGeometryIndex)->get_field_value(aNodeIndex, aCoordinates));
             }
             return tResult;
         }
 
         //--------------------------------------------------------------------------------------------------------------
 
-        void Multigeometry::evaluate_sensitivity(uint                  aNodeIndex,
+        void Multigeometry::get_field_adv_sensitivities(uint                  aNodeIndex,
                                                  const Matrix<DDRMat>& aCoordinates,
                                                  Matrix<DDRMat>&       aSensitivities)
         {
             // Find which geometry is the minimum
-            real tMin = mGeometries(0)->evaluate_field_value(aNodeIndex, aCoordinates);
+            real tMin = mGeometries(0)->get_field_value(aNodeIndex, aCoordinates);
             uint tMinGeometryIndex = 0;
             for (uint tGeometryIndex = 1; tGeometryIndex < mGeometries.size(); tGeometryIndex++)
             {
-                real tResult = mGeometries(tGeometryIndex)->evaluate_field_value(aNodeIndex, aCoordinates);
+                real tResult = mGeometries(tGeometryIndex)->get_field_value(aNodeIndex, aCoordinates);
                 if (tResult < tMin)
                 {
                     tMin = tResult;
@@ -53,7 +53,7 @@ namespace moris
             }
 
             // Return relevant sensitivity
-            mGeometries(tMinGeometryIndex)->evaluate_sensitivity(aNodeIndex, aCoordinates, aSensitivities);
+            mGeometries(tMinGeometryIndex)->get_field_adv_sensitivities(aNodeIndex, aCoordinates, aSensitivities);
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -72,7 +72,7 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        void Multigeometry::evaluate_all_sensitivities(uint                  aNodeIndex,
+        void Multigeometry::evaluate_sensitivities(uint                  aNodeIndex,
                                                        const Matrix<DDRMat>& aCoordinates,
                                                        Matrix<DDRMat>&       aSensitivities)
         {

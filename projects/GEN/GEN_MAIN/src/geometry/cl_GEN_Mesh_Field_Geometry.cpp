@@ -22,16 +22,16 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        real Mesh_Field_Geometry::evaluate_field_value(uint aNodeIndex)
+        real Mesh_Field_Geometry::get_field_value(uint aNodeIndex)
         {
             return mMesh->get_entity_field_value_real_scalar({{moris_index(aNodeIndex)}}, mFieldName, mEntityRank)(0);
         }
 
         //--------------------------------------------------------------------------------------------------------------
 
-        void Mesh_Field_Geometry::evaluate_all_sensitivities(uint aNodeIndex, Matrix<DDRMat>& aSensitivities)
+        void Mesh_Field_Geometry::evaluate_sensitivities(uint aNodeIndex, Matrix<DDRMat>& aSensitivities)
         {
-            MORIS_ERROR(false, "evaluate_sensitivity function is not implemented for a mesh field geometry.");
+            MORIS_ERROR(false, "get_field_adv_sensitivities function is not implemented for a mesh field geometry.");
         }
 
         //--------------------------------------------------------------------------------------------------------------

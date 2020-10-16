@@ -72,7 +72,7 @@ namespace moris
              * @param aNodeIndex Node index
              * @return Distance to this geometry
              */
-            real evaluate_field_value(uint aNodeIndex);
+            real get_field_value(uint aNodeIndex);
 
             /**
              * Imports the local ADVs required from the full owned ADV distributed vector, and recomputes nodal values.
@@ -97,7 +97,7 @@ namespace moris
              * @param aNodeIndex Node index
              * @param aSensitivities Vector of sensitivities
              */
-            void evaluate_all_sensitivities(uint aNodeIndex, Matrix<DDRMat>& aSensitivities);
+            void evaluate_sensitivities(uint aNodeIndex, Matrix<DDRMat>& aSensitivities);
 
             /**
              * Maps the level set field from nodes to B-splines for the given geometry.

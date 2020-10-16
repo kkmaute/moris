@@ -13,8 +13,8 @@ namespace moris
         {
 
         private:
-            MORIS_GEN_FIELD_FUNCTION evaluate_field_value_user_defined;
-            MORIS_GEN_SENSITIVITY_FUNCTION evaluate_sensitivity_user_defined;
+            MORIS_GEN_FIELD_FUNCTION get_field_value_user_defined;
+            MORIS_GEN_SENSITIVITY_FUNCTION get_field_adv_sensitivities_user_defined;
 
         public:
 
@@ -99,7 +99,7 @@ namespace moris
              * @param aCoordinates Coordinate values
              * @return Distance to this geometry
              */
-            real evaluate_field_value(const Matrix<DDRMat>& aCoordinates);
+            real get_field_value(const Matrix<DDRMat>& aCoordinates);
 
         private:
 
@@ -110,7 +110,7 @@ namespace moris
              * @param aCoordinates Coordinate values
              * @param aSensitivities Vector of sensitivities
              */
-            void evaluate_all_sensitivities(
+            void evaluate_sensitivities(
                     const Matrix<DDRMat>& aCoordinates,
                     Matrix<DDRMat>& aSensitivities);
 

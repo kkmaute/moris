@@ -15,13 +15,13 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        real Field_Discrete::evaluate_field_value(
+        real Field_Discrete::get_field_value(
                 uint                  aNodeIndex,
                 const Matrix<DDRMat>& aCoordinates)
         {
             if (aNodeIndex < mNumOriginalNodes)
             {
-                return this->evaluate_field_value(aNodeIndex);
+                return this->get_field_value(aNodeIndex);
             }
             else
             {
@@ -34,14 +34,14 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        void Field_Discrete::evaluate_all_sensitivities(
+        void Field_Discrete::evaluate_sensitivities(
                 uint                  aNodeIndex,
                 const Matrix<DDRMat>& aCoordinates,
                 Matrix<DDRMat>&       aSensitivities)
         {
             if (aNodeIndex < mNumOriginalNodes)
             {
-                this->evaluate_all_sensitivities(aNodeIndex, aSensitivities);
+                this->evaluate_sensitivities(aNodeIndex, aSensitivities);
             }
             else
             {

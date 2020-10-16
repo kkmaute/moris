@@ -88,7 +88,7 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        real Superellipsoid::evaluate_field_value(const Matrix<DDRMat>& aCoordinates)
+        real Superellipsoid::get_field_value(const Matrix<DDRMat>& aCoordinates)
         {
             // Get variables
             real tXCenter = *(mFieldVariables(0));
@@ -107,7 +107,7 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        void Superellipsoid::evaluate_all_sensitivities(const Matrix<DDRMat>& aCoordinates, Matrix<DDRMat>& aSensitivities)
+        void Superellipsoid::evaluate_sensitivities(const Matrix<DDRMat>& aCoordinates, Matrix<DDRMat>& aSensitivities)
         {
             // Get variables
             real tXCenter = *(mFieldVariables(0));

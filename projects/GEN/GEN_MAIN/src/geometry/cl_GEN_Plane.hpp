@@ -115,7 +115,7 @@ namespace moris
              * @param aCoordinates Coordinate values
              * @return Distance to this geometry
              */
-            real evaluate_field_value(const Matrix<DDRMat>& aCoordinates);
+            real get_field_value(const Matrix<DDRMat>& aCoordinates);
 
         private:
 
@@ -126,25 +126,25 @@ namespace moris
              * @param aCoordinates Coordinate values
              * @param aSensitivities Vector of sensitivities
              */
-            void evaluate_all_sensitivities(const Matrix<DDRMat>& aCoordinates, Matrix<DDRMat>& aSensitivities);
+            void evaluate_sensitivities(const Matrix<DDRMat>& aCoordinates, Matrix<DDRMat>& aSensitivities);
 
             /**
-             * 2D evaluation for evaluate_field_value
+             * 2D evaluation for get_field_value
              */
             moris::real eval_field_2d(const Matrix<DDRMat>& aCoordinates);
 
             /**
-             * 3D evaluation for evaluate_field_value
+             * 3D evaluation for get_field_value
              */
             moris::real eval_field_3d(const Matrix<DDRMat>& aCoordinates);
 
             /**
-             * 2D evaluation for evaluate_all_sensitivities
+             * 2D evaluation for evaluate_sensitivities
              */
             void eval_sensitivity_2d(const Matrix<DDRMat>& aCoordinates, Matrix<DDRMat>& aSensitivities);
 
             /**
-             * 3D evaluation for evaluate_all_sensitivities
+             * 3D evaluation for evaluate_sensitivities
              */
             void eval_sensitivity_3d(const Matrix<DDRMat>& aCoordinates, Matrix<DDRMat>& aSensitivities);
         };

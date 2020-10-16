@@ -205,7 +205,7 @@ namespace moris
                 const Matrix<DDRMat> & aCoordinates,
                 uint                   aGeometryIndex)
         {
-            return mGeometries(aGeometryIndex)->evaluate_field_value(aNodeIndex, aCoordinates);
+            return mGeometries(aGeometryIndex)->get_field_value(aNodeIndex, aCoordinates);
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -220,13 +220,13 @@ namespace moris
                     "Geometry engine must be provided at least 1 node to determine if an element is intersected or not.");
 
             // Initialize by evaluating the first node
-            real tMin = mGeometries(mActiveGeometryIndex)->evaluate_field_value(aNodeIndices(0), aNodeCoordinates.get_row(0));
+            real tMin = mGeometries(mActiveGeometryIndex)->get_field_value(aNodeIndices(0), aNodeCoordinates.get_row(0));
             real tMax = tMin;
 
             // Evaluate the rest of the nodes
             for (uint tNodeCount = 0; tNodeCount < aNodeIndices.length(); tNodeCount++)
             {
-                real tEval = mGeometries(mActiveGeometryIndex)->evaluate_field_value(
+                real tEval = mGeometries(mActiveGeometryIndex)->get_field_value(
                         aNodeIndices(tNodeCount),
                         aNodeCoordinates.get_row(tNodeCount));
                 tMin = std::min(tMin, tEval);
@@ -246,8 +246,8 @@ namespace moris
                 const Matrix<DDRMat>& aSecondNodeCoordinates)
         {
             // Determine if edge is intersected
-            bool tEdgeIsIntersected = mGeometries(mActiveGeometryIndex)->evaluate_field_value(aFirstNodeIndex, aFirstNodeCoordinates)
-                    * mGeometries(mActiveGeometryIndex)->evaluate_field_value(aSecondNodeIndex, aSecondNodeCoordinates) <= 0;
+            bool tEdgeIsIntersected = mGeometries(mActiveGeometryIndex)->get_field_value(aFirstNodeIndex, aFirstNodeCoordinates)
+                    * mGeometries(mActiveGeometryIndex)->get_field_value(aSecondNodeIndex, aSecondNodeCoordinates) <= 0;
 
             // If edge is intersected, queue intersection node
             if (tEdgeIsIntersected)
@@ -486,7 +486,7 @@ namespace moris
                 const Matrix<DDRMat>& aCoordinates)
         {
             // TODO can return property field too
-            return mGeometries(aFieldIndex)->evaluate_field_value(aNodeIndex, aCoordinates);
+            return mGeometries(aFieldIndex)->get_field_value(aNodeIndex, aCoordinates);
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -900,7 +900,7 @@ namespace moris
                     // Assign field to vector
                     for (uint tNodeIndex = 0; tNodeIndex < aMesh->get_num_nodes(); tNodeIndex++)
                     {
-                        tFieldData(tNodeIndex) = mGeometries(tGeometryIndex)->evaluate_field_value(
+                        tFieldData(tNodeIndex) = mGeometries(tGeometryIndex)->get_field_value(
                                 tNodeIndex,
                                 tNodeCoordinates(tNodeIndex));
                     }
@@ -949,7 +949,7 @@ namespace moris
                         }
 
                         // Level-set field
-                        tOutFile << mGeometries(tGeometryIndex)->evaluate_field_value(
+                        tOutFile << mGeometries(tGeometryIndex)->get_field_value(
                                 tNodeIndex,
                                 tNodeCoordinates(tNodeIndex)) << std::endl;
                     }

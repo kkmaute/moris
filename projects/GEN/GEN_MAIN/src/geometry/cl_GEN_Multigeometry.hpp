@@ -32,7 +32,7 @@ namespace moris
              * @param aCoordinates vector of coordinate values
              * @return distance to nearest function
              */
-            real evaluate_field_value(uint aNodeIndex, const Matrix<DDRMat>& aCoordinates);
+            real get_field_value(uint aNodeIndex, const Matrix<DDRMat>& aCoordinates);
 
             /**
              * Given a node index or coordinate, returns a matrix of relevant sensitivities
@@ -41,9 +41,10 @@ namespace moris
              * @param aCoordinates Vector of coordinate values
              * @param aSensitivity Matrix of sensitivities
              */
-            void evaluate_sensitivity(uint                  aNodeIndex,
-                                      const Matrix<DDRMat>& aCoordinates,
-                                      Matrix<DDRMat>&       aSensitivities);
+            void get_field_adv_sensitivities(
+                    uint                  aNodeIndex,
+                    const Matrix<DDRMat>& aCoordinates,
+                    Matrix<DDRMat>&       aSensitivities);
 
             /**
              * Adds a geometry to this multigeometry.
@@ -69,7 +70,7 @@ namespace moris
              * @param aCoordinates Vector of coordinate values
              * @param aSensitivities Matrix of sensitivities
              */
-            void evaluate_all_sensitivities(uint                  aNodeIndex,
+            void evaluate_sensitivities(uint                  aNodeIndex,
                                             const Matrix<DDRMat>& aCoordinates,
                                             Matrix<DDRMat>&       aSensitivities);
 

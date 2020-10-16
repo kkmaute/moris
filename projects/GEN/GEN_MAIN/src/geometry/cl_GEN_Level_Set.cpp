@@ -124,7 +124,7 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        real Level_Set::evaluate_field_value(uint aNodeIndex)
+        real Level_Set::get_field_value(uint aNodeIndex)
         {
             sint tNodeID = mMesh->get_glb_entity_id_from_entity_loc_index(
                     aNodeIndex,
@@ -136,7 +136,7 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        void Level_Set::evaluate_all_sensitivities(
+        void Level_Set::evaluate_sensitivities(
                 uint            aNodeIndex,
                 Matrix<DDRMat>& aSensitivities)
         {
@@ -218,7 +218,7 @@ namespace moris
                 Matrix<DDRMat> tSourceField(mNumOriginalNodes, 1);
                 for (uint tNodeIndex = 0; tNodeIndex < mNumOriginalNodes; tNodeIndex++)
                 {
-                    tSourceField(tNodeIndex) = aGeometry->evaluate_field_value(tNodeIndex, mMesh->get_node_coordinate(tNodeIndex));
+                    tSourceField(tNodeIndex) = aGeometry->get_field_value(tNodeIndex, mMesh->get_node_coordinate(tNodeIndex));
                 }
 
                 // Create integration mesh
@@ -251,7 +251,7 @@ namespace moris
                         uint tBSplineIndex = mMesh->get_bspline_inds_of_node_loc_ind(tNodeIndex, EntityRank::BSPLINE)(0);
 
                         // Assign target field
-                        tTargetField(tBSplineIndex) = aGeometry->evaluate_field_value(tNodeIndex, mMesh->get_node_coordinate(tNodeIndex));
+                        tTargetField(tBSplineIndex) = aGeometry->get_field_value(tNodeIndex, mMesh->get_node_coordinate(tNodeIndex));
                     }
                 }
             }

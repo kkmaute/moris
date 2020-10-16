@@ -122,24 +122,24 @@ namespace moris
             ~Field();
 
             /**
-             * Given a node index or coordinate, returns the field value
+             * Given a node index or coordinate, returns the field value.
              *
              * @param aINodendex Node index
              * @param aCoordinates Vector of coordinate values
              * @return Field value
              */
-            virtual real evaluate_field_value(
+            virtual real get_field_value(
                     uint                  aNodeIndex,
                     const Matrix<DDRMat>& aCoordinates) = 0;
 
             /**
-             * Given a node index or coordinate, returns a matrix of relevant sensitivities
+             * Given a node index or coordinate, returns a matrix of relevant sensitivities.
              *
              * @param aIndex Node index
              * @param aCoordinates Vector of coordinate values
-             * @param aSensitivity Matrix of sensitivities
+             * @param aSensitivities Matrix of sensitivities
              */
-            virtual void evaluate_sensitivity(
+            virtual void get_field_adv_sensitivities(
                     uint                  aIndex,
                     const Matrix<DDRMat>& aCoordinates,
                     Matrix<DDRMat>&       aSensitivities);
@@ -223,7 +223,7 @@ namespace moris
              * @param aCoordinates Vector of coordinate values
              * @param aSensitivity Matrix of sensitivities
              */
-            virtual void evaluate_all_sensitivities(
+            virtual void evaluate_sensitivities(
                     uint                  aNodeIndex,
                     const Matrix<DDRMat>& aCoordinates,
                     Matrix<DDRMat>&       aSensitivities) = 0;

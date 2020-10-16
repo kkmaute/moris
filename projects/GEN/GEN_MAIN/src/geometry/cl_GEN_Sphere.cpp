@@ -77,7 +77,7 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        real Sphere::evaluate_field_value(const Matrix<DDRMat>& aCoordinates)
+        real Sphere::get_field_value(const Matrix<DDRMat>& aCoordinates)
         {
             // Get variables
             real tXCenter = *(mFieldVariables(0));
@@ -93,7 +93,7 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        void Sphere::evaluate_all_sensitivities(const Matrix<DDRMat>& aCoordinates, Matrix<DDRMat>& aSensitivities)
+        void Sphere::evaluate_sensitivities(const Matrix<DDRMat>& aCoordinates, Matrix<DDRMat>& aSensitivities)
         {
             // Get variables
             real tXCenter = *(mFieldVariables(0));

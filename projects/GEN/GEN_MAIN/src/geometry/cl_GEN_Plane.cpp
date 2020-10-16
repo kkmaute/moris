@@ -127,14 +127,14 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        real Plane::evaluate_field_value(const Matrix<DDRMat>& aCoordinates)
+        real Plane::get_field_value(const Matrix<DDRMat>& aCoordinates)
         {
             return (this->*m_eval_field)(aCoordinates);
         }
 
         //--------------------------------------------------------------------------------------------------------------
 
-        void Plane::evaluate_all_sensitivities(const Matrix<DDRMat>& aCoordinates, Matrix<DDRMat>& aSensitivities)
+        void Plane::evaluate_sensitivities(const Matrix<DDRMat>& aCoordinates, Matrix<DDRMat>& aSensitivities)
         {
             (this->*m_eval_sensitivity)(aCoordinates, aSensitivities);
         }

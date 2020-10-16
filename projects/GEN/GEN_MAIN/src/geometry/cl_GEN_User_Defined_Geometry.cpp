@@ -81,18 +81,18 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        real User_Defined_Geometry::evaluate_field_value(const Matrix<DDRMat>& aCoordinates)
+        real User_Defined_Geometry::get_field_value(const Matrix<DDRMat>& aCoordinates)
         {
-            return this->evaluate_field_value_user_defined(aCoordinates, mFieldVariables);
+            return this->get_field_value_user_defined(aCoordinates, mFieldVariables);
         }
 
         //--------------------------------------------------------------------------------------------------------------
 
-        void User_Defined_Geometry::evaluate_all_sensitivities(
+        void User_Defined_Geometry::evaluate_sensitivities(
                 const Matrix<DDRMat>& aCoordinates,
                 Matrix<DDRMat>& aSensitivities)
         {
-            this->evaluate_sensitivity_user_defined(aCoordinates, mFieldVariables, aSensitivities);
+            this->get_field_adv_sensitivities_user_defined(aCoordinates, mFieldVariables, aSensitivities);
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -102,24 +102,24 @@ namespace moris
                 MORIS_GEN_SENSITIVITY_FUNCTION aSensitivityEvaluationFunction)
         {
             // Set field evaluation function
-            evaluate_field_value_user_defined = aFieldEvaluationFunction;
+            get_field_value_user_defined = aFieldEvaluationFunction;
 
             // Check field evaluation function
-            MORIS_ERROR(std::isfinite(this->evaluate_field_value_user_defined({{0.0, 0.0, 0.0}}, mFieldVariables)),
+            MORIS_ERROR(std::isfinite(this->get_field_value_user_defined({{0.0, 0.0, 0.0}}, mFieldVariables)),
                     "There is an error in a user-defined geometry field (field evaluates to nan/infinity).");
 
             // Set sensitivity evaluation function
             if (aSensitivityEvaluationFunction == nullptr)
             {
-                evaluate_sensitivity_user_defined = &(User_Defined_Geometry::no_sensitivities);
+                get_field_adv_sensitivities_user_defined = &(User_Defined_Geometry::no_sensitivities);
             }
             else
             {
-                evaluate_sensitivity_user_defined = aSensitivityEvaluationFunction;
+                get_field_adv_sensitivities_user_defined = aSensitivityEvaluationFunction;
 
                 // Check sensitivity function
                 Matrix<DDRMat> tSensitivities(0, 0);
-                this->evaluate_sensitivity_user_defined({{0.0, 0.0, 0.0}}, mFieldVariables, tSensitivities);
+                this->get_field_adv_sensitivities_user_defined({{0.0, 0.0, 0.0}}, mFieldVariables, tSensitivities);
 
                 // Check for row vector
                 MORIS_ERROR(tSensitivities.n_rows() == 1,
