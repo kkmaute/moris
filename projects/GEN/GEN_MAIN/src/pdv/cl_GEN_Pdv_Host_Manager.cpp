@@ -499,7 +499,7 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        Matrix<DDRMat> Pdv_Host_Manager::compute_diqi_dadv()
+        Matrix<DDRMat> Pdv_Host_Manager::compute_diqi_dadv(const Matrix<DDSMat>& aFullADVIds)
         {
             // Check for ADV IDs
             MORIS_ERROR(mADVIdsSet, "PDV Host Manager must have ADV IDs set before computing sensitivities.");
@@ -511,18 +511,24 @@ namespace moris
             // Create factory for resulting distributed vector
             sol::Matrix_Vector_Factory tDistributedFactory;
 
-            // Create map
+            // Create maps
             std::shared_ptr<sol::Dist_Map> tOwnedADVMap = tDistributedFactory.create_map(mOwnedADVIds);
+            std::shared_ptr<sol::Dist_Map> tFullADVMap = tDistributedFactory.create_map(aFullADVIds);
 
-            // Create vector
-            sol::Dist_Vector* tdIQIdADV = tDistributedFactory.create_vector(tOwnedADVMap, tdIQIdPDV->get_num_vectors());
+            // Create vectors
+            sint tNumIQIs = tdIQIdPDV->get_num_vectors();
+            sol::Dist_Vector* tdIQIdADV = tDistributedFactory.create_vector(tOwnedADVMap, tNumIQIs);
+            sol::Dist_Vector* tFulldIQIdADV = tDistributedFactory.create_vector(tFullADVMap, tNumIQIs);
             
             // Matrix/vector product
             tdPDVdADV->mat_vec_product(*tdIQIdPDV, *tdIQIdADV, true);
+
+            // Import ADVs
+            tFulldIQIdADV->import_local_to_global(*tdIQIdADV);
             
-            // Extract copy
+            // Extract values
             Matrix<DDRMat> tFullSensitivity(0, 0);
-            tdIQIdADV->extract_copy(tFullSensitivity);
+            tFulldIQIdADV->extract_copy(tFullSensitivity);
             tFullSensitivity = trans(tFullSensitivity);
             
             return tFullSensitivity;

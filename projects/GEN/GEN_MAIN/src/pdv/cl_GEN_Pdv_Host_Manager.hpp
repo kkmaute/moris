@@ -325,7 +325,7 @@ namespace moris
                  *
                  * @return Matrix of optimization sensitivities
                  */
-                Matrix<DDRMat> compute_diqi_dadv();
+                Matrix<DDRMat> compute_diqi_dadv(const Matrix<DDSMat>& aFullADVIds);
 
                 void communicate_dof_types( moris::Cell< enum PDV_Type > & aPdvTypeList );
 
