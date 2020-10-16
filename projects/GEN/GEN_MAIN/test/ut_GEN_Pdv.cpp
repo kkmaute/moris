@@ -57,16 +57,16 @@ namespace moris
 
         TEST_CASE("Interpolation PDV Creation", "[gen], [pdv], [interpolation pdv], [interpolation pdv serial]")
         {
-            if( par_size() == 1)
+            if (par_size() == 1)
             {
                 // Create PDV_Type host manager
-                Pdv_Host_Manager tPdvHostManager;
+                Pdv_Host_Manager tPDVHostManager;
 
-                tPdvHostManager.mPdvTypeList = {PDV_Type::DENSITY, PDV_Type::TEMPERATURE, PDV_Type::ELASTIC_MODULUS};
-                tPdvHostManager.mPdvTypeMap.set_size(10, 1, -1);
-                tPdvHostManager.mPdvTypeMap( 3 ) = 0;
-                tPdvHostManager.mPdvTypeMap( 4 ) = 1;
-                tPdvHostManager.mPdvTypeMap( 5 ) = 2;
+                tPDVHostManager.mPdvTypeList = {PDV_Type::DENSITY, PDV_Type::TEMPERATURE, PDV_Type::ELASTIC_MODULUS};
+                tPDVHostManager.mPdvTypeMap.set_size(10, 1, -1);
+                tPDVHostManager.mPdvTypeMap( 3 ) = 0;
+                tPDVHostManager.mPdvTypeMap( 4 ) = 1;
+                tPDVHostManager.mPdvTypeMap( 5 ) = 2;
 
                 // ----------------- Interpolation PDVs ---------------------- //
                 // Node indices per set
@@ -102,7 +102,7 @@ namespace moris
                 tIpPdvTypes(1)(1)(0) = PDV_Type::ELASTIC_MODULUS;
 
                 // Create PDV_Type hosts
-                tPdvHostManager.create_interpolation_pdv_hosts(
+                tPDVHostManager.create_interpolation_pdv_hosts(
                         tIpNodeIndicesPerSet,
                         tIpNodeIdsPerSet,
                         tIpNodeOwnersPerSet,
@@ -116,7 +116,7 @@ namespace moris
                     {
                         for (uint tPdvIndex = 0; tPdvIndex < 2; tPdvIndex++)
                         {
-                            tPdvHostManager.create_interpolation_pdv(
+                            tPDVHostManager.create_interpolation_pdv(
                                     (uint)tIpNodeIndicesPerSet(tMeshSetIndex)(tNodeIndex),
                                     tIpPdvTypes(tMeshSetIndex)(tPdvIndex)(0),
                                     (real)tMeshSetIndex);
@@ -124,7 +124,7 @@ namespace moris
                     }
                 }
 
-                tPdvHostManager.create_pdv_ids();
+                tPDVHostManager.create_pdv_ids();
 
                 // Check PDVs
                 Cell<Matrix<DDRMat>> tPdvValues;
@@ -133,7 +133,7 @@ namespace moris
                     for (uint tPdvIndex = 0; tPdvIndex < 2; tPdvIndex++)
                     {
                         tPdvValues.clear();
-                        tPdvHostManager.get_ip_pdv_value(tIpNodeIndicesPerSet(tMeshSetIndex), tIpPdvTypes(tMeshSetIndex)(tPdvIndex), tPdvValues);
+                        tPDVHostManager.get_ip_pdv_value(tIpNodeIndicesPerSet(tMeshSetIndex), tIpPdvTypes(tMeshSetIndex)(tPdvIndex), tPdvValues);
 
                         for (uint tNodeIndex = 0; tNodeIndex < 4; tNodeIndex++)
                         {
@@ -145,10 +145,10 @@ namespace moris
                 }
 
                 // ------------------- Check global map ----------------------- //
-                const Matrix<DDSMat> & tLocalGlobalMap = tPdvHostManager.get_my_local_global_map();
+                const Matrix<DDSMat> & tLocalGlobalMap = tPDVHostManager.get_my_local_global_map();
 
                 REQUIRE(tLocalGlobalMap.length() == 14);
-                for (int tGlobalPdvIndex = 0; tGlobalPdvIndex < 14; tGlobalPdvIndex++)
+                for (sint tGlobalPdvIndex = 0; tGlobalPdvIndex < 14; tGlobalPdvIndex++)
                 {
                     CHECK(tLocalGlobalMap(tGlobalPdvIndex) == tGlobalPdvIndex);
                 }
@@ -162,12 +162,12 @@ namespace moris
             if( par_size() == 2)
             {
                 // Create PDV_Type host manager
-                Pdv_Host_Manager tPdvHostManager;
+                Pdv_Host_Manager tPDVHostManager;
 
-                tPdvHostManager.mPdvTypeList = {PDV_Type::DENSITY, PDV_Type::TEMPERATURE};
-                tPdvHostManager.mPdvTypeMap.set_size(10, 1, -1);
-                tPdvHostManager.mPdvTypeMap( 3 ) = 0;
-                tPdvHostManager.mPdvTypeMap( 4 ) = 1;
+                tPDVHostManager.mPdvTypeList = {PDV_Type::DENSITY, PDV_Type::TEMPERATURE};
+                tPDVHostManager.mPdvTypeMap.set_size(10, 1, -1);
+                tPDVHostManager.mPdvTypeMap( 3 ) = 0;
+                tPDVHostManager.mPdvTypeMap( 4 ) = 1;
 
                 // ----------------- Interpolation PDVs ---------------------- //
 
@@ -197,10 +197,10 @@ namespace moris
 
                     tIpNodeOwnersPerSet(0) = {{0, 0, 0, 1}};
 
-                    tPdvHostManager.mCommTable.set_size( 2, 1, 0);
-                    tPdvHostManager.mCommTable( 1, 0 ) = 1;
+                    tPDVHostManager.mCommTable.set_size( 2, 1, 0);
+                    tPDVHostManager.mCommTable( 1, 0 ) = 1;
 
-                    tPdvHostManager.mIPVertexIdtoIndMap[ 2 ] = 2;
+                    tPDVHostManager.mIPVertexIdtoIndMap[ 2 ] = 2;
                 }
                 else if( par_rank() == 1)
                 {
@@ -211,14 +211,14 @@ namespace moris
 
                     tIpNodeOwnersPerSet(0) = {{0, 1, 1, 1}};
 
-                    tPdvHostManager.mCommTable.set_size( 2, 1, 1);
-                    tPdvHostManager.mCommTable( 1, 0 ) = 0;
+                    tPDVHostManager.mCommTable.set_size( 2, 1, 1);
+                    tPDVHostManager.mCommTable( 1, 0 ) = 0;
 
-                    tPdvHostManager.mIPVertexIdtoIndMap[ 3 ] = 1;
+                    tPDVHostManager.mIPVertexIdtoIndMap[ 3 ] = 1;
                 }
 
                 // Create PDV_Type hosts
-                tPdvHostManager.create_interpolation_pdv_hosts(
+                tPDVHostManager.create_interpolation_pdv_hosts(
                         tIpNodeIndicesPerSet,
                         tIpNodeIdsPerSet,
                         tIpNodeOwnersPerSet,
@@ -232,7 +232,7 @@ namespace moris
                     {
                         for (uint tPdvIndex = 0; tPdvIndex < 2; tPdvIndex++)
                         {
-                            tPdvHostManager.create_interpolation_pdv(
+                            tPDVHostManager.create_interpolation_pdv(
                                     (uint)tIpNodeIndicesPerSet(tMeshSetIndex)(tNodeIndex),
                                     tIpPdvTypes(tMeshSetIndex)(tPdvIndex)(0),
                                     (real)tMeshSetIndex);
@@ -240,11 +240,11 @@ namespace moris
                     }
                 }
 
-                tPdvHostManager.create_pdv_ids();
+                tPDVHostManager.create_pdv_ids();
 
                 // ------------------- Check global map ----------------------- //
-                const Matrix<DDSMat> & tLocalGlobalMap = tPdvHostManager.get_my_local_global_map();
-                const Matrix<DDSMat> & tLocalGlobalOSMap = tPdvHostManager.get_my_local_global_overlapping_map();
+                const Matrix<DDSMat> & tLocalGlobalMap = tPDVHostManager.get_my_local_global_map();
+                const Matrix<DDSMat> & tLocalGlobalOSMap = tPDVHostManager.get_my_local_global_overlapping_map();
 
                 REQUIRE(tLocalGlobalMap.length() == 6);
                 REQUIRE(tLocalGlobalOSMap.length() == 8);
@@ -281,8 +281,8 @@ namespace moris
             if( par_size() == 2)
             {
                 // Create PDV_Type host manager
-                Pdv_Host_Manager tPdvHostManager;
-                tPdvHostManager.set_num_background_nodes(0);
+                Pdv_Host_Manager tPDVHostManager;
+                tPDVHostManager.set_num_background_nodes(0);
 
                 Matrix<IdMat> tIpNodeIdsPerSet(4,1);
 
@@ -296,10 +296,10 @@ namespace moris
 
                     tIpNodeOwnersPerSet = {{0}, {0}, {0}, {1}};
 
-                    tPdvHostManager.mCommTable.set_size( 2, 1, 0);
-                    tPdvHostManager.mCommTable( 1, 0 ) = 1;
+                    tPDVHostManager.mCommTable.set_size( 2, 1, 0);
+                    tPDVHostManager.mCommTable( 1, 0 ) = 1;
 
-                    tPdvHostManager.mIGVertexIdtoIndMap[ 2 ] = 2;
+                    tPDVHostManager.mIGVertexIdtoIndMap[ 2 ] = 2;
                 }
                 else if( par_rank() == 1)
                 {
@@ -307,10 +307,10 @@ namespace moris
 
                     tIpNodeOwnersPerSet = {{0}, {1}, {1}, {1}};
 
-                    tPdvHostManager.mCommTable.set_size( 2, 1, 1);
-                    tPdvHostManager.mCommTable( 1, 0 ) = 0;
+                    tPDVHostManager.mCommTable.set_size( 2, 1, 1);
+                    tPDVHostManager.mCommTable( 1, 0 ) = 0;
 
-                    tPdvHostManager.mIGVertexIdtoIndMap[ 3 ] = 1;
+                    tPDVHostManager.mIGVertexIdtoIndMap[ 3 ] = 1;
                 }
 
 
@@ -319,15 +319,15 @@ namespace moris
                     tIntersectionNodes( Ik ) = std::make_shared<Intersection_Node>();
 
                     tIntersectionNodes( Ik )->mGlobalCoordinates.set_size( 2, 1 );
-                    tPdvHostManager.set_intersection_node( Ik, tIntersectionNodes( Ik ) );
-                    tPdvHostManager.update_intersection_node( Ik, tIpNodeIdsPerSet( Ik ), tIpNodeOwnersPerSet( Ik ));
+                    tPDVHostManager.set_intersection_node( Ik, tIntersectionNodes( Ik ) );
+                    tPDVHostManager.update_intersection_node( Ik, tIpNodeIdsPerSet( Ik ), tIpNodeOwnersPerSet( Ik ));
                 }
 
-                tPdvHostManager.create_pdv_ids();
+                tPDVHostManager.create_pdv_ids();
 
                 // ------------------- Check global map ----------------------- //
-                const Matrix<DDSMat> & tLocalGlobalMap = tPdvHostManager.get_my_local_global_map();
-                const Matrix<DDSMat> & tLocalGlobalOSMap = tPdvHostManager.get_my_local_global_overlapping_map();
+                const Matrix<DDSMat> & tLocalGlobalMap = tPDVHostManager.get_my_local_global_map();
+                const Matrix<DDSMat> & tLocalGlobalOSMap = tPDVHostManager.get_my_local_global_overlapping_map();
 
                 REQUIRE(tLocalGlobalMap.length() == 6);
                 REQUIRE(tLocalGlobalOSMap.length() == 8);
@@ -361,75 +361,101 @@ namespace moris
 
         TEST_CASE("PDV Sensitivities", "[gen], [pdv], [sensitivity], [pdv sensitivity]")
         {
-            if (par_size() == 1)
+            // Create PDV_Type host manager
+            Pdv_Host_Manager tPDVHostManager;
+            tPDVHostManager.mPdvTypeList = {PDV_Type::DENSITY };
+            tPDVHostManager.mPdvTypeMap.set_size(10, 1, -1);
+            tPDVHostManager.mPdvTypeMap( 3 ) = 0;
+
+            // Create discrete property
+            ParameterList tParameterList = moris::prm::create_gen_property_parameter_list();;
+            tParameterList.set("type", "discrete");
+            tParameterList.set("property_variable_indices", "all");
+            tParameterList.set("adv_indices", "all");
+            tParameterList.set("pdv_type", "DENSITY");
+
+            // Create property
+            Matrix<DDRMat> tADVs(gNumPDVs, 1);
+            std::shared_ptr<Property> tProperty = create_property(
+                    tParameterList,
+                    tADVs,
+                    Cell<std::shared_ptr<ge::Property>>(0));
+
+            // Node indices per set
+            Cell<Matrix<DDSMat>> tIpNodeIndicesPerSet(1);
+            Cell<Matrix<DDSMat>> tIpNodeIdsPerSet(1);
+            Cell<Matrix<DDSMat>> tIpNodeOWnersPerSet(1);
+            tIpNodeIndicesPerSet(0).set_size(gNumPDVs, 1);
+            tIpNodeIdsPerSet(0).set_size(gNumPDVs, 1);
+            tIpNodeOWnersPerSet(0).set_size(gNumPDVs, 1, par_rank());
+            for (uint tNodeIndex = 0; tNodeIndex < gNumPDVs; tNodeIndex++)
             {
-                // Create PDV_Type host manager
-                Pdv_Host_Manager tPdvHostManager;
-                tPdvHostManager.mPdvTypeList = {PDV_Type::DENSITY };
-                tPdvHostManager.mPdvTypeMap.set_size(10, 1, -1);
-                tPdvHostManager.mPdvTypeMap( 3 ) = 0;
+                tIpNodeIndicesPerSet(0)(tNodeIndex) = tNodeIndex;
+                tIpNodeIdsPerSet(0)(tNodeIndex) = tNodeIndex * (par_rank() + 1);
+            }
 
-                // Create discrete property
-                ParameterList tParameterList = moris::prm::create_gen_property_parameter_list();;
-                tParameterList.set("type", "discrete");
-                tParameterList.set("property_variable_indices", "all");
-                tParameterList.set("adv_indices", "all");
-                tParameterList.set("pdv_type", "DENSITY");
+            // PDV_Type types per set
+            Cell<Cell<Cell<PDV_Type>>> tIpPdvTypes(1);
+            tIpPdvTypes(0).resize(1);
+            tIpPdvTypes(0)(0).resize(1);
+            tIpPdvTypes(0)(0)(0) = PDV_Type::DENSITY;
+            
+            // Communication table
+            Matrix<DDSMat> tCommunicationTable(par_size(), 1, 0);
+            for (uint tProcessorIndex = 1; tProcessorIndex < (uint)par_size(); tProcessorIndex++)
+            {
+                tCommunicationTable(tProcessorIndex) = tProcessorIndex;
+            }
+            tPDVHostManager.set_communication_table(tCommunicationTable);
 
-                // Create property
-                Matrix<DDRMat> tADVs(gNumPDVs, 1);
-                std::shared_ptr<Property> tProperty = create_property(
-                        tParameterList, 
-                        tADVs, 
-                        Cell<std::shared_ptr<moris::ge::Property>>(0));
+            // Create PDV_Type hosts
+            tPDVHostManager.create_interpolation_pdv_hosts(
+                    tIpNodeIndicesPerSet,
+                    tIpNodeIdsPerSet,
+                    tIpNodeOWnersPerSet,
+                    Cell<Matrix<F31RMat>>(gNumPDVs),
+                    tIpPdvTypes);
 
-                // Node indices per set
-                Cell<Matrix<DDSMat>> tIpNodeIndicesPerSet(1);
-                Cell<Matrix<DDSMat>> tIpNodeIdsPerSet(1);
-                Cell<Matrix<DDSMat>> tIpNodeOWnersPerSet(1);
-                tIpNodeIndicesPerSet(0).set_size(gNumPDVs, 1);
-                tIpNodeIdsPerSet(0).set_size(gNumPDVs, 1);
-                tIpNodeOWnersPerSet(0).set_size(gNumPDVs, 1, 0);
-                for (uint tNodeIndex = 0; tNodeIndex < gNumPDVs; tNodeIndex++)
+            // Set PDVs
+            for (uint tNodeIndex = 0; tNodeIndex < gNumPDVs; tNodeIndex++)
+            {
+                tPDVHostManager.create_interpolation_pdv(uint(tIpNodeIndicesPerSet(0)(tNodeIndex)), tIpPdvTypes(0)(0)(0), tProperty);
+            }
+            tPDVHostManager.create_pdv_ids();
+
+            // Set owned ADV IDs
+            Matrix<DDSMat> tOwnedADVIds(gNumPDVs, 1);
+            for (uint tADVIndex = 0; tADVIndex < gNumPDVs; tADVIndex++)
+            {
+                tOwnedADVIds(tADVIndex) = tADVIndex * (par_rank() + 1);
+            }
+            tPDVHostManager.set_owned_adv_ids(tOwnedADVIds);
+
+            // Create full ADV IDs
+            Matrix<DDSMat> tFullADVIds(0, 0);
+            if (par_rank() == 0)
+            {
+                tFullADVIds.resize(gNumPDVs * par_size(), 1);
+                for (uint tADVIndex = 0; tADVIndex < gNumPDVs * par_size(); tADVIndex++)
                 {
-                    tIpNodeIndicesPerSet(0)(tNodeIndex) = tNodeIndex;
-                    tIpNodeIdsPerSet(0)(tNodeIndex) = tNodeIndex;
+                    tFullADVIds(tADVIndex) = tADVIndex;
                 }
+            }
 
-                // PDV_Type types per set
-                Cell<Cell<Cell<PDV_Type>>> tIpPdvTypes(1);
-                tIpPdvTypes(0).resize(1);
-                tIpPdvTypes(0)(0).resize(1);
-                tIpPdvTypes(0)(0)(0) = PDV_Type::DENSITY;
+            // Check size of sensitivities matrix
+            Matrix<DDRMat> tdIQIdADV = tPDVHostManager.compute_diqi_dadv(tFullADVIds);
+            REQUIRE(tdIQIdADV.n_rows() == 2);
+            if (par_rank() == 0)
+            {
+                REQUIRE(tdIQIdADV.n_cols() == gNumPDVs * par_size());
+            }
+            else
+            {
+                REQUIRE(tdIQIdADV.n_cols() == 0);
+            }
 
-                // Create PDV_Type hosts
-                tPdvHostManager.create_interpolation_pdv_hosts(
-                        tIpNodeIndicesPerSet,
-                        tIpNodeIdsPerSet,
-                        tIpNodeOWnersPerSet,
-                        Cell<Matrix<F31RMat>>(gNumPDVs),
-                        tIpPdvTypes);
-
-                // Set PDVs
-                for (uint tNodeIndex = 0; tNodeIndex < gNumPDVs; tNodeIndex++)
-                {
-                    tPdvHostManager.create_interpolation_pdv(uint(tIpNodeIndicesPerSet(0)(tNodeIndex)), tIpPdvTypes(0)(0)(0), tProperty);
-                }
-                tPdvHostManager.create_pdv_ids();
-
-                // Set ADV IDs
-                Matrix<DDSMat> tADVIds(gNumPDVs, 1);
-                for (uint tADVIndex = 0; tADVIndex < gNumPDVs; tADVIndex++)
-                {
-                    tADVIds(tADVIndex) = tADVIndex;
-                }
-                tPdvHostManager.set_owned_adv_ids(tADVIds);
-
-                // Check size of sensitivities matrix
-                Matrix<DDRMat> tdIQIdADV = tPdvHostManager.compute_diqi_dadv();
-                REQUIRE(tdIQIdADV.n_rows() == 2);
-                REQUIRE(tdIQIdADV.n_cols() == gNumPDVs);
-
+            if (par_rank() == 0)
+            {
                 // Check first IQI sensitivities
                 for (uint tPDVIndex = 0; tPDVIndex < gNumPDVs; tPDVIndex++)
                 {
