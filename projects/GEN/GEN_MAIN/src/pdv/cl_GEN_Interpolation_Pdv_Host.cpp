@@ -145,21 +145,25 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        Matrix<DDUMat> Interpolation_Pdv_Host::get_all_global_indices()
+        Matrix<DDSMat> Interpolation_Pdv_Host::get_all_global_indices()
         {
-            Matrix<DDUMat> tGlobPdvId( mPdvs.size(), 1);
+            // Initialize global IDs
+            Matrix<DDSMat> tGlobPdvId(mPdvs.size(), 1);
 
+            // Loop over PDVs and get IDs
             uint tCounter = 0;
-
-            for( auto tPdv : mPdvs )
+            for (auto tPdv : mPdvs)
             {
-                if( tPdv != nullptr)
+                if (tPdv != nullptr)
                 {
                     tGlobPdvId(tCounter++) = tPdv->get_id();
                 }
             }
 
+            // Resize IDs
             tGlobPdvId.resize(tCounter, 1);
+
+            // Return IDs
             return tGlobPdvId;
         }
 

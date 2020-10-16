@@ -1,9 +1,10 @@
 #include "catch.hpp"
 #include "cl_Matrix.hpp"
+#include "cl_SOL_Matrix_Vector_Factory.hpp"
+#include "cl_MSI_Design_Variable_Interface.hpp"
 
 #include "fn_GEN_create_geometries.hpp"
 #include "fn_GEN_create_properties.hpp"
-
 #include "fn_PRM_GEN_Parameters.hpp"
 
 #define protected public
@@ -16,18 +17,41 @@
 
 namespace moris
 {
+
+    //------------------------------------------------------------------------------------------------------------------
+
+    // Dummy IQI sensitivity values so a FEM model doesn't have to be created
+    uint gNumPDVs = 36;
+    Matrix<DDRMat> gdIQIdPDV1(1, gNumPDVs);
+    Matrix<DDRMat> gdIQIdPDV2(1, gNumPDVs);
+
+    sol::Dist_Vector* MSI::Design_Variable_Interface::get_dQIdp()
+    {
+        // Factory
+        sol::Matrix_Vector_Factory tDistributedFactory;
+
+        // PDV/ADV IDs and sensitivities
+        Matrix<DDSMat> tPDVIds(gNumPDVs, 1);
+        for (uint tPDVIndex = 0; tPDVIndex < gNumPDVs; tPDVIndex++)
+        {
+            tPDVIds(tPDVIndex) = tPDVIndex;
+            gdIQIdPDV1(tPDVIndex) = 1.0;
+            gdIQIdPDV2(tPDVIndex) = (real)tPDVIndex;
+        }
+
+        // IQI sensitivity vector
+        std::shared_ptr<sol::Dist_Map> tPDVMap = tDistributedFactory.create_map(tPDVIds);
+        sol::Dist_Vector* tdIQIdPDV = tDistributedFactory.create_vector(tPDVMap, 2);
+
+        // Fill values
+        tdIQIdPDV->replace_global_values(tPDVIds, gdIQIdPDV1, 0);
+        tdIQIdPDV->replace_global_values(tPDVIds, gdIQIdPDV2, 1);
+
+        return tdIQIdPDV;
+    }
+
     namespace ge
     {
-
-        //--------------------------------------------------------------------------------------------------------------
-
-        // Dummy values so I don't need to create a model for the sensitivity test
-        uint tNumADVs = 36;
-        Matrix<DDRMat> tDiqiDpdv(1, tNumADVs, 1.0);
-        Matrix<DDRMat> Pdv_Host_Manager::compute_diqi_dadv()
-        {
-            return tDiqiDpdv * this->compute_dpdv_dadv();
-        }
 
         //--------------------------------------------------------------------------------------------------------------
 
@@ -222,9 +246,6 @@ namespace moris
                 const Matrix<DDSMat> & tLocalGlobalMap = tPdvHostManager.get_my_local_global_map();
                 const Matrix<DDSMat> & tLocalGlobalOSMap = tPdvHostManager.get_my_local_global_overlapping_map();
 
-                //print( tLocalGlobalMap, "tLocalGlobalMap");
-                //print( tLocalGlobalOSMap, "tLocalGlobalOSMap");
-
                 REQUIRE(tLocalGlobalMap.length() == 6);
                 REQUIRE(tLocalGlobalOSMap.length() == 8);
 
@@ -250,71 +271,6 @@ namespace moris
                     CHECK(tLocalGlobalOSMap(4) == 5);                  CHECK(tLocalGlobalOSMap(5) == 9);
                     CHECK(tLocalGlobalOSMap(6) == 10);                 CHECK(tLocalGlobalOSMap(7) == 11);
                 }
-            }
-        }
-
-        //--------------------------------------------------------------------------------------------------------------
-
-        TEST_CASE("PDV Sensitivities", "[gen], [pdv], [sensitivity], [pdv sensitivity]")
-        {
-            if( par_size() == 1)
-            {
-                // Create PDV_Type host manager
-                Pdv_Host_Manager tPdvHostManager;
-                tPdvHostManager.set_num_advs(tNumADVs);
-
-                tPdvHostManager.mPdvTypeList = {PDV_Type::DENSITY };
-                tPdvHostManager.mPdvTypeMap.set_size(10, 1, -1);
-                tPdvHostManager.mPdvTypeMap( 3 ) = 0;
-
-                // Create discrete property
-                ParameterList tParameterList = moris::prm::create_gen_property_parameter_list();;
-                tParameterList.set("type", "discrete");
-                tParameterList.set("property_variable_indices", "all");
-                tParameterList.set("adv_indices", "all");
-                tParameterList.set("pdv_type", "DENSITY");
-
-                // Create property
-                Matrix<DDRMat> tADVs(tNumADVs, 1);
-                std::shared_ptr<Property> tProperty = create_property(tParameterList, tADVs, Cell<std::shared_ptr<moris::ge::Property>>(0));
-
-                // Node indices per set
-                Cell<Matrix<DDSMat>> tIpNodeIndicesPerSet(1);
-                Cell<Matrix<DDSMat>> tIpNodeIdsPerSet(1);
-                Cell<Matrix<DDSMat>> tIpNodeOWnersPerSet(1);
-                tIpNodeIndicesPerSet(0).set_size(tNumADVs, 1);
-                tIpNodeIdsPerSet(0).set_size(tNumADVs, 1);
-                tIpNodeOWnersPerSet(0).set_size(tNumADVs, 1, 0);
-                for (uint tNodeIndex = 0; tNodeIndex < tNumADVs; tNodeIndex++)
-                {
-                    tIpNodeIndicesPerSet(0)(tNodeIndex) = tNodeIndex;
-                    tIpNodeIdsPerSet(0)(tNodeIndex) = tNodeIndex;
-                }
-
-                // PDV_Type types per set
-                Cell<Cell<Cell<PDV_Type>>> tIpPdvTypes(1);
-                tIpPdvTypes(0).resize(1);
-                tIpPdvTypes(0)(0).resize(1);
-                tIpPdvTypes(0)(0)(0) = PDV_Type::DENSITY;
-
-                // Create PDV_Type hosts
-                tPdvHostManager.create_interpolation_pdv_hosts(
-                        tIpNodeIndicesPerSet,
-                        tIpNodeIdsPerSet,
-                        tIpNodeOWnersPerSet,
-                        Cell<Matrix<F31RMat>>(tNumADVs),
-                        tIpPdvTypes);
-
-                // Set PDVs
-                for (uint tNodeIndex = 0; tNodeIndex < tNumADVs; tNodeIndex++)
-                {
-                    tPdvHostManager.create_interpolation_pdv(uint(tIpNodeIndicesPerSet(0)(tNodeIndex)), tIpPdvTypes(0)(0)(0), tProperty);
-                }
-
-                tPdvHostManager.create_pdv_ids();
-
-                // Check sensitivities
-                CHECK(norm(tPdvHostManager.compute_diqi_dadv() - tDiqiDpdv) <= 1E-12);
             }
         }
 
@@ -373,13 +329,10 @@ namespace moris
                 const Matrix<DDSMat> & tLocalGlobalMap = tPdvHostManager.get_my_local_global_map();
                 const Matrix<DDSMat> & tLocalGlobalOSMap = tPdvHostManager.get_my_local_global_overlapping_map();
 
-                //print( tLocalGlobalMap, "tLocalGlobalMap");
-                //print( tLocalGlobalOSMap, "tLocalGlobalOSMap");
-
                 REQUIRE(tLocalGlobalMap.length() == 6);
                 REQUIRE(tLocalGlobalOSMap.length() == 8);
 
-                if( par_rank() == 0)
+                if (par_rank() == 0)
                 {
                     CHECK(tLocalGlobalMap(0) == 0);                    CHECK(tLocalGlobalMap(1) == 1);
                     CHECK(tLocalGlobalMap(2) == 2);                    CHECK(tLocalGlobalMap(3) == 3);
@@ -390,7 +343,7 @@ namespace moris
                     CHECK(tLocalGlobalOSMap(4) == 4);                  CHECK(tLocalGlobalOSMap(5) == 5);
                     CHECK(tLocalGlobalOSMap(6) == 6);                  CHECK(tLocalGlobalOSMap(7) == 7);
                 }
-                if( par_rank() == 1)
+                if (par_rank() == 1)
                 {
                     CHECK(tLocalGlobalMap(0) == 6);                    CHECK(tLocalGlobalMap(1) == 7);
                     CHECK(tLocalGlobalMap(2) == 8);                    CHECK(tLocalGlobalMap(3) == 9);
@@ -403,6 +356,95 @@ namespace moris
                 }
             }
         }
+
+        //--------------------------------------------------------------------------------------------------------------
+
+        TEST_CASE("PDV Sensitivities", "[gen], [pdv], [sensitivity], [pdv sensitivity]")
+        {
+            if (par_size() == 1)
+            {
+                // Create PDV_Type host manager
+                Pdv_Host_Manager tPdvHostManager;
+                tPdvHostManager.mPdvTypeList = {PDV_Type::DENSITY };
+                tPdvHostManager.mPdvTypeMap.set_size(10, 1, -1);
+                tPdvHostManager.mPdvTypeMap( 3 ) = 0;
+
+                // Create discrete property
+                ParameterList tParameterList = moris::prm::create_gen_property_parameter_list();;
+                tParameterList.set("type", "discrete");
+                tParameterList.set("property_variable_indices", "all");
+                tParameterList.set("adv_indices", "all");
+                tParameterList.set("pdv_type", "DENSITY");
+
+                // Create property
+                Matrix<DDRMat> tADVs(gNumPDVs, 1);
+                std::shared_ptr<Property> tProperty = create_property(
+                        tParameterList, 
+                        tADVs, 
+                        Cell<std::shared_ptr<moris::ge::Property>>(0));
+
+                // Node indices per set
+                Cell<Matrix<DDSMat>> tIpNodeIndicesPerSet(1);
+                Cell<Matrix<DDSMat>> tIpNodeIdsPerSet(1);
+                Cell<Matrix<DDSMat>> tIpNodeOWnersPerSet(1);
+                tIpNodeIndicesPerSet(0).set_size(gNumPDVs, 1);
+                tIpNodeIdsPerSet(0).set_size(gNumPDVs, 1);
+                tIpNodeOWnersPerSet(0).set_size(gNumPDVs, 1, 0);
+                for (uint tNodeIndex = 0; tNodeIndex < gNumPDVs; tNodeIndex++)
+                {
+                    tIpNodeIndicesPerSet(0)(tNodeIndex) = tNodeIndex;
+                    tIpNodeIdsPerSet(0)(tNodeIndex) = tNodeIndex;
+                }
+
+                // PDV_Type types per set
+                Cell<Cell<Cell<PDV_Type>>> tIpPdvTypes(1);
+                tIpPdvTypes(0).resize(1);
+                tIpPdvTypes(0)(0).resize(1);
+                tIpPdvTypes(0)(0)(0) = PDV_Type::DENSITY;
+
+                // Create PDV_Type hosts
+                tPdvHostManager.create_interpolation_pdv_hosts(
+                        tIpNodeIndicesPerSet,
+                        tIpNodeIdsPerSet,
+                        tIpNodeOWnersPerSet,
+                        Cell<Matrix<F31RMat>>(gNumPDVs),
+                        tIpPdvTypes);
+
+                // Set PDVs
+                for (uint tNodeIndex = 0; tNodeIndex < gNumPDVs; tNodeIndex++)
+                {
+                    tPdvHostManager.create_interpolation_pdv(uint(tIpNodeIndicesPerSet(0)(tNodeIndex)), tIpPdvTypes(0)(0)(0), tProperty);
+                }
+                tPdvHostManager.create_pdv_ids();
+
+                // Set ADV IDs
+                Matrix<DDSMat> tADVIds(gNumPDVs, 1);
+                for (uint tADVIndex = 0; tADVIndex < gNumPDVs; tADVIndex++)
+                {
+                    tADVIds(tADVIndex) = tADVIndex;
+                }
+                tPdvHostManager.set_owned_adv_ids(tADVIds);
+
+                // Check size of sensitivities matrix
+                Matrix<DDRMat> tdIQIdADV = tPdvHostManager.compute_diqi_dadv();
+                REQUIRE(tdIQIdADV.n_rows() == 2);
+                REQUIRE(tdIQIdADV.n_cols() == gNumPDVs);
+
+                // Check first IQI sensitivities
+                for (uint tPDVIndex = 0; tPDVIndex < gNumPDVs; tPDVIndex++)
+                {
+                    CHECK(tdIQIdADV(0, tPDVIndex) == Approx(gdIQIdPDV1(tPDVIndex)));
+                }
+
+                // Check second IQI sensitivities
+                for (uint tPDVIndex = 0; tPDVIndex < gNumPDVs; tPDVIndex++)
+                {
+                    CHECK(tdIQIdADV(1, tPDVIndex) == Approx(gdIQIdPDV2(tPDVIndex)));
+                }
+            }
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
 
     }
 }

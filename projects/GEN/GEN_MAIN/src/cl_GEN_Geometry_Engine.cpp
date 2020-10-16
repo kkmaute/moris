@@ -664,7 +664,6 @@ namespace moris
                 uint tNumOwnedADVs = mADVs.length() + tNumNewOwnedADVs;
                 mLowerBounds.resize(tNumOwnedADVs, 1);
                 mUpperBounds.resize(tNumOwnedADVs, 1);
-                mPdvHostManager.set_num_advs(tNumOwnedADVs);
 
                 // Resize ADV IDs and set primitive IDs
                 Matrix<DDSMat> tOwnedADVIds(mADVs.length(), 1);
@@ -721,11 +720,14 @@ namespace moris
                     }
                 }
 
+                // Set owned ADV IDs
+                mPdvHostManager.set_owned_adv_ids(tOwnedADVIds);
+
                 //----------------------------------------//
                 // Create owned ADV vector                //
                 //----------------------------------------//
 
-                // Create factor for distributed ADV vector
+                // Create factory for distributed ADV vector
                 sol::Matrix_Vector_Factory tDistributedFactory;
 
                 // Create map for distributed vector

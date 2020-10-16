@@ -5,9 +5,9 @@
 #include "cl_GEN_Interpolation_Pdv_Host.hpp"
 #include "cl_GEN_Intersection_Node.hpp"
 #include "cl_GEN_Pdv_Enums.hpp"
+
 #include "cl_Matrix.hpp"
-#include "cl_Communication_Tools.hpp"
-#include "cl_Communication_Manager.hpp"
+#include "cl_SOL_Dist_Matrix.hpp"
 #include <unordered_map>
 
 namespace moris
@@ -19,16 +19,16 @@ namespace moris
         {
             private:
 
-                // Number of ADVs
-                uint mNumADVs;
-                bool mNumADVsSet = false;
+                // ADV IDs
+                Matrix<DDSMat> mOwnedADVIds;
+                bool mADVIdsSet = false;
 
                 // Static nodes set
                 bool mNumBackgroundNodesSet = false;
 
+                // PDV type map
                 moris::Cell< enum PDV_Type >   mPdvTypeList;          // List containing all used unique dv types.
                 Matrix< DDSMat >               mPdvTypeMap;           // Map which maps the unique dv types onto consecutive values.
-
                 Matrix< IdMat >                mCommTable;
 
                 // list of pdv hosts - interpolation nodes
@@ -83,11 +83,11 @@ namespace moris
                 }
 
                 /**
-                 * Sets the number of ADVs.
+                 * Sets the owned ADV IDs.
                  *
-                 * @param aNumADVs Number of ADVs
+                 * @param aOwnedADVIds Owned ADV IDs
                  */
-                void set_num_advs(uint aNumADVs);
+                void set_owned_adv_ids(Matrix<DDSMat> aOwnedADVIds);
 
                 /**
                  * Sets the number of nodes.
@@ -267,6 +267,13 @@ namespace moris
                  */
                 void set_intersection_node(uint aNodeIndex, std::shared_ptr<Intersection_Node> aIntersectionNode);
 
+                /**
+                 * Updates an intersection node with a node ID and node owner.
+                 * 
+                 * @param aNodeIndex Node index
+                 * @param aNodeId Node ID
+                 * @param aNodeOwner Node owner
+                 */
                 void update_intersection_node(
                         const moris_index & aNodeIndex,
                         const moris_index & aNodeId,
@@ -308,9 +315,9 @@ namespace moris
                  *
                  * @param aNodeIndex Node index
                  * @param aPdvType PDV type
-                 * @param aPropertyPointer Pointer to a GEN property
+                 * @param aProperty Pointer to a GEN property
                  */
-                void create_interpolation_pdv(uint aNodeIndex, PDV_Type aPdvType, std::shared_ptr<Property> aPropertyPointer);
+                void create_interpolation_pdv(uint aNodeIndex, PDV_Type aPdvType, std::shared_ptr<Property> aProperty);
 
                 /**
                  * Does the necessary chain rule on the IQI derivatives with respect to PDVs which each of the PDV
@@ -347,12 +354,13 @@ namespace moris
                 void communicate_shared_intersection_node_pdv_ids();
 
                 void build_local_to_global_maps();
+                
                 /**
                  * Computes the derivatives of the PDVs with respect to the ADVs
                  *
                  * @return Matrix of pdv/adv sensitivities
                  */
-                Matrix<DDRMat> compute_dpdv_dadv();
+                sol::Dist_Matrix* compute_dpdv_dadv();
 
         };
     }   // end ge namespace

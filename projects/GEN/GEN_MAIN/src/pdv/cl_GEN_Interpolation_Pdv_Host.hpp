@@ -109,7 +109,7 @@ namespace moris
              *
              * @param aGlobalPdvIndices matrix of indices to be returned
              */
-            Matrix<DDUMat> get_all_global_indices();
+            Matrix<DDSMat> get_all_global_indices();
 
             /**
              * Get the value of a PDV by type
