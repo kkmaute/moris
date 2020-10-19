@@ -289,6 +289,7 @@ namespace xtk
 
         private:
             Model* mXTKModel; /*Pointer to the model*/
+            moris_index mMinMeshIndex;
 
     };
 
