@@ -2106,8 +2106,7 @@ namespace xtk
                            MORIS_ASSERT(tRightUniqueVertexMap.find(tVertices(iVoS)->get_id()) != tRightUniqueVertexMap.end(),"Left vertex not on right side");
                            MORIS_ASSERT(tLeftUniqueVertexMap.find(tVertices(iVoS)->get_id()) != tLeftUniqueVertexMap.end(),"Left vertex not on right side");
                         
-                           moris::mtk::Vertex const * tLeftVertPair = tDblSideCluster->get_master_vertex_pair(tVertices(iVoS));
-                           MORIS_ASSERT(tVertices(iVoS)->get_id() == tLeftVertPair->get_id(),"Vertex id mismatch");
+                           MORIS_ASSERT(tVertices(iVoS)->get_id() == tDblSideCluster->get_master_vertex_pair(tVertices(iVoS)),"Vertex id mismatch");
                         }
 
                     }
