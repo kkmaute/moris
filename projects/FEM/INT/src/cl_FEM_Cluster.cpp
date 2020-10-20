@@ -129,25 +129,8 @@ namespace moris
             MORIS_ASSERT( mMeshCluster != NULL,
                     "Cluster::get_vertices_local_coordinates_wrt_interp_cell - empty cluster.");
 
-            // if trivial cluster IP cell = IG cell
-            if( mMeshCluster->is_trivial( mtk::Master_Slave::MASTER ) )
-            {
-                // get the vertices param coords from the IP geometry interpolator
-                return mSet->get_field_interpolator_manager( mtk::Master_Slave::MASTER )
-                        ->get_IP_geometry_interpolator()
-                        ->extract_space_param_coeff( mSet->get_IG_space_interpolation_order() );
-
-            }
-            // if non trivial cluster
-            else
-            {
-                // check that the mesh cluster was set
-                MORIS_ASSERT( mMeshCluster != NULL,
-                        "Cluster::get_vertices_local_coordinates_wrt_interp_cell - empty cluster.");
-
                 // get the vertices param coords from the cluster
                 return mMeshCluster->get_vertices_local_coordinates_wrt_interp_cell();
-            }
         }
 
         //------------------------------------------------------------------------------
@@ -222,9 +205,10 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        moris::Cell< moris_index > Cluster::get_vertex_indices_in_cluster()
+        void Cluster::get_vertex_indices_in_cluster_for_visualization(
+                moris::Matrix< moris::IndexMat > & aVerticesIndices )
         {
-            // check that side cluster
+            // check that bulk cluster
             MORIS_ASSERT( mElementType == fem::Element_Type::BULK,
                     "Cluster::get_vertex_indices_in_cluster - not a bulk cluster.");
 
@@ -232,59 +216,8 @@ namespace moris
             MORIS_ASSERT( mMeshCluster != NULL,
                     "Cluster::get_vertex_indices_in_cluster - empty cluster.");
 
-            // init container for vertex indices
-            moris::Cell< moris_index > tVerticesIndices;
-
-            // if trivial cluster IP cell = IG cell
-            if( mMeshCluster->is_trivial( mtk::Master_Slave::MASTER ) )
-            {
-                // get the integration cell on cluster
-                moris::Cell<moris::mtk::Cell const *> const & tPrimaryCells =
-                        mMeshCluster->get_primary_cells_in_cluster();
-
-                // check that there is only once IG cell on trivial cluster
-                MORIS_ASSERT( tPrimaryCells.size(),
-                        "Cluster::get_vertex_indices_in_cluster - There needs to be exactly 1 primary cell in cluster for the trivial case");
-
-                // an assumption is made here that the vertices on the primary correspond to the index in pdof vector
-                moris::Cell< moris::mtk::Vertex* > tVerticesOnPrimaryCell =
-                        tPrimaryCells( 0 )->get_vertex_pointers();
-
-                // get number of vertices
-                uint tNumVertices = tVerticesOnPrimaryCell.size();
-
-                // set size for cell of vertex indices
-                tVerticesIndices.resize( tNumVertices );
-
-                // loop over vertices
-                for(moris::uint iVertex = 0; iVertex < tNumVertices; iVertex++ )
-                {
-                    // get the vertex index
-                    tVerticesIndices( iVertex ) = tVerticesOnPrimaryCell( iVertex )->get_index();
-                }
-            }
-            // if non trivial cluster
-            else
-            {
-                // get the vertices in the cluster
-                const moris::Cell< const moris::mtk::Vertex * > tVertices =
-                        mMeshCluster->get_vertices_in_cluster();
-
-                // get number of vertices
-                uint tNumVertices = tVertices.size();
-
-                // set size for cell of vertex indices
-                tVerticesIndices.resize( tNumVertices );
-
-                // loop over vertices
-                for( uint iVertex = 0; iVertex < tNumVertices; iVertex++ )
-                {
-                    // get the vertex index
-                    tVerticesIndices( iVertex ) = tVertices( iVertex )->get_index();
-                }
-            }
-
-            return tVerticesIndices;
+            // fill vertex indices matrix
+            aVerticesIndices = mMeshCluster->get_vertex_indices_in_cluster();
         }
 
         //------------------------------------------------------------------------------
@@ -302,23 +235,8 @@ namespace moris
             MORIS_ASSERT( mMeshCluster != NULL,
                     "Cluster::get_cell_local_coords_on_side_wrt_interp_cell - empty cluster.");
 
-            // if trivial cluster IP cell = IG cell
-            if( mMeshCluster->is_trivial( aIsMaster ) )
-            {
-                // get the side param coords from the IG geometry interpolator
-                return mSet->get_field_interpolator_manager( aIsMaster )->
-                        get_IP_geometry_interpolator()->
-                        extract_space_side_space_param_coeff( aSideOrdinal, mSet->get_IG_space_interpolation_order() );
-            }
-            // if non trivial cluster
-            else
-            {
-                // check that the mesh cluster was set
-                MORIS_ASSERT( mMeshCluster != NULL, "Cluster::get_cell_local_coords_on_side_wrt_interp_cell - empty cluster.");
-
-                // get the side param coords from the side cluster
-                return mMeshCluster->get_cell_local_coords_on_side_wrt_interp_cell( aCellIndexInCluster, aIsMaster );
-            }
+            // get the side param coords from the side cluster
+            return mMeshCluster->get_cell_local_coords_on_side_wrt_interp_cell( aCellIndexInCluster, aIsMaster );
         }
 
         //------------------------------------------------------------------------------
@@ -334,23 +252,8 @@ namespace moris
             MORIS_ASSERT( mMeshCluster != NULL,
                     "Cluster::get_primary_cell_local_coords_on_side_wrt_interp_cell - empty cluster.");
 
-            // if trivial cluster IP cell = IG cell
-            if( mMeshCluster->is_trivial( mtk::Master_Slave::MASTER ) )
-            {
-                // get the side param coords from the IG geometry interpolator
-                return mSet->get_field_interpolator_manager()->
-                        get_IP_geometry_interpolator()->
-                        extract_space_param_coeff( mSet->get_IG_space_interpolation_order() );
-            }
-            // if non trivial cluster
-            else
-            {
-                // check that the mesh cluster was set
-                MORIS_ASSERT( mMeshCluster != NULL, "Cluster::get_primary_cell_local_coords_on_side_wrt_interp_cell - empty cluster.");
-
-                // get the side param coords from the side cluster
-                return mMeshCluster->get_primary_cell_local_coords_on_side_wrt_interp_cell( aPrimaryCellIndexInCluster );
-            }
+            // get the side param coords from the side cluster
+            return mMeshCluster->get_primary_cell_local_coords_on_side_wrt_interp_cell( aPrimaryCellIndexInCluster );
         }
 
         //------------------------------------------------------------------------------
