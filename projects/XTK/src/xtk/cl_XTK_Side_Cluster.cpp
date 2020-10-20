@@ -123,7 +123,7 @@ namespace xtk
             // Cluster index is also the ordinal in trivial cluster
             moris_index tVertexOrdinal = mIntegrationCells(0)->get_vertex_ordinal_wrt_cell(aVertex->get_index());
 
-            std::cout<<"XTK Ord = "<<tVertexOrdinal<<std::endl;
+            //std::cout<<"XTK Ord = "<<tVertexOrdinal<<std::endl;
             // get the interpolation cell's connectivity information
             moris::mtk::Cell_Info const * tCellInfo = mInterpolationCell->get_connectivity();
 
