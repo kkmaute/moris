@@ -386,6 +386,24 @@ namespace xtk
                     moris::mtk::Cell & aParentCell,
                     const uint         aMeshIndex ) const;
 
+            // ----------------------------------------------------------------------------------
+            /*!
+            *   @param[in] aMeshIndex Mesh index
+            *   @param[in] aNumIdsToAllocate Number of basis ids needed
+            *   @return Basis index offset
+            */
+            moris_index 
+            allocate_basis_ids(moris_index const & aMeshIndex,
+                                moris_index const & aNumIdsToAllocate);
+            // ----------------------------------------------------------------------------------
+
+            /*!
+            *   @param[in] aMeshIndex Mesh index
+            *   @return Maxmimum basis id on this proc
+            */
+            moris_index 
+            get_max_basis_id(moris_index const & aMeshIndex);
+
     };
 }
 #endif /* XTK_SRC_XTK_CL_XTK_ENRICHMENT_HPP_ */
