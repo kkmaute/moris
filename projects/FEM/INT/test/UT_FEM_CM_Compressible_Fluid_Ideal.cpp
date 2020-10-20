@@ -28,9 +28,11 @@ TEST_CASE( "CM_Fluid_Compressible_Ideal", "[CM_Fluid_Compressible_Ideal]" )
 {
     // define an epsilon environment
     real tEpsilon = 1.0E-6;
+    real tEpsilonCubic = 3.0E-6;
 
     // define a perturbation relative size
     real tPerturbation = 2.0E-4;
+    real tPerturbationCubic = 5.0E-4;
 
     // init geometry inputs
     //------------------------------------------------------------------------------
@@ -43,8 +45,8 @@ TEST_CASE( "CM_Fluid_Compressible_Ideal", "[CM_Fluid_Compressible_Ideal]" )
     // create list of interpolation orders
     moris::Cell< mtk::Interpolation_Order > tInterpolationOrders = {
             mtk::Interpolation_Order::LINEAR,
-            mtk::Interpolation_Order::QUADRATIC };
-//            mtk::Interpolation_Order::CUBIC };
+            mtk::Interpolation_Order::QUADRATIC,
+            mtk::Interpolation_Order::CUBIC };
 
     // create list of integration orders
     moris::Cell< fem::Integration_Order > tIntegrationOrders = {
@@ -52,8 +54,8 @@ TEST_CASE( "CM_Fluid_Compressible_Ideal", "[CM_Fluid_Compressible_Ideal]" )
             fem::Integration_Order::HEX_2x2x2 };
 
     // create list with number of coeffs
-    Matrix< DDRMat > tNumCoeffs = {{ 8, 18 },{ 16, 54 }};
-    //Matrix< DDRMat > tNumCoeffs = {{ 8, 18, 32 },{ 16, 54, 128 }};
+    //Matrix< DDRMat > tNumCoeffs = {{ 8, 18 },{ 16, 54 }};
+    Matrix< DDRMat > tNumCoeffs = {{ 8, 18, 32 },{ 16, 54, 128 }};
 
     // dof type list
     moris::Cell< MSI::Dof_Type > tDensityDof  = { MSI::Dof_Type::RHO };
@@ -122,9 +124,9 @@ TEST_CASE( "CM_Fluid_Compressible_Ideal", "[CM_Fluid_Compressible_Ideal]" )
     for( uint iSpaceDim = 2; iSpaceDim < 4; iSpaceDim++ )
     {
         // output for debugging
-        std::cout << "-------------------------------------------------------------------\n" << std::flush;
-        std::cout << "Performing Tests For Number of Spatial dimensions: " << iSpaceDim << "\n" << std::flush;
-        std::cout << "-------------------------------------------------------------------\n\n" << std::flush;
+        //std::cout << "-------------------------------------------------------------------\n" << std::flush;
+        //std::cout << "Performing Tests For Number of Spatial dimensions: " << iSpaceDim << "\n" << std::flush;
+        //std::cout << "-------------------------------------------------------------------\n\n" << std::flush;
 
         // create and set normal
         Matrix< DDRMat > tNormal( iSpaceDim, 1, 0.5 );
@@ -204,11 +206,18 @@ TEST_CASE( "CM_Fluid_Compressible_Ideal", "[CM_Fluid_Compressible_Ideal]" )
         // loop on the interpolation order
         for( uint iInterpOrder = 1; iInterpOrder < tInterpolationOrders.size() + 1; iInterpOrder++ )
         {
+            // tune finite differencing for cubic shape functions
+            if ( iInterpOrder == 3 )
+            {
+                tEpsilon = tEpsilonCubic;
+                tPerturbation = tPerturbationCubic;
+            }
+
 
             // output for debugging
-            std::cout << "-------------------------------------------------------------------\n" << std::flush;
-            std::cout << "-------------------------------------------------------------------\n" << std::flush;
-            std::cout << "Performing Tests For Interpolation Order:" << iInterpOrder << "\n\n" << std::flush;
+            //std::cout << "-------------------------------------------------------------------\n" << std::flush;
+            //std::cout << "-------------------------------------------------------------------\n" << std::flush;
+            //std::cout << "Performing Tests For Interpolation Order:" << iInterpOrder << "\n\n" << std::flush;
 
             // integration points
             //------------------------------------------------------------------------------
@@ -306,8 +315,8 @@ TEST_CASE( "CM_Fluid_Compressible_Ideal", "[CM_Fluid_Compressible_Ideal]" )
                 for( uint iRequestedDof = 0; iRequestedDof < tRequestedMasterGlobalDofTypes.size(); iRequestedDof++ )
                 {
                     // output for debugging
-                    std::cout << "-------------------------------------------------------------------\n" << std::flush;
-                    std::cout << "Performing test for DOF derivative wrt. (0-RHO, 1-VX, 2-TEMP): " << iRequestedDof << "\n\n" << std::flush;
+                    //std::cout << "-------------------------------------------------------------------\n" << std::flush;
+                    //std::cout << "Performing test for DOF derivative wrt. (0-RHO, 1-VX, 2-TEMP): " << iRequestedDof << "\n\n" << std::flush;
 
                     // derivative dof type
                     Cell< MSI::Dof_Type > tDofDerivative = tRequestedMasterGlobalDofTypes( iRequestedDof );
