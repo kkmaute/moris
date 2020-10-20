@@ -87,7 +87,11 @@ namespace moris
                 moris::Cell< Matrix< DDRMat > > mMechanicalTractionDof;
                 moris::Cell< bool > mMechanicalTractionDofEval;
 
-                // velocity matrix for flattened tensors --------------
+                // DoF derivative of du/dt ----------------------------
+                Matrix< DDRMat > mdNveldt;
+                bool mdNveldtEval = true;
+
+                // velocity matrix for flattened tensors
                 Matrix< DDRMat > mVelocityMatrix;
                 bool mVelocityMatrixEval = true;
 
@@ -160,6 +164,13 @@ namespace moris
                  * reset evaluation flags specific to this constitutive models
                  */
                 void reset_specific_eval_flags();
+
+                //------------------------------------------------------------------------------
+                /**
+                 * initialize storage variables and evaluation flags specific to this child CM
+                 * function is called in the build_global_dof_type_list() in parent class
+                 */
+                void initialize_spec_storage_vars_and_eval_flags();
 
                 //------------------------------------------------------------------------------
                 /**
@@ -601,6 +612,19 @@ namespace moris
                 }
                 void eval_strain_2d();
                 void eval_strain_3d();
+
+                //--------------------------------------------------------------------------------------------------------------
+                /**
+                 * evaluates the DoF derivative formated for usage of the velocity time rate of change du/dt
+                 * FIXME: The output format of the dnNdtn() function in the FI should probably be changed such that this is the
+                 * standard format of this derivative
+                 */
+                void eval_dNveldt();
+
+                /**
+                 * get DoF derivative of the velocity time rate of change du/dt
+                 */
+                const Matrix< DDRMat > & dNveldt();
 
                 //--------------------------------------------------------------------------------------------------------------
                 /**
