@@ -34,7 +34,7 @@ namespace moris
                 std::string mPhaseName;
 
                 // phase index
-                sint mPhaseIndex;
+                moris::Matrix< moris::IndexMat > mPhaseIndex;
 
                 // phase dof type list
                 moris::Cell< moris::Cell< MSI::Dof_Type > > mDofTypes;
@@ -48,11 +48,12 @@ namespace moris
                 // matrix to check if a pdv type was already set to the phase
                 Matrix< DDSMat > mPdvCheck;
 
-                // master and slave constitutive models
+                // constitutive models
                 moris::Cell< std::shared_ptr< fem::Constitutive_Model > > mCMs;
+                uint mNumCMs = 0;
 
-                // stabilization parameters
-                moris::Cell< std::shared_ptr< fem::Stabilization_Parameter > > mSPs;
+                // constitutive model map
+                std::map< std::string, uint > mCMMap;
 
                 //------------------------------------------------------------------------------
             public :
@@ -85,19 +86,16 @@ namespace moris
                     // print the phase name
                     std::cout<<"Phase name: "<<mPhaseName<<std::endl;
 
-                    // print the phase index
-                    std::cout<<"Phase index: "<<mPhaseIndex<<std::endl;
+                    // print the phase indices
+                    for( uint iPhaseIndex = 0; iPhaseIndex < mPhaseIndex.numel(); iPhaseIndex++ )
+                    {
+                        std::cout<<"Phase index: "<<mPhaseIndex( iPhaseIndex )<<std::endl;
+                    }
 
                     // print CM names
                     for ( uint iCM = 0; iCM < mCMs.size(); iCM++ )
                     {
                         std::cout<<"CM name: "<<mCMs( iCM )->get_name()<<std::endl;
-                    }
-
-                    // print SP names
-                    for ( uint iSP = 0; iSP < mSPs.size(); iSP++ )
-                    {
-                        std::cout<<"SP name: "<<mSPs( iSP )->get_name()<<std::endl;
                     }
                 }
 
@@ -123,20 +121,20 @@ namespace moris
 
                 //------------------------------------------------------------------------------
                 /**
-                 * set the phase index
-                 * @param[ in ] aPhaseIndex phase index
+                 * set phase mesh indices
+                 * @param[ in ] aPhaseIndex cell of mesh indices for phase
                  */
-                void set_phase_index( sint aPhaseIndex )
+                void set_phase_indices( moris::Matrix< moris::IndexMat > aPhaseIndex )
                 {
                     mPhaseIndex = aPhaseIndex;
                 }
 
                 //------------------------------------------------------------------------------
                 /**
-                 * get the phase index
-                 * @param[ out ] mPhaseIndex mesh index for set
+                 * get phase mesh indices
+                 * @param[ out ] mPhaseIndex cell of mesh indices for phase
                  */
-                sint get_phase_index()
+                moris::Matrix< moris::IndexMat > & get_phase_indices()
                 {
                     return mPhaseIndex;
                 }
@@ -253,7 +251,35 @@ namespace moris
                  */
                 void set_CM( std::shared_ptr< fem::Constitutive_Model > aCM )
                 {
-                    mCMs.push_back( aCM );
+                    // get CM name
+                    std::string tCMName = aCM->get_name();
+
+                    // if CM was not set before
+                    if ( mCMMap.find( tCMName ) == mCMMap.end() )
+                    {
+                        // add CM to list
+                        mCMs.push_back( aCM );
+
+                        // add CM index to map
+                        mCMMap[ tCMName ] = mNumCMs++;
+                    }
+                }
+
+                //------------------------------------------------------------------------------
+                /**
+                 * get CM by name
+                 * @param[ out ] aCMName constitutive model name requested
+                 */
+                std::shared_ptr< fem::Constitutive_Model > get_CM_by_name( std::string aCMName )
+                {
+                    // check for unknown CM name
+                    MORIS_ERROR( mCMMap.find( aCMName ) != mCMMap.end(),
+                            "Phase_User_Info::get_CM_by_name - Unknown aCMName for %s : %s \n",
+                            mPhaseName.c_str(),
+                            aCMName.c_str() );
+
+                    // return CM for name
+                    return mCMs( mCMMap[ aCMName ] );
                 }
 
                 //------------------------------------------------------------------------------
@@ -265,37 +291,6 @@ namespace moris
                 moris::Cell< std::shared_ptr< fem::Constitutive_Model > > & get_CMs() const
                 {
                     return mCMs;
-                }
-
-                //------------------------------------------------------------------------------
-                /**
-                 * set SPs
-                 * @param[ in ] aSPs list of stabilization parameter pointers
-                 */
-                void set_SPs( std::shared_ptr< fem::Stabilization_Parameter > aSPs )
-                {
-                    mSPs.push_back( aSPs );
-                }
-
-                //------------------------------------------------------------------------------
-                /**
-                 * get SPs
-                 * @param[ out ] mSPs list of stabilization parameter pointers
-                 */
-                const
-                moris::Cell< std::shared_ptr< fem::Stabilization_Parameter > > & get_SPs() const
-                {
-                    return mSPs;
-                }
-
-                //------------------------------------------------------------------------------
-                /**
-                 * set SP
-                 * @param[ in ] aSP stabilization parameter pointer
-                 */
-                void set_SP( std::shared_ptr< fem::Stabilization_Parameter > aSP )
-                {
-                    mSPs.push_back( aSP );
                 }
 
                 //------------------------------------------------------------------------------
