@@ -62,25 +62,19 @@ namespace moris
                 // Create PDV_Type host manager
                 Pdv_Host_Manager tPDVHostManager;
 
+                // PDV type list
                 tPDVHostManager.mPdvTypeList = {PDV_Type::DENSITY, PDV_Type::TEMPERATURE, PDV_Type::ELASTIC_MODULUS};
                 tPDVHostManager.mPdvTypeMap.set_size(10, 1, -1);
                 tPDVHostManager.mPdvTypeMap( 3 ) = 0;
                 tPDVHostManager.mPdvTypeMap( 4 ) = 1;
                 tPDVHostManager.mPdvTypeMap( 5 ) = 2;
 
-                // ----------------- Interpolation PDVs ---------------------- //
                 // Node indices per set
                 Cell<Matrix<DDSMat>> tIpNodeIndicesPerSet(2);
                 tIpNodeIndicesPerSet(0).resize(4, 1);
                 tIpNodeIndicesPerSet(1).resize(4, 1);
                 tIpNodeIndicesPerSet(0) = {{0, 1, 2, 3}};
                 tIpNodeIndicesPerSet(1) = {{2, 3, 4, 5}};
-
-                Cell<Matrix<DDSMat>> tIpNodeIdsPerSet(2);
-                tIpNodeIdsPerSet(0).resize(4, 1);
-                tIpNodeIdsPerSet(1).resize(4, 1);
-                tIpNodeIdsPerSet(0) = {{0, 1, 2, 3}};
-                tIpNodeIdsPerSet(1) = {{2, 3, 4, 5}};
 
                 Cell<Matrix<DDSMat>> tIpNodeOwnersPerSet(2);
                 tIpNodeOwnersPerSet(0).resize(4, 1);
@@ -104,7 +98,7 @@ namespace moris
                 // Create PDV_Type hosts
                 tPDVHostManager.create_interpolation_pdv_hosts(
                         tIpNodeIndicesPerSet,
-                        tIpNodeIdsPerSet,
+                        tIpNodeIndicesPerSet,
                         tIpNodeOwnersPerSet,
                         Cell<Matrix<F31RMat>>(6),
                         tIpPdvTypes);
@@ -119,11 +113,13 @@ namespace moris
                             tPDVHostManager.create_interpolation_pdv(
                                     (uint)tIpNodeIndicesPerSet(tMeshSetIndex)(tNodeIndex),
                                     tIpPdvTypes(tMeshSetIndex)(tPdvIndex)(0),
-                                    (real)tMeshSetIndex);
+                                    (real)tIpNodeIndicesPerSet(tMeshSetIndex)(tNodeIndex) +
+                                        (tIpPdvTypes(tMeshSetIndex)(tPdvIndex)(0) == PDV_Type::TEMPERATURE));
                         }
                     }
                 }
 
+                // Create PDV IDs
                 tPDVHostManager.create_pdv_ids();
 
                 // Check PDVs
@@ -137,9 +133,9 @@ namespace moris
 
                         for (uint tNodeIndex = 0; tNodeIndex < 4; tNodeIndex++)
                         {
-                            CHECK(tPdvValues(0)(tNodeIndex) == tMeshSetIndex +
-                                    (tMeshSetIndex == 0) * (tNodeIndex > 1) *
-                                    (tIpPdvTypes(tMeshSetIndex)(tPdvIndex)(0) == PDV_Type::TEMPERATURE));
+                            CHECK( tPdvValues(0)(tNodeIndex) == Approx(
+                                    (real)tIpNodeIndicesPerSet(tMeshSetIndex)(tNodeIndex) +
+                                    (tIpPdvTypes(tMeshSetIndex)(tPdvIndex)(0) == PDV_Type::TEMPERATURE)) );
                         }
                     }
                 }
