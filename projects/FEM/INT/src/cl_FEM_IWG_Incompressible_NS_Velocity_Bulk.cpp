@@ -31,7 +31,6 @@ namespace moris
 
             // populate the constitutive map
             mConstitutiveMap[ "IncompressibleFluid" ] = IWG_Constitutive_Type::INCOMPRESSIBLE_FLUID;
-            mConstitutiveMap[ "TurbulenceFluid" ]     = IWG_Constitutive_Type::TURBULENCE_FLUID;
 
             // set size for the stabilization parameter pointer cell
             mStabilizationParam.resize( static_cast< uint >( IWG_Stabilization_Type::MAX_ENUM ), nullptr );
@@ -136,10 +135,6 @@ namespace moris
             std::shared_ptr< Constitutive_Model > tIncFluidCM =
                     mMasterCM( static_cast< uint >( IWG_Constitutive_Type::INCOMPRESSIBLE_FLUID ) );
 
-            // get the turbulence fluid constitutive model
-            std::shared_ptr< Constitutive_Model > tCMTurbulence =
-                    mMasterCM( static_cast< uint >( IWG_Constitutive_Type::TURBULENCE_FLUID ) );
-
             // get the density property
             std::shared_ptr< Property > tDensityProp = tIncFluidCM->get_property( "Density" );
 
@@ -180,20 +175,23 @@ namespace moris
             }
 
             // compute the residual
-            mSet->get_residual()( 0 )( { tMasterResStartIndex, tMasterResStopIndex }, { 0, 0 } )
-                            += aWStar * (
-                                    trans( tVelocityFI->N() ) * tDensity * trans( tVelocityFI->gradt( 1 ) ) +
-                                    trans( tVelocityFI->N() ) * tDensity * trans( tVelocityFI->gradx( 1 ) ) * tVelocityFI->val() +
-                                    trans( tIncFluidCM->testStrain() ) * tPre * tIncFluidCM->flux() +
-                                    trans( tujvij ) * tDensity * tSPSUPSPSPG->val()( 0 ) * tRM +
-                                    trans( tVelocityFI->div_operator() ) * tSPSUPSPSPG->val()( 1 ) * tRC );
+            mSet->get_residual()( 0 )(
+                    { tMasterResStartIndex, tMasterResStopIndex },
+                    { 0, 0 } ) += aWStar * (
+                            trans( tVelocityFI->N() ) * tDensity * trans( tVelocityFI->gradt( 1 ) ) +
+                            trans( tVelocityFI->N() ) * tDensity * trans( tVelocityFI->gradx( 1 ) ) * tVelocityFI->val() +
+                            trans( tIncFluidCM->testStrain() ) * tPre * tIncFluidCM->flux() +
+                            trans( tujvij ) * tDensity * tSPSUPSPSPG->val()( 0 ) * tRM +
+                            trans( tVelocityFI->div_operator() ) * tSPSUPSPSPG->val()( 1 ) * tRC );
 
             // if gravity
             if ( tGravityProp != nullptr )
             {
                 // add gravity to residual weak form
-                mSet->get_residual()( 0 )( { tMasterResStartIndex, tMasterResStopIndex }, { 0, 0 } )
-                                += aWStar * ( trans( tVelocityFI->N() ) * tDensity * tGravityProp->val() );
+                mSet->get_residual()( 0 )(
+                        { tMasterResStartIndex, tMasterResStopIndex },
+                        { 0, 0 } ) += aWStar * (
+                                trans( tVelocityFI->N() ) * tDensity * tGravityProp->val() );
             }
 
             // if thermal expansion and reference temperature
@@ -205,26 +203,21 @@ namespace moris
                         mMasterFIManager->get_field_interpolators_for_type( MSI::Dof_Type::TEMP );
 
                 // add contribution to residual
-                mSet->get_residual()( 0 )( { tMasterResStartIndex, tMasterResStopIndex }, { 0, 0 } )
-                                -= aWStar * (
-                                        trans( tVelocityFI->N() ) * tDensity * tGravityProp->val() *
-                                        tThermalExpProp->val() * ( tTempFI->val() - tRefTempProp->val() ) );
+                mSet->get_residual()( 0 )(
+                        { tMasterResStartIndex, tMasterResStopIndex },
+                        { 0, 0 } ) -= aWStar * (
+                                trans( tVelocityFI->N() ) * tDensity * tGravityProp->val() *
+                                tThermalExpProp->val() * ( tTempFI->val() - tRefTempProp->val() ) );
             }
 
             // if permeability
             if ( tInvPermeabProp != nullptr )
             {
                 // add brinkman term to residual weak form
-                mSet->get_residual()( 0 )( { tMasterResStartIndex, tMasterResStopIndex }, { 0, 0 } )
-                                += aWStar * ( trans( tVelocityFI->N() ) * tInvPermeabProp->val()( 0 ) * tVelocityFI->val() );
-            }
-
-            // if turbulence
-            if( tCMTurbulence != nullptr )
-            {
-                // add contribution to residual
-                mSet->get_residual()( 0 )( { tMasterResStartIndex, tMasterResStopIndex }, { 0, 0 } ) +=
-                        aWStar * ( trans( tCMTurbulence->testStrain() ) * tPre * tCMTurbulence->flux() );
+                mSet->get_residual()( 0 )(
+                        { tMasterResStartIndex, tMasterResStopIndex },
+                        { 0, 0 } ) += aWStar * (
+                                trans( tVelocityFI->N() ) * tInvPermeabProp->val()( 0 ) * tVelocityFI->val() );
             }
 
             // check for nan, infinity
@@ -269,10 +262,6 @@ namespace moris
             // get the incompressible fluid constitutive model
             std::shared_ptr< Constitutive_Model > tIncFluidCM =
                     mMasterCM( static_cast< uint >( IWG_Constitutive_Type::INCOMPRESSIBLE_FLUID ) );
-
-            // get the turbulence constitutive model
-            std::shared_ptr< Constitutive_Model > tCMTurbulence =
-                    mMasterCM( static_cast< uint >( IWG_Constitutive_Type::TURBULENCE_FLUID ) );
 
             // get the density property from CM
             std::shared_ptr< Property > tDensityProp = tIncFluidCM->get_property( "Density" );
@@ -339,8 +328,7 @@ namespace moris
                     // compute the jacobian
                     mSet->get_jacobian()(
                             { tMasterResStartIndex, tMasterResStopIndex },
-                            { tMasterDepStartIndex, tMasterDepStopIndex } )
-                            += aWStar * (
+                            { tMasterDepStartIndex, tMasterDepStopIndex } ) += aWStar * (
                                     trans( tVelocityFI->N() ) * tDensity * tdnNdtn +
                                     trans( tVelocityFI->N() ) * tDensity * trans( tVelocityFI->gradx( 1 ) ) * tVelocityFI->N() +
                                     trans( tVelocityFI->N() ) * tDensity * tujvij +
@@ -352,8 +340,8 @@ namespace moris
                         // add brinkman term to jacobian of weak form
                         mSet->get_jacobian()(
                                 { tMasterResStartIndex, tMasterResStopIndex },
-                                { tMasterDepStartIndex, tMasterDepStopIndex } )
-                                += aWStar * ( trans( tVelocityFI->N() ) * tInvPermeabProp->val()( 0 ) * tVelocityFI->N() );
+                                { tMasterDepStartIndex, tMasterDepStopIndex } ) += aWStar * (
+                                        trans( tVelocityFI->N() ) * tInvPermeabProp->val()( 0 ) * tVelocityFI->N() );
                     }
 
                 }
@@ -366,8 +354,7 @@ namespace moris
                 // compute the jacobian contribution from strong form
                 mSet->get_jacobian()(
                         { tMasterResStartIndex, tMasterResStopIndex },
-                        { tMasterDepStartIndex, tMasterDepStopIndex } )
-                        += aWStar * (
+                        { tMasterDepStartIndex, tMasterDepStopIndex } ) += aWStar * (
                                 trans( tujvij ) * tDensity * tSPSUPSPSPG->val()( 0 ) * tJM +
                                 trans( tVelocityFI->div_operator() ) * tSPSUPSPSPG->val()( 1 ) * tJC );
 
@@ -377,8 +364,7 @@ namespace moris
                     // compute the jacobian
                     mSet->get_jacobian()(
                             { tMasterResStartIndex, tMasterResStopIndex },
-                            { tMasterDepStartIndex, tMasterDepStopIndex } )
-                            += aWStar * (
+                            { tMasterDepStartIndex, tMasterDepStopIndex } ) += aWStar * (
                                     trans( tVelocityFI->N() ) * trans( tVelocityFI->gradt( 1 ) ) +
                                     trans( tVelocityFI->N() ) * trans( tVelocityFI->gradx( 1 ) ) * tVelocityFI->val() +
                                     trans( tujvij ) * tSPSUPSPSPG->val()( 0 ) * tRM ) *
@@ -391,23 +377,9 @@ namespace moris
                     // compute the jacobian
                     mSet->get_jacobian()(
                             { tMasterResStartIndex, tMasterResStopIndex },
-                            { tMasterDepStartIndex, tMasterDepStopIndex } )
-                            += aWStar * ( trans( tIncFluidCM->testStrain() ) * tPre * tIncFluidCM->dFluxdDOF( tDofType ) );
+                            { tMasterDepStartIndex, tMasterDepStopIndex } ) += aWStar * (
+                                    trans( tIncFluidCM->testStrain() ) * tPre * tIncFluidCM->dFluxdDOF( tDofType ) );
                     // FIXME add dteststrainddof
-                }
-
-                // if turbulence CM depends on dof type
-                if( tCMTurbulence != nullptr )
-                {
-                    if( tCMTurbulence->check_dof_dependency( tDofType ) )
-                    {
-                        // add contribution to jacobian
-                        mSet->get_jacobian()(
-                                { tMasterResStartIndex, tMasterResStopIndex },
-                                { tMasterDepStartIndex, tMasterDepStopIndex } ) +=
-                                        aWStar * ( trans( tCMTurbulence->testStrain() ) * tPre * tCMTurbulence->dFluxdDOF( tDofType ) );
-                        // FIXME add dteststrainddof
-                    }
                 }
 
                 // if stabilization parameter has dependency on the dof type
@@ -416,8 +388,7 @@ namespace moris
                     // compute the jacobian
                     mSet->get_jacobian()(
                             { tMasterResStartIndex, tMasterResStopIndex },
-                            { tMasterDepStartIndex, tMasterDepStopIndex } )
-                            += aWStar * (
+                            { tMasterDepStartIndex, tMasterDepStopIndex } ) += aWStar * (
                                     trans( tujvij ) * tDensity * tRM * tSPSUPSPSPG->dSPdMasterDOF( tDofType ).get_row( 0 ) +
                                     trans( tVelocityFI->div_operator() ) * tRC * tSPSUPSPSPG->dSPdMasterDOF( tDofType ).get_row( 1 ) );
                 }
@@ -429,8 +400,7 @@ namespace moris
                     {
                         mSet->get_jacobian()(
                                 { tMasterResStartIndex, tMasterResStopIndex },
-                                { tMasterDepStartIndex, tMasterDepStopIndex } )
-                                += aWStar * (
+                                { tMasterDepStartIndex, tMasterDepStopIndex } ) += aWStar * (
                                         trans( tVelocityFI->N() ) *
                                         tInvPermeabProp->dPropdDOF( tDofType ) * tVelocityFI->val() );
                     }
@@ -445,8 +415,7 @@ namespace moris
                         // add contribution to jacobian
                         mSet->get_jacobian()(
                                 { tMasterResStartIndex, tMasterResStopIndex },
-                                { tMasterDepStartIndex, tMasterDepStopIndex } )
-                                += aWStar * (
+                                { tMasterDepStartIndex, tMasterDepStopIndex } ) += aWStar * (
                                         trans( tVelocityFI->N() ) * tGravityProp->val() *
                                         tDensityProp->dPropdDOF( tDofType ) );
                     }
@@ -457,8 +426,7 @@ namespace moris
                         // add contribution to jacobian
                         mSet->get_jacobian()(
                                 { tMasterResStartIndex, tMasterResStopIndex },
-                                { tMasterDepStartIndex, tMasterDepStopIndex } )
-                                += aWStar * (
+                                { tMasterDepStartIndex, tMasterDepStopIndex } ) += aWStar * (
                                         trans( tVelocityFI->N() ) * tDensity *
                                         tGravityProp->dPropdDOF( tDofType ) );
                     }
@@ -478,8 +446,7 @@ namespace moris
                         // add contribution to jacobian
                         mSet->get_jacobian()(
                                 { tMasterResStartIndex, tMasterResStopIndex },
-                                { tMasterDepStartIndex, tMasterDepStopIndex } )
-                                -= aWStar * (
+                                { tMasterDepStartIndex, tMasterDepStopIndex } ) -= aWStar * (
                                         trans( tVelocityFI->N() ) * tDensity * tGravityProp->val() *
                                         tThermalExpProp->val() * tTempFI->N() );
                     }
@@ -490,8 +457,7 @@ namespace moris
                         // add contribution to jacobian
                         mSet->get_jacobian()(
                                 { tMasterResStartIndex, tMasterResStopIndex },
-                                { tMasterDepStartIndex, tMasterDepStopIndex } )
-                                -= aWStar * (
+                                { tMasterDepStartIndex, tMasterDepStopIndex } ) -= aWStar * (
                                         trans( tVelocityFI->N() ) * tGravityProp->val() *
                                         tThermalExpProp->val() * ( tTempFI->val() - tRefTempProp->val() ) *
                                         tDensityProp->dPropdDOF( tDofType ) );
@@ -503,8 +469,7 @@ namespace moris
                         // add contribution to jacobian
                         mSet->get_jacobian()(
                                 { tMasterResStartIndex, tMasterResStopIndex },
-                                { tMasterDepStartIndex, tMasterDepStopIndex } )
-                                -= aWStar * (
+                                { tMasterDepStartIndex, tMasterDepStopIndex } ) -= aWStar * (
                                         trans( tVelocityFI->N() ) * tDensity * tGravityProp->val() *
                                         ( tTempFI->val() - tRefTempProp->val() ) *
                                         tThermalExpProp->dPropdDOF( tDofType ) );
@@ -516,8 +481,7 @@ namespace moris
                         // add contribution to jacobian
                         mSet->get_jacobian()(
                                 { tMasterResStartIndex, tMasterResStopIndex },
-                                { tMasterDepStartIndex, tMasterDepStopIndex } )
-                                += aWStar * (
+                                { tMasterDepStartIndex, tMasterDepStopIndex } ) += aWStar * (
                                         trans( tVelocityFI->N() ) * tDensity * tGravityProp->val() *
                                         tThermalExpProp->val() *
                                         tRefTempProp->dPropdDOF( tDofType ) );
@@ -529,8 +493,7 @@ namespace moris
                         // add contribution to jacobian
                         mSet->get_jacobian()(
                                 { tMasterResStartIndex, tMasterResStopIndex },
-                                { tMasterDepStartIndex, tMasterDepStopIndex } )
-                                -= aWStar * (
+                                { tMasterDepStartIndex, tMasterDepStopIndex } ) -= aWStar * (
                                         trans( tVelocityFI->N() ) * tDensity *
                                         tThermalExpProp->val()( 0 ) * ( tTempFI->val()( 0 ) - tRefTempProp->val()( 0 ) )
                                         * tGravityProp->dPropdDOF( tDofType ) );
@@ -592,10 +555,6 @@ namespace moris
             std::shared_ptr< Constitutive_Model > tIncFluidCM =
                     mMasterCM( static_cast< uint >( IWG_Constitutive_Type::INCOMPRESSIBLE_FLUID ) );
 
-            // get the turbulence fluid constitutive model
-            std::shared_ptr< Constitutive_Model > tCMTurbulence =
-                    mMasterCM( static_cast< uint >( IWG_Constitutive_Type::TURBULENCE_FLUID ) );
-
             // get the incompressible flow stabilization parameter
             std::shared_ptr< Stabilization_Parameter > tSPSUPSPSPG =
                     mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::INCOMPRESSIBLE_FLOW ) );
@@ -647,12 +606,6 @@ namespace moris
                             tDensity * tGravityProp->val() * tThermalExpProp->val() * ( tTempFI->val() - tRefTempProp->val() );
                 }
             }
-
-            if( tCMTurbulence != nullptr )
-            {
-                // add contribution to residual
-                aRM.matrix_data() -= tCMTurbulence->divflux().matrix_data();
-            }
         }
 
         //------------------------------------------------------------------------------
@@ -689,10 +642,6 @@ namespace moris
             // get the incompressible fluid constitutive model
             std::shared_ptr< Constitutive_Model > tIncFluidCM =
                     mMasterCM( static_cast< uint >( IWG_Constitutive_Type::INCOMPRESSIBLE_FLUID ) );
-
-            // get the turbulence fluid constitutive model
-            std::shared_ptr< Constitutive_Model > tCMTurbulence =
-                    mMasterCM( static_cast< uint >( IWG_Constitutive_Type::TURBULENCE_FLUID ) );
 
             // get the incompressible flow stabilization parameter
             std::shared_ptr< Stabilization_Parameter > tSPSUPSPSPG =
@@ -845,17 +794,6 @@ namespace moris
                                 tDensityProp->dPropdDOF( aDofTypes );
                     }
                 }
-
-                // if turbulence
-                if( tCMTurbulence != nullptr )
-                {
-                    // if turbulence CM depends on dof type
-                    if( tCMTurbulence->check_dof_dependency( aDofTypes ) )
-                    {
-                        // compute contribution to jacobian strong form
-                        aJM.matrix_data() -= tCMTurbulence->ddivfluxdu( aDofTypes ).matrix_data();
-                    }
-                }
             }
         }
 
@@ -865,7 +803,8 @@ namespace moris
                 Matrix< DDRMat > & aujvij )
         {
             // get the residual dof type FI (here velocity)
-            Field_Interpolator * tVelocityFI = mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );
+            Field_Interpolator * tVelocityFI =
+                    mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );
 
             // init size for uj vij
             uint tNumRow = tVelocityFI->dnNdxn( 1 ).n_rows();
@@ -888,7 +827,8 @@ namespace moris
                 Matrix< DDRMat > & arm )
         {
             // get the residual dof type FI (here velocity)
-            Field_Interpolator * tVelocityFI = mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );
+            Field_Interpolator * tVelocityFI =
+                    mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );
 
             // set size for uj vij rM
             uint tNumField = tVelocityFI->get_number_of_fields();
@@ -917,7 +857,8 @@ namespace moris
                 Matrix< DDRMat > & adnNdtn )
         {
             // get the residual dof type FI (here velocity)
-            Field_Interpolator * tVelocityFI = mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );
+            Field_Interpolator * tVelocityFI =
+                    mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );
 
             // init size for dnNdtn
             uint tNumRowt = tVelocityFI->get_number_of_fields();

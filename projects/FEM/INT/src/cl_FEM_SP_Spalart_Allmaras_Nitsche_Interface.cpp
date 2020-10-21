@@ -17,6 +17,9 @@ namespace moris
 
         SP_Spalart_Allmaras_Nitsche_Interface::SP_Spalart_Allmaras_Nitsche_Interface()
         {
+            // set has slave flag to true
+            mHasSlave = true;
+
             // set size for the property pointer cells
             mMasterProp.resize( static_cast< uint >( SP_Property_Type::MAX_ENUM ), nullptr );
             mSlaveProp.resize( static_cast< uint >( SP_Property_Type::MAX_ENUM ), nullptr );

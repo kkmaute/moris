@@ -11,6 +11,7 @@
 //FEM/INT/src
 #include "cl_FEM_Field_Interpolator.hpp"
 #include "cl_FEM_Constitutive_Model.hpp"
+#include "cl_FEM_CM_Fluid_Incompressible.hpp"
 
 namespace moris
 {
@@ -18,7 +19,7 @@ namespace moris
     {
 
         //--------------------------------------------------------------------------------------------------------------
-        class CM_Fluid_Turbulence : public Constitutive_Model
+        class CM_Fluid_Turbulence : public CM_Fluid_Incompressible
         {
 
                 //--------------------------------------------------------------------------------------------------------------
@@ -26,29 +27,19 @@ namespace moris
 
                 // default dof type
                 MSI::Dof_Type mDofVelocity  = MSI::Dof_Type::VX;
+                MSI::Dof_Type mDofPressure  = MSI::Dof_Type::P;
                 MSI::Dof_Type mDofViscosity = MSI::Dof_Type::VISCOSITY;
 
                 // property type for CM
                 enum class CM_Property_Type
                 {
-                    VISCOSITY, // fluid viscosity
                     DENSITY,   // fluid density
+                    VISCOSITY, // fluid viscosity
                     MAX_ENUM
                 };
 
                 // local string to property enum map
                 std::map< std::string, CM_Property_Type > mPropertyMap;
-
-                // function pointers
-                void ( CM_Fluid_Turbulence:: * m_eval_strain )() = nullptr;
-                void ( CM_Fluid_Turbulence:: * m_eval_divstrain )() = nullptr;
-                void ( CM_Fluid_Turbulence:: * m_eval_teststrain )() = nullptr;
-                void ( CM_Fluid_Turbulence:: * m_eval_dstraindx )( uint aOrder ) = nullptr;
-                void ( CM_Fluid_Turbulence:: * m_eval_ddivstraindu )(
-                        const moris::Cell< MSI::Dof_Type > & aDofTypes ) = nullptr;
-                void ( CM_Fluid_Turbulence:: * m_flatten_normal )(
-                        const Matrix< DDRMat > & aNormal,
-                        Matrix< DDRMat > & aFlatNormal ) = nullptr;
 
                 // Spalart Allmaras model constants
                 real mCv1 = 7.1;
@@ -68,26 +59,10 @@ namespace moris
                  */
                 ~CM_Fluid_Turbulence(){};
 
-                //--------------------------------------------------------------------------------------------------------------
-                /**
-                 * set space dim
-                 */
-                void set_space_dim( uint aSpaceDim )
-                {
-                    mSpaceDim = aSpaceDim;
-                    this->set_function_pointers();
-                }
-
-                //--------------------------------------------------------------------------------------------------------------
-                /**
-                 * set function pointers
-                 */
-                void set_function_pointers();
-
                 //------------------------------------------------------------------------------
                 /**
                  * set constitutive model dof types
-                 * @param[ in ] aDofTypes a list of group of dof types
+                 * @param[ in ] aDofTypes   a list of group of dof types
                  * @param[ in ] aDofStrings a list of strings to describe the dof types
                  */
                 void set_dof_type_list(
@@ -97,7 +72,7 @@ namespace moris
                 //------------------------------------------------------------------------------
                 /**
                  * set constitutive model dv types
-                 * @param[ in ] aDvTypes a list of group of dv types
+                 * @param[ in ] aDvTypes   a list of group of dv types
                  * @param[ in ] aDvStrings a list of strings to describe the dv types
                  */
                 void set_dv_type_list(
@@ -174,62 +149,6 @@ namespace moris
 
                 //--------------------------------------------------------------------------------------------------------------
                 /**
-                 * evaluate the strain template
-                 */
-                void eval_strain()
-                {
-                    ( this->*m_eval_strain )();
-                }
-                void eval_strain_2d();
-                void eval_strain_3d();
-
-                //--------------------------------------------------------------------------------------------------------------
-                /**
-                 * evaluate the divergence of the strain
-                 */
-                void eval_divstrain()
-                {
-                    ( this->*m_eval_divstrain )();
-                }
-                void eval_divstrain_2d();
-                void eval_divstrain_3d();
-
-                //--------------------------------------------------------------------------------------------------------------
-                /**
-                 * evaluate the derivative of the divergence of the strain wrt dof type
-                 */
-                void eval_ddivstraindu( const moris::Cell< MSI::Dof_Type > & aDofTypes )
-                {
-                    ( this->*m_eval_ddivstraindu)( aDofTypes );
-                }
-                void eval_ddivstraindu_2d( const moris::Cell< MSI::Dof_Type > & aDofTypes );
-                void eval_ddivstraindu_3d( const moris::Cell< MSI::Dof_Type > & aDofTypes );
-
-                //--------------------------------------------------------------------------------------------------------------
-                /**
-                 * evaluate the derivative of the strain wrt space
-                 * @param[ in ] aOrder order of the derivative
-                 */
-                void eval_dstraindx( uint aOrder )
-                {
-                    ( this->*m_eval_dstraindx )( aOrder );
-                }
-                void eval_dstraindx_2d( uint aOrder );
-                void eval_dstraindx_3d( uint aOrder );
-
-                //--------------------------------------------------------------------------------------------------------------
-                /**
-                 * evaluate the test strain
-                 */
-                void eval_testStrain()
-                {
-                    ( this->*m_eval_teststrain )();
-                }
-                void eval_teststrain_2d();
-                void eval_teststrain_3d();
-
-                //--------------------------------------------------------------------------------------------------------------
-                /**
                  * evaluate the constitutive model flux derivative wrt to a dof type
                  * @param[ in ] aDofTypes  a dof type wrt which the derivative is evaluated
                  */
@@ -256,33 +175,6 @@ namespace moris
                         const Matrix< DDRMat >             & aNormal,
                         const Matrix< DDRMat >             & aJump,
                         const moris::Cell< MSI::Dof_Type > & aTestDofTypes );
-
-                //--------------------------------------------------------------------------------------------------------------
-                /**
-                 * evaluate the constitutive model strain derivative wrt to a dof type
-                 * @param[ in ] aDofTypes    a dof type wrt which the derivative is evaluated
-                 * @param[ in ] adStraindDOF a matrix to fill with derivative evaluation
-                 */
-                void eval_dStraindDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes );
-
-                //--------------------------------------------------------------------------------------------------------------
-                /**
-                 * flatten normal vector
-                 * @param[ in ] aNormal          a normal vector
-                 * @param[ in ] aFlattenedNormal a matrix for flattened normal to fill
-                 */
-                void flatten_normal(
-                        const Matrix< DDRMat > & aNormal,
-                        Matrix< DDRMat > & aFlatNormal )
-                {
-                    ( this->*m_flatten_normal )( aNormal, aFlatNormal );
-                }
-                void flatten_normal_2d(
-                        const Matrix< DDRMat > & aNormal,
-                        Matrix< DDRMat >       & aFlatNormal );
-                void flatten_normal_3d(
-                        const Matrix< DDRMat > & aNormal,
-                        Matrix< DDRMat >       & aFlatNormal );
 
                 //--------------------------------------------------------------------------------------------------------------
             private:

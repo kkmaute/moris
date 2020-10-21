@@ -81,6 +81,7 @@ namespace moris
 
                 // unpacked phase inputs
                 moris::Cell< fem::Phase_User_Info > mPhaseInfo;
+                std::map< std::string, uint >       mPhaseMap;
 
                 // space dimension
                 uint mSpaceDim;
@@ -167,18 +168,18 @@ namespace moris
                  * get equation sets for test
                  */
                 moris::Cell< MSI::Equation_Set * > & get_equation_sets()
-                    {
+                {
                     return mFemSets;
-                    }
+                }
 
                 //------------------------------------------------------------------------------
                 /**
                  * get equation objects
                  */
                 moris::Cell< MSI::Equation_Object * > & get_equation_objects()
-                    {
+                {
                     return mFemClusters;
-                    }
+                }
 
                 //------------------------------------------------------------------------------
                 /**
@@ -187,9 +188,9 @@ namespace moris
                 //map< moris_index, moris_index > & get_mesh_set_to_fem_set_index_map()
                 //map< std::pair< moris_index, bool >, moris_index > & get_mesh_set_to_fem_set_index_map()
                 map< std::tuple< moris_index, bool, bool >, moris_index > & get_mesh_set_to_fem_set_index_map()
-                    {
+                {
                     return mMeshSetToFemSetMap;
-                    }
+                }
 
                 //------------------------------------------------------------------------------
 
@@ -216,7 +217,8 @@ namespace moris
                 /**
                  * finalize the fem sets
                  */
-                void finalize_equation_sets( MSI::Model_Solver_Interface * aModelSolverInterface );
+                void finalize_equation_sets(
+                        MSI::Model_Solver_Interface * aModelSolverInterface );
 
                 void finalize_equation_sets(
                         MSI::Model_Solver_Interface    * aModelSolverInterface,
@@ -239,8 +241,99 @@ namespace moris
                 //------------------------------------------------------------------------------
                 /**
                  * create a list of constitutive model pointers
-                 * @param[ in ] aCMMap         a map from CM name to CM index
-                 *                            in aCMs
+                 * @param[ in ] aPropertyMap   a map from property name to property index
+                 * @param[ in ] aMSIDofTypeMap a map from std::string to MSI::Dof_Type
+                 * @param[ in ] aDvTypeMap     a map from std::string to PDV_Type
+                 */
+                void create_constitutive_models(
+                        std::map< std::string, uint >            & aPropertyMap,
+                        moris::map< std::string, MSI::Dof_Type > & aMSIDofTypeMap,
+                        moris::map< std::string, PDV_Type >      & aDvTypeMap );
+
+                //------------------------------------------------------------------------------
+                /**
+                 * create a list of stabilization parameter pointers
+                 * @param[ in ] aSPMap         a map from SP name to index in mSPs to fill
+                 * @param[ in ] aPropertyMap   a map from property name to index in mProperties
+                 * @param[ in ] aMSIDofTypeMap a map from std::string to MSI::Dof_Type
+                 * @param[ in ] aDvTypeMap     a map from std::string to PDV_Type
+                 */
+                void create_stabilization_parameters(
+                        std::map< std::string, uint >            & aSPMap,
+                        std::map< std::string, uint >            & aPropertyMap,
+                        moris::map< std::string, MSI::Dof_Type > & aMSIDofTypeMap,
+                        moris::map< std::string, PDV_Type >      & aDvTypeMap );
+
+                //------------------------------------------------------------------------------
+                /**
+                 * create a list of IWG pointers
+                 * @param[ in ] aPropertyMap   a map from property name to index in mProperties
+                 * @param[ in ] aSPMap         a map from SP name to index in aSPs
+                 * @param[ in ] aMSIDofTypeMap a map from std::string to MSI::Dof_Type
+                 */
+                void create_IWGs(
+                        std::map< std::string, uint >            & aPropertyMap,
+                        std::map< std::string, uint >            & aSPMap,
+                        moris::map< std::string, MSI::Dof_Type > & aMSIDofTypeMap );
+
+                //------------------------------------------------------------------------------
+                /**
+                 * create an IQI
+                 * @param[ in ] aPropertyMap   a map from property name to index in mProperties
+                 * @param[ in ] aSPMap         a map from SP name to index in aSPs
+                 * @param[ in ] aMSIDofTypeMap a map from std::string to MSI::Dof_Type
+                 */
+                void create_IQIs(
+                        std::map< std::string, uint >            & aPropertyMap,
+                        std::map< std::string, uint >            & aSPMap,
+                        moris::map< std::string, MSI::Dof_Type > & aMSIDofTypeMap );
+
+                //------------------------------------------------------------------------------
+                /**
+                 * create fem set info
+                 * @param[ in ] aWithPhase FIXME remove just there to overload
+                 */
+                void create_fem_set_info( bool aWithPhase );
+
+                //------------------------------------------------------------------------------
+                /**
+                 * create phase info
+                 */
+                void create_phases();
+
+                //------------------------------------------------------------------------------
+                /**
+                 * scale the IQIs according to user input.
+                 */
+                void normalize_IQIs();
+
+                //------------------------------------------------------------------------------
+                /**
+                 * get mesh set name from input
+                 * @param[ in ] aBulkType             enum for bulk type
+                 *                                    (bulk, single sideset, double sideset, ...)
+                 * @param[ in ] aMasterPhaseName      name for master phase
+                 * @param[ in ] aSlavePhaseName       name for slave phase
+                 * @param[ in ] aNeighborPhasesString string with neighboring phases for single sideset
+                 * @param[ in ] aSideOrdinalsString   string with side ordinals for single sideset
+                 * @param[ in ] aIsGhost              bool true if ghost IWG
+                 * @param[ in ] aMeshSetNames         cell of mesh set names to fill
+                 */
+                void get_mesh_set_names(
+                        fem::Element_Type               aBulkType,
+                        std::string                     aMasterPhaseName,
+                        std::string                     aSlavePhaseName,
+                        std::string                     aNeighborPhasesString,
+                        std::string                     aSideOrdinalsString,
+                        bool                            aIsGhost,
+                        moris::Cell< std::string >    & aMeshSetNames );
+
+                //------------------------------------------------------------------------------
+                // FIXME Old version of FEM inputs to be removed
+                //------------------------------------------------------------------------------
+                /**
+                 * create a list of constitutive model pointers
+                 * @param[ in ] aCMMap         a map from CM name to index in aCMs
                  * @param[ in ] aPropertyMap   a map from property name to property index
                  * @param[ in ] aMSIDofTypeMap a map from std::string to MSI::Dof_Type
                  * @param[ in ] aDvTypeMap     a map from std::string to PDV_Type
@@ -254,10 +347,8 @@ namespace moris
                 //------------------------------------------------------------------------------
                 /**
                  * create a list of stabilization parameter pointers
-                 * @param[ in ] aPropertyMap   a map from property name to property
-                 *                            index in aProperties
-                 * @param[ in ] aCMMap         a map from CM name to CM index
-                 *                            in aCMs
+                 * @param[ in ] aPropertyMap   a map from property name to index in mProperties
+                 * @param[ in ] aCMMap         a map from CM name to index in aCMs
                  * @param[ in ] aMSIDofTypeMap a map from std::string to MSI::Dof_Type
                  * @param[ in ] aDvTypeMap     a map from std::string to PDV_Type
                  */
@@ -272,11 +363,9 @@ namespace moris
                 /**
                  * create a list of IWG pointers
                  * @param[ in ] aPropertyMap   a map from property name to property
-                 *                            index in aProperties
-                 * @param[ in ] aCMMap         a map from CM name to CM index
-                 *                            in aCMs
-                 * @param[ in ] aSPMap         a map from SP name to SP index
-                 *                            in aSPs
+                 *                             index in aProperties
+                 * @param[ in ] aCMMap         a map from CM name to CM index in aCMs
+                 * @param[ in ] aSPMap         a map from SP name to SP index in aSPs
                  * @param[ in ] aMSIDofTypeMap a map from std::string to MSI::Dof_Type
                  * @param[ in ] aDvTypeMap     a map from std::string to PDV_Type
                  */
@@ -288,22 +377,12 @@ namespace moris
                         moris::map< std::string, MSI::Dof_Type > & aMSIDofTypeMap,
                         moris::map< std::string, PDV_Type >      & aDvTypeMap );
 
-                void create_IWGs(
-                        std::map< std::string, uint >            & aPhaseMap,
-                        std::map< std::string, uint >            & aPropertyMap,
-                        std::map< std::string, uint >            & aCMMap,
-                        std::map< std::string, uint >            & aSPMap,
-                        moris::map< std::string, MSI::Dof_Type > & aMSIDofTypeMap );
-
                 //------------------------------------------------------------------------------
                 /**
                  * create an IQI
-                 * @param[ in ] aPropertyMap   a map from property name to property
-                 *                            index in aProperties
-                 * @param[ in ] aCMMap         a map from CM name to CM index
-                 *                            in aCMs
-                 * @param[ in ] aSPMap         a map from SP name to SP index
-                 *                            in aSPs
+                 * @param[ in ] aPropertyMap   a map from property name to index in mProperties
+                 * @param[ in ] aCMMap         a map from CM name to index in aCMs
+                 * @param[ in ] aSPMap         a map from SP name to index in aSPs
                  * @param[ in ] aMSIDofTypeMap a map from std::string to MSI::Dof_Type
                  * @param[ in ] aDvTypeMap     a map from std::string to PDV_Type
                  */
@@ -315,57 +394,11 @@ namespace moris
                         moris::map< std::string, MSI::Dof_Type > & aMSIDofTypeMap,
                         moris::map< std::string, PDV_Type >      & aDvTypeMap );
 
-                void create_IQIs(
-                        std::map< std::string, uint >            & aPhaseMap,
-                        std::map< std::string, uint >            & aPropertyMap,
-                        std::map< std::string, uint >            & aCMMap,
-                        std::map< std::string, uint >            & aSPMap,
-                        moris::map< std::string, MSI::Dof_Type > & aMSIDofTypeMap );
-
                 //------------------------------------------------------------------------------
                 /**
                  * create fem set info
                  */
                 void create_fem_set_info();
-
-                void create_fem_set_info( std::map< std::string, uint > & aPhaseMap );
-
-                //            void create_fem_set_info(
-                //                    std::map< std::string, uint >            & aIWGMap,
-                //                    std::map< std::string, uint >            & aIQIMap );
-
-                //------------------------------------------------------------------------------
-                /**
-                 * create phase info
-                 */
-                void create_phases(
-                        std::map< std::string, uint >            & aPhaseMap,
-                        std::map< std::string, uint >            & aPropertyMap,
-                        std::map< std::string, uint >            & aCMMap,
-                        std::map< std::string, uint >            & aSPMap,
-                        moris::map< std::string, MSI::Dof_Type > & aMSIDofTypeMap,
-                        moris::map< std::string, PDV_Type >      & aDvTypeMap );
-
-                //------------------------------------------------------------------------------
-                /**
-                 * Scale the IQIs according to user input.
-                 */
-                void normalize_IQIs();
-
-                //------------------------------------------------------------------------------
-                /**
-                 * Get mesh set name from input
-                 */
-                void get_mesh_set_names(
-                        std::map< std::string, uint > & aPhaseMap,
-                        fem::Element_Type               aIWGBulkType,
-                        std::string                     aMasterPhaseName,
-                        std::string                     aSlavePhaseName,
-                        std::string                     aSlavePhaseString,
-                        std::string                     aOrdinalString,
-                        bool                            aIsGhost,
-                        moris::Cell< std::string >    & aMeshSetNames );
-
         };
         //------------------------------------------------------------------------------
     } /* namespace mdl */
