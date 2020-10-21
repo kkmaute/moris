@@ -1,4 +1,5 @@
 #include "catch.hpp"
+#include "math.h"
 #include "cl_Matrix.hpp"
 #include "cl_SOL_Matrix_Vector_Factory.hpp"
 #include "cl_MSI_Design_Variable_Interface.hpp"
@@ -21,7 +22,7 @@ namespace moris
     //------------------------------------------------------------------------------------------------------------------
 
     // Dummy IQI sensitivity values so a FEM model doesn't have to be created
-    uint gNumPDVs = 36;
+    uint gNumPDVs = 8;
     Matrix<DDRMat> gdIQIdPDV1(1, gNumPDVs);
     Matrix<DDRMat> gdIQIdPDV2(1, gNumPDVs);
 
@@ -274,26 +275,31 @@ namespace moris
 
         TEST_CASE("Intersection PDV Creation", "[gen], [pdv], [intersection pdv]")
         {
-            if( par_size() == 2)
+            if (par_size() == 2)
             {
                 // Create circle
-                std::shared_ptr<Geometry> tCircle = std::make_shared<Circle>(0.0, 0.0, 1.0);
+                Matrix<DDRMat> tADVs = {{0.0, 0.0, 1.0}};
+                std::shared_ptr<Geometry> tCircle = std::make_shared<Circle>(
+                        tADVs,
+                        Matrix<DDUMat>({{0, 1, 2}}),
+                        Matrix<DDUMat>({{0, 1, 2}}),
+                        Matrix<DDRMat>({{}}));
 
                 // Create PDV_Type host manager
                 Pdv_Host_Manager tPDVHostManager;
                 tPDVHostManager.set_num_background_nodes(0);
 
+                // Node IDs/owners per set
+                uint tNumOwnedNodes = 0;
                 Matrix<IdMat> tIpNodeIdsPerSet(4,1);
-
                 Matrix<DDSMat> tIpNodeOwnersPerSet(4,1);
-
-                Cell< std::shared_ptr<Intersection_Node> > tIntersectionNodes(4);
 
                 if( par_rank() == 0)
                 {
                     tIpNodeIdsPerSet = {{0}, {1}, {2}, {3}};
 
                     tIpNodeOwnersPerSet = {{0}, {0}, {0}, {1}};
+                    tNumOwnedNodes = 3;
 
                     tPDVHostManager.mCommTable.set_size( 2, 1, 0);
                     tPDVHostManager.mCommTable( 1, 0 ) = 1;
@@ -302,9 +308,10 @@ namespace moris
                 }
                 else if( par_rank() == 1)
                 {
-                    tIpNodeIdsPerSet = {{2}, {3}, {4}, {5}};
+                    tIpNodeIdsPerSet = {{2}, {3}, {4}, {5}, {6}, {7}};
 
-                    tIpNodeOwnersPerSet = {{0}, {1}, {1}, {1}};
+                    tIpNodeOwnersPerSet = {{0}, {1}, {1}, {1}, {1}, {1}};
+                    tNumOwnedNodes = 5;
 
                     tPDVHostManager.mCommTable.set_size( 2, 1, 1);
                     tPDVHostManager.mCommTable( 1, 0 ) = 0;
@@ -312,24 +319,35 @@ namespace moris
                     tPDVHostManager.mIGVertexIdtoIndMap[ 3 ] = 1;
                 }
 
-
-                for( sint Ik = 0; Ik < 4; Ik++ )
+                // Loop over all node indices
+                for (uint tNodeIndex = 0; tNodeIndex < tIpNodeIdsPerSet.length(); tNodeIndex++)
                 {
-                    tIntersectionNodes( Ik ) = std::make_shared<Intersection_Node>(
-                            0, 0, Matrix<DDRMat>(2, 1, 0.0), Matrix<DDRMat>(2, 1, 0.0), tCircle, 0.0);
+                    // Go around a circle to create parent coordinates
+                    real tRadians = tIpNodeIdsPerSet(tNodeIndex) * M_PI / 2.0;
+                    Matrix<DDRMat> tFirstParentCoordinates = {{0.5 * cos(tRadians), 0.5 * sin(tRadians)}};
+                    Matrix<DDRMat> tSecondParentCoordinates = {{1.5 * cos(tRadians), 1.5 * sin(tRadians)}};
 
-                    tPDVHostManager.set_intersection_node( Ik, tIntersectionNodes( Ik ) );
-                    tPDVHostManager.update_intersection_node( Ik, tIpNodeIdsPerSet( Ik ), tIpNodeOwnersPerSet( Ik ));
+                    // Create intersection node
+                    std::shared_ptr<Intersection_Node> tIntersectionNode = std::make_shared<Intersection_Node>(
+                            0, 0, tFirstParentCoordinates, tSecondParentCoordinates, tCircle, 0.0);
+
+                    // Add intersection node to PDV host manager
+                    tPDVHostManager.set_intersection_node(tNodeIndex, tIntersectionNode);
+                    tPDVHostManager.update_intersection_node(
+                            tNodeIndex,
+                            tIpNodeIdsPerSet(tNodeIndex),
+                            tIpNodeOwnersPerSet(tNodeIndex));
                 }
 
+                // Create PDV IDs
                 tPDVHostManager.create_pdv_ids();
 
                 // ------------------- Check global map ----------------------- //
                 const Matrix<DDSMat> & tLocalGlobalMap = tPDVHostManager.get_my_local_global_map();
                 const Matrix<DDSMat> & tLocalGlobalOSMap = tPDVHostManager.get_my_local_global_overlapping_map();
 
-                REQUIRE(tLocalGlobalMap.length() == 6);
-                REQUIRE(tLocalGlobalOSMap.length() == 8);
+                REQUIRE(tLocalGlobalMap.length() == tNumOwnedNodes * 2);
+                REQUIRE(tLocalGlobalOSMap.length() == (tNumOwnedNodes + 1) * 2);
 
                 if (par_rank() == 0)
                 {
@@ -353,6 +371,18 @@ namespace moris
                     CHECK(tLocalGlobalOSMap(4) == 8);                  CHECK(tLocalGlobalOSMap(5) == 9);
                     CHECK(tLocalGlobalOSMap(6) == 10);                 CHECK(tLocalGlobalOSMap(7) == 11);
                 }
+
+                // Set owned ADV IDs
+                Matrix<DDSMat> tOwnedADVIds = {{0}, {1}, {2}};
+                tPDVHostManager.set_owned_adv_ids(tOwnedADVIds);
+
+                // Get sensitivities
+                Matrix<DDSMat> tFullADVIds(0, 0);
+                if (par_rank() == 0)
+                {
+                    tFullADVIds = tOwnedADVIds;
+                }
+                Matrix<DDRMat> tdIQIdADV = tPDVHostManager.compute_diqi_dadv(tFullADVIds);
             }
         }
 
