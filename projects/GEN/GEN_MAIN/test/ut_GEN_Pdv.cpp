@@ -3,7 +3,7 @@
 #include "cl_SOL_Matrix_Vector_Factory.hpp"
 #include "cl_MSI_Design_Variable_Interface.hpp"
 
-#include "fn_GEN_create_geometries.hpp"
+#include "cl_GEN_Circle.hpp"
 #include "fn_GEN_create_properties.hpp"
 #include "fn_PRM_GEN_Parameters.hpp"
 
@@ -276,6 +276,9 @@ namespace moris
         {
             if( par_size() == 2)
             {
+                // Create circle
+                std::shared_ptr<Geometry> tCircle = std::make_shared<Circle>(0.0, 0.0, 1.0);
+
                 // Create PDV_Type host manager
                 Pdv_Host_Manager tPDVHostManager;
                 tPDVHostManager.set_num_background_nodes(0);
@@ -312,9 +315,9 @@ namespace moris
 
                 for( sint Ik = 0; Ik < 4; Ik++ )
                 {
-                    tIntersectionNodes( Ik ) = std::make_shared<Intersection_Node>();
+                    tIntersectionNodes( Ik ) = std::make_shared<Intersection_Node>(
+                            0, 0, Matrix<DDRMat>(2, 1, 0.0), Matrix<DDRMat>(2, 1, 0.0), tCircle, 0.0);
 
-                    tIntersectionNodes( Ik )->mGlobalCoordinates.set_size( 2, 1 );
                     tPDVHostManager.set_intersection_node( Ik, tIntersectionNodes( Ik ) );
                     tPDVHostManager.update_intersection_node( Ik, tIpNodeIdsPerSet( Ik ), tIpNodeOwnersPerSet( Ik ));
                 }

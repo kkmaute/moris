@@ -28,9 +28,9 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        Matrix<DDSMat> Pdv_Property::get_determining_adv_ids()
+        Matrix<DDSMat> Pdv_Property::get_determining_adv_ids(uint aNodeIndex, const Matrix<DDRMat>& aCoordinates)
         {
-            return mProperty->get_determining_adv_ids();
+            return mProperty->get_determining_adv_ids(aNodeIndex, aCoordinates);
         }
 
         //--------------------------------------------------------------------------------------------------------------

@@ -29,7 +29,7 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        Matrix<DDSMat> Pdv_Value::get_determining_adv_ids()
+        Matrix<DDSMat> Pdv_Value::get_determining_adv_ids(uint aNodeIndex, const Matrix<DDRMat>& aCoordinates)
         {
             return {{}};
         }

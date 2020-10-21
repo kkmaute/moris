@@ -174,16 +174,23 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        bool Field::depends_on_advs()
+        bool Field::conversion_to_bsplines()
         {
-            return mDependsOnADVs;
+            return (mBSplineMeshIndex >= 0);
         }
 
         //--------------------------------------------------------------------------------------------------------------
 
-        Matrix<DDSMat> Field::get_determining_adv_ids()
+        Matrix<DDSMat> Field::get_determining_adv_ids(uint aNodeIndex, const Matrix<DDRMat>& aCoordinates)
         {
             return mDeterminingADVIds;
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
+        bool Field::depends_on_advs()
+        {
+            return mDependsOnADVs;
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -219,13 +226,6 @@ namespace moris
         real Field::get_bspline_upper_bound()
         {
             return mBSplineUpperBound;
-        }
-
-        //--------------------------------------------------------------------------------------------------------------
-
-        bool Field::conversion_to_bsplines()
-        {
-            return (mBSplineMeshIndex >= 0);
         }
 
         //--------------------------------------------------------------------------------------------------------------

@@ -566,10 +566,6 @@ namespace moris
             {
                 if (mIntersectionNodes(tIntersectionIndex))
                 {
-                    // Get sensitivities
-                    Matrix<DDRMat> tIntersectionSensitivities =
-                            mIntersectionNodes(tIntersectionIndex)->get_all_sensitivities();
-
                     // Get starting ID and number of coordinates
                     uint tStartingGlobalIndex = mIntersectionNodes(tIntersectionIndex)->get_starting_pdv_id();
                     uint tNumCoordinates = mIntersectionNodes(tIntersectionIndex)->get_num_pdvs();
@@ -581,11 +577,15 @@ namespace moris
                         tPDVSensitivityIDs(tCoordinateIndex) = tStartingGlobalIndex + tCoordinateIndex;
                     }
 
-                    // Get ADV IDs
-                    Matrix<DDSMat> tADVIds = mIntersectionNodes(tIntersectionIndex)->get_determining_adv_ids();
-
                     // Fill matrix
-                    tdPDVdADV->fill_matrix_row(tIntersectionSensitivities, tPDVSensitivityIDs, tADVIds);
+                    tdPDVdADV->fill_matrix_row(
+                            mIntersectionNodes(tIntersectionIndex)->get_first_parent_sensitivities(),
+                            tPDVSensitivityIDs,
+                            mIntersectionNodes(tIntersectionIndex)->get_first_parent_determining_adv_ids());
+                    tdPDVdADV->fill_matrix_row(
+                            mIntersectionNodes(tIntersectionIndex)->get_second_parent_sensitivities(),
+                            tPDVSensitivityIDs,
+                            mIntersectionNodes(tIntersectionIndex)->get_second_parent_determining_adv_ids());
                 }
             }
 

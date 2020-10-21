@@ -493,17 +493,13 @@ namespace moris
                         // Check field value
                         CHECK(tBSplineCircle->get_field_value(tNodeIndex, {{}}) == tTargetFieldValue);
 
-                        // Set target sensitivity
-                        tTargetSensitivities.set_size(1, tADVs.length(), 0.0);
-                        Matrix<IndexMat> tBSplineIndices = tMesh->get_bspline_inds_of_node_loc_ind(tNodeIndex, EntityRank::BSPLINE);
-                        Matrix<DDRMat> tMatrix = tMesh->get_t_matrix_of_node_loc_ind(tNodeIndex, EntityRank::BSPLINE);
-                        for (uint tBSpline = 0; tBSpline < tBSplineIndices.length(); tBSpline++)
-                        {
-                            tTargetSensitivities(tBSplineIndices(tBSpline)) = tMatrix(tBSpline);
-                        }
-
-                        // Check sensitivity
-                        check_equal(tBSplineCircle->get_field_sensitivities(tNodeIndex, {{}}), tTargetSensitivities);
+                        // Check sensitivities
+                        check_equal(
+                                tBSplineCircle->get_field_sensitivities(tNodeIndex, {{}}),
+                                tMesh->get_t_matrix_of_node_loc_ind(tNodeIndex, EntityRank::BSPLINE));
+                        check_equal(
+                                tBSplineCircle->get_determining_adv_ids(tNodeIndex, {{}}),
+                                tMesh->get_bspline_inds_of_node_loc_ind(tNodeIndex, EntityRank::BSPLINE));
                     }
 
                     // Set new ADVs

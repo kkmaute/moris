@@ -164,18 +164,27 @@ namespace moris
             virtual void reset_child_nodes();
 
             /**
+             * Function for determining if this field is to be used for seeding a B-spline field.
+             *
+             * @return Logic for B-spline creation
+             */
+            virtual bool conversion_to_bsplines();
+
+            /**
+             * Gets the IDs of ADVs which this field depends on for evaluations.
+             *
+             * @param aNodeIndex Node index
+             * @param aCoordinates Node coordinates
+             * @return Field basis ADV IDs
+             */
+            virtual Matrix<DDSMat> get_determining_adv_ids(uint aNodeIndex, const Matrix<DDRMat>& aCoordinates);
+
+            /**
              * If this field depends on ADVs
              *
              * @return if this field has ADV indices
              */
             bool depends_on_advs();
-
-            /**
-             * Gets the IDs of ADVs which this field depends on for evaluations.
-             *
-             * @return Field basis ADV IDs
-             */
-            Matrix<DDSMat> get_determining_adv_ids();
 
             /**
              * This function will return true when called less than the number of refinements set for this field,
@@ -212,13 +221,6 @@ namespace moris
              * @return Upper bound
              */
             real get_bspline_upper_bound();
-
-            /**
-             * Function for determining if this field is to be used for seeding a B-spline field.
-             *
-             * @return Logic for B-spline creation
-             */
-            virtual bool conversion_to_bsplines();
 
         private:
 

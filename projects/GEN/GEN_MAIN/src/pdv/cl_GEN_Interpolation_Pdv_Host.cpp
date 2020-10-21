@@ -227,7 +227,7 @@ namespace moris
 
         Matrix<DDSMat> Interpolation_Pdv_Host::get_determining_adv_ids(uint aPDVIndex)
         {
-            return mPDVs(aPDVIndex)->get_determining_adv_ids();
+            return mPDVs(aPDVIndex)->get_determining_adv_ids(mNodeIndex, mCoordinates);
         }
 
         //--------------------------------------------------------------------------------------------------------------
