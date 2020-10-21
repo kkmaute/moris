@@ -561,10 +561,10 @@ namespace moris
                 }
             }
 
-            // Loop over intersection nodes
+            // Loop over intersection nodes for inserting
             for (uint tIntersectionIndex = 0; tIntersectionIndex < mIntersectionNodes.size(); tIntersectionIndex++)
             {
-                if (mIntersectionNodes(tIntersectionIndex)) // TODO also check for ownership here for efficiency
+                if (mIntersectionNodes(tIntersectionIndex) and mIntersectionNodes(tIntersectionIndex)->get_vertex_owner() == par_rank())
                 {
                     // Get starting ID and number of coordinates
                     uint tStartingGlobalIndex = mIntersectionNodes(tIntersectionIndex)->get_starting_pdv_id();
@@ -577,14 +577,30 @@ namespace moris
                         tPDVSensitivityIDs(tCoordinateIndex) = tStartingGlobalIndex + tCoordinateIndex;
                     }
 
-                    // Fill matrix
+                    // Get determining ADV IDs
+                    Matrix<DDSMat> tFirstParentDeterminingADVIds =
+                            mIntersectionNodes(tIntersectionIndex)->get_first_parent_determining_adv_ids();
+                    Matrix<DDSMat> tSecondParentDeterminingADVIds =
+                            mIntersectionNodes(tIntersectionIndex)->get_second_parent_determining_adv_ids();
+
+                    // Insert new zero values into matrix
                     tdPDVdADV->insert_values(
                             tPDVSensitivityIDs,
-                            mIntersectionNodes(tIntersectionIndex)->get_first_parent_determining_adv_ids(),
+                            tFirstParentDeterminingADVIds,
+                            Matrix<DDRMat>(tNumCoordinates, tFirstParentDeterminingADVIds.length(), 0.0));
+                    tdPDVdADV->insert_values(
+                            tPDVSensitivityIDs,
+                            tSecondParentDeterminingADVIds,
+                            Matrix<DDRMat>(tNumCoordinates, tSecondParentDeterminingADVIds.length(), 0.0));
+
+                    // Sum into matrix values
+                    tdPDVdADV->sum_into_values(
+                            tPDVSensitivityIDs,
+                            tFirstParentDeterminingADVIds,
                             mIntersectionNodes(tIntersectionIndex)->get_first_parent_sensitivities());
-                    tdPDVdADV->insert_values(
+                    tdPDVdADV->sum_into_values(
                             tPDVSensitivityIDs,
-                            mIntersectionNodes(tIntersectionIndex)->get_second_parent_determining_adv_ids(),
+                            tSecondParentDeterminingADVIds,
                             mIntersectionNodes(tIntersectionIndex)->get_second_parent_sensitivities());
                 }
             }
