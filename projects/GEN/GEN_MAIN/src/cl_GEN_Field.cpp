@@ -20,7 +20,7 @@ namespace moris
                      real            aBSplineUpperBound)
                 : mFieldVariables(aFieldVariableIndices.length() + aConstantParameters.length()),
                   mConstantParameters(aConstantParameters),
-                  mADVDependencies(aFieldVariableIndices.length() + aConstantParameters.length(), 1, -1),
+                  mDeterminingADVIds(aFieldVariableIndices.length() + aConstantParameters.length(), 1, -1),
                   mDependsOnADVs(aADVIndices.length()),
                   mNumADVs(aADVs.length()),
                   mNumRefinements(aNumRefinements),
@@ -56,7 +56,7 @@ namespace moris
                      real              aBSplineUpperBound)
                 : mFieldVariables(aFieldVariableIndices.length() + aConstantParameters.length()),
                   mConstantParameters(aConstantParameters),
-                  mADVDependencies(aFieldVariableIndices.length() + aConstantParameters.length(), 1, -1),
+                  mDeterminingADVIds(aFieldVariableIndices.length() + aConstantParameters.length(), 1, -1),
                   mDependsOnADVs(aADVIndices.length()),
                   mNumADVs(aOwnedADVs->vec_local_length()),
                   mNumRefinements(aNumRefinements),
@@ -88,7 +88,7 @@ namespace moris
                      real                  aBSplineLowerBound,
                      real                  aBSplineUpperBound)
                 : mFieldVariables(aSharedADVIds.length()),
-                  mADVDependencies(aSharedADVIds.length(), 1),
+                  mDeterminingADVIds(aSharedADVIds),
                   mDependsOnADVs(true),
                   mNumRefinements(aNumRefinements),
                   mRefinementFunctionIndex(aRefinementFunctionIndex),
@@ -106,7 +106,6 @@ namespace moris
             for (uint tVariableIndex = 0; tVariableIndex < tNumSharedADVs; tVariableIndex++)
             {
                 mFieldVariables(tVariableIndex) = &(*mSharedADVs)(aSharedADVIds(tVariableIndex));
-                mADVDependencies(tVariableIndex) = aSharedADVIds(tVariableIndex) - 1; // FIXME
             }
         }
 
@@ -120,7 +119,7 @@ namespace moris
                      real           aBSplineUpperBound)
                 : mFieldVariables(aConstantParameters.length()),
                   mConstantParameters(aConstantParameters),
-                  mADVDependencies(aConstantParameters.length(), 1, -1),
+                  mDeterminingADVIds(aConstantParameters.length(), 1, -1),
                   mDependsOnADVs(false),
                   mNumADVs(0),
                   mNumRefinements(aNumRefinements),
@@ -152,30 +151,6 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        void Field::get_field_adv_sensitivities(
-                uint                  aNodeIndex,
-                const Matrix<DDRMat>& aCoordinates,
-                Matrix<DDRMat>&       aSensitivities)
-        {
-            // Resize sensitivities
-            aSensitivities.set_size(1, mNumADVs, 0.0);
-
-            // Evaluate all sensitivities
-            Matrix<DDRMat> tTempSensitivities;
-            this->evaluate_sensitivities(aNodeIndex, aCoordinates, tTempSensitivities);
-
-            // Return only what is needed
-            for (uint tSensitivityIndex = 0; tSensitivityIndex < mADVDependencies.length(); tSensitivityIndex++)
-            {
-                if (mADVDependencies(tSensitivityIndex) >= 0)
-                {
-                    aSensitivities(mADVDependencies(tSensitivityIndex)) = tTempSensitivities(tSensitivityIndex);
-                }
-            }
-        }
-
-        //--------------------------------------------------------------------------------------------------------------
-
         void Field::import_advs(sol::Dist_Vector* aOwnedADVs)
         {
             if (mSharedADVs)
@@ -202,6 +177,13 @@ namespace moris
         bool Field::depends_on_advs()
         {
             return mDependsOnADVs;
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
+        Matrix<DDSMat> Field::get_determining_adv_ids()
+        {
+            return mDeterminingADVIds;
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -259,7 +241,7 @@ namespace moris
             // Set ADV dependencies
             for (uint tADVFillIndex = 0; tADVFillIndex < aFieldVariableIndices.length(); tADVFillIndex++)
             {
-                mADVDependencies(aFieldVariableIndices(tADVFillIndex)) = aADVIndices(tADVFillIndex);
+                mDeterminingADVIds(aFieldVariableIndices(tADVFillIndex)) = aADVIndices(tADVFillIndex);
             }
         }
 

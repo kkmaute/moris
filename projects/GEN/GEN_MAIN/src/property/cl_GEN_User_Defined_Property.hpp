@@ -13,7 +13,7 @@ namespace moris
         {
         private:
             MORIS_GEN_FIELD_FUNCTION get_field_value_user_defined;
-            MORIS_GEN_SENSITIVITY_FUNCTION get_field_adv_sensitivities_user_defined;
+            MORIS_GEN_SENSITIVITY_FUNCTION get_field_sensitivities_user_defined;
 
         public:
 
@@ -56,12 +56,12 @@ namespace moris
              * property variables.
              *
              * @param aCoordinates Coordinate values
-             * @param aSensitivities Vector of sensitivities
+             * @return Vector of sensitivities
              */
-            void evaluate_sensitivities(const Matrix<DDRMat>& aCoordinates, Matrix<DDRMat>& aSensitivities);
+            Matrix<DDRMat> get_field_sensitivities(const Matrix<DDRMat>& aCoordinates);
 
         };
-    }   // end ge namespace
-}   // end moris namespace
+    }
+}
 
 #endif //MORIS_CL_GEN_USER_DEFINED_PROPERTY_HPP

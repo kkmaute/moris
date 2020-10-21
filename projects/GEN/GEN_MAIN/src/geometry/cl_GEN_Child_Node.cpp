@@ -52,19 +52,24 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        void Child_Node::interpolate_field_sensitivity(Field* aField, Matrix<DDRMat>& aSensitivities)
+        Matrix<DDRMat> Child_Node::interpolate_field_sensitivity(Field* aField)
         {
             // Initialize using first parent
-            aField->get_field_adv_sensitivities(mParentNodeIndices(0), mParentNodeCoordinates(0), aSensitivities);
-            aSensitivities = aSensitivities * mBasisValues(0);
+            Matrix<DDRMat> tSensitivities = aField->get_field_sensitivities(
+                    mParentNodeIndices(0),
+                    mParentNodeCoordinates(0));
+            tSensitivities = tSensitivities * mBasisValues(0);
 
             // Get sensitivity values from other parents
             for (uint tParentNode = 1; tParentNode < mParentNodeIndices.length(); tParentNode++)
             {
-                Matrix<DDRMat> tParentSensitivity(0, 0);
-                aField->get_field_adv_sensitivities(mParentNodeIndices(tParentNode), mParentNodeCoordinates(tParentNode), tParentSensitivity);
-                aSensitivities = aSensitivities + mBasisValues(tParentNode) * tParentSensitivity;
+                Matrix<DDRMat> tParentSensitivity = aField->get_field_sensitivities(
+                        mParentNodeIndices(tParentNode),
+                        mParentNodeCoordinates(tParentNode));
+                tSensitivities = tSensitivities + mBasisValues(tParentNode) * tParentSensitivity;
             }
+
+            return tSensitivities;
         }
 
         //--------------------------------------------------------------------------------------------------------------

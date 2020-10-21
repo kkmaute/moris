@@ -49,6 +49,13 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
+        uint Intersection_Node::get_num_pdvs()
+        {
+            return mGlobalCoordinates.numel();
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
         void Intersection_Node::set_starting_pdv_id(uint aStartingPdvIndex)
         {
             mStartingPdvIndex = aStartingPdvIndex;
@@ -78,39 +85,39 @@ namespace moris
             return mGlobalCoordinates;
         }
 
-        moris::uint Intersection_Node::get_num_pdvs()
-        {
-            return mGlobalCoordinates.numel();
-        }
-
         //--------------------------------------------------------------------------------------------------------------
 
-        void Intersection_Node::get_all_sensitivities(Matrix<DDRMat>& aSensitivities)
+        Matrix<DDRMat> Intersection_Node::get_all_sensitivities()
         {
-            // Geometry field sensitivities
-            Matrix<DDRMat> tFieldSensitivityNode1(0, 0);
-            Matrix<DDRMat> tFieldSensitivityNode2(0, 0);
-            mInterfaceGeometry->get_field_adv_sensitivities(mParentNodeIndices(0),
-                                                     mParentNodeCoordinates(0),
-                                                     tFieldSensitivityNode1);
-            mInterfaceGeometry->get_field_adv_sensitivities(mParentNodeIndices(1),
-                                                     mParentNodeCoordinates(1),
-                                                     tFieldSensitivityNode2);
-
-            // Field values
+            // Get geometry field values
             real tPhiA = mInterfaceGeometry->get_field_value(mParentNodeIndices(0),
-                                                                  mParentNodeCoordinates(0));
+                                                             mParentNodeCoordinates(0));
             real tPhiB = mInterfaceGeometry->get_field_value(mParentNodeIndices(1),
-                                                                  mParentNodeCoordinates(1));
+                                                             mParentNodeCoordinates(1));
 
-            // Compute $\frac{\partial x_{\Gamma}}{\partial \phi}$
+            // Get geometry field sensitivities
+            Matrix<DDRMat> tFieldSensitivityNode1 = mInterfaceGeometry->get_field_sensitivities(
+                    mParentNodeIndices(0),
+                    mParentNodeCoordinates(0));
+            Matrix<DDRMat> tFieldSensitivityNode2 = mInterfaceGeometry->get_field_sensitivities(
+                    mParentNodeIndices(1),
+                    mParentNodeCoordinates(1));
+
+            // Compute dxgamma/dphi
             Matrix<DDRMat> tDxgammaDphiA = -tPhiB / std::pow((tPhiA - tPhiB), 2)
                     * (mParentNodeCoordinates(1) - mParentNodeCoordinates(0));
             Matrix<DDRMat> tDxgammaDphiB =  tPhiA / std::pow((tPhiA - tPhiB), 2)
                     * (mParentNodeCoordinates(1) - mParentNodeCoordinates(0));
 
             // Compute dx/dp
-            aSensitivities = trans(tDxgammaDphiA) * tFieldSensitivityNode1 + trans(tDxgammaDphiB) * tFieldSensitivityNode2;
+            return (trans(tDxgammaDphiA) * tFieldSensitivityNode1 + trans(tDxgammaDphiB) * tFieldSensitivityNode2);
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
+        Matrix<DDSMat> Intersection_Node::get_determining_adv_ids()
+        {
+            return mInterfaceGeometry->get_determining_adv_ids();
         }
 
         //--------------------------------------------------------------------------------------------------------------

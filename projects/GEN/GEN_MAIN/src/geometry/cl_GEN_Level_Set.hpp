@@ -75,6 +75,15 @@ namespace moris
             real get_field_value(uint aNodeIndex);
 
             /**
+             * Given a node index, evaluates the sensitivity of the geometry field with respect to all of the
+             * geometry variables.
+             *
+             * @param aNodeIndex Node index
+             * @return Vector of sensitivities
+             */
+            Matrix<DDRMat> get_field_sensitivities(uint aNodeIndex);
+
+            /**
              * Imports the local ADVs required from the full owned ADV distributed vector, and recomputes nodal values.
              *
              * @param aOwnedADVs Full owned distributed ADV vector
@@ -89,15 +98,6 @@ namespace moris
             bool conversion_to_bsplines();
 
         private:
-
-            /**
-             * Given a node index, evaluates the sensitivity of the geometry field with respect to all of the
-             * geometry variables.
-             *
-             * @param aNodeIndex Node index
-             * @param aSensitivities Vector of sensitivities
-             */
-            void evaluate_sensitivities(uint aNodeIndex, Matrix<DDRMat>& aSensitivities);
 
             /**
              * Maps the level set field from nodes to B-splines for the given geometry.

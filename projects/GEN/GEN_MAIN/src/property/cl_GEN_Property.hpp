@@ -24,7 +24,7 @@ namespace moris
 
         };
 
-    }   // end ge namespace
-}   // end moris namespace
+    }
+}
 
 #endif /* MORIS_CL_Property_HPP_ */

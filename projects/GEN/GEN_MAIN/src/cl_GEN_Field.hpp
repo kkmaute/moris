@@ -17,7 +17,7 @@ namespace moris
         private:
             sol::Dist_Vector* mSharedADVs = nullptr;
             Matrix<DDRMat> mConstantParameters;
-            Matrix<DDSMat> mADVDependencies;
+            Matrix<DDSMat> mDeterminingADVIds;
             bool mDependsOnADVs;
             uint mNumADVs;
             sint mNumRefinements;
@@ -124,7 +124,7 @@ namespace moris
             /**
              * Given a node index or coordinate, returns the field value.
              *
-             * @param aINodendex Node index
+             * @param aNodeIndex Node index
              * @param aCoordinates Vector of coordinate values
              * @return Field value
              */
@@ -133,16 +133,15 @@ namespace moris
                     const Matrix<DDRMat>& aCoordinates) = 0;
 
             /**
-             * Given a node index or coordinate, returns a matrix of relevant sensitivities.
+             * Given a node index or coordinate, returns a matrix of all sensitivities.
              *
-             * @param aIndex Node index
+             * @param aNodeIndex Node index
              * @param aCoordinates Vector of coordinate values
-             * @param aSensitivities Matrix of sensitivities
+             * @return Matrix of sensitivities
              */
-            virtual void get_field_adv_sensitivities(
-                    uint                  aIndex,
-                    const Matrix<DDRMat>& aCoordinates,
-                    Matrix<DDRMat>&       aSensitivities);
+            virtual Matrix<DDRMat> get_field_sensitivities(
+                    uint                  aNodeIndex,
+                    const Matrix<DDRMat>& aCoordinates) = 0;
 
             /**
              * Imports the local ADVs required from the full owned ADV distributed vector.
@@ -170,6 +169,13 @@ namespace moris
              * @return if this field has ADV indices
              */
             bool depends_on_advs();
+
+            /**
+             * Gets the IDs of ADVs which this field depends on for evaluations.
+             *
+             * @return Field basis ADV IDs
+             */
+            Matrix<DDSMat> get_determining_adv_ids();
 
             /**
              * This function will return true when called less than the number of refinements set for this field,
@@ -215,18 +221,6 @@ namespace moris
             virtual bool conversion_to_bsplines();
 
         private:
-
-            /**
-             * Given a node coordinate @param aCoordinates, the function returns a matrix of all sensitivities
-             *
-             * @param aNodeIndex Node index
-             * @param aCoordinates Vector of coordinate values
-             * @param aSensitivity Matrix of sensitivities
-             */
-            virtual void evaluate_sensitivities(
-                    uint                  aNodeIndex,
-                    const Matrix<DDRMat>& aCoordinates,
-                    Matrix<DDRMat>&       aSensitivities) = 0;
 
             /**
              * Checks variable inputs and resizes the internal field variables based these inputs.

@@ -30,7 +30,7 @@ namespace moris
                         aBSplineUpperBound)
         {
             get_field_value_user_defined = aFieldEvaluationFunction;
-            get_field_adv_sensitivities_user_defined = aSensitivityEvaluationFunction;
+            get_field_sensitivities_user_defined = aSensitivityEvaluationFunction;
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -42,9 +42,11 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        void User_Defined_Property::evaluate_sensitivities(const Matrix<DDRMat>& aCoordinates, Matrix<DDRMat>& aSensitivities)
+        Matrix<DDRMat> User_Defined_Property::get_field_sensitivities(const Matrix<DDRMat>& aCoordinates)
         {
-            this->get_field_adv_sensitivities_user_defined(aCoordinates, mFieldVariables, aSensitivities);
+            Matrix<DDRMat> tSensitivities;
+            this->get_field_sensitivities_user_defined(aCoordinates, mFieldVariables, tSensitivities);
+            return tSensitivities;
         }
 
         //--------------------------------------------------------------------------------------------------------------

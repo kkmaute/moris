@@ -355,7 +355,7 @@ namespace moris
                 sol::Dist_Matrix* compute_dpdv_dadv();
 
         };
-    }   // end ge namespace
-}  // end moris namepspace
+    }
+}
 
 #endif /* MORIS_CL_GEN_PDV_HOST_MANAGER_HPP_ */

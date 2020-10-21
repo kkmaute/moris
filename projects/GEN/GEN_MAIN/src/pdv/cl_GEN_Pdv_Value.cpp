@@ -22,15 +22,16 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        void Pdv_Value::set_value(const moris::real & aValue )
+        Matrix<DDRMat> Pdv_Value::get_sensitivities(uint aNodeIndex, const Matrix<DDRMat>& aCoordinates)
         {
-            mValue = aValue;
+            return {{}};
         }
 
         //--------------------------------------------------------------------------------------------------------------
 
-        void Pdv_Value::get_sensitivity(uint aNodeIndex, const Matrix<DDRMat>& aCoordinates, Matrix<DDRMat>& aSensitivities)
+        Matrix<DDSMat> Pdv_Value::get_determining_adv_ids()
         {
+            return {{}};
         }
 
         //--------------------------------------------------------------------------------------------------------------

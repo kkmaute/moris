@@ -7,8 +7,9 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        Multigeometry::Multigeometry(Cell<std::shared_ptr<Geometry>> aGeometries,
-                                     std::string aID)
+        Multigeometry::Multigeometry(
+                Cell<std::shared_ptr<Geometry>> aGeometries,
+                std::string aID)
                 : Field(Matrix<DDRMat>(0, 0),
                         aGeometries(0)->get_num_refinements(),
                         aGeometries(0)->get_refinement_function_index(),
@@ -35,9 +36,9 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        void Multigeometry::get_field_adv_sensitivities(uint                  aNodeIndex,
-                                                 const Matrix<DDRMat>& aCoordinates,
-                                                 Matrix<DDRMat>&       aSensitivities)
+        Matrix<DDRMat> Multigeometry::get_field_sensitivities(
+                uint                  aNodeIndex,
+                const Matrix<DDRMat>& aCoordinates)
         {
             // Find which geometry is the minimum
             real tMin = mGeometries(0)->get_field_value(aNodeIndex, aCoordinates);
@@ -53,7 +54,7 @@ namespace moris
             }
 
             // Return relevant sensitivity
-            mGeometries(tMinGeometryIndex)->get_field_adv_sensitivities(aNodeIndex, aCoordinates, aSensitivities);
+            return mGeometries(tMinGeometryIndex)->get_field_sensitivities(aNodeIndex, aCoordinates);
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -68,14 +69,6 @@ namespace moris
         std::string Multigeometry::get_id()
         {
             return mID;
-        }
-
-        //--------------------------------------------------------------------------------------------------------------
-
-        void Multigeometry::evaluate_sensitivities(uint                  aNodeIndex,
-                                                       const Matrix<DDRMat>& aCoordinates,
-                                                       Matrix<DDRMat>&       aSensitivities)
-        {
         }
 
         //--------------------------------------------------------------------------------------------------------------

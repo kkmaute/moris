@@ -14,7 +14,7 @@ namespace moris
 
         private:
             MORIS_GEN_FIELD_FUNCTION get_field_value_user_defined;
-            MORIS_GEN_SENSITIVITY_FUNCTION get_field_adv_sensitivities_user_defined;
+            MORIS_GEN_SENSITIVITY_FUNCTION get_field_sensitivities_user_defined;
 
         public:
 
@@ -26,7 +26,7 @@ namespace moris
              * @param aADVIndices The indices of the ADV vector to fill in the geometry variables
              * @param aConstantParameters The constant parameters not filled by ADVs
              * @param aFieldEvaluationFunction User-defined function for evaluating the geometry field
-             * @param aSensitivityEvaluationFunction User-defined function for evaluating the field sensitivities
+             * @param tSensitivitiesEvaluationFunction User-defined function for evaluating the field sensitivities
              * @param aNumRefinements The number of refinement steps to use for this geometry
              * @param aRefinementFunctionIndex The index of a user-defined refinement function (-1 = default refinement)
              * @param aBSplineMeshIndex The index of a B-spline mesh for level set discretization (-1 = no B-splines)
@@ -77,7 +77,7 @@ namespace moris
              *
              * @param aConstantParameters The constant parameters not filled by ADVs
              * @param aFieldEvaluationFunction User-defined function for evaluating the geometry field
-             * @param aSensitivityEvaluationFunction User-defined function for evaluating the field sensitivities
+             * @param tSensitivitiesEvaluationFunction User-defined function for evaluating the field sensitivities
              * @param aNumRefinements The number of refinement steps to use for this geometry
              * @param aRefinementFunctionIndex The index of a user-defined refinement function (-1 = default refinement)
              * @param aBSplineMeshIndex The index of a B-spline mesh for level set discretization (-1 = no B-splines)
@@ -101,24 +101,22 @@ namespace moris
              */
             real get_field_value(const Matrix<DDRMat>& aCoordinates);
 
-        private:
-
             /**
              * Given a node coordinate, evaluates the sensitivity of the geometry field with respect to all of the
              * geometry variables.
              *
              * @param aCoordinates Coordinate values
-             * @param aSensitivities Vector of sensitivities
+             * @return Vector of sensitivities
              */
-            void evaluate_sensitivities(
-                    const Matrix<DDRMat>& aCoordinates,
-                    Matrix<DDRMat>& aSensitivities);
+            Matrix<DDRMat> get_field_sensitivities(const Matrix<DDRMat>& aCoordinates);
+
+        private:
 
             /**
              * Sets the user-defined functions. Eliminates redundant code since it's the same logic for all constructors.
              *
              * @param aFieldEvaluationFunction User-defined function for evaluating the geometry field
-             * @param aSensitivityEvaluationFunction User-defined function for evaluating the field sensitivities
+             * @param tSensitivitiesEvaluationFunction User-defined function for evaluating the field sensitivities
              */
             void set_user_defined_functions(
                     MORIS_GEN_FIELD_FUNCTION       aFieldEvaluationFunction,
@@ -128,9 +126,9 @@ namespace moris
              * Used internally to automatically error out if no sensitivities were provided
              */
             static void no_sensitivities(
-                    const Matrix<DDRMat>&  aCoordinates,
-                    const Cell<real*>&     aParameters,
-                    Matrix<DDRMat>&        aSensitivities);
+                    const Matrix<DDRMat>& aCoordinates,
+                    const Cell<real*>&    aParameters,
+                    Matrix<DDRMat>&       aSensitivities);
 
         };
     }

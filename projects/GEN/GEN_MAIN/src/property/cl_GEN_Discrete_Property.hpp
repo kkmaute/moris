@@ -48,9 +48,9 @@ namespace moris
              * property variables.
              *
              * @param aNodeIndex Node index
-             * @param aSensitivities Vector of sensitivities
+             * @return Vector of sensitivities
              */
-            void evaluate_sensitivities(uint aNodeIndex, Matrix<DDRMat>& aSensitivities);
+            Matrix<DDRMat> get_field_sensitivities(uint aNodeIndex);
 
         };
     }

@@ -57,6 +57,13 @@ namespace moris
             bool second_parent_on_interface();
 
             /**
+             * Gets the number of PDVs on this intersection node.
+             *
+             * @return Number of PDVs
+             */
+            uint get_num_pdvs();
+
+            /**
              * Sets the starting index to be able to use the intersection coordinates of this node as PDVs
              *
              * @param aStartingPdvIndex The global index of the first PDV on the host
@@ -88,11 +95,16 @@ namespace moris
             /**
              * Gets all of the sensitivity vectors for each coordinate
              *
-             * @param aSensitivities Sensitivity matrix to be filled
+             * @return Sensitivity matrix to be filled
              */
-            void get_all_sensitivities(Matrix<DDRMat>& aSensitivities);
+            Matrix<DDRMat> get_all_sensitivities();
 
-            moris::uint get_num_pdvs();
+            /**
+             * Gets the IDs of ADVs which this intersection node depends on.
+             *
+             * @return ADV IDs
+             */
+            Matrix<DDSMat> get_determining_adv_ids();
 
             void set_vertex_id( const moris_id & aVertexId)
             {

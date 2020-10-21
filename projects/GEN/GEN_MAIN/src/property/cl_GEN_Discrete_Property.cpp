@@ -38,10 +38,11 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        void Discrete_Property::evaluate_sensitivities(uint aNodeIndex, Matrix<DDRMat>& aSensitivities)
+        Matrix<DDRMat> Discrete_Property::get_field_sensitivities(uint aNodeIndex)
         {
-            aSensitivities.resize(1, mFieldVariables.size());
-            aSensitivities(aNodeIndex) = 1;
+            Matrix<DDRMat> tSensitivities(1, mFieldVariables.size(), 0.0);
+            tSensitivities(aNodeIndex) = 1.0;
+            return tSensitivities;
         }
 
         //--------------------------------------------------------------------------------------------------------------

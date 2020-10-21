@@ -88,11 +88,11 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        void User_Defined_Geometry::evaluate_sensitivities(
-                const Matrix<DDRMat>& aCoordinates,
-                Matrix<DDRMat>& aSensitivities)
+        Matrix<DDRMat> User_Defined_Geometry::get_field_sensitivities(const Matrix<DDRMat>& aCoordinates)
         {
-            this->get_field_adv_sensitivities_user_defined(aCoordinates, mFieldVariables, aSensitivities);
+            Matrix<DDRMat> tSensitivities(0, 0);
+            this->get_field_sensitivities_user_defined(aCoordinates, mFieldVariables, tSensitivities);
+            return tSensitivities;
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -111,15 +111,15 @@ namespace moris
             // Set sensitivity evaluation function
             if (aSensitivityEvaluationFunction == nullptr)
             {
-                get_field_adv_sensitivities_user_defined = &(User_Defined_Geometry::no_sensitivities);
+                get_field_sensitivities_user_defined = &(User_Defined_Geometry::no_sensitivities);
             }
             else
             {
-                get_field_adv_sensitivities_user_defined = aSensitivityEvaluationFunction;
+                get_field_sensitivities_user_defined = aSensitivityEvaluationFunction;
 
                 // Check sensitivity function
                 Matrix<DDRMat> tSensitivities(0, 0);
-                this->get_field_adv_sensitivities_user_defined({{0.0, 0.0, 0.0}}, mFieldVariables, tSensitivities);
+                this->get_field_sensitivities_user_defined({{0.0, 0.0, 0.0}}, mFieldVariables, tSensitivities);
 
                 // Check for row vector
                 MORIS_ERROR(tSensitivities.n_rows() == 1,
@@ -142,9 +142,9 @@ namespace moris
         //--------------------------------------------------------------------------------------------------------------
 
         void User_Defined_Geometry::no_sensitivities(
-                const Matrix<DDRMat>&  aCoordinates,
-                const Cell<real*>&     aParameters,
-                Matrix<DDRMat>&        aSensitivities)
+                const Matrix<DDRMat>& aCoordinates,
+                const Cell<real*>&    aParameters,
+                Matrix<DDRMat>&       aSensitivities)
         {
             MORIS_ERROR(false, "A sensitivity evaluation function was not provided to a user-defined geometry. "
                                "Please make sure that you provide this function, or that sensitivities are not required.");

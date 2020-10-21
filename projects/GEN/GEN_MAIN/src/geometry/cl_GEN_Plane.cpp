@@ -134,14 +134,14 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        void Plane::evaluate_sensitivities(const Matrix<DDRMat>& aCoordinates, Matrix<DDRMat>& aSensitivities)
+        Matrix<DDRMat> Plane::get_field_sensitivities(const Matrix<DDRMat>& aCoordinates)
         {
-            (this->*m_eval_sensitivity)(aCoordinates, aSensitivities);
+            return (this->*m_eval_sensitivity)(aCoordinates);
         }
 
         //--------------------------------------------------------------------------------------------------------------
 
-        moris::real Plane::eval_field_2d(const Matrix<DDRMat>& aCoordinates)
+        real Plane::eval_field_2d(const Matrix<DDRMat>& aCoordinates)
         {
             // Get variables
             real tXCenter = *(mFieldVariables(0));
@@ -155,7 +155,7 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
         
-        moris::real Plane::eval_field_3d(const Matrix<DDRMat>& aCoordinates)
+        real Plane::eval_field_3d(const Matrix<DDRMat>& aCoordinates)
         {
             // Get variables
             real tXCenter = *(mFieldVariables(0));
@@ -171,7 +171,7 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        void Plane::eval_sensitivity_2d(const Matrix<DDRMat>& aCoordinates, Matrix<DDRMat>& aSensitivities)
+        Matrix<DDRMat> Plane::eval_sensitivity_2d(const Matrix<DDRMat>& aCoordinates)
         {
             // Get variables
             real tXCenter = *(mFieldVariables(0));
@@ -180,18 +180,21 @@ namespace moris
             real tYNormal = *(mFieldVariables(3));
 
             // Evaluate sensitivities
-            aSensitivities.set_size(1, 4);
-            aSensitivities(0) = -tXNormal;
-            aSensitivities(1) = -tYNormal;
-            aSensitivities(2) = aCoordinates(0) - tXCenter;
-            aSensitivities(3) = aCoordinates(1) - tYCenter;
+            Matrix<DDRMat> tSensitivities(1, 4);
+            tSensitivities(0) = -tXNormal;
+            tSensitivities(1) = -tYNormal;
+            tSensitivities(2) = aCoordinates(0) - tXCenter;
+            tSensitivities(3) = aCoordinates(1) - tYCenter;
+
+            return tSensitivities;
         }
 
         //--------------------------------------------------------------------------------------------------------------
 
-        void Plane::eval_sensitivity_3d(Matrix<DDRMat> const & aCoordinates, Matrix<DDRMat>& aSensitivities)
+        Matrix<DDRMat> Plane::eval_sensitivity_3d(const Matrix<DDRMat>& aCoordinates)
         {
             MORIS_ERROR(false, "Sensitivities not implemented for 3d plane.");
+            return {{}};
         }
 
         //--------------------------------------------------------------------------------------------------------------

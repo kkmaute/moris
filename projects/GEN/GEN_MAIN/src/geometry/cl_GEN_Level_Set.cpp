@@ -136,20 +136,20 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        void Level_Set::evaluate_sensitivities(
-                uint            aNodeIndex,
-                Matrix<DDRMat>& aSensitivities)
+        Matrix<DDRMat> Level_Set::get_field_sensitivities(uint aNodeIndex)
         {
             // Initialize
-            aSensitivities.set_size(1, mFieldVariables.size(), 0.0);
+            Matrix<DDRMat> tSensitivities(1, mFieldVariables.size(), 0.0);
 
             // Get T-matrix
             Matrix<IndexMat> tIndices = mMesh->get_bspline_inds_of_node_loc_ind(aNodeIndex, EntityRank::BSPLINE);
             Matrix<DDRMat> tMatrix = mMesh->get_t_matrix_of_node_loc_ind(aNodeIndex, EntityRank::BSPLINE);
             for (uint tBSpline = 0; tBSpline < tIndices.length(); tBSpline++)
             {
-                aSensitivities(tIndices(tBSpline)) = tMatrix(tBSpline);
+                tSensitivities(tIndices(tBSpline)) = tMatrix(tBSpline);
             }
+
+            return tSensitivities;
         }
 
         //--------------------------------------------------------------------------------------------------------------

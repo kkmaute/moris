@@ -24,14 +24,14 @@ namespace moris
             Matrix<DDRMat> mCoordinates;
 
             // Information about the contained PDVs
-            Cell<std::shared_ptr<Pdv>> mPdvs;
+            Cell<std::shared_ptr<Pdv>> mPDVs;
             
         public:
             
             /**
              * Constructor
              *
-             * @param aPdvTypes PDV types for this host
+             * @param aPDVTypes PDV types for this host
              * @param aStartingGlobalIndex Global index to start assigning new PDV types
              */
             Interpolation_Pdv_Host(
@@ -40,12 +40,19 @@ namespace moris
                     const moris_id & aNodeId,
                     const moris_index & aNodeOwner,
                     const Matrix<DDRMat> & aCoordinates,
-                    const Cell<PDV_Type> & aPdvTypes);
+                    const Cell<PDV_Type> & aPDVTypes);
             
             /**
              * destructor
              */
             ~Interpolation_Pdv_Host();
+            
+            /**
+             * Gets the number of PDVs on this PDV host.
+             * 
+             * @return Number of PDVs
+             */
+            uint get_num_pdvs();
             
             moris_id get_pdv_vertex_id()
             {
@@ -57,76 +64,102 @@ namespace moris
                 return mNodeOwner;
             };
 
-            void set_pdv_id(
-                    enum PDV_Type aPdvType,
-                    const moris_id aCounterId );
-
-            moris_id get_pdv_id(
-                    enum PDV_Type aPdvType);
+            void set_pdv_id(PDV_Type aPDVType, const moris_id aCounterId);
 
             /**
-             * Create PDV with real value
+             * Gets PDV ID by type.
+             * 
+             * @param aPDVType PDV type
+             * @return PDV ID
+             */
+            moris_id get_pdv_id(PDV_Type aPDVType);
+
+            /**
+             * Gets PDV ID by index.
+             * 
+             * @param aPDVIndex PDV index
+             * @return PDV ID
+             */
+            moris_id get_pdv_id(uint aPDVIndex);
+
+            /**
+             * Create PDV with real value.
              *
-             * @param aPdvType PDV type
+             * @param aPDVType PDV type
              * @param aPdvVal PDV value
              */
-            void create_pdv(PDV_Type aPdvType, moris::real aPdvVal);
+            void create_pdv(PDV_Type aPDVType, moris::real aPdvVal);
 
             /**
-             * Create PDV with GEN property
+             * Create PDV with GEN property.
              *
-             * @param aPdvType PDV type
+             * @param aPDVType PDV type
              * @param aPropertyPointer Pointer to a GEN property
              */
-            void create_pdv(PDV_Type aPdvType, std::shared_ptr<Property> aPropertyPointer);
+            void create_pdv(PDV_Type aPDVType, std::shared_ptr<Property> aPropertyPointer);
             
             /**
-             * Check if PDV type is active on this host
+             * Check if PDV type is active on this host.
              *
-             * @param aPdvType PDV type
+             * @param aPDVType PDV type
              * @return if PDV type is active
              */
-            bool is_active_type(PDV_Type aPdvType);
+            bool is_active_type(PDV_Type aPDVType);
             
             /**
-             * Get global index for pdv by type
+             * Get global index for pdv by type.
              *
-             * @param aPdvType PDV type
+             * @param aPDVType PDV type
              * @return Global index
              */
-            void set_global_index_for_pdv_type(PDV_Type aPdvType,  moris_id aId);
+            void set_global_index_for_pdv_type(PDV_Type aPDVType,  moris_id aId);
 
             /**
-             * Get global index for pdv by type
+             * Get global index for pdv by type.
              *
-             * @param aPdvType PDV type
+             * @param aPDVType PDV type
              * @return Global index
              */
-            uint get_global_index_for_pdv_type(PDV_Type aPdvType);
+            uint get_global_index_for_pdv_type(PDV_Type aPDVType);
 
             /**
-             * Get all of the global PDV indices on this host
+             * Get all of the global PDV indices on this host.
              *
              * @param aGlobalPdvIndices matrix of indices to be returned
              */
             Matrix<DDSMat> get_all_global_indices();
 
             /**
-             * Get the value of a PDV by type
+             * Get the value of a PDV by type.
              *
-             * @param aPdvType PDV type
+             * @param aPDVType PDV type
              * @return Value on this PDV
              */
-            real get_pdv_value(PDV_Type aPdvType);
-
-            bool get_pdv_exists(PDV_Type aPdvType);
+            real get_pdv_value(PDV_Type aPDVType);
 
             /**
-             * Gets all of the sensitivity vectors on each PDV
+             * Gets whether or not this PDV exists on this host.
              *
-             * @param aSensitivities
+             * @param aPDVType PDV type
+             * @return if the type exists
              */
-            void get_all_sensitivities(Matrix<DDRMat>& aSensitivities);
+            bool get_pdv_exists(PDV_Type aPDVType);
+
+            /**
+             * Gets all of the sensitivity vectors on each PDV.
+             *
+             * @param aPDVIndex PDV index
+             * @return Sensitivities for this PDV index
+             */
+            Matrix<DDRMat> get_sensitivities(uint aPDVIndex);
+            
+            /**
+             * Gets the IDs of ADVs which the given PDV depends on.
+             * 
+             * @param aPDVIndex PDV index
+             * @return ADV IDs
+             */
+            Matrix<DDSMat> get_determining_adv_ids(uint aPDVIndex);
             
         };
     }
