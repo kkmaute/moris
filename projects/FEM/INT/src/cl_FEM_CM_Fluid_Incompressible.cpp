@@ -31,8 +31,8 @@ namespace moris
         {
             switch ( mSpaceDim )
             {
-                case ( 2 ):
-                    {
+                case 2 :
+                {
                     m_eval_strain       = &CM_Fluid_Incompressible::eval_strain_2d;
                     m_eval_divstrain    = &CM_Fluid_Incompressible::eval_divstrain_2d;
                     m_eval_teststrain   = &CM_Fluid_Incompressible::eval_teststrain_2d;
@@ -40,9 +40,9 @@ namespace moris
                     m_eval_ddivstraindu = &CM_Fluid_Incompressible::eval_ddivstraindu_2d;
                     m_flatten_normal    = &CM_Fluid_Incompressible::flatten_normal_2d;
                     break;
-                    }
-                case ( 3 ):
-                    {
+                }
+                case 3 :
+                {
                     m_eval_strain       = &CM_Fluid_Incompressible::eval_strain_3d;
                     m_eval_divstrain    = &CM_Fluid_Incompressible::eval_divstrain_3d;
                     m_eval_teststrain   = &CM_Fluid_Incompressible::eval_teststrain_3d;
@@ -50,7 +50,7 @@ namespace moris
                     m_eval_ddivstraindu = &CM_Fluid_Incompressible::eval_ddivstraindu_3d;
                     m_flatten_normal    = &CM_Fluid_Incompressible::flatten_normal_3d;
                     break;
-                    }
+                }
                 default :
                 {
                     MORIS_ERROR( false, "CM_Fluid_Incompressible::set_function_pointers - only works for 2d and 3d." );
@@ -87,10 +87,9 @@ namespace moris
                 }
                 else
                 {
-                    std::string tErrMsg =
-                            std::string( "CM_Fluid_Incompressible::set_dof_type_list - Unknown aDofString : ") +
-                            tDofString;
-                    MORIS_ERROR( false , tErrMsg.c_str() );
+                    MORIS_ERROR( false ,
+                            "CM_Fluid_Incompressible::set_dof_type_list - Unknown aDofString : %s \n",
+                            tDofString.c_str() );
                 }
             }
         }
@@ -102,14 +101,9 @@ namespace moris
                 std::string                      aPropertyString )
         {
             // check that aPropertyString makes sense
-            if ( mPropertyMap.find( aPropertyString ) == mPropertyMap.end() )
-            {
-                std::string tErrMsg =
-                        std::string( "CM_Fluid_Incompressible::set_property - Unknown aPropertyString : ") +
-                        aPropertyString;
-
-                MORIS_ERROR( false , tErrMsg.c_str() );
-            }
+            MORIS_ERROR( mPropertyMap.find( aPropertyString ) != mPropertyMap.end(),
+                    "CM_Fluid_Incompressible::set_property - Unknown aPropertyString : %s \n",
+                    aPropertyString.c_str() );
 
             // set the property in the property cell
             mProperties( static_cast< uint >( mPropertyMap[ aPropertyString ] ) ) = aProperty;
@@ -121,14 +115,9 @@ namespace moris
                 std::string aPropertyString )
         {
             // check that aPropertyString makes sense
-            if ( mPropertyMap.find( aPropertyString ) == mPropertyMap.end() )
-            {
-                std::string tErrMsg =
-                        std::string( "CM_Fluid_Incompressible::get_property - Unknown aPropertyString : ") +
-                        aPropertyString;
-
-                MORIS_ERROR( false , tErrMsg.c_str() );
-            }
+            MORIS_ERROR( mPropertyMap.find( aPropertyString ) != mPropertyMap.end(),
+                    "CM_Fluid_Incompressible::set_property - Unknown aPropertyString : %s \n",
+                    aPropertyString.c_str() );
 
             // get the property in the property cell
             return  mProperties( static_cast< uint >( mPropertyMap[ aPropertyString ] ) );
@@ -171,6 +160,8 @@ namespace moris
 
             // compute flux
             mDivFlux = -1.0 * tPressureFI->gradx( 1 ) + 2.0 * tViscosityProp->val()( 0 ) * this->divstrain();
+
+            // FIXME assume that viscosity prop does not depend on x
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -201,12 +192,12 @@ namespace moris
                 mddivfluxdu( tDofIndex ).matrix_data() +=
                         2.0 * tViscosityProp->val()( 0 ) * this->ddivstraindu( aDofTypes );
             }
-
             // if pressure dof
-            if( aDofTypes( 0 ) == mDofPressure )
+            else if( aDofTypes( 0 ) == mDofPressure )
             {
                 // fill ddivstrain/dp
-                mddivfluxdu( tDofIndex ).matrix_data() -= tFI->dnNdxn( 1 ).matrix_data();
+                mddivfluxdu( tDofIndex ).matrix_data() -=
+                        tFI->dnNdxn( 1 ).matrix_data();
             }
 
             if( tViscosityProp->check_dof_dependency( aDofTypes ) )
@@ -239,7 +230,8 @@ namespace moris
 
             // evaluate dfluxdx
             mdFluxdx( aOrder -1 ) =
-                    trans( tP ) * trans( tPressureFI->gradx( aOrder ) ) - 2.0 * tViscosityProp->val() * this->dstraindx( aOrder );
+                    trans( tP ) * trans( tPressureFI->gradx( aOrder ) ) -
+                    2.0 * tViscosityProp->val() * this->dstraindx( aOrder );
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -267,22 +259,47 @@ namespace moris
             Matrix< DDRMat > tFlatNormal;
             this->flatten_normal( aNormal, tFlatNormal );
 
+            // get the dof FI
+            Field_Interpolator * tFITest =
+                    mFIManager->get_field_interpolators_for_type( aTestDofTypes( 0 ) );
+
+            // init mdFluxdDof
+            mTestTraction( tTestDofIndex ).set_size(
+                    mSpaceDim,
+                    tFITest->get_number_of_space_time_coefficients(),
+                    0.0 );
+
             // get the viscosity property
             std::shared_ptr< Property > tViscosityProp = 
-            mProperties( static_cast< uint >( CM_Property_Type::VISCOSITY ) );
+                    mProperties( static_cast< uint >( CM_Property_Type::VISCOSITY ) );
 
             // if test traction wrt velocity
             if( aTestDofTypes( 0 ) == mDofVelocity )
             {
                 // compute test traction wrt velocity
-                mTestTraction( tTestDofIndex ) = 2.0 * tViscosityProp->val()( 0 ) * tFlatNormal * this->testStrain();
+                mTestTraction( tTestDofIndex ).matrix_data() +=
+                        2.0 * tViscosityProp->val()( 0 ) * tFlatNormal * this->testStrain();
+            }
+            // if test traction wrt pressure
+            else if( aTestDofTypes( 0 ) == mDofPressure )
+            {
+                // create identity matrix
+                Matrix< DDRMat > tI( mSpaceDim, 1, 1.0 );
+                Matrix< DDRMat > tII( ( mSpaceDim - 1 ) * 3, 1, 0.0 );
+                tII( { 0, mSpaceDim - 1 }, { 0, 0 } ) = tI.matrix_data();
+
+                // build the dtesttractiondP
+                mTestTraction( tTestDofIndex ).matrix_data() -=
+                        tFlatNormal * tII * tFITest->N();
             }
 
-            // if test traction wrt pressure
-            if( aTestDofTypes( 0 ) == mDofPressure )
+            // if viscosity property depends on test dof type
+            if ( tViscosityProp->check_dof_dependency( aTestDofTypes ) )
             {
-                // compute test traction wrt pressure
-                mTestTraction( tTestDofIndex ) = tFlatNormal * this->dFluxdDOF( aTestDofTypes ) ;
+                // compute derivative with indirect dependency through properties
+                mTestTraction( tTestDofIndex ).matrix_data() +=
+                        2.0 * tFlatNormal * this->strain() *
+                        tViscosityProp->dPropdDOF( aTestDofTypes );
             }
         }
 
@@ -427,8 +444,8 @@ namespace moris
         {
             switch ( aOrder )
             {
-                case( 1 ) :
-                    {
+                case 1 :
+                {
                     // set size for dstraindx
                     mdStraindx( aOrder - 1 ).set_size( 3, 2, 0.0 );
 
@@ -443,7 +460,7 @@ namespace moris
                     mdStraindx( aOrder - 1 )( 1, 1 ) = tVelocityGrad( 1, 1 );
                     mdStraindx( aOrder - 1 )( 2, 0 ) = 0.5 * ( tVelocityGrad( 2, 0 ) + tVelocityGrad( 0, 1 ) );
                     mdStraindx( aOrder - 1 )( 2, 1 ) = 0.5 * ( tVelocityGrad( 1, 0 ) + tVelocityGrad( 2, 1 ) );
-                    }
+                }
                 default :
                     MORIS_ERROR( false, "CM_Fluid_Incompressible::eval_dstraindx_2d - order not supported." );
             }
@@ -453,8 +470,8 @@ namespace moris
         {
             switch ( aOrder )
             {
-                case( 1 ) :
-                    {
+                case 1 :
+                {
                     // set size for dstraindx
                     mdStraindx( aOrder - 1 ).set_size( 6, 3, 0.0 );
 
@@ -481,7 +498,7 @@ namespace moris
                     mdStraindx( aOrder - 1 )( 5, 0 ) = 0.5 * ( tVelocityGrad( 2, 0 ) + tVelocityGrad( 0, 1 ) );
                     mdStraindx( aOrder - 1 )( 5, 1 ) = 0.5 * ( tVelocityGrad( 1, 0 ) + tVelocityGrad( 5, 1 ) );
                     mdStraindx( aOrder - 1 )( 5, 2 ) = 0.5 * ( tVelocityGrad( 3, 0 ) + tVelocityGrad( 4, 1 ) );
-                    }
+                }
                 default :
                     MORIS_ERROR( false, "CM_Fluid_Incompressible::eval_dstraindx_3d - order not supported." );
             }
@@ -491,13 +508,15 @@ namespace moris
         
         void CM_Fluid_Incompressible::eval_teststrain_2d()
         {
-            // compute displacement gradient
-            Matrix< DDRMat > tdnNdxn =
-                    mFIManager->get_field_interpolators_for_type( mDofVelocity )->dnNdxn( 1 );
+            // get velocity field interpolator
+            Field_Interpolator * tFIVelocity =
+                    mFIManager->get_field_interpolators_for_type( mDofVelocity );
 
-            // get number of bases for displacement
-            uint tNumBases =
-                    mFIManager->get_field_interpolators_for_type( mDofVelocity )->get_number_of_space_time_bases();
+            // compute velocity gradient
+            Matrix< DDRMat > tdnNdxn = tFIVelocity->dnNdxn( 1 );
+
+            // get number of bases for velocity
+            uint tNumBases = tFIVelocity->get_number_of_space_time_bases();
 
             // build the test strain
             mTestStrain.set_size( 3, tNumBases * 2, 0.0 );
@@ -510,13 +529,15 @@ namespace moris
 
         void CM_Fluid_Incompressible::eval_teststrain_3d()
         {
+            // get velocity field interpolator
+            Field_Interpolator * tFIVelocity =
+                    mFIManager->get_field_interpolators_for_type( mDofVelocity );
+
             // compute displacement gradient
-            Matrix< DDRMat > tdnNdxn =
-                    mFIManager->get_field_interpolators_for_type( mDofVelocity )->dnNdxn( 1 );
+            Matrix< DDRMat > tdnNdxn = tFIVelocity->dnNdxn( 1 );
 
             // get number of bases for displacement
-            uint tNumBases =
-                    mFIManager->get_field_interpolators_for_type( mDofVelocity )->get_number_of_space_time_bases();
+            uint tNumBases = tFIVelocity->get_number_of_space_time_bases();
 
             // build the test strain
             mTestStrain.set_size( 6, tNumBases * 3, 0.0 );
@@ -561,9 +582,8 @@ namespace moris
                 mdFluxdDof( tDofIndex ).matrix_data() +=
                         2.0 * tViscosityProp->val()( 0 ) * this->dStraindDOF( aDofTypes );
             }
-
             // if pressure dof
-            if ( aDofTypes( 0 ) == mDofPressure )
+            else if ( aDofTypes( 0 ) == mDofPressure )
             {
                 // create identity matrix
                 Matrix< DDRMat > tI( mSpaceDim, 1, 1.0 );
@@ -617,16 +637,21 @@ namespace moris
             // get test dof type index
             uint tTestDofIndex = mDofTypeMap( static_cast< uint >( aTestDofTypes( 0 ) ) );
 
-            // get the dof type as a uint
-            uint tDofType = static_cast< uint >( aDofTypes( 0 ) );
-
             // get the dof type index
-            uint tDofIndex = mGlobalDofTypeMap( tDofType );
+            uint tDofIndex = mGlobalDofTypeMap( static_cast< uint >( aDofTypes( 0 ) ) );
+
+            // get the test dof FI
+            Field_Interpolator * tFITest =
+                    mFIManager->get_field_interpolators_for_type( aTestDofTypes( 0 ) );
+
+            // get the derivative dof FI
+            Field_Interpolator * tFIDer =
+                    mFIManager->get_field_interpolators_for_type( aDofTypes( 0 ) );
 
             // init the dTestTractiondDof
             mdTestTractiondDof( tTestDofIndex )( tDofIndex ).set_size(
-                    mFIManager->get_field_interpolators_for_type( aTestDofTypes( 0 ) )->get_number_of_space_time_coefficients(),
-                    mFIManager->get_field_interpolators_for_type( aDofTypes( 0 ) )->get_number_of_space_time_coefficients(),
+                    tFITest->get_number_of_space_time_coefficients(),
+                    tFIDer->get_number_of_space_time_coefficients(),
                     0.0 );
 
             // get the viscosity property

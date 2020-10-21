@@ -34,7 +34,6 @@ namespace moris
 
             // populate the constitutive map
             mConstitutiveMap[ "IncompressibleFluid" ] = IWG_Constitutive_Type::FLUID_INCOMPRESSIBLE;
-            mConstitutiveMap[ "TurbulenceFluid" ]     = IWG_Constitutive_Type::FLUID_TURBULENCE;
 
             // set size for the stabilization parameter pointer cell
             mStabilizationParam.resize( static_cast< uint >( IWG_Stabilization_Type::MAX_ENUM ), nullptr );
@@ -150,10 +149,6 @@ namespace moris
             std::shared_ptr< Constitutive_Model > tCMFluid =
                     mMasterCM( static_cast< uint >( IWG_Constitutive_Type::FLUID_INCOMPRESSIBLE ) );
 
-            // get the fluid constitutive model
-            std::shared_ptr< Constitutive_Model > tCMTurbulence =
-                    mMasterCM( static_cast< uint >( IWG_Constitutive_Type::FLUID_TURBULENCE ) );
-
             // get the Nitsche stabilization parameter
             std::shared_ptr< Stabilization_Parameter > tSPNitsche =
                     mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::DIRICHLET_NITSCHE ) );
@@ -177,17 +172,6 @@ namespace moris
                         { 0, 0 } ) -= aWStar * (
                                 tPropUpwind->val()( 0 ) * trans( tFIVelocity->N() ) *
                                 dot( tFIVelocity->val(), mNormal ) * tM * tVelocityJump );
-            }
-
-            // if turbulence
-            if( tCMTurbulence != nullptr )
-            {
-                mSet->get_residual()( 0 )(
-                        { tMasterResStartIndex, tMasterResStopIndex },
-                        { 0, 0 } ) -= aWStar * (
-                                trans( tFIVelocity->N() ) * tM * tCMTurbulence->traction( mNormal ) +
-                                mBeta * trans( tCMTurbulence->testTraction( mNormal, mResidualDofType ) ) *
-                                tM * tVelocityJump );
             }
 
             // check for nan, infinity
@@ -243,10 +227,6 @@ namespace moris
             // get the fluid constitutive model
             std::shared_ptr< Constitutive_Model > tCMFluid =
                     mMasterCM( static_cast< uint >( IWG_Constitutive_Type::FLUID_INCOMPRESSIBLE ) );
-
-            // get the fluid constitutive model
-            std::shared_ptr< Constitutive_Model > tCMTurbulence =
-                    mMasterCM( static_cast< uint >( IWG_Constitutive_Type::FLUID_TURBULENCE ) );
 
             // get the Nitsche stabilization parameter
             std::shared_ptr< Stabilization_Parameter > tSPNitsche =
@@ -344,43 +324,6 @@ namespace moris
                                 { tMasterDepStartIndex, tMasterDepStopIndex } ) -= aWStar * (
                                         trans( tFIVelocity->N() ) * dot( tFIVelocity->val(), mNormal ) *
                                         tM * tVelocityJump * tPropUpwind->dPropdDOF( tDofType ) );
-                    }
-                }
-
-                // if turbulence
-                if( tCMTurbulence != nullptr )
-                {
-                    // if dof type is residual dof type
-                    if ( tDofType( 0 ) == mResidualDofType( 0 ) )
-                    {
-                        // compute jacobian direct dependencies
-                        mSet->get_jacobian()(
-                                { tMasterResStartIndex, tMasterResStopIndex },
-                                { tMasterDepStartIndex, tMasterDepStopIndex } ) += aWStar * (
-                                        - mBeta * trans( tCMTurbulence->testTraction( mNormal, mResidualDofType ) ) *
-                                        tM * tFIVelocity->N() );
-                    }
-
-                    // if imposed velocity depends on dof type
-                    if ( tPropVelocity->check_dof_dependency( tDofType ) )
-                    {
-                        // add contribution from property to jacobian
-                        mSet->get_jacobian()(
-                                { tMasterResStartIndex, tMasterResStopIndex },
-                                { tMasterDepStartIndex, tMasterDepStopIndex } ) -= aWStar * (
-                                        - mBeta * trans( tCMTurbulence->testTraction( mNormal, mResidualDofType ) ) *
-                                        tM * tPropVelocity->dPropdDOF( tDofType ) );
-                    }
-
-                    // if turbulence depends on dof type
-                    if( tCMTurbulence->check_dof_dependency( tDofType ) )
-                    {
-                        // add contribution from CM to jacobian
-                        mSet->get_jacobian()(
-                                { tMasterResStartIndex, tMasterResStopIndex },
-                                { tMasterDepStartIndex, tMasterDepStopIndex } ) -= aWStar * (
-                                        trans( tFIVelocity->N() ) * tM * tCMTurbulence->dTractiondDOF( tDofType, mNormal ) +
-                                        mBeta * tCMTurbulence->dTestTractiondDOF( tDofType, mNormal, tM * tVelocityJump, mResidualDofType ) );
                     }
                 }
             }

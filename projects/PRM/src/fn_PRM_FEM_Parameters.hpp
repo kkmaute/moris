@@ -89,6 +89,9 @@ namespace moris
             tParameterList.insert( "master_constitutive_models", std::string( "" ) );
             tParameterList.insert( "slave_constitutive_models",  std::string( "" ) );
 
+            tParameterList.insert( "master_phase_name",          std::string( "" ) );
+            tParameterList.insert( "slave_phase_name",           std::string( "" ) );
+
             return tParameterList;
         }
 
@@ -102,8 +105,7 @@ namespace moris
             ParameterList tParameterList;
 
             tParameterList.insert( "IWG_name",                   std::string( "undefined" ) );
-            //FIXME
-            tParameterList.insert( "IWG_bulk_type",              static_cast< uint >( fem::Element_Type::UNDEFINED ) );
+            tParameterList.insert( "IWG_bulk_type",              static_cast< uint >( fem::Element_Type::BULK ) );
             tParameterList.insert( "IWG_type",                   static_cast< uint >( fem::IWG_Type::UNDEFINED ) );
             tParameterList.insert( "dof_residual",               std::string( "" ) );
 
@@ -120,13 +122,17 @@ namespace moris
             tParameterList.insert( "slave_constitutive_models",  std::string( "" ) );
             tParameterList.insert( "stabilization_parameters",   std::string( "" ) );
 
+            tParameterList.insert( "master_physics",             std::string( "" ) );
+            tParameterList.insert( "slave_physics",              std::string( "" ) );
+            tParameterList.insert( "stabilizations",             std::string( "" ) );
+
             tParameterList.insert( "ghost_order",                MORIS_UINT_MAX );
 
             tParameterList.insert( "mesh_set_names",             std::string( "" ) );
             tParameterList.insert( "master_phase_name",          std::string( "" ) );
             tParameterList.insert( "slave_phase_name",           std::string( "" ) );
-            tParameterList.insert( "side",                       std::string( "" ) );
-            tParameterList.insert( "single",                     std::string( "" ) );
+            tParameterList.insert( "side_ordinals",              std::string( "" ) );
+            tParameterList.insert( "neighbor_phases",            std::string( "" ) );
 
             tParameterList.insert( "time_continuity",            false );
             tParameterList.insert( "time_boundary",              false );
@@ -145,9 +151,9 @@ namespace moris
 
             tParameterList.insert( "IQI_name",                   std::string( "undefined" ) );
             tParameterList.insert( "IQI_type",                   static_cast< uint >( fem::IQI_Type::UNDEFINED ) );
-            //FIXME
-            tParameterList.insert( "IQI_bulk_type",              static_cast< uint >( fem::Element_Type::UNDEFINED ) );
+            tParameterList.insert( "IQI_bulk_type",              static_cast< uint >( fem::Element_Type::BULK ) );
             tParameterList.insert( "dof_quantity",               std::string( "" ) );
+            tParameterList.insert( "vectorial_field_index",      -1 );
 
             tParameterList.insert( "master_phase_name",          "" );
             tParameterList.insert( "slave_phase_name",           "" );
@@ -163,13 +169,16 @@ namespace moris
             tParameterList.insert( "master_constitutive_models", std::string( "" ) );
             tParameterList.insert( "slave_constitutive_models",  std::string( "" ) );
             tParameterList.insert( "stabilization_parameters",   std::string( "" ) );
-            tParameterList.insert( "vectorial_field_index",      -1 );
+
+            tParameterList.insert( "master_physics",             std::string( "" ) );
+            tParameterList.insert( "slave_physics",              std::string( "" ) );
+            tParameterList.insert( "stabilizations",             std::string( "" ) );
 
             tParameterList.insert( "master_phase_name",          std::string( "" ) );
             tParameterList.insert( "slave_phase_name",           std::string( "" ) );
             tParameterList.insert( "mesh_set_names",             std::string( "" ) );
-            tParameterList.insert( "side",                       std::string( "" ) );
-            tParameterList.insert( "single",                     std::string( "" ) );
+            tParameterList.insert( "side_ordinals",              std::string( "" ) );
+            tParameterList.insert( "neighbor_phases",            std::string( "" ) );
 
             tParameterList.insert( "time_continuity",            false );
             tParameterList.insert( "time_boundary",              false );
@@ -188,12 +197,12 @@ namespace moris
         {
             ParameterList tParameterList;
 
-            tParameterList.insert( "phase_name",               std::string( "undefined" ) );
-            tParameterList.insert( "phase_index",              -1 );
-            tParameterList.insert( "dof_dependencies",         std::string( "" ) );
-            tParameterList.insert( "dv_dependencies",          std::string( "" ) );
-            tParameterList.insert( "constitutive_models",      std::string( "" ) );
-            tParameterList.insert( "stabilization_parameters", std::string( "" ) );
+            tParameterList.insert( "phase_name",               "undefined" );
+            tParameterList.insert( "phase_indices",            "" );
+            tParameterList.insert( "dof_dependencies",         "" );
+            tParameterList.insert( "dv_dependencies",          "" );
+            tParameterList.insert( "constitutive_models",      "" );
+            tParameterList.insert( "stabilization_parameters", "" );
 
             return tParameterList;
         }
