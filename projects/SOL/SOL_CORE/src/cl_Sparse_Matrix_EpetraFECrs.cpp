@@ -82,18 +82,35 @@ void Sparse_Matrix_EpetraFECrs::fill_matrix(
 
 // ----------------------------------------------------------------------------------------------------------------------
 
-void Sparse_Matrix_EpetraFECrs::fill_matrix_row( 
-	    const moris::Matrix< DDRMat > & aA_val,
-        const moris::Matrix< DDSMat > & aRow,
-        const moris::Matrix< DDSMat > & aCols )
+void Sparse_Matrix_EpetraFECrs::insert_values(
+        const Matrix<DDSMat>& aRowIDs,
+        const Matrix<DDSMat>& aColumnIDs,
+        const Matrix<DDRMat>& aMatrixValues)
 {
     // insert values to matrix
     mEpetraMat->InsertGlobalValues(
-            aRow.numel(),
-            aRow.data(),
-			aCols.numel(),
-            aCols.data(),
-            aA_val.data(),
+            aRowIDs.numel(),
+            aRowIDs.data(),
+			aColumnIDs.numel(),
+            aColumnIDs.data(),
+            aMatrixValues.data(),
+            Epetra_FECrsMatrix::COLUMN_MAJOR);
+}
+
+// ----------------------------------------------------------------------------------------------------------------------
+
+void Sparse_Matrix_EpetraFECrs::sum_into_values(
+        const Matrix<DDSMat>& aRowIDs,
+        const Matrix<DDSMat>& aColumnIDs,
+        const Matrix<DDRMat>& aMatrixValues)
+{
+    // insert values to matrix
+    mEpetraMat->SumIntoGlobalValues(
+            aRowIDs.numel(),
+            aRowIDs.data(),
+            aColumnIDs.numel(),
+            aColumnIDs.data(),
+            aMatrixValues.data(),
             Epetra_FECrsMatrix::COLUMN_MAJOR);
 }
 

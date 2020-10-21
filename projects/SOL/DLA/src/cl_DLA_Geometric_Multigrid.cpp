@@ -87,7 +87,7 @@ namespace dla
                    moris::sint tColLevelPos = mMultigridMap( Ik-1 )( tDofIdentifier )( tExtDofInd, 0 );
                    moris::Matrix< DDSMat > tColMat( 1, 1, tColLevelPos );
 
-                   mProlongationList( Ik-1 )->fill_matrix_row( tIdentityMat, tRowMat, tColMat );
+                   mProlongationList( Ik-1 )->insert_values( tRowMat, tColMat, tIdentityMat );
                 }
                 // If coarse dof on this level is interpolated through fine dofs on thislevel + 1
                 else if ( ( tDofLevel == tMaxMeshLevel - Ik ) && ( Ii >= tRemainingOldDofsOnLevel( Ik-1, 0 ) ) )
@@ -111,7 +111,7 @@ namespace dla
                     moris::Matrix< DDRMat > tWeights = mMesh->get_fine_basis_weights_of_basis( tMeshIndex, tExtDofInd  );
 
                     // Fill weights in operator
-                    mProlongationList( Ik-1 )->fill_matrix_row( tWeights, tRowMat, tColMat );
+                    mProlongationList( Ik-1 )->insert_values( tRowMat, tColMat, tWeights );
                 }
                 else
                 {

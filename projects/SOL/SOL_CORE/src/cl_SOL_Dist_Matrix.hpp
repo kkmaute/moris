@@ -60,9 +60,29 @@ namespace moris
                     const moris::Matrix< DDRMat > & aA_val,
                     const moris::Matrix< DDSMat > & aEleDofConectivity) = 0;
 
-            virtual void fill_matrix_row( const moris::Matrix< DDRMat > & aA_val,
-                    const moris::Matrix< DDSMat > & aRow,
-                    const moris::Matrix< DDSMat > & aCols ) = 0;
+            /**
+             * Inserts values into the matrix at locations corresponding to the given row and column IDs.
+             *
+             * @param aRowIDs Row IDs
+             * @param aColumnIDs Column IDs
+             * @param aMatrixValues Values to be inserted
+             */
+            virtual void insert_values(
+                    const Matrix<DDSMat>& aRowIDs,
+                    const Matrix<DDSMat>& aColumnIDs,
+                    const Matrix<DDRMat>& aMatrixValues) = 0;
+
+            /**
+             * Sums values into the matrix at locations corresponding to the given row and column IDs.
+             *
+             * @param aRowIDs Row IDs
+             * @param aColumnIDs Column IDs
+             * @param aMatrixValues Values to be summed into the existing matrix values
+             */
+            virtual void sum_into_values(
+                    const Matrix<DDSMat>& aRowIDs,
+                    const Matrix<DDSMat>& aColumnIDs,
+                    const Matrix<DDRMat>& aMatrixValues) = 0;
 
             virtual void get_matrix_values( const moris::Matrix< DDSMat > & aRequestedIds,
                     moris::Matrix< DDRMat > & aValues ) = 0;

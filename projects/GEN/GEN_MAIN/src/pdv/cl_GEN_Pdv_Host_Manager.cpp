@@ -557,14 +557,14 @@ namespace moris
                     Matrix<DDSMat> tADVIds = mIpPdvHosts(tPDVHostIndex)->get_determining_adv_ids(tPDVIndex);
 
                     // Fill matrix
-                    tdPDVdADV->fill_matrix_row(tHostADVSensitivities, {{tPDVID}}, tADVIds);
+                    tdPDVdADV->insert_values({{tPDVID}}, tADVIds, tHostADVSensitivities);
                 }
             }
 
             // Loop over intersection nodes
             for (uint tIntersectionIndex = 0; tIntersectionIndex < mIntersectionNodes.size(); tIntersectionIndex++)
             {
-                if (mIntersectionNodes(tIntersectionIndex))
+                if (mIntersectionNodes(tIntersectionIndex)) // TODO also check for ownership here for efficiency
                 {
                     // Get starting ID and number of coordinates
                     uint tStartingGlobalIndex = mIntersectionNodes(tIntersectionIndex)->get_starting_pdv_id();
@@ -578,14 +578,14 @@ namespace moris
                     }
 
                     // Fill matrix
-                    tdPDVdADV->fill_matrix_row(
-                            mIntersectionNodes(tIntersectionIndex)->get_first_parent_sensitivities(),
+                    tdPDVdADV->insert_values(
                             tPDVSensitivityIDs,
-                            mIntersectionNodes(tIntersectionIndex)->get_first_parent_determining_adv_ids());
-                    tdPDVdADV->fill_matrix_row(
-                            mIntersectionNodes(tIntersectionIndex)->get_second_parent_sensitivities(),
+                            mIntersectionNodes(tIntersectionIndex)->get_first_parent_determining_adv_ids(),
+                            mIntersectionNodes(tIntersectionIndex)->get_first_parent_sensitivities());
+                    tdPDVdADV->insert_values(
                             tPDVSensitivityIDs,
-                            mIntersectionNodes(tIntersectionIndex)->get_second_parent_determining_adv_ids());
+                            mIntersectionNodes(tIntersectionIndex)->get_second_parent_determining_adv_ids(),
+                            mIntersectionNodes(tIntersectionIndex)->get_second_parent_sensitivities());
                 }
             }
 
@@ -871,6 +871,7 @@ namespace moris
 
             return tOwnedPdvsOffsetList( par_rank(), 0);
         }
+
         //--------------------------------------------------------------------------------------------------------------
 
         void Pdv_Host_Manager::set_owned_pdv_ids( uint aPdvOffset )

@@ -294,7 +294,7 @@ TEST_CASE("Get Matrix Values","[Get_Matrix_Values],[DistLinAlg]")
                                             { 8,  9, 10, 11 },
                                             { 12, 13, 14, 15 } };
 
-        tMat->fill_matrix_row( tElementMatrix, tElementIds, tElementIds );
+        tMat->insert_values(tElementIds, tElementIds, tElementMatrix);
 
         // Call Global Asemby to ship information between processes
         tMat->matrix_global_assembly();
@@ -368,7 +368,7 @@ TEST_CASE("Non-square matrix","[Non-square matrix],[DistLinAlg]")
 		    tCols = {{0},{1},{2},{3}};
 			tVals = {{1, 1, 0, 0},{0, 0,1,1}};
 			
-			tMat->fill_matrix_row( tVals, tRows, tCols );
+			tMat->insert_values(tRows, tCols, tVals);
 		}
 
         // Call Global Asemby to ship information between processes
