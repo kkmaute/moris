@@ -40,9 +40,14 @@ namespace moris
 
         Matrix<DDRMat> Discrete_Property::get_field_sensitivities(uint aNodeIndex)
         {
-            Matrix<DDRMat> tSensitivities(1, mFieldVariables.size(), 0.0);
-            tSensitivities(aNodeIndex) = 1.0;
-            return tSensitivities;
+            return {{1.0}};
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
+        Matrix<DDSMat> Discrete_Property::get_determining_adv_ids(uint aNodeIndex, const Matrix<DDRMat>& aCoordinates)
+        {
+            return {{(sint)aNodeIndex}};
         }
 
         //--------------------------------------------------------------------------------------------------------------

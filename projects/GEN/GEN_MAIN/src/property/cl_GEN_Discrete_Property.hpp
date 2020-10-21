@@ -52,6 +52,15 @@ namespace moris
              */
             Matrix<DDRMat> get_field_sensitivities(uint aNodeIndex);
 
+            /**
+             * Gets the IDs of ADVs which this field depends on for evaluations.
+             *
+             * @param aNodeIndex Node index
+             * @param aCoordinates Node coordinates
+             * @return Field basis ADV IDs
+             */
+            Matrix<DDSMat> get_determining_adv_ids(uint aNodeIndex, const Matrix<DDRMat>& aCoordinates);
+
         };
     }
 }
