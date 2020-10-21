@@ -76,6 +76,9 @@ namespace moris
                 tRequestedPdvTypes(tPdvTypeIndex) = tPdvTypeMap[tRequestedPdvNames(tPdvTypeIndex)];
             }
             mPdvHostManager.set_requested_interpolation_pdv_types(tRequestedPdvTypes);
+
+            // Initialize PDV type list
+            this->initialize_pdv_type_list();
             
             // Set map if its a non-standard phase table (i.e. the map is not 1-1 between index and bulk phase).
             if (aParameterLists(0)(0).get<std::string>("phase_table").length() > 0)
@@ -515,8 +518,6 @@ namespace moris
             // PDV type map
             map< std::string, PDV_Type > tPdvTypeMap = get_pdv_type_map();
 
-            this->initialize_pdv_type_list();
-
             // Loop over properties to create PDVs
             for (uint tPropertyIndex = 0; tPropertyIndex < mPropertyParameterLists.size(); tPropertyIndex++)
             {
@@ -557,12 +558,11 @@ namespace moris
                     tIntegrationMesh,
                     tPdvTypes);
 
+            // Set integration PDV types
             if (mShapeSensitivities)
             {
                 this->set_integration_pdv_types(tIntegrationMesh);
             }
-
-            mPdvHostManager.create_pdv_ids();
 
             // Loop over properties to assign PDVs
             for (uint tPropertyIndex = 0; tPropertyIndex < mPropertyParameterLists.size(); tPropertyIndex++)
@@ -577,6 +577,9 @@ namespace moris
                     MORIS_ERROR(false, "Assignment of PDVs is only supported with an interpolation mesh right now.");
                 }
             }
+
+            // Create PDV IDs
+            mPdvHostManager.create_pdv_ids();
 
             // Get rid of parameter lists
             mPropertyParameterLists.resize(0);
