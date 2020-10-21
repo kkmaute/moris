@@ -331,7 +331,7 @@ TEST_CASE("Non-square matrix","[Non-square matrix],[DistLinAlg]")
     {
         // Build matrix factory
         sol::Matrix_Vector_Factory      tMatFactory;
-		
+
 		moris::Matrix< DDSMat > tRowMapVal;
 		moris::Matrix< DDSMat > tColMapVal;
 		if(rank == 0)
@@ -352,22 +352,22 @@ TEST_CASE("Non-square matrix","[Non-square matrix],[DistLinAlg]")
         // build distributed vector
         sol::Dist_Vector * tVector1 = tMatFactory.create_vector( tColMap );
 		sol::Dist_Vector * tVector2 = tMatFactory.create_vector( tRowMap );
-		
+
 		tVector1->vec_put_scalar( 1.0 );
 
         // Create pointer to sparse matrix
         sol::Dist_Matrix * tMat = tMatFactory.create_matrix( tRowMap, tColMap );
-		
+
 		moris::Matrix< DDSMat > tRows;
 		moris::Matrix< DDSMat > tCols;
 		moris::Matrix< DDRMat > tVals;
-		
+
 		if(rank == 0)
 		{
 			tRows = {{0},{1}};
 		    tCols = {{0},{1},{2},{3}};
 			tVals = {{1, 1, 0, 0},{0, 0,1,1}};
-			
+
 			tMat->insert_values(tRows, tCols, tVals);
 		}
 
@@ -375,9 +375,9 @@ TEST_CASE("Non-square matrix","[Non-square matrix],[DistLinAlg]")
         tMat->matrix_global_assembly();
 
         //tMat->print();
-		
+
 		tMat->mat_vec_product( *tVector1, *tVector2, false );
-		
+
 		//tVector2->print();
 
         moris::Matrix< DDRMat > tResult ( 1, 1, 0.0 );
@@ -402,5 +402,96 @@ TEST_CASE("Non-square matrix","[Non-square matrix],[DistLinAlg]")
 	    delete ( tVector2 );
         delete ( tMat );
     }
+}
+
+TEST_CASE("Non-square matrix sum into values","[Non-square matrix],[DistLinAlg],[sum into values]")
+{
+    // Determine process rank
+    size_t rank = par_rank();
+    size_t size = par_size();
+
+    if (size == 2)
+    {
+    // Build matrix factory
+    sol::Matrix_Vector_Factory      tMatFactory;
+
+    moris::Matrix< DDSMat > tRowMapVal;
+    moris::Matrix< DDSMat > tColMapVal;
+    if(rank == 0)
+    {
+        tRowMapVal = {{0}};
+        tColMapVal = {{0},{1}};
+    }
+    else if(rank == 1)
+    {
+        tRowMapVal = {{1}};
+        tColMapVal = {{2},{3}};
+    }
+
+    // Build map
+    std::shared_ptr<sol::Dist_Map>  tRowMap = tMatFactory.create_map( tRowMapVal );
+    std::shared_ptr<sol::Dist_Map>  tColMap = tMatFactory.create_map( tColMapVal );
+
+    // build distributed vector
+    sol::Dist_Vector * tVector1 = tMatFactory.create_vector( tColMap );
+    sol::Dist_Vector * tVector2 = tMatFactory.create_vector( tRowMap );
+
+    tVector1->vec_put_scalar( 1.0 );
+
+    // Create pointer to sparse matrix
+    sol::Dist_Matrix * tMat = tMatFactory.create_matrix( tRowMap, tColMap );
+
+    moris::Matrix< DDSMat > tRows;
+    moris::Matrix< DDSMat > tCols;
+    moris::Matrix< DDRMat > tVals;
+
+    if (rank == 0)
+    {
+        tRows = {{0},{1}};
+        tCols = {{0},{1},{2},{3}};
+        tVals = {{0, 0, 0, 0},{0, 0, 0, 0}};
+
+        tMat->insert_values(tRows, tCols, tVals);
+    }
+
+    // Call Global Asemby to ship information between processes
+    tMat->matrix_global_assembly();
+
+    if (rank == 0)
+    {
+        tVals = {{1, 1, 0, 0}, {0, 0, 1, 1}};
+        tMat->sum_into_values(tRows, tCols, tVals);
+    }
+
+    tMat->matrix_global_assembly();
+
+    tMat->print();
+
+    tMat->mat_vec_product( *tVector1, *tVector2, false );
+
+    tVector2->print();
+
+    moris::Matrix< DDRMat > tResult ( 1, 1, 0.0 );
+
+    // needed as offset parameter for Epetra. =0
+    sint tMyLDA = 0;
+
+    // Get solution and output it in moris::Mat LHSValues
+    static_cast<Vector_Epetra*>(tVector2)->get_epetra_vector()->ExtractCopy( tResult.data(), tMyLDA );
+
+    // Compare to true values.
+    if (rank == 0)
+    {
+        CHECK(equal_to(tResult(0,0), 2.0));
+    }
+    if (rank == 1)
+    {
+        CHECK(equal_to(tResult(0,0), 2.0));
+    }
+
+    delete ( tVector1 );
+    delete ( tVector2 );
+    delete ( tMat );
+}
 }
 }
