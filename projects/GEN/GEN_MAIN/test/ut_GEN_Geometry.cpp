@@ -340,13 +340,12 @@ namespace moris
             tCircleParameterList.set("bspline_upper_bound", tUpperBound);
 
             // Set up geometry
-            Cell<std::shared_ptr<Geometry>> tGeometry(1);
             Matrix<DDRMat> tADVs(0, 0);
-            tGeometry(0) = create_geometry(tCircleParameterList, tADVs);
+            std::shared_ptr<Geometry> tBSplineCircle = create_geometry(tCircleParameterList, tADVs);
 
             // Create geometry engine
             Phase_Table tPhaseTable(1);
-            Geometry_Engine_Test tGeometryEngine(tGeometry, tPhaseTable, tMesh);
+            Geometry_Engine_Test tGeometryEngine({tBSplineCircle}, tPhaseTable, tMesh);
 
             // Get ADVs/bounds
             tADVs = tGeometryEngine.get_advs();
@@ -373,6 +372,9 @@ namespace moris
                 REQUIRE(tUpperBounds.length() == 0);
             }
 
+            // Get geometry back
+            tBSplineCircle = tGeometryEngine.get_geometry(0);
+
             // Check field values at all nodes
             for (uint tNodeIndex = 0; tNodeIndex < tMesh->get_num_nodes(); tNodeIndex++)
             {
@@ -384,29 +386,19 @@ namespace moris
                         Approx(sqrt(pow(tNodeCoordinates(0), 2) + pow(tNodeCoordinates(1), 2)) - tRadius);
 
                 // Check field value
-                CHECK(tGeometryEngine.get_geometry_field_value(tNodeIndex, {{}}, 0) == tApproxTarget);
+                CHECK(tBSplineCircle->get_field_value(tNodeIndex, {{}}) == tApproxTarget);
+
+                // Check sensitivities
+                if (par_rank() == tMesh->get_entity_owner(tNodeIndex, EntityRank::NODE, 0))
+                {
+                    check_equal(
+                            tBSplineCircle->get_field_sensitivities(tNodeIndex, {{}}),
+                            tMesh->get_t_matrix_of_node_loc_ind(tNodeIndex, EntityRank::BSPLINE));
+                    check_equal(
+                            tBSplineCircle->get_determining_adv_ids(tNodeIndex, {{}}),
+                            tMesh->get_bspline_inds_of_node_loc_ind(tNodeIndex, EntityRank::BSPLINE));
+                }
             }
-
-            // Set new ADVs
-            tADVs = tADVs + (tRadius / 2.0);
-            tGeometryEngine.set_advs(tADVs);
-
-            // Check field values at all nodes again
-            for (uint tNodeIndex = 0; tNodeIndex < tMesh->get_num_nodes(); tNodeIndex++)
-            {
-                // Get node coordinates
-                Matrix<DDRMat> tNodeCoordinates = tMesh->get_node_coordinate(tNodeIndex);
-
-                // Set approximate target
-                Approx tApproxTarget =
-                        Approx(sqrt(pow(tNodeCoordinates(0), 2) + pow(tNodeCoordinates(1), 2)) - (tRadius / 2.0));
-
-                // Check field value
-                CHECK(tGeometryEngine.get_geometry_field_value(tNodeIndex, {{}}, 0) == tApproxTarget);
-            }
-
-            // Clean up
-            delete tMesh;
         }
 
         //--------------------------------------------------------------------------------------------------------------
