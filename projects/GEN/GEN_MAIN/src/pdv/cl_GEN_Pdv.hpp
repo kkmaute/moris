@@ -29,7 +29,6 @@ namespace moris
 
             void set_id( const moris_id & tId)
             {
-                MORIS_ASSERT( mId == gNoID, "Pdv::set_id(), id of this pdv was set before" );
                 mId = tId;
             };
 
