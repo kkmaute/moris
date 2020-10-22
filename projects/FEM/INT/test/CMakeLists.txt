@@ -55,7 +55,7 @@ set(TEST_SOURCES
     UT_FEM_IWG_Incompressible_NS_Pressure_Bulk.cpp
     UT_FEM_IWG_Incompressible_NS_Dirichlet_Nitsche.cpp
     UT_FEM_IWG_Incompressible_NS_Interface_Nitsche.cpp
-    #UT_FEM_IWG_Compressible_NS_Density_Bulk.cpp
+    UT_FEM_IWG_Compressible_NS_Density_Bulk.cpp
     #UT_FEM_IWG_Compressible_NS_Velocity_Bulk.cpp
     #UT_FEM_IWG_Compressible_NS_Temperature_Bulk.cpp
     #UT_FEM_IWG_FS_Struc_Interface.cpp
