@@ -22,7 +22,7 @@ namespace moris
     //------------------------------------------------------------------------------------------------------------------
 
     // Dummy IQI sensitivity values so a FEM model doesn't have to be created
-    uint gNumPDVs = 8;
+    uint gNumPDVs = 16;
     Matrix<DDRMat> gdIQIdPDV1(1, gNumPDVs);
     Matrix<DDRMat> gdIQIdPDV2(1, gNumPDVs);
 
@@ -31,22 +31,32 @@ namespace moris
         // Factory
         sol::Matrix_Vector_Factory tDistributedFactory;
 
-        // PDV/ADV IDs and sensitivities
-        Matrix<DDSMat> tPDVIds(gNumPDVs, 1);
-        for (uint tPDVIndex = 0; tPDVIndex < gNumPDVs; tPDVIndex++)
+        // IQI/PDV sensitivities
+        Matrix<DDSMat> tFullPDVIds(gNumPDVs, 1);
+        if (par_rank() == 0)
         {
-            tPDVIds(tPDVIndex) = tPDVIndex;
-            gdIQIdPDV1(tPDVIndex) = 1.0;
-            gdIQIdPDV2(tPDVIndex) = (real)tPDVIndex;
+            for (uint tPDVIndex = 0; tPDVIndex < gNumPDVs; tPDVIndex++)
+            {
+                tFullPDVIds(tPDVIndex) = tPDVIndex;
+                gdIQIdPDV1(tPDVIndex) = 1.0;
+                gdIQIdPDV2(tPDVIndex) = (real)tPDVIndex;
+            }
         }
 
+        // PDV IDs
+        Matrix<DDSMat> tOwnedPDVIds = this->get_my_local_global_map();
+
         // IQI sensitivity vector
-        std::shared_ptr<sol::Dist_Map> tPDVMap = tDistributedFactory.create_map(tPDVIds);
+        std::shared_ptr<sol::Dist_Map> tPDVMap = tDistributedFactory.create_map(tOwnedPDVIds);
         sol::Dist_Vector* tdIQIdPDV = tDistributedFactory.create_vector(tPDVMap, 2);
 
         // Fill values
-        tdIQIdPDV->replace_global_values(tPDVIds, gdIQIdPDV1, 0);
-        tdIQIdPDV->replace_global_values(tPDVIds, gdIQIdPDV2, 1);
+        if (par_rank() == 0)
+        {
+            tdIQIdPDV->replace_global_values(tFullPDVIds, gdIQIdPDV1, 0);
+            tdIQIdPDV->replace_global_values(tFullPDVIds, gdIQIdPDV2, 1);
+        }
+        tdIQIdPDV->vector_global_asembly();
 
         return tdIQIdPDV;
     }
@@ -237,6 +247,7 @@ namespace moris
                     }
                 }
 
+                // Create PDV IDs
                 tPDVHostManager.create_pdv_ids();
 
                 // ------------------- Check global map ----------------------- //
