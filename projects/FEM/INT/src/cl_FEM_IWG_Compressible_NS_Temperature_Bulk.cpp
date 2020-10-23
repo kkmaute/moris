@@ -135,7 +135,7 @@ namespace moris
                 mSet->get_residual()( 0 )(
                         { tMasterResStartIndex, tMasterResStopIndex },
                         { 0, 0 } ) += aWStar * (
-                                dot( tPropBodyForce->val(), tFIVelocity->val() ) * tFIDensity->val() * trans( tFITemp->N() ) );
+                                tFIDensity->val()( 0 ) * trans( tFITemp->N() ) * dot( tPropBodyForce->val(), tFIVelocity->val() ) );
             }
 
             // if there is a body heat load
@@ -198,7 +198,7 @@ namespace moris
                     mSet->get_jacobian()(
                             { tMasterResStartIndex, tMasterResStopIndex },
                             { tMasterDepStartIndex, tMasterDepStopIndex } ) += aWStar * (
-                                    trans( tFITemp->N() ) * tCMFluid->dEnergyDotdDOF( tDofType ) -
+                                    trans( tFITemp->N() ) * tCMFluid->dEnergyDotdDOF( tDofType ) +
                                     trans( tFITemp->dnNdxn( 1 ) ) *
                                     ( tCMFluid->dFluxdDOF( tDofType, CM_Function_Type::WORK ) -
                                       tCMFluid->dFluxdDOF( tDofType, CM_Function_Type::ENERGY ) -
@@ -215,8 +215,18 @@ namespace moris
                         mSet->get_jacobian()(
                                 { tMasterResStartIndex, tMasterResStopIndex },
                                 { tMasterDepStartIndex, tMasterDepStopIndex } ) += aWStar * (
-                                        trans( tFITemp->N() ) * tFIDensity->val() * trans( tFIVelocity->val() ) *
+                                        tFIDensity->val()( 0 ) * trans( tFITemp->N() ) * trans( tFIVelocity->val() ) *
                                         tPropBodyForce->dPropdDOF( tDofType ) );
+                    }
+
+                    // if dof type is density and a body force is present
+                    if( tDofType( 0 ) == mDofDensity )
+                    {
+                        // compute the jacobian contribution
+                        mSet->get_jacobian()(
+                                { tMasterResStartIndex, tMasterResStopIndex },
+                                { tMasterDepStartIndex, tMasterDepStopIndex } ) += aWStar * (
+                                        trans( tFITemp->N() ) * dot( tPropBodyForce->val(), tFIVelocity->val() ) * tFIDensity->N() );
                     }
 
                     // if dof type is velocity and a body force is present
@@ -226,7 +236,7 @@ namespace moris
                         mSet->get_jacobian()(
                                 { tMasterResStartIndex, tMasterResStopIndex },
                                 { tMasterDepStartIndex, tMasterDepStopIndex } ) += aWStar * (
-                                        trans( tFITemp->N() ) * tFIDensity->val() * trans( tPropBodyForce->val() ) * tFIVelocity->N() );
+                                        tFIDensity->val()( 0 ) * trans( tFITemp->N() ) * trans( tPropBodyForce->val() ) * tFIVelocity->N() );
                     }
                 }
 
