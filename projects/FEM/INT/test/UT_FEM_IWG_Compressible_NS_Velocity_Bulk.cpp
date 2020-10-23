@@ -89,7 +89,7 @@ TEST_CASE( "IWG_Compressible_NS_Velocity_Bulk_Ideal",
 
     // body force
     std::shared_ptr< fem::Property > tPropBodyForce = std::make_shared< fem::Property >();
-    //tPropBodyForce->set_val_function( tValFunc_BodyForce );
+    tPropBodyForce->set_val_function( tValFunc_BodyForce );
     //tPropConductivity->set_parameters( { {{ -3.5 }, { 2.7 }, { 8.9 }} } );
     //tPropConductivity->set_val_function( tConstValFunc );
 
@@ -113,7 +113,7 @@ TEST_CASE( "IWG_Compressible_NS_Velocity_Bulk_Ideal",
     tIWG->set_residual_dof_type( tVelocityDof );
     tIWG->set_dof_type_list( tDofTypes, mtk::Master_Slave::MASTER );
     tIWG->set_constitutive_model( tCMMasterFluid, "Fluid" );
-    tIWG->set_property( tPropBodyForce, "BodyForce" ); // FIXME: include body force in unit test
+    //tIWG->set_property( tPropBodyForce, "BodyForce" ); // FIXME: include body force in unit test
 
 
     //------------------------------------------------------------------------------
@@ -142,9 +142,9 @@ TEST_CASE( "IWG_Compressible_NS_Velocity_Bulk_Ideal",
     {
 
         // output for debugging
-        std::cout << "-------------------------------------------------------------------\n" << std::flush;
-        std::cout << "Performing Tests For Number of Spatial dimensions: " << iSpaceDim << "\n" << std::flush;
-        std::cout << "-------------------------------------------------------------------\n\n" << std::flush;
+        //std::cout << "-------------------------------------------------------------------\n" << std::flush;
+        //std::cout << "Performing Tests For Number of Spatial dimensions: " << iSpaceDim << "\n" << std::flush;
+        //std::cout << "-------------------------------------------------------------------\n\n" << std::flush;
 
         // switch on space dimension
         switch( iSpaceDim )
@@ -188,9 +188,9 @@ TEST_CASE( "IWG_Compressible_NS_Velocity_Bulk_Ideal",
             }
 
             // output for debugging
-            std::cout << "-------------------------------------------------------------------\n" << std::flush;
-            std::cout << "-------------------------------------------------------------------\n" << std::flush;
-            std::cout << "Performing Tests For Interpolation Order:" << iInterpOrder << "\n\n" << std::flush;
+            //std::cout << "-------------------------------------------------------------------\n" << std::flush;
+            //std::cout << "-------------------------------------------------------------------\n" << std::flush;
+            //std::cout << "Performing Tests For Interpolation Order:" << iInterpOrder << "\n\n" << std::flush;
 
             // create an interpolation order
             mtk::Interpolation_Order tGIInterpolationOrder = tInterpolationOrders( iInterpOrder - 1 );
@@ -341,8 +341,8 @@ TEST_CASE( "IWG_Compressible_NS_Velocity_Bulk_Ideal",
             for( uint iGP = 0; iGP < tNumGPs; iGP ++ )
             {
                 // output for debugging
-                std::cout << "-------------------------------------------------------------------\n" << std::flush;
-                std::cout << "Looping over Gauss points. Current GP-#: " << iGP << "\n\n" << std::flush;
+                //std::cout << "-------------------------------------------------------------------\n" << std::flush;
+                //std::cout << "Looping over Gauss points. Current GP-#: " << iGP << "\n\n" << std::flush;
 
                 // reset CM evaluation flags
                 tCMMasterFluid->reset_eval_flags();
@@ -534,9 +534,9 @@ TEST_CASE( "IWG_Compressible_NS_Velocity_Bulk_VdW",
     {
 
         // output for debugging
-        std::cout << "-------------------------------------------------------------------\n" << std::flush;
-        std::cout << "Performing Tests For Number of Spatial dimensions: " << iSpaceDim << "\n" << std::flush;
-        std::cout << "-------------------------------------------------------------------\n\n" << std::flush;
+        //std::cout << "-------------------------------------------------------------------\n" << std::flush;
+        //std::cout << "Performing Tests For Number of Spatial dimensions: " << iSpaceDim << "\n" << std::flush;
+        //std::cout << "-------------------------------------------------------------------\n\n" << std::flush;
 
         // switch on space dimension
         switch( iSpaceDim )
@@ -580,9 +580,9 @@ TEST_CASE( "IWG_Compressible_NS_Velocity_Bulk_VdW",
             }
 
             // output for debugging
-            std::cout << "-------------------------------------------------------------------\n" << std::flush;
-            std::cout << "-------------------------------------------------------------------\n" << std::flush;
-            std::cout << "Performing Tests For Interpolation Order:" << iInterpOrder << "\n\n" << std::flush;
+            //std::cout << "-------------------------------------------------------------------\n" << std::flush;
+            //std::cout << "-------------------------------------------------------------------\n" << std::flush;
+            //std::cout << "Performing Tests For Interpolation Order:" << iInterpOrder << "\n\n" << std::flush;
 
             // create an interpolation order
             mtk::Interpolation_Order tGIInterpolationOrder = tInterpolationOrders( iInterpOrder - 1 );
@@ -733,8 +733,8 @@ TEST_CASE( "IWG_Compressible_NS_Velocity_Bulk_VdW",
             for( uint iGP = 0; iGP < tNumGPs; iGP ++ )
             {
                 // output for debugging
-                std::cout << "-------------------------------------------------------------------\n" << std::flush;
-                std::cout << "Looping over Gauss points. Current GP-#: " << iGP << "\n\n" << std::flush;
+                //std::cout << "-------------------------------------------------------------------\n" << std::flush;
+                //std::cout << "Looping over Gauss points. Current GP-#: " << iGP << "\n\n" << std::flush;
 
                 // reset CM evaluation flags
                 tCMMasterFluid->reset_eval_flags();

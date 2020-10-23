@@ -116,23 +116,6 @@ namespace moris
             Matrix< DDRMat > tUiUj;
             this->compute_uiuj( tUiUj );
 
-//            // debug
-//            std::cout << "In function IWG_Compressible_NS_Velocity_Bulk::compute_residual() \n" << std::flush;
-//            Matrix< DDRMat > FirstLine = trans( tFIVelocity->N() ) * tFIVelocity->val() * tFIDensity->gradt( 1 );
-//            print( FirstLine, "FirstLine" );
-//            Matrix< DDRMat > SecondLine = tFIDensity->val()( 0 ) * trans( tFIVelocity->N() ) * trans( tFIVelocity->gradt( 1 ) );
-//            print( SecondLine, "SecondLine" );
-//            Matrix< DDRMat > ThirdLine = trans( tCMFluid->testStrain() ) * tFIDensity->val()( 0 ) * this->MultipMat() * tUiUj;
-//            print( ThirdLine, "ThirdLine" );
-//            Matrix< DDRMat > TestStrain = trans( tCMFluid->testStrain() );
-//            print( TestStrain, "TestStrain" );
-//            Matrix< DDRMat > StressVector = tCMFluid->flux( CM_Function_Type::MECHANICAL );
-//            print( StressVector, "StressVector" );
-//            Matrix< DDRMat > MultipMat = this->MultipMat();
-//            print( MultipMat, "MultipMat" );
-//            Matrix< DDRMat > Line4 = trans( tCMFluid->testStrain() ) * this->MultipMat() * tCMFluid->flux( CM_Function_Type::MECHANICAL );
-//            print( Line4, "Line4" );
-
             // compute the residual
             mSet->get_residual()( 0 )( { tMasterResStartIndex, tMasterResStopIndex }, { 0, 0 } )
                     += aWStar * (
@@ -146,7 +129,7 @@ namespace moris
             {
                 // add gravity to residual weak form
                 mSet->get_residual()( 0 )( { tMasterResStartIndex, tMasterResStopIndex }, { 0, 0 } )
-                        -= aWStar * ( trans( tFIVelocity->N() ) * tFIDensity->val() * tPropBodyForce->val() );
+                        -= aWStar * ( tFIDensity->val()( 0 ) * trans( tFIVelocity->N() ) * tPropBodyForce->val() );
             }
 
             // check for nan, infinity
@@ -193,11 +176,6 @@ namespace moris
                 // if fluid CM depends on dof type
                 if ( tCMFluid->check_dof_dependency( tDofType ) )
                 {
-//                    // debug
-//                    std::cout << "In function IWG_Compressible_NS_Velocity_Bulk::compute_jacobian() -> CM dependency on Dof Type \n" << std::flush;
-//                    Matrix< DDRMat > Line1 = trans( tCMFluid->testStrain() ) * tCMFluid->dFluxdDOF( tDofType, CM_Function_Type::MECHANICAL );
-//                    print( Line1, "Line1" );
-
                     // add contribution
                     mSet->get_jacobian()(
                             { tMasterResStartIndex, tMasterResStopIndex },
@@ -211,15 +189,6 @@ namespace moris
                     // build dyadic product of velocity vectors
                     Matrix< DDRMat > tUiUj;
                     this->compute_uiuj( tUiUj );
-
-//                    // debug
-//                    std::cout << "In function IWG_Compressible_NS_Velocity_Bulk::compute_jacobian() -> Density Dof Type \n" << std::flush;
-//                    Matrix< DDRMat > Line1 = trans( tFIVelocity->N() ) * trans( tFIVelocity->gradt( 1 ) ) * tFIDensity->N();
-//                    print( Line1, "Line1" );
-//                    Matrix< DDRMat > Line2 = trans( tFIVelocity->N() ) * tFIVelocity->val() * tFIDensity->dnNdtn( 1 );
-//                    print( Line2, "Line2" );
-//                    Matrix< DDRMat > Line3 = trans( tCMFluid->testStrain() ) * this->MultipMat() * tUiUj * tFIDensity->N();
-//                    print( Line3, "Line3" );
 
                     // add contribution
                     mSet->get_jacobian()(
@@ -236,7 +205,7 @@ namespace moris
                         mSet->get_jacobian()(
                                 { tMasterResStartIndex, tMasterResStopIndex },
                                 { tMasterDepStartIndex, tMasterDepStopIndex } ) += aWStar * (
-                                        -1.0 * trans( tFIVelocity->N() ) * tPropBodyForce->val() * tFIDensity->N() );
+                                        ( -1.0 ) * trans( tFIVelocity->N() ) * tPropBodyForce->val() * tFIDensity->N() );
                     }
                 }
 
@@ -250,15 +219,6 @@ namespace moris
                     // build multi-D shape function matrix of time derivatives for velocity
                     Matrix< DDRMat > tdnNveldtn;
                     this->compute_dnNdtn( tdnNveldtn );
-
-//                    // debug
-//                    std::cout << "In function IWG_Compressible_NS_Velocity_Bulk::compute_jacobian() -> Velocity Dof Type \n" << std::flush;
-//                    Matrix< DDRMat > Line1 = tFIDensity->gradt( 1 )( 0 ) * trans( tFIVelocity->N() ) * tFIVelocity->N();
-//                    print( Line1, "Line1" );
-//                    Matrix< DDRMat > Line2 = tFIDensity->val()( 0 ) * trans( tFIVelocity->N() ) * tdnNveldtn;
-//                    print( Line2, "Line2" );
-//                    Matrix< DDRMat > Line3 = tFIDensity->val()( 0 ) * trans( tCMFluid->testStrain() ) * this->MultipMat() * tdUiUjdDOF;
-//                    print( Line3, "Line3" );
 
                     // add contribution
                     mSet->get_jacobian()(
@@ -279,7 +239,7 @@ namespace moris
                         mSet->get_jacobian()(
                                 { tMasterResStartIndex, tMasterResStopIndex },
                                 { tMasterDepStartIndex, tMasterDepStopIndex } ) += aWStar * (
-                                        -1.0 * trans( tFIVelocity->N() ) * tFIDensity->val() * tPropBodyForce->dPropdDOF( tDofType ) );
+                                        ( -1.0 ) * tFIDensity->val()( 0 ) * trans( tFIVelocity->N() ) * tPropBodyForce->dPropdDOF( tDofType ) );
                     }
                 }
             }
