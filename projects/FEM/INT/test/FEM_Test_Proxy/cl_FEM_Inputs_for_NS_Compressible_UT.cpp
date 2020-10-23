@@ -94,14 +94,22 @@ void tVISCOSITYFIDerFunc(
             aFIManager->get_field_interpolators_for_type( moris::MSI::Dof_Type::VISCOSITY )->N();
 }
 
-void tValFunc_BodyForce
+void tValFunc_BodyForce_3D
 ( moris::Matrix< moris::DDRMat >                 & aPropMatrix,
   moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
   moris::fem::Field_Interpolator_Manager         * aFIManager )
 {
     aPropMatrix = { { -3.5 }, { 2.7 }, { 8.9 } };
-    //eye( aParameters( 0 )( 0 ), aParameters( 0 )( 0 ), aPropMatrix );
 }
+
+void tValFunc_BodyForce_2D
+( moris::Matrix< moris::DDRMat >                 & aPropMatrix,
+  moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
+  moris::fem::Field_Interpolator_Manager         * aFIManager )
+{
+    aPropMatrix = { { -3.5 }, { 2.7 } };
+}
+
 
 void fill_xhat(
         moris::Matrix< moris::DDRMat > & tXHat,

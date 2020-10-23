@@ -88,10 +88,10 @@ TEST_CASE( "IWG_Compressible_NS_Velocity_Bulk_Ideal",
     tPropConductivity->set_val_function( tConstValFunc );
 
     // body force
-    std::shared_ptr< fem::Property > tPropBodyForce = std::make_shared< fem::Property >();
-    tPropBodyForce->set_val_function( tValFunc_BodyForce );
-    //tPropConductivity->set_parameters( { {{ -3.5 }, { 2.7 }, { 8.9 }} } );
-    //tPropConductivity->set_val_function( tConstValFunc );
+    std::shared_ptr< fem::Property > tPropBodyForce3D = std::make_shared< fem::Property >();
+    tPropBodyForce3D->set_val_function( tValFunc_BodyForce_3D );
+    std::shared_ptr< fem::Property > tPropBodyForce2D = std::make_shared< fem::Property >();
+    tPropBodyForce2D->set_val_function( tValFunc_BodyForce_2D );
 
     // define constitutive model and assign properties
     fem::CM_Factory tCMFactory;
@@ -113,8 +113,6 @@ TEST_CASE( "IWG_Compressible_NS_Velocity_Bulk_Ideal",
     tIWG->set_residual_dof_type( tVelocityDof );
     tIWG->set_dof_type_list( tDofTypes, mtk::Master_Slave::MASTER );
     tIWG->set_constitutive_model( tCMMasterFluid, "Fluid" );
-    //tIWG->set_property( tPropBodyForce, "BodyForce" ); // FIXME: include body force in unit test
-
 
     //------------------------------------------------------------------------------
     // set a fem set pointer
@@ -140,11 +138,16 @@ TEST_CASE( "IWG_Compressible_NS_Velocity_Bulk_Ideal",
     // loop on the space dimension
     for( uint iSpaceDim = 2; iSpaceDim < 4; iSpaceDim++ )
     {
-
         // output for debugging
         //std::cout << "-------------------------------------------------------------------\n" << std::flush;
         //std::cout << "Performing Tests For Number of Spatial dimensions: " << iSpaceDim << "\n" << std::flush;
         //std::cout << "-------------------------------------------------------------------\n\n" << std::flush;
+
+        // use correct body force for number of spatial dimensions
+        if ( iSpaceDim == 2 )
+            tIWG->set_property( tPropBodyForce2D, "BodyForce" );
+        else if ( iSpaceDim == 3 )
+            tIWG->set_property( tPropBodyForce3D, "BodyForce" );
 
         // switch on space dimension
         switch( iSpaceDim )
@@ -442,10 +445,10 @@ TEST_CASE( "IWG_Compressible_NS_Velocity_Bulk_VdW",
     // create the properties
 
     // body force
-    std::shared_ptr< fem::Property > tPropBodyForce = std::make_shared< fem::Property >();
-    tPropBodyForce->set_val_function( tValFunc_BodyForce );
-    //tPropConductivity->set_parameters( { {{ -3.5 }, { 2.7 }, { 8.9 }} } );
-    //tPropConductivity->set_val_function( tConstValFunc );
+    std::shared_ptr< fem::Property > tPropBodyForce3D = std::make_shared< fem::Property >();
+    tPropBodyForce3D->set_val_function( tValFunc_BodyForce_3D );
+    std::shared_ptr< fem::Property > tPropBodyForce2D = std::make_shared< fem::Property >();
+    tPropBodyForce2D->set_val_function( tValFunc_BodyForce_2D );
 
     // isochoric heat capacity
     std::shared_ptr< fem::Property > tPropHeatCapacity = std::make_shared< fem::Property >();
@@ -505,8 +508,6 @@ TEST_CASE( "IWG_Compressible_NS_Velocity_Bulk_VdW",
     tIWG->set_residual_dof_type( tVelocityDof );
     tIWG->set_dof_type_list( tDofTypes, mtk::Master_Slave::MASTER );
     tIWG->set_constitutive_model( tCMMasterFluid, "Fluid" );
-    //tIWG->set_property( tPropBodyForce, "BodyForce" ); // FIXME: include body force in unit test
-
 
     //------------------------------------------------------------------------------
     // set a fem set pointer
@@ -532,11 +533,16 @@ TEST_CASE( "IWG_Compressible_NS_Velocity_Bulk_VdW",
     // loop on the space dimension
     for( uint iSpaceDim = 2; iSpaceDim < 4; iSpaceDim++ )
     {
-
         // output for debugging
         //std::cout << "-------------------------------------------------------------------\n" << std::flush;
         //std::cout << "Performing Tests For Number of Spatial dimensions: " << iSpaceDim << "\n" << std::flush;
         //std::cout << "-------------------------------------------------------------------\n\n" << std::flush;
+
+        // use correct body force for number of spatial dimensions
+        if ( iSpaceDim == 2 )
+            tIWG->set_property( tPropBodyForce2D, "BodyForce" );
+        else if ( iSpaceDim == 3 )
+            tIWG->set_property( tPropBodyForce3D, "BodyForce" );
 
         // switch on space dimension
         switch( iSpaceDim )
