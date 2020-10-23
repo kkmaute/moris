@@ -143,63 +143,6 @@ namespace moris
             {
                 // get vertices indices on cluster
                 aVerticesIndices = mMeshCluster->get_vertex_indices_in_cluster();
-
-                // FIXME! Mesh should return this
-                if( mElementType == fem::Element_Type::SIDESET )
-                {
-                    aVerticesIndices.set_size( 1, 0 );
-                    uint tVertexCounter = 0;
-
-                    // loop over the IG cells
-                    for( moris::uint iIGCell = 0; iIGCell < mMasterIntegrationCells.size(); iIGCell++)
-                    {
-                        Matrix< IndexMat > tMasterVertexIndices = mMasterIntegrationCells( iIGCell )->
-                                get_vertices_ind_on_side_ordinal( mMasterListOfSideOrdinals( iIGCell ) );
-
-                        for(moris::uint iVertex = 0; iVertex < tMasterVertexIndices.numel(); iVertex++ )
-                        {
-                            tVertexCounter += 1;
-                            aVerticesIndices.resize( 1, tVertexCounter );
-                            // get the vertex index
-                            aVerticesIndices( tVertexCounter - 1 ) = tMasterVertexIndices( iVertex );
-                        }
-                    }
-                }
-
-                // FIXME! Mesh should return this
-                if( mElementType == fem::Element_Type::DOUBLE_SIDESET )
-                {
-                    aVerticesIndices.set_size( 1, 0 );
-                    uint tVertexCounter = 0;
-
-                    // loop over the IG cells
-                    for( moris::uint iIGCell = 0; iIGCell < mMasterIntegrationCells.size(); iIGCell++)
-                    {
-                        Matrix< IndexMat > tMasterVertexIndices =
-                                mMasterIntegrationCells( iIGCell )->
-                                get_vertices_ind_on_side_ordinal( mMasterListOfSideOrdinals( iIGCell ) );
-
-                        for(moris::uint iVertex = 0; iVertex < tMasterVertexIndices.numel(); iVertex++ )
-                        {
-                            tVertexCounter += 1;
-                            aVerticesIndices.resize( 1, tVertexCounter );
-                            // get the vertex index
-                            aVerticesIndices( tVertexCounter - 1 ) = tMasterVertexIndices( iVertex );
-                        }
-
-                        Matrix< IndexMat > tSlaveVertexIndices  =
-                                mSlaveIntegrationCells( iIGCell )->
-                                get_vertices_ind_on_side_ordinal( mSlaveListOfSideOrdinals( iIGCell ) );
-
-                        for(moris::uint iVertex = 0; iVertex < tSlaveVertexIndices.numel(); iVertex++ )
-                        {
-                            tVertexCounter += 1;
-                            aVerticesIndices.resize( 1, tVertexCounter );
-                            // get the vertex index
-                            aVerticesIndices( tVertexCounter - 1 ) = tSlaveVertexIndices( iVertex );
-                        }
-                    }
-                }
             }
         }
 
