@@ -33,27 +33,6 @@ namespace moris
 
             // populate the constitutive map
             mConstitutiveMap[ "Fluid" ] = IWG_Constitutive_Type::FLUID;
-
-            // build multiplication matrix
-            // for 2D
-            if( mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) )->get_number_of_fields() == 2 )
-            {
-                mMultipMat = {
-                        { 1.0, 0.0, 0.0 },
-                        { 0.0, 1.0, 0.0 },
-                        { 0.0, 0.0, 2.0 }};
-            }
-            // for 3D
-            else
-            {
-                mMultipMat = {
-                        { 1.0, 0.0, 0.0, 0.0, 0.0, 0.0 },
-                        { 0.0, 1.0, 0.0, 0.0, 0.0, 0.0 },
-                        { 1.0, 0.0, 1.0, 0.0, 0.0, 0.0 },
-                        { 0.0, 0.0, 0.0, 2.0, 0.0, 0.0 },
-                        { 0.0, 0.0, 0.0, 0.0, 2.0, 0.0 },
-                        { 0.0, 0.0, 0.0, 0.0, 0.0, 2.0 }};
-            }
         }
 
         //------------------------------------------------------------------------------
@@ -137,20 +116,37 @@ namespace moris
             Matrix< DDRMat > tUiUj;
             this->compute_uiuj( tUiUj );
 
+//            // debug
+//            std::cout << "In function IWG_Compressible_NS_Velocity_Bulk::compute_residual() \n" << std::flush;
+//            Matrix< DDRMat > FirstLine = trans( tFIVelocity->N() ) * tFIVelocity->val() * tFIDensity->gradt( 1 );
+//            print( FirstLine, "FirstLine" );
+//            Matrix< DDRMat > SecondLine = tFIDensity->val()( 0 ) * trans( tFIVelocity->N() ) * trans( tFIVelocity->gradt( 1 ) );
+//            print( SecondLine, "SecondLine" );
+//            Matrix< DDRMat > ThirdLine = trans( tCMFluid->testStrain() ) * tFIDensity->val()( 0 ) * this->MultipMat() * tUiUj;
+//            print( ThirdLine, "ThirdLine" );
+//            Matrix< DDRMat > TestStrain = trans( tCMFluid->testStrain() );
+//            print( TestStrain, "TestStrain" );
+//            Matrix< DDRMat > StressVector = tCMFluid->flux( CM_Function_Type::MECHANICAL );
+//            print( StressVector, "StressVector" );
+//            Matrix< DDRMat > MultipMat = this->MultipMat();
+//            print( MultipMat, "MultipMat" );
+//            Matrix< DDRMat > Line4 = trans( tCMFluid->testStrain() ) * this->MultipMat() * tCMFluid->flux( CM_Function_Type::MECHANICAL );
+//            print( Line4, "Line4" );
+
             // compute the residual
             mSet->get_residual()( 0 )( { tMasterResStartIndex, tMasterResStopIndex }, { 0, 0 } )
                     += aWStar * (
-                            trans( tFIVelocity->N() ) * tFIDensity->gradt( 1 ) * tFIVelocity->val() +
-                            trans( tFIVelocity->N() ) * tFIDensity->val() * trans( tFIVelocity->gradt( 1 ) ) +
-                            trans( tCMFluid->testStrain() ) * tFIDensity->val() * mMultipMat * tUiUj +
-                            trans( tCMFluid->testStrain() ) * tFIDensity->val() * mMultipMat * tCMFluid->flux( CM_Function_Type::MECHANICAL ) );
+                            tFIDensity->gradt( 1 )( 0 ) * trans( tFIVelocity->N() ) * tFIVelocity->val() +
+                            tFIDensity->val()( 0 ) * trans( tFIVelocity->N() ) * trans( tFIVelocity->gradt( 1 ) ) +
+                            ( -1.0 ) * tFIDensity->val()( 0 ) * trans( tCMFluid->testStrain() ) * this->MultipMat() * tUiUj +
+                            trans( tCMFluid->testStrain() ) * this->MultipMat() * tCMFluid->flux( CM_Function_Type::MECHANICAL ) );
 
             // if there is a body force
             if ( tPropBodyForce != nullptr )
             {
                 // add gravity to residual weak form
                 mSet->get_residual()( 0 )( { tMasterResStartIndex, tMasterResStopIndex }, { 0, 0 } )
-                        += aWStar * ( trans( tFIVelocity->N() ) * tFIDensity->val() * tPropBodyForce->val() );
+                        -= aWStar * ( trans( tFIVelocity->N() ) * tFIDensity->val() * tPropBodyForce->val() );
             }
 
             // check for nan, infinity
@@ -197,11 +193,16 @@ namespace moris
                 // if fluid CM depends on dof type
                 if ( tCMFluid->check_dof_dependency( tDofType ) )
                 {
+//                    // debug
+//                    std::cout << "In function IWG_Compressible_NS_Velocity_Bulk::compute_jacobian() -> CM dependency on Dof Type \n" << std::flush;
+//                    Matrix< DDRMat > Line1 = trans( tCMFluid->testStrain() ) * tCMFluid->dFluxdDOF( tDofType, CM_Function_Type::MECHANICAL );
+//                    print( Line1, "Line1" );
+
                     // add contribution
                     mSet->get_jacobian()(
                             { tMasterResStartIndex, tMasterResStopIndex },
                             { tMasterDepStartIndex, tMasterDepStopIndex } ) += aWStar * (
-                                    trans( tCMFluid->testStrain() ) * tCMFluid->dFluxdDOF( tDofType, CM_Function_Type::MECHANICAL ) );
+                                    trans( tCMFluid->testStrain() ) * this->MultipMat() * tCMFluid->dFluxdDOF( tDofType, CM_Function_Type::MECHANICAL ) );
                 }
 
                 // if dof type is velocity, add diagonal term (velocity-velocity DoF types)
@@ -211,13 +212,22 @@ namespace moris
                     Matrix< DDRMat > tUiUj;
                     this->compute_uiuj( tUiUj );
 
+//                    // debug
+//                    std::cout << "In function IWG_Compressible_NS_Velocity_Bulk::compute_jacobian() -> Density Dof Type \n" << std::flush;
+//                    Matrix< DDRMat > Line1 = trans( tFIVelocity->N() ) * trans( tFIVelocity->gradt( 1 ) ) * tFIDensity->N();
+//                    print( Line1, "Line1" );
+//                    Matrix< DDRMat > Line2 = trans( tFIVelocity->N() ) * tFIVelocity->val() * tFIDensity->dnNdtn( 1 );
+//                    print( Line2, "Line2" );
+//                    Matrix< DDRMat > Line3 = trans( tCMFluid->testStrain() ) * this->MultipMat() * tUiUj * tFIDensity->N();
+//                    print( Line3, "Line3" );
+
                     // add contribution
                     mSet->get_jacobian()(
                             { tMasterResStartIndex, tMasterResStopIndex },
                             { tMasterDepStartIndex, tMasterDepStopIndex } ) += aWStar * (
-                                    trans( tFIVelocity->N() ) * tFIVelocity->gradt( 1 ) * tFIDensity->N() +
-                                    trans( tFIVelocity->N() ) * tFIVelocity->val() * tFIDensity->dnNdtn( 1 ) -
-                                    trans( tCMFluid->testStrain() ) * mMultipMat * tUiUj * tFIDensity->N() );
+                                    trans( tFIVelocity->N() ) * trans( tFIVelocity->gradt( 1 ) ) * tFIDensity->N() +
+                                    trans( tFIVelocity->N() ) * tFIVelocity->val() * tFIDensity->dnNdtn( 1 ) +
+                                    ( -1.0 ) * trans( tCMFluid->testStrain() ) * this->MultipMat() * tUiUj * tFIDensity->N() );
 
                     // if a body force is present
                     if ( tPropBodyForce != nullptr )
@@ -237,13 +247,26 @@ namespace moris
                     Matrix< DDRMat > tdUiUjdDOF;
                     this->compute_duiujdDOF( tdUiUjdDOF );
 
+                    // build multi-D shape function matrix of time derivatives for velocity
+                    Matrix< DDRMat > tdnNveldtn;
+                    this->compute_dnNdtn( tdnNveldtn );
+
+//                    // debug
+//                    std::cout << "In function IWG_Compressible_NS_Velocity_Bulk::compute_jacobian() -> Velocity Dof Type \n" << std::flush;
+//                    Matrix< DDRMat > Line1 = tFIDensity->gradt( 1 )( 0 ) * trans( tFIVelocity->N() ) * tFIVelocity->N();
+//                    print( Line1, "Line1" );
+//                    Matrix< DDRMat > Line2 = tFIDensity->val()( 0 ) * trans( tFIVelocity->N() ) * tdnNveldtn;
+//                    print( Line2, "Line2" );
+//                    Matrix< DDRMat > Line3 = tFIDensity->val()( 0 ) * trans( tCMFluid->testStrain() ) * this->MultipMat() * tdUiUjdDOF;
+//                    print( Line3, "Line3" );
+
                     // add contribution
                     mSet->get_jacobian()(
                             { tMasterResStartIndex, tMasterResStopIndex },
                             { tMasterDepStartIndex, tMasterDepStopIndex } ) += aWStar * (
-                                    trans( tFIVelocity->N() ) * tFIDensity->gradt( 1 ) * tFIVelocity->N() +
-                                    trans( tFIVelocity->N() ) * tFIDensity->val() * tFIVelocity->dnNdtn( 1 ) -
-                                    trans( tCMFluid->testStrain() ) * tFIDensity->val() * mMultipMat * tdUiUjdDOF );
+                                    tFIDensity->gradt( 1 )( 0 ) * trans( tFIVelocity->N() ) * tFIVelocity->N() +
+                                    tFIDensity->val()( 0 ) * trans( tFIVelocity->N() ) * tdnNveldtn +
+                                    ( -1.0 ) * tFIDensity->val()( 0 ) * trans( tCMFluid->testStrain() ) * this->MultipMat() * tdUiUjdDOF );
                 }
 
                 // if a body force is present
@@ -382,14 +405,81 @@ namespace moris
                 aduiujdDOF( { 1, 1 }, { tNumBases, 2 * tNumBases - 1 } )     = 2.0 * tUvec( 1 ) * tNmat( { 0, 0 }, { 0, tNumBases - 1 } );
                 aduiujdDOF( { 2, 2 }, { 2 * tNumBases, 3 * tNumBases - 1 } ) = 2.0 * tUvec( 2 ) * tNmat( { 0, 0 }, { 0, tNumBases - 1 } );
 
-                aduiujdDOF( { 4, 4 }, { tNumBases, 2 * tNumBases - 1 } )     = tUvec( 2 ) * tNmat( { 0, 0 }, { 0, tNumBases - 1 } );
-                aduiujdDOF( { 4, 4 }, { 2 * tNumBases, 3 * tNumBases - 1 } ) = tUvec( 1 ) * tNmat( { 0, 0 }, { 0, tNumBases - 1 } );
+                aduiujdDOF( { 3, 3 }, { tNumBases, 2 * tNumBases - 1 } )     = tUvec( 2 ) * tNmat( { 0, 0 }, { 0, tNumBases - 1 } );
+                aduiujdDOF( { 3, 3 }, { 2 * tNumBases, 3 * tNumBases - 1 } ) = tUvec( 1 ) * tNmat( { 0, 0 }, { 0, tNumBases - 1 } );
 
                 aduiujdDOF( { 4, 4 }, { 0, tNumBases - 1 } )                 = tUvec( 2 ) * tNmat( { 0, 0 }, { 0, tNumBases - 1 } );
                 aduiujdDOF( { 4, 4 }, { 2 * tNumBases, 3 * tNumBases - 1 } ) = tUvec( 0 ) * tNmat( { 0, 0 }, { 0, tNumBases - 1 } );
 
                 aduiujdDOF( { 5, 5 }, { 0, tNumBases - 1 } )                 = tUvec( 1 ) * tNmat( { 0, 0 }, { 0, tNumBases - 1 } );
                 aduiujdDOF( { 5, 5 }, { tNumBases, 2 * tNumBases - 1 } )     = tUvec( 0 ) * tNmat( { 0, 0 }, { 0, tNumBases - 1 } );
+            }
+        }
+
+        //------------------------------------------------------------------------------
+
+        const Matrix< DDRMat > & IWG_Compressible_NS_Velocity_Bulk::MultipMat()
+        {
+            // check if multiplication matrix exists
+            if ( mMultipMatIsBuild )
+            {
+                return mMultipMat;
+            }
+
+            // build multiplication matrix otherwise
+            else
+            {
+                //build multiplication matrix
+                //for 2D
+                if( mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) )->get_number_of_fields() == 2 )
+                {
+                    mMultipMat = {
+                            { 1.0, 0.0, 0.0 },
+                            { 0.0, 1.0, 0.0 },
+                            { 0.0, 0.0, 2.0 }};
+                }
+                // for 3D
+                else
+                {
+                    mMultipMat = {
+                            { 1.0, 0.0, 0.0, 0.0, 0.0, 0.0 },
+                            { 0.0, 1.0, 0.0, 0.0, 0.0, 0.0 },
+                            { 1.0, 0.0, 1.0, 0.0, 0.0, 0.0 },
+                            { 0.0, 0.0, 0.0, 2.0, 0.0, 0.0 },
+                            { 0.0, 0.0, 0.0, 0.0, 2.0, 0.0 },
+                            { 0.0, 0.0, 0.0, 0.0, 0.0, 2.0 }};
+                }
+
+                // FIXME: for unit testing mMultipMatIsBuild needs to be reset
+                // set evaluation flag
+                // mMultipMatIsBuild = true;
+
+                // return matrix
+                return mMultipMat;
+            }
+        }
+
+        //------------------------------------------------------------------------------
+
+        // FIXME provided directly by the field interpolator?
+        void IWG_Compressible_NS_Velocity_Bulk::compute_dnNdtn(
+                Matrix< DDRMat > & adnNdtn )
+        {
+            // get the residual dof type FI (here velocity)
+            Field_Interpolator * tVelocityFI =
+                    mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );
+
+            // init size for dnNdtn
+            uint tNumRowt = tVelocityFI->get_number_of_fields();
+            uint tNumColt = tVelocityFI->dnNdtn( 1 ).n_cols();
+            adnNdtn.set_size( tNumRowt, tNumRowt * tNumColt , 0.0 );
+
+            // loop over the fields
+            for( uint iField = 0; iField < tNumRowt; iField++ )
+            {
+                // fill the matrix for each dimension
+                adnNdtn( { iField, iField }, { iField * tNumColt, ( iField + 1 ) * tNumColt - 1 } ) =
+                        tVelocityFI->dnNdtn( 1 ).matrix_data();
             }
         }
 

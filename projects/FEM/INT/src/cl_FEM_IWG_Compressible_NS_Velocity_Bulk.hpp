@@ -36,6 +36,7 @@ namespace moris
 
                 // multiplication matrix for double dot product based on number of dimensions
                 Matrix< DDRMat > mMultipMat;
+                bool mMultipMatIsBuild = false;
 
                 //------------------------------------------------------------------------------
 
@@ -174,6 +175,20 @@ namespace moris
                 void compute_duiujdDOF(Matrix< DDRMat > & aduiujdDOF);
 
                 //------------------------------------------------------------------------------
+                // FIXME provided directly by the field interpolator?
+                /**
+                 * compute the term dnNdtn
+                 * @param[ in ] adnNdtn a matrix to fill with dnNdtn
+                 */
+                void compute_dnNdtn( Matrix< DDRMat > & adnNdtn );
+
+                //------------------------------------------------------------------------------
+
+                /**
+                 * get the multiplication matrix for condensed tensors
+                 * @param[ out ] mMultipMat multiplication matrix for condensed tensors
+                 */
+                const Matrix< DDRMat > & MultipMat();
         };
         //------------------------------------------------------------------------------
     } /* namespace fem */
