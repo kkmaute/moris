@@ -89,7 +89,7 @@ TEST_CASE( "IWG_Compressible_NS_Velocity_Bulk_Ideal",
 
     // body force
     std::shared_ptr< fem::Property > tPropBodyForce = std::make_shared< fem::Property >();
-    tPropConductivity->set_val_function( tValFunc_BodyForce );
+    //tPropBodyForce->set_val_function( tValFunc_BodyForce );
     //tPropConductivity->set_parameters( { {{ -3.5 }, { 2.7 }, { 8.9 }} } );
     //tPropConductivity->set_val_function( tConstValFunc );
 
@@ -113,7 +113,7 @@ TEST_CASE( "IWG_Compressible_NS_Velocity_Bulk_Ideal",
     tIWG->set_residual_dof_type( tVelocityDof );
     tIWG->set_dof_type_list( tDofTypes, mtk::Master_Slave::MASTER );
     tIWG->set_constitutive_model( tCMMasterFluid, "Fluid" );
-    //tIWG->set_property( tPropBodyForce, "BodyForce" ); // FIXME: include body force in unit test
+    tIWG->set_property( tPropBodyForce, "BodyForce" ); // FIXME: include body force in unit test
 
 
     //------------------------------------------------------------------------------
@@ -441,6 +441,12 @@ TEST_CASE( "IWG_Compressible_NS_Velocity_Bulk_VdW",
     //------------------------------------------------------------------------------
     // create the properties
 
+    // body force
+    std::shared_ptr< fem::Property > tPropBodyForce = std::make_shared< fem::Property >();
+    tPropBodyForce->set_val_function( tValFunc_BodyForce );
+    //tPropConductivity->set_parameters( { {{ -3.5 }, { 2.7 }, { 8.9 }} } );
+    //tPropConductivity->set_val_function( tConstValFunc );
+
     // isochoric heat capacity
     std::shared_ptr< fem::Property > tPropHeatCapacity = std::make_shared< fem::Property >();
     tPropHeatCapacity->set_parameters( { {{ 5.7 }} } );
@@ -495,9 +501,11 @@ TEST_CASE( "IWG_Compressible_NS_Velocity_Bulk_VdW",
 
     std::shared_ptr< fem::IWG > tIWG =
             tIWGFactory.create_IWG( fem::IWG_Type::COMPRESSIBLE_NS_VELOCITY_BULK );
+
     tIWG->set_residual_dof_type( tVelocityDof );
     tIWG->set_dof_type_list( tDofTypes, mtk::Master_Slave::MASTER );
     tIWG->set_constitutive_model( tCMMasterFluid, "Fluid" );
+    //tIWG->set_property( tPropBodyForce, "BodyForce" ); // FIXME: include body force in unit test
 
 
     //------------------------------------------------------------------------------
