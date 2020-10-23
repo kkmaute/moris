@@ -33,6 +33,8 @@ set(TEST_SOURCES
     UT_FEM_CM_Diff_Lin_Iso.cpp
     UT_FEM_CM_Diff_PC.cpp
     UT_FEM_CM_Fluid.cpp
+    UT_FEM_CM_Compressible_Fluid_Ideal.cpp
+    UT_FEM_CM_Compressible_Fluid_VdW.cpp
     UT_FEM_SP_Fluid.cpp
     UT_FEM_IWG_Diffusion_Bulk.cpp
     UT_FEM_IWG_Diffusion_Phase_Change_Bulk.cpp
@@ -53,6 +55,9 @@ set(TEST_SOURCES
     UT_FEM_IWG_Incompressible_NS_Pressure_Bulk.cpp
     UT_FEM_IWG_Incompressible_NS_Dirichlet_Nitsche.cpp
     UT_FEM_IWG_Incompressible_NS_Interface_Nitsche.cpp
+    UT_FEM_IWG_Compressible_NS_Density_Bulk.cpp
+    UT_FEM_IWG_Compressible_NS_Velocity_Bulk.cpp
+    #UT_FEM_IWG_Compressible_NS_Temperature_Bulk.cpp
     #UT_FEM_IWG_FS_Struc_Interface.cpp
     UT_FEM_IWG_Spalart_Allmaras_Turbulence_Bulk.cpp
     UT_FEM_IWG_Spalart_Allmaras_Turbulence_Dirichlet.cpp
@@ -63,6 +68,7 @@ set(TEST_SOURCES
     UT_FEM_Integration_Rule.cpp
     FEM_Test_Proxy/cl_FEM_Design_Variable_Interface_Proxy.cpp
     FEM_Test_Proxy/cl_FEM_Inputs_for_NS_Incompressible_UT.cpp
+    FEM_Test_Proxy/cl_FEM_Inputs_for_NS_Compressible_UT.cpp
     FEM_Test_Proxy/cl_FEM_Inputs_for_Diffusion_UT.cpp
     FEM_Test_Proxy/cl_FEM_Inputs_for_Elasticity_UT.cpp
     )

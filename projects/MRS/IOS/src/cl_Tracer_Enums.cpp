@@ -60,7 +60,6 @@ enum EntityBase get_entity_base_enum_from_str(std::string aEnumString)
     }
 }
 
-
 // ------------------------------------------------------------------------------------------ //
 // define Types ----------------------------------------------------------------------------- //
 // ------------------------------------------------------------------------------------------ //
@@ -87,6 +86,7 @@ const std::string get_enum_str(enum EntityType aEntityType)
     case EntityType::LBFGS:         return "LBFGS";
     case EntityType::SQP:           return "SQP";
     case EntityType::Sweep:         return "Sweep";
+    case EntityType::EquationModel: return "EquationModel";
 
     default:
 //        MORIS_ASSERT(false, "Invalid EntityType Enum provided.");
@@ -96,23 +96,24 @@ const std::string get_enum_str(enum EntityType aEntityType)
 
 enum EntityType get_entity_type_enum_from_str(std::string aEnumString)
 {
-    if      (aEnumString == "Unknown")      return EntityType::Unknown;
-    else if (aEnumString == "Arbitrary")    return EntityType::Arbitrary;
-    else if (aEnumString == "NoType")       return EntityType::NoType;
-    else if (aEnumString == "Base")         return EntityType::Base;
-    else if (aEnumString == "Gauss")        return EntityType::Gauss;
-    else if (aEnumString == "GaussSeidel")  return EntityType::GaussSeidel;
-    else if (aEnumString == "Amesos")       return EntityType::Amesos;
-    else if (aEnumString == "Aztec")        return EntityType::Aztec;
-    else if (aEnumString == "PETSc")        return EntityType::PETSc;
-    else if (aEnumString == "Monolythic")   return EntityType::Monolythic;
-    else if (aEnumString == "Staggered")    return EntityType::Staggered;
-    else if (aEnumString == "Newton")       return EntityType::Newton;
-    else if (aEnumString == "Arclength")    return EntityType::Arclength;
-    else if (aEnumString == "GCMMA")        return EntityType::GCMMA;
-    else if (aEnumString == "SQP")          return EntityType::SQP;
-    else if (aEnumString == "LBFGS")        return EntityType::LBFGS;
-    else if (aEnumString == "Sweep")        return EntityType::Sweep;
+    if      (aEnumString == "Unknown")       return EntityType::Unknown;
+    else if (aEnumString == "Arbitrary")     return EntityType::Arbitrary;
+    else if (aEnumString == "NoType")        return EntityType::NoType;
+    else if (aEnumString == "Base")          return EntityType::Base;
+    else if (aEnumString == "Gauss")         return EntityType::Gauss;
+    else if (aEnumString == "GaussSeidel")   return EntityType::GaussSeidel;
+    else if (aEnumString == "Amesos")        return EntityType::Amesos;
+    else if (aEnumString == "Aztec")         return EntityType::Aztec;
+    else if (aEnumString == "PETSc")         return EntityType::PETSc;
+    else if (aEnumString == "Monolythic")    return EntityType::Monolythic;
+    else if (aEnumString == "Staggered")     return EntityType::Staggered;
+    else if (aEnumString == "Newton")        return EntityType::Newton;
+    else if (aEnumString == "Arclength")     return EntityType::Arclength;
+    else if (aEnumString == "GCMMA")         return EntityType::GCMMA;
+    else if (aEnumString == "SQP")           return EntityType::SQP;
+    else if (aEnumString == "LBFGS")         return EntityType::LBFGS;
+    else if (aEnumString == "Sweep")         return EntityType::Sweep;
+    else if (aEnumString == "EquationModel") return EntityType::EquationModel;
 
     else
     {
@@ -136,6 +137,8 @@ const std::string get_enum_str(enum EntityAction aEntityAction)
     case EntityAction::Build:               return "Build";
     case EntityAction::Assemble:            return "Assemble";
     case EntityAction::Compute:             return "Compute";
+    case EntityAction::Compute_dQIdp_Expl:  return "Compute_dQIdp_Expl";
+    case EntityAction::Compute_dQIdp_Impl:  return "Compute_dQIdp_Impl";
     case EntityAction::Create:              return "Create";
     case EntityAction::Evaluate:            return "Evaluate";
     case EntityAction::AssembleJacobian:    return "AssembleJacobian";
@@ -158,6 +161,8 @@ enum EntityAction get_entity_action_enum_from_str(std::string aEnumString)
     else if (aEnumString == "Build")              return EntityAction::Build;
     else if (aEnumString == "Assemble")           return EntityAction::Assemble;
     else if (aEnumString == "Compute")            return EntityAction::Compute;
+    else if (aEnumString == "Compute_dQIdp_Expl") return EntityAction::Compute_dQIdp_Expl;
+    else if (aEnumString == "Compute_dQIdp_Impl") return EntityAction::Compute_dQIdp_Impl;
     else if (aEnumString == "Create")             return EntityAction::Create;
     else if (aEnumString == "Evaluate")           return EntityAction::Evaluate;
     else if (aEnumString == "AssembleJacobian")   return EntityAction::AssembleJacobian;

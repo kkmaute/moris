@@ -97,7 +97,7 @@ namespace moris
 
             // get the field interpolators
             Field_Interpolator * tDensityFI = mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );
-            Field_Interpolator * tVelocityFI = mMasterFIManager->get_field_interpolators_for_type( MSI::Dof_Type::VX ); //FIXME this need to be protected
+            Field_Interpolator * tVelocityFI = mMasterFIManager->get_field_interpolators_for_type( mDofVelocity );
 
             // get the constitutive model
             std::shared_ptr< Constitutive_Model > tFluidCM =  mMasterCM( static_cast< uint >( IWG_Constitutive_Type::FLUID ) );
@@ -151,7 +151,7 @@ namespace moris
                     mSet->get_jacobian()(
                             { tMasterResStartIndex, tMasterResStopIndex },
                             { tMasterDepStartIndex, tMasterDepStopIndex } ) += aWStar * (
-                                    trans( tDensityFI->N() ) * tDensityFI->dnNdxn( 1 )  -
+                                    trans( tDensityFI->N() ) * tDensityFI->dnNdtn( 1 )  -
                                     trans( tDensityFI->dnNdxn( 1 ) ) * tVelocityFI->val() * tDensityFI->N() );
                 }
 

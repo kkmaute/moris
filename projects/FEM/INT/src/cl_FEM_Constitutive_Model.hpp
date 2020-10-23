@@ -419,6 +419,13 @@ namespace moris
 
                 //------------------------------------------------------------------------------
                 /**
+                 * initialize storage variables and evaluation flags specific to some child CMs
+                 * function is called in the build_global_dof_type_list()
+                 */
+                virtual void initialize_spec_storage_vars_and_eval_flags(){};
+
+                //------------------------------------------------------------------------------
+                /**
                  * get global dof type list
                  * @param[ out ] mGlobalDofTypes global list of dof type
                  */
@@ -1190,9 +1197,23 @@ namespace moris
 
                 //------------------------------------------------------------------------------
                 /**
-                 * evaluate the enthalpy change rate wrt dof using finite differences
+                 * evaluate the derivative of the internal energy / enthalpy wrt dof using finite differences
                  * @param[ in ] aDofTypes       a dof type wrt which the derivative is evaluated
-                 * @param[ in ] adFluxdDOF_FD a matrix to fill with derivative evaluation
+                 * @param[ in ] adEnergydDOF_FD a matrix to fill with derivative evaluation
+                 * @param[ in ] aPerturbation   real to perturb for FD
+                 */
+                void eval_dEnergydDOF_FD(
+                        const moris::Cell< MSI::Dof_Type > & aDofTypes,
+                        Matrix< DDRMat >                   & adEnergydDOF_FD,
+                        real                                 aPerturbation,
+                        fem::FDScheme_Type                   aFDSchemeType = fem::FDScheme_Type::POINT_5,
+                        enum CM_Function_Type                aCMFunctionType = CM_Function_Type::DEFAULT );
+
+                //------------------------------------------------------------------------------
+                /**
+                 * evaluate the internal energy / enthalpy change rate wrt dof using finite differences
+                 * @param[ in ] aDofTypes       a dof type wrt which the derivative is evaluated
+                 * @param[ in ] adEnergyDotdDOF_FD a matrix to fill with derivative evaluation
                  * @param[ in ] aPerturbation   real to perturb for FD
                  */
                 void eval_dEnergyDotdDOF_FD(
