@@ -110,9 +110,14 @@ namespace moris
             Matrix< DDRMat > tNormalMatrix;
             this->compute_normal_matrix( tNormalMatrix );
 
+//            // debug
+//            std::cout << "In Function IWG_Compressible_NS_Advective_Momentum_Flux_Boundary::compute_residual \n" << std::flush;
+//            Matrix< DDRMat > Line1 = tDensityFI->val()( 0 ) * trans( tVelocityFI->N() ) * tNormalMatrix * tUiUj;
+//            print( Line1, "Line1" );
+
             // compute the residual weak form
             mSet->get_residual()( 0 )( { tMasterResStartIndex, tMasterResStopIndex }, { 0, 0 } ) += aWStar * (
-                    trans( tVelocityFI->N() ) * tDensityFI->val() * tNormalMatrix * tUiUj );
+                    tDensityFI->val()( 0 ) * trans( tVelocityFI->N() ) * tNormalMatrix * tUiUj );
 
             // check for nan, infinity
             MORIS_ASSERT( isfinite( mSet->get_residual()( 0 ) ),
@@ -159,6 +164,11 @@ namespace moris
                     Matrix< DDRMat > tNormalMatrix;
                     this->compute_normal_matrix( tNormalMatrix );
 
+//                    // debug
+//                    std::cout << "In Function IWG_Compressible_NS_Advective_Momentum_Flux_Boundary::compute_jacobian -> Density DoF type. \n" << std::flush;
+//                    Matrix< DDRMat > Line1 = trans( tFIVelocity->N() ) * tNormalMatrix * tUiUj * tFIDensity->N();
+//                    print( Line1, "Line1" );
+
                     // add contribution
                     mSet->get_jacobian()(
                             { tMasterResStartIndex, tMasterResStopIndex },
@@ -177,11 +187,16 @@ namespace moris
                     Matrix< DDRMat > tNormalMatrix;
                     this->compute_normal_matrix( tNormalMatrix );
 
+//                    // debug
+//                    std::cout << "In Function IWG_Compressible_NS_Advective_Momentum_Flux_Boundary::compute_jacobian -> Residual DoF type. \n" << std::flush;
+//                    Matrix< DDRMat > Line1 = tFIDensity->val()( 0 ) * trans( tFIVelocity->N() ) * tNormalMatrix * tdUiUjdDOF;
+//                    print( Line1, "Line1" );
+
                     // add contribution
                     mSet->get_jacobian()(
                             { tMasterResStartIndex, tMasterResStopIndex },
                             { tMasterDepStartIndex, tMasterDepStopIndex } ) += aWStar * (
-                                    trans( tFIVelocity->N() ) * tFIDensity->val() * tNormalMatrix * tdUiUjdDOF );
+                                    tFIDensity->val()( 0 ) * trans( tFIVelocity->N() ) * tNormalMatrix * tdUiUjdDOF );
                 }
             }
 
@@ -306,8 +321,8 @@ namespace moris
                 aduiujdDOF( { 1, 1 }, { tNumBases, 2 * tNumBases - 1 } )     = 2.0 * tUvec( 1 ) * tNmat( { 0, 0 }, { 0, tNumBases - 1 } );
                 aduiujdDOF( { 2, 2 }, { 2 * tNumBases, 3 * tNumBases - 1 } ) = 2.0 * tUvec( 2 ) * tNmat( { 0, 0 }, { 0, tNumBases - 1 } );
 
-                aduiujdDOF( { 4, 4 }, { tNumBases, 2 * tNumBases - 1 } )     = tUvec( 2 ) * tNmat( { 0, 0 }, { 0, tNumBases - 1 } );
-                aduiujdDOF( { 4, 4 }, { 2 * tNumBases, 3 * tNumBases - 1 } ) = tUvec( 1 ) * tNmat( { 0, 0 }, { 0, tNumBases - 1 } );
+                aduiujdDOF( { 3, 3 }, { tNumBases, 2 * tNumBases - 1 } )     = tUvec( 2 ) * tNmat( { 0, 0 }, { 0, tNumBases - 1 } );
+                aduiujdDOF( { 3, 3 }, { 2 * tNumBases, 3 * tNumBases - 1 } ) = tUvec( 1 ) * tNmat( { 0, 0 }, { 0, tNumBases - 1 } );
 
                 aduiujdDOF( { 4, 4 }, { 0, tNumBases - 1 } )                 = tUvec( 2 ) * tNmat( { 0, 0 }, { 0, tNumBases - 1 } );
                 aduiujdDOF( { 4, 4 }, { 2 * tNumBases, 3 * tNumBases - 1 } ) = tUvec( 0 ) * tNmat( { 0, 0 }, { 0, tNumBases - 1 } );
