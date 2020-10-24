@@ -31,6 +31,30 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
+        Discrete_Property::Discrete_Property(sol::Dist_Vector* aOwnedADVs,
+                                             Matrix<DDUMat>    aPropertyVariableIndices,
+                                             Matrix<DDUMat>    aADVIndices,
+                                             Matrix<DDRMat>    aConstantParameters,
+                                             sint              aNumRefinements,
+                                             sint              aRefinementFunctionIndex,
+                                             sint              aBSplineMeshIndex,
+                                             real              aBSplineLowerBound,
+                                             real              aBSplineUpperBound)
+                : Field(aOwnedADVs,
+                        aPropertyVariableIndices,
+                        aADVIndices,
+                        aConstantParameters,
+                        aNumRefinements,
+                        aRefinementFunctionIndex,
+                        aBSplineMeshIndex,
+                        aBSplineLowerBound,
+                        aBSplineUpperBound),
+                  Field_Discrete(aOwnedADVs->vec_local_length())
+        {
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
         real Discrete_Property::get_field_value(uint aNodeIndex)
         {
             return *mFieldVariables(aNodeIndex);

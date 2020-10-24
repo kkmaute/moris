@@ -751,7 +751,7 @@ namespace moris
                 {
                     // Build geometries and properties
                     mGeometries = create_geometries(mGeometryParameterLists, mOwnedADVs, mLibrary);
-                    mProperties = create_properties(mPropertyParameterLists, mADVs, mLibrary);
+                    mProperties = create_properties(mPropertyParameterLists, mOwnedADVs, mLibrary);
                     mGeometryParameterLists.resize(0);
                 }
 
