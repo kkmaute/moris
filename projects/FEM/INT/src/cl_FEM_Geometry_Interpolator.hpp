@@ -373,27 +373,6 @@ namespace moris
 
                 //------------------------------------------------------------------------------
                 /**
-                 * get the vertices ordinals of each face of the parent element
-                 */
-                moris::Cell< moris::Cell< moris_index > > get_face_vertices_ordinals( uint aNumSpaceBases );
-
-                //------------------------------------------------------------------------------
-                /**
-                 * get the parametric coordinates of a space side
-                 * @param[ in ] a space face ordinal
-                 */
-                Matrix< DDRMat > extract_space_side_space_param_coeff(
-                        moris_index              aSpaceOrdinal,
-                        mtk::Interpolation_Order aInterpolationOrder );
-
-                //------------------------------------------------------------------------------
-                /**
-                 * get the parametric coordinates in space
-                 */
-                Matrix< DDRMat > extract_space_param_coeff( mtk::Interpolation_Order aInterpolationOrder );
-
-                //------------------------------------------------------------------------------
-                /**
                  * gets the space shape functions at a given evaluation point
                  * @param[ out ] aNXi shape functions ( 1 x <number of nodes> )
                  */
