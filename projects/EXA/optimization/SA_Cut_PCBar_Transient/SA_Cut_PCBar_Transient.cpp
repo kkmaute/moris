@@ -608,7 +608,7 @@ namespace moris
             // Interface Dirichlet BC              
             tParameterList( 3 ).push_back( prm::create_IWG_parameter_list() );
             tParameterList( 3 )( tIWGCounter ).set( "IWG_name",                   "IWGInterfaceFinPcm") ;
-            tParameterList( 3 )( tIWGCounter ).set( "IWG_type",                   static_cast< uint >( fem::IWG_Type::SPATIALDIFF_INTERFACE ) );
+            tParameterList( 3 )( tIWGCounter ).set( "IWG_type",                   static_cast< uint >( fem::IWG_Type::SPATIALDIFF_INTERFACE_SYMMETRIC_NITSCHE ) );
             tParameterList( 3 )( tIWGCounter ).set( "dof_residual",               "TEMP") ;
             tParameterList( 3 )( tIWGCounter ).set( "master_dof_dependencies",    "TEMP") ;
             tParameterList( 3 )( tIWGCounter ).set( "slave_dof_dependencies",     "TEMP") ;
@@ -754,7 +754,7 @@ namespace moris
     void VISParameterList( moris::Cell< moris::Cell< ParameterList > > & tParameterlist )
     {
         tParameterlist.resize( 1 );
-        tParameterlist( 0 ).resize( 2 );
+        tParameterlist( 0 ).resize( 1 );
 
         tParameterlist( 0 )( 0 ) = prm::create_vis_parameter_list();
         tParameterlist( 0 )( 0 ).set( "File_Name"  , std::pair< std::string, std::string >( "./", tOutputFile ) );

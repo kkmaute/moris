@@ -422,7 +422,7 @@ TEST_CASE("XTK HMR 4 Material Bar Intersected By Plane and Hole","[XTK_HMR_PLANE
         tIWGNeumann->set_property( tPropNeumann, "Neumann", mtk::Master_Slave::MASTER );
 
         std::shared_ptr< fem::IWG > tIWGInterface1 =
-                tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_INTERFACE );
+                tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_INTERFACE_SYMMETRIC_NITSCHE );
         tIWGInterface1->set_residual_dof_type( { MSI::Dof_Type::TEMP } );
         tIWGInterface1->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
         tIWGInterface1->set_dof_type_list( {{ MSI::Dof_Type::TEMP }},mtk::Master_Slave::SLAVE );
@@ -431,7 +431,7 @@ TEST_CASE("XTK HMR 4 Material Bar Intersected By Plane and Hole","[XTK_HMR_PLANE
         tIWGInterface1->set_constitutive_model( tCMDiffLinIso2bis, "Diffusion", mtk::Master_Slave::SLAVE );
 
         std::shared_ptr< fem::IWG > tIWGInterface2 =
-                tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_INTERFACE );
+                tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_INTERFACE_SYMMETRIC_NITSCHE );
         tIWGInterface2->set_residual_dof_type( { MSI::Dof_Type::TEMP } );
         tIWGInterface2->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
         tIWGInterface2->set_dof_type_list( {{ MSI::Dof_Type::TEMP }},mtk::Master_Slave::SLAVE );
@@ -440,7 +440,7 @@ TEST_CASE("XTK HMR 4 Material Bar Intersected By Plane and Hole","[XTK_HMR_PLANE
         tIWGInterface2->set_constitutive_model( tCMDiffLinIso1, "Diffusion", mtk::Master_Slave::SLAVE );
 
         std::shared_ptr< fem::IWG > tIWGInterface3 =
-                tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_INTERFACE );
+                tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_INTERFACE_SYMMETRIC_NITSCHE );
         tIWGInterface3->set_residual_dof_type( { MSI::Dof_Type::TEMP } );
         tIWGInterface3->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
         tIWGInterface3->set_dof_type_list( {{ MSI::Dof_Type::TEMP }},mtk::Master_Slave::SLAVE );
@@ -909,7 +909,7 @@ TEST_CASE("XTK HMR 4 Material Bar Intersected By Plane and Hole 3D","[XTK_HMR_PL
         tIWGNeumann->set_property( tPropNeumann, "Neumann", mtk::Master_Slave::MASTER );
 
         std::shared_ptr< fem::IWG > tIWGInterface1 =
-                tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_INTERFACE );
+                tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_INTERFACE_SYMMETRIC_NITSCHE );
         tIWGInterface1->set_residual_dof_type( { MSI::Dof_Type::TEMP } );
         tIWGInterface1->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
         tIWGInterface1->set_dof_type_list( {{ MSI::Dof_Type::TEMP }},mtk::Master_Slave::SLAVE );
@@ -918,7 +918,7 @@ TEST_CASE("XTK HMR 4 Material Bar Intersected By Plane and Hole 3D","[XTK_HMR_PL
         tIWGInterface1->set_constitutive_model( tCMDiffLinIso2bis, "Diffusion", mtk::Master_Slave::SLAVE );
 
         std::shared_ptr< fem::IWG > tIWGInterface2 =
-                tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_INTERFACE );
+                tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_INTERFACE_SYMMETRIC_NITSCHE );
         tIWGInterface2->set_residual_dof_type( { MSI::Dof_Type::TEMP } );
         tIWGInterface2->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
         tIWGInterface2->set_dof_type_list( {{ MSI::Dof_Type::TEMP }},mtk::Master_Slave::SLAVE );
@@ -927,7 +927,7 @@ TEST_CASE("XTK HMR 4 Material Bar Intersected By Plane and Hole 3D","[XTK_HMR_PL
         tIWGInterface2->set_constitutive_model( tCMDiffLinIso1, "Diffusion", mtk::Master_Slave::SLAVE );
 
         std::shared_ptr< fem::IWG > tIWGInterface3 =
-                tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_INTERFACE );
+                tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_INTERFACE_SYMMETRIC_NITSCHE );
         tIWGInterface3->set_residual_dof_type( { MSI::Dof_Type::TEMP } );
         tIWGInterface3->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
         tIWGInterface3->set_dof_type_list( {{ MSI::Dof_Type::TEMP }},mtk::Master_Slave::SLAVE );

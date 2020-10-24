@@ -320,7 +320,7 @@ TEST_CASE("Sensitivity test","[Sensitivity test]")
         tIWGNeumann->set_property( tPropNeumann, "Neumann", mtk::Master_Slave::MASTER );
 
         std::shared_ptr< fem::IWG > tIWGInterface =
-                tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_INTERFACE );
+                tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_INTERFACE_SYMMETRIC_NITSCHE );
         tIWGInterface->set_residual_dof_type( { MSI::Dof_Type::TEMP } );
         tIWGInterface->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
         tIWGInterface->set_dof_type_list( {{ MSI::Dof_Type::TEMP }},mtk::Master_Slave::SLAVE );
