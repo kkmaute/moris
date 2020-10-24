@@ -311,6 +311,7 @@ namespace moris
                 ENERGY,
                 WORK,
                 HEAT,
+                PRESSURE,
                 END_CM_FUNCTION_TYPE
         };
 

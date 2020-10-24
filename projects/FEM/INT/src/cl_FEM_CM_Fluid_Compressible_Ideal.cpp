@@ -77,6 +77,9 @@ namespace moris
             mPressureEval = true;
             mPressureDofEval.assign( tNumDofTypes, true );
 
+            // reset dof derivative of velocity
+            mdNveldtEval = true;
+
             // reset velocity matrix for flattened tensors
             mVelocityMatrixEval = true;
 
@@ -111,6 +114,37 @@ namespace moris
             // reset Mechanical Traction
             mMechanicalTractionEval = true;
             mMechanicalTractionDofEval.assign( tNumDofTypes, true );
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
+        void CM_Fluid_Compressible_Ideal::initialize_spec_storage_vars_and_eval_flags()
+        {
+            // get number of global DoF types
+            uint tNumGlobalDofTypes = mGlobalDofTypes.size();
+
+            // initialize eval flags
+            mPressureDofEval.resize( tNumGlobalDofTypes, true );
+            mThermalFluxDofEval.resize( tNumGlobalDofTypes, true );
+            mWorkFluxDofEval.resize( tNumGlobalDofTypes, true );
+            mEnergyFluxDofEval.resize( tNumGlobalDofTypes, true );
+            //mStressDofEval.resize( tNumGlobalDofTypes, true );
+            mThermalTractionDofEval.resize( tNumGlobalDofTypes, true );
+            mWorkTractionDofEval.resize( tNumGlobalDofTypes, true );
+            mEnergyTractionDofEval.resize( tNumGlobalDofTypes, true );
+            mMechanicalTractionDofEval.resize( tNumGlobalDofTypes, true );
+
+            // initialize storage variables
+            mPressureDof.resize( tNumGlobalDofTypes );
+            mThermalFluxDof.resize( tNumGlobalDofTypes );
+            mWorkFluxDof.resize( tNumGlobalDofTypes );
+            mEnergyFluxDof.resize( tNumGlobalDofTypes );
+            //mStressDof.resize( tNumGlobalDofTypes );
+            mThermalTractionDof.resize( tNumGlobalDofTypes );
+            mWorkTractionDof.resize( tNumGlobalDofTypes );
+            mEnergyTractionDof.resize( tNumGlobalDofTypes );
+            mMechanicalTractionDof.resize( tNumGlobalDofTypes );
+
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -212,9 +246,13 @@ namespace moris
                 case CM_Function_Type::MECHANICAL :
                     return this->stress();
 
+                case CM_Function_Type::DEFAULT :
+                    MORIS_ERROR( false , "CM_Fluid_Compressible_Ideal::flux - DEFAULT function type not supported./" );
+                    return mFlux;
+
                     // unknown CM function type
                 default :
-                    MORIS_ERROR( false , "CM_Fluid_Compressible_Van_der_Waals::flux - unknown CM function type for flux." );
+                    MORIS_ERROR( false , "CM_Fluid_Compressible_Ideal::flux - unknown CM function type for flux." );
                     return mFlux;
             }
         }
@@ -340,9 +378,6 @@ namespace moris
 
         void CM_Fluid_Compressible_Ideal::eval_work_flux()
         {
-            // get the velocity
-            Matrix< DDRMat > tVelocity =  mFIManager->get_field_interpolators_for_type( mDofVelocity )->val();
-
             // compute contribution
             mWorkFlux = this->velocityMatrix() * this->flux(CM_Function_Type::MECHANICAL);
         }
@@ -398,7 +433,7 @@ namespace moris
                 // compute contribution
                 mWorkFluxDof( tDofIndex ).matrix_data() +=
                         this->velocityMatrix() * this->dFluxdDOF( aDofTypes, CM_Function_Type::MECHANICAL) +
-                        tStressTensor * tFIVelocity->dnNdxn( 1 ) ;
+                        tStressTensor * tFIVelocity->N() ;
             }
 
             // direct dependency on the temperature dof type
@@ -444,7 +479,7 @@ namespace moris
             Matrix< DDRMat > tVelocity =  mFIManager->get_field_interpolators_for_type( mDofVelocity )->val();
 
             // compute contribution
-            mEnergyFlux = this->Energy() * tVelocity;
+            mEnergyFlux = tVelocity * this->Energy();
         }
 
         const Matrix< DDRMat > & CM_Fluid_Compressible_Ideal::energy_flux()
@@ -485,7 +520,7 @@ namespace moris
             {
                 // compute contribution
                 mEnergyFluxDof( tDofIndex ).matrix_data() +=
-                        this->dEnergydDOF( aDofTypes ) * tFIVelocity->val();
+                        tFIVelocity->val() * this->dEnergydDOF( aDofTypes );
             }
 
             // direct dependency on the velocity dof type
@@ -493,8 +528,8 @@ namespace moris
             {
                 // compute contribution
                 mEnergyFluxDof( tDofIndex ).matrix_data() +=
-                        this->dEnergydDOF( aDofTypes ) * tFIVelocity->val() +
-                        this->Energy() * tFIVelocity->dnNdxn( 1 );
+                        tFIVelocity->val() * this->dEnergydDOF( aDofTypes ) +
+                        this->Energy()( 0 ) * tFIVelocity->N();
             }
 
             // direct dependency on the temperature dof type
@@ -502,7 +537,7 @@ namespace moris
             {
                 // compute contribution
                 mEnergyFluxDof( tDofIndex ).matrix_data() +=
-                        this->dEnergydDOF( aDofTypes ) * tFIVelocity->val();
+                        tFIVelocity->val() * this->dEnergydDOF( aDofTypes );
             }
         }
 
@@ -542,10 +577,11 @@ namespace moris
             Matrix< DDRMat >  tTemperature = mFIManager->get_field_interpolators_for_type( mDofTemperature )->val();
 
             // get the heat capacity
-            Matrix< DDRMat > tIsochoricHeatCapacity = get_property( "IsochoricHeatCapacity" )->val();
+            real tIsochoricHeatCapacity = get_property( "IsochoricHeatCapacity" )->val()( 0 );
 
             // compute thermal flux q = - k * grad(T)
-            mEnergy = tIsochoricHeatCapacity * tDensity * tTemperature + 0.5 * trans( tVelocity ) * tVelocity * tDensity;
+            mEnergy = tIsochoricHeatCapacity * tDensity * tTemperature +
+                    0.5 * trans( tVelocity ) * tVelocity * tDensity;
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -564,7 +600,7 @@ namespace moris
             Field_Interpolator * tFITemp = mFIManager->get_field_interpolators_for_type( mDofTemperature );
 
             // get the heat capacity
-            Matrix< DDRMat > tIsochoricHeatCapacity = get_property( "IsochoricHeatCapacity" )->val();
+            real tIsochoricHeatCapacity = get_property( "IsochoricHeatCapacity" )->val()( 0 );
 
             // initialize the matrix
             mEnergyDof( tDofIndex ).set_size( 1,
@@ -580,7 +616,6 @@ namespace moris
                         0.5 * trans( tFIVelocity->val() ) * tFIVelocity->val() * tFIDensity->N();
             }
 
-            // FIXME: check derivative of norm of velocity
             // direct dependency on the velocity dof type
             if( aDofTypes( 0 ) == mDofVelocity )
             {
@@ -609,14 +644,14 @@ namespace moris
             Field_Interpolator * tFITemp = mFIManager->get_field_interpolators_for_type( mDofTemperature );
 
             // get the heat capacity
-            Matrix< DDRMat > tIsochoricHeatCapacity = get_property( "IsochoricHeatCapacity" )->val();
+            real tIsochoricHeatCapacity = get_property( "IsochoricHeatCapacity" )->val()( 0 );
 
             // compute total energy density
             mEnergyDot =
                     tIsochoricHeatCapacity * tFIDensity->val() * tFITemp->gradt( 1 ) +
                     tIsochoricHeatCapacity * tFITemp->val() * tFIDensity->gradt( 1 ) +
                     0.5 * trans( tFIVelocity->val() ) * tFIVelocity->val() * tFIDensity->gradt( 1 ) +
-                    tFIDensity->val() * trans( tFIVelocity->val() ) * tFIVelocity->gradt( 1 ) ;
+                    tFIDensity->val() * trans( tFIVelocity->val() ) * trans( tFIVelocity->gradt( 1 ) ) ;
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -635,7 +670,7 @@ namespace moris
             Field_Interpolator * tFITemp = mFIManager->get_field_interpolators_for_type( mDofTemperature );
 
             // get the heat capacity
-            Matrix< DDRMat > tIsochoricHeatCapacity = get_property( "IsochoricHeatCapacity" )->val();
+            real tIsochoricHeatCapacity = get_property( "IsochoricHeatCapacity" )->val()( 0 );
 
             // initialize the matrix
             mEnergyDotDof( tDofIndex ).set_size( 1,
@@ -650,7 +685,7 @@ namespace moris
                         tIsochoricHeatCapacity * tFITemp->val() * tFIDensity->dnNdtn( 1 ) +
                         tIsochoricHeatCapacity * tFITemp->gradt( 1 ) * tFIDensity->N() +
                         0.5 * trans( tFIVelocity->val() ) * tFIVelocity->val() * tFIDensity->dnNdtn( 1 ) +
-                        trans( tFIVelocity->val() ) * tFIVelocity->gradt( 1 ) * tFIDensity->N() ;
+                        trans( tFIVelocity->val() ) * trans( tFIVelocity->gradt( 1 ) ) * tFIDensity->N() ;
             }
 
             // direct dependency on the velocity dof type
@@ -659,8 +694,8 @@ namespace moris
                 // compute contribution
                 mEnergyDotDof( tDofIndex ).matrix_data() +=
                         tFIDensity->gradt( 1 ) * trans( tFIVelocity->val() ) * tFIVelocity->N()   +
-                        tFIDensity->val() * trans( tFIVelocity->gradt( 1 ) ) * tFIVelocity->N()  +
-                        tFIDensity->val() * trans( tFIVelocity->val() ) * tFIVelocity->dnNdtn( 1 ) ;
+                        tFIDensity->val() * tFIVelocity->gradt( 1 ) * tFIVelocity->N()  +
+                        tFIDensity->val() * trans( tFIVelocity->val() ) * this->dNveldt();
             }
 
             // direct dependency on the temperature dof type
@@ -685,9 +720,9 @@ namespace moris
             std::shared_ptr< Property > tPropDynamicViscosity = get_property( "DynamicViscosity" );
 
             // compute Stress
-            mStress = 2.0 * tPropDynamicViscosity->val() *
-                    ( this->strain() -  ( 1 / 3 ) * tFIVelocity->div() * mFlatIdentity  ) -
-                    this->pressure() * mFlatIdentity ;
+            mStress = 2.0 * tPropDynamicViscosity->val()( 0 ) *
+                    ( this->strain() - ( 1 / 3 ) * tFIVelocity->div() * mFlatIdentity  ) -
+                    mFlatIdentity * this->pressure();
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -715,7 +750,7 @@ namespace moris
             if( aDofTypes( 0 ) == mDofDensity )
             {
                 // compute contribution
-                mdStressdDof( tDofIndex ).matrix_data() +=
+                mdStressdDof( tDofIndex ).matrix_data() -=
                         mFlatIdentity * this->dPressuredDOF( aDofTypes );
             }
 
@@ -724,7 +759,7 @@ namespace moris
             {
                 // compute contribution
                 mdStressdDof( tDofIndex ).matrix_data() +=
-                        2.0 * tPropDynamicViscosity->val() *
+                        2.0 * tPropDynamicViscosity->val()( 0 ) *
                         ( this->dStraindDOF( aDofTypes ) - ( 1 / 3 ) * mFlatIdentity * tFIVelocity->div_operator() );
             }
 
@@ -732,7 +767,7 @@ namespace moris
             if( aDofTypes( 0 ) == mDofTemperature )
             {
                 // compute contribution
-                mdStressdDof( tDofIndex ).matrix_data() +=
+                mdStressdDof( tDofIndex ).matrix_data() -=
                         mFlatIdentity * this->dPressuredDOF( aDofTypes );
             }
 
@@ -1070,7 +1105,7 @@ namespace moris
             Matrix< DDRMat >  tTemperature = mFIManager->get_field_interpolators_for_type( mDofTemperature )->val();
 
             // get the specific gas constant
-            Matrix< DDRMat >  tSpecificGasConstant = get_property( "SpecificGasConstant" )->val();
+            real tSpecificGasConstant = get_property( "SpecificGasConstant" )->val()( 0 );
 
             // compute the pressure
             mPressure = tDensity * tSpecificGasConstant * tTemperature;
@@ -1101,7 +1136,7 @@ namespace moris
             Field_Interpolator * tFITemp = mFIManager->get_field_interpolators_for_type( mDofTemperature );
 
             // get the specific gas constant
-            Matrix< DDRMat >  tSpecificGasConstant = get_property( "SpecificGasConstant" )->val();
+            real tSpecificGasConstant = get_property( "SpecificGasConstant" )->val()( 0 );
 
             // get the dof index
             uint tDofIndex = mGlobalDofTypeMap( static_cast< uint >( aDofTypes( 0 ) ) );
@@ -1114,14 +1149,14 @@ namespace moris
             // if Density DoF
             if( aDofTypes( 0 ) == mDofDensity )
             {
-                mPressureDof( tDofIndex ) = tSpecificGasConstant * tFITemp->val() * tFIDensity->dnNdxn( 1 );
+                mPressureDof( tDofIndex ) = tSpecificGasConstant * tFITemp->val()( 0 ) * tFIDensity->N();
             }
 
             // if Temperature DoF
             if( aDofTypes( 0 ) == mDofTemperature )
             {
                 // compute derivative with direct dependency
-                mPressureDof( tDofIndex ) = tSpecificGasConstant * tFIDensity->val() * tFITemp->dnNdxn( 1 );
+                mPressureDof( tDofIndex ) = tSpecificGasConstant * tFIDensity->val()( 0 ) * tFITemp->N();
             }
         }
 
@@ -1245,6 +1280,44 @@ namespace moris
                 // compute derivative
                 mdStraindDof( tDofIndex ).matrix_data() += this->testStrain().matrix_data();
             }
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+        //--------------------------------------------------------------------------------------------------------------
+
+        void CM_Fluid_Compressible_Ideal::eval_dNveldt()
+        {
+            // get the residual dof type FI (here velocity)
+            Field_Interpolator * tFIVelocity = mFIManager->get_field_interpolators_for_type( mDofVelocity );
+
+            // init size for dnNdtn
+            uint tNumRowt = tFIVelocity->get_number_of_fields();
+            uint tNumColt = tFIVelocity->dnNdtn( 1 ).n_cols();
+            mdNveldt.set_size( tNumRowt, tNumRowt * tNumColt , 0.0 );
+
+            // loop over the fields
+            for( uint iField = 0; iField < tNumRowt; iField++ )
+            {
+                // fill the matrix for each dimension
+                mdNveldt( { iField, iField }, { iField * tNumColt, ( iField + 1 ) * tNumColt - 1 } ) =
+                        tFIVelocity->dnNdtn( 1 ).matrix_data();
+            }
+        }
+
+        const Matrix< DDRMat > & CM_Fluid_Compressible_Ideal::dNveldt()
+        {
+            // if the velocity matrix was not evaluated
+            if( mdNveldtEval )
+            {
+                // evaluate the test strain
+                this->eval_dNveldt();
+
+                // set bool for evaluation
+                mdNveldtEval = false;
+            }
+
+            // return the test strain value
+            return mdNveldt;
         }
 
         //--------------------------------------------------------------------------------------------------------------
