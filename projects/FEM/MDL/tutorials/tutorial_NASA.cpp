@@ -243,7 +243,7 @@ main( int    argc,
             {{ MSI::Dof_Type::TEMP }},
             { fem::Property_Type::TEMP_NEUMANN },
             moris::Cell< fem::Constitutive_Type >( 0 ) );
-     tIntIWG( 0 )  = fem::IWG_User_Defined_Info( fem::IWG_Type::SPATIALDIFF_INTERFACE,
+     tIntIWG( 0 )  = fem::IWG_User_Defined_Info( fem::IWG_Type::SPATIALDIFF_INTERFACE_SYMMETRIC_NITSCHE,
             { MSI::Dof_Type::TEMP },
             {{ MSI::Dof_Type::TEMP }},
             Cell< fem::Property_Type >( 0 ),

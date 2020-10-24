@@ -119,6 +119,16 @@ namespace moris
 
                 //-----------------------------------------------------------------------------------------------------------
 
+                Output_Manager( moris::Cell< moris::ParameterList > aParameterList )
+                {
+                    for( uint iVisParameter = 0; iVisParameter < aParameterList.size(); iVisParameter++ )
+                    {
+                        this->set_outputs( aParameterList( iVisParameter ) );
+                    }
+                }
+
+                //-----------------------------------------------------------------------------------------------------------
+
                 ~Output_Manager()
                 {
                     for( auto tMesh : mVisMesh )

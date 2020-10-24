@@ -11,6 +11,7 @@
 #include "Epetra_FECrsMatrix.h"
 #include "Epetra_RowMatrix.h"
 
+#include "cl_Vector_PETSc.hpp"
 #include "cl_DLA_Linear_System_PETSc.hpp"
 #include "cl_DLA_Solver_Interface.hpp"
 #include "cl_SOL_Enums.hpp"
@@ -38,7 +39,7 @@ Linear_System_PETSc::Linear_System_PETSc(       Solver_Interface * aInput,
 
     if ( aInput->get_matrix_market_path() == NULL )
     {
-        Matrix_Vector_Factory tMatFactory( sol::MapType::Petsc );
+        sol::Matrix_Vector_Factory tMatFactory( sol::MapType::Petsc );
 
         // create map object
         mMap = tMatFactory.create_map( aInput->get_my_local_global_map(),
@@ -57,10 +58,6 @@ Linear_System_PETSc::Linear_System_PETSc(       Solver_Interface * aInput,
         mFullVectorLHS = tMatFactory.create_vector( aInput, mMap, 1 );
 
         mSolverInterface->build_graph( mMat );
-
-//        mFreeVectorLHS->read_vector_from_HDF5( "Exact_Sol_petsc.h5" );
-//        mFreeVectorLHS->print();
-//        std::cout<<" aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa "<<std::endl;
     }
 
     else
@@ -72,8 +69,8 @@ Linear_System_PETSc::Linear_System_PETSc(       Solver_Interface * aInput,
 //----------------------------------------------------------------------------------------
 
 Linear_System_PETSc::Linear_System_PETSc(       Solver_Interface * aInput,
-                                                sol::Dist_Map    * aFreeMap,
-                                                sol::Dist_Map    * aFullMap,
+                                                std::shared_ptr<sol::Dist_Map>  aFreeMap,
+                                                std::shared_ptr<sol::Dist_Map>  aFullMap,
                                           const bool               aNotCreatedByNonLinSolver) : moris::dla::Linear_Problem( aInput ),
                                                                                                 mNotCreatedByNonLinearSolver( aNotCreatedByNonLinSolver)
 {
@@ -84,7 +81,7 @@ Linear_System_PETSc::Linear_System_PETSc(       Solver_Interface * aInput,
         PetscInitializeNoArguments();
     }
 
-    Matrix_Vector_Factory tMatFactory( sol::MapType::Petsc );
+    sol::Matrix_Vector_Factory tMatFactory( sol::MapType::Petsc );
 
     // Build matrix
     mMat = tMatFactory.create_matrix( aInput, aFreeMap );
@@ -114,12 +111,6 @@ Linear_System_PETSc::~Linear_System_PETSc()
     delete mFullVectorLHS;
     mFullVectorLHS=nullptr;
 
-    delete mMap;
-    mMap=nullptr;
-
-    delete mMapFree;
-    mMapFree=nullptr;
-
 //    mSolverInterface->delete_multigrid();
 
     //KSPDestroy( &mPetscProblem );
@@ -127,6 +118,10 @@ Linear_System_PETSc::~Linear_System_PETSc()
 
     if ( mNotCreatedByNonLinearSolver == true )
     {
+        // These calls are needed in order to delete the underlying Petsc maps before PetscFinalize
+        mMap.reset();
+        mMapFree.reset();
+
         PetscFinalize();
     }
 }
@@ -160,7 +155,7 @@ moris::sint Linear_System_PETSc::solve_linear_system()
 
     KSPSetFromOptions( tPetscKSPProblem );
 
-    KSPSolve( tPetscKSPProblem, mVectorRHS->get_petsc_vector(), mFreeVectorLHS->get_petsc_vector() );
+    KSPSolve( tPetscKSPProblem, static_cast<Vector_PETSc*>(mVectorRHS)->get_petsc_vector(), static_cast<Vector_PETSc*>(mFreeVectorLHS)->get_petsc_vector() );
 
     KSPDestroy( &tPetscKSPProblem );
 
@@ -173,7 +168,7 @@ void Linear_System_PETSc::get_solution( Matrix< DDRMat > & LHSValues )
     //VecGetArray (tSolution, &  LHSValues.data());
 
     moris::sint tVecLocSize;
-    VecGetLocalSize( mFreeVectorLHS->get_petsc_vector(), &tVecLocSize );
+    VecGetLocalSize( static_cast<Vector_PETSc*>(mFreeVectorLHS)->get_petsc_vector(), &tVecLocSize );
 
     // FIXME replace with VecGetArray()
     moris::Matrix< DDSMat > tVal ( tVecLocSize, 1 , 0 );
@@ -198,7 +193,7 @@ void Linear_System_PETSc::get_solution( Matrix< DDRMat > & LHSValues )
         tVal( Ik, 0 ) = tOwnedOffsetList( par_rank(), 0)+Ik;
     }
 
-    VecGetValues( mFreeVectorLHS->get_petsc_vector(), tVecLocSize, tVal.data(), LHSValues.data() );
+    VecGetValues( static_cast<Vector_PETSc*>(mFreeVectorLHS)->get_petsc_vector(), tVecLocSize, tVal.data(), LHSValues.data() );
 }
 
 //------------------------------------------------------------------------------------------

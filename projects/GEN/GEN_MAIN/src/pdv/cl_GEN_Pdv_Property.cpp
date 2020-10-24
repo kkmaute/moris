@@ -16,14 +16,21 @@ namespace moris
 
         real Pdv_Property::get_value(uint aNodeIndex, const Matrix<DDRMat>& aCoordinates)
         {
-            return mProperty->evaluate_field_value(aNodeIndex, aCoordinates);
+            return mProperty->get_field_value(aNodeIndex, aCoordinates);
         }
 
         //--------------------------------------------------------------------------------------------------------------
 
-        void Pdv_Property::get_sensitivity(uint aNodeIndex, const Matrix<DDRMat>& aCoordinates, Matrix<DDRMat>& aSensitivities)
+        Matrix<DDRMat> Pdv_Property::get_sensitivities(uint aNodeIndex, const Matrix<DDRMat>& aCoordinates)
         {
-            mProperty->evaluate_sensitivity(aNodeIndex, aCoordinates, aSensitivities);
+            return mProperty->get_field_sensitivities(aNodeIndex, aCoordinates);
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
+        Matrix<DDSMat> Pdv_Property::get_determining_adv_ids(uint aNodeIndex, const Matrix<DDRMat>& aCoordinates)
+        {
+            return mProperty->get_determining_adv_ids(aNodeIndex, aCoordinates);
         }
 
         //--------------------------------------------------------------------------------------------------------------

@@ -32,18 +32,18 @@ namespace moris
              * @param aCoordinates vector of coordinate values
              * @return distance to nearest function
              */
-            real evaluate_field_value(uint aNodeIndex, const Matrix<DDRMat>& aCoordinates);
+            real get_field_value(uint aNodeIndex, const Matrix<DDRMat>& aCoordinates);
 
             /**
-             * Given a node index or coordinate, returns a matrix of relevant sensitivities
+             * Given a node index or coordinate, returns a matrix of all sensitivities
              *
              * @param aNodeIndex Node index
              * @param aCoordinates Vector of coordinate values
-             * @param aSensitivity Matrix of sensitivities
+             * @return Matrix of sensitivities
              */
-            void evaluate_sensitivity(uint                  aNodeIndex,
-                                      const Matrix<DDRMat>& aCoordinates,
-                                      Matrix<DDRMat>&       aSensitivities);
+            Matrix<DDRMat> get_field_sensitivities(
+                    uint                  aNodeIndex,
+                    const Matrix<DDRMat>& aCoordinates);
 
             /**
              * Adds a geometry to this multigeometry.
@@ -58,20 +58,6 @@ namespace moris
              * @return ID
              */
             std::string get_id();
-
-        private:
-
-            /**
-             * Given a node coordinate @param aCoordinates, the function returns a matrix of sensitivities of the
-             * geometry location with respect to the ADVs
-             *
-             * @param aNodeIndex Node index
-             * @param aCoordinates Vector of coordinate values
-             * @param aSensitivities Matrix of sensitivities
-             */
-            void evaluate_all_sensitivities(uint                  aNodeIndex,
-                                            const Matrix<DDRMat>& aCoordinates,
-                                            Matrix<DDRMat>&       aSensitivities);
 
         };
     }

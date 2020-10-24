@@ -28,12 +28,9 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        Matrix< DDRMat > Design_Variable_Interface::get_dQIdp()
+        sol::Dist_Vector* Design_Variable_Interface::get_dQIdp()
         {
-            Matrix< DDRMat > tSensitivities;
-            mModel->get_dQIdp()->extract_copy(tSensitivities);
-
-            return trans( tSensitivities );
+            return mModel->get_dQIdp();
         }
 
         //------------------------------------------------------------------------------

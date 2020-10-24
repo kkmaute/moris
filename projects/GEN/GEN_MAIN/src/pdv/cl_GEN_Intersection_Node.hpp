@@ -25,7 +25,7 @@ namespace moris
             moris_index mVertexOwner = -1;
 
         public:
-            Intersection_Node(){};
+
             /**
              * Constructor
              *
@@ -57,6 +57,13 @@ namespace moris
             bool second_parent_on_interface();
 
             /**
+             * Gets the number of PDVs on this intersection node.
+             *
+             * @return Number of PDVs
+             */
+            uint get_num_pdvs();
+
+            /**
              * Sets the starting index to be able to use the intersection coordinates of this node as PDVs
              *
              * @param aStartingPdvIndex The global index of the first PDV on the host
@@ -86,13 +93,34 @@ namespace moris
             Matrix<DDRMat> get_global_coordinates();
 
             /**
-             * Gets all of the sensitivity vectors for each coordinate
+             * Gets the sensitivities of this node's global coordinates with respect to the ADVs which affect the first
+             * parent node.
              *
-             * @param aSensitivities Sensitivity matrix to be filled
+             * @return Sensitivities
              */
-            void get_all_sensitivities(Matrix<DDRMat>& aSensitivities);
+            Matrix<DDRMat> get_first_parent_sensitivities();
 
-            moris::uint get_num_pdvs();
+            /**
+             * Gets the sensitivities of this node's global coordinates with respect to the ADVs which affect the second
+             * parent node.
+             *
+             * @return Sensitivities
+             */
+            Matrix<DDRMat> get_second_parent_sensitivities();
+
+            /**
+             * Gets the IDs of ADVs which the first parent of this intersection node depends on.
+             *
+             * @return ADV IDs
+             */
+            Matrix<DDSMat> get_first_parent_determining_adv_ids();
+
+            /**
+             * Gets the IDs of ADVs which the second parent of this intersection node depends on.
+             *
+             * @return ADV IDs
+             */
+            Matrix<DDSMat> get_second_parent_determining_adv_ids();
 
             void set_vertex_id( const moris_id & aVertexId)
             {

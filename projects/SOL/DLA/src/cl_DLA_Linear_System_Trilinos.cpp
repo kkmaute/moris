@@ -23,7 +23,7 @@ Linear_System_Trilinos::Linear_System_Trilinos( Solver_Interface * aInput ) : mo
     mTplType = sol::MapType::Epetra;
     if ( aInput->get_matrix_market_path() == NULL )
     {
-        Matrix_Vector_Factory    tMatFactory( sol::MapType::Epetra );
+        sol::Matrix_Vector_Factory    tMatFactory( sol::MapType::Epetra );
 
         // create map object
         mMapFree = tMatFactory.create_map( aInput->get_my_local_global_map(),
@@ -81,11 +81,11 @@ Linear_System_Trilinos::Linear_System_Trilinos( Solver_Interface * aInput ) : mo
 
 //----------------------------------------------------------------------------------------
 Linear_System_Trilinos::Linear_System_Trilinos( Solver_Interface * aInput,
-                                                sol::Dist_Map    * aFreeMap,
-                                                sol::Dist_Map    * aFullMap ) : moris::dla::Linear_Problem( aInput )
+                                                std::shared_ptr<sol::Dist_Map>  aFreeMap,
+                                                std::shared_ptr<sol::Dist_Map>  aFullMap ) : moris::dla::Linear_Problem( aInput )
 {
         mTplType = sol::MapType::Epetra;
-        Matrix_Vector_Factory    tMatFactory( mTplType );
+        sol::Matrix_Vector_Factory    tMatFactory( mTplType );
 
         // Build matrix
         mMat = tMatFactory.create_matrix( aInput, aFreeMap );
@@ -116,9 +116,6 @@ Linear_System_Trilinos::~Linear_System_Trilinos()
 
     delete mFullVectorLHS;
     mFullVectorLHS=nullptr;
-
-    delete mMap;
-    mMap=nullptr;
 }
 
 //------------------------------------------------------------------------------------------
@@ -129,8 +126,8 @@ moris::sint Linear_System_Trilinos::solve_linear_system()
 
     Epetra_LinearProblem      tEpetraProblem;
     tEpetraProblem.SetOperator( mMat->get_matrix() );
-    tEpetraProblem.SetRHS( mVectorRHS->get_epetra_vector() );
-    tEpetraProblem.SetLHS( mFreeVectorLHS->get_epetra_vector() );
+    tEpetraProblem.SetRHS( static_cast<Vector_Epetra*>(mVectorRHS)->get_epetra_vector() );
+    tEpetraProblem.SetLHS( static_cast<Vector_Epetra*>(mFreeVectorLHS)->get_epetra_vector() );
 
     AztecOO Solver( tEpetraProblem );
 

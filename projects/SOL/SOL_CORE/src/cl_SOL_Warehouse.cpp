@@ -380,7 +380,7 @@ void SOL_Warehouse::create_time_solvers()
 //void SOL_Warehouse::create_maps()
 //{
 //    // Create matrix vector factory
-//    Matrix_Vector_Factory tMatFactory( MapType::Epetra );
+//    sol::Matrix_Vector_Factory tMatFactory( MapType::Epetra );
 //
 //    // Get number nonliner solver managers
 //    moris::uint tNumberNonlinSolverManager = mListNonlinerSolverManagers.size();
@@ -430,7 +430,7 @@ void SOL_Warehouse::create_time_solvers()
 //    this->create_solver_manager_dependencies();
 //
 //    // Build matrix vector factory
-//    Matrix_Vector_Factory    tMatFactory( MapType::Epetra );
+//    sol::Matrix_Vector_Factory    tMatFactory( MapType::Epetra );
 //
 //    mMap = tMatFactory.create_map( mSolverInterface->get_my_local_global_overlapping_map() );
 //

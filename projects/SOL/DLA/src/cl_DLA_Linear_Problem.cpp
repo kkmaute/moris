@@ -132,7 +132,7 @@ namespace moris
 
         void Linear_Problem::compute_residual_for_adjoint_solve()
         {
-            Matrix_Vector_Factory tMatFactory( mTplType );
+            sol::Matrix_Vector_Factory tMatFactory( mTplType );
 
             // create vector for jacobian times sol vec
             sol::Dist_Vector * tMatTimesSolVec = tMatFactory.create_vector(

@@ -56,9 +56,9 @@ namespace moris
              * Get the field sensitivities on the child node based on its parents.
              *
              * @param aField Field pointer, referenced during call from field class
-             * @param aSensitivities Field sensitivities
+             * @return Field sensitivities
              */
-            virtual void interpolate_field_sensitivity(Field* aField, Matrix<DDRMat>& aSensitivities);
+            virtual Matrix<DDRMat> interpolate_field_sensitivity(Field* aField);
         };
     }
 }

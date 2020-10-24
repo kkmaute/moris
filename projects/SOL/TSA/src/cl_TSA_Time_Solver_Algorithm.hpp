@@ -63,7 +63,7 @@ namespace moris
                 //!  flag indicating if this is the master time solver
                 bool mIsMasterTimeSolver = false;
 
-                sol::Dist_Map * mFullMap = nullptr;
+                std::shared_ptr<sol::Dist_Map>  mFullMap = nullptr;
 
                 //! Parameter list for this nonlinear solver
                 moris::ParameterList mParameterListTimeSolver;

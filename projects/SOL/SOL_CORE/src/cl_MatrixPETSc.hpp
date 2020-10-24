@@ -17,7 +17,7 @@
 
 // Project header files
 #include "cl_Map_PETSc.hpp"
-#include "cl_VectorPETSc.hpp"
+#include "cl_Vector_PETSc.hpp"
 #include "cl_SOL_Dist_Matrix.hpp"
 
 // TPL header files
@@ -39,7 +39,7 @@ protected:
 public:
     /** Default contructor */
     Matrix_PETSc(       moris::Solver_Interface * aInput,
-                  const moris::sol::Dist_Map    * aMap );
+                  std::shared_ptr<sol::Dist_Map>  aMap );
 
     Matrix_PETSc( const moris::uint aRows,
                   const moris::uint aCols );
@@ -51,9 +51,29 @@ public:
                       const moris::Matrix< DDRMat > & aA_val,
                       const moris::Matrix< DDSMat > & aEleDofConectivity );
 
-    void fill_matrix_row( const moris::Matrix< DDRMat > & aA_val,
-                          const moris::Matrix< DDSMat > & aRow,
-                          const moris::Matrix< DDSMat > & aCols );
+    /**
+     * Inserts values into the matrix at locations corresponding to the given row and column IDs.
+     *
+     * @param aRowIDs Row IDs
+     * @param aColumnIDs Column IDs
+     * @param aMatrixValues Values to be inserted
+     */
+    void insert_values(
+            const Matrix<DDSMat>& aRowIDs,
+            const Matrix<DDSMat>& aColumnIDs,
+            const Matrix<DDRMat>& aMatrixValues);
+
+    /**
+     * Sums values into the matrix at locations corresponding to the given row and column IDs.
+     *
+     * @param aRowIDs Row IDs
+     * @param aColumnIDs Column IDs
+     * @param aMatrixValues Values to be summed into the existing matrix values
+     */
+    void sum_into_values(
+            const Matrix<DDSMat>& aRowIDs,
+            const Matrix<DDSMat>& aColumnIDs,
+            const Matrix<DDRMat>& aMatrixValues);
 
     void get_matrix_values( const moris::Matrix< DDSMat > & aRequestedIds,
                                   moris::Matrix< DDRMat > & aValues );

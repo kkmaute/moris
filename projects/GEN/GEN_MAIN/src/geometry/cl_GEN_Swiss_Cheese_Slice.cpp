@@ -27,7 +27,7 @@ namespace moris
                 sint aBSplineMeshIndex,
                 real aBSplineLowerBound,
                 real aBSplineUpperBound)
-        : Field({{}}, aNumRefinements, aRefinementFunctionIndex, aBSplineMeshIndex, aBSplineLowerBound, aBSplineUpperBound),
+        : Field(Matrix<DDRMat>(0, 0), aNumRefinements, aRefinementFunctionIndex, aBSplineMeshIndex, aBSplineLowerBound, aBSplineUpperBound),
           Multigeometry(Cell<std::shared_ptr<Geometry>>(1, std::make_shared<Superellipse>(
                   aLeftBound,
                   aBottomBound,
@@ -85,7 +85,7 @@ namespace moris
                 sint aBSplineMeshIndex,
                 real aBSplineLowerBound,
                 real aBSplineUpperBound)
-        : Field({{}}, aNumRefinements, aRefinementFunctionIndex, aBSplineMeshIndex, aBSplineLowerBound, aBSplineUpperBound),
+        : Field(Matrix<DDRMat>(0, 0), aNumRefinements, aRefinementFunctionIndex, aBSplineMeshIndex, aBSplineLowerBound, aBSplineUpperBound),
           Multigeometry(Cell<std::shared_ptr<Geometry>>(1, std::make_shared<Superellipse>(
                   aLeftBound,
                   aBottomBound,

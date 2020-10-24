@@ -1,31 +1,30 @@
-#include "cl_GEN_Field_Analytic.hpp"
+#include "cl_SOL_Dist_Vector.hpp"
+#include "cl_SOL_Dist_Map.hpp"
 
 namespace moris
 {
-    namespace ge
+    namespace sol
     {
 
         //--------------------------------------------------------------------------------------------------------------
 
-        Field_Analytic::Field_Analytic()
+        Dist_Vector::Dist_Vector( std::shared_ptr<Dist_Map> aMapClass ): mMap( aMapClass )
         {
         }
 
         //--------------------------------------------------------------------------------------------------------------
 
-        real Field_Analytic::get_field_value(uint aNodeIndex, const Matrix<DDRMat>& aCoordinates)
+        Dist_Vector::~Dist_Vector()
         {
-            return this->get_field_value(aCoordinates);
         }
 
         //--------------------------------------------------------------------------------------------------------------
 
-        Matrix<DDRMat> Field_Analytic::get_field_sensitivities(uint aNodeIndex, const Matrix<DDRMat>& aCoordinates)
+        std::shared_ptr<sol::Dist_Map> Dist_Vector::Dist_Vector::get_map()
         {
-            return this->get_field_sensitivities(aCoordinates);
+            return mMap;
         }
 
         //--------------------------------------------------------------------------------------------------------------
-
     }
 }

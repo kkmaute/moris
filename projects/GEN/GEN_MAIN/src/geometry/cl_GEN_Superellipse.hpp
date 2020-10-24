@@ -98,18 +98,16 @@ namespace moris
              * @param aCoordinates Coordinate values
              * @return Distance to this geometry
              */
-            real evaluate_field_value(const Matrix<DDRMat>& aCoordinates);
-
-        private:
+            real get_field_value(const Matrix<DDRMat>& aCoordinates);
 
             /**
              * Given a node coordinate, evaluates the sensitivity of the geometry field with respect to all of the
              * geometry variables.
              *
              * @param aCoordinates Coordinate values
-             * @param aSensitivities Vector of sensitivities
+             * @return Vector of sensitivities
              */
-            void evaluate_all_sensitivities(const Matrix<DDRMat>& aCoordinates, Matrix<DDRMat>& aSensitivities);
+            Matrix<DDRMat> get_field_sensitivities(const Matrix<DDRMat>& aCoordinates);
 
         };
     }

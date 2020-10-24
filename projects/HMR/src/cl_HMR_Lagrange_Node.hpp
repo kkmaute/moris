@@ -107,9 +107,9 @@ namespace moris
 
 // ----------------------------------------------------------------------------
 
-            bool has_interpolation ( const uint aOrder )
+            bool has_interpolation(uint aBSplineMeshIndex)
             {
-               return mHaveInterpolation.test( aOrder - 1);
+               return mHaveInterpolation.test(aBSplineMeshIndex);
             }
 
 // ----------------------------------------------------------------------------

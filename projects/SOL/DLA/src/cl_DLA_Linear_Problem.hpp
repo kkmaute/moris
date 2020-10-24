@@ -32,8 +32,8 @@ namespace dla
         sol::Dist_Vector   * mVectorRHS     = nullptr;
         sol::Dist_Vector   * mFreeVectorLHS = nullptr;
         sol::Dist_Vector   * mFullVectorLHS = nullptr;
-        sol::Dist_Map      * mMap           = nullptr;
-        sol::Dist_Map      * mMapFree       = nullptr;
+        std::shared_ptr<sol::Dist_Map>  mMap           = nullptr;
+        std::shared_ptr<sol::Dist_Map>  mMapFree       = nullptr;
 
         Solver_Interface * mSolverInterface = nullptr;
 

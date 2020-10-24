@@ -472,19 +472,25 @@ namespace moris
             // loop over the parameter lists
             for ( uint iProp = 0; iProp < tNumProps; iProp++ )
             {
+                // get property parameter list
+                ParameterList tPropParameter = tPropParameterList( iProp );
+
+                // get property name from parameter list
+                std::string tPropertyName = tPropParameter.get< std::string >( "property_name" );
+
                 // create a property pointer
                 mProperties( iProp ) = std::make_shared< fem::Property >();
 
                 // set a name for the property
-                mProperties( iProp )->set_name( tPropParameterList( iProp ).get< std::string >( "property_name" ) );
+                mProperties( iProp )->set_name( tPropertyName );
 
                 // fill property map
-                aPropertyMap[ tPropParameterList( iProp ).get< std::string >( "property_name" ) ] = iProp;
+                aPropertyMap[ tPropertyName ] = iProp;
 
                 // set dof dependencies
                 moris::Cell< moris::Cell< moris::MSI::Dof_Type > > tDofTypes;
                 string_to_cell_of_cell(
-                        tPropParameterList( iProp ).get< std::string >( "dof_dependencies" ),
+                        tPropParameter.get< std::string >( "dof_dependencies" ),
                         tDofTypes,
                         aMSIDofTypeMap );
                 mProperties( iProp )->set_dof_type_list( tDofTypes );
@@ -492,7 +498,7 @@ namespace moris
                 // set dof dependencies
                 moris::Cell< moris::Cell< PDV_Type > > tDvTypes;
                 string_to_cell_of_cell(
-                        tPropParameterList( iProp ).get< std::string >( "dv_dependencies" ),
+                        tPropParameter.get< std::string >( "dv_dependencies" ),
                         tDvTypes,
                         aDvTypeMap );
                 mProperties( iProp )->set_dv_type_list( tDvTypes );
@@ -500,23 +506,23 @@ namespace moris
                 // set function parameters
                 moris::Cell< moris::Matrix< DDRMat > > tFuncParameters;
                 string_to_cell_mat_2(
-                        tPropParameterList( iProp ).get< std::string >( "function_parameters" ),
+                        tPropParameter.get< std::string >( "function_parameters" ),
                         tFuncParameters );
                 mProperties( iProp )->set_parameters( tFuncParameters );
 
                 // set value function for property
-                std::string tValFuncName = tPropParameterList( iProp ).get< std::string >( "value_function" );
+                std::string tValFuncName = tPropParameter.get< std::string >( "value_function" );
                 MORIS_FEM_FREE_FUNCTION tValFunction = nullptr;
                 if ( tValFuncName.size() > 1 )
                 {
                     tValFunction = aLibrary->load_fem_free_functions( tValFuncName );
+                    mProperties( iProp )->set_val_function( tValFunction );
                 }
-                mProperties( iProp )->set_val_function( tValFunction );
 
                 // set dof derivative function for property
                 moris::Cell< std::string > tDofDerFuncNames;
                 string_to_cell(
-                        tPropParameterList( iProp ).get< std::string >( "dof_derivative_functions" ),
+                        tPropParameter.get< std::string >( "dof_derivative_functions" ),
                         tDofDerFuncNames );
                 uint tNumDofDerFuncs = tDofDerFuncNames.size();
                 moris::Cell< fem::PropertyFunc > tDofDerFunctions( tNumDofDerFuncs, nullptr );
@@ -534,7 +540,7 @@ namespace moris
                 // set dv derivative function for property
                 moris::Cell< std::string > tDvDerFuncNames;
                 string_to_cell(
-                        tPropParameterList( iProp ).get< std::string >( "dv_derivative_functions" ),
+                        tPropParameter.get< std::string >( "dv_derivative_functions" ),
                         tDvDerFuncNames );
                 uint tNumDvDerFuncs = tDvDerFuncNames.size();
                 moris::Cell< fem::PropertyFunc > tDvDerFunctions( tNumDvDerFuncs, nullptr );
@@ -898,13 +904,13 @@ namespace moris
                     std::string tPhaseName =
                             tIWGParameter.get< std::string >( tIsMasterString + "_phase_name" );
 
-                    // set phase name
-                    mIWGs( iIWG )->set_phase_name( tPhaseName, tIsMaster );
-
                     // check for unknown phase
                     MORIS_ERROR( mPhaseMap.find( tPhaseName ) != mPhaseMap.end(),
                             "FEM_Model::create_IWGs - Unknown phase name: %s \n",
                             tPhaseName.c_str() );
+
+                    // set phase name
+                    mIWGs( iIWG )->set_phase_name( tPhaseName, tIsMaster );
 
                     // get phase index
                     uint tPhaseIndex = mPhaseMap[ tPhaseName ];
@@ -1187,6 +1193,9 @@ namespace moris
                     MORIS_ERROR( mPhaseMap.find( tPhaseName ) != mPhaseMap.end() ,
                             "FEM_Model::create_IQIs - Unknown phase name: %s \n",
                             tPhaseName.c_str() );
+
+                    // set phase name
+                    mIQIs( iIQI )->set_phase_name( tPhaseName, tIsMaster );
 
                     // get the phase index
                     uint tPhaseIndex = mPhaseMap[ tPhaseName ];

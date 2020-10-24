@@ -61,9 +61,9 @@ TEST_CASE("NonlinearDatabase3","[NLA],[NLA_Database3]")
 //        Solver_Interface * tSolverInput = new NLA_Solver_Interface_Proxy_II();
 //
 //        // Build matrix vector factory
-//        Matrix_Vector_Factory    tMatFactory( sol::MapType::Epetra );
+//        sol::Matrix_Vector_Factory    tMatFactory( sol::MapType::Epetra );
 //
-//        sol::Dist_Map * tMap = tMatFactory.create_map( tSolverInput->get_my_local_global_overlapping_map() );
+//        std::shared_ptr<sol::Dist_Map>  tMap = tMatFactory.create_map( tSolverInput->get_my_local_global_overlapping_map() );
 //
 //        // Create Full Vector
 //        sol::Dist_Vector * tFullVector = tMatFactory.create_vector( tSolverInput, tMap, 1 );

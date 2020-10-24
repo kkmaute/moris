@@ -651,6 +651,13 @@ namespace moris
         }
 
         //--------------------------------------------------------------------------------------------------------------
+
+        bool Mesh::node_has_interpolation(uint aNodeIndex, uint aBSplineMeshIndex)
+        {
+            return false;
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
         
         const Matrix< DDRMat > &
         Mesh::get_t_matrix_of_node_loc_ind(

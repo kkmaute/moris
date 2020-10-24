@@ -11,8 +11,8 @@ namespace moris
         class Plane : public Geometry, public Field_Analytic
         {
         private:
-            real ( Plane:: * m_eval_field )(const Matrix<DDRMat>&) = nullptr;
-            void ( Plane:: * m_eval_sensitivity )(const Matrix<DDRMat>&, Matrix<DDRMat>&) = nullptr;
+            real (Plane::*m_eval_field)(const Matrix<DDRMat>&) = nullptr;
+            Matrix<DDRMat> (Plane::*m_eval_sensitivity)(const Matrix<DDRMat>&) = nullptr;
 
         public:
             /**
@@ -115,38 +115,38 @@ namespace moris
              * @param aCoordinates Coordinate values
              * @return Distance to this geometry
              */
-            real evaluate_field_value(const Matrix<DDRMat>& aCoordinates);
-
-        private:
+            real get_field_value(const Matrix<DDRMat>& aCoordinates);
 
             /**
              * Given a node coordinate, evaluates the sensitivity of the geometry field with respect to all of the
              * geometry variables.
              *
              * @param aCoordinates Coordinate values
-             * @param aSensitivities Vector of sensitivities
+             * @return Vector of sensitivities
              */
-            void evaluate_all_sensitivities(const Matrix<DDRMat>& aCoordinates, Matrix<DDRMat>& aSensitivities);
+            Matrix<DDRMat> get_field_sensitivities(const Matrix<DDRMat>& aCoordinates);
+
+        private:
 
             /**
-             * 2D evaluation for evaluate_field_value
+             * 2D evaluation for get_field_value
              */
-            moris::real eval_field_2d(const Matrix<DDRMat>& aCoordinates);
+            real eval_field_2d(const Matrix<DDRMat>& aCoordinates);
 
             /**
-             * 3D evaluation for evaluate_field_value
+             * 3D evaluation for get_field_value
              */
-            moris::real eval_field_3d(const Matrix<DDRMat>& aCoordinates);
+            real eval_field_3d(const Matrix<DDRMat>& aCoordinates);
 
             /**
-             * 2D evaluation for evaluate_all_sensitivities
+             * 2D evaluation for get_field_sensitivities
              */
-            void eval_sensitivity_2d(const Matrix<DDRMat>& aCoordinates, Matrix<DDRMat>& aSensitivities);
+            Matrix<DDRMat> eval_sensitivity_2d(const Matrix<DDRMat>& aCoordinates);
 
             /**
-             * 3D evaluation for evaluate_all_sensitivities
+             * 3D evaluation for get_field_sensitivities
              */
-            void eval_sensitivity_3d(const Matrix<DDRMat>& aCoordinates, Matrix<DDRMat>& aSensitivities);
+            Matrix<DDRMat> eval_sensitivity_3d(const Matrix<DDRMat>& aCoordinates);
         };
     }
 }

@@ -24,7 +24,7 @@ using namespace moris;
 
 Matrix_PETSc::Matrix_PETSc(       
         moris::Solver_Interface    * aInput,
-        const moris::sol::Dist_Map * aMap ) 
+        std::shared_ptr<sol::Dist_Map>  aMap )
 : sol::Dist_Matrix( aMap )
 {
     moris::uint aNumMyDofs = aInput->get_my_local_global_map().numel();
@@ -162,18 +162,34 @@ void Matrix_PETSc::fill_matrix(
 
 // ----------------------------------------------------------------------------
 
-void Matrix_PETSc::fill_matrix_row(
-        const moris::Matrix< DDRMat > & aA_val,
-        const moris::Matrix< DDSMat > & aRow,
-        const moris::Matrix< DDSMat > & aCols )
+void Matrix_PETSc::insert_values(
+        const Matrix<DDSMat>& aRowIDs,
+        const Matrix<DDSMat>& aColumnIDs,
+        const Matrix<DDRMat>& aMatrixValues)
 {
     MatSetValues( mPETScMat,
-            aRow.numel(),
-            aRow.data(),
-            aCols.numel(),
-            aCols.data(),
-            aA_val.data(),
+            aRowIDs.numel(),
+            aRowIDs.data(),
+            aColumnIDs.numel(),
+            aColumnIDs.data(),
+            aMatrixValues.data(),
             INSERT_VALUES );
+}
+
+// ----------------------------------------------------------------------------
+
+void Matrix_PETSc::sum_into_values(
+        const Matrix<DDSMat>& aRowIDs,
+        const Matrix<DDSMat>& aColumnIDs,
+        const Matrix<DDRMat>& aMatrixValues)
+{
+    MatSetValues( mPETScMat,
+                  aRowIDs.numel(),
+                  aRowIDs.data(),
+                  aColumnIDs.numel(),
+                  aColumnIDs.data(),
+                  aMatrixValues.data(),
+                  ADD_VALUES );
 }
 
 // ----------------------------------------------------------------------------
