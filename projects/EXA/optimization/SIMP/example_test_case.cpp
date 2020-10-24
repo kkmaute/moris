@@ -33,4 +33,18 @@ TEST_CASE("SIMP",
     // catch test statements should follow
     REQUIRE( tRet ==  0 );
 
+    // Read Exodus file
+    moris::mtk::Exodus_IO_Helper tExoIO("SIMP.exo", 0, false, false);
+
+    // Checks
+    CHECK(tExoIO.get_nodal_field_value(   0, 2, 0 ) == Approx(0.419977));
+    CHECK(tExoIO.get_nodal_field_value( 100, 2, 0 ) == Approx(0.419974));
+    CHECK(tExoIO.get_nodal_field_value( 200, 2, 0 ) == Approx(0.380038));
+    CHECK(tExoIO.get_nodal_field_value( 300, 2, 0 ) == Approx(0.397622));
+    CHECK(tExoIO.get_nodal_field_value( 400, 2, 0 ) == Approx(0.380049));
+    CHECK(tExoIO.get_nodal_field_value( 500, 2, 0 ) == Approx(0.380093));
+    CHECK(tExoIO.get_nodal_field_value( 600, 2, 0 ) == Approx(0.380112));
+    CHECK(tExoIO.get_nodal_field_value( 700, 2, 0 ) == Approx(0.419978));
+    CHECK(tExoIO.get_nodal_field_value( 800, 2, 0 ) == Approx(0.419973));
+
 }

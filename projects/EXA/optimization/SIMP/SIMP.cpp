@@ -115,7 +115,7 @@ namespace moris
     Matrix<DDRMat> compute_constraints(Matrix<DDRMat> aADVs, Matrix<DDRMat> aCriteria)
     {
         Matrix<DDRMat> tConstraints( 1, 1 );
-        tConstraints(0) = aCriteria( 1 )/2.0 - 0.5;
+        tConstraints(0) = aCriteria( 1 ) - 0.8;
 
         return tConstraints;
     }
@@ -187,7 +187,7 @@ namespace moris
 
         tParameterlist( 0 )( 0 ) = prm::create_hmr_parameter_list();
 
-        tParameterlist( 0 )( 0 ).set( "number_of_elements_per_dimension", "30,20");
+        tParameterlist( 0 )( 0 ).set( "number_of_elements_per_dimension", "40,20");
         tParameterlist( 0 )( 0 ).set( "domain_dimensions",                "2,1");
         tParameterlist( 0 )( 0 ).set( "domain_offset",                    "0.0,0.0") ;
         tParameterlist( 0 )( 0 ).set( "domain_sidesets",                  "1,2,3,4");
@@ -239,8 +239,8 @@ namespace moris
         tParameterlist( 2 ).resize(1);
 
         tParameterlist( 0 )( 0 ) = moris::prm::create_gen_parameter_list();
-        tParameterlist( 0 )( 0 ).set("advs_size"         , 651);
-        tParameterlist( 0 )( 0 ).set("initial_advs_fill" , 0.3);
+        tParameterlist( 0 )( 0 ).set("advs_size"         , 861);
+        tParameterlist( 0 )( 0 ).set("initial_advs_fill" , 0.4);
         tParameterlist( 0 )( 0 ).set("lower_bounds_fill" , 0.001);
         tParameterlist( 0 )( 0 ).set("upper_bounds_fill" , 1.0);
         tParameterlist( 0 )( 0 ).set("IQI_types"         , "IQIBulkStrainEnergy,IQIBulkVolume");
@@ -481,7 +481,7 @@ namespace moris
         tParameterlist(0)(0).set("library", "./SIMP.so");
 
         tParameterlist(2)(0) = moris::prm::create_gcmma_parameter_list();
-        //tParameterlist(2)(0).set("max_its", 5);
+        tParameterlist(2)(0).set("max_its", 2);
     }
 
     //------------------------------------------------------------------------------
