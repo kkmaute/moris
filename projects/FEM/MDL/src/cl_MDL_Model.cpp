@@ -392,7 +392,7 @@ namespace moris
             // start timer
             tic tTimerVisMesh;
 
-            mOutputManager = new vis::Output_Manager( mVISParameterList( 0 )( 0 ) );
+            mOutputManager = new vis::Output_Manager( mVISParameterList( 0 ) );
 
             mOutputManagerOwned = true;
 
@@ -507,7 +507,8 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
-        void Model::output_solution( const uint aVisMeshIndex,
+        void Model::output_solution(
+                const uint aVisMeshIndex,
                 const real aTime,
                 const bool aCloseFile )
         {
