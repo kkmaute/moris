@@ -40,7 +40,7 @@ namespace moris
              * @param aNodeIndex Node index
              * @return Distance to this geometry
              */
-            real evaluate_field_value(uint aNodeIndex);
+            real get_field_value(uint aNodeIndex);
 
         private:
 
@@ -49,9 +49,9 @@ namespace moris
              * geometry variables. This is currently not implemented for a mesh field geometry.
              *
              * @param aNodeIndex Node index
-             * @param aSensitivities Vector of sensitivities
+             * @return Vector of sensitivities
              */
-            void evaluate_all_sensitivities(uint aNodeIndex, Matrix<DDRMat>& aSensitivities);
+            Matrix<DDRMat> get_field_sensitivities(uint aNodeIndex);
 
         };
     }

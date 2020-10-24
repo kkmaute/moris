@@ -214,7 +214,7 @@ namespace moris
                  * returns the dQIdp
                  * @param[ out ] dQIdp matrix filled with dQIdp
                  */
-                Matrix< DDRMat > get_dQIdp();
+                sol::Dist_Vector* get_dQIdp();
 
                 //------------------------------------------------------------------------------
 

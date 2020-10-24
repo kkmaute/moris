@@ -134,9 +134,9 @@ TEST_CASE( "IWG_Compressible_NS_Density_Bulk_Ideal",
     {
 
         // output for debugging
-        std::cout << "-------------------------------------------------------------------\n" << std::flush;
-        std::cout << "Performing Tests For Number of Spatial dimensions: " << iSpaceDim << "\n" << std::flush;
-        std::cout << "-------------------------------------------------------------------\n\n" << std::flush;
+        //std::cout << "-------------------------------------------------------------------\n" << std::flush;
+        //std::cout << "Performing Tests For Number of Spatial dimensions: " << iSpaceDim << "\n" << std::flush;
+        //std::cout << "-------------------------------------------------------------------\n\n" << std::flush;
 
         // switch on space dimension
         switch( iSpaceDim )
@@ -180,9 +180,9 @@ TEST_CASE( "IWG_Compressible_NS_Density_Bulk_Ideal",
             }
 
             // output for debugging
-            std::cout << "-------------------------------------------------------------------\n" << std::flush;
-            std::cout << "-------------------------------------------------------------------\n" << std::flush;
-            std::cout << "Performing Tests For Interpolation Order:" << iInterpOrder << "\n\n" << std::flush;
+            //std::cout << "-------------------------------------------------------------------\n" << std::flush;
+            //std::cout << "-------------------------------------------------------------------\n" << std::flush;
+            //std::cout << "Performing Tests For Interpolation Order:" << iInterpOrder << "\n\n" << std::flush;
 
             // create an interpolation order
             mtk::Interpolation_Order tGIInterpolationOrder = tInterpolationOrders( iInterpOrder - 1 );
@@ -333,8 +333,8 @@ TEST_CASE( "IWG_Compressible_NS_Density_Bulk_Ideal",
             for( uint iGP = 0; iGP < tNumGPs; iGP ++ )
             {
                 // output for debugging
-                std::cout << "-------------------------------------------------------------------\n" << std::flush;
-                std::cout << "Looping over Gauss points. Current GP-#: " << iGP << "\n\n" << std::flush;
+                //std::cout << "-------------------------------------------------------------------\n" << std::flush;
+                //std::cout << "Looping over Gauss points. Current GP-#: " << iGP << "\n\n" << std::flush;
 
                 // reset CM evaluation flags
                 tCMMasterFluid->reset_eval_flags();
@@ -518,9 +518,9 @@ TEST_CASE( "IWG_Compressible_NS_Density_Bulk_VdW",
     {
 
         // output for debugging
-        std::cout << "-------------------------------------------------------------------\n" << std::flush;
-        std::cout << "Performing Tests For Number of Spatial dimensions: " << iSpaceDim << "\n" << std::flush;
-        std::cout << "-------------------------------------------------------------------\n\n" << std::flush;
+        //std::cout << "-------------------------------------------------------------------\n" << std::flush;
+        //std::cout << "Performing Tests For Number of Spatial dimensions: " << iSpaceDim << "\n" << std::flush;
+        //std::cout << "-------------------------------------------------------------------\n\n" << std::flush;
 
         // switch on space dimension
         switch( iSpaceDim )
@@ -564,9 +564,9 @@ TEST_CASE( "IWG_Compressible_NS_Density_Bulk_VdW",
             }
 
             // output for debugging
-            std::cout << "-------------------------------------------------------------------\n" << std::flush;
-            std::cout << "-------------------------------------------------------------------\n" << std::flush;
-            std::cout << "Performing Tests For Interpolation Order:" << iInterpOrder << "\n\n" << std::flush;
+            //std::cout << "-------------------------------------------------------------------\n" << std::flush;
+            //std::cout << "-------------------------------------------------------------------\n" << std::flush;
+            //std::cout << "Performing Tests For Interpolation Order:" << iInterpOrder << "\n\n" << std::flush;
 
             // create an interpolation order
             mtk::Interpolation_Order tGIInterpolationOrder = tInterpolationOrders( iInterpOrder - 1 );
@@ -717,8 +717,8 @@ TEST_CASE( "IWG_Compressible_NS_Density_Bulk_VdW",
             for( uint iGP = 0; iGP < tNumGPs; iGP ++ )
             {
                 // output for debugging
-                std::cout << "-------------------------------------------------------------------\n" << std::flush;
-                std::cout << "Looping over Gauss points. Current GP-#: " << iGP << "\n\n" << std::flush;
+                //std::cout << "-------------------------------------------------------------------\n" << std::flush;
+                //std::cout << "Looping over Gauss points. Current GP-#: " << iGP << "\n\n" << std::flush;
 
                 // reset CM evaluation flags
                 tCMMasterFluid->reset_eval_flags();

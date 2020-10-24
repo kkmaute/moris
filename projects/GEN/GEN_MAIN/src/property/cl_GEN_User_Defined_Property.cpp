@@ -7,18 +7,19 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        User_Defined_Property::User_Defined_Property(Matrix<DDRMat>& aADVs,
-                                                     Matrix<DDUMat> aPropertyVariableIndices,
-                                                     Matrix<DDUMat> aADVIndices,
-                                                     Matrix<DDRMat> aConstantParameters,
-                                                     Cell<std::shared_ptr<Property>> aPropertyDependencies,
-                                                     MORIS_GEN_FIELD_FUNCTION aFieldEvaluationFunction,
-                                                     MORIS_GEN_SENSITIVITY_FUNCTION aSensitivityEvaluationFunction,
-                                                     sint aNumRefinements,
-                                                     sint aRefinementFunctionIndex,
-                                                     sint aBSplineMeshIndex,
-                                                     real aBSplineLowerBound,
-                                                     real aBSplineUpperBound)
+        User_Defined_Property::User_Defined_Property(
+                Matrix<DDRMat>&                 aADVs,
+                Matrix<DDUMat>                  aPropertyVariableIndices,
+                Matrix<DDUMat>                  aADVIndices,
+                Matrix<DDRMat>                  aConstantParameters,
+                Cell<std::shared_ptr<Property>> aPropertyDependencies,
+                MORIS_GEN_FIELD_FUNCTION        aFieldEvaluationFunction,
+                MORIS_GEN_SENSITIVITY_FUNCTION  aSensitivityEvaluationFunction,
+                sint                            aNumRefinements,
+                sint                            aRefinementFunctionIndex,
+                sint                            aBSplineMeshIndex,
+                real                            aBSplineLowerBound,
+                real                            aBSplineUpperBound)
                 : Field(aADVs,
                         aPropertyVariableIndices,
                         aADVIndices,
@@ -29,22 +30,53 @@ namespace moris
                         aBSplineLowerBound,
                         aBSplineUpperBound)
         {
-            evaluate_field_value_user_defined = aFieldEvaluationFunction;
-            evaluate_sensitivity_user_defined = aSensitivityEvaluationFunction;
+            get_field_value_user_defined = aFieldEvaluationFunction;
+            get_field_sensitivities_user_defined = aSensitivityEvaluationFunction;
         }
 
         //--------------------------------------------------------------------------------------------------------------
 
-        real User_Defined_Property::evaluate_field_value(const Matrix<DDRMat>& aCoordinates)
+        User_Defined_Property::User_Defined_Property(
+                sol::Dist_Vector*               aOwnedADVs,
+                Matrix<DDUMat>                  aPropertyVariableIndices,
+                Matrix<DDUMat>                  aADVIndices,
+                Matrix<DDRMat>                  aConstantParameters,
+                Cell<std::shared_ptr<Property>> aPropertyDependencies,
+                MORIS_GEN_FIELD_FUNCTION        aFieldEvaluationFunction,
+                MORIS_GEN_SENSITIVITY_FUNCTION  aSensitivityEvaluationFunction,
+                sint                            aNumRefinements,
+                sint                            aRefinementFunctionIndex,
+                sint                            aBSplineMeshIndex,
+                real                            aBSplineLowerBound,
+                real                            aBSplineUpperBound)
+                : Field(aOwnedADVs,
+                        aPropertyVariableIndices,
+                        aADVIndices,
+                        aConstantParameters,
+                        aNumRefinements,
+                        aRefinementFunctionIndex,
+                        aBSplineMeshIndex,
+                        aBSplineLowerBound,
+                        aBSplineUpperBound)
         {
-            return this->evaluate_field_value_user_defined(aCoordinates, mFieldVariables);
+            get_field_value_user_defined = aFieldEvaluationFunction;
+            get_field_sensitivities_user_defined = aSensitivityEvaluationFunction;
         }
 
         //--------------------------------------------------------------------------------------------------------------
 
-        void User_Defined_Property::evaluate_all_sensitivities(const Matrix<DDRMat>& aCoordinates, Matrix<DDRMat>& aSensitivities)
+        real User_Defined_Property::get_field_value(const Matrix<DDRMat>& aCoordinates)
         {
-            this->evaluate_sensitivity_user_defined(aCoordinates, mFieldVariables, aSensitivities);
+            return this->get_field_value_user_defined(aCoordinates, mFieldVariables);
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
+        Matrix<DDRMat> User_Defined_Property::get_field_sensitivities(const Matrix<DDRMat>& aCoordinates)
+        {
+            Matrix<DDRMat> tSensitivities;
+            this->get_field_sensitivities_user_defined(aCoordinates, mFieldVariables, tSensitivities);
+            return tSensitivities;
         }
 
         //--------------------------------------------------------------------------------------------------------------

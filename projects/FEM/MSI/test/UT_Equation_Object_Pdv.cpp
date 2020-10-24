@@ -293,8 +293,8 @@ TEST_CASE("Eqn_Obj_pdv","[MSI],[Eqn_Obj_pdv]")
         tSolverInterface->set_requested_dof_types( tRequestedDofTypes );
 
         //
-        Matrix_Vector_Factory tMatFactory( sol::MapType::Epetra );
-        sol::Dist_Map * mVectorMap = tMatFactory.create_map( {{ 0},{1},{2},{3}}, {{}} );
+        sol::Matrix_Vector_Factory tMatFactory( sol::MapType::Epetra );
+        std::shared_ptr<sol::Dist_Map>  mVectorMap = tMatFactory.create_map( {{ 0},{1},{2},{3}}, {{}} );
         sol::Dist_Vector * mVector = tMatFactory.create_vector( nullptr, mVectorMap, 1 );
 
         mVector->sum_into_global_values( {{ 0},{1},{2},{3}}, {{ 1},{2},{3},{4}});

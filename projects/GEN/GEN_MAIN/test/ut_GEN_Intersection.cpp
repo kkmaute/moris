@@ -16,7 +16,7 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        TEST_CASE("Intersection and child node test", "[gen], [pdv], [intersection]")
+        TEST_CASE("Child Nodes and Intersections", "[gen], [pdv], [intersection]")
         {
             if (par_size() == 1)
             {
@@ -171,7 +171,6 @@ namespace moris
 
                 // Get the PDV host manager and set the number of total nodes
                 Pdv_Host_Manager* tPdvHostManager = dynamic_cast<Pdv_Host_Manager*>(tGeometryEngine.get_design_variable_interface());
-                tPdvHostManager->set_num_integration_nodes(21);
 
                 // Test that the new intersections have been added to the PDV host manager, but ONLY for the circle
                 Cell<Matrix<DDRMat>> tPdvValues(0);

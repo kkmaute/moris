@@ -15,8 +15,9 @@ namespace moris
             Cell<real*> mFieldVariables;
 
         private:
+            sol::Dist_Vector* mSharedADVs = nullptr;
             Matrix<DDRMat> mConstantParameters;
-            Matrix<DDSMat> mADVDependencies;
+            Matrix<DDSMat> mDeterminingADVIds;
             bool mDependsOnADVs;
             uint mNumADVs;
             sint mNumRefinements;
@@ -76,40 +77,13 @@ namespace moris
             /**
              * Constructor for setting all field variables as consecutive ADVs.
              *
-             * @param aADVs Reference to the full ADVs
-             * @param aStartingADVIndex Index of the ADVs where this field will start using field variables
-             * @param aNumFieldVariables The number of field variables
-             * @param aNumRefinements The number of refinement steps to use for this field
+             * @param aSharedADVIds Shared ADV IDs needed for this field
              * @param aRefinementFunctionIndex The index of a user-defined refinement function (-1 = default refinement)
              * @param aBSplineMeshIndex The index of a B-spline mesh for B-spline discretization (-1 = no B-splines)
              * @param aBSplineLowerBound The lower bound for the B-spline coefficients describing this field
              * @param aBSplineUpperBound The upper bound for the B-spline coefficients describing this field
              */
-            Field(Matrix<DDRMat>& aADVs,
-                  uint            aStartingADVIndex,
-                  uint            aNumFieldVariables,
-                  sint            aNumRefinements,
-                  sint            aRefinementFunctionIndex,
-                  sint            aBSplineMeshIndex,
-                  real            aBSplineLowerBound,
-                  real            aBSplineUpperBound);
-
-            /**
-             * Constructor for setting all field variables as consecutive ADVs.
-             *
-             * @param aOwnedADVs Pointer to the owned distributed ADVs
-             * @param aStartingADVIndex Index of the ADVs where this field will start using field variables
-             * @param aNumFieldVariables The number of field variables
-             * @param aNumRefinements The number of refinement steps to use for this field
-             * @param aRefinementFunctionIndex The index of a user-defined refinement function (-1 = default refinement)
-             * @param aBSplineMeshIndex The index of a B-spline mesh for B-spline discretization (-1 = no B-splines)
-             * @param aBSplineLowerBound The lower bound for the B-spline coefficients describing this field
-             * @param aBSplineUpperBound The upper bound for the B-spline coefficients describing this field
-             */
-            Field(sol::Dist_Vector*     aOwnedADVs,
-                  const Matrix<DDSMat>& aOwnedADVIds,
-                  uint                  aOwnedADVIdsOffset,
-                  uint                  aNumFieldVariables,
+            Field(const Matrix<DDSMat>& aSharedADVIds,
                   sint                  aNumRefinements,
                   sint                  aRefinementFunctionIndex,
                   sint                  aBSplineMeshIndex,
@@ -148,27 +122,33 @@ namespace moris
             ~Field();
 
             /**
-             * Given a node index or coordinate, returns the field value
+             * Given a node index or coordinate, returns the field value.
              *
-             * @param aINodendex Node index
+             * @param aNodeIndex Node index
              * @param aCoordinates Vector of coordinate values
              * @return Field value
              */
-            virtual real evaluate_field_value(
+            virtual real get_field_value(
                     uint                  aNodeIndex,
                     const Matrix<DDRMat>& aCoordinates) = 0;
 
             /**
-             * Given a node index or coordinate, returns a matrix of relevant sensitivities
+             * Given a node index or coordinate, returns a matrix of all sensitivities.
              *
-             * @param aIndex Node index
+             * @param aNodeIndex Node index
              * @param aCoordinates Vector of coordinate values
-             * @param aSensitivity Matrix of sensitivities
+             * @return Matrix of sensitivities
              */
-            virtual void evaluate_sensitivity(
-                    uint                  aIndex,
-                    const Matrix<DDRMat>& aCoordinates,
-                    Matrix<DDRMat>&       aSensitivities);
+            virtual Matrix<DDRMat> get_field_sensitivities(
+                    uint                  aNodeIndex,
+                    const Matrix<DDRMat>& aCoordinates) = 0;
+
+            /**
+             * Imports the local ADVs required from the full owned ADV distributed vector.
+             *
+             * @param aOwnedADVs Full owned distributed ADV vector
+             */
+            virtual void import_advs(sol::Dist_Vector* aOwnedADVs);
 
             /**
              * Add a new child node for evaluation, implemented for discrete fields
@@ -182,6 +162,22 @@ namespace moris
              * Resets all child nodes, called when a new XTK mesh is being created.
              */
             virtual void reset_child_nodes();
+
+            /**
+             * Function for determining if this field is to be used for seeding a B-spline field.
+             *
+             * @return Logic for B-spline creation
+             */
+            virtual bool conversion_to_bsplines();
+
+            /**
+             * Gets the IDs of ADVs which this field depends on for evaluations.
+             *
+             * @param aNodeIndex Node index
+             * @param aCoordinates Node coordinates
+             * @return Field basis ADV IDs
+             */
+            virtual Matrix<DDSMat> get_determining_adv_ids(uint aNodeIndex, const Matrix<DDRMat>& aCoordinates);
 
             /**
              * If this field depends on ADVs
@@ -226,26 +222,7 @@ namespace moris
              */
             real get_bspline_upper_bound();
 
-            /**
-             * Function for determining if this field is to be used for seeding a B-spline field.
-             *
-             * @return Logic for B-spline creation
-             */
-            virtual bool conversion_to_bsplines();
-
         private:
-
-            /**
-             * Given a node coordinate @param aCoordinates, the function returns a matrix of all sensitivities
-             *
-             * @param aNodeIndex Node index
-             * @param aCoordinates Vector of coordinate values
-             * @param aSensitivity Matrix of sensitivities
-             */
-            virtual void evaluate_all_sensitivities(
-                    uint                  aNodeIndex,
-                    const Matrix<DDRMat>& aCoordinates,
-                    Matrix<DDRMat>&       aSensitivities) = 0;
 
             /**
              * Checks variable inputs and resizes the internal field variables based these inputs.

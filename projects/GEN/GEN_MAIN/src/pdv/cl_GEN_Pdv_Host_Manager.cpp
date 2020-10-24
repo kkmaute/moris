@@ -1,6 +1,7 @@
 #include "cl_GEN_Pdv_Host_Manager.hpp"
+#include "cl_SOL_Matrix_Vector_Factory.hpp"
 #include "cl_Communication_Tools.hpp"
-#include "fn_sum.hpp"
+#include "fn_trans.hpp"
 
 namespace moris
 {
@@ -11,7 +12,6 @@ namespace moris
 
         Pdv_Host_Manager::Pdv_Host_Manager()
         {
-
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -22,10 +22,10 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        void Pdv_Host_Manager::set_num_advs(uint aNumADVs)
+        void Pdv_Host_Manager::set_owned_adv_ids(Matrix<DDSMat> aOwnedADVIds)
         {
-            mNumADVs = aNumADVs;
-            mNumADVsSet = true;
+            mOwnedADVIds = aOwnedADVIds;
+            mADVIdsSet = true;
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -37,7 +37,7 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        Matrix< IdMat > Pdv_Host_Manager::get_communication_table()
+        Matrix< IdMat > Pdv_Host_Manager::get_communication_table() // FIXME
         {
             return mCommTable;
         }
@@ -57,8 +57,7 @@ namespace moris
             mIntersectionNodes.resize(0);
             mOwnedPdvLocalToGlobalMap.resize(0, 0);
             mOwnedAndSharedPdvLocalToGlobalMap.resize(0, 0);
-			
-	            		mNumOwnedPdvs = 0;
+            mNumOwnedPdvs = 0;
             mNumOwnedAndSharedPdvs = 0;
         }
 
@@ -66,7 +65,7 @@ namespace moris
 
         void Pdv_Host_Manager::get_ip_dv_types_for_set(const moris::moris_index aIPMeshSetIndex, Cell<Cell<PDV_Type>>& aPdvTypes)
         {
-            if (mIpPdvTypes.size() > 0)
+            if (mIpPdvTypes.size() > 0) // FIXME
             {
                 aPdvTypes = mIpPdvTypes(aIPMeshSetIndex);
             }
@@ -76,7 +75,7 @@ namespace moris
 
         void Pdv_Host_Manager::get_ig_dv_types_for_set(const moris::moris_index aIGMeshSetIndex, Cell<Cell<PDV_Type>>& aPdvTypes)
         {
-            if (mIgPdvTypes.size() > 0)
+            if (mIgPdvTypes.size() > 0) // FIXME
             {
                 aPdvTypes = mIgPdvTypes(aIGMeshSetIndex);
             }
@@ -86,7 +85,7 @@ namespace moris
 
         void Pdv_Host_Manager::get_ip_unique_dv_types_for_set(const moris_index aIPMeshSetIndex, Cell<PDV_Type>& aPdvTypes)
         {
-            if (mUniqueIpPdvTypes.size() > 0)
+            if (mUniqueIpPdvTypes.size() > 0) // FIXME
             {
                 aPdvTypes =  mUniqueIpPdvTypes(aIPMeshSetIndex);
             }
@@ -96,7 +95,7 @@ namespace moris
 
         void Pdv_Host_Manager::get_ig_unique_dv_types_for_set(const moris::moris_index aIGMeshSetIndex, Cell<PDV_Type>& aPdvTypes)
         {
-            if (mUniqueIgPdvTypes.size() > 0)
+            if (mUniqueIgPdvTypes.size() > 0) // FIXME
             {
                 aPdvTypes =  mUniqueIgPdvTypes(aIGMeshSetIndex);
             }
@@ -464,14 +463,6 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        void Pdv_Host_Manager::set_num_integration_nodes(uint aNumNodes)
-        {
-            // FIXME check that this is done
-            mIntersectionNodes.resize(aNumNodes, nullptr);
-        }
-
-        //--------------------------------------------------------------------------------------------------------------
-
         void Pdv_Host_Manager::set_requested_interpolation_pdv_types(Cell<PDV_Type> aPdvTypes)
         {
             mRequestedIpPdvTypes = aPdvTypes;
@@ -493,60 +484,131 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        void Pdv_Host_Manager::create_interpolation_pdv(uint aNodeIndex, PDV_Type aPdvType, std::shared_ptr<Property> aPropertyPointer)
+        void Pdv_Host_Manager::create_interpolation_pdv(uint aNodeIndex, PDV_Type aPdvType, std::shared_ptr<Property> aProperty)
         {
-            mIpPdvHosts(aNodeIndex)->create_pdv(aPdvType, aPropertyPointer);
+            mIpPdvHosts(aNodeIndex)->create_pdv(aPdvType, aProperty);
         }
 
         //--------------------------------------------------------------------------------------------------------------
 
-        Matrix<DDRMat> Pdv_Host_Manager::compute_diqi_dadv()
+        Matrix<DDRMat> Pdv_Host_Manager::compute_diqi_dadv(const Matrix<DDSMat>& aFullADVIds)
         {
-            return this->get_dQIdp() * this->compute_dpdv_dadv();
+            // Check for ADV IDs
+            MORIS_ERROR(mADVIdsSet, "PDV Host Manager must have ADV IDs set before computing sensitivities.");
+            
+            // Get dIQI/dPDV and dPDV/dADV
+            sol::Dist_Vector* tdIQIdPDV = this->get_dQIdp();
+            sol::Dist_Matrix* tdPDVdADV = this->compute_dpdv_dadv();
+
+            // Create factory for resulting distributed vector
+            sol::Matrix_Vector_Factory tDistributedFactory;
+
+            // Create maps
+            std::shared_ptr<sol::Dist_Map> tOwnedADVMap = tDistributedFactory.create_map(mOwnedADVIds);
+            std::shared_ptr<sol::Dist_Map> tFullADVMap = tDistributedFactory.create_map(aFullADVIds);
+
+            // Create vectors
+            sint tNumIQIs = tdIQIdPDV->get_num_vectors();
+            sol::Dist_Vector* tdIQIdADV = tDistributedFactory.create_vector(tOwnedADVMap, tNumIQIs);
+            sol::Dist_Vector* tFulldIQIdADV = tDistributedFactory.create_vector(tFullADVMap, tNumIQIs);
+            
+            // Matrix/vector product
+            tdPDVdADV->mat_vec_product(*tdIQIdPDV, *tdIQIdADV, true);
+
+            // Import ADVs
+            tFulldIQIdADV->import_local_to_global(*tdIQIdADV);
+            
+            // Extract values
+            Matrix<DDRMat> tFullSensitivity(0, 0);
+            tFulldIQIdADV->extract_copy(tFullSensitivity);
+            tFullSensitivity = trans(tFullSensitivity);
+            
+            return tFullSensitivity;
         }
 
         //--------------------------------------------------------------------------------------------------------------
 
-        Matrix<DDRMat> Pdv_Host_Manager::compute_dpdv_dadv()
+        sol::Dist_Matrix* Pdv_Host_Manager::compute_dpdv_dadv()
         {
-            // Check for ADVs
-            MORIS_ERROR(mNumADVsSet, "PDV Host Manager must have the number of ADVs set before computing sensitivities.");
-			
-            // Total matrix dpdv/dadv
-            Matrix<DDRMat> tTotalAdvSensitivities(mNumOwnedPdvs, mNumADVs, 0.0);
+            // Create factory for distributed matrix
+            sol::Matrix_Vector_Factory tDistributedFactory;
 
-            // Loop over PDV hosts
-            for (uint tPdvHostIndex = 0; tPdvHostIndex < mIpPdvHosts.size(); tPdvHostIndex++)
-            {
-                // Get sensitivities
-                Matrix<DDRMat> tHostAdvSensitivities(0, 0);
-                mIpPdvHosts(tPdvHostIndex)->get_all_sensitivities(tHostAdvSensitivities);
-                const Matrix<DDUMat>& tHostPdvIndices = mIpPdvHosts(tPdvHostIndex)->get_all_global_indices();
+            // Create row and column maps
+            std::shared_ptr<sol::Dist_Map> tOwnedADVMap = tDistributedFactory.create_map(mOwnedADVIds);
+            std::shared_ptr<sol::Dist_Map> tOwnedPDVMap = tDistributedFactory.create_map(mOwnedPdvLocalToGlobalMap);
 
-                // Add to total matrix
-                for (uint tRowIndex = 0; tRowIndex < tHostAdvSensitivities.n_rows(); tRowIndex++)
-                {
-                    tTotalAdvSensitivities.set_row(tHostPdvIndices(tRowIndex), tHostAdvSensitivities.get_row(tRowIndex));
-                }
-            }
-            for (uint tIntersectionIndex = 0; tIntersectionIndex < mIntersectionNodes.size(); tIntersectionIndex++)
+            // Create vector
+            sol::Dist_Matrix* tdPDVdADV = tDistributedFactory.create_matrix(tOwnedPDVMap, tOwnedADVMap);
+
+            // Loop of interpolation PDV hosts
+            for (uint tPDVHostIndex = 0; tPDVHostIndex < mIpPdvHosts.size(); tPDVHostIndex++)
             {
-                if (mIntersectionNodes(tIntersectionIndex))
+                // Get number of PDVs
+                uint tNumPDVsOnHost = mIpPdvHosts(tPDVHostIndex)->get_num_pdvs();
+
+                // Assemble sensitivities
+                for (uint tPDVIndex = 0; tPDVIndex < tNumPDVsOnHost; tPDVIndex++)
                 {
                     // Get sensitivities
-                    Matrix<DDRMat> tHostAdvSensitivities(0, 0);
-                    mIntersectionNodes(tIntersectionIndex)->get_all_sensitivities(tHostAdvSensitivities);
-                    uint tStartingGlobalIndex = mIntersectionNodes(tIntersectionIndex)->get_starting_pdv_id();
+                    Matrix<DDRMat> tHostADVSensitivities = mIpPdvHosts(tPDVHostIndex)->get_sensitivities(tPDVIndex);
 
-                    // Add to total matrix
-                    for (uint tRowIndex = 0; tRowIndex < tHostAdvSensitivities.n_rows(); tRowIndex++)
-                    {
-                        tTotalAdvSensitivities.set_row(tStartingGlobalIndex + tRowIndex, tHostAdvSensitivities.get_row(tRowIndex));
-                    }
+                    // Get PDV/ADV IDs
+                    moris_id tPDVID = mIpPdvHosts(tPDVHostIndex)->get_pdv_id(tPDVIndex);
+                    Matrix<DDSMat> tADVIds = mIpPdvHosts(tPDVHostIndex)->get_determining_adv_ids(tPDVIndex);
+
+                    // Fill matrix
+                    tdPDVdADV->insert_values({{tPDVID}}, tADVIds, tHostADVSensitivities);
                 }
             }
+
+            // Loop over intersection nodes for inserting
+            for (uint tIntersectionIndex = 0; tIntersectionIndex < mIntersectionNodes.size(); tIntersectionIndex++)
+            {
+                if (mIntersectionNodes(tIntersectionIndex) and mIntersectionNodes(tIntersectionIndex)->get_vertex_owner() == par_rank())
+                {
+                    // Get starting ID and number of coordinates
+                    uint tStartingGlobalIndex = mIntersectionNodes(tIntersectionIndex)->get_starting_pdv_id();
+                    uint tNumCoordinates = mIntersectionNodes(tIntersectionIndex)->get_num_pdvs();
+
+                    // Get PDV IDs
+                    Matrix<DDSMat> tPDVSensitivityIDs(tNumCoordinates, 1);
+                    for (uint tCoordinateIndex = 0; tCoordinateIndex < tNumCoordinates; tCoordinateIndex++)
+                    {
+                        tPDVSensitivityIDs(tCoordinateIndex) = tStartingGlobalIndex + tCoordinateIndex;
+                    }
+
+                    // Get determining ADV IDs
+                    Matrix<DDSMat> tFirstParentDeterminingADVIds =
+                            mIntersectionNodes(tIntersectionIndex)->get_first_parent_determining_adv_ids();
+                    Matrix<DDSMat> tSecondParentDeterminingADVIds =
+                            mIntersectionNodes(tIntersectionIndex)->get_second_parent_determining_adv_ids();
+
+                    // Insert new zero values into matrix
+                    tdPDVdADV->insert_values(
+                            tPDVSensitivityIDs,
+                            tFirstParentDeterminingADVIds,
+                            Matrix<DDRMat>(tNumCoordinates, tFirstParentDeterminingADVIds.length(), 0.0));
+                    tdPDVdADV->insert_values(
+                            tPDVSensitivityIDs,
+                            tSecondParentDeterminingADVIds,
+                            Matrix<DDRMat>(tNumCoordinates, tSecondParentDeterminingADVIds.length(), 0.0));
+
+                    // Sum into matrix values
+                    tdPDVdADV->sum_into_values(
+                            tPDVSensitivityIDs,
+                            tFirstParentDeterminingADVIds,
+                            mIntersectionNodes(tIntersectionIndex)->get_first_parent_sensitivities());
+                    tdPDVdADV->sum_into_values(
+                            tPDVSensitivityIDs,
+                            tSecondParentDeterminingADVIds,
+                            mIntersectionNodes(tIntersectionIndex)->get_second_parent_sensitivities());
+                }
+            }
+
+            // Global assembly
+            tdPDVdADV->matrix_global_assembly();
 			
-            return tTotalAdvSensitivities;
+            return tdPDVdADV;
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -642,7 +704,7 @@ namespace moris
             tMaxDvTypeEnumNumber = tMaxDvTypeEnumNumber + 1;
 
             // Set size of mapping matrix
-            mPdvTypeMap       .set_size( tMaxDvTypeEnumNumber, 1, -1 );
+            mPdvTypeMap.set_size( tMaxDvTypeEnumNumber, 1, -1 );
 
             // Loop over all pdv types to create the mapping matrix
             for ( moris::uint Ii = 0; Ii < tNumUniquePdvTypes; Ii++ )
@@ -757,12 +819,7 @@ namespace moris
                         if ( mIpPdvHosts( tLocalPdvInd )->get_pdv_exists( tPdvType )  )
                         {
 							MORIS_ERROR(false," add the follwing lines");
-//                            //FIXME crete pdv
-//                            mIpPdvHosts( tLocalPdvInd ) = new Adof();
-//                            mIpPdvHosts( tLocalPdvInd )->set_adof_owning_processor( par_rank() );
-//
-//                            // Set external pdv index. Used for HMR ordering
-//                            mIpPdvHosts( tLocalPdvInd )->set_adof_external_ind( tLocalPdvInd );
+                            // FIXME create pdv
                         }
                     }
                 }
@@ -830,6 +887,7 @@ namespace moris
 
             return tOwnedPdvsOffsetList( par_rank(), 0);
         }
+
         //--------------------------------------------------------------------------------------------------------------
 
         void Pdv_Host_Manager::set_owned_pdv_ids( uint aPdvOffset )
@@ -837,8 +895,7 @@ namespace moris
             moris::uint tOwnedIdCounter = aPdvOffset;
 
             tOwnedIdCounter = this->set_owned_interpolation_pdv_ids( tOwnedIdCounter );
-
-            tOwnedIdCounter = this->set_owned_intersection_node_pdv_ids( tOwnedIdCounter );
+            this->set_owned_intersection_node_pdv_ids( tOwnedIdCounter );
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -895,7 +952,6 @@ namespace moris
         void Pdv_Host_Manager::communicate_shared_pdv_ids()
         {
             this->communicate_shared_interpolation_pdv_ids();
-
             this->communicate_shared_intersection_node_pdv_ids();
         }
 
@@ -1055,7 +1111,7 @@ namespace moris
                     }
                 }
 
-                if( tListSharedPdvIds.numel() != 0 )
+                if ( tListSharedPdvIds.numel() != 0 )
                 {
                     MORIS_ASSERT( tListSharedPdvIds.max() != MORIS_UINT_MAX,
                             "Pdv_Host_Manager::communicate_shared_interpolation_pdv_ids(), communicated Ids not set correctly");
@@ -1318,8 +1374,8 @@ namespace moris
 
             this->build_local_to_global_maps();
         }
+
+        //--------------------------------------------------------------------------------------------------------------
+
     }
-
-
-    //--------------------------------------------------------------------------------------------------------------
 }

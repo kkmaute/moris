@@ -7,7 +7,7 @@
 #ifndef SRC_DISTLINALG_CL_PRECONDITIONER_PETSC_HPP_
 #define SRC_DISTLINALG_CL_PRECONDITIONER_PETSC_HPP_
 
-//#include "core.hpp"
+#include <memory>
 //#include "cl_DLA_Linear_Solver_Algorithm.hpp"
 //#include "cl_VectorPETSc.hpp"
 //#include "cl_MatrixPETSc.hpp"
@@ -37,7 +37,7 @@ class Preconditioner_PETSc
         Linear_Solver_PETSc * mLinearSolverAlgoritm;
 
         sol::Dist_Matrix   * mPreconMat = nullptr;
-        sol::Dist_Map      * mMapFree= nullptr;
+        std::shared_ptr<sol::Dist_Map> mMapFree = nullptr;
 
     protected:
 

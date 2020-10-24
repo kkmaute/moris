@@ -25,338 +25,331 @@ namespace moris
     {
         class Design_Variable_Interface_Proxy : public Design_Variable_Interface
         {
-            private:
-                Cell< Cell< enum PDV_Type >>     mDvTypes;
-                Cell< enum PDV_Type >            mDvTypesUnique;
-                moris::Matrix< DDRMat >        mDvValues;
-                moris::Matrix< DDSMat >        mIsActiveDv;
-                Cell< moris::Matrix< IdMat > > mDvIds;
-                moris::Matrix< DDSMat >        mMap;
-                moris::Matrix< DDUMat >        mConstraintDofs;
-                moris::map< PDV_Type, sint > mDvToIndexMap;
+        private:
+            Cell< Cell< enum PDV_Type >>     mDvTypes;
+            Cell< enum PDV_Type >            mDvTypesUnique;
+            moris::Matrix< DDRMat >        mDvValues;
+            moris::Matrix< DDSMat >        mIsActiveDv;
+            Cell< moris::Matrix< IdMat > > mDvIds;
+            moris::Matrix< DDSMat >        mMap;
+            moris::Matrix< DDUMat >        mConstraintDofs;
+            moris::map< PDV_Type, sint > mDvToIndexMap;
 
-            public :
-                Design_Variable_Interface_Proxy()
+        public :
+            Design_Variable_Interface_Proxy()
             {
-                    mDvTypes.resize( 2 );
-                    mDvTypes( 0 ).resize( 2 );     mDvTypes( 0 )( 0 ) = PDV_Type::X_COORDINATE;   mDvTypes( 0 )( 1 ) = PDV_Type::Y_COORDINATE;
-                    mDvTypes( 1 ).resize( 1 );     mDvTypes( 1 )( 0 ) = PDV_Type::DENSITY;
+                mDvTypes.resize( 2 );
+                mDvTypes( 0 ).resize( 2 );     mDvTypes( 0 )( 0 ) = PDV_Type::X_COORDINATE;   mDvTypes( 0 )( 1 ) = PDV_Type::Y_COORDINATE;
+                mDvTypes( 1 ).resize( 1 );     mDvTypes( 1 )( 0 ) = PDV_Type::DENSITY;
 
-                    mDvTypesUnique.resize( 3 );
-                    mDvTypesUnique = { PDV_Type::X_COORDINATE, PDV_Type::Y_COORDINATE, PDV_Type::DENSITY };
+                mDvTypesUnique.resize( 3 );
+                mDvTypesUnique = { PDV_Type::X_COORDINATE, PDV_Type::Y_COORDINATE, PDV_Type::DENSITY };
 
-                    mDvToIndexMap[ PDV_Type::X_COORDINATE ]   = 0;
-                    mDvToIndexMap[ PDV_Type::Y_COORDINATE ]   = 1;
-                    mDvToIndexMap[ PDV_Type::DENSITY ] = 2;
+                mDvToIndexMap[ PDV_Type::X_COORDINATE ]   = 0;
+                mDvToIndexMap[ PDV_Type::Y_COORDINATE ]   = 1;
+                mDvToIndexMap[ PDV_Type::DENSITY ] = 2;
 
-                    mDvValues.set_size( 6, 3 );
-                    mDvValues( 0, 0 ) = 0;      mDvValues( 0, 1 ) = 0;             mDvValues( 0, 2 ) = 2;
-                    mDvValues( 1, 0 ) = 1;      mDvValues( 1, 1 ) = 0;             mDvValues( 1, 2 ) = 3;
-                    mDvValues( 2, 0 ) = 1;      mDvValues( 2, 1 ) = 1;             mDvValues( 2, 2 ) = 1;
-                    mDvValues( 3, 0 ) = 0;      mDvValues( 3, 1 ) = 1;             mDvValues( 3, 2 ) = 5;
-                    mDvValues( 4, 0 ) = 0.5;    mDvValues( 4, 1 ) = 0;             mDvValues( 4, 2 ) = 0;
-                    mDvValues( 5, 0 ) = 0;      mDvValues( 5, 1 ) = 0.5;           mDvValues( 5, 2 ) = 0;
+                mDvValues.set_size( 6, 3 );
+                mDvValues( 0, 0 ) = 0;      mDvValues( 0, 1 ) = 0;             mDvValues( 0, 2 ) = 2;
+                mDvValues( 1, 0 ) = 1;      mDvValues( 1, 1 ) = 0;             mDvValues( 1, 2 ) = 3;
+                mDvValues( 2, 0 ) = 1;      mDvValues( 2, 1 ) = 1;             mDvValues( 2, 2 ) = 1;
+                mDvValues( 3, 0 ) = 0;      mDvValues( 3, 1 ) = 1;             mDvValues( 3, 2 ) = 5;
+                mDvValues( 4, 0 ) = 0.5;    mDvValues( 4, 1 ) = 0;             mDvValues( 4, 2 ) = 0;
+                mDvValues( 5, 0 ) = 0;      mDvValues( 5, 1 ) = 0.5;           mDvValues( 5, 2 ) = 0;
 
-                    mIsActiveDv.set_size( 6, 3 );
-                    mIsActiveDv( 0, 0 ) = 0;      mIsActiveDv( 0, 1 ) = 0;             mIsActiveDv( 0, 2 ) = 1;
-                    mIsActiveDv( 1, 0 ) = 0;      mIsActiveDv( 1, 1 ) = 0;             mIsActiveDv( 1, 2 ) = 1;
-                    mIsActiveDv( 2, 0 ) = 0;      mIsActiveDv( 2, 1 ) = 0;             mIsActiveDv( 2, 2 ) = 1;
-                    mIsActiveDv( 3, 0 ) = 0;      mIsActiveDv( 3, 1 ) = 0;             mIsActiveDv( 3, 2 ) = 1;
-                    mIsActiveDv( 4, 0 ) = 1;      mIsActiveDv( 4, 1 ) = 0;             mIsActiveDv( 4, 2 ) = 0;
-                    mIsActiveDv( 5, 0 ) = 0;      mIsActiveDv( 5, 1 ) = 1;             mIsActiveDv( 5, 2 ) = 0;
+                mIsActiveDv.set_size( 6, 3 );
+                mIsActiveDv( 0, 0 ) = 0;      mIsActiveDv( 0, 1 ) = 0;             mIsActiveDv( 0, 2 ) = 1;
+                mIsActiveDv( 1, 0 ) = 0;      mIsActiveDv( 1, 1 ) = 0;             mIsActiveDv( 1, 2 ) = 1;
+                mIsActiveDv( 2, 0 ) = 0;      mIsActiveDv( 2, 1 ) = 0;             mIsActiveDv( 2, 2 ) = 1;
+                mIsActiveDv( 3, 0 ) = 0;      mIsActiveDv( 3, 1 ) = 0;             mIsActiveDv( 3, 2 ) = 1;
+                mIsActiveDv( 4, 0 ) = 1;      mIsActiveDv( 4, 1 ) = 0;             mIsActiveDv( 4, 2 ) = 0;
+                mIsActiveDv( 5, 0 ) = 0;      mIsActiveDv( 5, 1 ) = 1;             mIsActiveDv( 5, 2 ) = 0;
 
-                    mDvIds.resize( 3 );
-                    for ( uint Ik = 0; Ik < mDvIds.size(); Ik++ )
-                    {
-                        mDvIds( Ik ).set_size( 6, 1 );
-                    }
+                mDvIds.resize( 3 );
+                for ( uint Ik = 0; Ik < mDvIds.size(); Ik++ )
+                {
+                    mDvIds( Ik ).set_size( 6, 1 );
+                }
 
-                    mDvIds( 0 )( 0 ) = 4;      mDvIds( 1 )( 0 ) = gNoID;  mDvIds( 2 )( 0 ) = gNoID;
-                    mDvIds( 0 )( 1 ) = 5;      mDvIds( 1 )( 1 ) = gNoID;  mDvIds( 2 )( 1 ) = gNoID;
-                    mDvIds( 0 )( 2 ) = 6;      mDvIds( 1 )( 2 ) = gNoID;  mDvIds( 2 )( 2 ) = gNoID;
-                    mDvIds( 0 )( 3 ) = 7;      mDvIds( 1 )( 3 ) = gNoID;  mDvIds( 2 )( 3 ) = gNoID;
-                    mDvIds( 0 )( 4 ) = gNoID;  mDvIds( 1 )( 4 ) = 0;      mDvIds( 2 )( 4 ) = 2;
-                    mDvIds( 0 )( 5 ) = gNoID;  mDvIds( 1 )( 5 ) = 1;      mDvIds( 2 )( 5 ) = 3;
+                mDvIds( 0 )( 0 ) = 4;      mDvIds( 1 )( 0 ) = gNoID;  mDvIds( 2 )( 0 ) = gNoID;
+                mDvIds( 0 )( 1 ) = 5;      mDvIds( 1 )( 1 ) = gNoID;  mDvIds( 2 )( 1 ) = gNoID;
+                mDvIds( 0 )( 2 ) = 6;      mDvIds( 1 )( 2 ) = gNoID;  mDvIds( 2 )( 2 ) = gNoID;
+                mDvIds( 0 )( 3 ) = 7;      mDvIds( 1 )( 3 ) = gNoID;  mDvIds( 2 )( 3 ) = gNoID;
+                mDvIds( 0 )( 4 ) = gNoID;  mDvIds( 1 )( 4 ) = 0;      mDvIds( 2 )( 4 ) = 2;
+                mDvIds( 0 )( 5 ) = gNoID;  mDvIds( 1 )( 5 ) = 1;      mDvIds( 2 )( 5 ) = 3;
 
-                    mMap.set_size( 8, 1 );
-                    mMap( 0 ) = 0;
-                    mMap( 1 ) = 1;
-                    mMap( 2 ) = 2;
-                    mMap( 3 ) = 3;
-                    mMap( 4 ) = 4;
-                    mMap( 5 ) = 5;
-                    mMap( 6 ) = 6;
-                    mMap( 7 ) = 7;
+                mMap.set_size( 8, 1 );
+                mMap( 0 ) = 0;
+                mMap( 1 ) = 1;
+                mMap( 2 ) = 2;
+                mMap( 3 ) = 3;
+                mMap( 4 ) = 4;
+                mMap( 5 ) = 5;
+                mMap( 6 ) = 6;
+                mMap( 7 ) = 7;
 
-
-                    //        // create map object
-                    //        Matrix_Vector_Factory tMatFactory( MapType::Epetra );
-                    //
-                    //        mVectorMap = tMatFactory.create_map( this->get_my_local_global_map(), mConstraintDofs );
-                    //
-                    //        mVector = tMatFactory.create_vector( nullptr, mVectorMap, VectorType::FREE );
             }
 
-                // ----------------------------------------------------------------------------------------------
+            // ----------------------------------------------------------------------------------------------
 
-                ~Design_Variable_Interface_Proxy(){};
+            ~Design_Variable_Interface_Proxy(){};
 
-                //------------------------------------------------------------------------------
+            //------------------------------------------------------------------------------
 
-                void get_ip_unique_dv_types_for_set( const moris::moris_index    aIntegrationMeshSetIndex,
-                        Cell< enum PDV_Type > & aDvTypes )
+            void get_ip_unique_dv_types_for_set( const moris::moris_index    aIntegrationMeshSetIndex,
+                    Cell< enum PDV_Type > & aDvTypes )
+            {
+                aDvTypes = { PDV_Type::DENSITY };
+            };
+
+            //------------------------------------------------------------------------------
+
+            void get_ig_unique_dv_types_for_set( const moris::moris_index    aIntegrationMeshSetIndex,
+                    Cell< enum PDV_Type > & aDvTypes )
+            {
+                aDvTypes = { PDV_Type::X_COORDINATE, PDV_Type::Y_COORDINATE };
+            };
+
+            //------------------------------------------------------------------------------
+
+            void get_ip_dv_types_for_set( const moris::moris_index          aIntegrationMeshSetIndex,
+                    Cell< Cell< enum PDV_Type >> & aDvTypes )
+            {
+                aDvTypes = {{ PDV_Type::DENSITY }};
+            };
+
+            //------------------------------------------------------------------------------
+
+            void get_ig_dv_types_for_set( const moris::moris_index          aIntegrationMeshSetIndex,
+                    Cell< Cell< enum PDV_Type >> & aDvTypes )
+            {
+                aDvTypes = {{ PDV_Type::X_COORDINATE, PDV_Type::Y_COORDINATE }};
+            };
+            //------------------------------------------------------------------------------
+
+            void get_ip_pdv_value( const moris::Matrix< IndexMat >      & aNodeIndices,
+                    const Cell< enum PDV_Type >            & aDvTypes,
+                    Cell<moris::Matrix< DDRMat > > & aDvValues,
+                    Cell<moris::Matrix< DDSMat > > & aIsActiveDv )
+            {
+                aIsActiveDv.resize( aDvTypes.size() );
+
+                for ( uint Ik = 0; Ik < aDvTypes.size(); Ik++ )
                 {
-                    aDvTypes = { PDV_Type::DENSITY };
-                };
+                    aIsActiveDv(Ik).set_size( aNodeIndices.numel(), 1, MORIS_SINT_MAX );
 
-                //------------------------------------------------------------------------------
+                    sint tIndex = mDvToIndexMap.find( aDvTypes (Ik));
 
-                void get_ig_unique_dv_types_for_set( const moris::moris_index    aIntegrationMeshSetIndex,
-                        Cell< enum PDV_Type > & aDvTypes )
-                {
-                    aDvTypes = { PDV_Type::X_COORDINATE, PDV_Type::Y_COORDINATE };
-                };
-
-                //------------------------------------------------------------------------------
-
-                void get_ip_dv_types_for_set( const moris::moris_index          aIntegrationMeshSetIndex,
-                        Cell< Cell< enum PDV_Type >> & aDvTypes )
-                {
-                    aDvTypes = {{ PDV_Type::DENSITY }};
-                };
-
-                //------------------------------------------------------------------------------
-
-                void get_ig_dv_types_for_set( const moris::moris_index          aIntegrationMeshSetIndex,
-                        Cell< Cell< enum PDV_Type >> & aDvTypes )
-                {
-                    aDvTypes = {{ PDV_Type::X_COORDINATE, PDV_Type::Y_COORDINATE }};
-                };
-                //------------------------------------------------------------------------------
-
-                void get_ip_pdv_value( const moris::Matrix< IndexMat >      & aNodeIndices,
-                        const Cell< enum PDV_Type >            & aDvTypes,
-                        Cell<moris::Matrix< DDRMat > > & aDvValues,
-                        Cell<moris::Matrix< DDSMat > > & aIsActiveDv )
-                {
-                    aIsActiveDv.resize( aDvTypes.size() );
-
-                    for ( uint Ik = 0; Ik < aDvTypes.size(); Ik++ )
+                    for ( uint Ii = 0; Ii < aNodeIndices.numel(); Ii++ )
                     {
-                        aIsActiveDv(Ik).set_size( aNodeIndices.numel(), 1, MORIS_SINT_MAX );
+                        // get node index
+                        uint tNodeIndex = aNodeIndices( Ii );
 
-                        sint tIndex = mDvToIndexMap.find( aDvTypes (Ik));
-
-                        for ( uint Ii = 0; Ii < aNodeIndices.numel(); Ii++ )
+                        if( mIsActiveDv( tNodeIndex, tIndex ) == 1 )
                         {
-                            // get node index
-                            uint tNodeIndex = aNodeIndices( Ii );
+                            aDvValues( Ik )( Ii ) = mDvValues( tNodeIndex, tIndex );
+                        }
+                        aIsActiveDv( Ik )( Ii ) = mIsActiveDv( tNodeIndex, tIndex );
+                    }
+                }
+            }
 
-                            if( mIsActiveDv( tNodeIndex, tIndex ) == 1 )
-                            {
-                                aDvValues( Ik )( Ii ) = mDvValues( tNodeIndex, tIndex );
-                            }
-                            aIsActiveDv( Ik )( Ii ) = mIsActiveDv( tNodeIndex, tIndex );
+            //------------------------------------------------------------------------------
+
+            void get_ig_pdv_value(
+                    const moris::Matrix< IndexMat >  & aNodeIndices,
+                    const Cell< enum PDV_Type >      & aDvTypes,
+                    Cell<moris::Matrix< DDRMat > >   & aDvValues,
+                    Cell<moris::Matrix< DDSMat > >   & aIsActiveDv )
+            {
+                // Get the number of node indices requested
+                uint tNumIndices = aNodeIndices.length();
+
+                // Get the number of dv types requested
+                uint tNumTypes = aDvTypes.size();
+
+                // Set cell size
+                aIsActiveDv.resize( tNumTypes );
+                aDvValues.resize(tNumTypes);
+
+                for ( uint Ik = 0; Ik < tNumTypes; Ik++ )
+                {
+                    // Matrix size
+                    aDvValues(Ik).set_size(tNumIndices, 1, MORIS_REAL_MAX);
+                    aIsActiveDv(Ik).set_size(tNumIndices, 1, MORIS_SINT_MAX);
+
+                    sint tIndex = mDvToIndexMap.find( aDvTypes (Ik) );
+
+                    for ( uint Ii = 0; Ii < aNodeIndices.numel(); Ii++ )
+                    {
+                        // get node index
+                        uint tNodeIndex = aNodeIndices( Ii );
+
+                        if( mIsActiveDv( tNodeIndex, tIndex ) == 1 )
+                        {
+                            aDvValues( Ik )( Ii ) = mDvValues( tNodeIndex, tIndex );
+                        }
+
+                        aIsActiveDv( Ik )( Ii ) = mIsActiveDv( tNodeIndex, tIndex );
+                    }
+                }
+            }
+
+            //------------------------------------------------------------------------------
+
+            void get_ip_pdv_value(
+                    const moris::Matrix< IndexMat >  & aNodeIndices,
+                    const Cell< enum PDV_Type >      & aDvTypes,
+                    Cell<moris::Matrix< DDRMat > >   & aDvValues )
+            {
+                // Get the number of node indices requested
+                uint tNumIndices = aNodeIndices.length();
+
+                // Get the number of dv types requested
+                uint tNumTypes = aDvTypes.size();
+
+                // Set cell size
+                aDvValues.resize(tNumTypes);
+
+                for ( uint Ik = 0; Ik < aDvTypes.size(); Ik++ )
+                {
+                    // Set matrix size
+                    aDvValues(Ik).set_size( tNumIndices, 1, MORIS_REAL_MAX );
+
+                    sint tIndex = mDvToIndexMap.find( aDvTypes (Ik));
+
+                    for ( uint Ii = 0; Ii < aNodeIndices.numel(); Ii++ )
+                    {
+                        // get node index
+                        uint tNodeIndex = aNodeIndices( Ii );
+
+                        if( mIsActiveDv( tNodeIndex, tIndex ) == 1 )
+                        {
+                            aDvValues( Ik )( Ii ) = mDvValues( tNodeIndex, tIndex );
                         }
                     }
                 }
+            }
 
-                //------------------------------------------------------------------------------
+            //------------------------------------------------------------------------------
 
-                void get_ig_pdv_value(
-                        const moris::Matrix< IndexMat >  & aNodeIndices,
-                        const Cell< enum PDV_Type >      & aDvTypes,
-                        Cell<moris::Matrix< DDRMat > >   & aDvValues,
-                        Cell<moris::Matrix< DDSMat > >   & aIsActiveDv )
+            void get_ig_pdv_value(
+                    const moris::Matrix< IndexMat > & aNodeIndices,
+                    const Cell< enum PDV_Type >     & aDvTypes,
+                    Cell<moris::Matrix< DDRMat > >  & aDvValues )
+            {
+                // Get the number of node indices requested
+                uint tNumIndices = aNodeIndices.length();
+
+                // Get the number of dv types requested
+                uint tNumTypes = aDvTypes.size();
+
+                // Set cell size
+                aDvValues.resize(tNumTypes);
+
+                for ( uint Ik = 0; Ik < aDvTypes.size(); Ik++ )
                 {
-                    // Get the number of node indices requested
-                    uint tNumIndices = aNodeIndices.length();
+                    aDvValues(Ik).set_size( tNumIndices, 1, MORIS_REAL_MAX );
 
-                    // Get the number of dv types requested
-                    uint tNumTypes = aDvTypes.size();
+                    sint tIndex = mDvToIndexMap.find( aDvTypes (Ik));
 
-                    // Set cell size
-                    aIsActiveDv.resize( tNumTypes );
-                    aDvValues.resize(tNumTypes);
-
-                    for ( uint Ik = 0; Ik < tNumTypes; Ik++ )
+                    for ( uint Ii = 0; Ii < aNodeIndices.numel(); Ii++ )
                     {
-                        // Matrix size
-                        aDvValues(Ik).set_size(tNumIndices, 1, MORIS_REAL_MAX);
-                        aIsActiveDv(Ik).set_size(tNumIndices, 1, MORIS_SINT_MAX);
+                        // get node index
+                        uint tNodeIndex = aNodeIndices( Ii );
 
-                        sint tIndex = mDvToIndexMap.find( aDvTypes (Ik) );
-
-                        for ( uint Ii = 0; Ii < aNodeIndices.numel(); Ii++ )
+                        if( mIsActiveDv( tNodeIndex, tIndex ) == 1 )
                         {
-                            // get node index
-                            uint tNodeIndex = aNodeIndices( Ii );
-
-                            if( mIsActiveDv( tNodeIndex, tIndex ) == 1 )
-                            {
-                                aDvValues( Ik )( Ii ) = mDvValues( tNodeIndex, tIndex );
-                            }
-
-                            aIsActiveDv( Ik )( Ii ) = mIsActiveDv( tNodeIndex, tIndex );
+                            aDvValues( Ik )( Ii ) = mDvValues( tNodeIndex, tIndex );
                         }
                     }
                 }
+            }
 
-                //------------------------------------------------------------------------------
+            //------------------------------------------------------------------------------
 
-                void get_ip_pdv_value(
-                        const moris::Matrix< IndexMat >  & aNodeIndices,
-                        const Cell< enum PDV_Type >      & aDvTypes,
-                        Cell<moris::Matrix< DDRMat > >   & aDvValues )
+            void reshape_pdv_values(
+                    const moris::Cell< moris::Matrix< DDRMat > > & aPdvValues,
+                    moris::Matrix< DDRMat >                      & aReshapedPdvValues )
+            {
+                MORIS_ASSERT( aPdvValues.size() != 0,
+                        "GEN_Design_Variable_Interface::reshape_pdv_value - pdv value vector is empty.");
+
+                // get the number of rows and columns
+                uint tRows = aPdvValues( 0 ).numel();
+                uint tCols = aPdvValues.size();
+
+                // set size for the reshaped matrix
+                aReshapedPdvValues.set_size( tRows, tCols );
+
+                for( uint iCol = 0; iCol < tCols; iCol++ )
                 {
-                    // Get the number of node indices requested
-                    uint tNumIndices = aNodeIndices.length();
+                    aReshapedPdvValues( { 0, tRows - 1 }, { iCol, iCol } )
+                = aPdvValues( iCol ).matrix_data();
+                }
+            }
 
-                    // Get the number of dv types requested
-                    uint tNumTypes = aDvTypes.size();
+            //------------------------------------------------------------------------------
 
-                    // Set cell size
-                    aDvValues.resize(tNumTypes);
+            const moris::Matrix< DDSMat > & get_my_local_global_map()
+            {
+                return mMap;
+            }
 
-                    for ( uint Ik = 0; Ik < aDvTypes.size(); Ik++ )
+            //------------------------------------------------------------------------------
+
+            void get_ip_dv_ids_for_type_and_ind( const Matrix<IndexMat> & aNodeIndices,
+                    const Cell< enum PDV_Type >               & aDvTypes,
+                    Cell<moris::Matrix< IdMat > >     & aDvIds )
+            {
+                aDvIds.resize( aDvTypes.size() );
+
+                for ( uint Ik = 0; Ik < aDvTypes.size(); Ik++ )
+                {
+                    aDvIds( Ik ).set_size( aNodeIndices.length(), 1, MORIS_UINT_MAX );
+
+                    for ( uint Ii = 0; Ii < aNodeIndices.length(); Ii++ )
                     {
-                        // Set matrix size
-                        aDvValues(Ik).set_size( tNumIndices, 1, MORIS_REAL_MAX );
-
-                        sint tIndex = mDvToIndexMap.find( aDvTypes (Ik));
-
-                        for ( uint Ii = 0; Ii < aNodeIndices.numel(); Ii++ )
-                        {
-                            // get node index
-                            uint tNodeIndex = aNodeIndices( Ii );
-
-                            if( mIsActiveDv( tNodeIndex, tIndex ) == 1 )
-                            {
-                                aDvValues( Ik )( Ii ) = mDvValues( tNodeIndex, tIndex );
-                            }
-                        }
+                        aDvIds( Ik )( Ii ) = mDvIds( Ik )( aNodeIndices( Ii ) );
                     }
                 }
+            }
+            //------------------------------------------------------------------------------
 
-                //------------------------------------------------------------------------------
+            void get_ig_dv_ids_for_type_and_ind( const Matrix<IndexMat>               & aNodeIndices,
+                    const Cell< enum PDV_Type >          & aDvTypes,
+                    Cell< moris::Matrix< IdMat > > & aDvIds )
+            {
+                aDvIds.resize( aDvTypes.size() );
 
-                void get_ig_pdv_value(
-                        const moris::Matrix< IndexMat > & aNodeIndices,
-                        const Cell< enum PDV_Type >     & aDvTypes,
-                        Cell<moris::Matrix< DDRMat > >  & aDvValues )
+                for ( uint Ik = 0; Ik < aDvTypes.size(); Ik++ )
                 {
-                    // Get the number of node indices requested
-                    uint tNumIndices = aNodeIndices.length();
+                    aDvIds( Ik ).set_size( aNodeIndices.length(), 1, MORIS_UINT_MAX );
 
-                    // Get the number of dv types requested
-                    uint tNumTypes = aDvTypes.size();
-
-                    // Set cell size
-                    aDvValues.resize(tNumTypes);
-
-                    for ( uint Ik = 0; Ik < aDvTypes.size(); Ik++ )
+                    for ( uint Ii = 0; Ii < aNodeIndices.length(); Ii++ )
                     {
-                        aDvValues(Ik).set_size( tNumIndices, 1, MORIS_REAL_MAX );
-
-                        sint tIndex = mDvToIndexMap.find( aDvTypes (Ik));
-
-                        for ( uint Ii = 0; Ii < aNodeIndices.numel(); Ii++ )
-                        {
-                            // get node index
-                            uint tNodeIndex = aNodeIndices( Ii );
-
-                            if( mIsActiveDv( tNodeIndex, tIndex ) == 1 )
-                            {
-                                aDvValues( Ik )( Ii ) = mDvValues( tNodeIndex, tIndex );
-                            }
-                        }
+                        aDvIds( Ik )( Ii ) = mDvIds( Ik )( aNodeIndices( Ii ) );
                     }
                 }
+            }
 
-                //------------------------------------------------------------------------------
+            //------------------------------------------------------------------------------
 
-                void reshape_pdv_values(
-                        const moris::Cell< moris::Matrix< DDRMat > > & aPdvValues,
-                        moris::Matrix< DDRMat >                      & aReshapedPdvValues )
-                {
-                    MORIS_ASSERT( aPdvValues.size() != 0,
-                            "GEN_Design_Variable_Interface::reshape_pdv_value - pdv value vector is empty.");
+            void get_ip_requested_dv_types( Cell< enum PDV_Type > & aDvTypes )
+            {
+                aDvTypes = {{ PDV_Type::DENSITY }};
+            }
 
-                    // get the number of rows and columns
-                    uint tRows = aPdvValues( 0 ).numel();
-                    uint tCols = aPdvValues.size();
+            //------------------------------------------------------------------------------
 
-                    // set size for the reshaped matrix
-                    aReshapedPdvValues.set_size( tRows, tCols );
+            void get_ig_requested_dv_types( Cell< enum PDV_Type > & aDvTypes )
+            {
+                MORIS_ERROR( false, "Design_Variable_Interface_Proxy::get_ig_requested_dv_types() - not implemented in the child class" );
+            }
 
-                    for( uint iCol = 0; iCol < tCols; iCol++ )
-                    {
-                        aReshapedPdvValues( { 0, tRows - 1 }, { iCol, iCol } )
-                    = aPdvValues( iCol ).matrix_data();
-                    }
-                }
+            //------------------------------------------------------------------------------
 
-                //------------------------------------------------------------------------------
-
-                const moris::Matrix< DDSMat > & get_my_local_global_map()
-                {
-                    return mMap;
-                }
-
-                //------------------------------------------------------------------------------
-
-                void get_ip_dv_ids_for_type_and_ind( const Matrix<IndexMat> & aNodeIndices,
-                        const Cell< enum PDV_Type >               & aDvTypes,
-                        Cell<moris::Matrix< IdMat > >     & aDvIds )
-                {
-                    aDvIds.resize( aDvTypes.size() );
-
-                    for ( uint Ik = 0; Ik < aDvTypes.size(); Ik++ )
-                    {
-                        aDvIds( Ik ).set_size( aNodeIndices.length(), 1, MORIS_UINT_MAX );
-
-                        for ( uint Ii = 0; Ii < aNodeIndices.length(); Ii++ )
-                        {
-                            aDvIds( Ik )( Ii ) = mDvIds( Ik )( aNodeIndices( Ii ) );
-                        }
-                    }
-                }
-                //------------------------------------------------------------------------------
-
-                void get_ig_dv_ids_for_type_and_ind( const Matrix<IndexMat>               & aNodeIndices,
-                        const Cell< enum PDV_Type >          & aDvTypes,
-                        Cell< moris::Matrix< IdMat > > & aDvIds )
-                {
-                    aDvIds.resize( aDvTypes.size() );
-
-                    for ( uint Ik = 0; Ik < aDvTypes.size(); Ik++ )
-                    {
-                        aDvIds( Ik ).set_size( aNodeIndices.length(), 1, MORIS_UINT_MAX );
-
-                        for ( uint Ii = 0; Ii < aNodeIndices.length(); Ii++ )
-                        {
-                            aDvIds( Ik )( Ii ) = mDvIds( Ik )( aNodeIndices( Ii ) );
-                        }
-                    }
-                }
-
-                //------------------------------------------------------------------------------
-
-                void get_ip_requested_dv_types( Cell< enum PDV_Type > & aDvTypes )
-                {
-                    aDvTypes = {{ PDV_Type::DENSITY }};
-                }
-
-                //------------------------------------------------------------------------------
-
-                void get_ig_requested_dv_types( Cell< enum PDV_Type > & aDvTypes )
-                {
-                    MORIS_ERROR( false, "Design_Variable_Interface_Proxy::get_ig_requested_dv_types() - not implemented in the child class" );
-                }
-
-                //------------------------------------------------------------------------------
-
-                void set_requested_IQIs( const moris::Cell< std::string> & aRequestedIQINames );
+            void set_requested_IQIs( const moris::Cell< std::string> & aRequestedIQINames );
         };
     }
 }

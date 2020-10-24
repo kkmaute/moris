@@ -27,8 +27,8 @@
 using namespace moris;
 using namespace fem;
 
-TEST_CASE( "IWG_Compressible_NS_Velocity_Bulk_Ideal",
-        "[IWG_Compressible_NS_Velocity_Bulk_Ideal]" )
+TEST_CASE( "IWG_Compressible_NS_Temperature_Bulk_Ideal",
+        "[IWG_Compressible_NS_Temperature_Bulk_Ideal]" )
 {
     // define an epsilon environment
     real tEpsilon = 1.0E-6;
@@ -93,6 +93,11 @@ TEST_CASE( "IWG_Compressible_NS_Velocity_Bulk_Ideal",
     std::shared_ptr< fem::Property > tPropBodyForce2D = std::make_shared< fem::Property >();
     tPropBodyForce2D->set_val_function( tValFunc_BodyForce_2D );
 
+    // body heat load
+    std::shared_ptr< fem::Property > tPropHeatLoad = std::make_shared< fem::Property >();
+    tPropHeatLoad->set_parameters( { {{ -2.3 }} } );
+    tPropHeatLoad->set_val_function( tConstValFunc );
+
     // define constitutive model and assign properties
     fem::CM_Factory tCMFactory;
 
@@ -108,11 +113,12 @@ TEST_CASE( "IWG_Compressible_NS_Velocity_Bulk_Ideal",
     fem::IWG_Factory tIWGFactory;
 
     std::shared_ptr< fem::IWG > tIWG =
-            tIWGFactory.create_IWG( fem::IWG_Type::COMPRESSIBLE_NS_VELOCITY_BULK );
+            tIWGFactory.create_IWG( fem::IWG_Type::COMPRESSIBLE_NS_TEMPERATURE_BULK );
 
-    tIWG->set_residual_dof_type( tVelocityDof );
+    tIWG->set_residual_dof_type( tTempDof );
     tIWG->set_dof_type_list( tDofTypes, mtk::Master_Slave::MASTER );
     tIWG->set_constitutive_model( tCMMasterFluid, "Fluid" );
+    tIWG->set_property( tPropHeatLoad, "BodyHeatLoad" );
 
     //------------------------------------------------------------------------------
     // set a fem set pointer
@@ -404,8 +410,8 @@ TEST_CASE( "IWG_Compressible_NS_Velocity_Bulk_Ideal",
 
 //------------------------------------------------------------------------------
 
-TEST_CASE( "IWG_Compressible_NS_Velocity_Bulk_VdW",
-        "[IWG_Compressible_NS_Velocity_Bulk_Vdw]" )
+TEST_CASE( "IWG_Compressible_NS_Temperature_Bulk_VdW",
+        "[IWG_Compressible_NS_Temperature_Bulk_Vdw]" )
 {
     // define an epsilon environment
     real tEpsilon = 1.0E-6;
@@ -413,7 +419,7 @@ TEST_CASE( "IWG_Compressible_NS_Velocity_Bulk_VdW",
 
     // define a perturbation relative size
     real tPerturbation = 2.0E-4;
-    real tPerturbationCubic = 5.0E-4;
+    real tPerturbationCubic = 8.0E-4;
 
     // init geometry inputs
     //------------------------------------------------------------------------------
@@ -443,6 +449,11 @@ TEST_CASE( "IWG_Compressible_NS_Velocity_Bulk_VdW",
     // init IWG
     //------------------------------------------------------------------------------
     // create the properties
+
+    // body heat load
+    std::shared_ptr< fem::Property > tPropHeatLoad = std::make_shared< fem::Property >();
+    tPropHeatLoad->set_parameters( { {{ -2.3 }} } );
+    tPropHeatLoad->set_val_function( tConstValFunc );
 
     // body force
     std::shared_ptr< fem::Property > tPropBodyForce3D = std::make_shared< fem::Property >();
@@ -503,11 +514,12 @@ TEST_CASE( "IWG_Compressible_NS_Velocity_Bulk_VdW",
     fem::IWG_Factory tIWGFactory;
 
     std::shared_ptr< fem::IWG > tIWG =
-            tIWGFactory.create_IWG( fem::IWG_Type::COMPRESSIBLE_NS_VELOCITY_BULK );
+            tIWGFactory.create_IWG( fem::IWG_Type::COMPRESSIBLE_NS_TEMPERATURE_BULK );
 
-    tIWG->set_residual_dof_type( tVelocityDof );
+    tIWG->set_residual_dof_type( tTempDof );
     tIWG->set_dof_type_list( tDofTypes, mtk::Master_Slave::MASTER );
     tIWG->set_constitutive_model( tCMMasterFluid, "Fluid" );
+    tIWG->set_property( tPropHeatLoad, "BodyHeatLoad" );
 
     //------------------------------------------------------------------------------
     // set a fem set pointer

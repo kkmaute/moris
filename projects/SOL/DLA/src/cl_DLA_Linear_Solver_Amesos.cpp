@@ -124,8 +124,8 @@ moris::sint Linear_Solver_Amesos::solve_linear_system(
     mLinearSystem = aLinearSystem;
 
     mEpetraProblem.SetOperator( aLinearSystem->get_matrix()->get_matrix() );
-    mEpetraProblem.SetRHS( aLinearSystem->get_solver_RHS()->get_epetra_vector() );
-    mEpetraProblem.SetLHS( aLinearSystem->get_free_solver_LHS()->get_epetra_vector() );
+    mEpetraProblem.SetRHS( dynamic_cast<Vector_Epetra*>(aLinearSystem->get_solver_RHS())->get_epetra_vector() );
+    mEpetraProblem.SetLHS( dynamic_cast<Vector_Epetra*>(aLinearSystem->get_free_solver_LHS())->get_epetra_vector() );
 
     Amesos tAmesosFactory;
 

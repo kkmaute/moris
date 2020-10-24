@@ -27,7 +27,7 @@ namespace moris
          * Higher-level call for creating a cell of geometries, which also creates multigeometries.
          *
          * @param aGeometryParameterLists Parameter lists for creating geometry classes
-         * @param aADVs Reference to the initial ADV vector
+         * @param aOwnedADVs Distributed owned ADVs
          * @param aLibrary Pointer to library for loading user-defined functions
          * @return Pointers to created Geometry classes
          */

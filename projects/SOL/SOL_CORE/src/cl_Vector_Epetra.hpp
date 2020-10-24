@@ -33,9 +33,8 @@ namespace moris
     protected:
 
     public:
-        Vector_Epetra(){};
 
-        Vector_Epetra(       sol::Dist_Map   * aMapClass,
+        Vector_Epetra(       std::shared_ptr<sol::Dist_Map>  aMapClass,
                        const sint              aNumVectors );
 
         /** Destructor */
@@ -99,10 +98,6 @@ namespace moris
             return mValuesPtr;
         };
 
-        moris::real* get_values_pointer() const
-        {
-            return mValuesPtr;
-        };
     //----------------------------------------------------------------------------------------------
 
         void check_vector();

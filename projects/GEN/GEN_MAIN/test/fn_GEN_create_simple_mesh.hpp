@@ -8,12 +8,19 @@ namespace moris
     namespace ge
     {
         /**
-         * Creates a simple HMR interpolation mesh (2x2 elements) for GEN testing. There should be no cases where a more
-         * complex mesh is needed.
+         * Creates a simple HMR interpolation mesh for GEN testing.
          *
+         * @param aNumXElements Number of elements in the X direction
+         * @param aNumYElements Number of elements in the Y direction
+         * @param aLagrangeOrder Order of the lagrange mesh
+         * @param aBSplineOrder Order of the B-spline mesh
          * @return HMR mesh pointer
          */
-        mtk::Interpolation_Mesh* create_simple_mesh(uint aNumXElements, uint aNumYElements);
+        mtk::Interpolation_Mesh* create_simple_mesh(
+                uint aNumXElements,
+                uint aNumYElements,
+                uint aLagrangeOrder = 1,
+                uint aBSplineOrder = 1);
     }
 }
 

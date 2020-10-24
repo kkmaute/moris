@@ -14,7 +14,7 @@ using namespace moris;
 
 Sparse_Matrix_EpetraFECrs::Sparse_Matrix_EpetraFECrs(
         Solver_Interface     * aInput,
-        const sol::Dist_Map  * aMap )
+        const std::shared_ptr<sol::Dist_Map>  aMap )
 : sol::Dist_Matrix( aMap )
 {
     // Fixme implement get function for nonzero rows
@@ -32,8 +32,8 @@ Sparse_Matrix_EpetraFECrs::Sparse_Matrix_EpetraFECrs(
 }
 
 Sparse_Matrix_EpetraFECrs::Sparse_Matrix_EpetraFECrs(
-        const sol::Dist_Map * aRowMap,
-        const sol::Dist_Map * aColMap  )
+        const std::shared_ptr<sol::Dist_Map>  aRowMap,
+        const std::shared_ptr<sol::Dist_Map>  aColMap  )
 {
     // Fixme implement get function for nonzero rows
     //BSpline_Mesh_Base::get_number_of_basis_connected_to_basis( const moris_index aIndex )
@@ -82,18 +82,35 @@ void Sparse_Matrix_EpetraFECrs::fill_matrix(
 
 // ----------------------------------------------------------------------------------------------------------------------
 
-void Sparse_Matrix_EpetraFECrs::fill_matrix_row( 
-	    const moris::Matrix< DDRMat > & aA_val,
-        const moris::Matrix< DDSMat > & aRow,
-        const moris::Matrix< DDSMat > & aCols )
+void Sparse_Matrix_EpetraFECrs::insert_values(
+        const Matrix<DDSMat>& aRowIDs,
+        const Matrix<DDSMat>& aColumnIDs,
+        const Matrix<DDRMat>& aMatrixValues)
 {
     // insert values to matrix
     mEpetraMat->InsertGlobalValues(
-            aRow.numel(),
-            aRow.data(),
-			aCols.numel(),
-            aCols.data(),
-            aA_val.data(),
+            aRowIDs.numel(),
+            aRowIDs.data(),
+			aColumnIDs.numel(),
+            aColumnIDs.data(),
+            aMatrixValues.data(),
+            Epetra_FECrsMatrix::COLUMN_MAJOR);
+}
+
+// ----------------------------------------------------------------------------------------------------------------------
+
+void Sparse_Matrix_EpetraFECrs::sum_into_values(
+        const Matrix<DDSMat>& aRowIDs,
+        const Matrix<DDSMat>& aColumnIDs,
+        const Matrix<DDRMat>& aMatrixValues)
+{
+    // insert values to matrix
+    mEpetraMat->SumIntoGlobalValues(
+            aRowIDs.numel(),
+            aRowIDs.data(),
+            aColumnIDs.numel(),
+            aColumnIDs.data(),
+            aMatrixValues.data(),
             Epetra_FECrsMatrix::COLUMN_MAJOR);
 }
 
@@ -175,7 +192,7 @@ void Sparse_Matrix_EpetraFECrs::get_diagonal( sol::Dist_Vector & aDiagVec ) cons
     }
 
     // extract diagonal values into vector
-    int error = mEpetraMat->ExtractDiagonalCopy( ( Epetra_Vector & ) *(aDiagVec.get_epetra_vector()) );
+    int error = mEpetraMat->ExtractDiagonalCopy( *static_cast<Epetra_Vector*>(dynamic_cast<Vector_Epetra&>(aDiagVec).get_epetra_vector()) );
 
     if ( error != 0 )
     {
@@ -188,7 +205,7 @@ void Sparse_Matrix_EpetraFECrs::get_diagonal( sol::Dist_Vector & aDiagVec ) cons
 void Sparse_Matrix_EpetraFECrs::sparse_mat_left_scale( const sol::Dist_Vector & aScaleVector )
 {
     // scale matrix with vector from the left
-    int error = mEpetraMat->LeftScale( ( Epetra_Vector & ) *aScaleVector.get_epetra_vector() );
+    int error = mEpetraMat->LeftScale( *static_cast<Epetra_Vector*>( dynamic_cast<const Vector_Epetra&>(aScaleVector).get_epetra_vector() ) );
 
     if ( error != 0 )
     {
@@ -201,7 +218,7 @@ void Sparse_Matrix_EpetraFECrs::sparse_mat_left_scale( const sol::Dist_Vector & 
 void Sparse_Matrix_EpetraFECrs::sparse_mat_right_scale( const sol::Dist_Vector & aScaleVector )
 {
     // scale matrix with vector from the right
-    int error = mEpetraMat->RightScale( ( Epetra_Vector & ) *aScaleVector.get_epetra_vector() );
+    int error = mEpetraMat->RightScale( *static_cast<Epetra_Vector*>( dynamic_cast<const Vector_Epetra&>(aScaleVector).get_epetra_vector() ) );
 
     if ( error != 0 )
     {
@@ -220,7 +237,7 @@ void Sparse_Matrix_EpetraFECrs::replace_diagonal_values( const sol::Dist_Vector 
     }
 
     // replace diagonal matrix values with vector values
-    int error = mEpetraMat->ReplaceDiagonalValues( ( const Epetra_Vector & ) *(aDiagVec.get_epetra_vector()) );
+    int error = mEpetraMat->ReplaceDiagonalValues( *static_cast<Epetra_Vector*>( dynamic_cast<const Vector_Epetra&>(aDiagVec).get_epetra_vector() ) );
 
     if ( error != 0 )
     {
@@ -237,8 +254,8 @@ void Sparse_Matrix_EpetraFECrs::mat_vec_product(
 {
     mEpetraMat->Multiply(
             aUseTranspose,
-            *aInputVec.get_epetra_vector(),
-            *aResult.get_epetra_vector() );
+            *dynamic_cast<const Vector_Epetra&>(aInputVec).get_epetra_vector(),
+            *dynamic_cast<Vector_Epetra&>(aResult).get_epetra_vector() );
 }
 
 // ----------------------------------------------------------------------------------------------------------------------

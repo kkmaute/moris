@@ -4,7 +4,7 @@
  *  Created on: Dec 5, 2018
  *      Author: schmidt
  */
-#include "cl_VectorPETSc.hpp"
+#include "cl_Vector_PETSc.hpp"
 
 #include <petscviewerhdf5.h>
 
@@ -16,7 +16,7 @@ using namespace moris;
 
 Vector_PETSc::Vector_PETSc(
         moris::Solver_Interface * aInput,
-        moris::sol::Dist_Map    * aMap,
+        std::shared_ptr<sol::Dist_Map>  aMap,
         const sint                aNumVectors )
 : moris::sol::Dist_Vector( aMap )
 {
@@ -126,7 +126,7 @@ void Vector_PETSc::vec_plus_vec(
 
     PetscScalar tValueThis = aScaleThis;
 
-    VecAXPBY( mPetscVector, tValueA, tValueThis, aVecA.get_petsc_vector() );
+    VecAXPBY( mPetscVector, tValueA, tValueThis, dynamic_cast<Vector_PETSc&>(aVecA).get_petsc_vector() );
 }
 
 //-----------------------------------------------------------------------------
@@ -225,7 +225,7 @@ void Vector_PETSc::import_local_to_global( sol::Dist_Vector & aSourceVec )
     // FIXME change this to scatter thus that it works better in parallel
     PetscScalar tValueA = 1;
     PetscScalar tValueThis = 0;
-    VecAXPBY( mPetscVector, tValueA, tValueThis, aSourceVec.get_petsc_vector() );
+    VecAXPBY( mPetscVector, tValueA, tValueThis, dynamic_cast<Vector_PETSc&>(aSourceVec).get_petsc_vector() );
 }
 
 //-----------------------------------------------------------------------------
@@ -277,4 +277,12 @@ void Vector_PETSc::read_vector_from_HDF5( const char* aFilename )
     VecLoad( mPetscVector, tViewer );
 
     PetscViewerDestroy( &tViewer );
+}
+
+//-----------------------------------------------------------------------------
+
+moris::real* Vector_PETSc::get_values_pointer()
+{
+    MORIS_ERROR(false, "get_values_pointer() not implemented yet for a PETSc distributed vector.");
+    return nullptr;
 }

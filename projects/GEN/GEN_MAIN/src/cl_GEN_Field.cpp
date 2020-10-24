@@ -1,4 +1,6 @@
 #include "cl_GEN_Field.hpp"
+#include "cl_SOL_Matrix_Vector_Factory.hpp"
+#include "cl_SOL_Dist_Map.hpp"
 
 namespace moris
 {
@@ -8,17 +10,17 @@ namespace moris
         //--------------------------------------------------------------------------------------------------------------
 
         Field::Field(Matrix<DDRMat>& aADVs,
-                     Matrix<DDUMat> aFieldVariableIndices,
-                     Matrix<DDUMat> aADVIndices,
-                     Matrix<DDRMat> aConstantParameters,
-                     sint aNumRefinements,
-                     sint aRefinementFunctionIndex,
-                     sint aBSplineMeshIndex,
-                     real aBSplineLowerBound,
-                     real aBSplineUpperBound)
+                     Matrix<DDUMat>  aFieldVariableIndices,
+                     Matrix<DDUMat>  aADVIndices,
+                     Matrix<DDRMat>  aConstantParameters,
+                     sint            aNumRefinements,
+                     sint            aRefinementFunctionIndex,
+                     sint            aBSplineMeshIndex,
+                     real            aBSplineLowerBound,
+                     real            aBSplineUpperBound)
                 : mFieldVariables(aFieldVariableIndices.length() + aConstantParameters.length()),
                   mConstantParameters(aConstantParameters),
-                  mADVDependencies(aFieldVariableIndices.length() + aConstantParameters.length(), 1, -1),
+                  mDeterminingADVIds(aFieldVariableIndices.length() + aConstantParameters.length(), 1, -1),
                   mDependsOnADVs(aADVIndices.length()),
                   mNumADVs(aADVs.length()),
                   mNumRefinements(aNumRefinements),
@@ -44,17 +46,17 @@ namespace moris
         //--------------------------------------------------------------------------------------------------------------
 
         Field::Field(sol::Dist_Vector* aOwnedADVs,
-                     Matrix<DDUMat> aFieldVariableIndices,
-                     Matrix<DDUMat> aADVIndices,
-                     Matrix<DDRMat> aConstantParameters,
-                     sint aNumRefinements,
-                     sint aRefinementFunctionIndex,
-                     sint aBSplineMeshIndex,
-                     real aBSplineLowerBound,
-                     real aBSplineUpperBound)
+                     Matrix<DDUMat>    aFieldVariableIndices,
+                     Matrix<DDUMat>    aADVIndices,
+                     Matrix<DDRMat>    aConstantParameters,
+                     sint              aNumRefinements,
+                     sint              aRefinementFunctionIndex,
+                     sint              aBSplineMeshIndex,
+                     real              aBSplineLowerBound,
+                     real              aBSplineUpperBound)
                 : mFieldVariables(aFieldVariableIndices.length() + aConstantParameters.length()),
                   mConstantParameters(aConstantParameters),
-                  mADVDependencies(aFieldVariableIndices.length() + aConstantParameters.length(), 1, -1),
+                  mDeterminingADVIds(aFieldVariableIndices.length() + aConstantParameters.length(), 1, -1),
                   mDependsOnADVs(aADVIndices.length()),
                   mNumADVs(aOwnedADVs->vec_local_length()),
                   mNumRefinements(aNumRefinements),
@@ -78,69 +80,32 @@ namespace moris
         }
 
         //--------------------------------------------------------------------------------------------------------------
-        
-        Field::Field(Matrix<DDRMat>& aADVs,
-                     uint aStartingADVIndex,
-                     uint aNumFieldVariables,
-                     sint aNumRefinements,
-                     sint aRefinementFunctionIndex,
-                     sint aBSplineMeshIndex,
-                     real aBSplineLowerBound,
-                     real aBSplineUpperBound)
-                : mFieldVariables(aNumFieldVariables),
-                  mADVDependencies(aNumFieldVariables, 1),
-                  mDependsOnADVs(true),
-                  mNumADVs(aADVs.length()),
-                  mNumRefinements(aNumRefinements),
-                  mRefinementFunctionIndex(aRefinementFunctionIndex),
-                  mBSplineMeshIndex(aBSplineMeshIndex),
-                  mBSplineLowerBound(aBSplineLowerBound),
-                  mBSplineUpperBound(aBSplineUpperBound)
-        {
-            // Check for ADV size
-            MORIS_ERROR((aStartingADVIndex + aNumFieldVariables) <= aADVs.length(),
-                        "GEN field constructor with number of field variables given can only be called with an "
-                        "ADV vector that has already been resized to an adequate length.");
 
-            // Set variables from ADVs
-            for (uint tVariableIndex = 0; tVariableIndex < aNumFieldVariables; tVariableIndex++)
-            {
-                mFieldVariables(tVariableIndex) = &(aADVs(aStartingADVIndex + tVariableIndex));
-                mADVDependencies(tVariableIndex) = aStartingADVIndex + tVariableIndex;
-            }
-        }
-
-        //--------------------------------------------------------------------------------------------------------------
-
-        Field::Field(sol::Dist_Vector*     aOwnedADVs,
-                     const Matrix<DDSMat>& aOwnedADVIds,
-                     uint                  aOwnedADVIdsOffset,
-                     uint                  aNumFieldVariables,
+        Field::Field(const Matrix<DDSMat>& aSharedADVIds,
                      sint                  aNumRefinements,
                      sint                  aRefinementFunctionIndex,
                      sint                  aBSplineMeshIndex,
                      real                  aBSplineLowerBound,
                      real                  aBSplineUpperBound)
-                : mFieldVariables(aNumFieldVariables),
-                  mADVDependencies(aNumFieldVariables, 1),
+                : mFieldVariables(aSharedADVIds.length()),
+                  mDeterminingADVIds(aSharedADVIds),
                   mDependsOnADVs(true),
-                  mNumADVs(aOwnedADVs->vec_local_length()),
                   mNumRefinements(aNumRefinements),
                   mRefinementFunctionIndex(aRefinementFunctionIndex),
                   mBSplineMeshIndex(aBSplineMeshIndex),
                   mBSplineLowerBound(aBSplineLowerBound),
                   mBSplineUpperBound(aBSplineUpperBound)
         {
-            // Check for ADV size
-//            MORIS_ERROR((aStartingADVIndex + aNumFieldVariables) <= aOwnedADVs->vec_local_length(),
-//                        "GEN field constructor with number of field variables given can only be called with an "
-//                        "ADV distributed vector with adequate local length.");
+            // Create shared distributed vector
+            sol::Matrix_Vector_Factory tDistributedFactory;
+            std::shared_ptr<sol::Dist_Map> tSharedADVMap = tDistributedFactory.create_map(aSharedADVIds);
+            mSharedADVs = tDistributedFactory.create_vector(tSharedADVMap);
 
             // Set variables from ADVs
-            for (uint tVariableIndex = 0; tVariableIndex < aNumFieldVariables; tVariableIndex++)
+            uint tNumSharedADVs = aSharedADVIds.length();
+            for (uint tVariableIndex = 0; tVariableIndex < tNumSharedADVs; tVariableIndex++)
             {
-                mFieldVariables(tVariableIndex) = &(*aOwnedADVs)(aOwnedADVIds(tVariableIndex + aOwnedADVIdsOffset));
-                mADVDependencies(tVariableIndex) = tVariableIndex + aOwnedADVIdsOffset;
+                mFieldVariables(tVariableIndex) = &(*mSharedADVs)(aSharedADVIds(tVariableIndex));
             }
         }
 
@@ -154,7 +119,7 @@ namespace moris
                      real           aBSplineUpperBound)
                 : mFieldVariables(aConstantParameters.length()),
                   mConstantParameters(aConstantParameters),
-                  mADVDependencies(aConstantParameters.length(), 1, -1),
+                  mDeterminingADVIds(aConstantParameters.length(), 1, -1),
                   mDependsOnADVs(false),
                   mNumADVs(0),
                   mNumRefinements(aNumRefinements),
@@ -186,25 +151,12 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        void Field::evaluate_sensitivity(
-                uint                  aNodeIndex,
-                const Matrix<DDRMat>& aCoordinates,
-                Matrix<DDRMat>&       aSensitivities)
+        void Field::import_advs(sol::Dist_Vector* aOwnedADVs)
         {
-            // Resize sensitivities
-            aSensitivities.set_size(1, mNumADVs, 0.0);
-
-            // Evaluate all sensitivities
-            Matrix<DDRMat> tTempSensitivities;
-            this->evaluate_all_sensitivities(aNodeIndex, aCoordinates, tTempSensitivities);
-
-            // Return only what is needed
-            for (uint tSensitivityIndex = 0; tSensitivityIndex < mADVDependencies.length(); tSensitivityIndex++)
+            if (mSharedADVs)
             {
-                if (mADVDependencies(tSensitivityIndex) >= 0)
-                {
-                    aSensitivities(mADVDependencies(tSensitivityIndex)) = tTempSensitivities(tSensitivityIndex);
-                }
+                mSharedADVs->import_local_to_global(*aOwnedADVs);
+                mNumADVs = aOwnedADVs->vec_local_length();
             }
         }
 
@@ -218,6 +170,20 @@ namespace moris
 
         void Field::reset_child_nodes()
         {
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
+        bool Field::conversion_to_bsplines()
+        {
+            return (mBSplineMeshIndex >= 0);
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
+        Matrix<DDSMat> Field::get_determining_adv_ids(uint aNodeIndex, const Matrix<DDRMat>& aCoordinates)
+        {
+            return mDeterminingADVIds;
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -264,13 +230,6 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        bool Field::conversion_to_bsplines()
-        {
-            return (mBSplineMeshIndex >= 0);
-        }
-
-        //--------------------------------------------------------------------------------------------------------------
-
         void Field::assign_adv_dependencies(
                 Matrix<DDUMat>& aFieldVariableIndices,
                 Matrix<DDUMat>& aADVIndices)
@@ -282,7 +241,7 @@ namespace moris
             // Set ADV dependencies
             for (uint tADVFillIndex = 0; tADVFillIndex < aFieldVariableIndices.length(); tADVFillIndex++)
             {
-                mADVDependencies(aFieldVariableIndices(tADVFillIndex)) = aADVIndices(tADVFillIndex);
+                mDeterminingADVIds(aFieldVariableIndices(tADVFillIndex)) = aADVIndices(tADVFillIndex);
             }
         }
 

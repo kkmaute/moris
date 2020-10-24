@@ -233,8 +233,8 @@ TEST_CASE("Element_Time_Sideset","[INT],[Element_Time_Sideset]")
 
         MSI::MSI_Solver_Interface * tSolverInterface = tModel->get_solver_interface();
 
-        Matrix_Vector_Factory tMatFactory( sol::MapType::Epetra );
-        sol::Dist_Map * mVectorMap = tMatFactory.create_map( {{0},{1},{2},{3},{4},{5},{6},{7}}, {{}} );
+        sol::Matrix_Vector_Factory tMatFactory( sol::MapType::Epetra );
+        std::shared_ptr<sol::Dist_Map>  mVectorMap = tMatFactory.create_map( {{0},{1},{2},{3},{4},{5},{6},{7}}, {{}} );
         sol::Dist_Vector * mVector = tMatFactory.create_vector( nullptr, mVectorMap, 1 );
         sol::Dist_Vector * mPreviousVector = tMatFactory.create_vector( nullptr, mVectorMap, 1 );
 
@@ -508,8 +508,8 @@ TEST_CASE("Element_Time_Sideset_2","[INT],[Element_Time_Sideset_2]")
 
         MSI::MSI_Solver_Interface * tSolverInterface = tModel->get_solver_interface();
 
-        Matrix_Vector_Factory tMatFactory( sol::MapType::Epetra );
-        sol::Dist_Map * mVectorMap = tMatFactory.create_map( {{0},{1},{2},{3},{4},{5},{6},{7}}, {{}} );
+        sol::Matrix_Vector_Factory tMatFactory( sol::MapType::Epetra );
+        std::shared_ptr<sol::Dist_Map>  mVectorMap = tMatFactory.create_map( {{0},{1},{2},{3},{4},{5},{6},{7}}, {{}} );
         sol:: * mVector = tMatFactory.create_vector( nullptr, mVectorMap, 1 );
         sol::Dist_Vector * mPreviousVector = tMatFactory.create_vector( nullptr, mVectorMap, 1 );
 

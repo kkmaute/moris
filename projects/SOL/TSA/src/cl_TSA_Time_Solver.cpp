@@ -54,7 +54,7 @@ Time_Solver::Time_Solver( const enum TimeSolverType aTimeSolverType )
 Time_Solver::Time_Solver(
         const ParameterList         aParameterlist,
         sol::SOL_Warehouse        * aSolverWarehouse,
-        const enum TimeSolverType   aTimeSolverType )
+        const enum tsa::TimeSolverType   aTimeSolverType )
 : mParameterListTimeSolver( aParameterlist ),
   mSolverWarehouse( aSolverWarehouse ),
   mSolverInterface( mSolverWarehouse->get_solver_interface() ),
@@ -90,9 +90,6 @@ void Time_Solver::delete_pointers()
 {
     if( mIsMasterTimeSolver )
     {
-        delete mFullMap;
-        mFullMap = nullptr;
-
         for( auto tFullSolVec : mFullVector)
         {
             delete tFullSolVec;
@@ -319,7 +316,7 @@ void Time_Solver::solve()
     mSolverInterface->set_is_forward_analysis();
 
     // create map object
-    Matrix_Vector_Factory tMatFactory( mSolverWarehouse->get_tpl_type() );
+    sol::Matrix_Vector_Factory tMatFactory( mSolverWarehouse->get_tpl_type() );
 
     // build full overlapping map
     mFullMap = tMatFactory.create_map( mSolverInterface->get_my_local_global_overlapping_map() );
@@ -358,7 +355,7 @@ void Time_Solver::solve_sensitivity()
     mIsForwardSolve = false;
 
     // create map object
-    Matrix_Vector_Factory tMatFactory( mSolverWarehouse->get_tpl_type() );
+    sol::Matrix_Vector_Factory tMatFactory( mSolverWarehouse->get_tpl_type() );
 
     uint tNumRHMS = mSolverInterface->get_num_rhs();
 
@@ -403,9 +400,9 @@ void Time_Solver::initialize_sol_vec()
     if( tDofTypeAndValuePair.size() > 0 )
     {
         // create map object
-        Matrix_Vector_Factory tMatFactory( mSolverWarehouse->get_tpl_type() );
+        sol::Matrix_Vector_Factory tMatFactory( mSolverWarehouse->get_tpl_type() );
 
-        sol::Dist_Map * tFeeMap = tMatFactory.create_map( mSolverInterface->get_my_local_global_map() );
+        std::shared_ptr<sol::Dist_Map>  tFeeMap = tMatFactory.create_map( mSolverInterface->get_my_local_global_map() );
 
         uint tNumRHMS = mSolverInterface->get_num_rhs();
 
@@ -457,7 +454,6 @@ void Time_Solver::initialize_sol_vec()
         mFullVector( 1 )->import_local_to_global( *tFreeVector );
 
         delete( tFreeVector );
-        delete( tFeeMap );
     }
 }
 
@@ -479,7 +475,7 @@ void Time_Solver::prepare_sol_vec_for_next_time_step()
         uint tNumRHMS = mSolverInterface->get_num_rhs();
 
         // create map object
-        Matrix_Vector_Factory tMatFactory( mSolverWarehouse->get_tpl_type() );
+        sol::Matrix_Vector_Factory tMatFactory( mSolverWarehouse->get_tpl_type() );
 
         // full vector and prev full vector
         sol::Dist_Vector * tFullVector = tMatFactory.create_vector( mSolverInterface, mFullMap, tNumRHMS );

@@ -31,17 +31,47 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        real Discrete_Property::evaluate_field_value(uint aNodeIndex)
+        Discrete_Property::Discrete_Property(sol::Dist_Vector* aOwnedADVs,
+                                             Matrix<DDUMat>    aPropertyVariableIndices,
+                                             Matrix<DDUMat>    aADVIndices,
+                                             Matrix<DDRMat>    aConstantParameters,
+                                             sint              aNumRefinements,
+                                             sint              aRefinementFunctionIndex,
+                                             sint              aBSplineMeshIndex,
+                                             real              aBSplineLowerBound,
+                                             real              aBSplineUpperBound)
+                : Field(aOwnedADVs,
+                        aPropertyVariableIndices,
+                        aADVIndices,
+                        aConstantParameters,
+                        aNumRefinements,
+                        aRefinementFunctionIndex,
+                        aBSplineMeshIndex,
+                        aBSplineLowerBound,
+                        aBSplineUpperBound),
+                  Field_Discrete(aOwnedADVs->vec_local_length())
+        {
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
+        real Discrete_Property::get_field_value(uint aNodeIndex)
         {
             return *mFieldVariables(aNodeIndex);
         }
 
         //--------------------------------------------------------------------------------------------------------------
 
-        void Discrete_Property::evaluate_all_sensitivities(uint aNodeIndex, Matrix<DDRMat>& aSensitivities)
+        Matrix<DDRMat> Discrete_Property::get_field_sensitivities(uint aNodeIndex)
         {
-            aSensitivities.resize(1, mFieldVariables.size());
-            aSensitivities(aNodeIndex) = 1;
+            return {{1.0}};
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
+        Matrix<DDSMat> Discrete_Property::get_determining_adv_ids(uint aNodeIndex, const Matrix<DDRMat>& aCoordinates)
+        {
+            return {{(sint)aNodeIndex}};
         }
 
         //--------------------------------------------------------------------------------------------------------------

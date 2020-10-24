@@ -13,7 +13,7 @@ using namespace moris;
 //----------------------------------------------------------------------------------------------
 
 Vector_Epetra::Vector_Epetra(
-        sol::Dist_Map   * aMapClass,
+        std::shared_ptr<sol::Dist_Map>  aMapClass,
         const sint        aNumVectors ) : sol::Dist_Vector( aMapClass )
 {
     mNumVectors = aNumVectors;
@@ -93,7 +93,7 @@ void Vector_Epetra::vec_plus_vec(
     if ( mMap->get_epetra_map()->PointSameAs( *tMap ) )
     {
         //currently guessing Epetra update is smart enough to switch to replace if aScaleThis is 0.0
-        mEpetraVector->Update( aScaleA, *aVecA.get_epetra_vector(), aScaleThis );
+        mEpetraVector->Update( aScaleA, *dynamic_cast<Vector_Epetra&>(aVecA).get_epetra_vector(), aScaleThis );
         return;
     }
     else
@@ -138,7 +138,7 @@ void Vector_Epetra::import_local_to_global( sol::Dist_Vector & aSourceVec )
 
     if ( mMap->get_epetra_map()->PointSameAs( *tMap ) )
     {
-        mEpetraVector->Update( 1.0, *aSourceVec.get_epetra_vector(), 0.0 );
+        mEpetraVector->Update( 1.0, *dynamic_cast<Vector_Epetra&>(aSourceVec).get_epetra_vector(), 0.0 );
         //MORIS_ERROR( false, "Both vectors have the same map. Use vec_plus_vec() instead" );
     }
     else
@@ -149,7 +149,7 @@ void Vector_Epetra::import_local_to_global( sol::Dist_Vector & aSourceVec )
             mImporter = new Epetra_Import( *mMap->get_epetra_map(), *aSourceVec.get_map()->get_epetra_map() );
         }
 
-        int status = mEpetraVector->Import( *aSourceVec.get_epetra_vector(), *mImporter, Insert );
+        int status = mEpetraVector->Import( *dynamic_cast<Vector_Epetra&>(aSourceVec).get_epetra_vector(), *mImporter, Insert );
 
         if ( status!=0 )
         {

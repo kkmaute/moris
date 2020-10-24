@@ -5,6 +5,8 @@ namespace moris
     namespace ge
     {
 
+        //--------------------------------------------------------------------------------------------------------------
+
         Property::Property(Cell<std::shared_ptr<Property>> aPropertyDependencies)
                            : mPropertyDependencies(aPropertyDependencies)
         {
@@ -12,5 +14,5 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-    }   // end ge namespace
-}   // end moris namespace
+    }
+}

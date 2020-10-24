@@ -61,10 +61,10 @@ TEST_CASE("Epetra Map","[Solver Map],[DistLinAlg]")
         }
 
     // Build factory for map
-    Matrix_Vector_Factory      tMatFactory;
+    sol::Matrix_Vector_Factory      tMatFactory;
 
     // Build map
-    sol::Dist_Map * tMap = tMatFactory.create_map( tMyGlobalElements,
+    std::shared_ptr<sol::Dist_Map>  tMap = tMatFactory.create_map( tMyGlobalElements,
                                                tMyConstraintDofs );
 
     //std::cout<<*tEpetraMap.get_epetra_free_map()<<std::endl;
@@ -91,7 +91,6 @@ TEST_CASE("Epetra Map","[Solver Map],[DistLinAlg]")
         CHECK(equal_to(tPIndList(3,0), 0));
         CHECK(equal_to(tLIndList(3,0), 2));
     }
-    delete( tMap );
     }
 }
 
@@ -145,10 +144,10 @@ TEST_CASE("PETSc Map","[Petsc Map],[DistLinAlg]")
     PetscInitializeNoArguments();
 
     // Build factory for map
-    Matrix_Vector_Factory      tMatFactory;
+    sol::Matrix_Vector_Factory      tMatFactory;
 
     // Build map
-    sol::Dist_Map * tMap = tMatFactory.create_map( tNumMyDofs,
+    std::shared_ptr<sol::Dist_Map>  tMap = tMatFactory.create_map( tNumMyDofs,
                                                tMyGlobalElements,
                                                tMyConstraintDofs );
 

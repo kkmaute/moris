@@ -19,21 +19,46 @@ namespace moris
              * @param aPropertyVariableIndices Indices of property variables to be filled by the ADVs
              * @param aADVIndices The indices of the ADV vector to fill in the property variables
              * @param aConstantParameters The constant parameters not filled by ADVs
-             * @param aNumRefinements The number of refinement steps to use for this geometry
+             * @param aNumRefinements The number of refinement steps to use for this property
              * @param aRefinementFunctionIndex The index of a user-defined refinement function (-1 = default refinement)
              * @param aBSplineMeshIndex The index of a B-spline mesh for level set discretization (-1 = no B-splines)
              * @param aBSplineLowerBound The lower bound for the B-spline coefficients describing this field
              * @param aBSplineUpperBound The upper bound for the B-spline coefficients describing this field
              */
-            Discrete_Property(Matrix<DDRMat>& aADVs,
-                              Matrix<DDUMat> aPropertyVariableIndices,
-                              Matrix<DDUMat> aADVIndices,
-                              Matrix<DDRMat> aConstantParameters,
-                              sint            aNumRefinements = 0,
-                              sint            aRefinementFunctionIndex = -1,
-                              sint            aBSplineMeshIndex = -1,
-                              real            aBSplineLowerBound = -1.0,
-                              real            aBSplineUpperBound = 1.0);
+            Discrete_Property(
+                    Matrix<DDRMat>& aADVs,
+                    Matrix<DDUMat>  aPropertyVariableIndices,
+                    Matrix<DDUMat>  aADVIndices,
+                    Matrix<DDRMat>  aConstantParameters,
+                    sint            aNumRefinements = 0,
+                    sint            aRefinementFunctionIndex = -1,
+                    sint            aBSplineMeshIndex = -1,
+                    real            aBSplineLowerBound = -1.0,
+                    real            aBSplineUpperBound = 1.0);
+
+            /**
+             * Constructor
+             *
+             * @param aOwnedADVs Distributed owned ADVs
+             * @param aPropertyVariableIndices Indices of property variables to be filled by the ADVs
+             * @param aADVIndices The indices of the ADV vector to fill in the property variables
+             * @param aConstantParameters The constant parameters not filled by ADVs
+             * @param aNumRefinements The number of refinement steps to use for this property
+             * @param aRefinementFunctionIndex The index of a user-defined refinement function (-1 = default refinement)
+             * @param aBSplineMeshIndex The index of a B-spline mesh for level set discretization (-1 = no B-splines)
+             * @param aBSplineLowerBound The lower bound for the B-spline coefficients describing this field
+             * @param aBSplineUpperBound The upper bound for the B-spline coefficients describing this field
+             */
+            Discrete_Property(
+                    sol::Dist_Vector* aOwnedADVs,
+                    Matrix<DDUMat>    aPropertyVariableIndices,
+                    Matrix<DDUMat>    aADVIndices,
+                    Matrix<DDRMat>    aConstantParameters,
+                    sint              aNumRefinements = 0,
+                    sint              aRefinementFunctionIndex = -1,
+                    sint              aBSplineMeshIndex = -1,
+                    real              aBSplineLowerBound = -1.0,
+                    real              aBSplineUpperBound = 1.0);
 
             /**
              * Given a node index, returns the field value.
@@ -41,16 +66,25 @@ namespace moris
              * @param aNodeIndex Node index
              * @return Property value
              */
-            real evaluate_field_value(uint aNodeIndex);
+            real get_field_value(uint aNodeIndex);
 
             /**
              * Given a node index, evaluates the sensitivity of the property field with respect to all of the
              * property variables.
              *
              * @param aNodeIndex Node index
-             * @param aSensitivities Vector of sensitivities
+             * @return Vector of sensitivities
              */
-            void evaluate_all_sensitivities(uint aNodeIndex, Matrix<DDRMat>& aSensitivities);
+            Matrix<DDRMat> get_field_sensitivities(uint aNodeIndex);
+
+            /**
+             * Gets the IDs of ADVs which this field depends on for evaluations.
+             *
+             * @param aNodeIndex Node index
+             * @param aCoordinates Node coordinates
+             * @return Field basis ADV IDs
+             */
+            Matrix<DDSMat> get_determining_adv_ids(uint aNodeIndex, const Matrix<DDRMat>& aCoordinates);
 
         };
     }

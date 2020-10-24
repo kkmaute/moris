@@ -149,7 +149,10 @@ moris::sint Linear_Solver_PETSc::solve_linear_system(        Linear_Problem * aL
     KSPSetUp( mPetscKSPProblem );
 
     // Solve System
-    KSPSolve( mPetscKSPProblem, aLinearSystem->get_solver_RHS()->get_petsc_vector(), aLinearSystem->get_free_solver_LHS()->get_petsc_vector() );
+    KSPSolve(
+            mPetscKSPProblem,
+            static_cast<Vector_PETSc*>(aLinearSystem->get_solver_RHS())->get_petsc_vector(),
+            static_cast<Vector_PETSc*>(aLinearSystem->get_free_solver_LHS())->get_petsc_vector() );
 
     // Output
 //    KSPView( mPetscKSPProblem, PETSC_VIEWER_STDOUT_WORLD );

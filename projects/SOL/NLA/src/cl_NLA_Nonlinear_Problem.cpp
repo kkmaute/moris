@@ -53,7 +53,7 @@ Nonlinear_Problem::Nonlinear_Problem(
     this->delete_pointers();
 
     // Build Matrix vector factory
-    Matrix_Vector_Factory tMatFactory( mMapType );
+    sol::Matrix_Vector_Factory tMatFactory( mMapType );
 
     // create map object FIXME ask linear problem for map
     mMap = tMatFactory.create_map( aSolverInterface->get_my_local_global_map( tRequesedDofTypes ) );
@@ -95,7 +95,7 @@ Nonlinear_Problem::Nonlinear_Problem(
     }
 
     // Build Matrix vector factory
-    Matrix_Vector_Factory tMatFactory( mMapType );
+    sol::Matrix_Vector_Factory tMatFactory( mMapType );
 
     mMap = tMatFactory.create_map( aSolverInterface->get_my_local_global_overlapping_map());
 
@@ -141,12 +141,6 @@ Nonlinear_Problem::~Nonlinear_Problem()
 {
     this->delete_pointers();
 
-    delete mMap;
-    mMap=nullptr;
-
-    delete mMapFull;
-    mMapFull=nullptr;
-
     if( mIsMasterSystem )
     {
         delete mFullVector;
@@ -156,9 +150,11 @@ Nonlinear_Problem::~Nonlinear_Problem()
     {
         if ( mMapType == sol::MapType::Petsc)
         {
-            std::cout<<"delete linear system"<<std::endl;
+            // These calls are needed in order to delete the underlying Petsc maps before PetscFinalize
+            mMap.reset();
+            mMapFull.reset();
+
             PetscFinalize();
-            std::cout<<"delete linear system"<<std::endl;
         }
     }
 }
@@ -228,12 +224,6 @@ void Nonlinear_Problem::build_linearized_problem(
         const sint   aRestart )
 {
     Tracer tTracer(EntityBase::NonLinearProblem, EntityType::NoType, EntityAction::Build);
-
-    delete( mFullVector );
-
-    // Build Matrix vector factory
-    Matrix_Vector_Factory tMatFactory;
-    mFullVector = tMatFactory.create_vector();
 
     this->restart_from_sol_vec( aRestart );
 

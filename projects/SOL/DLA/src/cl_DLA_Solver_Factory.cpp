@@ -85,8 +85,8 @@ std::shared_ptr< Linear_Solver_Algorithm > Solver_Factory::create_solver( const 
 //-------------------------------------------------------------------------------------------------------------
 
 Linear_Problem * Solver_Factory::create_linear_system(       moris::Solver_Interface * aSolverInterface,
-                                                             sol::Dist_Map           * aMap,
-                                                             sol::Dist_Map           * aFullMap,
+                                                             std::shared_ptr<sol::Dist_Map>  aMap,
+                                                             std::shared_ptr<sol::Dist_Map>  aFullMap,
                                                        const enum sol::MapType         aLinSysType,
                                                        const bool                      aNotCreatedByNonLinSolver )
 {

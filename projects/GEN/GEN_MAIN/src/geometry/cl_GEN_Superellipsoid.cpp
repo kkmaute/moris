@@ -88,7 +88,7 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        real Superellipsoid::evaluate_field_value(const Matrix<DDRMat>& aCoordinates)
+        real Superellipsoid::get_field_value(const Matrix<DDRMat>& aCoordinates)
         {
             // Get variables
             real tXCenter = *(mFieldVariables(0));
@@ -107,7 +107,7 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        void Superellipsoid::evaluate_all_sensitivities(const Matrix<DDRMat>& aCoordinates, Matrix<DDRMat>& aSensitivities)
+        Matrix<DDRMat> Superellipsoid::get_field_sensitivities(const Matrix<DDRMat>& aCoordinates)
         {
             // Get variables
             real tXCenter = *(mFieldVariables(0));
@@ -125,28 +125,30 @@ namespace moris
             tConstant = tConstant ? pow(tConstant, -1.0 + (1.0 / tExponent)) : 0.0;
 
             // Calculate sensitivities
-            aSensitivities.set_size(1, 7);
-            aSensitivities(0) = -tConstant * pow(1.0 / tXSemidiameter, tExponent) * (aCoordinates(0) - tXCenter)
+            Matrix<DDRMat> tSensitivities(1, 7);
+            tSensitivities(0) = -tConstant * pow(1.0 / tXSemidiameter, tExponent) * (aCoordinates(0) - tXCenter)
                     * pow(std::abs(tXCenter - aCoordinates(0)), tExponent - 2.0);
-            aSensitivities(1) = -tConstant * pow(1.0 / tYSemidiameter, tExponent) * (aCoordinates(1) - tYCenter)
+            tSensitivities(1) = -tConstant * pow(1.0 / tYSemidiameter, tExponent) * (aCoordinates(1) - tYCenter)
                     * pow(std::abs(tYCenter - aCoordinates(1)), tExponent - 2.0);
-            aSensitivities(2) = -tConstant * pow(1.0 / tZSemidiameter, tExponent) * (aCoordinates(2) - tZCenter)
+            tSensitivities(2) = -tConstant * pow(1.0 / tZSemidiameter, tExponent) * (aCoordinates(2) - tZCenter)
                     * pow(std::abs(tZCenter - aCoordinates(2)), tExponent - 2.0);
-            aSensitivities(3) = -tConstant * pow(1.0 / tXSemidiameter, tExponent + 1.0)
+            tSensitivities(3) = -tConstant * pow(1.0 / tXSemidiameter, tExponent + 1.0)
                     * pow(std::abs(tXCenter - aCoordinates(0)), tExponent);
-            aSensitivities(4) = -tConstant * pow(1.0 / tYSemidiameter, tExponent + 1.0)
+            tSensitivities(4) = -tConstant * pow(1.0 / tYSemidiameter, tExponent + 1.0)
                     * pow(std::abs(tYCenter - aCoordinates(1)), tExponent);
-            aSensitivities(5) = -tConstant * pow(1.0 / tZSemidiameter, tExponent + 1.0)
+            tSensitivities(5) = -tConstant * pow(1.0 / tZSemidiameter, tExponent + 1.0)
                     * pow(std::abs(tZCenter - aCoordinates(2)), tExponent);
 
             // TODO? this uses FD only because the analytical function is super complicated for the exponent derivative
-            aSensitivities(6) = (pow(pow(std::abs(aCoordinates(0) - tXCenter) / tXSemidiameter, tExponent + mEpsilon)
+            tSensitivities(6) = (pow(pow(std::abs(aCoordinates(0) - tXCenter) / tXSemidiameter, tExponent + mEpsilon)
                                    + pow(std::abs(aCoordinates(1) - tYCenter) / tYSemidiameter, tExponent + mEpsilon)
                                    + pow(std::abs(aCoordinates(2) - tZCenter) / tZSemidiameter, tExponent + mEpsilon), 1.0 / (tExponent + mEpsilon))
                                - pow(pow(std::abs(aCoordinates(0) - tXCenter) / tXSemidiameter, tExponent - mEpsilon)
                                    + pow(std::abs(aCoordinates(1) - tYCenter) / tYSemidiameter, tExponent - mEpsilon)
                                    + pow(std::abs(aCoordinates(2) - tZCenter) / tZSemidiameter, tExponent - mEpsilon), 1.0 / (tExponent - mEpsilon)))
                                / (2.0 * mEpsilon);
+
+            return tSensitivities;
         }
 
         //--------------------------------------------------------------------------------------------------------------

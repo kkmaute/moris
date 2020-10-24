@@ -8,7 +8,11 @@ namespace moris
 {
     namespace ge
     {
-        mtk::Interpolation_Mesh* create_simple_mesh(uint aNumXElements, uint aNumYElements)
+        mtk::Interpolation_Mesh* create_simple_mesh(
+                uint aNumXElements,
+                uint aNumYElements,
+                uint aLagrangeOrder,
+                uint aBSplineOrder)
         {
             ParameterList tParameters = prm::create_hmr_parameter_list();
 
@@ -19,16 +23,16 @@ namespace moris
             tParameters.set( "domain_sidesets", "1,2,3,4");
             tParameters.set( "lagrange_output_meshes", "0");
 
-            tParameters.set( "lagrange_orders", "1");
+            tParameters.set( "lagrange_orders", std::to_string(aLagrangeOrder));
             tParameters.set( "lagrange_pattern", "0");
-            tParameters.set( "bspline_orders", "2");
+            tParameters.set( "bspline_orders", std::to_string(aBSplineOrder));
             tParameters.set( "bspline_pattern", "0");
 
             tParameters.set( "lagrange_to_bspline", "0");
 
             tParameters.set( "truncate_bsplines", 1 );
-            tParameters.set( "refinement_buffer", 3 );
-            tParameters.set( "staircase_buffer", 3 );
+            tParameters.set( "refinement_buffer", 1 );
+            tParameters.set( "staircase_buffer", 1 );
 
             tParameters.set( "severity_level", 2 );
 
