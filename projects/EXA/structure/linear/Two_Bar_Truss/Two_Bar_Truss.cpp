@@ -187,7 +187,7 @@ namespace moris
                 // extract nominal value used for perturbations
                 real tNominalValue = *(tGeometryParameters(iv));
 
-                // set pointer to pertubed value
+                // set pointer to perturbed value
                 tGeometryParameters(iv) = &tNominalValue;
 
                 // positive perturbation

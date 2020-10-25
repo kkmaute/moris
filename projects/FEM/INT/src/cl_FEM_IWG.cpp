@@ -1542,10 +1542,10 @@ namespace moris
                         // loop over the points for FD
                         for( uint iPoint = tStartPoint; iPoint < tNumPoints; iPoint++ )
                         {
-                            // reset the perturbed coefficents
+                            // reset the perturbed coefficients
                             Matrix< DDRMat > tCoeffPert = tCoeff;
 
-                            // pertub the coefficent
+                            // perturb the coefficient
                             tCoeffPert( iCoeffRow, iCoeffCol ) += tFDScheme( 0 )( iPoint ) * tDeltaH;
 
                             // set the perturbed coefficients to FI
@@ -1654,10 +1654,10 @@ namespace moris
                         // loop over the points for FD
                         for( uint iPoint = tStartPoint; iPoint < tNumPoints; iPoint++ )
                         {
-                            // reset the perturbed coefficents
+                            // reset the perturbed coefficients
                             Matrix< DDRMat > tCoeffPert = tCoeff;
 
-                            // pertub the coefficent
+                            // perturb the coefficient
                             tCoeffPert( iCoeffRow, iCoeffCol ) += tFDScheme( 0 )( iPoint ) * tDeltaH;
 
                             // set the perturbed coefficients to FI
@@ -1935,10 +1935,10 @@ namespace moris
                         // loop over point of FD scheme
                         for ( uint iPoint = tStartPoint; iPoint < tNumPoints; iPoint++ )
                         {
-                            // reset the perturbed coefficents
+                            // reset the perturbed coefficients
                             Matrix< DDRMat > tCoeffPert = tCoeff;
 
-                            // pertub the coefficent
+                            // perturb the coefficient
                             tCoeffPert( iCoeffRow, iCoeffCol ) += tFDScheme( 0 )( iPoint ) * tDeltaH;
 
                             // setting the perturbed coefficients
@@ -2499,10 +2499,10 @@ namespace moris
                         // loop over the points for FD
                         for( uint iPoint = tStartPoint; iPoint < tNumPoints; iPoint++ )
                         {
-                            // reset the perturbed coefficents
+                            // reset the perturbed coefficients
                             Matrix< DDRMat > tCoeffPert = tCoeff;
 
-                            // pertub the coefficent
+                            // perturb the coefficient
                             tCoeffPert( iCoeffRow, iCoeffCol ) += tFDScheme( 0 )( iPoint ) * tDeltaH;
 
                             // set the perturbed coefficients to FI
@@ -2624,10 +2624,10 @@ namespace moris
                         // loop over the points for FD
                         for( uint iPoint = tStartPoint; iPoint < tNumPoints; iPoint++ )
                         {
-                            // reset the perturbed coefficents
+                            // reset the perturbed coefficients
                             Matrix< DDRMat > tCoeffPert = tCoeff;
 
-                            // pertub the coefficent
+                            // perturb the coefficient
                             tCoeffPert( iCoeffRow, iCoeffCol ) += tFDScheme( 0 )( iPoint ) * tDeltaH;
 
                             // set the perturbed coefficients to FI
