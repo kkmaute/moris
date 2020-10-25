@@ -22,29 +22,31 @@
 
 namespace moris
 {
-/**
- * @brief Sorts colums of a vector/matrix.
- *
- * @param[in] aMat Vector.
- *
- * @return  sorted vector
- */
+    /**
+     * @brief Sorts colums of a vector/matrix.
+     *
+     * @param[in] aMat Vector.
+     *
+     * @return  sorted vector
+     */
     template< typename Matrix_Type >
     void
-    sort( Matrix< Matrix_Type > const & aA,
-          Matrix< Matrix_Type > & aSorted)
+    sort(
+            Matrix< Matrix_Type > const & aA,
+            Matrix< Matrix_Type >       & aSorted)
     {
         sort( aA.matrix_data(), aSorted );
     }
 
     template< typename Matrix_Type, typename Num_Type >
     void
-	sort( Matrix< Matrix_Type > const & aA,
-		  Matrix< Matrix_Type > & aSorted,
-		  char const* aDirection,
-		  Num_Type aDimension)
+    sort(
+            Matrix< Matrix_Type > const & aA,
+            Matrix< Matrix_Type >       & aSorted,
+            char const                  * aDirection,
+            Num_Type                      aDimension)
     {
-    	sort( aA.matrix_data(), aSorted, aDirection, aDimension);
+        sort( aA.matrix_data(), aSorted, aDirection, aDimension);
     }
 
 }
