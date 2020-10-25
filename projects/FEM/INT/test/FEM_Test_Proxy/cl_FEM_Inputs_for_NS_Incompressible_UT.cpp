@@ -37,7 +37,7 @@ void tVXFIDerFunc(
     moris::Matrix< moris::DDRMat > tReturn( 1, tFIVelocity->get_number_of_space_time_coefficients(), 0.0 );
     for( uint i = 0; i < tFIVelocity->N().n_rows(); i++ )
     {
-        tReturn.matrix_data() += tFIVelocity->N().get_row( i );
+        tReturn += tFIVelocity->N().get_row( i );
     }
     aPropMatrix = aParameters( 0 ) * tReturn;
 }
