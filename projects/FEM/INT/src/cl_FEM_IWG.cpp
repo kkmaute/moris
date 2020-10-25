@@ -1352,7 +1352,7 @@ namespace moris
                 uint tDofCounter = 0;
 
                 // get the dof type
-                Cell< MSI::Dof_Type > tDofType = mRequestedMasterGlobalDofTypes( iFI );
+                Cell< MSI::Dof_Type > & tDofType = mRequestedMasterGlobalDofTypes( iFI );
 
                 // get the index for the dof type
                 sint tMasterDepDofIndex   = mSet->get_dof_index_for_type( tDofType( 0 ), mtk::Master_Slave::MASTER );
@@ -1485,7 +1485,7 @@ namespace moris
                 uint tDofCounter = 0;
 
                 // get the dof type
-                Cell< MSI::Dof_Type > tDofType = mRequestedMasterGlobalDofTypes( iFI );
+                Cell< MSI::Dof_Type > & tDofType = mRequestedMasterGlobalDofTypes( iFI );
 
                 // get the index for the dof type
                 sint tMasterDepDofIndex   = mSet->get_dof_index_for_type( tDofType( 0 ), mtk::Master_Slave::MASTER );
