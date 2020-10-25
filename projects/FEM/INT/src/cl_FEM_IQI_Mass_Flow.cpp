@@ -89,14 +89,14 @@ namespace moris
             // FIXME protect dof type
             if ( aDofType( 0 ) == MSI::Dof_Type::VX )
             {
-                adQIdu.matrix_data() += tPropDensity->val()( 0 ) * trans( tFIVelocity->N() ) * mNormal;
+                adQIdu += tPropDensity->val()( 0 ) * trans( tFIVelocity->N() ) * mNormal;
             }
 
             // if density depends on dof type
             if ( tPropDensity->check_dof_dependency( aDofType ) )
             {
                 // compute dQIdu
-                adQIdu.matrix_data() += trans( tFIVelocity->val() ) * mNormal * tPropDensity->dPropdDOF( aDofType );
+                adQIdu += trans( tFIVelocity->val() ) * mNormal * tPropDensity->dPropdDOF( aDofType );
             }
         }
 

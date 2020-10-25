@@ -117,7 +117,7 @@ TEST_CASE("IQI_Strain_Energy", "[moris],[fem],[IQI_Strain_Energy]")
     arma::Mat< double > tXMatrix;
     tXMatrix.randu( 8, 3 );
     Matrix< DDRMat > tXHat;
-    tXHat.matrix_data() = 10.0 * tXMatrix;
+    tXHat = 10.0 * tXMatrix;
 
     // create time coeff tHat
     Matrix< DDRMat > tTHat = {{ 0.0 }, { 1.0 }};
@@ -141,7 +141,7 @@ TEST_CASE("IQI_Strain_Energy", "[moris],[fem],[IQI_Strain_Energy]")
     arma::Mat< double > tMatrix;
     tMatrix.randu( 8, 3 );
     Matrix< DDRMat > tDOFHat;
-    tDOFHat.matrix_data() = 10.0 * tMatrix;
+    tDOFHat = 10.0 * tMatrix;
 
     // create a cell of field interpolators for IWG
     moris::Cell< Field_Interpolator* > tFIs( 1 );
@@ -159,7 +159,7 @@ TEST_CASE("IQI_Strain_Energy", "[moris],[fem],[IQI_Strain_Energy]")
     arma::Mat< double > tMatrixDv;
     tMatrixDv.randu( 8, 1 );
     Matrix< DDRMat > tDvHat;
-    tDvHat.matrix_data() = 10.0 * tMatrixDv;
+    tDvHat = 10.0 * tMatrixDv;
 
     // create a cell of field interpolators for IWG
     moris::Cell< Field_Interpolator* > tDvFIs( 1 );

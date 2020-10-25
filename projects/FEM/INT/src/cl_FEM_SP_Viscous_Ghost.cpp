@@ -77,7 +77,7 @@ namespace moris
             if( tViscosityProp->check_dof_dependency( aDofTypes ) )
             {
                 // compute contribution from viscosity
-                mdPPdMasterDof( tDofIndex ).matrix_data() +=
+                mdPPdMasterDof( tDofIndex ) +=
                         mParameters( 0 ) *
                         std::pow( mElementSize, 2.0 * ( mOrder - 1.0 ) + 1.0 ) *
                         tViscosityProp->dPropdDOF( aDofTypes );
@@ -87,5 +87,4 @@ namespace moris
         //------------------------------------------------------------------------------
     } /* namespace fem */
 } /* namespace moris */
-
 

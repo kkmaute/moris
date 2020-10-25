@@ -10,6 +10,8 @@
 #include "cl_FEM_Field_Interpolator_Manager.hpp"
 
 #include "fn_norm.hpp"
+#include "fn_min.hpp"
+#include "fn_max.hpp"
 
 namespace moris
 {
@@ -1231,10 +1233,10 @@ namespace moris
                         // loop over the points for FD
                         for( uint iPoint = tStartPoint; iPoint < tNumPoints; iPoint++ )
                         {
-                            // reset the perturbed coefficents
+                            // reset the perturbed coefficients
                             Matrix< DDRMat > tCoeffPert = tCoeff;
 
-                            // pertub the coefficent
+                            // perturb the coefficient
                             tCoeffPert( iCoeffRow, iCoeffCol ) += tFDScheme( 0 )( iPoint ) * tDeltaH;
 
                             // set the perturbed coefficients to FI
@@ -1325,10 +1327,10 @@ namespace moris
                         // loop over the points for FD
                         for( uint iPoint = tStartPoint; iPoint < tNumPoints; iPoint++ )
                         {
-                            // reset the perturbed coefficents
+                            // reset the perturbed coefficients
                             Matrix< DDRMat > tCoeffPert = tCoeff;
 
-                            // pertub the coefficent
+                            // perturb the coefficient
                             tCoeffPert( iCoeffRow, iCoeffCol ) += tFDScheme( 0 )( iPoint ) * tDeltaH;
 
                             // set the perturbed coefficients to FI
@@ -1493,7 +1495,7 @@ namespace moris
                             // reset the perturbed coefficients
                             Matrix< DDRMat > tCoeffPert = tCoeff;
 
-                            // pertub the coefficient
+                            // perturb the coefficient
                             tCoeffPert( iCoeffRow, iCoeffCol ) += tFDScheme( 0 )( iPoint ) * tDeltaH;
 
                             // set the perturbed coefficients to FI
@@ -1566,8 +1568,8 @@ namespace moris
             }
 
             // IP element max/min
-            Matrix< DDRMat > tMaxIP = max( tIPGI->get_space_coeff().matrix_data() );
-            Matrix< DDRMat > tMinIP = min( tIPGI->get_space_coeff().matrix_data() );
+            Matrix< DDRMat > tMaxIP = max( tIPGI->get_space_coeff() );
+            Matrix< DDRMat > tMinIP = min( tIPGI->get_space_coeff() );
 
             // reset the QI
             mSet->get_QI()( tIQIAssemblyIndex ).fill( 0.0 );
@@ -1635,10 +1637,10 @@ namespace moris
                         // loop over point of FD scheme
                         for ( uint iPoint = tStartPoint; iPoint < tNumPoints; iPoint++ )
                         {
-                            // reset the perturbed coefficents
+                            // reset the perturbed coefficients
                             Matrix< DDRMat > tCoeffPert = tCoeff;
 
-                            // pertub the coefficent
+                            // perturb the coefficient
                             tCoeffPert( iCoeffRow, iCoeffCol ) += tFDScheme( 0 )( iPoint ) * tDeltaH;
 
                             // setting the perturbed coefficients
@@ -1733,7 +1735,7 @@ namespace moris
             this->get_QI( tQIVal );
 
             // put on the set
-            mSet->get_QI()( tQIIndex ).matrix_data() += aWStar * tQIVal;
+            mSet->get_QI()( tQIIndex ) += aWStar * tQIVal;
         }
 
         //------------------------------------------------------------------------------

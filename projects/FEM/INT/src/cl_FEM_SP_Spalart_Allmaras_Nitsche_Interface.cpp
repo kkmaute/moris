@@ -332,14 +332,14 @@ namespace moris
                 if( tDerDofType == mMasterDofViscosity )
                 {
                     // add contribution to ddiffusiondu
-                    addiffusiondu.matrix_data() += tFIModViscosity->N() / mSigma;
+                    addiffusiondu += tFIModViscosity->N() / mSigma;
                 }
 
                 // if kinematic viscosity depends on derivative dof type
                 if( tPropKinViscosity->check_dof_dependency( aDofTypes ) )
                 {
                     // add contribution to ddiffusiondu
-                    addiffusiondu.matrix_data() += tPropKinViscosity->dPropdDOF( aDofTypes ) / mSigma;
+                    addiffusiondu += tPropKinViscosity->dPropdDOF( aDofTypes ) / mSigma;
                 }
             }
             // if viscosity is negative
@@ -356,18 +356,18 @@ namespace moris
                 if( tDerDofType == mMasterDofViscosity )
                 {
                     // add contribution to ddiffusiondu
-                    addiffusiondu.matrix_data() += tFn * tFIModViscosity->N() / mSigma;
+                    addiffusiondu += tFn * tFIModViscosity->N() / mSigma;
                 }
 
                 // if kinematic viscosity depends on derivative dof type
                 if( tPropKinViscosity->check_dof_dependency( aDofTypes ) )
                 {
                     // add contribution to ddiffusiondu
-                    addiffusiondu.matrix_data() += tPropKinViscosity->dPropdDOF( aDofTypes ) / mSigma;
+                    addiffusiondu += tPropKinViscosity->dPropdDOF( aDofTypes ) / mSigma;
                 }
 
                 // add contribution from fn to ddiffusiondu
-                addiffusiondu.matrix_data() += tModViscosity * tdfndu / mSigma;
+                addiffusiondu += tModViscosity * tdfndu / mSigma;
             }
         }
 
@@ -452,12 +452,12 @@ namespace moris
             // if residual dof type (here viscosity)
             if( aDofTypes( 0 ) == mMasterDofViscosity )
             {
-                adchidu.matrix_data() += tDerFI->N() / tPropKinViscosity->val()( 0 );
+                adchidu += tDerFI->N() / tPropKinViscosity->val()( 0 );
             }
 
             if( tPropKinViscosity->check_dof_dependency( aDofTypes ) )
             {
-                adchidu.matrix_data() -=
+                adchidu -=
                         tChi * tPropKinViscosity->dPropdDOF( aDofTypes ) /
                         tPropKinViscosity->val()( 0 );
             }

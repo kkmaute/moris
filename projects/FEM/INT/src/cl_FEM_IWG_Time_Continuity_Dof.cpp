@@ -89,7 +89,7 @@ namespace moris
             if( mMasterFIManager->get_IP_geometry_interpolator()->valt()( 0 ) > tInitTime )
             {
                 // compute the jump
-                tJump.matrix_data() -= tPropWeightPrevious->val()( 0 ) * tFIPrevious->val();
+                tJump -= tPropWeightPrevious->val()( 0 ) * tFIPrevious->val();
             }
             // if first time step
             else
@@ -99,7 +99,7 @@ namespace moris
                         mMasterProp( static_cast< uint >( IWG_Property_Type::INITIAL_CONDITION ) );
 
                 // compute the jump
-                tJump.matrix_data() -= tPropWeightPrevious->val()( 0 ) * tPropInitialCondition->val();
+                tJump -= tPropWeightPrevious->val()( 0 ) * tPropInitialCondition->val();
             }
 
             // add contribution to residual

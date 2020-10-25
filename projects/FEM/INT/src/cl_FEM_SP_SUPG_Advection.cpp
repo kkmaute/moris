@@ -203,7 +203,7 @@ namespace moris
                     Matrix< DDRMat > tdAbsdu(  1, tVelocityFI->get_number_of_space_time_coefficients(), 0.0 );
 
                     // compute derivative of the velocity norm
-                    tdNormdu.matrix_data() +=
+                    tdNormdu +=
                             trans( tVelocityFI->val() ) * tVelocityFI->N() / tNorm;
 
                     // compute derivative of the abs term
@@ -212,21 +212,21 @@ namespace moris
                     {
                         Matrix< DDRMat > tAdd =
                                 trans( tVelocityFI->val() ) * tVelocityFI->dnNdxn( 1 ).get_column( iNode );
-                        tdAbsdu.matrix_data() +=
+                        tdAbsdu +=
                                 tAdd * trans( tVelocityFI->dnNdxn( 1 ).get_column( iNode ) ) *
                                 tVelocityFI->N() / std::abs( tAdd( 0, 0 ) );
                     }
 
                     // compute derivative of hugn
-                    tdHugndu.matrix_data() +=
+                    tdHugndu +=
                             2.0 * ( tdNormdu * tAbs - tdAbsdu * tNorm ) / std::pow( tAbs, 2.0 );
 
                     // compute dtau1du
-                    tdTau1dDof.matrix_data() +=
+                    tdTau1dDof +=
                             2.0 * ( tHugn * tdNormdu - tdHugndu * tNorm ) / std::pow( tHugn, 2 );
 
                     // compute dtau2du
-                    tdTau2dDof.matrix_data() -=
+                    tdTau2dDof -=
                             8.0 * tPropConductivity->val()( 0 ) * tdHugndu / std::pow( tHugn, 3 );
                 }
             }
@@ -235,7 +235,7 @@ namespace moris
             if( tPropConductivity->check_dof_dependency( aDofTypes ) )
             {
                 // compute dtau3du
-                tdTau2dDof.matrix_data() +=
+                tdTau2dDof +=
                         4.0 * tPropConductivity->dPropdDOF( aDofTypes ) / std::pow( tHugn, 2.0 );
             }
 
@@ -243,7 +243,7 @@ namespace moris
             Matrix< DDRMat > tTau = this->val();
 
             // scale dSPdu
-            mdPPdMasterDof( tDofIndex ).matrix_data() -= 0.5 * std::pow( tTau( 0 ), 3 ) *
+            mdPPdMasterDof( tDofIndex ) -= 0.5 * std::pow( tTau( 0 ), 3 ) *
                     ( 2.0 * tTau1 * tdTau1dDof + 2.0 * tTau2 * tdTau2dDof );
         }
 

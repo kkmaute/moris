@@ -212,13 +212,13 @@ namespace moris
             // if dof type is viscosity
             if( aDofTypes( 0 ) == mMasterDofViscosity )
             {
-                adchidu.matrix_data() += tDerFI->N() / tPropDynViscosity->val()( 0 );
+                adchidu += tDerFI->N() / tPropDynViscosity->val()( 0 );
             }
 
             // if viscosity property depends on dof type
             if( tPropDynViscosity->check_dof_dependency( aDofTypes ) )
             {
-                adchidu.matrix_data() -=
+                adchidu -=
                         tFIModViscosity->val() * tPropDynViscosity->dPropdDOF( aDofTypes ) /
                         std::pow( tPropDynViscosity->val()( 0 ), 2 );
             }

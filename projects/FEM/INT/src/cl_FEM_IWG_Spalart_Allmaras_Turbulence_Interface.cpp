@@ -449,14 +449,14 @@ namespace moris
                 if( tDerDofType == mResidualDofType( 0 ) )
                 {
                     // add contribution to ddiffusiondu
-                    addiffusiondu.matrix_data() += tFIModViscosity->N() / mSigma;
+                    addiffusiondu += tFIModViscosity->N() / mSigma;
                 }
 
                 // if kinematic viscosity depends on derivative dof type
                 if( tPropKinViscosity->check_dof_dependency( aDofTypes ) )
                 {
                     // add contribution to ddiffusiondu
-                    addiffusiondu.matrix_data() += tPropKinViscosity->dPropdDOF( aDofTypes ) / mSigma;
+                    addiffusiondu += tPropKinViscosity->dPropdDOF( aDofTypes ) / mSigma;
                 }
             }
             // if viscosity is negative
@@ -473,18 +473,18 @@ namespace moris
                 if( tDerDofType == mResidualDofType( 0 ) )
                 {
                     // add contribution to ddiffusiondu
-                    addiffusiondu.matrix_data() += tFn * tFIModViscosity->N() / mSigma;
+                    addiffusiondu += tFn * tFIModViscosity->N() / mSigma;
                 }
 
                 // if kinematic viscosity depends on derivative dof type
                 if( tPropKinViscosity->check_dof_dependency( aDofTypes ) )
                 {
                     // add contribution to ddiffusiondu
-                    addiffusiondu.matrix_data() += tPropKinViscosity->dPropdDOF( aDofTypes ) / mSigma;
+                    addiffusiondu += tPropKinViscosity->dPropdDOF( aDofTypes ) / mSigma;
                 }
 
                 // add contribution from fn to ddiffusiondu
-                addiffusiondu.matrix_data() += tModViscosity * tdfndu / mSigma;
+                addiffusiondu += tModViscosity * tdfndu / mSigma;
             }
         }
 
@@ -533,7 +533,7 @@ namespace moris
             if( aDofTypes( 0 ) == mResidualDofType( 0 ) )
             {
                 // add contribution to dtractiondu
-                adtractiondu.matrix_data() +=
+                adtractiondu +=
                         tDiffusionCoeff * trans( mNormal ) * tFIModViscosity->dnNdxn( 1 );
             }
 
@@ -542,7 +542,7 @@ namespace moris
             this->compute_ddiffusiondu( aDofTypes, tddiffusiondu, aIsMaster );
 
             // add contribution to dtractiondu
-            adtractiondu.matrix_data() +=
+            adtractiondu +=
                     trans( mNormal ) * tFIModViscosity->gradx( 1 ) * tddiffusiondu;
         }
 
@@ -573,7 +573,7 @@ namespace moris
             if( aTestDofTypes( 0 ) == mResidualDofType( 0 ) )
             {
                 // add contribution to dtractiondu
-                aTestTraction.matrix_data() +=
+                aTestTraction +=
                         tDiffusionCoeff * trans( mNormal ) * tFIModViscosity->dnNdxn( 1 );
             }
 
@@ -582,7 +582,7 @@ namespace moris
             this->compute_ddiffusiondu( aTestDofTypes, tddiffusiondu, aIsMaster );
 
             // add contribution of diffusion to dtractiondu
-            aTestTraction.matrix_data() +=
+            aTestTraction +=
                     trans( mNormal ) * tFIModViscosity->gradx( 1 ) * tddiffusiondu;
         }
 
@@ -628,7 +628,7 @@ namespace moris
                     this->compute_ddiffusiondu( aTestDofTypes, tddiffusiondutest, aIsMaster );
 
                     // add contribution
-                    adtesttractiondu.matrix_data() +=
+                    adtesttractiondu +=
                             trans( tddiffusiondutest ) * trans( mNormal ) * tFIModViscosity->dnNdxn( 1 );
                 }
 
@@ -637,7 +637,7 @@ namespace moris
                 this->compute_ddiffusiondu( aDofTypes, tddiffusiondu, aIsMaster );
 
                 // add contribution
-                adtesttractiondu.matrix_data() +=
+                adtesttractiondu +=
                         trans( tFIModViscosity->dnNdxn( 1 ) ) * mNormal * tddiffusiondu;
 
                 // FIXME assumed that second order derivative of diffusion coeff is zero
@@ -704,10 +704,10 @@ namespace moris
                     // loop over the points for FD
                     for( uint iPoint = 0; iPoint < tNumPoints; iPoint++ )
                     {
-                        // reset the perturbed coefficents
+                        // reset the perturbed coefficient
                         Matrix< DDRMat > tCoeffPert = tCoeff;
 
-                        // pertub the coefficent
+                        // perturb the coefficient
                         tCoeffPert( iCoeffRow, iCoeffCol ) += tFDScheme( 0 )( iPoint ) * tDeltaH;
 
                         // set the perturbed coefficients to FI
@@ -815,12 +815,12 @@ namespace moris
             // if residual dof type (here viscosity)
             if( aDofTypes( 0 ) == mResidualDofType( 0 ) )
             {
-                adchidu.matrix_data() += tDerFI->N() / tPropKinViscosity->val()( 0 );
+                adchidu += tDerFI->N() / tPropKinViscosity->val()( 0 );
             }
 
             if( tPropKinViscosity->check_dof_dependency( aDofTypes ) )
             {
-                adchidu.matrix_data() -=
+                adchidu -=
                         tChi * tPropKinViscosity->dPropdDOF( aDofTypes ) /
                         tPropKinViscosity->val()( 0 );
             }

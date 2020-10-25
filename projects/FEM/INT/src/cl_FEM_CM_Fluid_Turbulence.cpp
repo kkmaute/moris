@@ -105,7 +105,7 @@ namespace moris
             real tViscosityT = this->compute_turbulence_viscosity();
 
             // compute flux
-            mFlux.matrix_data() += 2.0 * tViscosityT * this->strain();
+            mFlux += 2.0 * tViscosityT * this->strain();
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -126,7 +126,7 @@ namespace moris
                 real tViscosityT = this->compute_turbulence_viscosity();
 
                 // build dfluxdv
-                mdFluxdDof( tDofIndex ).matrix_data() +=
+                mdFluxdDof( tDofIndex ) +=
                         2.0 * tViscosityT * this->dStraindDOF( aDofTypes );
             }
 
@@ -135,7 +135,7 @@ namespace moris
             this->compute_dviscositytdu( aDofTypes, tdviscositytdu );
 
             // add contribution from turbulence viscosity
-            mdFluxdDof( tDofIndex ).matrix_data() +=
+            mdFluxdDof( tDofIndex ) +=
                     2.0 * this->strain() * tdviscositytdu;
         }
 
@@ -158,7 +158,7 @@ namespace moris
             this->flatten_normal( tdViscosityTdx, tdViscosityTdxFlat );
 
             // compute flux
-            mDivFlux.matrix_data() +=
+            mDivFlux +=
                     2.0 * tViscosityT * this->divstrain() +
                     2.0 * tdViscosityTdxFlat * this->strain();
         }
@@ -188,7 +188,7 @@ namespace moris
                 this->flatten_normal( tdViscosityTdx, tdViscosityTdxFlat );
 
                 // add contribution to ddivstrain/dv
-                mddivfluxdu( tDofIndex ).matrix_data() +=
+                mddivfluxdu( tDofIndex ) +=
                         2.0 * tViscosityT * this->ddivstraindu( aDofTypes ) +
                         2.0 * tdViscosityTdxFlat * this->dStraindDOF( aDofTypes );
             }
@@ -198,7 +198,7 @@ namespace moris
             this->compute_dviscositytdu( aDofTypes, tdviscositytdu );
 
             // add contribution to ddivstrain/du
-            mddivfluxdu( tDofIndex ).matrix_data() +=
+            mddivfluxdu( tDofIndex ) +=
                     2.0 * this->divstrain() * tdviscositytdu;
 
             // get the derivative of gradx for the turbulence viscosity wrt dof
@@ -231,7 +231,7 @@ namespace moris
             }
 
             //
-            mddivfluxdu( tDofIndex ).matrix_data() += 2.0 * tStrainFull * tdViscosityTdxdu;
+            mddivfluxdu( tDofIndex ) += 2.0 * tStrainFull * tdViscosityTdxdu;
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -248,7 +248,7 @@ namespace moris
             real tViscosityT = this->compute_turbulence_viscosity();
 
             // evaluate dfluxdx
-            mdFluxdx( aOrder - 1 ).matrix_data() -=
+            mdFluxdx( aOrder - 1 ) -=
                     2.0 * tViscosityT * this->dstraindx( aOrder );
 
             // FIXME need d/dx part related to tViscosityT
@@ -289,7 +289,7 @@ namespace moris
                 real tViscosityT = this->compute_turbulence_viscosity();
 
                 // compute test traction wrt velocity
-                mTestTraction( tTestDofIndex ).matrix_data() +=
+                mTestTraction( tTestDofIndex ) +=
                         2.0 * tViscosityT * tFlatNormal * this->testStrain();
             }
 
@@ -298,7 +298,7 @@ namespace moris
             this->compute_dviscositytdu( aTestDofTypes, tdviscositytdutest );
 
             // add contribution from turbulence viscosity
-            mTestTraction( tTestDofIndex ).matrix_data() +=
+            mTestTraction( tTestDofIndex ) +=
                     2.0 * tFlatNormal * this->strain() * tdviscositytdutest;
         }
 
@@ -361,7 +361,7 @@ namespace moris
             this->flatten_normal( aNormal, tFlatNormal );
 
             // compute contribution to dTestTractiondDof
-            mdTestTractiondDof( tTestDofIndex )( tDofIndex ).matrix_data() +=
+            mdTestTractiondDof( tTestDofIndex )( tDofIndex ) +=
                     2.0 * trans( tFlatNormal * this->dStraindDOF( aTestDofTypes ) ) * aJump * tdviscositytduder +
                     2.0 * trans( tdviscositytdutest ) * trans( aJump ) * tFlatNormal * this->dStraindDOF( aDofTypes );
 
@@ -454,7 +454,7 @@ namespace moris
                     real tFv1 = this->compute_fv1();
 
                     // add contribution to dSPdu
-                    adviscositytdu.matrix_data() += tFv1 * tFIModViscosity->N();
+                    adviscositytdu += tFv1 * tFIModViscosity->N();
                 }
 
                 // compute dfv1du
@@ -462,7 +462,7 @@ namespace moris
                 this->compute_dfv1du( aDofTypes, tdfv1du );
 
                 // add contribution from dfv1du
-                adviscositytdu.matrix_data() += tFIModViscosity->val() * tdfv1du;
+                adviscositytdu += tFIModViscosity->val() * tdfv1du;
             }
         }
 
@@ -536,7 +536,7 @@ namespace moris
                     this->compute_dfv1dx( tdfv1dx );
 
                     // add contribution to dviscositytdxdu
-                    adviscositytdxdu.matrix_data() +=
+                    adviscositytdxdu +=
                             tFv1 * tFIModViscosity->dnNdxn( 1 ) +
                             tdfv1dx * tFIModViscosity->N();
                 }
@@ -550,7 +550,7 @@ namespace moris
                 this->compute_dfv1dxdu( aDofTypes, tdfv1dxdu );
 
                 // add contribution from dfv1du
-                adviscositytdxdu.matrix_data() +=
+                adviscositytdxdu +=
                         tFIModViscosity->gradx( 1 ) * tdfv1du +
                         tFIModViscosity->val()( 0 ) * tdfv1dxdu;
             }
@@ -596,13 +596,13 @@ namespace moris
             // if dof type is viscosity
             if( aDofTypes( 0 ) == mDofViscosity )
             {
-                adchidu.matrix_data() += tDerFI->N() / tPropViscosity->val()( 0 );
+                adchidu += tDerFI->N() / tPropViscosity->val()( 0 );
             }
 
             // if viscosity property depends on dof type
             if( tPropViscosity->check_dof_dependency( aDofTypes ) )
             {
-                adchidu.matrix_data() -=
+                adchidu -=
                         tFIViscosity->val() * tPropViscosity->dPropdDOF( aDofTypes ) /
                         std::pow( tPropViscosity->val()( 0 ), 2 );
             }
@@ -650,13 +650,13 @@ namespace moris
             // if dof type is viscosity
             if( aDofTypes( 0 ) == mDofViscosity )
             {
-                adchidxdu.matrix_data() += tDerFI->dnNdxn( 1 ) / tPropViscosity->val()( 0 );
+                adchidxdu += tDerFI->dnNdxn( 1 ) / tPropViscosity->val()( 0 );
             }
 
             // if viscosity property depends on dof type
             if( tPropViscosity->check_dof_dependency( aDofTypes ) )
             {
-                adchidxdu.matrix_data() -=
+                adchidxdu -=
                         tFIViscosity->gradx( 1 ) * tPropViscosity->dPropdDOF( aDofTypes ) /
                         std::pow( tPropViscosity->val()( 0 ), 2 );
             }

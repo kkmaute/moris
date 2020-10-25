@@ -469,7 +469,7 @@ TEST_CASE( "IWG_Diffusion_Bulk_Geo_Prop", "[moris],[fem],[IWG_Diff_Bulk_Geo_Prop
     arma::Mat< double > tMatrix;
     tMatrix.randu( 8, 1 );
     Matrix< DDRMat > tDOFHat;
-    tDOFHat.matrix_data() = 10.0 * tMatrix;
+    tDOFHat = 10.0 * tMatrix;
 
     // create a cell of field interpolators for IWG
     Cell< Field_Interpolator* > tFIs( 1 );
@@ -600,7 +600,7 @@ TEST_CASE( "IWG_Diffusion_Bulk_Dv_Prop", "[moris],[fem],[IWG_Diff_Bulk_Dv_Prop]"
 //    arma::Mat< double > tXMatrix;
 //    tXMatrix.randu( 8, 3 );
 //    Matrix< DDRMat > tXHat;
-//    tXHat.matrix_data() = 10.0 * tXMatrix;
+//    tXHat = 10.0 * tXMatrix;
 //
 //    // create time coeff tHat
 //    Matrix< DDRMat > tTHat = {{ 0.0 }, { 1.0 }};
@@ -624,7 +624,7 @@ TEST_CASE( "IWG_Diffusion_Bulk_Dv_Prop", "[moris],[fem],[IWG_Diff_Bulk_Dv_Prop]"
 //    arma::Mat< double > tMatrix;
 //    tMatrix.randu( 8, 1 );
 //    Matrix< DDRMat > tDOFHat;
-//    tDOFHat.matrix_data() = 10.0 * tMatrix;
+//    tDOFHat = 10.0 * tMatrix;
 //
 //    // create a cell of field interpolators for IWG
 //    Cell< Field_Interpolator* > tFIs( 1 );
@@ -642,7 +642,7 @@ TEST_CASE( "IWG_Diffusion_Bulk_Dv_Prop", "[moris],[fem],[IWG_Diff_Bulk_Dv_Prop]"
 //    arma::Mat< double > tDvMatrix;
 //    tDvMatrix.randu( 8, 1 );
 //    Matrix< DDRMat > tDvHat;
-//    tDvHat.matrix_data() = 10.0 * tDvMatrix;
+//    tDvHat = 10.0 * tDvMatrix;
 //
 //    // create a cell of dv field interpolators for IWG
 //    Cell< Field_Interpolator* > tDvFIs( 1 );

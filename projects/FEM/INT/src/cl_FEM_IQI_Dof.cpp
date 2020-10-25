@@ -35,7 +35,7 @@ namespace moris
             }
 
             // evaluate the QI
-            aQI.matrix_data() = { tFI->val()( mIQITypeIndex ) };
+            aQI = { tFI->val()( mIQITypeIndex ) };
         }
 
         //------------------------------------------------------------------------------

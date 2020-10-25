@@ -336,7 +336,7 @@ namespace moris
             // if dof type is residual df type (here viscosity)
             if( aDofTypes( 0 ) == mResidualDofType( 0 ) )
             {
-                aJ.matrix_data() +=
+                aJ +=
                         tFIViscosity->dnNdtn( 1 ) +
                         trans( tFIVelocity->val() - 2.0 * mCb2 * tFIViscosity->gradx( 1 ) / mSigma ) * tFIViscosity->dnNdxn( 1 );// -
             }
@@ -345,7 +345,7 @@ namespace moris
             // FIXME protect dof type
             if( aDofTypes( 0 ) == MSI::Dof_Type::VX )
             {
-                aJ.matrix_data() += trans( tFIViscosity->gradx( 1 ) ) * tFIVelocity->N();
+                aJ += trans( tFIViscosity->gradx( 1 ) ) * tFIVelocity->N();
             }
 
             // compute derivative of production term
@@ -357,7 +357,7 @@ namespace moris
             this->compute_dwalldestructiondu( aDofTypes, tdWallDestructiondu );
 
             // add contribution to jacobian
-            aJ.matrix_data() += -1.0 * tdProductiondu + tdWallDestructiondu - tddivfluxdu;
+            aJ += -1.0 * tdProductiondu + tdWallDestructiondu - tddivfluxdu;
         }
 
         //------------------------------------------------------------------------------
@@ -443,12 +443,12 @@ namespace moris
                 if( tDerDofType == mResidualDofType( 0 ) )
                 {
                     // add contribution to dproductiondu
-                    adproductiondu.matrix_data() +=
+                    adproductiondu +=
                             mCb1 * ( 1.0 - tFt2 ) * tSTilde * tFIModViscosity->N();
                 }
 
                 // add contribution to dproductiondu
-                adproductiondu.matrix_data() +=
+                adproductiondu +=
                         - mCb1 * tSTilde * tModViscosity * tdft2du +
                         mCb1 * ( 1 - tFt2 ) * tModViscosity * tdstildedu;
             }
@@ -466,12 +466,12 @@ namespace moris
                 if( tDerDofType == mResidualDofType( 0 ) )
                 {
                     // add contribution to dproductiondu
-                    adproductiondu.matrix_data() +=
+                    adproductiondu +=
                             mCb1 * ( 1.0 - mCt3 ) * tS * tFIModViscosity->N();
                 }
 
                 // add contribution to dproductiondu
-                adproductiondu.matrix_data() +=
+                adproductiondu +=
                         mCb1 * ( 1.0 - mCt3 ) * tModViscosity * tdsdu;
             }
         }
@@ -580,14 +580,14 @@ namespace moris
                 if( tDerDofType == mResidualDofType( 0 ) )
                 {
                     // add contribution to dwalldestructiondu
-                    adwalldestructiondu.matrix_data() +=
+                    adwalldestructiondu +=
                             ( mCw1 * tFw - mCb1 * tFt2 / std::pow( mKappa, 2.0 ) ) *
                             2.0 * tModViscosity * tFIModViscosity->N() /
                             std::pow( tWallDistance, 2.0 );
                 }
 
                 // add contribution to dwalldestructiondu
-                adwalldestructiondu.matrix_data() +=
+                adwalldestructiondu +=
                         ( mCw1 * tdfwdu - mCb1 * tdft2du / std::pow( mKappa, 2.0 ) ) *
                         std::pow( tModViscosity / tWallDistance, 2.0 );
             }
@@ -598,7 +598,7 @@ namespace moris
                 if( tDerDofType == mResidualDofType( 0 ) )
                 {
                     // add contribution to dwalldestructiondu
-                    adwalldestructiondu.matrix_data() -=
+                    adwalldestructiondu -=
                             2.0 * mCw1 * tModViscosity * tFIModViscosity->N() /
                             std::pow( tWallDistance, 2.0 );
                 }
@@ -679,14 +679,14 @@ namespace moris
                 if( tDerDofType == mResidualDofType( 0 ) )
                 {
                     // add contribution to ddiffusiondu
-                    addiffusiondu.matrix_data() += tFIModViscosity->N() / mSigma;
+                    addiffusiondu += tFIModViscosity->N() / mSigma;
                 }
 
                 // if kinematic viscosity depends on derivative dof type
                 if( tPropKinViscosity->check_dof_dependency( aDofTypes ) )
                 {
                     // add contribution to ddiffusiondu
-                    addiffusiondu.matrix_data() += tPropKinViscosity->dPropdDOF( aDofTypes ) / mSigma;
+                    addiffusiondu += tPropKinViscosity->dPropdDOF( aDofTypes ) / mSigma;
                 }
             }
             // if viscosity is negative
@@ -703,18 +703,18 @@ namespace moris
                 if( tDerDofType == mResidualDofType( 0 ) )
                 {
                     // add contribution to ddiffusiondu
-                    addiffusiondu.matrix_data() += tFn * tFIModViscosity->N() / mSigma;
+                    addiffusiondu += tFn * tFIModViscosity->N() / mSigma;
                 }
 
                 // if kinematic viscosity depends on derivative dof type
                 if( tPropKinViscosity->check_dof_dependency( aDofTypes ) )
                 {
                     // add contribution to ddiffusiondu
-                    addiffusiondu.matrix_data() += tPropKinViscosity->dPropdDOF( aDofTypes ) / mSigma;
+                    addiffusiondu += tPropKinViscosity->dPropdDOF( aDofTypes ) / mSigma;
                 }
 
                 // add contribution from fn to ddiffusiondu
-                addiffusiondu.matrix_data() += tModViscosity * tdfndu / mSigma;
+                addiffusiondu += tModViscosity * tdfndu / mSigma;
             }
         }
 
@@ -773,11 +773,11 @@ namespace moris
                 Matrix< DDRMat > td2Ndx2( 1, tNumBases, 0.0 );
                 for( uint iSpace = 0; iSpace < tSpaceDim; iSpace ++ )
                 {
-                    td2Ndx2.matrix_data() += tFIViscosity->dnNdxn( 2 ).get_row( iSpace );
+                    td2Ndx2 += tFIViscosity->dnNdxn( 2 ).get_row( iSpace );
                 }
 
                 // add contribution to derivative
-                adDivFluxdu.matrix_data() +=
+                adDivFluxdu +=
                         2.0 * trans( tFIViscosity->gradx( 1 ) ) * tFIViscosity->dnNdxn( 1 ) +
                         tDiffusionCoeff * td2Ndx2;
             }
@@ -787,7 +787,7 @@ namespace moris
             this->compute_ddiffusiondu( aDofTypes, tdDiffdu );
 
             // add contribution from diffusion coefficient to derivative
-            adDivFluxdu.matrix_data() +=
+            adDivFluxdu +=
                     sum( tFIViscosity->gradx( 2 )( { 0, tSpaceDim-1 }, { 0, 0 } ) ) * tdDiffdu;
         }
 
@@ -957,7 +957,7 @@ namespace moris
                 this->compute_dwijdu( aDofTypes, tdWijdu );
 
                 // compute dsdu
-                adsdu.matrix_data() += 2.0 * trans( tWij ) * tdWijdu / tS;
+                adsdu += 2.0 * trans( tWij ) * tdWijdu / tS;
             }
         }
 
@@ -1004,12 +1004,12 @@ namespace moris
             // if residual dof type (here viscosity)
             if( aDofTypes( 0 ) == mResidualDofType( 0 ) )
             {
-                adchidu.matrix_data() += tDerFI->N() / tPropViscosity->val()( 0 );
+                adchidu += tDerFI->N() / tPropViscosity->val()( 0 );
             }
 
             if( tPropViscosity->check_dof_dependency( aDofTypes ) )
             {
-                adchidu.matrix_data() -= tChi * tPropViscosity->dPropdDOF( aDofTypes ) / tPropViscosity->val()( 0 );
+                adchidu -= tChi * tPropViscosity->dPropdDOF( aDofTypes ) / tPropViscosity->val()( 0 );
             }
         }
 
@@ -1175,7 +1175,7 @@ namespace moris
             this->compute_dfv2du( aDofTypes, tdfv2du );
 
             // compute dsbardu
-            adsbardu.matrix_data() +=
+            adsbardu +=
                     tFIViscosity->val() * tdfv2du /
                     std::pow( mKappa * tWallDistance, 2.0 );
 
@@ -1183,7 +1183,7 @@ namespace moris
             if( aDofTypes( 0 ) == mResidualDofType( 0 ) )
             {
                 // add contribution
-                adsbardu.matrix_data() +=
+                adsbardu +=
                         tFv2 * tFIViscosity->N() /
                         std::pow( mKappa * tWallDistance, 2.0 );
             }
@@ -1294,7 +1294,7 @@ namespace moris
                 this->compute_dsbardu( aDofTypes, tdSBardu );
 
                 // add dsdu
-                adstildedu.matrix_data() += tdSBardu.matrix_data();
+                adstildedu += tdSBardu;
             }
             else
             {
@@ -1303,7 +1303,7 @@ namespace moris
                 this->compute_dsmoddu( aDofTypes, tdSModdu );
 
                 // compute sMod
-                adstildedu.matrix_data() += tdSModdu.matrix_data();
+                adstildedu += tdSModdu;
             }
         }
 
@@ -1417,13 +1417,13 @@ namespace moris
                 this->compute_dstildedu( aDofTypes, tdSTildedu );
 
                 // add contribution from dStildedu
-                adrdu.matrix_data() -= tFIViscosity->val() * tdSTildedu;
+                adrdu -= tFIViscosity->val() * tdSTildedu;
 
                 // if dof type is viscosity
                 if( aDofTypes( 0 ) == mResidualDofType( 0 ) )
                 {
                     // add contribution from viscosity
-                    adrdu.matrix_data() += tSTilde * tDerFI->N().matrix_data();
+                    adrdu += tSTilde * tDerFI->N();
                 }
 
                 adrdu = adrdu / std::pow( tSTilde * mKappa * tWallDistance, 2.0 );
@@ -1461,7 +1461,7 @@ namespace moris
             this->compute_drdu( aDofTypes, tdrdu );
 
             // compute adgdu
-            adgdu.matrix_data() += ( 1.0 + mCw2 * ( 6.0 * std::pow( tR, 5.0 ) - 1.0 ) ) * tdrdu;
+            adgdu += ( 1.0 + mCw2 * ( 6.0 * std::pow( tR, 5.0 ) - 1.0 ) ) * tdrdu;
         }
 
         //------------------------------------------------------------------------------
@@ -1501,7 +1501,7 @@ namespace moris
             real tFw = this->compute_fw();
 
             // init adfwdu
-            adfwdu.matrix_data() += ( tFw * std::pow( mCw3, 6.0 ) * tdgdu ) /
+            adfwdu += ( tFw * std::pow( mCw3, 6.0 ) * tdgdu ) /
                     ( tG * ( std::pow( tG, 6.0 ) + std::pow( mCw3, 6.0 ) ) );
         }
 

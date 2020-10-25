@@ -9,6 +9,9 @@
 #include "cl_FEM_Set.hpp"
 #include "cl_FEM_Field_Interpolator_Manager.hpp"
 
+#include "fn_max.hpp"
+#include "fn_min.hpp"
+
 namespace moris
 {
     namespace fem
@@ -1870,8 +1873,8 @@ namespace moris
             }
 
             // IP element max/min
-            Matrix< DDRMat > tMaxIP = max( tIPGI->get_space_coeff().matrix_data() );
-            Matrix< DDRMat > tMinIP = min( tIPGI->get_space_coeff().matrix_data() );
+            Matrix< DDRMat > tMaxIP = max( tIPGI->get_space_coeff() );
+            Matrix< DDRMat > tMinIP = min( tIPGI->get_space_coeff() );
 
             // init perturbation
             real tDeltaH = 0.0;
@@ -2042,8 +2045,8 @@ namespace moris
                     mSet->get_field_interpolator_manager( mtk::Master_Slave::SLAVE )->get_IG_geometry_interpolator();
 
             // IP element max/min
-            Matrix< DDRMat > tMasterMaxIP = max( tMasterIPGI->get_space_coeff().matrix_data() );
-            Matrix< DDRMat > tMasterMinIP = min( tMasterIPGI->get_space_coeff().matrix_data() );
+            Matrix< DDRMat > tMasterMaxIP = max( tMasterIPGI->get_space_coeff() );
+            Matrix< DDRMat > tMasterMinIP = min( tMasterIPGI->get_space_coeff() );
 
             // get the master residual dof type index in the set
             uint tMasterResDofIndex = mSet->get_dof_index_for_type(

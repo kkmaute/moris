@@ -150,7 +150,7 @@ namespace moris
             if( aDofTypes( 0 ) == mMasterDofVelocity )
             {
                 // compute contribution from velocity
-                mdPPdMasterDof( tDofIndex ).matrix_data() +=
+                mdPPdMasterDof( tDofIndex ) +=
                         mParameters( 0 ) * std::pow( mElementSize, 2.0 ) * tDensityProp->val()( 0 ) *
                         tNormalDispl * trans( mNormal ) * tVelocityFI->N() /
                         ( tAbsReal + mEpsilon );
@@ -160,7 +160,7 @@ namespace moris
             if( tDensityProp->check_dof_dependency( aDofTypes ) )
             {
                 // compute contribution from density
-                mdPPdMasterDof( tDofIndex ).matrix_data() +=
+                mdPPdMasterDof( tDofIndex ) +=
                         mParameters( 0 ) * std::pow( mElementSize, 2.0 ) * tAbsReal *
                         tDensityProp->dPropdDOF( aDofTypes );
             }
