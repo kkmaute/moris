@@ -24,7 +24,11 @@ namespace moris
            const std::string & aSolver = "default" )
     -> decltype( arma::solve( aA, aB ) )
     {
+#ifdef DEBUG
         return arma::solve( aA, aB );
+#else
+        return arma::solve( aA, aB, arma::solve_opts::fast );
+#endif
     }
 
 //    template< typename ET >
