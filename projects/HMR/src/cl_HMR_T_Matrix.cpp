@@ -1122,13 +1122,13 @@ namespace moris
                         if( tFirstLagrangeRefinement )
                         {
                             // right multiply refinement matrix
-                            tR = this->get_refinement_matrix( tBackgroundElement->get_child_index() ).matrix_data();
+                            tR = this->get_refinement_matrix( tBackgroundElement->get_child_index() );
                             tFirstLagrangeRefinement = false;
                             tLagrangeEqualBspline = true;
                         }
                         else
                         {
-                            tR = this->get_refinement_matrix( tBackgroundElement->get_child_index() ).matrix_data() * tR.matrix_data();
+                            tR = this->get_refinement_matrix( tBackgroundElement->get_child_index() ) * tR;
                         }
 
                         // jump to parent

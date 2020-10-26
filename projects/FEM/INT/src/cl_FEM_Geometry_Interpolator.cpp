@@ -2,6 +2,7 @@
 #include "fn_cross.hpp"
 #include "fn_dot.hpp"
 #include "fn_sum.hpp"
+#include "fn_inv.hpp"
 #include "op_div.hpp"
 #include "fn_linsolve.hpp"
 
@@ -203,8 +204,8 @@ namespace moris
             }
 
             // set input values
-            mXiLocal.matrix_data()  = aParamPoint( { 0, mNumSpaceParamDim-1 }, { 0, 0 } );
-            mTauLocal.matrix_data() = aParamPoint( mNumSpaceParamDim );
+            mXiLocal  = aParamPoint( { 0, mNumSpaceParamDim-1 }, { 0, 0 } );
+            mTauLocal = aParamPoint( mNumSpaceParamDim );
 
             // reset bool for evaluation
             this->reset_eval_flags();
@@ -704,6 +705,7 @@ namespace moris
             aNormal = cross(
                     aRealTangents.get_column( 0 ) - aRealTangents.get_column( 2 ),
                     aRealTangents.get_column( 1 ) - aRealTangents.get_column( 2 ) );
+
             aNormal = aNormal / norm( aNormal );
         }
 
@@ -747,11 +749,9 @@ namespace moris
 
             aGlobalParamPoint.set_size( tNumSpaceCoords + 1, 1 );
 
-            aGlobalParamPoint( { 0, tNumSpaceCoords - 1 }, { 0, 0 } ) =
-                    trans( this->NXi()  * mXiHat );
+            aGlobalParamPoint( { 0, tNumSpaceCoords - 1 } ) = trans( this->NXi()  * mXiHat );
 
-            aGlobalParamPoint( { tNumSpaceCoords, tNumSpaceCoords }, { 0, 0 } ) =
-                    trans( this->NTau() * mTauHat ) ;
+            aGlobalParamPoint( tNumSpaceCoords ) = dot( this->NTau(),mTauHat );
         }
 
         //------------------------------------------------------------------------------
@@ -794,7 +794,7 @@ namespace moris
                 Matrix< DDRMat > tJ = trans( tdNdXi * mXHat );
 
                 // solve
-                aParamCoordinates.matrix_data() += trans( solve( tJ, tR ) );
+                aParamCoordinates += trans( inv( tJ ) * tR );
 
                 // update previous coords
                 tPreviousParamCoordinates = aParamCoordinates;

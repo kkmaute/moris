@@ -169,7 +169,7 @@ namespace moris
             Matrix< DDRMat > tFlatG = reshape( tG, 1, tG.numel() );
 
             // get trace of G
-            real tTrG = sum( diag_vec( tG.matrix_data() ) );
+            real tTrG = sum( diag_vec( tG ) );
 
             // evaluate tauM = mPPVal( 0 )
             Matrix< DDRMat > tvivjGij = trans( tVelocityFI->val() ) * tG * tVelocityFI->val();
@@ -222,7 +222,7 @@ namespace moris
             Matrix< DDRMat > tFlatG = reshape( tG, 1, tG.numel() );
 
             // get trace of G
-            real tTrG = sum( diag_vec( tG.matrix_data() ) );
+            real tTrG = sum( diag_vec( tG ) );
 
             // evaluate
             Matrix< DDRMat > tvivjGij = trans( tVelocityFI->val() ) * tG * tVelocityFI->val();

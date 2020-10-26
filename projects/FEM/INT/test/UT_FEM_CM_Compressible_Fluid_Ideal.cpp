@@ -411,7 +411,7 @@ TEST_CASE( "CM_Fluid_Compressible_Ideal", "[CM_Fluid_Compressible_Ideal]" )
                             CM_Function_Type::ENERGY );
 
                     // check that analytical and FD match
-                    bool tCheckEnergyFlux = fem::check( tdEnergyFluxdu, tdEnergyFluxduFD, tEpsilon );
+                    // bool tCheckEnergyFlux = fem::check( tdEnergyFluxdu, tdEnergyFluxduFD, tEpsilon );
                     //REQUIRE( tCheckEnergyFlux );
 
                     //------------------------------------------------------------------------------

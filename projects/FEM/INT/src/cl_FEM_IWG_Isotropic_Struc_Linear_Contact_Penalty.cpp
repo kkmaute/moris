@@ -201,7 +201,7 @@ namespace moris
                 for( uint iDOF = 0; iDOF < tMasterNumDofDependencies; iDOF++ )
                 {
                     // get the dof type
-                    Cell< MSI::Dof_Type > tDofType = mRequestedMasterGlobalDofTypes( iDOF );
+                    Cell< MSI::Dof_Type > & tDofType = mRequestedMasterGlobalDofTypes( iDOF );
 
                     // get the index for the dof type
                     sint tDofDepIndex         = mSet->get_dof_index_for_type( tDofType( 0 ), mtk::Master_Slave::MASTER );
@@ -225,7 +225,7 @@ namespace moris
                 for( uint iDOF = 0; iDOF < tMasterNumDofDependencies; iDOF++ )
                 {
                     // get the dof type
-                    Cell< MSI::Dof_Type > tDofType = mRequestedMasterGlobalDofTypes( iDOF );
+                    Cell< MSI::Dof_Type > & tDofType = mRequestedMasterGlobalDofTypes( iDOF );
 
                     // get the index for the dof type
                     sint tDofDepIndex        = mSet->get_dof_index_for_type( tDofType( 0 ), mtk::Master_Slave::SLAVE );
@@ -284,7 +284,7 @@ namespace moris
                 for( uint iDOF = 0; iDOF < tMasterNumDofDependencies; iDOF++ )
                 {
                     // get the dof type
-                    Cell< MSI::Dof_Type > tDofType = mRequestedMasterGlobalDofTypes( iDOF );
+                    Cell< MSI::Dof_Type > & tDofType = mRequestedMasterGlobalDofTypes( iDOF );
 
                     // get the index for the dof type
                     sint tDofDepIndex         = mSet->get_dof_index_for_type( tDofType( 0 ), mtk::Master_Slave::MASTER );
@@ -312,7 +312,7 @@ namespace moris
                 for( uint iDOF = 0; iDOF < tSlaveNumDofDependencies; iDOF++ )
                 {
                     // get the dof type
-                    Cell< MSI::Dof_Type > tDofType = mRequestedMasterGlobalDofTypes( iDOF );
+                    Cell< MSI::Dof_Type > & tDofType = mRequestedMasterGlobalDofTypes( iDOF );
 
                     // get the index for the dof type
                     sint tDofDepIndex         = mSet->get_dof_index_for_type( tDofType( 0 ), mtk::Master_Slave::SLAVE );
@@ -341,7 +341,7 @@ namespace moris
                 //                 for( uint iDOF = 0; iDOF < tMasterNumDofDependencies; iDOF++ )
                 //                 {
                 //                     // get the dof type
-                //                     Cell< MSI::Dof_Type > tDofType = mRequestedMasterGlobalDofTypes( iDOF );
+                //                     Cell< MSI::Dof_Type > & tDofType = mRequestedMasterGlobalDofTypes( iDOF );
                 //
                 //                     // get index for the dof type
                 //                     sint tIndexDep = mSet->get_dof_index_for_type( tDofType( 0 ), mtk::Master_Slave::MASTER );

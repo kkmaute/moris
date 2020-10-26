@@ -331,7 +331,7 @@ namespace moris
             if( aDofTypes( 0 ) == mTempDof )
             {
                 // compute derivative with direct dependency
-                mdFluxdDof( tDofIndex ).matrix_data() +=
+                mdFluxdDof( tDofIndex ) +=
                         tPropConductivity->val()( 0 ) * tFITemp->dnNdxn( 1 );
             }
 
@@ -339,7 +339,7 @@ namespace moris
             if ( mProperties( static_cast< uint >( Property_Type::CONDUCTIVITY ) )->check_dof_dependency( aDofTypes ) )
             {
                 // compute derivative with indirect dependency through properties
-                mdFluxdDof( tDofIndex ).matrix_data() +=
+                mdFluxdDof( tDofIndex ) +=
                         tFITemp->gradx( 1 ) * tPropConductivity->dPropdDOF( aDofTypes );
             }
         }
@@ -378,7 +378,7 @@ namespace moris
             if( aDofTypes( 0 ) == mTempDof )
             {
                 // compute derivative with direct dependency
-                mEnergyDotDof( tDofIndex ).matrix_data() +=
+                mEnergyDotDof( tDofIndex ) +=
                         tPropDensity->val()( 0 ) *
                         tPropHeatCap->val()( 0 ) *
                         tFITemp->dnNdtn(1);
@@ -388,7 +388,7 @@ namespace moris
             if ( tPropDensity->check_dof_dependency( aDofTypes ) )
             {
                 // compute derivative with indirect dependency through properties
-                mEnergyDotDof( tDofIndex ).matrix_data() +=
+                mEnergyDotDof( tDofIndex ) +=
                         tPropHeatCap->val()( 0 ) *
                         tFITemp->gradt(1) *
                         tPropDensity->dPropdDOF( aDofTypes );
@@ -398,7 +398,7 @@ namespace moris
             if ( tPropHeatCap->check_dof_dependency( aDofTypes ) )
             {
                 // compute derivative with indirect dependency through properties
-                mEnergyDotDof( tDofIndex ).matrix_data() +=
+                mEnergyDotDof( tDofIndex ) +=
                         tPropDensity->val()( 0 ) *
                         tFITemp->gradt(1) *
                         tPropHeatCap->dPropdDOF( aDofTypes );
@@ -439,7 +439,7 @@ namespace moris
             if( aDofTypes( 0 ) == mTempDof )
             {
                 // compute derivative with direct dependency
-                mGradEnergyDof( tDofIndex ).matrix_data() +=
+                mGradEnergyDof( tDofIndex ) +=
                         tPropDensity->val()( 0 ) *
                         tPropHeatCap->val()( 0 ) *
                         tFITemp->dnNdxn(1);
@@ -449,7 +449,7 @@ namespace moris
             if ( tPropDensity->check_dof_dependency( aDofTypes ) )
             {
                 // compute derivative with indirect dependency through properties
-                mGradEnergyDof( tDofIndex ).matrix_data() +=
+                mGradEnergyDof( tDofIndex ) +=
                         tPropHeatCap->val()( 0 ) *
                         tFITemp->gradx(1) *
                         tPropDensity->dPropdDOF( aDofTypes );
@@ -459,7 +459,7 @@ namespace moris
             if ( tPropHeatCap->check_dof_dependency( aDofTypes ) )
             {
                 // compute derivative with indirect dependency through properties
-                mGradEnergyDof( tDofIndex ).matrix_data() +=
+                mGradEnergyDof( tDofIndex ) +=
                         tPropDensity->val()( 0 ) *
                         tFITemp->gradx(1) *
                         tPropHeatCap->dPropdDOF( aDofTypes );
@@ -500,7 +500,7 @@ namespace moris
             if( aDofTypes( 0 ) == mTempDof )
             {
                 // compute derivative with direct dependency
-                mGradEnergyDotDof( tDofIndex ).matrix_data() +=
+                mGradEnergyDotDof( tDofIndex ) +=
                         tPropDensity->val()( 0 ) *
                         tPropHeatCap->val()( 0 ) *
                         tFITemp->d2Ndxt();
@@ -510,7 +510,7 @@ namespace moris
             if ( tPropDensity->check_dof_dependency( aDofTypes ) )
             {
                 // compute derivative with indirect dependency through properties
-                mGradEnergyDotDof( tDofIndex ).matrix_data() +=
+                mGradEnergyDotDof( tDofIndex ) +=
                         tPropHeatCap->val()( 0 ) *
                         tFITemp->gradxt() *
                         tPropDensity->dPropdDOF( aDofTypes );
@@ -520,7 +520,7 @@ namespace moris
             if ( tPropHeatCap->check_dof_dependency( aDofTypes ) )
             {
                 // compute derivative with indirect dependency through properties
-                mGradEnergyDotDof( tDofIndex ).matrix_data() +=
+                mGradEnergyDotDof( tDofIndex ) +=
                         tPropDensity->val()( 0 ) *
                         tFITemp->gradxt() *
                         tPropHeatCap->dPropdDOF( aDofTypes );
@@ -582,9 +582,9 @@ namespace moris
                 if( aDofTypes( 0 ) == mTempDof )
                 {
                     // compute derivative with direct dependency
-                    mGradDivFluxDof( tDofIndex ).matrix_data() +=
+                    mGradDivFluxDof( tDofIndex ) +=
                             tKijIsotropic *
-                            mFIManager->get_field_interpolators_for_type( mTempDof )->dnNdxn( 3 ).matrix_data();
+                            mFIManager->get_field_interpolators_for_type( mTempDof )->dnNdxn( 3 );
                 }
             }
         }
@@ -609,13 +609,13 @@ namespace moris
             if( aDofTypes( 0 ) == mTempDof )
             {
                 // fill ddivstrain/dv
-                mddivfluxdu( tDofIndex ).matrix_data() += tPropConductivity->val()( 0 ) * this->ddivstraindu( aDofTypes );
+                mddivfluxdu( tDofIndex ) += tPropConductivity->val()( 0 ) * this->ddivstraindu( aDofTypes );
             }
 
             if( tPropConductivity->check_dof_dependency( aDofTypes ) )
             {
                 // fill ddivstrain/du
-                mddivfluxdu( tDofIndex ).matrix_data() += this->divstrain() * tPropConductivity->dPropdDOF( aDofTypes );
+                mddivfluxdu( tDofIndex ) += this->divstrain() * tPropConductivity->dPropdDOF( aDofTypes );
             }
         }
 
@@ -643,7 +643,7 @@ namespace moris
 
                 if( tTempd2Ndx2.n_rows() == 6 )
                 {
-                    mddivstraindu( tDofIndex ).matrix_data() += tTempd2Ndx2.get_row( 2 );
+                    mddivstraindu( tDofIndex ) += tTempd2Ndx2.get_row( 2 );
                 }
             }
         }
@@ -693,7 +693,7 @@ namespace moris
             if( tPropConductivity->check_dof_dependency( aDofTypes ) )
             {
                 // add contribution
-                mdTestTractiondDof( tTestDofIndex )( tDofIndex ).matrix_data() +=
+                mdTestTractiondDof( tTestDofIndex )( tDofIndex ) +=
                         trans( mFIManager->get_field_interpolators_for_type( mTempDof )->dnNdxn( 1 ) ) *
                         aNormal * tPropConductivity->dPropdDOF( aDofTypes );
             }
@@ -728,7 +728,7 @@ namespace moris
             if( tPropConductivity->check_dof_dependency( aDofTypes ) )
             {
                 // add contribution
-                mdTestTractiondDof( tTestDofIndex )( tDofIndex ).matrix_data() +=
+                mdTestTractiondDof( tTestDofIndex )( tDofIndex ) +=
                         trans( mFIManager->get_field_interpolators_for_type( mTempDof )->dnNdxn( 1 ) ) *
                         aNormal * tPropConductivity->dPropdDOF( aDofTypes );
             }

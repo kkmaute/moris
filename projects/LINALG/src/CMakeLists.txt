@@ -35,6 +35,8 @@ fn_linsolve.hpp
 fn_linspace.hpp
 fn_load_matrix_from_binary_file.hpp
 fn_lu.hpp
+fn_max.hpp
+fn_min.hpp
 fn_norm.hpp
 fn_print.hpp
 fn_prod.hpp

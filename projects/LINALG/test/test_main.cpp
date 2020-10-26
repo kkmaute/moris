@@ -42,7 +42,3 @@ main(
 
     return result;
 }
-
-
-
-

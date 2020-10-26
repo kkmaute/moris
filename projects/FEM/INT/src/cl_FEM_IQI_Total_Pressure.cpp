@@ -100,21 +100,21 @@ namespace moris
             // FIXME protect dof type
             if ( aDofType( 0 ) == MSI::Dof_Type::VX )
             {
-                adQIdu.matrix_data() += tPropDensity->val()( 0 ) * trans( tFIVelocity->N() ) * tFIVelocity->val();
+                adQIdu += tPropDensity->val()( 0 ) * trans( tFIVelocity->N() ) * tFIVelocity->val();
             }
 
             // if dof type is pressure
             // FIXME protect dof type
             if ( aDofType( 0 ) == MSI::Dof_Type::P )
             {
-                adQIdu.matrix_data() += trans( tFIPressure->N() );
+                adQIdu += trans( tFIPressure->N() );
             }
 
             // if density depends on dof type
             if ( tPropDensity->check_dof_dependency( aDofType ) )
             {
                 // compute dQIdu
-                adQIdu.matrix_data() += 0.5 * trans( tFIVelocity->val() ) * tFIVelocity->val() *
+                adQIdu += 0.5 * trans( tFIVelocity->val() ) * tFIVelocity->val() *
                         tPropDensity->dPropdDOF( aDofType );
             }
         }

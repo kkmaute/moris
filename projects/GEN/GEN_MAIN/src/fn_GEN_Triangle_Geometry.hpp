@@ -54,7 +54,7 @@ namespace moris
 
             if(!aPosDirection)
             {
-                aSurfaceNormal = tLenInv*aSurfaceNormal.matrix_data();
+                aSurfaceNormal = tLenInv*aSurfaceNormal;
             }
             else
             {
@@ -97,7 +97,7 @@ namespace moris
         moris::Matrix< Real_Matrix >
         compute_val_at_tet_centroid(moris::Matrix< Real_Matrix > const & aNodeVals)
         {
-            Real_Matrix tVal = 1/4*(aNodeVals.matrix_data());
+            Real_Matrix tVal = 1/4*(aNodeVals);
             moris::Matrix< Real_Matrix > tValMat(tVal);
 
             return tValMat;

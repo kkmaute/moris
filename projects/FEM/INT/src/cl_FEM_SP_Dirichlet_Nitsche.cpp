@@ -92,7 +92,7 @@ namespace moris
             if ( tPropMaterial->check_dof_dependency( aDofTypes ) )
             {
                 // compute derivative with indirect dependency through properties
-                mdPPdMasterDof( tDofIndex ).matrix_data() +=
+                mdPPdMasterDof( tDofIndex ) +=
                         mParameters( 0 ) * tPropMaterial->dPropdDOF( aDofTypes ) / mElementSize;
             }
         }

@@ -995,7 +995,7 @@ namespace moris
                 while( ! tBackgroundElement->is_active( aSourcePattern ) )
                 {
                     // right multiply refinement matrix
-                    tR = tR.matrix_data() * tTMatrix->get_refinement_matrix( tBackgroundElement->get_child_index() ).matrix_data();
+                    tR = tR * tTMatrix->get_refinement_matrix( tBackgroundElement->get_child_index() );
 
                     // jump to parent
                     tBackgroundElement = tBackgroundElement->get_parent();

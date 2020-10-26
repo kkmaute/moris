@@ -16,7 +16,7 @@
 TEST_CASE("moris::inv",
              "[linalgebra],[inv]" )
 {
-
+    // test of 3x3 matrix
     moris::Matrix< moris::DDRMat > A( 3, 3 );
 
     A( 0, 0 ) = 1.0; A( 0, 1 ) = 2.0; A( 0, 2 ) = 3.0;

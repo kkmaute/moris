@@ -176,8 +176,8 @@ namespace moris
 
             // compute the residual
             mSet->get_residual()( 0 )(
-                    { tMasterResStartIndex, tMasterResStopIndex },
-                    { 0, 0 } ) += aWStar * (
+                    { tMasterResStartIndex, tMasterResStopIndex }) +=
+                     aWStar * (
                             trans( tVelocityFI->N() ) * tDensity * trans( tVelocityFI->gradt( 1 ) ) +
                             trans( tVelocityFI->N() ) * tDensity * trans( tVelocityFI->gradx( 1 ) ) * tVelocityFI->val() +
                             trans( tIncFluidCM->testStrain() ) * tPre * tIncFluidCM->flux() +
@@ -189,9 +189,8 @@ namespace moris
             {
                 // add gravity to residual weak form
                 mSet->get_residual()( 0 )(
-                        { tMasterResStartIndex, tMasterResStopIndex },
-                        { 0, 0 } ) += aWStar * (
-                                trans( tVelocityFI->N() ) * tDensity * tGravityProp->val() );
+                        { tMasterResStartIndex, tMasterResStopIndex } ) += 
+                        aWStar * ( trans( tVelocityFI->N() ) * tDensity * tGravityProp->val() );
             }
 
             // if thermal expansion and reference temperature
@@ -204,8 +203,8 @@ namespace moris
 
                 // add contribution to residual
                 mSet->get_residual()( 0 )(
-                        { tMasterResStartIndex, tMasterResStopIndex },
-                        { 0, 0 } ) -= aWStar * (
+                        { tMasterResStartIndex, tMasterResStopIndex } ) -= 
+                        aWStar * (
                                 trans( tVelocityFI->N() ) * tDensity * tGravityProp->val() *
                                 tThermalExpProp->val() * ( tTempFI->val() - tRefTempProp->val() ) );
             }
@@ -215,8 +214,8 @@ namespace moris
             {
                 // add brinkman term to residual weak form
                 mSet->get_residual()( 0 )(
-                        { tMasterResStartIndex, tMasterResStopIndex },
-                        { 0, 0 } ) += aWStar * (
+                        { tMasterResStartIndex, tMasterResStopIndex } ) +=
+                        aWStar * (
                                 trans( tVelocityFI->N() ) * tInvPermeabProp->val()( 0 ) * tVelocityFI->val() );
             }
 
@@ -303,7 +302,7 @@ namespace moris
             for( uint iDOF = 0; iDOF < tNumDofDependencies; iDOF++ )
             {
                 // get the treated dof type
-                Cell< MSI::Dof_Type > tDofType = mRequestedMasterGlobalDofTypes( iDOF );
+                Cell< MSI::Dof_Type > & tDofType = mRequestedMasterGlobalDofTypes( iDOF );
 
                 // get the index for dof type, indices for assembly
                 sint tDofDepIndex         = mSet->get_dof_index_for_type( tDofType( 0 ), mtk::Master_Slave::MASTER );
@@ -584,14 +583,14 @@ namespace moris
             if ( tInvPermeabProp != nullptr )
             {
                 // add brinkman term to residual strong form
-                aRM.matrix_data() += tInvPermeabProp->val()( 0 ) * tVelocityFI->val() ;
+                aRM += tInvPermeabProp->val()( 0 ) * tVelocityFI->val() ;
             }
 
             // if gravity
             if ( tGravityProp != nullptr )
             {
                 // add gravity to residual strong form
-                aRM.matrix_data() += tDensity * tGravityProp->val();
+                aRM += tDensity * tGravityProp->val();
 
                 // if thermal expansion and reference temperature
                 if( tThermalExpProp != nullptr && tRefTempProp != nullptr )
@@ -602,7 +601,7 @@ namespace moris
                             mMasterFIManager->get_field_interpolators_for_type( MSI::Dof_Type::TEMP );
 
                     // add contribution to residual
-                    aRM.matrix_data() -=
+                    aRM -=
                             tDensity * tGravityProp->val() * tThermalExpProp->val() * ( tTempFI->val() - tRefTempProp->val() );
                 }
             }
@@ -665,19 +664,19 @@ namespace moris
                 this->compute_dnNdtn( tdnNdtn );
 
                 // compute the jacobian strong form
-                aJM.matrix_data() +=
+                aJM +=
                         tDensity * tdnNdtn +
                         tDensity * trans( tVelocityFI->gradx( 1 ) ) * tVelocityFI->N() +
                         tDensity * tujvij ;
 
-                aJC.matrix_data() += tVelocityFI->div_operator().matrix_data();
+                aJC += tVelocityFI->div_operator();
             }
 
             // if density depends on dof type
             if( tDensityProp->check_dof_dependency( aDofTypes ) )
             {
                 // compute contribution to jacobian strong form
-                aJM.matrix_data() +=
+                aJM +=
                         trans( tVelocityFI->gradt( 1 ) ) * tDensityProp->dPropdDOF( aDofTypes ) +
                         trans( tVelocityFI->gradx( 1 ) ) * tVelocityFI->val() * tDensityProp->dPropdDOF( aDofTypes );
             }
@@ -689,14 +688,14 @@ namespace moris
                 if( aDofTypes( 0 ) == mResidualDofType( 0 ) )
                 {
                     // add brinkman term to jacobian strong form
-                    aJM.matrix_data() += tInvPermeabProp->val()( 0 ) * tVelocityFI->N() ;
+                    aJM += tInvPermeabProp->val()( 0 ) * tVelocityFI->N() ;
                 }
 
                 // if permeability depends on dof type
                 if( tInvPermeabProp->check_dof_dependency( aDofTypes ) )
                 {
                     // add brinkman term to jacobian strong form
-                    aJM.matrix_data() += tInvPermeabProp->dPropdDOF( aDofTypes ).matrix_data() * tVelocityFI->val() ;
+                    aJM += tInvPermeabProp->dPropdDOF( aDofTypes ) * tVelocityFI->val() ;
                 }
             }
 
@@ -707,15 +706,15 @@ namespace moris
                 if( tMassSourceProp->check_dof_dependency( aDofTypes ) )
                 {
                     // add contribution to jacobian
-                    aJC.matrix_data() +=
-                            tMassSourceProp->dPropdDOF( aDofTypes ).matrix_data() / tDensity ;
+                    aJC +=
+                            tMassSourceProp->dPropdDOF( aDofTypes ) / tDensity ;
                 }
 
                 // if density depends on dof type
                 if( tDensityProp->check_dof_dependency( aDofTypes ) )
                 {
                     // add contribution to jacobian
-                    aJC.matrix_data() -=
+                    aJC -=
                             tMassSourceProp->val() * tDensityProp->dPropdDOF( aDofTypes ) / std::pow( tDensity, 2 );
                 }
             }
@@ -724,7 +723,7 @@ namespace moris
             if( tIncFluidCM->check_dof_dependency( aDofTypes ) )
             {
                 // compute contribution to jacobian strong form
-                aJM.matrix_data() -= tIncFluidCM->ddivfluxdu( aDofTypes ).matrix_data();
+                aJM -= tIncFluidCM->ddivfluxdu( aDofTypes );
             }
 
             // if gravity
@@ -734,14 +733,14 @@ namespace moris
                 if( tGravityProp->check_dof_dependency( aDofTypes ) )
                 {
                     // add gravity to jacobian strong form
-                    aJM.matrix_data() += tDensity * tGravityProp->dPropdDOF( aDofTypes ).matrix_data();
+                    aJM += tDensity * tGravityProp->dPropdDOF( aDofTypes );
                 }
 
                 // if density depends on dof type
                 if( tDensityProp->check_dof_dependency( aDofTypes ) )
                 {
                     // add contribution to jacobian
-                    aJM.matrix_data() += tGravityProp->val() * tDensityProp->dPropdDOF( aDofTypes );
+                    aJM += tGravityProp->val() * tDensityProp->dPropdDOF( aDofTypes );
                 }
 
                 // if thermal expansion and reference temperature
@@ -755,13 +754,13 @@ namespace moris
                     if( aDofTypes( 0 ) == MSI::Dof_Type::TEMP )
                     {
                         // add contribution to jacobian
-                        aJM.matrix_data() -= tDensity * tGravityProp->val() * tThermalExpProp->val() * tTempFI->N();
+                        aJM -= tDensity * tGravityProp->val() * tThermalExpProp->val() * tTempFI->N();
                     }
 
                     if( tThermalExpProp->check_dof_dependency( aDofTypes ) )
                     {
                         // add contribution to jacobian
-                        aJM.matrix_data() -=
+                        aJM -=
                                 tDensity * tGravityProp->val() * ( tTempFI->val() - tRefTempProp->val() ) *
                                 tThermalExpProp->dPropdDOF( aDofTypes );
                     }
@@ -769,7 +768,7 @@ namespace moris
                     if( tRefTempProp->check_dof_dependency( aDofTypes ) )
                     {
                         // add contribution to jacobian
-                        aJM.matrix_data() +=
+                        aJM +=
                                 tDensity * tGravityProp->val() * tThermalExpProp->val() *
                                 tRefTempProp->dPropdDOF( aDofTypes );
                     }
@@ -778,7 +777,7 @@ namespace moris
                     if ( tGravityProp->check_dof_dependency( aDofTypes ) )
                     {
                         // compute the jacobian
-                        aJM.matrix_data() -=
+                        aJM -=
                                 tDensity *
                                 tThermalExpProp->val()( 0 ) * ( tTempFI->val()( 0 ) - tRefTempProp->val()( 0 ) )
                                 * tGravityProp->dPropdDOF( aDofTypes );
@@ -788,7 +787,7 @@ namespace moris
                     if( tDensityProp->check_dof_dependency( aDofTypes ) )
                     {
                         // add density contribution to residual strong form
-                        aJM.matrix_data() -=
+                        aJM -=
                                 tGravityProp->val() *
                                 tThermalExpProp->val() * ( tTempFI->val() - tRefTempProp->val() ) *
                                 tDensityProp->dPropdDOF( aDofTypes );

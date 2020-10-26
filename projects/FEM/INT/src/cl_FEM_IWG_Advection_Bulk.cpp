@@ -158,7 +158,7 @@ namespace moris
             for( uint iDOF = 0; iDOF < tNumDofDependencies; iDOF++ )
             {
                 // get the treated dof type
-                Cell< MSI::Dof_Type > tDofType = mRequestedMasterGlobalDofTypes( iDOF );
+                Cell< MSI::Dof_Type > & tDofType = mRequestedMasterGlobalDofTypes( iDOF );
 
                 // get the index for dof type, indices for assembly
                 sint tDofDepIndex         = mSet->get_dof_index_for_type( tDofType( 0 ), mtk::Master_Slave::MASTER );
@@ -271,16 +271,16 @@ namespace moris
             if( tCMDiffusion->check_dof_dependency( aDofTypes ) )
             {
                 // compute contribution to jacobian strong form
-                aJT.matrix_data() +=
-                        tCMDiffusion->dEnergyDotdDOF( aDofTypes ).matrix_data() +
+                aJT +=
+                        tCMDiffusion->dEnergyDotdDOF( aDofTypes ) +
                         trans( tFIVelocity->val() ) * tCMDiffusion->dGradEnergydDOF( aDofTypes ) -
-                        tCMDiffusion->ddivfluxdu( aDofTypes ).matrix_data();
+                        tCMDiffusion->ddivfluxdu( aDofTypes );
             }
 
             // if derivative wrt to velocity dof type
             if( aDofTypes( 0 ) == MSI::Dof_Type::VX )
             {
-                aJT.matrix_data() +=
+                aJT +=
                         trans( tCMDiffusion->gradEnergy() ) * tFIVelocity->N() ;
             }
         }

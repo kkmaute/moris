@@ -89,7 +89,7 @@ namespace moris
             if( mMasterFIManager->get_IP_geometry_interpolator()->valt()( 0 ) > tInitTime )
             {
                 // compute the jump
-                tJump.matrix_data() -= tPropWeightPrevious->val()( 0 ) * tFIPrevious->val();
+                tJump -= tPropWeightPrevious->val()( 0 ) * tFIPrevious->val();
             }
             // if first time step
             else
@@ -99,7 +99,7 @@ namespace moris
                         mMasterProp( static_cast< uint >( IWG_Property_Type::INITIAL_CONDITION ) );
 
                 // compute the jump
-                tJump.matrix_data() -= tPropWeightPrevious->val()( 0 ) * tPropInitialCondition->val();
+                tJump -= tPropWeightPrevious->val()( 0 ) * tPropInitialCondition->val();
             }
 
             // add contribution to residual
@@ -142,7 +142,7 @@ namespace moris
             for( uint iDOF = 0; iDOF < tNumDofDependencies; iDOF++ )
             {
                 // get the treated dof type
-                Cell< MSI::Dof_Type > tDofType = mRequestedMasterGlobalDofTypes( iDOF );
+                Cell< MSI::Dof_Type > & tDofType = mRequestedMasterGlobalDofTypes( iDOF );
 
                 // get the index for dof type, indices for assembly
                 sint tDofDepIndex         = mSet->get_dof_index_for_type( tDofType( 0 ), mtk::Master_Slave::MASTER );
@@ -226,7 +226,7 @@ namespace moris
                 for( uint iDOF = 0; iDOF < tNumDofDependencies; iDOF++ )
                 {
                     // get the treated dof type
-                    Cell< MSI::Dof_Type > tDofType = mRequestedMasterGlobalDofTypes( iDOF );
+                    Cell< MSI::Dof_Type > & tDofType = mRequestedMasterGlobalDofTypes( iDOF );
 
                     // FIXME needs to be assemble on previous time step solution?
                     // get the index for dof type, indices for assembly

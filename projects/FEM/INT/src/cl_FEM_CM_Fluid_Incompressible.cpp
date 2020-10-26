@@ -189,21 +189,20 @@ namespace moris
             if( aDofTypes( 0 ) == mDofVelocity )
             {
                 // fill ddivstrain/dv
-                mddivfluxdu( tDofIndex ).matrix_data() +=
+                mddivfluxdu( tDofIndex ) +=
                         2.0 * tViscosityProp->val()( 0 ) * this->ddivstraindu( aDofTypes );
             }
             // if pressure dof
             else if( aDofTypes( 0 ) == mDofPressure )
             {
                 // fill ddivstrain/dp
-                mddivfluxdu( tDofIndex ).matrix_data() -=
-                        tFI->dnNdxn( 1 ).matrix_data();
+                mddivfluxdu( tDofIndex ) -= tFI->dnNdxn( 1 );
             }
 
             if( tViscosityProp->check_dof_dependency( aDofTypes ) )
             {
                 // fill ddivstrain/du
-                mddivfluxdu( tDofIndex ).matrix_data() +=
+                mddivfluxdu( tDofIndex ) +=
                         2.0 * this->divstrain() * tViscosityProp->dPropdDOF( aDofTypes );
             }
         }
@@ -226,6 +225,7 @@ namespace moris
             // create identity matrix
             Matrix< DDRMat > tI( mSpaceDim, 1, 1.0 );
             Matrix< DDRMat > tP( ( mSpaceDim - 1 ) * 3, 1, 0.0 );
+
             tP( { 0, mSpaceDim - 1 }, { 0, 0 } ) = tI.matrix_data();
 
             // evaluate dfluxdx
@@ -277,7 +277,7 @@ namespace moris
             if( aTestDofTypes( 0 ) == mDofVelocity )
             {
                 // compute test traction wrt velocity
-                mTestTraction( tTestDofIndex ).matrix_data() +=
+                mTestTraction( tTestDofIndex ) +=
                         2.0 * tViscosityProp->val()( 0 ) * tFlatNormal * this->testStrain();
             }
             // if test traction wrt pressure
@@ -289,15 +289,14 @@ namespace moris
                 tII( { 0, mSpaceDim - 1 }, { 0, 0 } ) = tI.matrix_data();
 
                 // build the dtesttractiondP
-                mTestTraction( tTestDofIndex ).matrix_data() -=
-                        tFlatNormal * tII * tFITest->N();
+                mTestTraction( tTestDofIndex ) -= tFlatNormal * tII * tFITest->N();
             }
 
             // if viscosity property depends on test dof type
             if ( tViscosityProp->check_dof_dependency( aTestDofTypes ) )
             {
                 // compute derivative with indirect dependency through properties
-                mTestTraction( tTestDofIndex ).matrix_data() +=
+                mTestTraction( tTestDofIndex ) +=
                         2.0 * tFlatNormal * this->strain() *
                         tViscosityProp->dPropdDOF( aTestDofTypes );
             }
@@ -579,7 +578,7 @@ namespace moris
             if( aDofTypes( 0 ) == mDofVelocity )
             {
                 // build dfluxdv
-                mdFluxdDof( tDofIndex ).matrix_data() +=
+                mdFluxdDof( tDofIndex ) +=
                         2.0 * tViscosityProp->val()( 0 ) * this->dStraindDOF( aDofTypes );
             }
             // if pressure dof
@@ -588,20 +587,21 @@ namespace moris
                 // create identity matrix
                 Matrix< DDRMat > tI( mSpaceDim, 1, 1.0 );
                 Matrix< DDRMat > tII( ( mSpaceDim - 1 ) * 3, 1, 0.0 );
+
                 tII( { 0, mSpaceDim - 1 }, { 0, 0 } ) = tI.matrix_data();
 
                 // get shape function for presure field
                 Matrix< DDRMat > tPressureN = tFI->N();
 
                 // build the dfluxdp
-                mdFluxdDof( tDofIndex ).matrix_data() -= tII * tPressureN;
+                mdFluxdDof( tDofIndex ) -= tII * tPressureN;
             }
 
             // if indirect dependency on the dof type through viscosity
             if ( tViscosityProp->check_dof_dependency( aDofTypes ) )
             {
                 // compute derivative with indirect dependency through properties
-                mdFluxdDof( tDofIndex ).matrix_data() +=
+                mdFluxdDof( tDofIndex ) +=
                         2.0 * this->strain() * tViscosityProp->dPropdDOF( aDofTypes );
             }
         }
@@ -666,7 +666,7 @@ namespace moris
             if ( tViscosityProp->check_dof_dependency( aDofTypes ) )
             {
                 // compute contribution to dTestTractiondDof
-                mdTestTractiondDof( tTestDofIndex )( tDofIndex ).matrix_data() +=
+                mdTestTractiondDof( tTestDofIndex )( tDofIndex ) +=
                         2.0 * trans( tFlatNormal * this->dStraindDOF( aTestDofTypes ) ) * aJump * tViscosityProp->dPropdDOF( aDofTypes );
             }
 
@@ -674,7 +674,7 @@ namespace moris
             if ( tViscosityProp->check_dof_dependency( aTestDofTypes ) )
             {
                 // compute contribution to dTestTractiondDof
-                mdTestTractiondDof( tTestDofIndex )( tDofIndex ).matrix_data() +=
+                mdTestTractiondDof( tTestDofIndex )( tDofIndex ) +=
                         2.0 * trans( tViscosityProp->dPropdDOF( aTestDofTypes ) ) * trans( aJump ) * tFlatNormal * this->dStraindDOF( aDofTypes );
             }
         }
@@ -699,7 +699,7 @@ namespace moris
             if( aDofTypes( 0 ) == mDofVelocity )
             {
                 // compute derivative
-                mdStraindDof( tDofIndex ).matrix_data() += this->testStrain().matrix_data();
+                mdStraindDof( tDofIndex ) += this->testStrain();
             }
         }
 

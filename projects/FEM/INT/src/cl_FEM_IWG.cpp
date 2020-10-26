@@ -9,6 +9,9 @@
 #include "cl_FEM_Set.hpp"
 #include "cl_FEM_Field_Interpolator_Manager.hpp"
 
+#include "fn_max.hpp"
+#include "fn_min.hpp"
+
 namespace moris
 {
     namespace fem
@@ -1349,7 +1352,7 @@ namespace moris
                 uint tDofCounter = 0;
 
                 // get the dof type
-                Cell< MSI::Dof_Type > tDofType = mRequestedMasterGlobalDofTypes( iFI );
+                Cell< MSI::Dof_Type > & tDofType = mRequestedMasterGlobalDofTypes( iFI );
 
                 // get the index for the dof type
                 sint tMasterDepDofIndex   = mSet->get_dof_index_for_type( tDofType( 0 ), mtk::Master_Slave::MASTER );
@@ -1482,7 +1485,7 @@ namespace moris
                 uint tDofCounter = 0;
 
                 // get the dof type
-                Cell< MSI::Dof_Type > tDofType = mRequestedMasterGlobalDofTypes( iFI );
+                Cell< MSI::Dof_Type > & tDofType = mRequestedMasterGlobalDofTypes( iFI );
 
                 // get the index for the dof type
                 sint tMasterDepDofIndex   = mSet->get_dof_index_for_type( tDofType( 0 ), mtk::Master_Slave::MASTER );
@@ -1542,10 +1545,10 @@ namespace moris
                         // loop over the points for FD
                         for( uint iPoint = tStartPoint; iPoint < tNumPoints; iPoint++ )
                         {
-                            // reset the perturbed coefficents
+                            // reset the perturbed coefficients
                             Matrix< DDRMat > tCoeffPert = tCoeff;
 
-                            // pertub the coefficent
+                            // perturb the coefficient
                             tCoeffPert( iCoeffRow, iCoeffCol ) += tFDScheme( 0 )( iPoint ) * tDeltaH;
 
                             // set the perturbed coefficients to FI
@@ -1654,10 +1657,10 @@ namespace moris
                         // loop over the points for FD
                         for( uint iPoint = tStartPoint; iPoint < tNumPoints; iPoint++ )
                         {
-                            // reset the perturbed coefficents
+                            // reset the perturbed coefficients
                             Matrix< DDRMat > tCoeffPert = tCoeff;
 
-                            // pertub the coefficent
+                            // perturb the coefficient
                             tCoeffPert( iCoeffRow, iCoeffCol ) += tFDScheme( 0 )( iPoint ) * tDeltaH;
 
                             // set the perturbed coefficients to FI
@@ -1870,8 +1873,8 @@ namespace moris
             }
 
             // IP element max/min
-            Matrix< DDRMat > tMaxIP = max( tIPGI->get_space_coeff().matrix_data() );
-            Matrix< DDRMat > tMinIP = min( tIPGI->get_space_coeff().matrix_data() );
+            Matrix< DDRMat > tMaxIP = max( tIPGI->get_space_coeff() );
+            Matrix< DDRMat > tMinIP = min( tIPGI->get_space_coeff() );
 
             // init perturbation
             real tDeltaH = 0.0;
@@ -1935,10 +1938,10 @@ namespace moris
                         // loop over point of FD scheme
                         for ( uint iPoint = tStartPoint; iPoint < tNumPoints; iPoint++ )
                         {
-                            // reset the perturbed coefficents
+                            // reset the perturbed coefficients
                             Matrix< DDRMat > tCoeffPert = tCoeff;
 
-                            // pertub the coefficent
+                            // perturb the coefficient
                             tCoeffPert( iCoeffRow, iCoeffCol ) += tFDScheme( 0 )( iPoint ) * tDeltaH;
 
                             // setting the perturbed coefficients
@@ -2042,8 +2045,8 @@ namespace moris
                     mSet->get_field_interpolator_manager( mtk::Master_Slave::SLAVE )->get_IG_geometry_interpolator();
 
             // IP element max/min
-            Matrix< DDRMat > tMasterMaxIP = max( tMasterIPGI->get_space_coeff().matrix_data() );
-            Matrix< DDRMat > tMasterMinIP = min( tMasterIPGI->get_space_coeff().matrix_data() );
+            Matrix< DDRMat > tMasterMaxIP = max( tMasterIPGI->get_space_coeff() );
+            Matrix< DDRMat > tMasterMinIP = min( tMasterIPGI->get_space_coeff() );
 
             // get the master residual dof type index in the set
             uint tMasterResDofIndex = mSet->get_dof_index_for_type(
@@ -2499,10 +2502,10 @@ namespace moris
                         // loop over the points for FD
                         for( uint iPoint = tStartPoint; iPoint < tNumPoints; iPoint++ )
                         {
-                            // reset the perturbed coefficents
+                            // reset the perturbed coefficients
                             Matrix< DDRMat > tCoeffPert = tCoeff;
 
-                            // pertub the coefficent
+                            // perturb the coefficient
                             tCoeffPert( iCoeffRow, iCoeffCol ) += tFDScheme( 0 )( iPoint ) * tDeltaH;
 
                             // set the perturbed coefficients to FI
@@ -2624,10 +2627,10 @@ namespace moris
                         // loop over the points for FD
                         for( uint iPoint = tStartPoint; iPoint < tNumPoints; iPoint++ )
                         {
-                            // reset the perturbed coefficents
+                            // reset the perturbed coefficients
                             Matrix< DDRMat > tCoeffPert = tCoeff;
 
-                            // pertub the coefficent
+                            // perturb the coefficient
                             tCoeffPert( iCoeffRow, iCoeffCol ) += tFDScheme( 0 )( iPoint ) * tDeltaH;
 
                             // set the perturbed coefficients to FI

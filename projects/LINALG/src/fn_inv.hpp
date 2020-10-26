@@ -33,6 +33,8 @@ auto
 inv( const Matrix< Matrix_Type > & aA )
 -> decltype( inv( aA.matrix_data() ) )
 {
+    MORIS_ASSERT( aA.n_rows() < 15, "For matrices larger than 15x15 use solve() instead of inv().\n");
+
     return inv( aA.matrix_data() );
 }
 

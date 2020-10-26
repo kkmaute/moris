@@ -85,20 +85,21 @@ namespace moris
         bool Property::check_dof_dependency(
                 const moris::Cell< MSI::Dof_Type > aDofType )
         {
-            // set bool for dependency
-            bool tDofDependency = false;
-
             // get the dof type index
             uint tDofIndex = static_cast< uint >( aDofType( 0 ) );
 
             // if aDofType is an active dof type for the property
-            if( tDofIndex < mDofTypeMap.numel() && mDofTypeMap( tDofIndex ) != -1 )
+            if( tDofIndex >= mDofTypeMap.numel() )
             {
-                // bool is set to true
-                tDofDependency = true;
+                return false;
             }
-            // return bool for dependency
-            return tDofDependency;
+
+            if ( mDofTypeMap( tDofIndex ) != -1 )
+            {
+                return true;
+            }
+
+            return false;
         }
 
         //------------------------------------------------------------------------------

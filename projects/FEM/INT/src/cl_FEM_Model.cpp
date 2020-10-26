@@ -2005,7 +2005,7 @@ namespace moris
                         // check for unknown CM
                         MORIS_ERROR( aCMMap.find( tCMName ) != aCMMap.end() ,
                                 "FEM_Model::create_stabilization_parameters - Unknown master aCMString: %s \n",
-                                tCMName );
+                                tCMName.c_str );
 
                         // get CM index
                         uint tCMIndex = aCMMap[ tCMName ];

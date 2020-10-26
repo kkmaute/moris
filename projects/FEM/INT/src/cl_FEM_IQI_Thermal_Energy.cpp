@@ -100,7 +100,7 @@ namespace moris
             // FIXME protect dof type
             if ( aDofType( 0 ) == MSI::Dof_Type::VX )
             {
-                adQIdu.matrix_data() +=
+                adQIdu +=
                         tPropDensity->val()( 0 ) * tFITemp->val()( 0 ) *
                         trans( tFIVelocity->N() ) * mNormal;
             }
@@ -109,7 +109,7 @@ namespace moris
             // FIXME protect dof type
             if ( aDofType( 0 ) == MSI::Dof_Type::TEMP )
             {
-                adQIdu.matrix_data() +=
+                adQIdu +=
                         tPropDensity->val()( 0 ) *
                         dot( tFIVelocity->val(), mNormal ) *
                         trans( tFITemp->N() );
@@ -119,7 +119,7 @@ namespace moris
             if ( tPropDensity->check_dof_dependency( aDofType ) )
             {
                 // compute dQIdu
-                adQIdu.matrix_data() +=
+                adQIdu +=
                         tFITemp->val()( 0 ) *
                         trans( tFIVelocity->val() ) * mNormal *
                         tPropDensity->dPropdDOF( aDofType );

@@ -361,7 +361,7 @@ namespace moris
             if( aDofTypes( 0 ) == mDofTemperature )
             {
                 // compute contribution
-                mThermalFluxDof( tDofIndex ).matrix_data() +=
+                mThermalFluxDof( tDofIndex ) +=
                         -1.0 * tPropThermalConductivity->val()( 0 ) * tFITemp->dnNdxn( 1 );
             }
 
@@ -369,7 +369,7 @@ namespace moris
             if ( tPropThermalConductivity->check_dof_dependency( aDofTypes ) )
             {
                 // compute derivative with indirect dependency through properties
-                mThermalFluxDof( tDofIndex ).matrix_data() +=
+                mThermalFluxDof( tDofIndex ) +=
                         -1.0 * tFITemp->gradx( 1 ) * tPropThermalConductivity->dPropdDOF( aDofTypes );
             }
         }
@@ -458,7 +458,7 @@ namespace moris
             if( aDofTypes( 0 ) == mDofDensity )
             {
                 // compute contribution
-                mWorkFluxDof( tDofIndex ).matrix_data() +=
+                mWorkFluxDof( tDofIndex ) +=
                         this->velocityMatrix() * this->dFluxdDOF( aDofTypes, CM_Function_Type::MECHANICAL) -
                         tPropCapillarityCoefficient->val()( 0 ) * tFIVelocity->div() * tFIDensity->gradx( 1 ) * tFIDensity->N() -
                         tPropCapillarityCoefficient->val()( 0 ) * tFIVelocity->div() * tFIDensity->val()( 0 ) * tFIDensity->dnNdxn( 1 ) ;
@@ -468,7 +468,7 @@ namespace moris
             if( aDofTypes( 0 ) == mDofVelocity )
             {
                 // compute contribution
-                mWorkFluxDof( tDofIndex ).matrix_data() +=
+                mWorkFluxDof( tDofIndex ) +=
                         this->velocityMatrix() * this->dFluxdDOF( aDofTypes, CM_Function_Type::MECHANICAL) +
                         tStressTensor * tFIVelocity->N() -
                         tPropCapillarityCoefficient->val()( 0 ) * tFIDensity->val()( 0 ) * tFIDensity->gradx( 1 ) * tFIVelocity->div_operator();
@@ -478,7 +478,7 @@ namespace moris
             if( aDofTypes( 0 ) == mDofTemperature )
             {
                 // compute contribution
-                mWorkFluxDof( tDofIndex ).matrix_data() +=
+                mWorkFluxDof( tDofIndex ) +=
                         this->velocityMatrix() * this->dFluxdDOF( aDofTypes, CM_Function_Type::MECHANICAL);
             }
 
@@ -486,7 +486,7 @@ namespace moris
             if ( tPropCapillarityCoefficient->check_dof_dependency( aDofTypes ) )
             {
                 // compute derivative with indirect dependency through properties
-                mWorkFluxDof( tDofIndex ).matrix_data() -=
+                mWorkFluxDof( tDofIndex ) -=
                         tFIDensity->val()( 0 ) * tFIDensity->gradx( 1 ) * tFIVelocity->div() *
                         tPropCapillarityCoefficient->dPropdDOF( aDofTypes );
             }
@@ -566,7 +566,7 @@ namespace moris
             if( aDofTypes( 0 ) == mDofDensity )
             {
                 // compute contribution
-                mEnergyFluxDof( tDofIndex ).matrix_data() +=
+                mEnergyFluxDof( tDofIndex ) +=
                         tFIVelocity->val() * this->dEnergydDOF( aDofTypes );
             }
 
@@ -574,7 +574,7 @@ namespace moris
             if( aDofTypes( 0 ) == mDofVelocity )
             {
                 // compute contribution
-                mEnergyFluxDof( tDofIndex ).matrix_data() +=
+                mEnergyFluxDof( tDofIndex ) +=
                         tFIVelocity->val() * this->dEnergydDOF( aDofTypes ) +
                         this->Energy()( 0 ) * tFIVelocity->N();
             }
@@ -583,7 +583,7 @@ namespace moris
             if( aDofTypes( 0 ) == mDofTemperature )
             {
                 // compute contribution
-                mEnergyFluxDof( tDofIndex ).matrix_data() +=
+                mEnergyFluxDof( tDofIndex ) +=
                         tFIVelocity->val() * this->dEnergydDOF( aDofTypes );
             }
         }
@@ -662,7 +662,7 @@ namespace moris
             if( aDofTypes( 0 ) == mDofDensity )
             {
                 // compute contribution
-                mdStressdDof( tDofIndex ).matrix_data() +=
+                mdStressdDof( tDofIndex ) +=
                         tPropCapillarityCoefficient->val()( 0 ) * mFlatIdentity * tFIDensity->val() * this->laplaceDensityDof() +
                         tPropCapillarityCoefficient->val()( 0 ) * mFlatIdentity * this->laplaceDensity() * tFIDensity->N() +
                         tPropCapillarityCoefficient->val()( 0 ) * mFlatIdentity * trans( tFIDensity->gradx( 1 ) ) * tFIDensity->dnNdxn( 1 ) +
@@ -674,7 +674,7 @@ namespace moris
             if( aDofTypes( 0 ) == mDofVelocity )
             {
                 // compute contribution
-                mdStressdDof( tDofIndex ).matrix_data() +=
+                mdStressdDof( tDofIndex ) +=
                         2.0 * tPropDynamicViscosity->val()( 0 ) *
                         ( this->dStraindDOF( aDofTypes ) - ( 1 / 3 ) * mFlatIdentity * tFIVelocity->div_operator() );
             }
@@ -683,7 +683,7 @@ namespace moris
             if( aDofTypes( 0 ) == mDofTemperature )
             {
                 // compute contribution
-                mdStressdDof( tDofIndex ).matrix_data() -=
+                mdStressdDof( tDofIndex ) -=
                         mFlatIdentity * this->dPressuredDOF( aDofTypes );
             }
 
@@ -691,7 +691,7 @@ namespace moris
             if ( tPropDynamicViscosity->check_dof_dependency( aDofTypes ) )
             {
                 // compute derivative with indirect dependency through properties
-                mdStressdDof( tDofIndex ).matrix_data() +=
+                mdStressdDof( tDofIndex ) +=
                         2.0 * ( this->strain() - ( 1 / 3 ) * mFlatIdentity * tFIVelocity->div() ) *
                         tPropDynamicViscosity->dPropdDOF( aDofTypes );
             }
@@ -700,7 +700,7 @@ namespace moris
             if ( tPropCapillarityCoefficient->check_dof_dependency( aDofTypes ) )
             {
                 // compute derivative with indirect dependency through properties
-                mdStressdDof( tDofIndex ).matrix_data() +=
+                mdStressdDof( tDofIndex ) +=
                         mFlatIdentity  * ( tFIDensity->val()( 0 ) * this->laplaceDensity() +
                                 0.5 * ( trans( tFIDensity->gradx( 1 ) ) * tFIDensity->gradx( 1 ) ) ) *
                         tPropCapillarityCoefficient->dPropdDOF( aDofTypes ) -
@@ -759,7 +759,7 @@ namespace moris
             if( aDofTypes( 0 ) == mDofDensity )
             {
                 // compute contribution
-                mEnergyDof( tDofIndex ).matrix_data() +=
+                mEnergyDof( tDofIndex ) +=
                         tPropIsochoricHeatCapacity->val()( 0 ) * tFITemp->val()( 0 ) * tFIDensity->N() -
                         2.0 * tPropFirstVdWconstant->val()( 0 ) * tFIDensity->val()( 0 ) * tFIDensity->N() +
                         0.5 * trans( tFIVelocity->val() ) * tFIVelocity->val() * tFIDensity->N() +
@@ -770,7 +770,7 @@ namespace moris
             if( aDofTypes( 0 ) == mDofVelocity )
             {
                 // compute contribution
-                mEnergyDof( tDofIndex ).matrix_data() +=
+                mEnergyDof( tDofIndex ) +=
                         tFIDensity->val()( 0 ) * trans( tFIVelocity->val() ) * tFIVelocity->N();
             }
 
@@ -778,7 +778,7 @@ namespace moris
             if( aDofTypes( 0 ) == mDofTemperature )
             {
                 // compute contribution
-                mEnergyDof( tDofIndex ).matrix_data() +=
+                mEnergyDof( tDofIndex ) +=
                         tPropIsochoricHeatCapacity->val()( 0 ) * tFIDensity->val()( 0 ) * tFITemp->N();
             }
 
@@ -786,7 +786,7 @@ namespace moris
             if ( tPropCapillarityCoefficient->check_dof_dependency( aDofTypes ) )
             {
                 // compute derivative with indirect dependency through properties
-                mEnergyDof( tDofIndex ).matrix_data() +=
+                mEnergyDof( tDofIndex ) +=
                         0.5 * trans( tFIDensity->gradx( 1 ) ) * tFIDensity->gradx( 1 ) *
                         tPropCapillarityCoefficient->dPropdDOF( aDofTypes );
             }
@@ -846,7 +846,7 @@ namespace moris
             if( aDofTypes( 0 ) == mDofDensity )
             {
                 // compute contribution
-                mEnergyDotDof( tDofIndex ).matrix_data() +=
+                mEnergyDotDof( tDofIndex ) +=
                         tPropIsochoricHeatCapacity->val()( 0 ) * tFITemp->val()( 0 ) * tFIDensity->dnNdtn( 1 ) +
                         tPropIsochoricHeatCapacity->val()( 0 ) * tFITemp->gradt( 1 ) * tFIDensity->N() -
                         2.0 *  tPropFirstVdWconstant->val()( 0 ) * tFIDensity->val() * tFIDensity->dnNdtn( 1 ) -
@@ -861,7 +861,7 @@ namespace moris
             if( aDofTypes( 0 ) == mDofVelocity )
             {
                 // compute contribution
-                mEnergyDotDof( tDofIndex ).matrix_data() +=
+                mEnergyDotDof( tDofIndex ) +=
                         tFIDensity->gradt( 1 ) * trans( tFIVelocity->val() ) * tFIVelocity->N() +
                         tFIDensity->val()( 0 ) * tFIVelocity->gradt( 1 ) * tFIVelocity->N() +
                         tFIDensity->val()( 0 ) * trans( tFIVelocity->val() ) * this->dNveldt();
@@ -871,7 +871,7 @@ namespace moris
             if( aDofTypes( 0 ) == mDofTemperature )
             {
                 // compute contribution
-                mEnergyDotDof( tDofIndex ).matrix_data() +=
+                mEnergyDotDof( tDofIndex ) +=
                         tPropIsochoricHeatCapacity->val()( 0 ) * tFIDensity->val()( 0 ) * tFITemp->dnNdtn( 1 ) +
                         tPropIsochoricHeatCapacity->val()( 0 ) * tFIDensity->gradt( 1 ) * tFITemp->N() ;
             }
@@ -880,7 +880,7 @@ namespace moris
             if ( tPropCapillarityCoefficient->check_dof_dependency( aDofTypes ) )
             {
                 // compute derivative with indirect dependency through properties
-                mEnergyDotDof( tDofIndex ).matrix_data() +=
+                mEnergyDotDof( tDofIndex ) +=
                         trans( tFIDensity->gradx( 1 ) ) * tFIDensity->gradxt() *
                         tPropCapillarityCoefficient->dPropdDOF( aDofTypes );
             }
@@ -1393,7 +1393,7 @@ namespace moris
             if( aDofTypes( 0 ) == mDofVelocity )
             {
                 // compute derivative
-                mdStraindDof( tDofIndex ).matrix_data() += this->testStrain().matrix_data();
+                mdStraindDof( tDofIndex ) += this->testStrain();
             }
         }
 
