@@ -107,11 +107,6 @@ namespace moris
             Matrix< DDRMat > tNormalMatrix;
             this->compute_normal_matrix( tNormalMatrix );
 
-//            // debug
-//            std::cout << "In Function IWG_Compressible_NS_Advective_Momentum_Flux_Boundary::compute_residual \n" << std::flush;
-//            Matrix< DDRMat > Line1 = tDensityFI->val()( 0 ) * trans( tVelocityFI->N() ) * tNormalMatrix * tUiUj;
-//            print( tNormalMatrix, "tNormalMatrix" );
-
             // compute the residual weak form
             mSet->get_residual()( 0 )( { tMasterResStartIndex, tMasterResStopIndex }, { 0, 0 } ) += aWStar * (
                     tDensityFI->val()( 0 ) * trans( tVelocityFI->N() ) * tNormalMatrix * tUiUj );
@@ -161,11 +156,6 @@ namespace moris
                     Matrix< DDRMat > tNormalMatrix;
                     this->compute_normal_matrix( tNormalMatrix );
 
-//                    // debug
-//                    std::cout << "In Function IWG_Compressible_NS_Advective_Momentum_Flux_Boundary::compute_jacobian -> Density DoF type. \n" << std::flush;
-//                    Matrix< DDRMat > Line1 = trans( tFIVelocity->N() ) * tNormalMatrix * tUiUj * tFIDensity->N();
-//                    print( Line1, "Line1" );
-
                     // add contribution
                     mSet->get_jacobian()(
                             { tMasterResStartIndex, tMasterResStopIndex },
@@ -183,11 +173,6 @@ namespace moris
                     // build flattened normal
                     Matrix< DDRMat > tNormalMatrix;
                     this->compute_normal_matrix( tNormalMatrix );
-
-//                    // debug
-//                    std::cout << "In Function IWG_Compressible_NS_Advective_Momentum_Flux_Boundary::compute_jacobian -> Residual DoF type. \n" << std::flush;
-//                    Matrix< DDRMat > Line1 = tFIDensity->val()( 0 ) * trans( tFIVelocity->N() ) * tNormalMatrix * tdUiUjdDOF;
-//                    print( Line1, "Line1" );
 
                     // add contribution
                     mSet->get_jacobian()(

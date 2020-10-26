@@ -137,9 +137,9 @@ TEST_CASE( "IWG_Compressible_NS_Advective_Energy_Boundary_Ideal",
     for( uint iSpaceDim = 2; iSpaceDim < 4; iSpaceDim++ )
     {
         // output for debugging
-        std::cout << "-------------------------------------------------------------------\n" << std::flush;
-        std::cout << "Performing Tests For Number of Spatial dimensions: " << iSpaceDim << "\n" << std::flush;
-        std::cout << "-------------------------------------------------------------------\n\n" << std::flush;
+        //std::cout << "-------------------------------------------------------------------\n" << std::flush;
+        //std::cout << "Performing Tests For Number of Spatial dimensions: " << iSpaceDim << "\n" << std::flush;
+        //std::cout << "-------------------------------------------------------------------\n\n" << std::flush;
 
         // create normal for IWG
         Matrix< DDRMat > tNormal( iSpaceDim, 1, 3.8 );
@@ -197,9 +197,9 @@ TEST_CASE( "IWG_Compressible_NS_Advective_Energy_Boundary_Ideal",
             }
 
             // output for debugging
-            std::cout << "-------------------------------------------------------------------\n" << std::flush;
-            std::cout << "-------------------------------------------------------------------\n" << std::flush;
-            std::cout << "Performing Tests For Interpolation Order:" << iInterpOrder << "\n\n" << std::flush;
+            //std::cout << "-------------------------------------------------------------------\n" << std::flush;
+            //std::cout << "-------------------------------------------------------------------\n" << std::flush;
+            //std::cout << "Performing Tests For Interpolation Order:" << iInterpOrder << "\n\n" << std::flush;
 
             // create an interpolation order
             mtk::Interpolation_Order tGIInterpolationOrder = tInterpolationOrders( iInterpOrder - 1 );
@@ -350,8 +350,8 @@ TEST_CASE( "IWG_Compressible_NS_Advective_Energy_Boundary_Ideal",
             for( uint iGP = 0; iGP < tNumGPs; iGP ++ )
             {
                 // output for debugging
-                std::cout << "-------------------------------------------------------------------\n" << std::flush;
-                std::cout << "Looping over Gauss points. Current GP-#: " << iGP << "\n\n" << std::flush;
+                //std::cout << "-------------------------------------------------------------------\n" << std::flush;
+                //std::cout << "Looping over Gauss points. Current GP-#: " << iGP << "\n\n" << std::flush;
 
                 // reset CM evaluation flags
                 tCMMasterFluid->reset_eval_flags();
