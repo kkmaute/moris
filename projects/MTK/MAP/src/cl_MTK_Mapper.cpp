@@ -416,11 +416,11 @@ namespace moris
             {
                 // get weights
                 const Matrix< DDRMat > & tTMatrix = mTargetMesh->
-                        get_t_matrix_of_node_loc_ind( k, aBSplineRank );
+                        get_t_matrix_of_node_loc_ind( k, 0 );
 
                 // get indices
                 Matrix< IndexMat > tBSplines = mTargetMesh->
-                        get_bspline_inds_of_node_loc_ind( k, aBSplineRank );
+                        get_bspline_inds_of_node_loc_ind( k, 0 );
 
                 // get number of coefficients
                 uint tNumberOfCoeffs = tTMatrix.length();

@@ -125,7 +125,7 @@ namespace xtk
             for( moris::uint  i = 0; i < tMesh->get_num_entities(EntityRank::NODE); i++ )
             {
                 std::cout<<i<<" iterator"<<std::endl;
-                moris::print( tMesh->get_bspline_inds_of_node_loc_ind( i, EntityRank::BSPLINE ), "bspline inds" );
+                moris::print( tMesh->get_bspline_inds_of_node_loc_ind( i, 0 ), "bspline inds" );
                 //moris::print(tMesh->get_t_matrix_of_node_loc_ind(i,EntityRank::BSPLINE),"bspline t matrix");
             }
 

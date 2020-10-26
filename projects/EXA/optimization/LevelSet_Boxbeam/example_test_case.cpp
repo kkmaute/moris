@@ -34,7 +34,7 @@ TEST_CASE("SIMP",
     REQUIRE( tRet ==  0 );
 
     // Read Exodus file
-    moris::mtk::Exodus_IO_Helper tExoIO("levelset_boxbeam.exo", 0, false, false);
+    //moris::mtk::Exodus_IO_Helper tExoIO("levelset_boxbeam.exo", 0, false, false);
 
     // Checks
 }

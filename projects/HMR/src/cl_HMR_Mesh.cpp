@@ -339,11 +339,29 @@ namespace moris
 
         //-----------------------------------------------------------------------------
 
-        Matrix< IndexMat > Mesh::get_bspline_inds_of_node_loc_ind(
-                const moris_index      aNodeIndex,
-                const enum EntityRank  aBSplineRank )
+        const Matrix< DDRMat > & Mesh::get_t_matrix_of_node_loc_ind(
+                uint aNodeIndex,
+                uint aBSplineMeshIndex)
         {
-            return mMesh->get_node_by_index( aNodeIndex ) ->get_interpolation( 0)->get_indices();
+            return *mMesh->get_node_by_index(aNodeIndex)->get_interpolation(aBSplineMeshIndex)->get_weights();
+        }
+
+        //-----------------------------------------------------------------------------
+
+        Matrix< IndexMat > Mesh::get_bspline_inds_of_node_loc_ind(
+                uint aNodeIndex,
+                uint aBSplineMeshIndex )
+        {
+            return mMesh->get_node_by_index(aNodeIndex)->get_interpolation(aBSplineMeshIndex)->get_indices();
+        }
+
+        //-----------------------------------------------------------------------------
+
+        Matrix< IdMat > Mesh::get_bspline_ids_of_node_loc_ind(
+                uint aNodeIndex,
+                uint aBSplineMeshIndex )
+        {
+            return mMesh->get_node_by_index(aNodeIndex)->get_interpolation(aBSplineMeshIndex)->get_ids();
         }
 
         //-----------------------------------------------------------------------------

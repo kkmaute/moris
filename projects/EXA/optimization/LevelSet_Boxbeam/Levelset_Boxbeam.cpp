@@ -43,7 +43,7 @@ namespace moris
 
     real tMMAPenalty  = 5.0;
     real tMMAStepSize = 0.01;
-    int  tMMAMaxIter  = 500;
+    int  tMMAMaxIter  = 2;
 
     int tInitialRef            = 2;
     std::string tLagrangeOrder = "1";
