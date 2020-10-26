@@ -1098,7 +1098,7 @@ namespace moris
             uint tDofIndex = mGlobalDofTypeMap( static_cast< uint >( aDofTypes( 0 ) ) );
 
             // direct contribution
-            mWorkTractionDof( tDofIndex ) = trans( aNormal ) * this->dFluxdDOF( aDofTypes, CM_Function_Type::ENERGY );
+            mWorkTractionDof( tDofIndex ) = trans( aNormal ) * this->dFluxdDOF( aDofTypes, CM_Function_Type::WORK );
         }
 
         const Matrix< DDRMat > & CM_Fluid_Compressible_Van_der_Waals::work_dTractiondDOF(
