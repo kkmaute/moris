@@ -538,10 +538,8 @@ TEST_CASE( "IWG_Compressible_NS_Advective_Momentum_Boundary_VdW",
         //std::cout << "Performing Tests For Number of Spatial dimensions: " << iSpaceDim << "\n" << std::flush;
         //std::cout << "-------------------------------------------------------------------\n\n" << std::flush;
 
-        // assign normal to IWG
-        Matrix< DDRMat > tNormal( iSpaceDim, 1, 0.5 );
-        tNormal = tNormal / norm( tNormal );
-        tIWG->set_normal( tNormal );
+        // create normal for IWG
+        Matrix< DDRMat > tNormal( iSpaceDim, 1, 3.8 );
 
         // switch on space dimension
         switch( iSpaceDim )
@@ -554,6 +552,9 @@ TEST_CASE( "IWG_Compressible_NS_Advective_Momentum_Boundary_VdW",
                 // set velocity dof types
                 tVelocityDof = { MSI::Dof_Type::VX, MSI::Dof_Type::VY };
                 break;
+
+                // set normal
+                tNormal( 1 ) = -2.6;
             }
             case 3 :
             {
@@ -563,6 +564,10 @@ TEST_CASE( "IWG_Compressible_NS_Advective_Momentum_Boundary_VdW",
                 // set velocity dof types
                 tVelocityDof = { MSI::Dof_Type::VX, MSI::Dof_Type::VY, MSI::Dof_Type::VZ };
                 break;
+
+                // set normal
+                tNormal( 1 ) = -2.6;
+                tNormal( 2 ) =  9.4;
             }
             default:
             {
@@ -570,6 +575,10 @@ TEST_CASE( "IWG_Compressible_NS_Advective_Momentum_Boundary_VdW",
                 break;
             }
         }
+
+        // assign normal to IWG
+        tNormal = tNormal / norm( tNormal );
+        tIWG->set_normal( tNormal );
 
         // set space dimension to CM
         tCMMasterFluid->set_space_dim( iSpaceDim );
