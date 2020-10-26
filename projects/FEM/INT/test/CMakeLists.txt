@@ -59,6 +59,7 @@ set(TEST_SOURCES
     UT_FEM_IWG_Compressible_NS_Velocity_Bulk.cpp
     UT_FEM_IWG_Compressible_NS_Temperature_Bulk.cpp
     UT_FEM_IWG_Compressible_NS_Advective_Momentum_Boundary.cpp
+    UT_FEM_IWG_Compressible_NS_Advective_Energy_Boundary.cpp
     #UT_FEM_IWG_FS_Struc_Interface.cpp
     UT_FEM_IWG_Spalart_Allmaras_Turbulence_Bulk.cpp
     UT_FEM_IWG_Spalart_Allmaras_Turbulence_Dirichlet.cpp
