@@ -860,39 +860,48 @@ namespace moris
             get_num_coeffs(const uint aBSplineMeshIndex) const;
 
             /**
-             * Returns if this node has information about B-spline interpolation or not
+             * Returns if this node has information about B-spline interpolation or not.
              *
              * @param aNodeIndex Node index
              * @param aBSplineMeshIndex B-spline mesh index
              * @return If interpolation exists
              */
-            virtual bool node_has_interpolation(uint aNodeIndex, uint aBSplineMeshIndex);
+            virtual bool node_has_interpolation(
+                    uint aNodeIndex,
+                    uint aBSplineMeshIndex);
 
-            // FIXME B-spline rank should be B-spline mesh index
             /**
              * Get the T-matrix of a node.
              *
              * @param aNodeIndex Node index
-             * @param aBSplineRank B-spline rank
+             * @param aBSplineMeshIndex B-spline mesh index
              * @return T-matrix
              */
-            virtual const Matrix< DDRMat > &
-            get_t_matrix_of_node_loc_ind(
-                    const moris_index aNodeIndex,
-                    const EntityRank  aBSplineRank );
+            virtual const Matrix< DDRMat > & get_t_matrix_of_node_loc_ind(
+                    uint aNodeIndex,
+                    uint aBSplineMeshIndex);
 
-            // FIXME B-spline rank should be B-spline mesh index
             /**
              * Get the indices of the B-spline coefficients of a node.
              *
              * @param aNodeIndex Node index
-             * @param aBSplineRank B-spline rank
+             * @param aBSplineMeshIndex B-spline mesh index
              * @return B-spline coefficient indices
              */
-            virtual Matrix< IndexMat >
-            get_bspline_inds_of_node_loc_ind(
-                    const moris_index aNodeIndex,
-                    const EntityRank  aBSplineRank );
+            virtual Matrix< IndexMat > get_bspline_inds_of_node_loc_ind(
+                    uint aNodeIndex,
+                    uint aBSplineMeshIndex );
+
+            /**
+             * Get the IDs of the B-spline coefficients of a node.
+             *
+             * @param aNodeIndex Node index
+             * @param aBSplineMeshIndex B-spline mesh index
+             * @return B-spline coefficient indices
+             */
+            virtual Matrix< IdMat > get_bspline_ids_of_node_loc_ind(
+                    uint aNodeIndex,
+                    uint aBSplineMeshIndex );
 
             /**
              * Gets the number of basis functions. For Lagrange meshes, the number of basis functions and the number of

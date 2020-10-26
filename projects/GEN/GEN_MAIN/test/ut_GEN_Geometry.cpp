@@ -393,10 +393,10 @@ namespace moris
                 {
                     check_equal(
                             tBSplineCircle->get_field_sensitivities(tNodeIndex, {{}}),
-                            tMesh->get_t_matrix_of_node_loc_ind(tNodeIndex, EntityRank::BSPLINE));
+                            tMesh->get_t_matrix_of_node_loc_ind(tNodeIndex, 0));
                     check_equal(
                             tBSplineCircle->get_determining_adv_ids(tNodeIndex, {{}}),
-                            tMesh->get_bspline_inds_of_node_loc_ind(tNodeIndex, EntityRank::BSPLINE));
+                            tMesh->get_bspline_ids_of_node_loc_ind(tNodeIndex, 0));
                 }
             }
         }
@@ -488,10 +488,10 @@ namespace moris
                         // Check sensitivities
                         check_equal(
                                 tBSplineCircle->get_field_sensitivities(tNodeIndex, {{}}),
-                                tMesh->get_t_matrix_of_node_loc_ind(tNodeIndex, EntityRank::BSPLINE));
+                                tMesh->get_t_matrix_of_node_loc_ind(tNodeIndex, 0));
                         check_equal(
                                 tBSplineCircle->get_determining_adv_ids(tNodeIndex, {{}}),
-                                tMesh->get_bspline_inds_of_node_loc_ind(tNodeIndex, EntityRank::BSPLINE));
+                                tMesh->get_bspline_ids_of_node_loc_ind(tNodeIndex, 0));
                     }
 
                     // Set new ADVs
