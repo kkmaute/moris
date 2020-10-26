@@ -88,9 +88,9 @@ namespace moris
              *
              * @param aNodeIndex Node index
              * @param aCoordinates Node coordinates
-             * @return Field basis ADV IDs
+             * @return Determining ADV IDs at this node
              */
-            virtual Matrix<DDSMat> get_determining_adv_ids(uint aNodeIndex, const Matrix<DDRMat>& aCoordinates);
+            virtual Matrix<DDSMat> get_determining_adv_ids(uint aNodeIndex);
 
             /**
              * Imports the local ADVs required from the full owned ADV distributed vector, and recomputes nodal values.

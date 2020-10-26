@@ -52,24 +52,61 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        Matrix<DDRMat> Child_Node::interpolate_field_sensitivity(Field* aField)
+        Matrix<DDRMat> Child_Node::join_field_sensitivities(Field* aField)
         {
             // Initialize using first parent
-            Matrix<DDRMat> tSensitivities = aField->get_field_sensitivities(
+            Matrix<DDRMat> tJoinedSensitivities = aField->get_field_sensitivities(
                     mParentNodeIndices(0),
                     mParentNodeCoordinates(0));
-            tSensitivities = tSensitivities * mBasisValues(0);
+            tJoinedSensitivities = tJoinedSensitivities * mBasisValues(0);
 
             // Get sensitivity values from other parents
             for (uint tParentNode = 1; tParentNode < mParentNodeIndices.length(); tParentNode++)
             {
-                Matrix<DDRMat> tParentSensitivity = aField->get_field_sensitivities(
+                // Get scaled sensitivities
+                Matrix<DDRMat> tParentSensitivities = mBasisValues(tParentNode) * aField->get_field_sensitivities(
                         mParentNodeIndices(tParentNode),
                         mParentNodeCoordinates(tParentNode));
-                tSensitivities = tSensitivities + mBasisValues(tParentNode) * tParentSensitivity;
+                
+                // Join sensitivities
+                uint tJoinedSensitivityLength = tJoinedSensitivities.n_cols();
+                tJoinedSensitivities.resize(1, tJoinedSensitivityLength + tParentSensitivities.n_cols());
+                for (uint tParentSensitivity = 0; tParentSensitivity < tParentSensitivities.n_cols(); tParentSensitivity++)
+                {
+                    tJoinedSensitivities(tJoinedSensitivityLength + tParentSensitivity) = tParentSensitivities(tParentSensitivity);
+                }
             }
 
-            return tSensitivities;
+            return tJoinedSensitivities;
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
+        Matrix<DDSMat> Child_Node::join_determining_adv_ids(Field* aField)
+        {
+            // Initialize using first parent
+            Matrix<DDSMat> tJoinedDeterminingADVs = aField->get_determining_adv_ids(
+                    mParentNodeIndices(0),
+                    mParentNodeCoordinates(0));
+
+            // Get sensitivity values from other parents
+            for (uint tParentNode = 1; tParentNode < mParentNodeIndices.length(); tParentNode++)
+            {
+                // Get scaled sensitivities
+                Matrix<DDSMat> tParentDependingADVs = aField->get_determining_adv_ids(
+                        mParentNodeIndices(tParentNode),
+                        mParentNodeCoordinates(tParentNode));
+
+                // Join sensitivities
+                uint tJoinedADVLength = tJoinedDeterminingADVs.n_cols();
+                tJoinedDeterminingADVs.resize(1, tJoinedADVLength + tParentDependingADVs.n_cols());
+                for (uint tParentADV = 0; tParentADV < tParentDependingADVs.n_cols(); tParentADV++)
+                {
+                    tJoinedDeterminingADVs(tJoinedADVLength + tParentADV) = tParentDependingADVs(tParentADV);
+                }
+            }
+
+            return tJoinedDeterminingADVs;
         }
 
         //--------------------------------------------------------------------------------------------------------------

@@ -143,7 +143,7 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        Matrix<DDSMat> Level_Set::get_determining_adv_ids(uint aNodeIndex, const Matrix<DDRMat>& aCoordinates)
+        Matrix<DDSMat> Level_Set::get_determining_adv_ids(uint aNodeIndex)
         {
             return mMesh->get_bspline_inds_of_node_loc_ind(aNodeIndex, EntityRank::BSPLINE);
         }

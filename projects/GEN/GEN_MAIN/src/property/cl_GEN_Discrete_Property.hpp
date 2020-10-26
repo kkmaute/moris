@@ -82,9 +82,9 @@ namespace moris
              *
              * @param aNodeIndex Node index
              * @param aCoordinates Node coordinates
-             * @return Field basis ADV IDs
+             * @return Determining ADV IDs at this node
              */
-            Matrix<DDSMat> get_determining_adv_ids(uint aNodeIndex, const Matrix<DDRMat>& aCoordinates);
+            Matrix<DDSMat> get_determining_adv_ids(uint aNodeIndex);
 
         };
     }

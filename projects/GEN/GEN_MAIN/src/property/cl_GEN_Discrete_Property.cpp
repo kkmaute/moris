@@ -69,7 +69,7 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        Matrix<DDSMat> Discrete_Property::get_determining_adv_ids(uint aNodeIndex, const Matrix<DDRMat>& aCoordinates)
+        Matrix<DDSMat> Discrete_Property::get_determining_adv_ids(uint aNodeIndex)
         {
             return {{(sint)aNodeIndex}};
         }

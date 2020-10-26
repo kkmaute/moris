@@ -58,6 +58,23 @@ namespace moris
             virtual Matrix<DDRMat> get_field_sensitivities(uint aNodeIndex) = 0;
 
             /**
+             * Gets the IDs of ADVs which this field depends on for evaluations, including child nodes.
+             *
+             * @param aNodeIndex Node index
+             * @param aCoordinates Node coordinates
+             * @return Determining ADV IDs at this node
+             */
+            Matrix<DDSMat> get_determining_adv_ids(uint aNodeIndex, const Matrix<DDRMat>& aCoordinates);
+
+            /**
+             * Gets the IDs of ADVs which this field depends on for evaluations for non-child nodes.
+             *
+             * @param aNodeIndex Node index
+             * @return Determining ADV IDs at this node
+             */
+            virtual Matrix<DDSMat> get_determining_adv_ids(uint aNodeIndex);
+
+            /**
              * Add a new child node for evaluation.
              *
              * @param aNodeIndex Index of the child node

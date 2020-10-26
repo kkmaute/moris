@@ -35,15 +35,39 @@ namespace moris
         {
             if (aNodeIndex < mNumOriginalNodes)
             {
-                return get_field_sensitivities(aNodeIndex);
+                return this->get_field_sensitivities(aNodeIndex);
             }
             else
             {
                 MORIS_ASSERT((aNodeIndex - mNumOriginalNodes) < mChildNodes.size(),
                         "A discrete field sensitivity was requested from a node that this field doesn't know. "
                         "Perhaps a child node was not added to this field?");
-                return mChildNodes(aNodeIndex - mNumOriginalNodes)->interpolate_field_sensitivity(this);
+                return mChildNodes(aNodeIndex - mNumOriginalNodes)->join_field_sensitivities(this);
             }
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
+        Matrix<DDSMat> Field_Discrete::get_determining_adv_ids(uint aNodeIndex, const Matrix<DDRMat>& aCoordinates)
+        {
+            if (aNodeIndex < mNumOriginalNodes)
+            {
+                return this->get_determining_adv_ids(aNodeIndex);
+            }
+            else
+            {
+                MORIS_ASSERT((aNodeIndex - mNumOriginalNodes) < mChildNodes.size(),
+                             "A discrete field sensitivity was requested from a node that this field doesn't know. "
+                             "Perhaps a child node was not added to this field?");
+                return mChildNodes(aNodeIndex - mNumOriginalNodes)->join_determining_adv_ids(this);
+            }
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
+        Matrix<DDSMat> Field_Discrete::get_determining_adv_ids(uint aNodeIndex)
+        {
+            return Field::get_determining_adv_ids(aNodeIndex, {{}});
         }
 
         //--------------------------------------------------------------------------------------------------------------
