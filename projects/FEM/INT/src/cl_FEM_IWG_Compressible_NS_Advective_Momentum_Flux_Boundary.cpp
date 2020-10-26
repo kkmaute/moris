@@ -96,8 +96,8 @@ namespace moris
             uint tMasterResStopIndex  = mSet->get_res_dof_assembly_map()( tMasterDofIndex )( 0, 1 );
 
             // get the field interpolators
-            Field_Interpolator * tDensityFI = mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );
-            Field_Interpolator * tVelocityFI = mMasterFIManager->get_field_interpolators_for_type( mDofVelocity );
+            Field_Interpolator * tDensityFI = mMasterFIManager->get_field_interpolators_for_type( mDofDensity );
+            Field_Interpolator * tVelocityFI = mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );
 
             // build dyadic product of velocity vectors
             Matrix< DDRMat > tUiUj;
@@ -110,7 +110,7 @@ namespace moris
 //            // debug
 //            std::cout << "In Function IWG_Compressible_NS_Advective_Momentum_Flux_Boundary::compute_residual \n" << std::flush;
 //            Matrix< DDRMat > Line1 = tDensityFI->val()( 0 ) * trans( tVelocityFI->N() ) * tNormalMatrix * tUiUj;
-//            print( Line1, "Line1" );
+//            print( tNormalMatrix, "tNormalMatrix" );
 
             // compute the residual weak form
             mSet->get_residual()( 0 )( { tMasterResStartIndex, tMasterResStopIndex }, { 0, 0 } ) += aWStar * (
@@ -135,8 +135,8 @@ namespace moris
             uint tMasterResStopIndex  = mSet->get_res_dof_assembly_map()( tMasterDofIndex )( 0, 1 );
 
             // get the FIs
-            Field_Interpolator * tFIVelocity =  mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );
             Field_Interpolator * tFIDensity =  mMasterFIManager->get_field_interpolators_for_type( mDofDensity );
+            Field_Interpolator * tFIVelocity =  mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );
 
             // compute the jacobian for dof dependencies
             uint tNumDofDependencies = mRequestedMasterGlobalDofTypes.size();
