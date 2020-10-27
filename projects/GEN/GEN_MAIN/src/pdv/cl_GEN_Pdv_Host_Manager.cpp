@@ -54,7 +54,8 @@ namespace moris
 
         void Pdv_Host_Manager::reset()
         {
-            mIntersectionNodes.resize(0);
+            mIpPdvHosts.clear();
+            mIntersectionNodes.clear();
             mOwnedPdvLocalToGlobalMap.resize(0, 0);
             mOwnedAndSharedPdvLocalToGlobalMap.resize(0, 0);
             mNumOwnedPdvs = 0;

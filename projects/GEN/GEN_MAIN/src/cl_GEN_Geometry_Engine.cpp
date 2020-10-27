@@ -580,9 +580,6 @@ namespace moris
 
             // Create PDV IDs
             mPdvHostManager.create_pdv_ids();
-
-            // Get rid of parameter lists
-            mPropertyParameterLists.resize(0);
         }
 
         //--------------------------------------------------------------------------------------------------------------
