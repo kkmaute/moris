@@ -92,29 +92,65 @@ namespace moris
             tOutputData.mSaveFrequency  = aParamterelist.get< moris::sint >( "Save_Frequency" );
             tOutputData.mTimeOffset     = aParamterelist.get< moris::real >( "Time_Offset" );
 
+            // read and check mesh set names
             moris::Cell< std::string > tSetNames;
-            string_to_cell( aParamterelist.get< std::string >( "Set_Names" ), tSetNames );
+            string_to_cell(
+                    aParamterelist.get< std::string >( "Set_Names" ),
+                    tSetNames );
+
+            MORIS_ERROR( tSetNames.size() > 0, "At least one mesh set name needs to be provided for Vis mesh\n");
+            for (auto tName:tSetNames)
+            {
+                MORIS_ERROR( tName.length() > 0, "Empty strings for set names in Vis mesh are not allowed\n");
+            }
+
             tOutputData.mSetNames   = tSetNames;
 
+            // read and check field names
             moris::Cell< std::string > tFieldNames;
             string_to_cell(
                     aParamterelist.get< std::string >( "Field_Names" ),
                     tFieldNames );
+
+            MORIS_ERROR( tFieldNames.size() > 0, "At least one field name needs to be provided for Vis mesh\n");
+            for (auto tName:tFieldNames)
+            {
+                MORIS_ERROR( tName.length() > 0, "Empty strings for field names in Vis mesh are not allowed\n");
+            }
+
             tOutputData.mFieldNames = tFieldNames;
 
+            // read and check field types
             moris::Cell< enum vis::Field_Type > tFieldTypes;
             moris::map< std::string, enum vis::Field_Type > tFieldTypeMap = get_vis_field_type_map();
             string_to_cell(
                     aParamterelist.get< std::string >( "Field_Type" ) ,
                     tFieldTypes,
                     tFieldTypeMap );
+
+            MORIS_ERROR( tFieldTypes.size() > 0, "At least one field type needs to be provided for Vis mesh\n");
+            for (auto tName:tFieldNames)
+            {
+                MORIS_ERROR( tName.length() > 0, "Empty strings for field types in Vis mesh are not allowed\n");
+            }
+
             tOutputData.mFieldType  = tFieldTypes;
 
             // check that length of Field_Names and Field_Type are consistent
             MORIS_ERROR( tFieldNames.size() == tFieldTypes.size(),"Output_Manager::set_outputs - Number of Field Names and Field Types differ.");
 
+            // read and check IQI names
             moris::Cell< std::string > tQINames;
-            string_to_cell( aParamterelist.get< std::string >( "IQI_Names"), tQINames );
+            string_to_cell(
+                    aParamterelist.get< std::string >( "IQI_Names"),
+                    tQINames );
+
+            MORIS_ERROR( tQINames.size() > 0, "At least one IQI name needs to be provided for Vis mesh\n");
+            for (auto tName:tQINames)
+            {
+                MORIS_ERROR( tName.length() > 0, "Empty strings for IQI name in Vis mesh are not allowed\n");
+            }
+
             tOutputData.mQINames = tQINames;
 
             // check that length of Field_Names and Field_Type are consistent
