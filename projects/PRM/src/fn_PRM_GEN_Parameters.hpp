@@ -124,7 +124,6 @@ namespace moris
             tParameterList.insert("bspline_mesh_index", -1);            // Index of B-spline mesh to create level set field on (-1 = none)
             tParameterList.insert("bspline_lower_bound", -1.0);         // Lower bound of level set field (if bspline_mesh_index >= 0)
             tParameterList.insert("bspline_upper_bound", 1.0);          // Upper bound of level set field (if bspline_mesh_index >= 0)
-            tParameterList.insert("multigeometry_id", "");              // ID of a multi-geometry to be added to ("" = none)
 
             return tParameterList;
         }

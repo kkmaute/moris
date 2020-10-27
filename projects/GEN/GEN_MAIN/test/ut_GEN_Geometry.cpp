@@ -573,13 +573,13 @@ namespace moris
             tCircleParameterLists(0).set("type", "circle");
             tCircleParameterLists(0).set("geometry_variable_indices", "all");
             tCircleParameterLists(0).set("adv_indices", tADVIndices1);
-            tCircleParameterLists(0).set("multigeometry_id", "circles");
+            tCircleParameterLists(0).set("name", "circles");
 
             tCircleParameterLists(1) = prm::create_geometry_parameter_list();
             tCircleParameterLists(1).set("type", "circle");
             tCircleParameterLists(1).set("geometry_variable_indices", "all");
             tCircleParameterLists(1).set("adv_indices", tADVIndices2);
-            tCircleParameterLists(1).set("multigeometry_id", "circles");
+            tCircleParameterLists(1).set("name", "circles");
 
             // Create multigeometry
             Matrix<DDRMat> tADVs = {{0.0, 1.0, 2.0, 1.0, 2.0}};

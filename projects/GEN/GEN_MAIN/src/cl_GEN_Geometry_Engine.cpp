@@ -163,6 +163,7 @@ namespace moris
 
         Matrix<DDRMat>& Geometry_Engine::get_lower_bounds()
         {
+            print(mLowerBounds, "lower");
             return mLowerBounds;
         }
 
@@ -170,6 +171,7 @@ namespace moris
 
         Matrix<DDRMat>& Geometry_Engine::get_upper_bounds()
         {
+            print(mUpperBounds, "upper");
             return mUpperBounds;
         }
 
