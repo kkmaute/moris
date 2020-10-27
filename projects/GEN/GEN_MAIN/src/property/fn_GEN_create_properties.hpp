@@ -2,6 +2,7 @@
 #define MORIS_FN_GEN_CREATE_PROPERTIES_HPP
 
 #include "cl_GEN_Property.hpp"
+#include "cl_GEN_Geometry.hpp"
 #include "cl_Param_List.hpp"
 #include "fn_Exec_load_user_library.hpp"
 
@@ -15,13 +16,15 @@ namespace moris
          *
          * @param aPropertyParameterLists Parameter lists for creating Property classes
          * @param aADVs Reference to the initial adv vector
-         * @param aLibrary pointer to library for loading user-defined functions
+         * @param aGeometries Already-created fields for finding dependencies
+         * @param aLibrary Pointer to library for loading user-defined functions
          * @return Pointer to specific Property class
          */
         Cell<std::shared_ptr<Property>> create_properties(
-                Cell<ParameterList>         aPropertyParameterLists,
-                Matrix<DDRMat>&             aADVs,
-                std::shared_ptr<Library_IO> aLibrary = nullptr);
+                Cell<ParameterList>             aPropertyParameterLists,
+                Matrix<DDRMat>&                 aADVs,
+                Cell<std::shared_ptr<Geometry>> aGeometries = {},
+                std::shared_ptr<Library_IO>     aLibrary = nullptr);
 
         /**
          * Higher-level call for creating a cell of properties, which ensures that all property dependencies are
@@ -29,20 +32,22 @@ namespace moris
          *
          * @param aPropertyParameterLists Parameter lists for creating Property classes
          * @param aOwnedADVs Distributed owned ADVs
+         * @param aGeometries Already-created fields for finding dependencies
          * @param aLibrary pointer to library for loading user-defined functions
          * @return Pointer to specific Property class
          */
         Cell<std::shared_ptr<Property>> create_properties(
-                Cell<ParameterList>         aPropertyParameterLists,
-                sol::Dist_Vector*           aOwnedADVs,
-                std::shared_ptr<Library_IO> aLibrary = nullptr);
+                Cell<ParameterList>             aPropertyParameterLists,
+                sol::Dist_Vector*               aOwnedADVs,
+                Cell<std::shared_ptr<Geometry>> aGeometries = {},
+                std::shared_ptr<Library_IO>     aLibrary = nullptr);
 
         /**
          * Creates an instance of the specified Property class and returns a shared pointer to it.
          *
          * @param aPropertyParameterList Parameter list for creating a Property class
          * @param aADVs Reference to the initial adv vector
-         * @param aLibrary pointer to library for loading user-defined functions
+         * @param aLibrary Pointer to library for loading user-defined functions
          * @return Pointer to specific Property class
          */
         std::shared_ptr<Property> create_property(
@@ -74,8 +79,8 @@ namespace moris
          * @param aADVIndices Indices of ADVs for filling the property variables
          */
         void set_property_variable_inputs(
-                ParameterList  aPropertyParameterList,
-                uint           aNumADVs,
+                ParameterList   aPropertyParameterList,
+                uint            aNumADVs,
                 Matrix<DDUMat>& aPropertyVariableIndices,
                 Matrix<DDUMat>& aADVIndices);
     }

@@ -61,7 +61,7 @@ namespace moris
                 mOutputMeshFile(aParameterLists(0)(0).get<std::string>("output_mesh_file")),
 
                 // Properties
-                mProperties(create_properties(aParameterLists(2), mADVs, mLibrary)),
+                mProperties(create_properties(aParameterLists(2), mADVs, mGeometries, mLibrary)),
                 mPropertyParameterLists(aParameterLists(2)),
                 
                 // phase table
@@ -751,7 +751,7 @@ namespace moris
                 {
                     // Build geometries and properties
                     mGeometries = create_geometries(mGeometryParameterLists, mOwnedADVs, mLibrary);
-                    mProperties = create_properties(mPropertyParameterLists, mOwnedADVs, mLibrary);
+                    mProperties = create_properties(mPropertyParameterLists, mOwnedADVs, mGeometries, mLibrary);
                     mGeometryParameterLists.resize(0);
                 }
 

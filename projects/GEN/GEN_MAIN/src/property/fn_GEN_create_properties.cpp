@@ -13,9 +13,10 @@ namespace moris
         //--------------------------------------------------------------------------------------------------------------
 
         Cell<std::shared_ptr<Property>> create_properties(
-                Cell<ParameterList>         aPropertyParameterLists,
-                Matrix<DDRMat>&             aADVs,
-                std::shared_ptr<Library_IO> aLibrary)
+                Cell<ParameterList>             aPropertyParameterLists,
+                Matrix<DDRMat>&                 aADVs,
+                Cell<std::shared_ptr<Geometry>> aGeometries,
+                std::shared_ptr<Library_IO>     aLibrary)
         {
             // Initialize
             uint tNumProperties = aPropertyParameterLists.size();
@@ -46,7 +47,7 @@ namespace moris
                     {
                         tBuild = true;
                         
-                        // Check if dependencies are built
+                        // Check if property dependencies are built
                         if (tNeededFieldNames(tBuildPropertyIndex).size() > 0)
                         {
                             // Loop over dependencies
@@ -77,6 +78,21 @@ namespace moris
                         // Build
                         if (tBuild)
                         {
+                            // Loop over dependencies, this time to add generic field dependencies
+                            for (uint tDependencyIndex = 0; tDependencyIndex < tNeededFieldNames(tBuildPropertyIndex).size(); tDependencyIndex++)
+                            {
+                                // Checking each field by name
+                                for (uint tCheckFieldIndex = 0; tCheckFieldIndex < aGeometries.size(); tCheckFieldIndex++)
+                                {
+                                    // Name match found
+                                    if (tNeededFieldNames(tBuildPropertyIndex)(tDependencyIndex) == aGeometries(tCheckFieldIndex)->get_name())
+                                    {
+                                        tNeededFields(tBuildPropertyIndex)(tDependencyIndex) = aGeometries(tCheckFieldIndex);
+                                    }
+                                }
+                            }
+
+                            // Build property and decrement remaining properties to build
                             tProperties(tBuildPropertyIndex) = create_property(
                                     aPropertyParameterLists(tBuildPropertyIndex), 
                                     aADVs,
@@ -96,9 +112,10 @@ namespace moris
         //--------------------------------------------------------------------------------------------------------------
 
         Cell<std::shared_ptr<Property>> create_properties(
-                Cell<ParameterList>         aPropertyParameterLists,
-                sol::Dist_Vector*           aOwnedADVs,
-                std::shared_ptr<Library_IO> aLibrary)
+                Cell<ParameterList>             aPropertyParameterLists,
+                sol::Dist_Vector*               aOwnedADVs,
+                Cell<std::shared_ptr<Geometry>> aGeometries,
+                std::shared_ptr<Library_IO>     aLibrary)
         {
             // Initialize
             uint tNumProperties = aPropertyParameterLists.size();
@@ -129,7 +146,7 @@ namespace moris
                     {
                         tBuild = true;
 
-                        // Check if dependencies are built
+                        // Check if property dependencies are built
                         if (tNeededFieldNames(tBuildPropertyIndex).size() > 0)
                         {
                             // Loop over dependencies
@@ -160,6 +177,21 @@ namespace moris
                         // Build
                         if (tBuild)
                         {
+                            // Loop over dependencies, this time to add generic field dependencies
+                            for (uint tDependencyIndex = 0; tDependencyIndex < tNeededFieldNames(tBuildPropertyIndex).size(); tDependencyIndex++)
+                            {
+                                // Checking each field by name
+                                for (uint tCheckFieldIndex = 0; tCheckFieldIndex < aGeometries.size(); tCheckFieldIndex++)
+                                {
+                                    // Name match found
+                                    if (tNeededFieldNames(tBuildPropertyIndex)(tDependencyIndex) == aGeometries(tCheckFieldIndex)->get_name())
+                                    {
+                                        tNeededFields(tBuildPropertyIndex)(tDependencyIndex) = aGeometries(tCheckFieldIndex);
+                                    }
+                                }
+                            }
+
+                            // Build property and decrement remaining properties to build
                             tProperties(tBuildPropertyIndex) = create_property(
                                     aPropertyParameterLists(tBuildPropertyIndex),
                                     aOwnedADVs,
