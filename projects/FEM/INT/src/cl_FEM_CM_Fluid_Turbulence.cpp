@@ -382,7 +382,7 @@ namespace moris
                         1e-6,
                         aNormal,
                         aJump,
-                        fem::FDScheme_Type::POINT_3_CENTRAL );
+                        fem::FDScheme_Type::POINT_1_FORWARD );
 
                 //MORIS_ERROR( false, "CM_Fluid_Turbulence::eval_dTestTractiondDOF - Case not implemented so far, require d2viscositytdviscosity2" );
             }

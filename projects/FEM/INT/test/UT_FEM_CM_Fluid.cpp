@@ -757,7 +757,7 @@ TEST_CASE( "CM_Laminar_With_Turbulence", "[CM_Laminar_With_Turbulence]" )
 TEST_CASE( "CM_Laminar_Turbulence_Only", "[CM_Laminar_Turbulence_Only]" )
 {
     // define an epsilon environment
-    real tEpsilon = 1.0E-6;
+    real tEpsilon = 1.0E-5;
 
     // define a perturbation relative size
     real tPerturbation = 2.0E-4;
@@ -1215,7 +1215,7 @@ TEST_CASE( "CM_Laminar_Turbulence_Only", "[CM_Laminar_Turbulence_Only]" )
 TEST_CASE( "CM_Fluid_Turbulence", "[CM_Fluid_Turbulence]" )
 {
     // define an epsilon environment
-    real tEpsilon = 1.0E-6;
+    real tEpsilon = 1.0E-5;
 
     // define a perturbation relative size
     real tPerturbation = 2.0E-4;
