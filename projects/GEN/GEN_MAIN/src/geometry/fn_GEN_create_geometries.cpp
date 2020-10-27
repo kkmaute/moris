@@ -34,11 +34,11 @@ namespace moris
                 std::shared_ptr<Geometry> tGeometry = create_geometry(aGeometryParameterLists(tGeometryIndex), aADVs, aLibrary);
 
                 // Determine if to add to multigeometry
-                std::string tGeometryName = aGeometryParameterLists(tGeometryIndex).get<std::string>("name");
+                bool tMultigeometryFound = false;
+                std::string tGeometryName = tGeometry->get_name();
                 if (tGeometryName != "")
                 {
                     // Loop to see if this multigeometry ID exists already
-                    bool tMultigeometryFound = false;
                     for (uint tMultigeometryIndex = 0; tMultigeometryIndex < tMultigeometries.size(); tMultigeometryIndex++)
                     {
                         if (tMultigeometries(tMultigeometryIndex)->get_name() == tGeometryName)
@@ -49,13 +49,26 @@ namespace moris
                         }
                     }
 
-                    // Create new multigeometry with this ID
+                    // Check for creating new multigeometry
                     if (not tMultigeometryFound)
                     {
-                        tMultigeometries.push_back(std::make_shared<Multigeometry>(Cell<std::shared_ptr<Geometry>>(1, tGeometry), tGeometryName));
+                        for (uint tCreatedGeometryIndex = 0; tCreatedGeometryIndex < tGeometries.size(); tCreatedGeometryIndex++)
+                        {
+                            if (tGeometries(tCreatedGeometryIndex)->get_name() == tGeometryName)
+                            {
+                                tMultigeometryFound = true;
+                                tMultigeometries.push_back(std::make_shared<Multigeometry>(
+                                        Cell<std::shared_ptr<Geometry>>({tGeometries(tCreatedGeometryIndex), tGeometry}),
+                                        tGeometryName));
+                                tGeometries.erase(tCreatedGeometryIndex);
+                                break;
+                            }
+                        }
                     }
                 }
-                else
+
+                // If no multigeometry, add as regular geometry
+                if (not tMultigeometryFound)
                 {
                     tGeometries.push_back(tGeometry);
                 }
@@ -88,11 +101,11 @@ namespace moris
                 std::shared_ptr<Geometry> tGeometry = create_geometry(aGeometryParameterLists(tGeometryIndex), aOwnedADVs, aLibrary);
 
                 // Determine if to add to multigeometry
-                std::string tGeometryName = aGeometryParameterLists(tGeometryIndex).get<std::string>("name");
+                bool tMultigeometryFound = false;
+                std::string tGeometryName = tGeometry->get_name();
                 if (tGeometryName != "")
                 {
                     // Loop to see if this multigeometry ID exists already
-                    bool tMultigeometryFound = false;
                     for (uint tMultigeometryIndex = 0; tMultigeometryIndex < tMultigeometries.size(); tMultigeometryIndex++)
                     {
                         if (tMultigeometries(tMultigeometryIndex)->get_name() == tGeometryName)
@@ -103,13 +116,26 @@ namespace moris
                         }
                     }
 
-                    // Create new multigeometry with this ID
+                    // Check for creating new multigeometry
                     if (not tMultigeometryFound)
                     {
-                        tMultigeometries.push_back(std::make_shared<Multigeometry>(Cell<std::shared_ptr<Geometry>>(1, tGeometry), tGeometryName));
+                        for (uint tCreatedGeometryIndex = 0; tCreatedGeometryIndex < tGeometries.size(); tCreatedGeometryIndex++)
+                        {
+                            if (tGeometries(tCreatedGeometryIndex)->get_name() == tGeometryName)
+                            {
+                                tMultigeometryFound = true;
+                                tMultigeometries.push_back(std::make_shared<Multigeometry>(
+                                        Cell<std::shared_ptr<Geometry>>({tGeometries(tCreatedGeometryIndex), tGeometry}),
+                                        tGeometryName));
+                                tGeometries.erase(tCreatedGeometryIndex);
+                                break;
+                            }
+                        }
                     }
                 }
-                else
+
+                // If no multigeometry, add as regular geometry
+                if (not tMultigeometryFound)
                 {
                     tGeometries.push_back(tGeometry);
                 }
