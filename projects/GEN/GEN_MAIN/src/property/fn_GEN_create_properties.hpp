@@ -46,10 +46,10 @@ namespace moris
          * @return Pointer to specific Property class
          */
         std::shared_ptr<Property> create_property(
-                ParameterList                   aPropertyParameterList,
-                Matrix<DDRMat>&                 aADVs,
-                Cell<std::shared_ptr<Property>> aPropertyDependencies,
-                std::shared_ptr<Library_IO>     aLibrary = nullptr);
+                ParameterList                aPropertyParameterList,
+                Matrix<DDRMat>&              aADVs,
+                Cell<std::shared_ptr<Field>> aFieldDependencies,
+                std::shared_ptr<Library_IO>  aLibrary = nullptr);
 
         /**
          * Creates an instance of the specified Property class and returns a shared pointer to it.
@@ -60,10 +60,10 @@ namespace moris
          * @return Pointer to specific Property class
          */
         std::shared_ptr<Property> create_property(
-                ParameterList                   aPropertyParameterList,
-                sol::Dist_Vector*               aOwnedADVs,
-                Cell<std::shared_ptr<Property>> aPropertyDependencies,
-                std::shared_ptr<Library_IO>     aLibrary = nullptr);
+                ParameterList                aPropertyParameterList,
+                sol::Dist_Vector*            aOwnedADVs,
+                Cell<std::shared_ptr<Field>> aFieldDependencies,
+                std::shared_ptr<Library_IO>  aLibrary = nullptr);
 
         /**
          * Sets the property variables which depend on ADVs. Used by create_property().

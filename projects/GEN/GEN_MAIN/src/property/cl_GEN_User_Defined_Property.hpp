@@ -32,18 +32,18 @@ namespace moris
              * @param aBSplineUpperBound The upper bound for the B-spline coefficients describing this field
              */
             User_Defined_Property(
-                    Matrix<DDRMat>&                 aADVs,
-                    Matrix<DDUMat>                  aPropertyVariableIndices,
-                    Matrix<DDUMat>                  aADVIndices,
-                    Matrix<DDRMat>                  aConstantParameters,
-                    Cell<std::shared_ptr<Property>> aPropertyDependencies,
-                    MORIS_GEN_FIELD_FUNCTION        aFieldEvaluationFunction,
-                    MORIS_GEN_SENSITIVITY_FUNCTION  aSensitivityEvaluationFunction,
-                    sint                            aNumRefinements = 0,
-                    sint                            aRefinementFunctionIndex = -1,
-                    sint                            aBSplineMeshIndex = -1,
-                    real                            aBSplineLowerBound = -1.0,
-                    real                            aBSplineUpperBound = 1.0);
+                    Matrix<DDRMat>&                aADVs,
+                    Matrix<DDUMat>                 aPropertyVariableIndices,
+                    Matrix<DDUMat>                 aADVIndices,
+                    Matrix<DDRMat>                 aConstantParameters,
+                    Cell<std::shared_ptr<Field>>   aFieldDependencies,
+                    MORIS_GEN_FIELD_FUNCTION       aFieldEvaluationFunction,
+                    MORIS_GEN_SENSITIVITY_FUNCTION aSensitivityEvaluationFunction,
+                    sint                           aNumRefinements = 0,
+                    sint                           aRefinementFunctionIndex = -1,
+                    sint                           aBSplineMeshIndex = -1,
+                    real                           aBSplineLowerBound = -1.0,
+                    real                           aBSplineUpperBound = 1.0);
 
             /**
              * Constructor
@@ -60,18 +60,18 @@ namespace moris
              * @param aBSplineUpperBound The upper bound for the B-spline coefficients describing this field
              */
             User_Defined_Property(
-                    sol::Dist_Vector*               aOwnedADVs,
-                    Matrix<DDUMat>                  aPropertyVariableIndices,
-                    Matrix<DDUMat>                  aADVIndices,
-                    Matrix<DDRMat>                  aConstantParameters,
-                    Cell<std::shared_ptr<Property>> aPropertyDependencies,
-                    MORIS_GEN_FIELD_FUNCTION        aFieldEvaluationFunction,
-                    MORIS_GEN_SENSITIVITY_FUNCTION  aSensitivityEvaluationFunction,
-                    sint                            aNumRefinements = 0,
-                    sint                            aRefinementFunctionIndex = -1,
-                    sint                            aBSplineMeshIndex = -1,
-                    real                            aBSplineLowerBound = -1.0,
-                    real                            aBSplineUpperBound = 1.0);
+                    sol::Dist_Vector*              aOwnedADVs,
+                    Matrix<DDUMat>                 aPropertyVariableIndices,
+                    Matrix<DDUMat>                 aADVIndices,
+                    Matrix<DDRMat>                 aConstantParameters,
+                    Cell<std::shared_ptr<Field>>   aFieldDependencies,
+                    MORIS_GEN_FIELD_FUNCTION       aFieldEvaluationFunction,
+                    MORIS_GEN_SENSITIVITY_FUNCTION aSensitivityEvaluationFunction,
+                    sint                           aNumRefinements = 0,
+                    sint                           aRefinementFunctionIndex = -1,
+                    sint                           aBSplineMeshIndex = -1,
+                    real                           aBSplineLowerBound = -1.0,
+                    real                           aBSplineUpperBound = 1.0);
 
             /**
              * Given a node coordinate, returns the field value.

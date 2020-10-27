@@ -11,19 +11,18 @@ namespace moris
         {
 
         protected:
-            Cell<std::shared_ptr<Property>> mPropertyDependencies;
+            Cell<std::shared_ptr<Field>> mFieldDependencies;
 
         public:
 
             /**
-             * Constructor for property, needs to know about other properties that it depends on.
+             * Constructor for property, needs to know about other fields that it depends on.
              *
-             * @param aPropertyDependencies This property's dependencies
+             * @param aFieldDependencies This property's dependencies
              */
-            Property(Cell<std::shared_ptr<Property>> aPropertyDependencies = Cell<std::shared_ptr<Property>>(0));
+            Property(Cell<std::shared_ptr<Field>> aFieldDependencies = {});
 
         };
-
     }
 }
 

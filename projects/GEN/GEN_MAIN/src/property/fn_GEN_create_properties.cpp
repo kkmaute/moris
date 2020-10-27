@@ -21,16 +21,16 @@ namespace moris
             uint tNumProperties = aPropertyParameterLists.size();
             Cell<std::shared_ptr<Property>> tProperties(tNumProperties);
             Cell<std::string> tPropertyNames(tNumProperties);
-            Cell<Cell<std::string>> tPropertyDependencies(tNumProperties);
-            Cell<Cell<std::shared_ptr<Property>>> tNeededProperties(tNumProperties);
+            Cell<Cell<std::string>> tNeededFieldNames(tNumProperties);
+            Cell<Cell<std::shared_ptr<Field>>> tNeededFields(tNumProperties);
             
             // Fill names, dependencies
             for (uint tPropertyIndex = 0; tPropertyIndex < tNumProperties; tPropertyIndex++)
             {
                 tPropertyNames(tPropertyIndex) = aPropertyParameterLists(tPropertyIndex).get<std::string>("name");
-                tPropertyDependencies(tPropertyIndex) = 
+                tNeededFieldNames(tPropertyIndex) = 
                         string_to_cell<std::string>(aPropertyParameterLists(tPropertyIndex).get<std::string>("dependencies"));
-                tNeededProperties(tPropertyIndex).resize(tPropertyDependencies(tPropertyIndex).size());
+                tNeededFields(tPropertyIndex).resize(tNeededFieldNames(tPropertyIndex).size());
             }
             
             // Build based on dependencies (this is not optimally efficient, but doesn't need to be)
@@ -47,16 +47,28 @@ namespace moris
                         tBuild = true;
                         
                         // Check if dependencies are built
-                        if (tPropertyDependencies(tBuildPropertyIndex).size() > 0)
+                        if (tNeededFieldNames(tBuildPropertyIndex).size() > 0)
                         {
-                            for (uint tDependencyIndex = 0; tDependencyIndex < tPropertyDependencies(tBuildPropertyIndex).size(); tDependencyIndex++)
+                            // Loop over dependencies
+                            for (uint tDependencyIndex = 0; tDependencyIndex < tNeededFieldNames(tBuildPropertyIndex).size(); tDependencyIndex++)
                             {
+                                // Checking each property by name
                                 for (uint tCheckPropertyIndex = 0; tCheckPropertyIndex < tNumProperties; tCheckPropertyIndex++)
                                 {
-                                    if (tPropertyDependencies(tBuildPropertyIndex)(tDependencyIndex) == tPropertyNames(tCheckPropertyIndex)
-                                    && tProperties(tCheckPropertyIndex) == nullptr)
+                                    // Name match found
+                                    if (tNeededFieldNames(tBuildPropertyIndex)(tDependencyIndex) == tPropertyNames(tCheckPropertyIndex))
                                     {
-                                        tBuild = false;
+                                        // Dependency is built already
+                                        if (tProperties(tCheckPropertyIndex))
+                                        {
+                                            tNeededFields(tBuildPropertyIndex)(tDependencyIndex) = tProperties(tCheckPropertyIndex);
+                                        }
+
+                                        // Dependency is not built, cannot build current property
+                                        else
+                                        {
+                                            tBuild = false;
+                                        }
                                     }
                                 }
                             }
@@ -68,7 +80,7 @@ namespace moris
                             tProperties(tBuildPropertyIndex) = create_property(
                                     aPropertyParameterLists(tBuildPropertyIndex), 
                                     aADVs,
-                                    tNeededProperties(tBuildPropertyIndex),
+                                    tNeededFields(tBuildPropertyIndex),
                                     aLibrary);
                             tNumPropertiesLeft--;
                         }
@@ -92,16 +104,16 @@ namespace moris
             uint tNumProperties = aPropertyParameterLists.size();
             Cell<std::shared_ptr<Property>> tProperties(tNumProperties);
             Cell<std::string> tPropertyNames(tNumProperties);
-            Cell<Cell<std::string>> tPropertyDependencies(tNumProperties);
-            Cell<Cell<std::shared_ptr<Property>>> tNeededProperties(tNumProperties);
+            Cell<Cell<std::string>> tNeededFieldNames(tNumProperties);
+            Cell<Cell<std::shared_ptr<Field>>> tNeededFields(tNumProperties);
 
             // Fill names, dependencies
             for (uint tPropertyIndex = 0; tPropertyIndex < tNumProperties; tPropertyIndex++)
             {
                 tPropertyNames(tPropertyIndex) = aPropertyParameterLists(tPropertyIndex).get<std::string>("name");
-                tPropertyDependencies(tPropertyIndex) =
+                tNeededFieldNames(tPropertyIndex) =
                         string_to_cell<std::string>(aPropertyParameterLists(tPropertyIndex).get<std::string>("dependencies"));
-                tNeededProperties(tPropertyIndex).resize(tPropertyDependencies(tPropertyIndex).size());
+                tNeededFields(tPropertyIndex).resize(tNeededFieldNames(tPropertyIndex).size());
             }
 
             // Build based on dependencies (this is not optimally efficient, but doesn't need to be)
@@ -118,16 +130,28 @@ namespace moris
                         tBuild = true;
 
                         // Check if dependencies are built
-                        if (tPropertyDependencies(tBuildPropertyIndex).size() > 0)
+                        if (tNeededFieldNames(tBuildPropertyIndex).size() > 0)
                         {
-                            for (uint tDependencyIndex = 0; tDependencyIndex < tPropertyDependencies(tBuildPropertyIndex).size(); tDependencyIndex++)
+                            // Loop over dependencies
+                            for (uint tDependencyIndex = 0; tDependencyIndex < tNeededFieldNames(tBuildPropertyIndex).size(); tDependencyIndex++)
                             {
+                                // Checking each property by name
                                 for (uint tCheckPropertyIndex = 0; tCheckPropertyIndex < tNumProperties; tCheckPropertyIndex++)
                                 {
-                                    if (tPropertyDependencies(tBuildPropertyIndex)(tDependencyIndex) == tPropertyNames(tCheckPropertyIndex)
-                                            && tProperties(tCheckPropertyIndex) == nullptr)
+                                    // Name match found
+                                    if (tNeededFieldNames(tBuildPropertyIndex)(tDependencyIndex) == tPropertyNames(tCheckPropertyIndex))
                                     {
-                                        tBuild = false;
+                                        // Dependency is built already
+                                        if (tProperties(tCheckPropertyIndex))
+                                        {
+                                            tNeededFields(tBuildPropertyIndex)(tDependencyIndex) = tProperties(tCheckPropertyIndex);
+                                        }
+
+                                        // Dependency is not built, cannot build current property
+                                        else
+                                        {
+                                            tBuild = false;
+                                        }
                                     }
                                 }
                             }
@@ -139,7 +163,7 @@ namespace moris
                             tProperties(tBuildPropertyIndex) = create_property(
                                     aPropertyParameterLists(tBuildPropertyIndex),
                                     aOwnedADVs,
-                                    tNeededProperties(tBuildPropertyIndex),
+                                    tNeededFields(tBuildPropertyIndex),
                                     aLibrary);
                             tNumPropertiesLeft--;
                         }
@@ -155,10 +179,10 @@ namespace moris
         //--------------------------------------------------------------------------------------------------------------
 
         std::shared_ptr<Property> create_property(
-                ParameterList                   aPropertyParameterList,
-                Matrix<DDRMat>&                 aADVs,
-                Cell<std::shared_ptr<Property>> aPropertyDependencies,
-                std::shared_ptr<Library_IO>     aLibrary)
+                ParameterList                aPropertyParameterList,
+                Matrix<DDRMat>&              aADVs,
+                Cell<std::shared_ptr<Field>> aFieldDependencies,
+                std::shared_ptr<Library_IO>  aLibrary)
         {
             // Property type
             std::string tPropertyType = aPropertyParameterList.get<std::string>("type");
@@ -196,7 +220,7 @@ namespace moris
                         tPropertyVariableIndices,
                         tADVIndices,
                         tConstantParameters,
-                        aPropertyDependencies,
+                        aFieldDependencies,
                         aLibrary->load_gen_field_function(aPropertyParameterList.get<std::string>("field_function_name")),
                         tSensitivityFunction);
             }
@@ -210,10 +234,10 @@ namespace moris
         //--------------------------------------------------------------------------------------------------------------
 
         std::shared_ptr<Property> create_property(
-                ParameterList                   aPropertyParameterList,
-                sol::Dist_Vector*               aOwnedADVs,
-                Cell<std::shared_ptr<Property>> aPropertyDependencies,
-                std::shared_ptr<Library_IO>     aLibrary)
+                ParameterList                aPropertyParameterList,
+                sol::Dist_Vector*            aOwnedADVs,
+                Cell<std::shared_ptr<Field>> aFieldDependencies,
+                std::shared_ptr<Library_IO>  aLibrary)
         {
             // Property type
             std::string tPropertyType = aPropertyParameterList.get<std::string>("type");
@@ -247,7 +271,7 @@ namespace moris
                         tPropertyVariableIndices,
                         tADVIndices,
                         tConstantParameters,
-                        aPropertyDependencies,
+                        aFieldDependencies,
                         aLibrary->load_gen_field_function(aPropertyParameterList.get<std::string>("field_function_name")),
                         tSensitivityFunction);
             }

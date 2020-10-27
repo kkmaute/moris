@@ -419,7 +419,7 @@ namespace moris
             std::shared_ptr<Property> tProperty = create_property(
                     tParameterList,
                     tADVs,
-                    Cell<std::shared_ptr<ge::Property>>(0));
+                    {});
 
             // Node indices per set
             Cell<Matrix<DDSMat>> tIpNodeIndicesPerSet(1);
