@@ -94,7 +94,8 @@ namespace moris
         {
             ParameterList tParameterList;
 
-            tParameterList.insert("type", "swiss_cheese_slice");    // Type (name) of geometry, do not change
+            tParameterList.insert("type", "swiss_cheese_slice");    // Type of geometry, do not change
+            tParameterList.insert("name", "");                      // Name of geometry, can change
 
             // Must change
             tParameterList.insert("left_bound", 0.0);               // Left-most hole center
