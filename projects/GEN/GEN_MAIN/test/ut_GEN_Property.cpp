@@ -4,13 +4,17 @@
 #include "fn_GEN_create_geometries.hpp"
 #include "fn_PRM_GEN_Parameters.hpp"
 #include "fn_Exec_load_user_library.hpp"
-#include "cl_GEN_User_Defined_Geometry.hpp"
 
+#include "cl_GEN_Circle.hpp"
+#include "cl_GEN_Scaled_Field.hpp"
 
 namespace moris
 {
     namespace ge
     {
+
+        //--------------------------------------------------------------------------------------------------------------
+
         TEST_CASE("Discrete property based on ADVs", "[gen], [property], [discrete property]")
         {
             // Set up default parameter lists
@@ -36,36 +40,38 @@ namespace moris
             Geometry_Engine tGeometryEngine(tParameterLists);
         }
 
-        TEST_CASE("Property dependency test", "[gen], [property], [property dependency]")
+        //--------------------------------------------------------------------------------------------------------------
+
+        TEST_CASE("Scaled field property", "[gen], [property], [scaled field]")
         {
-            // Set up default parameter lists
-            moris::Cell<moris::Cell<ParameterList>> tParameterLists(3);
-            tParameterLists(0).resize(1);
-            tParameterLists(2).resize(4);
-            tParameterLists(0)(0) = moris::prm::create_gen_parameter_list();
-            tParameterLists(2)(0) = moris::prm::create_gen_property_parameter_list();
-            tParameterLists(2)(1) = moris::prm::create_gen_property_parameter_list();
-            tParameterLists(2)(2) = moris::prm::create_gen_property_parameter_list();
-            tParameterLists(2)(3) = moris::prm::create_gen_property_parameter_list();
+            // Circle
+            std::shared_ptr<Geometry> tCircle = std::make_shared<Circle>(0.0, 0.0, 0.5, "circle");
 
-            // Modify parameters
-            tParameterLists(2)(0).set("type", "discrete");
-            tParameterLists(2)(0).set("name", "property_1");
-            tParameterLists(2)(0).set("dependencies", "");
+            // ADVs
+            Matrix<DDRMat> tADVs(0, 0);
 
-            tParameterLists(2)(1).set("type", "discrete");
-            tParameterLists(2)(1).set("name", "property_2");
-            tParameterLists(2)(1).set("dependencies", "property_1");
+            // Random distribution
+            std::uniform_real_distribution<real> tUniform(-100.0, 100.0);
+            std::default_random_engine tEngine;
 
-            tParameterLists(2)(2).set("type", "discrete");
-            tParameterLists(2)(2).set("name", "property_3");
-            tParameterLists(2)(2).set("dependencies", "property_1");
+            for (uint tScaleRun = 0; tScaleRun < 4; tScaleRun++)
+            {
+                // Create scaled field
+                real tScale = (real)tScaleRun;
+                Scaled_Field tScaledField(tADVs, Matrix<DDUMat>(0, 0), Matrix<DDUMat>(0, 0), Matrix<DDRMat>(1, 1, tScale), {tCircle});
 
-            tParameterLists(2)(3).set("type", "discrete");
-            tParameterLists(2)(3).set("name", "property_4");
-            tParameterLists(2)(3).set("dependencies", "property_2,property_3");
+                for (uint tCoordinateCheck = 0; tCoordinateCheck < 4; tCoordinateCheck++)
+                {
+                    // Get random coordinates
+                    Matrix<DDRMat> tCoordinates({{tUniform(tEngine), tUniform(tEngine)}});
 
-            Geometry_Engine tGeometryEngine(tParameterLists);
+                    // Checks
+                    CHECK(tScaledField.get_field_value(0, tCoordinates) == Approx(tCircle->get_field_value(0, tCoordinates) * tScale));
+                }
+            }
         }
-    }   // end ge namespace
-}   // end moris namespace
+
+        //--------------------------------------------------------------------------------------------------------------
+
+    }
+}

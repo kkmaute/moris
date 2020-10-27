@@ -25,7 +25,7 @@ namespace moris
              * @param aADVIndices The indices of the ADV vector to fill in the property variables
              * @param aConstantParameters The constant parameters not filled by ADVs
              * @param aName Name of this field for identification
-             * @param aPropertyDependencies Other created properties that this property depends on
+             * @param aFieldDependencies Other created fields that this property depends on
              * @param aNumRefinements The number of refinement steps to use for this property
              * @param aRefinementFunctionIndex The index of a user-defined refinement function (-1 = default refinement)
              * @param aBSplineMeshIndex The index of a B-spline mesh for level set discretization (-1 = no B-splines)
@@ -55,7 +55,7 @@ namespace moris
              * @param aADVIndices The indices of the ADV vector to fill in the property variables
              * @param aConstantParameters The constant parameters not filled by ADVs
              * @param aName Name of this field for identification
-             * @param aPropertyDependencies Other created properties that this property depends on
+             * @param aFieldDependencies Other created fields that this property depends on
              * @param aNumRefinements The number of refinement steps to use for this property
              * @param aRefinementFunctionIndex The index of a user-defined refinement function (-1 = default refinement)
              * @param aBSplineMeshIndex The index of a B-spline mesh for level set discretization (-1 = no B-splines)
