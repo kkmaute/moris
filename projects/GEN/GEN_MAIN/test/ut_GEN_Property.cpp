@@ -7,6 +7,7 @@
 
 #include "cl_GEN_Circle.hpp"
 #include "cl_GEN_Scaled_Field.hpp"
+#include "fn_GEN_check_equal.hpp"
 
 namespace moris
 {
@@ -66,7 +67,12 @@ namespace moris
                     Matrix<DDRMat> tCoordinates({{tUniform(tEngine), tUniform(tEngine)}});
 
                     // Checks
-                    CHECK(tScaledField.get_field_value(0, tCoordinates) == Approx(tCircle->get_field_value(0, tCoordinates) * tScale));
+                    CHECK(tScaledField.get_field_value(0, tCoordinates) ==
+                            Approx(tCircle->get_field_value(0, tCoordinates) * tScale));
+                    check_equal(tScaledField.get_field_sensitivities(0, tCoordinates),
+                            Matrix<DDRMat>(tCircle->get_field_sensitivities(0, tCoordinates) * tScale));
+                    check_equal(tScaledField.get_determining_adv_ids(0, tCoordinates),
+                            tCircle->get_determining_adv_ids(0, tCoordinates));
                 }
             }
         }

@@ -6,8 +6,10 @@
 #include "cl_GEN_Geometry_Engine.hpp"
 #include "cl_GEN_User_Defined_Geometry.hpp"
 #include "fn_GEN_create_geometries.hpp"
-#include "fn_GEN_create_simple_mesh.hpp"
 #include "fn_PRM_GEN_Parameters.hpp"
+
+#include "fn_GEN_create_simple_mesh.hpp"
+#include "fn_GEN_check_equal.hpp"
 
 #include "cl_SOL_Matrix_Vector_Factory.hpp"
 
@@ -23,10 +25,6 @@ namespace moris
     void user_defined_geometry_sensitivity(const Matrix<DDRMat>& aCoordinates,
                                            const Cell<real*>&    aParameters,
                                            Matrix<DDRMat>&       aSensitivities);
-
-    // Approximate check for vectors
-    template< typename Matrix_Type >
-    void check_equal(Matrix<Matrix_Type> aMat1, Matrix<Matrix_Type> aMat2);
 
     namespace ge
     {
@@ -793,22 +791,6 @@ namespace moris
                                            Matrix<DDRMat>&       aSensitivities)
     {
         aSensitivities = {{2 * aCoordinates(0) * *aParameters(0), 3 * aCoordinates(1) * pow(*aParameters(1), 2)}};
-    }
-
-    //------------------------------------------------------------------------------------------------------------------
-
-    template< typename Matrix_Type >
-    void check_equal(Matrix<Matrix_Type> aMat1, Matrix<Matrix_Type> aMat2)
-    {
-        REQUIRE(aMat1.n_rows() == aMat2.n_rows());
-        REQUIRE(aMat1.n_cols() == aMat2.n_cols());
-        for (uint tRowIndex = 0; tRowIndex < aMat1.n_rows(); tRowIndex++)
-        {
-            for (uint tColumnIndex = 0; tColumnIndex < aMat1.n_cols(); tColumnIndex++)
-            {
-                CHECK(aMat1(tRowIndex, tColumnIndex) == Approx(aMat2(tRowIndex, tColumnIndex)));
-            }
-        }
     }
 
     //------------------------------------------------------------------------------------------------------------------
