@@ -562,7 +562,12 @@ endif()
 set(ARMADILLO_EIGEN)
 if (MORIS_USE_ARMA)
     list(APPEND ARMADILLO_EIGEN "armadillo")
-    list(APPEND MORIS_DEFINITIONS "-DMORIS_USE_ARMA")	
+    list(APPEND MORIS_DEFINITIONS "-DMORIS_USE_ARMA")
+    
+    if (NOT MORIS_HAVE_DEBUG)
+        list(APPEND MORIS_DEFINITIONS "-DARMA_NO_DEBUG")
+    endif()
+    
 #     include(${MORIS_TPL_DIR}/armadillo.cmake)
 #     find_package(Armadillo REQUIRED HINTS "$ENV{Armadillo_DIR}")
 #     list(APPEND MORIS_INCDIRS "${ARMADILLO_INCLUDE_DIRS}")
