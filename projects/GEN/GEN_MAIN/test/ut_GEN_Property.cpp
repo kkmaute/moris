@@ -2,8 +2,8 @@
 #include "cl_Matrix.hpp"
 #include "cl_GEN_Geometry_Engine.hpp"
 #include "fn_GEN_create_geometries.hpp"
+#include "fn_GEN_create_properties.hpp"
 #include "fn_PRM_GEN_Parameters.hpp"
-#include "fn_Exec_load_user_library.hpp"
 
 #include "cl_GEN_Circle.hpp"
 #include "cl_GEN_Scaled_Field.hpp"
@@ -45,11 +45,22 @@ namespace moris
 
         TEST_CASE("Scaled field property", "[gen], [property], [scaled field]")
         {
-            // Circle
-            std::shared_ptr<Geometry> tCircle = std::make_shared<Circle>(0.0, 0.0, 0.5, "circle");
+            // Create ADVs
+            Matrix<DDRMat> tADVs = {{0.0, 0.0, 0.5}};
 
-            // ADVs
-            Matrix<DDRMat> tADVs(0, 0);
+            // Set up and create geometry
+            ParameterList tCircleParameterList = prm::create_geometry_parameter_list();
+            tCircleParameterList.set("type", "circle");
+            tCircleParameterList.set("name", "My Circle");
+            tCircleParameterList.set("geometry_variable_indices", "0, 1, 2");
+            tCircleParameterList.set("adv_indices", "0, 1, 2");
+            Cell<std::shared_ptr<Geometry>> tGeometries = create_geometries({tCircleParameterList}, tADVs);
+            std::shared_ptr<Geometry> tCircle = tGeometries(0);
+
+            // Set up property
+            ParameterList tScaledFieldParameterList = prm::create_gen_property_parameter_list();
+            tScaledFieldParameterList.set("type", "scaled_field");
+            tScaledFieldParameterList.set("dependencies", "My Circle");
 
             // Random distribution
             std::uniform_real_distribution<real> tUniform(-100.0, 100.0);
@@ -59,19 +70,25 @@ namespace moris
             {
                 // Create scaled field
                 real tScale = (real)tScaleRun;
-                Scaled_Field tScaledField(tADVs, Matrix<DDUMat>(0, 0), Matrix<DDUMat>(0, 0), Matrix<DDRMat>(1, 1, tScale), {tCircle});
+                tScaledFieldParameterList.set("constant_parameters", std::to_string(tScale));
+                Cell<std::shared_ptr<Property>> tProperties = create_properties({tScaledFieldParameterList}, tADVs, tGeometries);
 
+                // Check that one property was created, and assign it as scaled field
+                REQUIRE(tProperties.size() == 1);
+                std::shared_ptr<Property> tScaledField = tProperties(0);
+
+                // Loop over coordinate checks
                 for (uint tCoordinateCheck = 0; tCoordinateCheck < 4; tCoordinateCheck++)
                 {
                     // Get random coordinates
                     Matrix<DDRMat> tCoordinates({{tUniform(tEngine), tUniform(tEngine)}});
 
                     // Checks
-                    CHECK(tScaledField.get_field_value(0, tCoordinates) ==
+                    CHECK(tScaledField->get_field_value(0, tCoordinates) ==
                             Approx(tCircle->get_field_value(0, tCoordinates) * tScale));
-                    check_equal(tScaledField.get_field_sensitivities(0, tCoordinates),
+                    check_equal(tScaledField->get_field_sensitivities(0, tCoordinates),
                             Matrix<DDRMat>(tCircle->get_field_sensitivities(0, tCoordinates) * tScale));
-                    check_equal(tScaledField.get_determining_adv_ids(0, tCoordinates),
+                    check_equal(tScaledField->get_determining_adv_ids(0, tCoordinates),
                             tCircle->get_determining_adv_ids(0, tCoordinates));
                 }
             }

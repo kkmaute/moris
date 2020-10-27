@@ -52,7 +52,8 @@ namespace moris
         {
             ParameterList tParameterList;
 
-            tParameterList.insert("type", "");                      // Type (name) of geometry
+            tParameterList.insert("type", "");                      // Type of geometry
+            tParameterList.insert("name", "");                      // Name of property
             tParameterList.insert("geometry_variable_indices", ""); // Geometry variables to fill
             tParameterList.insert("adv_indices", "");               // ADVs used to fill in variables
             tParameterList.insert("constant_parameters", "");       // Remaining geometry parameters that are constant
@@ -142,7 +143,7 @@ namespace moris
             tParameterList.insert("property_variable_indices", ""); // Property variables to fill
             tParameterList.insert("adv_indices", "");               // ADVs used to fill in variables
             tParameterList.insert("constant_parameters", "");       // Remaining property parameters that are constant
-            tParameterList.insert("dependencies", "");              // Names of other properties that this property depends on
+            tParameterList.insert("dependencies", "");              // Names of other fields that this property depends on
 
             // Assignment to PDVs
             tParameterList.insert("pdv_type", "");

@@ -2,6 +2,7 @@
 #include "fn_GEN_create_properties.hpp"
 #include "fn_Parsing_Tools.hpp"
 
+#include "cl_GEN_Scaled_Field.hpp"
 #include "cl_GEN_Discrete_Property.hpp"
 #include "cl_GEN_User_Defined_Property.hpp"
 
@@ -230,7 +231,17 @@ namespace moris
             string_to_mat(aPropertyParameterList.get<std::string>("constant_parameters"), tConstantParameters);
 
             // Build Property
-            if (tPropertyType == "discrete")
+            if (tPropertyType == "scaled_field")
+            {
+                return std::make_shared<Scaled_Field>(
+                        aADVs,
+                        tPropertyVariableIndices,
+                        tADVIndices,
+                        tConstantParameters,
+                        aFieldDependencies,
+                        tPropertyName);
+            }
+            else if (tPropertyType == "discrete")
             {
                 return std::make_shared<Discrete_Property>(
                         aADVs,
@@ -288,7 +299,17 @@ namespace moris
             string_to_mat(aPropertyParameterList.get<std::string>("constant_parameters"), tConstantParameters);
 
             // Build Property
-            if (tPropertyType == "discrete")
+            if (tPropertyType == "scaled_field")
+            {
+                return std::make_shared<Scaled_Field>(
+                        aOwnedADVs,
+                        tPropertyVariableIndices,
+                        tADVIndices,
+                        tConstantParameters,
+                        aFieldDependencies,
+                        tPropertyName);
+            }
+            else if (tPropertyType == "discrete")
             {
                 return std::make_shared<Discrete_Property>(
                         aOwnedADVs,

@@ -150,7 +150,7 @@ namespace moris
             }
 
             // Get name
-            std::string tGeometryName = "";
+            std::string tGeometryName = aGeometryParameterList.get<std::string>("name");
 
             // Get refinement info
             sint tNumRefinements = aGeometryParameterList.get<sint>("number_of_refinements");
@@ -351,7 +351,7 @@ namespace moris
             }
 
             // Get name
-            std::string tGeometryName = "";
+            std::string tGeometryName = aGeometryParameterList.get<std::string>("name");
 
             // Get refinement info
             sint tNumRefinements = aGeometryParameterList.get<sint>("number_of_refinements");
