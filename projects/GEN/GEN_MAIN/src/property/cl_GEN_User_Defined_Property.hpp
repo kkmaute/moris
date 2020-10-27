@@ -24,6 +24,7 @@ namespace moris
              * @param aPropertyVariableIndices Indices of property variables to be filled by the ADVs
              * @param aADVIndices The indices of the ADV vector to fill in the property variables
              * @param aConstantParameters The constant parameters not filled by ADVs
+             * @param aName Name of this field for identification
              * @param aPropertyDependencies Other created properties that this property depends on
              * @param aNumRefinements The number of refinement steps to use for this property
              * @param aRefinementFunctionIndex The index of a user-defined refinement function (-1 = default refinement)
@@ -39,6 +40,7 @@ namespace moris
                     Cell<std::shared_ptr<Field>>   aFieldDependencies,
                     MORIS_GEN_FIELD_FUNCTION       aFieldEvaluationFunction,
                     MORIS_GEN_SENSITIVITY_FUNCTION aSensitivityEvaluationFunction,
+                    std::string                    aName = "",
                     sint                           aNumRefinements = 0,
                     sint                           aRefinementFunctionIndex = -1,
                     sint                           aBSplineMeshIndex = -1,
@@ -52,6 +54,7 @@ namespace moris
              * @param aPropertyVariableIndices Indices of property variables to be filled by the ADVs
              * @param aADVIndices The indices of the ADV vector to fill in the property variables
              * @param aConstantParameters The constant parameters not filled by ADVs
+             * @param aName Name of this field for identification
              * @param aPropertyDependencies Other created properties that this property depends on
              * @param aNumRefinements The number of refinement steps to use for this property
              * @param aRefinementFunctionIndex The index of a user-defined refinement function (-1 = default refinement)
@@ -67,6 +70,7 @@ namespace moris
                     Cell<std::shared_ptr<Field>>   aFieldDependencies,
                     MORIS_GEN_FIELD_FUNCTION       aFieldEvaluationFunction,
                     MORIS_GEN_SENSITIVITY_FUNCTION aSensitivityEvaluationFunction,
+                    std::string                    aName = "",
                     sint                           aNumRefinements = 0,
                     sint                           aRefinementFunctionIndex = -1,
                     sint                           aBSplineMeshIndex = -1,

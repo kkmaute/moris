@@ -27,6 +27,7 @@ namespace moris
              * @param aConstantParameters The constant parameters not filled by ADVs
              * @param aFieldEvaluationFunction User-defined function for evaluating the geometry field
              * @param tSensitivitiesEvaluationFunction User-defined function for evaluating the field sensitivities
+             * @param aName Name of this field for identification
              * @param aNumRefinements The number of refinement steps to use for this geometry
              * @param aRefinementFunctionIndex The index of a user-defined refinement function (-1 = default refinement)
              * @param aBSplineMeshIndex The index of a B-spline mesh for level set discretization (-1 = no B-splines)
@@ -40,6 +41,7 @@ namespace moris
                     Matrix<DDRMat>                 aConstantParameters,
                     MORIS_GEN_FIELD_FUNCTION       aFieldEvaluationFunction,
                     MORIS_GEN_SENSITIVITY_FUNCTION aSensitivityEvaluationFunction = nullptr,
+                    std::string                    aName = "",
                     sint                           aNumRefinements = 0,
                     sint                           aRefinementFunctionIndex = -1,
                     sint                           aBSplineMeshIndex = -1,
@@ -53,6 +55,9 @@ namespace moris
              * @param aFieldVariableIndices Indices of geometry variables to be filled by the ADVs
              * @param aADVIndices The indices of the ADV vector to fill in the geometry variables
              * @param aConstantParameters The constant parameters not filled by ADVs
+             * @param aFieldEvaluationFunction User-defined function for evaluating the geometry field
+             * @param aSensitivityEvaluationFunction User-defined function for evaluating the field sensitivities
+             * @param aName Name of this field for identification
              * @param aNumRefinements The number of refinement steps to use for this field
              * @param aRefinementFunctionIndex The index of a user-defined refinement function (-1 = default refinement)
              * @param aBSplineMeshIndex The index of a B-spline mesh for B-spline discretization (-1 = no B-splines)
@@ -66,6 +71,7 @@ namespace moris
                     Matrix<DDRMat>                 aConstantParameters,
                     MORIS_GEN_FIELD_FUNCTION       aFieldEvaluationFunction,
                     MORIS_GEN_SENSITIVITY_FUNCTION aSensitivityEvaluationFunction = nullptr,
+                    std::string                    aName = "",
                     sint                           aNumRefinements = 0,
                     sint                           aRefinementFunctionIndex = -1,
                     sint                           aBSplineMeshIndex = -1,
@@ -77,7 +83,7 @@ namespace moris
              *
              * @param aConstantParameters The constant parameters not filled by ADVs
              * @param aFieldEvaluationFunction User-defined function for evaluating the geometry field
-             * @param tSensitivitiesEvaluationFunction User-defined function for evaluating the field sensitivities
+             * @param aName Name of this field for identification
              * @param aNumRefinements The number of refinement steps to use for this geometry
              * @param aRefinementFunctionIndex The index of a user-defined refinement function (-1 = default refinement)
              * @param aBSplineMeshIndex The index of a B-spline mesh for level set discretization (-1 = no B-splines)
@@ -87,6 +93,7 @@ namespace moris
             User_Defined_Geometry(
                     Matrix<DDRMat>           aConstantParameters,
                     MORIS_GEN_FIELD_FUNCTION aFieldEvaluationFunction,
+                    std::string              aName = "",
                     sint                     aNumRefinements = 0,
                     sint                     aRefinementFunctionIndex = -1,
                     sint                     aBSplineMeshIndex = -1,

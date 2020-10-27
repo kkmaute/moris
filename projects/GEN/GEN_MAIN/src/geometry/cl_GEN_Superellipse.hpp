@@ -22,6 +22,7 @@ namespace moris
              * @param aGeometryVariableIndices Indices of geometry variables to be filled by the ADVs
              * @param aADVIndices The indices of the ADV vector to fill in the geometry variables
              * @param aConstantParameters The constant parameters not filled by ADVs
+             * @param aName Name of this field for identification
              * @param aNumRefinements The number of refinement steps to use for this geometry
              * @param aRefinementFunctionIndex The index of a user-defined refinement function (-1 = default refinement)
              * @param aBSplineMeshIndex The index of a B-spline mesh for level set discretization (-1 = no B-splines)
@@ -33,6 +34,7 @@ namespace moris
                     Matrix<DDUMat>  aGeometryVariableIndices,
                     Matrix<DDUMat>  aADVIndices,
                     Matrix<DDRMat>  aConstantParameters,
+                    std::string     aName = "",
                     sint            aNumRefinements = 0,
                     sint            aRefinementFunctionIndex = -1,
                     sint            aBSplineMeshIndex = -1,
@@ -46,6 +48,7 @@ namespace moris
              * @param aGeometryVariableIndices Indices of geometry variables to be filled by the ADVs
              * @param aADVIndices The indices of the ADV vector to fill in the geometry variables
              * @param aConstantParameters The constant parameters not filled by ADVs
+             * @param aName Name of this field for identification
              * @param aNumRefinements The number of refinement steps to use for this field
              * @param aRefinementFunctionIndex The index of a user-defined refinement function (-1 = default refinement)
              * @param aBSplineMeshIndex The index of a B-spline mesh for B-spline discretization (-1 = no B-splines)
@@ -57,6 +60,7 @@ namespace moris
                     Matrix<DDUMat>    aGeometryVariableIndices,
                     Matrix<DDUMat>    aADVIndices,
                     Matrix<DDRMat>    aConstantParameters,
+                    std::string       aName = "",
                     sint              aNumRefinements = 0,
                     sint              aRefinementFunctionIndex = -1,
                     sint              aBSplineMeshIndex = -1,
@@ -71,6 +75,7 @@ namespace moris
              * @param aXSemidiameter Superellipse semi-diameter in the x direction
              * @param aYSemidiameter Superellipse semi-diameter in the y direction
              * @param aExponent Superellipse exponent
+             * @param aName Name of this field for identification
              * @param aNumRefinements The number of refinement steps to use for this geometry
              * @param aRefinementFunctionIndex The index of a user-defined refinement function (-1 = default refinement)
              * @param aBSplineMeshIndex The index of a B-spline mesh for level set discretization (-1 = no B-splines)
@@ -78,19 +83,20 @@ namespace moris
              * @param aBSplineUpperBound The upper bound for the B-spline coefficients describing this field
              */
             Superellipse(
-                    real aXCenter,
-                    real aYCenter,
-                    real aXSemidiameter,
-                    real aYSemidiameter,
-                    real aExponent,
-                    real aScaling,
-                    real aRegularization,
-                    real aShift,
-                    sint aNumRefinements = 0,
-                    sint aRefinementFunctionIndex = -1,
-                    sint aBSplineMeshIndex = -1,
-                    real aBSplineLowerBound = -1.0,
-                    real aBSplineUpperBound = 1.0);
+                    real        aXCenter,
+                    real        aYCenter,
+                    real        aXSemidiameter,
+                    real        aYSemidiameter,
+                    real        aExponent,
+                    real        aScaling,
+                    real        aRegularization,
+                    real        aShift,
+                    std::string aName = "",
+                    sint        aNumRefinements = 0,
+                    sint        aRefinementFunctionIndex = -1,
+                    sint        aBSplineMeshIndex = -1,
+                    real        aBSplineLowerBound = -1.0,
+                    real        aBSplineUpperBound = 1.0);
 
             /**
              * Given a node coordinate, returns the field value.

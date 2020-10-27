@@ -9,15 +9,15 @@ namespace moris
 
         Multigeometry::Multigeometry(
                 Cell<std::shared_ptr<Geometry>> aGeometries,
-                std::string aID)
+                std::string aName)
                 : Field(Matrix<DDRMat>(0, 0),
+                        aName,
                         aGeometries(0)->get_num_refinements(),
                         aGeometries(0)->get_refinement_function_index(),
                         aGeometries(0)->get_bspline_mesh_index(),
                         aGeometries(0)->get_bspline_lower_bound(),
                         aGeometries(0)->get_bspline_upper_bound()),
-                  mGeometries(aGeometries),
-                  mID(aID)
+                  mGeometries(aGeometries)
         {
             MORIS_ERROR(mGeometries.size() > 0, "A GEN Multigeometry must be created with at least one geometry.");
         }
@@ -62,13 +62,6 @@ namespace moris
         void Multigeometry::add_geometry(std::shared_ptr<Geometry> aGeometry)
         {
             mGeometries.push_back(aGeometry);
-        }
-
-        //--------------------------------------------------------------------------------------------------------------
-
-        std::string Multigeometry::get_id()
-        {
-            return mID;
         }
 
         //--------------------------------------------------------------------------------------------------------------

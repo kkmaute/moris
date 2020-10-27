@@ -16,15 +16,15 @@ namespace moris
 
         private:
             sol::Dist_Vector* mSharedADVs = nullptr;
-            Matrix<DDRMat> mConstantParameters;
-            Matrix<DDSMat> mDeterminingADVIds;
-            bool mDependsOnADVs;
-            uint mNumADVs;
-            sint mNumRefinements;
-            sint mRefinementFunctionIndex;
-            sint mBSplineMeshIndex;
-            real mBSplineLowerBound;
-            real mBSplineUpperBound;
+            Matrix<DDRMat>    mConstantParameters;
+            Matrix<DDSMat>    mDeterminingADVIds;
+            std::string       mName;
+            bool              mDependsOnADVs;
+            sint              mNumRefinements;
+            sint              mRefinementFunctionIndex;
+            sint              mBSplineMeshIndex;
+            real              mBSplineLowerBound;
+            real              mBSplineUpperBound;
 
         protected:
 
@@ -35,6 +35,7 @@ namespace moris
              * @param aFieldVariableIndices Indices of field variables to be filled by the ADVs
              * @param aADVIndices The indices of the ADV vector to fill in the field variables
              * @param aConstantParameters The constant parameters not filled by ADVs
+             * @param aName Name of this field for identification
              * @param aNumRefinements The number of refinement steps to use for this field
              * @param aRefinementFunctionIndex The index of a user-defined refinement function (-1 = default refinement)
              * @param aBSplineMeshIndex The index of a B-spline mesh for B-spline discretization (-1 = no B-splines)
@@ -45,6 +46,7 @@ namespace moris
                   Matrix<DDUMat>  aFieldVariableIndices,
                   Matrix<DDUMat>  aADVIndices,
                   Matrix<DDRMat>  aConstantParameters,
+                  std::string     aName,
                   sint            aNumRefinements,
                   sint            aRefinementFunctionIndex,
                   sint            aBSplineMeshIndex,
@@ -58,6 +60,7 @@ namespace moris
              * @param aFieldVariableIndices Indices of field variables to be filled by the ADVs
              * @param aADVIndices The indices of the ADV vector to fill in the field variables
              * @param aConstantParameters The constant parameters not filled by ADVs
+             * @param aName Name of this field for identification
              * @param aNumRefinements The number of refinement steps to use for this field
              * @param aRefinementFunctionIndex The index of a user-defined refinement function (-1 = default refinement)
              * @param aBSplineMeshIndex The index of a B-spline mesh for B-spline discretization (-1 = no B-splines)
@@ -68,6 +71,7 @@ namespace moris
                   Matrix<DDUMat>    aFieldVariableIndices,
                   Matrix<DDUMat>    aADVIndices,
                   Matrix<DDRMat>    aConstantParameters,
+                  std::string       aName,
                   sint              aNumRefinements,
                   sint              aRefinementFunctionIndex,
                   sint              aBSplineMeshIndex,
@@ -78,12 +82,14 @@ namespace moris
              * Constructor for setting all field variables as consecutive ADVs.
              *
              * @param aSharedADVIds Shared ADV IDs needed for this field
+             * @param aName Name of this field for identification
              * @param aRefinementFunctionIndex The index of a user-defined refinement function (-1 = default refinement)
              * @param aBSplineMeshIndex The index of a B-spline mesh for B-spline discretization (-1 = no B-splines)
              * @param aBSplineLowerBound The lower bound for the B-spline coefficients describing this field
              * @param aBSplineUpperBound The upper bound for the B-spline coefficients describing this field
              */
             Field(const Matrix<DDSMat>& aSharedADVIds,
+                  std::string           aName,
                   sint                  aNumRefinements,
                   sint                  aRefinementFunctionIndex,
                   sint                  aBSplineMeshIndex,
@@ -94,6 +100,7 @@ namespace moris
              * Constructor for only constant parameters
              *
              * @param aConstantParameters The parameters that define this field
+             * @param aName Name of this field for identification
              * @param aNumRefinements The number of refinement steps to use for this field
              * @param aRefinementFunctionIndex The index of a user-defined refinement function (-1 = default refinement)
              * @param aBSplineMeshIndex The index of a B-spline mesh for B-spline discretization (-1 = no B-splines)
@@ -101,6 +108,7 @@ namespace moris
              * @param aBSplineUpperBound The upper bound for the B-spline coefficients describing this field
              */
             Field(Matrix<DDRMat> aConstantParameters,
+                  std::string    aName,
                   sint           aNumRefinements,
                   sint           aRefinementFunctionIndex,
                   sint           aBSplineMeshIndex,
@@ -185,6 +193,13 @@ namespace moris
              * @return if this field has ADV indices
              */
             bool depends_on_advs();
+
+            /**
+             * Gets the name of this field.
+             *
+             * @return Field name
+             */
+            std::string get_name();
 
             /**
              * This function will return true when called less than the number of refinements set for this field,

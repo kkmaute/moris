@@ -184,8 +184,9 @@ namespace moris
                 Cell<std::shared_ptr<Field>> aFieldDependencies,
                 std::shared_ptr<Library_IO>  aLibrary)
         {
-            // Property type
+            // Property type/name
             std::string tPropertyType = aPropertyParameterList.get<std::string>("type");
+            std::string tPropertyName = aPropertyParameterList.get<std::string>("name");
 
             // Property inputs
             Matrix<DDUMat> tPropertyVariableIndices(0, 0);
@@ -203,7 +204,8 @@ namespace moris
                         aADVs,
                         tPropertyVariableIndices,
                         tADVIndices,
-                        tConstantParameters);
+                        tConstantParameters,
+                        tPropertyName);
             }
             else if (tPropertyType == "user_defined")
             {
@@ -222,7 +224,8 @@ namespace moris
                         tConstantParameters,
                         aFieldDependencies,
                         aLibrary->load_gen_field_function(aPropertyParameterList.get<std::string>("field_function_name")),
-                        tSensitivityFunction);
+                        tSensitivityFunction,
+                        tPropertyName);
             }
             else
             {
@@ -239,8 +242,9 @@ namespace moris
                 Cell<std::shared_ptr<Field>> aFieldDependencies,
                 std::shared_ptr<Library_IO>  aLibrary)
         {
-            // Property type
+            // Property type/name
             std::string tPropertyType = aPropertyParameterList.get<std::string>("type");
+            std::string tPropertyName = aPropertyParameterList.get<std::string>("name");
 
             // Property inputs
             Matrix<DDUMat> tPropertyVariableIndices(0, 0);
@@ -254,7 +258,12 @@ namespace moris
             // Build Property
             if (tPropertyType == "discrete")
             {
-                return std::make_shared<Discrete_Property>(aOwnedADVs, tPropertyVariableIndices, tADVIndices, tConstantParameters);
+                return std::make_shared<Discrete_Property>(
+                        aOwnedADVs,
+                        tPropertyVariableIndices,
+                        tADVIndices,
+                        tConstantParameters,
+                        tPropertyName);
             }
             else if (tPropertyType == "user_defined")
             {
@@ -273,7 +282,8 @@ namespace moris
                         tConstantParameters,
                         aFieldDependencies,
                         aLibrary->load_gen_field_function(aPropertyParameterList.get<std::string>("field_function_name")),
-                        tSensitivityFunction);
+                        tSensitivityFunction,
+                        tPropertyName);
             }
             else
             {

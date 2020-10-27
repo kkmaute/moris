@@ -13,6 +13,7 @@ namespace moris
                      Matrix<DDUMat>  aFieldVariableIndices,
                      Matrix<DDUMat>  aADVIndices,
                      Matrix<DDRMat>  aConstantParameters,
+                     std::string     aName,
                      sint            aNumRefinements,
                      sint            aRefinementFunctionIndex,
                      sint            aBSplineMeshIndex,
@@ -21,8 +22,8 @@ namespace moris
                 : mFieldVariables(aFieldVariableIndices.length() + aConstantParameters.length()),
                   mConstantParameters(aConstantParameters),
                   mDeterminingADVIds(aFieldVariableIndices.length() + aConstantParameters.length(), 1, -1),
+                  mName(aName),
                   mDependsOnADVs(aADVIndices.length()),
-                  mNumADVs(aADVs.length()),
                   mNumRefinements(aNumRefinements),
                   mRefinementFunctionIndex(aRefinementFunctionIndex),
                   mBSplineMeshIndex(aBSplineMeshIndex),
@@ -49,6 +50,7 @@ namespace moris
                      Matrix<DDUMat>    aFieldVariableIndices,
                      Matrix<DDUMat>    aADVIndices,
                      Matrix<DDRMat>    aConstantParameters,
+                     std::string       aName,
                      sint              aNumRefinements,
                      sint              aRefinementFunctionIndex,
                      sint              aBSplineMeshIndex,
@@ -57,8 +59,8 @@ namespace moris
                 : mFieldVariables(aFieldVariableIndices.length() + aConstantParameters.length()),
                   mConstantParameters(aConstantParameters),
                   mDeterminingADVIds(aFieldVariableIndices.length() + aConstantParameters.length(), 1, -1),
+                  mName(aName),
                   mDependsOnADVs(aADVIndices.length()),
-                  mNumADVs(aOwnedADVs->vec_local_length()),
                   mNumRefinements(aNumRefinements),
                   mRefinementFunctionIndex(aRefinementFunctionIndex),
                   mBSplineMeshIndex(aBSplineMeshIndex),
@@ -82,6 +84,7 @@ namespace moris
         //--------------------------------------------------------------------------------------------------------------
 
         Field::Field(const Matrix<DDSMat>& aSharedADVIds,
+                     std::string           aName,
                      sint                  aNumRefinements,
                      sint                  aRefinementFunctionIndex,
                      sint                  aBSplineMeshIndex,
@@ -89,6 +92,7 @@ namespace moris
                      real                  aBSplineUpperBound)
                 : mFieldVariables(aSharedADVIds.length()),
                   mDeterminingADVIds(aSharedADVIds),
+                  mName(aName),
                   mDependsOnADVs(true),
                   mNumRefinements(aNumRefinements),
                   mRefinementFunctionIndex(aRefinementFunctionIndex),
@@ -112,6 +116,7 @@ namespace moris
         //--------------------------------------------------------------------------------------------------------------
 
         Field::Field(Matrix<DDRMat> aConstantParameters,
+                     std::string    aName,
                      sint           aNumRefinements,
                      sint           aRefinementFunctionIndex,
                      sint           aBSplineMeshIndex,
@@ -120,8 +125,8 @@ namespace moris
                 : mFieldVariables(aConstantParameters.length()),
                   mConstantParameters(aConstantParameters),
                   mDeterminingADVIds(aConstantParameters.length(), 1, -1),
+                  mName(aName),
                   mDependsOnADVs(false),
-                  mNumADVs(0),
                   mNumRefinements(aNumRefinements),
                   mRefinementFunctionIndex(aRefinementFunctionIndex),
                   mBSplineMeshIndex(aBSplineMeshIndex),
@@ -156,7 +161,6 @@ namespace moris
             if (mSharedADVs)
             {
                 mSharedADVs->import_local_to_global(*aOwnedADVs);
-                mNumADVs = aOwnedADVs->vec_local_length();
             }
         }
 
@@ -191,6 +195,13 @@ namespace moris
         bool Field::depends_on_advs()
         {
             return mDependsOnADVs;
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
+        std::string Field::get_name()
+        {
+            return mName;
         }
 
         //--------------------------------------------------------------------------------------------------------------

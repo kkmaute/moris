@@ -7,19 +7,22 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        Discrete_Property::Discrete_Property(Matrix<DDRMat>& aADVs,
-                                             Matrix<DDUMat>  aPropertyVariableIndices,
-                                             Matrix<DDUMat>  aADVIndices,
-                                             Matrix<DDRMat>  aConstantParameters,
-                                             sint            aNumRefinements,
-                                             sint            aRefinementFunctionIndex,
-                                             sint            aBSplineMeshIndex,
-                                             real            aBSplineLowerBound,
-                                             real            aBSplineUpperBound)
+        Discrete_Property::Discrete_Property(
+                Matrix<DDRMat>& aADVs,
+                Matrix<DDUMat>  aPropertyVariableIndices,
+                Matrix<DDUMat>  aADVIndices,
+                Matrix<DDRMat>  aConstantParameters,
+                std::string     aName,
+                sint            aNumRefinements,
+                sint            aRefinementFunctionIndex,
+                sint            aBSplineMeshIndex,
+                real            aBSplineLowerBound,
+                real            aBSplineUpperBound)
                 : Field(aADVs,
                         aPropertyVariableIndices,
                         aADVIndices,
                         aConstantParameters,
+                        aName,
                         aNumRefinements,
                         aRefinementFunctionIndex,
                         aBSplineMeshIndex,
@@ -31,19 +34,22 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        Discrete_Property::Discrete_Property(sol::Dist_Vector* aOwnedADVs,
-                                             Matrix<DDUMat>    aPropertyVariableIndices,
-                                             Matrix<DDUMat>    aADVIndices,
-                                             Matrix<DDRMat>    aConstantParameters,
-                                             sint              aNumRefinements,
-                                             sint              aRefinementFunctionIndex,
-                                             sint              aBSplineMeshIndex,
-                                             real              aBSplineLowerBound,
-                                             real              aBSplineUpperBound)
+        Discrete_Property::Discrete_Property(
+                sol::Dist_Vector* aOwnedADVs,
+                Matrix<DDUMat>    aPropertyVariableIndices,
+                Matrix<DDUMat>    aADVIndices,
+                Matrix<DDRMat>    aConstantParameters,
+                std::string       aName,
+                sint              aNumRefinements,
+                sint              aRefinementFunctionIndex,
+                sint              aBSplineMeshIndex,
+                real              aBSplineLowerBound,
+                real              aBSplineUpperBound)
                 : Field(aOwnedADVs,
                         aPropertyVariableIndices,
                         aADVIndices,
                         aConstantParameters,
+                        aName,
                         aNumRefinements,
                         aRefinementFunctionIndex,
                         aBSplineMeshIndex,

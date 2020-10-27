@@ -41,7 +41,7 @@ namespace moris
                     bool tMultigeometryFound = false;
                     for (uint tMultigeometryIndex = 0; tMultigeometryIndex < tMultigeometries.size(); tMultigeometryIndex++)
                     {
-                        if (tMultigeometries(tMultigeometryIndex)->get_id() == tMultigeometryID)
+                        if (tMultigeometries(tMultigeometryIndex)->get_name() == tMultigeometryID)
                         {
                             tMultigeometryFound = true;
                             tMultigeometries(tMultigeometryIndex)->add_geometry(tGeometry);
@@ -95,7 +95,7 @@ namespace moris
                     bool tMultigeometryFound = false;
                     for (uint tMultigeometryIndex = 0; tMultigeometryIndex < tMultigeometries.size(); tMultigeometryIndex++)
                     {
-                        if (tMultigeometries(tMultigeometryIndex)->get_id() == tMultigeometryID)
+                        if (tMultigeometries(tMultigeometryIndex)->get_name() == tMultigeometryID)
                         {
                             tMultigeometryFound = true;
                             tMultigeometries(tMultigeometryIndex)->add_geometry(tGeometry);
@@ -149,6 +149,9 @@ namespace moris
                 tConstantParameters = string_to_mat<DDRMat>(aGeometryParameterList.get<std::string>("constant_parameters"));
             }
 
+            // Get name
+            std::string tGeometryName = "";
+
             // Get refinement info
             sint tNumRefinements = aGeometryParameterList.get<sint>("number_of_refinements");
             sint tRefinementFunctionIndex = aGeometryParameterList.get<sint>("refinement_function_index");
@@ -166,6 +169,7 @@ namespace moris
                         tGeometryVariableIndices,
                         tADVIndices,
                         tConstantParameters,
+                        tGeometryName,
                         tNumRefinements,
                         tRefinementFunctionIndex,
                         tBSplineMeshIndex,
@@ -179,6 +183,7 @@ namespace moris
                         tGeometryVariableIndices,
                         tADVIndices,
                         tConstantParameters,
+                        tGeometryName,
                         tNumRefinements,
                         tRefinementFunctionIndex,
                         tBSplineMeshIndex,
@@ -192,6 +197,7 @@ namespace moris
                         tGeometryVariableIndices,
                         tADVIndices,
                         tConstantParameters,
+                        tGeometryName,
                         tNumRefinements,
                         tRefinementFunctionIndex,
                         tBSplineMeshIndex,
@@ -205,6 +211,7 @@ namespace moris
                         tGeometryVariableIndices,
                         tADVIndices,
                         tConstantParameters,
+                        tGeometryName,
                         tNumRefinements,
                         tRefinementFunctionIndex,
                         tBSplineMeshIndex,
@@ -218,6 +225,7 @@ namespace moris
                         tGeometryVariableIndices,
                         tADVIndices,
                         tConstantParameters,
+                        tGeometryName,
                         tNumRefinements,
                         tRefinementFunctionIndex,
                         tBSplineMeshIndex,
@@ -242,6 +250,7 @@ namespace moris
                         tConstantParameters,
                         aLibrary->load_gen_field_function(aGeometryParameterList.get<std::string>("field_function_name")),
                         tSensitivityFunction,
+                        tGeometryName,
                         tNumRefinements,
                         tRefinementFunctionIndex,
                         tBSplineMeshIndex,
@@ -276,6 +285,7 @@ namespace moris
                             aGeometryParameterList.get<real>("superellipse_regularization"),
                             aGeometryParameterList.get<real>("superellipse_shift"),
                             aGeometryParameterList.get<real>("row_offset"),
+                            tGeometryName,
                             tNumRefinements,
                             tRefinementFunctionIndex,
                             tBSplineMeshIndex,
@@ -299,6 +309,7 @@ namespace moris
                             aGeometryParameterList.get<real>("superellipse_shift"),
                             aGeometryParameterList.get<real>("row_offset"),
                             aGeometryParameterList.get<bool>("allow_less_than_target_spacing"),
+                            tGeometryName,
                             tNumRefinements,
                             tRefinementFunctionIndex,
                             tBSplineMeshIndex,
@@ -339,6 +350,9 @@ namespace moris
                 tConstantParameters = string_to_mat<DDRMat>(aGeometryParameterList.get<std::string>("constant_parameters"));
             }
 
+            // Get name
+            std::string tGeometryName = "";
+
             // Get refinement info
             sint tNumRefinements = aGeometryParameterList.get<sint>("number_of_refinements");
             sint tRefinementFunctionIndex = aGeometryParameterList.get<sint>("refinement_function_index");
@@ -356,6 +370,7 @@ namespace moris
                         tGeometryVariableIndices,
                         tADVIndices,
                         tConstantParameters,
+                        tGeometryName,
                         tNumRefinements,
                         tRefinementFunctionIndex,
                         tBSplineMeshIndex,
@@ -369,6 +384,7 @@ namespace moris
                         tGeometryVariableIndices,
                         tADVIndices,
                         tConstantParameters,
+                        tGeometryName,
                         tNumRefinements,
                         tRefinementFunctionIndex,
                         tBSplineMeshIndex,
@@ -382,6 +398,7 @@ namespace moris
                         tGeometryVariableIndices,
                         tADVIndices,
                         tConstantParameters,
+                        tGeometryName,
                         tNumRefinements,
                         tRefinementFunctionIndex,
                         tBSplineMeshIndex,
@@ -395,6 +412,7 @@ namespace moris
                         tGeometryVariableIndices,
                         tADVIndices,
                         tConstantParameters,
+                        tGeometryName,
                         tNumRefinements,
                         tRefinementFunctionIndex,
                         tBSplineMeshIndex,
@@ -408,6 +426,7 @@ namespace moris
                         tGeometryVariableIndices,
                         tADVIndices,
                         tConstantParameters,
+                        tGeometryName,
                         tNumRefinements,
                         tRefinementFunctionIndex,
                         tBSplineMeshIndex,
@@ -432,6 +451,7 @@ namespace moris
                         tConstantParameters,
                         aLibrary->load_gen_field_function(aGeometryParameterList.get<std::string>("field_function_name")),
                         tSensitivityFunction,
+                        tGeometryName,
                         tNumRefinements,
                         tRefinementFunctionIndex,
                         tBSplineMeshIndex,
@@ -466,6 +486,7 @@ namespace moris
                             aGeometryParameterList.get<real>("superellipse_regularization"),
                             aGeometryParameterList.get<real>("superellipse_shift"),
                             aGeometryParameterList.get<real>("row_offset"),
+                            tGeometryName,
                             tNumRefinements,
                             tRefinementFunctionIndex,
                             tBSplineMeshIndex,
@@ -489,6 +510,7 @@ namespace moris
                             aGeometryParameterList.get<real>("superellipse_shift"),
                             aGeometryParameterList.get<real>("row_offset"),
                             aGeometryParameterList.get<bool>("allow_less_than_target_spacing"),
+                            tGeometryName,
                             tNumRefinements,
                             tRefinementFunctionIndex,
                             tBSplineMeshIndex,
