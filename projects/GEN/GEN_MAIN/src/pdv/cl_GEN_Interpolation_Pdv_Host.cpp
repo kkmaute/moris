@@ -86,7 +86,14 @@ namespace moris
 
         moris_id Interpolation_Pdv_Host::get_pdv_id(uint aPDVIndex)
         {
-            return mPDVs(aPDVIndex)->get_id();
+            if (mPDVs(aPDVIndex))
+            {
+                return mPDVs(aPDVIndex)->get_id();
+            }
+            else
+            {
+                return -1;
+            }
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -227,7 +234,9 @@ namespace moris
 
         Matrix<DDSMat> Interpolation_Pdv_Host::get_determining_adv_ids(uint aPDVIndex)
         {
-            return mPDVs(aPDVIndex)->get_determining_adv_ids(mNodeIndex, mCoordinates);
+            // If PDV exists and is active, ask it for depending ADV IDs. Otherwise, return nothing
+            return ((mPDVs(aPDVIndex) and mPDVs(aPDVIndex)->mIsActive)
+                    ? mPDVs(aPDVIndex)->get_determining_adv_ids(mNodeIndex, mCoordinates) : Matrix<DDSMat>(0, 0));
         }
 
         //--------------------------------------------------------------------------------------------------------------
