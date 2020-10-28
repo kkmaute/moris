@@ -1,5 +1,6 @@
 // MORIS
 #include "cl_OPT_Algorithm_GCMMA.hpp"
+#include "cl_Communication_Tools.hpp"
 
 // Logger package
 #include "cl_Logger.hpp"
@@ -41,28 +42,93 @@ void OptAlgGCMMA::solve(std::shared_ptr<moris::opt::Problem> aOptProb )
 
     mProblem = aOptProb; // set the member variable mProblem to aOptProb
 
-    // Note that these pointers are deleted by the the Arma and Eigen
-    // libraries themselves.
-    auto tAdv         = mProblem->get_advs().data();
-    auto tUpperBounds = mProblem->get_upper_bounds().data();
-    auto tLowerBounds = mProblem->get_lower_bounds().data();
+    if (par_rank() == 0)
+    {
+        mPrint = false; // FIXME parameter list
 
-    mPrint = false;
+        // Note that these pointers are deleted by the the Arma and Eigen
+        // libraries themselves.
+        auto tAdv         = mProblem->get_advs().data();
+        auto tUpperBounds = mProblem->get_upper_bounds().data();
+        auto tLowerBounds = mProblem->get_lower_bounds().data();
 
-    // create an object of type MMAgc solver
-    MMAgc mmaAlg(this,
-                 tAdv, tUpperBounds, tLowerBounds,
-                 mProblem->get_num_advs(), mProblem->get_num_constraints(), mMaxIterations, mMaxInnerIterations,
-                 mNormDrop, mAsympAdapt0, mAsympShrink, mAsympExpand,
-                 mStepSize, mPenalty, NULL, mPrint );
+        // create an object of type MMAgc solver
+        MMAgc mmaAlg(this, tAdv, tUpperBounds, tLowerBounds, mProblem->get_num_advs(), mProblem->get_num_constraints(),
+                     mMaxIterations, mMaxInnerIterations, mNormDrop, mAsympAdapt0, mAsympShrink, mAsympExpand,
+                     mStepSize, mPenalty, NULL, mPrint);
 
-    mResFlag = mmaAlg.solve(); // call the the gcmma solve
+        mResFlag = mmaAlg.solve(); // call the the gcmma solve
+
+        mmaAlg.cleanup(); // free the memory created by GCMMA
+
+        // Communicate that optimization has finished
+        mRunning = false;
+        this->communicate_running_status();
+    }
+    else
+    {
+        // Don't print from these procs
+        mPrint = false;
+
+        // Communicate that these procs need to start running
+        this->communicate_running_status();
+
+        // Dummy variables to pass in to func/grad wrap
+        double* tAdv = nullptr;
+        double tObjval;
+        double* tConval = nullptr;
+        double* tD_Obj = nullptr;
+        double** tD_Con = nullptr;
+        int* tActive = nullptr;
+
+        // Keep looping over func/grad calls
+        while(mRunning)
+        {
+            // Dummy calls to func/grad wrap
+            opt_alg_gcmma_func_wrap(this, 0, tAdv, tObjval, tConval);
+            opt_alg_gcmma_grad_wrap(this, tAdv, tD_Obj, tD_Con, tActive );
+
+            // Communicate running status so these procs know when to exit
+            this->communicate_running_status();
+        }
+    }
 
     this->printresult(); // print the result of the optimization algorithm
 
     aOptProb = mProblem; // update aOptProb
+}
 
-    mmaAlg.cleanup(); // free the memory created by GCMMA
+//----------------------------------------------------------------------------------------------------------------------
+
+void OptAlgGCMMA::communicate_running_status()
+{
+    // Sending/receiving status
+    Matrix<DDSMat> tSendingStatus = {{mRunning}};
+    Matrix<DDSMat> tReceivingStatus(0, 0);
+
+    // Communication list
+    Matrix<DDUMat> tCommunicationList(1, 1, 0);
+    if (par_rank() == 0)
+    {
+        // Resize communication list and sending mat
+        tCommunicationList.resize(par_size() - 1, 1);
+        tSendingStatus.set_size(par_size() - 1, 1, mRunning);
+
+        // Assign communication list
+        for (uint tProcessorIndex = 1; tProcessorIndex < (uint)par_size(); tProcessorIndex++)
+        {
+            tCommunicationList(tProcessorIndex - 1) = tProcessorIndex;
+        }
+    }
+
+    // Perform communication
+    communicate_scalars(tCommunicationList, tSendingStatus, tReceivingStatus);
+
+    // Assign new status
+    if (par_rank() != 0)
+    {
+        mRunning = tReceivingStatus(0);
+    }
 }
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -99,23 +165,40 @@ void opt_alg_gcmma_func_wrap(
         double&      aObjval,
         double*      aConval )
 {
-    // Log iteration of optimization
-    MORIS_LOG_ITERATION();
+    // Proc 0 needs to communicate that it is still running
+    if (par_rank() == 0)
+    {
+        aOptAlgGCMMA->communicate_running_status();
+    }
 
-    // Update the ADV matrix
-    Matrix<DDRMat> tADVs(aAdv, aOptAlgGCMMA->mProblem->get_num_advs(), 1);
+    // Barrier to wait for all procs
+    barrier("func");
+
+    Matrix<DDRMat> tADVs(0, 0);
+    if (par_rank() == 0)
+    {
+        // Log iteration of optimization
+        MORIS_LOG_ITERATION();
+
+        // Update the ADV matrix
+        tADVs = Matrix<DDRMat>(aAdv, aOptAlgGCMMA->mProblem->get_num_advs(), 1);
+    }
+
     aOptAlgGCMMA->mProblem->set_advs(tADVs);
 
-    // Set update for objectives and constraints
-    aOptAlgGCMMA->mProblem->mUpdateObjectives = true;
-    aOptAlgGCMMA->mProblem->mUpdateConstraints = true;
+    if (par_rank() == 0)
+    {
+        // Set update for objectives and constraints
+        aOptAlgGCMMA->mProblem->mUpdateObjectives = true;
+        aOptAlgGCMMA->mProblem->mUpdateConstraints = true;
 
-    // Convert outputs from type MORIS
-    aObjval = aOptAlgGCMMA->mProblem->get_objectives()(0);
+        // Convert outputs from type MORIS
+        aObjval = aOptAlgGCMMA->mProblem->get_objectives()(0);
 
-    // Update the pointer of constraints
-    auto tConval = aOptAlgGCMMA->mProblem->get_constraints().data();
-    std::copy(tConval, tConval + aOptAlgGCMMA->mProblem->get_num_constraints(), aConval );
+        // Update the pointer of constraints
+        auto tConval = aOptAlgGCMMA->mProblem->get_constraints().data();
+        std::copy(tConval, tConval + aOptAlgGCMMA->mProblem->get_num_constraints(), aConval );
+    }
 }
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -127,32 +210,43 @@ void opt_alg_gcmma_grad_wrap(
         double**     aD_Con,
         int*         aActive )
 {
-    // Update the vector of active constraints flag
-    aOptAlgGCMMA->mActive = Matrix< DDSMat >  (*aActive, aOptAlgGCMMA->mProblem->get_num_constraints(), 1 );
+    // Barrier to wait for all procs
+    barrier("grad");
 
-    // Update the ADV matrix
-    Matrix<DDRMat> tADVs(aAdv, aOptAlgGCMMA->mProblem->get_num_advs(), 1);
+    Matrix<DDRMat> tADVs(0, 0);
+    if (par_rank() == 0)
+    {
+        // Update the vector of active constraints flag
+        aOptAlgGCMMA->mActive = Matrix< DDSMat >  (*aActive, aOptAlgGCMMA->mProblem->get_num_constraints(), 1 );
+
+        // Update the ADV matrix
+        tADVs = Matrix<DDRMat>(aAdv, aOptAlgGCMMA->mProblem->get_num_advs(), 1);
+    }
+
     aOptAlgGCMMA->mProblem->set_advs(tADVs);
 
-    // Set an update for the gradients
-    aOptAlgGCMMA->mProblem->mUpdateObjectiveGradients = true;
-    aOptAlgGCMMA->mProblem->mUpdateConstraintGradients = true;
-
-    // Get the objective gradient
-    auto tD_Obj = aOptAlgGCMMA->mProblem->get_objective_gradients().data();
-    std::copy( tD_Obj, tD_Obj + aOptAlgGCMMA->mProblem->get_num_advs(), aD_Obj );
-
-    // Get the constraint gradient as a MORIS Matrix
-    Matrix<DDRMat> tD_Con = aOptAlgGCMMA->mProblem->get_constraint_gradients();
-
-    // Assign to array
-    for (moris::uint i = 0; i < aOptAlgGCMMA->mProblem->get_num_constraints(); ++i )
+    if (par_rank() == 0)
     {
-        // loop over number of constraints
-        for ( moris::uint j = 0; j < aOptAlgGCMMA->mProblem->get_num_advs(); ++j )
+        // Set an update for the gradients
+        aOptAlgGCMMA->mProblem->mUpdateObjectiveGradients = true;
+        aOptAlgGCMMA->mProblem->mUpdateConstraintGradients = true;
+
+        // Get the objective gradient
+        auto tD_Obj = aOptAlgGCMMA->mProblem->get_objective_gradients().data();
+        std::copy( tD_Obj, tD_Obj + aOptAlgGCMMA->mProblem->get_num_advs(), aD_Obj );
+
+        // Get the constraint gradient as a MORIS Matrix
+        Matrix<DDRMat> tD_Con = aOptAlgGCMMA->mProblem->get_constraint_gradients();
+
+        // Assign to array
+        for (moris::uint i = 0; i < aOptAlgGCMMA->mProblem->get_num_constraints(); ++i )
         {
-            // Copy data from the matrix to pointer aD_Con
-            aD_Con[i][j] = tD_Con(i, j);
+            // loop over number of constraints
+            for ( moris::uint j = 0; j < aOptAlgGCMMA->mProblem->get_num_advs(); ++j )
+            {
+                // Copy data from the matrix to pointer aD_Con
+                aD_Con[i][j] = tD_Con(i, j);
+            }
         }
     }
 }

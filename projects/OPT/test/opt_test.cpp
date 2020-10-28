@@ -31,9 +31,9 @@ namespace moris
 
                 // Create interface
                 std::shared_ptr<Criteria_Interface> tInterface = std::make_shared<Interface_User_Defined>(
-                        &initialize_rosenbrock,
-                        &get_criteria_rosenbrock,
-                        &get_dcriteria_dadv_rosenbrock);
+                        &initialize_rosenbrock_1,
+                        &get_criteria_rosenbrock_1,
+                        &get_dcriteria_dadv_rosenbrock_1);
 
                 // Create Problem
                 std::shared_ptr<Problem> tProblem = std::make_shared<Problem_User_Defined>(
@@ -54,8 +54,11 @@ namespace moris
                 tManager.perform();
 
                 // Check Solution
-                REQUIRE(std::abs(tManager.get_objectives()(0)) < 2E-9); // check value of objective
-                REQUIRE(norm(tManager.get_advs() - 1.0) < 2E-6); // check value of design variables
+                if (par_rank() == 0)
+                {
+                    REQUIRE(std::abs(tManager.get_objectives()(0)) < 2E-9); // check value of objective
+                    REQUIRE(norm(tManager.get_advs() - 1.0) < 2E-6); // check value of design variables
+                }
             }
 
             // ---------------------------------------------------------------------------------------------------------

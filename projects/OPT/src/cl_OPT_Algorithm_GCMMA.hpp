@@ -10,6 +10,7 @@ class OptAlgGCMMA : public moris::opt::Algorithm
 {
 
 private:
+    bool mRunning = true;
     bool mPrint;
     moris::uint mResFlag = 0; // flag from GCMMA describing result of optimization algorithm
     moris::sint mMaxIterations; // maximum number of iterations
@@ -63,6 +64,11 @@ public:
      *            data regarding ADVs, the objective and constraints
      */
     void solve( std::shared_ptr<moris::opt::Problem> aOptProb );
+
+    /**
+     * Communicates proc 0's running status to other procs so they know when to end.
+     */
+    void communicate_running_status();
 
     /**
      *@brief Prints result of the GCMMA algorithm based on mStopFlag

@@ -20,7 +20,7 @@ namespace moris
             Matrix<DDRMat> mUpperBounds;  // upper bounds on ADV vector
             Matrix<DDRMat> mLowerBounds; // lower bounds on ADV vector
             Matrix<DDSMat> mConstraintTypes; // flags for types of constraints
-            Matrix<DDRMat> mObjectives; // objectives (always 1)
+            Matrix<DDRMat> mObjectives = {{0.0}}; // objectives (always 1)
             Matrix<DDRMat> mConstraints; // constraints
             Matrix<DDRMat> mObjectiveGradient; // full gradient of the objectives with respect to the ADVs
             Matrix<DDRMat> mConstraintGradient; // full gradient of the constraints with respect to the ADVs

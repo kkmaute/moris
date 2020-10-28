@@ -4,6 +4,7 @@
 #include "fn_norm.hpp"
 #include "fn_trans.hpp"
 #include "fn_Parsing_Tools.hpp"
+#include "cl_Communication_Tools.hpp"
 
 extern moris::Logger gLogger;
 
@@ -121,7 +122,7 @@ namespace moris
 
         void Problem::set_advs(Matrix<DDRMat> aNewADVs)
         {
-            if (norm(aNewADVs - mADVs) < mADVNormTolerance)
+            if (par_rank() == 0 and norm(aNewADVs - mADVs) < mADVNormTolerance)
             {
                 return;
             }
