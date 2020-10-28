@@ -880,7 +880,11 @@ namespace moris
                 Cell<std::string> tFieldNames(mGeometries.size());
                 for (uint tGeometryIndex = 0; tGeometryIndex < mGeometries.size(); tGeometryIndex++)
                 {
-                    tFieldNames(tGeometryIndex) = "Geometry " + std::to_string(tGeometryIndex);
+                    tFieldNames(tGeometryIndex) = mGeometries(tGeometryIndex)->get_name();
+                    if (tFieldNames(tGeometryIndex) == "")
+                    {
+                        tFieldNames(tGeometryIndex) = "Geometry " + std::to_string(tGeometryIndex);
+                    }
                 }
                 tWriter.set_nodal_fields(tFieldNames);
 
