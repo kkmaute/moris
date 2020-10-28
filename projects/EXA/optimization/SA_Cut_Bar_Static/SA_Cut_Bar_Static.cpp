@@ -282,7 +282,6 @@ namespace moris
         tParameterlist( 1 ).push_back( prm::create_geometry_parameter_list() );
         tParameterlist( 1 )( tGeoCounter ).set( "type", "plane");
         tParameterlist( 1 )( tGeoCounter ).set( "constant_parameters", "-1.0, 0.0, 1.0, 0.0");
-        tParameterlist( 1 )( tGeoCounter ).set( "multigeometry_id", "boundary");
         tGeoCounter++;
 
         tParameterlist( 1 ).push_back( prm::create_geometry_parameter_list() );
