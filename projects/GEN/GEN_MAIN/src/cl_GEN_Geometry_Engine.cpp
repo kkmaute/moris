@@ -742,15 +742,10 @@ namespace moris
                 // Global assembly
                 mOwnedADVs->vector_global_asembly();
 
-                // Build geometries and properties from parameter lists using distributed vector
+                // Build geometries from parameter lists using distributed vector
                 // TODO augmented copy constructor for fields
-                if (mGeometryParameterLists.size() > 0)
-                {
-                    // Build geometries and properties
-                    mGeometries = create_geometries(mGeometryParameterLists, mOwnedADVs, mLibrary);
-                    mProperties = create_properties(mPropertyParameterLists, mOwnedADVs, mGeometries, mLibrary);
-                    mGeometryParameterLists.resize(0);
-                }
+                mGeometries = create_geometries(mGeometryParameterLists, mOwnedADVs, mLibrary);
+                mGeometryParameterLists.clear();
 
                 //----------------------------------------//
                 // Convert geometries to level sets       //
@@ -778,6 +773,9 @@ namespace moris
                                 mGeometries(tGeometryIndex));
                     }
                 }
+
+                // Build properties from parameter lists using distributed vector
+                mProperties = create_properties(mPropertyParameterLists, mOwnedADVs, mGeometries, mLibrary);
 
                 //----------------------------------------//
                 // Communicate all ADV IDs to processor 0 //
