@@ -213,7 +213,21 @@ namespace moris
             const uint              & aNumberOfDimensions,
             Matrix < DDUMat >       & aProcDims,
             Matrix < DDUMat >       & aProcCoords,
-            Matrix < IdMat >       & aProcNeighbors );
+            Matrix < IdMat >        & aProcNeighbors );
+
+    void create_proc_dims(
+                const uint          & aNumberOfDimensions,
+                Matrix < DDUMat >   & aMeshDims,
+                Matrix < DDUMat >   & aProcDimsTemp);
+
+    void create_proc_cart_2(
+            const uint              & aDecompMethod,
+            const uint              & aNumberOfDimensions,
+            Matrix < DDUMat >       & aMeshDims,
+            Matrix < DDUMat >       & aProcDims,
+            Matrix < DDUMat >       & aProcCoords,
+            Matrix < IdMat >        & aProcNeighbors );
+
 
     //------------------------------------------------------------------------------
 
