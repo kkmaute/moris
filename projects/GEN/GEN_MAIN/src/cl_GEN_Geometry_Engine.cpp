@@ -876,9 +876,13 @@ namespace moris
                 mtk::Writer_Exodus tWriter(aMesh);
                 tWriter.write_mesh("", aExodusFileName, "", "gen_temp.exo");
 
-                // Setup fields
-                Cell<std::string> tFieldNames(mGeometries.size());
-                for (uint tGeometryIndex = 0; tGeometryIndex < mGeometries.size(); tGeometryIndex++)
+                // Setup field names
+                uint tNumGeometries = mGeometries.size();
+                uint tNumProperties = mProperties.size();
+                Cell<std::string> tFieldNames(tNumGeometries + tNumProperties);
+
+                // Geometry field names
+                for (uint tGeometryIndex = 0; tGeometryIndex < tNumGeometries; tGeometryIndex++)
                 {
                     tFieldNames(tGeometryIndex) = mGeometries(tGeometryIndex)->get_name();
                     if (tFieldNames(tGeometryIndex) == "")
@@ -886,6 +890,18 @@ namespace moris
                         tFieldNames(tGeometryIndex) = "Geometry " + std::to_string(tGeometryIndex);
                     }
                 }
+
+                // Property field names
+                for (uint tPropertyIndex = 0; tPropertyIndex < tNumProperties; tPropertyIndex++)
+                {
+                    tFieldNames(tNumGeometries + tPropertyIndex) = mProperties(tPropertyIndex)->get_name();
+                    if (tFieldNames(tNumGeometries + tPropertyIndex) == "")
+                    {
+                        tFieldNames(tNumGeometries + tPropertyIndex) = "Property " + std::to_string(tPropertyIndex);
+                    }
+                }
+
+                // Set nodal fields based on field names
                 tWriter.set_nodal_fields(tFieldNames);
 
                 // Get all node coordinates
@@ -896,7 +912,7 @@ namespace moris
                 }
 
                 // Loop over geometries
-                for (uint tGeometryIndex = 0; tGeometryIndex < mGeometries.size(); tGeometryIndex++)
+                for (uint tGeometryIndex = 0; tGeometryIndex < tNumGeometries; tGeometryIndex++)
                 {
                     // Create field vector
                     Matrix<DDRMat> tFieldData(aMesh->get_num_nodes(), 1);
@@ -910,7 +926,25 @@ namespace moris
                     }
 
                     // Create field on mesh
-                    tWriter.write_nodal_field("Geometry " + std::to_string(tGeometryIndex), tFieldData);
+                    tWriter.write_nodal_field(tFieldNames(tGeometryIndex), tFieldData);
+                }
+
+                // Loop over properties
+                for (uint tPropertyIndex = 0; tPropertyIndex < tNumProperties; tPropertyIndex++)
+                {
+                    // Create field vector
+                    Matrix<DDRMat> tFieldData(aMesh->get_num_nodes(), 1);
+
+                    // Assign field to vector
+                    for (uint tNodeIndex = 0; tNodeIndex < aMesh->get_num_nodes(); tNodeIndex++)
+                    {
+                        tFieldData(tNodeIndex) = mProperties(tPropertyIndex)->get_field_value(
+                                tNodeIndex,
+                                tNodeCoordinates(tNodeIndex));
+                    }
+
+                    // Create field on mesh
+                    tWriter.write_nodal_field(tFieldNames(tNumGeometries + tPropertyIndex), tFieldData);
                 }
 
                 // Finalize
