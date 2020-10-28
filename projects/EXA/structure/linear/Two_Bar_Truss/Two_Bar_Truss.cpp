@@ -37,7 +37,7 @@ namespace moris
     // Mesh Set Information
 
     std::string tBars           = "HMR_dummy_n_p0,HMR_dummy_c_p0";
-    std::string tTotalDomain    = tBars; // + std::string("HMR_dummy_n_p0,HMR_dummy_c_p0");
+    std::string tTotalDomain    = tBars; // + "HMR_dummy_n_p0,HMR_dummy_c_p0";
 
     std::string tClampedSurface = "SideSet_4_n_p0,SideSet_4_c_p0";
     std::string tLoadedSurface  = "SideSet_2_n_p0,SideSet_2_c_p0";
@@ -357,14 +357,14 @@ namespace moris
         tParameterlist( 0 )( 0 ).set( "domain_dimensions",                tDomainDims );
         tParameterlist( 0 )( 0 ).set( "domain_offset",                    tDomainOffset );
         tParameterlist( 0 )( 0 ).set( "domain_sidesets",                  tDomainSidesets);
-        tParameterlist( 0 )( 0 ).set( "lagrange_output_meshes",           std::string("0"));
+        tParameterlist( 0 )( 0 ).set( "lagrange_output_meshes",           "0");
 
         tParameterlist( 0 )( 0 ).set( "lagrange_orders",  tInterpolationOrder );
         tParameterlist( 0 )( 0 ).set( "lagrange_pattern", std::string( "0" )  );
         tParameterlist( 0 )( 0 ).set( "bspline_orders",   tInterpolationOrder );
         tParameterlist( 0 )( 0 ).set( "bspline_pattern",  std::string( "0" )  );
 
-        tParameterlist( 0 )( 0 ).set( "lagrange_to_bspline", std::string("0") );
+        tParameterlist( 0 )( 0 ).set( "lagrange_to_bspline", "0" );
 
         tParameterlist( 0 )( 0 ).set( "truncate_bsplines",  1 );
         tParameterlist( 0 )( 0 ).set( "refinement_buffer",  tRefineBuffer );
@@ -389,10 +389,10 @@ namespace moris
 
         tParameterlist( 0 )( 0 ) = prm::create_xtk_parameter_list();
         tParameterlist( 0 )( 0 ).set( "decompose",                 true );
-        tParameterlist( 0 )( 0 ).set( "decomposition_type",        std::string("conformal") );
+        tParameterlist( 0 )( 0 ).set( "decomposition_type",        "conformal" );
         tParameterlist( 0 )( 0 ).set( "enrich",                    true );
-        tParameterlist( 0 )( 0 ).set( "basis_rank",                std::string("bspline") );
-        tParameterlist( 0 )( 0 ).set( "enrich_mesh_indices",       std::string("0") );
+        tParameterlist( 0 )( 0 ).set( "basis_rank",                "bspline" );
+        tParameterlist( 0 )( 0 ).set( "enrich_mesh_indices",       "0" );
         tParameterlist( 0 )( 0 ).set( "ghost_stab",                tUseGhost );
         tParameterlist( 0 )( 0 ).set( "multigrid",                 false );
         tParameterlist( 0 )( 0 ).set( "verbose",                   true );
@@ -411,45 +411,45 @@ namespace moris
         tParameterlist( 0 ).push_back( prm::create_gen_parameter_list() );
 
         tParameterlist( 0 )(0).set("initial_advs",
-                std::to_string(0.0) + std::string(",")  +
-                std::to_string(0.0) + std::string(",")  +
-                std::to_string(0.1) + std::string(",")  +
-                std::to_string(1.0) + std::string(",")  +
-                std::to_string(0.5) + std::string(",")  +
-                std::to_string(0.1) + std::string(",")  +
-                std::to_string(0.0) + std::string(",")  +
-                std::to_string(1.0) + std::string(",")  +
-                std::to_string(0.1) + std::string(",")  +
-                std::to_string(1.0) + std::string(",")  +
-                std::to_string(0.5) + std::string(",")  +
+                std::to_string(0.0) + ","  +
+                std::to_string(0.0) + ","  +
+                std::to_string(0.1) + ","  +
+                std::to_string(1.0) + ","  +
+                std::to_string(0.5) + ","  +
+                std::to_string(0.1) + ","  +
+                std::to_string(0.0) + ","  +
+                std::to_string(1.0) + ","  +
+                std::to_string(0.1) + ","  +
+                std::to_string(1.0) + ","  +
+                std::to_string(0.5) + ","  +
                 std::to_string(0.1) );
 
         tParameterlist( 0 )(0).set("lower_bounds",
-                std::to_string(0.0) + std::string(",")  +
-                std::to_string(0.0) + std::string(",")  +
-                std::to_string(0.1) + std::string(",")  +
-                std::to_string(1.0) + std::string(",")  +
-                std::to_string(0.5) + std::string(",")  +
-                std::to_string(0.1) + std::string(",")  +
-                std::to_string(0.0) + std::string(",")  +
-                std::to_string(1.0) + std::string(",")  +
-                std::to_string(0.1) + std::string(",")  +
-                std::to_string(1.0) + std::string(",")  +
-                std::to_string(0.5) + std::string(",")  +
+                std::to_string(0.0) + ","  +
+                std::to_string(0.0) + ","  +
+                std::to_string(0.1) + ","  +
+                std::to_string(1.0) + ","  +
+                std::to_string(0.5) + ","  +
+                std::to_string(0.1) + ","  +
+                std::to_string(0.0) + ","  +
+                std::to_string(1.0) + ","  +
+                std::to_string(0.1) + ","  +
+                std::to_string(1.0) + ","  +
+                std::to_string(0.5) + ","  +
                 std::to_string(0.1) );
 
         tParameterlist( 0 )(0).set("upper_bounds",
-                std::to_string(0.0) + std::string(",")  +
-                std::to_string(0.0) + std::string(",")  +
-                std::to_string(0.1) + std::string(",")  +
-                std::to_string(1.0) + std::string(",")  +
-                std::to_string(0.5) + std::string(",")  +
-                std::to_string(0.1) + std::string(",")  +
-                std::to_string(0.0) + std::string(",")  +
-                std::to_string(1.0) + std::string(",")  +
-                std::to_string(0.1) + std::string(",")  +
-                std::to_string(1.0) + std::string(",")  +
-                std::to_string(0.5) + std::string(",")  +
+                std::to_string(0.0) + ","  +
+                std::to_string(0.0) + ","  +
+                std::to_string(0.1) + ","  +
+                std::to_string(1.0) + ","  +
+                std::to_string(0.5) + ","  +
+                std::to_string(0.1) + ","  +
+                std::to_string(0.0) + ","  +
+                std::to_string(1.0) + ","  +
+                std::to_string(0.1) + ","  +
+                std::to_string(1.0) + ","  +
+                std::to_string(0.5) + ","  +
                 std::to_string(0.1) );
 
         tParameterlist( 0 )( 0 ).set("IQI_types"         , "IQIBulkStrainEnergy,IQIBulkVolume");
@@ -464,12 +464,12 @@ namespace moris
         tParameterlist( 1 )( 0 ).set( "number_of_refinements",      tInterfaceRefinement );
 
         tParameterlist( 1 )(0).set("geometry_variable_indices",
-                std::string(" 0,  1,  2,  3,  4,  5,  6,  7,") +
-                std::string(" 8,  9, 10, 11") );
+                " 0,  1,  2,  3,  4,  5,  6,  7,"
+                " 8,  9, 10, 11" );
                 
         tParameterlist( 1 )(0).set("adv_indices",
-                std::string(" 0,  1,  2,  3,  4,  5,  6,  7,") +
-                std::string(" 8,  9, 10, 11") );
+                " 0,  1,  2,  3,  4,  5,  6,  7,"
+                " 8,  9, 10, 11" );
     }
 
     /* ------------------------------------------------------------------------ */
@@ -550,10 +550,10 @@ namespace moris
 
         // create parameter list for ghost stabilization parameter for outer material
         tParameterList( 2 ).push_back( prm::create_stabilization_parameter_parameter_list() );
-        tParameterList( 2 )( tSPCounter ).set( "stabilization_name",      std::string("SPGhost") );
+        tParameterList( 2 )( tSPCounter ).set( "stabilization_name",      "SPGhost" );
         tParameterList( 2 )( tSPCounter ).set( "stabilization_type",      static_cast< uint >( fem::Stabilization_Type::GHOST_DISPL ) );
-        tParameterList( 2 )( tSPCounter ).set( "function_parameters",     std::string("0.01") );
-        tParameterList( 2 )( tSPCounter ).set( "master_properties",       std::string("PropYoungs,Material") );
+        tParameterList( 2 )( tSPCounter ).set( "function_parameters",     "0.01" );
+        tParameterList( 2 )( tSPCounter ).set( "master_properties",       "PropYoungs,Material" );
         tSPCounter++;
 
         //------------------------------------------------------------------------------
@@ -597,12 +597,12 @@ namespace moris
         {
             // create IWG for outer material - ghost
             tParameterList( 3 ).push_back( prm::create_IWG_parameter_list() );
-            tParameterList( 3 )( tIWGCounter ).set( "IWG_name",                   std::string("IWGGPInnerTemp") );
+            tParameterList( 3 )( tIWGCounter ).set( "IWG_name",                   "IWGGPInnerTemp" );
             tParameterList( 3 )( tIWGCounter ).set( "IWG_type",                   static_cast< uint >( fem::IWG_Type::GHOST_NORMAL_FIELD ) );
-            tParameterList( 3 )( tIWGCounter ).set( "dof_residual",               std::string("UX,UY") );
-            tParameterList( 3 )( tIWGCounter ).set( "master_dof_dependencies",    std::string("UX,UY") );
-            tParameterList( 3 )( tIWGCounter ).set( "slave_dof_dependencies",     std::string("UX,UY") );
-            tParameterList( 3 )( tIWGCounter ).set( "stabilization_parameters",   std::string("SPGhost,GhostSP") );
+            tParameterList( 3 )( tIWGCounter ).set( "dof_residual",               "UX,UY" );
+            tParameterList( 3 )( tIWGCounter ).set( "master_dof_dependencies",    "UX,UY" );
+            tParameterList( 3 )( tIWGCounter ).set( "slave_dof_dependencies",     "UX,UY" );
+            tParameterList( 3 )( tIWGCounter ).set( "stabilization_parameters",   "SPGhost,GhostSP" );
             tParameterList( 3 )( tIWGCounter ).set( "mesh_set_names",             tBarsGhost );
             tIWGCounter++;
         }
@@ -707,9 +707,9 @@ namespace moris
         tParameterlist( 0 )( 0 ).set( "File_Name"  , std::pair< std::string, std::string >( "./", tOutputFileName ) );
         tParameterlist( 0 )( 0 ).set( "Mesh_Type"  , static_cast< uint >( vis::VIS_Mesh_Type::STANDARD ) );
         tParameterlist( 0 )( 0 ).set( "Set_Names"  , tTotalDomain );
-        tParameterlist( 0 )( 0 ).set( "Field_Names", std::string("UX,UY,STRAIN_ENERGY,MAXUY,VOLUME") );
-        tParameterlist( 0 )( 0 ).set( "Field_Type" , std::string("NODAL,NODAL,GLOBAL,GLOBAL,GLOBAL") );
-        tParameterlist( 0 )( 0 ).set( "IQI_Names"   , std::string("IQIBulkDISPX,IQIBulkDISPY,IQIBulkStrainEnergy,IQIMaxDofUy,IQIBulkVolume") );
+        tParameterlist( 0 )( 0 ).set( "Field_Names", "UX,UY,STRAIN_ENERGY,MAXUY,VOLUME" );
+        tParameterlist( 0 )( 0 ).set( "Field_Type" , "NODAL,NODAL,GLOBAL,GLOBAL,GLOBAL" );
+        tParameterlist( 0 )( 0 ).set( "IQI_Names"   , "IQIBulkDISPX,IQIBulkDISPY,IQIBulkStrainEnergy,IQIMaxDofUy,IQIBulkVolume" );
         tParameterlist( 0 )( 0 ).set( "Save_Frequency", 1 );
     }
 

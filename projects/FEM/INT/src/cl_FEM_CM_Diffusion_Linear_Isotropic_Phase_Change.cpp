@@ -56,7 +56,7 @@ namespace moris
                 else
                 {
                     std::string tErrMsg =
-                            std::string("CM_Diffusion_Linear_Isotropic_Phase_Change::set_dof_type_list - Unknown aDofString : ") +
+                            "CM_Diffusion_Linear_Isotropic_Phase_Change::set_dof_type_list - Unknown aDofString : " +
                             tDofString;
                     MORIS_ERROR( false , tErrMsg.c_str() );
                 }

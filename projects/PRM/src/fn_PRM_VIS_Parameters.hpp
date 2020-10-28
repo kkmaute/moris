@@ -39,10 +39,10 @@ namespace moris
             mVISParameterList.insert( "Temp_Name"      , std::pair< std::string, std::string >( "./", "temp.exo" ) );
             mVISParameterList.insert( "Save_Frequency" , MORIS_SINT_MAX );
             mVISParameterList.insert( "Time_Offset"    , 0.0 );
-            mVISParameterList.insert( "Set_Names"      , std::string("") );
-            mVISParameterList.insert( "Field_Names"    , std::string("") );
-            mVISParameterList.insert( "Field_Type"     , std::string("") );
-            mVISParameterList.insert( "IQI_Names"      , std::string("") );
+            mVISParameterList.insert( "Set_Names"      , "" );
+            mVISParameterList.insert( "Field_Names"    , "" );
+            mVISParameterList.insert( "Field_Type"     , "" );
+            mVISParameterList.insert( "IQI_Names"      , "" );
 
             return mVISParameterList;
         }

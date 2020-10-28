@@ -576,14 +576,14 @@ namespace moris
         tParameterlist( 0 )( 0 ).set( "domain_dimensions",                tDomainDims );
         tParameterlist( 0 )( 0 ).set( "domain_offset",                    tDomainOffset );
         tParameterlist( 0 )( 0 ).set( "domain_sidesets",                  tDomainSidesets);
-        tParameterlist( 0 )( 0 ).set( "lagrange_output_meshes",           std::string("0"));
+        tParameterlist( 0 )( 0 ).set( "lagrange_output_meshes",           "0");
 
         tParameterlist( 0 )( 0 ).set( "lagrange_orders",  tOrder );
         tParameterlist( 0 )( 0 ).set( "lagrange_pattern", std::string( "0" ) );
         tParameterlist( 0 )( 0 ).set( "bspline_orders",   tOrder );
         tParameterlist( 0 )( 0 ).set( "bspline_pattern",  std::string( "0" ) );
 
-        tParameterlist( 0 )( 0 ).set( "lagrange_to_bspline", std::string("0") );
+        tParameterlist( 0 )( 0 ).set( "lagrange_to_bspline", "0" );
 
         tParameterlist( 0 )( 0 ).set( "truncate_bsplines",  1 );
         tParameterlist( 0 )( 0 ).set( "refinement_buffer",  tRefineBuffer );
@@ -607,10 +607,10 @@ namespace moris
 
         tParameterlist( 0 )( 0 ) = prm::create_xtk_parameter_list();
         tParameterlist( 0 )( 0 ).set( "decompose",                 true );
-        tParameterlist( 0 )( 0 ).set( "decomposition_type",        std::string("conformal") );
+        tParameterlist( 0 )( 0 ).set( "decomposition_type",        "conformal" );
         tParameterlist( 0 )( 0 ).set( "enrich",                    true );
-        tParameterlist( 0 )( 0 ).set( "basis_rank",                std::string("bspline") );
-        tParameterlist( 0 )( 0 ).set( "enrich_mesh_indices",       std::string("0") );
+        tParameterlist( 0 )( 0 ).set( "basis_rank",                "bspline" );
+        tParameterlist( 0 )( 0 ).set( "enrich_mesh_indices",       "0" );
         tParameterlist( 0 )( 0 ).set( "ghost_stab",                true );
         tParameterlist( 0 )( 0 ).set( "multigrid",                 false );
         tParameterlist( 0 )( 0 ).set( "verbose",                   true );
@@ -708,44 +708,44 @@ namespace moris
 		
 		// Density Shell
 		tParameterList( 0 ).push_back( prm::create_property_parameter_list() );
-        tParameterList( 0 )( tPropCounter ).set( "property_name",            std::string("PropDensity_Shell") );
+        tParameterList( 0 )( tPropCounter ).set( "property_name",            "PropDensity_Shell" );
         tParameterList( 0 )( tPropCounter ).set( "function_parameters",      tDensityShell );                 // divide by 1000
-        tParameterList( 0 )( tPropCounter ).set( "value_function",           std::string("Func_Const") );
+        tParameterList( 0 )( tPropCounter ).set( "value_function",           "Func_Const" );
         tPropCounter++;
 		
 		// Heat Capacity Shell
 		tParameterList( 0 ).push_back( prm::create_property_parameter_list() );
-        tParameterList( 0 )( tPropCounter ).set( "property_name",            std::string("PropHeatCapacity_Shell") );
+        tParameterList( 0 )( tPropCounter ).set( "property_name",            "PropHeatCapacity_Shell" );
         tParameterList( 0 )( tPropCounter ).set( "function_parameters",      tHeatCapacityShell );                   
-        tParameterList( 0 )( tPropCounter ).set( "value_function",           std::string("Func_Const") );
+        tParameterList( 0 )( tPropCounter ).set( "value_function",           "Func_Const" );
         tPropCounter++;
 		
         // Conductivity Shell
 		tParameterList( 0 ).push_back( prm::create_property_parameter_list() );
-        tParameterList( 0 )( tPropCounter ).set( "property_name",            std::string("PropConductivity_Shell") );
+        tParameterList( 0 )( tPropCounter ).set( "property_name",            "PropConductivity_Shell" );
         tParameterList( 0 )( tPropCounter ).set( "function_parameters",      tConductivityShell );                  // divide by  1e6, assume ~90W/mK
-        tParameterList( 0 )( tPropCounter ).set( "value_function",           std::string("Func_Const") );
+        tParameterList( 0 )( tPropCounter ).set( "value_function",           "Func_Const" );
         tPropCounter++;
         
         // Youngs Modulus Shell
         tParameterList( 0 ).push_back( prm::create_property_parameter_list() );
-        tParameterList( 0 )( tPropCounter ).set( "property_name",            std::string("PropYoungsModulus_Shell") );
+        tParameterList( 0 )( tPropCounter ).set( "property_name",            "PropYoungsModulus_Shell" );
         tParameterList( 0 )( tPropCounter ).set( "function_parameters",      tYoungsModulusShell );
-        tParameterList( 0 )( tPropCounter ).set( "value_function",           std::string("Func_Const") );
+        tParameterList( 0 )( tPropCounter ).set( "value_function",           "Func_Const" );
         tPropCounter++;
 
         // Poisson Ratio Shell
         tParameterList( 0 ).push_back( prm::create_property_parameter_list() );
-        tParameterList( 0 )( tPropCounter ).set( "property_name",            std::string("PropPoissonRatio_Shell") );
+        tParameterList( 0 )( tPropCounter ).set( "property_name",            "PropPoissonRatio_Shell" );
         tParameterList( 0 )( tPropCounter ).set( "function_parameters",      tPoissonRatioShell );
-        tParameterList( 0 )( tPropCounter ).set( "value_function",           std::string("Func_Const") );
+        tParameterList( 0 )( tPropCounter ).set( "value_function",           "Func_Const" );
         tPropCounter++;
         
         // CTE for Shell
         tParameterList( 0 ).push_back( prm::create_property_parameter_list() );
-        tParameterList( 0 )( tPropCounter ).set( "property_name",            std::string("PropThermalExpansion_Shell") );
+        tParameterList( 0 )( tPropCounter ).set( "property_name",            "PropThermalExpansion_Shell" );
         tParameterList( 0 )( tPropCounter ).set( "function_parameters",      tThermalExpansionShell );
-        tParameterList( 0 )( tPropCounter ).set( "value_function",           std::string("Func_Const") );
+        tParameterList( 0 )( tPropCounter ).set( "value_function",           "Func_Const" );
         tPropCounter++;
 		
 		//------------------------------------------------------------------------------
@@ -754,72 +754,72 @@ namespace moris
         
 		// Density of PCM
         tParameterList( 0 ).push_back( prm::create_property_parameter_list() );
-        tParameterList( 0 )( tPropCounter ).set( "property_name",            std::string("PropDensity_PCM") );
+        tParameterList( 0 )( tPropCounter ).set( "property_name",            "PropDensity_PCM" );
         tParameterList( 0 )( tPropCounter ).set( "function_parameters",      tDensityPCM );                  
-        tParameterList( 0 )( tPropCounter ).set( "value_function",           std::string("Func_Const") );
+        tParameterList( 0 )( tPropCounter ).set( "value_function",           "Func_Const" );
         tPropCounter++;	
 		
         // Heat Capacity of PCM
 		tParameterList( 0 ).push_back( prm::create_property_parameter_list() );
-        tParameterList( 0 )( tPropCounter ).set( "property_name",            std::string("PropHeatCapacity_PCM") );
+        tParameterList( 0 )( tPropCounter ).set( "property_name",            "PropHeatCapacity_PCM" );
         tParameterList( 0 )( tPropCounter ).set( "function_parameters",      tHeatCapacityPCM );   
-        tParameterList( 0 )( tPropCounter ).set( "value_function",           std::string("Func_Const") );
+        tParameterList( 0 )( tPropCounter ).set( "value_function",           "Func_Const" );
         tPropCounter++;	
 
 		// Conductivity of PCM
         tParameterList( 0 ).push_back( prm::create_property_parameter_list() );
-        tParameterList( 0 )( tPropCounter ).set( "property_name",            std::string("PropConductivity_PCM") );
+        tParameterList( 0 )( tPropCounter ).set( "property_name",            "PropConductivity_PCM" );
         tParameterList( 0 )( tPropCounter ).set( "function_parameters",      tConductivityPCM );   
-        tParameterList( 0 )( tPropCounter ).set( "value_function",           std::string("Func_Const") );
+        tParameterList( 0 )( tPropCounter ).set( "value_function",           "Func_Const" );
         tPropCounter++;	
 
         // Latent Heat of PCM
 		tParameterList( 0 ).push_back( prm::create_property_parameter_list() );
-        tParameterList( 0 )( tPropCounter ).set( "property_name",            std::string("PropLatentHeat_PCM") );
+        tParameterList( 0 )( tPropCounter ).set( "property_name",            "PropLatentHeat_PCM" );
         tParameterList( 0 )( tPropCounter ).set( "function_parameters",      tLatentHeatPCM );            
-        tParameterList( 0 )( tPropCounter ).set( "value_function",           std::string("Func_Const") );
+        tParameterList( 0 )( tPropCounter ).set( "value_function",           "Func_Const" );
         tPropCounter++;
 
         // Phase Change Temperature of PCM
 		tParameterList( 0 ).push_back( prm::create_property_parameter_list() );
-        tParameterList( 0 )( tPropCounter ).set( "property_name",            std::string("PropPCTemp_PCM") );
+        tParameterList( 0 )( tPropCounter ).set( "property_name",            "PropPCTemp_PCM" );
         tParameterList( 0 )( tPropCounter ).set( "function_parameters",      tPCTempPCM );            
-        tParameterList( 0 )( tPropCounter ).set( "value_function",           std::string("Func_Const") );
+        tParameterList( 0 )( tPropCounter ).set( "value_function",           "Func_Const" );
         tPropCounter++;
 
         // Phase Change Temperature Range of PCM
 		tParameterList( 0 ).push_back( prm::create_property_parameter_list() );
-        tParameterList( 0 )( tPropCounter ).set( "property_name",            std::string("PropPCconst_PCM") );
+        tParameterList( 0 )( tPropCounter ).set( "property_name",            "PropPCconst_PCM" );
         tParameterList( 0 )( tPropCounter ).set( "function_parameters",      tPCConstPCM );               
-        tParameterList( 0 )( tPropCounter ).set( "value_function",           std::string("Func_Const") );
+        tParameterList( 0 )( tPropCounter ).set( "value_function",           "Func_Const" );
         tPropCounter++;	
 
 		// Cubic Phase State Function for phase change model
         tParameterList( 0 ).push_back( prm::create_property_parameter_list() );
-        tParameterList( 0 )( tPropCounter ).set( "property_name",            std::string("PropPhaseState_PCM") );
-        tParameterList( 0 )( tPropCounter ).set( "function_parameters",      std::string("2.0") );  
-        tParameterList( 0 )( tPropCounter ).set( "value_function",           std::string("Func_Const") );
+        tParameterList( 0 )( tPropCounter ).set( "property_name",            "PropPhaseState_PCM" );
+        tParameterList( 0 )( tPropCounter ).set( "function_parameters",      "2.0" );
+        tParameterList( 0 )( tPropCounter ).set( "value_function",           "Func_Const" );
         tPropCounter++;
         
         // Youngs Modulus for PCM
         tParameterList( 0 ).push_back( prm::create_property_parameter_list() );
-        tParameterList( 0 )( tPropCounter ).set( "property_name",            std::string("PropYoungsModulus_PCM") );
+        tParameterList( 0 )( tPropCounter ).set( "property_name",            "PropYoungsModulus_PCM" );
         tParameterList( 0 )( tPropCounter ).set( "function_parameters",      tYoungsModulusPCM );
-        tParameterList( 0 )( tPropCounter ).set( "value_function",           std::string("Func_Const") );
+        tParameterList( 0 )( tPropCounter ).set( "value_function",           "Func_Const" );
         tPropCounter++;
 
         // Poisson Ratio for PCM
         tParameterList( 0 ).push_back( prm::create_property_parameter_list() );
-        tParameterList( 0 )( tPropCounter ).set( "property_name",            std::string("PropPoissonRatio_PCM") );
+        tParameterList( 0 )( tPropCounter ).set( "property_name",            "PropPoissonRatio_PCM" );
         tParameterList( 0 )( tPropCounter ).set( "function_parameters",      tPoissonRatioPCM );
-        tParameterList( 0 )( tPropCounter ).set( "value_function",           std::string("Func_Const") );
+        tParameterList( 0 )( tPropCounter ).set( "value_function",           "Func_Const" );
         tPropCounter++;
 
         // CTE for PCM
         tParameterList( 0 ).push_back( prm::create_property_parameter_list() );
-        tParameterList( 0 )( tPropCounter ).set( "property_name",            std::string("PropThermalExpansion_PCM") );
+        tParameterList( 0 )( tPropCounter ).set( "property_name",            "PropThermalExpansion_PCM" );
         tParameterList( 0 )( tPropCounter ).set( "function_parameters",      tThermalExpansionPCM );
-        tParameterList( 0 )( tPropCounter ).set( "value_function",           std::string("Func_Const") );
+        tParameterList( 0 )( tPropCounter ).set( "value_function",           "Func_Const" );
         tPropCounter++;
 		
         //------------------------------------------------------------------------------
@@ -835,15 +835,15 @@ namespace moris
 		
 		// Dummy latent heat for non-pc material
         tParameterList( 0 ).push_back( prm::create_property_parameter_list() );
-        tParameterList( 0 )( tPropCounter ).set( "property_name",            std::string("PropLatentHeat_Dummy") );
-        tParameterList( 0 )( tPropCounter ).set( "function_parameters",      std::string("0.0") );
-        tParameterList( 0 )( tPropCounter ).set( "value_function",           std::string("Func_Const") );
+        tParameterList( 0 )( tPropCounter ).set( "property_name",            "PropLatentHeat_Dummy" );
+        tParameterList( 0 )( tPropCounter ).set( "function_parameters",      "0.0" );
+        tParameterList( 0 )( tPropCounter ).set( "value_function",           "Func_Const" );
         tPropCounter++;
 
         tParameterList( 0 ).push_back( prm::create_property_parameter_list() );
-        tParameterList( 0 )( tPropCounter ).set( "property_name",            std::string("PropPCTemp_Dummy") );
-        tParameterList( 0 )( tPropCounter ).set( "function_parameters",      std::string("10000.0") );
-        tParameterList( 0 )( tPropCounter ).set( "value_function",           std::string("Func_Const") );
+        tParameterList( 0 )( tPropCounter ).set( "property_name",            "PropPCTemp_Dummy" );
+        tParameterList( 0 )( tPropCounter ).set( "function_parameters",      "10000.0" );
+        tParameterList( 0 )( tPropCounter ).set( "value_function",           "Func_Const" );
         tPropCounter++;
         
         //------------------------------------------------------------------------------
@@ -852,71 +852,71 @@ namespace moris
 
         // heat flux from outside
         tParameterList( 0 ).push_back( prm::create_property_parameter_list() );
-        tParameterList( 0 )( tPropCounter ).set( "property_name",            std::string("PropImposedFlux") );
+        tParameterList( 0 )( tPropCounter ).set( "property_name",            "PropImposedFlux" );
         tParameterList( 0 )( tPropCounter ).set( "function_parameters",      tHeatLoad ); 
-        tParameterList( 0 )( tPropCounter ).set( "value_function",           std::string("Func_Heat_Load_Distribution") );
-		//tParameterList( 0 )( tPropCounter ).set( "value_function",           std::string("Func_Const") );
+        tParameterList( 0 )( tPropCounter ).set( "value_function",           "Func_Heat_Load_Distribution" );
+		//tParameterList( 0 )( tPropCounter ).set( "value_function",           "Func_Const" );
         tPropCounter++;
 
         // reference temperature for thermal expansion
         tParameterList( 0 ).push_back( prm::create_property_parameter_list() );
-        tParameterList( 0 )( tPropCounter ).set( "property_name",            std::string("PropReferenceTemp") );
+        tParameterList( 0 )( tPropCounter ).set( "property_name",            "PropReferenceTemp" );
         tParameterList( 0 )( tPropCounter ).set( "function_parameters",      tReferenceTemp );
-        tParameterList( 0 )( tPropCounter ).set( "value_function",           std::string("Func_Const") );
+        tParameterList( 0 )( tPropCounter ).set( "value_function",           "Func_Const" );
         tPropCounter++;       
         
         // pressure load
         tParameterList( 0 ).push_back( prm::create_property_parameter_list() );
-        tParameterList( 0 )( tPropCounter ).set( "property_name",            std::string("PropPressure") );
+        tParameterList( 0 )( tPropCounter ).set( "property_name",            "PropPressure" );
         tParameterList( 0 )( tPropCounter ).set( "function_parameters",      tPressureDelta );
-        tParameterList( 0 )( tPropCounter ).set( "value_function",           std::string("Func_Const") );
+        tParameterList( 0 )( tPropCounter ).set( "value_function",           "Func_Const" );
         tPropCounter++;  
 
         // Dirichlet structure
         tParameterList( 0 ).push_back( prm::create_property_parameter_list() );
-        tParameterList( 0 )( tPropCounter ).set( "property_name",            std::string("PropDirichletStruct") );
+        tParameterList( 0 )( tPropCounter ).set( "property_name",            "PropDirichletStruct" );
         tParameterList( 0 )( tPropCounter ).set( "function_parameters",      "0.0;0.0" );
-        tParameterList( 0 )( tPropCounter ).set( "value_function",           std::string("Func_Const") );
+        tParameterList( 0 )( tPropCounter ).set( "value_function",           "Func_Const" );
         tPropCounter++;
 		
         // emissivity for radiation BC
         tParameterList( 0 ).push_back( prm::create_property_parameter_list() );
-        tParameterList( 0 )( tPropCounter ).set( "property_name",            std::string("PropEmissivity") );
+        tParameterList( 0 )( tPropCounter ).set( "property_name",            "PropEmissivity" );
         tParameterList( 0 )( tPropCounter ).set( "function_parameters",      tEmissivity );              
-        tParameterList( 0 )( tPropCounter ).set( "value_function",           std::string("Func_Const") );
+        tParameterList( 0 )( tPropCounter ).set( "value_function",           "Func_Const" );
         tPropCounter++;
 
         // ambient temperature 
         tParameterList( 0 ).push_back( prm::create_property_parameter_list() );
-        tParameterList( 0 )( tPropCounter ).set( "property_name",            std::string("PropAmbientTemp") );
+        tParameterList( 0 )( tPropCounter ).set( "property_name",            "PropAmbientTemp" );
         tParameterList( 0 )( tPropCounter ).set( "function_parameters",      tAmbientTemp );              
-        tParameterList( 0 )( tPropCounter ).set( "value_function",           std::string("Func_Const") );
+        tParameterList( 0 )( tPropCounter ).set( "value_function",           "Func_Const" );
         tPropCounter++;
 
         // absolute zero
         tParameterList( 0 ).push_back( prm::create_property_parameter_list() );
-        tParameterList( 0 )( tPropCounter ).set( "property_name",            std::string("PropAbsoluteZero") );
+        tParameterList( 0 )( tPropCounter ).set( "property_name",            "PropAbsoluteZero" );
         tParameterList( 0 )( tPropCounter ).set( "function_parameters",      tAbsoluteZero );              
-        tParameterList( 0 )( tPropCounter ).set( "value_function",           std::string("Func_Const") );
+        tParameterList( 0 )( tPropCounter ).set( "value_function",           "Func_Const" );
         tPropCounter++;  		
 
         // time continuity weights        
         tParameterList( 0 ).push_back( prm::create_property_parameter_list() );
-        tParameterList( 0 )( tPropCounter ).set( "property_name",            std::string("PropWeightCurrent") );
-        tParameterList( 0 )( tPropCounter ).set( "function_parameters",      std::string("100.0") );
-        tParameterList( 0 )( tPropCounter ).set( "value_function",           std::string("Func_Const") );
+        tParameterList( 0 )( tPropCounter ).set( "property_name",            "PropWeightCurrent" );
+        tParameterList( 0 )( tPropCounter ).set( "function_parameters",      "100.0" );
+        tParameterList( 0 )( tPropCounter ).set( "value_function",           "Func_Const" );
         tPropCounter++;
 
         tParameterList( 0 ).push_back( prm::create_property_parameter_list() );
-        tParameterList( 0 )( tPropCounter ).set( "property_name",            std::string("PropWeightPrevious") );
-        tParameterList( 0 )( tPropCounter ).set( "function_parameters",      std::string("100.0") );
-        tParameterList( 0 )( tPropCounter ).set( "value_function",           std::string("Func_Const") );
+        tParameterList( 0 )( tPropCounter ).set( "property_name",            "PropWeightPrevious" );
+        tParameterList( 0 )( tPropCounter ).set( "function_parameters",      "100.0" );
+        tParameterList( 0 )( tPropCounter ).set( "value_function",           "Func_Const" );
         tPropCounter++;
 
         // Initial Temperature       
         tParameterList( 0 ).push_back( prm::create_property_parameter_list() );
-        tParameterList( 0 )( tPropCounter ).set( "property_name",            std::string("PropInitialCondition") );
-        tParameterList( 0 )( tPropCounter ).set( "value_function",           std::string("Func_Initial_Condition") );
+        tParameterList( 0 )( tPropCounter ).set( "property_name",            "PropInitialCondition" );
+        tParameterList( 0 )( tPropCounter ).set( "value_function",           "Func_Initial_Condition" );
         tPropCounter++;
 		
 		//------------------------------------------------------------------------------
@@ -925,37 +925,37 @@ namespace moris
 		
         // Reference Temperature for MAX_DOF - IQI
         tParameterList( 0 ).push_back( prm::create_property_parameter_list() );
-        tParameterList( 0 )( tPropCounter ).set( "property_name",            std::string("PropMaxTempReference") );
+        tParameterList( 0 )( tPropCounter ).set( "property_name",            "PropMaxTempReference" );
         tParameterList( 0 )( tPropCounter ).set( "function_parameters",      tIQIRefTemp );
-        tParameterList( 0 )( tPropCounter ).set( "value_function",           std::string("Func_Const") );
+        tParameterList( 0 )( tPropCounter ).set( "value_function",           "Func_Const" );
         tPropCounter++;
 
         // Exponent for MAX_DOF - IQI
         tParameterList( 0 ).push_back( prm::create_property_parameter_list() );
-        tParameterList( 0 )( tPropCounter ).set( "property_name",            std::string("PropMaxTempExponent") );
+        tParameterList( 0 )( tPropCounter ).set( "property_name",            "PropMaxTempExponent" );
         tParameterList( 0 )( tPropCounter ).set( "function_parameters",      tExponent );
-        tParameterList( 0 )( tPropCounter ).set( "value_function",           std::string("Func_Const") );
+        tParameterList( 0 )( tPropCounter ).set( "value_function",           "Func_Const" );
         tPropCounter++;
         
         // Shift for MAX_DOF - IQI
         tParameterList( 0 ).push_back( prm::create_property_parameter_list() );
-        tParameterList( 0 )( tPropCounter ).set( "property_name",            std::string("PropMaxTempShift") );
+        tParameterList( 0 )( tPropCounter ).set( "property_name",            "PropMaxTempShift" );
         tParameterList( 0 )( tPropCounter ).set( "function_parameters",      tShift );
-        tParameterList( 0 )( tPropCounter ).set( "value_function",           std::string("Func_Const") );
+        tParameterList( 0 )( tPropCounter ).set( "value_function",           "Func_Const" );
         tPropCounter++;
 		
         // Reference Temperature for MAX_VMStress - IQI
         // tParameterList( 0 ).push_back( prm::create_property_parameter_list() );
-        // tParameterList( 0 )( tPropCounter ).set( "property_name",            std::string("PropMaxStressReference") );
-        // tParameterList( 0 )( tPropCounter ).set( "function_parameters",      std::string("1.0") );
-        // tParameterList( 0 )( tPropCounter ).set( "value_function",           std::string("Func_Const") );
+        // tParameterList( 0 )( tPropCounter ).set( "property_name",            "PropMaxStressReference" );
+        // tParameterList( 0 )( tPropCounter ).set( "function_parameters",      "1.0" );
+        // tParameterList( 0 )( tPropCounter ).set( "value_function",           "Func_Const" );
         // tPropCounter++;
 
         // Exponent for MAX_VMStress - IQI
         // tParameterList( 0 ).push_back( prm::create_property_parameter_list() );
-        // tParameterList( 0 )( tPropCounter ).set( "property_name",            std::string("PropMaxStressExponent") );
-        // tParameterList( 0 )( tPropCounter ).set( "function_parameters",      std::string("2.0") );
-        // tParameterList( 0 )( tPropCounter ).set( "value_function",           std::string("Func_Const") );
+        // tParameterList( 0 )( tPropCounter ).set( "property_name",            "PropMaxStressExponent" );
+        // tParameterList( 0 )( tPropCounter ).set( "function_parameters",      "2.0" );
+        // tParameterList( 0 )( tPropCounter ).set( "value_function",           "Func_Const" );
         // tPropCounter++;		
 
         ////////////////////////////////////////////////////////////////////////////////
@@ -969,39 +969,39 @@ namespace moris
 
 		// create parameter list for constitutive model - shell - 1
         tParameterList( 1 ).push_back( prm::create_constitutive_model_parameter_list() );
-        tParameterList( 1 )( tCMCounter ).set( "constitutive_name", std::string("CMDiffusion_Shell_1") );
+        tParameterList( 1 )( tCMCounter ).set( "constitutive_name", "CMDiffusion_Shell_1" );
         tParameterList( 1 )( tCMCounter ).set( "constitutive_type", static_cast< uint >( fem::Constitutive_Type::DIFF_LIN_ISO ) );
         tParameterList( 1 )( tCMCounter ).set( "dof_dependencies",  std::pair< std::string, std::string >( "TEMP", "Temperature" ) );
         tParameterList( 1 )( tCMCounter ).set( "properties",
-                std::string("PropConductivity_Shell , Conductivity;") +
-                std::string("PropDensity_Shell      , Density;")      +
-                std::string("PropHeatCapacity_Shell , HeatCapacity") );
+                "PropConductivity_Shell , Conductivity;"
+                "PropDensity_Shell      , Density;"
+                "PropHeatCapacity_Shell , HeatCapacity" );
         tCMCounter++;
 		
 		//create parameter list for constitutive model - shell - 2 (for Nitsche interfaces)
         tParameterList( 1 ).push_back( prm::create_constitutive_model_parameter_list() );
-        tParameterList( 1 )( tCMCounter ).set( "constitutive_name", std::string("CMDiffusion_Shell_2") );
+        tParameterList( 1 )( tCMCounter ).set( "constitutive_name", "CMDiffusion_Shell_2" );
         tParameterList( 1 )( tCMCounter ).set( "constitutive_type", static_cast< uint >( fem::Constitutive_Type::DIFF_LIN_ISO ) );
         tParameterList( 1 )( tCMCounter ).set( "dof_dependencies",  std::pair< std::string, std::string >( "TEMP", "Temperature" ) );
         tParameterList( 1 )( tCMCounter ).set( "properties",
-                std::string("PropConductivity_Shell , Conductivity;") +
-                std::string("PropDensity_Shell      , Density;")      +
-                std::string("PropHeatCapacity_Shell , HeatCapacity") );
+                "PropConductivity_Shell , Conductivity;"
+                "PropDensity_Shell      , Density;"
+                "PropHeatCapacity_Shell , HeatCapacity" );
         tCMCounter++;
 		
         // diffusion with phase change - PCM - 1
         tParameterList( 1 ).push_back( prm::create_constitutive_model_parameter_list() );
-        tParameterList( 1 )( tCMCounter ).set( "constitutive_name", std::string("CMDiffusion_PCM") );
+        tParameterList( 1 )( tCMCounter ).set( "constitutive_name", "CMDiffusion_PCM" );
         tParameterList( 1 )( tCMCounter ).set( "constitutive_type", static_cast< uint >( fem::Constitutive_Type::DIFF_LIN_ISO_PC ) );
         tParameterList( 1 )( tCMCounter ).set( "dof_dependencies",  std::pair< std::string, std::string >( "TEMP", "Temperature" ) );
         tParameterList( 1 )( tCMCounter ).set( "properties",
-                std::string("PropConductivity_PCM, Conductivity;")         +
-                std::string("PropDensity_PCM     , Density;")              +
-                std::string("PropHeatCapacity_PCM, HeatCapacity;")        +
-                std::string("PropLatentHeat_PCM  , LatentHeat;")          +
-                std::string("PropPCTemp_PCM      , PCTemp;")              +
-                std::string("PropPhaseState_PCM  , PhaseStateFunction;") +
-                std::string("PropPCconst_PCM     , PhaseChangeConst")    );
+                "PropConductivity_PCM, Conductivity;"
+                "PropDensity_PCM     , Density;"
+                "PropHeatCapacity_PCM, HeatCapacity;"
+                "PropLatentHeat_PCM  , LatentHeat;"
+                "PropPCTemp_PCM      , PCTemp;"
+                "PropPhaseState_PCM  , PhaseStateFunction;"
+                "PropPCconst_PCM     , PhaseChangeConst"    );
         tCMCounter++;	
         
         //------------------------------------------------------------------------------
@@ -1015,10 +1015,10 @@ namespace moris
         tParameterList( 1 )( tCMCounter ).set( "constitutive_type", static_cast< uint >( fem::Constitutive_Type::STRUC_LIN_ISO ) );
         tParameterList( 1 )( tCMCounter ).set( "dof_dependencies",  std::pair< std::string, std::string >( "UX,UY;TEMP", "Displacement,Temperature" ) );
         tParameterList( 1 )( tCMCounter ).set( "properties",
-                std::string("PropYoungsModulus_Shell,    YoungsModulus;") +
-                std::string("PropPoissonRatio_Shell,     PoissonRatio;") +
-                std::string("PropThermalExpansion_Shell, CTE;") +
-                std::string("PropReferenceTemp,          ReferenceTemperature"));
+                "PropYoungsModulus_Shell,    YoungsModulus;"
+                "PropPoissonRatio_Shell,     PoissonRatio;"
+                "PropThermalExpansion_Shell, CTE;"
+                "PropReferenceTemp,          ReferenceTemperature");
         tCMCounter++;
 
         // linear elasticity - shell - 2
@@ -1028,10 +1028,10 @@ namespace moris
         tParameterList( 1 )( tCMCounter ).set( "constitutive_type", static_cast< uint >( fem::Constitutive_Type::STRUC_LIN_ISO ) );
         tParameterList( 1 )( tCMCounter ).set( "dof_dependencies",  std::pair< std::string, std::string >( "UX,UY;TEMP", "Displacement,Temperature" ) );
         tParameterList( 1 )( tCMCounter ).set( "properties",
-                std::string("PropYoungsModulus_Shell,    YoungsModulus;") +
-                std::string("PropPoissonRatio_Shell,     PoissonRatio;") +
-                std::string("PropThermalExpansion_Shell, CTE;") +
-                std::string("PropReferenceTemp,          ReferenceTemperature"));
+                "PropYoungsModulus_Shell,    YoungsModulus;"
+                "PropPoissonRatio_Shell,     PoissonRatio;"
+                "PropThermalExpansion_Shell, CTE;"
+                "PropReferenceTemp,          ReferenceTemperature");
         tCMCounter++;
 
 		// linear elasticity - PCM - 1
@@ -1040,10 +1040,10 @@ namespace moris
         tParameterList( 1 )( tCMCounter ).set( "constitutive_type", static_cast< uint >( fem::Constitutive_Type::STRUC_LIN_ISO ) );
         tParameterList( 1 )( tCMCounter ).set( "dof_dependencies",  std::pair< std::string, std::string >( "UX,UY;TEMP", "Displacement,Temperature" ) );
         tParameterList( 1 )( tCMCounter ).set( "properties",
-                std::string("PropYoungsModulus_PCM,    YoungsModulus;") +
-                std::string("PropPoissonRatio_PCM,     PoissonRatio;") +
-                std::string("PropThermalExpansion_PCM, CTE;") +
-                std::string("PropReferenceTemp,         ReferenceTemperature"));
+                "PropYoungsModulus_PCM,    YoungsModulus;"
+                "PropPoissonRatio_PCM,     PoissonRatio;"
+                "PropThermalExpansion_PCM, CTE;"
+                "PropReferenceTemp,         ReferenceTemperature");
         tCMCounter++;
 
         ////////////////////////////////////////////////////////////////////////////////
@@ -1057,32 +1057,32 @@ namespace moris
 
         // create parameter list for GGLS stabilization parameter for Skin 
         tParameterList( 2 ).push_back( prm::create_stabilization_parameter_parameter_list() );
-        tParameterList( 2 )( tSPCounter ).set( "stabilization_name",      std::string("SPGGLSDiffusion_Shell") );
+        tParameterList( 2 )( tSPCounter ).set( "stabilization_name",      "SPGGLSDiffusion_Shell" );
         tParameterList( 2 )( tSPCounter ).set( "stabilization_type",      static_cast< uint >( fem::Stabilization_Type::GGLS_DIFFUSION ) );
         tParameterList( 2 )( tSPCounter ).set( "master_dof_dependencies", std::pair< std::string, std::string >( "TEMP", "Temperature" ) );
         tParameterList( 2 )( tSPCounter ).set( "master_properties",
-                std::string("PropConductivity_Shell , Conductivity;")       +
-                std::string("PropDensity_Shell      , Density;")            +
-                std::string("PropHeatCapacity_Shell , HeatCapacity;")       +
-                std::string("PropLatentHeat_Dummy   , LatentHeat;")         +
-                std::string("PropPCTemp_Dummy       , PCTemp;")             +
-                std::string("PropPhaseState_PCM     , PhaseStateFunction;") +
-                std::string("PropPCconst_PCM        , PhaseChangeConst")    );
+                "PropConductivity_Shell , Conductivity;"
+                "PropDensity_Shell      , Density;"
+                "PropHeatCapacity_Shell , HeatCapacity;"
+                "PropLatentHeat_Dummy   , LatentHeat;"
+                "PropPCTemp_Dummy       , PCTemp;"
+                "PropPhaseState_PCM     , PhaseStateFunction;"
+                "PropPCconst_PCM        , PhaseChangeConst"    );
         tSPCounter++;
 
         //create parameter list for GGLS stabilization parameter for PCM 
         tParameterList( 2 ).push_back( prm::create_stabilization_parameter_parameter_list() );
-        tParameterList( 2 )( tSPCounter ).set( "stabilization_name",      std::string("SPGGLSDiffusion_PCM") );
+        tParameterList( 2 )( tSPCounter ).set( "stabilization_name",      "SPGGLSDiffusion_PCM" );
         tParameterList( 2 )( tSPCounter ).set( "stabilization_type",      static_cast< uint >( fem::Stabilization_Type::GGLS_DIFFUSION ) );
         tParameterList( 2 )( tSPCounter ).set( "master_dof_dependencies", std::pair< std::string, std::string >( "TEMP", "Temperature" ) );
         tParameterList( 2 )( tSPCounter ).set( "master_properties",
-                std::string("PropConductivity_PCM , Conductivity;")       +
-                std::string("PropDensity_PCM      , Density;")            +
-                std::string("PropHeatCapacity_PCM , HeatCapacity;")       +
-                std::string("PropLatentHeat_PCM   , LatentHeat;")         +
-                std::string("PropPCTemp_PCM       , PCTemp;")             +
-                std::string("PropPhaseState_PCM   , PhaseStateFunction;") +
-                std::string("PropPCconst_PCM      , PhaseChangeConst")    );
+                "PropConductivity_PCM , Conductivity;"
+                "PropDensity_PCM      , Density;"
+                "PropHeatCapacity_PCM , HeatCapacity;"
+                "PropLatentHeat_PCM   , LatentHeat;"
+                "PropPCTemp_PCM       , PCTemp;"
+                "PropPhaseState_PCM   , PhaseStateFunction;"
+                "PropPCconst_PCM      , PhaseChangeConst"    );
         tSPCounter++;
         
 		//------------------------------------------------------------------------------
@@ -1103,31 +1103,31 @@ namespace moris
 
         // Temperature - Shell - PCM
         tParameterList( 2 ).push_back( prm::create_stabilization_parameter_parameter_list() );
-        tParameterList( 2 )( tSPCounter ).set( "stabilization_name",  std::string("SPInterfaceShellPCMNitsche") );
+        tParameterList( 2 )( tSPCounter ).set( "stabilization_name",  "SPInterfaceShellPCMNitsche" );
         tParameterList( 2 )( tSPCounter ).set( "stabilization_type",  static_cast< uint >( fem::Stabilization_Type::NITSCHE_INTERFACE ) );
-        tParameterList( 2 )( tSPCounter ).set( "function_parameters", std::string("100.0") );
-        tParameterList( 2 )( tSPCounter ).set( "master_properties",   std::string("PropConductivity_Shell,Material") );
-        tParameterList( 2 )( tSPCounter ).set( "slave_properties",    std::string("PropConductivity_PCM,Material") );
+        tParameterList( 2 )( tSPCounter ).set( "function_parameters", "100.0" );
+        tParameterList( 2 )( tSPCounter ).set( "master_properties",   "PropConductivity_Shell,Material" );
+        tParameterList( 2 )( tSPCounter ).set( "slave_properties",    "PropConductivity_PCM,Material" );
         tSPCounter++;
         
         // Displacements - Shell - PCM - not coupled!
 		
 		// Temperature - Shell - Shell
 		tParameterList( 2 ).push_back( prm::create_stabilization_parameter_parameter_list() ); 
-        tParameterList( 2 )( tSPCounter ).set( "stabilization_name",  std::string("SPInterfaceShellShellNitsche") );
+        tParameterList( 2 )( tSPCounter ).set( "stabilization_name",  "SPInterfaceShellShellNitsche" );
         tParameterList( 2 )( tSPCounter ).set( "stabilization_type",  static_cast< uint >( fem::Stabilization_Type::NITSCHE_INTERFACE ) );
-        tParameterList( 2 )( tSPCounter ).set( "function_parameters", std::string("100.0") );
-        tParameterList( 2 )( tSPCounter ).set( "master_properties",   std::string("PropConductivity_Shell,Material") );
-        tParameterList( 2 )( tSPCounter ).set( "slave_properties",    std::string("PropConductivity_Shell,Material") );
+        tParameterList( 2 )( tSPCounter ).set( "function_parameters", "100.0" );
+        tParameterList( 2 )( tSPCounter ).set( "master_properties",   "PropConductivity_Shell,Material" );
+        tParameterList( 2 )( tSPCounter ).set( "slave_properties",    "PropConductivity_Shell,Material" );
         tSPCounter++;
         
 		// Displacements - Shell - Shell
 		tParameterList( 2 ).push_back( prm::create_stabilization_parameter_parameter_list() );
-        tParameterList( 2 )( tSPCounter ).set( "stabilization_name",  std::string("SPInterfaceShellShellNitscheStruct") );
+        tParameterList( 2 )( tSPCounter ).set( "stabilization_name",  "SPInterfaceShellShellNitscheStruct" );
         tParameterList( 2 )( tSPCounter ).set( "stabilization_type",  static_cast< uint >( fem::Stabilization_Type::NITSCHE_INTERFACE ) );
-        tParameterList( 2 )( tSPCounter ).set( "function_parameters", std::string("100.0") );
-        tParameterList( 2 )( tSPCounter ).set( "master_properties",   std::string("PropYoungsModulus_Shell,Material") );
-        tParameterList( 2 )( tSPCounter ).set( "slave_properties",    std::string("PropYoungsModulus_Shell,Material") );
+        tParameterList( 2 )( tSPCounter ).set( "function_parameters", "100.0" );
+        tParameterList( 2 )( tSPCounter ).set( "master_properties",   "PropYoungsModulus_Shell,Material" );
+        tParameterList( 2 )( tSPCounter ).set( "slave_properties",    "PropYoungsModulus_Shell,Material" );
         tSPCounter++;
         
 		
@@ -1137,34 +1137,34 @@ namespace moris
 
         // bulk Ghost - Shell - Temperature
         tParameterList( 2 ).push_back( prm::create_stabilization_parameter_parameter_list() );
-        tParameterList( 2 )( tSPCounter ).set( "stabilization_name",      std::string("SPGPTemp_Shell") );
+        tParameterList( 2 )( tSPCounter ).set( "stabilization_name",      "SPGPTemp_Shell" );
         tParameterList( 2 )( tSPCounter ).set( "stabilization_type",      static_cast< uint >( fem::Stabilization_Type::GHOST_DISPL ) );
-        tParameterList( 2 )( tSPCounter ).set( "function_parameters",     std::string("0.01") );
-        tParameterList( 2 )( tSPCounter ).set( "master_properties",       std::string("PropConductivity_Shell,Material") );
+        tParameterList( 2 )( tSPCounter ).set( "function_parameters",     "0.01" );
+        tParameterList( 2 )( tSPCounter ).set( "master_properties",       "PropConductivity_Shell,Material" );
         tSPCounter++;
 
         // bulk Ghost - PCM - Temperature
         tParameterList( 2 ).push_back( prm::create_stabilization_parameter_parameter_list() );
-        tParameterList( 2 )( tSPCounter ).set( "stabilization_name",      std::string("SPGPTemp_PCM") );
+        tParameterList( 2 )( tSPCounter ).set( "stabilization_name",      "SPGPTemp_PCM" );
         tParameterList( 2 )( tSPCounter ).set( "stabilization_type",      static_cast< uint >( fem::Stabilization_Type::GHOST_DISPL ) );
-        tParameterList( 2 )( tSPCounter ).set( "function_parameters",     std::string("0.01") );
-        tParameterList( 2 )( tSPCounter ).set( "master_properties",       std::string("PropConductivity_PCM,Material") );
+        tParameterList( 2 )( tSPCounter ).set( "function_parameters",     "0.01" );
+        tParameterList( 2 )( tSPCounter ).set( "master_properties",       "PropConductivity_PCM,Material" );
         tSPCounter++;					
         
 		// bulk Ghost - Shell - Displacements
         tParameterList( 2 ).push_back( prm::create_stabilization_parameter_parameter_list() );
-        tParameterList( 2 )( tSPCounter ).set( "stabilization_name",      std::string("SPGPStruct_Shell") );
+        tParameterList( 2 )( tSPCounter ).set( "stabilization_name",      "SPGPStruct_Shell" );
         tParameterList( 2 )( tSPCounter ).set( "stabilization_type",      static_cast< uint >( fem::Stabilization_Type::GHOST_DISPL ) );
-        tParameterList( 2 )( tSPCounter ).set( "function_parameters",     std::string("0.01") );
-        tParameterList( 2 )( tSPCounter ).set( "master_properties",       std::string("PropYoungsModulus_Shell,Material") );
+        tParameterList( 2 )( tSPCounter ).set( "function_parameters",     "0.01" );
+        tParameterList( 2 )( tSPCounter ).set( "master_properties",       "PropYoungsModulus_Shell,Material" );
         tSPCounter++;		
 
 		// bulk Ghost - PCM - Displacements
         tParameterList( 2 ).push_back( prm::create_stabilization_parameter_parameter_list() );
-        tParameterList( 2 )( tSPCounter ).set( "stabilization_name",      std::string("SPGPStruct_PCM") );
+        tParameterList( 2 )( tSPCounter ).set( "stabilization_name",      "SPGPStruct_PCM" );
         tParameterList( 2 )( tSPCounter ).set( "stabilization_type",      static_cast< uint >( fem::Stabilization_Type::GHOST_DISPL ) );
-        tParameterList( 2 )( tSPCounter ).set( "function_parameters",     std::string("0.01") );
-        tParameterList( 2 )( tSPCounter ).set( "master_properties",       std::string("PropYoungsModulus_PCM,Material") );
+        tParameterList( 2 )( tSPCounter ).set( "function_parameters",     "0.01" );
+        tParameterList( 2 )( tSPCounter ).set( "master_properties",       "PropYoungsModulus_PCM,Material" );
         tSPCounter++;        
         
         ////////////////////////////////////////////////////////////////////////////////
@@ -1178,12 +1178,12 @@ namespace moris
 		
         // diffusion - Shell
         tParameterList( 3 ).push_back( prm::create_IWG_parameter_list() );
-        tParameterList( 3 )( tIWGCounter ).set( "IWG_name",                   std::string("IWGDiffusionShellBulk") );
+        tParameterList( 3 )( tIWGCounter ).set( "IWG_name",                   "IWGDiffusionShellBulk" );
         tParameterList( 3 )( tIWGCounter ).set( "IWG_type",                   static_cast< uint >( fem::IWG_Type::SPATIALDIFF_BULK ) );
-        tParameterList( 3 )( tIWGCounter ).set( "dof_residual",               std::string("TEMP") );
-        tParameterList( 3 )( tIWGCounter ).set( "master_dof_dependencies",    std::string("TEMP") );
-        tParameterList( 3 )( tIWGCounter ).set( "master_constitutive_models", std::string("CMDiffusion_Shell_1,Diffusion") );
-        tParameterList( 3 )( tIWGCounter ).set( "stabilization_parameters",   std::string("SPGGLSDiffusion_Shell,GGLSParam") );
+        tParameterList( 3 )( tIWGCounter ).set( "dof_residual",               "TEMP" );
+        tParameterList( 3 )( tIWGCounter ).set( "master_dof_dependencies",    "TEMP" );
+        tParameterList( 3 )( tIWGCounter ).set( "master_constitutive_models", "CMDiffusion_Shell_1,Diffusion" );
+        tParameterList( 3 )( tIWGCounter ).set( "stabilization_parameters",   "SPGGLSDiffusion_Shell,GGLSParam" );
         tParameterList( 3 )( tIWGCounter ).set( "mesh_set_names",             tShell );
         tIWGCounter++; 
         
@@ -1200,12 +1200,12 @@ namespace moris
 		
 		// diffusion - PCM
 		tParameterList( 3 ).push_back( prm::create_IWG_parameter_list() );
-        tParameterList( 3 )( tIWGCounter ).set( "IWG_name",                   std::string("IWGDiffusionPCMBulk") );
+        tParameterList( 3 )( tIWGCounter ).set( "IWG_name",                   "IWGDiffusionPCMBulk" );
         tParameterList( 3 )( tIWGCounter ).set( "IWG_type",                   static_cast< uint >( fem::IWG_Type::SPATIALDIFF_BULK ) );
-        tParameterList( 3 )( tIWGCounter ).set( "dof_residual",               std::string("TEMP") );
-        tParameterList( 3 )( tIWGCounter ).set( "master_dof_dependencies",    std::string("TEMP") );
-        tParameterList( 3 )( tIWGCounter ).set( "master_constitutive_models", std::string("CMDiffusion_PCM,Diffusion") );
-        tParameterList( 3 )( tIWGCounter ).set( "stabilization_parameters",   std::string("SPGGLSDiffusion_PCM,GGLSParam") );
+        tParameterList( 3 )( tIWGCounter ).set( "dof_residual",               "TEMP" );
+        tParameterList( 3 )( tIWGCounter ).set( "master_dof_dependencies",    "TEMP" );
+        tParameterList( 3 )( tIWGCounter ).set( "master_constitutive_models", "CMDiffusion_PCM,Diffusion" );
+        tParameterList( 3 )( tIWGCounter ).set( "stabilization_parameters",   "SPGGLSDiffusion_PCM,GGLSParam" );
         tParameterList( 3 )( tIWGCounter ).set( "mesh_set_names",             tPCM );
         tIWGCounter++;
         
@@ -1226,11 +1226,11 @@ namespace moris
 
         // heat flux on outside of Shell
         tParameterList( 3 ).push_back( prm::create_IWG_parameter_list() );
-        tParameterList( 3 )( tIWGCounter ).set( "IWG_name",                   std::string("IWGInletFlux") );
+        tParameterList( 3 )( tIWGCounter ).set( "IWG_name",                   "IWGInletFlux" );
         tParameterList( 3 )( tIWGCounter ).set( "IWG_type",                   static_cast< uint >( fem::IWG_Type::SPATIALDIFF_NEUMANN ) );
-        tParameterList( 3 )( tIWGCounter ).set( "dof_residual",               std::string("TEMP") );
-        tParameterList( 3 )( tIWGCounter ).set( "master_dof_dependencies",    std::string("UX,UY;TEMP") );
-        tParameterList( 3 )( tIWGCounter ).set( "master_properties",          std::string("PropImposedFlux,Neumann") );
+        tParameterList( 3 )( tIWGCounter ).set( "dof_residual",               "TEMP" );
+        tParameterList( 3 )( tIWGCounter ).set( "master_dof_dependencies",    "UX,UY;TEMP" );
+        tParameterList( 3 )( tIWGCounter ).set( "master_properties",          "PropImposedFlux,Neumann" );
         tParameterList( 3 )( tIWGCounter ).set( "mesh_set_names",             tOuterShellSurface );
         tIWGCounter++;    
         
@@ -1248,14 +1248,14 @@ namespace moris
 		{
 		    // radiation heat flux
             tParameterList( 3 ).push_back( prm::create_IWG_parameter_list() );
-            tParameterList( 3 )( tIWGCounter ).set( "IWG_name",                   std::string("IWGHeatRadiation") );
+            tParameterList( 3 )( tIWGCounter ).set( "IWG_name",                   "IWGHeatRadiation" );
             tParameterList( 3 )( tIWGCounter ).set( "IWG_type",                   static_cast< uint >( fem::IWG_Type::SPATIALDIFF_RADIATION ) );
-            tParameterList( 3 )( tIWGCounter ).set( "dof_residual",               std::string("TEMP") );
-            tParameterList( 3 )( tIWGCounter ).set( "master_dof_dependencies",    std::string("UX,UY;TEMP") );
+            tParameterList( 3 )( tIWGCounter ).set( "dof_residual",               "TEMP" );
+            tParameterList( 3 )( tIWGCounter ).set( "master_dof_dependencies",    "UX,UY;TEMP" );
             tParameterList( 3 )( tIWGCounter ).set( "master_properties",          
-                    std::string("PropEmissivity,Emissivity;") +
-                    std::string("PropAmbientTemp,AmbientTemperature;") +
-                    std::string("PropAbsoluteZero,AbsoluteZero")  );
+                    "PropEmissivity,Emissivity;"
+                    "PropAmbientTemp,AmbientTemperature;"
+                    "PropAbsoluteZero,AbsoluteZero"  );
             tParameterList( 3 )( tIWGCounter ).set( "mesh_set_names",             tOuterShellSurface );
             tIWGCounter++;
 		}
@@ -1266,43 +1266,43 @@ namespace moris
 
 		// Temperature - Shell - Shell
 		tParameterList( 3 ).push_back( prm::create_IWG_parameter_list() );
-        tParameterList( 3 )( tIWGCounter ).set( "IWG_name",                   std::string("IWGInterfaceShellShellTEMP") );
+        tParameterList( 3 )( tIWGCounter ).set( "IWG_name",                   "IWGInterfaceShellShellTEMP" );
         tParameterList( 3 )( tIWGCounter ).set( "IWG_type",                   static_cast< uint >( fem::IWG_Type::SPATIALDIFF_INTERFACE_SYMMETRIC_NITSCHE ) );
-        tParameterList( 3 )( tIWGCounter ).set( "dof_residual",               std::string("TEMP") );
-        tParameterList( 3 )( tIWGCounter ).set( "master_dof_dependencies",    std::string("UX,UY;TEMP") );
-        tParameterList( 3 )( tIWGCounter ).set( "slave_dof_dependencies",     std::string("UX,UY;TEMP") );
-        tParameterList( 3 )( tIWGCounter ).set( "master_constitutive_models", std::string("CMDiffusion_Shell_1,Diffusion") );
-        tParameterList( 3 )( tIWGCounter ).set( "slave_constitutive_models",  std::string("CMDiffusion_Shell_2,Diffusion") );
+        tParameterList( 3 )( tIWGCounter ).set( "dof_residual",               "TEMP" );
+        tParameterList( 3 )( tIWGCounter ).set( "master_dof_dependencies",    "UX,UY;TEMP" );
+        tParameterList( 3 )( tIWGCounter ).set( "slave_dof_dependencies",     "UX,UY;TEMP" );
+        tParameterList( 3 )( tIWGCounter ).set( "master_constitutive_models", "CMDiffusion_Shell_1,Diffusion" );
+        tParameterList( 3 )( tIWGCounter ).set( "slave_constitutive_models",  "CMDiffusion_Shell_2,Diffusion" );
         tParameterList( 3 )( tIWGCounter ).set( "stabilization_parameters",    
-                std::string("SPInterfaceShellShellNitsche     ,NitscheInterface") );
+                "SPInterfaceShellShellNitsche     ,NitscheInterface" );
         tParameterList( 3 )( tIWGCounter ).set( "mesh_set_names",             tShellShellInterface );
         tIWGCounter++;
         
         // Displacements - Shell - Shell
         tParameterList( 3 ).push_back( prm::create_IWG_parameter_list() );
-        tParameterList( 3 )( tIWGCounter ).set( "IWG_name",                   std::string("IWGInterfaceShellShellStruct") );
+        tParameterList( 3 )( tIWGCounter ).set( "IWG_name",                   "IWGInterfaceShellShellStruct" );
         tParameterList( 3 )( tIWGCounter ).set( "IWG_type",                   static_cast< uint >( fem::IWG_Type::STRUC_LINEAR_INTERFACE_SYMMETRIC_NITSCHE ) );
-        tParameterList( 3 )( tIWGCounter ).set( "dof_residual",               std::string("UX,UY") );
-        tParameterList( 3 )( tIWGCounter ).set( "master_dof_dependencies",    std::string("UX,UY;TEMP") );
-        tParameterList( 3 )( tIWGCounter ).set( "slave_dof_dependencies",     std::string("UX,UY;TEMP") );
-        tParameterList( 3 )( tIWGCounter ).set( "master_constitutive_models", std::string("CMStrucLinIso_Shell_1,ElastLinIso") );
-        tParameterList( 3 )( tIWGCounter ).set( "slave_constitutive_models",  std::string("CMStrucLinIso_Shell_2,ElastLinIso") );
+        tParameterList( 3 )( tIWGCounter ).set( "dof_residual",               "UX,UY" );
+        tParameterList( 3 )( tIWGCounter ).set( "master_dof_dependencies",    "UX,UY;TEMP" );
+        tParameterList( 3 )( tIWGCounter ).set( "slave_dof_dependencies",     "UX,UY;TEMP" );
+        tParameterList( 3 )( tIWGCounter ).set( "master_constitutive_models", "CMStrucLinIso_Shell_1,ElastLinIso" );
+        tParameterList( 3 )( tIWGCounter ).set( "slave_constitutive_models",  "CMStrucLinIso_Shell_2,ElastLinIso" );
         tParameterList( 3 )( tIWGCounter ).set( "stabilization_parameters",
-               std::string("SPInterfaceShellShellNitscheStruct ,NitscheInterface") );
+               "SPInterfaceShellShellNitscheStruct ,NitscheInterface" );
         tParameterList( 3 )( tIWGCounter ).set( "mesh_set_names",             tShellShellInterface );
         tIWGCounter++;
 
         // Temperature - Shell - PCM
         tParameterList( 3 ).push_back( prm::create_IWG_parameter_list() );
-        tParameterList( 3 )( tIWGCounter ).set( "IWG_name",                   std::string("IWGInterfaceShellPCMTEMP") );
+        tParameterList( 3 )( tIWGCounter ).set( "IWG_name",                   "IWGInterfaceShellPCMTEMP" );
         tParameterList( 3 )( tIWGCounter ).set( "IWG_type",                   static_cast< uint >( fem::IWG_Type::SPATIALDIFF_INTERFACE_SYMMETRIC_NITSCHE ) );
-        tParameterList( 3 )( tIWGCounter ).set( "dof_residual",               std::string("TEMP") );
-        tParameterList( 3 )( tIWGCounter ).set( "master_dof_dependencies",    std::string("UX,UY;TEMP") );
-        tParameterList( 3 )( tIWGCounter ).set( "slave_dof_dependencies",     std::string("UX,UY;TEMP") );
-        tParameterList( 3 )( tIWGCounter ).set( "master_constitutive_models", std::string("CMDiffusion_Shell_1,Diffusion") );
-        tParameterList( 3 )( tIWGCounter ).set( "slave_constitutive_models",  std::string("CMDiffusion_PCM,Diffusion") );
+        tParameterList( 3 )( tIWGCounter ).set( "dof_residual",               "TEMP" );
+        tParameterList( 3 )( tIWGCounter ).set( "master_dof_dependencies",    "UX,UY;TEMP" );
+        tParameterList( 3 )( tIWGCounter ).set( "slave_dof_dependencies",     "UX,UY;TEMP" );
+        tParameterList( 3 )( tIWGCounter ).set( "master_constitutive_models", "CMDiffusion_Shell_1,Diffusion" );
+        tParameterList( 3 )( tIWGCounter ).set( "slave_constitutive_models",  "CMDiffusion_PCM,Diffusion" );
         tParameterList( 3 )( tIWGCounter ).set( "stabilization_parameters",
-                std::string("SPInterfaceShellPCMNitsche,NitscheInterface") );
+                "SPInterfaceShellPCMNitsche,NitscheInterface" );
         tParameterList( 3 )( tIWGCounter ).set( "mesh_set_names",             tShellPCMInterface );
         tIWGCounter++;	
         
@@ -1328,45 +1328,45 @@ namespace moris
 
         // temperature - Shell
 		tParameterList( 3 ).push_back( prm::create_IWG_parameter_list() );
-        tParameterList( 3 )( tIWGCounter ).set( "IWG_name",                  std::string("IWGGPShellTemp") );
+        tParameterList( 3 )( tIWGCounter ).set( "IWG_name",                  "IWGGPShellTemp" );
         tParameterList( 3 )( tIWGCounter ).set( "IWG_type",                  static_cast< uint >( fem::IWG_Type::GHOST_NORMAL_FIELD ) );
-        tParameterList( 3 )( tIWGCounter ).set( "dof_residual",              std::string("TEMP") );
-        tParameterList( 3 )( tIWGCounter ).set( "master_dof_dependencies",   std::string("TEMP") );
-        tParameterList( 3 )( tIWGCounter ).set( "slave_dof_dependencies",    std::string("TEMP") );
-        tParameterList( 3 )( tIWGCounter ).set( "stabilization_parameters",  std::string("SPGPTemp_Shell,GhostSP") );
+        tParameterList( 3 )( tIWGCounter ).set( "dof_residual",              "TEMP" );
+        tParameterList( 3 )( tIWGCounter ).set( "master_dof_dependencies",   "TEMP" );
+        tParameterList( 3 )( tIWGCounter ).set( "slave_dof_dependencies",    "TEMP" );
+        tParameterList( 3 )( tIWGCounter ).set( "stabilization_parameters",  "SPGPTemp_Shell,GhostSP" );
         tParameterList( 3 )( tIWGCounter ).set( "mesh_set_names",            tShellGhost );
         tIWGCounter++;
         
         // displacements - Shell
         tParameterList( 3 ).push_back( prm::create_IWG_parameter_list() );
-        tParameterList( 3 )( tIWGCounter ).set( "IWG_name",                   std::string("IWGGPShellStruct") );
+        tParameterList( 3 )( tIWGCounter ).set( "IWG_name",                   "IWGGPShellStruct" );
         tParameterList( 3 )( tIWGCounter ).set( "IWG_type",                   static_cast< uint >( fem::IWG_Type::GHOST_NORMAL_FIELD ) );
-        tParameterList( 3 )( tIWGCounter ).set( "dof_residual",               std::string("UX,UY") );
-        tParameterList( 3 )( tIWGCounter ).set( "master_dof_dependencies",    std::string("UX,UY") );
-        tParameterList( 3 )( tIWGCounter ).set( "slave_dof_dependencies",     std::string("UX,UY") );
-        tParameterList( 3 )( tIWGCounter ).set( "stabilization_parameters",   std::string("SPGPStruct_Shell,GhostSP") );
+        tParameterList( 3 )( tIWGCounter ).set( "dof_residual",               "UX,UY" );
+        tParameterList( 3 )( tIWGCounter ).set( "master_dof_dependencies",    "UX,UY" );
+        tParameterList( 3 )( tIWGCounter ).set( "slave_dof_dependencies",     "UX,UY" );
+        tParameterList( 3 )( tIWGCounter ).set( "stabilization_parameters",   "SPGPStruct_Shell,GhostSP" );
         tParameterList( 3 )( tIWGCounter ).set( "mesh_set_names",             tShellGhost );
         tIWGCounter++;        
 		
 		// temperature - PCM
 		tParameterList( 3 ).push_back( prm::create_IWG_parameter_list() );
-        tParameterList( 3 )( tIWGCounter ).set( "IWG_name",                  std::string("IWGGPPCMTemp") );
+        tParameterList( 3 )( tIWGCounter ).set( "IWG_name",                  "IWGGPPCMTemp" );
         tParameterList( 3 )( tIWGCounter ).set( "IWG_type",                  static_cast< uint >( fem::IWG_Type::GHOST_NORMAL_FIELD ) );
-        tParameterList( 3 )( tIWGCounter ).set( "dof_residual",              std::string("TEMP") );
-        tParameterList( 3 )( tIWGCounter ).set( "master_dof_dependencies",   std::string("TEMP") );
-        tParameterList( 3 )( tIWGCounter ).set( "slave_dof_dependencies",    std::string("TEMP") );
-        tParameterList( 3 )( tIWGCounter ).set( "stabilization_parameters",  std::string("SPGPTemp_PCM,GhostSP") );
+        tParameterList( 3 )( tIWGCounter ).set( "dof_residual",              "TEMP" );
+        tParameterList( 3 )( tIWGCounter ).set( "master_dof_dependencies",   "TEMP" );
+        tParameterList( 3 )( tIWGCounter ).set( "slave_dof_dependencies",    "TEMP" );
+        tParameterList( 3 )( tIWGCounter ).set( "stabilization_parameters",  "SPGPTemp_PCM,GhostSP" );
         tParameterList( 3 )( tIWGCounter ).set( "mesh_set_names",            tPCMGhost );
         tIWGCounter++;
         
 		// displacements - PCM
 		tParameterList( 3 ).push_back( prm::create_IWG_parameter_list() );
-        tParameterList( 3 )( tIWGCounter ).set( "IWG_name",                   std::string("IWGGPPCMStrut") );
+        tParameterList( 3 )( tIWGCounter ).set( "IWG_name",                   "IWGGPPCMStrut" );
         tParameterList( 3 )( tIWGCounter ).set( "IWG_type",                   static_cast< uint >( fem::IWG_Type::GHOST_NORMAL_FIELD ) );
-        tParameterList( 3 )( tIWGCounter ).set( "dof_residual",               std::string("UX,UY") );
-        tParameterList( 3 )( tIWGCounter ).set( "master_dof_dependencies",    std::string("UX,UY") );
-        tParameterList( 3 )( tIWGCounter ).set( "slave_dof_dependencies",     std::string("UX,UY") );
-        tParameterList( 3 )( tIWGCounter ).set( "stabilization_parameters",   std::string("SPGPStruct_PCM,GhostSP") );
+        tParameterList( 3 )( tIWGCounter ).set( "dof_residual",               "UX,UY" );
+        tParameterList( 3 )( tIWGCounter ).set( "master_dof_dependencies",    "UX,UY" );
+        tParameterList( 3 )( tIWGCounter ).set( "slave_dof_dependencies",     "UX,UY" );
+        tParameterList( 3 )( tIWGCounter ).set( "stabilization_parameters",   "SPGPStruct_PCM,GhostSP" );
         tParameterList( 3 )( tIWGCounter ).set( "mesh_set_names",             tPCMGhost );
         tIWGCounter++;        
 		
@@ -1376,14 +1376,14 @@ namespace moris
 
  		// Time continuity
         tParameterList( 3 ).push_back( prm::create_IWG_parameter_list() );
-        tParameterList( 3 )( tIWGCounter ).set( "IWG_name",                   std::string("IWGTimeContinuityTemp") );
+        tParameterList( 3 )( tIWGCounter ).set( "IWG_name",                   "IWGTimeContinuityTemp" );
         tParameterList( 3 )( tIWGCounter ).set( "IWG_type",                   static_cast< uint >( fem::IWG_Type::TIME_CONTINUITY_DOF ) );
-        tParameterList( 3 )( tIWGCounter ).set( "dof_residual",               std::string("TEMP") );
-        tParameterList( 3 )( tIWGCounter ).set( "master_dof_dependencies",    std::string("UX,UY;TEMP") );
+        tParameterList( 3 )( tIWGCounter ).set( "dof_residual",               "TEMP" );
+        tParameterList( 3 )( tIWGCounter ).set( "master_dof_dependencies",    "UX,UY;TEMP" );
         tParameterList( 3 )( tIWGCounter ).set( "master_properties",
-                std::string("PropWeightCurrent,WeightCurrent;")      +
-                std::string("PropWeightPrevious,WeightPrevious;")    +
-                std::string("PropInitialCondition,InitialCondition") );
+                "PropWeightCurrent,WeightCurrent;"
+                "PropWeightPrevious,WeightPrevious;"
+                "PropInitialCondition,InitialCondition" );
         tParameterList( 3 )( tIWGCounter ).set( "mesh_set_names",             tTotalDomain );
         tParameterList( 3 )( tIWGCounter ).set( "time_continuity",            true );
         tIWGCounter++;
@@ -1395,20 +1395,20 @@ namespace moris
 		
 		// Nodal Temperature IQI
         tParameterList( 4 ).push_back( prm::create_IQI_parameter_list() );
-        tParameterList( 4 )( tIQICounter ).set( "IQI_name",                   std::string("IQIBulkTEMP") );
+        tParameterList( 4 )( tIQICounter ).set( "IQI_name",                   "IQIBulkTEMP" );
         tParameterList( 4 )( tIQICounter ).set( "IQI_type",                   static_cast< uint >( fem::IQI_Type::DOF ) );
         tParameterList( 4 )( tIQICounter ).set( "dof_quantity",               "TEMP");
-		tParameterList( 4 )( tIQICounter ).set( "master_dof_dependencies",    std::string("TEMP") );
+		tParameterList( 4 )( tIQICounter ).set( "master_dof_dependencies",    "TEMP" );
         tParameterList( 4 )( tIQICounter ).set( "vectorial_field_index",      0 );
         tParameterList( 4 )( tIQICounter ).set( "mesh_set_names",             tTotalDomain );
         tIQICounter++; 
 		
 		// Max Temperature IQI
         tParameterList( 4 ).push_back( prm::create_IQI_parameter_list() );
-        tParameterList( 4 )( tIQICounter ).set( "IQI_name",                   std::string("IQIMaxTemp") );
+        tParameterList( 4 )( tIQICounter ).set( "IQI_name",                   "IQIMaxTemp" );
         tParameterList( 4 )( tIQICounter ).set( "IQI_type",                   static_cast< uint >( fem::IQI_Type::MAX_DOF ) );
         tParameterList( 4 )( tIQICounter ).set( "dof_quantity",               "TEMP");
-		tParameterList( 4 )( tIQICounter ).set( "master_dof_dependencies",    std::string("TEMP") );
+		tParameterList( 4 )( tIQICounter ).set( "master_dof_dependencies",    "TEMP" );
         tParameterList( 4 )( tIQICounter ).set( "function_parameters",        tIQIRefTemp + "/" + tExponent + "/" + tShift );
         tParameterList( 4 )( tIQICounter ).set( "mesh_set_names",             tSkin );
         tIQICounter++;
@@ -1498,7 +1498,7 @@ namespace moris
         tParameterlist( 2 ).resize( 3 ); 
 		
 		tParameterlist( 2 )( 0 ) = moris::prm::create_nonlinear_algorithm_parameter_list();
-        tParameterlist( 2 )( 0 )("NLA_Solver_Implementation") = static_cast< uint >( moris::NLA::NonlinearSolverType::NEWTON_SOLVER );
+        tParameterlist( 2 )( 0 ).set("NLA_Solver_Implementation", static_cast< uint >( moris::NLA::NonlinearSolverType::NEWTON_SOLVER ));
         tParameterlist( 2 )( 0 ).set("NLA_combined_res_jac_assembly", false );
         tParameterlist( 2 )( 0 ).set("NLA_rel_res_norm_drop",    tNLA_rel_res_norm_drop );
         tParameterlist( 2 )( 0 ).set("NLA_relaxation_parameter", tNLA_relaxation_parameter  );
@@ -1506,7 +1506,7 @@ namespace moris
 		tParameterlist( 2 )( 0 ).set("NLA_combined_res_jac_assembly", true );
 		
         tParameterlist( 2 )( 1 ) = moris::prm::create_nonlinear_algorithm_parameter_list();
-        tParameterlist( 2 )( 1 )("NLA_Solver_Implementation") = static_cast< uint >( moris::NLA::NonlinearSolverType::NLBGS_SOLVER );
+        tParameterlist( 2 )( 1 ).set("NLA_Solver_Implementation", static_cast< uint >( moris::NLA::NonlinearSolverType::NLBGS_SOLVER ));
                 
         tParameterlist( 2 )( 2 ) = moris::prm::create_nonlinear_algorithm_parameter_list();
         tParameterlist( 2 )( 2 ).set("NLA_rel_res_norm_drop",    1.0e-7 );
@@ -1518,18 +1518,18 @@ namespace moris
 		tParameterlist( 3 ).resize( 4 );
 		
         tParameterlist( 3 )( 0 ) = moris::prm::create_nonlinear_solver_parameter_list();
-        tParameterlist( 3 )( 0 )("NLA_Solver_Implementation") = static_cast< uint >( moris::NLA::NonlinearSolverType::NEWTON_SOLVER );
-        tParameterlist( 3 )( 0 )("NLA_DofTypes") = std::string("UX,UY");
+        tParameterlist( 3 )( 0 ).set("NLA_Solver_Implementation", static_cast< uint >( moris::NLA::NonlinearSolverType::NEWTON_SOLVER ));
+        tParameterlist( 3 )( 0 ).set("NLA_DofTypes", "UX,UY");
 		
         tParameterlist( 3 )( 1 ) = moris::prm::create_nonlinear_solver_parameter_list();
-        tParameterlist( 3 )( 1 )("NLA_Solver_Implementation") = static_cast< uint >( moris::NLA::NonlinearSolverType::NEWTON_SOLVER );
-        tParameterlist( 3 )( 1 )("NLA_DofTypes") = std::string("TEMP");
+        tParameterlist( 3 )( 1 ).set("NLA_Solver_Implementation", static_cast< uint >( moris::NLA::NonlinearSolverType::NEWTON_SOLVER ));
+        tParameterlist( 3 )( 1 ).set("NLA_DofTypes", "TEMP");
 		
         tParameterlist( 3 )( 2 ) = moris::prm::create_nonlinear_solver_parameter_list();
-        tParameterlist( 3 )( 2 )("NLA_Solver_Implementation") = static_cast< uint >( moris::NLA::NonlinearSolverType::NLBGS_SOLVER );
-        tParameterlist( 3 )( 2 )("NLA_Sub_Nonlinear_Solver") = std::string("1,0");
-        tParameterlist( 3 )( 2 )("NLA_DofTypes") = std::string("UX,UY;TEMP");
-        tParameterlist( 3 )( 2 )("NLA_Nonlinear_solver_algorithms") = std::string("1");
+        tParameterlist( 3 )( 2 ).set("NLA_Solver_Implementation", static_cast< uint >( moris::NLA::NonlinearSolverType::NLBGS_SOLVER ));
+        tParameterlist( 3 )( 2 ).set("NLA_Sub_Nonlinear_Solver", "1,0");
+        tParameterlist( 3 )( 2 ).set("NLA_DofTypes", "UX,UY;TEMP");
+        tParameterlist( 3 )( 2 ).set("NLA_Nonlinear_solver_algorithms", "1");
 		        
         tParameterlist( 3 )( 3 ) = moris::prm::create_nonlinear_solver_parameter_list();
         tParameterlist( 3 )( 3 ).set("NLA_DofTypes"            , "UX,UY,TEMP" );
