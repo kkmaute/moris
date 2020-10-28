@@ -661,15 +661,21 @@ namespace moris
                 }
 
                 // Set number of owned ADVs
-                uint tNumOwnedADVs = mADVs.length() + tNumNewOwnedADVs;
+                uint tNumOwnedADVs = tNumNewOwnedADVs;
                 mLowerBounds.resize(tNumOwnedADVs, 1);
                 mUpperBounds.resize(tNumOwnedADVs, 1);
 
                 // Resize ADV IDs and set primitive IDs
-                Matrix<DDSMat> tOwnedADVIds(mADVs.length(), 1);
-                for (uint tADVIndex = 0; tADVIndex < mADVs.length(); tADVIndex++)
+                Matrix<DDSMat> tOwnedADVIds(0, 0);
+                if (par_rank() == 0)
                 {
-                    tOwnedADVIds(tADVIndex) = tADVIndex;
+                    // proc 0 also owns primitive ADVs
+                    tNumOwnedADVs += mADVs.length();
+                    tOwnedADVIds.set_size(mADVs.length(), 1);
+                    for (uint tADVIndex = 0; tADVIndex < mADVs.length(); tADVIndex++)
+                    {
+                        tOwnedADVIds(tADVIndex) = tADVIndex;
+                    }
                 }
                 Matrix<DDSMat> tPrimitiveIds = tOwnedADVIds;
                 tOwnedADVIds.resize(tNumOwnedADVs, 1);
