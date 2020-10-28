@@ -744,8 +744,11 @@ namespace moris
 
                 // Build geometries from parameter lists using distributed vector
                 // TODO augmented copy constructor for fields
-                mGeometries = create_geometries(mGeometryParameterLists, mOwnedADVs, mLibrary);
-                mGeometryParameterLists.clear();
+                if (mGeometryParameterLists.size() > 0)
+                {
+                    mGeometries = create_geometries(mGeometryParameterLists, mOwnedADVs, mLibrary);
+                    mGeometryParameterLists.clear();
+                }
 
                 //----------------------------------------//
                 // Convert geometries to level sets       //
