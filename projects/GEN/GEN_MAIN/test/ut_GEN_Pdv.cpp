@@ -16,6 +16,8 @@
 #undef protected
 #undef private
 
+#include "fn_GEN_check_equal.hpp"
+
 namespace moris
 {
 
@@ -384,7 +386,11 @@ namespace moris
                 }
 
                 // Set owned ADV IDs
-                Matrix<DDSMat> tOwnedADVIds = {{0}, {1}, {2}};
+                Matrix<DDSMat> tOwnedADVIds(0, 0);
+                if (par_rank() == 0)
+                {
+                    tOwnedADVIds = {{0}, {1}, {2}};
+                }
                 tPDVHostManager.set_owned_adv_ids(tOwnedADVIds);
 
                 // Get sensitivities
@@ -394,6 +400,12 @@ namespace moris
                     tFullADVIds = tOwnedADVIds;
                 }
                 Matrix<DDRMat> tdIQIdADV = tPDVHostManager.compute_diqi_dadv(tFullADVIds);
+
+                // Check sensitivities
+                if (par_rank() == 0)
+                {
+                    check_equal(tdIQIdADV, {{4.0, 4.0, 0.0}, {24.0, 36.0, -16.0}});
+                }
             }
         }
 
@@ -419,7 +431,7 @@ namespace moris
             std::shared_ptr<Property> tProperty = create_property(
                     tParameterList,
                     tADVs,
-                    Cell<std::shared_ptr<ge::Property>>(0));
+                    {});
 
             // Node indices per set
             Cell<Matrix<DDSMat>> tIpNodeIndicesPerSet(1);

@@ -393,7 +393,7 @@ namespace moris
      */
     template <typename T> void
     communicate_scalars( 
-            const Matrix < IdMat > & aCommunicationList,
+            const Matrix < DDUMat > & aCommunicationList,
             const Matrix< T >      & aScalarsToSend,
             Matrix< T >            & aScalarsToReceive )
     {

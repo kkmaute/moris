@@ -12,7 +12,7 @@ namespace moris
                                                  EntityRank  aEntityRank,
                                                  sint        aNumRefinements,
                                                  sint        aRefinementFunctionIndex)
-                : Field(Matrix<DDRMat>(1, 1, 0.0), aNumRefinements, aRefinementFunctionIndex, -1, -1.0, 1.0),
+                : Field(Matrix<DDRMat>(1, 1, 0.0), "", aNumRefinements, aRefinementFunctionIndex, -1, -1.0, 1.0),
                   Field_Discrete(aMesh->get_num_nodes()),
                   mMesh(aMesh),
                   mFieldName(aFieldName),

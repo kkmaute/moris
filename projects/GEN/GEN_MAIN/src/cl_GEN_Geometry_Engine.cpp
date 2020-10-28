@@ -61,7 +61,7 @@ namespace moris
                 mOutputMeshFile(aParameterLists(0)(0).get<std::string>("output_mesh_file")),
 
                 // Properties
-                mProperties(create_properties(aParameterLists(2), mADVs, mLibrary)),
+                mProperties(create_properties(aParameterLists(2), mADVs, mGeometries, mLibrary)),
                 mPropertyParameterLists(aParameterLists(2)),
                 
                 // phase table
@@ -127,6 +127,7 @@ namespace moris
             mOwnedADVs->vec_put_scalar(0);
             mOwnedADVs->replace_global_values(mFullADVIds, aNewADVs);
             mOwnedADVs->vector_global_asembly();
+            mPrimitiveADVs->import_local_to_global(*mOwnedADVs);
 
             // Reset info related to the mesh
             mPdvHostManager.reset();
@@ -580,9 +581,6 @@ namespace moris
 
             // Create PDV IDs
             mPdvHostManager.create_pdv_ids();
-
-            // Get rid of parameter lists
-            mPropertyParameterLists.resize(0);
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -663,19 +661,31 @@ namespace moris
                     }
                 }
 
-                // Set number of owned ADVs
-                uint tNumOwnedADVs = mADVs.length() + tNumNewOwnedADVs;
-                mLowerBounds.resize(tNumOwnedADVs, 1);
-                mUpperBounds.resize(tNumOwnedADVs, 1);
+                // Set number of total owned ADVs
+                uint tNumOwnedADVs = tNumNewOwnedADVs;
+                if (par_rank() == 0)
+                {
+                    tNumOwnedADVs += mADVs.length();
+                }
 
-                // Resize ADV IDs and set primitive IDs
-                Matrix<DDSMat> tOwnedADVIds(mADVs.length(), 1);
+                // Set primitive IDs
+                Matrix<DDSMat> tPrimitiveADVIds(mADVs.length(), 1);
                 for (uint tADVIndex = 0; tADVIndex < mADVs.length(); tADVIndex++)
                 {
-                    tOwnedADVIds(tADVIndex) = tADVIndex;
+                    tPrimitiveADVIds(tADVIndex) = tADVIndex;
                 }
-                Matrix<DDSMat> tPrimitiveIds = tOwnedADVIds;
+
+                // Start with primitive IDs for owned IDs on processor 0
+                Matrix<DDSMat> tOwnedADVIds(0, 0);
+                if (par_rank() == 0)
+                {
+                    tOwnedADVIds = tPrimitiveADVIds;
+                }
+
+                // Resize owned IDs and bounds
                 tOwnedADVIds.resize(tNumOwnedADVs, 1);
+                mLowerBounds.resize(tNumOwnedADVs, 1);
+                mUpperBounds.resize(tNumOwnedADVs, 1);
 
                 // Cell of shared ADV IDs
                 Cell<Matrix<DDSMat>> tSharedADVIds(mGeometries.size());
@@ -733,26 +743,32 @@ namespace moris
                 // Create factory for distributed ADV vector
                 sol::Matrix_Vector_Factory tDistributedFactory;
 
-                // Create map for distributed vector
+                // Create map for distributed vectors
                 std::shared_ptr<sol::Dist_Map> tOwnedADVMap = tDistributedFactory.create_map(tOwnedADVIds);
+                std::shared_ptr<sol::Dist_Map> tPrimitiveADVMap = tDistributedFactory.create_map(tPrimitiveADVIds);
 
-                // Create vector
+                // Create vectors
                 mOwnedADVs = tDistributedFactory.create_vector(tOwnedADVMap);
+                mPrimitiveADVs = tDistributedFactory.create_vector(tPrimitiveADVMap);
 
-                // Assign primitive IDs
-                mOwnedADVs->replace_global_values(tPrimitiveIds, mADVs);
+                // Assign primitive ADVs
+                if (par_rank() == 0)
+                {
+                    mOwnedADVs->replace_global_values(tPrimitiveADVIds, mADVs);
+                }
 
                 // Global assembly
                 mOwnedADVs->vector_global_asembly();
 
-                // Build geometries and properties from parameter lists using distributed vector
+                // Get primitive ADVs from owned vector
+                mPrimitiveADVs->import_local_to_global(*mOwnedADVs);
+
+                // Build geometries from parameter lists using distributed vector
                 // TODO augmented copy constructor for fields
                 if (mGeometryParameterLists.size() > 0)
                 {
-                    // Build geometries and properties
-                    mGeometries = create_geometries(mGeometryParameterLists, mOwnedADVs, mLibrary);
-                    mProperties = create_properties(mPropertyParameterLists, mOwnedADVs, mLibrary);
-                    mGeometryParameterLists.resize(0);
+                    mGeometries = create_geometries(mGeometryParameterLists, mPrimitiveADVs, mLibrary);
+                    mGeometryParameterLists.clear();
                 }
 
                 //----------------------------------------//
@@ -776,11 +792,14 @@ namespace moris
                                 mOwnedADVs,
                                 tOwnedADVIds,
                                 tSharedADVIds(tGeometryIndex),
-                                tPrimitiveIds.length(),
+                                tPrimitiveADVIds.length(),
                                 aMesh,
                                 mGeometries(tGeometryIndex));
                     }
                 }
+
+                // Build properties from parameter lists using distributed vector
+                mProperties = create_properties(mPropertyParameterLists, mPrimitiveADVs, mGeometries, mLibrary);
 
                 //----------------------------------------//
                 // Communicate all ADV IDs to processor 0 //
@@ -879,12 +898,32 @@ namespace moris
                 mtk::Writer_Exodus tWriter(aMesh);
                 tWriter.write_mesh("", aExodusFileName, "", "gen_temp.exo");
 
-                // Setup fields
-                Cell<std::string> tFieldNames(mGeometries.size());
-                for (uint tGeometryIndex = 0; tGeometryIndex < mGeometries.size(); tGeometryIndex++)
+                // Setup field names
+                uint tNumGeometries = mGeometries.size();
+                uint tNumProperties = mProperties.size();
+                Cell<std::string> tFieldNames(tNumGeometries + tNumProperties);
+
+                // Geometry field names
+                for (uint tGeometryIndex = 0; tGeometryIndex < tNumGeometries; tGeometryIndex++)
                 {
-                    tFieldNames(tGeometryIndex) = "Geometry " + std::to_string(tGeometryIndex);
+                    tFieldNames(tGeometryIndex) = mGeometries(tGeometryIndex)->get_name();
+                    if (tFieldNames(tGeometryIndex) == "")
+                    {
+                        tFieldNames(tGeometryIndex) = "Geometry " + std::to_string(tGeometryIndex);
+                    }
                 }
+
+                // Property field names
+                for (uint tPropertyIndex = 0; tPropertyIndex < tNumProperties; tPropertyIndex++)
+                {
+                    tFieldNames(tNumGeometries + tPropertyIndex) = mProperties(tPropertyIndex)->get_name();
+                    if (tFieldNames(tNumGeometries + tPropertyIndex) == "")
+                    {
+                        tFieldNames(tNumGeometries + tPropertyIndex) = "Property " + std::to_string(tPropertyIndex);
+                    }
+                }
+
+                // Set nodal fields based on field names
                 tWriter.set_nodal_fields(tFieldNames);
 
                 // Get all node coordinates
@@ -895,7 +934,7 @@ namespace moris
                 }
 
                 // Loop over geometries
-                for (uint tGeometryIndex = 0; tGeometryIndex < mGeometries.size(); tGeometryIndex++)
+                for (uint tGeometryIndex = 0; tGeometryIndex < tNumGeometries; tGeometryIndex++)
                 {
                     // Create field vector
                     Matrix<DDRMat> tFieldData(aMesh->get_num_nodes(), 1);
@@ -909,7 +948,25 @@ namespace moris
                     }
 
                     // Create field on mesh
-                    tWriter.write_nodal_field("Geometry " + std::to_string(tGeometryIndex), tFieldData);
+                    tWriter.write_nodal_field(tFieldNames(tGeometryIndex), tFieldData);
+                }
+
+                // Loop over properties
+                for (uint tPropertyIndex = 0; tPropertyIndex < tNumProperties; tPropertyIndex++)
+                {
+                    // Create field vector
+                    Matrix<DDRMat> tFieldData(aMesh->get_num_nodes(), 1);
+
+                    // Assign field to vector
+                    for (uint tNodeIndex = 0; tNodeIndex < aMesh->get_num_nodes(); tNodeIndex++)
+                    {
+                        tFieldData(tNodeIndex) = mProperties(tPropertyIndex)->get_field_value(
+                                tNodeIndex,
+                                tNodeCoordinates(tNodeIndex));
+                    }
+
+                    // Create field on mesh
+                    tWriter.write_nodal_field(tFieldNames(tNumGeometries + tPropertyIndex), tFieldData);
                 }
 
                 // Finalize

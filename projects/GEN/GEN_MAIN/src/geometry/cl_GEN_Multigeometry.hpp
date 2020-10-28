@@ -20,10 +20,11 @@ namespace moris
              * Multigeometry constructor
              *
              * @param aGeometries Already-created geometries
-             * @param aID Name ID for this multigeometry
+             * @param aName Name of this field for identification for identification
              */
-            Multigeometry(Cell<std::shared_ptr<Geometry>> aGeometries,
-                          std::string aID = "");
+            Multigeometry(
+                    Cell<std::shared_ptr<Geometry>> aGeometries,
+                    std::string aName = "");
 
             /**
              * Given a node coordinate, the geometry needs to return the distance to the nearest function.
@@ -51,13 +52,6 @@ namespace moris
              * @param aGeometry Geometry to add
              */
             void add_geometry(std::shared_ptr<Geometry> aGeometry);
-
-            /**
-             * Gets the ID of this multigeometry.
-             *
-             * @return ID
-             */
-            std::string get_id();
 
         };
     }

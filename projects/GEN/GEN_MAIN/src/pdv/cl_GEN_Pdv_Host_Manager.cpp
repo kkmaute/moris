@@ -54,7 +54,8 @@ namespace moris
 
         void Pdv_Host_Manager::reset()
         {
-            mIntersectionNodes.resize(0);
+            mIpPdvHosts.clear();
+            mIntersectionNodes.clear();
             mOwnedPdvLocalToGlobalMap.resize(0, 0);
             mOwnedAndSharedPdvLocalToGlobalMap.resize(0, 0);
             mNumOwnedPdvs = 0;
@@ -498,7 +499,6 @@ namespace moris
             
             // Get dIQI/dPDV and dPDV/dADV
             sol::Dist_Vector* tdIQIdPDV = this->get_dQIdp();
-            sol::Dist_Matrix* tdPDVdADV = this->compute_dpdv_dadv();
 
             // Create factory for resulting distributed vector
             sol::Matrix_Vector_Factory tDistributedFactory;
@@ -511,11 +511,91 @@ namespace moris
             sint tNumIQIs = tdIQIdPDV->get_num_vectors();
             sol::Dist_Vector* tdIQIdADV = tDistributedFactory.create_vector(tOwnedADVMap, tNumIQIs);
             sol::Dist_Vector* tFulldIQIdADV = tDistributedFactory.create_vector(tFullADVMap, tNumIQIs);
-            
-            // Matrix/vector product
-            tdPDVdADV->mat_vec_product(*tdIQIdPDV, *tdIQIdADV, true);
 
-            // Import ADVs
+            // Initialize to zero
+            tdIQIdADV->vec_put_scalar(0.0);
+
+            // Loop of interpolation PDV hosts
+            for (uint tPDVHostIndex = 0; tPDVHostIndex < mIpPdvHosts.size(); tPDVHostIndex++)
+            {
+                if (mIpPdvHosts(tPDVHostIndex) and mIpPdvHosts(tPDVHostIndex)->get_pdv_owning_processor() == par_rank())
+                {
+                    // Get number of PDVs
+                    uint tNumPDVsOnHost = mIpPdvHosts(tPDVHostIndex)->get_num_pdvs();
+
+                    // Assemble sensitivities
+                    for (uint tPDVIndex = 0; tPDVIndex < tNumPDVsOnHost; tPDVIndex++)
+                    {
+                        // Get sensitivities
+                        Matrix<DDRMat> tHostADVSensitivities = mIpPdvHosts(tPDVHostIndex)->get_sensitivities(tPDVIndex);
+
+                        // Get PDV/ADV IDs
+                        moris_id tPDVID = mIpPdvHosts(tPDVHostIndex)->get_pdv_id(tPDVIndex);
+                        Matrix<DDSMat> tADVIds = mIpPdvHosts(tPDVHostIndex)->get_determining_adv_ids(tPDVIndex);
+
+                        for (uint tVectorIndex = 0; tVectorIndex < (uint)tNumIQIs; tVectorIndex++)
+                        {
+                            Matrix<DDRMat> tIndividualSensitivity = (*tdIQIdPDV)(tPDVID, tVectorIndex) * tHostADVSensitivities;
+
+                            // Fill matrix
+                            tdIQIdADV->sum_into_global_values(tADVIds, tIndividualSensitivity, tVectorIndex);
+                        }
+                    }
+                }
+            }
+
+            // Loop over intersection nodes for inserting
+            for (uint tIntersectionIndex = 0; tIntersectionIndex < mIntersectionNodes.size(); tIntersectionIndex++)
+            {
+                if (mIntersectionNodes(tIntersectionIndex) and mIntersectionNodes(tIntersectionIndex)->get_vertex_owner() == par_rank())
+                {
+                    // Get starting ID and number of coordinates
+                    uint tStartingGlobalIndex = mIntersectionNodes(tIntersectionIndex)->get_starting_pdv_id();
+                    uint tNumCoordinates = mIntersectionNodes(tIntersectionIndex)->get_num_pdvs();
+
+                    // Get first parent sensitivities and ADV IDs
+                    Matrix<DDRMat> tHostADVSensitivities = mIntersectionNodes(tIntersectionIndex)->get_first_parent_sensitivities();
+                    Matrix<DDSMat> tADVIds = mIntersectionNodes(tIntersectionIndex)->get_first_parent_determining_adv_ids();
+
+                    // Assemble second parent
+                    for (uint tCoordinateIndex = 0; tCoordinateIndex < tNumCoordinates; tCoordinateIndex++)
+                    {
+                        moris_id tPDVID = tStartingGlobalIndex + tCoordinateIndex;
+
+                        for (uint tVectorIndex = 0; tVectorIndex < (uint)tNumIQIs; tVectorIndex++)
+                        {
+                            Matrix<DDRMat> tIndividualSensitivity = (*tdIQIdPDV)(tPDVID, tVectorIndex) * tHostADVSensitivities.get_row(tCoordinateIndex);
+
+                            // Fill matrix
+                            tdIQIdADV->sum_into_global_values(tADVIds, tIndividualSensitivity, tVectorIndex);
+                        }
+                    }
+
+                    // Get second parent sensitivities and ADV IDs
+                    tHostADVSensitivities = mIntersectionNodes(tIntersectionIndex)->get_second_parent_sensitivities();
+                    tADVIds = mIntersectionNodes(tIntersectionIndex)->get_second_parent_determining_adv_ids();
+
+                    // Assemble first parent
+                    for (uint tCoordinateIndex = 0; tCoordinateIndex < tNumCoordinates; tCoordinateIndex++)
+                    {
+                        moris_id tPDVID = tStartingGlobalIndex + tCoordinateIndex;
+
+                        for (uint tVectorIndex = 0; tVectorIndex < (uint)tNumIQIs; tVectorIndex++)
+                        {
+                            Matrix<DDRMat> tIndividualSensitivity = (*tdIQIdPDV)(tPDVID, tVectorIndex) * tHostADVSensitivities.get_row(tCoordinateIndex);
+
+                            // Fill matrix
+                            tdIQIdADV->sum_into_global_values(tADVIds, tIndividualSensitivity, tVectorIndex);
+                        }
+                    }
+
+                }
+            }
+
+            // Global assembly
+            tdIQIdADV->vector_global_asembly();
+
+            // Import
             tFulldIQIdADV->import_local_to_global(*tdIQIdADV);
             
             // Extract values
@@ -540,74 +620,9 @@ namespace moris
             // Create vector
             sol::Dist_Matrix* tdPDVdADV = tDistributedFactory.create_matrix(tOwnedPDVMap, tOwnedADVMap);
 
-            // Loop of interpolation PDV hosts
-            for (uint tPDVHostIndex = 0; tPDVHostIndex < mIpPdvHosts.size(); tPDVHostIndex++)
-            {
-                // Get number of PDVs
-                uint tNumPDVsOnHost = mIpPdvHosts(tPDVHostIndex)->get_num_pdvs();
-
-                // Assemble sensitivities
-                for (uint tPDVIndex = 0; tPDVIndex < tNumPDVsOnHost; tPDVIndex++)
-                {
-                    // Get sensitivities
-                    Matrix<DDRMat> tHostADVSensitivities = mIpPdvHosts(tPDVHostIndex)->get_sensitivities(tPDVIndex);
-
-                    // Get PDV/ADV IDs
-                    moris_id tPDVID = mIpPdvHosts(tPDVHostIndex)->get_pdv_id(tPDVIndex);
-                    Matrix<DDSMat> tADVIds = mIpPdvHosts(tPDVHostIndex)->get_determining_adv_ids(tPDVIndex);
-
-                    // Fill matrix
-                    tdPDVdADV->insert_values({{tPDVID}}, tADVIds, tHostADVSensitivities);
-                }
-            }
-
-            // Loop over intersection nodes for inserting
-            for (uint tIntersectionIndex = 0; tIntersectionIndex < mIntersectionNodes.size(); tIntersectionIndex++)
-            {
-                if (mIntersectionNodes(tIntersectionIndex) and mIntersectionNodes(tIntersectionIndex)->get_vertex_owner() == par_rank())
-                {
-                    // Get starting ID and number of coordinates
-                    uint tStartingGlobalIndex = mIntersectionNodes(tIntersectionIndex)->get_starting_pdv_id();
-                    uint tNumCoordinates = mIntersectionNodes(tIntersectionIndex)->get_num_pdvs();
-
-                    // Get PDV IDs
-                    Matrix<DDSMat> tPDVSensitivityIDs(tNumCoordinates, 1);
-                    for (uint tCoordinateIndex = 0; tCoordinateIndex < tNumCoordinates; tCoordinateIndex++)
-                    {
-                        tPDVSensitivityIDs(tCoordinateIndex) = tStartingGlobalIndex + tCoordinateIndex;
-                    }
-
-                    // Get determining ADV IDs
-                    Matrix<DDSMat> tFirstParentDeterminingADVIds =
-                            mIntersectionNodes(tIntersectionIndex)->get_first_parent_determining_adv_ids();
-                    Matrix<DDSMat> tSecondParentDeterminingADVIds =
-                            mIntersectionNodes(tIntersectionIndex)->get_second_parent_determining_adv_ids();
-
-                    // Insert new zero values into matrix
-                    tdPDVdADV->insert_values(
-                            tPDVSensitivityIDs,
-                            tFirstParentDeterminingADVIds,
-                            Matrix<DDRMat>(tNumCoordinates, tFirstParentDeterminingADVIds.length(), 0.0));
-                    tdPDVdADV->insert_values(
-                            tPDVSensitivityIDs,
-                            tSecondParentDeterminingADVIds,
-                            Matrix<DDRMat>(tNumCoordinates, tSecondParentDeterminingADVIds.length(), 0.0));
-
-                    // Sum into matrix values
-                    tdPDVdADV->sum_into_values(
-                            tPDVSensitivityIDs,
-                            tFirstParentDeterminingADVIds,
-                            mIntersectionNodes(tIntersectionIndex)->get_first_parent_sensitivities());
-                    tdPDVdADV->sum_into_values(
-                            tPDVSensitivityIDs,
-                            tSecondParentDeterminingADVIds,
-                            mIntersectionNodes(tIntersectionIndex)->get_second_parent_sensitivities());
-                }
-            }
-
             // Global assembly
             tdPDVdADV->matrix_global_assembly();
-			
+
             return tdPDVdADV;
         }
 

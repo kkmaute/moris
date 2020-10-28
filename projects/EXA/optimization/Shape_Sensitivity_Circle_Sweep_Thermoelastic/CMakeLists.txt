@@ -1,6 +1,6 @@
 set(EXAMPLE_MAIN Main_Shape_Sensitivity_Circle_Sweep_Thermoelastic)
-set(EXAMPLE_FILES Shape_Sensitivity_Circle_Sweep_Thermoelastic Shape_Sensitivity_Circle_Sweep_Thermoelastic_Staggered)
-set(EXAMPLE_PROCS 1)
+set(EXAMPLE_FILES Shape_Sensitivity_Circle_Sweep_Thermoelastic Shape_Sensitivity_Circle_Sweep_Thermoelastic_Staggered Shape_Sensitivity_Circle_Sweep_Thermoelastic_GCMMA)
+set(EXAMPLE_PROCS 1 2)
 
 # List source files
 set(EXAMPLE_SOURCES
