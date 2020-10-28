@@ -127,6 +127,7 @@ namespace moris
             mOwnedADVs->vec_put_scalar(0);
             mOwnedADVs->replace_global_values(mFullADVIds, aNewADVs);
             mOwnedADVs->vector_global_asembly();
+            mPrimitiveADVs->import_local_to_global(*mOwnedADVs);
 
             // Reset info related to the mesh
             mPdvHostManager.reset();
@@ -660,25 +661,31 @@ namespace moris
                     }
                 }
 
-                // Set number of owned ADVs
+                // Set number of total owned ADVs
                 uint tNumOwnedADVs = tNumNewOwnedADVs;
-                mLowerBounds.resize(tNumOwnedADVs, 1);
-                mUpperBounds.resize(tNumOwnedADVs, 1);
+                if (par_rank() == 0)
+                {
+                    tNumOwnedADVs += mADVs.length();
+                }
 
-                // Resize ADV IDs and set primitive IDs
+                // Set primitive IDs
+                Matrix<DDSMat> tPrimitiveADVIds(mADVs.length(), 1);
+                for (uint tADVIndex = 0; tADVIndex < mADVs.length(); tADVIndex++)
+                {
+                    tPrimitiveADVIds(tADVIndex) = tADVIndex;
+                }
+
+                // Start with primitive IDs for owned IDs on processor 0
                 Matrix<DDSMat> tOwnedADVIds(0, 0);
                 if (par_rank() == 0)
                 {
-                    // proc 0 also owns primitive ADVs
-                    tNumOwnedADVs += mADVs.length();
-                    tOwnedADVIds.set_size(mADVs.length(), 1);
-                    for (uint tADVIndex = 0; tADVIndex < mADVs.length(); tADVIndex++)
-                    {
-                        tOwnedADVIds(tADVIndex) = tADVIndex;
-                    }
+                    tOwnedADVIds = tPrimitiveADVIds;
                 }
-                Matrix<DDSMat> tPrimitiveIds = tOwnedADVIds;
+
+                // Resize owned IDs and bounds
                 tOwnedADVIds.resize(tNumOwnedADVs, 1);
+                mLowerBounds.resize(tNumOwnedADVs, 1);
+                mUpperBounds.resize(tNumOwnedADVs, 1);
 
                 // Cell of shared ADV IDs
                 Cell<Matrix<DDSMat>> tSharedADVIds(mGeometries.size());
@@ -736,23 +743,31 @@ namespace moris
                 // Create factory for distributed ADV vector
                 sol::Matrix_Vector_Factory tDistributedFactory;
 
-                // Create map for distributed vector
+                // Create map for distributed vectors
                 std::shared_ptr<sol::Dist_Map> tOwnedADVMap = tDistributedFactory.create_map(tOwnedADVIds);
+                std::shared_ptr<sol::Dist_Map> tPrimitiveADVMap = tDistributedFactory.create_map(tPrimitiveADVIds);
 
-                // Create vector
+                // Create vectors
                 mOwnedADVs = tDistributedFactory.create_vector(tOwnedADVMap);
+                mPrimitiveADVs = tDistributedFactory.create_vector(tPrimitiveADVMap);
 
-                // Assign primitive IDs
-                mOwnedADVs->replace_global_values(tPrimitiveIds, mADVs);
+                // Assign primitive ADVs
+                if (par_rank() == 0)
+                {
+                    mOwnedADVs->replace_global_values(tPrimitiveADVIds, mADVs);
+                }
 
                 // Global assembly
                 mOwnedADVs->vector_global_asembly();
+
+                // Get primitive ADVs from owned vector
+                mPrimitiveADVs->import_local_to_global(*mOwnedADVs);
 
                 // Build geometries from parameter lists using distributed vector
                 // TODO augmented copy constructor for fields
                 if (mGeometryParameterLists.size() > 0)
                 {
-                    mGeometries = create_geometries(mGeometryParameterLists, mOwnedADVs, mLibrary);
+                    mGeometries = create_geometries(mGeometryParameterLists, mPrimitiveADVs, mLibrary);
                     mGeometryParameterLists.clear();
                 }
 
@@ -777,14 +792,14 @@ namespace moris
                                 mOwnedADVs,
                                 tOwnedADVIds,
                                 tSharedADVIds(tGeometryIndex),
-                                tPrimitiveIds.length(),
+                                tPrimitiveADVIds.length(),
                                 aMesh,
                                 mGeometries(tGeometryIndex));
                     }
                 }
 
                 // Build properties from parameter lists using distributed vector
-                mProperties = create_properties(mPropertyParameterLists, mOwnedADVs, mGeometries, mLibrary);
+                mProperties = create_properties(mPropertyParameterLists, mPrimitiveADVs, mGeometries, mLibrary);
 
                 //----------------------------------------//
                 // Communicate all ADV IDs to processor 0 //
