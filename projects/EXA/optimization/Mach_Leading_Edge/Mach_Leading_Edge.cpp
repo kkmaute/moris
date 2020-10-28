@@ -37,7 +37,7 @@ namespace moris
     std::string tName = "Mach_Leading_Edge";
     
     // Hole Seeding 
-    moris::sint tNumSeedHolesX = 4; 
+    moris::sint tNumSeedHolesX = 3;
     moris::sint tNumSeedHolesY = 2;
     moris::real tHoleSeedDensityX = 1.0; 
     moris::real tHoleSeedDensityY = 0.7; 
@@ -118,7 +118,7 @@ namespace moris
     moris::real mm = 1.0e-03; 
     
     // Shell  
-    moris::real tLength = 20.0 * mm;
+    moris::real tLength = 12.0 * mm;
     moris::real tWallThickness = 2.0 * mm;
 	moris::real tInnerRadius = 1.0 * mm;
     moris::real tEdgeAngle = 5.0; // in degrees
@@ -192,9 +192,9 @@ namespace moris
 
     //std::string tOrder = "1";
     
-    std::string tNumElemsPerDim = "50, 16";
-    std::string tDomainDims = "0.03, 0.01";
-    std::string tDomainOffset = "-0.008,-0.005";
+    std::string tNumElemsPerDim = "31, 16";
+    std::string tDomainDims = "0.016, 0.08";
+    std::string tDomainOffset = "-0.004,-0.004";
     std::string tDomainSidesets = "1,2,3,4";
 
     int tRefineBuffer         = 2;
