@@ -180,7 +180,7 @@ namespace moris
             }
 
             // Global assembly
-            mOwnedNodalValues->vector_global_asembly();
+            mOwnedNodalValues->vector_global_assembly();
 
             // Import nodal values
             mSharedNodalValues->import_local_to_global(*mOwnedNodalValues);

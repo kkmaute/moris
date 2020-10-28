@@ -593,7 +593,7 @@ namespace moris
             }
 
             // Global assembly
-            tdIQIdADV->vector_global_asembly();
+            tdIQIdADV->vector_global_assembly();
 
             // Import
             tFulldIQIdADV->import_local_to_global(*tdIQIdADV);

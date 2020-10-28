@@ -104,7 +104,7 @@ namespace moris
             /**
              * Gather any overlapping/shared data into the non-overlapping partitioning defined by the Map.
              */
-            virtual void vector_global_asembly() = 0;
+            virtual void vector_global_assembly() = 0;
 
             /**
              * Transfers data from a free vector to a corresponding full vector.

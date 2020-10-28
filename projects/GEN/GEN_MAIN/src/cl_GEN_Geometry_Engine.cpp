@@ -126,7 +126,7 @@ namespace moris
             // Set new ADVs
             mOwnedADVs->vec_put_scalar(0);
             mOwnedADVs->replace_global_values(mFullADVIds, aNewADVs);
-            mOwnedADVs->vector_global_asembly();
+            mOwnedADVs->vector_global_assembly();
             mPrimitiveADVs->import_local_to_global(*mOwnedADVs);
 
             // Reset info related to the mesh
@@ -758,7 +758,7 @@ namespace moris
                 }
 
                 // Global assembly
-                mOwnedADVs->vector_global_asembly();
+                mOwnedADVs->vector_global_assembly();
 
                 // Get primitive ADVs from owned vector
                 mPrimitiveADVs->import_local_to_global(*mOwnedADVs);
