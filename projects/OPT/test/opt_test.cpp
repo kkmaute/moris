@@ -26,9 +26,6 @@ namespace moris
                 ParameterList tProblemParameterList = moris::prm::create_opt_problem_parameter_list();
                 ParameterList tAlgorithmParameterList = moris::prm::create_gcmma_parameter_list();
 
-                // Change parameters
-                tProblemParameterList.set("finite_difference_type", "central");
-
                 // Create interface
                 std::shared_ptr<Criteria_Interface> tInterface = std::make_shared<Interface_User_Defined>(
                         &initialize_rosenbrock_1,

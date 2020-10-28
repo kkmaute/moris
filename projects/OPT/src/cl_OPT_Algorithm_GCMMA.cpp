@@ -67,28 +67,19 @@ void OptAlgGCMMA::solve(std::shared_ptr<moris::opt::Problem> aOptProb )
     }
     else
     {
-        // Don't print from these procs
+        // Don't print from these processors
         mPrint = false;
 
         // Communicate that these procs need to start running
         this->communicate_running_status();
 
-        // Dummy variables to pass in to func/grad wrap
-        double* tAdv = nullptr;
-        double tObjval;
-        double* tConval = nullptr;
-        double* tD_Obj = nullptr;
-        double** tD_Con = nullptr;
-        int* tActive = nullptr;
-
         // Keep looping over func/grad calls
         while(mRunning)
         {
-            // Dummy calls to func/grad wrap
-            opt_alg_gcmma_func_wrap(this, 0, tAdv, tObjval, tConval);
-            opt_alg_gcmma_grad_wrap(this, tAdv, tD_Obj, tD_Con, tActive );
+            // Call to help out with criteria solve
+            this->criteria_solve();
 
-            // Communicate running status so these procs know when to exit
+            // Communicate running status so these processors know when to exit
             this->communicate_running_status();
         }
     }
@@ -96,6 +87,13 @@ void OptAlgGCMMA::solve(std::shared_ptr<moris::opt::Problem> aOptProb )
     this->printresult(); // print the result of the optimization algorithm
 
     aOptProb = mProblem; // update aOptProb
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+void OptAlgGCMMA::criteria_solve(Matrix<DDRMat> aADVs)
+{
+    this->mProblem->set_advs(aADVs);
 }
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -166,39 +164,27 @@ void opt_alg_gcmma_func_wrap(
         double*      aConval )
 {
     // Proc 0 needs to communicate that it is still running
-    if (par_rank() == 0)
-    {
-        aOptAlgGCMMA->communicate_running_status();
-    }
+    aOptAlgGCMMA->communicate_running_status();
 
-    // Barrier to wait for all procs
-    barrier("func");
+    // Log iteration of optimization
+    MORIS_LOG_ITERATION();
 
-    Matrix<DDRMat> tADVs(0, 0);
-    if (par_rank() == 0)
-    {
-        // Log iteration of optimization
-        MORIS_LOG_ITERATION();
+    // Update the ADV matrix
+    Matrix<DDRMat> tADVs = Matrix<DDRMat>(aAdv, aOptAlgGCMMA->mProblem->get_num_advs(), 1);
 
-        // Update the ADV matrix
-        tADVs = Matrix<DDRMat>(aAdv, aOptAlgGCMMA->mProblem->get_num_advs(), 1);
-    }
+    // Recruit help from other procs and solve for criteria
+    aOptAlgGCMMA->criteria_solve(tADVs);
 
-    aOptAlgGCMMA->mProblem->set_advs(tADVs);
+    // Set update for objectives and constraints
+    aOptAlgGCMMA->mProblem->mUpdateObjectives = true;
+    aOptAlgGCMMA->mProblem->mUpdateConstraints = true;
 
-    if (par_rank() == 0)
-    {
-        // Set update for objectives and constraints
-        aOptAlgGCMMA->mProblem->mUpdateObjectives = true;
-        aOptAlgGCMMA->mProblem->mUpdateConstraints = true;
+    // Convert outputs from type MORIS
+    aObjval = aOptAlgGCMMA->mProblem->get_objectives()(0);
 
-        // Convert outputs from type MORIS
-        aObjval = aOptAlgGCMMA->mProblem->get_objectives()(0);
-
-        // Update the pointer of constraints
-        auto tConval = aOptAlgGCMMA->mProblem->get_constraints().data();
-        std::copy(tConval, tConval + aOptAlgGCMMA->mProblem->get_num_constraints(), aConval );
-    }
+    // Update the pointer of constraints
+    auto tConval = aOptAlgGCMMA->mProblem->get_constraints().data();
+    std::copy(tConval, tConval + aOptAlgGCMMA->mProblem->get_num_constraints(), aConval );
 }
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -210,43 +196,28 @@ void opt_alg_gcmma_grad_wrap(
         double**     aD_Con,
         int*         aActive )
 {
-    // Barrier to wait for all procs
-    barrier("grad");
+    // Update the vector of active constraints flag
+    aOptAlgGCMMA->mActive = Matrix< DDSMat >  (*aActive, aOptAlgGCMMA->mProblem->get_num_constraints(), 1 );
 
-    Matrix<DDRMat> tADVs(0, 0);
-    if (par_rank() == 0)
+    // Set an update for the gradients
+    aOptAlgGCMMA->mProblem->mUpdateObjectiveGradients = true;
+    aOptAlgGCMMA->mProblem->mUpdateConstraintGradients = true;
+
+    // copy objective gradient
+    auto tD_Obj = aOptAlgGCMMA->mProblem->get_objective_gradients().data();
+    std::copy( tD_Obj, tD_Obj + aOptAlgGCMMA->mProblem->get_num_advs(), aD_Obj );
+
+    // Get the constraint gradient as a MORIS Matrix
+    Matrix<DDRMat> tD_Con = aOptAlgGCMMA->mProblem->get_constraint_gradients();
+
+    // Assign to array
+    for (moris::uint i = 0; i < aOptAlgGCMMA->mProblem->get_num_constraints(); ++i )
     {
-        // Update the vector of active constraints flag
-        aOptAlgGCMMA->mActive = Matrix< DDSMat >  (*aActive, aOptAlgGCMMA->mProblem->get_num_constraints(), 1 );
-
-        // Update the ADV matrix
-        tADVs = Matrix<DDRMat>(aAdv, aOptAlgGCMMA->mProblem->get_num_advs(), 1);
-    }
-
-    aOptAlgGCMMA->mProblem->set_advs(tADVs);
-
-    if (par_rank() == 0)
-    {
-        // Set an update for the gradients
-        aOptAlgGCMMA->mProblem->mUpdateObjectiveGradients = true;
-        aOptAlgGCMMA->mProblem->mUpdateConstraintGradients = true;
-
-        // Get the objective gradient
-        auto tD_Obj = aOptAlgGCMMA->mProblem->get_objective_gradients().data();
-        std::copy( tD_Obj, tD_Obj + aOptAlgGCMMA->mProblem->get_num_advs(), aD_Obj );
-
-        // Get the constraint gradient as a MORIS Matrix
-        Matrix<DDRMat> tD_Con = aOptAlgGCMMA->mProblem->get_constraint_gradients();
-
-        // Assign to array
-        for (moris::uint i = 0; i < aOptAlgGCMMA->mProblem->get_num_constraints(); ++i )
+        // loop over number of constraints
+        for ( moris::uint j = 0; j < aOptAlgGCMMA->mProblem->get_num_advs(); ++j )
         {
-            // loop over number of constraints
-            for ( moris::uint j = 0; j < aOptAlgGCMMA->mProblem->get_num_advs(); ++j )
-            {
-                // Copy data from the matrix to pointer aD_Con
-                aD_Con[i][j] = tD_Con(i, j);
-            }
+            // Copy data from the matrix to pointer aD_Con
+            aD_Con[i][j] = tD_Con(i, j);
         }
     }
 }

@@ -6,6 +6,8 @@
 #include "cl_Param_List.hpp"
 #include "cl_OPT_Problem.hpp"
 
+using namespace moris;
+
 class OptAlgGCMMA : public moris::opt::Algorithm
 {
 
@@ -64,6 +66,13 @@ public:
      *            data regarding ADVs, the objective and constraints
      */
     void solve( std::shared_ptr<moris::opt::Problem> aOptProb );
+
+    /**
+     * Sets the new ADVs to the problem and performs a new forward and sensitivity criteria solve in parallel.
+     *
+     * @param aADVs ADVs, empty if not on proc 0
+     */
+    void criteria_solve(Matrix<DDRMat> aADVs = {{}});
 
     /**
      * Communicates proc 0's running status to other procs so they know when to end.

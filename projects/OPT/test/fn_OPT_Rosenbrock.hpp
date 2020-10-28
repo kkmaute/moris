@@ -72,6 +72,7 @@ namespace moris
 
         Matrix<DDRMat> get_criteria_rosenbrock_1(const Matrix<DDRMat>& aADVs)
         {
+            barrier("criteria");
             Matrix<DDRMat> tCriteria(2, 1);
             if (par_rank() == 0)
             {
@@ -85,6 +86,7 @@ namespace moris
 
         Matrix<DDRMat> get_dcriteria_dadv_rosenbrock(const Matrix<DDRMat>& aADVs)
         {
+            barrier("dcriteria");
             Matrix<DDRMat> tDCriteria(2, 2, 0.0);
             tDCriteria(0, 0) = -1;
             tDCriteria(0, 1) = 0;
