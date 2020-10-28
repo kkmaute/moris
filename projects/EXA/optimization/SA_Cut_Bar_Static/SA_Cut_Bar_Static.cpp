@@ -282,7 +282,6 @@ namespace moris
         tParameterlist( 1 ).push_back( prm::create_geometry_parameter_list() );
         tParameterlist( 1 )( tGeoCounter ).set( "type", "plane");
         tParameterlist( 1 )( tGeoCounter ).set( "constant_parameters", "-1.0, 0.0, 1.0, 0.0");
-        tParameterlist( 1 )( tGeoCounter ).set( "multigeometry_id", "boundary");
         tGeoCounter++;
 
         tParameterlist( 1 ).push_back( prm::create_geometry_parameter_list() );
@@ -561,23 +560,23 @@ namespace moris
         {
             // Fin Ghost
             tParameterList( 3 ).push_back( prm::create_IWG_parameter_list() );
-            tParameterList( 3 )( tIWGCounter ).set( "IWG_name",                   std::string("IWGFinGhost") );
+            tParameterList( 3 )( tIWGCounter ).set( "IWG_name",                   "IWGFinGhost" );
             tParameterList( 3 )( tIWGCounter ).set( "IWG_type",                   static_cast< uint >( fem::IWG_Type::GHOST_NORMAL_FIELD ) );
-            tParameterList( 3 )( tIWGCounter ).set( "dof_residual",               std::string("TEMP") );
-            tParameterList( 3 )( tIWGCounter ).set( "master_dof_dependencies",    std::string("TEMP") );
-            tParameterList( 3 )( tIWGCounter ).set( "slave_dof_dependencies",     std::string("TEMP") );
-            tParameterList( 3 )( tIWGCounter ).set( "stabilization_parameters",   std::string("SPGPTempFin,GhostSP") );
+            tParameterList( 3 )( tIWGCounter ).set( "dof_residual",               "TEMP" );
+            tParameterList( 3 )( tIWGCounter ).set( "master_dof_dependencies",    "TEMP" );
+            tParameterList( 3 )( tIWGCounter ).set( "slave_dof_dependencies",     "TEMP" );
+            tParameterList( 3 )( tIWGCounter ).set( "stabilization_parameters",   "SPGPTempFin,GhostSP" );
             tParameterList( 3 )( tIWGCounter ).set( "mesh_set_names",             tFinGhost );
             tIWGCounter++;
 
             // PCM Ghost
             tParameterList( 3 ).push_back( prm::create_IWG_parameter_list() );
-            tParameterList( 3 )( tIWGCounter ).set( "IWG_name",                   std::string("IWGPcmGhost") );
+            tParameterList( 3 )( tIWGCounter ).set( "IWG_name",                   "IWGPcmGhost" );
             tParameterList( 3 )( tIWGCounter ).set( "IWG_type",                   static_cast< uint >( fem::IWG_Type::GHOST_NORMAL_FIELD ) );
-            tParameterList( 3 )( tIWGCounter ).set( "dof_residual",               std::string("TEMP") );
-            tParameterList( 3 )( tIWGCounter ).set( "master_dof_dependencies",    std::string("TEMP") );
-            tParameterList( 3 )( tIWGCounter ).set( "slave_dof_dependencies",     std::string("TEMP") );
-            tParameterList( 3 )( tIWGCounter ).set( "stabilization_parameters",   std::string("SPGPTempPcm,GhostSP") );
+            tParameterList( 3 )( tIWGCounter ).set( "dof_residual",               "TEMP" );
+            tParameterList( 3 )( tIWGCounter ).set( "master_dof_dependencies",    "TEMP" );
+            tParameterList( 3 )( tIWGCounter ).set( "slave_dof_dependencies",     "TEMP" );
+            tParameterList( 3 )( tIWGCounter ).set( "stabilization_parameters",   "SPGPTempPcm,GhostSP" );
             tParameterList( 3 )( tIWGCounter ).set( "mesh_set_names",             tPcmGhost );
             tIWGCounter++;
         }

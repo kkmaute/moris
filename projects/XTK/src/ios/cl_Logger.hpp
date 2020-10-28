@@ -53,7 +53,7 @@
 //
 //    logging::add_common_attributes();
 //
-//    std::string time_stamp_suffix = std::string(".%Y-%m-%d_%H:%M:%S");
+//    std::string time_stamp_suffix = ".%Y-%m-%d_%H:%M:%S";
 //
 //    std::string tFileName = "log/XTK_LOG"+time_stamp_suffix+"."+std::to_string(tProcRank)+".log";
 //

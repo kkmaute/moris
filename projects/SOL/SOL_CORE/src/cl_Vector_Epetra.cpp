@@ -74,7 +74,7 @@ void Vector_Epetra::sum_into_global_values(
 
 //----------------------------------------------------------------------------------------------
 
-void Vector_Epetra::vector_global_asembly()
+void Vector_Epetra::vector_global_assembly()
 {
     // Gather any overlapping/shared data into the non-overlapping partitioning defined by the Map.
     reinterpret_cast< Epetra_FEVector* >( mEpetraVector )->GlobalAssemble();

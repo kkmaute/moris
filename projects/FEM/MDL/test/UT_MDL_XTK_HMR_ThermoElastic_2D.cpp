@@ -161,9 +161,9 @@ namespace moris
             ParameterList tParameters = prm::create_hmr_parameter_list();
 
             tParameters.set( "number_of_elements_per_dimension", std::string( "2, 1"));
-            tParameters.set( "domain_dimensions", std::string("2, 2") );
-            tParameters.set( "domain_offset", std::string("-1.0, -1.0") );
-            tParameters.set( "domain_sidesets", std::string("1,2,3,4") );
+            tParameters.set( "domain_dimensions", "2, 2" );
+            tParameters.set( "domain_offset", "-1.0, -1.0" );
+            tParameters.set( "domain_sidesets", "1,2,3,4" );
             tParameters.set( "lagrange_output_meshes",std::string( "0") );
 
             tParameters.set( "lagrange_orders", std::string("1" ));
@@ -171,7 +171,7 @@ namespace moris
             tParameters.set( "bspline_orders", std::string("1" ));
             tParameters.set( "bspline_pattern", std::string("0" ));
 
-            tParameters.set( "lagrange_to_bspline", std::string("0") );
+            tParameters.set( "lagrange_to_bspline", "0" );
 
             tParameters.set( "truncate_bsplines", 1 );
             tParameters.set( "refinement_buffer", 3 );
@@ -443,11 +443,11 @@ namespace moris
             tParameterlist( 1 )(0) = moris::prm::create_linear_solver_parameter_list();
             tParameterlist( 2 )(0) = moris::prm::create_nonlinear_algorithm_parameter_list();
             tParameterlist( 3 )(0) = moris::prm::create_nonlinear_solver_parameter_list();
-            tParameterlist( 3 )(0).set("NLA_DofTypes"      , std::string("UX,UY;TEMP") );
+            tParameterlist( 3 )(0).set("NLA_DofTypes"      , "UX,UY;TEMP" );
 
             tParameterlist( 4 )(0) = moris::prm::create_time_solver_algorithm_parameter_list();
             tParameterlist( 5 )(0) = moris::prm::create_time_solver_parameter_list();
-            tParameterlist( 5 )(0).set("TSA_DofTypes"      , std::string("UX,UY;TEMP") );
+            tParameterlist( 5 )(0).set("TSA_DofTypes"      , "UX,UY;TEMP" );
 
             tParameterlist( 6 )(0) = moris::prm::create_solver_warehouse_parameterlist();
 
@@ -531,9 +531,9 @@ namespace moris
     //        ParameterList tParameters = prm::create_hmr_parameter_list();
     //
     //        tParameters.set( "number_of_elements_per_dimension", std::string( "2, 1"));
-    //        tParameters.set( "domain_dimensions", std::string("2, 2") );
-    //        tParameters.set( "domain_offset", std::string("-1.0, -1.0") );
-    //        tParameters.set( "domain_sidesets", std::string("1,2,3,4") );
+    //        tParameters.set( "domain_dimensions", "2, 2" );
+    //        tParameters.set( "domain_offset", "-1.0, -1.0" );
+    //        tParameters.set( "domain_sidesets", "1,2,3,4" );
     //        tParameters.set( "lagrange_output_meshes",std::string( "0") );
     //
     //        tParameters.set( "lagrange_orders", std::string("1" ));
@@ -541,7 +541,7 @@ namespace moris
     //        tParameters.set( "bspline_orders", std::string("1" ));
     //        tParameters.set( "bspline_pattern", std::string("0" ));
     //
-    //        tParameters.set( "lagrange_to_bspline", std::string("0") );
+    //        tParameters.set( "lagrange_to_bspline", "0" );
     //
     //        tParameters.set( "truncate_bsplines", 1 );
     //        tParameters.set( "refinement_buffer", 3 );
@@ -630,18 +630,18 @@ namespace moris
 
             ParameterList tParameters = prm::create_hmr_parameter_list();
 
-            tParameters.set( "number_of_elements_per_dimension", std::string("2, 1"));
-            tParameters.set( "domain_dimensions", std::string("2, 2") );
-            tParameters.set( "domain_offset", std::string("-1.0, -1.0") );
-            tParameters.set( "domain_sidesets", std::string("1,2,3,4") );
-            tParameters.set( "lagrange_output_meshes", std::string("0") );
+            tParameters.set( "number_of_elements_per_dimension", "2, 1");
+            tParameters.set( "domain_dimensions", "2, 2" );
+            tParameters.set( "domain_offset", "-1.0, -1.0" );
+            tParameters.set( "domain_sidesets", "1,2,3,4" );
+            tParameters.set( "lagrange_output_meshes", "0" );
 
-            tParameters.set( "lagrange_orders", std::string("1") );
-            tParameters.set( "lagrange_pattern", std::string("0") );
-            tParameters.set( "bspline_orders", std::string("1") );
-            tParameters.set( "bspline_pattern", std::string("0") );
+            tParameters.set( "lagrange_orders", "1" );
+            tParameters.set( "lagrange_pattern", "0" );
+            tParameters.set( "bspline_orders", "1" );
+            tParameters.set( "bspline_pattern", "0" );
 
-            tParameters.set( "lagrange_to_bspline", std::string("0") );
+            tParameters.set( "lagrange_to_bspline", "0" );
 
             tParameters.set( "truncate_bsplines", 1 );
             tParameters.set( "refinement_buffer", 3 );
@@ -902,45 +902,45 @@ namespace moris
 
             tParameterlist( 0 ).resize( 1 );
             tParameterlist( 0 )( 0 ) = moris::prm::create_linear_algorithm_parameter_list( sol::SolverType::AZTEC_IMPL );
-            tParameterlist( 0 )( 0 )("AZ_diagnostics")     = AZ_none;
-            tParameterlist( 0 )( 0 )("AZ_output")          = AZ_none;
-            tParameterlist( 0 )( 0 )("AZ_max_iter")        = 10000;
-            tParameterlist( 0 )( 0 )("AZ_solver")          = AZ_gmres;
-            tParameterlist( 0 )( 0 )("AZ_subdomain_solve") = AZ_ilu;
-            tParameterlist( 0 )( 0 )("AZ_graph_fill")      = 10;
-            tParameterlist( 0 )( 0 )("Use_ML_Prec")        = true;
+            tParameterlist( 0 )( 0 ).set("AZ_diagnostics", AZ_none);
+            tParameterlist( 0 )( 0 ).set("AZ_output", AZ_none);
+            tParameterlist( 0 )( 0 ).set("AZ_max_iter", 10000);
+            tParameterlist( 0 )( 0 ).set("AZ_solver", AZ_gmres);
+            tParameterlist( 0 )( 0 ).set("AZ_subdomain_solve", AZ_ilu);
+            tParameterlist( 0 )( 0 ).set("AZ_graph_fill", 10);
+            tParameterlist( 0 )( 0 ).set("Use_ML_Prec", true);
 
             tParameterlist( 1 ).resize( 1 );
             tParameterlist( 1 )( 0 ) = moris::prm::create_linear_solver_parameter_list();
 
             tParameterlist( 2 ).resize( 2 );
             tParameterlist( 2 )( 0 ) = moris::prm::create_nonlinear_algorithm_parameter_list();
-            tParameterlist( 2 )( 0 )("NLA_Solver_Implementation") = static_cast< uint >( moris::NLA::NonlinearSolverType::NEWTON_SOLVER );
+            tParameterlist( 2 )( 0 ).set("NLA_Solver_Implementation", static_cast< uint >( moris::NLA::NonlinearSolverType::NEWTON_SOLVER ));
             tParameterlist( 2 )( 0 ).set("NLA_combined_res_jac_assembly", false );
             tParameterlist( 2 )( 1 ) = moris::prm::create_nonlinear_algorithm_parameter_list();
-            tParameterlist( 2 )( 1 )("NLA_Solver_Implementation") = static_cast< uint >( moris::NLA::NonlinearSolverType::NLBGS_SOLVER );
+            tParameterlist( 2 )( 1 ).set("NLA_Solver_Implementation", static_cast< uint >( moris::NLA::NonlinearSolverType::NLBGS_SOLVER ));
             tParameterlist( 2 )( 1 ).set("NLA_combined_res_jac_assembly", false );
 
             tParameterlist( 3 ).resize( 3 );
             tParameterlist( 3 )( 0 ) = moris::prm::create_nonlinear_solver_parameter_list();
-            tParameterlist( 3 )( 0 )("NLA_Solver_Implementation") = static_cast< uint >( moris::NLA::NonlinearSolverType::NEWTON_SOLVER );
-            tParameterlist( 3 )( 0 )("NLA_DofTypes") = std::string("UX,UY");
+            tParameterlist( 3 )( 0 ).set("NLA_Solver_Implementation", static_cast< uint >( moris::NLA::NonlinearSolverType::NEWTON_SOLVER ));
+            tParameterlist( 3 )( 0 ).set("NLA_DofTypes", "UX,UY");
             tParameterlist( 3 )( 1 ) = moris::prm::create_nonlinear_solver_parameter_list();
-            tParameterlist( 3 )( 1 )("NLA_Solver_Implementation") = static_cast< uint >( moris::NLA::NonlinearSolverType::NEWTON_SOLVER );
-            tParameterlist( 3 )( 1 )("NLA_DofTypes") = std::string("TEMP");
+            tParameterlist( 3 )( 1 ).set("NLA_Solver_Implementation", static_cast< uint >( moris::NLA::NonlinearSolverType::NEWTON_SOLVER ));
+            tParameterlist( 3 )( 1 ).set("NLA_DofTypes", "TEMP");
             tParameterlist( 3 )( 2 ) = moris::prm::create_nonlinear_solver_parameter_list();
-            tParameterlist( 3 )( 2 )("NLA_Solver_Implementation") = static_cast< uint >( moris::NLA::NonlinearSolverType::NLBGS_SOLVER );
-            tParameterlist( 3 )( 2 )("NLA_Sub_Nonlinear_Solver") = std::string("1,0");
-            tParameterlist( 3 )( 2 )("NLA_DofTypes") = std::string("UX,UY;TEMP");
-            tParameterlist( 3 )( 2 )("NLA_Nonlinear_solver_algorithms") = std::string("1");
+            tParameterlist( 3 )( 2 ).set("NLA_Solver_Implementation", static_cast< uint >( moris::NLA::NonlinearSolverType::NLBGS_SOLVER ));
+            tParameterlist( 3 )( 2 ).set("NLA_Sub_Nonlinear_Solver", "1,0");
+            tParameterlist( 3 )( 2 ).set("NLA_DofTypes", "UX,UY;TEMP");
+            tParameterlist( 3 )( 2 ).set("NLA_Nonlinear_solver_algorithms", "1");
 
             tParameterlist( 4 ).resize( 1 );
             tParameterlist( 4 )( 0 ) = moris::prm::create_time_solver_algorithm_parameter_list();
-            tParameterlist( 4 )( 0 )("TSA_Nonlinear_solver") = 2;
+            tParameterlist( 4 )( 0 ).set("TSA_Nonlinear_solver", 2);
 
             tParameterlist( 5 ).resize( 1 );
             tParameterlist( 5 )( 0 ) = moris::prm::create_time_solver_parameter_list();
-            tParameterlist( 5 )( 0 )("TSA_DofTypes") = std::string("UX,UY;TEMP");
+            tParameterlist( 5 )( 0 ).set("TSA_DofTypes", "UX,UY;TEMP");
 
             tParameterlist( 6 ).resize( 1 );
             tParameterlist( 6 )(0) = moris::prm::create_solver_warehouse_parameterlist();

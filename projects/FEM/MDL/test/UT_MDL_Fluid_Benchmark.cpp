@@ -170,15 +170,15 @@ namespace moris
             tParameters.set( "number_of_elements_per_dimension", std::to_string(tNumX) + "," + std::to_string(tNumY));
             tParameters.set( "domain_dimensions", std::to_string(tDomainLX) + "," + std::to_string(tDomainLY) );
             tParameters.set( "domain_offset", std::to_string(-tDomainLX/2+tCenterPoint(0)) + "," + std::to_string(-tDomainLY/2+tCenterPoint(1)) );
-            tParameters.set( "domain_sidesets", std::string("1,2,3,4") );
-            tParameters.set( "lagrange_output_meshes", std::string("0") );
+            tParameters.set( "domain_sidesets", "1,2,3,4" );
+            tParameters.set( "lagrange_output_meshes", "0" );
 
-            tParameters.set( "lagrange_orders", std::string("1") );
-            tParameters.set( "lagrange_pattern", std::string("0") );
-            tParameters.set( "bspline_orders", std::string("1") );
-            tParameters.set( "bspline_pattern", std::string("0") );
+            tParameters.set( "lagrange_orders", "1" );
+            tParameters.set( "lagrange_pattern", "0" );
+            tParameters.set( "bspline_orders", "1" );
+            tParameters.set( "bspline_pattern", "0" );
 
-            tParameters.set( "lagrange_to_bspline", std::string("0") );
+            tParameters.set( "lagrange_to_bspline", "0" );
 
             tParameters.set( "truncate_bsplines", 1 );
             tParameters.set( "refinement_buffer", 3 );
@@ -474,13 +474,13 @@ namespace moris
             tSOLParameterlist( 2 )( 0 ) = moris::prm::create_nonlinear_algorithm_parameter_list();
 
             tSOLParameterlist( 3 )( 0 ) = moris::prm::create_nonlinear_solver_parameter_list();
-            tSOLParameterlist( 3 )( 0 ).set("NLA_DofTypes", std::string("VX,VY;P") );
+            tSOLParameterlist( 3 )( 0 ).set("NLA_DofTypes", "VX,VY;P" );
 
             tSOLParameterlist( 4 )( 0 ) = moris::prm::create_time_solver_algorithm_parameter_list();
 
             tSOLParameterlist( 5 )( 0 ) = moris::prm::create_time_solver_parameter_list();
-            tSOLParameterlist( 5 )( 0 ).set("TSA_DofTypes", std::string("VX,VY;P") );
-            tSOLParameterlist( 5 )( 0 ).set("TSA_Initialize_Sol_Vec" , std::string("VX,1E-4;VY,1E-4;P,0.0") );
+            tSOLParameterlist( 5 )( 0 ).set("TSA_DofTypes", "VX,VY;P" );
+            tSOLParameterlist( 5 )( 0 ).set("TSA_Initialize_Sol_Vec" , "VX,1E-4;VY,1E-4;P,0.0" );
 
             tSOLParameterlist( 6 )( 0 ) = moris::prm::create_solver_warehouse_parameterlist();
 
@@ -537,15 +537,15 @@ namespace moris
             tParameters.set( "number_of_elements_per_dimension", std::to_string(tNumX) + "," + std::to_string(tNumY));
             tParameters.set( "domain_dimensions", std::to_string(tDomainLX) + "," + std::to_string(tDomainLY) );
             tParameters.set( "domain_offset", std::to_string(-tDomainLX/2+tCenterPoint(0)) + "," + std::to_string(-tDomainLY/2+tCenterPoint(1)) );
-            tParameters.set( "domain_sidesets", std::string("1,2,3,4") );
-            tParameters.set( "lagrange_output_meshes", std::string("0") );
+            tParameters.set( "domain_sidesets", "1,2,3,4" );
+            tParameters.set( "lagrange_output_meshes", "0" );
 
-            tParameters.set( "lagrange_orders", std::string("1") );
-            tParameters.set( "lagrange_pattern", std::string("0") );
-            tParameters.set( "bspline_orders", std::string("1") );
-            tParameters.set( "bspline_pattern", std::string("0") );
+            tParameters.set( "lagrange_orders", "1" );
+            tParameters.set( "lagrange_pattern", "0" );
+            tParameters.set( "bspline_orders", "1" );
+            tParameters.set( "bspline_pattern", "0" );
 
-            tParameters.set( "lagrange_to_bspline", std::string("0") );
+            tParameters.set( "lagrange_to_bspline", "0" );
 
             tParameters.set( "truncate_bsplines", 1 );
             tParameters.set( "refinement_buffer", 3 );
@@ -832,13 +832,13 @@ namespace moris
             tSOLParameterlist( 2 )( 0 ) = moris::prm::create_nonlinear_algorithm_parameter_list();
 
             tSOLParameterlist( 3 )( 0 ) = moris::prm::create_nonlinear_solver_parameter_list();
-            tSOLParameterlist( 3 )( 0 ).set("NLA_DofTypes", std::string("VX,VY;P") );
+            tSOLParameterlist( 3 )( 0 ).set("NLA_DofTypes", "VX,VY;P" );
 
             tSOLParameterlist( 4 )( 0 ) = moris::prm::create_time_solver_algorithm_parameter_list();
 
             tSOLParameterlist( 5 )( 0 ) = moris::prm::create_time_solver_parameter_list();
-            tSOLParameterlist( 5 )( 0 ).set("TSA_DofTypes", std::string("VX,VY;P") );
-            tSOLParameterlist( 5 )( 0 ).set( "TSA_Initialize_Sol_Vec" , std::string("VX,1E-4;VY,1E-4;P,0.0") );
+            tSOLParameterlist( 5 )( 0 ).set("TSA_DofTypes", "VX,VY;P" );
+            tSOLParameterlist( 5 )( 0 ).set( "TSA_Initialize_Sol_Vec" , "VX,1E-4;VY,1E-4;P,0.0" );
 
             tSOLParameterlist( 6 )( 0 ) = moris::prm::create_solver_warehouse_parameterlist();
 
@@ -903,15 +903,15 @@ namespace moris
     //        tParameters.set( "number_of_elements_per_dimension", std::to_string(tNumX) + "," + std::to_string(tNumY) + "," + std::to_string(tNumZ));
     //        tParameters.set( "domain_dimensions", std::to_string(tDomainLX) + "," + std::to_string(tDomainLY) + "," + std::to_string(tDomainLZ) );
     //        tParameters.set( "domain_offset", std::to_string(-tDomainLX/2+tCenterPoint(0)) + "," + std::to_string(-tDomainLY/2+tCenterPoint(1)) + "," + std::to_string(-tDomainLZ/2+tCenterPoint(2)) );
-    //        tParameters.set( "domain_sidesets", std::string("1,2,3,4,5,6") );
-    //        tParameters.set( "lagrange_output_meshes", std::string("0") );
+    //        tParameters.set( "domain_sidesets", "1,2,3,4,5,6" );
+    //        tParameters.set( "lagrange_output_meshes", "0" );
     //
-    //        tParameters.set( "lagrange_orders", std::string("1") );
-    //        tParameters.set( "lagrange_pattern", std::string("0") );
-    //        tParameters.set( "bspline_orders", std::string("1") );
-    //        tParameters.set( "bspline_pattern", std::string("0") );
+    //        tParameters.set( "lagrange_orders", "1" );
+    //        tParameters.set( "lagrange_pattern", "0" );
+    //        tParameters.set( "bspline_orders", "1" );
+    //        tParameters.set( "bspline_pattern", "0" );
     //
-    //        tParameters.set( "lagrange_to_bspline", std::string("0") );
+    //        tParameters.set( "lagrange_to_bspline", "0" );
     //
     //        tParameters.set( "truncate_bsplines", 1 );
     //        tParameters.set( "refinement_buffer", 3 );
@@ -1272,13 +1272,13 @@ namespace moris
     //        tSOLParameterlist( 2 )( 0 ) = moris::prm::create_nonlinear_algorithm_parameter_list();
     //
     //        tSOLParameterlist( 3 )( 0 ) = moris::prm::create_nonlinear_solver_parameter_list();
-    //        tSOLParameterlist( 3 )( 0 ).set("NLA_DofTypes", std::string("VX,VY,VZ;P") );
+    //        tSOLParameterlist( 3 )( 0 ).set("NLA_DofTypes", "VX,VY,VZ;P" );
     //
     //        tSOLParameterlist( 4 )( 0 ) = moris::prm::create_time_solver_algorithm_parameter_list();
     //
     //        tSOLParameterlist( 5 )( 0 ) = moris::prm::create_time_solver_parameter_list();
-    //        tSOLParameterlist( 5 )( 0 ).set("TSA_DofTypes", std::string("VX,VY,VZ;P") );
-    //        tSOLParameterlist( 5 )( 0 ).set( "TSA_Initialize_Sol_Vec" , std::string("VX,1E-4;VY,1E-4;VZ,1E-4;P,0.0") );
+    //        tSOLParameterlist( 5 )( 0 ).set("TSA_DofTypes", "VX,VY,VZ;P" );
+    //        tSOLParameterlist( 5 )( 0 ).set( "TSA_Initialize_Sol_Vec" , "VX,1E-4;VY,1E-4;VZ,1E-4;P,0.0" );
     //
     //        tSOLParameterlist( 6 )( 0 ) = moris::prm::create_solver_warehouse_parameterlist();
     //
@@ -1329,15 +1329,15 @@ namespace moris
     //        tParameters.set( "number_of_elements_per_dimension", std::to_string(tNumX) + "," + std::to_string(tNumY));
     //        tParameters.set( "domain_dimensions", std::to_string(tDomainLX) + "," + std::to_string(tDomainLY) );
     //        tParameters.set( "domain_offset", std::to_string(-tDomainLX/2) + "," + std::to_string(-tDomainLY/2) );
-    //        tParameters.set( "domain_sidesets", std::string("1,2,3,4") );
-    //        tParameters.set( "lagrange_output_meshes", std::string("0") );
+    //        tParameters.set( "domain_sidesets", "1,2,3,4" );
+    //        tParameters.set( "lagrange_output_meshes", "0" );
     //
-    //        tParameters.set( "lagrange_orders", std::string("1") );
-    //        tParameters.set( "lagrange_pattern", std::string("0") );
-    //        tParameters.set( "bspline_orders", std::string("1") );
-    //        tParameters.set( "bspline_pattern", std::string("0") );
+    //        tParameters.set( "lagrange_orders", "1" );
+    //        tParameters.set( "lagrange_pattern", "0" );
+    //        tParameters.set( "bspline_orders", "1" );
+    //        tParameters.set( "bspline_pattern", "0" );
     //
-    //        tParameters.set( "lagrange_to_bspline", std::string("0") );
+    //        tParameters.set( "lagrange_to_bspline", "0" );
     //
     //        tParameters.set( "truncate_bsplines", 1 );
     //        tParameters.set( "refinement_buffer", 3 );
@@ -1541,13 +1541,13 @@ namespace moris
     //        tSOLParameterlist( 2 )( 0 ) = moris::prm::create_nonlinear_algorithm_parameter_list();
     //
     //        tSOLParameterlist( 3 )( 0 ) = moris::prm::create_nonlinear_solver_parameter_list();
-    //        tSOLParameterlist( 3 )( 0 ).set("NLA_DofTypes", std::string("VX,VY;P") );
+    //        tSOLParameterlist( 3 )( 0 ).set("NLA_DofTypes", "VX,VY;P" );
     //
     //        tSOLParameterlist( 4 )( 0 ) = moris::prm::create_time_solver_algorithm_parameter_list();
     //
     //        tSOLParameterlist( 5 )( 0 ) = moris::prm::create_time_solver_parameter_list();
-    //        tSOLParameterlist( 5 )( 0 ).set("TSA_DofTypes", std::string("VX,VY;P") );
-    //        tSOLParameterlist( 5 )( 0 ).set( "TSA_Initialize_Sol_Vec" , std::string("VX,1E-4;VY,0.0;P,0.0") );
+    //        tSOLParameterlist( 5 )( 0 ).set("TSA_DofTypes", "VX,VY;P" );
+    //        tSOLParameterlist( 5 )( 0 ).set( "TSA_Initialize_Sol_Vec" , "VX,1E-4;VY,0.0;P,0.0" );
     //
     //        tSOLParameterlist( 6 )( 0 ) = moris::prm::create_solver_warehouse_parameterlist();
     //
@@ -1597,15 +1597,15 @@ namespace moris
     //        tParameters.set( "number_of_elements_per_dimension", std::to_string(tNumX) + "," + std::to_string(tNumY));
     //        tParameters.set( "domain_dimensions", std::to_string(tDomainLX) + "," + std::to_string(tDomainLY) );
     //        tParameters.set( "domain_offset", std::to_string(-tDomainLX/2) + "," + std::to_string(-tDomainLY/2) );
-    //        tParameters.set( "domain_sidesets", std::string("1,2,3,4") );
-    //        tParameters.set( "lagrange_output_meshes", std::string("0") );
+    //        tParameters.set( "domain_sidesets", "1,2,3,4" );
+    //        tParameters.set( "lagrange_output_meshes", "0" );
     //
-    //        tParameters.set( "lagrange_orders", std::string("1") );
-    //        tParameters.set( "lagrange_pattern", std::string("0") );
-    //        tParameters.set( "bspline_orders", std::string("1") );
-    //        tParameters.set( "bspline_pattern", std::string("0") );
+    //        tParameters.set( "lagrange_orders", "1" );
+    //        tParameters.set( "lagrange_pattern", "0" );
+    //        tParameters.set( "bspline_orders", "1" );
+    //        tParameters.set( "bspline_pattern", "0" );
     //
-    //        tParameters.set( "lagrange_to_bspline", std::string("0") );
+    //        tParameters.set( "lagrange_to_bspline", "0" );
     //
     //        tParameters.set( "truncate_bsplines", 1 );
     //        tParameters.set( "refinement_buffer", 3 );
@@ -1804,13 +1804,13 @@ namespace moris
     //        tSOLParameterlist( 2 )( 0 ) = moris::prm::create_nonlinear_algorithm_parameter_list();
     //
     //        tSOLParameterlist( 3 )( 0 ) = moris::prm::create_nonlinear_solver_parameter_list();
-    //        tSOLParameterlist( 3 )( 0 ).set("NLA_DofTypes", std::string("VX,VY;P") );
+    //        tSOLParameterlist( 3 )( 0 ).set("NLA_DofTypes", "VX,VY;P" );
     //
     //        tSOLParameterlist( 4 )( 0 ) = moris::prm::create_time_solver_algorithm_parameter_list();
     //
     //        tSOLParameterlist( 5 )( 0 ) = moris::prm::create_time_solver_parameter_list();
-    //        tSOLParameterlist( 5 )( 0 ).set("TSA_DofTypes", std::string("VX,VY;P") );
-    //        tSOLParameterlist( 5 )( 0 ).set( "TSA_Initialize_Sol_Vec" , std::string("VX,1E-4;VY,0.0;P,0.0") );
+    //        tSOLParameterlist( 5 )( 0 ).set("TSA_DofTypes", "VX,VY;P" );
+    //        tSOLParameterlist( 5 )( 0 ).set( "TSA_Initialize_Sol_Vec" , "VX,1E-4;VY,0.0;P,0.0" );
     //
     //        tSOLParameterlist( 6 )( 0 ) = moris::prm::create_solver_warehouse_parameterlist();
     //
@@ -1862,15 +1862,15 @@ namespace moris
     //        tParameters.set( "number_of_elements_per_dimension", std::to_string(tNumX) + "," + std::to_string(tNumY) + "," + std::to_string(tNumZ));
     //        tParameters.set( "domain_dimensions", std::to_string(tDomainLX) + "," + std::to_string(tDomainLY) + "," + std::to_string(tDomainLZ) );
     //        tParameters.set( "domain_offset", std::to_string(-tDomainLX/2) + "," + std::to_string(-tDomainLY/2) + "," + std::to_string(-tDomainLZ/2) );
-    //        tParameters.set( "domain_sidesets", std::string("1,2,3,4,5,6") );
-    //        tParameters.set( "lagrange_output_meshes", std::string("0") );
+    //        tParameters.set( "domain_sidesets", "1,2,3,4,5,6" );
+    //        tParameters.set( "lagrange_output_meshes", "0" );
     //
-    //        tParameters.set( "lagrange_orders", std::string("1") );
-    //        tParameters.set( "lagrange_pattern", std::string("0") );
-    //        tParameters.set( "bspline_orders", std::string("1") );
-    //        tParameters.set( "bspline_pattern", std::string("0") );
+    //        tParameters.set( "lagrange_orders", "1" );
+    //        tParameters.set( "lagrange_pattern", "0" );
+    //        tParameters.set( "bspline_orders", "1" );
+    //        tParameters.set( "bspline_pattern", "0" );
     //
-    //        tParameters.set( "lagrange_to_bspline", std::string("0") );
+    //        tParameters.set( "lagrange_to_bspline", "0" );
     //
     //        tParameters.set( "truncate_bsplines", 1 );
     //        tParameters.set( "refinement_buffer", 3 );
@@ -2098,13 +2098,13 @@ namespace moris
     //        tSOLParameterlist( 2 )( 0 ) = moris::prm::create_nonlinear_algorithm_parameter_list();
     //
     //        tSOLParameterlist( 3 )( 0 ) = moris::prm::create_nonlinear_solver_parameter_list();
-    //        tSOLParameterlist( 3 )( 0 ).set("NLA_DofTypes", std::string("VX,VY,VZ;P") );
+    //        tSOLParameterlist( 3 )( 0 ).set("NLA_DofTypes", "VX,VY,VZ;P" );
     //
     //        tSOLParameterlist( 4 )( 0 ) = moris::prm::create_time_solver_algorithm_parameter_list();
     //
     //        tSOLParameterlist( 5 )( 0 ) = moris::prm::create_time_solver_parameter_list();
-    //        tSOLParameterlist( 5 )( 0 ).set("TSA_DofTypes", std::string("VX,VY,VZ;P") );
-    //        tSOLParameterlist( 5 )( 0 ).set( "TSA_Initialize_Sol_Vec" , std::string("VX,1E-4;VY,0.0;VZ,0.0;P,0.0") );
+    //        tSOLParameterlist( 5 )( 0 ).set("TSA_DofTypes", "VX,VY,VZ;P" );
+    //        tSOLParameterlist( 5 )( 0 ).set( "TSA_Initialize_Sol_Vec" , "VX,1E-4;VY,0.0;VZ,0.0;P,0.0" );
     //
     //        tSOLParameterlist( 6 )( 0 ) = moris::prm::create_solver_warehouse_parameterlist();
     //
@@ -2231,15 +2231,15 @@ namespace moris
             tParameters.set( "number_of_elements_per_dimension", std::to_string(tNumX) + "," + std::to_string(tNumY));
             tParameters.set( "domain_dimensions", std::to_string(tDomainLX) + "," + std::to_string(tDomainLY) );
             tParameters.set( "domain_offset", std::to_string(-tDomainLX/2+tShift(0)) + "," + std::to_string(-tDomainLY/2+tShift(1)) );
-            tParameters.set( "domain_sidesets", std::string("1,2,3,4") );
-            tParameters.set( "lagrange_output_meshes", std::string("0") );
+            tParameters.set( "domain_sidesets", "1,2,3,4" );
+            tParameters.set( "lagrange_output_meshes", "0" );
 
-            tParameters.set( "lagrange_orders", std::string("1") );
-            tParameters.set( "lagrange_pattern", std::string("0") );
-            tParameters.set( "bspline_orders", std::string("1") );
-            tParameters.set( "bspline_pattern", std::string("0") );
+            tParameters.set( "lagrange_orders", "1" );
+            tParameters.set( "lagrange_pattern", "0" );
+            tParameters.set( "bspline_orders", "1" );
+            tParameters.set( "bspline_pattern", "0" );
 
-            tParameters.set( "lagrange_to_bspline", std::string("0") );
+            tParameters.set( "lagrange_to_bspline", "0" );
 
             tParameters.set( "truncate_bsplines", 1 );
             tParameters.set( "refinement_buffer", 3 );
@@ -2531,13 +2531,13 @@ namespace moris
             tSOLParameterlist( 2 )( 0 ) = moris::prm::create_nonlinear_algorithm_parameter_list();
 
             tSOLParameterlist( 3 )( 0 ) = moris::prm::create_nonlinear_solver_parameter_list();
-            tSOLParameterlist( 3 )( 0 ).set("NLA_DofTypes", std::string("VX,VY;P") );
+            tSOLParameterlist( 3 )( 0 ).set("NLA_DofTypes", "VX,VY;P" );
 
             tSOLParameterlist( 4 )( 0 ) = moris::prm::create_time_solver_algorithm_parameter_list();
 
             tSOLParameterlist( 5 )( 0 ) = moris::prm::create_time_solver_parameter_list();
-            tSOLParameterlist( 5 )( 0 ).set("TSA_DofTypes", std::string("VX,VY;P") );
-            tSOLParameterlist( 5 )( 0 ).set("TSA_Initialize_Sol_Vec" , std::string("VX,1E-4;VY,0.0;P,0.0") );
+            tSOLParameterlist( 5 )( 0 ).set("TSA_DofTypes", "VX,VY;P" );
+            tSOLParameterlist( 5 )( 0 ).set("TSA_Initialize_Sol_Vec" , "VX,1E-4;VY,0.0;P,0.0" );
 
             tSOLParameterlist( 6 )( 0 ) = moris::prm::create_solver_warehouse_parameterlist();
 

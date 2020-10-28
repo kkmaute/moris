@@ -121,18 +121,18 @@ TEST_CASE("Sensitivity test","[Sensitivity test]")
 
         ParameterList tParameters = prm::create_hmr_parameter_list();
 
-        tParameters.set( "number_of_elements_per_dimension", std::string("5,2") );
-        tParameters.set( "domain_dimensions", std::string("6,2") );
-        tParameters.set( "domain_offset", std::string("-3.0,-1.0") );
-        tParameters.set( "domain_sidesets", std::string("1,2,3,4") );
-        tParameters.set( "lagrange_output_meshes", std::string("0") );
+        tParameters.set( "number_of_elements_per_dimension", "5,2" );
+        tParameters.set( "domain_dimensions", "6,2" );
+        tParameters.set( "domain_offset", "-3.0,-1.0" );
+        tParameters.set( "domain_sidesets", "1,2,3,4" );
+        tParameters.set( "lagrange_output_meshes", "0" );
 
-        tParameters.set( "lagrange_orders", std::string("1") );
-        tParameters.set( "lagrange_pattern", std::string("0") );
-        tParameters.set( "bspline_orders", std::string("1") );
-        tParameters.set( "bspline_pattern", std::string("0") );
+        tParameters.set( "lagrange_orders", "1" );
+        tParameters.set( "lagrange_pattern", "0" );
+        tParameters.set( "bspline_orders", "1" );
+        tParameters.set( "bspline_pattern", "0" );
 
-        tParameters.set( "lagrange_to_bspline", std::string("0") );
+        tParameters.set( "lagrange_to_bspline", "0" );
 
         tParameters.set( "truncate_bsplines", 1 );
         tParameters.set( "refinement_buffer", 1 );
@@ -487,11 +487,11 @@ TEST_CASE("Sensitivity test","[Sensitivity test]")
         tParameterlist( 2 )(0) = moris::prm::create_nonlinear_algorithm_parameter_list();
         tParameterlist( 2 )(0).set( "NLA_max_iter", 2 );
         tParameterlist( 3 )(0) = moris::prm::create_nonlinear_solver_parameter_list();
-        tParameterlist( 3 )(0).set("NLA_DofTypes"      , std::string("TEMP") );
+        tParameterlist( 3 )(0).set("NLA_DofTypes"      , "TEMP" );
 
         tParameterlist( 4 )(0) = moris::prm::create_time_solver_algorithm_parameter_list();
         tParameterlist( 5 )(0) = moris::prm::create_time_solver_parameter_list();
-        tParameterlist( 5 )(0).set("TSA_DofTypes"      , std::string("TEMP") );
+        tParameterlist( 5 )(0).set("TSA_DofTypes"      , "TEMP" );
 
         tParameterlist( 6 )(0) = moris::prm::create_solver_warehouse_parameterlist();
 

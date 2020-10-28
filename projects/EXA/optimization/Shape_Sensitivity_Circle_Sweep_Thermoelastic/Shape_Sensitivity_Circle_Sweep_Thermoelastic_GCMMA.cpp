@@ -211,12 +211,10 @@ Matrix<DDRMat> compute_dconstraint_dcriteria(Matrix<DDRMat> aADVs, Matrix<DDRMat
         tParameterlist(0)(0) = moris::prm::create_opt_problem_parameter_list();
         tParameterlist(0)(0).set("is_optimization_problem", true);
         tParameterlist(0)(0).set("problem", "user_defined");
-        tParameterlist(0)(0).set("library", "./Shape_Sensitivity_Circle_Sweep_Thermoelastic_Staggered.so");
+        tParameterlist(0)(0).set("library", "./Shape_Sensitivity_Circle_Sweep_Thermoelastic_GCMMA.so");
 
-        tParameterlist(2)(0) = moris::prm::create_sweep_parameter_list();
-        tParameterlist(2)(0).set("hdf5_path", "shape_opt_test.hdf5");
-        tParameterlist(2)(0).set("num_evaluations_per_adv", "1");
-        tParameterlist(2)(0).set("finite_difference_type", "all");
+        tParameterlist(2)(0) = moris::prm::create_gcmma_parameter_list();
+        tParameterlist(2)(0).set("max_its", 2);
     }
 
     void HMRParameterList( moris::Cell< moris::Cell< ParameterList > > & tParameterlist )
@@ -277,8 +275,8 @@ Matrix<DDRMat> compute_dconstraint_dcriteria(Matrix<DDRMat> aADVs, Matrix<DDRMat
         tParameterlist( 0 ).resize(1);
         tParameterlist( 0 )( 0 ) = moris::prm::create_gen_parameter_list();
         tParameterlist( 0 )( 0 ).set("initial_advs"      , "3.0; 2.21; 1.4");
-        tParameterlist( 0 )( 0 ).set("lower_bounds"      , "3.0; 2.21; 1.4");
-        tParameterlist( 0 )( 0 ).set("upper_bounds"      , "3.0; 2.21; 1.4");
+        tParameterlist( 0 )( 0 ).set("lower_bounds"      , "2.0;  2.0; 1.0");
+        tParameterlist( 0 )( 0 ).set("upper_bounds"      , "4.0;  3.0; 2.0");
         tParameterlist( 0 )( 0 ).set("IQI_types"         , "IQIBulkStrainEnergyDISP,IQIBulkVolume");
 
         // Geometry parameter lists
@@ -518,6 +516,7 @@ Matrix<DDRMat> compute_dconstraint_dcriteria(Matrix<DDRMat> aADVs, Matrix<DDRMat
         tParameterList( 3 )( tIWGCounter ).set( "mesh_set_names",             tBackSurface );
         tIWGCounter++;
 
+
         if (tUseGhost)
         {
 //             create IWG for 2 material - ghost
@@ -531,6 +530,7 @@ Matrix<DDRMat> compute_dconstraint_dcriteria(Matrix<DDRMat> aADVs, Matrix<DDRMat
 //             tParameterList( 3 )( tIWGCounter ).set( "mesh_set_names",             tPhase1Ghost );
 //             tIWGCounter++;
         }
+
 
         //------------------------------------------------------------------------------
         // init IQI counter
@@ -558,7 +558,7 @@ Matrix<DDRMat> compute_dconstraint_dcriteria(Matrix<DDRMat> aADVs, Matrix<DDRMat
         tParameterList( 4 ).push_back( prm::create_IQI_parameter_list() );
         tParameterList( 4 )( tIQICounter ).set( "IQI_name",                   "IQIBulkStrainEnergyDISP");
         tParameterList( 4 )( tIQICounter ).set( "IQI_type",                    static_cast< uint >( fem::IQI_Type::STRAIN_ENERGY ) );
-        tParameterList( 4 )( tIQICounter ).set( "master_dof_dependencies",    "UX,UY;TEMP");
+        tParameterList( 4 )( tIQICounter ).set( "master_dof_dependencies",    "UX,UY");
         tParameterList( 4 )( tIQICounter ).set( "master_constitutive_models", "CMStrucLinIso1,Elast");
         tParameterList( 4 )( tIQICounter ).set( "mesh_set_names",             tPhase1);
         tIQICounter++;
@@ -566,7 +566,7 @@ Matrix<DDRMat> compute_dconstraint_dcriteria(Matrix<DDRMat> aADVs, Matrix<DDRMat
         tParameterList( 4 ).push_back( prm::create_IQI_parameter_list() );
         tParameterList( 4 )( tIQICounter ).set( "IQI_name",                   "IQIBulkVolume");
         tParameterList( 4 )( tIQICounter ).set( "IQI_type",                   static_cast< uint >( fem::IQI_Type::VOLUME ) );
-        tParameterList( 4 )( tIQICounter ).set( "master_dof_dependencies",    "UX,UY;TEMP");
+        tParameterList( 4 )( tIQICounter ).set( "master_dof_dependencies",    "TEMP");
         tParameterList( 4 )( tIQICounter ).set( "mesh_set_names",             tPhase1 );
         tIQICounter++;
 
@@ -581,6 +581,7 @@ Matrix<DDRMat> compute_dconstraint_dcriteria(Matrix<DDRMat> aADVs, Matrix<DDRMat
         tParameterList( 4 )( tIQICounter ).set( "mesh_set_names",             tPhase1 );
         tIQICounter++;
 
+
         //------------------------------------------------------------------------------
         // fill the computation part of the parameter list
         tParameterList( 5 ).resize( 1 );
@@ -590,48 +591,30 @@ Matrix<DDRMat> compute_dconstraint_dcriteria(Matrix<DDRMat> aADVs, Matrix<DDRMat
     void SOLParameterList( moris::Cell< moris::Cell< ParameterList > > & tParameterlist )
     {
         tParameterlist.resize( 7 );
-        for( uint Ik = 4; Ik < 7; Ik ++)
+        for( uint Ik = 0; Ik < 7; Ik ++)
         {
             tParameterlist( Ik ).resize( 1 );
         }
 
-        tParameterlist( 0 ).resize( 1 );
         tParameterlist( 0 )( 0 ) = moris::prm::create_linear_algorithm_parameter_list( sol::SolverType::AMESOS_IMPL );
 
-        tParameterlist( 1 ).resize( 1 );
         tParameterlist( 1 )( 0 ) = moris::prm::create_linear_solver_parameter_list();
 
-        tParameterlist( 2 ).resize( 2 );
         tParameterlist( 2 )( 0 ) = moris::prm::create_nonlinear_algorithm_parameter_list();
-        tParameterlist( 2 )( 0 ).set("NLA_Solver_Implementation", static_cast< uint >( moris::NLA::NonlinearSolverType::NEWTON_SOLVER ));
-        tParameterlist( 2 )( 0 ).set("NLA_combined_res_jac_assembly", false );
         tParameterlist( 2 )( 0 ).set("NLA_rel_res_norm_drop",    tNLA_rel_res_norm_drop );
         tParameterlist( 2 )( 0 ).set("NLA_relaxation_parameter", tNLA_relaxation_parameter  );
         tParameterlist( 2 )( 0 ).set("NLA_max_iter",             tNLA_max_iter );
-        tParameterlist( 2 )( 1 ) = moris::prm::create_nonlinear_algorithm_parameter_list();
-        tParameterlist( 2 )( 1 ).set("NLA_Solver_Implementation", static_cast< uint >( moris::NLA::NonlinearSolverType::NLBGS_SOLVER ));
+        tParameterlist( 2 )( 0 ).set("NLA_combined_res_jac_assembly", false );
 
-        tParameterlist( 3 ).resize( 3 );
         tParameterlist( 3 )( 0 ) = moris::prm::create_nonlinear_solver_parameter_list();
-        tParameterlist( 3 )( 0 ).set("NLA_Solver_Implementation", static_cast< uint >( moris::NLA::NonlinearSolverType::NEWTON_SOLVER ));
-        tParameterlist( 3 )( 0 ).set("NLA_DofTypes", "UX,UY");
-        tParameterlist( 3 )( 1 ) = moris::prm::create_nonlinear_solver_parameter_list();
-        tParameterlist( 3 )( 1 ).set("NLA_Solver_Implementation", static_cast< uint >( moris::NLA::NonlinearSolverType::NEWTON_SOLVER ));
-        tParameterlist( 3 )( 1 ).set("NLA_DofTypes", "TEMP");
-        tParameterlist( 3 )( 1 ).set("NLA_Secundary_DofTypes", "UX,UY");
-        tParameterlist( 3 )( 2 ) = moris::prm::create_nonlinear_solver_parameter_list();
-        tParameterlist( 3 )( 2 ).set("NLA_Solver_Implementation", static_cast< uint >( moris::NLA::NonlinearSolverType::NLBGS_SOLVER ));
-        tParameterlist( 3 )( 2 ).set("NLA_Sub_Nonlinear_Solver", "1,0");
-        tParameterlist( 3 )( 2 ).set("NLA_DofTypes", "UX,UY;TEMP");
-        tParameterlist( 3 )( 2 ).set("NLA_Nonlinear_solver_algorithms", "1");
+        tParameterlist( 3 )( 0 ).set("NLA_DofTypes"      , "UX,UY,TEMP");
 
         tParameterlist( 4 )( 0 ) = moris::prm::create_time_solver_algorithm_parameter_list();
         tParameterlist( 4 )( 0 ).set("TSA_Num_Time_Steps", tTSA_Num_Time_Steps );
         tParameterlist( 4 )( 0 ).set("TSA_Time_Frame",     tTSA_Time_Frame );
-        tParameterlist( 4 )( 0 ).set("TSA_Nonlinear_solver", 2);
 
         tParameterlist( 5 )( 0 ) = moris::prm::create_time_solver_parameter_list();
-        tParameterlist( 5 )( 0 ).set("TSA_DofTypes",           "UX,UY;TEMP");
+        tParameterlist( 5 )( 0 ).set("TSA_DofTypes",           "UX,UY,TEMP");
         tParameterlist( 5 )( 0 ).set("TSA_Initialize_Sol_Vec", "UX,0.0;UY,0.0;TEMP,0.0");
         tParameterlist( 5 )( 0 ).set("TSA_Output_Indices",     "0");
         tParameterlist( 5 )( 0 ).set("TSA_Output_Crteria",     "Output_Criterion");

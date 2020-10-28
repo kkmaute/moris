@@ -59,7 +59,7 @@ namespace moris
                 else
                 {
                     std::string tErrMsg =
-                            std::string("CM_Struc_Linear_Isotropic::set_dof_type_list - Unknown aDofString : ") +
+                            "CM_Struc_Linear_Isotropic::set_dof_type_list - Unknown aDofString : " +
                             tDofString;
                     MORIS_ERROR( false , tErrMsg.c_str() );
                 }

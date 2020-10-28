@@ -136,18 +136,18 @@ namespace moris
 
         tParameterlist( 0 )( 0 ) = prm::create_hmr_parameter_list();
 
-    tParameterlist( 0 )( 0 ).set( "number_of_elements_per_dimension",     std::string("32,32"));
-        tParameterlist( 0 )( 0 ).set( "domain_dimensions",                std::string("1,1"));
-        tParameterlist( 0 )( 0 ).set( "domain_offset",                    std::string("0,0") );
-        tParameterlist( 0 )( 0 ).set( "domain_sidesets",                  std::string("1,2,3,4"));
-        tParameterlist( 0 )( 0 ).set( "lagrange_output_meshes",           std::string("0"));
+    tParameterlist( 0 )( 0 ).set( "number_of_elements_per_dimension",     "32,32");
+        tParameterlist( 0 )( 0 ).set( "domain_dimensions",                "1,1");
+        tParameterlist( 0 )( 0 ).set( "domain_offset",                    "0,0" );
+        tParameterlist( 0 )( 0 ).set( "domain_sidesets",                  "1,2,3,4");
+        tParameterlist( 0 )( 0 ).set( "lagrange_output_meshes",           "0");
 
         tParameterlist( 0 )( 0 ).set( "lagrange_orders",  std::string( "1" ));
         tParameterlist( 0 )( 0 ).set( "lagrange_pattern", std::string( "0" ));
         tParameterlist( 0 )( 0 ).set( "bspline_orders",   std::string( "1" ));
         tParameterlist( 0 )( 0 ).set( "bspline_pattern",  std::string( "0" ));
 
-        tParameterlist( 0 )( 0 ).set( "lagrange_to_bspline", std::string("0") );
+        tParameterlist( 0 )( 0 ).set( "lagrange_to_bspline", "0" );
 
         tParameterlist( 0 )( 0 ).set( "truncate_bsplines",  1 );
         tParameterlist( 0 )( 0 ).set( "refinement_buffer",  2 );
@@ -170,10 +170,10 @@ namespace moris
 
         tParameterlist( 0 )( 0 ) = prm::create_xtk_parameter_list();
         tParameterlist( 0 )( 0 ).set( "decompose",                 true );
-        tParameterlist( 0 )( 0 ).set( "decomposition_type",        std::string("conformal") );
+        tParameterlist( 0 )( 0 ).set( "decomposition_type",        "conformal" );
         tParameterlist( 0 )( 0 ).set( "enrich",                    true );
-        tParameterlist( 0 )( 0 ).set( "basis_rank",                std::string("bspline") );
-        tParameterlist( 0 )( 0 ).set( "enrich_mesh_indices",       std::string("0") );
+        tParameterlist( 0 )( 0 ).set( "basis_rank",                "bspline" );
+        tParameterlist( 0 )( 0 ).set( "enrich_mesh_indices",       "0" );
         tParameterlist( 0 )( 0 ).set( "ghost_stab",                true );
         tParameterlist( 0 )( 0 ).set( "multigrid",                 false );
         tParameterlist( 0 )( 0 ).set( "verbose",                   true );
@@ -227,97 +227,97 @@ namespace moris
 
         tParameterList( 0 ).push_back( prm::create_property_parameter_list() );
         tParameterList( 0 )( tPropCounter ) = prm::create_property_parameter_list();
-        tParameterList( 0 )( tPropCounter ).set( "property_name",            std::string("PropDensity_Outer") );
-        tParameterList( 0 )( tPropCounter ).set( "function_parameters",      std::string("1.0") );
-        tParameterList( 0 )( tPropCounter ).set( "value_function",           std::string("Func_Const") );
+        tParameterList( 0 )( tPropCounter ).set( "property_name",            "PropDensity_Outer" );
+        tParameterList( 0 )( tPropCounter ).set( "function_parameters",      "1.0" );
+        tParameterList( 0 )( tPropCounter ).set( "value_function",           "Func_Const" );
         tPropCounter++;
 
         tParameterList( 0 ).push_back( prm::create_property_parameter_list() );
-        tParameterList( 0 )( tPropCounter ).set( "property_name",            std::string("PropHeatCapacity_Outer") );
-        tParameterList( 0 )( tPropCounter ).set( "function_parameters",      std::string("1.0") );
-        tParameterList( 0 )( tPropCounter ).set( "value_function",           std::string("Func_Const") );
+        tParameterList( 0 )( tPropCounter ).set( "property_name",            "PropHeatCapacity_Outer" );
+        tParameterList( 0 )( tPropCounter ).set( "function_parameters",      "1.0" );
+        tParameterList( 0 )( tPropCounter ).set( "value_function",           "Func_Const" );
         tPropCounter++;
 
         tParameterList( 0 ).push_back( prm::create_property_parameter_list() );
-        tParameterList( 0 )( tPropCounter ).set( "property_name",            std::string("PropConductivity_Outer") );
-        tParameterList( 0 )( tPropCounter ).set( "function_parameters",      std::string("0.01") );
-        tParameterList( 0 )( tPropCounter ).set( "value_function",           std::string("Func_Const") );
+        tParameterList( 0 )( tPropCounter ).set( "property_name",            "PropConductivity_Outer" );
+        tParameterList( 0 )( tPropCounter ).set( "function_parameters",      "0.01" );
+        tParameterList( 0 )( tPropCounter ).set( "value_function",           "Func_Const" );
         tPropCounter++;
 
         // create parameter list for inner circle
 
         tParameterList( 0 ).push_back( prm::create_property_parameter_list() );
         tParameterList( 0 )( tPropCounter ) = prm::create_property_parameter_list();
-        tParameterList( 0 )( tPropCounter ).set( "property_name",            std::string("PropDensity_Inner") );
-        tParameterList( 0 )( tPropCounter ).set( "function_parameters",      std::string("1.0") );
-        tParameterList( 0 )( tPropCounter ).set( "value_function",           std::string("Func_Const") );
+        tParameterList( 0 )( tPropCounter ).set( "property_name",            "PropDensity_Inner" );
+        tParameterList( 0 )( tPropCounter ).set( "function_parameters",      "1.0" );
+        tParameterList( 0 )( tPropCounter ).set( "value_function",           "Func_Const" );
         tPropCounter++;
 
         tParameterList( 0 ).push_back( prm::create_property_parameter_list() );
-        tParameterList( 0 )( tPropCounter ).set( "property_name",            std::string("PropHeatCapacity_Inner") );
-        tParameterList( 0 )( tPropCounter ).set( "function_parameters",      std::string("1.0") );
-        tParameterList( 0 )( tPropCounter ).set( "value_function",           std::string("Func_Const") );
+        tParameterList( 0 )( tPropCounter ).set( "property_name",            "PropHeatCapacity_Inner" );
+        tParameterList( 0 )( tPropCounter ).set( "function_parameters",      "1.0" );
+        tParameterList( 0 )( tPropCounter ).set( "value_function",           "Func_Const" );
         tPropCounter++;
 
 
         tParameterList( 0 ).push_back( prm::create_property_parameter_list() );
-        tParameterList( 0 )( tPropCounter ).set( "property_name",            std::string("PropConductivity_Inner") );
-        tParameterList( 0 )( tPropCounter ).set( "function_parameters",      std::string("0.01") );
-        tParameterList( 0 )( tPropCounter ).set( "value_function",           std::string("Func_Const") );
+        tParameterList( 0 )( tPropCounter ).set( "property_name",            "PropConductivity_Inner" );
+        tParameterList( 0 )( tPropCounter ).set( "function_parameters",      "0.01" );
+        tParameterList( 0 )( tPropCounter ).set( "value_function",           "Func_Const" );
         tPropCounter++;
 
         tParameterList( 0 ).push_back( prm::create_property_parameter_list() );
-        tParameterList( 0 )( tPropCounter ).set( "property_name",            std::string("PropLatentHeat_Inner") );
-        tParameterList( 0 )( tPropCounter ).set( "function_parameters",      std::string("250.0") );
-        tParameterList( 0 )( tPropCounter ).set( "value_function",           std::string("Func_Const") );
+        tParameterList( 0 )( tPropCounter ).set( "property_name",            "PropLatentHeat_Inner" );
+        tParameterList( 0 )( tPropCounter ).set( "function_parameters",      "250.0" );
+        tParameterList( 0 )( tPropCounter ).set( "value_function",           "Func_Const" );
         tPropCounter++;
 
         tParameterList( 0 ).push_back( prm::create_property_parameter_list() );
-        tParameterList( 0 )( tPropCounter ).set( "property_name",            std::string("PropPCTemp_Inner") );
-        tParameterList( 0 )( tPropCounter ).set( "function_parameters",      std::string("500.") );
-        tParameterList( 0 )( tPropCounter ).set( "value_function",           std::string("Func_Const") );
+        tParameterList( 0 )( tPropCounter ).set( "property_name",            "PropPCTemp_Inner" );
+        tParameterList( 0 )( tPropCounter ).set( "function_parameters",      "500." );
+        tParameterList( 0 )( tPropCounter ).set( "value_function",           "Func_Const" );
         tPropCounter++;
 
         tParameterList( 0 ).push_back( prm::create_property_parameter_list() );
-        tParameterList( 0 )( tPropCounter ).set( "property_name",            std::string("PropPhaseState_Inner") );
-        tParameterList( 0 )( tPropCounter ).set( "function_parameters",      std::string("2.0") );
-        tParameterList( 0 )( tPropCounter ).set( "value_function",           std::string("Func_Const") );
+        tParameterList( 0 )( tPropCounter ).set( "property_name",            "PropPhaseState_Inner" );
+        tParameterList( 0 )( tPropCounter ).set( "function_parameters",      "2.0" );
+        tParameterList( 0 )( tPropCounter ).set( "value_function",           "Func_Const" );
         tPropCounter++;
 
         tParameterList( 0 ).push_back( prm::create_property_parameter_list() );
-        tParameterList( 0 )( tPropCounter ).set( "property_name",            std::string("PropPCconst_Inner") );
-        tParameterList( 0 )( tPropCounter ).set( "function_parameters",      std::string("20.0") );
-        tParameterList( 0 )( tPropCounter ).set( "value_function",           std::string("Func_Const") );
+        tParameterList( 0 )( tPropCounter ).set( "property_name",            "PropPCconst_Inner" );
+        tParameterList( 0 )( tPropCounter ).set( "function_parameters",      "20.0" );
+        tParameterList( 0 )( tPropCounter ).set( "value_function",           "Func_Const" );
         tPropCounter++;
 
         // flux on outer ring
 
         tParameterList( 0 ).push_back( prm::create_property_parameter_list() );
-        tParameterList( 0 )( tPropCounter ).set( "property_name",            std::string("PropImposedFlux") );
-        tParameterList( 0 )( tPropCounter ).set( "function_parameters",      std::string("100.0") );
-        tParameterList( 0 )( tPropCounter ).set( "value_function",           std::string("Func_Const") );
+        tParameterList( 0 )( tPropCounter ).set( "property_name",            "PropImposedFlux" );
+        tParameterList( 0 )( tPropCounter ).set( "function_parameters",      "100.0" );
+        tParameterList( 0 )( tPropCounter ).set( "value_function",           "Func_Const" );
         tPropCounter++;
 
         // algorithmic parameters
 
         // create parameter list for property 6
         tParameterList( 0 ).push_back( prm::create_property_parameter_list() );
-        tParameterList( 0 )( tPropCounter ).set( "property_name",            std::string("PropWeightCurrent") );
-        tParameterList( 0 )( tPropCounter ).set( "function_parameters",      std::string("100.0") );
-        tParameterList( 0 )( tPropCounter ).set( "value_function",           std::string("Func_Const") );
+        tParameterList( 0 )( tPropCounter ).set( "property_name",            "PropWeightCurrent" );
+        tParameterList( 0 )( tPropCounter ).set( "function_parameters",      "100.0" );
+        tParameterList( 0 )( tPropCounter ).set( "value_function",           "Func_Const" );
         tPropCounter++;
 
         // create parameter list for property 7
         tParameterList( 0 ).push_back( prm::create_property_parameter_list() );
-        tParameterList( 0 )( tPropCounter ).set( "property_name",            std::string("PropWeightPrevious") );
-        tParameterList( 0 )( tPropCounter ).set( "function_parameters",      std::string("100.0") );
-        tParameterList( 0 )( tPropCounter ).set( "value_function",           std::string("Func_Const") );
+        tParameterList( 0 )( tPropCounter ).set( "property_name",            "PropWeightPrevious" );
+        tParameterList( 0 )( tPropCounter ).set( "function_parameters",      "100.0" );
+        tParameterList( 0 )( tPropCounter ).set( "value_function",           "Func_Const" );
         tPropCounter++;
 
         // create parameter list for property 8
         tParameterList( 0 ).push_back( prm::create_property_parameter_list() );
-        tParameterList( 0 )( tPropCounter ).set( "property_name",            std::string("PropInitialCondition") );
-        tParameterList( 0 )( tPropCounter ).set( "value_function",           std::string("Func_Initial_Condition") );
+        tParameterList( 0 )( tPropCounter ).set( "property_name",            "PropInitialCondition" );
+        tParameterList( 0 )( tPropCounter ).set( "value_function",           "Func_Initial_Condition" );
         tPropCounter++;
 
         //------------------------------------------------------------------------------
@@ -326,39 +326,39 @@ namespace moris
 
         // create parameter list for constitutive model - outer ring
         tParameterList( 1 ).push_back( prm::create_constitutive_model_parameter_list() );
-        tParameterList( 1 )( tCMCounter ).set( "constitutive_name", std::string("CMDiffusion_Outer") );
+        tParameterList( 1 )( tCMCounter ).set( "constitutive_name", "CMDiffusion_Outer" );
         tParameterList( 1 )( tCMCounter ).set( "constitutive_type", static_cast< uint >( fem::Constitutive_Type::DIFF_LIN_ISO ) );
         tParameterList( 1 )( tCMCounter ).set( "dof_dependencies",  std::pair< std::string, std::string >( "TEMP", "Temperature" ) );
         tParameterList( 1 )( tCMCounter ).set( "properties",        
-	        std::string("PropConductivity_Outer , Conductivity;") +
-	        std::string("PropDensity_Outer      , Density;")      +
-		std::string("PropHeatCapacity_Outer , Heat_Capacity") );
+	        "PropConductivity_Outer , Conductivity;"
+	        "PropDensity_Outer      , Density;"
+		"PropHeatCapacity_Outer , Heat_Capacity" );
         tCMCounter++;
  
         // create parameter list for constitutive model - outer ring
         tParameterList( 1 ).push_back( prm::create_constitutive_model_parameter_list() );
-        tParameterList( 1 )( tCMCounter ).set( "constitutive_name", std::string("CMDiffusion_Outer_Dummy") );
+        tParameterList( 1 )( tCMCounter ).set( "constitutive_name", "CMDiffusion_Outer_Dummy" );
         tParameterList( 1 )( tCMCounter ).set( "constitutive_type", static_cast< uint >( fem::Constitutive_Type::DIFF_LIN_ISO ) );
         tParameterList( 1 )( tCMCounter ).set( "dof_dependencies",  std::pair< std::string, std::string >( "TEMP", "Temperature" ) );
         tParameterList( 1 )( tCMCounter ).set( "properties",        
-	        std::string("PropConductivity_Outer , Conductivity;") +
-	        std::string("PropDensity_Outer      , Density;")      +
-		std::string("PropHeatCapacity_Outer , Heat_Capacity") );
+	        "PropConductivity_Outer , Conductivity;"
+	        "PropDensity_Outer      , Density;"
+		"PropHeatCapacity_Outer , Heat_Capacity" );
         tCMCounter++;
 
         // create parameter list for constitutive model - inner circle
         tParameterList( 1 ).push_back( prm::create_constitutive_model_parameter_list() );
-        tParameterList( 1 )( tCMCounter ).set( "constitutive_name", std::string("CMDiffusion_Inner") );
+        tParameterList( 1 )( tCMCounter ).set( "constitutive_name", "CMDiffusion_Inner" );
         tParameterList( 1 )( tCMCounter ).set( "constitutive_type", static_cast< uint >( fem::Constitutive_Type::DIFF_LIN_ISO_PC ) );
         tParameterList( 1 )( tCMCounter ).set( "dof_dependencies",  std::pair< std::string, std::string >( "TEMP", "Temperature" ) );
         tParameterList( 1 )( tCMCounter ).set( "properties",
-                std::string("PropConductivity_Inner, Conductivity;")         +
-                std::string("PropDensity_Inner     , Density;")              +
-                std::string("PropHeatCapacity_Inner, Heat_Capacity;")        +
-                std::string("PropLatentHeat_Inner  , Latent_Heat;")          +
-                std::string("PropPCTemp_Inner      , PC_Temp;")              +
-                std::string("PropPhaseState_Inner  , Phase_State_Function;") +
-                std::string("PropPCconst_Inner     , Phase_Change_Const")    );
+                "PropConductivity_Inner, Conductivity;"
+                "PropDensity_Inner     , Density;"
+                "PropHeatCapacity_Inner, Heat_Capacity;"
+                "PropLatentHeat_Inner  , Latent_Heat;"
+                "PropPCTemp_Inner      , PC_Temp;"
+                "PropPhaseState_Inner  , Phase_State_Function;"
+                "PropPCconst_Inner     , Phase_Change_Const"    );
         tCMCounter++;
 
         //------------------------------------------------------------------------------
@@ -367,75 +367,75 @@ namespace moris
 
         // create parameter list for stabilization parameter 2
         tParameterList( 2 ).push_back( prm::create_stabilization_parameter_parameter_list() );
-        tParameterList( 2 )( tSPCounter ).set( "stabilization_name",      std::string("SPGPTemp_Outer") );
+        tParameterList( 2 )( tSPCounter ).set( "stabilization_name",      "SPGPTemp_Outer" );
         tParameterList( 2 )( tSPCounter ).set( "stabilization_type",      static_cast< uint >( fem::Stabilization_Type::GHOST_DISPL ) );
-        tParameterList( 2 )( tSPCounter ).set( "function_parameters",     std::string("0.01") );
-        tParameterList( 2 )( tSPCounter ).set( "master_properties",       std::string("PropConductivity_Outer,Material") );
+        tParameterList( 2 )( tSPCounter ).set( "function_parameters",     "0.01" );
+        tParameterList( 2 )( tSPCounter ).set( "master_properties",       "PropConductivity_Outer,Material" );
         tSPCounter++;
 
         tParameterList( 2 ).push_back( prm::create_stabilization_parameter_parameter_list() );
-        tParameterList( 2 )( tSPCounter ).set( "stabilization_name",      std::string("SPGPTemp_Inner") );
+        tParameterList( 2 )( tSPCounter ).set( "stabilization_name",      "SPGPTemp_Inner" );
         tParameterList( 2 )( tSPCounter ).set( "stabilization_type",      static_cast< uint >( fem::Stabilization_Type::GHOST_DISPL ) );
-        tParameterList( 2 )( tSPCounter ).set( "function_parameters",     std::string("0.01") );
-        tParameterList( 2 )( tSPCounter ).set( "master_properties",       std::string("PropConductivity_Inner,Material") );
+        tParameterList( 2 )( tSPCounter ).set( "function_parameters",     "0.01" );
+        tParameterList( 2 )( tSPCounter ).set( "master_properties",       "PropConductivity_Inner,Material" );
         tSPCounter++;
 
         tParameterList( 2 ).push_back( prm::create_stabilization_parameter_parameter_list() );
-        tParameterList( 2 )( tSPCounter ).set( "stabilization_name",      std::string("SPGGLSDiffusion_Inner") );
+        tParameterList( 2 )( tSPCounter ).set( "stabilization_name",      "SPGGLSDiffusion_Inner" );
         tParameterList( 2 )( tSPCounter ).set( "stabilization_type",      static_cast< uint >( fem::Stabilization_Type::GGLS_DIFFUSION_PC ) );
         tParameterList( 2 )( tSPCounter ).set( "master_dof_dependencies", std::pair< std::string, std::string >( "TEMP", "Temperature" ) );
         tParameterList( 2 )( tSPCounter ).set( "master_properties",
-                std::string("PropConductivity_Inner , Conductivity;")         +
-                std::string("PropDensity_Inner      , Density;")              +
-                std::string("PropHeatCapacity_Inner , Heat_Capacity;")        +
-                std::string("PropLatentHeat_Inner   , Latent_Heat;")          +
-                std::string("PropPCTemp_Inner       , PC_Temp;")              +
-                std::string("PropPhaseState_Inner   , Phase_State_Function;") +
-                std::string("PropPCconst_Inner      , Phase_Change_Const")    );
+                "PropConductivity_Inner , Conductivity;"
+                "PropDensity_Inner      , Density;"
+                "PropHeatCapacity_Inner , Heat_Capacity;"
+                "PropLatentHeat_Inner   , Latent_Heat;"
+                "PropPCTemp_Inner       , PC_Temp;"
+                "PropPhaseState_Inner   , Phase_State_Function;"
+                "PropPCconst_Inner      , Phase_Change_Const"    );
         tSPCounter++;
 
         tParameterList( 2 ).push_back( prm::create_stabilization_parameter_parameter_list() );
-        tParameterList( 2 )( tSPCounter ).set( "stabilization_name",  std::string("SPInterfaceNitscheOuter") );
+        tParameterList( 2 )( tSPCounter ).set( "stabilization_name",  "SPInterfaceNitscheOuter" );
         tParameterList( 2 )( tSPCounter ).set( "stabilization_type",  static_cast< uint >( fem::Stabilization_Type::NITSCHE_INTERFACE ) );
-        tParameterList( 2 )( tSPCounter ).set( "function_parameters", std::string("100.0") );
-        tParameterList( 2 )( tSPCounter ).set( "master_properties",   std::string("PropConductivity_Outer,Material") );
-        tParameterList( 2 )( tSPCounter ).set( "slave_properties",    std::string("PropConductivity_Outer,Material") );
+        tParameterList( 2 )( tSPCounter ).set( "function_parameters", "100.0" );
+        tParameterList( 2 )( tSPCounter ).set( "master_properties",   "PropConductivity_Outer,Material" );
+        tParameterList( 2 )( tSPCounter ).set( "slave_properties",    "PropConductivity_Outer,Material" );
         tSPCounter++;
 
         tParameterList( 2 ).push_back( prm::create_stabilization_parameter_parameter_list() );
-        tParameterList( 2 )( tSPCounter ).set( "stabilization_name",  std::string("SPInterfaceNitscheOuterInner") );
+        tParameterList( 2 )( tSPCounter ).set( "stabilization_name",  "SPInterfaceNitscheOuterInner" );
         tParameterList( 2 )( tSPCounter ).set( "stabilization_type",  static_cast< uint >( fem::Stabilization_Type::NITSCHE_INTERFACE ) );
-        tParameterList( 2 )( tSPCounter ).set( "function_parameters", std::string("100.0") );
-        tParameterList( 2 )( tSPCounter ).set( "master_properties",   std::string("PropConductivity_Outer,Material") );
-        tParameterList( 2 )( tSPCounter ).set( "slave_properties",    std::string("PropConductivity_Inner,Material") );
+        tParameterList( 2 )( tSPCounter ).set( "function_parameters", "100.0" );
+        tParameterList( 2 )( tSPCounter ).set( "master_properties",   "PropConductivity_Outer,Material" );
+        tParameterList( 2 )( tSPCounter ).set( "slave_properties",    "PropConductivity_Inner,Material" );
         tSPCounter++;
 
         tParameterList( 2 ).push_back( prm::create_stabilization_parameter_parameter_list() );
-        tParameterList( 2 )( tSPCounter ).set( "stabilization_name",  std::string("SPInterfaceMasterWeightOuter") );
+        tParameterList( 2 )( tSPCounter ).set( "stabilization_name",  "SPInterfaceMasterWeightOuter" );
         tParameterList( 2 )( tSPCounter ).set( "stabilization_type",  static_cast< uint >( fem::Stabilization_Type::MASTER_WEIGHT_INTERFACE ) );
-        tParameterList( 2 )( tSPCounter ).set( "master_properties",   std::string("PropConductivity_Outer,Material") );
-        tParameterList( 2 )( tSPCounter ).set( "slave_properties",    std::string("PropConductivity_Outer,Material") );
+        tParameterList( 2 )( tSPCounter ).set( "master_properties",   "PropConductivity_Outer,Material" );
+        tParameterList( 2 )( tSPCounter ).set( "slave_properties",    "PropConductivity_Outer,Material" );
         tSPCounter++;
 
         tParameterList( 2 ).push_back( prm::create_stabilization_parameter_parameter_list() );
-        tParameterList( 2 )( tSPCounter ).set( "stabilization_name",  std::string("SPInterfaceMasterWeightOuterInner") );
+        tParameterList( 2 )( tSPCounter ).set( "stabilization_name",  "SPInterfaceMasterWeightOuterInner" );
         tParameterList( 2 )( tSPCounter ).set( "stabilization_type",  static_cast< uint >( fem::Stabilization_Type::MASTER_WEIGHT_INTERFACE ) );
-        tParameterList( 2 )( tSPCounter ).set( "master_properties",   std::string("PropConductivity_Outer,Material") );
-        tParameterList( 2 )( tSPCounter ).set( "slave_properties",    std::string("PropConductivity_Inner,Material") );
+        tParameterList( 2 )( tSPCounter ).set( "master_properties",   "PropConductivity_Outer,Material" );
+        tParameterList( 2 )( tSPCounter ).set( "slave_properties",    "PropConductivity_Inner,Material" );
         tSPCounter++;
 
         tParameterList( 2 ).push_back( prm::create_stabilization_parameter_parameter_list() );
-        tParameterList( 2 )( tSPCounter ).set( "stabilization_name",  std::string("SPInterfaceSlaveWeightOuter") );
+        tParameterList( 2 )( tSPCounter ).set( "stabilization_name",  "SPInterfaceSlaveWeightOuter" );
         tParameterList( 2 )( tSPCounter ).set( "stabilization_type",  static_cast< uint >( fem::Stabilization_Type::SLAVE_WEIGHT_INTERFACE ) );
-        tParameterList( 2 )( tSPCounter ).set( "master_properties",   std::string("PropConductivity_Outer,Material") );
-        tParameterList( 2 )( tSPCounter ).set( "slave_properties",    std::string("PropConductivity_Outer,Material") );
+        tParameterList( 2 )( tSPCounter ).set( "master_properties",   "PropConductivity_Outer,Material" );
+        tParameterList( 2 )( tSPCounter ).set( "slave_properties",    "PropConductivity_Outer,Material" );
         tSPCounter++;
 
         tParameterList( 2 ).push_back( prm::create_stabilization_parameter_parameter_list() );
-        tParameterList( 2 )( tSPCounter ).set( "stabilization_name",  std::string("SPInterfaceSlaveWeightOuterInner") );
+        tParameterList( 2 )( tSPCounter ).set( "stabilization_name",  "SPInterfaceSlaveWeightOuterInner" );
         tParameterList( 2 )( tSPCounter ).set( "stabilization_type",  static_cast< uint >( fem::Stabilization_Type::SLAVE_WEIGHT_INTERFACE ) );
-        tParameterList( 2 )( tSPCounter ).set( "master_properties",   std::string("PropConductivity_Outer,Material") );
-        tParameterList( 2 )( tSPCounter ).set( "slave_properties",    std::string("PropConductivity_Inner,Material") );
+        tParameterList( 2 )( tSPCounter ).set( "master_properties",   "PropConductivity_Outer,Material" );
+        tParameterList( 2 )( tSPCounter ).set( "slave_properties",    "PropConductivity_Inner,Material" );
         tSPCounter++;
 
         //------------------------------------------------------------------------------
@@ -444,97 +444,97 @@ namespace moris
 
         // create parameter  for outer ring
         tParameterList( 3 ).push_back( prm::create_IWG_parameter_list() );
-        tParameterList( 3 )( tIWGCounter ).set( "IWG_name",                   std::string("IWGDiffusionBulk") );
+        tParameterList( 3 )( tIWGCounter ).set( "IWG_name",                   "IWGDiffusionBulk" );
         tParameterList( 3 )( tIWGCounter ).set( "IWG_type",                   static_cast< uint >( fem::IWG_Type::SPATIALDIFF_BULK ) );
-        tParameterList( 3 )( tIWGCounter ).set( "dof_residual",               std::string("TEMP") );
-        tParameterList( 3 )( tIWGCounter ).set( "master_dof_dependencies",    std::string("TEMP") );
-        tParameterList( 3 )( tIWGCounter ).set( "master_constitutive_models", std::string("CMDiffusion_Outer,Diffusion") );
-        tParameterList( 3 )( tIWGCounter ).set( "mesh_set_names",             std::string("HMR_dummy_n_p4,HMR_dummy_n_p5,HMR_dummy_n_p7,HMR_dummy_c_p4,HMR_dummy_c_p5,HMR_dummy_c_p7") );
+        tParameterList( 3 )( tIWGCounter ).set( "dof_residual",               "TEMP" );
+        tParameterList( 3 )( tIWGCounter ).set( "master_dof_dependencies",    "TEMP" );
+        tParameterList( 3 )( tIWGCounter ).set( "master_constitutive_models", "CMDiffusion_Outer,Diffusion" );
+        tParameterList( 3 )( tIWGCounter ).set( "mesh_set_names",             "HMR_dummy_n_p4,HMR_dummy_n_p5,HMR_dummy_n_p7,HMR_dummy_c_p4,HMR_dummy_c_p5,HMR_dummy_c_p7" );
         tIWGCounter++;
 
         tParameterList( 3 ).push_back( prm::create_IWG_parameter_list() );
-        tParameterList( 3 )( tIWGCounter ).set( "IWG_name",                   std::string("IWGDiffusionBulk") );
+        tParameterList( 3 )( tIWGCounter ).set( "IWG_name",                   "IWGDiffusionBulk" );
         tParameterList( 3 )( tIWGCounter ).set( "IWG_type",                   static_cast< uint >( fem::IWG_Type::SPATIALDIFF_BULK ) );
-        tParameterList( 3 )( tIWGCounter ).set( "dof_residual",               std::string("TEMP") );
-        tParameterList( 3 )( tIWGCounter ).set( "master_dof_dependencies",    std::string("TEMP") );
-        tParameterList( 3 )( tIWGCounter ).set( "master_constitutive_models", std::string("CMDiffusion_Inner,Diffusion") );
-	tParameterList( 3 )( tIWGCounter ).set( "stabilization_parameters",   std::string("SPGGLSDiffusion_Inner,GGLS_Param") );
-        tParameterList( 3 )( tIWGCounter ).set( "mesh_set_names",             std::string("HMR_dummy_n_p6,HMR_dummy_c_p6") );
+        tParameterList( 3 )( tIWGCounter ).set( "dof_residual",               "TEMP" );
+        tParameterList( 3 )( tIWGCounter ).set( "master_dof_dependencies",    "TEMP" );
+        tParameterList( 3 )( tIWGCounter ).set( "master_constitutive_models", "CMDiffusion_Inner,Diffusion" );
+	tParameterList( 3 )( tIWGCounter ).set( "stabilization_parameters",   "SPGGLSDiffusion_Inner,GGLS_Param" );
+        tParameterList( 3 )( tIWGCounter ).set( "mesh_set_names",             "HMR_dummy_n_p6,HMR_dummy_c_p6" );
         tIWGCounter++;
 
         tParameterList( 3 ).push_back( prm::create_IWG_parameter_list() );
-        tParameterList( 3 )( tIWGCounter ).set( "IWG_name",                   std::string("IWGInletFlux") );
+        tParameterList( 3 )( tIWGCounter ).set( "IWG_name",                   "IWGInletFlux" );
         tParameterList( 3 )( tIWGCounter ).set( "IWG_type",                   static_cast< uint >( fem::IWG_Type::SPATIALDIFF_NEUMANN ) );
-        tParameterList( 3 )( tIWGCounter ).set( "dof_residual",               std::string("TEMP") );
-        tParameterList( 3 )( tIWGCounter ).set( "master_dof_dependencies",    std::string("TEMP") );
-        tParameterList( 3 )( tIWGCounter ).set( "master_properties",          std::string("PropImposedFlux,Neumann") );
-        tParameterList( 3 )( tIWGCounter ).set( "mesh_set_names",             std::string("iside_b0_4_b1_0,iside_b0_5_b1_1") );
+        tParameterList( 3 )( tIWGCounter ).set( "dof_residual",               "TEMP" );
+        tParameterList( 3 )( tIWGCounter ).set( "master_dof_dependencies",    "TEMP" );
+        tParameterList( 3 )( tIWGCounter ).set( "master_properties",          "PropImposedFlux,Neumann" );
+        tParameterList( 3 )( tIWGCounter ).set( "mesh_set_names",             "iside_b0_4_b1_0,iside_b0_5_b1_1" );
         tIWGCounter++;
 
         tParameterList( 3 ).push_back( prm::create_IWG_parameter_list() );
-        tParameterList( 3 )( tIWGCounter ).set( "IWG_name",                   std::string("IWGInterfaceTEMPOuter") );
+        tParameterList( 3 )( tIWGCounter ).set( "IWG_name",                   "IWGInterfaceTEMPOuter" );
         tParameterList( 3 )( tIWGCounter ).set( "IWG_type",                   static_cast< uint >( fem::IWG_Type::SPATIALDIFF_INTERFACE ) );
-        tParameterList( 3 )( tIWGCounter ).set( "dof_residual",               std::string("TEMP") );
-        tParameterList( 3 )( tIWGCounter ).set( "master_dof_dependencies",    std::string("TEMP") );
-        tParameterList( 3 )( tIWGCounter ).set( "slave_dof_dependencies",     std::string("TEMP") );
-        tParameterList( 3 )( tIWGCounter ).set( "master_constitutive_models", std::string("CMDiffusion_Outer,Diffusion") );
-        tParameterList( 3 )( tIWGCounter ).set( "slave_constitutive_models",  std::string("CMDiffusion_Outer_Dummy,Diffusion") );
+        tParameterList( 3 )( tIWGCounter ).set( "dof_residual",               "TEMP" );
+        tParameterList( 3 )( tIWGCounter ).set( "master_dof_dependencies",    "TEMP" );
+        tParameterList( 3 )( tIWGCounter ).set( "slave_dof_dependencies",     "TEMP" );
+        tParameterList( 3 )( tIWGCounter ).set( "master_constitutive_models", "CMDiffusion_Outer,Diffusion" );
+        tParameterList( 3 )( tIWGCounter ).set( "slave_constitutive_models",  "CMDiffusion_Outer_Dummy,Diffusion" );
         tParameterList( 3 )( tIWGCounter ).set( "stabilization_parameters",
-                std::string("SPInterfaceNitscheOuter     , NitscheInterface;")      +
-                std::string("SPInterfaceMasterWeightOuter, MasterWeightInterface;") +
-                std::string("SPInterfaceSlaveWeightOuter , SlaveWeightInterface") );
-        tParameterList( 3 )( tIWGCounter ).set( "mesh_set_names",             std::string("dbl_iside_p0_4_p1_5,dbl_iside_p0_5_p1_7") );
+                "SPInterfaceNitscheOuter     , NitscheInterface;"
+                "SPInterfaceMasterWeightOuter, MasterWeightInterface;"
+                "SPInterfaceSlaveWeightOuter , SlaveWeightInterface" );
+        tParameterList( 3 )( tIWGCounter ).set( "mesh_set_names",             "dbl_iside_p0_4_p1_5,dbl_iside_p0_5_p1_7" );
         tIWGCounter++;
 //
         tParameterList( 3 ).push_back( prm::create_IWG_parameter_list() );
-        tParameterList( 3 )( tIWGCounter ).set( "IWG_name",                   std::string("IWGInterfaceTEMPOuterInner") );
+        tParameterList( 3 )( tIWGCounter ).set( "IWG_name",                   "IWGInterfaceTEMPOuterInner" );
         tParameterList( 3 )( tIWGCounter ).set( "IWG_type",                   static_cast< uint >( fem::IWG_Type::SPATIALDIFF_INTERFACE ) );
-        tParameterList( 3 )( tIWGCounter ).set( "dof_residual",               std::string("TEMP") );
-        tParameterList( 3 )( tIWGCounter ).set( "master_dof_dependencies",    std::string("TEMP") );
-        tParameterList( 3 )( tIWGCounter ).set( "slave_dof_dependencies",     std::string("TEMP") );
-        tParameterList( 3 )( tIWGCounter ).set( "master_constitutive_models", std::string("CMDiffusion_Outer,Diffusion") );
-        tParameterList( 3 )( tIWGCounter ).set( "slave_constitutive_models",  std::string("CMDiffusion_Inner,Diffusion") );
+        tParameterList( 3 )( tIWGCounter ).set( "dof_residual",               "TEMP" );
+        tParameterList( 3 )( tIWGCounter ).set( "master_dof_dependencies",    "TEMP" );
+        tParameterList( 3 )( tIWGCounter ).set( "slave_dof_dependencies",     "TEMP" );
+        tParameterList( 3 )( tIWGCounter ).set( "master_constitutive_models", "CMDiffusion_Outer,Diffusion" );
+        tParameterList( 3 )( tIWGCounter ).set( "slave_constitutive_models",  "CMDiffusion_Inner,Diffusion" );
         tParameterList( 3 )( tIWGCounter ).set( "stabilization_parameters",
-                std::string("SPInterfaceNitscheOuterInner     , NitscheInterface;")      +
-                std::string("SPInterfaceMasterWeightOuterInner, MasterWeightInterface;") +
-                std::string("SPInterfaceSlaveWeightOuterInner , SlaveWeightInterface") );
-        tParameterList( 3 )( tIWGCounter ).set( "mesh_set_names",             std::string("dbl_iside_p0_7_p1_6,dbl_iside_p0_4_p1_6") );
+                "SPInterfaceNitscheOuterInner     , NitscheInterface;"
+                "SPInterfaceMasterWeightOuterInner, MasterWeightInterface;"
+                "SPInterfaceSlaveWeightOuterInner , SlaveWeightInterface" );
+        tParameterList( 3 )( tIWGCounter ).set( "mesh_set_names",             "dbl_iside_p0_7_p1_6,dbl_iside_p0_4_p1_6" );
         tIWGCounter++;
 
         tParameterList( 3 ).push_back( prm::create_IWG_parameter_list() );
-        tParameterList( 3 )( tIWGCounter ).set( "IWG_name",                   std::string("IWGGPTempOuter") );
+        tParameterList( 3 )( tIWGCounter ).set( "IWG_name",                   "IWGGPTempOuter" );
         tParameterList( 3 )( tIWGCounter ).set( "IWG_type",                   static_cast< uint >( fem::IWG_Type::SPATIALDIFF_GHOST ) );
-        tParameterList( 3 )( tIWGCounter ).set( "dof_residual",               std::string("TEMP") );
-        tParameterList( 3 )( tIWGCounter ).set( "master_dof_dependencies",    std::string("TEMP") );
-        tParameterList( 3 )( tIWGCounter ).set( "slave_dof_dependencies",     std::string("TEMP") );
-        tParameterList( 3 )( tIWGCounter ).set( "stabilization_parameters",   std::string("SPGPTemp_Outer,GhostDispl") );
-        tParameterList( 3 )( tIWGCounter ).set( "mesh_set_names",             std::string("ghost_p4,ghost_p5,ghost_p7") );
+        tParameterList( 3 )( tIWGCounter ).set( "dof_residual",               "TEMP" );
+        tParameterList( 3 )( tIWGCounter ).set( "master_dof_dependencies",    "TEMP" );
+        tParameterList( 3 )( tIWGCounter ).set( "slave_dof_dependencies",     "TEMP" );
+        tParameterList( 3 )( tIWGCounter ).set( "stabilization_parameters",   "SPGPTemp_Outer,GhostDispl" );
+        tParameterList( 3 )( tIWGCounter ).set( "mesh_set_names",             "ghost_p4,ghost_p5,ghost_p7" );
         tIWGCounter++;
 
         tParameterList( 3 ).push_back( prm::create_IWG_parameter_list() );
-        tParameterList( 3 )( tIWGCounter ).set( "IWG_name",                   std::string("IWGGPTempInner") );
+        tParameterList( 3 )( tIWGCounter ).set( "IWG_name",                   "IWGGPTempInner" );
         tParameterList( 3 )( tIWGCounter ).set( "IWG_type",                   static_cast< uint >( fem::IWG_Type::SPATIALDIFF_GHOST ) );
-        tParameterList( 3 )( tIWGCounter ).set( "dof_residual",               std::string("TEMP") );
-        tParameterList( 3 )( tIWGCounter ).set( "master_dof_dependencies",    std::string("TEMP") );
-        tParameterList( 3 )( tIWGCounter ).set( "slave_dof_dependencies",     std::string("TEMP") );
-        tParameterList( 3 )( tIWGCounter ).set( "stabilization_parameters",   std::string("SPGPTemp_Inner,GhostDispl") );
-        tParameterList( 3 )( tIWGCounter ).set( "mesh_set_names",             std::string("ghost_p6") );
+        tParameterList( 3 )( tIWGCounter ).set( "dof_residual",               "TEMP" );
+        tParameterList( 3 )( tIWGCounter ).set( "master_dof_dependencies",    "TEMP" );
+        tParameterList( 3 )( tIWGCounter ).set( "slave_dof_dependencies",     "TEMP" );
+        tParameterList( 3 )( tIWGCounter ).set( "stabilization_parameters",   "SPGPTemp_Inner,GhostDispl" );
+        tParameterList( 3 )( tIWGCounter ).set( "mesh_set_names",             "ghost_p6" );
         tIWGCounter++;
 
         tParameterList( 3 ).push_back( prm::create_IWG_parameter_list() );
-        tParameterList( 3 )( tIWGCounter ).set( "IWG_name",                   std::string("IWGTimeContinuityTemp") );
+        tParameterList( 3 )( tIWGCounter ).set( "IWG_name",                   "IWGTimeContinuityTemp" );
         tParameterList( 3 )( tIWGCounter ).set( "IWG_type",                   static_cast< uint >( fem::IWG_Type::TIME_CONTINUITY_DOF ) );
-        tParameterList( 3 )( tIWGCounter ).set( "dof_residual",               std::string("TEMP") );
-        tParameterList( 3 )( tIWGCounter ).set( "master_dof_dependencies",    std::string("TEMP") );
+        tParameterList( 3 )( tIWGCounter ).set( "dof_residual",               "TEMP" );
+        tParameterList( 3 )( tIWGCounter ).set( "master_dof_dependencies",    "TEMP" );
         tParameterList( 3 )( tIWGCounter ).set( "master_properties",          
-	        std::string("PropWeightCurrent   , WeightCurrent;")   +
-	        std::string("PropWeightPrevious  , WeightPrevious;")  + 
-		std::string("PropInitialCondition, InitialCondition") );
+	        "PropWeightCurrent   , WeightCurrent;"
+	        "PropWeightPrevious  , WeightPrevious;"
+		"PropInitialCondition, InitialCondition" );
         tParameterList( 3 )( tIWGCounter ).set( "mesh_set_names",
-                std::string("HMR_dummy_n_p4,HMR_dummy_c_p4,") +
-                std::string("HMR_dummy_n_p5,HMR_dummy_c_p5,") +
-                std::string("HMR_dummy_n_p6,HMR_dummy_c_p6,") +
-                std::string("HMR_dummy_n_p7,HMR_dummy_c_p7")  );
+                "HMR_dummy_n_p4,HMR_dummy_c_p4,"
+                "HMR_dummy_n_p5,HMR_dummy_c_p5,"
+                "HMR_dummy_n_p6,HMR_dummy_c_p6,"
+                "HMR_dummy_n_p7,HMR_dummy_c_p7"  );
         tParameterList( 3 )( tIWGCounter ).set( "time_continuity",            true );
         tIWGCounter++;
 
@@ -544,16 +544,16 @@ namespace moris
 
         // create parameter list for IQI 4
         tParameterList( 4 ).push_back( prm::create_IQI_parameter_list() );
-        tParameterList( 4 )( tIQICounter ).set( "IQI_name",                   std::string("IQIBulkTEMP") );
+        tParameterList( 4 )( tIQICounter ).set( "IQI_name",                   "IQIBulkTEMP" );
         tParameterList( 4 )( tIQICounter ).set( "IQI_type",                   static_cast< uint >( fem::IQI_Type::DOF ) );
         tParameterList( 4 )( tIQICounter ).set( "IQI_output_type",            static_cast< uint >( vis::Output_Type::TEMP ) );
-        tParameterList( 4 )( tIQICounter ).set( "master_dof_dependencies",    std::string("TEMP") );
+        tParameterList( 4 )( tIQICounter ).set( "master_dof_dependencies",    "TEMP" );
         tParameterList( 4 )( tIQICounter ).set( "vectorial_field_index",      0 );
         tParameterList( 4 )( tIQICounter ).set( "mesh_set_names",
-                std::string("HMR_dummy_n_p4,HMR_dummy_c_p4,") +
-                std::string("HMR_dummy_n_p5,HMR_dummy_c_p5,") +
-                std::string("HMR_dummy_n_p6,HMR_dummy_c_p6,") +
-                std::string("HMR_dummy_n_p7,HMR_dummy_c_p7")  );
+                "HMR_dummy_n_p4,HMR_dummy_c_p4,"
+                "HMR_dummy_n_p5,HMR_dummy_c_p5,"
+                "HMR_dummy_n_p6,HMR_dummy_c_p6,"
+                "HMR_dummy_n_p7,HMR_dummy_c_p7"  );
         tIQICounter++;
     }
 
@@ -575,18 +575,18 @@ namespace moris
         tParameterlist( 2 )( 0 ).set("NLA_max_iter", 20 );
 
         tParameterlist( 3 )( 0 ) = moris::prm::create_nonlinear_solver_parameter_list();
-        tParameterlist( 3 )( 0 ).set("NLA_DofTypes"      , std::string("TEMP") );
+        tParameterlist( 3 )( 0 ).set("NLA_DofTypes"      , "TEMP" );
 
         tParameterlist( 4 )( 0 ) = moris::prm::create_time_solver_algorithm_parameter_list();
         tParameterlist( 4 )( 0 ).set("TSA_Num_Time_Steps",     50 );
         tParameterlist( 4 )( 0 ).set("TSA_Time_Frame",         0.5 );
 
         tParameterlist( 5 )( 0 ) = moris::prm::create_time_solver_parameter_list();
-        tParameterlist( 5 )( 0 ).set("TSA_DofTypes",           std::string("TEMP") );
-        tParameterlist( 5 )( 0 ).set("TSA_Initialize_Sol_Vec", std::string("TEMP,0.0") );
-        tParameterlist( 5 )( 0 ).set("TSA_Output_Indices",     std::string("0") );
-        tParameterlist( 5 )( 0 ).set("TSA_Output_Crteria",     std::string("Output_Criterion") );
-        tParameterlist( 5 )( 0 ).set("TSA_time_level_per_type",std::string("TEMP,2") );
+        tParameterlist( 5 )( 0 ).set("TSA_DofTypes",           "TEMP" );
+        tParameterlist( 5 )( 0 ).set("TSA_Initialize_Sol_Vec", "TEMP,0.0" );
+        tParameterlist( 5 )( 0 ).set("TSA_Output_Indices",     "0" );
+        tParameterlist( 5 )( 0 ).set("TSA_Output_Crteria",     "Output_Criterion" );
+        tParameterlist( 5 )( 0 ).set("TSA_time_level_per_type","TEMP,2" );
 
         tParameterlist( 6 )( 0 ) = moris::prm::create_solver_warehouse_parameterlist();
     }
@@ -608,10 +608,10 @@ namespace moris
         tParameterlist( 0 )( 0 ).set( "File_Name"  , std::pair< std::string, std::string >( "./", "Vessel_with_Fins.exo" ) );
         tParameterlist( 0 )( 0 ).set( "Mesh_Type"  , static_cast< uint >( vis::VIS_Mesh_Type::STANDARD ) );
         tParameterlist( 0 )( 0 ).set( "Set_Names"  ,
-                std::string("HMR_dummy_n_p4,HMR_dummy_c_p4,") +
-                std::string("HMR_dummy_n_p5,HMR_dummy_c_p5,") +
-                std::string("HMR_dummy_n_p6,HMR_dummy_c_p6,") +
-                std::string("HMR_dummy_n_p7,HMR_dummy_c_p7")  );
+                "HMR_dummy_n_p4,HMR_dummy_c_p4,"
+                "HMR_dummy_n_p5,HMR_dummy_c_p5,"
+                "HMR_dummy_n_p6,HMR_dummy_c_p6,"
+                "HMR_dummy_n_p7,HMR_dummy_c_p7"  );
         tParameterlist( 0 )( 0 ).set( "Field_Names", std::string( "TEMP" ) );
         tParameterlist( 0 )( 0 ).set( "Field_Type" , std::string( "NODAL" ) );
         tParameterlist( 0 )( 0 ).set( "Output_Type", std::string( "TEMP" ) );
