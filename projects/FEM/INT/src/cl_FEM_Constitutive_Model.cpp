@@ -716,7 +716,7 @@ namespace moris
             Matrix< DDRMat > tFlux = this->flux( aCMFunctionType );
 
             // set size for derivative
-            mdFluxdDof( tDofIndex ).set_size( tFlux.n_rows(), tDerNumDof, 0.0 );
+            adFluxdDOF_FD.set_size( tFlux.n_rows(), tDerNumDof, 0.0 );
 
             // coefficients for dof type wrt which derivative is computed
             Matrix< DDRMat > tCoeff = tFI->get_coeff();
@@ -747,7 +747,7 @@ namespace moris
                             ( aFDSchemeType == fem::FDScheme_Type::POINT_1_FORWARD ) )
                     {
                         // add unperturbed flux contribution to dfluxdu
-                        mdFluxdDof( tDofIndex ).get_column( tDofCounter ) +=
+                        adFluxdDOF_FD.get_column( tDofCounter ) +=
                                 tFDScheme( 1 )( 0 ) * tFlux /
                                 ( tFDScheme( 2 )( 0 ) * tDeltaH );
 
@@ -771,7 +771,7 @@ namespace moris
                         this->reset_eval_flags();
 
                         // assemble the jacobian
-                        mdFluxdDof( tDofIndex ).get_column( tDofCounter ) +=
+                        adFluxdDOF_FD.get_column( tDofCounter ) +=
                                         tFDScheme( 1 )( iPoint ) * this->flux( aCMFunctionType ) /
                                         ( tFDScheme( 2 )( 0 ) * tDeltaH );
                     }
@@ -781,9 +781,9 @@ namespace moris
             }
             // reset the coefficients values
             tFI->set_coeff( tCoeff );
-
-            // FIXME
-            adFluxdDOF_FD = mdFluxdDof( tDofIndex );
+            
+            // set value to storage
+            mdFluxdDof( tDofIndex ) = adFluxdDOF_FD;
         }
 
         //------------------------------------------------------------------------------
@@ -817,7 +817,7 @@ namespace moris
             Matrix< DDRMat > tTraction = this->traction( aNormal, aCMFunctionType );
 
             // set size for derivative
-            mdTractiondDof( tDofIndex ).set_size( tTraction.n_rows(), tDerNumDof, 0.0 );
+            adtractiondu_FD.set_size( tTraction.n_rows(), tDerNumDof, 0.0 );
 
             // coefficients for dof type wrt which derivative is computed
             Matrix< DDRMat > tCoeff = tFIDerivative->get_coeff();
@@ -848,7 +848,7 @@ namespace moris
                             ( aFDSchemeType == fem::FDScheme_Type::POINT_1_FORWARD ) )
                     {
                         // add unperturbed traction contribution to dtractiondu
-                        mdTractiondDof( tDofIndex ).get_column( tDofCounter ) +=
+                        adtractiondu_FD.get_column( tDofCounter ) +=
                                 tFDScheme( 1 )( 0 ) * tTraction /
                                 ( tFDScheme( 2 )( 0 ) * tDeltaH );
 
@@ -872,7 +872,7 @@ namespace moris
                         this->reset_eval_flags();
 
                         // add contribution of point to dtractiondu
-                        mdTractiondDof( tDofIndex ).get_column( tDofCounter ) +=
+                        adtractiondu_FD.get_column( tDofCounter ) +=
                                 tFDScheme( 1 )( iPoint ) * this->traction( aNormal, aCMFunctionType ) /
                                 ( tFDScheme( 2 )( 0 ) * tDeltaH );
                     }
@@ -882,9 +882,9 @@ namespace moris
             }
             // reset the coefficients values
             tFIDerivative->set_coeff( tCoeff );
-
-            // FIXME
-            adtractiondu_FD = mdTractiondDof( tDofIndex );
+            
+            // set value for storage
+            mdTractiondDof( tDofIndex ) = adtractiondu_FD;
         }
 
         //------------------------------------------------------------------------------
@@ -920,17 +920,12 @@ namespace moris
             uint tDerNumFields = tFIDerivative->get_number_of_fields();
 
             // compute unperturbed test traction
-            Matrix< DDRMat > tTestTraction =
+            Matrix< DDRMat > tUnperturbedTestTraction =
                     trans( this->testTraction( aNormal, aTestDofTypes, aCMFunctionType ) ) * aJump;
-
-            // set size for derivative
-            Matrix< DDRMat > tTestTractionForSize;
-            if ( aJump.n_rows() == 1 && aJump.n_cols() == 1 )
-                tTestTractionForSize = trans( aJump( 0 ) * this->testTraction( aNormal, aTestDofTypes, aCMFunctionType ) );
-            else
-                tTestTractionForSize = trans( trans( aJump ) * this->testTraction( aNormal, aTestDofTypes, aCMFunctionType ) );
-            uint tNumRow = std::max( tTestTractionForSize.n_rows(), tTestTractionForSize.n_cols() );
-            mdTestTractiondDof( tTestDofIndex )( tDofIndex ).set_size( tNumRow, tDerNumDof, 0.0 );
+            adtesttractiondu_FD.set_size(
+                    tUnperturbedTestTraction.n_rows(),
+                    tDerNumDof,
+                    0.0 );
 
             // coefficients for dof type wrt which derivative is computed
             Matrix< DDRMat > tCoeff = tFIDerivative->get_coeff();
@@ -961,8 +956,8 @@ namespace moris
                             ( aFDSchemeType == fem::FDScheme_Type::POINT_1_FORWARD ) )
                     {
                         // add unperturbed test traction contribution to dtesttractiondu
-                        mdTestTractiondDof( tTestDofIndex )( tDofIndex ).get_column( tDofCounter ) +=
-                                tFDScheme( 1 )( 0 ) * tTestTraction /
+                        adtesttractiondu_FD.get_column( tDofCounter ) +=
+                                tFDScheme( 1 )( 0 ) * tUnperturbedTestTraction /
                                 ( tFDScheme( 2 )( 0 ) * tDeltaH );
 
                         // skip first point in FD
@@ -984,23 +979,11 @@ namespace moris
                         // reset properties
                         this->reset_eval_flags();
 
-                        // adapt to different definitions for test traction
-                        if ( tTestTraction.n_rows() > tTestTraction.n_cols() )
-                        {
-                            // assemble the jacobian
-                            mdTestTractiondDof( tTestDofIndex )( tDofIndex ).get_column( tDofCounter ) +=
-                                    tFDScheme( 1 )( iPoint ) *
-                                    ( this->testTraction( aNormal, aTestDofTypes, aCMFunctionType )  * aJump ) /
-                                    ( tFDScheme( 2 )( 0 ) * tDeltaH );
-                        }
-                        else
-                        {
-                            // assemble the jacobian
-                            mdTestTractiondDof( tTestDofIndex )( tDofIndex ).get_column( tDofCounter ) +=
-                                    tFDScheme( 1 )( iPoint ) *
-                                    trans( trans(aJump) * this->testTraction( aNormal, aTestDofTypes, aCMFunctionType ) ) /
-                                    ( tFDScheme( 2 )( 0 ) * tDeltaH );
-                        }
+                        // add unperturbed test traction contribution to dtesttractiondu
+                        adtesttractiondu_FD.get_column( tDofCounter ) +=
+                                tFDScheme( 1 )( iPoint ) *
+                                trans( this->testTraction( aNormal, aTestDofTypes, aCMFunctionType ) ) * aJump /
+                                ( tFDScheme( 2 )( 0 ) * tDeltaH );
                     }
                     // update dof counter
                     tDofCounter++;
@@ -1009,8 +992,8 @@ namespace moris
             // reset the coefficients values
             tFIDerivative->set_coeff( tCoeff );
 
-            // FIXME
-            adtesttractiondu_FD = mdTestTractiondDof( tTestDofIndex )( tDofIndex );
+            // set value for storage
+            mdTestTractiondDof( tTestDofIndex )( tDofIndex ) = adtesttractiondu_FD;
         }
 
         //------------------------------------------------------------------------------
@@ -1043,7 +1026,7 @@ namespace moris
             Matrix< DDRMat > tDivFlux = this->divflux( aCMFunctionType );
 
             // set size for derivative
-            mddivfluxdu( tDofIndex ).set_size( tDivFlux.n_rows(), tDerNumDof, 0.0 );
+            addivfluxdu_FD.set_size( tDivFlux.n_rows(), tDerNumDof, 0.0 );
 
             // coefficients for dof type wrt which derivative is computed
             Matrix< DDRMat > tCoeff = tFIDerivative->get_coeff();
@@ -1074,7 +1057,7 @@ namespace moris
                             ( aFDSchemeType == fem::FDScheme_Type::POINT_1_FORWARD ) )
                     {
                         // add unperturbed div flux contribution to ddivfluxdu
-                        mddivfluxdu( tDofIndex ).get_column( tDofCounter ) +=
+                        addivfluxdu_FD.get_column( tDofCounter ) +=
                                 tFDScheme( 1 )( 0 ) * tDivFlux /
                                 ( tFDScheme( 2 )( 0 ) * tDeltaH );
 
@@ -1098,7 +1081,7 @@ namespace moris
                         this->reset_eval_flags();
 
                         // add contribution of point to ddivfluxdu
-                        mddivfluxdu( tDofIndex ).get_column( tDofCounter ) +=
+                        addivfluxdu_FD.get_column( tDofCounter ) +=
                                 tFDScheme( 1 )( iPoint ) * this->divflux( aCMFunctionType ) /
                                 ( tFDScheme( 2 )( 0 ) * tDeltaH );
                     }
@@ -1109,8 +1092,8 @@ namespace moris
             // reset the coefficients values
             tFIDerivative->set_coeff( tCoeff );
 
-            // FIXME
-            addivfluxdu_FD = mddivfluxdu( tDofIndex );
+            // set value for storage
+            mddivfluxdu( tDofIndex ) = addivfluxdu_FD;
         }
 
         //------------------------------------------------------------------------------
@@ -1143,7 +1126,7 @@ namespace moris
             Matrix< DDRMat > tDivStrain = this->divstrain( aCMFunctionType );
 
             // set size for derivative
-            mddivstraindu( tDofIndex ).set_size( tDivStrain.n_rows(), tDerNumDof, 0.0 );
+            addivstraindu_FD.set_size( tDivStrain.n_rows(), tDerNumDof, 0.0 );
 
             // coefficients for dof type wrt which derivative is computed
             Matrix< DDRMat > tCoeff = tFIDerivative->get_coeff();
@@ -1174,7 +1157,7 @@ namespace moris
                             ( aFDSchemeType == fem::FDScheme_Type::POINT_1_FORWARD ) )
                     {
                         // add unperturbed div strain contribution to ddivstraindu
-                        mddivstraindu( tDofIndex ).get_column( tDofCounter ) +=
+                        addivstraindu_FD.get_column( tDofCounter ) +=
                                 tFDScheme( 1 )( 0 ) * tDivStrain /
                                 ( tFDScheme( 2 )( 0 ) * tDeltaH );
 
@@ -1198,7 +1181,7 @@ namespace moris
                         this->reset_eval_flags();
 
                         // add contribution of point to ddivstraindu
-                        mddivstraindu( tDofIndex ).get_column( tDofCounter ) +=
+                        addivstraindu_FD.get_column( tDofCounter ) +=
                                 tFDScheme( 1 )( iPoint ) * this->divstrain( aCMFunctionType ) /
                                 ( tFDScheme( 2 )( 0 ) * tDeltaH );
                     }
@@ -1209,8 +1192,8 @@ namespace moris
             // reset the coefficients values
             tFIDerivative->set_coeff( tCoeff );
 
-            // FIXME
-            addivstraindu_FD = mddivstraindu( tDofIndex );
+            // set value for storage
+            mddivstraindu( tDofIndex ) = addivstraindu_FD;
         }
 
         //------------------------------------------------------------------------------
@@ -1242,7 +1225,7 @@ namespace moris
             Matrix< DDRMat > tEnergy = this->Energy( aCMFunctionType );
 
             // set size for derivative
-            mEnergyDof( tDofIndex ).set_size( tEnergy.n_rows(), tDerNumDof, 0.0 );
+            adEnergydDOF_FD.set_size( tEnergy.n_rows(), tDerNumDof, 0.0 );
 
             // coefficients for dof type wrt which derivative is computed
             Matrix< DDRMat > tCoeff = tFI->get_coeff();
@@ -1273,7 +1256,7 @@ namespace moris
                             ( aFDSchemeType == fem::FDScheme_Type::POINT_1_FORWARD ) )
                     {
                         // add unperturbed energy contribution to denergydu
-                        mEnergyDof( tDofIndex ).get_column( tDofCounter ) +=
+                        adEnergydDOF_FD.get_column( tDofCounter ) +=
                                 tFDScheme( 1 )( 0 ) * tEnergy /
                                 ( tFDScheme( 2 )( 0 ) * tDeltaH );
 
@@ -1297,7 +1280,7 @@ namespace moris
                         this->reset_eval_flags();
 
                         // add contribution of point to denergydu
-                        mEnergyDof( tDofIndex ).get_column( tDofCounter ) +=
+                        adEnergydDOF_FD.get_column( tDofCounter ) +=
                                 tFDScheme( 1 )( iPoint ) * this->Energy( aCMFunctionType ) /
                                 ( tFDScheme( 2 )( 0 ) * tDeltaH );
                     }
@@ -1308,8 +1291,8 @@ namespace moris
             // reset the coefficients values
             tFI->set_coeff( tCoeff );
 
-            // FIXME
-            adEnergydDOF_FD = mEnergyDof( tDofIndex );
+            // set value to storage
+            mEnergyDof( tDofIndex ) = adEnergydDOF_FD;
         }
 
         //------------------------------------------------------------------------------
@@ -1341,7 +1324,7 @@ namespace moris
             Matrix< DDRMat > tEnergyDot = this->EnergyDot( aCMFunctionType );
 
             // set size for derivative
-            mEnergyDotDof( tDofIndex ).set_size( tEnergyDot.n_rows(), tDerNumDof, 0.0 );
+            adEnergyDotdDOF_FD.set_size( tEnergyDot.n_rows(), tDerNumDof, 0.0 );
 
             // coefficients for dof type wrt which derivative is computed
             Matrix< DDRMat > tCoeff = tFI->get_coeff();
@@ -1372,7 +1355,7 @@ namespace moris
                             ( aFDSchemeType == fem::FDScheme_Type::POINT_1_FORWARD ) )
                     {
                         // add unperturbed energydot contribution to denergydotdu
-                        mEnergyDotDof( tDofIndex ).get_column( tDofCounter ) +=
+                        adEnergyDotdDOF_FD.get_column( tDofCounter ) +=
                                 tFDScheme( 1 )( 0 ) * tEnergyDot /
                                 ( tFDScheme( 2 )( 0 ) * tDeltaH );
 
@@ -1396,7 +1379,7 @@ namespace moris
                         this->reset_eval_flags();
 
                         // add point contribution to dEnergyDotdu
-                        mEnergyDotDof( tDofIndex ).get_column( tDofCounter ) +=
+                        adEnergyDotdDOF_FD.get_column( tDofCounter ) +=
                                 tFDScheme( 1 )( iPoint ) * this->EnergyDot( aCMFunctionType ) /
                                 ( tFDScheme( 2 )( 0 ) * tDeltaH );
                     }
@@ -1407,8 +1390,8 @@ namespace moris
             // reset the coefficients values
             tFI->set_coeff( tCoeff );
 
-            // FIXME
-            adEnergyDotdDOF_FD = mEnergyDotDof( tDofIndex );
+            // set value to storage
+            mEnergyDotDof( tDofIndex ) = adEnergyDotdDOF_FD;
         }
 
         //------------------------------------------------------------------------------
@@ -1440,7 +1423,7 @@ namespace moris
             Matrix< DDRMat > tGradEnergy = this->gradEnergy( aCMFunctionType );
 
             // set size for derivative
-            mGradEnergyDof( tDofIndex ).set_size( tGradEnergy.n_rows(), tDerNumDof, 0.0 );
+            adGradEnergydDOF_FD.set_size( tGradEnergy.n_rows(), tDerNumDof, 0.0 );
 
             // coefficients for dof type wrt which derivative is computed
             Matrix< DDRMat > tCoeff = tFI->get_coeff();
@@ -1471,7 +1454,7 @@ namespace moris
                             ( aFDSchemeType == fem::FDScheme_Type::POINT_1_FORWARD ) )
                     {
                         // add unperturbed grad energy contribution to dgradenergydu
-                        mGradEnergyDof( tDofIndex ).get_column( tDofCounter ) +=
+                        adGradEnergydDOF_FD.get_column( tDofCounter ) +=
                                 tFDScheme( 1 )( 0 ) * tGradEnergy /
                                 ( tFDScheme( 2 )( 0 ) * tDeltaH );
 
@@ -1495,7 +1478,7 @@ namespace moris
                         this->reset_eval_flags();
 
                         // add point contribution to dGradEnergydu
-                        mGradEnergyDof( tDofIndex ).get_column( tDofCounter ) +=
+                        adGradEnergydDOF_FD.get_column( tDofCounter ) +=
                                 tFDScheme( 1 )( iPoint ) * this->gradEnergy( aCMFunctionType ) /
                                 ( tFDScheme( 2 )( 0 ) * tDeltaH );
                     }
@@ -1506,8 +1489,8 @@ namespace moris
             // reset the coefficients values
             tFI->set_coeff( tCoeff );
 
-            // FIXME
-            adGradEnergydDOF_FD = mGradEnergyDof( tDofIndex );
+            // set value to storage
+            mGradEnergyDof( tDofIndex ) = adGradEnergydDOF_FD;
         }
 
         //------------------------------------------------------------------------------
@@ -1539,7 +1522,7 @@ namespace moris
             Matrix< DDRMat > tGradEnergyDot = this->gradEnergyDot( aCMFunctionType );
 
             // set size for derivative
-            mGradEnergyDotDof( tDofIndex ).set_size( tGradEnergyDot.n_rows(), tDerNumDof, 0.0 );
+            adGradEnergyDotdDOF_FD.set_size( tGradEnergyDot.n_rows(), tDerNumDof, 0.0 );
 
             // coefficients for dof type wrt which derivative is computed
             Matrix< DDRMat > tCoeff = tFI->get_coeff();
@@ -1570,7 +1553,7 @@ namespace moris
                             ( aFDSchemeType == fem::FDScheme_Type::POINT_1_FORWARD ) )
                     {
                         // add unperturbed grad energy dot contribution to dgradenergydotdu
-                        mGradEnergyDotDof( tDofIndex ).get_column( tDofCounter ) +=
+                        adGradEnergyDotdDOF_FD.get_column( tDofCounter ) +=
                                 tFDScheme( 1 )( 0 ) * tGradEnergyDot /
                                 ( tFDScheme( 2 )( 0 ) * tDeltaH );
 
@@ -1594,7 +1577,7 @@ namespace moris
                         this->reset_eval_flags();
 
                         // add point contribution to dGradHdu
-                        mGradEnergyDotDof( tDofIndex ).get_column( tDofCounter ) +=
+                        adGradEnergyDotdDOF_FD.get_column( tDofCounter ) +=
                                 tFDScheme( 1 )( iPoint ) * this->gradEnergyDot( aCMFunctionType ) /
                                 ( tFDScheme( 2 )( 0 ) * tDeltaH );
                     }
@@ -1606,8 +1589,8 @@ namespace moris
             // reset the coefficients values
             tFI->set_coeff( tCoeff );
 
-            // FIXME
-            adGradEnergyDotdDOF_FD = mGradEnergyDotDof( tDofIndex );
+            // set value to storage
+            mGradEnergyDotDof( tDofIndex ) = adGradEnergyDotdDOF_FD;
         }
 
         //------------------------------------------------------------------------------
@@ -1639,7 +1622,7 @@ namespace moris
             Matrix< DDRMat > tGradDivFlux = this->graddivflux( aCMFunctionType );
 
             // set size for derivative
-            mGradDivFluxDof( tDofIndex ).set_size( tGradDivFlux.n_rows(), tDerNumDof, 0.0 );
+            adGradDivFluxdDOF_FD.set_size( tGradDivFlux.n_rows(), tDerNumDof, 0.0 );
 
             // coefficients for dof type wrt which derivative is computed
             Matrix< DDRMat > tCoeff = tFI->get_coeff();
@@ -1670,7 +1653,7 @@ namespace moris
                             ( aFDSchemeType == fem::FDScheme_Type::POINT_1_FORWARD ) )
                     {
                         // add unperturbed grad div flux dot contribution to dgraddivfluxdu
-                        mGradDivFluxDof( tDofIndex ).get_column( tDofCounter ) +=
+                        adGradDivFluxdDOF_FD.get_column( tDofCounter ) +=
                                 tFDScheme( 1 )( 0 ) * tGradDivFlux /
                                 ( tFDScheme( 2 )( 0 ) * tDeltaH );
 
@@ -1694,7 +1677,7 @@ namespace moris
                         this->reset_eval_flags();
 
                         // add point contribution to dgraddivfluxdu
-                        mGradDivFluxDof( tDofIndex ).get_column( tDofCounter ) +=
+                        adGradDivFluxdDOF_FD.get_column( tDofCounter ) +=
                                 tFDScheme( 1 )( iPoint ) * this->graddivflux( aCMFunctionType ) /
                                 ( tFDScheme( 2 )( 0 ) * tDeltaH );
                     }
@@ -1706,8 +1689,8 @@ namespace moris
             // reset the coefficients values
             tFI->set_coeff( tCoeff );
 
-            // FIXME
-            adGradDivFluxdDOF_FD = mGradDivFluxDof( tDofIndex );
+            // set value to storage
+            mGradDivFluxDof( tDofIndex ) = adGradDivFluxdDOF_FD;
         }
 
         //------------------------------------------------------------------------------
@@ -1739,7 +1722,7 @@ namespace moris
             Matrix< DDRMat > tStrain = this->strain( aCMFunctionType );
 
             // set size for derivative
-            mdStraindDof( tDofIndex ).set_size( tStrain.n_rows(), tDerNumDof, 0.0 );
+            adStraindDOF_FD.set_size( tStrain.n_rows(), tDerNumDof, 0.0 );
 
             // coefficients for dof type wrt which derivative is computed
             Matrix< DDRMat > tCoeff = tFI->get_coeff();
@@ -1770,7 +1753,7 @@ namespace moris
                             ( aFDSchemeType == fem::FDScheme_Type::POINT_1_FORWARD ) )
                     {
                         // add unperturbed strain dot contribution to dstraindu
-                        mdStraindDof( tDofIndex ).get_column( tDofCounter ) +=
+                        adStraindDOF_FD.get_column( tDofCounter ) +=
                                 tFDScheme( 1 )( 0 ) * tStrain /
                                 ( tFDScheme( 2 )( 0 ) * tDeltaH );
 
@@ -1794,7 +1777,7 @@ namespace moris
                         this->reset_eval_flags();
 
                         // add point contribution to dstraindu
-                        mdStraindDof( tDofIndex ).get_column( tDofCounter ) +=
+                        adStraindDOF_FD.get_column( tDofCounter ) +=
                                 tFDScheme( 1 )( iPoint ) * this->strain( aCMFunctionType ) /
                                 ( tFDScheme( 2 )( 0 ) * tDeltaH );
                     }
@@ -1806,8 +1789,8 @@ namespace moris
             // reset the coefficients values
             tFI->set_coeff( tCoeff );
 
-            // FIXME
-            adStraindDOF_FD = mdStraindDof( tDofIndex );
+            // set value to storage
+            mdStraindDof( tDofIndex ) = adStraindDOF_FD;
         }
 
         //------------------------------------------------------------------------------

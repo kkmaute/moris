@@ -224,10 +224,7 @@ namespace moris
                 /**
                  * set local properties
                  */
-                virtual void set_local_properties()
-                {
-
-                }
+                virtual void set_local_properties(){}
 
                 //------------------------------------------------------------------------------
                 /**
