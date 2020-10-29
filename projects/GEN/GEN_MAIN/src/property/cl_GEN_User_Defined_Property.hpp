@@ -24,7 +24,8 @@ namespace moris
              * @param aPropertyVariableIndices Indices of property variables to be filled by the ADVs
              * @param aADVIndices The indices of the ADV vector to fill in the property variables
              * @param aConstantParameters The constant parameters not filled by ADVs
-             * @param aPropertyDependencies Other created properties that this property depends on
+             * @param aName Name of this field for identification
+             * @param aFieldDependencies Other created fields that this property depends on
              * @param aNumRefinements The number of refinement steps to use for this property
              * @param aRefinementFunctionIndex The index of a user-defined refinement function (-1 = default refinement)
              * @param aBSplineMeshIndex The index of a B-spline mesh for level set discretization (-1 = no B-splines)
@@ -32,18 +33,19 @@ namespace moris
              * @param aBSplineUpperBound The upper bound for the B-spline coefficients describing this field
              */
             User_Defined_Property(
-                    Matrix<DDRMat>&                 aADVs,
-                    Matrix<DDUMat>                  aPropertyVariableIndices,
-                    Matrix<DDUMat>                  aADVIndices,
-                    Matrix<DDRMat>                  aConstantParameters,
-                    Cell<std::shared_ptr<Property>> aPropertyDependencies,
-                    MORIS_GEN_FIELD_FUNCTION        aFieldEvaluationFunction,
-                    MORIS_GEN_SENSITIVITY_FUNCTION  aSensitivityEvaluationFunction,
-                    sint                            aNumRefinements = 0,
-                    sint                            aRefinementFunctionIndex = -1,
-                    sint                            aBSplineMeshIndex = -1,
-                    real                            aBSplineLowerBound = -1.0,
-                    real                            aBSplineUpperBound = 1.0);
+                    Matrix<DDRMat>&                aADVs,
+                    Matrix<DDUMat>                 aPropertyVariableIndices,
+                    Matrix<DDUMat>                 aADVIndices,
+                    Matrix<DDRMat>                 aConstantParameters,
+                    Cell<std::shared_ptr<Field>>   aFieldDependencies,
+                    MORIS_GEN_FIELD_FUNCTION       aFieldEvaluationFunction,
+                    MORIS_GEN_SENSITIVITY_FUNCTION aSensitivityEvaluationFunction,
+                    std::string                    aName = "",
+                    sint                           aNumRefinements = 0,
+                    sint                           aRefinementFunctionIndex = -1,
+                    sint                           aBSplineMeshIndex = -1,
+                    real                           aBSplineLowerBound = -1.0,
+                    real                           aBSplineUpperBound = 1.0);
 
             /**
              * Constructor
@@ -52,7 +54,8 @@ namespace moris
              * @param aPropertyVariableIndices Indices of property variables to be filled by the ADVs
              * @param aADVIndices The indices of the ADV vector to fill in the property variables
              * @param aConstantParameters The constant parameters not filled by ADVs
-             * @param aPropertyDependencies Other created properties that this property depends on
+             * @param aName Name of this field for identification
+             * @param aFieldDependencies Other created fields that this property depends on
              * @param aNumRefinements The number of refinement steps to use for this property
              * @param aRefinementFunctionIndex The index of a user-defined refinement function (-1 = default refinement)
              * @param aBSplineMeshIndex The index of a B-spline mesh for level set discretization (-1 = no B-splines)
@@ -60,18 +63,19 @@ namespace moris
              * @param aBSplineUpperBound The upper bound for the B-spline coefficients describing this field
              */
             User_Defined_Property(
-                    sol::Dist_Vector*               aOwnedADVs,
-                    Matrix<DDUMat>                  aPropertyVariableIndices,
-                    Matrix<DDUMat>                  aADVIndices,
-                    Matrix<DDRMat>                  aConstantParameters,
-                    Cell<std::shared_ptr<Property>> aPropertyDependencies,
-                    MORIS_GEN_FIELD_FUNCTION        aFieldEvaluationFunction,
-                    MORIS_GEN_SENSITIVITY_FUNCTION  aSensitivityEvaluationFunction,
-                    sint                            aNumRefinements = 0,
-                    sint                            aRefinementFunctionIndex = -1,
-                    sint                            aBSplineMeshIndex = -1,
-                    real                            aBSplineLowerBound = -1.0,
-                    real                            aBSplineUpperBound = 1.0);
+                    sol::Dist_Vector*              aOwnedADVs,
+                    Matrix<DDUMat>                 aPropertyVariableIndices,
+                    Matrix<DDUMat>                 aADVIndices,
+                    Matrix<DDRMat>                 aConstantParameters,
+                    Cell<std::shared_ptr<Field>>   aFieldDependencies,
+                    MORIS_GEN_FIELD_FUNCTION       aFieldEvaluationFunction,
+                    MORIS_GEN_SENSITIVITY_FUNCTION aSensitivityEvaluationFunction,
+                    std::string                    aName = "",
+                    sint                           aNumRefinements = 0,
+                    sint                           aRefinementFunctionIndex = -1,
+                    sint                           aBSplineMeshIndex = -1,
+                    real                           aBSplineLowerBound = -1.0,
+                    real                           aBSplineUpperBound = 1.0);
 
             /**
              * Given a node coordinate, returns the field value.

@@ -83,8 +83,8 @@ namespace moris
     std::string tFrameLoadSSets    = "SideSet_2_n_p2,SideSet_2_c_p2";
     std::string tFrameSupportSSets = "SideSet_4_n_p2,SideSet_4_c_p2";
     std::string tFrameFreeSSets    =
-            std::string("SideSet_1_n_p2,SideSet_1_c_p2") +
-            std::string("SideSet_3_n_p2,SideSet_3_c_p2");
+            "SideSet_1_n_p2,SideSet_1_c_p2"
+            "SideSet_3_n_p2,SideSet_3_c_p2";
 
     std::string tInterfaceVoidSSets = "iside_b0_2_b1_0,iside_b0_1_b1_0";
 
@@ -443,25 +443,25 @@ namespace moris
         tSPCounter++;
 
         tParameterList( 2 ).push_back( prm::create_stabilization_parameter_parameter_list() );
-        tParameterList( 2 )( tSPCounter ).set( "stabilization_name",  std::string("SPNitscheFrameInteriorInterface") );
+        tParameterList( 2 )( tSPCounter ).set( "stabilization_name",  "SPNitscheFrameInteriorInterface" );
         tParameterList( 2 )( tSPCounter ).set( "stabilization_type",  static_cast< uint >( fem::Stabilization_Type::NITSCHE_INTERFACE ) );
-        tParameterList( 2 )( tSPCounter ).set( "function_parameters", std::string("100.0") );
-        tParameterList( 2 )( tSPCounter ).set( "master_properties",   std::string("PropYoungs,Material") );
-        tParameterList( 2 )( tSPCounter ).set( "slave_properties",    std::string("PropYoungs,Material") );
+        tParameterList( 2 )( tSPCounter ).set( "function_parameters", "100.0" );
+        tParameterList( 2 )( tSPCounter ).set( "master_properties",   "PropYoungs,Material" );
+        tParameterList( 2 )( tSPCounter ).set( "slave_properties",    "PropYoungs,Material" );
         tSPCounter++;
 
         tParameterList( 2 ).push_back( prm::create_stabilization_parameter_parameter_list() );
-        tParameterList( 2 )( tSPCounter ).set( "stabilization_name",      std::string("SPGhost_Frame") );
+        tParameterList( 2 )( tSPCounter ).set( "stabilization_name",      "SPGhost_Frame" );
         tParameterList( 2 )( tSPCounter ).set( "stabilization_type",      static_cast< uint >( fem::Stabilization_Type::GHOST_DISPL ) );
-        tParameterList( 2 )( tSPCounter ).set( "function_parameters",     std::string("0.01") );
-        tParameterList( 2 )( tSPCounter ).set( "master_properties",       std::string("PropYoungs,Material") );
+        tParameterList( 2 )( tSPCounter ).set( "function_parameters",     "0.01" );
+        tParameterList( 2 )( tSPCounter ).set( "master_properties",       "PropYoungs,Material" );
         tSPCounter++;
 
         tParameterList( 2 ).push_back( prm::create_stabilization_parameter_parameter_list() );
-        tParameterList( 2 )( tSPCounter ).set( "stabilization_name",      std::string("SPGhost_Interior") );
+        tParameterList( 2 )( tSPCounter ).set( "stabilization_name",      "SPGhost_Interior" );
         tParameterList( 2 )( tSPCounter ).set( "stabilization_type",      static_cast< uint >( fem::Stabilization_Type::GHOST_DISPL ) );
-        tParameterList( 2 )( tSPCounter ).set( "function_parameters",     std::string("0.01") );
-        tParameterList( 2 )( tSPCounter ).set( "master_properties",       std::string("PropYoungs,Material") );
+        tParameterList( 2 )( tSPCounter ).set( "function_parameters",     "0.01" );
+        tParameterList( 2 )( tSPCounter ).set( "master_properties",       "PropYoungs,Material" );
         tSPCounter++;
 
         //------------------------------------------------------------------------------
@@ -509,36 +509,36 @@ namespace moris
         tIWGCounter++;
 
         tParameterList( 3 ).push_back( prm::create_IWG_parameter_list() );
-        tParameterList( 3 )( tIWGCounter ).set( "IWG_name",                   std::string("IWGFrameInteriorInterface") );
+        tParameterList( 3 )( tIWGCounter ).set( "IWG_name",                   "IWGFrameInteriorInterface" );
         tParameterList( 3 )( tIWGCounter ).set( "IWG_type",                   static_cast< uint >( fem::IWG_Type::STRUC_LINEAR_INTERFACE_UNSYMMETRIC_NITSCHE ) );
-        tParameterList( 3 )( tIWGCounter ).set( "dof_residual",               std::string("UX,UY") );
-        tParameterList( 3 )( tIWGCounter ).set( "master_dof_dependencies",    std::string("UX,UY") );
-        tParameterList( 3 )( tIWGCounter ).set( "slave_dof_dependencies",     std::string("UX,UY") );
-        tParameterList( 3 )( tIWGCounter ).set( "master_constitutive_models", std::string("CMStrucLinIso_Frame,ElastLinIso") );
-        tParameterList( 3 )( tIWGCounter ).set( "slave_constitutive_models",  std::string("CMStrucLinIso_Interior,ElastLinIso") );
-        tParameterList( 3 )( tIWGCounter ).set( "stabilization_parameters",   std::string("SPNitscheFrameInteriorInterface,NitscheInterface") );
+        tParameterList( 3 )( tIWGCounter ).set( "dof_residual",               "UX,UY" );
+        tParameterList( 3 )( tIWGCounter ).set( "master_dof_dependencies",    "UX,UY" );
+        tParameterList( 3 )( tIWGCounter ).set( "slave_dof_dependencies",     "UX,UY" );
+        tParameterList( 3 )( tIWGCounter ).set( "master_constitutive_models", "CMStrucLinIso_Frame,ElastLinIso" );
+        tParameterList( 3 )( tIWGCounter ).set( "slave_constitutive_models",  "CMStrucLinIso_Interior,ElastLinIso" );
+        tParameterList( 3 )( tIWGCounter ).set( "stabilization_parameters",   "SPNitscheFrameInteriorInterface,NitscheInterface" );
         tParameterList( 3 )( tIWGCounter ).set( "mesh_set_names",             tFrameInteriorDSets );
         tIWGCounter++;
 
         if (tUseGhost)
         {
         tParameterList( 3 ).push_back( prm::create_IWG_parameter_list() );
-        tParameterList( 3 )( tIWGCounter ).set( "IWG_name",                   std::string("IWGGhostFrame") );
+        tParameterList( 3 )( tIWGCounter ).set( "IWG_name",                   "IWGGhostFrame" );
         tParameterList( 3 )( tIWGCounter ).set( "IWG_type",                   static_cast< uint >( fem::IWG_Type::GHOST_NORMAL_FIELD ) );
-        tParameterList( 3 )( tIWGCounter ).set( "dof_residual",               std::string("UX,UY") );
-        tParameterList( 3 )( tIWGCounter ).set( "master_dof_dependencies",    std::string("UX,UY") );
-        tParameterList( 3 )( tIWGCounter ).set( "slave_dof_dependencies",     std::string("UX,UY") );
-        tParameterList( 3 )( tIWGCounter ).set( "stabilization_parameters",   std::string("SPGhost_Frame,GhostSP") );
+        tParameterList( 3 )( tIWGCounter ).set( "dof_residual",               "UX,UY" );
+        tParameterList( 3 )( tIWGCounter ).set( "master_dof_dependencies",    "UX,UY" );
+        tParameterList( 3 )( tIWGCounter ).set( "slave_dof_dependencies",     "UX,UY" );
+        tParameterList( 3 )( tIWGCounter ).set( "stabilization_parameters",   "SPGhost_Frame,GhostSP" );
         tParameterList( 3 )( tIWGCounter ).set( "mesh_set_names",             tFrameGhost );
         tIWGCounter++;
 
         tParameterList( 3 ).push_back( prm::create_IWG_parameter_list() );
-        tParameterList( 3 )( tIWGCounter ).set( "IWG_name",                   std::string("IWGGhostInterior") );
+        tParameterList( 3 )( tIWGCounter ).set( "IWG_name",                   "IWGGhostInterior" );
         tParameterList( 3 )( tIWGCounter ).set( "IWG_type",                   static_cast< uint >( fem::IWG_Type::GHOST_NORMAL_FIELD ) );
-        tParameterList( 3 )( tIWGCounter ).set( "dof_residual",               std::string("UX,UY") );
-        tParameterList( 3 )( tIWGCounter ).set( "master_dof_dependencies",    std::string("UX,UY") );
-        tParameterList( 3 )( tIWGCounter ).set( "slave_dof_dependencies",     std::string("UX,UY") );
-        tParameterList( 3 )( tIWGCounter ).set( "stabilization_parameters",   std::string("SPGhost_Interior,GhostSP") );
+        tParameterList( 3 )( tIWGCounter ).set( "dof_residual",               "UX,UY" );
+        tParameterList( 3 )( tIWGCounter ).set( "master_dof_dependencies",    "UX,UY" );
+        tParameterList( 3 )( tIWGCounter ).set( "slave_dof_dependencies",     "UX,UY" );
+        tParameterList( 3 )( tIWGCounter ).set( "stabilization_parameters",   "SPGhost_Interior,GhostSP" );
         tParameterList( 3 )( tIWGCounter ).set( "mesh_set_names",             tInteriorGhost );
         tIWGCounter++;
         }
@@ -664,9 +664,9 @@ namespace moris
         tParameterlist( 0 )( 0 ).set( "File_Name"  , std::pair< std::string, std::string >( "./", tOutputFileName ) );
         tParameterlist( 0 )( 0 ).set( "Mesh_Type"  , static_cast< uint >( vis::VIS_Mesh_Type::STANDARD ) );
         tParameterlist( 0 )( 0 ).set( "Set_Names"  , tTotalDomainSets );
-        tParameterlist( 0 )( 0 ).set( "Field_Names", std::string("UX,UY") );
-        tParameterlist( 0 )( 0 ).set( "Field_Type" , std::string("NODAL,NODAL") );
-        tParameterlist( 0 )( 0 ).set( "IQI_Names"  , std::string("IQIBulkUX,IQIBulkUY") );
+        tParameterlist( 0 )( 0 ).set( "Field_Names", "UX,UY" );
+        tParameterlist( 0 )( 0 ).set( "Field_Type" , "NODAL,NODAL" );
+        tParameterlist( 0 )( 0 ).set( "IQI_Names"  , "IQIBulkUX,IQIBulkUY" );
         tParameterlist( 0 )( 0 ).set( "Save_Frequency", 1 );
         tParameterlist( 0 )( 0 ).set( "Time_Offset"   , 10.0 );
 

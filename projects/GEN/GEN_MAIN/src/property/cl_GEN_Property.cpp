@@ -7,8 +7,8 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        Property::Property(Cell<std::shared_ptr<Property>> aPropertyDependencies)
-                           : mPropertyDependencies(aPropertyDependencies)
+        Property::Property(Cell<std::shared_ptr<Field>> aFieldDependencies)
+                : mFieldDependencies(aFieldDependencies)
         {
         }
 

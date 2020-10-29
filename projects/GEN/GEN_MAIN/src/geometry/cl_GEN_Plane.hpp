@@ -22,6 +22,7 @@ namespace moris
              * @param aGeometryVariableIndices Indices of geometry variables to be filled by the ADVs
              * @param aADVIndices The indices of the ADV vector to fill in the geometry variables
              * @param aConstantParameters The constant parameters not filled by ADVs
+             * @param aName Name of this field for identification
              * @param aNumRefinements The number of refinement steps to use for this geometry
              * @param aRefinementFunctionIndex The index of a user-defined refinement function (-1 = default refinement)
              * @param aBSplineMeshIndex The index of a B-spline mesh for level set discretization (-1 = no B-splines)
@@ -32,6 +33,7 @@ namespace moris
                   Matrix<DDUMat>  aGeometryVariableIndices,
                   Matrix<DDUMat>  aADVIndices,
                   Matrix<DDRMat>  aConstantParameters,
+                  std::string     aName = "",
                   sint            aNumRefinements = 0,
                   sint            aRefinementFunctionIndex = -1,
                   sint            aBSplineMeshIndex = -1,
@@ -45,6 +47,7 @@ namespace moris
              * @param aFieldVariableIndices Indices of geometry variables to be filled by the ADVs
              * @param aADVIndices The indices of the ADV vector to fill in the geometry variables
              * @param aConstantParameters The constant parameters not filled by ADVs
+             * @param aName Name of this field for identification
              * @param aNumRefinements The number of refinement steps to use for this field
              * @param aRefinementFunctionIndex The index of a user-defined refinement function (-1 = default refinement)
              * @param aBSplineMeshIndex The index of a B-spline mesh for B-spline discretization (-1 = no B-splines)
@@ -55,6 +58,7 @@ namespace moris
                   Matrix<DDUMat>    aGeometryVariableIndices,
                   Matrix<DDUMat>    aADVIndices,
                   Matrix<DDRMat>    aConstantParameters,
+                  std::string       aName = "",
                   sint              aNumRefinements = 0,
                   sint              aRefinementFunctionIndex = -1,
                   sint              aBSplineMeshIndex = -1,
@@ -70,23 +74,25 @@ namespace moris
              * @param aXNormal x normal for the plane
              * @param aYNormal y normal for the plane
              * @param aZNormal z normal for the plane
+             * @param aName Name of this field for identification
              * @param aNumRefinements The number of refinement steps to use for this geometry
              * @param aRefinementFunctionIndex The index of a user-defined refinement function (-1 = default refinement)
              * @param aBSplineMeshIndex The index of a B-spline mesh for level set discretization (-1 = no B-splines)
              * @param aBSplineLowerBound The lower bound for the B-spline coefficients describing this field
              * @param aBSplineUpperBound The upper bound for the B-spline coefficients describing this field
              */
-            Plane(real aXCenter,
-                  real aYCenter,
-                  real aZCenter,
-                  real aXNormal,
-                  real aYNormal,
-                  real aZNormal,
-                  sint aNumRefinements = 0,
-                  sint aRefinementFunctionIndex = -1,
-                  sint aBSplineMeshIndex = -1,
-                  real aBSplineLowerBound = -1.0,
-                  real aBSplineUpperBound = 1.0);
+            Plane(real        aXCenter,
+                  real        aYCenter,
+                  real        aZCenter,
+                  real        aXNormal,
+                  real        aYNormal,
+                  real        aZNormal,
+                  std::string aName = "",
+                  sint        aNumRefinements = 0,
+                  sint        aRefinementFunctionIndex = -1,
+                  sint        aBSplineMeshIndex = -1,
+                  real        aBSplineLowerBound = -1.0,
+                  real        aBSplineUpperBound = 1.0);
 
             /**
              * Constructor with only constant parameters, 2D
@@ -95,19 +101,21 @@ namespace moris
              * @param aYCenter y-coordinate of the center of the plane
              * @param aXNormal x normal for the plane
              * @param aYNormal y normal for the plane
+             * @param aName Name of this field for identification
              * @param aNumRefinements The number of refinement steps to use for this geometry
              * @param aRefinementFunctionIndex The index of a user-defined refinement function (-1 = default refinement)
              * @param aBSplineMeshIndex The index of a B-spline mesh for level set discretization (-1 = no B-splines)
              */
-            Plane(real aXCenter,
-                  real aYCenter,
-                  real aXNormal,
-                  real aYNormal,
-                  sint aNumRefinements = 0,
-                  sint aRefinementFunctionIndex = -1,
-                  sint aBSplineMeshIndex = -1,
-                  real aBSplineLowerBound = -1.0,
-                  real aBSplineUpperBound = 1.0);
+            Plane(real        aXCenter,
+                  real        aYCenter,
+                  real        aXNormal,
+                  real        aYNormal,
+                  std::string aName = "",
+                  sint        aNumRefinements = 0,
+                  sint        aRefinementFunctionIndex = -1,
+                  sint        aBSplineMeshIndex = -1,
+                  real        aBSplineLowerBound = -1.0,
+                  real        aBSplineUpperBound = 1.0);
 
             /**
              * Given a node coordinate, returns the field value.

@@ -132,14 +132,26 @@ namespace moris
             // reset laplacian of density
             mLaplaceDensityEval = true;
             mLaplaceDensityDofEval = true;
+
+            // reset test tractions --------------------------------
+
+            mThermalTestTractionEval.assign( tNumDofTypes, true );
+            mMechanicalTestTractionEval.assign( tNumDofTypes, true );
+
+            for( uint iDirectDof = 0; iDirectDof < mDofTypes.size(); iDirectDof++ )
+            {
+                mdThermalTestTractiondDofEval( iDirectDof ).assign( tNumDofTypes, true );
+                mdMechanicalTestTractiondDofEval( iDirectDof ).assign( tNumDofTypes, true );
+            }
         }
 
         //--------------------------------------------------------------------------------------------------------------
 
         void CM_Fluid_Compressible_Van_der_Waals::initialize_spec_storage_vars_and_eval_flags()
         {
-            // get number of global DoF types
+            // get number of DoF types
             uint tNumGlobalDofTypes = mGlobalDofTypes.size();
+            uint tNumDirectDofTypes = mDofTypes.size();
 
             // initialize eval flags
             mPressureDofEval.resize( tNumGlobalDofTypes, true );
@@ -152,6 +164,16 @@ namespace moris
             mEnergyTractionDofEval.resize( tNumGlobalDofTypes, true );
             mMechanicalTractionDofEval.resize( tNumGlobalDofTypes, true );
 
+            mThermalTestTractionEval.resize( tNumGlobalDofTypes, true );
+            mMechanicalTestTractionEval.resize( tNumGlobalDofTypes, true );
+            mdThermalTestTractiondDofEval.resize( tNumDirectDofTypes );
+            mdMechanicalTestTractiondDofEval.resize( tNumDirectDofTypes );
+            for( uint iDirectDof = 0; iDirectDof < tNumDirectDofTypes; iDirectDof++ )
+            {
+                mdThermalTestTractiondDofEval( iDirectDof ).assign( tNumGlobalDofTypes, true );
+                mdMechanicalTestTractiondDofEval( iDirectDof ).assign( tNumGlobalDofTypes, true );
+            }
+
             // initialize storage variable cell arrays
             mPressureDof.resize( tNumGlobalDofTypes );
             mThermalFluxDof.resize( tNumGlobalDofTypes );
@@ -163,6 +185,15 @@ namespace moris
             mEnergyTractionDof.resize( tNumGlobalDofTypes );
             mMechanicalTractionDof.resize( tNumGlobalDofTypes );
 
+            mThermalTestTraction.resize( tNumGlobalDofTypes );
+            mMechanicalTestTraction.resize( tNumGlobalDofTypes );
+            mdThermalTestTractiondDof.resize( tNumDirectDofTypes );
+            mdMechanicalTestTractiondDof.resize( tNumDirectDofTypes );
+            for( uint iDirectDof = 0; iDirectDof < tNumDirectDofTypes; iDirectDof++ )
+            {
+                mdThermalTestTractiondDof( iDirectDof ).resize( tNumGlobalDofTypes );
+                mdMechanicalTestTractiondDof( iDirectDof ).resize( tNumGlobalDofTypes );
+            }
         }
 
         //--------------------------------------------------------------------------------------------------------------

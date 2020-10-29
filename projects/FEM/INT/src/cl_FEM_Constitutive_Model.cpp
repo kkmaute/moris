@@ -924,7 +924,13 @@ namespace moris
                     trans( this->testTraction( aNormal, aTestDofTypes, aCMFunctionType ) ) * aJump;
 
             // set size for derivative
-            mdTestTractiondDof( tTestDofIndex )( tDofIndex ).set_size( tTestTraction.n_rows(), tDerNumDof, 0.0 );
+            Matrix< DDRMat > tTestTractionForSize;
+            if ( aJump.n_rows() == 1 && aJump.n_cols() == 1 )
+                tTestTractionForSize = trans( aJump( 0 ) * this->testTraction( aNormal, aTestDofTypes, aCMFunctionType ) );
+            else
+                tTestTractionForSize = trans( trans( aJump ) * this->testTraction( aNormal, aTestDofTypes, aCMFunctionType ) );
+            uint tNumRow = std::max( tTestTractionForSize.n_rows(), tTestTractionForSize.n_cols() );
+            mdTestTractiondDof( tTestDofIndex )( tDofIndex ).set_size( tNumRow, tDerNumDof, 0.0 );
 
             // coefficients for dof type wrt which derivative is computed
             Matrix< DDRMat > tCoeff = tFIDerivative->get_coeff();
@@ -978,11 +984,23 @@ namespace moris
                         // reset properties
                         this->reset_eval_flags();
 
-                        // add contribution of point to dtesttractiondu
-                        mdTestTractiondDof( tTestDofIndex )( tDofIndex ).get_column( tDofCounter ) +=
-                                tFDScheme( 1 )( iPoint ) *
-                                trans( this->testTraction( aNormal, aTestDofTypes, aCMFunctionType ) ) * aJump /
-                                ( tFDScheme( 2 )( 0 ) * tDeltaH );
+                        // adapt to different definitions for test traction
+                        if ( tTestTraction.n_rows() > tTestTraction.n_cols() )
+                        {
+                            // assemble the jacobian
+                            mdTestTractiondDof( tTestDofIndex )( tDofIndex ).get_column( tDofCounter ) +=
+                                    tFDScheme( 1 )( iPoint ) *
+                                    ( this->testTraction( aNormal, aTestDofTypes, aCMFunctionType )  * aJump ) /
+                                    ( tFDScheme( 2 )( 0 ) * tDeltaH );
+                        }
+                        else
+                        {
+                            // assemble the jacobian
+                            mdTestTractiondDof( tTestDofIndex )( tDofIndex ).get_column( tDofCounter ) +=
+                                    tFDScheme( 1 )( iPoint ) *
+                                    trans( trans(aJump) * this->testTraction( aNormal, aTestDofTypes, aCMFunctionType ) ) /
+                                    ( tFDScheme( 2 )( 0 ) * tDeltaH );
+                        }
                     }
                     // update dof counter
                     tDofCounter++;

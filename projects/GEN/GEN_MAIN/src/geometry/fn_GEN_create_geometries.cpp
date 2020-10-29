@@ -34,14 +34,14 @@ namespace moris
                 std::shared_ptr<Geometry> tGeometry = create_geometry(aGeometryParameterLists(tGeometryIndex), aADVs, aLibrary);
 
                 // Determine if to add to multigeometry
-                std::string tMultigeometryID = aGeometryParameterLists(tGeometryIndex).get<std::string>("multigeometry_id");
-                if (tMultigeometryID != "")
+                bool tMultigeometryFound = false;
+                std::string tGeometryName = tGeometry->get_name();
+                if (tGeometryName != "")
                 {
                     // Loop to see if this multigeometry ID exists already
-                    bool tMultigeometryFound = false;
                     for (uint tMultigeometryIndex = 0; tMultigeometryIndex < tMultigeometries.size(); tMultigeometryIndex++)
                     {
-                        if (tMultigeometries(tMultigeometryIndex)->get_id() == tMultigeometryID)
+                        if (tMultigeometries(tMultigeometryIndex)->get_name() == tGeometryName)
                         {
                             tMultigeometryFound = true;
                             tMultigeometries(tMultigeometryIndex)->add_geometry(tGeometry);
@@ -49,13 +49,26 @@ namespace moris
                         }
                     }
 
-                    // Create new multigeometry with this ID
+                    // Check for creating new multigeometry
                     if (not tMultigeometryFound)
                     {
-                        tMultigeometries.push_back(std::make_shared<Multigeometry>(Cell<std::shared_ptr<Geometry>>(1, tGeometry), tMultigeometryID));
+                        for (uint tCreatedGeometryIndex = 0; tCreatedGeometryIndex < tGeometries.size(); tCreatedGeometryIndex++)
+                        {
+                            if (tGeometries(tCreatedGeometryIndex)->get_name() == tGeometryName)
+                            {
+                                tMultigeometryFound = true;
+                                tMultigeometries.push_back(std::make_shared<Multigeometry>(
+                                        Cell<std::shared_ptr<Geometry>>({tGeometries(tCreatedGeometryIndex), tGeometry}),
+                                        tGeometryName));
+                                tGeometries.erase(tCreatedGeometryIndex);
+                                break;
+                            }
+                        }
                     }
                 }
-                else
+
+                // If no multigeometry, add as regular geometry
+                if (not tMultigeometryFound)
                 {
                     tGeometries.push_back(tGeometry);
                 }
@@ -88,14 +101,14 @@ namespace moris
                 std::shared_ptr<Geometry> tGeometry = create_geometry(aGeometryParameterLists(tGeometryIndex), aOwnedADVs, aLibrary);
 
                 // Determine if to add to multigeometry
-                std::string tMultigeometryID = aGeometryParameterLists(tGeometryIndex).get<std::string>("multigeometry_id");
-                if (tMultigeometryID != "")
+                bool tMultigeometryFound = false;
+                std::string tGeometryName = tGeometry->get_name();
+                if (tGeometryName != "")
                 {
                     // Loop to see if this multigeometry ID exists already
-                    bool tMultigeometryFound = false;
                     for (uint tMultigeometryIndex = 0; tMultigeometryIndex < tMultigeometries.size(); tMultigeometryIndex++)
                     {
-                        if (tMultigeometries(tMultigeometryIndex)->get_id() == tMultigeometryID)
+                        if (tMultigeometries(tMultigeometryIndex)->get_name() == tGeometryName)
                         {
                             tMultigeometryFound = true;
                             tMultigeometries(tMultigeometryIndex)->add_geometry(tGeometry);
@@ -103,13 +116,26 @@ namespace moris
                         }
                     }
 
-                    // Create new multigeometry with this ID
+                    // Check for creating new multigeometry
                     if (not tMultigeometryFound)
                     {
-                        tMultigeometries.push_back(std::make_shared<Multigeometry>(Cell<std::shared_ptr<Geometry>>(1, tGeometry), tMultigeometryID));
+                        for (uint tCreatedGeometryIndex = 0; tCreatedGeometryIndex < tGeometries.size(); tCreatedGeometryIndex++)
+                        {
+                            if (tGeometries(tCreatedGeometryIndex)->get_name() == tGeometryName)
+                            {
+                                tMultigeometryFound = true;
+                                tMultigeometries.push_back(std::make_shared<Multigeometry>(
+                                        Cell<std::shared_ptr<Geometry>>({tGeometries(tCreatedGeometryIndex), tGeometry}),
+                                        tGeometryName));
+                                tGeometries.erase(tCreatedGeometryIndex);
+                                break;
+                            }
+                        }
                     }
                 }
-                else
+
+                // If no multigeometry, add as regular geometry
+                if (not tMultigeometryFound)
                 {
                     tGeometries.push_back(tGeometry);
                 }
@@ -149,6 +175,9 @@ namespace moris
                 tConstantParameters = string_to_mat<DDRMat>(aGeometryParameterList.get<std::string>("constant_parameters"));
             }
 
+            // Get name
+            std::string tGeometryName = aGeometryParameterList.get<std::string>("name");
+
             // Get refinement info
             sint tNumRefinements = aGeometryParameterList.get<sint>("number_of_refinements");
             sint tRefinementFunctionIndex = aGeometryParameterList.get<sint>("refinement_function_index");
@@ -166,6 +195,7 @@ namespace moris
                         tGeometryVariableIndices,
                         tADVIndices,
                         tConstantParameters,
+                        tGeometryName,
                         tNumRefinements,
                         tRefinementFunctionIndex,
                         tBSplineMeshIndex,
@@ -179,6 +209,7 @@ namespace moris
                         tGeometryVariableIndices,
                         tADVIndices,
                         tConstantParameters,
+                        tGeometryName,
                         tNumRefinements,
                         tRefinementFunctionIndex,
                         tBSplineMeshIndex,
@@ -192,6 +223,7 @@ namespace moris
                         tGeometryVariableIndices,
                         tADVIndices,
                         tConstantParameters,
+                        tGeometryName,
                         tNumRefinements,
                         tRefinementFunctionIndex,
                         tBSplineMeshIndex,
@@ -205,6 +237,7 @@ namespace moris
                         tGeometryVariableIndices,
                         tADVIndices,
                         tConstantParameters,
+                        tGeometryName,
                         tNumRefinements,
                         tRefinementFunctionIndex,
                         tBSplineMeshIndex,
@@ -218,6 +251,7 @@ namespace moris
                         tGeometryVariableIndices,
                         tADVIndices,
                         tConstantParameters,
+                        tGeometryName,
                         tNumRefinements,
                         tRefinementFunctionIndex,
                         tBSplineMeshIndex,
@@ -242,6 +276,7 @@ namespace moris
                         tConstantParameters,
                         aLibrary->load_gen_field_function(aGeometryParameterList.get<std::string>("field_function_name")),
                         tSensitivityFunction,
+                        tGeometryName,
                         tNumRefinements,
                         tRefinementFunctionIndex,
                         tBSplineMeshIndex,
@@ -276,6 +311,7 @@ namespace moris
                             aGeometryParameterList.get<real>("superellipse_regularization"),
                             aGeometryParameterList.get<real>("superellipse_shift"),
                             aGeometryParameterList.get<real>("row_offset"),
+                            tGeometryName,
                             tNumRefinements,
                             tRefinementFunctionIndex,
                             tBSplineMeshIndex,
@@ -299,6 +335,7 @@ namespace moris
                             aGeometryParameterList.get<real>("superellipse_shift"),
                             aGeometryParameterList.get<real>("row_offset"),
                             aGeometryParameterList.get<bool>("allow_less_than_target_spacing"),
+                            tGeometryName,
                             tNumRefinements,
                             tRefinementFunctionIndex,
                             tBSplineMeshIndex,
@@ -339,6 +376,9 @@ namespace moris
                 tConstantParameters = string_to_mat<DDRMat>(aGeometryParameterList.get<std::string>("constant_parameters"));
             }
 
+            // Get name
+            std::string tGeometryName = aGeometryParameterList.get<std::string>("name");
+
             // Get refinement info
             sint tNumRefinements = aGeometryParameterList.get<sint>("number_of_refinements");
             sint tRefinementFunctionIndex = aGeometryParameterList.get<sint>("refinement_function_index");
@@ -356,6 +396,7 @@ namespace moris
                         tGeometryVariableIndices,
                         tADVIndices,
                         tConstantParameters,
+                        tGeometryName,
                         tNumRefinements,
                         tRefinementFunctionIndex,
                         tBSplineMeshIndex,
@@ -369,6 +410,7 @@ namespace moris
                         tGeometryVariableIndices,
                         tADVIndices,
                         tConstantParameters,
+                        tGeometryName,
                         tNumRefinements,
                         tRefinementFunctionIndex,
                         tBSplineMeshIndex,
@@ -382,6 +424,7 @@ namespace moris
                         tGeometryVariableIndices,
                         tADVIndices,
                         tConstantParameters,
+                        tGeometryName,
                         tNumRefinements,
                         tRefinementFunctionIndex,
                         tBSplineMeshIndex,
@@ -395,6 +438,7 @@ namespace moris
                         tGeometryVariableIndices,
                         tADVIndices,
                         tConstantParameters,
+                        tGeometryName,
                         tNumRefinements,
                         tRefinementFunctionIndex,
                         tBSplineMeshIndex,
@@ -408,6 +452,7 @@ namespace moris
                         tGeometryVariableIndices,
                         tADVIndices,
                         tConstantParameters,
+                        tGeometryName,
                         tNumRefinements,
                         tRefinementFunctionIndex,
                         tBSplineMeshIndex,
@@ -432,6 +477,7 @@ namespace moris
                         tConstantParameters,
                         aLibrary->load_gen_field_function(aGeometryParameterList.get<std::string>("field_function_name")),
                         tSensitivityFunction,
+                        tGeometryName,
                         tNumRefinements,
                         tRefinementFunctionIndex,
                         tBSplineMeshIndex,
@@ -466,6 +512,7 @@ namespace moris
                             aGeometryParameterList.get<real>("superellipse_regularization"),
                             aGeometryParameterList.get<real>("superellipse_shift"),
                             aGeometryParameterList.get<real>("row_offset"),
+                            tGeometryName,
                             tNumRefinements,
                             tRefinementFunctionIndex,
                             tBSplineMeshIndex,
@@ -489,6 +536,7 @@ namespace moris
                             aGeometryParameterList.get<real>("superellipse_shift"),
                             aGeometryParameterList.get<real>("row_offset"),
                             aGeometryParameterList.get<bool>("allow_less_than_target_spacing"),
+                            tGeometryName,
                             tNumRefinements,
                             tRefinementFunctionIndex,
                             tBSplineMeshIndex,

@@ -304,8 +304,8 @@ TEST_CASE("MDL Transient","[MDL_Transient]")
 
        tsa::Time_Solver tTimeSolver;
        tTimeSolver.set_time_solver_algorithm( tTimeSolverAlgorithm );
-       tTimeSolver.set_param("TSA_Initialize_Sol_Vec") = std::string("TEMP,0.0");
-       tTimeSolver.set_param("TSA_time_level_per_type") = std::string("TEMP,2");
+       tTimeSolver.set_param("TSA_Initialize_Sol_Vec") = "TEMP,0.0";
+       tTimeSolver.set_param("TSA_time_level_per_type") = "TEMP,2";
 
        sol::SOL_Warehouse tSolverWarehouse;
        tSolverWarehouse.set_solver_interface(tModel->get_solver_interface());
@@ -350,15 +350,15 @@ TEST_CASE("MDL Transient XFEM","[MDL_Transient_XFEM]")
     tParameters.set( "number_of_elements_per_dimension", std::to_string(tNumX) + "," + std::to_string(tNumY));
     tParameters.set( "domain_dimensions", std::to_string(tDomainLX) + "," + std::to_string(tDomainLY) );
     tParameters.set( "domain_offset", std::to_string(-tDomainLX/2.1) + "," + std::to_string(0) );
-    tParameters.set( "domain_sidesets", std::string("1,2,3,4") );
-    tParameters.set( "lagrange_output_meshes", std::string("0") );
+    tParameters.set( "domain_sidesets", "1,2,3,4" );
+    tParameters.set( "lagrange_output_meshes", "0" );
 
-    tParameters.set( "lagrange_orders", std::string("1") );
-    tParameters.set( "lagrange_pattern", std::string("0") );
-    tParameters.set( "bspline_orders", std::string("1") );
-    tParameters.set( "bspline_pattern", std::string("0") );
+    tParameters.set( "lagrange_orders", "1" );
+    tParameters.set( "lagrange_pattern", "0" );
+    tParameters.set( "bspline_orders", "1" );
+    tParameters.set( "bspline_pattern", "0" );
 
-    tParameters.set( "lagrange_to_bspline", std::string("0") );
+    tParameters.set( "lagrange_to_bspline", "0" );
 
     tParameters.set( "truncate_bsplines", 1 );
     tParameters.set( "refinement_buffer", 3 );
@@ -601,8 +601,8 @@ TEST_CASE("MDL Transient XFEM","[MDL_Transient_XFEM]")
 
     tsa::Time_Solver tTimeSolver;
     tTimeSolver.set_time_solver_algorithm( tTimeSolverAlgorithm );
-    tTimeSolver.set_param("TSA_Initialize_Sol_Vec") = std::string("TEMP,0.0");
-    tTimeSolver.set_param("TSA_time_level_per_type") = std::string("TEMP,2");
+    tTimeSolver.set_param("TSA_Initialize_Sol_Vec") = "TEMP,0.0";
+    tTimeSolver.set_param("TSA_time_level_per_type") = "TEMP,2";
 
     sol::SOL_Warehouse tSolverWarehouse;
     tSolverWarehouse.set_solver_interface(tModel->get_solver_interface());

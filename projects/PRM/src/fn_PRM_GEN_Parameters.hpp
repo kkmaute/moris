@@ -52,7 +52,8 @@ namespace moris
         {
             ParameterList tParameterList;
 
-            tParameterList.insert("type", "");                      // Type (name) of geometry
+            tParameterList.insert("type", "");                      // Type of geometry
+            tParameterList.insert("name", "");                      // Name of property
             tParameterList.insert("geometry_variable_indices", ""); // Geometry variables to fill
             tParameterList.insert("adv_indices", "");               // ADVs used to fill in variables
             tParameterList.insert("constant_parameters", "");       // Remaining geometry parameters that are constant
@@ -61,7 +62,6 @@ namespace moris
             tParameterList.insert("bspline_mesh_index", -1);        // Index of B-spline mesh to create level set field on (-1 = none)
             tParameterList.insert("bspline_lower_bound", -1.0);     // Lower bound of level set field (if bspline_mesh_index >= 0)
             tParameterList.insert("bspline_upper_bound", 1.0);      // Upper bound of level set field (if bspline_mesh_index >= 0)
-            tParameterList.insert("multigeometry_id", "");          // ID of a multigeometry to be added to ("" = none)
 
             return tParameterList;
         }
@@ -93,7 +93,8 @@ namespace moris
         {
             ParameterList tParameterList;
 
-            tParameterList.insert("type", "swiss_cheese_slice");    // Type (name) of geometry, do not change
+            tParameterList.insert("type", "swiss_cheese_slice");    // Type of geometry, do not change
+            tParameterList.insert("name", "");                      // Name of geometry, can change
 
             // Must change
             tParameterList.insert("left_bound", 0.0);               // Left-most hole center
@@ -122,7 +123,6 @@ namespace moris
             tParameterList.insert("bspline_mesh_index", -1);            // Index of B-spline mesh to create level set field on (-1 = none)
             tParameterList.insert("bspline_lower_bound", -1.0);         // Lower bound of level set field (if bspline_mesh_index >= 0)
             tParameterList.insert("bspline_upper_bound", 1.0);          // Upper bound of level set field (if bspline_mesh_index >= 0)
-            tParameterList.insert("multigeometry_id", "");              // ID of a multi-geometry to be added to ("" = none)
 
             return tParameterList;
         }
@@ -142,7 +142,7 @@ namespace moris
             tParameterList.insert("property_variable_indices", ""); // Property variables to fill
             tParameterList.insert("adv_indices", "");               // ADVs used to fill in variables
             tParameterList.insert("constant_parameters", "");       // Remaining property parameters that are constant
-            tParameterList.insert("dependencies", "");              // Names of other properties that this property depends on
+            tParameterList.insert("dependencies", "");              // Names of other fields that this property depends on
 
             // Assignment to PDVs
             tParameterList.insert("pdv_type", "");

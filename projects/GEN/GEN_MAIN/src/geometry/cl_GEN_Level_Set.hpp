@@ -27,6 +27,7 @@ namespace moris
              * @param aGeometryVariableIndices Indices of geometry variables to be filled by the ADVs
              * @param aADVIndices The indices of the ADV vector to fill in the geometry variables
              * @param aConstantParameters The constant parameters not filled by ADVs
+             * @param aName Name of this field for identification
              * @param aMesh The mesh pointer where the B-spline information can be obtained
              * @param aNumRefinements The number of refinement steps to use for this geometry
              * @param aRefinementFunctionIndex The index of a user-defined refinement function (-1 = default refinement)
@@ -38,6 +39,7 @@ namespace moris
                       Matrix<DDUMat>           aADVIndices,
                       Matrix<DDRMat>           aConstantParameters,
                       mtk::Interpolation_Mesh* aMesh,
+                      std::string              aName = "",
                       sint                     aNumRefinements = 0,
                       sint                     aRefinementFunctionIndex = -1,
                       uint                     aBSplineMeshIndex = 0,
