@@ -30,6 +30,15 @@ namespace moris
         {
 
                 //------------------------------------------------------------------------------
+            protected:
+                // default local properties
+                std::shared_ptr< Property > mPropIsochoricHeatCapacity  = nullptr;
+                std::shared_ptr< Property > mPropSpecificGasConstant    = nullptr;
+                std::shared_ptr< Property > mPropDynamicViscosity       = nullptr;
+                std::shared_ptr< Property > mPropThermalConductivity    = nullptr;
+                std::shared_ptr< Property > mPropCapillarityCoefficient = nullptr;
+                std::shared_ptr< Property > mPropFirstVdWconstant       = nullptr;
+                std::shared_ptr< Property > mPropSecondVdWconstant      = nullptr;
 
             private:
 
@@ -128,9 +137,6 @@ namespace moris
                         MAX_ENUM
                 };
 
-                // local string to property enum map
-                std::map< std::string, CM_Property_Type > mPropertyMap;
-
                 // function pointer for functions depending spatial dimension
                 void ( CM_Fluid_Compressible_Van_der_Waals:: * m_eval_strain )() = nullptr;
                 void ( CM_Fluid_Compressible_Van_der_Waals:: * m_eval_teststrain )() = nullptr;
@@ -216,21 +222,9 @@ namespace moris
 
                 //------------------------------------------------------------------------------
                 /**
-                 * set a property pointer
-                 * @param[ in ] aProperty     a property pointer
-                 * @param[ in ] aPropertyType a string defining the property
+                 * set local properties
                  */
-                void set_property(
-                        std::shared_ptr< fem::Property > aProperty,
-                        std::string                      aPropertyString );
-
-                //------------------------------------------------------------------------------
-                /**
-                 * get a property pointer
-                 * @param[ in ]  aPropertyType a string defining the property
-                 * @param[ out ] aProperty     a property pointer
-                 */
-                std::shared_ptr< Property > get_property( std::string aPropertyString );
+                void set_local_properties();
 
                 //------------------------------------------------------------------------------
                 /**

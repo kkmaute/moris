@@ -204,6 +204,7 @@ TEST_CASE("MDL Transient","[MDL_Transient]")
        tCMDiffusion->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
        tCMDiffusion->set_property( tPropConductivity, "Conductivity" );
        tCMDiffusion->set_space_dim( 2 );
+       tCMDiffusion->set_local_properties();
 
        // define the IWGs
        fem::IWG_Factory tIWGFactory;
@@ -492,6 +493,7 @@ TEST_CASE("MDL Transient XFEM","[MDL_Transient_XFEM]")
     tCMDiffusion->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
     tCMDiffusion->set_property( tPropConductivity, "Conductivity" );
     tCMDiffusion->set_space_dim( 2 );
+    tCMDiffusion->set_local_properties();
 
     // define the IWGs
     fem::IWG_Factory tIWGFactory;

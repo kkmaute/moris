@@ -84,6 +84,7 @@ TEST_CASE( "IWG_Struc_Dirichlet_Symmetric_Nitsche",
     tCMMasterStrucLinIso->set_dof_type_list( { tDispDofTypes } );
     tCMMasterStrucLinIso->set_property( tPropMasterEMod, "YoungsModulus" );
     tCMMasterStrucLinIso->set_property( tPropMasterNu, "PoissonRatio" );
+    tCMMasterStrucLinIso->set_local_properties();
 
     // define stabilization parameters
     fem::SP_Factory tSPFactory;
@@ -389,6 +390,7 @@ TEST_CASE( "IWG_Struc_Dirichlet_Unsymmetric_Nitsche",
     tCMMasterStrucLinIso->set_dof_type_list( { tDispDofTypes } );
     tCMMasterStrucLinIso->set_property( tPropMasterEMod, "YoungsModulus" );
     tCMMasterStrucLinIso->set_property( tPropMasterNu, "PoissonRatio" );
+    tCMMasterStrucLinIso->set_local_properties();
 
     // define stabilization parameters
     fem::SP_Factory tSPFactory;
@@ -695,6 +697,7 @@ TEST_CASE( "IWG_Struc_Dirichlet_Mixed_Displacement_Symmetric_Nitsche",
     tCMMasterStrucLinIso->set_dof_type_list( tDofTypes, { "Displacement", "Pressure" } );
     tCMMasterStrucLinIso->set_property( tPropMasterEMod, "YoungsModulus" );
     tCMMasterStrucLinIso->set_property( tPropMasterNu, "PoissonRatio" );
+    tCMMasterStrucLinIso->set_local_properties();
 
     // define stabilization parameters
     fem::SP_Factory tSPFactory;
@@ -1015,6 +1018,7 @@ TEST_CASE( "IWG_Struc_Dirichlet_Mixed_Displacement_Unsymmetric_Nitsche",
     tCMMasterStrucLinIso->set_dof_type_list( tDofTypes, { "Displacement", "Pressure" } );
     tCMMasterStrucLinIso->set_property( tPropMasterEMod, "YoungsModulus" );
     tCMMasterStrucLinIso->set_property( tPropMasterNu, "PoissonRatio" );
+    tCMMasterStrucLinIso->set_local_properties();
 
     // define stabilization parameters
     fem::SP_Factory tSPFactory;
@@ -1345,6 +1349,7 @@ TEST_CASE( "IWG_Struc_Thermo_Elastic_Dirichlet_Symmetric_Nitsche",
     tCMMasterStrucLinIso->set_property( tPropMasterNu, "PoissonRatio" );
     tCMMasterStrucLinIso->set_property( tPropMasterCTE, "CTE" );
     tCMMasterStrucLinIso->set_property( tPropMasterTRef, "ReferenceTemperature" );
+    tCMMasterStrucLinIso->set_local_properties();
 
     // define stabilization parameters
     fem::SP_Factory tSPFactory;
@@ -1675,6 +1680,7 @@ TEST_CASE( "IWG_Struc_Thermo_Elastic_Dirichlet_Unsymmetric_Nitsche",
     tCMMasterStrucLinIso->set_property( tPropMasterNu, "PoissonRatio" );
     tCMMasterStrucLinIso->set_property( tPropMasterCTE, "CTE" );
     tCMMasterStrucLinIso->set_property( tPropMasterTRef, "ReferenceTemperature" );
+    tCMMasterStrucLinIso->set_local_properties();
 
     // define stabilization parameters
     fem::SP_Factory tSPFactory;

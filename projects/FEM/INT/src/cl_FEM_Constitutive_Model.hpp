@@ -77,6 +77,9 @@ namespace moris
                 // properties
                 moris::Cell< std::shared_ptr< Property > > mProperties;
 
+                // local string to property enum map
+                std::map< std::string, uint > mPropertyMap;
+
                 // spatial dimensions
                 uint mSpaceDim;
 
@@ -188,6 +191,43 @@ namespace moris
                  * virtual destructor
                  */
                 virtual ~Constitutive_Model(){};
+
+                //------------------------------------------------------------------------------
+                void set_property(
+                        std::shared_ptr< fem::Property > aProperty,
+                        std::string                      aPropertyString )
+                {
+                    // check that aPropertyString makes sense
+                    MORIS_ERROR( mPropertyMap.find( aPropertyString ) != mPropertyMap.end(),
+                            "Constitutive_Model::set_property - Unknown aPropertyString : %s \n",
+                            aPropertyString.c_str() );
+
+                    // set the property in the property cell
+                    mProperties( mPropertyMap[ aPropertyString ] ) = aProperty;
+                }
+
+                //------------------------------------------------------------------------------
+
+                std::shared_ptr< fem::Property > get_property(
+                        std::string aPropertyString )
+                {
+                    // check that aPropertyString makes sense
+                    MORIS_ERROR( mPropertyMap.find( aPropertyString ) != mPropertyMap.end(),
+                            "Constitutive_Model::set_property - Unknown aPropertyString : %s \n",
+                            aPropertyString.c_str() );
+
+                    // get the property in the property cell
+                    return  mProperties( mPropertyMap[ aPropertyString ] );
+                }
+
+                //------------------------------------------------------------------------------
+                /**
+                 * set local properties
+                 */
+                virtual void set_local_properties()
+                {
+
+                }
 
                 //------------------------------------------------------------------------------
                 /**
@@ -378,19 +418,6 @@ namespace moris
 
                 //------------------------------------------------------------------------------
                 /**
-                 * set property
-                 * @param[ in ] aProperty a property pointer
-                 * @param[ in ] aPropertyString a string describing the property
-                 */
-                virtual void set_property(
-                        std::shared_ptr< fem::Property > aProperty,
-                        std::string                      aPropertyString )
-                {
-                    MORIS_ERROR( false, "Constitutive_Model::set_property - Not implemented for base class." );
-                }
-
-                //------------------------------------------------------------------------------
-                /**
                  * get properties
                  * @param[ out ] mProperties cell of property pointers
                  */
@@ -398,18 +425,6 @@ namespace moris
                 {
                     return mProperties;
                 };
-
-                //------------------------------------------------------------------------------
-                /**
-                 * get property
-                 * @param[ in ]  aPropertyType string for required property
-                 * @param[ out ] mProperty     required property pointer
-                 */
-                virtual std::shared_ptr< Property > get_property( std::string aPropertyType )
-                {
-                    MORIS_ERROR( false, "Constitutive_Model::get_property - Not implemented for base class." );
-                    return nullptr;
-                }
 
                 //------------------------------------------------------------------------------
                 /**

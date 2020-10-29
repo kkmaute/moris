@@ -281,6 +281,7 @@ TEST_CASE("2D XTK WITH HMR Struc Interface 2D","[XTK_HMR_Struc_Interface_2D]")
         tCMStrucLinIso1->set_property( tPropNu, "PoissonRatio" );
         tCMStrucLinIso1->set_space_dim( 2 );
         tCMStrucLinIso1->set_model_type(fem::Model_Type::PLANE_STRESS);
+        tCMStrucLinIso1->set_local_properties();
 
         std::shared_ptr< fem::Constitutive_Model > tCMStrucLinIso2 =
                 tCMFactory.create_CM( fem::Constitutive_Type::STRUC_LIN_ISO );
@@ -289,6 +290,7 @@ TEST_CASE("2D XTK WITH HMR Struc Interface 2D","[XTK_HMR_Struc_Interface_2D]")
         tCMStrucLinIso2->set_property( tPropNu, "PoissonRatio" );
         tCMStrucLinIso2->set_space_dim( 2 );
         tCMStrucLinIso2->set_model_type(fem::Model_Type::PLANE_STRESS);
+        tCMStrucLinIso2->set_local_properties();
 
         // define stabilization parameters
         fem::SP_Factory tSPFactory;
@@ -865,6 +867,7 @@ TEST_CASE("2D XTK WITH HMR Struc 2D first","[XTK_HMR_Struc_2D_01]")
         tCMStrucLinIso1->set_property( tPropNu, "PoissonRatio" );
         tCMStrucLinIso1->set_space_dim( 2 );
         tCMStrucLinIso1->set_model_type(fem::Model_Type::PLANE_STRESS);
+        tCMStrucLinIso1->set_local_properties();
 
         std::shared_ptr< fem::Constitutive_Model > tCMStrucLinIso2 =
                 tCMFactory.create_CM( fem::Constitutive_Type::STRUC_LIN_ISO );
@@ -873,6 +876,7 @@ TEST_CASE("2D XTK WITH HMR Struc 2D first","[XTK_HMR_Struc_2D_01]")
         tCMStrucLinIso2->set_property( tPropNu, "PoissonRatio" );
         tCMStrucLinIso2->set_space_dim( 2 );
         tCMStrucLinIso2->set_model_type(fem::Model_Type::PLANE_STRESS);
+        tCMStrucLinIso2->set_local_properties();
 
         // define stabilization parameters
         fem::SP_Factory tSPFactory;
@@ -1179,6 +1183,7 @@ TEST_CASE("2D XTK WITH HMR Struc 2D second","[XTK_HMR_Struc_2D_02]")
         tCMStrucLinIso->set_property( tPropNu, "PoissonRatio" );
         tCMStrucLinIso->set_space_dim( 2 );
         tCMStrucLinIso->set_model_type(fem::Model_Type::PLANE_STRESS);
+        tCMStrucLinIso->set_local_properties();
 
         // define stabilization parameters
         fem::SP_Factory tSPFactory;

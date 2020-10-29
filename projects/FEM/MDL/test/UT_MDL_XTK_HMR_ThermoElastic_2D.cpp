@@ -288,6 +288,7 @@ namespace moris
             tCMStrucLinIso1->set_property( tTRef, "ReferenceTemperature" );
             tCMStrucLinIso1->set_space_dim( 2 );
             tCMStrucLinIso1->set_model_type(fem::Model_Type::PLANE_STRESS);
+            tCMStrucLinIso1->set_local_properties();
 
             std::shared_ptr< fem::Constitutive_Model > tCMStrucLinIso2 = tCMFactory.create_CM( fem::Constitutive_Type::STRUC_LIN_ISO );
             tCMStrucLinIso2->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY },{ MSI::Dof_Type::TEMP }},
@@ -298,16 +299,19 @@ namespace moris
             tCMStrucLinIso2->set_property( tTRef, "ReferenceTemperature" );
             tCMStrucLinIso2->set_space_dim( 2 );
             tCMStrucLinIso2->set_model_type(fem::Model_Type::PLANE_STRESS);
+            tCMStrucLinIso2->set_local_properties();
 
             std::shared_ptr< fem::Constitutive_Model > tCMDiffLinIso1 = tCMFactory.create_CM( fem::Constitutive_Type::DIFF_LIN_ISO );
             tCMDiffLinIso1->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
             tCMDiffLinIso1->set_property( tPropConductivity1, "Conductivity" );
             tCMDiffLinIso1->set_space_dim( 2 );
+            tCMDiffLinIso1->set_local_properties();
 
             std::shared_ptr< fem::Constitutive_Model > tCMDiffLinIso2 = tCMFactory.create_CM( fem::Constitutive_Type::DIFF_LIN_ISO );
             tCMDiffLinIso2->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
             tCMDiffLinIso2->set_property( tPropConductivity2, "Conductivity" );
             tCMDiffLinIso2->set_space_dim( 2 );
+            tCMDiffLinIso2->set_local_properties();
 
             //----------------------------------------------------------------------------------------------------------
             // define stabilization parameters
@@ -758,6 +762,7 @@ namespace moris
             tCMStrucLinIso1->set_property( tTRef, "ReferenceTemperature" );
             tCMStrucLinIso1->set_space_dim( 2 );
             tCMStrucLinIso1->set_model_type(fem::Model_Type::PLANE_STRESS);
+            tCMStrucLinIso1->set_local_properties();
 
             std::shared_ptr< fem::Constitutive_Model > tCMStrucLinIso2 = tCMFactory.create_CM( fem::Constitutive_Type::STRUC_LIN_ISO );
             tCMStrucLinIso2->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY },{ MSI::Dof_Type::TEMP }},
@@ -768,16 +773,19 @@ namespace moris
             tCMStrucLinIso2->set_property( tTRef, "ReferenceTemperature" );
             tCMStrucLinIso2->set_space_dim( 2 );
             tCMStrucLinIso2->set_model_type(fem::Model_Type::PLANE_STRESS);
+            tCMStrucLinIso2->set_local_properties();
 
             std::shared_ptr< fem::Constitutive_Model > tCMDiffLinIso1 = tCMFactory.create_CM( fem::Constitutive_Type::DIFF_LIN_ISO );
             tCMDiffLinIso1->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
             tCMDiffLinIso1->set_property( tPropConductivity1, "Conductivity" );
             tCMDiffLinIso1->set_space_dim( 2 );
+            tCMDiffLinIso1->set_local_properties();
 
             std::shared_ptr< fem::Constitutive_Model > tCMDiffLinIso2 = tCMFactory.create_CM( fem::Constitutive_Type::DIFF_LIN_ISO );
             tCMDiffLinIso2->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
             tCMDiffLinIso2->set_property( tPropConductivity2, "Conductivity" );
             tCMDiffLinIso2->set_space_dim( 2 );
+            tCMDiffLinIso2->set_local_properties();
 
             //----------------------------------------------------------------------------------------------------------
 

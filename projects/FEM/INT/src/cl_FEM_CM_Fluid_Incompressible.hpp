@@ -21,8 +21,11 @@ namespace moris
 
         class CM_Fluid_Incompressible : public Constitutive_Model
         {
+            protected:
+                // default properties
+                std::shared_ptr< Property > mPropViscosity = nullptr;
+                std::shared_ptr< Property > mPropDensity   = nullptr;
 
-                //--------------------------------------------------------------------------------------------------------------
             private:
 
                 // default dof type
@@ -36,9 +39,6 @@ namespace moris
                     VISCOSITY, // fluid viscosity
                     MAX_ENUM
                 };
-
-                // local string to property enum map
-                std::map< std::string, CM_Property_Type > mPropertyMap;
 
                 // function pointers
                 void ( CM_Fluid_Incompressible:: * m_eval_strain )() = nullptr;
@@ -105,23 +105,11 @@ namespace moris
                     Constitutive_Model::set_dv_type_list( aDvTypes );
                 }
 
-                //--------------------------------------------------------------------------------------------------------------
+                //------------------------------------------------------------------------------
                 /**
-                 * set a property pointer
-                 * @param[ in ] aProperty     a property pointer
-                 * @param[ in ] aPropertyType a string defining the property
+                 * set local properties
                  */
-                void set_property(
-                        std::shared_ptr< fem::Property > aProperty,
-                        std::string                      aPropertyString );
-
-                //--------------------------------------------------------------------------------------------------------------
-                /**
-                 * get a property pointer
-                 * @param[ in ]  aPropertyType a string defining the property
-                 * @param[ out ] aProperty     a property pointer
-                 */
-                std::shared_ptr< Property > get_property( std::string aPropertyString );
+                void set_local_properties();
 
                 //--------------------------------------------------------------------------------------------------------------
                 /**
@@ -150,12 +138,6 @@ namespace moris
 
                 //--------------------------------------------------------------------------------------------------------------
                 /**
-                 * evaluate the test flux
-                 */
-                void eval_testFlux();
-
-                //--------------------------------------------------------------------------------------------------------------
-                /**
                  * evaluate the traction
                  * @param[ in ] aNormal normal
                  */
@@ -166,7 +148,8 @@ namespace moris
                  * evaluate the test traction
                  * @param[ in ] aNormal   normal
                  */
-                void eval_testTraction( const Matrix< DDRMat > & aNormal,
+                void eval_testTraction(
+                        const Matrix< DDRMat >             & aNormal,
                         const moris::Cell< MSI::Dof_Type > & aTestDofTypes );
 
                 //--------------------------------------------------------------------------------------------------------------
@@ -238,7 +221,8 @@ namespace moris
                  * @param[ in ] aDofTypes a dof type wrt which the derivative is evaluated
                  * @param[ in ] aNormal   normal
                  */
-                void eval_dTractiondDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes,
+                void eval_dTractiondDOF(
+                        const moris::Cell< MSI::Dof_Type > & aDofTypes,
                         const Matrix< DDRMat >             & aNormal );
 
                 //--------------------------------------------------------------------------------------------------------------
@@ -247,7 +231,8 @@ namespace moris
                  * @param[ in ] aDofTypes a dof type wrt which the derivative is evaluated
                  * @param[ in ] aNormal   normal
                  */
-                void eval_dTestTractiondDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes,
+                void eval_dTestTractiondDOF(
+                        const moris::Cell< MSI::Dof_Type > & aDofTypes,
                         const Matrix< DDRMat >             & aNormal,
                         const Matrix< DDRMat >             & aJump,
                         const moris::Cell< MSI::Dof_Type > & aTestDofTypes );
@@ -271,10 +256,12 @@ namespace moris
                 {
                     ( this->*m_flatten_normal )( aNormal, aFlatNormal );
                 }
-                void flatten_normal_2d( const Matrix< DDRMat > & aNormal,
-                        Matrix< DDRMat > & aFlatNormal );
-                void flatten_normal_3d( const Matrix< DDRMat > & aNormal,
-                        Matrix< DDRMat > & aFlatNormal );
+                void flatten_normal_2d(
+                        const Matrix< DDRMat > & aNormal,
+                        Matrix< DDRMat >       & aFlatNormal );
+                void flatten_normal_3d(
+                        const Matrix< DDRMat > & aNormal,
+                        Matrix< DDRMat >       & aFlatNormal );
 
                 //--------------------------------------------------------------------------------------------------------------
             private:

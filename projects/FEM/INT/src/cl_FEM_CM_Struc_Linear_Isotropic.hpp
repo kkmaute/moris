@@ -21,16 +21,23 @@ namespace moris
         class CM_Struc_Linear_Isotropic : public Constitutive_Model
         {
 
-                //--------------------------------------------------------------------------------------------------------------
+            protected:
+
+                // default local properties
+                std::shared_ptr< Property > mPropEMod    = nullptr;
+                std::shared_ptr< Property > mPropPoisson = nullptr;
+                std::shared_ptr< Property > mPropCTE     = nullptr;
+                std::shared_ptr< Property > mPropTRef    = nullptr;
+
             private:
 
-                // Default dof
+                // default dof
                 MSI::Dof_Type mDofDispl    = MSI::Dof_Type::UX;
                 MSI::Dof_Type mDofTemp     = MSI::Dof_Type::UNDEFINED;
                 MSI::Dof_Type mDofPressure = MSI::Dof_Type::UNDEFINED;
 
                 // property type for CM
-                enum class Property_Type
+                enum class CM_Property_Type
                 {
                         EMOD,
                         NU,
@@ -38,9 +45,6 @@ namespace moris
                         TEMP_REF,
                         MAX_ENUM
                 };
-
-                // Local string to property enum map
-                std::map< std::string, CM_Struc_Linear_Isotropic::Property_Type > mPropertyMap;
 
                 // function pointers
                 void ( CM_Struc_Linear_Isotropic:: * m_eval_strain )() = nullptr;
@@ -99,23 +103,11 @@ namespace moris
                     Constitutive_Model::set_dv_type_list( aDvTypes );
                 }
 
-                //--------------------------------------------------------------------------------------------------------------
+                //------------------------------------------------------------------------------
                 /**
-                 * set a property pointer
-                 * @param[ in ] aProperty     a property pointer
-                 * @param[ in ] aPropertyType a string defining the property
+                 * set local properties
                  */
-                void set_property(
-                        std::shared_ptr< fem::Property > aProperty,
-                        std::string                      aPropertyString )
-                {
-                    // check that aPropertyString makes sense
-                    MORIS_ERROR( mPropertyMap.find( aPropertyString ) != mPropertyMap.end(),
-                            "CM_Struc_Linear_Isotropic::set_property - Unknown aPropertyString." );
-
-                    // set the property in the property cell
-                    mProperties( static_cast< uint >( mPropertyMap[ aPropertyString ] ) ) = aProperty;
-                };
+                void set_local_properties();
 
                 //--------------------------------------------------------------------------------------------------------------
                 /**

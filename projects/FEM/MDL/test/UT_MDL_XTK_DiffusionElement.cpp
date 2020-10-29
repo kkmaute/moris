@@ -159,6 +159,7 @@ namespace moris
             tCMDiffLinIso->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
             tCMDiffLinIso->set_property( tPropConductivity, "Conductivity" );
             tCMDiffLinIso->set_space_dim( 3 );
+            tCMDiffLinIso->set_local_properties();
 
             // define stabilization parameters
             fem::SP_Factory tSPFactory;
@@ -436,6 +437,7 @@ namespace moris
             tCMDiffLinIso->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
             tCMDiffLinIso->set_property( tPropConductivity, "Conductivity" );
             tCMDiffLinIso->set_space_dim( 3 );
+            tCMDiffLinIso->set_local_properties();
 
             // define stabilization parameters
             fem::SP_Factory tSPFactory;

@@ -236,6 +236,7 @@ TEST_CASE("2D XTK WITH HMR SYMM BCs","[XTK_HMR_2D_Symm_BCs]")
         tCMStrucLinIso1->set_property( tPropEMod, "YoungsModulus" );
         tCMStrucLinIso1->set_property( tPropNu, "PoissonRatio" );
         tCMStrucLinIso1->set_space_dim( 2 );
+        tCMStrucLinIso1->set_local_properties();
 
         // define stabilization parameters
         fem::SP_Factory tSPFactory;
