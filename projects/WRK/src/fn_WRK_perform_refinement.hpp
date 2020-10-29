@@ -23,9 +23,10 @@ namespace moris
          * @param aSimultaneous If true (default), refinement steps are generated using all performers simultaneously.
          * If false, one performer will have all refinement steps performed before moving to the next performer.
          */
-        void perform_refinement(std::shared_ptr<hmr::HMR>          aHMR,
-                                Cell< std::shared_ptr<Performer> > aPerformers,
-                                bool                               aSimultaneous = true);
+        void perform_refinement(
+                std::shared_ptr<hmr::HMR>          aHMR,
+                Cell< std::shared_ptr<Performer> > aPerformers,
+                bool                               aSimultaneous =  true);
 
         /**
          * Queues a single refinement step. This is only intended to be called by \ref moris::wrk::perform_refinement()
@@ -36,10 +37,20 @@ namespace moris
          * @param aRefinementNumber The refinement number being queued.
          * @return
          */
-        bool queue_single_refinement(std::shared_ptr<hmr::HMR>  aHMR,
+        void queue_single_refinement(std::shared_ptr<hmr::HMR>  aHMR,
                                      std::shared_ptr<hmr::Mesh> aMesh,
                                      std::shared_ptr<Performer> aPerformer,
-                                     uint                       aRefinementNumber);
+                                     sint                       aRefinementNumber,
+                                     sint                       aMeshIndex );
+
+        moris::sint get_max_refinement_level( const Cell< std::shared_ptr<Performer> > & aPerformers );
+
+        void get_all_refinement_mesh_indices(
+                const Cell< std::shared_ptr<Performer> > & aPerformers,
+                moris::Matrix< DDSMat >                  & aAllPatternMap,
+                moris::uint                              & aNumPattern );
+
+
     }
 }
 
