@@ -217,7 +217,7 @@ namespace moris
             {
                 //FIXME rewrite for more readability
                 tVertInds( { 0, 0 }, { tCounter, tCounter + mVerticesOnBlock( mColorListBlock( Ik )( Ij, 0 ), 0 ) - 1 } ) =
-                        mIntegrationMesh->get_block_by_index( mColorListBlock( Ik )( Ij, 0 ) )->get_vertices_inds_on_block( true ).matrix_data();
+                        mIntegrationMesh->get_block_by_index( mColorListBlock( Ik )( Ij, 0 ) )->get_ig_vertices_inds_on_block( true ).matrix_data();
 
                 tCounter = tCounter + mVerticesOnBlock( mColorListBlock( Ik )( Ij, 0 ), 0 );
             }
@@ -227,7 +227,7 @@ namespace moris
             {
                 //FIXME rewrite for more readability
                 tVertInds( { 0, 0 }, { tCounter, tCounter + mVerticesOnSideSet( mColorListSideSet( Ik )( Ij, 0 ), 0 ) - 1 } ) =
-                        mIntegrationMesh->get_block_by_index( mColorListSideSet( Ik )( Ij, 0 ) )->get_vertices_inds_on_block( true ).matrix_data();
+                        mIntegrationMesh->get_block_by_index( mColorListSideSet( Ik )( Ij, 0 ) )->get_ig_vertices_inds_on_block( true ).matrix_data();
 
                 tCounter = tCounter + mVerticesOnSideSet( mColorListSideSet( Ik )( Ij, 0 ), 0 );
             }

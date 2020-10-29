@@ -19,9 +19,6 @@
 #include "cl_VSI_Cell_Visualization.hpp"
 #include "cl_VIS_Cell_Cluster_Visualization.hpp"
 
-//#include "cl_Matrix.hpp"
-//#include "cl_MTK_Block.hpp"
-
 namespace moris
 {
 namespace vis
@@ -32,11 +29,11 @@ protected:
     moris::Cell< moris::mtk::Set * > mListofBlocks;
     moris::Cell< moris::mtk::Set * > mListofSideSets;
 
-    moris::Cell< moris::mtk::Vertex const * > mAllVertices;
-    moris::Cell< mtk::Cell const * >                  mAllCells;
-    moris::Cell< moris::Cell< mtk::Cell * > >   mCellsOnSet;
-    moris::Cell< moris::Cell< mtk::Vertex * > >  mVerticesOnSet;
-    moris::Cell< moris::Cell< const mtk::Cluster * > >        mClustersOnBlock;
+    moris::Cell< moris::mtk::Vertex const * >          mAllVertices;
+    moris::Cell< mtk::Cell const * >                   mAllCells;
+    moris::Cell< moris::Cell< mtk::Cell * > >          mCellsOnSet;
+    moris::Cell< moris::Cell< mtk::Vertex * > >        mVerticesOnSet;
+    moris::Cell< moris::Cell< const mtk::Cluster * > > mClustersOnBlock;
 
     const bool                                  mOnlyPrimary;
 

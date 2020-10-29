@@ -89,7 +89,7 @@ namespace moris
             if( tNumVerticesOnSet > 0 )
             {
                 // get vertex indices on set
-                moris::Matrix< DDSMat > tVertexIndOnBlock = tMeshSet->get_vertices_inds_on_block( mOnlyPrimaryCells );
+                moris::Matrix< DDSMat > tVertexIndOnBlock = tMeshSet->get_ig_vertices_inds_on_block( mOnlyPrimaryCells );
 
                 // resize list of vertices for this set
                 mVerticesOnSet( Ij ).resize( tNumVerticesOnSet, nullptr );
