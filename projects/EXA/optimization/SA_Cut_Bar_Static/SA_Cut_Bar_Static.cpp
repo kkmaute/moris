@@ -42,7 +42,7 @@ namespace moris
 
     // Output Config --------------------------------------------------
     // set to true for vis output, set to false for sensitivity validation
-    bool tOutputCriterion    = false;
+    bool tOutputCriterion    = true;
     std::string tHDF5Path    = "SA_Cut_Bar_Static.hdf5";
     std::string tLibraryName = "SA_Cut_Bar_Static.so";
     std::string tOutputFile  = "SA_Cut_Bar_Static.exo";

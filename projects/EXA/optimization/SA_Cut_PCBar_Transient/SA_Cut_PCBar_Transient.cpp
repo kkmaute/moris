@@ -105,7 +105,7 @@ namespace moris
     // Side sets 
     std::string tFinPcmInterface  = "dbl_iside_p0_3_p1_2";
     std::string tFinNeumannInterface  = "SideSet_3_n_p3,SideSet_3_c_p3";
-    std::string tPCMDirichletInterface = "SideSet_2_n_p2,SideSet_2_c_p2";
+    std::string tPCMDirichletInterface = "SideSet_1_n_p2,SideSet_1_c_p2";
 
     // Ghost sets
     std::string tFinGhost = "ghost_p3";
