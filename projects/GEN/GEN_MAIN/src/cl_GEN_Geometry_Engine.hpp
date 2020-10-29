@@ -339,6 +339,10 @@ namespace moris
                     uint aFieldIndex,
                     uint aRefinementIndex);
 
+            const Matrix< DDSMat > & get_num_refinements(uint aFieldIndex );
+
+            const Matrix< DDSMat > & get_refinement_mesh_indices(uint aFieldIndex );
+
             /**
              * Returns fields so that HMR can perform refinement based on the data from this performer
              *

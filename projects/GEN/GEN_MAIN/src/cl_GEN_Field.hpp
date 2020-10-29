@@ -19,7 +19,8 @@ namespace moris
             Matrix<DDSMat> mADVDependencies;
             bool mDependsOnADVs;
             uint mNumADVs;
-            sint mNumRefinements;
+            Matrix<DDSMat> mNumRefinements;
+            Matrix<DDSMat> mRefinementMeshIndices;
             sint mRefinementFunctionIndex;
             sint mBSplineMeshIndex;
             real mBSplineLowerBound;
@@ -44,7 +45,8 @@ namespace moris
                   Matrix<DDUMat>  aFieldVariableIndices,
                   Matrix<DDUMat>  aADVIndices,
                   Matrix<DDRMat>  aConstantParameters,
-                  sint            aNumRefinements,
+                  Matrix<DDSMat>  aNumRefinements,
+                  Matrix<DDSMat>  aNumPatterns,
                   sint            aRefinementFunctionIndex,
                   sint            aBSplineMeshIndex,
                   real            aBSplineLowerBound,
@@ -67,7 +69,8 @@ namespace moris
                   Matrix<DDUMat>    aFieldVariableIndices,
                   Matrix<DDUMat>    aADVIndices,
                   Matrix<DDRMat>    aConstantParameters,
-                  sint              aNumRefinements,
+                  Matrix<DDSMat>  aNumRefinements,
+                  Matrix<DDSMat>  aNumPatterns,
                   sint              aRefinementFunctionIndex,
                   sint              aBSplineMeshIndex,
                   real              aBSplineLowerBound,
@@ -88,7 +91,8 @@ namespace moris
             Field(Matrix<DDRMat>& aADVs,
                   uint            aStartingADVIndex,
                   uint            aNumFieldVariables,
-                  sint            aNumRefinements,
+                  Matrix<DDSMat>  aNumRefinements,
+                  Matrix<DDSMat>  aNumPatterns,
                   sint            aRefinementFunctionIndex,
                   sint            aBSplineMeshIndex,
                   real            aBSplineLowerBound,
@@ -110,7 +114,8 @@ namespace moris
                   const Matrix<DDSMat>& aOwnedADVIds,
                   uint                  aOwnedADVIdsOffset,
                   uint                  aNumFieldVariables,
-                  sint                  aNumRefinements,
+                  Matrix<DDSMat>  aNumRefinements,
+                  Matrix<DDSMat>  aNumPatterns,
                   sint                  aRefinementFunctionIndex,
                   sint                  aBSplineMeshIndex,
                   real                  aBSplineLowerBound,
@@ -127,7 +132,8 @@ namespace moris
              * @param aBSplineUpperBound The upper bound for the B-spline coefficients describing this field
              */
             Field(Matrix<DDRMat> aConstantParameters,
-                  sint           aNumRefinements,
+                    Matrix<DDSMat>  aNumRefinements,
+                    Matrix<DDSMat>  aNumPatterns,
                   sint           aRefinementFunctionIndex,
                   sint           aBSplineMeshIndex,
                   real           aBSplineLowerBound,
@@ -196,7 +202,9 @@ namespace moris
              *
              * @return if to perform an additional refinement with this field
              */
-            sint get_num_refinements();
+            const Matrix< DDSMat > & get_num_refinements();
+
+            const Matrix< DDSMat > & get_refinement_mesh_indices();
 
             /**
              * Gets the index of a user-defined refinement function used within HMR.

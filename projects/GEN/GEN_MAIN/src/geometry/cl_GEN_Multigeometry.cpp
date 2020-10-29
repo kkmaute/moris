@@ -11,6 +11,7 @@ namespace moris
                                      std::string aID)
                 : Field({{}},
                         aGeometries(0)->get_num_refinements(),
+                        aGeometries(0)->get_refinement_mesh_indices(),
                         aGeometries(0)->get_refinement_function_index(),
                         aGeometries(0)->get_bspline_mesh_index(),
                         aGeometries(0)->get_bspline_lower_bound(),

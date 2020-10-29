@@ -31,7 +31,8 @@ namespace moris
             Mesh_Field_Geometry(mtk::Mesh*  aMesh,
                                 std::string aFieldName,
                                 EntityRank  aEntityRank = EntityRank::NODE,
-                                sint        aNumRefinements = 0,
+                                Matrix<DDSMat>  aNumRefinements = {{}},
+                                Matrix<DDSMat>  aNumPatterns = {{}},
                                 sint        aRefinementFunctionIndex = -1);
 
             /**

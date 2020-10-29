@@ -466,7 +466,22 @@ namespace moris
                 uint aFieldIndex,
                 uint aRefinementIndex)
         {
-            return ((sint)aRefinementIndex < mGeometries(aFieldIndex)->get_num_refinements());
+            MORIS_ASSERT( false, "Geometry_Engine::refinement_needed(), not implements");
+            return false;
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
+        const Matrix< DDSMat > & Geometry_Engine::get_num_refinements(uint aFieldIndex )
+        {
+            return mGeometries(aFieldIndex)->get_num_refinements();
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
+        const Matrix< DDSMat > & Geometry_Engine::get_refinement_mesh_indices(uint aFieldIndex )
+        {
+            return mGeometries(aFieldIndex)->get_refinement_mesh_indices();
         }
 
         //--------------------------------------------------------------------------------------------------------------
