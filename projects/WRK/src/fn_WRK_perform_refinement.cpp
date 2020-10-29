@@ -19,8 +19,6 @@ namespace moris
         {
             moris::sint tMaxNumRefinements = get_max_refinement_level( aPerformers );
 
-            std::cout<<"tMaxNumRefinements: "<<tMaxNumRefinements<<std::endl;
-
             moris::Matrix< DDSMat > tMeshIndices;
             moris::uint             tNumMeshes = 0;
 
@@ -28,9 +26,6 @@ namespace moris
                     aPerformers,
                     tMeshIndices,
                     tNumMeshes );
-
-            std::cout<<"tNumMeshes: "<<tNumMeshes<<std::endl;
-            print(tMeshIndices,"tMeshIndices");
 
            // sint tRefinementNumber = 0;
             sint tNumPerformers = aPerformers.size();
@@ -84,18 +79,13 @@ namespace moris
                 const moris::Matrix< DDSMat > & tNumRefinements      = aPerformer->get_num_refinements( Ik );
                 const moris::Matrix< DDSMat > & tLagrangeMeshIndices = aPerformer->get_refinement_mesh_indices( Ik );
 
-                print(tNumRefinements,"tNumRefinements");
-                print(tLagrangeMeshIndices,"tLagrangeMeshIndices");
-
                 // loop over tLagrangeMeshIndices // if aMeshIndex put in queue
                 for (uint Ii = 0; Ii < tLagrangeMeshIndices.numel(); Ii++)
                 {
                     if( tLagrangeMeshIndices( Ii ) == aMeshIndex )
                     {
-                        std::cout<<"true1"<<std::endl;
                         if( tNumRefinements( Ii ) > aRefinementNumber )
                         {
-                            std::cout<<"true2"<<std::endl;
                             // Loop over nodes and get field values
                             Matrix<DDRMat> tFieldValues(aMesh->get_num_nodes(), 1);
                             for (uint tNodeIndex = 0; tNodeIndex < aMesh->get_num_nodes(); tNodeIndex++)
