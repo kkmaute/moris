@@ -53,12 +53,20 @@ namespace moris
             virtual real interpolate_field_value(Field* aField);
 
             /**
-             * Get the field sensitivities on the child node based on its parents.
+             * Joins the field sensitivities on the child node based on its parents.
              *
              * @param aField Field pointer, referenced during call from field class
-             * @param aSensitivities Field sensitivities
+             * @return Field sensitivities
              */
-            virtual void interpolate_field_sensitivity(Field* aField, Matrix<DDRMat>& aSensitivities);
+            virtual Matrix<DDRMat> join_field_sensitivities(Field* aField);
+
+            /**
+             * Joins the depending ADV IDs on the child node based on its parents.
+             *
+             * @param aField Field pointer, referenced during call from field class
+             * @return Field ADV IDs
+             */
+            virtual Matrix<DDSMat> join_determining_adv_ids(Field* aField);
         };
     }
 }

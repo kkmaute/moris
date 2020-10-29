@@ -14,37 +14,7 @@ namespace moris
     {
         //------------------------------------------------------------------------------
 
-        IQI_Max_Dof::IQI_Max_Dof()
-        {
-            // set the property pointer cell size
-            mMasterProp.resize( static_cast< uint >( IQI_Property_Type::MAX_ENUM ), nullptr );
-
-            // populate the property map
-            mPropertyMap[ "ReferenceValue" ]    = IQI_Property_Type::REFERENCE_VALUE;
-            mPropertyMap[ "Exponent" ]          = IQI_Property_Type::EXPONENT;
-            mPropertyMap[ "Shift" ]             = IQI_Property_Type::SHIFT;
-        }
-
-        //------------------------------------------------------------------------------
-
-        void IQI_Max_Dof::set_property(
-                std::shared_ptr< Property > aProperty,
-                std::string                 aPropertyString,
-                mtk::Master_Slave           aIsMaster)
-        {
-            // check that aPropertyString makes sense
-            if ( mPropertyMap.find( aPropertyString ) == mPropertyMap.end() )
-            {
-                std::string tErrMsg =
-                        std::string( "IQI_Max_Dof::set_property - Unknown aPropertyString : ") +
-                        aPropertyString;
-
-                MORIS_ERROR( false , tErrMsg.c_str() );
-            }
-
-            // set the property in the property cell
-            mMasterProp( static_cast< uint >( mPropertyMap[ aPropertyString ] ) ) = aProperty;
-        }
+        IQI_Max_Dof::IQI_Max_Dof(){}
 
         //------------------------------------------------------------------------------
 
@@ -52,23 +22,21 @@ namespace moris
         {
             // get field interpolator for a given dof type
             Field_Interpolator * tFIMaxDof =
-                    mMasterFIManager->get_field_interpolators_for_type( mMasterDofTypes( 0 )( 0 ) );
+                    mMasterFIManager->get_field_interpolators_for_type( mQuantityDofType( 0 ) );
 
-            MORIS_ERROR(mMasterProp( static_cast< uint >( IQI_Property_Type::REFERENCE_VALUE ) ) != nullptr,
-                    "IQI_Max_Dof - no reference value set");
-
-            MORIS_ERROR(mMasterProp( static_cast< uint >( IQI_Property_Type::EXPONENT ) ) != nullptr,
-                    "IQI_Max_Dof - no exponent set");
-
-            // get property values
-            real tRefValue = mMasterProp( static_cast< uint >( IQI_Property_Type::REFERENCE_VALUE ) )->val()( 0 );
-            real tExponent = mMasterProp( static_cast< uint >( IQI_Property_Type::EXPONENT ) )->val()( 0 );
+            // unpack constant parameters
+            MORIS_ERROR( mParameters.size() == 2 || mParameters.size() == 3,
+                    "IQI_Max_Dof::compute_QI - constant parameters were not set." );
+            real tRefValue = mParameters( 0 )( 0 );
+            real tExponent = mParameters( 1 )( 0 );
             real tShift = 1.0;
-            if ( mMasterProp( static_cast< uint >( IQI_Property_Type::SHIFT ) ) != nullptr )
-                tShift = mMasterProp( static_cast< uint >( IQI_Property_Type::SHIFT ) )->val()( 0 );
+            if( mParameters.size() > 2 )
+            {
+                tShift = mParameters( 2 )( 0 );
+            }
 
             // check if dof index was set (for the case of vector field)
-            if( mMasterDofTypes( 0 ).size() > 1 )
+            if( mQuantityDofType.size() > 1 )
             {
                 MORIS_ERROR( mIQITypeIndex != -1, "IQI_Max_Dof::compute_QI - mIQITypeIndex not set." );
             }
@@ -87,24 +55,26 @@ namespace moris
                 moris::Cell< MSI::Dof_Type > & aDofType,
                 Matrix< DDRMat >             & adQIdu )
         {
-            // FIXME protect max dof type
             // get field interpolator for max dof type
             Field_Interpolator * tFIMaxDof =
-                    mMasterFIManager->get_field_interpolators_for_type( mMasterDofTypes( 0 )( 0 ) );
+                    mMasterFIManager->get_field_interpolators_for_type( mQuantityDofType( 0 ) );
 
-            // get property values
-            real tRefValue = mMasterProp( static_cast< uint >( IQI_Property_Type::REFERENCE_VALUE ) )->val()( 0 );
-            real tExponent = mMasterProp( static_cast< uint >( IQI_Property_Type::EXPONENT ) )->val()( 0 );
+            // unpack constant parameters
+            MORIS_ERROR( mParameters.size() == 2 || mParameters.size() == 3,
+                    "IQI_Max_Dof::compute_QI - constant parameters were not set." );
+            real tRefValue = mParameters( 0 )( 0 );
+            real tExponent = mParameters( 1 )( 0 );
             real tShift = 1.0;
-            if ( mMasterProp( static_cast< uint >( IQI_Property_Type::SHIFT ) ) != nullptr )
-                tShift = mMasterProp( static_cast< uint >( IQI_Property_Type::SHIFT ) )->val()( 0 );
+            if( mParameters.size() > 2 )
+            {
+                tShift = mParameters( 2 )( 0 );
+            }
 
-            // FIXME protect max dof type
             // if derivative dof type is max dof type
-            if( aDofType( 0 ) == mMasterDofTypes( 0 )( 0 ) )
+            if( aDofType( 0 ) == mQuantityDofType( 0 ) )
             {
                 // check if dof index was set (for the case of vector field)
-                if( mMasterDofTypes( 0 ).size() > 1 )
+                if( mQuantityDofType.size() > 1 )
                 {
                     MORIS_ERROR( mIQITypeIndex != -1, "IQI_Max_Dof::compute_QI - mIQITypeIndex not set." );
                 }

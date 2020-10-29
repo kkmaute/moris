@@ -20,14 +20,14 @@
 
 namespace moris
 {
+    class Solver_Interface;
+
 namespace sol
 {
     class Dist_Vector;
     class Dist_Map;
     class SOL_Warehouse;
 }
-
-    class Solver_Interface;
 
 namespace tsa
 {
@@ -57,7 +57,7 @@ namespace tsa
 
         moris::Cell< moris::Matrix< DDRMat > > mTimeFrames;
 
-        sol::Dist_Map * mFullMap = nullptr;
+        std::shared_ptr<sol::Dist_Map>  mFullMap = nullptr;
 
         moris::Cell< moris::uint >     mOutputIndices;
         moris::Cell< Output_Criteria > mOutputCriteriaPointer;

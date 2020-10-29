@@ -50,6 +50,7 @@ Cell_Info_Factory::create_cell_info_sp(enum CellTopology aCellTopo)
         case( CellTopology::TRI3  ):{ tConn = std::make_shared< Cell_Info_Tri3 >(); break; }
         case( CellTopology::QUAD4 ):{ tConn = std::make_shared< Cell_Info_Quad4>(); break; }
         case( CellTopology::QUAD9 ):{ tConn = std::make_shared< Cell_Info_Quad9>(); break; }
+        case( CellTopology::QUAD16 ):{ tConn = std::make_shared< Cell_Info_Quad16>(); break; }
         case( CellTopology::TET4  ):{ tConn = std::make_shared< Cell_Info_Tet4 >(); break; }
         //            case( TET10 ):{}
         case( CellTopology::HEX8  ):{ tConn = std::make_shared< Cell_Info_Hex8 >(); break; }

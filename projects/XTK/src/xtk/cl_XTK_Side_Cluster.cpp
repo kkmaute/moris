@@ -73,14 +73,8 @@ namespace xtk
     moris::Cell<moris::mtk::Vertex const *>
     Side_Cluster::get_vertices_in_cluster( const mtk::Master_Slave aIsMaster ) const
     {
-        if(!mTrivial)
-        {
             return mVerticesInCluster;
-        }
-        else
-        {
-            return mInterpolationCell->get_base_cell()->get_geometric_vertices_on_side_ordinal(mIntegrationCellSideOrdinals(0));
-        }
+
     }
     
     //----------------------------------------------------------------
@@ -127,8 +121,9 @@ namespace xtk
         else if(mTrivial)
         {
             // Cluster index is also the ordinal in trivial cluster
-            moris_index tVertexOrdinal = this->get_vertex_cluster_index(aVertex);
+            moris_index tVertexOrdinal = mIntegrationCells(0)->get_vertex_ordinal_wrt_cell(aVertex->get_index());
 
+            //std::cout<<"XTK Ord = "<<tVertexOrdinal<<std::endl;
             // get the interpolation cell's connectivity information
             moris::mtk::Cell_Info const * tCellInfo = mInterpolationCell->get_connectivity();
 
@@ -149,19 +144,19 @@ namespace xtk
     Side_Cluster::get_vertex_cluster_index( moris::mtk::Vertex const * aVertex ) const
     {
 
-        if(mTrivial ||  mChildMesh == nullptr)
-        {
+        // if(mTrivial ||  mChildMesh == nullptr)
+        // {
             auto tIter = mVertexIdToLocalIndex.find(aVertex->get_id());
 
             MORIS_ERROR(tIter != mVertexIdToLocalIndex.end(),"Vertex not found in side cluster");
 
             return tIter->second;
-        }
+        // }
 
-        else
-        {
-            return mChildMesh->get_cm_local_node_index(aVertex->get_index());
-        }
+        // else
+        // {
+            // return mChildMesh->get_cm_local_node_index(aVertex->get_index());
+        // }
     }
     
     //----------------------------------------------------------------
@@ -175,15 +170,18 @@ namespace xtk
 
 
         moris::Cell<moris::mtk::Vertex const *> tVerticesOnSide = mIntegrationCells(aCellIndexInCluster)->get_vertices_on_side_ordinal(tSideOrd);
-
         // iterate through vertices and see if the ids match
         for(moris::moris_index i = 0; i < (moris_index)tVerticesOnSide.size(); i++)
         {
+            MORIS_ERROR( mVertexIdToLocalIndex.find(aVertex->get_id()) != mVertexIdToLocalIndex.end(),"Vertex not found in side cluster");
+
             if(tVerticesOnSide(i)->get_id() == aVertex->get_id())
             {
                 return i;
             }
         }
+
+        MORIS_ERROR(0,"Vertex not found on facet.");
         return MORIS_INDEX_MAX;
     }
     
@@ -248,13 +246,10 @@ namespace xtk
     {
         moris::Cell<moris::mtk::Vertex const *> tVerticesInCluster = this->get_vertices_in_cluster();
 
-        // add to map if trivial otherwise the child mesh takes care of this
-        if(mTrivial || mChildMesh == nullptr)
+
+        for(moris::uint i = 0; i <tVerticesInCluster.size(); i++)
         {
-            for(moris::uint i = 0; i <tVerticesInCluster.size(); i++)
-            {
-                this->add_vertex_to_map(tVerticesInCluster(i)->get_id(),i);
-            }
+            this->add_vertex_to_map(tVerticesInCluster(i)->get_id(),i);
         }
 
         if( mChildMesh == nullptr && !mTrivial )

@@ -199,11 +199,38 @@ namespace moris
 
             uint get_num_coeffs( const uint aBSplineMeshIndex ) const;
 
-            //-------------------------------------------------------------------------------
+            /**
+             * Returns if this node has information about B-spline interpolation or not.
+             *
+             * @param aNodeIndex Node index
+             * @param aBSplineMeshIndex B-spline mesh index
+             * @return If interpolation exists
+             */
+            bool node_has_interpolation(
+                    uint aNodeIndex,
+                    uint aBSplineMeshIndex );
 
+            /**
+             * Gets the indices of the B-splines which form the basis of the given node.
+             *
+             * @param aNodeIndex Node index
+             * @param aBSplineMeshIndex B-spline mesh index
+             * @return B-spline indices
+             */
             Matrix< IndexMat > get_bspline_inds_of_node_loc_ind(
-                    const moris_index      aNodeIndex,
-                    const enum EntityRank  aBSplineRank );                //FIXME
+                    uint aNodeIndex,
+                    uint aBSplineMeshIndex );
+
+            /**
+             * Gets the IDs of the B-splines which form the basis of a given node.
+             *
+             * @param aNodeIndex Node index
+             * @param aBSplineMeshIndex B-spline mesh index
+             * @return B-spline IDs
+             */
+            Matrix< IdMat > get_bspline_ids_of_node_loc_ind(
+                    uint aNodeIndex,
+                    uint aBSplineMeshIndex );
 
             //-------------------------------------------------------------------------------
 
@@ -479,15 +506,18 @@ namespace moris
                     const moris_index  aNodeIndex,
                     Matrix< DDLUMat> & aMemoryIndices ) const;
 
-            //-------------------------------------------------------------------------------
         public:
+            /**
+             * Get the T-matrix of a node.
+             *
+             * @param aNodeIndex Node index
+             * @param aBSplineMeshIndex B-spline mesh index
+             * @return T-matrix
+             */
             const Matrix< DDRMat > & get_t_matrix_of_node_loc_ind(
-                    const moris_index      aNodeIndex,
-                    const enum EntityRank  aBSplineRank )
-            {
-                return *mMesh->get_node_by_index( aNodeIndex )->get_interpolation( 0)
-                             ->get_weights();
-            }
+                    uint aNodeIndex,
+                    uint aBSplineMeshIndex);
+
         private:
 
             //-------------------------------------------------------------------------------

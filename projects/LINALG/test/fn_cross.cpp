@@ -31,13 +31,13 @@ TEST_CASE(
 
             CHECK(all_true(tGoldCrossProd == tGoldCrossProd));
 
-            tCrossProd = cross(tVec1.matrix_data(),tVec2);
+            tCrossProd = cross(tVec1,tVec2);
             CHECK(all_true(tGoldCrossProd == tGoldCrossProd));
 
-            tCrossProd = cross(tVec1.matrix_data(),tVec2.matrix_data());
+            tCrossProd = cross(tVec1,tVec2);
             CHECK(all_true(tGoldCrossProd == tGoldCrossProd));
 
-            tCrossProd = cross(tVec1,tVec2.matrix_data());
+            tCrossProd = cross(tVec1,tVec2);
             CHECK(all_true(tGoldCrossProd == tGoldCrossProd));
 
         }

@@ -68,7 +68,7 @@ void Solver_Interface::fill_matrix_and_RHS(
     }
 
     // global assembly to switch entries to the right processor
-    aVectorRHS->vector_global_asembly();
+    aVectorRHS->vector_global_assembly();
     aMat->matrix_global_assembly();
 }
 
@@ -110,7 +110,7 @@ void Solver_Interface::assemble_RHS( moris::sol::Dist_Vector * aVectorRHS )
     }
 
     // global assembly to switch entries to the right processor
-    aVectorRHS->vector_global_asembly();
+    aVectorRHS->vector_global_assembly();
 
 //    aVectorRHS->print();
 }
@@ -151,7 +151,7 @@ void Solver_Interface::assemble_staggerd_RHS_contribution( moris::sol::Dist_Vect
     }
 
     // global assembly to switch entries to the right processor
-    aVectorRHS->vector_global_asembly();
+    aVectorRHS->vector_global_assembly();
 
 //    aVectorRHS->print();
 }
@@ -201,7 +201,7 @@ void Solver_Interface::assemble_additional_DqDs_RHS_contribution( moris::sol::Di
         }
 
         // global assembly to switch entries to the right processor
-        aVectorRHS->vector_global_asembly();
+        aVectorRHS->vector_global_assembly();
 
 //        aVectorRHS->print();
     }
@@ -295,7 +295,7 @@ void Solver_Interface::fill_matrix_and_RHS( moris::sol::Dist_Matrix * aMat,
     //    aMat->print();
 	//aVectorRHS->print();
 
-    aVectorRHS->vector_global_asembly();
+    aVectorRHS->vector_global_assembly();
 }
 
 void Solver_Interface::get_adof_ids_based_on_criteria( 

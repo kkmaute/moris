@@ -97,7 +97,7 @@ namespace moris
 
             // get the field interpolators
             Field_Interpolator * tDensityFI = mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );
-            Field_Interpolator * tVelocityFI = mMasterFIManager->get_field_interpolators_for_type( MSI::Dof_Type::VX ); //FIXME this need to be protected
+            Field_Interpolator * tVelocityFI = mMasterFIManager->get_field_interpolators_for_type( mDofVelocity );
 
             // get the constitutive model
             std::shared_ptr< Constitutive_Model > tFluidCM =  mMasterCM( static_cast< uint >( IWG_Constitutive_Type::FLUID ) );
@@ -108,7 +108,7 @@ namespace moris
                     - trans( tDensityFI->dnNdxn( 1 ) ) * tDensityFI->val()( 0 ) * tVelocityFI->val() );
 
             // check for nan, infinity
-            MORIS_ERROR( isfinite( mSet->get_residual()( 0 ) ),
+            MORIS_ASSERT( isfinite( mSet->get_residual()( 0 ) ),
                     "IWG_Compressible_NS_Density_Bulk::compute_residual - Residual contains NAN or INF, exiting!");
         }
 
@@ -137,7 +137,7 @@ namespace moris
             for( uint iDOF = 0; iDOF < tNumDofDependencies; iDOF++ )
             {
                 // get the treated dof type
-                Cell< MSI::Dof_Type > tDofType = mRequestedMasterGlobalDofTypes( iDOF );
+                Cell< MSI::Dof_Type > & tDofType = mRequestedMasterGlobalDofTypes( iDOF );
 
                 // get the index for dof type, indices for assembly
                 sint tDofDepIndex         = mSet->get_dof_index_for_type( tDofType( 0 ), mtk::Master_Slave::MASTER );
@@ -151,7 +151,7 @@ namespace moris
                     mSet->get_jacobian()(
                             { tMasterResStartIndex, tMasterResStopIndex },
                             { tMasterDepStartIndex, tMasterDepStopIndex } ) += aWStar * (
-                                    trans( tDensityFI->N() ) * tDensityFI->dnNdxn( 1 )  -
+                                    trans( tDensityFI->N() ) * tDensityFI->dnNdtn( 1 )  -
                                     trans( tDensityFI->dnNdxn( 1 ) ) * tVelocityFI->val() * tDensityFI->N() );
                 }
 
@@ -167,7 +167,7 @@ namespace moris
             }
 
             // check for nan, infinity
-            MORIS_ERROR( isfinite( mSet->get_jacobian() ),
+            MORIS_ASSERT( isfinite( mSet->get_jacobian() ),
                     "IWG_Compressible_NS_Density_Bulk::compute_jacobian - Jacobian contains NAN or INF, exiting!");
         }
 

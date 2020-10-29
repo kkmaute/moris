@@ -11,6 +11,7 @@ namespace moris
                      Matrix<DDUMat>  aGeometryVariableIndices,
                      Matrix<DDUMat>  aADVIndices,
                      Matrix<DDRMat>  aConstantParameters,
+                     std::string     aName,
                      Matrix<DDSMat>  aNumRefinements,
                      Matrix<DDSMat>  aNumPatterns,
                      sint            aRefinementFunctionIndex,
@@ -21,6 +22,7 @@ namespace moris
                         aGeometryVariableIndices,
                         aADVIndices,
                         aConstantParameters,
+                        aName,
                         aNumRefinements,
                         aNumPatterns,
                         aRefinementFunctionIndex,
@@ -50,6 +52,7 @@ namespace moris
                      Matrix<DDUMat>    aGeometryVariableIndices,
                      Matrix<DDUMat>    aADVIndices,
                      Matrix<DDRMat>    aConstantParameters,
+                     std::string       aName,
                      Matrix<DDSMat>  aNumRefinements,
                      Matrix<DDSMat>  aNumPatterns,
                      sint              aRefinementFunctionIndex,
@@ -60,6 +63,7 @@ namespace moris
                         aGeometryVariableIndices,
                         aADVIndices,
                         aConstantParameters,
+                        aName,
                         aNumRefinements,
                         aNumPatterns,
                         aRefinementFunctionIndex,
@@ -85,19 +89,21 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        Plane::Plane(real aXCenter,
-                     real aYCenter,
-                     real aZCenter,
-                     real aXNormal,
-                     real aYNormal,
-                     real aZNormal,
+        Plane::Plane(real        aXCenter,
+                     real        aYCenter,
+                     real        aZCenter,
+                     real        aXNormal,
+                     real        aYNormal,
+                     real        aZNormal,
+                     std::string aName,
                      Matrix<DDSMat>  aNumRefinements,
                      Matrix<DDSMat>  aNumPatterns,
-                     sint aRefinementFunctionIndex,
-                     sint aBSplineMeshIndex,
-                     real aBSplineLowerBound,
-                     real aBSplineUpperBound)
+                     sint        aRefinementFunctionIndex,
+                     sint        aBSplineMeshIndex,
+                     real        aBSplineLowerBound,
+                     real        aBSplineUpperBound)
                 : Field(Matrix<DDRMat>({{aXCenter, aYCenter, aZCenter, aXNormal, aYNormal, aZNormal}}),
+                        aName,
                         aNumRefinements,
                         aNumPatterns,
                         aRefinementFunctionIndex,
@@ -111,17 +117,19 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
     
-        Plane::Plane(real aXCenter,
-                     real aYCenter,
-                     real aXNormal,
-                     real aYNormal,
+        Plane::Plane(real        aXCenter,
+                     real        aYCenter,
+                     real        aXNormal,
+                     real        aYNormal,
+                     std::string aName,
                      Matrix<DDSMat>  aNumRefinements,
                      Matrix<DDSMat>  aNumPatterns,
-                     sint aRefinementFunctionIndex,
-                     sint aBSplineMeshIndex,
-                     real aBSplineLowerBound,
-                     real aBSplineUpperBound)
+                     sint        aRefinementFunctionIndex,
+                     sint        aBSplineMeshIndex,
+                     real        aBSplineLowerBound,
+                     real        aBSplineUpperBound)
                 : Field(Matrix<DDRMat>({{aXCenter, aYCenter, aXNormal, aYNormal}}),
+                        aName,
                         aNumRefinements,
                         aNumPatterns,
                         aRefinementFunctionIndex,
@@ -135,21 +143,21 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        real Plane::evaluate_field_value(const Matrix<DDRMat>& aCoordinates)
+        real Plane::get_field_value(const Matrix<DDRMat>& aCoordinates)
         {
             return (this->*m_eval_field)(aCoordinates);
         }
 
         //--------------------------------------------------------------------------------------------------------------
 
-        void Plane::evaluate_all_sensitivities(const Matrix<DDRMat>& aCoordinates, Matrix<DDRMat>& aSensitivities)
+        Matrix<DDRMat> Plane::get_field_sensitivities(const Matrix<DDRMat>& aCoordinates)
         {
-            (this->*m_eval_sensitivity)(aCoordinates, aSensitivities);
+            return (this->*m_eval_sensitivity)(aCoordinates);
         }
 
         //--------------------------------------------------------------------------------------------------------------
 
-        moris::real Plane::eval_field_2d(const Matrix<DDRMat>& aCoordinates)
+        real Plane::eval_field_2d(const Matrix<DDRMat>& aCoordinates)
         {
             // Get variables
             real tXCenter = *(mFieldVariables(0));
@@ -163,7 +171,7 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
         
-        moris::real Plane::eval_field_3d(const Matrix<DDRMat>& aCoordinates)
+        real Plane::eval_field_3d(const Matrix<DDRMat>& aCoordinates)
         {
             // Get variables
             real tXCenter = *(mFieldVariables(0));
@@ -179,7 +187,7 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        void Plane::eval_sensitivity_2d(const Matrix<DDRMat>& aCoordinates, Matrix<DDRMat>& aSensitivities)
+        Matrix<DDRMat> Plane::eval_sensitivity_2d(const Matrix<DDRMat>& aCoordinates)
         {
             // Get variables
             real tXCenter = *(mFieldVariables(0));
@@ -188,18 +196,21 @@ namespace moris
             real tYNormal = *(mFieldVariables(3));
 
             // Evaluate sensitivities
-            aSensitivities.set_size(1, 4);
-            aSensitivities(0) = -tXNormal;
-            aSensitivities(1) = -tYNormal;
-            aSensitivities(2) = aCoordinates(0) - tXCenter;
-            aSensitivities(3) = aCoordinates(1) - tYCenter;
+            Matrix<DDRMat> tSensitivities(1, 4);
+            tSensitivities(0) = -tXNormal;
+            tSensitivities(1) = -tYNormal;
+            tSensitivities(2) = aCoordinates(0) - tXCenter;
+            tSensitivities(3) = aCoordinates(1) - tYCenter;
+
+            return tSensitivities;
         }
 
         //--------------------------------------------------------------------------------------------------------------
 
-        void Plane::eval_sensitivity_3d(Matrix<DDRMat> const & aCoordinates, Matrix<DDRMat>& aSensitivities)
+        Matrix<DDRMat> Plane::eval_sensitivity_3d(const Matrix<DDRMat>& aCoordinates)
         {
             MORIS_ERROR(false, "Sensitivities not implemented for 3d plane.");
+            return {{}};
         }
 
         //--------------------------------------------------------------------------------------------------------------

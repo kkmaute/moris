@@ -81,7 +81,7 @@ namespace moris
         void
         Interpolation_Function< mtk::Geometry_Type::HEX, Interpolation_Type::LAGRANGE, 3, 8 >::eval_N(
                 const Matrix< DDRMat > & aXi,
-                Matrix< DDRMat > & aNXi ) const
+                Matrix< DDRMat >       & aNXi ) const
         {
             // make sure that input is correct
             MORIS_ASSERT( aXi.length() >= 3, "HEX8 - eval_N: aXi not allocated or hat wrong size." );
@@ -109,7 +109,7 @@ namespace moris
         void
         Interpolation_Function< mtk::Geometry_Type::HEX, Interpolation_Type::LAGRANGE, 3, 8 >::eval_dNdXi(
                 const Matrix< DDRMat > & aXi,
-                Matrix< DDRMat > & adNdXi ) const
+                Matrix< DDRMat >       & adNdXi ) const
         {
             // make sure that input is correct
             MORIS_ASSERT( aXi.length() >= 3, "HEX8 - eval_dNdXi: aXi not allocated or hat wrong size." );
@@ -160,7 +160,7 @@ namespace moris
         void
         Interpolation_Function< mtk::Geometry_Type::HEX, Interpolation_Type::LAGRANGE, 3, 8 >::eval_d2NdXi2(
                 const Matrix< DDRMat > & aXi,
-                Matrix< DDRMat > & ad2NdXi2 ) const
+                Matrix< DDRMat >       & ad2NdXi2 ) const
         {
             // make sure that input is correct
             MORIS_ASSERT( aXi.length() >= 3, "HEX8 - eval_d2NdXi2: aXi not allocated or hat wrong size." );
@@ -235,7 +235,7 @@ namespace moris
         void
         Interpolation_Function< mtk::Geometry_Type::HEX, Interpolation_Type::LAGRANGE, 3, 8 >::eval_d3NdXi3(
                 const Matrix< DDRMat > & aXi,
-                Matrix< DDRMat > & ad3NdXi3 ) const
+                Matrix< DDRMat >       & ad3NdXi3 ) const
         {
             // make sure that input is correct
             MORIS_ASSERT( aXi.length() >= 3, "HEX8 - eval_d3NdXi3: aXi not allocated or hat wrong size." );

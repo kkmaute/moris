@@ -105,7 +105,7 @@ TEST_CASE( "IWG_Diff_Interface", "[moris],[fem],[IWG_Diff_Interface]" )
     fem::IWG_Factory tIWGFactory;
 
     std::shared_ptr< fem::IWG > tIWG =
-            tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_INTERFACE );
+            tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_INTERFACE_SYMMETRIC_NITSCHE );
     tIWG->set_residual_dof_type( tTempDofTypes );
     tIWG->set_dof_type_list( tDofTypes, mtk::Master_Slave::MASTER );
     tIWG->set_dof_type_list( tDofTypes, mtk::Master_Slave::SLAVE );

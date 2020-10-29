@@ -1,7 +1,3 @@
-//
-// Created by christopherson on 5/19/20.
-//
-
 #include "cl_GEN_Field_Analytic.hpp"
 
 namespace moris
@@ -13,26 +9,20 @@ namespace moris
 
         Field_Analytic::Field_Analytic()
         {
-
         }
 
         //--------------------------------------------------------------------------------------------------------------
 
-        real Field_Analytic::evaluate_field_value(
-                uint                  aIndex,
-                const Matrix<DDRMat>& aCoordinates)
+        real Field_Analytic::get_field_value(uint aNodeIndex, const Matrix<DDRMat>& aCoordinates)
         {
-            return this->evaluate_field_value(aCoordinates);
+            return this->get_field_value(aCoordinates);
         }
 
         //--------------------------------------------------------------------------------------------------------------
 
-        void Field_Analytic::evaluate_all_sensitivities(
-                uint                  aIndex,
-                const Matrix<DDRMat>& aCoordinates,
-                Matrix<DDRMat>&       aSensitivities)
+        Matrix<DDRMat> Field_Analytic::get_field_sensitivities(uint aNodeIndex, const Matrix<DDRMat>& aCoordinates)
         {
-            this->evaluate_all_sensitivities(aCoordinates, aSensitivities);
+            return this->get_field_sensitivities(aCoordinates);
         }
 
         //--------------------------------------------------------------------------------------------------------------

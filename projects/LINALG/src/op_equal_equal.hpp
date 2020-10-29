@@ -21,59 +21,57 @@
 namespace moris
 {
 
-/**
- * @brief Determine element-wise equality of two arrays
- *
- * @param[in] aA Input matrix
- * @param[in] aB Input matrix
- *
- * This function checks if @f$ \mathbf{A}_{ij} = \mathbf{B}_{ij} @f$. It returns a
- * logical matrix with elements set to logical 1 (true) where matrices A and B are
- * equal; otherwise, it returns logical 0 (false).
- *
- * Example:
- * @include LNA/src/op_equal_equal.inc
- *
- */
-template< typename Matrix_Type >
-auto
-operator==(
-        Matrix< Matrix_Type > const & aA,
-        Matrix< Matrix_Type > const & aB )
-        ->decltype( operator==( aA.matrix_data(), aB.matrix_data() ) )
-        {
-    return operator==( aA.matrix_data(), aB.matrix_data() );
-        }
+    /**
+     * @brief Determine element-wise equality of two arrays
+     *
+     * @param[in] aA Input matrix
+     * @param[in] aB Input matrix
+     *
+     * This function checks if @f$ \mathbf{A}_{ij} = \mathbf{B}_{ij} @f$. It returns a
+     * logical matrix with elements set to logical 1 (true) where matrices A and B are
+     * equal; otherwise, it returns logical 0 (false).
+     *
+     * Example:
+     * @include LNA/src/op_equal_equal.inc
+     *
+     */
+    template< typename Matrix_Type >
+    auto
+    operator==(
+            Matrix< Matrix_Type > const & aA,
+            Matrix< Matrix_Type > const & aB )
+            ->decltype( operator==( aA.matrix_data(), aB.matrix_data() ) )
+            {
+        return operator==( aA.matrix_data(), aB.matrix_data() );
+            }
 
-template< typename Matrix_Type >
-auto
-operator==( Matrix< Matrix_Type > & aA,
+    template< typename Matrix_Type >
+    auto
+    operator==( Matrix< Matrix_Type > & aA,
             Matrix< Matrix_Type > & aB )
-        ->decltype( operator==( aA.matrix_data(), aB.matrix_data() ) )
-        {
-    return operator==( aA.matrix_data(), aB.matrix_data() );
-        }
+            ->decltype( operator==( aA.matrix_data(), aB.matrix_data() ) )
+            {
+        return operator==( aA.matrix_data(), aB.matrix_data() );
+            }
 
-template< typename Matrix_Type >
-auto
-operator==(typename Matrix< Matrix_Type >::Data_Type aA,
-                    Matrix< Matrix_Type > & aB )
-        ->decltype( operator==( aA, aB.matrix_data() ) )
-        {
-    return operator==( aA, aB.matrix_data() );
-        }
+    template< typename Matrix_Type >
+    auto
+    operator==(typename Matrix< Matrix_Type >::Data_Type aA,
+            Matrix< Matrix_Type >                     & aB )
+            ->decltype( operator==( aA, aB.matrix_data() ) )
+            {
+        return operator==( aA, aB.matrix_data() );
+            }
 
-template< typename Matrix_Type >
-auto
-operator==(          Matrix< Matrix_Type > &          aA,
-            typename Matrix< Matrix_Type >::Data_Type aB)
-        ->decltype( operator==( aA.matrix_data(), aB ) )
-        {
+    template< typename Matrix_Type >
+    auto
+    operator==(          Matrix< Matrix_Type > &          aA,
+            typename Matrix< Matrix_Type >::Data_Type   aB)
+            ->decltype( operator==( aA.matrix_data(), aB ) )
+            {
 
-    return operator==( aA.matrix_data(), aB );
-        }
+        return operator==( aA.matrix_data(), aB );
+            }
 }
-
-
 
 #endif /* PROJECTS_LINALG_OP_EQUAL_EQUAL_HPP_ */

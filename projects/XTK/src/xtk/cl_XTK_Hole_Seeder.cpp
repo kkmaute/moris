@@ -160,7 +160,7 @@ Hole_Seeder::seed_field()
         // iterate through all spheres
         for(moris::uint iSphere =0; iSphere<tNumSpheres; iSphere++)
         {
-            tSphereLSV(i)(iSphere) = mSpheres(iSphere)->evaluate_field_value(tCoords.get_row(i));
+            tSphereLSV(i)(iSphere) = mSpheres(iSphere)->get_field_value(tCoords.get_row(i));
         }
 
         mSeededField(i) = tSphereLSV(i).min();

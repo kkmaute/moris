@@ -14,6 +14,9 @@ namespace moris
 
         IWG_Ghost_Normal_Field::IWG_Ghost_Normal_Field()
         {
+            // set ghost flag
+            mIsGhost = true;
+
             // set size for the stabilization parameter pointer cell
             mStabilizationParam.resize( static_cast< uint >( IWG_Stabilization_Type::MAX_ENUM ), nullptr );
 
@@ -104,7 +107,7 @@ namespace moris
             }
 
             // check for nan, infinity
-            MORIS_ERROR( isfinite( mSet->get_residual()( 0 ) ),
+            MORIS_ASSERT( isfinite( mSet->get_residual()( 0 ) ),
                     "IWG_Ghost_Normal_Field::compute_residual - Residual contains NAN or INF, exiting!");
         }
 
@@ -118,6 +121,9 @@ namespace moris
             this->check_field_interpolators( mtk::Master_Slave::SLAVE );
 #endif
 
+            // set interpolation order
+            IWG::set_interpolation_order();
+
             // get master index for residual dof type, indices for assembly
             uint tMasterDofIndex      = mSet->get_dof_index_for_type( mResidualDofType( 0 ), mtk::Master_Slave::MASTER );
             uint tMasterResStartIndex = mSet->get_res_dof_assembly_map()( tMasterDofIndex )( 0, 0 );
@@ -127,9 +133,6 @@ namespace moris
             uint tSlaveDofIndex      = mSet->get_dof_index_for_type( mResidualDofType( 0 ), mtk::Master_Slave::SLAVE );
             uint tSlaveResStartIndex = mSet->get_res_dof_assembly_map()( tSlaveDofIndex )( 0, 0 );
             uint tSlaveResStopIndex  = mSet->get_res_dof_assembly_map()( tSlaveDofIndex )( 0, 1 );
-
-            // set interpolation order
-            IWG::set_interpolation_order();
 
             // get the master field interpolator for residual dof type
             Field_Interpolator * tFIMaster =
@@ -167,7 +170,7 @@ namespace moris
                 for( uint iDOF = 0; iDOF < tMasterNumDofDependencies; iDOF++ )
                 {
                     // get the dof type
-                    Cell< MSI::Dof_Type > tDofType = mRequestedMasterGlobalDofTypes( iDOF );
+                    Cell< MSI::Dof_Type > & tDofType = mRequestedMasterGlobalDofTypes( iDOF );
 
                     // get the index for the dof type
                     sint tDofDepIndex         = mSet->get_dof_index_for_type( tDofType( 0 ), mtk::Master_Slave::MASTER );
@@ -242,7 +245,7 @@ namespace moris
             }
 
             // check for nan, infinity
-            MORIS_ERROR(  isfinite( mSet->get_jacobian() ) ,
+            MORIS_ASSERT( isfinite( mSet->get_jacobian() ) ,
                     "IWG_Ghost_Normal_Field::compute_jacobian - Jacobian contains NAN or INF, exiting!");
         }
 
@@ -405,7 +408,7 @@ namespace moris
 
                 default:
                 {
-                    MORIS_ERROR( false, "IWG_Ghost_Normal_Field::get_flat_normal_matrix - order not supported." );
+                    MORIS_ERROR( false, "IWG_Ghost_Normal_Field::get_flat_normal_matrix - order not supported" );
                 }
             }
         }

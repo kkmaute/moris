@@ -2,6 +2,7 @@
 #include "fn_cross.hpp"
 #include "fn_dot.hpp"
 #include "fn_sum.hpp"
+#include "fn_inv.hpp"
 #include "op_div.hpp"
 #include "fn_linsolve.hpp"
 
@@ -203,8 +204,8 @@ namespace moris
             }
 
             // set input values
-            mXiLocal.matrix_data()  = aParamPoint( { 0, mNumSpaceParamDim-1 }, { 0, 0 } );
-            mTauLocal.matrix_data() = aParamPoint( mNumSpaceParamDim );
+            mXiLocal  = aParamPoint( { 0, mNumSpaceParamDim-1 }, { 0, 0 } );
+            mTauLocal = aParamPoint( mNumSpaceParamDim );
 
             // reset bool for evaluation
             this->reset_eval_flags();
@@ -265,120 +266,6 @@ namespace moris
 
             // compute time increment deltat
             return mTHat.max() - mTHat.min();
-        }
-
-        //------------------------------------------------------------------------------
-
-        Matrix< DDRMat > Geometry_Interpolator::extract_space_side_space_param_coeff(
-                moris_index              aSpaceOrdinal,
-                mtk::Interpolation_Order aInterpolationOrder )
-        {
-            // get the interpolation order of the IP cell
-            mtk::Interpolation_Order tIPInterpolationOrder = mSpaceInterpolation->get_interpolation_order();
-
-            Matrix< DDRMat > tXiForExtraction;
-            uint tNumSpaceBases;
-
-            if( tIPInterpolationOrder == aInterpolationOrder )
-            {
-                // get the parametric coordinated of the parent for extraction
-                mSpaceInterpolation->get_param_coords( tXiForExtraction );
-                tXiForExtraction = trans( tXiForExtraction );
-
-                // get the number of bases
-                tNumSpaceBases = mNumSpaceBases;
-            }
-            else
-            {
-                // create an interpolation rule for the iG cell
-                Interpolation_Rule tIGInterpolationRule( mGeometryType,
-                        Interpolation_Type::LAGRANGE,
-                        aInterpolationOrder,
-                        Interpolation_Type::LAGRANGE,
-                        mTimeInterpolation->get_interpolation_order() );
-
-                // create an Interpolation function for the IG cell
-                Interpolation_Function_Base * tIGSpaceInterpolation =
-                        tIGInterpolationRule.create_space_interpolation_function();
-
-                // get the parametric coordinated of the parent for extraction
-                tIGSpaceInterpolation->get_param_coords( tXiForExtraction );
-                tXiForExtraction = trans( tXiForExtraction );
-
-                // get the number of bases
-                tNumSpaceBases = tIGSpaceInterpolation->get_number_of_bases();
-
-                // clean up
-                delete tIGSpaceInterpolation;
-            }
-
-            // get the vertices per side map
-            moris::Cell< moris::Cell < moris_index > >tVerticesPerFace =
-                    this->get_face_vertices_ordinals( tNumSpaceBases );
-
-            // check if the space ordinal is appropriate
-            MORIS_ASSERT( aSpaceOrdinal < static_cast< moris_index > ( tVerticesPerFace.size() ) ,
-                    "Geometry_Interpolator::extract_space_side_space_param_coeff - wrong ordinal" );
-
-            // get space side vertices ordinals
-            moris::Cell< moris::moris_index > tVerticesOrdinals = tVerticesPerFace( aSpaceOrdinal );
-
-            // initialize the time side set parametric coordinates matrix
-            uint tNumOfVertices = tVerticesOrdinals.size();
-
-            // init the matrix with the face param coords
-            Matrix< DDRMat > tSideXiHat( tNumOfVertices, mNumSpaceParamDim );
-
-            // loop over the vertices of the face
-            for( uint i = 0; i < tNumOfVertices; i++ )
-            {
-                // get the treated vertex
-                moris_index tTreatedVertex = tVerticesOrdinals( i );
-
-                // get the vertex parametric coordinates for node tTreatedVertex
-                tSideXiHat.get_row( i ) = tXiForExtraction.get_row( tTreatedVertex );
-            }
-            return tSideXiHat;
-        }
-
-        //------------------------------------------------------------------------------
-
-        Matrix< DDRMat > Geometry_Interpolator::extract_space_param_coeff(
-                mtk::Interpolation_Order aInterpolationOrder )
-        {
-            // get the interpolation order of the IP cell
-            mtk::Interpolation_Order tIPInterpolationOrder =
-                    mSpaceInterpolation->get_interpolation_order();
-
-            Matrix< DDRMat > tXi;
-            if( tIPInterpolationOrder == aInterpolationOrder )
-            {
-                // get the parametric coordinated of the parent for extraction
-                mSpaceInterpolation->get_param_coords( tXi );
-                tXi = trans( tXi );
-            }
-            else
-            {
-                // create an interpolation rule for the iG cell
-                Interpolation_Rule tIGInterpolationRule(
-                        mGeometryType,
-                        Interpolation_Type::LAGRANGE,
-                        aInterpolationOrder,
-                        Interpolation_Type::LAGRANGE,
-                        mTimeInterpolation->get_interpolation_order() );
-
-                // create an Interpolation function for the IG cell
-                Interpolation_Function_Base * tIGSpaceInterpolation =
-                        tIGInterpolationRule.create_space_interpolation_function();
-
-                // get the parametric coordinated of the parent for extraction
-                tIGSpaceInterpolation->get_param_coords( tXi );
-                tXi = trans( tXi );
-
-                // clean up
-                delete tIGSpaceInterpolation;
-            }
-            return tXi;
         }
 
         //------------------------------------------------------------------------------
@@ -818,6 +705,7 @@ namespace moris
             aNormal = cross(
                     aRealTangents.get_column( 0 ) - aRealTangents.get_column( 2 ),
                     aRealTangents.get_column( 1 ) - aRealTangents.get_column( 2 ) );
+
             aNormal = aNormal / norm( aNormal );
         }
 
@@ -861,11 +749,9 @@ namespace moris
 
             aGlobalParamPoint.set_size( tNumSpaceCoords + 1, 1 );
 
-            aGlobalParamPoint( { 0, tNumSpaceCoords - 1 }, { 0, 0 } ) =
-                    trans( this->NXi()  * mXiHat );
+            aGlobalParamPoint( { 0, tNumSpaceCoords - 1 } ) = trans( this->NXi()  * mXiHat );
 
-            aGlobalParamPoint( { tNumSpaceCoords, tNumSpaceCoords }, { 0, 0 } ) =
-                    trans( this->NTau() * mTauHat ) ;
+            aGlobalParamPoint( tNumSpaceCoords ) = dot( this->NTau(),mTauHat );
         }
 
         //------------------------------------------------------------------------------
@@ -908,7 +794,7 @@ namespace moris
                 Matrix< DDRMat > tJ = trans( tdNdXi * mXHat );
 
                 // solve
-                aParamCoordinates.matrix_data() += trans( solve( tJ, tR ) );
+                aParamCoordinates += trans( inv( tJ ) * tR );
 
                 // update previous coords
                 tPreviousParamCoordinates = aParamCoordinates;
@@ -1653,190 +1539,6 @@ namespace moris
                     MORIS_ERROR( false, "Geometry_Interpolator::set_function_pointers - unknown or not implemented time geometry type ");
                 }
             }
-        }
-
-        //------------------------------------------------------------------------------
-
-        moris::Cell< moris::Cell < moris_index > > Geometry_Interpolator::get_face_vertices_ordinals(
-                uint aNumSpaceBases )
-        {
-            // init the vertices per facet
-            moris::Cell< moris::Cell < moris_index > > tVerticesPerFace;
-
-            // depending on the parent geometry
-            switch ( mGeometryType )
-            {
-                case mtk::Geometry_Type::LINE :
-                {
-                    switch ( aNumSpaceBases )
-                    {
-                        case 1 :
-                            tVerticesPerFace = { { 0 } };
-                            break;
-                        case 2 :
-                            tVerticesPerFace = { { 0 }, { 1 } };
-                            break;
-                        case 3 :
-                            tVerticesPerFace = { { 0 }, { 1 }, { 2 } };
-                            break;
-                        case 4 :
-                            tVerticesPerFace = { { 0 }, { 1 }, { 2 }, { 3 } };
-                            break;
-                        default:
-                            MORIS_ERROR( false, "Geometry_Interpolator::get_face_vertices_ordinals - LINE order not implemented " );
-                    }
-                    break;
-                }
-
-                case mtk::Geometry_Type::QUAD :
-                {
-                    switch ( aNumSpaceBases )
-                    {
-                        case 4 :
-                            tVerticesPerFace = {
-                                    { 0, 1 },
-                                    { 1, 2 },
-                                    { 2, 3 },
-                                    { 3, 0 } };
-                            break;
-                        case 8 :
-                            tVerticesPerFace = {
-                                    { 0, 1, 4 },
-                                    { 1, 2, 5 },
-                                    { 2, 3, 6 },
-                                    { 3, 0, 7 } };
-                            break;
-                        case 9 :
-                            tVerticesPerFace = {
-                                    { 0, 1, 4 },
-                                    { 1, 2, 5 },
-                                    { 2, 3, 6 },
-                                    { 3, 0, 7 } };
-                            break;
-                        case 16 :
-                            tVerticesPerFace = {
-                                    { 0, 1,  4,  5 },
-                                    { 1, 2,  6,  7 },
-                                    { 2, 3,  8,  9 },
-                                    { 3, 0, 10, 11 } };
-                            break;
-                        default:
-                            MORIS_ERROR( false, "Geometry_Interpolator::get_face_vertices_ordinals - QUAD order not implemented " );
-                    }
-                    break;
-                }
-
-                case mtk::Geometry_Type::HEX :
-                {
-                    switch( aNumSpaceBases )
-                    {
-                        case 8 :
-                            tVerticesPerFace = {
-                                    { 0, 1, 5, 4 },
-                                    { 1, 2, 6, 5 },
-                                    { 2, 3, 7, 6 },
-                                    { 0, 4, 7, 3 },
-                                    { 0, 3, 2, 1 },
-                                    { 4, 5, 6, 7 } };
-                            break;
-                        case 20 :
-                            tVerticesPerFace = {
-                                    { 0, 1, 5, 4,  8, 13, 16, 12 },
-                                    { 1, 2, 6, 5,  9, 14, 17, 13 },
-                                    { 2, 3, 7, 6, 10, 15, 18, 14 },
-                                    { 0, 4, 7, 3, 12, 19, 15, 11 },
-                                    { 0, 3, 2, 1, 11, 10,  9,  8 },
-                                    { 4, 5, 6, 7, 16, 17, 18, 19 } };
-                            break;
-                        case 27 :
-                            tVerticesPerFace = {
-                                    { 0, 1, 5, 4,  8, 13, 16, 12, 25 },
-                                    { 1, 2, 6, 5,  9, 14, 17, 13, 24 },
-                                    { 2, 3, 7, 6, 10, 15, 18, 14, 26 },
-                                    { 0, 4, 7, 3, 12, 19, 15, 11, 23 },
-                                    { 0, 3, 2, 1, 11, 10,  9,  8, 21 },
-                                    { 4, 5, 6, 7, 16, 17, 18, 19, 22 } };
-                            break;
-                        case 64 :
-                            tVerticesPerFace = {
-                                    { 0, 1, 5, 4,  8,  9, 16, 17, 25, 24, 13, 12, 36, 37, 38, 39 },
-                                    { 1, 2, 6, 5, 14, 15, 20, 21, 29, 28, 17, 16, 44, 45, 46, 47 },
-                                    { 2, 3, 7, 6, 18, 19, 22, 23, 31, 30, 21, 20, 48, 49, 50, 51 },
-                                    { 0, 4, 7, 3, 12, 13, 26, 27, 23, 22, 11, 10, 40, 41, 42, 43 },
-                                    { 0, 3, 2, 1, 10, 11, 19, 18, 15, 14,  9,  8, 32, 33, 34, 35 },
-                                    { 4, 5, 6, 7, 24, 25, 28, 29, 30, 31, 27, 26, 52, 53, 54, 55 }};
-                            break;
-                        default:
-                            MORIS_ERROR( false, "Geometry_Interpolator::get_face_vertices_ordinals - HEX order not implemented " );
-                    }
-                    break;
-                }
-
-                case mtk::Geometry_Type::TRI :
-                {
-                    switch( aNumSpaceBases )
-                    {
-                        case 3 :
-                            tVerticesPerFace = {
-                                    { 0, 1 },
-                                    { 1, 2 },
-                                    { 2, 0 }};
-                            break;
-                        case 6 :
-                            tVerticesPerFace = {
-                                    { 0, 1, 3 },
-                                    { 1, 2, 4 },
-                                    { 2, 0, 5 }};
-                            break;
-                        case 10 :
-                            tVerticesPerFace = {
-                                    { 0, 1, 3, 4 },
-                                    { 1, 2, 5, 6 },
-                                    { 2, 0, 7, 8 }};
-                            break;
-                        default:
-                            MORIS_ERROR( false, "Geometry_Interpolator::get_face_vertices_ordinals - TRI order not implemented " );
-                    }
-                    break;
-                }
-
-                case mtk::Geometry_Type::TET :
-                {
-                    switch( aNumSpaceBases )
-                    {
-                        case 4 :
-                            tVerticesPerFace = {
-                                    { 0, 1, 3 },
-                                    { 1, 2, 3 },
-                                    { 0, 3, 2 },
-                                    { 0, 2, 1 }};
-                            break;
-                        case 10 :
-                            tVerticesPerFace = {
-                                    { 0, 1, 3, 4, 8, 7 },
-                                    { 1, 2, 3, 5, 9, 8 },
-                                    { 0, 3, 2, 7, 9, 6 },
-                                    { 0, 2, 1, 6, 5, 4 }};
-                            break;
-                        case 20 :
-                            tVerticesPerFace = {
-                                    { 0, 1, 3,  4,  5, 12, 13, 11, 10, 17 },
-                                    { 1, 2, 3,  6,  7, 14, 15, 13, 12, 18 },
-                                    { 0, 3, 2, 10, 11, 15, 14,  9,  8, 19 },
-                                    { 0, 2, 1,  8,  9,  7,  6,  5,  4, 16 }};
-                            break;
-                        default:
-                            MORIS_ERROR( false, "Geometry_Interpolator::get_face_vertices_ordinals - TET order not implemented " );
-                    }
-                    break;
-                }
-
-                default:
-                {
-                    MORIS_ERROR( false, "Geometry_Interpolator::get_space_sideset_param_coeff - undefined geometry type " );
-                }
-            }
-            return tVerticesPerFace;
         }
 
         //------------------------------------------------------------------------------

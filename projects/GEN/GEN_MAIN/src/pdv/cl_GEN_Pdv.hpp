@@ -11,7 +11,6 @@ namespace moris
         {
         public:
             bool mIsActive = true;
-
             moris_id mId = gNoID;
 
         protected:
@@ -30,7 +29,6 @@ namespace moris
 
             void set_id( const moris_id & tId)
             {
-                MORIS_ASSERT( mId == gNoID, "Pdv::set_id(), id of this pdv was set before" );
                 mId = tId;
             };
 
@@ -58,12 +56,19 @@ namespace moris
              *
              * @param aNodeIndex Node index
              * @param aCoordinates Coordinate values
-             * @param aSensitivities Matrix of sensitivities to be returned
+             * @return Matrix of sensitivities to be returned
              */
-            virtual void get_sensitivity(uint aNodeIndex, const Matrix<DDRMat>& aCoordinates, Matrix<DDRMat>& aSensitivities) = 0;
+            virtual Matrix<DDRMat> get_sensitivities(uint aNodeIndex, const Matrix<DDRMat>& aCoordinates) = 0;
+
+            /**
+             * Gets the IDs of ADVs which this PDV depends on.
+             *
+             * @return ADV IDs
+             */
+            virtual Matrix<DDSMat> get_determining_adv_ids(uint aNodeIndex, const Matrix<DDRMat>& aCoordinates) = 0;
 
         };
-    }   // end ge namespace
-}   // end moris namespace
+    }
+}
 
 #endif /* MORIS_CL_GEN_PDV_HPP_ */

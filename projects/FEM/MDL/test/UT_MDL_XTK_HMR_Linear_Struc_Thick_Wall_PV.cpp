@@ -300,9 +300,9 @@ TEST_CASE("2D Linear Stuct Thick Walled Pressure Vessel","[XTK_HMR_LS_PV]")
 
                 tParameters.set( "number_of_elements_per_dimension", std::to_string(tNumX) + "," + std::to_string(tNumY));
                 tParameters.set( "domain_dimensions", std::to_string(tDomainLX) + "," + std::to_string(tDomainLY) );
-                tParameters.set( "domain_offset", std::string("0,0") );
-                tParameters.set( "domain_sidesets", std::string("1,2,3,4") );
-                tParameters.set( "lagrange_output_meshes", std::string("0") );
+                tParameters.set( "domain_offset", "0,0" );
+                tParameters.set( "domain_sidesets", "1,2,3,4" );
+                tParameters.set( "lagrange_output_meshes", "0" );
 
                 tParameters.set( "lagrange_orders", std::to_string(tOrder) );
                 tParameters.set( "lagrange_pattern",std::string( "0" ));
@@ -467,11 +467,13 @@ TEST_CASE("2D Linear Stuct Thick Walled Pressure Vessel","[XTK_HMR_LS_PV]")
                 tIQIUrAnalytic->set_property( tPropUrAnalytic, "Property", mtk::Master_Slave::MASTER );
 
                 std::shared_ptr< fem::IQI > tIQIUX = tIQIFactory.create_IQI( fem::IQI_Type::DOF );
+                tIQIUX->set_quantity_dof_type( { MSI::Dof_Type::UX, MSI::Dof_Type::UY } );
                 tIQIUX->set_output_type( vis::Output_Type::UX );
                 tIQIUX->set_dof_type_list( { tResDofTypes }, mtk::Master_Slave::MASTER );
                 tIQIUX->set_output_type_index( 0 );
 
                 std::shared_ptr< fem::IQI > tIQIUY = tIQIFactory.create_IQI( fem::IQI_Type::DOF );
+                tIQIUY->set_quantity_dof_type( { MSI::Dof_Type::UX, MSI::Dof_Type::UY } );
                 tIQIUY->set_output_type( vis::Output_Type::UY );
                 tIQIUY->set_dof_type_list( { tResDofTypes }, mtk::Master_Slave::MASTER );
                 tIQIUY->set_output_type_index( 1 );

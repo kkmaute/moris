@@ -15,7 +15,11 @@ namespace moris
 
         IWG_Time_Continuity_Dof::IWG_Time_Continuity_Dof()
         {
+            // set IWG type
             mIWGType = moris::fem::IWG_Type::TIME_CONTINUITY_DOF;
+
+            // set time continuity flag
+            mTimeContinuity = true;
 
             // set size for the property pointer cell
             mMasterProp.resize( static_cast< uint >( IWG_Property_Type::MAX_ENUM ), nullptr );
@@ -85,7 +89,7 @@ namespace moris
             if( mMasterFIManager->get_IP_geometry_interpolator()->valt()( 0 ) > tInitTime )
             {
                 // compute the jump
-                tJump.matrix_data() -= tPropWeightPrevious->val()( 0 ) * tFIPrevious->val();
+                tJump -= tPropWeightPrevious->val()( 0 ) * tFIPrevious->val();
             }
             // if first time step
             else
@@ -95,7 +99,7 @@ namespace moris
                         mMasterProp( static_cast< uint >( IWG_Property_Type::INITIAL_CONDITION ) );
 
                 // compute the jump
-                tJump.matrix_data() -= tPropWeightPrevious->val()( 0 ) * tPropInitialCondition->val();
+                tJump -= tPropWeightPrevious->val()( 0 ) * tPropInitialCondition->val();
             }
 
             // add contribution to residual
@@ -105,7 +109,7 @@ namespace moris
                             trans( tFICurrent->N() ) * tJump );
 
             // check for nan, infinity
-            MORIS_ERROR( isfinite( mSet->get_residual()( 0 ) ),
+            MORIS_ASSERT( isfinite( mSet->get_residual()( 0 ) ),
                     "IWG_Time_Continuity_Dof::compute_residual - Residual contains NAN or INF, exiting!");
         }
 
@@ -138,7 +142,7 @@ namespace moris
             for( uint iDOF = 0; iDOF < tNumDofDependencies; iDOF++ )
             {
                 // get the treated dof type
-                Cell< MSI::Dof_Type > tDofType = mRequestedMasterGlobalDofTypes( iDOF );
+                Cell< MSI::Dof_Type > & tDofType = mRequestedMasterGlobalDofTypes( iDOF );
 
                 // get the index for dof type, indices for assembly
                 sint tDofDepIndex         = mSet->get_dof_index_for_type( tDofType( 0 ), mtk::Master_Slave::MASTER );
@@ -168,7 +172,7 @@ namespace moris
             // FIXME add derivative for initial conditions?
 
             // check for nan, infinity
-            MORIS_ERROR( isfinite( mSet->get_jacobian() ),
+            MORIS_ASSERT( isfinite( mSet->get_jacobian() ),
                     "IWG_Time_Continuity_Dof::compute_jacobian - Jacobian contains NAN or INF, exiting!");
         }
 
@@ -222,7 +226,7 @@ namespace moris
                 for( uint iDOF = 0; iDOF < tNumDofDependencies; iDOF++ )
                 {
                     // get the treated dof type
-                    Cell< MSI::Dof_Type > tDofType = mRequestedMasterGlobalDofTypes( iDOF );
+                    Cell< MSI::Dof_Type > & tDofType = mRequestedMasterGlobalDofTypes( iDOF );
 
                     // FIXME needs to be assemble on previous time step solution?
                     // get the index for dof type, indices for assembly

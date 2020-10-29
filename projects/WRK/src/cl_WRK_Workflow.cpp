@@ -113,24 +113,27 @@ namespace moris
 
             Matrix<DDRMat> tDCriteriaDAdv = mPerformerManager->mGENPerformer( 0 )->get_dcriteria_dadv();
 
-            MORIS_LOG_INFO ( "--------------------------------------------------------------------------------");
-            MORIS_LOG_INFO ( "Gradients of design criteria wrt ADVs:");
-
-            for (uint i=0;i<tDCriteriaDAdv.n_rows();++i)
+            if (par_rank() == 0)
             {
-                Matrix<DDRMat> tDIQIDAdv = tDCriteriaDAdv.get_row(i);
+                MORIS_LOG_INFO ( "--------------------------------------------------------------------------------");
+                MORIS_LOG_INFO ( "Gradients of design criteria wrt ADVs:");
 
-                auto tItrMin = std::min_element(tDIQIDAdv.data(),tDIQIDAdv.data()+tDIQIDAdv.numel());
-                auto tIndMin = std::distance(tDIQIDAdv.data(),tItrMin);
+                for (uint i=0;i<tDCriteriaDAdv.n_rows();++i)
+                {
+                    Matrix<DDRMat> tDIQIDAdv = tDCriteriaDAdv.get_row(i);
 
-                auto tItrMax = std::max_element(tDIQIDAdv.data(),tDIQIDAdv.data()+tDIQIDAdv.numel());
-                auto tIndMax = std::distance(tDIQIDAdv.data(),tItrMax);
+                    auto tItrMin = std::min_element(tDIQIDAdv.data(),tDIQIDAdv.data()+tDIQIDAdv.numel());
+                    auto tIndMin = std::distance(tDIQIDAdv.data(),tItrMin);
 
-                MORIS_LOG_INFO ( "Criteria(%i): norm = %e   min = %e  (index = %i)   max = %e  (index = %i)",
-                        i, norm(tDIQIDAdv),tDIQIDAdv.min(),tIndMin,tDIQIDAdv.max(),tIndMax);
+                    auto tItrMax = std::max_element(tDIQIDAdv.data(),tDIQIDAdv.data()+tDIQIDAdv.numel());
+                    auto tIndMax = std::distance(tDIQIDAdv.data(),tItrMax);
+
+                    MORIS_LOG_INFO ( "Criteria(%i): norm = %e   min = %e  (index = %i)   max = %e  (index = %i)",
+                                     i, norm(tDIQIDAdv),tDIQIDAdv.min(),tIndMin,tDIQIDAdv.max(),tIndMax);
+                }
+
+                MORIS_LOG_INFO ( "--------------------------------------------------------------------------------");
             }
-
-            MORIS_LOG_INFO ( "--------------------------------------------------------------------------------");
 
             return tDCriteriaDAdv;
         }

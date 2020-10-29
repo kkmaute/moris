@@ -45,6 +45,8 @@ namespace moris
            std::string     const & aSolver = "default" )
     -> decltype( solve( aA.matrix_data(), aB.matrix_data() ) )
     {
+        MORIS_ASSERT( aA.n_rows() > 10, "For matrices smaller than 10x10 use inv() instead of solve().\n");
+
         return solve( aA.matrix_data(), aB.matrix_data() );
     }
 }

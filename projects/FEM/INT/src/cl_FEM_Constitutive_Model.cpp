@@ -235,6 +235,9 @@ namespace moris
             mdStraindDof.resize( tNumGlobalDofTypes );
             mddivstraindu.resize( tNumGlobalDofTypes );
             mdConstdDof.resize( tNumGlobalDofTypes );
+
+            // initialize storage variables specific to child CMs
+            this->initialize_spec_storage_vars_and_eval_flags();
         }
 
         //------------------------------------------------------------------------------
@@ -691,7 +694,7 @@ namespace moris
                 Matrix< DDRMat >                   & adFluxdDOF_FD,
                 real                                 aPerturbation,
                 fem::FDScheme_Type                   aFDSchemeType,
-                enum CM_Function_Type                aCMFunctionType )
+                enum CM_Function_Type                aCMFunctionType)
         {
             // get the FD scheme info
             moris::Cell< moris::Cell< real > > tFDScheme;
@@ -710,7 +713,7 @@ namespace moris
             uint tDerNumFields = tFI->get_number_of_fields();
 
             // set size for derivative
-            uint tNumRow = this->flux().n_rows();
+            uint tNumRow = this->flux( aCMFunctionType ).n_rows();
             mdFluxdDof( tDofIndex ).set_size( tNumRow, tDerNumDof, 0.0 );
 
             // coefficients for dof type wrt which derivative is computed
@@ -731,10 +734,10 @@ namespace moris
                     // loop over the points for FD
                     for( uint iPoint = 0; iPoint < tNumPoints; iPoint++ )
                     {
-                        // reset the perturbed coefficents
+                        // reset the perturbed coefficients
                         Matrix< DDRMat > tCoeffPert = tCoeff;
 
-                        // pertub the coefficent
+                        // perturb the coefficient
                         tCoeffPert( iCoeffRow, iCoeffCol ) += tFDScheme( 0 )( iPoint ) * tDeltaH;
 
                         // set the perturbed coefficients to FI
@@ -787,7 +790,7 @@ namespace moris
             uint tDerNumFields = tFIDerivative->get_number_of_fields();
 
             // set size for derivative
-            uint tNumRow = this->traction( aNormal ).n_rows();
+            uint tNumRow = this->traction( aNormal, aCMFunctionType ).n_rows();
             mdTractiondDof( tDofIndex ).set_size( tNumRow, tDerNumDof, 0.0 );
 
             // coefficients for dof type wrt which derivative is computed
@@ -808,10 +811,10 @@ namespace moris
                     // loop over the points for FD
                     for( uint iPoint = 0; iPoint < tNumPoints; iPoint++ )
                     {
-                        // reset the perturbed coefficents
+                        // reset the perturbed coefficients
                         Matrix< DDRMat > tCoeffPert = tCoeff;
 
-                        // pertub the coefficent
+                        // perturb the coefficient
                         tCoeffPert( iCoeffRow, iCoeffCol ) += tFDScheme( 0 )( iPoint ) * tDeltaH;
 
                         // set the perturbed coefficients to FI
@@ -869,7 +872,7 @@ namespace moris
             uint tDerNumFields = tFIDerivative->get_number_of_fields();
 
             // set size for derivative
-            Matrix< DDRMat > tTestTractionForSize = trans( trans( aJump ) * this->testTraction( aNormal, aTestDofTypes ) );
+            Matrix< DDRMat > tTestTractionForSize = trans( trans( aJump ) * this->testTraction( aNormal, aTestDofTypes, aCMFunctionType ) );
             uint tNumRow = tTestTractionForSize.n_rows();
             mdTestTractiondDof( tTestDofIndex )( tDofIndex ).set_size( tNumRow, tDerNumDof, 0.0 );
 
@@ -891,10 +894,10 @@ namespace moris
                     // loop over the points for FD
                     for( uint iPoint = 0; iPoint < tNumPoints; iPoint++ )
                     {
-                        // reset the perturbed coefficents
+                        // reset the perturbed coefficients
                         Matrix< DDRMat > tCoeffPert = tCoeff;
 
-                        // pertub the coefficent
+                        // perturb the coefficient
                         tCoeffPert( iCoeffRow, iCoeffCol ) += tFDScheme( 0 )( iPoint ) * tDeltaH;
 
                         // set the perturbed coefficients to FI
@@ -946,7 +949,7 @@ namespace moris
             uint tDerNumFields = tFIDerivative->get_number_of_fields();
 
             // set size for derivative
-            uint tNumRows = this->divflux().n_rows();
+            uint tNumRows = this->divflux( aCMFunctionType ).n_rows();
             mddivfluxdu( tDofIndex ).set_size( tNumRows, tDerNumDof, 0.0 );
 
             // coefficients for dof type wrt which derivative is computed
@@ -967,10 +970,10 @@ namespace moris
                     // loop over the points for FD
                     for( uint iPoint = 0; iPoint < tNumPoints; iPoint++ )
                     {
-                        // reset the perturbed coefficents
+                        // reset the perturbed coefficients
                         Matrix< DDRMat > tCoeffPert = tCoeff;
 
-                        // pertub the coefficent
+                        // perturb the coefficient
                         tCoeffPert( iCoeffRow, iCoeffCol ) += tFDScheme( 0 )( iPoint ) * tDeltaH;
 
                         // set the perturbed coefficients to FI
@@ -1022,11 +1025,86 @@ namespace moris
             uint tDerNumFields = tFIDerivative->get_number_of_fields();
 
             // set size for derivative
-            uint tNumRows = this->divstrain().n_rows();
+            uint tNumRows = this->divstrain( aCMFunctionType ).n_rows();
             mddivstraindu( tDofIndex ).set_size( tNumRows, tDerNumDof, 0.0 );
 
             // coefficients for dof type wrt which derivative is computed
             Matrix< DDRMat > tCoeff = tFIDerivative->get_coeff();
+
+            // initialize dof counter
+            uint tDofCounter = 0;
+
+            // loop over coefficients columns
+            for( uint iCoeffCol = 0; iCoeffCol < tDerNumFields; iCoeffCol++ )
+            {
+                // loop over coefficients rows
+                for( uint iCoeffRow = 0; iCoeffRow < tDerNumBases; iCoeffRow++ )
+                {
+                    // compute the perturbation absolute value
+                    real tDeltaH = aPerturbation * tCoeff( iCoeffRow, iCoeffCol );
+
+                    // loop over the points for FD
+                    for( uint iPoint = 0; iPoint < tNumPoints; iPoint++ )
+                    {
+                        // reset the perturbed coefficients
+                        Matrix< DDRMat > tCoeffPert = tCoeff;
+
+                        // perturb the coefficient
+                        tCoeffPert( iCoeffRow, iCoeffCol ) += tFDScheme( 0 )( iPoint ) * tDeltaH;
+
+                        // set the perturbed coefficients to FI
+                        tFIDerivative->set_coeff( tCoeffPert );
+
+                        // reset properties
+                        this->reset_eval_flags();
+
+                        // assemble the jacobian
+                        mddivstraindu( tDofIndex ).get_column( tDofCounter ) +=
+                                tFDScheme( 1 )( iPoint ) * this->divstrain( aCMFunctionType ) /
+                                ( tFDScheme( 2 )( 0 ) * tDeltaH );
+                    }
+                    // update dof counter
+                    tDofCounter++;
+                }
+            }
+            // reset the coefficients values
+            tFIDerivative->set_coeff( tCoeff );
+
+            // FIXME
+            addivstraindu_FD = mddivstraindu( tDofIndex );
+        }
+
+        //------------------------------------------------------------------------------
+
+        void Constitutive_Model::eval_dEnergydDOF_FD(
+                const moris::Cell< MSI::Dof_Type > & aDofTypes,
+                Matrix< DDRMat >                   & adEnergydDOF_FD,
+                real                                 aPerturbation,
+                fem::FDScheme_Type                   aFDSchemeType,
+                enum CM_Function_Type                aCMFunctionType)
+        {
+            // get the FD scheme info
+            moris::Cell< moris::Cell< real > > tFDScheme;
+            fd_scheme( aFDSchemeType, tFDScheme );
+            uint tNumPoints = tFDScheme( 0 ).size();
+
+            // get the derivative dof type index
+            uint tDofIndex = mGlobalDofTypeMap( static_cast< uint >( aDofTypes( 0 ) ) );
+
+            // get the field interpolator for type
+            Field_Interpolator* tFI = mFIManager->get_field_interpolators_for_type( aDofTypes( 0 ) );
+
+            // get number of coefficients, fields and bases for the considered FI
+            uint tDerNumDof    = tFI->get_number_of_space_time_coefficients();
+            uint tDerNumBases  = tFI->get_number_of_space_time_bases();
+            uint tDerNumFields = tFI->get_number_of_fields();
+
+            // set size for derivative
+            uint tNumRows = this->Energy( aCMFunctionType ).n_rows();
+            mEnergyDof( tDofIndex ).set_size( tNumRows, tDerNumDof, 0.0 );
+
+            // coefficients for dof type wrt which derivative is computed
+            Matrix< DDRMat > tCoeff = tFI->get_coeff();
 
             // initialize dof counter
             uint tDofCounter = 0;
@@ -1050,14 +1128,14 @@ namespace moris
                         tCoeffPert( iCoeffRow, iCoeffCol ) += tFDScheme( 0 )( iPoint ) * tDeltaH;
 
                         // set the perturbed coefficients to FI
-                        tFIDerivative->set_coeff( tCoeffPert );
+                        tFI->set_coeff( tCoeffPert );
 
                         // reset properties
                         this->reset_eval_flags();
 
-                        // assemble the jacobian
-                        mddivstraindu( tDofIndex ).get_column( tDofCounter ) +=
-                                tFDScheme( 1 )( iPoint ) * this->divstrain( aCMFunctionType ) /
+                        // assemble dEnergyDotdu
+                        mEnergyDof( tDofIndex ).get_column( tDofCounter ) +=
+                                tFDScheme( 1 )( iPoint ) * this->Energy( aCMFunctionType ) /
                                 ( tFDScheme( 2 )( 0 ) * tDeltaH );
                     }
                     // update dof counter
@@ -1065,10 +1143,10 @@ namespace moris
                 }
             }
             // reset the coefficients values
-            tFIDerivative->set_coeff( tCoeff );
+            tFI->set_coeff( tCoeff );
 
             // FIXME
-            addivstraindu_FD = mddivstraindu( tDofIndex );
+            adEnergydDOF_FD = mEnergyDof( tDofIndex );
         }
 
         //------------------------------------------------------------------------------
@@ -1097,7 +1175,7 @@ namespace moris
             uint tDerNumFields = tFI->get_number_of_fields();
 
             // set size for derivative
-            uint tNumRows = this->EnergyDot().n_rows();
+            uint tNumRows = this->EnergyDot( aCMFunctionType ).n_rows();
             mEnergyDotDof( tDofIndex ).set_size( tNumRows, tDerNumDof, 0.0 );
 
             // coefficients for dof type wrt which derivative is computed
@@ -1118,10 +1196,10 @@ namespace moris
                     // loop over the points for FD
                     for( uint iPoint = 0; iPoint < tNumPoints; iPoint++ )
                     {
-                        // reset the perturbed coefficents
+                        // reset the perturbed coefficients
                         Matrix< DDRMat > tCoeffPert = tCoeff;
 
-                        // pertub the coefficent
+                        // perturb the coefficient
                         tCoeffPert( iCoeffRow, iCoeffCol ) += tFDScheme( 0 )( iPoint ) * tDeltaH;
 
                         // set the perturbed coefficients to FI
@@ -1172,7 +1250,7 @@ namespace moris
             uint tDerNumFields = tFI->get_number_of_fields();
 
             // set size for derivative
-            uint tNumRows = this->gradEnergy().n_rows();
+            uint tNumRows = this->gradEnergy( aCMFunctionType ).n_rows();
             mGradEnergyDof( tDofIndex ).set_size( tNumRows, tDerNumDof, 0.0 );
 
             // coefficients for dof type wrt which derivative is computed
@@ -1193,10 +1271,10 @@ namespace moris
                     // loop over the points for FD
                     for( uint iPoint = 0; iPoint < tNumPoints; iPoint++ )
                     {
-                        // reset the perturbed coefficents
+                        // reset the perturbed coefficients
                         Matrix< DDRMat > tCoeffPert = tCoeff;
 
-                        // pertub the coefficent
+                        // perturb the coefficient
                         tCoeffPert( iCoeffRow, iCoeffCol ) += tFDScheme( 0 )( iPoint ) * tDeltaH;
 
                         // set the perturbed coefficients to FI
@@ -1247,7 +1325,7 @@ namespace moris
             uint tDerNumFields = tFI->get_number_of_fields();
 
             // set size for derivative
-            uint tNumRows = this->gradEnergyDot().n_rows();
+            uint tNumRows = this->gradEnergyDot( aCMFunctionType ).n_rows();
             mGradEnergyDotDof( tDofIndex ).set_size( tNumRows, tDerNumDof, 0.0 );
 
             // coefficients for dof type wrt which derivative is computed
@@ -1268,10 +1346,10 @@ namespace moris
                     // loop over the points for FD
                     for( uint iPoint = 0; iPoint < tNumPoints; iPoint++ )
                     {
-                        // reset the perturbed coefficents
+                        // reset the perturbed coefficients
                         Matrix< DDRMat > tCoeffPert = tCoeff;
 
-                        // pertub the coefficent
+                        // perturb the coefficient
                         tCoeffPert( iCoeffRow, iCoeffCol ) += tFDScheme( 0 )( iPoint ) * tDeltaH;
 
                         // set the perturbed coefficients to FI
@@ -1323,7 +1401,7 @@ namespace moris
             uint tDerNumFields = tFI->get_number_of_fields();
 
             // set size for derivative
-            uint tNumRows = this->graddivflux().n_rows();
+            uint tNumRows = this->graddivflux( aCMFunctionType ).n_rows();
             mGradDivFluxDof( tDofIndex ).set_size( tNumRows, tDerNumDof, 0.0 );
 
             // coefficients for dof type wrt which derivative is computed
@@ -1344,10 +1422,10 @@ namespace moris
                     // loop over the points for FD
                     for( uint iPoint = 0; iPoint < tNumPoints; iPoint++ )
                     {
-                        // reset the perturbed coefficents
+                        // reset the perturbed coefficients
                         Matrix< DDRMat > tCoeffPert = tCoeff;
 
-                        // pertub the coefficent
+                        // perturb the coefficient
                         tCoeffPert( iCoeffRow, iCoeffCol ) += tFDScheme( 0 )( iPoint ) * tDeltaH;
 
                         // set the perturbed coefficients to FI
@@ -1399,7 +1477,7 @@ namespace moris
             uint tDerNumFields = tFI->get_number_of_fields();
 
             // set size for derivative
-            uint tNumRow = this->strain().n_rows();
+            uint tNumRow = this->strain( aCMFunctionType ).n_rows();
             mdStraindDof( tDofIndex ).set_size( tNumRow, tDerNumDof, 0.0 );
 
             // coefficients for dof type wrt which derivative is computed
@@ -1420,10 +1498,10 @@ namespace moris
                     // loop over the points for FD
                     for( uint iPoint = 0; iPoint < tNumPoints; iPoint++ )
                     {
-                        // reset the perturbed coefficents
+                        // reset the perturbed coefficients
                         Matrix< DDRMat > tCoeffPert = tCoeff;
 
-                        // pertub the coefficent
+                        // perturb the coefficient
                         tCoeffPert( iCoeffRow, iCoeffCol ) += tFDScheme( 0 )( iPoint ) * tDeltaH;
 
                         // set the perturbed coefficients to FI
@@ -1471,7 +1549,7 @@ namespace moris
             uint tDerNumFields = tFI->get_number_of_fields();
 
             // set size for derivative
-            uint tNumRow = this->flux().n_rows();
+            uint tNumRow = this->flux( aCMFunctionType ).n_rows();
             adFluxdDV_FD.set_size( tNumRow, tDerNumDv, 0.0 );
 
             // coefficients for dv type wrt which derivative is computed
@@ -1546,7 +1624,7 @@ namespace moris
             uint tDerNumFields = tFI->get_number_of_fields();
 
             // set size for derivative
-            uint tNumRow = this->strain().n_rows();
+            uint tNumRow = this->strain( aCMFunctionType ).n_rows();
             adStraindDV_FD.set_size( tNumRow, tDerNumDv, 0.0 );
 
             // coefficients for dv type wrt which derivative is computed

@@ -11,6 +11,7 @@ namespace moris
                        Matrix<DDUMat>  aGeometryVariableIndices,
                        Matrix<DDUMat>  aADVIndices,
                        Matrix<DDRMat>  aConstantParameters,
+                       std::string     aName,
                        Matrix<DDSMat>  aNumRefinements,
                        Matrix<DDSMat>  aNumPatterns,
                        sint            aRefinementFunctionIndex,
@@ -21,6 +22,7 @@ namespace moris
                         aGeometryVariableIndices,
                         aADVIndices,
                         aConstantParameters,
+                        aName,
                         aNumRefinements,
                         aNumPatterns,
                         aRefinementFunctionIndex,
@@ -38,6 +40,7 @@ namespace moris
                        Matrix<DDUMat>    aGeometryVariableIndices,
                        Matrix<DDUMat>    aADVIndices,
                        Matrix<DDRMat>    aConstantParameters,
+                       std::string       aName,
                        Matrix<DDSMat>  aNumRefinements,
                        Matrix<DDSMat>  aNumPatterns,
                        sint              aRefinementFunctionIndex,
@@ -48,6 +51,7 @@ namespace moris
                         aGeometryVariableIndices,
                         aADVIndices,
                         aConstantParameters,
+                        aName,
                         aNumRefinements,
                         aNumPatterns,
                         aRefinementFunctionIndex,
@@ -61,17 +65,19 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        Sphere::Sphere(real aXCenter,
-                       real aYCenter,
-                       real aZCenter,
-                       real aRadius,
+        Sphere::Sphere(real        aXCenter,
+                       real        aYCenter,
+                       real        aZCenter,
+                       real        aRadius,
+                       std::string aName,
                        Matrix<DDSMat>  aNumRefinements,
                        Matrix<DDSMat>  aNumPatterns,
-                       sint aRefinementFunctionIndex,
-                       sint aBSplineMeshIndex,
-                       real aBSplineLowerBound,
-                       real aBSplineUpperBound)
+                       sint        aRefinementFunctionIndex,
+                       sint        aBSplineMeshIndex,
+                       real        aBSplineLowerBound,
+                       real        aBSplineUpperBound)
                 : Field(Matrix<DDRMat>({{aXCenter, aYCenter, aZCenter, aRadius}}),
+                        aName,
                         aNumRefinements,
                         aNumPatterns,
                         aRefinementFunctionIndex,
@@ -83,7 +89,7 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        real Sphere::evaluate_field_value(const Matrix<DDRMat>& aCoordinates)
+        real Sphere::get_field_value(const Matrix<DDRMat>& aCoordinates)
         {
             // Get variables
             real tXCenter = *(mFieldVariables(0));
@@ -99,7 +105,7 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        void Sphere::evaluate_all_sensitivities(const Matrix<DDRMat>& aCoordinates, Matrix<DDRMat>& aSensitivities)
+        Matrix<DDRMat> Sphere::get_field_sensitivities(const Matrix<DDRMat>& aCoordinates)
         {
             // Get variables
             real tXCenter = *(mFieldVariables(0));
@@ -107,15 +113,17 @@ namespace moris
             real tZCenter = *(mFieldVariables(2));
 
             // Calculate sensitivities
-            aSensitivities.resize(1, 4);
+            Matrix<DDRMat> tSensitivities(1, 4);
             real tConstant = sqrt(pow(aCoordinates(0) - tXCenter, 2)
                     + pow(aCoordinates(1) - tYCenter, 2)
                     + pow(aCoordinates(2) - tZCenter, 2));
             tConstant = tConstant ? 1 / tConstant : 0.0;
-            aSensitivities(0) = tConstant * (tXCenter - aCoordinates(0));
-            aSensitivities(1) = tConstant * (tYCenter - aCoordinates(1));
-            aSensitivities(2) = tConstant * (tZCenter - aCoordinates(2));
-            aSensitivities(3) = -1;
+            tSensitivities(0) = tConstant * (tXCenter - aCoordinates(0));
+            tSensitivities(1) = tConstant * (tYCenter - aCoordinates(1));
+            tSensitivities(2) = tConstant * (tZCenter - aCoordinates(2));
+            tSensitivities(3) = -1;
+
+            return tSensitivities;
         }
 
         //--------------------------------------------------------------------------------------------------------------

@@ -51,6 +51,7 @@ set(HEADERS
 	geometry/cl_GEN_Child_Node.hpp
 	
 	property/cl_GEN_Property.hpp
+	property/cl_GEN_Scaled_Field.hpp
 	property/cl_GEN_Discrete_Property.hpp
 	property/cl_GEN_User_Defined_Property.hpp
 	property/fn_GEN_create_properties.hpp
@@ -128,6 +129,7 @@ set(LIB_SOURCES
 	geometry/cl_GEN_Child_Node.cpp
 	
 	property/cl_GEN_Property.cpp
+	property/cl_GEN_Scaled_Field.cpp
 	property/cl_GEN_Discrete_Property.cpp
 	property/cl_GEN_User_Defined_Property.cpp
 	property/fn_GEN_create_properties.cpp

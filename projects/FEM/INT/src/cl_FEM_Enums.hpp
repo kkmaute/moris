@@ -112,7 +112,8 @@ namespace moris
                 SPATIALDIFF_NEUMANN,   // spatial diffusion Neumann
                 SPATIALDIFF_ROBIN,   // spatial diffusion Robin (Convection)
                 SPATIALDIFF_RADIATION,   // spatial diffusion Radiation BC
-                SPATIALDIFF_INTERFACE, // spatial diffusion Nitsche interface condition
+                SPATIALDIFF_INTERFACE_SYMMETRIC_NITSCHE, // spatial diffusion Nitsche interface condition
+                SPATIALDIFF_INTERFACE_UNSYMMETRIC_NITSCHE,
                 SPATIALDIFF_GGLS_PC,   // spatial diffusion GGLS stabilization term for phase change
                 SPATIALDIFF_VW_GHOST,  // spatial diffusion virtual work ghost
 
@@ -311,6 +312,7 @@ namespace moris
                 ENERGY,
                 WORK,
                 HEAT,
+                PRESSURE,
                 END_CM_FUNCTION_TYPE
         };
 

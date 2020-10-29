@@ -651,11 +651,18 @@ namespace moris
         }
 
         //--------------------------------------------------------------------------------------------------------------
+
+        bool Mesh::node_has_interpolation(uint aNodeIndex, uint aBSplineMeshIndex)
+        {
+            return false;
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
         
         const Matrix< DDRMat > &
         Mesh::get_t_matrix_of_node_loc_ind(
-                const moris_index aNodeIndex,
-                const EntityRank  aBSplineRank )
+                uint aNodeIndex,
+                uint aBSplineMeshIndex)
         {
             mDummyMatrix.set_size(1, 1, 1.0);
             return mDummyMatrix;
@@ -665,10 +672,20 @@ namespace moris
 
         Matrix< IndexMat >
         Mesh::get_bspline_inds_of_node_loc_ind(
-                const moris_index aNodeIndex,
-                const EntityRank  aBSplineRank )
+                uint aNodeIndex,
+                uint aBSplineMeshIndex )
         {
-            return {{aNodeIndex}};
+            return {{(sint)aNodeIndex}};
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
+        Matrix< IdMat >
+        Mesh::get_bspline_ids_of_node_loc_ind(
+                uint aNodeIndex,
+                uint aBSplineMeshIndex )
+        {
+            return {{get_glb_entity_id_from_entity_loc_index(aNodeIndex, EntityRank::NODE)}};
         }
 
         //--------------------------------------------------------------------------------------------------------------

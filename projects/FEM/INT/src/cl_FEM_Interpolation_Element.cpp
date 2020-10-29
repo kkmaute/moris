@@ -840,15 +840,15 @@ namespace moris
             if( aFieldType == vis::Field_Type::NODAL )
             {
                 // get the master vertices indices on the mesh cluster
-                moris::Cell< moris_index > tVertexIndices
-                = mFemCluster( aMeshIndex )->get_vertex_indices_in_cluster();
+                moris::Matrix< moris::IndexMat > tVertexIndices;
+                mFemCluster( aMeshIndex )->get_vertex_indices_in_cluster_for_visualization( tVertexIndices );
 
                 // get the master vertices local coordinates on the mesh cluster
                 moris::Matrix<moris::DDRMat> tVertexLocalCoords =
                         mFemCluster( aMeshIndex )->get_vertices_local_coordinates_wrt_interp_cell();
 
                 // get number of vertices on the treated mesh cluster
-                uint tNumNodes = tVertexIndices.size();
+                uint tNumNodes = tVertexLocalCoords.n_rows();
 
                 // loop over the vertices on the treated mesh cluster
                 for( uint iVertex = 0; iVertex < tNumNodes; iVertex++ )

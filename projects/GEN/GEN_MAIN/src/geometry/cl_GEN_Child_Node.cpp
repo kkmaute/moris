@@ -43,7 +43,7 @@ namespace moris
             Matrix<DDRMat> tGeometryFieldValues(mParentNodeIndices.length(), 1);
             for (uint tParentNode = 0; tParentNode < mParentNodeIndices.length(); tParentNode++)
             {
-                tGeometryFieldValues(tParentNode) = aField->evaluate_field_value(mParentNodeIndices(tParentNode), mParentNodeCoordinates(tParentNode));
+                tGeometryFieldValues(tParentNode) = aField->get_field_value(mParentNodeIndices(tParentNode), mParentNodeCoordinates(tParentNode));
             }
 
             // Return interpolated value
@@ -52,19 +52,61 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        void Child_Node::interpolate_field_sensitivity(Field* aField, Matrix<DDRMat>& aSensitivities)
+        Matrix<DDRMat> Child_Node::join_field_sensitivities(Field* aField)
         {
             // Initialize using first parent
-            aField->evaluate_sensitivity(mParentNodeIndices(0), mParentNodeCoordinates(0), aSensitivities);
-            aSensitivities = aSensitivities * mBasisValues(0);
+            Matrix<DDRMat> tJoinedSensitivities = aField->get_field_sensitivities(
+                    mParentNodeIndices(0),
+                    mParentNodeCoordinates(0));
+            tJoinedSensitivities = tJoinedSensitivities * mBasisValues(0);
 
             // Get sensitivity values from other parents
             for (uint tParentNode = 1; tParentNode < mParentNodeIndices.length(); tParentNode++)
             {
-                Matrix<DDRMat> tParentSensitivity(0, 0);
-                aField->evaluate_sensitivity(mParentNodeIndices(tParentNode), mParentNodeCoordinates(tParentNode), tParentSensitivity);
-                aSensitivities = aSensitivities + mBasisValues(tParentNode) * tParentSensitivity;
+                // Get scaled sensitivities
+                Matrix<DDRMat> tParentSensitivities = mBasisValues(tParentNode) * aField->get_field_sensitivities(
+                        mParentNodeIndices(tParentNode),
+                        mParentNodeCoordinates(tParentNode));
+                
+                // Join sensitivities
+                uint tJoinedSensitivityLength = tJoinedSensitivities.n_cols();
+                tJoinedSensitivities.resize(1, tJoinedSensitivityLength + tParentSensitivities.n_cols());
+                for (uint tParentSensitivity = 0; tParentSensitivity < tParentSensitivities.n_cols(); tParentSensitivity++)
+                {
+                    tJoinedSensitivities(tJoinedSensitivityLength + tParentSensitivity) = tParentSensitivities(tParentSensitivity);
+                }
             }
+
+            return tJoinedSensitivities;
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
+        Matrix<DDSMat> Child_Node::join_determining_adv_ids(Field* aField)
+        {
+            // Initialize using first parent
+            Matrix<DDSMat> tJoinedDeterminingADVs = aField->get_determining_adv_ids(
+                    mParentNodeIndices(0),
+                    mParentNodeCoordinates(0));
+
+            // Get sensitivity values from other parents
+            for (uint tParentNode = 1; tParentNode < mParentNodeIndices.length(); tParentNode++)
+            {
+                // Get scaled sensitivities
+                Matrix<DDSMat> tParentDependingADVs = aField->get_determining_adv_ids(
+                        mParentNodeIndices(tParentNode),
+                        mParentNodeCoordinates(tParentNode));
+
+                // Join sensitivities
+                uint tJoinedADVLength = tJoinedDeterminingADVs.n_cols();
+                tJoinedDeterminingADVs.resize(1, tJoinedADVLength + tParentDependingADVs.n_cols());
+                for (uint tParentADV = 0; tParentADV < tParentDependingADVs.n_cols(); tParentADV++)
+                {
+                    tJoinedDeterminingADVs(tJoinedADVLength + tParentADV) = tParentDependingADVs(tParentADV);
+                }
+            }
+
+            return tJoinedDeterminingADVs;
         }
 
         //--------------------------------------------------------------------------------------------------------------

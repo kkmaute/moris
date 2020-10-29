@@ -26,54 +26,50 @@ namespace moris
     {
         class Dist_Map
         {
-            private:
+        public:
 
-            protected:
+            // ---------------------------------------------------------------------------------------------------------
+            Dist_Map()
+            {};
 
-            public:
+            // ---------------------------------------------------------------------------------------------------------
+            /** Destructor */
+            virtual ~Dist_Map()
+            {};
 
-                // ----------------------------------------------------------------------------------------------------------------------
-                Dist_Map()
-                {};
+            // ---------------------------------------------------------------------------------------------------------
 
-                // ----------------------------------------------------------------------------------------------------------------------
-                /** Destructor */
-                virtual ~Dist_Map()
-                {};
+            virtual moris::sint return_local_ind_of_global_Id( moris::uint aGlobalId ) const = 0;
 
-                // ----------------------------------------------------------------------------------------------------------------------
+            // ---------------------------------------------------------------------------------------------------------
 
-                virtual moris::sint return_local_ind_of_global_Id( moris::uint aGlobalId ) const = 0;
+            /**
+             * @brief Get Epetra free map.
+             *
+             * @return  Map object. Either Epetra_Map or AO
+             */
+            virtual Epetra_Map* get_epetra_map()
+            {
+                MORIS_ERROR( false, "get_epetra_map() function has no child implementation" );
+                return nullptr;
+            };
 
-                // ----------------------------------------------------------------------------------------------------------------------
+            virtual Epetra_Map* get_epetra_map() const
+            {
+                MORIS_ERROR( false, "get_epetra_map() function has no child implementation" );
+                return nullptr;
+            };
 
-                /**
-                 * @brief Get Epetra free map.
-                 *
-                 * @return  Map object. Either Epetra_Map or AO
-                 */
-                virtual Epetra_Map* get_epetra_map()
-                {
-                    MORIS_ERROR( false, "get_epetra_map() function has no child implementation" );
-                    return nullptr;
-                };
-
-                virtual Epetra_Map* get_epetra_map() const
-                {
-                    MORIS_ERROR( false, "get_epetra_map() function has no child implementation" );
-                    return nullptr;
-                };
-
-                virtual AO get_petsc_map()
-                {
-                    MORIS_ERROR( false, "get_petsc_map() function has no child implementation" );
-                    return nullptr;
-                }
-                virtual AO get_petsc_map() const
-                {
-                    MORIS_ERROR( false, "get_petsc_map() function has no child implementation" );
-                    return nullptr;
-                }
+            virtual AO get_petsc_map()
+            {
+                MORIS_ERROR( false, "get_petsc_map() function has no child implementation" );
+                return nullptr;
+            }
+            virtual AO get_petsc_map() const
+            {
+                MORIS_ERROR( false, "get_petsc_map() function has no child implementation" );
+                return nullptr;
+            }
 
         };
     }

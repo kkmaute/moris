@@ -59,7 +59,7 @@ namespace moris
                 else
                 {
                     std::string tErrMsg =
-                            std::string("CM_Struc_Linear_Isotropic::set_dof_type_list - Unknown aDofString : ") +
+                            "CM_Struc_Linear_Isotropic::set_dof_type_list - Unknown aDofString : " +
                             tDofString;
                     MORIS_ERROR( false , tErrMsg.c_str() );
                 }
@@ -188,7 +188,7 @@ namespace moris
                 tP( { 0, mSpaceDim - 1 }, { 0, 0 } ) = tI * tPressureFI->val();
 
                 // add contribution to the flux
-                mFlux.matrix_data() -= tP.matrix_data();
+                mFlux -= tP;
             }
         }
 
@@ -262,7 +262,7 @@ namespace moris
                 = mFIManager->get_field_interpolators_for_type( mDofTemp );
 
                 // add thermal contribution to the strain
-                mStrain.matrix_data() += tThermalExpansionVector * ( tPropTRef->val() - tFITemp->val() );
+                mStrain += tThermalExpansionVector * ( tPropTRef->val() - tFITemp->val() );
             }
         }
 
@@ -297,7 +297,7 @@ namespace moris
                 Field_Interpolator* tFITemp = mFIManager->get_field_interpolators_for_type( mDofTemp );
 
                 // add thermal contribution to the strain
-                mStrain.matrix_data() += tThermalExpansionVector * ( tPropTRef->val() - tFITemp->val() );
+                mStrain += tThermalExpansionVector * ( tPropTRef->val() - tFITemp->val() );
             }
         }
 
@@ -407,7 +407,7 @@ namespace moris
                     mProperties( static_cast< uint >( Property_Type::EMOD ) );
             if( tPropEmod->check_dof_dependency( aDofTypes ) )
             {
-                tdInvBulkModulusdDOF.matrix_data() -=
+                tdInvBulkModulusdDOF -=
                         eval_inv_bulk_modulus() * tPropEmod->dPropdDOF( aDofTypes ) / tPropEmod->val()( 0 );
             }
 
@@ -445,7 +445,7 @@ namespace moris
             // if displacements or temperature
             if( aDofTypes( 0 ) == mDofDispl || aDofTypes( 0 ) == mDofTemp )
             {
-                mdFluxdDof( tDofIndex ).matrix_data() +=
+                mdFluxdDof( tDofIndex ) +=
                         this->constitutive() * this->dStraindDOF( aDofTypes );
             }
 
@@ -461,7 +461,7 @@ namespace moris
                 Matrix< DDRMat > tPressureN = tFI->N();
 
                 // build the dfluxdp
-                mdFluxdDof( tDofIndex ).matrix_data() -= tII * tPressureN;
+                mdFluxdDof( tDofIndex ) -= tII * tPressureN;
             }
 
             // if elastic modulus depends on dof type
@@ -470,7 +470,7 @@ namespace moris
             if ( tPropEMod->check_dof_dependency( aDofTypes ) )
             {
                 // compute derivative with indirect dependency through properties
-                mdFluxdDof( tDofIndex ).matrix_data() +=
+                mdFluxdDof( tDofIndex ) +=
                         this->constitutive() *
                         this->strain() *
                         tPropEMod->dPropdDOF( aDofTypes ) / tPropEMod->val()( 0 );
@@ -529,7 +529,7 @@ namespace moris
             if ( tPropEMod->check_dof_dependency( aDofTypes ) )
             {
                 // compute derivative
-                mdTestTractiondDof( tTestDofIndex )( tDofIndex ).matrix_data() +=
+                mdTestTractiondDof( tTestDofIndex )( tDofIndex ) +=
                         this->testTraction( aNormal, aTestDofTypes ) * trans( aJump ) *
                         tPropEMod->dPropdDOF( aDofTypes ) / tPropEMod->val()( 0 );
             }
@@ -562,7 +562,7 @@ namespace moris
             if( aDofTypes( 0 ) == mDofDispl )
             {
                 // compute derivative
-                mdStraindDof( tDofIndex ).matrix_data() += this->testStrain().matrix_data();
+                mdStraindDof( tDofIndex ) += this->testStrain();
             }
 
             // get thermal expansion property
@@ -578,7 +578,7 @@ namespace moris
                 tThermalExpansionVector( { 0, mSpaceDim - 1 }, { 0, 0 } ) = tI * tPropCTE->val();
 
                 // compute derivatives
-                mdStraindDof( tDofIndex ).matrix_data() -= tThermalExpansionVector * tFI->N();
+                mdStraindDof( tDofIndex ) -= tThermalExpansionVector * tFI->N();
                 //+= ( -1.0 ) * tThermalExpansionVector * mFIManager->get_field_interpolators_for_type( mDofMap[ "Displacement" ] )->NBuild();
             }
 
@@ -599,7 +599,7 @@ namespace moris
                         mFIManager->get_field_interpolators_for_type( mDofTemp );
 
                 // compute derivatives
-                mdStraindDof( tDofIndex ).matrix_data() +=
+                mdStraindDof( tDofIndex ) +=
                         tII * tPropCTE->dPropdDOF( aDofTypes ) *
                         ( tPropTRef->val()( 0 ) - tFIT->val()( 0 ) );
             }

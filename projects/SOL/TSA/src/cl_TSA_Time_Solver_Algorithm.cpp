@@ -51,7 +51,6 @@ Time_Solver_Algorithm::~Time_Solver_Algorithm()
 
 void Time_Solver_Algorithm::delete_pointers()
 {
-    delete mFullMap;
     mFullMap = nullptr;
 }
 
@@ -73,7 +72,7 @@ void Time_Solver_Algorithm::finalize()
     this->delete_pointers();
 
     // create map object
-    Matrix_Vector_Factory tMatFactory( mMyTimeSolver->get_solver_warehouse()->get_tpl_type() );
+    sol::Matrix_Vector_Factory tMatFactory( mMyTimeSolver->get_solver_warehouse()->get_tpl_type() );
 
     mSolverInterface = mMyTimeSolver->get_solver_interface();
 

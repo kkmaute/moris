@@ -504,7 +504,7 @@ namespace xtk
             Side_Cluster* tSlaveSideCluster  = mDoubleSideSingleSideClusters(mDoubleSideSetsSlaveIndex(tDblSideSetOrds(0))(i)).get();
 
             // create double side set
-            mtk::Double_Side_Cluster* tDblSideCluster  = new mtk::Double_Side_Cluster(tMasterSideCluster,tSlaveSideCluster, tSlaveSideCluster->mChildMesh->get_vertices());
+            mtk::Double_Side_Cluster* tDblSideCluster  = new mtk::Double_Side_Cluster(tMasterSideCluster,tSlaveSideCluster, tMasterSideCluster->get_vertices_in_cluster());
 
             mDoubleSideClusters.push_back(tDblSideCluster);
             mDoubleSideSets(tDblSideSetOrds(0)).push_back(tDblSideCluster);
@@ -1545,10 +1545,13 @@ namespace xtk
 
             }
 
-            // trivial case, the enriched interpolation cell becomes the primary cell
+            // trivial case, the base of the enriched interpolation cell becomes the primary cell
             else
             {
                 mCellClusters(tInterpCellIndex)->mPrimaryIntegrationCells.push_back(mCellClusters(tInterpCellIndex)->mInterpolationCell->get_base_cell());
+                Matrix<IndexMat> tVertexIndices = mCellClusters(tInterpCellIndex)->mPrimaryIntegrationCells(0)->get_vertex_inds();
+                mCellClusters(tInterpCellIndex)->mVerticesInCluster = this->get_mtk_vertices_loc_inds(tVertexIndices);
+
             }
         }
     }
@@ -1723,6 +1726,12 @@ namespace xtk
                         // get child cell pointers
                         moris::Cell<moris::mtk::Cell const *> tChildCells = this->get_mtk_cells_loc_inds(tChildCellInds);
 
+                        // vector of vertices on side ordinals
+                        moris::Cell<moris::Cell<moris::mtk::Vertex const *>> tVerticesInCluster(tChildMesh->get_num_subphase_bins());
+
+                        // map to ensure vertices are added only one time
+                        moris::Cell<std::unordered_map<moris_index,moris_index>> tUniqueVertexMap(tChildMesh->get_num_subphase_bins());
+
                         // create a side cluster for each subphase in this child mesh
                         moris::Cell<std::shared_ptr<xtk::Side_Cluster>> tSideClustersForCM(tChildMesh->get_num_subphase_bins());
                         for(moris::uint  iSP = 0; iSP < tChildMesh->get_num_subphase_bins(); iSP++)
@@ -1737,21 +1746,40 @@ namespace xtk
                             tSideClustersForCM(iSP)->mAssociatedCellCluster = &this->get_cell_cluster(*tEnrichedCellsOfBaseCell(iSP));
                         }
 
+                    
+
                         // iterate through child cells on face
                         for(moris::uint iF = 0; iF < tChildCellsCMIndOnFace.numel(); iF++)
                         {
                             moris_index tSubphaseGroup      = tChildMesh->get_element_subphase_index(tChildCellsCMIndOnFace(iF));
                             moris_index tCMCellIndex        = tChildCellsCMIndOnFace(iF);
                             moris_index tIndexInSideCluster = tSideClustersForCM(tSubphaseGroup)->mIntegrationCells.size();
+                            moris::Cell<moris::mtk::Vertex const *> tVerticesOnSide = tChildCells(tCMCellIndex)->get_vertices_on_side_ordinal(tChildCellsOnFaceOrdinal(iF));
+
+                            for(moris::uint iVoS = 0; iVoS < tVerticesOnSide.size(); iVoS++)
+                            {
+                                if(tUniqueVertexMap(tSubphaseGroup).find(tVerticesOnSide(iVoS)->get_id()) == tUniqueVertexMap(tSubphaseGroup).end())
+                                {
+                                    tUniqueVertexMap(tSubphaseGroup)[tVerticesOnSide(iVoS)->get_id()] = 1;
+
+                                    tVerticesInCluster(tSubphaseGroup).push_back(tVerticesOnSide(iVoS));
+                                }
+                            }
+
 
                             // add information to side cluster
                             tSideClustersForCM(tSubphaseGroup)->mIntegrationCellSideOrdinals(tIndexInSideCluster) = tChildCellsOnFaceOrdinal(iF);
                             tSideClustersForCM(tSubphaseGroup)->mIntegrationCells.push_back(tChildCells(tCMCellIndex));
+                            
                         }
 
                         // iterate through, get rid of extra space in side ordinals and add to side set clusters data
                         for(moris::uint  iSP = 0; iSP < tChildMesh->get_num_subphase_bins(); iSP++)
                         {
+
+                            // add vertices to cluster
+                            tSideClustersForCM(iSP)->mVerticesInCluster = tVerticesInCluster(iSP);
+
                             // only add this side cluster to the set if it has at least one integration cell in it
                             if(tSideClustersForCM(iSP)->mIntegrationCells.size() > 0 )
                             {
@@ -1769,6 +1797,8 @@ namespace xtk
                                 // add
                                 mSideSets(tSideSetOrd).push_back(tSideClustersForCM(iSP));
                             }
+
+
                         }
                     }
 
@@ -1797,13 +1827,13 @@ namespace xtk
                         tSideCluster->mChildMesh = nullptr;
 
                         // integration cell is the same as the interpolation cell in this case
-                        tSideCluster->mIntegrationCells = moris::Cell<moris::mtk::Cell const *>(1,tSideCluster->mInterpolationCell->get_base_cell());
+                        tSideCluster->mIntegrationCells = {tSideCluster->mInterpolationCell->get_base_cell()};
 
                         // side ordinal
                         tSideCluster->mIntegrationCellSideOrdinals = Matrix<IndexMat>({{tSideOrd}});
 
                         // add vertices
-                        tSideCluster->mVerticesInCluster.append(tSideCluster->mInterpolationCell->get_vertices_on_side_ordinal(tSideOrd));
+                        tSideCluster->mVerticesInCluster.append(tSideCluster->mIntegrationCells(0)->get_vertices_on_side_ordinal(tSideOrd));
                         tSideCluster->finalize_setup();
 
                         tSideCluster->mAssociatedCellCluster = &this->get_cell_cluster(*tEnrichedCellsOfBaseCell(0));
@@ -1984,9 +2014,46 @@ namespace xtk
                     tLeftSideCluster->mAssociatedCellCluster = &this->get_cell_cluster(*tLeftSideCluster->mInterpolationCell);
                     tRightSideCluster->mAssociatedCellCluster = &this->get_cell_cluster(*tRightSideCluster->mInterpolationCell );
 
+                    // vector of vertices on side ordinals
+                    moris::Cell<moris::mtk::Vertex const *> tLeftVerticesInCluster;
+                    moris::Cell<moris::mtk::Vertex const *> tRightVerticesInCluster;
+
+                    // map to ensure vertices are added only one time
+                    std::unordered_map<moris_index,moris_index> tLeftUniqueVertexMap;
+                    std::unordered_map<moris_index,moris_index> tRightUniqueVertexMap;
+
                     // add integration cells to cluster
                     for(moris::uint iF = 0; iF < tDblSideClustCellCMInds.size(); iF++)
-                    {
+                    {   
+                        // iterate through vertices and keep track of the unique ones
+                        moris::Cell<moris::mtk::Vertex const *> tLeftVerticesOnSide = tChildCells(tDblSideClustCellCMInds(iF)(0))->get_vertices_on_side_ordinal(tDblSideClustCellFacetOrds(iF)(0));
+                        moris::Cell<moris::mtk::Vertex const *> tRightVerticesOnSide = tChildCells(tDblSideClustCellCMInds(iF)(1))->get_vertices_on_side_ordinal(tDblSideClustCellFacetOrds(iF)(1));
+
+                        for(moris::uint iVoS = 0; iVoS < tLeftVerticesOnSide.size(); iVoS++)
+                        {
+                            MORIS_ASSERT(tLeftVerticesOnSide.size() == tRightVerticesOnSide.size(), "Number of vertex mismatch");
+                            if(tLeftUniqueVertexMap.find(tLeftVerticesOnSide(iVoS)->get_id()) == tLeftUniqueVertexMap.end())
+                            {
+                                tLeftUniqueVertexMap[tLeftVerticesOnSide(iVoS)->get_id()] = 1;
+
+                                tLeftVerticesInCluster.push_back(tLeftVerticesOnSide(iVoS));
+                            }  
+
+                            if(tRightUniqueVertexMap.find(tRightVerticesOnSide(iVoS)->get_id()) == tRightUniqueVertexMap.end())
+                            {
+                                tRightUniqueVertexMap[tRightVerticesOnSide(iVoS)->get_id()] = 1;
+
+                                tRightVerticesInCluster.push_back(tRightVerticesOnSide(iVoS));
+                            }    
+                        }
+                        
+                        // verify the cluster vertices are on each side
+                        for(moris::uint iVoS = 0; iVoS < tLeftVerticesOnSide.size(); iVoS++)
+                        {
+                            MORIS_ASSERT(tRightUniqueVertexMap.find(tLeftVerticesOnSide(iVoS)->get_id()) != tRightUniqueVertexMap.end(),"Left vertex not on right side");
+                            MORIS_ASSERT(tLeftUniqueVertexMap.find(tRightVerticesOnSide(iVoS)->get_id()) != tLeftUniqueVertexMap.end(),"Right vertex not on left side");
+                        }
+
                         // add side ordinals to cluster
                         tLeftSideCluster->mIntegrationCellSideOrdinals(iF) = tDblSideClustCellFacetOrds(iF)(0);
                         tRightSideCluster->mIntegrationCellSideOrdinals(iF) = tDblSideClustCellFacetOrds(iF)(1);
@@ -1995,6 +2062,13 @@ namespace xtk
                         tLeftSideCluster->mIntegrationCells.push_back(tChildCells(tDblSideClustCellCMInds(iF)(0)));
                         tRightSideCluster->mIntegrationCells.push_back(tChildCells(tDblSideClustCellCMInds(iF)(1)));
                     }
+
+                    // add vertices to the side cluster
+                    tLeftSideCluster->mVerticesInCluster  = tLeftVerticesInCluster;
+                    tRightSideCluster->mVerticesInCluster = tLeftVerticesInCluster; // intentionally using left here so ordering is consistent
+
+                    tLeftSideCluster->finalize_setup();
+                    tRightSideCluster->finalize_setup();
 
                     // index of double side set
                     moris_index tDoubleSideSetIndex = this->get_dbl_side_set_index(tSubphaseBulkPhases(tSubphaseIndex0),tSubphaseBulkPhases(tSubphaseIndex1));
@@ -2006,10 +2080,37 @@ namespace xtk
                     mDoubleSideSingleSideClusters.push_back(tRightSideCluster);
 
                     // create double side set
-                    mtk::Double_Side_Cluster* tDblSideCluster  = new mtk::Double_Side_Cluster(tLeftSideCluster.get(),tRightSideCluster.get(),tChildMesh->get_vertices());
+                    mtk::Double_Side_Cluster* tDblSideCluster  = new mtk::Double_Side_Cluster(tLeftSideCluster.get(),tRightSideCluster.get(),tLeftVerticesInCluster);
 
                     mDoubleSideClusters.push_back(tDblSideCluster);
                     mDoubleSideSets(tDoubleSideSetIndex).push_back(tDblSideCluster);
+
+
+                    // verify vertices by getting the ones on a side ordinal
+                    for(moris::uint iF = 0; iF < tDblSideClustCellCMInds.size(); iF++)
+                    {
+                           moris::mtk::Cell const * tCell = tLeftSideCluster->mIntegrationCells(iF);
+                           moris::Cell<const moris::mtk::Vertex *> tVertices = tCell->get_vertices_on_side_ordinal(tLeftSideCluster->mIntegrationCellSideOrdinals(iF));
+
+                        for(moris::uint iVoS = 0; iVoS < tVertices.size(); iVoS++)
+                        {
+                           MORIS_ASSERT(tRightUniqueVertexMap.find(tVertices(iVoS)->get_id()) != tRightUniqueVertexMap.end(),"Left vertex not on right side");
+                           MORIS_ASSERT(tLeftUniqueVertexMap.find(tVertices(iVoS)->get_id()) != tLeftUniqueVertexMap.end(),"Left vertex not on right side");
+                        }
+
+                        tCell = tRightSideCluster->mIntegrationCells(iF);
+                        tVertices = tCell->get_vertices_on_side_ordinal(tRightSideCluster->mIntegrationCellSideOrdinals(iF));
+
+                        for(moris::uint iVoS = 0; iVoS < tVertices.size(); iVoS++)
+                        {
+                           MORIS_ASSERT(tRightUniqueVertexMap.find(tVertices(iVoS)->get_id()) != tRightUniqueVertexMap.end(),"Left vertex not on right side");
+                           MORIS_ASSERT(tLeftUniqueVertexMap.find(tVertices(iVoS)->get_id()) != tLeftUniqueVertexMap.end(),"Left vertex not on right side");
+                        
+                           //MORIS_ASSERT(tVertices(iVoS)->get_id() == tDblSideCluster->get_master_vertex_pair(tVertices(iVoS)),"Vertex id mismatch");
+                        }
+
+                    }
+
                 }
             }
 

@@ -47,7 +47,7 @@ namespace sol
     {
     private:
         //! Pointer to the solver interface
-        Solver_Interface * mSolverInterface;
+        moris::Solver_Interface * mSolverInterface;
 
         Cell< std::shared_ptr< dla::Linear_Solver_Algorithm > > mLinearSolverAlgorithms;
         Cell< dla::Linear_Solver * >                            mLinearSolvers;
@@ -89,9 +89,9 @@ namespace sol
          *
          * @param[in] aSolverInterface Pointer to the solver interface
          */
-        SOL_Warehouse( Solver_Interface * aSolverInterface ) : mSolverInterface( aSolverInterface ){};
+        SOL_Warehouse( moris::Solver_Interface * aSolverInterface ) : mSolverInterface( aSolverInterface ){};
 
-        SOL_Warehouse( Solver_Interface              * aSolverInterface,
+        SOL_Warehouse( moris::Solver_Interface * aSolverInterface,
                        std::shared_ptr< Library_IO >   aLibrary) : mSolverInterface( aSolverInterface ),
                                                                    mLibrary( aLibrary )
         {};
@@ -121,12 +121,12 @@ namespace sol
 
 //--------------------------------------------------------------------------------------------------------
 
-        void set_solver_interface( Solver_Interface * aSolverInterface  )
+        void set_solver_interface( moris::Solver_Interface * aSolverInterface  )
         {
             mSolverInterface = aSolverInterface;
         };
 
-        Solver_Interface * get_solver_interface()
+        moris::Solver_Interface * get_solver_interface()
         {
             return mSolverInterface;
         };

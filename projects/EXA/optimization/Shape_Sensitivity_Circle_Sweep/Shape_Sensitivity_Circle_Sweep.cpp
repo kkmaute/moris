@@ -188,9 +188,9 @@ namespace moris
         tParameterlist.resize( 3 );
         tParameterlist( 0 ).resize(1);
         tParameterlist( 0 )( 0 ) = moris::prm::create_gen_parameter_list();
-        tParameterlist( 0 )( 0 ).set("initial_advs"      , "0.5, 0.5, 0.25, 1.5, 0.5, 0.25");
-        tParameterlist( 0 )( 0 ).set("lower_bounds"      , "0.5, 0.5, 0.25, 1.5, 0.5, 0.25");
-        tParameterlist( 0 )( 0 ).set("upper_bounds"      , "0.5, 0.5, 0.25, 1.5, 0.5, 0.25");
+        tParameterlist( 0 )( 0 ).set("initial_advs"      , "0.45, 0.45, 0.25, 1.55, 0.55, 0.25");
+        tParameterlist( 0 )( 0 ).set("lower_bounds"      , "0.45, 0.45, 0.25, 1.55, 0.55, 0.25");
+        tParameterlist( 0 )( 0 ).set("upper_bounds"      , "0.45, 0.45, 0.25, 1.55, 0.55, 0.25");
         tParameterlist( 0 )( 0 ).set("IQI_types"         , "IQIBulkStrainEnergy,IQIBulkVolume");
         tParameterlist( 0 )( 0 ).set("PDV_types"         , "");
 
@@ -329,6 +329,7 @@ namespace moris
         tParameterList( 4 ).push_back( prm::create_IQI_parameter_list() );
         tParameterList( 4 )( tIQICounter ).set( "IQI_name",                   "IQIBulkTEMP");
         tParameterList( 4 )( tIQICounter ).set( "IQI_type",                   static_cast< uint >( fem::IQI_Type::DOF ) );
+        tParameterList( 4 )( tIQICounter ).set( "dof_quantity",               "UX,UY") ;
         tParameterList( 4 )( tIQICounter ).set( "master_dof_dependencies",    "UX,UY");
         tParameterList( 4 )( tIQICounter ).set( "vectorial_field_index",      0 );
         tParameterList( 4 )( tIQICounter ).set( "mesh_set_names",             "HMR_dummy_n_p3,HMR_dummy_c_p3");
@@ -402,9 +403,9 @@ namespace moris
         tParameterlist( 0 ).resize( 1 );
 
         tParameterlist( 0 )( 0 ) = prm::create_vis_parameter_list();
-        tParameterlist( 0 )( 0 ).set( "File_Name"  , std::pair< std::string, std::string >( "./", "shape_opt_test.exo" ) );
-        tParameterlist( 0 )( 0 ).set( "Mesh_Type"  , static_cast< uint >( vis::VIS_Mesh_Type::STANDARD ) );
-        tParameterlist( 0 )( 0 ).set( "Set_Names"  ,  "HMR_dummy_n_p3,HMR_dummy_c_p3" );
+//        tParameterlist( 0 )( 0 ).set( "File_Name"  , std::pair< std::string, std::string >( "./", "shape_opt_test.exo" ) );
+//        tParameterlist( 0 )( 0 ).set( "Mesh_Type"  , static_cast< uint >( vis::VIS_Mesh_Type::STANDARD ) );
+//        tParameterlist( 0 )( 0 ).set( "Set_Names"  ,  "HMR_dummy_n_p3,HMR_dummy_c_p3" );
     }
 
 

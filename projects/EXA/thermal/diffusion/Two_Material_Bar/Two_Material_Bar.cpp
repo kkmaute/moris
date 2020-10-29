@@ -522,7 +522,7 @@ namespace moris
         // create parameter list for interface conditions
         tParameterList( 3 ).push_back( prm::create_IWG_parameter_list() );
         tParameterList( 3 )( tIWGCounter ).set( "IWG_name",                   "IWGInterface12TEMP") ;
-        tParameterList( 3 )( tIWGCounter ).set( "IWG_type",                   static_cast< uint >( fem::IWG_Type::SPATIALDIFF_INTERFACE ) );
+        tParameterList( 3 )( tIWGCounter ).set( "IWG_type",                   static_cast< uint >( fem::IWG_Type::SPATIALDIFF_INTERFACE_SYMMETRIC_NITSCHE ) );
         tParameterList( 3 )( tIWGCounter ).set( "dof_residual",               "TEMP");
         tParameterList( 3 )( tIWGCounter ).set( "master_dof_dependencies",    "TEMP");
         tParameterList( 3 )( tIWGCounter ).set( "slave_dof_dependencies",     "TEMP");
@@ -565,8 +565,8 @@ namespace moris
         //        tParameterList( 3 )( tIWGCounter ).set( "master_dof_dependencies",    "TEMP") ;
         //        tParameterList( 3 )( tIWGCounter ).set( "master_properties",
         //                "PropWeightCurrent   ,WeightCurrent;"
-				//                "PropWeightPrevious  ,WeightPrevious;"
-				//                "PropInitialCondition,InitialCondition") ;
+        //                "PropWeightPrevious  ,WeightPrevious;"
+        //                "PropInitialCondition,InitialCondition") ;
         //        tParameterList( 3 )( tIWGCounter ).set( "mesh_set_names",             tTotalDomain );
         //        tParameterList( 3 )( tIWGCounter ).set( "time_continuity",            true );
         //        tIWGCounter++;
@@ -580,6 +580,7 @@ namespace moris
         tParameterList( 4 ).push_back( prm::create_IQI_parameter_list() );
         tParameterList( 4 )( tIQICounter ).set( "IQI_name",                   "IQIBulkTEMP") ;
         tParameterList( 4 )( tIQICounter ).set( "IQI_type",                   static_cast< uint >( fem::IQI_Type::DOF ) );
+        tParameterList( 4 )( tIQICounter ).set( "dof_quantity",               "TEMP");
         tParameterList( 4 )( tIQICounter ).set( "master_dof_dependencies",    "TEMP") ;
         tParameterList( 4 )( tIQICounter ).set( "vectorial_field_index",      0 );
         tParameterList( 4 )( tIQICounter ).set( "mesh_set_names",             tTotalDomain );

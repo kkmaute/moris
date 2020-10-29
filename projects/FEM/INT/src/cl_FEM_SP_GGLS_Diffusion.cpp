@@ -239,7 +239,7 @@ namespace moris
             // if indirect dependency on conductivity
             if ( tPropConductivity->check_dof_dependency( aDofTypes ) )
             {
-                mdPPdMasterDof( tDofIndex ).matrix_data() -=
+                mdPPdMasterDof( tDofIndex ) -=
                         tdSPdAlpha *
                         ( tDensity * tHeatCapacity * std::pow(mElementSize, 2.0) /
                                 ( 6.0 * std::pow(tConductivity, 2.0) * tDeltat ) ) *
@@ -249,7 +249,7 @@ namespace moris
             // if indirect dependency on density
             if ( tPropDensity->check_dof_dependency( aDofTypes ) )
             {
-                mdPPdMasterDof( tDofIndex ).matrix_data() +=
+                mdPPdMasterDof( tDofIndex ) +=
                         tdSPdAlpha *
                         ( tHeatCapacity * std::pow(mElementSize, 2.0) /
                                 ( 6.0 * tConductivity * tDeltat ) ) *
@@ -259,7 +259,7 @@ namespace moris
             // if indirect dependency on heat capacity
             if ( tPropHeatCapacity->check_dof_dependency( aDofTypes ) )
             {
-                mdPPdMasterDof( tDofIndex ).matrix_data() +=
+                mdPPdMasterDof( tDofIndex ) +=
                         tdSPdAlpha *
                         ( tDensity * std::pow(mElementSize, 2.0) /
                                 ( 6.0 * tConductivity * tDeltat ) ) *
@@ -278,7 +278,7 @@ namespace moris
                             eval_dFdTempdDOF( tMeltTemp, tPCconst, tPSfunc, tFIDer);
 
                     // derivative of tau wrt temperature DOFs
-                    mdPPdMasterDof( tDofIndex ).matrix_data() +=
+                    mdPPdMasterDof( tDofIndex ) +=
                             tdSPdAlpha *
                             ( tDensity * tLatentHeat * std::pow(mElementSize, 2.0) /
                                     ( 6.0 * tConductivity * tDeltat ) ) *
@@ -288,7 +288,7 @@ namespace moris
                 // if indirect dependency on conductivity
                 if ( tPropConductivity->check_dof_dependency( aDofTypes ) )
                 {
-                    mdPPdMasterDof( tDofIndex ).matrix_data() -=
+                    mdPPdMasterDof( tDofIndex ) -=
                             tdSPdAlpha *
                             ( tDensity * tLatentHeat * tdfdT * std::pow(mElementSize, 2.0) /
                                     ( 6.0 * std::pow(tConductivity, 2.0) * tDeltat ) ) *
@@ -298,15 +298,13 @@ namespace moris
                 // if indirect dependency on density
                 if ( tPropDensity->check_dof_dependency( aDofTypes ) )
                 {
-                    mdPPdMasterDof( tDofIndex ).matrix_data() +=
+                    mdPPdMasterDof( tDofIndex ) +=
                             tdSPdAlpha *
                             ( tLatentHeat * tdfdT * std::pow(mElementSize, 2.0) /
                                     ( 6.0 * tConductivity * tDeltat ) ) *
                                     tPropDensity->dPropdDOF( aDofTypes );
                 }
-
             }
-
         }
 
         //------------------------------------------------------------------------------

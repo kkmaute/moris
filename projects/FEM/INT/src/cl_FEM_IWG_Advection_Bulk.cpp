@@ -39,7 +39,7 @@ namespace moris
             if ( mConstitutiveMap.find( aConstitutiveString ) == mConstitutiveMap.end() )
             {
                 std::string tErrMsg =
-                        std::string("IWG_Advection_Bulk::set_constitutive_model - Unknown aConstitutiveString: ") +
+                        "IWG_Advection_Bulk::set_constitutive_model - Unknown aConstitutiveString: " +
                         aConstitutiveString;
 
                 MORIS_ERROR( false, tErrMsg.c_str() );
@@ -113,7 +113,7 @@ namespace moris
                             tSPSUPG->val()( 0 ) * trans( tFITemp->dnNdxn( 1 ) ) * tFIVelocity->val() * tRT( 0, 0 ) );
 
             // check for nan, infinity
-            MORIS_ERROR( isfinite( mSet->get_residual()( 0 ) ),
+            MORIS_ASSERT( isfinite( mSet->get_residual()( 0 ) ),
                     "IWG_Advection_Bulk::compute_residual - Residual contains NAN or INF, exiting!");
         }
 
@@ -158,7 +158,7 @@ namespace moris
             for( uint iDOF = 0; iDOF < tNumDofDependencies; iDOF++ )
             {
                 // get the treated dof type
-                Cell< MSI::Dof_Type > tDofType = mRequestedMasterGlobalDofTypes( iDOF );
+                Cell< MSI::Dof_Type > & tDofType = mRequestedMasterGlobalDofTypes( iDOF );
 
                 // get the index for dof type, indices for assembly
                 sint tDofDepIndex         = mSet->get_dof_index_for_type( tDofType( 0 ), mtk::Master_Slave::MASTER );
@@ -209,7 +209,7 @@ namespace moris
             }
 
             // check for nan, infinity
-            MORIS_ERROR( isfinite( mSet->get_jacobian() ),
+            MORIS_ASSERT( isfinite( mSet->get_jacobian() ),
                     "IWG_Advection_Bulk::compute_jacobian - Jacobian contains NAN or INF, exiting!");
         }
 
@@ -271,16 +271,16 @@ namespace moris
             if( tCMDiffusion->check_dof_dependency( aDofTypes ) )
             {
                 // compute contribution to jacobian strong form
-                aJT.matrix_data() +=
-                        tCMDiffusion->dEnergyDotdDOF( aDofTypes ).matrix_data() +
+                aJT +=
+                        tCMDiffusion->dEnergyDotdDOF( aDofTypes ) +
                         trans( tFIVelocity->val() ) * tCMDiffusion->dGradEnergydDOF( aDofTypes ) -
-                        tCMDiffusion->ddivfluxdu( aDofTypes ).matrix_data();
+                        tCMDiffusion->ddivfluxdu( aDofTypes );
             }
 
             // if derivative wrt to velocity dof type
             if( aDofTypes( 0 ) == MSI::Dof_Type::VX )
             {
-                aJT.matrix_data() +=
+                aJT +=
                         trans( tCMDiffusion->gradEnergy() ) * tFIVelocity->N() ;
             }
         }

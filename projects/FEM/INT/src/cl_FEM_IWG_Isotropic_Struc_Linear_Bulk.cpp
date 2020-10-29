@@ -128,7 +128,7 @@ namespace moris
             }
 
             // check for nan, infinity
-            MORIS_ERROR( isfinite( mSet->get_residual()( 0 ) ),
+            MORIS_ASSERT( isfinite( mSet->get_residual()( 0 ) ),
                     "IWG_Isotropic_Struc_Linear_Bulk::compute_residual - Residual contains NAN or INF, exiting!");
         }
 
@@ -168,7 +168,7 @@ namespace moris
             for( uint iDOF = 0; iDOF < tNumDofDependencies; iDOF++ )
             {
                 // get the treated dof type
-                Cell< MSI::Dof_Type > tDofType = mRequestedMasterGlobalDofTypes( iDOF );
+                Cell< MSI::Dof_Type > & tDofType = mRequestedMasterGlobalDofTypes( iDOF );
 
                 // get the index for dof type, indices for assembly
                 sint tDofDepIndex         = mSet->get_dof_index_for_type( tDofType( 0 ), mtk::Master_Slave::MASTER );
@@ -223,7 +223,7 @@ namespace moris
             }
 
             // check for nan, infinity
-            MORIS_ERROR(  isfinite( mSet->get_jacobian() ) ,
+            MORIS_ASSERT( isfinite( mSet->get_jacobian() ) ,
                     "IWG_Isotropic_Struc_Linear_Bulk::compute_jacobian - Jacobian contains NAN or INF, exiting!");
         }
 

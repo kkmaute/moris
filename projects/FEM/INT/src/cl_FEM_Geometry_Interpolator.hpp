@@ -279,24 +279,24 @@ namespace moris
                  * get the space coefficients of the geometry field xHat
                  */
                 const Matrix< DDRMat > & get_space_coeff() const
-                  {
+                {
                     // check that mXHat is set
                     MORIS_ASSERT( mXHat.numel()>0, "Geometry_Interpolator::get_space_coeff - mXHat is not set." );
 
                     return mXHat;
-                  }
+                }
 
                 //------------------------------------------------------------------------------
                 /**
                  * get the time coefficients of the geometry field tHat
                  */
                 const Matrix< DDRMat > & get_time_coeff() const
-                   {
+                {
                     // check that mTHat is set
                     MORIS_ASSERT( mTHat.numel()>0, "Geometry_Interpolator::get_time_coeff - mTHat is not set." );
 
                     return mTHat;
-                   }
+                }
 
                 //------------------------------------------------------------------------------
                 /**
@@ -367,30 +367,10 @@ namespace moris
                 void get_space_time( Matrix< DDRMat > & aParamPoint )
                 {
                     aParamPoint.set_size( mNumSpaceParamDim + 1, 1 );
-                    aParamPoint( { 0, mNumSpaceParamDim-1 }, { 0, 0 } ) = mXiLocal.matrix_data();
-                    aParamPoint( mNumSpaceParamDim ) = mTauLocal( 0 );
+
+                    aParamPoint( { 0, mNumSpaceParamDim-1 } ) = mXiLocal.matrix_data();
+                    aParamPoint( mNumSpaceParamDim )          = mTauLocal( 0 );
                 }
-
-                //------------------------------------------------------------------------------
-                /**
-                 * get the vertices ordinals of each face of the parent element
-                 */
-                moris::Cell< moris::Cell< moris_index > > get_face_vertices_ordinals( uint aNumSpaceBases );
-
-                //------------------------------------------------------------------------------
-                /**
-                 * get the parametric coordinates of a space side
-                 * @param[ in ] a space face ordinal
-                 */
-                Matrix< DDRMat > extract_space_side_space_param_coeff(
-                        moris_index              aSpaceOrdinal,
-                        mtk::Interpolation_Order aInterpolationOrder );
-
-                //------------------------------------------------------------------------------
-                /**
-                 * get the parametric coordinates in space
-                 */
-                Matrix< DDRMat > extract_space_param_coeff( mtk::Interpolation_Order aInterpolationOrder );
 
                 //------------------------------------------------------------------------------
                 /**

@@ -186,7 +186,7 @@ namespace moris
                 }
 
                 // compute contribution from velocity
-                mdPPdMasterDof( tDofIndex ).matrix_data() +=
+                mdPPdMasterDof( tDofIndex ) +=
                         mParameters( 0 )( 0 ) * tPropDensity->val()( 0 ) * tdInfinityNormdu / 6.0;
             }
 
@@ -194,7 +194,7 @@ namespace moris
             if( tPropViscosity->check_dof_dependency( aDofTypes ) )
             {
                 // compute contribution from viscosity
-                mdPPdMasterDof( tDofIndex ).matrix_data() +=
+                mdPPdMasterDof( tDofIndex ) +=
                         mParameters( 0 )( 0 ) * tPropViscosity->dPropdDOF( aDofTypes ) / mElementSize;
             }
 
@@ -205,7 +205,7 @@ namespace moris
                 real tDeltaT = mMasterFIManager->get_IP_geometry_interpolator()->get_time_step();
 
                 // compute contribution from density
-                mdPPdMasterDof( tDofIndex ).matrix_data() +=
+                mdPPdMasterDof( tDofIndex ) +=
                         mParameters( 0 )( 0 ) * tPropDensity->dPropdDOF( aDofTypes ) *
                         ( tInfinityNorm / 6.0 + mElementSize / ( 12.0 * mParameters( 1 )( 0 ) * tDeltaT ) );
             }

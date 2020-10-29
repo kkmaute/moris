@@ -118,9 +118,8 @@ namespace moris
         void Equation_Model::initialize_explicit_and_implicit_dQIdp()
         {
             // create map for dQIdpMap
-            moris::Matrix_Vector_Factory tMatFactory( sol::MapType::Epetra );
+            moris::sol::Matrix_Vector_Factory tMatFactory( sol::MapType::Epetra );
 
-            delete mdQIdpMap;
             mdQIdpMap = tMatFactory.create_map(
                     mDesignVariableInterface->get_my_local_global_map() );
 
@@ -172,7 +171,7 @@ namespace moris
             }
 
             // global assembly to switch entries to the right processor
-            mImplicitdQidp->vector_global_asembly();
+            mImplicitdQidp->vector_global_assembly();
             //mImplicitdQidp->print();
         }
 
@@ -213,7 +212,7 @@ namespace moris
             }
 
             // global assembly to switch entries to the right processor
-            mExplicitdQidp->vector_global_asembly();
+            mExplicitdQidp->vector_global_assembly();
             //mExplicitdQidp->print();
         }
 
@@ -222,7 +221,7 @@ namespace moris
         sol::Dist_Vector * Equation_Model::get_dQIdp()
         {
             // create map object
-            moris::Matrix_Vector_Factory tMatFactory( sol::MapType::Epetra );
+            moris::sol::Matrix_Vector_Factory tMatFactory( sol::MapType::Epetra );
 
             // get number of RHD
             uint tNumRHMS = this->get_num_rhs();

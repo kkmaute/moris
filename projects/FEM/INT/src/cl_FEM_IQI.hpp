@@ -48,14 +48,14 @@ namespace moris
             // FEM IQI type
             enum fem::IQI_Type mFEMIQIType;
 
-            // Phase type
-            enum Phase_Type mIQIMatType;
-
             // IQI type index
             sint mIQITypeIndex = -1;
 
             // normal
             Matrix< DDRMat > mNormal;
+
+            // quantity dof type for IQI dof, max dof
+            moris::Cell< MSI::Dof_Type > mQuantityDofType;
 
             // master and slave dof type lists
             moris::Cell< moris::Cell< MSI::Dof_Type > > mMasterDofTypes;
@@ -108,6 +108,19 @@ namespace moris
             // IQI name
             std::string mName;
 
+            // bulk type
+            fem::Element_Type mBulkType = fem::Element_Type::BULK;
+
+            // strings for master and slave phase name
+            std::string mMasterPhaseName;
+            std::string mSlavePhaseName;
+
+            // bool for time continuity
+            bool mTimeContinuity = false;
+
+            // bool for time boundary
+            bool mTimeBoundary = false;
+
         private:
 
             // Normalization
@@ -157,6 +170,66 @@ namespace moris
 
             //------------------------------------------------------------------------------
             /**
+             * set time continuity flag
+             * param[ in ] aTimeContinuity bool true if IWG for time continuity
+             */
+            void set_time_continuity( bool aTimeContinuity )
+            {
+                mTimeContinuity = aTimeContinuity;
+            }
+
+            //------------------------------------------------------------------------------
+            /**
+             * get time continuity flag
+             * param[ out ] mTimeContinuity ool true if IWG for time continuity
+             */
+            bool get_time_continuity()
+            {
+                return mTimeContinuity;
+            }
+
+            //------------------------------------------------------------------------------
+            /**
+             * set time boundary flag
+             * param[ in ] aTimeBoundary bool true if IWG for time boundary
+             */
+            void set_time_boundary( bool aTimeBoundary )
+            {
+                mTimeBoundary = aTimeBoundary;
+            }
+
+            //------------------------------------------------------------------------------
+            /**
+             * get time boundary flag
+             * param[ out ] mTimeBoundary bool true if IWG for time boundary
+             */
+            bool get_time_boundary()
+            {
+                return mTimeBoundary;
+            }
+
+            //------------------------------------------------------------------------------
+            /**
+             * set bulk type
+             * @param[ in ] aBulkType element type for the IWG
+             */
+            void set_bulk_type( fem::Element_Type aBulkType )
+            {
+                mBulkType = aBulkType;
+            }
+
+            //------------------------------------------------------------------------------
+            /**
+             * get bulk type
+             * @param[ out ] mBulkType element type for the IWG
+             */
+            fem::Element_Type get_bulk_type()
+            {
+                return mBulkType;
+            }
+
+            //------------------------------------------------------------------------------
+            /**
              * get fem IQI type
              */
             enum fem::IQI_Type get_fem_IQI_type()
@@ -166,19 +239,78 @@ namespace moris
 
             //------------------------------------------------------------------------------
             /**
-             * get IQI mat type
+             * set phase name
+             * param[ in ] aPhaseName a string for phase name
+             * param[ in ] aIsMaster  an enum for master or slave
              */
-            enum Phase_Type get_IQI_phase_type()
+            void set_phase_name(
+                    std::string aPhaseName,
+                    mtk::Master_Slave aIsMaster )
             {
-                return mIQIMatType;
+                switch( aIsMaster )
+                {
+                    case mtk::Master_Slave::MASTER :
+                    {
+                        mMasterPhaseName = aPhaseName;
+                        break;
+                    }
+                    case mtk::Master_Slave::SLAVE :
+                    {
+                        mSlavePhaseName = aPhaseName;
+                        break;
+                    }
+                    default :
+                    {
+                        MORIS_ERROR( false, "IWG::set_phase_name - aIsMaster can only be master or slave.");
+                    }
+                }
             }
 
+            //------------------------------------------------------------------------------
             /**
-             * set IQI mat type
+             * get phase name
+             * param[ in ]  aIsMaster an enum for master or slave
+             * param[ out ] mName     a string for phase name
              */
-            void set_IQI_phase_type( enum Phase_Type aMatType )
+            std::string get_phase_name( mtk::Master_Slave aIsMaster )
             {
-                mIQIMatType = aMatType;
+                switch( aIsMaster )
+                {
+                    case mtk::Master_Slave::MASTER :
+                    {
+                        return mMasterPhaseName;
+                    }
+                    case mtk::Master_Slave::SLAVE :
+                    {
+                        return mSlavePhaseName;
+                    }
+                    default :
+                    {
+                        MORIS_ERROR( false, "IWG::get_phase_name - aIsMaster can only be master or slave.");
+                        return mMasterPhaseName;
+                    }
+                }
+            }
+
+            //------------------------------------------------------------------------------
+            /**
+             * set quantity dof type (IQI dof, max dof)
+             * @param[ in ] aQuantityDofType a cell of residual dof types
+             */
+            void set_quantity_dof_type( const moris::Cell< MSI::Dof_Type > & aQuantityDofType )
+            {
+                mQuantityDofType = aQuantityDofType;
+            }
+
+            //------------------------------------------------------------------------------
+            /**
+             * return a dof type for the quantity (IQI dof, max dof)
+             * @param[ out ] mQuantityDofType a cell of residual dof types
+             */
+            const
+            moris::Cell< MSI::Dof_Type > & get_quantity_dof_type() const
+            {
+                return mQuantityDofType;
             }
 
             //------------------------------------------------------------------------------

@@ -44,7 +44,7 @@ namespace moris
             if ( mPropertyMap.find( aPropertyString ) == mPropertyMap.end() )
             {
                 std::string tErrMsg =
-                        std::string("IWG_Diffusion_Bulk::set_property - Unknown aPropertyString : ") +
+                        "IWG_Diffusion_Bulk::set_property - Unknown aPropertyString : " +
                         aPropertyString;
 
                 MORIS_ERROR( false , tErrMsg.c_str() );
@@ -69,7 +69,7 @@ namespace moris
             if ( mConstitutiveMap.find( aConstitutiveString ) == mConstitutiveMap.end() )
             {
                 std::string tErrMsg =
-                        std::string("IWG_Diffusion_Bulk::set_constitutive_model - Unknown aConstitutiveString: ") +
+                        "IWG_Diffusion_Bulk::set_constitutive_model - Unknown aConstitutiveString: " +
                         aConstitutiveString;
 
                 MORIS_ERROR( false, tErrMsg.c_str() );
@@ -157,7 +157,7 @@ namespace moris
             }
 
             // check for nan, infinity
-            MORIS_ERROR( isfinite( mSet->get_residual()( 0 ) ),
+            MORIS_ASSERT( isfinite( mSet->get_residual()( 0 ) ),
                     "IWG_Diffusion_Bulk::compute_residual - Residual contains NAN or INF, exiting!");
         }
 
@@ -197,7 +197,7 @@ namespace moris
             for( uint iDOF = 0; iDOF < tNumDofDependencies; iDOF++ )
             {
                 // get the treated dof type
-                Cell< MSI::Dof_Type > tDofType = mRequestedMasterGlobalDofTypes( iDOF );
+                Cell< MSI::Dof_Type > & tDofType = mRequestedMasterGlobalDofTypes( iDOF );
 
                 // get the index for dof type, indices for assembly
                 sint tDofDepIndex         = mSet->get_dof_index_for_type( tDofType( 0 ), mtk::Master_Slave::MASTER );
@@ -269,7 +269,7 @@ namespace moris
             }
 
             // check for nan, infinity
-            MORIS_ERROR(  isfinite( mSet->get_jacobian() ) ,
+            MORIS_ASSERT( isfinite( mSet->get_jacobian() ) ,
                     "IWG_Diffusion_Bulk::compute_jacobian - Jacobian contains NAN or INF, exiting!");
         }
 

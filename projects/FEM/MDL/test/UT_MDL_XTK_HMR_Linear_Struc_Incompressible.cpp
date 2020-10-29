@@ -176,18 +176,18 @@ TEST_CASE("2D XTK HMR Incompressible","[XTK_HMR_I_2D]")
 
         moris::ParameterList tParameters = prm::create_hmr_parameter_list();
 
-        tParameters.set( "number_of_elements_per_dimension", std::string("10, 10"));
-        tParameters.set( "domain_dimensions", std::string("2, 2") );
-        tParameters.set( "domain_offset", std::string("-1.0, -1.0") );
-        tParameters.set( "domain_sidesets", std::string("1,2,3,4") );
-        tParameters.set( "lagrange_output_meshes", std::string("0") );
+        tParameters.set( "number_of_elements_per_dimension", "10, 10");
+        tParameters.set( "domain_dimensions", "2, 2" );
+        tParameters.set( "domain_offset", "-1.0, -1.0" );
+        tParameters.set( "domain_sidesets", "1,2,3,4" );
+        tParameters.set( "lagrange_output_meshes", "0" );
 
-        tParameters.set( "lagrange_orders", std::string("1") );
-        tParameters.set( "lagrange_pattern", std::string("0") );
-        tParameters.set( "bspline_orders", std::string("1") );
-        tParameters.set( "bspline_pattern", std::string("0") );
+        tParameters.set( "lagrange_orders", "1" );
+        tParameters.set( "lagrange_pattern", "0" );
+        tParameters.set( "bspline_orders", "1" );
+        tParameters.set( "bspline_pattern", "0" );
 
-        tParameters.set( "lagrange_to_bspline", std::string("0") );
+        tParameters.set( "lagrange_to_bspline", "0" );
 
         tParameters.set( "truncate_bsplines", 1 );
         tParameters.set( "refinement_buffer", 3 );
@@ -328,19 +328,22 @@ TEST_CASE("2D XTK HMR Incompressible","[XTK_HMR_I_2D]")
         fem::IQI_Factory tIQIFactory;
 
         std::shared_ptr< fem::IQI > tIQIUX = tIQIFactory.create_IQI( fem::IQI_Type::DOF );
+        tIQIUX->set_quantity_dof_type( { MSI::Dof_Type::UX, MSI::Dof_Type::UY } );
         tIQIUX->set_dof_type_list( { { MSI::Dof_Type::UX, MSI::Dof_Type::UY } }, mtk::Master_Slave::MASTER );
         tIQIUX->set_output_type_index( 0 );
-		tIQIUX->set_name( "IQI_UX" );
+        tIQIUX->set_name( "IQI_UX" );
 
         std::shared_ptr< fem::IQI > tIQIUY = tIQIFactory.create_IQI( fem::IQI_Type::DOF );
+        tIQIUY->set_quantity_dof_type( { MSI::Dof_Type::UX, MSI::Dof_Type::UY } );
         tIQIUY->set_dof_type_list( { { MSI::Dof_Type::UX, MSI::Dof_Type::UY } }, mtk::Master_Slave::MASTER );
         tIQIUY->set_output_type_index( 1 );
-		tIQIUY->set_name( "IQI_UY" );
+        tIQIUY->set_name( "IQI_UY" );
 
         std::shared_ptr< fem::IQI > tIQIP = tIQIFactory.create_IQI( fem::IQI_Type::DOF );
+        tIQIP->set_quantity_dof_type( { MSI::Dof_Type::P } );
         tIQIP->set_dof_type_list( { { MSI::Dof_Type::P } }, mtk::Master_Slave::MASTER );
         tIQIP->set_output_type_index( 0 );
-		tIQIP->set_name( "IQI_P" );
+        tIQIP->set_name( "IQI_P" );
 
         // create a list of active block-sets
         std::string tInterfaceSideSetName = tEnrIntegMesh.get_interface_side_set_name( 0, 0, 1 );

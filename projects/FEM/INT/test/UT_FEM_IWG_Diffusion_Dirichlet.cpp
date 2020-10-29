@@ -438,7 +438,7 @@ TEST_CASE( "IWG_Diff_Dirichlet_Geo_Prop", "[moris],[fem],[IWG_Diff_Dirichlet_Geo
     arma::Mat< double > tMatrix;
     tMatrix.randu( 8, 1 );
     Matrix< DDRMat > tDOFHat;
-    tDOFHat.matrix_data() = 10.0 * tMatrix;
+    tDOFHat = 10.0 * tMatrix;
 
     // create a cell of field interpolators for IWG
     Cell< Field_Interpolator* > tFIs( 1 );

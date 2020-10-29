@@ -394,7 +394,7 @@ void Preconditioner_PETSc::build_schwarz_preconditioner( Linear_Problem * aLinea
 
      //---------------------------------------------------------------
 
-     Matrix_Vector_Factory tMatFactory( sol::MapType::Petsc );
+     sol::Matrix_Vector_Factory tMatFactory( sol::MapType::Petsc );
 
      mMapFree = tMatFactory.create_map( aLinearSystem->get_solver_input()->get_my_local_global_map(),
                                         aLinearSystem->get_solver_input()->get_constrained_Ids() );

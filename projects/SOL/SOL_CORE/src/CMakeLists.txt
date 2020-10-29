@@ -17,7 +17,7 @@ set(HEADERS
     cl_MatrixPETSc.hpp
     cl_Sparse_Matrix_EpetraFECrs.hpp
     cl_Vector_Epetra.hpp
-    cl_VectorPETSc.hpp)
+        cl_Vector_PETSc.hpp)
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Sol Core Library
@@ -26,13 +26,14 @@ set(HEADERS
 set(LIB_SOURCES
     cl_SOL_Warehouse.cpp
 	cl_SOL_Matrix_Vector_Factory.cpp
+	cl_SOL_Dist_Vector.cpp
     cl_Communicator_Epetra.cpp
     cl_Map_Epetra.cpp
     cl_Map_PETSc.cpp
     cl_MatrixPETSc.cpp
     cl_Sparse_Matrix_EpetraFECrs.cpp
     cl_Vector_Epetra.cpp
-    cl_VectorPETSc.cpp
+        cl_Vector_PETSc.cpp
  )
 
 # List library dependencies

@@ -16,6 +16,8 @@ namespace moris
 
         private:
             mtk::Interpolation_Mesh* mMesh;
+            sol::Dist_Vector* mOwnedNodalValues = nullptr;
+            sol::Dist_Vector* mSharedNodalValues = nullptr;
 
         public:
             /**
@@ -25,6 +27,7 @@ namespace moris
              * @param aGeometryVariableIndices Indices of geometry variables to be filled by the ADVs
              * @param aADVIndices The indices of the ADV vector to fill in the geometry variables
              * @param aConstantParameters The constant parameters not filled by ADVs
+             * @param aName Name of this field for identification
              * @param aMesh The mesh pointer where the B-spline information can be obtained
              * @param aNumRefinements The number of refinement steps to use for this geometry
              * @param aRefinementFunctionIndex The index of a user-defined refinement function (-1 = default refinement)
@@ -36,6 +39,7 @@ namespace moris
                       Matrix<DDUMat>           aADVIndices,
                       Matrix<DDRMat>           aConstantParameters,
                       mtk::Interpolation_Mesh* aMesh,
+                      std::string              aName = "",
                       Matrix<DDSMat>  aNumRefinements = {{}},
                       Matrix<DDSMat>  aNumPatterns = {{}},
                       sint                     aRefinementFunctionIndex = -1,
@@ -46,31 +50,24 @@ namespace moris
             /**
              * Constructor where ADVs are added based on an input field and a B-spline mesh.
              *
-             * @param aADVs Reference to the full ADVs
-             * @param aADVIndex Starting index for assigning ADVs
-             * @param aMesh The mesh pointer where the B-spline information can be obtained
-             * @param aGeometry Geometry for initializing the B-spline level set discretization
-             */
-            Level_Set(Matrix<DDRMat>&           aADVs,
-                      uint                      aADVIndex,
-                      mtk::Interpolation_Mesh*  aMesh,
-                      std::shared_ptr<Geometry> aGeometry);
-
-            /**
-             * Constructor where ADVs are added based on an input field and a B-spline mesh.
-             *
              * @param aOwnedADVs Pointer to the owned distributed ADVs
              * @param aOwnedADVIds All owned ADV IDs on this processor
-             * @param aOwnedADVIdsIndex Index in the ID matrix for pulling IDs for this field
+             * @param aSharedADVIds All owned and shared ADV IDs for this B-spline field
+             * @param aOwnedADVIdsOffset Offset in the owned ADV IDs for pulling ADV IDs
              * @param aMesh The mesh pointer where the B-spline information can be obtained
              * @param aGeometry Geometry for initializing the B-spline level set discretization
              */
             Level_Set(sol::Dist_Vector*         aOwnedADVs,
                       const Matrix<DDSMat>&     aOwnedADVIds,
+                      const Matrix<DDSMat>&     aSharedADVIds,
                       uint                      aOwnedADVIdsOffset,
-                      uint                      aNumFieldVariables,
                       mtk::Interpolation_Mesh*  aMesh,
                       std::shared_ptr<Geometry> aGeometry);
+
+            /**
+             * Destructor
+             */
+            ~Level_Set();
 
             /**
              * Given a node index, returns the field value.
@@ -78,7 +75,32 @@ namespace moris
              * @param aNodeIndex Node index
              * @return Distance to this geometry
              */
-            real evaluate_field_value(uint aNodeIndex);
+            real get_field_value(uint aNodeIndex);
+
+            /**
+             * Given a node index, evaluates the sensitivity of the geometry field with respect to all of the
+             * geometry variables.
+             *
+             * @param aNodeIndex Node index
+             * @return Vector of sensitivities
+             */
+            Matrix<DDRMat> get_field_sensitivities(uint aNodeIndex);
+
+            /**
+             * Gets the IDs of ADVs which this field depends on for evaluations.
+             *
+             * @param aNodeIndex Node index
+             * @param aCoordinates Node coordinates
+             * @return Determining ADV IDs at this node
+             */
+            virtual Matrix<DDSMat> get_determining_adv_ids(uint aNodeIndex);
+
+            /**
+             * Imports the local ADVs required from the full owned ADV distributed vector, and recomputes nodal values.
+             *
+             * @param aOwnedADVs Full owned distributed ADV vector
+             */
+            void import_advs(sol::Dist_Vector* aOwnedADVs);
 
             /**
              * Function for determining if this geometry is to be used for seeding a B-spline level set field.
@@ -88,15 +110,6 @@ namespace moris
             bool conversion_to_bsplines();
 
         private:
-
-            /**
-             * Given a node index, evaluates the sensitivity of the geometry field with respect to all of the
-             * geometry variables.
-             *
-             * @param aNodeIndex Node index
-             * @param aSensitivities Vector of sensitivities
-             */
-            void evaluate_all_sensitivities(uint aNodeIndex, Matrix<DDRMat>& aSensitivities);
 
             /**
              * Maps the level set field from nodes to B-splines for the given geometry.

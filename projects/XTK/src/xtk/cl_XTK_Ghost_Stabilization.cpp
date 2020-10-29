@@ -25,7 +25,9 @@ namespace xtk
 
     Ghost_Stabilization::Ghost_Stabilization( Model* aXTKModel )
     :mXTKModel(aXTKModel)
-    {}
+    {
+        mMinMeshIndex = mXTKModel->get_enriched_interp_mesh(0).mMeshIndices.min();
+    }
 
     // ----------------------------------------------------------------------------------
 
@@ -49,7 +51,6 @@ namespace xtk
         // the solver has all appropriate information downstream.
         this->identify_and_setup_aura_vertices_in_ghost(tGhostSetupData);
 
-//        MORIS_ERROR(mXTKModel->get_enriched_interp_mesh(0).verify_basis_support(),"Issue detected in basis support after ghost stabilization."); // TODO: change to assert once done debugging
     }
 
     // ----------------------------------------------------------------------------------
@@ -485,7 +486,7 @@ namespace xtk
                 for(moris::uint iV = 0; iV< tMasterVertices.size(); iV++)
                 {
                     moris_index tVertexInd        = tMasterVertices(iV)->get_id();
-                    bool        tHasInterpolation = tMasterVertices(iV)->has_interpolation(0);
+                    bool        tHasInterpolation = tMasterVertices(iV)->has_interpolation(mMinMeshIndex);
 
                     // add to vertices without interpolation
                     if(!tHasInterpolation)
@@ -513,7 +514,7 @@ namespace xtk
                 for(moris::uint iV = 0; iV< tSlaveVertices.size(); iV++)
                 {
                     moris_index tVertexInd        = tSlaveVertices(iV)->get_id();
-                    bool        tHasInterpolation = tSlaveVertices(iV)->has_interpolation(0);
+                    bool        tHasInterpolation = tSlaveVertices(iV)->has_interpolation(mMinMeshIndex);
 
                     // add to vertices without interpolation
                     if(!tHasInterpolation)
@@ -1285,9 +1286,12 @@ namespace xtk
         // allocate space in integration cell side ordinals
         tSlaveSideCluster->mIntegrationCellSideOrdinals = {{aGhostSetupData.mSlaveSideIgCellSideOrds(aBulkIndex)(aCellIndex)}};
 
-        // add vertices
+        // add geometric vertices to the cluster 
         tSlaveSideCluster->mVerticesInCluster = tSlaveSideCluster->mIntegrationCells(0)->
                 get_geometric_vertices_on_side_ordinal(tSlaveSideCluster->mIntegrationCellSideOrdinals(0));
+
+        // finalize
+        tSlaveSideCluster->finalize_setup();
 
 
         return tSlaveSideCluster;

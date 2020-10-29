@@ -191,7 +191,7 @@ namespace moris
                 }
 
                 // compute contribution from velocity
-                mdPPdMasterDof( tDofIndex ).matrix_data() -=
+                mdPPdMasterDof( tDofIndex ) -=
                         mParameters( 0 )( 0 ) * std::pow( mElementSize, 2 * mOrder ) *
                         tDensityProp->val()( 0 ) * tdInfinityNormdu /
                         ( 6.0 * std::pow( tDeltaP, 2.0 ) );
@@ -201,7 +201,7 @@ namespace moris
             if( tViscosityProp->check_dof_dependency( aDofTypes ) )
             {
                 // compute contribution from viscosity
-                mdPPdMasterDof( tDofIndex ).matrix_data() -=
+                mdPPdMasterDof( tDofIndex ) -=
                         mParameters( 0 )( 0 ) * std::pow( mElementSize, 2 * mOrder ) *
                         tViscosityProp->dPropdDOF( aDofTypes ) /
                         ( mElementSize * std::pow( tDeltaP, 2.0 ) );
@@ -211,7 +211,7 @@ namespace moris
             if( tDensityProp->check_dof_dependency( aDofTypes ) )
             {
                 // compute contribution from density
-                mdPPdMasterDof( tDofIndex ).matrix_data() -=
+                mdPPdMasterDof( tDofIndex ) -=
                         mParameters( 0 )( 0 ) * std::pow( mElementSize, 2 * mOrder ) *
                         tDensityProp->dPropdDOF( aDofTypes ) *
                         ( tInfinityNorm / 6.0 + mElementSize / ( 12.0 * mParameters( 1 )( 0 ) * tDeltaT ) ) /

@@ -27,6 +27,7 @@ namespace moris
                  * @param aRegularization Superellipse regularization
                  * @param aShift Superellipse shift (near zero)
                  * @param aOffset Offset to be applied on subsequent rows in the y direction
+                 * @param aName Name of this field for identification
                  * @param aNumRefinements The number of refinement steps to use for this geometry
                  * @param aRefinementFunctionIndex The index of a user-defined refinement function (-1 = default refinement)
                  * @param aBSplineMeshIndex The index of a B-spline mesh for level set discretization (-1 = no B-splines)
@@ -34,25 +35,26 @@ namespace moris
                  * @param aBSplineUpperBound The upper bound for the B-spline coefficients describing this field
                  */
                 Swiss_Cheese_Slice(
-                        real aLeftBound,
-                        real aRightBound,
-                        real aBottomBound,
-                        real aTopBound,
-                        uint aNumXHoles,
-                        uint aNumYHoles,
-                        real aXSemidiameter,
-                        real aYSemidiameter,
-                        real aExponent = 2.0,
-                        real aScaling = 1.0,
-                        real aRegularization = 1e-8,
-                        real aShift = 0.0,
-                        real aOffset = 0.0,
+                        real        aLeftBound,
+                        real        aRightBound,
+                        real        aBottomBound,
+                        real        aTopBound,
+                        uint        aNumXHoles,
+                        uint        aNumYHoles,
+                        real        aXSemidiameter,
+                        real        aYSemidiameter,
+                        real        aExponent = 2.0,
+                        real        aScaling = 1.0,
+                        real        aRegularization = 1e-8,
+                        real        aShift = 0.0,
+                        real        aOffset = 0.0,
+                        std::string aName = "",
                         Matrix<DDSMat>  aNumRefinements = {{}},
                         Matrix<DDSMat>  aNumPatterns = {{}},
-                        sint aRefinementFunctionIndex = -1,
-                        sint aBSplineMeshIndex = -1,
-                        real aBSplineLowerBound = -1.0,
-                        real aBSplineUpperBound = 1.0);
+                        sint        aRefinementFunctionIndex = -1,
+                        sint        aBSplineMeshIndex = -1,
+                        real        aBSplineLowerBound = -1.0,
+                        real        aBSplineUpperBound = 1.0);
 
                 /**
                  * Constructor for a swiss cheese slice, with hole spacing specified
@@ -70,6 +72,7 @@ namespace moris
                  * @param aRegularization Superellipse regularization
                  * @param aShift Superellipse shift (near zero)
                  * @param aOffset Offset to be applied on subsequent rows in the y direction
+                 * @param aName Name of this field for identification
                  * @param aNumRefinements The number of refinement steps to use for this geometry
                  * @param aRefinementFunctionIndex The index of a user-defined refinement function (-1 = default refinement)
                  * @param aBSplineMeshIndex The index of a B-spline mesh for level set discretization (-1 = no B-splines)
@@ -77,26 +80,27 @@ namespace moris
                  * @param aBSplineUpperBound The upper bound for the B-spline coefficients describing this field
                  */
                 Swiss_Cheese_Slice(
-                        real aLeftBound,
-                        real aRightBound,
-                        real aBottomBound,
-                        real aTopBound,
-                        real aTargetXSpacing,
-                        real aTargetYSpacing,
-                        real aXSemidiameter,
-                        real aYSemidiameter,
-                        real aExponent,
-                        real aScaling,
-                        real aRegularization,
-                        real aShift,
-                        real aOffset = 0.0,
-                        bool aAllowLessThanTargetSpacing = false,
+                        real        aLeftBound,
+                        real        aRightBound,
+                        real        aBottomBound,
+                        real        aTopBound,
+                        real        aTargetXSpacing,
+                        real        aTargetYSpacing,
+                        real        aXSemidiameter,
+                        real        aYSemidiameter,
+                        real        aExponent,
+                        real        aScaling,
+                        real        aRegularization,
+                        real        aShift,
+                        real        aOffset = 0.0,
+                        bool        aAllowLessThanTargetSpacing = false,
+                        std::string aName = "",
                         Matrix<DDSMat>  aNumRefinements = {{}},
                         Matrix<DDSMat>  aNumPatterns = {{}},
-                        sint aRefinementFunctionIndex = -1,
-                        sint aBSplineMeshIndex = -1,
-                        real aBSplineLowerBound = -1.0,
-                        real aBSplineUpperBound = 1.0);
+                        sint        aRefinementFunctionIndex = -1,
+                        sint        aBSplineMeshIndex = -1,
+                        real        aBSplineLowerBound = -1.0,
+                        real        aBSplineUpperBound = 1.0);
 
             private:
 

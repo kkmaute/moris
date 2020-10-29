@@ -91,15 +91,9 @@ TEST_CASE( "IWG_Incompressible_NS_Dirichlet_Velocity_Symmetric_Nitsche",
     // define constitutive models
     fem::CM_Factory tCMFactory;
 
-    std::shared_ptr< fem::Constitutive_Model > tCMMasterIncFluid =
-            tCMFactory.create_CM( fem::Constitutive_Type::FLUID_INCOMPRESSIBLE );
-    tCMMasterIncFluid->set_dof_type_list( { tVelDofTypes, tPDofTypes } );
-    tCMMasterIncFluid->set_property( tPropViscosity, "Viscosity" );
-    tCMMasterIncFluid->set_property( tPropDensity, "Density" );
-
     std::shared_ptr< fem::Constitutive_Model > tCMMasterTurbulence =
             tCMFactory.create_CM( fem::Constitutive_Type::FLUID_TURBULENCE );
-    tCMMasterTurbulence->set_dof_type_list( { tVelDofTypes, tVisDofTypes } );
+    tCMMasterTurbulence->set_dof_type_list( { tVelDofTypes, tPDofTypes, tVisDofTypes } );
     tCMMasterTurbulence->set_property( tPropViscosity, "Viscosity" );
     tCMMasterTurbulence->set_property( tPropDensity, "Density" );
 
@@ -122,8 +116,7 @@ TEST_CASE( "IWG_Incompressible_NS_Dirichlet_Velocity_Symmetric_Nitsche",
     tIWGVelocity->set_dof_type_list( { tVelDofTypes, tPDofTypes, tVisDofTypes }, mtk::Master_Slave::MASTER );
     tIWGVelocity->set_property( tPropVelocity, "Dirichlet" );
     tIWGVelocity->set_property( tPropUpwind, "Upwind" );
-    tIWGVelocity->set_constitutive_model( tCMMasterIncFluid, "IncompressibleFluid" );
-    tIWGVelocity->set_constitutive_model( tCMMasterTurbulence, "TurbulenceFluid" );
+    tIWGVelocity->set_constitutive_model( tCMMasterTurbulence, "IncompressibleFluid" );
     tIWGVelocity->set_stabilization_parameter( tSPNitsche, "DirichletNitsche" );
 
     // set a fem set pointer
@@ -146,7 +139,6 @@ TEST_CASE( "IWG_Incompressible_NS_Dirichlet_Velocity_Symmetric_Nitsche",
     tIWGVelocity->mSet->mMasterDofTypeMap( static_cast< int >( MSI::Dof_Type::VISCOSITY ) ) = 2;
 
     // build global dof type list
-    tCMMasterIncFluid->get_global_dof_type_list();
     tCMMasterTurbulence->get_global_dof_type_list();
     tSPNitsche->get_global_dof_type_list();
     tIWGVelocity->get_global_dof_type_list();
@@ -227,7 +219,6 @@ TEST_CASE( "IWG_Incompressible_NS_Dirichlet_Velocity_Symmetric_Nitsche",
 
         // set space dimensions for property, CM and SP
         tPropVelocity->set_parameters( { tVelocity } );
-        tCMMasterIncFluid->set_space_dim( iSpaceDim );
         tCMMasterTurbulence->set_space_dim( iSpaceDim );
         tSPNitsche->set_space_dim( iSpaceDim );
 
@@ -395,7 +386,8 @@ TEST_CASE( "IWG_Incompressible_NS_Dirichlet_Velocity_Symmetric_Nitsche",
     }
 }/*END_TEST_CASE*/
 
-TEST_CASE( "IWG_Incompressible_NS_Dirichlet_Velocity_Unsymmetric_Nitsche", "[IWG_Incompressible_NS_Dirichlet_Velocity_Unsymmetric_Nitsche]" )
+TEST_CASE( "IWG_Incompressible_NS_Dirichlet_Velocity_Unsymmetric_Nitsche",
+        "[IWG_Incompressible_NS_Dirichlet_Velocity_Unsymmetric_Nitsche]" )
 {
     // define an epsilon environment
     real tEpsilon = 1E-6;
@@ -459,15 +451,9 @@ TEST_CASE( "IWG_Incompressible_NS_Dirichlet_Velocity_Unsymmetric_Nitsche", "[IWG
     // define constitutive models
     fem::CM_Factory tCMFactory;
 
-    std::shared_ptr< fem::Constitutive_Model > tCMMasterIncFluid =
-            tCMFactory.create_CM( fem::Constitutive_Type::FLUID_INCOMPRESSIBLE );
-    tCMMasterIncFluid->set_dof_type_list( { tVelDofTypes, tPDofTypes } );
-    tCMMasterIncFluid->set_property( tPropViscosity, "Viscosity" );
-    tCMMasterIncFluid->set_property( tPropDensity, "Density" );
-
     std::shared_ptr< fem::Constitutive_Model > tCMMasterTurbulence =
             tCMFactory.create_CM( fem::Constitutive_Type::FLUID_TURBULENCE );
-    tCMMasterTurbulence->set_dof_type_list( { tVelDofTypes, tVisDofTypes } );
+    tCMMasterTurbulence->set_dof_type_list( { tVelDofTypes, tPDofTypes, tVisDofTypes } );
     tCMMasterTurbulence->set_property( tPropViscosity, "Viscosity" );
     tCMMasterTurbulence->set_property( tPropDensity, "Density" );
 
@@ -490,8 +476,7 @@ TEST_CASE( "IWG_Incompressible_NS_Dirichlet_Velocity_Unsymmetric_Nitsche", "[IWG
     tIWGVelocity->set_dof_type_list( { tVelDofTypes, tPDofTypes, tVisDofTypes }, mtk::Master_Slave::MASTER );
     tIWGVelocity->set_property( tPropVelocity, "Dirichlet" );
     tIWGVelocity->set_property( tPropUpwind, "Upwind" );
-    tIWGVelocity->set_constitutive_model( tCMMasterIncFluid, "IncompressibleFluid" );
-    tIWGVelocity->set_constitutive_model( tCMMasterTurbulence, "TurbulenceFluid" );
+    tIWGVelocity->set_constitutive_model( tCMMasterTurbulence, "IncompressibleFluid" );
     tIWGVelocity->set_stabilization_parameter( tSPNitsche, "DirichletNitsche" );
 
     // set a fem set pointer
@@ -589,7 +574,6 @@ TEST_CASE( "IWG_Incompressible_NS_Dirichlet_Velocity_Unsymmetric_Nitsche", "[IWG
 
         // set space dimensions for property, CM and SP
         tPropVelocity->set_parameters( { tVelocity } );
-        tCMMasterIncFluid->set_space_dim( iSpaceDim );
         tCMMasterTurbulence->set_space_dim( iSpaceDim );
         tSPNitsche->set_space_dim( iSpaceDim );
 
@@ -760,7 +744,8 @@ TEST_CASE( "IWG_Incompressible_NS_Dirichlet_Velocity_Unsymmetric_Nitsche", "[IWG
     }
 }/*END_TEST_CASE*/
 
-TEST_CASE( "IWG_Incompressible_NS_Dirichlet_Pressure_Symmetric_Nitsche", "[IWG_Incompressible_NS_Dirichlet_Pressure_Symmetric_Nitsche]" )
+TEST_CASE( "IWG_Incompressible_NS_Dirichlet_Pressure_Symmetric_Nitsche",
+        "[IWG_Incompressible_NS_Dirichlet_Pressure_Symmetric_Nitsche]" )
 {
     // define an epsilon environment
     real tEpsilon = 1E-6;
@@ -820,11 +805,11 @@ TEST_CASE( "IWG_Incompressible_NS_Dirichlet_Pressure_Symmetric_Nitsche", "[IWG_I
     // define constitutive models
     fem::CM_Factory tCMFactory;
 
-    std::shared_ptr< fem::Constitutive_Model > tCMMasterIncFluid =
-            tCMFactory.create_CM( fem::Constitutive_Type::FLUID_INCOMPRESSIBLE );
-    tCMMasterIncFluid->set_dof_type_list( { tVelDofTypes, tPDofTypes } );
-    tCMMasterIncFluid->set_property( tPropViscosity, "Viscosity" );
-    tCMMasterIncFluid->set_property( tPropDensity, "Density" );
+    std::shared_ptr< fem::Constitutive_Model > tCMMasterTurbulence =
+            tCMFactory.create_CM( fem::Constitutive_Type::FLUID_TURBULENCE );
+    tCMMasterTurbulence->set_dof_type_list( { tVelDofTypes, tPDofTypes, tVisDofTypes } );
+    tCMMasterTurbulence->set_property( tPropViscosity, "Viscosity" );
+    tCMMasterTurbulence->set_property( tPropDensity, "Density" );
 
     // define the IWGs
     fem::IWG_Factory tIWGFactory;
@@ -834,7 +819,7 @@ TEST_CASE( "IWG_Incompressible_NS_Dirichlet_Pressure_Symmetric_Nitsche", "[IWG_I
     tIWGPressure->set_residual_dof_type( tPDofTypes );
     tIWGPressure->set_dof_type_list( { tVelDofTypes, tPDofTypes, tVisDofTypes }, mtk::Master_Slave::MASTER );
     tIWGPressure->set_property( tPropVelocity, "Dirichlet" );
-    tIWGPressure->set_constitutive_model( tCMMasterIncFluid, "IncompressibleFluid" );
+    tIWGPressure->set_constitutive_model( tCMMasterTurbulence, "IncompressibleFluid" );
 
     // set a fem set pointer
     MSI::Equation_Set * tSet = new fem::Set();
@@ -931,7 +916,7 @@ TEST_CASE( "IWG_Incompressible_NS_Dirichlet_Pressure_Symmetric_Nitsche", "[IWG_I
 
         // set space dimensions for property, CM and SP
         tPropVelocity->set_parameters( { tVelocity } );
-        tCMMasterIncFluid->set_space_dim( iSpaceDim );
+        tCMMasterTurbulence->set_space_dim( iSpaceDim );
 
         // set the normal
         tIWGPressure->set_normal( tNormal );
@@ -1100,7 +1085,8 @@ TEST_CASE( "IWG_Incompressible_NS_Dirichlet_Pressure_Symmetric_Nitsche", "[IWG_I
     }
 }/*END_TEST_CASE*/
 
-TEST_CASE( "IWG_Incompressible_NS_Dirichlet_Pressure_Unsymmetric_Nitsche", "[IWG_Incompressible_NS_Dirichlet_Pressure_Unsymmetric_Nitsche]" )
+TEST_CASE( "IWG_Incompressible_NS_Dirichlet_Pressure_Unsymmetric_Nitsche",
+        "[IWG_Incompressible_NS_Dirichlet_Pressure_Unsymmetric_Nitsche]" )
 {
     // define an epsilon environment
     real tEpsilon = 1E-6;
@@ -1160,11 +1146,11 @@ TEST_CASE( "IWG_Incompressible_NS_Dirichlet_Pressure_Unsymmetric_Nitsche", "[IWG
     // define constitutive models
     fem::CM_Factory tCMFactory;
 
-    std::shared_ptr< fem::Constitutive_Model > tCMMasterIncFluid =
-            tCMFactory.create_CM( fem::Constitutive_Type::FLUID_INCOMPRESSIBLE );
-    tCMMasterIncFluid->set_dof_type_list( { tVelDofTypes, tPDofTypes } );
-    tCMMasterIncFluid->set_property( tPropViscosity, "Viscosity" );
-    tCMMasterIncFluid->set_property( tPropDensity, "Density" );
+    std::shared_ptr< fem::Constitutive_Model > tCMMasterTurbulence =
+            tCMFactory.create_CM( fem::Constitutive_Type::FLUID_TURBULENCE );
+    tCMMasterTurbulence->set_dof_type_list( { tVelDofTypes, tPDofTypes, tVisDofTypes } );
+    tCMMasterTurbulence->set_property( tPropViscosity, "Viscosity" );
+    tCMMasterTurbulence->set_property( tPropDensity, "Density" );
 
     // define the IWGs
     fem::IWG_Factory tIWGFactory;
@@ -1174,7 +1160,7 @@ TEST_CASE( "IWG_Incompressible_NS_Dirichlet_Pressure_Unsymmetric_Nitsche", "[IWG
     tIWGPressure->set_residual_dof_type( tPDofTypes );
     tIWGPressure->set_dof_type_list( { tVelDofTypes, tPDofTypes, tVisDofTypes }, mtk::Master_Slave::MASTER );
     tIWGPressure->set_property( tPropVelocity, "Dirichlet" );
-    tIWGPressure->set_constitutive_model( tCMMasterIncFluid, "IncompressibleFluid" );
+    tIWGPressure->set_constitutive_model( tCMMasterTurbulence, "IncompressibleFluid" );
 
     // set a fem set pointer
     MSI::Equation_Set * tSet = new fem::Set();
@@ -1271,7 +1257,7 @@ TEST_CASE( "IWG_Incompressible_NS_Dirichlet_Pressure_Unsymmetric_Nitsche", "[IWG
 
         // set space dimensions for property, CM and SP
         tPropVelocity->set_parameters( { tVelocity } );
-        tCMMasterIncFluid->set_space_dim( iSpaceDim );
+        tCMMasterTurbulence->set_space_dim( iSpaceDim );
 
         // set the normal
         tIWGPressure->set_normal( tNormal );

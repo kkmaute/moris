@@ -14,20 +14,22 @@ namespace moris
 {
     template< typename ET, typename Matrix_Type >
     void
-    sort( ET const                     & aA,
-          moris::Matrix< Matrix_Type > & aSorted )
+    sort(
+            ET const                     & aA,
+            moris::Matrix< Matrix_Type > & aSorted )
     {
         aSorted = sort( aA );
     }
 
     template< typename ET, typename Matrix_Type, typename Num_Type >
     void
-    sort( ET const 					   & aA,
-    	  moris::Matrix< Matrix_Type > & aSorted,
-    	  char const				   * aDirection,
-    	  Num_Type	 				   aDimension )
+    sort(
+            ET const                     & aA,
+            moris::Matrix< Matrix_Type > & aSorted,
+            char const                   * aDirection,
+            Num_Type                       aDimension )
     {
-       	aSorted = sort( aA, aDirection, aDimension);
+        aSorted = sort( aA, aDirection, aDimension);
     }
 }
 

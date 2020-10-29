@@ -613,7 +613,7 @@ Matrix<DDRMat> compute_dconstraint_dcriteria(Matrix<DDRMat> aADVs, Matrix<DDRMat
         // Interface Dirichlet BC
         tParameterList( 3 ).push_back( prm::create_IWG_parameter_list() );
         tParameterList( 3 )( tIWGCounter ).set( "IWG_name",                   "IWGInterface") ;
-        tParameterList( 3 )( tIWGCounter ).set( "IWG_type",                   static_cast< uint >( fem::IWG_Type::SPATIALDIFF_INTERFACE ) );
+        tParameterList( 3 )( tIWGCounter ).set( "IWG_type",                   static_cast< uint >( fem::IWG_Type::SPATIALDIFF_INTERFACE_UNSYMMETRIC_NITSCHE ) );
         tParameterList( 3 )( tIWGCounter ).set( "dof_residual",               "TEMP") ;
         tParameterList( 3 )( tIWGCounter ).set( "master_dof_dependencies",    "UX,UY;TEMP") ;
         tParameterList( 3 )( tIWGCounter ).set( "slave_dof_dependencies",     "UX,UY;TEMP") ;

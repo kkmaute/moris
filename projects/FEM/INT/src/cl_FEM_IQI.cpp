@@ -10,6 +10,8 @@
 #include "cl_FEM_Field_Interpolator_Manager.hpp"
 
 #include "fn_norm.hpp"
+#include "fn_min.hpp"
+#include "fn_max.hpp"
 
 namespace moris
 {
@@ -1162,9 +1164,6 @@ namespace moris
             // get the column index to assemble in residual
             sint tQIIndex = mSet->get_QI_assembly_index( mName );
 
-            // reset properties, CM and SP for IWG
-            this->reset_eval_flags();
-
             // reset the QI
             mSet->get_QI()( tQIIndex ).fill( 0.0 );
 
@@ -1181,7 +1180,7 @@ namespace moris
                 uint tDofCounter = 0;
 
                 // get the dof type
-                Cell< MSI::Dof_Type > tDofType = mRequestedMasterGlobalDofTypes( iFI );
+                Cell< MSI::Dof_Type > & tDofType = mRequestedMasterGlobalDofTypes( iFI );
 
                 // get the index for the dof type
                 sint tMasterDepDofIndex   = mSet->get_dof_index_for_type( tDofType( 0 ), mtk::Master_Slave::MASTER );
@@ -1208,34 +1207,36 @@ namespace moris
                         real tDeltaH = aPerturbation * tCoeff( iCoeffRow, iCoeffCol );
 
                         // check that perturbation is not zero
-                        if( ( tDeltaH < 1e-12 ) && ( tDeltaH > - 1e-12 ) )
+                        if( std::abs( tDeltaH ) < 1e-12 )
                         {
                             tDeltaH = aPerturbation;
                         }
 
-                        // if backward or forward add unperturbed contribution
-                        if( aFDSchemeType == fem::FDScheme_Type::POINT_1_BACKWARD )
+                        // set starting point for FD
+                        uint tStartPoint = 0;
+
+                        // if backward or forward fd
+                        if( ( aFDSchemeType == fem::FDScheme_Type::POINT_1_BACKWARD ) ||
+                                ( aFDSchemeType == fem::FDScheme_Type::POINT_1_FORWARD ) )
                         {
+                            // add unperturbed QI contribution to dQIdu
                             mSet->get_residual()( tQIIndex )(
                                     { tMasterDepStartIndex + tDofCounter, tMasterDepStartIndex + tDofCounter },
                                     { 0, 0 } ) +=
-                                            tQI / ( tFDScheme( 2 )( 0 ) * tDeltaH );
-                        }
-                        if( aFDSchemeType == fem::FDScheme_Type::POINT_1_FORWARD )
-                        {
-                            mSet->get_residual()( tQIIndex )(
-                                    { tMasterDepStartIndex + tDofCounter, tMasterDepStartIndex + tDofCounter },
-                                    { 0, 0 } ) -=
-                                            tQI / ( tFDScheme( 2 )( 0 ) * tDeltaH );
+                                            tFDScheme( 1 )( 0 ) * tQI /
+                                            ( tFDScheme( 2 )( 0 ) * tDeltaH );
+
+                            // skip first point in FD
+                            tStartPoint = 1;
                         }
 
                         // loop over the points for FD
-                        for( uint iPoint = 0; iPoint < tNumPoints; iPoint++ )
+                        for( uint iPoint = tStartPoint; iPoint < tNumPoints; iPoint++ )
                         {
-                            // reset the perturbed coefficents
+                            // reset the perturbed coefficients
                             Matrix< DDRMat > tCoeffPert = tCoeff;
 
-                            // pertub the coefficent
+                            // perturb the coefficient
                             tCoeffPert( iCoeffRow, iCoeffCol ) += tFDScheme( 0 )( iPoint ) * tDeltaH;
 
                             // set the perturbed coefficients to FI
@@ -1253,8 +1254,10 @@ namespace moris
                             // assemble the dQIdu
                             mSet->get_residual()( tQIIndex )(
                                     { tMasterDepStartIndex + tDofCounter, tMasterDepStartIndex + tDofCounter },
-                                    { 0, 0 } ) += tFDScheme( 1 )( iPoint ) * mSet->get_QI()( tQIIndex ) /
-                                    ( tFDScheme( 2 )( 0 ) * tDeltaH );
+                                    { 0, 0 } ) +=
+                                            tFDScheme( 1 )( iPoint ) *
+                                            mSet->get_QI()( tQIIndex ) /
+                                            ( tFDScheme( 2 )( 0 ) * tDeltaH );
                         }
                         // update dof counter
                         tDofCounter++;
@@ -1298,34 +1301,36 @@ namespace moris
                         real tDeltaH = aPerturbation * tCoeff( iCoeffRow, iCoeffCol );
 
                         // check that perturbation is not zero
-                        if( ( tDeltaH < 1e-12 ) && ( tDeltaH > - 1e-12 ) )
+                        if( std::abs( tDeltaH ) < 1e-12 )
                         {
                             tDeltaH = aPerturbation;
                         }
 
-                        // if backward or forward add unperturbed contribution
-                        if( aFDSchemeType == fem::FDScheme_Type::POINT_1_BACKWARD )
+                        // set starting point for FD
+                        uint tStartPoint = 0;
+
+                        // if backward or forward fd
+                        if( ( aFDSchemeType == fem::FDScheme_Type::POINT_1_BACKWARD ) ||
+                                ( aFDSchemeType == fem::FDScheme_Type::POINT_1_FORWARD ) )
                         {
+                            // add unperturbed QI contribution to dQIdu
                             mSet->get_residual()( tQIIndex )(
                                     { tSlaveDepStartIndex + tDofCounter, tSlaveDepStartIndex + tDofCounter },
                                     { 0, 0 } ) +=
-                                            tQI / ( tFDScheme( 2 )( 0 ) * tDeltaH );
-                        }
-                        if( aFDSchemeType == fem::FDScheme_Type::POINT_1_FORWARD )
-                        {
-                            mSet->get_residual()( tQIIndex )(
-                                    { tSlaveDepStartIndex + tDofCounter, tSlaveDepStartIndex + tDofCounter },
-                                    { 0, 0 } ) -=
-                                            tQI / ( tFDScheme( 2 )( 0 ) * tDeltaH );
+                                            tFDScheme( 1 )( 0 ) * tQI /
+                                            ( tFDScheme( 2 )( 0 ) * tDeltaH );
+
+                            // skip first point in FD
+                            tStartPoint = 1;
                         }
 
                         // loop over the points for FD
-                        for( uint iPoint = 0; iPoint < tNumPoints; iPoint++ )
+                        for( uint iPoint = tStartPoint; iPoint < tNumPoints; iPoint++ )
                         {
-                            // reset the perturbed coefficents
+                            // reset the perturbed coefficients
                             Matrix< DDRMat > tCoeffPert = tCoeff;
 
-                            // pertub the coefficent
+                            // perturb the coefficient
                             tCoeffPert( iCoeffRow, iCoeffCol ) += tFDScheme( 0 )( iPoint ) * tDeltaH;
 
                             // set the perturbed coefficients to FI
@@ -1425,9 +1430,6 @@ namespace moris
             // get the IQI index
             uint tIQIAssemblyIndex = mSet->get_QI_assembly_index( mName );
 
-            // reset properties, CM and SP for IWG
-            this->reset_eval_flags();
-
             // reset the QI
             mSet->get_QI()( tIQIAssemblyIndex ).fill( 0.0 );
 
@@ -1464,7 +1466,7 @@ namespace moris
                         real tDeltaH = aPerturbation * tCoeff( iCoeffRow, iCoeffCol );
 
                         // check that perturbation is not zero
-                        if( ( tDeltaH < 1e-12 ) && ( tDeltaH > - 1e-12 ) )
+                        if( std::abs( tDeltaH ) < 1e-12 )
                         {
                             tDeltaH = aPerturbation;
                         }
@@ -1472,25 +1474,28 @@ namespace moris
                         // get the pdv index for assembly
                         uint tPdvAssemblyIndex = mSet->get_mat_pdv_assembly_map()( iFI )( 0, 0 ) + tPdvCoeffCounter;
 
-                        // if backward or forward add unperturbed contribution
-                        if( aFDSchemeType == fem::FDScheme_Type::POINT_1_BACKWARD )
+                        // set starting point for FD
+                        uint tStartPoint = 0;
+
+                        // if backward or forward fd
+                        if( ( aFDSchemeType == fem::FDScheme_Type::POINT_1_BACKWARD ) ||
+                                ( aFDSchemeType == fem::FDScheme_Type::POINT_1_FORWARD ) )
                         {
+                            // add unperturbed QI contribution to dQIdp
                             mSet->get_dqidpmat()( tIQIAssemblyIndex )( tPdvAssemblyIndex ) +=
-                                    tQI( 0 ) / ( tFDScheme( 2 )( 0 ) * tDeltaH );
-                        }
-                        if( aFDSchemeType == fem::FDScheme_Type::POINT_1_FORWARD )
-                        {
-                            mSet->get_dqidpmat()( tIQIAssemblyIndex )( tPdvAssemblyIndex ) -=
-                                    tQI( 0 ) / ( tFDScheme( 2 )( 0 ) * tDeltaH );
+                                    tFDScheme( 1 )( 0 ) * tQI( 0 ) / ( tFDScheme( 2 )( 0 ) * tDeltaH );
+
+                            // skip first point in FD
+                            tStartPoint = 1;
                         }
 
                         // loop over the points for FD
-                        for( uint iPoint = 0; iPoint < tNumPoints; iPoint++ )
+                        for( uint iPoint = tStartPoint; iPoint < tNumPoints; iPoint++ )
                         {
                             // reset the perturbed coefficients
                             Matrix< DDRMat > tCoeffPert = tCoeff;
 
-                            // pertub the coefficient
+                            // perturb the coefficient
                             tCoeffPert( iCoeffRow, iCoeffCol ) += tFDScheme( 0 )( iPoint ) * tDeltaH;
 
                             // set the perturbed coefficients to FI
@@ -1520,7 +1525,7 @@ namespace moris
             }
 
             // check for nan, infinity
-            MORIS_ERROR( isfinite( mSet->get_dqidpmat()( tIQIAssemblyIndex ) ) ,
+            MORIS_ASSERT( isfinite( mSet->get_dqidpmat()( tIQIAssemblyIndex ) ) ,
                     "IQI::compute_dQIdp_FD_material - dQIdp contains NAN or INF, exiting!");
         }
 
@@ -1563,11 +1568,8 @@ namespace moris
             }
 
             // IP element max/min
-            Matrix< DDRMat > tMaxIP = max( tIPGI->get_space_coeff().matrix_data() );
-            Matrix< DDRMat > tMinIP = min( tIPGI->get_space_coeff().matrix_data() );
-
-            // reset properties, CM and SP for IWG
-            this->reset_eval_flags();
+            Matrix< DDRMat > tMaxIP = max( tIPGI->get_space_coeff() );
+            Matrix< DDRMat > tMinIP = min( tIPGI->get_space_coeff() );
 
             // reset the QI
             mSet->get_QI()( tIQIAssemblyIndex ).fill( 0.0 );
@@ -1578,6 +1580,7 @@ namespace moris
             // store QI value
             Matrix< DDRMat > tQI = mSet->get_QI()( tIQIAssemblyIndex );
 
+            // init FD scheme
             moris::Cell< moris::Cell< real > > tFDScheme;
 
             // loop over the spatial directions/loop on pdv type
@@ -1593,7 +1596,7 @@ namespace moris
                         real tDeltaH = aPerturbation * tCoeff( iCoeffRow, iCoeffCol );
 
                         // check that perturbation is not zero
-                        if( ( tDeltaH < 1e-12 ) && ( tDeltaH > - 1e-12 ) )
+                        if( std::abs( tDeltaH ) < 1e-12 )
                         {
                             tDeltaH = aPerturbation;
                         }
@@ -1616,25 +1619,28 @@ namespace moris
                                 std::make_pair( aVertexIndices( iCoeffRow ), tRequestedGeoPdvType( iCoeffCol ) );
                         uint tPdvAssemblyIndex = mSet->get_geo_pdv_assembly_map()[ tKeyPair ];
 
-                        // if backward or forward add unperturbed contribution
-                        if( tUsedFDScheme == fem::FDScheme_Type::POINT_1_BACKWARD )
+                        // set starting point for FD
+                        uint tStartPoint = 0;
+
+                        // if backward or forward fd
+                        if( ( tUsedFDScheme == fem::FDScheme_Type::POINT_1_BACKWARD ) ||
+                                ( tUsedFDScheme == fem::FDScheme_Type::POINT_1_FORWARD ) )
                         {
+                            // add unperturbed QI contribution to dQIdp
                             mSet->get_dqidpgeo()( tIQIAssemblyIndex )( tPdvAssemblyIndex ) +=
-                                    tQI( 0 ) / ( tFDScheme( 2 )( 0 ) * tDeltaH );
-                        }
-                        if( tUsedFDScheme == fem::FDScheme_Type::POINT_1_FORWARD )
-                        {
-                            mSet->get_dqidpgeo()( tIQIAssemblyIndex )( tPdvAssemblyIndex ) -=
-                                    tQI( 0 ) / ( tFDScheme( 2 )( 0 ) * tDeltaH );
+                                    tFDScheme( 1 )( 0 ) * tQI( 0 ) / ( tFDScheme( 2 )( 0 ) * tDeltaH );
+
+                            // skip first point in FD
+                            tStartPoint = 1;
                         }
 
                         // loop over point of FD scheme
-                        for ( uint iPoint = 0; iPoint < tNumPoints; iPoint++ )
+                        for ( uint iPoint = tStartPoint; iPoint < tNumPoints; iPoint++ )
                         {
-                            // reset the perturbed coefficents
+                            // reset the perturbed coefficients
                             Matrix< DDRMat > tCoeffPert = tCoeff;
 
-                            // pertub the coefficent
+                            // perturb the coefficient
                             tCoeffPert( iCoeffRow, iCoeffCol ) += tFDScheme( 0 )( iPoint ) * tDeltaH;
 
                             // setting the perturbed coefficients
@@ -1689,7 +1695,7 @@ namespace moris
             }
 
             // check for nan, infinity
-            MORIS_ERROR( isfinite( mSet->get_dqidpgeo()( tIQIAssemblyIndex ) ) ,
+            MORIS_ASSERT( isfinite( mSet->get_dqidpgeo()( tIQIAssemblyIndex ) ) ,
                     "IQI::compute_dQIdp_FD_geometry - dQIdp contains NAN or INF, exiting!");
         }
 
@@ -1729,7 +1735,7 @@ namespace moris
             this->get_QI( tQIVal );
 
             // put on the set
-            mSet->get_QI()( tQIIndex ).matrix_data() += aWStar * tQIVal;
+            mSet->get_QI()( tQIIndex ) += aWStar * tQIVal;
         }
 
         //------------------------------------------------------------------------------
@@ -1746,7 +1752,7 @@ namespace moris
             for( uint iDof = 0; iDof < tNumDofDependencies; iDof++ )
             {
                 // get the treated dof type
-                Cell< MSI::Dof_Type > tDofType = mRequestedMasterGlobalDofTypes( iDof );
+                Cell< MSI::Dof_Type > & tDofType = mRequestedMasterGlobalDofTypes( iDof );
 
                 // get master index for residual dof type, indices for assembly
                 uint tMasterDofIndex      = mSet->get_dof_index_for_type( tDofType( 0 ), mtk::Master_Slave::MASTER );
@@ -1764,7 +1770,7 @@ namespace moris
             }
 
             // check for nan, infinity
-            MORIS_ERROR( isfinite( mSet->get_residual()( tQIIndex ) ) ,
+            MORIS_ASSERT( isfinite( mSet->get_residual()( tQIIndex ) ) ,
                     "IQI::add_dQIdu_on_set - dQIdu contains NAN or INF, exiting!");
 
         }

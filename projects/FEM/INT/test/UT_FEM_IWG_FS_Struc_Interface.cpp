@@ -235,15 +235,15 @@ TEST_CASE( "IWG_FS_Struc_Interface", "[moris],[fem],[IWG_FS_Struc_Interface]" )
 
             // fill random coefficients for master FI
             Matrix< DDRMat > tMasterDOFHatVel;
-            tMasterDOFHatVel.matrix_data() = 10.0 * tMasterMatrixVel;
+            tMasterDOFHatVel = 10.0 * tMasterMatrixVel;
             Matrix< DDRMat > tMasterDOFHatP;
-            tMasterDOFHatP.matrix_data() = 10.0 * tMasterMatrixP;
+            tMasterDOFHatP = 10.0 * tMasterMatrixP;
 
             // fill random coefficients for slave FI
             Matrix< DDRMat > tSlaveDOFHatVel;
-            tSlaveDOFHatVel.matrix_data() = 10.0 * tSlaveMatrixVel;
+            tSlaveDOFHatVel = 10.0 * tSlaveMatrixVel;
             Matrix< DDRMat > tSlaveDOFHatP;
-            tSlaveDOFHatP.matrix_data() = 10.0 * tSlaveMatrixP;
+            tSlaveDOFHatP = 10.0 * tSlaveMatrixP;
 
             // create a cell of field interpolators for IWG
             Cell< Field_Interpolator* > tMasterFIs( 2 );

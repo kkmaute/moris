@@ -283,6 +283,17 @@ public:
         return mCellInfo->get_cell_interpolation_order();
     }
 
+    //------------------------------------------------------------------------------
+
+    /**
+     * get the cell info
+     */
+    mtk::Cell_Info const *
+    get_cell_info() const
+    {
+        return mCellInfo;
+    }
+
 };
 
 //------------------------------------------------------------------------------

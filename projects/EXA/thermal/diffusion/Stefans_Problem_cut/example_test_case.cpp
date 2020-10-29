@@ -19,8 +19,7 @@ using namespace moris;
 uint gInterpolationOrder = 1;
 
 // flag to print reference values
-bool gPrintReferenceValues = false;
-
+bool gPrintReferenceValues = true;
 //---------------------------------------------------------------
 
 int fn_WRK_Workflow_Main_Interface( int argc, char * argv[] );
@@ -133,12 +132,10 @@ void check_linear_results_serial()
         std::cout << "Number of nodes     : " << tNumNodes << std::endl;
         std::cout << "Number of elements  : " << tNumElems << std::endl;
     }
-    else
-    {
-        REQUIRE( tNumDims  ==  2   );
-        REQUIRE( tNumNodes ==  260 );
-        REQUIRE( tNumElems ==  237 );
-    }
+
+    REQUIRE( tNumDims  ==  2   );
+    REQUIRE( tNumNodes ==  388 );
+    REQUIRE( tNumElems ==  237 );
 
     // check results
     uint tNodeId = 26;
@@ -166,12 +163,9 @@ void check_quadratic_results_serial()
         std::cout << "Number of nodes     : " << tNumNodes << std::endl;
         std::cout << "Number of elements  : " << tNumElems << std::endl;
     }
-    else
-    {
         REQUIRE( tNumDims  ==  2   );
-        REQUIRE( tNumNodes ==  353 );
+        REQUIRE( tNumNodes ==  481 );
         REQUIRE( tNumElems ==  237 );
-    }
 
     // check results
     uint tNodeId = 53;

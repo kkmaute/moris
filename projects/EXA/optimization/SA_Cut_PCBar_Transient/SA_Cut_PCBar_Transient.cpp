@@ -320,7 +320,6 @@ namespace moris
         tParameterlist( 1 ).push_back( prm::create_geometry_parameter_list() );
         tParameterlist( 1 )( tGeoCounter ).set( "type", "plane");
         tParameterlist( 1 )( tGeoCounter ).set( "constant_parameters", "-1.0, 0.0, 1.0, 0.0");
-        tParameterlist( 1 )( tGeoCounter ).set( "multigeometry_id", "boundary");
         tGeoCounter++;
 
         tParameterlist( 1 ).push_back( prm::create_geometry_parameter_list() );
@@ -447,20 +446,6 @@ namespace moris
         tParameterList( 0 ).push_back( prm::create_property_parameter_list() );
         tParameterList( 0 )( tPropCounter ).set( "property_name",            "PropDummyPCTemp") ;
         tParameterList( 0 )( tPropCounter ).set( "function_parameters",      "10000.0") ;
-        tParameterList( 0 )( tPropCounter ).set( "value_function",           "Func_Const") ;
-        tPropCounter++;
-
-        // Reference Temperature for MAX_DOF - IQI
-        tParameterList( 0 ).push_back( prm::create_property_parameter_list() );
-        tParameterList( 0 )( tPropCounter ).set( "property_name",            "PropMaxTempReference") ;
-        tParameterList( 0 )( tPropCounter ).set( "function_parameters",      tMaxTempReference );
-        tParameterList( 0 )( tPropCounter ).set( "value_function",           "Func_Const") ;
-        tPropCounter++;
-
-        // Exponent for MAX_DOF - IQI
-        tParameterList( 0 ).push_back( prm::create_property_parameter_list() );
-        tParameterList( 0 )( tPropCounter ).set( "property_name",            "PropMaxTempExponent") ;
-        tParameterList( 0 )( tPropCounter ).set( "function_parameters",      tMaxTempExponent );
         tParameterList( 0 )( tPropCounter ).set( "value_function",           "Func_Const") ;
         tPropCounter++;
 
@@ -622,7 +607,7 @@ namespace moris
             // Interface Dirichlet BC              
             tParameterList( 3 ).push_back( prm::create_IWG_parameter_list() );
             tParameterList( 3 )( tIWGCounter ).set( "IWG_name",                   "IWGInterfaceFinPcm") ;
-            tParameterList( 3 )( tIWGCounter ).set( "IWG_type",                   static_cast< uint >( fem::IWG_Type::SPATIALDIFF_INTERFACE ) );
+            tParameterList( 3 )( tIWGCounter ).set( "IWG_type",                   static_cast< uint >( fem::IWG_Type::SPATIALDIFF_INTERFACE_SYMMETRIC_NITSCHE ) );
             tParameterList( 3 )( tIWGCounter ).set( "dof_residual",               "TEMP") ;
             tParameterList( 3 )( tIWGCounter ).set( "master_dof_dependencies",    "TEMP") ;
             tParameterList( 3 )( tIWGCounter ).set( "slave_dof_dependencies",     "TEMP") ;
@@ -648,23 +633,23 @@ namespace moris
         {
             // Fin Ghost
             tParameterList( 3 ).push_back( prm::create_IWG_parameter_list() );
-            tParameterList( 3 )( tIWGCounter ).set( "IWG_name",                   std::string("IWGFinGhost") );
+            tParameterList( 3 )( tIWGCounter ).set( "IWG_name",                   "IWGFinGhost" );
             tParameterList( 3 )( tIWGCounter ).set( "IWG_type",                   static_cast< uint >( fem::IWG_Type::GHOST_NORMAL_FIELD ) );
-            tParameterList( 3 )( tIWGCounter ).set( "dof_residual",               std::string("TEMP") );
-            tParameterList( 3 )( tIWGCounter ).set( "master_dof_dependencies",    std::string("TEMP") );
-            tParameterList( 3 )( tIWGCounter ).set( "slave_dof_dependencies",     std::string("TEMP") );
-            tParameterList( 3 )( tIWGCounter ).set( "stabilization_parameters",   std::string("SPGPTempFin,GhostSP") );
+            tParameterList( 3 )( tIWGCounter ).set( "dof_residual",               "TEMP" );
+            tParameterList( 3 )( tIWGCounter ).set( "master_dof_dependencies",    "TEMP" );
+            tParameterList( 3 )( tIWGCounter ).set( "slave_dof_dependencies",     "TEMP" );
+            tParameterList( 3 )( tIWGCounter ).set( "stabilization_parameters",   "SPGPTempFin,GhostSP" );
             tParameterList( 3 )( tIWGCounter ).set( "mesh_set_names",             tFinGhost );
             tIWGCounter++;
 
             // PCM Ghost
             tParameterList( 3 ).push_back( prm::create_IWG_parameter_list() );
-            tParameterList( 3 )( tIWGCounter ).set( "IWG_name",                   std::string("IWGPcmGhost") );
+            tParameterList( 3 )( tIWGCounter ).set( "IWG_name",                   "IWGPcmGhost" );
             tParameterList( 3 )( tIWGCounter ).set( "IWG_type",                   static_cast< uint >( fem::IWG_Type::GHOST_NORMAL_FIELD ) );
-            tParameterList( 3 )( tIWGCounter ).set( "dof_residual",               std::string("TEMP") );
-            tParameterList( 3 )( tIWGCounter ).set( "master_dof_dependencies",    std::string("TEMP") );
-            tParameterList( 3 )( tIWGCounter ).set( "slave_dof_dependencies",     std::string("TEMP") );
-            tParameterList( 3 )( tIWGCounter ).set( "stabilization_parameters",   std::string("SPGPTempPcm,GhostSP") );
+            tParameterList( 3 )( tIWGCounter ).set( "dof_residual",               "TEMP" );
+            tParameterList( 3 )( tIWGCounter ).set( "master_dof_dependencies",    "TEMP" );
+            tParameterList( 3 )( tIWGCounter ).set( "slave_dof_dependencies",     "TEMP" );
+            tParameterList( 3 )( tIWGCounter ).set( "stabilization_parameters",   "SPGPTempPcm,GhostSP" );
             tParameterList( 3 )( tIWGCounter ).set( "mesh_set_names",             tPcmGhost );
             tIWGCounter++;
         }
@@ -691,7 +676,7 @@ namespace moris
         tParameterList( 4 ).push_back( prm::create_IQI_parameter_list() );
         tParameterList( 4 )( tIQICounter ).set( "IQI_name",                   "IQIBulkTEMP") ;
         tParameterList( 4 )( tIQICounter ).set( "IQI_type",                   static_cast< uint >( fem::IQI_Type::DOF ) );
-        //tParameterList( 4 )( tIQICounter ).set( "IQI_output_type",            static_cast< uint >( vis::Output_Type::TEMP ) );
+        tParameterList( 4 )( tIQICounter ).set( "dof_quantity",               "TEMP") ;
         tParameterList( 4 )( tIQICounter ).set( "master_dof_dependencies",    "TEMP") ;
         tParameterList( 4 )( tIQICounter ).set( "vectorial_field_index",      0 );
         tParameterList( 4 )( tIQICounter ).set( "mesh_set_names",             tTotalDomain );
@@ -701,7 +686,6 @@ namespace moris
         tParameterList( 4 ).push_back( prm::create_IQI_parameter_list() );
         tParameterList( 4 )( tIQICounter ).set( "IQI_name",                   "IQIBulkVolume") ;
         tParameterList( 4 )( tIQICounter ).set( "IQI_type",                   static_cast< uint >( fem::IQI_Type::VOLUME ) );
-        //tParameterList( 4 )( tIQICounter ).set( "IQI_output_type",            static_cast< uint >( vis::Output_Type::VOLUME ) );
         tParameterList( 4 )( tIQICounter ).set( "master_dof_dependencies",    "TEMP") ;
         tParameterList( 4 )( tIQICounter ).set( "mesh_set_names",             tPcmBulk );
         tIQICounter++;
@@ -710,12 +694,11 @@ namespace moris
         tParameterList( 4 ).push_back( prm::create_IQI_parameter_list() );
         tParameterList( 4 )( tIQICounter ).set( "IQI_name",                   "IQIMaxTemp") ;
         tParameterList( 4 )( tIQICounter ).set( "IQI_type",                   static_cast< uint >( fem::IQI_Type::MAX_DOF ) );
-        //tParameterList( 4 )( tIQICounter ).set( "IQI_output_type",            static_cast< uint >( vis::Output_Type::MAX_DOF ) );
+        tParameterList( 4 )( tIQICounter ).set( "dof_quantity",               "TEMP") ;
         tParameterList( 4 )( tIQICounter ).set( "master_dof_dependencies",    "TEMP") ;
         tParameterList( 4 )( tIQICounter ).set( "vectorial_field_index",      0 );
-        tParameterList( 4 )( tIQICounter ).set( "master_properties",
-                "PropMaxTempReference,ReferenceValue;"
-                "PropMaxTempExponent,Exponent") ;
+        tParameterList( 4 )( tIQICounter ).set( "function_parameters",
+                        tMaxTempReference + "/" + tMaxTempExponent ) ;
         tParameterList( 4 )( tIQICounter ).set( "mesh_set_names",             tTotalDomain );
         tIQICounter++;
 
@@ -770,7 +753,7 @@ namespace moris
     void VISParameterList( moris::Cell< moris::Cell< ParameterList > > & tParameterlist )
     {
         tParameterlist.resize( 1 );
-        tParameterlist( 0 ).resize( 2 );
+        tParameterlist( 0 ).resize( 1 );
 
         tParameterlist( 0 )( 0 ) = prm::create_vis_parameter_list();
         tParameterlist( 0 )( 0 ).set( "File_Name"  , std::pair< std::string, std::string >( "./", tOutputFile ) );

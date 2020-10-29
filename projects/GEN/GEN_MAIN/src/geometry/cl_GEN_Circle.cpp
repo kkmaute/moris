@@ -11,6 +11,7 @@ namespace moris
                        Matrix<DDUMat>  aGeometryVariableIndices,
                        Matrix<DDUMat>  aADVIndices,
                        Matrix<DDRMat>  aConstantParameters,
+                       std::string     aName,
                        Matrix<DDSMat>  aNumRefinements,
                        Matrix<DDSMat>  aNumPatterns,
                        sint            aRefinementFunctionIndex,
@@ -21,6 +22,7 @@ namespace moris
                         aGeometryVariableIndices,
                         aADVIndices,
                         aConstantParameters,
+                        aName,
                         aNumRefinements,
                         aNumPatterns,
                         aRefinementFunctionIndex,
@@ -38,6 +40,7 @@ namespace moris
                        Matrix<DDUMat>    aGeometryVariableIndices,
                        Matrix<DDUMat>    aADVIndices,
                        Matrix<DDRMat>    aConstantParameters,
+                       std::string       aName,
                        Matrix<DDSMat>  aNumRefinements,
                        Matrix<DDSMat>  aNumPatterns,
                        sint              aRefinementFunctionIndex,
@@ -48,6 +51,7 @@ namespace moris
                         aGeometryVariableIndices,
                         aADVIndices,
                         aConstantParameters,
+                        aName,
                         aNumRefinements,
                         aNumPatterns,
                         aRefinementFunctionIndex,
@@ -61,16 +65,18 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        Circle::Circle(real aXCenter,
-                       real aYCenter,
-                       real aRadius,
+        Circle::Circle(real        aXCenter,
+                       real        aYCenter,
+                       real        aRadius,
+                       std::string       aName,
                        Matrix<DDSMat>  aNumRefinements,
                        Matrix<DDSMat>  aNumPatterns,
-                       sint aRefinementFunctionIndex,
-                       sint aBSplineMeshIndex,
-                       real aBSplineLowerBound,
-                       real aBSplineUpperBound)
+                       sint        aRefinementFunctionIndex,
+                       sint        aBSplineMeshIndex,
+                       real        aBSplineLowerBound,
+                       real        aBSplineUpperBound)
                 : Field(Matrix<DDRMat>({{aXCenter, aYCenter, aRadius}}),
+                        aName,
                         aNumRefinements,
                         aNumPatterns,
                         aRefinementFunctionIndex,
@@ -82,7 +88,7 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        real Circle::evaluate_field_value(const Matrix<DDRMat>& aCoordinates)
+        real Circle::get_field_value(const Matrix<DDRMat>& aCoordinates)
         {
             // Get variables
             real tXCenter = *(mFieldVariables(0));
@@ -95,19 +101,23 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        void Circle::evaluate_all_sensitivities(const Matrix<DDRMat>& aCoordinates, Matrix<DDRMat>& aSensitivities)
+        Matrix<DDRMat> Circle::get_field_sensitivities(const Matrix<DDRMat>& aCoordinates)
         {
+            // Initialize
+            Matrix<DDRMat> tSensitivities(1, 3);
+
             // Get variables
             real tXCenter = *(mFieldVariables(0));
             real tYCenter = *(mFieldVariables(1));
 
             // Calculate sensitivities
-            aSensitivities.set_size(1, 3);
             real tConstant = sqrt(pow(aCoordinates(0) - tXCenter, 2) + pow(aCoordinates(1) - tYCenter, 2));
             tConstant = tConstant ? 1 / tConstant : 0.0;
-            aSensitivities(0) = tConstant * (tXCenter - aCoordinates(0));
-            aSensitivities(1) = tConstant * (tYCenter - aCoordinates(1));
-            aSensitivities(2) = -1.0;
+            tSensitivities(0) = tConstant * (tXCenter - aCoordinates(0));
+            tSensitivities(1) = tConstant * (tYCenter - aCoordinates(1));
+            tSensitivities(2) = -1.0;
+
+            return tSensitivities;
         }
 
         //--------------------------------------------------------------------------------------------------------------

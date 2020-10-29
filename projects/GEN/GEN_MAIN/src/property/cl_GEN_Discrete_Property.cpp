@@ -7,22 +7,25 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        Discrete_Property::Discrete_Property(Matrix<DDRMat>& aADVs,
-                                             Matrix<DDUMat>  aPropertyVariableIndices,
-                                             Matrix<DDUMat>  aADVIndices,
-                                             Matrix<DDRMat>  aConstantParameters,
-                                             Matrix<DDSMat>  aNumRefinements,
-                                             Matrix<DDSMat>  aNumPatterns,
-                                             sint            aRefinementFunctionIndex,
-                                             sint            aBSplineMeshIndex,
-                                             real            aBSplineLowerBound,
-                                             real            aBSplineUpperBound)
+        Discrete_Property::Discrete_Property(
+                Matrix<DDRMat>& aADVs,
+                Matrix<DDUMat>  aPropertyVariableIndices,
+                Matrix<DDUMat>  aADVIndices,
+                Matrix<DDRMat>  aConstantParameters,
+                std::string     aName,
+                Matrix<DDSMat>  aNumRefinements,
+                Matrix<DDSMat>  aRefMeshIndex,
+                sint            aRefinementFunctionIndex,
+                sint            aBSplineMeshIndex,
+                real            aBSplineLowerBound,
+                real            aBSplineUpperBound)
                 : Field(aADVs,
                         aPropertyVariableIndices,
                         aADVIndices,
                         aConstantParameters,
+                        aName,
                         aNumRefinements,
-                        aNumPatterns,
+                        aRefMeshIndex,
                         aRefinementFunctionIndex,
                         aBSplineMeshIndex,
                         aBSplineLowerBound,
@@ -33,17 +36,52 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        real Discrete_Property::evaluate_field_value(uint aNodeIndex)
+        Discrete_Property::Discrete_Property(
+                sol::Dist_Vector* aOwnedADVs,
+                Matrix<DDUMat>    aPropertyVariableIndices,
+                Matrix<DDUMat>    aADVIndices,
+                Matrix<DDRMat>    aConstantParameters,
+                std::string       aName,
+                Matrix<DDSMat>    aNumRefinements,
+                Matrix<DDSMat>    aRefMeshIndex,
+                sint              aRefinementFunctionIndex,
+                sint              aBSplineMeshIndex,
+                real              aBSplineLowerBound,
+                real              aBSplineUpperBound)
+                : Field(aOwnedADVs,
+                        aPropertyVariableIndices,
+                        aADVIndices,
+                        aConstantParameters,
+                        aName,
+                        aNumRefinements,
+                        aRefMeshIndex,
+                        aRefinementFunctionIndex,
+                        aBSplineMeshIndex,
+                        aBSplineLowerBound,
+                        aBSplineUpperBound),
+                  Field_Discrete(aOwnedADVs->vec_local_length())
+        {
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
+        real Discrete_Property::get_field_value(uint aNodeIndex)
         {
             return *mFieldVariables(aNodeIndex);
         }
 
         //--------------------------------------------------------------------------------------------------------------
 
-        void Discrete_Property::evaluate_all_sensitivities(uint aNodeIndex, Matrix<DDRMat>& aSensitivities)
+        Matrix<DDRMat> Discrete_Property::get_field_sensitivities(uint aNodeIndex)
         {
-            aSensitivities.resize(1, mFieldVariables.size());
-            aSensitivities(aNodeIndex) = 1;
+            return {{1.0}};
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
+        Matrix<DDSMat> Discrete_Property::get_determining_adv_ids(uint aNodeIndex)
+        {
+            return {{(sint)aNodeIndex}};
         }
 
         //--------------------------------------------------------------------------------------------------------------

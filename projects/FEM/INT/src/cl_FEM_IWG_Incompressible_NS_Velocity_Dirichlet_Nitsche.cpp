@@ -34,7 +34,6 @@ namespace moris
 
             // populate the constitutive map
             mConstitutiveMap[ "IncompressibleFluid" ] = IWG_Constitutive_Type::FLUID_INCOMPRESSIBLE;
-            mConstitutiveMap[ "TurbulenceFluid" ]     = IWG_Constitutive_Type::FLUID_TURBULENCE;
 
             // set size for the stabilization parameter pointer cell
             mStabilizationParam.resize( static_cast< uint >( IWG_Stabilization_Type::MAX_ENUM ), nullptr );
@@ -150,10 +149,6 @@ namespace moris
             std::shared_ptr< Constitutive_Model > tCMFluid =
                     mMasterCM( static_cast< uint >( IWG_Constitutive_Type::FLUID_INCOMPRESSIBLE ) );
 
-            // get the fluid constitutive model
-            std::shared_ptr< Constitutive_Model > tCMTurbulence =
-                    mMasterCM( static_cast< uint >( IWG_Constitutive_Type::FLUID_TURBULENCE ) );
-
             // get the Nitsche stabilization parameter
             std::shared_ptr< Stabilization_Parameter > tSPNitsche =
                     mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::DIRICHLET_NITSCHE ) );
@@ -179,19 +174,8 @@ namespace moris
                                 dot( tFIVelocity->val(), mNormal ) * tM * tVelocityJump );
             }
 
-            // if turbulence
-            if( tCMTurbulence != nullptr )
-            {
-                mSet->get_residual()( 0 )(
-                        { tMasterResStartIndex, tMasterResStopIndex },
-                        { 0, 0 } ) -= aWStar * (
-                                trans( tFIVelocity->N() ) * tM * tCMTurbulence->traction( mNormal ) +
-                                mBeta * trans( tCMTurbulence->testTraction( mNormal, mResidualDofType ) ) *
-                                tM * tVelocityJump );
-            }
-
             // check for nan, infinity
-            MORIS_ERROR( isfinite( mSet->get_residual()( 0 ) ),
+            MORIS_ASSERT( isfinite( mSet->get_residual()( 0 ) ),
                     "IWG_Incompressible_NS_Velocity_Dirichlet_Nitsche::compute_residual - Residual contains NAN or INF, exiting!");
         }
 
@@ -244,10 +228,6 @@ namespace moris
             std::shared_ptr< Constitutive_Model > tCMFluid =
                     mMasterCM( static_cast< uint >( IWG_Constitutive_Type::FLUID_INCOMPRESSIBLE ) );
 
-            // get the fluid constitutive model
-            std::shared_ptr< Constitutive_Model > tCMTurbulence =
-                    mMasterCM( static_cast< uint >( IWG_Constitutive_Type::FLUID_TURBULENCE ) );
-
             // get the Nitsche stabilization parameter
             std::shared_ptr< Stabilization_Parameter > tSPNitsche =
                     mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::DIRICHLET_NITSCHE ) );
@@ -262,7 +242,7 @@ namespace moris
             for( uint iDOF = 0; iDOF < tMasterNumDofDependencies; iDOF++ )
             {
                 // get the dof type
-                Cell< MSI::Dof_Type > tDofType = mRequestedMasterGlobalDofTypes( iDOF );
+                Cell< MSI::Dof_Type > & tDofType = mRequestedMasterGlobalDofTypes( iDOF );
 
                 // get the index for the dof type
                 sint tDofDepIndex         = mSet->get_dof_index_for_type( tDofType( 0 ), mtk::Master_Slave::MASTER );
@@ -346,47 +326,10 @@ namespace moris
                                         tM * tVelocityJump * tPropUpwind->dPropdDOF( tDofType ) );
                     }
                 }
-
-                // if turbulence
-                if( tCMTurbulence != nullptr )
-                {
-                    // if dof type is residual dof type
-                    if ( tDofType( 0 ) == mResidualDofType( 0 ) )
-                    {
-                        // compute jacobian direct dependencies
-                        mSet->get_jacobian()(
-                                { tMasterResStartIndex, tMasterResStopIndex },
-                                { tMasterDepStartIndex, tMasterDepStopIndex } ) += aWStar * (
-                                        - mBeta * trans( tCMTurbulence->testTraction( mNormal, mResidualDofType ) ) *
-                                        tM * tFIVelocity->N() );
-                    }
-
-                    // if imposed velocity depends on dof type
-                    if ( tPropVelocity->check_dof_dependency( tDofType ) )
-                    {
-                        // add contribution from property to jacobian
-                        mSet->get_jacobian()(
-                                { tMasterResStartIndex, tMasterResStopIndex },
-                                { tMasterDepStartIndex, tMasterDepStopIndex } ) -= aWStar * (
-                                        - mBeta * trans( tCMTurbulence->testTraction( mNormal, mResidualDofType ) ) *
-                                        tM * tPropVelocity->dPropdDOF( tDofType ) );
-                    }
-
-                    // if turbulence depends on dof type
-                    if( tCMTurbulence->check_dof_dependency( tDofType ) )
-                    {
-                        // add contribution from CM to jacobian
-                        mSet->get_jacobian()(
-                                { tMasterResStartIndex, tMasterResStopIndex },
-                                { tMasterDepStartIndex, tMasterDepStopIndex } ) -= aWStar * (
-                                        trans( tFIVelocity->N() ) * tM * tCMTurbulence->dTractiondDOF( tDofType, mNormal ) +
-                                        mBeta * tCMTurbulence->dTestTractiondDOF( tDofType, mNormal, tM * tVelocityJump, mResidualDofType ) );
-                    }
-                }
             }
 
             // check for nan, infinity
-            MORIS_ERROR(  isfinite( mSet->get_jacobian() ) ,
+            MORIS_ASSERT( isfinite( mSet->get_jacobian() ) ,
                     "IWG_Incompressible_NS_Velocity_Dirichlet_Nitsche::compute_jacobian - Jacobian contains NAN or INF, exiting!");
         }
 

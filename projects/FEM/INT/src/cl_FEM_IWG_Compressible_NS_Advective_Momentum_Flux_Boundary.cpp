@@ -96,8 +96,8 @@ namespace moris
             uint tMasterResStopIndex  = mSet->get_res_dof_assembly_map()( tMasterDofIndex )( 0, 1 );
 
             // get the field interpolators
-            Field_Interpolator * tDensityFI = mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );
-            Field_Interpolator * tVelocityFI = mMasterFIManager->get_field_interpolators_for_type( mDofVelocity );
+            Field_Interpolator * tDensityFI = mMasterFIManager->get_field_interpolators_for_type( mDofDensity );
+            Field_Interpolator * tVelocityFI = mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );
 
             // build dyadic product of velocity vectors
             Matrix< DDRMat > tUiUj;
@@ -109,10 +109,10 @@ namespace moris
 
             // compute the residual weak form
             mSet->get_residual()( 0 )( { tMasterResStartIndex, tMasterResStopIndex }, { 0, 0 } ) += aWStar * (
-                    trans( tVelocityFI->N() ) * tDensityFI->val() * tNormalMatrix * tUiUj );
+                    tDensityFI->val()( 0 ) * trans( tVelocityFI->N() ) * tNormalMatrix * tUiUj );
 
             // check for nan, infinity
-            MORIS_ERROR( isfinite( mSet->get_residual()( 0 ) ),
+            MORIS_ASSERT( isfinite( mSet->get_residual()( 0 ) ),
                     "IWG_Compressible_NS_Advective_Momentum_Flux_Boundary::compute_residual - Residual contains NAN or INF, exiting!");
         }
 
@@ -130,15 +130,15 @@ namespace moris
             uint tMasterResStopIndex  = mSet->get_res_dof_assembly_map()( tMasterDofIndex )( 0, 1 );
 
             // get the FIs
-            Field_Interpolator * tFIVelocity =  mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );
             Field_Interpolator * tFIDensity =  mMasterFIManager->get_field_interpolators_for_type( mDofDensity );
+            Field_Interpolator * tFIVelocity =  mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) );
 
             // compute the jacobian for dof dependencies
             uint tNumDofDependencies = mRequestedMasterGlobalDofTypes.size();
             for( uint iDOF = 0; iDOF < tNumDofDependencies; iDOF++ )
             {
                 // get the treated dof type
-                Cell< MSI::Dof_Type > tDofType = mRequestedMasterGlobalDofTypes( iDOF );
+                Cell< MSI::Dof_Type > & tDofType = mRequestedMasterGlobalDofTypes( iDOF );
 
                 // get the index for dof type, indices for assembly
                 sint tDofDepIndex         = mSet->get_dof_index_for_type( tDofType( 0 ), mtk::Master_Slave::MASTER );
@@ -178,12 +178,12 @@ namespace moris
                     mSet->get_jacobian()(
                             { tMasterResStartIndex, tMasterResStopIndex },
                             { tMasterDepStartIndex, tMasterDepStopIndex } ) += aWStar * (
-                                    trans( tFIVelocity->N() ) * tFIDensity->val() * tNormalMatrix * tdUiUjdDOF );
+                                    tFIDensity->val()( 0 ) * trans( tFIVelocity->N() ) * tNormalMatrix * tdUiUjdDOF );
                 }
             }
 
             // check for nan, infinity
-            MORIS_ERROR(  isfinite( mSet->get_jacobian() ) ,
+            MORIS_ASSERT( isfinite( mSet->get_jacobian() ) ,
                     "IWG_Compressible_NS_Advective_Momentum_Flux_Boundary::compute_jacobian - Jacobian contains NAN or INF, exiting!");
         }
 
@@ -303,8 +303,8 @@ namespace moris
                 aduiujdDOF( { 1, 1 }, { tNumBases, 2 * tNumBases - 1 } )     = 2.0 * tUvec( 1 ) * tNmat( { 0, 0 }, { 0, tNumBases - 1 } );
                 aduiujdDOF( { 2, 2 }, { 2 * tNumBases, 3 * tNumBases - 1 } ) = 2.0 * tUvec( 2 ) * tNmat( { 0, 0 }, { 0, tNumBases - 1 } );
 
-                aduiujdDOF( { 4, 4 }, { tNumBases, 2 * tNumBases - 1 } )     = tUvec( 2 ) * tNmat( { 0, 0 }, { 0, tNumBases - 1 } );
-                aduiujdDOF( { 4, 4 }, { 2 * tNumBases, 3 * tNumBases - 1 } ) = tUvec( 1 ) * tNmat( { 0, 0 }, { 0, tNumBases - 1 } );
+                aduiujdDOF( { 3, 3 }, { tNumBases, 2 * tNumBases - 1 } )     = tUvec( 2 ) * tNmat( { 0, 0 }, { 0, tNumBases - 1 } );
+                aduiujdDOF( { 3, 3 }, { 2 * tNumBases, 3 * tNumBases - 1 } ) = tUvec( 1 ) * tNmat( { 0, 0 }, { 0, tNumBases - 1 } );
 
                 aduiujdDOF( { 4, 4 }, { 0, tNumBases - 1 } )                 = tUvec( 2 ) * tNmat( { 0, 0 }, { 0, tNumBases - 1 } );
                 aduiujdDOF( { 4, 4 }, { 2 * tNumBases, 3 * tNumBases - 1 } ) = tUvec( 0 ) * tNmat( { 0, 0 }, { 0, tNumBases - 1 } );

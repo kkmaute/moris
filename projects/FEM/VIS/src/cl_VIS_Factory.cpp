@@ -256,8 +256,8 @@ namespace moris
                     }
 
                     // add vertices and local coordinates to vis cluster if non-trivial
-                    if( !tVisCellCluster->is_trivial() )
-                    {
+                    // if( !tVisCellCluster->is_trivial() )
+                    // {
                         // get vertices from old cluster
                         moris::Cell<moris::mtk::Vertex const *> tVertices = tClustersOnSet( Ik )->get_vertices_in_cluster();
 
@@ -299,7 +299,7 @@ namespace moris
 
                         // add local coordinates to vis cluster
                         tVisCellCluster->add_vertex_local_coordinates_wrt_interp_cell( tVisClusterVerticesLocalCoords );
-                    }
+                    // }
 
                     mClustersOnBlock( Ij )( Ik ) = tVisCellCluster;
                 }

@@ -132,10 +132,10 @@ namespace moris
 
             // check if properties set
             MORIS_ERROR(mMasterProp( static_cast< uint >( IQI_Property_Type::REFERENCE_VALUE ) ) != nullptr,
-                    "IQI_Max_Dof - no reference value set");
+                    "IQI_Max_Stress - no reference value set");
 
             MORIS_ERROR(mMasterProp( static_cast< uint >( IQI_Property_Type::EXPONENT ) ) != nullptr,
-                    "IQI_Max_Dof - no exponent set");
+                    "IQI_Max_Stress - no exponent set");
 
             // get property values
             real tRefValue = mMasterProp( static_cast< uint >( IQI_Property_Type::REFERENCE_VALUE ) )->val()( 0 );

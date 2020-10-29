@@ -57,7 +57,7 @@ namespace moris
                 moris::Cell< Matrix< DDRMat > > mParameters;
 
                 // interpolation order
-                uint mOrder = 1;
+                uint mOrder = MORIS_UINT_MAX;
 
                 // normal
                 Matrix< DDRMat > mNormal;
@@ -107,6 +107,9 @@ namespace moris
                 // string for stabilization parameter name
                 std::string mName;
 
+                // bool for master and slave
+                bool mHasSlave = false;
+
             private:
 
                 // bool for global dof type list and map
@@ -152,6 +155,16 @@ namespace moris
                 std::string get_name()
                 {
                     return mName;
+                }
+
+                //------------------------------------------------------------------------------
+                /**
+                 * get name
+                 * param[ out ] mHasSlave bool true if CM has a slave
+                 */
+                bool get_has_slave()
+                {
+                    return mHasSlave;
                 }
 
                 //------------------------------------------------------------------------------

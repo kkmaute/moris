@@ -56,7 +56,7 @@ namespace moris
                 else
                 {
                     std::string tErrMsg =
-                            std::string("CM_Diffusion_Linear_Isotropic_Phase_Change::set_dof_type_list - Unknown aDofString : ") +
+                            "CM_Diffusion_Linear_Isotropic_Phase_Change::set_dof_type_list - Unknown aDofString : " +
                             tDofString;
                     MORIS_ERROR( false , tErrMsg.c_str() );
                 }
@@ -219,7 +219,7 @@ namespace moris
                         tFITemp);
 
                 // compute derivative with direct dependency
-                mEnergyDotDof( tDofIndex ).matrix_data() +=
+                mEnergyDotDof( tDofIndex ) +=
                         tPropDensity->val()(0) * ( tPropHeatCap->val()(0) + tPropLatHeat->val()(0) * tdfdT ) *
                         tFITemp->dnNdtn(1)
                         + tPropDensity->val()(0) * tPropLatHeat->val()(0) * tFITemp->gradt(1) * dfdDof;
@@ -229,7 +229,7 @@ namespace moris
             if ( tPropDensity->check_dof_dependency( aDofTypes ) )
             {
                 // compute derivative with indirect dependency through properties
-                mEnergyDotDof( tDofIndex ).matrix_data() +=
+                mEnergyDotDof( tDofIndex ) +=
                         ( tPropHeatCap->val()(0) + tPropLatHeat->val()(0) * tdfdT ) *
                         tFITemp->gradt(1) *
                         tPropDensity->dPropdDOF( aDofTypes );
@@ -239,7 +239,7 @@ namespace moris
             if ( tPropHeatCap->check_dof_dependency( aDofTypes ) )
             {
                 // compute derivative with indirect dependency through properties
-                mEnergyDotDof( tDofIndex ).matrix_data() +=
+                mEnergyDotDof( tDofIndex ) +=
                         tPropDensity->val()( 0 ) *
                         tFITemp->gradt(1) *
                         tPropHeatCap->dPropdDOF( aDofTypes );
@@ -291,7 +291,7 @@ namespace moris
                         tFITemp);
 
                 // compute derivative with direct dependency
-                mGradEnergyDof( tDofIndex ).matrix_data() +=
+                mGradEnergyDof( tDofIndex ) +=
                         tPropDensity->val()(0) * ( tPropHeatCap->val()(0) + tPropLatHeat->val()(0) * tdfdT ) *
                         tFITemp->dnNdxn( 1 )
                         + tPropDensity->val()(0) * tPropLatHeat->val()(0) * tFITemp->gradx( 1 ) * dfdDof;
@@ -301,7 +301,7 @@ namespace moris
             if ( tPropDensity->check_dof_dependency( aDofTypes ) )
             {
                 // compute derivative with indirect dependency through properties
-                mGradEnergyDof( tDofIndex ).matrix_data() +=
+                mGradEnergyDof( tDofIndex ) +=
                         ( tPropHeatCap->val()(0) + tPropLatHeat->val()(0) * tdfdT ) *
                         tFITemp->gradx( 1 ) *
                         tPropDensity->dPropdDOF( aDofTypes );
@@ -311,7 +311,7 @@ namespace moris
             if ( tPropHeatCap->check_dof_dependency( aDofTypes ) )
             {
                 // compute derivative with indirect dependency through properties
-                mGradEnergyDof( tDofIndex ).matrix_data() +=
+                mGradEnergyDof( tDofIndex ) +=
                         tPropDensity->val()( 0 ) *
                         tFITemp->gradx( 1 ) *
                         tPropHeatCap->dPropdDOF( aDofTypes );
@@ -363,7 +363,7 @@ namespace moris
                         tFITemp);
 
                 // compute derivative with direct dependency
-                mGradEnergyDotDof( tDofIndex ).matrix_data() +=
+                mGradEnergyDotDof( tDofIndex ) +=
                         tPropDensity->val()(0) * ( tPropHeatCap->val()(0) + tPropLatHeat->val()(0) * tdfdT ) *
                         tFITemp->d2Ndxt()
                         + tPropDensity->val()(0) * tPropLatHeat->val()(0) * tFITemp->gradxt() * dfdDof;
@@ -373,7 +373,7 @@ namespace moris
             if ( tPropDensity->check_dof_dependency( aDofTypes ) )
             {
                 // compute derivative with indirect dependency through properties
-                mGradEnergyDotDof( tDofIndex ).matrix_data() +=
+                mGradEnergyDotDof( tDofIndex ) +=
                         ( tPropHeatCap->val()(0) + tPropLatHeat->val()(0) * tdfdT ) *
                         tFITemp->gradxt() *
                         tPropDensity->dPropdDOF( aDofTypes );
@@ -383,7 +383,7 @@ namespace moris
             if ( tPropHeatCap->check_dof_dependency( aDofTypes ) )
             {
                 // compute derivative with indirect dependency through properties
-                mGradEnergyDotDof( tDofIndex ).matrix_data() +=
+                mGradEnergyDotDof( tDofIndex ) +=
                         tPropDensity->val()( 0 ) *
                         tFITemp->gradxt() *
                         tPropHeatCap->dPropdDOF( aDofTypes );

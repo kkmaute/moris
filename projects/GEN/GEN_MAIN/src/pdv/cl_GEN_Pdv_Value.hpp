@@ -15,7 +15,6 @@ namespace moris
 
         public:
 
-            Pdv_Value(){};
             /**
              * Constructor
              *
@@ -24,7 +23,7 @@ namespace moris
             Pdv_Value(real aValue);
 
             /**
-             * Get the PDV value
+             * Get the PDV value.
              *
              * @param aNodeIndex Node index
              * @param aCoordinates Coordinate values
@@ -32,16 +31,21 @@ namespace moris
              */
             real get_value(uint aNodeIndex, const Matrix<DDRMat>& aCoordinates);
 
-            void set_value(const moris::real & aValue );
-
             /**
-             * Get the PDV sensitivity with respect to ADVs
+             * Get the PDV sensitivity with respect to ADVs.
              *
              * @param aNodeIndex Node index
              * @param aCoordinates Coordinate values
-             * @param aSensitivities Matrix of sensitivities to be returned
+             * @return Matrix of sensitivities to be returned
              */
-            void get_sensitivity(uint aNodeIndex, const Matrix<DDRMat>& aCoordinates, Matrix<DDRMat>& aSensitivities);
+            Matrix<DDRMat> get_sensitivities(uint aNodeIndex, const Matrix<DDRMat>& aCoordinates);
+
+            /**
+             * Gets the IDs of ADVs which this PDV depends on.
+             *
+             * @return ADV IDs
+             */
+            Matrix<DDSMat> get_determining_adv_ids(uint aNodeIndex, const Matrix<DDRMat>& aCoordinates);
 
         };
     }

@@ -137,15 +137,18 @@ namespace moris
 
                 //------------------------------------------------------------------------------
                 /**
-                 * get the vertices indices in cluster
+                 * get the vertices indices in cluster for sensitivity
+                 * @param[ in ] aVerticesIndices matrix of vertex indices on cluster to be filled
                  */
-                moris::Cell< moris_index > get_vertex_indices_in_cluster();
+                void get_vertex_indices_in_cluster_for_sensitivity(
+                        moris::Matrix< moris::IndexMat > & aVerticesIndices );
 
                 //------------------------------------------------------------------------------
                 /**
-                 * get the vertices indices in cluster
+                 * get the vertices indices in cluster for visualization
+                 * @param[ in ] aVerticesIndices matrix of vertex indices on cluster to be filled
                  */
-                void get_vertex_indices_in_cluster_for_sensitivity(
+                void get_vertex_indices_in_cluster_for_visualization(
                         moris::Matrix< moris::IndexMat > & aVerticesIndices );
 
                 //------------------------------------------------------------------------------

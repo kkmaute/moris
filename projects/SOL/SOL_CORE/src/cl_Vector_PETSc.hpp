@@ -4,8 +4,8 @@
  *  Created on: Dec 5, 2018
  *      Author: schmidt
  */
-#ifndef SRC_DISTLINALG_CL_VECTORPETSC_HPP_
-#define SRC_DISTLINALG_CL_VECTORPETSC_HPP_
+#ifndef SRC_DISTLINALG_CL_VECTOR_PETSC_HPP_
+#define SRC_DISTLINALG_CL_VECTOR_PETSC_HPP_
 
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
@@ -31,7 +31,7 @@ namespace moris
     public:
         /** Default contructor */
         Vector_PETSc(       moris::Solver_Interface * aInput,
-                            moris::sol::Dist_Map    * aMap,
+                            std::shared_ptr<sol::Dist_Map>  aMap,
                       const sint                      aNumVectores );
 
         /** Destructor */
@@ -54,7 +54,7 @@ namespace moris
                                     const uint                    & aVectorIndex = 0)
         {};
 
-        void vector_global_asembly();
+        void vector_global_assembly();
 
         void vec_plus_vec( const moris::real      & aScaleA,
                                  sol::Dist_Vector & aVecA,
@@ -88,7 +88,9 @@ namespace moris
 
         void read_vector_from_HDF5( const char* aFilename );
 
-    //-----------------------------------------------------------------------------
+        //-----------------------------------------------------------------------------
+
+        moris::real* get_values_pointer();
 
         virtual Vec get_petsc_vector()
         {
@@ -104,4 +106,4 @@ namespace moris
     };
 }
 
-#endif /* SRC_DISTLINALG_CL_VECTORPETSC_HPP_ */
+#endif /* SRC_DISTLINALG_CL_VECTOR_PETSC_HPP_ */

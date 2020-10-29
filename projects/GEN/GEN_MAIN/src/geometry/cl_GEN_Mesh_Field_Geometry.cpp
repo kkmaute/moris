@@ -13,11 +13,7 @@ namespace moris
                                                  Matrix<DDSMat>  aNumRefinements,
                                                  Matrix<DDSMat>  aNumPatterns,
                                                  sint        aRefinementFunctionIndex)
-                : Field(Matrix<DDRMat>(1, 1, 0.0),
-                        aNumRefinements,
-                        aNumPatterns,
-                        aRefinementFunctionIndex,
-                        -1, -1.0, 1.0),
+                : Field(Matrix<DDRMat>(1, 1, 0.0), "", aNumRefinements, aNumPatterns, aRefinementFunctionIndex, -1, -1.0, 1.0),
                   Field_Discrete(aMesh->get_num_nodes()),
                   mMesh(aMesh),
                   mFieldName(aFieldName),
@@ -27,16 +23,17 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        real Mesh_Field_Geometry::evaluate_field_value(uint aNodeIndex)
+        real Mesh_Field_Geometry::get_field_value(uint aNodeIndex)
         {
             return mMesh->get_entity_field_value_real_scalar({{moris_index(aNodeIndex)}}, mFieldName, mEntityRank)(0);
         }
 
         //--------------------------------------------------------------------------------------------------------------
 
-        void Mesh_Field_Geometry::evaluate_all_sensitivities(uint aNodeIndex, Matrix<DDRMat>& aSensitivities)
+        Matrix<DDRMat> Mesh_Field_Geometry::get_field_sensitivities(uint aNodeIndex)
         {
-            MORIS_ERROR(false, "evaluate_sensitivity function is not implemented for a mesh field geometry.");
+            MORIS_ERROR(false, "get_field_sensitivities function is not implemented for a mesh field geometry.");
+            return {{}};
         }
 
         //--------------------------------------------------------------------------------------------------------------

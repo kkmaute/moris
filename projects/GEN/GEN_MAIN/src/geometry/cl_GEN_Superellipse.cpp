@@ -12,6 +12,7 @@ namespace moris
                 Matrix<DDUMat>  aGeometryVariableIndices,
                 Matrix<DDUMat>  aADVIndices,
                 Matrix<DDRMat>  aConstantParameters,
+                std::string     aName,
                 Matrix<DDSMat>  aNumRefinements,
                 Matrix<DDSMat>  aNumPatterns,
                 sint            aRefinementFunctionIndex,
@@ -22,6 +23,7 @@ namespace moris
                 aGeometryVariableIndices,
                 aADVIndices,
                 aConstantParameters,
+                aName,
                 aNumRefinements,
                 aNumPatterns,
                 aRefinementFunctionIndex,
@@ -46,6 +48,7 @@ namespace moris
                 Matrix<DDUMat>    aGeometryVariableIndices,
                 Matrix<DDUMat>    aADVIndices,
                 Matrix<DDRMat>    aConstantParameters,
+                std::string       aName,
                 Matrix<DDSMat>  aNumRefinements,
                 Matrix<DDSMat>  aNumPatterns,
                 sint              aRefinementFunctionIndex,
@@ -56,6 +59,7 @@ namespace moris
                         aGeometryVariableIndices,
                         aADVIndices,
                         aConstantParameters,
+                        aName,
                         aNumRefinements,
                         aNumPatterns,
                         aRefinementFunctionIndex,
@@ -76,21 +80,23 @@ namespace moris
         //--------------------------------------------------------------------------------------------------------------
 
         Superellipse::Superellipse(
-                real aXCenter,
-                real aYCenter,
-                real aXSemidiameter,
-                real aYSemidiameter,
-                real aExponent,
-                real aScaling,
-                real aRegularization,
-                real aShift,
+                real        aXCenter,
+                real        aYCenter,
+                real        aXSemidiameter,
+                real        aYSemidiameter,
+                real        aExponent,
+                real        aScaling,
+                real        aRegularization,
+                real        aShift,
+                std::string aName,
                 Matrix<DDSMat>  aNumRefinements,
                 Matrix<DDSMat>  aNumPatterns,
-                sint aRefinementFunctionIndex,
-                sint aBSplineMeshIndex,
-                real aBSplineLowerBound,
-                real aBSplineUpperBound)
+                sint        aRefinementFunctionIndex,
+                sint        aBSplineMeshIndex,
+                real        aBSplineLowerBound,
+                real        aBSplineUpperBound)
         : Field(Matrix<DDRMat>({{aXCenter, aYCenter, aXSemidiameter, aYSemidiameter, aExponent, aScaling, aRegularization, aShift}}),
+                aName,
                 aNumRefinements,
                 aNumPatterns,
                 aRefinementFunctionIndex,
@@ -107,7 +113,7 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        real Superellipse::evaluate_field_value(const Matrix<DDRMat>& aCoordinates)
+        real Superellipse::get_field_value(const Matrix<DDRMat>& aCoordinates)
         {
             // Get variables
             real tXCenter        = *(mFieldVariables(0));
@@ -138,7 +144,7 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        void Superellipse::evaluate_all_sensitivities(const Matrix<DDRMat>& aCoordinates, Matrix<DDRMat>& aSensitivities)
+        Matrix<DDRMat> Superellipse::get_field_sensitivities(const Matrix<DDRMat>& aCoordinates)
         {
             // Get variables
             real tXCenter        = *(mFieldVariables(0));
@@ -159,19 +165,21 @@ namespace moris
             real tConstant2 = pow((aCoordinates(1) - tYCenter)/tYSemidiameter,tExponent - 1.0);
 
             // Calculate sensitivities
-            aSensitivities.set_size(1, 8);
+            Matrix<DDRMat> tSensitivities(1, 8);
 
-            aSensitivities(0) = -tScaling*tConstant1*tConstant0/tXSemidiameter;
-            aSensitivities(1) = -tScaling*tConstant2*tConstant0/tYSemidiameter;
+            tSensitivities(0) = -tScaling*tConstant1*tConstant0/tXSemidiameter;
+            tSensitivities(1) = -tScaling*tConstant2*tConstant0/tYSemidiameter;
 
-            aSensitivities(2) = -tScaling*(aCoordinates(0) - tXCenter)*tConstant1*tConstant0/pow(tXSemidiameter,2.0);
-            aSensitivities(3) = -tScaling*(aCoordinates(1) - tYCenter)*tConstant2*tConstant0/pow(tYSemidiameter,2.0);
+            tSensitivities(2) = -tScaling*(aCoordinates(0) - tXCenter)*tConstant1*tConstant0/pow(tXSemidiameter,2.0);
+            tSensitivities(3) = -tScaling*(aCoordinates(1) - tYCenter)*tConstant2*tConstant0/pow(tYSemidiameter,2.0);
 
             // the reminder sensitivities are typically not used and therefore not calculated
-            aSensitivities(4) = MORIS_REAL_MAX;
-            aSensitivities(5) = MORIS_REAL_MAX;
-            aSensitivities(6) = MORIS_REAL_MAX;
-            aSensitivities(7) = MORIS_REAL_MAX;
+            tSensitivities(4) = MORIS_REAL_MAX;
+            tSensitivities(5) = MORIS_REAL_MAX;
+            tSensitivities(6) = MORIS_REAL_MAX;
+            tSensitivities(7) = MORIS_REAL_MAX;
+
+            return tSensitivities;
         }
 
         //--------------------------------------------------------------------------------------------------------------

@@ -135,7 +135,7 @@ namespace moris
                 mSet->get_residual()( 0 )(
                         { tMasterResStartIndex, tMasterResStopIndex },
                         { 0, 0 } ) += aWStar * (
-                                dot( tPropBodyForce->val(), tFIVelocity->val() ) * tFIDensity->val() * trans( tFITemp->N() ) );
+                                tFIDensity->val()( 0 ) * trans( tFITemp->N() ) * dot( tPropBodyForce->val(), tFIVelocity->val() ) );
             }
 
             // if there is a body heat load
@@ -149,7 +149,7 @@ namespace moris
             }
 
             // check for nan, infinity
-            MORIS_ERROR( isfinite( mSet->get_residual()( 0 ) ),
+            MORIS_ASSERT( isfinite( mSet->get_residual()( 0 ) ),
                     "IWG_Compressible_NS_Temperature_Bulk::compute_residual - Residual contains NAN or INF, exiting!");
         }
 
@@ -184,7 +184,7 @@ namespace moris
             for( uint iDOF = 0; iDOF < tNumDofDependencies; iDOF++ )
             {
                 // get the treated dof type
-                Cell< MSI::Dof_Type > tDofType = mRequestedMasterGlobalDofTypes( iDOF );
+                Cell< MSI::Dof_Type > & tDofType = mRequestedMasterGlobalDofTypes( iDOF );
 
                 // get the index for dof type, indices for assembly
                 sint tDofDepIndex         = mSet->get_dof_index_for_type( tDofType( 0 ), mtk::Master_Slave::MASTER );
@@ -198,7 +198,7 @@ namespace moris
                     mSet->get_jacobian()(
                             { tMasterResStartIndex, tMasterResStopIndex },
                             { tMasterDepStartIndex, tMasterDepStopIndex } ) += aWStar * (
-                                    trans( tFITemp->N() ) * tCMFluid->dEnergyDotdDOF( tDofType ) -
+                                    trans( tFITemp->N() ) * tCMFluid->dEnergyDotdDOF( tDofType ) +
                                     trans( tFITemp->dnNdxn( 1 ) ) *
                                     ( tCMFluid->dFluxdDOF( tDofType, CM_Function_Type::WORK ) -
                                       tCMFluid->dFluxdDOF( tDofType, CM_Function_Type::ENERGY ) -
@@ -215,8 +215,18 @@ namespace moris
                         mSet->get_jacobian()(
                                 { tMasterResStartIndex, tMasterResStopIndex },
                                 { tMasterDepStartIndex, tMasterDepStopIndex } ) += aWStar * (
-                                        trans( tFITemp->N() ) * tFIDensity->val() * trans( tFIVelocity->val() ) *
+                                        tFIDensity->val()( 0 ) * trans( tFITemp->N() ) * trans( tFIVelocity->val() ) *
                                         tPropBodyForce->dPropdDOF( tDofType ) );
+                    }
+
+                    // if dof type is density and a body force is present
+                    if( tDofType( 0 ) == mDofDensity )
+                    {
+                        // compute the jacobian contribution
+                        mSet->get_jacobian()(
+                                { tMasterResStartIndex, tMasterResStopIndex },
+                                { tMasterDepStartIndex, tMasterDepStopIndex } ) += aWStar * (
+                                        trans( tFITemp->N() ) * dot( tPropBodyForce->val(), tFIVelocity->val() ) * tFIDensity->N() );
                     }
 
                     // if dof type is velocity and a body force is present
@@ -226,7 +236,7 @@ namespace moris
                         mSet->get_jacobian()(
                                 { tMasterResStartIndex, tMasterResStopIndex },
                                 { tMasterDepStartIndex, tMasterDepStopIndex } ) += aWStar * (
-                                        trans( tFITemp->N() ) * tFIDensity->val() * trans( tPropBodyForce->val() ) * tFIVelocity->N() );
+                                        tFIDensity->val()( 0 ) * trans( tFITemp->N() ) * trans( tPropBodyForce->val() ) * tFIVelocity->N() );
                     }
                 }
 
@@ -242,7 +252,7 @@ namespace moris
             }
 
             // check for nan, infinity
-            MORIS_ERROR( isfinite( mSet->get_jacobian() ) ,
+            MORIS_ASSERT( isfinite( mSet->get_jacobian() ) ,
                     "IWG_Compressible_NS_Temperature_Bulk::compute_jacobian - Jacobian contains NAN or INF, exiting!");
         }
 

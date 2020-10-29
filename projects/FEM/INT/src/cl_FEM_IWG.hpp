@@ -94,7 +94,23 @@ namespace moris
                 moris::Cell< std::shared_ptr< fem::Stabilization_Parameter > > mStabilizationParam;
 
                 // interpolation order for IWG
-                uint mOrder = 1;
+                uint mOrder = MORIS_UINT_MAX;
+
+                // bulk type
+                fem::Element_Type mBulkType = fem::Element_Type::BULK;
+
+                // strings for master and slave phase name
+                std::string mMasterPhaseName;
+                std::string mSlavePhaseName;
+
+                // bool for time continuity
+                bool mTimeContinuity = false;
+
+                // bool for time boundary
+                bool mTimeBoundary = false;
+
+                // bool for ghost
+                bool mIsGhost = false;
 
                 // string for IWG name
                 std::string mName;
@@ -139,6 +155,66 @@ namespace moris
 
                 //------------------------------------------------------------------------------
                 /**
+                 * set time continuity flag
+                 * param[ in ] aTimeContinuity bool true if IWG for time continuity
+                 */
+                void set_time_continuity( bool aTimeContinuity )
+                {
+                    mTimeContinuity = aTimeContinuity;
+                }
+
+                //------------------------------------------------------------------------------
+                /**
+                 * get time continuity flag
+                 * param[ out ] mTimeContinuity ool true if IWG for time continuity
+                 */
+                bool get_time_continuity()
+                {
+                    return mTimeContinuity;
+                }
+
+                //------------------------------------------------------------------------------
+                /**
+                 * set time boundary flag
+                 * param[ in ] aTimeBoundary bool true if IWG for time boundary
+                 */
+                void set_time_boundary( bool aTimeBoundary )
+                {
+                    mTimeBoundary = aTimeBoundary;
+                }
+
+                //------------------------------------------------------------------------------
+                /**
+                 * get time boundary flag
+                 * param[ out ] mTimeBoundary bool true if IWG for time boundary
+                 */
+                bool get_time_boundary()
+                {
+                    return mTimeBoundary;
+                }
+
+                //------------------------------------------------------------------------------
+                /**
+                 * set ghost flag
+                 * param[ in ] aIsGhost bool true if IWG for ghost
+                 */
+                void set_ghost_flag( bool aIsGhost )
+                {
+                    mIsGhost = aIsGhost;
+                }
+
+                //------------------------------------------------------------------------------
+                /**
+                 * get ghost flag
+                 * param[ out ] mIsGhost bool true if IWG for ghost
+                 */
+                bool get_ghost_flag()
+                {
+                    return mIsGhost;
+                }
+
+                //------------------------------------------------------------------------------
+                /**
                  * get IWG type
                  * param[ out ] mIWGType an enum of the IWG type. type only implemented for TIME_CONTINUITY_DOF. All others return UNDEFINED.
                  *              If needed you can implement the type for the others. Just folow the TIME_CONTINUITY_DOF
@@ -147,6 +223,61 @@ namespace moris
                 {
                     return mIWGType;
                 };
+
+                //------------------------------------------------------------------------------
+                /**
+                 * set phase name
+                 * param[ in ] aPhaseName a string for phase name
+                 * param[ in ] aIsMaster  an enum for master or slave
+                 */
+                void set_phase_name(
+                        std::string aPhaseName,
+                        mtk::Master_Slave aIsMaster )
+                {
+                    switch( aIsMaster )
+                    {
+                        case mtk::Master_Slave::MASTER :
+                        {
+                            mMasterPhaseName = aPhaseName;
+                            break;
+                        }
+                        case mtk::Master_Slave::SLAVE :
+                        {
+                            mSlavePhaseName = aPhaseName;
+                            break;
+                        }
+                        default :
+                        {
+                            MORIS_ERROR( false, "IWG::set_phase_name - aIsMaster can only be master or slave.");
+                        }
+                    }
+                }
+
+                //------------------------------------------------------------------------------
+                /**
+                 * get phase name
+                 * param[ in ]  aIsMaster an enum for master or slave
+                 * param[ out ] mName     a string for phase name
+                 */
+                std::string get_phase_name( mtk::Master_Slave aIsMaster )
+                {
+                    switch( aIsMaster )
+                    {
+                        case mtk::Master_Slave::MASTER :
+                        {
+                            return mMasterPhaseName;
+                        }
+                        case mtk::Master_Slave::SLAVE :
+                        {
+                            return mSlavePhaseName;
+                        }
+                        default :
+                        {
+                            MORIS_ERROR( false, "IWG::get_phase_name - aIsMaster can only be master or slave.");
+                            return mMasterPhaseName;
+                        }
+                    }
+                }
 
                 //------------------------------------------------------------------------------
                 /**
@@ -251,6 +382,32 @@ namespace moris
                  * set interpolation order for the residual dof type
                  */
                 void set_interpolation_order();
+
+                void set_interpolation_order( uint aOrder )
+                {
+                    // set order
+                    mOrder = aOrder;
+                }
+
+                //------------------------------------------------------------------------------
+                /**
+                 * set bulk type
+                 * @param[ in ] aBulkType element type for the IWG
+                 */
+                void set_bulk_type( fem::Element_Type aBulkType )
+                {
+                    mBulkType = aBulkType;
+                }
+
+                //------------------------------------------------------------------------------
+                /**
+                 * get bulk type
+                 * @param[ out ] mBulkType element type for the IWG
+                 */
+                fem::Element_Type get_bulk_type()
+                {
+                    return mBulkType;
+                }
 
                 //------------------------------------------------------------------------------
                 /**

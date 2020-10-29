@@ -574,9 +574,10 @@ namespace moris
             fem::IQI_Factory tIQIFactory;
 
             std::shared_ptr< fem::IQI > tIQITEMP = tIQIFactory.create_IQI( fem::IQI_Type::DOF );
+            tIQITEMP->set_quantity_dof_type( { MSI::Dof_Type::TEMP } );
             tIQITEMP->set_dof_type_list( { {MSI::Dof_Type::TEMP} }, mtk::Master_Slave::MASTER );
             tIQITEMP->set_output_type_index( 0 );
-			tIQITEMP->set_name( "IQI_Temp" );
+            tIQITEMP->set_name( "IQI_Temp" );
 
             // define set info
             fem::Set_User_Info tSetBulk1;
@@ -896,9 +897,10 @@ namespace moris
             fem::IQI_Factory tIQIFactory;
 
             std::shared_ptr< fem::IQI > tIQITEMP = tIQIFactory.create_IQI( fem::IQI_Type::DOF );
+            tIQITEMP->set_quantity_dof_type( { MSI::Dof_Type::TEMP } );
             tIQITEMP->set_dof_type_list( { { MSI::Dof_Type::TEMP} }, mtk::Master_Slave::MASTER );
             tIQITEMP->set_output_type_index( 0 );
-			tIQITEMP->set_name( "IQI_Temp" );
+            tIQITEMP->set_name( "IQI_Temp" );
 
             // define set info
             fem::Set_User_Info tSetBulk1;
@@ -972,11 +974,11 @@ namespace moris
             tParameterlist( 1 )(0) = moris::prm::create_linear_solver_parameter_list();
             tParameterlist( 2 )(0) = moris::prm::create_nonlinear_algorithm_parameter_list();
             tParameterlist( 3 )(0) = moris::prm::create_nonlinear_solver_parameter_list();
-            tParameterlist( 3 )(0).set("NLA_DofTypes"      , std::string("TEMP") );
+            tParameterlist( 3 )(0).set("NLA_DofTypes"      , "TEMP" );
 
             tParameterlist( 4 )(0) = moris::prm::create_time_solver_algorithm_parameter_list();
             tParameterlist( 5 )(0) = moris::prm::create_time_solver_parameter_list();
-            tParameterlist( 5 )(0).set("TSA_DofTypes"      , std::string("TEMP") );
+            tParameterlist( 5 )(0).set("TSA_DofTypes"      , "TEMP" );
 
             tParameterlist( 6 )(0) = moris::prm::create_solver_warehouse_parameterlist();
             tParameterlist( 6 )(0).set("SOL_TPL_Type"      , static_cast< uint >( sol::MapType::Petsc ) );
@@ -1258,11 +1260,11 @@ namespace moris
             tParameterlist( 1 )(0) = moris::prm::create_linear_solver_parameter_list();
             tParameterlist( 2 )(0) = moris::prm::create_nonlinear_algorithm_parameter_list();
             tParameterlist( 3 )(0) = moris::prm::create_nonlinear_solver_parameter_list();
-            tParameterlist( 3 )(0).set("NLA_DofTypes"      , std::string("TEMP") );
+            tParameterlist( 3 )(0).set("NLA_DofTypes"      , "TEMP" );
 
             tParameterlist( 4 )(0) = moris::prm::create_time_solver_algorithm_parameter_list();
             tParameterlist( 5 )(0) = moris::prm::create_time_solver_parameter_list();
-            tParameterlist( 5 )(0).set("TSA_DofTypes"      , std::string("TEMP") );
+            tParameterlist( 5 )(0).set("TSA_DofTypes"      , "TEMP" );
 
             tParameterlist( 6 )(0) = moris::prm::create_solver_warehouse_parameterlist();
             tParameterlist( 6 )(0).set("SOL_TPL_Type"      , static_cast< uint >( sol::MapType::Petsc ) );

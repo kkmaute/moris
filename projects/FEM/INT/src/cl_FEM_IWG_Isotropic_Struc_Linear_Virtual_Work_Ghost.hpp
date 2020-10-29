@@ -119,11 +119,12 @@ namespace moris
                 /**
                  * method to assemble "normal matrix" from normal vector needed for
                  * 2nd and 3rd order Ghost formulations
-                 * @param[ in ] aOrderGhost Order of derivatives and ghost formulation
+                 * @param[ in ] aFlatNormal flattened normal
+                 * @param[ in ] aOrder      order of derivatives and ghost formulation
                  */
-                void get_normal_matrix (
-                        uint               aOrderGhost,
-                        Matrix< DDRMat > & aNormalMatrix );
+                void get_flat_normal_matrix(
+                        Matrix< DDRMat > & aFlatNormal,
+                        uint               aOrder );
 
                 //------------------------------------------------------------------------------
         };

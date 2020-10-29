@@ -545,7 +545,7 @@ namespace xtk
 
         // if the vertex has interpolation then there is a potential that the t-matrices
         // are the same. If not we always construct a new interpolation vertex here
-        if(aBaseInterpVertex->has_interpolation(aMeshIndex+1))
+        if(aBaseInterpVertex->has_interpolation(aMeshIndex))
         {
             // iterate through the enriched vertices related to the base vertex and see if any are equal
             for(moris::uint i = 0; i < tNumVertsEnrOnBaseVert; i++)
@@ -1215,13 +1215,16 @@ namespace xtk
     {
 
         // size member data
-        mEnrichCoeffBulkPhase.resize(mMeshIndices.numel());
+        mEnrichCoeffBulkPhase.resize(mMeshIndices.max()+1);
 
         // verify all the subphases in a enriched basis support are the same bulk phase
         for(moris::size_t iMesh = 0; iMesh < mMeshIndices.numel(); iMesh++)
         {
+            // Mesh index
+            moris_index tMeshIndex = mMeshIndices(iMesh);
+
             // Number of enriched functions
-            moris::size_t tNumEnrBasis = mEnrichCoeffLocToGlob(iMesh).numel();
+            moris::size_t tNumEnrBasis = mEnrichCoeffLocToGlob(tMeshIndex).numel();
 
             // allocate interpolation cells in basis support
             moris::Cell<moris::Cell<Interpolation_Cell_Unzipped*>> tCellsInEnrSupports(tNumEnrBasis);
@@ -1240,9 +1243,9 @@ namespace xtk
 
                 for(moris::size_t iV = 0; iV < tVertices.size() ; iV++)
                 {
-                    if(tVertices(iV)->has_interpolation(mMeshIndices(iMesh)))
+                    if(tVertices(iV)->has_interpolation(tMeshIndex))
                     {
-                        Vertex_Enrichment * tVertInterp = tVertices(iV)->get_xtk_interpolation( mMeshIndices(iMesh) );
+                        Vertex_Enrichment * tVertInterp = tVertices(iV)->get_xtk_interpolation(tMeshIndex );
 
                         Matrix< IndexMat > tBasisIndices = tVertInterp->get_indices();
 
@@ -1256,8 +1259,8 @@ namespace xtk
             }
 
 
-            mEnrichCoeffBulkPhase(iMesh).resize(1,tNumEnrBasis);
-            mEnrichCoeffBulkPhase(iMesh).fill(MORIS_INDEX_MAX);
+            mEnrichCoeffBulkPhase(tMeshIndex).resize(1,tNumEnrBasis);
+            mEnrichCoeffBulkPhase(tMeshIndex).fill(MORIS_INDEX_MAX);
 
             // iterate through enriched basis functions
             for(moris::size_t i = 0; i<tNumEnrBasis; i++)
@@ -1276,12 +1279,12 @@ namespace xtk
 
                     if(iSP == 0)
                     {
-                        mEnrichCoeffBulkPhase(iMesh)(i) = tBulkPhase;
+                        mEnrichCoeffBulkPhase(tMeshIndex)(i) = tBulkPhase;
                     }
 
-                    if(tBulkPhase != mEnrichCoeffBulkPhase(iMesh)(i))
+                    if(tBulkPhase != mEnrichCoeffBulkPhase(tMeshIndex)(i))
                     {
-                        std::cout<<"tExpectedBulkPhase=  "<<mEnrichCoeffBulkPhase(iMesh)(iSP)<<" | tBulkPhase = "<< tBulkPhase <<std::endl;
+                        std::cout<<"tExpectedBulkPhase=  "<<mEnrichCoeffBulkPhase(tMeshIndex)(iSP)<<" | tBulkPhase = "<< tBulkPhase <<std::endl;
                         MORIS_ERROR(0,"Subphase in enriched basis function support not consistent bulkphase");
                     }
                 }
@@ -1349,8 +1352,10 @@ namespace xtk
         // verify all the subphases in a enriched basis support are the same bulk phase
         for(moris::size_t iMesh = 0; iMesh < mMeshIndices.numel(); iMesh++)
         {
+            moris_index tMeshIndex = mMeshIndices(iMesh);
+
             // Number of enriched functions
-            moris::size_t tNumEnrBasis = mEnrichCoeffLocToGlob(iMesh).numel();
+            moris::size_t tNumEnrBasis = mEnrichCoeffLocToGlob(tMeshIndex).numel();
 
             // allocate interpolation cells in basis support
             moris::Cell<moris::Cell<Interpolation_Cell_Unzipped*>> tCellsInEnrSupports(tNumEnrBasis);
@@ -1369,9 +1374,9 @@ namespace xtk
 
                 for(moris::size_t iV = 0; iV < tVertices.size() ; iV++)
                 {
-                    if(tVertices(iV)->has_interpolation(mMeshIndices(iMesh)))
+                    if(tVertices(iV)->has_interpolation(tMeshIndex))
                     {
-                        Vertex_Enrichment * tVertInterp = tVertices(iV)->get_xtk_interpolation( mMeshIndices(iMesh) );
+                        Vertex_Enrichment * tVertInterp = tVertices(iV)->get_xtk_interpolation( tMeshIndex );
 
                         Matrix< IndexMat > tBasisIndices = tVertInterp->get_indices();
 
@@ -1760,32 +1765,34 @@ namespace xtk
     Enriched_Interpolation_Mesh::setup_basis_ownership()
     {
         // size data
-        mEnrichCoeffOwnership.resize(mMeshIndices.numel());
+        mEnrichCoeffOwnership.resize(mMeshIndices.max()+1);
 
         // iterate through meshes
         for(moris::uint iM = 0; iM < mMeshIndices.numel(); iM++)
         {
-            mEnrichCoeffOwnership(iM).resize(1,mEnrichCoeffLocToGlob(iM).numel());
+            moris_index tMeshIndex = mMeshIndices(iM);
 
-            mEnrichCoeffOwnership(iM).fill(MORIS_INDEX_MAX);
+            mEnrichCoeffOwnership(tMeshIndex).resize(1,mEnrichCoeffLocToGlob(tMeshIndex).numel());
+
+            mEnrichCoeffOwnership(tMeshIndex).fill(MORIS_INDEX_MAX);
 
             // iterate through basis functions
-            for(moris::uint iB = 0; iB < mCoeffToEnrichCoeffs(iM).size(); iB++)
+            for(moris::uint iB = 0; iB < mCoeffToEnrichCoeffs(tMeshIndex).size(); iB++)
             {
-                moris_index tOwner = mXTKModel->get_background_mesh().get_mesh_data().get_entity_owner((moris_index)iB,mBasisRank, mMeshIndices(iM));
+                moris_index tOwner = mXTKModel->get_background_mesh().get_mesh_data().get_entity_owner((moris_index)iB,mBasisRank, tMeshIndex);
 
-                for(moris::uint iEB = 0; iEB < mCoeffToEnrichCoeffs(iM)(iB).numel(); iEB++)
+                for(moris::uint iEB = 0; iEB < mCoeffToEnrichCoeffs(tMeshIndex)(iB).numel(); iEB++)
                 {
-                    moris_index tEnrIndex = mCoeffToEnrichCoeffs(iM)(iB)(iEB);
-                    mEnrichCoeffOwnership(iM)(tEnrIndex) = tOwner;
+                    moris_index tEnrIndex = mCoeffToEnrichCoeffs(tMeshIndex)(iB)(iEB);
+                    mEnrichCoeffOwnership(tMeshIndex)(tEnrIndex) = tOwner;
 
                     if(tOwner != par_rank())
                     {
-                        mNotOwnedBasis.push_back(mEnrichCoeffLocToGlob(iM)(tEnrIndex));
+                        mNotOwnedBasis.push_back(mEnrichCoeffLocToGlob(tMeshIndex)(tEnrIndex));
                     }
                     else
                     {
-                        mOwnedBasis.push_back(mEnrichCoeffLocToGlob(iM)(tEnrIndex));
+                        mOwnedBasis.push_back(mEnrichCoeffLocToGlob(tMeshIndex)(tEnrIndex));
                     }
                 }
             }
@@ -1820,19 +1827,20 @@ namespace xtk
     Enriched_Interpolation_Mesh::setup_basis_maps()
     {
 
-        mGlobaltoLocalBasisMaps.resize(mMeshIndices.numel());
+        mGlobaltoLocalBasisMaps.resize(mMeshIndices.max()+1);
 
         // iterate through meshes
         for(moris::uint iM = 0; iM < mEnrichCoeffLocToGlob.size(); iM++)
         {
             for(moris::uint iB =0; iB <mEnrichCoeffLocToGlob(iM).numel(); iB++)
             {
+                
                 MORIS_ASSERT(mGlobaltoLocalBasisMaps(iM).find(mEnrichCoeffLocToGlob(iM)(iB)) == mGlobaltoLocalBasisMaps(iM).end(),
                         "Duplicate id in the basis map detected");
 
                 mGlobaltoLocalBasisMaps(iM)[mEnrichCoeffLocToGlob(iM)(iB)] = (moris_index) iB;
 
-                MORIS_ASSERT(this->get_enr_basis_index_from_enr_basis_id(mMeshIndices(iM),mEnrichCoeffLocToGlob(iM)(iB)) == (moris_index)iB,
+                MORIS_ASSERT(this->get_enr_basis_index_from_enr_basis_id(iM,mEnrichCoeffLocToGlob(iM)(iB)) == (moris_index)iB,
                         "Issue setting up the basis map");
             }
         }
@@ -1867,12 +1875,10 @@ namespace xtk
     void
     Enriched_Interpolation_Mesh::setup_mesh_index_map()
     {
-        for(moris::uint i =0; i <mMeshIndices.numel(); i++)
+        for(moris::uint i =0; i < (uint)mMeshIndices.max()+1; i++)
         {
-            MORIS_ASSERT(mMeshIndexToLocMeshIndex.find(mMeshIndices(i)) == mMeshIndexToLocMeshIndex.end(),
-                    "Duplicate id in the mesh index map detected");
 
-            mMeshIndexToLocMeshIndex[mMeshIndices(i)] = i;
+            mMeshIndexToLocMeshIndex[ i ] = i;
         }
     }
 
@@ -1925,7 +1931,7 @@ namespace xtk
 
     uint Enriched_Interpolation_Mesh::get_num_interpolations()
     {
-        return mMeshIndices.numel();
+        return mMeshIndices.max()+1;
     }
 
     // ----------------------------------------------------------------------------

@@ -324,8 +324,8 @@ namespace moris
         tParameterList( 1 )( tCMCounter ).set( "dof_dependencies",  std::pair< std::string, std::string >( "TEMP", "Temperature" ) );
         tParameterList( 1 )( tCMCounter ).set( "properties",
                 "PropConductivity,Conductivity;"
-				"PropDensity     ,Density;"
-				"PropCapacity    ,HeatCapacity") ;
+                "PropDensity     ,Density;"
+                "PropCapacity    ,HeatCapacity") ;
         tCMCounter++;
 
         //------------------------------------------------------------------------------
@@ -413,6 +413,7 @@ namespace moris
         tParameterList( 4 ).push_back( prm::create_IQI_parameter_list() );
         tParameterList( 4 )( tIQICounter ).set( "IQI_name",                   "IQIBulkTEMP") ;
         tParameterList( 4 )( tIQICounter ).set( "IQI_type",                   static_cast< uint >( fem::IQI_Type::DOF ) );
+        tParameterList( 4 )( tIQICounter ).set( "dof_quantity",               "TEMP");
         tParameterList( 4 )( tIQICounter ).set( "master_dof_dependencies",    "TEMP") ;
         tParameterList( 4 )( tIQICounter ).set( "vectorial_field_index",      0 );
         tParameterList( 4 )( tIQICounter ).set( "mesh_set_names",             "HMR_dummy_n_p160,HMR_dummy_c_p160") ;

@@ -203,11 +203,11 @@ void check_linear_results_serial()
     else
     {
         MORIS_LOG_INFO("Check number of dimensions: reference %12d, actual %12d, prec. error %12.5e.",2,tNumDims,std::abs((tNumDims-2)/2*100.0));
-        MORIS_LOG_INFO("Check number of nodes:      reference %12d, actual %12d, perc. error %12.5e.",5864,tNumNodes,std::abs((tNumNodes-5864)/5864*100.0));
-        MORIS_LOG_INFO("Check number of elements:   reference %12d, actual %12d, perc. error %12.5e.",5864,tNumElems,std::abs((tNumElems-5754)/5754*100.0));
+        MORIS_LOG_INFO("Check number of nodes:      reference %12d, actual %12d, perc. error %12.5e.",6728,tNumNodes,std::abs((tNumNodes-5864)/5864*100.0));
+        MORIS_LOG_INFO("Check number of elements:   reference %12d, actual %12d, perc. error %12.5e.",5754,tNumElems,std::abs((tNumElems-5754)/5754*100.0));
 
         REQUIRE( tNumDims  ==  2    );
-        REQUIRE( tNumNodes ==  5864 );
+        REQUIRE( tNumNodes ==  6728 );
         REQUIRE( tNumElems ==  5754 );
     }
 
@@ -244,11 +244,11 @@ void check_linear_results_parallel()
     else
     {
         MORIS_LOG_INFO("Check number of dimensions: reference %12d, actual %12d, prec. error %12.5e.",2,tNumDims,std::abs((tNumDims-2)/2*100.0));
-        MORIS_LOG_INFO("Check number of nodes:      reference %12d, actual %12d, perc. error %12.5e.",5864,tNumNodes,std::abs((tNumNodes-3797)/3797*100.0));
-        MORIS_LOG_INFO("Check number of elements:   reference %12d, actual %12d, perc. error %12.5e.",5864,tNumElems,std::abs((tNumElems-3714)/3714*100.0));
+        MORIS_LOG_INFO("Check number of nodes:      reference %12d, actual %12d, perc. error %12.5e.",4359,tNumNodes,std::abs((tNumNodes-3797)/3797*100.0));
+        MORIS_LOG_INFO("Check number of elements:   reference %12d, actual %12d, perc. error %12.5e.",3714,tNumElems,std::abs((tNumElems-3714)/3714*100.0));
 
         REQUIRE( tNumDims  ==  2    );
-        REQUIRE( tNumNodes ==  3797 );
+        REQUIRE( tNumNodes ==  4359 );
         REQUIRE( tNumElems ==  3714 );
     }
 
@@ -284,11 +284,11 @@ void check_quadratic_results_serial()
     else
     {
         MORIS_LOG_INFO("Check number of dimensions: reference %12d, actual %12d, prec. error %12.5e.",2,tNumDims,std::abs((tNumDims-2)/2*100.0));
-        MORIS_LOG_INFO("Check number of nodes:      reference %12d, actual %12d, perc. error %12.5e.",17847,tNumNodes,std::abs((tNumNodes-17847)/17847*100.0));
-        MORIS_LOG_INFO("Check number of elements:   reference %12d, actual %12d, perc. error %12.5e.",5864,tNumElems,std::abs((tNumElems-6573)/6573*100.0));
+        MORIS_LOG_INFO("Check number of nodes:      reference %12d, actual %12d, perc. error %12.5e.",18711,tNumNodes,std::abs((tNumNodes-17847)/17847*100.0));
+        MORIS_LOG_INFO("Check number of elements:   reference %12d, actual %12d, perc. error %12.5e.",6573,tNumElems,std::abs((tNumElems-6573)/6573*100.0));
 
         REQUIRE( tNumDims  ==  2     );
-        REQUIRE( tNumNodes ==  17847 );
+        REQUIRE( tNumNodes ==  18711 );
         REQUIRE( tNumElems ==  6573  );
     }
 
@@ -325,11 +325,11 @@ void check_quadratic_results_parallel()
     else
     {
         MORIS_LOG_INFO("Check number of dimensions: reference %12d, actual %12d, prec. error %12.5e.",2,tNumDims,std::abs((tNumDims-2)/2*100.0));
-        MORIS_LOG_INFO("Check number of nodes:      reference %12d, actual %12d, perc. error %12.5e.",17847,tNumNodes,std::abs((tNumNodes-11503)/11503*100.0));
-        MORIS_LOG_INFO("Check number of elements:   reference %12d, actual %12d, perc. error %12.5e.",5864,tNumElems,std::abs((tNumElems-4233)/4233*100.0));
+        MORIS_LOG_INFO("Check number of nodes:      reference %12d, actual %12d, perc. error %12.5e.",12065,tNumNodes,std::abs((tNumNodes-11503)/11503*100.0));
+        MORIS_LOG_INFO("Check number of elements:   reference %12d, actual %12d, perc. error %12.5e.",4233,tNumElems,std::abs((tNumElems-4233)/4233*100.0));
 
         REQUIRE( tNumDims  ==  2     );
-        REQUIRE( tNumNodes ==  11503 );
+        REQUIRE( tNumNodes ==  12065 );
         REQUIRE( tNumElems ==  4233  );
     }
 
