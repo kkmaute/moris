@@ -296,7 +296,9 @@ set(LIB_SOURCES
     cl_FEM_CM_Fluid_Incompressible.cpp
     cl_FEM_CM_Fluid_Turbulence.cpp
     cl_FEM_CM_Fluid_Compressible_Ideal.cpp
+    cl_FEM_CM_Fluid_Compressible_Ideal_Test_Tractions.cpp
     cl_FEM_CM_Fluid_Compressible_Van_der_Waals.cpp
+    cl_FEM_CM_Fluid_Compressible_Van_der_Waals_Test_Tractions.cpp
     
     cl_FEM_Stabilization_Parameter.cpp
     cl_FEM_SP_Factory.cpp
