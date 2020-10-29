@@ -109,8 +109,6 @@ namespace moris
 
     int tRefineBuffer      = 1;
 
-    int tInterfaceRefinement = 0;
-
     /* ------------------------------------------------------------------------ */
     // Solver config
 
@@ -298,7 +296,6 @@ namespace moris
         // Geometry parameter lists
         tParameterlist( 1 ).push_back( prm::create_user_defined_geometry_parameter_list() );
         tParameterlist( 1 )( tGeoCounter ).set( "field_function_name",       "Inclusion" );
-        tParameterlist( 1 )( tGeoCounter ).set( "number_of_refinements",      tInterfaceRefinement );
     }
 
     void FEMParameterList( moris::Cell< moris::Cell< ParameterList > > & tParameterList )
