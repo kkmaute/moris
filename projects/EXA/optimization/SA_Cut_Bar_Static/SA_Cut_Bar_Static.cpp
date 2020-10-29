@@ -89,17 +89,17 @@ namespace moris
 
     // Bulk sets
     std::string tFinBulk = "HMR_dummy_n_p3,HMR_dummy_c_p3";
-    std::string tPcmBulk = "HMR_dummy_n_p1,HMR_dummy_c_p1";
+    std::string tPcmBulk = "HMR_dummy_n_p2,HMR_dummy_c_p2";
     std::string tTotalDomain = tFinBulk + "," + tPcmBulk;
 
     // Side sets
-    std::string tFinPcmInterface  = "dbl_iside_p0_3_p1_1";
+    std::string tFinPcmInterface  = "dbl_iside_p0_3_p1_2";
     std::string tFinNeumannInterface  = "SideSet_3_n_p3,SideSet_3_c_p3";
-    std::string tPCMDirichletInterface = "SideSet_1_n_p1,SideSet_1_c_p1";
+    std::string tPCMDirichletInterface = "SideSet_1_n_p2,SideSet_1_c_p2";
 
     // Ghost sets
     std::string tFinGhost = "ghost_p3";
-    std::string tPcmGhost = "ghost_p1";
+    std::string tPcmGhost = "ghost_p2";
 
     // HMR parameters -------------------------------------------------
     std::string tNumElemsPerDim = "1, 40";
