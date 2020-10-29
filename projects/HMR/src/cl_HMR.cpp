@@ -720,6 +720,8 @@ namespace moris
                     aPattern );
         }
 
+        // -----------------------------------------------------------------------------
+
         std::shared_ptr< Mesh > HMR::create_mesh(
                 const uint & aLagrangeOrder,
                 const uint & aLagrangePattern,
@@ -732,10 +734,14 @@ namespace moris
                     aBsplinePattern );
         }
 
+        // -----------------------------------------------------------------------------
+
         Interpolation_Mesh_HMR * HMR::create_interpolation_mesh( const uint & aLagrangeMeshIndex)
         {
             return new Interpolation_Mesh_HMR( mDatabase, aLagrangeMeshIndex );
         }
+
+        // -----------------------------------------------------------------------------
 
         Interpolation_Mesh_HMR * HMR::create_interpolation_mesh(
                 const uint & aLagrangeOrder,
