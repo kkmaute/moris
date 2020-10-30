@@ -1760,8 +1760,9 @@ namespace xtk
     void
     Child_Mesh::mark_interface_faces_from_interface_coincident_faces()
     {
-        if(mHasCoincidentEdges)
+        if(mHasCoincidentEdges && mSpatialDimension == 3)
         {
+            // do it differently in 3d because it is a more involved process
             uint tNumElements         = this->get_num_entities(EntityRank::ELEMENT);
             uint tNumEdgesPerElem     = mElementToEdge.n_cols();
             uint tNumFacesPerElem     = mElementToFace.n_cols();
@@ -1822,6 +1823,31 @@ namespace xtk
                     }
                 }
                 tFaceCounter.fill(0);
+            }
+        }
+
+        else if(mHasCoincidentEdges && mSpatialDimension == 2)
+        {
+            moris::Matrix< moris::IndexMat > const tEdgeToElem = this->get_edge_to_element();
+            moris_index tGeomIndex = mGeometryIndex.size()-1;
+            moris::moris_index tDummy = std::numeric_limits<moris::moris_index>::max();
+
+            // iterate through edges on interface
+            for(moris::uint iEdge = 0; iEdge < mEdgeOnInterface.numel(); iEdge++ )
+            {
+                if(mEdgeOnInterface(iEdge) == 1)
+                {
+                    for(uint i = 0; i <tEdgeToElem.n_cols(); i++)
+                    {
+                        if(tEdgeToElem(iEdge,i) ==  tDummy)
+                        {
+                            break;
+                        }
+                        moris::moris_index tElemInd = tEdgeToElem(iEdge,i);
+                        moris::moris_index tEdgeOrd = this->get_edge_ordinal_from_element_and_edge_indices(tElemInd,iEdge);
+                        mElementInterfaceSides(tElemInd,tGeomIndex) = tEdgeOrd;
+                    }
+                }
             }
         }
 
@@ -3098,6 +3124,47 @@ namespace xtk
                     tNumNewElem = tNumNewElem + tTemplatesToAdd(tNumIntersected).mNumNewElem - tTemplatesToAdd(tNumIntersected).mNumElemToReplace;
                     tNumIntersected++;
 
+                }
+                else if(mIntersectConnectivity(iE,0) == 1)
+                {
+                    std::cout<<"CONFORMAL Coincident"<<std::endl;
+                    auto tIntersectConnRow =  mIntersectConnectivity.get_row(iE);
+
+                    // edge 0
+                    moris_index tEdge0 = tIntersectConnRow(4);
+
+                    moris::Matrix< moris::IndexMat > tEdgeOrdinals = this->get_edge_ordinal_from_element_and_edge_indices(iE,{{tEdge0}});
+
+                    moris::size_t tPermutationId = tEdgeOrdinals(0)+10;
+
+                    std::cout<<"tPermutationId= "<<tPermutationId<<std::endl;
+
+                    // Get parent element information
+                    moris::Matrix< moris::IndexMat > tElementsAncestry({{mParentElementIndex}}); // Not used
+                    moris::Matrix< moris::IndexMat > tParentEdgeInds  = mElementEdgeParentInds.get_row(iE);
+                    moris::Matrix< moris::DDSTMat >  tParentEdgeRanks = mElementEdgeParentRanks.get_row(iE);
+
+                    // get nodes on this (proc indices)
+                    moris::Matrix<moris::IndexMat> tNodesInTemplate(1,4);
+                    tNodesInTemplate({0,0},{0,2}) = this->get_element_to_node().get_row(iE);
+                    tNodesInTemplate(3) = mNodeInds(tIntersectConnRow(1));
+
+                    // Setup template with this information
+                    tTemplatesToAdd(tNumIntersected) = Mesh_Modification_Template
+                            (tElementsAncestry(0,0),
+                                    iE,
+                                    tNodesInTemplate,
+                                    tParentEdgeInds,
+                                    tParentEdgeRanks,
+                                    {{}},
+                                    {{}},
+                                    TemplateType::CONFORMAL_TRI3,
+                                    tPermutationId);
+
+                    // Increment the count of number of intersected elements and number of new elements
+                    tNumNewElem = tNumNewElem + tTemplatesToAdd(tNumIntersected).mNumNewElem - tTemplatesToAdd(tNumIntersected).mNumElemToReplace;
+                    tNumIntersected++;
+                    
                 }
                 else if(mIntersectConnectivity(iE,0) == 0)
                 {

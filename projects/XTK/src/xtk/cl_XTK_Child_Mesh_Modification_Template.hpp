@@ -338,7 +338,7 @@ private:
 
         switch(aPermutation)
         {
-            case(1):
+            case 1:
             {
                 mElementTopology          = CellTopology::TRI3;
                 mNewElementToNode         = {{0, 3, 2},{3,1,4},{3,4,2}};
@@ -349,7 +349,7 @@ private:
                 mNewElementInterfaceSides = {{tMax},{2},{0}};
                 break;
             }
-            case(2):
+            case 2:
             {
                 mElementTopology          = CellTopology::TRI3;
                 mNewElementToNode         = {{0,3,4},{3,2,4},{3,1,2}};
@@ -360,7 +360,7 @@ private:
                 mNewElementInterfaceSides = {{1},{2},{tMax}};
                 break;
             }
-            case(3):
+            case 3:
             {
                 mElementTopology          = CellTopology::TRI3;
                 mNewElementToNode         = {{0,1,3},{0,3,4},{3,2,4}};
@@ -369,6 +369,39 @@ private:
                 mNewParentEdgeRanks       = {{1,1,3},{3,3,1},{1,1,3}};
                 mNewParentEdgeOrdinals    = {{0,1,0},{0,0,2},{1,2,0}};
                 mNewElementInterfaceSides = {{tMax},{1},{2}};
+                break;
+            }
+            case 10:
+            {
+                mElementTopology          = CellTopology::TRI3;
+                mNewElementToNode         = {{0,3,2},{3,1,2}};
+                mNumNewElem               = 2;
+                mNumElemToReplace         = 1;
+                mNewParentEdgeRanks       = {{1,3,1},{1,1,3}};
+                mNewParentEdgeOrdinals    = {{0,0,2},{0,1,0}};
+                mNewElementInterfaceSides = {{1},{2}};
+                break;
+            }
+            case 11:
+            {
+                mElementTopology          = CellTopology::TRI3;
+                mNewElementToNode         = {{0,1,3},{0,3,2}};
+                mNumNewElem               = 2;
+                mNumElemToReplace         = 1;
+                mNewParentEdgeRanks       = {{1,1,3},{3,1,1}};
+                mNewParentEdgeOrdinals    = {{0,1,0},{0,1,2}};
+                mNewElementInterfaceSides = {{2},{0}};
+                break;
+            }
+            case 12:
+            {
+                mElementTopology          = CellTopology::TRI3;
+                mNewElementToNode         = {{0,1,3},{1,2,3}};
+                mNumNewElem               = 2;
+                mNumElemToReplace         = 1;
+                mNewParentEdgeRanks       = {{1,3,1},{1,1,3}};
+                mNewParentEdgeOrdinals    = {{0,0,2},{1,2,0}};
+                mNewElementInterfaceSides = {{1},{2}};
                 break;
             }
             default:

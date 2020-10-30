@@ -1,6 +1,8 @@
 #ifndef MORIS_CL_Geometric_Proximity_HPP_
 #define MORIS_CL_Geometric_Proximity_HPP_
 
+#include "cl_Matrix.hpp"
+#include "typedefs.hpp"
 namespace moris
 {
     namespace ge
@@ -8,25 +10,18 @@ namespace moris
         class Geometric_Proximity
         {
             public:
-            Geometric_Proximity(){};
-            Geometric_Proximity(moris_index const & aNumGeometries)
-            :mAssociatedVertexIndex(MORIS_INDEX_MAX),
-             mGeometricProximity(1,aNumGeometries,MORIS_INDEX_MAX)
-            {};
-            ~Geometric_Proximity(){};
+            Geometric_Proximity();
+
+            Geometric_Proximity(moris_index const & aNumGeometries);
+
+            ~Geometric_Proximity();
 
             void
-            set_geometric_proximity(moris_index aGeometricProximity, moris_index aGeometryIndex)
-            {
-                MORIS_ASSERT(aGeometryIndex < mGeometricProximity.numel(), "Geometry index out of bounds");
-                mGeometricProximity(aGeometryIndex) = aGeometricProximity;
-            }
+            set_geometric_proximity(moris_index aGeometricProximity, moris_index aGeometryIndex);
+
 
             moris_index
-            get_geometric_proximity(moris_index aGeometryIndex)
-            {
-                return mGeometricProximity(aGeometryIndex);
-            }
+            get_geometric_proximity(moris_index aGeometryIndex);
 
             moris_index mAssociatedVertexIndex;
 

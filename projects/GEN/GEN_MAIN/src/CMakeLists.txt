@@ -106,6 +106,7 @@ set(LIB_SOURCES
 	cl_GEN_Field.cpp
 	cl_GEN_Field_Analytic.cpp
 	cl_GEN_Field_Discrete.cpp
+    cl_GEN_Geometric_Proximity.cpp
 
 	pdv/cl_GEN_Pdv_Host_Manager.cpp
 	pdv/cl_GEN_Interpolation_Pdv_Host.cpp
