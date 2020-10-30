@@ -176,7 +176,6 @@ namespace moris
                 moris::Cell< bool > mdConstdDofEval;
                 moris::Cell< bool > mdConstdDvEval;
 
-
                 //------------------------------------------------------------------------------
             public :
 
@@ -193,32 +192,22 @@ namespace moris
                 virtual ~Constitutive_Model(){};
 
                 //------------------------------------------------------------------------------
+                /**
+                 * set property
+                 * @param[ in ] aProperty       property shared pointer to set
+                 * @param[ in ] aPropertyString string describing the property to set
+                 */
                 void set_property(
                         std::shared_ptr< fem::Property > aProperty,
-                        std::string                      aPropertyString )
-                {
-                    // check that aPropertyString makes sense
-                    MORIS_ERROR( mPropertyMap.find( aPropertyString ) != mPropertyMap.end(),
-                            "Constitutive_Model::set_property - Unknown aPropertyString : %s \n",
-                            aPropertyString.c_str() );
-
-                    // set the property in the property cell
-                    mProperties( mPropertyMap[ aPropertyString ] ) = aProperty;
-                }
+                        std::string                      aPropertyString );
 
                 //------------------------------------------------------------------------------
-
-                std::shared_ptr< fem::Property > get_property(
-                        std::string aPropertyString )
-                {
-                    // check that aPropertyString makes sense
-                    MORIS_ERROR( mPropertyMap.find( aPropertyString ) != mPropertyMap.end(),
-                            "Constitutive_Model::set_property - Unknown aPropertyString : %s \n",
-                            aPropertyString.c_str() );
-
-                    // get the property in the property cell
-                    return  mProperties( mPropertyMap[ aPropertyString ] );
-                }
+                /**
+                 * get property
+                 * @param[ in ]  aPropertyString string describing the property to get
+                 * @param[ out ] aProperty       property shared pointer
+                 */
+                std::shared_ptr< fem::Property > get_property( std::string aPropertyString );
 
                 //------------------------------------------------------------------------------
                 /**

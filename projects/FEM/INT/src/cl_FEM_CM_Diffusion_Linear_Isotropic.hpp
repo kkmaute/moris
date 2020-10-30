@@ -109,7 +109,6 @@ namespace moris
                  */
                 virtual void eval_gradEnergy();
 
-
                 //------------------------------------------------------------------------------
                 /**
                  * evaluates the constitutive model change rate of spatial gradient of enthalpy (needed for GGLS-stabilization)

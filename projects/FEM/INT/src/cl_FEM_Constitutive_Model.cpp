@@ -106,6 +106,35 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
+        void Constitutive_Model::set_property(
+                std::shared_ptr< fem::Property > aProperty,
+                std::string                      aPropertyString )
+        {
+            // check that aPropertyString makes sense
+            MORIS_ERROR( mPropertyMap.find( aPropertyString ) != mPropertyMap.end(),
+                    "Constitutive_Model::set_property - Unknown aPropertyString : %s \n",
+                    aPropertyString.c_str() );
+
+            // set the property in the property cell
+            mProperties( mPropertyMap[ aPropertyString ] ) = aProperty;
+        }
+
+        //------------------------------------------------------------------------------
+
+        std::shared_ptr< fem::Property > Constitutive_Model::get_property(
+                std::string aPropertyString )
+        {
+            // check that aPropertyString makes sense
+            MORIS_ERROR( mPropertyMap.find( aPropertyString ) != mPropertyMap.end(),
+                    "Constitutive_Model::set_property - Unknown aPropertyString : %s \n",
+                    aPropertyString.c_str() );
+
+            // get the property in the property cell
+            return  mProperties( mPropertyMap[ aPropertyString ] );
+        }
+
+        //------------------------------------------------------------------------------
+
         void Constitutive_Model::build_dof_type_map()
         {
             // get number of dof types
