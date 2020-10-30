@@ -14,6 +14,7 @@
 #include "cl_GEN_Property.hpp"
 #include "cl_GEN_Phase_Table.hpp"
 #include "pdv/cl_GEN_Pdv_Host_Manager.hpp"
+#include "cl_GEN_Geometric_Proximity.hpp"
 #include "cl_GEN_Pdv_Enums.hpp"
 
 // MTK
@@ -93,6 +94,13 @@ namespace moris
 
             // Phase Table
             Phase_Table mPhaseTable;
+
+            // Keeps track of a vertex proximity to each geometry ( NumVerts x NumGeometries)
+            // 0 - G(x) < threshold
+            // 1 - G(x) == threshold
+            // 2 - G(x) > threshold
+            // Max not set
+            Cell<Geometric_Proximity> mVertexGeometricProximity;
 
         public:
 
@@ -441,6 +449,30 @@ namespace moris
              * Initialize the PDV type list.
              */
             void initialize_pdv_type_list();
+
+            /**
+             * Setup initial geometric proximities
+             */ 
+            void
+            setup_initial_geometric_proximities(mtk::Interpolation_Mesh* aMesh);
+
+            /*
+            *   Return the geometric proximity index. Converts from a double value to a index
+            */
+            moris_index
+            get_geometric_proximity_index(moris::real const & aGeometricVal);
+
+            /*
+            * Determine the intersection vertex proximity
+            */
+           moris_index
+           get_queued_intersection_geometric_proximity_index(moris_index const & aGeomIndex);
+
+            /**
+             * Admit the proximity information for an interface vertex
+             */
+            void
+            admit_queued_intersection_geometric_proximity(uint aNodeIndex);
         };
     }
 }
