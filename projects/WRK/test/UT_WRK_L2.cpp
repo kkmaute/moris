@@ -72,16 +72,16 @@ TEST_CASE("WRK L2 test","[WRK_L2_test]")
          //----- HRM parameter list --------
 
          ParameterList tParameters = prm::create_hmr_parameter_list();
-         tParameters.set( "number_of_elements_per_dimension", std::string("4,4"));
-         tParameters.set( "domain_dimensions",                std::string("4,4"));
-         tParameters.set( "domain_offset",                    std::string("-2.0,-2.0") );
-         tParameters.set( "domain_sidesets",                  std::string("1,2,3,4"));
-         tParameters.set( "lagrange_output_meshes",           std::string("0") );
-         tParameters.set( "lagrange_orders",                  std::string("2"));
-         tParameters.set( "lagrange_pattern",                 std::string("0") );
-         tParameters.set( "bspline_orders",                   std::string("1"));
-         tParameters.set( "bspline_pattern",                 std::string("0"));
-         tParameters.set( "lagrange_to_bspline",              std::string("0,-1") );
+         tParameters.set( "number_of_elements_per_dimension", "4,4");
+         tParameters.set( "domain_dimensions",                "4,4");
+         tParameters.set( "domain_offset",                    "-2.0,-2.0" );
+         tParameters.set( "domain_sidesets",                  "1,2,3,4");
+         tParameters.set( "lagrange_output_meshes",           "0" );
+         tParameters.set( "lagrange_orders",                  "2");
+         tParameters.set( "lagrange_pattern",                 "0" );
+         tParameters.set( "bspline_orders",                   "1");
+         tParameters.set( "bspline_pattern",                 "0");
+         tParameters.set( "lagrange_to_bspline",              "0,-1" );
          tParameters.set( "truncate_bsplines", 1 );
          tParameters.set( "refinement_buffer", 2 );
          tParameters.set( "staircase_buffer", 2 );
@@ -106,16 +106,17 @@ TEST_CASE("WRK L2 test","[WRK_L2_test]")
          tParameterLists(1)(0).set("geometry_variable_indices", "0, 2");
          tParameterLists(1)(0).set("adv_indices", "0, 1");
          tParameterLists(1)(0).set("constant_parameters", "1.0");
-         tParameterLists(1)(0).set("number_of_refinements", 2);
+         tParameterLists( 1 )( 0 ).set( "number_of_refinements", "2");
+         tParameterLists( 1 )( 0 ).set( "refinement_mesh_index", "0");
 
          //----- XTK parameter list --------
 
          ParameterList tParametersXTK = prm::create_xtk_parameter_list();
          tParametersXTK.set( "decompose",                 true );
-         tParametersXTK.set( "decomposition_type",        std::string("conformal") );
+         tParametersXTK.set( "decomposition_type",        "conformal" );
          tParametersXTK.set( "enrich",                    true );
-         tParametersXTK.set( "basis_rank",                std::string("bspline") );
-         tParametersXTK.set( "enrich_mesh_indices",       std::string("0,1") );
+         tParametersXTK.set( "basis_rank",                "bspline" );
+         tParametersXTK.set( "enrich_mesh_indices",       "0,1" );
          tParametersXTK.set( "ghost_stab",                false );
          tParametersXTK.set( "multigrid",                 false );
          tParametersXTK.set( "verbose",                   true );

@@ -86,12 +86,14 @@ TEST_CASE( "IWG_Elast_VWGhost", "[moris],[fem],[IWG_Elast_VWGhost]" )
     tCMMasterElastLinIso->set_dof_type_list( tDofTypes );
     tCMMasterElastLinIso->set_property( tPropMasterYoungModulus, "YoungsModulus" );
     tCMMasterElastLinIso->set_property( tPropMasterPoissonRatio, "PoissonRatio" );
+    tCMMasterElastLinIso->set_local_properties();
 
     std::shared_ptr< fem::Constitutive_Model > tCMSlaveElastLinIso =
             tCMFactory.create_CM( fem::Constitutive_Type::STRUC_LIN_ISO );
     tCMSlaveElastLinIso->set_dof_type_list( tDofTypes );
     tCMSlaveElastLinIso->set_property( tPropSlaveYoungModulus, "YoungsModulus" );
     tCMSlaveElastLinIso->set_property( tPropSlavePoissonRatio, "PoissonRatio" );
+    tCMSlaveElastLinIso->set_local_properties();
 
     // define stabilization parameters
       fem::SP_Factory tSPFactory;

@@ -224,6 +224,7 @@ TEST_CASE("MDL Input","[MDL_Input]")
         std::shared_ptr< fem::Constitutive_Model > tCMDiffLinIso = tCMFactory.create_CM( fem::Constitutive_Type::DIFF_LIN_ISO );
         tCMDiffLinIso->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} ); // FIXME through the factory?
         tCMDiffLinIso->set_property( tPropConductivity, "Conductivity" );
+        tCMDiffLinIso->set_local_properties();
 
         // define the IWGs
         fem::IWG_Factory tIWGFactory;
@@ -388,24 +389,24 @@ TEST_CASE("MDL Input","[MDL_Input]")
 //
 //        // create parameter list for property 1
 //        tParameterList( 0 )( 0 ) = prm::create_property_parameter_list();
-//        tParameterList( 0 )( 0 ).set( "property_name",       std::string("PropertyConductivity") );
-//        tParameterList( 0 )( 0 ).set( "dof_dependencies",    std::string("TEMP") );
-//        tParameterList( 0 )( 0 ).set( "function_parameters", std::string("1.0") );
-//        tParameterList( 0 )( 0 ).set( "value_function",      std::string("Func1") );
+//        tParameterList( 0 )( 0 ).set( "property_name",       "PropertyConductivity" );
+//        tParameterList( 0 )( 0 ).set( "dof_dependencies",    "TEMP" );
+//        tParameterList( 0 )( 0 ).set( "function_parameters", "1.0" );
+//        tParameterList( 0 )( 0 ).set( "value_function",      "Func1" );
 //
 //        // create parameter list for property 2
 //        tParameterList( 0 )( 1 ) = prm::create_property_parameter_list();
-//        tParameterList( 0 )( 1 ).set( "property_name",       std::string("PropertyDirichlet") );
-//        tParameterList( 0 )( 1 ).set( "dof_dependencies",    std::string("TEMP") );
-//        tParameterList( 0 )( 1 ).set( "function_parameters", std::string("5.0") );
-//        tParameterList( 0 )( 1 ).set( "value_function",      std::string("Func1") );
+//        tParameterList( 0 )( 1 ).set( "property_name",       "PropertyDirichlet" );
+//        tParameterList( 0 )( 1 ).set( "dof_dependencies",    "TEMP" );
+//        tParameterList( 0 )( 1 ).set( "function_parameters", "5.0" );
+//        tParameterList( 0 )( 1 ).set( "value_function",      "Func1" );
 //
 //        // create parameter list for property 2
 //        tParameterList( 0 )( 2 ) = prm::create_property_parameter_list();
-//        tParameterList( 0 )( 2 ).set( "property_name",       std::string("PropertyNeumann") );
-//        tParameterList( 0 )( 2 ).set( "dof_dependencies",    std::string("TEMP") );
-//        tParameterList( 0 )( 2 ).set( "function_parameters", std::string("20.0") );
-//        tParameterList( 0 )( 2 ).set( "value_function",      std::string("Func1") );
+//        tParameterList( 0 )( 2 ).set( "property_name",       "PropertyNeumann" );
+//        tParameterList( 0 )( 2 ).set( "dof_dependencies",    "TEMP" );
+//        tParameterList( 0 )( 2 ).set( "function_parameters", "20.0" );
+//        tParameterList( 0 )( 2 ).set( "value_function",      "Func1" );
 //
 //        //------------------------------------------------------------------------------
 //        // fill the constitutive model part of the parameter list
@@ -414,10 +415,10 @@ TEST_CASE("MDL Input","[MDL_Input]")
 //
 //        // create parameter list for constitutive model 1
 //        tParameterList( 1 )( 0 ) = prm::create_constitutive_model_parameter_list();
-//        tParameterList( 1 )( 0 ).set( "constitutive_name", std::string("CMDiffusion") );
+//        tParameterList( 1 )( 0 ).set( "constitutive_name", "CMDiffusion" );
 //        tParameterList( 1 )( 0 ).set( "constitutive_type", static_cast< uint >( fem::Constitutive_Type::DIFF_LIN_ISO ) );
-//        tParameterList( 1 )( 0 ).set( "dof_dependencies",  std::pair< std::string, std::string >( std::string("TEMP"), std::string("Temperature") ) );
-//        tParameterList( 1 )( 0 ).set( "properties",        std::string("PropertyConductivity,Conductivity") );
+//        tParameterList( 1 )( 0 ).set( "dof_dependencies",  std::pair< std::string, std::string >( "TEMP"), std::string("Temperature" ) );
+//        tParameterList( 1 )( 0 ).set( "properties",        "PropertyConductivity,Conductivity" );
 //
 //        //------------------------------------------------------------------------------
 //        // fill the stabilization parameter part of the parameter list
@@ -426,10 +427,10 @@ TEST_CASE("MDL Input","[MDL_Input]")
 //
 //        // create parameter list for stabilization parameter 1
 //        tParameterList( 2 )( 0 ) = prm::create_stabilization_parameter_parameter_list();
-//        tParameterList( 2 )( 0 ).set( "stabilization_name",  std::string("SPDirichlet") );
+//        tParameterList( 2 )( 0 ).set( "stabilization_name",  "SPDirichlet" );
 //        tParameterList( 2 )( 0 ).set( "stabilization_type",  static_cast< uint >( fem::Stabilization_Type::DIRICHLET_NITSCHE ) );
-//        tParameterList( 2 )( 0 ).set( "function_parameters", std::string("1.0") );
-//        tParameterList( 2 )( 0 ).set( "master_properties",   std::string("PropertyConductivity,Material") );
+//        tParameterList( 2 )( 0 ).set( "function_parameters", "1.0" );
+//        tParameterList( 2 )( 0 ).set( "master_properties",   "PropertyConductivity,Material" );
 //
 //        //------------------------------------------------------------------------------
 //        // fill the IWG part of the parameter list
@@ -438,32 +439,32 @@ TEST_CASE("MDL Input","[MDL_Input]")
 //
 //        // create parameter list for IWG 1
 //        tParameterList( 3 )( 0 ) = prm::create_IWG_parameter_list();
-//        tParameterList( 3 )( 0 ).set( "IWG_name",                   std::string("SPATIALDIFF_BULK") );
+//        tParameterList( 3 )( 0 ).set( "IWG_name",                   "SPATIALDIFF_BULK" );
 //        tParameterList( 3 )( 0 ).set( "IWG_type",                   static_cast< uint >( fem::IWG_Type::SPATIALDIFF_BULK ) );
-//        tParameterList( 3 )( 0 ).set( "dof_residual",               std::string("TEMP") );
-//        tParameterList( 3 )( 0 ).set( "master_dof_dependencies",    std::string("TEMP") );
-//        tParameterList( 3 )( 0 ).set( "master_constitutive_models", std::string("CMDiffusion,DiffLinIso") );
-//        tParameterList( 3 )( 0 ).set( "mesh_set_names",             std::string("child_0,parent_0") );
+//        tParameterList( 3 )( 0 ).set( "dof_residual",               "TEMP" );
+//        tParameterList( 3 )( 0 ).set( "master_dof_dependencies",    "TEMP" );
+//        tParameterList( 3 )( 0 ).set( "master_constitutive_models", "CMDiffusion,DiffLinIso" );
+//        tParameterList( 3 )( 0 ).set( "mesh_set_names",             "child_0,parent_0" );
 //
 //        // create parameter list for IWG 2
 //        tParameterList( 3 )( 1 ) = prm::create_IWG_parameter_list();
-//        tParameterList( 3 )( 1 ).set( "IWG_name",                   std::string("SPATIALDIFF_DIRICHLET_UNSYMMETRIC_NITSCHE") );
+//        tParameterList( 3 )( 1 ).set( "IWG_name",                   "SPATIALDIFF_DIRICHLET_UNSYMMETRIC_NITSCHE" );
 //        tParameterList( 3 )( 1 ).set( "IWG_type",                   static_cast< uint >( fem::IWG_Type::SPATIALDIFF_DIRICHLET_UNSYMMETRIC_NITSCHE ) );
-//        tParameterList( 3 )( 1 ).set( "dof_residual",               std::string("TEMP") );
-//        tParameterList( 3 )( 1 ).set( "master_dof_dependencies",    std::string("TEMP") );
-//        tParameterList( 3 )( 1 ).set( "master_properties",          std::string("PropertyDirichlet,Dirichlet") );
-//        tParameterList( 3 )( 1 ).set( "master_constitutive_models", std::string("CMDiffusion,DiffLinIso") );
-//        tParameterList( 3 )( 1 ).set( "stabilization_parameters",   std::string("SPDirichlet,DirichletNitsche") );
-//        tParameterList( 3 )( 1 ).set( "mesh_set_names",             std::string("SideSet_1") );
+//        tParameterList( 3 )( 1 ).set( "dof_residual",               "TEMP" );
+//        tParameterList( 3 )( 1 ).set( "master_dof_dependencies",    "TEMP" );
+//        tParameterList( 3 )( 1 ).set( "master_properties",          "PropertyDirichlet,Dirichlet" );
+//        tParameterList( 3 )( 1 ).set( "master_constitutive_models", "CMDiffusion,DiffLinIso" );
+//        tParameterList( 3 )( 1 ).set( "stabilization_parameters",   "SPDirichlet,DirichletNitsche" );
+//        tParameterList( 3 )( 1 ).set( "mesh_set_names",             "SideSet_1" );
 //
 //        // create parameter list for IWG 3
 //        tParameterList( 3 )( 2 ) = prm::create_IWG_parameter_list();
-//        tParameterList( 3 )( 2 ).set( "IWG_name",                std::string("SPATIALDIFF_NEUMANN") );
+//        tParameterList( 3 )( 2 ).set( "IWG_name",                "SPATIALDIFF_NEUMANN" );
 //        tParameterList( 3 )( 2 ).set( "IWG_type",                static_cast< uint >( fem::IWG_Type::SPATIALDIFF_NEUMANN ) );
-//        tParameterList( 3 )( 2 ).set( "dof_residual",            std::string("TEMP") );
-//        tParameterList( 3 )( 2 ).set( "master_dof_dependencies", std::string("TEMP") );
-//        tParameterList( 3 )( 2 ).set( "master_properties",       std::string("PropertyNeumann,Neumann") );
-//        tParameterList( 3 )( 2 ).set( "mesh_set_names",          std::string("iside_g_0_p0_0_p1_1") );
+//        tParameterList( 3 )( 2 ).set( "dof_residual",            "TEMP" );
+//        tParameterList( 3 )( 2 ).set( "master_dof_dependencies", "TEMP" );
+//        tParameterList( 3 )( 2 ).set( "master_properties",       "PropertyNeumann,Neumann" );
+//        tParameterList( 3 )( 2 ).set( "mesh_set_names",          "iside_g_0_p0_0_p1_1" );
 //
 //        //------------------------------------------------------------------------------
 //        // path for property function reading

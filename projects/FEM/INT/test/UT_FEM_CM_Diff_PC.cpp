@@ -133,6 +133,7 @@ moris::Cell<bool> test_phase_change_constitutive_model(
     tCMMasterDiffLinIsoPC->set_property( tPropMasterPCfunction  , "PhaseStateFunction" );
     tCMMasterDiffLinIsoPC->set_property( tPropMasterPCconst     , "PhaseChangeConst" );
     tCMMasterDiffLinIsoPC->set_space_dim( aSpatialDim );
+    tCMMasterDiffLinIsoPC->set_local_properties();
 
     //create a space and a time geometry interpolator
     Geometry_Interpolator tGI( aGeomInterpRule );

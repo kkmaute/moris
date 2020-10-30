@@ -89,8 +89,8 @@ namespace moris
             Cell< std::string > tSecond;
             tParser.get_keys_from_subtree( "moris.hmr", "refinement", 0, tFirst, tSecond );
 
-            aRefParams.insert( "library", std::string("") );
-            aRefParams.insert( "function", std::string("") );
+            aRefParams.insert( "library", "" );
+            aRefParams.insert( "function", "" );
             uint tCount=0;
             for( std::string tKey : tFirst )
             {
@@ -150,7 +150,7 @@ namespace moris
             tParams.insert( "label", "untitled" );
             tParams.insert( "lagrange_order", (sint) 0 );
             tParams.insert( "bspline_order", (sint) 0 );
-            tParams.insert( "source", std::string("") );
+            tParams.insert( "source", "" );
             tParams.insert( "perform_mapping", (sint) 1 );
 
             tParams.insert( "min_volume_refinement_level", (sint) 0 );

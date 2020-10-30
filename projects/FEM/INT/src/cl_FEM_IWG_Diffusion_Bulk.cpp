@@ -44,7 +44,7 @@ namespace moris
             if ( mPropertyMap.find( aPropertyString ) == mPropertyMap.end() )
             {
                 std::string tErrMsg =
-                        std::string("IWG_Diffusion_Bulk::set_property - Unknown aPropertyString : ") +
+                        "IWG_Diffusion_Bulk::set_property - Unknown aPropertyString : " +
                         aPropertyString;
 
                 MORIS_ERROR( false , tErrMsg.c_str() );
@@ -69,7 +69,7 @@ namespace moris
             if ( mConstitutiveMap.find( aConstitutiveString ) == mConstitutiveMap.end() )
             {
                 std::string tErrMsg =
-                        std::string("IWG_Diffusion_Bulk::set_constitutive_model - Unknown aConstitutiveString: ") +
+                        "IWG_Diffusion_Bulk::set_constitutive_model - Unknown aConstitutiveString: " +
                         aConstitutiveString;
 
                 MORIS_ERROR( false, tErrMsg.c_str() );

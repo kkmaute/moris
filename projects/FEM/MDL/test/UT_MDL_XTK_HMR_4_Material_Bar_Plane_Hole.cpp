@@ -347,23 +347,27 @@ TEST_CASE("XTK HMR 4 Material Bar Intersected By Plane and Hole","[XTK_HMR_PLANE
         tCMDiffLinIso1->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
         tCMDiffLinIso1->set_property( tPropConductivity1, "Conductivity" );
         tCMDiffLinIso1->set_space_dim( 2 );
+        tCMDiffLinIso1->set_local_properties();
 
         std::shared_ptr< fem::Constitutive_Model > tCMDiffLinIso1bis =
                 tCMFactory.create_CM( fem::Constitutive_Type::DIFF_LIN_ISO );
         tCMDiffLinIso1bis->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
         tCMDiffLinIso1bis->set_property( tPropConductivity1bis, "Conductivity" );
         tCMDiffLinIso1bis->set_space_dim( 2 );
+        tCMDiffLinIso1bis->set_local_properties();
 
         std::shared_ptr< fem::Constitutive_Model > tCMDiffLinIso2 = tCMFactory.create_CM( fem::Constitutive_Type::DIFF_LIN_ISO );
         tCMDiffLinIso2->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
         tCMDiffLinIso2->set_property( tPropConductivity2, "Conductivity" );
         tCMDiffLinIso2->set_space_dim( 2 );
+        tCMDiffLinIso2->set_local_properties();
 
         std::shared_ptr< fem::Constitutive_Model > tCMDiffLinIso2bis =
                 tCMFactory.create_CM( fem::Constitutive_Type::DIFF_LIN_ISO );
         tCMDiffLinIso2bis->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
         tCMDiffLinIso2bis->set_property( tPropConductivity2bis, "Conductivity" );
         tCMDiffLinIso2bis->set_space_dim( 2 );
+        tCMDiffLinIso2bis->set_local_properties();
 
         // define stabilization parameters
         fem::SP_Factory tSPFactory;
@@ -824,24 +828,28 @@ TEST_CASE("XTK HMR 4 Material Bar Intersected By Plane and Hole 3D","[XTK_HMR_PL
         tCMDiffLinIso1->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
         tCMDiffLinIso1->set_property( tPropConductivity1, "Conductivity" );
         tCMDiffLinIso1->set_space_dim( 3 );
+        tCMDiffLinIso1->set_local_properties();
 
         std::shared_ptr< fem::Constitutive_Model > tCMDiffLinIso1bis =
                 tCMFactory.create_CM( fem::Constitutive_Type::DIFF_LIN_ISO );
         tCMDiffLinIso1bis->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
         tCMDiffLinIso1bis->set_property( tPropConductivity1bis, "Conductivity" );
         tCMDiffLinIso1bis->set_space_dim( 3 );
+        tCMDiffLinIso1bis->set_local_properties();
 
         std::shared_ptr< fem::Constitutive_Model > tCMDiffLinIso2 =
                 tCMFactory.create_CM( fem::Constitutive_Type::DIFF_LIN_ISO );
         tCMDiffLinIso2->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
         tCMDiffLinIso2->set_property( tPropConductivity2, "Conductivity" );
         tCMDiffLinIso2->set_space_dim( 3 );
+        tCMDiffLinIso2->set_local_properties();
 
         std::shared_ptr< fem::Constitutive_Model > tCMDiffLinIso2bis =
                 tCMFactory.create_CM( fem::Constitutive_Type::DIFF_LIN_ISO );
         tCMDiffLinIso2bis->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
         tCMDiffLinIso2bis->set_property( tPropConductivity2bis, "Conductivity" );
         tCMDiffLinIso2bis->set_space_dim( 3 );
+        tCMDiffLinIso2bis->set_local_properties();
 
         // define stabilization parameters
         fem::SP_Factory tSPFactory;

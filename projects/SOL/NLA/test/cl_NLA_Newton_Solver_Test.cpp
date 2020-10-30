@@ -553,7 +553,7 @@ namespace moris
 //                }
 //            }
 //        }
-//        tNonlinearProblem->mVectorFullSol->vector_global_asembly();
+//        tNonlinearProblem->mVectorFullSol->vector_global_assembly();
 //
 //
 

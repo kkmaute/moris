@@ -117,6 +117,38 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
+        void Stabilization_Parameter::set_property(
+                std::shared_ptr< Property > aProperty,
+                std::string                 aPropertyString,
+                mtk::Master_Slave           aIsMaster )
+        {
+            // check that aPropertyString makes sense
+            MORIS_ERROR( mPropertyMap.find( aPropertyString ) != mPropertyMap.end(),
+                    "Stabilization_Parameter::set_property - Unknown aPropertyString : %s \n",
+                    aPropertyString.c_str() );
+
+            // set the property in the property cell
+            this->get_properties( aIsMaster )( mPropertyMap[ aPropertyString ] ) = aProperty;
+        }
+
+        //------------------------------------------------------------------------------
+
+        void Stabilization_Parameter::set_constitutive_model(
+                std::shared_ptr< Constitutive_Model > aConstitutiveModel,
+                std::string                           aConstitutiveString,
+                mtk::Master_Slave                     aIsMaster )
+            {
+                // check that aConstitutiveString makes sense
+                MORIS_ERROR( mConstitutiveMap.find( aConstitutiveString ) != mConstitutiveMap.end(),
+                        "Stabilization_Parameter::set_constitutive_model - Unknown aConstitutiveString : %s \n",
+                        aConstitutiveString.c_str() );
+
+                // set the constitutive model in the CM cell
+                this->get_constitutive_models( aIsMaster )( mConstitutiveMap[ aConstitutiveString ] ) = aConstitutiveModel;
+            }
+
+        //------------------------------------------------------------------------------
+
         moris::Cell< std::shared_ptr< Property > > & Stabilization_Parameter::get_properties(
                 mtk::Master_Slave aIsMaster )
         {
@@ -232,6 +264,7 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+
         void Stabilization_Parameter::set_dv_type_list(
                 moris::Cell< moris::Cell< PDV_Type > > & aDvTypes,
                 mtk::Master_Slave                        aIsMaster )

@@ -85,6 +85,7 @@ TEST_CASE( "IWG_Struc_Dirichlet_Mixed_Pressure_Symmetric_Nitsche",
     tCMMasterStrucLinIso->set_dof_type_list( tDofTypes, { "Displacement", "Pressure" } );
     tCMMasterStrucLinIso->set_property( tPropMasterEMod, "YoungsModulus" );
     tCMMasterStrucLinIso->set_property( tPropMasterNu, "PoissonRatio" );
+    tCMMasterStrucLinIso->set_local_properties();
 
     // define stabilization parameters
     fem::SP_Factory tSPFactory;
@@ -405,6 +406,7 @@ TEST_CASE( "IWG_Struc_Dirichlet_Mixed_Pressure_Unsymmetric_Nitsche",
     tCMMasterStrucLinIso->set_dof_type_list( tDofTypes, { "Displacement", "Pressure" } );
     tCMMasterStrucLinIso->set_property( tPropMasterEMod, "YoungsModulus" );
     tCMMasterStrucLinIso->set_property( tPropMasterNu, "PoissonRatio" );
+    tCMMasterStrucLinIso->set_local_properties();
 
     // define stabilization parameters
     fem::SP_Factory tSPFactory;

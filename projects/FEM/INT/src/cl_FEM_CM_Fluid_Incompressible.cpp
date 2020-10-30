@@ -21,8 +21,8 @@ namespace moris
             mProperties.resize( static_cast< uint >( CM_Property_Type::MAX_ENUM ), nullptr );
 
             // populate the map
-            mPropertyMap[ "Density" ]   = CM_Property_Type::DENSITY;
-            mPropertyMap[ "Viscosity" ] = CM_Property_Type::VISCOSITY;
+            mPropertyMap[ "Density" ]   = static_cast< uint >( CM_Property_Type::DENSITY );
+            mPropertyMap[ "Viscosity" ] = static_cast< uint >( CM_Property_Type::VISCOSITY );
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -59,7 +59,18 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
-       
+
+        void CM_Fluid_Incompressible::set_local_properties()
+        {
+            // set the density property
+            mPropDensity = get_property( "Density" );
+
+            // set the viscosity property
+            mPropViscosity = get_property( "Viscosity" );
+        }
+
+        //------------------------------------------------------------------------------
+
         void CM_Fluid_Incompressible::set_dof_type_list(
                 moris::Cell< moris::Cell< MSI::Dof_Type > > aDofTypes,
                 moris::Cell< std::string >                  aDofStrings )
@@ -87,40 +98,12 @@ namespace moris
                 }
                 else
                 {
+                    // error unknown dof string
                     MORIS_ERROR( false ,
                             "CM_Fluid_Incompressible::set_dof_type_list - Unknown aDofString : %s \n",
                             tDofString.c_str() );
                 }
             }
-        }
-
-        //------------------------------------------------------------------------------
-        
-        void CM_Fluid_Incompressible::set_property(
-                std::shared_ptr< fem::Property > aProperty,
-                std::string                      aPropertyString )
-        {
-            // check that aPropertyString makes sense
-            MORIS_ERROR( mPropertyMap.find( aPropertyString ) != mPropertyMap.end(),
-                    "CM_Fluid_Incompressible::set_property - Unknown aPropertyString : %s \n",
-                    aPropertyString.c_str() );
-
-            // set the property in the property cell
-            mProperties( static_cast< uint >( mPropertyMap[ aPropertyString ] ) ) = aProperty;
-        }
-
-        //------------------------------------------------------------------------------
-        
-        std::shared_ptr< Property > CM_Fluid_Incompressible::get_property(
-                std::string aPropertyString )
-        {
-            // check that aPropertyString makes sense
-            MORIS_ERROR( mPropertyMap.find( aPropertyString ) != mPropertyMap.end(),
-                    "CM_Fluid_Incompressible::set_property - Unknown aPropertyString : %s \n",
-                    aPropertyString.c_str() );
-
-            // get the property in the property cell
-            return  mProperties( static_cast< uint >( mPropertyMap[ aPropertyString ] ) );
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -138,12 +121,8 @@ namespace moris
             Matrix< DDRMat > tP( ( mSpaceDim - 1 ) * 3, 1, 0.0 );
             tP( { 0, mSpaceDim - 1 }, { 0, 0 } ) = tI * tPressureFI->val();
 
-            // get the viscosity property
-            std::shared_ptr< Property > tViscosityProp =
-                    mProperties( static_cast< uint >( CM_Property_Type::VISCOSITY ) );
-
             // compute flux
-            mFlux = -1.0 * tP + 2.0 * tViscosityProp->val()( 0 ) * this->strain();
+            mFlux = -1.0 * tP + 2.0 * mPropViscosity->val()( 0 ) * this->strain();
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -154,12 +133,8 @@ namespace moris
             Field_Interpolator * tPressureFI =
                     mFIManager->get_field_interpolators_for_type( mDofPressure );
 
-            // get the viscosity property
-            std::shared_ptr< Property > tViscosityProp =
-                    mProperties( static_cast< uint >( CM_Property_Type::VISCOSITY ) );
-
             // compute flux
-            mDivFlux = -1.0 * tPressureFI->gradx( 1 ) + 2.0 * tViscosityProp->val()( 0 ) * this->divstrain();
+            mDivFlux = -1.0 * tPressureFI->gradx( 1 ) + 2.0 * mPropViscosity->val()( 0 ) * this->divstrain();
 
             // FIXME assume that viscosity prop does not depend on x
         }
@@ -181,16 +156,12 @@ namespace moris
                     tFI->get_number_of_space_time_coefficients(),
                     0.0 );
 
-            // get the viscosity property
-            std::shared_ptr< Property > tViscosityProp =
-                    mProperties( static_cast< uint >( CM_Property_Type::VISCOSITY ) );
-
             // if velocity dof
             if( aDofTypes( 0 ) == mDofVelocity )
             {
                 // fill ddivstrain/dv
                 mddivfluxdu( tDofIndex ) +=
-                        2.0 * tViscosityProp->val()( 0 ) * this->ddivstraindu( aDofTypes );
+                        2.0 * mPropViscosity->val()( 0 ) * this->ddivstraindu( aDofTypes );
             }
             // if pressure dof
             else if( aDofTypes( 0 ) == mDofPressure )
@@ -199,11 +170,11 @@ namespace moris
                 mddivfluxdu( tDofIndex ) -= tFI->dnNdxn( 1 );
             }
 
-            if( tViscosityProp->check_dof_dependency( aDofTypes ) )
+            if( mPropViscosity->check_dof_dependency( aDofTypes ) )
             {
                 // fill ddivstrain/du
                 mddivfluxdu( tDofIndex ) +=
-                        2.0 * this->divstrain() * tViscosityProp->dPropdDOF( aDofTypes );
+                        2.0 * this->divstrain() * mPropViscosity->dPropdDOF( aDofTypes );
             }
         }
 
@@ -218,10 +189,6 @@ namespace moris
             Field_Interpolator * tPressureFI =
                     mFIManager->get_field_interpolators_for_type( mDofPressure );
 
-            // get the viscosity property
-            std::shared_ptr< Property > tViscosityProp =
-                    mProperties( static_cast< uint >( CM_Property_Type::VISCOSITY ) );
-
             // create identity matrix
             Matrix< DDRMat > tI( mSpaceDim, 1, 1.0 );
             Matrix< DDRMat > tP( ( mSpaceDim - 1 ) * 3, 1, 0.0 );
@@ -231,7 +198,7 @@ namespace moris
             // evaluate dfluxdx
             mdFluxdx( aOrder -1 ) =
                     trans( tP ) * trans( tPressureFI->gradx( aOrder ) ) -
-                    2.0 * tViscosityProp->val() * this->dstraindx( aOrder );
+                    2.0 * mPropViscosity->val() * this->dstraindx( aOrder );
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -269,16 +236,12 @@ namespace moris
                     tFITest->get_number_of_space_time_coefficients(),
                     0.0 );
 
-            // get the viscosity property
-            std::shared_ptr< Property > tViscosityProp = 
-                    mProperties( static_cast< uint >( CM_Property_Type::VISCOSITY ) );
-
             // if test traction wrt velocity
             if( aTestDofTypes( 0 ) == mDofVelocity )
             {
                 // compute test traction wrt velocity
                 mTestTraction( tTestDofIndex ) +=
-                        2.0 * tViscosityProp->val()( 0 ) * tFlatNormal * this->testStrain();
+                        2.0 * mPropViscosity->val()( 0 ) * tFlatNormal * this->testStrain();
             }
             // if test traction wrt pressure
             else if( aTestDofTypes( 0 ) == mDofPressure )
@@ -293,12 +256,12 @@ namespace moris
             }
 
             // if viscosity property depends on test dof type
-            if ( tViscosityProp->check_dof_dependency( aTestDofTypes ) )
+            if ( mPropViscosity->check_dof_dependency( aTestDofTypes ) )
             {
                 // compute derivative with indirect dependency through properties
                 mTestTraction( tTestDofIndex ) +=
                         2.0 * tFlatNormal * this->strain() *
-                        tViscosityProp->dPropdDOF( aTestDofTypes );
+                        mPropViscosity->dPropdDOF( aTestDofTypes );
             }
         }
 
@@ -570,16 +533,12 @@ namespace moris
                     tFI->get_number_of_space_time_coefficients(),
                     0.0 );
 
-            // get the viscosity property
-            std::shared_ptr< Property > tViscosityProp =
-                    mProperties( static_cast< uint >( CM_Property_Type::VISCOSITY ) );
-
             // if velocity dof
             if( aDofTypes( 0 ) == mDofVelocity )
             {
                 // build dfluxdv
                 mdFluxdDof( tDofIndex ) +=
-                        2.0 * tViscosityProp->val()( 0 ) * this->dStraindDOF( aDofTypes );
+                        2.0 * mPropViscosity->val()( 0 ) * this->dStraindDOF( aDofTypes );
             }
             // if pressure dof
             else if ( aDofTypes( 0 ) == mDofPressure )
@@ -598,11 +557,11 @@ namespace moris
             }
 
             // if indirect dependency on the dof type through viscosity
-            if ( tViscosityProp->check_dof_dependency( aDofTypes ) )
+            if ( mPropViscosity->check_dof_dependency( aDofTypes ) )
             {
                 // compute derivative with indirect dependency through properties
                 mdFluxdDof( tDofIndex ) +=
-                        2.0 * this->strain() * tViscosityProp->dPropdDOF( aDofTypes );
+                        2.0 * this->strain() * mPropViscosity->dPropdDOF( aDofTypes );
             }
         }
 
@@ -654,28 +613,26 @@ namespace moris
                     tFIDer->get_number_of_space_time_coefficients(),
                     0.0 );
 
-            // get the viscosity property
-            std::shared_ptr< Property > tViscosityProp =
-                    mProperties( static_cast< uint >( CM_Property_Type::VISCOSITY ) );
-
             // flatten normal
             Matrix< DDRMat > tFlatNormal;
             this->flatten_normal( aNormal, tFlatNormal );
 
             // if viscosity property depends on test or derivative dof type
-            if ( tViscosityProp->check_dof_dependency( aDofTypes ) )
+            if ( mPropViscosity->check_dof_dependency( aDofTypes ) )
             {
                 // compute contribution to dTestTractiondDof
                 mdTestTractiondDof( tTestDofIndex )( tDofIndex ) +=
-                        2.0 * trans( tFlatNormal * this->dStraindDOF( aTestDofTypes ) ) * aJump * tViscosityProp->dPropdDOF( aDofTypes );
+                        2.0 * trans( tFlatNormal * this->dStraindDOF( aTestDofTypes ) ) *
+                        aJump * mPropViscosity->dPropdDOF( aDofTypes );
             }
 
             // if viscosity property depends on test or derivative dof type
-            if ( tViscosityProp->check_dof_dependency( aTestDofTypes ) )
+            if ( mPropViscosity->check_dof_dependency( aTestDofTypes ) )
             {
                 // compute contribution to dTestTractiondDof
                 mdTestTractiondDof( tTestDofIndex )( tDofIndex ) +=
-                        2.0 * trans( tViscosityProp->dPropdDOF( aTestDofTypes ) ) * trans( aJump ) * tFlatNormal * this->dStraindDOF( aDofTypes );
+                        2.0 * trans( mPropViscosity->dPropdDOF( aTestDofTypes ) ) * trans( aJump ) *
+                        tFlatNormal * this->dStraindDOF( aDofTypes );
             }
         }
 

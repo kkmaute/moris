@@ -14,7 +14,7 @@ namespace moris
 //        Block::get_label() const
 //        {
 //            MORIS_ERROR( false, "get_label() not implemented for this Block" );
-//            return std::string("");
+//            return "";
 //        }
 //
 ////------------------------------------------------------------------------------

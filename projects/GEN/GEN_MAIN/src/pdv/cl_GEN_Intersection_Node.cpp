@@ -35,6 +35,25 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
+        Intersection_Node::Intersection_Node(
+                uint                      aFirstNodeIndex,
+                uint                      aSecondNodeIndex,
+                const Matrix<DDRMat>&     aFirstNodeCoordinates,
+                const Matrix<DDRMat>&     aSecondNodeCoordinates,
+                std::shared_ptr<Geometry> aInterfaceGeometry)
+                : Child_Node({{aFirstNodeIndex, aSecondNodeIndex}},
+                             {aFirstNodeCoordinates, aSecondNodeCoordinates},
+                             xtk::Linear_Basis_Function(),
+                             Matrix<DDRMat>( { {0.0} } ) ),
+                  mInterfaceGeometry(aInterfaceGeometry),
+                  mFirstParentOnInterface(false),
+                  mSecondParentOnInterface(false),
+                  mGlobalCoordinates((mBasisValues(0) * aFirstNodeCoordinates) + (mBasisValues(1) * aSecondNodeCoordinates))
+        {
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
         bool Intersection_Node::first_parent_on_interface()
         {
             return mFirstParentOnInterface;

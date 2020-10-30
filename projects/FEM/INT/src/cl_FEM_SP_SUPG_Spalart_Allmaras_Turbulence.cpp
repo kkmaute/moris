@@ -25,8 +25,8 @@ namespace moris
             mMasterProp.resize( static_cast< uint >( SP_Property_Type::MAX_ENUM ), nullptr );
 
             // populate the map
-            mPropertyMap[ "Viscosity" ]    = SP_Property_Type::VISCOSITY;
-            mPropertyMap[ "WallDistance" ] = SP_Property_Type::WALL_DISTANCE;
+            mPropertyMap[ "Viscosity" ]    = static_cast< uint >( SP_Property_Type::VISCOSITY );
+            mPropertyMap[ "WallDistance" ] = static_cast< uint >( SP_Property_Type::WALL_DISTANCE );
         }
 
         //------------------------------------------------------------------------------
@@ -64,11 +64,10 @@ namespace moris
                         }
                         else
                         {
-                            // create error message
-                            std::string tErrMsg =
-                                    std::string( "SP_SUPG_Spalart_Allmaras_Turbulence::set_dof_type_list - Unknown aDofString : ") +
-                                    tDofString;
-                            MORIS_ERROR( false , tErrMsg.c_str() );
+                            // error unknown dof string
+                            MORIS_ERROR( false ,
+                                    "SP_SUPG_Spalart_Allmaras_Turbulence::set_dof_type_list - Unknown aDofString : %s \n",
+                                    tDofString.c_str() );
                         }
                     }
                     break;
@@ -88,26 +87,7 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        void SP_SUPG_Spalart_Allmaras_Turbulence::set_property(
-                std::shared_ptr< Property > aProperty,
-                std::string                 aPropertyString,
-                mtk::Master_Slave           aIsMaster )
-        {
-            // check that aPropertyString makes sense
-            std::string tErrMsg =
-                    std::string( "SP_SUPG_Spalart_Allmaras_Turbulence::set_property - Unknown aPropertyString: " ) +
-                    aPropertyString;
-            MORIS_ERROR( mPropertyMap.find( aPropertyString ) != mPropertyMap.end(), tErrMsg.c_str() );
-
-            // set the property in the property cell
-            this->get_properties( aIsMaster )( static_cast< uint >( mPropertyMap[ aPropertyString ] ) ) = aProperty;
-        }
-
-        //------------------------------------------------------------------------------
-
-        void SP_SUPG_Spalart_Allmaras_Turbulence::set_function_pointers()
-        {
-        }
+        void SP_SUPG_Spalart_Allmaras_Turbulence::set_function_pointers(){}
 
         //------------------------------------------------------------------------------
 

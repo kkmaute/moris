@@ -106,6 +106,7 @@ TEST_CASE( "IWG_Incompressible_NS_Velocity_Bulk_No_Turbulence",
     tCMMasterIncFluid->set_dof_type_list( { tVelDofTypes, tPDofTypes } );
     tCMMasterIncFluid->set_property( tPropViscosity, "Viscosity" );
     tCMMasterIncFluid->set_property( tPropDensity, "Density" );
+    tCMMasterIncFluid->set_local_properties();
 
     // define stabilization parameters
     fem::SP_Factory tSPFactory;
@@ -466,6 +467,7 @@ TEST_CASE( "IWG_Incompressible_NS_Velocity_Bulk_With_Turbulence",
     tCMMasterTurbulence->set_dof_type_list( { tVelDofTypes, tPDofTypes, tVisDofTypes } );
     tCMMasterTurbulence->set_property( tPropViscosity, "Viscosity" );
     tCMMasterTurbulence->set_property( tPropDensity, "Density" );
+    tCMMasterTurbulence->set_local_properties();
 
     // define stabilization parameters
     fem::SP_Factory tSPFactory;

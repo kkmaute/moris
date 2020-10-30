@@ -90,9 +90,15 @@ namespace moris
                 moris::Cell< std::shared_ptr< Property > > mMasterProp;
                 moris::Cell< std::shared_ptr< Property > > mSlaveProp;
 
+                // local string to int map for properties
+                std::map< std::string, uint > mPropertyMap;
+
                 // master and slave constitutive models
                 moris::Cell< std::shared_ptr< Constitutive_Model > > mMasterCM;
                 moris::Cell< std::shared_ptr< Constitutive_Model > > mSlaveCM;
+
+                // local string to int map for CMs
+                std::map< std::string, uint > mConstitutiveMap;
 
                 // storage
                 Matrix< DDRMat > mPPVal;
@@ -406,17 +412,14 @@ namespace moris
                 //------------------------------------------------------------------------------
                 /**
                  * set master or slave constitutive model
-                 * @param[ in ] aConstitutiveModel  CM pointer
-                 * @param[ in ] aConstitutiveString string describing the CM
+                 * @param[ in ] aConstitutiveModel  CM shared pointer to set
+                 * @param[ in ] aConstitutiveString string describing the CM to set
                  * @param[ in ] aIsMaster           enum master or slave
                  */
-                virtual void set_constitutive_model(
+                void set_constitutive_model(
                         std::shared_ptr< Constitutive_Model > aConstitutiveModel,
-                        std::string                            aConstitutiveString,
-                        mtk::Master_Slave                      aIsMaster = mtk::Master_Slave::MASTER )
-                {
-                    MORIS_ERROR( false, "Stabilization_Parameter::set_constitutive_model - Not implemented for base class." );
-                }
+                        std::string                           aConstitutiveString,
+                        mtk::Master_Slave                     aIsMaster = mtk::Master_Slave::MASTER );
 
                 //------------------------------------------------------------------------------
                 /**
@@ -424,22 +427,20 @@ namespace moris
                  * @param[ in ]  aIsMaster enum master or slave
                  * @param[ out ] mProp     a list of CM pointers
                  */
-                moris::Cell< std::shared_ptr< Constitutive_Model > > & get_constitutive_models( mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER );
+                moris::Cell< std::shared_ptr< Constitutive_Model > > & get_constitutive_models(
+                        mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER );
 
                 //------------------------------------------------------------------------------
                 /**
                  * set master or slave property
-                 * @param[ in ] aProperty       property pointer
-                 * @param[ in ] aPropertyString string describing the property
+                 * @param[ in ] aProperty       property shared pointer
+                 * @param[ in ] aPropertyString string describing the property to set
                  * @param[ in ] aIsMaster       enum master or slave
                  */
-                virtual void set_property(
+                void set_property(
                         std::shared_ptr< Property > aProperty,
                         std::string                 aPropertyString,
-                        mtk::Master_Slave           aIsMaster = mtk::Master_Slave::MASTER )
-                {
-                    MORIS_ERROR( false, "Stabilization_Parameter::set_property - Not implemented for base class." );
-                }
+                        mtk::Master_Slave           aIsMaster = mtk::Master_Slave::MASTER );
 
                 //------------------------------------------------------------------------------
                 /**
@@ -447,14 +448,16 @@ namespace moris
                  * @param[ in ]  aIsMaster enum master or slave
                  * @param[ out ] mProp     a list of property pointers
                  */
-                moris::Cell< std::shared_ptr< Property > > & get_properties( mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER );
+                moris::Cell< std::shared_ptr< Property > > & get_properties(
+                        mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER );
 
                 //------------------------------------------------------------------------------
                 /**
                  * get global dv type list
                  * @param[ out ] mGlobalDvTypes global list of dv type
                  */
-                const moris::Cell< moris::Cell< PDV_Type > > & get_global_dv_type_list( mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER );
+                const moris::Cell< moris::Cell< PDV_Type > > & get_global_dv_type_list(
+                        mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER );
 
                 //------------------------------------------------------------------------------
                 /**
@@ -507,7 +510,8 @@ namespace moris
                  * @param[ in ]  aDofTypes      a dof type wrt which the derivative is evaluated
                  * @param[ out ] mdPPdMasterDof penalty parameter derivative wrt master dof
                  */
-                const Matrix< DDRMat > & dSPdMasterDOF( const moris::Cell< MSI::Dof_Type > & aDofType );
+                const Matrix< DDRMat > & dSPdMasterDOF(
+                        const moris::Cell< MSI::Dof_Type > & aDofType );
 
                 //------------------------------------------------------------------------------
                 /**

@@ -4,6 +4,7 @@
 #include "fn_norm.hpp"
 #include "fn_trans.hpp"
 #include "fn_Parsing_Tools.hpp"
+#include "cl_Communication_Tools.hpp"
 
 extern moris::Logger gLogger;
 
@@ -121,12 +122,9 @@ namespace moris
 
         void Problem::set_advs(Matrix<DDRMat> aNewADVs)
         {
-            if (norm(aNewADVs - mADVs) < mADVNormTolerance)
-            {
-                return;
-            }
             mADVs = aNewADVs;
             mCriteria = mInterface->get_criteria(aNewADVs);
+            mInterface->get_dcriteria_dadv();
         }
 
         // -------------------------------------------------------------------------------------------------------------
@@ -168,7 +166,8 @@ namespace moris
                     aEpsilons(tIndex) = aEpsilons(0);
                 }
             }
-            MORIS_ERROR(aEpsilons.numel() == mADVs.length(), "OPT_Problem: Number of elements in finite_difference_epsilons must match the number of ADVs.");
+            MORIS_ERROR(aEpsilons.numel() == mADVs.length(),
+                    "OPT_Problem: Number of elements in finite_difference_epsilons must match the number of ADVs.");
 
             // Assign epsilons
             mFiniteDifferenceEpsilons = aEpsilons;
@@ -288,8 +287,9 @@ namespace moris
                 // Biased finite difference
                 for (uint tConstraintIndex = 0; tConstraintIndex < mConstraints.length(); tConstraintIndex++)
                 {
-                    mConstraintGradient(tConstraintIndex, tADVIndex)
-                                                    = (tConstraintsPerturbed(tConstraintIndex) - mConstraints(tConstraintIndex)) / mFiniteDifferenceEpsilons(tADVIndex);
+                    mConstraintGradient(tConstraintIndex, tADVIndex) =
+                            (tConstraintsPerturbed(tConstraintIndex) - mConstraints(tConstraintIndex)) /
+                            mFiniteDifferenceEpsilons(tADVIndex);
                 }
 
                 // Restore ADV

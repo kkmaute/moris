@@ -659,6 +659,9 @@ namespace moris
                             tPropertyNamesPair( iProp )( 1 ) );
                 }
 
+                // set local properties
+                tCM->set_local_properties();
+
                 // check the phase exist
                 MORIS_ERROR( mPhaseMap.find( tPhaseName ) != mPhaseMap.end(),
                         "FEM_Model::create_constitutive_models - Unknown tPhaseName : %s \n",
@@ -1872,6 +1875,9 @@ namespace moris
                                 tPropertyNamesPair( iProp )( 0 ).c_str() );
                     }
                 }
+                // set local properties
+                mCMs( iCM )->set_local_properties();
+
             }
         }
 

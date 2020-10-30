@@ -12,22 +12,24 @@ namespace moris
     namespace fem
     {
         //------------------------------------------------------------------------------
+
         SP_GGLS_Diffusion::SP_GGLS_Diffusion()
         {
             // set the property pointer cell size
             mMasterProp.resize( static_cast< uint >( Property_Type::MAX_ENUM ), nullptr );
 
             // populate the map
-            mPropertyMap[ "Conductivity" ]       = Property_Type::CONDUCTIVITY;
-            mPropertyMap[ "Density" ]            = Property_Type::DENSITY;
-            mPropertyMap[ "HeatCapacity" ]       = Property_Type::HEAT_CAPACITY;
-            mPropertyMap[ "LatentHeat" ]         = Property_Type::LATENT_HEAT;
-            mPropertyMap[ "PCTemp" ]             = Property_Type::PC_TEMP;
-            mPropertyMap[ "PhaseStateFunction" ] = Property_Type::PHASE_STATE_FUNCTION;
-            mPropertyMap[ "PhaseChangeConst" ]   = Property_Type::PHASE_CHANGE_CONST;
+            mPropertyMap[ "Conductivity" ]       = static_cast< uint >( Property_Type::CONDUCTIVITY );
+            mPropertyMap[ "Density" ]            = static_cast< uint >( Property_Type::DENSITY );
+            mPropertyMap[ "HeatCapacity" ]       = static_cast< uint >( Property_Type::HEAT_CAPACITY );
+            mPropertyMap[ "LatentHeat" ]         = static_cast< uint >( Property_Type::LATENT_HEAT );
+            mPropertyMap[ "PCTemp" ]             = static_cast< uint >( Property_Type::PC_TEMP );
+            mPropertyMap[ "PhaseStateFunction" ] = static_cast< uint >( Property_Type::PHASE_STATE_FUNCTION );
+            mPropertyMap[ "PhaseChangeConst" ]   = static_cast< uint >( Property_Type::PHASE_CHANGE_CONST );
         }
 
         //------------------------------------------------------------------------------
+
         void SP_GGLS_Diffusion::reset_cluster_measures()
         {
             // evaluate element size from the cluster
@@ -37,6 +39,7 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+
         void SP_GGLS_Diffusion::set_dof_type_list(
                 moris::Cell< moris::Cell< MSI::Dof_Type > > & aDofTypes,
                 moris::Cell< std::string >                  & aDofStrings,
@@ -67,13 +70,10 @@ namespace moris
                         }
                         else
                         {
-                            // create error message
-                            std::string tErrMsg =
-                                    "SP_GGLS_Diffusion::set_dof_type_list - Unknown aDofString : " +
-                                    tDofString;
-
-                            // error
-                            MORIS_ERROR( false , tErrMsg.c_str() );
+                            // error unknown dof string
+                            MORIS_ERROR( false ,
+                                    "SP_GGLS_Diffusion::set_dof_type_list - Unknown aDofString : %s \n",
+                                    tDofString.c_str() );
                         }
                     }
                     break;
@@ -88,33 +88,11 @@ namespace moris
 
                 default:
                     MORIS_ERROR( false, "SP_GGLS_Diffusion::set_dof_type_list - unknown master slave type." );
-                    break;
             }
         }
 
         //------------------------------------------------------------------------------
-        void SP_GGLS_Diffusion::set_property(
-                std::shared_ptr< Property > aProperty,
-                std::string                 aPropertyString,
-                mtk::Master_Slave           aIsMaster )
-        {
-            // check that aPropertyString makes sense
-            if ( mPropertyMap.find( aPropertyString ) == mPropertyMap.end() )
-            {
-                // create error message
-                std::string tErrMsg =
-                        "SP_GGLS_Diffusion::set_property - Unknown aPropertyString: " +
-                        aPropertyString;
 
-                // error
-                MORIS_ERROR( false , tErrMsg.c_str() );
-            }
-
-            // set the property in the property cell
-            this->get_properties( aIsMaster )( static_cast< uint >( mPropertyMap[ aPropertyString ] ) ) = aProperty;
-        }
-
-        //------------------------------------------------------------------------------
         void SP_GGLS_Diffusion::eval_SP()
         {
             // get the property values
@@ -167,9 +145,10 @@ namespace moris
              */
         }
 
-
         //------------------------------------------------------------------------------
-        void SP_GGLS_Diffusion::eval_dSPdMasterDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes )
+
+        void SP_GGLS_Diffusion::eval_dSPdMasterDOF(
+                const moris::Cell< MSI::Dof_Type > & aDofTypes )
         {
             // get the properties
             std::shared_ptr< Property > tPropConductivity = mMasterProp( static_cast< uint >( Property_Type::CONDUCTIVITY ) );

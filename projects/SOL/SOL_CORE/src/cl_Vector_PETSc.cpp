@@ -107,7 +107,7 @@ void Vector_PETSc::dirichlet_BC_vector(
 
 //-----------------------------------------------------------------------------
 
-void Vector_PETSc::vector_global_asembly()
+void Vector_PETSc::vector_global_assembly()
 {
     VecAssemblyBegin( mPetscVector );
     VecAssemblyEnd  ( mPetscVector );

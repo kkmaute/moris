@@ -195,6 +195,7 @@ namespace moris
             tCMDiffLinIso1->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
             tCMDiffLinIso1->set_property( tPropConductivity1, "Conductivity" );
             tCMDiffLinIso1->set_space_dim( 3 );
+            tCMDiffLinIso1->set_local_properties();
 
             // define stabilization parameters
             fem::SP_Factory tSPFactory;
@@ -467,11 +468,13 @@ namespace moris
             tCMDiffLinIso1->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
             tCMDiffLinIso1->set_property( tPropConductivity1, "Conductivity" );
             tCMDiffLinIso1->set_space_dim( 3 );
+            tCMDiffLinIso1->set_local_properties();
 
             std::shared_ptr< fem::Constitutive_Model > tCMDiffLinIso2 = tCMFactory.create_CM( fem::Constitutive_Type::DIFF_LIN_ISO );
             tCMDiffLinIso2->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
             tCMDiffLinIso2->set_property( tPropConductivity2, "Conductivity" );
             tCMDiffLinIso2->set_space_dim( 3 );
+            tCMDiffLinIso2->set_local_properties();
 
             // define stabilization parameters
             fem::SP_Factory tSPFactory;
@@ -787,12 +790,14 @@ namespace moris
             tCMDiffLinIso1->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
             tCMDiffLinIso1->set_property( tPropConductivity1, "Conductivity" );
             tCMDiffLinIso1->set_space_dim( 3 );
+            tCMDiffLinIso1->set_local_properties();
 
             std::shared_ptr< fem::Constitutive_Model > tCMDiffLinIso2 =
                     tCMFactory.create_CM( fem::Constitutive_Type::DIFF_LIN_ISO );
             tCMDiffLinIso2->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
             tCMDiffLinIso2->set_property( tPropConductivity2, "Conductivity" );
             tCMDiffLinIso2->set_space_dim( 3 );
+            tCMDiffLinIso2->set_local_properties();
 
             // define stabilization parameters
             fem::SP_Factory tSPFactory;
@@ -1080,6 +1085,7 @@ namespace moris
             tCMStrucLinIso1->set_property( tPropNu1, "PoissonRatio" );
             tCMStrucLinIso1->set_space_dim( 3 );
             tCMStrucLinIso1->set_model_type( fem::Model_Type::FULL );
+            tCMStrucLinIso1->set_local_properties();
 
             // define stabilization parameters
             fem::SP_Factory tSPFactory;
@@ -1366,6 +1372,7 @@ namespace moris
             tCMStrucLinIso1->set_property( tPropNu1, "PoissonRatio" );
             tCMStrucLinIso1->set_space_dim( 3 );
             tCMStrucLinIso1->set_model_type( fem::Model_Type::FULL );
+            tCMStrucLinIso1->set_local_properties();
 
             std::shared_ptr< fem::Constitutive_Model > tCMStrucLinIso2 = tCMFactory.create_CM( fem::Constitutive_Type::STRUC_LIN_ISO );
             tCMStrucLinIso2->set_dof_type_list( { tResDofTypes } );
@@ -1373,6 +1380,7 @@ namespace moris
             tCMStrucLinIso2->set_property( tPropNu2, "PoissonRatio" );
             tCMStrucLinIso2->set_space_dim( 3 );
             tCMStrucLinIso2->set_model_type( fem::Model_Type::FULL );
+            tCMStrucLinIso2->set_local_properties();
 
             // define stabilization parameters
             fem::SP_Factory tSPFactory;
@@ -1702,6 +1710,7 @@ namespace moris
             tCMStrucLinIso1->set_property( tPropNu1, "PoissonRatio" );
             tCMStrucLinIso1->set_space_dim( 3 );
             tCMStrucLinIso1->set_model_type( fem::Model_Type::FULL );
+            tCMStrucLinIso1->set_local_properties();
 
             std::shared_ptr< fem::Constitutive_Model > tCMStrucLinIso2 =
                     tCMFactory.create_CM( fem::Constitutive_Type::STRUC_LIN_ISO );
@@ -1710,6 +1719,7 @@ namespace moris
             tCMStrucLinIso2->set_property( tPropNu2, "PoissonRatio" );
             tCMStrucLinIso2->set_space_dim( 3 );
             tCMStrucLinIso2->set_model_type( fem::Model_Type::FULL );
+            tCMStrucLinIso2->set_local_properties();
 
             // define stabilization parameters
             fem::SP_Factory tSPFactory;

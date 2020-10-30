@@ -243,6 +243,7 @@ TEST_CASE("Eqn_Obj_pdv","[MSI],[Eqn_Obj_pdv]")
         tCMMasterDiffLinIso->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
         tCMMasterDiffLinIso->set_property( tPropMasterConductivity, "Conductivity" );
         tCMMasterDiffLinIso->set_space_dim( 2 );
+        tCMMasterDiffLinIso->set_local_properties();
 
         // define an IWG
         fem::IWG_Factory tIWGFactory;

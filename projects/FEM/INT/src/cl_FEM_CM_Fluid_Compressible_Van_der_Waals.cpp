@@ -26,13 +26,13 @@ namespace moris
             mProperties.resize( static_cast< uint >( CM_Property_Type::MAX_ENUM ), nullptr );
 
             // populate the map
-            mPropertyMap[ "IsochoricHeatCapacity" ]  = CM_Property_Type::ISOCHORIC_HEAT_CAPACITY; // constant property
-            mPropertyMap[ "SpecificGasConstant" ]    = CM_Property_Type::SPECIFIC_GAS_CONSTANT;   // constant property
-            mPropertyMap[ "DynamicViscosity" ]       = CM_Property_Type::DYNAMIC_VISCOSITY;       // may be a fnct. of T
-            mPropertyMap[ "ThermalConductivity" ]    = CM_Property_Type::THERMAL_CONDUCTIVITY;    // may be a fnct. of T
-            mPropertyMap[ "CapillarityCoefficient" ] = CM_Property_Type::CAPILLARITY_COEFFICIENT; // constant property
-            mPropertyMap[ "FirstVdWconstant" ]       = CM_Property_Type::FIRST_VDW_CONSTANT;      // constant property
-            mPropertyMap[ "SecondVdWconstant" ]      = CM_Property_Type::SECOND_VDW_CONSTANT;     // constant property
+            mPropertyMap[ "IsochoricHeatCapacity" ]  = static_cast< uint >( CM_Property_Type::ISOCHORIC_HEAT_CAPACITY ); // constant property
+            mPropertyMap[ "SpecificGasConstant" ]    = static_cast< uint >( CM_Property_Type::SPECIFIC_GAS_CONSTANT );   // constant property
+            mPropertyMap[ "DynamicViscosity" ]       = static_cast< uint >( CM_Property_Type::DYNAMIC_VISCOSITY );       // may be a fnct. of T
+            mPropertyMap[ "ThermalConductivity" ]    = static_cast< uint >( CM_Property_Type::THERMAL_CONDUCTIVITY );    // may be a fnct. of T
+            mPropertyMap[ "CapillarityCoefficient" ] = static_cast< uint >( CM_Property_Type::CAPILLARITY_COEFFICIENT ); // constant property
+            mPropertyMap[ "FirstVdWconstant" ]       = static_cast< uint >( CM_Property_Type::FIRST_VDW_CONSTANT );      // constant property
+            mPropertyMap[ "SecondVdWconstant" ]      = static_cast< uint >( CM_Property_Type::SECOND_VDW_CONSTANT );     // constant property
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -41,8 +41,8 @@ namespace moris
         {
             switch ( mSpaceDim )
             {
-                case ( 2 ):
-                        {
+                case 2 :
+                {
                     m_eval_strain            = &CM_Fluid_Compressible_Van_der_Waals::eval_strain_2d;
                     m_eval_teststrain        = &CM_Fluid_Compressible_Van_der_Waals::eval_teststrain_2d;
                     m_eval_densitystrain     = &CM_Fluid_Compressible_Van_der_Waals::eval_densitystrain_2d;
@@ -54,9 +54,9 @@ namespace moris
                     m_flatten_normal         = &CM_Fluid_Compressible_Van_der_Waals::flatten_normal_2d;
                     mFlatIdentity = { { 1.0 }, { 1.0 }, { 0.0 } };
                     break;
-                        }
-                case ( 3 ):
-                        {
+                }
+                case 3 :
+                {
                     m_eval_strain            = &CM_Fluid_Compressible_Van_der_Waals::eval_strain_3d;
                     m_eval_teststrain        = &CM_Fluid_Compressible_Van_der_Waals::eval_teststrain_3d;
                     m_eval_densitystrain     = &CM_Fluid_Compressible_Van_der_Waals::eval_densitystrain_3d;
@@ -68,11 +68,10 @@ namespace moris
                     m_flatten_normal         = &CM_Fluid_Compressible_Van_der_Waals::flatten_normal_3d;
                     mFlatIdentity = { { 1.0 }, { 1.0 }, { 1.0 }, { 0.0 }, { 0.0 }, { 0.0 } };
                     break;
-                        }
+                }
                 default :
                 {
                     MORIS_ERROR( false, "CM_Fluid_Compressible_Van_der_Waals::set_function_pointers - this function is currently unused, might be used in the future." );
-                    break;
                 }
             }
         }
@@ -133,14 +132,26 @@ namespace moris
             // reset laplacian of density
             mLaplaceDensityEval = true;
             mLaplaceDensityDofEval = true;
+
+            // reset test tractions --------------------------------
+
+            mThermalTestTractionEval.assign( tNumDofTypes, true );
+            mMechanicalTestTractionEval.assign( tNumDofTypes, true );
+
+            for( uint iDirectDof = 0; iDirectDof < mDofTypes.size(); iDirectDof++ )
+            {
+                mdThermalTestTractiondDofEval( iDirectDof ).assign( tNumDofTypes, true );
+                mdMechanicalTestTractiondDofEval( iDirectDof ).assign( tNumDofTypes, true );
+            }
         }
 
         //--------------------------------------------------------------------------------------------------------------
 
         void CM_Fluid_Compressible_Van_der_Waals::initialize_spec_storage_vars_and_eval_flags()
         {
-            // get number of global DoF types
+            // get number of DoF types
             uint tNumGlobalDofTypes = mGlobalDofTypes.size();
+            uint tNumDirectDofTypes = mDofTypes.size();
 
             // initialize eval flags
             mPressureDofEval.resize( tNumGlobalDofTypes, true );
@@ -153,6 +164,16 @@ namespace moris
             mEnergyTractionDofEval.resize( tNumGlobalDofTypes, true );
             mMechanicalTractionDofEval.resize( tNumGlobalDofTypes, true );
 
+            mThermalTestTractionEval.resize( tNumGlobalDofTypes, true );
+            mMechanicalTestTractionEval.resize( tNumGlobalDofTypes, true );
+            mdThermalTestTractiondDofEval.resize( tNumDirectDofTypes );
+            mdMechanicalTestTractiondDofEval.resize( tNumDirectDofTypes );
+            for( uint iDirectDof = 0; iDirectDof < tNumDirectDofTypes; iDirectDof++ )
+            {
+                mdThermalTestTractiondDofEval( iDirectDof ).assign( tNumGlobalDofTypes, true );
+                mdMechanicalTestTractiondDofEval( iDirectDof ).assign( tNumGlobalDofTypes, true );
+            }
+
             // initialize storage variable cell arrays
             mPressureDof.resize( tNumGlobalDofTypes );
             mThermalFluxDof.resize( tNumGlobalDofTypes );
@@ -164,6 +185,15 @@ namespace moris
             mEnergyTractionDof.resize( tNumGlobalDofTypes );
             mMechanicalTractionDof.resize( tNumGlobalDofTypes );
 
+            mThermalTestTraction.resize( tNumGlobalDofTypes );
+            mMechanicalTestTraction.resize( tNumGlobalDofTypes );
+            mdThermalTestTractiondDof.resize( tNumDirectDofTypes );
+            mdMechanicalTestTractiondDof.resize( tNumDirectDofTypes );
+            for( uint iDirectDof = 0; iDirectDof < tNumDirectDofTypes; iDirectDof++ )
+            {
+                mdThermalTestTractiondDof( iDirectDof ).resize( tNumGlobalDofTypes );
+                mdMechanicalTestTractiondDof( iDirectDof ).resize( tNumGlobalDofTypes );
+            }
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -199,54 +229,40 @@ namespace moris
                 }
                 else
                 {
-                    std::string tErrMsg =
-                            std::string( "CM_Fluid_Compressible_Van_der_Waals::set_dof_type_list - Unknown aDofString : ") +
-                            tDofString;
-                    MORIS_ERROR( false , tErrMsg.c_str() );
+                    // error unknown dof string
+                    MORIS_ERROR( false,
+                            "CM_Fluid_Compressible_Van_der_Waals::set_dof_type_list - Unknown aDofString : %s \n",
+                            tDofString.c_str() );
                 }
             }
         }
 
-        //--------------------------------------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
 
-        void CM_Fluid_Compressible_Van_der_Waals::set_property(
-                std::shared_ptr< fem::Property > aProperty,
-                std::string                      aPropertyString )
+        void CM_Fluid_Compressible_Van_der_Waals::set_local_properties()
         {
-            // check that aPropertyString makes sense
-            if ( mPropertyMap.find( aPropertyString ) == mPropertyMap.end() )
-            {
-                std::string tErrMsg =
-                        std::string( "CM_Fluid_Compressible_Van_der_Waals::set_property - Unknown aPropertyString : ") +
-                        aPropertyString;
+            // get the isochoric heat capacity properties
+            mPropIsochoricHeatCapacity = get_property( "IsochoricHeatCapacity" );
 
-                MORIS_ERROR( false , tErrMsg.c_str() );
-            }
+            // get the specific gas constant properties
+            mPropSpecificGasConstant = get_property( "SpecificGasConstant" );
 
-            // set the property in the property cell
-            mProperties( static_cast< uint >( mPropertyMap[ aPropertyString ] ) ) = aProperty;
+            // get the dynamic viscosity properties
+            mPropDynamicViscosity = get_property( "DynamicViscosity" );
+
+            // get the thermal conductivity properties
+            mPropThermalConductivity = get_property( "ThermalConductivity" );
+
+            // get the capillarity coefficient properties
+            mPropCapillarityCoefficient = get_property( "CapillarityCoefficient" );
+
+            // get the first VdW constant properties
+            mPropFirstVdWconstant = get_property( "FirstVdWconstant" );
+
+            // get the second VdW constant properties
+            mPropSecondVdWconstant = get_property( "SecondVdWconstant" );
         }
 
-        //--------------------------------------------------------------------------------------------------------------
-
-        std::shared_ptr< Property > CM_Fluid_Compressible_Van_der_Waals::get_property(
-                std::string aPropertyString )
-        {
-            // check that aPropertyString makes sense
-            if ( mPropertyMap.find( aPropertyString ) == mPropertyMap.end() )
-            {
-                std::string tErrMsg =
-                        std::string( "CM_Fluid_Compressible_Van_der_Waals::get_property - Unknown aPropertyString : ") +
-                        aPropertyString;
-
-                MORIS_ERROR( false , tErrMsg.c_str() );
-            }
-
-            // get the property in the property cell
-            return  mProperties( static_cast< uint >( mPropertyMap[ aPropertyString ] ) );
-        }
-
-        //--------------------------------------------------------------------------------------------------------------
         //--------------------------------------------------------------------------------------------------------------
 
         const Matrix< DDRMat > & CM_Fluid_Compressible_Van_der_Waals::flux( enum CM_Function_Type aCMFunctionType )

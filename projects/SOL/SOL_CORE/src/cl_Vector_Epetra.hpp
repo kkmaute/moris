@@ -59,7 +59,7 @@ namespace moris
                                      const moris::Matrix< DDRMat > & aValues,
                                      const uint                    & aVectorIndex = 0 );
 
-        void vector_global_asembly();
+        void vector_global_assembly();
 
         void vec_plus_vec( const moris::real & aScaleA,
                                  sol::Dist_Vector & aVecA,

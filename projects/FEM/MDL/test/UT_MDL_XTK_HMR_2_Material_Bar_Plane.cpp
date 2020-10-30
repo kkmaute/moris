@@ -235,12 +235,14 @@ TEST_CASE("XTK HMR 2 Material Bar Intersected By Plane","[XTK_HMR_PLANE_BAR_2D]"
         tCMDiffLinIso1->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
         tCMDiffLinIso1->set_property( tPropConductivity1, "Conductivity" );
         tCMDiffLinIso1->set_space_dim( 2 );
+        tCMDiffLinIso1->set_local_properties();
 
         std::shared_ptr< fem::Constitutive_Model > tCMDiffLinIso2 =
                 tCMFactory.create_CM( fem::Constitutive_Type::DIFF_LIN_ISO );
         tCMDiffLinIso2->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
         tCMDiffLinIso2->set_property( tPropConductivity2, "Conductivity" );
         tCMDiffLinIso2->set_space_dim( 2 );
+        tCMDiffLinIso2->set_local_properties();
 
         // define stabilization parameters
         fem::SP_Factory tSPFactory;

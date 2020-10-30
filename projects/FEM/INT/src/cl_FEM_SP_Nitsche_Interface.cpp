@@ -24,7 +24,7 @@ namespace moris
             mSlaveProp.resize( static_cast< uint >( SP_Property_Type::MAX_ENUM ), nullptr );
 
             // populate the property map
-            mPropertyMap[ "Material" ] = SP_Property_Type::MATERIAL;
+            mPropertyMap[ "Material" ] = static_cast< uint >( SP_Property_Type::MATERIAL );
         }
 
         //------------------------------------------------------------------------------
@@ -41,21 +41,6 @@ namespace moris
             mInterfaceSurface = mCluster->compute_cluster_cell_side_measure(
                     mtk::Primary_Void::PRIMARY,
                     mtk::Master_Slave::MASTER );
-        }
-
-        //------------------------------------------------------------------------------
-
-        void SP_Nitsche_Interface::set_property(
-                std::shared_ptr< Property > aProperty,
-                std::string                 aPropertyString,
-                mtk::Master_Slave           aIsMaster )
-        {
-            // check that aPropertyString makes sense
-            MORIS_ERROR( mPropertyMap.find( aPropertyString ) != mPropertyMap.end(),
-                    "SP_Nitsche_Interface::set_property - Unknown aPropertyString." );
-
-            // set the property in the property cell
-            this->get_properties( aIsMaster )( static_cast< uint >( mPropertyMap[ aPropertyString ] ) ) = aProperty;
         }
 
         //------------------------------------------------------------------------------

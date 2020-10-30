@@ -67,6 +67,11 @@ namespace moris
                 // phase table
                 mPhaseTable(mGeometries.size())
         {
+            // Get intersection mode
+            std::string tIntersectionModeString = aParameterLists(0)(0).get<std::string>("intersection_mode");
+            moris::map< std::string, Intersection_Mode > tIntersectionModeMap = get_intersection_mode_map();
+            mIntersectionMode = tIntersectionModeMap[ tIntersectionModeString ];
+
             // Set requested PDVs
             Cell<std::string> tRequestedPdvNames = string_to_cell<std::string>(aParameterLists(0)(0).get<std::string>("PDV_types"));
             Cell<PDV_Type> tRequestedPdvTypes(tRequestedPdvNames.size());
@@ -126,7 +131,8 @@ namespace moris
             // Set new ADVs
             mOwnedADVs->vec_put_scalar(0);
             mOwnedADVs->replace_global_values(mFullADVIds, aNewADVs);
-            mOwnedADVs->vector_global_asembly();
+            mOwnedADVs->vector_global_assembly();
+            mPrimitiveADVs->import_local_to_global(*mOwnedADVs);
 
             // Reset info related to the mesh
             mPdvHostManager.reset();
@@ -222,22 +228,59 @@ namespace moris
             MORIS_ASSERT(aNodeIndices.length() > 0,
                     "Geometry engine must be provided at least 1 node to determine if an element is intersected or not.");
 
-            // Initialize by evaluating the first node
-            real tMin = mGeometries(mActiveGeometryIndex)->get_field_value(aNodeIndices(0), aNodeCoordinates.get_row(0));
-            real tMax = tMin;
+            bool tIsIntersected = false;
 
-            // Evaluate the rest of the nodes
-            for (uint tNodeCount = 0; tNodeCount < aNodeIndices.length(); tNodeCount++)
+            switch(mIntersectionMode)
             {
-                real tEval = mGeometries(mActiveGeometryIndex)->get_field_value(
-                        aNodeIndices(tNodeCount),
-                        aNodeCoordinates.get_row(tNodeCount));
-                tMin = std::min(tMin, tEval);
-                tMax = std::max(tMax, tEval);
+                case Intersection_Mode::LEVEL_SET:
+                {
+                    // Initialize by evaluating the first node
+                    real tMin = mGeometries(mActiveGeometryIndex)->get_field_value(aNodeIndices(0), aNodeCoordinates.get_row(0));
+                    real tMax = tMin;
+
+                    // Evaluate the rest of the nodes
+                    for (uint tNodeCount = 0; tNodeCount < aNodeIndices.length(); tNodeCount++)
+                    {
+                        real tEval = mGeometries(mActiveGeometryIndex)->get_field_value(
+                                aNodeIndices(tNodeCount),
+                                aNodeCoordinates.get_row(tNodeCount));
+                        tMin = std::min(tMin, tEval);
+                        tMax = std::max(tMax, tEval);
+                    }
+
+                    tIsIntersected = (tMax >= mIsocontourThreshold and tMin <= mIsocontourThreshold);
+
+                    break;
+                }
+                case Intersection_Mode::COLORING:
+                {
+                    real tFieldValue = mGeometries(mActiveGeometryIndex)->
+                            get_field_value(aNodeIndices(0), aNodeCoordinates.get_row(0));
+
+                    // Evaluate the rest of the nodes
+                    for (uint Ik = 0; Ik < aNodeIndices.length(); Ik++)
+                    {
+                        real tEval = mGeometries(mActiveGeometryIndex)->get_field_value(
+                                aNodeIndices( Ik ),
+                                aNodeCoordinates.get_row( Ik ));
+
+                        if( tFieldValue != tEval )
+                        {
+                            tIsIntersected = true;
+                            break;
+                        }
+                    }
+
+                    break;
+                }
+                default:
+                {
+                    MORIS_ERROR( false, "Geometry_Engine::is_intersected(), unknown intersection type." );
+                }
             }
 
             // Return result
-            return (tMax >= mIsocontourThreshold and tMin <= mIsocontourThreshold);
+            return tIsIntersected;
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -248,21 +291,68 @@ namespace moris
                 const Matrix<DDRMat>& aFirstNodeCoordinates,
                 const Matrix<DDRMat>& aSecondNodeCoordinates)
         {
-            // Determine if edge is intersected
-            //FIXME: Should take into account threshold here
-            bool tEdgeIsIntersected = mGeometries(mActiveGeometryIndex)->get_field_value(aFirstNodeIndex, aFirstNodeCoordinates)
-                    * mGeometries(mActiveGeometryIndex)->get_field_value(aSecondNodeIndex, aSecondNodeCoordinates) <= 0;
+            bool tEdgeIsIntersected = false;
+
+            switch(mIntersectionMode)
+            {
+                case Intersection_Mode::LEVEL_SET:
+                {
+                    // Determine if edge is intersected
+                    tEdgeIsIntersected = mGeometries(mActiveGeometryIndex)->get_field_value(aFirstNodeIndex, aFirstNodeCoordinates)
+                            * mGeometries(mActiveGeometryIndex)->get_field_value(aSecondNodeIndex, aSecondNodeCoordinates) <= 0;
+
+                    break;
+                }
+                case Intersection_Mode::COLORING:
+                {
+                    // Determine if edge is intersected
+                    if( mGeometries(mActiveGeometryIndex)->get_field_value(aFirstNodeIndex , aFirstNodeCoordinates ) !=
+                        mGeometries(mActiveGeometryIndex)->get_field_value(aSecondNodeIndex, aSecondNodeCoordinates) )
+                    {
+                        tEdgeIsIntersected = true;
+                    }
+
+                    break;
+                }
+                default:
+                {
+                    MORIS_ERROR( false, "Geometry_Engine::queue_intersection(), unknown intersection type." );
+                }
+            }
 
             // If edge is intersected, queue intersection node
             if (tEdgeIsIntersected)
             {
-                mQueuedIntersectionNode = std::make_shared<Intersection_Node>(
-                        aFirstNodeIndex,
-                        aSecondNodeIndex,
-                        aFirstNodeCoordinates,
-                        aSecondNodeCoordinates,
-                        mGeometries(mActiveGeometryIndex),
-                        mIsocontourThreshold);
+                switch(mIntersectionMode)
+                {
+                    case Intersection_Mode::LEVEL_SET:
+                    {
+                        mQueuedIntersectionNode = std::make_shared<Intersection_Node>(
+                                aFirstNodeIndex,
+                                aSecondNodeIndex,
+                                aFirstNodeCoordinates,
+                                aSecondNodeCoordinates,
+                                mGeometries(mActiveGeometryIndex),
+                                mIsocontourThreshold);
+
+                        break;
+                    }
+                    case Intersection_Mode::COLORING:
+                    {
+                        mQueuedIntersectionNode = std::make_shared<Intersection_Node>(
+                                aFirstNodeIndex,
+                                aSecondNodeIndex,
+                                aFirstNodeCoordinates,
+                                aSecondNodeCoordinates,
+                                mGeometries(mActiveGeometryIndex));
+
+                        break;
+                    }
+                    default:
+                    {
+                        MORIS_ERROR( false, "Geometry_Engine::queue_intersection(), unknown intersection type." );
+                    }
+                }
             }
 
             return tEdgeIsIntersected;
@@ -495,7 +585,22 @@ namespace moris
                 uint aFieldIndex,
                 uint aRefinementIndex)
         {
-            return ((sint)aRefinementIndex < mGeometries(aFieldIndex)->get_num_refinements());
+            MORIS_ASSERT( false, "Geometry_Engine::refinement_needed(), not implements");
+            return false;
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
+        const Matrix< DDSMat > & Geometry_Engine::get_num_refinements(uint aFieldIndex )
+        {
+            return mGeometries(aFieldIndex)->get_num_refinements();
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
+        const Matrix< DDSMat > & Geometry_Engine::get_refinement_mesh_indices(uint aFieldIndex )
+        {
+            return mGeometries(aFieldIndex)->get_refinement_mesh_indices();
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -680,19 +785,31 @@ namespace moris
                     }
                 }
 
-                // Set number of owned ADVs
-                uint tNumOwnedADVs = mADVs.length() + tNumNewOwnedADVs;
-                mLowerBounds.resize(tNumOwnedADVs, 1);
-                mUpperBounds.resize(tNumOwnedADVs, 1);
+                // Set number of total owned ADVs
+                uint tNumOwnedADVs = tNumNewOwnedADVs;
+                if (par_rank() == 0)
+                {
+                    tNumOwnedADVs += mADVs.length();
+                }
 
-                // Resize ADV IDs and set primitive IDs
-                Matrix<DDSMat> tOwnedADVIds(mADVs.length(), 1);
+                // Set primitive IDs
+                Matrix<DDSMat> tPrimitiveADVIds(mADVs.length(), 1);
                 for (uint tADVIndex = 0; tADVIndex < mADVs.length(); tADVIndex++)
                 {
-                    tOwnedADVIds(tADVIndex) = tADVIndex;
+                    tPrimitiveADVIds(tADVIndex) = tADVIndex;
                 }
-                Matrix<DDSMat> tPrimitiveIds = tOwnedADVIds;
+
+                // Start with primitive IDs for owned IDs on processor 0
+                Matrix<DDSMat> tOwnedADVIds(0, 0);
+                if (par_rank() == 0)
+                {
+                    tOwnedADVIds = tPrimitiveADVIds;
+                }
+
+                // Resize owned IDs and bounds
                 tOwnedADVIds.resize(tNumOwnedADVs, 1);
+                mLowerBounds.resize(tNumOwnedADVs, 1);
+                mUpperBounds.resize(tNumOwnedADVs, 1);
 
                 // Cell of shared ADV IDs
                 Cell<Matrix<DDSMat>> tSharedADVIds(mGeometries.size());
@@ -750,26 +867,32 @@ namespace moris
                 // Create factory for distributed ADV vector
                 sol::Matrix_Vector_Factory tDistributedFactory;
 
-                // Create map for distributed vector
+                // Create map for distributed vectors
                 std::shared_ptr<sol::Dist_Map> tOwnedADVMap = tDistributedFactory.create_map(tOwnedADVIds);
+                std::shared_ptr<sol::Dist_Map> tPrimitiveADVMap = tDistributedFactory.create_map(tPrimitiveADVIds);
 
-                // Create vector
+                // Create vectors
                 mOwnedADVs = tDistributedFactory.create_vector(tOwnedADVMap);
+                mPrimitiveADVs = tDistributedFactory.create_vector(tPrimitiveADVMap);
 
-                // Assign primitive IDs
-                mOwnedADVs->replace_global_values(tPrimitiveIds, mADVs);
+                // Assign primitive ADVs
+                if (par_rank() == 0)
+                {
+                    mOwnedADVs->replace_global_values(tPrimitiveADVIds, mADVs);
+                }
 
                 // Global assembly
-                mOwnedADVs->vector_global_asembly();
+                mOwnedADVs->vector_global_assembly();
 
-                // Build geometries and properties from parameter lists using distributed vector
+                // Get primitive ADVs from owned vector
+                mPrimitiveADVs->import_local_to_global(*mOwnedADVs);
+
+                // Build geometries from parameter lists using distributed vector
                 // TODO augmented copy constructor for fields
                 if (mGeometryParameterLists.size() > 0)
                 {
-                    // Build geometries and properties
-                    mGeometries = create_geometries(mGeometryParameterLists, mOwnedADVs, mLibrary);
-                    mProperties = create_properties(mPropertyParameterLists, mOwnedADVs, mGeometries, mLibrary);
-                    mGeometryParameterLists.resize(0);
+                    mGeometries = create_geometries(mGeometryParameterLists, mPrimitiveADVs, mLibrary);
+                    mGeometryParameterLists.clear();
                 }
 
                 //----------------------------------------//
@@ -793,11 +916,14 @@ namespace moris
                                 mOwnedADVs,
                                 tOwnedADVIds,
                                 tSharedADVIds(tGeometryIndex),
-                                tPrimitiveIds.length(),
+                                tPrimitiveADVIds.length(),
                                 aMesh,
                                 mGeometries(tGeometryIndex));
                     }
                 }
+
+                // Build properties from parameter lists using distributed vector
+                mProperties = create_properties(mPropertyParameterLists, mPrimitiveADVs, mGeometries, mLibrary);
 
                 //----------------------------------------//
                 // Communicate all ADV IDs to processor 0 //
@@ -896,12 +1022,32 @@ namespace moris
                 mtk::Writer_Exodus tWriter(aMesh);
                 tWriter.write_mesh("", aExodusFileName, "", "gen_temp.exo");
 
-                // Setup fields
-                Cell<std::string> tFieldNames(mGeometries.size());
-                for (uint tGeometryIndex = 0; tGeometryIndex < mGeometries.size(); tGeometryIndex++)
+                // Setup field names
+                uint tNumGeometries = mGeometries.size();
+                uint tNumProperties = mProperties.size();
+                Cell<std::string> tFieldNames(tNumGeometries + tNumProperties);
+
+                // Geometry field names
+                for (uint tGeometryIndex = 0; tGeometryIndex < tNumGeometries; tGeometryIndex++)
                 {
-                    tFieldNames(tGeometryIndex) = "Geometry " + std::to_string(tGeometryIndex);
+                    tFieldNames(tGeometryIndex) = mGeometries(tGeometryIndex)->get_name();
+                    if (tFieldNames(tGeometryIndex) == "")
+                    {
+                        tFieldNames(tGeometryIndex) = "Geometry " + std::to_string(tGeometryIndex);
+                    }
                 }
+
+                // Property field names
+                for (uint tPropertyIndex = 0; tPropertyIndex < tNumProperties; tPropertyIndex++)
+                {
+                    tFieldNames(tNumGeometries + tPropertyIndex) = mProperties(tPropertyIndex)->get_name();
+                    if (tFieldNames(tNumGeometries + tPropertyIndex) == "")
+                    {
+                        tFieldNames(tNumGeometries + tPropertyIndex) = "Property " + std::to_string(tPropertyIndex);
+                    }
+                }
+
+                // Set nodal fields based on field names
                 tWriter.set_nodal_fields(tFieldNames);
 
                 // Get all node coordinates
@@ -912,7 +1058,7 @@ namespace moris
                 }
 
                 // Loop over geometries
-                for (uint tGeometryIndex = 0; tGeometryIndex < mGeometries.size(); tGeometryIndex++)
+                for (uint tGeometryIndex = 0; tGeometryIndex < tNumGeometries; tGeometryIndex++)
                 {
                     // Create field vector
                     Matrix<DDRMat> tFieldData(aMesh->get_num_nodes(), 1);
@@ -926,7 +1072,25 @@ namespace moris
                     }
 
                     // Create field on mesh
-                    tWriter.write_nodal_field("Geometry " + std::to_string(tGeometryIndex), tFieldData);
+                    tWriter.write_nodal_field(tFieldNames(tGeometryIndex), tFieldData);
+                }
+
+                // Loop over properties
+                for (uint tPropertyIndex = 0; tPropertyIndex < tNumProperties; tPropertyIndex++)
+                {
+                    // Create field vector
+                    Matrix<DDRMat> tFieldData(aMesh->get_num_nodes(), 1);
+
+                    // Assign field to vector
+                    for (uint tNodeIndex = 0; tNodeIndex < aMesh->get_num_nodes(); tNodeIndex++)
+                    {
+                        tFieldData(tNodeIndex) = mProperties(tPropertyIndex)->get_field_value(
+                                tNodeIndex,
+                                tNodeCoordinates(tNodeIndex));
+                    }
+
+                    // Create field on mesh
+                    tWriter.write_nodal_field(tFieldNames(tNumGeometries + tPropertyIndex), tFieldData);
                 }
 
                 // Finalize

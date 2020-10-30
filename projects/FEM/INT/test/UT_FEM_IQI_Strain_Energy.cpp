@@ -89,6 +89,7 @@ TEST_CASE("IQI_Strain_Energy", "[moris],[fem],[IQI_Strain_Energy]")
     tCMMasterElastLinIso->set_property( tPropMasterEMod, "YoungsModulus" );
     tCMMasterElastLinIso->set_property( tPropMasterNu, "PoissonRatio" );
     tCMMasterElastLinIso->set_space_dim( 3 );
+    tCMMasterElastLinIso->set_local_properties();
 
     // define the IWGs
     fem::IQI_Factory tIQIFactory;

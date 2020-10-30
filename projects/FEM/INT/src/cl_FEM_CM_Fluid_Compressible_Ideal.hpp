@@ -30,6 +30,12 @@ namespace moris
         {
 
                 //------------------------------------------------------------------------------
+            protected:
+                // default local properties
+                std::shared_ptr< Property > mPropIsochoricHeatCapacity  = nullptr;
+                std::shared_ptr< Property > mPropSpecificGasConstant    = nullptr;
+                std::shared_ptr< Property > mPropDynamicViscosity       = nullptr;
+                std::shared_ptr< Property > mPropThermalConductivity    = nullptr;
 
             private:
 
@@ -87,6 +93,18 @@ namespace moris
                 moris::Cell< Matrix< DDRMat > > mMechanicalTractionDof;
                 moris::Cell< bool > mMechanicalTractionDofEval;
 
+                // Thermal Test Traction ------------------------------
+                moris::Cell< Matrix< DDRMat > > mThermalTestTraction;
+                moris::Cell< bool > mThermalTestTractionEval;
+                moris::Cell< moris::Cell< Matrix< DDRMat > > > mdThermalTestTractiondDof;
+                moris::Cell< moris::Cell< bool > > mdThermalTestTractiondDofEval;
+
+                // Mechanical Test Traction
+                moris::Cell< Matrix< DDRMat > > mMechanicalTestTraction;
+                moris::Cell< bool > mMechanicalTestTractionEval;
+                moris::Cell< moris::Cell< Matrix< DDRMat > > > mdMechanicalTestTractiondDof;
+                moris::Cell< moris::Cell< bool > > mdMechanicalTestTractiondDofEval;
+
                 // DoF derivative of du/dt ----------------------------
                 Matrix< DDRMat > mdNveldt;
                 bool mdNveldtEval = true;
@@ -112,9 +130,6 @@ namespace moris
                         THERMAL_CONDUCTIVITY,     // thermal conductivity
                         MAX_ENUM
                 };
-
-                // local string to property enum map
-                std::map< std::string, CM_Property_Type > mPropertyMap;
 
                 // function pointer for functions depending spatial dimension
                 void ( CM_Fluid_Compressible_Ideal:: * m_eval_strain )() = nullptr;
@@ -197,21 +212,9 @@ namespace moris
 
                 //------------------------------------------------------------------------------
                 /**
-                 * set a property pointer
-                 * @param[ in ] aProperty     a property pointer
-                 * @param[ in ] aPropertyType a string defining the property
+                 * set local properties
                  */
-                void set_property(
-                        std::shared_ptr< fem::Property > aProperty,
-                        std::string                      aPropertyString );
-
-                //------------------------------------------------------------------------------
-                /**
-                 * get a property pointer
-                 * @param[ in ]  aPropertyType a string defining the property
-                 * @param[ out ] aProperty     a property pointer
-                 */
-                std::shared_ptr< Property > get_property( std::string aPropertyString );
+                void set_local_properties();
 
                 //------------------------------------------------------------------------------
                 /**
@@ -395,6 +398,7 @@ namespace moris
                         const Matrix< DDRMat > & aNormal,
                         enum CM_Function_Type aCMFunctionType = CM_Function_Type::DEFAULT );
 
+                //------------------------------------------------------------------------------
                 /**
                  * evaluate the constitutive model traction derivative wrt to a dof type
                  * @param[ in ] aDofTypes a dof type wrt which the derivative is evaluated
@@ -562,6 +566,132 @@ namespace moris
                 const Matrix< DDRMat > & mechanical_dTractiondDOF(
                         const moris::Cell< MSI::Dof_Type > & aDofType,
                         const Matrix< DDRMat >             & aNormal );
+
+                //------------------------------------------------------------------------------
+                //------------------------------------------------------------------------------
+                /**
+                 * get the constitutive model test traction
+                 * @param[ in ]  aNormal       normal
+                 * @param[ in ]  aTestDofTypes      Dof type of the test functions
+                 * @param[ out ] mTestTraction constitutive model test traction
+                 */
+                const Matrix< DDRMat > & testTraction(
+                        const Matrix< DDRMat >             & aNormal,
+                        const moris::Cell< MSI::Dof_Type > & aTestDofTypes,
+                        enum CM_Function_Type aCMFunctionType = CM_Function_Type::DEFAULT);
+
+                /**
+                 * get the derivative of the test traction wrt dof
+                 * @param[ in ]  aDofType           group of dof type
+                 * @param[ in ]  aNormal            normal
+                 * @param[ in ]  aJump              jump in field values on boundary
+                 * @param[ in ]  aTestDofTypes      Dof type of the test functions
+                 * @param[ out ] mdTestTractiondDof derivative of the traction wrt dof
+                 */
+                const Matrix< DDRMat > & dTestTractiondDOF(
+                        const moris::Cell< MSI::Dof_Type > & aDofType,
+                        const Matrix< DDRMat >             & aNormal,
+                        const Matrix< DDRMat >             & aJump,
+                        const moris::Cell< MSI::Dof_Type > & aTestDofTypes,
+                        enum CM_Function_Type                aCMFunctionType = CM_Function_Type::DEFAULT );
+
+                //------------------------------------------------------------------------------
+                //------------------------------------------------------------------------------
+                /**
+                  * evaluate the constitutive model thermal test traction
+                  * @param[ in ]  aNormal normal
+                  * @param[ in ]  aTestDofTypes      Dof type of the test functions
+                  */
+                 void eval_thermal_testTraction(
+                         const Matrix< DDRMat >             & aNormal,
+                         const moris::Cell< MSI::Dof_Type > & aTestDofTypes );
+
+                 /**
+                  * get the constitutive model thermal test traction
+                  * @param[ in ]  aNormal       normal
+                  * @param[ in ]  aTestDofTypes      Dof type of the test functions
+                  * @param[ out ] mTestTraction constitutive model test traction
+                  */
+                 const Matrix< DDRMat > & thermal_testTraction(
+                         const Matrix< DDRMat >             & aNormal,
+                         const moris::Cell< MSI::Dof_Type > & aTestDofTypes );
+
+                 //------------------------------------------------------------------------------
+                 /**
+                  * evaluate the constitutive model thermal test traction derivative wrt to a dof type
+                  * @param[ in ] aDofTypes       a dof type wrt which the derivative is evaluated
+                  * @param[ in ] aNormal         normal
+                  * @param[ in ] aJump           jump in field values on boundary
+                  * @param[ in ] aTestDofTypes   Dof type of the test functions
+                  */
+                 void eval_thermal_dTestTractiondDOF(
+                         const moris::Cell< MSI::Dof_Type > & aDofTypes,
+                         const Matrix< DDRMat >             & aNormal,
+                         const Matrix< DDRMat >             & aJump,
+                         const moris::Cell< MSI::Dof_Type > & aTestDofTypes );
+
+                 /**
+                  * get the derivative of the thermal test traction wrt dof
+                  * @param[ in ]  aDofType           group of dof type
+                  * @param[ in ]  aNormal            normal
+                  * @param[ in ]  aJump              jump in field values on boundary
+                  * @param[ in ]  aTestDofTypes      Dof type of the test functions
+                  * @param[ out ] mdTestTractiondDof derivative of the traction wrt dof
+                  */
+                 const Matrix< DDRMat > & thermal_dTestTractiondDOF(
+                         const moris::Cell< MSI::Dof_Type > & aDofType,
+                         const Matrix< DDRMat >             & aNormal,
+                         const Matrix< DDRMat >             & aJump,
+                         const moris::Cell< MSI::Dof_Type > & aTestDofTypes );
+
+                 //------------------------------------------------------------------------------
+                 //------------------------------------------------------------------------------
+                /**
+                 * evaluate the constitutive model mechanical test traction
+                 * @param[ in ]  aNormal normal
+                 * @param[ in ]  aTestDofTypes      Dof type of the test functions
+                 */
+                void eval_mechanical_testTraction(
+                        const Matrix< DDRMat >             & aNormal,
+                        const moris::Cell< MSI::Dof_Type > & aTestDofTypes );
+
+                /**
+                 * get the constitutive model mechanical test traction
+                 * @param[ in ]  aNormal       normal
+                 * @param[ in ]  aTestDofTypes      Dof type of the test functions
+                 * @param[ out ] mTestTraction constitutive model test traction
+                 */
+                const Matrix< DDRMat > & mechanical_testTraction(
+                        const Matrix< DDRMat >             & aNormal,
+                        const moris::Cell< MSI::Dof_Type > & aTestDofTypes );
+
+                //------------------------------------------------------------------------------
+                /**
+                 * evaluate the constitutive model mechanical test traction derivative wrt to a dof type
+                 * @param[ in ] aDofTypes       a dof type wrt which the derivative is evaluated
+                 * @param[ in ] aNormal         normal
+                 * @param[ in ] aJump           jump in field values on boundary
+                 * @param[ in ] aTestDofTypes   Dof type of the test functions
+                 */
+                void eval_mechanical_dTestTractiondDOF(
+                        const moris::Cell< MSI::Dof_Type > & aDofTypes,
+                        const Matrix< DDRMat >             & aNormal,
+                        const Matrix< DDRMat >             & aJump,
+                        const moris::Cell< MSI::Dof_Type > & aTestDofTypes );
+
+                /**
+                 * get the derivative of the mechanical test traction wrt dof
+                 * @param[ in ]  aDofType           group of dof type
+                 * @param[ in ]  aNormal            normal
+                 * @param[ in ]  aJump              jump in field values on boundary
+                 * @param[ in ]  aTestDofTypes      Dof type of the test functions
+                 * @param[ out ] mdTestTractiondDof derivative of the traction wrt dof
+                 */
+                const Matrix< DDRMat > & mechanical_dTestTractiondDOF(
+                        const moris::Cell< MSI::Dof_Type > & aDofType,
+                        const Matrix< DDRMat >             & aNormal,
+                        const Matrix< DDRMat >             & aJump,
+                        const moris::Cell< MSI::Dof_Type > & aTestDofTypes );
 
                 //------------------------------------------------------------------------------
                 //------------------------------------------------------------------------------

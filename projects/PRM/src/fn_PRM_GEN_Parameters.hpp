@@ -19,6 +19,7 @@ namespace moris
             ParameterList tParameterList;
 
             // Level set parameters
+            tParameterList.insert("intersection_mode", "LEVEL_SET"); // Level-set isocontour level
             tParameterList.insert("isocontour_threshold", 0.0); // Level-set isocontour level
             tParameterList.insert("isocontour_error_factor", 0.0); // Error factor for determining interface nodes
             tParameterList.insert("output_mesh_file", ""); // File name for exodus mesh, if default no mesh is written
@@ -57,12 +58,12 @@ namespace moris
             tParameterList.insert("geometry_variable_indices", ""); // Geometry variables to fill
             tParameterList.insert("adv_indices", "");               // ADVs used to fill in variables
             tParameterList.insert("constant_parameters", "");       // Remaining geometry parameters that are constant
-            tParameterList.insert("number_of_refinements", 0);      // Number of refinement steps using HMR
+            tParameterList.insert("number_of_refinements", "");     // Number of refinement steps using HMR
+            tParameterList.insert("refinement_mesh_index", "");        // Refinement pattern
             tParameterList.insert("refinement_function_index", -1); // Index of user-defined refinement function (-1 = none)
             tParameterList.insert("bspline_mesh_index", -1);        // Index of B-spline mesh to create level set field on (-1 = none)
             tParameterList.insert("bspline_lower_bound", -1.0);     // Lower bound of level set field (if bspline_mesh_index >= 0)
             tParameterList.insert("bspline_upper_bound", 1.0);      // Upper bound of level set field (if bspline_mesh_index >= 0)
-            tParameterList.insert("multigeometry_id", "");          // ID of a multigeometry to be added to ("" = none)
 
             return tParameterList;
         }
@@ -119,7 +120,8 @@ namespace moris
             tParameterList.insert("superellipse_shift", 1e-6);          // Superellipse shift
 
             tParameterList.insert("row_offset", 0.0);                   // Offset to be applied on subsequent rows
-            tParameterList.insert("number_of_refinements", 0);          // Number of refinement steps using HMR
+            tParameterList.insert("number_of_refinements", "");         // Number of refinement steps using HMR
+            tParameterList.insert("refinement_mesh_index", "");            // Refinement pattern
             tParameterList.insert("refinement_function_index", -1);     // Index of user-defined refinement function (-1 = none)
             tParameterList.insert("bspline_mesh_index", -1);            // Index of B-spline mesh to create level set field on (-1 = none)
             tParameterList.insert("bspline_lower_bound", -1.0);         // Lower bound of level set field (if bspline_mesh_index >= 0)
