@@ -6,7 +6,7 @@ namespace moris
     //------------------------------------------------------------------------------------------------------------------
 
     moris::map< std::string, PDV_Type > get_pdv_type_map()
-    {
+            {
         moris::map< std::string, PDV_Type > tPdvTypeMap;
 
         tPdvTypeMap["X_COORDINATE"]     = PDV_Type::X_COORDINATE;
@@ -19,6 +19,19 @@ namespace moris
         tPdvTypeMap["LS2"]              = PDV_Type::LS2;
         tPdvTypeMap[""]                 = PDV_Type::UNDEFINED;
         return tPdvTypeMap;
+            }
+
+    //------------------------------------------------------------------------------------------------------------------
+
+    moris::map< std::string, Intersection_Mode > get_intersection_mode_map()
+    {
+        moris::map< std::string, Intersection_Mode > IntersectionModeMap;
+
+        IntersectionModeMap["LEVEL_SET"]    = Intersection_Mode::LEVEL_SET;
+        IntersectionModeMap["COLORING"]     = Intersection_Mode::COLORING;
+        IntersectionModeMap[""]             = Intersection_Mode::END_ENUM;
+
+        return IntersectionModeMap;
     }
 
     //------------------------------------------------------------------------------------------------------------------
