@@ -52,6 +52,7 @@ namespace moris
         private:
 
             // Level set
+            enum Intersection_Mode mIntersectionMode = Intersection_Mode::LEVEL_SET;
             real mIsocontourThreshold;
             real mErrorFactor;
 
@@ -342,6 +343,10 @@ namespace moris
             bool refinement_needed(
                     uint aFieldIndex,
                     uint aRefinementIndex);
+
+            const Matrix< DDSMat > & get_num_refinements(uint aFieldIndex );
+
+            const Matrix< DDSMat > & get_refinement_mesh_indices(uint aFieldIndex );
 
             /**
              * Returns fields so that HMR can perform refinement based on the data from this performer

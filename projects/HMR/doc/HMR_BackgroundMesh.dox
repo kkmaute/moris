@@ -6,17 +6,121 @@ namespace hmr {
 
 Mesh adaption procedures are performed on the Background_Mesh. An HMR object has exactly one background mesh. The background mesh only contains elements, but does not store any nodes or basis. 
 
+The "Domain" is a struc which serves as a lookup table for all ijk related question conceraning the global domain and the processor local subdomain. 
+
+# Domain
+
+The domain sruc stores lookup tables which contain relevant data concerning the uniform refined global as well as local domain. Such as:
+
+
+<b> DomainIJK: </b> Array for each level containing the start and end IJK in each dimension without padding or aura. 
+
+<b> AuraIJK: </b> The padding size is added to the DomainIJK.
+
+<b> FrameIJK: </b> Subdomain local IJK positions in each dimenson with out padding or aura. In serial the FrameIJK is the same than DomainIJK.
+
+<b> NumberOfElementsPerDimension: </b> Elements including padding. Used for the calculation of Ids
+
+<b> LevelOffset: </b> The element offset ( including padding elements) between levels for a uniform refinement.
+
+@image html DomainIJK_serial.png "Figure 1: In the presented example the DomainIJK would be calculated to [2,4], AuraIJK to [0,6] and FrameIJK to [2,4]. 
+NumberOfElementsPerDimension is 7 and LevelOffset for this one dimensional problem is 0, 14, 28, ..."
+
+The domain struc is filled with the information for every level. Since HMR uses a regular subdivision stratagy with a factor of 2 per dimension the higher levels differ from the previous level by a factor of 2.
+All mentioned IJK positions are defined for every level seperately.
+
+# Initialization
+
+The background mesh is based on a hierarchical data structure, a quadtree in 2D and an octree in 3D, that manages active and refined elements of the mesh.
+The class also contains all information on parallel mesh decomposition, and manages parallel communication. class is templated against the dimension, 2D or 3D.
+
+When initializing the background mesh, the uniform, coarsest layer of elements on the proc including aura are generated.
+Element pointers are stored. All elements are flagged active. Owning proc Id is not known at this stage.
+  
+subsequently all padding elements are identified and their onwership is calculated. Elements are identified which belong to the aura or inverse aura.
+Aura elements are elements around the proc domain which belong to a neighboring proc and are shared with the current proc.
+These elements are needed to calculate a correct B-spline basis or for the correct implementation of face oriented ghost stabilization.
+Inverse aura elements are elements that belong to the current proc, and are shared with a neighbor. The knowlege about inverse aura elements reduces the communication.
+Padding elements are not considered for the aura.
+
+Elements gets collected and consecutive indices and ids are calculated.
+
+# Background Element
+
+ Elements are templated against $N$ the number of dimesnions, $C$ the number of children $2^N$, $B$ number of neugbours $N^N-1$ , $F$ number of faces $2N$ and  $E$ the number of edges $3D 12, 2D 0$
+
+Member data:
+
+<b> AciveFlag: </b> A list of bitsets for every refinement pattern which indicates if an element is active. 
+Since normal bitsets need to know the length at compile time the number is limited to 8 but can be changed in the HMR_Globals.
+
+<b> RefinedFlag: </b>  list of bitsets for every refinement pattern which indicates if an element is active.
+
+<b> ChildBitset: </b> A bitset with size number of dimensions. Four combinations in 2D, 8 in 3D. Used as an index to identify the child in the quad/oc-tree.
+
+<b> FacetOwnFlag: </b> Bitset with size number of facets. Indicates if facets are owned.
+
+
+# Background Mesh Refinement
+
+Elements are flagged to be adapted based on one or several user-defined criteria and on additional mesh regularity requirements.
+Then refinement is carried out by splitting elements on a given level. 
+
+Element can flagged for refinement based on a given criteria. In addition, a minimum refinement level can be defined. 
+Based on the so called buffer region, additional elements are flagged. The buffer region is a refined region around an element which was initially flagged for refinement.
+Its purpose is to maintain consistency of the mesh but also to increase the size of the refined region.
+This user defined buffer size must be wide enough to match the B-spline support region. 
+Changes in the minimum refinement criteria throughout re-meshing steps result in a coarsening effect.
+The coarse to fine element edge ratio is 2 to 1. The following algorithm is used to flag and refine elements.
+
+Refinements it perormed in two steps. Elements flagged for refinement are collected in a refinement queue. The queue is syncronized with neighboring processors.  Subsequently refniement is performed.
+
+The procedure leading to the refinement of the mesh is summarized in the following algorithms for the primary and for the buffer region refinements.
+
+\f[ \begin{algorithm}[ht]\center
+    \begin{algorithmic}[1]
+        \State{Set buffer size $d_{buffer}$}
+        \State{Flag element for refinement}
+        \State{Collect elements in queue for refinement}
+        \While {change in refinement queue}
+        \For{all elements in queue for refinement}
+        \State{Apply refinement buffer algorithm~\ref{alg_refinementBuffer}}
+        \State{Collect elements in queue for refinement}
+        \EndFor
+        \EndWhile
+        \State{Refine elements in refinement queue}
+        \If{element refinement level $< l_{min}$}
+        \State{Flag element for refinement}
+        \State{Refine element in refinement queue}
+        \EndIf
+    \end{algorithmic}        
+    \caption{Refinement algorithm.}
+    \label{alg_refinement}
+\end{algorithm} \f]
+
+\begin{algorithm}[ht]\center
+    \begin{algorithmic}[1]
+        \State{Get parent}
+        \State{Get parent's neighbors in half buffer range $d_{buffer}/2$}
+        \If{neighbor is active and not flagged for refinement}
+        \State{Calculate distance $d_{max}$ between parent and neighbor}
+        \If{$d_{max} < d_{buffer}$}
+        \State{Flag neighbor for refinement}
+        \State{Apply refinement buffer algorithm~\ref{alg_refinementBuffer} for neighbor}
+        \EndIf
+        \EndIf
+    \end{algorithmic}        
+    \caption{Refinement buffer algorithm.}
+    \label{alg_refinementBuffer}
+\end{algorithm}
+
+
 <b> Refinement Patterns </b>
 
-The concept of refinement patterns allows to store multiple refinement schemes on the same mesh object. Before a refinement procedure can be started, the background mesh needs to be told which pattern is to be used. By default, four patterns are used. They are reserved for the following purposes
-
-- a pattern for the input mesh
-- a pattern for the output mesh
-- the union of patterns the input and the output pattern
-- a special pattern for output downsampling
-
-While the pattern reservation is currently fixed in the Parameters object, future versions of HMR will allow the user extra control to select additional patterns for custom uses. 
-The total number of available patterns, however, is hardcoded by the global parameter gNumberOfPatterns.
+The concept of refinement patterns allows to store multiple refinement schemes on the same mesh object.
+Before a refinement procedure can be started, the background mesh needs to be told which pattern is to be used.
+ 
+The total number of available patterns, is hardcoded by the global parameter gNumberOfPatterns. It can be changed in the HMR_Globals
 
 The refinement pattern that results from initialization or loading from a file is set on the input slot.
 A refined or coarsened mesh is linked to the output slot.

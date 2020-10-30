@@ -1,6 +1,7 @@
 add_subdirectory(Shape_Sensitivity_Circle_Sweep_Transient)
 add_subdirectory(Shape_Sensitivity_Circle_Sweep_Thermoelastic_Transient)
 add_subdirectory(Shape_Sensitivity_Circle_Sweep_Thermoelastic)
+add_subdirectory(Shape_Sensitivity_Two_Material_Sweep_Thermoelastic)
 add_subdirectory(SA_Cut_Bar_Static)
 add_subdirectory(SA_Cut_PCBar_Transient)
 add_subdirectory(SIMP)

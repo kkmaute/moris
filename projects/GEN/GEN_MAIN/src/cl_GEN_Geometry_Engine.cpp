@@ -67,6 +67,11 @@ namespace moris
                 // phase table
                 mPhaseTable(mGeometries.size())
         {
+            // Get intersection mode
+            std::string tIntersectionModeString = aParameterLists(0)(0).get<std::string>("intersection_mode");
+            moris::map< std::string, Intersection_Mode > tIntersectionModeMap = get_intersection_mode_map();
+            mIntersectionMode = tIntersectionModeMap[ tIntersectionModeString ];
+
             // Set requested PDVs
             Cell<std::string> tRequestedPdvNames = string_to_cell<std::string>(aParameterLists(0)(0).get<std::string>("PDV_types"));
             Cell<PDV_Type> tRequestedPdvTypes(tRequestedPdvNames.size());
@@ -223,22 +228,59 @@ namespace moris
             MORIS_ASSERT(aNodeIndices.length() > 0,
                     "Geometry engine must be provided at least 1 node to determine if an element is intersected or not.");
 
-            // Initialize by evaluating the first node
-            real tMin = mGeometries(mActiveGeometryIndex)->get_field_value(aNodeIndices(0), aNodeCoordinates.get_row(0));
-            real tMax = tMin;
+            bool tIsIntersected = false;
 
-            // Evaluate the rest of the nodes
-            for (uint tNodeCount = 0; tNodeCount < aNodeIndices.length(); tNodeCount++)
+            switch(mIntersectionMode)
             {
-                real tEval = mGeometries(mActiveGeometryIndex)->get_field_value(
-                        aNodeIndices(tNodeCount),
-                        aNodeCoordinates.get_row(tNodeCount));
-                tMin = std::min(tMin, tEval);
-                tMax = std::max(tMax, tEval);
+                case Intersection_Mode::LEVEL_SET:
+                {
+                    // Initialize by evaluating the first node
+                    real tMin = mGeometries(mActiveGeometryIndex)->get_field_value(aNodeIndices(0), aNodeCoordinates.get_row(0));
+                    real tMax = tMin;
+
+                    // Evaluate the rest of the nodes
+                    for (uint tNodeCount = 0; tNodeCount < aNodeIndices.length(); tNodeCount++)
+                    {
+                        real tEval = mGeometries(mActiveGeometryIndex)->get_field_value(
+                                aNodeIndices(tNodeCount),
+                                aNodeCoordinates.get_row(tNodeCount));
+                        tMin = std::min(tMin, tEval);
+                        tMax = std::max(tMax, tEval);
+                    }
+
+                    tIsIntersected = (tMax >= mIsocontourThreshold and tMin <= mIsocontourThreshold);
+
+                    break;
+                }
+                case Intersection_Mode::COLORING:
+                {
+                    real tFieldValue = mGeometries(mActiveGeometryIndex)->
+                            get_field_value(aNodeIndices(0), aNodeCoordinates.get_row(0));
+
+                    // Evaluate the rest of the nodes
+                    for (uint Ik = 0; Ik < aNodeIndices.length(); Ik++)
+                    {
+                        real tEval = mGeometries(mActiveGeometryIndex)->get_field_value(
+                                aNodeIndices( Ik ),
+                                aNodeCoordinates.get_row( Ik ));
+
+                        if( tFieldValue != tEval )
+                        {
+                            tIsIntersected = true;
+                            break;
+                        }
+                    }
+
+                    break;
+                }
+                default:
+                {
+                    MORIS_ERROR( false, "Geometry_Engine::is_intersected(), unknown intersection type." );
+                }
             }
 
             // Return result
-            return (tMax >= mIsocontourThreshold and tMin <= mIsocontourThreshold);
+            return tIsIntersected;
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -249,20 +291,68 @@ namespace moris
                 const Matrix<DDRMat>& aFirstNodeCoordinates,
                 const Matrix<DDRMat>& aSecondNodeCoordinates)
         {
-            // Determine if edge is intersected
-            bool tEdgeIsIntersected = mGeometries(mActiveGeometryIndex)->get_field_value(aFirstNodeIndex, aFirstNodeCoordinates)
-                    * mGeometries(mActiveGeometryIndex)->get_field_value(aSecondNodeIndex, aSecondNodeCoordinates) <= 0;
+            bool tEdgeIsIntersected = false;
+
+            switch(mIntersectionMode)
+            {
+                case Intersection_Mode::LEVEL_SET:
+                {
+                    // Determine if edge is intersected
+                    tEdgeIsIntersected = mGeometries(mActiveGeometryIndex)->get_field_value(aFirstNodeIndex, aFirstNodeCoordinates)
+                            * mGeometries(mActiveGeometryIndex)->get_field_value(aSecondNodeIndex, aSecondNodeCoordinates) <= 0;
+
+                    break;
+                }
+                case Intersection_Mode::COLORING:
+                {
+                    // Determine if edge is intersected
+                    if( mGeometries(mActiveGeometryIndex)->get_field_value(aFirstNodeIndex , aFirstNodeCoordinates ) !=
+                        mGeometries(mActiveGeometryIndex)->get_field_value(aSecondNodeIndex, aSecondNodeCoordinates) )
+                    {
+                        tEdgeIsIntersected = true;
+                    }
+
+                    break;
+                }
+                default:
+                {
+                    MORIS_ERROR( false, "Geometry_Engine::queue_intersection(), unknown intersection type." );
+                }
+            }
 
             // If edge is intersected, queue intersection node
             if (tEdgeIsIntersected)
             {
-                mQueuedIntersectionNode = std::make_shared<Intersection_Node>(
-                        aFirstNodeIndex,
-                        aSecondNodeIndex,
-                        aFirstNodeCoordinates,
-                        aSecondNodeCoordinates,
-                        mGeometries(mActiveGeometryIndex),
-                        mIsocontourThreshold);
+                switch(mIntersectionMode)
+                {
+                    case Intersection_Mode::LEVEL_SET:
+                    {
+                        mQueuedIntersectionNode = std::make_shared<Intersection_Node>(
+                                aFirstNodeIndex,
+                                aSecondNodeIndex,
+                                aFirstNodeCoordinates,
+                                aSecondNodeCoordinates,
+                                mGeometries(mActiveGeometryIndex),
+                                mIsocontourThreshold);
+
+                        break;
+                    }
+                    case Intersection_Mode::COLORING:
+                    {
+                        mQueuedIntersectionNode = std::make_shared<Intersection_Node>(
+                                aFirstNodeIndex,
+                                aSecondNodeIndex,
+                                aFirstNodeCoordinates,
+                                aSecondNodeCoordinates,
+                                mGeometries(mActiveGeometryIndex));
+
+                        break;
+                    }
+                    default:
+                    {
+                        MORIS_ERROR( false, "Geometry_Engine::queue_intersection(), unknown intersection type." );
+                    }
+                }
             }
 
             return tEdgeIsIntersected;
@@ -479,7 +569,22 @@ namespace moris
                 uint aFieldIndex,
                 uint aRefinementIndex)
         {
-            return ((sint)aRefinementIndex < mGeometries(aFieldIndex)->get_num_refinements());
+            MORIS_ASSERT( false, "Geometry_Engine::refinement_needed(), not implements");
+            return false;
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
+        const Matrix< DDSMat > & Geometry_Engine::get_num_refinements(uint aFieldIndex )
+        {
+            return mGeometries(aFieldIndex)->get_num_refinements();
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
+        const Matrix< DDSMat > & Geometry_Engine::get_refinement_mesh_indices(uint aFieldIndex )
+        {
+            return mGeometries(aFieldIndex)->get_refinement_mesh_indices();
         }
 
         //--------------------------------------------------------------------------------------------------------------

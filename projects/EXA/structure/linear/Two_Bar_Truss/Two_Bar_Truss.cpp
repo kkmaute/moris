@@ -64,8 +64,6 @@ namespace moris
 
     int tRefineBuffer      = 1;
 
-    int tInterfaceRefinement = 0;
-
     /* ------------------------------------------------------------------------ */
     // Minimum level set value
     moris::real tMinLevs = 1.0e-8;
@@ -461,7 +459,6 @@ namespace moris
         // User defined geometry of bars
         tParameterlist( 1 )( 0 ).set( "field_function_name",       "Bars" );
         tParameterlist( 1 )( 0 ).set( "sensitivity_function_name", "BarsGrad");
-        tParameterlist( 1 )( 0 ).set( "number_of_refinements",      tInterfaceRefinement );
 
         tParameterlist( 1 )(0).set("geometry_variable_indices",
                 " 0,  1,  2,  3,  4,  5,  6,  7,"

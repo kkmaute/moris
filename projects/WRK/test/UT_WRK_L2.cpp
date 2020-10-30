@@ -106,7 +106,8 @@ TEST_CASE("WRK L2 test","[WRK_L2_test]")
          tParameterLists(1)(0).set("geometry_variable_indices", "0, 2");
          tParameterLists(1)(0).set("adv_indices", "0, 1");
          tParameterLists(1)(0).set("constant_parameters", "1.0");
-         tParameterLists(1)(0).set("number_of_refinements", 2);
+         tParameterLists( 1 )( 0 ).set( "number_of_refinements", "2");
+         tParameterLists( 1 )( 0 ).set( "refinement_mesh_index", "0");
 
          //----- XTK parameter list --------
 

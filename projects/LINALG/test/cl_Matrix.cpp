@@ -258,7 +258,7 @@ namespace moris
 
         moris::real tTimeForSummation = 1000 * (moris::real) ( clock() - tTimeStamp ) / CLOCKS_PER_SEC;
         MORIS_LOG_INFO( "Time to add all members on %i %i x %i MORIS-matrices: %5.2f milliseconds (result %e).",
-                tNumRepetitions, tDimX, tDimY, ( double ) tTimeForSummation, tSum );
+                tNumRepetitions, tDimX, tDimY, ( double ) tTimeForSummation, ( double ) tSum );
 
         // time Arma Matrix summation --------------------------------------------------
 
@@ -276,8 +276,8 @@ namespace moris
         }
 
         tTimeForSummation = 1000 * (moris::real) ( clock() - tTimeStamp ) / CLOCKS_PER_SEC;
-        MORIS_LOG_INFO( "Time to add all members on %i %i x %i ARMA-matrices: %5.2f milliseconds (result %d).",
-                tNumRepetitions, tDimX, tDimY, ( double ) tTimeForSummation, tSum );
+        MORIS_LOG_INFO( "Time to add all members on %i %i x %i ARMA-matrices: %5.2f milliseconds (result %e).",
+                tNumRepetitions, tDimX, tDimY, ( double ) tTimeForSummation, ( double ) tSum );
 
         // time Moris Matrix += - operations --------------------------------------------------
         moris::Matrix<DDRMat> tResultMatMoris = tMorisMat;

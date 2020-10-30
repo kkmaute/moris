@@ -29,6 +29,9 @@ extern uint gInterpolationOrder;
 // problem dimension: 2D or 3D
 extern uint gDim;
 
+// problem dimension: 2D or 3D
+extern uint gTestCaseIndex;
+
 //---------------------------------------------------------------
 
 #ifdef  __cplusplus
@@ -109,8 +112,6 @@ namespace moris
 
     int tRefineBuffer      = 1;
 
-    int tInterfaceRefinement = 0;
-
     /* ------------------------------------------------------------------------ */
     // Solver config
 
@@ -132,7 +133,7 @@ namespace moris
     /* ------------------------------------------------------------------------ */
     // Output Config
 
-    std::string tOutputFileName = "Two_Material_Bar.exo";
+    std::string tOutputFileName = "Two_Material_Bar_" + std::to_string(gTestCaseIndex) + ".exo";
 
     /* ------------------------------------------------------------------------ */
     // Level set function for diamond shaped wedge
@@ -298,7 +299,6 @@ namespace moris
         // Geometry parameter lists
         tParameterlist( 1 ).push_back( prm::create_user_defined_geometry_parameter_list() );
         tParameterlist( 1 )( tGeoCounter ).set( "field_function_name",       "Inclusion" );
-        tParameterlist( 1 )( tGeoCounter ).set( "number_of_refinements",      tInterfaceRefinement );
     }
 
     void FEMParameterList( moris::Cell< moris::Cell< ParameterList > > & tParameterList )
