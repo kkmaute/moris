@@ -25,7 +25,7 @@ namespace moris
             mSlaveProp.resize( static_cast< uint >( SP_Property_Type::MAX_ENUM ), nullptr );
 
             // populate the property map
-            mPropertyMap[ "Material" ] = SP_Property_Type::MATERIAL;
+            mPropertyMap[ "Material" ] = static_cast< uint >( SP_Property_Type::MATERIAL );
         }
 
         //------------------------------------------------------------------------------
@@ -75,11 +75,10 @@ namespace moris
                         }
                         else
                         {
-                            // create error message
-                            std::string tErrMsg =
-                                    std::string( "SP_Spalart_Allmaras_Nitsche_Interface::set_dof_type_list - Unknown aDofString : ") +
-                                    tDofString;
-                            MORIS_ERROR( false , tErrMsg.c_str() );
+                            // error unknown dof string
+                            MORIS_ERROR( false ,
+                                    "SP_Spalart_Allmaras_Nitsche_Interface::set_dof_type_list - Unknown aDofString : %s \n",
+                                    tDofString.c_str() );
                         }
                     }
                     break;
@@ -106,11 +105,10 @@ namespace moris
                         }
                         else
                         {
-                            // create error message
-                            std::string tErrMsg =
-                                    std::string( "SP_Spalart_Allmaras_Nitsche_Interface::set_dof_type_list - Unknown aDofString : ") +
-                                    tDofString;
-                            MORIS_ERROR( false , tErrMsg.c_str() );
+                            // error unknown dof string
+                            MORIS_ERROR( false ,
+                                    "SP_Spalart_Allmaras_Nitsche_Interface::set_dof_type_list - Unknown aDofString : %s \n",
+                                    tDofString.c_str() );
                         }
                     }
                     break;
@@ -119,21 +117,6 @@ namespace moris
                 default:
                     MORIS_ERROR( false, "SP_Spalart_Allmaras_Nitsche_Interface::set_dof_type_list - unknown master slave type." );
             }
-        }
-
-        //------------------------------------------------------------------------------
-
-        void SP_Spalart_Allmaras_Nitsche_Interface::set_property(
-                std::shared_ptr< Property > aProperty,
-                std::string                 aPropertyString,
-                mtk::Master_Slave           aIsMaster )
-        {
-            // check that aPropertyString makes sense
-            MORIS_ERROR( mPropertyMap.find( aPropertyString ) != mPropertyMap.end(),
-                    "SP_Spalart_Allmaras_Nitsche_Interface::set_property - Unknown aPropertyString." );
-
-            // set the property in the property cell
-            this->get_properties( aIsMaster )( static_cast< uint >( mPropertyMap[ aPropertyString ] ) ) = aProperty;
         }
 
         //------------------------------------------------------------------------------

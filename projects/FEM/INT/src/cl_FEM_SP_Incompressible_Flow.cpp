@@ -24,9 +24,9 @@ namespace moris
             mMasterProp.resize( static_cast< uint >( Property_Type::MAX_ENUM ), nullptr );
 
             // populate the map
-            mPropertyMap[ "Density" ]   = Property_Type::DENSITY;
-            mPropertyMap[ "Viscosity" ] = Property_Type::VISCOSITY;
-            mPropertyMap[ "InvPermeability" ]  = Property_Type::INV_PERMEABILITY;
+            mPropertyMap[ "Density" ]         = static_cast< uint >( Property_Type::DENSITY );
+            mPropertyMap[ "Viscosity" ]       = static_cast< uint >( Property_Type::VISCOSITY );
+            mPropertyMap[ "InvPermeability" ] = static_cast< uint >( Property_Type::INV_PERMEABILITY );
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -92,11 +92,10 @@ namespace moris
                         }
                         else
                         {
-                            // create error message
-                            std::string tErrMsg =
-                                    std::string( "SP_Incompressible_Flow::set_dof_type_list - Unknown aDofString : ") +
-                                    tDofString;
-                            MORIS_ERROR( false , tErrMsg.c_str() );
+                            // error unknown dof string
+                            MORIS_ERROR( false ,
+                                    "SP_Incompressible_Flow::set_dof_type_list - Unknown aDofString : %s \n",
+                                    tDofString.c_str() );
                         }
                     }
                     break;
@@ -113,23 +112,6 @@ namespace moris
                     MORIS_ERROR( false, "SP_Incompressible_Flow::set_dof_type_list - unknown master slave type." );
                     break;
             }
-        }
-
-        //------------------------------------------------------------------------------
-
-        void SP_Incompressible_Flow::set_property(
-                std::shared_ptr< Property > aProperty,
-                std::string                 aPropertyString,
-                mtk::Master_Slave           aIsMaster )
-        {
-            // check that aPropertyString makes sense
-            std::string tErrMsg =
-                    std::string( "SP_Incompressible_Flow::set_property - Unknown aPropertyString : ") +
-                    aPropertyString;
-            MORIS_ERROR( mPropertyMap.find( aPropertyString ) != mPropertyMap.end(), tErrMsg.c_str() );
-
-            // set the property in the property cell
-            this->get_properties( aIsMaster )( static_cast< uint >( mPropertyMap[ aPropertyString ] ) ) = aProperty;
         }
 
         //------------------------------------------------------------------------------
@@ -185,7 +167,9 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
-        void SP_Incompressible_Flow::eval_dSPdMasterDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes )
+
+        void SP_Incompressible_Flow::eval_dSPdMasterDOF(
+                const moris::Cell< MSI::Dof_Type > & aDofTypes )
         {
             // get the dof type index
             uint tDofIndex = mMasterGlobalDofTypeMap( static_cast< uint >( aDofTypes( 0 ) ) );

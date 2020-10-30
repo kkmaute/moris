@@ -18,21 +18,22 @@ namespace moris
 {
     namespace fem
     {
-//------------------------------------------------------------------------------
-    SP_Stab_Penalty_Contact::SP_Stab_Penalty_Contact()
+        //------------------------------------------------------------------------------
+
+        SP_Stab_Penalty_Contact::SP_Stab_Penalty_Contact()
         {
             // set size for the property pointer cells
             mMasterProp.resize( static_cast< uint >( SP_Property_Type::MAX_ENUM ), nullptr );
             mSlaveProp.resize( static_cast< uint >( SP_Property_Type::MAX_ENUM ), nullptr );
         }
 
-//------------------------------------------------------------------------------
-    void SP_Stab_Penalty_Contact::eval_SP()
-    {
-        // compute stabilization parameter value
-        mPPVal = mParameters( 0 );
+        //------------------------------------------------------------------------------
+        void SP_Stab_Penalty_Contact::eval_SP()
+        {
+            // compute stabilization parameter value
+            mPPVal = mParameters( 0 );
+        }
 
-    }
-//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
     } /* namespace fem */
 } /* namespace moris */

@@ -38,17 +38,13 @@ namespace moris
                 real mSlaveVolume      = 0.5; // volume on slave
                 real mInterfaceSurface = 1.0; // surface on master/slave interface
 
-            public:
-
                 enum class SP_Property_Type
                 {
                     MATERIAL,
                     MAX_ENUM
                 };
 
-                // local string to property enum map
-                std::map< std::string, SP_Property_Type > mPropertyMap;
-
+            public:
                 //------------------------------------------------------------------------------
                 /*
                  * constructor
@@ -96,18 +92,6 @@ namespace moris
                 {
                     Stabilization_Parameter::set_dv_type_list( aDvTypes, aIsMaster );
                 }
-
-                //------------------------------------------------------------------------------
-                /**
-                 * set property
-                 * @param[ in ] aProperty       a property pointer
-                 * @param[ in ] aPropertyString a string defining the property
-                 * @param[ in ] aIsMaster       an enum for master or slave
-                 */
-                void set_property(
-                        std::shared_ptr< Property > aProperty,
-                        std::string                 aPropertyString,
-                        mtk::Master_Slave           aIsMaster = mtk::Master_Slave::MASTER );
 
                 //------------------------------------------------------------------------------
                 /**

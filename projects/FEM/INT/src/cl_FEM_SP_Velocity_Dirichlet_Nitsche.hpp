@@ -44,8 +44,6 @@ namespace moris
                 // element size
                 real mElementSize = 1.0;
 
-            public:
-
                 // property type for the SP
                 enum class Property_Type
                 {
@@ -54,13 +52,11 @@ namespace moris
                     MAX_ENUM
                 };
 
-                // local string to property enum map
-                std::map< std::string, Property_Type > mPropertyMap;
-
                 /*
                  * Rem: mParameters( 0 ) - alpha_N
                  */
 
+            public:
                 //------------------------------------------------------------------------------
                 /*
                  * constructor
@@ -105,18 +101,6 @@ namespace moris
                 {
                     Stabilization_Parameter::set_dv_type_list( aDvTypes, aIsMaster );
                 }
-
-                //------------------------------------------------------------------------------
-                /**
-                 * set property
-                 * @param[ in ] aProperty       a property pointer
-                 * @param[ in ] aPropertyString a string defining the property
-                 * @param[ in ] aIsMaster       an enum for master or slave
-                 */
-                void set_property(
-                        std::shared_ptr< Property > aProperty,
-                        std::string                 aPropertyString,
-                        mtk::Master_Slave           aIsMaster = mtk::Master_Slave::MASTER );
 
                 //------------------------------------------------------------------------------
                 /**
