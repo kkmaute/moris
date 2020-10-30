@@ -42,6 +42,13 @@ namespace moris
                     std::shared_ptr<Geometry> aInterfaceGeometry,
                     real                      aIsocontourThreshold);
 
+            Intersection_Node(
+                    uint                      aFirstNodeIndex,
+                    uint                      aSecondNodeIndex,
+                    const Matrix<DDRMat>&     aFirstNodeCoordinates,
+                    const Matrix<DDRMat>&     aSecondNodeCoordinates,
+                    std::shared_ptr<Geometry> aInterfaceGeometry);
+
             /**
              * Returns if the first parent used to create this node is on the geoemtry interface already.
              *
