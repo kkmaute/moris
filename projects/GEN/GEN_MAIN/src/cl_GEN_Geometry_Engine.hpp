@@ -52,6 +52,7 @@ namespace moris
         private:
 
             // Level set
+            enum Intersection_Mode mIntersectionMode = Intersection_Mode::LEVEL_SET;
             real mIsocontourThreshold;
             real mErrorFactor;
 
