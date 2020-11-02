@@ -6,17 +6,14 @@ namespace moris
 {
     namespace ge
     {
-        Geometric_Proximity::Geometric_Proximity(){};
+        Geometric_Proximity::Geometric_Proximity(){}
 
         Geometric_Proximity::Geometric_Proximity(moris_index const & aNumGeometries):
            mAssociatedVertexIndex(MORIS_INDEX_MAX),
-           mGeometricProximity(1,aNumGeometries,MORIS_INDEX_MAX)
-            {};
+           mGeometricProximity(1,aNumGeometries,MORIS_INDEX_MAX){}
 
-        Geometric_Proximity::~Geometric_Proximity()
-        {
+        Geometric_Proximity::~Geometric_Proximity(){}
 
-        };
 
         void
         Geometric_Proximity::set_geometric_proximity(moris_index aGeometricProximity, moris_index aGeometryIndex)
