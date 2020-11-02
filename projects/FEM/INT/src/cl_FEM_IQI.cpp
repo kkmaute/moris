@@ -395,6 +395,23 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
+        void IQI::set_property(
+                std::shared_ptr< Property > aProperty,
+                std::string                 aPropertyString,
+                mtk::Master_Slave           aIsMaster )
+        {
+            // check that aPropertyString makes sense
+            MORIS_ERROR( mPropertyMap.find( aPropertyString ) != mPropertyMap.end(),
+                    "IQI::set_property - IQI %s - Unknown aPropertyString: %s ",
+                    mName.c_str(),
+                    aPropertyString.c_str() );
+
+            // set the property in the property pointer cell
+            this->get_properties( aIsMaster )( mPropertyMap[ aPropertyString ] ) = aProperty;
+        }
+
+        //------------------------------------------------------------------------------
+
         moris::Cell< std::shared_ptr< fem::Property > > & IQI::get_properties(
                 mtk::Master_Slave aIsMaster )
         {
@@ -424,6 +441,23 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
+        void IQI::set_constitutive_model(
+                std::shared_ptr< Constitutive_Model > aConstitutiveModel,
+                std::string                 aConstitutiveString,
+                mtk::Master_Slave           aIsMaster )
+        {
+            // check that aConstitutiveString makes sense
+            MORIS_ERROR( mConstitutiveMap.find( aConstitutiveString ) != mConstitutiveMap.end(),
+                    "IQI::set_constitutive_model - IQI %s - Unknown aConstitutiveString: %s ",
+                    mName.c_str(),
+                    aConstitutiveString.c_str() );
+
+            // set the CM in the CM pointer cell
+            this->get_constitutive_models( aIsMaster )( mConstitutiveMap[ aConstitutiveString ] ) = aConstitutiveModel;
+        }
+
+        //------------------------------------------------------------------------------
+
         moris::Cell< std::shared_ptr< fem::Constitutive_Model > > & IQI::get_constitutive_models(
                 mtk::Master_Slave aIsMaster )
         {
@@ -449,6 +483,22 @@ namespace moris
                     return mMasterCM;
                 }
             }
+        }
+
+        //------------------------------------------------------------------------------
+
+        void IQI::set_stabilization_parameter(
+                std::shared_ptr< Stabilization_Parameter > aStabilizationParameter,
+                std::string                                aStabilizationString )
+        {
+            // check that aStabilizationString makes sense
+            MORIS_ERROR( mStabilizationMap.find( aStabilizationString ) != mStabilizationMap.end(),
+                    "IQI::set_stabilization_parameter - IQI %s - Unknown aStabilizationString: %s ",
+                    mName.c_str(),
+                    aStabilizationString.c_str() );
+
+            // set the stabilization parameter in the stabilization parameter cell
+            this->get_stabilization_parameters()( mStabilizationMap[ aStabilizationString ] ) = aStabilizationParameter;
         }
 
         //------------------------------------------------------------------------------

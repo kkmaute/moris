@@ -27,66 +27,15 @@ namespace moris
             mMasterProp.resize( static_cast< uint >( IQI_Property_Type::MAX_ENUM ), nullptr );
 
             // populate the property map
-            mPropertyMap[ "ReferenceValue" ]    = IQI_Property_Type::REFERENCE_VALUE;
-            mPropertyMap[ "Exponent" ]          = IQI_Property_Type::EXPONENT;
-            mPropertyMap[ "Shift" ]             = IQI_Property_Type::SHIFT;
+            mPropertyMap[ "ReferenceValue" ]    = static_cast< uint >( IQI_Property_Type::REFERENCE_VALUE );
+            mPropertyMap[ "Exponent" ]          = static_cast< uint >( IQI_Property_Type::EXPONENT );
+            mPropertyMap[ "Shift" ]             = static_cast< uint >( IQI_Property_Type::SHIFT );
 
             // set size for the constitutive model pointer cell
             mMasterCM.resize( static_cast< uint >( IQI_Constitutive_Type::MAX_ENUM ), nullptr );
 
             // populate the constitutive map
-            mConstitutiveMap[ "ElastLinIso" ] = IQI_Constitutive_Type::ELAST_LIN_ISO;
-        }
-
-        //------------------------------------------------------------------------------
-
-        void IQI_Max_Stress::set_property(
-                std::shared_ptr< Property > aProperty,
-                std::string                 aPropertyString,
-                mtk::Master_Slave           aIsMaster)
-        {
-            // can only be master
-            MORIS_ERROR( aIsMaster == mtk::Master_Slave::MASTER,
-                    "IQI_Max_Von_Mises_Stress::set_property - can only be master." );
-
-            // check that aPropertyString makes sense
-            if ( mPropertyMap.find( aPropertyString ) == mPropertyMap.end() )
-            {
-                std::string tErrMsg =
-                        std::string( "CM_Diffusion_Linear_Isotropic_Phase_Change::set_property - Unknown aPropertyString : ") +
-                        aPropertyString;
-
-                MORIS_ERROR( false , tErrMsg.c_str() );
-            }
-
-            // set the property in the property cell
-            this->get_properties( aIsMaster )( static_cast< uint >( mPropertyMap[ aPropertyString ] ) ) = aProperty;
-        }
-
-        //------------------------------------------------------------------------------
-
-        void IQI_Max_Stress::set_constitutive_model(
-                std::shared_ptr< Constitutive_Model > aConstitutiveModel,
-                std::string                           aConstitutiveString,
-                mtk::Master_Slave                     aIsMaster)
-        {
-            // can only be master
-            MORIS_ERROR( aIsMaster == mtk::Master_Slave::MASTER,
-                    "IQI_Max_Von_Mises_Stress::set_constitutive model - can only be master." );
-
-            // check that aPropertyString makes sense
-            if ( mConstitutiveMap.find( aConstitutiveString ) == mConstitutiveMap.end() )
-            {
-                std::string tErrMsg =
-                        std::string( "IQI_Max_Von_Mises_Stress::set_constitutive_model - Unknown aConstitutiveString : ") +
-                        aConstitutiveString;
-
-                MORIS_ERROR( false , tErrMsg.c_str() );
-            }
-
-            // set the constitutive model in the constitutive model cell
-            this->get_constitutive_models( aIsMaster )( static_cast< uint >( mConstitutiveMap[ aConstitutiveString ] ) ) =
-                    aConstitutiveModel;
+            mConstitutiveMap[ "ElastLinIso" ] = static_cast< uint >( IQI_Constitutive_Type::ELAST_LIN_ISO );
         }
 
         //------------------------------------------------------------------------------
