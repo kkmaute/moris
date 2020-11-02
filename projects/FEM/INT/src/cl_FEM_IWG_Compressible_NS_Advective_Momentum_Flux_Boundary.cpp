@@ -27,58 +27,7 @@ namespace moris
             mMasterCM.resize( static_cast< uint >( IWG_Constitutive_Type::MAX_ENUM ), nullptr );
 
             // populate the constitutive map
-            mConstitutiveMap[ "Fluid" ] = IWG_Constitutive_Type::FLUID;
-        }
-
-        //------------------------------------------------------------------------------
-
-        void IWG_Compressible_NS_Advective_Momentum_Flux_Boundary::set_property(
-                std::shared_ptr< Property > aProperty,
-                std::string                 aPropertyString,
-                mtk::Master_Slave           aIsMaster )
-        {
-            // check that aPropertyString makes sense
-            std::string tErrMsg =
-                    std::string( "IWG_Compressible_NS_Advective_Momentum_Flux_Boundary::set_property - Unknown aPropertyString: " ) +
-                    aPropertyString;
-            MORIS_ERROR( mPropertyMap.find( aPropertyString ) != mPropertyMap.end(), tErrMsg.c_str() );
-
-            // check no slave allowed
-            MORIS_ERROR( aIsMaster == mtk::Master_Slave::MASTER,
-                    "IWG_Compressible_NS_Advective_Momentum_Flux_Boundary::set_property - No slave allowed." );
-
-            // set the property in the property cell
-            this->get_properties( aIsMaster )( static_cast< uint >( mPropertyMap[ aPropertyString ] ) ) = aProperty;
-        }
-
-        //------------------------------------------------------------------------------
-
-        void IWG_Compressible_NS_Advective_Momentum_Flux_Boundary::set_constitutive_model(
-                std::shared_ptr< Constitutive_Model > aConstitutiveModel,
-                std::string                           aConstitutiveString,
-                mtk::Master_Slave                     aIsMaster  )
-        {
-            // check that aConstitutiveString makes sense
-            std::string tErrMsg =
-                    std::string( "IWG_Compressible_NS_Advective_Momentum_Flux_Boundary::set_constitutive_model - Unknown aConstitutiveString: " ) +
-                    aConstitutiveString;
-            MORIS_ERROR( mConstitutiveMap.find( aConstitutiveString ) != mConstitutiveMap.end(), tErrMsg.c_str() );
-
-            // check no slave allowed
-            MORIS_ERROR( aIsMaster == mtk::Master_Slave::MASTER,
-                    "IWG_Compressible_NS_Advective_Momentum_Flux_Boundary::set_constitutive_model - No slave allowed." );
-
-            // set the constitutive model in the constitutive model cell
-            this->get_constitutive_models( aIsMaster )( static_cast< uint >( mConstitutiveMap[ aConstitutiveString ] ) ) = aConstitutiveModel;
-        }
-
-        //------------------------------------------------------------------------------
-
-        void IWG_Compressible_NS_Advective_Momentum_Flux_Boundary::set_stabilization_parameter(
-                std::shared_ptr< Stabilization_Parameter > aStabilizationParameter,
-                std::string                                aStabilizationString )
-        {
-            MORIS_ERROR( false, "IWG_Compressible_NS_Advective_Momentum_Flux_Boundary::set_stabilization_parameter - Not implemented." );
+            mConstitutiveMap[ "Fluid" ] = static_cast< uint >( IWG_Constitutive_Type::FLUID );
         }
 
         //------------------------------------------------------------------------------

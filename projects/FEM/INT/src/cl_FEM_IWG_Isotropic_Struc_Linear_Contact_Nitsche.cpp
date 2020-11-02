@@ -29,70 +29,15 @@ namespace moris
             mSlaveCM.resize( static_cast< uint >( IWG_Constitutive_Type::MAX_ENUM ), nullptr );
 
             // populate the constitutive map
-            mConstitutiveMap[ "ElastLinIso" ] = IWG_Constitutive_Type::ELAST_LIN_ISO;
+            mConstitutiveMap[ "ElastLinIso" ] = static_cast< uint >( IWG_Constitutive_Type::ELAST_LIN_ISO );
 
             // set size for the stabilization parameter pointer cell
             mStabilizationParam.resize( static_cast< uint >( IWG_Stabilization_Type::MAX_ENUM ), nullptr );
 
             // populate the stabilization map
-            mStabilizationMap[ "PenaltyContact" ]  = IWG_Stabilization_Type::PENALTY_CONTACT;
-            mStabilizationMap[ "MasterWeightInterface" ] = IWG_Stabilization_Type::MASTER_WEIGHT_INTERFACE;
-            mStabilizationMap[ "SlaveWeightInterface" ]  = IWG_Stabilization_Type::SLAVE_WEIGHT_INTERFACE;
-        }
-
-
-        //------------------------------------------------------------------------------
-
-        void IWG_Isotropic_Struc_Linear_Contact_Nitsche::set_property(
-                std::shared_ptr< Property > aProperty,
-                std::string                 aPropertyString,
-                mtk::Master_Slave           aIsMaster )
-        {
-            // check that aPropertyString makes sense
-            std::string tErrMsg =
-                    std::string( "IWG_Isotropic_Struc_Linear_Contact_Nitsche::set_property - Unknown aPropertyString: " ) +
-                    aPropertyString;
-            MORIS_ERROR( mPropertyMap.find( aPropertyString ) != mPropertyMap.end(), tErrMsg.c_str() );
-
-            // check no slave allowed
-            MORIS_ERROR( aIsMaster == mtk::Master_Slave::MASTER,
-                    "IWG_Isotropic_Struc_Linear_Contact_Nitsche::set_property - No slave allowed." );
-
-            // set the property in the property cell
-            this->get_properties( aIsMaster )( static_cast< uint >( mPropertyMap[ aPropertyString ] ) ) = aProperty;
-        }
-
-        //------------------------------------------------------------------------------
-
-        void IWG_Isotropic_Struc_Linear_Contact_Nitsche::set_constitutive_model(
-                std::shared_ptr< Constitutive_Model > aConstitutiveModel,
-                std::string                           aConstitutiveString,
-                mtk::Master_Slave                     aIsMaster  )
-        {
-            // check that aConstitutiveString makes sense
-            std::string tErrMsg =
-                    std::string( "IWG_Isotropic_Struc_Linear_Contact_Nitsche::set_constitutive_model - Unknown aConstitutiveString: " ) +
-                    aConstitutiveString;
-            MORIS_ERROR( mConstitutiveMap.find( aConstitutiveString ) != mConstitutiveMap.end(), tErrMsg.c_str() );
-
-            // set the constitutive model in the constitutive model cell
-            this->get_constitutive_models( aIsMaster )( static_cast< uint >( mConstitutiveMap[ aConstitutiveString ] ) ) = aConstitutiveModel;
-        }
-
-        //------------------------------------------------------------------------------
-
-        void IWG_Isotropic_Struc_Linear_Contact_Nitsche::set_stabilization_parameter(
-                std::shared_ptr< Stabilization_Parameter > aStabilizationParameter,
-                std::string                                aStabilizationString )
-        {
-            // check that aStabilizationString makes sense
-            std::string tErrMsg =
-                    std::string( "IWG_Isotropic_Struc_Linear_Contact_Nitsche::set_stabilization_parameter - Unknown aStabilizationString: " ) +
-                    aStabilizationString;
-            MORIS_ERROR( mStabilizationMap.find( aStabilizationString ) != mStabilizationMap.end(), tErrMsg.c_str() );
-
-            // set the stabilization parameter in the stabilization parameter cell
-            this->get_stabilization_parameters()( static_cast< uint >( mStabilizationMap[ aStabilizationString ] ) ) = aStabilizationParameter;
+            mStabilizationMap[ "PenaltyContact" ]  = static_cast< uint >( IWG_Stabilization_Type::PENALTY_CONTACT );
+            mStabilizationMap[ "MasterWeightInterface" ] = static_cast< uint >( IWG_Stabilization_Type::MASTER_WEIGHT_INTERFACE );
+            mStabilizationMap[ "SlaveWeightInterface" ]  = static_cast< uint >( IWG_Stabilization_Type::SLAVE_WEIGHT_INTERFACE );
         }
 
         //------------------------------------------------------------------------------

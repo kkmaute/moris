@@ -9,10 +9,12 @@ namespace moris
     namespace fem
     {
 
-//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
+
         IWG_Hamilton_Jacobi_Bulk_Test::IWG_Hamilton_Jacobi_Bulk_Test(){}
 
-//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
+
         void IWG_Hamilton_Jacobi_Bulk_Test::compute_residual( real aWStar )
         {
 #ifdef DEBUG
@@ -31,12 +33,13 @@ namespace moris
             // velocity field value
             Matrix< DDRMat > tVN( 1, tFI->get_number_of_fields(), 1.0 );
 
-           //compute the residual
+            //compute the residual
             mSet->get_residual()( 0 )( { tStartRow, tEndRow }, { 0, 0 } )
-            += trans( tFI->N() ) * ( tFI->gradt( 1 ) + tVN * tFI->gradx( 1 ) ) * aWStar;
+                    += trans( tFI->N() ) * ( tFI->gradt( 1 ) + tVN * tFI->gradx( 1 ) ) * aWStar;
         }
 
-//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
+
         void IWG_Hamilton_Jacobi_Bulk_Test::compute_jacobian( real aWStar )
         {
 #ifdef DEBUG
@@ -61,20 +64,22 @@ namespace moris
 
             // compute the jacobian
             mSet->get_jacobian()( { tStartRow, tEndRow }, { tStartCol, tEndCol } )
-            += trans( tFI->N() ) * ( tFI->dnNdtn( 1 ) + tVN * tFI->dnNdxn( 1 ) ) * aWStar;
+                    += trans( tFI->N() ) * ( tFI->dnNdtn( 1 ) + tVN * tFI->dnNdxn( 1 ) ) * aWStar;
         }
 
-//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
+
         void IWG_Hamilton_Jacobi_Bulk_Test::compute_jacobian_and_residual( real aWStar )
         {
             MORIS_ERROR( false, "IWG_Hamilton_Jacobi_Bulk_Test::compute_jacobian_and_residual - Not implemented.");
         }
 
-//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
+
         void IWG_Hamilton_Jacobi_Bulk_Test::compute_dRdp( real aWStar )
         {
             MORIS_ERROR( false, "IWG_Hamilton_Jacobi_Bulk_Test::compute_dRdp - Not implemented." );
         }
-//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
     } /* namespace fem */
 } /* namespace moris */

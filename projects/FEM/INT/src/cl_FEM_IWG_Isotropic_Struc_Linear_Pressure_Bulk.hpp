@@ -28,9 +28,6 @@ namespace moris
                     MAX_ENUM
                 };
 
-                // Local string to constitutive enum map
-                std::map< std::string, IWG_Constitutive_Type > mConstitutiveMap;
-
                 //------------------------------------------------------------------------------
                 /*
                  * constructor
@@ -42,18 +39,6 @@ namespace moris
                  * trivial destructor
                  */
                 ~IWG_Isotropic_Struc_Linear_Pressure_Bulk(){};
-
-                //------------------------------------------------------------------------------
-                /**
-                 * set constitutive model
-                 * @param[ in ] aConstitutiveModel  a constitutive model pointer
-                 * @param[ in ] aConstitutiveString a string defining the constitutive model
-                 * @param[ in ] aIsMaster           an enum for master or slave
-                 */
-                void set_constitutive_model(
-                        std::shared_ptr< Constitutive_Model > aConstitutiveModel,
-                        std::string                           aConstitutiveString,
-                        mtk::Master_Slave                     aIsMaster = mtk::Master_Slave::MASTER );
 
                 //------------------------------------------------------------------------------
                 /**
