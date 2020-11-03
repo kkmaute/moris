@@ -22,6 +22,8 @@
 #include "cl_Tracer.hpp"
 #include "cl_Tracer_Enums.hpp"
 
+#include "cl_Communication_Tools.hpp"
+
 namespace moris
 {
     namespace MSI
@@ -104,6 +106,12 @@ namespace moris
                     // free memory on treated equation set
                     mFemSets( tSetIndex )->free_matrix_memory();
                 }
+            }
+
+            // Communicate IQIs
+            for( uint tIQIIndex = 0; tIQIIndex < tNumIQIsOnModel; tIQIIndex++ )
+            {
+                mGlobalIQIVal(tIQIIndex)(0) = sum_all(mGlobalIQIVal(tIQIIndex)(0));
             }
 
             // Normalization
