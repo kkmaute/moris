@@ -268,7 +268,7 @@ namespace moris
 
                 // set name
                 std::string tOptIterStrg = std::to_string(tOptIter);
-                tMeshFileName += "-s." + std::string(4-tOptIterStrg.length(),'0') + tOptIterStrg;
+                tMeshFileName += ".e-s." + std::string(4-tOptIterStrg.length(),'0') + tOptIterStrg;
 
                 // determine time shift
                 mTimeShift = tOptIter * mOutputData( aVisMeshIndex ).mTimeOffset;
