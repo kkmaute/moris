@@ -39,6 +39,14 @@ namespace moris
             {
                 aParameterList.set("number_of_elements_per_dimension", tSecond( k ) );
             }
+            else if( tKey == "processor_decomposition_method" )
+            {
+                aParameterList.set( "processor_decomposition_method", ( sint ) std::stoi( tSecond( k ) ) );
+            }
+            if( tKey == "processor_dimensions" )
+            {
+                aParameterList.set("processor_dimensions", tSecond( k ) );
+            }
             else if( tKey == "domain_dimensions" )
             {
                 aParameterList.set( "domain_dimensions", tSecond( k )  );
@@ -119,6 +127,12 @@ namespace moris
         // check sanity of input
         MORIS_ERROR( mNumberOfElementsPerDimension.length() == 2 || mNumberOfElementsPerDimension.length() == 3,
                      "Number of elements must be a matrix of length 2 or 3.");
+
+        // get processor decomposition method
+        this->set_processor_decomp_method( aParameterList.get< sint >("processor_decomposition_method") );
+
+        // get user defined processor dimensions. Only matters if decomp method == 3.
+        string_to_mat( aParameterList.get< std::string >("processor_dimensions"), mProcessorDimensions );
 
         // get domain dimensions
         string_to_mat( aParameterList.get< std::string >("domain_dimensions"), mDomainDimensions );
@@ -352,6 +366,34 @@ namespace moris
                 MORIS_LOG_INFO(      "  padding size ................. : %lu", ( long unsigned int ) this->get_padding_size() );
                 MORIS_LOG_INFO(  " ");
             }
+        }
+
+//--------------------------------------------------------------------------------
+
+        /**
+         * Sets processor decomposition method.  Options 1, 2, or 3 as of 10/29/2020
+         * 0=UserDefined. 1=Min Proc Interface (Original) 2=Min Mesh Interface
+         */
+        void Parameters::set_processor_decomp_method( const uint & aProcDecompMethod )
+        {
+            // test if calling this function is allowed
+            this->error_if_locked("set_processor_decomp_method");
+
+            mProcDecompMethod = aProcDecompMethod;
+        }
+
+//--------------------------------------------------------------------------------
+
+        /**
+         * Sets processor dimensions.  Only matters for "user defined" decomp method
+         * only, mDecompMethod==0.
+         */
+        void Parameters::set_processor_dimensions( const Matrix< DDUMat > & aProcessorDimensions  )
+        {
+            // test if calling this function is allowed
+            this->error_if_locked("set_processor_dimensions");
+
+            mProcessorDimensions = aProcessorDimensions;
         }
 
 //--------------------------------------------------------------------------------
