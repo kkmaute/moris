@@ -96,7 +96,7 @@ namespace moris
     /* ------------------------------------------------------------------------ */
     // Solver config
 
-    moris::real tNLA_rel_res_norm_drop = 1.0e-08;
+    moris::real tNLA_rel_res_norm_drop = 1.0e-10;
     moris::real tNLA_relaxation_parameter = 1.0;
     int tNLA_max_iter = 2;
 
@@ -217,6 +217,7 @@ Matrix<DDRMat> compute_dconstraint_dcriteria(Matrix<DDRMat> aADVs, Matrix<DDRMat
         tParameterlist(2)(0).set("hdf5_path", "shape_opt_test.hdf5");
         tParameterlist(2)(0).set("num_evaluations_per_adv", "1");
         tParameterlist(2)(0).set("finite_difference_type", "all");
+        tParameterlist(2)(0).set("finite_difference_epsilons", "1e-6");
     }
 
     void HMRParameterList( moris::Cell< moris::Cell< ParameterList > > & tParameterlist )

@@ -165,6 +165,7 @@ namespace xtk
              */
             void
             prepare_t_matrix_request_answers(
+                    moris_index            const & aMeshIndex,
                     Cell<Matrix<IndexMat>> const & aRequestedBgVertexIds,
                     Cell<Matrix<IndexMat>> const & aRequestedIpCellIds,
                     Cell<Matrix<IndexMat>> const & aIpCellBulkPhases,
@@ -194,6 +195,7 @@ namespace xtk
 
             void
             handle_received_interpolation_data(
+                    moris_index            const & aMeshIndex,
                     Cell<Matrix<IndexMat>> const & aNotOwnedIPVertIndsToProcs,
                     Cell<Matrix<IndexMat>> const & aNotOwnedEnrichedCellBulkPhaseToProcs,
                     Cell<Matrix<DDRMat>>   const & aRequestedTMatrixWeights,
