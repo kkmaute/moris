@@ -268,15 +268,15 @@ namespace moris
 
                 // set name
                 std::string tOptIterStrg = std::to_string(tOptIter);
-                tMeshFileName += ".e-s." + std::string(4-tOptIterStrg.length(),'0') + tOptIterStrg;
+                tMeshFileName += "-s." + std::string(4-tOptIterStrg.length(),'0') + tOptIterStrg;
 
                 // determine time shift
                 mTimeShift = tOptIter * mOutputData( aVisMeshIndex ).mTimeOffset;
             }
 
-            std::string tMassage = "Writing " + tMeshFileName + " to " + tMeshFilePath +".";
-
-            MORIS_LOG( tMassage.c_str() );
+            // Log mesh writing message
+            std::string tMessage = "Writing " + tMeshFileName + " to " + tMeshFilePath +".";
+            MORIS_LOG( tMessage.c_str() );
 
             // write mesh to file
             mWriter( aVisMeshIndex )->write_mesh( tMeshFilePath, tMeshFileName, tMeshTempPath, tMeshTempName );
