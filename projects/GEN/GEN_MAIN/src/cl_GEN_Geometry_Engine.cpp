@@ -493,15 +493,11 @@ namespace moris
                 const Matrix<DDRMat> & aCoordinates)
         {
             // 0 for neg 1 for pos
-            real tNodePhaseValue = 0;
             Matrix< IndexMat > tPhaseOnOff(1, this->get_num_geometries());
 
             for (uint tGeometryIndex = 0; tGeometryIndex < mGeometries.size(); tGeometryIndex++)
             {
-                tNodePhaseValue = this->get_geometry_field_value(aNodeIndex, aCoordinates, tGeometryIndex);
-
-                moris_index tProxIndex = mVertexGeometricProximity(aNodeIndex).get_geometric_proximity((moris_index)tGeometryIndex);
-
+               moris_index tProxIndex = mVertexGeometricProximity(aNodeIndex).get_geometric_proximity((moris_index)tGeometryIndex);
 
                 tPhaseOnOff(0, tGeometryIndex) = 0;
 
