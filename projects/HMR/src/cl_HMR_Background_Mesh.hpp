@@ -450,6 +450,119 @@ namespace moris
                 }
             }
 
+
+            //--------------------------------------------------------------------------------
+
+
+            void create_proc_dims_minMeshInterface(
+                                    const uint           & aNumberOfDimensions,
+                                    Matrix < DDLUMat >   & aMeshDims,
+                                    Matrix < DDUMat >    & aProcDimsTemp)
+
+            {
+
+                //This function determines the processor dimensions based on minimizing mesh grid interfaces.
+                //Eg. If the mesh is 100x10 elements, and we have 10 processors, the processor layout will be 10x1.
+
+                real tInterfaceCount=0;
+
+
+
+                //1D Processor Grid
+                if (aNumberOfDimensions==1)
+                {
+                    aProcDimsTemp.set_size( 1, 1 );
+                    aProcDimsTemp(0) = par_size();
+                }
+
+                //2D Processor Grid
+                else if (aNumberOfDimensions==2)
+                {
+                    aProcDimsTemp.set_size( 2, 1 );
+                    //Iterating through "i" (x) direction processors
+                    for (uint i=1; i <= (uint) par_size(); i++)
+                    {
+
+                        //initializing interface count value
+                        if (i==1)
+                        {
+                            tInterfaceCount = aMeshDims(1)*(i-1) + aMeshDims(0)*(par_size()/i-1);
+                            //Assigning processor grid dimensions
+                            aProcDimsTemp(0) = i;
+                            aProcDimsTemp(1) = par_size()/i;
+                        }
+
+                        //Otherwise, is i a factor of the number of processors?
+                        else if ((uint) par_size()%i == 0)
+                        {
+                            //Is the last calculated interface count larger than the current iterations?
+                            if (tInterfaceCount > (aMeshDims(1)*(i-1) + aMeshDims(0)*(par_size()/i-1)))
+                            {
+                                tInterfaceCount = aMeshDims(1)*(i-1) + aMeshDims(0)*(par_size()/i-1);
+                                //Assigning processor grid dimensions
+                                aProcDimsTemp(0) = i;
+                                aProcDimsTemp(1) = par_size()/i;
+                            }
+                            else
+                            {
+                                break;
+                            }
+                        }
+                    }
+                }
+
+                //3D Processor Grid
+                else if (aNumberOfDimensions == 3)
+                {
+                    aProcDimsTemp.set_size( 3, 1 );
+
+                    // Iterating through i-direction processor possibilities
+                    for (uint i = 1; i <= (uint) par_size(); i++)
+                    {
+                        // Is "i" a factor of total processors used?
+                        if((uint) par_size()%i == 0)
+                        {
+                            // Iterating through j-direction processors possibilities
+                            for (uint j = 1; j <= (uint) par_size()/i; j++)
+                            {
+                                // Initializing interface count value
+                                if (i == 1 && j == 1)
+                                {
+                                    tInterfaceCount = aMeshDims(0)*aMeshDims(1)*(par_size()/(i*j)-1) +
+                                            aMeshDims(0)*aMeshDims(2)*(j-1) + aMeshDims(1)*aMeshDims(2)*(i-1);
+
+                                    //Repace processor grid dimensions
+                                    aProcDimsTemp(0) = i;
+                                    aProcDimsTemp(1) = j;
+                                    aProcDimsTemp(2) = par_size()/(i*j);
+                                }
+
+                                // Is i*j a factor of processor count?
+                                else if ((uint) par_size()%(i*j) == 0)
+                                {
+
+                                    //If the old interface count is higher than the current iteration
+                                    if (tInterfaceCount > (aMeshDims(0)*aMeshDims(1)*(par_size()/(i*j)-1) +
+                                            aMeshDims(0)*aMeshDims(2)*(j-1) + aMeshDims(1)*aMeshDims(2)*(i-1)))
+                                    {
+
+                                        //Replace interface count
+                                        tInterfaceCount = aMeshDims(0)*aMeshDims(1)*(par_size()/(i*j)-1) +
+                                                aMeshDims(0)*aMeshDims(2)*(j-1) + aMeshDims(1)*aMeshDims(2)*(i-1);
+
+                                        //Repace processor grid dimensions
+                                        aProcDimsTemp(0) = i;
+                                        aProcDimsTemp(1) = j;
+                                        aProcDimsTemp(2) = par_size()/(i*j);
+                                    }
+                                }
+
+                            }
+                        }
+
+                    }
+                }
+            }
 //--------------------------------------------------------------------------------
             /**
              * Calculates ijk lookup table for current proc.
@@ -481,14 +594,69 @@ namespace moris
                     barrier();
                 }
 
-                // calculate neighbors
-                create_proc_cart( N ,
-                                  mProcDims,
-                                  mMyProcCoords,
-                                  mMyProcNeighbors );
+                //Processor decomposition method 0=UserDefined, 1=MPI (original) 2=min mesh interface 3=manual
+                uint tDecompMethod = mParameters->get_processor_decomp_method();
 
-                // get number of elements per dimension from settings
-                auto tNumberOfElementsPerDimension = mParameters->get_number_of_elements_per_dimension();
+                //Pulling mesh dimensions from parameters
+                Matrix< DDLUMat > tNumberOfElementsPerDimension = mParameters->get_number_of_elements_per_dimension();
+
+                switch (tDecompMethod)
+                {
+                    //User defined processor grid
+                    case 0:
+                    {
+                        mProcDims=mParameters->get_processor_dimensions();
+
+                        //Checking if user defined processor dimensions matches mesh dimensions, N.
+                        if ( (uint) std::max( mProcDims.n_rows(), mProcDims.n_cols() ) != N)
+                        {
+                            MORIS_ERROR( false, "decompose_mesh(): User defined processor grid dimensions incompatible with mesh dimensions.");
+                        }
+
+
+                        //Calculating the product of user defined proc dims dimensions
+                        uint tProcCount=1;
+                        for (uint i=0; i<N; ++i)
+                        {
+                            tProcCount = tProcCount * mProcDims(i);
+                        }
+                        if ((uint) par_size() != tProcCount)
+                        {
+                            MORIS_ERROR( false, "decompose_mesh(): User defined processor grid dimensions do not match number of processors used.");
+                        }
+
+                        break;
+                    }
+
+                    //MPI decomposition method. Minimize processor interface
+                    case 1:
+                    {
+                        //No alteration needed.  Processor decomposition occurs within create_proc_cart
+                        break;
+                    }
+
+                    //Minimize mesh interface decomposition method
+                    case 2:
+                    {
+                        create_proc_dims_minMeshInterface(N,
+                                tNumberOfElementsPerDimension,
+                                mProcDims);
+                        break;
+                    }
+
+                    default:
+                    {
+                        MORIS_ERROR( false, "decompose_mesh(): Invalid processor decomposition method defined.");
+                        break;
+                    }
+                }
+
+                create_proc_cart(
+                        tDecompMethod,
+                        N,
+                        mProcDims,
+                        mMyProcCoords,
+                        mMyProcNeighbors );
 
                 // calculate number of elements per dimension
                 Matrix< DDLUMat > tNumberOfElementsPerDimensionOnProc( N, 1 );
@@ -497,7 +665,7 @@ namespace moris
                     tNumberOfElementsPerDimensionOnProc( k ) = tNumberOfElementsPerDimension ( k ) /  mProcDims( k ) ;
 
                     if( par_rank() == 0 )
-                    {
+                    {;
                         // make sure that cart size is OK
                         if ( tNumberOfElementsPerDimension( k ) % mProcDims( k ) != 0 )
                         {
@@ -505,6 +673,8 @@ namespace moris
                         }
                     }
                 }
+
+
 
                 // calculate decomposition domain
                 // set owned and shared limits
@@ -604,20 +774,24 @@ namespace moris
                     // loop over all dimensions and copy elements
                     for( uint k=0; k<tNumberOfDimensions; ++k )
                     {
-                        tProcSplit( k ) = mMySubDomain.mNumberOfElementsPerDimension[ 0 ][ k ] - 2*mPaddingSize;
+                        //do not consider psuedo 1D directions
+                        if (mProcDims( k ) != 1)
+                        {
+                            tProcSplit( k ) = mMySubDomain.mNumberOfElementsPerDimension[ 0 ][ k ] - 2*mPaddingSize;
 
-                        if( mParameters->use_number_aura() )
-                        {
-                            if ( tProcSplit( k ) < (mPaddingSize * 2) + 1 )
+                            if( mParameters->use_number_aura() )
                             {
-                                tError = true;
+                                if ( tProcSplit( k ) < (mPaddingSize * 2) + 1 )
+                                {
+                                    tError = true;
+                                }
                             }
-                        }
-                        else
-                        {
-                            if ( tProcSplit( k ) < mPaddingSize )
+                            else
                             {
-                                tError = true;
+                                if ( tProcSplit( k ) < mPaddingSize )
+                                {
+                                    tError = true;
+                                }
                             }
                         }
                     }

@@ -6,6 +6,7 @@
  */
 #include "cl_Communication_Tools.hpp" // COM/src
 
+
 namespace moris
 {
     MPI_Comm
@@ -149,10 +150,12 @@ namespace moris
     }
 
     //------------------------------------------------------------------------------------------------------------------
-    void create_proc_cart( const uint              & aNumberOfDimensions,
-                                 Matrix < DDUMat > & aProcDims,
-                                 Matrix < DDUMat > & aProcCoords,
-                                 Matrix < IdMat >  & aProcNeighbors )
+    void create_proc_cart(
+            const uint        & aDecompMethod,
+            const uint        & aNumberOfDimensions,
+            Matrix < DDUMat > & aProcDims,
+            Matrix < DDUMat > & aProcCoords,
+            Matrix < IdMat >  & aProcNeighbors )
     {
 
         /* Table for aProcNeighbors
@@ -200,13 +203,82 @@ namespace moris
          *  '--------------'
          */
 
-        // Number of processors in i, j and k-direction
+        //determining an appropriate processor layout to minimize grid interface
         int tDims[3] = { 0, 0, 0 };
 
-        // Creates a grid of processors
-        MPI_Dims_create( par_size(),
-                         aNumberOfDimensions,
-                         tDims );
+        //Original Decomp Method. Minimizes processor interfaces
+        uint tProcCount=1;
+        switch ( aDecompMethod )
+        {
+
+            case 0 : //User defined processor grid
+            {
+                //Checking if user defined processor dimensions matches mesh dimensions, N.
+                if ( (uint) std::max( aProcDims.n_rows(), aProcDims.n_cols() ) != aNumberOfDimensions )
+                {
+                    MORIS_ERROR( false, "create_proc_cart: User defined processor grid dimensions incompatible with mesh dimensions.");
+                }
+
+                //Calculating the product of user defined proc dims dimensions
+                for (uint i=0; i < aNumberOfDimensions; ++i)
+                {
+                    tProcCount = tProcCount * aProcDims(i);
+                }
+                if ( (uint) par_size() != tProcCount)
+                {
+                    MORIS_ERROR( false, "create_proc_cart: User defined processor grid dimensions do not match number of processors used.");
+                }
+
+                tDims[ 1 ]=1;
+                tDims[ 2 ]=1;
+                for ( uint i=0; i < aNumberOfDimensions; ++i )
+                {
+                    tDims[i] = (int)aProcDims(i);
+                }
+                break;
+            }
+
+            case 1 : // MPI Default Decomp Method
+            {
+                MPI_Dims_create( par_size(),
+                                 aNumberOfDimensions,
+                                 tDims );
+                break;
+            }
+
+            case 2: // Decomposition method to minimize mesh interface
+            {
+                //Checking if user defined processor dimensions matches mesh dimensions, N.
+                if ( (uint) std::max( aProcDims.n_rows(), aProcDims.n_cols() ) != aNumberOfDimensions)
+                {
+                    MORIS_ERROR( false, "create_proc_cart: User defined processor grid dimensions incompatible with mesh dimensions.");
+                }
+
+                //Calculating the product of user defined proc dims dimensions
+                for (uint i = 0; i < aNumberOfDimensions; ++i)
+                {
+                    tProcCount = tProcCount * aProcDims(i);
+                }
+                if ((uint) par_size() != tProcCount)
+                {
+                    MORIS_ERROR( false, "create_proc_cart: User defined processor grid dimensions do not match number of processors used.");
+                }
+
+                tDims[1] = 1;
+                tDims[2] = 1;
+                for (uint i = 0; i < aNumberOfDimensions; ++i)
+                {
+                    tDims[i] = (int)aProcDims(i);
+                }
+                break;
+            }
+
+            default:
+            {
+                MORIS_ERROR( false, "create_proc_cart: Undefined decomposition method" );
+                break;
+            }
+        }
 
         // No periodic boundary conditions are needed
         int tPeriods[3]  = { 0, 0, 0 };
@@ -225,7 +297,7 @@ namespace moris
                          tDims,
                          tPeriods,
                          tReorder,
-                         &tNewComm );
+                        &tNewComm );
 
         //Define coordinates for the current processor
         MPI_Cart_coords( tNewComm,
@@ -272,8 +344,8 @@ namespace moris
                 {
                     // get rank of neighbor proc
                     tError = MPI_Cart_rank( tNewComm,
-                                            tNeighborCoords,
-                                            &tRank );
+                            tNeighborCoords,
+                            &tRank );
                 }
                 // if getting the rank was successful
                 if ( tError == 0 )
@@ -309,12 +381,12 @@ namespace moris
                     if (       tNeighborCoords[ 0 ] >= 0
                             && tNeighborCoords[ 1 ] >= 0
                             && tNeighborCoords[ 0 ] < tDims[0]
-                            && tNeighborCoords[ 1 ] < tDims[1] )
+                                                            && tNeighborCoords[ 1 ] < tDims[1] )
                     {
                         // get rank of neighbor proc
                         tError = MPI_Cart_rank( tNewComm,
-                                                tNeighborCoords,
-                                                &tRank );
+                                tNeighborCoords,
+                                &tRank );
                     }
 
                     // if getting the rank was successful
@@ -356,13 +428,13 @@ namespace moris
                                 && tNeighborCoords[ 1 ] >= 0
                                 && tNeighborCoords[ 2 ] >= 0
                                 && tNeighborCoords[ 0 ] < tDims[0]
-                                && tNeighborCoords[ 1 ] < tDims[1]
-                                && tNeighborCoords[ 2 ] < tDims[2] )
+                                                                && tNeighborCoords[ 1 ] < tDims[1]
+                                                                                                && tNeighborCoords[ 2 ] < tDims[2] )
                         {
                             // get rank of neighbor proc
                             tError = MPI_Cart_rank( tNewComm,
-                                                    tNeighborCoords,
-                                                    &tRank );
+                                    tNeighborCoords,
+                                    &tRank );
                         }
 
                         // if getting the rank was successful
@@ -384,7 +456,9 @@ namespace moris
         }
     }
 
-//------------------------------------------------------------------------------
+
+
+    //------------------------------------------------------------------------------
  
     int
     create_comm_tag ( const int & aSource, const int & aTarget )

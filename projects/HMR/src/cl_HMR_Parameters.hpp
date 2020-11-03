@@ -43,6 +43,12 @@ namespace moris
          */
         class Parameters
         {
+           //! Processor decomposition method.  1=Original MPI decomp (min processor interface). 2=Min mesh interface. 0=Manually Defined
+           uint mProcDecompMethod = 1;
+
+           //! Processor layout if mProcDecompMethod is 0 (user defined here). Product MUST = # of processors used. Can be 1, 2, or 3 dimensions.
+           Matrix< DDUMat >  mProcessorDimensions= { { 2 }, { 2 } };
+
            //! number of elements per direction in overall mesh, without aura
            //! 2D or 3D is determined by length of this vector
            Matrix< DDLUMat > mNumberOfElementsPerDimension  = { { 2 }, { 2 } };
@@ -150,6 +156,54 @@ namespace moris
 
 //--------------------------------------------------------------------------------
         public:
+//--------------------------------------------------------------------------------
+
+           /**
+            * returns user defined processor decomposition method
+            *
+            * @return uint
+            */
+           auto get_processor_decomp_method() const
+           -> decltype ( mProcDecompMethod )
+           {
+               return mProcDecompMethod ;
+           }
+
+//--------------------------------------------------------------------------------
+
+           /**
+            * sets processor decomposition method
+            *
+            * @param[in] aProcDecompMethod uint
+            *
+            * @return void
+            */
+           void set_processor_decomp_method( const uint & aProcDecompMethod );
+
+           //--------------------------------------------------------------------------------
+
+           /**
+            * returns user defined processor decomposition method
+            *
+            * @return uint
+            */
+           auto get_processor_dimensions() const
+           -> decltype ( mProcessorDimensions )
+           {
+               return mProcessorDimensions ;
+           }
+
+//--------------------------------------------------------------------------------
+           /**
+            * sets processor dimensions for manually defined processor decomposition
+            * method, (mProcDecompMethod==3). Matters for this case only.
+            *
+            * @param[in] aProcessorDimensions Matrix< DDUMat >
+            *
+            * @return void
+            */
+           void set_processor_dimensions( const Matrix< DDUMat > & aProcessorDimensions );
+
 //--------------------------------------------------------------------------------
 
           /*

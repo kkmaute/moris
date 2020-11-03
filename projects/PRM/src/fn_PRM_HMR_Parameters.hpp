@@ -35,12 +35,20 @@ namespace moris
         //! number of elements per direction in overall mesh, without aura
         //! 2D or 3D is determined by length of this vector
         tParameterList.insert( "number_of_elements_per_dimension", std::string( "2, 2" ) );
+
+        //! Processor Decomposition Method (0=user defined; 1=min proc interface; 2=min mesh interface)
+        tParameterList.insert( "processor_decomposition_method", 1 );
+
+        //! User defined processor grid.  Decomp method must = 3.  Product of array must match number of processors used
+        tParameterList.insert( "processor_dimensions", std::string( "2, 2" ) );
+
         //! width, height and depth of domain (without aura)
         tParameterList.insert( "domain_dimensions", std::string( "1, 1" ) );
         //! offset from the origin
         tParameterList.insert( "domain_offset", std::string( "0, 0 ") );
         //! sidesets which should be built
         tParameterList.insert( "domain_sidesets", std::string( "" ) );
+
 
         //! Lagrange Meshes that are used for the output meshes
         tParameterList.insert( "lagrange_output_meshes", std::string( "" ) );
