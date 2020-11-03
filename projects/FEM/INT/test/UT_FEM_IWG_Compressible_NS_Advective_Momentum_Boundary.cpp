@@ -154,10 +154,11 @@ TEST_CASE( "IWG_Compressible_NS_Advective_Momentum_Boundary_Ideal",
 
                 // set velocity dof types
                 tVelocityDof = { MSI::Dof_Type::VX, MSI::Dof_Type::VY };
-                break;
 
                 // set normal
                 tNormal( 1 ) = -2.6;
+
+                break;
             }
             case 3 :
             {
@@ -166,11 +167,12 @@ TEST_CASE( "IWG_Compressible_NS_Advective_Momentum_Boundary_Ideal",
 
                 // set velocity dof types
                 tVelocityDof = { MSI::Dof_Type::VX, MSI::Dof_Type::VY, MSI::Dof_Type::VZ };
-                break;
 
                 // set normal
                 tNormal( 1 ) = -2.6;
                 tNormal( 2 ) =  9.4;
+
+                break;
             }
             default:
             {

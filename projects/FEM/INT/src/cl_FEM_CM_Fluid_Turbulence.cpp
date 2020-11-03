@@ -21,8 +21,8 @@ namespace moris
             mProperties.resize( static_cast< uint >( CM_Property_Type::MAX_ENUM ), nullptr );
 
             // populate the map
-            mPropertyMap[ "Density" ]   = CM_Property_Type::DENSITY;
-            mPropertyMap[ "Viscosity" ] = CM_Property_Type::VISCOSITY;
+            mPropertyMap[ "Density" ]   = static_cast< uint >( CM_Property_Type::DENSITY );
+            mPropertyMap[ "Viscosity" ] = static_cast< uint >( CM_Property_Type::VISCOSITY );
         }
 
         //------------------------------------------------------------------------------
@@ -58,6 +58,7 @@ namespace moris
                 }
                 else
                 {
+                    // error unknown dof string
                     MORIS_ERROR( false ,
                             "CM_Fluid_Turbulence::set_dof_type_list - Unknown aDofString : %s \n",
                             tDofString.c_str() );
@@ -65,33 +66,15 @@ namespace moris
             }
         }
 
-        //--------------------------------------------------------------------------------------------------------------
-
-        void CM_Fluid_Turbulence::set_property(
-                std::shared_ptr< fem::Property > aProperty,
-                std::string                      aPropertyString )
-        {
-            // check that aPropertyString makes sense
-            MORIS_ERROR( mPropertyMap.find( aPropertyString ) != mPropertyMap.end() ,
-                    "CM_Fluid_Turbulence::set_property - Unknown aPropertyString: %s \n",
-                    aPropertyString.c_str() );
-
-            // set the property in the property cell
-            mProperties( static_cast< uint >( mPropertyMap[ aPropertyString ] ) ) = aProperty;
-        }
-
         //------------------------------------------------------------------------------
 
-        std::shared_ptr< Property > CM_Fluid_Turbulence::get_property(
-                std::string aPropertyString )
+        void CM_Fluid_Turbulence::set_local_properties()
         {
-            // check that aPropertyString makes sense
-            MORIS_ERROR( mPropertyMap.find( aPropertyString ) != mPropertyMap.end(),
-                    "CM_Fluid_Turbulence::get_property - Unknown aPropertyString: %s \n",
-                    aPropertyString.c_str() );
+            // set the density property
+            mPropDensity = get_property( "Density" );
 
-            // get the property in the property cell
-            return  mProperties( static_cast< uint >( mPropertyMap[ aPropertyString ] ) );
+            // set the viscosity property
+            mPropViscosity = get_property( "Viscosity" );
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -382,7 +365,7 @@ namespace moris
                         1e-6,
                         aNormal,
                         aJump,
-                        fem::FDScheme_Type::POINT_3_CENTRAL );
+                        fem::FDScheme_Type::POINT_1_FORWARD );
 
                 //MORIS_ERROR( false, "CM_Fluid_Turbulence::eval_dTestTractiondDOF - Case not implemented so far, require d2viscositytdviscosity2" );
             }
@@ -564,12 +547,8 @@ namespace moris
             Field_Interpolator * tFIViscosity =
                     mFIManager->get_field_interpolators_for_type( mDofViscosity );
 
-            // get the density and gravity properties
-            std::shared_ptr< Property > tPropViscosity =
-                    mProperties( static_cast< uint >( CM_Property_Type::VISCOSITY ) );
-
             // compute chi
-            return tFIViscosity->val()( 0 ) / tPropViscosity->val()( 0 );
+            return tFIViscosity->val()( 0 ) / mPropViscosity->val()( 0 );
         }
 
         //------------------------------------------------------------------------------
@@ -589,22 +568,18 @@ namespace moris
             Field_Interpolator * tFIViscosity =
                     mFIManager->get_field_interpolators_for_type( mDofViscosity );
 
-            // get the density and gravity properties
-            std::shared_ptr< Property > tPropViscosity =
-                    mProperties( static_cast< uint >( CM_Property_Type::VISCOSITY ) );
-
             // if dof type is viscosity
             if( aDofTypes( 0 ) == mDofViscosity )
             {
-                adchidu += tDerFI->N() / tPropViscosity->val()( 0 );
+                adchidu += tDerFI->N() / mPropViscosity->val()( 0 );
             }
 
             // if viscosity property depends on dof type
-            if( tPropViscosity->check_dof_dependency( aDofTypes ) )
+            if( mPropViscosity->check_dof_dependency( aDofTypes ) )
             {
                 adchidu -=
-                        tFIViscosity->val() * tPropViscosity->dPropdDOF( aDofTypes ) /
-                        std::pow( tPropViscosity->val()( 0 ), 2 );
+                        tFIViscosity->val() * mPropViscosity->dPropdDOF( aDofTypes ) /
+                        std::pow( mPropViscosity->val()( 0 ), 2 );
             }
         }
 
@@ -616,12 +591,8 @@ namespace moris
             Field_Interpolator * tFIViscosity =
                     mFIManager->get_field_interpolators_for_type( mDofViscosity );
 
-            // get the density and gravity properties
-            std::shared_ptr< Property > tPropViscosity =
-                    mProperties( static_cast< uint >( CM_Property_Type::VISCOSITY ) );
-
             // compute dchidx
-            adchidx = tFIViscosity->gradx( 1 ) / tPropViscosity->val()( 0 );
+            adchidx = tFIViscosity->gradx( 1 ) / mPropViscosity->val()( 0 );
 
             // FIXME dependency of property on x not accounted for
         }
@@ -643,22 +614,18 @@ namespace moris
             Field_Interpolator * tFIViscosity =
                     mFIManager->get_field_interpolators_for_type( mDofViscosity );
 
-            // get the density and gravity properties
-            std::shared_ptr< Property > tPropViscosity =
-                    mProperties( static_cast< uint >( CM_Property_Type::VISCOSITY ) );
-
             // if dof type is viscosity
             if( aDofTypes( 0 ) == mDofViscosity )
             {
-                adchidxdu += tDerFI->dnNdxn( 1 ) / tPropViscosity->val()( 0 );
+                adchidxdu += tDerFI->dnNdxn( 1 ) / mPropViscosity->val()( 0 );
             }
 
             // if viscosity property depends on dof type
-            if( tPropViscosity->check_dof_dependency( aDofTypes ) )
+            if( mPropViscosity->check_dof_dependency( aDofTypes ) )
             {
                 adchidxdu -=
-                        tFIViscosity->gradx( 1 ) * tPropViscosity->dPropdDOF( aDofTypes ) /
-                        std::pow( tPropViscosity->val()( 0 ), 2 );
+                        tFIViscosity->gradx( 1 ) * mPropViscosity->dPropdDOF( aDofTypes ) /
+                        std::pow( mPropViscosity->val()( 0 ), 2 );
             }
         }
 

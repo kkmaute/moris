@@ -1797,7 +1797,10 @@ PAPER_TYPE             = a4
 
 EXTRA_PACKAGES         = amsmath \
                          amsbsy \ 
-                         multirow
+                         multirow \
+                         algorithmicx \
+                         algorithm \
+                         algpseudocode
 
 # The LATEX_HEADER tag can be used to specify a personal LaTeX header for the
 # generated LaTeX document. The header should contain everything until the first

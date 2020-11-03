@@ -20,7 +20,8 @@ namespace moris
                 Matrix<DDRMat>           aConstantParameters,
                 mtk::Interpolation_Mesh* aMesh,
                 std::string              aName,
-                sint                     aNumRefinements,
+                Matrix<DDSMat>  aNumRefinements,
+                Matrix<DDSMat>  aNumPatterns,
                 sint                     aRefinementFunctionIndex,
                 uint                     aBSplineMeshIndex,
                 real                     aBSplineLowerBound,
@@ -31,6 +32,7 @@ namespace moris
                         aConstantParameters,
                         aName,
                         aNumRefinements,
+                        aNumPatterns,
                         aRefinementFunctionIndex,
                         aBSplineMeshIndex,
                         aBSplineLowerBound,
@@ -55,6 +57,7 @@ namespace moris
                 : Field(aSharedADVIds,
                         aGeometry->get_name(),
                         aGeometry->get_num_refinements(),
+                        aGeometry->get_refinement_mesh_indices(),
                         aGeometry->get_refinement_function_index(),
                         aGeometry->get_bspline_mesh_index(),
                         aGeometry->get_bspline_lower_bound(),
@@ -180,7 +183,7 @@ namespace moris
             }
 
             // Global assembly
-            mOwnedNodalValues->vector_global_asembly();
+            mOwnedNodalValues->vector_global_assembly();
 
             // Import nodal values
             mSharedNodalValues->import_local_to_global(*mOwnedNodalValues);

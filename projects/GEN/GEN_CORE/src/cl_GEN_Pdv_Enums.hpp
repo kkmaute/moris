@@ -19,6 +19,15 @@ namespace moris
     };
 
     moris::map< std::string, PDV_Type > get_pdv_type_map();
+
+    enum class Intersection_Mode
+    {
+        LEVEL_SET,
+        COLORING,
+        END_ENUM
+    };
+
+    moris::map< std::string, Intersection_Mode > get_intersection_mode_map();
 }
 
 #endif /* MORIS_CL_PDV_ENUMS_HPP_ */

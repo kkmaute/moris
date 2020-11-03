@@ -12,16 +12,18 @@ namespace moris
     {
 
         //------------------------------------------------------------------------------
+
         SP_Convective_Ghost::SP_Convective_Ghost()
         {
             // set the property pointer cell size
             mMasterProp.resize( static_cast< uint >( Property_Type::MAX_ENUM ), nullptr );
 
             // populate the map
-            mPropertyMap[ "Density" ] = Property_Type::DENSITY;
+            mPropertyMap[ "Density" ] = static_cast< uint >( Property_Type::DENSITY );
         }
 
         //------------------------------------------------------------------------------
+
         void SP_Convective_Ghost::reset_cluster_measures()
         {
             // evaluate element size from the cluster
@@ -31,6 +33,7 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+
         void SP_Convective_Ghost::set_dof_type_list(
                 moris::Cell< moris::Cell< MSI::Dof_Type > > & aDofTypes,
                 moris::Cell< std::string >                  & aDofStrings,
@@ -60,11 +63,10 @@ namespace moris
                         }
                         else
                         {
-                            // create error message
-                            std::string tErrMsg =
-                                    std::string( "SP_Convective_Ghost::set_dof_type_list - Unknown aDofString : ") +
-                                    tDofString;
-                            MORIS_ERROR( false , tErrMsg.c_str() );
+                            // error unknown dof string
+                            MORIS_ERROR( false ,
+                                    "SP_Convective_Ghost::set_dof_type_list - Unknown aDofString : %s \n",
+                                    tDofString.c_str() );
                         }
                     }
                     break;
@@ -79,27 +81,11 @@ namespace moris
 
                 default:
                     MORIS_ERROR( false, "SP_Convective_Ghost::set_dof_type_list - unknown master slave type." );
-                    break;
             }
         }
 
         //------------------------------------------------------------------------------
-        void SP_Convective_Ghost::set_property(
-                std::shared_ptr< Property > aProperty,
-                std::string                 aPropertyString,
-                mtk::Master_Slave           aIsMaster )
-        {
-            // check that aPropertyString makes sense
-            std::string tErrMsg =
-                    std::string( "SP_Convective_Ghost::set_property - Unknown aPropertyString : ") +
-                    aPropertyString;
-            MORIS_ERROR( mPropertyMap.find( aPropertyString ) != mPropertyMap.end() , tErrMsg.c_str() );
 
-            // set the property in the property cell
-            this->get_properties( aIsMaster )( static_cast< uint >( mPropertyMap[ aPropertyString ] ) ) = aProperty;
-        }
-
-        //------------------------------------------------------------------------------
         void SP_Convective_Ghost::eval_SP()
         {
             // get the velocity FI
@@ -119,7 +105,9 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
-        void SP_Convective_Ghost::eval_dSPdMasterDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes )
+
+        void SP_Convective_Ghost::eval_dSPdMasterDOF(
+                const moris::Cell< MSI::Dof_Type > & aDofTypes )
         {
             // get the dof type index
             uint tDofIndex = mMasterGlobalDofTypeMap( static_cast< uint >( aDofTypes( 0 ) ) );

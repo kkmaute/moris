@@ -13,16 +13,18 @@ namespace moris
     {
 
         //------------------------------------------------------------------------------
+
         SP_SUPG_Advection::SP_SUPG_Advection()
         {
             // set the property pointer cell size
             mMasterProp.resize( static_cast< uint >( Property_Type::MAX_ENUM ), nullptr );
 
             // populate the map
-            mPropertyMap[ "Conductivity" ]     = Property_Type::CONDUCTIVITY;
+            mPropertyMap[ "Conductivity" ] = static_cast< uint >( Property_Type::CONDUCTIVITY );
         }
 
         //------------------------------------------------------------------------------
+
         void SP_SUPG_Advection::set_dof_type_list(
                 moris::Cell< moris::Cell< MSI::Dof_Type > > & aDofTypes,
                 moris::Cell< std::string >                  & aDofStrings,
@@ -52,11 +54,10 @@ namespace moris
                         }
                         else
                         {
-                            // create error message
-                            std::string tErrMsg =
-                                    std::string( "SP_SUPG_Advection::set_dof_type_list - Unknown aDofString : ") +
-                                    tDofString;
-                            MORIS_ERROR( false , tErrMsg.c_str() );
+                            // error unknown dof string
+                            MORIS_ERROR( false ,
+                                    "SP_SUPG_Advection::set_dof_type_list - Unknown aDofString : %s \n",
+                                    tDofString.c_str() );
                         }
                     }
                     break;
@@ -71,26 +72,11 @@ namespace moris
 
                 default:
                     MORIS_ERROR( false, "SP_SUPG_Advection::set_dof_type_list - unknown master slave type." );
-                    break;
             }
         }
 
-
         //------------------------------------------------------------------------------
-        void SP_SUPG_Advection::set_property(
-                std::shared_ptr< Property > aProperty,
-                std::string                 aPropertyString,
-                mtk::Master_Slave           aIsMaster )
-        {
-            // check that aPropertyString makes sense
-            MORIS_ERROR( mPropertyMap.find( aPropertyString ) != mPropertyMap.end(),
-                    "SP_SUPG_Advection::set_property - Unknown aPropertyString." );
 
-            // set the property in the property cell
-            this->get_properties( aIsMaster )( static_cast< uint >( mPropertyMap[ aPropertyString ] ) ) = aProperty;
-        }
-
-        //------------------------------------------------------------------------------
         void SP_SUPG_Advection::eval_SP()
         {
             // get the velocity FI

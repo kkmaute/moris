@@ -12,10 +12,10 @@ TEST_CASE(
 {
     #include "fn_to_stdio.inc" // snippets IOS
 
-    REQUIRE(read_mode == std::string("r"));
-    REQUIRE(write_mode == std::string("w"));
-    REQUIRE(append_mode == std::string("a"));
-    REQUIRE(readwrite_mode == std::string("r+"));
-    REQUIRE(trunc_mode == std::string("w+"));
-    REQUIRE(update_mode == std::string("a+"));
+    REQUIRE(read_mode == "r");
+    REQUIRE(write_mode == "w");
+    REQUIRE(append_mode == "a");
+    REQUIRE(readwrite_mode == "r+");
+    REQUIRE(trunc_mode == "w+");
+    REQUIRE(update_mode == "a+");
 }

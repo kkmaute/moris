@@ -197,15 +197,15 @@ TEST_CASE("2D Linear Stuct Contract","[XTK_HMR_LS_Contact_2D]")
         tParameters.set( "number_of_elements_per_dimension", std::to_string(tNumX) + "," + std::to_string(tNumY));
         tParameters.set( "domain_dimensions", std::to_string(tDomainLX) + "," + std::to_string(tDomainLY) );
         tParameters.set( "domain_offset", std::to_string(-tDomainLX/2) + "," + std::to_string(-tDomainLY/2) );
-        tParameters.set( "domain_sidesets", std::string("1,2,3,4") );
-        tParameters.set( "lagrange_output_meshes", std::string("0") );
+        tParameters.set( "domain_sidesets", "1,2,3,4" );
+        tParameters.set( "lagrange_output_meshes", "0" );
 
-        tParameters.set( "lagrange_orders", std::string("1") );
-        tParameters.set( "lagrange_pattern", std::string("0") );
-        tParameters.set( "bspline_orders", std::string("1") );
-        tParameters.set( "bspline_pattern", std::string("0") );
+        tParameters.set( "lagrange_orders", "1" );
+        tParameters.set( "lagrange_pattern", "0" );
+        tParameters.set( "bspline_orders", "1" );
+        tParameters.set( "bspline_pattern", "0" );
 
-        tParameters.set( "lagrange_to_bspline", std::string("0") );
+        tParameters.set( "lagrange_to_bspline", "0" );
 
         tParameters.set( "truncate_bsplines", 1 );
         tParameters.set( "refinement_buffer", 3 );
@@ -360,6 +360,7 @@ TEST_CASE("2D Linear Stuct Contract","[XTK_HMR_LS_Contact_2D]")
         tCMStrucLinIso1->set_property( tPropNua, "PoissonRatio" );
         tCMStrucLinIso1->set_space_dim( 2 );
         tCMStrucLinIso1->set_model_type(fem::Model_Type::PLANE_STRESS);
+        tCMStrucLinIso1->set_local_properties();
 
         std::shared_ptr< fem::Constitutive_Model > tCMStrucLinIso2 =
                 tCMFactory.create_CM( fem::Constitutive_Type::STRUC_LIN_ISO );
@@ -368,6 +369,7 @@ TEST_CASE("2D Linear Stuct Contract","[XTK_HMR_LS_Contact_2D]")
         tCMStrucLinIso2->set_property( tPropNub, "PoissonRatio" );
         tCMStrucLinIso2->set_space_dim( 2 );
         tCMStrucLinIso2->set_model_type(fem::Model_Type::PLANE_STRESS);
+        tCMStrucLinIso2->set_local_properties();
 
         // define stabilization parameters
         fem::SP_Factory tSPFactory;

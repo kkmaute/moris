@@ -106,6 +106,35 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
+        void Constitutive_Model::set_property(
+                std::shared_ptr< fem::Property > aProperty,
+                std::string                      aPropertyString )
+        {
+            // check that aPropertyString makes sense
+            MORIS_ERROR( mPropertyMap.find( aPropertyString ) != mPropertyMap.end(),
+                    "Constitutive_Model::set_property - Unknown aPropertyString : %s \n",
+                    aPropertyString.c_str() );
+
+            // set the property in the property cell
+            mProperties( mPropertyMap[ aPropertyString ] ) = aProperty;
+        }
+
+        //------------------------------------------------------------------------------
+
+        std::shared_ptr< fem::Property > Constitutive_Model::get_property(
+                std::string aPropertyString )
+        {
+            // check that aPropertyString makes sense
+            MORIS_ERROR( mPropertyMap.find( aPropertyString ) != mPropertyMap.end(),
+                    "Constitutive_Model::set_property - Unknown aPropertyString : %s \n",
+                    aPropertyString.c_str() );
+
+            // get the property in the property cell
+            return  mProperties( mPropertyMap[ aPropertyString ] );
+        }
+
+        //------------------------------------------------------------------------------
+
         void Constitutive_Model::build_dof_type_map()
         {
             // get number of dof types
@@ -712,9 +741,11 @@ namespace moris
             uint tDerNumBases  = tFI->get_number_of_space_time_bases();
             uint tDerNumFields = tFI->get_number_of_fields();
 
+            // evaluate unperturbed flux
+            Matrix< DDRMat > tFlux = this->flux( aCMFunctionType );
+
             // set size for derivative
-            uint tNumRow = this->flux( aCMFunctionType ).n_rows();
-            mdFluxdDof( tDofIndex ).set_size( tNumRow, tDerNumDof, 0.0 );
+            adFluxdDOF_FD.set_size( tFlux.n_rows(), tDerNumDof, 0.0 );
 
             // coefficients for dof type wrt which derivative is computed
             Matrix< DDRMat > tCoeff = tFI->get_coeff();
@@ -731,8 +762,30 @@ namespace moris
                     // compute the perturbation absolute value
                     real tDeltaH = aPerturbation * tCoeff( iCoeffRow, iCoeffCol );
 
+                    // check that perturbation is not zero
+                    if( std::abs( tDeltaH ) < 1e-12 )
+                    {
+                        tDeltaH = aPerturbation;
+                    }
+
+                    // set starting point for FD
+                    uint tStartPoint = 0;
+
+                    // if backward or forward add unperturbed contribution
+                    if( ( aFDSchemeType == fem::FDScheme_Type::POINT_1_BACKWARD ) ||
+                            ( aFDSchemeType == fem::FDScheme_Type::POINT_1_FORWARD ) )
+                    {
+                        // add unperturbed flux contribution to dfluxdu
+                        adFluxdDOF_FD.get_column( tDofCounter ) +=
+                                tFDScheme( 1 )( 0 ) * tFlux /
+                                ( tFDScheme( 2 )( 0 ) * tDeltaH );
+
+                        // skip first point in FD
+                        tStartPoint = 1;
+                    }
+
                     // loop over the points for FD
-                    for( uint iPoint = 0; iPoint < tNumPoints; iPoint++ )
+                    for( uint iPoint = tStartPoint; iPoint < tNumPoints; iPoint++ )
                     {
                         // reset the perturbed coefficients
                         Matrix< DDRMat > tCoeffPert = tCoeff;
@@ -747,7 +800,7 @@ namespace moris
                         this->reset_eval_flags();
 
                         // assemble the jacobian
-                        mdFluxdDof( tDofIndex ).get_column( tDofCounter ) +=
+                        adFluxdDOF_FD.get_column( tDofCounter ) +=
                                         tFDScheme( 1 )( iPoint ) * this->flux( aCMFunctionType ) /
                                         ( tFDScheme( 2 )( 0 ) * tDeltaH );
                     }
@@ -757,9 +810,9 @@ namespace moris
             }
             // reset the coefficients values
             tFI->set_coeff( tCoeff );
-
-            // FIXME
-            adFluxdDOF_FD = mdFluxdDof( tDofIndex );
+            
+            // set value to storage
+            mdFluxdDof( tDofIndex ) = adFluxdDOF_FD;
         }
 
         //------------------------------------------------------------------------------
@@ -789,9 +842,11 @@ namespace moris
             uint tDerNumBases  = tFIDerivative->get_number_of_space_time_bases();
             uint tDerNumFields = tFIDerivative->get_number_of_fields();
 
+            // compute unperturbed traction
+            Matrix< DDRMat > tTraction = this->traction( aNormal, aCMFunctionType );
+
             // set size for derivative
-            uint tNumRow = this->traction( aNormal, aCMFunctionType ).n_rows();
-            mdTractiondDof( tDofIndex ).set_size( tNumRow, tDerNumDof, 0.0 );
+            adtractiondu_FD.set_size( tTraction.n_rows(), tDerNumDof, 0.0 );
 
             // coefficients for dof type wrt which derivative is computed
             Matrix< DDRMat > tCoeff = tFIDerivative->get_coeff();
@@ -808,8 +863,30 @@ namespace moris
                     // compute the perturbation value
                     real tDeltaH = aPerturbation * tCoeff( iCoeffRow, iCoeffCol );
 
+                    // check that perturbation is not zero
+                    if( std::abs( tDeltaH ) < 1e-12 )
+                    {
+                        tDeltaH = aPerturbation;
+                    }
+
+                    // set starting point for FD
+                    uint tStartPoint = 0;
+
+                    // if backward or forward add unperturbed contribution
+                    if( ( aFDSchemeType == fem::FDScheme_Type::POINT_1_BACKWARD ) ||
+                            ( aFDSchemeType == fem::FDScheme_Type::POINT_1_FORWARD ) )
+                    {
+                        // add unperturbed traction contribution to dtractiondu
+                        adtractiondu_FD.get_column( tDofCounter ) +=
+                                tFDScheme( 1 )( 0 ) * tTraction /
+                                ( tFDScheme( 2 )( 0 ) * tDeltaH );
+
+                        // skip first point in FD
+                        tStartPoint = 1;
+                    }
+
                     // loop over the points for FD
-                    for( uint iPoint = 0; iPoint < tNumPoints; iPoint++ )
+                    for( uint iPoint = tStartPoint; iPoint < tNumPoints; iPoint++ )
                     {
                         // reset the perturbed coefficients
                         Matrix< DDRMat > tCoeffPert = tCoeff;
@@ -823,8 +900,8 @@ namespace moris
                         // reset properties
                         this->reset_eval_flags();
 
-                        // assemble the jacobian
-                        mdTractiondDof( tDofIndex ).get_column( tDofCounter ) +=
+                        // add contribution of point to dtractiondu
+                        adtractiondu_FD.get_column( tDofCounter ) +=
                                 tFDScheme( 1 )( iPoint ) * this->traction( aNormal, aCMFunctionType ) /
                                 ( tFDScheme( 2 )( 0 ) * tDeltaH );
                     }
@@ -834,9 +911,9 @@ namespace moris
             }
             // reset the coefficients values
             tFIDerivative->set_coeff( tCoeff );
-
-            // FIXME
-            adtractiondu_FD = mdTractiondDof( tDofIndex );
+            
+            // set value for storage
+            mdTractiondDof( tDofIndex ) = adtractiondu_FD;
         }
 
         //------------------------------------------------------------------------------
@@ -871,10 +948,13 @@ namespace moris
             uint tDerNumBases  = tFIDerivative->get_number_of_space_time_bases();
             uint tDerNumFields = tFIDerivative->get_number_of_fields();
 
-            // set size for derivative
-            Matrix< DDRMat > tTestTractionForSize = trans( trans( aJump ) * this->testTraction( aNormal, aTestDofTypes, aCMFunctionType ) );
-            uint tNumRow = tTestTractionForSize.n_rows();
-            mdTestTractiondDof( tTestDofIndex )( tDofIndex ).set_size( tNumRow, tDerNumDof, 0.0 );
+            // compute unperturbed test traction
+            Matrix< DDRMat > tUnperturbedTestTraction =
+                    trans( this->testTraction( aNormal, aTestDofTypes, aCMFunctionType ) ) * aJump;
+            adtesttractiondu_FD.set_size(
+                    tUnperturbedTestTraction.n_rows(),
+                    tDerNumDof,
+                    0.0 );
 
             // coefficients for dof type wrt which derivative is computed
             Matrix< DDRMat > tCoeff = tFIDerivative->get_coeff();
@@ -891,8 +971,30 @@ namespace moris
                     // compute the perturbation absolute value
                     real tDeltaH = aPerturbation * tCoeff( iCoeffRow, iCoeffCol );
 
+                    // check that perturbation is not zero
+                    if( std::abs( tDeltaH ) < 1e-12 )
+                    {
+                        tDeltaH = aPerturbation;
+                    }
+
+                    // set starting point for FD
+                    uint tStartPoint = 0;
+
+                    // if backward or forward add unperturbed contribution
+                    if( ( aFDSchemeType == fem::FDScheme_Type::POINT_1_BACKWARD ) ||
+                            ( aFDSchemeType == fem::FDScheme_Type::POINT_1_FORWARD ) )
+                    {
+                        // add unperturbed test traction contribution to dtesttractiondu
+                        adtesttractiondu_FD.get_column( tDofCounter ) +=
+                                tFDScheme( 1 )( 0 ) * tUnperturbedTestTraction /
+                                ( tFDScheme( 2 )( 0 ) * tDeltaH );
+
+                        // skip first point in FD
+                        tStartPoint = 1;
+                    }
+
                     // loop over the points for FD
-                    for( uint iPoint = 0; iPoint < tNumPoints; iPoint++ )
+                    for( uint iPoint = tStartPoint; iPoint < tNumPoints; iPoint++ )
                     {
                         // reset the perturbed coefficients
                         Matrix< DDRMat > tCoeffPert = tCoeff;
@@ -906,10 +1008,10 @@ namespace moris
                         // reset properties
                         this->reset_eval_flags();
 
-                        // assemble the jacobian
-                        mdTestTractiondDof( tTestDofIndex )( tDofIndex ).get_column( tDofCounter ) +=
+                        // add unperturbed test traction contribution to dtesttractiondu
+                        adtesttractiondu_FD.get_column( tDofCounter ) +=
                                 tFDScheme( 1 )( iPoint ) *
-                                trans( trans( aJump ) * this->testTraction( aNormal, aTestDofTypes, aCMFunctionType ) ) /
+                                trans( this->testTraction( aNormal, aTestDofTypes, aCMFunctionType ) ) * aJump /
                                 ( tFDScheme( 2 )( 0 ) * tDeltaH );
                     }
                     // update dof counter
@@ -919,11 +1021,12 @@ namespace moris
             // reset the coefficients values
             tFIDerivative->set_coeff( tCoeff );
 
-            // FIXME
-            adtesttractiondu_FD = mdTestTractiondDof( tTestDofIndex )( tDofIndex );
+            // set value for storage
+            mdTestTractiondDof( tTestDofIndex )( tDofIndex ) = adtesttractiondu_FD;
         }
 
         //------------------------------------------------------------------------------
+
         void Constitutive_Model::eval_ddivfluxdu_FD(
                 const moris::Cell< MSI::Dof_Type > & aDofTypes,
                 Matrix< DDRMat >                   & addivfluxdu_FD,
@@ -948,9 +1051,11 @@ namespace moris
             uint tDerNumBases  = tFIDerivative->get_number_of_space_time_bases();
             uint tDerNumFields = tFIDerivative->get_number_of_fields();
 
+            // compute unperturbed divflux
+            Matrix< DDRMat > tDivFlux = this->divflux( aCMFunctionType );
+
             // set size for derivative
-            uint tNumRows = this->divflux( aCMFunctionType ).n_rows();
-            mddivfluxdu( tDofIndex ).set_size( tNumRows, tDerNumDof, 0.0 );
+            addivfluxdu_FD.set_size( tDivFlux.n_rows(), tDerNumDof, 0.0 );
 
             // coefficients for dof type wrt which derivative is computed
             Matrix< DDRMat > tCoeff = tFIDerivative->get_coeff();
@@ -967,8 +1072,30 @@ namespace moris
                     // compute the perturbation absolute value
                     real tDeltaH = aPerturbation * tCoeff( iCoeffRow, iCoeffCol );
 
+                    // check that perturbation is not zero
+                    if( std::abs( tDeltaH ) < 1e-12 )
+                    {
+                        tDeltaH = aPerturbation;
+                    }
+
+                    // set starting point for FD
+                    uint tStartPoint = 0;
+
+                    // if backward or forward add unperturbed contribution
+                    if( ( aFDSchemeType == fem::FDScheme_Type::POINT_1_BACKWARD ) ||
+                            ( aFDSchemeType == fem::FDScheme_Type::POINT_1_FORWARD ) )
+                    {
+                        // add unperturbed div flux contribution to ddivfluxdu
+                        addivfluxdu_FD.get_column( tDofCounter ) +=
+                                tFDScheme( 1 )( 0 ) * tDivFlux /
+                                ( tFDScheme( 2 )( 0 ) * tDeltaH );
+
+                        // skip first point in FD
+                        tStartPoint = 1;
+                    }
+
                     // loop over the points for FD
-                    for( uint iPoint = 0; iPoint < tNumPoints; iPoint++ )
+                    for( uint iPoint = tStartPoint; iPoint < tNumPoints; iPoint++ )
                     {
                         // reset the perturbed coefficients
                         Matrix< DDRMat > tCoeffPert = tCoeff;
@@ -982,8 +1109,8 @@ namespace moris
                         // reset properties
                         this->reset_eval_flags();
 
-                        // assemble the jacobian
-                        mddivfluxdu( tDofIndex ).get_column( tDofCounter ) +=
+                        // add contribution of point to ddivfluxdu
+                        addivfluxdu_FD.get_column( tDofCounter ) +=
                                 tFDScheme( 1 )( iPoint ) * this->divflux( aCMFunctionType ) /
                                 ( tFDScheme( 2 )( 0 ) * tDeltaH );
                     }
@@ -994,8 +1121,8 @@ namespace moris
             // reset the coefficients values
             tFIDerivative->set_coeff( tCoeff );
 
-            // FIXME
-            addivfluxdu_FD = mddivfluxdu( tDofIndex );
+            // set value for storage
+            mddivfluxdu( tDofIndex ) = addivfluxdu_FD;
         }
 
         //------------------------------------------------------------------------------
@@ -1024,9 +1151,11 @@ namespace moris
             uint tDerNumBases  = tFIDerivative->get_number_of_space_time_bases();
             uint tDerNumFields = tFIDerivative->get_number_of_fields();
 
+            // compute unperturbed div strain
+            Matrix< DDRMat > tDivStrain = this->divstrain( aCMFunctionType );
+
             // set size for derivative
-            uint tNumRows = this->divstrain( aCMFunctionType ).n_rows();
-            mddivstraindu( tDofIndex ).set_size( tNumRows, tDerNumDof, 0.0 );
+            addivstraindu_FD.set_size( tDivStrain.n_rows(), tDerNumDof, 0.0 );
 
             // coefficients for dof type wrt which derivative is computed
             Matrix< DDRMat > tCoeff = tFIDerivative->get_coeff();
@@ -1043,8 +1172,30 @@ namespace moris
                     // compute the perturbation absolute value
                     real tDeltaH = aPerturbation * tCoeff( iCoeffRow, iCoeffCol );
 
+                    // check that perturbation is not zero
+                    if( std::abs( tDeltaH ) < 1e-12 )
+                    {
+                        tDeltaH = aPerturbation;
+                    }
+
+                    // set starting point for FD
+                    uint tStartPoint = 0;
+
+                    // if backward or forward add unperturbed contribution
+                    if( ( aFDSchemeType == fem::FDScheme_Type::POINT_1_BACKWARD ) ||
+                            ( aFDSchemeType == fem::FDScheme_Type::POINT_1_FORWARD ) )
+                    {
+                        // add unperturbed div strain contribution to ddivstraindu
+                        addivstraindu_FD.get_column( tDofCounter ) +=
+                                tFDScheme( 1 )( 0 ) * tDivStrain /
+                                ( tFDScheme( 2 )( 0 ) * tDeltaH );
+
+                        // skip first point in FD
+                        tStartPoint = 1;
+                    }
+
                     // loop over the points for FD
-                    for( uint iPoint = 0; iPoint < tNumPoints; iPoint++ )
+                    for( uint iPoint = tStartPoint; iPoint < tNumPoints; iPoint++ )
                     {
                         // reset the perturbed coefficients
                         Matrix< DDRMat > tCoeffPert = tCoeff;
@@ -1058,8 +1209,8 @@ namespace moris
                         // reset properties
                         this->reset_eval_flags();
 
-                        // assemble the jacobian
-                        mddivstraindu( tDofIndex ).get_column( tDofCounter ) +=
+                        // add contribution of point to ddivstraindu
+                        addivstraindu_FD.get_column( tDofCounter ) +=
                                 tFDScheme( 1 )( iPoint ) * this->divstrain( aCMFunctionType ) /
                                 ( tFDScheme( 2 )( 0 ) * tDeltaH );
                     }
@@ -1070,8 +1221,8 @@ namespace moris
             // reset the coefficients values
             tFIDerivative->set_coeff( tCoeff );
 
-            // FIXME
-            addivstraindu_FD = mddivstraindu( tDofIndex );
+            // set value for storage
+            mddivstraindu( tDofIndex ) = addivstraindu_FD;
         }
 
         //------------------------------------------------------------------------------
@@ -1099,9 +1250,11 @@ namespace moris
             uint tDerNumBases  = tFI->get_number_of_space_time_bases();
             uint tDerNumFields = tFI->get_number_of_fields();
 
+            // compute the unperturbed energy
+            Matrix< DDRMat > tEnergy = this->Energy( aCMFunctionType );
+
             // set size for derivative
-            uint tNumRows = this->Energy( aCMFunctionType ).n_rows();
-            mEnergyDof( tDofIndex ).set_size( tNumRows, tDerNumDof, 0.0 );
+            adEnergydDOF_FD.set_size( tEnergy.n_rows(), tDerNumDof, 0.0 );
 
             // coefficients for dof type wrt which derivative is computed
             Matrix< DDRMat > tCoeff = tFI->get_coeff();
@@ -1118,8 +1271,30 @@ namespace moris
                     // compute the perturbation absolute value
                     real tDeltaH = aPerturbation * tCoeff( iCoeffRow, iCoeffCol );
 
+                    // check that perturbation is not zero
+                    if( std::abs( tDeltaH ) < 1e-12 )
+                    {
+                        tDeltaH = aPerturbation;
+                    }
+
+                    // set starting point for FD
+                    uint tStartPoint = 0;
+
+                    // if backward or forward add unperturbed contribution
+                    if( ( aFDSchemeType == fem::FDScheme_Type::POINT_1_BACKWARD ) ||
+                            ( aFDSchemeType == fem::FDScheme_Type::POINT_1_FORWARD ) )
+                    {
+                        // add unperturbed energy contribution to denergydu
+                        adEnergydDOF_FD.get_column( tDofCounter ) +=
+                                tFDScheme( 1 )( 0 ) * tEnergy /
+                                ( tFDScheme( 2 )( 0 ) * tDeltaH );
+
+                        // skip first point in FD
+                        tStartPoint = 1;
+                    }
+
                     // loop over the points for FD
-                    for( uint iPoint = 0; iPoint < tNumPoints; iPoint++ )
+                    for( uint iPoint = tStartPoint; iPoint < tNumPoints; iPoint++ )
                     {
                         // reset the perturbed coefficents
                         Matrix< DDRMat > tCoeffPert = tCoeff;
@@ -1133,8 +1308,8 @@ namespace moris
                         // reset properties
                         this->reset_eval_flags();
 
-                        // assemble dEnergyDotdu
-                        mEnergyDof( tDofIndex ).get_column( tDofCounter ) +=
+                        // add contribution of point to denergydu
+                        adEnergydDOF_FD.get_column( tDofCounter ) +=
                                 tFDScheme( 1 )( iPoint ) * this->Energy( aCMFunctionType ) /
                                 ( tFDScheme( 2 )( 0 ) * tDeltaH );
                     }
@@ -1145,8 +1320,8 @@ namespace moris
             // reset the coefficients values
             tFI->set_coeff( tCoeff );
 
-            // FIXME
-            adEnergydDOF_FD = mEnergyDof( tDofIndex );
+            // set value to storage
+            mEnergyDof( tDofIndex ) = adEnergydDOF_FD;
         }
 
         //------------------------------------------------------------------------------
@@ -1174,9 +1349,11 @@ namespace moris
             uint tDerNumBases  = tFI->get_number_of_space_time_bases();
             uint tDerNumFields = tFI->get_number_of_fields();
 
+            // compute unperturbed energy dot
+            Matrix< DDRMat > tEnergyDot = this->EnergyDot( aCMFunctionType );
+
             // set size for derivative
-            uint tNumRows = this->EnergyDot( aCMFunctionType ).n_rows();
-            mEnergyDotDof( tDofIndex ).set_size( tNumRows, tDerNumDof, 0.0 );
+            adEnergyDotdDOF_FD.set_size( tEnergyDot.n_rows(), tDerNumDof, 0.0 );
 
             // coefficients for dof type wrt which derivative is computed
             Matrix< DDRMat > tCoeff = tFI->get_coeff();
@@ -1193,8 +1370,30 @@ namespace moris
                     // compute the perturbation absolute value
                     real tDeltaH = aPerturbation * tCoeff( iCoeffRow, iCoeffCol );
 
+                    // check that perturbation is not zero
+                    if( std::abs( tDeltaH ) < 1e-12 )
+                    {
+                        tDeltaH = aPerturbation;
+                    }
+
+                    // set starting point for FD
+                    uint tStartPoint = 0;
+
+                    // if backward or forward add unperturbed contribution
+                    if( ( aFDSchemeType == fem::FDScheme_Type::POINT_1_BACKWARD ) ||
+                            ( aFDSchemeType == fem::FDScheme_Type::POINT_1_FORWARD ) )
+                    {
+                        // add unperturbed energydot contribution to denergydotdu
+                        adEnergyDotdDOF_FD.get_column( tDofCounter ) +=
+                                tFDScheme( 1 )( 0 ) * tEnergyDot /
+                                ( tFDScheme( 2 )( 0 ) * tDeltaH );
+
+                        // skip first point in FD
+                        tStartPoint = 1;
+                    }
+
                     // loop over the points for FD
-                    for( uint iPoint = 0; iPoint < tNumPoints; iPoint++ )
+                    for( uint iPoint = tStartPoint; iPoint < tNumPoints; iPoint++ )
                     {
                         // reset the perturbed coefficients
                         Matrix< DDRMat > tCoeffPert = tCoeff;
@@ -1208,8 +1407,8 @@ namespace moris
                         // reset properties
                         this->reset_eval_flags();
 
-                        // assemble dEnergyDotdu
-                        mEnergyDotDof( tDofIndex ).get_column( tDofCounter ) +=
+                        // add point contribution to dEnergyDotdu
+                        adEnergyDotdDOF_FD.get_column( tDofCounter ) +=
                                 tFDScheme( 1 )( iPoint ) * this->EnergyDot( aCMFunctionType ) /
                                 ( tFDScheme( 2 )( 0 ) * tDeltaH );
                     }
@@ -1220,8 +1419,8 @@ namespace moris
             // reset the coefficients values
             tFI->set_coeff( tCoeff );
 
-            // FIXME
-            adEnergyDotdDOF_FD = mEnergyDotDof( tDofIndex );
+            // set value to storage
+            mEnergyDotDof( tDofIndex ) = adEnergyDotdDOF_FD;
         }
 
         //------------------------------------------------------------------------------
@@ -1249,9 +1448,11 @@ namespace moris
             uint tDerNumBases  = tFI->get_number_of_space_time_bases();
             uint tDerNumFields = tFI->get_number_of_fields();
 
+            // compute unperturbed grad energy
+            Matrix< DDRMat > tGradEnergy = this->gradEnergy( aCMFunctionType );
+
             // set size for derivative
-            uint tNumRows = this->gradEnergy( aCMFunctionType ).n_rows();
-            mGradEnergyDof( tDofIndex ).set_size( tNumRows, tDerNumDof, 0.0 );
+            adGradEnergydDOF_FD.set_size( tGradEnergy.n_rows(), tDerNumDof, 0.0 );
 
             // coefficients for dof type wrt which derivative is computed
             Matrix< DDRMat > tCoeff = tFI->get_coeff();
@@ -1268,8 +1469,30 @@ namespace moris
                     // compute the perturbation absolute value
                     real tDeltaH = aPerturbation * tCoeff( iCoeffRow, iCoeffCol );
 
+                    // check that perturbation is not zero
+                    if( std::abs( tDeltaH ) < 1e-12 )
+                    {
+                        tDeltaH = aPerturbation;
+                    }
+
+                    // set starting point for FD
+                    uint tStartPoint = 0;
+
+                    // if backward or forward add unperturbed contribution
+                    if( ( aFDSchemeType == fem::FDScheme_Type::POINT_1_BACKWARD ) ||
+                            ( aFDSchemeType == fem::FDScheme_Type::POINT_1_FORWARD ) )
+                    {
+                        // add unperturbed grad energy contribution to dgradenergydu
+                        adGradEnergydDOF_FD.get_column( tDofCounter ) +=
+                                tFDScheme( 1 )( 0 ) * tGradEnergy /
+                                ( tFDScheme( 2 )( 0 ) * tDeltaH );
+
+                        // skip first point in FD
+                        tStartPoint = 1;
+                    }
+
                     // loop over the points for FD
-                    for( uint iPoint = 0; iPoint < tNumPoints; iPoint++ )
+                    for( uint iPoint = tStartPoint; iPoint < tNumPoints; iPoint++ )
                     {
                         // reset the perturbed coefficients
                         Matrix< DDRMat > tCoeffPert = tCoeff;
@@ -1283,8 +1506,8 @@ namespace moris
                         // reset properties
                         this->reset_eval_flags();
 
-                        // assemble dGradHdu
-                        mGradEnergyDof( tDofIndex ).get_column( tDofCounter ) +=
+                        // add point contribution to dGradEnergydu
+                        adGradEnergydDOF_FD.get_column( tDofCounter ) +=
                                 tFDScheme( 1 )( iPoint ) * this->gradEnergy( aCMFunctionType ) /
                                 ( tFDScheme( 2 )( 0 ) * tDeltaH );
                     }
@@ -1295,8 +1518,8 @@ namespace moris
             // reset the coefficients values
             tFI->set_coeff( tCoeff );
 
-            // FIXME
-            adGradEnergydDOF_FD = mGradEnergyDof( tDofIndex );
+            // set value to storage
+            mGradEnergyDof( tDofIndex ) = adGradEnergydDOF_FD;
         }
 
         //------------------------------------------------------------------------------
@@ -1324,9 +1547,11 @@ namespace moris
             uint tDerNumBases  = tFI->get_number_of_space_time_bases();
             uint tDerNumFields = tFI->get_number_of_fields();
 
+            // compute unperturbed grad energy dot
+            Matrix< DDRMat > tGradEnergyDot = this->gradEnergyDot( aCMFunctionType );
+
             // set size for derivative
-            uint tNumRows = this->gradEnergyDot( aCMFunctionType ).n_rows();
-            mGradEnergyDotDof( tDofIndex ).set_size( tNumRows, tDerNumDof, 0.0 );
+            adGradEnergyDotdDOF_FD.set_size( tGradEnergyDot.n_rows(), tDerNumDof, 0.0 );
 
             // coefficients for dof type wrt which derivative is computed
             Matrix< DDRMat > tCoeff = tFI->get_coeff();
@@ -1343,8 +1568,30 @@ namespace moris
                     // compute the perturbation absolute value
                     real tDeltaH = aPerturbation * tCoeff( iCoeffRow, iCoeffCol );
 
+                    // check that perturbation is not zero
+                    if( std::abs( tDeltaH ) < 1e-12 )
+                    {
+                        tDeltaH = aPerturbation;
+                    }
+
+                    // set starting point for FD
+                    uint tStartPoint = 0;
+
+                    // if backward or forward add unperturbed contribution
+                    if( ( aFDSchemeType == fem::FDScheme_Type::POINT_1_BACKWARD ) ||
+                            ( aFDSchemeType == fem::FDScheme_Type::POINT_1_FORWARD ) )
+                    {
+                        // add unperturbed grad energy dot contribution to dgradenergydotdu
+                        adGradEnergyDotdDOF_FD.get_column( tDofCounter ) +=
+                                tFDScheme( 1 )( 0 ) * tGradEnergyDot /
+                                ( tFDScheme( 2 )( 0 ) * tDeltaH );
+
+                        // skip first point in FD
+                        tStartPoint = 1;
+                    }
+
                     // loop over the points for FD
-                    for( uint iPoint = 0; iPoint < tNumPoints; iPoint++ )
+                    for( uint iPoint = tStartPoint; iPoint < tNumPoints; iPoint++ )
                     {
                         // reset the perturbed coefficients
                         Matrix< DDRMat > tCoeffPert = tCoeff;
@@ -1358,8 +1605,8 @@ namespace moris
                         // reset properties
                         this->reset_eval_flags();
 
-                        // assemble dGradHdu
-                        mGradEnergyDotDof( tDofIndex ).get_column( tDofCounter ) +=
+                        // add point contribution to dGradHdu
+                        adGradEnergyDotdDOF_FD.get_column( tDofCounter ) +=
                                 tFDScheme( 1 )( iPoint ) * this->gradEnergyDot( aCMFunctionType ) /
                                 ( tFDScheme( 2 )( 0 ) * tDeltaH );
                     }
@@ -1371,8 +1618,8 @@ namespace moris
             // reset the coefficients values
             tFI->set_coeff( tCoeff );
 
-            // FIXME
-            adGradEnergyDotdDOF_FD = mGradEnergyDotDof( tDofIndex );
+            // set value to storage
+            mGradEnergyDotDof( tDofIndex ) = adGradEnergyDotdDOF_FD;
         }
 
         //------------------------------------------------------------------------------
@@ -1400,9 +1647,11 @@ namespace moris
             uint tDerNumBases  = tFI->get_number_of_space_time_bases();
             uint tDerNumFields = tFI->get_number_of_fields();
 
+            // compute unperturbed grad div flux
+            Matrix< DDRMat > tGradDivFlux = this->graddivflux( aCMFunctionType );
+
             // set size for derivative
-            uint tNumRows = this->graddivflux( aCMFunctionType ).n_rows();
-            mGradDivFluxDof( tDofIndex ).set_size( tNumRows, tDerNumDof, 0.0 );
+            adGradDivFluxdDOF_FD.set_size( tGradDivFlux.n_rows(), tDerNumDof, 0.0 );
 
             // coefficients for dof type wrt which derivative is computed
             Matrix< DDRMat > tCoeff = tFI->get_coeff();
@@ -1419,8 +1668,30 @@ namespace moris
                     // compute the perturbation absolute value
                     real tDeltaH = aPerturbation * tCoeff( iCoeffRow, iCoeffCol );
 
+                    // check that perturbation is not zero
+                    if( std::abs( tDeltaH ) < 1e-12 )
+                    {
+                        tDeltaH = aPerturbation;
+                    }
+
+                    // set starting point for FD
+                    uint tStartPoint = 0;
+
+                    // if backward or forward add unperturbed contribution
+                    if( ( aFDSchemeType == fem::FDScheme_Type::POINT_1_BACKWARD ) ||
+                            ( aFDSchemeType == fem::FDScheme_Type::POINT_1_FORWARD ) )
+                    {
+                        // add unperturbed grad div flux dot contribution to dgraddivfluxdu
+                        adGradDivFluxdDOF_FD.get_column( tDofCounter ) +=
+                                tFDScheme( 1 )( 0 ) * tGradDivFlux /
+                                ( tFDScheme( 2 )( 0 ) * tDeltaH );
+
+                        // skip first point in FD
+                        tStartPoint = 1;
+                    }
+
                     // loop over the points for FD
-                    for( uint iPoint = 0; iPoint < tNumPoints; iPoint++ )
+                    for( uint iPoint = tStartPoint; iPoint < tNumPoints; iPoint++ )
                     {
                         // reset the perturbed coefficients
                         Matrix< DDRMat > tCoeffPert = tCoeff;
@@ -1434,8 +1705,8 @@ namespace moris
                         // reset properties
                         this->reset_eval_flags();
 
-                        // assemble dGradHdu
-                        mGradDivFluxDof( tDofIndex ).get_column( tDofCounter ) +=
+                        // add point contribution to dgraddivfluxdu
+                        adGradDivFluxdDOF_FD.get_column( tDofCounter ) +=
                                 tFDScheme( 1 )( iPoint ) * this->graddivflux( aCMFunctionType ) /
                                 ( tFDScheme( 2 )( 0 ) * tDeltaH );
                     }
@@ -1447,8 +1718,8 @@ namespace moris
             // reset the coefficients values
             tFI->set_coeff( tCoeff );
 
-            // FIXME
-            adGradDivFluxdDOF_FD = mGradDivFluxDof( tDofIndex );
+            // set value to storage
+            mGradDivFluxDof( tDofIndex ) = adGradDivFluxdDOF_FD;
         }
 
         //------------------------------------------------------------------------------
@@ -1476,9 +1747,11 @@ namespace moris
             uint tDerNumBases  = tFI->get_number_of_space_time_bases();
             uint tDerNumFields = tFI->get_number_of_fields();
 
+            // compute unperturbed strain
+            Matrix< DDRMat > tStrain = this->strain( aCMFunctionType );
+
             // set size for derivative
-            uint tNumRow = this->strain( aCMFunctionType ).n_rows();
-            mdStraindDof( tDofIndex ).set_size( tNumRow, tDerNumDof, 0.0 );
+            adStraindDOF_FD.set_size( tStrain.n_rows(), tDerNumDof, 0.0 );
 
             // coefficients for dof type wrt which derivative is computed
             Matrix< DDRMat > tCoeff = tFI->get_coeff();
@@ -1495,8 +1768,30 @@ namespace moris
                     // compute the perturbation absolute value
                     real tDeltaH = aPerturbation * tCoeff( iCoeffRow, iCoeffCol );
 
+                    // check that perturbation is not zero
+                    if( std::abs( tDeltaH ) < 1e-12 )
+                    {
+                        tDeltaH = aPerturbation;
+                    }
+
+                    // set starting point for FD
+                    uint tStartPoint = 0;
+
+                    // if backward or forward add unperturbed contribution
+                    if( ( aFDSchemeType == fem::FDScheme_Type::POINT_1_BACKWARD ) ||
+                            ( aFDSchemeType == fem::FDScheme_Type::POINT_1_FORWARD ) )
+                    {
+                        // add unperturbed strain dot contribution to dstraindu
+                        adStraindDOF_FD.get_column( tDofCounter ) +=
+                                tFDScheme( 1 )( 0 ) * tStrain /
+                                ( tFDScheme( 2 )( 0 ) * tDeltaH );
+
+                        // skip first point in FD
+                        tStartPoint = 1;
+                    }
+
                     // loop over the points for FD
-                    for( uint iPoint = 0; iPoint < tNumPoints; iPoint++ )
+                    for( uint iPoint = tStartPoint; iPoint < tNumPoints; iPoint++ )
                     {
                         // reset the perturbed coefficients
                         Matrix< DDRMat > tCoeffPert = tCoeff;
@@ -1510,8 +1805,8 @@ namespace moris
                         // reset properties
                         this->reset_eval_flags();
 
-                        // assemble dstraindu
-                        mdStraindDof( tDofIndex ).get_column( tDofCounter ) +=
+                        // add point contribution to dstraindu
+                        adStraindDOF_FD.get_column( tDofCounter ) +=
                                 tFDScheme( 1 )( iPoint ) * this->strain( aCMFunctionType ) /
                                 ( tFDScheme( 2 )( 0 ) * tDeltaH );
                     }
@@ -1523,8 +1818,8 @@ namespace moris
             // reset the coefficients values
             tFI->set_coeff( tCoeff );
 
-            // FIXME
-            adStraindDOF_FD = mdStraindDof( tDofIndex );
+            // set value to storage
+            mdStraindDof( tDofIndex ) = adStraindDOF_FD;
         }
 
         //------------------------------------------------------------------------------

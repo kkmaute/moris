@@ -288,6 +288,7 @@ namespace moris
             tCMDiffLinIso->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} ); // FIXME through the factory?
             tCMDiffLinIso->set_property( tPropConductivity, "Conductivity" );
             tCMDiffLinIso->set_space_dim( 3 );
+            tCMDiffLinIso->set_local_properties();
 
             // define stabilization parameters
             fem::SP_Factory tSPFactory;
@@ -542,6 +543,7 @@ namespace moris
             tCMDiffLinIso->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} ); // FIXME through the factory?
             tCMDiffLinIso->set_property( tPropConductivity, "Conductivity" );
             tCMDiffLinIso->set_space_dim( 3 );
+            tCMDiffLinIso->set_local_properties();
 
             // define stabilization parameters
             fem::SP_Factory tSPFactory;
@@ -854,6 +856,7 @@ namespace moris
             tCMDiffLinIso1->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
             tCMDiffLinIso1->set_property( tPropConductivity1, "Conductivity" );
             tCMDiffLinIso1->set_space_dim( 3 );
+            tCMDiffLinIso1->set_local_properties();
 
             //        std::shared_ptr< fem::Constitutive_Model > tCMDiffLinIso2 = tCMFactory.create_CM( fem::Constitutive_Type::DIFF_LIN_ISO );
             //        tCMDiffLinIso2->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
@@ -974,11 +977,11 @@ namespace moris
             tParameterlist( 1 )(0) = moris::prm::create_linear_solver_parameter_list();
             tParameterlist( 2 )(0) = moris::prm::create_nonlinear_algorithm_parameter_list();
             tParameterlist( 3 )(0) = moris::prm::create_nonlinear_solver_parameter_list();
-            tParameterlist( 3 )(0).set("NLA_DofTypes"      , std::string("TEMP") );
+            tParameterlist( 3 )(0).set("NLA_DofTypes"      , "TEMP" );
 
             tParameterlist( 4 )(0) = moris::prm::create_time_solver_algorithm_parameter_list();
             tParameterlist( 5 )(0) = moris::prm::create_time_solver_parameter_list();
-            tParameterlist( 5 )(0).set("TSA_DofTypes"      , std::string("TEMP") );
+            tParameterlist( 5 )(0).set("TSA_DofTypes"      , "TEMP" );
 
             tParameterlist( 6 )(0) = moris::prm::create_solver_warehouse_parameterlist();
             tParameterlist( 6 )(0).set("SOL_TPL_Type"      , static_cast< uint >( sol::MapType::Petsc ) );
@@ -1146,6 +1149,7 @@ namespace moris
             tCMDiffLinIso1->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
             tCMDiffLinIso1->set_property( tPropConductivity1, "Conductivity" );
             tCMDiffLinIso1->set_space_dim( 3 );
+            tCMDiffLinIso1->set_local_properties();
 
             // define stabilization parameters
             fem::SP_Factory tSPFactory;
@@ -1260,11 +1264,11 @@ namespace moris
             tParameterlist( 1 )(0) = moris::prm::create_linear_solver_parameter_list();
             tParameterlist( 2 )(0) = moris::prm::create_nonlinear_algorithm_parameter_list();
             tParameterlist( 3 )(0) = moris::prm::create_nonlinear_solver_parameter_list();
-            tParameterlist( 3 )(0).set("NLA_DofTypes"      , std::string("TEMP") );
+            tParameterlist( 3 )(0).set("NLA_DofTypes"      , "TEMP" );
 
             tParameterlist( 4 )(0) = moris::prm::create_time_solver_algorithm_parameter_list();
             tParameterlist( 5 )(0) = moris::prm::create_time_solver_parameter_list();
-            tParameterlist( 5 )(0).set("TSA_DofTypes"      , std::string("TEMP") );
+            tParameterlist( 5 )(0).set("TSA_DofTypes"      , "TEMP" );
 
             tParameterlist( 6 )(0) = moris::prm::create_solver_warehouse_parameterlist();
             tParameterlist( 6 )(0).set("SOL_TPL_Type"      , static_cast< uint >( sol::MapType::Petsc ) );

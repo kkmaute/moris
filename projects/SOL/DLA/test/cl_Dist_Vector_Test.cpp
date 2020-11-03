@@ -55,7 +55,7 @@ TEST_CASE("Dist Vector","[Dist Vector],[DistLinAlg]")
             tVectorA->sum_into_global_values( tElementTopology,
                                               tElementRHS(0));
         }
-        tVectorA->vector_global_asembly();
+        tVectorA->vector_global_assembly();
 
 //        const char* filename = "/home/schmidt/matrixvec.mtx";
 //        tVectorA->save_vector_to_matrix_market_file( filename );
@@ -122,8 +122,8 @@ TEST_CASE("Sum Dist Vector","[Sum Dist Vector],[DistLinAlg]")
             tVectorB->sum_into_global_values( tElementTopology,
                                               tElementRHS(0));
         }
-        tVectorA->vector_global_asembly();
-        tVectorB->vector_global_asembly();
+        tVectorA->vector_global_assembly();
+        tVectorB->vector_global_assembly();
 
         // Add tVectorB to tVectorA
         tVectorA->vec_plus_vec(1.0, *tVectorB, 1.0 );
@@ -189,7 +189,7 @@ TEST_CASE("Scale Dist Vector","[Scale Dist Vector],[DistLinAlg]")
             tVectorA->sum_into_global_values( tElementTopology,
                                               tElementRHS(0));
         }
-        tVectorA->vector_global_asembly();
+        tVectorA->vector_global_assembly();
 
         // Scale tVectorA
         tVectorA->scale_vector(5.5);
@@ -251,7 +251,7 @@ TEST_CASE("Norm/Length Dist Vector","[Norm Dist Vector],[DistLinAlg]")
             tVectorA->sum_into_global_values( tElementTopology,
                                               tElementRHS(0));
         }
-        tVectorA->vector_global_asembly();
+        tVectorA->vector_global_assembly();
 
         // Get Vector norm
         moris::Cell< moris::real > tNorm = tVectorA->vec_norm2();
@@ -315,7 +315,7 @@ TEST_CASE("Import Dist Vector","[Import Dist Vector],[DistLinAlg]")
             tVectorFree->sum_into_global_values( tElementTopology,
                                                  tElementRHS(0));
         }
-        tVectorFree->vector_global_asembly();
+        tVectorFree->vector_global_assembly();
 
         tVectorFull->import_local_to_global( *tVectorFree );
 

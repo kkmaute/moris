@@ -815,6 +815,7 @@ namespace xtk
                             }
                             if (tFirstParentOnInterface and tSecondParentOnInterface)
                             {
+                                std::cout<<"Both parents on the interface"<<std::endl;
                                 // Tell the child mesh this edge is actually on the interface already
                                 tChildMesh.mark_edge_as_on_interface(tEdgeInd);
                             }
@@ -903,6 +904,9 @@ namespace xtk
                             }
                         }
                     }
+                
+                    tChildMesh.mark_interface_faces_from_interface_coincident_faces();
+
                 } // XTK Mesh loop
 
                 moris_index tMessageTag = 60001; /*arbitrary tag for regular subdivision*/

@@ -58,15 +58,19 @@ namespace moris
         // define constitutive models
         fem::CM_Factory tCMFactory;
 
-        std::shared_ptr< fem::Constitutive_Model > tCMMaster1 = tCMFactory.create_CM( fem::Constitutive_Type::DIFF_LIN_ISO );
+        std::shared_ptr< fem::Constitutive_Model > tCMMaster1 =
+                tCMFactory.create_CM( fem::Constitutive_Type::DIFF_LIN_ISO );
         tCMMaster1->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
         tCMMaster1->set_property( tPropMaster2, "Conductivity" );
         tCMMaster1->set_space_dim( 3 );
+        tCMMaster1->set_local_properties();
 
-        std::shared_ptr< fem::Constitutive_Model > tCMSlave1 = tCMFactory.create_CM( fem::Constitutive_Type::DIFF_LIN_ISO );
+        std::shared_ptr< fem::Constitutive_Model > tCMSlave1 =
+                tCMFactory.create_CM( fem::Constitutive_Type::DIFF_LIN_ISO );
         tCMSlave1->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
         tCMSlave1->set_property( tPropSlave2, "Conductivity" );
         tCMSlave1->set_space_dim( 3 );
+        tCMSlave1->set_local_properties();
 
         // create master dof field interpolators
         uint tNumberOfFields = 1;

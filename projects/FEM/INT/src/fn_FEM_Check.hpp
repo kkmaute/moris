@@ -26,7 +26,9 @@ namespace moris
             MORIS_ERROR(
                     ( aMatrixCheck.n_rows() == aMatrixRef.n_rows() ) &&
                     ( aMatrixCheck.n_cols() == aMatrixRef.n_cols() ),
-                    "check_fd - matrices to check do not share same dimensions." );
+                    "check_fd - matrices to check do not share same dimensions - check: %i x %i ref: %i x %i.",
+                    aMatrixCheck.n_rows(), aMatrixCheck.n_cols(),
+                    aMatrixRef.n_rows()  , aMatrixRef.n_cols() );
 
             //define a boolean for check
             bool tCheckBool = true;

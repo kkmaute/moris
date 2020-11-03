@@ -14,7 +14,8 @@ namespace moris
                      Matrix<DDUMat>  aADVIndices,
                      Matrix<DDRMat>  aConstantParameters,
                      std::string     aName,
-                     sint            aNumRefinements,
+                     Matrix<DDSMat>  aNumRefinements,
+                     Matrix<DDSMat>  aNumPatterns,
                      sint            aRefinementFunctionIndex,
                      sint            aBSplineMeshIndex,
                      real            aBSplineLowerBound,
@@ -25,6 +26,7 @@ namespace moris
                   mName(aName),
                   mDependsOnADVs(aADVIndices.length()),
                   mNumRefinements(aNumRefinements),
+                  mRefinementMeshIndices(aNumPatterns),
                   mRefinementFunctionIndex(aRefinementFunctionIndex),
                   mBSplineMeshIndex(aBSplineMeshIndex),
                   mBSplineLowerBound(aBSplineLowerBound),
@@ -51,7 +53,8 @@ namespace moris
                      Matrix<DDUMat>    aADVIndices,
                      Matrix<DDRMat>    aConstantParameters,
                      std::string       aName,
-                     sint              aNumRefinements,
+                     Matrix<DDSMat>  aNumRefinements,
+                     Matrix<DDSMat>  aNumPatterns,
                      sint              aRefinementFunctionIndex,
                      sint              aBSplineMeshIndex,
                      real              aBSplineLowerBound,
@@ -62,6 +65,7 @@ namespace moris
                   mName(aName),
                   mDependsOnADVs(aADVIndices.length()),
                   mNumRefinements(aNumRefinements),
+                  mRefinementMeshIndices(aNumPatterns),
                   mRefinementFunctionIndex(aRefinementFunctionIndex),
                   mBSplineMeshIndex(aBSplineMeshIndex),
                   mBSplineLowerBound(aBSplineLowerBound),
@@ -83,9 +87,11 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
+
         Field::Field(const Matrix<DDSMat>& aSharedADVIds,
                      std::string           aName,
-                     sint                  aNumRefinements,
+                     Matrix<DDSMat>  aNumRefinements,
+                     Matrix<DDSMat>  aNumPatterns,
                      sint                  aRefinementFunctionIndex,
                      sint                  aBSplineMeshIndex,
                      real                  aBSplineLowerBound,
@@ -95,6 +101,7 @@ namespace moris
                   mName(aName),
                   mDependsOnADVs(true),
                   mNumRefinements(aNumRefinements),
+                  mRefinementMeshIndices(aNumPatterns),
                   mRefinementFunctionIndex(aRefinementFunctionIndex),
                   mBSplineMeshIndex(aBSplineMeshIndex),
                   mBSplineLowerBound(aBSplineLowerBound),
@@ -117,7 +124,8 @@ namespace moris
 
         Field::Field(Matrix<DDRMat> aConstantParameters,
                      std::string    aName,
-                     sint           aNumRefinements,
+                     Matrix<DDSMat>  aNumRefinements,
+                     Matrix<DDSMat>  aNumPatterns,
                      sint           aRefinementFunctionIndex,
                      sint           aBSplineMeshIndex,
                      real           aBSplineLowerBound,
@@ -128,6 +136,7 @@ namespace moris
                   mName(aName),
                   mDependsOnADVs(false),
                   mNumRefinements(aNumRefinements),
+                  mRefinementMeshIndices(aNumPatterns),
                   mRefinementFunctionIndex(aRefinementFunctionIndex),
                   mBSplineMeshIndex(aBSplineMeshIndex),
                   mBSplineLowerBound(aBSplineLowerBound),
@@ -206,9 +215,16 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        sint Field::get_num_refinements()
+        const Matrix< DDSMat > & Field::get_num_refinements()
         {
             return mNumRefinements;
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
+        const Matrix< DDSMat > & Field::get_refinement_mesh_indices()
+        {
+            return mRefinementMeshIndices;
         }
 
         //--------------------------------------------------------------------------------------------------------------

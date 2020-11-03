@@ -124,12 +124,14 @@ moris::Cell<bool> test_IWG_Diffusion_Bulk(
     // define constitutive models
     fem::CM_Factory tCMFactory;
 
-    std::shared_ptr< fem::Constitutive_Model > tCMMasterDiffLinIso = tCMFactory.create_CM( fem::Constitutive_Type::DIFF_LIN_ISO );
+    std::shared_ptr< fem::Constitutive_Model > tCMMasterDiffLinIso =
+            tCMFactory.create_CM( fem::Constitutive_Type::DIFF_LIN_ISO );
     tCMMasterDiffLinIso->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
     tCMMasterDiffLinIso->set_property( tPropMasterConductivity, "Conductivity" );
     tCMMasterDiffLinIso->set_property( tPropMasterDensity, "Density");
     tCMMasterDiffLinIso->set_property( tPropMasterHeatCapacity, "HeatCapacity");
     tCMMasterDiffLinIso->set_space_dim( 3 );
+    tCMMasterDiffLinIso->set_local_properties();
 
     // define the IWGs
     fem::IWG_Factory tIWGFactory;
@@ -405,12 +407,14 @@ TEST_CASE( "IWG_Diffusion_Bulk_Geo_Prop", "[moris],[fem],[IWG_Diff_Bulk_Geo_Prop
     // define constitutive models
     fem::CM_Factory tCMFactory;
 
-    std::shared_ptr< fem::Constitutive_Model > tCMMasterDiffLinIso = tCMFactory.create_CM( fem::Constitutive_Type::DIFF_LIN_ISO );
+    std::shared_ptr< fem::Constitutive_Model > tCMMasterDiffLinIso =
+            tCMFactory.create_CM( fem::Constitutive_Type::DIFF_LIN_ISO );
     tCMMasterDiffLinIso->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
     tCMMasterDiffLinIso->set_property( tPropMasterConductivity, "Conductivity" );
     tCMMasterDiffLinIso->set_property( tPropMasterDensity, "Density");
     tCMMasterDiffLinIso->set_property( tPropMasterHeatCapacity, "HeatCapacity");
     tCMMasterDiffLinIso->set_space_dim( 3 );
+    tCMMasterDiffLinIso->set_local_properties();
 
     // define the IWGs
     fem::IWG_Factory tIWGFactory;

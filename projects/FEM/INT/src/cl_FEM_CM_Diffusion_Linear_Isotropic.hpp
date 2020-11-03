@@ -29,22 +29,25 @@ namespace moris
         class CM_Diffusion_Linear_Isotropic : public Constitutive_Model
         {
                 //------------------------------------------------------------------------------
+            protected:
+                // default local properties
+                std::shared_ptr< Property > mPropConductivity = nullptr;
+                std::shared_ptr< Property > mPropHeatCapacity = nullptr;
+                std::shared_ptr< Property > mPropDensity      = nullptr;
+
             private:
 
                 // Default dof type for CM
                 MSI::Dof_Type mTempDof = MSI::Dof_Type::TEMP;
 
                 // property type for CM
-                enum class Property_Type
+                enum class CM_Property_Type
                 {
                     CONDUCTIVITY,
                     HEAT_CAPACITY,
                     DENSITY,
                     MAX_ENUM
                 };
-
-                // Local string to property enum map
-                std::map< std::string, Property_Type > mPropertyMap;
 
                 //------------------------------------------------------------------------------
             public:
@@ -84,21 +87,9 @@ namespace moris
 
                 //------------------------------------------------------------------------------
                 /**
-                 * set a property pointer
-                 * @param[ in ] aProperty     a property pointer
-                 * @param[ in ] aPropertyType a char
+                 * set local properties
                  */
-                void set_property(
-                        std::shared_ptr< fem::Property > aProperty,
-                        std::string                      aPropertyString );
-
-                //--------------------------------------------------------------------------------------------------------------
-                /**
-                 * get a property pointer
-                 * @param[ in ]  aPropertyType a string defining the property
-                 * @param[ out ] aProperty     a property pointer
-                 */
-                std::shared_ptr< Property > get_property( std::string aPropertyString );
+                void set_local_properties();
 
                 //------------------------------------------------------------------------------
                 /**
@@ -117,7 +108,6 @@ namespace moris
                  * evaluates the constitutive model spatial gradient of enthalpy
                  */
                 virtual void eval_gradEnergy();
-
 
                 //------------------------------------------------------------------------------
                 /**

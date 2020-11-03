@@ -15,16 +15,19 @@ namespace moris
             Cell<real*> mFieldVariables;
 
         private:
+
             sol::Dist_Vector* mSharedADVs = nullptr;
             Matrix<DDRMat>    mConstantParameters;
             Matrix<DDSMat>    mDeterminingADVIds;
             std::string       mName;
             bool              mDependsOnADVs;
-            sint              mNumRefinements;
+            Matrix<DDSMat>    mNumRefinements;
+            Matrix<DDSMat>    mRefinementMeshIndices;
             sint              mRefinementFunctionIndex;
             sint              mBSplineMeshIndex;
             real              mBSplineLowerBound;
             real              mBSplineUpperBound;
+
 
         protected:
 
@@ -47,7 +50,8 @@ namespace moris
                   Matrix<DDUMat>  aADVIndices,
                   Matrix<DDRMat>  aConstantParameters,
                   std::string     aName,
-                  sint            aNumRefinements,
+                  Matrix<DDSMat>  aNumRefinements,
+                  Matrix<DDSMat>  aNumPatterns,
                   sint            aRefinementFunctionIndex,
                   sint            aBSplineMeshIndex,
                   real            aBSplineLowerBound,
@@ -72,7 +76,8 @@ namespace moris
                   Matrix<DDUMat>    aADVIndices,
                   Matrix<DDRMat>    aConstantParameters,
                   std::string       aName,
-                  sint              aNumRefinements,
+                  Matrix<DDSMat>  aNumRefinements,
+                  Matrix<DDSMat>  aNumPatterns,
                   sint              aRefinementFunctionIndex,
                   sint              aBSplineMeshIndex,
                   real              aBSplineLowerBound,
@@ -88,9 +93,11 @@ namespace moris
              * @param aBSplineLowerBound The lower bound for the B-spline coefficients describing this field
              * @param aBSplineUpperBound The upper bound for the B-spline coefficients describing this field
              */
+
             Field(const Matrix<DDSMat>& aSharedADVIds,
                   std::string           aName,
-                  sint                  aNumRefinements,
+                  Matrix<DDSMat>  aNumRefinements,
+                  Matrix<DDSMat>  aNumPatterns,
                   sint                  aRefinementFunctionIndex,
                   sint                  aBSplineMeshIndex,
                   real                  aBSplineLowerBound,
@@ -109,7 +116,8 @@ namespace moris
              */
             Field(Matrix<DDRMat> aConstantParameters,
                   std::string    aName,
-                  sint           aNumRefinements,
+                  Matrix<DDSMat>  aNumRefinements,
+                  Matrix<DDSMat>  aNumPatterns,
                   sint           aRefinementFunctionIndex,
                   sint           aBSplineMeshIndex,
                   real           aBSplineLowerBound,
@@ -207,7 +215,9 @@ namespace moris
              *
              * @return if to perform an additional refinement with this field
              */
-            sint get_num_refinements();
+            const Matrix< DDSMat > & get_num_refinements();
+
+            const Matrix< DDSMat > & get_refinement_mesh_indices();
 
             /**
              * Gets the index of a user-defined refinement function used within HMR.

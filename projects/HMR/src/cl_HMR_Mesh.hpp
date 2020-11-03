@@ -128,6 +128,16 @@ namespace moris
             //-------------------------------------------------------------------------------
 
             /**
+             * returns a the underlying background mesh pattern on which this mesh was build on
+             */
+            uint get_lagrange_mesh_pattern()
+            {
+                return mMesh->get_activation_pattern();
+            }
+
+            //-------------------------------------------------------------------------------
+
+            /**
              * return a pointer to the database
              */
             std::shared_ptr< Database > get_database()

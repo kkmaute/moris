@@ -10,16 +10,18 @@ namespace moris
     {
 
         //------------------------------------------------------------------------------
+
         SP_Time_Velocity_Ghost::SP_Time_Velocity_Ghost()
         {
             // set the property pointer cell size
             mMasterProp.resize( static_cast< uint >( Property_Type::MAX_ENUM ), nullptr );
 
             // populate the map
-            mPropertyMap[ "Density" ] = Property_Type::DENSITY;
+            mPropertyMap[ "Density" ] = static_cast< uint >( Property_Type::DENSITY );
         }
 
         //------------------------------------------------------------------------------
+
         void SP_Time_Velocity_Ghost::reset_cluster_measures()
         {
             // evaluate element size from the cluster
@@ -29,26 +31,11 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
-        void SP_Time_Velocity_Ghost::set_property(
-                std::shared_ptr< Property > aProperty,
-                std::string                 aPropertyString,
-                mtk::Master_Slave           aIsMaster )
-        {
-            // check that aPropertyString makes sense
-            std::string tErrMsg =
-                    std::string( "SP_Time_Velocity_Ghost::set_property - Unknown aPropertyString : ") +
-                    aPropertyString;
-            MORIS_ERROR( mPropertyMap.find( aPropertyString ) != mPropertyMap.end() , tErrMsg.c_str() );
-
-            // set the property in the property cell
-            this->get_properties( aIsMaster )( static_cast< uint >( mPropertyMap[ aPropertyString ] ) ) = aProperty;
-        }
-
-        //------------------------------------------------------------------------------
         void SP_Time_Velocity_Ghost::eval_SP()
         {
             // get the density property
-            std::shared_ptr< Property > tDensityProp = mMasterProp( static_cast< uint >( Property_Type::DENSITY ) );
+            std::shared_ptr< Property > tDensityProp =
+                    mMasterProp( static_cast< uint >( Property_Type::DENSITY ) );
 
             // compute time increment deltat
             real tDeltaT = mMasterFIManager->get_IP_geometry_interpolator()->get_time_step();
@@ -60,7 +47,9 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
-        void SP_Time_Velocity_Ghost::eval_dSPdMasterDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes )
+
+        void SP_Time_Velocity_Ghost::eval_dSPdMasterDOF(
+                const moris::Cell< MSI::Dof_Type > & aDofTypes )
         {
             // get the dof type index
             uint tDofIndex = mMasterGlobalDofTypeMap( static_cast< uint >( aDofTypes( 0 ) ) );
@@ -72,7 +61,8 @@ namespace moris
             mdPPdMasterDof( tDofIndex ).set_size( 1, tFI->get_number_of_space_time_coefficients(), 0.0 );
 
             // get the density property
-            std::shared_ptr< Property > tDensityProp = mMasterProp( static_cast< uint >( Property_Type::DENSITY ) );
+            std::shared_ptr< Property > tDensityProp =
+                    mMasterProp( static_cast< uint >( Property_Type::DENSITY ) );
 
             // compute time increment deltat
             real tDeltaT = mMasterFIManager->get_IP_geometry_interpolator()->get_time_step();

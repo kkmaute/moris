@@ -61,6 +61,20 @@ CircleFuncXTKHMR2D(const moris::Matrix< moris::DDRMat > & aPoint )
             - (mRadius * mRadius);
 }
 
+moris::real
+PlaneFuncXTKHMR2D(const moris::Matrix< moris::DDRMat > & aPoint )
+{
+    // Get variables
+    real tXCenter = 0.0;
+    real tYCenter = 0.0;
+    real tXNormal = 1.0;
+    real tYNormal = 1.0;
+
+    // Evaluate field value
+    return tXNormal * (aPoint(0) - tXCenter) + tYNormal * (aPoint(1) - tYCenter);
+
+}
+
 TEST_CASE("2D XTK WITH HMR","[XTK_HMR_2D]")
 {
     if(par_size()<=2)
@@ -272,5 +286,92 @@ TEST_CASE("2D XTK WITH HMR WEIRD INTERSECTION","[XTK_HMR_2D_WI]")
         delete tInterpMesh;
     }
 }
+
+TEST_CASE("2D Conformal Coincident Subdivision","[CM_2D_LIN_COIN]")
+{
+    
+    if(par_size()<=1)
+    {
+        std::string tFieldName = "Cylinder";
+
+         moris::uint tLagrangeMeshIndex = 0;
+
+         moris::hmr::Parameters tParameters;
+
+         tParameters.set_number_of_elements_per_dimension( { {1}, {1}} );
+         tParameters.set_domain_dimensions({ {2}, {2} });
+         tParameters.set_domain_offset({ {-1.0}, {-1.0} });
+         tParameters.set_bspline_truncation( true );
+
+         tParameters.set_output_meshes( { {0} } );
+
+         tParameters.set_lagrange_orders  ( { {1} });
+         tParameters.set_lagrange_patterns({ {0} });
+
+         tParameters.set_bspline_orders   ( { {1} } );
+         tParameters.set_bspline_patterns ( { {0} } );
+
+         tParameters.set_side_sets({{1},{2},{3},{4} });
+
+         tParameters.set_union_pattern( 2 );
+         tParameters.set_working_pattern( 3 );
+
+         tParameters.set_refinement_buffer( 2 );
+         tParameters.set_staircase_buffer( 2 );
+
+         Cell< Matrix< DDSMat > > tLagrangeToBSplineMesh( 1 );
+         tLagrangeToBSplineMesh( 0 ) = { {0} };
+
+         tParameters.set_lagrange_to_bspline_mesh( tLagrangeToBSplineMesh );
+
+         hmr::HMR tHMR( tParameters );
+
+         std::shared_ptr< moris::hmr::Mesh > tMesh = tHMR.create_mesh( tLagrangeMeshIndex );
+
+         // create field
+         std::shared_ptr< moris::hmr::Field > tField = tMesh->create_field( tFieldName, tLagrangeMeshIndex );
+
+         tField->evaluate_scalar_function( PlaneFuncXTKHMR2D );
+
+         tHMR.finalize();
+
+         tHMR.save_to_exodus( 0, "./xtk_exo/xtk_hmr_2d_coincidence.e" );
+
+         hmr::Interpolation_Mesh_HMR * tInterpMesh = tHMR.create_interpolation_mesh( tLagrangeMeshIndex  );
+
+         // create a plane which intentionally intersects from fine to coarse
+         moris::Matrix<moris::DDRMat> tCenters = {{ 0.0,0.0 }};
+         moris::Matrix<moris::DDRMat> tNormals = {{ 1.0,0.0 }};
+        Cell<std::shared_ptr<moris::ge::Geometry>> tGeometry(4);
+        tGeometry(0) = std::make_shared<moris::ge::Plane>(tCenters(0), tCenters(1), tNormals(0), tNormals(1)); // center vertical
+        tGeometry(1) = std::make_shared<moris::ge::Plane>(tCenters(0), tCenters(1), tNormals(1), tNormals(0)); // center horizontal
+        tGeometry(2) = std::make_shared<moris::ge::Plane>(tCenters(0), tCenters(1), tNormals(0), tNormals(0)); // center horizontal
+        tGeometry(3) = std::make_shared<moris::ge::Plane>(tCenters(0), tCenters(1), tNormals(0), tNormals(0)); // center horizontal
+
+         size_t tModelDimension = 2;
+         moris::ge::Phase_Table tPhaseTable (tGeometry.size());
+         moris::ge::Geometry_Engine tGeometryEngine(tGeometry, tPhaseTable, tInterpMesh);
+         Model tXTKModel(tModelDimension, tInterpMesh, &tGeometryEngine);
+         tXTKModel.mVerbose  =  true;
+
+        //Specify decomposition Method and Cut Mesh ---------------------------------------
+        Cell<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_QUAD4, Subdivision_Method::C_TRI3};
+        tXTKModel.decompose(tDecompositionMethods);
+
+        tXTKModel.perform_basis_enrichment(EntityRank::BSPLINE,0);
+
+        // Write mesh
+        xtk::Enriched_Integration_Mesh & tEnrIgMesh = tXTKModel.get_enriched_integ_mesh(0);
+
+        tEnrIgMesh.deactivate_empty_sets();
+
+        moris::mtk::Writer_Exodus writer(&tEnrIgMesh);
+        writer.write_mesh("", "./xtk_2d_coincident.exo", "", "temp.exo");
+
+        delete tInterpMesh;
+    }
+}
+
+
 
 }

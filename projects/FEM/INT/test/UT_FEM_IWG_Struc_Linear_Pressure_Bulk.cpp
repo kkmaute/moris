@@ -77,6 +77,7 @@ TEST_CASE( "IWG_Elasticity_Bulk_Mixed_Pressure", "[IWG_Struc_Bulk_Mixed_Pressure
     tCMMasterStrucLinIso->set_dof_type_list( tDofTypes, { "Displacement", "Pressure" } );
     tCMMasterStrucLinIso->set_property( tPropEMod, "YoungsModulus" );
     tCMMasterStrucLinIso->set_property( tPropNu, "PoissonRatio" );
+    tCMMasterStrucLinIso->set_local_properties();
 
     // define the IWGs
     fem::IWG_Factory tIWGFactory;

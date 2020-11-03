@@ -187,7 +187,8 @@ namespace moris
         // Geometry parameter lists
         tParameterlist( 1 ).push_back( prm::create_user_defined_geometry_parameter_list() );
         tParameterlist( 1 )( tGeoCounter ).set( "field_function_name", "Func_Bottom_Plane");
-        tParameterlist( 1 )( tGeoCounter ).set( "number_of_refinements", 1);
+        tParameterlist( 1 )( tGeoCounter ).set( "number_of_refinements", "1");
+        tParameterlist( 1 )( tGeoCounter ).set( "refinement_mesh_index", "0");
     }
 
     void FEMParameterList( moris::Cell< moris::Cell< ParameterList > > & tParameterList )

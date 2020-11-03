@@ -126,21 +126,21 @@ namespace moris
 
             // check for nan, infinity
             MORIS_ASSERT( isfinite( mSet->get_jacobian() ) ,
-                    "IWG_Compressible_NS_Mass_Flux_Neumann::compute_jacobian - Jacobian contains NAN or INF, exiting!");
+                    "IWG_Compressible_NS_Traction_Neumann::compute_jacobian - Jacobian contains NAN or INF, exiting!");
         }
 
         //------------------------------------------------------------------------------
 
         void IWG_Compressible_NS_Traction_Neumann::compute_jacobian_and_residual( real aWStar )
         {
-            MORIS_ERROR( false, " IWG_Compressible_NS_Mass_Flux_Neumann::compute_jacobian_and_residual - Not implemented." );
+            MORIS_ERROR( false, " IWG_Compressible_NS_Traction_Neumann::compute_jacobian_and_residual - Not implemented." );
         }
 
         //------------------------------------------------------------------------------
 
         void IWG_Compressible_NS_Traction_Neumann::compute_dRdp( real aWStar )
         {
-            MORIS_ERROR( false, "IWG_Compressible_NS_Mass_Flux_Neumann::compute_dRdp - Not implemented.");
+            MORIS_ERROR( false, "IWG_Compressible_NS_Traction_Neumann::compute_dRdp - Not implemented.");
         }
 
         //------------------------------------------------------------------------------

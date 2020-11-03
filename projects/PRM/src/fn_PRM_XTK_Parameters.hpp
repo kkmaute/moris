@@ -34,12 +34,12 @@ namespace moris
 
         // decomposition and decomposition related parameters
         tParameterList.insert( "decompose", true );
-        tParameterList.insert( "decomposition_type", std::string("conformal") );
+        tParameterList.insert( "decomposition_type", "conformal" );
 
         // enrichment and enrichment related parameters
         tParameterList.insert( "enrich", false );
-        tParameterList.insert( "basis_rank",std::string("node") );
-        tParameterList.insert( "enrich_mesh_indices",std::string("0"));
+        tParameterList.insert( "basis_rank","node" );
+        tParameterList.insert( "enrich_mesh_indices","0");
 
         // ghost stabilization and ghost related parameters
         tParameterList.insert( "ghost_stab", false );

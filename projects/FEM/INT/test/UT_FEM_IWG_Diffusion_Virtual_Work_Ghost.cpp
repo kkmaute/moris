@@ -85,11 +85,13 @@ TEST_CASE( "IWG_Diff_VWGhost", "[moris],[fem],[IWG_Diff_VWGhost]" )
             tCMFactory.create_CM( fem::Constitutive_Type::DIFF_LIN_ISO );
     tCMMasterDiffLinIso->set_dof_type_list( { tTempDofTypes } );
     tCMMasterDiffLinIso->set_property( tPropMasterConductivity, "Conductivity" );
+    tCMMasterDiffLinIso->set_local_properties();
 
     std::shared_ptr< fem::Constitutive_Model > tCMSlaveDiffLinIso =
             tCMFactory.create_CM( fem::Constitutive_Type::DIFF_LIN_ISO );
     tCMSlaveDiffLinIso->set_dof_type_list( { tTempDofTypes } );
     tCMSlaveDiffLinIso->set_property( tPropSlaveConductivity, "Conductivity" );
+    tCMSlaveDiffLinIso->set_local_properties();
 
     // define stabilization parameters
     fem::SP_Factory tSPFactory;

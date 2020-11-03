@@ -215,6 +215,7 @@ TEST_CASE("XTK HMR Material Void Bar Intersected By Plane","[XTK_HMR_PLANE_BAR_M
         tCMDiffLinIso1->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
         tCMDiffLinIso1->set_property( tPropConductivity1, "Conductivity" );
         tCMDiffLinIso1->set_space_dim( 2 );
+        tCMDiffLinIso1->set_local_properties();
 
         // define stabilization parameters
         fem::SP_Factory tSPFactory;

@@ -58,7 +58,7 @@ namespace moris
             tdIQIdPDV->replace_global_values(tFullPDVIds, gdIQIdPDV1, 0);
             tdIQIdPDV->replace_global_values(tFullPDVIds, gdIQIdPDV2, 1);
         }
-        tdIQIdPDV->vector_global_asembly();
+        tdIQIdPDV->vector_global_assembly();
 
         return tdIQIdPDV;
     }

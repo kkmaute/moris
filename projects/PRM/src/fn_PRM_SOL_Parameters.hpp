@@ -254,7 +254,7 @@ namespace moris
         {
             ParameterList tLinSolverParameterList;
 
-            tLinSolverParameterList.insert( "DLA_Linear_solver_algorithms" , std::string("0") );
+            tLinSolverParameterList.insert( "DLA_Linear_solver_algorithms" , "0" );
 
             // Maximal number of linear solver restarts on fail
             tLinSolverParameterList.insert( "DLA_max_lin_solver_restarts" , 0 );
@@ -340,13 +340,13 @@ namespace moris
 
             tNonLinSolverParameterList.insert( "NLA_Solver_Implementation" , static_cast< uint >( NonlinearSolverType ) );
 
-            tNonLinSolverParameterList.insert( "NLA_DofTypes" , std::string("UNDEFINED") );
+            tNonLinSolverParameterList.insert( "NLA_DofTypes" , "UNDEFINED" );
 
-            tNonLinSolverParameterList.insert( "NLA_Secundary_DofTypes" , std::string("") );
+            tNonLinSolverParameterList.insert( "NLA_Secundary_DofTypes" , "" );
 
-            tNonLinSolverParameterList.insert( "NLA_Sub_Nonlinear_Solver" , std::string("") );
+            tNonLinSolverParameterList.insert( "NLA_Sub_Nonlinear_Solver" , "" );
 
-            tNonLinSolverParameterList.insert( "NLA_Nonlinear_solver_algorithms" , std::string("0") );
+            tNonLinSolverParameterList.insert( "NLA_Nonlinear_solver_algorithms" , "0" );
 
             // Maximal number of linear solver restarts on fail
             tNonLinSolverParameterList.insert( "NLA_max_non_lin_solver_restarts" , 0 );
@@ -385,20 +385,20 @@ namespace moris
 
             tTimeParameterList.insert( "TSA_TPL_Type" , static_cast< uint >( sol::MapType::Epetra ) );
 
-            tTimeParameterList.insert( "TSA_Solver_algorithms" , std::string("0") );
+            tTimeParameterList.insert( "TSA_Solver_algorithms" , "0" );
 
-            tTimeParameterList.insert( "TSA_DofTypes" , std::string("UNDEFINED") );
+            tTimeParameterList.insert( "TSA_DofTypes" , "UNDEFINED" );
 
             // Maximal number of linear solver restarts on fail
             tTimeParameterList.insert( "TSA_Max_Time_Solver_Restarts" , 0 );
 
-            tTimeParameterList.insert( "TSA_Output_Indices" , std::string("") );
+            tTimeParameterList.insert( "TSA_Output_Indices" , "" );
 
-            tTimeParameterList.insert( "TSA_Output_Crteria" , std::string("") );
+            tTimeParameterList.insert( "TSA_Output_Crteria" , "" );
 
-            tTimeParameterList.insert( "TSA_Initialize_Sol_Vec" , std::string("") );
+            tTimeParameterList.insert( "TSA_Initialize_Sol_Vec" , "" );
 
-            tTimeParameterList.insert( "TSA_time_level_per_type" , std::string("") );
+            tTimeParameterList.insert( "TSA_time_level_per_type" , "" );
 
             return tTimeParameterList;
         }

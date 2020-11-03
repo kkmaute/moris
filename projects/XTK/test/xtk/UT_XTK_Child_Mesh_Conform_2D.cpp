@@ -89,6 +89,21 @@ get_midside_coordinate(moris::moris_index const & aEdgeIndex,
 
 void
 setup_node_coordinates(moris::moris_index const & tEdge0,
+                       moris::Matrix< moris::DDRMat > & aNodeCoordinates)
+{
+    aNodeCoordinates = moris::Matrix< moris::DDRMat >(4,2);
+
+    aNodeCoordinates(0,0) = 0.0; aNodeCoordinates(0,1) = 0.0;
+    aNodeCoordinates(1,0) = 1.0; aNodeCoordinates(1,1) = 0.0;
+    aNodeCoordinates(2,0) = 1.0; aNodeCoordinates(2,1) = 1.0;
+
+    moris::Matrix< moris::DDRMat > tEdgeNodeCoordinates(1,2,75);
+    get_midside_coordinate(tEdge0,aNodeCoordinates, tEdgeNodeCoordinates);
+    aNodeCoordinates(3,0) = tEdgeNodeCoordinates(0,0);     aNodeCoordinates(3,1) =  tEdgeNodeCoordinates(0,1);
+}
+
+void
+setup_node_coordinates(moris::moris_index const & tEdge0,
                        moris::moris_index const & tEdge1,
                        moris::Matrix< moris::DDRMat > & aNodeCoordinates)
 {
@@ -148,9 +163,6 @@ TEST_CASE(" 2-D Conformal Decomposition Templates ","[2D_Conf_Temp]")
         moris::moris_index tEdge1  = tCurrentPermutation(1);
 
 
-// add volume computation and normals here
-// end---
-
         // Set up node coordinates
         moris::Matrix< moris::DDRMat > tNodeCoords;
         setup_node_coordinates(tEdge0,tEdge1,tNodeCoords);
@@ -168,7 +180,61 @@ TEST_CASE(" 2-D Conformal Decomposition Templates ","[2D_Conf_Temp]")
         moris::Matrix< moris::IdMat > tElementNode = tChildMesh.get_element_to_node_global();
 
     }
+}
+
+TEST_CASE(" 2-D Conformal Coincident Decomposition Templates ","[2D_Conf_Coin_Temp]")
+{
+    // base cell information
+    moris::Matrix< moris::IndexMat > tNodeIndex({{0,1,2}});
+    moris::Matrix< moris::IdMat > tNodeIds({{1,2,3,4}});
+    moris::Matrix< moris::IndexMat > tElementsAncestry({{0}}); // Not used
+    moris::Matrix< moris::DDSTMat  > tElementNodeParentRanks(1,3,0);
+    moris::Matrix< moris::IndexMat > tParentEdgeInds({{0,1,2}});
+    moris::Matrix< moris::DDSTMat  > tParentEdgeRanks(1,3,1);
+
+    // Permutations_2D tPermutations;
+    // size_t tNumPermutations = tPermutations.get_num_permutations();
+    for(size_t iPerm = 0; iPerm<3; iPerm++)
+    {
+        // Initialize Template
+        Mesh_Modification_Template tMeshTemplate(tElementsAncestry(0,0),
+                                                 0,
+                                                 tNodeIndex,
+                                                 tNodeIndex,
+                                                 tElementNodeParentRanks,
+                                                 tParentEdgeInds,
+                                                 tParentEdgeRanks,
+                                                 {{}},
+                                                 {{}},
+                                                 TemplateType::TRI_3);
+
+        // Initialize child mesh with template (in this case a tet4)
+        Child_Mesh tChildMesh(tMeshTemplate);
+
+        tChildMesh.add_new_geometry_interface(0);
+
+        // add new node indices
+        tChildMesh.add_node_indices({{3}});
+        tChildMesh.add_node_ids(tNodeIds);
+
+        // select template
+        moris::moris_index tEdge0  = iPerm;
+
+        // Set up node coordinates
+        moris::Matrix< moris::DDRMat > tNodeCoords;
+        setup_node_coordinates(tEdge0,tNodeCoords);
+
+        tChildMesh.add_entity_to_intersect_connectivity(3,tEdge0,true);
+
+        tChildMesh.modify_child_mesh(TemplateType::CONFORMAL_TRI3);
 
 
+        moris_id tElemId = 1;
+        tChildMesh.set_child_element_ids(tElemId);
+
+        moris::Matrix< moris::IdMat > tElementIds  = tChildMesh.get_element_ids();
+        moris::Matrix< moris::IdMat > tElementNode = tChildMesh.get_element_to_node_global();
+
+    }
 }
 }

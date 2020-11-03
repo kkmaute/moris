@@ -175,18 +175,18 @@ TEST_CASE("2D XTK WITH HMR Struc Interface 2D","[XTK_HMR_Struc_Interface_2D]")
 
         moris::ParameterList tParameters = prm::create_hmr_parameter_list();
 
-        tParameters.set( "number_of_elements_per_dimension", std::string("20, 20"));
-        tParameters.set( "domain_dimensions", std::string("2, 2") );
-        tParameters.set( "domain_offset", std::string("-1.0, -1.0") );
-        tParameters.set( "domain_sidesets", std::string("1,2,3,4") );
-        tParameters.set( "lagrange_output_meshes", std::string("0") );
+        tParameters.set( "number_of_elements_per_dimension", "20, 20");
+        tParameters.set( "domain_dimensions", "2, 2" );
+        tParameters.set( "domain_offset", "-1.0, -1.0" );
+        tParameters.set( "domain_sidesets", "1,2,3,4" );
+        tParameters.set( "lagrange_output_meshes", "0" );
 
-        tParameters.set( "lagrange_orders", std::string("1") );
-        tParameters.set( "lagrange_pattern", std::string("0") );
-        tParameters.set( "bspline_orders", std::string("1") );
-        tParameters.set( "bspline_pattern", std::string("0") );
+        tParameters.set( "lagrange_orders", "1" );
+        tParameters.set( "lagrange_pattern", "0" );
+        tParameters.set( "bspline_orders", "1" );
+        tParameters.set( "bspline_pattern", "0" );
 
-        tParameters.set( "lagrange_to_bspline", std::string("0") );
+        tParameters.set( "lagrange_to_bspline", "0" );
 
         tParameters.set( "truncate_bsplines", 1 );
         tParameters.set( "refinement_buffer", 3 );
@@ -281,6 +281,7 @@ TEST_CASE("2D XTK WITH HMR Struc Interface 2D","[XTK_HMR_Struc_Interface_2D]")
         tCMStrucLinIso1->set_property( tPropNu, "PoissonRatio" );
         tCMStrucLinIso1->set_space_dim( 2 );
         tCMStrucLinIso1->set_model_type(fem::Model_Type::PLANE_STRESS);
+        tCMStrucLinIso1->set_local_properties();
 
         std::shared_ptr< fem::Constitutive_Model > tCMStrucLinIso2 =
                 tCMFactory.create_CM( fem::Constitutive_Type::STRUC_LIN_ISO );
@@ -289,6 +290,7 @@ TEST_CASE("2D XTK WITH HMR Struc Interface 2D","[XTK_HMR_Struc_Interface_2D]")
         tCMStrucLinIso2->set_property( tPropNu, "PoissonRatio" );
         tCMStrucLinIso2->set_space_dim( 2 );
         tCMStrucLinIso2->set_model_type(fem::Model_Type::PLANE_STRESS);
+        tCMStrucLinIso2->set_local_properties();
 
         // define stabilization parameters
         fem::SP_Factory tSPFactory;
@@ -474,18 +476,18 @@ TEST_CASE("2D XTK WITH HMR Struc Interface 3D","[XTK_HMR_Struc_Interface_3D]") /
 //
 //        moris::ParameterList tParameters = prm::create_hmr_parameter_list();
 //
-//        tParameters.set( "number_of_elements_per_dimension", std::string("2, 2, 2"));
-//        tParameters.set( "domain_dimensions", std::string("2, 2, 2") );
-//        tParameters.set( "domain_offset", std::string("-1.0, -1.0, -1.0") );
-//        tParameters.set( "domain_sidesets", std::string("1,2,3,4,5, 6") );
-//        tParameters.set( "lagrange_output_meshes", std::string("0") );
+//        tParameters.set( "number_of_elements_per_dimension", "2, 2, 2");
+//        tParameters.set( "domain_dimensions", "2, 2, 2" );
+//        tParameters.set( "domain_offset", "-1.0, -1.0, -1.0" );
+//        tParameters.set( "domain_sidesets", "1,2,3,4,5, 6" );
+//        tParameters.set( "lagrange_output_meshes", "0" );
 //
-//        tParameters.set( "lagrange_orders", std::string("1") );
+//        tParameters.set( "lagrange_orders", "1" );
 //        tParameters.set( "lagrange_pattern",std::string( "0") );
-//        tParameters.set( "bspline_orders", std::string("1") );
-//        tParameters.set( "bspline_pattern", std::string("0") );
+//        tParameters.set( "bspline_orders", "1" );
+//        tParameters.set( "bspline_pattern", "0" );
 //
-//        tParameters.set( "lagrange_to_bspline", std::string("0") );
+//        tParameters.set( "lagrange_to_bspline", "0" );
 //
 //        tParameters.set( "truncate_bsplines", 1 );
 //        tParameters.set( "refinement_buffer", 3 );
@@ -753,18 +755,18 @@ TEST_CASE("2D XTK WITH HMR Struc 2D first","[XTK_HMR_Struc_2D_01]")
 
         moris::ParameterList tParameters = prm::create_hmr_parameter_list();
 
-        tParameters.set( "number_of_elements_per_dimension", std::string("20, 20"));
-        tParameters.set( "domain_dimensions", std::string("2, 2") );
-        tParameters.set( "domain_offset", std::string("-1.0, -1.0") );
-        tParameters.set( "domain_sidesets", std::string("1,2,3,4") );
-        tParameters.set( "lagrange_output_meshes", std::string("0") );
+        tParameters.set( "number_of_elements_per_dimension", "20, 20");
+        tParameters.set( "domain_dimensions", "2, 2" );
+        tParameters.set( "domain_offset", "-1.0, -1.0" );
+        tParameters.set( "domain_sidesets", "1,2,3,4" );
+        tParameters.set( "lagrange_output_meshes", "0" );
 
         tParameters.set( "lagrange_orders",std::string( "1") );
-        tParameters.set( "lagrange_pattern", std::string("0") );
-        tParameters.set( "bspline_orders", std::string("1") );
-        tParameters.set( "bspline_pattern", std::string("0") );
+        tParameters.set( "lagrange_pattern", "0" );
+        tParameters.set( "bspline_orders", "1" );
+        tParameters.set( "bspline_pattern", "0" );
 
-        tParameters.set( "lagrange_to_bspline", std::string("0") );
+        tParameters.set( "lagrange_to_bspline", "0" );
 
         tParameters.set( "truncate_bsplines", 1 );
         tParameters.set( "refinement_buffer", 3 );
@@ -865,6 +867,7 @@ TEST_CASE("2D XTK WITH HMR Struc 2D first","[XTK_HMR_Struc_2D_01]")
         tCMStrucLinIso1->set_property( tPropNu, "PoissonRatio" );
         tCMStrucLinIso1->set_space_dim( 2 );
         tCMStrucLinIso1->set_model_type(fem::Model_Type::PLANE_STRESS);
+        tCMStrucLinIso1->set_local_properties();
 
         std::shared_ptr< fem::Constitutive_Model > tCMStrucLinIso2 =
                 tCMFactory.create_CM( fem::Constitutive_Type::STRUC_LIN_ISO );
@@ -873,6 +876,7 @@ TEST_CASE("2D XTK WITH HMR Struc 2D first","[XTK_HMR_Struc_2D_01]")
         tCMStrucLinIso2->set_property( tPropNu, "PoissonRatio" );
         tCMStrucLinIso2->set_space_dim( 2 );
         tCMStrucLinIso2->set_model_type(fem::Model_Type::PLANE_STRESS);
+        tCMStrucLinIso2->set_local_properties();
 
         // define stabilization parameters
         fem::SP_Factory tSPFactory;
@@ -1067,18 +1071,18 @@ TEST_CASE("2D XTK WITH HMR Struc 2D second","[XTK_HMR_Struc_2D_02]")
 
         moris::ParameterList tParameters = prm::create_hmr_parameter_list();
 
-        tParameters.set( "number_of_elements_per_dimension", std::string("20, 20"));
-        tParameters.set( "domain_dimensions", std::string("2, 2") );
-        tParameters.set( "domain_offset", std::string("-1.0, -1.0") );
-        tParameters.set( "domain_sidesets", std::string("1,2,3,4") );
-        tParameters.set( "lagrange_output_meshes", std::string("0") );
+        tParameters.set( "number_of_elements_per_dimension", "20, 20");
+        tParameters.set( "domain_dimensions", "2, 2" );
+        tParameters.set( "domain_offset", "-1.0, -1.0" );
+        tParameters.set( "domain_sidesets", "1,2,3,4" );
+        tParameters.set( "lagrange_output_meshes", "0" );
 
-        tParameters.set( "lagrange_orders", std::string("1") );
-        tParameters.set( "lagrange_pattern", std::string("0") );
-        tParameters.set( "bspline_orders", std::string("1") );
-        tParameters.set( "bspline_pattern", std::string("0") );
+        tParameters.set( "lagrange_orders", "1" );
+        tParameters.set( "lagrange_pattern", "0" );
+        tParameters.set( "bspline_orders", "1" );
+        tParameters.set( "bspline_pattern", "0" );
 
-        tParameters.set( "lagrange_to_bspline", std::string("0") );
+        tParameters.set( "lagrange_to_bspline", "0" );
 
         tParameters.set( "truncate_bsplines", 1 );
         tParameters.set( "refinement_buffer", 3 );
@@ -1179,6 +1183,7 @@ TEST_CASE("2D XTK WITH HMR Struc 2D second","[XTK_HMR_Struc_2D_02]")
         tCMStrucLinIso->set_property( tPropNu, "PoissonRatio" );
         tCMStrucLinIso->set_space_dim( 2 );
         tCMStrucLinIso->set_model_type(fem::Model_Type::PLANE_STRESS);
+        tCMStrucLinIso->set_local_properties();
 
         // define stabilization parameters
         fem::SP_Factory tSPFactory;

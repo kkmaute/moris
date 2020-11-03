@@ -11,20 +11,22 @@ namespace moris
     namespace fem
     {
 
-        //--------------------------------------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
+
         CM_Struc_Linear_Isotropic::CM_Struc_Linear_Isotropic()
         {
             // set the property pointer cell size
-            mProperties.resize( static_cast< uint >( CM_Struc_Linear_Isotropic::Property_Type::MAX_ENUM ), nullptr );
+            mProperties.resize( static_cast< uint >( CM_Property_Type::MAX_ENUM ), nullptr );
 
             // populate the map
-            mPropertyMap[ "YoungsModulus" ]         = CM_Struc_Linear_Isotropic::Property_Type::EMOD;
-            mPropertyMap[ "PoissonRatio" ]          = CM_Struc_Linear_Isotropic::Property_Type::NU;
-            mPropertyMap[ "CTE" ]                   = CM_Struc_Linear_Isotropic::Property_Type::CTE;
-            mPropertyMap[ "ReferenceTemperature" ]  = CM_Struc_Linear_Isotropic::Property_Type::TEMP_REF;
+            mPropertyMap[ "YoungsModulus" ]        = static_cast< uint >( CM_Property_Type::EMOD );
+            mPropertyMap[ "PoissonRatio" ]         = static_cast< uint >( CM_Property_Type::NU );
+            mPropertyMap[ "CTE" ]                  = static_cast< uint >( CM_Property_Type::CTE );
+            mPropertyMap[ "ReferenceTemperature" ] = static_cast< uint >( CM_Property_Type::TEMP_REF );
         }
 
         //------------------------------------------------------------------------------
+
         void CM_Struc_Linear_Isotropic::set_dof_type_list(
                 moris::Cell< moris::Cell< MSI::Dof_Type > > aDofTypes,
                 moris::Cell< std::string >                  aDofStrings )
@@ -58,15 +60,33 @@ namespace moris
                 }
                 else
                 {
-                    std::string tErrMsg =
-                            std::string("CM_Struc_Linear_Isotropic::set_dof_type_list - Unknown aDofString : ") +
-                            tDofString;
-                    MORIS_ERROR( false , tErrMsg.c_str() );
+                    // error unknown dof string
+                    MORIS_ERROR( false,
+                            "CM_Struc_Linear_Isotropic::set_dof_type_list - Unknown aDofString : %s \n",
+                            tDofString.c_str() );
                 }
             }
         }
 
-        //--------------------------------------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
+
+        void CM_Struc_Linear_Isotropic::set_local_properties()
+        {
+            // set the Young's modulus property
+            mPropEMod = get_property( "YoungsModulus" );
+
+            // set the Poisson ratio property
+            mPropPoisson = get_property( "PoissonRatio" );
+
+            // set the CTE property
+            mPropCTE = get_property( "CTE" );
+
+            // set the reference temperature property
+            mPropTRef = get_property( "ReferenceTemperature" );
+        }
+
+        //------------------------------------------------------------------------------
+
         void CM_Struc_Linear_Isotropic::set_function_pointers()
         {
             switch( mSpaceDim )
@@ -98,7 +118,6 @@ namespace moris
                                 default:
                                 {
                                     MORIS_ERROR(false, "Only full and deviatoric tensors implemented for plane stress");
-                                    break;
                                 }
                             }
                             break;
@@ -120,7 +139,6 @@ namespace moris
                                 default:
                                 {
                                     MORIS_ERROR(false, "Only full and deviatoric tensors implemented for plane strain");
-                                    break;
                                 }
                             }
                             break;
@@ -128,7 +146,6 @@ namespace moris
                         default:
                         {
                             MORIS_ERROR(false, "Linear isotropic elasticity in 2d requires plane stress or plane strain models");
-                            break;
                         }
                     }
                     break;
@@ -154,7 +171,6 @@ namespace moris
                         default:
                         {
                             MORIS_ERROR(false, "Only full and deviatoric tensors implemented for plane strain");
-                            break;
                         }
                     }
                     break;
@@ -162,7 +178,6 @@ namespace moris
                 default:
                 {
                     MORIS_ERROR( false, "Linear isotropic elasticity implemented only for 2d and 3d" );
-                    break;
                 }
             }
         }
@@ -244,25 +259,19 @@ namespace moris
             mStrain( 2, 0 ) = tDisplGradx( 1, 0 ) + tDisplGradx( 0, 1 );
 
             // if thermal expansion
-            std::shared_ptr< Property > tPropCTE =
-                    mProperties( static_cast< uint >( Property_Type::CTE ) );
-            if ( tPropCTE != nullptr )
+            if ( mPropCTE != nullptr )
             {
                 // build thermal expansion vector
                 Matrix< DDRMat > tThermalExpansionVector( ( mSpaceDim - 1 ) * 3, 1, 0.0 );
                 Matrix< DDRMat > tI( mSpaceDim, 1, 1.0 );
-                tThermalExpansionVector( { 0, mSpaceDim - 1 }, { 0, 0 } ) = tI * tPropCTE->val();
-
-                // get reference teperature property
-                std::shared_ptr< Property > tPropTRef
-                = mProperties( static_cast< uint >( Property_Type::TEMP_REF ) );
+                tThermalExpansionVector( { 0, mSpaceDim - 1 }, { 0, 0 } ) = tI * mPropCTE->val();
 
                 // get temperature field interpolator
-                Field_Interpolator* tFITemp
-                = mFIManager->get_field_interpolators_for_type( mDofTemp );
+                Field_Interpolator* tFITemp =
+                        mFIManager->get_field_interpolators_for_type( mDofTemp );
 
                 // add thermal contribution to the strain
-                mStrain += tThermalExpansionVector * ( tPropTRef->val() - tFITemp->val() );
+                mStrain += tThermalExpansionVector * ( mPropTRef->val() - tFITemp->val() );
             }
         }
 
@@ -282,22 +291,18 @@ namespace moris
             mStrain( 5, 0 ) = tDisplGradx( 0, 1 ) + tDisplGradx( 1, 0 );
 
             // if thermal expansion
-            std::shared_ptr< Property > tPropCTE = mProperties( static_cast< uint >( Property_Type::CTE ) );
-            if ( tPropCTE != nullptr )
+            if ( mPropCTE != nullptr )
             {
                 // build thermal expansion vector
                 Matrix< DDRMat > tThermalExpansionVector( ( mSpaceDim - 1 ) * 3, 1, 0.0 );
                 Matrix< DDRMat > tI( mSpaceDim, 1, 1.0 );
-                tThermalExpansionVector( { 0, mSpaceDim - 1 }, { 0, 0 } ) = tI * tPropCTE->val();
-
-                // get reference temperature property
-                std::shared_ptr< Property > tPropTRef = mProperties( static_cast< uint >( Property_Type::TEMP_REF ) );
+                tThermalExpansionVector( { 0, mSpaceDim - 1 }, { 0, 0 } ) = tI * mPropCTE->val();
 
                 // get temperature field interpolator
                 Field_Interpolator* tFITemp = mFIManager->get_field_interpolators_for_type( mDofTemp );
 
                 // add thermal contribution to the strain
-                mStrain += tThermalExpansionVector * ( tPropTRef->val() - tFITemp->val() );
+                mStrain += tThermalExpansionVector * ( mPropTRef->val() - tFITemp->val() );
             }
         }
 
@@ -350,10 +355,10 @@ namespace moris
         void CM_Struc_Linear_Isotropic::eval_const()
         {
             // get the Poisson's ratio value
-            moris::real tNu = mProperties( static_cast< uint >( Property_Type::NU ) )->val()( 0 );
+            moris::real tNu = mPropPoisson->val()( 0 );
 
             // get the Youngs' modulus value
-            moris::real tEmod = mProperties( static_cast< uint >( Property_Type::EMOD ) )->val()( 0 );
+            moris::real tEmod = mPropEMod->val()( 0 );
 
             // evaluate the constitutive matrix
             ( this->*mConstFunc )( tEmod, tNu );
@@ -363,10 +368,10 @@ namespace moris
         moris::real CM_Struc_Linear_Isotropic::eval_inv_bulk_modulus()
         {
             // get Poisson ratio value
-            moris::real tNu = mProperties( static_cast< uint >( Property_Type::NU ) )->val()( 0 );
+            moris::real tNu = mPropPoisson->val()( 0 );
 
             // get elasticity modulus value
-            moris::real tEMod = mProperties( static_cast< uint >( Property_Type::EMOD ) )->val()( 0 );
+            moris::real tEMod = mPropEMod->val()( 0 );
 
             // init inverse of the bulk modulus
             moris::real tInvBulkModulus;
@@ -402,19 +407,15 @@ namespace moris
             // init inverse of the bulk modulus
             Matrix< DDRMat > tdInvBulkModulusdDOF( 1, tFI->get_number_of_space_time_coefficients(), 0.0 );
 
-            // get elasticity modulus property
-            std::shared_ptr< Property > tPropEmod =
-                    mProperties( static_cast< uint >( Property_Type::EMOD ) );
-            if( tPropEmod->check_dof_dependency( aDofTypes ) )
+            // if Young's modulus property depends on dof type
+            if( mPropEMod->check_dof_dependency( aDofTypes ) )
             {
                 tdInvBulkModulusdDOF -=
-                        eval_inv_bulk_modulus() * tPropEmod->dPropdDOF( aDofTypes ) / tPropEmod->val()( 0 );
+                        eval_inv_bulk_modulus() * mPropEMod->dPropdDOF( aDofTypes ) / mPropEMod->val()( 0 );
             }
 
-            // get Poisson ratio property
-            std::shared_ptr< Property > tPropNu =
-                    mProperties( static_cast< uint >( Property_Type::NU ) );
-            if( tPropNu->check_dof_dependency( aDofTypes ) )
+            // if Poisson ratio property depends on dof type
+            if( mPropPoisson->check_dof_dependency( aDofTypes ) )
             {
                 MORIS_ERROR( false, "CM_Struc_Linear_Isotropic::eval_dInvBulkModulusdDOF - Poisson's ratio depends on dof, not handled." );
             }
@@ -465,21 +466,17 @@ namespace moris
             }
 
             // if elastic modulus depends on dof type
-            std::shared_ptr< Property > tPropEMod =
-                    mProperties( static_cast< uint >( Property_Type::EMOD ) );
-            if ( tPropEMod->check_dof_dependency( aDofTypes ) )
+            if ( mPropEMod->check_dof_dependency( aDofTypes ) )
             {
                 // compute derivative with indirect dependency through properties
                 mdFluxdDof( tDofIndex ) +=
                         this->constitutive() *
                         this->strain() *
-                        tPropEMod->dPropdDOF( aDofTypes ) / tPropEMod->val()( 0 );
+                        mPropEMod->dPropdDOF( aDofTypes ) / mPropEMod->val()( 0 );
             }
 
-            // if Poisson's ratio depends on dof type
-            std::shared_ptr< Property > tPropNu =
-                    mProperties( static_cast< uint >( Property_Type::NU ) );
-            if ( tPropNu->check_dof_dependency( aDofTypes ) )
+            // if Poisson ratio depends on dof type
+            if ( mPropPoisson->check_dof_dependency( aDofTypes ) )
             {
                 MORIS_ERROR( false, "CM_Struc_Linear_Isotropic::eval_dFluxdDOF - Poisson's ratio depends on dof, not handled." );
             }
@@ -524,20 +521,16 @@ namespace moris
                     0.0 );
 
             // if elastic modulus depends on dof type
-            std::shared_ptr< Property > tPropEMod =
-                    mProperties( static_cast< uint >( Property_Type::EMOD ) );
-            if ( tPropEMod->check_dof_dependency( aDofTypes ) )
+            if ( mPropEMod->check_dof_dependency( aDofTypes ) )
             {
                 // compute derivative
                 mdTestTractiondDof( tTestDofIndex )( tDofIndex ) +=
                         this->testTraction( aNormal, aTestDofTypes ) * trans( aJump ) *
-                        tPropEMod->dPropdDOF( aDofTypes ) / tPropEMod->val()( 0 );
+                        mPropEMod->dPropdDOF( aDofTypes ) / mPropEMod->val()( 0 );
             }
 
             // if Poisson's ratio depends on dof type
-            std::shared_ptr< Property > tPropNu =
-                    mProperties( static_cast< uint >( Property_Type::NU ) );
-            if ( tPropNu->check_dof_dependency( aDofTypes ) )
+            if ( mPropPoisson->check_dof_dependency( aDofTypes ) )
             {
                 MORIS_ERROR( false, "CM_Struc_Linear_Isotropic::eval_dFluxdDOF - Poisson's ratio depends on dof, not handled." );
             }
@@ -565,34 +558,25 @@ namespace moris
                 mdStraindDof( tDofIndex ) += this->testStrain();
             }
 
-            // get thermal expansion property
-            std::shared_ptr< Property > tPropCTE =
-                    mProperties( static_cast< uint >( Property_Type::CTE ) );
-
             // if temperature dof
-            if ( tPropCTE!=nullptr && aDofTypes( 0 ) == mDofTemp )
+            if ( mPropCTE!=nullptr && aDofTypes( 0 ) == mDofTemp )
             {
                 // build thermal expansion vector
                 Matrix< DDRMat > tThermalExpansionVector( ( mSpaceDim - 1 ) * 3, 1, 0.0 );
                 Matrix< DDRMat > tI( mSpaceDim, 1, 1.0 );
-                tThermalExpansionVector( { 0, mSpaceDim - 1 }, { 0, 0 } ) = tI * tPropCTE->val();
+                tThermalExpansionVector( { 0, mSpaceDim - 1 }, { 0, 0 } ) = tI * mPropCTE->val();
 
                 // compute derivatives
                 mdStraindDof( tDofIndex ) -= tThermalExpansionVector * tFI->N();
-                //+= ( -1.0 ) * tThermalExpansionVector * mFIManager->get_field_interpolators_for_type( mDofMap[ "Displacement" ] )->NBuild();
             }
 
             // if thermal expansion
-            if ( tPropCTE != nullptr && tPropCTE->check_dof_dependency( aDofTypes ) )
+            if ( mPropCTE != nullptr && mPropCTE->check_dof_dependency( aDofTypes ) )
             {
                 // create identity matrix
                 Matrix< DDRMat > tI( mSpaceDim, 1, 1.0 );
                 Matrix< DDRMat > tII( ( mSpaceDim - 1 ) * 3, 1, 0.0 );
                 tII( { 0, mSpaceDim - 1 }, { 0, 0 } ) = tI.matrix_data();
-
-                // get reference temperature property
-                std::shared_ptr< Property > tPropTRef =
-                        mProperties( static_cast< uint >( Property_Type::TEMP_REF ) );
 
                 // get temperature field interpolator
                 Field_Interpolator* tFIT =
@@ -600,8 +584,8 @@ namespace moris
 
                 // compute derivatives
                 mdStraindDof( tDofIndex ) +=
-                        tII * tPropCTE->dPropdDOF( aDofTypes ) *
-                        ( tPropTRef->val()( 0 ) - tFIT->val()( 0 ) );
+                        tII * mPropCTE->dPropdDOF( aDofTypes ) *
+                        ( mPropTRef->val()( 0 ) - tFIT->val()( 0 ) );
             }
         }
 
@@ -636,51 +620,6 @@ namespace moris
             aFlatNormal( 2, 3 ) = aNormal( 1, 0 );
             aFlatNormal( 2, 4 ) = aNormal( 0, 0 );
         }
-
-        ////--------------------------------------------------------------------------------------------------------------
-        //        void CM_Struc_Linear_Isotropic::get_isotropic_thermal_expansion_vector( Matrix< DDRMat > & aThermalExpansionVector )
-        //        {
-        //            uint tCTEIndex = static_cast< uint >( Property_Type::CTE );
-        //
-        //            switch ( mSpaceDim )
-        //            {
-        //                case ( 2 ):
-        //                {
-        //                    switch ( mPlaneType )
-        //                    {
-        //                        case ( Model_Type::PLANE_STRESS ):
-        //                        {
-        //                            aThermalExpansionVector.set_size( 3, 1, 0.0);
-        //                            aThermalExpansionVector( 0 ) = mProperties( tCTEIndex )->val()( 0 );
-        //                            aThermalExpansionVector( 1 ) = mProperties( tCTEIndex )->val()( 0 );
-        //                            break;
-        //                        }
-        //                        case ( Model_Type::PLANE_STRAIN ):
-        //                        {
-        //                            MORIS_ERROR(false, "CM_Struc_Linear_Isotropic::get_isotropic_thermal_expansion_vector - plane strain not implemented");
-        //                            break;
-        //                        }
-        //                        default:
-        //                        {
-        //                            MORIS_ERROR(false, "CM_Struc_Linear_Isotropic::get_isotropic_thermal_expansion_vector - In 2D only plane stress and plane strain implemented");
-        //                        }
-        //                    }
-        //                    break;
-        //                }
-        //                case( 3 ):
-        //                {
-        //                    aThermalExpansionVector.set_size( 6, 1, 0.0 );
-        //                    aThermalExpansionVector( 0 ) = mProperties( tCTEIndex )->val()( 0 );
-        //                    aThermalExpansionVector( 1 ) = mProperties( tCTEIndex )->val()( 0 );
-        //                    aThermalExpansionVector( 2 ) = mProperties( tCTEIndex )->val()( 0 );
-        //                    break;
-        //                }
-        //                default:
-        //                {
-        //                    MORIS_ERROR(false, "CM_Struc_Linear_Isotropic::get_isotropic_thermal_expansion_vector - Flattening of strain tensor only implemented in 2 and 3 D");
-        //                }
-        //            }
-        //        }
 
         //--------------------------------------------------------------------------------------------------------------
         void CM_Struc_Linear_Isotropic::set_space_dim( uint aSpaceDim )
@@ -723,10 +662,10 @@ namespace moris
             moris::real tEPrime;
 
             // get elasticity modulus value
-            real tE  = mProperties( static_cast< uint >( Property_Type::EMOD ) )->val()( 0 );
+            real tE  = mPropEMod->val()( 0 );
 
             // get Poisson ratio value
-            real tNu = mProperties( static_cast< uint >( Property_Type::NU ) )->val()( 0 );
+            real tNu = mPropPoisson->val()( 0 );
 
             switch ( mPlaneType )
             {

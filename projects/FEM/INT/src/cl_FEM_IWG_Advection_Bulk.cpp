@@ -39,7 +39,7 @@ namespace moris
             if ( mConstitutiveMap.find( aConstitutiveString ) == mConstitutiveMap.end() )
             {
                 std::string tErrMsg =
-                        std::string("IWG_Advection_Bulk::set_constitutive_model - Unknown aConstitutiveString: ") +
+                        "IWG_Advection_Bulk::set_constitutive_model - Unknown aConstitutiveString: " +
                         aConstitutiveString;
 
                 MORIS_ERROR( false, tErrMsg.c_str() );

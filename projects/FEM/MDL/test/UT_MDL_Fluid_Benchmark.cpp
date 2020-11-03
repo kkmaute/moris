@@ -170,15 +170,15 @@ namespace moris
             tParameters.set( "number_of_elements_per_dimension", std::to_string(tNumX) + "," + std::to_string(tNumY));
             tParameters.set( "domain_dimensions", std::to_string(tDomainLX) + "," + std::to_string(tDomainLY) );
             tParameters.set( "domain_offset", std::to_string(-tDomainLX/2+tCenterPoint(0)) + "," + std::to_string(-tDomainLY/2+tCenterPoint(1)) );
-            tParameters.set( "domain_sidesets", std::string("1,2,3,4") );
-            tParameters.set( "lagrange_output_meshes", std::string("0") );
+            tParameters.set( "domain_sidesets", "1,2,3,4" );
+            tParameters.set( "lagrange_output_meshes", "0" );
 
-            tParameters.set( "lagrange_orders", std::string("1") );
-            tParameters.set( "lagrange_pattern", std::string("0") );
-            tParameters.set( "bspline_orders", std::string("1") );
-            tParameters.set( "bspline_pattern", std::string("0") );
+            tParameters.set( "lagrange_orders", "1" );
+            tParameters.set( "lagrange_pattern", "0" );
+            tParameters.set( "bspline_orders", "1" );
+            tParameters.set( "bspline_pattern", "0" );
 
-            tParameters.set( "lagrange_to_bspline", std::string("0") );
+            tParameters.set( "lagrange_to_bspline", "0" );
 
             tParameters.set( "truncate_bsplines", 1 );
             tParameters.set( "refinement_buffer", 3 );
@@ -262,45 +262,46 @@ namespace moris
             // create constitutive models
             fem::CM_Factory tCMFactory;
 
-            std::shared_ptr< fem::Constitutive_Model > tCMFluid
-            = tCMFactory.create_CM( fem::Constitutive_Type::FLUID_INCOMPRESSIBLE );
+            std::shared_ptr< fem::Constitutive_Model > tCMFluid =
+                    tCMFactory.create_CM( fem::Constitutive_Type::FLUID_INCOMPRESSIBLE );
             tCMFluid->set_dof_type_list( {{ MSI::Dof_Type::VX, MSI::Dof_Type::VY }, { MSI::Dof_Type::P }} );
             tCMFluid->set_property( tPropFluidViscosity, "Viscosity" );
             tCMFluid->set_property( tPropFluidDensity, "Density" );
             tCMFluid->set_space_dim( 2 );
+            tCMFluid->set_local_properties();
 
             // define stabilization parameters
             fem::SP_Factory tSPFactory;
 
-            std::shared_ptr< fem::Stabilization_Parameter > tSPIncFlow
-            = tSPFactory.create_SP( fem::Stabilization_Type::INCOMPRESSIBLE_FLOW );
+            std::shared_ptr< fem::Stabilization_Parameter > tSPIncFlow =
+                    tSPFactory.create_SP( fem::Stabilization_Type::INCOMPRESSIBLE_FLOW );
             tSPIncFlow->set_dof_type_list( {{ MSI::Dof_Type::VX, MSI::Dof_Type::VY }, { MSI::Dof_Type::P }}, mtk::Master_Slave::MASTER );
             tSPIncFlow->set_property( tPropFluidDensity, "Density", mtk::Master_Slave::MASTER );
             tSPIncFlow->set_property( tPropFluidViscosity, "Viscosity", mtk::Master_Slave::MASTER );
             tSPIncFlow->set_parameters( { {{ 36.0 }} } );
             tSPIncFlow->set_space_dim( 2 );
 
-            std::shared_ptr< fem::Stabilization_Parameter > tSPNitsche
-            = tSPFactory.create_SP( fem::Stabilization_Type::VELOCITY_DIRICHLET_NITSCHE );
+            std::shared_ptr< fem::Stabilization_Parameter > tSPNitsche =
+                    tSPFactory.create_SP( fem::Stabilization_Type::VELOCITY_DIRICHLET_NITSCHE );
             tSPNitsche->set_dof_type_list( {{ MSI::Dof_Type::VX, MSI::Dof_Type::VY }}, mtk::Master_Slave::MASTER );
             tSPNitsche->set_property( tPropFluidDensity, "Density", mtk::Master_Slave::MASTER );
             tSPNitsche->set_property( tPropFluidViscosity, "Viscosity", mtk::Master_Slave::MASTER );
             tSPNitsche->set_parameters( { {{ tGammaNitsche }}, {{1.0}} } );
             tSPNitsche->set_space_dim( 2 );
 
-            std::shared_ptr< fem::Stabilization_Parameter > tSPViscousGhost
-            = tSPFactory.create_SP( fem::Stabilization_Type::VISCOUS_GHOST );
+            std::shared_ptr< fem::Stabilization_Parameter > tSPViscousGhost =
+                    tSPFactory.create_SP( fem::Stabilization_Type::VISCOUS_GHOST );
             tSPViscousGhost->set_parameters( {{{ tGammaGPmu }} });
             tSPViscousGhost->set_property( tPropFluidViscosity, "Viscosity", mtk::Master_Slave::MASTER );
 
-            std::shared_ptr< fem::Stabilization_Parameter > tSPConvectiveGhost
-            = tSPFactory.create_SP( fem::Stabilization_Type::CONVECTIVE_GHOST );
+            std::shared_ptr< fem::Stabilization_Parameter > tSPConvectiveGhost =
+                    tSPFactory.create_SP( fem::Stabilization_Type::CONVECTIVE_GHOST );
             tSPConvectiveGhost->set_dof_type_list( {{ MSI::Dof_Type::VX, MSI::Dof_Type::VY }}, mtk::Master_Slave::MASTER );
             tSPConvectiveGhost->set_parameters( {{{ tGammaGPu }} });
             tSPConvectiveGhost->set_property( tPropFluidDensity, "Density", mtk::Master_Slave::MASTER );
 
-            std::shared_ptr< fem::Stabilization_Parameter > tSPPressureGhost
-            = tSPFactory.create_SP( fem::Stabilization_Type::PRESSURE_GHOST );
+            std::shared_ptr< fem::Stabilization_Parameter > tSPPressureGhost =
+                    tSPFactory.create_SP( fem::Stabilization_Type::PRESSURE_GHOST );
             tSPPressureGhost->set_dof_type_list( {{ MSI::Dof_Type::VX, MSI::Dof_Type::VY }}, mtk::Master_Slave::MASTER );
             tSPPressureGhost->set_parameters( { {{ tGammaGPp }}, {{ 1.0 }} });
             tSPPressureGhost->set_property( tPropFluidViscosity, "Viscosity", mtk::Master_Slave::MASTER );
@@ -309,66 +310,66 @@ namespace moris
             // define the IWGs
             fem::IWG_Factory tIWGFactory;
 
-            std::shared_ptr< fem::IWG > tIWGVelocityBulk
-            = tIWGFactory.create_IWG( fem::IWG_Type::INCOMPRESSIBLE_NS_VELOCITY_BULK );
+            std::shared_ptr< fem::IWG > tIWGVelocityBulk =
+                    tIWGFactory.create_IWG( fem::IWG_Type::INCOMPRESSIBLE_NS_VELOCITY_BULK );
             tIWGVelocityBulk->set_residual_dof_type( { MSI::Dof_Type::VX } );
             tIWGVelocityBulk->set_dof_type_list( {{ MSI::Dof_Type::VX, MSI::Dof_Type::VY }, { MSI::Dof_Type::P }}, mtk::Master_Slave::MASTER );
             tIWGVelocityBulk->set_constitutive_model( tCMFluid, "IncompressibleFluid" );
             tIWGVelocityBulk->set_stabilization_parameter( tSPIncFlow, "IncompressibleFlow" );
 
-            std::shared_ptr< fem::IWG > tIWGPressureBulk
-            = tIWGFactory.create_IWG( fem::IWG_Type::INCOMPRESSIBLE_NS_PRESSURE_BULK );
+            std::shared_ptr< fem::IWG > tIWGPressureBulk =
+                    tIWGFactory.create_IWG( fem::IWG_Type::INCOMPRESSIBLE_NS_PRESSURE_BULK );
             tIWGPressureBulk->set_residual_dof_type( { MSI::Dof_Type::P } );
             tIWGPressureBulk->set_dof_type_list( {{ MSI::Dof_Type::VX, MSI::Dof_Type::VY }, { MSI::Dof_Type::P }}, mtk::Master_Slave::MASTER );
             tIWGPressureBulk->set_constitutive_model( tCMFluid, "IncompressibleFluid" );
             tIWGPressureBulk->set_stabilization_parameter( tSPIncFlow, "IncompressibleFlow" );
 
-            std::shared_ptr< fem::IWG > tIWGInletVelocity
-            = tIWGFactory.create_IWG( fem::IWG_Type::INCOMPRESSIBLE_NS_VELOCITY_DIRICHLET_SYMMETRIC_NITSCHE );
+            std::shared_ptr< fem::IWG > tIWGInletVelocity =
+                    tIWGFactory.create_IWG( fem::IWG_Type::INCOMPRESSIBLE_NS_VELOCITY_DIRICHLET_SYMMETRIC_NITSCHE );
             tIWGInletVelocity->set_residual_dof_type( { MSI::Dof_Type::VX } );
             tIWGInletVelocity->set_dof_type_list( {{ MSI::Dof_Type::VX, MSI::Dof_Type::VY }, { MSI::Dof_Type::P }}, mtk::Master_Slave::MASTER );
             tIWGInletVelocity->set_property( tPropInletVelocity, "Dirichlet" );
             tIWGInletVelocity->set_constitutive_model( tCMFluid, "IncompressibleFluid" );
             tIWGInletVelocity->set_stabilization_parameter( tSPNitsche, "DirichletNitsche" );
 
-            std::shared_ptr< fem::IWG > tIWGInletPressure
-            = tIWGFactory.create_IWG( fem::IWG_Type::INCOMPRESSIBLE_NS_PRESSURE_DIRICHLET_UNSYMMETRIC_NITSCHE );
+            std::shared_ptr< fem::IWG > tIWGInletPressure =
+                    tIWGFactory.create_IWG( fem::IWG_Type::INCOMPRESSIBLE_NS_PRESSURE_DIRICHLET_UNSYMMETRIC_NITSCHE );
             tIWGInletPressure->set_residual_dof_type( { MSI::Dof_Type::P } );
             tIWGInletPressure->set_dof_type_list( {{ MSI::Dof_Type::VX, MSI::Dof_Type::VY }, { MSI::Dof_Type::P }}, mtk::Master_Slave::MASTER );
             tIWGInletPressure->set_property( tPropInletVelocity, "Dirichlet" );
             tIWGInletPressure->set_constitutive_model( tCMFluid, "IncompressibleFluid" );
 
-            std::shared_ptr< fem::IWG > tIWGFSVelocity
-            = tIWGFactory.create_IWG( fem::IWG_Type::INCOMPRESSIBLE_NS_VELOCITY_DIRICHLET_SYMMETRIC_NITSCHE );
+            std::shared_ptr< fem::IWG > tIWGFSVelocity =
+                    tIWGFactory.create_IWG( fem::IWG_Type::INCOMPRESSIBLE_NS_VELOCITY_DIRICHLET_SYMMETRIC_NITSCHE );
             tIWGFSVelocity->set_residual_dof_type( { MSI::Dof_Type::VX } );
             tIWGFSVelocity->set_dof_type_list( {{ MSI::Dof_Type::VX, MSI::Dof_Type::VY }, { MSI::Dof_Type::P }}, mtk::Master_Slave::MASTER );
             tIWGFSVelocity->set_property( tPropFSVelocity, "Dirichlet" );
             tIWGFSVelocity->set_constitutive_model( tCMFluid, "IncompressibleFluid" );
             tIWGFSVelocity->set_stabilization_parameter( tSPNitsche, "DirichletNitsche" );
 
-            std::shared_ptr< fem::IWG > tIWGFSPressure
-            = tIWGFactory.create_IWG( fem::IWG_Type::INCOMPRESSIBLE_NS_PRESSURE_DIRICHLET_UNSYMMETRIC_NITSCHE );
+            std::shared_ptr< fem::IWG > tIWGFSPressure =
+                    tIWGFactory.create_IWG( fem::IWG_Type::INCOMPRESSIBLE_NS_PRESSURE_DIRICHLET_UNSYMMETRIC_NITSCHE );
             tIWGFSPressure->set_residual_dof_type( { MSI::Dof_Type::P } );
             tIWGFSPressure->set_dof_type_list( {{ MSI::Dof_Type::VX, MSI::Dof_Type::VY }, { MSI::Dof_Type::P }}, mtk::Master_Slave::MASTER );
             tIWGFSPressure->set_property( tPropFSVelocity, "Dirichlet" );
             tIWGFSPressure->set_constitutive_model( tCMFluid, "IncompressibleFluid" );
 
-            std::shared_ptr< fem::IWG > tIWGGPViscous
-            = tIWGFactory.create_IWG( fem::IWG_Type::GHOST_NORMAL_FIELD );
+            std::shared_ptr< fem::IWG > tIWGGPViscous =
+                    tIWGFactory.create_IWG( fem::IWG_Type::GHOST_NORMAL_FIELD );
             tIWGGPViscous->set_residual_dof_type( { MSI::Dof_Type::VX, MSI::Dof_Type::VY } );
             tIWGGPViscous->set_dof_type_list( { { MSI::Dof_Type::VX, MSI::Dof_Type::VY }, { MSI::Dof_Type::P } }, mtk::Master_Slave::MASTER );
             tIWGGPViscous->set_dof_type_list( { { MSI::Dof_Type::VX, MSI::Dof_Type::VY }, { MSI::Dof_Type::P } }, mtk::Master_Slave::SLAVE );
             tIWGGPViscous->set_stabilization_parameter( tSPViscousGhost, "GhostSP" );
 
-            std::shared_ptr< fem::IWG > tIWGGPConvective
-            = tIWGFactory.create_IWG( fem::IWG_Type::GHOST_NORMAL_FIELD );
+            std::shared_ptr< fem::IWG > tIWGGPConvective =
+                    tIWGFactory.create_IWG( fem::IWG_Type::GHOST_NORMAL_FIELD );
             tIWGGPConvective->set_residual_dof_type( { MSI::Dof_Type::VX, MSI::Dof_Type::VY } );
             tIWGGPConvective->set_dof_type_list( { { MSI::Dof_Type::VX, MSI::Dof_Type::VY }, { MSI::Dof_Type::P } }, mtk::Master_Slave::MASTER );
             tIWGGPConvective->set_dof_type_list( { { MSI::Dof_Type::VX, MSI::Dof_Type::VY }, { MSI::Dof_Type::P } }, mtk::Master_Slave::SLAVE );
             tIWGGPConvective->set_stabilization_parameter( tSPConvectiveGhost, "GhostSP" );
 
-            std::shared_ptr< fem::IWG > tIWGGPPressure
-            = tIWGFactory.create_IWG( fem::IWG_Type::GHOST_NORMAL_FIELD );
+            std::shared_ptr< fem::IWG > tIWGGPPressure =
+                    tIWGFactory.create_IWG( fem::IWG_Type::GHOST_NORMAL_FIELD );
             tIWGGPPressure->set_residual_dof_type( { MSI::Dof_Type::P } );
             tIWGGPPressure->set_dof_type_list( { { MSI::Dof_Type::VX, MSI::Dof_Type::VY }, { MSI::Dof_Type::P } }, mtk::Master_Slave::MASTER );
             tIWGGPPressure->set_dof_type_list( { { MSI::Dof_Type::VX, MSI::Dof_Type::VY }, { MSI::Dof_Type::P } }, mtk::Master_Slave::SLAVE );
@@ -474,13 +475,13 @@ namespace moris
             tSOLParameterlist( 2 )( 0 ) = moris::prm::create_nonlinear_algorithm_parameter_list();
 
             tSOLParameterlist( 3 )( 0 ) = moris::prm::create_nonlinear_solver_parameter_list();
-            tSOLParameterlist( 3 )( 0 ).set("NLA_DofTypes", std::string("VX,VY;P") );
+            tSOLParameterlist( 3 )( 0 ).set("NLA_DofTypes", "VX,VY;P" );
 
             tSOLParameterlist( 4 )( 0 ) = moris::prm::create_time_solver_algorithm_parameter_list();
 
             tSOLParameterlist( 5 )( 0 ) = moris::prm::create_time_solver_parameter_list();
-            tSOLParameterlist( 5 )( 0 ).set("TSA_DofTypes", std::string("VX,VY;P") );
-            tSOLParameterlist( 5 )( 0 ).set("TSA_Initialize_Sol_Vec" , std::string("VX,1E-4;VY,1E-4;P,0.0") );
+            tSOLParameterlist( 5 )( 0 ).set("TSA_DofTypes", "VX,VY;P" );
+            tSOLParameterlist( 5 )( 0 ).set("TSA_Initialize_Sol_Vec" , "VX,1E-4;VY,1E-4;P,0.0" );
 
             tSOLParameterlist( 6 )( 0 ) = moris::prm::create_solver_warehouse_parameterlist();
 
@@ -537,15 +538,15 @@ namespace moris
             tParameters.set( "number_of_elements_per_dimension", std::to_string(tNumX) + "," + std::to_string(tNumY));
             tParameters.set( "domain_dimensions", std::to_string(tDomainLX) + "," + std::to_string(tDomainLY) );
             tParameters.set( "domain_offset", std::to_string(-tDomainLX/2+tCenterPoint(0)) + "," + std::to_string(-tDomainLY/2+tCenterPoint(1)) );
-            tParameters.set( "domain_sidesets", std::string("1,2,3,4") );
-            tParameters.set( "lagrange_output_meshes", std::string("0") );
+            tParameters.set( "domain_sidesets", "1,2,3,4" );
+            tParameters.set( "lagrange_output_meshes", "0" );
 
-            tParameters.set( "lagrange_orders", std::string("1") );
-            tParameters.set( "lagrange_pattern", std::string("0") );
-            tParameters.set( "bspline_orders", std::string("1") );
-            tParameters.set( "bspline_pattern", std::string("0") );
+            tParameters.set( "lagrange_orders", "1" );
+            tParameters.set( "lagrange_pattern", "0" );
+            tParameters.set( "bspline_orders", "1" );
+            tParameters.set( "bspline_pattern", "0" );
 
-            tParameters.set( "lagrange_to_bspline", std::string("0") );
+            tParameters.set( "lagrange_to_bspline", "0" );
 
             tParameters.set( "truncate_bsplines", 1 );
             tParameters.set( "refinement_buffer", 3 );
@@ -629,18 +630,19 @@ namespace moris
             // create constitutive models
             fem::CM_Factory tCMFactory;
 
-            std::shared_ptr< fem::Constitutive_Model > tCMFluid
-            = tCMFactory.create_CM( fem::Constitutive_Type::FLUID_INCOMPRESSIBLE );
+            std::shared_ptr< fem::Constitutive_Model > tCMFluid =
+                    tCMFactory.create_CM( fem::Constitutive_Type::FLUID_INCOMPRESSIBLE );
             tCMFluid->set_dof_type_list( {{ MSI::Dof_Type::VX, MSI::Dof_Type::VY }, { MSI::Dof_Type::P }} );
             tCMFluid->set_property( tPropFluidViscosity, "Viscosity" );
             tCMFluid->set_property( tPropFluidDensity, "Density" );
             tCMFluid->set_space_dim( 2 );
+            tCMFluid->set_local_properties();
 
             // define stabilization parameters
             fem::SP_Factory tSPFactory;
 
-            std::shared_ptr< fem::Stabilization_Parameter > tSPIncFlow
-            = tSPFactory.create_SP( fem::Stabilization_Type::INCOMPRESSIBLE_FLOW );
+            std::shared_ptr< fem::Stabilization_Parameter > tSPIncFlow =
+                    tSPFactory.create_SP( fem::Stabilization_Type::INCOMPRESSIBLE_FLOW );
             tSPIncFlow->set_dof_type_list( {{ MSI::Dof_Type::VX, MSI::Dof_Type::VY }, { MSI::Dof_Type::P }}, mtk::Master_Slave::MASTER );
             tSPIncFlow->set_property( tPropFluidDensity, "Density", mtk::Master_Slave::MASTER );
             tSPIncFlow->set_property( tPropFluidViscosity, "Viscosity", mtk::Master_Slave::MASTER );
@@ -676,36 +678,36 @@ namespace moris
             // define the IWGs
             fem::IWG_Factory tIWGFactory;
 
-            std::shared_ptr< fem::IWG > tIWGVelocityBulk
-            = tIWGFactory.create_IWG( fem::IWG_Type::INCOMPRESSIBLE_NS_VELOCITY_BULK );
+            std::shared_ptr< fem::IWG > tIWGVelocityBulk =
+                    tIWGFactory.create_IWG( fem::IWG_Type::INCOMPRESSIBLE_NS_VELOCITY_BULK );
             tIWGVelocityBulk->set_residual_dof_type( { MSI::Dof_Type::VX } );
             tIWGVelocityBulk->set_dof_type_list( {{ MSI::Dof_Type::VX, MSI::Dof_Type::VY }, { MSI::Dof_Type::P }}, mtk::Master_Slave::MASTER );
             tIWGVelocityBulk->set_constitutive_model( tCMFluid, "IncompressibleFluid" );
             tIWGVelocityBulk->set_stabilization_parameter( tSPIncFlow, "IncompressibleFlow" );
 
-            std::shared_ptr< fem::IWG > tIWGPressureBulk
-            = tIWGFactory.create_IWG( fem::IWG_Type::INCOMPRESSIBLE_NS_PRESSURE_BULK );
+            std::shared_ptr< fem::IWG > tIWGPressureBulk =
+                    tIWGFactory.create_IWG( fem::IWG_Type::INCOMPRESSIBLE_NS_PRESSURE_BULK );
             tIWGPressureBulk->set_residual_dof_type( { MSI::Dof_Type::P } );
             tIWGPressureBulk->set_dof_type_list( {{ MSI::Dof_Type::VX, MSI::Dof_Type::VY }, { MSI::Dof_Type::P }}, mtk::Master_Slave::MASTER );
             tIWGPressureBulk->set_constitutive_model( tCMFluid, "IncompressibleFluid" );
             tIWGPressureBulk->set_stabilization_parameter( tSPIncFlow, "IncompressibleFlow" );
 
-            std::shared_ptr< fem::IWG > tIWGInletPressure
-            = tIWGFactory.create_IWG( fem::IWG_Type::INCOMPRESSIBLE_NS_IMPOSED_PRESSURE );
+            std::shared_ptr< fem::IWG > tIWGInletPressure =
+                    tIWGFactory.create_IWG( fem::IWG_Type::INCOMPRESSIBLE_NS_IMPOSED_PRESSURE );
             tIWGInletPressure->set_residual_dof_type( { MSI::Dof_Type::VX } );
             tIWGInletPressure->set_dof_type_list( {{ MSI::Dof_Type::VX, MSI::Dof_Type::VY }, { MSI::Dof_Type::P }}, mtk::Master_Slave::MASTER );
             tIWGInletPressure->set_property( tPropInletPressure, "Pressure" );
 
-            std::shared_ptr< fem::IWG > tIWGFSVelocity
-            = tIWGFactory.create_IWG( fem::IWG_Type::INCOMPRESSIBLE_NS_VELOCITY_DIRICHLET_SYMMETRIC_NITSCHE );
+            std::shared_ptr< fem::IWG > tIWGFSVelocity =
+                    tIWGFactory.create_IWG( fem::IWG_Type::INCOMPRESSIBLE_NS_VELOCITY_DIRICHLET_SYMMETRIC_NITSCHE );
             tIWGFSVelocity->set_residual_dof_type( { MSI::Dof_Type::VX } );
             tIWGFSVelocity->set_dof_type_list( {{ MSI::Dof_Type::VX, MSI::Dof_Type::VY }, { MSI::Dof_Type::P }}, mtk::Master_Slave::MASTER );
             tIWGFSVelocity->set_property( tPropFSVelocity, "Dirichlet" );
             tIWGFSVelocity->set_constitutive_model( tCMFluid, "IncompressibleFluid" );
             tIWGFSVelocity->set_stabilization_parameter( tSPNitsche, "DirichletNitsche" );
 
-            std::shared_ptr< fem::IWG > tIWGFSPressure
-            = tIWGFactory.create_IWG( fem::IWG_Type::INCOMPRESSIBLE_NS_PRESSURE_DIRICHLET_UNSYMMETRIC_NITSCHE );
+            std::shared_ptr< fem::IWG > tIWGFSPressure =
+                    tIWGFactory.create_IWG( fem::IWG_Type::INCOMPRESSIBLE_NS_PRESSURE_DIRICHLET_UNSYMMETRIC_NITSCHE );
             tIWGFSPressure->set_residual_dof_type( { MSI::Dof_Type::P } );
             tIWGFSPressure->set_dof_type_list( {{ MSI::Dof_Type::VX, MSI::Dof_Type::VY }, { MSI::Dof_Type::P }}, mtk::Master_Slave::MASTER );
             tIWGFSPressure->set_property( tPropFSVelocity, "Dirichlet" );
@@ -832,13 +834,13 @@ namespace moris
             tSOLParameterlist( 2 )( 0 ) = moris::prm::create_nonlinear_algorithm_parameter_list();
 
             tSOLParameterlist( 3 )( 0 ) = moris::prm::create_nonlinear_solver_parameter_list();
-            tSOLParameterlist( 3 )( 0 ).set("NLA_DofTypes", std::string("VX,VY;P") );
+            tSOLParameterlist( 3 )( 0 ).set("NLA_DofTypes", "VX,VY;P" );
 
             tSOLParameterlist( 4 )( 0 ) = moris::prm::create_time_solver_algorithm_parameter_list();
 
             tSOLParameterlist( 5 )( 0 ) = moris::prm::create_time_solver_parameter_list();
-            tSOLParameterlist( 5 )( 0 ).set("TSA_DofTypes", std::string("VX,VY;P") );
-            tSOLParameterlist( 5 )( 0 ).set( "TSA_Initialize_Sol_Vec" , std::string("VX,1E-4;VY,1E-4;P,0.0") );
+            tSOLParameterlist( 5 )( 0 ).set("TSA_DofTypes", "VX,VY;P" );
+            tSOLParameterlist( 5 )( 0 ).set( "TSA_Initialize_Sol_Vec" , "VX,1E-4;VY,1E-4;P,0.0" );
 
             tSOLParameterlist( 6 )( 0 ) = moris::prm::create_solver_warehouse_parameterlist();
 
@@ -903,15 +905,15 @@ namespace moris
     //        tParameters.set( "number_of_elements_per_dimension", std::to_string(tNumX) + "," + std::to_string(tNumY) + "," + std::to_string(tNumZ));
     //        tParameters.set( "domain_dimensions", std::to_string(tDomainLX) + "," + std::to_string(tDomainLY) + "," + std::to_string(tDomainLZ) );
     //        tParameters.set( "domain_offset", std::to_string(-tDomainLX/2+tCenterPoint(0)) + "," + std::to_string(-tDomainLY/2+tCenterPoint(1)) + "," + std::to_string(-tDomainLZ/2+tCenterPoint(2)) );
-    //        tParameters.set( "domain_sidesets", std::string("1,2,3,4,5,6") );
-    //        tParameters.set( "lagrange_output_meshes", std::string("0") );
+    //        tParameters.set( "domain_sidesets", "1,2,3,4,5,6" );
+    //        tParameters.set( "lagrange_output_meshes", "0" );
     //
-    //        tParameters.set( "lagrange_orders", std::string("1") );
-    //        tParameters.set( "lagrange_pattern", std::string("0") );
-    //        tParameters.set( "bspline_orders", std::string("1") );
-    //        tParameters.set( "bspline_pattern", std::string("0") );
+    //        tParameters.set( "lagrange_orders", "1" );
+    //        tParameters.set( "lagrange_pattern", "0" );
+    //        tParameters.set( "bspline_orders", "1" );
+    //        tParameters.set( "bspline_pattern", "0" );
     //
-    //        tParameters.set( "lagrange_to_bspline", std::string("0") );
+    //        tParameters.set( "lagrange_to_bspline", "0" );
     //
     //        tParameters.set( "truncate_bsplines", 1 );
     //        tParameters.set( "refinement_buffer", 3 );
@@ -1272,13 +1274,13 @@ namespace moris
     //        tSOLParameterlist( 2 )( 0 ) = moris::prm::create_nonlinear_algorithm_parameter_list();
     //
     //        tSOLParameterlist( 3 )( 0 ) = moris::prm::create_nonlinear_solver_parameter_list();
-    //        tSOLParameterlist( 3 )( 0 ).set("NLA_DofTypes", std::string("VX,VY,VZ;P") );
+    //        tSOLParameterlist( 3 )( 0 ).set("NLA_DofTypes", "VX,VY,VZ;P" );
     //
     //        tSOLParameterlist( 4 )( 0 ) = moris::prm::create_time_solver_algorithm_parameter_list();
     //
     //        tSOLParameterlist( 5 )( 0 ) = moris::prm::create_time_solver_parameter_list();
-    //        tSOLParameterlist( 5 )( 0 ).set("TSA_DofTypes", std::string("VX,VY,VZ;P") );
-    //        tSOLParameterlist( 5 )( 0 ).set( "TSA_Initialize_Sol_Vec" , std::string("VX,1E-4;VY,1E-4;VZ,1E-4;P,0.0") );
+    //        tSOLParameterlist( 5 )( 0 ).set("TSA_DofTypes", "VX,VY,VZ;P" );
+    //        tSOLParameterlist( 5 )( 0 ).set( "TSA_Initialize_Sol_Vec" , "VX,1E-4;VY,1E-4;VZ,1E-4;P,0.0" );
     //
     //        tSOLParameterlist( 6 )( 0 ) = moris::prm::create_solver_warehouse_parameterlist();
     //
@@ -1329,15 +1331,15 @@ namespace moris
     //        tParameters.set( "number_of_elements_per_dimension", std::to_string(tNumX) + "," + std::to_string(tNumY));
     //        tParameters.set( "domain_dimensions", std::to_string(tDomainLX) + "," + std::to_string(tDomainLY) );
     //        tParameters.set( "domain_offset", std::to_string(-tDomainLX/2) + "," + std::to_string(-tDomainLY/2) );
-    //        tParameters.set( "domain_sidesets", std::string("1,2,3,4") );
-    //        tParameters.set( "lagrange_output_meshes", std::string("0") );
+    //        tParameters.set( "domain_sidesets", "1,2,3,4" );
+    //        tParameters.set( "lagrange_output_meshes", "0" );
     //
-    //        tParameters.set( "lagrange_orders", std::string("1") );
-    //        tParameters.set( "lagrange_pattern", std::string("0") );
-    //        tParameters.set( "bspline_orders", std::string("1") );
-    //        tParameters.set( "bspline_pattern", std::string("0") );
+    //        tParameters.set( "lagrange_orders", "1" );
+    //        tParameters.set( "lagrange_pattern", "0" );
+    //        tParameters.set( "bspline_orders", "1" );
+    //        tParameters.set( "bspline_pattern", "0" );
     //
-    //        tParameters.set( "lagrange_to_bspline", std::string("0") );
+    //        tParameters.set( "lagrange_to_bspline", "0" );
     //
     //        tParameters.set( "truncate_bsplines", 1 );
     //        tParameters.set( "refinement_buffer", 3 );
@@ -1541,13 +1543,13 @@ namespace moris
     //        tSOLParameterlist( 2 )( 0 ) = moris::prm::create_nonlinear_algorithm_parameter_list();
     //
     //        tSOLParameterlist( 3 )( 0 ) = moris::prm::create_nonlinear_solver_parameter_list();
-    //        tSOLParameterlist( 3 )( 0 ).set("NLA_DofTypes", std::string("VX,VY;P") );
+    //        tSOLParameterlist( 3 )( 0 ).set("NLA_DofTypes", "VX,VY;P" );
     //
     //        tSOLParameterlist( 4 )( 0 ) = moris::prm::create_time_solver_algorithm_parameter_list();
     //
     //        tSOLParameterlist( 5 )( 0 ) = moris::prm::create_time_solver_parameter_list();
-    //        tSOLParameterlist( 5 )( 0 ).set("TSA_DofTypes", std::string("VX,VY;P") );
-    //        tSOLParameterlist( 5 )( 0 ).set( "TSA_Initialize_Sol_Vec" , std::string("VX,1E-4;VY,0.0;P,0.0") );
+    //        tSOLParameterlist( 5 )( 0 ).set("TSA_DofTypes", "VX,VY;P" );
+    //        tSOLParameterlist( 5 )( 0 ).set( "TSA_Initialize_Sol_Vec" , "VX,1E-4;VY,0.0;P,0.0" );
     //
     //        tSOLParameterlist( 6 )( 0 ) = moris::prm::create_solver_warehouse_parameterlist();
     //
@@ -1597,15 +1599,15 @@ namespace moris
     //        tParameters.set( "number_of_elements_per_dimension", std::to_string(tNumX) + "," + std::to_string(tNumY));
     //        tParameters.set( "domain_dimensions", std::to_string(tDomainLX) + "," + std::to_string(tDomainLY) );
     //        tParameters.set( "domain_offset", std::to_string(-tDomainLX/2) + "," + std::to_string(-tDomainLY/2) );
-    //        tParameters.set( "domain_sidesets", std::string("1,2,3,4") );
-    //        tParameters.set( "lagrange_output_meshes", std::string("0") );
+    //        tParameters.set( "domain_sidesets", "1,2,3,4" );
+    //        tParameters.set( "lagrange_output_meshes", "0" );
     //
-    //        tParameters.set( "lagrange_orders", std::string("1") );
-    //        tParameters.set( "lagrange_pattern", std::string("0") );
-    //        tParameters.set( "bspline_orders", std::string("1") );
-    //        tParameters.set( "bspline_pattern", std::string("0") );
+    //        tParameters.set( "lagrange_orders", "1" );
+    //        tParameters.set( "lagrange_pattern", "0" );
+    //        tParameters.set( "bspline_orders", "1" );
+    //        tParameters.set( "bspline_pattern", "0" );
     //
-    //        tParameters.set( "lagrange_to_bspline", std::string("0") );
+    //        tParameters.set( "lagrange_to_bspline", "0" );
     //
     //        tParameters.set( "truncate_bsplines", 1 );
     //        tParameters.set( "refinement_buffer", 3 );
@@ -1804,13 +1806,13 @@ namespace moris
     //        tSOLParameterlist( 2 )( 0 ) = moris::prm::create_nonlinear_algorithm_parameter_list();
     //
     //        tSOLParameterlist( 3 )( 0 ) = moris::prm::create_nonlinear_solver_parameter_list();
-    //        tSOLParameterlist( 3 )( 0 ).set("NLA_DofTypes", std::string("VX,VY;P") );
+    //        tSOLParameterlist( 3 )( 0 ).set("NLA_DofTypes", "VX,VY;P" );
     //
     //        tSOLParameterlist( 4 )( 0 ) = moris::prm::create_time_solver_algorithm_parameter_list();
     //
     //        tSOLParameterlist( 5 )( 0 ) = moris::prm::create_time_solver_parameter_list();
-    //        tSOLParameterlist( 5 )( 0 ).set("TSA_DofTypes", std::string("VX,VY;P") );
-    //        tSOLParameterlist( 5 )( 0 ).set( "TSA_Initialize_Sol_Vec" , std::string("VX,1E-4;VY,0.0;P,0.0") );
+    //        tSOLParameterlist( 5 )( 0 ).set("TSA_DofTypes", "VX,VY;P" );
+    //        tSOLParameterlist( 5 )( 0 ).set( "TSA_Initialize_Sol_Vec" , "VX,1E-4;VY,0.0;P,0.0" );
     //
     //        tSOLParameterlist( 6 )( 0 ) = moris::prm::create_solver_warehouse_parameterlist();
     //
@@ -1862,15 +1864,15 @@ namespace moris
     //        tParameters.set( "number_of_elements_per_dimension", std::to_string(tNumX) + "," + std::to_string(tNumY) + "," + std::to_string(tNumZ));
     //        tParameters.set( "domain_dimensions", std::to_string(tDomainLX) + "," + std::to_string(tDomainLY) + "," + std::to_string(tDomainLZ) );
     //        tParameters.set( "domain_offset", std::to_string(-tDomainLX/2) + "," + std::to_string(-tDomainLY/2) + "," + std::to_string(-tDomainLZ/2) );
-    //        tParameters.set( "domain_sidesets", std::string("1,2,3,4,5,6") );
-    //        tParameters.set( "lagrange_output_meshes", std::string("0") );
+    //        tParameters.set( "domain_sidesets", "1,2,3,4,5,6" );
+    //        tParameters.set( "lagrange_output_meshes", "0" );
     //
-    //        tParameters.set( "lagrange_orders", std::string("1") );
-    //        tParameters.set( "lagrange_pattern", std::string("0") );
-    //        tParameters.set( "bspline_orders", std::string("1") );
-    //        tParameters.set( "bspline_pattern", std::string("0") );
+    //        tParameters.set( "lagrange_orders", "1" );
+    //        tParameters.set( "lagrange_pattern", "0" );
+    //        tParameters.set( "bspline_orders", "1" );
+    //        tParameters.set( "bspline_pattern", "0" );
     //
-    //        tParameters.set( "lagrange_to_bspline", std::string("0") );
+    //        tParameters.set( "lagrange_to_bspline", "0" );
     //
     //        tParameters.set( "truncate_bsplines", 1 );
     //        tParameters.set( "refinement_buffer", 3 );
@@ -2098,13 +2100,13 @@ namespace moris
     //        tSOLParameterlist( 2 )( 0 ) = moris::prm::create_nonlinear_algorithm_parameter_list();
     //
     //        tSOLParameterlist( 3 )( 0 ) = moris::prm::create_nonlinear_solver_parameter_list();
-    //        tSOLParameterlist( 3 )( 0 ).set("NLA_DofTypes", std::string("VX,VY,VZ;P") );
+    //        tSOLParameterlist( 3 )( 0 ).set("NLA_DofTypes", "VX,VY,VZ;P" );
     //
     //        tSOLParameterlist( 4 )( 0 ) = moris::prm::create_time_solver_algorithm_parameter_list();
     //
     //        tSOLParameterlist( 5 )( 0 ) = moris::prm::create_time_solver_parameter_list();
-    //        tSOLParameterlist( 5 )( 0 ).set("TSA_DofTypes", std::string("VX,VY,VZ;P") );
-    //        tSOLParameterlist( 5 )( 0 ).set( "TSA_Initialize_Sol_Vec" , std::string("VX,1E-4;VY,0.0;VZ,0.0;P,0.0") );
+    //        tSOLParameterlist( 5 )( 0 ).set("TSA_DofTypes", "VX,VY,VZ;P" );
+    //        tSOLParameterlist( 5 )( 0 ).set( "TSA_Initialize_Sol_Vec" , "VX,1E-4;VY,0.0;VZ,0.0;P,0.0" );
     //
     //        tSOLParameterlist( 6 )( 0 ) = moris::prm::create_solver_warehouse_parameterlist();
     //
@@ -2231,15 +2233,15 @@ namespace moris
             tParameters.set( "number_of_elements_per_dimension", std::to_string(tNumX) + "," + std::to_string(tNumY));
             tParameters.set( "domain_dimensions", std::to_string(tDomainLX) + "," + std::to_string(tDomainLY) );
             tParameters.set( "domain_offset", std::to_string(-tDomainLX/2+tShift(0)) + "," + std::to_string(-tDomainLY/2+tShift(1)) );
-            tParameters.set( "domain_sidesets", std::string("1,2,3,4") );
-            tParameters.set( "lagrange_output_meshes", std::string("0") );
+            tParameters.set( "domain_sidesets", "1,2,3,4" );
+            tParameters.set( "lagrange_output_meshes", "0" );
 
-            tParameters.set( "lagrange_orders", std::string("1") );
-            tParameters.set( "lagrange_pattern", std::string("0") );
-            tParameters.set( "bspline_orders", std::string("1") );
-            tParameters.set( "bspline_pattern", std::string("0") );
+            tParameters.set( "lagrange_orders", "1" );
+            tParameters.set( "lagrange_pattern", "0" );
+            tParameters.set( "bspline_orders", "1" );
+            tParameters.set( "bspline_pattern", "0" );
 
-            tParameters.set( "lagrange_to_bspline", std::string("0") );
+            tParameters.set( "lagrange_to_bspline", "0" );
 
             tParameters.set( "truncate_bsplines", 1 );
             tParameters.set( "refinement_buffer", 3 );
@@ -2329,6 +2331,7 @@ namespace moris
             tCMFluid->set_property( tPropFluidViscosity, "Viscosity" );
             tCMFluid->set_property( tPropFluidDensity, "Density" );
             tCMFluid->set_space_dim( 2 );
+            tCMFluid->set_local_properties();
 
             // define stabilization parameters
             fem::SP_Factory tSPFactory;
@@ -2531,13 +2534,13 @@ namespace moris
             tSOLParameterlist( 2 )( 0 ) = moris::prm::create_nonlinear_algorithm_parameter_list();
 
             tSOLParameterlist( 3 )( 0 ) = moris::prm::create_nonlinear_solver_parameter_list();
-            tSOLParameterlist( 3 )( 0 ).set("NLA_DofTypes", std::string("VX,VY;P") );
+            tSOLParameterlist( 3 )( 0 ).set("NLA_DofTypes", "VX,VY;P" );
 
             tSOLParameterlist( 4 )( 0 ) = moris::prm::create_time_solver_algorithm_parameter_list();
 
             tSOLParameterlist( 5 )( 0 ) = moris::prm::create_time_solver_parameter_list();
-            tSOLParameterlist( 5 )( 0 ).set("TSA_DofTypes", std::string("VX,VY;P") );
-            tSOLParameterlist( 5 )( 0 ).set("TSA_Initialize_Sol_Vec" , std::string("VX,1E-4;VY,0.0;P,0.0") );
+            tSOLParameterlist( 5 )( 0 ).set("TSA_DofTypes", "VX,VY;P" );
+            tSOLParameterlist( 5 )( 0 ).set("TSA_Initialize_Sol_Vec" , "VX,1E-4;VY,0.0;P,0.0" );
 
             tSOLParameterlist( 6 )( 0 ) = moris::prm::create_solver_warehouse_parameterlist();
 

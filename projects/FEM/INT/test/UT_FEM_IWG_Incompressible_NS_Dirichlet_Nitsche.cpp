@@ -96,6 +96,7 @@ TEST_CASE( "IWG_Incompressible_NS_Dirichlet_Velocity_Symmetric_Nitsche",
     tCMMasterTurbulence->set_dof_type_list( { tVelDofTypes, tPDofTypes, tVisDofTypes } );
     tCMMasterTurbulence->set_property( tPropViscosity, "Viscosity" );
     tCMMasterTurbulence->set_property( tPropDensity, "Density" );
+    tCMMasterTurbulence->set_local_properties();
 
     // define stabilization parameters
     fem::SP_Factory tSPFactory;
@@ -456,6 +457,7 @@ TEST_CASE( "IWG_Incompressible_NS_Dirichlet_Velocity_Unsymmetric_Nitsche",
     tCMMasterTurbulence->set_dof_type_list( { tVelDofTypes, tPDofTypes, tVisDofTypes } );
     tCMMasterTurbulence->set_property( tPropViscosity, "Viscosity" );
     tCMMasterTurbulence->set_property( tPropDensity, "Density" );
+    tCMMasterTurbulence->set_local_properties();
 
     // define stabilization parameters
     fem::SP_Factory tSPFactory;
@@ -810,6 +812,7 @@ TEST_CASE( "IWG_Incompressible_NS_Dirichlet_Pressure_Symmetric_Nitsche",
     tCMMasterTurbulence->set_dof_type_list( { tVelDofTypes, tPDofTypes, tVisDofTypes } );
     tCMMasterTurbulence->set_property( tPropViscosity, "Viscosity" );
     tCMMasterTurbulence->set_property( tPropDensity, "Density" );
+    tCMMasterTurbulence->set_local_properties();
 
     // define the IWGs
     fem::IWG_Factory tIWGFactory;
@@ -1151,6 +1154,7 @@ TEST_CASE( "IWG_Incompressible_NS_Dirichlet_Pressure_Unsymmetric_Nitsche",
     tCMMasterTurbulence->set_dof_type_list( { tVelDofTypes, tPDofTypes, tVisDofTypes } );
     tCMMasterTurbulence->set_property( tPropViscosity, "Viscosity" );
     tCMMasterTurbulence->set_property( tPropDensity, "Density" );
+    tCMMasterTurbulence->set_local_properties();
 
     // define the IWGs
     fem::IWG_Factory tIWGFactory;

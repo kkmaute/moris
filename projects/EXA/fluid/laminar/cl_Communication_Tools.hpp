@@ -78,7 +78,7 @@ namespace moris
      *
      * @param aBarrierName string naming this barrier
      */
-    void barrier(std::string aBarrierName = std::string(" "));
+    void barrier(std::string aBarrierName = " ");
 
     /**
      * Broadcast a Message to all Procs

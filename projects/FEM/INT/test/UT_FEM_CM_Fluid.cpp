@@ -82,6 +82,7 @@ TEST_CASE( "CM_Fluid", "[CM_Fluid]" )
     tCMMasterFluid->set_dof_type_list( { tVelDofTypes, tPDofTypes } );
     tCMMasterFluid->set_property( tPropViscosity, "Viscosity" );
     tCMMasterFluid->set_property( tPropDensity, "Density" );
+    tCMMasterFluid->set_local_properties();
 
     // set a fem set pointer
     MSI::Equation_Set * tSet = new fem::Set();
@@ -438,12 +439,14 @@ TEST_CASE( "CM_Laminar_With_Turbulence", "[CM_Laminar_With_Turbulence]" )
     tCMMasterLaminar->set_dof_type_list( { tVelDofTypes, tPDofTypes } );
     tCMMasterLaminar->set_property( tPropViscosity, "Viscosity" );
     tCMMasterLaminar->set_property( tPropDensity, "Density" );
+    tCMMasterLaminar->set_local_properties();
 
     std::shared_ptr< fem::Constitutive_Model > tCMMasterTurbulence =
             tCMFactory.create_CM( fem::Constitutive_Type::FLUID_TURBULENCE );
     tCMMasterTurbulence->set_dof_type_list( { tVelDofTypes, tPDofTypes, tVisDofTypes } );
     tCMMasterTurbulence->set_property( tPropViscosity, "Viscosity" );
     tCMMasterTurbulence->set_property( tPropDensity, "Density" );
+    tCMMasterTurbulence->set_local_properties();
 
     // set a fem set pointer
     MSI::Equation_Set * tSet = new fem::Set();
@@ -757,7 +760,7 @@ TEST_CASE( "CM_Laminar_With_Turbulence", "[CM_Laminar_With_Turbulence]" )
 TEST_CASE( "CM_Laminar_Turbulence_Only", "[CM_Laminar_Turbulence_Only]" )
 {
     // define an epsilon environment
-    real tEpsilon = 1.0E-6;
+    real tEpsilon = 1.0E-5;
 
     // define a perturbation relative size
     real tPerturbation = 2.0E-4;
@@ -813,12 +816,14 @@ TEST_CASE( "CM_Laminar_Turbulence_Only", "[CM_Laminar_Turbulence_Only]" )
     tCMMasterLaminar->set_dof_type_list( { tVelDofTypes, tPDofTypes } );
     tCMMasterLaminar->set_property( tPropViscosity, "Viscosity" );
     tCMMasterLaminar->set_property( tPropDensity, "Density" );
+    tCMMasterLaminar->set_local_properties();
 
     std::shared_ptr< fem::Constitutive_Model > tCMMasterTurbulence =
             tCMFactory.create_CM( fem::Constitutive_Type::FLUID_TURBULENCE );
     tCMMasterTurbulence->set_dof_type_list( { tVelDofTypes, tPDofTypes, tVisDofTypes } );
     tCMMasterTurbulence->set_property( tPropViscosity, "Viscosity" );
     tCMMasterTurbulence->set_property( tPropDensity, "Density" );
+    tCMMasterTurbulence->set_local_properties();
 
     // set a fem set pointer
     MSI::Equation_Set * tSet = new fem::Set();
@@ -1215,7 +1220,7 @@ TEST_CASE( "CM_Laminar_Turbulence_Only", "[CM_Laminar_Turbulence_Only]" )
 TEST_CASE( "CM_Fluid_Turbulence", "[CM_Fluid_Turbulence]" )
 {
     // define an epsilon environment
-    real tEpsilon = 1.0E-6;
+    real tEpsilon = 1.0E-5;
 
     // define a perturbation relative size
     real tPerturbation = 2.0E-4;
@@ -1271,6 +1276,7 @@ TEST_CASE( "CM_Fluid_Turbulence", "[CM_Fluid_Turbulence]" )
     tCMMasterTurbulence->set_dof_type_list( { tVelDofTypes, tPDofTypes, tVisDofTypes } );
     tCMMasterTurbulence->set_property( tPropViscosity, "Viscosity" );
     tCMMasterTurbulence->set_property( tPropDensity, "Density" );
+    tCMMasterTurbulence->set_local_properties();
 
     // set a fem set pointer
     MSI::Equation_Set * tSet = new fem::Set();
