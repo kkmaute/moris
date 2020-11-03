@@ -349,6 +349,8 @@ namespace xtk
     void
     Ghost_Stabilization::identify_and_setup_aura_vertices_in_ghost(Ghost_Setup_Data &  aGhostSetupData)
     {
+        // access enriched ip mesh
+        Enriched_Interpolation_Mesh & tEnrInterpMesh = mXTKModel->get_enriched_interp_mesh();
 
         // vertices in ghost that have interpolation
         moris::Cell<mtk::Vertex*> tGhostVerticesWithInterpolation;
@@ -362,90 +364,99 @@ namespace xtk
 
         this->get_ip_vertices_in_ghost_sets(aGhostSetupData, tGhostVerticesWithInterpolation, tGhostVerticesWithoutInterpolation, tGhostIpCellConnectedToVertex );
 
-        // sort the ghost vertices without interpolation by proc
-        Cell<Matrix<IndexMat>> tNotOwnedIPVertIndsToProcs;
-        Cell<Matrix<IndexMat>> tNotOwnedBGIPVertsIdsToProcs;
-        Cell<Matrix<IndexMat>> tNotOwnedEnrichedCellIdToProcs;
-        Cell<Matrix<IndexMat>> tNotOwnedEnrichedCellBulkPhaseToProcs; // for checking against
-        Cell<uint>             tProcRanks;
-        std::unordered_map<moris_id,moris_id>  tProcRankToDataIndex;
-        this->prepare_interpolation_vertex_t_matrix_requests(
-                tGhostVerticesWithoutInterpolation,
-                tGhostIpCellConnectedToVertex,
-                tNotOwnedIPVertIndsToProcs,
-                tNotOwnedBGIPVertsIdsToProcs,
-                tNotOwnedEnrichedCellIdToProcs,
-                tNotOwnedEnrichedCellBulkPhaseToProcs,
-                tProcRanks,
-                tProcRankToDataIndex);
+        for(moris::uint iMeshIndex = 0 ; iMeshIndex < tEnrInterpMesh.mMeshIndices.numel(); iMeshIndex++)
+        {
+            // current mesh index
+            moris_index tMeshIndex = tEnrInterpMesh.mMeshIndices(iMeshIndex);
 
-        // send requests
-        moris::uint tMPITag = 3001;
-        // send the background vertex id
-        mXTKModel->send_outward_requests(tMPITag, tProcRanks,tNotOwnedBGIPVertsIdsToProcs);
+            // sort the ghost vertices without interpolation by proc
+            Cell<Matrix<IndexMat>> tNotOwnedIPVertIndsToProcs;
+            Cell<Matrix<IndexMat>> tNotOwnedBGIPVertsIdsToProcs;
+            Cell<Matrix<IndexMat>> tNotOwnedEnrichedCellIdToProcs;
+            Cell<Matrix<IndexMat>> tNotOwnedEnrichedCellBulkPhaseToProcs; // for checking against
+            Cell<uint>             tProcRanks;
+            std::unordered_map<moris_id,moris_id>  tProcRankToDataIndex;
+            this->prepare_interpolation_vertex_t_matrix_requests(
+                    tGhostVerticesWithoutInterpolation,
+                    tGhostIpCellConnectedToVertex,
+                    tNotOwnedIPVertIndsToProcs,
+                    tNotOwnedBGIPVertsIdsToProcs,
+                    tNotOwnedEnrichedCellIdToProcs,
+                    tNotOwnedEnrichedCellBulkPhaseToProcs,
+                    tProcRanks,
+                    tProcRankToDataIndex);
 
-        // send the enriched interpolation cell id
-        mXTKModel->send_outward_requests(tMPITag+1, tProcRanks,tNotOwnedEnrichedCellIdToProcs);
+            // send requests
+            moris::uint tMPITag = 3001;
+            std::cout<<"GHOST REQUESTS"<<std::endl;
 
-        // send the enriched interpolation cell bulk phase ids
-        mXTKModel->send_outward_requests(tMPITag+2, tProcRanks,tNotOwnedEnrichedCellBulkPhaseToProcs);
+            // send the background vertex id
+            mXTKModel->send_outward_requests(tMPITag, tProcRanks,tNotOwnedBGIPVertsIdsToProcs);
 
-        barrier();
+            // send the enriched interpolation cell id
+             mXTKModel->send_outward_requests(tMPITag+1, tProcRanks,tNotOwnedEnrichedCellIdToProcs);
 
-        // receive requests for the t-matrices
-        Cell<Matrix<IndexMat>> tReceivedVertexIds;
-        Cell<Matrix<IndexMat>> tReceivedEnrichedCellId;
-        Cell<Matrix<IndexMat>> tReceivedEnrichedCellBulkPhase;
-        Cell<uint> tProcsReceivedFrom1;
-        Cell<uint> tProcsReceivedFrom2;
-        Cell<uint> tProcsReceivedFrom3;
-        mXTKModel->inward_receive_requests(tMPITag, 1, tReceivedVertexIds, tProcsReceivedFrom1); // receive the requests ofr BG VertexIds
-        mXTKModel->inward_receive_requests(tMPITag+1, 1, tReceivedEnrichedCellId, tProcsReceivedFrom2);// recieve the requests for Enriched IP Cell Id
-        mXTKModel->inward_receive_requests(tMPITag+2, 1, tReceivedEnrichedCellBulkPhase, tProcsReceivedFrom3);// recieve the requests for Enriched IP Cell Bulk phases
+            // send the enriched interpolation cell bulk phase ids
+            mXTKModel->send_outward_requests(tMPITag+2, tProcRanks,tNotOwnedEnrichedCellBulkPhaseToProcs);
 
-        // prepare the t-matrices for sending
-        Cell<Matrix<DDRMat>>   tTMatrixWeights;
-        Cell<Matrix<IndexMat>> tTMatrixIndices;
-        Cell<Matrix<IndexMat>> tTMatrixOwners;
-        Cell<Matrix<IndexMat>> tTMatrixOffsets;
-        this->prepare_t_matrix_request_answers(
-                tReceivedVertexIds,
-                tReceivedEnrichedCellId,
-                tReceivedEnrichedCellBulkPhase,
-                tTMatrixWeights,
-                tTMatrixIndices,
-                tTMatrixOwners,
-                tTMatrixOffsets);
+            barrier();
 
-        // send information
-        mXTKModel->return_request_answers_reals( tMPITag+3, tTMatrixWeights, tProcsReceivedFrom1);
-        mXTKModel->return_request_answers( tMPITag+4, tTMatrixIndices, tProcsReceivedFrom1);
-        mXTKModel->return_request_answers( tMPITag+5, tTMatrixOwners, tProcsReceivedFrom1);
-        mXTKModel->return_request_answers( tMPITag+6, tTMatrixOffsets, tProcsReceivedFrom1);
+            // receive requests for the t-matrices
+            Cell<Matrix<IndexMat>> tReceivedVertexIds;
+            Cell<Matrix<IndexMat>> tReceivedEnrichedCellId;
+            Cell<Matrix<IndexMat>> tReceivedEnrichedCellBulkPhase;
+            Cell<uint> tProcsReceivedFrom1;
+            Cell<uint> tProcsReceivedFrom2;
+            Cell<uint> tProcsReceivedFrom3;
+            mXTKModel->inward_receive_requests(tMPITag, 1, tReceivedVertexIds, tProcsReceivedFrom1); // receive the requests ofr BG VertexIds
+            mXTKModel->inward_receive_requests(tMPITag+1, 1, tReceivedEnrichedCellId, tProcsReceivedFrom2);// recieve the requests for Enriched IP Cell Id
+            mXTKModel->inward_receive_requests(tMPITag+2, 1, tReceivedEnrichedCellBulkPhase, tProcsReceivedFrom3);// recieve the requests for Enriched IP Cell Bulk phases
 
-        // wait
-        barrier();
+            // prepare the t-matrices for sending
+            Cell<Matrix<DDRMat>>   tTMatrixWeights;
+            Cell<Matrix<IndexMat>> tTMatrixIndices;
+            Cell<Matrix<IndexMat>> tTMatrixOwners;
+            Cell<Matrix<IndexMat>> tTMatrixOffsets;
+            this->prepare_t_matrix_request_answers(
+                    tMeshIndex,
+                    tReceivedVertexIds,
+                    tReceivedEnrichedCellId,
+                    tReceivedEnrichedCellBulkPhase,
+                    tTMatrixWeights,
+                    tTMatrixIndices,
+                    tTMatrixOwners,
+                    tTMatrixOffsets);
 
-        // receive
-        Cell<Matrix<DDRMat>>   tRequestedTMatrixWeights;
-        Cell<Matrix<IndexMat>> tRequestedTMatrixIndices;
-        Cell<Matrix<IndexMat>> tRequestedTMatrixOwners;
-        Cell<Matrix<IndexMat>> tRequestedTMatrixOffsets;
+            // send information
+            mXTKModel->return_request_answers_reals( tMPITag+3, tTMatrixWeights, tProcsReceivedFrom1);
+            mXTKModel->return_request_answers( tMPITag+4, tTMatrixIndices, tProcsReceivedFrom1);
+            mXTKModel->return_request_answers( tMPITag+5, tTMatrixOwners, tProcsReceivedFrom1);
+            mXTKModel->return_request_answers( tMPITag+6, tTMatrixOffsets, tProcsReceivedFrom1);
 
-        // receive the answers
-        mXTKModel->inward_receive_request_answers_reals(tMPITag+3,1,tProcRanks,tRequestedTMatrixWeights);
-        mXTKModel->inward_receive_request_answers(tMPITag+4,1,tProcRanks,tRequestedTMatrixIndices);
-        mXTKModel->inward_receive_request_answers(tMPITag+5,1,tProcRanks,tRequestedTMatrixOwners);
-        mXTKModel->inward_receive_request_answers(tMPITag+6,1,tProcRanks,tRequestedTMatrixOffsets);
+            // wait
+            barrier();
 
-        barrier();
+            // receive
+            Cell<Matrix<DDRMat>>   tRequestedTMatrixWeights;
+            Cell<Matrix<IndexMat>> tRequestedTMatrixIndices;
+            Cell<Matrix<IndexMat>> tRequestedTMatrixOwners;
+            Cell<Matrix<IndexMat>> tRequestedTMatrixOffsets;
 
-        // commit it to my data
-        this->handle_received_interpolation_data(tNotOwnedIPVertIndsToProcs,tNotOwnedEnrichedCellBulkPhaseToProcs,
-                tRequestedTMatrixWeights,tRequestedTMatrixIndices,tRequestedTMatrixOwners,tRequestedTMatrixOffsets);
+            // receive the answers
+            mXTKModel->inward_receive_request_answers_reals(tMPITag+3,1,tProcRanks,tRequestedTMatrixWeights);
+            mXTKModel->inward_receive_request_answers(tMPITag+4,1,tProcRanks,tRequestedTMatrixIndices);
+            mXTKModel->inward_receive_request_answers(tMPITag+5,1,tProcRanks,tRequestedTMatrixOwners);
+            mXTKModel->inward_receive_request_answers(tMPITag+6,1,tProcRanks,tRequestedTMatrixOffsets);
 
-        //wait
-        barrier();
+            barrier();
+
+            // commit it to my data
+            this->handle_received_interpolation_data(tMeshIndex,tNotOwnedIPVertIndsToProcs,tNotOwnedEnrichedCellBulkPhaseToProcs,
+                    tRequestedTMatrixWeights,tRequestedTMatrixIndices,tRequestedTMatrixOwners,tRequestedTMatrixOffsets);
+
+            //wait
+            barrier();
+        }
     }
 
     // ----------------------------------------------------------------------------------
@@ -461,6 +472,7 @@ namespace xtk
 
         std::unordered_map<moris_index,bool> tGhostVerticesWithInterpolationMap;
         std::unordered_map<moris_index,bool> tGhostVerticesWithOutInterpolationMap;
+
 
         // iterate through vertices and gather the
         for(moris::uint iS = 0; iS < tNumGhostSets; iS++)
@@ -649,6 +661,7 @@ namespace xtk
 
     void
     Ghost_Stabilization::prepare_t_matrix_request_answers(
+            moris_index            const & aMeshIndex,
             Cell<Matrix<IndexMat>> const & aRequestedBgVertexIds,
             Cell<Matrix<IndexMat>> const & aRequestedIpCellIds,
             Cell<Matrix<IndexMat>> const & aIpCellBulkPhases,
@@ -717,7 +730,7 @@ namespace xtk
                 moris_index tVertexIndex = this->get_enriched_interpolation_vertex(aRequestedBgVertexIds(iP)(iV), aRequestedIpCellIds(iP)(iV));
 
                 // get the vertex interpolation
-                Vertex_Enrichment* tVertexInterp = tEnrInterpMesh.get_vertex_enrichment(0,tVertexIndex);
+                Vertex_Enrichment* tVertexInterp = tEnrInterpMesh.get_vertex_enrichment(aMeshIndex,tVertexIndex);
 
                 MORIS_ASSERT(tVertexInterp->get_base_vertex_interpolation() != nullptr,"Owning proc has a nullptr for the vertex interpolation.");
 
@@ -777,6 +790,7 @@ namespace xtk
 
     void
     Ghost_Stabilization::handle_received_interpolation_data(
+            moris_index            const & aMeshIndex,
             Cell<Matrix<IndexMat>> const & aNotOwnedIPVertIndsToProcs,
             Cell<Matrix<IndexMat>> const & aNotOwnedEnrichedCellBulkPhaseToProcs,
             Cell<Matrix<DDRMat>>   const & aRequestedTMatrixWeights,
@@ -842,7 +856,7 @@ namespace xtk
                     Interpolation_Vertex_Unzipped & tVertex = tEnrInterpMesh.get_xtk_interp_vertex(tVertexIndex);
 
                     // get the enriched vertex interpolation
-                    Vertex_Enrichment * tVertexInterp = tVertex.get_xtk_interpolation( tEnrInterpMesh.mMeshIndices(0) );
+                    Vertex_Enrichment * tVertexInterp = tVertex.get_xtk_interpolation(aMeshIndex);
 
                     // iterate through basis functions and find local indices
                     moris::Matrix<IndexMat> tBasisIndices(tExtractedTMatrixIds(iV).n_rows(),tExtractedTMatrixIds(iV).n_cols());
