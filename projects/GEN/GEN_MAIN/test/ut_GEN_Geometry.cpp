@@ -67,12 +67,12 @@ namespace moris
             // Set up geometry
             ParameterList tCircle1ParameterList = prm::create_geometry_parameter_list();
             tCircle1ParameterList.set("type", "circle");
-            tCircle1ParameterList.set("geometry_variable_indices", "all");
+            tCircle1ParameterList.set("field_variable_indices", "all");
             tCircle1ParameterList.set("adv_indices", "0, 1, 3");
 
             ParameterList tCircle2ParameterList = prm::create_geometry_parameter_list();
             tCircle2ParameterList.set("type", "circle");
-            tCircle2ParameterList.set("geometry_variable_indices", "all");
+            tCircle2ParameterList.set("field_variable_indices", "all");
             tCircle2ParameterList.set("adv_indices", "0, 2, 4");
 
             // ADV vector
@@ -163,7 +163,7 @@ namespace moris
             // Set up geometry
             ParameterList tSuperellipseParameterList = prm::create_geometry_parameter_list();
             tSuperellipseParameterList.set("type", "superellipse");
-            tSuperellipseParameterList.set("geometry_variable_indices", "all");
+            tSuperellipseParameterList.set("field_variable_indices", "all");
             tSuperellipseParameterList.set("adv_indices", "all");
 
             // Create circles
@@ -225,7 +225,7 @@ namespace moris
             // Set up geometry
             ParameterList tSphereParameterList = prm::create_geometry_parameter_list();
             tSphereParameterList.set("type", "sphere");
-            tSphereParameterList.set("geometry_variable_indices", "all");
+            tSphereParameterList.set("field_variable_indices", "all");
             tSphereParameterList.set("adv_indices", "all");
 
             // Create sphere
@@ -270,7 +270,7 @@ namespace moris
             // Set up geometry
             ParameterList tSuperellipsoidParameterList = prm::create_geometry_parameter_list();
             tSuperellipsoidParameterList.set("type", "superellipsoid");
-            tSuperellipsoidParameterList.set("geometry_variable_indices", "all");
+            tSuperellipsoidParameterList.set("field_variable_indices", "all");
             tSuperellipsoidParameterList.set("adv_indices", "all");
 
             // Create circles
@@ -571,13 +571,13 @@ namespace moris
             Cell<ParameterList> tCircleParameterLists(2);
             tCircleParameterLists(0) = prm::create_geometry_parameter_list();
             tCircleParameterLists(0).set("type", "circle");
-            tCircleParameterLists(0).set("geometry_variable_indices", "all");
+            tCircleParameterLists(0).set("field_variable_indices", "all");
             tCircleParameterLists(0).set("adv_indices", tADVIndices1);
             tCircleParameterLists(0).set("name", "circles");
 
             tCircleParameterLists(1) = prm::create_geometry_parameter_list();
             tCircleParameterLists(1).set("type", "circle");
-            tCircleParameterLists(1).set("geometry_variable_indices", "all");
+            tCircleParameterLists(1).set("field_variable_indices", "all");
             tCircleParameterLists(1).set("adv_indices", tADVIndices2);
             tCircleParameterLists(1).set("name", "circles");
 

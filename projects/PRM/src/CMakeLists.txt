@@ -7,7 +7,7 @@ set(${PRM}_VERSION ${MORIS_VERSION})
 # List header files
 set(HEADERS
         fn_PRM_FEM_Parameters.hpp
-    fn_PRM_GEN_Parameters.hpp
+        fn_PRM_GEN_Parameters.hpp
         fn_PRM_HMR_Parameters.hpp
         fn_PRM_MSI_Parameters.hpp
         fn_PRM_OPT_Parameters.hpp
@@ -26,10 +26,7 @@ set(LIB_SOURCES
 # List library dependencies
 set(LIB_DEPENDENCIES
     ${LINALG}-lib
-    ${INT}-lib 
-    #${SOL_CORE}-lib
-    #${NLA}-lib
-    #${TLA}-lib
+    ${INT}-lib
      )
 
 # Set the output path for library

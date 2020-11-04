@@ -7,6 +7,33 @@ namespace moris
 {
     namespace prm
     {
+        // Local to this translation unit, can't be used outside
+        namespace
+        {
+            /**
+             * Creates a parameter list that can be used to construct a GEN field (either a geometry or property field).
+             *
+             * @return Field parameter list
+             */
+            ParameterList create_field_parameter_list()
+            {
+                ParameterList tParameterList;
+
+                tParameterList.insert("type", "");                      // Type of field
+                tParameterList.insert("name", "");                      // Name of field
+                tParameterList.insert("field_variable_indices", "");    // Indices of field variables to fill
+                tParameterList.insert("adv_indices", "");               // ADVs used to fill in variables
+                tParameterList.insert("constant_parameters", "");       // Remaining geometry parameters that are constant
+                tParameterList.insert("number_of_refinements", "");     // Number of refinement steps using HMR
+                tParameterList.insert("refinement_mesh_index", "");     // Refinement pattern
+                tParameterList.insert("refinement_function_index", -1); // Index of user-defined refinement function (-1 = none)
+                tParameterList.insert("bspline_mesh_index", -1);        // Index of B-spline mesh to create level set field on (-1 = none)
+                tParameterList.insert("bspline_lower_bound", -1.0);     // Lower bound of level set field (if bspline_mesh_index >= 0)
+                tParameterList.insert("bspline_upper_bound", 1.0);      // Upper bound of level set field (if bspline_mesh_index >= 0)
+
+                return tParameterList;
+            }
+        }
 
         /**
          * Creates a parameter list used for the construction of the geometry engine. One of these parameter lists is
@@ -44,26 +71,14 @@ namespace moris
         }
 
         /**
-         * Creates a parameter list that can create a geometry field. Any number of these can be added to the second
-         * cell (index 1) of then parameter lists for GEN.
+         * Creates a parameter list that can be used to construct a geometry field. Any number of these can be added to
+         * the second cell (index 1) of then parameter lists for GEN.
          *
          * @return Geometry parameter list
          */
         ParameterList create_geometry_parameter_list()
         {
-            ParameterList tParameterList;
-
-            tParameterList.insert("type", "");                      // Type of geometry
-            tParameterList.insert("name", "");                      // Name of property
-            tParameterList.insert("geometry_variable_indices", ""); // Geometry variables to fill
-            tParameterList.insert("adv_indices", "");               // ADVs used to fill in variables
-            tParameterList.insert("constant_parameters", "");       // Remaining geometry parameters that are constant
-            tParameterList.insert("number_of_refinements", "");     // Number of refinement steps using HMR
-            tParameterList.insert("refinement_mesh_index", "");        // Refinement pattern
-            tParameterList.insert("refinement_function_index", -1); // Index of user-defined refinement function (-1 = none)
-            tParameterList.insert("bspline_mesh_index", -1);        // Index of B-spline mesh to create level set field on (-1 = none)
-            tParameterList.insert("bspline_lower_bound", -1.0);     // Lower bound of level set field (if bspline_mesh_index >= 0)
-            tParameterList.insert("bspline_upper_bound", 1.0);      // Upper bound of level set field (if bspline_mesh_index >= 0)
+            ParameterList tParameterList = create_field_parameter_list();
 
             return tParameterList;
         }
@@ -131,27 +146,20 @@ namespace moris
         }
 
         /**
-         * Creates a parameter list that can create a property field. Any number of these can be added to the third cell
-         * (index 2) of the parameter lists for GEN.
+         * Creates a parameter list that can be used to construct a property field. Any number of these can be added to
+         * the third cell (index 2) of the parameter lists for GEN.
          *
          * @return GEN property parameter list
          */
         ParameterList create_gen_property_parameter_list()
         {
-            ParameterList tParameterList;
+            ParameterList tParameterList = create_field_parameter_list();
 
-            tParameterList.insert("type", "");                      // Type of property
-            tParameterList.insert("name", "");                      // Name of property
-            tParameterList.insert("property_variable_indices", ""); // Property variables to fill
-            tParameterList.insert("adv_indices", "");               // ADVs used to fill in variables
-            tParameterList.insert("constant_parameters", "");       // Remaining property parameters that are constant
-            tParameterList.insert("dependencies", "");              // Names of other fields that this property depends on
-
-            // Assignment to PDVs
-            tParameterList.insert("pdv_type", "");
-            tParameterList.insert("pdv_mesh_type", "interpolation");
-            tParameterList.insert("pdv_mesh_set_names", "");
-            tParameterList.insert("pdv_mesh_set_indices", "");
+            tParameterList.insert("dependencies", "");               // Names of other fields that this property depends on
+            tParameterList.insert("pdv_type", "");                   // The type of PDV that this property will be assigned to
+            tParameterList.insert("pdv_mesh_type", "interpolation"); // Mesh type for assigning PDVs
+            tParameterList.insert("pdv_mesh_set_names", "");         // Mesh set names for assigning PDVs
+            tParameterList.insert("pdv_mesh_set_indices", "");       // Mesh set indices for assigning PDVs
 
             return tParameterList;
         }
@@ -166,8 +174,8 @@ namespace moris
         {
             ParameterList tParameterList = create_gen_property_parameter_list();
 
-            tParameterList.set("type", "user_defined"); // User-defined property
-            tParameterList.insert("field_function_name", ""); // Function name for evaluating the property field
+            tParameterList.set("type", "user_defined");             // User-defined property
+            tParameterList.insert("field_function_name", "");       // Function name for evaluating the property field
             tParameterList.insert("sensitivity_function_name", ""); // Function name for evaluating the sensitivity of the field
 
             return tParameterList;
